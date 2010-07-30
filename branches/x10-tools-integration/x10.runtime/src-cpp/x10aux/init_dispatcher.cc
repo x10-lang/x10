@@ -29,7 +29,7 @@ InitDispatcher::runInitializers() {
     }
 }
 
-class x10aux::InitClosure : public x10::lang::Closure
+class InitClosure : public x10::lang::Closure
 {
     protected:
         Initializer init;

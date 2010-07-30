@@ -41,12 +41,20 @@ import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.util.Position;
 import polyglot.visit.TypeBuilder;
-import x10.ast.*;
+import x10.ast.X10StringLit_c;
+import x10.ast.X10ClassDecl_c;
+import x10.ast.X10NodeFactory;
+import x10.ast.X10MethodDecl;
+import x10.ast.TypeParamNode;
 import x10.constraint.XName;
 import x10.constraint.XNameWrapper;
 import x10.constraint.XVar;
 import x10.constraint.XTerms;
-import x10.types.*;
+import x10.types.X10ClassDef;
+import x10.types.X10Flags;
+import x10.types.X10MethodDef;
+import x10.types.X10ParsedClassType;
+import x10.types.X10TypeSystem_c;
 import x10cpp.visit.SharedVarsMethods;
 
 public class Struct {
@@ -82,7 +90,7 @@ public class Struct {
         interfacesList.add(xts.lazyAny());
         cd.setInterfaces(interfacesList);
 
-       final Position pos = X10NodeFactory_c.compilerGenerated(n.body());
+       final Position pos = Position.COMPILER_GENERATED;
 
        String fullNameWithThis = fullName + "#this";
        //String fullNameWithThis = "this";

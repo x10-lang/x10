@@ -117,12 +117,7 @@ public class SwitchSynth extends AbstractStateSynth implements IStmtSynth{
     }
 
     public List<Stmt> getStmtsInCondtion(int i) {
-        if(switchBlockTable.size() > i){
-            return switchBlockTable.get(i);            
-        }
-        else{
-            return new ArrayList<Stmt>(); //return null;
-        }
+        return switchBlockTable.get(i);
     }
 
     public Switch genStmt(){

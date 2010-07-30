@@ -26,13 +26,13 @@ typedef unsigned x10rt_msg_type;
  */
 typedef unsigned long long x10rt_remote_ptr;
 
-/** An integer type capable of representing the maximum size (in bytes) of an inter-place data copy.
- * This applies to both get and put transfers.
+/** An integer type capable of representing the maximum size (in bytes) of an
+ * inter-place data copy.  This applies to both get and put transfers.
  */
 typedef unsigned long x10rt_copy_sz;
 
 
-/** A set of parameters common to many of the message sending / handling functions.
+/** A set of parameters common to many of the message sending functions.
  */
 struct x10rt_msg_params {
 
@@ -42,12 +42,9 @@ struct x10rt_msg_params {
     /** The type of the message being sent. */
     x10rt_msg_type type;
 
-    /** The message itself.  May be NULL.  The memory is allocated and managed by the caller.  The
-     * caller shall not write to or free the buffer while the call is in progress, and the callee
-     * shall not continue to use the buffer after the call has returned.  In the previous sentence,
-     * X10RT and the client code take on alternate roles depending on whether the call is
-     * x10rt_send_*() or whether the call is a user callback triggered by #x10rt_probe().
-     */
+    /** The message itself (specially allocated buffer).  This is allocated by X10RT using an
+     * appropriate function from the x10rt_*_realloc family of functions.  May be NULL.
+    */
     void *msg;
 
     /** The length of the message in bytes.  If #msg is NULL then #len shall be 0. */

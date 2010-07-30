@@ -393,139 +393,6 @@ exceptions, \xcd`finish S` wraps them in one layer of
 %%OLIVIER-DENIES%% }
 %%OLIVIER-DENIES%% 
 
-\subsection{Collecting  \Xcd{finish}}\label{collecting-finish}
-\index{finish!collecting}\index{collecting finish}
-
-An extended version of \Xcd{finish}, called {\bf collecting finish}, can
-accumulate results from the various activities inside of it. These activities
-can {\bf offer} values for the finish to accumulate.  The collecting finish
-uses a {\bf reduction} object to combine them into a single result, which is
-the value of the collecting finish expression.   
-
-The following example illustrates the use of collecting finish to compute
-statistical sums ({$n$}, {$x$}, and {$x^2$}, for use in calculating mean and
-standard deviation\footnote{This program ignores the subtleties of which
-estimate of variance to use, etc.})  
-
-An \Xcd{Accum} value represents a set of partial sums: 
-{$
-{\tt Accum(}
-n 
-{\tt ,} 
-\sum x 
-{\tt ,} 
-\sum x^2 
-{\tt )}
-$}.
-For example, \Xcd{Accum(0,0,0)} is a sum of no
-data points; \Xcd{Accum(1,4,16)} is a sum of one data point of value 4, and
-\Xcd{Accum(2,8,25)} is a sum of of the data points 3 and 4.  
-
-The \Xcd{StatReducer()} struct describes the algebra of \Xcd{Accum} values.
-There is a \Xcd{zero} element, the sum of no values, \Xcd{Accum(0,0,0)}.  To
-add two accumulations, add the components.  
-
-The collecting finish itself appears in the \Xcd{accumulate(data)} method.
-\Xcd{finish(StatReducer())S} evaluates the block \Xcd{S}, which will execute
-zero or more \Xcd{offer E} statements --- in this case, the values being
-offered are the accumulations due to single data values.  After the body
-\Xcd{S} is finished, the offered values are combined using the
-\Xcd{StatReducer()} to give a single \Xcd{Accum} value, which is the value of
-the \Xcd{finish} block.  Note that this would work just as well if the values
-were offered in parallel.
-
-%~~gen
-% package Activities.Collecting.Finish.Example;
-%~~vis
-\begin{xten}
-class MRex {
-       
-  static struct Accum(n:Int, sum:Int, sumSq:Int) {
-     def this(n:Int, sum:Int, sumSq:Int){property(n,sum,sumSq);}
-  }
-  static struct StatReducer implements Reducible[Accum] {
-    public global safe def zero() = Accum(0,0,0);
-    public global safe def apply(a:Accum, b:Accum) 
-      = Accum(a.n+b.n, a.sum+b.sum, a.sumSq+b.sumSq);
-  }
-  
-  static def accumulate(data: ValRail[Int]):Accum {
-    val v = finish(StatReducer()) {
-       for (x in data)  offer Accum(1, x, x*x);
-    };
-    return v;
-  }
-  
-  public static def main(Rail[String]!) {
-    val data = [5, 6, 8, 4, 7, 4, 2, 3, 6, 6, 3, 5, 4, 5, 6, 5, 4, 5];
-    val a : Accum = accumulate(data);
-    val mean = (a.sum as Double) / a.n;
-    val variance = ((a.sumSq as Double) / a.n) - mean*mean;
-    val sdev = Math.sqrt(variance);
-    x10.io.Console.OUT.println("mean= " + mean + "; sdev = " + sdev);
-  }
-}
-\end{xten}
-%~~siv
-%
-%~~neg
-
-\subsection{Semantics of Collecting Finish}
-
-When X10 evaluates \Xcd{finish(E)S}, it evaluates the reducible \Xcd{E} to a
-value {$\epsilon$}. The body \Xcd{S} is evaluated, and the values {$\omega$}
-it offers are collected into a multiset {$\Omega$}.  Let
-{$\zeta=\epsilon.\TT{zero()}$} and {$\alpha \star \beta =
-\epsilon.\TT{apply}(\alpha,\beta)$}.  
-
-Then, {$\Omega$} is reduced to a singleton by nondeterministically applying
-the following operations, until {$\Omega$} is a singleton multiset (\viz, a
-multiset containing one element, and that element having membership 1). 
-\begin{itemize}
-\item {$\Omega \TT{:=} \Omega \cup \{ \zeta \} $}.  A \Xcd{zero} may be
-      inserted into {$\Omega$}.  This is required to get a single value out if
-      {$\Omega$} was initially empty; but zeros may be added even if
-      {$\Omega$} is not empty.
-\item If {$\alpha \in \Omega$} and {$\beta \in \Omega - \{\alpha\}$}, then
-      {$\Omega \TT{:=} (\Omega - \{\alpha,\beta\}) \cup \{\alpha \star\beta\}
-      $}. Two elements of {$\Omega$} may be combined into a single element.
-\end{itemize}
- 
-The value of \Xcd{finish(E)S} is the single element of {$\Omega$} after this
-terminates.  
-
-In general, the value of \Xcd{finish(E)S} is not fully determined by this
-procedure; different orders of evaluation of the steps may, in general, give
-different results.  (\Eg, consider reducing a set of strings by concatenation: 
-\{ \xcd`"a"`, \xcd`"b"` \} can reduce to \xcd`"ab"` or \xcd`"ba"`.)  
-
-However, a simple semantic discipline will ensure that the value of
-\Xcd{finish(E)S} is deterministic.   If the value {$\epsilon$} of \Xcd{E} has
-the properties that: 
-\begin{itemize}
-\item {$\zeta \star \alpha = \alpha$} for all {$\alpha$};
-\item {$\alpha \star \beta = \beta \star \alpha$} for all {$\alpha, \beta$};
-\item {$\alpha \star (\beta \star \gamma) = (\alpha \star \beta) \star \gamma
-      $} for all {$\alpha, \beta, \gamma$};
-\end{itemize}
-(The algebraically-inclined will recognize these as the zero, commutative, and
-associative laws, giving the structure of a commutative monoid.) 
-In this case, if {$\Omega = \{ \alpha_1, \ldots, \alpha_n \}$}, where {$n \ge
-0$}, then the value
-of the collecting finish is independent of the order of the elements, and
-equal to: 
-\[
-\zeta \star \alpha_1 \star \cdots \star \alpha_n
-\]
-
-For example, using \Xcd{Int}s with zero and addition will add up the offered
-values, and with one and multiplication will multiply them.  The \xcd`Accum`
-and \Xcd{StatReducer} types of the preceding example also guarantee
-determinacy, and show how to accumulate several values at once.
-
-\subsection{Exceptions in Collecting Finish}
-
-
 \section{Initial activity}\label{initial-computation}\index{initial activity}
 
 An \Xten{} computation is initiated from the command line on the
@@ -866,7 +733,7 @@ Such a statement is executed by an activity as if in a single step
 during which all other concurrent activities in the same place are
 blocked. If execution of the statement may throw an exception, it is
 the programmer's responsibility to wrap the atomic block within a
-\xcd"try"/\xcd"finally" clause and include undo code in the finally
+\xcd"try"/{\xcd"finally" clause and include undo code in the finally
 clause. Thus the \xcd"atomic" statement only guarantees atomicity on
 successful execution, not on a faulty execution.
 

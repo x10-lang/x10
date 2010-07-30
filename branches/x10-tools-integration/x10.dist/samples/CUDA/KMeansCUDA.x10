@@ -198,7 +198,7 @@ public class KMeansCUDA {
             // file is dimension-major
             val file = new File(fname), fr = file.openRead();
             val init_points = (Int) => Float.fromIntBits(Marshal.INT.read(fr).reverseBytes());
-            val num_file_points = (file.size() / 4 / 4) as Int;
+            val num_file_points = file.size() / 4 / 4 as Int;
             val file_points = ValRail.make(num_file_points*4, init_points);
 
             var results : Rail[Float]!;
@@ -230,8 +230,8 @@ public class KMeansCUDA {
                         };
 
                         // these are pretty big so allocate up front
-                        val host_points = Rail.make((num_local_points_stride*4) as Int, init);
-                        val gpu_points = Rail.makeRemote(gpu, (num_local_points_stride*4) as Int, host_points);
+                        val host_points = Rail.make(num_local_points_stride*4 as Int, init);
+                        val gpu_points = Rail.makeRemote(gpu, num_local_points_stride*4 as Int, host_points);
                         val host_nearest = Rail.make[Int](num_local_points as Int, (Int)=>0 as Int);
                         val gpu_nearest = Rail.makeRemote[Int](gpu, num_local_points as Int, (Int)=>0 as Int);
 

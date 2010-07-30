@@ -12,9 +12,10 @@
 package x10.visit;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -25,56 +26,79 @@ import polyglot.ast.AmbTypeNode;
 import polyglot.ast.Assign;
 import polyglot.ast.Block;
 import polyglot.ast.Call;
-import polyglot.ast.Call_c;
+import polyglot.ast.Cast;
 import polyglot.ast.ClassDecl;
+import polyglot.ast.ClassMember;
+import polyglot.ast.CodeNode;
+import polyglot.ast.ConstructorCall;
+import polyglot.ast.Do;
+import polyglot.ast.Empty;
+import polyglot.ast.Eval;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
+import polyglot.ast.FieldAssign;
+import polyglot.ast.For;
 import polyglot.ast.Formal;
+import polyglot.ast.Id;
+import polyglot.ast.IntLit;
+import polyglot.ast.Labeled;
+import polyglot.ast.Lit;
 import polyglot.ast.Local;
+import polyglot.ast.LocalAssign;
 import polyglot.ast.LocalDecl;
+import polyglot.ast.MethodDecl;
+import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.Receiver;
 import polyglot.ast.Return;
 import polyglot.ast.Special;
 import polyglot.ast.Stmt;
+import polyglot.ast.SwitchBlock;
 import polyglot.ast.TypeNode;
 import polyglot.frontend.Job;
+import polyglot.main.Report;
+import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.Context;
 import polyglot.types.FieldInstance;
+import polyglot.types.Flags;
 import polyglot.types.FunctionDef;
+import polyglot.types.FunctionInstance;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
+import polyglot.types.MemberInstance;
 import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
 import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
+import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.SubtypeSet;
-import polyglot.visit.AlphaRenamer;
 import polyglot.visit.ContextVisitor;
-import polyglot.visit.ErrorHandlingVisitor;
 import polyglot.visit.NodeVisitor;
-import x10.ast.AnnotationNode;
+import polyglot.visit.TypeCheckPreparer;
+import x10.Configuration;
 import x10.ast.Closure;
 import x10.ast.ClosureCall;
 import x10.ast.DepParameterExpr;
 import x10.ast.ParExpr;
+import x10.ast.SettableAssign;
 import x10.ast.StmtExpr;
+import x10.ast.TypeParamNode;
 import x10.ast.X10Call;
-import x10.ast.X10Call_c;
+import x10.ast.X10Cast;
 import x10.ast.X10Local_c;
 import x10.ast.X10MethodDecl;
 import x10.ast.X10NodeFactory;
 import x10.ast.X10Special;
-import x10.extension.X10Ext;
-import x10.optimizations.ForLoopOptimizer;
+import x10.types.ClosureDef;
 import x10.types.ConstrainedType;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
@@ -83,6 +107,7 @@ import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
+import x10.types.X10Use;
 import x10.types.checker.Converter;
 import x10.util.Synthesizer;
 import x10cpp.visit.X10SearchVisitor;
@@ -92,7 +117,7 @@ import x10cpp.visit.X10SearchVisitor;
  * conditions:
  * <ul>
  * <li>The exact class of the method target is known.
- * <li>The method being invoked is annotated @X10.compiler.Inline .
+ * <li>The method being invoked is annotated @x10.compiler.Inline .
  * <li>The closure call target is a literal closure.
  * </ul>
  * 
@@ -108,15 +133,14 @@ import x10cpp.visit.X10SearchVisitor;
  * 
  * @author nystrom
  * @author igor
- * @author Bowen Alpern (alpernb@us.ibm.com)
+ * @author alpern
  */
 public class Inliner extends ContextVisitor {
 
     /**
      * Allow inlining in all contexts.  Can only be done if the backend supports
      * emitting statement expression nodes.  Otherwise, only inline in statement
-     * contexts.  (Note: the Java back-end now prereqs ExpressionFlattener which
-     * eliminates statement expressions.  So, this issue is now mute.)
+     * contexts.
      * 
      * This constant also controls the use of other non-X10 features, like
      * having shadowed variable declarations, calls to inaccessible methods and
@@ -127,51 +151,21 @@ public class Inliner extends ContextVisitor {
     /**
      * A rather arbitrary inlining depth limit.
      */
-    // private static final int INLINE_DEPTH_LIMIT = 10;
-    private static final int INLINE_DEPTH_LIMIT = 1;
- // private static final int INLINE_DEPTH_LIMIT = 2;
+    private static final int INLINE_DEPTH_LIMIT = 10;
 
     /**
      * The cached type of the @Inline annotation.
      */
     private Type InlineType;
-    private Type NoInlineType;
-
-    X10TypeSystem xts;
-    X10NodeFactory xnf;
-//    Synthesizer syn;
-    ForLoopOptimizer syn; // move functionality to Synthesizer
-    InlineCostEstimator ice;
 
     public Inliner(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
-        xts = (X10TypeSystem) ts;
-        xnf = (X10NodeFactory) nf;
-//        syn = new Synthesizer(xnf, xts);
-        syn = new ForLoopOptimizer(job, ts, nf);
-        ice = new InlineCostEstimator(xts, xnf);
     }
 
-    private static final QName INLINE_ANNOTATION    = QName.make("x10.compiler.Inline");
-    private static final QName NO_INLINE_ANNOTATION = QName.make("x10.compiler.NoInline");
-//    private static final int  SMALL_METHOD_MAX_SIZE = 2;
-    private static final int  SMALL_METHOD_MAX_SIZE = 1;
-    
-    private static final Set<X10MethodDef> dontInline              = new HashSet<X10MethodDef>();
-    private static final Map<X10MethodDef, X10MethodDecl> def2decl = new HashMap<X10MethodDef, X10MethodDecl>();
-
-    private static final int inlineDepth[] = new int[1];
+    public static final QName INLINE_ANNOTATION = QName.make("x10.compiler.Inline");
 
     @Override
     public NodeVisitor begin() {
-        inlineDepth[0] = 0;
-        try {
-            NoInlineType = (Type) ts.systemResolver().find(NO_INLINE_ANNOTATION);
-        }
-        catch (SemanticException e) {
-            System.out.println("Unable to find "+NO_INLINE_ANNOTATION+": "+e);
-            NoInlineType = null;
-        }
         try {
             InlineType = (Type) ts.systemResolver().find(INLINE_ANNOTATION);
         }
@@ -182,230 +176,21 @@ public class Inliner extends ContextVisitor {
         return super.begin();
     }
 
-    public Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
-        if (!ALLOW_STMTEXPR) return n;  // FIXME: for now
-        if (n instanceof X10Call) return inlineMethodCall((X10Call_c) n);
-        if (n instanceof ClosureCall) return inlineClosureCall((ClosureCall) n);
-        return n;
-    }
-    private Expr inlineMethodCall(X10Call_c c) {
-        if (null == InlineType) return c;
-        try {
-            X10MethodDecl decl = getInlineDecl(c);
-            if (null == decl || null == decl.body()) return c;
-            decl = instantiate(decl, c);
-            LocalDef ths = computeThis(decl.methodDef());
-            LocalDecl ld = null == ths ? null : syn.createLocalDecl( ths.position(), 
-                                                                     ths.flags(), 
-                                                                     ths.name(), 
-                                                                     ths.type().get(), 
-                                                                     (Expr) c.target() ).localDef(ths);
-            decl = normalizeMethod(decl, ths); // Ensure that the last statement of the body is the only return in the method
-            List<Expr> args = new ArrayList<Expr>();
-            int i = 0;
-            for (Expr a : c.arguments()) {
-                args.add(cast(a, c.methodInstance().formalTypes().get(i++)));
-            }
-            Expr result = rewriteInlinedBody(c.position(), decl.returnType().type(), decl.formals(), decl.body(), ld, args);
-            if (++inlineDepth[0] <= INLINE_DEPTH_LIMIT) {
-                result = (Expr) result.visit(this);
-            }
-            if (0 == --inlineDepth[0]) {
-                result = (Expr) result.visit(new AlphaRenamer());
-                result = (Expr) propagateConstants(result);
-            }
-            return result;
-        } catch (InternalCompilerError e) {
-            throw new InternalCompilerError("Error while inlining " +c, c.position(), e);
-        }
-    }
-
-    private Expr inlineClosureCall(ClosureCall c) {
-        Closure lit = getInlineClosure(c);
-        if (null == lit) return c;
-        List<Expr> args = new ArrayList<Expr>();
-        int i = 0;
-        for (Expr a : c.arguments()) {
-            args.add(cast(a, c.closureInstance().formalTypes().get(i++)));
-        }
-        lit = normalizeClosure(lit); // Ensure that the last statement of the body is the only return in the closure
-        Expr result = rewriteInlinedBody(c.position(), lit.returnType().type(), lit.formals(), lit.body(), null, args);
-        result = (Expr) result.visit(new AlphaRenamer());
-        result = (Expr) result.visit(this);
-        result = (Expr) propagateConstants(result);
-        return result;
-    }
-
-    /**
-     * @param c
-     * @return
-     */
-    private X10MethodDecl getInlineDecl(X10Call_c c) {
-        // ASK DAVE: how to get expression annotations
-        Set<Type> annotations = getAnnotations(c);
-        if (annotations.contains(NoInlineType))
-            return null;
-        Boolean forceInline = annotations.contains(InlineType);
-        if (forceInline) 
-            System.out.println("DEBUG: Success!! got expression annotation: " + annotations);
-        X10MethodDef def = ((X10MethodInstance) c.methodInstance()).x10Def();
-        if (!forceInline && dontInline.contains(def)) 
-            return null;
-        X10MethodDecl decl = def2decl.get(def);
-        if (null != decl) 
-            return decl;
-        if (!forceInline && !def.annotationsMatching(NoInlineType).isEmpty()) {
-            dontInline.add(def);
-            return null;
-        }
-        // ASK IGOR: is there an easy way to get form def to job?
-        X10ClassDef container = getContainer(def);
-        decl = getDeclaration(def, container);
-        if (null == decl) {
-            dontInline.add(def);
-            return null;
-        }
-        if ( !forceInline && def.annotationsMatching(InlineType).isEmpty() && 
-             ( !x10.Configuration.INLINE_SMALL_METHODS ||
-               SMALL_METHOD_MAX_SIZE < ice.getCost(decl, container.job()) )
-           ) {
-            dontInline.add(def);
-            return null;
-        }
-        def2decl.put(def, decl);
-        return decl;
-    }
-    
-    private ClassType EA = null;
-    
-    /**
-     * @param c
-     * @return
-     */
-    private Set<Type> getAnnotations(Expr expr) {
-        try {
-            Set<Type> types = new HashSet<Type>();
-            if (! (expr.ext() instanceof X10Ext)) {
-                return types;
-            }
-            if (null == EA) EA = (ClassType) xts.systemResolver().find(QName.make("x10.lang.annotations.ExpressionAnnotation"));
-            List<AnnotationNode> annotations = ((X10Ext) expr.ext()).annotations();
-            for (Iterator<AnnotationNode> i = annotations.iterator(); i.hasNext(); ) {
-                AnnotationNode a = i.next(); 
-                X10ClassType at = a.annotationInterface();
-                if (! at.isSubtype(EA, context)) {
-                    throw new InternalCompilerError("Annotations on expressions must implement " + EA, expr.position());
-                }
-                types.add(at);
-            }
-            return types;
-        } catch (SemanticException e) {
-            throw new InternalCompilerError("Unable to resolve ExpressionAnnotation", e);
-        }
-    }
-
-    /**
-     * @param c
-     * @return
-     */
-    private Closure getInlineClosure(ClosureCall c) {
-        return getClosureLiteral(c.target());
-    }
-
-    // TODO Handle local variables of type Closure
-    private Closure getClosureLiteral(Expr target) {
-        if (target instanceof Closure)
-            return (Closure) target;
-        if (target instanceof ParExpr)
-            return getClosureLiteral(((ParExpr)target).expr());
-        // ASK IGOR:  What is the type of Locals that have closure values?
-//        if (target instanceof Local))
-        return null;
-    }
-
-    /**
-     * @param decl
-     * @param ths
-     * @return
-     */
-    private X10MethodDecl normalizeMethod(X10MethodDecl decl, LocalDef ths) {
-        return (X10MethodDecl) decl.visit(new InliningRewriter(decl, ths));
-    }
-
-    /**
-     * @param lit
-     * @return
-     */
-    private Closure normalizeClosure(Closure lit) {
-        return (Closure) lit.visit(new InliningRewriter(lit));
-    }
-
-    public Node propagateConstants(Node n) {
-        ConstantPropagator cp = new ConstantPropagator(job, ts, nf);
-        cp = (ConstantPropagator) cp.context(context());
-        return n.visit(cp);
-    }
-
-    /**
-     * Cast a given expression to a given type, unless it is already of that type.
-     * TODO: factor out to Synthesizer
-     * @param a the given expression
-     * @param fType the given type
-     * @return a cast node, or the original expression
-     */
-    private Expr cast(Expr a, Type fType) {
-        X10TypeSystem xts = (X10TypeSystem) typeSystem();
-        X10NodeFactory xnf = (X10NodeFactory) nodeFactory();
-        Context context = context();
-        if (!xts.typeDeepBaseEquals(fType, a.type(), context)) {
-            Position pos = a.position();
-            a = xnf.X10Cast(pos, xnf.CanonicalTypeNode(pos, fType), a,
-                            Converter.ConversionType.UNCHECKED).type(fType);
-        }
-        return a;
-    }
-
-    /**
-     * Create a reference to a local variable with a given def.
-     * TODO: factor out to Synthesizer.
-     * @param pos the position
-     * @param t the given local def
-     * @return the local node
-     */
-    private Expr local(Position pos, LocalDef t) {
-        X10NodeFactory xnf = (X10NodeFactory) nodeFactory();
-        LocalInstance li = t.asInstance();
-        return xnf.Local(pos, xnf.Id(pos, li.name())).localInstance(li).type(li.type());
-    }
-
-    private LocalDef computeThis(MethodDef def) {
-//        X10TypeSystem xts = (X10TypeSystem) typeSystem();
-        if (def.flags().isStatic()) return null;
-        return xts.localDef(def.position(), xts.Final(), def.container(), Name.makeFresh("this"));
-    }
-
-    /**
-     * Get the definition of the X10 Class that implements a given method.
-     * 
-     * @param md the method definition whose container is desired
-     * @return the definition of the X10 Class containing md
-     */
     private X10ClassDef getContainer(X10MethodDef md) {
         Type containerBase = X10TypeMixin.baseType(Types.get(md.container()));
         assert (containerBase instanceof X10ClassType);
         return ((X10ClassType) containerBase).x10Def();
     }
 
-    private X10MethodDecl getDeclaration(final X10MethodDef md, final X10ClassDef cd) {
-        if (!md.flags().isStatic() && !md.flags().isFinal() && !cd.flags().isFinal() && !cd.isStruct()) 
-            return null;
+    private X10MethodDecl getDeclaration(final X10MethodDef md) {
+        if (md.annotationsMatching(InlineType).isEmpty()) return null;
+        X10ClassDef cd = getContainer(md);
+        if (!md.flags().isStatic() && !md.flags().isFinal() && !cd.flags().isFinal() && !cd.isStruct()) return null;
         Job job = cd.job();
-        if (job == null) 
-            return null;
-        NodeVisitor typeChecker = new X10TypeChecker(job, ts, nf, job.nodeMemo()).begin();
+        if (job == null) return null;
         Node ast = job.ast();
         if (job != this.job()) {
-            ast = ast.visit(typeChecker);
+            ast = ast.visit(new X10TypeChecker(job, ts, nf, job.nodeMemo()).begin());
         }
 //        job.ast(ast);
 //        System.out.println("==> Typechecked "+cd);
@@ -476,7 +261,6 @@ public class Inliner extends ContextVisitor {
         for (TypeNode tn : c.typeArguments()) {
             tArgs.add(tn.type());
         }
-//       List<Type> tParms = mi.typeParameters();
         final HashMap<Name, LocalDef> vars = new HashMap<Name, LocalDef>();
         return (X10MethodDecl) decl.visit(new ContextVisitor(job, ts, nf) {
             protected Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
@@ -561,11 +345,9 @@ public class Inliner extends ContextVisitor {
                     List<Ref <? extends Type>> excTypes = new ArrayList<Ref<? extends Type>>();
                     SubtypeSet excs = d.exceptions();
                     SubtypeSet oldExcs = ((X10MethodDecl) old).exceptions();
-                    if (null != excs) {
-                        for (Type et : excs) {
-                            sigChanged |= !oldExcs.contains(et);
-                            excTypes.add(Types.ref(et));
-                        }
+                    for (Type et : excs) {
+                        sigChanged |= !oldExcs.contains(et);
+                        excTypes.add(Types.ref(et));
                     }
                     sigChanged |= d.offerType() != ((X10MethodDecl) old).offerType();
                     if (sigChanged) {
@@ -586,66 +368,659 @@ public class Inliner extends ContextVisitor {
         }.context(context()));
     }
 
-    // TODO: generate a closure call instead of a statement expression
-    private Expr rewriteInlinedBody(Position pos, Type retType, List<Formal> formals, Block body, LocalDecl ths, List<Expr> args) {
-        boolean clashes = false;
-        for (Expr a : args) {
-            X10SearchVisitor<X10Local_c> xLocals = new X10SearchVisitor<X10Local_c>(X10Local_c.class);
-            a.visit(xLocals);
-            if (!xLocals.found()) continue;
-            ArrayList<X10Local_c> locals = xLocals.getMatches();
-            for (X10Local_c t : locals) {
-                Name name = t.localInstance().name();
-                for (Formal f : formals) {
-                    if (f.name().id().equals(name)) clashes = true;
+    /**
+     * @param s_if_cannot_inline
+     *            Statement to return if the method cannot be inlined.
+     * @param c
+     *            Call to inline.
+     * @param md
+     *            Definition of method to inline.
+     * @return Either the method body, with suitable substitutions, or
+     *         s_if_cannot_inline.
+     */
+    public Stmt inline(Stmt s_if_not_inline, X10Call c, X10MethodInstance mi, Expr result) {
+        if (!staticTypeIsExact(c.target()) && !mi.flags().isFinal())
+            return s_if_not_inline;
+
+        final X10MethodDef md = mi.x10Def();
+
+        // Don't inline recursively.  Recursive inlining will be handled when this method is inlined elsewhere.
+        if (md == context().currentCode())
+            return s_if_not_inline;
+
+        X10MethodDecl decl = getDeclaration(md);
+        if (decl == null)
+            return s_if_not_inline;
+        if (!canInlineHere(decl.body(), context().currentClassDef())) {
+            if (Report.should_report("inline", 1))
+                Report.report(1, "Cannot inline call " + c + " into " + context().currentCode() + "; inlined code would be illegal");
+            return s_if_not_inline;
+        }
+        if (Report.should_report("inline", 1))
+            Report.report(1, "Inlining call " + c + " into " + context().currentCode());
+        return rewriteBody(decl.body(), decl.typeParameters(), decl.formals(), c.target(), c.typeArguments(), c.arguments(), result, getContainer(md));
+    }
+
+    private boolean canInlineHere(Block body, final ClassDef currentClassDef) {
+        final boolean[] result = new boolean[1];
+        result[0] = true;
+        body.visit(new NodeVisitor() {
+            @Override
+            public Node override(Node n) {
+                if (! result[0])
+                    return n;
+                return null;
+            }
+            @Override
+            public Node leave(Node old, Node n, NodeVisitor v) {
+                if (n instanceof Field) {
+                    Field f = (Field) n;
+                    if (! accessible(f.fieldInstance()))
+                        result[0] = false;
+                }
+                if (n instanceof FieldAssign) {
+                    FieldAssign f = (FieldAssign) n;
+                    if (! accessible(f.fieldInstance()))
+                        result[0] = false;
+                }
+                if (n instanceof Call) {
+                    Call f = (Call) n;
+                    if (! accessible(f.methodInstance()))
+                        result[0] = false;
+                }
+                if (n instanceof ClosureCall) {
+                    ClosureCall f = (ClosureCall) n;
+                    if (! accessible(f.closureInstance()))
+                        result[0] = false;
+                }
+                if (n instanceof ConstructorCall) {
+                    ConstructorCall f = (ConstructorCall) n;
+                    if (! accessible(f.constructorInstance()))
+                        result[0] = false;
+                }
+                if (n instanceof New) {
+                    New f = (New) n;
+                    if (! accessible(f.constructorInstance()))
+                        result[0] = false;
+                }
+                return super.leave(old, n, v);
+            }
+            private boolean accessible(MemberInstance mi) {
+                return ts.isAccessible(mi, context);
+            }
+        });
+        return result[0];
+    }
+
+    public Stmt inlineClosure(Closure target, ClosureCall c, Expr result) {
+        if (Report.should_report("inline", 1))
+            Report.report(1, "Inlining closure call " + c + " into " + context().currentCode());
+        return rewriteBody(target.body(), Collections.EMPTY_LIST, target.formals(), target, 
+        		Collections.EMPTY_LIST, c.arguments(), result, null);
+    }
+
+    public boolean simple(Expr e) {
+        // HACK: treating closures as simple is correct only if we don't do == on closures.
+        return e instanceof Lit || e instanceof Local || e instanceof Closure || e.type().isNull() || (e instanceof ParExpr && simple(((ParExpr) e).expr()));
+    }
+
+    String nameOf(Expr e) {
+        if (e instanceof Field)
+            return ((Field) e).name().id().toString();
+        if (e instanceof Local)
+            return ((Local) e).name().id().toString();
+        return "tmp";
+    }
+
+    public LocalDecl makeFreshLocal(Expr e, Flags flags) {
+        Type t = e.type();
+        assert ! t.isNull() : "null type for " + e;
+        Name name = Name.makeFresh(nameOf(e));
+        Position pos = e.position();
+        LocalDef def = ts.localDef(pos, flags, Types.ref(t), name);
+        if (staticTypeIsExact(e) && flags.isFinal())
+            known.add(def);
+        if (e.isConstant())
+            def.setConstantValue(e.constantValue());
+        else
+            def.setNotConstant();
+        LocalDecl decl = nf.LocalDecl(pos, nf.FlagsNode(pos, def.flags()), nf.CanonicalTypeNode(pos, def.type()), nf.Id(pos, name), e);
+        decl = decl.localDef(def);
+        return decl;
+    }
+
+    public Local makeLocal(LocalDecl decl) {
+        Local l = nf.Local(decl.position(), decl.name());
+        l = l.localInstance(decl.localDef().asInstance());
+        l = (Local) l.type(decl.declType());
+        return l;
+    }
+
+    /** Rewrite body, substituting actual parameters for formals.  If the body returns, the return value is assigned into result.
+     * TODO: handle type params and type arguments.  */
+    public Stmt rewriteBody(Block body, List<TypeParamNode> typeParams, List<Formal> formals, Receiver target, List<TypeNode> typeArgs,
+            List<Expr> args, Expr result, ClassDef calleeClass) {
+        List<Stmt> decls = new ArrayList<Stmt>();
+        List<Expr> vars = new ArrayList<Expr>();
+        List<Formal> vformals = new ArrayList<Formal>();
+
+        if (target instanceof Expr) {
+            Expr e = (Expr) target;
+            if (simple(e))
+                vars.add(e);
+            else {
+                LocalDecl self = makeFreshLocal(e, Flags.FINAL);
+                decls.add(self);
+                vars.add(makeLocal(self));
+            }
+            vformals.add(null);
+        }
+        for (int i = 0; i < args.size(); i++) {
+            Expr e = args.get(i);
+            Formal f = formals.get(i);
+            if (simple(e))
+                vars.add(e);
+            else {
+                LocalDecl self = makeFreshLocal(e, f.flags().flags());
+                decls.add(self);
+                vars.add(makeLocal(self));
+            }
+            vformals.add(formals.get(i));
+        }
+
+        assert vars.size() == vformals.size();
+
+        body = renameLocals(body);
+
+        for (int i = 0; i < vars.size(); i++) {
+            if (vformals.get(i) != null)
+                body = subst(body, vars.get(i), vformals.get(i));
+            else
+                body = substThis(body, vars.get(i), calleeClass);
+        }
+
+        body = prepend(body, decls);
+        Stmt s = rewireControlFlow(result, body);
+
+        return s;
+    }
+
+    /** Rename local variables in the block to avoid shadowing errors when inlining. */    
+    private Block renameLocals(Block body) {
+        final Map<Name,Name> map = new HashMap<Name, Name>();
+        body.visit(new NodeVisitor() {
+            public Node override(Node n) {
+                if (n instanceof ClassDecl)
+                    return n;
+                if (n instanceof Closure)
+                    return n;
+                if (n instanceof ClassMember)
+                    return n;
+                return null;
+            }
+            Name newName(Name name) {
+                Name newName = map.get(name);
+                if (newName == null) {
+                    newName = Name.makeFresh(name.toString());
+                    map.put(name, newName);
+                }
+                return newName;
+            }
+            @Override
+            public Node leave(Node old, Node n, NodeVisitor v) {
+                if (n instanceof LocalDecl) {
+                    LocalDecl d = (LocalDecl) n;
+                    Name name = d.name().id();
+                    Name newName = newName(name);
+                }
+                return n;
+            }
+        });
+        return (Block) body.visit(new NodeVisitor() {
+            public Node override(Node n) {
+                if (n instanceof ClassDecl)
+                    return n;
+                if (n instanceof Closure)
+                    return n;
+                if (n instanceof ClassMember)
+                    return n;
+                return null;
+            }
+            Name newName(Name name) {
+                Name newName = map.get(name);
+                return newName;
+            }
+            @Override
+            public Node leave(Node old, Node n, NodeVisitor v) {
+                if (n instanceof LocalDecl) {
+                    LocalDecl d = (LocalDecl) n;
+                    Name name = d.name().id();
+                    Name newName = newName(name);
+                    if (newName != null) {
+                        d.localDef().setName(newName);
+                        return d.name(d.name().id(newName));
+                    }
+                }
+                if (n instanceof LocalAssign) {
+                    LocalAssign d = (LocalAssign) n;
+                    Name name = d.local().name().id();
+                    Name newName = newName(name);
+                    if (newName != null) {
+                        LocalInstance li = d.local().localInstance();
+                        li = renameLI(newName, li);
+                        d = d.local(d.local().localInstance(li));
+                        return d;
+                    }
+                }
+                if (n instanceof Local) {
+                    Local d = (Local) n;
+                    Name name = d.name().id();
+                    Name newName = newName(name);
+                    if (newName != null) {
+                        LocalInstance li = d.localInstance();
+                        li = renameLI(newName, li);
+                        d = d.localInstance(li);
+                        return d.name(d.name().id(newName));
+                    }
+                }
+                return n;
+            }
+            private LocalInstance renameLI(Name newName, LocalInstance li) {
+                LocalDef def = li.def();
+                while (li.name() != newName) {
+                    if (def.name() == newName) {
+                        li = li.name(newName);
+                    }
+                    else {
+                        def.setName(newName);
+                    }
+                }
+                return li;
+            }
+        });
+    }
+
+    /** Prepend the statements to the block. */
+    private Block prepend(Block body, List<Stmt> ss) {
+        List<Stmt> stmts = new ArrayList<Stmt>(ss.size() + body.statements().size());
+        stmts.addAll(ss);
+        stmts.addAll(body.statements());
+        return body.statements(stmts);
+    }
+
+    private Stmt rewireControlFlow(final Expr result, Block body) {
+        final Id label = nf.Id(body.position(), Name.makeFresh("label"));
+
+        class HasReturn extends NodeVisitor {
+            boolean result = false;
+
+            public Node override(Node n) {
+                if (n instanceof CodeNode || n instanceof ClassMember)
+                    return n;
+
+                if (n instanceof Block && ! (n instanceof SwitchBlock)) {
+                    Block b = (Block) n;
+                    for (int i = 0; i < b.statements().size()-1; i++) {
+                        HasReturn r = new HasReturn();
+                        Stmt s = b.statements().get(i);
+                        b.visitChild(s, r);
+                        if (r.result) {
+                            result = true;
+                            return n;
+                        }
+                    }
+
+                    if (b.statements().size() > 0) {
+                        Stmt s = b.statements().get(b.statements().size()-1);
+                        if (s instanceof Return)
+                            return n;
+                        b.visitChild(s, this);
+                    }
+                }
+
+                if (n instanceof Return) {
+                    result = true;
+                }
+
+                if (result)
+                    return n;
+
+                return null;
+            }
+        }
+
+        final  HasReturn hr = new HasReturn();
+        body.visit(hr);
+
+        Block b = (Block) body.visit(new NodeVisitor() {
+            public Node override(Node n) {
+                if (n instanceof CodeNode || n instanceof ClassMember)
+                    return n;
+                return null;
+            }
+
+            public Node leave(Node old, Node n, NodeVisitor v) {
+                if (n instanceof Block) {
+                    Block b = (Block) n;
+                    List<Stmt> ss = new ArrayList<Stmt>(b.statements().size());
+                    for (Stmt s : b.statements()) {
+                        if (s instanceof Empty)
+                            ;
+                        else
+                            ss.add(s);
+                    }
+                    if (ss.size() != b.statements().size()) {
+                        return b.statements(ss);
+                    }
+                    return b;
+                }
+                
+                if (n instanceof Return) {
+                    Return r = (Return) n;
+                    Stmt break_ = hr.result ? nf.Break(r.position(), label) : nf.Empty(r.position());
+                    if (r.expr() == null) {
+                        return break_;
+                    }
+                    else {
+                        if (result == null) {
+                            if (simple(r.expr()))
+                                return break_;
+                            LocalDecl d = makeFreshLocal(r.expr(), Flags.FINAL);
+                            if (break_ instanceof Empty)
+                                return nf.Block(r.position(), d);
+                            return nf.Block(r.position(), d, break_);
+                        }
+                        else {
+                            try {
+                                Assign assign = assign(r.position(), result, Assign.ASSIGN, r.expr());
+                                Eval eval = nf.Eval(r.position(), assign);
+                                if (break_ instanceof Empty)
+                                    return eval;
+                                return nf.Block(r.position(), eval, break_);
+                            }
+                            catch (SemanticException e) {
+                                throw new InternalCompilerError(e);
+                            }
+                        }
+                    }
+                }
+
+                if (n instanceof ParExpr) {
+                    ParExpr e = (ParExpr) n;
+                    if (e.expr() instanceof Local) {
+                        return e.expr();
+                    }
+                }
+
+                return n;
+            }
+        });
+
+        // return got rewritten to break
+        // replace B with do B while (false)
+        if (hr.result) {
+            Expr falsch = nf.BooleanLit(b.position(), false).type(ts.Boolean());
+            return nf.Labeled(b.position(), label, nf.Do(b.position(), b, falsch));
+        }
+        return b;
+    }
+
+    private Assign assign(Position pos, Expr e, Assign.Operator asgn, Expr val) throws SemanticException {
+        NodeFactory xnf = nf;
+        TypeSystem xts = ts;
+        Assign a = (Assign) nf.Assign(pos, e, asgn, val).type(e.type());
+        if (a instanceof FieldAssign) {
+            assert (e instanceof Field);
+            assert ((Field) e).fieldInstance() != null;
+            a = ((FieldAssign) a).fieldInstance(((Field)e).fieldInstance());
+        } else if (a instanceof SettableAssign) {
+            assert (e instanceof X10Call);
+            MethodInstance ami = ((X10Call)e).methodInstance();
+            List<Type> aTypes = new ArrayList<Type>(ami.formalTypes());
+            aTypes.add(0, ami.returnType());
+            MethodInstance smi = xts.findMethod(ami.container(),
+                                                xts.MethodMatcher(ami.container(), Name.make("set"), aTypes, context));
+            a = ((SettableAssign) a).methodInstance(smi);
+            a = ((SettableAssign) a).applyMethodInstance(ami);
+        }
+        return a;
+    }
+
+    private Block subst(Block body, final Expr e, final Formal x) {
+        return (Block) body.visit(new NodeVisitor() {
+            public Node leave(Node old, Node n, NodeVisitor v) {
+                if (n instanceof Local) {
+                    Local l = (Local) n;
+                    LocalInstance li = l.localInstance();
+                    LocalDef ld = li.def();
+                    LocalDef xd = x.localDef();
+                    if (ld == xd)
+                        return e;
+                }
+                return n;
+            }
+        });
+    }
+
+    private Block substThis(Block body, final Expr e, final ClassDef thisType) {
+        return (Block) body.visit(new NodeVisitor() {
+            public Node leave(Node old, Node n, NodeVisitor v) {
+                if (n instanceof Field) {
+                    Field f = (Field) n;
+                    assert f.target() != null;
+                    return f.targetImplicit(false);
+                }
+                if (n instanceof FieldAssign) {
+                    FieldAssign a = (FieldAssign) n;
+                    assert a.target() != null;
+                    return a.targetImplicit(false);
+                }
+                if (n instanceof Call) {
+                    Call c = (Call) n;
+                    assert c.target() != null;
+                    return c.targetImplicit(false);
+                }
+                if (n instanceof Special) {
+                    Special s = (Special) n;
+                    if (s.kind() == Special.THIS) {
+                        Type t = s.type();
+                        Type b = X10TypeMixin.baseType(t);
+                        if (b instanceof ClassType) {
+                            ClassDef cd = ((ClassType) b).def();
+                            if (cd == thisType)
+                                return e;
+                        }
+                    }
+                }
+                return n;
+            }
+        });
+    }
+
+    private int count;
+
+    /** Return a clone of this visitor, incrementing the counter. */
+    public Inliner inc() {
+        Inliner v = (Inliner) copy();
+        v.count++;
+        return v;
+    }
+
+    public Node propagateConstants(Node n) {
+        ConstantPropagator cp = new ConstantPropagator(job, ts, nf);
+        cp = (ConstantPropagator) cp.context(context());
+        return n.visit(cp);
+    }
+
+    @Override
+    protected NodeVisitor enterCall(Node parent, Node n) throws SemanticException {
+        if (n instanceof LocalDecl) {
+            LocalDecl d = (LocalDecl) n;
+            LocalDef def = d.localDef();
+            if (def.flags().isFinal() && d.init() != null && staticTypeIsExact(d.init())) {
+                known.add(def);
+            }
+        }
+        return this;
+    }
+
+    class MoreThanOne extends Exception { 
+        public MoreThanOne() {
+        }
+    }
+
+    // Get the expression assigned to var in s.  Return null if s has any other effects or than assignment to var or doesn't assign var.
+    public Expr getVarRhs(Stmt s, Local var, boolean returnOk) {
+        try {
+            HashMap<LocalDef,Expr> copies = new HashMap<LocalDef,Expr>();
+            Set<LocalDef> local = new HashSet<LocalDef>();
+            Expr e = getExpr(s, var, returnOk, copies, local);
+            return e;
+        }
+        catch (MoreThanOne e) {
+            return null;
+        }
+    }
+    
+    private void killDef(final LocalDef def, Map<LocalDef, Expr> map) {
+        for (final java.util.Iterator<Map.Entry<LocalDef, Expr>> i = map.entrySet().iterator(); i.hasNext(); ) {
+            Map.Entry<LocalDef, Expr> entry = i.next();
+            Expr a = entry.getValue();
+            if (a == null)
+                continue;
+            a.visit(new NodeVisitor() {
+                @Override
+                public Node override(Node n) {
+                    if (n instanceof Local) {
+                        Local l = (Local) n;
+                        if (l.localInstance().def() == def) {
+                            i.remove();
+                            return n;
+                        }
+                    }
+                    return null;
+                } 
+            });
+        }
+    }
+
+    public Expr lookup(Map<LocalDef, Expr> copies, Expr e) {
+        if (e instanceof Local) {
+            Local l = (Local) e;
+            Expr x = copies.get(l.localInstance().def());
+            if (x != null)
+                return lookup(copies, x);
+        }
+        return e;
+    }
+
+    // Get the expression assigned to var in s.  Return null if s does not assign var.  Throw if s has any other effects than assignment to var.
+    public Expr getExpr(Stmt s, Local var, boolean returnOk, Map<LocalDef,Expr> copies, Set<LocalDef> local) throws MoreThanOne {
+        if (s instanceof Block) {
+            Expr result = null;
+            Block b = (Block) s;
+            for (Stmt si : b.statements()) {
+                Expr e = getExpr(si, var, returnOk, copies, local);
+                if (e != null) {
+                    if (result != null)
+                        throw new MoreThanOne();
+                    result = e;
                 }
             }
+            return result;
         }
 
-        List<Stmt> bodyStmts = body.statements();
-        assert (bodyStmts.get(bodyStmts.size()-1) instanceof Return) : "Last statement is not a return";
-        // We know that the last statement has to be a return
-        Return ret = (Return) bodyStmts.get(bodyStmts.size()-1);
-        List<Stmt> statements = new ArrayList<Stmt>();
-        for (Stmt stmt : bodyStmts) {
-            if (stmt != ret) {
-                statements.add(stmt);
+        if (s instanceof Eval) {
+            Eval eval = (Eval) s;
+            Expr e = eval.expr();
+            if (e instanceof LocalAssign) {
+                LocalAssign a = (LocalAssign) e;
+                copies.put(a.local().localInstance().def(), a.right());
+                killDef(a.local().localInstance().def(), copies);
+                if (a.local().localInstance().def() == var.localInstance().def())
+                    return lookup(copies, a.right());
+                if (local.contains(a.local().localInstance().def()))
+                    return null;
+            }
+            throw new MoreThanOne();
+        }
+
+        if (s instanceof LocalDecl) {
+            LocalDecl d = (LocalDecl) s;
+            local.add(d.localDef());
+            if (d.init() != null) {
+                if (d.init().isConstant())
+                    return null;
+                throw new MoreThanOne();
+            }
+            return null;
+        }
+
+        if (s instanceof Labeled) {
+            Labeled l = (Labeled) s;
+            return getExpr(l.statement(), var, returnOk, copies, local);
+        }
+
+        if (s instanceof Do) {
+            Do l = (Do) s;
+            if (l.cond().isConstant() && l.cond().constantValue().equals(Boolean.FALSE))
+                return getExpr(l.body(), var, returnOk, copies, local);
+            else
+                throw new MoreThanOne();
+        }
+
+        if (s instanceof Return && returnOk) {
+            Return r = (Return) s;
+            if (r.expr() instanceof Local) {
+                Local l = (Local) r.expr();
+                if (l.localInstance().def() == var.localInstance().def())
+                    return null;
             }
         }
-        Expr e = ret.expr();
-        if (null != e)
-            e = cast(e, retType);
+        
+        if (s instanceof Empty) {
+            return null;
+        }
 
-        X10NodeFactory xnf = (X10NodeFactory) nodeFactory();
+        throw new MoreThanOne();
+    }
+
+    /**
+     * Cast a given expression to a given type, unless it is already of that type.
+     * TODO: factor out to Synthesizer
+     * @param a the given expression
+     * @param fType the given type
+     * @return a cast node, or the original expression
+     */
+    private Expr cast(Expr a, Type fType) {
         X10TypeSystem xts = (X10TypeSystem) typeSystem();
-        Synthesizer synth = new Synthesizer(xnf, xts);
-        StmtExpr result = (StmtExpr) xnf.StmtExpr(pos, statements, e).type(retType);
+        X10NodeFactory xnf = (X10NodeFactory) nodeFactory();
+        Context context = context();
+        if (!xts.typeDeepBaseEquals(fType, a.type(), context)) {
+            Position pos = a.position();
+            a = xnf.X10Cast(pos, xnf.CanonicalTypeNode(pos, fType), a,
+                            Converter.ConversionType.UNCHECKED).type(fType);
+        }
+        return a;
+    }
 
-        List<Stmt> declarations = new ArrayList<Stmt>();
-        if (ths != null) {
-            declarations.add(ths);
-        }
-        LocalDef[] alt = null;
-        if (clashes) {
-            alt = new LocalDef[args.size()];
-            int i = 0;
-            for (Expr a : args) {
-                Type fType = formals.get(i).type().type();
-                Name tmp = Name.makeFresh();
-                alt[i] = xts.localDef(pos, xts.Final(), Types.ref(fType), tmp);
-                declarations.add(synth.makeLocalVar(pos, alt[i], a));
-                i++;
-            }
-        }
-        int i = 0;
-        for (Expr a : args) {
-            Formal f = formals.get(i);
-            Expr v = clashes ? local(pos, alt[i]) : a;
-            declarations.add(synth.makeLocalVar(pos, f.localDef(), v));
-            i++;
-        }
+    /**
+     * Create a reference to a local variable with a given def.
+     * TODO: factor out to Synthesizer.
+     * @param pos the position
+     * @param t the given local def
+     * @return the local node
+     */
+    private Expr local(Position pos, LocalDef t) {
+        X10NodeFactory xnf = (X10NodeFactory) nodeFactory();
+        LocalInstance li = t.asInstance();
+        return xnf.Local(pos, xnf.Id(pos, li.name())).localInstance(li).type(li.type());
+    }
 
-        return result.prepend(declarations);
+    private LocalDef computeThis(MethodDef def) {
+        X10TypeSystem xts = (X10TypeSystem) typeSystem();
+        if (def.flags().isStatic()) return null;
+        return xts.localDef(def.position(), xts.Final(), def.container(), Name.makeFresh("this"));
     }
 
     /**
@@ -804,52 +1179,68 @@ public class Inliner extends ContextVisitor {
         }
     }
 
-    private class InlineCostEstimator extends X10DelegatingVisitor {
-        int            cost;
-        X10TypeSystem  xts;
-        X10NodeFactory xnf;
-        InlineCostEstimator (X10TypeSystem ts, X10NodeFactory nf) {
-            xts = ts;
-            xnf = nf;
+    // TODO: generate a closure call instead of a statement expression
+    private Expr rewriteInlinedBody(Position pos, Type retType, List<Formal> formals, Block body, LocalDecl ths, List<Expr> args) {
+        boolean clashes = false;
+        for (Expr a : args) {
+            X10SearchVisitor<X10Local_c> xLocals = new X10SearchVisitor<X10Local_c>(X10Local_c.class);
+            a.visit(xLocals);
+            if (!xLocals.found()) continue;
+            ArrayList<X10Local_c> locals = xLocals.getMatches();
+            for (X10Local_c t : locals) {
+                Name name = t.localInstance().name();
+                for (Formal f : formals) {
+                    if (f.name().id().equals(name)) clashes = true;
+                }
+            }
         }
-        int getCost(Node n, Job job) {
-            if (null == n) return 0;
-            InlineCostVisitor visitor = new InlineCostVisitor(job, xts, xnf, this);
-            cost = 0;
-            n.visit(visitor);
-            return cost;
+
+        List<Stmt> bodyStmts = body.statements();
+        assert (bodyStmts.get(bodyStmts.size()-1) instanceof Return) : "Last statement is not a return";
+        // We know that the last statement has to be a return
+        Return ret = (Return) bodyStmts.get(bodyStmts.size()-1);
+        List<Stmt> statements = new ArrayList<Stmt>();
+        for (Stmt stmt : bodyStmts) {
+            if (stmt != ret) {
+                statements.add(stmt);
+            }
         }
-        public final void visit(Call_c c) {
-            cost++;
+        Expr e = ret.expr();
+        if (e != null) {
+            e = cast(e, retType);
         }
-        public final void visit(Node n) {
+
+        X10NodeFactory xnf = (X10NodeFactory) nodeFactory();
+        X10TypeSystem xts = (X10TypeSystem) typeSystem();
+        Synthesizer synth = new Synthesizer(xnf, xts);
+        StmtExpr result = (StmtExpr) xnf.StmtExpr(pos, statements, e).type(retType);
+
+        List<Stmt> declarations = new ArrayList<Stmt>();
+        if (ths != null) {
+            declarations.add(ths);
         }
+        LocalDef[] alt = null;
+        if (clashes) {
+            alt = new LocalDef[args.size()];
+            int i = 0;
+            for (Expr a : args) {
+                Type fType = formals.get(i).type().type();
+                Name tmp = Name.makeFresh();
+                alt[i] = xts.localDef(pos, xts.Final(), Types.ref(fType), tmp);
+                declarations.add(synth.makeLocalVar(pos, alt[i], a));
+                i++;
+            }
+        }
+        int i = 0;
+        for (Expr a : args) {
+            Formal f = formals.get(i);
+            Expr v = clashes ? local(pos, alt[i]) : a;
+            declarations.add(synth.makeLocalVar(pos, f.localDef(), v));
+            i++;
+        }
+
+        return result.prepend(declarations);
     }
-    
-    private class InlineCostVisitor extends ErrorHandlingVisitor {
-        InlineCostEstimator ice;
-        /**
-         * @param job
-         * @param ts
-         * @param nf
-         */
-        public InlineCostVisitor(Job job, TypeSystem ts, NodeFactory nf, InlineCostEstimator ce) {
-            super(job, ts, nf);
-            ice = ce;
-        }
-        /* (non-Javadoc)
-         * @see polyglot.visit.ErrorHandlingVisitor#leaveCall(polyglot.ast.Node, polyglot.ast.Node, polyglot.visit.NodeVisitor)
-         */
-        @Override
-        protected Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
-            ice.visitAppropriate(n);
-            return n;
-        }
-    }
-    
-    
-    
-    /* Igor's old code, now dead
 
     private Expr inlineMethodCall(X10Call c, X10MethodDecl decl, List<Expr> args) {
         if (decl.body() == null) return c;
@@ -857,7 +1248,7 @@ public class Inliner extends ContextVisitor {
 //        System.out.println("About to inline "+decl+" at "+c.position());
 //        decl.dump(System.out);
         // Ensure that the last statement of the body is the only return in the method
-        decl = normalizeMethod(decl, ths);
+        decl = (X10MethodDecl) decl.visit(new InliningRewriter(decl, ths));
         LocalDecl ld = null;
         if (ths != null) {
             X10NodeFactory xnf = (X10NodeFactory) nodeFactory();
@@ -874,16 +1265,24 @@ public class Inliner extends ContextVisitor {
 
     private Expr inlineClosureCall(ClosureCall c, Closure closure, List<Expr> args) {
         // Ensure that the last statement of the body is the only return in the closure
-        closure = normalizeClosure(closure);
+        closure = (Closure) closure.visit(new InliningRewriter(closure));
         return rewriteInlinedBody(c.position(), closure.returnType().type(), closure.formals(), closure.body(), null, args);
     }
 
+    private Closure getClosureLiteral(Expr target) {
+        if (target instanceof Closure)
+            return (Closure) target;
+        if (target instanceof ParExpr)
+            return getClosureLiteral(((ParExpr)target).expr());
+        return null;
+    }
+
     public Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
-        if (!ALLOW_STMTEXPR) return n;  // FIX ME: for now
+        if (!ALLOW_STMTEXPR) return n;  // FIXME: for now
 
         if (n instanceof X10Call) {
-            if (InlineType == null) return n;
             X10Call c = (X10Call) n;
+            if (InlineType == null) return n;
             try {
             X10MethodInstance mi = (X10MethodInstance) c.methodInstance();
             X10MethodDecl decl = getDeclaration(mi.x10Def());
@@ -910,7 +1309,7 @@ public class Inliner extends ContextVisitor {
         if (n instanceof ClosureCall) {
             ClosureCall c = (ClosureCall) n;
             // If the target is a closure literal, inline the body
-            Closure lit = getInlineClosure(c);
+            Closure lit = getClosureLiteral(c.target());
             if (lit != null) {
                 X10MethodInstance ci = c.closureInstance();
                 X10TypeSystem xts = (X10TypeSystem) typeSystem();
@@ -930,8 +1329,9 @@ public class Inliner extends ContextVisitor {
             }
             return c;
         }
-        
-        // Inline simple getters and setters // FIX ME: dead for now
+
+        // FIXME: dead code follows
+        // Inline simple getters and setters // FIXME: dead for now
         if (n instanceof ClosureCall) {
             ClosureCall c = (ClosureCall) n;
             if (c.arguments().size() == 1 && c.target() instanceof Expr && ((Expr) c.target()).isConstant() && ((Expr) c.target()).constantValue() instanceof Object[]) {
@@ -969,8 +1369,8 @@ public class Inliner extends ContextVisitor {
                 }
             }
         }
-        
-        / *
+
+        /*
         if (n instanceof Return) {
             Return r = (Return) n;
 
@@ -1095,622 +1495,9 @@ public class Inliner extends ContextVisitor {
             if (ss.size() != b.statements().size())
                 return b.statements(ss);
         }
-        * /
+        */
 
         return n;
-    }
-*/
-    /* dead code ?? Nate's code, unused by Igor.
-
-    /**
-     * @param s_if_cannot_inline
-     *            Statement to return if the method cannot be inlined.
-     * @param c
-     *            Call to inline.
-     * @param md
-     *            Definition of method to inline.
-     * @return Either the method body, with suitable substitutions, or
-     *         s_if_cannot_inline.
-     */
-    /* more dead code
-    private boolean canInlineHere(Block body, final ClassDef currentClassDef) {
-        final boolean[] result = new boolean[1];
-        result[0] = true;
-        body.visit(new NodeVisitor() {
-            @Override
-            public Node override(Node n) {
-                if (! result[0])
-                    return n;
-                return null;
-            }
-            @Override
-            public Node leave(Node old, Node n, NodeVisitor v) {
-                if (n instanceof Field) {
-                    Field f = (Field) n;
-                    if (! accessible(f.fieldInstance()))
-                        result[0] = false;
-                }
-                if (n instanceof FieldAssign) {
-                    FieldAssign f = (FieldAssign) n;
-                    if (! accessible(f.fieldInstance()))
-                        result[0] = false;
-                }
-                if (n instanceof Call) {
-                    Call f = (Call) n;
-                    if (! accessible(f.methodInstance()))
-                        result[0] = false;
-                }
-                if (n instanceof ClosureCall) {
-                    ClosureCall f = (ClosureCall) n;
-                    if (! accessible(f.closureInstance()))
-                        result[0] = false;
-                }
-                if (n instanceof ConstructorCall) {
-                    ConstructorCall f = (ConstructorCall) n;
-                    if (! accessible(f.constructorInstance()))
-                        result[0] = false;
-                }
-                if (n instanceof New) {
-                    New f = (New) n;
-                    if (! accessible(f.constructorInstance()))
-                        result[0] = false;
-                }
-                return super.leave(old, n, v);
-            }
-            private boolean accessible(MemberInstance mi) {
-                return ts.isAccessible(mi, context);
-            }
-        });
-        return result[0];
-    }
-    
-    class MoreThanOne extends Exception { 
-        public MoreThanOne() {
-        }
-    }
-    
-    // Get the expression assigned to var in s.  Return null if s has any other effects or than assignment to var or doesn't assign var.
-    public Expr getVarRhs(Stmt s, Local var, boolean returnOk) {
-        try {
-            HashMap<LocalDef,Expr> copies = new HashMap<LocalDef,Expr>();
-            Set<LocalDef> local = new HashSet<LocalDef>();
-            Expr e = getExpr(s, var, returnOk, copies, local);
-            return e;
-        }
-        catch (MoreThanOne e) {
-            return null;
-        }
-    }
-    
-    private void killDef(final LocalDef def, Map<LocalDef, Expr> map) {
-        for (final java.util.Iterator<Map.Entry<LocalDef, Expr>> i = map.entrySet().iterator(); i.hasNext(); ) {
-            Map.Entry<LocalDef, Expr> entry = i.next();
-            Expr a = entry.getValue();
-            if (a == null)
-                continue;
-            a.visit(new NodeVisitor() {
-                @Override
-                public Node override(Node n) {
-                    if (n instanceof Local) {
-                        Local l = (Local) n;
-                        if (l.localInstance().def() == def) {
-                            i.remove();
-                            return n;
-                        }
-                    }
-                    return null;
-                } 
-            });
-        }
-    }
-
-    public Expr lookup(Map<LocalDef, Expr> copies, Expr e) {
-        if (e instanceof Local) {
-            Local l = (Local) e;
-            Expr x = copies.get(l.localInstance().def());
-            if (x != null)
-                return lookup(copies, x);
-        }
-        return e;
-    }
-
-    // Get the expression assigned to var in s.  Return null if s does not assign var.  Throw if s has any other effects than assignment to var.
-    public Expr getExpr(Stmt s, Local var, boolean returnOk, Map<LocalDef,Expr> copies, Set<LocalDef> local) throws MoreThanOne {
-        if (s instanceof Block) {
-            Expr result = null;
-            Block b = (Block) s;
-            for (Stmt si : b.statements()) {
-                Expr e = getExpr(si, var, returnOk, copies, local);
-                if (e != null) {
-                    if (result != null)
-                        throw new MoreThanOne();
-                    result = e;
-                }
-            }
-            return result;
-        }
-
-        if (s instanceof Eval) {
-            Eval eval = (Eval) s;
-            Expr e = eval.expr();
-            if (e instanceof LocalAssign) {
-                LocalAssign a = (LocalAssign) e;
-                copies.put(a.local().localInstance().def(), a.right());
-                killDef(a.local().localInstance().def(), copies);
-                if (a.local().localInstance().def() == var.localInstance().def())
-                    return lookup(copies, a.right());
-                if (local.contains(a.local().localInstance().def()))
-                    return null;
-            }
-            throw new MoreThanOne();
-        }
-
-        if (s instanceof LocalDecl) {
-            LocalDecl d = (LocalDecl) s;
-            local.add(d.localDef());
-            if (d.init() != null) {
-                if (d.init().isConstant())
-                    return null;
-                throw new MoreThanOne();
-            }
-            return null;
-        }
-
-        if (s instanceof Labeled) {
-            Labeled l = (Labeled) s;
-            return getExpr(l.statement(), var, returnOk, copies, local);
-        }
-
-        if (s instanceof Do) {
-            Do l = (Do) s;
-            if (l.cond().isConstant() && l.cond().constantValue().equals(Boolean.FALSE))
-                return getExpr(l.body(), var, returnOk, copies, local);
-            else
-                throw new MoreThanOne();
-        }
-
-        if (s instanceof Return && returnOk) {
-            Return r = (Return) s;
-            if (r.expr() instanceof Local) {
-                Local l = (Local) r.expr();
-                if (l.localInstance().def() == var.localInstance().def())
-                    return null;
-            }
-        }
-        
-        if (s instanceof Empty) {
-            return null;
-        }
-
-        throw new MoreThanOne();
-    }
-
-       public boolean simple(Expr e) {
-        // HACK: treating closures as simple is correct only if we don't do == on closures.
-        return e instanceof Lit || e instanceof Local || e instanceof Closure || e.type().isNull() || (e instanceof ParExpr && simple(((ParExpr) e).expr()));
-    }
-
-    String nameOf(Expr e) {
-        if (e instanceof Field)
-            return ((Field) e).name().id().toString();
-        if (e instanceof Local)
-            return ((Local) e).name().id().toString();
-        return "tmp";
-    }
-
-    public Local makeLocal(LocalDecl decl) {
-        Local l = nf.Local(decl.position(), decl.name());
-        l = l.localInstance(decl.localDef().asInstance());
-        l = (Local) l.type(decl.declType());
-        return l;
-    }
-    
-    /** Rename local variables in the block to avoid shadowing errors when inlining. */ /* more dead code
-    private Block renameLocals(Block body) {
-        final Map<Name,Name> map = new HashMap<Name, Name>();
-        body.visit(new NodeVisitor() {
-            public Node override(Node n) {
-                if (n instanceof ClassDecl)
-                    return n;
-                if (n instanceof Closure)
-                    return n;
-                if (n instanceof ClassMember)
-                    return n;
-                return null;
-            }
-            Name newName(Name name) {
-                Name newName = map.get(name);
-                if (newName == null) {
-                    newName = Name.makeFresh(name.toString());
-                    map.put(name, newName);
-                }
-                return newName;
-            }
-            @Override
-            public Node leave(Node old, Node n, NodeVisitor v) {
-                if (n instanceof LocalDecl) {
-                    LocalDecl d = (LocalDecl) n;
-                    Name name = d.name().id();
-                    Name newName = newName(name);
-                }
-                return n;
-            }
-        });
-        return (Block) body.visit(new NodeVisitor() {
-            public Node override(Node n) {
-                if (n instanceof ClassDecl)
-                    return n;
-                if (n instanceof Closure)
-                    return n;
-                if (n instanceof ClassMember)
-                    return n;
-                return null;
-            }
-            Name newName(Name name) {
-                Name newName = map.get(name);
-                return newName;
-            }
-            @Override
-            public Node leave(Node old, Node n, NodeVisitor v) {
-                if (n instanceof LocalDecl) {
-                    LocalDecl d = (LocalDecl) n;
-                    Name name = d.name().id();
-                    Name newName = newName(name);
-                    if (newName != null) {
-                        d.localDef().setName(newName);
-                        return d.name(d.name().id(newName));
-                    }
-                }
-                if (n instanceof LocalAssign) {
-                    LocalAssign d = (LocalAssign) n;
-                    Name name = d.local().name().id();
-                    Name newName = newName(name);
-                    if (newName != null) {
-                        LocalInstance li = d.local().localInstance();
-                        li = renameLI(newName, li);
-                        d = d.local(d.local().localInstance(li));
-                        return d;
-                    }
-                }
-                if (n instanceof Local) {
-                    Local d = (Local) n;
-                    Name name = d.name().id();
-                    Name newName = newName(name);
-                    if (newName != null) {
-                        LocalInstance li = d.localInstance();
-                        li = renameLI(newName, li);
-                        d = d.localInstance(li);
-                        return d.name(d.name().id(newName));
-                    }
-                }
-                return n;
-            }
-            private LocalInstance renameLI(Name newName, LocalInstance li) {
-                LocalDef def = li.def();
-                while (li.name() != newName) {
-                    if (def.name() == newName) {
-                        li = li.name(newName);
-                    }
-                    else {
-                        def.setName(newName);
-                    }
-                }
-                return li;
-            }
-        });
-    }
-
-    /** Prepend the statements to the block. */ /* more dead code
-    private Block prepend(Block body, List<Stmt> ss) {
-        List<Stmt> stmts = new ArrayList<Stmt>(ss.size() + body.statements().size());
-        stmts.addAll(ss);
-        stmts.addAll(body.statements());
-        return body.statements(stmts);
-    }
-
-    private Assign assign(Position pos, Expr e, Assign.Operator asgn, Expr val) throws SemanticException {
-        NodeFactory xnf = nf;
-        TypeSystem xts = ts;
-        Assign a = (Assign) nf.Assign(pos, e, asgn, val).type(e.type());
-        if (a instanceof FieldAssign) {
-            assert (e instanceof Field);
-            assert ((Field) e).fieldInstance() != null;
-            a = ((FieldAssign) a).fieldInstance(((Field)e).fieldInstance());
-        } else if (a instanceof SettableAssign) {
-            assert (e instanceof X10Call);
-            MethodInstance ami = ((X10Call)e).methodInstance();
-            List<Type> aTypes = new ArrayList<Type>(ami.formalTypes());
-            aTypes.add(0, ami.returnType());
-            MethodInstance smi = xts.findMethod(ami.container(),
-                                                xts.MethodMatcher(ami.container(), Name.make("set"), aTypes, context));
-            a = ((SettableAssign) a).methodInstance(smi);
-            a = ((SettableAssign) a).applyMethodInstance(ami);
-        }
-        return a;
-    }
-
-    private Block subst(Block body, final Expr e, final Formal x) {
-        return (Block) body.visit(new NodeVisitor() {
-            public Node leave(Node old, Node n, NodeVisitor v) {
-                if (n instanceof Local) {
-                    Local l = (Local) n;
-                    LocalInstance li = l.localInstance();
-                    LocalDef ld = li.def();
-                    LocalDef xd = x.localDef();
-                    if (ld == xd)
-                        return e;
-                }
-                return n;
-            }
-        });
-    }
-
-    private Block substThis(Block body, final Expr e, final ClassDef thisType) {
-        return (Block) body.visit(new NodeVisitor() {
-            public Node leave(Node old, Node n, NodeVisitor v) {
-                if (n instanceof Field) {
-                    Field f = (Field) n;
-                    assert f.target() != null;
-                    return f.targetImplicit(false);
-                }
-                if (n instanceof FieldAssign) {
-                    FieldAssign a = (FieldAssign) n;
-                    assert a.target() != null;
-                    return a.targetImplicit(false);
-                }
-                if (n instanceof Call) {
-                    Call c = (Call) n;
-                    assert c.target() != null;
-                    return c.targetImplicit(false);
-                }
-                if (n instanceof Special) {
-                    Special s = (Special) n;
-                    if (s.kind() == Special.THIS) {
-                        Type t = s.type();
-                        Type b = X10TypeMixin.baseType(t);
-                        if (b instanceof ClassType) {
-                            ClassDef cd = ((ClassType) b).def();
-                            if (cd == thisType)
-                                return e;
-                        }
-                    }
-                }
-                return n;
-            }
-        });
-    }
-
-    private int count;
-
-    /** Return a clone of this visitor, incrementing the counter. */ /* more dead code
-    public Inliner inc() {
-        Inliner v = (Inliner) copy();
-        v.count++;
-        return v;
-    }
-
-    public Stmt inline(Stmt s_if_not_inline, X10Call c, X10MethodInstance mi, Expr result) {
-        if (!staticTypeIsExact(c.target()) && !mi.flags().isFinal())
-            return s_if_not_inline;
-
-        final X10MethodDef md = mi.x10Def();
-
-        // Don't inline recursively.  Recursive inlining will be handled when this method is inlined elsewhere.
-        if (md == context().currentCode())
-            return s_if_not_inline;
-
-        X10MethodDecl decl = getDeclaration(md);
-        if (decl == null)
-            return s_if_not_inline;
-        if (!canInlineHere(decl.body(), context().currentClassDef())) {
-            if (Report.should_report("inline", 1))
-                Report.report(1, "Cannot inline call " + c + " into " + context().currentCode() + "; inlined code would be illegal");
-            return s_if_not_inline;
-        }
-        if (Report.should_report("inline", 1))
-            Report.report(1, "Inlining call " + c + " into " + context().currentCode());
-        return rewriteBody(decl.body(), decl.typeParameters(), decl.formals(), c.target(), c.typeArguments(), c.arguments(), result, getContainer(md));
-    }
-    
-    public Stmt inlineClosure(Closure target, ClosureCall c, Expr result) {
-        if (Report.should_report("inline", 1))
-            Report.report(1, "Inlining closure call " + c + " into " + context().currentCode());
-        return rewriteBody(target.body(), Collections.EMPTY_LIST, target.formals(), target, 
-                Collections.EMPTY_LIST, c.arguments(), result, null);
-    }
-    
-    private Stmt rewireControlFlow(final Expr result, Block body) {
-        final Id label = nf.Id(body.position(), Name.makeFresh("label"));
-
-        class HasReturn extends NodeVisitor {
-            boolean result = false;
-
-            public Node override(Node n) {
-                if (n instanceof CodeNode || n instanceof ClassMember)
-                    return n;
-
-                if (n instanceof Block && ! (n instanceof SwitchBlock)) {
-                    Block b = (Block) n;
-                    for (int i = 0; i < b.statements().size()-1; i++) {
-                        HasReturn r = new HasReturn();
-                        Stmt s = b.statements().get(i);
-                        b.visitChild(s, r);
-                        if (r.result) {
-                            result = true;
-                            return n;
-                        }
-                    }
-
-                    if (b.statements().size() > 0) {
-                        Stmt s = b.statements().get(b.statements().size()-1);
-                        if (s instanceof Return)
-                            return n;
-                        b.visitChild(s, this);
-                    }
-                }
-
-                if (n instanceof Return) {
-                    result = true;
-                }
-
-                if (result)
-                    return n;
-
-                return null;
-            }
-        }
-
-        final  HasReturn hr = new HasReturn();
-        body.visit(hr);
-
-        Block b = (Block) body.visit(new NodeVisitor() {
-            public Node override(Node n) {
-                if (n instanceof CodeNode || n instanceof ClassMember)
-                    return n;
-                return null;
-            }
-
-            public Node leave(Node old, Node n, NodeVisitor v) {
-                if (n instanceof Block) {
-                    Block b = (Block) n;
-                    List<Stmt> ss = new ArrayList<Stmt>(b.statements().size());
-                    for (Stmt s : b.statements()) {
-                        if (s instanceof Empty)
-                            ;
-                        else
-                            ss.add(s);
-                    }
-                    if (ss.size() != b.statements().size()) {
-                        return b.statements(ss);
-                    }
-                    return b;
-                }
-                
-                if (n instanceof Return) {
-                    Return r = (Return) n;
-                    Stmt break_ = hr.result ? nf.Break(r.position(), label) : nf.Empty(r.position());
-                    if (r.expr() == null) {
-                        return break_;
-                    }
-                    else {
-                        if (result == null) {
-                            if (simple(r.expr()))
-                                return break_;
-                            LocalDecl d = makeFreshLocal(r.expr(), Flags.FINAL);
-                            if (break_ instanceof Empty)
-                                return nf.Block(r.position(), d);
-                            return nf.Block(r.position(), d, break_);
-                        }
-                        else {
-                            try {
-                                Assign assign = assign(r.position(), result, Assign.ASSIGN, r.expr());
-                                Eval eval = nf.Eval(r.position(), assign);
-                                if (break_ instanceof Empty)
-                                    return eval;
-                                return nf.Block(r.position(), eval, break_);
-                            }
-                            catch (SemanticException e) {
-                                throw new InternalCompilerError(e);
-                            }
-                        }
-                    }
-                }
-
-                if (n instanceof ParExpr) {
-                    ParExpr e = (ParExpr) n;
-                    if (e.expr() instanceof Local) {
-                        return e.expr();
-                    }
-                }
-
-                return n;
-            }
-        });
-
-        // return got rewritten to break
-        // replace B with do B while (false)
-        if (hr.result) {
-            Expr falsch = nf.BooleanLit(b.position(), false).type(ts.Boolean());
-            return nf.Labeled(b.position(), label, nf.Do(b.position(), b, falsch));
-        }
-        return b;
-    }
-
-    public LocalDecl makeFreshLocal(Expr e, Flags flags) {
-        Type t = e.type();
-        assert ! t.isNull() : "null type for " + e;
-        Name name = Name.makeFresh(nameOf(e));
-        Position pos = e.position();
-        LocalDef def = ts.localDef(pos, flags, Types.ref(t), name);
-        if (staticTypeIsExact(e) && flags.isFinal())
-            known.add(def);
-        if (e.isConstant())
-            def.setConstantValue(e.constantValue());
-        else
-            def.setNotConstant();
-        LocalDecl decl = nf.LocalDecl(pos, nf.FlagsNode(pos, def.flags()), nf.CanonicalTypeNode(pos, def.type()), nf.Id(pos, name), e);
-        decl = decl.localDef(def);
-        return decl;
-    *
-//    /** Rewrite body, substituting actual parameters for formals.  If the body returns, the return value is assigned into result.
-//     * TO*DO: handle type params and type arguments. 
-    public Stmt rewriteBody(Block body, List<TypeParamNode> typeParams, List<Formal> formals, Receiver target, List<TypeNode> typeArgs,
-            List<Expr> args, Expr result, ClassDef calleeClass) {
-        List<Stmt> decls = new ArrayList<Stmt>();
-        List<Expr> vars = new ArrayList<Expr>();
-        List<Formal> vformals = new ArrayList<Formal>();
-
-        if (target instanceof Expr) {
-            Expr e = (Expr) target;
-            if (simple(e))
-                vars.add(e);
-            else {
-                LocalDecl self = makeFreshLocal(e, Flags.FINAL);
-                decls.add(self);
-                vars.add(makeLocal(self));
-            }
-            vformals.add(null);
-        }
-        for (int i = 0; i < args.size(); i++) {
-            Expr e = args.get(i);
-            Formal f = formals.get(i);
-            if (simple(e))
-                vars.add(e);
-            else {
-                LocalDecl self = makeFreshLocal(e, f.flags().flags());
-                decls.add(self);
-                vars.add(makeLocal(self));
-            }
-            vformals.add(formals.get(i));
-        }
-
-        assert vars.size() == vformals.size();
-
-        body = renameLocals(body);
-
-        for (int i = 0; i < vars.size(); i++) {
-            if (vformals.get(i) != null)
-                body = subst(body, vars.get(i), vformals.get(i));
-            else
-                body = substThis(body, vars.get(i), calleeClass);
-        }
-
-        body = prepend(body, decls);
-        Stmt s = rewireControlFlow(result, body);
-
-        return s;
-    }
-
-    @Override
-    protected NodeVisitor enterCall(Node parent, Node n) throws SemanticException {
-        if (n instanceof LocalDecl) {
-            LocalDecl d = (LocalDecl) n;
-            LocalDef def = d.localDef();
-            if (def.flags().isFinal() && d.init() != null && staticTypeIsExact(d.init())) {
-                known.add(def);
-            }
-        }
-        return this;
     }
 
     private Stmt inlineSpecial(X10Call c, X10MethodDef md, Expr result) {
@@ -1864,8 +1651,4 @@ public class Inliner extends ContextVisitor {
         }
         return false;
     }
-    
-    end of dead code ?? */
-    
-    
 }

@@ -11,7 +11,6 @@ Require-Bundle: x10.common,
 Export-Package: x10,
  x10.ast,
  x10.emitter,
- x10.errors,
  x10.extension,
  x10.optimizations,
  x10.parser,
@@ -35,4 +34,3 @@ Export-Package: x10,
  x10cuda.types,
  x10cuda.visit
 Bundle-Vendor: rfuhrer@watson.ibm.com
-Bundle-RequiredExecutionEnvironment: J2SE-1.5

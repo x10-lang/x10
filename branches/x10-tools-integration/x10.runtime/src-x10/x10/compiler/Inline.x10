@@ -11,16 +11,15 @@
 
 package x10.compiler;
 
-import x10.lang.annotations.ExpressionAnnotation;
 import x10.lang.annotations.MethodAnnotation;
 
 /**
  * This annotation is used to allow the programmer
  * to direct the compiler to unconditionally inline
- * the annotated method (or call) whenever a call expression is
+ * the annotated method whenever a call expression is
  * statically resolved to invoke the method.</p>
  *
  * This annotation is processed by the X10 compiler's
  * common optimizer.
  */
-public interface Inline extends MethodAnnotation, ExpressionAnnotation { }
+public interface Inline extends MethodAnnotation { }

@@ -27,9 +27,9 @@ public class HeatTransfer_v0 {
     static type Real=Double;
     const n = 3, epsilon = 1.0e-5;
 
-    val BigD = [0..n+1, 0..n+1] as Region(2);
-    val D = [1..n, 1..n] as Region(2);
-    val LastRow = [0..0, 1..n] as Region(2);
+    val BigD = [0..n+1, 0..n+1] as Region;
+    val D = [1..n, 1..n] as Region;
+    val LastRow = [0..0, 1..n] as Region;
     val A = new Array[Real](BigD,(p:Point)=>{ LastRow.contains(p) ? 1.0 : 0.0 });
     val Temp = new Array[Real](BigD,(p:Point(BigD.rank))=>{ A(p) });
 
@@ -67,7 +67,7 @@ public class HeatTransfer_v0 {
 	val start = System.nanoTime();
         s.run();
 	val stop = System.nanoTime();
-	Console.OUT.printf("...completed in %1.3f seconds.\n", ((stop-start) as double)/1e9);
+	Console.OUT.printf("...completed in %1.3f seconds.\n", (stop-start as double)/1e9);
 	s.prettyPrintResult();
     }
 }

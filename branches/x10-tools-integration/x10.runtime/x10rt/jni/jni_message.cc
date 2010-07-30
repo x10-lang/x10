@@ -1024,8 +1024,8 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIFI(JNIEnv *env
     writer.writeJInt(arg2);
     
     x10rt_msg_params msg = {place, FI_Handler, writer.buffer, numBytes};
-    x10rt_send_msg(&msg);
     free(msg.msg);
+    x10rt_send_msg(&msg);
 }    
 
 /*

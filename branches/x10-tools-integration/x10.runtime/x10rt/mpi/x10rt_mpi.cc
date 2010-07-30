@@ -1010,8 +1010,19 @@ static void check_pending_receives() {
     }
 }
 
+void x10rt_net_remote_xor(unsigned long place,
+                       unsigned long long addr, long long update) {
+    fprintf(stderr, "x10rt_remote_xor on MPI currently unimplemented\n");
+    abort();
+}
+
 x10rt_remote_ptr x10rt_net_register_mem (void *ptr, size_t)
 { return (x10rt_remote_ptr)(size_t)ptr; }
+
+void x10rt_net_remote_op_fence(void) {
+    fprintf(stderr, "x10rt_remote_op_fence on MPI currently unimplemented\n");
+    abort();
+}
 
 void x10rt_register_thread (void) { }
 

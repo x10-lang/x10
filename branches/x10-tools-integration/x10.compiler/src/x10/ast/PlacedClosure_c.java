@@ -122,7 +122,6 @@ public class PlacedClosure_c extends Closure_c implements PlacedClosure {
     }
     @Override
     public Context enterChildScope(Node child, Context c) {
-    	if (child == place) return c.pop();
     	X10Context xc = (X10Context) super.enterChildScope(child, c);
     	if (child == body) {
     		xc = pushPlaceTerm(xc);

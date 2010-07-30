@@ -15,9 +15,74 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import polyglot.ast.*;
+import polyglot.ast.AmbAssign;
+import polyglot.ast.AmbExpr;
+import polyglot.ast.AmbQualifierNode;
+import polyglot.ast.AmbTypeNode;
+import polyglot.ast.Assign;
+import polyglot.ast.Binary;
+import polyglot.ast.Block;
+import polyglot.ast.BooleanLit;
+import polyglot.ast.Call;
+import polyglot.ast.CanonicalTypeNode;
+import polyglot.ast.Cast;
+import polyglot.ast.CharLit;
+import polyglot.ast.ClassBody;
+import polyglot.ast.ClassDecl;
+import polyglot.ast.ClassMember;
+import polyglot.ast.Conditional;
+import polyglot.ast.ConstructorCall;
+import polyglot.ast.ConstructorDecl;
+import polyglot.ast.DelFactory;
+import polyglot.ast.Disamb;
+import polyglot.ast.Do;
+import polyglot.ast.Expr;
+import polyglot.ast.ExtFactory;
+import polyglot.ast.Field;
+import polyglot.ast.FieldAssign;
+import polyglot.ast.FieldDecl;
+import polyglot.ast.FlagsNode;
+import polyglot.ast.FloatLit;
+import polyglot.ast.For;
+import polyglot.ast.ForInit;
+import polyglot.ast.ForUpdate;
+import polyglot.ast.For_c;
+import polyglot.ast.Formal;
+import polyglot.ast.Id;
+import polyglot.ast.If;
+import polyglot.ast.Import;
+import polyglot.ast.Initializer;
+import polyglot.ast.Initializer_c;
+import polyglot.ast.Instanceof;
+import polyglot.ast.IntLit;
+import polyglot.ast.Local;
+import polyglot.ast.LocalAssign;
+import polyglot.ast.LocalDecl;
+import polyglot.ast.MethodDecl;
+import polyglot.ast.New;
+import polyglot.ast.NodeFactory;
+import polyglot.ast.NodeFactory_c;
+import polyglot.ast.PackageNode;
+import polyglot.ast.Prefix;
+import polyglot.ast.Receiver;
+import polyglot.ast.Return;
+import polyglot.ast.SourceFile;
+import polyglot.ast.Special;
+import polyglot.ast.Stmt;
+import polyglot.ast.StringLit;
+import polyglot.ast.TopLevelDecl;
+import polyglot.ast.Try;
+import polyglot.ast.Try_c;
+import polyglot.ast.TypeNode;
+import polyglot.ast.Unary;
+import polyglot.ast.While;
 import polyglot.ast.Assign.Operator;
-import polyglot.types.*;
+import polyglot.types.FieldInstance;
+import polyglot.types.Name;
+import polyglot.types.QName;
+import polyglot.types.Ref;
+import polyglot.types.Type;
+import polyglot.types.TypeSystem;
 import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
@@ -838,14 +903,5 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return n;
 	}
 
-
-    public static Position compilerGenerated(Node n) {
-        return compilerGenerated(n==null ? null : n.position());
-    }
-    public static Position compilerGenerated(TypeObject n) {
-        return compilerGenerated(n==null ? null : n.position());
-    }
-    public static Position compilerGenerated(Position pos) {
-        return pos==null ? Position.COMPILER_GENERATED : pos.startOf().markCompilerGenerated();
-    }
+	
 }

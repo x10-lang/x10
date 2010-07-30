@@ -57,7 +57,7 @@ public class KMeansSPMD {
             // file is dimension-major
             val file = new File(fname), fr = file.openRead();
             val init_points = (Int) => Float.fromIntBits(Marshal.INT.read(fr).reverseBytes());
-            val num_file_points = (file.size() / dim / 4) as Int;
+            val num_file_points = file.size() / dim / 4 as Int;
             val file_points = ValRail.make(num_file_points*dim, init_points);
 
             var results : Rail[Float]!;

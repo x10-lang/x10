@@ -14,7 +14,6 @@ package x10.types;
 import polyglot.ast.Expr;
 import polyglot.ast.Receiver;
 import polyglot.types.FieldInstance;
-import polyglot.types.SemanticException;
 import polyglot.types.Type;
 
 import polyglot.types.TypeObject;
@@ -42,6 +41,4 @@ public interface X10FieldInstance extends FieldInstance, TypeObject, X10Use<X10F
 	X10FieldInstance type(Type type, Type rightType);
 
 	X10FieldInstance type(Type type);
-
-	X10FieldInstance error(SemanticException e);
 }

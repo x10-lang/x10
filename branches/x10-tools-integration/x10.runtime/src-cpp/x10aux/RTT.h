@@ -44,10 +44,7 @@
 
 namespace x10 {
     namespace lang {
-        class NullType;
         class Reference;
-        class String;
-        template<class T> class ValRail;
     }
 }
 
@@ -237,14 +234,8 @@ namespace x10aux {
     }
 
     #define TYPENAME(T) x10aux::typeName<T>()
-    class InitClosure;
-    template<> inline const char *typeName<InitClosure>() { return "InitClosure"; }
     class InitDispatcher;
     template<> inline const char *typeName<InitDispatcher>() { return "InitDispatcher"; }
-    class StaticInitClosure;
-    template<> inline const char *typeName<StaticInitClosure>() { return "StaticInitClosure"; }
-    class BootStrapClosure;
-    template<> inline const char *typeName<BootStrapClosure>() { return "BootStrapClosure"; }
     class remote_ref;
     template<> inline const char *typeName<remote_ref>() { return "remote_ref"; }
     template<> inline const char *typeName<reentrant_lock>() { return "reentrant_lock"; }
@@ -256,8 +247,6 @@ namespace x10aux {
     template<> inline const char *typeName<const RuntimeType*>() { return "const RuntimeType *"; }
     template<> inline const char *typeName<RuntimeType::Variance>() { return "Variance"; }
     template<> inline const char *typeName<x10::lang::Reference>() { return "interface"; }
-    template<> inline const char *typeName<x10::lang::NullType>() { return "Null"; }
-    template<> inline const char *typeName<x10::lang::ValRail<x10aux::ref<x10::lang::String> > >() { return "ValRail[String]"; }
 #ifndef NO_IOSTREAM
     template<> inline const char *typeName<std::stringstream>() { return "std::stringstream"; }
 #endif
