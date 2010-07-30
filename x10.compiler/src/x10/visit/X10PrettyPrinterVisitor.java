@@ -1538,24 +1538,25 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    X10TypeSystem xts = (X10TypeSystem) type.typeSystem();
 	    
 	    boolean isParameterType = false;
-	    Type ttype = c.target().type();
+	    Type ptype = type;
+	    Type ttype = X10TypeMixin.baseType(c.target().type());
 	    if (ttype instanceof X10ClassType) {
 	        if (((X10ClassType) ttype).typeArguments().size() > 0) {
-	            Type pt = ((X10ClassType) ttype).typeArguments().get(0);
-	            if (pt instanceof ParameterType) {
+	            ptype = ((X10ClassType) ttype).typeArguments().get(0);
+	            if (ptype instanceof ParameterType) {
 	                isParameterType = true;
 	            }
 	        }
 	    }
 	    
-            if (!isParameterType && (xts.isRail(c.target().type()) || xts.isValRail(c.target().type())) || isIMC(ttype)) {
+            if (!isParameterType && (xts.isRail(c.target().type()) || xts.isValRail(c.target().type()) || isIMC(ttype))) {
 	        String methodName = c.methodInstance().name().toString();
 	        // e.g. rail.set(a,i) -> ((Object[]) rail.value)[i] = a or ((int[]/* primitive array */)rail.value)[i] = a
 	        if (methodName.equals("set")) {
 	            w.write("(");
 	            w.write("(");
-	            if (c.type().isBoolean() || c.type().isNumeric() || c.type().isChar()) {
-	                new TypeExpander(er, c.type(), 0).expand();
+	            if (ptype.isBoolean() || ptype.isNumeric() || ptype.isChar()) {
+	                new TypeExpander(er, ptype, 0).expand();
 	            }
 	            else {
 	                w.write("Object");
@@ -1576,17 +1577,17 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	        }
 	        // e.g. rail.apply(i) -> ((String)((Object[])rail.value)[i]) or ((int[])rail.value)[i]
 	        if (methodName.equals("apply")) {
-	            if (!(c.type().isBoolean() || c.type().isNumeric() || c.type().isChar())) {
+	            if (!(ptype.isBoolean() || ptype.isNumeric() || ptype.isChar())) {
 	                    w.write("(");
 	                    w.write("(");
-	                    new TypeExpander(er, c.type(), true, false, false).expand();
+	                    new TypeExpander(er, ptype, true, false, false).expand();
 	                    w.write(")");
 	            }
 	            
 	            w.write("(");
 	            w.write("(");
-	            if (c.type().isBoolean() || c.type().isNumeric() || c.type().isChar()) {
-	                new TypeExpander(er, c.type(), 0).expand();
+	            if (ptype.isBoolean() || ptype.isNumeric() || ptype.isChar()) {
+	                new TypeExpander(er, ptype, 0).expand();
 	            }
 	            else {
 	                w.write("Object");
@@ -1601,7 +1602,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	            c.print(c.arguments().get(0), w, tr);
 	            w.write("]");
 
-	            if (!(c.type().isBoolean() || c.type().isNumeric() || c.type().isChar())) {
+	            if (!(ptype.isBoolean() || ptype.isNumeric() || ptype.isChar())) {
 	                w.write(")");
 	            }
 	            return;
@@ -1613,7 +1614,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    if (xts.isRail(c.target().type()) || xts.isValRail(c.target().type())) {
 	        String methodName = c.methodInstance().name().toString();
 	        if (methodName.equals("make")) {
-	            Type rt = X10TypeMixin.baseType(c.type());
+	            Type rt = X10TypeMixin.baseType(ptype);
 	            if (rt instanceof X10ClassType) {
 	                Type pt = ((X10ClassType) rt).typeArguments().get(0);
 	                if (!(X10TypeMixin.baseType(pt) instanceof ParameterType)) {
