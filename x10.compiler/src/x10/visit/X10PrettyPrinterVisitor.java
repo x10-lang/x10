@@ -207,6 +207,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	final public Translator tr;
 	final public Emitter er;
 
+	public final Type imcType;
+	
 	private static final String X10_RTT_TYPES = "x10.rtt.Types";
 	
 	private static int nextId_;
@@ -223,6 +225,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		this.w = w;
 		this.tr = tr;
 		this.er = new Emitter(w,tr);
+		try {
+		    imcType = tr.typeSystem().typeForName(QName.make("x10.util.IndexedMemoryChunk"));
+		} catch (SemanticException e1) {
+		    throw new InternalCompilerError("Something is terribly wrong");
+		}
 	}
 
 	public void visit(Node n) {
@@ -1529,7 +1536,19 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	public void visit(X10Call_c c) {
 	    Type type = X10TypeMixin.baseType(c.type());
 	    X10TypeSystem xts = (X10TypeSystem) type.typeSystem();
-	    if (!(type instanceof ParameterType) && (xts.isRail(c.target().type()) || xts.isValRail(c.target().type()))) {
+	    
+	    boolean isParameterType = false;
+	    Type ttype = c.target().type();
+	    if (ttype instanceof X10ClassType) {
+	        if (((X10ClassType) ttype).typeArguments().size() > 0) {
+	            Type pt = ((X10ClassType) ttype).typeArguments().get(0);
+	            if (pt instanceof ParameterType) {
+	                isParameterType = true;
+	            }
+	        }
+	    }
+	    
+            if (!isParameterType && (xts.isRail(c.target().type()) || xts.isValRail(c.target().type())) || isIMC(ttype)) {
 	        String methodName = c.methodInstance().name().toString();
 	        // e.g. rail.set(a,i) -> ((Object[]) rail.value)[i] = a or ((int[]/* primitive array */)rail.value)[i] = a
 	        if (methodName.equals("set")) {
@@ -1894,6 +1913,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		}
 		w.end();
 		w.write(")");
+	}
+
+	private boolean isIMC(Type type) {
+	    X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+	    Type tbase = X10TypeMixin.baseType(type);
+	    return tbase instanceof X10ParsedClassType_c && ((X10ParsedClassType_c) tbase).def().asType().typeEquals(imcType, tr.context());
 	}
 
 	public void visit(final Closure_c n) {
@@ -2648,7 +2673,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			Binary.Operator op = n.operator().binaryOperator();
 			Name methodName = X10Binary_c.binaryMethodName(op);
 			X10TypeSystem xts = (X10TypeSystem) ts;
-			if ((t.isBoolean() || t.isNumeric()) && (xts.isRail(array.type()) || xts.isValRail(array.type()))) {
+			if ((t.isBoolean() || t.isNumeric()) && (xts.isRail(array.type()) || xts.isValRail(array.type()) || isIMC(array.type()))) {
 			    w.write("(");
 			    w.write("(");
 			    new TypeExpander(er, t, 0).expand();
@@ -2696,7 +2721,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			Binary.Operator op = n.operator().binaryOperator();
 			Name methodName = X10Binary_c.binaryMethodName(op);
 			X10TypeSystem xts = (X10TypeSystem) ts;
-			if ((t.isBoolean() || t.isNumeric()) && (xts.isRail(array.type()) || xts.isValRail(array.type()))) {
+			if ((t.isBoolean() || t.isNumeric()) && (xts.isRail(array.type()) || xts.isValRail(array.type()) || isIMC(array.type()))) {
 			    w.write("(");
 			    w.write("(");
 			    new TypeExpander(er, t, 0).expand();
