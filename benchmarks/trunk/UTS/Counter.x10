@@ -327,7 +327,7 @@ public class Counter {
   private def getMinTimeStamp (lifeStories:ValRail[Stack[Event]!]!) {
     var minTimeStamp:Long = Long.MAX_VALUE;
     for (story in lifeStories)
-      if (story.peek().timeStamp < minTimeStamp) 
+      if ((story.size() > 0) && (story.peek().timeStamp < minTimeStamp))
         minTimeStamp = story.peek().timeStamp;
     return minTimeStamp;
   }
@@ -375,7 +375,7 @@ public class Counter {
 
       for (var i:Int=0; i<lifeStories.length(); ++i) {
         val story = lifeStories(i);
-        if (lowestTimeStamp == story.peek().timeStamp) {
+        if ((story.size() > 0) && (lowestTimeStamp == story.peek().timeStamp)) {
           currentStates(i) = story.peek().state;
           story.pop();
         }
