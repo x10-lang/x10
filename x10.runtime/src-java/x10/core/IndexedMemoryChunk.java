@@ -54,7 +54,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
 
     @Override
     public boolean _struct_equals(Object o) {
-        return this == o;
+        return o != null && this.value == ((IndexedMemoryChunk<?>) o).value;
         /*
         if (!_RTT.instanceof$(o, type)) return false;
         IndexedMemoryChunk<?> chunk = (IndexedMemoryChunk<?>) o;
