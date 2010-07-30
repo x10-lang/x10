@@ -171,6 +171,7 @@ import x10.types.X10Context;
 import x10.types.X10FieldInstance;
 import x10.types.X10Flags;
 import x10.types.X10MethodInstance;
+import x10.types.X10ParsedClassType_c;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10c.ast.X10CBackingArrayAccessAssign_c;
@@ -1714,11 +1715,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			List<Expr> arguments = c.arguments();
 			for (int i = 0; i < arguments.size(); ++ i) {
 			    Type ft = c.methodInstance().def().formalTypes().get(i).get();
-			    if ((ft.isBoolean() || ft.isNumeric() || ft.isChar()) && X10TypeMixin.baseType(ft) instanceof ParameterType) {
-			        args.add(new CastExpander(w, er, arguments.get(i)).castTo(arguments.get(i).type(), BOX_PRIMITIVES));
+			    Type at = arguments.get(i).type();
+			    if ((at.isBoolean() || at.isNumeric() || at.isChar()) && X10TypeMixin.baseType(ft) instanceof ParameterType) {
+			        args.add(new CastExpander(w, er, arguments.get(i)).castTo(at, BOX_PRIMITIVES));
 			    }
-			    else if ((ft.isBoolean() || ft.isNumeric() || ft.isChar())) {
-			        args.add(new CastExpander(w, er, arguments.get(i)).castTo(arguments.get(i).type(), 0));
+			    else if ((at.isBoolean() || at.isNumeric() || at.isChar())) {
+			        args.add(new CastExpander(w, er, arguments.get(i)).castTo(at, 0));
 			    }
 			    else {
 			        args.add(new CastExpander(w, er, arguments.get(i)));                                    
