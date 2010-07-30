@@ -25,6 +25,7 @@ public class Deque[T] {
     	 if (head > 0u) {
     		 r.copyTo(0, r1,rSize-head, head);
     	 }
+    	 Runtime.deallocObject(r);
 		 r=r1;
 		 head=0;
 		 tail=rSize;
