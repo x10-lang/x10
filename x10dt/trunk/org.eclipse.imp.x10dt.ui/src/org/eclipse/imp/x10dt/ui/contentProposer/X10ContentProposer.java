@@ -31,6 +31,7 @@ import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.parser.SimpleLPGParseController;
 import org.eclipse.imp.services.IContentProposer;
 import org.eclipse.imp.utils.HTMLPrinter;
+import org.eclipse.imp.x10dt.ui.parser.ParseController;
 import org.eclipse.imp.x10dt.ui.parser.PolyglotNodeLocator;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewer;
@@ -354,7 +355,7 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
         // the offset of a valid token.
         //
         // PORT1.7 --  token use here, calculation OK for now (does not use getLeftToken() etc)
-        IPrsStream prs_stream= ((SimpleLPGParseController) controller).getParser().getIPrsStream();
+        IPrsStream prs_stream= ((ParseController) controller).getParseStream();
         int index= prs_stream.getTokenIndexAtCharacter(offset);
         int token_index = (index < 0 ? -index + 1 : index);
         IToken tokenToComplete = null;
@@ -365,10 +366,10 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
         }
         SimpleLPGParseController lpgPC= (SimpleLPGParseController) controller;
         String prefix= computePrefixOfToken(tokenToComplete, offset, lpgPC);
-       
+
         IToken previousToken = (token_index != 0)? prs_stream.getIToken(token_index - 1) : null;
-        
-        PolyglotNodeLocator locator= new PolyglotNodeLocator(controller.getProject(), ((SimpleLPGParseController) controller).getLexer().getILexStream())  ;
+
+        PolyglotNodeLocator locator= new PolyglotNodeLocator(controller.getProject(), ((ParseController) controller).getLexStream())  ;
         Node currentAst= (Node) controller.getCurrentAst();
         Node node= (Node) locator.findNode(currentAst, tokenToComplete.getStartOffset(), tokenToComplete.getEndOffset());
         Node previousNode = (previousToken != null)? (Node) locator.findNode(currentAst, previousToken.getStartOffset(), previousToken.getEndOffset()): null;
