@@ -18,7 +18,7 @@ import x10.util.concurrent.atomic.AtomicInteger;
 public class ClockedAtomicInt extends ClockedVar[Int] implements ClockableVar {
 
   
-    val xRead:AtomicInteger! = new AtomicInteger(0);
+    var xRead: int = 0;
     val xWrite: AtomicInteger! = new AtomicInteger(0);
     var changed:Boolean = false;
 
@@ -32,7 +32,7 @@ public class ClockedAtomicInt extends ClockedVar[Int] implements ClockableVar {
     public def this(c:Clock, oper: (Int,Int)=>Int, opInitial:Int, x:Int)
      {
     	val clk = c as Clock!; 
-    	xRead.set(x);
+    	xRead = x;
         clk.addClockedVar(this); 
 	}
 	
@@ -41,7 +41,7 @@ public class ClockedAtomicInt extends ClockedVar[Int] implements ClockableVar {
     
       
     public @Inline def getClocked():Int {
-    	  return xRead.get();
+    	  return xRead;
    }
 
 
@@ -54,14 +54,14 @@ public class ClockedAtomicInt extends ClockedVar[Int] implements ClockableVar {
 
     } 
     
-    public @Inline def setR(x:Int){xRead.set(x);}
+    public @Inline def setR(x:Int){xRead = x;}
     
     public @Inline def getW(){return xWrite;}
     
 
     public @Inline def move(): Void {
         if (changed)
-        	this.xRead.set(this.xWrite.get()); 
+        	this.xRead = this.xWrite.get(); 
      	this.xWrite.set(0);
     	this.changed = false;
     }
