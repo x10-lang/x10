@@ -35,7 +35,12 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
         a.addAll(this);
         return a;
     }
-    
+
+    public def toVal() {
+      contentsAsValRail:ValRail[T]! = ValRail.make[T] (a.length(), 
+                                                       (i:Int) => a(i));
+      return contentsAsValRail;
+    }
     
     public def add(v: T): Boolean {
         a.add(v);
