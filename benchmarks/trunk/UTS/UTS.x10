@@ -27,6 +27,7 @@ public class UTS {
 	@NativeCPPCompilationUnit ("UTS__SHA1Rand.cc")
 	public static struct SHA1Rand {
 		public def this (seed:Int) { }
+	global safe public def toString():String = "<" + hashCode()+">";
     public def this (parent:SHA1Rand) { }
 		public def this (parent:SHA1Rand, spawnNumber:Int) { }
 		@Native ("c++", "UTS__SHA1Rand_methods::apply(#0)")
@@ -63,6 +64,7 @@ public class UTS {
     public def getDepth () : Int = this.depth;
 
     public def getSHA1Rand (): SHA1Rand = this.rng;
+	public global safe  def toString():String = "<" + depth + " " + rng + ">";
   }
 
 	static class SeqUTS {
