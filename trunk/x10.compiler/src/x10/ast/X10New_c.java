@@ -30,6 +30,7 @@ import polyglot.types.ConstructorInstance;
 import polyglot.types.Context;
 import polyglot.types.Matcher;
 import polyglot.types.Name;
+import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -258,10 +259,6 @@ public class X10New_c extends New_c implements X10New {
 
             tn = (TypeNode) n.visitChild(tn, childtc);
 
-            if (tn.type() instanceof UnknownType) {
-                throw new SemanticException();
-            }
-
             Type t = tn.type();
             t = ts.expandMacros(t);
 
@@ -269,7 +266,10 @@ public class X10New_c extends New_c implements X10New {
             t = X10TypeMixin.baseType(t);
 
             if (!(t instanceof X10ClassType)) {
-                throw new SemanticException("Cannot instantiate type " + t + ".");
+                QName name = QName.make(((AmbTypeNode) n.tn).name().id().toString());
+                t = ((X10TypeSystem_c) ts).createFakeClass(name, null);
+                tn = nf.CanonicalTypeNode(tn.position(), t);
+//                throw new SemanticException("Cannot instantiate type " + t + ".");
             }
 
             X10ClassType ct = (X10ClassType) t;
