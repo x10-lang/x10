@@ -51,8 +51,6 @@
 // };
 //   // A meta-structure that refers to all of the above
 
-#include <stdint.h>
-
 struct _X10sourceFile
 {
     uint32_t _numLines;    // The number of lines in the X10 source file
@@ -91,24 +89,6 @@ struct _X10methodName
     uint16_t _lineIndex;         // Index into _CPPtoX10xrefList of the first line of the method
 };
 
-struct _X10LocalVarMap
-{
-	uint32_t _x10name;			// Index of the X10 variable name in _X10strings
-	uint32_t _x10type;     		// Index of the X10 type in _X10strings
-	uint32_t _cppName;			// Index of the C++ variable name in _X10strings
-	uint32_t _startLine;        // Line number where the variable is created
-	uint32_t _endLine;        	// The last line where the variable is still in scope
-};
-
-struct _X10MemberVarMap
-{
-	uint32_t _x10name;			// Index of the X10 variable name in _X10strings
-	uint32_t _x10type;     		// Index of the X10 type in _X10strings
-	uint32_t _x10class;			// Index of the X10 containing class/struct name in _X10strings
-	uint32_t _offset;			// byte offset of the variable value inside the class
-	uint32_t _size;				// size of the variable.
-};
-
 enum _MetaLanguage {
   X10_META_LANG = 0    // Metalanguage 0 is X10
 };
@@ -136,10 +116,10 @@ struct _MetaDebugInfo_t {
   const struct _X10methodName* x10methodNameList; // The method name mapping list
 };
 
-//extern void _X10_Entry_Hook();     // A hook at the start of every X10 method.
-//extern void _X10_Exit_Hook();      // A hook at the end of every X10 method.
-extern void _X10_STATEMENT_HOOK();   // A hook at the start of every X10 executable statement.
-                                     // Follows any method start hook, and precedes any method end hook.
+extern void _X10_Entry_Hook();     // A hook at the start of every X10 method.
+extern void _X10_Exit_Hook();      // A hook at the end of every X10 method.
+extern void _X10_Statement_Hook(); // A hook at the start of every X10 executable statement.
+                                   // Follows any method start hook, and precedes any method end hook.
 
 #endif //X10AUX_DEBUG_H
 // vim:tabstop=4:shiftwidth=4:expandtab

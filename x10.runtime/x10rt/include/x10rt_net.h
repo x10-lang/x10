@@ -111,6 +111,17 @@ X10RT_C void x10rt_net_remote_op (x10rt_place place, x10rt_remote_ptr remote_add
  */
 X10RT_C x10rt_remote_ptr x10rt_net_register_mem (void *ptr, size_t len);
 
+/** \see #x10rt_lgl_remote_xor
+ * \param place As in #x10rt_lgl_remote_xor
+ * \param addr As in #x10rt_lgl_remote_xor
+ * \param update As in #x10rt_lgl_remote_xor
+ */
+X10RT_C void x10rt_net_remote_xor (x10rt_place place, x10rt_remote_ptr addr, long long update);
+
+/** \see #x10rt_lgl_remote_op_fence
+ */
+X10RT_C void x10rt_net_remote_op_fence (void);
+
 /** Shut down the network layer.  \see #x10rt_lgl_finalize
  */
 X10RT_C void x10rt_net_finalize (void); 

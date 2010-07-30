@@ -184,7 +184,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 			catch (SemanticException e) {
 				// Now, try to find the method with implicit conversions, making them explicit.
 				try {
-					Pair<MethodInstance,List<Expr>> p = tryImplicitConversions(this, tc, t, name().id(), typeArgs, argTypes);
+					Pair<MethodInstance,List<Expr>> p = tryImplicitConversions(this, tc, t, typeArgs, argTypes);
 					return p;
 				}
 				catch (SemanticException e2) {
@@ -402,7 +402,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 	        for (Expr a : this.arguments) {
 	            argTypes.add(a.type());
 	        }
-	        X10MethodInstance mi = ts.createFakeMethod(name.id(), typeArgs, argTypes, e);
+	        X10MethodInstance mi = ts.createFakeMethod(name.id(), typeArgs, argTypes);
 	        Type rt = mi.rightType(); // X10Field_c.rightType(mi.rightType(), mi.x10Def(), n.target, c);
 	        n = (X10Call_c) methodInstance(mi).type(rt);
 	        try {
@@ -522,7 +522,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 				List<Expr> args = null;
 				 // Now, try to find the method with implicit conversions, making them explicit.
 				 try {
-					 Pair<MethodInstance,List<Expr>> p = tryImplicitConversions(this, tc, null, name().id(), typeArgs, argTypes);
+					 Pair<MethodInstance,List<Expr>> p = tryImplicitConversions(this, tc, null, typeArgs, argTypes);
 					 mi = (X10MethodInstance) p.fst();
 					 args = p.snd();
 				 } catch (SemanticException e2) {
@@ -600,7 +600,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		    if (mi == null) {
 		        // Now, try to find the method with implicit conversions, making them explicit.
 		        try {
-		            Pair<MethodInstance,List<Expr>> p = tryImplicitConversions(n, tc, targetType, n.name().id(), typeArgs, argTypes);
+		            Pair<MethodInstance,List<Expr>> p = tryImplicitConversions(n, tc, targetType, typeArgs, argTypes);
 		            mi = (X10MethodInstance) p.fst();
 		            args = p.snd();
 		        }
@@ -666,18 +666,16 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 
 
 
-	public static Pair<MethodInstance,List<Expr>> tryImplicitConversions(X10ProcedureCall n, ContextVisitor tc,
-	        Type targetType, final Name name, List<Type> typeArgs, List<Type> argTypes) throws SemanticException {
+	static Pair<MethodInstance,List<Expr>> tryImplicitConversions(final X10Call_c n, ContextVisitor tc, Type targetType, List<Type> typeArgs, List<Type> argTypes) throws SemanticException {
 	    final X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 	    final Context context = tc.context();
+	    ClassDef currentClassDef = context.currentClassDef();
 
-	    List<MethodInstance> methods = ts.findAcceptableMethods(targetType,
-	            new DumbMethodMatcher(targetType, name, typeArgs, argTypes, context));
+	    List<MethodInstance> methods = ts.findAcceptableMethods(targetType, new DumbMethodMatcher(targetType, n.name().id(), typeArgs, argTypes, context));
 
-	    Pair<MethodInstance,List<Expr>> p = Converter.<MethodDef,MethodInstance>tryImplicitConversions(n, tc,
-	            targetType, methods, new X10New_c.MatcherMaker<MethodInstance>() {
+	    Pair<MethodInstance,List<Expr>> p = Converter.<MethodDef,MethodInstance>tryImplicitConversions(n, tc, targetType, methods, new X10New_c.MatcherMaker<MethodInstance>() {
 	        public Matcher<MethodInstance> matcher(Type ct, List<Type> typeArgs, List<Type> argTypes) {
-	            return ts.MethodMatcher(ct, name, typeArgs, argTypes, context);
+	            return ts.MethodMatcher(ct, n.name().id(), typeArgs, argTypes, context);
 	        }
 	    });
 

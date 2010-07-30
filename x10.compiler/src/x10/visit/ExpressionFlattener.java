@@ -6,8 +6,10 @@ package x10.visit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import polyglot.ast.ArrayAccess;
 import polyglot.ast.Assert;
@@ -24,7 +26,6 @@ import polyglot.ast.Conditional;
 import polyglot.ast.ConstructorCall;
 import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Do;
-import polyglot.ast.Do_c;
 import polyglot.ast.Empty;
 import polyglot.ast.Eval;
 import polyglot.ast.Expr;
@@ -34,6 +35,7 @@ import polyglot.ast.FieldDecl;
 import polyglot.ast.For;
 import polyglot.ast.ForInit;
 import polyglot.ast.ForUpdate;
+import polyglot.ast.Id;
 import polyglot.ast.If;
 import polyglot.ast.Instanceof;
 import polyglot.ast.Labeled;
@@ -53,7 +55,6 @@ import polyglot.ast.Try;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.ast.While;
-import polyglot.ast.While_c;
 import polyglot.frontend.Job;
 import polyglot.types.Flags;
 import polyglot.types.Name;
@@ -199,8 +200,8 @@ public final class ExpressionFlattener extends ContextVisitor {
     private Node flattenLabeledNode(Node n, List<Labeled> list) {
         if (n instanceof For) return flattenFor((For) n, list);
         if (n instanceof ForLoop) return flattenForLoop((ForLoop) n, list);
-        if (n instanceof While) return flattenWhile((While_c) n, list);
-        if (n instanceof Do) return flattenDo((Do_c) n, list);
+        if (n instanceof While) return flattenWhile((While) n, list);
+        if (n instanceof Do) return flattenDo((Do) n, list);
         return null;
     }
 
@@ -696,8 +697,8 @@ public final class ExpressionFlattener extends ContextVisitor {
         else if (stmt instanceof If)        return flattenIf((If) stmt);
         else if (stmt instanceof For)       return flattenFor((For) stmt, null);
         else if (stmt instanceof ForLoop)   return flattenForLoop((ForLoop) stmt, null);
-        else if (stmt instanceof While)     return flattenWhile((While_c) stmt, null);  // TODO: fix polyglot to allow getters in the interface
-        else if (stmt instanceof Do)        return flattenDo((Do_c) stmt, null);        // TODO: fix polyglot to allow getters in the interface
+        else if (stmt instanceof While)     return flattenWhile((While) stmt, null);
+        else if (stmt instanceof Do)        return flattenDo((Do) stmt, null);
         else if (stmt instanceof Return)    return flattenReturn((Return) stmt);
         else if (stmt instanceof Throw)     return flattenThrow((Throw) stmt);
         else if (stmt instanceof Switch)    return flattenSwitch((Switch) stmt);
@@ -963,8 +964,7 @@ public final class ExpressionFlattener extends ContextVisitor {
     /**
      * Flatten the evaluation of an expression.
      * <pre>
-     * ({s1; null});  ->  s1;
-     * ({s1; e1});    ->  s1; Eval(e1);
+     * ({s1; e1});  ->  s1; Eval(e1);
      * </pre>
      * 
      * @param stmt the evaluation to be flattened.
@@ -973,9 +973,7 @@ public final class ExpressionFlattener extends ContextVisitor {
     private StmtSeq flattenEval(Eval stmt) {
         List<Stmt> stmts = new ArrayList<Stmt>();
         stmts.addAll(getStatements(stmt.expr()));
-        Expr result = getResult(stmt.expr());
-        if (null != result) 
-            stmts.add(syn.createEval(result));
+        stmts.add(syn.createEval(getResult(stmt.expr())));
         return syn.toStmtSeq(syn.toStmtSeq(stmt.position(), stmts));
     }
 
@@ -1039,24 +1037,25 @@ public final class ExpressionFlattener extends ContextVisitor {
      * Flatten a while loop.
      * <pre>
      * while (true)       S;  ->  while (true) S; 
-     * while (false)      S;  ->  while (false) S;
      * while (({s1; e1})) S;  ->  while (true) { s1; val t1 = e1; if (!t1) break; S;} 
      * </pre>
      * 
      * @param stmt the while loop to be flattened
      * @return a flat statement with the same semantics as stmt
      */
-    private Stmt flattenWhile(While_c stmt, List<Labeled> labels) {
-        if ( !(stmt.cond() instanceof BooleanLit) ) {
-            List<Stmt> stmts = new ArrayList<Stmt>();
+    private Stmt flattenWhile(While stmt, List<Labeled> labels) {
+        List<Stmt> stmts = new ArrayList<Stmt>();
+        if ( (null==stmt.cond()) ||
+             !(stmt.cond() instanceof BooleanLit) || 
+             !((BooleanLit) stmt.cond()).value() ) {
             Expr primary = getPrimaryAndStatements(stmt.cond(), stmts);
             stmts.add(syn.createIf( stmt.cond().position(), 
                                     syn.createNot(stmt.cond().position(), primary), 
                                     syn.createBreak(stmt.cond().position()), 
                                     null) );
-            stmt = (While_c) stmt.cond(syn.createTrue(stmt.cond().position()));
+            stmt = stmt.cond(syn.createTrue(stmt.cond().position()));
             stmts.add(stmt.body());
-            stmt = (While_c) stmt.body(syn.createBlock(stmt.position(), stmts));
+            stmt = stmt.body(syn.createBlock(stmt.position(), stmts));
         }
         return label(stmt, labels);
     }
@@ -1064,17 +1063,13 @@ public final class ExpressionFlattener extends ContextVisitor {
     /**
      * Flatten a do loop.
      * <pre>
-     * do { S; } while(true);        ->  do { S; } while(true);
-     * do { S; } while(false);       ->  do { S; } while(false);
      * do { S; } while(({s1; e1}));  ->  {var t = false; do { S; s1; val t1 = e1; t = t1} while(t);} 
      * </pre>
      * 
      * @param stmt the do loop to be flattened
      * @return a flat statement with the same semantics as stmt
      */
-    private Stmt flattenDo(Do_c stmt, List<Labeled> labels) {
-        if (null == stmt.cond() || stmt.cond() instanceof BooleanLit) 
-            return label(stmt, labels);
+    private Stmt flattenDo(Do stmt, List<Labeled> labels) {
         List<Stmt> stmts = new ArrayList<Stmt>();
         Position pos = stmt.position();
         LocalDecl tmpLDecl = syn.createLocalDecl( pos, 
@@ -1088,8 +1083,8 @@ public final class ExpressionFlattener extends ContextVisitor {
         bodyStmts.add(stmt.body());
         Expr primary = getPrimaryAndStatements(stmt.cond(), bodyStmts);
         bodyStmts.add(syn.createAssignment(pos, syn.createLocal(pos, tmpLDecl), Assign.ASSIGN, primary));
-        stmt = (Do_c) stmt.cond(syn.createLocal(pos, tmpLDecl));
-        stmt = (Do_c) stmt.body(syn.createBlock(pos, bodyStmts));
+        stmt = stmt.cond(syn.createLocal(pos, tmpLDecl));
+        stmt = stmt.body(syn.createBlock(pos, bodyStmts));
         stmts.add(label(stmt, labels));
         return syn.createBlock(pos, stmts);
     }

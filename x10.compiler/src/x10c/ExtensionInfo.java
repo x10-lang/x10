@@ -24,7 +24,6 @@ import x10c.ast.X10CNodeFactory_c;
 import x10c.types.X10CTypeSystem_c;
 import x10c.visit.CastRemover;
 import x10c.visit.Desugarer;
-import x10c.visit.InlineHelper;
 import x10c.visit.JavaCaster;
 import x10c.visit.RailInLoopOptimizer;
 
@@ -56,17 +55,11 @@ public class ExtensionInfo extends x10.ExtensionInfo {
             CastsRemoved(job).addPrereq(JavaCaster(job));
             RailInLoopOptimizer(job).addPrereq(CastsRemoved(job));
             SharedBoxed(job).addPrereq(RailInLoopOptimizer(job));
-            if (x10.Configuration.INLINE_OPTIMIZATIONS) {
-                InlineHelped(job).addPrereq(SharedBoxed(job));
-            }
             CodeGenerated(job).addPrereq(Desugarer(job));
             CodeGenerated(job).addPrereq(JavaCaster(job));
             CodeGenerated(job).addPrereq(CastsRemoved(job));
             CodeGenerated(job).addPrereq(RailInLoopOptimizer(job));
             CodeGenerated(job).addPrereq(SharedBoxed(job));
-            if (x10.Configuration.INLINE_OPTIMIZATIONS) {
-                CodeGenerated(job).addPrereq(InlineHelped(job));
-            }
             return goals;
         }
         
@@ -99,12 +92,6 @@ public class ExtensionInfo extends x10.ExtensionInfo {
             TypeSystem ts = extInfo.typeSystem();
             NodeFactory nf = extInfo.nodeFactory();
             return new VisitorGoal("SharedBoxed", job, new SharedBoxer(job, ts, nf)).intern(this);
-        }
-        
-        private Goal InlineHelped(Job job) {
-            TypeSystem ts = extInfo.typeSystem();
-            NodeFactory nf = extInfo.nodeFactory();
-            return new VisitorGoal("InlineHelped", job, new InlineHelper(job, ts, nf)).intern(this);
         }
     }
 }

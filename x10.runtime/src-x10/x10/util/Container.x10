@@ -17,7 +17,7 @@ public interface Container[+T]  extends Iterable[T] {
   public def isEmpty(): Boolean;
   public def contains(T): Boolean;
   public def toValRail(): ValRail[T];
-  public def toRail(): Rail[T]!;
-  public def containsAll(Container[T]!): Boolean;
-  public def clone(): Container[T]!;
+  public def toRail(): Rail[T];
+  public def containsAll(Container[T]): Boolean;
+  public def clone(): Container[T];
 }

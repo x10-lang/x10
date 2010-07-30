@@ -26,7 +26,7 @@ public class X10RT {
      * methods on this class or on any other X10RT related class can be successfully
      * invoked.
      *
-     * @param numProgressThreads The number of progress threads to create to process
+     * @param nProgressThreads The number of progress threads to create to process
      *                           incoming messages.
      * @throws IllegalArgumentException if numProgressThreads is not positive
      */

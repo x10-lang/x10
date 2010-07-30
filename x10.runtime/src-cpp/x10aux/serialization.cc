@@ -73,7 +73,7 @@ void serialization_buffer::grow (void) {
     if (new_capacity<16) new_capacity = 16; // biggest primitive we might serialise -- a SIMD variable
     
     // do not use GC
-    buffer = (char*)std::realloc(buffer, new_capacity);
+    buffer = (char*)realloc(buffer, new_capacity);
 
     // update pointers to use (potentially) new buffer
     limit = buffer + new_capacity;

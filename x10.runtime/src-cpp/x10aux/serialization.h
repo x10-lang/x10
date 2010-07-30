@@ -224,9 +224,11 @@ namespace x10aux {
         serialization_buffer (void);
 
         ~serialization_buffer (void) {
+            #ifndef NDEBUG
             if (buffer!=NULL) {
-                std::free(buffer);
+                free(buffer);
             }
+            #endif
         }
 
         void grow (void);

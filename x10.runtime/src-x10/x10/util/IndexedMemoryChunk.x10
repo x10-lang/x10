@@ -17,6 +17,20 @@ import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
 
+/*
+ * Implementation note.
+ *
+ * For C++ we are mapping IndexedChunk to an optimized hand-written class that provides
+ * the minimal required functionality.
+ * 
+ * For Java, we are currently mapping to Rail. I think the plan here should be to 
+ * continue mapping to Rail.  Once Rail disappears as an X10-level source consturct,
+ * we can then simplify the Java implementation of Rail accordingly.
+ * Alternatively, we could go ahead with the customized implementation of IndexedChunk<T>
+ * in Java eagerly and then get rid of the Java implementation of Rail at a later date
+ * when we kill the X10 version of same.
+ */
+
 /**
  * A low-level abstraction of a chunk of memory that
  * contains a dense, indexed from 0 collection of 
@@ -30,7 +44,7 @@ import x10.compiler.NativeRep;
  * X10 level when absolutely required for performance. This class
  * is not intended for general usage, since it is inherently unsafe.<p>
  */
-@NativeRep("java", "x10.core.IndexedMemoryChunk<#1>", null, "new x10.rtt.ParameterizedType(x10.core.IndexedMemoryChunk._RTT, #2)")
+@NativeRep("java", "x10.core.Rail<#1>", null, "new x10.rtt.ParameterizedType(x10.core.Rail._RTT, #2)")
 @NativeRep("c++", "x10::util::IndexedMemoryChunk<#1 >", "x10::util::IndexedMemoryChunk<#1 >", null)
 public struct IndexedMemoryChunk[T] {
 
@@ -38,27 +52,28 @@ public struct IndexedMemoryChunk[T] {
     @Native("c++", "null")
     private native def this(); // unused; prevent instantiaton outside of native code
 
-    @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4)")
+    @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4)")
     @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#1 >(#4, 8, false, false)")
     public static native def allocate[T](numElements:int):IndexedMemoryChunk[T];
 
-    @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4)")
+    @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4)")
     @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#1 >(#4, 8, false, #5)")
     public static native def allocate[T](numElements:int, zeroed:boolean):IndexedMemoryChunk[T];
 
-    @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4)")
+    @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4)")
     @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#1 >(#4, #5, #6, #7)")
     public static native def allocate[T](numElements:int, alignment:int, pinned:boolean, zeroed:boolean):IndexedMemoryChunk[T];
 
-    @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4)")
+
+    @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4)")
     @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#1 >(#4, 8, false, false)")
     public static native def allocate[T](numElements:long):IndexedMemoryChunk[T];
 
-    @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4)")
+    @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4)")
     @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#1 >(#4, 8, false, #5)")
     public static native def allocate[T](numElements:long, zeroed:boolean):IndexedMemoryChunk[T];
 
-    @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4)")
+    @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4)")
     @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#1 >(#4, #5, #6, #7)")
     public static native def allocate[T](numElements:long, alignment:int, pinned:boolean, zeroed:boolean):IndexedMemoryChunk[T];
 
@@ -92,7 +107,7 @@ public struct IndexedMemoryChunk[T] {
      * @param i The index of the element to be changed.
      * @return The new value.
      */
-    @Native("java", "(#0).set(#1, #2)")
+    @Native("java", "(#0).set$G(#1, #2)")
     @Native("c++", "(#0)->set(#1, #2)")
     public native safe def set(value:T, index:int):void;
 
@@ -104,7 +119,7 @@ public struct IndexedMemoryChunk[T] {
      * @param i The index of the element to be changed.
      * @return The new value.
      */
-    @Native("java", "(#0).set(#1, (int)(#2))")
+    @Native("java", "(#0).set$G(#1, (int)(#2))")
     @Native("c++", "(#0)->set(#1, #2)")
     public native safe def set(value:T, index:long):void;
 
@@ -126,37 +141,9 @@ public struct IndexedMemoryChunk[T] {
      * @param dstIndex the index of the first element to store in the destination.
      * @param numElems the number of elements to copy.
      */
-    @Native("java", "x10.util.IndexedMemoryChunk__NativeRep.copyTo(#9, #0,#1,#2,#3,#4,#5,#6)")
-    @Native("c++", "(#0)->copyTo(#1,#2,#3,#4,#5,#6)")
-    public native def copyTo (srcIndex:int, 
-                              dstPlace:Place, dst:IndexedMemoryChunk[T], dstIndex:int, 
-                              numElems:int, 
-                              uncounted:boolean):void;
-
-
-    /**
-     * Copies a contiguous portion of the src IndexedMemoryChunk found
-     * at the specified place into this IndexedMemoryChunk.
-     * If the source place is not the same as the current place, then
-     * the copy happens asynchronously and the created remote activity is registered 
-     * with the dynamically enclosing finish of the activity that invoked copyFrom.</p>
-     *
-     * Note: No checking is performed to verify that this operation is safe;
-     * it is the responsibility of higher-level abstractions built on top of 
-     * IndexedMemoryChunk to ensure memory, type, and place safety.
-     *
-     * @param dstIndex the index of the first element to store in the destination.
-     * @param srcPlace the source place (must be the real home of src).
-     * @param src the destination IndexedMemoryChunk.
-     * @param srcIndex the index of the first element to copy in the source.
-     * @param numElems the number of elements to copy.
-     */
-    @Native("java", "x10.util.IndexedMemoryChunk__NativeRep.copyFrom(#9, #0,#1,#2,#3,#4,#5,#6)")
-    @Native("c++", "(#0)->copyFrom(#1,#2,#3,#4,#5,#6)")
-    public native def copyFrom(dstIndex:int,
-                               srcPlace:Place, src:IndexedMemoryChunk[T], srcIndex:int,
-                               numElems:int,
-                               uncounted:boolean):void;
+    @Native("java", "x10.lang.Rail__NativeRep.copyTo(#8, #0,#1,#3,#4,#5)")
+    @Native("c++", "(#0)->copyTo(#1,#2,#3,#4,#5)")
+    public native def copyTo (srcIndex:int, dstPlace:Place, dst:IndexedMemoryChunk[T], dstIndex:int, numElems:int):void;
 
 
    /*
@@ -178,3 +165,16 @@ public struct IndexedMemoryChunk[T] {
 }
 
 // vim:shiftwidth=4:tabstop=4:expandtab
+
+
+
+
+
+
+
+
+
+
+
+
+    

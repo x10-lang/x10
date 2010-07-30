@@ -33,7 +33,7 @@ they may be allocated inline, using only as much memory as necessary to hold
 and align the fields of the struct.
 
 Functions, called closures or lambda-expressions in other languages, are
-instances of {\em function types|} (\Sref{Functions}). Functions can refer to
+instances of {\em function types|} {\Sref{Functions}). Functions can refer to
 %~~exp~~`~~`~~y:Int ~~
 variables from the surrounding environment; \eg, \xcd`(x:Int)=>x*y` is a unary
 integer function which multiplies its argument by the variable \xcd`y` from
@@ -76,7 +76,7 @@ Type \: FunctionType \\
     \| ConstrainedType  \\
 
 FunctionType \: TypeParameters\opt \xcd"(" Formals\opt \xcd")"
-Constraint\opt Throws\opt Offers\opt \xcd"=>" TypeOrVoid \\
+Constraint\opt Throws\opt \xcd"=>" TypeOrVoid \\
 TypeParameters \: \xcd"[" TypeParameter ( \xcd"," TypeParameter )\star \xcd"]" \\
 TypeParameter \: Identifier \\
 Throws \: \xcd"throws" TypeName ( \xcd"," TypeName )\star \\

@@ -16,7 +16,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Stack;
 
 import polyglot.ast.Assign;
 import polyglot.ast.Binary_c;
@@ -35,7 +34,6 @@ import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
-import polyglot.ast.Return;
 import polyglot.ast.Stmt;
 import polyglot.ast.StringLit;
 import polyglot.ast.TypeNode;
@@ -129,9 +127,6 @@ public class Desugarer extends ContextVisitor {
     }
 
     private static int count;
-    //Collecting Finish Use: store reducer
-    private static Stack reducerS = new Stack();
-    private static int flag = 0;
 
     private static Name getTmp() {
         return Name.make("__desugarer__var__" + (count++) + "__");
@@ -160,11 +155,10 @@ public class Desugarer extends ContextVisitor {
     private static final Name CONVERT_IMPLICITLY = Converter.implicit_operator_as;
     private static final Name DIST = Name.make("dist");
 
-    public Node override(Node parent, Node n) {    
+    public Node override(Node parent, Node n) {
         if (n instanceof Eval) {
             try {
                 Stmt s = visitEval((Eval) n);
-                flag = 1;
                 return visitEdgeNoOverride(parent, s);
             }
             catch (SemanticException e) {
@@ -173,32 +167,6 @@ public class Desugarer extends ContextVisitor {
         }
 
         return null;
-    }
-    //Collecting Finish Use : store reducer when enter finishR
-    public NodeVisitor superEnter(Node parent, Node n) {
-        if (n instanceof LocalDecl){
-            LocalDecl f = (LocalDecl) n;
-            if (f.init() instanceof FinishExpr) {
-                reducerS.push((FinishExpr) f.init());
-            }
-        }
-        if (n instanceof Eval) {
-            if (((Eval) n).expr() instanceof Assign) {
-                Assign f = (Assign) ((Eval)n).expr();
-                Expr right = f.right();
-                if (right instanceof FinishExpr) {
-                    reducerS.push((FinishExpr) f.right());
-                }
-            }
-        }
-        if (n instanceof Return) {
-            Return f = (Return) n;
-            if (f.expr() instanceof FinishExpr) {
-                reducerS.push((FinishExpr) f.expr());
-            }
-        }
-
-        return super.superEnter(parent, n);
     }
 
     public Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
@@ -224,8 +192,6 @@ public class Desugarer extends ContextVisitor {
             return visitFinish((Finish) n);
         if (n instanceof Offer)
             return visitOffer((Offer) n);
-        if (n instanceof Return)
-            return visitReturn((Return) n);
         if (n instanceof ForEach)
             return visitForEach((ForEach) n);
         if (n instanceof AtEach)
@@ -621,17 +587,14 @@ public class Desugarer extends ContextVisitor {
     //    catch (t:Throwable) { Runtime.pushException(t); }
     //    finally { x = f.stopFinishExpr(); }
     //    }
-    private Stmt visitFinishExpr(Assign n, LocalDecl l, Return r) throws SemanticException {
+    private Stmt visitFinishExpr(Assign n, LocalDecl l) throws SemanticException {
     	FinishExpr f = null;
-        if ((l==null) && (n!=null)&& (r == null)) {
-                f = (FinishExpr) n.right();
-        }
-        if ((n==null) && (l!=null)&& (r==null)) {
-                f = (FinishExpr) l.init();
-        }
-        if ((n==null) && (l==null)&& (r!=null)) {
-                f = (FinishExpr) r.expr();
-        }
+    	if ((l==null) && (n!=null)) {
+    		f = (FinishExpr) n.right();
+    	}
+    	if ((n==null) && (l!=null)) {
+    		f = (FinishExpr) l.init();
+    	}
     	
         Position pos = f.position();
         Expr reducer = f.reducer();
@@ -642,11 +605,14 @@ public class Desugarer extends ContextVisitor {
     		ConstrainedType ct = (ConstrainedType) reducerType;
     		reducerType = X10TypeMixin.baseType(Types.get(ct.baseType()));
         }
-
-        // reducerType is "Reducible[T]", and reducerTarget is "T"
+        
         // Parse out T
-        Type reducerTarget = X10TypeMixin.reducerType(reducerType);
-        assert reducerTarget!=null;
+        Type reducerTarget = null;
+        for (Type t : xts.interfaces(reducerType)) {
+        	for (Type tt : ((X10ParsedClassType)t).typeArguments()) {
+        		reducerTarget = tt;
+        	}
+        }
         
         Type coFinish = xts.load("x10.lang.Runtime.CollectingFinish");
         Type coFinishT = (((X10ParsedClassType)coFinish).typeArguments(Collections.singletonList(reducerTarget)));
@@ -654,7 +620,7 @@ public class Desugarer extends ContextVisitor {
         X10ConstructorInstance ti = xts.findConstructor(coFinishT, xts.ConstructorMatcher(coFinishT, Collections.singletonList(reducerType), context));
         Expr newCF = xnf.New(pos, TTE, Collections.singletonList(reducer)).constructorInstance(ti).type(coFinishT);
 
-        Name tmp1 = getTmp();
+        Name tmp1 = Name.make("finishR");
         LocalDef lDef1 = xts.localDef(pos, xts.NoFlags(), Types.ref(coFinishT), tmp1);
         Expr local1 = xnf.Local(pos, xnf.Id(pos, tmp1)).localInstance(lDef1.asInstance()).type(coFinishT);
         final Flags flags = Flags.FINAL;   
@@ -665,7 +631,7 @@ public class Desugarer extends ContextVisitor {
         Block tryBlock = xnf.Block(pos,f.body());
 
         // Begin catch block
-        Name tmp2 = getTmp();
+        Name tmp2 = Name.make("Throwvar");
         MethodInstance mi = xts.findMethod(xts.Runtime(),
                 xts.MethodMatcher(xts.Runtime(), PUSH_EXCEPTION, Collections.singletonList(xts.Throwable()), context));
         LocalDef lDef = xts.localDef(pos, xts.NoFlags(), Types.ref(xts.Throwable()), tmp2);
@@ -680,81 +646,44 @@ public class Desugarer extends ContextVisitor {
         // Begin finally block
         Name STOPFINISHEXPR = Name.make("stopFinishExpr");
         Stmt returnS = null;
-        if ((l==null) && (n!=null)&& (r==null)) {
+        if ((l==null) && (n!=null)) {
         	Expr left = n.left(xnf).type(reducerTarget);
             Call instanceCall = synth.makeInstanceCall(pos, local1, STOPFINISHEXPR, Collections.EMPTY_LIST, Collections.EMPTY_LIST, reducerTarget, Collections.EMPTY_LIST, xContext());
             Expr b = xnf.Assign(pos, left, Assign.ASSIGN, instanceCall).type(reducerTarget);
             returnS = xnf.Eval(pos, b);
       	}
-        if ((n==null) && (l!=null) && (r==null)) {
+        if ((n==null) && (l!=null)) {
             Expr local2 = xnf.Local(pos, l.name()).localInstance(l.localDef().asInstance()).type(reducerTarget);
         	Call instanceCall = synth.makeInstanceCall(pos, local1, STOPFINISHEXPR, Collections.EMPTY_LIST, Collections.EMPTY_LIST, reducerTarget, Collections.EMPTY_LIST, xContext());
          	Expr b = xnf.Assign(pos, local2, Assign.ASSIGN, instanceCall).type(reducerTarget);
             returnS = xnf.Eval(pos, b);
         }
-        if ((n==null) && (l==null) && (r!=null)) {
-            Call instanceCall = synth.makeInstanceCall(pos, local1, STOPFINISHEXPR, Collections.EMPTY_LIST, Collections.EMPTY_LIST, reducerTarget, Collections.EMPTY_LIST, xContext());
-            returnS = xnf.X10Return(pos, instanceCall, true);
-        }
         
         Block finalBlock = xnf.Block(pos, returnS);
-        if(reducerS.size()>0) reducerS.pop();
         return xnf.Block(pos, localDecl, s1, xnf.Try(pos, tryBlock, Collections.singletonList(catchBlock), finalBlock));
     }
     //  offer e ->
     //  x10.lang.Runtime.CollectingFinish.offer(e);      
-	private Stmt visitOffer(Offer n) throws SemanticException {		
+	private Stmt visitOffer(Offer n) throws SemanticException {
+		
     	Position pos = n.position();
     	Expr offerTarget = n.expr();
-        Type expectType = null;
-        if(reducerS.size()>0) {
-            FinishExpr f = (FinishExpr) reducerS.peek();
-            Expr reducer = f.reducer();
-            Type reducerType = reducer.type();
-            if (reducerType instanceof ConstrainedType) {
-                ConstrainedType ct = (ConstrainedType) reducerType;
-                reducerType = X10TypeMixin.baseType(Types.get(ct.baseType()));
-            }
-
-            for (Type t : xts.interfaces(reducerType)) {
-                for (Type tt : ((X10ParsedClassType)t).typeArguments()) {
-                    expectType = tt;
-                }
-            }
-        }
-        else {
-            expectType = offerTarget.type();
-        }
-   	 
-        CanonicalTypeNode CCE = xnf.CanonicalTypeNode(pos, expectType);
-        TypeNode reducerA = (TypeNode) CCE;
-        Expr newOfferTarget = xnf.X10Cast(pos, reducerA, offerTarget,Converter.ConversionType.CHECKED).type(reducerA.type());
-
+    	Type reducerTarget = offerTarget.type();    	 
     	Name OFFER = Name.make("offer");  
     	Type coFinish = xts.load("x10.lang.Runtime.CollectingFinish");
-        Type coFinishT = (((X10ParsedClassType)coFinish).typeArguments(Collections.singletonList(expectType))); 	   	  	    	    	
-    	Call call = synth.makeStaticCall(pos, coFinishT, OFFER, Collections.singletonList(offerTarget), xts.Void(), Collections.singletonList(expectType),  xContext());
+        Type coFinishT = (((X10ParsedClassType)coFinish).typeArguments(Collections.singletonList(reducerTarget))); 	   	  	    	    	
+    	Call call = synth.makeStaticCall(pos, coFinishT, OFFER, Collections.singletonList(offerTarget), xts.Void(), Collections.singletonList(reducerTarget),  xContext());
     	
     	Stmt offercall = xnf.Eval(pos, call);     	
     	return offercall;		 
 	}
-
-    //handle finishR in return stmt:
-    private Stmt visitReturn(Return n) throws SemanticException {
-        if (n.expr() instanceof FinishExpr) {
-            Stmt returnS = visitFinishExpr(null,null,n);
-            return returnS;
-        }
-
-        return n;
-    }
 
     private Stmt visitLocalDecl(LocalDecl n) throws SemanticException {
         if (n.init() instanceof FinishExpr) {
             Position pos = n.position();
             ArrayList<Stmt> sList = new ArrayList<Stmt>();
             sList.add(n.init(null));                      
-            Stmt s = visitFinishExpr(null, n,null);
+            Stmt s = visitFinishExpr(null, n);
             sList.add(s);
             return xnf.StmtSeq(pos, sList);
         }
@@ -934,11 +863,11 @@ public class Desugarer extends ContextVisitor {
     // x++; -> ++x; or x--; -> --x; (to avoid creating an extra closure)
     private Stmt visitEval(Eval n) throws SemanticException {
         Position pos = n.position();
-        if ((n.expr() instanceof Assign)&&(flag==1)) {
+        if (n.expr() instanceof Assign) {
             Assign f = (Assign) n.expr();
             Expr right = f.right();
             if (right instanceof FinishExpr)
-                return visitFinishExpr(f, null,null);
+                return visitFinishExpr(f, null);
              
         }
         if (n.expr() instanceof X10Unary_c) {

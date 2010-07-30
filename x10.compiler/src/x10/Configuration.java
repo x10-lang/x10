@@ -33,7 +33,7 @@ public final class Configuration extends x10.config.Configuration {
      */
     public static final ConfigurationError LOAD_ERROR;
 
-    public static boolean CHECK_INVARIANTS = false;
+    public static boolean CHECK_INVARIANTS = true;
     private static final String CHECK_INVARIANTS_desc = "Check AST invariants such as position containment, existance of xxxInstance(), etc";
 
     public static boolean ONLY_TYPE_CHECKING = false;
@@ -59,9 +59,6 @@ public final class Configuration extends x10.config.Configuration {
 
     public static boolean FLATTEN_EXPRESSIONS = false;
     private static final String FLATTEN_EXPRESSIONS_desc = "Flatten all expressions";
-
-    public static boolean INLINE_SMALL_METHODS = false;
-    private static final String INLINE_SMALL_METHODS_desc = "Inline methods that don't make many calls";
 
     public static String PLUGINS = "";
     private static final String PLUGINS_desc = "Comma-separated list of compiler plugins to run.";

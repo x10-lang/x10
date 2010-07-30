@@ -831,8 +831,6 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     		CConstraint c = null;
     		try {
     			c = xcontext.constraintProjection(c1, c2);
-//    			c1 = xcontext.constraintProjection(c1);
-//    			c2 = xcontext.constraintProjection(c2);
     		} catch (XFailure z) {
     			throw new InternalCompilerError("Unexpected inconsistent context " + xcontext);
     		}

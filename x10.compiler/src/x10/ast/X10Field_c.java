@@ -106,14 +106,14 @@ public class X10Field_c extends Field_c {
 		        throw e;
 		    Errors.issue(tc.job(), e, this);
 		    Type tType = target != null ? target.type() : tc.context().currentClass();
-		    X10FieldInstance fi = findAppropriateField(tc, tType, name.id(), target instanceof TypeNode, e);
+		    X10FieldInstance fi = findAppropriateField(tc, tType, name.id(), target instanceof TypeNode);
 		    n = (X10Field_c)fieldInstance(fi).type(fi.type());
 		}
 		return n;
 	}
 
 	public static X10FieldInstance findAppropriateField(ContextVisitor tc, Type targetType,
-	        Name name, boolean isStatic, SemanticException e) throws SemanticException
+	        Name name, boolean isStatic) throws SemanticException
 	{
 	    X10FieldInstance fi;
 	    X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
@@ -152,7 +152,7 @@ public class X10Field_c extends Field_c {
 	    if (ct != null) targetType = ct;
 	    Flags flags = Flags.PUBLIC;
 	    if (isStatic) flags = flags.Static();
-	    fi = xts.createFakeField(targetType.toClass(), flags, name, e);
+	    fi = xts.createFakeField(targetType.toClass(), flags, name);
 	    if (rt != null) fi = fi.type(rt);
 	    return fi;
 	}

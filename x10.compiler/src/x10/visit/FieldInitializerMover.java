@@ -12,18 +12,15 @@
 package x10.visit;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import polyglot.ast.Assign;
 import polyglot.ast.Block;
 import polyglot.ast.ClassBody;
-import polyglot.ast.ClassDecl;
 import polyglot.ast.ClassMember;
 import polyglot.ast.ConstructorCall;
 import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Eval;
-import polyglot.ast.Expr;
 import polyglot.ast.FieldAssign;
 import polyglot.ast.FieldDecl;
 import polyglot.ast.Node;
@@ -31,24 +28,16 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.Special;
 import polyglot.ast.Stmt;
 import polyglot.frontend.Job;
-import polyglot.types.ConstructorInstance;
 import polyglot.types.FieldDef;
-import polyglot.types.QName;
 import polyglot.types.SemanticException;
-import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
-import x10.types.X10ClassType;
-import x10.types.X10Def;
-import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 
 /**
- * Visitor that moves field initializers to the constructor
- * and insert explicit super constructor invocations
- * unless constructor is annotated @NoSuperCall.
+ * Visitor that moves field initializers to the constructor.
  */
 public class FieldInitializerMover extends ContextVisitor {
     X10TypeSystem xts;
@@ -58,22 +47,10 @@ public class FieldInitializerMover extends ContextVisitor {
         xts = (X10TypeSystem) ts;
     }
     
-    protected ConstructorCall superCall(Type superType) throws SemanticException {
-        ConstructorCall cc = nf.ConstructorCall(Position.compilerGenerated(), ConstructorCall.SUPER, Collections.EMPTY_LIST);
-        ConstructorInstance ci = ts.findConstructor(superType, ts.ConstructorMatcher(superType, Collections.EMPTY_LIST, context));
-        return cc.constructorInstance(ci);
-    }
-    
-    protected boolean mustCallSuper(ConstructorDecl cdecl) throws SemanticException {
-        Type t = (Type) xts.systemResolver().find(QName.make("x10.compiler.NoSuperCall"));
-        return ((X10Def) cdecl.constructorDef()).annotationsMatching(t).isEmpty();
-    }
-
     @Override
     public Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
-        if (n instanceof ClassDecl) {
-            ClassDecl cdecl = (ClassDecl) n;
-            ClassBody cb = cdecl.body();
+        if (n instanceof ClassBody) {
+            ClassBody cb = (ClassBody) n;
             List<Stmt> assignments = new ArrayList<Stmt>();
             List<ClassMember> members = new ArrayList<ClassMember>();
             
@@ -106,7 +83,7 @@ public class FieldInitializerMover extends ContextVisitor {
                 }
             }
             
-            /* if (assignments.size() > 0) */ {
+            if (assignments.size() > 0) {
                 List<ClassMember> members2 = new ArrayList<ClassMember>();
 
                 for (ClassMember cm : members) {
@@ -133,8 +110,6 @@ public class FieldInitializerMover extends ContextVisitor {
                             else {
                                 // implicit super call
                                 List<Stmt> ss = new ArrayList<Stmt>();
-                                if (cdecl.superClass() != null && mustCallSuper(cd))
-                                    ss.add(superCall(cdecl.superClass().type()));
                                 ss.addAll(assignments);
                                 ss.addAll(stmts);
                                 body = body.statements(ss);
@@ -143,8 +118,6 @@ public class FieldInitializerMover extends ContextVisitor {
                         else {
                             // implicit super call
                             List<Stmt> ss = new ArrayList<Stmt>();
-                            if (cdecl.superClass() != null && mustCallSuper(cd))
-                                ss.add(superCall(cdecl.superClass().type()));
                             ss.addAll(assignments);
                             ss.addAll(stmts);
                             body = body.statements(ss);
@@ -164,7 +137,7 @@ public class FieldInitializerMover extends ContextVisitor {
                 members = members2;
             }
             
-            return cdecl.body(cb.members(members));
+            return cb.members(members);
         }
         
         return super.leaveCall(old, n, v);

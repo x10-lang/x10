@@ -134,7 +134,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 	List<TypeParamNode> typeParameters;
 
 	// set by createMethodDef.
-	public XTerm placeTerm;
+	XTerm placeTerm;
 
 	TypeNode offerType;
 	TypeNode hasType;
