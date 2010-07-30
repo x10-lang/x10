@@ -7,25 +7,17 @@
 import x10.util.ArrayList;
 import x10.util.Stack;
 
-public class Counter  {
+public class Counter {
 
   /**
    * A class that holds an event module.
    */
-  public static struct Event {
+  public static struct Event (timeStamp:Long, state:Int) {
     public static val DEAD:Int = 0;
-    public static val ALIVE:Int = 1;
-    public static val COMPUTING:Int = 2;
-    public static val STEALING:Int = 3;
-    public static val DISTRIBUTING:Int = 4;
-    public static val PROBING:Int = 5;
-    public val timeStamp:Long;
-    public val state:Int;
-
-    public def this (timeStamp:Long, state:Int) {
-      this.timeStamp = timeStamp; 
-      this.state = state;
-    }
+    public static val COMPUTING:Int = 1;
+    public static val STEALING:Int = 2;
+    public static val DISTRIBUTING:Int = 3;
+    public static val PROBING:Int = 4;
   }
 
 	var lifelines:Long=0L;
@@ -48,6 +40,8 @@ public class Counter  {
 	var chainDepth:Int=0;
 	var maxDepth:Int=0;
   val lifeStory:ArrayList[Event]! = new ArrayList[Event]();
+
+  public def this() { setLastStartStopLiveTimeStamp(); }
 	
 	public def toVal() = new ValCounter(this);
 
@@ -141,8 +135,6 @@ public class Counter  {
 		+ timeAlive + ",td:" + timeDead + "," + maxDepth;
 	}
 	}
-
-	public def this() {}
 
 	def incLifeline(n:Int) {
 		this.lifelines++;
@@ -331,12 +323,12 @@ public class Counter  {
     return (numStacksNotEmpty >= 2);
   }
 
-  private def maxTimeStamp (lifeStories:ValRail[Stack[Event]!]!) {
-    var maxTimeStamp:Long = 0;
+  private def getMinTimeStamp (lifeStories:ValRail[Stack[Event]!]!) {
+    var minTimeStamp:Long = Long.MAX_VALUE;
     for (story in lifeStories)
-      if (story.peek().timeStamp > maxTimeStamp) 
-        maxTimeStamp = story.peek().timeStamp;
-    return maxTimeStamp;
+      if (story.peek().timeStamp < minTimeStamp) 
+        minTimeStamp = story.peek().timeStamp;
+    return minTimeStamp;
   }
 
   /**
@@ -344,7 +336,7 @@ public class Counter  {
    */
   private def makeStackFromValRail (rail:ValRail[Event]) {
     val stackToReturn = new Stack[Event]();
-    for (var i:Int=0; i<rail.length(); ++i) stackToReturn.push (rail(i));
+    for (var i:Int=(rail.length()-1); i>=0; --i) stackToReturn.push (rail(i));
     return stackToReturn;
   }
 
@@ -362,16 +354,14 @@ public class Counter  {
     val currentStates:Rail[Int]! = 
           Rail.make[Int] (allCounters.length(), (i:Int) => Event.DEAD);
 
-    val lifetimeGraph:Stack[LifeGraph]! = new Stack[LifeGraph]();
-
-    for (story in lifeStories) Console.OUT.println (story.size());
+    val lifetimeGraph:ArrayList[LifeGraph]! = new ArrayList[LifeGraph]();
 
     while (hasAtLeastTwoFullStacks (lifeStories)) {
-      val highestTimeStamp:Long = maxTimeStamp (lifeStories);
+      val lowestTimeStamp:Long = getMinTimeStamp (lifeStories);
 
       for (var i:Int=0; i<lifeStories.length(); ++i) {
         val story = lifeStories(i);
-        if (highestTimeStamp == story.peek().timeStamp) {
+        if (lowestTimeStamp == story.peek().timeStamp) {
           currentStates(i) = story.peek().state;
           story.pop();
         }
@@ -393,20 +383,18 @@ public class Counter  {
           case Event.PROBING: ++numProbing; break;
         }
       }
-      lifetimeGraph.push (LifeGraph(highestTimeStamp,
-                                    numDead, 
-                                    numComputing, 
-                                    numStealing,
-                                    numDistributing,
-                                    numProbing));
+
+      lifetimeGraph.add (LifeGraph(lowestTimeStamp,
+                                   numDead, 
+                                   numComputing, 
+                                   numStealing,
+                                   numDistributing,
+                                   numProbing));
     }
 
-    Console.OUT.println ("Ready to print: " + lifetimeGraph.size());
-
-    val beginningOfTime:Long = lifetimeGraph.peek().timeStamp;
-    while (lifetimeGraph.size() > 0) {
-      Console.OUT.println (lifetimeGraph.pop().toString(beginningOfTime));
-    }
+    val beginningOfTime:Long = lifetimeGraph(0).timeStamp;
+    for (var i:Int=0; i<lifetimeGraph.size(); ++i)
+      Console.OUT.println (lifetimeGraph(i).toString(beginningOfTime));
   }
 	
 	static val COMPUTING = 0;
