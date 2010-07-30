@@ -117,9 +117,8 @@ public class Counter  {
 		+ timeAlive + ",td:" + timeDead + "," + maxDepth;
 	}
 	}
-	public def this() {}
 
-	
+	public def this() {}
 
 	def incLifeline(n:Int) {
 		this.lifelines++;
@@ -169,8 +168,8 @@ public class Counter  {
 		}
 	}
 
-  def setLastStartStopLiveTimeStamp (t:Long) {
-    lastStartStopLiveTimeStamp = t;
+  def setLastStartStopLiveTimeStamp () {
+    lastStartStopLiveTimeStamp = System.nanoTime();
   }
 
 	def startLive() {

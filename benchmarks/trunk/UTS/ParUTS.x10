@@ -43,7 +43,7 @@ final class ParUTS {
 	val z:Int;
 	val logEvents:Boolean;
 	val myRandom = new Random();
-    public val counter = new Counter();
+  public val counter = new Counter();
 	var active:Boolean=false;
     var noLoot:Boolean=true;
 
@@ -313,10 +313,8 @@ final class ParUTS {
 				processLoot(loot, true);
 				assert (! init);
         /*
-        // Now you can return, the outer activity will handle the data on the
-        // stack.
-			    if (depth > 0) 
-					  distribute(st, depth+1);
+        // Now you can return, the outer activity will handle the data on the stack.
+			  if (depth > 0) distribute(st, depth+1);
             */
 				return;
 			}
@@ -347,8 +345,19 @@ final class ParUTS {
             rootNode:TreeNode) {
 		val P=Place.MAX_PLACES;
 		event("Start main finish");
-    counter.setLastStartStopLiveTimeStamp(System.nanoTime());
-		counter.startLive();
+
+    // First, we have to make sure that everyone gets the beginning of time ---
+    // this was not happening previously. I don't know if this invalidates a lot 
+    // of the statistics we collected. Vijay, any comments?
+    finish {
+			for (var pi:Int=1 ; pi<P ; ++pi) {
+        async (Place(pi)) st().counter.setLastStartStopLiveTimeStamp();
+      }
+      counter.setLastStartStopLiveTimeStamp();
+		  counter.startLive();
+    }
+
+    // Now, launch the main computation
 		finish {
 			event("Launch main");
 			if (Constants.BINOMIAL==treeType) { 
