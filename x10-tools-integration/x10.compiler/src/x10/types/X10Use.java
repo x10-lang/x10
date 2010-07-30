@@ -13,7 +13,6 @@ package x10.types;
 
 import java.util.List;
 
-import polyglot.types.SemanticException;
 import polyglot.types.Type;
 
 public interface X10Use<T extends X10Def> {
@@ -21,6 +20,4 @@ public interface X10Use<T extends X10Def> {
     public List<Type> annotations();
     public List<Type> annotationsMatching(Type t);
     public boolean isValid();
-    public SemanticException error();
-    public X10Use<T> error(SemanticException e);
 }

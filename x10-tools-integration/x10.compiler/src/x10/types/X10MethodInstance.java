@@ -14,7 +14,6 @@ package x10.types;
 import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.Ref;
-import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import x10.constraint.XTerm;
 
@@ -23,20 +22,21 @@ import x10.constraint.XTerm;
  *
  */
 public interface X10MethodInstance extends MethodInstance, X10ProcedureInstance<MethodDef>, X10Use<X10MethodDef> {
-    /**
-     * Is this a method in a safe class, or a method marked as safe?
-     * @return
-     */
-    boolean isSafe();
+	/**
+	 * Is this a method in a safe class, or a method marked as safe?
+	 * @return
+	 */
+	boolean isSafe();
+	
+	// Use X10MethodInstance as the return type rather than X10MethodInstance
+	X10MethodInstance returnType(Type returnType);
+	
+	/** Type to use in a RHS context rather than the return type. */
+	Type rightType();
+	
+	XTerm body();
+	X10MethodInstance body(XTerm body);
+	
+	
 
-    // Use X10MethodInstance as the return type rather than X10MethodInstance
-    X10MethodInstance returnType(Type returnType);
-
-    /** Type to use in a RHS context rather than the return type. */
-    Type rightType();
-
-    XTerm body();
-    X10MethodInstance body(XTerm body);
-
-    X10MethodInstance error(SemanticException e);
 }

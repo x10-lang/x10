@@ -687,6 +687,16 @@ void x10rt_net_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 	insertNewMessage(PUT, p, buf, len, NULL);
 }
 
+void x10rt_net_remote_xor (x10rt_place place, x10rt_remote_ptr addr, long long update)
+{ 
+	// not implemented
+}
+
+void x10rt_net_remote_op_fence (void)
+{
+	// not implemented
+}
+
 void x10rt_net_probe (void)
 {
 	// the receiving side calls this regularly, to see if messages have come in to be processed.  This is

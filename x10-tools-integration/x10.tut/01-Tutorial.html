@@ -25,15 +25,6 @@ details may be somewhat different.  X10 has:
 <li>Generics</li>
 </ol>
 
-<p>
-It also has its own concepts for multicore, including: 
-</p>
-<ol>
-<li>Places, corresponding to processes or processors</li>
-<li>Activities, loosely like light-weight threads</li>
-<li>Distributions, for spreading data across places</li>
-</ol>
-
 <h2>The Obligatory <code>Hello, World</code></h2>
 
 The program to print "Hello, World" is: 
@@ -103,7 +94,7 @@ As in Java and C++, the program execution starts with the static method
   doesn't return anything.  It has type <kbd>Void</kbd>, but you don't need
   to write that.</li>
 <li>X10 has several choices of built-in collection types.  Some of the fancier
-  ones are extraordinariy powerful; <i>e.g.,</i> the <kbd>DistArray</kbd> type
+  ones are extraordinariy powerful; <i>e.g.,</i> the <kbd>Array</kbd> type
   describes data spread across multiple processors.  We don't need that sort
   of power here, so <kbd>main</kbd> takes a simple kind of collection:
   a <kbd>Rail</kbd> of strings.  <kbd>Rail</kbd>s are simple vectors, indexed
@@ -114,7 +105,8 @@ As in Java and C++, the program execution starts with the static method
   Map[String, Point]</kbd>.  Square brackets aren't used for anything else in
   X10.
 </li>
-<li>Variable types come after the variable name, with a colon: <kbd>argv:Rail[String]</kbd>, or <kbd>i:Int</kbd>.  
+<li>Variable types come after the variable name, with a colon: <kbd>argv :
+    Rail[String]</kbd>, or <kbd>i:Int</kbd>.  
 </li>
 </ol>
 
@@ -268,14 +260,14 @@ program, it will execute <kbd>main</kbd>, and <kbd>here</kbd> will be equal
 to <kbd>Place.FIRST_PLACE</kbd>.  If you start computations at other
 places, <kbd>here</kbd> will be set to other <kbd>Place</kbd> values for those
 computations.  Each computation has its own <kbd>here</kbd> constant,
-so <kbd>here</kbd> for the <kbd>main</kbd> that your program starts with will always
+so <kbd>here</kbd> for <kbd>main</kbd> will always
 be <kbd>Place.FIRST_PLACE</kbd>.
 </p>
 
 <p>
 There might be other places around that you can use as well.  Typically, when
 you write production code for a multicore machine, you'll want to have about
-one place running on each core.
+one place running on each core, so 
 </p>
 
 <a name="intro-bang"></a>

@@ -41,19 +41,19 @@ public class NQueensPar {
 
     class Board {
 
-        val q: Array[Int](1){self.at(this)};
+        val q: Rail[Int]{self.at(this)};
 
         def this() {
-            q = new Array[Int](0, 0);
+            q = Rail.make[Int](0, (int)=>0);
         }
 
-        def this(old: Array[Int](1)!, newItem:Int) {
-            val n = old.size();
-            q = new Array[Int](n+1, (p:Point(1))=> (p(0) < n? old(p(0)) : newItem));
+        def this(old: Rail[Int]!, newItem:Int) {
+            val n = old.length;
+            q = Rail.make[Int](n+1, (i:int)=> (i < n? old(i) : newItem));
         }
 
         def safe(j: int) {
-            val n = q.size();
+            val n = q.length;
             for ((k) in 0..n-1) {
                 if (j == q(k) || Math.abs(n-k) == Math.abs(j-q(k)))
                     return false;
@@ -71,11 +71,11 @@ public class NQueensPar {
         }
 
         def search() {
-            if (q.size() == N) {
+            if (q.length == N) {
                 atomic nSolutions++;
                 return;
             }
-            if (q.size() == 0) {
+            if (q.length == 0) {
                 val R = block(0..N-1, P);
                 foreach ((q) in 0..P-1)
                   search(R(q));

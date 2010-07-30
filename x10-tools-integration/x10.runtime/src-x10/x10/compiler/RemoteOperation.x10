@@ -30,7 +30,6 @@ public final class RemoteOperation {
         }
     }
 
-    @Native("java", "x10.x10rt.X10RT.fence()")
     @Native("c++", "x10rt_remote_op_fence()")
     public static def fence() { }
 }

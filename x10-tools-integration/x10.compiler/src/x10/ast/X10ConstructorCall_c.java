@@ -11,11 +11,13 @@
 
 package x10.ast;
 
+import java.awt.Container;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import polyglot.ast.ClassBody;
 import polyglot.ast.ConstructorCall;
 import polyglot.ast.ConstructorCall_c;
 import polyglot.ast.Expr;
@@ -31,6 +33,7 @@ import polyglot.types.ErrorRef_c;
 import polyglot.types.Matcher;
 import polyglot.types.QName;
 import polyglot.types.SemanticException;
+import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
@@ -43,6 +46,7 @@ import polyglot.visit.TypeBuilder;
 import x10.ast.X10New_c.MatcherMaker;
 import x10.types.X10ConstructorDef;
 import x10.types.X10ConstructorInstance;
+import x10.types.X10MethodInstance;
 
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
@@ -123,7 +127,7 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 	        			|| ts.typeEquals(type, ts.Object(), tc.context())) {
 	        		// the super() call inserted by the parser needs to be thrown out
 	        		X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
-	        		return nf.Empty(X10NodeFactory_c.compilerGenerated(position()));
+	        		return nf.Empty(Position.COMPILER_GENERATED);
 	        	}
 	        	throw new InternalCompilerError("Unexpected null supertype for " 
 	        			+ this, position());

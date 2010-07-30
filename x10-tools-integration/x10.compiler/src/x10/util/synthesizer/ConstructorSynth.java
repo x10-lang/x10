@@ -28,11 +28,8 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.util.Position;
-import x10.ast.AnnotationNode;
 import x10.ast.X10ConstructorDecl;
-import x10.ast.X10MethodDecl;
 import x10.ast.X10NodeFactory;
-import x10.extension.X10Del;
 import x10.types.X10ConstructorDef;
 import x10.types.X10Context;
 import x10.types.X10Flags;
@@ -48,7 +45,6 @@ public class ConstructorSynth extends AbstractStateSynth implements IClassMember
     // Flags flag;
 
     List<Formal> formals;
-    List<AnnotationNode> annotations;  // annotations of the new instance
     CodeBlockSynth codeBlockSynth;
     X10ConstructorDef conDef; // only be created once;
     X10ConstructorDecl conDecl; // only be created once;
@@ -63,7 +59,6 @@ public class ConstructorSynth extends AbstractStateSynth implements IClassMember
         ClassType classType = classDef.asType();
 
         // reference to formal
-        annotations = new ArrayList<AnnotationNode>();
         List<Ref<? extends Type>> formalTypeRefs = new ArrayList<Ref<? extends Type>>();
         List<Ref<? extends Type>> throwTypeRefs = new ArrayList<Ref<? extends Type>>();
         for (Formal f : formals) {
@@ -89,11 +84,6 @@ public class ConstructorSynth extends AbstractStateSynth implements IClassMember
         this(xnf, xct, compilerPos, classDef);
     }
 
-    
-    public void addAnnotation(AnnotationNode annotation){
-        annotations.add(annotation);
-    }
-    
     public void setFlags(Flags flags) {
         try {
             checkClose();
@@ -166,6 +156,10 @@ public class ConstructorSynth extends AbstractStateSynth implements IClassMember
     }
 
     public X10ConstructorDef getDef() {
+        if (conDef == null) {
+
+        }
+
         return conDef;
     }
 
@@ -200,16 +194,8 @@ public class ConstructorSynth extends AbstractStateSynth implements IClassMember
         // FIXME: need set the constructor's type parameters
         // conDecl.typeParameters(cDecl.typeParameters());
         conDecl = conDecl.returnType(xnf.CanonicalTypeNode(pos, conDef.returnType()));
-        if(annotations.size() > 0){
-            conDecl = (X10ConstructorDecl) ((X10Del)conDecl.del()).annotations(annotations);           
-            List<Ref<? extends Type>> ats = new ArrayList<Ref<? extends Type>>(annotations.size());
-            for (AnnotationNode an : annotations) {
-                ats.add(an.annotationType().typeRef());
-            }
-            conDef.setDefAnnotations(ats);
-        }
         conDecl = (X10ConstructorDecl) conDecl.constructorDef(conDef);
-        
+
         return conDecl;
     }
 }

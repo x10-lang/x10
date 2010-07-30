@@ -22,7 +22,6 @@ class XTENLANG_111 extends x10Test {
     }
     
     static class A {
-        incomplete def apply(p:P): int; // FIXME: XTENLANG-1443
         incomplete def set(e:int, p:P): void;
     }
         

@@ -62,6 +62,7 @@ import x10.types.matcher.Matcher;
  */
 public class X10MethodInstance_c extends MethodInstance_c implements X10MethodInstance {
 
+	
     public X10MethodInstance_c(TypeSystem ts, Position pos, Ref<? extends X10MethodDef> def) {
         super(ts, pos, def);
     }
@@ -182,18 +183,6 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
     public X10MethodInstance formalNames(List<LocalInstance> formalNames) {
         X10MethodInstance_c n = (X10MethodInstance_c) copy();
         n.formalNames = formalNames;
-        return n;
-    }
-
-    private SemanticException error;
-
-    public SemanticException error() {
-        return error;
-    }
-
-    public X10MethodInstance error(SemanticException e) {
-        X10MethodInstance_c n = (X10MethodInstance_c) copy();
-        n.error = e;
         return n;
     }
 

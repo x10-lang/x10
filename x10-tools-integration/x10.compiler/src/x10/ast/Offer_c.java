@@ -79,11 +79,12 @@ public class Offer_c extends Stmt_c implements Offer {
     	Type rType = ((X10Context) tc.context()).collectingFinishType();
     	if (rType != null) {
     		Type eType = expr().type();
-    		// rType will already be T, not Reducible[T]
+    		rType = X10TypeMixin.reducerType(rType);
     		if (rType != null && ! tc.typeSystem().isSubtype(eType, rType, tc.context()))
-    			throw new Errors.OfferDoesNotMatchCollectingFinishType(eType, rType, position());
-    		if (rType != null)
-    			return this;
+    			throw 
+    					new Errors.OfferDoesNotMatchCollectingFinishType(eType, rType, position());
+    			
+    		return this;
     	}
     	throw 
     	 new Errors.NoCollectingFinishFound(this.toString(), position());

@@ -64,7 +64,17 @@ import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
-import x10.ast.*;
+import x10.ast.AnnotationNode;
+import x10.ast.Closure;
+import x10.ast.DepParameterExpr;
+import x10.ast.X10CanonicalTypeNode;
+import x10.ast.X10ClassDecl;
+import x10.ast.X10ClassDecl_c;
+import x10.ast.X10ConstructorDecl;
+import x10.ast.X10Formal;
+import x10.ast.X10MethodDecl;
+import x10.ast.X10NodeFactory;
+import x10.ast.X10Special;
 import x10.constraint.XDisEquals;
 import x10.constraint.XEQV;
 import x10.constraint.XEquals;
@@ -78,7 +88,6 @@ import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.extension.X10Del;
-import x10.types.FunctionType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
@@ -164,7 +173,7 @@ public class Synthesizer {
 			 Type returnType, List<Type> trow, Block block) {
 	    	
 	    	
-	    	Position CG = X10NodeFactory_c.compilerGenerated(ct.body());
+	    	Position CG = Position.COMPILER_GENERATED;
 	    	List<Expr> args = new ArrayList<Expr>(); //FIXME: what's the usage of the args?
 	    	List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
 	    	List<Formal> formals = new ArrayList<Formal>(fmls.size());
@@ -292,7 +301,7 @@ public class Synthesizer {
 	public For makeForLoop(Position pos, 
 			X10Formal formal, Expr low, Expr high, Stmt body, 
 			 X10Context context) {
-		Position CG = X10NodeFactory_c.compilerGenerated(pos);
+		Position CG = Position.COMPILER_GENERATED;
 		List<Stmt> inits = new ArrayList<Stmt>();
 		// FIXME: use formal here directly, instead of local
 		Expr local = makeLocalVar(CG, null, low, inits, context);
@@ -1560,19 +1569,4 @@ public class Synthesizer {
     public Expr thisRef(Type classType, final Position pos){
         return xnf.This(pos).type(classType);
     }
-    
-    /**
-     * Generate type of "()=> type"
-     * @param type
-     * @param pos
-     * @return
-     */
-    public FunctionType simpleFunctionType(Type type, Position pos){        
-        return xts.closureType(pos, Types.ref(type),
-                       Collections.EMPTY_LIST,
-                       Collections.EMPTY_LIST,
-                       null, 
-                       Collections.EMPTY_LIST);
-    }
-    
 }

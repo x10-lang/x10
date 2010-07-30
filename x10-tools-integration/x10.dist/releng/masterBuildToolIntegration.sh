@@ -145,7 +145,7 @@ do
     echo "=================================================="
     (
     scp buildToolIntegration.sh ${userID}@$host:/tmp 
-    ssh ${userID}@$host "bash -l -c 'cd /tmp; ./buildToolIntegration.sh ${noClean} -dir $remoteTmpDir -rev $rev'"
+    ssh ${userID}@$host "cd /tmp; bash -l -c './buildToolIntegration.sh ${noClean} -dir $remoteTmpDir -rev $rev'"
     rc=$?
     ssh ${userID}@$host "(cd /tmp; rm ./buildToolIntegration.sh)"
     if [ $rc == 0 ]; then

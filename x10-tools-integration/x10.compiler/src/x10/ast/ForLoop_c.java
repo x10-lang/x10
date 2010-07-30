@@ -19,24 +19,18 @@ import polyglot.ast.Formal;
 import polyglot.ast.Loop;
 import polyglot.ast.Node;
 import polyglot.ast.Stmt;
-import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.CFGBuilder;
-import polyglot.visit.ContextVisitor;
 import polyglot.visit.FlowGraph;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeChecker;
 import x10.ast.X10Loop.LoopKind;
-import x10.errors.Errors;
-import x10.types.X10Context;
-import x10.types.X10Flags;
 import x10.types.X10MethodInstance;
 import x10.types.X10TypeSystem;
-import x10.types.checker.PlaceChecker;
 
 /**
  * An immutable representation of an X10 for loop: for (i : D) S
@@ -75,29 +69,9 @@ public class ForLoop_c extends X10Loop_c implements ForLoop {
 		return succs;
 	}
 
-	private static final Name ITERATOR = Name.make("iterator");
-	public Node typeCheck(ContextVisitor tc) throws SemanticException {
-	    X10Loop result = (X10Loop) super.typeCheck(tc);
-	    X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
-	    // TODO: generate a cast if STATIC_CALLS is off
-	    X10MethodInstance mi = null;
-	    Expr domain = result.domain();
-        try {
-	        mi = xts.findMethod(domain.type(),
-	                xts.MethodMatcher(domain.type(), ITERATOR, Collections.<Type>emptyList(), tc.context()));
-	    } catch (SemanticException e) { }
-	    assert (mi != null);
-	    domain = (Expr) PlaceChecker.makeReceiverLocalIfNecessary(tc, domain, X10Flags.toX10Flags(mi.flags()));
-	    if (domain != null) {
-	        if (domain != result.domain()) result = result.domain(domain);
-	    } else {
-	        Errors.issue(tc.job(),
-	                new SemanticException("The domain of this iterated for loop must be local",
-	                        result.domain().position()));
-	    }
-	    return result;
+	public Node typeCheck(TypeChecker tc) throws SemanticException {
+		return super.typeCheck(tc);
 	}
-
 	/** Type check the statement. */
 //	public Node typeCheck(TypeChecker tc) throws SemanticException {
 //		ForLoop_c n = (ForLoop_c) super.typeCheck(tc);

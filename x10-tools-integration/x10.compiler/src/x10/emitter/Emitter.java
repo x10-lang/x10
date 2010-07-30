@@ -768,7 +768,7 @@ public class Emitter {
 	}
 
 	private void serializeName(XName n) {
-		assert (n instanceof XNameWrapper<?>);
+		assert (n instanceof XNameWrapper);
 		XNameWrapper<?> name = (XNameWrapper<?>) n;
 		w.write(XTERMS + ".makeName(");
 		w.begin(0);
@@ -2294,18 +2294,15 @@ public class Emitter {
 
     public void generateRTTInstance(X10ClassDef def) {
 
-        w.write("public static final x10.rtt.RuntimeType");
-        w.write("<");
-        printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
+        w.write("public static final x10.rtt.RuntimeType<");
+        printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES);
         w.write(">");
-        w.write(" _RTT = new x10.rtt.RuntimeType");
-        w.write("<");
-        printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
-        w.write(">");
-        w.write("(");
+        w.write("_RTT = new x10.rtt.RuntimeType<");
+        printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+        w.write(">(");
         w.newline();
         w.write("/* base class */");
-        printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
+        printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES);
         w.write(".class");
         
         for (int i = 0; i < def.variances().size(); i ++) {
@@ -2349,14 +2346,15 @@ public class Emitter {
         
 
         if (!def.flags().isInterface()) {
-            w.write("public x10.rtt.RuntimeType<?> getRTT() {");
+            
+            w.write("public x10.rtt.RuntimeType getRTT() {");
             w.write("return _RTT;");
             w.write("}");
             w.newline();
             w.newline();
             
             if (!def.typeParameters().isEmpty()) {
-              w.write("public x10.rtt.Type<?> getParam(int i) {");
+              w.write("public x10.rtt.Type getParam(int i) {");
               for (int i = 0; i < def.typeParameters().size(); i++) {
                   ParameterType pt = def.typeParameters().get(i);
                   w.write("if (i ==" + i + ")");

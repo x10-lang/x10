@@ -147,6 +147,16 @@ JNIEXPORT void JNICALL Java_x10_x10rt_X10RT_x10rt_1probe(JNIEnv *, jclass) {
 
 /*
  * Class:     x10_x10rt_X10RT
+ * Method:    x10rt_remote_op_fence
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_x10_x10rt_X10RT_x10rt_1remote_1op_1fence(JNIEnv *, jclass) {
+    x10rt_remote_op_fence();
+}
+
+
+/*
+ * Class:     x10_x10rt_X10RT
  * Method:    x10rt_barrier
  * Signature: ()V
  */

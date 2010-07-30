@@ -908,9 +908,8 @@ and \xcd`when` statements.
 
 Constructors allow the initialization of objects by the execution of
 almost-arbitrary code.  Like methods, constructors can have formal parameters,
-a constraint, a return type, a \xcd`throws` clause, an \Xcd{offers} clause, 
-and a body. The formals,
-constraint, and \xcd`throws` and \Xcd{offers} clauses are identical to those for a method.
+a constraint, a return type, a \xcd`throws` clause, and a body. The formals,
+constraint, and \xcd`throws` clauses are identical to those for a method.
 A constructor is declared by \xcd`def this()...`; that is, as if it were a
 method whose name were the reserved word \xcd`this`.  
 
@@ -2084,11 +2083,10 @@ the form of a constrained type (the ``return type'' of the constructor):
 \begin{grammar}
 ConstructorDeclarator \:
   \xcd"def" \xcd"this" TypeParameterList\opt \xcd"(" FormalParameterList\opt \xcd")" \\
-  && ReturnType\opt Guard\opt Throws\opt Offers\opt \\
+  && ReturnType\opt Guard\opt Throws\opt \\
 ReturnType    \: \xcd":" Type \\
 Guard   \: "\{" DepExpression "\}" \\
 Throws    \: \xcd"throws" ExceptionType  ( \xcd"," ExceptionType )\star \\
-Offers    \: \xcd"offers" Type \\
 ExceptionType \: ClassBaseType Annotation\star \\
 \end{grammar}
 

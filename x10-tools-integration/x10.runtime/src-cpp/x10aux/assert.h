@@ -17,6 +17,7 @@
 
 namespace x10 { namespace lang { class String; } }
 
+#ifndef NO_ASSERTIONS
 namespace x10aux {
 
     extern const bool x10__assertions_enabled;
@@ -28,6 +29,7 @@ namespace x10aux {
             x10__assertion_failed(message);
     }
 }
+#endif//NO_ASSERTIONS
 
 #endif
 

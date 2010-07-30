@@ -14,7 +14,7 @@ package x10.util;
 public class ValHashMap[K,V] implements ValMap[K,V] {
 	public static def make[Key,Value](map:Map[Key,Value]!):ValHashMap[Key,Value] {
 		var hashMap:HashMap[Key,Value]! = new HashMap[Key,Value]();
-		val entries:Iterable[Map.Entry[Key,Value]!]! = map.entries();
+		val entries:Iterable[Map.Entry[Key,Value]!] = map.entries();
         for (val entry:Map.Entry[Key,Value]! in entries) {
 			if (entry!=null)
 			    hashMap.put(entry.getKey(), entry.getValue());

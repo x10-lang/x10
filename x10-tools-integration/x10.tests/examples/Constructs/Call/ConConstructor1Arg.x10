@@ -21,7 +21,7 @@ public class ConConstructor1Arg extends x10Test {
 	def this(A{self.i==2}){}
 	def this(i:Int) {
 		// This call will compile only if -strictCalls is not set.
-		this(new A(i)); // DYNAMIC_CHECK
+		this(new A(i));
 	}
 	
 	public def run(): boolean {

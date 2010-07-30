@@ -18,7 +18,7 @@ public abstract class AbstractContainer[+T] implements Container[T] {
   public def isEmpty(): Boolean = size() == 0;
   
   public abstract def contains(y: T): Boolean;
-  public abstract def clone(): Container[T]!;
+  public abstract def clone(): Container[T];
   public abstract def iterator(): Iterator[T];
   
   public def toValRail(): ValRail[T] {
@@ -29,7 +29,7 @@ public abstract class AbstractContainer[+T] implements Container[T] {
       return g.toValRail();
   }
       
-  public def toRail(): Rail[T]! {
+  public def toRail(): Rail[T] {
       val g = new GrowableRail[T](size());
       for (x: T in this) {
           g.add(x);
@@ -37,7 +37,7 @@ public abstract class AbstractContainer[+T] implements Container[T] {
       return g.toRail();
   }
   
-  public def containsAll(c: Container[T]!): Boolean {
+  public def containsAll(c: Container[T]): Boolean {
       for (x: T in c) {
           if (! contains(x))
               return false;

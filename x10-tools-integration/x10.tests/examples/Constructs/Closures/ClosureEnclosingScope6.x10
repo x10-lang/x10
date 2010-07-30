@@ -27,11 +27,7 @@ public class ClosureEnclosingScope6 extends ClosureTest {
         def a() = 2;
         class D {
             def a() = 4;
-            val sum = (()=>(
-				ClosureEnclosingScope6.this.a // DYNAMIC_CHECK
-				+
-					C.this.a()+  // DYNAMIC_CHECK
-					D.this.a()+a()))();
+            val sum = (()=>(ClosureEnclosingScope6.this.a+C.this.a()+D.this.a()+a()))();
         }
     }
 

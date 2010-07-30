@@ -233,6 +233,17 @@ X10RT_C x10rt_remote_ptr x10rt_lgl_remote_alloc (x10rt_place place, x10rt_remote
  */
 X10RT_C void x10rt_lgl_remote_free (x10rt_place place, x10rt_remote_ptr ptr);
 
+/** \see #x10rt_remote_xor
+ * \param place As in x10rt_remote_xor.
+ * \param addr As in x10rt_remote_xor.
+ * \param update As in x10rt_remote_xor.
+ */
+X10RT_C void x10rt_lgl_remote_xor (x10rt_place place, x10rt_remote_ptr addr, long long update);
+
+/** \see #x10rt_remote_op_fence
+ */
+X10RT_C void x10rt_lgl_remote_op_fence (void);
+
 /** \see #x10rt_remote_op
  * \param place As in #x10rt_remote_op
  * \param remote_addr As in #x10rt_remote_op

@@ -14,7 +14,6 @@ package x10.types;
 import polyglot.types.ConstructorDef;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.Ref;
-import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import x10.constraint.XConstraint;
 
@@ -39,5 +38,4 @@ public interface X10ConstructorInstance extends ConstructorInstance, X10Procedur
 	
 	X10ConstructorInstance toRefCI();
 
-	X10ConstructorInstance error(SemanticException e);
 }
