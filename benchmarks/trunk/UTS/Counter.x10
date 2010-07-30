@@ -15,16 +15,16 @@ public class Counter  {
 	var stealsSuffered:Long = 0L;
 	var nodesGiven:Long = 0L;
 	var nodesReceived:Long = 0L;
-	var lastTimeStamp:Long=-1L;
+	var lastStartStopLiveTimeStamp:Long=-1L;
 	var timeComputing:Long = 0L;
-    var timeProbing:Long = 0L;
-    var timeStealing:Long =0L;
-    var timeDistributing:Long = 0L;
+  var timeProbing:Long = 0L;
+  var timeStealing:Long =0L;
+  var timeDistributing:Long = 0L;
 	var timeAlive:Long = 0L;
 	var timeDead:Long=0L;
 	var chainDepth:Int=0;
 	var maxDepth:Int=0;
-    var totalTimeAtZero:Long=0L;
+  var totalTimeAtZero:Long=0L;
 
 	
 	public def toVal() = new ValCounter(this);
@@ -40,7 +40,7 @@ public class Counter  {
 	global val stealsSuffered:Long;
 	global val nodesGiven:Long;
 	global val nodesReceived:Long;
-	global val lastTimeStamp:Long;
+	global val lastStartStopLiveTimeStamp:Long;
 	global val timeComputing:Long;
 	global val timeProbing:Long;
 	global val timeDistributing:Long;
@@ -52,24 +52,25 @@ public class Counter  {
 	def this(c:Counter!) {
 		lifelines = c.lifelines;
 		lifelineNodes=c.lifelineNodes;
-	nodesCounter =c.nodesCounter;
-	nodesSent =c.nodesSent;
-	stealsAttempted=c.stealsAttempted;
-	stealsPerpetrated=c.stealsPerpetrated;
-	stealsReceived=c.stealsReceived;
-	stealsSuffered=c.stealsSuffered;
-	nodesGiven=c.nodesGiven;
-	nodesReceived=c.nodesReceived;
-	lastTimeStamp=c.lastTimeStamp;
-	timeComputing=c.timeComputing;
-	timeProbing = c.timeProbing;
-	timeStealing = c.timeStealing;
-	timeDistributing=c.timeDistributing;
-	timeAlive=c.timeAlive;
-	timeDead=c.timeDead;
-	chainDepth=c.chainDepth;
-	maxDepth=c.maxDepth;
+		nodesCounter =c.nodesCounter;
+		nodesSent =c.nodesSent;
+		stealsAttempted=c.stealsAttempted;
+		stealsPerpetrated=c.stealsPerpetrated;
+		stealsReceived=c.stealsReceived;
+		stealsSuffered=c.stealsSuffered;
+		nodesGiven=c.nodesGiven;
+		nodesReceived=c.nodesReceived;
+		lastStartStopLiveTimeStamp=c.lastStartStopLiveTimeStamp;
+		timeComputing=c.timeComputing;
+		timeProbing = c.timeProbing;
+		timeStealing = c.timeStealing;
+		timeDistributing=c.timeDistributing;
+		timeAlive=c.timeAlive;
+		timeDead=c.timeDead;
+		chainDepth=c.chainDepth;
+		maxDepth=c.maxDepth;
 	}
+
 	private global def verboseStats(h:Int, sumCounters:Counter!) {
 		val P = Place.MAX_PLACES;
 		val idealRatio = 1.0F/P;
@@ -105,14 +106,14 @@ public class Counter  {
 		Console.OUT.println("\t Time: idle= " + timeDead/1000 + " us ("
 				+ safeSubstring("" + (100.0F*timeDead)/total,0,5) + "%)");
 		Console.OUT.println("\t Time is "
-				+ safeSubstring("" + (100.0F*(total)/sumCounters.lastTimeStamp),
+				+ safeSubstring("" + (100.0F*(total)/sumCounters.lastStartStopLiveTimeStamp),
 						0, 4)+ "% of max.");
 	}
 
 	global safe public def toString():String {
 		return lifelines + "," + lifelineNodes + ",nc:" + nodesCounter + ","
 		+ stealsAttempted + "," + stealsPerpetrated + "," + stealsReceived + ","
-		+ nodesGiven + "," + nodesReceived + "," + lastTimeStamp + ",ta:"
+		+ nodesGiven + "," + nodesReceived + "," + lastStartStopLiveTimeStamp + ",ta:"
 		+ timeAlive + ",td:" + timeDead + "," + maxDepth;
 	}
 	}
@@ -124,6 +125,7 @@ public class Counter  {
 		this.lifelines++;
 		lifelineNodes += n;
 	}
+
 	def incRxNodes(n:Int) {
 		nodesReceived += n;
 		stealsPerpetrated++;
@@ -143,12 +145,21 @@ public class Counter  {
 		maxDepth = max(chainDepth, maxDepth);
 	}
 
+  def incTimeProbing(t:Long) {
+    timeProbing += t;
+  }
+
+  def incTimeStealing(t:Long) {
+    timeStealing += t;
+  }
+
 	def incTimeComputing(t:Long) {
 		timeComputing += t;
 	}
 	def incTimeDistributing(t:Long) {
 		timeDistributing += t;
 	}
+
 	def incRx(lifeline:Boolean, n:Int) {
 		if (lifeline) {
 			incLifeline(n);
@@ -157,17 +168,23 @@ public class Counter  {
 			incRxNodes(n);
 		}
 	}
+
+  def setLastStartStopLiveTimeStamp (t:Long) {
+    lastStartStopLiveTimeStamp = t;
+  }
+
 	def startLive() {
 		var time:Long  = System.nanoTime();
-		if (lastTimeStamp > 0) {
-			timeDead += (time - lastTimeStamp);
+		if (lastStartStopLiveTimeStamp > 0) {
+			timeDead += (time - lastStartStopLiveTimeStamp);
 		}
-		lastTimeStamp= time;
+		lastStartStopLiveTimeStamp= time;
 	}
+
 	def stopLive() {
 		var time:Long = System.nanoTime();
-		timeAlive += time-lastTimeStamp;
-		lastTimeStamp = time;
+		timeAlive += time-lastStartStopLiveTimeStamp;
+		lastStartStopLiveTimeStamp = time;
 	}
 	
 	static def abs(i:Float) =i < 0.0F ? -i : i;
@@ -192,7 +209,7 @@ public class Counter  {
 			sumCounters.addIn(b);
 		}
 		sumCounters.assertTxTally();
-		Console.OUT.println("max alive+dead time ="  + sumCounters.lastTimeStamp + " ns");
+		Console.OUT.println("max alive+dead time ="  + sumCounters.lastStartStopLiveTimeStamp + " ns");
 		val nodeSum = sumCounters.nodesCounter;
 
 		var balance:Float  = 0.0F;
@@ -206,7 +223,7 @@ public class Counter  {
 			balance = absMax(balance, iBalance);
 			val thisRatio = (100.0F*b.timeAlive)/(b.timeAlive+b.timeDead);
 			minAliveRatio = myMin(minAliveRatio, thisRatio);
-			relativeAliveRatio = myMin(relativeAliveRatio, (100.0F*(b.timeAlive+b.timeDead))/sumCounters.lastTimeStamp);
+			relativeAliveRatio = myMin(relativeAliveRatio, (100.0F*(b.timeAlive+b.timeDead))/sumCounters.lastStartStopLiveTimeStamp);
 		}
 
 		if (verbose)
@@ -247,9 +264,9 @@ public class Counter  {
 	static val DEAD = 5;
 	static val NODES = 6;
 	static val LIFE = 7;
-	def computeTime(i:Int, P:Int, allCounters: Rail[ValCounter]) = 
+	def computeTime(i:Int, P:Int, allCounters:Rail[ValCounter]!) = 
 		computeTime(i, P, allCounters, 1, "");
-	def computeTime(i:Int, P:Int, allCounters: Rail[ValCounter], divider:Int, unit:String):Stat {
+	def computeTime(i:Int, P:Int, allCounters: Rail[ValCounter]!, divider:Int, unit:String):Stat {
 		var min:Long= Long.MAX_VALUE;
 		var max:Long=-1;
 		var mean:Long=0;
@@ -290,7 +307,7 @@ public class Counter  {
 		lifelines += other.lifelines;
 		lifelineNodes += other.lifelineNodes;
 		maxDepth = max(maxDepth, other.maxDepth);
-		lastTimeStamp = max(lastTimeStamp, other.timeAlive+other.timeDead); // reuse lastTimeStamp
+		lastStartStopLiveTimeStamp = max(lastStartStopLiveTimeStamp, other.timeAlive+other.timeDead); // reuse lastStartStopLiveTimeStamp
 	}
 
 

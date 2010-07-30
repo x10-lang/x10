@@ -144,15 +144,16 @@ final class ParUTS {
 			counter.incRx(lifeline, loot.length);
 			val time = System.nanoTime();
 			for (r in loot) processSubtree(r);
-			counter.timeComputing += (System.nanoTime() - time);	
+			counter.incTimeComputing (System.nanoTime() - time);	
 	}
+
 	final def processAtMostN(n:Int) {
 		val time = System.nanoTime();
 		for (var count:Int=0; count < n; count++) {
 			val e = stack.pop();
 			processSubtree(e);
 		}
-		counter.timeComputing += (System.nanoTime() - time);
+	  counter.incTimeComputing (System.nanoTime() - time);	
 	}
 
   /** A trivial function to calculate minimum of 2 integers */
@@ -174,12 +175,9 @@ final class ParUTS {
 				
 				val time:Long =  System.nanoTime();
 				Runtime.probe();
-				val time2 = System.nanoTime();
-				counter.timeProbing += (time2 - time);
+				counter.incTimeProbing (System.nanoTime() - time);
 				val numThieves = thieves.size();
-				if (numThieves > 0)
-				   distribute(st, 1, numThieves);
-				counter.timeDistributing += (System.nanoTime() -time2);
+				if (numThieves > 0) distribute(st, 1, numThieves);
 				n = min(stack.size(), nu);
 			}
 			val loot = attemptSteal(st);
@@ -199,16 +197,17 @@ final class ParUTS {
 	}
 
   /** If our buddy/buddies have requested a lifeline, and we have ample supply 
-   of nodes, give him half (i.e, launch a remote async).
+   of nodes, give him half (i.e, launch a remote async). We are not timing this 
+   section because it ultimately turns around and calls the distribute() function
+   below, which is timed.
 	 */
 	def distribute(st:PLH, depth:Int) {
-		val time = System.nanoTime();
 		val numThieves = thieves.size();
-		if (numThieves > 0)
-		   distribute(st, 1, numThieves);
-		counter.timeDistributing += (System.nanoTime()  - time);
+		if (numThieves > 0) distribute(st, 1, numThieves);
 	}
+
 	def distribute(st:PLH, depth:Int, var numThieves:Int) {
+		val time = System.nanoTime();
 		val lootSize= stack.size();
 		if (lootSize > 2) {
 			numThieves = min(numThieves, lootSize-2);
@@ -223,6 +222,7 @@ final class ParUTS {
 				st().launch(st, false, loot, depth, victim);
 			}
 		}
+		counter.incTimeDistributing (System.nanoTime()-time);
 	}
 
 	/** This is the code invoked locally by each node when there are no 
@@ -249,12 +249,12 @@ final class ParUTS {
 		   if (loot != null) {
 			  //event("Steal succeeded with " + 
 					//(loot == null ? 0 : loot.length()) + " items");
-			   counter.timeStealing += (System.nanoTime() - time);
+			   counter.incTimeStealing(System.nanoTime() - time);
 			  return loot;
 		   }
 		}
 		if (! noLoot) {
-			   counter.timeStealing += (System.nanoTime() - time);
+			counter.incTimeStealing(System.nanoTime() - time);
 			return null;
 		}
 		event("No loot; establishing lifeline(s).");
@@ -275,8 +275,8 @@ final class ParUTS {
 			    }
 		    }
 		 }
-		 counter.timeStealing += (System.nanoTime() - time);
-         return loot;
+		 counter.incTimeStealing(System.nanoTime() - time);
+     return loot;
 	}
 
 	/** Try to steal from the local stack --- invoked by either a 
@@ -284,7 +284,7 @@ final class ParUTS {
 	 or by the owning place itself when it wants to give work to 
 	 a fallen buddy.
 	 */
-    def trySteal(p:Int):ValRail[TreeNode]=trySteal(p, false);
+  def trySteal(p:Int):ValRail[TreeNode]=trySteal(p, false);
 	def trySteal(p:Int, isLifeLine:Boolean) : ValRail[TreeNode] {
 		counter.stealsReceived++;
 		val length = stack.size();
@@ -347,9 +347,8 @@ final class ParUTS {
             rootNode:TreeNode) {
 		val P=Place.MAX_PLACES;
 		event("Start main finish");
-		val startAtZero = System.nanoTime();
-		counter.lastTimeStamp = startAtZero;
-		 counter.startLive();
+    counter.setLastStartStopLiveTimeStamp(System.nanoTime());
+		counter.startLive();
 		finish {
 			event("Launch main");
 			if (Constants.BINOMIAL==treeType) { 
@@ -366,13 +365,12 @@ final class ParUTS {
 				   st().launch(st, true, loot, 0, 0);
 				counter.incTxNodes(lootSize);
 			}
-            active=true;
+      active=true;
 			processStack(st);
-            active=false;
+      active=false;
 			event("Finish main");
 			counter.stopLive();
 		} 
-		 counter.totalTimeAtZero = (System.nanoTime() - startAtZero);
 		event("End main finish");
 	}
 }
