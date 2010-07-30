@@ -53,6 +53,7 @@ import x10.ast.SettableAssign_c;
 import x10.ast.X10Call;
 import x10.ast.X10CanonicalTypeNode;
 import x10.ast.X10Loop;
+import x10.ast.X10Special;
 import x10.types.ParameterType;
 import x10.types.X10ClassType;
 import x10.types.X10Flags;
@@ -111,7 +112,7 @@ public class RailInLoopOptimizer extends ContextVisitor {
                 @Override
                 public Node leave(Node parent, Node old, Node n, NodeVisitor v) {
                     if (n instanceof LocalAssign) {
-                        if (xts.Int().typeEquals(X10TypeMixin.baseType(((LocalAssign) n).type()), context)) {
+                        if (xts.Int().typeEquals(X10TypeMixin.baseType(((LocalAssign) n).leftType()), context)) {
                             ignores.add(((LocalAssign) n).local().name().toString());
                         }
                     }
@@ -212,9 +213,14 @@ public class RailInLoopOptimizer extends ContextVisitor {
                                 }
                             }
                             else if (target instanceof Field) {
-                                if (!((Field) target).flags().isFinal()) {
+                                Field field = (Field) target;
+                                if (!field.flags().isFinal()) {
                                     return n;
-                                } else if (ignores.contains(((Field) target).target().toString())) {
+                                }
+                                else if (!(field.target() instanceof X10Special && ((X10Special) field.target()).kind().equals(X10Special.THIS))) {
+                                    return n;
+                                }
+                                else if (ignores.contains(((Field) target).target().toString())) {
                                     return n;
                                 }
                             }
@@ -264,9 +270,14 @@ public class RailInLoopOptimizer extends ContextVisitor {
                                 }
                             }
                             else if (array instanceof Field) {
-                                if (!((Field) array).flags().isFinal()) {
+                                Field field = (Field) array;
+                                if (!field.flags().isFinal()) {
                                     return n;
-                                } else if (ignores.contains(((Field) array).target().toString())) {
+                                }
+                                else if (!(field.target() instanceof X10Special && ((X10Special) field.target()).kind().equals(X10Special.THIS))) {
+                                    return n;
+                                }
+                                else if (ignores.contains(((Field) array).target().toString())) {
                                     return n;
                                 }
                             }
