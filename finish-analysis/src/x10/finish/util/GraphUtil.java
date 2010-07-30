@@ -66,7 +66,7 @@ public class GraphUtil {
      * @param g2
      * @param connection
      */
-    public static void connectGraphs(SparseNumberedGraph<FinishAsyncNode> g1,
+/*    public static void connectGraphs(SparseNumberedGraph<FinishAsyncNode> g1,
 	    SparseNumberedGraph<FinishAsyncNode> g2, int connection){
 	HashMap<FinishAsyncNode,FinishAsyncNode> m = 
 	    new HashMap<FinishAsyncNode,FinishAsyncNode>();
@@ -93,7 +93,7 @@ public class GraphUtil {
 	    }
 	}
 	g1.addEdge(g1.getNode(connection), m.get(g2.getNode(0)));
-    }
+    }*/
 }
     
 class MyNumberedGraphDecorator<T> implements NodeDecorator {
