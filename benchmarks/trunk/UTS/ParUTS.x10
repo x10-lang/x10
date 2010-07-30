@@ -36,7 +36,7 @@ final class ParUTS {
 
     val treeType:Int; // 0=BINOMIAL, 1=GEOMETRIC
 	val b0:Int; // root branching factor
-    val q:Long, m:Int, k:Int, nu:Int; // For the binomial tree
+    val q:Long, m:Int, k:UInt, nu:Int; // For the binomial tree
     val a:Int, d:Int; // For the geometric tree
 
     val l:Int; 
@@ -63,7 +63,7 @@ final class ParUTS {
 		this.b0 = b0;
     this.q = q; 
     this.m = m; 
-    this.k=k; 
+    this.k=k as UInt; 
     this.nu=nu; 
     this.l = l;
     this.myLifelines = lifelineNetwork;
@@ -287,10 +287,10 @@ final class ParUTS {
   def trySteal(p:Int):ValRail[TreeNode]=trySteal(p, false);
 	def trySteal(p:Int, isLifeLine:Boolean) : ValRail[TreeNode] {
 		counter.stealsReceived++;
-		val length = stack.size() as Int;
-		 val numSteals = k==0 ? (length >=2 ? length/2 : 0)
-                 : (k < length ? k : (k/2 < length ? k/2 : 0));
-		if (numSteals==0) {
+		val length = stack.size();
+		 val numSteals = k==0u ? (length >=2u ? length/2u : 0u)
+                 : (k < length ? k : (k/2u < length ? k/2u : 0u));
+		if (numSteals==0u) {
 			if (isLifeLine)
 		      thieves.push(p);
 			event("Returning null");
@@ -346,7 +346,6 @@ final class ParUTS {
             rootNode:TreeNode) {
 		val P=Place.MAX_PLACES;
 		event("Start main finish");
-		val startAtZero = System.nanoTime();
 		 counter.startLive();
 		finish {
 			event("Launch main");
