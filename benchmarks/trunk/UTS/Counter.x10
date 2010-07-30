@@ -3,7 +3,30 @@
  * @author vj
  *
  */
+
+import x10.util.ArrayList;
+import x10.util.Stack;
+
 public class Counter  {
+
+  /**
+   * A class that holds an event module.
+   */
+  public static struct Event {
+    public static val DEAD:Int = 0;
+    public static val ALIVE:Int = 1;
+    public static val COMPUTING:Int = 2;
+    public static val STEALING:Int = 3;
+    public static val DISTRIBUTING:Int = 4;
+    public static val PROBING:Int = 5;
+    public val timeStamp:Long;
+    public val state:Int;
+
+    public def this (timeStamp:Long, state:Int) {
+      this.timeStamp = timeStamp; 
+      this.state = state;
+    }
+  }
 
 	var lifelines:Long=0L;
 	var lifelineNodes:Long=0L;
@@ -24,8 +47,7 @@ public class Counter  {
 	var timeDead:Long=0L;
 	var chainDepth:Int=0;
 	var maxDepth:Int=0;
-  var totalTimeAtZero:Long=0L;
-
+  val lifeStory:ArrayList[Event]! = new ArrayList[Event]();
 	
 	public def toVal() = new ValCounter(this);
 
@@ -49,6 +71,7 @@ public class Counter  {
 	global val timeDead:Long;
 	global val chainDepth:Int;
 	global val maxDepth:Int;
+  global val lifeStory:ValRail[Event];
 	def this(c:Counter!) {
 		lifelines = c.lifelines;
 		lifelineNodes=c.lifelineNodes;
@@ -69,6 +92,7 @@ public class Counter  {
 		timeDead=c.timeDead;
 		chainDepth=c.chainDepth;
 		maxDepth=c.maxDepth;
+    lifeStory = c.lifeStory.toVal();
 	}
 
 	private global def verboseStats(h:Int, sumCounters:Counter!) {
@@ -145,18 +169,26 @@ public class Counter  {
 	}
 
   def incTimeProbing(t:Long) {
+		val time:Long = System.nanoTime();
     timeProbing += t;
+    lifeStory.add(Event(time-t, Event.PROBING));
   }
 
   def incTimeStealing(t:Long) {
+		val time:Long = System.nanoTime();
     timeStealing += t;
+    lifeStory.add(Event(time-t, Event.STEALING));
   }
 
 	def incTimeComputing(t:Long) {
+		val time:Long = System.nanoTime();
 		timeComputing += t;
+    lifeStory.add(Event(time-t, Event.COMPUTING));
 	}
 	def incTimeDistributing(t:Long) {
+		val time:Long = System.nanoTime();
 		timeDistributing += t;
+    lifeStory.add(Event(time-t, Event.DISTRIBUTING));
 	}
 
 	def incRx(lifeline:Boolean, n:Int) {
@@ -170,6 +202,7 @@ public class Counter  {
 
   def setLastStartStopLiveTimeStamp () {
     lastStartStopLiveTimeStamp = System.nanoTime();
+    lifeStory.add (Event(lastStartStopLiveTimeStamp, Event.DEAD));
   }
 
 	def startLive() {
@@ -181,9 +214,10 @@ public class Counter  {
 	}
 
 	def stopLive() {
-		var time:Long = System.nanoTime();
+		val time:Long = System.nanoTime();
 		timeAlive += time-lastStartStopLiveTimeStamp;
 		lastStartStopLiveTimeStamp = time;
+    lifeStory.add(Event(time, Event.DEAD));
 	}
 	
 	static def abs(i:Float) =i < 0.0F ? -i : i;
@@ -225,10 +259,11 @@ public class Counter  {
 			relativeAliveRatio = myMin(relativeAliveRatio, (100.0F*(b.timeAlive+b.timeDead))/sumCounters.lastStartStopLiveTimeStamp);
 		}
 
-		if (verbose)
+		if (verbose) {
 			for (var i:Int=0; i < P; i++) {
 				allCounters(i).verboseStats(i, sumCounters);
 			}
+    }
 
 		val stolenSum = sumCounters.nodesReceived;
 		val steals = sumCounters.stealsPerpetrated;
@@ -240,9 +275,6 @@ public class Counter  {
 		Console.OUT.println("\t" + safeSubstring("" + theftEfficiency, 0,8)+ " nodes stolen per attempt."); 
 		Console.OUT.println("\t" + ll + " lifeline steals.");
 		Console.OUT.println("\t" + safeSubstring("" + (1.0F*llN)/ll, 0,8) + " nodes stolen/lifeline steal.");
-	//	Console.OUT.println("\t" + safeSubstring("" + balance, 0,6) + "% imbalance in nodes processed (max magnitude).");
-	//	Console.OUT.println("\t" + safeSubstring("" + minAliveRatio, 0,6) 
-	//			+ " (earliest completion time, as % of max.");
 		Console.OUT.println("Nodes processed:" + computeTime(NODES, P, allCounters));
 		Console.OUT.println("Time computing: " + computeTime(COMPUTING, P, allCounters, 1000, "us"));
 		Console.OUT.println("Time stealing:  " + computeTime(STEALING, P, allCounters, 1000, "us"));
@@ -253,7 +285,129 @@ public class Counter  {
 		Console.OUT.println("Performance = "+nodeSum+"/"+safeSubstring("" + (time/1E9), 0,6)
 				+"="+ safeSubstring("" + (nodeSum/(time/1E3)), 0, 6) + "M nodes/s");
 
+    // Print the life story if the verbose option is turned on.
+    if (verbose) {
+      printLifeStory (allCounters);
+    }
 	}
+
+  static struct LifeGraph {
+    val timeStamp:Long;
+    val numDead:Long;
+    val numComputing:Long;
+    val numStealing:Long;
+    val numDistributing:Long;
+    val numProbing:Long;
+
+    public def this (timeStamp:Long,
+                     numDead:Long,
+                     numComputing:Long,
+                     numStealing:Long,
+                     numDistributing:Long,
+                     numProbing:Long) {
+      this.timeStamp = timeStamp;
+      this.numDead = numDead;
+      this.numComputing = numComputing;
+      this.numStealing = numStealing;
+      this.numDistributing = numDistributing;
+      this.numProbing = numProbing;
+    }
+
+    public def toString (beginningOfTime:Long) {
+      val s:String = ""  + ((timeStamp-beginningOfTime)/1000) + 
+                     " " + numDead + 
+                     " " + numComputing + 
+                     " " + numStealing +
+                     " " + numDistributing;
+      return s;
+    }
+  } 
+
+    
+  private def hasAtLeastTwoFullStacks (lifeStories:ValRail[Stack[Event]!]!){
+    var numStacksNotEmpty:Int = 0;
+    for (story in lifeStories) 
+      if (story.size() > 0) ++numStacksNotEmpty;
+    return (numStacksNotEmpty >= 2);
+  }
+
+  private def maxTimeStamp (lifeStories:ValRail[Stack[Event]!]!) {
+    var maxTimeStamp:Long = 0;
+    for (story in lifeStories)
+      if (story.peek().timeStamp > maxTimeStamp) 
+        maxTimeStamp = story.peek().timeStamp;
+    return maxTimeStamp;
+  }
+
+  /**
+   * The values are in increasing time stamps --- so just add them that way.
+   */
+  private def makeStackFromValRail (rail:ValRail[Event]) {
+    val stackToReturn = new Stack[Event]();
+    for (var i:Int=0; i<rail.length(); ++i) stackToReturn.push (rail(i));
+    return stackToReturn;
+  }
+
+  // Prints the life story of the UTS run. Notice that there may be some extra 
+  // time given to some states as we do not fill in information in between states.
+  private def printLifeStory (allCounters:Rail[ValCounter]!) {
+
+    // This is very very inefficient, but for now we will do this --- convert all
+    // the ValRails (counter.lifeStory) into stacks. Much easier to process this 
+    // way.
+    val lifeStories:ValRail[Stack[Event]!]! = 
+      ValRail.make[Stack[Event]!] (allCounters.length(),
+                     (i:Int) => makeStackFromValRail (allCounters(i).lifeStory));
+
+    val currentStates:Rail[Int]! = 
+          Rail.make[Int] (allCounters.length(), (i:Int) => Event.DEAD);
+
+    val lifetimeGraph:Stack[LifeGraph]! = new Stack[LifeGraph]();
+
+    for (story in lifeStories) Console.OUT.println (story.size());
+
+    while (hasAtLeastTwoFullStacks (lifeStories)) {
+      val highestTimeStamp:Long = maxTimeStamp (lifeStories);
+
+      for (var i:Int=0; i<lifeStories.length(); ++i) {
+        val story = lifeStories(i);
+        if (highestTimeStamp == story.peek().timeStamp) {
+          currentStates(i) = story.peek().state;
+          story.pop();
+        }
+      }
+
+      var timeStamp:Long = 0L;
+      var numDead:Long = 0L;
+      var numComputing:Long = 0L;
+      var numStealing:Long = 0L;
+      var numDistributing:Long = 0L;
+      var numProbing:Long = 0L;
+        
+      for (var i:Int=0; i<currentStates.length(); ++i) {
+        switch (currentStates(i)) {
+          case Event.DEAD: ++numDead; break;
+          case Event.COMPUTING: ++numComputing; break;
+          case Event.STEALING: ++numStealing; break;
+          case Event.DISTRIBUTING: ++numDistributing; break;
+          case Event.PROBING: ++numProbing; break;
+        }
+      }
+      lifetimeGraph.push (LifeGraph(highestTimeStamp,
+                                    numDead, 
+                                    numComputing, 
+                                    numStealing,
+                                    numDistributing,
+                                    numProbing));
+    }
+
+    Console.OUT.println ("Ready to print: " + lifetimeGraph.size());
+
+    val beginningOfTime:Long = lifetimeGraph.peek().timeStamp;
+    while (lifetimeGraph.size() > 0) {
+      Console.OUT.println (lifetimeGraph.pop().toString(beginningOfTime));
+    }
+  }
 	
 	static val COMPUTING = 0;
 	static val DISTRIBUTING = 1;
@@ -308,6 +462,4 @@ public class Counter  {
 		maxDepth = max(maxDepth, other.maxDepth);
 		lastStartStopLiveTimeStamp = max(lastStartStopLiveTimeStamp, other.timeAlive+other.timeDead); // reuse lastStartStopLiveTimeStamp
 	}
-
-
 }
