@@ -65,6 +65,7 @@ X10_CLASSES=UTS.x10 \
             UTS__SeqUTS.x10 \
             ParUTS.x10 \
             Counter.x10 \
+            Counter__ConstSeqAccessContainer.x10 \
             NetworkGenerator.x10 \
             TreeExpander.x10 \
             PAdicNumber.x10 \
