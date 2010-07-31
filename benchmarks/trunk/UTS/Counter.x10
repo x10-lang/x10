@@ -27,8 +27,35 @@ public class Counter {
    * at the top element and then decide to move one ahead or not. Of course, 
    * it also provides the empty() method.
    */
-  static struct ConstSeqAccessContainer {
+  static class ConstSeqAccessContainer {
+    val collectionLength:Int;
+    val collection:ValRail[Event];
+    var index:Int;
 
+    public def this (collection:ValRail[Event]) {
+      this.collectionLength = collection.length();
+      this.collection = collection;
+      this.index = 0;
+      /*
+      ValRail.make[Event] (collectionLength,
+                                        (i:Int) => mutableCollection(i));
+      */
+
+    }
+
+    public def peek () {
+      if (index<collectionLength) return collection(index);
+      else /* Return junk */ return Event(Long.MIN_VALUE, Event.DEAD);
+    }
+
+    public def pop () {
+      if (index<collectionLength) ++index;
+      else /* do nothing */;
+    }
+
+    public def size () : Long = (collectionLength-index);
+
+    public def empty () : Boolean = (size()==0);
   }
 
 	var lifelines:Long=0L;
@@ -106,7 +133,8 @@ public class Counter {
 		timeDead=c.timeDead;
 		chainDepth=c.chainDepth;
 		maxDepth=c.maxDepth;
-    lifeStory = ValRail.make[Event] (c.lifeStory.size(), (i:Int) => c.lifeStory(i));
+    lifeStory = 
+      ValRail.make[Event] (c.lifeStory.size(), (i:Int) => c.lifeStory(i));
 	}
 
 	private global def verboseStats(h:Int, sumCounters:Counter!) {
@@ -303,52 +331,29 @@ public class Counter {
     }
 	}
 
-  private def isAStoryToBeTold (lifeStories:ValRail[Stack[Event]!]!){
-    for (story in lifeStories) 
-      if (story.size() > 0) return true;
+  private def isAStoryToBeTold (lifeStories:ValRail[ConstSeqAccessContainer!]) {
+    for (story in lifeStories) if (!(story.empty())) return true;
     return false;
   }
 
-  private def getMinTimeStamp (lifeStories:ValRail[Stack[Event]!]!) {
+  private def getMinTimeStamp (lifeStories:ValRail[ConstSeqAccessContainer!]) {
     var minTimeStamp:Long = Long.MAX_VALUE;
-    for (story in lifeStories)
-      if ((story.size() > 0) && (story.peek().timeStamp < minTimeStamp))
+    for (story in lifeStories)  {
+      if (!(story.empty()) && (story.peek().timeStamp < minTimeStamp))
         minTimeStamp = story.peek().timeStamp;
+    }
     return minTimeStamp;
   }
 
-  /**
-   * The values are in increasing time stamps --- so just add them that way.
-   */
-  private def makeStackFromValRail (rail:ValRail[Event]) {
-    val stackToReturn = new Stack[Event]();
-    for (var i:Int=(rail.length()-1); i>=0; --i) stackToReturn.push (rail(i));
-    return stackToReturn;
-  }
-
-  /**
-   * Get the number of dead processes. Important in adding up at the end.
-   */
-  private def getNumDeadProcs (lifeStories:ValRail[Stack[Event]!]!){
-    var numDeadProcs:Int = 0;
-    for (story in lifeStories) 
-      if (story.size() == 0) ++numDeadProcs;
-    return numDeadProcs;
-  }
-
-
-  // Prints the life story of the UTS run. Notice that there may be some extra 
-  // time given to some states as we do not fill in information in between states.
+  // Prints the life story of the UTS run. Notice that there may be some extra
+  // time given to some states as we do not fill in information in between
+  // states.
   private def printLifeStory (allCounters:Rail[ValCounter]!) {
-
-    // This is very very inefficient, but for now we will do this --- convert all
-    // the ValRails (counter.lifeStory) into stacks. Much easier to process this 
-    // way.
-    val lifeStories:ValRail[Stack[Event]!]! = 
-      ValRail.make[Stack[Event]!] (allCounters.length(),
-                     (i:Int) => makeStackFromValRail (allCounters(i).lifeStory));
-
     val numPlaces:Int = allCounters.length();
+
+    val lifeStories = ValRail.make[ConstSeqAccessContainer!] 
+      (numPlaces, 
+       (i:Int) => new ConstSeqAccessContainer(allCounters(i).lifeStory));
 
     val currentStates:Rail[Int]! = 
           Rail.make[Int] (numPlaces, (i:Int) => Event.DEAD);
@@ -361,7 +366,7 @@ public class Counter {
       var lowestTimeStamp:Long = getMinTimeStamp (lifeStories);
 
       for (var i:Int=0; i<numPlaces; ++i) {
-        val story = lifeStories(i);
+        val story:ConstSeqAccessContainer! = lifeStories(i);
         if ((story.size() > 0) && (lowestTimeStamp == story.peek().timeStamp)) {
           currentStates(i) = story.peek().state;
           story.pop();
