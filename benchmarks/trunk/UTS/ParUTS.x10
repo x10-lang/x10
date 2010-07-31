@@ -218,7 +218,9 @@ final class ParUTS {
 			val numToSteal = lootSize/(numThieves+1);
 			for (var i:Int=0; i < numThieves; ++i) {
 				val thief = thieves.pop();
+        val time2 = System.nanoTime(); 
 				val loot = stack.steal(numToSteal);
+        counter.incTimePreppingSteal (System.nanoTime() - time2);
 				counter.incTxNodes(numToSteal);
 				// event("Distributing " + loot.length() + " to " + thief);
 				val victim = here.id;
@@ -302,7 +304,10 @@ final class ParUTS {
 		}
 		counter.nodesGiven += (numSteals);
 		counter.stealsSuffered++;
-		return stack.steal(numSteals);
+    val time = System.nanoTime();
+    val loot = stack.steal(numSteals);
+    counter.incTimePreppingSteal (System.nanoTime()-time);
+		return loot;
 	}
 
 	def launch(st:PLH, 
@@ -362,7 +367,9 @@ final class ParUTS {
 
 			val lootSize = stack.size()/P;
 			for (var pi:Int=1 ; pi<P ; ++pi) {
+        val time = System.nanoTime();
 				val loot = stack.steal(lootSize);
+        counter.incTimePreppingSteal (System.nanoTime() - time);
 				async (Place(pi))
 				   st().launch(st, true, loot, 0, 0);
 				counter.incTxNodes(lootSize);

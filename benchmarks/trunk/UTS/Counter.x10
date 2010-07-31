@@ -36,11 +36,6 @@ public class Counter {
       this.collectionLength = collection.length();
       this.collection = collection;
       this.index = 0;
-      /*
-      ValRail.make[Event] (collectionLength,
-                                        (i:Int) => mutableCollection(i));
-      */
-
     }
 
     public def peek () {
@@ -79,6 +74,7 @@ public class Counter {
 	var maxDepth:Int=0;
   val lifeStory:ArrayList[Event]! = new ArrayList[Event]();
   var logEvents:Boolean=false;
+  var timePreppingSteal:Long=0L;
 
   public def this(logEvents:Boolean) { 
     this.logEvents = logEvents;
@@ -112,7 +108,8 @@ public class Counter {
 	global val chainDepth:Int;
 	global val maxDepth:Int;
   global val lifeStory:ValRail[Event];
-  global val logEvents:Boolean=false;
+  global val logEvents:Boolean;
+  global val timePreppingSteal:Long;
 	def this(c:Counter!) {
 		lifelines = c.lifelines;
 		lifelineNodes=c.lifelineNodes;
@@ -129,12 +126,14 @@ public class Counter {
 		timeProbing = c.timeProbing;
 		timeStealing = c.timeStealing;
 		timeDistributing=c.timeDistributing;
+    timePreppingSteal = c.timePreppingSteal;
 		timeAlive=c.timeAlive;
 		timeDead=c.timeDead;
 		chainDepth=c.chainDepth;
 		maxDepth=c.maxDepth;
     lifeStory = 
       ValRail.make[Event] (c.lifeStory.size(), (i:Int) => c.lifeStory(i));
+    logEvents = c.logEvents;
 	}
 
 	private global def verboseStats(h:Int, sumCounters:Counter!) {
@@ -165,6 +164,8 @@ public class Counter {
 				+ safeSubstring("" +(100.0F*timeDistributing)/total, 0,5)+ "%)");
 		Console.OUT.println("\t Time: stealing= " + (timeStealing)/1000 + " us ("
 				+ safeSubstring("" +(100.0F*timeStealing)/total, 0,5)+ "%)");
+		Console.OUT.println("\t Time: preppingForSteal= " + (timePreppingSteal)/1000 + " us ("
+				+ safeSubstring("" +(100.0F*timePreppingSteal)/total, 0,5)+ "%)");
 		Console.OUT.println("\t Time: probing= " + (timeProbing)/1000 + " us ("
 				+ safeSubstring("" +(100.0F*timeProbing)/total, 0,5)+ "%)");
 		Console.OUT.println("\t Time: alive= " + timeAlive/1000 + " us ("
@@ -230,6 +231,11 @@ public class Counter {
 		timeDistributing += t;
     if (logEvents) lifeStory.add(Event(time-t, Event.DISTRIBUTING));
 	}
+
+  def incTimePreppingSteal(t:Long) {
+    val time:Long = System.nanoTime();
+    timePreppingSteal += t;
+  }
 
 	def incRx(lifeline:Boolean, n:Int) {
 		if (lifeline) {
@@ -318,6 +324,7 @@ public class Counter {
 		Console.OUT.println("Nodes processed:" + computeTime(NODES, P, allCounters));
 		Console.OUT.println("Time computing: " + computeTime(COMPUTING, P, allCounters, 1000, "us"));
 		Console.OUT.println("Time stealing:  " + computeTime(STEALING, P, allCounters, 1000, "us"));
+		Console.OUT.println("Time prepping for steal:  " + computeTime(PREPPINGFORSTEAL, P, allCounters, 1000, "us"));
 		Console.OUT.println("Time probing:   " + computeTime(PROBING, P, allCounters, 1000, "us"));
 		Console.OUT.println("Time alive:     " + computeTime(ALIVE, P, allCounters, 1000, "us"));
 		Console.OUT.println("Time dead:      " + computeTime(DEAD, P, allCounters, 1000, "us"));
@@ -421,6 +428,7 @@ public class Counter {
 	static val DEAD = 5;
 	static val NODES = 6;
 	static val LIFE = 7;
+	static val PREPPINGFORSTEAL = 8;
 	def computeTime(i:Int, P:Int, allCounters:Rail[ValCounter]!) = 
 		computeTime(i, P, allCounters, 1, "");
 	def computeTime(i:Int, P:Int, allCounters: Rail[ValCounter]!, divider:Int, unit:String):Stat {
@@ -434,6 +442,7 @@ public class Counter {
 						i == DISTRIBUTING ? b.timeDistributing :
 							i == DEAD ? b.timeDead :
 								i == LIFE ? b.timeAlive + b.timeDead : 
+                i == PREPPINGFORSTEAL ? b.timePreppingSteal :
 								i == NODES ? b.nodesCounter : 
 								b.timeAlive;
 			min = Math.min(min, c);

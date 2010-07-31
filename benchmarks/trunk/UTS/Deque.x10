@@ -48,5 +48,4 @@ public class Deque[T] {
 		size -= k;
 		return result;
     }
-   
 }
