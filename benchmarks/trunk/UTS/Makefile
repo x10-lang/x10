@@ -54,7 +54,9 @@ OBJS=$(SOURCES:.c=.o)
 X10_STRUCTS=UTS__TreeNode.x10 \
             UTS__Constants.x10 \
             Counter__ValCounter.x10 \
-            Counter__Stat.x10 
+            Counter__Stat.x10 \
+            Counter__Event.x10 \
+            Counter__LifeGraph.x10
 X10_STRUCTS_CC=$(X10_STRUCTS:.x10=.cc)
 X10_STRUCTS_H=$(X10_STRUCTS:.x10=.h)
 X10_STRUCTS_STRUCTS_H=$(X10_STRUCTS:.x10=.struct_h)
@@ -66,7 +68,9 @@ X10_CLASSES=UTS.x10 \
             NetworkGenerator.x10 \
             TreeExpander.x10 \
             PAdicNumber.x10 \
-            ParUTS__FixedSizeStack.x10
+            ParUTS__FixedSizeStack.x10 \
+            Deque.x10 \
+            Deque__EmptyDequeError.x10
 X10_CLASSES_CC=$(X10_CLASSES:.x10=.cc)
 X10_CLASSES_H=$(X10_CLASSES:.x10=.h)
 
