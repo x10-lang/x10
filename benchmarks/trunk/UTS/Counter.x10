@@ -40,8 +40,16 @@ public class Counter {
 	var chainDepth:Int=0;
 	var maxDepth:Int=0;
   val lifeStory:ArrayList[Event]! = new ArrayList[Event]();
+  var logEvents:Boolean=false;
 
-  public def this() { setLastStartStopLiveTimeStamp(); }
+  public def this(logEvents:Boolean) { 
+    this.logEvents = logEvents;
+    setLastStartStopLiveTimeStamp(); 
+  }
+	
+  public def this() { 
+    setLastStartStopLiveTimeStamp(); 
+  }
 	
 	public def toVal() = new ValCounter(this);
 
@@ -66,6 +74,7 @@ public class Counter {
 	global val chainDepth:Int;
 	global val maxDepth:Int;
   global val lifeStory:ValRail[Event];
+  global val logEvents:Boolean=false;
 	def this(c:Counter!) {
 		lifelines = c.lifelines;
 		lifelineNodes=c.lifelineNodes;
@@ -163,24 +172,24 @@ public class Counter {
   def incTimeProbing(t:Long) {
 		val time:Long = System.nanoTime();
     timeProbing += t;
-    lifeStory.add(Event(time-t, Event.PROBING));
+    if (logEvents) lifeStory.add(Event(time-t, Event.PROBING));
   }
 
   def incTimeStealing(t:Long) {
 		val time:Long = System.nanoTime();
     timeStealing += t;
-    lifeStory.add(Event(time-t, Event.STEALING));
+    if (logEvents) lifeStory.add(Event(time-t, Event.STEALING));
   }
 
 	def incTimeComputing(t:Long) {
 		val time:Long = System.nanoTime();
 		timeComputing += t;
-    lifeStory.add(Event(time-t, Event.COMPUTING));
+    if (logEvents) lifeStory.add(Event(time-t, Event.COMPUTING));
 	}
 	def incTimeDistributing(t:Long) {
 		val time:Long = System.nanoTime();
 		timeDistributing += t;
-    lifeStory.add(Event(time-t, Event.DISTRIBUTING));
+    if (logEvents) lifeStory.add(Event(time-t, Event.DISTRIBUTING));
 	}
 
 	def incRx(lifeline:Boolean, n:Int) {
@@ -194,7 +203,7 @@ public class Counter {
 
   def setLastStartStopLiveTimeStamp () {
     lastStartStopLiveTimeStamp = System.nanoTime();
-    lifeStory.add (Event(lastStartStopLiveTimeStamp, Event.DEAD));
+    if (logEvents) lifeStory.add (Event(lastStartStopLiveTimeStamp, Event.DEAD));
   }
 
 	def startLive() {
@@ -209,7 +218,7 @@ public class Counter {
 		val time:Long = System.nanoTime();
 		timeAlive += time-lastStartStopLiveTimeStamp;
 		lastStartStopLiveTimeStamp = time;
-    lifeStory.add(Event(time, Event.DEAD));
+    if (logEvents) lifeStory.add(Event(time, Event.DEAD));
 	}
 	
 	static def abs(i:Float) =i < 0.0F ? -i : i;
@@ -278,7 +287,7 @@ public class Counter {
 				+"="+ safeSubstring("" + (nodeSum/(time/1E3)), 0, 6) + "M nodes/s");
 
     // Print the life story if the verbose option is turned on.
-    if (verbose) {
+    if (logEvents) {
       printLifeStory (allCounters);
     }
 	}

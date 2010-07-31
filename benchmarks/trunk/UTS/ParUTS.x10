@@ -43,7 +43,7 @@ final class ParUTS {
 	val z:Int;
 	val logEvents:Boolean;
 	val myRandom = new Random();
-    public val counter = new Counter();
+  public val counter:Counter!;
 	var active:Boolean=false;
     var noLoot:Boolean=true;
 
@@ -68,8 +68,9 @@ final class ParUTS {
     this.l = l;
     this.myLifelines = lifelineNetwork;
     this.z = lifelineNetwork.length; // assume symmetric.
-		width=w;
-		logEvents=e;
+		this.width=w;
+		this.logEvents=e;
+    this.counter = new Counter(logEvents);
 		thieves = new FixedSizeStack[Int](z, 0);
 		lifelinesActivated = Rail.make[Boolean](Place.MAX_PLACES, (Int)=>false);
 		printLifelineNetwork();
@@ -99,8 +100,9 @@ final class ParUTS {
     this.l = l;
     this.myLifelines = lifelineNetwork;
     this.z = lifelineNetwork.length; // assume symmetric.
-		width=w;
-		logEvents=e;
+		this.width=w;
+		this.logEvents=e;
+    this.counter = new Counter(logEvents);
 		thieves = new FixedSizeStack[Int](Place.MAX_PLACES, 0);
 		lifelinesActivated = Rail.make[Boolean](Place.MAX_PLACES, (Int)=>false);
 		printLifelineNetwork();
@@ -119,15 +121,17 @@ final class ParUTS {
     Console.OUT.println ();
   }
 
-	def event(s:String) {
-		event(logEvents, s);
+	def event(s:String) { 
+	/*	event(false, s); */
 	}
 
+/*
 	def event(verbose:Boolean, s:String) {
 		if (verbose)
 			Console.OUT.println("[Place(" + here.id+"), at " 
 					+ System.nanoTime() + "] " + s);
 	}
+  */
 
 	/** Check if the current node (governed by the SHA1Rand state) has any
 	 children. If so, push it onto the local stack.
@@ -346,7 +350,7 @@ final class ParUTS {
             rootNode:TreeNode) {
 		val P=Place.MAX_PLACES;
 		event("Start main finish");
-		 counter.startLive();
+		counter.startLive();
 		finish {
 			event("Launch main");
 			if (Constants.BINOMIAL==treeType) { 
