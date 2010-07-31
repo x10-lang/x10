@@ -27,5 +27,10 @@ public interface VoidFun_0_7<T1,T2,T3,T4,T5,T6,T7> extends Any {
         Variance.CONTRAVARIANT,
         Variance.CONTRAVARIANT,
         Variance.CONTRAVARIANT
-    );
+    ) {
+        @Override
+        public String typeName() {
+            return "x10.lang.VoidFun_0_7";
+        }
+    };
 }

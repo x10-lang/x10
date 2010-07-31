@@ -23,5 +23,10 @@ public interface Fun_0_2<T1,T2,U> extends Any {
         Variance.CONTRAVARIANT,
         Variance.CONTRAVARIANT,
         Variance.COVARIANT
-    );
+    ) {
+        @Override
+        public String typeName() {
+            return "x10.lang.Fun_0_2";
+        }
+    };
 }

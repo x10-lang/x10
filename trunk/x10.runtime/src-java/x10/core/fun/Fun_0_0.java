@@ -21,5 +21,10 @@ public interface Fun_0_0<U> extends Any {
     public static final RuntimeType<Fun_0_0<?>> _RTT = new RuntimeType<Fun_0_0<?>>(
         Fun_0_0.class,
         Variance.COVARIANT
-    );
+    ) {
+        @Override
+        public String typeName() {
+            return "x10.lang.Fun_0_0";
+        }
+    };
 }
