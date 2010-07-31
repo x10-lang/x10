@@ -52,7 +52,7 @@ public final class ValRail<T> implements AnyRail<T> {
 
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o instanceof ValRail) {
+        if (o instanceof ValRail<?>) {
             ValRail<?> that = (ValRail<?>)o;
             if (length != that.length) return false;
             for (int i=0; i<length; i++) {
@@ -179,13 +179,18 @@ public final class ValRail<T> implements AnyRail<T> {
     // Runtime type information
     //
 
-    public static final RuntimeType _RTT = new RuntimeType(
+    public static final RuntimeType<ValRail<?>> _RTT = new RuntimeType<ValRail<?>>(
         ValRail.class,
         new Variance[] {Variance.COVARIANT},
         new Type<?>[] {new ParameterizedType(Fun_0_1._RTT, Types.INT, new UnresolvedType(0))}
-    );
+    ) {
+        @Override
+        public String typeName() {
+            return "x10.lang.ValRail";
+        }
+    };
     
-    public RuntimeType<?> getRTT() {
+    public RuntimeType<ValRail<?>> getRTT() {
         return _RTT;
     }
     public Type<?> getParam(int i) {

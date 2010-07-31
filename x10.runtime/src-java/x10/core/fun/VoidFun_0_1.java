@@ -21,5 +21,10 @@ public interface VoidFun_0_1<T1> extends Any {
     public static final RuntimeType<VoidFun_0_1<?>> _RTT = new RuntimeType<VoidFun_0_1<?>>(
         VoidFun_0_1.class,
         Variance.CONTRAVARIANT
-    );
+    ) {
+        @Override
+        public String typeName() {
+            return "x10.lang.VoidFun_0_1";
+        }
+    };
 }

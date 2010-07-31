@@ -161,14 +161,19 @@ public class GrowableRail<T> extends Ref implements Fun_0_1<Integer,T>, Settable
     //
     // Runtime type information
     //
-    public static final RuntimeType<GrowableRail<?>> _RTT = new RuntimeType(
+    public static final RuntimeType<GrowableRail<?>> _RTT = new RuntimeType<GrowableRail<?>>(
         GrowableRail.class,
         new Variance[] {Variance.INVARIANT},
         new Type<?>[] {
             new ParameterizedType(Fun_0_1._RTT, Types.INT, new UnresolvedType(0)),
             new ParameterizedType(Settable._RTT, Types.INT, new UnresolvedType(0))
         }
-    );
+    ) {
+        @Override
+        public String typeName() {
+            return "x10.lang.GrowableRail";
+        }
+    };
     public RuntimeType<GrowableRail<?>> getRTT() {return _RTT;}
     public Type<?> getParam(int i) {
         return i == 0 ? elementType : null;

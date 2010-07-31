@@ -24,5 +24,10 @@ public interface VoidFun_0_4<T1,T2,T3,T4> extends Any {
         Variance.CONTRAVARIANT,
         Variance.CONTRAVARIANT,
         Variance.CONTRAVARIANT
-    );
+    ) {
+        @Override
+        public String typeName() {
+            return "x10.lang.VoidFun_0_4";
+        }
+    };
 }

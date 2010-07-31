@@ -22,5 +22,10 @@ public interface VoidFun_0_2<T1,T2> extends Any  {
         VoidFun_0_2.class,
         Variance.CONTRAVARIANT,
         Variance.CONTRAVARIANT
-    );
+    ) {
+        @Override
+        public String typeName() {
+            return "x10.lang.VoidFun_0_2";
+        }
+    };
 }
