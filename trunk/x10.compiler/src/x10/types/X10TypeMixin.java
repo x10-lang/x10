@@ -631,7 +631,7 @@ public class X10TypeMixin {
 					if (thisVar == null) {
 						thisVar = o;
 					} else {
-						if (! thisVar.equals(o))
+						if (o != null && !thisVar.equals(o))
 							throw new XFailure("Inconsistent thisVars in " + typeArgs
 									+ "; cannot instantiate ");
 					}
