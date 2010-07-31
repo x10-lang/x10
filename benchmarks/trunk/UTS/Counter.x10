@@ -292,6 +292,7 @@ public class Counter {
     }
 	}
 
+/*
   static struct LifeGraph {
     val timeStamp:Long;
     val numDead:Long;
@@ -324,6 +325,7 @@ public class Counter {
       return s;
     }
   } 
+  */
 
     
   private def hasAtLeastTwoFullStacks (lifeStories:ValRail[Stack[Event]!]!){
@@ -372,17 +374,22 @@ public class Counter {
       ValRail.make[Stack[Event]!] (allCounters.length(),
                      (i:Int) => makeStackFromValRail (allCounters(i).lifeStory));
 
-    val currentStates:Rail[Int]! = 
-          Rail.make[Int] (allCounters.length(), (i:Int) => Event.DEAD);
+    val numPlaces:Int = allCounters.length();
 
+    val currentStates:Rail[Int]! = 
+          Rail.make[Int] (numPlaces, (i:Int) => Event.DEAD);
+
+    /*
     val lifetimeGraph:ArrayList[LifeGraph]! = new ArrayList[LifeGraph]();
+    */
 
     var firstIteration:Boolean = true;
     var lastUndoctoredTimeStamp:Long = -1L;
+    var beginningOfTime:Long = -1L;
     while (hasAtLeastTwoFullStacks (lifeStories)) {
       var lowestTimeStamp:Long = getMinTimeStamp (lifeStories);
 
-      for (var i:Int=0; i<lifeStories.length(); ++i) {
+      for (var i:Int=0; i<numPlaces; ++i) {
         val story = lifeStories(i);
         if ((story.size() > 0) && (lowestTimeStamp == story.peek().timeStamp)) {
           currentStates(i) = story.peek().state;
@@ -397,7 +404,7 @@ public class Counter {
       var numDistributing:Long = 0L;
       var numProbing:Long = 0L;
         
-      for (var i:Int=0; i<currentStates.length(); ++i) {
+      for (var i:Int=0; i<numPlaces; ++i) {
         switch (currentStates(i)) {
           case Event.DEAD: ++numDead; break;
           case Event.COMPUTING: ++numComputing; break;
@@ -411,6 +418,7 @@ public class Counter {
       // Bump this timestamp by one --- its harmless as we have no clocks with 
       // nanosecond precision.
       if (true==firstIteration) {
+        beginningOfTime = lowestTimeStamp;
         lastUndoctoredTimeStamp = lowestTimeStamp;
         firstIteration = false;
       } else if (lowestTimeStamp == lastUndoctoredTimeStamp) {
@@ -419,12 +427,22 @@ public class Counter {
         lastUndoctoredTimeStamp = lowestTimeStamp;
       }
 
+      val s:String = ""  + (lowestTimeStamp-beginningOfTime) + 
+                     " " + numComputing + 
+                     " " + numStealing +
+                     " " + numDistributing +
+                     " " + numProbing +
+                     " " + numDead;
+      Console.OUT.println(s);
+
+      /*
       lifetimeGraph.add (LifeGraph(lowestTimeStamp,
                                    numDead, 
                                    numComputing, 
                                    numStealing,
                                    numDistributing,
                                    numProbing));
+      */
     }
 
     // Now there might be one story left yet. So, we should simply add all this
@@ -440,22 +458,34 @@ public class Counter {
     if (-1 != lastPlaceIndex) {
       val story:Stack[Event]! = lifeStories(lastPlaceIndex);
       while (story.size() > 0) {
-        val currentEvent:Event = story.pop();
+        val currentEvent = story.pop();
+        val currentState = currentEvent.state;
+        val s:String = 
+            ""  + (currentEvent.timeStamp-beginningOfTime) + 
+            " " + ((currentState==Event.COMPUTING) ? 1:0) + 
+            " " + ((currentState==Event.STEALING) ? 1:0) + 
+            " " + ((currentState==Event.DISTRIBUTING) ? 1:0) + 
+            " " + ((currentState==Event.PROBING) ? 1:0) + 
+            " " + ((currentState==Event.DEAD) ? numPlaces:(numPlaces-1));
+        /*
         lifetimeGraph.add (LifeGraph(currentEvent.timeStamp,
-                                 (currentEvent.state==Event.DEAD)? 1 : 0,
                                  (currentEvent.state==Event.COMPUTING)? 1 : 0,
                                  (currentEvent.state==Event.STEALING)? 1 : 0,
                                  (currentEvent.state==Event.DISTRIBUTING)? 1 : 0,
-                                 (currentEvent.state==Event.PROBING)? 1 : 0));
+                                 (currentEvent.state==Event.PROBING)? 1 : 0),
+                                 (currentEvent.state==Event.DEAD)? P : P-1));
+        */
       }
     }
 
     // Print the story out.
+    /*
     Console.OUT.println ("################################################");
     val beginningOfTime:Long = lifetimeGraph(0).timeStamp;
     for (var i:Int=0; i<lifetimeGraph.size(); ++i)
       Console.OUT.println (lifetimeGraph(i).toString(beginningOfTime));
     Console.OUT.println ("################################################");
+    */
   }
 	
 	static val COMPUTING = 0;
