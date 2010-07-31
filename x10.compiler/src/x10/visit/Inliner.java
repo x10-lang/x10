@@ -33,6 +33,7 @@ import polyglot.ast.Field;
 import polyglot.ast.Formal;
 import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
+import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Return;
@@ -80,6 +81,7 @@ import x10.types.ConstrainedType;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
+import x10.types.X10Def;
 import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
 import x10.types.X10TypeMixin;
@@ -115,13 +117,15 @@ public class Inliner extends ContextVisitor {
     /**
      * Names of the annotation classes that govern inlining.
      */
-    private static final QName INLINE_ANNOTATION    = QName.make("x10.compiler.Inline");
-    private static final QName NO_INLINE_ANNOTATION = QName.make("x10.compiler.NoInline");
+    private static final QName INLINE_ANNOTATION      = QName.make("x10.compiler.Inline");
+    private static final QName INLINE_ONLY_ANNOTATION = QName.make("x10.compiler.InlineOnly");
+    private static final QName NO_INLINE_ANNOTATION   = QName.make("x10.compiler.NoInline");
 
     /**
      * The cached type of the @Inline and @NoInline annotations.
      */
     private Type InlineType;
+    private Type InlineOnlyType;
     private Type NoInlineType;
 
     /**
@@ -169,18 +173,25 @@ public class Inliner extends ContextVisitor {
     public NodeVisitor begin() {
         recursionDepth[0] = INITIAL_RECURSION_DEPTH;
         try {
-            NoInlineType = (Type) ts.systemResolver().find(NO_INLINE_ANNOTATION);
-        }
-        catch (SemanticException e) {
-            System.out.println("Unable to find " +NO_INLINE_ANNOTATION+ ": "+e);
-            NoInlineType = null;
-        }
-        try {
             InlineType = (Type) ts.systemResolver().find(INLINE_ANNOTATION);
         }
         catch (SemanticException e) {
             System.out.println("Unable to find " +INLINE_ANNOTATION+ ": "+e);
             InlineType = null;
+        }
+        try {
+            InlineOnlyType = (Type) ts.systemResolver().find(INLINE_ONLY_ANNOTATION);
+        }
+        catch (SemanticException e) {
+            System.out.println("Unable to find " +INLINE_ONLY_ANNOTATION+ ": "+e);
+            InlineOnlyType = null;
+        }
+        try {
+            NoInlineType = (Type) ts.systemResolver().find(NO_INLINE_ANNOTATION);
+        }
+        catch (SemanticException e) {
+            System.out.println("Unable to find " +NO_INLINE_ANNOTATION+ ": "+e);
+            NoInlineType = null;
         }
         return super.begin();
     }
@@ -189,7 +200,19 @@ public class Inliner extends ContextVisitor {
         if (!ALLOW_STMTEXPR) return n;  // FIXME: for now
         if (n instanceof X10Call) return inlineMethodCall((X10Call_c) n);
         if (n instanceof ClosureCall) return inlineClosureCall((ClosureCall) n);
+        if (n instanceof X10MethodDecl) 
+            return nonInlineOnlyMethods((X10MethodDecl) n);
         return n;
+    }
+
+    /**
+     * @param n
+     * @return
+     */
+    private Node nonInlineOnlyMethods(X10MethodDecl method) {
+        if (((X10MethodDef) method.methodDef()).annotationsMatching(InlineOnlyType).isEmpty()) 
+            return method;
+        return null;
     }
 
     private Expr inlineMethodCall(X10Call_c c) {
@@ -522,6 +545,7 @@ public class Inliner extends ContextVisitor {
                             f = (Field) f.targetImplicit(false);
                         }
                         return f.typeCheck(this); // TODO: eliminate typeCheck (allow access to private fields)
+                     // return f;                 // could this work?  looks like not!
                     } else if (ie instanceof Local) {
                         LocalDef ld = vars.get(((Local) ie).name().id());
                         if (ld != null) {
