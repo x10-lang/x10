@@ -28,8 +28,8 @@ public class Types {
         return (T) o;
     }
 
-    public static Type runtimeType(Class<?> c) {
-        return new RuntimeType(c);
+    public static Type<?> runtimeType(Class<?> c) {
+        return new RuntimeType<Class<?>>(c);
     }
 
     public static Type<Boolean> BOOLEAN = new BooleanType();
