@@ -28,9 +28,9 @@ public class Counter {
       var timeDead:Int=0;
      global safe public def toString() {
     	 return at (this) "Computing= " + timeComputing + 
-    	 "Stealing= " + timeStealing +
-    	 "Distribution= " + timeDistributing + 
-    	 "Dead= " + timeDead;
+    	 " Stealing= " + timeStealing +
+    	 " Distribution= " + timeDistributing + 
+    	 " Dead= " + timeDead;
     	 
      }
   }
@@ -204,16 +204,16 @@ public class Counter {
 			val currEvent = lifeStory(i);
 			  switch (lastEvent.state) {
 	          case Event.DEAD: 
-	        	  state.timeDead = (currEvent.timeStamp - lastEvent.timeStamp) as Int;
+	        	  state.timeDead += (currEvent.timeStamp - lastEvent.timeStamp) as Int;
 	        	  break;
 	          case Event.COMPUTING: 
-	        	  state.timeComputing = (currEvent.timeStamp - lastEvent.timeStamp) as Int; 
+	        	  state.timeComputing += (currEvent.timeStamp - lastEvent.timeStamp) as Int; 
 	        	  break;
 	          case Event.STEALING: 
-	        	  state.timeStealing = (currEvent.timeStamp - lastEvent.timeStamp) as Int; 
+	        	  state.timeStealing += (currEvent.timeStamp - lastEvent.timeStamp) as Int; 
 	        	  break;
 	          case Event.DISTRIBUTING: 
-	        	  state.timeDistributing = (currEvent.timeStamp - lastEvent.timeStamp) as Int;
+	        	  state.timeDistributing += (currEvent.timeStamp - lastEvent.timeStamp) as Int;
 	        	  break;
 	          /* case Event.PROBING: ++numProbing; break; */
 	          default: Console.OUT.println ("Event not recognized");
