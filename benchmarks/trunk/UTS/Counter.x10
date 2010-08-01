@@ -13,10 +13,26 @@ public class Counter {
    * A class that holds an event module.
    */
   static struct Event (timeStamp:Long, state:Int) {
+	 
     static val DEAD:Int = 0;
     static val COMPUTING:Int = 1;
     static val STEALING:Int = 2;
     static val DISTRIBUTING:Int = 3;
+    static val PROBING:Int = 4;
+    static val InitialEvent = Event(Long.MIN_VALUE, DEAD);
+  }
+  static class State {
+	  var timeComputing:Int=0; 
+	  var timeStealing:Int=0;
+  	  var timeDistributing:Int=0;
+      var timeDead:Int=0;
+     global safe public def toString() {
+    	 return at (this) "Computing= " + timeComputing + 
+    	 "Stealing= " + timeStealing +
+    	 "Distribution= " + timeDistributing + 
+    	 "Dead= " + timeDead;
+    	 
+     }
   }
 
   /**
@@ -174,8 +190,37 @@ public class Counter {
 		Console.OUT.println("\t Time is "
 				+ safeSubstring("" + (100.0F*(total)/sumCounters.lastStartStopLiveTimeStamp),
 						0, 4)+ "% of max.");
+		
+		val lifeState = new State();
+		computeStateCounts(lifeState);
+		Console.OUT.println("Times computed based on life story:\n "  + lifeState);
+		
 	}
 
+	global safe def computeStateCounts(state:State!) {
+		var lastEvent:Event = lifeStory(0);
+	    val size = lifeStory.length;
+		for (var i:Int=1; i < size; ++i) {
+			val currEvent = lifeStory(i);
+			  switch (lastEvent.state) {
+	          case Event.DEAD: 
+	        	  state.timeDead = (currEvent.timeStamp - lastEvent.timeStamp) as Int;
+	        	  break;
+	          case Event.COMPUTING: 
+	        	  state.timeComputing = (currEvent.timeStamp - lastEvent.timeStamp) as Int; 
+	        	  break;
+	          case Event.STEALING: 
+	        	  state.timeStealing = (currEvent.timeStamp - lastEvent.timeStamp) as Int; 
+	        	  break;
+	          case Event.DISTRIBUTING: 
+	        	  state.timeDistributing = (currEvent.timeStamp - lastEvent.timeStamp) as Int;
+	        	  break;
+	          /* case Event.PROBING: ++numProbing; break; */
+	          default: Console.OUT.println ("Event not recognized");
+	        }
+			  lastEvent = currEvent;
+		}
+	}
 	global safe public def toString():String {
 		return lifelines + "," + lifelineNodes + ",nc:" + nodesCounter + ","
 		+ stealsAttempted + "," + stealsPerpetrated + "," + stealsReceived + ","
