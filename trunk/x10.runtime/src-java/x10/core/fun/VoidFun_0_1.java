@@ -15,7 +15,7 @@ import x10.core.Any;
 import x10.rtt.RuntimeType;
 import x10.rtt.RuntimeType.Variance;
 
-public interface VoidFun_0_1<T1> extends Any {
+public interface VoidFun_0_1<T1> extends VoidFun, Any {
     void apply(T1 o);
     
     public static final RuntimeType<VoidFun_0_1<?>> _RTT = new RuntimeType<VoidFun_0_1<?>>(
