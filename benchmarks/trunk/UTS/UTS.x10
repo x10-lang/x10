@@ -67,52 +67,52 @@ public class UTS {
 	public global safe  def toString():String = "<" + depth + " " + rng + ">";
   }
 
-	static class SeqUTS {
-    val b0:Int;
-		val q:Long, m:Int;
-    val a:Int, d:Int;
-    val treeType:Int;
-    val stack:Deque[TreeNode]! = new Deque[TreeNode]();
-		var nodesCounter:UInt = 0;
-    val stopCount:UInt = 25;
+    static class SeqUTS {
+	val b0:Int;
+	val q:Long, m:Int;
+	val a:Int, d:Int;
+	val treeType:Int;
+	val stack:Deque[TreeNode]! = new Deque[TreeNode]();
+	var nodesCounter:UInt = 0;
+	val stopCount:UInt = 25;
 
-		public def this (b0:Int, q:Long, m:Int) {
-			this.treeType = Constants.BINOMIAL; this.b0 = b0; this.q = q; this.m = m; 
-      this.a = this.d = -1;
-		}
+	public def this (b0:Int, q:Long, m:Int) {
+	    this.treeType = Constants.BINOMIAL; this.b0 = b0; this.q = q; this.m = m; 
+	    this.a = this.d = -1;
+	}
   
 
-		public def this (b0:Int, a:Int, d:Int) {
-			this.treeType = Constants.GEOMETRIC; this.b0 = b0; this.a = a; this.d = d; 
-      this.q = -1; this.m = -1;
-		}
+	public def this (b0:Int, a:Int, d:Int) {
+	    this.treeType = Constants.GEOMETRIC; this.b0 = b0; this.a = a; this.d = d; 
+	    this.q = -1; this.m = -1;
+	}
 
     public final def processStack () {
 
-      while (stack.size() > 0u) {
-        if (Constants.BINOMIAL==treeType) 
-          TreeExpander.binomial (q, m, stack.pop(), stack);
-        else TreeExpander.geometric (a, b0, d, stack.pop(), stack);
-        ++nodesCounter;
-      }
+	while (stack.size() > 0u) {
+	    if (Constants.BINOMIAL==treeType) 
+		TreeExpander.binomial (q, m, stack.pop(), stack);
+	    else TreeExpander.geometric (a, b0, d, stack.pop(), stack);
+	    ++nodesCounter;
+	}
 
     }
   
-		public final def main (rootNode:TreeNode) {
-			if (Constants.BINOMIAL==treeType) {
-        TreeExpander.processBinomialRoot (b0, rootNode, stack);
-      } else { 
-        TreeExpander.geometric (a, b0, d, rootNode, stack);
-      }
-      ++nodesCounter; // root node is counted -- so count it here.
+	public final def main (rootNode:TreeNode) {
+	    if (Constants.BINOMIAL==treeType) {
+		TreeExpander.processBinomialRoot (b0, rootNode, stack);
+	    } else { 
+		TreeExpander.geometric (a, b0, d, rootNode, stack);
+	    }
+	    ++nodesCounter; // root node is counted -- so count it here.
 
-      this.processStack();
+	    this.processStack();
 
-			Console.OUT.println(nodesCounter+" nodes. ");
+	    Console.OUT.println(nodesCounter+" nodes. ");
 
-			return nodesCounter;
-		}
+	    return nodesCounter;
 	}
+    }
 	
 	public static def main (args : Rail[String]!) {
 		try {
