@@ -17,7 +17,6 @@ public class Counter {
     static val COMPUTING:Int = 1;
     static val STEALING:Int = 2;
     static val DISTRIBUTING:Int = 3;
-    static val PROBING:Int = 4;
   }
 
   /**
@@ -212,10 +211,6 @@ public class Counter {
   def incTimeProbing(t:Long) {
 		val time:Long = System.nanoTime();
     timeProbing += t;
-    /*
-    if (logEvents && (lifeStory.getLast().state!=Event.PROBING)) {
-      lifeStory.add(Event(time-t, Event.PROBING));
-    }*/
   }
 
   def incTimeStealing(t:Long) {
@@ -403,7 +398,6 @@ public class Counter {
           case Event.COMPUTING: ++numComputing; break;
           case Event.STEALING: ++numStealing; break;
           case Event.DISTRIBUTING: ++numDistributing; break;
-          /* case Event.PROBING: ++numProbing; break; */
           default: Console.OUT.println ("Event not recognized");
         }
       }
@@ -424,7 +418,6 @@ public class Counter {
                      " " + numComputing + 
                      " " + numStealing +
                      " " + numDistributing +
-                    /* " " + numProbing + */
                      " " + numDead;
       Console.OUT.println(s);
     }
