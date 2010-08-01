@@ -436,7 +436,8 @@ public class Counter {
 	var firstIteration:Boolean = true;
 	var lastUndoctoredTimeStamp:Long = -1L;
 	var beginningOfTime:Long = -1L;
-	
+
+	Console.OUT.println("###### Start Merged Life Story");
 	while (isAStoryToBeTold (lifeStories)) {
 	    var lowestTimeStamp:Long = getMinTimeStamp (lifeStories);
 	    
@@ -477,13 +478,14 @@ public class Counter {
 		lastUndoctoredTimeStamp = lowestTimeStamp;
 	    }
 	    
-	    val s:String = ""  + (lowestTimeStamp-beginningOfTime) + 
+	    val s:String = ""  + ((lowestTimeStamp-beginningOfTime)/1000) + 
 		" " + numComputing + 
 		" " + numStealing +
 		" " + numDistributing +
 		" " + numDead;
 	    Console.OUT.println(s);
 	}
+	Console.OUT.println("###### End Merged Life Story");
     }
     
     static val COMPUTING = 0;
