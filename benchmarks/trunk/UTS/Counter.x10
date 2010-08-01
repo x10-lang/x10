@@ -212,24 +212,34 @@ public class Counter {
   def incTimeProbing(t:Long) {
 		val time:Long = System.nanoTime();
     timeProbing += t;
-    if (logEvents) lifeStory.add(Event(time-t, Event.PROBING));
+    /*
+    if (logEvents && (lifeStory.getLast().state!=Event.PROBING)) {
+      lifeStory.add(Event(time-t, Event.PROBING));
+    }*/
   }
 
   def incTimeStealing(t:Long) {
 		val time:Long = System.nanoTime();
     timeStealing += t;
-    if (logEvents) lifeStory.add(Event(time-t, Event.STEALING));
+    if (logEvents && (lifeStory.getLast().state!=Event.STEALING)) {
+      lifeStory.add(Event(time-t, Event.STEALING));
+    }
   }
 
 	def incTimeComputing(t:Long) {
 		val time:Long = System.nanoTime();
 		timeComputing += t;
-    if (logEvents) lifeStory.add(Event(time-t, Event.COMPUTING));
+    if (logEvents && (lifeStory.getLast().state!=Event.COMPUTING)) {
+      lifeStory.add(Event(time-t, Event.COMPUTING));
+    }
 	}
+
 	def incTimeDistributing(t:Long) {
 		val time:Long = System.nanoTime();
 		timeDistributing += t;
-    if (logEvents) lifeStory.add(Event(time-t, Event.DISTRIBUTING));
+    if (logEvents && (lifeStory.getLast().state!=Event.DISTRIBUTING)) {
+      lifeStory.add(Event(time-t, Event.DISTRIBUTING));
+    }
 	}
 
   def incTimePreppingSteal(t:Long) {
@@ -381,11 +391,11 @@ public class Counter {
       }
 
       var timeStamp:Long = 0L;
-      var numDead:Long = 0L;
-      var numComputing:Long = 0L;
-      var numStealing:Long = 0L;
-      var numDistributing:Long = 0L;
-      var numProbing:Long = 0L;
+      var numDead:Int = 0;
+      var numComputing:Int = 0;
+      var numStealing:Int = 0;
+      var numDistributing:Int = 0;
+      var numProbing:Int = 0;
         
       for (var i:Int=0; i<numPlaces; ++i) {
         switch (currentStates(i)) {
@@ -393,7 +403,7 @@ public class Counter {
           case Event.COMPUTING: ++numComputing; break;
           case Event.STEALING: ++numStealing; break;
           case Event.DISTRIBUTING: ++numDistributing; break;
-          case Event.PROBING: ++numProbing; break;
+          /* case Event.PROBING: ++numProbing; break; */
           default: Console.OUT.println ("Event not recognized");
         }
       }
@@ -414,7 +424,7 @@ public class Counter {
                      " " + numComputing + 
                      " " + numStealing +
                      " " + numDistributing +
-                     " " + numProbing +
+                    /* " " + numProbing + */
                      " " + numDead;
       Console.OUT.println(s);
     }
