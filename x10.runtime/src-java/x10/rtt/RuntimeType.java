@@ -15,8 +15,10 @@ import java.util.List;
 
 import x10.constraint.XConstraint;
 import x10.core.Any;
+import x10.core.fun.Fun;
 import x10.core.fun.Fun_0_1;
 import x10.core.fun.Fun_0_2;
+import x10.core.fun.VoidFun;
 
 public class RuntimeType<T> implements Type<T> {
 
@@ -98,7 +100,7 @@ public class RuntimeType<T> implements Type<T> {
         if (o == null) {return false;}
         Class<?> target = o.getClass();
         if (target == base || checkAnonymous(target)) {
-            Any any = (x10.core.Any) o;
+            Any any = (Any) o;
             for (int i = 0, s = params.length; i < s; i ++) {
                 switch (variances[i]) {
                 case INVARIANT:
@@ -136,8 +138,8 @@ public class RuntimeType<T> implements Type<T> {
     }
 
     private final boolean checkParents(Object o, Type<?>... params) {
-        if (o instanceof x10.core.Any) {
-            Any any = (x10.core.Any) o;
+        if (o instanceof Any) {
+            Any any = (Any) o;
             RuntimeType<?> rtt = any.getRTT(); // o._RTT
             if (rtt == null) {
                 return true;
@@ -347,6 +349,30 @@ public class RuntimeType<T> implements Type<T> {
     }
 
     public final String typeName(Object o) {
+        if (o instanceof Fun) {
+            String str = "(";
+            int i;
+            for (i = 0; i < variances.length - 1; i++) {
+                if (i != 0) str += ",";
+                str += ((Any) o).getParam(i).typeName();
+            }
+            str += ")=>";
+            str += ((Any) o).getParam(i).typeName();
+            return str;
+        }
+        if (o instanceof VoidFun) {
+            String str = "(";
+            if (variances != null && variances.length > 0) {
+                if (o instanceof Any) {
+                    for (int i = 0; i < variances.length; i++) {
+                        if (i != 0) str += ",";
+                        str += ((Any) o).getParam(i).typeName();
+                    }
+                }
+            }
+            str += ")=>Void";
+            return str;
+        }
         String str = typeName();
         if (variances != null && variances.length > 0) {
             if (o instanceof Any) {
@@ -366,7 +392,7 @@ public class RuntimeType<T> implements Type<T> {
         if (o == null) {return false;}
         Class<?> target = o.getClass();
         if (target == base || checkAnonymous(target)) {
-            Any any = (x10.core.Any) o;
+            Any any = (Any) o;
             if (variances[0].equals(Variance.INVARIANT)) {
                 if (!param0.equals(any.getParam(0))) {return false;}
             }
@@ -392,7 +418,7 @@ public class RuntimeType<T> implements Type<T> {
         if (o == null) {return false;}
         Class<?> target = o.getClass();
         if (target == base || checkAnonymous(target)) {
-            Any any = (x10.core.Any) o;
+            Any any = (Any) o;
             if (variances[0].equals(Variance.INVARIANT)) {
                 if (!param0.equals(any.getParam(0))) {return false;}
             }
@@ -428,7 +454,7 @@ public class RuntimeType<T> implements Type<T> {
         if (o == null) {return false;}
         Class<?> target = o.getClass();
         if (target == base || checkAnonymous(target)) {
-            Any any = (x10.core.Any) o;
+            Any any = (Any) o;
             if (variances[0].equals(Variance.INVARIANT)) {
                 if (!param0.equals(any.getParam(0))) {return false;}
             }
