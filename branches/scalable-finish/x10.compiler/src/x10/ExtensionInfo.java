@@ -13,6 +13,7 @@ package x10;
 
 
 import java.io.BufferedReader;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -82,7 +83,6 @@ import x10.visit.CheckNativeAnnotationsVisitor;
 import x10.visit.Desugarer;
 import x10.visit.ExprFlattener;
 import x10.visit.FieldInitializerMover;
-import x10.visit.FinishAnnotationVisitor;
 import x10.visit.Inliner;
 import x10.visit.NativeClassVisitor;
 import x10.visit.RewriteAtomicMethodVisitor;
@@ -95,7 +95,7 @@ import x10.visit.X10InnerClassRemover;
 import x10.visit.X10MLVerifier;
 import x10.visit.X10Translator;
 import x10.visit.X10TypeChecker;
-import x10.visit.FinishAsyncVisitor;
+
 /**
  * Extension information for x10 extension.
  */
@@ -379,30 +379,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
         		   goals.add(finishAsyncOpt);
         	   }
            }
-           // finish-annotation
-           /*
-            * recognize FinishAsync Annotations of each finish, 
-            * this piece of code is just for exercise, not of particular use
-            * 
-           if(x10.Configuration.FINISH_ANNOTS){
-        	   TypeSystem ts = extInfo.typeSystem();
-               NodeFactory nf = extInfo.nodeFactory();
-               FinishAnnotationVisitor av = new FinishAnnotationVisitor(job,ts,nf,"java");    
-               VisitorGoal vg = (VisitorGoal) new VisitorGoal("FinishAnnot",job,av).intern(this);	   
-               goals.add(vg);
-               FinishAnnotationVisitor av = new FinishAnnotationVisitor(job,ts,nf,"java");    
-               VisitorGoal vg = (VisitorGoal) new VisitorGoal("FinishAnnot",job,av).intern(this);
-
-           }*/
-           if(x10.Configuration.FINISH_ANNOTS){
-        	   TypeSystem ts = extInfo.typeSystem();
-               NodeFactory nf = extInfo.nodeFactory();
-               FinishAnnotationVisitor av = new FinishAnnotationVisitor(job,ts,nf,"java");    
-               VisitorGoal vg = (VisitorGoal) new VisitorGoal("FinishAnnot",job,av).intern(this);	   
-               goals.add(vg);
-                
-
-           }
+           
 
            goals.add(NativeClassVisitor(job));
 
@@ -678,8 +655,6 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            NodeFactory nf = extInfo.nodeFactory();
            Goal result = null;
            try{
-        	   FinishAsyncVisitor fav = new FinishAsyncVisitor(job,ts,nf,"java");
-               result = new VisitorGoal("FinishAsyncs",job,fav).intern(this);
                //FIXME: the following boxed code is just a tempalte for integrating 
         	   // wala with x10. It uses reflection to compile the compier possibly 
         	   // without wala support and dynamically link wala when it presents.
@@ -687,11 +662,12 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
         	   /****************************************************************/
                ClassLoader cl = Thread.currentThread().getContextClassLoader();
                Class<?> c = cl
-               .loadClass("x10.compiler.ws.visit.WSCodeGenerator");
+               .loadClass("x10.compiler.ws.visit.FinishAsyncVisitor");
                Constructor<?> con = c.getConstructor(Job.class,
                                                      TypeSystem.class,
-                                                     NodeFactory.class);
-               ContextVisitor wsvisitor = (ContextVisitor) con.newInstance(job, ts, nf);
+                                                     NodeFactory.class,String.class);
+               ContextVisitor favisitor = (ContextVisitor) con.newInstance(job, ts, nf,"java");
+               result = new VisitorGoal("FinishAsyncs",job,favisitor).intern(this);
                /***********************************************************************/
                
            }
