@@ -46,7 +46,7 @@ public class ConstrainedType<T> extends RuntimeType<T> {
     }
     
     public boolean isSubtype(Type<?> o) {
-    	if (!(o instanceof ConstrainedType))
+    	if (!(o instanceof ConstrainedType<?>))
     		return base.isSubtype(o);
     	ConstrainedType<?> ct = (ConstrainedType<?>) o;
     	return base.isSubtype(ct.base) && ct.constraint.entails(constraint);
@@ -72,7 +72,7 @@ public class ConstrainedType<T> extends RuntimeType<T> {
         }
         if (t instanceof XLit) {
             XLit l = (XLit) t;
-            if (l.val() instanceof Type) {
+            if (l.val() instanceof Type<?>) {
                 return (Type<?>) l.val();
             }
         }
@@ -116,7 +116,7 @@ public class ConstrainedType<T> extends RuntimeType<T> {
         }
 
         public static <T> Type<T> subst(Type<T> t, XTerm y, XVar x) {
-            if (t instanceof ConstrainedType) {
+            if (t instanceof ConstrainedType<?>) {
                 ConstrainedType<T> ct = (ConstrainedType<T>) t;
                 Type<T> base = subst(ct.base, y, x);
                 try {
@@ -127,13 +127,13 @@ public class ConstrainedType<T> extends RuntimeType<T> {
                     return t;
                 }
             }
-            if (t instanceof RuntimeType) {
+            if (t instanceof RuntimeType<?>) {
                 RuntimeType<T> rt = (RuntimeType<T>) t;
                 List<Type<?>> parms = rt.getTypeParameters();
                 List<Type<?>> args = new ArrayList<Type<?>>();
                 boolean changed = false;
                 for (Type<?> ti : parms) {
-                	Type ti2 = subst(ti, y, x);
+                	Type<?> ti2 = subst(ti, y, x);
                 	if (ti2 != ti)
                 		changed = true;
                 	args.add(ti2);
@@ -182,7 +182,7 @@ public class ConstrainedType<T> extends RuntimeType<T> {
 
         private static Type<?> toType(String val) {
             try {
-				return (Type<?>) Class.forName((String) val).getField("it").get(null);
+				return (Type<?>) Class.forName(val).getField("it").get(null);
 			} catch (IllegalAccessException e) {
 			} catch (NoSuchFieldException e) {
 			} catch (ClassNotFoundException e) {
