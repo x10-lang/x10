@@ -12,25 +12,11 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Set;
 
-
 public class CallTableUtil {
 
     public static void getStat(
 	    HashMap<CallTableKey, LinkedList<CallTableVal>> calltable) {
 	System.out.println("#number of callees:" + getCalleeNum(calltable));
-    }
-
-    public static int getCalleeNum(
-	    HashMap<CallTableKey, LinkedList<CallTableVal>> calltable) {
-	int cnt = 0;
-	Set<CallTableKey> kset = calltable.keySet();
-	Iterator<CallTableKey> kit = kset.iterator();
-	while (kit.hasNext()) {
-	    CallTableKey k = kit.next();
-	    LinkedList<CallTableVal> v = calltable.get(k);
-	    cnt = cnt + v.size();
-	}
-	return cnt;
     }
 
     /*
@@ -51,34 +37,42 @@ public class CallTableUtil {
 	    System.out.print("\n");
 	}
     }
-
-  
+    
+    /**
+     * 
+     * @param k
+     * @param calltable
+     */
     private static void updateArity(CallTableKey k,
 	    HashMap<CallTableKey, LinkedList<CallTableVal>> calltable) {
+	
 	LinkedList<CallTableVal> callees = calltable.get(k);
+	// updated one
 	LinkedList<CallTableVal> new_callees = new LinkedList<CallTableVal>();
 	boolean rec_call = false;
 	String key_sig = k.genSignature();
 
-	// get block numbers of all recursive calls
+	// check whether a method is recursive by looking for the 
+	// method in its callee list with the same signature
 	for (int i = 0; i < callees.size(); i++) {
 	    CallTableVal v = callees.get(i);
 	    // CallTableAtVal just skipped because it never causes a recursion
 	    if (v instanceof CallTableMethodVal) {
-		if(!((CallTableMethodVal)v).is_async){
+		if (!((CallTableMethodVal) v).is_async) {
+		    //TODO: test
 		    String val_sig = ((CallTableMethodVal) v).genSignature();
 		    int at_pos = val_sig.indexOf('@');
-		    val_sig = val_sig.substring(0,at_pos);
-		    if (val_sig.equals(key_sig)){
+		    val_sig = val_sig.substring(0, at_pos);
+		    if (val_sig.equals(key_sig)) {
 			rec_call = true;
 		    }
 		}
-		
+
 	    }
 	}
+	
 	if (rec_call) {
-	    // check each method invocation if it is in a loop caused by
-	    // recursion
+	    // update all callees' arity as "unbounded"
 	    for (int i = 0; i < callees.size(); i++) {
 		CallTableVal v = callees.get(i);
 		v.setArity(CallTableVal.Arity.Unbounded);
@@ -88,21 +82,27 @@ public class CallTableUtil {
 	    calltable.remove(k);
 	    calltable.put(k, new_callees);
 	}
-
     }
-
+    
+    /**
+     * after the calltable is expanded, we might find recursive calls. 
+     * In this case, all methods called in the recursive call should be 
+     * marked as "unbounded". 
+     * @param calltable
+     */
     @SuppressWarnings("unchecked")
     public static void updateAllArity(
 	    HashMap<CallTableKey, LinkedList<CallTableVal>> calltable) {
-	HashMap<CallTableKey, LinkedList<CallTableVal>> new_table = (HashMap<CallTableKey, LinkedList<CallTableVal>>) OutputUtil
-		.copy(calltable);
+	HashMap<CallTableKey, LinkedList<CallTableVal>> new_table = 
+	    (HashMap<CallTableKey, LinkedList<CallTableVal>>) OutputUtil.copy(calltable);
 	Iterator<CallTableKey> it = new_table.keySet().iterator();
 	while (it.hasNext()) {
 	    CallTableKey v = it.next();
-	    if(v instanceof CallTableMethodKey  && !(v.name.contains("activity"))){
+	    if (v instanceof CallTableMethodKey
+		    && !(v.name.contains("activity"))) {
 		updateArity(v, calltable);
 	    }
-	    
+
 	}
     }
 
@@ -114,12 +114,15 @@ public class CallTableUtil {
      */
     @SuppressWarnings("unchecked")
     public static HashMap<CallTableKey, LinkedList<CallTableVal>> expandCallTable(
-	    HashMap<CallTableKey, LinkedList<CallTableVal>> calltable, boolean[] mask) {
+	    HashMap<CallTableKey, LinkedList<CallTableVal>> calltable,
+	    boolean[] mask) {
+	
 	boolean changed = true;
 	Set<CallTableKey> keyset;
 	Iterator<CallTableKey> keyit;
 	HashMap<CallTableKey, LinkedList<CallTableVal>> new_table;
-	if(mask.length!=3){
+	
+	if (mask.length != 3) {
 	    System.err.println("mask is invalid!");
 	    return calltable;
 	}
@@ -131,43 +134,40 @@ public class CallTableUtil {
 	    keyit = keyset.iterator();
 	    new_table = new HashMap<CallTableKey, LinkedList<CallTableVal>>();
 	    changed = false;
-	    // do it for each row of the table
+	    // expand each row of the table
 	    while (keyit.hasNext()) {
-
 		CallTableKey key = keyit.next();
-		// System.err.println("key:"+key.toString());
 		LinkedList<CallTableVal> vals = calltable.get(key);
-		LinkedList<CallTableVal> new_vals = (LinkedList<CallTableVal>) OutputUtil
-			.copy(vals);
-
+		LinkedList<CallTableVal> new_vals = (LinkedList<CallTableVal>) OutputUtil.copy(vals);
 		// check each object in vals
 		for (int i = 0; i < vals.size(); i++) {
 		    CallTableVal callee = vals.get(i);
 		    CallTableVal.Arity tmparity = callee.getArity();
 		    Iterator<CallTableVal> tmpiter = null;
-		    /* when the "at" or "method" this callee represents 
-		     * is also a "key" in this table, get this CallTableKey object
+		    /*
+		     * when the "at" or "method" this callee represents is also
+		     * a "key" in this table, get this CallTableKey object
 		     */
 		    CallTableKey tmpkey = getKey(callee);
 		    LinkedList<CallTableVal> tmplist = calltable.get(tmpkey);
-		    //TODO: not tested
-		    boolean expand = expandOrNot(callee,mask);
+		    // TODO: not tested
+		    boolean expand = expandOrNot(callee, mask);
 		    if (tmplist != null && expand) {
 			tmpiter = tmplist.iterator();
-			/* add each CallTableVal in this newly obtained 
+			/*
+			 * add each CallTableVal in this newly obtained
 			 * CallTableKey to the original key's list
 			 */
 			while (tmpiter.hasNext()) {
 			    CallTableVal tmpcallee = tmpiter.next();
-			    /* we need a copy of tmpcallee here, because when 
-			     * we add this callee to a new caller's list, and
-			     * if we change this callee's arity, we don't 
-			     * want the original callee which is in another 
-			     * caller's list is changed too
+			    /*
+			     * we need a copy of tmpcallee here, because when we
+			     * add this callee to a new caller's list, and if we
+			     * change this callee's arity, we don't want the
+			     * original callee which is in another caller's list
+			     * is changed too
 			     */
-			    CallTableVal copiedcallee = 
-				(CallTableVal) OutputUtil.copy(tmpcallee);
-			    
+			    CallTableVal copiedcallee = (CallTableVal) OutputUtil.copy(tmpcallee);
 			    if (!new_vals.contains(copiedcallee)) {
 				copiedcallee.setArity(tmparity);
 				copiedcallee.blk = callee.blk;
@@ -175,7 +175,8 @@ public class CallTableUtil {
 				changed = true;
 			    } else {
 				int index = new_vals.indexOf(copiedcallee);
-				/* tv has the same signature, but possibly
+				/*
+				 * tv has the same signature, but possibly
 				 * different arities as tmpcallee
 				 */
 				CallTableVal tv = new_vals.get(index);
@@ -198,28 +199,69 @@ public class CallTableUtil {
 
 	return calltable;
     }
+    
+    /**
+     * output calltable to a file
+     * @param filename
+     * @param calltable
+     */
+    public static void saveCallTable(String filename,
+	    HashMap<CallTableKey, LinkedList<CallTableVal>> calltable) {
+	FileOutputStream fos = null;
+	ObjectOutputStream out = null;
+	try {
+	    fos = new FileOutputStream(filename);
+	    out = new ObjectOutputStream(fos);
+	    out.writeObject(calltable);
+	    out.close();
+	} catch (IOException ex) {
+	    ex.printStackTrace();
+	}
+    }
 
-    private static boolean expandOrNot(CallTableVal callee, boolean[] mask) {
-	if(callee instanceof CallTableAtVal && mask[0]==true){
-	    return true;
+    /**
+     * input the calltable from a file
+     * @param filename
+     * @return
+     */
+    public static HashMap<CallTableKey, LinkedList<CallTableVal>> loadCallTable(
+	    String filename) {
+	FileInputStream fis = null;
+	ObjectInputStream in = null;
+	HashMap<CallTableKey, LinkedList<CallTableVal>> calltable = null;
+	try {
+	    fis = new FileInputStream(filename);
+	    in = new ObjectInputStream(fis);
+	    calltable = (HashMap<CallTableKey, LinkedList<CallTableVal>>) in.readObject();
+	} catch (IOException ex) {
+	    ex.printStackTrace();
+	} catch (ClassNotFoundException ex) {
+	    ex.printStackTrace();
 	}
-	if(callee instanceof CallTableMethodVal){
-	    CallTableMethodVal mycallee = (CallTableMethodVal)callee;
-	    if(mycallee.is_async==true && mask[1]==true){
-		return true;
-	    }
-	    if(mycallee.is_async==false && mask[2]==true){
-		return true;
-	    }
-	}
-	    
-	return false;
+	return calltable;
     }
     
+    private static boolean expandOrNot(CallTableVal callee, boolean[] mask) {
+	if (callee instanceof CallTableAtVal && mask[0] == true) {
+	    return true;
+	}
+	if (callee instanceof CallTableMethodVal) {
+	    CallTableMethodVal mycallee = (CallTableMethodVal) callee;
+	    if (mycallee.is_async == true && mask[1] == true) {
+		return true;
+	    }
+	    if (mycallee.is_async == false && mask[2] == true) {
+		return true;
+	    }
+	}
+
+	return false;
+    }
+
     private static CallTableKey getKey(CallTableVal callee) {
 	CallTableKey tmpkey;
 	if (callee instanceof CallTableAtVal) {
-	    boolean isFinish=false;
+	    boolean isFinish = false;
 	    tmpkey = new CallTableScopeKey(callee.scope, callee.name,
 		    ((CallTableAtVal) callee).line,
 		    ((CallTableAtVal) callee).column,
@@ -230,37 +272,16 @@ public class CallTableUtil {
 	}
 	return tmpkey;
     }
-    
-    public static void saveCallTable(String filename,
-    	    HashMap<CallTableKey, LinkedList<CallTableVal>> calltable) {
-    	FileOutputStream fos = null;
-    	ObjectOutputStream out = null;
-    	try {
-    	    fos = new FileOutputStream(filename);
-    	    out = new ObjectOutputStream(fos);
-    	    out.writeObject(calltable);
-    	    out.close();
-    	} catch (IOException ex) {
-    	    ex.printStackTrace();
-    	}
-        }
-        
-        public static HashMap<CallTableKey, LinkedList<CallTableVal>> loadCallTable(String filename){
-    	FileInputStream fis = null;
-    	ObjectInputStream in = null;
-    	HashMap<CallTableKey, LinkedList<CallTableVal>> calltable = null;
-    	try{
-    	    fis = new FileInputStream(filename);
-    	    in = new ObjectInputStream(fis);
-    	    calltable = (HashMap<CallTableKey, LinkedList<CallTableVal>>)in.readObject();
-        
-    	}
-    	catch(IOException ex){
-    	    ex.printStackTrace();
-    	}
-    	catch(ClassNotFoundException ex){
-    	    ex.printStackTrace();
-    	}
-    	return calltable;
-        }
+    private static int getCalleeNum(
+	    HashMap<CallTableKey, LinkedList<CallTableVal>> calltable) {
+	int cnt = 0;
+	Set<CallTableKey> kset = calltable.keySet();
+	Iterator<CallTableKey> kit = kset.iterator();
+	while (kit.hasNext()) {
+	    CallTableKey k = kit.next();
+	    LinkedList<CallTableVal> v = calltable.get(k);
+	    cnt = cnt + v.size();
+	}
+	return cnt;
+    }
 }

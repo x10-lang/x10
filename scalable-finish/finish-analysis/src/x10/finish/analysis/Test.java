@@ -22,7 +22,7 @@ public class Test {
 	 * *********************************************************
 	 * ***************
 	 */
-	File f = new File("../x10.tests/examples/ScalableFinish/Others/TrivialTest3.x10");
+	File f = new File("../x10.tests/examples/ScalableFinish/Not_So_Good/TestClosure.x10");
 	X10FinishAsyncAnalysis x10fa = new X10FinishAsyncAnalysis();
 
 	/* *********************************

@@ -24,6 +24,9 @@ public class CallTableScopeKey extends CallTableKey {
 		is_finish = f;
 	}
 	
+	/**
+	 * although "tmp" is not necessary to included as part of a signature
+	 */
 	public String genSignature(){
 	    String tmp;
 	    if(is_finish == true){
