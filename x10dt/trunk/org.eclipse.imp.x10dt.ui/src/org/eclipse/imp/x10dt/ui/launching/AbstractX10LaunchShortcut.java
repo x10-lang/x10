@@ -15,6 +15,8 @@ import java.util.List;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationType;
@@ -181,8 +183,16 @@ public abstract class AbstractX10LaunchShortcut implements ILaunchShortcut {
     } catch (InterruptedException except) {
       // Nothing to do.
     } catch (InvocationTargetException except) {
-      ErrorDialog.openError(getShell(), Messages.AXLS_MainTypeSearchError, Messages.AXLS_MainTypeSearchErrorMsg, 
-                            ((CoreException) except.getTargetException()).getStatus());
+      if (except.getTargetException() instanceof CoreException) {
+        ErrorDialog.openError(getShell(), Messages.AXLS_MainTypeSearchError, Messages.AXLS_MainTypeSearchErrorMsg, 
+                              ((CoreException) except.getTargetException()).getStatus());
+        X10DTUIPlugin.getInstance().getLog().log(((CoreException) except.getTargetException()).getStatus());
+      } else {
+        final IStatus status = new Status(IStatus.ERROR, X10DTUIPlugin.PLUGIN_ID, Messages.AXLS_MainTypeSearchInternalError,
+                                          except.getTargetException());
+        ErrorDialog.openError(getShell(), Messages.AXLS_MainTypeSearchError, Messages.AXLS_MainTypeSearchErrorMsg, status);
+        X10DTUIPlugin.getInstance().getLog().log(status);
+      }
     }
   }
 

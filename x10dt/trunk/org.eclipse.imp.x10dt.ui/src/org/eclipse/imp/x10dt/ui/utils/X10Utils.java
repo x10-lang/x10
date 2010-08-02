@@ -81,7 +81,8 @@ public final class X10Utils {
       throw new InterruptedException();
     }
     
-    final Set<IPath> entries = collectPathEntries(javaElement.getJavaProject());
+    final IJavaProject javaProject = javaElement.getJavaProject();
+    final Set<IPath> entries = collectPathEntries(javaProject);
     final StringBuilder cpBuilder = new StringBuilder();
     int i = -1;
     for (final IPath pathEntry : entries) {
@@ -93,7 +94,8 @@ public final class X10Utils {
     
     final List<File> sourcePath = new ArrayList<File>();
     for (final IPath pathEntry : entries) {
-      if (pathEntry.toOSString().contains(X10_RUNTIME)) {
+      final String entry = pathEntry.toOSString();
+      if (entry.contains(X10_RUNTIME) || entry.contains(javaProject.getElementName())) {
         sourcePath.add(pathEntry.toFile());
       }
     }
@@ -101,8 +103,8 @@ public final class X10Utils {
     final ExtensionInfo extInfo = new ExtensionInfo(null /* monitor */, new ShallowMessageHander());
     final X10CompilerOptions compilerOptions = (X10CompilerOptions) extInfo.getOptions();
     compilerOptions.assertions = true;
-    compilerOptions.compile_command_line_only = true;
     compilerOptions.serialize_type_info = false;
+    compilerOptions.compile_command_line_only = true;
     compilerOptions.post_compiler = null;
     compilerOptions.classpath = cpBuilder.toString();
     compilerOptions.output_classpath = compilerOptions.classpath;

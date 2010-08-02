@@ -7,9 +7,12 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.imp.utils.Pair;
 import org.eclipse.imp.x10dt.core.builder.X10ProjectNature;
 import org.eclipse.imp.x10dt.ui.Messages;
+import org.eclipse.imp.x10dt.ui.X10DTUIPlugin;
 import org.eclipse.imp.x10dt.ui.utils.LaunchUtils;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
@@ -99,8 +102,16 @@ public class X10MainTab extends JavaMainTab {
         }
       }
     } catch (InvocationTargetException except) {
-      ErrorDialog.openError(getShell(), Messages.AXLS_MainTypeSearchError, Messages.AXLS_MainTypeSearchErrorMsg, 
-                            ((CoreException) except.getTargetException()).getStatus());
+      if (except.getTargetException() instanceof CoreException) {
+        ErrorDialog.openError(getShell(), Messages.AXLS_MainTypeSearchError, Messages.AXLS_MainTypeSearchErrorMsg, 
+                              ((CoreException) except.getTargetException()).getStatus());
+        X10DTUIPlugin.getInstance().getLog().log(((CoreException) except.getTargetException()).getStatus());
+      } else {
+        final IStatus status = new Status(IStatus.ERROR, X10DTUIPlugin.PLUGIN_ID, Messages.AXLS_MainTypeSearchInternalError,
+                                          except.getTargetException());
+        ErrorDialog.openError(getShell(), Messages.AXLS_MainTypeSearchError, Messages.AXLS_MainTypeSearchErrorMsg, status);
+        X10DTUIPlugin.getInstance().getLog().log(status);
+      }
     } catch (InterruptedException except) {
       // Do nothing.
     }

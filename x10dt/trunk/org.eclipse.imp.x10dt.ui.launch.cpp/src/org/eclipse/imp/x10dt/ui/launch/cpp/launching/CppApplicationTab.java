@@ -23,12 +23,14 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.ILaunchConfigurationTab;
 import org.eclipse.debug.ui.StringVariableSelectionDialog;
 import org.eclipse.imp.utils.Pair;
 import org.eclipse.imp.x10dt.ui.Messages;
+import org.eclipse.imp.x10dt.ui.X10DTUIPlugin;
 import org.eclipse.imp.x10dt.ui.launch.core.Constants;
 import org.eclipse.imp.x10dt.ui.launch.core.builder.target_op.ITargetOpHelper;
 import org.eclipse.imp.x10dt.ui.launch.core.builder.target_op.TargetOpHelperFactory;
@@ -455,8 +457,16 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
           }
         }
       } catch (InvocationTargetException except) {
-        ErrorDialog.openError(getShell(), Messages.AXLS_MainTypeSearchError, Messages.AXLS_MainTypeSearchErrorMsg, 
-                              ((CoreException) except.getTargetException()).getStatus());
+        if (except.getTargetException() instanceof CoreException) {
+          ErrorDialog.openError(getShell(), Messages.AXLS_MainTypeSearchError, Messages.AXLS_MainTypeSearchErrorMsg, 
+                                ((CoreException) except.getTargetException()).getStatus());
+          CppLaunchCore.log(((CoreException) except.getTargetException()).getStatus());
+        } else {
+          final IStatus status = new Status(IStatus.ERROR, X10DTUIPlugin.PLUGIN_ID, Messages.AXLS_MainTypeSearchInternalError,
+                                            except.getTargetException());
+          ErrorDialog.openError(getShell(), Messages.AXLS_MainTypeSearchError, Messages.AXLS_MainTypeSearchErrorMsg, status);
+          CppLaunchCore.log(status);
+        }
       } catch (InterruptedException except) {
         // Do nothing.
       }

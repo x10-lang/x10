@@ -21,6 +21,7 @@ public class Messages extends NLS {
   public static String AXLS_ConfCreationSavingErrorMsg;
   public static String AXLS_MainTypeSearchError;
   public static String AXLS_MainTypeSearchErrorMsg;
+  public static String AXLS_MainTypeSearchInternalError;
   public static String AXLS_MultipleConfDialogMsg;
   public static String AXLS_MultipleConfDialogTitle;
   public static String LU_MainTypeSearchResult;
