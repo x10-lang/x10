@@ -363,11 +363,9 @@ public class RuntimeType<T> implements Type<T> {
         if (o instanceof VoidFun) {
             String str = "(";
             if (variances != null && variances.length > 0) {
-                if (o instanceof Any) {
-                    for (int i = 0; i < variances.length; i++) {
-                        if (i != 0) str += ",";
-                        str += ((Any) o).getParam(i).typeName();
-                    }
+                for (int i = 0; i < variances.length; i++) {
+                    if (i != 0) str += ",";
+                    str += ((Any) o).getParam(i).typeName();
                 }
             }
             str += ")=>Void";

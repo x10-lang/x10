@@ -526,6 +526,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			                            "x10.runtime.impl.java.PreLoader.preLoad(this.getClass().getEnclosingClass(), Boolean.getBoolean(\"x10.PRELOAD_STRINGS\"));\n" +
 			                        "}\n" +
 			                    "}\n" +
+			                    "public x10.rtt.RuntimeType<?> getRTT() {\n" +
+			                        "return _RTT;\n" +
+			                    "}\n" +
+			                    "public x10.rtt.Type<?> getParam(int i) {\n" +
+			                        "return null;\n" +
+			                    "}\n" +
 			                "},\n" +
 			                "// body of main activity\n" +
 			                "new x10.core.fun.VoidFun_0_0() {\n" +
@@ -543,6 +549,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			                            "throw new x10.lang.MultipleExceptions(t);\n" +
 			                        "}\n" +
 			                    "}\n" +
+                                "public x10.rtt.RuntimeType<?> getRTT() {\n" +
+                                    "return _RTT;\n" +
+                                "}\n" +
+                                "public x10.rtt.Type<?> getParam(int i) {\n" +
+                                    "return null;\n" +
+                                "}\n" +
 			                "});\n" +
 			        "} catch (java.lang.Throwable t) {\n" +
 			            "t.printStackTrace();\n" +
@@ -2131,7 +2143,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                                                 types.addAll(ct2.typeArguments());
                                         }
                                 }
-                                if (types.size() > 0) {
+                                // To extend Any, the type requires getRTT even if it has no type params (e.g. VoidFun_0_0).  
+//                                if (types.size() > 0) {
                                     w.write("public x10.rtt.RuntimeType<?> getRTT() { return _RTT;}");
                                     w.write("public x10.rtt.Type<?> getParam(int i) {");
                                     for (int i = 0; i < types.size(); i++) {
@@ -2145,9 +2158,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                                     w.newline();
                                     w.write("}");
                                     w.newline();
-                                } else {
-                                    
-                                }
+//                                }
                         }
                 }
 
@@ -2445,6 +2456,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         "public void apply() {\n" +
                             "#4\n" +
                         "}\n" +
+                        "public x10.rtt.RuntimeType<?> getRTT() {\n" +
+                            "return _RTT;\n" +
+                        "}\n" +
+                        "public x10.rtt.Type<?> getParam(int i) {\n" +
+                            "return null;\n" +
+                        "}\n" +
                     "}, \"foreach-#8\");\n" +
             "}";
 		er.processClockedLoop("foreach", regex, f);
@@ -2464,6 +2481,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             "public void apply() {\n" +
                                 "#4\n" +
                             "}\n" +
+                            "public x10.rtt.RuntimeType<?> getRTT() {\n" +
+                                "return _RTT;\n" +
+                            "}\n" +
+                            "public x10.rtt.Type<?> getParam(int i) {\n" +
+                                "return null;\n" +
+                            "}\n" +
                         "}, \"ateach-#8\");\n" +
                 "}\n" +
             "}";
@@ -2473,7 +2496,19 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	public void visit(Now_c n) {
 		Translator tr2 = ((X10Translator) tr).inInnerClass(true);
 		// SYNOPSIS: now(#0) #1
-		String regex = "x10.runtime.Runtime.runNow(#0, new x10.core.fun.VoidFun_0_0() { public void apply() { #2 } });";
+		String regex =
+		    "x10.runtime.Runtime.runNow(#0,\n" +
+		        "new x10.core.fun.VoidFun_0_0() {\n" +
+		            "public void apply() {\n" +
+		                "#2\n" +
+		            "}\n" +
+                    "public x10.rtt.RuntimeType<?> getRTT() {\n" +
+                        "return _RTT;\n" +
+                    "}\n" +
+                    "public x10.rtt.Type<?> getParam(int i) {\n" +
+                        "return null;\n" +
+                    "}\n" +
+		        "});";
 		er.dumpRegex("Now", new Object[] { n.clock(), n.body() }, tr2, regex);
 	}
 
