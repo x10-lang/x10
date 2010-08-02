@@ -288,7 +288,7 @@ public final struct Long /*TODO implements Arithmetic[Long], Bitwise[Long], Orde
      * @param x the given ULong
      * @return the given ULong converted to a Long.
      */
-    @Native("java", "((long)(#1))")
+    @Native("java", "((long)(#1.longVal))")
     @Native("c++",  "((x10_long) (#1))")
     public native static safe operator (x:ULong): Long;
 

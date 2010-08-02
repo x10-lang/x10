@@ -17,7 +17,7 @@ import x10.core.fun.Fun_0_2;
 
 public class UByteType extends RuntimeType<Byte> {
     public UByteType() {
-        super(byte.class);
+        super(x10.lang.UByte.class);
     }
     
     @Override
@@ -27,7 +27,7 @@ public class UByteType extends RuntimeType<Byte> {
 
     @Override
     public boolean instanceof$(Object o) {
-        return o instanceof java.lang.Byte;
+        return o instanceof x10.lang.UByte;
     }
 
     @Override

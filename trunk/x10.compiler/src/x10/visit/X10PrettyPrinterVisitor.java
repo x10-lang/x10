@@ -964,7 +964,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                                     && (t.isBoolean() || t.isNumeric() || t.isChar())
                             ) { 
                                 w.write(X10_RTT_TYPES + ".as");
-                                new TypeExpander(er, t, 0).expand(tr);
+                                new TypeExpander(er, t, NO_QUALIFIER).expand(tr);
                                 w.write("(");
                                 c.printSubExpr(expr, w, tr);
                                 w.write(")");
@@ -2562,6 +2562,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		String val;
 		if (n.kind() == X10IntLit_c.ULONG) {
 			val = Long.toString(n.value()) + "L";
+		    val = "new x10.lang.ULong("+val+")";
 		}
 		else if (n.kind() == IntLit_c.LONG) {
 			val = Long.toString(n.value()) + "L";
@@ -2571,6 +2572,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 				val = "0x" + Long.toHexString(n.value() & 0xffffffffL);
 			else
 				val = Long.toString(n.value() & 0xffffffffL);
+		    val = "new x10.lang.UInt("+val+")";
 		}
 		else if (n.kind() == IntLit_c.INT) {
 			if (n.value() >= 0x80000000L)

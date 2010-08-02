@@ -288,7 +288,7 @@ public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Orde
      * @param x the given UByte
      * @return the given UByte converted to a Byte.
      */
-    @Native("java", "((byte)(#1))")
+    @Native("java", "((byte)(#1.byteVal))")
     @Native("c++",  "((x10_byte) (#1))")
     public native static safe operator (x:UByte): Byte;
 

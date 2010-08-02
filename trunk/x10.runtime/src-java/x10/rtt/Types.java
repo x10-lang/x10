@@ -69,24 +69,44 @@ public class Types {
         throw new ClassCastException();
     }
     
+    public static x10.lang.UByte asUByte(Object typeParamOrAny){
+        if (typeParamOrAny == null) {nullIsCastedToStruct();}
+        return (x10.lang.UByte)typeParamOrAny;
+    }
+
     public static short asshort(Object typeParamOrAny){
         if (typeParamOrAny == null) {nullIsCastedToStruct();}
         if (typeParamOrAny instanceof java.lang.Number) {return((java.lang.Number) typeParamOrAny).shortValue();}
         throw new ClassCastException();
     }
     
+    public static x10.lang.UShort asUShort(Object typeParamOrAny){
+        if (typeParamOrAny == null) {nullIsCastedToStruct();}
+        return (x10.lang.UShort)typeParamOrAny;
+    }
+
     public static int asint(Object typeParamOrAny){
         if (typeParamOrAny == null) {nullIsCastedToStruct();}
         if (typeParamOrAny instanceof java.lang.Number) {return((java.lang.Number) typeParamOrAny).intValue();}
         throw new ClassCastException();
     }
-    
+
+    public static x10.lang.UInt asUInt(Object typeParamOrAny){
+        if (typeParamOrAny == null) {nullIsCastedToStruct();}
+        return (x10.lang.UInt)typeParamOrAny;
+    }
+
     public static long aslong(Object typeParamOrAny){
         if (typeParamOrAny == null) {nullIsCastedToStruct();}
         if (typeParamOrAny instanceof java.lang.Number) {return((java.lang.Number) typeParamOrAny).longValue();}
         throw new ClassCastException();
     }
-    
+
+    public static x10.lang.ULong asULong(Object typeParamOrAny){
+        if (typeParamOrAny == null) {nullIsCastedToStruct();}
+        return (x10.lang.ULong)typeParamOrAny;
+    }
+
     public static float asfloat(Object typeParamOrAny){
         if (typeParamOrAny == null) {nullIsCastedToStruct();}
         if (typeParamOrAny instanceof java.lang.Number) {return((java.lang.Number) typeParamOrAny).floatValue();}
