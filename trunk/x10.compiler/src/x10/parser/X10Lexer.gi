@@ -51,7 +51,8 @@
                 if (token.getKind() == X10Parsersym.TK_DoubleLiteral && lexStream.getInputChars()[token.getEndOffset()] == '.')
                 {
                     token.setEndOffset(token.getEndOffset() - 1);
-                    lexStream.getIPrsStream().makeToken(token.getEndOffset(), token.getEndOffset(), X10Parsersym.TK_DOT);
+                    token.setKind(X10Parsersym.TK_IntegerLiteral);
+                lexStream.getIPrsStream().makeToken(token.getEndOffset()+1, token.getEndOffset()+1, X10Parsersym.TK_DOT);
                 }
             }
             lexStream.makeToken(startLoc, endLoc, kind);
