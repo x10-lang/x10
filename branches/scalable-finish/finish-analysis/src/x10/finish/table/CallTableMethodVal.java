@@ -13,8 +13,11 @@ import java.util.LinkedList;
 public class CallTableMethodVal extends CallTableVal {
 
     private static final long serialVersionUID = 1L;
+    //distinguish "async" with "method"
     public final boolean is_async;
+    // where this method is called, not a call stack
     public final CallSite cs;
+    
     public CallTableMethodVal(String method_pack, String method_name, int method_line, int method_column, 
 	    String callsite_pack, String callsite_name, int callsite_line, int callsite_column, int b, boolean is_async) {
 	super(method_pack,method_name,method_line,method_column,b);
@@ -27,6 +30,7 @@ public class CallTableMethodVal extends CallTableVal {
 	cs = new CallSite(callsite_pack,callsite_name, callsite_line,callsite_column);
 	this.is_async = is_async;
     }
+
     public String genSignature(){
 	return scope+"."+line+"."+column+"@"+cs.toString();
     }
