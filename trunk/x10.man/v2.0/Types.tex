@@ -339,7 +339,7 @@ used like any other type. For example,
 
 A \xcd`Cell[T]` is a generic object, capable of holding a value of type
 \xcd`T`.  For example, a \xcd`Cell[Int]` can hold an \xcd`Int`, and a
-\xcd`Cell[Cell[Int]{self!=0}]` can hold a \xcd`Cell[Int]` which in turn can
+\xcd`Cell[Cell[Int{self!=0}]]` can hold a \xcd`Cell` which in turn can
 only hold non-zero numbers.  \xcd`Cell`s are actually useful in situations
 where values must be bound immutably for one reason, but need to be mutable.
 %~~gen
