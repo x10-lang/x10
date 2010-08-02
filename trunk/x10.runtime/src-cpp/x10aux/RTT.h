@@ -109,7 +109,7 @@ namespace x10aux {
                           int parsentsc_, const RuntimeType** parents_,
                           int paramsc_, const RuntimeType** params_, Variance* variances_);
 
-        const char *name() const;
+        virtual const char *name() const;
 
         bool subtypeOf(const RuntimeType * const other) const;
 
@@ -143,6 +143,15 @@ namespace x10aux {
         static void initUShortType();
         static void initUIntType();
         static void initULongType();
+    };
+
+    class RuntimeFunType : public RuntimeType {
+    public:
+        virtual const char *name() const;
+    };
+    class RuntimeVoidFunType : public RuntimeType {
+    public:
+        virtual const char *name() const;
     };
 
 
