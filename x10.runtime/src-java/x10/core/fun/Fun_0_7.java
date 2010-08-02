@@ -27,10 +27,5 @@ public interface Fun_0_7<T1,T2,T3,T4,T5,T6,T7,U> extends Fun {
         Variance.CONTRAVARIANT,
         Variance.CONTRAVARIANT,
         Variance.COVARIANT
-    ) {
-        @Override
-        public String typeName() {
-            return "x10.lang.Fun_0_7";
-        }
-    };
+    );
 }

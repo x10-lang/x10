@@ -21,10 +21,5 @@ public interface Fun_0_1<T1,U> extends Fun {
         Fun_0_1.class,
         Variance.CONTRAVARIANT,
         Variance.COVARIANT
-    ) {
-        @Override
-        public String typeName() {
-            return "x10.lang.Fun_0_1";
-        }
-    };
+    );
 }
