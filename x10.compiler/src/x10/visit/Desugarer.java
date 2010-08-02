@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Stack;
 
 import polyglot.ast.Assign;
-import polyglot.ast.Binary_c;
+import polyglot.ast.Assign_c;
 import polyglot.ast.Block;
 import polyglot.ast.Call;
 import polyglot.ast.CanonicalTypeNode;
@@ -28,10 +28,12 @@ import polyglot.ast.Eval;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
 import polyglot.ast.FieldAssign;
+import polyglot.ast.FieldAssign_c;
 import polyglot.ast.FloatLit;
 import polyglot.ast.Formal;
 import polyglot.ast.IntLit;
 import polyglot.ast.Local;
+import polyglot.ast.LocalAssign_c;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
@@ -232,8 +234,8 @@ public class Desugarer extends ContextVisitor {
             return visitAtEach((AtEach) n);
         if (n instanceof Eval)
             return visitEval((Eval) n);
-        if (n instanceof SettableAssign_c)
-            return visitSettableAssign((SettableAssign_c) n);
+        if (n instanceof Assign_c)
+            return visitAssign((Assign_c) n);
         // We should be using interfaces (e.g., X10Binary, X10Unary) instead, but
         // (a) there is no X10Unary, and (b) the method name functions are only
         // available on concrete classes anyway.
@@ -401,7 +403,7 @@ public class Desugarer extends ContextVisitor {
             args.add((Expr) leaveCall(null, i, this));
             args.add((Expr) leaveCall(null, v, this));
             Stmt alt = xnf.Eval(pos, synth.makeStaticCall(pos, RemoteOperation, XOR, args, xts.Void(), xContext()));
-            Expr cond = xnf.Binary(pos, q, Binary_c.EQ, call(pos, HERE_INT, xts.Int())).type(xts.Boolean());
+            Expr cond = xnf.Binary(pos, q, X10Binary_c.EQ, call(pos, HERE_INT, xts.Int())).type(xts.Boolean());
             Stmt cns = a.body();
             return xnf.If(pos, cond, cns, alt);
         } else {
@@ -424,7 +426,7 @@ public class Desugarer extends ContextVisitor {
             args.add((Expr) leaveCall(null, i, this));
             args.add((Expr) leaveCall(null, v, this));
             Stmt alt = xnf.Eval(pos, synth.makeStaticCall(pos, RemoteOperation, XOR, args, xts.Void(), xContext()));
-            Expr cond = xnf.Binary(pos, p, Binary_c.EQ, call(pos, HERE, xts.Place())).type(xts.Boolean());
+            Expr cond = xnf.Binary(pos, p, X10Binary_c.EQ, call(pos, HERE, xts.Place())).type(xts.Boolean());
             Stmt cns = a.body();
             return xnf.If(pos, cond, cns, alt);
         }
@@ -660,7 +662,7 @@ public class Desugarer extends ContextVisitor {
         final Flags flags = Flags.FINAL;   
         LocalDecl localDecl = xnf.LocalDecl(pos, xnf.FlagsNode(pos, flags), xnf.CanonicalTypeNode(pos, coFinishT), xnf.Id(pos, tmp1)).localDef(lDef1);
         
-        Expr a = xnf.Assign(pos, local1, Assign.ASSIGN, newCF).type(coFinishT);
+        Expr a = assign(pos, local1, Assign.ASSIGN, newCF);
         Stmt s1 = xnf.Eval(pos, a);
         Block tryBlock = xnf.Block(pos,f.body());
 
@@ -683,13 +685,13 @@ public class Desugarer extends ContextVisitor {
         if ((l==null) && (n!=null)&& (r==null)) {
         	Expr left = n.left(xnf).type(reducerTarget);
             Call instanceCall = synth.makeInstanceCall(pos, local1, STOPFINISHEXPR, Collections.EMPTY_LIST, Collections.EMPTY_LIST, reducerTarget, Collections.EMPTY_LIST, xContext());
-            Expr b = xnf.Assign(pos, left, Assign.ASSIGN, instanceCall).type(reducerTarget);
+            Expr b = assign(pos, left, Assign.ASSIGN, instanceCall);
             returnS = xnf.Eval(pos, b);
       	}
         if ((n==null) && (l!=null) && (r==null)) {
             Expr local2 = xnf.Local(pos, l.name()).localInstance(l.localDef().asInstance()).type(reducerTarget);
         	Call instanceCall = synth.makeInstanceCall(pos, local1, STOPFINISHEXPR, Collections.EMPTY_LIST, Collections.EMPTY_LIST, reducerTarget, Collections.EMPTY_LIST, xContext());
-         	Expr b = xnf.Assign(pos, local2, Assign.ASSIGN, instanceCall).type(reducerTarget);
+         	Expr b = assign(pos, local2, Assign.ASSIGN, instanceCall);
             returnS = xnf.Eval(pos, b);
         }
         if ((n==null) && (l==null) && (r!=null)) {
@@ -891,20 +893,18 @@ public class Desugarer extends ContextVisitor {
         Expr one = getLiteral(pos, ret, 1);
         Assign.Operator asgn = (op == X10Unary_c.PRE_INC) ? Assign.ADD_ASSIGN : Assign.SUB_ASSIGN;
         Expr a = assign(pos, e, asgn, one);
-        if (e instanceof X10Call)
-            a = visitSettableAssign((SettableAssign_c) a);
+        a = visitAssign((Assign_c) a);
         return a;
     }
 
     // x++ -> (x+=1)-1 or x-- -> (x-=1)+1
-    protected Expr unaryPost(Position pos, X10Unary_c.Operator op, Expr e) throws SemanticException {
+    private Expr unaryPost(Position pos, X10Unary_c.Operator op, Expr e) throws SemanticException {
         Type ret = e.type();
         Expr one = getLiteral(pos, ret, 1);
         Assign.Operator asgn = (op == X10Unary_c.POST_INC) ? Assign.ADD_ASSIGN : Assign.SUB_ASSIGN;
         X10Binary_c.Operator bin = (op == X10Unary_c.POST_INC) ? X10Binary_c.SUB : X10Binary_c.ADD;
         Expr incr = assign(pos, e, asgn, one);
-        if (e instanceof X10Call)
-            incr = visitSettableAssign((SettableAssign_c) incr);
+        incr = visitAssign((Assign_c) incr);
         return visitBinary((X10Binary_c) xnf.Binary(pos, incr, bin, one).type(ret));
     }
 
@@ -954,6 +954,69 @@ public class Desugarer extends ContextVisitor {
         return n;
     }
 
+    private Expr visitAssign(Assign_c n) throws SemanticException {
+        if (n instanceof SettableAssign_c)
+            return visitSettableAssign((SettableAssign_c) n);
+        if (n instanceof LocalAssign_c)
+            return visitLocalAssign((LocalAssign_c) n);
+        if (n instanceof FieldAssign_c)
+            return visitFieldAssign((FieldAssign_c) n);
+        return n;
+    }
+
+    // x op=v -> x = x op v
+    private Expr visitLocalAssign(LocalAssign_c n) throws SemanticException { 
+        Position pos = n.position();
+        if (n.operator() == Assign.ASSIGN) return n;
+        X10Binary_c.Operator op = n.operator().binaryOperator();
+        Local left = (Local) n.left(xnf);
+        Expr right = n.right();
+        Type R = left.type();
+        Expr val = visitBinary((X10Binary_c) xnf.Binary(pos, left, op, right).type(R));
+        return assign(pos, left, Assign.ASSIGN, val);
+    }
+
+    // T.f op=v -> T.f = T.f op v or e.f op=v -> ((x:E,y:T)=>x.f=x.f op y)(e,v)
+    protected Expr visitFieldAssign(FieldAssign_c n) throws SemanticException { 
+        Position pos = n.position();
+        if (n.operator() == Assign.ASSIGN) return n;
+        X10Binary_c.Operator op = n.operator().binaryOperator();
+        Field left = (Field) n.left(xnf);
+        Expr right = n.right();
+        Type R = left.type();
+        if (left.flags().isStatic()) {
+            Expr val = visitBinary((X10Binary_c) xnf.Binary(pos, left, op, right).type(R));
+            return assign(pos, left, Assign.ASSIGN, val);
+        }
+        Expr e = (Expr) left.target();
+        Type E = e.type();
+        List<Formal> parms = new ArrayList<Formal>();
+        Name xn = Name.make("x");
+        LocalDef xDef = xts.localDef(pos, xts.Final(), Types.ref(E), xn);
+        Formal x = xnf.Formal(pos, xnf.FlagsNode(pos, xts.Final()),
+                xnf.CanonicalTypeNode(pos, E), xnf.Id(pos, xn)).localDef(xDef);
+        parms.add(x);
+        Name yn = Name.make("y");
+        Type T = right.type();
+        LocalDef yDef = xts.localDef(pos, xts.Final(), Types.ref(T), yn);
+        Formal y = xnf.Formal(pos, xnf.FlagsNode(pos, xts.Final()),
+                xnf.CanonicalTypeNode(pos, T), xnf.Id(pos, yn)).localDef(yDef);
+        parms.add(y);
+        Expr lhs = xnf.Field(pos,
+                xnf.Local(pos, xnf.Id(pos, xn)).localInstance(xDef.asInstance()).type(E),
+                xnf.Id(pos, left.name().id())).fieldInstance(left.fieldInstance()).type(R);
+        Expr val = visitBinary((X10Binary_c) xnf.Binary(pos,
+                lhs, op, xnf.Local(pos, xnf.Id(pos, yn)).localInstance(yDef.asInstance()).type(T)).type(R));
+        Expr res = assign(pos, lhs, Assign.ASSIGN, val);
+        Block body = xnf.Block(pos, xnf.Return(pos, res));
+        Closure c = synth.makeClosure(pos, R, parms, body, (X10Context) context);
+        X10MethodInstance ci = c.closureDef().asType().applyMethod();
+        List<Expr> args = new ArrayList<Expr>();
+        args.add(0, e);
+        args.add(right);
+        return xnf.ClosureCall(pos, c, args).closureInstance(ci).type(R);
+    }
+
     // a(i)=v -> a.set(v, i) or a(i)op=v -> ((x:A,y:I,z:T)=>x.set(x.apply(y) op z,y))(a,i,v)
     protected Expr visitSettableAssign(SettableAssign_c n) throws SemanticException {
         Position pos = n.position();
@@ -966,7 +1029,7 @@ public class Desugarer extends ContextVisitor {
                     args).methodInstance(mi).type(mi.returnType());
         }
         X10Binary_c.Operator op = n.operator().binaryOperator();
-        X10Call left = (X10Call) n.left(xnf, this);
+        X10Call left = (X10Call) n.left(xnf);
         MethodInstance ami = left.methodInstance();
         List<Formal> parms = new ArrayList<Formal>();
         Name xn = Name.make("x");
