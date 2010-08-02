@@ -863,7 +863,7 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
 				 i++;
 			}
 
-			if (whitespaceCount != 0 && whitespaceCount >= fPrefsSvc.getIntPreference(fProject, X10Constants.P_INDENTWIDTH))
+			if (whitespaceCount != 0 && whitespaceCount >= fPrefsSvc.getIntPreference(X10Constants.P_INDENTWIDTH))
 				insert= newInsert;
 		}
 
