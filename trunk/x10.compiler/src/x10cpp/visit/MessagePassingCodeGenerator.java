@@ -2376,6 +2376,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    if (unsigned_op)
 	        sw.write(")");
 	    sw.write(" ");
+	    if (asgn.operator() != Assign_c.ASSIGN) {
+	        assert (false);
+	        sw.write("/"+"*"+" op= "+"*"+"/");
+	        sw.write(" ");
+	    }
 	    // [IP] Are all the operators the same?
 	    sw.write(opString);
 	    sw.allowBreak(2, 2, " ", 1);

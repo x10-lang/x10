@@ -99,13 +99,6 @@ public class Checker {
 	        X10TypeChecker xtc = X10TypeChecker.getTypeChecker(tc).throwExceptions(true);
 	        NodeFactory nf = tc.nodeFactory();
 	        Binary bin = (Binary) nf.Binary(n.position(), n.left(nf), bop, right).typeCheck(xtc);
-	        // FIXME: special case for Strings; typecheck-type transformation
-	        if (op == ADD_ASSIGN && ts.typeEquals(X10TypeMixin.baseType(t), ts.String(), tc.context()) &&
-	                ts.canCoerceToString(s, tc.context()))
-	        {
-	            Expr newRight = X10Binary_c.coerceToString(tc, right);
-	            return n.right(newRight).type(bin.type());
-	        }
 	        return n.type(bin.type());
 	    }
 
