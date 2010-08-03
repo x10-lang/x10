@@ -53,6 +53,7 @@ import polyglot.ast.Labeled_c;
 import polyglot.ast.Lit;
 import polyglot.ast.Lit_c;
 import polyglot.ast.Local;
+import polyglot.ast.LocalAssign;
 import polyglot.ast.LocalAssign_c;
 import polyglot.ast.Local_c;
 import polyglot.ast.Loop_c;
@@ -1501,7 +1502,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	}
 
 	private boolean isFinish(Try c) {
-	    List<Stmt> statements = c.tryBlock().statements();
+	    List<Stmt> statements = c.finallyBlock().statements();
 	    if (statements.size() > 0) {
 	        Stmt stmt = statements.get(0);
 	        if (stmt instanceof Eval) {
@@ -1511,12 +1512,21 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	                Receiver target = call.target();
 	                if (target instanceof X10CanonicalTypeNode) {
 	                    if (target.type().typeEquals(((X10TypeSystem) tr.typeSystem()).Runtime(), tr.context())) {
-	                        if (call.methodInstance().name().toString().equals("startFinish")) {
+	                        if (call.methodInstance().name().toString().equals("stopFinish")) {
 	                            return true;
 	                        }
 	                    }
 	                }
 	            }
+                    if (expr instanceof LocalAssign) {
+                        Expr right = ((LocalAssign) expr).right();
+                        if (right instanceof Call) {
+                            Call call = (Call) right;
+                            if (call.target().type().toString().startsWith("x10.lang.Runtime.CollectingFinish") && call.methodInstance().name().toString().equals("stopFinishExpr")) {
+                                return true;
+                            }
+                        }
+                    }
 	        }
 	    }
 	    return false;
