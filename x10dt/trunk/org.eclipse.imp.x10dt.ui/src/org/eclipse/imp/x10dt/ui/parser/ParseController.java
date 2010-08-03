@@ -14,6 +14,7 @@ package org.eclipse.imp.x10dt.ui.parser;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -37,8 +38,10 @@ import org.eclipse.imp.x10dt.core.X10DTCorePlugin;
 import org.eclipse.jface.text.IRegion;
 
 import polyglot.ast.Node;
+import polyglot.ast.SourceFile;
 import polyglot.frontend.FileSource;
 import polyglot.frontend.Globals;
+import polyglot.frontend.Job;
 import polyglot.frontend.Source;
 import polyglot.util.ErrorInfo;
 import x10.parser.X10Lexer;
@@ -124,7 +127,7 @@ public class ParseController extends SimpleLPGParseController {
             	fLexStream = lexer.getILexStream();
             	fParser = new ParserDelegate(parser); // HACK - SimpleLPGParseController.cacheKeywordsOnce() needs an IParser and an ILexer, so create them here. Luckily, they're just lightweight wrappers...
             	fLexer = new LexerDelegate(lexer);
-            	fCurrentAst= fCompiler.getASTFor(fileSource);
+            	fCurrentAst= fCompiler.getASTFor(fileSource); // getASTFor(fileSource); // TODO use commandLineJobs() instead?
             }
             if (fViolationHandler != null) {
             	fViolationHandler.consumeAST((Node) fCurrentAst);
@@ -142,6 +145,17 @@ public class ParseController extends SimpleLPGParseController {
             Globals.initialize(null);
         }
         return fCurrentAst;
+    }
+
+    // TODO Use this rather than fCompiler.getASTFor() ? (more reliable?)
+    private Object getASTFor(Source source) {
+    	Collection<Job> cmdJobs = fCompiler.getExtInfo().scheduler().commandLineJobs();
+    	for(Job job: cmdJobs) {
+    		if (job.source().equals(source)) {
+    			return job.ast();
+    		}
+    	}
+    	return null;
     }
 
     public ILexStream getLexStream() {
