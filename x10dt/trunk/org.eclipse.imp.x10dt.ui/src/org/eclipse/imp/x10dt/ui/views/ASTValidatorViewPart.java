@@ -58,6 +58,8 @@ public class ASTValidatorViewPart extends ViewPart {
             if (part == fActiveEditor) {
                 fActiveEditor= null;
                 fParseController= null;
+                fViolations.clear();
+                refreshListView();
             }
         }
 
@@ -107,7 +109,10 @@ public class ASTValidatorViewPart extends ViewPart {
 
 	private ParseController.InvariantViolationHandler fViolationHandler = new ParseController.InvariantViolationHandler() {
 		public void handleViolation(ErrorInfo error) {
-			fViolations.add(error);
+			String errorFile = error.getPosition().file();
+			if (errorFile != null && errorFile.endsWith(fParseController.getPath().toOSString())) {
+				fViolations.add(error);
+			}
 		}
 
 		public void clear() {
@@ -118,13 +123,7 @@ public class ASTValidatorViewPart extends ViewPart {
 			if (root == null) {
 				fViolations.add(new ErrorInfo(X10ErrorInfo.INVARIANT_VIOLATION_KIND, "Null AST", Position.COMPILER_GENERATED));
 			}
-			PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-				public void run() {
-					if (fListViewer.getControl() != null && !fListViewer.getControl().isDisposed()) {
-						fListViewer.setInput(fViolations);
-					}
-				}
-			});
+			refreshListView();
 		}
 	};
 
@@ -235,6 +234,16 @@ public class ASTValidatorViewPart extends ViewPart {
         	fParseController= null; // UniversalEditor services languages other than X10, so don't assume this is an X10 source editor
         }
     }
+
+	private void refreshListView() {
+		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+			public void run() {
+				if (fListViewer.getControl() != null && !fListViewer.getControl().isDisposed()) {
+					fListViewer.setInput(fViolations);
+				}
+			}
+		});
+	}
 
     private void updateActionEnablement() {
         IStructuredSelection sel = (IStructuredSelection) fListViewer.getSelection();
