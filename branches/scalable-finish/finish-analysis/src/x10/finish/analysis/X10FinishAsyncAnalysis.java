@@ -311,6 +311,7 @@ public class X10FinishAsyncAnalysis {
     private void visitAsyncInstruction(
 	    ControlFlowGraph<SSAInstruction, ISSABasicBlock> epcfg,
 	    AnalysisEnvironment env, AsyncInvokeInstruction inst) {
+	System.out.println(inst.getPlaceExpr());
 	MethodReference mr = inst.getDeclaredTarget();
 	// each async is different and cannot be invoked twice, so use a dummy pc 
 	String pack = mr.getDeclaringClass().getName().toString();
@@ -564,7 +565,7 @@ public class X10FinishAsyncAnalysis {
      *            value's qualified types.
      * @throws Exception
      */
-    public void compile(final File testedFile, final String pack,
+    public HashMap<CallTableKey, LinkedList<CallTableVal>> analyze(final File testedFile, final String pack,
 	    final String entrymethod, final String methodtype) throws Exception {
 	
 	final String mainClass = testedFile.getName().substring(0,
@@ -637,7 +638,8 @@ public class X10FinishAsyncAnalysis {
 	    CallTableUtil.dumpCallTable(calltable);
 	}
 	System.out.println("finished ... ");
-    } // end of compile
+	return calltable;
+    } 
     
     /**
      * 
