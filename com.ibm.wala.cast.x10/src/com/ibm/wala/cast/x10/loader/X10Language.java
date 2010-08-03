@@ -12,6 +12,7 @@ import com.ibm.wala.cast.x10.ssa.SSAAtomicInstruction;
 import com.ibm.wala.cast.x10.ssa.SSAFinishInstruction;
 import com.ibm.wala.cast.x10.ssa.SSAForceInstruction;
 import com.ibm.wala.cast.x10.ssa.SSAHereInstruction;
+import com.ibm.wala.cast.x10.ssa.SSANextInstruction;
 import com.ibm.wala.cast.x10.ssa.SSAPlaceOfPointInstruction;
 import com.ibm.wala.cast.x10.ssa.SSARegionIterHasNextInstruction;
 import com.ibm.wala.cast.x10.ssa.SSARegionIterInitInstruction;
@@ -187,6 +188,10 @@ public class X10Language extends LanguageImpl implements BytecodeLanguage {
     public SSAFinishInstruction Finish(boolean isEnter) {
       return new SSAFinishInstruction(isEnter);
     }
+    
+    public SSANextInstruction Next() {
+        return new SSANextInstruction();
+      }
 
     public SSAForceInstruction Force(int retValue, int targetValue, TypeReference valueType) {
       return new SSAForceInstruction(retValue, targetValue, valueType);
