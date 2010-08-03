@@ -554,7 +554,10 @@ public final class Runtime {
 
         //Collecting Finish Use: for start merger at each place to collect result
         final public def waitForFinishExpr(safe:Boolean, merger :()=>Object):Rail[Object]! {
-            val result :Rail[Object]! = Rail.make[Object](Place.MAX_PLACES, (Int) => null);
+            val result :Rail[Object]! = Rail.make[Object](Place.MAX_PLACES);
+            var j: int;
+        	    for (j = 0; j <Place.MAX_PLACES; j++)
+                result(j) = null;
             if (!NO_STEALS && safe) worker().join(this);
             await();
             seen(hereInt()) = true;
