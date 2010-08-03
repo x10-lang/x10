@@ -11,6 +11,7 @@ import com.ibm.wala.cast.x10.ssa.SSAAtomicInstruction;
 import com.ibm.wala.cast.x10.ssa.SSAFinishInstruction;
 import com.ibm.wala.cast.x10.ssa.SSAForceInstruction;
 import com.ibm.wala.cast.x10.ssa.SSAHereInstruction;
+import com.ibm.wala.cast.x10.ssa.SSANextInstruction;
 import com.ibm.wala.cast.x10.ssa.SSAPlaceOfPointInstruction;
 import com.ibm.wala.cast.x10.ssa.SSARegionIterHasNextInstruction;
 import com.ibm.wala.cast.x10.ssa.SSARegionIterInitInstruction;
@@ -64,6 +65,10 @@ public class X10SSAPropagationCallGraphBuilder extends AstJavaSSAPropagationCall
 	}
 
 	public void visitFinish(SSAFinishInstruction instruction) {
+	    Assertions.UNREACHABLE("Query of interestingness of value number for Finish???");
+	}
+	
+	public void visitNext(SSANextInstruction instruction) {
 	    Assertions.UNREACHABLE("Query of interestingness of value number for Finish???");
 	}
 
@@ -147,6 +152,10 @@ public class X10SSAPropagationCallGraphBuilder extends AstJavaSSAPropagationCall
 	    // NOOP
 	}
 
+	public void visitNext(SSANextInstruction instruction) {
+	    // NOOP
+	}
+	
 	public void visitForce(SSAForceInstruction instruction) {
 	    // TODO model data flow for future/force
 	}
