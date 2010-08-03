@@ -1,0 +1,165 @@
+\ProvidesPackage{yglabels}[2005/08/08 v3.1]
+
+\newcommand{\Ref}[2]{%
+    \expandafter\ifx\csname pr@#1\endcsname\relax%
+    \PackageWarning{labels}{Reference format #1\space undefined. Making a default definition}%
+    #1~\ref{#2}%
+      \newRef{#1}{#1~\ref{#1:##1}}%
+  \else%
+    \csname pr@#1\endcsname{#2}%
+  \fi%
+}
+
+\def\newRef#1#2{%
+  \@namedef{pr@#1}##1{#2}}
+
+
+\newenvironment{Equation}[1][\relax]{%
+        \begin{equation}%
+            \ifx#1\relax
+                \relax
+            \else
+                \label{Equation:#1}%
+            \fi%
+        }{\end{equation}}
+
+\newcommand\eq[1]{\Ref{Equation}{#1}}
+\newRef{Equation}{\textup{(\ref{Equation:#1})}}
+\newRef{Lemma}{Lem.~\ref{Lemma:#1}}
+\newRef{Fact}{Fac.~\ref{Fact:#1}}
+\newRef{Theorem}{Thm.~\ref{Theorem:#1}}
+\newRef{Definition}{Def.~\ref{Definition:#1}}
+\newRef{Corollary}{Corr.~\ref{Corollary:#1}}
+\newRef{Proposition}{Prop.~\ref{Proposition:#1}}
+\newRef{Conclusion}{Conc.~\ref{Conclusion:#1}}
+\newRef{Chapter}{Chap.~\ref{Chapter:#1}}
+\newRef{Section}{Sec.~\ref{Section:#1}}
+\newRef{Appendix}{App.~\ref{Appendix:#1}}
+\newRef{Table}{Tab.~\ref{Table:#1}}
+\newRef{Figure}{Fig.~\ref{Figure:#1}}
+\newRef{Algorithm}{Alg.~\ref{Algorithm:#1}}
+\newRef{Example}{Examp.~\ref{Example:#1}}
+\newRef{Listing}{List.~\ref{Listing:#1}}
+
+\DeclareOption{expandedRefs}{
+\newRef{Lemma}{Lemma~\ref{Lemma:#1}}
+\newRef{Theorem}{Theorem~\ref{Theorem:#1}}
+\newRef{Definition}{Definition~\ref{Definition:#1}}
+\newRef{Corollary}{Corollary~\ref{Corollary:#1}}
+\newRef{Proposition}{Proposition~\ref{Proposition:#1}}
+\newRef{Conclusion}{Conclusion~\ref{Conclusion:#1}}
+\newRef{Chapter}{Chapter~\ref{Chapter:#1}}
+\newRef{Section}{Section~\ref{Section:#1}}
+\newRef{Appendix}{Appendix~\ref{Appendix:#1}}
+\newRef{Table}{Table~\ref{Table:#1}}
+\newRef{Figure}{Figure~\ref{Figure:#1}}
+\newRef{Algorithm}{Algorithm~\ref{Algorithm:#1}}
+\newRef{Example}{Example~\ref{Example:#1}}
+\newRef{Listing}{Listing~\ref{Listing:#1}}
+
+}
+
+
+
+
+\ProcessOptions
+
+
+\newcommand{\Lem}[1]{\Ref{Lemma}{#1}}
+\newcommand{\Fac}[1]{\Ref{Fact}{#1}}
+\newcommand{\The}[1]{\Ref{Theorem}{#1}}
+\newcommand{\Def}[1]{\Ref{Definition}{#1}}
+\newcommand{\Cor}[1]{\Ref{Corollary}{#1}}
+\newcommand{\Pro}[1]{\Ref{Proposition}{#1}}
+\newcommand{\Con}[1]{\Ref{Conclusion}{#1}}
+
+\newcommand{\Cha}[1]{\Ref{Chapter}{#1}}
+\newcommand{\Sec}[1]{\Ref{Section}{#1}}
+\newcommand{\App}[1]{\Ref{Appendix}{#1}}
+\newcommand{\Tab}[1]{\Ref{Table}{#1}}
+\newcommand{\Fig}[1]{\Ref{Figure}{#1}}
+\newcommand{\Alg}[1]{\Ref{Algorithm}{#1}}
+\newcommand{\Exa}[1]{\Ref{Example}{#1}}
+\newcommand{\Lis}[1]{\Ref{Listing}{#1}}
+
+
+\def\NewDivision#1#2{%
+    \expandafter
+        \newcommand
+            \csname%
+                #1%
+            \endcsname[2][\relax]%
+        {%
+            \lowercase{\csname#1\endcsname}{##2}%
+            \ifx##1\relax
+                \label{#2:##2}
+            \else
+                \label{#2:##1}%
+            \fi
+        }%
+}
+
+\NewDivision{Part}{Part}
+\NewDivision{Chapter}{Chapter}
+\NewDivision{Section}{Section}
+\NewDivision{Subsection}{Section}
+\NewDivision{Subsubsection}{Section}
+
+\let\Appendices=\appendix
+\let\appendix=\section
+\NewDivision{Appendix}{Appendix}
+
+
+
+\def\NewClaim#1{%
+        \newenvironment{#1}[1][\relax]{%
+            \lowercase{\begin{#1}}%
+           \ifx##1\relax
+                \relax
+           \else
+                \label{#1:##1}%
+           \fi
+       }{\lowercase{\end{#1}}}%
+}
+
+
+\NewClaim{Definition}
+\NewClaim{Theorem}
+\NewClaim{Lemma}
+\NewClaim{Corollary}
+\NewClaim{Proposition}
+\NewClaim{Conclusion}
+\NewClaim{Claim}
+\NewClaim{Fact}
+\NewClaim{Remark}
+\NewClaim{Example}
+
+
+
+
+\newcommand\setcaption{\typeout{A \setcapion command can only be used from within an enriched float}}
+\newcommand\usecaption{\typeout{A \usecapion command can only be used from within an enriched float}}
+\newcommand\Caption{\typeout{A \Capion command can only be used from within an enriched float}}
+\newcommand\EnrichEnvironment[2]{
+    \newenvironment{#1}[1][\relax]{
+        \ifx##1\relax
+           \begin{#2}%
+        \else
+          \begin{#2}[##1]%
+        \fi
+         \renewcommand\setcaption[2][\relax]{
+           \ifx####1\relax
+                \renewcommand\usecaption{\caption{####2}}%
+           \else
+                \renewcommand\usecaption{\caption{####2}\label{#1:####1}}%
+           \fi
+       }%
+       \renewcommand\Caption[2][\relax]{\setcaption[####1]{####2}\usecaption}%
+    }{\end{#2}}%
+}
+
+\EnrichEnvironment{Figure}{figure}
+\EnrichEnvironment{Table}{table}
+\EnrichEnvironment{Algorithm}{algorithm}
+\EnrichEnvironment{Listing}{listing}
+\endinput
