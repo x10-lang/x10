@@ -49,6 +49,7 @@ import polyglot.util.Pair;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
+import x10.ast.Closure;
 import x10.ast.SettableAssign_c;
 import x10.ast.X10Call;
 import x10.ast.X10CanonicalTypeNode;
@@ -131,6 +132,9 @@ public class RailInLoopOptimizer extends ContextVisitor {
                     if (n instanceof Loop) {
                         return n;
                     }
+                    if (n instanceof Closure) {
+                        return n;
+                    }
                     return null;
                 }
                 @Override
@@ -181,6 +185,9 @@ public class RailInLoopOptimizer extends ContextVisitor {
                 @Override
                 public Node override(Node parent, Node n) {
                     if (n instanceof Loop) {
+                        return n;
+                    }
+                    if (n instanceof Closure) {
                         return n;
                     }
                     return null;
@@ -411,6 +418,9 @@ public class RailInLoopOptimizer extends ContextVisitor {
                     @Override
                     public Node override(Node parent, Node n) {
                         if (n instanceof Loop) {
+                            return n;
+                        }
+                        if (n instanceof Closure) {
                             return n;
                         }
                         return null;
