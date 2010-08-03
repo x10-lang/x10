@@ -28,6 +28,7 @@ import org.eclipse.imp.utils.StreamUtils;
 import polyglot.ast.Node;
 import polyglot.frontend.AllBarrierGoal;
 import polyglot.frontend.FileSource;
+import polyglot.frontend.ForgivingVisitorGoal;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
 import polyglot.frontend.Parser;
@@ -95,10 +96,7 @@ public class ExtensionInfo extends x10.ExtensionInfo {
                     goals.add(RetrieveASTearly(job));
                 }
                 if (x10.Configuration.CHECK_INVARIANTS) {
-                	goals.add(new VisitorGoal("PositionInvariantChecker", job, new PositionInvariantChecker(job, "parsed")));
-                }
-                if (x10.Configuration.CHECK_INVARIANTS) {
-                	goals.add(new VisitorGoal("InstanceInvariantChecker", job, new InstanceInvariantChecker(job)));
+                	goals.add(new ForgivingVisitorGoal("PositionInvariantChecker", job, new PositionInvariantChecker(job, "parsed")));
                 }
 
                 goals.add(TypesInitialized(job));
@@ -107,6 +105,10 @@ public class ExtensionInfo extends x10.ExtensionInfo {
                 goals.add(PropagateAnnotations(job));
                 goals.add(PreTypeCheck(job));
                 goals.add(TypeChecked(job));
+
+                if (x10.Configuration.CHECK_INVARIANTS) {
+                	goals.add(new ForgivingVisitorGoal("InstanceInvariantChecker", job, new InstanceInvariantChecker(job)));
+                }
 
                 // AST will be more complete here
                 if (ExtensionInfo.this.fInterestingSources.contains(job.source())) {
