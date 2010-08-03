@@ -1,0 +1,184 @@
+\chapter{Lexical structure}
+
+In general, \Xten{} follows \java{} rules \cite[Chapter 3]{jls2} for
+lexical structure.
+
+Lexically a program consists of a stream of white space, comments,
+identifiers, keywords, literals, separators and operators.
+
+\paragraph{Whitespace}
+% Whitespace \index{whitespace} follows \java{} rules \cite[Chapter 3.6]{jls2}.
+ASCII space, horizontal tab (HT), form feed (FF) and line
+terminators constitute white space.
+
+\paragraph{Comments}
+% Comments \index{comments} follows \java{} rules
+% \cite[Chapter 3.7]{jls2}. 
+All text included within the ASCII characters ``\xcd"/*"'' and
+``\xcd"*/"'' is
+considered a comment and ignored; nested comments are not
+allowed.  All text from the ASCII characters
+``\xcd"//"'' to the end of line is considered a comment and is ignored.
+
+\paragraph{Identifiers}
+
+Identifiers \index{identifier} are defined as in \java.
+Identifiers consist of a single letter followed by zero or more
+letters or digits.
+Letters are defined as the characters for which the \java{}
+method \xcd"Character.isJavaIdentifierStart" returns true.
+Digits are defined as the ASCII characters \xcd"0" through \xcd"9".
+
+\paragraph{Keywords}
+\Xten{} reserves the following keywords:
+\begin{xten}
+abstract        any             as              async
+at              ateach          atomic          await
+break           case            catch           class
+clocked         continue        current
+def             default         do              else
+extends         extern          final           finally
+finish          for             foreach         future
+global
+goto            has             here            if             
+implements      import          in
+instanceof      interface
+native          new             next            nonblocking     
+offer           offers
+or              package         pinned          private        
+protected       property        public          return
+safe            self            sequential      shared
+static
+super           switch          this            throw
+throws          to              try             type
+val             value           var             when
+while
+\end{xten}
+Note that the primitive types are not considered keywords.
+The keyword \xcd{goto} is reserved, but not used.
+
+\paragraph{Literals}\label{Literals}\index{literals}
+
+Briefly, \XtenCurrVer{} uses fairly standard syntax for its literals:
+integers, unsigned integers, floating point numbers, booleans, 
+characters, strings, and \xcd"null".  The most exotic points are (1) unsigned
+numbers are marked by a \xcd`u` and cannot have a sign; (2) \xcd`true` and
+\xcd`false` are the literals for the booleans; and (3) floating point numbers
+are \xcd`Double` unless marked with an \xcd`f` for \xcd`Float`. 
+
+Less briefly, we use the following abbreviations: 
+\begin{displaymath}
+\begin{array}{rcll}
+\delta &=& \mbox{one or more decimal digits}\\
+\delta_8 &=& \mbox{one or more octal digits}\\
+\delta_{16} &=& \mbox{one or more hexadecimal digits, using \xcd`a`-\xcd`f`
+for 10-15}\\
+\iota &=& \delta 
+        \mathbin{|} {\tt 0} \delta_8 
+        \mathbin{|} {\tt 0x} \delta_{16}
+        \mathbin{|} {\tt 0X} \delta_{16}
+\\
+\sigma &=& \mbox{optional \xcd`+` or \xcd`-`}\\
+\beta &=& \delta 
+          \mathbin{|} \delta {\tt .}
+          \mathbin{|} \delta {\tt .} \delta
+          \mathbin{|}  {\tt .} \delta \\
+\xi &=& ({\tt e } \mathbin{|} {\tt E})
+         \sigma
+         \delta \\
+\phi &=& \beta \xi
+\end{array}
+\end{displaymath}
+
+\begin{itemize}
+
+\item \xcd`true` and \xcd`false` are the \xcd`Boolean` literals.
+
+\item \xcd`null` is a literal for the null value.  It has type
+      \xcd`Any{self==null}`. 
+
+\item \xcd`Int` literals have the form {$\sigma\iota$}; \eg, \xcd`123`,
+      \xcd`-321` are decimal \xcd`Int`s, \xcd`0123` and \xcd`-0321` are octal
+      \xcd`Int`s, and \xcd`0x123`, \xcd`-0X321`,  \xcd`0xBED`, and \xcd`0XEBEC` are
+      hexadecimal \xcd`Int`s.  
+
+\item \xcd`Long` literals have the form {$\sigma\iota{\tt l}$} or
+      {$\sigma\iota{\tt L}$}. \Eg, \xcd`1234567890L`  and \xcd`0xBAGEL` are \xcd`Long` literals. 
+
+\item \xcd`UInt` literals have the form {$\iota{\tt u}$} or {$\iota {\tt U}$}.
+      \Eg, \xcd`123u`, \xcd`0123u`, and \xcd`0xBEAU` are \xcd`UInt` literals.
+
+\item \xcd`ULong` literals have the form {$\iota {\tt ul}$} or {$\iota {\tt
+      lu}$}, or capital versions of those.  For example, 
+      \xcd`123ul`, \xcd`0124567012ul`,  \xcd`0xFLU`, \xcd`OXba1eful`, and \xcd`0xDecafC0ffeefUL` are \xcd`ULong`
+      literals. 
+
+\item \xcd`Float` literals have the form {$\sigma \phi {\tt f}$} or  {$\sigma
+      \phi {\tt F}$}.  Note that the floating-point marker letter \xcd`f` is
+      required: unmarked floating-point-looking literals are \xcd`Double`. 
+      \Eg, \xcd`1f`, \xcd`6.023E+32f`, \xcd`6.626068E-34F` are \xcd`Float`
+      literals. 
+
+\item \xcd`Double` literals have the form {$\sigma \phi$}\footnote{Except that
+      literals like \xcd`1` 
+      which match both {$\iota$} and {$\phi$} are counted as
+      integers, not \xcd`Double`; \xcd`Double`s require a decimal
+      point, an exponent, or the \xcd`d` marker.
+      }, {$\sigma \phi {\tt
+      D}$}, and {$\sigma \phi {\tt d}$}.  
+      \Eg, \xcd`0.0`, \xcd`0e100`, \xcd`229792458d`, and \xcd`314159265e-8`
+      are \xcd`Double` literals.
+
+\item \xcd`Char` literals have one of the following forms: 
+      \begin{itemize}
+      \item \xcd`'`{\it c}\xcd`'` where {\em c} is any printing ASCII
+            character other than 
+            \xcd`\` or \xcd`'`, representing the character {\em c} itself; 
+            \eg, \xcd`'!'`;
+      \item \xcd`'\b'`, representing backspace;
+      \item \xcd`'\t'`, representing tab;
+      \item \xcd`'\n'`, representing newline;
+      \item \xcd`'\f'`, representing form feed;
+      \item \xcd`'\r'`, representing return;
+      \item \xcd`'\''`, representing single-quote;
+      \item \xcd`'\"'`, representing double-quote;
+      \item \xcd`'\\'`, representing backslash;
+      \item \xcd`'\`{\em dd}\xcd`'`, where {\em dd} is one or more octal
+            digits, representing the one-byte character numbered {\em dd}; it
+            is an error if {\em dd}{$>255$}.      
+      \end{itemize}
+
+\item \xcd`String` literals consist of a double-quote \xcd`"`, followed by
+      zero or more of the contents of a \xcd`Char` literal, followed by
+      another double quote.  \Eg, \xcd`"hi!"`, \xcd`""`.
+
+\item There are no literals of type \xcd`Byte` or \xcd`UByte`.
+
+\end{itemize}
+
+
+
+\paragraph{Separators}
+\Xten{} has the following separators and delimiters:
+\begin{xten}
+( )  { }  [ ]  ;  ,  .
+\end{xten}
+
+\paragraph{Operators}
+\Xten{} has the following operators:
+\begin{xten}
+==  !=  <   >   <=  >=
+&&  ||  &   |   ^
+<<  >>  >>>
++   -   *   /   %
+++  --  !   ~
+&=  |=  ^=
+<<= >>= >>>=
++=  -=  *=  /=  %=
+=   ?   :   =>  ->
+<:  :>  @   ..
+\end{xten}
+
+
+
+

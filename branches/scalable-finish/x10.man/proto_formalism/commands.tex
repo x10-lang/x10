@@ -1,0 +1,241 @@
+\usepackage{relsize}
+\usepackage{amsmath}
+\usepackage{url}
+
+
+% http://en.wikibooks.org/wiki/LaTeX/Packages/Listings
+\usepackage{listings}
+
+
+\usepackage[ruled]{algorithm} % [plain]
+\usepackage[noend]{algorithmic} % [noend]
+\renewcommand\algorithmiccomment[1]{// \textit{#1}} %
+
+
+% For fancy end of line formatting.
+\usepackage{microtype}
+
+
+% For smaller font.
+\usepackage{pslatex}
+
+
+\usepackage{xspace}
+\usepackage{yglabels}
+\usepackage{yglang}
+\usepackage{ygequation}
+\usepackage{graphicx}
+%\usepackage{epstopdf}
+
+\newcommand{\formalrule}[1]{\mbox{\textsc{\scriptsize #1}}}
+\newcommand{\myrule}[1]{\textsc{\codesmaller #1 Rule}}
+\newcommand{\umyrule}[1]{\textbf{\underline{\textsc{\codesmaller #1 Rule}}}}
+
+
+% \small \footnotesize \scriptsize \tiny
+\newcommand{\mysubsection}[1]{\medskip\noindent {\textbf{#1.}~~}} %\paragraph
+% \codesize and \scriptsize seem to do the same thing.
+% \newcommand{\code}[1]{\texttt{\textup{\footnotesize #1}}}
+% \newcommand{\code}[1]{\texttt{\textup{\codesize #1}}}
+\newcommand{\normalcode}[1]{\texttt{\textup{#1}}}
+\def\codesmaller{\small}
+\newcommand{\myCOMMENT}[1]{\COMMENT{\small #1}}
+\newcommand{\code}[1]{\texttt{\textup{\codesmaller #1}}}
+% \newcommand{\code}[1]{\ifmmode{\mbox{\smaller\ttfamily{#1}}}
+%                       \else{\smaller\ttfamily #1}\fi}
+\newcommand{\smallcode}[1]{\texttt{\textup{\scriptsize #1}}}
+\newcommand{\myparagraph}[1]{\noindent\textit{\textbf{#1}}~} %\vspace{-1mm}\paragraph{#1}}
+
+% See: \usepackage{bold-extra} if you want to do \textbf
+\newcommand{\keyword}[1]{\code{#1}}
+
+% For new, method invocation, and cast:
+\newcommand{\hparen}[1]{\code{(}#1\code{)}}
+\newcommand{\angular}[1]{\code{<}#1\code{>}}
+
+\newcommand{\hgn}[1]{\lt#1\gt} % type parameters and generic method parameters
+
+\newcommand\Abs[1]{\ensuremath{\left\lvert#1\right\rvert}}
+\newcommand{\erase}[1]{\ensuremath{\Abs{#1}}}
+
+
+\newcommand{\todo}[1]{\textbf{[[#1]]}}
+%% To disable, just uncomment this line:
+%\renewcommand{\todo}[1]{\relax}
+
+%% Additional todo commands:
+\newcommand{\TODO}[1]{\todo{TODO: #1}}
+
+\newcommand\xX[1]{$\textsuperscript{\textit{\text{#1}}}$}
+
+
+\newcommand{\ol}[1]{\overline{#1}}
+\newcommand{\nounderline}[1]{{#1}}
+
+
+%% Commands used to typeset the FIGJ type system.
+\newcommand{\typerule}[2]{
+\begin{array}{c}
+  #1 \\
+\hline
+  #2
+\end{array}}
+
+
+%% Commands used to typeset the FOIGJ type system.
+\newcommand{\inside}{\prec}
+\newcommand{\visible}{{\it visible}}
+\newcommand{\placeholderowners}{{\it placeholderowners}}
+\newcommand{\nullexpression}{{\tt null}}
+\newcommand{\errorexpression}{{\tt error}}
+\newcommand{\locations}{{\it locations}} %% \mathop{\mathit{locations}}}
+\newcommand{\I}{\it I}
+
+
+\newcommand\mynewcommand[2]{\newcommand{#1}{#2\xspace}}
+
+\mynewcommand{\hA}{\code{A}} % inVariant definition
+\mynewcommand{\hB}{\code{B}} % inVariant definition
+
+\mynewcommand{\hI}{\code{I}} % iparam
+
+% In the syntax: \hI or ReadOnly or Mutable or Immut
+\mynewcommand{\hJ}{\code{J}}
+\mynewcommand{\hO}{\code{O}}
+\mynewcommand{\ho}{\code{o}}
+
+\mynewcommand{\hK}{\code{K}}
+\mynewcommand{\hX}{\code{X}} % vars
+\mynewcommand{\hY}{\code{Y}} % vars
+\mynewcommand{\hC}{\code{C}} % class
+\mynewcommand{\hc}{\code{c}} % cooker
+\mynewcommand{\hL}{\code{L}} % class decl
+\mynewcommand{\hM}{\code{M}} % Method decl
+\mynewcommand{\hN}{\code{N}} % Non-variable type
+\mynewcommand{\hm}{\code{m}} % method
+\mynewcommand{\he}{\code{e}} % expression
+\mynewcommand{\hv}{\code{v}} % value
+\mynewcommand{\hl}{\code{l}} % location in the store
+\mynewcommand{\lroot}{\code{l}_\top} % root
+\mynewcommand{\lthis}{\code{l}_\smallcode{this}} % this
+\mynewcommand{\hx}{\code{x}} % method parameter
+\mynewcommand{\hf}{\code{f}} % field
+\mynewcommand{\hF}{\code{F}} % types (vars or non vars) of a field
+\mynewcommand{\hT}{\code{T}} % types (vars or non vars)
+\mynewcommand{\hU}{\code{U}} % types (vars or non vars)
+\mynewcommand{\hV}{\code{V}} % closed types
+\mynewcommand{\hH}{\code{H}} % Heap
+\mynewcommand{\hS}{\code{S}}
+\mynewcommand{\hsub}{\code{/}} % substitute (reduction rules)
+\mynewcommand{\hthis}{\code{this}} % this
+\mynewcommand{\hclass}{\code{class}}
+\mynewcommand{\hreturn}{\code{return}}
+\mynewcommand{\hnew}{\code{new}}
+\newcommand{\lt}{\code{<}}%{\mathop{\textrm{\tt <}}}
+\newcommand{\gt}{\code{>}}%{\mathop{\textrm{\tt >}}}
+
+\mynewcommand{\proto}{\keyword{proto}}
+\mynewcommand{\cooked}{\keyword{cooked}}
+\mynewcommand{\this}{\keyword{this}}
+\mynewcommand{\Object}{\code{Object}}
+\mynewcommand{\const}{\keyword{const}} %C++ keyword
+\mynewcommand{\mutable}{\keyword{mutable}} %C++ keyword
+\mynewcommand{\romaybe}{\keyword{romaybe}} %Javari keyword
+
+%% Define the behaviour of the theorem package.
+%% Use http://math.ucsd.edu/~jeggers/latex/amsthdoc.pdf for reference.
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{fact}[theorem]{Fact}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{remark}[theorem]{Remark}
+
+
+\mynewcommand{\IP}{\code{I}}   % formal type parameter
+\mynewcommand{\JP}{\code{J}}   % formal type parameter (for soundness proofs)
+
+
+
+\mynewcommand{\This}{\code{This}}
+\mynewcommand{\World}{\code{World}}
+
+
+% Our annotations
+\mynewcommand{\OMutable}{\code{@OMutable}}
+\mynewcommand{\OI}{\code{@OI}}
+
+
+\mynewcommand{\InVariantAnnot}{\code{@InVariant}}
+
+
+\newcommand{\func}[1]{\text{\textnormal{\textit{\codesmaller #1}}}}
+
+\mynewcommand{\Fdef}{\ensuremath{\triangleq}} %=_{\code{def}}
+\newcommand{\Tprec}[0]{\ensuremath{\leqslant^T}}
+\newcommand{\Ppoints}[2]{\ensuremath{#1 \rightarrow_P #2}}
+\newcommand{\Pequals}[2]{\ensuremath{#1 \equiv_P #2}}
+\mynewcommand{\st}{\ensuremath{\mathrel{{\preccurlyeq}}}} %{\mathop{\textrm{\tt <:}}}
+\mynewcommand{\notst}{\mathrel{\st\hspace{-1.5ex}\rule[-.25em]{.4pt}{1em}~}}
+\mynewcommand{\gap}{~ ~ ~ ~ ~ ~}
+
+
+\newcommand{\RULE}[1]{\textsc{\scriptsize{}#1}} %\RULEhape\scriptsize}
+\newcommand{\closed}[1]{\ensuremath{\func{closed}(#1)}}
+
+\mynewcommand{\NPE}{\func{NPE}}
+\mynewcommand{\mtype}{\func{mtype}}
+\mynewcommand{\mbody}{\func{mbody}}
+\mynewcommand{\mcooker}{\func{mcooker}}
+\mynewcommand{\isVar}{\func{isVar}}
+\newcommand{\cooker}[1]{\ensuremath{\func{cooker}(P,#1)}}
+\mynewcommand{\bound}{\func{bound}_\Delta}
+\mynewcommand{\substitute}{\func{substitute}}
+\mynewcommand{\fields}{\func{fields}}
+\mynewcommand{\fclass}{\func{fclass}}
+\DeclareMathOperator{\dom}{dom}
+
+
+\mynewcommand\xth{\xX{th}}
+\mynewcommand\xrd{\xX{rd}}
+\mynewcommand\xnd{\xX{nd}}
+\mynewcommand\xst{\xX{st}}
+\mynewcommand\ith{$i$\xth}
+\mynewcommand\jth{$j$\xth}
+
+
+%\mynewcommand{\emptyline}{\vspace{\baselineskip}}
+\mynewcommand{\myindent}{~~}
+
+
+% Add line between figure and text
+\makeatletter
+\def\topfigrule{\kern3\p@ \hrule \kern -3.4\p@} % the \hrule is .4pt high
+\def\botfigrule{\kern-3\p@ \hrule \kern 2.6\p@} % the \hrule is .4pt high
+\def\dblfigrule{\kern3\p@ \hrule \kern -3.4\p@} % the \hrule is .4pt high
+\makeatother
+
+\setlength{\textfloatsep}{.75\textfloatsep}
+
+
+% Remove line between figure and its caption.  (The line is prettier, and
+% it also saves a couple column-inches.)
+\makeatletter
+%\@setflag \@caprule = \@false
+\makeatother
+
+
+% http://www.tex.ac.uk/cgi-bin/texfaq2html?label=bold-extras
+\usepackage{bold-extra}
+
+
+% Left and right curly braces in tt font
+\newcommand{\ttlcb}{\texttt{\char "7B}}
+\newcommand{\ttrcb}{\texttt{\char "7D}}
+\newcommand{\lb}{\ttlcb}
+\newcommand{\rb}{\ttrcb}
+
+
+\setlength{\leftmargini}{.75\leftmargini}
