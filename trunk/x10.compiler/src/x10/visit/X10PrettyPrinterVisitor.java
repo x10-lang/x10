@@ -1502,7 +1502,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	}
 
 	private boolean isFinish(Try c) {
-	    List<Stmt> statements = c.finallyBlock().statements();
+	    Block block = c.finallyBlock();
+	    if (block == null) return false;
+	    List<Stmt> statements = block.statements();
 	    if (statements.size() > 0) {
 	        Stmt stmt = statements.get(0);
 	        if (stmt instanceof Eval) {
