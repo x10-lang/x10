@@ -210,7 +210,7 @@ element.  It returns \xcd`otherwise` if no element matches.
 %~~vis
 \begin{xten}
 
-def find[T](f: (T) => Boolean, xs: List[T], absent:T): T = {
+def find[T](f: (T) => Boolean, xs: List[T]!, absent:T): T = {
   for (x: T in xs)
     if (f(x)) return x;
   absent
@@ -225,7 +225,7 @@ The method may be invoked thus:
 % package functions2.oh.no.my.ears;
 % import x10.util.*;
 % class Finderator {
-% static def find[T](f: (T) => Boolean, xs: x10.util.List[T], absent:T): T = {
+% static def find[T](f: (T) => Boolean, xs: x10.util.List[T]!, absent:T): T = {
 %  for (x: T in xs)
 %    if (f(x)) return x;
 %  absent
@@ -233,7 +233,7 @@ The method may be invoked thus:
 % static def checkery() {
 %~~vis
 \begin{xten}
-xs: List[Int] = new ArrayList[Int]();
+xs: List[Int]! = new ArrayList[Int]();
 x: Int = find((x: Int) => x>0, xs, 0);
 \end{xten}
 %~~siv
