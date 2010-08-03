@@ -1,0 +1,142 @@
+\subsection{Run-time casts}
+\label{sec:casts}
+
+While constraints are normally solved at compile time, 
+constraints can be evaluated at run time by using casts.
+The expression 
+\xcd"xs as List{length==n}" checks not only 
+that \xcd"xs"
+is an instance of
+the \xcd"List" class, but also that \xcd"xs.length" equals \xcd"n".
+A \xcd"ClassCastException" is thrown if the check fails.
+%
+In this example, the test of the constraint does not require
+run-time constraint
+solving; the constraint can be checked by simply
+evaluating the \xcd"length" property of \xcd"xs" and comparing against \xcd"n".
+
+However, the situation is more complicated when casting to a
+generic type.  Unlike Java, \Xten does not erase type
+parameters at run-time.  Instead each instance of a generic type
+contains a description of the types that its parameters are
+instantiated upon.  This extra run-time type information
+enables checked casts to generic types.
+
+The implementation becomes complicated when variant type
+parameters are permitted.
+While our formalism does not model
+variance, \Xten does support them, as described in
+Section~\ref{sec:lang}.
+Consider a declaration of class \xcd"C" with a covariant type
+parameter \xcd"X":
+\begin{xtenmath}
+class C[+X](x: X) {
+   def this(y: X) { property(y); }
+}
+\end{xtenmath}
+\noindent
+Because the static type of an expression may involve one or more
+type parameters,
+checking if an expression is an instance of, say, \xcd"C[A{c}]"
+may require a run-time constraint entailment test.  That is, if a value \xcd"v"
+has run-time type \xcd"C[B{d}]", then because \xcd"C"'s
+parameter is covariant,
+\xcd"v" \xcd"as" \xcd"C[A{c}]" must check that \xcd"B" is a subclass of
+\xcd"A" and that \xcd"d" entails \xcd"c".\footnote{If the
+\xcd"X" parameter were declared invariant, the cast would only
+need to check that \xcd"A" and \xcd"B" are the same class and
+that \xcd"d" and \xcd"c" are equivalent, which might be
+accomplished by representing constraints at run-time in a
+canonical form.}
+
+One approach is to restrict the language 
+to rule out casts to type parameters 
+and to generic types with subtyping constraints, ensuring that
+entailment checks are not needed at run time.
+
+Alternatively, 
+the constraint solver could be embedded into the runtime system.
+This is the solution used in the \Xten{} implementation; however, this
+solution can result in inefficient run-time casts
+if entailment checking for the given constraint system is expensive.
+
+We are exploring alternative implementations or future work.
+
+\eat{
+A different approach to have the compiler pre-compute the results of
+entailment checks.
+This might be done by analyzing the program to identify which pairs of
+constraints might be tested for entailment at run time and then generating a
+graph were each node is a constraint and there is a directed edge between
+nodes in an entailment relationship.  Run-time entailment
+checking can then be implemented as reachability checking. 
+This solution is a whole program analysis; all
+constraints must be visible to generate the graph.
+\todo{
+We leave the design of this analysis for future work.
+}
+
+\todo{this is vague.  and very likely wrong.}
+If \xcd"e as T" occurs in the program text and \xcd"e" has
+type \xcd"U", the analysis identifies all \xcd"new" expressions
+$a$,
+that create a subtype of \xcd"U" and identifies all type
+expressions $t$ that could instantiate \xcd"T".
+For each pair $(a,t)$, the analysis checks that the
+type of $a$ (determined by the constructor invoked by $a$) is a subtype of $t$.
+Since $a$ and $t$ may be in different environments, \xcd"e" must
+be substituted for \xcd"this" in $a$ and \xcd"self" in $t$.
+}
+
+\eat{
+Another option is to test objects cast to \xcd"T" not for membership in the
+type \xcd"T", but rather to test against the
+\emph{interpretation} of \xcd"T".
+Observe that
+if an instance of a generic class \xcd"C[X]"
+is a member of the type \xcd"C{X==U}", then
+all fields ${\tt f}_i$ of the instance with
+declared type ${\tt S}_i$ contain values
+that are instances of ${\tt S}_i[{\tt U}/{\tt X}]$.
+For example, given the following declaration of class \xcd"List":
+{
+\begin{xten}
+class List[X] {
+  val head: X;
+  val tail: List[X];
+}
+\end{xten}
+}
+\noindent
+if \xcd"xs" is an instance of \xcd"List{X==String}", then
+by checking that \xcd"xs.head" is an instance of \xcd"String"
+and \xcd"xs.tail" is, recursively, an instance of \xcd"List{X==String}".
+This property can be exploited by implementing cast to check the
+types of all fields of the object.
+For this check to be sound, it is vital that all fields whose
+type depends on the type property \xcd"X" be transitively final;
+otherwise, the test is not invariant---the
+result of the test could change as the data is mutated.
+Care must also be taken to implement the
+test so that it terminates for cyclic data structures.
+This implementation is inefficient for large data structures.
+
+This solution has a more permissive semantics
+than those implemented in \Xten or \FXGL{Q}.
+The difference is best illustrated by considering an empty generic class:
+{
+\begin{xten}
+class Nil[X] { }
+\end{xten}
+}
+\noindent
+In this case, there is no field of type \xcd"X" to test;
+therefore, an object instantiated as \xcd"Nil[int]" 
+can be considered a member of \xcd"Nil[String]". 
+However, the solution remains sound:
+Given a class \xcd"C[X]" and an expression \xcd"e" of type \xcd"t.X", if
+a run-time check finds that \xcd"t" has type \xcd"C[T]", 
+the compiler \emph{cannot} use this information to derive 
+that \xcd"e" has type \xcd"T".
+We leave to future work a proof of this claim.
+}
