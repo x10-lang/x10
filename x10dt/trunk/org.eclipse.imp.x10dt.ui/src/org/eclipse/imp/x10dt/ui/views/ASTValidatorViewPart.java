@@ -16,6 +16,8 @@ import java.util.List;
 
 import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.parser.IParseController;
+import org.eclipse.imp.x10dt.core.X10DTCorePlugin;
+import org.eclipse.imp.x10dt.ui.X10DTUIPlugin;
 import org.eclipse.imp.x10dt.ui.parser.ParseController;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -215,6 +217,7 @@ public class ASTValidatorViewPart extends ViewPart {
         if (editor == null)
             return;
 
+        // Remove our hooks from previous editor, if any
         if (fActiveEditor != null) {
         	IParseController pc= fActiveEditor.getParseController();
         	if (pc instanceof ParseController) {
@@ -223,13 +226,21 @@ public class ASTValidatorViewPart extends ViewPart {
         	}
         }
 
+        if (!editor.getParseController().getLanguage().getName().equals(X10DTCorePlugin.kLanguageName))
+        	return; // only hook into X10 source editors
+
         fActiveEditor = editor;
         IParseController pc= editor.getParseController();
         if (pc instanceof ParseController) {
         	fParseController = (ParseController) pc;
         	fParseController.setViolationHandler(fViolationHandler);
+
         	// Force a parse to update this view
-        	fParseController.parse(editor.getDocumentProvider().getDocument(editor.getEditorInput()).get(), null);
+        	try {
+        		fParseController.parse(editor.getDocumentProvider().getDocument(editor.getEditorInput()).get(), null);
+        	} catch (Exception e) {
+        		X10DTUIPlugin.log(e);
+        	}
         } else {
         	fParseController= null; // UniversalEditor services languages other than X10, so don't assume this is an X10 source editor
         }
