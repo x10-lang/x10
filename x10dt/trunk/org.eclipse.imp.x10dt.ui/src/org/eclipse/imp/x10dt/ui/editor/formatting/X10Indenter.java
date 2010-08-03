@@ -1325,7 +1325,7 @@ public class X10Indenter {
 				pos= fPosition; // store
 
 				// special: array initializer
-				if (looksLikeArrayInitializerIntro())
+				if (false && looksLikeArrayInitializerIntro()) // X10 2.0 method decls w/ an '=' betw the header + body look like an array initializer to this code
 					if (fPrefs.prefArrayDeepIndent)
 						return setFirstElementAlignment(pos, bound);
 					else
