@@ -354,7 +354,6 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
         // the index of the token preceding the offset when the offset is not
         // the offset of a valid token.
         //
-        // PORT1.7 --  token use here, calculation OK for now (does not use getLeftToken() etc)
         IPrsStream prs_stream= ((ParseController) controller).getParseStream();
         int index= prs_stream.getTokenIndexAtCharacter(offset);
         int token_index = (index < 0 ? -index + 1 : index);
