@@ -61,7 +61,7 @@ public class FinishAnnotationVisitor extends ContextVisitor {
 			return visitFinishAnnotation((Finish)n);
 		}
 		if(n instanceof Async){
-			System.out.println(((Async_c)n).placeTerm.constraint().getClass());
+			//System.out.println(((Async_c)n).placeTerm.constraint().getClass());
 		}
 		return n;
 		
