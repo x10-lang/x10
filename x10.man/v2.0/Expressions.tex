@@ -1,0 +1,1004 @@
+\chapter{Expressions}\label{XtenExpressions}\index{expressions}
+
+\Xten{} has a rich expression language.
+Evaluating an expression produces a value, or, in a few cases, no value. 
+Expression evaluation may have side effects, such as change of the value of a 
+\xcd`var` variable or a data structure, allocation of new values, or throwing
+an exception. 
+
+Evaluation is performed left to right, wherever possible.  For example, in 
+%~~exp~~`~~`~~f:() => ((Int,Int)=>Int), a:()=>Int, b:()=>Int ~~
+\xcd`f()(a(),b())`, \xcd`f()` is evaluated, then \xcd`a()`, then \xcd`b()`,
+andd then the application.  
+
+\section{Literals}
+
+Literals denote fixed values of built-in types. 
+The syntax for literals is given in \Sref{Literals}. 
+
+The type that \Xten{} gives a literal often includes its value. \Eg, \xcd`1`
+is of type \xcd`Int{self==1}`, and \xcd`true` is of type
+\xcd`Boolean{self==true}`.
+
+\section{\Xcd{this}}
+
+\begin{grammar}
+ThisExpression \: \xcd"this" \\
+\| ClassName \xcd"." \xcd"this" \\
+\end{grammar}
+
+The expression \xcd"this" is a  local \xcd`val` containing a reference
+to an instance of the lexically enclosing class.
+It may be used only within the body of an instance method, a
+constructor, or in the initializer of a instance field -- that is, the places
+where there is an instance of the class under consideration.
+
+Within an inner class, \xcd"this" may be qualified with the
+name of a lexically enclosing class.  In this case, it
+represents an instance of that enclosing class.  
+For example, \xcd`Outer` is a class containing \xcd`Inner`.  Each instance of
+\xcd`Inner` has a reference \xcd`outer` to the \xcd`Outer` involved in its
+creation, which is acquired by use of \xcd`Outer.this`.
+%~~gen
+% package exp.vexp.pexp.lexp.shexp;
+%~~vis
+\begin{xten}
+class Outer {
+  val inner : Inner! = new Inner();
+  class Inner {
+    val outer : Outer = Outer.this;
+  }
+  def alwaysTrue() = (this == inner.outer);
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+
+The type of a \xcd"this" expression is the
+innermost enclosing class, or the qualifying class,
+constrained by the class invariant and the
+method guard, if any.
+
+The \xcd"this" expression may also be used within constraints in
+a class or interface header (the class invariant and
+\xcd"extends" and \xcd"implements" clauses).  Here, the type of
+\xcd"this" is restricted so that only properties declared in the
+class header itself, and specifically not any members declared in the class
+body or in supertypes, are accessible through \xcd"this".
+
+\section{Local variables}
+
+\begin{grammar}
+LocalExpression \: Identifier \\
+\end{grammar}
+
+A local variable expression consists simply of the name of the local variable,
+field of the current object, formal parameter in scope, etc. It evaluates to
+the value of the local variable. \xcd`n` in the second line below is a local
+variable expression. 
+%~~gen 
+% package exp.loc.al.varia.ble; 
+% class Example {
+% def example() { 
+%~~vis
+\begin{xten}
+val n = 22;
+val m = n + 56;
+\end{xten}
+%~~siv
+%} }
+%~~neg
+
+
+
+\section{Field access}
+\label{FieldAccess}
+
+
+\begin{grammar}
+FieldExpression \: Expression \xcd"." Identifier \\
+                \| \xcd"super" \xcd"." Identifier \\
+                \| ClassName \xcd"." Identifier \\
+                \| ClassName \xcd"." \xcd"super" \xcd"." Identifier \\
+\end{grammar}
+
+A field of an object instance may be  accessed
+with a field access expression.
+
+The type of the access is the declared type of the field with the
+actual target substituted for \xcd"this" in the type. 
+% If the actual
+%target is not a final access path (\Sref{FinalAccessPath}),
+%an anonymous path is substituted for \xcd"this".
+
+The field accessed is selected from the fields and value properties
+of the static type of the target and its superclasses.
+
+If the field target is given by the keyword \xcd"super", the target's type is
+the superclass of the enclosing class.  This form is used to access fields of
+the parent class shadowed by same-named fields of the current class.
+
+If the field target is \xcd`Cls.super`, then the target's type is \xcd`Cls`,
+which must be an ancestor class of the enclosing class.  This (admittedly
+obscure) form is used to access fields of an ancestor class which are shadowed
+by same-named fields of some more recent ancestor.  The following example
+illustrates all four cases:
+
+%~~gen
+% package exp.re.ssio.ns.fiel.dacc.ess;
+%~~vis
+\begin{xten}
+class Uncle {
+  public static global val f = 1;
+}
+class Parent {
+  public global val f = 2;
+}
+class Ego extends Parent {
+  public global val f = 3;
+  class Child extends Ego {
+     public global val f = 4;
+     def expDotId() = this.f; // 4
+     def superDotId() = super.f; // 3
+     def classNameDotId() = Uncle.f; // 1;
+     def cnDotSuperDotId() = Ego.super.f; // 2
+  }
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+
+
+If the field target is \xcd"null", a \xcd"NullPointerException"
+is thrown.
+
+If the field target is a class name, a static field is selected.
+
+It is illegal to access  a field that is not visible from
+the current context.
+It is illegal to access a non-static field
+through a static field access expression.
+
+\section{Function Literals}
+Function literals are described in \Sref{Functions}.
+
+\section{Calls}
+\label{Call}
+\label{MethodInvocation}
+\label{MethodInvocationSubstitution}
+
+\begin{grammar}
+MethodCall \: TypeName \xcd"." Identifier TypeArguments\opt \xcd"(" ArgumentList\opt \xcd")" \\
+           \| \xcd"super" \xcd"." Identifier TypeArguments\opt \xcd"(" ArgumentList\opt \xcd")" \\
+           \| ClassName \xcd"." \xcd"super" \xcd"." Identifier TypeArguments\opt \xcd"(" ArgumentList\opt \xcd")" \\
+Call \: Primary TypeArguments\opt \xcd"(" ArgumentList\opt \xcd")" \\
+TypeArguments \: \xcd"[" Type ( \xcd"," Type )\star \xcd"]" \\
+\end{grammar}
+
+A \grammarrule{MethodCall} may be to either a \xcd"static" or an 
+instance method.  A \grammarrule{Call} may invoke either a method
+or a closure.  
+
+The syntax is ambiguous; the target must be type-checked to determine if it is
+the name of a method or if it refers to a field containing a closure. It is a
+static error if a call may resolve to both a closure call or to a method call.
+%~~gen
+% package expres.sio.nsca.lls;
+%~~vis
+\begin{xten}
+class Callsome {
+  static val closure = () => 1;
+  static def method () = 2;
+  static val closureEvaluated = Callsome.closure();
+  static val methodEvaluated = Callsome.method();
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+However, adding a static method called \xcd`closure` makes \xcd`Callsome.closure()`
+ambiguous: it could be a call to the closure, or to the static method: 
+
+%~~gen
+% package expres.sio.nsca.lls.twoooo;
+% class Callsome {static val closure = () => 1; static def method () = 2; static val methodEvaluated = Callsome.method();
+%~~vis
+\begin{xten}
+  static def closure () = 3;
+  // ERROR: static errory = Callsome.closure();
+\end{xten}
+%~~siv
+% }
+%~~neg
+
+A closure call \xcdmath"e($\dots$)" is shorthand for a method call
+\xcdmath"e.apply($\dots$)". 
+
+Method selection rules are similar to that of \java{}.\bard{Explain}
+For a call with no explicit type arguments, a method with 
+no parameters is considered more specific than a method with one or more
+type parameters that would have to be inferred.
+
+It is a static error if a method's \grammarrule{Guard} is not satisfied by the
+caller. 
+
+\section{Assignment}\index{assignment}\label{AssignmentStatement}
+
+\begin{grammar}
+Expression \: Assignment \\
+Assignment \: SimpleAssignment \\
+           \| OpAssignment \\
+SimpleAssignment \: LeftHandSide \xcd"=" Expression \\
+OpAssignment \: LeftHandSide \xcd"+=" Expression \\
+             \: LeftHandSide \xcd"-=" Expression \\
+             \: LeftHandSide \xcd"*=" Expression \\
+             \: LeftHandSide \xcd"/=" Expression \\
+             \: LeftHandSide \xcd"%=" Expression \\
+             \: LeftHandSide \xcd"&=" Expression \\
+             \: LeftHandSide \xcd"|=" Expression \\
+             \: LeftHandSide \xcd"^=" Expression \\
+             \: LeftHandSide \xcd"<<=" Expression \\
+             \: LeftHandSide \xcd">>=" Expression \\
+             \: LeftHandSide \xcd">>>=" Expression \\
+LeftHandSide \: Identifier \\
+             \| Primary \xcd"." Identifier \\
+             \| Primary \xcd"(" Expression \xcd")" \\
+\end{grammar}
+
+
+
+The assignment expression \xcd"x = e" assigns a value given by
+expression \xcd"e"
+to a variable \xcd"x".  
+Most often, \xcd`x` is a mutable (\xcd`var` variable).  The same syntax is
+used for delayed initialization of a \xcd`val`, but \xcd`val`s can only be
+initialized once.
+%~~gen
+% package express.ions.ass.ignment;
+% class Example {
+% static def exasmple() {
+%~~vis
+\begin{xten}
+  var x : Int;
+  val y : Int;
+  x = 1;
+  y = 2; // Correct; initializes y
+  x = 3; 
+  // Incorrect: y = 4;
+\end{xten}
+%~~siv
+% } } 
+%~~neg
+
+
+There are three syntactic forms of
+assignment: 
+\begin{enumerate}
+\item \xcd`x = e;`, assigning to a local variable, formal parameter, field of
+      \xcd`this`, etc. 
+\item \xcd`x.f = e;`, assigning to a field of an object.
+\item \xcdmath`a(i$_1$,$\ldots$,i$_n$) = v;`, where {$n \ge 0$}, assigning to
+      an element of an array or some other such structure. This is syntactic
+      sugar for a method call: \xcdmath`a.set(v,i$_1$,$\ldots$,i$_n$)`.
+      Naturally, it is a static error if no suitable \xcd`set` method exists
+      for \xcd`a`.
+\end{enumerate}
+
+For a binary operator $\diamond$, the $\diamond$-assignment expression
+\xcdmath"x $\diamond$= e" combines the current value of \xcd`x` with the value
+of \xcd`e` by {$\diamond$}, and stores the result back into \xcd`x`.  
+\xcd`i += 2`, for example, adds 2 to \xcd`i`. For variables and fields, 
+\xcdmath"x $\diamond$= e" behaves just like \xcdmath"x = x $\diamond$ e". 
+
+The subscripting forms of \xcdmath"a(i) $\diamond$= b" are slightly subtle.
+Subexpressions of \xcd`a` and \xcd`i` are only evaluated once.  However,
+\xcd`a(i)` and \xcd`a(i)=c` are each executed once---in particular, there is
+one call to \xcd`a.apply(i)` and one to \xcd`a.set(i,c)`, the desugared forms
+of \xcd`a(i)` and \xcd`a(i)=c`.  If subscripting is implemented strangely for
+the class of \xcd`a`, the behavior is {\em not} necessarily updating a single
+storage location. Specifically, \xcd`A()(I()) += B()` is tantamount to: 
+%~~gen
+% package expressions.stupid.addab;
+% class Example {
+% def example(A:()=>Rail[Int]!, I: () => Int, B: () => Int ) {
+%~~vis
+\begin{xten}
+{
+  val aa = A();  // Evaluate A() once
+  val ii = I();  // Evaluate I() once
+  val bb = B();  // Evaluate B() once
+  val tmp = aa(ii) + bb; // read aa(ii)
+  aa(ii) = tmp;  // write sum back to aa(ii)
+}
+\end{xten}
+%~~siv
+%}}
+%~~neg
+
+\limitation{+= does not currently meet this specification.}
+
+
+
+
+\section{Increment and decrement}
+
+
+The operators \xcd"++" and \xcd"--" increment and decrement
+a variable, respectively.  
+\xcd`x++` and \xcd`++x` both increment \xcd`x`, just as the statement 
+\xcd`x += 1` would, and similarly for \xcd`--`.  
+
+The difference between the two is the return value.  
+\xcd`++x` returns the {\em new} value of \xcd`x`, after incrementing.
+\xcd`x++` returns the {\em old} value of \xcd`, before incrementing.`
+
+\limitation{This currently only works for numeric types.}
+
+\section{Numeric Operations}
+\label{XtenPromotions}
+\index{promotion}
+\index{numeric promotion}
+
+Numeric types (\xcd`Byte`, \xcd`Short`, \xcd`Int`, \xcd`Long`, \xcd`Float`,
+\xcd`Double`, and unsigned variants of fixed-point types) are normal X10
+structs, though most of their methods are implemented via native code. They
+obey the same general rules as other X10 structs. For example, numeric
+operations are defined by \xcd`operator` definitions, the same way you could
+for any struct.
+
+Promoting a numeric value to a longer numeric type preserves the sign of the
+value.  For example, \xcd`(255 as UByte) as UInt` is 255.  
+
+\subsection{Conversions and coercions}
+
+Specifically, each numeric type can be converted or coerced into each other
+numeric type, perhaps with loss of accuracy.
+%~~gen
+% package exp.ress.io.ns.numeric.conversions;
+% class ExampleOfConversionAndStuff {
+% def example() {
+%~~vis
+\begin{xten}
+val f : (Int)=>Boolean = (Int) => true; 
+val n : Byte = 123 as Byte; // explicit 
+val ok = f(n); // implicit
+\end{xten}
+%~~siv
+% } }
+%~~neg
+
+
+
+\subsection{Unary plus and unary minus}
+
+The unary \xcd`+` operation on numbers is an identity function.
+The unary \xcd`-` operation on numbers is a negation function.
+On unsigned numbers, these are two's-complement.  For example, 
+\xcd`-(0x0F as UByte)` is 
+\xcd`(0xF1 as UByte)`.
+\bard{UInts and such are closed under negation -- the negative of a UInt is
+done binarily.  }
+
+
+
+\section{Bitwise complement}
+
+The unary \xcd"~" operator, only defined on integral types, complements each
+bit in its operand.  
+
+\section{Binary arithmetic operations} 
+
+The binary arithmetic operators perform the familiar binary arithmetic
+operations: \xcd`+` adds, \xcd`-` subtracts, \xcd`*` multiplies, 
+\xcd`/` divides, and \xcd`%`
+computes remainder.
+
+On integers, the operands are coerced to the longer of their two types, and
+then operated upon.  
+Floating point operations are determined by the IEEE 754
+standard. 
+The integer \xcd"/" and \xcd"%" throw a \xcd"DivideByZeroException"
+if the right operand is zero.
+
+\section{Binary shift operations}
+
+The operands of the binary shift operations must be of integral type.
+The type of the result is the type of the left operand.
+
+If the promoted type of the left operand is \xcd"Int",
+the right operand is masked with \xcd"0x1f" using the bitwise
+AND (\xcd"&") operator, giving a number {$\le$} the number of bits in an
+\xcd`Int`. 
+If the promoted type of the left operand is \xcd"Long",
+the right operand is masked with \xcd"0x3f" using the bitwise
+AND (\xcd"&") operator, giving a number {$\le$} the number of bits in a
+\xcd`Long`. 
+
+The \xcd"<<" operator left-shifts the left operand by the number of
+bits given by the right operand.
+The \xcd">>" operator right-shifts the left operand by the number of
+bits given by the right operand.  The result is sign extended;
+that is, if the right operand is $k$,
+the most significant $k$ bits of the result are set to the most
+significant bit of the operand.
+
+The \xcd">>>" operator right-shifts the left operand by the number of
+bits given by the right operand.  The result is not sign extended;
+that is, if the right operand is $k$,
+the most significant $k$ bits of the result are set to \xcd"0".
+This operation is deprecated, and may be removed in a later version of the
+language. 
+
+\section{Binary bitwise operations}
+
+The binary bitwise operations operate on integral types, which are promoted to
+the longer of the two types.
+The \xcd"&" operator  performs the bitwise AND of the promoted operands.
+The \xcd"|" operator  performs the bitwise inclusive OR of the promoted operands.
+The \xcd"^" operator  performs the bitwise exclusive OR of the promoted operands.
+
+\section{String concatenation}
+
+The \xcd"+"  operator is used for string concatenation 
+ as well as addition.
+If either operand is of static type \xcd"x10.lang.String",
+ the other operand is converted to a \xcd"String" , if needed,
+  and  the two strings  are concatenated.
+ String conversion of a non-\xcd"null" value is  performed by invoking the
+ \xcd"toString()" method of the value.
+  If the value is \xcd"null", the value is converted to 
+  \xcd'"null"'.
+
+The type of the result is \xcd"String".
+
+ For example, 
+%~~exp~~`~~`~~ ~~
+      \xcd`"one " + 2 + here` 
+      evaluates to something like \xcd`one 2(Place 0)`.  
+
+\section{Logical negation}
+
+The operand of the  unary \xcd"!" operator 
+must be of type \xcd"x10.lang.Boolean".
+The type of the result is \xcd"Boolean".
+If the value of the operand is \xcd"true", the result is \xcd"false"; if
+if the value of the operand  is \xcd"false", the result is \xcd"true".
+
+\section{Boolean logical operations}
+
+Operands of the binary boolean logical operators must be of type \xcd"Boolean".
+The type of the result is \xcd"Boolean"
+
+The \xcd"&" operator  evaluates to \xcd"true" if both of its
+operands evaluate to \xcd"true"; otherwise, the operator
+evaluates to \xcd"false".
+
+The \xcd"|" operator  evaluates to \xcd"false" if both of its
+operands evaluate to \xcd"false"; otherwise, the operator
+evaluates to \xcd"true".
+
+\section{Boolean conditional operations}
+
+Operands of the binary boolean conditional operators must be of type
+\xcd"Boolean". 
+The type of the result is \xcd"Boolean"
+
+The \xcd"&&" operator  evaluates to \xcd"true" if both of its
+operands evaluate to \xcd"true"; otherwise, the operator
+evaluates to \xcd"false".
+Unlike the logical operator \xcd"&",
+if the first operand is \xcd"false",
+the second operand is not evaluated.
+
+The \xcd"||" operator  evaluates to \xcd"false" if both of its
+operands evaluate to \xcd"false"; otherwise, the operator
+evaluates to \xcd"true".
+Unlike the logical operator \xcd"||",
+if the first operand is \xcd"true",
+the second operand is not evaluated.
+
+\section{Relational operations} 
+
+The relational operations compare numbers, producing \xcd`Boolean` results.  
+
+The \xcd"<" operator evaluates to \xcd"true" if the left operand is
+less than the right.
+The \xcd"<=" operator evaluates to \xcd"true" if the left operand is
+less than or equal to the right.
+The \xcd">" operator evaluates to \xcd"true" if the left operand is
+greater than the right.
+The \xcd">=" operator evaluates to \xcd"true" if the left operand is
+greater than or equal to the right.
+
+Floating point comparison is determined by the IEEE 754
+standard.  Thus,
+if either operand is NaN, the result is \xcd"false".
+Negative zero and positive zero are considered to be equal.
+All finite values are less than positive infinity and greater
+than negative infinity.
+
+\section{Conditional expressions}
+\label{Conditional}
+
+\begin{grammar}
+ConditionalExpression \: Expression
+                \xcd"?" Expression
+                \xcd":" Expression 
+\end{grammar}
+
+A conditional expression evaluates its first subexpression (the
+condition); if \xcd"true"
+the second subexpression (the consequent) is evaluated; otherwise,
+the third subexpression (the alternative) is evaluated.
+
+The type of the condition must be \xcd"Boolean".
+The type of the conditional expression is some common 
+ancestor (as constrained by \Sref{LCA}) of the types of the consequent and the
+alternative. 
+
+For example, 
+%~~exp~~`~~`~~a:Int,b:Int ~~
+\xcd`a == b ? 1 : 2`
+evaluates to \xcd`1` if \xcd`a` and \xcd`b` are the same, and \xcd`2` if they
+are different.   As the type of \xcd`1` is \xcd`Int{self==1}` and of \xcd`2`
+is \xcd`Int{self==2}`, the type of the conditional expression has the form
+\xcd`Int{c}`, where \xcd`self==1` and \xcd`self==2` both imply \xcd`c`.  For
+example, it might be \xcd`Int{true}` -- or perhaps it might be 
+\xcd`Int{self != 8}`. Note that this term has no most accurate type in the X10
+type system.
+
+\section{Stable equality}
+\label{StableEquality}
+\index{==}\index{!=}
+
+\begin{grammar}
+EqualityExpression \: Expression \xcd"==" Expression \\
+\| Expression \xcd"!=" Expression \\
+\end{grammar}
+
+The \xcd"==" and \xcd"!=" operators provide a fundamental, though
+non-abstract, notion of equality.  \xcd`a==b` is true if the values of \xcd`a`
+and \xcd`b` are extremely identical, in a sense defined shortly.  \xcd`a != b`
+is true iff \xcd`a==b` is false.
+
+\begin{itemize}
+\item If \xcd`a` and \xcd`b` are values of object type, then \xcd`a==b` holds
+      if \xcd`a` and \xcd`b` are the same object.
+\item If one operand is \xcd`null`, then \xcd`a==b` holds iff the other is
+      also \xcd`null`.
+\item If the operands both have struct type, then they must be structurally equal;
+that is, they must be instances of the same struct
+and all their fields or components must be \xcd"==". 
+\item The definition of equality for function types is specified in
+      \Sref{FunctionEquality}.
+\item If the operands have numeric types, they are coerced into the larger of
+      the two types and then compared for numeric equality.
+\end{itemize}
+
+The predicates \xcd"==" and \xcd"!=" may not be overridden by the programmer.
+Note that \xcd`a==b` is a form of \emph{stable equality}; that is, the result of
+the equality operation is not affected by the mutable state of the program,
+after evaluation of \xcd`a` and \xcd`b`. 
+
+
+\section{Allocation}
+\label{ClassCreation}
+
+\begin{grammar}
+NewExpression \: \xcd"new" ClassName TypeArguments\opt \xcd"(" ArgumentList\opt \xcd")"
+        ClassBody\opt \\
+  \| \xcd"new" InterfaceName TypeArguments\opt \xcd"(" ArgumentList\opt \xcd")"
+        ClassBody
+\end{grammar}
+
+An allocation expression creates a new instance of a class and
+invokes a constructor of the class.
+The expression designates the class name and passes
+type and value arguments to the constructor.
+
+The allocation expression may have an optional class body.
+In this case, an anonymous subclass of the given class is
+allocated.   An anonymous class allocation may also specify a
+single super-interface rather than a superclass; the superclass
+of the anonymous class is \xcd"x10.lang.Object".
+
+If the class is anonymous---that is, if a class body is
+provided---then the constructor is selected from the superclass.
+The constructor to invoke is selected using the same rules as
+for method invocation (\Sref{MethodInvocation}).
+
+The type of an allocation expression
+is the return type of the constructor invoked, with appropriate
+substitutions  of actual arguments for formal parameters, as
+specified in \Sref{MethodInvocationSubstitution}.
+
+It is illegal to allocate an instance of an \xcd"abstract" class.
+It is illegal to allocate an instance of a class or to invoke a
+constructor that is not visible at
+the allocation expression.
+
+Note that instantiating a struct type uses function application syntax, not
+\xcd`new`.  As structs do not have subclassing, there is no need or
+possibility of a {\em ClassBody}.
+
+
+\section{Casts}\label{ClassCast}\index{classcast}
+
+The cast operation may be used to cast an expression to a given type:
+
+\begin{grammar}
+UnaryExpression \: CastExpression \\
+CastExpression \: UnaryExpression \xcd"as" Type \\
+\end{grammar}
+
+The result of this operation is a value of the given type if the cast
+is permissible at run time, and either a compile-time error or a runtime
+exception 
+(\xcd`x10.lang.TypeCastException`) if it is not.  
+
+When evaluating \xcd`E as T{c}`, first the value of \xcd`E` is converted to
+type \xcd`T` (which may fail), and then the constraint \xcd`{c}` is checked. 
+
+
+
+\begin{itemize}
+\item If \xcd`T` is a primitive type, then \xcd`E`'s value is converted to type
+      \xcd`T` according to the rules of
+      \Sref{sec:effects-of-explicit-numeric-coercions}. 
+      
+\item If \xcd`T` is a class, then the first half of the cast succeeds if the
+      run-time value of \xcd`E` is an instance of class \xcd`T`, or of a
+      subclass 
+
+\item If \xcd`T` is an interface, then the first half of the cast succeeds if
+      the run-time value of \xcd`E` is an instance of a class implementing
+      \xcd`T`. 
+
+\item If \xcd`T` is a struct type, then the first half of the cast succeeds if
+      the run-time value of \xcd`E` is an instance of \xcd`T`.  
+
+\item If \xcd`T` is a function type, then the first half of the cast succeeds
+      if the run-time value of \xcd`X` is a function of precisely that type.
+\end{itemize}
+
+If the first half of the cast succeeds, the second half -- the constraint
+\xcd`{c}` -- must be checked.  In general this will be done at runtime, though
+in special cases it can be checked at compile time.   For example, 
+\xcd`n as Int{self != w}` succeeds if \xcd`n != w` --- even if \xcd`w` is a value
+read from input, and thus not determined at compile time.
+
+The compiler may forbid casts that it knows cannot possibly work. If there is
+no way for the value of \xcd`E` to be of type \xcd`T{c}`, then 
+\xcd`E as T{c}` can result in a static error, rather than a runtime error.  
+For example, \xcd`1 as Int{self==2}` may fail to compile, because the compiler
+knows that \xcd`1`, which has type \xcd`Int{self==1}`, cannot possibly be of
+type \xcd`Int{self==2}`. 
+
+
+%BB% \bard{This section need serious whomping.  The Java mention needs to go.  The
+%BB% rules for coercions are given in \Sref{sec:effects-of-explicit-numeric-coercions}.
+%BB% If the \xcd`Type` has a constraint, the constraint will be checked at runtime. 
+%BB% We need to give examples. 
+%BB% }
+%BB% 
+%BB% Type conversion is checked according to the
+%BB% rules of the \java{} language (e.g., \cite[\S 5.5]{jls2}).
+%BB% For constrained types, both the base
+%BB% type and the constraint are checked.
+%BB% If the
+%BB% value cannot be cast to the appropriate type, a
+%BB% \xcd"ClassCastException"
+%BB% is thrown. 
+
+
+
+% {\bf Conversions of numeric values}
+% {\bf Can't do (a as T) if a can't be a T.}
+
+
+%If the value cannot be cast to the
+%appropriate place type a \xcd"BadPlaceException" is thrown. 
+
+% Any attempt to cast an expression of a reference type to a value type
+% (or vice versa) results in a compile-time error. Some casts---such as
+% those that seek to cast a value of a subtype to a supertype---are
+% known to succeed at compile-time. Such casts should not cause extra
+% computational overhead at run time.
+
+\section{\Xcd{instanceof}}
+\label{instanceOf}
+\index{\Xcd{instanceof}}
+
+\Xten{} permits types to be used in an in instanceof expression
+to determine whether an object is an instance of the given type:
+
+\begin{grammar}
+RelationalExpression \: RelationalExpression \xcd"instanceof" Type
+\end{grammar}
+
+In the above expression, \grammarrule{Type} is any type. At run time, the
+result of this operator is \xcd"true" if the
+\grammarrule{RelationalExpression} can be coerced to \grammarrule{Type}
+without a \xcd"TypeCastException" being thrown or static error occurring.
+Otherwise the result is \xcd"false". This determination may involve checking
+that the constraint, if any, associated with the type is true for the given
+expression.
+
+%~~exp~~`~~`~~x:Int~~
+For example, \xcd`3 instanceof Int{self==x}` is an overly-complicated way of
+saying \xcd`3==x`.
+
+\section{Subtyping expressions}
+
+\begin{grammar}
+SubtypingExpression \: Expression \xcd"<:" Expression \\
+                    \| Expression \xcd":>" Expression \\
+                    \| Expression \xcd"==" Expression \\
+\end{grammar}
+
+The subtyping expression \xcdmath"T$_1$ <: T$_2$" evaluates to \xcd"true"
+\xcdmath"T$_1$" is a subtype of \xcdmath"T$_2$".
+
+The expression \xcdmath"T$_1$ :> T$_2$" evaluates to \xcd"true"
+\xcdmath"T$_2$" is a subtype of \xcdmath"T$_1$".
+
+The expression \xcdmath"T$_1$ == T$_2$"
+evaluates to  \xcd"true" \xcdmath"T$_1$" is a subtype of \xcdmath"T$_2$" and
+if \xcdmath"T$_2$" is a subtype of \xcdmath"T$_1$".
+
+Subtyping expressions are particularly useful in giving constraints on generic
+types.  \xcd`x10.util.Ordered[T]` is an interface whose values can be compared
+with values of type \xcd`T`. 
+In particular, \xcd`T <: x10.util.Ordered[T]` is
+true if values of type \xcd`T` can be compared to other values of type
+\xcd`T`.  So, if we wish to define a generic class \xcd`OrderedList[T]`, of
+lists whose elements are kept in the right order, we need the elements to be
+ordered.  This is phrased as a constraint on \xcd`T`: 
+%~~gen
+% package expre.ssi.onsfgua.rde.dq.uantification;
+%~~vis
+\begin{xten}
+class OrderedList[T]{T <: x10.util.Ordered[T]} {
+  // ...
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+
+
+
+
+\section{Contains expressions}
+
+\begin{grammar}
+ContainsExpression \: Expression \xcd"in" Expression \\
+\end{grammar}
+
+The expression \xcd"p in r" tests if a value \xcd"p" is in a collection
+\xcd"r"; it evaluates to \xcd"r.contains(p)".
+The collection \xcd"r"
+must be of type \xcd"Collection[T]" and the value \xcd"p" must
+be of type \xcd"T".
+
+\section{Rail constructors}
+\label{RailConstructors}
+
+\begin{grammar}
+RailConstructor \: \xcd"[" Expressions \xcd"]" \\
+Expressions \: Expression ( \xcd"," Expression )\star \\
+\end{grammar}
+
+The rail constructor \xcdmath"[a$_0$, $\dots$, a$_{k-1}$]"
+creates an instance of \xcd"ValRail" with length $k$, 
+whose $i$th element is
+\xcdmath"a$_i$".  The element type of the rail is a common ancestor of the
+types of the \xcdmath"a$_i$"'s, as per \Sref{LCA}.
+%~~gen
+% package ex.pre.ssio.nsandrailconstructors;
+% class Example {
+% def example() {
+%~~vis
+\begin{xten}
+val a : ValRail[Int] = [1,3,5];
+val b : ValRail[Any] = [1, a, "please"];
+\end{xten}
+%~~siv
+% } } 
+%~~neg
+
+Since arrays are subtypes of \xcd"(Point) => T",
+rail constructors can be passed into the \xcd"Array" and
+\xcd"ValArray" constructors as initializer functions.
+
+Rail constructors of type \xcd"ValRail[Int]" and length \xcd"n" 
+may be implicitly converted to type \xcd"Point{rank==n}".
+Rail constructors of type \xcd"ValRail[Region]" and length \xcd"n" 
+may be implicitly converted to type \xcd"Region{rank==n}".
+
+%~~gen
+% package ex.pre.ssio.nsandrailconstructors;
+% class Exympyl {
+% def example() {
+%~~vis
+\begin{xten}
+val a : Point{rank==4} = [1,2,3,4];
+val b : Region{rank==2} = [ -1 .. 1, -2 .. 2];
+\end{xten}
+%~~siv
+% } } 
+%~~neg
+
+
+\section{Coercions and conversions}
+\label{XtenConversions}
+\label{User-definedCoercions}
+\index{conversions}\index{coercions}
+
+\XtenCurrVer{} supports the following coercions and conversions.
+
+\subsection{Coercions}
+
+A {\em coercion} does not change object identity; a coerced object may
+be explicitly coerced back to its original type through a cast. A {\em
+  conversion} may change object identity if the type being converted
+to is not the same as the type converted from. \Xten{} permits
+user-defined conversions (\Sref{sec:user-defined-conversions}).
+
+\paragraph{Subsumption coercion.}
+A subtype may be implicitly coerced to any supertype.
+\index{coercions!subsumption coercion}
+
+\paragraph{Explicit coercion (casting with \xcd"as")}
+An object of any class may be explicitly coerced to any other
+class type using the \xcd"as" operation.  If \xcd`Child <: Person` and
+\xcd`rhys:Child`, then 
+%~~gen
+% package Types.Coercions;
+%  class Person {}
+%  class Child extends Person{} 
+%  class Exampllllle { 
+%    def example(rhys:Child) =
+%~~vis
+\begin{xten}
+  rhys as Person
+\end{xten}
+%~~siv
+%;}
+%~~neg
+is an expression of type \xcd`Person`.  
+
+If the value coerced is not an instance of the target type,
+a \xcd"ClassCastException" is thrown.  Casting to a constrained
+type may require a run-time check that the constraint is
+satisfied.
+\index{coercions!explicit coercion}
+\index{casting}
+\index{\Xcd{as}}
+
+\limitation{It is currently a static error, rather than the specified
+\xcd`ClassCastException`, when the cast is statically determinable to be
+impossible.}
+
+\paragraph{Effects of explicit numeric coercion}
+\label{sec:effects-of-explicit-numeric-coercions}
+
+Coercing a number of one type to another type gives the best approximation of
+the number in the result type, or a suitable disaster value if no
+approximation is good enough.  
+
+\begin{itemize}
+\item Casting a number to a {\em wider} numeric type is safe and effective,
+      and can be done by an implicit conversion as well as an explicit
+%~~exp~~`~~`~~ ~~
+      coercion.  For example, \xcd`4 as Long` produces the \xcd`Long` value of
+      4. 
+\item Casting a floating-point value to an integer value truncates the digits
+      after the decimal point, thereby rounding the number towards zero.  
+%~~exp~~`~~`~~
+      \xcd`54.321 as Int` is \xcd`54`, and 
+%~~exp~~`~~`~~ ~~
+      \xcd`-54.321 as Int` is \xcd`-54`.
+      If the floating-point value is too large to represent as that kind of
+      integer, the coercion returns the largest or smallest value of that type
+      instead: \xcd`1e110 as Int` is 
+      \xcd`Int.MAX_VALUE`, \xcd`2147483647`. 
+
+\item Casting a \xcd`Double` to a \xcd`Float` normally truncates digits: 
+%~~exp~~`~~`~~ ~~
+      \xcd`0.12345678901234567890 as Float` is \xcd`0.12345679f`.  This can
+      turn a nonzero \xcd`Double` into \xcd`0.0f`, the zero of type
+      \xcd`Float`: 
+%~~exp~~`~~`~~ ~~
+      \xcd`1e-100 as Float` is \xcd`0.0f`.  Since 
+      \xcd`Double`s can be as large as about \xcd`1.79E308` and \xcd`Float`s
+      can only be as large as about \xcd`3.4E38f`, a large \xcd`Double` will
+      be converted to the special \xcd`Float` value of \xcd`Infinity`: 
+%~~exp~~`~~`~~ ~~
+      \xcd`1e100 as Float` is \xcd`Infinity`.
+\item Integers are coerced to smaller integer types by truncating the
+      high-order bits. If the value of the large integer fits into the smaller
+      integer's range, this gives the same number in the smaller type: 
+%~~exp~~`~~`~~ ~~
+      \xcd`12 as Byte` is the \xcd`Byte`-sized 12, 
+%~~exp~~`~~`~~ ~~
+      \xcd`-12 as Byte` is -12. 
+      However, if the larger integer {\em doesn't} fit in the smaller type,
+%~~exp~~`~~`~~ ~~
+      the numeric value and even the sign can change: \xcd`254 as Byte` is
+      \xcd`Byte`-sized \xcd`-2`.  
+
+
+\end{itemize}
+
+\subsection{Conversions}
+
+\paragraph{Widening numeric conversion.}
+A numeric type may be implicitly converted to a wider numeric type. In
+particular, an implicit conversion may be performed between a numeric
+type and a type to its right, below:
+
+\begin{xten}
+Byte < Short < Int < Long < Float < Double
+\end{xten}
+
+\index{conversions!widening conversions}
+\index{conversions!numeric conversions}
+
+\paragraph{String conversion.}
+Any object that is an operand of the binary
+\xcd"+" operator may
+be converted to \xcd"String" if the other operand is a \xcd"String".
+A conversion to \xcd"String" is performed by invoking the \xcd"toString()"
+method of the object.
+
+\index{conversions!string conversion}
+
+\paragraph{User defined conversions.}\label{sec:user-defined-conversions}
+\index{conversions!user defined}
+
+The user may define conversion operators from type \Xcd{A} {\em to} a
+container type \Xcd{B} by specifying a method on \Xcd{B} as follows:
+
+\begin{xten}
+  public static operator (r: A): T = ... 
+\end{xten}
+
+The return type \Xcd{T} should be a subtype of \Xcd{B}. The return
+type need not be specified explicitly; it will be computed in the
+usual fashion if it is not. However, it is good practice for the
+programmer to specify the return type for such operators explicitly.
+
+For instance, the code for \Xcd{x10.lang.Point} contains:
+
+\begin{xten}
+  public static global safe operator (r: Rail[int])
+     : Point(r.length) = make(r);
+\end{xten}
+
+The compiler looks for such operators on the container type \Xcd{B}
+when it encounters an expression of the form \Xcd{r as B} (where
+\Xcd{r} is of type \Xcd{A}). If it finds such a method, it sets the
+type of the expression \Xcd{r as B} to be the return type of the
+method. Thus the type of \Xcd{r as B} is guaranteed to be some subtype
+of \Xcd{B}.
+
+\begin{example}
+Consider the following code:  
+
+
+
+%~~stmt~~\begin{xten}~~\end{xten}~~ ~~
+\begin{xten}
+val p  = [2, 2, 2, 2, 2] as Point;
+val q = [1, 1, 1, 1, 1] as Point;
+val a = p - q;    
+\end{xten}
+This code fragment compiles successfully, given the above operator definition. 
+The type of \Xcd{p} is inferred to be \Xcd{Point(5)} (i.e.{} the type 
+%~~type~~`~~`~~ ~~
+\xcd`Point{self.rank==5}`.
+Similarly for \Xcd{q}. Hence the application of the operator ``\Xcd{-}'' is legal (it requires both arguments to have the same rank). The type of \Xcd{a} is computed as \Xcd{Point(5)}.
+\end{example}

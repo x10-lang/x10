@@ -1,0 +1,127 @@
+\chapter{Names and packages}
+\label{packages} \index{names}\index{packages}\index{public}\index{protected}\index{private}
+
+\Xten{} supports mechanisms for names and packages in the style of Java
+\cite[\S 6,\S 7]{jls2}, including \xcd"public", \xcd"protected", \xcd"private"
+and package-specific access control.
+
+\section{Packages}
+
+A package is a named collection of top-level type declarations, \viz, class,
+interface, and struct declarations. Package names are sequences of
+identifiers, like \xcd`x10.lang` and \xcd`com.ibm.museum`. The multiple names
+are simply a convenience. Packages \xcd`a`, \xcd`a.b`, and \xcd`a.c` have only
+a very tenuous relationship, despite the similarity of their names.
+
+Packages and protection modifiers determine which top-level names can be used
+where. Only the \xcd`public` members of package \xcd`pack.age` can be accessed
+outside of \xcd`pack.age` itself.  
+%~~gen~~Stimulus
+%
+%~~vis
+\begin{xten}
+package pack.age;
+class Deal {
+  public def make() {}
+}
+public class Stimulus {
+  private def taxCut() = true;
+  protected def benefits() = true;
+  public def jobCreation() = true;
+  /*package*/ def jumpstart() = true;
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+
+The class \xcd`Stimulus` can be referred to from anywhere outside of
+\xcd`pack.age` by its full name of \xcd`pack.age.Stimulus`, or can be imported
+and referred to simply as \xcd`Stimulus`.  The public \xcd`jobCreation()`
+method of a \xcd`Stimulus` can be referred to from anywhere as well; the other
+methods have smaller visibility.  The non-\xcd`public` class \xcd`Deal` cannot
+be used from outside of \xcd`pack.age`.  
+
+
+
+\subsection{Name Collisions}
+
+It is a static error for a package to have two members, or apparent members,
+with the same name.  For example, package \xcd`pack.age` cannot define two
+classes both named \xcd`Crash`, nor a class and an interface with that name.
+
+Furthermore, \xcd`pack.age` cannot define a member \xcd`Crash` if there is
+another package named \xcd`pack.age.Crash`, nor vice-versa. (This prohibition
+is the only actual relationship between the two packages.)  This prevents the
+ambiguity of whether \xcd`pack.age.Crash` refers to the class or the package.  
+Note that the naming convention that package names are lower-case and package
+members are capitalized prevents such collisions.
+
+
+\section{\xcd`import` Declarations}
+
+Any public member of a package can be referred to from anywhere through a
+fully-qualified name: \xcd`pack.age.Stimulus`.    
+
+Often, this is too awkward.  X10 has two ways to allow code outside of a class
+to refer to the class by its short name (\xcd`Stimulus`): single-type imports
+and on-demand imports.   
+
+Imports of either kind appear at the start of the file, immediately after the
+\xcd`package` directive if there is one; their scope is the whole file.
+
+\subsection{Single-Type Import}
+
+The declaration \xcd`import ` {\em TypeName} \xcd`;` imports a single type
+into the current namespace.  The type it imports must be a fully-qualified
+name of an extant type, and it must either be in the same package (in which
+case the \xcd`import` is redundant) or be declared \xcd`public`.  
+
+Furthermore, when importing \xcd`pack.age.T`, there must not be another type
+named \xcd`T` at that point: neither a  \xcd`T` declared in \xcd`pack.age`,
+nor a \xcd`inst.ant.T` imported from some other package.
+
+\subsection{Automatic Import}
+
+The automatic import \xcd`import pack.age.*;`, loosely, imports all the public
+members of \xcd`pack.age`.  In fact, it does so somewhat carefully, avoiding
+certain errors that could occur if it were done naively.  Types defined in the
+current package, and those imported by single-type imports, shadow those
+imported by automatic imports.  
+
+\subsection{Implicit Imports}
+
+The packages \xcd`x10.lang` and \xcd`x10.array` are imported in all files
+without need for further specification.
+
+%%BARD-HERE
+
+
+
+\section{Conventions on Type Names}
+
+\begin{grammar}
+TypeName   \: Identifier \\
+        \| TypeName \xcd"." Identifier \\
+        \| PackageName \xcd"." Identifier \\
+PackageName   \: Identifier \\
+        \| PackageName \xcd"." Identifier \\
+\end{grammar}
+
+
+While not enforced by the compiler, classes and interfaces
+in the \Xten{} library follow the following naming conventions.
+Names of types---including classes,
+type parameters, and types specified by type definitions---are in
+CamelCase and begin with an uppercase letter.  (Type variables are often
+single capital letters, such as \xcd`T`.)
+For backward
+compatibility with languages such as C and \java{}, type
+definitions are provided to allow primitive types
+such as \xcd"int" and \xcd"boolean" to be written in lowercase.
+Names of methods, fields, value properties, and packages are in camelCase and
+begin with a lowercase letter. 
+Names of \xcd"static val" fields are in all uppercase with words
+separated by `\xcd"_"''s.
+
+
