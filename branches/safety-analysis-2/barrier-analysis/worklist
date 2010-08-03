@@ -1,0 +1,32 @@
+at:
+"at" is designed as both "key" and "values" in the calltable. 
+
+recursion:
+"updateArity" first checks whether a method is recursive: its callee list contains itself.
+In this case, update all method invocations' arities as "unbounded". In recursion, if no
+concurrency, some methods are determined to be executed once, but in x10, "async" cannot be
+sequentialized. 
+
+last statement:(not tested)
+use a ref instead of boolean marker to indicate not only whether a statement is the
+last one but also where it belongs to. A key has a ref to its last "val" and a val has 
+a non-null ref to its key if it is the last stmt
+
+wala:
+1. closure: 
+Code of a closure is contained in X10 and its AST. During the translation to IR, 
+the code is sitll in WalkerContext ...?... but not in CFG. 
+Question: where does the code get discarded?
+
+2. throw:
+In pruned cfg, all exceptional edges and throw statements are discarded. 
+TODO: if a block has a throw statement, mark it
+
+
+4. nested call
+
+
+compiler:
+1. get package --- done
+2. retrieve all keys from the calltable
+3. add annotations to the ast -> produce new ast
