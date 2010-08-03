@@ -198,7 +198,7 @@ public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]
      * @param x the given UByte
      * @return the given UByte converted to a Double.
      */
-    @Native("java", "((double)(byte)(#1))")
+    @Native("java", "((double)(byte)(#1.byteVal))")
     @Native("c++",  "((x10_double) (#1))")
     public native static safe operator (x:UByte): Double;
 
@@ -207,7 +207,7 @@ public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]
      * @param x the given UShort
      * @return the given UShort converted to a Double.
      */
-    @Native("java", "((double)(short)(#1))")
+    @Native("java", "((double)(short)(#1.shortVal))")
     @Native("c++",  "((x10_double) (#1))")
     public native static safe operator (x:UShort): Double;
 
@@ -216,7 +216,7 @@ public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]
      * @param x the given UInt
      * @return the given UInt converted to a Double.
      */
-    @Native("java", "((double)(int)(#1))")
+    @Native("java", "((double)(int)(#1.intVal))")
     @Native("c++",  "((x10_double) (#1))")
     public native static safe operator (x:UInt): Double;
 
@@ -225,7 +225,7 @@ public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]
      * @param x the given ULong
      * @return the given ULong converted to a Double.
      */
-    @Native("java", "((double)(long)(#1))")
+    @Native("java", "((double)(long)(#1.longVal))")
     @Native("c++",  "((x10_double) (#1))")
     public native static safe operator (x:ULong): Double;
 
