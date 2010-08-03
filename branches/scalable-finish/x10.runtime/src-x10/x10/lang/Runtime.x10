@@ -305,35 +305,35 @@ public final class Runtime {
     public interface Mortal { }
 
 
-    static interface FinishState {
+    //static interface FinishState {
 
         /**
          * An activity is spawned under this finish (called by spawner).
          */
-        global def notifySubActivitySpawn(place:Place):Void;
+       // global def notifySubActivitySpawn(place:Place):Void;
 
         /**
          * An activity is created under this finish (called by spawnee).
          */
-        global def notifyActivityCreation():Void;
+      //  global def notifyActivityCreation():Void;
 
         /**
          * An activity created under this finish has terminated.
          * Also called be the activity governing the finish when it completes the finish body.
          */
-        global def notifyActivityTermination():Void;
+//        global def notifyActivityTermination():Void;
 
         /**
          * Push an exception onto the stack.
          */
-        global def pushException(t:Throwable):Void;
+ //       global def pushException(t:Throwable):Void;
 
         /**
          * Wait for pending subactivities to complete.
          */
-        def waitForFinish(safe:Boolean):Void;
+  //      def waitForFinish(safe:Boolean):Void;
     
-}
+//}
 
 
     static class FinishStates implements (RootFinishState)=>RemoteFinishState {
