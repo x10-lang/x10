@@ -198,6 +198,14 @@ public class X10CAst2IRTranslator extends X10CAstVisitor implements ArrayOpHandl
         WalkContext context = (WalkContext)c;
         context.cfg().addInstruction(insts.Finish(false));
     }
+    
+    
+    protected boolean visitNext(CAstNode n, Context c, CAstVisitor visitor) {
+        WalkContext context = (WalkContext)c;
+        context.cfg().addInstruction(insts.Next());
+        return true;
+    }
+    
     protected boolean visitForce(CAstNode n, Context c, CAstVisitor visitor) { /* empty */ return false; }
     protected void leaveForce(CAstNode n, Context c, CAstVisitor visitor) {
         WalkContext context = (WalkContext)c;

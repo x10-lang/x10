@@ -18,6 +18,8 @@ public interface X10InstructionFactory extends AstJavaInstructionFactory {
 	
 	SSAFinishInstruction Finish(boolean isEnter);
 	
+	SSANextInstruction Next();
+	
 	SSAForceInstruction Force(int retValue, int targetValue, TypeReference valueType);
 	
 	SSAHereInstruction Here(int retValue);
