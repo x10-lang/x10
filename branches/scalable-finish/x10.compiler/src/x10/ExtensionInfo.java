@@ -14,6 +14,7 @@ package x10;
 
 import java.io.BufferedReader;
 
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -25,6 +26,7 @@ import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -374,7 +376,11 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            
            // finish-async analysis
            if(x10.Configuration.FINISH_ASYNCS){
-        	   Goal finishAsyncOpt = FinishAsyncOptimization(job);
+        	   HashMap calltable;
+        	   //FIXME: suppose all passes needed by wala are done!
+        	   //FIXME:	some args should be passed to this method!
+        	   calltable = FinishAsyncAnalyze();
+        	   Goal finishAsyncOpt = FinishAsyncOptimization(job,calltable);
         	   if(finishAsyncOpt != null){
         		   goals.add(finishAsyncOpt);
         	   }
@@ -650,25 +656,19 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            return new VisitorGoal("StaticNestedClassRemover", job, new StaticNestedClassRemover(job, ts, nf)).intern(this);
        }
        
-       public Goal FinishAsyncOptimization(Job job){
+       public Goal FinishAsyncOptimization(Job job,HashMap calltable){
     	   TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
            Goal result = null;
            try{
-               //FIXME: the following boxed code is just a tempalte for integrating 
-        	   // wala with x10. It uses reflection to compile the compier possibly 
-        	   // without wala support and dynamically link wala when it presents.
-        	   // This piece of code is copied from WSCodeGenerator
-        	   /****************************************************************/
                ClassLoader cl = Thread.currentThread().getContextClassLoader();
                Class<?> c = cl
-               .loadClass("x10.compiler.ws.visit.FinishAsyncVisitor");
+               .loadClass("x10.finish.visit.FinishAsyncVisitor");
                Constructor<?> con = c.getConstructor(Job.class,
                                                      TypeSystem.class,
-                                                     NodeFactory.class,String.class);
-               ContextVisitor favisitor = (ContextVisitor) con.newInstance(job, ts, nf,"java");
+                                                     NodeFactory.class,String.class,HashMap.class);
+               ContextVisitor favisitor = (ContextVisitor) con.newInstance(job, ts, nf,"java",calltable);
                result = new VisitorGoal("FinishAsyncs",job,favisitor).intern(this);
-               /***********************************************************************/
                
            }
            catch (ClassNotFoundException e) {
@@ -676,9 +676,27 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            } catch (Throwable e) {
                System.err.println("[X10_FA_ERR]Error in loading wala anlaysis engine. Ignore Finish-Async optimization.");
                e.printStackTrace();
-           }    	   
+           }    	     
+    	   return result;
+       }
+       public HashMap FinishAsyncAnalyze(){
+    	   HashMap result;
+           try{
+               ClassLoader cl = Thread.currentThread().getContextClassLoader();
+               Class<?> c = cl
+               .loadClass("x10.finish.analysis.FinishAsyncAnalysis");
+               Constructor<?> con = c.getConstructor();
+               Object fa =  con.newInstance();
+               //FIXME: how to cast fa to FinishAsyncAnalysis without adding dependency to that type
+               // return fa.
                
-           
+           }
+           catch (ClassNotFoundException e) {
+               //System.err.println("[X10_FA_ERR]Cannot load wala anlaysis engine. Ignore Finish-Async optimization.");
+           } catch (Throwable e) {
+               System.err.println("[X10_FA_ERR]Error in loading wala anlaysis engine. Ignore Finish-Async optimization.");
+               e.printStackTrace();
+           }    	     
     	   return result;
        }
     }
