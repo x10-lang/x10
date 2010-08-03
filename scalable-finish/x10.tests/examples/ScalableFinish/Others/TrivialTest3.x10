@@ -59,9 +59,10 @@ public class TrivialTest3 extends x10Test {
 	 // }
 	 
 	 
-	 
-	 f3();
-	 
+	 finish{
+		   async{}
+		   async(here.next()){}
+	 }
 	 /*finish{
 	 async(here.next()){}
  }*/
