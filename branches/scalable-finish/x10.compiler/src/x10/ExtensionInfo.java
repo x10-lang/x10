@@ -395,7 +395,19 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(X10Expanded(job));
            goals.add(X10RewriteExtern(job));
            goals.add(X10RewriteAtomicMethods(job));
-
+           
+           // finish-async analysis
+           if(x10.Configuration.FINISH_ASYNCS){
+        	   HashMap calltable;
+        	   //FIXME: suppose all passes needed by wala are done!
+        	   //FIXME:	some args should be passed to this method!
+        	   calltable = FinishAsyncAnalyze();
+        	   Goal finishAsyncOpt = FinishAsyncOptimization(job,calltable);
+        	   if(finishAsyncOpt != null){
+        		   goals.add(finishAsyncOpt);
+        	   }
+           }
+           
            goals.add(NativeClassVisitor(job));
 
            goals.add(Serialized(job));
@@ -821,6 +833,49 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
            return new ValidatingVisitorGoal("StaticNestedClassRemover", job, new StaticNestedClassRemover(job, ts, nf)).intern(this);
+       }
+       public Goal FinishAsyncOptimization(Job job,HashMap calltable){
+    	   TypeSystem ts = extInfo.typeSystem();
+           NodeFactory nf = extInfo.nodeFactory();
+           Goal result = null;
+           try{
+               ClassLoader cl = Thread.currentThread().getContextClassLoader();
+               Class<?> c = cl
+               .loadClass("x10.finish.visit.FinishAsyncVisitor");
+               Constructor<?> con = c.getConstructor(Job.class,
+                                                     TypeSystem.class,
+                                                     NodeFactory.class,String.class,HashMap.class);
+               ContextVisitor favisitor = (ContextVisitor) con.newInstance(job, ts, nf,"java",calltable);
+               result = new VisitorGoal("FinishAsyncs",job,favisitor).intern(this);
+               
+           }
+           catch (ClassNotFoundException e) {
+               //System.err.println("[X10_FA_ERR]Cannot load wala anlaysis engine. Ignore Finish-Async optimization.");
+           } catch (Throwable e) {
+               System.err.println("[X10_FA_ERR]Error in loading wala anlaysis engine. Ignore Finish-Async optimization.");
+               e.printStackTrace();
+           }    	     
+    	   return result;
+       }
+       public HashMap FinishAsyncAnalyze(){
+    	   HashMap result = null;
+           try{
+               ClassLoader cl = Thread.currentThread().getContextClassLoader();
+               Class<?> c = cl
+               .loadClass("x10.finish.analysis.FinishAsyncAnalysis");
+               Constructor<?> con = c.getConstructor();
+               Object fa =  con.newInstance();
+               //FIXME: how to cast fa to FinishAsyncAnalysis without adding dependency to that type
+               // return fa.
+               
+           }
+           catch (ClassNotFoundException e) {
+               //System.err.println("[X10_FA_ERR]Cannot load wala anlaysis engine. Ignore Finish-Async optimization.");
+           } catch (Throwable e) {
+               System.err.println("[X10_FA_ERR]Error in loading wala anlaysis engine. Ignore Finish-Async optimization.");
+               e.printStackTrace();
+           }    	     
+    	   return result;
        }
     }
     
