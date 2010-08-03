@@ -529,7 +529,7 @@ default access rights.
 
 \begin{grammar}
 MethodDeclaration \: MethodHeader \xcd";" \\
-                  \| MethodHeader \xcd"=" ClosureBody \\
+                  \| MethodHeader \xcd"="\opt ClosureBody \\
 MethodHeader \:  
   MethodModifiers\opt \xcd"def" Identifier TypeParameters\opt \\
 && \xcd"(" 
