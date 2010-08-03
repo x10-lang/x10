@@ -22,7 +22,7 @@ public class Test {
 	 * *********************************************************
 	 * ***************
 	 */
-	File f = new File("../x10.tests/examples/ScalableFinish/Not_So_Good/TestClosure.x10");
+	File f = new File("../x10.tests/examples/ScalableFinish/Others/TrivialTest3.x10");
 	X10FinishAsyncAnalysis x10fa = new X10FinishAsyncAnalysis();
 
 	/* *********************************
@@ -36,23 +36,8 @@ public class Test {
 	 */
 
 	// compile(file, package, entrymethod, methodsig)
-	 x10fa.compile(f, "","run","()Lx10/lang/Boolean;");
-	// x10fa.compile(f,"","main","(Lx10/lang/Rail;)V");
-	//OutputUtil.Write2Plot("SimpleFinish5");
-	//OutputUtil.Write2Plot("SimpleFinish4");
-	//OutputUtil.Write2Plot("SimpleFinish3");
-	//OutputUtil.Write2Plot("SimpleFinish2");
-	//OutputUtil.Write2Plot("SimpleFinish1");
-	//OutputUtil.Write2Plot("ManyLocalFinish2");
-	//OutputUtil.Write2Plot("ManyLocalFinish1");
-	/*HprofParser p = new HprofParser("/"+user+"/blshao/workspace/x10-compiler/"+
-			"x10.tests/examples/ScalableFinish/Patterns/expr2/ManyLocalFinish1/ManyLocalFinish1_8.java.hprof.txt");
-	p.parse();
-	p.dump(1);
-	long all = p.getAllStat();
-	long remote = p.getRemoteStat();
-	long root = p.getRootStat();
-	System.out.println(all+"\t"+root+"\t"+remote);*/
+	 x10fa.analyze(f, "","run","()Lx10/lang/Boolean;");
+	 //x10fa.analyze(f,"","main","(Lx10/lang/Rail;)V");
 	
     }
 }
