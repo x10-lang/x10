@@ -1580,12 +1580,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	        if (methodName.equals("set")) {
 	            w.write("(");
 	            w.write("(");
-	            if (ptype.isBoolean() || ptype.isNumeric() || ptype.isChar()) {
-	                new TypeExpander(er, ptype, 0).expand();
-	            }
-	            else {
-	                w.write("Object");
-	            }
+	            new TypeExpander(er, ptype, 0).expand();
 	            w.write("[]");
 	            w.write(")");
 	            c.print(c.target(), w, tr);
@@ -1611,12 +1606,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	            
 	            w.write("(");
 	            w.write("(");
-	            if (ptype.isBoolean() || ptype.isNumeric() || ptype.isChar()) {
-	                new TypeExpander(er, ptype, 0).expand();
-	            }
-	            else {
-	                w.write("Object");
-	            }
+	            new TypeExpander(er, ptype, 0).expand();
 	            w.write("[]");
 	            w.write(")");
 	            c.print(c.target(), w, tr);
@@ -3127,11 +3117,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             w.write("(");
             w.write("(");
             ArrayType arrayType = (ArrayType) n.type();
-            if (arrayType.base().isBoolean() || arrayType.base().isNumeric() || arrayType.base().isChar()) {
-                er.printType(arrayType.base(), 0);
-            } else {
-                w.write("java.lang.Object");
-            }
+            er.printType(arrayType.base(), 0);
             w.write("[]");
             w.write(")");
             er.prettyPrint(n.container(), tr);

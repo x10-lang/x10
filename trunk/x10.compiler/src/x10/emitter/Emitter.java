@@ -557,12 +557,7 @@ public class Emitter {
 
 		if (type instanceof BackingArrayType) {
 		    Type base = ((BackingArrayType) type).base();
-		    if (base.isBoolean() || base.isChar() || base.isNumeric()) {
-		        printType(base, 0);
-		    }
-		    else {
-		        w.write("java.lang.Object");
-		    }
+		    printType(base, 0);
 		    w.write("[]");
 		    return;
 		}
