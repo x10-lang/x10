@@ -51,18 +51,6 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
         return (X10FieldDef) def();
     }
 
-    /** Constraint on formal parameters. */
-    protected CConstraint guard;
-    public CConstraint guard() { 
-        return guard;
-    }
-    public X10FieldInstance guard(CConstraint s) { 
-	X10FieldInstance_c n = (X10FieldInstance_c) copy();
-	n.guard = s; 
-	return n;
-    }
-    
-
     public List<Type> annotations() {
         return X10TypeObjectMixin.annotations(this);
     }
@@ -187,7 +175,7 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
 
     public String toString() {
 	String typeString = type != null ? type.toString() : def().type().toString();
-	String s = "field " + X10Flags.toX10Flags(flags()).prettyPrint() + containerString() + "." + name() + (guard() != null ? guard() : "") + ": " + typeString;
+	String s = "field " + X10Flags.toX10Flags(flags()).prettyPrint() + containerString() + "." + name() + ": " + typeString;
 	return s;
     }
 
