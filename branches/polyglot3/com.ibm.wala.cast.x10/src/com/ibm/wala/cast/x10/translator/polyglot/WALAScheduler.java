@@ -15,4 +15,6 @@ public interface WALAScheduler {
     public Goal IRGenerated(Job job);
 
     public Goal AsyncsAnalyzed(Job job);
+    
+    public Goal SharedBoxer(Job job);
 }
