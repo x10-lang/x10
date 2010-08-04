@@ -1,4 +1,4 @@
-package x10.finish.analysis;
+package x10.barrier.analysis;
 
 import java.io.*;
 
@@ -23,7 +23,7 @@ public class Test {
 	 * ***************
 	 */
 	File f = new File("../x10.tests/examplesWithClockedVariables/Test.x10");
-	X10FinishAsyncAnalysis x10fa = new X10FinishAsyncAnalysis();
+	X10BarrierAnalysis x10fa = new X10BarrierAnalysis();
 
 	/* *********************************
 	 * 
@@ -36,8 +36,8 @@ public class Test {
 	 */
 
 	// compile(file, package, entrymethod, methodsig)
-	x10fa.compile(f, "","run","()Lx10/lang/Boolean;");
-	//x10fa.compile(f,"","main","(Lx10/lang/Rail;)V");
+	//x10fa.compile(f, "","run","()Lx10/lang/Boolean;");
+	x10fa.compile(f,"","main","(Lx10/lang/Rail;)V");
 	//OutputUtil.Write2Plot("SimpleFinish5");
 	//OutputUtil.Write2Plot("SimpleFinish4");
 	//OutputUtil.Write2Plot("SimpleFinish3");

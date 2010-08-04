@@ -1,4 +1,4 @@
-package x10.finish.analysis;
+package x10.barrier.analysis;
 import java.io.ByteArrayInputStream;
 
 import java.io.ByteArrayOutputStream;
@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 
@@ -80,7 +81,7 @@ import com.ibm.wala.viz.NodeDecorator;
  * 
  * @author baolin
  */
-public class X10FinishAsyncAnalysis {
+public class X10BarrierAnalysis {
     HashMap<SSAInstruction,Integer> instmap;
     // per program
     /*
@@ -121,7 +122,7 @@ public class X10FinishAsyncAnalysis {
     HashSet<NatLoop> loops;
 
     
-    public X10FinishAsyncAnalysis() {
+    public X10BarrierAnalysis() {
 	calltable = new HashMap<CallTableKey, LinkedList<CallTableVal>>();
 	last_inst = null;
     }
@@ -457,11 +458,22 @@ public class X10FinishAsyncAnalysis {
      * @param nodenum
      *            : node number of this method in callgraph
      */
+    
+    private void printBlockInfo (ISSABasicBlock bb) {
+	System.out.println(bb.getFirstInstructionIndex() + "-" + bb.getLastInstructionIndex());
+    }
+    
     private void parseIR(int nodenum) {
 	CGNode md = cg.getNode(nodenum);
 	//System.err.println(md.getMethod().getSignature());
 	IR ir = md.getIR();
+	System.out.println(md.getMethod().getName());
+	
+	
 	if (ir != null) {
+	    for (int j = 0; j < ir.getInstructions().length; j++) {
+	    	System.out.println(j + ": " + ir.getInstructions()[j]);
+	    }
 	    // original control flow graph
 	    ControlFlowGraph<SSAInstruction, ISSABasicBlock> cfg = ir
 		    .getControlFlowGraph();
@@ -470,51 +482,46 @@ public class X10FinishAsyncAnalysis {
 	    PrunedCFG<SSAInstruction, ISSABasicBlock> epcfg = MyExceptionPrunedCFG.make(cfg);
 	    //ControlFlowGraph<SSAInstruction, ISSABasicBlock> epcfg = cfg;
 	    if (epcfg != null) {
-		String _package = 
-		    ((AstMethod) epcfg.getMethod()).getReference().getDeclaringClass().getName().toString();
-		String _name = epcfg.getMethod().getName().toString();
-		_name = getName(_name);
-		_package = getPackage(_package);
-		int line = ((AstMethod) epcfg.getMethod()).debugInfo().getCodeBodyPosition().getFirstLine();
-		int column = ((AstMethod) epcfg.getMethod()).debugInfo().getCodeBodyPosition().getLastCol();
-		CallTableKey ctk = new CallTableMethodKey(_package,_name,line,column);
-		SSAInstruction[] insts = epcfg.getInstructions();
-		instmap = new HashMap<SSAInstruction,Integer>();
-		for(int i=0;i<insts.length;i++){
-		    instmap.put(insts[i], new Integer(i));
-		}	
-		AnalysisEnvironment env = new AnalysisEnvironment(ctk,nodenum,epcfg);
-		visited = new HashSet<Integer>();
-		calltable.put(ctk, new LinkedList<CallTableVal>());
-		ISSABasicBlock root = epcfg.entry();
-		assert (root != null);
-		env.cur_block = root.getNumber();
-		// dom is a "global" variable, this stmt will generate garbage
-		// every time
-		dom = new NumberedDominators<ISSABasicBlock>(epcfg, root);
-		InvertedNumberedGraph<ISSABasicBlock> invert_epcfg = 
-		    (InvertedNumberedGraph<ISSABasicBlock>) GraphInverter.invert(epcfg);
-		assert (invert_epcfg != null);
-
-		ISSABasicBlock invert_root = invert_epcfg.getNode(epcfg.exit()
-			.getNumber());
-		// calculate dominators for the inverted epcfg
-		invert_dom = new NumberedDominators<ISSABasicBlock>(invert_epcfg,
-			invert_root);
-		HashSet<Integer> loopvisited = new HashSet<Integer>();
-		loops = new HashSet<NatLoop>();
-		NatLoopSolver.findAllLoops(epcfg, dom, loops, loopvisited, root);
-		//printGraph(epcfg);
-		if (md.getMethod().getName().toString().contains("run")){
-		    //GraphUtil.printCFG(epcfg, md.getMethod().getName().toString()+"_removed");
-		    //GraphUtil.printCFG(cfg, md.getMethod().getName().toString());
+			//System.out.println(epcfg);
+		Automaton a = new Automaton();
+		State [] s = new State [epcfg.getMaxNumber() + 1];
+		
+		for (int i = 0; i <= epcfg.getMaxNumber(); i++) {
+		    s[i] = new State();
 		}
-		parseBlock(epcfg, env);
-		if(last_inst!=null){
-		    last_inst.aslast=ctk;
-		    ctk.lastStmt = last_inst;
-		    last_inst = null;
+		for (int i = 0; i <= epcfg.getMaxNumber(); i++) {
+		        
+		    	//printBlockInfo(epcfg.getNode(i));
+		    	ISSABasicBlock node = epcfg.getNode(i);
+		    	s[i].set (node.getFirstInstructionIndex(), node.getLastInstructionIndex());
+		    	State incomingState = s[i];
+		    	State currState = s[i];
+		    	int startIndex = node.getFirstInstructionIndex();
+		    	for (int j = node.getFirstInstructionIndex(); j <= node.getLastInstructionIndex() && j >= 0 ; j++) {
+		    	 SSAInstruction currInst = epcfg.getInstructions()[j];
+		    	    if (currInst != null && currInst.toString().contains("next")) {
+		    		currState = new State(startIndex, j);
+		    		incomingState.setEndInstruction(j - 1);
+		    		Edge e = new Edge(incomingState, currState, Edge.NEXT);
+		    		incomingState = currState; 
+		    		startIndex = j + 1;
+		    	    }
+		    	} 	
+		    	for ( Iterator it = epcfg.getSuccNodes(epcfg.getNode(i)); it.hasNext(); ) {
+		    	     ISSABasicBlock nbr = (ISSABasicBlock) it.next();
+		    	     int nbrIndex = nbr.getNumber();
+		    	     Edge e = new Edge(currState, s[nbrIndex], Edge.COND);
+		
+		    	}
 		}
+		a.setRoot(s[epcfg.entry().getNumber()]);
+		s[epcfg.entry().getNumber()].isStart = true;
+		s[epcfg.exit().getNumber()].isTerminal = true;
+		a.print();
+		       // System.out.println("Neighbors:");
+		    
+		
+		
 	    }// end of (epcfg!=null)
 	}// end of (ir!=null)
 
@@ -531,11 +538,16 @@ public class X10FinishAsyncAnalysis {
 	    CGNode one_method = all_methods.next();
 	    //System.err.println(one_method.toString());
 	    String method_name = one_method.getMethod().getName().toString();
+
 	    assert (method_name != null);
-	    if (method_name.contains("fake") || method_name.contains("init")) {
+	    if (method_name.contains("fake") || method_name.contains("init") || method_name.contains("make")) {
 		continue;
 	    }
-
+	    //if (one_method.toString().contains("x10/lang"))
+		//continue;
+	    String declaringClass = one_method.getMethod().getDeclaringClass().toString();
+	    if (declaringClass.contains("x10/lang") || declaringClass.contains("x10/util") ||  declaringClass.contains("x10/compiler"))
+		continue;
 	    parseIR(cg.getNumber(one_method));
 
 	}
@@ -604,31 +616,7 @@ public class X10FinishAsyncAnalysis {
 	//GraphUtil.printNumberedGraph(cg, "test");
 	System.out.println("Baolin here again --- Call Graph");
 	buildCallTable();
-	if(ifStat){
-	    System.out.println("Intitial Table:");
-	    CallTableUtil.getStat(calltable);
-	}
-	if(ifDump){
-	    CallTableUtil.dumpCallTable(calltable);
-	}
-	if(ifSaved){
-	    System.out.println("saving ... ...");
-	    CallTableUtil.saveCallTable("calltable.dat", calltable);
-	}
-	if(ifExpanded){
-	    System.out.println("Expanding Talbe:");
-	    CallTableUtil.expandCallTable(calltable, mask);
-	    //CallTableUtil.updateAllArity(calltable);
-	    //CallTableUtil.expandCallTable(calltable, mask);	
-	}
-	if(ifStat && ifExpanded){
-	    
-	    CallTableUtil.getStat(calltable);
-	}
-	if(ifDump && ifExpanded){
-	    System.out.println("New Talbe:");
-	    CallTableUtil.dumpCallTable(calltable);
-	}
+	
 	System.out.println("finished ... ");
     } // end of compile
     private String getPackage(String s){

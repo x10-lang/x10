@@ -47,10 +47,10 @@ public class GraphUtil {
 	MyNumberedGraphDecorator mnd = new MyNumberedGraphDecorator();
 	if (!os.contains("Linux")) {
 	    dot_path = "/Applications/Graphviz.app/Contents/MacOS/dot";
-	    file_path = "/Users/blshao/Desktop/";
+	    file_path = "/tmp/";
 	} else {
 	    dot_path = "/usr/bin/dot";
-	    file_path = "/home/blshao/Desktop/";
+	    file_path = "/tmp/";
 	}
 	String full_name = file_path+name;
 	try {
