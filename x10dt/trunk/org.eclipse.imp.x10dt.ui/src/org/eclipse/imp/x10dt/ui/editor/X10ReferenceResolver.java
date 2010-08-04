@@ -42,12 +42,12 @@ public class X10ReferenceResolver implements IReferenceResolver, ILanguageServic
      * 
      */
     public Object getLinkTarget(Object node, IParseController parseController) {
-        if (node instanceof Ambiguous) {
-            return null;
-        }
         if (node instanceof Id) {
             Id id= (Id) node;
             node= findParent(id, parseController);
+        }
+        if (node instanceof Ambiguous) {
+            return null;
         }
         
         if (node instanceof TypeNode) {
