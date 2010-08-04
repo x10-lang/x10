@@ -3,9 +3,14 @@ package com.ibm.wala.cast.x10.translator.polyglot;
 import java.util.ArrayList;
 import java.util.List;
 
+import polyglot.ast.NodeFactory;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
+import polyglot.frontend.SourceGoal_c;
+import polyglot.frontend.VisitorGoal;
+import polyglot.types.TypeSystem;
 import x10.ExtensionInfo.X10Scheduler;
+import x10.visit.SharedBoxer;
 
 import com.ibm.wala.cast.java.translator.polyglot.AscriptionGoal;
 import com.ibm.wala.cast.x10.analysis.AsyncAnalysisGoal;
@@ -44,6 +49,12 @@ public class X10WALAScheduler extends X10Scheduler implements WALAScheduler {
 
 	return g;
     }
+    
+    public Goal SharedBoxer(Job job) {
+        TypeSystem ts = extInfo.typeSystem();
+        NodeFactory nf = extInfo.nodeFactory();
+        return new VisitorGoal("SharedBoxed", job, new SharedBoxer(job, ts, nf)).intern(this);
+    }
 
     @Override
     public List<Goal> goals(Job job) {
@@ -62,7 +73,7 @@ public class X10WALAScheduler extends X10Scheduler implements WALAScheduler {
         goals.add(PreTypeCheck(job));
 //      goals.add(TypesInitializedForCommandLine()); // RMF Do we need this for analysis?
         goals.add(TypeChecked(job));
-
+        goals.add(SharedBoxer(job));
         goals.add(IRGenerated(job));
         goals.add(End(job));
         return goals;
