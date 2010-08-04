@@ -463,8 +463,12 @@ public class X10BarrierAnalysis {
 	System.out.println(bb.getFirstInstructionIndex() + "-" + bb.getLastInstructionIndex());
     }
     
-    private void parseIR(int nodenum) {
+    private Automaton parseIR(int nodenum) {
+	
+	Automaton a = new Automaton();
 	CGNode md = cg.getNode(nodenum);
+
+	String funName =  md.getMethod().getName().toString();
 	//System.err.println(md.getMethod().getSignature());
 	IR ir = md.getIR();
 	System.out.println(md.getMethod().getName());
@@ -483,47 +487,73 @@ public class X10BarrierAnalysis {
 	    //ControlFlowGraph<SSAInstruction, ISSABasicBlock> epcfg = cfg;
 	    if (epcfg != null) {
 			//System.out.println(epcfg);
-		Automaton a = new Automaton();
+		
 		State [] s = new State [epcfg.getMaxNumber() + 1];
 		
-		for (int i = 0; i <= epcfg.getMaxNumber(); i++) {
-		    s[i] = new State();
+		for (int i = 0; i <=  epcfg.getMaxNumber(); i++) {
+		    ISSABasicBlock node = epcfg.getNode(i);
+		    int startIndex = node.getFirstInstructionIndex();
+		    s[i] = new State(startIndex, -1, funName);
 		}
 		for (int i = 0; i <= epcfg.getMaxNumber(); i++) {
 		        
 		    	//printBlockInfo(epcfg.getNode(i));
 		    	ISSABasicBlock node = epcfg.getNode(i);
-		    	s[i].set (node.getFirstInstructionIndex(), node.getLastInstructionIndex());
+		    	//s[i].set (node.getFirstInstructionIndex(), node.getLastInstructionIndex());
 		    	State incomingState = s[i];
 		    	State currState = s[i];
 		    	int startIndex = node.getFirstInstructionIndex();
+
+		   
+		    	
 		    	for (int j = node.getFirstInstructionIndex(); j <= node.getLastInstructionIndex() && j >= 0 ; j++) {
 		    	 SSAInstruction currInst = epcfg.getInstructions()[j];
-		    	    if (currInst != null && currInst.toString().contains("next")) {
-		    		currState = new State(startIndex, j);
-		    		incomingState.setEndInstruction(j - 1);
+		    	
+		    	    if (currInst != null && currInst instanceof  SSANextInstruction) {
+		    		currState = new State(j, j, funName);
+
 		    		Edge e = new Edge(incomingState, currState, Edge.NEXT);
 		    		incomingState = currState; 
-		    		startIndex = j + 1;
+		    	
+		    	    } else if (currInst != null && currInst instanceof  AsyncInvokeInstruction) {
+		    		AsyncInvokeInstruction asyncInst = (AsyncInvokeInstruction) currInst;
+		    		CallSiteReference asyncSite = asyncInst.getCallSite();
+		    		Set<CGNode> asyncNodes = cg.getNodes(asyncSite.getDeclaredTarget());
+		    		for (CGNode asyncNode: asyncNodes) {
+		    		    Automaton asyncAutomaton = this.parseIR(asyncNode.getGraphNodeId());
+		    		    Edge e = new Edge (incomingState, asyncAutomaton.root, Edge.PAR);
+		    		    currState = new State(j, j, funName);
+		    		    e = new Edge(incomingState, currState, Edge.PAR);
+		    		    incomingState = currState; 
+		    		
+		    		}
+		    	    } else {
+		    		currState = new State(j, j, funName);
+		    		Edge e = new Edge(incomingState, currState, Edge.COND);
+		    		incomingState = currState; 
+		    		
 		    	    }
-		    	} 	
+		    	} 
+		   
+		    	
 		    	for ( Iterator it = epcfg.getSuccNodes(epcfg.getNode(i)); it.hasNext(); ) {
 		    	     ISSABasicBlock nbr = (ISSABasicBlock) it.next();
 		    	     int nbrIndex = nbr.getNumber();
-		    	     Edge e = new Edge(currState, s[nbrIndex], Edge.COND);
+		    	     Edge e = new Edge(incomingState, s[nbrIndex], Edge.COND);
 		
 		    	}
 		}
 		a.setRoot(s[epcfg.entry().getNumber()]);
 		s[epcfg.entry().getNumber()].isStart = true;
 		s[epcfg.exit().getNumber()].isTerminal = true;
-		a.print();
+		
 		       // System.out.println("Neighbors:");
 		    
 		
 		
 	    }// end of (epcfg!=null)
 	}// end of (ir!=null)
+	return a;
 
     }
 
@@ -548,8 +578,8 @@ public class X10BarrierAnalysis {
 	    String declaringClass = one_method.getMethod().getDeclaringClass().toString();
 	    if (declaringClass.contains("x10/lang") || declaringClass.contains("x10/util") ||  declaringClass.contains("x10/compiler"))
 		continue;
-	    parseIR(cg.getNumber(one_method));
-
+	    Automaton a = parseIR(cg.getNumber(one_method));
+	    a.print();
 	}
     }
     
