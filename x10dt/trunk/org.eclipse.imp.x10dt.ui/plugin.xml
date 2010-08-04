@@ -116,13 +116,13 @@
       <key
             commandId="org.eclipse.imp.x10dt.ui.launching.x10LaunchShortcut.debug"
             contextId="org.eclipse.ui.globalScope"
-            sequence="M3+M2+D X"
+            sequence="M1+M3+D X"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key
             commandId="org.eclipse.imp.x10dt.ui.launching.x10LaunchShortcut.run"
             contextId="org.eclipse.ui.globalScope"
-            sequence="M3+M2+X X"
+            sequence="M1+M3+X X"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
    </extension>
