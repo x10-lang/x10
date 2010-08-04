@@ -95,7 +95,7 @@ public class X10FoldingUpdater extends LPGFolderBase {
             int rightPos= findNextLineStart(last_import.position().endOffset());
             int len= rightPos - leftPos + 1;
 
-            if (leftPos >= 0 && len > 0) {
+            if (leftPos >= 0 && len > 0 && fLexStream.getLineNumberOfCharAt(leftPos) != fLexStream.getLineNumberOfCharAt(rightPos)) {
 //            	System.out.println("Making annotation @ <" + leftPos + ", len: " + len + "> for imports");
             	makeAnnotation(leftPos, len);
             }
