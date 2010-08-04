@@ -75,7 +75,9 @@ import x10.types.ParameterType;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10Context;
+import x10.types.X10FieldInstance;
 import x10.types.X10Flags;
+import x10.types.X10LocalInstance;
 import x10.types.X10MemberDef;
 import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
@@ -422,64 +424,102 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		if (mi != null && ((X10MethodInstance)mi).isValid()) // already typechecked
 		    return this;
 
-		X10TypeChecker xtc = X10TypeChecker.getTypeChecker(tc).throwExceptions(true);
+        Name name = this.name().id();
+
+        X10TypeChecker xtc = X10TypeChecker.getTypeChecker(tc).throwExceptions(true);
 
 		Expr cc = null;
 
-		{
+        {
 		    // Check if target.name is a field or local of function type;
 			// if so, convert to a closure call.
 			X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
 			X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 
-			Expr f = null;
-			if (target() != null)
-				f = nf.Field(new Position(target().position(), name().position()), target(), name());
-			else
-				f = nf.AmbExpr(name().position(), name());
-
 			Expr e = null;
 
-			try {
-				Node n = f;
-				n = n.del().disambiguate(xtc);
-				n = n.del().typeCheck(xtc);
-				n = n.del().checkConstants(xtc);
-				if (n instanceof Expr && n instanceof Variable) {
-					e = (Expr) n;
-//					if (! ts.isFunction(e.type())) {
-//						e = null;
-//					}
-				}
+			if (target() == null) {
+			    X10LocalInstance li = X10Local_c.findAppropriateLocal(tc, name);
+			    if (li.error() == null) {
+			        //e = xnf.Local(name().position(), name()).localInstance(li).type(li.type());
+			        try {
+			            e = xnf.Local(name().position(), name()).localInstance(li);
+			            e = (Expr) e.del().typeCheck(xtc);
+			            e = (Expr) e.del().checkConstants(xtc);
+			        } catch (SemanticException cause) {
+			            throw new InternalCompilerError("Unexpected exception when typechecking "+e, e.position(), cause);
+			        }
+			    }
 			}
-			catch (SemanticException ex) {
+			if (e == null) {
+			    boolean isStatic = target() instanceof TypeNode || (target() == null && c.inStaticContext());
+			    X10FieldInstance fi = null;
+			    if (target() == null) {
+			        fi = (X10FieldInstance) c.findVariableSilent(name);
+		            if (fi != null && isStatic && !fi.flags().isStatic())
+		                fi = null;
+			    }
+			    if (fi == null) {
+			        Type targetType = target() == null ? c.currentClass() : target().type();
+			        fi = X10Field_c.findAppropriateField(tc, targetType, name,
+			                isStatic,
+			                X10TypeMixin.contextKnowsType(target()));
+			    }
+			    if (fi.error() == null) {
+			        try {
+			            Receiver target = this.target() == null ?
+			                    X10Disamb_c.makeMissingFieldTarget(fi, name().position(), xtc) :
+			                        this.target();
+			            //e = xnf.Field(name().position(), target,
+			            //        name()).fieldInstance(fi).targetImplicit(target()==null).type(fi.type());
+			            e = xnf.Field(name().position(), target,
+			                    name()).fieldInstance(fi).targetImplicit(target()==null);
+                        e = (Expr) e.del().typeCheck(xtc);
+                        e = (Expr) e.del().checkConstants(xtc);
+			        } catch (SemanticException cause) {
+                        throw new InternalCompilerError("Unexpected exception when typechecking "+e, e.position(), cause);
+			        }
+			    }
 			}
 
-			if (e != null) {
-				assert typeArguments().size() == 0;
-				ClosureCall ccx = nf.ClosureCall(position(), e,  arguments());
-				X10MethodInstance ci =
-				    (X10MethodInstance) ts.createMethodInstance(position(),
-				                                                new ErrorRef_c<MethodDef>(ts, position(),
-				                                                        "Cannot get MethodDef before type-checking closure call."));
-				ccx = ccx.closureInstance(ci);
-				Node n = ccx;
-				try {
-				    n = n.del().disambiguate(xtc);
-				    n = n.del().typeCheck(xtc);
-				    cc = (Expr) n;
-				}
-				catch (SemanticException ex) {
-				    // Check for this case:
-				    // val x = x();
-				    if (e instanceof Local && e.type() instanceof UnknownType) {
-				        throw new SemanticException("Possible closure call on uninitialized variable " + ((Local) e).name() + ".", position());
-				    }
-				    else {
-				        // fall through to method call case.
-				    }
-				}
-			}
+            if (e != null) {
+                assert typeArguments().size() == 0;
+                List<Type> typeArgs = Collections.emptyList();
+                List<Type> actualTypes = new ArrayList<Type>(arguments().size());
+                for (Expr ei : arguments()) {
+                    actualTypes.add(ei.type());
+                }
+                // First try to find the method without implicit conversions.
+                X10MethodInstance ci = ClosureCall_c.findAppropriateMethod(tc, e.type(), Name.make("apply"), typeArgs, actualTypes);
+                List<Expr> args = this.arguments;
+                if (ci.error() != null) {
+                    // Now, try to find the method with implicit conversions, making them explicit.
+                    try {
+                        Pair<MethodInstance,List<Expr>> p = X10Call_c.tryImplicitConversions(this, tc, e.type(), Name.make("apply"), typeArgs, actualTypes);
+                        ci = (X10MethodInstance) p.fst();
+                        args = p.snd();
+                    }
+                    catch (SemanticException se) { }
+                }
+                if (ci.error() != null) {
+                    // Check for this case:
+                    // val x = x();
+                    if (e instanceof Local && e.type() instanceof UnknownType) {
+                        throw new SemanticException("Possible closure call on uninitialized variable " + ((Local) e).name() + ".", position());
+                    }
+                } else {
+                    ClosureCall ccx = nf.ClosureCall(position(), e,  arguments()).closureInstance(ci);
+                    Node n = ccx;
+                    try {
+                        //n = n.del().disambiguate(xtc);
+                        n = n.del().typeCheck(xtc);
+                        cc = (Expr) n;
+                    }
+                    catch (SemanticException cause) {
+                        throw new InternalCompilerError("Unexpected exception when typechecking "+ccx, ccx.position(), cause);
+                    }
+                }
+            }
 		}
 
 		// We have a cc and a valid call with no target. The one with //todo: fill in this comment
@@ -491,8 +531,6 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 				X10TypeMixin.checkMissingParameters(cc);
 				Checker.checkOfferType(position(), call.closureInstance(), tc);
 				return cc;
-
-
 			}
 		}
 		/////////////////////////////////////////////////////////////////////
@@ -525,7 +563,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 				List<Expr> args = null;
 				 // Now, try to find the method with implicit conversions, making them explicit.
 				 try {
-					 Pair<MethodInstance,List<Expr>> p = tryImplicitConversions(this, tc, null, name().id(), typeArgs, argTypes);
+					 Pair<MethodInstance,List<Expr>> p = tryImplicitConversions(this, tc, null, name, typeArgs, argTypes);
 					 mi = (X10MethodInstance) p.fst();
 					 args = p.snd();
 				 } catch (SemanticException e2) {
@@ -539,7 +577,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 						 return result;
 					 }
 					 // otherwise error.
-					 MethodMatcher matcher = ((X10TypeSystem) tc.typeSystem()).MethodMatcher(null, name.id(), typeArgs, argTypes, c);
+					 MethodMatcher matcher = ((X10TypeSystem) tc.typeSystem()).MethodMatcher(null, name, typeArgs, argTypes, c);
 					 throw new Errors.MethodOrStaticConstructorNotFound(matcher, position());
 				 }
 
@@ -587,8 +625,8 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 
 		X10Call_c n = this;
 
-		Type targetType = this.target.type();
-		Name name = this.name.id();
+        Type targetType = this.target().type();
+
 		ClassDef currentClassDef = c.currentClassDef();
 
 		X10MethodInstance mi = null;
