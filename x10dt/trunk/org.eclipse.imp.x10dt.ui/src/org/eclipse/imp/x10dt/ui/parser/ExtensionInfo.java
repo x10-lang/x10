@@ -58,6 +58,7 @@ public class ExtensionInfo extends x10.ExtensionInfo {
     private final IMessageHandler handler;
     private final Set<Source> fInterestingSources = new HashSet<Source>();
     private final Map<Source,Node> fInterestingASTs = new HashMap<Source,Node>();
+    private final Map<Source,Job> fInterestingJobs = new HashMap<Source,Job>();
     private final Map<Source,X10Parser> fInterestingParsers = new HashMap<Source,X10Parser>();
     private final Map<Source,X10Lexer> fInterestingLexers = new HashMap<Source,X10Lexer>();
 
@@ -71,6 +72,7 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 
     public void setInterestingSources(Collection<Source> sources) {
         fInterestingSources.clear();
+        fInterestingJobs.clear();
         fInterestingASTs.clear();
         fInterestingLexers.clear();
         fInterestingParsers.clear();
@@ -79,7 +81,8 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 
     public X10Lexer getLexerFor(Source src) { return fInterestingLexers.get(src); }
     public X10Parser getParserFor(Source src) { return fInterestingParsers.get(src); }
-    public Node getASTFor(Source src) { return fInterestingASTs.get(src); }
+    public Node getASTFor(Source src) { Job job= fInterestingJobs.get(src); return (job != null) ? job.ast() : null; /* return fInterestingASTs.get(src); */ }
+    public Job getJobFor(Source src) { return fInterestingJobs.get(src); }
 
     @Override
     protected Scheduler createScheduler() {
@@ -87,6 +90,11 @@ public class ExtensionInfo extends x10.ExtensionInfo {
             @Override
             public List<Goal> goals(Job job) {
                 List<Goal> goals = new ArrayList<Goal>();
+
+                if (fInterestingSources.contains(job.source())) {
+                	fInterestingJobs.put(job.source(), job);
+                }
+
                 // This is essentially the list of goals specified by the base class,
                 // up through and including type-checking.
                 goals.add(Parsed(job));
@@ -95,9 +103,9 @@ public class ExtensionInfo extends x10.ExtensionInfo {
                 if (ExtensionInfo.this.fInterestingSources.contains(job.source())) {
                     goals.add(RetrieveASTearly(job));
                 }
-                if (x10.Configuration.CHECK_INVARIANTS) {
-                	goals.add(new ForgivingVisitorGoal("PositionInvariantChecker", job, new PositionInvariantChecker(job, "parsed")));
-                }
+//                if (x10.Configuration.CHECK_INVARIANTS) {
+//                	goals.add(new ForgivingVisitorGoal("PositionInvariantChecker", job, new PositionInvariantChecker(job, "parsed")));
+//                }
 
                 goals.add(TypesInitialized(job));
                 goals.add(ImportTableInitialized(job));
@@ -106,9 +114,9 @@ public class ExtensionInfo extends x10.ExtensionInfo {
                 goals.add(PreTypeCheck(job));
                 goals.add(TypeChecked(job));
 
-                if (x10.Configuration.CHECK_INVARIANTS) {
-                	goals.add(new ForgivingVisitorGoal("InstanceInvariantChecker", job, new InstanceInvariantChecker(job)));
-                }
+//                if (x10.Configuration.CHECK_INVARIANTS) {
+//                	goals.add(new ForgivingVisitorGoal("InstanceInvariantChecker", job, new InstanceInvariantChecker(job)));
+//                }
 
                 // AST will be more complete here
                 if (ExtensionInfo.this.fInterestingSources.contains(job.source())) {

@@ -46,6 +46,8 @@ import polyglot.frontend.Source;
 import polyglot.util.ErrorInfo;
 import x10.parser.X10Lexer;
 import x10.parser.X10Parser;
+import x10.visit.InstanceInvariantChecker;
+import x10.visit.PositionInvariantChecker;
 
 public class ParseController extends SimpleLPGParseController {
 	public interface InvariantViolationHandler {
@@ -129,7 +131,14 @@ public class ParseController extends SimpleLPGParseController {
             	fLexer = new LexerDelegate(lexer);
             	fCurrentAst= fCompiler.getASTFor(fileSource); // getASTFor(fileSource); // TODO use commandLineJobs() instead?
             }
-            if (fViolationHandler != null) {
+            if (fViolationHandler != null && fCurrentAst != null) {
+            	Job job= fCompiler.getJobFor(fileSource);
+            	PositionInvariantChecker pic= new PositionInvariantChecker(job, "");
+            	InstanceInvariantChecker iic= new InstanceInvariantChecker(job);
+
+            	((Node) fCurrentAst).visit(pic);
+            	((Node) fCurrentAst).visit(iic);
+
             	fViolationHandler.consumeAST((Node) fCurrentAst);
             }
             // RMF 8/2/2006 - cacheKeywordsOnce() must have been run for syntax highlighting to work.

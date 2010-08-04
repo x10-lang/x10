@@ -38,6 +38,7 @@ import org.osgi.framework.Bundle;
 import polyglot.ast.SourceFile;
 import polyglot.frontend.Compiler;
 import polyglot.frontend.Globals;
+import polyglot.frontend.Job;
 import polyglot.frontend.Source;
 import polyglot.main.Options;
 import polyglot.main.UsageError;
@@ -95,6 +96,7 @@ public class CompilerDelegate {
     public X10Lexer getLexerFor(Source src) { return fExtInfo.getLexerFor(src); }
     public X10Parser getParserFor(Source src) { return fExtInfo.getParserFor(src); }
     public SourceFile getASTFor(Source src) { return (SourceFile) fExtInfo.getASTFor(src); }
+    public Job getJobFor(Source src) { return fExtInfo.getJobFor(src); }
 
     public boolean compile(Collection<Source> sources) {
         if (fViolationHandler != null) {
