@@ -16,19 +16,19 @@ import x10.core.fun.Fun_0_2;
 
 
 public class UShortType extends RuntimeType<Short> {
-    public UShortType() {
-        super(x10.lang.UShort.class);
+    public UShortType(Class<?> c) {
+        super(c);
     }
-    
+
     @Override
     public String typeName() {
         return "x10.lang.UShort";
     }
 
-    @Override
-    public boolean instanceof$(Object o) {
-        return o instanceof x10.lang.UShort;
-    }
+//    @Override
+//    public boolean instanceof$(Object o) {
+//        return o instanceof x10.lang.UShort;
+//    }
 
     @Override
     public Object makeArray(int length) {

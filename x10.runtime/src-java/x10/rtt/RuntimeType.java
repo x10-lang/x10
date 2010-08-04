@@ -11,6 +11,7 @@
 
 package x10.rtt;
 
+import java.lang.reflect.Array;
 import java.util.List;
 
 import x10.constraint.XConstraint;
@@ -317,7 +318,7 @@ public class RuntimeType<T> implements Type<T> {
     }
     
     public Object makeArray(int length) {
-        return new Object[length];
+        return Array.newInstance(base, length);
     }
 
     public Object makeArray(Object... elems) {
@@ -325,16 +326,16 @@ public class RuntimeType<T> implements Type<T> {
     }
     
     public T getArray(Object array, int i) {
-        return (T) ((Object[]) array)[i];
+        return ((T[])array)[i];
     }
 
     public T setArray(Object array, int i, T v) {
-        ((Object[]) array)[i] = v;
+        ((T[])array)[i] = v;
         return v;
     }
     
     public int arrayLength(Object array) {
-        	return ((Object[]) array).length;
+        return ((T[])array).length;
     }
 
     public String typeName() {

@@ -228,7 +228,7 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 	        Name name, List<Type> typeArgs, List<Type> actualTypes)
 	{
 	    X10MethodInstance mi;
-	    X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+	    X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
 	    Context context = tc.context();
 	    boolean haveUnknown = false;
 	    for (Type t : actualTypes) {
@@ -237,19 +237,18 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 	    SemanticException error = null;
 	    if (!haveUnknown) {
 	        try {
-	            return ts.findMethod(targetType, ts.MethodMatcher(targetType, name, typeArgs, actualTypes, context));
+	            return xts.findMethod(targetType, xts.MethodMatcher(targetType, name, typeArgs, actualTypes, context));
 	        } catch (SemanticException e) {
 	            error = e;
 	        }
 	    }
+	    // If not returned yet, fake the method instance.
 	    Collection<X10MethodInstance> mis = null;
 	    try {
-	        mis = ts.findMethods(targetType, ts.MethodMatcher(targetType, name, typeArgs, actualTypes, context));
+	        mis = xts.findMethods(targetType, xts.MethodMatcher(targetType, name, typeArgs, actualTypes, context));
 	    } catch (SemanticException e) {
 	        if (error == null) error = e;
 	    }
-	    // If exception was not thrown, there is at least one match.  Fake it.
-	    X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
 	    // See if all matches have the same return type, and save that to avoid losing information.
 	    Type rt = null;
 	    if (mis != null) {
@@ -275,7 +274,7 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 	public Node typeCheck(ContextVisitor tc) throws SemanticException {
 		Type targetType = target.type();
 
-		List<Type> typeArgs = Collections.EMPTY_LIST;
+		List<Type> typeArgs = Collections.emptyList();
 		List<Type> actualTypes = new ArrayList<Type>(this.arguments.size());
 		for (Expr ei : arguments) {
 			actualTypes.add(ei.type());
