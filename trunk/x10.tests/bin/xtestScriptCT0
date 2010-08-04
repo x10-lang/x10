@@ -820,8 +820,13 @@ doTest() {
   if [[ $runRC != 0 ]]; then
     echo ""                                        >> logDetail.$tdir.$className
     echo "****** $tdir $className failed: compile" >> logDetail.$tdir.$className
-		__cat_test_exit_code=$runRC
-    recordTestResult "FailCompile" "$tdir" "$className" "$x10FileName"
+    __cat_test_exit_code=$runRC
+    grep "Exception in thread" logDetail.$tdir.$className >/dev/null 2>&1
+    if [[ $? == 0 ]]; then
+        recordTestResult "FailCompileWithException" "$tdir" "$className" "$x10FileName"
+    else
+        recordTestResult "FailCompile" "$tdir" "$className" "$x10FileName"
+    fi
     return
   else
     echo "++++++ Compilation succeeded." >> logDetail.$tdir.$className
