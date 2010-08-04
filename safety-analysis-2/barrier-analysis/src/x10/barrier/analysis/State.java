@@ -10,15 +10,17 @@ class State {
     List incomingEdges = new ArrayList();
     boolean isTerminal = false;
     boolean isStart = false;
+    String funName;
     
     public State () {
 	startInst = -2;
 	endInst = -2;
     }
     
-    public State(int startInstruction, int endInstruction) {
+    public State(int startInstruction, int endInstruction, String funcName) {
 	startInst = startInstruction;
 	endInst = endInstruction;
+	funName = funcName;
     }
     
     
@@ -41,7 +43,7 @@ class State {
     }
     
     public String toString() {
-	String str = this.startInst + "-" + this.endInst + "\n";
+	String str = this.startInst + "-" + this.endInst + " " + this.funName + "\n";
 	for (Object o: this.outgoingEdges) {
 	    Edge edge = (Edge) o;
 	    str += "  ";
@@ -51,7 +53,7 @@ class State {
 	    	case Edge.NEXT: str += "N"; break;
 	    	default: break;
 	    }
-	    str += " " + edge.to.startInst + "-" + edge.to.endInst;
+	    str += " " + edge.to.startInst + "-" + edge.to.endInst + " " + edge.to.funName;
 	    str += "\n";
 	}
 	return str;
