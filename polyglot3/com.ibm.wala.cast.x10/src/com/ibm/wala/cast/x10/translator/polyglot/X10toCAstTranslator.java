@@ -905,7 +905,7 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	}
 
 	public String getName() {
-	    return "invoke";
+	    return "apply";
 	}
 
 	public CAstNodeTypeMap getNodeTypeMap() {
