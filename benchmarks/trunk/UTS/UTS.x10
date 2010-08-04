@@ -171,7 +171,7 @@ public class UTS {
 						"   q=" + q +
             "   l=" + l + 
             "   z=" + z +
-            (l==3 ?" base=" + NetworkGenerator.findW(Place.MAX_PLACES, z) : "")
+            (l==3 ?" base=" + (z==0? 0: NetworkGenerator.findW(Place.MAX_PLACES, z)) : "")
              );
       } else if (Constants.GEOMETRIC==t) {
 				Console.OUT.println("b0=" + b0 +

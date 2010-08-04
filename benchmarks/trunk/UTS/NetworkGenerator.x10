@@ -181,6 +181,9 @@ final class NetworkGenerator {
   }
 
   public static def generateSparseEmbedding (P:Int, k:Int) {
+	  if (k == 0) 
+		  return ValRail.make[ValRail[Int]]
+		      (P, (i:Int) => ValRail.make[Int](k, (i:Int)=>i));
     // Find a base "w" such that pow (w,k) >= P 
   val w = findW(P, k);
 
