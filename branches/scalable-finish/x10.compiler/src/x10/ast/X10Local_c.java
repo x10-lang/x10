@@ -18,12 +18,17 @@ package x10.ast;
  * 
  * @author vj
  */
+import java.util.Set;
+
 import polyglot.ast.Id;
 import polyglot.ast.Local_c;
 import polyglot.ast.Node;
 import polyglot.types.CodeDef;
 import polyglot.types.Context;
+import polyglot.types.FieldInstance;
+import polyglot.types.Flags;
 import polyglot.types.LocalInstance;
+import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
@@ -37,11 +42,13 @@ import x10.constraint.XLocal;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
 import x10.types.X10Context;
+import x10.types.X10FieldInstance;
 import x10.types.X10Flags;
 import x10.types.X10LocalInstance;
 import x10.types.X10ProcedureDef;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
+import x10.types.X10TypeSystem_c;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
@@ -136,5 +143,18 @@ public class X10Local_c extends Local_c {
 			throw new SemanticException(e.getMessage(), position());
 		}
 	}
-	
+
+    public static X10LocalInstance findAppropriateLocal(ContextVisitor tc, Name name) {
+        X10Context context = (X10Context) tc.context();
+        SemanticException error = null;
+        try {
+            return (X10LocalInstance) context.findLocal(name);
+        } catch (SemanticException e) {
+            error = e;
+        }
+        // If not returned yet, fake the local instance.
+        X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
+        X10LocalInstance li = xts.createFakeLocal(name, error);
+        return li;
+    }
 }

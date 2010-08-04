@@ -394,11 +394,11 @@ public class RailInLoopOptimizer extends ContextVisitor {
                                 stmts.add((Stmt) n);
                                 Type pt = X10TypeMixin.baseType(((X10ClassType) type).typeArguments().get(0));
                                 Expr expr;
+                                Type arrayType = createArrayType(pt);
                                 if (la.right() instanceof NullLit) {
-                                    LocalDef ldef = xts.localDef(n.position(), xts.NoFlags(), Types.ref(type), id.id());
-                                    expr = xnf.LocalAssign(n.position(), (Local) xnf.Local(n.position(), id).localInstance(ldef.asInstance()).type(type), Assign.ASSIGN, la.right()).type(type);
+                                    LocalDef ldef = xts.localDef(n.position(), xts.NoFlags(), Types.ref(arrayType), id.id());
+                                    expr = xnf.LocalAssign(n.position(), (Local) xnf.Local(n.position(), id).localInstance(ldef.asInstance()).type(arrayType), Assign.ASSIGN, la.right()).type(arrayType);
                                 } else {
-                                    Type arrayType = createArrayType(type);
                                     LocalDef ldef = xts.localDef(n.position(), xts.NoFlags(), Types.ref(arrayType), id.id());
                                     expr = xnf.LocalAssign(n.position(), (Local) xnf.Local(n.position(), id).localInstance(ldef.asInstance()).type(arrayType), Assign.ASSIGN, xnf.BackingArray(n.position(), id, arrayType, local)).type(arrayType);
                                 }

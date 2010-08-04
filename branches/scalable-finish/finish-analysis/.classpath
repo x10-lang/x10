@@ -12,6 +12,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/x10.compiler"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/x10.common"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/x10.constraints"/>
-	<classpathentry kind="lib" path="/Users/blshao/Desktop/eclipse/plugins/polyglot3_3.2.0.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/polyglot"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
