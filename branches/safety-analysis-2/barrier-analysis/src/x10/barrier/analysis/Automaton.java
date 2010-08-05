@@ -43,6 +43,7 @@ public class Automaton {
         
         	}
         	head.endInst = lastInst;
+        	head.isTerminal = currState.isTerminal;
         	return head;
             }
             for(Object o: currState.outgoingEdges) { // loops once
@@ -112,6 +113,8 @@ public class Automaton {
 	visitedStates = new ArrayList();
 	State parState = findPar(root);
 	System.out.println("Par state " +  parState);
+	if (parState == null)
+	    return;
 	visitedStates = null;
 	visitedStates = new ArrayList();
 	ComposedState parStart = new ComposedState();
@@ -126,6 +129,11 @@ public class Automaton {
 	}
 	parStart.addState(s1);
 	parStart.addState(s2);
+	this.composeAutomaton(s1, s2, parStart);
+	visitedStates = null;
+	visitedStates = new ArrayList();
+	traverse(parStart);
+	visitedStates = null;
 	
     }
     
@@ -133,7 +141,7 @@ public class Automaton {
 	for (Object v: this.visitedStates) {
 	    ComposedState vs = (ComposedState) v;
 	    if (vs.isEqual(s)) 
-	        return s;
+	        return vs;
 	    
 	}
 	return null;
@@ -141,57 +149,100 @@ public class Automaton {
     }
     
     public void composeAutomaton (State s1, State s2, ComposedState prev) {
-	ComposedState s  = new ComposedState ();
-	for (Object o1: s1.outgoingEdges)
-	    for (Object o2: s2.outgoingEdges) {
-		ComposedState inVisited = null;
-		Edge e1 = (Edge) o1;
-		Edge e2 = (Edge) o2;
-		if (e1.type == Edge.COND && e2.type == Edge.COND) {
-		    s1 = e1.to;
-		    s2 = e1.to;
-		    s.addState(s1);
-		    s.addState(s2);
-		    inVisited = this.inVisited(s);
-		    if (inVisited != null)
-			s = inVisited;
-		    new Edge(prev, s, Edge.COND);
-		   
-		    
-		}
-		else if (e1.type == Edge.NEXT && e2.type == Edge.NEXT) {
-		    s1 = e1.to;
-		    s2 = e1.to;
-		    s.addState(s1);
-		    s.addState(s2);
-		    inVisited = this.inVisited(s);
-		    if (inVisited != null)
-			s = inVisited;
-		    new Edge(prev, s, Edge.NEXT);
-		    
-		} 
-		else if (e1.type == Edge.COND && e2.type == Edge.NEXT) {
-		    s1 = e1.to;
-		    s.addState(s1);
-		    s.addState(s2);
+	ComposedState inVisited = null;
+	 visitedStates.add(prev);
+	 
+	 if (s1.isTerminal) {
+	     
+	      for (Object o2: s2.outgoingEdges) {
+		  ComposedState s  = new ComposedState ();
+		
+		  Edge e2 = (Edge) o2;
+		  s2 = e2.to;
+		  s.addState(s1);
+		  s.addState(s2);
 		  inVisited = this.inVisited(s);
 		    if (inVisited != null)
 			s = inVisited;
-		    new Edge(prev, s, Edge.COND);
-		   
-		}
-		else if (e1.type == Edge.NEXT && e2.type == Edge.COND) {
-		    s2 = e2.to;
-		    s.addState(s1);
-		    s.addState(s2);
+		    new Edge(prev, s, e2.type);
+		    if (inVisited == null)
+			      this.composeAutomaton(s1, s2, s);
+		  
+	      }   
+	  }
+	 if (s2.isTerminal) {
+	     
+	      for (Object o1: s1.outgoingEdges) {
+		  ComposedState s  = new ComposedState ();
+		
+		  Edge e1 = (Edge) o1;
+		  s1 = e1.to;
+		  s.addState(s1);
+		  s.addState(s2);
 		  inVisited = this.inVisited(s);
 		    if (inVisited != null)
 			s = inVisited;
-		    new Edge(prev, s, Edge.COND);
-		}
-		 if (inVisited == null)
-		      this.composeAutomaton(s1, s2, s);
-	    }
+		    new Edge(prev, s, e1.type);
+		    if (inVisited == null)
+			      this.composeAutomaton(s1, s2, s);
+		  
+	      }   
+	  }
+	 else {
+
+	     for (Object o1: s1.outgoingEdges)
+		 for (Object o2: s2.outgoingEdges) {
+		     ComposedState s  = new ComposedState ();
+		
+		
+		     Edge e1 = (Edge) o1;
+		     Edge e2 = (Edge) o2;
+		     if (e1.type == Edge.COND && e2.type == Edge.COND) {
+			 s1 = e1.to;
+			 s2 = e1.to;
+			 s.addState(s1);
+		  	  s.addState(s2);
+		  	  inVisited = this.inVisited(s);
+		  	  if (inVisited != null)
+		  	      s = inVisited;
+		  	  new Edge(prev, s, Edge.COND);
+		   
+		    
+		     }
+		     else if (e1.type == Edge.NEXT && e2.type == Edge.NEXT) {
+			 s1 = e1.to;
+			 s2 = e2.to;
+			 s.addState(s1);
+			 	s.addState(s2);
+			 	inVisited = this.inVisited(s);
+			 	if (inVisited != null)
+			 	    s = inVisited;
+			 	new Edge(prev, s, Edge.NEXT);
+		    
+		     } 
+		     else if (e1.type == Edge.COND && e2.type == Edge.NEXT) {
+			 s1 = e1.to;
+			 s.addState(s1);
+			 s.addState(s2);
+			 inVisited = this.inVisited(s);
+			 if (inVisited != null)
+			     s = inVisited;
+			 new Edge(prev, s, Edge.COND);
+		   
+		     }
+		     else if (e1.type == Edge.NEXT && e2.type == Edge.COND) {
+			 s2 = e2.to;
+			 s.addState(s1);
+			 s.addState(s2);
+			 inVisited = this.inVisited(s);
+			 if (inVisited != null)
+			     s = inVisited;
+			 new Edge(prev, s, Edge.COND);
+		     }
+		     if (inVisited == null)
+			 this.composeAutomaton(s1, s2, s);
+		       }
+	 }
 	
     }
 }
