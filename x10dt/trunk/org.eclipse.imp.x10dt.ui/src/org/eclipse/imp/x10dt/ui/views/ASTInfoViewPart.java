@@ -49,7 +49,9 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
+import polyglot.ast.Expr;
 import polyglot.ast.Node;
+import polyglot.types.Type;
 
 public class ASTInfoViewPart extends ViewPart implements ISelectionChangedListener, ISelectionListener {
 	/**
@@ -220,8 +222,11 @@ public class ASTInfoViewPart extends ViewPart implements ISelectionChangedListen
 					sb.append('\n');
 					reportNodeTypes(sb, root, node);
 					sb.append('\n');
+
 					Object referent= reportRef(sb, node);
+
 					sb.append('\n');
+
 					if (referent != null) {
 						try {
 							String doc= fDocProvider.getDocumentation(referent, fParseController);
@@ -262,6 +267,20 @@ public class ASTInfoViewPart extends ViewPart implements ISelectionChangedListen
 		reportObjectType(sb, root, "Root node type: ", "<null AST root>");
 		sb.append('\n');
 		reportObjectType(sb, node, "Selected node type: ", "<null node returned>");
+
+		if (node instanceof Expr) {
+			Expr expr= (Expr) node;
+			Type type= expr.type();
+
+			try {
+				String typeStr= type.toString();
+				sb.append("Expression type: ");
+				sb.append(typeStr);
+				sb.append('\n');
+			} catch (Exception e) {
+				reportException(sb, e, "obtaining type of expression");
+			}
+		}
 	}
 
 	private void reportObjectType(StringBuilder sb, Object node, String header, String ifNullMsg) {
