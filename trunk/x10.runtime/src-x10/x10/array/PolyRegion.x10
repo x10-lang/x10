@@ -69,7 +69,7 @@ public class PolyRegion extends Region {
                 hasNext = false;
                 return scanner();
             } else
-                throw new NoSuchElementException("in scanner");
+                throw new x10.util.NoSuchElementException("in scanner");
         }
 
         public def remove(): void {
