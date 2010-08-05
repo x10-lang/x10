@@ -1436,7 +1436,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			itableNum = 0;
 			for (Type interfaceType : allInterfaces) {
 				ITable itable = ITable.getITable((X10ClassType) X10TypeMixin.baseType(interfaceType));
-				itable.emitITableInitialization(currentClass, itableNum, emitter, h, sw);
+				itable.emitITableInitialization(currentClass, itableNum, this, h, sw);
 				itableNum += 1;
 			}
 
@@ -1482,7 +1482,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        int itableNum = 0;
 	        for (Type interfaceType : allInterfaces) {
 	            ITable itable = ITable.getITable((X10ClassType) X10TypeMixin.baseType(interfaceType));
-	            itable.emitITableInitialization(currentClass, itableNum, emitter, h, sw);
+	            itable.emitITableInitialization(currentClass, itableNum, this, h, sw);
 	            itableNum += 1;
 	        }
 
@@ -4670,7 +4670,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     // [DC] FIXME: ASTQuery.getCppRepParam still uses CPP_NATIVE_STRING directly
     protected String[] getCurrentNativeStrings() { return new String[] {CPP_NATIVE_STRING}; }
 
-	private String getCppImplForDef(X10Def o) {
+	String getCppImplForDef(X10Def o) {
 	    X10TypeSystem xts = (X10TypeSystem) o.typeSystem();
 	    try {
 	        Type annotation = (Type) xts.systemResolver().find(QName.make("x10.compiler.Native"));
@@ -4716,13 +4716,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     }
 
 	// FIXME: generic native methods will break
-	private void emitNativeAnnotation(String pat, List<Type> types, Receiver receiver, List<? extends Object> args, List<Type> typeArguments) {
+	void emitNativeAnnotation(String pat, List<Type> types, Object receiver, List<? extends Object> args, List<Type> typeArguments) {
 	    Object[] components = new Object[1+3*types.size() + args.size() + 3*typeArguments.size()];
 	    assert (receiver != null);
 	    components[0] = receiver;
 	    if (receiver instanceof X10Special_c && ((X10Special_c)receiver).kind() == X10Special_c.SUPER) {
 	        pat = pat.replaceAll("\\(#0\\)->", "#0::"); // FIXME: HACK
-	        pat = pat.replaceAll("\\(#0\\)", "("+Emitter.translateType(receiver.type(), true)+"((#0*)this))"); // FIXME: An even bigger HACK (remove when @Native migrates to the body)
+	        pat = pat.replaceAll("\\(#0\\)", "("+Emitter.translateType(((X10Special_c)receiver).type(), true)+"((#0*)this))"); // FIXME: An even bigger HACK (remove when @Native migrates to the body)
 	    }
 
 	    int i = 1;
