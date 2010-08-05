@@ -49,8 +49,11 @@ public class PolyglotNodeLocator implements ISourcePositionLocator {
 
     private NodeVisitor fVisitor= new NodeVisitor() {
         public NodeVisitor enter(Node n) {
-            if (DEBUG)
-                System.out.println("Entering node type = " + n.getClass().getName() + ", first token '" + fLS.getPrsStream().getTokenAtCharacter(n.position().offset()) + "'");
+            if (DEBUG) {
+            	System.out.println("Entering node type = " + n.getClass().getName());
+            	if (fLS != null)
+            		System.out.println("  first token '" + fLS.getPrsStream().getTokenAtCharacter(n.position().offset()) + "'");
+            }
             // N.B.: Polyglot's notion of line # is 1 off from that of Eclipse's.
             Position pos= n.position();
 
@@ -203,7 +206,7 @@ public class PolyglotNodeLocator implements ISourcePositionLocator {
         if (ast == null) return null;
 //      if (endOffset == startOffset && Character.isWhitespace(fLS.getCharValue(startOffset)))
 //        return null;
-        if (DEBUG) {
+        if (DEBUG && fLS != null) {
             IPrsStream ps= fLS.getPrsStream();
             if (endOffset == startOffset)
                 System.out.println("Token at this offset: '" + ps.getTokenAtCharacter(startOffset) + "'");
