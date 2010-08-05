@@ -470,9 +470,9 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 			            Receiver target = this.target() == null ?
 			                    X10Disamb_c.makeMissingFieldTarget(fi, name().position(), xtc) :
 			                        this.target();
-			            //e = xnf.Field(name().position(), target,
+			            //e = xnf.Field(new Position(target.position(), name().position()), target,
 			            //        name()).fieldInstance(fi).targetImplicit(target()==null).type(fi.type());
-			            e = xnf.Field(name().position(), target,
+			            e = xnf.Field(new Position(target.position(), name().position()), target,
 			                    name()).fieldInstance(fi).targetImplicit(target()==null);
                         e = (Expr) e.del().typeCheck(xtc);
                         e = (Expr) e.del().checkConstants(xtc);
