@@ -295,19 +295,21 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
             // process prefix for block comment lines
             if (c.offset > start
                     && contentStart - 2 >= 0
-                    && (d.getChar(contentStart - 2) == '/' && d.getChar(contentStart - 1) == '*' || contentStart - 3 >= 0 && d.getChar(contentStart - 3) == '/' && d.getChar(contentStart - 2) == '*'
+                    && (d.getChar(contentStart - 2) == '/' && d.getChar(contentStart - 1) == '*' ||
+                    	contentStart - 3 >= 0 && d.getChar(contentStart - 3) == '/' && d.getChar(contentStart - 2) == '*'
                             && d.getChar(contentStart - 1) == '*')
                     // also check that we're not in the middle of a block
                     // comment (i.e., scan forward finds "*/" prior to "/*", or
                     // maybe just next line starts with ^\w*\*
                     && inUnendedBlockComment(d, contentStart)) {
+//              StringBuffer reference= indenter.getReferenceIndentation(c.offset); // this doesn't seem to compute the right indent for comments...
+//              buf.append(reference.toString());
                 buf.append(" * ");
-                int where= buf.length();
                 buf.append(TextUtilities.getDefaultLineDelimiter(d));
-                StringBuffer reference= indenter.getReferenceIndentation(c.offset);
-                buf.append(reference.toString());
+//              buf.append(reference.toString());
+                buf.append(indent);
                 buf.append(" */");
-                buf.append(TextUtilities.getDefaultLineDelimiter(d));
+//                buf.append(TextUtilities.getDefaultLineDelimiter(d));
                 // How to set c.caretOffset?
                 // If we set it to c.offset - where, the cursor ends up '2*where'
                 // characters before where we want it. If we set it to c.offset,
