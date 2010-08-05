@@ -2985,8 +2985,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		        sw.write(Emitter.translateType(t));
 		        sw.write("::");
 		    }
-		    // [IP] FIXME: virtual_dispatch test is temporary, until xlC is upgraded to v10
-		    if (context.inTemplate() && mi.typeParameters().size() != 0 && virtual_dispatch) {
+		    if (context.inTemplate() && mi.typeParameters().size() != 0) {
 		        sw.write("template ");
 		    }
 		    if (!isInterfaceInvoke) {
