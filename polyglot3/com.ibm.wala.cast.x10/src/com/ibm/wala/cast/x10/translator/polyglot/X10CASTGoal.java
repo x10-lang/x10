@@ -26,7 +26,7 @@ public class X10CASTGoal extends SourceGoal_c {
         ExtensionInfo extInfo = job.extensionInfo();
 
         fTranslator= new X10toCAstTranslator(fSourceLoaderRef, extInfo.nodeFactory(),
-                (X10ExtensionInfo) extInfo);
+                ((X10ExtensionInfo) extInfo).typeSystem(), ((X10ExtensionInfo) extInfo).fMapper, ((X10ExtensionInfo) extInfo).getReplicateForDoLoops());
         ((AnalysisJobExt) job.ext()).put(AnalysisJobExt.CAST_JOBEXT_KEY,
                 fTranslator.translate(job.ast(), job.source().name()));
         return true;
