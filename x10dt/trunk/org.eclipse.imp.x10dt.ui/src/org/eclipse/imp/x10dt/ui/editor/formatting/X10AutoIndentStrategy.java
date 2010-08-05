@@ -1107,7 +1107,6 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
         // Since smartIndentAfterNewline inserts "* " inside block comments,
         // need to include leading "* ?", if present, this in "whitespace" for block comments
         deleteLeadingWhiteSpace(document, command);
-        command.text= "";
         smartIndentAfterNewLine(document, command);
 
         // adjust caret so that it shifts with the text, unless it was in the
@@ -1131,6 +1130,7 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
                 len++;
             cmd.offset= off;
             cmd.length= len;
+            cmd.text= "";
         } catch (BadLocationException e) {
             X10DTUIPlugin.log(e);
         }
