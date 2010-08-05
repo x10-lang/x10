@@ -417,19 +417,20 @@ public class X10Indenter {
 	 *         if it cannot be determined
 	 */
 	private StringBuffer getReferenceIndentation(int offset, boolean assumeOpeningBrace) {
-
 		int unit;
 		if (assumeOpeningBrace)
 			unit= findReferencePosition(offset, Symbols.TokenLBRACE);
 		else
 			unit= findReferencePosition(offset, peekChar(offset));
 
-		// if we were unable to find anything, return null
-		if (unit == X10HeuristicScanner.NOT_FOUND)
-			return null;
+		// RMF 05 Aug 2010 - if findReferencePosition() returns NOT_FOUND, just continue
+		// through - getLeadingWhitespace() will produce an empty StringBuffer, which is
+		// better for clients than returning a null.
+//		// if we were unable to find anything, return null
+//		if (unit == X10HeuristicScanner.NOT_FOUND)
+//			return null;
 
 		return getLeadingWhitespace(unit);
-
 	}
 
 	/**
