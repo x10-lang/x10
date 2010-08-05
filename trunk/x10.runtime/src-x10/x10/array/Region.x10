@@ -391,6 +391,8 @@ public abstract class Region(
     public global operator this + (v: Point(rank)) = translate(v);
     public global operator (v: Point(rank)) + this = translate(v);
 
+    public global operator this - (v: Point(rank)) = translate(-v);
+
 
     //
     // comparison
