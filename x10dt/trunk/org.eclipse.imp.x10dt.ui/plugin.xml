@@ -437,5 +437,13 @@
             id="org.eclipse.imp.x10dt.ui.developerTools"
             name="X10DT Developer Tools">
       </category>
+      <view
+            allowMultiple="false"
+            category="org.eclipse.imp.x10dt.ui.developerTools"
+            class="org.eclipse.imp.x10dt.ui.views.ASTInfoViewPart"
+            id="org.eclipse.imp.x10dt.ui.astInfoView"
+            name="X10 AST Info"
+            restorable="true">
+      </view>
    </extension>
 </plugin>
