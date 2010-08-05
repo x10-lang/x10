@@ -579,6 +579,8 @@ public class X10BarrierAnalysis {
 	    if (declaringClass.contains("x10/lang") || declaringClass.contains("x10/util") ||  declaringClass.contains("x10/compiler"))
 		continue;
 	    Automaton a = parseIR(cg.getNumber(one_method));
+	    a.compress();
+	    a.composePar();
 	    a.print();
 	}
     }

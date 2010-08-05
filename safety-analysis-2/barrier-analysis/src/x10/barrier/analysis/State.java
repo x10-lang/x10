@@ -11,6 +11,8 @@ class State {
     boolean isTerminal = false;
     boolean isStart = false;
     String funName;
+    int counter = -1;
+    
     
     public State () {
 	startInst = -2;
@@ -42,6 +44,9 @@ class State {
 	this.incomingEdges.add(e);
     }
     
+    public boolean isEqual(State s) {
+	return this.counter == s.counter;
+    }
     public String toString() {
 	String str = this.startInst + "-" + this.endInst + " " + this.funName + "\n";
 	for (Object o: this.outgoingEdges) {
@@ -51,7 +56,7 @@ class State {
 	    	case Edge.COND: str += "C"; break;
 	    	case Edge.PAR: str += "P"; break;
 	    	case Edge.NEXT: str += "N"; break;
-	    	default: break;
+	    	default: assert(false); break;
 	    }
 	    str += " " + edge.to.startInst + "-" + edge.to.endInst + " " + edge.to.funName;
 	    str += "\n";
