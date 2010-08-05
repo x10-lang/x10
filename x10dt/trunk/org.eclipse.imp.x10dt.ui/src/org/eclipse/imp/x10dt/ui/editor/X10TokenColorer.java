@@ -32,14 +32,16 @@ import x10.parser.X10Parsersym;
 
 public class X10TokenColorer extends TokenColorerBase implements X10Parsersym, ITokenColorer {
 
-	TextAttribute commentAttribute, characterAttribute, numberAttribute, identifierAttribute;
+	TextAttribute commentAttribute, docCommentAttribute, characterAttribute, numberAttribute, identifierAttribute;
 	
 	@Override
 	public TextAttribute getColoring(IParseController controller, Object o) {
             IToken token= (IToken) o;
 	    switch (token.getKind()) {
-	    case TK_DocComment: case TK_SlComment: case TK_MlComment:
-                 return commentAttribute;
+	    	case TK_DocComment: case TK_SlComment: case TK_MlComment:
+	    		if (token.toString().startsWith("/**"))
+	    			return docCommentAttribute;
+	    		return commentAttribute;
             case TK_IDENTIFIER:
                  return identifierAttribute;
             case TK_DoubleLiteral:
@@ -66,6 +68,7 @@ public class X10TokenColorer extends TokenColorerBase implements X10Parsersym, I
 		Display display = Display.getDefault();
 		commentAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_DARK_RED), null, SWT.ITALIC); 		
 		characterAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_DARK_BLUE), null, SWT.BOLD); 		
+		docCommentAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_BLUE), null, SWT.ITALIC); 		
 		identifierAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_BLACK), null, SWT.NORMAL); 		
 		numberAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_DARK_YELLOW), null, SWT.BOLD); 		
 	}
