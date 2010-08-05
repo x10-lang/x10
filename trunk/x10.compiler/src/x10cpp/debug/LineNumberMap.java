@@ -457,9 +457,6 @@ public class LineNumberMap extends StringTable {
 	    public final int cppfromline;
 	    public final int cpptoline;
 	    public final int fileId;
-	    public CPPLineInfo(int x10index, int x10method, int cppindex, int x10line, int cppfromline, int fileId, int x10column) {
-	        this(x10index, x10method, cppindex, x10line, cppfromline, -1, fileId, x10column);
-	    }
 	    public CPPLineInfo(int x10index, int x10method, int cppindex, int x10line, int cppfromline, int cpptoline, int fileId, int x10column) {
 	        this.x10index = x10index;
 	        this.x10method = x10method;
@@ -570,6 +567,7 @@ public class LineNumberMap extends StringTable {
 	                                offsets[p.fileId],                         // _CPPindex
 	                                e.line,                                    // _X10line
 	                                p.start_line,                              // _CPPline
+	                                p.end_line,
 	                                p.fileId,
 	                                e.column));                                  // _X10column	                                
 	    }
@@ -607,8 +605,8 @@ public class LineNumberMap extends StringTable {
 	        w.write(""+cppDebugInfo.x10method+", ");                           // _X10method
 	        w.write(""+cppDebugInfo.cppindex+", ");                            // _CPPindex
 	        w.write(""+cppDebugInfo.x10line+", ");                             // _X10line
-//	        w.write(""+cppDebugInfo.x10column+", ");                           // _X10column
-	        w.write(""+cppDebugInfo.cppfromline);                              // _CPPline
+	        w.write(""+cppDebugInfo.cppfromline+", ");                         // _CPPFromLine
+	        w.write(""+cppDebugInfo.cpptoline);                                // _CPPtoLine
 	        w.writeln(" },");
 	    }
 	    w.writeln("};");
