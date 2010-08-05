@@ -1335,7 +1335,7 @@ public class X10Indenter {
 
 				// normal: skip to the statement start before the scope introducer
 				// opening braces are often on differently ending indents than e.g. a method definition
-				if (looksLikeArrayInitializerIntro() && !fPrefs.prefIndentBracesForArrays
+				if (false && looksLikeArrayInitializerIntro() && !fPrefs.prefIndentBracesForArrays
 						|| !fPrefs.prefIndentBracesForBlocks) {
 					fPosition= pos; // restore
 					return skipToStatementStart(true, true); // set to true to match the first if
