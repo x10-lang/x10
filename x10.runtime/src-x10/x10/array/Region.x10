@@ -343,7 +343,7 @@ public abstract class Region(
 
     public abstract global def scanners(): Iterator[Scanner]!;
 
-    public global def scan() = new x10.array.PolyScanner(this);
+    // public global def scan() = new x10.array.PolyScanner(this);
 
 
     //
