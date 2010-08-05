@@ -126,6 +126,7 @@ import polyglot.types.ClassType;
 import polyglot.types.CodeInstance;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.Context;
+import polyglot.types.Def_c;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.FunctionDef;
@@ -4006,7 +4007,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 
         // create closure and packed arguments
-
+                
         // Prepend this stream to closures.  Closures are created from the outside in.
         // Thus, later closures can be used by earlier ones, but not vice versa.
         ClassifiedStream inc_s = in_template_closure ?
@@ -4015,6 +4016,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         sw.pushCurrentStream(inc_s);
 
         StreamWrapper inc = sw;
+        
+        // A stream to put definitions of static variables.
+        // If the def is templatized, it has to go in the inc stream.
+        // If the def is not templatized, it has to go in the CC stream (even if sw is the Header stream).
+        ClassifiedStream defn_s =  in_template_closure ? inc.currentStream() : sw.getNewStream(StreamWrapper.CC, false);
+
 
         if (in_template_closure) {
             String guard = getHeaderGuard(cname);
@@ -4125,23 +4132,23 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         inc.write("};"); inc.newline(); inc.forceNewline();
 
         if (in_template_closure)
-            emitter.printTemplateSignature(freeTypeParams, inc);
+            emitter.printTemplateSignature(freeTypeParams, defn_s);
         // TODO: To workaround XTENLANG-467, we are explicitly qualifying inherited member functions here.
         // This is less than ideal, since it can introduce subtle bugs when the C++ code is refactored
         // (an overridden member function will not be called from the itable, which is very non-intuitive).
         // As soon as XTENLANG-467 is fixed, take out the explicit qualifications and let C++ member lookup do its job...
-        inc.write((in_template_closure ? "typename ": "")+superType+(in_template_closure ? "::template itable ": "::itable")+chevrons(cnamet)+
+        defn_s.write((in_template_closure ? "typename ": "")+superType+(in_template_closure ? "::template itable ": "::itable")+chevrons(cnamet)+
         			cnamet+"::_itable(&"+cnamet+"::apply, &"+REFERENCE_TYPE+"::at, &"+REFERENCE_TYPE+"::at, "+
         			"&"+REFERENCE_TYPE+"::equals, &"+CLOSURE_TYPE+"::hashCode, &"+REFERENCE_TYPE+"::home, &"
         			+cnamet+"::toString, &"+CLOSURE_TYPE+"::typeName);");
 
         if (in_template_closure)
-            emitter.printTemplateSignature(freeTypeParams, inc);
-		inc.write("x10aux::itable_entry "+cnamet+"::_itables[2] = {");
-		inc.write("x10aux::itable_entry(x10aux::getRTT"+chevrons(superType)+"(), &"+cnamet+"::_itable),");
-		inc.write("x10aux::itable_entry(NULL, NULL)};"); inc.newline();
+            emitter.printTemplateSignature(freeTypeParams, defn_s);
+		defn_s.write("x10aux::itable_entry "+cnamet+"::_itables[2] = {");
+		defn_s.write("x10aux::itable_entry(x10aux::getRTT"+chevrons(superType)+"(), &"+cnamet+"::_itable),");
+		defn_s.write("x10aux::itable_entry(NULL, NULL)};"); defn_s.newline(); defn_s.forceNewline();
 
-		generateClosureDeserializationIdDef(inc, cnamet, freeTypeParams, hostClassName, n.body());
+		generateClosureDeserializationIdDef(defn_s, cnamet, freeTypeParams, hostClassName, n.body());
 
         if (in_template_closure) {
             String guard = getHeaderGuard(cname);
@@ -4230,18 +4237,18 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     }
 
 
-    protected void generateClosureDeserializationIdDef(StreamWrapper inc, String cnamet, List<Type> freeTypeParams, String hostClassName, Block block) {
+    protected void generateClosureDeserializationIdDef(ClassifiedStream defn_s, String cnamet, List<Type> freeTypeParams, String hostClassName, Block block) {
         X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
         boolean in_template_closure = freeTypeParams.size()>0;
         if (in_template_closure)
-            emitter.printTemplateSignature(freeTypeParams, inc);
-        inc.write("const x10aux::serialization_id_t "+cnamet+"::"+SERIALIZATION_ID_FIELD+" = ");
-        inc.newline(4);
+            emitter.printTemplateSignature(freeTypeParams, defn_s);
+        defn_s.write("const x10aux::serialization_id_t "+cnamet+"::"+SERIALIZATION_ID_FIELD+" = ");
+        defn_s.newline(4);
         String template = in_template_closure ? "template " : "";
-        inc.write("x10aux::DeserializationDispatcher::addDeserializer("+
+        defn_s.write("x10aux::DeserializationDispatcher::addDeserializer("+
                   cnamet+"::"+template+DESERIALIZE_METHOD+
                   chevrons(Emitter.translateType(xts.Object()))+");");
-        inc.newline(); inc.forceNewline();
+        defn_s.newline(); defn_s.forceNewline();
     }
 
 
