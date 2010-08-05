@@ -17,17 +17,19 @@ import org.eclipse.imp.services.IReferenceResolver;
 import org.eclipse.imp.x10dt.ui.parser.PolyglotNodeLocator;
 
 import polyglot.ast.Ambiguous;
+import polyglot.ast.ArrayAccessAssign;
+import polyglot.ast.Assign;
 import polyglot.ast.Call;
-import polyglot.ast.ClassDecl;
 import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Field;
+import polyglot.ast.FieldAssign;
 import polyglot.ast.Id;
 import polyglot.ast.Local;
+import polyglot.ast.LocalAssign;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.TypeNode;
-import polyglot.types.ClassDef;
 import polyglot.types.FieldInstance;
 import polyglot.types.LocalInstance;
 import polyglot.types.MethodInstance;
@@ -36,22 +38,40 @@ import polyglot.visit.NodeVisitor;
 public class X10ReferenceResolver implements IReferenceResolver, ILanguageService {
     /**
      * Get the target for a given referencing source node in the AST represented by a given ParseController.
-     * defs
-     * 
-     * 
-     * 
      */
     public Object getLinkTarget(Object node, IParseController parseController) {
         if (node instanceof Id) {
             Id id= (Id) node;
-            node= findParent(id, parseController);
+            Node parent= findParent(id, parseController);
+
+            if (parent instanceof Assign) {
+            	// Assignment nodes are odd: they don't generally have an Expr as their LHS
+            	// (that's why the left() method takes a NodeFactory argument - it produces the
+            	// LHS expr on demand, but only if asked). So, the parent of an Id might actually
+            	// be a FieldAssign or LocalAssign. Check for that.
+				if (parent instanceof FieldAssign) {
+					FieldAssign fa = (FieldAssign) parent;
+
+					return fa.fieldInstance().def();
+				} else if (parent instanceof LocalAssign) { // Not sure we'd ever see this as a direct parent of an Id...
+					LocalAssign la = (LocalAssign) parent;
+
+					node= la.local();
+				} else if (parent instanceof ArrayAccessAssign) { // Not sure we'd ever see this as a direct parent of an Id...
+					ArrayAccessAssign aa = (ArrayAccessAssign) parent;
+
+					node= aa.array();
+				}
+            } else {
+            	node= parent;
+            }
         }
         if (node instanceof Ambiguous) {
             return null;
         }
         
         if (node instanceof TypeNode) {
-          Object grandparent = findParent((Node)node, parseController);
+          Node grandparent = findParent((Node)node, parseController);
           if (grandparent instanceof ConstructorDecl) { //MV
               node=grandparent;
               //return node;
@@ -108,10 +128,10 @@ public class X10ReferenceResolver implements IReferenceResolver, ILanguageServic
         return null;
     }
 
-    private Object findParent(Node node, IParseController parseController) {
+    private Node findParent(Node node, IParseController parseController) {
         PolyglotNodeLocator locator= (PolyglotNodeLocator) parseController.getSourcePositionLocator();
 
-        return locator.findParentNode(parseController.getCurrentAst(), node.position().offset(), node.position().endOffset());
+        return (Node) locator.findParentNode(parseController.getCurrentAst(), node.position().offset(), node.position().endOffset());
     }
 
     public static Node findVarDefinition(Local local, Node ast) {
