@@ -3,20 +3,29 @@ package com.ibm.wala.cast.x10.client;
 import java.io.IOException;
 import java.util.Set;
 
+import com.ibm.wala.cast.java.ipa.callgraph.JavaSourceAnalysisScope;
 import com.ibm.wala.cast.java.translator.polyglot.IRTranslatorExtension;
 import com.ibm.wala.cast.java.translator.polyglot.PolyglotJavaSourceAnalysisEngine;
+import com.ibm.wala.cast.x10.ipa.cha.X10ClassHierarchy;
 import com.ibm.wala.cast.x10.loader.X10AnalysisScope;
+import com.ibm.wala.cast.x10.loader.X10PrimordialClassLoader;
+import com.ibm.wala.cast.x10.loader.X10SyntheticLoaderImpl;
 import com.ibm.wala.cast.x10.translator.polyglot.X10ClassLoaderFactory;
 import com.ibm.wala.cast.x10.translator.polyglot.X10IRTranslatorExtension;
+import com.ibm.wala.cast.x10.translator.polyglot.X10SourceLoaderImpl;
 import com.ibm.wala.classLoader.ClassLoaderFactory;
 import com.ibm.wala.classLoader.Module;
 import com.ibm.wala.ipa.callgraph.AnalysisCache;
 import com.ibm.wala.ipa.callgraph.AnalysisOptions;
 import com.ibm.wala.ipa.callgraph.AnalysisScope;
+import com.ibm.wala.ipa.callgraph.CallGraph;
 import com.ibm.wala.ipa.callgraph.CallGraphBuilder;
+import com.ibm.wala.ipa.callgraph.Entrypoint;
 import com.ibm.wala.ipa.callgraph.impl.SetOfClasses;
+import com.ibm.wala.ipa.cha.ClassHierarchyException;
 import com.ibm.wala.ipa.cha.IClassHierarchy;
 import com.ibm.wala.types.ClassLoaderReference;
+import com.ibm.wala.util.CancelException;
 import com.ibm.wala.util.collections.HashSetFactory;
 
 public class X10SourceAnalysisEngine extends PolyglotJavaSourceAnalysisEngine {
@@ -87,5 +96,45 @@ public class X10SourceAnalysisEngine extends PolyglotJavaSourceAnalysisEngine {
         for( Module M : this.x10SourceEntries) {
             scope.addToScope(x10SourceLoader, M);
         }
+    }
+
+    public CallGraph buildCallGraph() throws IllegalArgumentException, CancelException, IOException {
+	    Iterable<Entrypoint> eps = makeDefaultEntrypoints(scope, getClassHierarchy());
+	    AnalysisOptions options = getDefaultOptions(eps);
+	    return buildCallGraph(getClassHierarchy(), options, true, null).makeCallGraph(options, null);
+    }
+
+    public CallGraph buildDefaultCallGraph() throws IllegalArgumentException, CancelException, IOException {
+        buildAnalysisScope();
+        IClassHierarchy cha = buildClassHierarchy();
+        setClassHierarchy(cha);
+    	return buildCallGraph();
+      }
+
+    public X10ClassHierarchy initClassHierarchy() {
+        X10ClassHierarchy cha = null;
+        ClassLoaderFactory factory = getClassLoaderFactory(scope.getExclusions());
+        try {
+        	cha = X10ClassHierarchy.make(getScope(), factory);
+        } catch (ClassHierarchyException e) {
+        	System.err.println("Class Hierarchy construction failed");
+        }
+        return cha;
+    }
+
+    public IClassHierarchy buildClassHierarchy() {
+        X10ClassHierarchy cha = initClassHierarchy();
+        ClassLoaderFactory factory = getClassLoaderFactory(scope.getExclusions());
+        try {
+          cha.getLoader(X10PrimordialClassLoader.X10Primordial).init(cha.getScope().getModules(X10PrimordialClassLoader.X10Primordial));
+          cha.getLoader(X10SourceLoaderImpl.X10SourceLoader).init(cha.getScope().getModules(X10SourceLoaderImpl.X10SourceLoader));
+          cha.getLoader(X10SyntheticLoaderImpl.X10SyntheticLoader).init(cha.getScope().getModules(X10SyntheticLoaderImpl.X10SyntheticLoader));
+          ((X10ClassHierarchy) cha).build();
+        } catch (ClassHierarchyException e) {
+          System.err.println("Class Hierarchy construction failed");
+        } catch (IOException e) {
+        	System.err.println("Class Hierarchy construction failed");
+        }
+        return cha;
     }
 }
