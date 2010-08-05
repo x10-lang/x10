@@ -468,7 +468,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 
 		if (xf.isProperty()) {
 			boolean ok = false;
-			if (xf.isAbstract()) {
+			if (xf.isAbstract() || xf.isNative()) {
 				ok = true;
 			}
 			if (n.body != null && n.body.statements().size() == 1) {

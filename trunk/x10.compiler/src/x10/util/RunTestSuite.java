@@ -129,7 +129,7 @@ public class RunTestSuite {
         List<String> allArgs = new ArrayList<String>(fileNames);
         allArgs.addAll(args);
         String[] newArgs = allArgs.toArray(new String[allArgs.size()]);
-        System.out.println("Running: "+ allArgs);
+        System.out.println("Running: "+ Arrays.toString(newArgs));
         SilentErrorQueue errQueue = new SilentErrorQueue(10000,"TestSuiteErrQueue");
         try {
             new polyglot.main.Main().start(newArgs,errQueue);

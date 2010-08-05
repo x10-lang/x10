@@ -508,9 +508,6 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         X10TypeMixin.protoTypeCheck(n.formals(), returnT,
         		n.position(), false);
 
-        // for native ctors, we don't have a body
-        if (false && body!=null)
-            body.visit(new CheckEscapingThis(tc.job(),returnT,tc.typeSystem()));
         return n;
     }
 
