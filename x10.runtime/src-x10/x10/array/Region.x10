@@ -307,30 +307,6 @@ public abstract class Region(
 
 
     /**
-     * Utility method to return an array of n regions, which together
-     * block divide the rank-1 region r.
-     */
-
-    // XXX temp port from previous util/Dist.x10 to support Rice trial
-    // refactor dist, region to generalize this; and/or connect to
-    // tiled regions
-
-    public static def makeBlock(r: Region(1), n:int): ValRail[Region(1)](n) {
-        assert n >=0;
-        val min = r.min(0);
-        val max = r.max(0);
-        val count = max-min+1;
-        val baseSize = count/n;
-        val extra = count - baseSize*n;
-        val result = ValRail.make[Region(1)](n, (i:Int):Region(1) => {
-            val start = min + i*baseSize + (i<extra?i:extra);
-            return start..start+baseSize+(i<extra?0:-1);
-        });
-        return result;
-    }
-
-
-    /**
      * Return an iterator for this region. Normally accessed using the
      * syntax
      *
