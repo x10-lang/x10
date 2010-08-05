@@ -21,7 +21,7 @@ import x10.compiler.Inline;
  *
  * @author bdlucas
  */
-final class RectLayout(rank: int) extends Layout {
+final class RectLayout(rank: int) {
 
     global val size: int;
 
