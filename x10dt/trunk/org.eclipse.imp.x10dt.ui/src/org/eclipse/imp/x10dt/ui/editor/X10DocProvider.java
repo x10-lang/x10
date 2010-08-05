@@ -94,6 +94,7 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 			target = parent;
 		}
 
+		// TODO Convert the following to use Defs in lieu of Instances
 		if (target instanceof Field) { // field reference
 			Field field = (Field) target;
 			FieldInstance fi = field.fieldInstance();
@@ -112,9 +113,7 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 
 				target = fi;
 			}
-		}
-		
-		if (target instanceof Local) { // field reference
+		} else if (target instanceof Local) { // local var reference
 			Local local = (Local) target;
 			LocalInstance li = local.localInstance();
 			target = li;
@@ -128,9 +127,7 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 			target = li;
 		} else if (target instanceof LocalDef) { // field reference
 			target = ((LocalDef) target).asInstance();
-		}
-		
-		if (target instanceof MethodDef) {
+		} else if (target instanceof MethodDef) {
 			target = ((MethodDef) target).asInstance();
 		} else if (target instanceof ConstructorDef) {
 			target = ((ConstructorDef) target).asInstance();
