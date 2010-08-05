@@ -17,6 +17,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.zip.ZipFile;
 
 import lpg.runtime.ILexStream;
 import lpg.runtime.IPrsStream;
@@ -43,6 +46,7 @@ import polyglot.frontend.FileSource;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Job;
 import polyglot.frontend.Source;
+import polyglot.frontend.ZipResource;
 import polyglot.util.ErrorInfo;
 import x10.parser.X10Lexer;
 import x10.parser.X10Parser;
@@ -99,13 +103,47 @@ public class ParseController extends SimpleLPGParseController {
     }
 
     public Object parse(String contents, IProgressMonitor monitor) {
-        FileSource fileSource= null;
+        Source fileSource= null;
         try {
             fMonitor.setMonitor(monitor);
             
-            String path= fProject != null ? fProject.getRawProject().getLocation().append(fFilePath).toOSString():fFilePath.toOSString();
-            File file= new File(path);
-            fileSource= new FileSource(new StringResource(contents, file, path));
+            Pattern pat= Pattern.compile(".*\\.jar:.*");
+
+            int jarPathComponentIdx= -1;
+            for(int i=0; i < fFilePath.segmentCount(); i++) {
+            	String seg= fFilePath.segment(i);
+            	if (pat.matcher(seg).matches()) {
+            		jarPathComponentIdx= i;
+            		break;
+            	}
+            }
+            if (jarPathComponentIdx >= 0) {
+            	String jarPathComponent= fFilePath.segment(jarPathComponentIdx);
+            	StringBuilder jarPath= new StringBuilder();
+            	for(int i=0; i < jarPathComponentIdx; i++) {
+            		jarPath.append(File.separatorChar);
+            		jarPath.append(fFilePath.segment(i));
+            	}
+            	String jarName= jarPathComponent.substring(0, jarPathComponent.indexOf(':'));
+            	String trailer= jarPathComponent.substring(jarPathComponent.indexOf(':') + 1);
+            	jarPath.append(File.separatorChar);
+            	jarPath.append(jarName);
+            	StringBuilder entryPath= new StringBuilder();
+            	entryPath.append(trailer);
+            	for(int i=jarPathComponentIdx+1; i < fFilePath.segmentCount(); i++) {
+            		entryPath.append(File.separatorChar);
+            		entryPath.append(fFilePath.segment(i));
+            	}
+            	ZipFile zipFile= new ZipFile(new File(jarPath.toString()));
+            	File jarFile= new File(jarPath.toString());
+            	ZipResource zipRsrc= new ZipResource(jarFile, zipFile, entryPath.toString());
+
+            	fileSource= new FileSource(zipRsrc);
+            } else {
+            	String path= fProject != null ? fProject.getRawProject().getLocation().append(fFilePath).toOSString() : fFilePath.toOSString();
+            	File file= new File(path);
+            	fileSource= new FileSource(new StringResource(contents, file, path));
+            }
 
             List<Source> streams= new ArrayList<Source>();
             // Bug 526: NPE when opening a file outside the workspace due to null fProject.
