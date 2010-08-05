@@ -19,7 +19,6 @@ class ComposedState extends State {
     
     public boolean isEqual(ComposedState cs) {
 	boolean result = true;
-	Iterator<State> i, j;
 	for(Object o1: cs.states) {
 	    boolean res = false;
 	    for (Object o2: this.states) {
@@ -43,8 +42,17 @@ class ComposedState extends State {
 	this.incomingEdges.add(e);
     }
     
+    public String stateInsts() {
+	String str = " ";
+	for (Object o: this.states ) {
+	    State s = (State) o;
+	    str += s.stateInsts();
+	}
+	return str;
+    }
+    
     public String toString() {
-	String str = ""; // = this.startInst + "-" + this.endInst + " " + this.funName + "\n";
+	String str = this.stateInsts() + "\n";
 	for (Object o: this.outgoingEdges) {
 	    Edge edge = (Edge) o;
 	    str += "  ";
@@ -54,9 +62,10 @@ class ComposedState extends State {
 	    	case Edge.NEXT: str += "N"; break;
 	    	default: assert(false); break;
 	    }
-	    str += " " + edge.to.startInst + "-" + edge.to.endInst + " " + edge.to.funName;
+	    str += edge.to.stateInsts();
 	    str += "\n";
 	}
+	str += "\n";
 	return str;
     }
 }

@@ -47,8 +47,13 @@ class State {
     public boolean isEqual(State s) {
 	return this.counter == s.counter;
     }
+    
+    public String stateInsts() {
+	return "[" + this.startInst + ":" + this.endInst + "]";
+    }
+    
     public String toString() {
-	String str = this.startInst + "-" + this.endInst + " " + this.funName + "\n";
+	String str = this.startInst + ":" + this.endInst + " " + this.funName + "\n";
 	for (Object o: this.outgoingEdges) {
 	    Edge edge = (Edge) o;
 	    str += "  ";
@@ -58,7 +63,7 @@ class State {
 	    	case Edge.NEXT: str += "N"; break;
 	    	default: assert(false); break;
 	    }
-	    str += " " + edge.to.startInst + "-" + edge.to.endInst + " " + edge.to.funName;
+	    str += " " + edge.to.startInst + ":" + edge.to.endInst + " " + edge.to.funName;
 	    str += "\n";
 	}
 	return str;
