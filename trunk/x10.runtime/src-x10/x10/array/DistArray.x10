@@ -400,7 +400,8 @@ public class DistArray[T] (
      */
 
     // safe to call from witin a constructor, does not read fields.
-    protected proto global def layout(r: Region): RectLayout {
+    //protected proto global def layout(r: Region): RectLayout {
+    protected static def layout(r: Region): RectLayout {
         if (r.isEmpty()) {
             // XXX EmptyLayout class?
             val min = ValRail.make[int](r.rank, (Int)=>0);
