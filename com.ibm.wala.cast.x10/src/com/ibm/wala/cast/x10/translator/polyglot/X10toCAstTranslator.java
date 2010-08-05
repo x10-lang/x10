@@ -60,6 +60,7 @@ import x10.types.FunctionType;
 import x10.types.ParametrizedType;
 import x10.types.X10TypeSystem;
 
+import com.ibm.wala.cast.java.translator.polyglot.PolyglotIdentityMapper;
 import com.ibm.wala.cast.java.translator.polyglot.PolyglotJava2CAstTranslator;
 import com.ibm.wala.cast.java.translator.polyglot.PolyglotTypeDictionary;
 import com.ibm.wala.cast.java.translator.polyglot.TranslatingVisitor;
@@ -128,8 +129,8 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
         }
     }
 
-    public X10toCAstTranslator(ClassLoaderReference clr, NodeFactory nf, X10ExtensionInfo extInfo) {
-	super(clr, nf, extInfo.typeSystem(), extInfo.getIdentityMapper(), extInfo.getReplicateForDoLoops());
+    public X10toCAstTranslator(ClassLoaderReference clr, NodeFactory nf, TypeSystem ts, PolyglotIdentityMapper fMapper, Boolean replicateForDoLoops) {
+	super(clr, nf, ts, fMapper, replicateForDoLoops);
     }
 
     protected TranslatingVisitor createTranslator() {
