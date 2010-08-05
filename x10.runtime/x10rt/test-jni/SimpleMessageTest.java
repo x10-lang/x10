@@ -24,6 +24,7 @@ public class SimpleMessageTest {
   public static void main(String[] args) throws UnknownMessageException {
     System.out.println(X10RT.here()+" is booted");
 
+    ActiveMessage even = MessageRegistry.register(SimpleMessageTest.class, "even", Boolean.TYPE);
     ActiveMessage add = MessageRegistry.register(SimpleMessageTest.class, "addNumbers", Integer.TYPE, Integer.TYPE);
     ActiveMessage addMany = MessageRegistry.register(SimpleMessageTest.class, "addNumbers", new int[0].getClass());
     ActiveMessage addManyD = MessageRegistry.register(SimpleMessageTest.class, "addNumbers", new double[0].getClass());
@@ -40,6 +41,7 @@ public class SimpleMessageTest {
       for (int i=0; i<X10RT.numPlaces(); i++) {
         Place where = X10RT.getPlace(i);
         ping.send(where);
+        even.send(where, i % 2 == 0);
         add.send(where, 10+i, 20+i);
         // addScaled.send(where, new int[] { 1, 2, 3, 4, 5 }, 10);
         addMany.send(where, new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, i*100});
@@ -54,6 +56,10 @@ public class SimpleMessageTest {
     System.out.println(X10RT.here()+ ": returning from main[]");
   }
 
+
+  public static void even(boolean a) {
+    System.out.println(X10RT.here()+ ": the node ID is " + (a ? "even" : "odd"));
+  }
 
   public static void addNumbers(int a, int b) {
     System.out.printf(X10RT.here()+ ": adding %d and %d to get %d\n", a, b, a+b);
