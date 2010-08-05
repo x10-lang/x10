@@ -1345,9 +1345,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         // We must define them all in the struct_methods class so they can be picked up by the ITables
         // FIXME: The home method should call Place_methods::make(here) instead of doing a C++ level construction.
-        h.writeln("static x10_boolean at("+StructCType+" this_, x10aux::ref<x10::lang::Object> obj) { return true; }");
-        h.writeln("static x10_boolean at("+StructCType+" this_, x10::lang::Place place) { return true; }");
-        h.writeln("static x10::lang::Place home("+StructCType+" this_) { /* FIXME: Should probably call Place_methods::make, but don't want to include Place.h */ x10::lang::Place tmp; tmp->FMGL(id)=x10aux::here; return tmp; }");
+        //h.writeln("static x10_boolean at("+StructCType+" this_, x10aux::ref<x10::lang::Object> obj) { return true; }");
+        //h.writeln("static x10_boolean at("+StructCType+" this_, x10::lang::Place place) { return true; }");
+        //h.writeln("static x10::lang::Place home("+StructCType+" this_) { /* FIXME: Should probably call Place_methods::make, but don't want to include Place.h */ x10::lang::Place tmp; tmp->FMGL(id)=x10aux::here; return tmp; }");
         //h.writeln("static x10aux::ref<x10::lang::String> typeName("+StructCType+" this_) { return this_->typeName(); }");
 
         // We also have to define a redirection method from the struct itself to the implementation

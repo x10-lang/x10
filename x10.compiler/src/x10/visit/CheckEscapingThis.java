@@ -1,34 +1,48 @@
 package x10.visit;
 
 import polyglot.ast.*;
-import polyglot.util.Position;
 import polyglot.util.ErrorInfo;
 import polyglot.visit.NodeVisitor;
 import polyglot.frontend.Job;
-import polyglot.main.Report;
-import polyglot.types.SemanticException;
-import polyglot.types.QName;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import x10.ast.*;
 import x10.types.X10TypeMixin;
 import x10.types.X10Flags;
 
+import java.util.HashMap;
+
 public class CheckEscapingThis extends NodeVisitor
 {
+    // we gather info on every procedure
+    static class ProcedureInfo {
+
+    }
     private final Job job;
     private final TypeSystem ts;
-    private final Type type;
+    private final X10ClassDecl_c xlass;
+    private final Type xlassType;
+    //private final HashMap<>
 
-    public CheckEscapingThis(Job job, Type type, TypeSystem ts) {
+    public CheckEscapingThis(X10ClassDecl_c xlass, Job job, TypeSystem ts) {
         this.job = job;
         this.ts = ts;
-        this.type = X10TypeMixin.baseType(type);
+        this.xlass = xlass;
+        this.xlassType = X10TypeMixin.baseType(xlass.classDef().asType());
+    }
+    public void typeCheck() {
+        // visit every ctor
+        final X10ClassBody_c body = (X10ClassBody_c)xlass.body();
+        for (ClassMember classMember : body.members()) {
+            if (classMember instanceof ConstructorDecl)
+                classMember.visit(this);
+        }
     }
 
     @Override
     public Node visitEdgeNoOverride(Node parent, Node n) {
         // You can access "this" for field access and field assignment.
+        // field assignment:
         if (n instanceof FieldAssign) {
             FieldAssign assign = (FieldAssign) n;
             if (assign.target() instanceof Special) {
@@ -36,10 +50,12 @@ public class CheckEscapingThis extends NodeVisitor
                 return n;
             }
         }
+        // field access:
         if (n instanceof Field && ((Field)n).target() instanceof Special) {
             return n;
         }
         // You can also access "this" as the receiver of property calls (because they are MACROS that are expanded to field access)
+        // and as the receiver of static/final calls
         if (n instanceof X10Call) {
             final X10Call call = (X10Call) n;
             if (call.target() instanceof Special &&
@@ -50,10 +66,11 @@ public class CheckEscapingThis extends NodeVisitor
                 return n;
             }                        
         }
+        // You cannot use "this" for anything else!
         if (n instanceof Special) {
             final Special special = (Special) n;
             if (special.kind()==Special.THIS &&
-                ts.typeEquals(X10TypeMixin.baseType(special.type()),type,null))
+                ts.typeEquals(X10TypeMixin.baseType(special.type()), xlassType,null))
                     job.compiler().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR,"'this' cannot escape from a constructor!",n.position());
         }
         n.del().visitChildren(this);
