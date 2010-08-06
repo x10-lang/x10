@@ -41,9 +41,9 @@ class X10PolyglotIdentityMapper extends PolyglotIdentityMapper {
     public static String getJavaPrimitiveTypeFor(String x10PrimitiveName) {
         return sTypeTranslationMap.get(x10PrimitiveName);
     }
-
-    public X10PolyglotIdentityMapper(ClassLoaderReference clr, TypeSystem ts) {
-        super(clr, ts);
+    
+    public X10PolyglotIdentityMapper(ClassLoaderReference clr) {
+        super(clr);
     }
 
     public String typeToTypeID(Type type) {
@@ -72,7 +72,7 @@ class X10PolyglotIdentityMapper extends PolyglotIdentityMapper {
           }
         }
         if (type instanceof ParameterType) {
-            Type bound = fTypeSystem.Object(); // How to get the real bound?
+            Type bound = type.typeSystem().Object(); // How to get the real bound?
             return typeToTypeID(bound);
         }
         if (type instanceof MacroType) {
