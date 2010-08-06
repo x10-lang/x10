@@ -44,7 +44,7 @@ public final class X10ClasspathContainerInitializer extends ClasspathContainerIn
   public void initialize(final IPath containerPath, final IJavaProject project) throws CoreException {
     if (X10DTCoreConstants.X10_CONTAINER_ENTRY_ID.equals(containerPath.toString())) {
       JavaCore.setClasspathContainer(containerPath, new IJavaProject[] { project }, new IClasspathContainer[] { 
-                                     new X10Container(containerPath, resolveClassPathEntries(project)) },
+                                     new X10Container(containerPath, newResolveClassPathEntries(project)) },
                                      null /* monitor */);
     } else {
       throw new CoreException(new Status(IStatus.ERROR, X10DTCorePlugin.kPluginID, 
@@ -54,9 +54,10 @@ public final class X10ClasspathContainerInitializer extends ClasspathContainerIn
   
   // --- Private code
   
-  private IClasspathEntry[] resolveClassPathEntries(final IJavaProject project) throws CoreException {
+  private IClasspathEntry[] newResolveClassPathEntries(final IJavaProject project) throws CoreException {
     final List<IClasspathEntry> cpEntries = new ArrayList<IClasspathEntry>();
-    if (! addClassPathEntry(cpEntries, X10_RUNTIME_BUNDLE, CLASSES_DIR)) {
+    if (! isDeployedMode()) {
+      // We're running in "development mode", so just use x10.jar - it has all we need
       final Bundle x10Runtime = Platform.getBundle(X10_RUNTIME_BUNDLE);
       final URL url = x10Runtime.getResource(X10_JAR);
       if (url == null) {
@@ -68,14 +69,31 @@ public final class X10ClasspathContainerInitializer extends ClasspathContainerIn
       } else {
         addClasspathEntry(cpEntries, url);
       }
+    } else {
+      // We're in "deployed mode", so add the bundles for x10.runtime, x10.common and x10.constraints
+      addClasspathEntry(cpEntries, getBundleResourceURL(X10_RUNTIME_BUNDLE, CLASSES_DIR));
+      addClasspathEntry(cpEntries, getBundleResourceURL(X10_COMMON_BUNDLE, CLASSES_DIR));
+      addClasspathEntry(cpEntries, getBundleResourceURL(X10_CONSTRAINTS_BUNDLE, CLASSES_DIR));
     }
-    addClassPathEntry(cpEntries, X10_COMMON_BUNDLE, CLASSES_DIR);
-    addClassPathEntry(cpEntries, X10_CONSTRAINTS_BUNDLE, CLASSES_DIR);
     return cpEntries.toArray(new IClasspathEntry[cpEntries.size()]);
   }
-  
-  private boolean addClassPathEntry(final List<IClasspathEntry> cpEntries, final String bundleName, 
-                                    final String folder) throws CoreException {
+
+  private boolean isDeployedMode() throws CoreException {
+    try {
+      URL bundleResourceURL= getBundleResourceURL(X10_RUNTIME_BUNDLE, CLASSES_DIR);
+      final URL url = FileLocator.resolve(bundleResourceURL);
+      if (url.getProtocol().equals("jar")) { //$NON-NLS-1$
+        return true;
+      } else {
+        return false;
+      }
+    } catch (IOException except) {
+      throw new CoreException(new Status(IStatus.ERROR, X10DTCorePlugin.kPluginID, 
+                                         Messages.XCCI_ClasspathResIOError, except));
+    }
+  }
+
+  private URL getBundleResourceURL(final String bundleName, final String folder) throws CoreException {
     final Bundle bundle = Platform.getBundle(bundleName);
     if (bundle == null) {
       throw new CoreException(new Status(IStatus.ERROR, X10DTCorePlugin.kPluginID, 
@@ -86,29 +104,25 @@ public final class X10ClasspathContainerInitializer extends ClasspathContainerIn
         // We access the root of the jar where the resources should be located.
         wURL = bundle.getResource(""); //$NON-NLS-1$
       }
-      return addClasspathEntry(cpEntries, wURL);
+      return wURL;
     }
   }
 
-  private boolean addClasspathEntry(final List<IClasspathEntry> cpEntries, final URL wURL) throws CoreException {
-    boolean deployed;
+  private void addClasspathEntry(final List<IClasspathEntry> cpEntries, final URL wURL) throws CoreException {
     IPath path;
     try {
       final URL url = FileLocator.resolve(wURL);
       if (url.getProtocol().equals("jar")) { //$NON-NLS-1$
         final JarURLConnection jarConnection = (JarURLConnection) url.openConnection();
         path = new Path(jarConnection.getJarFileURL().getFile());
-        deployed = true;
       } else {
         path = new Path(url.getFile());
-        deployed = false;
       }
     } catch (IOException except) {
       throw new CoreException(new Status(IStatus.ERROR, X10DTCorePlugin.kPluginID, 
                                          Messages.XCCI_ClasspathResIOError, except));
     }
     cpEntries.add(JavaCore.newLibraryEntry(path, null /* sourceAttachmentPath */, null /* sourceAttachmentRootPath */));
-    return deployed;
   }
   
   // --- Fields
@@ -121,6 +135,6 @@ public final class X10ClasspathContainerInitializer extends ClasspathContainerIn
 
   private static final String CLASSES_DIR = "classes"; //$NON-NLS-1$
 
-  private static final String X10_JAR = "classes/x10.jar"; //$NON-NLS-1$
+  private static final String X10_JAR = "src-java/x10.jar"; //$NON-NLS-1$
 
 }
