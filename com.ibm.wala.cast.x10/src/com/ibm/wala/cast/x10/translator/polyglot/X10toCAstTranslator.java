@@ -327,7 +327,6 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	    List clocks = a.clocks();
 
 	    CAstNode args[] = new CAstNode[ clocks.size()+2 ];
-
 	    args[0] = walkNodes(a.place(), context);
 
 	    for(int i = 0; i < clocks.size(); i++) {
@@ -774,7 +773,7 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	private String castNameForType(Type type) {
 	    return getTypeDict().getCAstTypeFor(type).getName();
 	}
-
+/*
 	private MethodReference createMethodRefForClosure(Closure closure) {
 	    List formals= closure.formals();
 	    TypeName[] argTypes= new TypeName[formals.size()];
@@ -788,6 +787,7 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 		    new Selector(Atom.findOrCreateAsciiAtom("invoke"), Descriptor.findOrCreate(argTypes, retType)));
 	    return closureRef;
 	}
+	*/
 
 /*	
 	public CAstNode visit(GenParameterExpr gpe, WalkContext context) {

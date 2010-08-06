@@ -10,21 +10,26 @@ import com.ibm.wala.ssa.SymbolTable;
 public class AsyncInvokeInstruction extends AstJavaInvokeInstruction {
     private int placeExpr;
     private int clocks[];
-
-    public AsyncInvokeInstruction(int result, int[] params, int exception, CallSiteReference site, int placeExpr, int[] clocks) {
+    //FIXME: a hack to get whether placeExpr is HERE
+    public boolean isHere;
+    
+    public AsyncInvokeInstruction(int result, int[] params, int exception, CallSiteReference site, int placeExpr, int[] clocks,boolean isHere) {
 	super(result, params, exception, site);
 	  this.placeExpr= placeExpr;
 	  this.clocks = clocks;
+	  this.isHere = isHere;
     }
 
-    public AsyncInvokeInstruction(int[] params, int exception, CallSiteReference site, int placeExpr, int[] clocks) {
+    public AsyncInvokeInstruction(int[] params, int exception, CallSiteReference site, int placeExpr, int[] clocks, boolean isHere) {
 	super(params, exception, site);
 	  this.placeExpr= placeExpr;
 	  this.clocks = clocks;
+	  this.isHere = isHere;
     }
 
-    public AsyncInvokeInstruction(int[] results, int[] params, int exception, Access[] lexicalReads, Access[] lexicalWrites, CallSiteReference csr) {
+    public AsyncInvokeInstruction(int[] results, int[] params, int exception, Access[] lexicalReads, Access[] lexicalWrites, CallSiteReference csr, boolean isHere) {
 	super(results, params, exception, csr, lexicalReads, lexicalWrites);
+	this.isHere = isHere;
     }
 
     public int getPlaceExpr() {
@@ -89,7 +94,7 @@ public class AsyncInvokeInstruction extends AstJavaInvokeInstruction {
 
     @Override
   protected SSAInstruction copyInstruction(SSAInstructionFactory insts, int results[], int[] params, int exception, Access[] lexicalReads, Access[] lexicalWrites) {
-      return ((X10InstructionFactory)insts).AsyncInvoke(results, params, exception, lexicalReads, lexicalWrites, getCallSite());
+      return ((X10InstructionFactory)insts).AsyncInvoke(results, params, exception, lexicalReads, lexicalWrites, getCallSite(),isHere);
     }
 
     @Override

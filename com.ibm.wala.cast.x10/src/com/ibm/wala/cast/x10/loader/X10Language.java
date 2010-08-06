@@ -168,17 +168,17 @@ public class X10Language extends LanguageImpl implements BytecodeLanguage {
     }
 
     public AsyncInvokeInstruction AsyncInvoke(int result, int[] params, int exception, CallSiteReference site, int placeExpr,
-                                              int[] clocks) {
-      return new AsyncInvokeInstruction(result, params, exception, site, placeExpr, clocks);
+                                              int[] clocks, boolean isHere) {
+      return new AsyncInvokeInstruction(result, params, exception, site, placeExpr, clocks, isHere);
     }
 
-    public AsyncInvokeInstruction AsyncInvoke(int[] params, int exception, CallSiteReference site, int placeExpr, int[] clocks) {
-      return new AsyncInvokeInstruction(params, exception, site, placeExpr, clocks);
+    public AsyncInvokeInstruction AsyncInvoke(int[] params, int exception, CallSiteReference site, int placeExpr, int[] clocks, boolean isHere) {
+      return new AsyncInvokeInstruction(params, exception, site, placeExpr, clocks, isHere);
     }
 
     public AsyncInvokeInstruction AsyncInvoke(int[] results, int[] params, int exception, Access[] lexicalReads,
-                                              Access[] lexicalWrites, CallSiteReference csr) {
-      return new AsyncInvokeInstruction(results, params, exception, lexicalReads, lexicalWrites, csr);
+                                              Access[] lexicalWrites, CallSiteReference csr, boolean isHere) {
+      return new AsyncInvokeInstruction(results, params, exception, lexicalReads, lexicalWrites, csr, isHere);
     }
 
     public SSAAtomicInstruction Atomic(boolean isEnter) {

@@ -8,11 +8,11 @@ import com.ibm.wala.types.TypeReference;
 
 public interface X10InstructionFactory extends AstJavaInstructionFactory {
 
-	AsyncInvokeInstruction AsyncInvoke(int result, int[] params, int exception, CallSiteReference site, int placeExpr, int[] clocks);
+	AsyncInvokeInstruction AsyncInvoke(int result, int[] params, int exception, CallSiteReference site, int placeExpr, int[] clocks, boolean isHere);
 	
-	AsyncInvokeInstruction AsyncInvoke(int[] params, int exception, CallSiteReference site, int placeExpr, int[] clocks);
+	AsyncInvokeInstruction AsyncInvoke(int[] params, int exception, CallSiteReference site, int placeExpr, int[] clocks, boolean isHere);
 	
-	AsyncInvokeInstruction AsyncInvoke(int[] results, int[] params, int exception, Access[] lexicalReads, Access[] lexicalWrites, CallSiteReference csr);
+	AsyncInvokeInstruction AsyncInvoke(int[] results, int[] params, int exception, Access[] lexicalReads, Access[] lexicalWrites, CallSiteReference csr, boolean isHere);
 	
 	SSAAtomicInstruction Atomic(boolean isEnter);
 	
