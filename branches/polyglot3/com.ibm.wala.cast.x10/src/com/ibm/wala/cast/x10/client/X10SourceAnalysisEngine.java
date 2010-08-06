@@ -108,6 +108,7 @@ public class X10SourceAnalysisEngine extends PolyglotJavaSourceAnalysisEngine {
         buildAnalysisScope();
         IClassHierarchy cha = buildClassHierarchy();
         setClassHierarchy(cha);
+        System.out.println(cha);
     	return buildCallGraph();
       }
 
