@@ -117,6 +117,7 @@ public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurat
 	}
 
     public void launch(final ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor) throws CoreException {
+        final boolean[] projProbs= { false };
     	final IWorkbench workbench = X10DTUIPlugin.getInstance().getWorkbench();
     	workbench.getDisplay().syncExec(new Runnable() {
 			public void run() {
@@ -126,11 +127,13 @@ public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurat
 					projectName = configuration.getAttribute(IJavaLaunchConfigurationConstants.ATTR_PROJECT_NAME,"");
 					IWorkspaceRoot wsRoot = ResourcesPlugin.getWorkspace().getRoot();
 					IProject project = wsRoot.getProject(projectName);
+
 					if (project.findMaxProblemSeverity(X10DTCorePlugin.kPluginID + ".problemMarker", true,
 							IResource.DEPTH_INFINITE) == IMarker.SEVERITY_ERROR) {
 						// stop launch because there are errors in the project.
-						MessageDialog.openError(parent, "",
+						MessageDialog.openError(parent, "Launch aborted",
 										"Cannot launch application because there are errors in the project.");
+						projProbs[0]= true;
 					}
 				} catch (CoreException e) {
 					// TODO Auto-generated catch block
@@ -138,7 +141,8 @@ public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurat
 				}
 			}
     	});
-    	
+    	if (projProbs[0])
+    	    return;
    
     	boolean debug= mode.equals(ILaunchManager.DEBUG_MODE);
 
@@ -155,7 +159,7 @@ public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurat
 		monitor.subTask("Verifying launch attributes");
 
 		String mainTypeName = verifyMainTypeName(configuration);
-		if(debug)System.out.println("mainTypeName: "+mainTypeName);
+//		if (debug) System.out.println("mainTypeName: "+mainTypeName);
 		IVMRunner runner = getVMRunner(configuration, mode);
 
 		File workingDir = verifyWorkingDirectory(configuration);
@@ -298,11 +302,12 @@ public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurat
 		setDefaultSourceLocator(launch, configuration);
 		monitor.worked(1);
 
-		if(debug) {
-			System.out.println("runConfig classToLaunch: "+runConfig.getClassToLaunch());
-			System.out.println("runConfig program args: "+printArray(runConfig.getProgramArguments()));
-			System.out.println("runConfig VM args: "+printArray(runConfig.getVMArguments()));
-		}
+//		if (debug) {
+//			System.out.println("runConfig classToLaunch: "+runConfig.getClassToLaunch());
+//			System.out.println("runConfig program args: "+printArray(runConfig.getProgramArguments()));
+//			System.out.println("runConfig VM args: "+printArray(runConfig.getVMArguments()));
+//		}
+
 		// Launch the configuration - 1 unit of work
 		runner.run(runConfig, launch, monitor);
 
