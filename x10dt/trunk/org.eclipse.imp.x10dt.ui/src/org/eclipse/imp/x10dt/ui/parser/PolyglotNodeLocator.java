@@ -28,6 +28,7 @@ import org.eclipse.jdt.core.JavaModelException;
 
 import polyglot.ast.Node;
 import polyglot.types.Def;
+import polyglot.types.TypeObject;
 import polyglot.util.Position;
 import polyglot.visit.NodeVisitor;
 
@@ -260,34 +261,38 @@ public class PolyglotNodeLocator implements ISourcePositionLocator {
     public int getStartOffset(Object entity) {
         Position pos;
 
-        if (entity instanceof Def)   //PORT1.7 Declaration->Def
-            pos= ((Def) entity).position();   //PORT1.7 Declaration->Def
-        else if (entity instanceof Node)
+        if (entity instanceof Def) {
+            pos= ((Def) entity).position();
+        } else if (entity instanceof Node) {
             pos= ((Node)entity).position();
-        else if (entity instanceof Position)
+        } else if (entity instanceof TypeObject) {
+            pos= ((TypeObject) entity).position();
+        } else if (entity instanceof Position) {
             pos= (Position) entity;
-        else if (entity instanceof IToken)
+        } else if (entity instanceof IToken) {
             return ((IToken) entity).getStartOffset();
-        else
+        } else {
             return -1;
-
+        }
         return pos.offset();
     }
 
     public int getEndOffset(Object entity) {
         Position pos;
 
-        if (entity instanceof Def) //PORT1.7 Declaration->Def
-            pos= ((Def) entity).position(); //PORT1.7 Declaration->Def
-        else if (entity instanceof Node)
+        if (entity instanceof Def) {
+            pos= ((Def) entity).position();
+        } else if (entity instanceof Node) {
             pos= ((Node)entity).position();
-        else if (entity instanceof Position)
+        } else if (entity instanceof TypeObject) {
+            pos= ((TypeObject) entity).position();
+        } else if (entity instanceof Position) {
             pos= (Position) entity;
-        else if (entity instanceof IToken)
+        } else if (entity instanceof IToken) {
             return ((IToken) entity).getEndOffset();
-        else
+        } else {
             return -1;
-
+        }
         return pos.endOffset();
     }
 
@@ -296,8 +301,11 @@ public class PolyglotNodeLocator implements ISourcePositionLocator {
     }
 
     public IPath getPath(Object node) {
-        if (node instanceof Def) {//PORT1.7 Declaration->Def
-            final String path= ((Def) node).position().file();//PORT1.7 Declaration->Def
+        if (node instanceof Def) {
+            final Position defPos= ((Def) node).position();
+            if (defPos.isCompilerGenerated())
+                return null;
+            final String path= defPos.file();
             if (path.endsWith(".class")) {
                 // TODO Fix totally bogus hardwired rt.jar path inserted for testing.
                 // Probably need the IProject or ISourceProject to scan the classpath and
@@ -313,12 +321,15 @@ public class PolyglotNodeLocator implements ISourcePositionLocator {
                 }
             }
             return new Path(path);
-        } else if (node instanceof Node)
+        } else if (node instanceof Node) {
             return new Path(((Node)node).position().path());
-        else if (node instanceof Position)
+        } else if (node instanceof Position) {
             return new Path(((Position) node).file());
-        else
+        } else if (node instanceof TypeObject) {
+            return new Path(((TypeObject) node).position().file()); // should be .path(), but that's currently empty for TypeObjects
+        } else {
             return null;
+        }
     }
 
     private IClassFile resolveClassFile(final String path) throws JavaModelException {
