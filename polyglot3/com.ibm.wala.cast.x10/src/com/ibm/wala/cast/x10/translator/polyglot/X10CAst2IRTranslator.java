@@ -4,6 +4,7 @@
 package com.ibm.wala.cast.x10.translator.polyglot;
 
 import com.ibm.wala.cast.ir.translator.ArrayOpHandler;
+
 import com.ibm.wala.cast.ir.translator.AstTranslator;
 import com.ibm.wala.cast.ir.translator.AstTranslator.WalkContext;
 import com.ibm.wala.cast.java.translator.JavaCAst2IRTranslator;
@@ -19,6 +20,7 @@ import com.ibm.wala.cast.x10.translator.X10CastNode;
 import com.ibm.wala.cast.x10.translator.polyglot.X10toCAstTranslator.TypeDeclarationCAstEntity;
 import com.ibm.wala.cast.x10.visit.X10CAstVisitor;
 import com.ibm.wala.classLoader.NewSiteReference;
+import com.ibm.wala.ssa.SymbolTable;
 import com.ibm.wala.types.Descriptor;
 import com.ibm.wala.types.MethodReference;
 import com.ibm.wala.types.TypeName;
@@ -145,22 +147,25 @@ public class X10CAst2IRTranslator extends X10CAstVisitor implements ArrayOpHandl
         WalkContext context = (WalkContext)c;
         CAstEntity bodyEntity = (CAstEntity) n.getChild(n.getChildCount()-1).getChild(0).getValue();
         CAstNode placeExpr = n.getChild(0);
+        
         // Figure out whether this is a future or an async
         int exceptValue = context.currentScope().allocateTempValue();
         AsyncCallSiteReference acsr = new AsyncCallSiteReference(asyncEntityToMethodReference(bodyEntity), context.cfg().getCurrentInstruction());
         int rcvrValue = translator.getValue(n.getChild(n.getChildCount()-1));
         int placeValue = translator.getValue(placeExpr);
+        boolean isHere = placeExpr.getKind()==X10CastNode.HERE?true:false;
+        //System.out.println(placeValue);
         int clockValues[] = new int[ n.getChildCount() - 2];
         for(int i = 0; i < clockValues.length; i++) {
             clockValues[i] = translator.getValue(n.getChild(i+1));
         }
 
         if (((CAstType.Function) bodyEntity.getType()).getReturnType() == JavaPrimitiveTypeMap.VoidType)
-            context.cfg().addInstruction(insts.AsyncInvoke(new int[] { rcvrValue }, exceptValue, acsr, placeValue, clockValues));
+            context.cfg().addInstruction(insts.AsyncInvoke(new int[] { rcvrValue }, exceptValue, acsr, placeValue, clockValues,isHere));
         else {
             int retValue = context.currentScope().allocateTempValue();
 
-            context.cfg().addInstruction(insts.AsyncInvoke(retValue, new int[] { rcvrValue }, exceptValue, acsr, placeValue, clockValues));
+            context.cfg().addInstruction(insts.AsyncInvoke(retValue, new int[] { rcvrValue }, exceptValue, acsr, placeValue, clockValues,isHere));
             translator.setValue(n, retValue);
         }
     }
