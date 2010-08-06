@@ -18,6 +18,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -91,6 +92,7 @@ import x10.visit.Desugarer;
 import x10.visit.ExprFlattener;
 import x10.visit.ExpressionFlattener;
 import x10.visit.FieldInitializerMover;
+import x10.visit.MainMethodFinder;
 import x10.visit.NativeClassVisitor;
 import x10.visit.RewriteAtomicMethodVisitor;
 import x10.visit.RewriteExternVisitor;
@@ -367,7 +369,25 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
            Goal typeCheckedGoal = TypeChecked(job);
            goals.add(typeCheckedGoal);
-
+           
+           if (x10.Configuration.WALA) {
+               try{
+                   ClassLoader cl = Thread.currentThread().getContextClassLoader();
+                   Class<?> c = cl.loadClass("com.ibm.wala.cast.x10.translator.polyglot.X102IRGoal");
+                   Constructor<?> con = c.getConstructor(Job.class);
+                   Method printCallGraphMethod = c.getMethod("printCallGraph");
+                   Method hasMain = c.getMethod("hasMain", String.class);
+                   Goal ir = ((Goal) con.newInstance(job)).intern(this);
+                   goals.add(ir);
+                   Goal finder = MainMethodFinder(job, hasMain);
+                   finder.addPrereq(typeCheckedGoal);
+                   ir.addPrereq(finder);
+                   goals.add(IRBarrier(ir, printCallGraphMethod));
+               } catch (Throwable e) {
+                   System.err.println("WALA not found.");
+                   e.printStackTrace();
+               }
+           }
 
            goals.add(ReassembleAST(job));
            
@@ -506,6 +526,25 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
        }
        
+       public Goal IRBarrier(final Goal goal, final Method printCallGraphMethod) {
+           return new AllBarrierGoal("IRBarrier", this) {
+               @Override
+               public Goal prereqForJob(Job job) {
+                   if (!scheduler.commandLineJobs().contains(job) &&
+                           ((ExtensionInfo) extInfo).manifestContains(job.source().path())) {
+                       return null;
+                   }
+                   return goal;
+               }
+               public boolean runTask() {
+                   try {
+                       printCallGraphMethod.invoke(null);
+                   } catch (Throwable t) {}
+                   return true;
+               }
+           }.intern(this);
+       }
+
        public Goal TypeCheckBarrier() {
            String name = "TypeCheckBarrier";
     	   if (Globals.Options().compile_command_line_only) {
@@ -770,6 +809,12 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            return new ValidatingVisitorGoal("NativeClassVisitor", job, new NativeClassVisitor(job, ts, nf, "java")).intern(this);
        }
        
+       public Goal MainMethodFinder(Job job, Method hasMain) {
+           TypeSystem ts = extInfo.typeSystem();
+           NodeFactory nf = extInfo.nodeFactory();
+           return new ValidatingVisitorGoal("MainMethodFinder", job, new MainMethodFinder(job, ts, nf, hasMain)).intern(this);
+       }
+
        public Goal WSCodeGenerator(Job job) {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();

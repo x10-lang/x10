@@ -75,6 +75,9 @@ public final class Configuration extends x10.config.Configuration {
     public static boolean WORK_STEALING = false;
     private static final String WORK_STEALING_desc = "Code generation for work-stealing scheduling";
 
+    public static boolean WALA = false;
+    private static final String WALA_desc = "Produce WALA IR from X10 sources";
+
     public static boolean VERBOSE_CALLS = false;
     private static final String VERBOSE_CALLS_desc = "Print details of casts introduced for dynamically-checked calls.";
 
