@@ -10,15 +10,21 @@ class ComposedState extends State {
 
     
     public ComposedState () {
-
+	this.counter = Automaton.stateCounter++;
     }
    
     public void addState (State s) {
-	states.add(s);
+	   if (s instanceof ComposedState) {
+	       for (Object o: ((ComposedState) s).states) {
+		   	this.addState((State)o);
+	       }
+	   } else
+	    states.add(s);
     }
     
-    public boolean isEqual(ComposedState cs) {
+    public boolean isSuperSetof (ComposedState cs) { 
 	boolean result = true;
+	 // this is visited;'l
 	for(Object o1: cs.states) {
 	    boolean res = false;
 	    for (Object o2: this.states) {
@@ -26,7 +32,7 @@ class ComposedState extends State {
 		State s2 = (State) o2;
 		if (s1.isEqual(s2)) {
 		    res = true;
-		    break;
+		   
 		}
 	    }
 	    result = result & res;

@@ -91,56 +91,65 @@ public class Automaton {
     }
     
     
+ public boolean isPar (State head) {
+     for (Object o : head.outgoingEdges) {
+	   Edge e = (Edge) o;
+	   if (e.type == Edge.PAR) {
+	       return true;
+	   }
+     }
+     return false;
+ }
     
-    
-   public State findPar(State head) {
+   public State compose(State head) {
+       if(this.isPar(head)) {
+	       ComposedState parStart = new ComposedState();
+		int i = 0;
+		State s1 = null, s2 = null; 
+		for(Object oe: head.outgoingEdges) {
+		    if (i == 0)
+			s1 =( (Edge) oe).to;
+		    else 
+			s2 = ((Edge) oe).to;
+		    i++;
+		}
+		parStart.addState(s1);
+		parStart.addState(s2);
+		ComposedState inVisited = this.inVisited(parStart);
+		if (inVisited != null) {
+		    return inVisited;
+		}
+		this.composeAutomaton(s1, s2, parStart);
+	       return parStart;
+	   
+       }
+       
+       ComposedState s = new ComposedState();
+       s.addState(head);
+       ComposedState inVisited = this.inVisited(s);
+       if (inVisited != null)
+	    return inVisited;
+       visitedStates.add(s);
        for (Object o : head.outgoingEdges) {
 	   Edge e = (Edge) o;
-	   if (e.type == Edge.PAR) 
-	       return head;
+	   State result = compose(e.to);
+	   new Edge(s, result, e.type);
        }
-       visitedStates.add(head);
-       for (Object o : head.outgoingEdges) {
-	   Edge e = (Edge) o;
-	   State result = findPar(e.to);
-	   if (result != null) 
-	       return result;
-       }
-	return null;
+	return s;
     }
     
     public void composePar () {
 	visitedStates = new ArrayList();
-	State parState = findPar(root);
-	System.out.println("Par state " +  parState);
-	if (parState == null)
-	    return;
+        root = this.compose(root);	
 	visitedStates = null;
-	visitedStates = new ArrayList();
-	ComposedState parStart = new ComposedState();
-	int i = 0;
-	State s1 = null, s2 = null; 
-	for(Object o: root.outgoingEdges) {
-	    if (i == 0)
-		s1 =( (Edge) o).to;
-	    else 
-		s2 = ((Edge) o).to;
-	    i++;
-	}
-	parStart.addState(s1);
-	parStart.addState(s2);
-	this.composeAutomaton(s1, s2, parStart);
-	visitedStates = null;
-	visitedStates = new ArrayList();
-	traverse(parStart);
-	visitedStates = null;
+	
 	
     }
     
     public ComposedState inVisited (ComposedState s) {
 	for (Object v: this.visitedStates) {
 	    ComposedState vs = (ComposedState) v;
-	    if (vs.isEqual(s)) 
+	    if (vs.isSuperSetof(s)) 
 	        return vs;
 	    
 	}
@@ -152,7 +161,14 @@ public class Automaton {
 	ComposedState inVisited = null;
 	 visitedStates.add(prev);
 	 
-	 if (s1.isTerminal) {
+	 if (this.isPar(s1))
+	     	s1 = this.compose(s1);
+	 if (this.isPar(s2))
+	     	s2 = this.compose(s2);
+	 if (s1.isTerminal && s2.isTerminal)  {
+	     prev.isTerminal = true;
+	 }
+	 else if (s1.isTerminal) {
 	     
 	      for (Object o2: s2.outgoingEdges) {
 		  ComposedState s  = new ComposedState ();
@@ -170,7 +186,7 @@ public class Automaton {
 		  
 	      }   
 	  }
-	 if (s2.isTerminal) {
+	 else if (s2.isTerminal) {
 	     
 	      for (Object o1: s1.outgoingEdges) {
 		  ComposedState s  = new ComposedState ();
@@ -192,14 +208,15 @@ public class Automaton {
 
 	     for (Object o1: s1.outgoingEdges)
 		 for (Object o2: s2.outgoingEdges) {
-		     ComposedState s  = new ComposedState ();
-		
+		     System.out.print("s1: " + s1);
+		     System.out.print("s2: " + s2);
+		     ComposedState s = new ComposedState (); 
 		
 		     Edge e1 = (Edge) o1;
 		     Edge e2 = (Edge) o2;
 		     if (e1.type == Edge.COND && e2.type == Edge.COND) {
 			 s1 = e1.to;
-			 s2 = e1.to;
+			 s2 = e2.to;
 			 s.addState(s1);
 		  	  s.addState(s2);
 		  	  inVisited = this.inVisited(s);
@@ -216,15 +233,15 @@ public class Automaton {
 			 	s.addState(s2);
 			 	inVisited = this.inVisited(s);
 			 	if (inVisited != null)
-			 	    s = inVisited;
-			 	new Edge(prev, s, Edge.NEXT);
-		    
+		 	 	    s = inVisited;
+		 	 	new Edge(prev, s, Edge.NEXT);
+		     
 		     } 
 		     else if (e1.type == Edge.COND && e2.type == Edge.NEXT) {
 			 s1 = e1.to;
 			 s.addState(s1);
 			 s.addState(s2);
-			 inVisited = this.inVisited(s);
+		 	 inVisited = this.inVisited(s);
 			 if (inVisited != null)
 			     s = inVisited;
 			 new Edge(prev, s, Edge.COND);
@@ -239,9 +256,12 @@ public class Automaton {
 			     s = inVisited;
 			 new Edge(prev, s, Edge.COND);
 		     }
+		     System.out.println(s);
 		     if (inVisited == null)
 			 this.composeAutomaton(s1, s2, s);
-		       }
+		     
+		     }
+	     	
 	 }
 	
     }

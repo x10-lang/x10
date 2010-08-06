@@ -580,6 +580,7 @@ public class X10BarrierAnalysis {
 		continue;
 	    Automaton a = parseIR(cg.getNumber(one_method));
 	    a.compress();
+	    a.print();
 	    a.composePar();
 	    a.print();
 	}
