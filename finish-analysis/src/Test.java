@@ -15,6 +15,13 @@ import x10.finish.table.OutputUtil;
 public class Test {
 
     public static void main(String[] args) throws Exception {
+	boolean ifSaved = false;
+	boolean ifExpanded = false;
+	boolean ifStat = false;
+	boolean ifDump = false;
+	// flags to decide which constructs to expand in the table
+	boolean[] mask = { true, true, true };
+	HashMap<CallTableKey, LinkedList<CallTableVal>> calltable = null;
 	File f = new File("../x10.tests/examples/ScalableFinish/Not_So_Good/TestClosure.x10");
 	X10FinishAsyncAnalysis x10fa = new X10FinishAsyncAnalysis();
 	/* *********************************
@@ -28,14 +35,11 @@ public class Test {
 	 */
 	// analyze(file, package, entrymethod, methodsig)	 
 	 //x10fa.analyze(f,"","main","(Lx10/lang/Rail;)V");
-	boolean ifSaved = false;
-	boolean ifExpanded = false;
-	boolean ifStat = false;
-	boolean ifDump = false;
-	// flags to decide which constructs to expand in the table
-	boolean[] mask = { true, true, true };
-	HashMap<CallTableKey, LinkedList<CallTableVal>> calltable = null;
 	calltable = x10fa.analyze(f, "", "run", "()Lx10/lang/Boolean;");
+	
+	
+	
+	
 	//calltable = CallTableUtil.findPatterns(calltable);
 	if (ifStat) {
 	    System.out.println("Intitial Table:");
