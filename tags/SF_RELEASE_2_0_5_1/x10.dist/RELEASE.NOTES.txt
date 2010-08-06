@@ -1,4 +1,15 @@
-Release 2.0.5
+X10 2.0.5.1 Release Notes
+
+This release fixes a few minor issues reported with the 2.0.5 release.
+ - Only one level of stacktraces was printed on MacOS 
+ - With the C++ backend, if application code contained 
+   X10 assert statements and was compiled without optimization,
+   it would not link properly against the pre-built release binaries.
+ - A bug in closure inlining potentially resulting in duplicate
+   labels in the generated C++ code.
+ - Compilation problems with math.h on FreeBSD
+
+X10 2.0.5 Release Notes
 
 This release includes both the C++ and Java code generation backends.
 
