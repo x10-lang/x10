@@ -9,7 +9,6 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-import harness.x10Test;
 import x10.compiler.*;
 import x10.lang.*;
 
@@ -17,7 +16,7 @@ import x10.lang.*;
  * problem: wala does not build foo into callgraph 
  */
 
-public class TestClosure extends x10Test {
+public class TestClosure /*extends x10Test*/ {
 	var flag: boolean = false;
     public def foo() {}
     public def run() {
@@ -31,6 +30,6 @@ public class TestClosure extends x10Test {
     }
     
     public static def main(args: Rail[String]) {
-    	new TestClosure().execute();
+    	new TestClosure().run();
     }
 }
