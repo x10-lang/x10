@@ -228,13 +228,15 @@ namespace x10aux {
         #ifdef SAVE_SIGNGAM
         RESTORE_MATH_CONST(int, signgam);
         #endif
-        #ifdef SAVE_CONSTANTS
+        #ifdef SAVE_MATHERR_CONSTANTS
         RESTORE_MATH_CONST(int, DOMAIN);
         RESTORE_MATH_CONST(int, SING);
         RESTORE_MATH_CONST(int, OVERFLOW);
         RESTORE_MATH_CONST(int, UNDERFLOW);
         RESTORE_MATH_CONST(int, TLOSS);
         RESTORE_MATH_CONST(int, PLOSS);
+        #endif
+        #ifdef SAVE_CONSTANTS
         RESTORE_MATH_CONST(double, M_E);
         RESTORE_MATH_CONST(double, M_LOG2E);
         RESTORE_MATH_CONST(double, M_LOG10E);
