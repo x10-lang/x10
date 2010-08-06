@@ -153,7 +153,7 @@ public class SW {
       val begin = timer.milliTime();
       var finalResult: Output = new Output();
       val scorers = DistArray.make[Scorer](Dist.makeUnique());
-      val scores  = DistArray.make[Score](Dist.makeUnique());
+      val scores  = DistArray.make[Score](Dist.makeUnique(), (Point)=>Score(Long.MIN_VALUE, -1, -1, -1));
 
       for((rep) in (0..repetitions-1)) {
          // Step 1: read in the parameters and data
