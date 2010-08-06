@@ -3,7 +3,6 @@ package com.ibm.wala.cast.x10.client;
 import java.io.IOException;
 import java.util.Set;
 
-import com.ibm.wala.cast.java.ipa.callgraph.JavaSourceAnalysisScope;
 import com.ibm.wala.cast.java.translator.polyglot.IRTranslatorExtension;
 import com.ibm.wala.cast.java.translator.polyglot.PolyglotJavaSourceAnalysisEngine;
 import com.ibm.wala.cast.x10.ipa.cha.X10ClassHierarchy;
@@ -98,43 +97,50 @@ public class X10SourceAnalysisEngine extends PolyglotJavaSourceAnalysisEngine {
         }
     }
 
-    public CallGraph buildCallGraph() throws IllegalArgumentException, CancelException, IOException {
-	    Iterable<Entrypoint> eps = makeDefaultEntrypoints(scope, getClassHierarchy());
-	    AnalysisOptions options = getDefaultOptions(eps);
-	    return buildCallGraph(getClassHierarchy(), options, true, null).makeCallGraph(options, null);
+    public CallGraph buildCallGraph(Iterable<Entrypoint> eps) throws IllegalArgumentException, CancelException, IOException {
+        AnalysisOptions options = getDefaultOptions(eps);
+        return buildCallGraph(getClassHierarchy(), options, true, null).makeCallGraph(options, null);
     }
 
+    @Override
     public CallGraph buildDefaultCallGraph() throws IllegalArgumentException, CancelException, IOException {
         buildAnalysisScope();
         IClassHierarchy cha = buildClassHierarchy();
         setClassHierarchy(cha);
-        System.out.println(cha);
-    	return buildCallGraph();
-      }
+        return buildCallGraph(makeDefaultEntrypoints(scope, cha));
+    }
 
     public X10ClassHierarchy initClassHierarchy() {
         X10ClassHierarchy cha = null;
         ClassLoaderFactory factory = getClassLoaderFactory(scope.getExclusions());
         try {
-        	cha = X10ClassHierarchy.make(getScope(), factory);
+            cha = X10ClassHierarchy.make(getScope(), factory);
         } catch (ClassHierarchyException e) {
-        	System.err.println("Class Hierarchy construction failed");
+            System.err.println("Class Hierarchy construction failed");
         }
         return cha;
     }
 
+    public void consolidateClassHierarchy() {
+        try {
+            ((X10ClassHierarchy) getClassHierarchy()).consolidate();
+        } catch (ClassHierarchyException e) {
+            System.err.println("Class Hierarchy construction failed");
+        }
+    }
+
+    @Override
     public IClassHierarchy buildClassHierarchy() {
         X10ClassHierarchy cha = initClassHierarchy();
-        ClassLoaderFactory factory = getClassLoaderFactory(scope.getExclusions());
         try {
-          cha.getLoader(X10PrimordialClassLoader.X10Primordial).init(cha.getScope().getModules(X10PrimordialClassLoader.X10Primordial));
-          cha.getLoader(X10SourceLoaderImpl.X10SourceLoader).init(cha.getScope().getModules(X10SourceLoaderImpl.X10SourceLoader));
-          cha.getLoader(X10SyntheticLoaderImpl.X10SyntheticLoader).init(cha.getScope().getModules(X10SyntheticLoaderImpl.X10SyntheticLoader));
-          ((X10ClassHierarchy) cha).build();
+            cha.getLoader(X10PrimordialClassLoader.X10Primordial).init(cha.getScope().getModules(X10PrimordialClassLoader.X10Primordial));
+            cha.getLoader(X10SourceLoaderImpl.X10SourceLoader).init(cha.getScope().getModules(X10SourceLoaderImpl.X10SourceLoader));
+            cha.getLoader(X10SyntheticLoaderImpl.X10SyntheticLoader).init(cha.getScope().getModules(X10SyntheticLoaderImpl.X10SyntheticLoader));
+            ((X10ClassHierarchy) cha).consolidate();
         } catch (ClassHierarchyException e) {
-          System.err.println("Class Hierarchy construction failed");
+            System.err.println("Class Hierarchy construction failed");
         } catch (IOException e) {
-        	System.err.println("Class Hierarchy construction failed");
+            System.err.println("Class Hierarchy construction failed");
         }
         return cha;
     }
