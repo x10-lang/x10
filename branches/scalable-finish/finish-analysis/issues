@@ -1,6 +1,10 @@
 1. can decide whether an async is local 
+	* change AsyncInstruction in wala-bridge to have a field denoting whether this async is local or not
+	 
 2. hack finish's place by adding a method like Runtime.rootFinishPlace()
+
 3. methods in async and closure are not in callgraph
+
 4. c++ backend cannot be compiled, because of the following errors:
 sc-cpp/x10
 	lang
@@ -20,3 +24,4 @@ sc-cpp/x10
 			332: (fs.operator->()->*(x10aux::findITable<x10::lang::Runtime__FinishState>(fs->_getITables())->notifyActivityTermination))(); 
 not sure whether I should change them?
 
+5. wala-bridge throws exception for X10Test.x10 in harness.X10Test at line 154, 15-25: for expression "T :< Object"
