@@ -1,30 +1,22 @@
 package x10.finish.analysis;
 
 import java.io.*;
+import java.util.HashMap;
+import java.util.LinkedList;
 
+import com.ibm.wala.cast.x10.analysis.X10FinishAsyncAnalysis;
+
+import x10.finish.table.CallTableKey;
+import x10.finish.table.CallTableUtil;
+import x10.finish.table.CallTableVal;
 import x10.finish.table.HprofParser;
 import x10.finish.table.OutputUtil;
 
 public class Test {
 
     public static void main(String[] args) throws Exception {
-
-	/* ***********************************************************************************
-	 * /home/blshao/workspace/wala-bridge-1.0/x10.runtime/src-x10/x10/lang/
-	 * /Users/blshao/workspace/wala-bridge-1.0/x10.runtime/src-x10/x10/lang/
-	 * Future.x10 /home/blshao/workspace/wala-bridge-1.0/test.x10/Mytest.x10
-	 * /home/blshao/workspace/wala-bridge-1.0/x10.runtime/src-x10/x10/array/
-	 * PolyScanner.x10
-	 * "/blshao/workspace/wala-bridge-1.0/test.x10/RuntimeTest.x10"
-	 * FinishAsync/finishTest2
-	 * x10.tests/examples/ScalableFinish/Others/TrivialTest3.x10
-	 * *************
-	 * *********************************************************
-	 * ***************
-	 */
-	File f = new File("../x10.tests/examples/ScalableFinish/Others/TrivialTest3.x10");
+	File f = new File("../x10.tests/examples/ScalableFinish/Not_So_Good/TestClosure.x10");
 	X10FinishAsyncAnalysis x10fa = new X10FinishAsyncAnalysis();
-
 	/* *********************************
 	 * 
 	 * examples of methods' signatures
@@ -34,10 +26,43 @@ public class Test {
 	 * "","run","()Lx10/lang/Boolean;
 	 * "**********************************
 	 */
-
-	// compile(file, package, entrymethod, methodsig)
-	 x10fa.analyze(f, "","run","()Lx10/lang/Boolean;");
+	// analyze(file, package, entrymethod, methodsig)	 
 	 //x10fa.analyze(f,"","main","(Lx10/lang/Rail;)V");
+	boolean ifSaved = false;
+	boolean ifExpanded = false;
+	boolean ifStat = false;
+	boolean ifDump = true;
+	// flags to decide which constructs to expand in the table
+	boolean[] mask = { true, true, true };
+	HashMap<CallTableKey, LinkedList<CallTableVal>> calltable = null;
+	calltable = x10fa.analyze(f, "", "run", "()Lx10/lang/Boolean;");
+	calltable = CallTableUtil.findPatterns(calltable);
+	if (ifStat) {
+	    System.out.println("Intitial Table:");
+	    CallTableUtil.getStat(calltable);
+	}
+	if (ifDump) {
+	    CallTableUtil.dumpCallTable(calltable);
+	}
+	if (ifSaved) {
+	    System.out.println("saving ... ...");
+	    CallTableUtil.saveCallTable("calltable.dat", calltable);
+	}
+	if (ifExpanded) {
+	    System.out.println("Expanding Talbe:");
+	    CallTableUtil.expandCallTable(calltable, mask);
+	    // CallTableUtil.updateAllArity(calltable);
+	    // CallTableUtil.expandCallTable(calltable, mask);
+	}
+	if (ifStat && ifExpanded) {
+
+	    CallTableUtil.getStat(calltable);
+	}
+	if (ifDump && ifExpanded) {
+	    System.out.println("New Talbe:");
+	    CallTableUtil.dumpCallTable(calltable);
+	}
+	System.out.println("finished ... ");
 	
     }
 }
