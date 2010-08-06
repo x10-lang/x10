@@ -31,12 +31,12 @@ public class Test {
 	boolean ifSaved = false;
 	boolean ifExpanded = false;
 	boolean ifStat = false;
-	boolean ifDump = true;
+	boolean ifDump = false;
 	// flags to decide which constructs to expand in the table
 	boolean[] mask = { true, true, true };
 	HashMap<CallTableKey, LinkedList<CallTableVal>> calltable = null;
 	calltable = x10fa.analyze(f, "", "run", "()Lx10/lang/Boolean;");
-	calltable = CallTableUtil.findPatterns(calltable);
+	//calltable = CallTableUtil.findPatterns(calltable);
 	if (ifStat) {
 	    System.out.println("Intitial Table:");
 	    CallTableUtil.getStat(calltable);
