@@ -257,7 +257,7 @@ public class X10ClassHierarchy implements IClassHierarchy {
   }
 
 
-  public void build() throws ClassHierarchyException {
+  public void consolidate() throws ClassHierarchyException {
     for (IClassLoader icl : loaders) {
       addAllClasses(icl, null);
     }
