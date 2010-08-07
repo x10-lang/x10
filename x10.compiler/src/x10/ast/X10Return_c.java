@@ -48,6 +48,7 @@ import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.types.checker.Converter;
+import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 
 public class X10Return_c extends Return_c {
@@ -105,13 +106,25 @@ public class X10Return_c extends Return_c {
 				&& ((MethodDef) ci).name().toString().equals(X10TypeSystem_c.DUMMY_ASYNC)) {
 		    throw new SemanticException("Cannot return from an async.");
 		}
-		
+		Type exprType = expr != null ? expr.type() : null;
+
+
+		// In the exprType, we may have replaced here by PlaceTerm from the context
+		// in support of checking references to this object across place boundaries within
+		// the code for this method. 
+		// Now this value is being returned from this method.
+		// Replace PlaceTerm from the context with here so that exprType will 
+		// correctly be of ! type in the calling environment (which does not know about PlaceTerm.
+		if (exprType != null) {
+			exprType = PlaceChecker.ReplacePlaceTermByHere(exprType, tc.context());
+
+			expr = expr.type(exprType);
+		}
+		    
 		// If the return type is not yet known, set it to the type of the value being returned.
 		if (ci instanceof FunctionDef) {
 		    FunctionDef fi = (FunctionDef) ci;
-
-		    Type exprType = expr != null ? expr.type() : null;
-
+		    
 		    if (exprType instanceof X10ClassType) {
 		        X10ClassType ct = (X10ClassType) exprType;
 		        if (ct.isAnonymous()) {

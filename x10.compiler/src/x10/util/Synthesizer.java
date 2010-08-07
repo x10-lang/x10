@@ -1356,7 +1356,7 @@ public class Synthesizer {
     	X10NodeFactory nf = ((X10NodeFactory) tc.nodeFactory());
     	X10TypeSystem ts = ((X10TypeSystem) tc.typeSystem());
     	
-    	type = PlaceChecker.ReplacePlaceTermByHere(type, ((X10Context) tc.context()).currentPlaceTerm().term());
+    	type = PlaceChecker.ReplacePlaceTermByHere(type, tc.context());
 		CConstraint c = X10TypeMixin.xclause(type);
 		
 		if (c == null || c.valid())
