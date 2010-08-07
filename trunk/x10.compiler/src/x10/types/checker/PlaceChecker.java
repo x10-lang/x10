@@ -188,7 +188,8 @@ public class PlaceChecker {
 		return type;
 	}
 	
-	public static Type ReplacePlaceTermByHere(Type type, XTerm term) {
+	public static Type ReplacePlaceTermByHere(Type type, Context context) {
+		XTerm term = ((X10Context) context).currentPlaceTerm().term();
 		try {
 			if ( term instanceof XVar)
 				type = Subst.subst(type,  here(), (XVar) term); 
@@ -444,7 +445,7 @@ public class PlaceChecker {
         // compensate by generating a dynamic cast
         if (target instanceof Expr) {
             Type type = PlaceChecker.AddIsHereClause(X10TypeMixin.baseType(target.type()), tc.context());
-            type = PlaceChecker.ReplacePlaceTermByHere(type, ((X10Context) tc.context()).currentPlaceTerm().term());
+            type = PlaceChecker.ReplacePlaceTermByHere(type, tc.context());
             target = Converter.attemptCoercion(true, tc, (Expr) target, type);
         }
         return target;
