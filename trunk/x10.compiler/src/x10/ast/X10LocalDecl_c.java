@@ -212,6 +212,9 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
                 throw e;
             Errors.issue(tc.job(), e, this);
         }
+        // Replace here by PlaceTerm because this local variable may be referenced
+        // later by code that has been place-shifted, and will have a different 
+        // interpretation of here. 
         type = PlaceChecker.ReplaceHereByPlaceTerm(type, (X10Context) tc.context());
         Ref<Type> r = (Ref<Type>) typeNode.typeRef();
         r.update(type);
