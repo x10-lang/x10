@@ -311,22 +311,25 @@ public class X10Field_c extends Field_c {
 		return result;
 	}
 
-	public static Type rightType(Type t, X10MemberDef fi, Receiver target, Context c) throws SemanticException {
+	public static Type rightType(Type t, X10MemberDef fi, Receiver target, Context c) {
 		CConstraint x = X10TypeMixin.xclause(t);
 		if (x != null && fi.thisVar() != null) {
 			if (target instanceof Expr) {
 				XVar receiver = null;
 				
-					X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
-					XTerm r = ts.xtypeTranslator().trans((CConstraint) null, target, (X10Context) c);
-					if (r instanceof XVar) {
-						receiver = (XVar) r;
-					}
-				
+				X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
+				XTerm r = ts.xtypeTranslator().trans((CConstraint) null, target, (X10Context) c);
+				if (r instanceof XVar) {
+				    receiver = (XVar) r;
+				}
 				
 				if (receiver == null)
 					receiver = XTerms.makeEQV();
-				t = Subst.subst(t, (new XVar[] { receiver }), (new XVar[] { fi.thisVar() }), new Type[] { }, new ParameterType[] { });
+				try {
+				    t = Subst.subst(t, (new XVar[] { receiver }), (new XVar[] { fi.thisVar() }), new Type[] { }, new ParameterType[] { });
+				} catch (SemanticException e) {
+				    throw new InternalCompilerError("Unexpected error while computing field type", e);
+				}
 			}
 		}
 		return t;

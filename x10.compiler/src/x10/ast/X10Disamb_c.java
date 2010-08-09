@@ -39,6 +39,7 @@ import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.types.VarInstance;
 import polyglot.types.CodeDef;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import x10.extension.X10Del;
@@ -290,17 +291,19 @@ public class X10Disamb_c extends Disamb_c {
 		return n;
 	}
 
-	protected Receiver makeMissingFieldTarget(FieldInstance fi) throws SemanticException {
+	protected Receiver makeMissingFieldTarget(FieldInstance fi) {
 	    return makeMissingFieldTarget(fi, pos, v);
 	}
 
-	public static Receiver makeMissingFieldTarget(FieldInstance fi, Position pos, ContextVisitor v) throws SemanticException {
-	    Receiver r;
+	public static Receiver makeMissingFieldTarget(FieldInstance fi, Position pos, ContextVisitor v) {
+	    Receiver r = null;
 	    X10NodeFactory nf = (X10NodeFactory) v.nodeFactory();
 	    X10TypeSystem ts = (X10TypeSystem) v.typeSystem();
 
-	    if (fi.flags().isStatic()) {
-	        r = nf.CanonicalTypeNode(pos.startOf(), fi.container());
+	    try {
+	    Position prefixPos = pos.startOf().markCompilerGenerated();
+        if (fi.flags().isStatic()) {
+	        r = nf.CanonicalTypeNode(prefixPos, fi.container());
 	    } else {
 	        // The field is non-static, so we must prepend with
 	        // "this", but we need to determine if the "this"
@@ -319,49 +322,52 @@ public class X10Disamb_c extends Disamb_c {
 	        assert scope != null;
 
 	        if (! ts.typeEquals(scope, cur, c)) {
+	            r = (Special) nf.This(prefixPos, nf.CanonicalTypeNode(prefixPos, scope));
+	        }
+	        else {
+	            r = (Special) nf.This(prefixPos);
+	        }
+	        r = (Special) r.del().typeCheck(v);
+	    }
+	    } catch (SemanticException cause) {
+	        Position p = r == null ? pos : r.position();
+	        throw new InternalCompilerError("Unexpected exception when typechecking "+r, p, cause);
+	    }
+
+	    return r;
+	}
+
+	protected Receiver makeMissingMethodTarget(MethodInstance mi) throws SemanticException {
+	    Receiver r;
+
+	    X10Context c = (X10Context) this.c;
+	    ClassType cur  =c.currentClass();
+	    if (c.inSuperTypeDeclaration())
+	        cur = c.supertypeDeclarationType().asType();
+
+	    if (mi.flags().isStatic()) {
+	        r = nf.CanonicalTypeNode(pos.startOf(), mi.container());
+	    } else {
+	        // The field is non-static, so we must prepend with
+	        // "this", but we need to determine if the "this"
+	        // should be qualified.  Get the enclosing class which
+	        // brought the field into scope.  This is different
+	        // from fi.container().  fi.container() returns a super
+	        // type of the class we want.
+	        ClassType scope = c.findMethodScope(name.id());
+	        assert scope != null;
+
+	        if (! ts.typeEquals(scope, cur, c)) {
 	            r = (Special) nf.This(pos.startOf(), nf.CanonicalTypeNode(pos.startOf(), scope)).del().typeCheck(v);
 	        }
 	        else {
 	            r = (Special) nf.This(pos.startOf()).del().typeCheck(v);
 	        }
-
 	    }
 
 	    return r;
 	}
-	    
-	    protected Receiver makeMissingMethodTarget(MethodInstance mi) throws SemanticException {
-	        Receiver r;
-	        
-	        X10Context c = (X10Context) this.c;
-	        ClassType cur  =c.currentClass();
-	        if (c.inSuperTypeDeclaration())
-	            cur = c.supertypeDeclarationType().asType();
 
-	        if (mi.flags().isStatic()) {
-	            r = nf.CanonicalTypeNode(pos.startOf(), mi.container());
-	        } else {
-	            // The field is non-static, so we must prepend with
-	            // "this", but we need to determine if the "this"
-	            // should be qualified.  Get the enclosing class which
-	            // brought the field into scope.  This is different
-	            // from fi.container().  fi.container() returns a super
-	            // type of the class we want.
-	            ClassType scope = c.findMethodScope(name.id());
-	            assert scope != null;
-
-	            if (! ts.typeEquals(scope, cur, c)) {
-	                r = (Special) nf.This(pos.startOf(), nf.CanonicalTypeNode(pos.startOf(), scope)).del().typeCheck(v);
-	            }
-	            else {
-	                r = (Special) nf.This(pos.startOf()).del().typeCheck(v);
-	            }
-	            
-	        }
-
-	        return r;
-	    }
-	    
 	protected Receiver makeMissingPropertyTarget(MemberInstance<?> fi, Type currentDepType) throws SemanticException {
 	    Receiver r;
 	    

@@ -451,7 +451,7 @@ public class PlaceChecker {
         return target;
     }
 
-    public static Call makeReceiverLocalIfNecessary(X10Call n, ContextVisitor tc) throws SemanticException {
+    public static X10Call makeReceiverLocalIfNecessary(X10Call n, ContextVisitor tc) throws SemanticException {
         Receiver res =
             makeReceiverLocalIfNecessary(tc, n.target(), X10Flags.toX10Flags(n.methodInstance().flags()));
         if (res != null) {
