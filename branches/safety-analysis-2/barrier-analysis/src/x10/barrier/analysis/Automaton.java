@@ -1,12 +1,16 @@
 package x10.barrier.analysis;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
+
+import x10.util.Struct;
 
 
 public class Automaton {
     State root;
-    static int stateCounter = 0;
+    static int stateCounter = 1;
 
               
     public void setRoot(State state) {
@@ -14,6 +18,8 @@ public class Automaton {
     }    
 
     List visitedStates;
+    List visitedLocalStates;
+    
     public void traverse(State head) {
 	visitedStates.add(head);
 	System.out.println(head);
@@ -43,13 +49,12 @@ public class Automaton {
         
         	}
         	head.endInst = lastInst;
-        	head.isTerminal = currState.isTerminal;
         	return head;
             }
             for(Object o: currState.outgoingEdges) { // loops once
         	Edge e  = (Edge) o;
         	State outState = e.to;
-        	if (outState.incomingEdges.size() > 1 || e.type == Edge.NEXT) {
+        	if (outState.incomingEdges.size() > 1 || e.type == Edge.NEXT || outState.isTerminal) {
         	    if (outState == head) 
         		return head;
         	    outState.incomingEdges.remove(currState);
@@ -66,14 +71,16 @@ public class Automaton {
 
     }
     
+    /* Compresses the automaton - removes unnecessary edges, groups statements into blocks */
     public void compress(State head) {
 	compressStates(head);
-	head.counter = this.stateCounter ++;
+	head.counter  = this.stateCounter ++;
 	visitedStates.add(head);
 	for(Object o: head.outgoingEdges) {
 	   Edge e = (Edge) o;
 	   if (! visitedStates.contains(e.to))
-	       compress(e.to);
+	       
+		   compress(e.to);
 	}
 
     }
@@ -90,7 +97,7 @@ public class Automaton {
 	visitedStates = null;
     }
     
-    
+   /* Is there a fork at this state? */
  public boolean isPar (State head) {
      for (Object o : head.outgoingEdges) {
 	   Edge e = (Edge) o;
@@ -101,6 +108,31 @@ public class Automaton {
      return false;
  }
     
+   public void renameAsync (ComposedState inVisited) { 
+       if (this.visitedLocalStates.contains(inVisited))
+	   return;
+       this.visitedLocalStates.add(inVisited);
+       List addList = new ArrayList ();
+       List removeList = new ArrayList ();
+       for (Object o: inVisited.states) {
+	   State s = (State) o;
+	   String funName  = s.funName;
+	   if (funName.contains("async")) {
+	       	State newState = s.cloneMe();
+	        removeList.add(s);
+	        addList.add(newState);
+	       	
+	   }
+	   
+	}
+       	inVisited.states.addAll(addList);
+	inVisited.states.removeAll(removeList);
+    
+       for (Object o: inVisited.outgoingEdges) {
+	   renameAsync((ComposedState) ((Edge) o).to);
+       }
+   }
+ 
    public State compose(State head) {
        if(this.isPar(head)) {
 	       ComposedState parStart = new ComposedState();
@@ -117,9 +149,14 @@ public class Automaton {
 		parStart.addState(s2);
 		ComposedState inVisited = this.inVisited(parStart);
 		if (inVisited != null) {
-		    return inVisited;
+		    /*this.visitedLocalStates = new ArrayList();
+		    renameAsync (inVisited); // revisiting an async? rename one of them.
+		    ComposedState inVisited2 = this.inVisited(parStart);
+		    if (inVisited2 != null) */
+			return inVisited;
 		}
-		this.composeAutomaton(s1, s2, parStart);
+		q.add(new Element(s1, s2, parStart));
+		this.composeAutomaton();
 	       return parStart;
 	   
        }
@@ -157,10 +194,31 @@ public class Automaton {
 	    
     }
     
-    public void composeAutomaton (State s1, State s2, ComposedState prev) {
+    Queue <Element> q = new LinkedList<Element>();
+    
+    class Element {
+	State s1;
+	State s2;
+	ComposedState prev;
+	
+	public Element (State ss1, State ss2, ComposedState pprev) {
+	    s1 = ss1;
+	    s2 = ss2;
+	    prev = pprev;
+	    
+	}
+    };
+    
+    /* Automaton composition rules - implement using bfs */
+    public void composeAutomaton () {
+
+      while(q.size() > 0) {
+	Element el = q.remove();
+	State s1 = el.s1;
+	State s2 = el.s2;
+	ComposedState prev = el.prev;
+	visitedStates.add(prev);
 	ComposedState inVisited = null;
-	 visitedStates.add(prev);
-	 
 	 if (this.isPar(s1))
 	     	s1 = this.compose(s1);
 	 if (this.isPar(s2))
@@ -174,15 +232,15 @@ public class Automaton {
 		  ComposedState s  = new ComposedState ();
 		
 		  Edge e2 = (Edge) o2;
-		  s2 = e2.to;
+		  State ss2 = e2.to;
 		  s.addState(s1);
-		  s.addState(s2);
+		  s.addState(ss2);
 		  inVisited = this.inVisited(s);
 		    if (inVisited != null)
 			s = inVisited;
 		    new Edge(prev, s, e2.type);
 		    if (inVisited == null)
-			      this.composeAutomaton(s1, s2, s);
+			q.add(new Element(s1, ss2, s));
 		  
 	      }   
 	  }
@@ -192,15 +250,15 @@ public class Automaton {
 		  ComposedState s  = new ComposedState ();
 		
 		  Edge e1 = (Edge) o1;
-		  s1 = e1.to;
-		  s.addState(s1);
+		  State ss1 = e1.to;
+		  s.addState(ss1);
 		  s.addState(s2);
 		  inVisited = this.inVisited(s);
 		    if (inVisited != null)
 			s = inVisited;
 		    new Edge(prev, s, e1.type);
 		    if (inVisited == null)
-			      this.composeAutomaton(s1, s2, s);
+			      q.add(new Element(ss1, s2, s));
 		  
 	      }   
 	  }
@@ -208,17 +266,16 @@ public class Automaton {
 
 	     for (Object o1: s1.outgoingEdges)
 		 for (Object o2: s2.outgoingEdges) {
-		     System.out.print("s1: " + s1);
-		     System.out.print("s2: " + s2);
+		     State ss1 = null, ss2 = null;
 		     ComposedState s = new ComposedState (); 
 		
 		     Edge e1 = (Edge) o1;
 		     Edge e2 = (Edge) o2;
 		     if (e1.type == Edge.COND && e2.type == Edge.COND) {
-			 s1 = e1.to;
-			 s2 = e2.to;
-			 s.addState(s1);
-		  	  s.addState(s2);
+			 ss1 = e1.to;
+			 ss2 = e2.to;
+			 s.addState(ss1);
+		  	  s.addState(ss2);
 		  	  inVisited = this.inVisited(s);
 		  	  if (inVisited != null)
 		  	      s = inVisited;
@@ -227,20 +284,21 @@ public class Automaton {
 		    
 		     }
 		     else if (e1.type == Edge.NEXT && e2.type == Edge.NEXT) {
-			 s1 = e1.to;
-			 s2 = e2.to;
-			 s.addState(s1);
-			 	s.addState(s2);
-			 	inVisited = this.inVisited(s);
-			 	if (inVisited != null)
+			 ss1 = e1.to;
+			 ss2 = e2.to;
+			 s.addState(ss1);
+			 s.addState(ss2);
+			 inVisited = this.inVisited(s);
+			 if (inVisited != null)
 		 	 	    s = inVisited;
-		 	 	new Edge(prev, s, Edge.NEXT);
+		 	 new Edge(prev, s, Edge.NEXT);
 		     
 		     } 
 		     else if (e1.type == Edge.COND && e2.type == Edge.NEXT) {
-			 s1 = e1.to;
-			 s.addState(s1);
-			 s.addState(s2);
+			 ss1 = e1.to;
+			 ss2 = s2;
+			 s.addState(ss1);
+			 s.addState(ss2);
 		 	 inVisited = this.inVisited(s);
 			 if (inVisited != null)
 			     s = inVisited;
@@ -248,21 +306,111 @@ public class Automaton {
 		   
 		     }
 		     else if (e1.type == Edge.NEXT && e2.type == Edge.COND) {
-			 s2 = e2.to;
-			 s.addState(s1);
-			 s.addState(s2);
+			 ss1 = s1;
+			 ss2 = e2.to;
+			 s.addState(ss1);
+			 s.addState(ss2);
 			 inVisited = this.inVisited(s);
 			 if (inVisited != null)
 			     s = inVisited;
 			 new Edge(prev, s, Edge.COND);
 		     }
-		     System.out.println(s);
+		    
 		     if (inVisited == null)
-			 this.composeAutomaton(s1, s2, s);
+			 q.add(new Element(ss1, ss2, s));
+		    /* System.out.print("s1: " + s1);
+		     System.out.print("s2: " + s2);
+		     System.out.println("s3: " + s);*/
 		     
-		     }
+		  }
+	     
 	     	
 	 }
+      }
+    }
+    
+    public void parallelStatementsof(State head, State state) {
+	if (this.visitedLocalStates.contains(head)) 
+	    return;
+	this.visitedLocalStates.add(head);
+	for (Object o: head.outgoingEdges) {
+	    Edge e = (Edge) o;
+	    if (e.type == Edge.COND) {
+		for (Object oo : ((ComposedState) e.to).states) {
+		    State s = (State) oo;
+		    if(!s.funName.contentEquals(s.funName))
+			    if (! (s.endInst == -1)) {
+				state.parallelBlocks.add(s);
+			        s.parallelBlocks.add(state);
+			    }
+		}
+		parallelStatementsof(e.to, state);
+	    }
+	    
+	}
+	
 	
     }
-}
+    
+    /* What blocks may happen in parallel with h? */
+    public void mayHappenInParallel(State h) {
+	ComposedState head = (ComposedState) h;
+	if (visitedStates.contains(head)) 
+	    return;
+	
+	visitedStates.add(head);
+	for (Object o: head.states) {
+	    visitedLocalStates = new ArrayList();
+	    State s = (State) o;
+	    if (s.endInst == -1)
+		continue;
+	    for (Object oo: head.states) {
+		State ss = (State) oo;
+		if (!ss.funName.contentEquals(s.funName))
+		    if (! (ss.endInst == -1))
+			s.parallelBlocks.add(ss);
+	    }
+	    this.parallelStatementsof(head, s);
+	}
+	for (Object o: head.outgoingEdges) {
+	    this.mayHappenInParallel(((Edge) o).to);
+	}
+	
+    }
+    
+    public void mayHappenInParallel () {
+	visitedStates = new ArrayList();
+	mayHappenInParallel(root);
+	visitedStates = null;
+	visitedStates = new ArrayList();
+	printParallelBlocks(root);
+    }
+    
+    public void printParallelBlocks (State head) {
+	if (visitedStates.contains(head)) {
+		     return;
+	}
+	visitedStates.add(head);
+	for (Object o: ((ComposedState) head).states) {
+	    
+	    State s = (State) o;
+	    if (visitedStates.contains(s)) {
+		     continue;
+	    }
+	    visitedStates.add(s);
+
+	    if (s.endInst == -1)
+		continue;  
+	    
+	if (s.parallelBlocks.size() == 0)
+	    continue;
+	System.out.println("Parallel blocks of" + s.stateInsts());
+	for (Object p: s.parallelBlocks)
+	    System.out.println(" " + ((State) p).stateInsts());
+	
+    }
+	for(Object o: head.outgoingEdges) {
+	    printParallelBlocks(((Edge) o).to);
+	}
+  }
+}    
