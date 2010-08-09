@@ -471,7 +471,12 @@ public class X10BarrierAnalysis {
 	String funName =  md.getMethod().getName().toString();
 	//System.err.println(md.getMethod().getSignature());
 	IR ir = md.getIR();
-	System.out.println(md.getMethod().getName());
+	
+	if (funName.contains("activity file")) {
+	    int index =  funName.lastIndexOf("x10");
+	    funName = "<async" + funName.substring(index + 3);
+	}
+	System.out.println(funName);
 	
 	
 	if (ir != null) {
@@ -545,6 +550,7 @@ public class X10BarrierAnalysis {
 		}
 		a.setRoot(s[epcfg.entry().getNumber()]);
 		s[epcfg.entry().getNumber()].isStart = true;
+		System.out.println("----------" + s[epcfg.exit().getNumber()].toString());
 		s[epcfg.exit().getNumber()].isTerminal = true;
 		
 		       // System.out.println("Neighbors:");
@@ -582,7 +588,8 @@ public class X10BarrierAnalysis {
 	    a.compress();
 	    a.print();
 	    a.composePar();
-	    a.print();
+	    //a.print();
+	    a.mayHappenInParallel();
 	}
     }
     
