@@ -1,17 +1,11 @@
-/******************************************/
-/* WARNING: GENERATED FILE - DO NOT EDIT! */
-/******************************************/
 package org.eclipse.imp.x10dt.core.preferences.generated;
 
 import java.util.List;
 import java.util.ArrayList;
+import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Link;
-import org.eclipse.swt.widgets.Group;
 import org.eclipse.imp.preferences.*;
 import org.eclipse.imp.preferences.fields.*;
 import org.osgi.service.prefs.Preferences;
@@ -45,8 +39,9 @@ public class X10CompilerOptimizationsInstanceTab extends InstancePreferencesTab 
 			"",
 			parent,
 			true, true,
-			true, false,
-			false);
+			false, false,
+			false, false,
+			true);
 		fields.add(Optimize);
 
 
@@ -56,8 +51,9 @@ public class X10CompilerOptimizationsInstanceTab extends InstancePreferencesTab 
 			"",
 			parent,
 			true, true,
-			true, false,
-			false);
+			false, false,
+			false, false,
+			true);
 		fields.add(LoopOptimizations);
 
 
@@ -67,8 +63,9 @@ public class X10CompilerOptimizationsInstanceTab extends InstancePreferencesTab 
 			"",
 			parent,
 			true, true,
-			true, false,
-			false);
+			false, false,
+			false, false,
+			true);
 		fields.add(InlineOptimizations);
 
 
@@ -78,8 +75,9 @@ public class X10CompilerOptimizationsInstanceTab extends InstancePreferencesTab 
 			"",
 			parent,
 			true, true,
-			true, false,
-			false);
+			false, false,
+			false, false,
+			true);
 		fields.add(ClosureInlining);
 
 
@@ -89,8 +87,9 @@ public class X10CompilerOptimizationsInstanceTab extends InstancePreferencesTab 
 			"Enable code generation for the work-stealing scheduler",
 			parent,
 			true, true,
-			true, false,
-			false);
+			false, false,
+			false, false,
+			true);
 		fields.add(WorkStealing);
 
 		return fields.toArray(new FieldEditor[fields.size()]);
