@@ -21,7 +21,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.jar.JarFile;
 
-import org.eclipse.core.runtime.Path;
 import org.eclipse.imp.language.ILanguageService;
 import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.services.IDocumentationProvider;
@@ -102,18 +101,20 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 		} else if (target instanceof FieldDef) {
 			FieldInstance fi = ((FieldDef) target).asInstance();
 			target = fi;
-		} else if (target instanceof FieldDecl) {
-			FieldDecl fieldDecl = (FieldDecl) target;
-			FieldDef fieldDef= fieldDecl.fieldDef();
-
-			if (fieldDef == null) {
-				target = null;
-			} else {
-				FieldInstance fi = fieldDef.asInstance();
-
-				target = fi;
-			}
-		} else if (target instanceof Local) { // local var reference
+		} 
+//		else if (target instanceof FieldDecl) {
+//			FieldDecl fieldDecl = (FieldDecl) target;
+//			FieldDef fieldDef= fieldDecl.fieldDef();
+//
+//			if (fieldDef == null) {
+//				target = null;
+//			} else {
+//				FieldInstance fi = fieldDef.asInstance();
+//
+//				target = fi;
+//			}
+//		} 
+		else if (target instanceof Local) { // local var reference
 			Local local = (Local) target;
 			LocalInstance li = local.localInstance();
 			target = li;
@@ -145,8 +146,8 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 			Node root = (Node) parseController.getCurrentAst();
 			target = getTarget(target, parseController, root);
 			
-			if (target instanceof FieldInstance) {
-				return getHelpForEntity((FieldInstance)target, parseController, root);
+			if (target instanceof FieldDecl) {
+				return getHelpForEntity((FieldDecl)target, parseController, root);
 			} else if (target instanceof NamedVariable) {
 				return getHelpForEntity((NamedVariable)target, parseController, root);
 			} else if (target instanceof LocalInstance) {
@@ -173,8 +174,8 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 		return "";
 	}
 	
-	private String getHelpForEntity(FieldInstance target, IParseController parseController, Node root) {
-    	FieldInstance fi = (FieldInstance) target;
+	private String getHelpForEntity(FieldDecl target, IParseController parseController, Node root) {
+    	FieldInstance fi = target.fieldDef().asInstance();
 		ReferenceType ownerType = fi.container().toReference(); // PORT1.7 cast must succeed?  was fi.container();
 
 		if (ownerType.isClass()) {
@@ -188,7 +189,7 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 			String varName=fi.name().toString();  // PORT 1.7 was just name();
 			String sig = type+" "+ownerName+"."+varName;
 
-			return getX10DocFor(sig,fi);  // 2nd arg needs to be Node
+			return getX10DocFor(sig,target);  // 2nd arg needs to be Node
 			
 		}
 		return "Field '" + fi.name() + "' of type " + fi.type().toString();
@@ -427,9 +428,13 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 	 * Get the javadoc-like comment string for an X10 entity represented by a Node
 	 * (Note that this includes ClassDecl, formerly handled separately)
 	 */
-	@SuppressWarnings("restriction")
 	private String getX10DocFor(Node node) {
-		String doc = getNewRawX10DocFor(node.position());
+		Position pos = node.position();
+		if (node instanceof FieldDecl) {
+			pos = ((FieldDecl) node).flags().position();
+		}
+
+		String doc = getNewRawX10DocFor(pos);
 		return doc;
 	}
 	private String getX10DocFor(String name, Node node) {
