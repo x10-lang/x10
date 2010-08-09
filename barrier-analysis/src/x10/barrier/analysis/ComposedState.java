@@ -22,7 +22,10 @@ class ComposedState extends State {
 	    states.add(s);
     }
     
+
+    
     public boolean isSuperSetof (ComposedState cs) { 
+	if (cs.states.size() == this.states.size() + 1) return false; // loop case
 	boolean result = true;
 	 // this is visited;'l
 	for(Object o1: cs.states) {
@@ -37,6 +40,7 @@ class ComposedState extends State {
 	    }
 	    result = result & res;
 	}
+
 	 return result;
     }
     

@@ -1,9 +1,11 @@
 package x10.barrier.analysis;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-class State {
+class State implements Cloneable {
     int startInst;
     int endInst;
     List outgoingEdges = new ArrayList();
@@ -11,12 +13,26 @@ class State {
     boolean isTerminal = false;
     boolean isStart = false;
     String funName;
-    int counter = -1;
+    int counter = 0;
+    Set parallelBlocks = new HashSet();
     
     
     public State () {
 	startInst = -2;
 	endInst = -2;
+    }
+    
+    public State cloneMe() {
+	State s = null;
+	try {
+	    s = (State) this.clone();
+	} catch (CloneNotSupportedException e) {
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	}
+	s.counter = Automaton.stateCounter = - this.counter;
+	s.funName = this.funName.replace("async", "asyn");
+	return s;
     }
     
     public State(int startInstruction, int endInstruction, String funcName) {
@@ -49,7 +65,7 @@ class State {
     }
     
     public String stateInsts() {
-	return "[" + this.startInst + ":" + this.endInst + "]";
+	return "[" + this.startInst + ":" + this.endInst + "](" + funName + ")" ;
     }
     
     public String toString() {
