@@ -26,9 +26,9 @@ public class CompilerOptionsValidator implements Validator {
     public String validate(String value) {
        String argString = "";
         argString += value;
-        argString += " ."; // need to specify at
-        // least one file
-        Set sources = new HashSet();
+        argString += " ."; // need to specify at least one file
+
+        Set<String> sources = new HashSet<String>();
         sources.add(".");
 
         //String[] args = argString.split("\\s+");
