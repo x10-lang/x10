@@ -116,7 +116,7 @@ public final class X10CppBuilder extends AbstractX10Builder {
     Configuration.VERBOSE_CALLS = prefService.getBooleanPreference(X10Constants.P_VERBOSECALLS);
     options.assertions = prefService.getBooleanPreference(X10Constants.P_PERMITASSERT);
     final String additionalOptions = prefService.getStringPreference(X10Constants.P_ADDITIONALCOMPILEROPTIONS);
-    if (additionalOptions != null) {
+    if ((additionalOptions != null) && (additionalOptions.length() > 0)) {
       // First initialize to default values.
       Configuration.DEBUG = false;
       Configuration.CHECK_INVARIANTS = false;
