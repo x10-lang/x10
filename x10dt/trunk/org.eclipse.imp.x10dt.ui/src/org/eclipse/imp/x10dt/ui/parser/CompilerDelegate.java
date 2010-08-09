@@ -196,7 +196,7 @@ public class CompilerDelegate {
         try {
             List<IPath> projectSrcLoc = getProjectSrcPath();
             String projectSrcPath = pathListToPathString(projectSrcLoc);
-            opts.parseCommandLine(new String[] { "-assert", "-noserial", "-c", // "-commandlineonly",
+            opts.parseCommandLine(new String[] { "-assert", "-noserial", "-c", "-commandlineonly",
                     "-cp", buildClassPathSpec(), "-sourcepath", projectSrcPath
             }, new HashSet<String>());
             x10.Configuration.CHECK_INVARIANTS= (fViolationHandler != null);
