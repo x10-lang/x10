@@ -35,9 +35,10 @@ public final class Binomial(b0:UInt, q:Double, m:UInt) extends TaskFrame[UTS.SHA
 		pushN(s, b0, stack);
 	}
 	private def pushN(s:SHA1Rand, N:UInt, stack:Stack[SHA1Rand]!) offers UInt {
+		if (N == 0U ) return;
 		for (var i:UInt=0; i<N; ++i) 
 			stack.push(SHA1Rand(s, i));
-		//		offer N;
+				offer N;
 	}
 	
 }
