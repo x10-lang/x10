@@ -63,6 +63,7 @@ page X10.Compiler {
             defvalue false; } 
         string AdditionalCompilerOptions {
             defvalue "";
+	            emptyallowed true "";
             validator "org.eclipse.imp.x10dt.core.preferences.fields.CompilerOptionsValidator"; }
     }
 }
