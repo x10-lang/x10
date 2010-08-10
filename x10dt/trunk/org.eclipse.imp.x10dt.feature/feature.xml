@@ -44,6 +44,7 @@
       <import feature="org.eclipse.ptp.rm.openmpi" version="4.0.0" match="greaterOrEqual"/>
       <import feature="org.eclipse.ptp.services" version="4.0.0" match="greaterOrEqual"/>
       <import feature="org.eclipse.ptp.utils" version="4.0.0" match="greaterOrEqual"/>
+      <import plugin="polyglot3" version="3.2.0" match="greaterOrEqual"/>
    </requires>
 
    <plugin
@@ -158,13 +159,6 @@
          install-size="0"
          version="2.0.5.qualifier"
          fragment="true"/>
-
-   <plugin
-         id="polyglot3"
-         download-size="0"
-         install-size="0"
-         version="3.2.0"
-         unpack="false"/>
 
    <plugin
          id="org.eclipse.imp.x10dt"
