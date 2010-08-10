@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="org.eclipse.imp.x10dt"
+      id="org.eclipse.imp.x10dt.feature"
       label="%featureName"
       version="2.0.5.qualifier"
       provider-name="%providerName"
+      plugin="org.eclipse.imp.x10dt"
       os="win32,linux,macosx"
       arch="x86,x86_64"
       image="eclipse_update_120.jpg">
@@ -16,45 +17,60 @@
       %license
    </license>
 
+   <includes
+         id="org.eclipse.cdt"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.cdt.gdb"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.cdt.platform"
+         version="0.0.0"/>
+
    <requires>
       <import feature="lpg.runtime" version="2.0.18" match="greaterOrEqual"/>
-      <import feature="polyglot3" version="3.1.3" match="greaterOrEqual"/>
-      <import feature="org.eclipse.imp.runtime" version="0.1.99" match="greaterOrEqual"/>
-      <import feature="org.eclipse.imp.java.hosted" version="0.1.1"/>
+      <import feature="org.eclipse.imp.java.hosted"/>
+      <import feature="org.eclipse.imp.runtime"/>
+      <import feature="org.eclipse.ptp" version="4.0.0" match="greaterOrEqual"/>
+      <import feature="org.eclipse.ptp.core" version="4.0.0" match="greaterOrEqual"/>
+      <import feature="org.eclipse.ptp.remote" version="4.0.0" match="greaterOrEqual"/>
+      <import feature="org.eclipse.ptp.remote.remotetools" version="4.0.0" match="greaterOrEqual"/>
+      <import feature="org.eclipse.ptp.remotetools" version="4.0.0" match="greaterOrEqual"/>
+      <import feature="org.eclipse.ptp.rm.ibm.ll" version="4.0.0" match="greaterOrEqual"/>
+      <import feature="org.eclipse.ptp.rm.ibm.pe" version="4.0.0" match="greaterOrEqual"/>
+      <import feature="org.eclipse.ptp.rm.mpich2" version="4.0.0" match="greaterOrEqual"/>
+      <import feature="org.eclipse.ptp.rm.openmpi" version="4.0.0" match="greaterOrEqual"/>
+      <import feature="org.eclipse.ptp.services" version="4.0.0" match="greaterOrEqual"/>
+      <import feature="org.eclipse.ptp.utils" version="4.0.0" match="greaterOrEqual"/>
    </requires>
 
    <plugin
          id="x10.compiler"
-         download-size="910"
-         install-size="910"
+         download-size="0"
+         install-size="0"
          version="2.0.5.qualifier"
          unpack="false"/>
 
    <plugin
          id="x10.runtime"
-         download-size="319"
-         install-size="319"
+         download-size="0"
+         install-size="0"
          version="2.0.5.qualifier"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.imp.x10dt.core"
-         download-size="68"
-         install-size="68"
+         download-size="0"
+         install-size="0"
          version="2.0.5.qualifier"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.imp.x10dt.ui"
-         download-size="115"
-         install-size="115"
-         version="2.0.5.qualifier"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.imp.x10dt"
-         download-size="2"
-         install-size="2"
+         download-size="0"
+         install-size="0"
          version="2.0.5.qualifier"
          unpack="false"/>
 
@@ -81,13 +97,6 @@
 
    <plugin
          id="x10.effects"
-         download-size="0"
-         install-size="0"
-         version="2.0.5.qualifier"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.imp.x10dt.refactoring"
          download-size="0"
          install-size="0"
          version="2.0.5.qualifier"
@@ -149,5 +158,19 @@
          install-size="0"
          version="2.0.5.qualifier"
          fragment="true"/>
+
+   <plugin
+         id="polyglot3"
+         download-size="0"
+         install-size="0"
+         version="3.2.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.imp.x10dt"
+         download-size="0"
+         install-size="0"
+         version="2.0.5.qualifier"
+         unpack="false"/>
 
 </feature>
