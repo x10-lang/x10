@@ -1629,7 +1629,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    if (xts.isRail(c.target().type()) || xts.isValRail(c.target().type())) {
 	        String methodName = c.methodInstance().name().toString();
 	        if (methodName.equals("make")) {
-	            Type rt = X10TypeMixin.baseType(ptype);
+	            Type rt = X10TypeMixin.baseType(c.type());
 	            if (rt instanceof X10ClassType) {
 	                Type pt = ((X10ClassType) rt).typeArguments().get(0);
 	                if (!(X10TypeMixin.baseType(pt) instanceof ParameterType)) {
@@ -1645,13 +1645,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	                                tr2 = tr2.context(expr.enterScope(tr2.context()));
 	                                
 	                                final Expander ex;
-	                                if (pt.isBoolean() || pt.isNumeric() || pt.isChar()) {
-	                                    ex = new TypeExpander(er, pt, false, false, false);
-	                                } else {
-	                                    ex = new Expander(er) {
-	                                        public void expand(Translator tr2) {w.write("Object");}
-	                                    };
-	                                }
+	                                ex = new TypeExpander(er, pt, false, false, false);
 	                                final Node n = c;
 	                                final Id id = closure.formals().get(0).name();
 	                                Expander ex1 = new Expander(er) {
