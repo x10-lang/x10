@@ -173,4 +173,11 @@
          version="2.0.5.qualifier"
          unpack="false"/>
 
+   <plugin
+         id="org.eclipse.imp.x10dt.refactoring"
+         download-size="0"
+         install-size="0"
+         version="2.0.5.qualifier"
+         unpack="false"/>
+
 </feature>
