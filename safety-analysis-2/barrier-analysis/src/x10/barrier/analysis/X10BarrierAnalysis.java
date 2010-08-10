@@ -18,11 +18,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 
-import x10.finish.table.*;
-import x10.finish.util.GraphUtil;
 import x10.finish.util.MyExceptionPrunedCFG;
-import x10.finish.util.NatLoop;
-import x10.finish.util.NatLoopSolver;
+
+
 
 import com.ibm.wala.cast.java.ssa.AstJavaInvokeInstruction;
 import com.ibm.wala.cast.loader.AstMethod;
@@ -82,386 +80,17 @@ import com.ibm.wala.viz.NodeDecorator;
  * @author baolin
  */
 public class X10BarrierAnalysis {
-    HashMap<SSAInstruction,Integer> instmap;
-    // per program
-    /*
-     * data structure we use to capture caller-callee relationship in a x10
-     * program a key-value entry in the maps means the "key" calls the "value",
-     * if the "key" is a method or the "key" contains the "value" if the key is
-     * a finish. The "value" is always a method.
-     */
-    HashMap<CallTableKey, LinkedList<CallTableVal>> calltable;
-    /* for dumping epcfg */
-    private int cnt = 0;
+  
     CallGraph cg;
-    CallTableVal last_inst;
-    /**
-     * used to hold visited states in deepth-first searching a control flow
-     * graph
-     */
-    HashSet<Integer> visited;
-
-    /**
-     * {@link com.ibm.wala.util.graph.dominators.NumberedDominators} dom is
-     * generated per control flow graph (hence per method). After it is assigned
-     * a new value each time, its previous one becomes garbage.
-     */
-    NumberedDominators<ISSABasicBlock> dom;
-
-    /**
-     * similar to dom, invert_dom has the dominator information for an inverted
-     * control flow graph. It is used to check whether all paths from node n of
-     * a control flow graph will pass node m.
-     */
-    NumberedDominators<ISSABasicBlock> invert_dom;
-
-    /**
-     * to handle loops in a control flow graph, we compute all natural loops
-     * (loop with single-entry point) before hand.
-     */
-    HashSet<NatLoop> loops;
-
     
-    public X10BarrierAnalysis() {
-	calltable = new HashMap<CallTableKey, LinkedList<CallTableVal>>();
-	last_inst = null;
-    }
-    
-    /**
-     * hashmap does not provide "remove and add" functionality, and it is what
-     * this method for.
-     * 
-     * @param k
-     *            - key in the table
-     * @param v
-     *            - value of the key
-     */
-    private void replaceTable(CallTableKey k, CallTableVal v) {
-	LinkedList<CallTableVal> old_vals = calltable.get(k);
-	if (!old_vals.contains(v)) {
-	    calltable.remove(k);
-	    old_vals.add(v);
-	    calltable.put(k, old_vals);
-	}
-    }
-
-    /**
-     * for an "async" invocation, this method checks whether there is any
-     * "if-eles" and "loop" along the way from the "finish" node, if any, to
-     * this "async" node, in the control flow graph
-     * 
-     * @param finish
-     *            : node of the "finish enter" statement
-     * @param async
-     *            : node of the "async" statement
-     * @return: {@link CallTableVal$Arity}
-     */
-    private CallTableVal.Arity checkAsync(ISSABasicBlock finish,
-	    ISSABasicBlock async) {
-	if (invert_dom.isDominatedBy(finish, async)) {
-	     //finish{ async } 
-	    return CallTableVal.Arity.One;
-	}
-	if (NatLoopSolver.containsNode(loops, async)) {
-	    if (NatLoopSolver.containsNode(loops, finish)) {
-		HashSet<NatLoop> fl = NatLoopSolver.getLoops(loops, finish);
-		HashSet<NatLoop> al = NatLoopSolver.getLoops(loops, async);
-		if (fl.equals(al)) {
-		     //for(){ finish{ async } } 
-		    return CallTableVal.Arity.One;
-		}
-		 //for(){ finish{ for(){ async } } } 
-		return CallTableVal.Arity.Unbounded;
-	    }
-
-	     //finish{ for(){ async } } 
-	    return CallTableVal.Arity.Unbounded;
-
-	}
-	 //finish{ if(){ async } } 
-	return CallTableVal.Arity.ZerOrOne;
-
-    }
-
-    private void visitFinishInstruction(
-	    ControlFlowGraph<SSAInstruction, ISSABasicBlock> epcfg,
-	    AnalysisEnvironment env, SSAFinishInstruction finst) {
-	int index = instmap.get(finst).intValue();
-	int line = ((AstMethod) epcfg.getMethod()).getSourcePosition(index).getFirstLine();
-	int column = ((AstMethod) epcfg.getMethod()).getSourcePosition(index).getLastCol();
-	if (finst.isFinishEnter()) {
-	     //use stack to handle nested finish 
-	    assert(env.cur_scope!=null);
-	    String name = env.cur_scope.name;
-	    env.uncompleted_scope.push(env.cur_scope);
-	    CGNode caller = cg.getNode(env.cur_method_node);
-	    String scope = getPackage(caller.getMethod().getDeclaringClass().getName().toString());
- 	    env.cur_scope = new CallTableScopeKey(scope, name, line, column,env.cur_block,true);
-	    // System.out.println(env.cur_finish.toString());
-	    calltable.put(env.cur_scope, new LinkedList<CallTableVal>());
-	} else {
-	    // finish exit
-	    if(last_inst!=null){
-		last_inst.aslast = env.cur_scope;
-		env.cur_scope.lastStmt = last_inst;
-		last_inst = null;
-	    }
-	    assert(env.uncompleted_scope.isEmpty()==false);
-	    env.cur_scope = env.uncompleted_scope.pop();
-	}
-    }
-
-    private void visitAtInstruction(
-	    ControlFlowGraph<SSAInstruction, ISSABasicBlock> epcfg,
-	    AnalysisEnvironment env, SSAAtStmtInstruction atinst) {
-
-	ISSABasicBlock curblk = (epcfg.getNode(env.cur_block));
-	int instindex = instmap.get(atinst).intValue();
-	int line = ((AstMethod) epcfg.getMethod()).getSourcePosition(instindex).getFirstLine();
-	int column = ((AstMethod) epcfg.getMethod()).getSourcePosition(instindex).getLastCol();
-	if (atinst.toString().contains("enter")) {
-	    assert(env.cur_scope!=null);
-	    CallTableKey tmpkey = env.cur_scope;
-	    if (tmpkey instanceof CallTableScopeKey) {
-		CallTableScopeKey cf =(CallTableScopeKey)tmpkey;
-		ISSABasicBlock fb = epcfg.getNode(cf.blk);
-		CallTableVal.Arity arity = checkAsync(fb, curblk);
-		CallTableAtVal atval = 
-		    new CallTableAtVal(env.cur_scope.scope,"",arity,line,
-			    column,env.cur_block);
-		updateLastInst(env.cur_scope,atval);
-		replaceTable(tmpkey, atval);
-	    } else {
-		ISSABasicBlock root = epcfg.entry();
-		CallTableVal.Arity arity = checkAsync(root, curblk);
-		CallTableAtVal atval = new CallTableAtVal(env.cur_scope.scope,
-			"",arity,line,column,env.cur_block);
-		//System.err.println(atval.toString());
-		updateLastInst(env.cur_scope,atval);
-		replaceTable(tmpkey, atval);
-		
-	    }
-	    env.uncompleted_scope.push(env.cur_scope);
-	    String name = env.cur_scope.name;
-	    CGNode caller = cg.getNode(env.cur_method_node);
-	    String scope = getPackage(caller.getMethod().getDeclaringClass().getName().toString());
-	    //-1 is the dummy blk
-	    env.cur_scope = new CallTableScopeKey(scope,name, line,column,env.cur_block,false);
-	    calltable.put(env.cur_scope, new LinkedList<CallTableVal>());
-	} else {
-	    // at exit
-	    // add this "at" statement to its "finish" or "method"
-	    assert(env.cur_scope instanceof CallTableScopeKey);
-	    CallTableKey prekey;
-	    if(last_inst!=null){
-		last_inst.aslast = env.cur_scope;
-		env.cur_scope.lastStmt = last_inst;
-		last_inst = null;
-	    }
-	    
-	    CallTableScopeKey curkey = (CallTableScopeKey)env.cur_scope;
-	    //mark the current "at" as the last instruction for its scope
-	    // create a dummy CallTableAtVal with the same signature as the target one in the talbe 
-	    CallTableAtVal tmpatval = new CallTableAtVal(curkey.scope,"",curkey.line,
-		    curkey.column,env.cur_block);
-	    //System.err.println(tmpatval.toString());
-	    assert(env.uncompleted_scope.isEmpty()==false);
-	    prekey = env.uncompleted_scope.pop();	    
-	    env.cur_scope = prekey;
-	    // get the target CallTableAtval's index in its key's list
-	    int index = calltable.get(prekey).indexOf(tmpatval);
-	    // get the target and save it as the last instruction of this scope
-	    last_inst = calltable.get(prekey).get(index);
-	}
-    }
-    
-    private void updateTable(ControlFlowGraph<SSAInstruction, ISSABasicBlock> epcfg,
-	    AnalysisEnvironment env, String defpack, String defname, int defline, int defcol, 
-	    String callpack, String callname, int calline, int callcol, boolean is_async){
-	
-	
-
-	ISSABasicBlock curblk = (epcfg.getNode(env.cur_block));
-	CallTableKey tmpkey = env.cur_scope;
-	//System.err.println(tmpkey.toString());
-	CallTableVal.Arity arity;	
-	if (tmpkey instanceof CallTableScopeKey) {
-	    CallTableScopeKey cf =(CallTableScopeKey)tmpkey;
-	    ISSABasicBlock fb = epcfg.getNode(cf.blk);
-	    arity = checkAsync(fb, curblk);
-	} else {
-	    ISSABasicBlock root = epcfg.entry();
-	    arity = checkAsync(root, curblk);
-	}
-	CallTableMethodVal aval = new CallTableMethodVal(defpack, defname, defline, defcol,arity,
-		callpack, callname, calline, callcol, env.cur_block, is_async);
-	updateLastInst(env.cur_scope,aval);
-	replaceTable(tmpkey, aval);
-    }
-    private void visitAsyncInstruction(
-	    ControlFlowGraph<SSAInstruction, ISSABasicBlock> epcfg,
-	    AnalysisEnvironment env, AsyncInvokeInstruction inst) {
-	MethodReference mr = inst
-		.getDeclaredTarget();
-	// each async is different and cannot be invoked twice, so use a dummy pc 
-	String pack = mr.getDeclaringClass().getName().toString();
-	String callsite_pack = env.cur_scope.scope;
-	String callsite_name = env.cur_scope.name;
-	pack = getPackage(pack);
-	int index = instmap.get(inst).intValue();
-	int line = ((AstMethod) epcfg.getMethod()).getSourcePosition(index).getFirstLine();
-	int column = ((AstMethod) epcfg.getMethod()).getSourcePosition(index).getLastCol();
-	updateTable(epcfg,env,pack,"activity",line,column,callsite_pack,callsite_name,line,column,true);
-
-    }
-    
-    private void visitMethodInvocation(
-	    ControlFlowGraph<SSAInstruction, ISSABasicBlock> epcfg,
-	    AnalysisEnvironment env, AstJavaInvokeInstruction inst) {
-	int index = instmap.get(inst).intValue();
-	/* the method that we are analyzing and the one invokes "inst" */
-	CGNode caller; 
-	String callerPack; 
-	String callerName;
-	int invokeLine; 
-	int invokeCol; 
-	/* same for all possible targets of "inst" */
-	caller = cg.getNode(env.cur_method_node);
-	callerPack = getPackage(caller.getMethod().getDeclaringClass().getName().toString());
-	callerName = getName(caller.getMethod().getName().toString());
-	invokeLine = ((AstMethod) epcfg.getMethod()).getSourcePosition(index).getFirstLine();
-	invokeCol = ((AstMethod) epcfg.getMethod()).getSourcePosition(index).getLastCol();
-	
-	/* the method that is possibly being called */
-	CGNode callee;
-	String defPack;
-	String defName;
-	int defLine;
-	int defCol;
-	
-	
-	CallSiteReference callsite =inst.getCallSite();
-	Set<CGNode> allcallees = cg.getPossibleTargets(caller,callsite);
- 	if (allcallees.size() > 0) {
-	    Iterator<CGNode> it = allcallees.iterator();
-	    while (it.hasNext()) {
-		callee = it.next();
-		defPack = getPackage(callee.getMethod().getDeclaringClass().getName().toString());
-		defName = getName(callee.getMethod().getName().toString());
-		defLine = ((AstMethod)callee.getMethod()).getSourcePosition().getFirstLine();
-		defCol = ((AstMethod)callee.getMethod()).getSourcePosition().getLastCol();
-		
-		updateTable(epcfg,env,defPack,defName,defLine,defCol,
-			callerPack,callerName,invokeLine,invokeCol,false);
-	    }
-	} else {
-	    System.err.println("cannot find callee's cgnode");
-	    System.err.println(inst.toString());
-	    /*
-	     * FIXME: broken code
-	    String calleepack = getPackage(inst.getDeclaredTarget().getDeclaringClass().getName().toString());
-	    String calleename = getName(inst.getDeclaredTarget().getName().toString());
-	    int index = instmap.get(inst).intValue();
-	    int calledline = ((AstMethod) epcfg.getMethod()).getSourcePosition(index).getFirstLine();
-	    int calledcolumn = ((AstMethod) epcfg.getMethod()).getSourcePosition(index).getLastCol();
-	    updateTable(epcfg,env,calleepack,calleename,defline,defcolumn,
-			callerpack,calleename,calledline,calledcolumn,false);
-			*/
-	}
-    }
-
-    /**
-     * Analyze each instruction in a BasicBlock of a control flow graph and
-     * update the {@link CallTableVal,CallTableKey}
-     * 
-     * @param epcfg
-     *            :control flow graph
-     * @param env
-     *            : global information need to keep during the analysis of epcfg
-     *            {@link AnalysisEnvironment}
-     */
-    private void visitAllInstructions(
-	    ControlFlowGraph<SSAInstruction, ISSABasicBlock> epcfg,
-	    AnalysisEnvironment env) {
-	
-	//System.out.println("Block "+env.cur_block);
-	ISSABasicBlock curblk = (epcfg.getNode(env.cur_block));
-	assert (curblk != null);
-	visited.add(Integer.valueOf(env.cur_block));
-	int inst_cnt = 0;
-	Iterator<SSAInstruction> itt = curblk.iterator();
-	 //to distiguish finish in each block 
-	while (itt.hasNext()) {
-	    
-	    SSAInstruction inst = itt.next();
-	    if (inst != null) {
-		
-		/* finish instruction: a finish instruction is disassembled into
-		 * finish_enter and finish_exit in IR
-		 */
-		//System.out.println("\tinst:"+inst.toString());
-		if (inst instanceof SSAFinishInstruction) {
-		    SSAFinishInstruction finst = (SSAFinishInstruction) inst;
-		    visitFinishInstruction(epcfg, env, finst);
-		} else if (inst instanceof SSAAtStmtInstruction) {
-		    SSAAtStmtInstruction atinst = (SSAAtStmtInstruction) inst;
-		    visitAtInstruction(epcfg, env, atinst);
-		} else if (inst instanceof AsyncInvokeInstruction) {
-		    visitAsyncInstruction(epcfg, env,
-			    (AsyncInvokeInstruction) inst);
-		} else if (inst instanceof AstJavaInvokeInstruction) {
-		    visitMethodInvocation(epcfg, env,
-			    (AstJavaInvokeInstruction) inst);
-		}
-		else{
-		    updateLastInst(null,null);   
-		}
-	    }
-	    inst_cnt++;
-	}
-    }
-    
-
+   
     /**mr
      * A Depth-First Search of a Control Flow Graph
      * 
      * @param epcfg
      * @param env
      */
-    private void parseBlock(
-	    ControlFlowGraph<SSAInstruction, ISSABasicBlock> epcfg,
-	    AnalysisEnvironment env) {
-	visitAllInstructions(epcfg, env);
-
-	// handle if-else: for each finish block, during the anlaysis we want
-	// to keep track of whether we are in a position of a branch
-
-	// DFS
-	ISSABasicBlock curb = epcfg.getNode(env.cur_block);
-	assert (curb != null);
-	Iterator<ISSABasicBlock> it = epcfg.getSuccNodes(curb);
-	while (it.hasNext()) {
-	    ISSABasicBlock cur = it.next();
-	    env.cur_block = cur.getNumber();
-	    if (!visited.contains(Integer.valueOf(env.cur_block))) {
-		AnalysisEnvironment dupenv = (AnalysisEnvironment) OutputUtil
-			.copy(env);
-		parseBlock(epcfg, dupenv);
-
-	    }
-	}
-    }
-
-    /**
-     * Analyze a method in the callgraph
-     * 
-     * @param nodenum
-     *            : node number of this method in callgraph
-     */
     
-    private void printBlockInfo (ISSABasicBlock bb) {
-	System.out.println(bb.getFirstInstructionIndex() + "-" + bb.getLastInstructionIndex());
-    }
     
     private Automaton parseIR(int nodenum) {
 	
@@ -551,6 +180,8 @@ public class X10BarrierAnalysis {
 		a.setRoot(s[epcfg.entry().getNumber()]);
 		s[epcfg.entry().getNumber()].isStart = true;
 		s[epcfg.exit().getNumber()].isTerminal = true;
+		s[epcfg.exit().getNumber()].set(-2, -1);
+
 		
 		       // System.out.println("Neighbors:");
 		    
@@ -587,7 +218,7 @@ public class X10BarrierAnalysis {
 	    a.compress();
 	    //a.print();
 	    a.composePar();
-	    //a.print();
+	    a.print();
 	    a.mayHappenInParallel();
 	}
     }
@@ -657,58 +288,6 @@ public class X10BarrierAnalysis {
 	
 	System.out.println("finished ... ");
     } // end of compile
-    private String getPackage(String s){
-	if(s.contains("activity")){
-	    int start = s.indexOf(':');
-	    int end = s.indexOf(".x10:");
-	    s = s.substring(start+2,end);
-	    s = s.replace('/', '.');
-	    //System.err.println(s);
-	    return s;
-	}
-	s = s.substring(1);
-	s = s.replace('/','.');
-	return s;
-    }
-    private String getName(String s){
-	if(s.contains("activity")){
-	    return "activity";
-	}
-	return s;
-    }
-    private void updateLastInst(CallTableKey k, CallTableVal v){
-	if(last_inst!=null)
-	    last_inst.aslast = null;
-	last_inst = v;
-	if(last_inst!=null)
-	    last_inst.aslast = k;
-    }
-} // end of class
-
-
-/*
- * This class is used to carry "path independent" information during the
- * analysis. 
- * */
-class AnalysisEnvironment implements Serializable {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	
-	// hold nested finish
-	Stack<CallTableKey> uncompleted_scope;
-	// current finish
-	CallTableKey cur_scope;
-	// block is being processed
-	int cur_block;
-	// the method calltalbe's active entry represents
-	int cur_method_node;
-	public AnalysisEnvironment(CallTableKey n, int nd,
-		PrunedCFG<SSAInstruction, ISSABasicBlock> epcfg) {
-		uncompleted_scope = new Stack<CallTableKey>();
-		cur_scope = n;
-		cur_block = 0;;
-		cur_method_node = nd;
-	}
 }
+
+
