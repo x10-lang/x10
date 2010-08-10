@@ -21,7 +21,7 @@ import x10.compiler.Inline;
  *
  * @author bdlucas
  */
-final class RectLayout(rank: int) extends Layout {
+final class RectLayout(rank: int) {
 
     global val size: int;
 
@@ -40,7 +40,7 @@ final class RectLayout(rank: int) extends Layout {
     def this(min: ValRail[int], max: ValRail[int]) {
         
         if (max.length!=min.length)
-            throw U.illegal("min and max must have same length");
+            throw new IllegalArgumentException("min and max must have same length");
 
         val r = min.length;
         property(r);

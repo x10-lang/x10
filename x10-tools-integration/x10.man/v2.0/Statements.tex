@@ -90,15 +90,13 @@ if (b) {
 Statement \: ExpressionStatement \\
 ExpressionStatement \: StatementExpression \xcd";" \\
 StatementExpression \: Assignment \\
-          \| Allocation \\
+          \| NewExpression \\
           \| Call \\
 \end{grammar}
 
-The expression statement evaluates an expression, ignoring the
-result.  Side effects of the expression occur.  
-The expression must be either an assignment, an
-allocation, or a call; \viz, a sort of expression which could possibly have
-side effects. 
+The expression statement evaluates an expression.  The value of the expression
+is not used.
+Side effects of the expression occur.  
 %~~gen
 % package Sta.tem.ent.s.expressions;
 % import x10.util.*;
@@ -118,6 +116,8 @@ class StmtEx {
 %~~siv
 %
 %~~neg
+Note that only selected forms of expression can appear in expression
+statements.  
 
 
 \section{Labeled statement}

@@ -198,44 +198,64 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
      * At this point, the type of the declaration should be known. If the type was not specified
      * then typeCheckOverride would have set it from the type of the initializer.
      */
-	@Override
-	public Node typeCheck(ContextVisitor tc) throws SemanticException {
+    @Override
+    public Node typeCheck(ContextVisitor tc) throws SemanticException {
         final TypeNode typeNode = type();
         Type type = typeNode.type();
 
-		X10TypeMixin.checkMissingParameters(typeNode);
-		type = PlaceChecker.ReplaceHereByPlaceTerm(type, (X10Context) tc.context());
-	    Ref<Type> r = (Ref<Type>) typeNode.typeRef();
+        X10TypeChecker xtc = X10TypeChecker.getTypeChecker(tc);
+
+        try {
+            X10TypeMixin.checkMissingParameters(typeNode);
+        } catch (SemanticException e) {
+            if (xtc.throwExceptions())
+                throw e;
+            Errors.issue(tc.job(), e, this);
+        }
+        // Replace here by PlaceTerm because this local variable may be referenced
+        // later by code that has been place-shifted, and will have a different 
+        // interpretation of here. 
+        type = PlaceChecker.ReplaceHereByPlaceTerm(type, (X10Context) tc.context());
+        Ref<Type> r = (Ref<Type>) typeNode.typeRef();
         r.update(type);
-        
-	    if (type.isVoid())
-	        throw new SemanticException("Local variable cannot have type " + this.type().type() + ".", position());
 
-	    TypeSystem ts = tc.typeSystem();
+        if (type.isVoid()) {
+            SemanticException e = new SemanticException("Local variable cannot have type " + this.type().type() + ".", position());
+            if (xtc.throwExceptions())
+                throw e;
+            Errors.issue(tc.job(), e);
+        }
 
-	    try {
-	        ts.checkLocalFlags(flags.flags());
-	    }
-	    catch (SemanticException e) {
-	        throw new SemanticException(e.getMessage(), position());
-	    }
+        TypeSystem ts = tc.typeSystem();
 
-	     X10LocalDecl_c n = (X10LocalDecl_c) this.type(tc.nodeFactory().CanonicalTypeNode(typeNode.position(), type));
+        try {
+            ts.checkLocalFlags(flags.flags());
+        }
+        catch (SemanticException e) {
+            if (xtc.throwExceptions())
+                throw new SemanticException(e.getMessage(), position());
+            Errors.issue(tc.job(), e, this);
+        }
 
-	    // Need to check that the initializer is a subtype of the (declared or inferred) type of the variable,
-	    // or can be implicitly coerced to the type.
-	    if (n.init != null) {
-	            try {
-	                Expr newInit = Converter.attemptCoercion(tc, n.init, type);
-	                return n.init(newInit);
-	            }
-	            catch (SemanticException e) {
-	            	throw new Errors.CannotAssign(n.init, type, n.init.position());
-	            }
-	    }
+        X10LocalDecl_c n = (X10LocalDecl_c) this.type(tc.nodeFactory().CanonicalTypeNode(typeNode.position(), type));
 
-	    return this;
-	}
+        // Need to check that the initializer is a subtype of the (declared or inferred) type of the variable,
+        // or can be implicitly coerced to the type.
+        if (n.init != null) {
+            try {
+                Expr newInit = Converter.attemptCoercion(tc, n.init, type);
+                return n.init(newInit);
+            }
+            catch (SemanticException e) {
+                Errors.CannotAssign e2 = new Errors.CannotAssign(n.init, type, n.init.position());
+                if (xtc.throwExceptions())
+                    throw e2;
+                Errors.issue(tc.job(), e2, n);
+            }
+        }
+
+        return this;
+    }
 
 	    @Override
 	    public Node setResolverOverride(Node parent, TypeCheckPreparer v) {

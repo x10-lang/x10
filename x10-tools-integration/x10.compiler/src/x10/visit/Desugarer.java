@@ -16,9 +16,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Stack;
 
 import polyglot.ast.Assign;
-import polyglot.ast.Binary_c;
+import polyglot.ast.Assign_c;
 import polyglot.ast.Block;
 import polyglot.ast.Call;
 import polyglot.ast.CanonicalTypeNode;
@@ -27,13 +28,16 @@ import polyglot.ast.Eval;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
 import polyglot.ast.FieldAssign;
+import polyglot.ast.FieldAssign_c;
 import polyglot.ast.FloatLit;
 import polyglot.ast.Formal;
 import polyglot.ast.IntLit;
 import polyglot.ast.Local;
+import polyglot.ast.LocalAssign_c;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.Return;
 import polyglot.ast.Stmt;
 import polyglot.ast.StringLit;
 import polyglot.ast.TypeNode;
@@ -127,6 +131,9 @@ public class Desugarer extends ContextVisitor {
     }
 
     private static int count;
+    //Collecting Finish Use: store reducer
+    private static Stack reducerS = new Stack();
+    private static int flag = 0;
 
     private static Name getTmp() {
         return Name.make("__desugarer__var__" + (count++) + "__");
@@ -155,10 +162,11 @@ public class Desugarer extends ContextVisitor {
     private static final Name CONVERT_IMPLICITLY = Converter.implicit_operator_as;
     private static final Name DIST = Name.make("dist");
 
-    public Node override(Node parent, Node n) {
+    public Node override(Node parent, Node n) {    
         if (n instanceof Eval) {
             try {
                 Stmt s = visitEval((Eval) n);
+                flag = 1;
                 return visitEdgeNoOverride(parent, s);
             }
             catch (SemanticException e) {
@@ -167,6 +175,32 @@ public class Desugarer extends ContextVisitor {
         }
 
         return null;
+    }
+    //Collecting Finish Use : store reducer when enter finishR
+    public NodeVisitor superEnter(Node parent, Node n) {
+        if (n instanceof LocalDecl){
+            LocalDecl f = (LocalDecl) n;
+            if (f.init() instanceof FinishExpr) {
+                reducerS.push((FinishExpr) f.init());
+            }
+        }
+        if (n instanceof Eval) {
+            if (((Eval) n).expr() instanceof Assign) {
+                Assign f = (Assign) ((Eval)n).expr();
+                Expr right = f.right();
+                if (right instanceof FinishExpr) {
+                    reducerS.push((FinishExpr) f.right());
+                }
+            }
+        }
+        if (n instanceof Return) {
+            Return f = (Return) n;
+            if (f.expr() instanceof FinishExpr) {
+                reducerS.push((FinishExpr) f.expr());
+            }
+        }
+
+        return super.superEnter(parent, n);
     }
 
     public Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
@@ -192,14 +226,16 @@ public class Desugarer extends ContextVisitor {
             return visitFinish((Finish) n);
         if (n instanceof Offer)
             return visitOffer((Offer) n);
+        if (n instanceof Return)
+            return visitReturn((Return) n);
         if (n instanceof ForEach)
             return visitForEach((ForEach) n);
         if (n instanceof AtEach)
             return visitAtEach((AtEach) n);
         if (n instanceof Eval)
             return visitEval((Eval) n);
-        if (n instanceof SettableAssign_c)
-            return visitSettableAssign((SettableAssign_c) n);
+        if (n instanceof Assign_c)
+            return visitAssign((Assign_c) n);
         // We should be using interfaces (e.g., X10Binary, X10Unary) instead, but
         // (a) there is no X10Unary, and (b) the method name functions are only
         // available on concrete classes anyway.
@@ -367,7 +403,7 @@ public class Desugarer extends ContextVisitor {
             args.add((Expr) leaveCall(null, i, this));
             args.add((Expr) leaveCall(null, v, this));
             Stmt alt = xnf.Eval(pos, synth.makeStaticCall(pos, RemoteOperation, XOR, args, xts.Void(), xContext()));
-            Expr cond = xnf.Binary(pos, q, Binary_c.EQ, call(pos, HERE_INT, xts.Int())).type(xts.Boolean());
+            Expr cond = xnf.Binary(pos, q, X10Binary_c.EQ, call(pos, HERE_INT, xts.Int())).type(xts.Boolean());
             Stmt cns = a.body();
             return xnf.If(pos, cond, cns, alt);
         } else {
@@ -390,7 +426,7 @@ public class Desugarer extends ContextVisitor {
             args.add((Expr) leaveCall(null, i, this));
             args.add((Expr) leaveCall(null, v, this));
             Stmt alt = xnf.Eval(pos, synth.makeStaticCall(pos, RemoteOperation, XOR, args, xts.Void(), xContext()));
-            Expr cond = xnf.Binary(pos, p, Binary_c.EQ, call(pos, HERE, xts.Place())).type(xts.Boolean());
+            Expr cond = xnf.Binary(pos, p, X10Binary_c.EQ, call(pos, HERE, xts.Place())).type(xts.Boolean());
             Stmt cns = a.body();
             return xnf.If(pos, cond, cns, alt);
         }
@@ -587,14 +623,17 @@ public class Desugarer extends ContextVisitor {
     //    catch (t:Throwable) { Runtime.pushException(t); }
     //    finally { x = f.stopFinishExpr(); }
     //    }
-    private Stmt visitFinishExpr(Assign n, LocalDecl l) throws SemanticException {
+    private Stmt visitFinishExpr(Assign n, LocalDecl l, Return r) throws SemanticException {
     	FinishExpr f = null;
-    	if ((l==null) && (n!=null)) {
-    		f = (FinishExpr) n.right();
-    	}
-    	if ((n==null) && (l!=null)) {
-    		f = (FinishExpr) l.init();
-    	}
+        if ((l==null) && (n!=null)&& (r == null)) {
+                f = (FinishExpr) n.right();
+        }
+        if ((n==null) && (l!=null)&& (r==null)) {
+                f = (FinishExpr) l.init();
+        }
+        if ((n==null) && (l==null)&& (r!=null)) {
+                f = (FinishExpr) r.expr();
+        }
     	
         Position pos = f.position();
         Expr reducer = f.reducer();
@@ -605,14 +644,11 @@ public class Desugarer extends ContextVisitor {
     		ConstrainedType ct = (ConstrainedType) reducerType;
     		reducerType = X10TypeMixin.baseType(Types.get(ct.baseType()));
         }
-        
+
+        // reducerType is "Reducible[T]", and reducerTarget is "T"
         // Parse out T
-        Type reducerTarget = null;
-        for (Type t : xts.interfaces(reducerType)) {
-        	for (Type tt : ((X10ParsedClassType)t).typeArguments()) {
-        		reducerTarget = tt;
-        	}
-        }
+        Type reducerTarget = X10TypeMixin.reducerType(reducerType);
+        assert reducerTarget!=null;
         
         Type coFinish = xts.load("x10.lang.Runtime.CollectingFinish");
         Type coFinishT = (((X10ParsedClassType)coFinish).typeArguments(Collections.singletonList(reducerTarget)));
@@ -620,18 +656,18 @@ public class Desugarer extends ContextVisitor {
         X10ConstructorInstance ti = xts.findConstructor(coFinishT, xts.ConstructorMatcher(coFinishT, Collections.singletonList(reducerType), context));
         Expr newCF = xnf.New(pos, TTE, Collections.singletonList(reducer)).constructorInstance(ti).type(coFinishT);
 
-        Name tmp1 = Name.make("finishR");
+        Name tmp1 = getTmp();
         LocalDef lDef1 = xts.localDef(pos, xts.NoFlags(), Types.ref(coFinishT), tmp1);
         Expr local1 = xnf.Local(pos, xnf.Id(pos, tmp1)).localInstance(lDef1.asInstance()).type(coFinishT);
         final Flags flags = Flags.FINAL;   
         LocalDecl localDecl = xnf.LocalDecl(pos, xnf.FlagsNode(pos, flags), xnf.CanonicalTypeNode(pos, coFinishT), xnf.Id(pos, tmp1)).localDef(lDef1);
         
-        Expr a = xnf.Assign(pos, local1, Assign.ASSIGN, newCF).type(coFinishT);
+        Expr a = assign(pos, local1, Assign.ASSIGN, newCF);
         Stmt s1 = xnf.Eval(pos, a);
         Block tryBlock = xnf.Block(pos,f.body());
 
         // Begin catch block
-        Name tmp2 = Name.make("Throwvar");
+        Name tmp2 = getTmp();
         MethodInstance mi = xts.findMethod(xts.Runtime(),
                 xts.MethodMatcher(xts.Runtime(), PUSH_EXCEPTION, Collections.singletonList(xts.Throwable()), context));
         LocalDef lDef = xts.localDef(pos, xts.NoFlags(), Types.ref(xts.Throwable()), tmp2);
@@ -646,44 +682,81 @@ public class Desugarer extends ContextVisitor {
         // Begin finally block
         Name STOPFINISHEXPR = Name.make("stopFinishExpr");
         Stmt returnS = null;
-        if ((l==null) && (n!=null)) {
+        if ((l==null) && (n!=null)&& (r==null)) {
         	Expr left = n.left(xnf).type(reducerTarget);
             Call instanceCall = synth.makeInstanceCall(pos, local1, STOPFINISHEXPR, Collections.EMPTY_LIST, Collections.EMPTY_LIST, reducerTarget, Collections.EMPTY_LIST, xContext());
-            Expr b = xnf.Assign(pos, left, Assign.ASSIGN, instanceCall).type(reducerTarget);
+            Expr b = assign(pos, left, Assign.ASSIGN, instanceCall);
             returnS = xnf.Eval(pos, b);
       	}
-        if ((n==null) && (l!=null)) {
+        if ((n==null) && (l!=null) && (r==null)) {
             Expr local2 = xnf.Local(pos, l.name()).localInstance(l.localDef().asInstance()).type(reducerTarget);
         	Call instanceCall = synth.makeInstanceCall(pos, local1, STOPFINISHEXPR, Collections.EMPTY_LIST, Collections.EMPTY_LIST, reducerTarget, Collections.EMPTY_LIST, xContext());
-         	Expr b = xnf.Assign(pos, local2, Assign.ASSIGN, instanceCall).type(reducerTarget);
+         	Expr b = assign(pos, local2, Assign.ASSIGN, instanceCall);
             returnS = xnf.Eval(pos, b);
+        }
+        if ((n==null) && (l==null) && (r!=null)) {
+            Call instanceCall = synth.makeInstanceCall(pos, local1, STOPFINISHEXPR, Collections.EMPTY_LIST, Collections.EMPTY_LIST, reducerTarget, Collections.EMPTY_LIST, xContext());
+            returnS = xnf.X10Return(pos, instanceCall, true);
         }
         
         Block finalBlock = xnf.Block(pos, returnS);
+        if(reducerS.size()>0) reducerS.pop();
         return xnf.Block(pos, localDecl, s1, xnf.Try(pos, tryBlock, Collections.singletonList(catchBlock), finalBlock));
     }
     //  offer e ->
     //  x10.lang.Runtime.CollectingFinish.offer(e);      
-	private Stmt visitOffer(Offer n) throws SemanticException {
-		
+	private Stmt visitOffer(Offer n) throws SemanticException {		
     	Position pos = n.position();
     	Expr offerTarget = n.expr();
-    	Type reducerTarget = offerTarget.type();    	 
+        Type expectType = null;
+        if(reducerS.size()>0) {
+            FinishExpr f = (FinishExpr) reducerS.peek();
+            Expr reducer = f.reducer();
+            Type reducerType = reducer.type();
+            if (reducerType instanceof ConstrainedType) {
+                ConstrainedType ct = (ConstrainedType) reducerType;
+                reducerType = X10TypeMixin.baseType(Types.get(ct.baseType()));
+            }
+
+            for (Type t : xts.interfaces(reducerType)) {
+                for (Type tt : ((X10ParsedClassType)t).typeArguments()) {
+                    expectType = tt;
+                }
+            }
+        }
+        else {
+            expectType = offerTarget.type();
+        }
+   	 
+        CanonicalTypeNode CCE = xnf.CanonicalTypeNode(pos, expectType);
+        TypeNode reducerA = (TypeNode) CCE;
+        Expr newOfferTarget = xnf.X10Cast(pos, reducerA, offerTarget,Converter.ConversionType.CHECKED).type(reducerA.type());
+
     	Name OFFER = Name.make("offer");  
     	Type coFinish = xts.load("x10.lang.Runtime.CollectingFinish");
-        Type coFinishT = (((X10ParsedClassType)coFinish).typeArguments(Collections.singletonList(reducerTarget))); 	   	  	    	    	
-    	Call call = synth.makeStaticCall(pos, coFinishT, OFFER, Collections.singletonList(offerTarget), xts.Void(), Collections.singletonList(reducerTarget),  xContext());
+        Type coFinishT = (((X10ParsedClassType)coFinish).typeArguments(Collections.singletonList(expectType))); 	   	  	    	    	
+    	Call call = synth.makeStaticCall(pos, coFinishT, OFFER, Collections.singletonList(offerTarget), xts.Void(), Collections.singletonList(expectType),  xContext());
     	
     	Stmt offercall = xnf.Eval(pos, call);     	
     	return offercall;		 
 	}
+
+    //handle finishR in return stmt:
+    private Stmt visitReturn(Return n) throws SemanticException {
+        if (n.expr() instanceof FinishExpr) {
+            Stmt returnS = visitFinishExpr(null,null,n);
+            return returnS;
+        }
+
+        return n;
+    }
 
     private Stmt visitLocalDecl(LocalDecl n) throws SemanticException {
         if (n.init() instanceof FinishExpr) {
             Position pos = n.position();
             ArrayList<Stmt> sList = new ArrayList<Stmt>();
             sList.add(n.init(null));                      
-            Stmt s = visitFinishExpr(null, n);
+            Stmt s = visitFinishExpr(null, n,null);
             sList.add(s);
             return xnf.StmtSeq(pos, sList);
         }
@@ -820,20 +893,18 @@ public class Desugarer extends ContextVisitor {
         Expr one = getLiteral(pos, ret, 1);
         Assign.Operator asgn = (op == X10Unary_c.PRE_INC) ? Assign.ADD_ASSIGN : Assign.SUB_ASSIGN;
         Expr a = assign(pos, e, asgn, one);
-        if (e instanceof X10Call)
-            a = visitSettableAssign((SettableAssign_c) a);
+        a = visitAssign((Assign_c) a);
         return a;
     }
 
     // x++ -> (x+=1)-1 or x-- -> (x-=1)+1
-    protected Expr unaryPost(Position pos, X10Unary_c.Operator op, Expr e) throws SemanticException {
+    private Expr unaryPost(Position pos, X10Unary_c.Operator op, Expr e) throws SemanticException {
         Type ret = e.type();
         Expr one = getLiteral(pos, ret, 1);
         Assign.Operator asgn = (op == X10Unary_c.POST_INC) ? Assign.ADD_ASSIGN : Assign.SUB_ASSIGN;
         X10Binary_c.Operator bin = (op == X10Unary_c.POST_INC) ? X10Binary_c.SUB : X10Binary_c.ADD;
         Expr incr = assign(pos, e, asgn, one);
-        if (e instanceof X10Call)
-            incr = visitSettableAssign((SettableAssign_c) incr);
+        incr = visitAssign((Assign_c) incr);
         return visitBinary((X10Binary_c) xnf.Binary(pos, incr, bin, one).type(ret));
     }
 
@@ -863,11 +934,11 @@ public class Desugarer extends ContextVisitor {
     // x++; -> ++x; or x--; -> --x; (to avoid creating an extra closure)
     private Stmt visitEval(Eval n) throws SemanticException {
         Position pos = n.position();
-        if (n.expr() instanceof Assign) {
+        if ((n.expr() instanceof Assign)&&(flag==1)) {
             Assign f = (Assign) n.expr();
             Expr right = f.right();
             if (right instanceof FinishExpr)
-                return visitFinishExpr(f, null);
+                return visitFinishExpr(f, null,null);
              
         }
         if (n.expr() instanceof X10Unary_c) {
@@ -883,6 +954,69 @@ public class Desugarer extends ContextVisitor {
         return n;
     }
 
+    private Expr visitAssign(Assign_c n) throws SemanticException {
+        if (n instanceof SettableAssign_c)
+            return visitSettableAssign((SettableAssign_c) n);
+        if (n instanceof LocalAssign_c)
+            return visitLocalAssign((LocalAssign_c) n);
+        if (n instanceof FieldAssign_c)
+            return visitFieldAssign((FieldAssign_c) n);
+        return n;
+    }
+
+    // x op=v -> x = x op v
+    private Expr visitLocalAssign(LocalAssign_c n) throws SemanticException { 
+        Position pos = n.position();
+        if (n.operator() == Assign.ASSIGN) return n;
+        X10Binary_c.Operator op = n.operator().binaryOperator();
+        Local left = (Local) n.left(xnf);
+        Expr right = n.right();
+        Type R = left.type();
+        Expr val = visitBinary((X10Binary_c) xnf.Binary(pos, left, op, right).type(R));
+        return assign(pos, left, Assign.ASSIGN, val);
+    }
+
+    // T.f op=v -> T.f = T.f op v or e.f op=v -> ((x:E,y:T)=>x.f=x.f op y)(e,v)
+    protected Expr visitFieldAssign(FieldAssign_c n) throws SemanticException { 
+        Position pos = n.position();
+        if (n.operator() == Assign.ASSIGN) return n;
+        X10Binary_c.Operator op = n.operator().binaryOperator();
+        Field left = (Field) n.left(xnf);
+        Expr right = n.right();
+        Type R = left.type();
+        if (left.flags().isStatic()) {
+            Expr val = visitBinary((X10Binary_c) xnf.Binary(pos, left, op, right).type(R));
+            return assign(pos, left, Assign.ASSIGN, val);
+        }
+        Expr e = (Expr) left.target();
+        Type E = e.type();
+        List<Formal> parms = new ArrayList<Formal>();
+        Name xn = Name.make("x");
+        LocalDef xDef = xts.localDef(pos, xts.Final(), Types.ref(E), xn);
+        Formal x = xnf.Formal(pos, xnf.FlagsNode(pos, xts.Final()),
+                xnf.CanonicalTypeNode(pos, E), xnf.Id(pos, xn)).localDef(xDef);
+        parms.add(x);
+        Name yn = Name.make("y");
+        Type T = right.type();
+        LocalDef yDef = xts.localDef(pos, xts.Final(), Types.ref(T), yn);
+        Formal y = xnf.Formal(pos, xnf.FlagsNode(pos, xts.Final()),
+                xnf.CanonicalTypeNode(pos, T), xnf.Id(pos, yn)).localDef(yDef);
+        parms.add(y);
+        Expr lhs = xnf.Field(pos,
+                xnf.Local(pos, xnf.Id(pos, xn)).localInstance(xDef.asInstance()).type(E),
+                xnf.Id(pos, left.name().id())).fieldInstance(left.fieldInstance()).type(R);
+        Expr val = visitBinary((X10Binary_c) xnf.Binary(pos,
+                lhs, op, xnf.Local(pos, xnf.Id(pos, yn)).localInstance(yDef.asInstance()).type(T)).type(R));
+        Expr res = assign(pos, lhs, Assign.ASSIGN, val);
+        Block body = xnf.Block(pos, xnf.Return(pos, res));
+        Closure c = synth.makeClosure(pos, R, parms, body, (X10Context) context);
+        X10MethodInstance ci = c.closureDef().asType().applyMethod();
+        List<Expr> args = new ArrayList<Expr>();
+        args.add(0, e);
+        args.add(right);
+        return xnf.ClosureCall(pos, c, args).closureInstance(ci).type(R);
+    }
+
     // a(i)=v -> a.set(v, i) or a(i)op=v -> ((x:A,y:I,z:T)=>x.set(x.apply(y) op z,y))(a,i,v)
     protected Expr visitSettableAssign(SettableAssign_c n) throws SemanticException {
         Position pos = n.position();
@@ -894,8 +1028,8 @@ public class Desugarer extends ContextVisitor {
             return xnf.Call(pos, n.array(), xnf.Id(pos, mi.name()),
                     args).methodInstance(mi).type(mi.returnType());
         }
-        X10Binary_c.Operator op = SettableAssign_c.binaryOp(n.operator());
-        X10Call left = (X10Call) n.left(xnf, this);
+        X10Binary_c.Operator op = n.operator().binaryOperator();
+        X10Call left = (X10Call) n.left(xnf);
         MethodInstance ami = left.methodInstance();
         List<Formal> parms = new ArrayList<Formal>();
         Name xn = Name.make("x");

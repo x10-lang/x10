@@ -802,9 +802,17 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     	
     	Type baseType2 = X10TypeMixin.baseType(t2);
     	CConstraint c1 = X10TypeMixin.realX(t1);
+    	if (c1!= null && x != null) {
+    		c1 = c1.instantiateSelf(x);
+    	}
+    	
     	CConstraint c2 = X10TypeMixin.xclause(t2);  // NOTE: xclause, not realX
+    
     	if (c2 != null && c2.valid()) { 
     		c2 = null; 
+    	}
+    	if (c2 != null && x != null) {
+    		c2 = c2.instantiateSelf(x);
     	}
     	if (c1 != null && c1.valid()) 
     		c1 = null; 
@@ -831,6 +839,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     		CConstraint c = null;
     		try {
     			c = xcontext.constraintProjection(c1, c2);
+//    			c1 = xcontext.constraintProjection(c1);
+//    			c2 = xcontext.constraintProjection(c2);
     		} catch (XFailure z) {
     			throw new InternalCompilerError("Unexpected inconsistent context " + xcontext);
     		}

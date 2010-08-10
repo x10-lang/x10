@@ -27,7 +27,7 @@ public class CovariantCall extends x10Test {
     	}
     }
     	
-    static def m(a: proto A) {
+    static def m(a: proto A!) {
     	a.x = 5;
     }
     

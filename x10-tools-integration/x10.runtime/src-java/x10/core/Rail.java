@@ -210,15 +210,20 @@ public final class Rail<T> extends Ref implements AnyRail<T>, Settable<Integer,T
     //
     // Runtime type information
     //
-    public static final RuntimeType<Rail> _RTT = new RuntimeType<Rail>(
+    public static final RuntimeType<Rail<?>> _RTT = new RuntimeType<Rail<?>>(
         Rail.class, 
         new Variance[] {Variance.INVARIANT},
         new Type<?>[] {
             new ParameterizedType(Fun_0_1._RTT, Types.INT, new UnresolvedType(0)),
             new ParameterizedType(Settable._RTT, Types.INT, new UnresolvedType(0))
         }
-    );
-    public RuntimeType<Rail> getRTT() {return _RTT;}
+    ) {
+        @Override
+        public String typeName() {
+            return "x10.lang.Rail";
+        }
+    };
+    public RuntimeType<Rail<?>> getRTT() {return _RTT;}
     public Type<?> getParam(int i) {
         return i == 0 ? type : null;
     }

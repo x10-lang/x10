@@ -10,7 +10,7 @@
 Functions, the last of the three kinds of values in X10, encapsulate pieces of
 code which can be applied to a vector of arguments to produce a value.
 Functions, when applied, can do nearly anything that any other code could do:
-fail to terminate, throw an exception, modify variables, spawn activities,
+fail to terminate, throw an exception, offer values, modify variables, spawn activities,
 execute in several places, and so on. X10 functions are not mathematical
 functions: the \xcd`f(1)` may return \xcd`true` on one call and \xcd`false` on
 an immediately following call.
@@ -151,6 +151,7 @@ ClosureExpression \:
         Guard\opt
         ReturnType\opt
         Throws\opt
+        Offers\opt
         \xcd"=>" ClosureBody \\
 ClosureBody \:
         Expression \\
@@ -158,8 +159,9 @@ ClosureBody \:
         \| \xcd"{" Statement\star Expression \xcd"}" \\
 \end{grammar}
 
-Functions have zero or more formal parameters, an optional return type
-and optional set of exceptions throws by the body.  The body has the
+Functions have zero or more formal parameters, an optional return type, an
+optional set of exceptions throws by the body, and an optional type offered by
+the body.  The body has the
 same syntax as a method body; it may be either an expression, a block
 of statements, or a block terminated by an expression to return. In
 particular, a value may be returned from the body of the function
@@ -208,7 +210,7 @@ element.  It returns \xcd`otherwise` if no element matches.
 %~~vis
 \begin{xten}
 
-def find[T](f: (T) => Boolean, xs: List[T], absent:T): T = {
+def find[T](f: (T) => Boolean, xs: List[T]!, absent:T): T = {
   for (x: T in xs)
     if (f(x)) return x;
   absent
@@ -223,7 +225,7 @@ The method may be invoked thus:
 % package functions2.oh.no.my.ears;
 % import x10.util.*;
 % class Finderator {
-% static def find[T](f: (T) => Boolean, xs: x10.util.List[T], absent:T): T = {
+% static def find[T](f: (T) => Boolean, xs: x10.util.List[T]!, absent:T): T = {
 %  for (x: T in xs)
 %    if (f(x)) return x;
 %  absent
@@ -231,7 +233,7 @@ The method may be invoked thus:
 % static def checkery() {
 %~~vis
 \begin{xten}
-xs: List[Int] = new ArrayList[Int]();
+xs: List[Int]! = new ArrayList[Int]();
 x: Int = find((x: Int) => x>0, xs, 0);
 \end{xten}
 %~~siv
@@ -244,6 +246,9 @@ As with a normal method, the function may have a \xcd"throws"
 clause. It is a static error if the body of the function throws a
 checked exception that is not declared in the function's \xcd"throws"
 clause.
+
+Similarly, it may have an \Xcd{offers T} clause; it is a static error if the
+body offers any value not of type \Xcd{T}.
 
 \subsection{Outer variable access}
 

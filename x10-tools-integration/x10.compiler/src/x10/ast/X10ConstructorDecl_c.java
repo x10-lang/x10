@@ -73,6 +73,8 @@ import x10.types.checker.VarChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
+import x10.visit.CheckEscapingThis;
+
 /**
  * An X10ConstructorDecl differs from a ConstructorDecl in that it has a returnType.
  *
@@ -502,8 +504,10 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         }
 
         n = (X10ConstructorDecl_c) (super.typeCheck(tc));
-        X10TypeMixin.protoTypeCheck(n.formals(),  n.returnType().type(),
+        final Type returnT = n.returnType().type();
+        X10TypeMixin.protoTypeCheck(n.formals(), returnT,
         		n.position(), false);
+
         return n;
     }
 

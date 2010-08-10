@@ -35,8 +35,7 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
         a.addAll(this);
         return a;
     }
-    
-    
+
     public def add(v: T): Boolean {
         a.add(v);
         return true;

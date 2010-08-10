@@ -261,6 +261,41 @@ RuntimeType RuntimeType::UShortType;
 RuntimeType RuntimeType::UIntType;
 RuntimeType RuntimeType::ULongType;
 
+
+const char *RuntimeFunType::name() const {
+    if (NULL == fullTypeName) {
+        assert(paramsc > 0); // if paramssc == 0, then fullTypeName is set to baseName in initRTT();
+        std::ostringstream ss;
+        ss << "(";
+        for (int i=0; i<paramsc-1; i++) {
+            if (i>0) ss << ",";
+            ss << params[i]->name();
+        }
+        ss << ")=>";
+        ss << params[paramsc-1]->name();
+        const_cast<RuntimeFunType*>(this)->fullTypeName = ::strdup(ss.str().c_str());
+    }
+    
+    return fullTypeName;
+}
+
+const char *RuntimeVoidFunType::name() const {
+    if (NULL == fullTypeName) {
+        assert(paramsc > 0); // if paramssc == 0, then fullTypeName is set to baseName in initRTT();
+        std::ostringstream ss;
+        ss << "(";
+        for (int i=0; i<paramsc; i++) {
+            if (i>0) ss << ",";
+            ss << params[i]->name();
+        }
+        ss << ")=>Void";
+        const_cast<RuntimeVoidFunType*>(this)->fullTypeName = ::strdup(ss.str().c_str());
+    }
+    
+    return fullTypeName;
+}
+
+
 volatile x10aux::reentrant_lock* RuntimeType::initRTTLock;
 
 // vim:tabstop=4:shiftwidth=4:expandtab

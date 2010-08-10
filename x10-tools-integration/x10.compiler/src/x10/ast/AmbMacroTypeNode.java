@@ -13,13 +13,13 @@ package x10.ast;
 
 import java.util.List;
 
-import polyglot.ast.Ambiguous;
+import polyglot.ast.AmbTypeNode;
 import polyglot.ast.Expr;
 import polyglot.ast.Id;
 import polyglot.ast.Prefix;
 import polyglot.ast.TypeNode;
 
-public interface AmbMacroTypeNode extends TypeNode, Ambiguous {
+public interface AmbMacroTypeNode extends AmbTypeNode {
     Id name();
     AmbMacroTypeNode name(Id name);
     

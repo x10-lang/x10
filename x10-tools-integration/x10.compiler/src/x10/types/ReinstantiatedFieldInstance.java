@@ -32,13 +32,6 @@ final class ReinstantiatedFieldInstance extends X10FieldInstance_c {
 	}
 
 	@Override
-	public CConstraint guard() {
-		if (guard == null)
-			return this.typeParamSubst.reinstantiate(fi.guard());
-		return guard;
-	}
-
-	@Override
 	public StructType container() {
 		if (container == null)
 			return this.typeParamSubst.reinstantiate(fi.container());

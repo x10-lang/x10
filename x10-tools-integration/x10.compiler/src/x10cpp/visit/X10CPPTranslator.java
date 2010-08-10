@@ -30,11 +30,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import polyglot.ast.Assert;
 import polyglot.ast.Block;
 import polyglot.ast.Branch;
 import polyglot.ast.Catch;
 import polyglot.ast.ClassDecl;
 import polyglot.ast.ClassMember;
+import polyglot.ast.CompoundStmt;
 import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Eval;
 import polyglot.ast.FieldDecl;
@@ -162,7 +164,16 @@ public class X10CPPTranslator extends Translator {
 			w.write("//#line " + line + " \"" + file + "\": "+n.getClass().getName());
 			w.newline();
 		}
-
+		
+		if (x10.Configuration.DEBUG && n instanceof Stmt && !(n instanceof CompoundStmt) && !(n instanceof Assert))
+		{
+			w.write("_X10_STATEMENT_HOOK()");
+			if (!(parent instanceof For))
+				w.write("; ");
+			else
+				w.write(", ");
+		}
+		
 		final int startLine = w.currentStream().getStreamLineNumber(); // for debug info
 
 		// FIXME: [IP] Some nodes have no del() -- warn in that case
@@ -223,9 +234,9 @@ public class X10CPPTranslator extends Translator {
     	File dest_path = new File(dest_path_);
     	// don't copy if the two dirs are the same...
     	if (src_path.equals(dest_path)) return;
-    	assert src_path.isDirectory() : src_path_;
-    	assert dest_path.isDirectory() : dest_path_;
     	if (!dest_path.exists()) dest_path.mkdir();
+    	assert src_path.isDirectory() : src_path_+" is not a directory";
+    	assert dest_path.isDirectory() : dest_path_+" is not a directory";
     	try {
 			FileInputStream src = new FileInputStream(new File(src_path_+file));
 	    	FileOutputStream dest = new FileOutputStream(new File(dest_path_+file));

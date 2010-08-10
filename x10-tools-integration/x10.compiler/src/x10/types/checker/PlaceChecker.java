@@ -19,6 +19,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.util.InternalCompilerError;
+import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import x10.Configuration;
 import x10.ast.X10Call;
@@ -187,7 +188,8 @@ public class PlaceChecker {
 		return type;
 	}
 	
-	public static Type ReplacePlaceTermByHere(Type type, XTerm term) {
+	public static Type ReplacePlaceTermByHere(Type type, Context context) {
+		XTerm term = ((X10Context) context).currentPlaceTerm().term();
 		try {
 			if ( term instanceof XVar)
 				type = Subst.subst(type,  here(), (XVar) term); 
@@ -335,7 +337,7 @@ public class PlaceChecker {
      * @param context
      * @return
      */
-	static boolean isHere(Receiver r, X10Context xc) {
+	private static boolean isHere(Receiver r, X10Context xc) {
 		   XConstrainedTerm h = xc.currentPlaceTerm();
 		  // assert h != null;
 		   return isAtPlace(r, h==null ? null : h.term(), xc);
@@ -436,156 +438,81 @@ public class PlaceChecker {
  	   return false;
 
     }
-    
-    /**
-     * Check that this field access is place safe.
-     * @param field
-     * @param xc
-     * @throws SemanticException
-     */
-    
-    public static void checkFieldPlaceType( Field field, ContextVisitor tc) 
-    throws SemanticException {
-    	X10Flags xFlags = X10Flags.toX10Flags(field.fieldInstance().flags());
-    	// A global field can be accessed from anywhere.
-    	if (xFlags.isGlobal())
-    		return;
-    	
-    	// A static field can be accessed from anywhere.
-    	if (xFlags.isStatic())
-    		return;
-    
-    	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-    	X10Context xc = (X10Context) tc.context();
-    	Receiver target = field.target();
-    	if (! ts.isSubtype(target.type(), ts.Object(), xc))
-    		return;
-    
-    	if (PlaceChecker.isHere(target, xc))
-    		return;
-    
-    	XConstrainedTerm h = xc.currentPlaceTerm();
-    	if (h != null && isGlobalPlace(h.term())) {
-    		throw new Errors.PlaceTypeErrorFieldShouldBeGlobal(field, 
-    				field.position());
-    	}
-    	XTerm placeTerm=null;
-    	if (h!= null)
-    		placeTerm = h.term();
-    	XTerm targetTerm=placeTerm(target.type());
-    	throw new Errors.PlaceTypeErrorFieldShouldBeLocalOrGlobal(field, 
-    			placeTerm,
-    			targetTerm,
-    			field.position());
+
+    public static Receiver makeReceiverLocalIfNecessary(ContextVisitor tc, Receiver target, X10Flags flags) throws SemanticException {
+        if (isTargetPlaceSafe(tc, target, flags)) return target;  // nothing to do
+        if (Configuration.STATIC_CALLS) return null;              // nothing we can do
+        // compensate by generating a dynamic cast
+        if (target instanceof Expr) {
+            Type type = PlaceChecker.AddIsHereClause(X10TypeMixin.baseType(target.type()), tc.context());
+            type = PlaceChecker.ReplacePlaceTermByHere(type, tc.context());
+            target = Converter.attemptCoercion(true, tc, (Expr) target, type);
+        }
+        return target;
     }
-    
-    
-    /* public CConstraint isHereConstraint(Receiver r, X10Context xc) {
-  	   CConstraint pc = new CConstraint();
 
-  	   XTerm target = xtypeTranslator().trans(pc, r, xc);
-  	   assert r != null;
-  	   return isHereConstraint(pc, target, xc);
-
-     }
-     public CConstraint isHereConstraint(XTerm target, X10Context xc) {
-  	   CConstraint c = new CConstraint();
-  	   return isHereConstraint(c, target, xc);
-     }
-     protected CConstraint isHereConstraint(CConstraint pc, XTerm target, X10Context xc) {
-  	   try {
-  		   XTerm eloc = xtypeTranslator().trans(pc, target, 
-  				   ((StructType) Object()).fieldNamed(homeName()));
-  		   // XConstrainedTerm h = xc.currentPlaceTerm();
-  		   // pc.addBinding(eloc, h==null ? h.term(): XTerms.HERE);
-  		   pc.addBinding(eloc, Places.HERE);
-  	   } catch (XFailure z) {
-  		   pc.setInconsistent();
-  	   } 
-  	   return pc;
-     }
-    */
-    
-    public static Call makeReceiverLocalIfNecessary(X10Call n, ContextVisitor tc) throws SemanticException {
-    	try {
-			checkLocalReceiver(n, tc);
-		} catch (Errors.PlaceTypeException z) {
-			// ok, compensate by generating a dynamic cast.
-			if (Configuration.STATIC_CALLS)
-				throw z;
-			X10Call_c result = (X10Call_c) n;
-			Receiver r = result.target();
-			if (r instanceof Expr) {
-				Expr target = (Expr) r;
-				Type type = PlaceChecker.AddIsHereClause(X10TypeMixin.baseType(target.type()), tc.context());
-			 	type = PlaceChecker.ReplacePlaceTermByHere(type, ((X10Context) tc.context()).currentPlaceTerm().term());
-				target = Converter.attemptCoercion(true, tc, target, type);
-				n = (X10Call) result.reconstruct(target, result.name(), result.arguments());
-			}
-			
-		}
-		return n;
+    public static X10Call makeReceiverLocalIfNecessary(X10Call n, ContextVisitor tc) throws SemanticException {
+        Receiver res =
+            makeReceiverLocalIfNecessary(tc, n.target(), X10Flags.toX10Flags(n.methodInstance().flags()));
+        if (res != null) {
+            if (res != n.target()) n = (X10Call) n.target(res).targetImplicit(false);
+            return n;
+        }
+        XConstrainedTerm h = ((X10Context) tc.context()).currentPlaceTerm();
+        if (h != null && PlaceChecker.isGlobalPlace(h.term())) {
+            throw new Errors.PlaceTypeErrorMethodShouldBeGlobal(n, n.position());
+        } else {
+            throw new Errors.PlaceTypeErrorMethodShouldBeLocalOrGlobal(n, 
+                    h == null ? null : h.term(),
+                            placeTerm(n.target().type()),
+                            n.position());
+        }
     }
     
     public static X10Field_c makeFieldAccessLocalIfNecessary(X10Field_c n, ContextVisitor tc) throws SemanticException {
-    	try {
-			checkFieldPlaceType(n, tc);
-		} catch (Errors.PlaceTypeException z) {
-			// ok, compensate by generating a dynamic cast.
-			if (Configuration.STATIC_CALLS)
-				throw z;
-			Receiver r = n.target();
-			if (r instanceof Expr) {
-				Expr target = (Expr) r;
-				Type type = PlaceChecker.AddIsHereClause(X10TypeMixin.baseType(target.type()), tc.context());
-			 	type = PlaceChecker.ReplacePlaceTermByHere(type, ((X10Context) tc.context()).currentPlaceTerm().term());
-				target = Converter.attemptCoercion(true, tc, target, type);
-				n =  n.reconstruct(target, n.name());
-			}
-			
-		}
-		return n;
+        Receiver res =
+            makeReceiverLocalIfNecessary(tc, n.target(), X10Flags.toX10Flags(n.fieldInstance().flags()));
+        if (res != null) {
+            if (res != n.target()) n = (X10Field_c) n.target(res).targetImplicit(false);
+            return n;
+        }
+        XConstrainedTerm h = ((X10Context) tc.context()).currentPlaceTerm();
+        if (h != null && PlaceChecker.isGlobalPlace(h.term())) {
+            throw new Errors.PlaceTypeErrorFieldShouldBeGlobal(n, n.position());
+        } else {
+            throw new Errors.PlaceTypeErrorFieldShouldBeLocalOrGlobal(n, 
+                    h == null ? null : h.term(),
+                            placeTerm(n.target().type()),
+                            n.position());
+        }
     }
-    /**
-     * Check that this method call is place safe (throwing an error if it isnt, i.e.
-     * if the call is to a method that is not global, and the receiver
-     * is not at the current place).
-     */
-    public static void checkLocalReceiver( Call call, ContextVisitor tc) 
-	throws SemanticException {
-		X10Flags xFlags = X10Flags.toX10Flags(call.methodInstance().flags());
-		// A global method can be invoked from anywhere.
-		if (xFlags.isGlobal())
-			return;
-		
-		// A static method can be invoked from anywhere.
-		if (xFlags.isStatic())
-			return;
 
-		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-		X10Context xc = (X10Context) tc.context();
-		
-		Receiver target = call.target();
-		
-		
-		// Method invocations on structs are always permitted
-		if (ts.isStructType(target.type()))
-			return;
+    private static boolean isTargetPlaceSafe(ContextVisitor tc, Receiver target, X10Flags xFlags) {
+        // A type can be accessed from anywhere.
+        if (!(target instanceof Expr))
+            return true;
 
+        // A global entity can be accessed from anywhere.
+        if (xFlags.isGlobal())
+            return true;
 
-		if (PlaceChecker.isHere(target, xc))
-			return;
+        // A static entity can be accessed from anywhere.
+        if (xFlags.isStatic())
+            return true;
 
-		XConstrainedTerm h = xc.currentPlaceTerm();
-		if (h != null && PlaceChecker.isGlobalPlace(h.term())) {
-			throw new Errors.PlaceTypeErrorMethodShouldBeGlobal(call, call.position());
-		}
-		
-		throw new Errors.PlaceTypeErrorMethodShouldBeLocalOrGlobal (call, 
-				xc.currentPlaceTerm()==null? null: xc.currentPlaceTerm().term(), 
-						placeTerm(target.type()),
-						call.position());
-	}
+        X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+        // Entities in structs can be accessed from anywhere.
+        if (ts.isStructType(target.type()))
+            return true;
+
+        // Any entity can be accessed in a local object.
+        X10Context xc = (X10Context) tc.context();
+        if (PlaceChecker.isHere(target, xc))
+            return true;
+
+        return false;
+    }
+
     /**
      * Returns true if the placeChecker cannot establish that e is here.
      * @param e
