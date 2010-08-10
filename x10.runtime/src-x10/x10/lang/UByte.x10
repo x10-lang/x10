@@ -442,7 +442,12 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "x10.core.Floats.toUByte(#1)")
     @Native("c++",  "((x10_ubyte) (#1))")
-    public static safe operator (x:Float) as UByte = UByte(x as Byte);
+    public static safe operator (x:Float) as UByte {
+        val temp : Int = x as Int;
+        if (temp > 0xff) return UByte(0xff as Byte);
+        else if (temp < 0) return UByte(0);
+        else return UByte(temp as Byte);
+    }
 
     /**
      * Convert a given Double to a UByte.
@@ -451,7 +456,12 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "x10.core.Floats.toUByte(#1)")
     @Native("c++",  "((x10_ubyte) (#1))")
-    public static safe operator (x:Double) as UByte = UByte(x as Byte);
+    public static safe operator (x:Double) as UByte {
+        val temp : Int = x as Int;
+        if (temp > 0xff) return UByte(0xff as Byte);
+        else if (temp < 0) return UByte(0);
+        else return UByte(temp as Byte);
+    }
 
     /**
      * Coerce a given Byte to a UByte.
