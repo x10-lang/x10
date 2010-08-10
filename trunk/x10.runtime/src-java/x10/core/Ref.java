@@ -80,7 +80,7 @@ public class Ref implements Any {
         if (obj instanceof Any) {
             s = ((Any) obj).getRTT().typeName(obj);
         } else {
-            s = obj.getClass().toString().substring(6);
+            s = obj.getClass().toString().substring("class ".length());
             // TODO: create mapping table of @NativeRep'ed type to X10 type and use it.
             // TODO: unsigned types
             if (s.startsWith("java.")) {
