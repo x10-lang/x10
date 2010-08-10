@@ -10,7 +10,7 @@
 #
 
 X10_VERSION=svn head
-VERSION=20100508
+VERSION=20100709
 SOCKETS_TGZ = pgas-$(VERSION)-$(WPLATFORM)-sockets.tgz
 LAPI_TGZ = pgas-$(VERSION)-$(WPLATFORM)-lapi.tgz
 BGP_TGZ = pgas-$(VERSION)-$(WPLATFORM)-bgp.tgz
