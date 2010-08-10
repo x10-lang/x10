@@ -18,6 +18,7 @@ import polyglot.main.Options;
 import polyglot.main.UsageError;
 import polyglot.util.AbstractErrorQueue;
 import polyglot.util.ErrorInfo;
+import x10.errors.X10ErrorInfo;
 
 public class CompilerTestsBase {
 	
@@ -75,6 +76,7 @@ public class CompilerTestsBase {
 				System.err.println(e + ":" + e.getPosition());
 			}
 			for(ErrorInfo error: errors){
+				Assert.assertFalse(getTestId(files, options), invariantViolation(error));
 				Assert.assertFalse(getTestId(files, options), internalError(error));
 				Assert.assertFalse(getTestId(files, options), notWellFormed(error));
 			}
@@ -185,6 +187,12 @@ public class CompilerTestsBase {
 	
 	private boolean internalError(ErrorInfo e){
 		if (e.getErrorKind() == ErrorInfo.INTERNAL_ERROR)
+			return true;
+		return false;
+	}
+	
+	private boolean invariantViolation(ErrorInfo e){
+		if (e.getErrorKind() == X10ErrorInfo.INVARIANT_VIOLATION_KIND)
 			return true;
 		return false;
 	}
