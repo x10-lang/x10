@@ -79,7 +79,7 @@ class State implements Cloneable {
     }
     
     public String stateInsts() {
-	return "[" + this.startInst + ":" + this.endInst + "](" + funName + ")" ; //+ this.counter;
+	return "[" + this.startInst + ":" + this.endInst + "](" + funName + ")" + " "; //+ this.counter;
     }
     
     public String toString() {

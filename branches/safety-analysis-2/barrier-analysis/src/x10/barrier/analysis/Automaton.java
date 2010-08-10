@@ -399,7 +399,6 @@ public class Automaton {
     public void mayHappenInParallel () {
 	visitedStates = new ArrayList();
 	mayHappenInParallel(root);
-	visitedStates = null;
 	visitedStates = new ArrayList();
 	printParallelBlocks(root);
     }
