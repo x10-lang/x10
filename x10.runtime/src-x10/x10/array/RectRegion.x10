@@ -43,7 +43,7 @@ public final class RectRegion extends Region{rect} {
         super(minArg.length, true, allZeros(minArg));
 
         if (minArg.length!=maxArg.length) 
-            throw U.illegal("min and max must have same length");
+            throw new IllegalOperationException("min and max must have same length");
 
         var s:int = 1;
         for (var i:int = 0; i<minArg.length; i++) {
@@ -183,7 +183,7 @@ public final class RectRegion extends Region{rect} {
             }
             return new RectRegion(newMin, newMax);
         } else {
-	    throw U.unsupported("haven't implemented RectRegion intersection with "+that.typeName());
+	    throw new UnsupportedOperationException("haven't implemented RectRegion intersection with "+that.typeName());
         }
     }
     
@@ -204,7 +204,7 @@ public final class RectRegion extends Region{rect} {
             val newMax = ValRail.make[int](k, (i:int)=>i<rank?max(i):Int.MAX_VALUE);
 	    return new RectRegion(newMin,newMax);
         } else {
-	    throw U.unsupported("haven't implemented RectRegion product with "+that.typeName());
+	    throw new UnsupportedOperationException("haven't implemented RectRegion product with "+that.typeName());
         }
     }
 
@@ -318,7 +318,7 @@ public final class RectRegion extends Region{rect} {
 
 
     public global def scanners():Iterator[Region.Scanner]! {
-        throw U.unsupported("TODO: scanners not defined for RectRegion");
+        throw new UnsupportedOperationException("TODO: scanners not defined for RectRegion");
     }
 
 

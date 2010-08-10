@@ -24,7 +24,7 @@ final class FullRegion extends Region{rect} {
     public global def isConvex() = true;
     public global def isEmpty() = false;
     public global def size():int {
-        throw U.unsupported("Full Region is infinite; size not supported");
+        throw new IllegalOperationException("Full Region is infinite; size not supported");
     }
     public global def min() = ValRail.make(rank, (Int)=>Int.MIN_VALUE);
     public global def max() = ValRail.make(rank, (Int)=>Int.MAX_VALUE);
@@ -42,7 +42,7 @@ final class FullRegion extends Region{rect} {
             val newMax = ValRail.make[int](newRank, (i:int)=>i<rank?Int.MAX_VALUE:thatMax(i-rank));
 	    return Region.makeRectangular(newMin,newMax);
         } else {
-	    throw U.unsupported("haven't implemented FullRegion product with "+that.typeName());
+	    throw new UnsupportedOperationException("haven't implemented FullRegion product with "+that.typeName());
         }
     }
     public global def projection(axis: int): Region(1) = new FullRegion(1);
@@ -55,10 +55,10 @@ final class FullRegion extends Region{rect} {
 
 
     public global def scanners():Iterator[Region.Scanner]! {
-        throw U.unsupported("TODO: scanners not defined for full region");
+        throw new IllegalOperationException("Full Region is infinite: scanning is not supported");
     }
 
     public global def iterator():Iterator[Point(rank)] {
-        throw U.unsupported("TODO: scanners not defined for full region");
+        throw new IllegalOperationException("Full Region is infinite: iteration is not supported");
     }
 }

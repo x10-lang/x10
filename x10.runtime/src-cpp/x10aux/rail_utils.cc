@@ -49,7 +49,7 @@ ref<x10::lang::String> x10aux::railToStringFinalize(std::stringstream *ss) {
 
 void x10aux::throwArrayIndexOutOfBoundsException(x10_int index, x10_int length) {
 #ifndef NO_EXCEPTIONS
-    char *msg = alloc_printf("%ld not in [0,%ld)", (long)index, (long)length);
+    char *msg = alloc_printf("Index %ld out of range (rail has length %ld)", (long)index, ((long)length));
     throwException(x10::lang::ArrayIndexOutOfBoundsException::_make(String::Lit(msg)));
 #endif
 }

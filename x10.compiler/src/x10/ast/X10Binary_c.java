@@ -407,6 +407,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 
         if (op == ADD) {
             if (ts.isSubtype(l, ts.String(), context) || ts.isSubtype(r, ts.String(), context)) {
+                assert (false);
                 if (!ts.canCoerceToString(l, tc.context())) {
                     throw new SemanticException("Cannot coerce an expression " + 
                                                 "of type " + l + " to a String.", 

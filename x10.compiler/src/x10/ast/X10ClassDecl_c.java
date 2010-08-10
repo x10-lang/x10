@@ -529,7 +529,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	if (! n.flags().flags().isAbstract())
     		return n;
     	
-    	Position CG = Position.COMPILER_GENERATED;
+    	Position CG = X10NodeFactory_c.compilerGenerated(body());
     	X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
     	X10NodeFactory xnf = (X10NodeFactory) tc.nodeFactory();
     	X10ClassType targetType = (X10ClassType) n.classDef().asType();
@@ -981,7 +981,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     		TypeSystem ts, NodeFactory nf) throws SemanticException
     {
           X10ClassDef thisType = (X10ClassDef) _thisType;
-    	  Position pos = Position.COMPILER_GENERATED; //body().position().startOf();
+    	  Position pos = X10NodeFactory_c.compilerGenerated(body());
     	  X10NodeFactory xnf = (X10NodeFactory) nf;
           Block block = null;
 

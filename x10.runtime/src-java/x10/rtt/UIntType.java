@@ -16,8 +16,8 @@ import x10.core.fun.Fun_0_2;
 
 
 public class UIntType extends RuntimeType<Integer> {
-    public UIntType() {
-        super(int.class);
+    public UIntType(Class<?> c) {
+        super(c);
     }
     
     @Override
@@ -25,10 +25,10 @@ public class UIntType extends RuntimeType<Integer> {
         return "x10.lang.UInt";
     }
 
-    @Override
-    public boolean instanceof$(Object o) {
-        return o instanceof java.lang.Integer;
-    }
+//    @Override
+//    public boolean instanceof$(Object o) {
+//        return o instanceof x10.lang.UInt;
+//    }
     
     @Override
     public Object makeArray(int length) {

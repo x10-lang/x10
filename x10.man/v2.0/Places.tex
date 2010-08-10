@@ -105,7 +105,7 @@ things which do.  Note that every object \xcd`thing` has a property
 %  static def dealWith(Thing) {}	
 %~~vis
 \begin{xten}
-  public static def dealWithLocal(things: Rail[Thing]) {
+  public static def dealWithLocal(things: Rail[Thing]!) {
      for(thing in things) {
     	 if (thing.home == here) 
             dealWith(thing);

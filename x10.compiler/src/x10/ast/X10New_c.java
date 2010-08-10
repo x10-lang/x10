@@ -30,6 +30,7 @@ import polyglot.types.ConstructorInstance;
 import polyglot.types.Context;
 import polyglot.types.Matcher;
 import polyglot.types.Name;
+import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -46,7 +47,6 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
-import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.errors.Errors;
 import x10.extension.X10Del;
@@ -62,7 +62,6 @@ import x10.types.X10TypeSystem_c;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.XConstrainedTerm;
 import x10.types.matcher.DumbConstructorMatcher;
 import x10.visit.X10TypeChecker;
 
@@ -214,13 +213,14 @@ public class X10New_c extends New_c implements X10New {
         
         // Create the qualifier.
         Expr q;
+        Position cg = X10NodeFactory_c.compilerGenerated(position());
 
         if (outer.typeEquals(c.currentClass(), ar.context())) {
-            q = nf.This(Position.COMPILER_GENERATED);
+            q = nf.This(cg);
         }
         else {
-            q = nf.This(Position.COMPILER_GENERATED,
-                        nf.CanonicalTypeNode(Position.COMPILER_GENERATED, outer));
+            q = nf.This(cg,
+                        nf.CanonicalTypeNode(cg, outer));
         }
         
         q = q.type(outer);
@@ -259,10 +259,6 @@ public class X10New_c extends New_c implements X10New {
 
             tn = (TypeNode) n.visitChild(tn, childtc);
 
-            if (tn.type() instanceof UnknownType) {
-                throw new SemanticException();
-            }
-
             Type t = tn.type();
             t = ts.expandMacros(t);
 
@@ -270,7 +266,10 @@ public class X10New_c extends New_c implements X10New {
             t = X10TypeMixin.baseType(t);
 
             if (!(t instanceof X10ClassType)) {
-                throw new SemanticException("Cannot instantiate type " + t + ".");
+                QName name = QName.make(((AmbTypeNode) n.tn).name().id().toString());
+                t = ((X10TypeSystem_c) ts).createFakeClass(name, null);
+                tn = nf.CanonicalTypeNode(tn.position(), t);
+//                throw new SemanticException("Cannot instantiate type " + t + ".");
             }
 
             X10ClassType ct = (X10ClassType) t;
@@ -382,13 +381,13 @@ public class X10New_c extends New_c implements X10New {
                 throw e;
             Errors.issue(tc.job(), e, this);
             X10TypeSystem_c ts = (X10TypeSystem_c) tc.typeSystem();
-	        List<Type> argTypes = new ArrayList<Type>(this.arguments.size());
-	        for (Expr a : this.arguments) {
-	            argTypes.add(a.type());
-	        }
-	        X10ClassType ct = (X10ClassType) X10TypeMixin.baseType(tn.type());
-            X10ConstructorInstance ci = ts.createFakeConstructor(ct, argTypes);
-	        Type rt = ci.returnType();
+            List<Type> argTypes = new ArrayList<Type>(this.arguments.size());
+            for (Expr a : this.arguments) {
+                argTypes.add(a.type());
+            }
+            X10ClassType ct = (X10ClassType) X10TypeMixin.baseType(tn.type());
+            X10ConstructorInstance ci = ts.createFakeConstructor(ct, argTypes, e);
+            Type rt = ci.returnType();
             return (X10New_c) constructorInstance(ci).type(rt);
         }
     }

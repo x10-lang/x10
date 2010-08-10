@@ -9,13 +9,9 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-package x10.array;
+package x10.core.fun;
 
+import x10.core.Any;
 
-public class NoSuchElementException extends RuntimeException {
-
-    public def this(msg: String): NoSuchElementException {
-        super(msg);
-    }
-
+public interface VoidFun extends Any {
 }

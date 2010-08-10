@@ -16,8 +16,8 @@ import x10.core.fun.Fun_0_2;
 
 
 public class ULongType extends RuntimeType<Long> {
-    public ULongType() {
-        super(long.class);
+    public ULongType(Class<?> c) {
+        super(c);
     }
     
     @Override
@@ -25,10 +25,10 @@ public class ULongType extends RuntimeType<Long> {
         return "x10.lang.ULong";
     }
 
-    @Override
-    public boolean instanceof$(Object o) {
-        return o instanceof java.lang.Long;
-    }
+//    @Override
+//    public boolean instanceof$(Object o) {
+//        return o instanceof x10.lang.ULong;
+//    }
 
     @Override
     public Object makeArray(int length) {

@@ -29,7 +29,7 @@ public class Types {
     }
 
     public static Type runtimeType(Class<?> c) {
-        return new RuntimeType(c);
+        return new RuntimeType<Class<?>>(c);
     }
 
     public static Type<Boolean> BOOLEAN = new BooleanType();
@@ -38,13 +38,23 @@ public class Types {
     public static Type<Character> CHAR = new CharType();
     public static Type<Integer> INT = new IntType();
     public static Type<Long> LONG = new LongType();
-    public static Type<Byte> UBYTE = new UByteType();
-    public static Type<Short> USHORT = new UShortType();
-    public static Type<Integer> UINT = new UIntType();
-    public static Type<Long> ULONG = new ULongType();
+    public static Type<Byte> UBYTE;
+    public static Type<Short> USHORT;
+    public static Type<Integer> UINT;
+    public static Type<Long> ULONG;
     public static Type<Float> FLOAT = new FloatType();
     public static Type<Double> DOUBLE = new DoubleType();
-    
+
+    static {
+        try {
+            UBYTE = new UByteType(Class.forName("x10.lang.UByte"));
+            USHORT = new UShortType(Class.forName("x10.lang.UShort"));
+            UINT = new UIntType(Class.forName("x10.lang.UInt"));
+            ULONG = new ULongType(Class.forName("x10.lang.ULong"));
+        } catch (ClassNotFoundException e) {
+            throw new ClassCastException();
+        }
+    }
     private static boolean isStruct(Type<?> rtt) {
         if (
             rtt == BOOLEAN
@@ -80,13 +90,13 @@ public class Types {
         if (typeParamOrAny instanceof java.lang.Number) {return((java.lang.Number) typeParamOrAny).intValue();}
         throw new ClassCastException();
     }
-    
+
     public static long aslong(Object typeParamOrAny){
         if (typeParamOrAny == null) {nullIsCastedToStruct();}
         if (typeParamOrAny instanceof java.lang.Number) {return((java.lang.Number) typeParamOrAny).longValue();}
         throw new ClassCastException();
     }
-    
+
     public static float asfloat(Object typeParamOrAny){
         if (typeParamOrAny == null) {nullIsCastedToStruct();}
         if (typeParamOrAny instanceof java.lang.Number) {return((java.lang.Number) typeParamOrAny).floatValue();}

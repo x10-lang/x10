@@ -290,7 +290,7 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
      * @param x the given UInt
      * @return the given UInt converted to an Int.
      */
-    @Native("java", "((int) (#1))")
+    @Native("java", "((int) (#1.intVal))")
     @Native("c++",  "((x10_int) (#1))")
     public native static safe operator (x:UInt): Int;
 
