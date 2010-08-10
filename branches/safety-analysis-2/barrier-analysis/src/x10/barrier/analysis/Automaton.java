@@ -38,7 +38,7 @@ public class Automaton {
 	
         while(true) {
            // System.out.println(currState);
-            if (currState.outgoingEdges.size() > 1 || currState.outgoingEdges.size() == 0) {
+            if (currState.outgoingEdges.size() > 1 || currState.outgoingEdges.size() == 0 || currState.isStart) {
         	if(head == currState) return head; 	
         	head.outgoingEdges = new ArrayList();
         	for (Object o: currState.outgoingEdges) {   
@@ -109,9 +109,12 @@ public class Automaton {
  }
     
    public void renameAsync (ComposedState inVisited) { 
-       if (this.visitedLocalStates.contains(inVisited))
+       if (inVisited.asyncsRenamed) 
 	   return;
-       this.visitedLocalStates.add(inVisited);
+
+      inVisited.asyncsRenamed = true;
+
+ 
        List addList = new ArrayList ();
        List removeList = new ArrayList ();
        for (Object o: inVisited.states) {
@@ -127,10 +130,11 @@ public class Automaton {
 	}
        	inVisited.states.addAll(addList);
 	inVisited.states.removeAll(removeList);
+	//System.out.println("------------" + inVisited + inVisited.asyncsRenamed);
     
-       for (Object o: inVisited.outgoingEdges) {
-	   renameAsync((ComposedState) ((Edge) o).to);
-       }
+      for (Object o: inVisited.outgoingEdges) {
+	  renameAsync((ComposedState) ((Edge) o).to);
+      }
    }
  
    public State compose(State head) {
@@ -144,16 +148,30 @@ public class Automaton {
 		    else 
 			s2 = ((Edge) oe).to;
 		    i++;
-		}
+		} 
+		
+
 		parStart.addState(s1);
 		parStart.addState(s2);
 		ComposedState inVisited = this.inVisited(parStart);
 		if (inVisited != null) {
-		    /*this.visitedLocalStates = new ArrayList();
-		    renameAsync (inVisited); // revisiting an async? rename one of them.
-		    ComposedState inVisited2 = this.inVisited(parStart);
-		    if (inVisited2 != null) */
-			return inVisited;
+		    	if (inVisited.asyncsRenamed == true)
+		    	    return inVisited;
+		    	this.renameAsync(inVisited);
+		    	parStart.asyncsRenamed = true;
+		    	/*System.out.println("s1------" + s1 + s1.getClass());
+		    	System.out.println("s2------" + s2 + s2.getClass());
+		    	System.out.println("s3------------ " + inVisited);
+		    	System.out.println("s4------------ " + parStart);*/
+		    	q.add(new Element(s1, s2, parStart));
+		    	ComposedState parparStart = new ComposedState();
+		    	parparStart.addState(parStart);
+		    	parparStart.addState(inVisited);
+		    	q.add(new Element(parStart, inVisited, parparStart));
+		    	parparStart.asyncsRenamed = true;
+		    	this.composeAutomaton();
+		    	return parparStart;
+			
 		}
 		q.add(new Element(s1, s2, parStart));
 		this.composeAutomaton();
@@ -338,10 +356,9 @@ public class Automaton {
 	    if (e.type == Edge.COND) {
 		for (Object oo : ((ComposedState) e.to).states) {
 		    State s = (State) oo;
-		    if(!s.funName.contentEquals(s.funName))
 			    if (! (s.endInst == -1)) {
-				state.parallelBlocks.add(s);
-			        s.parallelBlocks.add(state);
+				state.addParallelBlock(s);
+			        s.addParallelBlock(state);
 			    }
 		}
 		parallelStatementsof(e.to, state);
@@ -352,7 +369,7 @@ public class Automaton {
 	
     }
     
-    /* What blocks may happen in parallel with h? */
+    /* What blocks may happen in parallel with states of h? */
     public void mayHappenInParallel(State h) {
 	ComposedState head = (ComposedState) h;
 	if (visitedStates.contains(head)) 
@@ -366,9 +383,10 @@ public class Automaton {
 		continue;
 	    for (Object oo: head.states) {
 		State ss = (State) oo;
-		if (!ss.funName.contentEquals(s.funName))
-		    if (! (ss.endInst == -1))
-			s.parallelBlocks.add(ss);
+		    if (! (ss.endInst == -1)) {
+			s.addParallelBlock(ss);
+			ss.addParallelBlock(s);
+		    }
 	    }
 	    this.parallelStatementsof(head, s);
 	}
