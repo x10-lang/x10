@@ -450,7 +450,12 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "((int)(double)(#1))")
     @Native("c++",  "((x10_uint) (#1))")
-    public static safe operator (x:Double) as UInt = UInt(x as Int);
+    public static safe operator (x:Double) as UInt {
+        val temp : Long = x as Long;
+        if (temp > 0xffffffff) return UInt(0xffffffff as Int);
+        else if (temp < 0) return UInt(0);
+        else return UInt(temp as Int);
+    }
 
     /**
      * Coerce a given Int to a UInt.
