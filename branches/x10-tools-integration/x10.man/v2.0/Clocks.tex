@@ -70,8 +70,12 @@ statements in the language that have parameters of type \xcd"Clock".
 The key invariants associated with clocks are as follows.  At any
 stage of the computation, a clock has zero or more {\em registered}
 activities. An activity may perform operations only on those clocks it
-is registered with (these clocks constitute its {\em clock set}).  An
-activity is registered with zero or more clocks when it is created.
+is registered with (these clocks constitute its {\em clock set}). 
+An attempt by an activity to operate on a clock it is not registered with
+will cause a 
+\xcd"ClockUseException"\index{clock!ClockUseException}. 
+to be thrown.  
+An activity is registered with zero or more clocks when it is created.
 During its lifetime the only additional clocks it is registered with
 are exactly those that it creates. In particular it is not possible
 for an activity to register itself with a clock it discovers by

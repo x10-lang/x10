@@ -198,7 +198,7 @@ public final struct Float /*TODO implements Arithmetic[Float], Ordered[Float]*/ 
      * @param x the given UByte
      * @return the given UByte converted to a Float.
      */
-    @Native("java", "((float)(byte)(#1))")
+    @Native("java", "((float)(byte)(#1.byteVal))")
     @Native("c++",  "((x10_float) (#1))")
     public native static safe operator (x:UByte): Float;
 
@@ -207,7 +207,7 @@ public final struct Float /*TODO implements Arithmetic[Float], Ordered[Float]*/ 
      * @param x the given UShort
      * @return the given UShort converted to a Float.
      */
-    @Native("java", "((float)(short)(#1))")
+    @Native("java", "((float)(short)(#1.shortVal))")
     @Native("c++",  "((x10_float) (#1))")
     public native static safe operator (x:UShort): Float;
 
@@ -216,7 +216,7 @@ public final struct Float /*TODO implements Arithmetic[Float], Ordered[Float]*/ 
      * @param x the given UInt
      * @return the given UInt converted to a Float.
      */
-    @Native("java", "((float)(int)(#1))")
+    @Native("java", "((float)(int)(#1.intVal))")
     @Native("c++",  "((x10_float) (#1))")
     public native static safe operator (x:UInt): Float;
 
@@ -225,7 +225,7 @@ public final struct Float /*TODO implements Arithmetic[Float], Ordered[Float]*/ 
      * @param x the given ULong
      * @return the given ULong converted to a Float.
      */
-    @Native("java", "((float)(long)(#1))")
+    @Native("java", "((float)(long)(#1.longVal))")
     @Native("c++",  "((x10_float) (#1))")
     public native static safe operator (x:ULong): Float;
 

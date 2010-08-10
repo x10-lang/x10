@@ -16,7 +16,7 @@ public final class ParameterizedType<T> implements Type<T>{
         return rtt;
     }
     
-    Type[] getParams() {
+    Type<?>[] getParams() {
         return params;
     }
 
@@ -34,8 +34,8 @@ public final class ParameterizedType<T> implements Type<T>{
             return false;
         }
         if (rtt.variances == null) {return true;} 
-        if (o instanceof ParameterizedType) {
-            Type<?>[] parameters = ((ParameterizedType) o).params;
+        if (o instanceof ParameterizedType<?>) {
+            Type<?>[] parameters = ((ParameterizedType<?>) o).params;
             for (int i = 0; i < rtt.variances.length ; i ++) {
                 switch (rtt.variances[i]) {
                 case INVARIANT:
@@ -67,12 +67,12 @@ public final class ParameterizedType<T> implements Type<T>{
     @Override
     public final boolean equals(Object o) {
         if (this == o) return true;
-        if (o instanceof ParameterizedType) {
-            ParameterizedType t = (ParameterizedType) o;
+        if (o instanceof ParameterizedType<?>) {
+            ParameterizedType<?> t = (ParameterizedType<?>) o;
             if (!rtt.base.equals(t.getJavaClass())) {
                 return false;
             }
-            Type[] parameters = t.params;
+            Type<?>[] parameters = t.params;
             for (int i = 0; i < params.length; i++) {
                 if (!params[i].equals(parameters[i])) {
                     return false;

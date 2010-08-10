@@ -329,9 +329,9 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	                t = PlaceChecker.ReplaceHereByPlaceTerm(t, xc);
 	                LazyRef<Type> r = (LazyRef<Type>) type().typeRef();
 	                r.update(t);
+	                TypeNode htn = null;
 	                {
 	                    TypeNode tn = (TypeNode) this.visitChild(type(), childtc);
-	                    TypeNode htn  = null;
 	                    if (hasType != null) {
 	                        htn = (TypeNode) visitChild(hasType, childtc);
 	                        if (! Globals.TS().isSubtype(type().type(), htn.type(),tc.context())) {
@@ -346,7 +346,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	                Id name = (Id) this.visitChild(name(), childtc);
 	                TypeNode tn = (TypeNode) this.visitChild(type(), childtc);
 
-	                Node n = tc.leave(parent, this, reconstruct(flags, tn, name, init), childtc);
+	                Node n = tc.leave(parent, this, reconstruct(flags, tn, name, init, htn), childtc);
 	                List<AnnotationNode> oldAnnotations = ((X10Ext) ext()).annotations();
 	                if (oldAnnotations == null || oldAnnotations.isEmpty()) {
 	                    return n;
@@ -361,6 +361,15 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	        return null;
 	    }
 	     
+	    /** Reconstruct the declaration. */
+	    protected X10FieldDecl_c reconstruct(FlagsNode flags, TypeNode type, Id name, Expr init, TypeNode hasType) {
+	        X10FieldDecl_c n = (X10FieldDecl_c) super.reconstruct(flags, type, name, init);
+	        if (n.hasType != hasType) {
+	            n.hasType = hasType;
+	        }
+	        return n;
+	    }
+
 	    @Override
 	    public Node typeCheck(ContextVisitor tc) throws SemanticException {
             final TypeNode typeNode = this.type();
@@ -401,8 +410,10 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 
 	    	X10FieldDecl_c n = (X10FieldDecl_c) this.type(nf.CanonicalTypeNode(type().position(), type));
 
-	    	// Add an initializer to uninitialized var fields.
-	    	if (! n.flags().flags().isFinal() && n.init() == null) {
+	    	// Add an initializer to uninitialized var field unless field is annotated @Uninitialized.
+	        Type at = (Type) ts.systemResolver().find(QName.make("x10.compiler.Uninitialized"));
+
+	    	if (! n.flags().flags().isFinal() && n.init() == null && ((X10FieldDef) n.fieldDef()).annotationsMatching(at).isEmpty()) {
 	    		Type t = n.type().type();
 	    		Expr e = null;
 	    		if (t.isBoolean()) {

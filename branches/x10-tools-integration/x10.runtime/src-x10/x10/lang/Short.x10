@@ -288,7 +288,7 @@ public final struct Short /*TODO implements Arithmetic[Short], Bitwise[Short], O
      * @param x the given UShort
      * @return the given UShort converted to a Short.
      */
-    @Native("java", "((short)(#1))")
+    @Native("java", "((short)(#1.shortVal))")
     @Native("c++",  "((x10_short) (#1))")
     public native static safe operator (x:UShort): Short;
 
@@ -390,7 +390,7 @@ public final struct Short /*TODO implements Arithmetic[Short], Bitwise[Short], O
      * two's complement binary representation of this Int.
      * @return the value obtained by reversing order of the bits in this Int.
      */
-    @Native("java", "((short)(java.lang.Integer.reverse(#0)>>16))")
+    @Native("java", "((short)(java.lang.Integer.reverse(#0)>>>16))")
     @Native("c++", "((x10_short)(x10aux::int_utils::reverse(#0)>>16))")
     public native def reverse(): Short;
 

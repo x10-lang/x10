@@ -491,9 +491,11 @@ public class XConstraint implements  Cloneable {
 //        if (other.toString().equals(toString()))
 //        	return true;
         List<XTerm> otherConstraints = other.extConstraints();
-        for (XTerm t : otherConstraints)
-        	if (! entails(t))
+        for (XTerm t : otherConstraints) {
+        	boolean result = entails(t);
+        	if (! result)
         		return false;
+        }
         return true;
     }
     

@@ -34,13 +34,13 @@ final class EmptyRegion extends Region {
     public global def translate(p:Point(rank)): Region(rank) = this;
     public global def eliminate(i:Int)= new EmptyRegion(rank-1);
     protected global def computeBoundingBox(): Region(rank) {
-        throw U.illegal("bounding box not not defined for empty region");
+        throw new IllegalOperationException("bounding box not not defined for empty region");
     }
     public global def min(): ValRail[int] {
-        throw U.illegal("min not not defined for empty region");
+        throw new IllegalOperationException("min not not defined for empty region");
     }
     public global def max(): ValRail[int] {
-        throw U.illegal("max not not defined for empty region");
+        throw new IllegalOperationException("max not not defined for empty region");
     }
     public global def contains(that: Region(rank)) = that.isEmpty();
     public global def contains(p:Point):Boolean = false;
@@ -57,7 +57,7 @@ final class EmptyRegion extends Region {
     }
 
     public global def scanners():Iterator[Region.Scanner]! {
-        throw U.illegal("TODOL scanners not defined for empty region");
+        throw new UnsupportedOperationException("scanners not defined for empty region");
     }
 
     public global safe def toString() = "empty(" + rank + ")";

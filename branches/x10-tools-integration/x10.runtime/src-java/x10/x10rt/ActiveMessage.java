@@ -120,6 +120,40 @@ public class ActiveMessage {
      * @param place the Place to which the message should be sent.
      * @param arg first argument to the target method
      */
+    public void send(Place place, boolean arg) {
+        // Because boolean is not promoted to int, this is needed.
+        assert method.getParameterTypes()[0].equals(Boolean.TYPE);
+
+        if (X10RT.here() == place) {
+            // local send; simply invoked via reflection.
+            try {
+                method.invoke(null, arg);
+            } catch (Exception e) {
+                if (X10RT.REPORT_UNCAUGHT_USER_EXCEPTIONS) {
+                    e.printStackTrace();
+                }
+            }
+        } else {
+            // remote send: pass down to x10rt
+            sendRemote(place.getId(), messageId, arg);
+        }
+    }
+
+    /**
+     * Send the message represented by <code>this</code> to <code>Place</code>.
+     * If <code>place</code> is equal to {@link X10RT#here()}, then the
+     * send is implemented as a direct invocation of the target method and will
+     * not return until the method invocation completes.
+     * If <code>place</code> is not equal to {@link X10RT#here()}, then the
+     * send is implemented by sending an active message to the remote place,
+     * transmitting the {@link #messageId} and any arguments as data payload. In the remote
+     * case, the invocation of send will return as soon as the local network send has
+     * completed.  IE, in the remote case, the completion of send does not imply that the
+     * method has completed (or even been invoked) on the remote place.
+     *
+     * @param place the Place to which the message should be sent.
+     * @param arg first argument to the target method
+     */
     public void send(Place place, int arg) {
         if (X10RT.here() == place) {
             // local send; simply invoked via reflection.
@@ -1565,6 +1599,8 @@ public class ActiveMessage {
     private static synchronized native void registerMethodImpl(Method method, Class<?> targetClass, int messageId);
 
     private static native void sendRemote(int place, int messageId);
+
+    private static native void sendRemote(int place, int messageId, boolean arg);
 
     private static native void sendRemote(int place, int messageId, int arg);
     private static native void sendRemote(int place, int messageId, int arg1, int arg2);

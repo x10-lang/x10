@@ -46,14 +46,13 @@ public class NewLocalVarSynth extends AbstractStateSynth implements IStmtSynth{
     List<AnnotationNode> annotations;
     
     public NewLocalVarSynth(X10NodeFactory xnf, X10Context xct, Position pos,
-                            Name name, Flags flags, Expr initializer,List<AnnotationNode> annotations) {
+                            Name name, Flags flags, Expr initializer, Type type, List<AnnotationNode> annotations) {
         super(xnf, xct, pos);
         this.name = name;
         this.flags = flags;
         this.initializer = initializer;
         this.annotations = annotations;
         
-        final Type type = initializer.type();
         if (!xts.typeEquals(type, xts.Void(), xct)) {
             localDef = xts.localDef(pos, flags, Types.ref(type), name);
             final Id varId = xnf.Id(pos, name);
@@ -62,9 +61,15 @@ public class NewLocalVarSynth extends AbstractStateSynth implements IStmtSynth{
     }
 
     public NewLocalVarSynth(X10NodeFactory xnf, X10Context xct, Position pos,
+                            Type type) {
+        this(xnf, xct, pos, xct.getNewVarName(), 
+             Flags.NONE, null, type, new ArrayList<AnnotationNode>());
+    }
+    
+    public NewLocalVarSynth(X10NodeFactory xnf, X10Context xct, Position pos,
                             Expr initializer) {
         this(xnf, xct, pos, xct.getNewVarName(), 
-             Flags.NONE, initializer, new ArrayList<AnnotationNode>());
+             Flags.NONE, initializer, initializer.type(), new ArrayList<AnnotationNode>());
     }
     
     public Local getLocal(){

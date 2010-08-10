@@ -26,6 +26,7 @@ import polyglot.ast.TypeNode;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Job;
 import polyglot.types.ClassDef;
+import polyglot.types.ConstructorInstance;
 import polyglot.types.FieldInstance;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
@@ -655,10 +656,16 @@ public class Errors {
 	}
 	public static class AmbiguousCall extends SemanticException {
 	    private static final long serialVersionUID = 2449179239460432298L;
-	    public AmbiguousCall(ProcedureInstance<?> pi,  Expr cc, Position pos) {
-	        super("Ambiguous call: the given procedure and closure match."
-	              + "\n\t Procedure: "  + pi
-	              + "\n\t Closure: "  + cc,
+        public AmbiguousCall(ProcedureInstance<?> pi,  Expr cc, Position pos) {
+            super("Ambiguous call: the given procedure and closure match."
+                  + "\n\t Procedure: "  + pi
+                  + "\n\t Closure: "  + cc,
+                  pos);
+        }
+	    public AmbiguousCall(MethodInstance pi, ConstructorInstance ci, Position pos) {
+	        super("Ambiguous call: cannot resolve between struct constructor and method."
+	              + "\n\t Method: " + pi
+	              + "\n\t Struct constructor: " + ci,
 	              pos);
 	    }
 	    public boolean equals(Object o) {

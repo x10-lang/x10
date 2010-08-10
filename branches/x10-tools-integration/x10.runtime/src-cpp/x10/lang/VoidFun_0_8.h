@@ -33,7 +33,9 @@ namespace x10 {
 
         template<class P1, class P2, class P3, class P4, class P5, class P6, class P7, class P8> class VoidFun_0_8 : public x10aux::AnyFun {
             public:
-            RTT_H_DECLS_INTERFACE
+            static x10aux::RuntimeVoidFunType rtt;
+            static const x10aux::RuntimeType* getRTT() { if (!rtt.isInitialized) _initRTT(); return &rtt; }
+            static void _initRTT();
 
             template <class I> struct itable {
                 itable(void(I::*apply)(P1,P2,P3,P4,P5,P6,P7,P8),
@@ -66,7 +68,7 @@ namespace x10 {
         }
 
         template<class P1, class P2, class P3, class P4, class P5, class P6, class P7, class P8>
-            x10aux::RuntimeType VoidFun_0_8<P1,P2,P3,P4,P5,P6,P7,P8>::rtt;
+            x10aux::RuntimeVoidFunType VoidFun_0_8<P1,P2,P3,P4,P5,P6,P7,P8>::rtt;
 
         template<> class VoidFun_0_8<void,void,void,void,void,void,void,void> {
         public:

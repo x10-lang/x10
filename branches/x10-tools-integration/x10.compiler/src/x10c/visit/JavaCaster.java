@@ -27,9 +27,11 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.NullLit;
 import polyglot.ast.Stmt;
 import polyglot.frontend.Job;
+import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.util.InternalCompilerError;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.ClosureCall;
@@ -38,6 +40,7 @@ import x10.ast.X10NodeFactory;
 import x10.ast.X10Return_c;
 import x10.types.ParameterType;
 import x10.types.X10ClassType;
+import x10.types.X10ParsedClassType_c;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.constraints.SubtypeConstraint;
@@ -48,10 +51,22 @@ public class JavaCaster extends ContextVisitor {
     private final X10TypeSystem xts;
     private final X10NodeFactory xnf;
 
+    private Type imc;
+
     public JavaCaster(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
         xts = (X10TypeSystem) ts;
         xnf = (X10NodeFactory) nf;
+    }
+    
+    @Override
+    public NodeVisitor begin() {
+        try {
+            imc = xts.typeForName(QName.make("x10.util.IndexedMemoryChunk"));
+        } catch (SemanticException e1) {
+            throw new InternalCompilerError("Something is terribly wrong");
+        }
+        return super.begin();
     }
     
     @Override
@@ -65,7 +80,8 @@ public class JavaCaster extends ContextVisitor {
         if (n instanceof X10Call) {
             X10Call call = (X10Call) n;
             if (!(X10TypeMixin.baseType(call.type()) instanceof ParameterType)) {
-                if (call.target() != null && xts.isRail(call.target().type())) {
+                Type tbase = X10TypeMixin.baseType(call.target().type());
+                if (call.target() != null && (xts.isRail(call.target().type()) || tbase instanceof X10ParsedClassType_c && ((X10ParsedClassType_c) tbase).def().asType().typeEquals(imc, context))) {
                     // e.g) val str = rail(0) = "str";
                     //   -> val str = (String)(rail(0) = "str");
                     if (!(parent instanceof Eval)) {

@@ -253,20 +253,6 @@ public class PolyMat(rank: int) extends Mat[PolyRow] {
 
 
     /**
-     * Matrix multiplication.
-     */
-
-    public global operator this * (that: XformMat): PolyMat {
-        return new PolyMat(this.rows, that.cols, (i:Int,j:Int) => {
-            var sum:int = 0;
-            for (var k:int=0; k<this.cols; k++)
-                sum += this(i)(k)*that(k)(j);
-            return sum;
-        }, true);
-    }
-
-
-    /**
      * Concatenate matrices
      */
 

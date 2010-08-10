@@ -35,20 +35,14 @@
     import java.util.Iterator;
     import java.util.LinkedList;
     import java.util.List;
-    import java.util.Arrays;
     import java.io.File;
 
-    import x10.ast.X10Binary_c;
-    import x10.ast.X10Unary_c;
     import polyglot.types.QName;
     import polyglot.types.Name;
     import polyglot.ast.AmbExpr;
-    import polyglot.ast.AmbTypeNode;
     import polyglot.ast.Assign;
     import polyglot.ast.Binary;
     import polyglot.ast.Block;
-    import polyglot.ast.Call;
-    import polyglot.ast.CanonicalTypeNode;
     import polyglot.ast.Case;
     import polyglot.ast.Catch;
     import polyglot.ast.ClassBody;
@@ -65,16 +59,13 @@
     import polyglot.ast.Formal;
     import polyglot.ast.Id;
     import polyglot.ast.Import;
-    import polyglot.ast.Initializer;
     import polyglot.ast.IntLit;
     import polyglot.ast.LocalDecl;
     import polyglot.ast.MethodDecl;
     import polyglot.ast.FieldDecl;
-    import polyglot.ast.New;
     import polyglot.ast.NodeFactory;
     import polyglot.ast.PackageNode;
     import polyglot.ast.ProcedureDecl;
-    import polyglot.ast.Receiver;
     import polyglot.ast.SourceFile;
     import polyglot.ast.Stmt;
     import polyglot.ast.SwitchElement;
@@ -107,6 +98,7 @@
     import x10.ast.X10Binary_c;
     import x10.ast.X10Unary_c;
     import x10.ast.X10IntLit_c;
+    import x10.ast.X10NodeFactory_c;
     import x10.extension.X10Ext;
     import polyglot.frontend.FileSource;
     import polyglot.frontend.Parser;
@@ -115,23 +107,18 @@
     import polyglot.lex.DoubleLiteral;
     import polyglot.lex.FloatLiteral;
     import polyglot.lex.Identifier;
-    import polyglot.lex.IntegerLiteral;
     import polyglot.lex.LongLiteral;
     import polyglot.lex.NullLiteral;
     import polyglot.lex.Operator;
     import polyglot.lex.StringLiteral;
-    import polyglot.main.Report;
     import polyglot.parse.VarDeclarator;
     import polyglot.types.Flags;
     import x10.types.X10Flags;
     import x10.types.checker.Converter;
-    import polyglot.types.SemanticException;
-    import polyglot.types.Type;
     import polyglot.types.TypeSystem;
     import polyglot.util.CollectionUtil;
     import polyglot.util.ErrorInfo;
     import polyglot.util.ErrorQueue;
-    import polyglot.util.InternalCompilerError;
     import polyglot.util.Position;
     import polyglot.util.TypedList;
     import polyglot.util.CollectionUtil;
@@ -141,7 +128,6 @@
     import lpg.runtime.BadParseSymFileException;
     import lpg.runtime.DiagnoseParser;
     import lpg.runtime.IToken;
-    import lpg.runtime.LexStream;
     import lpg.runtime.NotBacktrackParseTableException;
     import lpg.runtime.NullExportedSymbolsException;
     import lpg.runtime.NullTerminalSymbolsException;
@@ -1457,13 +1443,13 @@ public static class MessageHandler implements IMessageHandler {
        ExistentialList ::= FormalParameter
         /.$BeginJava
                     List l = new TypedList(new LinkedList(), Formal.class, false);
-                    l.add(FormalParameter.flags(nf.FlagsNode(Position.COMPILER_GENERATED, Flags.FINAL)));
+                    l.add(FormalParameter.flags(nf.FlagsNode(X10NodeFactory_c.compilerGenerated(FormalParameter), Flags.FINAL)));
                     setResult(l);
           $EndJava
         ./
                           | ExistentialList ; FormalParameter
         /.$BeginJava
-                    ExistentialList.add(FormalParameter.flags(nf.FlagsNode(Position.COMPILER_GENERATED, Flags.FINAL)));
+                    ExistentialList.add(FormalParameter.flags(nf.FlagsNode(X10NodeFactory_c.compilerGenerated(FormalParameter), Flags.FINAL)));
           $EndJava
         ./
 
@@ -2010,19 +1996,17 @@ public static class MessageHandler implements IMessageHandler {
 --        ./
 
 
-    CastExpression ::=
-         CastExpression as Type
+    CastExpression ::= Primary
+                     | ExpressionName
+        /.$BeginJava
+                    setResult(ExpressionName.toExpr());
+          $EndJava
+        ./
+                     | CastExpression as Type
         /.$BeginJava
                     setResult(nf.X10Cast(pos(), Type, CastExpression));
           $EndJava
         ./
---       | ConditionalExpression ! Expression
---        /.$BeginJava
---                    setResult(nf.PlaceCast(pos(), Expression, ConditionalExpression));
---          $EndJava
---        ./
-        | ConditionalExpression
-
     
      --------------------------------------- Section :: Expression
      TypeParamWithVarianceList ::= TypeParamWithVariance
@@ -2075,12 +2059,6 @@ public static class MessageHandler implements IMessageHandler {
           $EndJava
         ./
 
-    Primary ::= here
-        /.$BeginJava
-                    setResult(((X10NodeFactory) nf).Here(pos()));
-          $EndJava
-        ./
-
     RegionExpression ::= Expression
 
     RegionExpressionList ::= RegionExpression
@@ -2094,13 +2072,6 @@ public static class MessageHandler implements IMessageHandler {
         /.$BeginJava
                     RegionExpressionList.add(RegionExpression);
                     //setResult(RegionExpressionList);
-          $EndJava
-        ./
-
-    Primary ::= '[' ArgumentListopt ']'
-        /.$BeginJava
-                    Tuple tuple = nf.Tuple(pos(), ArgumentListopt);
-                    setResult(tuple);
           $EndJava
         ./
 
@@ -2123,9 +2094,9 @@ public static class MessageHandler implements IMessageHandler {
           $EndJava
         ./
 
-    ClosureBody ::= CastExpression
+    ClosureBody ::= ConditionalExpression
         /.$BeginJava
-                    setResult(nf.Block(pos(), nf.X10Return(pos(), CastExpression, true)));
+                    setResult(nf.Block(pos(), nf.X10Return(pos(), ConditionalExpression, true)));
           $EndJava
         ./
                   | Annotationsopt { BlockStatementsopt LastExpression }
@@ -3190,7 +3161,6 @@ FinishExpression ::= finish ( Expression ) Block
         /.$BeginJava
                     List l;
                     l = new TypedList(new LinkedList(), Stmt.class, false);
-                    l.add(nf.SuperCall(pos(), Collections.EMPTY_LIST));
                     l.add(AssignPropertyCall);
                     setResult(nf.Block(pos(), l));
           $EndJava
@@ -3202,11 +3172,7 @@ FinishExpression ::= finish ( Expression ) Block
         /.$BeginJava
                     List l;
                     l = new TypedList(new LinkedList(), Stmt.class, false);
-                    if (ExplicitConstructorInvocationopt == null)
-                    {
-                        l.add(nf.SuperCall(pos(), Collections.EMPTY_LIST));
-                    }
-                    else
+                    if (ExplicitConstructorInvocationopt != null)
                     {
                         l.add(ExplicitConstructorInvocationopt);
                     }
@@ -3630,32 +3596,45 @@ FinishExpression ::= finish ( Expression ) Block
 
     -- Chapter 15
     
-    Primary ::= Literal
-                        | self
+    Primary ::= here
+        /.$BeginJava
+                    setResult(((X10NodeFactory) nf).Here(pos()));
+          $EndJava
+        ./
+
+              | '[' ArgumentListopt ']'
+        /.$BeginJava
+                    Tuple tuple = nf.Tuple(pos(), ArgumentListopt);
+                    setResult(tuple);
+          $EndJava
+        ./
+
+              | Literal
+              | self
         /.$BeginJava
                     setResult(nf.Self(pos()));
           $EndJava
         ./
-                        | this
+              | this
         /.$BeginJava
                     setResult(nf.This(pos()));
           $EndJava
         ./
-                        | ClassName . this
+              | ClassName . this
         /.$BeginJava
                     setResult(nf.This(pos(), ClassName.toType()));
           $EndJava
         ./
-                        | ( Expression )
+              | ( Expression )
         /.$BeginJava
                     setResult(nf.ParExpr(pos(), Expression));
           $EndJava
         ./
-                        | ClassInstanceCreationExpression
-                        | FieldAccess
-                        | MethodInvocation
-                        | MethodSelection
-                        | OperatorFunction
+              | ClassInstanceCreationExpression
+              | FieldAccess
+              | MethodInvocation
+              | MethodSelection
+              | OperatorFunction
                         
     OperatorFunction ::= TypeName . +
             /.$BeginJava
@@ -4056,12 +4035,7 @@ FinishExpression ::= finish ( Expression ) Block
           $EndJava
         ./
 
-    PostfixExpression ::= Primary
-                        | ExpressionName
-        /.$BeginJava
-                    setResult(ExpressionName.toExpr());
-          $EndJava
-        ./
+    PostfixExpression ::= CastExpression
                         | PostIncrementExpression
                         | PostDecrementExpression
     
@@ -4275,7 +4249,7 @@ FinishExpression ::= finish ( Expression ) Block
         ./
     
     AssignmentExpression ::= Assignment
-                           | CastExpression
+                           | ConditionalExpression
     
     Assignment ::= LeftHandSide AssignmentOperator AssignmentExpression
         /.$BeginJava

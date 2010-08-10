@@ -51,7 +51,7 @@ public interface Any(
      * @param r The given object
      * @return true if the home location of this entity is the same as the home location of r.
      */
-    @Native("java", "x10.core.Ref.at(#0, #1)")
+    @Native("java", "x10.core.Ref.at((java.lang.Object)(#0), #1)")
     @Native("c++", "(x10aux::get_location(#0) == (#1)->location)")
     property safe def at(r:Object):Boolean;
 
@@ -61,7 +61,7 @@ public interface Any(
      * @param p The given place
      * @return true if the home location of this entity is p.
      */
-    @Native("java", "x10.core.Ref.at(#0, #1.id)")
+    @Native("java", "x10.core.Ref.at((java.lang.Object)(#0), #1.id)")
     @Native("c++", "(x10aux::get_location(#0) == (#1)->FMGL(id))")
     property safe def at(p:Place):Boolean;
 
@@ -76,7 +76,7 @@ public interface Any(
      *
      * @return a string representation of this entity.
      */
-    @Native("java", "((Object)#0).toString()")
+    @Native("java", "((java.lang.Object)(#0)).toString()")
     @Native("c++", "x10aux::to_string(#0)")
     global safe def toString():String;
 
@@ -107,7 +107,7 @@ public interface Any(
      * @param that the given entity
      * @return true if this entity is equal to the given entity.
      */
-    @Native("java", "((Object)#0).equals(#1)")
+    @Native("java", "((java.lang.Object)(#0)).equals(#1)")
     @Native("c++", "x10aux::equals(#0,#1)")
     global safe def equals(that:Any):Boolean;
 
@@ -125,7 +125,7 @@ public interface Any(
      *
      * @return the hash code of this entity.
      */
-    @Native("java", "((Object)#0).hashCode()")
+    @Native("java", "((Object)(#0)).hashCode()")
     @Native("c++", "x10aux::hash_code(#0)")
     global safe def hashCode():Int;
 }

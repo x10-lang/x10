@@ -192,6 +192,18 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
 	return n;
     }
 
+    private SemanticException error;
+
+    public SemanticException error() {
+        return error;
+    }
+
+    public X10ConstructorInstance error(SemanticException e) {
+        X10ConstructorInstance_c n = (X10ConstructorInstance_c) copy();
+        n.error = e;
+        return n;
+    }
+
     public String toString() {
 	    String s = designator() + " " + X10Flags.toX10Flags(flags()).prettyPrint() + container() + "." + signature();
 	
