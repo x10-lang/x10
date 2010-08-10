@@ -30,9 +30,19 @@ class State implements Cloneable {
 	    // TODO Auto-generated catch block
 	    e.printStackTrace();
 	}
-	s.counter = Automaton.stateCounter = - this.counter;
+	s.counter = - this.counter;
 	s.funName = this.funName.replace("async", "asyn");
 	return s;
+    }
+    
+    public void  addParallelBlock(State s) {
+	if (this.funName.contentEquals(s.funName))
+	    return;
+	for (Object o: this.parallelBlocks) {
+	    if (s.isEqualOrCopy((State) o))
+		return;
+	}
+	this.parallelBlocks.add(s);
     }
     
     public State(int startInstruction, int endInstruction, String funcName) {
@@ -64,8 +74,12 @@ class State implements Cloneable {
 	return this.counter == s.counter;
     }
     
+    public boolean isEqualOrCopy(State s) {
+	return this.counter == s.counter || this.counter == -s.counter;
+    }
+    
     public String stateInsts() {
-	return "[" + this.startInst + ":" + this.endInst + "](" + funName + ")" ;
+	return "[" + this.startInst + ":" + this.endInst + "](" + funName + ")" ; //+ this.counter;
     }
     
     public String toString() {
