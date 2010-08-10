@@ -439,7 +439,12 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "x10.core.Floats.toUShort(#1)")
     @Native("c++",  "((x10_ushort) (#1))")
-    public static safe operator (x:Float) as UShort = UShort(x as Short);
+    public static safe operator (x:Float) as UShort {
+        val temp : Int = x as Int;
+        if (temp > 0xffff) return UShort(0xffff as Byte);
+        else if (temp < 0) return UShort(0);
+        else return UShort(temp as Short);
+    }
 
     /**
      * Convert a given Double to a UShort.
@@ -448,7 +453,12 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "x10.core.Floats.toUShort(#1)")
     @Native("c++",  "((x10_ushort) (#1))")
-    public static safe operator (x:Double) as UShort = UShort(x as Short);
+    public static safe operator (x:Double) as UShort {
+        val temp : Int = x as Int;
+        if (temp > 0xffff) return UShort(0xffff as Byte);
+        else if (temp < 0) return UShort(0);
+        else return UShort(temp as Short);        
+    }
 
     /**
      * Coerce a given Short to a UShort.
