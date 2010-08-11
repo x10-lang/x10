@@ -101,20 +101,7 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 		} else if (target instanceof FieldDef) {
 			FieldInstance fi = ((FieldDef) target).asInstance();
 			target = fi;
-		} 
-//		else if (target instanceof FieldDecl) {
-//			FieldDecl fieldDecl = (FieldDecl) target;
-//			FieldDef fieldDef= fieldDecl.fieldDef();
-//
-//			if (fieldDef == null) {
-//				target = null;
-//			} else {
-//				FieldInstance fi = fieldDef.asInstance();
-//
-//				target = fi;
-//			}
-//		} 
-		else if (target instanceof Local) { // local var reference
+		} else if (target instanceof Local) { // local var reference
 			Local local = (Local) target;
 			LocalInstance li = local.localInstance();
 			target = li;
@@ -148,6 +135,8 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 			
 			if (target instanceof FieldDecl) {
 				return getHelpForEntity((FieldDecl)target, parseController, root);
+			} else if (target instanceof FieldInstance) {
+				return getHelpForEntity((FieldInstance)target, parseController, root);
 			} else if (target instanceof NamedVariable) {
 				return getHelpForEntity((NamedVariable)target, parseController, root);
 			} else if (target instanceof LocalInstance) {
@@ -174,25 +163,38 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 		return "";
 	}
 	
-	private String getHelpForEntity(FieldDecl target, IParseController parseController, Node root) {
-    	FieldInstance fi = target.fieldDef().asInstance();
+	private String getSignature(FieldInstance fi)
+	{
 		ReferenceType ownerType = fi.container().toReference(); // PORT1.7 cast must succeed?  was fi.container();
-
 		if (ownerType.isClass()) {
 			ClassType ownerClass = (ClassType) ownerType;
 			String ownerName = ownerClass.fullName().toString(); // PORT1.7 was fullname();
 			
-			//String sig = fi.toString();  // field int Class.varName
 			String type = fi.type().toString(); // int   or pkg.TypeName; want TypeName only
 			type=unqualify(type);//FIXME must be a better way to get simple type, not fully qualified type
-			//sig= fi.declaration().toString();
-			String varName=fi.name().toString();  // PORT 1.7 was just name();
-			String sig = type+" "+ownerName+"."+varName;
-
-			return getX10DocFor(sig,target);  // 2nd arg needs to be Node
 			
+			String varName=fi.name().toString();  // PORT 1.7 was just name();
+			return type+" "+ownerName+"."+varName;
+		}
+		return null;
+	}
+	
+	private String getHelpForEntity(FieldDecl target, IParseController parseController, Node root) {
+    	FieldInstance fi = target.fieldDef().asInstance();
+		
+    	String sig = getSignature(fi);
+		if (sig != null) {
+			return getX10DocFor(sig,target);
 		}
 		return "Field '" + fi.name() + "' of type " + fi.type().toString();
+    }
+	
+	private String getHelpForEntity(FieldInstance target, IParseController parseController, Node root) {
+		String sig = getSignature(target);
+		if (sig != null) {
+			return getX10DocFor(sig,target);
+		}
+		return "Field '" + target.name() + "' of type " + target.type().toString();
     }
 	
 	private String getHelpForEntity(NamedVariable target, IParseController parseController, Node root) {
