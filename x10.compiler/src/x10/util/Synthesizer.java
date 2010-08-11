@@ -1352,7 +1352,7 @@ public class Synthesizer {
      */
     
     // TODO: This has to be made to work with nested types.
-    public X10CanonicalTypeNode makeCanonicalTypeNodeWithDepExpr(Position pos, Type type, ContextVisitor tc) throws SemanticException {
+    public X10CanonicalTypeNode makeCanonicalTypeNodeWithDepExpr(Position pos, Type type, ContextVisitor tc) {
     	X10NodeFactory nf = ((X10NodeFactory) tc.nodeFactory());
     	X10TypeSystem ts = ((X10TypeSystem) tc.typeSystem());
     	

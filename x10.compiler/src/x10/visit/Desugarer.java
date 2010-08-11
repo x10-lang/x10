@@ -826,6 +826,9 @@ public class Desugarer extends ContextVisitor {
 
         Call c = X10Binary_c.desugarBinaryOp(n, this);
         if (c != null) {
+            X10MethodInstance mi = (X10MethodInstance) c.methodInstance();
+            if (mi.error() != null)
+                throw mi.error();
             return c;
         }
 
@@ -925,6 +928,9 @@ public class Desugarer extends ContextVisitor {
 
         Call c = X10Unary_c.desugarUnaryOp(n, this);
         if (c != null) {
+            X10MethodInstance mi = (X10MethodInstance) c.methodInstance();
+            if (mi.error() != null)
+                throw mi.error();
             return c;
         }
 

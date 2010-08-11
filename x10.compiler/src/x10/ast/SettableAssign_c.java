@@ -249,7 +249,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 		args.addAll(index);
 
 		// First try to find the method without implicit conversions.
-		mi = ClosureCall_c.findAppropriateMethod(xtc, array.type(), Name.make("set"), typeArgs, actualTypes);
+		mi = ClosureCall_c.findAppropriateMethod(tc, array.type(), Name.make("set"), typeArgs, actualTypes);
 		if (mi.error() != null) {
 		    // Now, try to find the method with implicit conversions, making them explicit.
 		    try {
@@ -273,7 +273,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 		actualTypes.remove(0);
 
 		// First try to find the method without implicit conversions.
-		ami = ClosureCall_c.findAppropriateMethod(xtc, array.type(), Name.make("apply"), typeArgs, actualTypes);
+		ami = ClosureCall_c.findAppropriateMethod(tc, array.type(), Name.make("apply"), typeArgs, actualTypes);
 		if (ami.error() != null) {
 		    Type bt = X10TypeMixin.baseType(array.type());
 		    boolean arrayP = xts.isX10Array(bt) || xts.isX10DistArray(bt);
@@ -285,13 +285,12 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 		            Name.make("apply")), Collections.EMPTY_LIST,
 		            index).methodInstance(ami).type(ami.returnType());
 		    X10Binary_c n = (X10Binary_c) nf.Binary(position(), left, op.binaryOperator(), right);
-		    try {
-		        n.del().disambiguate(xtc).del().typeCheck(xtc).del().checkConstants(xtc);
-		    }
-		    catch (SemanticException e) {
+		    X10Call c = X10Binary_c.desugarBinaryOp(n, tc);
+		    X10MethodInstance cmi = (X10MethodInstance) c.methodInstance();
+		    if (cmi.error() != null) {
 		        Type bt = X10TypeMixin.baseType(array.type());
 		        boolean arrayP = xts.isX10Array(bt) || xts.isX10DistArray(bt);
-		        throw new Errors.CannotPerformAssignmentOperation(leftToString(), arrayP, op.toString(), right, X10TypeMixin.arrayElementType(array.type()), position());
+		        throw new Errors.CannotPerformAssignmentOperation(leftToString(), arrayP, op.toString(), right, X10TypeMixin.arrayElementType(array.type()), position(), cmi.error());
 		    }
 		}
 
