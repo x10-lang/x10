@@ -334,86 +334,95 @@
         }
 
 public static class MessageHandler implements IMessageHandler {
-    ErrorQueue eq;
+	    ErrorQueue eq;
 
-    public MessageHandler(ErrorQueue eq) {
-        this.eq = eq;
-    }
-
-    public void handleMessage(int errorCode, int[] msgLocation,
-                              int[] errorLocation, String filename,
-                              String[] errorInfo) {
-
-        File file = new File(filename);
-
-        int l0 = msgLocation[2];
-        int c0 = msgLocation[3];
-        int l1 = msgLocation[4];
-        int c1 = msgLocation[5];
-        int o0 = msgLocation[0];
-        int o1 = msgLocation[0] + msgLocation[1];
-
-        Position pos = new JPGPosition(file.getPath(),
-                    file.getPath(), l0, c0, l1, c1+1, o0, o1);
-
-        String msg = "";
-        String info = "";
-
-        for (String s : errorInfo) {
-            info += s;
-        }
-
-        switch (errorCode) {
-            case LEX_ERROR_CODE:
-                msg = "Unexpected character ignored: " + info;
-                break;
-            case ERROR_CODE:
-                msg = "Parse terminated at this token: " + info;
-                break;
-            case BEFORE_CODE:
-                msg = "Token " + info + " expected before this input";
-                break;
-            case INSERTION_CODE:
-                msg = "Token " + info + " expected after this input";
-                break;
-            case INVALID_CODE:
-                msg = "Unexpected input discarded: " + info;
-                break;
-            case SUBSTITUTION_CODE:
-                msg = "Token " + info + " expected instead of this input";
-                break;
-            case DELETION_CODE:
-                msg = "Unexpected input ignored: " + info;
-                break;
-            case MERGE_CODE:
-                msg = "Merging token(s) to recover: " + info;
-                break;
-            case MISPLACED_CODE:
-                msg = "Misplaced constructs(s): " + info;
-                break;
-            case SCOPE_CODE:
-                msg = "Token(s) inserted to complete scope: " + info;
-                break;
-            case EOF_CODE:
-                msg = "Reached after this token: " + info;
-                break;
-            case INVALID_TOKEN_CODE:
-                msg = "Invalid token: " + info;
-                break;
-            case ERROR_RULE_WARNING_CODE:
-                msg = "Ignored token: " + info;
-                break;
-            case NO_MESSAGE_CODE:
-                msg = "Syntax error";
-                break;
-        }
-
-        // FIXME: HACK! Prepend "Syntax error: " until we figure out how to get Polyglot to do it for us.
-        if (errorCode != NO_MESSAGE_CODE) { msg = "Syntax error: " + msg; }
-
-        eq.enqueue(ErrorInfo.SYNTAX_ERROR, msg, pos);
-    }
-    }
+	    public MessageHandler(ErrorQueue eq) {
+	        this.eq = eq;
+	    }
+	
+		public static String getErrorMessageFor(int errorCode,
+				String[] errorInfo) {
+				
+			String msg = "";
+			String info = "";
+		
+			for (String s : errorInfo) {
+				info += s;
+			}
+		
+			switch (errorCode) {
+			case LEX_ERROR_CODE:
+				msg = "Unexpected character ignored: " + info;
+				break;
+			case ERROR_CODE:
+				msg = "Parse terminated at this token: " + info;
+				break;
+			case BEFORE_CODE:
+				msg = "Token " + info + " expected before this input";
+				break;
+			case INSERTION_CODE:
+				msg = "Token " + info + " expected after this input";
+				break;
+			case INVALID_CODE:
+				msg = "Unexpected input discarded: " + info;
+				break;
+			case SUBSTITUTION_CODE:
+				msg = "Token " + info + " expected instead of this input";
+				break;
+			case DELETION_CODE:
+				msg = "Unexpected input ignored: " + info;
+				break;
+			case MERGE_CODE:
+				msg = "Merging token(s) to recover: " + info;
+				break;
+			case MISPLACED_CODE:
+				msg = "Misplaced constructs(s): " + info;
+				break;
+			case SCOPE_CODE:
+				msg = "Token(s) inserted to complete scope: " + info;
+				break;
+			case EOF_CODE:
+				msg = "Reached after this token: " + info;
+				break;
+			case INVALID_TOKEN_CODE:
+				msg = "Invalid token: " + info;
+				break;
+			case ERROR_RULE_WARNING_CODE:
+				msg = "Ignored token: " + info;
+				break;
+			case NO_MESSAGE_CODE:
+				msg = "Syntax error";
+				break;
+			}
+		
+			// FIXME: HACK! Prepend "Syntax error: " until we figure out how to
+			// get Polyglot to do it for us.
+			if (errorCode != NO_MESSAGE_CODE) {
+				msg = "Syntax error: " + msg;
+			}
+			return msg;
+	    }
+		
+	    public void handleMessage(int errorCode, int[] msgLocation,
+	                              int[] errorLocation, String filename,
+	                              String[] errorInfo) {
+	
+	        File file = new File(filename);
+	
+	        int l0 = msgLocation[2];
+	        int c0 = msgLocation[3];
+	        int l1 = msgLocation[4];
+	        int c1 = msgLocation[5];
+	        int o0 = msgLocation[0];
+	        int o1 = msgLocation[0] + msgLocation[1];
+	
+	        Position pos = new JPGPosition(file.getPath(),
+	                    file.getPath(), l0, c0, l1, c1+1, o0, o1);
+	
+	        String msg = getErrorMessageFor(errorCode, errorInfo);
+	        eq.enqueue(ErrorInfo.SYNTAX_ERROR, msg, pos);
+	    }
+}
     
         public String getErrorLocation(int lefttok, int righttok)
         {
