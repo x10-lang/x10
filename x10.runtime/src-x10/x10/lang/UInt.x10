@@ -470,14 +470,14 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
     /**
      * A constant holding the minimum value a UInt can have, 0.
      */
-    @Native("java", "0")
+    // @Native("java", "0")
     @Native("c++", "((x10_uint)0U)")
     public const MIN_VALUE = 0 as UInt;
 
     /**
      * A constant holding the maximum value a UInt can have, 2<sup>32</sup>-1.
      */
-    @Native("java", "0xffffffff")
+    // @Native("java", "0xffffffff")
     @Native("c++", "((x10_uint)0xffffffffU)")
     public const MAX_VALUE = 0xffffffff as UInt;
 
@@ -706,5 +706,5 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public global safe def equals(x:UInt):Boolean = this.intVal.equals(x.intVal);
+    public global safe def equals(x:UInt):Boolean = this.intVal == x.intVal;
 }
