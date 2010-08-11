@@ -143,8 +143,8 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 	/**
 	 * Looks up a method with given name and argument types.
 	 */
-	private Pair<MethodInstance,List<Expr>> findMethod(ContextVisitor tc, Type targetType,
-	        Name name, List<Type> typeArgs, List<Type> actualTypes) {
+	public static Pair<MethodInstance,List<Expr>> findMethod(ContextVisitor tc, X10ProcedureCall n,
+	        Type targetType, Name name, List<Type> typeArgs, List<Type> actualTypes) {
 	    X10MethodInstance mi;
 	    X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
 	    X10Context context = (X10Context) tc.context();
@@ -155,7 +155,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 	    SemanticException error = null;
 	    if (!haveUnknown) {
 	        try {
-	            return findMethod(tc, context, targetType, name, typeArgs, actualTypes, context.inStaticContext());
+	            return findMethod(tc, context, n, targetType, name, typeArgs, actualTypes, context.inStaticContext());
 	        } catch (SemanticException e) {
 	            error = e;
 	        }
@@ -187,18 +187,18 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 	        targetType = context.currentClass();
 	    mi = xts.createFakeMethod(targetType.toClass(), Flags.PUBLIC, name, typeArgs, actualTypes, error);
 	    if (rt != null) mi = mi.returnType(rt);
-	    return new Pair<MethodInstance, List<Expr>>(mi, this.arguments);
+	    return new Pair<MethodInstance, List<Expr>>(mi, n.arguments());
 	}
 
-	private Pair<MethodInstance,List<Expr>> findMethod(ContextVisitor tc, X10Context xc,
-			Type targetType, Name name, List<Type> typeArgs,
+	private static Pair<MethodInstance,List<Expr>> findMethod(ContextVisitor tc, X10Context xc,
+	        X10ProcedureCall n, Type targetType, Name name, List<Type> typeArgs,
 			List<Type> argTypes, boolean requireStatic) throws SemanticException {
 
 	    X10MethodInstance mi = null;
 	    X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
-	    if (targetType != null) {
+        if (targetType != null) {
 	        mi = xts.findMethod(targetType, xts.MethodMatcher(targetType, name, typeArgs, argTypes, xc));
-	        return new Pair<MethodInstance, List<Expr>>(mi, this.arguments);
+	        return new Pair<MethodInstance, List<Expr>>(mi, n.arguments());
 	    }
 	    if (xc.currentDepType() != null)
 	        xc = (X10Context) xc.pop();
@@ -228,12 +228,12 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 	        try {
 	            mi = xts.findMethod(t, xts.MethodMatcher(t, name, typeArgs, argTypes, xc));
 	            if (!requireStatic || mi.flags().isStatic())
-	                return new Pair<MethodInstance, List<Expr>>(mi, this.arguments);
+	                return new Pair<MethodInstance, List<Expr>>(mi, n.arguments());
 	        }
 	        catch (SemanticException e) {
 	            // Now, try to find the method with implicit conversions, making them explicit.
 	            try {
-	                Pair<MethodInstance,List<Expr>> p = tryImplicitConversions(this, tc, t, name().id(), typeArgs, argTypes);
+	                Pair<MethodInstance,List<Expr>> p = tryImplicitConversions(n, tc, t, name, typeArgs, argTypes);
 	                if (!requireStatic || p.fst().flags().isStatic())
 	                    return p;
 	            }
@@ -246,14 +246,14 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 	    while (xc.pop() != null && xc.pop().currentClass() == currentClass)
 	        xc = (X10Context) xc.pop();
 	    if (xc.pop() != null) {
-	        return findMethod(tc, (X10Context) xc.pop(), targetType, name, typeArgs, argTypes, currentClass.flags().isStatic());
+	        return findMethod(tc, (X10Context) xc.pop(), n, targetType, name, typeArgs, argTypes, currentClass.flags().isStatic());
 	    }
 
 	    TypeSystem_c.MethodMatcher matcher = xts.MethodMatcher(targetType, name, typeArgs, argTypes, xc);
-	    throw new Errors.MethodOrStaticConstructorNotFound(matcher, position());
+	    throw new Errors.MethodOrStaticConstructorNotFound(matcher, n.position());
 	}
 
-	private Collection<X10MethodInstance> findMethods(ContextVisitor tc, Type targetType, Name name, List<Type> typeArgs,
+	private static Collection<X10MethodInstance> findMethods(ContextVisitor tc, Type targetType, Name name, List<Type> typeArgs,
 	        List<Type> actualTypes) throws SemanticException {
 	    X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
 	    X10Context context = (X10Context) tc.context();
@@ -551,15 +551,15 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 			}
 		}
 
-        if (target instanceof TypeNode) {
-            Type t = ((TypeNode) target).type();
-            t = X10TypeMixin.baseType(t);
-            if (t instanceof ParameterType) {
-                throw new SemanticException("Cannot invoke a static method of a type parameter.", position());
-            }
-        }
+		if (target instanceof TypeNode) {
+		    Type t = ((TypeNode) target).type();
+		    t = X10TypeMixin.baseType(t);
+		    if (t instanceof ParameterType) {
+		        throw new SemanticException("Cannot invoke a static method of a type parameter.", position());
+		    }
+		}
 
-        List<Type> typeArgs = new ArrayList<Type>(this.typeArguments.size());
+		List<Type> typeArgs = new ArrayList<Type>(this.typeArguments.size());
 		for (TypeNode tn : this.typeArguments) {
 		    typeArgs.add(tn.type());
 		}
@@ -581,7 +581,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		X10MethodInstance mi = null;
 		List<Expr> args = null;
 		// First try to find the method without implicit conversions.
-		Pair<MethodInstance, List<Expr>> p = findMethod(tc, targetType, name, typeArgs, argTypes);
+		Pair<MethodInstance, List<Expr>> p = findMethod(tc, this, targetType, name, typeArgs, argTypes);
 		mi = (X10MethodInstance) p.fst();
 		args = p.snd();
 		if (mi.error() != null) {

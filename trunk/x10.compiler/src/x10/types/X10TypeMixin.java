@@ -211,34 +211,34 @@ public class X10TypeMixin {
 		
 	}
 	
-    public static Type processFlags(Flags f, Type x) {
-    	if (f==null || !(f instanceof X10Flags))
-    		return x;
-    	X10Flags xf = (X10Flags) f;
-    	if (xf.isProto()) 
-    		x =  ((Proto) x).makeProto();
-    	if (xf.isStruct()) {
-    		x = ((X10Struct) x).makeX10Struct();
-    	}
-    	return x;
-    	
-    }
+	public static Type processFlags(Flags f, Type x) {
+	    if (f==null || !(f instanceof X10Flags))
+	        return x;
+	    X10Flags xf = (X10Flags) f;
+	    if (xf.isProto()) 
+	        x =  ((Proto) x).makeProto();
+	    if (xf.isStruct()) {
+	        x = ((X10Struct) x).makeX10Struct();
+	    }
+	    return x;
+	}
 	
 	public static Type baseType(Type t) {
-	        if (t instanceof AnnotatedType) {
-	            AnnotatedType at = (AnnotatedType) t;
-	            return baseType(at.baseType());
-	        }
+	    if (t instanceof AnnotatedType) {
+	        AnnotatedType at = (AnnotatedType) t;
+	        return baseType(at.baseType());
+	    }
 	    if (t instanceof MacroType) {
-		MacroType mt = (MacroType) t;
-		return baseType(mt.definedType());
+	        MacroType mt = (MacroType) t;
+	        return baseType(mt.definedType());
 	    }
 	    if (t instanceof ConstrainedType) {
-		ConstrainedType ct = (ConstrainedType) t;
-		return baseType(Types.get(ct.baseType()));
+	        ConstrainedType ct = (ConstrainedType) t;
+	        return baseType(Types.get(ct.baseType()));
 	    }
 	    return t;
 	}
+	
     public static Type stripConstraints(Type t) {
         X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
         t = ts.expandMacros(t);
