@@ -50,6 +50,7 @@ import org.eclipse.imp.x10dt.ui.launch.core.utils.IResourceUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.UIUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.X10BuilderUtils;
 import org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchCore;
+import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IConnectionConf;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 import org.eclipse.osgi.util.NLS;
@@ -187,6 +188,10 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
         final MessageConsole messageConsole = UIUtils.findOrCreateX10Console();
         messageConsole.clearConsole();
         final MessageConsoleStream mcStream = messageConsole.newMessageStream();
+        final StringBuilder cmdBuilder = new StringBuilder();
+        for (final String str : command) {
+          cmdBuilder.append(str).append(' ');
+        }
         final int returnCode = this.fTargetOpHelper.run(command, new IProcessOuputListener() {
 
           public void read(final String line) {
@@ -194,6 +199,7 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
           
           public void readError(final String line) {
             if (this.fCounter == 0) {
+              mcStream.println(NLS.bind(LaunchMessages.CLCD_CmdUsedMsg, cmdBuilder.toString()));
               this.fCounter = 1;
             }
             mcStream.println(line);
