@@ -1,0 +1,108 @@
+<project name="X10 Dist and Fragments Build" basedir="." default="main">
+
+	<import file="utilities.xml" />
+	<property file="build.properties" />
+	<property name="x10-build-loc" value="${basedir}/../x10-build"/>
+
+	<target name="x10-checkouts-existence">
+		<condition property="are-plugins-present">
+			<and>
+				<available file="${x10-build-loc}/x10.compiler" type="dir" />
+				<available file="${x10-build-loc}/x10.common" type="dir" />
+				<available file="${x10-build-loc}/x10.constraints" type="dir" />
+				<available file="${x10-build-loc}/x10.runtime" type="dir" />
+				<available file="${x10-build-loc}/x10.dist" type="dir" />
+				<available file="${x10-build-loc}/org.eclipse.imp.x10dt.update" type="dir" />
+				<available file="${x10-build-loc}/org.eclipse.imp.x10dt.feature" type="dir" />
+				<available file="${x10-build-loc}/x10.dist.host" type="dir" />
+				<available file="${x10-build-loc}/x10.dist.linux.x86.fragment" type="dir" />
+				<available file="${x10-build-loc}/x10.dist.linux.x86_64.fragment" type="dir" />
+				<available file="${x10-build-loc}/x10.dist.macosx.x86.fragment" type="dir" />
+				<available file="${x10-build-loc}/x10.dist.win32.x86.fragment" type="dir" />
+			</and>
+		</condition>
+	</target>
+
+	<target name="x10-checkouts" depends="x10-checkouts-existence" unless="are-plugins-present">
+		<svn username="anonymous">
+			<checkout url="https://x10.svn.sourceforge.net/svnroot/x10/${x10.tag}/x10.compiler" revision="${x10.revision}" destPath="${x10-build-loc}/x10.compiler" />
+			<checkout url="https://x10.svn.sourceforge.net/svnroot/x10/${x10.tag}/x10.common" revision="${x10.revision}" destPath="${x10-build-loc}/x10.common" />
+			<checkout url="https://x10.svn.sourceforge.net/svnroot/x10/${x10.tag}/x10.constraints" revision="${x10.revision}" destPath="${x10-build-loc}/x10.constraints" />
+			<checkout url="https://x10.svn.sourceforge.net/svnroot/x10/${x10.tag}/x10.runtime" revision="${x10.revision}" destPath="${x10-build-loc}/x10.runtime" />
+			<checkout url="https://x10.svn.sourceforge.net/svnroot/x10/${x10.tag}/x10.dist" revision="${x10.revision}" destPath="${x10-build-loc}/x10.dist" />
+
+			<checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/org.eclipse.imp.x10dt.update" revision="${x10dt.revision}" destPath="${x10-build-loc}/org.eclipse.imp.x10dt.update" />
+			<checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/org.eclipse.imp.x10dt.feature" revision="${x10dt.revision}" destPath="${x10-build-loc}/org.eclipse.imp.x10dt.feature" />
+
+			<checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10.dist.host" revision="${x10dt.revision}" destPath="${x10-build-loc}/x10.dist.host" />
+			<checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10.dist.linux.x86.fragment" revision="${x10dt.revision}" destPath="${x10-build-loc}/x10.dist.linux.x86.fragment" />
+			<checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10.dist.linux.x86_64.fragment" revision="${x10dt.revision}" destPath="${x10-build-loc}/x10.dist.linux.x86_64.fragment" />
+			<checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10.dist.macosx.x86.fragment" revision="${x10dt.revision}" destPath="${x10-build-loc}/x10.dist.macosx.x86.fragment" />
+			<checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10.dist.win32.x86.fragment" revision="${x10dt.revision}" destPath="${x10-build-loc}/x10.dist.win32.x86.fragment" />
+		</svn>
+	</target>
+
+	<target name="check-build-required">
+		<available file="${x10-build-loc}" type="dir" property="x10.dist.available"/>
+	</target>
+
+	<target name="build" depends="check-build-required" unless="x10.dist.available">
+		<ant antfile="${x10-build-loc}/x10.constraints/exportPlugin.xml" dir="${x10-build-loc}/x10.constraints" target="build.jars" />
+		<ant antfile="${x10-build-loc}/x10.common/exportPlugin.xml" dir="${x10-build-loc}/x10.common" target="build.jars" />
+		<ant antfile="${x10-build-loc}/x10.compiler/exportPlugin.xml" dir="${x10-build-loc}/x10.compiler" target="build.jars">
+			<property name="extra.build.path" value="${x10.compiler.extra.build.path}" />
+		</ant>
+		<antcall target="prepare.x10.dist" />
+		<ant antfile="${x10-build-loc}/x10.runtime/exportPlugin.xml" dir="${x10-build-loc}/x10.runtime" target="build.jars" />
+
+		<ant antfile="${x10-build-loc}/x10.dist.host/exportPlugin.xml" dir="${x10-build-loc}/x10.dist.host" />
+		<ant antfile="${x10-build-loc}/x10.dist.linux.x86.fragment/exportPlugin.xml" dir="${x10-build-loc}/x10.dist.linux.x86.fragment" />
+		<ant antfile="${x10-build-loc}/x10.dist.linux.x86_64.fragment/exportPlugin.xml" dir="${x10-build-loc}/x10.dist.linux.x86_64.fragment" />
+		<ant antfile="${x10-build-loc}/x10.dist.macosx.x86.fragment/exportPlugin.xml" dir="${x10-build-loc}/x10.dist.macosx.x86.fragment" />
+		<ant antfile="${x10-build-loc}/x10.dist.win32.x86.fragment/exportPlugin.xml" dir="${x10-build-loc}/x10.dist.win32.x86.fragment" />
+	</target>
+
+	<target name="transfer">
+		<!-- We shouldn't have to do this! To refactor the proper way, probably by using an X10 repository -->
+		<mkdir dir="${transformedRepoLocation}/plugins"/>
+		<copy todir="${transformedRepoLocation}/plugins">
+			<fileset dir="${x10-build-loc}/x10.constraints" includes="x10.constraints_*.jar" />
+			<fileset dir="${x10-build-loc}/x10.common" includes="x10.common_*.jar" />
+			<fileset dir="${x10-build-loc}/x10.compiler" includes="x10.compiler_*.jar" />
+			<fileset dir="${x10-build-loc}/x10.runtime" includes="x10.runtime_*.jar" />
+			<fileset dir="${x10-build-loc}/x10.dist.host" includes="x10.dist*.jar" />
+		</copy>
+		<unzip dest="${transformedRepoLocation}/plugins/x10.dist.linux.x86.fragment_2.0.5.${build.qualifier}">
+			<fileset dir="${x10-build-loc}/x10.dist.linux.x86.fragment">
+				<include name="x10.dist.linux.x86.fragment_*.jar"/>
+			</fileset>
+		</unzip>
+		<unzip dest="${transformedRepoLocation}/plugins/x10.dist.linux.x86_64.fragment_2.0.5.${build.qualifier}">
+			<fileset dir="${x10-build-loc}/x10.dist.linux.x86_64.fragment">
+				<include name="x10.dist.linux.x86_64.fragment_*.jar" />
+			</fileset>
+		</unzip>
+		<unzip dest="${transformedRepoLocation}/plugins/x10.dist.macosx.x86.fragment_2.0.5.${build.qualifier}">
+			<fileset dir="${x10-build-loc}/x10.dist.macosx.x86.fragment">
+				<include name="x10.dist.macosx.x86.fragment_*.jar" />
+			</fileset>
+		</unzip>
+		<unzip dest="${transformedRepoLocation}/plugins/x10.dist.win32.x86.fragment_2.0.5.${build.qualifier}">
+			<fileset dir="${x10-build-loc}/x10.dist.win32.x86.fragment">
+				<include name="x10.dist.win32.x86.fragment_*.jar" />
+			</fileset>
+		</unzip>
+	</target>
+
+	<target name="prepare.x10.dist">
+		<ant antfile="${x10-build-loc}/x10.dist/build.xml" dir="${x10-build-loc}/x10.dist" target="squeakyclean" />
+		<ant antfile="${x10-build-loc}/x10.dist/build.xml" dir="${x10-build-loc}/x10.dist" target="bin" />
+		<ant antfile="${x10-build-loc}/x10.dist/build.xml" dir="${x10-build-loc}/x10.dist" target="ecj-jar" />
+		<ant antfile="${x10-build-loc}/x10.dist/build.xml" dir="${x10-build-loc}/x10.dist" target="polyglot-jar" />
+		<ant antfile="${x10-build-loc}/x10.dist/build.xml" dir="${x10-build-loc}/x10.dist" target="lpg-jar" />
+		<ant antfile="${x10-build-loc}/x10.dist/build.xml" dir="${x10-build-loc}/x10.dist" target="compiler-jar" />
+	</target>
+
+	<target name="main" depends="x10-checkouts,build,transfer" />
+
+</project>

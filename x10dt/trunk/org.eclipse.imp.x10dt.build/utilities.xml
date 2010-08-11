@@ -1,0 +1,10 @@
+<project name="Utilities" basedir=".">
+
+	<typedef resource="org/tigris/subversion/svnant/svnantlib.xml" classpath="ant-utils/svnant.jar;ant-utils/svnClientAdapter.jar;ant-utils/svnjavahl.jar" />
+	<taskdef resource="net/sf/antcontrib/antcontrib.properties">
+		<classpath>
+			<pathelement location="ant-utils/ant-contrib/ant-contrib-1.0b3.jar" />
+		</classpath>
+	</taskdef>
+
+</project>
