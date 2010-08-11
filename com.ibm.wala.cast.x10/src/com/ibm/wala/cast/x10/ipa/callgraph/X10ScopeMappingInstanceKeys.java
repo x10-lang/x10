@@ -1,6 +1,7 @@
 package com.ibm.wala.cast.x10.ipa.callgraph;
 
 import com.ibm.wala.cast.x10.translator.polyglot.X10AsyncObject;
+import com.ibm.wala.cast.x10.translator.polyglot.X10ClosureObject;
 import com.ibm.wala.cast.java.ipa.callgraph.JavaScopeMappingInstanceKeys;
 import com.ibm.wala.classLoader.IClass;
 import com.ibm.wala.ipa.callgraph.propagation.InstanceKeyFactory;
@@ -15,7 +16,7 @@ public class X10ScopeMappingInstanceKeys extends JavaScopeMappingInstanceKeys {
 
   @Override
   protected boolean isPossiblyLexicalClass(IClass cls) {
-    if (cls instanceof X10AsyncObject) {
+    if (cls instanceof X10AsyncObject || cls instanceof X10ClosureObject ) {
       return true;
     }
     return super.isPossiblyLexicalClass(cls);

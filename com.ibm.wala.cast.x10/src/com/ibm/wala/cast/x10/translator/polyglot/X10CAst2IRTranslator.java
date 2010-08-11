@@ -17,6 +17,8 @@ import com.ibm.wala.cast.x10.ssa.AsyncCallSiteReference;
 import com.ibm.wala.cast.x10.ssa.X10InstructionFactory;
 import com.ibm.wala.cast.x10.translator.X10CAstEntity;
 import com.ibm.wala.cast.x10.translator.X10CastNode;
+import com.ibm.wala.cast.x10.translator.polyglot.X10toCAstTranslator.AsyncEntity;
+import com.ibm.wala.cast.x10.translator.polyglot.X10toCAstTranslator.ClosureBodyEntity;
 import com.ibm.wala.cast.x10.translator.polyglot.X10toCAstTranslator.TypeDeclarationCAstEntity;
 import com.ibm.wala.cast.x10.visit.X10CAstVisitor;
 import com.ibm.wala.classLoader.NewSiteReference;
@@ -260,6 +262,16 @@ public class X10CAst2IRTranslator extends X10CAstVisitor implements ArrayOpHandl
         translator.setValue(n, retValue);
     }
 
+    protected void leaveThis(CAstNode n, Context c, CAstVisitor visitor) {
+    	WalkContext context = (WalkContext)c;
+    	CAstEntity entity = context.top();
+    	if (entity instanceof AsyncEntity || entity instanceof ClosureBodyEntity) {
+    		translator.setValue(n, translator.doLexicallyScopedRead(n, context, "this"));
+    	} else {
+    		super.leaveThis(n, c, visitor);
+    	}
+    }
+    
     protected boolean visitTupleExpr(CAstNode n, Context c, CAstVisitor visitor) { /* empty */ return false; }
     protected void leaveTupleExpr(CAstNode n, Context c, CAstVisitor visitor) {
         WalkContext context = (WalkContext)c;
