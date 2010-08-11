@@ -9,26 +9,37 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-import harness.x10Test;
-
-
 /**
  * problem: wala does not build foo into callgraph 
  */
-
-public class TestAsync extends x10Test {
+ class Foo{
+		public static def foo4(){}
+		public def foo3(){}
+	}
+public class TestAsync{
 	var flag: boolean = false;
+    public static def foo2(){}
     public def foo() {}
     public def run() {
     	//TODO: test code
-    	async{foo();}
-        //default successful condition
-        var b: boolean = false;
-        atomic { b = flag; }
-        return b;
+    	val f = new Foo();
+    	async{
+    	    // non-static member function
+    	    foo();
+    	    // static member function
+    	    TestAsync.foo2();
+    	    //non-static non-member function
+    	    f.foo3();
+    	    //static non-member function
+    	    Foo.foo4();
     }
+    //default successful condition
+    var b: boolean = false;
+    atomic { b = flag; }
+    return b;
+}
     
-    public static def main(args: Rail[String]) {
-    	new TestAsync().execute();
-    }
+public static def main(args: Rail[String]) {
+    	new TestAsync().run();
+}
 }
