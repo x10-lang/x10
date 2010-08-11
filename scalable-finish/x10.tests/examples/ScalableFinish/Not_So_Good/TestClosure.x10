@@ -15,17 +15,31 @@ import x10.lang.*;
 /**
  * problem: wala does not build foo into callgraph 
  */
-
+class Foo{
+	public static def foo4(){}
+	public def foo3(){}
+}
 public class TestClosure /*extends x10Test*/ {
 	var flag: boolean = false;
     public def foo() {}
+    public static def foo2(){}
     public def run() {
     	//TODO: test code
-    	val body:()=>Void = ()=>foo();
+    	val f = new Foo();
+    	val body:()=>Void = ()=>{
+    		// non-static member function
+    		foo();
+    		// static member function
+    		TestClosure.foo2();
+    		// non-static non-member function
+    		f.foo3();
+    		//static non-member function
+    		Foo.foo4();
+    		};
     	body();
         //default successful condition
         var b: boolean = false;
-        atomic { b = flag; }
+        //atomic { b = flag; }
         return b;
     }
     
