@@ -1,7 +1,6 @@
 #!/bin/bash
 
-#timestamp=`date +%Y%m%d%H%S`
-timestamp=201008101632
+timestamp=`date +%Y%m%d%H%S`
 build_folder=`pwd`/../I${timestamp:0:8}-${timestamp:8:4}
 mirror_loc=${build_folder}/dependencies/repos/mirror/plugins
 
