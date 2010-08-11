@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 
-import x10.finish.util.MyExceptionPrunedCFG;
+import x10.barrier.util.MyExceptionPrunedCFG;
 
 
 
