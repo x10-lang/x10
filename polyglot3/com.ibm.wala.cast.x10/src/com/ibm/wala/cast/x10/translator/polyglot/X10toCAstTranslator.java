@@ -22,6 +22,7 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.ProcedureDecl;
 import polyglot.ast.Stmt;
 import polyglot.types.ClassType;
+import polyglot.types.CodeInstance;
 import polyglot.types.LocalDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.Named;
@@ -69,9 +70,9 @@ import com.ibm.wala.cast.tree.CAstEntity;
 import com.ibm.wala.cast.tree.CAstNode;
 import com.ibm.wala.cast.tree.CAstNodeTypeMap;
 import com.ibm.wala.cast.tree.CAstSourcePositionMap;
+import com.ibm.wala.cast.tree.CAstSourcePositionMap.Position;
 import com.ibm.wala.cast.tree.CAstType;
 import com.ibm.wala.cast.tree.CAstTypeDictionary;
-import com.ibm.wala.cast.tree.CAstSourcePositionMap.Position;
 import com.ibm.wala.cast.tree.impl.CAstSymbolImpl;
 import com.ibm.wala.cast.x10.translator.X10CAstEntity;
 import com.ibm.wala.cast.x10.translator.X10CastNode;
@@ -80,8 +81,6 @@ import com.ibm.wala.shrikeBT.IInvokeInstruction;
 import com.ibm.wala.types.ClassLoaderReference;
 import com.ibm.wala.types.Descriptor;
 import com.ibm.wala.types.MethodReference;
-import com.ibm.wala.types.Selector;
-import com.ibm.wala.types.TypeName;
 import com.ibm.wala.types.TypeReference;
 import com.ibm.wala.util.collections.IteratorPlusOne;
 import com.ibm.wala.util.debug.Assertions;
@@ -157,6 +156,10 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
       final List<Formal> formals = rootNode.formals();
       final Collection<String> argNames = new ArrayList<String>();
       final Collection<CAstNode> bodyNodes = new ArrayList<CAstNode>();
+      
+      // closure object is the receiver
+      argNames.add("$this");
+      
       for (final Formal formal : formals) {
         argNames.add(formal.name().toString());
         if (formal instanceof X10Formal) {
@@ -195,10 +198,10 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
                                                                      Descriptor.findOrCreateUTF8("(I)Lx10/lang/Int;"));
       final CallSiteReference csRef = CallSiteReference.make(0, methodRef, IInvokeInstruction.Dispatch.VIRTUAL);
       return makeNode(context, parameter.position(), CAstNode.DECL_STMT,
-                      fFactory.makeConstant(new CAstSymbolImpl(explodedVar.name().toString(), false)),
-                      makeNode(context, fFactory, parameter, CAstNode.CALL, 
-                               new CAstNode[] { recvNode, fFactory.makeConstant(csRef), 
-                                                fFactory.makeConstant(index) }));
+              fFactory.makeConstant(new CAstSymbolImpl(explodedVar.name().toString(), false)),
+              makeNode(context, fFactory, parameter, CAstNode.CALL, 
+                       new CAstNode[] { recvNode, fFactory.makeConstant(csRef), 
+                                        fFactory.makeConstant(index)}));
     }
 
     private final class AsyncBodyType implements CAstType.Method {
@@ -244,8 +247,9 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	}
     }
 
-    private final class AsyncEntity extends CodeBodyEntity {
-	private final CodeBodyContext fContext;
+    final class AsyncEntity extends CodeBodyEntity {
+	
+    private final CodeBodyContext fContext;
 
 	private final CAstNode fBodyast;
 
@@ -328,7 +332,6 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 
 	    CAstNode args[] = new CAstNode[ clocks.size()+2 ];
 	    args[0] = walkNodes(a.place(), context);
-
 	    for(int i = 0; i < clocks.size(); i++) {
 	    	args[i+1] = walkNodes((Node)clocks.get(i), context);
 	    }
@@ -826,10 +829,11 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
         int dummyPC = 0;
         CallSiteReference callSiteRef = CallSiteReference.make(dummyPC, methodRef, IInvokeInstruction.Dispatch.VIRTUAL);
 
-        CAstNode[] children = new CAstNode[1 + 1 + instance.formalTypes().size()];
+        CAstNode[] children = new CAstNode[2 + instance.formalTypes().size()];
         int i = 0;
         children[i++] = walkNodes(closureCall.target(), wc);
         children[i++] = fFactory.makeConstant(callSiteRef);
+
         for (final Expr arg : closureCall.arguments()) {
             children[i++] = walkNodes(arg, wc);
         }
@@ -853,7 +857,7 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
     
     }
     
-    private final class ClosureBodyEntity extends CodeBodyEntity {
+    final class ClosureBodyEntity extends CodeBodyEntity {
 	private final CodeBodyContext fContext;
 
 	private final CAstNode fBodyAst;
@@ -947,7 +951,7 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	}
 
 	public int getArgumentCount() {
-	    return closureType.argumentTypes().size();
+	    return getArgumentTypes().size();
 	}
 
 	private List<CAstType> mapTypes(List<Type> types) {
@@ -962,7 +966,7 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 
 	public List getArgumentTypes() {
 	    if (argTypes == null) {
-		argTypes= mapTypes(closureType.argumentTypes());
+	    	argTypes= mapTypes(closureType.argumentTypes());
 	    }
 	    return argTypes;
 	}
