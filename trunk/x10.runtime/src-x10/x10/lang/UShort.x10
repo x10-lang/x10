@@ -473,14 +473,14 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
     /**
      * A constant holding the minimum value a UShort can have, 0.
      */
-    @Native("java", "((short)0)")
+    // @Native("java", "((short)0)")
     @Native("c++", "((x10_ushort)0U)")
     public const MIN_VALUE = 0 as UShort;
 
     /**
      * A constant holding the maximum value a UShort can have, 2<sup>16</sup>-1.
      */
-    @Native("java", "((short)0xffff)")
+    // @Native("java", "((short)0xffff)")
     @Native("c++", "((x10_ushort)0xffffU)")
     public const MAX_VALUE = 0xffff as UShort;
 
@@ -615,5 +615,5 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public global safe def equals(x:UShort):Boolean = this.shortVal.equals(x.shortVal);
+    public global safe def equals(x:UShort):Boolean = this.shortVal == x.shortVal;
 }
