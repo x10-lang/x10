@@ -2,9 +2,6 @@ package x10.barrier.analysis;
 
 import java.io.*;
 
-import x10.finish.table.HprofParser;
-import x10.finish.table.OutputUtil;
-
 public class Test {
 
     public static void main(String[] args) throws Exception {
