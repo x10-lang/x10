@@ -713,7 +713,7 @@ doTest() {
   then
       runWithTimeLimit "$tdir" "$className" "\"$X10DIST\"/bin/x10c -t -v -sourcepath $x10lib -sourcepath $testDir -classpath \"$testDir\" $classpath -d $testDir $X10C_EXTRA_OPTS $options $x10FileName" "" ""
   else
-      runWithTimeLimit "$tdir" "$className" "\"$X10DIST\"/bin/x10c++ -x10rt standalone -o "$className" -t -v -sourcepath $x10lib -sourcepath $testDir -classpath \"$testDir\" $classpath -d $testDir $X10C_EXTRA_OPTS $options $x10FileName" "" ""
+      runWithTimeLimit "$tdir" "$className" "\"$X10DIST\"/bin/x10c++ -x10rt standalone -o "$testDir/$className" -t -v -sourcepath $x10lib -sourcepath $testDir -classpath \"$testDir\" $classpath -d $testDir $X10C_EXTRA_OPTS $options $x10FileName" "" ""
   fi
 
   if [[ $? != 0 ]]; then
@@ -732,7 +732,7 @@ doTest() {
   then
       runWithTimeLimit "$tdir" "$className" "\"$X10DIST\"/bin/x10 -t -v -mx 128M -classpath \"$testDir\" $classpath -Dx10test.timeout=$x10test_timeout $X10_EXTRA_OPTS $className" "Test succeeded" "AssertionError|	at .+\(.+\)"
   else
-      runWithTimeLimit "$tdir" "$className" "$className" "Test succeeded" "AssertionError|	at .+\(.+\)"
+      runWithTimeLimit "$tdir" "$className" "$testDir/$className" "Test succeeded" "AssertionError|	at .+\(.+\)"
   fi 
 
   local runRc=$?
