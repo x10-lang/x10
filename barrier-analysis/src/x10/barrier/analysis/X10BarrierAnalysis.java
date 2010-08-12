@@ -43,6 +43,11 @@ import com.ibm.wala.ipa.callgraph.CallGraph;
 import com.ibm.wala.ipa.callgraph.Entrypoint;
 import com.ibm.wala.ipa.callgraph.impl.DefaultEntrypoint;
 import com.ibm.wala.ipa.callgraph.impl.ExplicitCallGraph.ExplicitNode;
+import com.ibm.wala.ipa.callgraph.propagation.InstanceKey;
+import com.ibm.wala.ipa.callgraph.propagation.LocalPointerKey;
+import com.ibm.wala.ipa.callgraph.propagation.NormalAllocationInNode;
+import com.ibm.wala.ipa.callgraph.propagation.PointerAnalysis;
+import com.ibm.wala.ipa.callgraph.propagation.PointerKey;
 import com.ibm.wala.ipa.cfg.BasicBlockInContext;
 import com.ibm.wala.ipa.cfg.ExceptionPrunedCFG;
 import com.ibm.wala.ipa.cfg.ExplodedInterproceduralCFG;
@@ -82,7 +87,10 @@ import com.ibm.wala.viz.NodeDecorator;
 public class X10BarrierAnalysis {
   
     CallGraph cg;
-    
+    PointerAnalysis pa;
+    final int YES = 1;
+    final int NO = 0;
+    final int DONTKNOW = 2;
    
     /**mr
      * A Depth-First Search of a Control Flow Graph
@@ -92,7 +100,64 @@ public class X10BarrierAnalysis {
      */
     
     
-    private Automaton parseIR(int nodenum) {
+private Set retrieveClocks(int nodenum) {
+	
+    	Set clocks = new HashSet();
+	CGNode md = cg.getNode(nodenum);
+	IR ir = md.getIR();
+	if (ir != null) {
+	    SSAInstruction[] insts = ir.getInstructions();
+	    for (SSAInstruction inst: insts) {
+		System.out.println(inst);
+		if (inst != null && inst.toString().contains("new <X10Source,Lx10/lang/Clock>")) {
+		    OrdinalSet<InstanceKey> os = pa
+			.getPointsToSet(new LocalPointerKey(cg.getNode(nodenum)
+					, inst.getDef()));
+			Iterator<InstanceKey> it = os.iterator();
+			
+			while (it.hasNext()) {
+				InstanceKey ik = it.next();
+				System.out.println("here" + inst.getDef() + " " + inst);
+				System.out.println("*******" + ik );
+				if (ik.getConcreteType().toString().contains(
+				"Clock")) {
+					clocks.add(ik);
+				
+				}
+			}
+		}
+	    }
+	    
+	}
+	return clocks;
+}
+
+   private int isAsyncClocked (AsyncInvokeInstruction async, NormalAllocationInNode clk, CGNode md) {
+ 
+       int clocks[] = async.getClocks();
+	//System.out.println("*****" + clocks.length);
+	//System.out.println(((AsyncInvokeInstruction)inst).);
+	for (int count = 0; count < clocks.length; count++) {
+		//System.out.println(clocks[count]);
+		OrdinalSet<InstanceKey> os = pa
+		.getPointsToSet(new LocalPointerKey(md, clocks[count]));
+		Iterator<InstanceKey> it = os.iterator();
+		
+		while (it.hasNext()) {
+			InstanceKey ik = it.next();
+			if (ik.equals(clk)) {
+			   // System.out.println("***** true");
+			    if (os.size() == 1)
+				return YES;
+			    return DONTKNOW;
+			}
+		}
+	}
+		//System.out.println("clcock 
+       return NO;
+   }
+
+    private Automaton parseIR(int nodenum, NormalAllocationInNode clk, int amIClocked) {
 	
 	Automaton a = new Automaton();
 	CGNode md = cg.getNode(nodenum);
@@ -143,21 +208,31 @@ public class X10BarrierAnalysis {
 		    	for (int j = node.getFirstInstructionIndex(); j <= node.getLastInstructionIndex() && j >= 0 ; j++) {
 		    	 SSAInstruction currInst = epcfg.getInstructions()[j];
 		    	
-		    	    if (currInst != null && currInst instanceof  SSANextInstruction) {
+		    	    if (currInst != null && currInst instanceof  SSANextInstruction && amIClocked == YES) {
 		    		currState = new State(j, j, funName);
 
 		    		Edge e = new Edge(incomingState, currState, Edge.NEXT);
 		    		incomingState = currState; 
 		    	
-		    	    } else if (currInst != null && currInst instanceof  AsyncInvokeInstruction) {
+		    	    } else if (currInst != null && currInst instanceof  SSANextInstruction && amIClocked == DONTKNOW) {
+		    		currState = new State(j, j, funName);
+		    		new Edge(incomingState, currState, Edge.NEXT);
+		    		new Edge(incomingState, currState, Edge.COND);
+		    		incomingState = currState; 
+		    	
+		    	    }
+		    	    else if (currInst != null && currInst instanceof  AsyncInvokeInstruction) {
 		    		AsyncInvokeInstruction asyncInst = (AsyncInvokeInstruction) currInst;
+		    		int isAsyncClocked =  isAsyncClocked(asyncInst, clk, md);
 		    		CallSiteReference asyncSite = asyncInst.getCallSite();
 		    		Set<CGNode> asyncNodes = cg.getNodes(asyncSite.getDeclaredTarget());
 		    		for (CGNode asyncNode: asyncNodes) {
-		    		    Automaton asyncAutomaton = this.parseIR(asyncNode.getGraphNodeId());
-		    		    Edge e = new Edge (incomingState, asyncAutomaton.root, Edge.PAR);
+		    		    Automaton asyncAutomaton = this.parseIR(asyncNode.getGraphNodeId(), clk, isAsyncClocked);
+		    		    State asyncState = new State (j, -1, funName);
+		    		    new Edge (incomingState, asyncState, Edge.ASYNC);
+		    		    new Edge (asyncState, asyncAutomaton.root, Edge.PAR);
 		    		    currState = new State(j, j, funName);
-		    		    e = new Edge(incomingState, currState, Edge.PAR);
+		    		    new Edge(asyncState, currState, Edge.PAR);
 		    		    incomingState = currState; 
 		    		
 		    		}
@@ -181,6 +256,18 @@ public class X10BarrierAnalysis {
 		s[epcfg.entry().getNumber()].isStart = true;
 		s[epcfg.exit().getNumber()].isTerminal = true;
 		s[epcfg.exit().getNumber()].set(-2, -1);
+		if (funName.contains("<async") && (amIClocked == YES || amIClocked == DONTKNOW)) {
+		    State terminal = new State();
+		    s[epcfg.exit().getNumber()].isTerminal = false;
+		    terminal.isTerminal = true;
+		    terminal.set(-3, -1);
+		    terminal.funName = funName;
+		    new Edge(  s[epcfg.exit().getNumber()], terminal, Edge.NEXT); // add a next edge at the end of async
+		    if (amIClocked == DONTKNOW)
+			new Edge(  s[epcfg.exit().getNumber()], terminal, Edge.COND); 
+		    
+		}
+		
 
 		
 		       // System.out.println("Neighbors:");
@@ -214,12 +301,20 @@ public class X10BarrierAnalysis {
 	    String declaringClass = one_method.getMethod().getDeclaringClass().toString();
 	    if (declaringClass.contains("x10/lang") || declaringClass.contains("x10/util") ||  declaringClass.contains("x10/compiler"))
 		continue;
-	    Automaton a = parseIR(cg.getNumber(one_method));
-	    a.compress();
-	    //a.print();
-	    a.composePar();
-	    a.print();
-	    a.mayHappenInParallel();
+	    Set clocks = this.retrieveClocks(cg.getNumber(one_method));
+	    for (Object o : clocks){
+		
+		NormalAllocationInNode clk = (NormalAllocationInNode) o;
+		System.out.println("-----------" + clk.getSite() +"-------------");
+		Automaton a = parseIR(cg.getNumber(one_method), clk, YES);
+		   a.compress();
+		    //a.print();
+		    a.composePar();
+		    a.print();
+		    a.mayHappenInParallel();
+	    }
+	  
+	 
 	}
     }
     
@@ -274,14 +369,9 @@ public class X10BarrierAnalysis {
 	//System.err.println(testedFile.getName());
 	engine.addX10SourceModule(new SourceFileModule(testedFile, testedFile.getName()));
 	
-	
-	boolean ifSaved = false;
-	boolean ifExpanded = true;
-	boolean ifStat = false;
-	boolean ifDump = true;
-	boolean[] mask = {true,true,true};
 	// build the call graph: ExplicitCallGraph
 	cg = engine.buildDefaultCallGraph();
+	pa = engine.getPointerAnalysis();
 	
 	//GraphUtil.printNumberedGraph(cg, "test");
 	buildCallTable();

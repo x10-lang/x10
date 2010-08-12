@@ -54,7 +54,9 @@ public class Automaton {
             for(Object o: currState.outgoingEdges) { // loops once
         	Edge e  = (Edge) o;
         	State outState = e.to;
-        	if (outState.incomingEdges.size() > 1 || e.type == Edge.NEXT || outState.isTerminal) {
+        	if (outState.incomingEdges.size() > 1 || e.type == Edge.NEXT ||  e.type == Edge.ASYNC || outState.isTerminal) {
+        	    if (e.type == Edge.ASYNC)
+        		 e.type = Edge.COND;
         	    if (outState == head) 
         		return head;
         	    outState.incomingEdges.remove(currState);
