@@ -36,7 +36,10 @@
 	<target name="collect.update" depends="init" description="Builds and collects all the feature and plugin components for the update site.">
         <delete dir="${update.temp.folder}"/>
         <mkdir dir="${update.temp.folder}"/>
-        <antcall target="build.features"/>
+
+        <antcall target="collect.extra.artifacts"/>
+
+	    <antcall target="build.features"/>
         <for param="feature" values="${feature.list}">
             <antcall target="copy.feature">
                 <param name="feature.name"    value="${feature}"/>
@@ -53,8 +56,6 @@
             <fileset dir="${basedir}/web" includes="site.css"/>
             <fileset dir="${basedir}/web" includes="site.xsl"/>
         </copy>
-
-        <antcall target="collect.extra.artifacts"/>
     </target>
 
     <target name="build.site.xml" depends="init">

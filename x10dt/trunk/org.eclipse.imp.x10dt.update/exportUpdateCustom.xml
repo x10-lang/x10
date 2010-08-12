@@ -17,6 +17,8 @@
 
         <available file="${imp.update.cache.dir}/features" property="imp.update.cache.verified"/>
 
+<!--        <fail unless="imp.update.cache.verified" message="The IMP download cache does not appear to be valid."/> -->
+
         <property name="ptp.update.url" value="http://fullmoon.rtp.raleigh.ibm.com/tools/ptp/builds/${ptp.build.dir}/ptp-master-${ptp.update.version}.zip"/>
 
         <property name="ptp.update.cache.zip" value="${cache.dir}/ptp.update_${ptp.update.version}.zip"/>
@@ -26,9 +28,9 @@
 
         <available file="${ptp.update.cache.dir}/features" property="ptp.update.cache.verified"/>
 
-<!--
         <property name="polyglotProjectName"   value="polyglot3"/>
 
+        <!-- Remove the following workspace checks, once we're able to build against plugin jars (cf. source) for our dependencies -->
         <available file="../${polyglotProjectName}" property="polyglot.workspace.verified"/>
         <fail unless="polyglot.workspace.verified">
             The project '${polyglotProjectName}' does not exist in your workspace.
@@ -37,18 +39,6 @@
         <fail unless="lpg.workspace.verified">
             The project 'lpg.update' does not exist in your workspace.
         </fail>
-  -->
-
-        <antcall target="retrieve.ptp"/>
-
-        <path id="path.ptp.build.path">
-            <fileset dir="${ptp.update.cache.dir}/plugins">
-                <include name="**/*.jar"/>
-            </fileset>
-        </path>
-        <pathconvert property="extra.build.path" refid="path.ptp.build.path" targetos="unix"/>
-
-        <antcall target="prepare.x10.dist"/>
     </target>
 
 	<target name="prepare.x10.dist">
@@ -75,13 +65,6 @@
             <fileset includesfile="ptpui.jar"/>
         </unjar>
   -->
-    </target>
-
-    <target name="collect.extra.artifacts">
-        <antcall target="collect.lpg.artifacts"/>
-        <antcall target="collect.polyglot.artifacts"/> 
-        <antcall target="collect.imp.artifacts"/>
-        <antcall target="collect.ptp.artifacts"/>
     </target>
 
     <target name="add.all.features" depends="init">
@@ -174,9 +157,30 @@
             <antcall target="add.feature">
                 <param name="feature.id" value="${feature.id}"/>
                 <param name="feature.version" value="${feature.version}"/>
-                <param name="category" value="Parallel Tools Platform"/>
+                <param name="category" value="X10DT Prerequisites"/>
             </antcall>
         </for>
+    </target>
+
+    <target name="collect.extra.artifacts">
+        <mkdir dir="${update.temp.folder}/plugins"/>
+        <mkdir dir="${update.temp.folder}/features"/>
+
+        <antcall target="retrieve.ptp"/>
+
+        <path id="path.ptp.build.path">
+            <fileset dir="${ptp.update.cache.dir}/plugins">
+                <include name="**/*.jar"/>
+            </fileset>
+        </path>
+        <pathconvert property="extra.build.path" refid="path.ptp.build.path" targetos="unix"/>
+
+        <antcall target="prepare.x10.dist"/>
+
+        <antcall target="collect.lpg.artifacts"/>
+        <antcall target="collect.polyglot.artifacts"/> 
+        <antcall target="collect.imp.artifacts"/>
+        <antcall target="collect.ptp.artifacts"/>
     </target>
 
     <target name="collect.lpg.artifacts" depends="init">
