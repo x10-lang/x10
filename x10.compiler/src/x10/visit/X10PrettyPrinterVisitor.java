@@ -3033,22 +3033,32 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         Binary.Operator op = n.operator();
 
         boolean asPrimitive = false;
+        boolean asUnsignedPrimitive = false;
         if (op == Binary.EQ || op == Binary.NE) {
             if (l.isNumeric() && r.isNumeric() || l.isBoolean() && r.isBoolean() || l.isChar() && r.isChar()) {
                 asPrimitive = true;
+
+                if (l.isNumeric() && !(l.isByte() || l.isShort() || l.isInt() || l.isLong() || l.isFloat() || l.isDouble())) {
+                    asUnsignedPrimitive = true;
+                }
             }
         }
 
         if (asPrimitive) {
+            if (asUnsignedPrimitive && (op == Binary.NE)) w.write("!");
             w.write("((");
             er.printType(l, 0);
             w.write(") ");
         }
         n.printSubExpr(left, true, w, tr);
         if (asPrimitive) w.write(")");
-        w.write(" ");
-        w.write(op.toString());
-        w.allowBreak(n.type() == null || n.type().isPrimitive() ? 2 : 0, " ");
+        if (asUnsignedPrimitive) {
+            w.write(".equals(");
+        } else {
+            w.write(" ");
+            w.write(op.toString());
+            w.allowBreak(n.type() == null || n.type().isPrimitive() ? 2 : 0, " ");
+        }
         if (asPrimitive) {
             w.write("((");
             er.printType(r, 0);
@@ -3056,6 +3066,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         }
         n.printSubExpr(right, false, w, tr);
         if (asPrimitive) w.write(")");
+        if (asUnsignedPrimitive) w.write(")");
     }
 
     public void visit(X10Binary_c n) {
