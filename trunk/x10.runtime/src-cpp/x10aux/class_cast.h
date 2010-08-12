@@ -41,9 +41,12 @@ namespace x10aux {
             _CAST_("Special case: null gets cast to "<<TYPENAME(ref<T>));
             return obj;
         }
+        // Must call getRTT<ref<T>> here because this may be the only place
+        // where getRTT<ref<T>> is called before obj gets involed in an ITable lookup
+        // that is going to assume that getRTT<ref<T>> has been executed.
+        const RuntimeType *to = getRTT<ref<T> >();
         if (checked) {
             const RuntimeType *from = obj->_type();
-            const RuntimeType *to = getRTT<ref<T> >();
             #ifndef NO_EXCEPTIONS
             _CAST_(from->name()<<" to "<<to->name());
             if (!from->subtypeOf(to)) {
@@ -74,9 +77,11 @@ namespace x10aux {
     template<class T, class F> struct ClassCastNotPrimitive<ref<T>,F> {
         static GPUSAFE ref<T> _(F val, bool checked) {
             _CAST_("Struct to ref cast "<<TYPENAME(F)<<" to "<<TYPENAME(T));
+            // Must make both RTT calls here even if unchecked to enforce the invariant
+            // that RTT's are initialized before an object gets into an itable lookup.
+            const RuntimeType *from = getRTT<F>();
+            const RuntimeType *to = getRTT<ref<T> >();
             if (checked) {
-                const RuntimeType *from = getRTT<F>();
-                const RuntimeType *to = getRTT<ref<T> >();
                 #ifndef NO_EXCEPTIONS
                 _CAST_(from->name()<<" to "<<to->name());
                 if (!from->subtypeOf(to)) {
@@ -100,10 +105,12 @@ namespace x10aux {
                 _CAST_("Special case: null cannot be cast to "<<TYPENAME(T));
                 throwClassCastException();
             }
+            // Must make RTT call here even if unchecked to enforce the invariant
+            // that RTT's are initialized before an object gets into an itable lookup.
+            const RuntimeType *to = getRTT<T>();
             if (checked) {
                 x10aux::ref<x10::lang::Reference> asRef = val;
                 const RuntimeType *from = asRef->_type();
-                const RuntimeType *to = getRTT<T>();
                 #ifndef NO_EXCEPTIONS
                 _CAST_(from->name()<<" to "<<to->name());
                 if (!from->subtypeOf(to)) {
