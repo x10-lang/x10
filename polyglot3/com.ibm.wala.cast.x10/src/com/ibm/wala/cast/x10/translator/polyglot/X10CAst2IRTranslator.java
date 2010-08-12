@@ -7,6 +7,7 @@ import com.ibm.wala.cast.ir.translator.ArrayOpHandler;
 
 import com.ibm.wala.cast.ir.translator.AstTranslator;
 import com.ibm.wala.cast.ir.translator.AstTranslator.WalkContext;
+import com.ibm.wala.cast.java.loader.JavaSourceLoaderImpl;
 import com.ibm.wala.cast.java.translator.JavaCAst2IRTranslator;
 import com.ibm.wala.cast.java.types.JavaPrimitiveTypeMap;
 import com.ibm.wala.cast.tree.CAstEntity;
@@ -22,7 +23,6 @@ import com.ibm.wala.cast.x10.translator.polyglot.X10toCAstTranslator.ClosureBody
 import com.ibm.wala.cast.x10.translator.polyglot.X10toCAstTranslator.TypeDeclarationCAstEntity;
 import com.ibm.wala.cast.x10.visit.X10CAstVisitor;
 import com.ibm.wala.classLoader.NewSiteReference;
-import com.ibm.wala.ssa.SymbolTable;
 import com.ibm.wala.types.Descriptor;
 import com.ibm.wala.types.MethodReference;
 import com.ibm.wala.types.TypeName;
@@ -31,15 +31,34 @@ import com.ibm.wala.util.debug.Assertions;
 import com.ibm.wala.util.strings.Atom;
 
 public class X10CAst2IRTranslator extends X10CAstVisitor implements ArrayOpHandler {
+	private static class X10JavaCAst2IRTranslator extends JavaCAst2IRTranslator {
+		private X10JavaCAst2IRTranslator(CAstEntity sourceFileEntity, JavaSourceLoaderImpl loader) {
+			super(sourceFileEntity, loader);
+		}
+
+		/* (non-Javadoc)
+		 * @see com.ibm.wala.cast.ir.translator.AstTranslator#doLexicallyScopedRead(com.ibm.wala.cast.tree.CAstNode, com.ibm.wala.cast.ir.translator.AstTranslator.WalkContext, java.lang.String)
+		 *
+		 * Ugly hack to allow code in this class to see this protected method, since it is now declared in this
+		 * package in this subclass.
+		 */
+		@Override
+		protected int doLexicallyScopedRead(CAstNode node, WalkContext context, String name) {
+			return super.doLexicallyScopedRead(node, context, name);
+		}
+		
+		
+	}
+	
     public X10CAst2IRTranslator(CAstEntity sourceFileEntity, X10SourceLoaderImpl loader) {
-        this(new JavaCAst2IRTranslator(sourceFileEntity, loader));
+        this(new X10JavaCAst2IRTranslator(sourceFileEntity, loader));
     }
 
-    private final JavaCAst2IRTranslator translator;
+    private final X10JavaCAst2IRTranslator translator;
 
     private final X10InstructionFactory insts;
     
-    private X10CAst2IRTranslator(JavaCAst2IRTranslator translator) {
+    private X10CAst2IRTranslator(X10JavaCAst2IRTranslator translator) {
         super(translator);
         this.translator = translator;
         this.translator.setArrayOpHandler(this);
