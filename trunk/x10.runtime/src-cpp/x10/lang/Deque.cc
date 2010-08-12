@@ -70,19 +70,6 @@ void Deque::growQueue() {
     } while (++b != bf);
 }
 
-void Deque::push(x10aux::ref<x10::lang::Reference> t) {
-    Slots *q = queue;
-    int mask = q->capacity - 1;
-    int s = sp;
-    setSlot(q, s & mask, t.operator->());
-    storeSp(++s);
-    if ((s -= base) == 1) {
-        ;
-    } else if (s >= mask) {
-        growQueue();
-    }
-}
-
 ref<Reference> Deque::steal() {
     Reference *t;
     Slots *q;
@@ -96,21 +83,6 @@ ref<Reference> Deque::steal() {
         return t;
     }
     return null;
-}
-
-ref<Reference> Deque::poll() {
-    int s = sp;
-    while (s != base) {
-        Slots *q = queue;
-        int mask = q->capacity - 1;
-        int i = (s - 1) & mask;
-        Reference *t = (Reference*)(q->data[i]);
-        if (t == NULL || !casSlotNull(q, i, t))
-            break;
-        storeSp(s - 1);
-        return t;
-    }
-    return NULL;
 }
 
 void Deque::_serialize_body(serialization_buffer &buf) {
