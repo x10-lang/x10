@@ -33,28 +33,26 @@ public class Fib {
     }
     public static def main (args : Rail[String]!) {
         try {
-	    val opts = new OptionsParser(args, null, [
+	        val opts = new OptionsParser(args, null, [
 			      Option("s", "", "Sequential"),
 			      Option("x", "", "Input")]);
-	    val seq = opts("-s", 0)==1;
-	    val x:UInt = opts("-x",40);
-            Console.OUT.println("Places="+Place.MAX_PLACES 
-				+ " x=" + x + " seq=" + seq);
+	        val seq = opts("-s", 0)==1;
+	        val x:UInt = opts("-x",40);
+            Console.OUT.println("Places="+Place.MAX_PLACES + " x=" + x + " seq=" + seq);
             val reducer = new Reducible[UInt]() {
                 global safe public def zero()=0u;
                 global safe public def apply(a:UInt, b:UInt)=a+b;
             };
-	    val runner
-		= seq ? new SeqRunner[UInt,UInt](new Fib2()) as Runner[UInt,UInt]!
-		: new GlobalRunner[UInt, UInt](args, 
-			 ():TaskFrame[UInt,UInt]=> new Fib2()) as Runner[UInt,UInt]!;
-	    Console.OUT.println("Starting...");
-	    var time:Long = System.nanoTime();
-	    val result=runner(x, reducer);
-	    time = System.nanoTime() - time;
-	    Console.OUT.println("Finished with result " 
-				+ result + "(" + fib(x) + ").");
-	    runner.stats(time, false);
+	        val runner
+		     = seq ? new SeqRunner[UInt,UInt](new Fib2()) as Runner[UInt,UInt]!
+		       : new GlobalRunner[UInt, UInt](args, 
+			        ():TaskFrame[UInt,UInt]=> new Fib2()) as Runner[UInt,UInt]!;
+	        Console.OUT.println("Starting...");
+	        var time:Long = System.nanoTime();
+	        val result=runner(x, reducer);
+	        time = System.nanoTime() - time;
+	        Console.OUT.println("Finished with result " + result + "(" + fib(x) + ").");
+	        runner.stats(time, false);
             Console.OUT.println("--------");
         } catch (e:Throwable) {
             e.printStackTrace(Console.ERR);
