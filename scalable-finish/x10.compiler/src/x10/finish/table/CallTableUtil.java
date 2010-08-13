@@ -111,8 +111,8 @@ public class CallTableUtil {
      * For test purpose, to dump all contents in the call table in a readable
      * format
      */
-    public static void dumpCallTable(
-	    HashMap<CallTableKey, LinkedList<CallTableVal>> ct) {
+    public static void dumpCallTable(HashMap<CallTableKey, LinkedList<CallTableVal>> ct) {
+    	System.out.println("table:");
 	Iterator<CallTableKey> ikey = ct.keySet().iterator();
 	while (ikey.hasNext()) {
 	    CallTableKey key = ikey.next();
