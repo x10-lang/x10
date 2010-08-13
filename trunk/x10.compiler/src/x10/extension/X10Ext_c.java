@@ -78,12 +78,12 @@ public class X10Ext_c extends Ext_c implements X10Ext {
 		return l;
 	}
     
-    public List<X10ClassType> annotationMatchingQName(QName name) {
+    public List<X10ClassType> annotationNamed(QName fullName) {
         List<X10ClassType> l = new ArrayList<X10ClassType>();
         for (Iterator<AnnotationNode> i = annotations().iterator(); i.hasNext(); ) {
             AnnotationNode an = i.next();
             X10ClassType ct = an.annotationInterface();
-            if (ct.def().fullName().equals(name)) {
+            if (ct.fullName().equals(fullName)) {
                 l.add(ct);
             }
         }

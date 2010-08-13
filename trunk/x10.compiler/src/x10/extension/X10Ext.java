@@ -54,7 +54,7 @@ public interface X10Ext extends Ext {
     public List<AnnotationNode> annotations();
     public List<X10ClassType> annotationTypes();
     public List<X10ClassType> annotationMatching(Type t);
-    public List<X10ClassType> annotationMatchingQName(QName name);
+    public List<X10ClassType> annotationNamed(QName fullName);
     
     /**
      * Set the annotations.
