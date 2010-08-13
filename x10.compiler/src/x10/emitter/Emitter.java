@@ -2102,6 +2102,7 @@ public class Emitter {
 	public static X10ClassType annotationNamed(TypeSystem ts, Node o, QName name)
 			throws SemanticException {
 		// Nate's code. This one.
+	    // TODO: replace annotationMatching with annotationMatchingQName? (see below)
 		if (o.ext() instanceof X10Ext) {
 			X10Ext ext = (X10Ext) o.ext();
 			X10ClassType baseType = (X10ClassType) ts.systemResolver().find(
@@ -2119,6 +2120,14 @@ public class Emitter {
 		return null;
 	}
 
+    public static List<X10ClassType> annotationsNamed(TypeSystem ts, Node o, QName name) {
+        if (o.ext() instanceof X10Ext) {
+            X10Ext ext = (X10Ext) o.ext();
+            return ext.annotationMatchingQName(name);
+        }
+        return null;
+    }
+	
 	public boolean hasAnnotation(Node dec, QName name) {
 	    return hasAnnotation((X10TypeSystem) tr.typeSystem(), dec, name);
 	}
