@@ -19,44 +19,42 @@ import x10.util.Stack;
 public class Counts implements TaskFrame[UInt, UInt] {
     var c:UInt=0;
     public def runTask(t:UInt, s:Stack[UInt]!):Void offers UInt {
-	offer t;
-	c += t;
-
+	   offer t;
+	   c += t;
     }
     public def runRootTask(t:UInt, s:Stack[UInt]!):Void offers UInt {
-	for (var i:UInt=0u; i < t; i++) 
-	    s.push(2);
+	   for (var i:UInt=0u; i < t; i++) 
+	   s.push(2);
     }
     public static def main (args : Rail[String]!) {
         try {
-	    val opts = new OptionsParser(args, null, [
+	        val opts = new OptionsParser(args, null, [
 			      Option("s", "", "Sequential"),
 			      Option("x", "", "Input")]);
-	    val seq = opts("-s", 0)==1;
-	    val x:UInt = opts("-x",40);
+	        val seq = opts("-s", 0)==1;
+	        val x:UInt = opts("-x",40);
             Console.OUT.println("Places="+Place.MAX_PLACES 
 				+ " x=" + x + " seq=" + seq);
             val reducer = new Reducible[UInt]() {
                 global safe public def zero()=0u;
                 global safe public def apply(a:UInt, b:UInt)=a+b;
             };
-	    val counts = ValRail.make[Counts](Place.MAX_PLACES, 
+	        val counts = ValRail.make[Counts](Place.MAX_PLACES, 
 			      (i:Int)=> at(Place(i)) new Counts());
-	    val runner
-		= seq ? new SeqRunner[UInt,UInt](new Counts()) as Runner[UInt,UInt]!
-		: new GlobalRunner[UInt, UInt](args, 
-		       ():TaskFrame[UInt,UInt]=> counts(here.id)) as Runner[UInt,UInt]!;
-	    Console.OUT.println("Starting...");
-	    var time:Long = System.nanoTime();
-	    val result=runner(x, reducer);
-	    time = System.nanoTime() - time;
-	    Console.OUT.println("Finished with result " + result + ".");
-	    runner.stats(time, false);
+	        val runner = seq ? new SeqRunner[UInt,UInt](new Counts()) as Runner[UInt,UInt]!
+		                     : new GlobalRunner[UInt, UInt](args, 
+		                         ():TaskFrame[UInt,UInt]=> counts(here.id)) as Runner[UInt,UInt]!;
+	        Console.OUT.println("Starting...");
+	        var time:Long = System.nanoTime();
+	        val result=runner(x, reducer);
+	        time = System.nanoTime() - time;
+	        Console.OUT.println("Finished with result " + result + ".");
+	        runner.stats(time, false);
             Console.OUT.println("--------");
-	    for (count in counts) {
-		at (count) 
-		    Console.OUT.println("Count(" + here.id +")=" + count.c);
-	    }
+	        for (count in counts) {
+		        at (count) 
+		          Console.OUT.println("Count(" + here.id +")=" + count.c);
+	        }
         } catch (e:Throwable) {
             e.printStackTrace(Console.ERR);
         }
