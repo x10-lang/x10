@@ -1447,7 +1447,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			sw.write("x10aux::itable_entry "+Emitter.translateType(currentClass)+"::_itables["+(numInterfaces+1)+"] = {");
 			itableNum = 0;
 			for (Type interfaceType : allInterfaces) {
-				sw.write("x10aux::itable_entry(x10aux::getRTT"+chevrons(Emitter.translateType(interfaceType, false))+"(), &_itable_"+itableNum+"), ");
+				sw.write("x10aux::itable_entry(&x10aux::getRTT"+chevrons(Emitter.translateType(interfaceType, false))+", &_itable_"+itableNum+"), ");
 				itableNum += 1;
 			}
 			sw.write("x10aux::itable_entry(NULL, (void*)x10aux::getRTT"+chevrons(Emitter.translateType(currentClass, false))+"())};"); sw.newline();
@@ -1496,7 +1496,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	            sw.write("x10aux::itable_entry "+clsCType+"::_"+ibox+"itables["+(numInterfaces+1)+"] = {");
 	            itableNum = 0;
 	            for (Type interfaceType : allInterfaces) {
-	                sw.write("x10aux::itable_entry(x10aux::getRTT"+chevrons(Emitter.translateType(interfaceType, false))+"(), &"+
+	                sw.write("x10aux::itable_entry(&x10aux::getRTT"+chevrons(Emitter.translateType(interfaceType, false))+", &"+
 	                         thunkBaseName+"_"+ibox+"ithunk"+itableNum+thunkParams+"::itable), ");
 	                itableNum += 1;
 	            }
@@ -4145,7 +4145,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         if (in_template_closure)
             emitter.printTemplateSignature(freeTypeParams, defn_s);
 		defn_s.write("x10aux::itable_entry "+cnamet+"::_itables[2] = {");
-		defn_s.write("x10aux::itable_entry(x10aux::getRTT"+chevrons(superType)+"(), &"+cnamet+"::_itable),");
+		defn_s.write("x10aux::itable_entry(&x10aux::getRTT"+chevrons(superType)+", &"+cnamet+"::_itable),");
 		defn_s.write("x10aux::itable_entry(NULL, NULL)};"); defn_s.newline(); defn_s.forceNewline();
 
 		generateClosureDeserializationIdDef(defn_s, cnamet, freeTypeParams, hostClassName, n.body());
