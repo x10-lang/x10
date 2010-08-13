@@ -212,6 +212,7 @@ import x10.types.X10FieldInstance;
 import x10.types.X10Flags;
 import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
+import x10.types.X10ParsedClassType_c;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
@@ -4067,7 +4068,16 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         inc.newline(); inc.forceNewline();
 
         inc.write("// captured environment"); inc.newline();
-        emitter.printDeclarationList(inc, c, c.variables);
+        List<Type> ats = closureDef.annotationsNamed(QName.make("x10.compiler.Ref"));
+        List<VarInstance> refs = new ArrayList<VarInstance>();
+        for (Type at : ats) {
+            Expr exp = ((X10ParsedClassType_c) at).propertyInitializer(0);
+            if (exp instanceof X10Local_c) {
+                refs.add(((X10Local_c) exp).varInstance());
+            }
+        }
+
+        emitter.printDeclarationList(inc, c, c.variables, refs);
         inc.forceNewline();
 
         inc.write("x10aux::serialization_id_t "+SERIALIZE_ID_METHOD+"() {");
