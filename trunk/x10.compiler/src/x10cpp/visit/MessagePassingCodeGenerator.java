@@ -4077,8 +4077,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         generateClosureSerializationFunctions(c, cnamet, inc, n.body());
 
-        inc.write(cname+"("+SERIALIZATION_MARKER+") { }");
-        inc.newline(); inc.forceNewline();
+//        inc.write(cname+"("+SERIALIZATION_MARKER+") { }");
+//        inc.newline(); inc.forceNewline();
 
         inc.write(cname+"(");
         for (int i = 0; i < c.variables.size(); i++) {
@@ -4090,8 +4090,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             else name = mangled_non_method_name(name);
             inc.write(Emitter.translateType(var.type(), true) + " " + name);
         }
-        inc.write(") {");
-        inc.newline(4); inc.begin(0);
+        inc.write(")");
+        inc.begin(0);
         // FIXME: factor out this loop
         for (int i = 0 ; i < c.variables.size() ; i++) {
             VarInstance var = (VarInstance) c.variables.get(i);
@@ -4099,11 +4099,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             if (name.equals(THIS))
                 name = SAVED_THIS;
             else name = mangled_non_method_name(name);
-            if (i > 0) inc.newline();
-            inc.write("this->" + name + " = " + name + ";");
+            if (i > 0) inc.write(", "); else inc.write(" : ");
+            inc.write(name + "(" + name + ")");
         }
-        inc.end(); inc.newline();
-        inc.write("}"); inc.newline(); inc.forceNewline();
+        inc.end();
+        inc.write(" { }"); inc.newline(); inc.forceNewline();
 
         inc.write("static const x10aux::serialization_id_t "+SERIALIZATION_ID_FIELD+";");
         inc.newline(); inc.forceNewline();
@@ -4217,11 +4217,20 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         inc.write("template<class __T> static "+make_ref("__T")+" "+DESERIALIZE_METHOD+"("+DESERIALIZATION_BUFFER+" &buf) {");
         inc.newline(4); inc.begin(0);
+        // FIXME: factor out this loop
+        for (int i = 0; i < c.variables.size(); i++) {
+            VarInstance var = (VarInstance) c.variables.get(i);
+            Type t = var.type();
+            String type = Emitter.translateType(t, true);
+            String name = var.name().toString();
+            if (name.equals(THIS))
+                name = SAVED_THIS;
+            else name = mangled_non_method_name(name);
+            inc.write(type + " that_"+name+" = buf.read"+chevrons(Emitter.translateType(var.type(), true))+"();");
+            inc.newline();
+        }
         inc.write(make_ref(cnamet)+" this_ = new (x10aux::alloc"+chevrons(cnamet)+"()) "+
-                  cnamet+"("+SERIALIZATION_MARKER+"());");
-        inc.newline();
-        inc.write("buf.record_reference(this_); // TODO: avoid; closure");
-        inc.newline();
+                  cnamet+"(");
         // FIXME: factor out this loop
         for (int i = 0; i < c.variables.size(); i++) {
             VarInstance var = (VarInstance) c.variables.get(i);
@@ -4229,9 +4238,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             if (name.equals(THIS))
                 name = SAVED_THIS;
             else name = mangled_non_method_name(name);
-            inc.write("this_->"+name+" = buf.read"+chevrons(Emitter.translateType(var.type(), true))+"();");
-            inc.newline();
+            if (i > 0) inc.write(", ");
+            inc.write("that_"+name);
         }
+        inc.write(");");
+        inc.newline();
+        inc.write("buf.record_reference(this_); // TODO: avoid; closure");
+        inc.newline();
         inc.write("return this_;"); inc.end(); inc.newline();
         inc.write("}"); inc.newline(); inc.forceNewline();
     }
