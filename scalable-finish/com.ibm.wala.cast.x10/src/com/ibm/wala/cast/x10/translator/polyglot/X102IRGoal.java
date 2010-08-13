@@ -1,16 +1,25 @@
 package com.ibm.wala.cast.x10.translator.polyglot;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.Job;
 import polyglot.frontend.SourceGoal_c;
+import x10.finish.table.CallTableKey;
+import x10.finish.table.CallTableUtil;
+import x10.finish.table.CallTableVal;
 
 import com.ibm.wala.cast.java.translator.polyglot.PolyglotIdentityMapper;
 import com.ibm.wala.cast.tree.CAstEntity;
+import com.ibm.wala.cast.x10.analysis.X10FinishAsyncAnalysis;
+import com.ibm.wala.cast.x10.analysis.util.GraphUtil;
 import com.ibm.wala.cast.x10.client.X10SourceAnalysisEngine;
+import com.ibm.wala.ipa.callgraph.CallGraph;
 import com.ibm.wala.ipa.callgraph.Entrypoint;
 import com.ibm.wala.ipa.callgraph.impl.DefaultEntrypoint;
 import com.ibm.wala.types.ClassLoaderReference;
@@ -26,7 +35,7 @@ public class X102IRGoal extends SourceGoal_c {
     private static final ClassLoaderReference X10LOADER = X10SourceLoaderImpl.X10SourceLoader;
 
     private static PolyglotIdentityMapper mapper = new X10PolyglotIdentityMapper(X10LOADER);
-
+    
     private static X10SourceAnalysisEngine engine = new X10SourceAnalysisEngine() {
         {
             try {
@@ -66,9 +75,14 @@ public class X102IRGoal extends SourceGoal_c {
         mainClasses.add(mainClass);
     }
 
-    // test method to be called once the IR has been generated for all jobs
+    // test method to be called once the IR has been generated for all jo
     public static void printCallGraph() {
-        try {
+    	//System.err.println(buildCallGraph());
+    	GraphUtil.printNumberedGraph(buildCallGraph(), (String)mainClasses.get(mainClasses.size()-1));
+    }
+    
+	private static CallGraph buildCallGraph(){
+    	try {
             engine.consolidateClassHierarchy();
             List<Entrypoint> entrypoints = new ArrayList<Entrypoint>();
             for (Iterator it = mainClasses.iterator(); it.hasNext();) {
@@ -79,7 +93,49 @@ public class X102IRGoal extends SourceGoal_c {
                         Descriptor.findOrCreateUTF8("(Lx10/lang/Rail;)V"));
                 entrypoints.add(new DefaultEntrypoint(mainRef, engine.getClassHierarchy()));
             }
-            System.err.println(engine.buildCallGraph(entrypoints));
-        } catch (Throwable t) {System.err.println(t); }
+            return engine.buildCallGraph(entrypoints);
+        } catch (Throwable t) {
+        	System.err.println(t); 
+        	return null;
+        }
+    	
     }
+    public static HashMap<CallTableKey, LinkedList<CallTableVal>> analyze() throws Exception {
+        boolean[] options = {
+        		false, // whether to do fixed-point computation on calltable
+        		true, // whether to print the calltable
+        		true, // whether to expand everthing call in "at"
+        		true,// whether to expand everthing call in "async"
+        		true // whether to expand everthing call in "method"
+        };
+        return analyze(options);
+    }
+	public static HashMap<CallTableKey, LinkedList<CallTableVal>> analyze(boolean[] options) throws Exception {
+		boolean ifExpanded = options[0];
+		boolean ifDump = options[1];
+		boolean[] mask = { options[2], options[3], options[4] };
+
+		HashMap<CallTableKey, LinkedList<CallTableVal>> calltable = new HashMap<CallTableKey, LinkedList<CallTableVal>>();
+		X10FinishAsyncAnalysis x10fa = new X10FinishAsyncAnalysis();
+		CallGraph cg = buildCallGraph();
+		calltable = x10fa.build(cg,calltable);
+		
+		// calltable = CallTableUtil.findPatterns(calltable);
+		if (ifDump) {
+			CallTableUtil.dumpCallTable(calltable);
+		}
+		if (ifExpanded) {
+			System.out.println("Expanding Talbe:");
+			CallTableUtil.expandCallTable(calltable, mask);
+			// CallTableUtil.updateAllArity(calltable);
+			// CallTableUtil.expandCallTable(calltable, mask);
+		}
+		if (ifDump && ifExpanded) {
+			System.out.println("New Talbe:");
+			CallTableUtil.dumpCallTable(calltable);
+		}
+		System.out.println("end ... ");
+		return calltable;
+	}
+    
 }

@@ -16,6 +16,7 @@ import java.util.LinkedList;
 import java.util.Set;
 import java.util.Stack;
 import x10.finish.table.*;
+
 import com.ibm.wala.cast.java.ssa.AstJavaInvokeInstruction;
 import com.ibm.wala.cast.loader.AstMethod;
 import com.ibm.wala.cast.x10.client.X10SourceAnalysisEngine;
@@ -80,22 +81,17 @@ public class X10FinishAsyncAnalysis {
 	private static final boolean DEBUG_IR = DEBUG|false;
 	private static final boolean DEBUG_CFG = DEBUG|false;
 	private static final boolean DEBUG_CG = DEBUG|false;
+	private HashMap<CallTableKey, LinkedList<CallTableVal>> calltable;
+	private CallGraph cg;
 	
 	// to store an instruction's index in a cfg and used later to get source
 	// information
 	HashMap<SSAInstruction, Integer> instmap;
-	/**
-	 * a map used to hold analysis results: key: finish or at or method values:
-	 * at or async or method contained by key
-	 */
-	HashMap<CallTableKey, LinkedList<CallTableVal>> calltable;
-	CallGraph cg;
 	CallTableVal last_inst;
 	/**
 	 * used to hold visited states in deepth-first traversal of a cfg
 	 */
 	HashSet<Integer> visited;
-
 	/**
 	 * {@link com.ibm.wala.util.graph.dominators.NumberedDominators} dom is
 	 * generated per control flow graph (hence per method).
@@ -114,12 +110,15 @@ public class X10FinishAsyncAnalysis {
 	 * (loop with single-entry point) before hand.
 	 */
 	HashSet<NatLoop> loops;
-
-	public X10FinishAsyncAnalysis() {
-		calltable = new HashMap<CallTableKey, LinkedList<CallTableVal>>();
+	
+	private void init(){
+		instmap = null;
 		last_inst = null;
+		visited = null;
+		dom = null;
+		invert_dom = null;
+		loops = null;
 	}
-
 	/**
 	 * hashmap does not provide "remove and add" functionality, and it is what
 	 * this method for.
@@ -451,7 +450,7 @@ public class X10FinishAsyncAnalysis {
 	}
 
 	/**
-	 * mr A Depth-First Search of a Control Flow Graph
+	 * A Depth-First Search of a Control Flow Graph
 	 * 
 	 * @param epcfg
 	 * @param env
@@ -578,6 +577,7 @@ public class X10FinishAsyncAnalysis {
 	 * "fake..." or "init..."
 	 */
 	private void buildCallTable() {
+		assert cg != null;
 		Iterator<CGNode> all_methods = cg.iterator();
 		while (all_methods.hasNext()) {
 			CGNode one_method = all_methods.next();
@@ -592,25 +592,35 @@ public class X10FinishAsyncAnalysis {
 	}
 
 	/**
-	 * interface to other classes for this finish-async analysis
-	 * 
+	 * invoke this method when use wala as a stand-alone application and this method is supposed to build a complete calltable once
 	 * @param testedFile
-	 *            : file name
-	 * @param pack
-	 *            : package of this program it declares. For example, it an x10
-	 *            program declares itself as, package x10.array, para should be
-	 *            "x10/array/" (the last "/" is necessary)
-	 * @param entrymethod
-	 *            : name of the mehtod the anlaysis will start with
-	 * @param methodtype
-	 *            : signature of a method, including all arguments and return
-	 *            value's qualified types.
+	 * @param defaultEntryPoint
+	 * @return
 	 * @throws Exception
 	 */
-	public HashMap<CallTableKey, LinkedList<CallTableVal>> analyze(
-			final File testedFile, final String pack, final String entrymethod,
-			final String methodtype) throws Exception {
+	public HashMap<CallTableKey, LinkedList<CallTableVal>> build(final File testedFile, String[] defaultEntryPoint) throws Exception {
+		this.calltable = new HashMap<CallTableKey, LinkedList<CallTableVal>>();
+		cg = this.buildCallGraph(testedFile, defaultEntryPoint);
+		// to make sure different invocations for building call table don't have side-effect on this call
+		init();
+		buildCallTable();
+		return this.calltable;
+	}
+	
 
+	public HashMap<CallTableKey, LinkedList<CallTableVal>> build(CallGraph cg,HashMap<CallTableKey, LinkedList<CallTableVal>> calltable){
+		this.calltable = calltable;
+		this.cg = cg;
+		// to make sure different invocations only have side-effects on calltable
+		init();
+		buildCallTable();
+		return this.calltable;
+	}
+	
+	private CallGraph buildCallGraph(final File testedFile, String[] defaultEntryPoint) throws Exception{
+		final String pack = defaultEntryPoint[0];
+		final String entrymethod = defaultEntryPoint[1];
+		final String methodtype = defaultEntryPoint[2];
 		final String mainClass = testedFile.getName().substring(0,
 				testedFile.getName().lastIndexOf('.'));
 
@@ -636,21 +646,16 @@ public class X10FinishAsyncAnalysis {
 				return null;
 			}
 		};
-
 		engine.addX10SystemModule(new SourceDirectoryTreeModule(new File(
 				"../x10.runtime/src-x10/"), "10"));
-		// engine.addX10SourceModule(new SourceDirectoryTreeModule(new
-		// File("../x10.tests/examples/x10lib/")));
 		engine.addX10SourceModule(new SourceFileModule(testedFile, testedFile
 				.getName()));
 		cg = engine.buildDefaultCallGraph();
 		if(DEBUG_CG){
 			GraphUtil.printNumberedGraph(cg, "cg");
 		}
-		buildCallTable();
-		return calltable;
+		return cg;
 	}
-
 	/**
 	 * 
 	 * @param s
