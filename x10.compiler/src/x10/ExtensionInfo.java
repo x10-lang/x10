@@ -25,6 +25,7 @@ import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -75,6 +76,8 @@ import polyglot.visit.ReachChecker;
 import polyglot.visit.Translator;
 import x10.ast.X10NodeFactory_c;
 import x10.extension.X10Ext;
+import x10.finish.table.CallTableKey;
+import x10.finish.table.CallTableVal;
 import x10.optimizations.Optimizer;
 import x10.parser.X10Lexer;
 import x10.parser.X10Parser;
@@ -92,6 +95,7 @@ import x10.visit.Desugarer;
 import x10.visit.ExprFlattener;
 import x10.visit.ExpressionFlattener;
 import x10.visit.FieldInitializerMover;
+import x10.visit.FinishAsyncVisitor;
 import x10.visit.MainMethodFinder;
 import x10.visit.NativeClassVisitor;
 import x10.visit.RewriteAtomicMethodVisitor;
@@ -121,7 +125,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
 	public static final String XML_FILE_EXTENSION = "x10ml";
 	public static final String XML_FILE_DOT_EXTENSION = "." + XML_FILE_EXTENSION;
-  
+	private static HashMap<CallTableKey, LinkedList<CallTableVal>> calltable = new HashMap<CallTableKey, LinkedList<CallTableVal>>();
     public static String clock = "clock";
 
     static {
@@ -349,7 +353,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
        public List<Goal> goals(Job job) {
            List<Goal> goals = new ArrayList<Goal>();
-
+           
            goals.add(Parsed(job));
            goals.add(TypesInitialized(job));
            goals.add(ImportTableInitialized(job));
@@ -370,25 +374,32 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            Goal typeCheckedGoal = TypeChecked(job);
            goals.add(typeCheckedGoal);
            
+           Goal barrier = null;
            if (x10.Configuration.WALA) {
                try{
                    ClassLoader cl = Thread.currentThread().getContextClassLoader();
                    Class<?> c = cl.loadClass("com.ibm.wala.cast.x10.translator.polyglot.X102IRGoal");
                    Constructor<?> con = c.getConstructor(Job.class);
-                   Method printCallGraphMethod = c.getMethod("printCallGraph");
+                   Method buildCallTableMethod = c.getMethod("analyze");
                    Method hasMain = c.getMethod("hasMain", String.class);
                    Goal ir = ((Goal) con.newInstance(job)).intern(this);
                    goals.add(ir);
                    Goal finder = MainMethodFinder(job, hasMain);
                    finder.addPrereq(typeCheckedGoal);
                    ir.addPrereq(finder);
-                   goals.add(IRBarrier(ir, printCallGraphMethod));
+                   barrier = IRBarrier(ir, buildCallTableMethod);
+                   goals.add(barrier);
                } catch (Throwable e) {
                    System.err.println("WALA not found.");
                    e.printStackTrace();
                }
            }
-
+          
+           //TODO: to test
+           if(x10.Configuration.FINISH_ASYNCS && x10.Configuration.WALA && barrier!=null){
+        	   
+        	   goals.add(FinishAsyncBarrier(barrier,job,this));
+           }
            goals.add(ReassembleAST(job));
            
            goals.add(ConformanceChecked(job));
@@ -416,17 +427,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(X10RewriteExtern(job));
            goals.add(X10RewriteAtomicMethods(job));
            
-           // finish-async analysis
-           if(x10.Configuration.FINISH_ASYNCS){
-        	   HashMap calltable;
-        	   //FIXME: suppose all passes needed by wala are done!
-        	   //FIXME:	some args should be passed to this method!
-        	   calltable = FinishAsyncAnalyze();
-        	   Goal finishAsyncOpt = FinishAsyncOptimization(job,calltable);
-        	   if(finishAsyncOpt != null){
-        		   goals.add(finishAsyncOpt);
-        	   }
-           }
+           
            
            goals.add(NativeClassVisitor(job));
 
@@ -526,7 +527,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
        }
        
-       public Goal IRBarrier(final Goal goal, final Method printCallGraphMethod) {
+       public Goal IRBarrier(final Goal goal, final Method method) {
            return new AllBarrierGoal("IRBarrier", this) {
                @Override
                public Goal prereqForJob(Job job) {
@@ -538,7 +539,9 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                }
                public boolean runTask() {
                    try {
-                       printCallGraphMethod.invoke(null);
+                	   
+                       calltable = (HashMap<CallTableKey, LinkedList<CallTableVal>>) method.invoke(null);
+                       
                    } catch (Throwable t) {}
                    return true;
                }
@@ -879,48 +882,33 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            NodeFactory nf = extInfo.nodeFactory();
            return new ValidatingVisitorGoal("StaticNestedClassRemover", job, new StaticNestedClassRemover(job, ts, nf)).intern(this);
        }
-       public Goal FinishAsyncOptimization(Job job,HashMap calltable){
-    	   TypeSystem ts = extInfo.typeSystem();
-           NodeFactory nf = extInfo.nodeFactory();
-           Goal result = null;
-           try{
-               ClassLoader cl = Thread.currentThread().getContextClassLoader();
-               Class<?> c = cl
-               .loadClass("x10.finish.visit.FinishAsyncVisitor");
-               Constructor<?> con = c.getConstructor(Job.class,
-                                                     TypeSystem.class,
-                                                     NodeFactory.class,String.class,HashMap.class);
-               ContextVisitor favisitor = (ContextVisitor) con.newInstance(job, ts, nf,"java",calltable);
-               result = new VisitorGoal("FinishAsyncs",job,favisitor).intern(this);
-               
-           }
-           catch (ClassNotFoundException e) {
-               //System.err.println("[X10_FA_ERR]Cannot load wala anlaysis engine. Ignore Finish-Async optimization.");
-           } catch (Throwable e) {
-               System.err.println("[X10_FA_ERR]Error in loading wala anlaysis engine. Ignore Finish-Async optimization.");
-               e.printStackTrace();
-           }    	     
-    	   return result;
-       }
-       public HashMap FinishAsyncAnalyze(){
-    	   HashMap result = null;
-           try{
-               ClassLoader cl = Thread.currentThread().getContextClassLoader();
-               Class<?> c = cl
-               .loadClass("x10.finish.analysis.FinishAsyncAnalysis");
-               Constructor<?> con = c.getConstructor();
-               Object fa =  con.newInstance();
-               //FIXME: how to cast fa to FinishAsyncAnalysis without adding dependency to that type
-               // return fa.
-               
-           }
-           catch (ClassNotFoundException e) {
-               //System.err.println("[X10_FA_ERR]Cannot load wala anlaysis engine. Ignore Finish-Async optimization.");
-           } catch (Throwable e) {
-               System.err.println("[X10_FA_ERR]Error in loading wala anlaysis engine. Ignore Finish-Async optimization.");
-               e.printStackTrace();
-           }    	     
-    	   return result;
+       public Goal FinishAsyncBarrier(final Goal goal, final Job job, final Scheduler s){
+    	   
+    	   return new AllBarrierGoal("FinishAsyncBarrier", this) {
+               @Override
+               public Goal prereqForJob(Job job) {
+                   if (!scheduler.commandLineJobs().contains(job) &&
+                           ((ExtensionInfo) extInfo).manifestContains(job.source().path())) {
+                	   System.out.println(job.source().name()+" omitted");
+                       return null;
+                   }
+                   System.out.println(job.source().name()+" started");
+                   return goal;
+               }
+               public boolean runTask() {
+                   try {
+                	   
+                	   TypeSystem ts = extInfo.typeSystem();
+                       NodeFactory nf = extInfo.nodeFactory();
+                       FinishAsyncVisitor favisitor = new FinishAsyncVisitor(job, ts, nf, "java", calltable);
+                       Goal finish = new VisitorGoal("FinishAsyncs",job,favisitor).intern(s);
+                       finish.runTask();
+                       
+                   } catch (Throwable t) {}
+                   return true;
+               }
+           }.intern(this);
+           
        }
     }
     
