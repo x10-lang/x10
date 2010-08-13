@@ -48,7 +48,7 @@
 		</antcall>
 
 		<startBuildActivity repositoryAddress="${repositoryAddress}" userId="${userId}" passwordFile="${passwordFile}"
-							activityIdProperty="build-x10-dist" label="Building X10 distribution and X10DT fragments..."
+							activityIdProperty="build-x10-dist" label="Build X10 distribution and X10DT fragments..."
 							buildResultUUID="${buildResultUUID}" autoComplete="true" />
 		<echo message="*** Build X10 dist and X10DT fragments..." />
 		<ant antfile="x10-build.xml">
