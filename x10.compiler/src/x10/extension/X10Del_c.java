@@ -82,9 +82,9 @@ public class X10Del_c extends JL_c implements X10Del {
 		return ((X10Ext) node().ext()).annotationMatching(t);
 	}
 
-    public List<X10ClassType> annotationMatchingQName(QName name) {
+    public List<X10ClassType> annotationNamed(QName fullName) {
         if (node().ext() == null) return null;
-        return ((X10Ext) node().ext()).annotationMatchingQName(name);
+        return ((X10Ext) node().ext()).annotationNamed(fullName);
     }
 
 	/* (non-Javadoc)
