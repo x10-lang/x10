@@ -55,8 +55,7 @@
 	</target>
 
 	<target name="publish-update-site" if="publish.update.site">
-		<zip destfile="${orquesta.update.site.loc}/x10dt-update-site-${zip.release.tag}.${build.qualifier}.zip" 
-             basedir="${buildDirectory}/buildRepo"/>
+		<mkdir dir="${orquesta.update.site.loc}"/>
 		<delete includeEmptyDirs="true">
 			<fileset dir="${orquesta.update.site.loc}">
 				<include name="binary/**"/>

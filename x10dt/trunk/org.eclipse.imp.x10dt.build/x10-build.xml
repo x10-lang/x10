@@ -1,20 +1,14 @@
 <project name="X10 Dist and Fragments Build" basedir="." default="main">
 
-	<import file="utilities.xml" />
-	<property file="build.properties" />
 	<property name="x10-build-loc" value="${basedir}/../x10-build"/>
 
 	<target name="x10-checkouts-existence">
 		<condition property="are-plugins-present">
 			<and>
-				<available file="${x10-build-loc}/x10.compiler" type="dir" />
 				<available file="${x10-build-loc}/x10.common" type="dir" />
 				<available file="${x10-build-loc}/x10.constraints" type="dir" />
+				<available file="${x10-build-loc}/x10.compiler" type="dir" />
 				<available file="${x10-build-loc}/x10.runtime" type="dir" />
-				<available file="${x10-build-loc}/x10.dist" type="dir" />
-				<available file="${x10-build-loc}/org.eclipse.imp.x10dt.update" type="dir" />
-				<available file="${x10-build-loc}/org.eclipse.imp.x10dt.feature" type="dir" />
-				<available file="${x10-build-loc}/x10.dist.host" type="dir" />
 				<available file="${x10-build-loc}/x10.dist.linux.x86.fragment" type="dir" />
 				<available file="${x10-build-loc}/x10.dist.linux.x86_64.fragment" type="dir" />
 				<available file="${x10-build-loc}/x10.dist.macosx.x86.fragment" type="dir" />
@@ -43,7 +37,75 @@
 	</target>
 
 	<target name="check-build-required">
-		<available file="${x10-build-loc}" type="dir" property="x10.dist.available"/>
+		<condition property="x10.dist.available">
+			<and>
+				<available file="${x10-build-loc}" type="dir" />
+				<resourcecount when="greater" count="0">
+					<restrict>
+						<exists xmlns="antlib:org.apache.tools.ant.types.resources.selectors" />
+						<fileset dir="${x10-build-loc}/x10.constraints">
+							<include name="x10.constraints_*.jar" />
+						</fileset>
+					</restrict>
+				</resourcecount>
+				<resourcecount when="greater" count="0">
+					<restrict>
+						<exists xmlns="antlib:org.apache.tools.ant.types.resources.selectors" />
+						<fileset dir="${x10-build-loc}/x10.common">
+							<include name="x10.common_*.jar" />
+						</fileset>
+					</restrict>
+				</resourcecount>
+				<resourcecount when="greater" count="0">
+					<restrict>
+						<exists xmlns="antlib:org.apache.tools.ant.types.resources.selectors" />
+						<fileset dir="${x10-build-loc}/x10.compiler">
+							<include name="x10.compiler_*.jar" />
+						</fileset>
+					</restrict>
+				</resourcecount>
+				<resourcecount when="greater" count="0">
+					<restrict>
+						<exists xmlns="antlib:org.apache.tools.ant.types.resources.selectors" />
+						<fileset dir="${x10-build-loc}/x10.runtime">
+							<include name="x10.runtime_*.jar" />
+						</fileset>
+					</restrict>
+				</resourcecount>
+				<resourcecount when="greater" count="0">
+					<restrict>
+						<exists xmlns="antlib:org.apache.tools.ant.types.resources.selectors" />
+						<fileset dir="${x10-build-loc}/x10.dist.linux.x86.fragment">
+							<include name="x10.dist.linux.x86.fragment_*.jar" />
+						</fileset>
+					</restrict>
+				</resourcecount>
+				<resourcecount when="greater" count="0">
+					<restrict>
+						<exists xmlns="antlib:org.apache.tools.ant.types.resources.selectors" />
+						<fileset dir="${x10-build-loc}/x10.dist.linux.x86_64.fragment">
+							<include name="x10.dist.linux.x86_64.fragment_*.jar" />
+						</fileset>
+					</restrict>
+				</resourcecount>
+				<resourcecount when="greater" count="0">
+					<restrict>
+						<exists xmlns="antlib:org.apache.tools.ant.types.resources.selectors" />
+						<fileset dir="${x10-build-loc}/x10.dist.macosx.x86.fragment">
+							<include name="x10.dist.macosx.x86.fragment_*.jar" />
+						</fileset>
+					</restrict>
+				</resourcecount>
+				<resourcecount when="greater" count="0">
+					<restrict>
+						<exists xmlns="antlib:org.apache.tools.ant.types.resources.selectors" />
+						<fileset dir="${x10-build-loc}/x10.dist.win32.x86.fragment">
+							<include name="x10.dist.win32.x86.fragment_*.jar" />
+						</fileset>
+					</restrict>
+				</resourcecount>
+			</and>
+		</condition>
 	</target>
 
 	<target name="build" depends="check-build-required" unless="x10.dist.available">
@@ -62,7 +124,30 @@
 		<ant antfile="${x10-build-loc}/x10.dist.win32.x86.fragment/exportPlugin.xml" dir="${x10-build-loc}/x10.dist.win32.x86.fragment" />
 	</target>
 
-	<target name="transfer">
+	<target name="check-transfer-required">
+		<condition property="transfer.available">
+			<and>
+				<available file="${transformedRepoLocation}/plugins" type="dir" />
+				<resourcecount when="greater" count="0">
+					<restrict>
+						<exists xmlns="antlib:org.apache.tools.ant.types.resources.selectors" />
+						<fileset dir="${transformedRepoLocation}/plugins">
+							<include name="x10.constraints_*.jar" />
+							<include name="x10.common_*.jar" />
+							<include name="x10.compiler_*.jar" />
+							<include name="x10.runtime_*.jar" />
+							<include name="x10.dist.linux.x86.fragment_*.jar" />
+							<include name="x10.dist.linux.x86_64.fragment_*.jar" />
+							<include name="x10.dist.macosx.x86.fragment_*.jar" />
+							<include name="x10.dist.win32.x86.fragment_*.jar" />
+						</fileset>
+					</restrict>
+				</resourcecount>
+			</and>
+		</condition>
+	</target>
+
+	<target name="transfer" depends="check-transfer-required" unless="transfer.available">
 		<!-- We shouldn't have to do this! To refactor the proper way, probably by using an X10 repository -->
 		<mkdir dir="${transformedRepoLocation}/plugins"/>
 		<copy todir="${transformedRepoLocation}/plugins">
@@ -103,6 +188,10 @@
 		<ant antfile="${x10-build-loc}/x10.dist/build.xml" dir="${x10-build-loc}/x10.dist" target="compiler-jar" />
 	</target>
 
-	<target name="main" depends="x10-checkouts,build,transfer" />
+	<target name="main">
+		<antcall target="x10-checkouts"/>
+		<antcall target="build"/>
+		<antcall target="transfer"/>
+	</target>
 
 </project>

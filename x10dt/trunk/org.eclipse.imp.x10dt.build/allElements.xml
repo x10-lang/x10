@@ -32,6 +32,8 @@
 	<!-- 		assembleScriptName: The assemble script to be called			-->
 	<!-- ====================================================================== -->
 	<target name="defaultAssemble">
+		<echo message="build Dir: ${buildDirectory}"/>
+		<echo message="basedir: ${basedir}"/>
 		<ant antfile="${assembleScriptName}" dir="${buildDirectory}">			
  			<property name="archiveName" value="${archiveNamePrefix}-${zip.release.tag}-${config}.zip"/>
 		</ant>

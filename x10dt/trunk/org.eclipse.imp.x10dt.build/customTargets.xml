@@ -91,9 +91,7 @@
 	<!-- ===================================================================== -->
 	<target name="preProcessRepos">
 		<p2.mirror destination="file:${repoBaseLocation}/mirror">
-			<source>
-				<repository location="${eclipse.update.url}" />
-			</source>
+			<source file="${cdt.update.loc}"/>
 			<source file="${ptp.update.loc}"/>
 			<source file="${imp.update.loc}"/>
 			<iu id="org.eclipse.cdt.feature.group" />
