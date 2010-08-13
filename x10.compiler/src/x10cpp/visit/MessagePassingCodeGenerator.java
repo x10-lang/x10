@@ -4098,7 +4098,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             if (name.equals(THIS))
                 name = SAVED_THIS;
             else name = mangled_non_method_name(name);
-            inc.write(Emitter.translateType(var.type(), true) + " " + name);
+            if (refs.contains(var)) {
+                inc.write(Emitter.translateType(var.type(), true) + "& " + name);
+            } else {
+                inc.write(Emitter.translateType(var.type(), true) + " " + name);
+            }
         }
         inc.write(")");
         inc.begin(0);
@@ -4210,6 +4214,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     }
 
     protected void generateClosureSerializationFunctions(X10CPPContext_c c, String cnamet, StreamWrapper inc, Block block) {
+        inc.write("// TODO: handle serialization of ref fields correctly"); inc.newline(); inc.forceNewline();
+
         inc.write("void "+SERIALIZE_BODY_METHOD+"("+SERIALIZATION_BUFFER+" &buf) {");
         inc.newline(4); inc.begin(0);
         // FIXME: factor out this loop
