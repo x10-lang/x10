@@ -25,7 +25,7 @@ x10::lang::VoidFun_0_0::itable<StaticInitClosure> StaticInitClosure::_itable(&St
                                                                              &StaticInitClosure::home, &StaticInitClosure::toString, &StaticInitClosure::typeName);
 
 x10aux::itable_entry StaticInitClosure::_itables[2] = {
-    x10aux::itable_entry(&x10::lang::VoidFun_0_0::rtt, &_itable),
+    x10aux::itable_entry(&x10aux::getRTT<x10::lang::VoidFun_0_0>, &_itable),
     x10aux::itable_entry(NULL, NULL)
 };
 
@@ -34,7 +34,7 @@ x10::lang::VoidFun_0_0::itable<BootStrapClosure> BootStrapClosure::_itable(&Boot
                                                                            &BootStrapClosure::home, &BootStrapClosure::toString, &BootStrapClosure::typeName);
 
 x10aux::itable_entry BootStrapClosure::_itables[2] = {
-    x10aux::itable_entry(&x10::lang::VoidFun_0_0::rtt, &_itable),
+    x10aux::itable_entry(&x10aux::getRTT<x10::lang::VoidFun_0_0>, &_itable),
     x10aux::itable_entry(NULL, NULL)
 };
 
