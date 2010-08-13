@@ -703,9 +703,13 @@ public class Synthesizer {
 	 * @return
 	 */
 	public Closure makeClosure(Position pos, Type retType, List<Formal> parms, Block body, X10Context context) {
-		return ClosureSynthesizer.makeClosure((X10TypeSystem_c) xts, xnf, pos, retType, parms, body, context);
+		return ClosureSynthesizer.makeClosure((X10TypeSystem_c) xts, xnf, pos, retType, parms, body, context, null);
 	}
 	
+    public Closure makeClosure(Position pos, Type retType, List<Formal> parms, Block body, X10Context context, List<X10ClassType> annotations) {
+        return ClosureSynthesizer.makeClosure((X10TypeSystem_c) xts, xnf, pos, retType, parms, body, context, annotations);
+    }
+    
 	/**
 	 * Return a synthesized AST node for ():retType => body, at the given position and context.
 	 * @param pos
@@ -716,10 +720,13 @@ public class Synthesizer {
 	 * @return
 	 */
 	
-	public Closure makeClosure(Position pos, Type retType, Block body, X10Context context) {
-		return makeClosure(pos, retType, Collections.EMPTY_LIST, body, context);
+	public Closure makeClosure(Position pos, Type retType, Block body, X10Context context, List<X10ClassType> annotations) {
+		return makeClosure(pos, retType, Collections.EMPTY_LIST, body, context, annotations);
 	}
 	 
+    public Closure makeClosure(Position pos, Type retType, Block body, X10Context context) {
+        return makeClosure(pos, retType, Collections.EMPTY_LIST, body, context);
+    }
 	 
 	public Block toBlock(Stmt body) {
 		return body instanceof Block ? (Block) body : xnf.Block(body.position(), body);
