@@ -9,17 +9,22 @@ import java.util.List;
 import java.util.Map;
 
 import junit.framework.Assert;
-import polyglot.ast.Node;
 import polyglot.frontend.Compiler;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Job;
+import polyglot.frontend.Source;
 import polyglot.main.Options;
 import polyglot.main.UsageError;
 import polyglot.util.AbstractErrorQueue;
 import polyglot.util.ErrorInfo;
 import x10.errors.X10ErrorInfo;
 
+/**
+ * This class provides some base functionality for compilation
+ * @author mvaziri
+ *
+ */
 public class CompilerTestsBase {
 	
 	protected static String[] STATIC_CALLS = {"-STATIC_CALLS=true", "-CHECK_INVARIANTS"};
@@ -34,6 +39,26 @@ public class CompilerTestsBase {
 	}
 	
 	
+	/*
+	 * Currently the following method if unused
+	 */
+	public boolean compile(Collection<Source> sources, String[] options,
+			final Collection<ErrorInfo> errors, String sourcepath, Collection<Job> jobs) throws Exception {
+		Collection<String> paths = new ArrayList<String>();
+		for (Source s: sources) {
+			paths.add(s.path());
+		}try {	
+			ExtensionInfo extInfo = new x10.ExtensionInfo();
+			Compiler compiler = getCompiler(extInfo, options, errors, sourcepath);
+			Globals.initialize(compiler);
+			compiler.compile(sources);
+			return outcome(paths, options, sourcepath, errors, jobs, extInfo);
+			
+		} catch (Throwable e) {
+			throw new Exception(getTestId(paths, options), e);
+		}
+	}
+	
 	/**
 	 * 
 	 * @param files
@@ -46,48 +71,53 @@ public class CompilerTestsBase {
 	public boolean compile(File[] files, String[] options,
 			final Collection<ErrorInfo> errors, String sourcepath, Collection<Job> jobs) throws Exception {
 		
-		try {
-			Collection<String> sources = new ArrayList<String>();
-			for (File f : files) {
-				sources.add(f.getPath());
-			}
+		Collection<String> paths = new ArrayList<String>();
+		for (File f : files) {
+			paths.add(f.getPath());
+		}
+		try {	
 			ExtensionInfo extInfo = new x10.ExtensionInfo();
-			buildOptions(extInfo, options, sourcepath);
-			final Compiler compiler = new Compiler(extInfo,
-					new AbstractErrorQueue(1000000, extInfo.compilerName()) {
-						protected void displayError(ErrorInfo error) {
-							errors.add(error);
-						}
-					});
+			Compiler compiler = getCompiler(extInfo, options, errors, sourcepath);
 			Globals.initialize(compiler);
-			compiler.compileFiles(sources);
+			compiler.compileFiles(paths);
+			return outcome(paths, options, sourcepath, errors, jobs, extInfo);
 			
-			//get ASTs
-			jobs.addAll(extInfo.scheduler().commandLineJobs());
-			
-			for (String s : sources) {
-				System.err.print(s + " - ");
-			}
-			for (String s : options) {
-				System.err.print(s + " - ");
-			}
-			System.err.println(sourcepath);
-			for (ErrorInfo e : errors) {
-				System.err.println(e + ":" + e.getPosition());
-			}
-			for(ErrorInfo error: errors){
-				Assert.assertFalse(getTestId(files, options), invariantViolation(error));
-				Assert.assertFalse(getTestId(files, options), internalError(error));
-				Assert.assertFalse(getTestId(files, options), notWellFormed(error));
-			}
-			Assert.assertFalse(getTestId(files, options), duplicateErrors(errors));
-			return errors.isEmpty();
 		} catch (Throwable e) {
-			throw new Exception(getTestId(files, options), e);
+			throw new Exception(getTestId(paths, options), e);
 		}
 	}
 	
-
+	private Compiler getCompiler(ExtensionInfo extInfo, String[] options, final Collection<ErrorInfo> errors, String sourcepath){
+		buildOptions(extInfo, options, sourcepath);
+		return new Compiler(extInfo,
+				new AbstractErrorQueue(1000000, extInfo.compilerName()) {
+					protected void displayError(ErrorInfo error) {
+						errors.add(error);
+					}
+				});
+	}
+	
+	private boolean outcome(Collection<String> sources, String[] options, String sourcepath, Collection<ErrorInfo> errors, Collection<Job> jobs, ExtensionInfo extInfo) {
+		jobs.addAll(extInfo.scheduler().commandLineJobs());
+		
+		for (String s : sources) {
+			System.err.print(s + " - ");
+		}
+		for (String s : options) {
+			System.err.print(s + " - ");
+		}
+		System.err.println(sourcepath);
+		for (ErrorInfo e : errors) {
+			System.err.println(e + ":" + e.getPosition());
+		}
+		for(ErrorInfo error: errors){
+			Assert.assertFalse(getTestId(sources, options), invariantViolation(error));
+			Assert.assertFalse(getTestId(sources, options), internalError(error));
+			Assert.assertFalse(getTestId(sources, options), notWellFormed(error));
+		}
+		Assert.assertFalse(getTestId(sources, options), duplicateErrors(errors));
+		return errors.isEmpty();
+	}
 	
 	private void buildOptions(ExtensionInfo extinfo, String[] options, String sourcepath) {
 		Options opts = extinfo.getOptions();
@@ -116,10 +146,10 @@ public class CompilerTestsBase {
 		}
 	}
 	
-	protected String getTestId(File[] files, String[] options){
+	protected String getTestId(Collection<String> sources, String[] options){
 		String testId = "";
-		for (File f : files) {
-			testId += f.getPath() + " - ";
+		for (String f : sources) {
+			testId += f + " - ";
 		}
 		for (String s : options) {
 			testId += s + " - ";

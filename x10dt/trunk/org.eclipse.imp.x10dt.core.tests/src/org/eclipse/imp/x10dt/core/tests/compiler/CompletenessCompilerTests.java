@@ -2,9 +2,7 @@ package org.eclipse.imp.x10dt.core.tests.compiler;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -71,14 +69,16 @@ public class CompletenessCompilerTests extends CompilerTestsBase {
 		System.err.println("***Compiling files one at a time");
 		//Submit files one by one
 		Collection<ErrorInfo> errors = new ArrayList<ErrorInfo>();
+		Collection<String> paths = new ArrayList<String>();
 		for(File f: sources){
 			File[] fs = {f};
 			compile(fs, options, errors, sourcepath);
+			paths.add(f.getPath());
 		}
 		
 		//Compare error queues
 		if (!contained(allErrors,errors) || !contained(errors, allErrors)){
-			Assert.assertFalse(getTestId(sources,options), true);
+			Assert.assertFalse(getTestId(paths,options), true);
 		}
 		
 	}

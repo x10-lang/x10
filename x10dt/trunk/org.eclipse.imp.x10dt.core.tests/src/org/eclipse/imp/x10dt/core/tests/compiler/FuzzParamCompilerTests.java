@@ -3,11 +3,9 @@ package org.eclipse.imp.x10dt.core.tests.compiler;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.CharBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -18,6 +16,15 @@ import org.junit.runners.Parameterized.Parameters;
 
 import polyglot.util.ErrorInfo;
 
+/**
+ * This class performs fuzz testing.
+ * When run as a Java application, this class creates a series of "fuzz" files for the files in data/fuzz,
+ * and created the corresponding files in data/fuzzgen.
+ * When run as a Junit test, this class runs the tests generated from available files in data/fuzzgen.
+ * 
+ * @author mvaziri
+ *
+ */
 @RunWith(Parameterized.class)
 public class FuzzParamCompilerTests extends CompilerTestsBase {
 
@@ -27,8 +34,8 @@ public class FuzzParamCompilerTests extends CompilerTestsBase {
 	/*
 	 * Paths
 	 */
-	private static String FUZZ_PATH = "fuzz"  + File.separator;
-	private static String DATA_PATH = ".." + File.separator + "x10.tests" + File.separator + "examples" + File.separator + "Constructs" + File.separator;
+	private static String FUZZ_PATH = "data" + File.separator + "fuzzgen"  + File.separator;
+	private static String DATA_PATH = "data" + File.separator + "fuzz"  + File.separator;
 	private static String LIB_PATH = ".." + File.separator + "x10.tests" + File.separator + "examples" + File.separator + "x10lib" + File.separator;
 	private static String SOURCE_PATH_BASE = getRuntimeJar() + ":" + LIB_PATH + ":" + DATA_PATH;
 
@@ -66,18 +73,52 @@ public class FuzzParamCompilerTests extends CompilerTestsBase {
 		try {
 			long length = f.length();
 			BufferedReader reader = new BufferedReader(new FileReader(f));
-			BufferedWriter writer = new BufferedWriter(new FileWriter(f));
-			CharBuffer buffer = CharBuffer.allocate((int) length);
+			char[] buffer = new char[(int)length];
 			reader.read(buffer);
 			reader.close();
-			new File("fuzz" + File.separator + "test").mkdir();
-//			for(FuzzIterator t = new FuzzIterator(buffer); t.hasNext();){
-//				CharBuffer newBuffer = t.next();
-//				File.
-//				writer
-//			}
+			String path = "data" + File.separator + "fuzzgen" + File.separator;
+			int count = 0;
+			for(FuzzIterator t = new FuzzIterator(buffer); t.hasNext();){
+				char[] newBuffer = t.next();
+				String dir = path + f.getName() + (count++);
+				boolean success = (new File(dir)).mkdir();
+				if (success){
+					BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dir + File.separator + f.getName())));
+					writer.write(newBuffer);
+					writer.close();
+				}
+			}
 		} catch (IOException e){
 			System.err.println(e);
+		}
+	}
+	
+	private static class FuzzIterator {
+		int cache_length = 20; //This the length of the sequence of characters that will be erased each time
+		char[] buffer;
+		char[] cache = new char[cache_length];
+		int begin = 0;
+		
+		FuzzIterator(char[] buffer){
+			this.buffer = buffer;
+		}
+		
+		boolean hasNext(){
+			return begin < buffer.length;
+		}
+		
+		char[] next(){
+			//restore what was erased last time
+			for (int i = begin - cache_length; i >= 0 && i < begin; i++){
+				buffer[i] = cache[i-begin + cache_length];
+			}
+			//cache and erase
+			for(int i = begin; i < begin + cache_length && i < buffer.length; i++){
+				cache[i - begin] = buffer[i];
+				buffer[i] = ' ';
+			}
+			begin += cache_length;
+			return buffer;
 		}
 	}
 	

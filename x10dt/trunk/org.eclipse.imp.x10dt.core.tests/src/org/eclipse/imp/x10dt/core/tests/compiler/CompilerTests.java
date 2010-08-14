@@ -3,24 +3,14 @@ package org.eclipse.imp.x10dt.core.tests.compiler;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
 
-import org.eclipse.imp.x10dt.core.preferences.generated.X10Constants;
 import org.junit.Assert;
 import org.junit.Test;
 
 import polyglot.ast.ClassDecl;
 import polyglot.ast.Node;
-import polyglot.ast.SourceFile;
-import polyglot.frontend.Compiler;
-import polyglot.frontend.ExtensionInfo;
-import polyglot.frontend.Globals;
 import polyglot.frontend.Job;
-import polyglot.main.Options;
-import polyglot.main.UsageError;
 import polyglot.types.SemanticException;
-import polyglot.util.AbstractErrorQueue;
 import polyglot.util.ErrorInfo;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
