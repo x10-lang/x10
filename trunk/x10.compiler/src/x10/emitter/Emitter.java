@@ -2295,13 +2295,29 @@ public class Emitter {
 		return s.toString();
 	}
 
-    public void generateRTTInstance(X10ClassDef def) {
+	private boolean isUnsignedClassType(Type type) {
+	    return type.isNumeric() && !(type.isChar() || type.isByte() || type.isShort() ||
+	            type.isInt() || type.isLong() || type.isFloat() || type.isDouble());
+	}
 
-        w.write("public static final x10.rtt.RuntimeType");
+	public void generateRTTInstance(X10ClassDef def) {
+
+	    String unsignedClassName = null;
+
+        if (isUnsignedClassType(def.asType())) {
+            unsignedClassName = def.asType().name().toString();
+            w.write("public static final x10.rtt."+unsignedClassName+"Type");
+        } else {
+            w.write("public static final x10.rtt.RuntimeType");
+        }
         w.write("<");
         printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
         w.write(">");
-        w.write(" _RTT = new x10.rtt.RuntimeType");
+        if (isUnsignedClassType(def.asType())) {
+            w.write(" _RTT = new x10.rtt."+unsignedClassName+"Type");
+        } else {
+            w.write(" _RTT = new x10.rtt.RuntimeType");            
+        }
         w.write("<");
         printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
         w.write(">");
@@ -2350,9 +2366,19 @@ public class Emitter {
         w.write(");");
         w.newline();
         
+        if (isUnsignedClassType(def.asType())) {
+            w.write("static {");
+            w.write("x10.rtt.Types."+unsignedClassName.toUpperCase()+" = _RTT;");
+            w.write("}");
+            w.newline();
+        }
 
         if (!def.flags().isInterface()) {
-            w.write("public x10.rtt.RuntimeType<?> getRTT() {");
+            if (isUnsignedClassType(def.asType())) {
+                w.write("public x10.rtt."+unsignedClassName+"Type<"+unsignedClassName+"> getRTT() {");
+            } else {
+                w.write("public x10.rtt.RuntimeType<?> getRTT() {");
+            }
             w.write("return _RTT;");
             w.write("}");
             w.newline();
@@ -2372,7 +2398,7 @@ public class Emitter {
             }
             w.newline();
         }
-    }
+	}
 
     private void printParents(X10ClassDef def, Type type) {
         if (type instanceof ConstrainedType_c) {

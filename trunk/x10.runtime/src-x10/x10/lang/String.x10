@@ -28,7 +28,7 @@ import x10.util.Ordered;
  * with all characters translated to uppercase or to lowercase.  Case mapping
  * is defined in {@link x10.lang.Char}.
  */
-@NativeRep("java", "java.lang.String", null, null)
+@NativeRep("java", "java.lang.String", null, "x10.rtt.Types.STR")
 @NativeRep("c++", "x10aux::ref<x10::lang::String>", "x10::lang::String", null)
 public final class String implements (Int) => Char/*TODO, (Range) => String*//*TODO, Ordered[String]*/, Comparable[String] {
     /**
@@ -325,6 +325,7 @@ public final class String implements (Int) => Char/*TODO, (Range) => String*//*T
      * @return the ValRail of Strings computed by splitting this String around matches of the given regular expression.
      */
     @Native("java", "x10.core.RailFactory.<java.lang.String>makeValRailFromJavaArray(new x10.rtt.RuntimeType<java.lang.String>(java.lang.String.class), (#0).split(#1))")
+//    @Native("java", "x10.core.StringAux.split((#0), (#1))")
     @Native("c++", "(#0)->split(#1)")
     public native global def split(regex: String): ValRail[String];
 
