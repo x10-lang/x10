@@ -147,6 +147,31 @@ public class RuntimeType<T> implements Type<T> {
             }
             return instantiateCheck(params, rtt, any);
         }
+        else if (o instanceof String) {
+            // @NativeRep'ed String type (the one with parents info)
+            RuntimeType<String> rtt = (RuntimeType<String>)Types.STR0;
+            return instantiateCheck(params, rtt, (String)o);
+        }
+        else if (o instanceof Number) {
+            // @NativeRep'ed numeric type
+            return false;
+        }
+        return false;
+    }
+
+    // e.g. C[T1,T2]:Super[Int, T1] -> C[Int,Double]:Super[Int,Int] 
+    private final boolean instantiateCheck(Type<?>[] params, RuntimeType<String> rtt, String o) {
+        for (Type<?> t : rtt.parents) {
+            if (base.isAssignableFrom(t.getJavaClass())) {
+                if (t instanceof ParameterizedType<?>) {
+                    ParameterizedType<?> pt = (ParameterizedType<?>) t;
+                    Type<?>[] paramsT = pt.getParams();
+                    if (subtypeof(params, pt.getRuntimeType(), paramsT)) {
+                        return true;
+                    }
+                }
+            }
+        }
         return false;
     }
 
@@ -387,7 +412,7 @@ public class RuntimeType<T> implements Type<T> {
     }
     
     // for shortcut
-    public final boolean instanceof$(Object o, Type<?> param0) {
+    public boolean instanceof$(Object o, Type<?> param0) {
         if (o == null) {return false;}
         Class<?> target = o.getClass();
         if (target == base || checkAnonymous(target)) {
@@ -404,6 +429,10 @@ public class RuntimeType<T> implements Type<T> {
             return true;
         }
         else if (base.isInstance(o)) {
+            return checkParents(o, param0);
+        }
+        else if (o instanceof String || o instanceof Number) {
+            // @NativeRep'ed type
             return checkParents(o, param0);
         }
         else {
@@ -439,6 +468,10 @@ public class RuntimeType<T> implements Type<T> {
             return true;
         }
         else if (base.isInstance(o)) {
+            return checkParents(o, param0, param1);
+        }
+        else if (o instanceof String || o instanceof Number) {
+            // @NativeRep'ed type
             return checkParents(o, param0, param1);
         }
         else {
