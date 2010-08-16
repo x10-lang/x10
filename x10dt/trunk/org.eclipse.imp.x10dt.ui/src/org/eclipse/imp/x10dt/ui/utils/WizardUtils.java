@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at                    *
  * http://www.eclipse.org/legal/epl-v10.html                                   *
  *******************************************************************************/
-package org.eclipse.imp.x10dt.ui.launch.core.utils;
+package org.eclipse.imp.x10dt.ui.utils;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -90,21 +90,10 @@ public final class WizardUtils {
     if ((packageName != null) && (packageName.trim().length() > 0)) {
       sb.append("package " + packageName + ";\n\n"); //$NON-NLS-1$ //$NON-NLS-2$
     }
-    sb.append("public class " + typeName); //$NON-NLS-1$
-    sb.append(" {\n"); //$NON-NLS-1$
-    sb.append("    public static def main(var args: Rail[String]!) {\n"); //$NON-NLS-1$
-    sb.append("         if (args.length > 0) {\n"); //$NON-NLS-1$
-    sb.append("           Console.OUT.println(\"The first arg is: \" + args(0));\n"); //$NON-NLS-1$
-    sb.append("         }\n"); //$NON-NLS-1$
-    sb.append("         Console.OUT.println(\"Hello X10 world\");\n"); //$NON-NLS-1$
-    sb.append("         val h = new Hello(); // final variable\n"); //$NON-NLS-1$
-    sb.append("         var result: boolean = h.myMethod();\n"); //$NON-NLS-1$
-    sb.append("         Console.OUT.println(\"The answer is: \" + result);\n"); //$NON-NLS-1$
-    sb.append("    }\n"); //$NON-NLS-1$
-    sb.append("    /** x10doc comment for myMethod */\n"); //$NON-NLS-1$
-    sb.append("    public def myMethod(): boolean = {\n"); //$NON-NLS-1$
-    sb.append("       return true;\n"); //$NON-NLS-1$
-    sb.append("    }\n"); //$NON-NLS-1$
+    sb.append("public class " + typeName + "{\n\n"); //$NON-NLS-1$
+    sb.append("    public static def main(args:Rail[String]) {\n"); //$NON-NLS-1$
+    sb.append("        Console.OUT.println(\"Hello World!\" );\n"); //$NON-NLS-1$
+    sb.append("    }\n\n"); //$NON-NLS-1$
     sb.append("}"); //$NON-NLS-1$
 
     return new ByteArrayInputStream(sb.toString().getBytes());

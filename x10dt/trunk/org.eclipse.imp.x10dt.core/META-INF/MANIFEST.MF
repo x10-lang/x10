@@ -32,6 +32,5 @@ Export-Package: org.eclipse.imp.x10dt.core,
  org.eclipse.imp.x10dt.core.actions,
  org.eclipse.imp.x10dt.core.builder,
  org.eclipse.imp.x10dt.core.preferences.generated,
- org.eclipse.imp.x10dt.core.utils,
- org.eclipse.imp.x10dt.core.wizards
+ org.eclipse.imp.x10dt.core.utils
 Bundle-RequiredExecutionEnvironment: J2SE-1.5

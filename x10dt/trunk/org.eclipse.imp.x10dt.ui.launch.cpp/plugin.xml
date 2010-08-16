@@ -35,7 +35,7 @@
          point="org.eclipse.ui.newWizards">
       <wizard
             canFinishEarly="false"
-            category="org.eclipse.imp.x10dt.core"
+            category="x10dt.wizards.category"
             class="org.eclipse.imp.x10dt.ui.launch.cpp.wizards.CppProjectWizard"
             finalPerspective="org.eclipse.imp.x10dt.ui.perspective"
             hasPages="true"
@@ -70,7 +70,7 @@
          </actionSet>
          <newWizardShortcut
                id="org.eclipse.imp.x10dt.ui.cpp.launch.NewX10Project">
-         </newWizardShortcut>
+         </newWizardShortcut>rdShortcut>
       </perspectiveExtension>
    </extension>
    <extension

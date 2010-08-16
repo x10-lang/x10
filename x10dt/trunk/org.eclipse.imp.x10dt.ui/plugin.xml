@@ -232,6 +232,9 @@
       </perspectiveExtension>
       <perspectiveExtension
             targetID="org.eclipse.imp.x10dt.ui.perspective">
+         <newWizardShortcut
+               id="org.eclipse.imp.x10dt.ui.wizards.NewX10Project">
+         </newWizardShortcut>
          <showInPart
                id="org.eclipse.imp.runtime.projectExplorerView">
          </showInPart>
@@ -445,5 +448,47 @@
             name="X10 AST Info"
             restorable="true">
       </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <category
+            name="X10"
+            id="x10dt.wizards.category">
+      </category>
+      <wizard
+            name="X10 Class"
+            icon="icons/newclass.gif"
+            category="x10dt.wizards.category"
+            class="org.eclipse.imp.x10dt.ui.wizards.NewX10ClassWizard"
+            hasPages="true"
+            id="org.eclipse.imp.x10dt.ui.wizards.NewX10ClassWizard">
+      </wizard>
+      <wizard
+            name="X10 Interface"
+            icon="icons/newinterface.gif"
+            category="x10dt.wizards.category"
+            class="org.eclipse.imp.x10dt.ui.wizards.NewX10InterfaceWizard"
+            hasPages="true"
+            id="org.eclipse.imp.x10dt.ui.wizards.NewX10InterfaceWizard">
+      </wizard>
+      <wizard
+            name="X10 Package"
+            icon="icons/newpackage.gif"
+            category="x10dt.wizards.category"
+            class="org.eclipse.imp.x10dt.ui.wizards.NewX10PackageWizard"
+            hasPages="true"
+            id="org.eclipse.imp.x10dt.ui.wizards.NewX10PackageWizard">
+      </wizard>
+      <wizard
+            canFinishEarly="false"
+            category="x10dt.wizards.category"
+            class="org.eclipse.imp.x10dt.ui.wizards.X10ProjectWizard"
+            finalPerspective="org.eclipse.imp.x10dt.ui.perspective"
+            hasPages="true"
+            icon="icons/newproject.gif"
+            id="org.eclipse.imp.x10dt.ui.wizards.NewX10Project"
+            name="X10 Project (Java back-end)"
+            project="true">
+      </wizard>
    </extension>
 </plugin>

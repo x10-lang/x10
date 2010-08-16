@@ -18,10 +18,9 @@
 /*
  * Created on Feb 6, 2006
  */
-package org.eclipse.imp.x10dt.core.wizards;
+package org.eclipse.imp.x10dt.ui.wizards;
 
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -37,6 +36,7 @@ import org.eclipse.imp.builder.ProjectNatureBase;
 import org.eclipse.imp.java.hosted.wizards.NewProjectWizardSecondPage;
 import org.eclipse.imp.x10dt.core.builder.X10ProjectNature;
 import org.eclipse.imp.x10dt.core.utils.X10DTCoreConstants;
+import org.eclipse.imp.x10dt.ui.utils.WizardUtils;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
@@ -44,7 +44,7 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 
 public class X10ProjectWizardSecondPage extends NewProjectWizardSecondPage {
-  
+
   public X10ProjectWizardSecondPage(X10ProjectWizardFirstPage firstPage) {
     super(firstPage);
   }
@@ -75,8 +75,7 @@ public class X10ProjectWizardSecondPage extends NewProjectWizardSecondPage {
           IPackageFragmentRoot pkgFragRoot = javaProject.getPackageFragmentRoot(srcFolder);
           IPackageFragment pkgFrag = pkgFragRoot.getPackageFragment("");
 
-          InputStream sourceInputStream = NewX10ClassPage.createSampleContentStream(newFile, "Hello", pkgFrag, "",
-                                                                                    new ArrayList<String>(), true, true);
+          InputStream sourceInputStream = WizardUtils.createSampleContentStream(pkgFrag.getElementName(), "Hello");
           newFile.create(sourceInputStream, true, monitor);
 
           ((X10ProjectWizard) X10ProjectWizardSecondPage.this.getWizard()).selectAndReveal(newFile);
@@ -85,5 +84,5 @@ public class X10ProjectWizardSecondPage extends NewProjectWizardSecondPage {
       }, monitor);
     }
   }
-  
+
 }

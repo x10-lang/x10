@@ -18,7 +18,7 @@
 /*
  * Created on Feb 6, 2006
  */
-package org.eclipse.imp.x10dt.core.wizards;
+package org.eclipse.imp.x10dt.ui.wizards;
 
 import java.lang.reflect.InvocationTargetException;
 

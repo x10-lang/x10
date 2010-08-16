@@ -17,7 +17,7 @@
  */
 package org.eclipse.imp.x10dt.ui.cheatsheet.actions;
 
-import org.eclipse.imp.x10dt.core.wizards.NewX10ClassWizard;
+import org.eclipse.imp.x10dt.ui.wizards.NewX10ClassWizard;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Shell;

@@ -7,7 +7,7 @@
  *****************************************************************************/
 package org.eclipse.imp.x10dt.ui.perspective.actions;
 
-import org.eclipse.imp.x10dt.core.wizards.X10ProjectWizard;
+import org.eclipse.imp.x10dt.ui.wizards.X10ProjectWizard;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.INewWizard;
