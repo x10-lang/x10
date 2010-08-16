@@ -15,6 +15,7 @@ class State implements Cloneable {
     String funName;
     int counter = 0;
     Set parallelBlocks = new HashSet();
+    boolean isClocked = false;
     
     
     public State () {
@@ -45,10 +46,11 @@ class State implements Cloneable {
 	this.parallelBlocks.add(s);
     }
     
-    public State(int startInstruction, int endInstruction, String funcName) {
+    public State(int startInstruction, int endInstruction, String funcName, boolean clocked) {
 	startInst = startInstruction;
 	endInst = endInstruction;
 	funName = funcName;
+	isClocked = clocked;
     }
     
     

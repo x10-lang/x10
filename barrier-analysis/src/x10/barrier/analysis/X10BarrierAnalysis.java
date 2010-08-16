@@ -88,9 +88,7 @@ public class X10BarrierAnalysis {
   
     CallGraph cg;
     PointerAnalysis pa;
-    final int YES = 1;
-    final int NO = 0;
-    final int DONTKNOW = 2;
+ 
    
     /**mr
      * A Depth-First Search of a Control Flow Graph
@@ -117,8 +115,6 @@ private Set retrieveClocks(int nodenum) {
 			
 			while (it.hasNext()) {
 				InstanceKey ik = it.next();
-				System.out.println("here" + inst.getDef() + " " + inst);
-				System.out.println("*******" + ik );
 				if (ik.getConcreteType().toString().contains(
 				"Clock")) {
 					clocks.add(ik);
@@ -132,7 +128,7 @@ private Set retrieveClocks(int nodenum) {
 	return clocks;
 }
 
-   private int isAsyncClocked (AsyncInvokeInstruction async, NormalAllocationInNode clk, CGNode md) {
+   private boolean isAsyncClocked (AsyncInvokeInstruction async, NormalAllocationInNode clk, CGNode md) {
  
        int clocks[] = async.getClocks();
 	//System.out.println("*****" + clocks.length);
@@ -142,22 +138,38 @@ private Set retrieveClocks(int nodenum) {
 		OrdinalSet<InstanceKey> os = pa
 		.getPointsToSet(new LocalPointerKey(md, clocks[count]));
 		Iterator<InstanceKey> it = os.iterator();
-		
 		while (it.hasNext()) {
 			InstanceKey ik = it.next();
 			if (ik.equals(clk)) {
-			   // System.out.println("***** true");
 			    if (os.size() == 1)
-				return YES;
-			    return DONTKNOW;
+				return true;
+			    return false;
 			}
 		}
 	}
 		//System.out.println("clcock 
-       return NO;
+       return false;
    }
 
-    private Automaton parseIR(int nodenum, NormalAllocationInNode clk, int amIClocked) {
+   
+   private void printInstructions (int nodenum) {
+       
+       CGNode md = cg.getNode(nodenum);
+       IR ir = md.getIR();
+	String funName =  md.getMethod().getName().toString();
+	//System.err.println(md.getMethod().getSignature());
+	
+	if (funName.contains("activity file")) {
+	    int index =  funName.lastIndexOf("x10");
+	    funName = "<async" + funName.substring(index + 3);
+	}
+	System.out.println("-----------" + funName +  "------------");
+       for (int j = 0; j < ir.getInstructions().length; j++) {
+	    	System.out.println(j + ": " + ir.getInstructions()[j]);
+	    }
+   }
+   
+    private Automaton parseIR(int nodenum, NormalAllocationInNode clk, boolean amIClocked) {
 	
 	Automaton a = new Automaton();
 	CGNode md = cg.getNode(nodenum);
@@ -170,13 +182,10 @@ private Set retrieveClocks(int nodenum) {
 	    int index =  funName.lastIndexOf("x10");
 	    funName = "<async" + funName.substring(index + 3);
 	}
-	System.out.println("-----------" + funName +  "------------");
 	
 	
 	if (ir != null) {
-	    for (int j = 0; j < ir.getInstructions().length; j++) {
-	    	System.out.println(j + ": " + ir.getInstructions()[j]);
-	    }
+	   
 	    // original control flow graph
 	    ControlFlowGraph<SSAInstruction, ISSABasicBlock> cfg = ir
 		    .getControlFlowGraph();
@@ -192,7 +201,7 @@ private Set retrieveClocks(int nodenum) {
 		for (int i = 0; i <=  epcfg.getMaxNumber(); i++) {
 		    ISSABasicBlock node = epcfg.getNode(i);
 		    int startIndex = node.getFirstInstructionIndex();
-		    s[i] = new State(startIndex, -1, funName);
+		    s[i] = new State(startIndex, -1, funName, amIClocked);
 		}
 		for (int i = 0; i <= epcfg.getMaxNumber(); i++) {
 		        
@@ -208,36 +217,30 @@ private Set retrieveClocks(int nodenum) {
 		    	for (int j = node.getFirstInstructionIndex(); j <= node.getLastInstructionIndex() && j >= 0 ; j++) {
 		    	 SSAInstruction currInst = epcfg.getInstructions()[j];
 		    	
-		    	    if (currInst != null && currInst instanceof  SSANextInstruction && amIClocked == YES) {
-		    		currState = new State(j, j, funName);
+		    	    if (currInst != null && currInst instanceof  SSANextInstruction && amIClocked) {
+		    		currState = new State(j, j, funName, amIClocked);
 
 		    		Edge e = new Edge(incomingState, currState, Edge.NEXT);
 		    		incomingState = currState; 
-		    	
-		    	    } else if (currInst != null && currInst instanceof  SSANextInstruction && amIClocked == DONTKNOW) {
-		    		currState = new State(j, j, funName);
-		    		new Edge(incomingState, currState, Edge.NEXT);
-		    		new Edge(incomingState, currState, Edge.COND);
-		    		incomingState = currState; 
-		    	
+		
 		    	    }
 		    	    else if (currInst != null && currInst instanceof  AsyncInvokeInstruction) {
 		    		AsyncInvokeInstruction asyncInst = (AsyncInvokeInstruction) currInst;
-		    		int isAsyncClocked =  isAsyncClocked(asyncInst, clk, md);
+		    		boolean isAsyncClocked =  isAsyncClocked(asyncInst, clk, md);
 		    		CallSiteReference asyncSite = asyncInst.getCallSite();
 		    		Set<CGNode> asyncNodes = cg.getNodes(asyncSite.getDeclaredTarget());
 		    		for (CGNode asyncNode: asyncNodes) {
 		    		    Automaton asyncAutomaton = this.parseIR(asyncNode.getGraphNodeId(), clk, isAsyncClocked);
-		    		    State asyncState = new State (j, -1, funName);
+		    		    State asyncState = new State (j, -1, funName, amIClocked);
 		    		    new Edge (incomingState, asyncState, Edge.ASYNC);
 		    		    new Edge (asyncState, asyncAutomaton.root, Edge.PAR);
-		    		    currState = new State(j, j, funName);
+		    		    currState = new State(j, j, funName, amIClocked);
 		    		    new Edge(asyncState, currState, Edge.PAR);
 		    		    incomingState = currState; 
 		    		
 		    		}
 		    	    } else {
-		    		currState = new State(j, j, funName);
+		    		currState = new State(j, j, funName, amIClocked);
 		    		Edge e = new Edge(incomingState, currState, Edge.COND);
 		    		incomingState = currState; 
 		    		
@@ -256,15 +259,14 @@ private Set retrieveClocks(int nodenum) {
 		s[epcfg.entry().getNumber()].isStart = true;
 		s[epcfg.exit().getNumber()].isTerminal = true;
 		s[epcfg.exit().getNumber()].set(-2, -1);
-		if (funName.contains("<async") && (amIClocked == YES || amIClocked == DONTKNOW)) {
+		if (funName.contains("<async") && (amIClocked)) {
 		    State terminal = new State();
 		    s[epcfg.exit().getNumber()].isTerminal = false;
 		    terminal.isTerminal = true;
 		    terminal.set(-3, -1);
 		    terminal.funName = funName;
 		    new Edge(  s[epcfg.exit().getNumber()], terminal, Edge.NEXT); // add a next edge at the end of async
-		    if (amIClocked == DONTKNOW)
-			new Edge(  s[epcfg.exit().getNumber()], terminal, Edge.COND); 
+		  
 		    
 		}
 		
@@ -302,15 +304,16 @@ private Set retrieveClocks(int nodenum) {
 	    if (declaringClass.contains("x10/lang") || declaringClass.contains("x10/util") ||  declaringClass.contains("x10/compiler"))
 		continue;
 	    Set clocks = this.retrieveClocks(cg.getNumber(one_method));
+	    this.printInstructions(cg.getNumber(one_method));
 	    for (Object o : clocks){
 		
 		NormalAllocationInNode clk = (NormalAllocationInNode) o;
-		System.out.println("-----------" + clk.getSite() +"-------------");
-		Automaton a = parseIR(cg.getNumber(one_method), clk, YES);
+		System.out.println("\n\n++++++++++++++++++" + clk.getSite() +"+++++++++++++++++++++++++++");
+		Automaton a = parseIR(cg.getNumber(one_method), clk, true);
 		   a.compress();
 		    //a.print();
 		    a.composePar();
-		    a.print();
+		    //a.print();
 		    a.mayHappenInParallel();
 	    }
 	  
