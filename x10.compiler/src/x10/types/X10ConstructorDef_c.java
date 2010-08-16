@@ -51,12 +51,12 @@ public class X10ConstructorDef_c extends ConstructorDef_c implements X10Construc
 
     public X10ConstructorDef_c(TypeSystem ts, Position pos,
             Ref<? extends ClassType> container,
-            Flags flags, 
+            Flags flags,
             Ref<? extends ClassType> returnType,
-            List<Ref<? extends Type>> formalTypes, 
-            XVar thisVar, 
+            List<Ref<? extends Type>> formalTypes,
+            XVar thisVar,
             List<LocalDef> formalNames, Ref<CConstraint> guard,
-            Ref<TypeConstraint> typeGuard, List<Ref<? extends Type>> throwTypes, 
+            Ref<TypeConstraint> typeGuard, List<Ref<? extends Type>> throwTypes,
             Ref<? extends Type> offerType) {
         super(ts, pos, container, flags, formalTypes, throwTypes);
         this.returnType = returnType;
@@ -154,7 +154,7 @@ public class X10ConstructorDef_c extends ConstructorDef_c implements X10Construc
     public void setTypeParameters(List<Ref<? extends Type>> typeParameters) {
         throw new InternalCompilerError("Attempt to set type parameters on a constructor def: "+this, position());
     }
-
+    
     public String toString() {
 	    String s = designator() + " " + flags().translate() + container() + "." + signature() + (guard() != null ? guard() : "") + ": " + returnType();
 

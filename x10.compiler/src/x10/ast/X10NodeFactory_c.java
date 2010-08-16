@@ -376,7 +376,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		n = (x10.ast.X10New) n.del(delFactory().delNew());
 		return n;
 	}
-	
+
 	public X10New X10New(Position pos, Expr qualifier, TypeNode objectType, List<TypeNode> typeArguments, List<Expr> arguments, ClassBody body) {
 		return X10New(pos, false, qualifier, objectType, typeArguments, arguments, body);
 	}

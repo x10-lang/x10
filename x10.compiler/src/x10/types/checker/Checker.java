@@ -108,7 +108,7 @@ public class Checker {
 	            return n.type(c.type());
 	        } else {
 	            throw new Errors.CannotAssign(right, t, n.position());
-	    }
+	        }
 	    }
 
 	    assert (false);

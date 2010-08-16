@@ -374,13 +374,13 @@ public class X10New_c extends New_c implements X10New {
     }
 
     protected void typeCheckFlags(ContextVisitor tc) throws SemanticException {
-    	super.typeCheckFlags(tc);
-       ClassType ct = tn.type().toClass();
+        super.typeCheckFlags(tc);
+        ClassType ct = tn.type().toClass();
         if (X10Flags.toX10Flags(ct.flags()).isStruct() && ! newOmitted) {
-    			throw new Errors.NewOfStructNotPermitted(this);
-    	  }
+            throw new Errors.NewOfStructNotPermitted(this);
+        }
     }
-    	  
+
     public Node typeCheck(ContextVisitor tc) throws SemanticException {
         try {
             return typeCheck1(tc);
@@ -426,11 +426,11 @@ public class X10New_c extends New_c implements X10New {
         List<Expr> args;
 
         Pair<ConstructorInstance, List<Expr>> p = findConstructor(tc, this, ct, argTypes, anonType);
-                ci = (X10ConstructorInstance) p.fst();
-                args = p.snd();
+        ci = (X10ConstructorInstance) p.fst();
+        args = p.snd();
         if (ci.error() != null) {
             throw ci.error();
-            }
+        }
 
         X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
         Type tp = ci.returnType();
@@ -445,7 +445,7 @@ public class X10New_c extends New_c implements X10New {
         }
 
         // Copy the method instance so we can modify it.
-      //  tp = ((X10Type) tp).setFlags(X10Flags.ROOTED);
+        //tp = ((X10Type) tp).setFlags(X10Flags.ROOTED);
         ci = (X10ConstructorInstance) ci.returnType(tp);
         ci = adjustCI(ci, tc);
         X10New_c result = (X10New_c) this.constructorInstance(ci);

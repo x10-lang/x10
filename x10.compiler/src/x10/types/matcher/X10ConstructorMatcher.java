@@ -54,7 +54,7 @@ public class X10ConstructorMatcher extends TypeSystem_c.ConstructorMatcher {
         if (ci instanceof X10ConstructorInstance) {
             X10ConstructorInstance xmi = (X10ConstructorInstance) ci;
             Type c = container != null ? container : xmi.container();
-                return Matcher.inferAndCheckAndInstantiate((X10Context) context(), 
+            return Matcher.inferAndCheckAndInstantiate((X10Context) context(), 
                     xmi, c, Collections.<Type>emptyList(), argTypes, ci.position());
         }
         return null;

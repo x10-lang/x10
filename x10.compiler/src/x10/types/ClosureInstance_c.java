@@ -171,7 +171,7 @@ public class ClosureInstance_c extends FunctionInstance_c<ClosureDef> implements
     
     public List<Type> typeParameters() {
         return Collections.emptyList();
-	    }
+    }
 
     public ClosureInstance typeParameters(List<Type> typeParameters) {
         if (typeParameters.size() != 0)

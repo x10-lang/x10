@@ -150,7 +150,7 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
 
     public List<Type> typeParameters() {
         return Collections.emptyList();
-	    }
+    }
 
     public X10ConstructorInstance typeParameters(List<Type> typeParameters) {
         if (typeParameters.size() != 0)
