@@ -455,7 +455,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         X10MethodInstance mi = null;
         List<Expr> args = null;
         // First try to find the method without implicit conversions.
-        Pair<MethodInstance, List<Expr>> p = X10Call_c.findMethod(xtc, call, targetType, call.name().id(), typeArgs, argTypes);
+        Pair<MethodInstance, List<Expr>> p = X10Call_c.findMethod(tc, call, targetType, call.name().id(), typeArgs, argTypes);
         mi = (X10MethodInstance) p.fst();
         args = p.snd();
         if (mi.error() != null) {
@@ -466,7 +466,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
                 args = p.snd();
             } catch (SemanticException e) { }
         }
-        Type rt = X10Field_c.rightType(mi.rightType(), mi.x10Def(), call.target(), xtc.context());
+        Type rt = X10Field_c.rightType(mi.rightType(), mi.x10Def(), call.target(), tc.context());
         call = (X10Call_c) call.methodInstance(mi).type(rt);
         call = (X10Call_c) call.arguments(args);
         return call;

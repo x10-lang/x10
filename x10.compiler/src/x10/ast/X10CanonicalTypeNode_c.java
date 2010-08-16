@@ -157,7 +157,7 @@ AddFlags {
 	}
 	
 	
-	checkType(tc.context(), t);
+	checkType(tc.context(), t, position());
 	
 	
 
@@ -210,9 +210,9 @@ AddFlags {
         return this;
     }
     
-    public void checkType(Context context, Type t) throws SemanticException {
-	if (t == null) throw new SemanticException("Invalid type.", position());
-        
+    public static void checkType(Context context, Type t, Position pos) throws SemanticException {
+	if (t == null) throw new SemanticException("Invalid type.", pos);
+	
 	if (t instanceof ConstrainedType) {
 	    ConstrainedType ct = (ConstrainedType) t;
 	    Type base = Types.get(ct.baseType());
@@ -221,7 +221,7 @@ AddFlags {
 //	        throw new SemanticException("Invalid type; cannot constrain a type parameter.", position());
 //	    }
 	    
-	    checkType(context, base);
+	    checkType(context, base, pos);
 	}
 	
 	if (t instanceof X10ClassType) {
@@ -240,16 +240,16 @@ AddFlags {
 
         // typeArgNum>0 is wrong, cause by default we get typeArgs from our def, so that condition is always true
         // Instead I use: typeParamNum!=typeArgNum
-        if (typeParamNum!=typeArgNum) X10TypeMixin.checkMissingParameters(t,position());
+        if (typeParamNum!=typeArgNum) X10TypeMixin.checkMissingParameters(t,pos);
         
 	    for (int j = 0; j < typeArgNum; j++) {
 	        Type actualType = typeArgs.get(j);
-            X10TypeMixin.checkMissingParameters(actualType,position());
+	        X10TypeMixin.checkMissingParameters(actualType,pos);
             
 	        ParameterType correspondingParam = typeParam.get(j);
 	        if (actualType.isVoid()) {
                     throw new SemanticException("Cannot instantiate invariant parameter " 
-                                                + correspondingParam + " of " + def + " with type " + actualType + ".", position());
+                                                + correspondingParam + " of " + def + " with type " + actualType + ".", pos);
 	        }
 	    }
 	    
@@ -275,21 +275,21 @@ AddFlags {
 				case INVARIANT:
 				    switch (actualVariance) {
 				    case CONTRAVARIANT:
-					throw new SemanticException("Cannot instantiate invariant parameter " + correspondingParam + " of " + def + " with contravariant parameter " + pt + " of " + actualDef + ".", position());
+					throw new SemanticException("Cannot instantiate invariant parameter " + correspondingParam + " of " + def + " with contravariant parameter " + pt + " of " + actualDef + ".", pos);
 				    case COVARIANT:
-					throw new SemanticException("Cannot instantiate invariant parameter " + correspondingParam + " of " + def + " with covariant parameter " + pt + " of " + actualDef + ".", position());
+					throw new SemanticException("Cannot instantiate invariant parameter " + correspondingParam + " of " + def + " with covariant parameter " + pt + " of " + actualDef + ".", pos);
 				    }
 				    break;
 				case CONTRAVARIANT:
 				    switch (actualVariance) {
 				    case COVARIANT:
-					throw new SemanticException("Cannot instantiate contravariant parameter " + correspondingParam + " of " + def + " with covariant parameter " + pt + " of " + actualDef + ".", position());
+					throw new SemanticException("Cannot instantiate contravariant parameter " + correspondingParam + " of " + def + " with covariant parameter " + pt + " of " + actualDef + ".", pos);
 				    }
 				    break;
 				case COVARIANT:
 				    switch (actualVariance) {
 				    case CONTRAVARIANT:
-					throw new SemanticException("Cannot instantiate covariant parameter " + correspondingParam + " of " + def + " with contravariant parameter " + pt + " of " + actualDef + ".", position());
+					throw new SemanticException("Cannot instantiate covariant parameter " + correspondingParam + " of " + def + " with contravariant parameter " + pt + " of " + actualDef + ".", pos);
 				    }
 				    break;
 				}
