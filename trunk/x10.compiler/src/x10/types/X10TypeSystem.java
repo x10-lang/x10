@@ -81,7 +81,7 @@ public interface X10TypeSystem extends TypeSystem {
     MethodMatcher MethodMatcher(Type container, Name name, List<Type> argTypes, Context context);
     MethodMatcher MethodMatcher(Type container, Name name, List<Type> typeArgs,  List<Type> argTypes, Context context);
 
-    ConstructorMatcher ConstructorMatcher(Type container, List<Type> typeArgs, List<Type> argTypes, Context context);
+    ConstructorMatcher ConstructorMatcher(Type container, List<Type> argTypes, Context context);
 
     /**
      * Find matching fields.
@@ -327,8 +327,8 @@ public interface X10TypeSystem extends TypeSystem {
             List<Ref<? extends Type>> excTypes, Ref<? extends Type> offerType);
     
     X10ConstructorDef constructorDef(Position pos, Ref<? extends ClassType> container, Flags flags, Ref<? extends ClassType> returnType,
-	    List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes, XVar thisVar, List<LocalDef> formalNames,
-	    Ref<CConstraint> guard, Ref<TypeConstraint> typeGuard, List<Ref<? extends Type>> excTypes, Ref<? extends Type> offerType);
+	    List<Ref<? extends Type>> argTypes, XVar thisVar, List<LocalDef> formalNames, Ref<CConstraint> guard,
+	    Ref<TypeConstraint> typeGuard, List<Ref<? extends Type>> excTypes, Ref<? extends Type> offerType);
 
     Type performBinaryOperation(Type t, Type l, Type r, Binary.Operator op);
 

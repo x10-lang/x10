@@ -38,4 +38,6 @@ public interface X10MethodDef extends MethodDef, X10ProcedureDef {
     Ref<? extends Type> offerType();
     void setOfferType(Ref<? extends Type> s);
     
+    List<Ref<? extends Type>> typeParameters();
+    void setTypeParameters(List<Ref<? extends Type>> typeParameters);
 }

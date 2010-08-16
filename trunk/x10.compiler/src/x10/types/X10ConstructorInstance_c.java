@@ -37,6 +37,7 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.CollectionUtil;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.Transformation;
 import polyglot.util.TransformingList;
@@ -58,17 +59,6 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
         super(ts, pos, def);
     }
     
-    public X10ConstructorInstance toRefCI() {
-    	X10ConstructorInstance result = (X10ConstructorInstance) copy();
-    	X10ConstructorDef_c myDef = (X10ConstructorDef_c) result.def();
-    	myDef = (X10ConstructorDef_c) myDef.copy();
-    	X10Flags flags = X10Flags.toX10Flags(myDef.flags());
-    	flags.clearStruct();
-    	myDef.setFlags(flags);
-    	 //result.def().update(myDef);
-    	return (X10ConstructorInstance) result.returnType(myDef.returnType().get());
-    	
-    }
     @Override
     public boolean moreSpecific(ProcedureInstance<ConstructorDef> p, Context context) {
         return X10TypeMixin.moreSpecificImpl(this, p, context);
@@ -159,17 +149,13 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
     public List<Type> typeParameters;
 
     public List<Type> typeParameters() {
-	    if (this.typeParameters == null) {
-		    return new TransformingList<Ref<? extends Type>, Type>(x10Def().typeParameters(), new DerefTransform<Type>());
+        return Collections.emptyList();
 	    }
 
-	    return typeParameters;
-    }
-
     public X10ConstructorInstance typeParameters(List<Type> typeParameters) {
-	    X10ConstructorInstance_c n = (X10ConstructorInstance_c) copy();
-	    n.typeParameters = typeParameters;
-	    return n;
+        if (typeParameters.size() != 0)
+            throw new InternalCompilerError("Attempt to set type parameters of a constructor instance: "+this, this.position());
+        return this;
     }
 
     public List<LocalInstance> formalNames;

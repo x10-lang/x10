@@ -39,6 +39,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.types.VarInstance;
+import polyglot.types.TypeSystem_c.ConstructorMatcher;
 import polyglot.types.TypeSystem_c.MethodMatcher;
 import polyglot.util.ErrorInfo;
 import polyglot.util.Position;
@@ -649,6 +650,11 @@ public class Errors {
 	        super("Method or static constructor not found for given matcher."
 	              + "\n\t Matcher: "  + mm,
 	              pos);
+	    }
+	    public MethodOrStaticConstructorNotFound(ConstructorMatcher mm,  Position pos) {
+	        super("Method or static constructor not found for given matcher."
+	                + "\n\t Matcher: "  + mm,
+	                pos);
 	    }
 	    public boolean equals(Object o) {
 	        if (o==null || ! (o instanceof MethodOrStaticConstructorNotFound ) )

@@ -370,13 +370,17 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return (ConstantDistMaker) n.del(delFactory().delExpr());
 	}
 
-	public X10New X10New(Position pos, Expr qualifier, TypeNode objectType, List<TypeNode> typeArguments, List<Expr> arguments, ClassBody body) {
-		X10New n = new X10New_c(pos, qualifier, objectType, typeArguments, arguments, body);
+	public X10New X10New(Position pos, boolean newOmitted, Expr qualifier, TypeNode objectType, List<TypeNode> typeArguments, List<Expr> arguments, ClassBody body) {
+		X10New n = new X10New_c(pos, newOmitted, qualifier, objectType, typeArguments, arguments, body);
 		n = (x10.ast.X10New) n.ext(extFactory().extNew());
 		n = (x10.ast.X10New) n.del(delFactory().delNew());
 		return n;
 	}
 	
+	public X10New X10New(Position pos, Expr qualifier, TypeNode objectType, List<TypeNode> typeArguments, List<Expr> arguments, ClassBody body) {
+		return X10New(pos, false, qualifier, objectType, typeArguments, arguments, body);
+	}
+
 	public X10New X10New(Position pos, Expr qualifier, TypeNode objectType, List<TypeNode> typeArguments, List<Expr> arguments) {
 		return X10New(pos, qualifier, objectType, typeArguments, arguments, null);
 	}

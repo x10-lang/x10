@@ -21,5 +21,7 @@ public interface X10New extends New, X10ProcedureCall {
 
 	X10New typeArguments(List<TypeNode> args);
 
+	boolean newOmitted();
 
+	X10New newOmitted(boolean val);
 }
