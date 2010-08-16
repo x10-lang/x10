@@ -440,7 +440,6 @@ public class X10Binary_c extends Binary_c implements X10Binary {
     }
 
     public static X10Call_c typeCheckCall(ContextVisitor tc, X10Call_c call) {
-        X10TypeChecker xtc = X10TypeChecker.getTypeChecker(tc).throwExceptions(true);
         List<Type> typeArgs = new ArrayList<Type>(call.typeArguments().size());
         for (TypeNode tn : call.typeArguments()) {
             typeArgs.add(tn.type());
@@ -461,7 +460,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         if (mi.error() != null) {
             try {
                 // Now, try to find the method with implicit conversions, making them explicit.
-                p = X10Call_c.tryImplicitConversions(call, xtc, targetType, call.name().id(), typeArgs, argTypes);
+                p = X10Call_c.tryImplicitConversions(call, tc, targetType, call.name().id(), typeArgs, argTypes);
                 mi = (X10MethodInstance) p.fst();
                 args = p.snd();
             } catch (SemanticException e) { }
@@ -635,9 +634,8 @@ public class X10Binary_c extends Binary_c implements X10Binary {
                     nf.Id(pos, methodName), Collections.EMPTY_LIST,
                     CollectionUtil.list(left, right)).methodInstance(mi).type(mi.returnType());
         }
-        X10TypeChecker xtc = X10TypeChecker.getTypeChecker(tc).throwExceptions(true);
         try {
-            result = (X10Call_c) PlaceChecker.makeReceiverLocalIfNecessary(result, xtc);
+            result = (X10Call_c) PlaceChecker.makeReceiverLocalIfNecessary(result, tc);
         } catch (SemanticException e) {
             X10MethodInstance mi = (X10MethodInstance) result.methodInstance();
             if (mi.error() == null)

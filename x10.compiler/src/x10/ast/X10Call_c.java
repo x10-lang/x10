@@ -269,7 +269,6 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
     private Type resolveType(ContextVisitor tc, Position pos, Receiver r, Name name) {
         X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
         X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-        X10TypeChecker xtc = X10TypeChecker.getTypeChecker(tc).throwExceptions(true);
 
         TypeNode otn;
         List<TypeNode> typeArgs = typeArguments();
@@ -281,23 +280,23 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
             otn = nf.AmbTypeNode(pos, r, nameNode).typeRef(tRef);
         }
 
-        TypeNode tn = disambiguateTypeNode(xtc, (Ambiguous) otn, pos, r, nameNode);
+        TypeNode tn = disambiguateTypeNode(tc, (Ambiguous) otn, pos, r, nameNode);
         if (tn == null)
             return null;
 
         Type t = tn.type();
         // FIXME: why should these be different?
         if (typeArgs.size() > 0) {
-            return ambMacroTypeNodeType(xtc, t, typeArgs);
+            return ambMacroTypeNodeType(tc, t, typeArgs);
         } else {
-            return ambTypeNodeType(xtc, t);
+            return ambTypeNodeType(tc, t);
         }
     }
     
-    private static Type ambTypeNodeType(X10TypeChecker xtc, Type t) {
+    private static Type ambTypeNodeType(ContextVisitor tc, Type t) {
         
-        X10Context c = (X10Context) xtc.context();
-        X10TypeSystem ts = (X10TypeSystem) xtc.typeSystem();
+        X10Context c = (X10Context) tc.context();
+        X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
         
         t = ts.expandMacros(t);
         
@@ -321,7 +320,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
         }
         
         try {
-            X10CanonicalTypeNode_c.checkType(xtc.context(), t, Position.COMPILER_GENERATED);
+            X10CanonicalTypeNode_c.checkType(tc.context(), t, Position.COMPILER_GENERATED);
         } catch (SemanticException e) {
             return null;
         }
@@ -338,7 +337,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
         return t;
     }
     
-    private static Type ambMacroTypeNodeType(X10TypeChecker xtc, Type t, List<TypeNode> typeArgs) {
+    private static Type ambMacroTypeNodeType(ContextVisitor tc, Type t, List<TypeNode> typeArgs) {
         
         if (t instanceof UnknownType) {
             return null;
@@ -359,13 +358,13 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
         return t;
     }
     
-    private static TypeNode disambiguateTypeNode(X10TypeChecker xtc,
+    private static TypeNode disambiguateTypeNode(ContextVisitor tc,
             Ambiguous otn, Position pos, Prefix prefix, Id name) {
         TypeNode tn = null;
         try {
             // Look for a simply-named type.
-            Disamb disamb = xtc.nodeFactory().disamb();
-            Node n = disamb.disambiguate(otn, xtc, pos, prefix, name);
+            Disamb disamb = tc.nodeFactory().disamb();
+            Node n = disamb.disambiguate(otn, tc, pos, prefix, name);
             if (n instanceof TypeNode)
                 tn = (TypeNode) n;
         } catch (SemanticException e) { }

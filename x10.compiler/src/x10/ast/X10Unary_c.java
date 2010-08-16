@@ -325,9 +325,8 @@ public class X10Unary_c extends Unary_c {
                     nf.Id(pos, methodName), Collections.EMPTY_LIST,
                     Collections.singletonList(left)).methodInstance(mi).type(mi.returnType());
         }
-        X10TypeChecker xtc = X10TypeChecker.getTypeChecker(tc).throwExceptions(true);
         try {
-            result = (X10Call_c) PlaceChecker.makeReceiverLocalIfNecessary(result, xtc);
+            result = (X10Call_c) PlaceChecker.makeReceiverLocalIfNecessary(result, tc);
         } catch (SemanticException e) {
             X10MethodInstance mi = (X10MethodInstance) result.methodInstance();
             if (mi.error() == null)
