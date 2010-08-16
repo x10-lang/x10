@@ -328,7 +328,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 	        }
 	        if (X10TypeMixin.isX10Struct(otn.type())) {
 	            X10New_c neu = (X10New_c) nf.X10New(position(), otn, Collections.EMPTY_LIST, args);
-	            neu.setStructConstructorCall();
+	            neu = (X10New_c) neu.newOmitted(true);
 
 	            neu = (X10New_c) neu.del().disambiguate(tc).del().typeCheck(tc);
 	            return neu;

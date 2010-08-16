@@ -26,7 +26,7 @@ public interface X10ConstructorInstance extends ConstructorInstance, X10Procedur
 	XConstraint constraint();
 	
 	Type returnType();
-	ConstructorInstance returnType(Type retType);
+	X10ConstructorInstance returnType(Type retType);
 	Ref<? extends Type> returnTypeRef();
 	ConstructorInstance returnTypeRef(Ref<? extends Type> returnType);
 	
@@ -37,7 +37,5 @@ public interface X10ConstructorInstance extends ConstructorInstance, X10Procedur
 	 */
 	XConstraint supClause();
 	
-	X10ConstructorInstance toRefCI();
-
 	X10ConstructorInstance error(SemanticException e);
 }
