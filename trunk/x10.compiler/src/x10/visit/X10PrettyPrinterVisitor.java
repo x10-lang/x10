@@ -1872,10 +1872,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 //			}
 			else {
 			        if (e.type().isBoolean() || e.type().isNumeric() || e.type().isChar()) {
+			            // e.g) m((Integer) a) for m(T a)
 			            if (X10TypeMixin.baseType(c.methodInstance().formalTypes().get(i)) instanceof ParameterType) {
 			                w.write("(");
 			                er.printType(e.type(), BOX_PRIMITIVES);
 			                w.write(")");
+			            // e.g) m((int) a) for m(int a)
 			            } else {
 			                w.write("(");
 			                er.printType(e.type(), 0);
@@ -1909,9 +1911,18 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			                }
 			            }
 			            w.write("(");
-			        } 
-			        c.print(e, w, tr);
-			        if (e.type().isBoolean() || e.type().isNumeric() || e.type().isChar()) {
+			            c.print(e, w, tr);
+                                    w.write(")");
+			        }
+			        // XTENLANG-1704
+			        else {
+			            w.write("(");
+			            w.write("(");
+			            er.printType(mi.formalTypes().get(i), 0);
+			            w.write(")");
+			            w.write("(");
+			            c.print(e, w, tr);
+			            w.write(")");
 			            w.write(")");
 			        }
 			}
