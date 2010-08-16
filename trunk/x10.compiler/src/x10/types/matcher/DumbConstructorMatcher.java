@@ -37,8 +37,8 @@ public class DumbConstructorMatcher extends X10ConstructorMatcher {
 
             Type c = container != null ? container : xci.container();
             X10ConstructorInstance newXmi = Matcher.instantiate((X10Context) context, xci, c, Collections.<Type>emptyList(), argTypes);
-                return newXmi;
-            }
+            return newXmi;
+        }
         return null;
     }
 }

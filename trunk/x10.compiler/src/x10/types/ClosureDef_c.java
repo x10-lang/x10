@@ -42,7 +42,7 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
     protected List<LocalDef> formalNames;
     protected List<Ref<? extends Type>> throwTypes;
     protected Ref<CConstraint> guard;
-  //  protected Ref<TypeConstraint> typeGuard;
+    //protected Ref<TypeConstraint> typeGuard;
     protected CodeInstance<?> asInstance;
     
     protected XConstrainedTerm placeTerm;
@@ -58,7 +58,7 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
             XVar thisVar,
             List<LocalDef> formalNames, 
             Ref<CConstraint> guard,
-       //     Ref<TypeConstraint> typeGuard,
+            //Ref<TypeConstraint> typeGuard,
             List<Ref<? extends Type>> throwTypes,
             Ref<? extends Type> offerType) {
 
@@ -70,7 +70,7 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
         this.formalTypes = TypedList.copyAndCheck(formalTypes, Ref.class, true);
         this.formalNames = TypedList.copyAndCheck(formalNames, LocalDef.class, true);
         this.guard = guard;
-     //   this.typeGuard = typeGuard;
+        //this.typeGuard = typeGuard;
         this.throwTypes = TypedList.copyAndCheck(throwTypes, Ref.class, true);
         this.offerType = offerType;
     }
