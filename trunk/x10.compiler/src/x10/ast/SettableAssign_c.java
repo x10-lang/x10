@@ -233,8 +233,6 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 		X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
 		X10TypeSystem xts = ts;
 
-		X10TypeChecker xtc = X10TypeChecker.getTypeChecker(tc).throwExceptions(true);
-
 		X10MethodInstance mi = null;
 
 		List<Type> typeArgs = Collections.EMPTY_LIST;
@@ -254,7 +252,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 		    // Now, try to find the method with implicit conversions, making them explicit.
 		    try {
 		        X10Call_c n = (X10Call_c) nf.X10Call(position(), array, nf.Id(position(), Name.make("set")), Collections.EMPTY_LIST, args);
-		        Pair<MethodInstance,List<Expr>> p = tryImplicitConversions(n, xtc, array.type(), typeArgs, actualTypes);
+		        Pair<MethodInstance,List<Expr>> p = tryImplicitConversions(n, tc, array.type(), typeArgs, actualTypes);
 		        mi = (X10MethodInstance) p.fst();
 		        args = p.snd();
 		    }
