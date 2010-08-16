@@ -141,7 +141,7 @@ public class Automaton {
  
    public State compose(State head) {
        if(this.isPar(head)) {
-	       ComposedState parStart = new ComposedState();
+	      
 		int i = 0;
 		State s1 = null, s2 = null; 
 		for(Object oe: head.outgoingEdges) {
@@ -151,6 +151,7 @@ public class Automaton {
 			s2 = ((Edge) oe).to;
 		    i++;
 		} 
+		 ComposedState parStart = new ComposedState(s1.isClocked || s2.isClocked);
 		
 
 		parStart.addState(s1);
@@ -166,7 +167,7 @@ public class Automaton {
 		    	System.out.println("s3------------ " + inVisited);
 		    	System.out.println("s4------------ " + parStart);*/
 		    	q.add(new Element(s1, s2, parStart));
-		    	ComposedState parparStart = new ComposedState();
+		    	ComposedState parparStart = new ComposedState(parStart.isClocked || inVisited.isClocked);
 		    	parparStart.addState(parStart);
 		    	parparStart.addState(inVisited);
 		    	q.add(new Element(parStart, inVisited, parparStart));
@@ -181,7 +182,7 @@ public class Automaton {
 	   
        }
        
-       ComposedState s = new ComposedState();
+       ComposedState s = new ComposedState(head.isClocked);
        s.addState(head);
        ComposedState inVisited = this.inVisited(s);
        if (inVisited != null)
@@ -229,6 +230,7 @@ public class Automaton {
 	}
     };
     
+
     /* Automaton composition rules - implement using bfs */
     public void composeAutomaton () {
 
@@ -249,10 +251,11 @@ public class Automaton {
 	 else if (s1.isTerminal) {
 	     
 	      for (Object o2: s2.outgoingEdges) {
-		  ComposedState s  = new ComposedState ();
+		
 		
 		  Edge e2 = (Edge) o2;
 		  State ss2 = e2.to;
+		  ComposedState s  = new ComposedState (s1.isClocked || ss2.isClocked);
 		  s.addState(s1);
 		  s.addState(ss2);
 		  inVisited = this.inVisited(s);
@@ -267,10 +270,11 @@ public class Automaton {
 	 else if (s2.isTerminal) {
 	     
 	      for (Object o1: s1.outgoingEdges) {
-		  ComposedState s  = new ComposedState ();
+		  
 		
 		  Edge e1 = (Edge) o1;
 		  State ss1 = e1.to;
+		  ComposedState s  = new ComposedState (ss1.isClocked || s2.isClocked);
 		  s.addState(ss1);
 		  s.addState(s2);
 		  inVisited = this.inVisited(s);
@@ -287,57 +291,91 @@ public class Automaton {
 	     for (Object o1: s1.outgoingEdges)
 		 for (Object o2: s2.outgoingEdges) {
 		     State ss1 = null, ss2 = null;
-		     ComposedState s = new ComposedState (); 
+		     ComposedState s = null; 
 		
 		     Edge e1 = (Edge) o1;
 		     Edge e2 = (Edge) o2;
-		     if (e1.type == Edge.COND && e2.type == Edge.COND) {
-			 ss1 = e1.to;
-			 ss2 = e2.to;
-			 s.addState(ss1);
-		  	  s.addState(ss2);
-		  	  inVisited = this.inVisited(s);
-		  	  if (inVisited != null)
-		  	      s = inVisited;
-		  	  new Edge(prev, s, Edge.COND);
 		   
-		    
-		     }
-		     else if (e1.type == Edge.NEXT && e2.type == Edge.NEXT) {
+		     if (e1.type == Edge.NEXT && e2.type == Edge.NEXT &&  e1.to.isClocked && e2.to.isClocked) {
 			 ss1 = e1.to;
 			 ss2 = e2.to;
+			 s = new ComposedState(ss1.isClocked || ss2.isClocked);
 			 s.addState(ss1);
 			 s.addState(ss2);
 			 inVisited = this.inVisited(s);
 			 if (inVisited != null)
 		 	 	    s = inVisited;
+			 else 
+			     q.add(new Element(ss1, ss2, s));
 		 	 new Edge(prev, s, Edge.NEXT);
 		     
 		     } 
-		     else if (e1.type == Edge.COND && e2.type == Edge.NEXT) {
+		     else if (e1.type == Edge.COND && e2.type == Edge.NEXT && e1.to.isClocked && e2.to.isClocked) {
 			 ss1 = e1.to;
 			 ss2 = s2;
+			 s = new ComposedState (ss1.isClocked || ss2.isClocked);
 			 s.addState(ss1);
 			 s.addState(ss2);
 		 	 inVisited = this.inVisited(s);
 			 if (inVisited != null)
 			     s = inVisited;
+			 else
+			     q.add(new Element(ss1, ss2, s));
 			 new Edge(prev, s, Edge.COND);
 		   
 		     }
-		     else if (e1.type == Edge.NEXT && e2.type == Edge.COND) {
+		     else if (e1.type == Edge.NEXT && e2.type == Edge.COND && e1.to.isClocked && e2.to.isClocked) {
 			 ss1 = s1;
 			 ss2 = e2.to;
+			 s = new ComposedState (ss1.isClocked || ss2.isClocked);
 			 s.addState(ss1);
 			 s.addState(ss2);
 			 inVisited = this.inVisited(s);
 			 if (inVisited != null)
 			     s = inVisited;
+			 else
+			     q.add(new Element(ss1, ss2, s));
 			 new Edge(prev, s, Edge.COND);
 		     }
-		    
-		     if (inVisited == null)
-			 q.add(new Element(ss1, ss2, s));
+		     else if ((e1.type == Edge.NEXT && e1.to.isClocked) || (e2.type == Edge.NEXT && e2.to.isClocked)) { // both are not clocked  
+			 ss1 = e1.to;
+			 ss2 = e2.to;
+			 s = new ComposedState(s1.isClocked || ss2.isClocked);
+			 s.addState(s1);
+			 s.addState(ss2);
+			 inVisited = this.inVisited(s);
+			 if (inVisited != null)
+		 	 	    s = inVisited;
+			 else
+			     q.add(new Element(s1, ss2, s));
+		 	 new Edge(prev, s, e2.type);
+		 	 
+		 	 s = new ComposedState(ss1.isClocked || s2.isClocked);
+			 s.addState(ss1);
+			 s.addState(s2);
+			 inVisited = this.inVisited(s);
+			 if (inVisited != null)
+		 	 	    s = inVisited;
+			 else
+			     q.add(new Element(ss1, s2, s));
+		 	 new Edge(prev, s, e1.type);
+		     
+		     } else {
+			 ss1 = e1.to;
+			 ss2 = e2.to;
+			 s = new ComposedState(ss1.isClocked || ss2.isClocked);
+			 s.addState(ss1);
+			 s.addState(ss2);
+			 inVisited = this.inVisited(s);
+			 if (inVisited != null)
+		 	 	    s = inVisited;
+			 else
+			     q.add(new Element(ss1, ss2, s));
+		 	 new Edge(prev, s, Edge.COND); 
+			 
+		     }
+		  
+
 		    /* System.out.print("s1: " + s1);
 		     System.out.print("s2: " + s2);
 		     System.out.println("s3: " + s);*/

@@ -19,7 +19,7 @@ public class Test {
 	 * *********************************************************
 	 * ***************
 	 */
-	File f = new File("../x10.tests/examplesWithClockedVariables/Test.x10");
+	File f = new File("x10.barrier.tests/Test.x10");
 	X10BarrierAnalysis x10fa = new X10BarrierAnalysis();
 
 	/* *********************************

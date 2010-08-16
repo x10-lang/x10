@@ -10,8 +10,9 @@ class ComposedState extends State {
     boolean asyncsRenamed = false;
 
     
-    public ComposedState () {
+    public ComposedState (boolean clocked) {
 	this.counter = Automaton.stateCounter++;
+	isClocked = clocked;
     }
    
     public void addState (State s) {
