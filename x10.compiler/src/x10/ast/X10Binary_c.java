@@ -400,8 +400,12 @@ public class X10Binary_c extends Binary_c implements X10Binary {
             if (mi.flags().isStatic()) {
                 return this.left(c.arguments().get(0)).right(c.arguments().get(1)).type(c.type());
             }
+            else if (!c.name().id().equals(invBinaryMethodName(this.operator()))) {
+                assert (c.name().id().equals(binaryMethodName(this.operator())));
+                return this.left((Expr) c.target()).right(c.arguments().get(0)).type(c.type());
+            }
             else {
-            	return this.left((Expr) c.target()).right(c.arguments().get(0)).type(c.type());
+                return this.left(c.arguments().get(0)).right((Expr) c.target()).type(c.type());
             }
         }
         
