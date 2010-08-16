@@ -12,7 +12,9 @@ package x10c.visit;
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import polyglot.ast.Block;
 import polyglot.ast.ClassBody;
@@ -56,7 +58,7 @@ public class ClosuresToStaticMethods extends ContextVisitor {
 
     private final X10TypeSystem xts;
     private final X10NodeFactory xnf;
-    private final List<CodeDef> cds = new ArrayList<CodeDef>();
+    private final Map<CodeDef,List<Ref<? extends Type>>> closureDefToTypePrams = new HashMap<CodeDef,List<Ref<? extends Type>>>();
     
     public ClosuresToStaticMethods(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
@@ -89,8 +91,14 @@ public class ClosuresToStaticMethods extends ContextVisitor {
             ClosureCapChecker cc = new ClosureCapChecker();
             n.visit(cc);
             
+            List<Ref<? extends Type>> mtps = null;
+            CodeDef ci = context.pop().currentCode();
+            if (ci instanceof X10MethodDef) {
+                mtps = ((X10MethodDef) ci).typeParameters();
+            }
+            
             if (!cc.isCap && !context.inStaticContext()) {
-                cds.add(((Closure) parent).codeDef());
+                closureDefToTypePrams.put(((Closure) parent).codeDef(), mtps);
             }
         }
         if (n instanceof ClassDecl) {
@@ -112,7 +120,7 @@ public class ClosuresToStaticMethods extends ContextVisitor {
                             if (target instanceof Closure) {
                                 Closure closure = (Closure) target;
                                 
-                                if (!cds.contains(closure.codeDef())) {
+                                if (!closureDefToTypePrams.containsKey(closure.codeDef())) {
                                     return n;
                                 }
                                 
@@ -143,6 +151,19 @@ public class ClosuresToStaticMethods extends ContextVisitor {
                                                 tns.add(xnf.X10CanonicalTypeNode(cg, pt));
                                                 rts.add(Types.ref(pt));
                                             }
+                                        }
+                                    }
+                                }
+                                
+                                List<Ref<? extends Type>> mtps = closureDefToTypePrams.get(closure.codeDef());
+                                if (mtps != null) {
+                                    for (Ref<? extends Type> ts : mtps) {
+                                        Type t = ts.get();
+                                        if (t instanceof ParameterType) {
+                                            ParameterType pt = (ParameterType) t;
+                                            tps.add(xnf.TypeParamNode(cg, xnf.Id(cg, pt.name())).type(pt));
+                                            tns.add(xnf.X10CanonicalTypeNode(cg, pt));
+                                            rts.add(Types.ref(pt));
                                         }
                                     }
                                 }
