@@ -12,6 +12,7 @@
 package x10.ast;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -28,6 +29,7 @@ import polyglot.types.ClassType;
 import polyglot.types.ConstructorDef;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.Context;
+import polyglot.types.Flags;
 import polyglot.types.Matcher;
 import polyglot.types.Name;
 import polyglot.types.QName;
@@ -72,15 +74,22 @@ import x10.visit.X10TypeChecker;
  * @author nystrom
  */
 public class X10New_c extends New_c implements X10New {
-    public X10New_c(Position pos, Expr qualifier, TypeNode tn, List<TypeNode> typeArguments, List<Expr> arguments, ClassBody body) {
+    public X10New_c(Position pos, boolean newOmitted, Expr qualifier, TypeNode tn, List<TypeNode> typeArguments, List<Expr> arguments, ClassBody body) {
         super(pos, qualifier, tn, arguments, body);
         this.typeArguments = TypedList.copyAndCheck(typeArguments, TypeNode.class, true);
+        this.newOmitted = newOmitted;
     }
 
-    boolean isStructConstructorCall = false;
-    public void setStructConstructorCall() {
-    	isStructConstructorCall  = true;
+    private boolean newOmitted = false;
+    public boolean newOmitted() {
+        return newOmitted;
     }
+    public X10New newOmitted(boolean val) {
+        X10New_c n = (X10New_c) copy();
+        n.newOmitted = val;
+        return n;
+    }
+
     @Override
     public Node visitChildren(NodeVisitor v) {
         Expr qualifier = (Expr) visitChild(this.qualifier, v);
@@ -351,27 +360,27 @@ public class X10New_c extends New_c implements X10New {
         public Matcher<PI> matcher(Type ct, List<Type> typeArgs, List<Type> argTypes);
     }
 
-    static Pair<ConstructorInstance, List<Expr>> tryImplicitConversions(X10New_c n, ContextVisitor tc, Type targetType, List<Type> typeArgs, List<Type> argTypes)
-            throws SemanticException {
+    public static Pair<ConstructorInstance, List<Expr>> tryImplicitConversions(X10ProcedureCall n, ContextVisitor tc,
+            Type targetType, List<Type> argTypes) throws SemanticException {
         final X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
         final Context context = tc.context();
 
-        List<ConstructorInstance> methods = ts.findAcceptableConstructors(targetType, new DumbConstructorMatcher(targetType, typeArgs, argTypes, context));
+        List<ConstructorInstance> methods = ts.findAcceptableConstructors(targetType, new DumbConstructorMatcher(targetType, argTypes, context));
         return Converter.tryImplicitConversions(n, tc, targetType, methods, new MatcherMaker<ConstructorInstance>() {
             public Matcher<ConstructorInstance> matcher(Type ct, List<Type> typeArgs, List<Type> argTypes) {
-                return ts.ConstructorMatcher(ct, typeArgs, argTypes, context);
+                return ts.ConstructorMatcher(ct, argTypes, context);
             }
         });
     }
 
     protected void typeCheckFlags(ContextVisitor tc) throws SemanticException {
-    	super.typeCheckFlags(tc);
-       ClassType ct = tn.type().toClass();
-    	  if (X10Flags.toX10Flags(ct.flags()).isStruct() && ! isStructConstructorCall) {
-    			throw new Errors.NewOfStructNotPermitted(this);
-    	  }
-    	  
+        super.typeCheckFlags(tc);
+        ClassType ct = tn.type().toClass();
+        if (X10Flags.toX10Flags(ct.flags()).isStruct() && ! newOmitted) {
+            throw new Errors.NewOfStructNotPermitted(this);
+        }
     }
+
     public Node typeCheck(ContextVisitor tc) throws SemanticException {
         try {
             return typeCheck1(tc);
@@ -386,7 +395,7 @@ public class X10New_c extends New_c implements X10New {
                 argTypes.add(a.type());
             }
             X10ClassType ct = (X10ClassType) X10TypeMixin.baseType(tn.type());
-            X10ConstructorInstance ci = ts.createFakeConstructor(ct, argTypes, e);
+            X10ConstructorInstance ci = ts.createFakeConstructor(ct, Flags.PUBLIC, argTypes, e);
             Type rt = ci.returnType();
             return (X10New_c) constructorInstance(ci).type(rt);
         }
@@ -398,11 +407,7 @@ public class X10New_c extends New_c implements X10New {
         // Inline the super call here and handle type arguments.
         // ///////////////////////////////////////////////////////////////////
 
-        List<Type> typeArgs = new ArrayList<Type>(this.typeArguments.size());
-
-        for (TypeNode tn : this.typeArguments) {
-            typeArgs.add(tn.type());
-        }
+        assert (this.typeArguments().size() == 0) : position().toString();
 
         List<Type> argTypes = new ArrayList<Type>(this.arguments.size());
         for (Expr e : this.arguments) {
@@ -410,9 +415,6 @@ public class X10New_c extends New_c implements X10New {
         	Type argType = e.type();
         	argTypes.add(argType);
         }
-
-        if (typeArgs.size() > 0)
-            throw new SemanticException("Constructor calls may not take type arguments.", position());
 
         typeCheckFlags(tc);
         typeCheckNested(tc);
@@ -423,38 +425,11 @@ public class X10New_c extends New_c implements X10New {
         X10ConstructorInstance ci;
         List<Expr> args;
 
-        try {
-            if (!ct.flags().isInterface()) {
-                Context c = tc.context();
-                if (anonType != null) {
-                    c = c.pushClass(anonType, anonType.asType());
-                }
-                ci = (X10ConstructorInstance) xts.findConstructor(ct, xts.ConstructorMatcher(ct, 
-                		Collections.EMPTY_LIST, argTypes, c));
-                if (xts.isStructType(ci.returnType()) && ! isStructConstructorCall) {
-                	// Ths is an invocation of the class automatically constructed from a struct decl.
-                	ci = ci.toRefCI();
-                }
-            }
-            else {
-                ConstructorDef dci = xts.defaultConstructor(this.position(), 
-                		Types.<ClassType> ref(ct));
-                ci = (X10ConstructorInstance) dci.asInstance();
-            }
-
-            args = this.arguments;
-        }
-        catch (SemanticException e) {
-            // Now, try to find the method with implicit conversions, making
-            // them explicit.
-            try {
-                Pair<ConstructorInstance, List<Expr>> p = tryImplicitConversions(this, tc, ct, typeArgs, argTypes);
-                ci = (X10ConstructorInstance) p.fst();
-                args = p.snd();
-            }
-            catch (SemanticException e2) {
-                throw e;
-            }
+        Pair<ConstructorInstance, List<Expr>> p = findConstructor(tc, this, ct, argTypes, anonType);
+        ci = (X10ConstructorInstance) p.fst();
+        args = p.snd();
+        if (ci.error() != null) {
+            throw ci.error();
         }
 
         X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
@@ -469,9 +444,8 @@ public class X10New_c extends New_c implements X10New {
             throw new SemanticException("Constructor return type " + tp + " is not a subtype of " + t + ".", position());
         }
 
-
         // Copy the method instance so we can modify it.
-      //  tp = ((X10Type) tp).setFlags(X10Flags.ROOTED);
+        //tp = ((X10Type) tp).setFlags(X10Flags.ROOTED);
         ci = (X10ConstructorInstance) ci.returnType(tp);
         ci = adjustCI(ci, tc);
         X10New_c result = (X10New_c) this.constructorInstance(ci);
@@ -480,6 +454,107 @@ public class X10New_c extends New_c implements X10New {
         result.checkWhereClause();
         result = (X10New_c) result.type(ci.returnType());
         return result;
+    }
+
+    /**
+     * Looks up a constructor with given name and argument types.
+     */
+    public static Pair<ConstructorInstance,List<Expr>> findConstructor(ContextVisitor tc, X10ProcedureCall n,
+            Type targetType, List<Type> actualTypes) {
+        return findConstructor(tc, n, targetType, actualTypes, null);
+    }
+    public static Pair<ConstructorInstance,List<Expr>> findConstructor(ContextVisitor tc, X10ProcedureCall n,
+            Type targetType, List<Type> actualTypes, ClassDef anonType) {
+        X10ConstructorInstance ci;
+        X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
+        X10Context context = (X10Context) tc.context();
+        boolean haveUnknown = false;
+        for (Type t : actualTypes) {
+            if (t instanceof UnknownType) haveUnknown = true;
+        }
+        SemanticException error = null;
+        if (!haveUnknown) {
+            try {
+                return findConstructor(tc, context, n, targetType, actualTypes, anonType);
+            } catch (SemanticException e) {
+                error = e;
+            }
+        }
+        // If not returned yet, fake the constructor instance.
+        Collection<X10ConstructorInstance> cis = null;
+        try {
+            cis = findConstructors(tc, targetType, actualTypes);
+        } catch (SemanticException e) {
+            if (error == null) error = e;
+        }
+        // See if all matches have the same return type, and save that to avoid losing information.
+        Type rt = null;
+        if (cis != null) {
+            for (X10ConstructorInstance xci : cis) {
+                if (rt == null) {
+                    rt = xci.returnType();
+                } else if (!xts.typeEquals(rt, xci.returnType(), context)) {
+                    if (xts.typeBaseEquals(rt, xci.returnType(), context)) {
+                        rt = X10TypeMixin.baseType(rt);
+                    } else {
+                        rt = null;
+                        break;
+                    }
+                }
+            }
+        }
+        ci = xts.createFakeConstructor(targetType.toClass(), Flags.PUBLIC, actualTypes, error);
+        if (rt != null) ci = ci.returnType(rt);
+        return new Pair<ConstructorInstance, List<Expr>>(ci, n.arguments());
+    }
+
+    private static Pair<ConstructorInstance,List<Expr>> findConstructor(ContextVisitor tc, X10Context xc,
+            X10ProcedureCall n, Type targetType, List<Type> argTypes, ClassDef anonType) throws SemanticException {
+
+        X10ConstructorInstance ci = null;
+        X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
+
+        X10ClassType ct = (X10ClassType) targetType;
+        try {
+            if (!ct.flags().isInterface()) {
+                Context c = tc.context();
+                if (anonType != null) {
+                    c = c.pushClass(anonType, anonType.asType());
+                }
+                ci = xts.findConstructor(targetType, xts.ConstructorMatcher(targetType, argTypes, c));
+            }
+            else {
+                ConstructorDef dci = xts.defaultConstructor(n.position(), 
+                        Types.<ClassType> ref(ct));
+                ci = (X10ConstructorInstance) dci.asInstance();
+            }
+
+            return new Pair<ConstructorInstance, List<Expr>>(ci, n.arguments());
+        }
+        catch (SemanticException e) {
+            // Now, try to find the method with implicit conversions, making
+            // them explicit.
+            try {
+                Pair<ConstructorInstance, List<Expr>> p = tryImplicitConversions(n, tc, targetType, argTypes);
+                return p;
+            }
+            catch (SemanticException e2) {
+                throw e;
+            }
+        }
+        //TypeSystem_c.ConstructorMatcher matcher = xts.ConstructorMatcher(targetType, argTypes, xc);
+        //throw new Errors.MethodOrStaticConstructorNotFound(matcher, n.position());
+    }
+
+    private static Collection<X10ConstructorInstance> findConstructors(ContextVisitor tc, Type targetType,
+            List<Type> actualTypes) throws SemanticException {
+        X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
+        X10Context context = (X10Context) tc.context();
+        if (targetType == null) {
+            // TODO
+            return Collections.emptyList();
+        }
+        return xts.findConstructors(targetType, xts.ConstructorMatcher(targetType, actualTypes, context));
     }
 
     private void checkWhereClause() throws SemanticException {

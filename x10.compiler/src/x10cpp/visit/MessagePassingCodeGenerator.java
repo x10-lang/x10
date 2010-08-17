@@ -212,6 +212,7 @@ import x10.types.X10FieldInstance;
 import x10.types.X10Flags;
 import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
+import x10.types.X10ParsedClassType_c;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
@@ -1447,7 +1448,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			sw.write("x10aux::itable_entry "+Emitter.translateType(currentClass)+"::_itables["+(numInterfaces+1)+"] = {");
 			itableNum = 0;
 			for (Type interfaceType : allInterfaces) {
-				sw.write("x10aux::itable_entry(x10aux::getRTT"+chevrons(Emitter.translateType(interfaceType, false))+"(), &_itable_"+itableNum+"), ");
+				sw.write("x10aux::itable_entry(&x10aux::getRTT"+chevrons(Emitter.translateType(interfaceType, false))+", &_itable_"+itableNum+"), ");
 				itableNum += 1;
 			}
 			sw.write("x10aux::itable_entry(NULL, (void*)x10aux::getRTT"+chevrons(Emitter.translateType(currentClass, false))+"())};"); sw.newline();
@@ -1496,7 +1497,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	            sw.write("x10aux::itable_entry "+clsCType+"::_"+ibox+"itables["+(numInterfaces+1)+"] = {");
 	            itableNum = 0;
 	            for (Type interfaceType : allInterfaces) {
-	                sw.write("x10aux::itable_entry(x10aux::getRTT"+chevrons(Emitter.translateType(interfaceType, false))+"(), &"+
+	                sw.write("x10aux::itable_entry(&x10aux::getRTT"+chevrons(Emitter.translateType(interfaceType, false))+", &"+
 	                         thunkBaseName+"_"+ibox+"ithunk"+itableNum+thunkParams+"::itable), ");
 	                itableNum += 1;
 	            }
@@ -4067,7 +4068,16 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         inc.newline(); inc.forceNewline();
 
         inc.write("// captured environment"); inc.newline();
-        emitter.printDeclarationList(inc, c, c.variables);
+        List<Type> ats = closureDef.annotationsNamed(QName.make("x10.compiler.Ref"));
+        List<VarInstance> refs = new ArrayList<VarInstance>();
+        for (Type at : ats) {
+            Expr exp = ((X10ParsedClassType_c) at).propertyInitializer(0);
+            if (exp instanceof X10Local_c) {
+                refs.add(((X10Local_c) exp).varInstance());
+            }
+        }
+
+        emitter.printDeclarationList(inc, c, c.variables, refs);
         inc.forceNewline();
 
         inc.write("x10aux::serialization_id_t "+SERIALIZE_ID_METHOD+"() {");
@@ -4077,8 +4087,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         generateClosureSerializationFunctions(c, cnamet, inc, n.body());
 
-        inc.write(cname+"("+SERIALIZATION_MARKER+") { }");
-        inc.newline(); inc.forceNewline();
+//        inc.write(cname+"("+SERIALIZATION_MARKER+") { }");
+//        inc.newline(); inc.forceNewline();
 
         inc.write(cname+"(");
         for (int i = 0; i < c.variables.size(); i++) {
@@ -4088,10 +4098,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             if (name.equals(THIS))
                 name = SAVED_THIS;
             else name = mangled_non_method_name(name);
-            inc.write(Emitter.translateType(var.type(), true) + " " + name);
+            if (refs.contains(var)) {
+                inc.write(Emitter.translateType(var.type(), true) + "& " + name);
+            } else {
+                inc.write(Emitter.translateType(var.type(), true) + " " + name);
+            }
         }
-        inc.write(") {");
-        inc.newline(4); inc.begin(0);
+        inc.write(")");
+        inc.begin(0);
         // FIXME: factor out this loop
         for (int i = 0 ; i < c.variables.size() ; i++) {
             VarInstance var = (VarInstance) c.variables.get(i);
@@ -4099,11 +4113,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             if (name.equals(THIS))
                 name = SAVED_THIS;
             else name = mangled_non_method_name(name);
-            if (i > 0) inc.newline();
-            inc.write("this->" + name + " = " + name + ";");
+            if (i > 0) inc.write(", "); else inc.write(" : ");
+            inc.write(name + "(" + name + ")");
         }
-        inc.end(); inc.newline();
-        inc.write("}"); inc.newline(); inc.forceNewline();
+        inc.end();
+        inc.write(" { }"); inc.newline(); inc.forceNewline();
 
         inc.write("static const x10aux::serialization_id_t "+SERIALIZATION_ID_FIELD+";");
         inc.newline(); inc.forceNewline();
@@ -4145,7 +4159,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         if (in_template_closure)
             emitter.printTemplateSignature(freeTypeParams, defn_s);
 		defn_s.write("x10aux::itable_entry "+cnamet+"::_itables[2] = {");
-		defn_s.write("x10aux::itable_entry(x10aux::getRTT"+chevrons(superType)+"(), &"+cnamet+"::_itable),");
+		defn_s.write("x10aux::itable_entry(&x10aux::getRTT"+chevrons(superType)+", &"+cnamet+"::_itable),");
 		defn_s.write("x10aux::itable_entry(NULL, NULL)};"); defn_s.newline(); defn_s.forceNewline();
 
 		generateClosureDeserializationIdDef(defn_s, cnamet, freeTypeParams, hostClassName, n.body());
@@ -4200,6 +4214,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     }
 
     protected void generateClosureSerializationFunctions(X10CPPContext_c c, String cnamet, StreamWrapper inc, Block block) {
+        inc.write("// TODO: handle serialization of ref fields correctly"); inc.newline(); inc.forceNewline();
+
         inc.write("void "+SERIALIZE_BODY_METHOD+"("+SERIALIZATION_BUFFER+" &buf) {");
         inc.newline(4); inc.begin(0);
         // FIXME: factor out this loop
@@ -4217,11 +4233,20 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         inc.write("template<class __T> static "+make_ref("__T")+" "+DESERIALIZE_METHOD+"("+DESERIALIZATION_BUFFER+" &buf) {");
         inc.newline(4); inc.begin(0);
+        // FIXME: factor out this loop
+        for (int i = 0; i < c.variables.size(); i++) {
+            VarInstance var = (VarInstance) c.variables.get(i);
+            Type t = var.type();
+            String type = Emitter.translateType(t, true);
+            String name = var.name().toString();
+            if (name.equals(THIS))
+                name = SAVED_THIS;
+            else name = mangled_non_method_name(name);
+            inc.write(type + " that_"+name+" = buf.read"+chevrons(Emitter.translateType(var.type(), true))+"();");
+            inc.newline();
+        }
         inc.write(make_ref(cnamet)+" this_ = new (x10aux::alloc"+chevrons(cnamet)+"()) "+
-                  cnamet+"("+SERIALIZATION_MARKER+"());");
-        inc.newline();
-        inc.write("buf.record_reference(this_); // TODO: avoid; closure");
-        inc.newline();
+                  cnamet+"(");
         // FIXME: factor out this loop
         for (int i = 0; i < c.variables.size(); i++) {
             VarInstance var = (VarInstance) c.variables.get(i);
@@ -4229,9 +4254,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             if (name.equals(THIS))
                 name = SAVED_THIS;
             else name = mangled_non_method_name(name);
-            inc.write("this_->"+name+" = buf.read"+chevrons(Emitter.translateType(var.type(), true))+"();");
-            inc.newline();
+            if (i > 0) inc.write(", ");
+            inc.write("that_"+name);
         }
+        inc.write(");");
+        inc.newline();
+        inc.write("buf.record_reference(this_); // TODO: avoid; closure");
+        inc.newline();
         inc.write("return this_;"); inc.end(); inc.newline();
         inc.write("}"); inc.newline(); inc.forceNewline();
     }

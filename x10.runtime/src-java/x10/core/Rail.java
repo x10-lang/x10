@@ -180,6 +180,12 @@ public final class Rail<T> extends Ref implements AnyRail<T>, Settable<Integer,T
         }
     }
 
+    public void reset(Fun_0_1<Integer,T> v) {
+        for (int i=0; i<length; i++) {
+            set$G(v.apply$G(i), i);
+        }
+    }
+
     public static <T> void resetLocal(Object value, T v) {
         if (value instanceof int[]) {
             Arrays.fill((int[]) value, (Integer) v);

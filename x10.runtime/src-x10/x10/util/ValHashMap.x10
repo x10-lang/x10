@@ -68,6 +68,14 @@ public class ValHashMap[K,V] implements ValMap[K,V] {
         return e.value;
     }
     
+    public global safe def findMax(var index:K, var max:V, cmp:(V,V)=>Boolean):K {
+	   for (key in keySet()) {
+	     val count = this(key).apply();
+         if (cmp(count, max))  { max = count ; index = key ;}
+	   }
+	   return index;
+    }
+    
     public global safe def getOrThrow(k: K): V throws NoSuchElementException {
         val e = getEntry(k);
         if (e == null) throw new NoSuchElementException("Not found");

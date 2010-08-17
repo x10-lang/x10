@@ -13,6 +13,7 @@ package x10.errors;
 
 import java.util.List;
 
+import polyglot.ast.Binary;
 import polyglot.ast.Call;
 import polyglot.ast.ConstructorCall;
 import polyglot.ast.Expr;
@@ -23,6 +24,7 @@ import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.Receiver;
 import polyglot.ast.TypeNode;
+import polyglot.ast.Unary;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Job;
 import polyglot.types.ClassDef;
@@ -37,6 +39,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.types.VarInstance;
+import polyglot.types.TypeSystem_c.ConstructorMatcher;
 import polyglot.types.TypeSystem_c.MethodMatcher;
 import polyglot.util.ErrorInfo;
 import polyglot.util.Position;
@@ -46,7 +49,6 @@ import x10.ast.SemanticError;
 import x10.ast.X10Call;
 import x10.ast.X10CanonicalTypeNode;
 import x10.ast.X10ClassDecl;
-import x10.ast.X10FieldAssign_c;
 import x10.ast.X10FieldDecl;
 import x10.constraint.XTerm;
 import x10.types.MacroType;
@@ -557,13 +559,14 @@ public class Errors {
 	}
 	public static class CannotPerformAssignmentOperation extends SemanticException {
 	    private static final long serialVersionUID = 2577635917256629928L;
-	    public CannotPerformAssignmentOperation(String leftString, boolean arrayP, String op, Expr right, Type t, Position pos) {
+	    public CannotPerformAssignmentOperation(String leftString, boolean arrayP, String op, Expr right, Type t, Position pos, SemanticException error) {
 	        super("Cannot perform assignment expression to " + (arrayP ? "array " : "rail ") + "element of given type." 
 	              + "\n\t Expression: " + right
 	              + "\n\t Operation: " + op
 	              + "\n\t Type: " + right.type()
 	              + "\n\t " + (arrayP ? "Array ": "Rail ") +"element: "  + leftString
-	              + "\n\t Type: " + t,
+	              + "\n\t Type: " + t
+	              + "\n\t Because of: " + error.getMessage(),
 	              pos);
 	    }
 	    public boolean equals(Object o) {
@@ -648,6 +651,11 @@ public class Errors {
 	              + "\n\t Matcher: "  + mm,
 	              pos);
 	    }
+	    public MethodOrStaticConstructorNotFound(ConstructorMatcher mm,  Position pos) {
+	        super("Method or static constructor not found for given matcher."
+	                + "\n\t Matcher: "  + mm,
+	                pos);
+	    }
 	    public boolean equals(Object o) {
 	        if (o==null || ! (o instanceof MethodOrStaticConstructorNotFound ) )
 	            return false;
@@ -671,7 +679,26 @@ public class Errors {
 	    public boolean equals(Object o) {
 	        if (o==null || ! (o instanceof AmbiguousCall ) )
 	            return false;
-	        return((AmbiguousCall )o).position().equals(position());
+	        return((AmbiguousCall)o).position().equals(position());
+	    }
+	}
+	public static class AmbiguousOperator extends SemanticException {
+	    private static final long serialVersionUID = 2747145999189438964L;
+	    private static String matchingMethods(List<MethodInstance> mis) {
+	        StringBuilder sb = new StringBuilder();
+	        for (MethodInstance mi : mis) sb.append("\t").append(mi).append("\n");
+	        return sb.toString();
+	    }
+	    public AmbiguousOperator(Unary.Operator op, List<MethodInstance> mis,  Position pos) {
+	        super("Ambiguous operator '" + op + "': all of\n" + matchingMethods(mis) + "match.", pos);
+	    }
+	    public AmbiguousOperator(Binary.Operator op, List<MethodInstance> mis,  Position pos) {
+	        super("Ambiguous operator '" + op + "': all of\n" + matchingMethods(mis) + "match.", pos);
+	    }
+	    public boolean equals(Object o) {
+	        if (o==null || ! (o instanceof AmbiguousOperator ) )
+	            return false;
+	        return((AmbiguousOperator)o).position().equals(position());
 	    }
 	}
 	public static class OnlyValMayHaveHasType extends SemanticException {

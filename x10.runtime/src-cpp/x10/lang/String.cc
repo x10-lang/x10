@@ -465,8 +465,8 @@ Comparable<ref<String> >::itable<String> String::_itable_Comparable(&String::at,
                                                                    &String::home, &String::toString, &String::typeName);
 
 x10aux::itable_entry String::_itables[3] = {
-    x10aux::itable_entry(&Fun_0_1<x10_int, x10_char>::rtt, &String::_itable_Fun_0_1),
-    x10aux::itable_entry(&Comparable<ref<String> >::rtt, &String::_itable_Comparable),
+    x10aux::itable_entry(&x10aux::getRTT<Fun_0_1<x10_int, x10_char> >, &String::_itable_Fun_0_1),
+    x10aux::itable_entry(&x10aux::getRTT<Comparable<ref<String> > >, &String::_itable_Comparable),
     x10aux::itable_entry(NULL,  (void*)x10aux::getRTT<String>())
 };
 

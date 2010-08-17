@@ -670,7 +670,20 @@ public class LineNumberMap extends StringTable {
         // FIXME: Cannot put _X10methodNameList in debugDataSectionAttr, because it's not constant
         // (the strings cause static initialization for some reason)
         w.writeln("static const struct _X10methodName _X10methodNameList[] __attribute__((used)) = {");
-        for (CPPMethodInfo cppMethodInfo : x10MethodList) {
+        w.writeln("#if defined(__xlC__)");
+        for (CPPMethodInfo cppMethodInfo : x10MethodList) {        	
+            w.write("    { ");
+            w.write(""+offsets[cppMethodInfo.x10class]+", ");                  // _x10class
+            w.write(""+offsets[cppMethodInfo.x10method]+", ");                 // _x10method
+            w.write(""+offsets[cppMethodInfo.x10rettype]+", ");                // _x10returnType
+            w.write("(uint64_t) 0, "); // TODO - this needs to be re-designed, with the debugger team
+            w.write(""+offsets[cppMethodInfo.cppclass]+", ");                  // _cppClass
+            w.write(""+cppMethodInfo.x10args.length+", ");                     // _x10argCount
+            w.write(""+cppMethodInfo.cpplineindex);                            // _lineIndex
+            w.writeln(" },");
+        }
+        w.writeln("#else");
+        for (CPPMethodInfo cppMethodInfo : x10MethodList) {        	
             w.write("    { ");
             w.write(""+offsets[cppMethodInfo.x10class]+", ");                  // _x10class
             w.write(""+offsets[cppMethodInfo.x10method]+", ");                 // _x10method
@@ -686,6 +699,7 @@ public class LineNumberMap extends StringTable {
             w.write(""+cppMethodInfo.cpplineindex);                            // _lineIndex
             w.writeln(" },");
         }
+        w.writeln("#endif");
         w.writeln("};");
         }
         }

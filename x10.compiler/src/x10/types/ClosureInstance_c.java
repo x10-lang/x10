@@ -12,6 +12,7 @@
 package x10.types;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import polyglot.types.ClassType;
@@ -28,6 +29,7 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.CollectionUtil;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.Transformation;
 import polyglot.util.TransformingList;
@@ -83,22 +85,6 @@ public class ClosureInstance_c extends FunctionInstance_c<ClosureDef> implements
 
     public String signature() {
 	StringBuilder sb = new StringBuilder();
-	List<String> params = new ArrayList<String>();
-	if (typeParameters != null) {
-	    for (int i = 0; i < typeParameters.size(); i++) {
-		params.add(typeParameters.get(i).toString());
-	    }
-	}
-	else {
-	    for (int i = 0; i < def().typeParameters().size(); i++) {
-		params.add(def().typeParameters().get(i).toString());
-	    }
-	}
-	if (params.size() > 0) {
-	    sb.append("[");
-	    sb.append(CollectionUtil.listToString(params));
-	    sb.append("]");
-	}
 	List<String> formals = new ArrayList<String>();
 	if (formalTypes != null) {
 	    for (int i = 0; i < formalTypes.size(); i++) {
@@ -183,21 +169,14 @@ public class ClosureInstance_c extends FunctionInstance_c<ClosureDef> implements
         return n;
     }
     
-    
-    public List<Type> typeParameters;
-
     public List<Type> typeParameters() {
-	    if (this.typeParameters == null) {
-		    return new TransformingList<Ref<? extends Type>, Type>(x10Def().typeParameters(), new DerefTransform<Type>());
-	    }
-
-	    return typeParameters;
+        return Collections.emptyList();
     }
 
     public ClosureInstance typeParameters(List<Type> typeParameters) {
-	    ClosureInstance_c n = (ClosureInstance_c) copy();
-	    n.typeParameters = typeParameters;
-	    return n;
+        if (typeParameters.size() != 0)
+            throw new InternalCompilerError("Attempt to set type parameters of a constructor instance: "+this, this.position());
+        return this;
     }
 
     public List<LocalInstance> formalNames;

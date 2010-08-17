@@ -25,22 +25,15 @@ import x10.types.X10ConstructorInstance;
 import x10.types.X10Context;
 
 public class X10ConstructorMatcher extends TypeSystem_c.ConstructorMatcher {
-    protected List<Type> typeArgs;
-
     protected List<Expr> args;
     
     public X10ConstructorMatcher(Type container, List<Type> argTypes, Context context) {
-        this(container, Collections.EMPTY_LIST, argTypes, context);
+        this(container, null, argTypes, context);
     }
 
-    public X10ConstructorMatcher(Type container, List<Type> typeArgs, List<Type> argTypes, Context context) {
-    	this(container, typeArgs, null, argTypes, context);
-    }
-    
-    public X10ConstructorMatcher(Type container, List<Type> typeArgs, List<Expr> args, 
-    		List<Type> argTypes, Context context) {
+    public X10ConstructorMatcher(Type container, List<Expr> args, List<Type> argTypes, 
+    		Context context) {
         super(container, argTypes, context);
-        this.typeArgs = typeArgs;
         this.args = args;
     }
 
@@ -51,7 +44,7 @@ public class X10ConstructorMatcher extends TypeSystem_c.ConstructorMatcher {
 
     @Override
     public String argumentString() {
-        return (typeArgs.isEmpty() ? "" : "[" + CollectionUtil.listToString(typeArgs) + "]") + "(" + CollectionUtil.listToString(argTypes) + ")";
+        return "(" + CollectionUtil.listToString(argTypes) + ")";
     }
 
     @Override
@@ -61,9 +54,8 @@ public class X10ConstructorMatcher extends TypeSystem_c.ConstructorMatcher {
         if (ci instanceof X10ConstructorInstance) {
             X10ConstructorInstance xmi = (X10ConstructorInstance) ci;
             Type c = container != null ? container : xmi.container();
-            if (typeArgs.isEmpty() || typeArgs.size() == xmi.typeParameters().size())
-                return Matcher.inferAndCheckAndInstantiate((X10Context) context(), 
-                		xmi, c, typeArgs, argTypes, ci.position());
+            return Matcher.inferAndCheckAndInstantiate((X10Context) context(), 
+                    xmi, c, Collections.<Type>emptyList(), argTypes, ci.position());
         }
         return null;
     }

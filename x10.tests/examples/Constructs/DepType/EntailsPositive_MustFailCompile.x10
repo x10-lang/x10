@@ -12,18 +12,25 @@
 import harness.x10Test;
 
 /**
- * 
+ * The language now specifies more aggressive type-inference than when this test was originally written.
+ * Now the return type of a constructor is inferred from the property invocation within the constructor.
+ * That is: 
+ * public def this(ii:int, jj:int):EntailsPositive_MustFailCompile = { property(ii,jj);}
+ * is interpreted as
+ * public def this(ii:int, jj:int) <: EntailsPositive_MustFailCompile = { property(ii,jj);}
  *
+ *So it is necessary to hide the 1 behind a method call to get this test to check the behavior we want.
  * @author vj
  */
 public class EntailsPositive_MustFailCompile(i:int, j:int) extends x10Test {
 
-	public def this(ii:int, jj:int):EntailsPositive_MustFailCompile = { property(ii,jj);}
-	public def run():boolean = {
-	    val x:EntailsPositive_MustFailCompile{self.i==1}  =  new EntailsPositive_MustFailCompile(1,2);
+	public def this(ii:int, jj:int) { property(ii,jj);}
+	public def run():boolean  {
+	    val x:EntailsPositive_MustFailCompile{self.i==1}  =  new EntailsPositive_MustFailCompile(one(),2);
 	    return true;
 	}
-	public static def main(Rail[String])= {
+	def one():Int = 1;
+	public static def main(Rail[String]) {
 		new EntailsPositive_MustFailCompile(1,2).execute();
 	}
 }
