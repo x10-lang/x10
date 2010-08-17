@@ -64,7 +64,7 @@ if [ ! -z "$CLEAN" ]; then
 	    x10.runtime \
 	    x10.tests
         do
-            svn export --force https://x10.svn.sourceforge.net/svnroot/x10/branches/x10-tools-integration/$i
+            svn export --force http://x10.svn.sourceforge.net/svnroot/x10/branches/x10-tools-integration/$i
             if [ $? != 0 ]; then
                 svnErrors="true"
             fi
