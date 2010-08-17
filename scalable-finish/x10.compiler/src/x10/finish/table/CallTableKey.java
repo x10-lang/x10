@@ -13,6 +13,8 @@ public abstract class CallTableKey implements Serializable {
 	public final int line;
 	public final int column;
 	public CallTableVal lastStmt;
+	//default pattern
+	public int pattern=0;
 	public CallTableKey(String s, String n, int l, int c){
 	    scope = s;
 	    name = n;
