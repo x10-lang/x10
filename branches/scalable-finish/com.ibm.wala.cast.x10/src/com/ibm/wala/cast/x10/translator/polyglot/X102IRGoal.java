@@ -19,6 +19,7 @@ import com.ibm.wala.cast.tree.CAstEntity;
 import com.ibm.wala.cast.x10.analysis.X10FinishAsyncAnalysis;
 import com.ibm.wala.cast.x10.analysis.util.GraphUtil;
 import com.ibm.wala.cast.x10.client.X10SourceAnalysisEngine;
+import com.ibm.wala.cast.x10.ipa.cha.X10ClassHierarchy;
 import com.ibm.wala.ipa.callgraph.CallGraph;
 import com.ibm.wala.ipa.callgraph.Entrypoint;
 import com.ibm.wala.ipa.callgraph.impl.DefaultEntrypoint;
@@ -31,7 +32,9 @@ import com.ibm.wala.util.strings.Atom;
 public class X102IRGoal extends SourceGoal_c {
     // TODO: get rid of static state
     // TODO: figure out whether we need multiple loaders
-
+	static {
+		System.out.println("WALA is invoked!");
+	}
     private static final ClassLoaderReference X10LOADER = X10SourceLoaderImpl.X10SourceLoader;
 
     private static PolyglotIdentityMapper mapper = new X10PolyglotIdentityMapper(X10LOADER);
@@ -39,9 +42,13 @@ public class X102IRGoal extends SourceGoal_c {
     private static X10SourceAnalysisEngine engine = new X10SourceAnalysisEngine() {
         {
             try {
+            	System.out.println("building analysis scope ...");
                 buildAnalysisScope();
             } catch (Throwable t) {}
-            setClassHierarchy(initClassHierarchy());
+            System.out.println("initializing class hierarchy ...");
+            X10ClassHierarchy cha = initClassHierarchy();
+            setClassHierarchy(cha);
+            System.out.println("translating AST to IR ...");
         }
         
         public String getExclusionsFile() {
@@ -60,8 +67,10 @@ public class X102IRGoal extends SourceGoal_c {
     @Override
     public boolean runTask() {
         ExtensionInfo extInfo = job.extensionInfo();
+        //System.out.println("translating " + job.source().name() + " x10 ast to wala ast ...");
         X10toCAstTranslator fTranslator = new X10toCAstTranslator(X10LOADER, extInfo.nodeFactory(), extInfo.typeSystem(), mapper, false);
         CAstEntity entity = fTranslator.translate(job.ast(), job.source().name());
+        //System.out.println("translating " + job.source().name() + " wala ast to ir ...");
         new X10CAst2IRTranslator(entity, fSourceLoader).translate();
         return true;
     }
@@ -93,6 +102,7 @@ public class X102IRGoal extends SourceGoal_c {
                         Descriptor.findOrCreateUTF8("(Lx10/lang/Rail;)V"));
                 entrypoints.add(new DefaultEntrypoint(mainRef, engine.getClassHierarchy()));
             }
+            System.out.println("building call graph ...");
             return engine.buildCallGraph(entrypoints);
         } catch (Throwable t) {
         	System.err.println(t); 
@@ -118,14 +128,15 @@ public class X102IRGoal extends SourceGoal_c {
 		HashMap<CallTableKey, LinkedList<CallTableVal>> calltable = new HashMap<CallTableKey, LinkedList<CallTableVal>>();
 		X10FinishAsyncAnalysis x10fa = new X10FinishAsyncAnalysis();
 		CallGraph cg = buildCallGraph();
+		System.out.println("call graph built!");
+		System.out.println("analyzing programs ...");
 		calltable = x10fa.build(cg,calltable);
-		
-		// calltable = CallTableUtil.findPatterns(calltable);
+		calltable = CallTableUtil.findPatterns(calltable);
 		if (ifDump) {
 			CallTableUtil.dumpCallTable(calltable);
 		}
 		if (ifExpanded) {
-			System.out.println("Expanding Talbe:");
+			System.out.println("expanding talbe ...");
 			CallTableUtil.expandCallTable(calltable, mask);
 			// CallTableUtil.updateAllArity(calltable);
 			// CallTableUtil.expandCallTable(calltable, mask);
