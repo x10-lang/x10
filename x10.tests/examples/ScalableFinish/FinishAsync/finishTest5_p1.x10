@@ -9,16 +9,14 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-import harness.x10Test;
 
 /**
  * Description: 
  * Expected Result: run() returns true if successful, false otherwise.
  * @author Baolin Shao (bshao@us.ibm.com)
  */
-public class finishTest5 extends x10Test {
+public class finishTest5_p1 {
 
-	var flag: boolean = false;
         public def f1():void {
                 // method contains async
                 async{}
@@ -78,14 +76,10 @@ public class finishTest5 extends x10Test {
 
                 }
         }
-                //default successful condition
-                var b: boolean = false;
-		atomic { b = flag; }
-		return b;
 	}
 
 	public static def main(args: Rail[String]) {
-		new finishTest5().execute();
+		new finishTest5_p1().run();
 	}
 }
 

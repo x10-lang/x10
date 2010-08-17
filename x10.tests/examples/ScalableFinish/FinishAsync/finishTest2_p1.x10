@@ -9,16 +9,14 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-import harness.x10Test;
 
 /**
  * Description:  
  * Expected Result: run() returns true if successful, false otherwise.
  * @author Baolin Shao (bshao@us.ibm.com)
  */
-public class finishTest2 extends x10Test {
+public class finishTest2_p1 {
 
-	var flag: boolean = false;
         public def f1():void {
                 // method contains async
                 async{}
@@ -34,11 +32,14 @@ public class finishTest2 extends x10Test {
         var i:int = 0;
 
         // finish with multiple asyncs
+        
+    	@FinishAsync(23,16,true,1)
         finish{
                 async{}
                 async{}
         }
 
+    	@FinishAsync(23,16,true,1)
         finish{
                 async{}
                 f1();
@@ -46,11 +47,12 @@ public class finishTest2 extends x10Test {
         }
 
         // finish with multiple at
+    	@FinishAsync(23,16,true,1)
         finish{
                 at(here){}
                 at(here){}
         }
-
+    	@FinishAsync(23,16,true,1)
         finish{
                 at(here){}
                 f2();
@@ -58,28 +60,28 @@ public class finishTest2 extends x10Test {
         }
 
         // finish with async and at
+    	@FinishAsync(23,16,true,1)
         finish{
                 at(here){}
                 i = i + 1;
                 async{}
         }
+    	@FinishAsync(23,16,true,1)
         finish{
                 at(here){}
                 f1();
                 //i = i + 1;
         }
+        
+    	@FinishAsync(23,16,true,1)
         finish{
                 async{}
                 f2();
         }
-                //default successful condition
-                var b: boolean = false;
-		atomic { b = flag; }
-		return b;
 	}
 
 	public static def main(args: Rail[String]) {
-		new finishTest2().execute();
+		new finishTest2_p1().run();
 	}
 }
 
