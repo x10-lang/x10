@@ -9,22 +9,20 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-import harness.x10Test;
 
 /**
  * Description: 
  * Expected Result: run() returns true if successful, false otherwise.
  * @author Baolin Shao (bshao@us.ibm.com)
  */
-public class finishTest3 extends x10Test {
-	var flag: boolean = false;
+public class finishTest3_p2 {
     public def f1():void {
     	// method contains async
     	async{}
     }
     public def f2():void {
     	// method contains at
-    	at(here){}
+    	async(here.next()){}
         } 
     public def run() {
     	
@@ -34,6 +32,7 @@ public class finishTest3 extends x10Test {
     	// nested finish without statements
     	finish{
     		finish{
+                        f2();
     		}
     	}
     	
@@ -41,7 +40,9 @@ public class finishTest3 extends x10Test {
     	finish{// finish1
     		finish{
     		//async1
-    		async{}               
+    		async{
+                        f2();
+                }               
     	    }
     	//async2
     	async{}
@@ -50,7 +51,7 @@ public class finishTest3 extends x10Test {
     	finish{
     		async{
     			finish{
-    				async{}
+    				f2();
     			}
     			f1();
     		}
@@ -59,41 +60,29 @@ public class finishTest3 extends x10Test {
     	
     	finish{                
                 finish{
-                	at(here){}               
+                	f1();             
                 }
-                at(here){}
+                async(here){
+                        f2();
+                }
     	}
     	
         finish{
-        	at(here){
-        		finish{
-        			at(here){}
-        		}
-        		f2();
-        	}
-        }
-        finish{
-        	at(here){
-        		finish{
+        	async(here){
         			async{}
         			
-					 at(here){
-						 async{}
+					 async(here){
+						 f2();
 					 }
 					 
-        		}
         		
 		 }
         	async{}
         }
-        //default successful condition
-        var b: boolean = false;
-        atomic { b = flag; }
-        return b;
     }
     
 	public static def main(args: Rail[String]) {
-		new finishTest3().execute();
+		new finishTest3_p2().run();
 	}
  }
 
