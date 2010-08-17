@@ -150,9 +150,6 @@ else
       endif
     else
     ifeq ($(firstword $(subst _, ,$(shell uname -s))),CYGWIN)
-      ifndef X10_SHARED_LIB_DEFAULT_OVERRIDE
-        export X10_STATIC_LIB=1
-      endif
       export X10RT_PLATFORM=cygwin
       override CXXFLAGS_SHARED += -shared -Wl,--export-all-symbols -Wl,--enable-auto-import
       LIBPREFIX :=
