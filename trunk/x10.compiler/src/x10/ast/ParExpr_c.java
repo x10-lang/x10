@@ -17,6 +17,7 @@ import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.Term;
 import polyglot.ast.Expr_c;
+import polyglot.ast.Unary;
 import polyglot.types.SemanticException;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
@@ -24,6 +25,7 @@ import polyglot.visit.CFGBuilder;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
+import polyglot.visit.FlowGraph;
 
 /**
  * @author vj Feb 4, 2005
@@ -92,11 +94,18 @@ public class ParExpr_c extends Expr_c implements ParExpr {
 
 	/* (non-Javadoc)
 	 * @see polyglot.ast.Term#acceptCFG(polyglot.visit.CFGBuilder, java.util.List)
+	 * todo Yoav: I just copied it from Unary_c. I think that ParExpr_c should inherit from Unary_c, and we should define Unary.Operator.IDEMPOTENT.
 	 */
-	public List acceptCFG(CFGBuilder v, List succs) {
-	    v.visitCFG( expr, this, EXIT);
-		return succs;
-	}
+    public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
+        if (expr.type().isBoolean()) {
+            v.visitCFG(expr, FlowGraph.EDGE_KEY_TRUE, this,
+                             EXIT, FlowGraph.EDGE_KEY_FALSE, this, EXIT);
+        } else {
+            v.visitCFG(expr, this, EXIT);
+        }
+
+        return succs;
+    }
 	public String toString() {
 		return "(" + expr.toString() + ")";
 	}

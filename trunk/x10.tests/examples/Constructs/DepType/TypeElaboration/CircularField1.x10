@@ -18,8 +18,8 @@
  *
  */
 
- public class CF1(i:int, j:int)  {
-     public def this(i:int, j:int):CF1{self.i==i,self.j==j} {
+ public class CircularField1(i:int, j:int)  {
+     public def this(i:int, j:int):CircularField1{self.i==i,self.j==j} {
 	    property(i,j);
      }
      var f:CircularField{k==3} = null;

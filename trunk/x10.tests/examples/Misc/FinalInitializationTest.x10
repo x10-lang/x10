@@ -22,12 +22,12 @@ public class FinalInitializationTest extends x10Test {
 		val intval: int;
 		val cval: complex!;
 		val refval: foo!;
-		def this(var intval: int, var cval: complex!, var refval: foo!): myval = {
+		def this(intval: int, cval: complex!, refval: foo!): myval = {
 			this.intval = intval;
 			this.cval = cval;
 			this.refval = refval;
 		}
-		def eq(var other: myval!): boolean = {
+		def eq(other: myval!): boolean = {
 			return
 				this.intval == other.intval &&
 				this.cval.eq(other.cval) &&
@@ -42,7 +42,7 @@ public class FinalInitializationTest extends x10Test {
 	static class complex {
 		val re: int;
 		val im: int;
-		def this(var re: int, var im: int): complex = {
+		def this(re: int, im: int): complex = {
 			this.re = re;
 			this.im = im;
 		}
@@ -57,7 +57,7 @@ public class FinalInitializationTest extends x10Test {
 		return (x.eq(y));
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(args: Rail[String]): void = {
 		new FinalInitializationTest().execute();
 	}
 }
