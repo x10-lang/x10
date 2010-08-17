@@ -64,6 +64,7 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.ErrorHandlingVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.Configuration;
+import x10.ExtensionInfo;
 import x10.ast.AnnotationNode;
 import x10.ast.Async;
 import x10.ast.AtEach;
@@ -592,6 +593,17 @@ public class Desugarer extends ContextVisitor {
         List<Expr> args = new ArrayList<Expr>();
         return xnf.Block(pos, f.body(), xnf.Eval(pos, synth.makeStaticCall(pos, target, FENCE, args, xts.Void(), xContext())));
     }
+    
+    private int getPatternFromAnnotation(AnnotationNode a){
+    	Ref r = a.annotationType().typeRef();
+		X10ParsedClassType_c xpct = (X10ParsedClassType_c) r.getCached();
+		List<Expr> allProperties = xpct.propertyInitializers();
+		Expr pattern = allProperties.get(3);
+		if (pattern instanceof IntLit_c) {
+			return (int) ((IntLit_c) pattern).value();
+		}
+		return 0;
+    }
     /**
      * Recognize the following pattern:
      * @FinishAsync(,,,"local") which means all asyncs in this finish are in the same place as finish
@@ -605,15 +617,28 @@ public class Desugarer extends ContextVisitor {
         Type annotation = (Type) xts.systemResolver().find(QName.make("x10.compiler.FinishAsync"));
         if (!((X10Ext) f.ext()).annotationMatching(annotation).isEmpty()) {
         	List<AnnotationNode> allannots = ((X10Ext)(f.ext())).annotations();
-        	if(allannots.size()==1){
-        		AnnotationNode a = allannots.get(0);
-	        	Ref r = a.annotationType().typeRef();
-	    		X10ParsedClassType_c xpct = (X10ParsedClassType_c)r.getCached();
-	    		List<Expr> allProperties = xpct.propertyInitializers();
-	    		Expr pattern = allProperties.get(3);
-	    		if(pattern instanceof IntLit_c){
-	    			p = (int)((IntLit_c) pattern).value();
-	    		}
+        	AnnotationNode a = null;
+        	if(allannots.size()>0){
+				if (allannots.size() > 1) {
+					boolean isConsistent = true;
+					for(int i=0;i<allannots.size()-1;i++){
+						int p1 = getPatternFromAnnotation(allannots.get(i));
+						int p2 = getPatternFromAnnotation(allannots.get(i+1));
+						if(p1 != p2){
+							isConsistent = false;
+							break;
+						}
+					}
+					if(!isConsistent){
+						System.out.println("WARNING:compiler inferes different annotations from what the programer sets in "+job.source().name());
+					}
+				}
+				a = allannots.get(allannots.size()-1);
+				System.out.println(a);
+				p = getPatternFromAnnotation(a);
+				
+        	}else{
+        		System.out.println("annotation is not correct "+ allannots.size());
         	}
         }
         switch(p){
@@ -630,6 +655,7 @@ public class Desugarer extends ContextVisitor {
     //    catch (t:Throwable) { Runtime.pushException(t); }
     //    finally { Runtime.stopFinish(); }
     private Stmt visitFinish(Finish f) throws SemanticException {
+    	//System.out.println("Desugaring "+job.source().name());
         Position pos = f.position();
         Name tmp = getTmp();
 

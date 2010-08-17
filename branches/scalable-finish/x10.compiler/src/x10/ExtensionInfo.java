@@ -374,9 +374,10 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            Goal typeCheckedGoal = TypeChecked(job);
            goals.add(typeCheckedGoal);
            
-           Goal barrier = null;
-           if (x10.Configuration.WALA) {
+           Goal finishGoal = null;
+           if (x10.Configuration.FINISH_ASYNCS && x10.Configuration.WALA) {
                try{
+            	   
                    ClassLoader cl = Thread.currentThread().getContextClassLoader();
                    Class<?> c = cl.loadClass("com.ibm.wala.cast.x10.translator.polyglot.X102IRGoal");
                    Constructor<?> con = c.getConstructor(Job.class);
@@ -387,18 +388,15 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                    Goal finder = MainMethodFinder(job, hasMain);
                    finder.addPrereq(typeCheckedGoal);
                    ir.addPrereq(finder);
-                   barrier = IRBarrier(ir, buildCallTableMethod);
+                   Goal barrier = IRBarrier(ir, buildCallTableMethod);
                    goals.add(barrier);
+                   finishGoal = FinishAsyncBarrier(barrier,job,this);
+                   goals.add(finishGoal);
+                   
                } catch (Throwable e) {
                    System.err.println("WALA not found.");
                    e.printStackTrace();
                }
-           }
-          
-           //TODO: to test
-           if(x10.Configuration.FINISH_ASYNCS && x10.Configuration.WALA && barrier!=null){
-        	   
-        	   goals.add(FinishAsyncBarrier(barrier,job,this));
            }
            goals.add(ReassembleAST(job));
            
@@ -456,7 +454,9 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            // the barrier will handle prereqs on its own
            CodeGenerated(job).addPrereq(CodeGenBarrier());
        
-
+           if(finishGoal != null){
+        	   Desugarer(job).addPrereq(finishGoal);
+           }
            Desugarer(job).addPrereq(TypeCheckBarrier());
            CodeGenerated(job).addPrereq(Desugarer(job));
            List<Goal> optimizations = Optimizer.goals(this, job);
@@ -887,12 +887,13 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     	   return new AllBarrierGoal("FinishAsyncBarrier", this) {
                @Override
                public Goal prereqForJob(Job job) {
-                   if (!scheduler.commandLineJobs().contains(job) &&
+                   //TODO: probably need to also annotation code in "runtime"
+            	   if (!scheduler.commandLineJobs().contains(job) &&
                            ((ExtensionInfo) extInfo).manifestContains(job.source().path())) {
-                	   System.out.println(job.source().name()+" omitted");
+                	   //System.out.println(job.source().name()+" omitted");
                        return null;
                    }
-                   System.out.println(job.source().name()+" started");
+                   //System.out.println(job.source().name()+" started");
                    return goal;
                }
                public boolean runTask() {

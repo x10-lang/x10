@@ -27,6 +27,8 @@ public abstract class CallTableVal  implements Serializable {
 	public int blk;
 	public final CallTableKey parent;
 	public boolean isLast = false;
+	//default pattern
+	public int pattern=0;
 	public Arity getArity(){
 	    return a;
 	}
