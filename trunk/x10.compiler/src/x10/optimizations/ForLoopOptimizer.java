@@ -37,6 +37,7 @@ import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.ast.Assign.Operator;
 import polyglot.frontend.Job;
+import polyglot.types.Context;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
@@ -53,6 +54,7 @@ import polyglot.visit.NodeVisitor;
 import x10.ast.ForLoop;
 import x10.ast.ForLoop_c;
 import x10.ast.RegionMaker;
+import x10.ast.StmtExpr;
 import x10.ast.StmtSeq;
 import x10.ast.X10Call;
 import x10.ast.X10Cast;
@@ -690,8 +692,9 @@ public class ForLoopOptimizer extends ContextVisitor {
      * @return a synthesized statement expresssion comprising stmts and expr
      * TODO: move to Synthesizer
      */
-    public Expr createStmtExpr(Position pos, List<Stmt> stmts, Expr expr) {
-        return xnf.StmtExpr(pos, stmts, expr).type(expr.type());
+    public StmtExpr createStmtExpr(Position pos, List<Stmt> stmts, Expr expr) {
+        if (null == expr) return (StmtExpr) xnf.StmtExpr(pos, stmts, null).type(xts.Void());
+        return (StmtExpr) xnf.StmtExpr(pos, stmts, expr).type(expr.type());
     }
 
     /**
@@ -1050,8 +1053,33 @@ public class ForLoopOptimizer extends ContextVisitor {
      */
     public X10MethodInstance createMethodInstance(Type container, Name name, List<Type> typeArgs, Expr... args) {
         List<Type> argTypes = getExprTypes(args);
+        return createMethodInstance(container, name, typeArgs, argTypes);
+    }
+
+    /**
+     * @param container
+     * @param name
+     * @param typeArgs
+     * @param argTypes
+     * @return
+     */
+    public X10MethodInstance createMethodInstance(Type container, Name name, List<Type> typeArgs, List<Type> argTypes) {
+        Context context = context();
+        return createMethodInstance(container, name, typeArgs, argTypes, context);
+    }
+
+    /**
+        return createMethodInstance(container, name, typeArgs, argTypes, context);
+     * @param container
+     * @param name
+     * @param typeArgs
+     * @param argTypes
+     * @param context
+     * @return
+     */
+    public X10MethodInstance createMethodInstance(Type container, Name name, List<Type> typeArgs, List<Type> argTypes, Context context) {
         try {
-            return xts.findMethod(container, xts.MethodMatcher(container, name, typeArgs, argTypes, context()));
+            return xts.findMethod(container, xts.MethodMatcher(container, name, typeArgs, argTypes, context));
         } catch (SemanticException e) {
             throw new InternalCompilerError("Unable to find required method instance", container.position(), e);
         }
