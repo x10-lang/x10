@@ -11,8 +11,7 @@ public class CallTableScopeKey extends CallTableKey {
 	 * otherwise it represents an "at"
 	 */
 	public boolean is_finish;
-	//default pattern
-	public int pattern=0;
+
 	/**
 	 * to calculate the arity of a method call from this block
 	 */
@@ -46,12 +45,12 @@ public class CallTableScopeKey extends CallTableKey {
 
 	public boolean equals(Object o) {
 	    if (o instanceof CallTableScopeKey) {
-		return this.toString().equals(((CallTableScopeKey) o).toString());
+		return this.genSignature().equals(((CallTableScopeKey) o).genSignature());
 	    }
 	    return false;
 	}
 
 	public int hashCode() {
-	    return this.toString().hashCode();
+	    return this.genSignature().hashCode();
 	}
 }

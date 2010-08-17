@@ -34,7 +34,7 @@ public class CallTableUtil {
      * we have three patterns:
      * a general pattern - code == 0
      * all local async - code == 1
-     * no nested remote async - code == 2
+     * no nested remote async - code == 4
      * @param key
      * @param ct
      * @param results
@@ -46,13 +46,11 @@ public class CallTableUtil {
 	int pattern = 1;
 	if (results.containsKey(key)) {
 	    pattern = results.get(key).intValue();
-	    System.out.println(key+"========="+pattern);
 	    return pattern;
 	}
+	results.put(key, new Integer(pattern));
 	LinkedList<CallTableVal> vals = ct.get(key);
-	//FIXME: when a method is called in the program, but not appear in the callgraph, this method don't have an entry in the table, thus vals == null
 	if(vals ==null){
-	    System.out.println(key+"========="+1);
 	    return 1;
 	}
 	for (int i = 0; i < vals.size(); i++) {
@@ -62,25 +60,23 @@ public class CallTableUtil {
 		// when at least one nested async is "general" the outer async/method is general
 		if (tmpPattern == 0) {
 		    results.put(key, new Integer(0));
-		    System.out.println(key+"========="+0);
 		    return 0;
 		}
 		// when both the nested async and the outer one are local, the outer method/async has pattern 1 by now
 		if (tmpPattern == 1 && ((CallTableMethodVal) v).isLocal) {
 		    pattern = setPattern(pattern,1);
 		}
-		// when the nested async is "local" but the outer one is not, the outer method/async has pattern 2 by now
+		// when the nested async is "local" but the outer one is not, the outer method/async has pattern 4 by now
 		if (tmpPattern == 1 && !((CallTableMethodVal) v).isLocal) {
-		    pattern = setPattern(pattern,2);
+		    pattern = setPattern(pattern,4);
 		}
 		// when the nested async does not have nested remote asyncs, and the outer is local, the outer method/async has pattern 1 by now
-		if (tmpPattern == 2 && ((CallTableMethodVal) v).isLocal) {
-		    pattern = setPattern(pattern,2);
+		if (tmpPattern == 4 && ((CallTableMethodVal) v).isLocal) {
+		    pattern = setPattern(pattern,4);
 		}
 		// otherwise, it is a general one
-		if (tmpPattern == 2 && !((CallTableMethodVal) v).isLocal) {
+		if (tmpPattern == 4 && !((CallTableMethodVal) v).isLocal) {
 		    results.put(key, new Integer(0));
-		    System.out.println(key+"========="+0);
 		    return 0;
 		}
 	    }
@@ -90,15 +86,17 @@ public class CallTableUtil {
 	    }
 
 	}
-	results.put(key, new Integer(pattern));
-	System.out.println(key+"========="+pattern);
+	if(pattern!=1){
+		results.remove(key);
+		results.put(key, new Integer(pattern));
+	}
 	return pattern;
     }
     private static int setPattern(int p, int v){
 	switch(p){
 	case 0: return 0;
 	case 1: return v;
-	case 2: return v==0?v:p;
+	case 4: return v==0?v:p;
 	default: return 0;
 	}
     }

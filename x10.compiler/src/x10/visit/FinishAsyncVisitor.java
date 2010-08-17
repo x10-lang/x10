@@ -42,7 +42,8 @@ import x10.types.X10ParsedClassType_c;
 import x10.types.X10TypeSystem;
 
 public class FinishAsyncVisitor extends ContextVisitor {
-	private HashMap<CallTableKey, LinkedList<CallTableVal>> calltable;
+	private static HashMap<CallTableKey, Integer> finishTable = null;
+	private static HashMap<CallTableKey, LinkedList<CallTableVal>> callTable = null;
 	private String src_package = null;
 	private String src_path = null;
 	private String src_method = null;
@@ -58,7 +59,17 @@ public class FinishAsyncVisitor extends ContextVisitor {
 		xts = (X10TypeSystem) ts;
 		xnf = (X10NodeFactory) nf;
 		this.theLanguage = theLanguage;
-		calltable = ct;
+		if(finishTable == null && callTable == null){
+			callTable = ct;
+			finishTable = new HashMap<CallTableKey, Integer>();
+			Iterator<CallTableKey> it = ct.keySet().iterator();
+			while(it.hasNext()){
+				CallTableKey k = it.next();
+				if(k instanceof CallTableScopeKey){
+					finishTable.put(k, new Integer(((CallTableScopeKey) k).pattern));
+				}
+			}
+		}
 	}
 
 	public NodeVisitor enterCall(Node n) {
@@ -124,7 +135,7 @@ public class FinishAsyncVisitor extends ContextVisitor {
 		src_method = methodName;
 		CallTableMethodKey mk = new CallTableMethodKey(src_package, methodName,
 				line, column);
-		boolean f = calltable.keySet().contains(mk);
+		boolean f = callTable.keySet().contains(mk);
 		if (f) {
 			System.out.println("find method " + n.toString());
 
@@ -146,13 +157,13 @@ public class FinishAsyncVisitor extends ContextVisitor {
 		// becomes the full path of the file this async is in. So, here
 		// we have to try both possibilities. Need to resolve this pecularity.
 
-		boolean f = calltable.keySet().contains(at);
+		boolean f = callTable.keySet().contains(at);
 		if (f) {
 			System.out.println("find at:" + n.toString());
 		} else {
 			at = new CallTableScopeKey(src_path, src_method, line, column, -1,
 					false);
-			f = calltable.keySet().contains(at);
+			f = callTable.keySet().contains(at);
 			if (f) {
 				System.out.println("find at:" + n.toString());
 			} else {
@@ -170,7 +181,7 @@ public class FinishAsyncVisitor extends ContextVisitor {
 		String pack = n.methodInstance().container().toString();
 		CallTableMethodKey mk = new CallTableMethodKey(src_package, methodName,
 				line, column);
-		boolean f = calltable.keySet().contains(mk);
+		boolean f = callTable.keySet().contains(mk);
 		if (f) {
 			System.out.println("find method " + n.toString());
 		} else {
@@ -181,53 +192,45 @@ public class FinishAsyncVisitor extends ContextVisitor {
 	}
 
 	private Node visitExitFinish(Finish n) throws SemanticException {
-		
+		//System.out.println("annotating "+job.source().name());
 		int line = n.body().position().line();
 		int column = n.body().position().column();
-		CallTableScopeKey fs = new CallTableScopeKey(src_package, src_method,
-				line, column, -1, true);
-		CallTableUtil.dumpCallTable(calltable);
-		boolean f = calltable.keySet().contains(fs);
-		if (f) {
-			int pattern = fs.pattern;
-			System.out.println("find finish:" + n.toString());
-
-			X10Ext_c xext = (X10Ext_c) n.ext();
-			// old is unmodifiedlist
-			List<AnnotationNode> old = (List<AnnotationNode>) (xext.annotations());
-			LinkedList<AnnotationNode> newannote = new LinkedList<AnnotationNode>();
-			// retains all existing annotations
-			newannote.addAll(old);
-			// add one annotation to each finish, informing the pattern found in this finish
-			newannote.add(0, makeFinishAnnotation(n,0,0,false,pattern));
-			/*LinkedList<CallTableVal> vals = calltable.get(fs);
-			for (int i = 0; i < vals.size(); i++) {
-				CallTableVal v = vals.get(i);
-				int fakeplace = 1;
-				if (v instanceof CallTableMethodVal) {
-					if (((CallTableMethodVal) v).isAsync) {
-						newannote.add(makeFinishAnnotation(n, v.a.ordinal(),
-								fakeplace, v.isLast, pattern));
-					}
-				}
-				if (v instanceof CallTableAtVal) {
-					newannote.add(makeFinishAnnotation(n, v.a.ordinal(),
-							fakeplace, v.isLast, pattern));
-				}
-			}*/
-			return (Finish) ((X10Ext) n.ext()).annotations(newannote);
+		CallTableScopeKey fs1 = new CallTableScopeKey(src_package, src_method,line, column, -1, true);
+		CallTableScopeKey fs2 = new CallTableScopeKey(src_path, src_method,line, column, -1, true);
+		boolean f1 = finishTable.containsKey(fs1);
+		boolean f2 = finishTable.containsKey(fs2);
+		if(f1){
+			return addAnnotation2Finish(n,fs1);
 		}
-		System.out.println("miss finish:");
-		System.out.println("\tgenerated key:" + fs.toString());
+		if(f2){
+			return addAnnotation2Finish(n,fs2);
+		}
+		System.out.println("finish "+fs1+" not found!");
 		return n;
+		
 	}
-
+	
+	private Finish addAnnotation2Finish(Finish f, CallTableScopeKey fs) throws SemanticException{
+		int pattern = finishTable.get(fs).intValue();
+		//System.out.println("find finish:" + fs);
+		X10Ext_c xext = (X10Ext_c) f.ext();
+		// old is unmodifiedlist
+		List<AnnotationNode> old = (List<AnnotationNode>) (xext.annotations());
+		LinkedList<AnnotationNode> newannote = new LinkedList<AnnotationNode>();
+		// retains all existing annotations
+		newannote.addAll(old);
+		// annotations added by compiler always have lower priority than those by programmers
+		newannote.addLast(makeFinishAnnotation(f,fs.line,fs.column,false,pattern));
+		return (Finish) ((X10Ext) f.ext()).annotations(newannote);
+	}
+	
+	
 	private void visitEnterAsync(Async n) {
 		int line = n.position().line();
 		int column = n.position().column();
 		CallTableMethodKey m = new CallTableMethodKey(src_path, "activity",
 				line, column);
-		boolean f = calltable.keySet().contains(m);
+		boolean f = callTable.keySet().contains(m);
 		if (f) {
 			System.out.println("find async:" + n.toString());
 		} else {
@@ -267,7 +270,7 @@ public class FinishAsyncVisitor extends ContextVisitor {
 		xpct = (X10ParsedClassType_c) xpct.propertyInitializers(initproperties);
 		r.update(xpct);
 		// return the annotation
-		System.out.println("newly created annotation:" + an.toString());
+		//System.out.println("newly created annotation:" + an.toString());
 		return an;
 	}
 
