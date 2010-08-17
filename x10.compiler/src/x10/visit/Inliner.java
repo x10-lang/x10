@@ -30,10 +30,10 @@ import polyglot.ast.Call_c;
 import polyglot.ast.ClassDecl;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
+import polyglot.ast.FieldDecl;
 import polyglot.ast.Formal;
 import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
-import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Return;
@@ -41,9 +41,12 @@ import polyglot.ast.Special;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.frontend.Job;
+import polyglot.frontend.Source;
 import polyglot.types.ClassType;
+import polyglot.types.ConstructorInstance;
 import polyglot.types.Context;
 import polyglot.types.FieldInstance;
+import polyglot.types.Flags;
 import polyglot.types.FunctionDef;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
@@ -56,6 +59,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.types.UnknownType;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.SubtypeSet;
@@ -71,24 +75,30 @@ import x10.ast.ParExpr;
 import x10.ast.StmtExpr;
 import x10.ast.X10Call;
 import x10.ast.X10Call_c;
-import x10.ast.X10Local_c;
+import x10.ast.X10Formal;
 import x10.ast.X10MethodDecl;
 import x10.ast.X10NodeFactory;
 import x10.ast.X10Special;
+import x10.constraint.XFailure;
+import x10.constraint.XTerms;
 import x10.extension.X10Ext;
 import x10.optimizations.ForLoopOptimizer;
+import x10.types.AnnotatedType;
+import x10.types.ClosureInstance;
 import x10.types.ConstrainedType;
+import x10.types.FunctionType;
+import x10.types.MacroType;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
-import x10.types.X10Def;
+import x10.types.X10FieldInstance;
 import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
+import x10.types.X10ParsedClassType;
+import x10.types.X10ProcedureDef;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.checker.Converter;
-import x10.util.Synthesizer;
-import x10cpp.visit.X10SearchVisitor;
 
 /**
  * This visitor inlines calls to methods and closures under the following
@@ -218,26 +228,16 @@ public class Inliner extends ContextVisitor {
     private Expr inlineMethodCall(X10Call_c c) {
         if (null == InlineType) return c;
         try {
-            String methodId    = getContainer(((X10MethodInstance) c.methodInstance()).x10Def()).fullName()+ 
-                                 "." +
-                                 c.methodInstance().signature();
             X10MethodDecl decl = getInlineDecl(c);
             if (null == decl) 
                 return c;
+            String methodId = getMethodId(decl);
             decl = instantiate(decl, c);
-            LocalDef ths = computeThis(decl.methodDef());
-            LocalDecl ld = null == ths ? null : syn.createLocalDecl( ths.position(), 
-                                                                     ths.flags(), 
-                                                                     ths.name(), 
-                                                                     ths.type().get(), 
-                                                                     (Expr) c.target() ).localDef(ths);
-            decl = normalizeMethod(decl, ths); // Ensure that the last statement of the body is the only return in the method
-            List<Expr> args = new ArrayList<Expr>();
-            int i = 0;
-            for (Expr a : c.arguments()) {
-                args.add(cast(a, c.methodInstance().formalTypes().get(i++)));
-            }
-            Expr result = rewriteInlinedBody(c.position(), decl.returnType().type(), decl.formals(), decl.body(), ld, args);
+            // TODO: handle "this" parameter like formals (cache actual in temp, assign to local (transformed this)
+            LocalDecl thisArg  = createThisArg(c);
+            LocalDecl thisForm = createThisFormal((X10MethodInstance) c.methodInstance(), thisArg);
+            decl = normalizeMethod(decl, thisForm); // Ensure that the last statement of the body is the only return in the method
+            Expr result = rewriteInlinedBody(c.position(), decl.returnType().type(), decl.formals(), decl.body(), thisArg, thisForm, c.arguments());
             result = (Expr) result.visit(new AlphaRenamer());
             if (-1 == inlineInstances.search(methodId)) {     // non recursive inlining of the inlined body
                 inlineInstances.push(methodId);
@@ -260,16 +260,33 @@ public class Inliner extends ContextVisitor {
         }
     }
 
+    /**
+     * @param decl
+     * @return
+     */
+    private String getMethodId(X10MethodDecl decl) {
+        // String methodId = decl.methodDef().toString();
+        // String methodId = getContainer((X10MethodDef) decl.methodDef()).fullName()+ "." +decl.methodDef().signature();
+        String methodId = getContainer((X10MethodDef) decl.methodDef()).fullName()+ "." +decl.name()+ "("; 
+        String c = "";
+        for (Formal f : decl.formals()) {
+            methodId += c+f.type().nameString();
+            c = ",";
+        }
+        methodId += "):" + decl.returnType().nameString();
+        return methodId;
+    }
+
     private Expr inlineClosureCall(ClosureCall c) {
         Closure lit = getInlineClosure(c);
         if (null == lit) return c;
         List<Expr> args = new ArrayList<Expr>();
         int i = 0;
         for (Expr a : c.arguments()) {
-            args.add(cast(a, c.closureInstance().formalTypes().get(i++)));
+            args.add(createCast(a.position(), a, c.closureInstance().formalTypes().get(i++)));
         }
         lit = normalizeClosure(lit); // Ensure that the last statement of the body is the only return in the closure
-        Expr result = rewriteInlinedBody(c.position(), lit.returnType().type(), lit.formals(), lit.body(), null, args);
+        Expr result = rewriteInlinedBody(c.position(), lit.returnType().type(), lit.formals(), lit.body(), null, null, args);
         result = (Expr) result.visit(new AlphaRenamer());
         result = (Expr) result.visit(this);
         result = (Expr) propagateConstants(result);
@@ -285,8 +302,6 @@ public class Inliner extends ContextVisitor {
         if (annotations.contains(NoInlineType))
             return null;
         Boolean forceInline = annotations.contains(InlineType);
-        if (forceInline) 
-            System.out.println("DEBUG: Success!! got expression annotation: " + annotations);
         X10MethodDef def = ((X10MethodInstance) c.methodInstance()).x10Def();
         if (!forceInline && dontInline.contains(def)) 
             return null;
@@ -367,8 +382,9 @@ public class Inliner extends ContextVisitor {
      * @param ths
      * @return
      */
-    private X10MethodDecl normalizeMethod(X10MethodDecl decl, LocalDef ths) {
-        return (X10MethodDecl) decl.visit(new InliningRewriter(decl, ths));
+    private X10MethodDecl normalizeMethod(X10MethodDecl decl, LocalDecl thisFormal) {
+        LocalDef thisDef = null == thisFormal ? null : thisFormal.localDef();
+        return (X10MethodDecl) decl.visit(new InliningRewriter(decl, thisDef));
     }
 
     /**
@@ -386,37 +402,35 @@ public class Inliner extends ContextVisitor {
     }
 
     /**
-     * Cast a given expression to a given type, unless it is already of that type.
-     * TODO: factor out to Synthesizer
-     * @param a the given expression
-     * @param fType the given type
-     * @return a cast node, or the original expression
+     * Create a cast (explicit conversion) expression.
+     * 
+     * @param pos the Position of the cast in the source code
+     * @param expr the Expr being cast
+     * @param toType the resultant type
+     * @return the synthesized Cast expression (expr as toType), or 
+     *         the original expression (if the cast is unnecessary)
+     * TODO: move into Synthesizer
      */
-    private Expr cast(Expr a, Type fType) {
-        X10TypeSystem xts = (X10TypeSystem) typeSystem();
-        X10NodeFactory xnf = (X10NodeFactory) nodeFactory();
-        Context context = context();
-        if (!xts.typeDeepBaseEquals(fType, a.type(), context)) {
-            Position pos = a.position();
-            a = xnf.X10Cast(pos, xnf.CanonicalTypeNode(pos, fType), a,
-                            Converter.ConversionType.UNCHECKED).type(fType);
-        }
-        return a;
+    public Expr createCast(Position pos, Expr expr, Type toType) {
+        if (xts.typeDeepBaseEquals(expr.type(), toType, context())) return expr;
+       return xnf.X10Cast(pos, xnf.CanonicalTypeNode(pos, toType), expr, Converter.ConversionType.UNCHECKED ).type(toType);
     }
 
-    /**
-     * Create a reference to a local variable with a given def.
-     * TODO: factor out to Synthesizer.
-     * @param pos the position
-     * @param t the given local def
-     * @return the local node
-     */
-    private Expr local(Position pos, LocalDef t) {
-        X10NodeFactory xnf = (X10NodeFactory) nodeFactory();
-        LocalInstance li = t.asInstance();
-        return xnf.Local(pos, xnf.Id(pos, li.name())).localInstance(li).type(li.type());
+    private LocalDecl createThisArg(X10Call c) {
+        if (!(c.target() instanceof Expr)) return null;
+        LocalDef def  = xts.localDef(c.target().position(), xts.Final(), Types.ref(c.target().type()), Name.make("target"));
+        LocalDecl ths = syn.createLocalDecl(c.target().position(), def, (Expr) c.target());
+        return ths;
     }
 
+    private LocalDecl createThisFormal(X10MethodInstance mi, LocalDecl init) {
+        if (mi.flags().isStatic()) return null;
+        Type thisType = instantiate(mi, mi.def().container().get());
+        Expr expr = null == init ? null : createCast(init.position(), syn.createLocal(init.position(), init), thisType);
+        LocalDecl thisDecl = syn.createLocalDecl(mi.position(), Flags.FINAL, Name.make("this"), expr);
+        return thisDecl;
+    }
+    
     private LocalDef computeThis(MethodDef def) {
 //        X10TypeSystem xts = (X10TypeSystem) typeSystem();
         if (def.flags().isStatic()) return null;
@@ -435,34 +449,41 @@ public class Inliner extends ContextVisitor {
         return ((X10ClassType) containerBase).x10Def();
     }
 
-    private X10MethodDecl getDeclaration(final X10MethodDef md, final X10ClassDef cd) {
+    // TODO: move this to Position
+    private static boolean contains(Position outer, Position inner) {
+        if (!outer.file().equals(inner.file())) return false;
+        if (!outer.path().equals(inner.path())) return false;
+        return (outer.offset() <= inner.offset() && inner.endOffset() <= inner.endOffset());
+    }
+
+    private X10MethodDecl getDeclaration(final X10MethodDef md, X10ClassDef cd) {
         if (!md.flags().isStatic() && !md.flags().isFinal() && !md.flags().isPrivate() && !cd.flags().isFinal() && !cd.isStruct())
             return null;
         Job job = cd.job();
-        if (job == null) // TODO: reconstruct job from md.position()
-            return null;
-        NodeVisitor typeChecker = new X10TypeChecker(job, ts, nf, job.nodeMemo()).begin();
+        if (job == null) {
+            job = reconstructJobFromPosition(md.position());
+            if (job == null)
+                return null;
+        }
         Node ast = job.ast();
         if (job != this.job()) {
-            ast = ast.visit(typeChecker);
+            ast = ast.visit(new X10TypeChecker(job, ts, nf, job.nodeMemo()).begin());
         }
-//        job.ast(ast);
-//        System.out.println("==> Typechecked "+cd);
         final X10MethodDecl[] decl = new X10MethodDecl[1];
-        ast.visit(new NodeVisitor() {
+        ast.visit(new NodeVisitor() { // find the declaration of md
             public Node override(Node n) {
-                if (n instanceof Expr || n instanceof Stmt || n instanceof TypeNode) { // FIXME: for any local classes 
-                    return n;
-                }
-                if (decl[0] != null) {
-                    return n;
-                }
-                return null;
+                if (null != decl[0]) 
+                    return n;  // we've already found the decl, short-circuit search
+                if (n instanceof TypeNode) 
+                    return n;  // TypeNodes don't contain decls, short-circuit search
+                if (!contains(n.position(), md.position()))
+                    return n;  // definition of md isn't inside n, short-circuit search
+                return null;   // look for the decl inside n
             }
             public Node leave(Node old, Node n, NodeVisitor v) {
                 if (n instanceof X10MethodDecl) {
                     X10MethodDecl d = (X10MethodDecl) n;
-                    if (d.methodDef() == md)
+                    if (d.methodDef() == md) // we found it!
                         decl[0] = d;
                 }
                 return n;
@@ -473,79 +494,168 @@ public class Inliner extends ContextVisitor {
         return decl[0];
     }
 
-    private Type instantiate(X10MethodInstance mi, List<Type> tArgs, ParameterType t) {
+    /**
+     * Reconstruct a Job from Position information.
+     * 
+     * @param posthe Position of a node in the AST of a Job
+     * @return the Job (with its AST) associated with the given pos
+     * TODO: make sure the typeChecked AST gets reconstructed
+     */
+    private Job reconstructJobFromPosition(Position pos) {
+        String file = pos.file();
+        String path = pos.path();
+        Source source = new Source(file, path, null);
+        Job job = xts.extensionInfo().scheduler().addJob(source);
+        return job;
+    }
+    
+/*
+    private Type instantiate(X10MethodInstance mi, ParameterType t) {
         List<Ref<? extends Type>> mParms = mi.x10Def().typeParameters();
-        List<Type> mArgs = mi.typeParameters();
-        int i = 0;
-        for (Ref<? extends Type> tpr : mParms) {
-            if (t.typeEquals(tpr.get(), context))
-                return mArgs.get(i);
-            ++i;
+        for (int i=0; i< mParms.size(); i++) {
+            if (t.typeEquals(((Ref<? extends Type>) mParms.get(i)).get(), context))
+                return mi.typeParameters().get(i);
         }
-        X10ClassType ct = (X10ClassType) mi.container();
-        X10ClassDef cd = ct.x10Def();
-        tArgs = ct.typeArguments();
-        List<ParameterType> tParms = cd.typeParameters();
-        i = 0;
-        for (ParameterType pt : tParms) {
-            if (t.typeEquals(pt, context))
-                return tArgs.get(i);
-            ++i;
+        List<ParameterType> cParms = ((X10ClassType) mi.container()).x10Def().typeParameters();
+        for (int i=0; i<cParms.size(); i++) {
+            if (t.typeEquals(cParms.get(i), context))
+                return ((X10ClassType) mi.container()).typeArguments().get(i);
+        }
+        throw new InternalCompilerError("Type parameter " +t+ " not instantiated at call to method " +mi);
+    }
+*/
+
+    private Type instantiate(X10MethodInstance mi, ParameterType genericType) {
+        Type concreteType = instantiate(getGenericTypes(mi.x10Def().typeParameters()), mi.typeParameters(), genericType);
+        if (null != concreteType)
+            return concreteType;
+        X10ClassType container = (X10ClassType) mi.container();
+        concreteType = instantiate(container.x10Def().typeParameters(), container.typeArguments(), genericType);
+        if (null != concreteType)
+            return concreteType;
+        throw new InternalCompilerError("Type parameter " +genericType+ " not instantiated at call to method " +mi);
+    }
+
+    /**
+     * @param methodGenerics
+     * @return
+     */
+    private List<ParameterType> getGenericTypes( List<Ref<? extends Type>> methodGenerics) {
+        List<ParameterType> params = new ArrayList<ParameterType>();
+        for (Ref<? extends Type> t : methodGenerics){
+            params.add((ParameterType) t.get());
+        }
+        return params;
+    }
+
+    /**
+     * @param genericTypes
+     * @param concreteTypes
+     * @param genericType
+     */
+    private Type instantiate(List<ParameterType> genericTypes, List<Type> concreteTypes, ParameterType genericType) {
+        for (int i=0; i<genericTypes.size(); i++) {
+            if (genericType.typeEquals(genericTypes.get(i), context)) {
+                return concreteTypes.get(i);
+            }
         }
         return null;
     }
 
-    private Type instantiate(X10MethodInstance mi, List<Type> tArgs, ConstrainedType t) {
-        Type bt = Types.get(t.baseType());
-        Type ibt = instantiate(mi, tArgs, bt);
-        if (ibt == bt) return t;
-        return X10TypeMixin.constrainedType(ibt, Types.get(t.constraint()));
+    private Type instantiate(X10MethodInstance mi, ConstrainedType t) {
+        return X10TypeMixin.constrainedType(instantiate(mi, Types.get(t.baseType())), Types.get(t.constraint()));
     }
 
-    private Type instantiate(X10MethodInstance mi, List<Type> tArgs, Type t) {
-        if (t instanceof ConstrainedType) {
-            return instantiate(mi, tArgs, (ConstrainedType) t);
-        } else if (t instanceof ParameterType) {
-            return instantiate(mi, tArgs, (ParameterType) t);
+    private Type instantiate(X10MethodInstance mi, X10ParsedClassType t) { // TODO
+        List<Type> initialTypes = t.typeArguments();
+        if (null != initialTypes) {
+            List<Type> finalTypes   = new ArrayList<Type>();
+            for (Type type : initialTypes) {
+                finalTypes.add(instantiate(mi, type));
+            }
+            return t.typeArguments(finalTypes);
         }
-        return t;
+        return (Type) t.copy();
+    }
+
+    private Type instantiate(X10MethodInstance mi, Type t) {
+        if (t instanceof ConstrainedType) {
+            return instantiate(mi, (ConstrainedType) t);
+        } else if (t instanceof ParameterType) {
+            return instantiate(mi, (ParameterType) t);
+        } else if (t instanceof X10ParsedClassType) {
+            return instantiate(mi, (X10ParsedClassType) t); // T
+        }
+        assert (!(t instanceof MacroType)) : "OOPS: Typedef found after typechecking: " +t;
+        assert (!(t instanceof UnknownType)): "OOPS: UnknownType: " +t;
+        assert (!(t instanceof FunctionType)): "OOPS: Closure: " +t; // TODO: handle this case
+        assert (!(t instanceof ConstructorInstance)): "OOPS: Constructor instance " +t; // TODO: handle this case
+        assert (!(t instanceof ClosureInstance)): "OOPS: Closure instance: " +t; // TODO: handle this case
+        assert (!(t instanceof AnnotatedType)): "OOPS: Annotated type : " +t; // TODO: handle this case (instantiate base class)
+        return (Type) t.copy();
+    }
+
+
+    private X10MethodInstance instantiate(X10MethodInstance mi, X10MethodInstance methodInstance) {
+        X10MethodInstance resultInstance = (X10MethodInstance) methodInstance.copy();
+        resultInstance = methodInstance.returnType(instantiate(mi, resultInstance.returnType()));
+        // TODO: handle throws types
+        List<Type> formalTypes = new ArrayList<Type>();
+        List<Ref<? extends Type>> typeParameters = new ArrayList<Ref<? extends Type>>();
+        for (Type f : methodInstance.formalTypes()) {
+            Type type = instantiate(mi, f);
+            formalTypes.add(type);
+            typeParameters.add(Types.ref(type));
+        }
+        resultInstance = (X10MethodInstance) resultInstance.formalTypes(formalTypes);
+        // ((X10ProcedureDef) resultInstance.def()).setTypeParameters(typeParameters);
+        List<Type> resultTypes = resultInstance.formalTypes();
+        
+        return resultInstance;
+    }
+
+    private X10FieldInstance instantiate(X10MethodInstance mi, X10FieldInstance fieldInstance) {
+        Type type = fieldInstance.type();
+        Type type2 = instantiate(mi, type);
+        if (!type.typeEquals(type2, context()))
+            return fieldInstance.type(type2);
+        return fieldInstance;
     }
 
     private X10MethodDecl instantiate(final X10MethodDecl decl, X10Call c) {
         final X10MethodInstance mi = (X10MethodInstance) c.methodInstance();
-        final List<Type> tArgs = new ArrayList<Type>();
-        for (TypeNode tn : c.typeArguments()) {
-            tArgs.add(tn.type());
-        }
-//       List<Type> tParms = mi.typeParameters();
         final HashMap<Name, LocalDef> vars = new HashMap<Name, LocalDef>();
         return (X10MethodDecl) decl.visit(new ContextVisitor(job, ts, nf) {
             protected Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
                 if (n instanceof TypeNode) {
                     Type type = ((TypeNode) n).type();
-                    Type iType = instantiate(mi, tArgs, type);
+                    Type iType = instantiate(mi, type);
                     if (iType != type) { // conservative compare detects changes in substructure
                         return ((TypeNode) n).typeRef(Types.ref(iType));
-                    } else {
-                        return n;
                     }
+                    return n;
                 }
                 if (n instanceof Expr) {
                     Expr e = (Expr) n;
-                    Expr ie = e.type(instantiate(mi, tArgs, e.type()));
+                    Expr ie = e.type(instantiate(mi, e.type()));
                     if (ie instanceof X10Call) {
                         X10Call c = (X10Call) ie;
                         if (c.isTargetImplicit()) {
                             c = (X10Call) c.targetImplicit(false);
                         }
-                        return c.typeCheck(this); // TODO: eliminate typeCheck (allow access to private methods)
+                        X10MethodInstance methodInstance = (X10MethodInstance) c.methodInstance();
+                        methodInstance = instantiate(mi, methodInstance);
+                        c = (X10Call) c.methodInstance(methodInstance);
+                        // c = (X10Call) c.typeCheck(this); // can't do this since we inline method that refer to private fields
+                        return c;
                     } else if (ie instanceof Field) {
                         Field f = (Field) ie;
                         if (f.isTargetImplicit()) {
-                            f = (Field) f.targetImplicit(false);
+                            f = f.targetImplicit(false);
                         }
-                        return f.typeCheck(this); // TODO: eliminate typeCheck (allow access to private fields)
-                     // return f;                 // could this work?  looks like not!
+                        f = f.fieldInstance(instantiate(mi, (X10FieldInstance) f.fieldInstance()));
+                        // f = (Field) f.typeCheck(this); // can we do this ??
+                        return f;
                     } else if (ie instanceof Local) {
                         LocalDef ld = vars.get(((Local) ie).name().id());
                         if (ld != null) {
@@ -588,6 +698,12 @@ public class Inliner extends ContextVisitor {
                         throw new InternalCompilerError("Inlining of code with instantiated local classes not supported");
                     }
                 }
+                if (n instanceof FieldDecl) {
+                    FieldDecl d = (FieldDecl) n;
+                    
+                    return d;
+                }
+                // TODO: handle fieldDecl (X10FieldDecl, PropertyDecl), ClosureLit, classDecl, constructorDecl, 
                 if (n instanceof X10MethodDecl) {
                     X10MethodDecl d = (X10MethodDecl) n;
                     boolean sigChanged = d.returnType() != ((X10MethodDecl) old).returnType();
@@ -614,7 +730,6 @@ public class Inliner extends ContextVisitor {
                     sigChanged |= d.offerType() != ((X10MethodDecl) old).offerType();
                     if (sigChanged) {
                         X10MethodDef md = (X10MethodDef) d.methodDef();
-                        X10TypeSystem xts = (X10TypeSystem) ts;
                         DepParameterExpr g = d.guard();
                         TypeNode ot = d.offerType();
                         X10MethodDef imd = xts.methodDef(md.position(), md.container(), md.flags(), d.returnType().typeRef(),
@@ -631,24 +746,14 @@ public class Inliner extends ContextVisitor {
     }
 
     // TODO: generate a closure call instead of a statement expression // is this still necessary?
-    private Expr rewriteInlinedBody(Position pos, Type retType, List<Formal> formals, Block body, LocalDecl ths, List<Expr> args) {
-        boolean clashes = false;
-        for (Expr a : args) {
-            X10SearchVisitor<X10Local_c> xLocals = new X10SearchVisitor<X10Local_c>(X10Local_c.class);
-            a.visit(xLocals);
-            if (!xLocals.found()) continue;
-            ArrayList<X10Local_c> locals = xLocals.getMatches();
-            for (X10Local_c t : locals) {
-                Name name = t.localInstance().name();
-                for (Formal f : formals) {
-                    if (f.name().id().equals(name)) clashes = true;
-                }
-            }
-        }
-
+    private Expr rewriteInlinedBody(Position pos, Type retType, List<Formal> formals, Block body, LocalDecl thisArg, LocalDecl thisFormal, List<Expr> args) {
+        
+        // Create statement expression from body.
+        // body is in normal form:
+        //   1) last statement in body is a return statement, and
+        //   2) this is the only return in the body.
         List<Stmt> bodyStmts = body.statements();
         assert (bodyStmts.get(bodyStmts.size()-1) instanceof Return) : "Last statement is not a return";
-        // We know that the last statement has to be a return
         Return ret = (Return) bodyStmts.get(bodyStmts.size()-1);
         List<Stmt> statements = new ArrayList<Stmt>();
         for (Stmt stmt : bodyStmts) {
@@ -658,42 +763,59 @@ public class Inliner extends ContextVisitor {
         }
         Expr e = ret.expr();
         if (null != e)
-            e = cast(e, retType);
+            e = createCast(e.position(), e, retType);
+        StmtExpr result = syn.createStmtExpr(pos, statements, e);
 
-        X10NodeFactory xnf = (X10NodeFactory) nodeFactory();
-        X10TypeSystem xts = (X10TypeSystem) typeSystem();
-        Synthesizer synth = new Synthesizer(xnf, xts);
-        StmtExpr result = (StmtExpr) xnf.StmtExpr(pos, statements, e).type(retType);
-
+        // create declarations to prepend to result
         List<Stmt> declarations = new ArrayList<Stmt>();
-        if (ths != null) {
-            declarations.add(ths);
+        if (thisArg != null) { // declare temporary for "this" arg, if call isn't static
+            declarations.add(thisArg);
         }
-        LocalDef[] alt = null;
-        if (clashes) {
-            alt = new LocalDef[args.size()];
-            int i = 0;
-            for (Expr a : args) {
-                Type fType = formals.get(i).type().type();
-                Name tmp = Name.makeFresh();
-                alt[i] = xts.localDef(pos, xts.Final(), Types.ref(fType), tmp);
-                declarations.add(synth.makeLocalVar(pos, alt[i], a));
-                i++;
-            }
+        // initialize temporaries to args
+        LocalDecl[] temps = new LocalDecl[args.size()];
+        for (int i=0; i<temps.length; i++) {
+            Expr a = args.get(i);
+            temps[i] = syn.createLocalDecl(a.position(), Flags.FINAL, Name.makeFresh(), a);
+            tieLocalDefToItself(temps[i].localDef());
+            declarations.add(temps[i]);
         }
-        int i = 0;
-        for (Expr a : args) {
-            Formal f = formals.get(i);
-            Expr v = clashes ? local(pos, alt[i]) : a;
-            declarations.add(synth.makeLocalVar(pos, f.localDef(), v));
-            i++;
+        if (thisFormal != null) { // declare local for "this" parameter, if method isn't static
+            declarations.add(thisFormal);
+        }
+        // initialize new locals (transformed formals) to temporaries (args)
+        for (int i=0; i<temps.length; i++) {
+            LocalDecl temp   = temps[i];
+            X10Formal formal = (X10Formal) formals.get(i);
+            Expr value       = createCast(temp.position(), syn.createLocal(temp.position(), temp), formal.type().type());
+            LocalDecl local  = syn.transformFormalToLocalDecl(formal, value); 
+            tieLocalDefToItself(local.localDef());
+            tieLocalDef(local.localDef(), temp.localDef());
+            declarations.add(local);
         }
 
-        return result.prepend(declarations);
+        result = result.prepend(declarations);
+        return result;
+    }
+
+    /**
+     * @param d
+     */
+    private void tieLocalDefToItself(LocalDef d) {
+        tieLocalDef(d, d);
+    }
+
+    private void tieLocalDef(LocalDef d, LocalDef o) {
+        Type type = Types.get(d.type());
+        try {
+            type = X10TypeMixin.addSelfBinding(type, XTerms.makeLocal(XTerms.makeName(o, o.name().toString())) );
+        } catch (XFailure e) {
+        }
+        ((Ref<Type>)d.type()).update(type);
     }
 
     /**
      * Rewrites a given closure so that it has exactly one return statement at the end.
+     * Also, replaces "this" parameter by a local variable.
      * @author igor
      * TODO: factor out into its own class
      */
@@ -760,8 +882,9 @@ public class Inliner extends ContextVisitor {
                             xnf.CanonicalTypeNode(pos, ret.type()),
                             xnf.Id(pos, ret.name())).localDef(ret));
             }
-            newBody.add(xnf.Labeled(pos, xnf.Id(pos, label),
-                        xnf.Do(pos, body, (Expr) xnf.BooleanLit(pos, false).typeCheck(this))));
+            newBody.add(xnf.Labeled( pos, 
+                                     xnf.Id(pos, label),
+                                     xnf.Do(pos, body, syn.createFalse(pos)) )); 
             if (ret != null) {
                 Expr rval = xnf.Local(pos, xnf.Id(pos, ret.name())).localInstance(ret.asInstance()).type(ret.type().get());
                 newBody.add(xnf.Return(pos, rval));
