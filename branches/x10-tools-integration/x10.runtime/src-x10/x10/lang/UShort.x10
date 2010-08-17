@@ -439,7 +439,12 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "x10.core.Floats.toUShort(#1)")
     @Native("c++",  "((x10_ushort) (#1))")
-    public static safe operator (x:Float) as UShort = UShort(x as Short);
+    public static safe operator (x:Float) as UShort {
+        val temp : Int = x as Int;
+        if (temp > 0xffff) return UShort(0xffff as Byte);
+        else if (temp < 0) return UShort(0);
+        else return UShort(temp as Short);
+    }
 
     /**
      * Convert a given Double to a UShort.
@@ -448,7 +453,12 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "x10.core.Floats.toUShort(#1)")
     @Native("c++",  "((x10_ushort) (#1))")
-    public static safe operator (x:Double) as UShort = UShort(x as Short);
+    public static safe operator (x:Double) as UShort {
+        val temp : Int = x as Int;
+        if (temp > 0xffff) return UShort(0xffff as Byte);
+        else if (temp < 0) return UShort(0);
+        else return UShort(temp as Short);        
+    }
 
     /**
      * Coerce a given Short to a UShort.
@@ -463,14 +473,14 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
     /**
      * A constant holding the minimum value a UShort can have, 0.
      */
-    @Native("java", "((short)0)")
+    // @Native("java", "((short)0)")
     @Native("c++", "((x10_ushort)0U)")
     public const MIN_VALUE = 0 as UShort;
 
     /**
      * A constant holding the maximum value a UShort can have, 2<sup>16</sup>-1.
      */
-    @Native("java", "((short)0xffff)")
+    // @Native("java", "((short)0xffff)")
     @Native("c++", "((x10_ushort)0xffffU)")
     public const MAX_VALUE = 0xffff as UShort;
 
@@ -605,5 +615,5 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public global safe def equals(x:UShort):Boolean = this.shortVal.equals(x.shortVal);
+    public global safe def equals(x:UShort):Boolean = this.shortVal == x.shortVal;
 }

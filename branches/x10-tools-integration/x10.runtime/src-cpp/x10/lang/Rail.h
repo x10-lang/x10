@@ -269,8 +269,8 @@ namespace x10 {
                                                                                                               &Rail<T>::typeName);
         
         template <class T> x10aux::itable_entry x10::lang::Rail<T>::_itables[3] = {
-            x10aux::itable_entry(&x10::lang::Iterable<T>::rtt, &x10::lang::Rail<T>::_itable_iterable),
-            x10aux::itable_entry(&x10::lang::Settable<x10_int, T>::rtt, &x10::lang::Rail<T>::_itable_iterable),
+            x10aux::itable_entry(&x10aux::getRTT<x10::lang::Iterable<T> >, &x10::lang::Rail<T>::_itable_iterable),
+            x10aux::itable_entry(&x10aux::getRTT<x10::lang::Settable<x10_int, T> >, &x10::lang::Rail<T>::_itable_iterable),
             x10aux::itable_entry(NULL,  (void*)x10aux::getRTT<Rail<T> >())
         };
 

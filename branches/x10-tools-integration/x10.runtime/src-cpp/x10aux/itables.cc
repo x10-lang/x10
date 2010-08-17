@@ -16,7 +16,21 @@
 using namespace x10aux;
 using namespace x10::lang;
 
-void* x10aux::outlinedITableLookup(itable_entry* itables, RuntimeType* targetInterface) {
+void* x10aux::outlinedITableLookup(itable_entry* itables, const RuntimeType* targetInterface) {
+    // First walk through itables and force RTT initialization
+    for (int i=0; true; i++) {
+        if (NULL == itables[i].initFunction) {
+            // Have hit the end of the itables; done forcing initialization
+            break;
+        }
+        if (NULL == itables[i].id) {
+            itables[i].id = (itables[i].initFunction)();
+            if (itables[i].id == targetInterface) {
+                return itables[i].itable;
+            }
+        }
+    }
+
     if (targetInterface->paramsc > 0) {
         // Have to look again considering type parameters.
         // Note: it would be wrong to just call subtypeOf(itables[i].id, targetInterface)

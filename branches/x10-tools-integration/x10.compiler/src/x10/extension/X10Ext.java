@@ -20,6 +20,7 @@ import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.types.ClassType;
+import polyglot.types.QName;
 import polyglot.types.Type;
 import x10.ast.AnnotationNode;
 import x10.types.X10ClassType;
@@ -53,6 +54,7 @@ public interface X10Ext extends Ext {
     public List<AnnotationNode> annotations();
     public List<X10ClassType> annotationTypes();
     public List<X10ClassType> annotationMatching(Type t);
+    public List<X10ClassType> annotationNamed(QName fullName);
     
     /**
      * Set the annotations.

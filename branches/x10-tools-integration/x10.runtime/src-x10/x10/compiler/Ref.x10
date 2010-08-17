@@ -9,19 +9,12 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-package x10.ast;
+package x10.compiler;
 
-import java.util.List;
+import x10.lang.annotations.StatementAnnotation;
 
-import polyglot.ast.New;
-import polyglot.ast.TypeNode;
-
-public interface X10New extends New, X10ProcedureCall {
-	List<TypeNode> typeArguments();
-
-	X10New typeArguments(List<TypeNode> args);
-
-	boolean newOmitted();
-
-	X10New newOmitted(boolean val);
+/**
+ * @Ref(v) may be used to annotate an async to specify that variable v should be captured by reference. */
+public interface Ref[T](id:T)
+    extends StatementAnnotation {
 }

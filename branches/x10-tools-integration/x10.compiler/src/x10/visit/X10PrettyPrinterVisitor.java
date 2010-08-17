@@ -1629,7 +1629,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    if (xts.isRail(c.target().type()) || xts.isValRail(c.target().type())) {
 	        String methodName = c.methodInstance().name().toString();
 	        if (methodName.equals("make")) {
-	            Type rt = X10TypeMixin.baseType(ptype);
+	            Type rt = X10TypeMixin.baseType(c.type());
 	            if (rt instanceof X10ClassType) {
 	                Type pt = ((X10ClassType) rt).typeArguments().get(0);
 	                if (!(X10TypeMixin.baseType(pt) instanceof ParameterType)) {
@@ -1645,13 +1645,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	                                tr2 = tr2.context(expr.enterScope(tr2.context()));
 	                                
 	                                final Expander ex;
-	                                if (pt.isBoolean() || pt.isNumeric() || pt.isChar()) {
-	                                    ex = new TypeExpander(er, pt, false, false, false);
-	                                } else {
-	                                    ex = new Expander(er) {
-	                                        public void expand(Translator tr2) {w.write("Object");}
-	                                    };
-	                                }
+	                                ex = new TypeExpander(er, pt, false, false, false);
 	                                final Node n = c;
 	                                final Id id = closure.formals().get(0).name();
 	                                Expander ex1 = new Expander(er) {
@@ -1878,10 +1872,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 //			}
 			else {
 			        if (e.type().isBoolean() || e.type().isNumeric() || e.type().isChar()) {
+			            // e.g) m((Integer) a) for m(T a)
 			            if (X10TypeMixin.baseType(c.methodInstance().formalTypes().get(i)) instanceof ParameterType) {
 			                w.write("(");
 			                er.printType(e.type(), BOX_PRIMITIVES);
 			                w.write(")");
+			            // e.g) m((int) a) for m(int a)
 			            } else {
 			                w.write("(");
 			                er.printType(e.type(), 0);
@@ -1915,9 +1911,18 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			                }
 			            }
 			            w.write("(");
-			        } 
-			        c.print(e, w, tr);
-			        if (e.type().isBoolean() || e.type().isNumeric() || e.type().isChar()) {
+			            c.print(e, w, tr);
+                                    w.write(")");
+			        }
+			        // XTENLANG-1704
+			        else {
+			            w.write("(");
+			            w.write("(");
+			            er.printType(mi.formalTypes().get(i), 0);
+			            w.write(")");
+			            w.write("(");
+			            c.print(e, w, tr);
+			            w.write(")");
 			            w.write(")");
 			        }
 			}
@@ -3039,22 +3044,32 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         Binary.Operator op = n.operator();
 
         boolean asPrimitive = false;
+        boolean asUnsignedPrimitive = false;
         if (op == Binary.EQ || op == Binary.NE) {
             if (l.isNumeric() && r.isNumeric() || l.isBoolean() && r.isBoolean() || l.isChar() && r.isChar()) {
                 asPrimitive = true;
+
+                if (l.isNumeric() && !(l.isByte() || l.isShort() || l.isInt() || l.isLong() || l.isFloat() || l.isDouble())) {
+                    asUnsignedPrimitive = true;
+                }
             }
         }
 
         if (asPrimitive) {
+            if (asUnsignedPrimitive && (op == Binary.NE)) w.write("!");
             w.write("((");
             er.printType(l, 0);
             w.write(") ");
         }
         n.printSubExpr(left, true, w, tr);
         if (asPrimitive) w.write(")");
-        w.write(" ");
-        w.write(op.toString());
-        w.allowBreak(n.type() == null || n.type().isPrimitive() ? 2 : 0, " ");
+        if (asUnsignedPrimitive) {
+            w.write(".equals(");
+        } else {
+            w.write(" ");
+            w.write(op.toString());
+            w.allowBreak(n.type() == null || n.type().isPrimitive() ? 2 : 0, " ");
+        }
         if (asPrimitive) {
             w.write("((");
             er.printType(r, 0);
@@ -3062,6 +3077,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         }
         n.printSubExpr(right, false, w, tr);
         if (asPrimitive) w.write(")");
+        if (asUnsignedPrimitive) w.write(")");
     }
 
     public void visit(X10Binary_c n) {
