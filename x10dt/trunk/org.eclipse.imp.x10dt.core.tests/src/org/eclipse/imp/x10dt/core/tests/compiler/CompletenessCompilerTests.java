@@ -59,7 +59,7 @@ public class CompletenessCompilerTests extends CompilerTestsBase {
 
 	@Test
 	public void compilerTest() throws Exception {
-		String sourcepath = getRuntimeJar() + ":" + DATA_PATH;
+		String sourcepath = getRuntimeJar() + File.pathSeparatorChar + DATA_PATH;
 		
 		//Submit everything to the compiler at once
 		System.err.println("***Compiling all files");

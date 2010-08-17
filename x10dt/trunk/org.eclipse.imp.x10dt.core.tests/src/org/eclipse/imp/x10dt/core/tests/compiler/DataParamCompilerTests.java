@@ -30,7 +30,7 @@ public class DataParamCompilerTests extends CompilerTestsBase {
 	 */
 	private static String DATA_PATH = "data" + File.separator + "pppp" + File.separator;
 	private static String LIB_PATH = ".." + File.separator + "x10.tests" + File.separator + "examples" + File.separator + "x10lib" + File.separator;
-	private static String SOURCE_PATH_BASE = getRuntimeJar() + ":" + LIB_PATH + ":" + DATA_PATH;
+	private static String SOURCE_PATH_BASE = getRuntimeJar() + File.pathSeparator + LIB_PATH + File.pathSeparator + DATA_PATH;
 
 	
 	

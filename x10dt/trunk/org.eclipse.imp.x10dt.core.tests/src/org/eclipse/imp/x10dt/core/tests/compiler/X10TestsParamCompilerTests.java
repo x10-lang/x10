@@ -29,7 +29,7 @@ public class X10TestsParamCompilerTests extends CompilerTestsBase {
 	 */
 	private static String DATA_PATH = ".." + File.separator+ "x10.tests" + File.separator + "examples" + File.separator;
 	private static String LIB_PATH = ".." + File.separator + "x10.tests" + File.separator + "examples" + File.separator + "x10lib" + File.separator;
-	private static String SOURCE_PATH_BASE = getRuntimeJar() + ":" + LIB_PATH;
+	private static String SOURCE_PATH_BASE = getRuntimeJar() + File.pathSeparator + LIB_PATH;
 
 	
 	/*
@@ -61,7 +61,7 @@ public class X10TestsParamCompilerTests extends CompilerTestsBase {
 
 	@Test(timeout=10000)
 	public void compilerTest() throws Exception {
-		String sourcepath = SOURCE_PATH_BASE + ":" + getCurrentDirsPath(sources);
+		String sourcepath = SOURCE_PATH_BASE + File.pathSeparator + getCurrentDirsPath(sources);
 		compile(sources, options, new ArrayList<ErrorInfo>(), sourcepath);
 	}
 
