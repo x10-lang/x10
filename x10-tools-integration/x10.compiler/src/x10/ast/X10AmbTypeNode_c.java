@@ -55,8 +55,7 @@ import x10.visit.X10TypeChecker;
  * dot-separated list of identifiers that must resolve to a type.
  */
 public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode, AddFlags {
-  public X10AmbTypeNode_c(Position pos, Prefix qual,
-                       Id name) {
+  public X10AmbTypeNode_c(Position pos, Prefix qual, Id name) {
     super(pos, qual, name);
     assert(name != null); // qual may be null
   }

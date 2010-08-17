@@ -91,9 +91,13 @@ public class X10Disamb_c extends Disamb_c {
 	    		catch (SemanticException ex) {
 	    		}
 
-                if (fi != null && vi instanceof FieldInstance && !c.inStaticContext()) {
+	    		if (fi != null && vi instanceof FieldInstance && !c.inStaticContext()) {
 	    		    Receiver e = makeMissingFieldTarget((FieldInstance) vi);
 	    		    throw new SemanticException("Ambiguous reference to field " + this.name + "; both self." + name + " and " + e + "." + name + " match.", pos);
+	    		}
+
+	    		if (fi == null && vi instanceof FieldInstance && c.inStaticContext()) {
+	    		    throw new SemanticException("Cannot access a non-static field "+this.name+" from a static context.", pos);
 	    		}
 
 	    		if (fi instanceof X10FieldInstance) {

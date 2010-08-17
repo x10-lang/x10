@@ -20,6 +20,7 @@ import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.types.ClassType;
+import polyglot.types.QName;
 import polyglot.types.Type;
 import polyglot.ast.Ext_c;
 import x10.ast.AnnotationNode;
@@ -76,6 +77,18 @@ public class X10Ext_c extends Ext_c implements X10Ext {
 		}
 		return l;
 	}
+    
+    public List<X10ClassType> annotationNamed(QName fullName) {
+        List<X10ClassType> l = new ArrayList<X10ClassType>();
+        for (Iterator<AnnotationNode> i = annotations().iterator(); i.hasNext(); ) {
+            AnnotationNode an = i.next();
+            X10ClassType ct = an.annotationInterface();
+            if (ct.fullName().equals(fullName)) {
+                l.add(ct);
+            }
+        }
+        return l;
+    }
     
     public X10Ext extAnnotations(List<AnnotationNode> annotations) {
     	X10Ext_c n = (X10Ext_c) copy();

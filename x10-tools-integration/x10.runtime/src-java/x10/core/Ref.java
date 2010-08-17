@@ -13,6 +13,7 @@ package x10.core;
 
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
+import x10.rtt.Types;
 import x10.runtime.impl.java.Thread;
 
 
@@ -78,9 +79,16 @@ public class Ref implements Any {
     public static String typeName(Object obj) {
         String s;
         if (obj instanceof Any) {
+            // unsigned numbers come here
             s = ((Any) obj).getRTT().typeName(obj);
+        } else if (obj instanceof Number) {
+            // @NativeRep'ed numeric primitive type
+            s = Types.getNativeRepRTT(obj).typeName();
+        } else if (obj instanceof String) {
+            // @NativeRep'ed String type
+            s = Types.STR.typeName();
         } else {
-            s = obj.getClass().toString().substring(6);
+            s = obj.getClass().toString().substring("class ".length());
             // TODO: create mapping table of @NativeRep'ed type to X10 type and use it.
             // TODO: unsigned types
             if (s.startsWith("java.")) {

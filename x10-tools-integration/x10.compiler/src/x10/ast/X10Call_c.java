@@ -19,28 +19,33 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import polyglot.ast.AmbTypeNode;
+import polyglot.ast.Ambiguous;
 import polyglot.ast.Call;
 import polyglot.ast.Call_c;
 import polyglot.ast.ClassBody;
+import polyglot.ast.Disamb;
 import polyglot.ast.Expr;
 import polyglot.ast.Id;
 import polyglot.ast.Local;
 import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.Prefix;
 import polyglot.ast.Receiver;
 import polyglot.ast.Special;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Variable;
-import polyglot.frontend.Job;
 import polyglot.main.Report;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.CodeDef;
+import polyglot.types.ConstructorDef;
+import polyglot.types.ConstructorInstance;
 import polyglot.types.Context;
+import polyglot.types.Def;
 import polyglot.types.ErrorRef_c;
 import polyglot.types.Flags;
+import polyglot.types.LazyRef;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
 import polyglot.types.Matcher;
@@ -82,19 +87,16 @@ import x10.types.X10LocalInstance;
 import x10.types.X10MemberDef;
 import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
+import x10.types.X10ParsedClassType;
 import x10.types.X10TypeSystem_c;
-
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.XTypeTranslator;
 import x10.types.checker.Checker;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
-import x10.types.constraints.XConstrainedTerm;
 import x10.types.matcher.DumbMethodMatcher;
 import x10.visit.X10TypeChecker;
-import x10cpp.postcompiler.CXXCommandBuilder;
-
 
 /**
  * Representation of an X10 method call.
@@ -143,8 +145,8 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 	/**
 	 * Looks up a method with given name and argument types.
 	 */
-	private Pair<MethodInstance,List<Expr>> findMethod(ContextVisitor tc, Type targetType,
-	        Name name, List<Type> typeArgs, List<Type> actualTypes) {
+	public static Pair<MethodInstance,List<Expr>> findMethod(ContextVisitor tc, X10ProcedureCall n,
+	        Type targetType, Name name, List<Type> typeArgs, List<Type> actualTypes) {
 	    X10MethodInstance mi;
 	    X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
 	    X10Context context = (X10Context) tc.context();
@@ -155,7 +157,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 	    SemanticException error = null;
 	    if (!haveUnknown) {
 	        try {
-	            return findMethod(tc, context, targetType, name, typeArgs, actualTypes, context.inStaticContext());
+	            return findMethod(tc, context, n, targetType, name, typeArgs, actualTypes, context.inStaticContext());
 	        } catch (SemanticException e) {
 	            error = e;
 	        }
@@ -187,18 +189,18 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 	        targetType = context.currentClass();
 	    mi = xts.createFakeMethod(targetType.toClass(), Flags.PUBLIC, name, typeArgs, actualTypes, error);
 	    if (rt != null) mi = mi.returnType(rt);
-	    return new Pair<MethodInstance, List<Expr>>(mi, this.arguments);
+	    return new Pair<MethodInstance, List<Expr>>(mi, n.arguments());
 	}
 
-	private Pair<MethodInstance,List<Expr>> findMethod(ContextVisitor tc, X10Context xc,
-			Type targetType, Name name, List<Type> typeArgs,
+	private static Pair<MethodInstance,List<Expr>> findMethod(ContextVisitor tc, X10Context xc,
+	        X10ProcedureCall n, Type targetType, Name name, List<Type> typeArgs,
 			List<Type> argTypes, boolean requireStatic) throws SemanticException {
 
 	    X10MethodInstance mi = null;
 	    X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
-	    if (targetType != null) {
+        if (targetType != null) {
 	        mi = xts.findMethod(targetType, xts.MethodMatcher(targetType, name, typeArgs, argTypes, xc));
-	        return new Pair<MethodInstance, List<Expr>>(mi, this.arguments);
+	        return new Pair<MethodInstance, List<Expr>>(mi, n.arguments());
 	    }
 	    if (xc.currentDepType() != null)
 	        xc = (X10Context) xc.pop();
@@ -228,12 +230,12 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 	        try {
 	            mi = xts.findMethod(t, xts.MethodMatcher(t, name, typeArgs, argTypes, xc));
 	            if (!requireStatic || mi.flags().isStatic())
-	                return new Pair<MethodInstance, List<Expr>>(mi, this.arguments);
+	                return new Pair<MethodInstance, List<Expr>>(mi, n.arguments());
 	        }
 	        catch (SemanticException e) {
 	            // Now, try to find the method with implicit conversions, making them explicit.
 	            try {
-	                Pair<MethodInstance,List<Expr>> p = tryImplicitConversions(this, tc, t, name().id(), typeArgs, argTypes);
+	                Pair<MethodInstance,List<Expr>> p = tryImplicitConversions(n, tc, t, name, typeArgs, argTypes);
 	                if (!requireStatic || p.fst().flags().isStatic())
 	                    return p;
 	            }
@@ -246,14 +248,14 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 	    while (xc.pop() != null && xc.pop().currentClass() == currentClass)
 	        xc = (X10Context) xc.pop();
 	    if (xc.pop() != null) {
-	        return findMethod(tc, (X10Context) xc.pop(), targetType, name, typeArgs, argTypes, currentClass.flags().isStatic());
+	        return findMethod(tc, (X10Context) xc.pop(), n, targetType, name, typeArgs, argTypes, currentClass.flags().isStatic());
 	    }
 
 	    TypeSystem_c.MethodMatcher matcher = xts.MethodMatcher(targetType, name, typeArgs, argTypes, xc);
-	    throw new Errors.MethodOrStaticConstructorNotFound(matcher, position());
+	    throw new Errors.MethodOrStaticConstructorNotFound(matcher, n.position());
 	}
 
-	private Collection<X10MethodInstance> findMethods(ContextVisitor tc, Type targetType, Name name, List<Type> typeArgs,
+	private static Collection<X10MethodInstance> findMethods(ContextVisitor tc, Type targetType, Name name, List<Type> typeArgs,
 	        List<Type> actualTypes) throws SemanticException {
 	    X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
 	    X10Context context = (X10Context) tc.context();
@@ -264,85 +266,142 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 	    return xts.findMethods(targetType, xts.MethodMatcher(targetType, name, typeArgs, actualTypes, context));
 	}
 
+    private Type resolveType(ContextVisitor tc, Position pos, Receiver r, Name name) {
+        X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
+        X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+
+        TypeNode otn;
+        List<TypeNode> typeArgs = typeArguments();
+        Id nameNode = nf.Id(pos, name);
+        LazyRef<? extends Type> tRef = Types.lazyRef(ts.unknownType(pos));
+        if (typeArgs.size() > 0) {
+            otn = nf.AmbMacroTypeNode(pos, r, nameNode, typeArgs, Collections.<Expr>emptyList()).typeRef(tRef);
+        } else {
+            otn = nf.AmbTypeNode(pos, r, nameNode).typeRef(tRef);
+        }
+
+        TypeNode tn = disambiguateTypeNode(tc, (Ambiguous) otn, pos, r, nameNode);
+        if (tn == null)
+            return null;
+
+        Type t = tn.type();
+        // FIXME: why should these be different?
+        if (typeArgs.size() > 0) {
+            return ambMacroTypeNodeType(tc, t, typeArgs);
+        } else {
+            return ambTypeNodeType(tc, t);
+        }
+    }
+    
+    private static Type ambTypeNodeType(ContextVisitor tc, Type t) {
+        
+        X10Context c = (X10Context) tc.context();
+        X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+        
+        t = ts.expandMacros(t);
+        
+        if (t instanceof ParameterType) {
+            ParameterType pt = (ParameterType) t;
+            Def def = Types.get(pt.def());
+            boolean inConstructor = false;
+            if (c.currentCode() instanceof ConstructorDef) {
+                ConstructorDef td = (ConstructorDef) c.currentCode();
+                Type container = Types.get(td.container());
+                if (container instanceof X10ClassType) {
+                    X10ClassType ct = (X10ClassType) container;
+                    if (ct.def() == def) {
+                        inConstructor = true;
+                    }
+                }
+            }
+            if (c.inStaticContext() && def instanceof ClassDef && ! inConstructor) {
+                return null;
+            }
+        }
+        
+        try {
+            X10CanonicalTypeNode_c.checkType(tc.context(), t, Position.COMPILER_GENERATED);
+        } catch (SemanticException e) {
+            return null;
+        }
+        
+        if (t.isClass()) {
+            ClassType ct = t.toClass();
+            if (ct.isTopLevel() || ct.isMember()) {
+                if (!ts.classAccessible(ct.def(), c)) {
+                    return null;
+                }
+            }
+        }
+        
+        return t;
+    }
+    
+    private static Type ambMacroTypeNodeType(ContextVisitor tc, Type t, List<TypeNode> typeArgs) {
+        
+        if (t instanceof UnknownType) {
+            return null;
+        }
+        
+        if (!typeArgs.isEmpty() && t instanceof X10ParsedClassType) {
+            X10ParsedClassType ct = (X10ParsedClassType) t;
+            int numParams = ct.x10Def().typeParameters().size();
+            if (numParams != typeArgs.size())
+                return null;
+            List<Type> typeArgsTypes = new ArrayList<Type>(numParams);
+            for (TypeNode tni : typeArgs) {
+                typeArgsTypes.add(tni.type());
+            }
+            return ct.typeArguments(typeArgsTypes);
+        }
+        
+        return t;
+    }
+    
+    private static TypeNode disambiguateTypeNode(ContextVisitor tc,
+            Ambiguous otn, Position pos, Prefix prefix, Id name) {
+        TypeNode tn = null;
+        try {
+            // Look for a simply-named type.
+            Disamb disamb = tc.nodeFactory().disamb();
+            Node n = disamb.disambiguate(otn, tc, pos, prefix, name);
+            if (n instanceof TypeNode)
+                tn = (TypeNode) n;
+        } catch (SemanticException e) { }
+        return tn;
+    }
+
     /**
-	 * First try for a struct constructor, and then look for a static method.
-	 * @param tc
-	 * @param typeArgs
-	 * @param argTypes
-	 * @param args
-	 * @return
-	 * @throws SemanticException
-	 */
-	protected X10New findStructConstructor(ContextVisitor tc, Receiver r, List<Type> typeArgs, List<Type> argTypes, List<Expr> args) {
-	    try {
-	        X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
-	        X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-	        Context c = tc.context();
+     * First try for a struct constructor, and then look for a static method.
+     * @param tc
+     * @param typeArgs
+     * @param argTypes
+     * @param args
+     * @return
+     * @throws SemanticException
+     */
+    protected X10New findStructConstructor(ContextVisitor tc, Receiver r, List<Type> typeArgs, List<Type> argTypes, List<Expr> args) {
+        X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
+        Type t = resolveType(tc, position(), r, name().id());
+        if (t == null)
+            return null;
+        if (X10TypeMixin.isX10Struct(t)) {
+            X10New_c neu = (X10New_c) nf.X10New(position(), nf.CanonicalTypeNode(position(), t), Collections.EMPTY_LIST, args);
+            neu = (X10New_c) neu.newOmitted(true);
+            Pair<ConstructorInstance, List<Expr>> p = X10New_c.findConstructor(tc, neu, t, argTypes);
+            X10ConstructorInstance ci = (X10ConstructorInstance) p.fst();
+            if (ci.error() != null)
+                return null;
 
-	        // TODO: Actually, determine if there is a struct with the given name,
-	        // and able to accept given typeargs and args.
-	        //ts.existsStructWithName(name(), tc);
-	        /*
-				// ok so it is a struct type. Now create the return type.
-				tn = nf.AmbDepTypeNode(position(), null, name(), typeArguments, Collections.EMPTY_LIST, null);
-				ContextVisitor childtc = tc;
-				tn = (TypeNode) this.visitChild(tn, childtc);
-				if (tn.type() instanceof UnknownType) { // bail
-					throw new SemanticException();
-				}
-
-				t = tn.type();
-				t = ts.expandMacros(t);
-
-				xc = X10TypeMixin.xclause(t);
-				t = X10TypeMixin.baseType(t);
-
-				if (!(ts.isStructType(t))) { // bail
-					throw new SemanticException();
-				}
-
-				tn = (TypeNode) tn.visit(tb);
-				// First ensure that there is a type associated with tn.
-				tn = (TypeNode) tn.disambiguate(tc);
-				tn = (TypeNode) tn.typeCheck(tc);
-				Type t = tn.type();
-				t = ts.expandMacros(t);
-				tn = tn.typeRef(Types.lazyRef(t));
-	         */
-
-	        TypeNode otn;
-	        if (typeArguments().size() > 0) {
-	            otn = nf.AmbMacroTypeNode(position(), r, name(), typeArguments(), Collections.EMPTY_LIST);
-	        }
-	        else {
-	            otn = nf.AmbTypeNode(position(), r, name());
-	        }
-
-	        otn = otn.typeRef(Types.lazyRef(ts.unknownType(position())));
-	        TypeNode tn2 = (TypeNode) otn.del().typeCheckOverride(this, tc);
-	        if (tn2 == null) {
-	            otn = (TypeNode) otn.del().disambiguate(tc).del().typeCheck(tc);
-	        }
-	        else {
-	            otn = tn2;
-	        }
-	        if (X10TypeMixin.isX10Struct(otn.type())) {
-	            X10New_c neu = (X10New_c) nf.X10New(position(), otn, Collections.EMPTY_LIST, args);
-	            neu.setStructConstructorCall();
-
-	            neu = (X10New_c) neu.del().disambiguate(tc).del().typeCheck(tc);
-	            return neu;
-	        }
-	    } catch (SemanticException z) {
-	        // TBD: Sometimes this is the real error. e.g. the only legitimate target is the
-	        // struct call. We should record this exception and then come back and use this later
-	        // if necessary.
-	        // This may have caused some errors to print out.
-	        // FIXME: remove this field
-	        typeCheckNullTargetException = z;
-	    }
-	    return null;
-	}
+            try {
+                neu = (X10New_c) neu.typeCheck1(tc);
+                return neu;
+            } catch (SemanticException cause) {
+                throw new InternalCompilerError("Unexpected exception when typechecking "+neu, neu.position(), cause);
+            }
+        }
+        return null;
+    }
 
     private Receiver computeReceiver(ContextVisitor tc, X10MethodInstance mi) {
         X10TypeSystem xts = (X10TypeSystem) ((X10TypeSystem) tc.typeSystem());
@@ -350,36 +409,34 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
         X10Context c = (X10Context) tc.context();
         Position prefixPos = position().startOf().markCompilerGenerated();
         try {
-        if (mi.flags().isStatic()) {
-            Type container = findContainer(xts, mi);
-            XVar thisVar = getThis(container);
-            if (thisVar != null)
-                container = X10TypeMixin.setSelfVar(container, thisVar);
-            return nf.CanonicalTypeNode(prefixPos, container).typeRef(Types.ref(container));
-        } else {
-            // The method is non-static, so we must prepend with "this", but we
-            // need to determine if the "this" should be qualified.  Get the
-            // enclosing class which brought the method into scope.  This is
-            // different from mi.container().  mi.container() returns a super type
-            // of the class we want.
-            Type scope = c.findMethodScope(name.id());
-            if (! xts.typeEquals(scope, c.currentClass(), c)) {
-                XVar thisVar = getThis(scope);
+            if (mi.flags().isStatic()) {
+                Type container = findContainer(xts, mi);
+                XVar thisVar = getThis(container);
                 if (thisVar != null)
-                    scope = X10TypeMixin.setSelfVar(scope, thisVar);
-                return (Special) nf.This(prefixPos,
-                        nf.CanonicalTypeNode(prefixPos, scope)).del().typeCheck(tc);
+                    container = X10TypeMixin.setSelfVar(container, thisVar);
+                return nf.CanonicalTypeNode(prefixPos, container).typeRef(Types.ref(container));
+            } else {
+                // The method is non-static, so we must prepend with "this", but we
+                // need to determine if the "this" should be qualified.  Get the
+                // enclosing class which brought the method into scope.  This is
+                // different from mi.container().  mi.container() returns a super type
+                // of the class we want.
+                Type scope = c.findMethodScope(name.id());
+                if (!xts.typeEquals(scope, c.currentClass(), c)) {
+                    XVar thisVar = getThis(scope);
+                    if (thisVar != null)
+                        scope = X10TypeMixin.setSelfVar(scope, thisVar);
+                    return (Special) nf.This(prefixPos,
+                            nf.CanonicalTypeNode(prefixPos, scope)).del().typeCheck(tc);
+                }
+                else {
+                    return (Special) nf.This(prefixPos).del().typeCheck(tc);
+                }
             }
-            else {
-                return (Special) nf.This(prefixPos).del().typeCheck(tc);
-            }
-        }
         } catch (SemanticException e) {
             throw new InternalCompilerError("Unexpected error while computing receiver", position(), e);
         }
     }
-
-    SemanticException typeCheckNullTargetException = null;
 
     protected X10Call typeCheckNullTargetForMethod(ContextVisitor tc, List<Type> typeArgs, List<Type> argTypes, X10MethodInstance mi, List<Expr> args) throws SemanticException {
 		Receiver r = computeReceiver(tc, mi);
@@ -441,14 +498,12 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		if (mi != null && ((X10MethodInstance)mi).isValid()) // already typechecked
 		    return this;
 
-        Name name = this.name().id();
-
-        X10TypeChecker xtc = X10TypeChecker.getTypeChecker(tc).throwExceptions(true);
+		Name name = this.name().id();
 
 		Expr cc = null;
 
-        {
-		    // Check if target.name is a field or local of function type;
+		{
+			// Check if target.name is a field or local of function type;
 			// if so, convert to a closure call.
 			X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
 			X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
@@ -491,52 +546,52 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 			            //        name()).fieldInstance(fi).targetImplicit(target()==null).type(fi.type());
 			            e = xnf.Field(new Position(target.position(), name().position()), target,
 			                    name()).fieldInstance(fi).targetImplicit(target()==null);
-                        e = (Expr) e.del().typeCheck(tc);
-                        e = (Expr) e.del().checkConstants(tc);
+			            e = (Expr) e.del().typeCheck(tc);
+			            e = (Expr) e.del().checkConstants(tc);
 			        } catch (SemanticException cause) {
-                        throw new InternalCompilerError("Unexpected exception when typechecking "+e, e.position(), cause);
+			            throw new InternalCompilerError("Unexpected exception when typechecking "+e, e.position(), cause);
 			        }
 			    }
 			}
 
-            if (e != null) {
-                assert typeArguments().size() == 0;
-                List<Type> typeArgs = Collections.emptyList();
-                List<Type> actualTypes = new ArrayList<Type>(arguments().size());
-                for (Expr ei : arguments()) {
-                    actualTypes.add(ei.type());
-                }
-                // First try to find the method without implicit conversions.
-                X10MethodInstance ci = ClosureCall_c.findAppropriateMethod(tc, e.type(), Name.make("apply"), typeArgs, actualTypes);
-                List<Expr> args = this.arguments;
-                if (ci.error() != null) {
-                    // Now, try to find the method with implicit conversions, making them explicit.
-                    try {
-                        Pair<MethodInstance,List<Expr>> p = X10Call_c.tryImplicitConversions(this, tc, e.type(), Name.make("apply"), typeArgs, actualTypes);
-                        ci = (X10MethodInstance) p.fst();
-                        args = p.snd();
-                    }
-                    catch (SemanticException se) { }
-                }
-                if (ci.error() != null) {
-                    // Check for this case:
-                    // val x = x();
-                    if (e instanceof Local && e.type() instanceof UnknownType) {
-                        throw new SemanticException("Possible closure call on uninitialized variable " + ((Local) e).name() + ".", position());
-                    }
-                } else {
-                    ClosureCall ccx = nf.ClosureCall(position(), e,  arguments()).closureInstance(ci);
-                    Node n = ccx;
-                    try {
-                        //n = n.del().disambiguate(tc);
-                        n = n.del().typeCheck(tc);
-                        cc = (Expr) n;
-                    }
-                    catch (SemanticException cause) {
-                        throw new InternalCompilerError("Unexpected exception when typechecking "+ccx, ccx.position(), cause);
-                    }
-                }
-            }
+			if (e != null) {
+			    assert typeArguments().size() == 0;
+			    List<Type> typeArgs = Collections.emptyList();
+			    List<Type> actualTypes = new ArrayList<Type>(arguments().size());
+			    for (Expr ei : arguments()) {
+			        actualTypes.add(ei.type());
+			    }
+			    // First try to find the method without implicit conversions.
+			    X10MethodInstance ci = ClosureCall_c.findAppropriateMethod(tc, e.type(), Name.make("apply"), typeArgs, actualTypes);
+			    List<Expr> args = this.arguments;
+			    if (ci.error() != null) {
+			        // Now, try to find the method with implicit conversions, making them explicit.
+			        try {
+			            Pair<MethodInstance,List<Expr>> p = X10Call_c.tryImplicitConversions(this, tc, e.type(), Name.make("apply"), typeArgs, actualTypes);
+			            ci = (X10MethodInstance) p.fst();
+			            args = p.snd();
+			        }
+			        catch (SemanticException se) { }
+			    }
+			    if (ci.error() != null) {
+			        // Check for this case:
+			        // val x = x();
+			        if (e instanceof Local && e.type() instanceof UnknownType) {
+			            throw new SemanticException("Possible closure call on uninitialized variable " + ((Local) e).name() + ".", position());
+			        }
+			    } else {
+			        ClosureCall ccx = nf.ClosureCall(position(), e,  arguments()).closureInstance(ci);
+			        Node n = ccx;
+			        try {
+			            //n = n.del().disambiguate(tc);
+			            n = n.del().typeCheck(tc);
+			            cc = (Expr) n;
+			        }
+			        catch (SemanticException cause) {
+			            throw new InternalCompilerError("Unexpected exception when typechecking "+ccx, ccx.position(), cause);
+			        }
+			    }
+			}
 		}
 
 		// We have a cc and a valid call with no target. The one with //todo: fill in this comment
@@ -551,15 +606,15 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 			}
 		}
 
-        if (target instanceof TypeNode) {
-            Type t = ((TypeNode) target).type();
-            t = X10TypeMixin.baseType(t);
-            if (t instanceof ParameterType) {
-                throw new SemanticException("Cannot invoke a static method of a type parameter.", position());
-            }
-        }
+		if (target instanceof TypeNode) {
+		    Type t = ((TypeNode) target).type();
+		    t = X10TypeMixin.baseType(t);
+		    if (t instanceof ParameterType) {
+		        throw new SemanticException("Cannot invoke a static method of a type parameter.", position());
+		    }
+		}
 
-        List<Type> typeArgs = new ArrayList<Type>(this.typeArguments.size());
+		List<Type> typeArgs = new ArrayList<Type>(this.typeArguments.size());
 		for (TypeNode tn : this.typeArguments) {
 		    typeArgs.add(tn.type());
 		}
@@ -571,7 +626,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		}
 
 		// TODO: Need to try struct call with implicit conversions as well.
-		X10New structCall = findStructConstructor(xtc, target, typeArgs, argTypes, arguments);
+		X10New structCall = findStructConstructor(tc, target, typeArgs, argTypes, arguments);
 		// We have both a struct constructor and a closure call.  Spec section 8.2.
 		if (structCall != null && cc != null) {
 		    throw new Errors.AmbiguousCall(structCall.constructorInstance(), cc, position());
@@ -581,7 +636,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		X10MethodInstance mi = null;
 		List<Expr> args = null;
 		// First try to find the method without implicit conversions.
-		Pair<MethodInstance, List<Expr>> p = findMethod(tc, targetType, name, typeArgs, argTypes);
+		Pair<MethodInstance, List<Expr>> p = findMethod(tc, this, targetType, name, typeArgs, argTypes);
 		mi = (X10MethodInstance) p.fst();
 		args = p.snd();
 		if (mi.error() != null) {

@@ -11,6 +11,8 @@
 
 package x10.rtt;
 
+import x10.core.fun.Fun_0_1;
+
 
 public class Types {
     public static boolean instanceof$(Type<?> t, Object o) {
@@ -38,28 +40,47 @@ public class Types {
     public static Type<Character> CHAR = new CharType();
     public static Type<Integer> INT = new IntType();
     public static Type<Long> LONG = new LongType();
-    public static Type<Byte> UBYTE;
-    public static Type<Short> USHORT;
-    public static Type<Integer> UINT;
-    public static Type<Long> ULONG;
     public static Type<Float> FLOAT = new FloatType();
     public static Type<Double> DOUBLE = new DoubleType();
 
+    public static RuntimeType<Comparable<?>> COMPARABLE;
     static {
         try {
-            UBYTE = new UByteType(Class.forName("x10.lang.UByte"));
-            USHORT = new UShortType(Class.forName("x10.lang.UShort"));
-            UINT = new UIntType(Class.forName("x10.lang.UInt"));
-            ULONG = new ULongType(Class.forName("x10.lang.ULong"));
-        } catch (ClassNotFoundException e) {
-            throw new ClassCastException();
-        }
+            COMPARABLE = new RuntimeType<Comparable<?>>(Class.forName("x10.lang.Comparable"));
+        } catch (ClassNotFoundException e) {}
     }
+
+    public static Type<String> STR = new StringType();          // only with base class (used by code gen)
+    protected static Type<String> STR0 = new StringType(        // with based class and parents
+        new ParameterizedType(Types.COMPARABLE, Types.STR),
+        new ParameterizedType(Fun_0_1._RTT, Types.INT, Types.CHAR),
+        x10.rtt.Types.runtimeType(x10.core.Any.class)
+    );
+
+    public static Type<?> UBYTE;    // instance created and set in UByte static initializer
+    public static Type<?> USHORT;   // instance created and set in UShort static initializer
+    public static Type<?> UINT;     // instance created and set in UInt static initializer
+    public static Type<?> ULONG;    // instance created and set in ULong static initializer
+
+    public static Type<?> getNativeRepRTT(Object o) {
+        assert(o instanceof Number);
+
+        if (o instanceof Boolean) return BOOLEAN;
+        if (o instanceof Byte) return BYTE;
+        if (o instanceof Character) return CHAR;
+        if (o instanceof Short) return SHORT;
+        if (o instanceof Integer) return INT;
+        if (o instanceof Long) return LONG;
+        if (o instanceof Float) return FLOAT;
+        if (o instanceof Double) return DOUBLE;
+        throw new RuntimeException("RTT not found for "+o.getClass());
+    }
+
     private static boolean isStruct(Type<?> rtt) {
         if (
             rtt == BOOLEAN
             || rtt == BYTE  || rtt == SHORT  || rtt == CHAR || rtt == INT   || rtt == LONG
-            || rtt == UBYTE || rtt == USHORT || rtt == UINT || rtt == ULONG
+            || rtt == UBYTE  || rtt == USHORT  || rtt == UINT   || rtt == ULONG
             || rtt == FLOAT || rtt == DOUBLE
             ) {
             return true;
@@ -150,11 +171,6 @@ public class Types {
             return primOrTypeParam;
         }
         
-        // unimplemented
-        if (rtt == UBYTE) {return primOrTypeParam;}
-        if (rtt == USHORT) {return primOrTypeParam;}
-        if (rtt == UINT) {return primOrTypeParam;}
-        if (rtt == ULONG) {return primOrTypeParam;}
         return primOrTypeParam;
     }
 

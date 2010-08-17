@@ -120,11 +120,11 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode, AddF
     	}
     }
     public Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException {
-	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-	X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
+        X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+        X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
 
-	LazyRef<Type> sym = (LazyRef<Type>) this.type;
-	assert sym != null;
+        LazyRef<Type> sym = (LazyRef<Type>) this.type;
+        assert sym != null;
 	
         TypeChecker childtc = (TypeChecker) tc.enter(parent, this);
         
@@ -134,7 +134,8 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode, AddF
         if (t instanceof UnknownType) {
             // Mark the type resolved to prevent us from trying to resolve this again and again.
             sym.update(ts.unknownType(position()));
-            return postprocess(nf.CanonicalTypeNode(position(), sym), this, childtc);
+            TypeNode result = postprocess(nf.CanonicalTypeNode(position(), sym), this, childtc);
+            return result.del().typeCheck(childtc);
         }
         
         DepParameterExpr constr = (DepParameterExpr) visitChild(dep, childtc);
@@ -149,7 +150,8 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode, AddF
         sym.update(t);
 
         CanonicalTypeNode result = nf.X10CanonicalTypeNode(position(), sym, constr);
-        return postprocess(result, this, childtc);
+        result = (CanonicalTypeNode) postprocess(result, this, childtc);
+        return (TypeNode) result.del().typeCheck(childtc);
     }
     
     static TypeNode postprocess(CanonicalTypeNode result, TypeNode n, ContextVisitor childtc) throws SemanticException {
@@ -158,12 +160,14 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode, AddF
         result = (CanonicalTypeNode) ((X10Del) result.del()).annotations(((X10Del) n.del()).annotations());
         result = (CanonicalTypeNode) ((X10Del) result.del()).setComment(((X10Del) n.del()).comment());
 
-        LazyRef<Type> sym = (LazyRef<Type>) result.typeRef();
-        sym.update(fixInnerParams(sym.get()));
+        // [IP] This is wrong!
+        //LazyRef<Type> sym = (LazyRef<Type>) result.typeRef();
+        //sym.update(fixInnerParams(sym.get()));
 
-        return (TypeNode) result.del().typeCheck(childtc);
+        return result;
     }
     
+    // [IP] This is wrong!
     // Fix inner classes by adding type arguments from their enclosing classes.
     // That is, convert C[T].D into C[T].D[T].
     static Type fixInnerParams(Type t) {

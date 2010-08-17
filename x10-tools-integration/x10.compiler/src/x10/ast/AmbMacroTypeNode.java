@@ -20,10 +20,8 @@ import polyglot.ast.Prefix;
 import polyglot.ast.TypeNode;
 
 public interface AmbMacroTypeNode extends AmbTypeNode {
-    Id name();
     AmbMacroTypeNode name(Id name);
     
-    Prefix prefix();
     AmbMacroTypeNode prefix(Prefix prefix);
 
     List<TypeNode> typeArgs();

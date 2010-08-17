@@ -920,16 +920,16 @@ public class Emitter {
 		return;
 	}
 
-	public void printDeclarationList(CodeWriter w, X10CPPContext_c c, ArrayList<VarInstance<?>> vars) {
-		printDeclarationList(w, c, vars, true, false);
+	public void printDeclarationList(CodeWriter w, X10CPPContext_c c, ArrayList<VarInstance<?>> vars, List<VarInstance> refs) {
+		printDeclarationList(w, c, vars, true, false, refs);
 	}
 
-	void printDeclarationList(CodeWriter w, X10CPPContext_c c, ArrayList<VarInstance<?>> vars, boolean saved_this_mechanism, boolean writable) {
+	void printDeclarationList(CodeWriter w, X10CPPContext_c c, ArrayList<VarInstance<?>> vars, boolean saved_this_mechanism, boolean writable, List<VarInstance> refs) {
 		for (int i = 0; i < vars.size(); i++) {
 			VarInstance<?> var = vars.get(i);
 			Type t = var.type();
 			String type = translateType(t, true);
-			if (writable && !var.name().toString().equals(THIS)) // this is a temporary ref
+			if ((writable && !var.name().toString().equals(THIS)) || refs.contains(var)) // this is a temporary ref
 			    type = type + "&"; // FIXME: Hack to get writable args in finally closures
 			String name = var.name().toString();
 			if (saved_this_mechanism && name.equals(THIS)) {
