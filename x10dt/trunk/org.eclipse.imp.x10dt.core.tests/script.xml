@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Test" default="test" basedir=".">
+	<property name="report" location="report" />
+	<property name="report.html" location="report/html" />
+	<property name="tst-dir" location="bin" />
+	<property name="junit" location="lib/junit.jar" />
+	<property name="lpg" location="lib/lpg.jar" />
+	<property name="hamcrest" location="lib/hamcrest.jar" />
+	<property name="polyglot" location="lib/polyglot.jar" />
+	<property name="x10.compiler" value="../x10.compiler/classes" />
+	<property name="x10.common" value="../x10.common/classes" />
+	<property name="x10.constraints" value="../x10.constraints/classes" />
+	<property name="x10.runtime" value="../x10.runtime/classes" />
+			
+	<path id="classpath.test">
+		<pathelement location="${junit}" />
+		<pathelement location="${lpg}" />
+		<pathelement location="${hamcrest}" />
+		<pathelement location="${x10.compiler}" />
+		<pathelement location="${x10.common}" />
+		<pathelement location="${x10.constraints}" />
+		<pathelement location="${x10.runtime}" />
+		<pathelement location="${polyglot}" />
+		<pathelement location="${tst-dir}" />
+		
+	</path>
+
+	<target name="test">
+		<junit>
+			<classpath refid="classpath.test" />
+			<formatter type="xml" usefile="true" />
+			<test name="org.eclipse.imp.x10dt.core.tests.compiler.CompilerTests" todir="${report}"/>
+			<test name="org.eclipse.imp.x10dt.core.tests.compiler.CompletenessCompilerTests" todir="${report}" />
+					
+		</junit>
+		<junitreport todir="${report}">
+		  <fileset dir="${report}">
+		    <include name="TEST-*.xml"/>
+		  </fileset>
+		  <report format="frames" todir="${report.html}"/>
+		</junitreport>
+	</target>
+</project>
+
