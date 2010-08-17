@@ -42,21 +42,21 @@ hosts="$macX86Host $linuxX86_64Host $linuxX86Host $cygwinHost $linuxPowerHost $a
 noClean=""
 userID="$USER"
 
-usageMsg="Usage: $0 [-noclean] [-platforms platformList] [-hosts hostList] [-user remoteUserID] [-showhosts] [-showplatforms]"
+usageMsg="Usage: $0 [--no-clean] [--platforms platformList] [--hosts hostList] [--user remoteUserID] [--show-hosts] [--show-platforms] [--no-transfer]"
 
 while [ $# != 0 ]; do
   case $1 in
-    -hosts)
+    --hosts)
         hosts=$2
 	shift
         ;;
 
-    -user)
+    --user)
         userID=$2
 	shift
         ;;
 
-    -platforms)
+    --platforms)
         platforms="$2"
         hosts=""
         for platform in $platforms; do
@@ -83,12 +83,12 @@ while [ $# != 0 ]; do
         shift
         ;;
 
-    -show-platforms)
+    --show-platforms)
         echo "macosx linux-x86 linux-x86_64 cygwin"
         exit 0
         ;;
 
-    -show-hosts)
+    --show-hosts)
         echo "Host list: $hosts"
         echo "Mac OS x86 host:   $macX86Host"
         echo "Linux x86 host:    $linuxX86Host"
@@ -99,8 +99,12 @@ while [ $# != 0 ]; do
         exit 0
         ;;
 
-    -noclean)
+    --no-clean)
         noClean="-noclean"
+        ;;
+
+    --no-transfer)
+        noTransfer="true"
         ;;
 
     -h)
@@ -148,7 +152,7 @@ do
     ssh ${userID}@$host "bash -l -c 'cd /tmp; ./buildToolIntegration.sh ${noClean} -dir $remoteTmpDir -rev $rev'"
     rc=$?
     ssh ${userID}@$host "(cd /tmp; rm ./buildToolIntegration.sh)"
-    if [ $rc == 0 ]; then
+    if [ $rc == 0 && -z "$noTransfer" ]; then
         echo "Transferring file from $host to localhost"
         scp "${userID}@$host:$remoteTmpDir/x10/x10.dist/x10-tib*.tgz" .
         echo "Transferring from localhost to orquesta"
