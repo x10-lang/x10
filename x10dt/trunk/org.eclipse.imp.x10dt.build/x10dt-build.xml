@@ -1,78 +1,67 @@
 <project name="X10DT Build" basedir="." default="main">
 
-	<import file="utilities.xml"/>
-	<property file="build.properties" />
+  <import file="utilities.xml" />
+  <property file="build.properties" />
 
-	<target name="x10dt-checkouts-existence">
-		<condition property="are-plugins-present">
-			<and>
-				<available file="${build.folder}/org.eclipse.imp.x10dt" type="dir" />
-				<available file="${build.folder}/org.eclipse.imp.x10dt.core" type="dir" />
-				<available file="${build.folder}/org.eclipse.imp.x10dt.feature" type="dir" />
-				<available file="${build.folder}/org.eclipse.imp.x10dt.help" type="dir" />
-				<available file="${build.folder}/org.eclipse.imp.x10dt.refactoring" type="dir" />
-				<available file="${build.folder}/org.eclipse.imp.x10dt.ui" type="dir" />
-				<available file="${build.folder}/org.eclipse.imp.x10dt.ui.launch.core" type="dir" />
-				<available file="${build.folder}/org.eclipse.imp.x10dt.ui.launch.cpp" type="dir" />
-				<available file="${build.folder}/x10.effects" type="dir" />
-			</and>
-		</condition>
-	</target>
+  <target name="x10dt-checkouts-existence">
+    <condition property="are-plugins-present">
+      <and>
+        <available file="${build.folder}/org.eclipse.imp.x10dt" type="dir" />
+        <available file="${build.folder}/org.eclipse.imp.x10dt.core" type="dir" />
+        <available file="${build.folder}/org.eclipse.imp.x10dt.feature" type="dir" />
+        <available file="${build.folder}/org.eclipse.imp.x10dt.help" type="dir" />
+        <available file="${build.folder}/org.eclipse.imp.x10dt.refactoring" type="dir" />
+        <available file="${build.folder}/org.eclipse.imp.x10dt.ui" type="dir" />
+        <available file="${build.folder}/org.eclipse.imp.x10dt.ui.launch.core" type="dir" />
+        <available file="${build.folder}/org.eclipse.imp.x10dt.ui.launch.cpp" type="dir" />
+        <available file="${build.folder}/x10.effects" type="dir" />
+      </and>
+    </condition>
+  </target>
 
-	<target name="x10dt-checkouts" depends="x10dt-checkouts-existence" unless="are-plugins-present">
-		<svn username="anonymous">
-			<checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/org.eclipse.imp.x10dt" revision="${x10dt.revision}" destPath="${build.folder}/org.eclipse.imp.x10dt" />
-			<checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/org.eclipse.imp.x10dt.core" revision="${x10dt.revision}" destPath="${build.folder}/org.eclipse.imp.x10dt.core" />
-			<checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/org.eclipse.imp.x10dt.feature" revision="${x10dt.revision}" destPath="${build.folder}/org.eclipse.imp.x10dt.feature" />
-			<checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/org.eclipse.imp.x10dt.help" revision="${x10dt.revision}" destPath="${build.folder}/org.eclipse.imp.x10dt.help" />
-			<checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/org.eclipse.imp.x10dt.refactoring" revision="${x10dt.revision}" destPath="${build.folder}/org.eclipse.imp.x10dt.refactoring" />
-			<checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/org.eclipse.imp.x10dt.ui" revision="${x10dt.revision}" destPath="${build.folder}/org.eclipse.imp.x10dt.ui" />
-			<checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/org.eclipse.imp.x10dt.ui.launch.core" revision="${x10dt.revision}" destPath="${build.folder}/org.eclipse.imp.x10dt.ui.launch.core" />
-			<checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/org.eclipse.imp.x10dt.ui.launch.cpp" revision="${x10dt.revision}" destPath="${build.folder}/org.eclipse.imp.x10dt.ui.launch.cpp" />
-			<checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10.effects" revision="${x10dt.revision}" destPath="${build.folder}/x10.effects" />
-		</svn>
-	</target>
-				
-	<target name="post-build-cleaning">
-		<delete includeEmptyDirs="true">
-			<fileset dir="${buildDirectory}">
-				<exclude name="buildRepo/**"/>
-				<exclude name="${buildLabel}/**"/>
-			</fileset>
-		</delete>
-		<delete includeEmptyDirs="true">
-			<fileset dir="${build.folder}/dependencies"/>
-			<fileset dir="${build.folder}/org.eclipse.imp.x10dt" defaultexcludes="false"/>
-			<fileset dir="${build.folder}/org.eclipse.imp.x10dt.core" defaultexcludes="false"/>
-			<fileset dir="${build.folder}/org.eclipse.imp.x10dt.feature" defaultexcludes="false"/>
-			<fileset dir="${build.folder}/org.eclipse.imp.x10dt.help" defaultexcludes="false"/>
-			<fileset dir="${build.folder}/org.eclipse.imp.x10dt.refactoring" defaultexcludes="false"/>
-			<fileset dir="${build.folder}/org.eclipse.imp.x10dt.ui" defaultexcludes="false"/>
-			<fileset dir="${build.folder}/org.eclipse.imp.x10dt.ui.launch.core" defaultexcludes="false"/>
-			<fileset dir="${build.folder}/org.eclipse.imp.x10dt.ui.launch.cpp" defaultexcludes="false"/>
-			<fileset dir="${build.folder}/x10.effects" defaultexcludes="false"/>
-		</delete>
-	</target>
+  <target name="x10dt-checkouts" depends="x10dt-checkouts-existence" unless="are-plugins-present">
+    <svn username="anonymous">
+      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/org.eclipse.imp.x10dt" 
+                revision="${x10dt.revision}" destPath="${build.folder}/org.eclipse.imp.x10dt" />
+      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/org.eclipse.imp.x10dt.core" 
+                revision="${x10dt.revision}" destPath="${build.folder}/org.eclipse.imp.x10dt.core" />
+      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/org.eclipse.imp.x10dt.feature" 
+                revision="${x10dt.revision}" destPath="${build.folder}/org.eclipse.imp.x10dt.feature" />
+      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/org.eclipse.imp.x10dt.help" 
+                revision="${x10dt.revision}" destPath="${build.folder}/org.eclipse.imp.x10dt.help" />
+      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/org.eclipse.imp.x10dt.refactoring" 
+                revision="${x10dt.revision}" destPath="${build.folder}/org.eclipse.imp.x10dt.refactoring" />
+      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/org.eclipse.imp.x10dt.ui" 
+                revision="${x10dt.revision}" destPath="${build.folder}/org.eclipse.imp.x10dt.ui" />
+      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/org.eclipse.imp.x10dt.ui.launch.core" 
+                revision="${x10dt.revision}" destPath="${build.folder}/org.eclipse.imp.x10dt.ui.launch.core" />
+      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/org.eclipse.imp.x10dt.ui.launch.cpp" 
+                revision="${x10dt.revision}" destPath="${build.folder}/org.eclipse.imp.x10dt.ui.launch.cpp" />
+      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10.effects" 
+                revision="${x10dt.revision}" destPath="${build.folder}/x10.effects" />       
+    </svn>
+  </target>
 
-	<target name="publish-update-site" if="publish.update.site">
-		<mkdir dir="${orquesta.update.site.loc}"/>
-		<delete includeEmptyDirs="true">
-			<fileset dir="${orquesta.update.site.loc}">
-				<include name="binary/**"/>
-				<include name="feature/**"/>
-				<include name="plugins/**"/>
-				<include name="*.xml"/>
-			</fileset>
-		</delete>
-		<copy todir="${orquesta.update.site.loc}">
-			<fileset dir="${buildDirectory}/buildRepo"/>
-		</copy>
-	</target>
+  <target name="publish-update-site" if="publish.update.site">
+    <delete includeEmptyDirs="true">
+      <fileset dir="${orquesta.update.site.loc}">
+        <include name="binary/**" />
+        <include name="feature/**" />
+        <include name="plugins/**" />
+        <include name="*.xml" />
+      </fileset>
+    </delete>
+    <eclipse.publish.featuresAndBundles repository="file:${orquesta.update.site.loc}" category="file:${basedir}/category.xml">
+      <features dir="${buildDirectory}/buildRepo/features" includes="*" />
+      <bundles dir="${buildDirectory}/buildRepo/plugins" includes="*" />
+    </eclipse.publish.featuresAndBundles>
+    <zip destfile="${orquesta.update.site.loc}/x10dt-update-site-${zip.release.tag}-${buildLabel}.zip" 
+         basedir="${orquesta.update.site.loc}" includes="artifacts.xml,content.xml,plugins/**,features/**" />
+  </target>
 
-	<target name="main" depends="x10dt-checkouts">
-		<ant antfile="${eclipse.pdebuild.scripts}/productBuild/productBuild.xml" />
-		<antcall target="post-build-cleaning"/>
-		<antcall target="publish-update-site"/>
-	</target>
+  <target name="main" depends="x10dt-checkouts">
+    <ant antfile="${eclipse.pdebuild.scripts}/productBuild/productBuild.xml" />
+    <antcall target="publish-update-site" />
+  </target>
 
 </project>
