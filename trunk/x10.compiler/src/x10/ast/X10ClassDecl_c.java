@@ -196,9 +196,6 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
 
         if (thisType.fullName().equals(QName.make("x10.lang.Object"))) {
         	thisType.superType(null);
-        } else  if (thisType.fullName().equals(QName.make("x10.lang.Struct"))) {
-        	assert false;
-        	thisType.superType(null);
         }
         else if (flags().flags().isInterface()) {
         	thisType.superType(null);
@@ -213,6 +210,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         	thisType.superType(null);
         }
         else if (superClass == null) {
+            // The default superclass is Object
         	superRef.setResolver(new Runnable() {
         		public void run() {
         			superRef.update(xts.Object());
@@ -638,7 +636,8 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         	}
         }
         if (n.superClass == null && type.superType() != null) {
-            n = (X10ClassDecl_c) n.superClass(nf.CanonicalTypeNode(position(), type.superType()));
+            n = (X10ClassDecl_c) n.superClass(nf.CanonicalTypeNode(
+                    (body!=null ? body.position().startOf() : position()).markCompilerGenerated(), type.superType()));
         }
    
         List<TypeNode> newInterfaces = new ArrayList<TypeNode>();
