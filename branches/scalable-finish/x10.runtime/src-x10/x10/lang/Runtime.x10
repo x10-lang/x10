@@ -891,68 +891,8 @@ public final class Runtime {
      * SimpleRootFinish still requires a rail of counters, but SimpleRemoteFinish
      * only needs a counter
      */
-     
-    
-    static class SimpleRootFinish extends RootFinish{
-    	 def notify(remoteCount:Int,remoteId:Int):Void {
-    		  
-    		 debug("root notify from "+remoteId+" with "+remoteCount+"@"+here);
-    		 var b:Boolean = true; 
-    	     lock();
-             counts(remoteId) += remoteCount;
-             seen(remoteId) |= counts(remoteId) != 0;
-             debug("\tRoot counters - counts("+remoteId+")="+counts(remoteId));
-             for(var i:Int=0; i<Place.MAX_PLACES; i++) {
-                 if (counts(i) != 0) b = false;
-             }
-              
-             if (b) release();
-             unlock();
-    	 }
-    	 def notify(remoteCount:Int,remoteId:Int, t:Throwable):Void {
-    		 pushExceptionLocal(t);
-    		 notify(remoteCount,remoteId);
-    	 }
-    	 public global def notifySubActivitySpawn(place:Place):Void {
-         	//debug("root notify sub spawn@"+here); 
-             if (here.equals(home)) {
-                 (this as SimpleRootFinish!).notifySubActivitySpawnLocal(place);
-             } else {
-             	//debug("root sub spawn");
-             	(Runtime.proxy(this) as SimpleRemoteFinish!).notifySubActivitySpawn(place);
-             }
-         }
-
-         public global def notifyActivityCreation():Void {
-         	
-             if (!here.equals(home)){
-             	//debug("root notify creation@"+here);
-             	(Runtime.proxy(this) as SimpleRemoteFinish!).notifyActivityCreation();
-             } 
-         }
-
-         public global def notifyActivityTermination():Void {
-         	//debug("root notify term@"+here);
-             if (here.equals(home)) {
-                 (this as SimpleRootFinish!).notifyActivityTerminationLocal();
-             } else {
-                (Runtime.proxy(this) as SimpleRemoteFinish!).notifyActivityTermination(this);
-             }
-         }
-
-         public global def pushException(t:Throwable):Void {
-             if (here.equals(home)) {
-                 (this as SimpleRootFinish!).pushExceptionLocal(t);
-             } else {
-                 (Runtime.proxy(this) as SimpleRemoteFinish!).pushException(t);
-             }
-         }
-    	 public global def createRemote():RemoteFinishState!{
-    		 return new SimpleRemoteFinish();
-    	 }
-   }
     static class SimpleRemoteFinish implements RemoteFinishState{
-    	/**
+    	    /**
          * The Exception Stack is used to collect exceptions
          * issued when activities associated with this finish state terminate abruptly.
          */
@@ -990,7 +930,7 @@ public final class Runtime {
         /**
          * An activity created under this finish has terminated.
          */
-        public def notifyActivityTermination(r:RootFinishState):Void {
+         public def notifyActivityTermination(r:RootFinishState):Void {
         	debug("remote notifyActTerm@"+here);
             lock.lock();
             spawnedActCounts--;
@@ -999,6 +939,7 @@ public final class Runtime {
                 lock.unlock();
                 return;
             }
+            //if terminated
             debug("\tspawnedActCounts--="+spawnedActCounts+"\n\tliveActCounts--="+liveActCounts);
             val e = exceptions;
             exceptions = null;
@@ -1012,17 +953,17 @@ public final class Runtime {
                 } else {
                     t = new MultipleExceptions(e);
                 }
-                val closure = () => { (r as SimpleRootFinish!).notify(m,this.home.id,t);};
+                val closure = () => { (r as SimpleRootFinish!).notify(m,t);};
                 runAtNative(r.home.id, closure);
                 dealloc(closure);
            } else {
-                val closure = () => { (r as SimpleRootFinish!).notify(m,this.home.id);};
+                val closure = () => { (r as SimpleRootFinish!).notify(m);};
                 runAtNative(r.home.id, closure);
                 dealloc(closure);
            }
+           runtime().finishStates.remove(r);
                 
         }
-
         /**
          * Push an exception onto the stack.
          */
@@ -1040,171 +981,7 @@ public final class Runtime {
     /**
      * 
      */
-     static class ReallySimpleRootFinish extends Latch implements RootFinishState, Mortal{
-    	 protected var counts:int;
-         protected val seen:Rail[Boolean]!;
-         protected var exceptions:Stack[Throwable]!;
-
-         public def this() {
-        	 seen = Rail.make[Boolean](Place.MAX_PLACES, (Int)=>false);
-             counts = 1;
-         }
-         public  def notifySubActivitySpawnLocal(place:Place):Void {
-        	 debug("root notify sub spawn local@"+here);
-        	 lock();
-        	 counts++;
-        	 unlock();
-        	 debug("\tcounts="+counts);
-         }
-
-         public def notifyActivityTerminationLocal():Void {     
-        	 debug("root notify local term@"+here);
-        	 lock();
-        	 counts--;
-        	 debug("\tcounts="+counts);
-        	 if (counts!= 0) {
-        		 debug("\tcounts="+counts+" !=0, then return");
-        		 unlock();
-        		 return;
-        	 }   	 
-        	 release();
-        	 unlock();
-         }
-         public def pushExceptionLocal(t:Throwable):Void {
-        	 lock();
-        	 if (null == exceptions) exceptions = new Stack[Throwable]();
-        	 exceptions.push(t);
-        	 unlock();
-         }
-         def notify(remoteCount:Int, remoteId:int):Void {
-        	 debug("root notify from "+remoteId+" with "+remoteCount+"@"+here);
-        	 var b:Boolean = true; 
-        	 lock();
-        	 //TODO: global termination condition
-        	 counts+= remoteCount;
-             debug("\tRoot counters - counts="+counts);
-             seen(remoteId)=true;
-             if (counts!= 0) b = false;
-              
-        	 if (b) release();
-        	 unlock();
-         }
-         def notify(remoteCount:Int,remoteId:int,t:Throwable):Void {
-    		 pushExceptionLocal(t);
-    		 notify(remoteCount,remoteId);
-         }
-         public def waitForFinish(safe:Boolean):Void {
-         	debug("root wait@"+here); 
-             if (!NO_STEALS && safe) worker().join(this);
-             await();
-             val closure = ()=>runtime().finishStates.remove(this);
-             seen(hereInt()) = false;
-             for(var i:Int=0; i<Place.MAX_PLACES; i++) {
-                 if (seen(i)) {
-                     runAtNative(i, closure);
-                 }
-             }
-             dealloc(closure);
-             if (null != exceptions) {
-                 if (exceptions.size() == 1) {
-                     val t = exceptions.peek();
-                     if (t instanceof Error) {
-                         throw t as Error;
-                     }
-                     if (t instanceof RuntimeException) {
-                         throw t as RuntimeException;
-                     }
-                 }
-                 throw new MultipleExceptions(exceptions);
-             }
-         }
-
-         //global methods
-         public global def notifySubActivitySpawn(place:Place):Void {
-        	 //debug("root notify sub spawn@"+here); 
-        	 if (here.equals(home)) {
-        		 (this as ReallySimpleRootFinish!).notifySubActivitySpawnLocal(place);
-             } else {
-            	 //debug("root sub spawn");
-            	 (Runtime.proxy(this) as ReallySimpleRemoteFinish!).notifySubActivitySpawn(place);
-             }
-         }
-         
-         public global def notifyActivityCreation():Void {
-        	 
-        	 if (!here.equals(home)){
-        		 //debug("root notify creation@"+here);
-        		 (Runtime.proxy(this) as ReallySimpleRemoteFinish!).notifyActivityCreation();
-        	 } 
-         }
-         
-         public global def notifyActivityTermination():Void {
-        	 //debug("root notify term@"+here);
-        	 if (here.equals(home)) {
-        		 (this as ReallySimpleRootFinish!).notifyActivityTerminationLocal();
-        	 } else {
-        		 (Runtime.proxy(this) as ReallySimpleRemoteFinish!).notifyActivityTermination(this);
-        	 }
-         }
-         
-         public global def pushException(t:Throwable):Void {
-        	 if (here.equals(home)) {
-        		 (this as ReallySimpleRootFinish!).pushExceptionLocal(t);
-        	 } else {
-        		 (Runtime.proxy(this) as ReallySimpleRemoteFinish!).pushException(t);
-        	 }
-         }
-         public global def createRemote():RemoteFinishState!{
-        	 return new ReallySimpleRemoteFinish();
-         }
-         public global def findOrCreate():RemoteFinishState!{
-        	 val remoteFinish = runtime().finishStates(this);
-        	 return remoteFinish;
-         }
-    }
-    
-    
-    static class ReallySimpleRemoteFinish extends SimpleRemoteFinish{
-    	public def notifyActivityTermination(r:RootFinishState):Void {
-        	debug("remote notifyActTerm@"+here);
-            lock.lock();
-            spawnedActCounts--;
-            if (liveActCounts.decrementAndGet() > 0) {
-            	debug("\tspawnedActCounts--="+spawnedActCounts+"\n\tliveActCounts--="+liveActCounts);
-                lock.unlock();
-                return;
-            }
-            debug("\tspawnedActCounts--="+spawnedActCounts+"\n\tliveActCounts--="+liveActCounts);
-            val e = exceptions;
-            exceptions = null;
-            val m = spawnedActCounts;
-            spawnedActCounts = 0;
-            lock.unlock();
-            if (null != e) {
-            	val t:Throwable;
-                if (e.size() == 1) {
-                	t = e.peek();
-                } else {
-                    t = new MultipleExceptions(e);
-                }
-                val closure = () => { (r as ReallySimpleRootFinish!).notify(m,this.home.id,t);};
-                runAtNative(r.home.id, closure);
-                dealloc(closure);
-           } else {
-                val closure = () => { (r as ReallySimpleRootFinish!).notify(m,this.home.id);};
-                runAtNative(r.home.id, closure);
-                dealloc(closure);
-           }
-                
-        }
-    }
-    
-    
-    
-    /**
-     * 
-     */
-     static class ReallyReallySimpleRootFinish extends Latch implements RootFinishState, Mortal{
+     static class SimpleRootFinish extends Latch implements RootFinishState, Mortal{
     	 protected var counts:int;
          protected var exceptions:Stack[Throwable]!;
 
@@ -1273,10 +1050,10 @@ public final class Runtime {
          public global def notifySubActivitySpawn(place:Place):Void {
         	 //debug("root notify sub spawn@"+here); 
         	 if (here.equals(home)) {
-        		 (this as ReallyReallySimpleRootFinish!).notifySubActivitySpawnLocal(place);
+        		 (this as SimpleRootFinish!).notifySubActivitySpawnLocal(place);
              } else {
             	 //debug("root sub spawn");
-            	 (Runtime.proxy(this) as ReallyReallySimpleRemoteFinish!).notifySubActivitySpawn(place);
+            	 (Runtime.proxy(this) as SimpleRemoteFinish!).notifySubActivitySpawn(place);
              }
          }
          
@@ -1284,71 +1061,33 @@ public final class Runtime {
         	 
         	 if (!here.equals(home)){
         		 //debug("root notify creation@"+here);
-        		 (Runtime.proxy(this) as ReallyReallySimpleRemoteFinish!).notifyActivityCreation();
+        		 (Runtime.proxy(this) as SimpleRemoteFinish!).notifyActivityCreation();
         	 } 
          }
          
          public global def notifyActivityTermination():Void {
         	 //debug("root notify term@"+here);
         	 if (here.equals(home)) {
-        		 (this as ReallyReallySimpleRootFinish!).notifyActivityTerminationLocal();
+        		 (this as SimpleRootFinish!).notifyActivityTerminationLocal();
         	 } else {
-        		 (Runtime.proxy(this) as ReallyReallySimpleRemoteFinish!).notifyActivityTermination(this);
+        		 (Runtime.proxy(this) as SimpleRemoteFinish!).notifyActivityTermination(this);
         	 }
          }
          
          public global def pushException(t:Throwable):Void {
         	 if (here.equals(home)) {
-        		 (this as ReallyReallySimpleRootFinish!).pushExceptionLocal(t);
+        		 (this as SimpleRootFinish!).pushExceptionLocal(t);
         	 } else {
-        		 (Runtime.proxy(this) as ReallyReallySimpleRemoteFinish!).pushException(t);
+        		 (Runtime.proxy(this) as SimpleRemoteFinish!).pushException(t);
         	 }
          }
          public global def createRemote():RemoteFinishState!{
-        	 return new ReallyReallySimpleRemoteFinish();
+        	 return new SimpleRemoteFinish();
          }
          public global def findOrCreate():RemoteFinishState!{
         	 val remoteFinish = runtime().finishStates(this);
         	 return remoteFinish;
          }
-    }
-    
-    
-    static class ReallyReallySimpleRemoteFinish extends SimpleRemoteFinish{
-    	public def notifyActivityTermination(r:RootFinishState):Void {
-        	debug("remote notifyActTerm@"+here);
-            lock.lock();
-            spawnedActCounts--;
-            if (liveActCounts.decrementAndGet() > 0) {
-            	debug("\tspawnedActCounts--="+spawnedActCounts+"\n\tliveActCounts--="+liveActCounts);
-                lock.unlock();
-                return;
-            }
-            //if terminated
-            debug("\tspawnedActCounts--="+spawnedActCounts+"\n\tliveActCounts--="+liveActCounts);
-            val e = exceptions;
-            exceptions = null;
-            val m = spawnedActCounts;
-            spawnedActCounts = 0;
-            lock.unlock();
-            if (null != e) {
-            	val t:Throwable;
-                if (e.size() == 1) {
-                	t = e.peek();
-                } else {
-                    t = new MultipleExceptions(e);
-                }
-                val closure = () => { (r as ReallyReallySimpleRootFinish!).notify(m,t);};
-                runAtNative(r.home.id, closure);
-                dealloc(closure);
-           } else {
-                val closure = () => { (r as ReallyReallySimpleRootFinish!).notify(m);};
-                runAtNative(r.home.id, closure);
-                dealloc(closure);
-           }
-           runtime().finishStates.remove(r);
-                
-        }
     }
 
     @NativeClass("java", "x10.runtime.impl.java", "Thread")
@@ -1968,22 +1707,6 @@ public final class Runtime {
         if (null == a.finishStack)
             a.finishStack = new Stack[RootFinishState!]();
         val r = new SimpleRootFinish();
-        a.finishStack.push(r);
-    }
-    public static def startReallySimpleFinish():Void {
-    	    debug("startReallySimpleFinish");
-        val a = activity();
-        if (null == a.finishStack)
-            a.finishStack = new Stack[RootFinishState!]();
-        val r = new ReallySimpleRootFinish();
-        a.finishStack.push(r);
-    }
-    public static def startReallyReallySimpleFinish():Void {
-        	debug("startReallyReallySimpleFinish");
-        val a = activity();
-        if (null == a.finishStack)
-            a.finishStack = new Stack[RootFinishState!]();
-        val r = new ReallyReallySimpleRootFinish();
         a.finishStack.push(r);
     }
     /**
