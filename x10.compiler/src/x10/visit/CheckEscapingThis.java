@@ -34,7 +34,7 @@ public class CheckEscapingThis extends NodeVisitor
         // visit every ctor
         final X10ClassBody_c body = (X10ClassBody_c)xlass.body();
         for (ClassMember classMember : body.members()) {
-            if (classMember instanceof ConstructorDecl)
+            if (classMember instanceof ConstructorDecl)           // todo for native ctors, we don't have a body
                 classMember.visit(this);
         }
     }
