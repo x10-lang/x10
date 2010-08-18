@@ -9,7 +9,6 @@ package org.eclipse.imp.x10dt.ui.launch.core.dialogs;
 
 import java.lang.reflect.InvocationTargetException;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jface.window.IShellProvider;
 import org.eclipse.swt.graphics.Image;
