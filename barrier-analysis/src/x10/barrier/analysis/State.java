@@ -32,7 +32,7 @@ class State implements Cloneable {
 	    e.printStackTrace();
 	}
 	s.counter = - this.counter;
-	s.funName = this.funName.replace("async", "asyn");
+	s.funName = this.funName.replace("<async", "d<async");
 	return s;
     }
     
@@ -75,6 +75,8 @@ class State implements Cloneable {
     public boolean isEqual(State s) {
 	return this.counter == s.counter;
     }
+    
+  
     
     public boolean isEqualOrCopy(State s) {
 	return this.counter == s.counter || this.counter == -s.counter;

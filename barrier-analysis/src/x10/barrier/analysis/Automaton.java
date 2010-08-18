@@ -1,9 +1,11 @@
 package x10.barrier.analysis;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.Set;
 
 import x10.util.Struct;
 
@@ -85,6 +87,65 @@ public class Automaton {
 		   compress(e.to);
 	}
 
+    }
+    
+    
+    
+    public boolean isBlockPresent (State s, Set c) {
+	for (Object o : c) {
+	    State ss = (State) o;
+	    if (s.startInst >= ss.startInst && s.endInst <=  ss.endInst && (s.funName.contentEquals(ss.funName) 
+		    || s.funName.substring(1).contentEquals(ss.funName) || ss.funName.substring(1).contentEquals(s.funName))) 
+		return true;
+	}
+	return false;
+    }
+    
+    
+    public boolean isSubOrConsecutiveBlock(State s1, State s2 ) {
+	 if (((s1.startInst >= s2.startInst && s1.endInst <=  s2.endInst) ||
+		(s2.startInst >= s1.startInst && s2.endInst <= s1.endInst)  ||
+		s1.startInst == s2.endInst || s1.startInst == s2.endInst + 1 ||
+		s2.startInst == s1.endInst || s2.startInst == s1.endInst + 1)
+	     && (s1.funName.contentEquals(s2.funName) 
+		    || s1.funName.substring(1).contentEquals(s2.funName) || s1.funName.substring(1).contentEquals(s2.funName))) 
+		return true;
+	 return false;
+	
+    }
+    public Set mergeStates(Set p) {
+	Set toRemove = new HashSet();
+	Set toAdd = new HashSet();
+	boolean changed = true;
+	while (changed) {
+	   
+	  changed = false;
+	  for (Object o1: p) {
+	    State s1 = (State) o1;
+	    for (Object o2: p)  {
+		State s2 = (State) o2;
+		if (toRemove.contains(s1) || toRemove.contains(s2))
+		    continue;
+		if (s1.equals(s2)) continue;
+		if (this.isSubOrConsecutiveBlock(s1, s2)) {
+			int start = Math.min (s1.startInst, s2.startInst);
+		        int end = Math.max(s1.endInst, s2.endInst);
+		        State s = new State (start, end, s1.funName, false);
+		        toRemove.add(s2);
+		        toRemove.add(s1);
+		        if (!this.isBlockPresent(s, toAdd))
+		            toAdd.add(s);
+		        changed = true;
+		    }
+			
+		}   
+	    }
+	
+	  p.removeAll(toRemove);
+	  p.addAll(toAdd);
+	  toAdd.clear();
+      }// end while
+	return p;
     }
     
     public void compress() {
@@ -239,7 +300,9 @@ public class Automaton {
 	State s1 = el.s1;
 	State s2 = el.s2;
 	ComposedState prev = el.prev;
-	visitedStates.add(prev);
+	if (this.inVisited(prev) == null)
+		visitedStates.add(prev);
+	
 	ComposedState inVisited = null;
 	 if (this.isPar(s1))
 	     	s1 = this.compose(s1);
@@ -261,6 +324,8 @@ public class Automaton {
 		  inVisited = this.inVisited(s);
 		    if (inVisited != null)
 			s = inVisited;
+		    else 
+			visitedStates.add(s);
 		    new Edge(prev, s, e2.type);
 		    if (inVisited == null)
 			q.add(new Element(s1, ss2, s));
@@ -280,6 +345,8 @@ public class Automaton {
 		  inVisited = this.inVisited(s);
 		    if (inVisited != null)
 			s = inVisited;
+		    else 
+			visitedStates.add(s);
 		    new Edge(prev, s, e1.type);
 		    if (inVisited == null)
 			      q.add(new Element(ss1, s2, s));
@@ -305,8 +372,10 @@ public class Automaton {
 			 inVisited = this.inVisited(s);
 			 if (inVisited != null)
 		 	 	    s = inVisited;
-			 else 
+			 else {
+			     visitedStates.add(s);
 			     q.add(new Element(ss1, ss2, s));
+			 }
 		 	 new Edge(prev, s, Edge.NEXT);
 		     
 		     } 
@@ -319,8 +388,10 @@ public class Automaton {
 		 	 inVisited = this.inVisited(s);
 			 if (inVisited != null)
 			     s = inVisited;
-			 else
+			 else {
+			     visitedStates.add(s);
 			     q.add(new Element(ss1, ss2, s));
+			 }
 			 new Edge(prev, s, Edge.COND);
 		   
 		     }
@@ -333,8 +404,10 @@ public class Automaton {
 			 inVisited = this.inVisited(s);
 			 if (inVisited != null)
 			     s = inVisited;
-			 else
+			 else {
+			     visitedStates.add(s);
 			     q.add(new Element(ss1, ss2, s));
+			 }
 			 new Edge(prev, s, Edge.COND);
 		     }
 		     else if ((e1.type == Edge.NEXT && e1.to.isClocked) || (e2.type == Edge.NEXT && e2.to.isClocked)) { // both are not clocked  
@@ -346,9 +419,11 @@ public class Automaton {
 			 inVisited = this.inVisited(s);
 			 if (inVisited != null)
 		 	 	    s = inVisited;
-			 else
+			 else {
+			     visitedStates.add(s);   
 			     q.add(new Element(s1, ss2, s));
-		 	 new Edge(prev, s, e2.type);
+			 }
+			 new Edge(prev, s, e2.type);
 		 	 
 		 	 s = new ComposedState(ss1.isClocked || s2.isClocked);
 			 s.addState(ss1);
@@ -369,14 +444,16 @@ public class Automaton {
 			 inVisited = this.inVisited(s);
 			 if (inVisited != null)
 		 	 	    s = inVisited;
-			 else
+			 else {
+			     visitedStates.add(s);
 			     q.add(new Element(ss1, ss2, s));
+			 }
 		 	 new Edge(prev, s, Edge.COND); 
 			 
 		     }
 		  
 
-		    /* System.out.print("s1: " + s1);
+		    /*System.out.print("s1: " + s1);
 		     System.out.print("s2: " + s2);
 		     System.out.println("s3: " + s);*/
 		     
@@ -462,6 +539,7 @@ public class Automaton {
 	if (s.parallelBlocks.size() == 0)
 	    continue;
 	System.out.println("Parallel blocks of" + s.stateInsts());
+	//s.parallelBlocks = mergeStates(s.parallelBlocks);
 	for (Object p: s.parallelBlocks)
 	    System.out.println(" " + ((State) p).stateInsts());
 	

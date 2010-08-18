@@ -106,7 +106,7 @@ private Set retrieveClocks(int nodenum) {
 	if (ir != null) {
 	    SSAInstruction[] insts = ir.getInstructions();
 	    for (SSAInstruction inst: insts) {
-		System.out.println(inst);
+		//System.out.println(inst);
 		if (inst != null && inst.toString().contains("new <X10Source,Lx10/lang/Clock>")) {
 		    OrdinalSet<InstanceKey> os = pa
 			.getPointsToSet(new LocalPointerKey(cg.getNode(nodenum)
@@ -156,6 +156,8 @@ private Set retrieveClocks(int nodenum) {
        
        CGNode md = cg.getNode(nodenum);
        IR ir = md.getIR();
+       if (ir == null)
+	   return;
 	String funName =  md.getMethod().getName().toString();
 	//System.err.println(md.getMethod().getSignature());
 	
@@ -182,7 +184,7 @@ private Set retrieveClocks(int nodenum) {
 	    int index =  funName.lastIndexOf("x10");
 	    funName = "<async" + funName.substring(index + 3);
 	}
-	
+	this.printInstructions(nodenum);
 	
 	if (ir != null) {
 	   
@@ -304,15 +306,17 @@ private Set retrieveClocks(int nodenum) {
 	    if (declaringClass.contains("x10/lang") || declaringClass.contains("x10/util") ||  declaringClass.contains("x10/compiler"))
 		continue;
 	    Set clocks = this.retrieveClocks(cg.getNumber(one_method));
-	    this.printInstructions(cg.getNumber(one_method));
+	    
 	    for (Object o : clocks){
 		
 		NormalAllocationInNode clk = (NormalAllocationInNode) o;
 		System.out.println("\n\n++++++++++++++++++" + clk.getSite() +"+++++++++++++++++++++++++++");
 		Automaton a = parseIR(cg.getNumber(one_method), clk, true);
 		   a.compress();
-		    //a.print();
+		   System.out.println("Automaton Compressed Successfully"); 
+		   // a.print();
 		    a.composePar();
+		    System.out.println("Automata Composed Successfully");
 		    //a.print();
 		    a.mayHappenInParallel();
 	    }
