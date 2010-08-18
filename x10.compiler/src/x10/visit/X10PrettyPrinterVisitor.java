@@ -1743,7 +1743,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			List<CastExpander> args = new ArrayList<CastExpander>();
 			List<Expr> arguments = c.arguments();
 			for (int i = 0; i < arguments.size(); ++ i) {
-			    Type ft = c.methodInstance().formalTypes().get(i);
+			    Type ft = c.methodInstance().def().formalTypes().get(i).get();
 			    Type at = arguments.get(i).type();
 			    if ((at.isBoolean() || at.isNumeric() || at.isChar()) && X10TypeMixin.baseType(ft) instanceof ParameterType) {
 			        args.add(new CastExpander(w, er, arguments.get(i)).castTo(at, BOX_PRIMITIVES));
