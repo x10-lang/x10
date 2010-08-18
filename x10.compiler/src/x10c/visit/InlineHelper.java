@@ -133,7 +133,7 @@ public class InlineHelper extends ContextVisitor {
                         X10MethodDecl mdcl = (X10MethodDecl) cm;
                         MethodDef md = mdcl.methodDef();
                         if (md instanceof X10MethodDef) {
-                            if (mdcl.body() != null && prepareForInlining(md)) {
+                            if (mdcl.body() != null && prepareForInlining((X10MethodDef) md)) {
                                 mdcl.body().visit(new NodeVisitor() {
                                     @Override
                                     public Node leave(Node parent, Node old, Node n, NodeVisitor v) {
@@ -291,20 +291,19 @@ public class InlineHelper extends ContextVisitor {
     }
 
     private boolean prepareForInlining(ClassDef cd) {
-        return true;
-//        for (MethodDef md : cd.methods()) {
-//            if (md instanceof X10MethodDef) {
-//                if (((X10MethodDef) md).annotationsMatching(InlineType).isEmpty()) {
-//                    return true;
-//                }
-//            }
-//        }
-//        return false;
+        for (MethodDef md : cd.methods()) {
+            if (md instanceof X10MethodDef) {
+                if (prepareForInlining((X10MethodDef) md)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
     
-    private boolean prepareForInlining(MethodDef md) {
+    private boolean prepareForInlining(X10MethodDef xmd) {
         return true;
-//        return !((X10MethodDef) md).annotationsMatching(InlineType).isEmpty();
+//        return !xmd.annotationsMatching(InlineType).isEmpty();
     }
 
 }
