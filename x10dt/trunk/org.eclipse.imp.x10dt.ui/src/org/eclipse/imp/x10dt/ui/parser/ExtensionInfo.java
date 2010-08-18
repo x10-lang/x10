@@ -89,39 +89,58 @@ public class ExtensionInfo extends x10.ExtensionInfo {
         return new X10Scheduler(this) {
             @Override
             public List<Goal> goals(Job job) {
-                List<Goal> goals = new ArrayList<Goal>();
-
+ 
                 if (fInterestingSources.contains(job.source())) {
                 	fInterestingJobs.put(job.source(), job);
                 }
 
                 // This is essentially the list of goals specified by the base class,
-                // up through and including type-checking.
-                goals.add(Parsed(job));
+                // up through and including type-checking and semantic checks.
+                // There is an option X10.Configuration.Only_Type_Checking, which selects exactly the goals needed here. However, since options are
+                // stored in static fields, we cannot use here because it would interfere with the builder's options.
                 
-                // Grab AST early so outline view can use it even if these goals don't finish
-                if (ExtensionInfo.this.fInterestingSources.contains(job.source())) {
-                    goals.add(RetrieveASTearly(job));
-                }
-//                if (x10.Configuration.CHECK_INVARIANTS) {
-//                	goals.add(new ForgivingVisitorGoal("PositionInvariantChecker", job, new PositionInvariantChecker(job, "parsed")));
-//                }
+                List<Goal> goals = new ArrayList<Goal>();
 
+                goals.add(Parsed(job));
                 goals.add(TypesInitialized(job));
                 goals.add(ImportTableInitialized(job));
-          //      goals.add(CastRewritten(job));
-                goals.add(PropagateAnnotations(job));
-                goals.add(PreTypeCheck(job));
-                goals.add(TypeChecked(job));
 
-//                if (x10.Configuration.CHECK_INVARIANTS) {
-//                	goals.add(new ForgivingVisitorGoal("InstanceInvariantChecker", job, new InstanceInvariantChecker(job)));
-//                }
-
-                // AST will be more complete here
-                if (ExtensionInfo.this.fInterestingSources.contains(job.source())) {
-                    goals.add(RetrieveAST(job));
+                if (job.source() != null && job.source().path().endsWith(XML_FILE_DOT_EXTENSION)) {
+                    goals.add(X10MLTypeChecked(job));
                 }
+                
+                // Do not include LoadPlugins in list.  It would cause prereqs to be added 
+//                goals.add(LoadPlugins());
+                goals.add(PropagateAnnotations(job));
+                goals.add(LoadJobPlugins(job));
+                goals.add(RegisterPlugins(job));
+                
+                goals.add(PreTypeCheck(job));
+                goals.add(TypesInitializedForCommandLineBarrier());
+
+                Goal typeCheckedGoal = TypeChecked(job);
+                goals.add(typeCheckedGoal);
+
+
+                goals.add(ReassembleAST(job));
+                
+                //For some reason, including this goal gives weird results: in Hello.x10 it complains that the type Hello does not appear in the file Hello.x10.
+                // To be checked with compiler team.
+//                goals.add(ConformanceChecked(job));
+
+                // Data-flow analyses
+                goals.add(ReachabilityChecked(job));
+                goals.add(ExceptionsChecked(job));
+                goals.add(ExitPathsChecked(job));
+                if (x10.Configuration.CHECK_INITIALIZATIONS && !x10.Configuration.WORK_STEALING)
+                    goals.add(InitializationsChecked(job));
+                goals.add(ConstructorCallsChecked(job));
+                goals.add(ForwardReferencesChecked(job));
+                goals.add(PropertyAssignmentsChecked(job));
+//                goals.add(CheckNativeAnnotations(job));
+                goals.add(CheckASTForErrors(job));
+//                goals.add(TypeCheckBarrier());
+
 
                 goals.add(End(job));
                 return goals;
