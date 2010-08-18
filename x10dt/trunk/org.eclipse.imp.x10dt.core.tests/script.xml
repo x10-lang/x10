@@ -25,7 +25,7 @@
 		
 	</path>
 
-	<target name="test">
+	<target name="test" depends="init,build">
 		<junit>
 			<classpath refid="classpath.test" />
 			<formatter type="xml" usefile="true" />
@@ -40,5 +40,16 @@
 		  <report format="frames" todir="${report.html}"/>
 		</junitreport>
 	</target>
+	<target name="build" depends="init">
+		<javac destdir="${tst-dir}" source="1.5" target="1.5" debug="on" excludes="org/eclipse/imp/x10dt/core/tests/builder/**">
+			<src path="src"/>
+			<classpath refid="classpath.test" />
+		</javac>
+	</target>
+	<target name="init">
+		<mkdir dir="${report}"/>
+		<mkdir dir="${tst-dir}"/>
+	</target>
+
 </project>
 
