@@ -116,7 +116,7 @@ public class InlineHelper extends ContextVisitor {
         if (n instanceof ClassDecl) {
             ClassDecl d = (ClassDecl) n;
             final ClassDef cd = d.classDef();
-            if (hasInlineMethods(cd.methods())) {
+            if (prepareForInlining(cd)) {
                 List<ClassMember> members = d.body().members();
                 List<ClassMember> nmembers = new ArrayList<ClassMember>(members.size());
                 
@@ -133,7 +133,7 @@ public class InlineHelper extends ContextVisitor {
                         X10MethodDecl mdcl = (X10MethodDecl) cm;
                         MethodDef md = mdcl.methodDef();
                         if (md instanceof X10MethodDef) {
-                            if (!((X10MethodDef) md).annotationsMatching(InlineType).isEmpty()) {
+                            if (mdcl.body() != null && prepareForInlining(md)) {
                                 mdcl.body().visit(new NodeVisitor() {
                                     @Override
                                     public Node leave(Node parent, Node old, Node n, NodeVisitor v) {
@@ -288,16 +288,21 @@ public class InlineHelper extends ContextVisitor {
         return n;
     }
 
-    private boolean hasInlineMethods(List<MethodDef> methods) {
-        for (MethodDef md : methods) {
-            if (md instanceof X10MethodDef) {
-                if (((X10MethodDef) md).annotationsMatching(InlineType).isEmpty()) {
-                    return true;
-                }
-            }
-        }
-        return false;
+    private boolean prepareForInlining(ClassDef cd) {
+        return true;
+//        for (MethodDef md : cd.methods()) {
+//            if (md instanceof X10MethodDef) {
+//                if (((X10MethodDef) md).annotationsMatching(InlineType).isEmpty()) {
+//                    return true;
+//                }
+//            }
+//        }
+//        return false;
+    }
+    
+    private boolean prepareForInlining(MethodDef md) {
+        return true;
+//        return !((X10MethodDef) md).annotationsMatching(InlineType).isEmpty();
     }
 
-    
 }
