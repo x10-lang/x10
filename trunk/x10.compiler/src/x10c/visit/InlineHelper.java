@@ -255,6 +255,8 @@ public class InlineHelper extends ContextVisitor {
                     nmembers.add(mdcl1);
                 }
                 d = d.body(d.body().members(nmembers));
+                // change class public to make it visible at any call site
+                d = d.flags(xnf.FlagsNode(d.position(), d.flags().flags().clearProtected().clearPrivate().Public()));
                 return d.classDef(cd);
             }            
         }
