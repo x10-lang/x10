@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="org.eclipse.imp.x10dt.tests.feature"
+      label="X10DT Tests Feature"
+      version="2.0.5.qualifier">
+
+   <requires>
+      <import feature="org.eclipse.imp.x10dt.feature" version="2.0.5.qualifier"/>
+      <import plugin="org.junit.addons"/>
+   </requires>
+
+   <plugin
+         id="org.eclipse.imp.x10dt.core.tests"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.imp.x10dt.ui.tests"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.imp.x10dt.ui.launch.cpp.tests"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="x10.effects.tests"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>
