@@ -476,7 +476,7 @@ public class Inliner extends ContextVisitor {
                     return n;  // we've already found the decl, short-circuit search
                 if (n instanceof TypeNode) 
                     return n;  // TypeNodes don't contain decls, short-circuit search
-                if (!contains(n.position(), md.position()))
+                if (!md.position().isCompilerGenerated() && !contains(n.position(), md.position()))
                     return n;  // definition of md isn't inside n, short-circuit search
                 return null;   // look for the decl inside n
             }
