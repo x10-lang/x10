@@ -92,7 +92,7 @@ public final class Array[T](
 
     private global val raw:IndexedMemoryChunk[T];
     private global val rawLength:int;
-    private val layout:RectLayout!{self!=null};
+    private val layout:RectLayout;
 
     @Native("java", "(!`NO_CHECKS`)")
     @Native("c++", "BOUNDS_CHECK_BOOL")
@@ -127,7 +127,7 @@ public final class Array[T](
     public def this(reg:Region):Array[T]{self.region==reg} {
 	property(reg, reg.size(), reg.rail);
 
-        layout = new RectLayout(reg.min(), reg.max());
+        layout = RectLayout(reg.min(), reg.max());
         val n = layout.size();
         raw = IndexedMemoryChunk.allocate[T](n, true);
         rawLength = n;
@@ -144,7 +144,7 @@ public final class Array[T](
     public def this(reg:Region, init:(Point(reg.rank))=>T):Array[T]{self.region==reg} {
         property(reg, reg.size(), reg.rail);
 
-        layout = new RectLayout(reg.min(), reg.max());
+        layout = RectLayout(reg.min(), reg.max());
         val n = layout.size();
         val r  = IndexedMemoryChunk.allocate[T](n);
 	for (p:Point(reg.rank) in reg) {
@@ -165,7 +165,7 @@ public final class Array[T](
     public def this(reg:Region, init:T):Array[T]{self.region==reg} {
         property(reg, reg.size(), reg.rail);
 
-        layout = new RectLayout(reg.min(), reg.max());
+        layout = RectLayout(reg.min(), reg.max());
         val n = layout.size();
         val r  = IndexedMemoryChunk.allocate[T](n);
         if (reg.rect) {
