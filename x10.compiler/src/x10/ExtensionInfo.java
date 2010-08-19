@@ -271,7 +271,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     	return errors;
     }
     
-    private static int weakCallsCount = 0;
+    private int weakCallsCount = 0;
     public void incrWeakCallsCount() { 
     	weakCallsCount++;
     }
