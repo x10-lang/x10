@@ -320,7 +320,7 @@ public class X10Disamb_c extends Disamb_c {
 	        // type of the class we want.
 
 	        ClassType scope = c.findFieldScope(fi.name());
-            if (cur.flags().isStatic()) { // The class is an inner static class
+            if (cur!=null && cur.flags()!=null && cur.flags().isStatic()) { // The class is an inner static class
                 scope = cur;
             } else if (c.inSuperTypeDeclaration()) {
 	            cur = c.supertypeDeclarationType().asType();
