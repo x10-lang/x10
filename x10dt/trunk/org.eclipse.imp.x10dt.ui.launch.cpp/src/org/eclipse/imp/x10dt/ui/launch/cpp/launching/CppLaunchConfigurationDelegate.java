@@ -311,8 +311,8 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
       });
       
       if (returnCode != 0) {
-        CoreResourceUtils.addPlatformConfMarker(X10PlatformConfFactory.getFile(project), LaunchMessages.CLCD_LinkCmdError, 
-                                                IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
+        CoreResourceUtils.addBuildMarkerTo(project, LaunchMessages.CLCD_LinkCmdError, IMarker.SEVERITY_ERROR,
+                                           IMarker.PRIORITY_HIGH);
       }
       
       return returnCode;
