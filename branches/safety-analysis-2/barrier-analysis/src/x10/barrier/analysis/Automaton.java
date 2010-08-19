@@ -171,7 +171,7 @@ public class Automaton {
      return false;
  }
     
-   public void renameAsync (ComposedState inVisited) { 
+   public void renameAsync (ComposedState inVisited, boolean all) { 
        if (inVisited.asyncsRenamed) 
 	   return;
 
@@ -193,10 +193,12 @@ public class Automaton {
 	}
        	inVisited.states.addAll(addList);
 	inVisited.states.removeAll(removeList);
+	
+	
 	//System.out.println("------------" + inVisited + inVisited.asyncsRenamed);
-    
+     if (all)
       for (Object o: inVisited.outgoingEdges) {
-	  renameAsync((ComposedState) ((Edge) o).to);
+	  renameAsync((ComposedState) ((Edge) o).to, all);
       }
    }
  
@@ -221,24 +223,50 @@ public class Automaton {
 		if (inVisited != null) {
 		    	if (inVisited.asyncsRenamed == true)
 		    	    return inVisited;
-		    	this.renameAsync(inVisited);
 		    	parStart.asyncsRenamed = true;
+		    	renameAsync (inVisited , false);
 		    	/*System.out.println("s1------" + s1 + s1.getClass());
 		    	System.out.println("s2------" + s2 + s2.getClass());
 		    	System.out.println("s3------------ " + inVisited);
 		    	System.out.println("s4------------ " + parStart);*/
 		    	q.add(new Element(s1, s2, parStart));
+		    	//composeAutomaton(s1, s2, parStart);
 		    	ComposedState parparStart = new ComposedState(parStart.isClocked || inVisited.isClocked);
 		    	parparStart.addState(parStart);
 		    	parparStart.addState(inVisited);
+			parparStart.asyncsRenamed = true;
+		    	//composeAutomaton(parStart, inVisited, parparStart);
 		    	q.add(new Element(parStart, inVisited, parparStart));
-		    	parparStart.asyncsRenamed = true;
-		    	this.composeAutomaton();
+		
+		        //System.out.println("parparstart" + parparStart.stateInsts());
 		    	return parparStart;
 			
 		}
-		q.add(new Element(s1, s2, parStart));
-		this.composeAutomaton();
+		composeAutomaton(s1, s2, parStart);
+		while(q.size() > 0 ) {
+		    Element e1 = q.remove();
+		   // Element e2 = q.remove();
+		    s1 = e1.s1;
+		    if (e1.s2 instanceof ComposedState) {
+			inVisited = (ComposedState) e1.s2;
+			inVisited.asyncsRenamed = false;
+			this.renameAsync(inVisited, true);
+		    }
+		    State s3 = e1.prev;
+		
+		    
+		    composeAutomaton (e1.s1, e1.s2, e1.prev);
+		   
+		   // composeAutomaton(s1, inVisited, s3);
+		   // System.out.println ("s1" + s1);
+		   // System.out.println ("s2" + inVisited);
+		   // System.out.println ("s3" + s3);
+		    for (Object o: s3.incomingEdges) {
+			Edge e = (Edge) o;
+			System.out.println(e.from.stateInsts());
+		    }
+		    
+		}
 	       return parStart;
 	   
        }
@@ -292,22 +320,29 @@ public class Automaton {
     };
     
 
-    /* Automaton composition rules - implement using bfs */
-    public void composeAutomaton () {
+    /* Automaton composition rules - implement using dfs */
+    public void composeAutomaton (State s1, State s2, State prev) {
 
-      while(q.size() > 0) {
-	Element el = q.remove();
-	State s1 = el.s1;
-	State s2 = el.s2;
-	ComposedState prev = el.prev;
-	if (this.inVisited(prev) == null)
-		visitedStates.add(prev);
+
+	visitedStates.add(prev);
 	
 	ComposedState inVisited = null;
-	 if (this.isPar(s1))
+	 if (this.isPar(s1)) {
+	       //System.out.println("prev" + prev.stateInsts());
 	     	s1 = this.compose(s1);
-	 if (this.isPar(s2))
+	     	if (s1.outgoingEdges.size() == 0) {
+	     	    q.add(new Element (s1, s2, (ComposedState)prev));
+	     	    return;
+	     	}
+	 }
+	 if (this.isPar(s2)) {
+	     //System.out.println("prev" + prev.stateInsts());
 	     	s2 = this.compose(s2);
+		if (s2.outgoingEdges.size() == 0) {
+	     	    q.add(new Element (s1, s2, (ComposedState)prev));
+	     	    return;
+	     	}
+	 }
 	 if (s1.isTerminal && s2.isTerminal)  {
 	     prev.isTerminal = true;
 	 }
@@ -324,11 +359,10 @@ public class Automaton {
 		  inVisited = this.inVisited(s);
 		    if (inVisited != null)
 			s = inVisited;
-		    else 
-			visitedStates.add(s);
+
 		    new Edge(prev, s, e2.type);
 		    if (inVisited == null)
-			q.add(new Element(s1, ss2, s));
+			composeAutomaton(s1, ss2, s);
 		  
 	      }   
 	  }
@@ -345,11 +379,10 @@ public class Automaton {
 		  inVisited = this.inVisited(s);
 		    if (inVisited != null)
 			s = inVisited;
-		    else 
-			visitedStates.add(s);
+
 		    new Edge(prev, s, e1.type);
 		    if (inVisited == null)
-			      q.add(new Element(ss1, s2, s));
+			      composeAutomaton(ss1, s2, s);
 		  
 	      }   
 	  }
@@ -372,11 +405,10 @@ public class Automaton {
 			 inVisited = this.inVisited(s);
 			 if (inVisited != null)
 		 	 	    s = inVisited;
-			 else {
-			     visitedStates.add(s);
-			     q.add(new Element(ss1, ss2, s));
-			 }
-		 	 new Edge(prev, s, Edge.NEXT);
+			 new Edge(prev, s, Edge.NEXT);
+			if (inVisited == null)
+			    composeAutomaton(ss1, ss2, s);
+
 		     
 		     } 
 		     else if (e1.type == Edge.COND && e2.type == Edge.NEXT && e1.to.isClocked && e2.to.isClocked) {
@@ -388,11 +420,10 @@ public class Automaton {
 		 	 inVisited = this.inVisited(s);
 			 if (inVisited != null)
 			     s = inVisited;
-			 else {
-			     visitedStates.add(s);
-			     q.add(new Element(ss1, ss2, s));
-			 }
+			
 			 new Edge(prev, s, Edge.COND);
+			 if (inVisited == null)
+				    composeAutomaton(ss1, ss2, s);
 		   
 		     }
 		     else if (e1.type == Edge.NEXT && e2.type == Edge.COND && e1.to.isClocked && e2.to.isClocked) {
@@ -404,11 +435,9 @@ public class Automaton {
 			 inVisited = this.inVisited(s);
 			 if (inVisited != null)
 			     s = inVisited;
-			 else {
-			     visitedStates.add(s);
-			     q.add(new Element(ss1, ss2, s));
-			 }
 			 new Edge(prev, s, Edge.COND);
+			 if (inVisited == null)
+				    composeAutomaton(ss1, ss2, s);
 		     }
 		     else if ((e1.type == Edge.NEXT && e1.to.isClocked) || (e2.type == Edge.NEXT && e2.to.isClocked)) { // both are not clocked  
 			 ss1 = e1.to;
@@ -419,11 +448,10 @@ public class Automaton {
 			 inVisited = this.inVisited(s);
 			 if (inVisited != null)
 		 	 	    s = inVisited;
-			 else {
-			     visitedStates.add(s);   
-			     q.add(new Element(s1, ss2, s));
-			 }
+			
 			 new Edge(prev, s, e2.type);
+			 if (inVisited == null)
+				    composeAutomaton(s1, ss2, s);
 		 	 
 		 	 s = new ComposedState(ss1.isClocked || s2.isClocked);
 			 s.addState(ss1);
@@ -431,9 +459,10 @@ public class Automaton {
 			 inVisited = this.inVisited(s);
 			 if (inVisited != null)
 		 	 	    s = inVisited;
-			 else
-			     q.add(new Element(ss1, s2, s));
+			
 		 	 new Edge(prev, s, e1.type);
+		 	 if (inVisited == null)
+				    composeAutomaton(ss1, s2, s);
 		     
 		     } else {
 			 ss1 = e1.to;
@@ -444,11 +473,10 @@ public class Automaton {
 			 inVisited = this.inVisited(s);
 			 if (inVisited != null)
 		 	 	    s = inVisited;
-			 else {
-			     visitedStates.add(s);
-			     q.add(new Element(ss1, ss2, s));
-			 }
+		
 		 	 new Edge(prev, s, Edge.COND); 
+		 	 if (inVisited == null)
+				    composeAutomaton(ss1, ss2, s);
 			 
 		     }
 		  
@@ -461,7 +489,7 @@ public class Automaton {
 	     
 	     	
 	 }
-      }
+
     }
     
     public void parallelStatementsof(State head, State state) {
@@ -539,7 +567,7 @@ public class Automaton {
 	if (s.parallelBlocks.size() == 0)
 	    continue;
 	System.out.println("Parallel blocks of" + s.stateInsts());
-	//s.parallelBlocks = mergeStates(s.parallelBlocks);
+	s.parallelBlocks = mergeStates(s.parallelBlocks);
 	for (Object p: s.parallelBlocks)
 	    System.out.println(" " + ((State) p).stateInsts());
 	

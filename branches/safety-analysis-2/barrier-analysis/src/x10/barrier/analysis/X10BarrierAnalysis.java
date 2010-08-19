@@ -235,9 +235,10 @@ private Set retrieveClocks(int nodenum) {
 		    		    Automaton asyncAutomaton = this.parseIR(asyncNode.getGraphNodeId(), clk, isAsyncClocked);
 		    		    State asyncState = new State (j, -1, funName, amIClocked);
 		    		    new Edge (incomingState, asyncState, Edge.ASYNC);
-		    		    new Edge (asyncState, asyncAutomaton.root, Edge.PAR);
+		    		 
 		    		    currState = new State(j, j, funName, amIClocked);
 		    		    new Edge(asyncState, currState, Edge.PAR);
+		    		    new Edge (asyncState, asyncAutomaton.root, Edge.PAR);
 		    		    incomingState = currState; 
 		    		
 		    		}
@@ -317,7 +318,7 @@ private Set retrieveClocks(int nodenum) {
 		   // a.print();
 		    a.composePar();
 		    System.out.println("Automata Composed Successfully");
-		    //a.print();
+		   // a.print();
 		    a.mayHappenInParallel();
 	    }
 	  
