@@ -18,6 +18,7 @@ import polyglot.ast.Block;
 import polyglot.ast.Call;
 import polyglot.ast.ClassDecl;
 import polyglot.ast.ClassMember;
+import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
 import polyglot.ast.FieldAssign;
@@ -107,6 +108,12 @@ public class InlineHelper extends ContextVisitor {
             MethodDecl m = (MethodDecl) n;
             if (!m.flags().flags().isPrivate()) {
                 return m.flags(xnf.FlagsNode(m.position(), m.flags().flags().clearProtected().Public()));
+            }
+        }
+        if (n instanceof ConstructorDecl) {
+            ConstructorDecl c = (ConstructorDecl) n;
+            if (!c.flags().flags().isPrivate()) {
+                return c.flags(xnf.FlagsNode(c.position(), c.flags().flags().clearProtected().Public()));
             }
         }
         
