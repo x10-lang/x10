@@ -655,7 +655,8 @@ public final class Array[T](
 
     /**
      * Copy all of the values from this Array to the destination Array.
-     * The two arrays must be defined over the same Region.
+     * The two arrays must be defined over equal Regions; if the Regions
+     * are not equal, then an IllegalArgumentExeption will be raised.
      * If the destination Array is in a different place, then this copy
      * is performed asynchronously and the resulting activity will be 
      * registered with the dynamically enclosing finish.</p>
@@ -667,14 +668,16 @@ public final class Array[T](
      *   system would enable this restriction to be checked statically.</p>
      *
      * @param dst the destination array.  May be local or remote
+     * @throws IllegalArgumentException if !region.equals(dst.region)
      */
-    public def copyTo(dst:Array[T](this.region)) {
+    public def copyTo(dst:Array[T](this.rank)) {
 	copyTo(dst,false);
     }
 
     /**
      * Copy all of the values from this Array to the destination Array.
-     * The two arrays must be defined over the same Region.
+     * The two arrays must be defined over equal Regions; if the Regions
+     * are not equal, then an IllegalArgumentExeption will be raised.
      * If the destination Array is in a different place, then this copy
      * is performed asynchronously. Depending on the value of the 
      * uncounted parameter, the resulting activity will either be 
@@ -689,8 +692,10 @@ public final class Array[T](
      *
      * @param dst the destination array.  May be local or remote
      * @param uncounted Should the spawned activity be treated as if it were annotated @Uncounted
+     * @throws IllegalArgumentException if !region.equals(dst.region)
      */
-    public def copyTo(dst:Array[T](this.region), uncounted:boolean) {
+    public def copyTo(dst:Array[T](this.rank), uncounted:boolean) {
+	if (checkBounds() && !region.equals(dst.region)) throw new IllegalArgumentException("source and destination Regions are not equal");
         raw.copyTo(0, dst.home, dst.raw, 0, rawLength, uncounted);
     }
 
@@ -752,7 +757,8 @@ public final class Array[T](
 
     /**
      * Copy all of the values from the source array into this Array.
-     * The two arrays must be defined over the same Region.
+     * The two arrays must be defined over equal Regions; if the Regions
+     * are not equal, then an IllegalArgumentExeption will be raised.
      * If the source Array is in a different place, then this copy
      * is performed asynchronously and the resulting activity will be 
      * registered with the dynamically enclosing finish.</p>
@@ -764,14 +770,16 @@ public final class Array[T](
      *   system would enable this restriction to be checked statically.</p>
      *
      * @param src the source array.  May be local or remote
+     * @throws IllegalArgumentException if !region.equals(dst.region)
      */
-    public def copyFrom(src:Array[T](this.region)) {
+    public def copyFrom(src:Array[T](this.rank)) {
         copyFrom(src, false);
     }
 
     /**
      * Copy all of the values from the source array into this Array.
-     * The two arrays must be defined over the same Region.
+     * The two arrays must be defined over equal Regions; if the Regions
+     * are not equal, then an IllegalArgumentExeption will be raised.
      * If the source Array is in a different place, then this copy
      * is performed asynchronously. Depending on the value of the 
      * uncounted parameter, the resulting activity will either be 
@@ -785,8 +793,10 @@ public final class Array[T](
      *   system would enable this restriction to be checked statically.</p>
      *
      * @param src the source array.  May be local or remote
+     * @throws IllegalArgumentException if !region.equals(dst.region)
      */
-    public def copyFrom(src:Array[T](this.region), uncounted:boolean) {
+    public def copyFrom(src:Array[T](this.rank), uncounted:boolean) {
+	if (checkBounds() && !region.equals(src.region)) throw new IllegalArgumentException("source and destination Regions are not equal");
 	raw.copyFrom(0, src.home, src.raw, 0, rawLength, uncounted);
     }
 
