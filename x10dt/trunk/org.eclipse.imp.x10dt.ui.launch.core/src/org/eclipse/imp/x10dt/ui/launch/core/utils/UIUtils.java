@@ -45,6 +45,19 @@ public final class UIUtils {
   }
   
   /**
+   * Brings up the X10 console view to the end-user.
+   */
+  public static void showX10Console() {
+    final IConsoleManager consoleManager = ConsolePlugin.getDefault().getConsoleManager();
+    for (final IConsole console : consoleManager.getConsoles()) {
+      if (Messages.CPPB_ConsoleName.equals(console.getName())) {
+        consoleManager.showConsoleView(console);
+        break;
+      }
+    }
+  }
+  
+  /**
    * Shows the error log view by calling {@link #showView(String)} with the appropriate id.
    * 
    * @throws PartInitException Occurs if a workbench part could not be initialized properly.

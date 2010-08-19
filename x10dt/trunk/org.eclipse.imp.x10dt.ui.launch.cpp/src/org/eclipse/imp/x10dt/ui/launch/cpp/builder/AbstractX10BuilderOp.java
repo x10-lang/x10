@@ -234,6 +234,10 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
     } finally {
       monitor.done();
     }
+    if (! succeeded) {
+      UIUtils.showX10Console();
+    }
+    
     return succeeded;
   }
   

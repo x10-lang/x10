@@ -311,6 +311,7 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
       
       if (returnCode != 0) {
         mcStream.println();
+        UIUtils.showX10Console();
         CoreResourceUtils.addBuildMarkerTo(project, LaunchMessages.CLCD_LinkCmdError, IMarker.SEVERITY_ERROR,
                                            IMarker.PRIORITY_HIGH);
       }
