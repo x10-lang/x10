@@ -111,9 +111,9 @@ public class CompilerTestsBase {
 			System.err.println(e + ":" + e.getPosition());
 		}
 		for(ErrorInfo error: errors){
-			Assert.assertFalse(getTestId(sources, options), invariantViolation(error));
-			Assert.assertFalse(getTestId(sources, options), internalError(error));
-			Assert.assertFalse(getTestId(sources, options), notWellFormed(error));
+			Assert.assertFalse("INVARIANT: "+getTestId(sources, options) + error.getMessage(), invariantViolation(error));
+			Assert.assertFalse("INTERNAL ERROR: "+getTestId(sources, options) + error.getMessage(), internalError(error));
+			Assert.assertFalse("WELL-FORMEDNESS: "+getTestId(sources, options) + error.getMessage(), notWellFormed(error));
 		}
 		Assert.assertFalse(getTestId(sources, options), duplicateErrors(errors));
 		return errors.isEmpty();
