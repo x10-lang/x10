@@ -52,8 +52,6 @@ namespace x10 {
                 return _inputStream.skip(bytes);
             }
 
-            static x10aux::ref<FileReader__FileInputStream> STANDARD_IN();
-
             // Serialization
             static const x10aux::serialization_id_t _serialization_id;
             virtual x10aux::serialization_id_t _get_serialization_id() {
