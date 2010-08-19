@@ -11,6 +11,7 @@
 package x10c.visit;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import polyglot.ast.Block;
@@ -38,7 +39,9 @@ import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
 import polyglot.types.QName;
+import polyglot.types.Ref;
 import polyglot.types.SemanticException;
+import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
@@ -52,6 +55,8 @@ import x10.ast.X10NodeFactory;
 import x10.types.ParameterType;
 import x10.types.X10ClassType;
 import x10.types.X10MethodDef;
+import x10.types.X10MethodInstance;
+import x10.types.X10ParsedClassType;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 
@@ -84,6 +89,11 @@ public class InlineHelper extends ContextVisitor {
         return super.begin();
     }
 
+    @Override
+    protected NodeVisitor enterCall(Node parent, Node n) throws SemanticException {
+        return super.enterCall(parent, n);
+    }
+    
     @Override
     protected Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
         // change accessor from default and protected to public
@@ -177,10 +187,10 @@ public class InlineHelper extends ContextVisitor {
                             continue;
                         }
                         List<Formal> formals = new ArrayList<Formal>(mdcl.formals());
-                        ClassType t = cd.asType();
-                        LocalDef ldef = xts.localDef(pos, Flags.FINAL, Types.ref(t), cd.name());
+                        ClassType ct = cd.asType();
+                        LocalDef ldef = xts.localDef(pos, Flags.FINAL, Types.ref(ct), cd.name());
                         if (!mdcl.flags().flags().isStatic()) {
-                            formals.add(xnf.Formal(pos, xnf.FlagsNode(pos, Flags.FINAL), xnf.X10CanonicalTypeNode(pos, t), xnf.Id(pos, cd.name())).localDef(ldef));
+                            formals.add(xnf.Formal(pos, xnf.FlagsNode(pos, Flags.FINAL), xnf.X10CanonicalTypeNode(pos, ct), xnf.Id(pos, cd.name())).localDef(ldef));
                         }
                         
                         // copy implement to the body of the static bridge method ?
@@ -189,6 +199,19 @@ public class InlineHelper extends ContextVisitor {
                         for (Formal f : mdcl.formals()) {
                             args.add(xnf.Local(pos, f.name()).type(f.type().type()));
                         }
+                        
+                        List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>(mdcl.formals().size() + 1);
+                        for (Formal f : mdcl.formals()) {
+                            Type t = f.type().type();
+                            argTypes.add(f.type().typeRef());
+                        }
+                        argTypes.add(Types.ref(ct));
+                        
+                        List<Ref<? extends Type>> excTypes = new ArrayList<Ref<? extends Type>>();
+                        for (TypeNode tn : mdcl.throwTypes()) {
+                            excTypes.add(tn.typeRef());
+                        }
+                        
                         Expr call = xnf.Call(pos, xnf.Local(pos, xnf.Id(pos, cd.name())).type(cd.asType()), mdcl.name(), args).methodInstance(mdcl.methodDef().asInstance()).type(mdcl.returnType().type());
                         Block body;
                         if (mdcl.returnType().type().isVoid()) {
@@ -197,26 +220,33 @@ public class InlineHelper extends ContextVisitor {
                         else {
                             body = xnf.Block(pos, xnf.Return(pos, call));
                         }
-                        X10MethodDecl nmdcl = xnf.MethodDecl(pos, xnf.FlagsNode(pos, mdcl.flags().flags().clearPrivate().clearProtected().Public().Static()), mdcl.returnType(), xnf.Id(pos, Name.make(mdcl.name().toString() + BRIDGE_TO_PRIVATE_SUFFIX )), formals, mdcl.throwTypes(), body);
-                        nmdcl = (X10MethodDecl) nmdcl.methodDef(mdcl.methodDef());
-                        nmdcl = nmdcl.typeParameters(mdcl.typeParameters());
-                        
+                        X10MethodDecl nmdcl = xnf.MethodDecl(pos, xnf.FlagsNode(pos, mdcl.flags().flags().clearPrivate().clearProtected().clearNative().Public().Static()), mdcl.returnType(), xnf.Id(pos, Name.make(mdcl.name().toString() + BRIDGE_TO_PRIVATE_SUFFIX )), formals, mdcl.throwTypes(), body);
+                        X10MethodDef nmd = (X10MethodDef) xts.methodDef(pos, Types.ref(cd.asType()), nmdcl.flags().flags(), Types.ref(nmdcl.returnType().type()), nmdcl.name().id(), argTypes, excTypes);
+
                         // check
+                        List<Ref<? extends Type>> rts = new ArrayList<Ref<? extends Type>>();
+                        List<TypeParamNode> ts = new ArrayList<TypeParamNode>(mdcl.typeParameters());
+                        if (md instanceof X10MethodDef) {
+                            rts.addAll(((X10MethodDef) md).typeParameters());
+                        }
                         if (!mdcl.flags().flags().isStatic()) {
-                            if (t instanceof X10ClassType) {
-                                X10ClassType t2 = (X10ClassType) t;
+                            if (ct instanceof X10ClassType) {
+                                X10ClassType t2 = (X10ClassType) ct;
                                 if (t2.typeArguments().size() > 0) {
-                                    List<TypeParamNode> ts = new ArrayList<TypeParamNode>(mdcl.typeParameters());
                                     for (Type t3 : t2.typeArguments()) {
                                         if (t3 instanceof ParameterType) {
                                             ParameterType pt = (ParameterType) t3;
                                             ts.add(xnf.TypeParamNode(pos, xnf.Id(pos, pt.name())).type(pt));
+                                            rts.add(Types.ref(pt));
                                         }
                                     }
-                                    nmdcl = nmdcl.typeParameters(ts);
                                 }
                             }
                         }
+                        nmdcl = nmdcl.typeParameters(ts);
+                        nmd.setTypeParameters(rts);
+                        nmdcl = (X10MethodDecl) nmdcl.methodDef(nmd);
+                        cd.addMethod(nmd);
                         nmembers.add(nmdcl);
                     }
                     else {
@@ -258,29 +288,68 @@ public class InlineHelper extends ContextVisitor {
                 // change class public to make it visible at any call site
                 d = d.flags(xnf.FlagsNode(d.position(), d.flags().flags().clearProtected().clearPrivate().Public()));
                 return d.classDef(cd);
-            }            
+            }
         }
-
         // caller side
         if (n instanceof X10Call) {
             X10Call call = (X10Call) n;
-            MethodInstance mi = call.methodInstance();
             Receiver target = call.target();
-            if (mi.flags().isPrivate()) {
+            MethodInstance mi = call.methodInstance();
+            // C.m(a,b) --> C.xxx.yyy.C.m$P(a,b);
+            // c.m(a,b) --> xxx.yyy.C.m$P(a,b,c); (m is private)
+            if (mi.flags().isPrivate() && !mi.flags().isNative()) {
                 if (!X10TypeMixin.baseType(target.type()).typeEquals(context.currentClass(), context)) {
-                    // C.m(a,b) --> C.xxx.yyy.C.m$P(a,b);
-                    if (mi.flags().isStatic()) { 
-                        return (X10Call) xnf.Call(pos, target, xnf.Id(pos, call.name().toString() + BRIDGE_TO_PRIVATE_SUFFIX), call.arguments()).methodInstance(mi).type(mi.returnType());
-                    }
-                    // c.m(a,b) --> xxx.yyy.C.m$P(a,b,c); (m is private)
-                    else {
+                    Id id = xnf.Id(pos, call.name().toString() + BRIDGE_TO_PRIVATE_SUFFIX);
+                        List<Type> typeArgs;
+                        if (mi instanceof X10MethodInstance) {
+                            typeArgs = ((X10MethodInstance) mi).typeParameters();
+                        } else {
+                            typeArgs = Collections.EMPTY_LIST;
+                        }
                         List<Expr> arguments = new ArrayList<Expr>(call.arguments());
-                        arguments.add((Expr) target); 
                         List<Type> formals = new ArrayList<Type>(mi.formalTypes());
-                        Type t = target.type();
-                        formals.add(t);
-                        return (X10Call) xnf.Call(pos, xnf.CanonicalTypeNode(pos, target.type()), xnf.Id(pos, call.name().toString() + BRIDGE_TO_PRIVATE_SUFFIX), arguments).methodInstance(mi.formalTypes(formals)).type(mi.returnType());
-                    }
+                        if (!mi.flags().isStatic()) {
+                            arguments.add((Expr) target); 
+                            formals.add(X10TypeMixin.baseType(target.type()));
+                        }
+                        
+                        StructType container = mi.container();
+                        X10MethodDef md = (X10MethodDef) xts.methodDef(pos, Types.ref(container), mi.flags().clearNative().clearPrivate().Static(), Types.ref(mi.returnType()), id.id(), getRefList(formals), getRefList(mi.throwTypes()));
+                        List<Ref<? extends Type>> rts = new ArrayList<Ref<? extends Type>>();
+                        if (md instanceof X10MethodDef) {
+                            rts.addAll(((X10MethodDef) mi.def()).typeParameters());
+                        }
+                        if (!mi.flags().isStatic()) {
+                            if (container instanceof X10ClassType) {
+                                X10ClassType t2 = (X10ClassType) container;
+                                if (t2.typeArguments().size() > 0) {
+                                    for (Type t3 : t2.typeArguments()) {
+                                        if (t3 instanceof ParameterType) {
+                                            ParameterType pt = (ParameterType) t3;
+                                            rts.add(Types.ref(pt));
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        md.setTypeParameters(rts);
+                        
+                        X10MethodInstance nmi = (X10MethodInstance) md.asInstance();
+                        Type tt = X10TypeMixin.baseType(target.type());
+                        List<Type> tas = new ArrayList<Type>();
+                        if (mi instanceof X10MethodInstance) {
+                            tas.addAll(((X10MethodInstance) mi).typeParameters());
+                        }
+                        if (!mi.flags().isStatic() && tt instanceof X10ParsedClassType) {
+                            tas.addAll(((X10ParsedClassType) tt).typeArguments());
+                        }
+                        nmi = (X10MethodInstance) nmi.typeParameters(tas);
+                        
+                        if (mi.flags().isStatic()) {
+                            return (X10Call) xnf.Call(pos, target, id, call.arguments()).methodInstance(nmi).type(nmi.returnType());
+                        } else {
+                            return (X10Call) xnf.Call(pos, xnf.CanonicalTypeNode(pos, target.type()), id, arguments).methodInstance(nmi).type(nmi.returnType());
+                        }
                 }
             }
             // c.super.m() --> c.xxx$yyy$C$m$S();
@@ -288,6 +357,14 @@ public class InlineHelper extends ContextVisitor {
             return n;
         }
         return n;
+    }
+
+    private static List<Ref<? extends Type>> getRefList(List<Type> types) {
+        List<Ref<? extends Type>> refs = new ArrayList<Ref<? extends Type>>();
+        for (Type type : types) {
+            refs.add(Types.ref(type));
+        }
+        return refs;
     }
 
     private boolean prepareForInlining(ClassDef cd) {
