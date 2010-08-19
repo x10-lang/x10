@@ -936,6 +936,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             case CHECKED:
             case PRIMITIVE:
             case SUBTYPE:
+            case UNCHECKED:
                     if (tn instanceof X10CanonicalTypeNode) {
                             X10CanonicalTypeNode xtn = (X10CanonicalTypeNode) tn;
 
