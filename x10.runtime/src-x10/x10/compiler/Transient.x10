@@ -9,18 +9,8 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
- /**  
- Check that circular dependencies between classes are handled correctly
- during TypeElaboration.
- See CircularField.x10
- 
- *@author vj
- *
- */
+package x10.compiler;
 
- public class CF1(i:int, j:int)  {
-     public def this(i:int, j:int):CF1{self.i==i,self.j==j} {
-	    property(i,j);
-     }
-     var f:CircularField{k==3} = null;
- }
+import x10.lang.annotations.StatementAnnotation;
+
+public interface Transient extends StatementAnnotation {}

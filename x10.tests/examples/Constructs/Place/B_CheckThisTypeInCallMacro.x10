@@ -18,13 +18,21 @@ import harness.x10Test;
  * 
  * @author vj
  */
-class R(rank:Int) {
+
+public class B_CheckThisTypeInCallMacro extends x10Test {
+    public def run() = true;
+    public static def main(Rail[String]) {
+	  new 
+	  B_CheckThisTypeInCallMacro().execute();
+    }
+
+static class R(rank:Int) {
 	static type R(r:int)=R{self.rank==r};
 	static type Test(r:int)=Test{self.rank==r};
     def check( tt:Test(this.rank)) {}       
     def this(r:Int){property(r);}
   }
-class Test(rank:Int) {
+static class Test(rank:Int) {
 	static type Test(r:int)=Test{self.rank==r};
 	static type R(r:int)=R{self.rank==r};
     def this(r:Int){property(r);}
@@ -33,11 +41,5 @@ class Test(rank:Int) {
          r.check(t);
     }
 }
-public class B_CheckThisTypeInCallMacro extends x10Test {
-    public def run() = true;
-    public static def main(Rail[String]) {
-	  new 
-	  B_CheckThisTypeInCallMacro().execute();
-    }
 
 }

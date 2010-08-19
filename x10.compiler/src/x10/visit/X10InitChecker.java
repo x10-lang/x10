@@ -13,6 +13,8 @@ package x10.visit;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import polyglot.ast.ClassBody;
 import polyglot.ast.ClassDecl;
@@ -20,6 +22,8 @@ import polyglot.ast.ClassMember;
 import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.Term;
+import polyglot.ast.Expr;
 import polyglot.frontend.Job;
 import polyglot.types.ClassDef;
 import polyglot.types.SemanticException;
@@ -27,7 +31,9 @@ import polyglot.types.TypeSystem;
 import polyglot.util.InternalCompilerError;
 import polyglot.visit.InitChecker;
 import polyglot.visit.NodeVisitor;
+import polyglot.visit.FlowGraph;
 import x10.ast.X10ClassDecl;
+import x10.ast.ParExpr;
 
 public class X10InitChecker extends InitChecker {
 
@@ -35,6 +41,26 @@ public class X10InitChecker extends InitChecker {
 	super(job, ts, nf);
     }
 
+    public Map flow(Item trueItem, Item falseItem, Item otherItem,
+            FlowGraph graph, Term n, boolean entry, Set succEdgeKeys) {
+        Item inItem = safeConfluence(trueItem, FlowGraph.EDGE_KEY_TRUE,
+                                     falseItem, FlowGraph.EDGE_KEY_FALSE,
+                                     otherItem, FlowGraph.EDGE_KEY_OTHER,
+                                     n, entry, graph);
+        if (entry) {
+            return itemToMap(inItem, succEdgeKeys);
+        }
+        if (inItem == BOTTOM) {
+            return itemToMap(BOTTOM, succEdgeKeys);
+        }
+        DataFlowItem inDFItem = ((DataFlowItem)inItem);
+        if (n instanceof ParExpr && ((ParExpr)n).type().isBoolean()) {
+            if (trueItem == null) trueItem = inDFItem;
+            if (falseItem == null) falseItem = inDFItem;
+            return itemsToMap(trueItem, falseItem, inDFItem, succEdgeKeys);
+        }
+        return super.flow(trueItem, falseItem, otherItem, graph,n, entry, succEdgeKeys);
+    }
     /**
      * Overridden superclass method.
      * 

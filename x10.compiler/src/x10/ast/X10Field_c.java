@@ -31,7 +31,6 @@ import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.Name;
-import polyglot.types.NoMemberException;
 import polyglot.types.SemanticException;
 import polyglot.types.StructType;
 import polyglot.types.Type;
@@ -131,11 +130,11 @@ public class X10Field_c extends Field_c {
             Type tType2 = placeTerm==null ? targetType : Subst.subst(targetType, currentPlace, (XVar) placeTerm);
             fi = (X10FieldInstance) ts.findField(targetType, ts.FieldMatcher(tType2, receiverInContext, name, c));
             if (isStatic && !fi.flags().isStatic())
-                throw new NoMemberException(NoMemberException.FIELD, "Cannot access non-static field "+name+" in static context");
+                throw new SemanticException("Cannot access non-static field "+name+" in static context");
             assert (fi != null);
             // substitute currentPlace back in.
             fi = placeTerm == null ? fi : Subst.subst(fi, placeTerm, currentPlace);
-        } catch (NoMemberException e) {
+        } catch (SemanticException e) {
             fi = findAppropriateField(tc, targetType, name, isStatic, e);
         }
         return fi;
