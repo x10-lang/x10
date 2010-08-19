@@ -12,17 +12,19 @@ public class Test{
 
    public  def run(): boolean {
        val c = new Clock();
-       val d = new Clock();
+
        shared var y :Int = 4;
-       val x = (1 > 2) ? c:d ;
+
    
+       for(;;)
        async clocked(c) {
           y = 2;
           next;
           y = 3;
+          next;
+          y = 4;
        }
-       next;
-       y = 4;
+    
     }
        
      		  
