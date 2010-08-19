@@ -13,7 +13,7 @@ package x10.parser;
 
 import lpg.runtime.*;
 
-//#line 32 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+//#line 32 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,6 +24,7 @@ import java.io.File;
 
 import polyglot.types.QName;
 import polyglot.types.Name;
+import polyglot.ast.AmbTypeNode;
 import polyglot.ast.AmbExpr;
 import polyglot.ast.Assign;
 import polyglot.ast.Binary;
@@ -279,7 +280,7 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
     //
     
 
-    //#line 312 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+    //#line 313 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
     private ErrorQueue eq;
     private X10TypeSystem ts;
     private X10NodeFactory nf;
@@ -890,10 +891,10 @@ public static class MessageHandler implements IMessageHandler {
             // Rule 1:  TypeName ::= TypeName . ErrorId
             //
             case 1: {
-               //#line 8 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 6 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/MissingId.gi"
+               //#line 8 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 6 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/MissingId.gi"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 8 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 8 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                     setResult(new ParsedName(nf,
                                       ts,
                                       pos(getLeftSpan(), getRightSpan()),
@@ -906,10 +907,10 @@ public static class MessageHandler implements IMessageHandler {
             // Rule 2:  PackageName ::= PackageName . ErrorId
             //
             case 2: {
-               //#line 18 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 16 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/MissingId.gi"
+               //#line 18 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 16 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/MissingId.gi"
                 ParsedName PackageName = (ParsedName) getRhsSym(1);
-                //#line 18 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 18 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                     setResult(new ParsedName(nf,
                                       ts,
                                       pos(getLeftSpan(), getRightSpan()),
@@ -922,10 +923,10 @@ public static class MessageHandler implements IMessageHandler {
             // Rule 3:  ExpressionName ::= AmbiguousName . ErrorId
             //
             case 3: {
-               //#line 28 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 26 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/MissingId.gi"
+               //#line 28 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 26 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/MissingId.gi"
                 ParsedName AmbiguousName = (ParsedName) getRhsSym(1);
-                //#line 28 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 28 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                     setResult(new ParsedName(nf,
                                       ts,
                                       pos(getLeftSpan(), getRightSpan()),
@@ -938,10 +939,10 @@ public static class MessageHandler implements IMessageHandler {
             // Rule 4:  MethodName ::= AmbiguousName . ErrorId
             //
             case 4: {
-               //#line 38 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 36 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/MissingId.gi"
+               //#line 38 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 36 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/MissingId.gi"
                 ParsedName AmbiguousName = (ParsedName) getRhsSym(1);
-                //#line 38 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 38 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                     setResult(new ParsedName(nf,
                                       ts,
                                       pos(getLeftSpan(), getRightSpan()),
@@ -954,10 +955,10 @@ public static class MessageHandler implements IMessageHandler {
             // Rule 5:  PackageOrTypeName ::= PackageOrTypeName . ErrorId
             //
             case 5: {
-               //#line 48 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 46 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/MissingId.gi"
+               //#line 48 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 46 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/MissingId.gi"
                 ParsedName PackageOrTypeName = (ParsedName) getRhsSym(1);
-                //#line 48 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 48 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                     setResult(new ParsedName(nf,
                                       ts,
                                       pos(getLeftSpan(), getRightSpan()),
@@ -970,10 +971,10 @@ public static class MessageHandler implements IMessageHandler {
             // Rule 6:  AmbiguousName ::= AmbiguousName . ErrorId
             //
             case 6: {
-               //#line 58 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 56 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/MissingId.gi"
+               //#line 58 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 56 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/MissingId.gi"
                 ParsedName AmbiguousName = (ParsedName) getRhsSym(1);
-                //#line 58 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 58 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                     setResult(new ParsedName(nf,
                                       ts,
                                       pos(getLeftSpan(), getRightSpan()),
@@ -986,10 +987,10 @@ public static class MessageHandler implements IMessageHandler {
             // Rule 7:  FieldAccess ::= Primary . ErrorId
             //
             case 7: {
-               //#line 68 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 66 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/MissingId.gi"
+               //#line 68 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 66 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/MissingId.gi"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 68 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 68 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Field(pos(), Primary,
                                       nf.Id(pos(getRightSpan()), "*")));
                       break;
@@ -999,9 +1000,9 @@ public static class MessageHandler implements IMessageHandler {
             // Rule 8:  FieldAccess ::= super . ErrorId
             //
             case 8: {
-               //#line 74 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 74 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 74 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 74 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getLeftSpan())),
                                       nf.Id(pos(getRightSpan()), "*")));
                       break;
@@ -1011,12 +1012,12 @@ public static class MessageHandler implements IMessageHandler {
             // Rule 9:  FieldAccess ::= ClassName . super$sup . ErrorId
             //
             case 9: {
-               //#line 80 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 78 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/MissingId.gi"
+               //#line 80 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 78 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/MissingId.gi"
                 ParsedName ClassName = (ParsedName) getRhsSym(1);
-                //#line 78 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/MissingId.gi"
+                //#line 78 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/MissingId.gi"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 80 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 80 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getRhsFirstTokenIndex(3)), ClassName.toType()),
                                       nf.Id(pos(getRightSpan()), "*")));
                       break;
@@ -1026,12 +1027,12 @@ public static class MessageHandler implements IMessageHandler {
             // Rule 10:  MethodInvocation ::= MethodPrimaryPrefix ( ArgumentListopt )
             //
             case 10: {
-               //#line 87 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 85 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/MissingId.gi"
+               //#line 87 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 85 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/MissingId.gi"
                 Object MethodPrimaryPrefix = (Object) getRhsSym(1);
-                //#line 85 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/MissingId.gi"
+                //#line 85 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/MissingId.gi"
                 List ArgumentListopt = (List) getRhsSym(3);
-                //#line 87 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 87 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 Expr Primary = (Expr) ((Object[]) MethodPrimaryPrefix)[0];
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) ((Object[]) MethodPrimaryPrefix)[1];
                 setResult(nf.Call(pos(), Primary, nf.Id(pos(), identifier.getIdentifier()), ArgumentListopt));
@@ -1042,12 +1043,12 @@ public static class MessageHandler implements IMessageHandler {
             // Rule 11:  MethodInvocation ::= MethodSuperPrefix ( ArgumentListopt )
             //
             case 11: {
-               //#line 94 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 92 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/MissingId.gi"
+               //#line 94 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 92 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/MissingId.gi"
                 polyglot.lex.Identifier MethodSuperPrefix = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 92 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/MissingId.gi"
+                //#line 92 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/MissingId.gi"
                 List ArgumentListopt = (List) getRhsSym(3);
-                //#line 94 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 94 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 polyglot.lex.Identifier identifier = MethodSuperPrefix;
                 setResult(nf.Call(pos(), nf.Super(pos(getLeftSpan())), nf.Id(pos(), identifier.getIdentifier()), ArgumentListopt));
                       break;
@@ -1057,12 +1058,12 @@ public static class MessageHandler implements IMessageHandler {
             // Rule 12:  MethodInvocation ::= MethodClassNameSuperPrefix ( ArgumentListopt )
             //
             case 12: {
-               //#line 100 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 98 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/MissingId.gi"
+               //#line 100 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 98 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/MissingId.gi"
                 Object MethodClassNameSuperPrefix = (Object) getRhsSym(1);
-                //#line 98 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/MissingId.gi"
+                //#line 98 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/MissingId.gi"
                 List ArgumentListopt = (List) getRhsSym(3);
-                //#line 100 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 100 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 ParsedName ClassName = (ParsedName) ((Object[]) MethodClassNameSuperPrefix)[0];
                 JPGPosition super_pos = (JPGPosition) ((Object[]) MethodClassNameSuperPrefix)[1];
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) ((Object[]) MethodClassNameSuperPrefix)[2];
@@ -1074,12 +1075,12 @@ public static class MessageHandler implements IMessageHandler {
             // Rule 13:  MethodPrimaryPrefix ::= Primary . ErrorId$ErrorId
             //
             case 13: {
-               //#line 109 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 107 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/MissingId.gi"
+               //#line 109 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 107 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/MissingId.gi"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 107 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/MissingId.gi"
+                //#line 107 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/MissingId.gi"
                 IToken ErrorId = (IToken) getRhsIToken(3);
-                //#line 109 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 109 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 Object[] a = new Object[2];
                 a[0] = Primary;
                 a[1] = id(getRhsFirstTokenIndex(3));
@@ -1091,10 +1092,10 @@ public static class MessageHandler implements IMessageHandler {
             // Rule 14:  MethodSuperPrefix ::= super . ErrorId$ErrorId
             //
             case 14: {
-               //#line 117 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 115 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/MissingId.gi"
+               //#line 117 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 115 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/MissingId.gi"
                 IToken ErrorId = (IToken) getRhsIToken(3);
-                //#line 117 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 117 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(id(getRhsFirstTokenIndex(3)));
                       break;
             }
@@ -1103,14 +1104,14 @@ public static class MessageHandler implements IMessageHandler {
             // Rule 15:  MethodClassNameSuperPrefix ::= ClassName . super$sup . ErrorId$ErrorId
             //
             case 15: {
-               //#line 122 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 120 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/MissingId.gi"
+               //#line 122 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 120 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/MissingId.gi"
                 ParsedName ClassName = (ParsedName) getRhsSym(1);
-                //#line 120 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/MissingId.gi"
+                //#line 120 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/MissingId.gi"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 120 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/MissingId.gi"
+                //#line 120 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/MissingId.gi"
                 IToken ErrorId = (IToken) getRhsIToken(5);
-                //#line 122 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 122 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 Object[] a = new Object[3];
                 a[0] = ClassName;
                 a[1] = pos(getRhsFirstTokenIndex(3));
@@ -1123,20 +1124,20 @@ public static class MessageHandler implements IMessageHandler {
             // Rule 16:  TypeDefDeclaration ::= TypeDefModifiersopt type Identifier TypeParametersopt FormalParametersopt WhereClauseopt = Type ;
             //
             case 16: {
-               //#line 918 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 916 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+               //#line 919 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 917 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List TypeDefModifiersopt = (List) getRhsSym(1);
-                //#line 916 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 917 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 916 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 917 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(4);
-                //#line 916 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 917 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List FormalParametersopt = (List) getRhsSym(5);
-                //#line 916 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 917 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 916 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 917 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(8);
-                //#line 918 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 919 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 FlagsNode f = extractFlags(TypeDefModifiersopt);
                 List annotations = extractAnnotations(TypeDefModifiersopt);
                 for (Formal v : (List<Formal>) FormalParametersopt) {
@@ -1152,10 +1153,10 @@ public static class MessageHandler implements IMessageHandler {
             // Rule 17:  Properties ::= ( PropertyList )
             //
             case 17: {
-               //#line 931 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 929 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+               //#line 932 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 930 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List PropertyList = (List) getRhsSym(2);
-                //#line 931 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 932 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
    setResult(PropertyList);
                  break;
             } 
@@ -1163,10 +1164,10 @@ public static class MessageHandler implements IMessageHandler {
             // Rule 18:  PropertyList ::= Property
             //
             case 18: {
-               //#line 936 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 934 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+               //#line 937 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 935 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 PropertyDecl Property = (PropertyDecl) getRhsSym(1);
-                //#line 936 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 937 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), PropertyDecl.class, false);
                 l.add(Property);
                 setResult(l);
@@ -1177,12 +1178,12 @@ public static class MessageHandler implements IMessageHandler {
             // Rule 19:  PropertyList ::= PropertyList , Property
             //
             case 19: {
-               //#line 943 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 941 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+               //#line 944 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 942 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List PropertyList = (List) getRhsSym(1);
-                //#line 941 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 942 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 PropertyDecl Property = (PropertyDecl) getRhsSym(3);
-                //#line 943 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 944 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 PropertyList.add(Property);
                       break;
             }
@@ -1191,14 +1192,14 @@ public static class MessageHandler implements IMessageHandler {
             // Rule 20:  Property ::= Annotationsopt Identifier ResultType
             //
             case 20: {
-               //#line 950 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 948 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+               //#line 951 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 949 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List Annotationsopt = (List) getRhsSym(1);
-                //#line 948 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 949 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(2);
-                //#line 948 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 949 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode ResultType = (TypeNode) getRhsSym(3);
-                //#line 950 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 951 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List annotations = extractAnnotations(Annotationsopt);
                 PropertyDecl cd = nf.PropertyDecl(pos(), nf.FlagsNode(pos(), Flags.PUBLIC.Final()), ResultType, Identifier);
                 cd = (PropertyDecl) ((X10Ext) cd.ext()).annotations(annotations);
@@ -1210,26 +1211,26 @@ public static class MessageHandler implements IMessageHandler {
             // Rule 21:  MethodDeclaration ::= MethodModifiersopt def Identifier TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
             //
             case 21: {
-               //#line 959 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 957 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+               //#line 960 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 958 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 957 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 958 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 957 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 958 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(4);
-                //#line 957 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 958 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List FormalParameters = (List) getRhsSym(5);
-                //#line 957 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 958 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 957 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 958 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode HasResultTypeopt = (TypeNode) getRhsSym(7);
-                //#line 957 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 958 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(8);
-                //#line 957 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 958 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Offersopt = (TypeNode) getRhsSym(9);
-                //#line 957 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 958 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(10);
-                //#line 959 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 960 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
        ProcedureDecl pd;
        if (Identifier.id().toString().equals("this")) {
                    pd = nf.X10ConstructorDecl(pos(),
@@ -1265,28 +1266,28 @@ public static class MessageHandler implements IMessageHandler {
             // Rule 22:  MethodDeclaration ::= MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) BinOp ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
             //
             case 22: {
-               //#line 991 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 989 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+               //#line 992 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 990 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 989 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 990 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(3);
-                //#line 989 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 990 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 X10Formal fp1 = (X10Formal) getRhsSym(5);
-                //#line 989 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 990 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Binary.Operator BinOp = (Binary.Operator) getRhsSym(7);
-                //#line 989 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 990 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 X10Formal fp2 = (X10Formal) getRhsSym(9);
-                //#line 989 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 990 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(11);
-                //#line 989 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 990 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode HasResultTypeopt = (TypeNode) getRhsSym(12);
-                //#line 989 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 990 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(13);
-                //#line 989 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 990 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Offersopt = (TypeNode) getRhsSym(14);
-                //#line 989 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 990 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(15);
-                //#line 991 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 992 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
        MethodDecl md = nf.X10MethodDecl(pos(),
           extractFlags(MethodModifiersopt),
           HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
@@ -1308,26 +1309,26 @@ public static class MessageHandler implements IMessageHandler {
             // Rule 23:  MethodDeclaration ::= MethodModifiersopt operator TypeParametersopt PrefixOp ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
             //
             case 23: {
-               //#line 1009 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1007 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1010 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1008 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 1007 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1008 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(3);
-                //#line 1007 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1008 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Unary.Operator PrefixOp = (Unary.Operator) getRhsSym(4);
-                //#line 1007 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1008 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 X10Formal fp2 = (X10Formal) getRhsSym(6);
-                //#line 1007 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1008 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(8);
-                //#line 1007 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1008 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode HasResultTypeopt = (TypeNode) getRhsSym(9);
-                //#line 1007 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1008 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(10);
-                //#line 1007 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1008 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Offersopt = (TypeNode) getRhsSym(11);
-                //#line 1007 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1008 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(12);
-                //#line 1009 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1010 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
        MethodDecl md = nf.X10MethodDecl(pos(),
           extractFlags(MethodModifiersopt),
           HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
@@ -1339,7 +1340,7 @@ public static class MessageHandler implements IMessageHandler {
           Offersopt,
           MethodBody);
       if (! md.flags().flags().isStatic())
-          syntaxError("Unary operator with two parameters must be static.", md.position());
+          syntaxError("Unary operator with one parameter must be static.", md.position());
       md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(MethodModifiersopt));
       setResult(md);
                       break;
@@ -1349,26 +1350,26 @@ public static class MessageHandler implements IMessageHandler {
             // Rule 24:  MethodDeclaration ::= MethodModifiersopt operator TypeParametersopt this BinOp ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
             //
             case 24: {
-               //#line 1027 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1025 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1028 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1026 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 1025 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1026 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(3);
-                //#line 1025 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1026 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Binary.Operator BinOp = (Binary.Operator) getRhsSym(5);
-                //#line 1025 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1026 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 X10Formal fp2 = (X10Formal) getRhsSym(7);
-                //#line 1025 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1026 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(9);
-                //#line 1025 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1026 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode HasResultTypeopt = (TypeNode) getRhsSym(10);
-                //#line 1025 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1026 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(11);
-                //#line 1025 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1026 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Offersopt = (TypeNode) getRhsSym(12);
-                //#line 1025 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1026 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(13);
-                //#line 1027 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1028 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
        MethodDecl md = nf.X10MethodDecl(pos(),
           extractFlags(MethodModifiersopt),
           HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
@@ -1391,26 +1392,26 @@ public static class MessageHandler implements IMessageHandler {
             // Rule 25:  MethodDeclaration ::= MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) BinOp this WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
             //
             case 25: {
-               //#line 1046 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1044 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1047 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1045 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 1044 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1045 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(3);
-                //#line 1044 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1045 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 X10Formal fp1 = (X10Formal) getRhsSym(5);
-                //#line 1044 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1045 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Binary.Operator BinOp = (Binary.Operator) getRhsSym(7);
-                //#line 1044 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1045 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(9);
-                //#line 1044 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1045 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode HasResultTypeopt = (TypeNode) getRhsSym(10);
-                //#line 1044 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1045 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(11);
-                //#line 1044 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1045 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Offersopt = (TypeNode) getRhsSym(12);
-                //#line 1044 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1045 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(13);
-                //#line 1046 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1047 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
        Name op = X10Binary_c.invBinaryMethodName(BinOp);
        MethodDecl md = nf.X10MethodDecl(pos(),
           extractFlags(MethodModifiersopt),
@@ -1434,24 +1435,24 @@ public static class MessageHandler implements IMessageHandler {
             // Rule 26:  MethodDeclaration ::= MethodModifiersopt operator TypeParametersopt PrefixOp this WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
             //
             case 26: {
-               //#line 1066 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1064 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1067 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1065 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 1064 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1065 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(3);
-                //#line 1064 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1065 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Unary.Operator PrefixOp = (Unary.Operator) getRhsSym(4);
-                //#line 1064 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1065 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 1064 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1065 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode HasResultTypeopt = (TypeNode) getRhsSym(7);
-                //#line 1064 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1065 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(8);
-                //#line 1064 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1065 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Offersopt = (TypeNode) getRhsSym(9);
-                //#line 1064 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1065 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(10);
-                //#line 1066 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1067 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
        MethodDecl md = nf.X10MethodDecl(pos(),
           extractFlags(MethodModifiersopt),
           HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
@@ -1473,24 +1474,24 @@ public static class MessageHandler implements IMessageHandler {
             // Rule 27:  MethodDeclaration ::= MethodModifiersopt operator this TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
             //
             case 27: {
-               //#line 1084 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1082 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1085 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1083 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 1082 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1083 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(4);
-                //#line 1082 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1083 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List FormalParameters = (List) getRhsSym(5);
-                //#line 1082 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1083 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 1082 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1083 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode HasResultTypeopt = (TypeNode) getRhsSym(7);
-                //#line 1082 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1083 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(8);
-                //#line 1082 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1083 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Offersopt = (TypeNode) getRhsSym(9);
-                //#line 1082 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1083 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(10);
-                //#line 1084 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1085 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
        MethodDecl md = nf.X10MethodDecl(pos(),
           extractFlags(MethodModifiersopt),
           HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
@@ -1512,26 +1513,26 @@ public static class MessageHandler implements IMessageHandler {
             // Rule 28:  MethodDeclaration ::= MethodModifiersopt operator this TypeParametersopt FormalParameters = ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
             //
             case 28: {
-               //#line 1102 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1100 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1103 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1101 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 1100 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1101 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(4);
-                //#line 1100 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1101 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List FormalParameters = (List) getRhsSym(5);
-                //#line 1100 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1101 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 X10Formal fp2 = (X10Formal) getRhsSym(8);
-                //#line 1100 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1101 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(10);
-                //#line 1100 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1101 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode HasResultTypeopt = (TypeNode) getRhsSym(11);
-                //#line 1100 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1101 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(12);
-                //#line 1100 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1101 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Offersopt = (TypeNode) getRhsSym(13);
-                //#line 1100 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1101 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(14);
-                //#line 1102 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1103 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
        MethodDecl md = nf.X10MethodDecl(pos(),
           extractFlags(MethodModifiersopt),
           HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
@@ -1553,24 +1554,24 @@ public static class MessageHandler implements IMessageHandler {
             // Rule 29:  MethodDeclaration ::= MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) as Type WhereClauseopt Throwsopt Offersopt MethodBody
             //
             case 29: {
-               //#line 1120 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1118 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1121 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1119 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 1118 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1119 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(3);
-                //#line 1118 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1119 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 X10Formal fp1 = (X10Formal) getRhsSym(5);
-                //#line 1118 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1119 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(8);
-                //#line 1118 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1119 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(9);
-                //#line 1118 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1119 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(10);
-                //#line 1118 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1119 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Offersopt = (TypeNode) getRhsSym(11);
-                //#line 1118 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1119 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(12);
-                //#line 1120 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1121 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
        MethodDecl md = nf.X10MethodDecl(pos(),
           extractFlags(MethodModifiersopt),
           Type,
@@ -1592,24 +1593,24 @@ public static class MessageHandler implements IMessageHandler {
             // Rule 30:  MethodDeclaration ::= MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) as ? WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
             //
             case 30: {
-               //#line 1138 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1136 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1139 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1137 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 1136 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1137 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(3);
-                //#line 1136 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1137 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 X10Formal fp1 = (X10Formal) getRhsSym(5);
-                //#line 1136 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1137 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(9);
-                //#line 1136 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1137 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode HasResultTypeopt = (TypeNode) getRhsSym(10);
-                //#line 1136 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1137 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(11);
-                //#line 1136 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1137 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Offersopt = (TypeNode) getRhsSym(12);
-                //#line 1136 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1137 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(13);
-                //#line 1138 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1139 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
        MethodDecl md = nf.X10MethodDecl(pos(),
           extractFlags(MethodModifiersopt),
           HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
@@ -1631,24 +1632,24 @@ public static class MessageHandler implements IMessageHandler {
             // Rule 31:  MethodDeclaration ::= MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
             //
             case 31: {
-               //#line 1156 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1154 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1157 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1155 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 1154 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1155 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(3);
-                //#line 1154 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1155 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 X10Formal fp1 = (X10Formal) getRhsSym(5);
-                //#line 1154 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1155 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(7);
-                //#line 1154 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1155 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode HasResultTypeopt = (TypeNode) getRhsSym(8);
-                //#line 1154 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1155 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(9);
-                //#line 1154 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1155 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Offersopt = (TypeNode) getRhsSym(10);
-                //#line 1154 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1155 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(11);
-                //#line 1156 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1157 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
        MethodDecl md = nf.X10MethodDecl(pos(),
           extractFlags(MethodModifiersopt),
           HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
@@ -1670,22 +1671,22 @@ public static class MessageHandler implements IMessageHandler {
             // Rule 32:  PropertyMethodDeclaration ::= MethodModifiersopt property Identifier TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt MethodBody
             //
             case 32: {
-               //#line 1175 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1173 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1176 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1174 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 1173 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1174 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 1173 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1174 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(4);
-                //#line 1173 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1174 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List FormalParameters = (List) getRhsSym(5);
-                //#line 1173 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1174 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 1173 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1174 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode HasResultTypeopt = (TypeNode) getRhsSym(7);
-                //#line 1173 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1174 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(8);
-                //#line 1175 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1176 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
        MethodDecl md = nf.X10MethodDecl(pos(),
           extractFlags(MethodModifiersopt, X10Flags.PROPERTY),
           HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
@@ -1705,18 +1706,18 @@ public static class MessageHandler implements IMessageHandler {
             // Rule 33:  PropertyMethodDeclaration ::= MethodModifiersopt property Identifier WhereClauseopt HasResultTypeopt MethodBody
             //
             case 33: {
-               //#line 1191 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1189 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1192 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1190 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 1189 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1190 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 1189 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1190 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(4);
-                //#line 1189 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1190 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode HasResultTypeopt = (TypeNode) getRhsSym(5);
-                //#line 1189 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1190 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(6);
-                //#line 1191 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1192 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
        MethodDecl md = nf.X10MethodDecl(pos(),
           extractFlags(MethodModifiersopt, X10Flags.PROPERTY),
           HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
@@ -1736,12 +1737,12 @@ public static class MessageHandler implements IMessageHandler {
             // Rule 34:  ExplicitConstructorInvocation ::= this TypeArgumentsopt ( ArgumentListopt ) ;
             //
             case 34: {
-               //#line 1208 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1206 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1209 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1207 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(2);
-                //#line 1206 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1207 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(4);
-                //#line 1208 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1209 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10ThisCall(pos(), TypeArgumentsopt, ArgumentListopt));
                       break;
             }
@@ -1750,12 +1751,12 @@ public static class MessageHandler implements IMessageHandler {
             // Rule 35:  ExplicitConstructorInvocation ::= super TypeArgumentsopt ( ArgumentListopt ) ;
             //
             case 35: {
-               //#line 1213 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1211 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1214 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1212 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(2);
-                //#line 1211 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1212 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(4);
-                //#line 1213 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1214 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10SuperCall(pos(), TypeArgumentsopt, ArgumentListopt));
                       break;
             }
@@ -1764,14 +1765,14 @@ public static class MessageHandler implements IMessageHandler {
             // Rule 36:  ExplicitConstructorInvocation ::= Primary . this TypeArgumentsopt ( ArgumentListopt ) ;
             //
             case 36: {
-               //#line 1218 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1216 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1219 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1217 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 1216 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1217 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(4);
-                //#line 1216 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1217 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(6);
-                //#line 1218 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1219 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10ThisCall(pos(), Primary, TypeArgumentsopt, ArgumentListopt));
                       break;
             }
@@ -1780,14 +1781,14 @@ public static class MessageHandler implements IMessageHandler {
             // Rule 37:  ExplicitConstructorInvocation ::= Primary . super TypeArgumentsopt ( ArgumentListopt ) ;
             //
             case 37: {
-               //#line 1223 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1221 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1224 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1222 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 1221 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1222 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(4);
-                //#line 1221 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1222 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(6);
-                //#line 1223 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1224 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10SuperCall(pos(), Primary, TypeArgumentsopt, ArgumentListopt));
                       break;
             }
@@ -1796,22 +1797,22 @@ public static class MessageHandler implements IMessageHandler {
             // Rule 38:  NormalInterfaceDeclaration ::= InterfaceModifiersopt interface Identifier TypeParamsWithVarianceopt Propertiesopt WhereClauseopt ExtendsInterfacesopt InterfaceBody
             //
             case 38: {
-               //#line 1229 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1227 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1230 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1228 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List InterfaceModifiersopt = (List) getRhsSym(1);
-                //#line 1227 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1228 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 1227 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1228 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List TypeParamsWithVarianceopt = (List) getRhsSym(4);
-                //#line 1227 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1228 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List Propertiesopt = (List) getRhsSym(5);
-                //#line 1227 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1228 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 1227 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1228 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List ExtendsInterfacesopt = (List) getRhsSym(7);
-                //#line 1227 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1228 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ClassBody InterfaceBody = (ClassBody) getRhsSym(8);
-                //#line 1229 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1230 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
       checkTypeName(Identifier);
       List TypeParametersopt = TypeParamsWithVarianceopt;
       List/*<PropertyDecl>*/ props = Propertiesopt;
@@ -1835,16 +1836,16 @@ public static class MessageHandler implements IMessageHandler {
             // Rule 39:  ClassInstanceCreationExpression ::= new TypeName TypeArgumentsopt ( ArgumentListopt ) ClassBodyopt
             //
             case 39: {
-               //#line 1250 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1248 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1251 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1249 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(2);
-                //#line 1248 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1249 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(3);
-                //#line 1248 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1249 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(5);
-                //#line 1248 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1249 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ClassBody ClassBodyopt = (ClassBody) getRhsSym(7);
-                //#line 1250 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1251 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 if (ClassBodyopt == null)
                      setResult(nf.X10New(pos(), TypeName.toType(), TypeArgumentsopt, ArgumentListopt));
                 else setResult(nf.X10New(pos(), TypeName.toType(), TypeArgumentsopt, ArgumentListopt, ClassBodyopt));
@@ -1855,18 +1856,18 @@ public static class MessageHandler implements IMessageHandler {
             // Rule 40:  ClassInstanceCreationExpression ::= Primary . new Identifier TypeArgumentsopt ( ArgumentListopt ) ClassBodyopt
             //
             case 40: {
-               //#line 1257 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1255 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1258 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1256 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 1255 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1256 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(4);
-                //#line 1255 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1256 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(5);
-                //#line 1255 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1256 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(7);
-                //#line 1255 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1256 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ClassBody ClassBodyopt = (ClassBody) getRhsSym(9);
-                //#line 1257 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1258 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 ParsedName b = new X10ParsedName(nf, ts, pos(), Identifier);
                 if (ClassBodyopt == null)
                      setResult(nf.X10New(pos(), Primary, b.toType(), TypeArgumentsopt, ArgumentListopt));
@@ -1878,18 +1879,18 @@ public static class MessageHandler implements IMessageHandler {
             // Rule 41:  ClassInstanceCreationExpression ::= AmbiguousName . new Identifier TypeArgumentsopt ( ArgumentListopt ) ClassBodyopt
             //
             case 41: {
-               //#line 1265 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1263 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1266 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1264 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ParsedName AmbiguousName = (ParsedName) getRhsSym(1);
-                //#line 1263 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1264 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(4);
-                //#line 1263 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1264 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(5);
-                //#line 1263 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1264 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(7);
-                //#line 1263 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1264 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ClassBody ClassBodyopt = (ClassBody) getRhsSym(9);
-                //#line 1265 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1266 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 ParsedName b = new X10ParsedName(nf, ts, pos(), Identifier);
                 if (ClassBodyopt == null)
                      setResult(nf.X10New(pos(), AmbiguousName.toExpr(), b.toType(), TypeArgumentsopt, ArgumentListopt));
@@ -1901,12 +1902,12 @@ public static class MessageHandler implements IMessageHandler {
             // Rule 42:  AssignPropertyCall ::= property TypeArgumentsopt ( ArgumentListopt ) ;
             //
             case 42: {
-               //#line 1274 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1272 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1275 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1273 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(2);
-                //#line 1272 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1273 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(4);
-                //#line 1274 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1275 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.AssignPropertyCall(pos(), TypeArgumentsopt, ArgumentListopt));
                       break;
             }
@@ -1915,10 +1916,10 @@ public static class MessageHandler implements IMessageHandler {
             // Rule 45:  Type ::= proto ConstrainedType
             //
             case 45: {
-               //#line 1283 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1281 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1284 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1282 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode ConstrainedType = (TypeNode) getRhsSym(2);
-                //#line 1283 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1284 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
         AddFlags tn = (AddFlags) ConstrainedType;
         tn.addFlags(X10Flags.PROTO);
         setResult(ConstrainedType.position(pos()));
@@ -1929,20 +1930,20 @@ public static class MessageHandler implements IMessageHandler {
             // Rule 46:  FunctionType ::= TypeArgumentsopt ( FormalParameterListopt ) WhereClauseopt Throwsopt Offersopt => Type
             //
             case 46: {
-               //#line 1291 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1289 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1292 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1290 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(1);
-                //#line 1289 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1290 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List FormalParameterListopt = (List) getRhsSym(3);
-                //#line 1289 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1290 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(5);
-                //#line 1289 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1290 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(6);
-                //#line 1289 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1290 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Offersopt = (TypeNode) getRhsSym(7);
-                //#line 1289 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1290 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(9);
-                //#line 1291 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1292 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.FunctionTypeNode(pos(), TypeArgumentsopt, FormalParameterListopt, WhereClauseopt, Type, Throwsopt, Offersopt));
                       break;
             }
@@ -1951,12 +1952,12 @@ public static class MessageHandler implements IMessageHandler {
             // Rule 51:  AnnotatedType ::= Type Annotations
             //
             case 51: {
-               //#line 1300 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1298 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1301 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1299 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(1);
-                //#line 1298 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1299 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List Annotations = (List) getRhsSym(2);
-                //#line 1300 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1301 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 TypeNode tn = Type;
                 tn = (TypeNode) ((X10Ext) tn.ext()).annotations((List<AnnotationNode>) Annotations);
                 setResult(tn.position(pos()));
@@ -1967,183 +1968,305 @@ public static class MessageHandler implements IMessageHandler {
             // Rule 54:  ConstrainedType ::= ( Type )
             //
             case 54: {
-               //#line 1310 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1308 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+               //#line 1311 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1309 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(2);
-                //#line 1310 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1311 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Type);
                       break;
             }
     
             //
-            // Rule 56:  NamedType ::= Primary . Identifier TypeArgumentsopt Argumentsopt DepParametersopt
+            // Rule 56:  SimpleNamedType ::= TypeName
             //
             case 56: {
-               //#line 1324 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1322 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
-                Expr Primary = (Expr) getRhsSym(1);
-                //#line 1322 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
-                Id Identifier = (Id) getRhsSym(3);
-                //#line 1322 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
-                List TypeArgumentsopt = (List) getRhsSym(4);
-                //#line 1322 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
-                List Argumentsopt = (List) getRhsSym(5);
-                //#line 1322 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
-                DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(6);
-                //#line 1324 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-            TypeNode type = nf.AmbTypeNode(pos(), Primary, Identifier);
-            // TODO: place constraint
-            if (DepParametersopt != null || (TypeArgumentsopt != null && ! TypeArgumentsopt.isEmpty()) || (Argumentsopt != null && ! Argumentsopt.isEmpty())) {
-                type = nf.AmbDepTypeNode(pos(), Primary, Identifier, TypeArgumentsopt, Argumentsopt, DepParametersopt);
-            }
-            setResult(type);
+               //#line 1325 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1323 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
+                ParsedName TypeName = (ParsedName) getRhsSym(1);
+                //#line 1325 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+            setResult(TypeName.toType());
                       break;
             }
     
             //
-            // Rule 57:  NamedType ::= TypeName TypeArgumentsopt Argumentsopt DepParametersopt
+            // Rule 57:  SimpleNamedType ::= Primary . Identifier
             //
             case 57: {
-               //#line 1335 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1333 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
-                ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 1333 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
-                List TypeArgumentsopt = (List) getRhsSym(2);
-                //#line 1333 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
-                List Argumentsopt = (List) getRhsSym(3);
-                //#line 1333 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
-                DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(4);
-                //#line 1335 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-            TypeNode type;
-            
-            if (TypeName.name.id().toString().equals("void")) {
-                type = nf.CanonicalTypeNode(pos(), ts.Void());
-            } else {
-                type = TypeName.toType();
+               //#line 1330 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1328 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
+                Expr Primary = (Expr) getRhsSym(1);
+                //#line 1328 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
+                Id Identifier = (Id) getRhsSym(3);
+                //#line 1330 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+            setResult(nf.AmbTypeNode(pos(), Primary, Identifier));
+                      break;
             }
-            // TODO: place constraint
-            if (DepParametersopt != null || (TypeArgumentsopt != null && ! TypeArgumentsopt.isEmpty()) || (Argumentsopt != null && ! Argumentsopt.isEmpty())) {
-                type = nf.AmbDepTypeNode(pos(), TypeName.prefix != null ? TypeName.prefix.toPrefix() : null, TypeName.name, TypeArgumentsopt, Argumentsopt, DepParametersopt);
+    
+            //
+            // Rule 58:  SimpleNamedType ::= DepNamedType . Identifier
+            //
+            case 58: {
+               //#line 1335 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1333 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
+                TypeNode DepNamedType = (TypeNode) getRhsSym(1);
+                //#line 1333 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
+                Id Identifier = (Id) getRhsSym(3);
+                //#line 1335 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+            setResult(nf.AmbTypeNode(pos(), DepNamedType, Identifier));
+                      break;
             }
+    
+            //
+            // Rule 59:  DepNamedType ::= SimpleNamedType DepParameters
+            //
+            case 59: {
+               //#line 1341 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1339 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
+                TypeNode SimpleNamedType = (TypeNode) getRhsSym(1);
+                //#line 1339 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
+                DepParameterExpr DepParameters = (DepParameterExpr) getRhsSym(2);
+                //#line 1341 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+            TypeNode type = nf.AmbDepTypeNode(pos(), ((AmbTypeNode) SimpleNamedType).prefix(), ((AmbTypeNode) SimpleNamedType).name(),
+                                              new TypedList(new LinkedList(), TypeNode.class, false),
+                                              new TypedList(new LinkedList(), Expr.class, false),
+                                              DepParameters);
             setResult(type);
                       break;
             }
     
             //
-            // Rule 58:  DepParameters ::= { ExistentialListopt Conjunctionopt }
+            // Rule 60:  DepNamedType ::= SimpleNamedType Arguments
             //
-            case 58: {
-               //#line 1353 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1351 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 60: {
+               //#line 1350 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1348 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
+                TypeNode SimpleNamedType = (TypeNode) getRhsSym(1);
+                //#line 1348 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
+                List Arguments = (List) getRhsSym(2);
+                //#line 1350 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+            TypeNode type = nf.AmbDepTypeNode(pos(), ((AmbTypeNode) SimpleNamedType).prefix(), ((AmbTypeNode) SimpleNamedType).name(),
+                                              new TypedList(new LinkedList(), TypeNode.class, false),
+                                              Arguments,
+                                              null);
+            setResult(type);
+                      break;
+            }
+    
+            //
+            // Rule 61:  DepNamedType ::= SimpleNamedType Arguments DepParameters
+            //
+            case 61: {
+               //#line 1359 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1357 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
+                TypeNode SimpleNamedType = (TypeNode) getRhsSym(1);
+                //#line 1357 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
+                List Arguments = (List) getRhsSym(2);
+                //#line 1357 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
+                DepParameterExpr DepParameters = (DepParameterExpr) getRhsSym(3);
+                //#line 1359 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+            TypeNode type = nf.AmbDepTypeNode(pos(), ((AmbTypeNode) SimpleNamedType).prefix(), ((AmbTypeNode) SimpleNamedType).name(),
+                                              new TypedList(new LinkedList(), TypeNode.class, false),
+                                              Arguments,
+                                              DepParameters);
+            setResult(type);
+                      break;
+            }
+    
+            //
+            // Rule 62:  DepNamedType ::= SimpleNamedType TypeArguments
+            //
+            case 62: {
+               //#line 1368 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1366 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
+                TypeNode SimpleNamedType = (TypeNode) getRhsSym(1);
+                //#line 1366 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
+                List TypeArguments = (List) getRhsSym(2);
+                //#line 1368 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+            TypeNode type = nf.AmbDepTypeNode(pos(), ((AmbTypeNode) SimpleNamedType).prefix(), ((AmbTypeNode) SimpleNamedType).name(),
+                                              TypeArguments,
+                                              new TypedList(new LinkedList(), Expr.class, false),
+                                              null);
+            setResult(type);
+                      break;
+            }
+    
+            //
+            // Rule 63:  DepNamedType ::= SimpleNamedType TypeArguments DepParameters
+            //
+            case 63: {
+               //#line 1377 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1375 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
+                TypeNode SimpleNamedType = (TypeNode) getRhsSym(1);
+                //#line 1375 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
+                List TypeArguments = (List) getRhsSym(2);
+                //#line 1375 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
+                DepParameterExpr DepParameters = (DepParameterExpr) getRhsSym(3);
+                //#line 1377 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+            TypeNode type = nf.AmbDepTypeNode(pos(), ((AmbTypeNode) SimpleNamedType).prefix(), ((AmbTypeNode) SimpleNamedType).name(),
+                                              TypeArguments,
+                                              new TypedList(new LinkedList(), Expr.class, false),
+                                              DepParameters);
+            setResult(type);
+                      break;
+            }
+    
+            //
+            // Rule 64:  DepNamedType ::= SimpleNamedType TypeArguments Arguments
+            //
+            case 64: {
+               //#line 1386 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1384 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
+                TypeNode SimpleNamedType = (TypeNode) getRhsSym(1);
+                //#line 1384 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
+                List TypeArguments = (List) getRhsSym(2);
+                //#line 1384 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
+                List Arguments = (List) getRhsSym(3);
+                //#line 1386 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+            TypeNode type = nf.AmbDepTypeNode(pos(), ((AmbTypeNode) SimpleNamedType).prefix(), ((AmbTypeNode) SimpleNamedType).name(),
+                                              TypeArguments,
+                                              Arguments,
+                                              null);
+            setResult(type);
+                      break;
+            }
+    
+            //
+            // Rule 65:  DepNamedType ::= SimpleNamedType TypeArguments Arguments DepParameters
+            //
+            case 65: {
+               //#line 1395 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1393 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
+                TypeNode SimpleNamedType = (TypeNode) getRhsSym(1);
+                //#line 1393 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
+                List TypeArguments = (List) getRhsSym(2);
+                //#line 1393 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
+                List Arguments = (List) getRhsSym(3);
+                //#line 1393 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
+                DepParameterExpr DepParameters = (DepParameterExpr) getRhsSym(4);
+                //#line 1395 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+            TypeNode type = nf.AmbDepTypeNode(pos(), ((AmbTypeNode) SimpleNamedType).prefix(), ((AmbTypeNode) SimpleNamedType).name(),
+                                              TypeArguments,
+                                              Arguments,
+                                              DepParameters);
+            setResult(type);
+                      break;
+            }
+    
+            //
+            // Rule 68:  DepParameters ::= { ExistentialListopt Conjunctionopt }
+            //
+            case 68: {
+               //#line 1408 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1406 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List ExistentialListopt = (List) getRhsSym(2);
-                //#line 1351 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1406 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Object Conjunctionopt = (Object) getRhsSym(3);
-                //#line 1353 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1408 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.DepParameterExpr(pos(), ExistentialListopt, (List) Conjunctionopt));
                       break;
             }
     
             //
-            // Rule 59:  DepParameters ::= ! PlaceType
+            // Rule 69:  DepParameters ::= ! PlaceType
             //
-            case 59: {
-               //#line 1358 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1356 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 69: {
+               //#line 1413 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1411 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr PlaceType = (Expr) getRhsSym(2);
-                //#line 1358 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1413 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 Expr placeClause = nf.Call(pos(), nf.Self(pos()), nf.Id(pos(), "at"), PlaceType);
                 setResult(nf.DepParameterExpr(pos(), null, Collections.singletonList(placeClause)));
                       break;
             }
     
             //
-            // Rule 60:  DepParameters ::= !
+            // Rule 70:  DepParameters ::= !
             //
-            case 60: {
-               //#line 1364 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 70: {
+               //#line 1419 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 1364 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1419 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 Expr placeClause = nf.Call(pos(), nf.Self(pos()), nf.Id(pos(), "at"), nf.AmbHereThis(pos()));
                 setResult(nf.DepParameterExpr(pos(), null, Collections.singletonList(placeClause)));
                       break;
             }
     
             //
-            // Rule 61:  DepParameters ::= ! PlaceType { ExistentialListopt Conjunction }
+            // Rule 71:  DepParameters ::= ! PlaceType { ExistentialListopt Conjunction }
             //
-            case 61: {
-               //#line 1370 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1368 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 71: {
+               //#line 1425 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1423 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr PlaceType = (Expr) getRhsSym(2);
-                //#line 1368 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1423 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List ExistentialListopt = (List) getRhsSym(4);
-                //#line 1368 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1423 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List Conjunction = (List) getRhsSym(5);
-                //#line 1370 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1425 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 Expr placeClause = nf.Call(pos(), nf.Self(pos()), nf.Id(pos(), "at"), PlaceType);
                 setResult(nf.DepParameterExpr(pos(), ExistentialListopt, CollectionUtil.append(Conjunction, Collections.singletonList(placeClause))));
                       break;
             }
     
             //
-            // Rule 62:  DepParameters ::= ! { ExistentialListopt Conjunction }
+            // Rule 72:  DepParameters ::= ! { ExistentialListopt Conjunction }
             //
-            case 62: {
-               //#line 1376 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1374 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 72: {
+               //#line 1431 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1429 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List ExistentialListopt = (List) getRhsSym(3);
-                //#line 1374 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1429 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List Conjunction = (List) getRhsSym(4);
-                //#line 1376 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1431 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 Expr placeClause = nf.Call(pos(), nf.Self(pos()), nf.Id(pos(), "at"), nf.AmbHereThis(pos()));
                 setResult(nf.DepParameterExpr(pos(), ExistentialListopt, CollectionUtil.append(Conjunction, Collections.singletonList(placeClause))));
                       break;
             }
     
             //
-            // Rule 63:  TypeParamsWithVariance ::= [ TypeParamWithVarianceList ]
+            // Rule 73:  TypeParamsWithVariance ::= [ TypeParamWithVarianceList ]
             //
-            case 63: {
-               //#line 1384 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1382 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 73: {
+               //#line 1439 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1437 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List TypeParamWithVarianceList = (List) getRhsSym(2);
-                //#line 1384 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1439 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(TypeParamWithVarianceList);
                       break;
             }
     
             //
-            // Rule 64:  TypeParameters ::= [ TypeParameterList ]
+            // Rule 74:  TypeParameters ::= [ TypeParameterList ]
             //
-            case 64: {
-               //#line 1390 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1388 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 74: {
+               //#line 1445 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1443 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List TypeParameterList = (List) getRhsSym(2);
-                //#line 1390 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1445 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(TypeParameterList);
                       break;
             }
     
             //
-            // Rule 65:  FormalParameters ::= ( FormalParameterListopt )
+            // Rule 75:  FormalParameters ::= ( FormalParameterListopt )
             //
-            case 65: {
-               //#line 1395 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1393 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 75: {
+               //#line 1450 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1448 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List FormalParameterListopt = (List) getRhsSym(2);
-                //#line 1395 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1450 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(FormalParameterListopt);
                       break;
             }
     
             //
-            // Rule 66:  Conjunction ::= Expression
+            // Rule 76:  Conjunction ::= Expression
             //
-            case 66: {
-               //#line 1401 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1399 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 76: {
+               //#line 1456 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1454 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(1);
-                //#line 1401 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1456 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new ArrayList();
                 l.add(Expression);
                 setResult(l);
@@ -2151,114 +2274,114 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 67:  Conjunction ::= Conjunction , Expression
+            // Rule 77:  Conjunction ::= Conjunction , Expression
             //
-            case 67: {
-               //#line 1408 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1406 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 77: {
+               //#line 1463 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1461 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List Conjunction = (List) getRhsSym(1);
-                //#line 1406 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1461 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1408 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1463 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 Conjunction.add(Expression);
                       break;
             }
     
             //
-            // Rule 68:  SubtypeConstraint ::= Type$t1 <: Type$t2
+            // Rule 78:  SubtypeConstraint ::= Type$t1 <: Type$t2
             //
-            case 68: {
-               //#line 1414 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1412 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 78: {
+               //#line 1469 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1467 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode t1 = (TypeNode) getRhsSym(1);
-                //#line 1412 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1467 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode t2 = (TypeNode) getRhsSym(3);
-                //#line 1414 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1469 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.SubtypeTest(pos(), t1, t2, false));
                       break;
             }
     
             //
-            // Rule 69:  SubtypeConstraint ::= Type$t1 :> Type$t2
+            // Rule 79:  SubtypeConstraint ::= Type$t1 :> Type$t2
             //
-            case 69: {
-               //#line 1419 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1417 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 79: {
+               //#line 1474 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1472 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode t1 = (TypeNode) getRhsSym(1);
-                //#line 1417 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1472 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode t2 = (TypeNode) getRhsSym(3);
-                //#line 1419 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1474 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.SubtypeTest(pos(), t2, t1, false));
                       break;
             }
     
             //
-            // Rule 70:  WhereClause ::= DepParameters
+            // Rule 80:  WhereClause ::= DepParameters
             //
-            case 70: {
-               //#line 1425 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1423 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 80: {
+               //#line 1480 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1478 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr DepParameters = (DepParameterExpr) getRhsSym(1);
-                //#line 1425 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1480 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
             setResult(DepParameters);
                       break;
             }
       
             //
-            // Rule 71:  Conjunctionopt ::= $Empty
+            // Rule 81:  Conjunctionopt ::= $Empty
             //
-            case 71: {
-               //#line 1431 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 81: {
+               //#line 1486 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 1431 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1486 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new ArrayList();
                 setResult(l);
                       break;
             }
       
             //
-            // Rule 72:  Conjunctionopt ::= Conjunction
+            // Rule 82:  Conjunctionopt ::= Conjunction
             //
-            case 72: {
-               //#line 1437 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1435 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 82: {
+               //#line 1492 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1490 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List Conjunction = (List) getRhsSym(1);
-                //#line 1437 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1492 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
             setResult(Conjunction);
                       break;
             }
     
             //
-            // Rule 73:  ExistentialListopt ::= $Empty
+            // Rule 83:  ExistentialListopt ::= $Empty
             //
-            case 73: {
-               //#line 1443 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 83: {
+               //#line 1498 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 1443 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1498 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
             setResult(new ArrayList());
                       break;
             }
       
             //
-            // Rule 74:  ExistentialListopt ::= ExistentialList ;
+            // Rule 84:  ExistentialListopt ::= ExistentialList ;
             //
-            case 74: {
-               //#line 1448 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1446 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 84: {
+               //#line 1503 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1501 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List ExistentialList = (List) getRhsSym(1);
-                //#line 1448 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1503 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
             setResult(ExistentialList);
                       break;
             }
     
             //
-            // Rule 75:  ExistentialList ::= FormalParameter
+            // Rule 85:  ExistentialList ::= FormalParameter
             //
-            case 75: {
-               //#line 1454 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1452 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 85: {
+               //#line 1509 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1507 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(1);
-                //#line 1454 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1509 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Formal.class, false);
                 l.add(FormalParameter.flags(nf.FlagsNode(X10NodeFactory_c.compilerGenerated(FormalParameter), Flags.FINAL)));
                 setResult(l);
@@ -2266,41 +2389,41 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 76:  ExistentialList ::= ExistentialList ; FormalParameter
+            // Rule 86:  ExistentialList ::= ExistentialList ; FormalParameter
             //
-            case 76: {
-               //#line 1461 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1459 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 86: {
+               //#line 1516 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1514 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List ExistentialList = (List) getRhsSym(1);
-                //#line 1459 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1514 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 1461 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1516 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 ExistentialList.add(FormalParameter.flags(nf.FlagsNode(X10NodeFactory_c.compilerGenerated(FormalParameter), Flags.FINAL)));
                       break;
             }
     
             //
-            // Rule 79:  NormalClassDeclaration ::= ClassModifiersopt class Identifier TypeParamsWithVarianceopt Propertiesopt WhereClauseopt Superopt Interfacesopt ClassBody
+            // Rule 89:  NormalClassDeclaration ::= ClassModifiersopt class Identifier TypeParamsWithVarianceopt Propertiesopt WhereClauseopt Superopt Interfacesopt ClassBody
             //
-            case 79: {
-               //#line 1472 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1470 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 89: {
+               //#line 1527 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1525 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List ClassModifiersopt = (List) getRhsSym(1);
-                //#line 1470 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1525 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 1470 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1525 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List TypeParamsWithVarianceopt = (List) getRhsSym(4);
-                //#line 1470 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1525 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List Propertiesopt = (List) getRhsSym(5);
-                //#line 1470 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1525 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 1470 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1525 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Superopt = (TypeNode) getRhsSym(7);
-                //#line 1470 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1525 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List Interfacesopt = (List) getRhsSym(8);
-                //#line 1470 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1525 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ClassBody ClassBody = (ClassBody) getRhsSym(9);
-                //#line 1472 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1527 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
       checkTypeName(Identifier);
                 List TypeParametersopt = TypeParamsWithVarianceopt;
       List/*<PropertyDecl>*/ props = Propertiesopt;
@@ -2315,25 +2438,25 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 80:  StructDeclaration ::= ClassModifiersopt struct Identifier TypeParamsWithVarianceopt Propertiesopt WhereClauseopt Interfacesopt ClassBody
+            // Rule 90:  StructDeclaration ::= ClassModifiersopt struct Identifier TypeParamsWithVarianceopt Propertiesopt WhereClauseopt Interfacesopt ClassBody
             //
-            case 80: {
-               //#line 1488 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1486 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 90: {
+               //#line 1543 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1541 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List ClassModifiersopt = (List) getRhsSym(1);
-                //#line 1486 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1541 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 1486 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1541 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List TypeParamsWithVarianceopt = (List) getRhsSym(4);
-                //#line 1486 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1541 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List Propertiesopt = (List) getRhsSym(5);
-                //#line 1486 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1541 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 1486 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1541 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List Interfacesopt = (List) getRhsSym(7);
-                //#line 1486 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1541 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ClassBody ClassBody = (ClassBody) getRhsSym(8);
-                //#line 1488 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1543 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
     checkTypeName(Identifier);
                 List TypeParametersopt = TypeParamsWithVarianceopt;
     List props = Propertiesopt;
@@ -2347,27 +2470,27 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 81:  ConstructorDeclaration ::= ConstructorModifiersopt def this TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt Throwsopt Offersopt ConstructorBody
+            // Rule 91:  ConstructorDeclaration ::= ConstructorModifiersopt def this TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt Throwsopt Offersopt ConstructorBody
             //
-            case 81: {
-               //#line 1502 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1500 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 91: {
+               //#line 1557 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1555 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List ConstructorModifiersopt = (List) getRhsSym(1);
-                //#line 1500 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1555 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(4);
-                //#line 1500 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1555 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List FormalParameters = (List) getRhsSym(5);
-                //#line 1500 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1555 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 1500 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1555 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode HasResultTypeopt = (TypeNode) getRhsSym(7);
-                //#line 1500 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1555 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(8);
-                //#line 1500 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1555 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Offersopt = (TypeNode) getRhsSym(9);
-                //#line 1500 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1555 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Block ConstructorBody = (Block) getRhsSym(10);
-                //#line 1502 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1557 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
      ConstructorDecl cd = nf.X10ConstructorDecl(pos(),
                                              extractFlags(ConstructorModifiersopt),
                                              nf.Id(pos(getRhsFirstTokenIndex(3)), "this"),
@@ -2384,84 +2507,84 @@ public static class MessageHandler implements IMessageHandler {
             }
    
             //
-            // Rule 82:  Super ::= extends ClassType
+            // Rule 92:  Super ::= extends ClassType
             //
-            case 82: {
-               //#line 1519 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1517 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 92: {
+               //#line 1574 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1572 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode ClassType = (TypeNode) getRhsSym(2);
-                //#line 1519 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1574 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(ClassType);
                       break;
             }
     
             //
-            // Rule 83:  FieldKeyword ::= val
+            // Rule 93:  FieldKeyword ::= val
             //
-            case 83: {
-               //#line 1525 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 93: {
+               //#line 1580 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 1525 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1580 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL)));
                       break;
             }
     
             //
-            // Rule 84:  FieldKeyword ::= var
+            // Rule 94:  FieldKeyword ::= var
             //
-            case 84: {
-               //#line 1530 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 94: {
+               //#line 1585 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 1530 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1585 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.NONE)));
                       break;
             }
     
             //
-            // Rule 85:  FieldKeyword ::= const
+            // Rule 95:  FieldKeyword ::= const
             //
-            case 85: {
-               //#line 1535 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 95: {
+               //#line 1590 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 1535 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1590 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL.Static())));
                       break;
             }
     
             //
-            // Rule 86:  VarKeyword ::= val
+            // Rule 96:  VarKeyword ::= val
             //
-            case 86: {
-               //#line 1543 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 96: {
+               //#line 1598 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 1543 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1598 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL)));
                       break;
             }
     
             //
-            // Rule 87:  VarKeyword ::= var
+            // Rule 97:  VarKeyword ::= var
             //
-            case 87: {
-               //#line 1548 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 97: {
+               //#line 1603 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 1548 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1603 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.NONE)));
                       break;
             }
     
             //
-            // Rule 88:  FieldDeclaration ::= FieldModifiersopt FieldKeyword FieldDeclarators ;
+            // Rule 98:  FieldDeclaration ::= FieldModifiersopt FieldKeyword FieldDeclarators ;
             //
-            case 88: {
-               //#line 1555 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1553 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 98: {
+               //#line 1610 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1608 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List FieldModifiersopt = (List) getRhsSym(1);
-                //#line 1553 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1608 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List FieldKeyword = (List) getRhsSym(2);
-                //#line 1553 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1608 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List FieldDeclarators = (List) getRhsSym(3);
-                //#line 1555 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1610 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                     FlagsNode fn = extractFlags(FieldModifiersopt, FieldKeyword);
     
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
@@ -2486,15 +2609,15 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 89:  FieldDeclaration ::= FieldModifiersopt FieldDeclarators ;
+            // Rule 99:  FieldDeclaration ::= FieldModifiersopt FieldDeclarators ;
             //
-            case 89: {
-               //#line 1580 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1578 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 99: {
+               //#line 1635 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1633 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List FieldModifiersopt = (List) getRhsSym(1);
-                //#line 1578 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1633 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List FieldDeclarators = (List) getRhsSym(2);
-                //#line 1580 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1635 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                     List FieldKeyword = Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL));
                     FlagsNode fn = extractFlags(FieldModifiersopt, FieldKeyword);
     
@@ -2520,15 +2643,15 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 92:  AnnotationStatement ::= Annotationsopt NonExpressionStatement
+            // Rule 102:  AnnotationStatement ::= Annotationsopt NonExpressionStatement
             //
-            case 92: {
-               //#line 1612 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1610 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 102: {
+               //#line 1667 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1665 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List Annotationsopt = (List) getRhsSym(1);
-                //#line 1610 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1665 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Stmt NonExpressionStatement = (Stmt) getRhsSym(2);
-                //#line 1612 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1667 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 if (NonExpressionStatement.ext() instanceof X10Ext && Annotationsopt instanceof List) {
                     NonExpressionStatement = (Stmt) ((X10Ext) NonExpressionStatement.ext()).annotations((List) Annotationsopt);
                 }
@@ -2537,164 +2660,164 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 119:  OfferStatement ::= offer Expression ;
+            // Rule 129:  OfferStatement ::= offer Expression ;
             //
-            case 119: {
-               //#line 1648 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1646 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 129: {
+               //#line 1703 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1701 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(2);
-                //#line 1648 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1703 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Offer(pos(), Expression));
                       break;
             }
     
             //
-            // Rule 120:  IfThenStatement ::= if ( Expression ) Statement
+            // Rule 130:  IfThenStatement ::= if ( Expression ) Statement
             //
-            case 120: {
-               //#line 1654 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1652 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 130: {
+               //#line 1709 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1707 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1652 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1707 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(5);
-                //#line 1654 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1709 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.If(pos(), Expression, Statement));
                       break;
             }
     
             //
-            // Rule 121:  IfThenElseStatement ::= if ( Expression ) Statement$s1 else Statement$s2
+            // Rule 131:  IfThenElseStatement ::= if ( Expression ) Statement$s1 else Statement$s2
             //
-            case 121: {
-               //#line 1660 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1658 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 131: {
+               //#line 1715 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1713 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1658 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1713 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Stmt s1 = (Stmt) getRhsSym(5);
-                //#line 1658 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1713 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Stmt s2 = (Stmt) getRhsSym(7);
-                //#line 1660 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1715 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.If(pos(), Expression, s1, s2));
                       break;
             }
     
             //
-            // Rule 122:  EmptyStatement ::= ;
+            // Rule 132:  EmptyStatement ::= ;
             //
-            case 122: {
-               //#line 1666 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 132: {
+               //#line 1721 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 1666 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1721 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Empty(pos()));
                       break;
             }
     
             //
-            // Rule 123:  LabeledStatement ::= Identifier : LoopStatement
+            // Rule 133:  LabeledStatement ::= Identifier : LoopStatement
             //
-            case 123: {
-               //#line 1672 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1670 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 133: {
+               //#line 1727 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1725 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 1670 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1725 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Stmt LoopStatement = (Stmt) getRhsSym(3);
-                //#line 1672 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1727 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Labeled(pos(), Identifier, LoopStatement));
                       break;
             }
     
             //
-            // Rule 129:  ExpressionStatement ::= StatementExpression ;
+            // Rule 139:  ExpressionStatement ::= StatementExpression ;
             //
-            case 129: {
-               //#line 1684 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1682 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 139: {
+               //#line 1739 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1737 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr StatementExpression = (Expr) getRhsSym(1);
-                //#line 1684 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1739 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Eval(pos(), StatementExpression));
                       break;
             }
     
             //
-            // Rule 137:  AssertStatement ::= assert Expression ;
+            // Rule 147:  AssertStatement ::= assert Expression ;
             //
-            case 137: {
-               //#line 1698 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1696 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 147: {
+               //#line 1753 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1751 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(2);
-                //#line 1698 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1753 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Assert(pos(), Expression));
                       break;
             }
     
             //
-            // Rule 138:  AssertStatement ::= assert Expression$expr1 : Expression$expr2 ;
+            // Rule 148:  AssertStatement ::= assert Expression$expr1 : Expression$expr2 ;
             //
-            case 138: {
-               //#line 1703 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1701 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 148: {
+               //#line 1758 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1756 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr expr1 = (Expr) getRhsSym(2);
-                //#line 1701 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1756 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr expr2 = (Expr) getRhsSym(4);
-                //#line 1703 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1758 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Assert(pos(), expr1, expr2));
                       break;
             }
     
             //
-            // Rule 139:  SwitchStatement ::= switch ( Expression ) SwitchBlock
+            // Rule 149:  SwitchStatement ::= switch ( Expression ) SwitchBlock
             //
-            case 139: {
-               //#line 1709 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1707 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 149: {
+               //#line 1764 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1762 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1707 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1762 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List SwitchBlock = (List) getRhsSym(5);
-                //#line 1709 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1764 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Switch(pos(), Expression, SwitchBlock));
                       break;
             }
     
             //
-            // Rule 140:  SwitchBlock ::= { SwitchBlockStatementGroupsopt SwitchLabelsopt }
+            // Rule 150:  SwitchBlock ::= { SwitchBlockStatementGroupsopt SwitchLabelsopt }
             //
-            case 140: {
-               //#line 1715 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1713 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 150: {
+               //#line 1770 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1768 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List SwitchBlockStatementGroupsopt = (List) getRhsSym(2);
-                //#line 1713 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1768 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List SwitchLabelsopt = (List) getRhsSym(3);
-                //#line 1715 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1770 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 SwitchBlockStatementGroupsopt.addAll(SwitchLabelsopt);
                 setResult(SwitchBlockStatementGroupsopt);
                       break;
             }
     
             //
-            // Rule 142:  SwitchBlockStatementGroups ::= SwitchBlockStatementGroups SwitchBlockStatementGroup
+            // Rule 152:  SwitchBlockStatementGroups ::= SwitchBlockStatementGroups SwitchBlockStatementGroup
             //
-            case 142: {
-               //#line 1723 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1721 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 152: {
+               //#line 1778 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1776 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List SwitchBlockStatementGroups = (List) getRhsSym(1);
-                //#line 1721 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1776 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List SwitchBlockStatementGroup = (List) getRhsSym(2);
-                //#line 1723 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1778 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 SwitchBlockStatementGroups.addAll(SwitchBlockStatementGroup);
                 // setResult(SwitchBlockStatementGroups);
                       break;
             }
     
             //
-            // Rule 143:  SwitchBlockStatementGroup ::= SwitchLabels BlockStatements
+            // Rule 153:  SwitchBlockStatementGroup ::= SwitchLabels BlockStatements
             //
-            case 143: {
-               //#line 1730 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1728 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 153: {
+               //#line 1785 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1783 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List SwitchLabels = (List) getRhsSym(1);
-                //#line 1728 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1783 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List BlockStatements = (List) getRhsSym(2);
-                //#line 1730 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1785 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), SwitchElement.class, false);
                 l.addAll(SwitchLabels);
                 l.add(nf.SwitchBlock(pos(), BlockStatements));
@@ -2703,13 +2826,13 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 144:  SwitchLabels ::= SwitchLabel
+            // Rule 154:  SwitchLabels ::= SwitchLabel
             //
-            case 144: {
-               //#line 1739 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1737 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 154: {
+               //#line 1794 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1792 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Case SwitchLabel = (Case) getRhsSym(1);
-                //#line 1739 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1794 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Case.class, false);
                 l.add(SwitchLabel);
                 setResult(l);
@@ -2717,97 +2840,97 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 145:  SwitchLabels ::= SwitchLabels SwitchLabel
+            // Rule 155:  SwitchLabels ::= SwitchLabels SwitchLabel
             //
-            case 145: {
-               //#line 1746 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1744 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 155: {
+               //#line 1801 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1799 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List SwitchLabels = (List) getRhsSym(1);
-                //#line 1744 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1799 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Case SwitchLabel = (Case) getRhsSym(2);
-                //#line 1746 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1801 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 SwitchLabels.add(SwitchLabel);
                 //setResult(SwitchLabels);
                       break;
             }
     
             //
-            // Rule 146:  SwitchLabel ::= case ConstantExpression :
+            // Rule 156:  SwitchLabel ::= case ConstantExpression :
             //
-            case 146: {
-               //#line 1753 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1751 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 156: {
+               //#line 1808 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1806 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr ConstantExpression = (Expr) getRhsSym(2);
-                //#line 1753 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1808 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Case(pos(), ConstantExpression));
                       break;
             }
     
             //
-            // Rule 147:  SwitchLabel ::= default :
+            // Rule 157:  SwitchLabel ::= default :
             //
-            case 147: {
-               //#line 1758 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 157: {
+               //#line 1813 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 1758 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1813 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Default(pos()));
                       break;
             }
     
             //
-            // Rule 148:  WhileStatement ::= while ( Expression ) Statement
+            // Rule 158:  WhileStatement ::= while ( Expression ) Statement
             //
-            case 148: {
-               //#line 1764 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1762 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 158: {
+               //#line 1819 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1817 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1762 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1817 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(5);
-                //#line 1764 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1819 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.While(pos(), Expression, Statement));
                       break;
             }
     
             //
-            // Rule 149:  DoStatement ::= do Statement while ( Expression ) ;
+            // Rule 159:  DoStatement ::= do Statement while ( Expression ) ;
             //
-            case 149: {
-               //#line 1770 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1768 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 159: {
+               //#line 1825 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1823 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(2);
-                //#line 1768 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1823 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(5);
-                //#line 1770 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1825 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Do(pos(), Statement, Expression));
                       break;
             }
     
             //
-            // Rule 152:  BasicForStatement ::= for ( ForInitopt ; Expressionopt ; ForUpdateopt ) Statement
+            // Rule 162:  BasicForStatement ::= for ( ForInitopt ; Expressionopt ; ForUpdateopt ) Statement
             //
-            case 152: {
-               //#line 1779 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1777 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 162: {
+               //#line 1834 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1832 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List ForInitopt = (List) getRhsSym(3);
-                //#line 1777 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1832 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr Expressionopt = (Expr) getRhsSym(5);
-                //#line 1777 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1832 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List ForUpdateopt = (List) getRhsSym(7);
-                //#line 1777 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1832 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(9);
-                //#line 1779 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1834 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.For(pos(), ForInitopt, Expressionopt, ForUpdateopt, Statement));
                       break;
             }
     
             //
-            // Rule 154:  ForInit ::= LocalVariableDeclaration
+            // Rule 164:  ForInit ::= LocalVariableDeclaration
             //
-            case 154: {
-               //#line 1786 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1784 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 164: {
+               //#line 1841 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1839 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List LocalVariableDeclaration = (List) getRhsSym(1);
-                //#line 1786 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1841 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ForInit.class, false);
                 l.addAll(LocalVariableDeclaration);
                 //setResult(l);
@@ -2815,13 +2938,13 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 156:  StatementExpressionList ::= StatementExpression
+            // Rule 166:  StatementExpressionList ::= StatementExpression
             //
-            case 156: {
-               //#line 1796 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1794 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 166: {
+               //#line 1851 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1849 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr StatementExpression = (Expr) getRhsSym(1);
-                //#line 1796 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1851 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Eval.class, false);
                 l.add(nf.Eval(pos(), StatementExpression));
                 setResult(l);
@@ -2829,105 +2952,105 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 157:  StatementExpressionList ::= StatementExpressionList , StatementExpression
+            // Rule 167:  StatementExpressionList ::= StatementExpressionList , StatementExpression
             //
-            case 157: {
-               //#line 1803 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1801 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 167: {
+               //#line 1858 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1856 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List StatementExpressionList = (List) getRhsSym(1);
-                //#line 1801 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1856 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr StatementExpression = (Expr) getRhsSym(3);
-                //#line 1803 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1858 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 StatementExpressionList.add(nf.Eval(pos(), StatementExpression));
                       break;
             }
     
             //
-            // Rule 158:  BreakStatement ::= break Identifieropt ;
+            // Rule 168:  BreakStatement ::= break Identifieropt ;
             //
-            case 158: {
-               //#line 1809 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1807 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 168: {
+               //#line 1864 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1862 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Id Identifieropt = (Id) getRhsSym(2);
-                //#line 1809 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1864 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Break(pos(), Identifieropt));
                       break;
             }
     
             //
-            // Rule 159:  ContinueStatement ::= continue Identifieropt ;
+            // Rule 169:  ContinueStatement ::= continue Identifieropt ;
             //
-            case 159: {
-               //#line 1815 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1813 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 169: {
+               //#line 1870 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1868 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Id Identifieropt = (Id) getRhsSym(2);
-                //#line 1815 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1870 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Continue(pos(), Identifieropt));
                       break;
             }
     
             //
-            // Rule 160:  ReturnStatement ::= return Expressionopt ;
+            // Rule 170:  ReturnStatement ::= return Expressionopt ;
             //
-            case 160: {
-               //#line 1821 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1819 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 170: {
+               //#line 1876 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1874 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr Expressionopt = (Expr) getRhsSym(2);
-                //#line 1821 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1876 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Return(pos(), Expressionopt));
                       break;
             }
     
             //
-            // Rule 161:  ThrowStatement ::= throw Expression ;
+            // Rule 171:  ThrowStatement ::= throw Expression ;
             //
-            case 161: {
-               //#line 1827 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1825 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 171: {
+               //#line 1882 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1880 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(2);
-                //#line 1827 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1882 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Throw(pos(), Expression));
                       break;
             }
     
             //
-            // Rule 162:  TryStatement ::= try Block Catches
+            // Rule 172:  TryStatement ::= try Block Catches
             //
-            case 162: {
-               //#line 1833 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1831 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 172: {
+               //#line 1888 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1886 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(2);
-                //#line 1831 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1886 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List Catches = (List) getRhsSym(3);
-                //#line 1833 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1888 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Try(pos(), Block, Catches));
                       break;
             }
     
             //
-            // Rule 163:  TryStatement ::= try Block Catchesopt Finally
+            // Rule 173:  TryStatement ::= try Block Catchesopt Finally
             //
-            case 163: {
-               //#line 1838 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1836 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 173: {
+               //#line 1893 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1891 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(2);
-                //#line 1836 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1891 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List Catchesopt = (List) getRhsSym(3);
-                //#line 1836 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1891 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Block Finally = (Block) getRhsSym(4);
-                //#line 1838 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1893 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Try(pos(), Block, Catchesopt, Finally));
                       break;
             }
     
             //
-            // Rule 164:  Catches ::= CatchClause
+            // Rule 174:  Catches ::= CatchClause
             //
-            case 164: {
-               //#line 1844 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1842 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 174: {
+               //#line 1899 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1897 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Catch CatchClause = (Catch) getRhsSym(1);
-                //#line 1844 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1899 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Catch.class, false);
                 l.add(CatchClause);
                 setResult(l);
@@ -2935,70 +3058,70 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 165:  Catches ::= Catches CatchClause
+            // Rule 175:  Catches ::= Catches CatchClause
             //
-            case 165: {
-               //#line 1851 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1849 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 175: {
+               //#line 1906 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1904 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List Catches = (List) getRhsSym(1);
-                //#line 1849 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1904 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Catch CatchClause = (Catch) getRhsSym(2);
-                //#line 1851 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1906 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 Catches.add(CatchClause);
                 //setResult(Catches);
                       break;
             }
     
             //
-            // Rule 166:  CatchClause ::= catch ( FormalParameter ) Block
+            // Rule 176:  CatchClause ::= catch ( FormalParameter ) Block
             //
-            case 166: {
-               //#line 1858 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1856 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 176: {
+               //#line 1913 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1911 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 1856 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1911 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(5);
-                //#line 1858 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1913 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Catch(pos(), FormalParameter, Block));
                       break;
             }
     
             //
-            // Rule 167:  Finally ::= finally Block
+            // Rule 177:  Finally ::= finally Block
             //
-            case 167: {
-               //#line 1864 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1862 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 177: {
+               //#line 1919 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1917 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(2);
-                //#line 1864 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1919 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Block);
                       break;
             }
     
             //
-            // Rule 168:  ClockedClause ::= clocked ( ClockList )
+            // Rule 178:  ClockedClause ::= clocked ( ClockList )
             //
-            case 168: {
-               //#line 1870 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1868 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 178: {
+               //#line 1925 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1923 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List ClockList = (List) getRhsSym(3);
-                //#line 1870 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1925 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(ClockList);
                       break;
             }
     
             //
-            // Rule 169:  AsyncStatement ::= async PlaceExpressionSingleListopt ClockedClauseopt Statement
+            // Rule 179:  AsyncStatement ::= async PlaceExpressionSingleListopt ClockedClauseopt Statement
             //
-            case 169: {
-               //#line 1876 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1874 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 179: {
+               //#line 1931 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1929 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr PlaceExpressionSingleListopt = (Expr) getRhsSym(2);
-                //#line 1874 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1929 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List ClockedClauseopt = (List) getRhsSym(3);
-                //#line 1874 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1929 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(4);
-                //#line 1876 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1931 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
               setResult(nf.Async(pos(), (PlaceExpressionSingleListopt == null
                                                                         ? nf.Here(pos(getLeftSpan()))
                                                                         : PlaceExpressionSingleListopt),
@@ -3007,78 +3130,78 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 170:  AtStatement ::= at PlaceExpressionSingleList Statement
+            // Rule 180:  AtStatement ::= at PlaceExpressionSingleList Statement
             //
-            case 170: {
-               //#line 1885 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1883 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 180: {
+               //#line 1940 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1938 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr PlaceExpressionSingleList = (Expr) getRhsSym(2);
-                //#line 1883 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1938 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(3);
-                //#line 1885 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1940 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
               setResult(nf.AtStmt(pos(), PlaceExpressionSingleList, Statement));
                       break;
             }
     
             //
-            // Rule 171:  AtomicStatement ::= atomic Statement
+            // Rule 181:  AtomicStatement ::= atomic Statement
             //
-            case 171: {
-               //#line 1891 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1889 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 181: {
+               //#line 1946 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1944 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(2);
-                //#line 1891 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1946 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
               setResult(nf.Atomic(pos(), nf.Here(pos(getLeftSpan())), Statement));
                       break;
             }
     
             //
-            // Rule 172:  WhenStatement ::= when ( Expression ) Statement
+            // Rule 182:  WhenStatement ::= when ( Expression ) Statement
             //
-            case 172: {
-               //#line 1898 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1896 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 182: {
+               //#line 1953 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1951 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1896 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1951 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(5);
-                //#line 1898 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1953 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.When(pos(), Expression, Statement));
                       break;
             }
     
             //
-            // Rule 173:  WhenStatement ::= WhenStatement or$or ( Expression ) Statement
+            // Rule 183:  WhenStatement ::= WhenStatement or$or ( Expression ) Statement
             //
-            case 173: {
-               //#line 1903 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1901 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 183: {
+               //#line 1958 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1956 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 When WhenStatement = (When) getRhsSym(1);
-                //#line 1901 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1956 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 IToken or = (IToken) getRhsIToken(2);
-                //#line 1901 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1956 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(4);
-                //#line 1901 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1956 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(6);
-                //#line 1903 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1958 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
               WhenStatement.addBranch(pos(getRhsFirstTokenIndex(2), getRightSpan()), Expression, Statement);
               setResult(WhenStatement);
                       break;
             }
     
             //
-            // Rule 174:  ForEachStatement ::= foreach ( LoopIndex in Expression ) ClockedClauseopt Statement
+            // Rule 184:  ForEachStatement ::= foreach ( LoopIndex in Expression ) ClockedClauseopt Statement
             //
-            case 174: {
-               //#line 1910 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1908 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 184: {
+               //#line 1965 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1963 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 X10Formal LoopIndex = (X10Formal) getRhsSym(3);
-                //#line 1908 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1963 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(5);
-                //#line 1908 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1963 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List ClockedClauseopt = (List) getRhsSym(7);
-                //#line 1908 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1963 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(8);
-                //#line 1910 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1965 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 FlagsNode fn = LoopIndex.flags();
                 Flags f = fn.flags();
                 fn = fn.flags(f);
@@ -3094,19 +3217,19 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 175:  AtEachStatement ::= ateach ( LoopIndex in Expression ) ClockedClauseopt Statement
+            // Rule 185:  AtEachStatement ::= ateach ( LoopIndex in Expression ) ClockedClauseopt Statement
             //
-            case 175: {
-               //#line 1926 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1924 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 185: {
+               //#line 1981 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1979 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 X10Formal LoopIndex = (X10Formal) getRhsSym(3);
-                //#line 1924 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1979 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(5);
-                //#line 1924 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1979 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List ClockedClauseopt = (List) getRhsSym(7);
-                //#line 1924 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1979 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(8);
-                //#line 1926 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1981 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 FlagsNode fn = LoopIndex.flags();
                 Flags f = fn.flags();
                 fn = fn.flags(f);
@@ -3122,17 +3245,17 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 176:  EnhancedForStatement ::= for ( LoopIndex in Expression ) Statement
+            // Rule 186:  EnhancedForStatement ::= for ( LoopIndex in Expression ) Statement
             //
-            case 176: {
-               //#line 1942 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1940 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 186: {
+               //#line 1997 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1995 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 X10Formal LoopIndex = (X10Formal) getRhsSym(3);
-                //#line 1940 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1995 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(5);
-                //#line 1940 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 1995 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(7);
-                //#line 1942 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 1997 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 FlagsNode fn = LoopIndex.flags();
                 Flags f = fn.flags();
                 if (! f.isFinal()) {
@@ -3146,60 +3269,60 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 177:  FinishStatement ::= finish Statement
+            // Rule 187:  FinishStatement ::= finish Statement
             //
-            case 177: {
-               //#line 1956 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1954 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 187: {
+               //#line 2011 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2009 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(2);
-                //#line 1956 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2011 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Finish(pos(),  Statement));
                       break;
             }
     
             //
-            // Rule 178:  PlaceExpressionSingleList ::= ( PlaceExpression )
+            // Rule 188:  PlaceExpressionSingleList ::= ( PlaceExpression )
             //
-            case 178: {
-               //#line 1962 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1960 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 188: {
+               //#line 2017 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2015 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr PlaceExpression = (Expr) getRhsSym(2);
-                //#line 1962 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2017 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
               setResult(PlaceExpression);
                       break;
             }
     
             //
-            // Rule 180:  NextStatement ::= next ;
+            // Rule 190:  NextStatement ::= next ;
             //
-            case 180: {
-               //#line 1970 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 190: {
+               //#line 2025 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 1970 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2025 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Next(pos()));
                       break;
             }
     
             //
-            // Rule 181:  AwaitStatement ::= await Expression ;
+            // Rule 191:  AwaitStatement ::= await Expression ;
             //
-            case 181: {
-               //#line 1976 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1974 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 191: {
+               //#line 2031 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2029 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(2);
-                //#line 1976 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2031 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Await(pos(), Expression));
                       break;
             }
     
             //
-            // Rule 182:  ClockList ::= Clock
+            // Rule 192:  ClockList ::= Clock
             //
-            case 182: {
-               //#line 1982 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1980 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 192: {
+               //#line 2037 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2035 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr Clock = (Expr) getRhsSym(1);
-                //#line 1982 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2037 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(Clock);
                 setResult(l);
@@ -3207,66 +3330,66 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 183:  ClockList ::= ClockList , Clock
+            // Rule 193:  ClockList ::= ClockList , Clock
             //
-            case 183: {
-               //#line 1989 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1987 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 193: {
+               //#line 2044 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2042 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List ClockList = (List) getRhsSym(1);
-                //#line 1987 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2042 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr Clock = (Expr) getRhsSym(3);
-                //#line 1989 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2044 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 ClockList.add(Clock);
                 setResult(ClockList);
                       break;
             }
     
             //
-            // Rule 184:  Clock ::= Expression
+            // Rule 194:  Clock ::= Expression
             //
-            case 184: {
-               //#line 1997 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1995 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 194: {
+               //#line 2052 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2050 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(1);
-                //#line 1997 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2052 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
     setResult(Expression);
                       break;
             }
     
             //
-            // Rule 186:  CastExpression ::= ExpressionName
+            // Rule 196:  CastExpression ::= ExpressionName
             //
-            case 186: {
-               //#line 2011 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2009 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 196: {
+               //#line 2066 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2064 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ParsedName ExpressionName = (ParsedName) getRhsSym(1);
-                //#line 2011 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2066 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(ExpressionName.toExpr());
                       break;
             }
     
             //
-            // Rule 187:  CastExpression ::= CastExpression as Type
+            // Rule 197:  CastExpression ::= CastExpression as Type
             //
-            case 187: {
-               //#line 2016 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2014 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 197: {
+               //#line 2071 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2069 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr CastExpression = (Expr) getRhsSym(1);
-                //#line 2014 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2069 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 2016 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2071 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10Cast(pos(), Type, CastExpression));
                       break;
             }
     
             //
-            // Rule 188:  TypeParamWithVarianceList ::= TypeParamWithVariance
+            // Rule 198:  TypeParamWithVarianceList ::= TypeParamWithVariance
             //
-            case 188: {
-               //#line 2023 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2021 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 198: {
+               //#line 2078 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2076 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeParamNode TypeParamWithVariance = (TypeParamNode) getRhsSym(1);
-                //#line 2023 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2078 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), TypeParamNode.class, false);
                 l.add(TypeParamWithVariance);
                 setResult(l);
@@ -3274,28 +3397,28 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 189:  TypeParamWithVarianceList ::= TypeParamWithVarianceList , TypeParamWithVariance
+            // Rule 199:  TypeParamWithVarianceList ::= TypeParamWithVarianceList , TypeParamWithVariance
             //
-            case 189: {
-               //#line 2030 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2028 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 199: {
+               //#line 2085 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2083 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List TypeParamWithVarianceList = (List) getRhsSym(1);
-                //#line 2028 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2083 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeParamNode TypeParamWithVariance = (TypeParamNode) getRhsSym(3);
-                //#line 2030 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2085 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 TypeParamWithVarianceList.add(TypeParamWithVariance);
                 setResult(TypeParamWithVarianceList);
                       break;
             }
     
             //
-            // Rule 190:  TypeParameterList ::= TypeParameter
+            // Rule 200:  TypeParameterList ::= TypeParameter
             //
-            case 190: {
-               //#line 2037 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2035 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 200: {
+               //#line 2092 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2090 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeParamNode TypeParameter = (TypeParamNode) getRhsSym(1);
-                //#line 2037 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2092 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), TypeParamNode.class, false);
                 l.add(TypeParameter);
                 setResult(l);
@@ -3303,76 +3426,76 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 191:  TypeParameterList ::= TypeParameterList , TypeParameter
+            // Rule 201:  TypeParameterList ::= TypeParameterList , TypeParameter
             //
-            case 191: {
-               //#line 2044 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2042 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 201: {
+               //#line 2099 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2097 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List TypeParameterList = (List) getRhsSym(1);
-                //#line 2042 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2097 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeParamNode TypeParameter = (TypeParamNode) getRhsSym(3);
-                //#line 2044 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2099 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 TypeParameterList.add(TypeParameter);
                 setResult(TypeParameterList);
                       break;
             }
     
             //
-            // Rule 192:  TypeParamWithVariance ::= Identifier
+            // Rule 202:  TypeParamWithVariance ::= Identifier
             //
-            case 192: {
-               //#line 2051 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2049 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 202: {
+               //#line 2106 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2104 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2051 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2106 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.TypeParamNode(pos(), Identifier, ParameterType.Variance.INVARIANT));
                       break;
             }
     
             //
-            // Rule 193:  TypeParamWithVariance ::= + Identifier
+            // Rule 203:  TypeParamWithVariance ::= + Identifier
             //
-            case 193: {
-               //#line 2056 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2054 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 203: {
+               //#line 2111 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2109 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(2);
-                //#line 2056 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2111 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.TypeParamNode(pos(), Identifier, ParameterType.Variance.COVARIANT));
                       break;
             }
     
             //
-            // Rule 194:  TypeParamWithVariance ::= - Identifier
+            // Rule 204:  TypeParamWithVariance ::= - Identifier
             //
-            case 194: {
-               //#line 2061 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2059 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 204: {
+               //#line 2116 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2114 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(2);
-                //#line 2061 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2116 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.TypeParamNode(pos(), Identifier, ParameterType.Variance.CONTRAVARIANT));
                       break;
             }
     
             //
-            // Rule 195:  TypeParameter ::= Identifier
+            // Rule 205:  TypeParameter ::= Identifier
             //
-            case 195: {
-               //#line 2067 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2065 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 205: {
+               //#line 2122 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2120 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2067 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2122 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.TypeParamNode(pos(), Identifier));
                       break;
             }
     
             //
-            // Rule 197:  RegionExpressionList ::= RegionExpression
+            // Rule 207:  RegionExpressionList ::= RegionExpression
             //
-            case 197: {
-               //#line 2075 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2073 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 207: {
+               //#line 2130 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2128 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr RegionExpression = (Expr) getRhsSym(1);
-                //#line 2075 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2130 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(RegionExpression);
                 setResult(l);
@@ -3380,94 +3503,94 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 198:  RegionExpressionList ::= RegionExpressionList , RegionExpression
+            // Rule 208:  RegionExpressionList ::= RegionExpressionList , RegionExpression
             //
-            case 198: {
-               //#line 2082 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2080 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 208: {
+               //#line 2137 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2135 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List RegionExpressionList = (List) getRhsSym(1);
-                //#line 2080 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2135 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr RegionExpression = (Expr) getRhsSym(3);
-                //#line 2082 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2137 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 RegionExpressionList.add(RegionExpression);
                 //setResult(RegionExpressionList);
                       break;
             }
     
             //
-            // Rule 199:  AssignmentExpression ::= Expression$expr1 -> Expression$expr2
+            // Rule 209:  AssignmentExpression ::= Expression$expr1 -> Expression$expr2
             //
-            case 199: {
-               //#line 2089 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2087 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 209: {
+               //#line 2144 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2142 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr expr1 = (Expr) getRhsSym(1);
-                //#line 2087 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2142 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr expr2 = (Expr) getRhsSym(3);
-                //#line 2089 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2144 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 Expr call = nf.ConstantDistMaker(pos(), expr1, expr2);
                 setResult(call);
                       break;
             }
     
             //
-            // Rule 200:  ClosureExpression ::= FormalParameters WhereClauseopt HasResultTypeopt Throwsopt Offersopt => ClosureBody
+            // Rule 210:  ClosureExpression ::= FormalParameters WhereClauseopt HasResultTypeopt Throwsopt Offersopt => ClosureBody
             //
-            case 200: {
-               //#line 2095 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2093 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 210: {
+               //#line 2150 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2148 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List FormalParameters = (List) getRhsSym(1);
-                //#line 2093 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2148 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(2);
-                //#line 2093 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2148 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode HasResultTypeopt = (TypeNode) getRhsSym(3);
-                //#line 2093 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2148 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(4);
-                //#line 2093 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2148 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Offersopt = (TypeNode) getRhsSym(5);
-                //#line 2093 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2148 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(7);
-                //#line 2095 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2150 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Closure(pos(), FormalParameters, WhereClauseopt, 
           HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt, Throwsopt, ClosureBody));
                       break;
             }
     
             //
-            // Rule 201:  LastExpression ::= Expression
+            // Rule 211:  LastExpression ::= Expression
             //
-            case 201: {
-               //#line 2102 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2100 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 211: {
+               //#line 2157 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2155 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(1);
-                //#line 2102 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2157 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10Return(pos(), Expression, true));
                       break;
             }
     
             //
-            // Rule 202:  ClosureBody ::= ConditionalExpression
+            // Rule 212:  ClosureBody ::= ConditionalExpression
             //
-            case 202: {
-               //#line 2108 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2106 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 212: {
+               //#line 2163 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2161 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr ConditionalExpression = (Expr) getRhsSym(1);
-                //#line 2108 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2163 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Block(pos(), nf.X10Return(pos(), ConditionalExpression, true)));
                       break;
             }
     
             //
-            // Rule 203:  ClosureBody ::= Annotationsopt { BlockStatementsopt LastExpression }
+            // Rule 213:  ClosureBody ::= Annotationsopt { BlockStatementsopt LastExpression }
             //
-            case 203: {
-               //#line 2113 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2111 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 213: {
+               //#line 2168 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2166 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List Annotationsopt = (List) getRhsSym(1);
-                //#line 2111 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2166 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List BlockStatementsopt = (List) getRhsSym(3);
-                //#line 2111 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2166 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Stmt LastExpression = (Stmt) getRhsSym(4);
-                //#line 2113 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2168 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Stmt> l = new ArrayList<Stmt>();
                 l.addAll(BlockStatementsopt);
                 l.add(LastExpression);
@@ -3478,15 +3601,15 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 204:  ClosureBody ::= Annotationsopt Block
+            // Rule 214:  ClosureBody ::= Annotationsopt Block
             //
-            case 204: {
-               //#line 2123 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2121 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 214: {
+               //#line 2178 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2176 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List Annotationsopt = (List) getRhsSym(1);
-                //#line 2121 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2176 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(2);
-                //#line 2123 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2178 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 Block b = Block;
                 b = (Block) ((X10Ext) b.ext()).annotations(Annotationsopt);
                 setResult(b.position(pos()));
@@ -3494,243 +3617,243 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 205:  AtExpression ::= at PlaceExpressionSingleList ClosureBody
+            // Rule 215:  AtExpression ::= at PlaceExpressionSingleList ClosureBody
             //
-            case 205: {
-               //#line 2132 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2130 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 215: {
+               //#line 2187 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2185 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr PlaceExpressionSingleList = (Expr) getRhsSym(2);
-                //#line 2130 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2185 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(3);
-                //#line 2132 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2187 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.AtExpr(pos(), PlaceExpressionSingleList, nf.UnknownTypeNode(pos()), ClosureBody));
                       break;
             }
     
             //
-            // Rule 206:  AsyncExpression ::= async ClosureBody
+            // Rule 216:  AsyncExpression ::= async ClosureBody
             //
-            case 206: {
-               //#line 2138 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2136 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 216: {
+               //#line 2193 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2191 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(2);
-                //#line 2138 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2193 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Call(pos(), nf.Future(pos(), nf.Here(pos(getLeftSpan())), nf.UnknownTypeNode(pos()), ClosureBody), nf.Id(pos(), "force")));
                       break;
             }
     
             //
-            // Rule 207:  AsyncExpression ::= async PlaceExpressionSingleList ClosureBody
+            // Rule 217:  AsyncExpression ::= async PlaceExpressionSingleList ClosureBody
             //
-            case 207: {
-               //#line 2143 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2141 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 217: {
+               //#line 2198 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2196 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr PlaceExpressionSingleList = (Expr) getRhsSym(2);
-                //#line 2141 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2196 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(3);
-                //#line 2143 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2198 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Call(pos(), nf.Future(pos(), PlaceExpressionSingleList, nf.UnknownTypeNode(pos()), ClosureBody), nf.Id(pos(), "force")));
                       break;
             }
     
             //
-            // Rule 208:  AsyncExpression ::= async [ Type ] ClosureBody
+            // Rule 218:  AsyncExpression ::= async [ Type ] ClosureBody
             //
-            case 208: {
-               //#line 2148 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2146 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 218: {
+               //#line 2203 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2201 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 2146 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2201 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(5);
-                //#line 2148 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2203 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Call(pos(), nf.Future(pos(), nf.Here(pos(getLeftSpan())), Type, ClosureBody), nf.Id(pos(), "force")));
                       break;
             }
     
             //
-            // Rule 209:  AsyncExpression ::= async [ Type ] PlaceExpressionSingleList ClosureBody
+            // Rule 219:  AsyncExpression ::= async [ Type ] PlaceExpressionSingleList ClosureBody
             //
-            case 209: {
-               //#line 2153 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2151 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 219: {
+               //#line 2208 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2206 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 2151 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2206 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr PlaceExpressionSingleList = (Expr) getRhsSym(5);
-                //#line 2151 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2206 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(6);
-                //#line 2153 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2208 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Call(pos(), nf.Future(pos(), PlaceExpressionSingleList, Type, ClosureBody), nf.Id(pos(), "force")));
                       break;
             }
     
             //
-            // Rule 210:  FinishExpression ::= finish ( Expression ) Block
+            // Rule 220:  FinishExpression ::= finish ( Expression ) Block
             //
-            case 210: {
-               //#line 2160 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2158 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 220: {
+               //#line 2215 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2213 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 2158 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2213 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(5);
-                //#line 2160 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2215 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.FinishExpr(pos(), Expression, Block));
                       break;
             }
     
             //
-            // Rule 211:  FutureExpression ::= future ClosureBody
+            // Rule 221:  FutureExpression ::= future ClosureBody
             //
-            case 211: {
-               //#line 2166 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2164 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 221: {
+               //#line 2221 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2219 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(2);
-                //#line 2166 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2221 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Future(pos(), nf.Here(pos(getLeftSpan())), nf.UnknownTypeNode(pos()), ClosureBody));
                       break;
             }
     
             //
-            // Rule 212:  FutureExpression ::= future PlaceExpressionSingleList ClosureBody
+            // Rule 222:  FutureExpression ::= future PlaceExpressionSingleList ClosureBody
             //
-            case 212: {
-               //#line 2171 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2169 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 222: {
+               //#line 2226 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2224 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr PlaceExpressionSingleList = (Expr) getRhsSym(2);
-                //#line 2169 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2224 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(3);
-                //#line 2171 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2226 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Future(pos(), PlaceExpressionSingleList, nf.UnknownTypeNode(pos()), ClosureBody));
                       break;
             }
     
             //
-            // Rule 213:  FutureExpression ::= future [ Type ] ClosureBody
+            // Rule 223:  FutureExpression ::= future [ Type ] ClosureBody
             //
-            case 213: {
-               //#line 2176 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2174 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 223: {
+               //#line 2231 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2229 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 2174 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2229 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(5);
-                //#line 2176 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2231 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Future(pos(), nf.Here(pos(getLeftSpan())), Type, ClosureBody));
                       break;
             }
     
             //
-            // Rule 214:  FutureExpression ::= future [ Type ] PlaceExpressionSingleList ClosureBody
+            // Rule 224:  FutureExpression ::= future [ Type ] PlaceExpressionSingleList ClosureBody
             //
-            case 214: {
-               //#line 2181 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2179 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 224: {
+               //#line 2236 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2234 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 2179 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2234 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr PlaceExpressionSingleList = (Expr) getRhsSym(5);
-                //#line 2179 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2234 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(6);
-                //#line 2181 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2236 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Future(pos(), PlaceExpressionSingleList, Type, ClosureBody));
                       break;
             }
     
             //
-            // Rule 215:  DepParametersopt ::= $Empty
+            // Rule 225:  DepParametersopt ::= $Empty
             //
-            case 215:
+            case 225:
                 setResult(null);
                 break;
 
             //
-            // Rule 217:  PropertyListopt ::= $Empty
+            // Rule 227:  PropertyListopt ::= $Empty
             //
-            case 217: {
-               //#line 2192 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 227: {
+               //#line 2247 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2192 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2247 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), PropertyDecl.class, false));
                       break;
             }
     
             //
-            // Rule 219:  WhereClauseopt ::= $Empty
+            // Rule 229:  WhereClauseopt ::= $Empty
             //
-            case 219:
+            case 229:
                 setResult(null);
                 break;
 
             //
-            // Rule 221:  PlaceExpressionSingleListopt ::= $Empty
+            // Rule 231:  PlaceExpressionSingleListopt ::= $Empty
             //
-            case 221:
+            case 231:
                 setResult(null);
                 break;
 
             //
-            // Rule 223:  ClassModifiersopt ::= $Empty
+            // Rule 233:  ClassModifiersopt ::= $Empty
             //
-            case 223: {
-               //#line 2207 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 233: {
+               //#line 2262 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2207 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2262 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
          setResult(Collections.singletonList(nf.FlagsNode(JPGPosition.COMPILER_GENERATED, X10Flags.toX10Flags(Flags.NONE))));
                       break;
             } 
             //
-            // Rule 225:  TypeDefModifiersopt ::= $Empty
+            // Rule 235:  TypeDefModifiersopt ::= $Empty
             //
-            case 225: {
-               //#line 2213 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 235: {
+               //#line 2268 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2213 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2268 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
          setResult(Collections.singletonList(nf.FlagsNode(JPGPosition.COMPILER_GENERATED, X10Flags.toX10Flags(Flags.NONE))));
                       break;
             } 
             //
-            // Rule 227:  ClockedClauseopt ::= $Empty
+            // Rule 237:  ClockedClauseopt ::= $Empty
             //
-            case 227: {
-               //#line 2219 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 237: {
+               //#line 2274 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2219 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2274 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), Expr.class, false));
                       break;
             }
     
             //
-            // Rule 229:  identifier ::= IDENTIFIER$ident
+            // Rule 239:  identifier ::= IDENTIFIER$ident
             //
-            case 229: {
-               //#line 2230 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2228 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 239: {
+               //#line 2285 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2283 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 IToken ident = (IToken) getRhsIToken(1);
-                //#line 2230 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2285 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 ident.setKind(X10Parsersym.TK_IDENTIFIER);
                 setResult(id(getRhsFirstTokenIndex(1)));
                       break;
             }
     
             //
-            // Rule 230:  TypeName ::= Identifier
+            // Rule 240:  TypeName ::= Identifier
             //
-            case 230: {
-               //#line 2237 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2235 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 240: {
+               //#line 2292 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2290 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2237 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2292 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf, ts, pos(), Identifier));
                       break;
             }
     
             //
-            // Rule 231:  TypeName ::= TypeName . Identifier
+            // Rule 241:  TypeName ::= TypeName . Identifier
             //
-            case 231: {
-               //#line 2242 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2240 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 241: {
+               //#line 2297 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2295 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 2240 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2295 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 2242 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2297 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -3740,25 +3863,25 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 233:  TypeArguments ::= [ TypeArgumentList ]
+            // Rule 243:  TypeArguments ::= [ TypeArgumentList ]
             //
-            case 233: {
-               //#line 2254 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2252 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 243: {
+               //#line 2309 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2307 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentList = (List) getRhsSym(2);
-                //#line 2254 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2309 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(TypeArgumentList);
                       break;
             }
     
             //
-            // Rule 234:  TypeArgumentList ::= Type
+            // Rule 244:  TypeArgumentList ::= Type
             //
-            case 234: {
-               //#line 2261 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2259 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 244: {
+               //#line 2316 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2314 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(1);
-                //#line 2261 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2316 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new ArrayList();
                 l.add(Type);
                 setResult(l);
@@ -3766,41 +3889,41 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 235:  TypeArgumentList ::= TypeArgumentList , Type
+            // Rule 245:  TypeArgumentList ::= TypeArgumentList , Type
             //
-            case 235: {
-               //#line 2268 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2266 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 245: {
+               //#line 2323 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2321 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentList = (List) getRhsSym(1);
-                //#line 2266 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2321 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 2268 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2323 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 TypeArgumentList.add(Type);
                       break;
             }
     
             //
-            // Rule 236:  PackageName ::= Identifier
+            // Rule 246:  PackageName ::= Identifier
             //
-            case 236: {
-               //#line 2278 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2276 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 246: {
+               //#line 2333 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2331 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2278 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2333 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf, ts, pos(), Identifier));
                       break;
             }
     
             //
-            // Rule 237:  PackageName ::= PackageName . Identifier
+            // Rule 247:  PackageName ::= PackageName . Identifier
             //
-            case 237: {
-               //#line 2283 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2281 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 247: {
+               //#line 2338 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2336 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ParsedName PackageName = (ParsedName) getRhsSym(1);
-                //#line 2281 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2336 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 2283 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2338 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -3810,27 +3933,27 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 238:  ExpressionName ::= Identifier
+            // Rule 248:  ExpressionName ::= Identifier
             //
-            case 238: {
-               //#line 2299 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2297 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 248: {
+               //#line 2354 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2352 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2299 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2354 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf, ts, pos(), Identifier));
                       break;
             }
     
             //
-            // Rule 239:  ExpressionName ::= AmbiguousName . Identifier
+            // Rule 249:  ExpressionName ::= AmbiguousName . Identifier
             //
-            case 239: {
-               //#line 2304 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2302 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 249: {
+               //#line 2359 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2357 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ParsedName AmbiguousName = (ParsedName) getRhsSym(1);
-                //#line 2302 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2357 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 2304 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2359 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -3840,27 +3963,27 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 240:  MethodName ::= Identifier
+            // Rule 250:  MethodName ::= Identifier
             //
-            case 240: {
-               //#line 2314 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2312 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 250: {
+               //#line 2369 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2367 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2314 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2369 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf, ts, pos(), Identifier));
                       break;
             }
     
             //
-            // Rule 241:  MethodName ::= AmbiguousName . Identifier
+            // Rule 251:  MethodName ::= AmbiguousName . Identifier
             //
-            case 241: {
-               //#line 2319 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2317 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 251: {
+               //#line 2374 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2372 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ParsedName AmbiguousName = (ParsedName) getRhsSym(1);
-                //#line 2317 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2372 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 2319 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2374 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -3870,27 +3993,27 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 242:  PackageOrTypeName ::= Identifier
+            // Rule 252:  PackageOrTypeName ::= Identifier
             //
-            case 242: {
-               //#line 2329 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2327 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 252: {
+               //#line 2384 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2382 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2329 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2384 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf, ts, pos(), Identifier));
                       break;
             }
     
             //
-            // Rule 243:  PackageOrTypeName ::= PackageOrTypeName . Identifier
+            // Rule 253:  PackageOrTypeName ::= PackageOrTypeName . Identifier
             //
-            case 243: {
-               //#line 2334 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2332 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 253: {
+               //#line 2389 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2387 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ParsedName PackageOrTypeName = (ParsedName) getRhsSym(1);
-                //#line 2332 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2387 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 2334 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2389 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -3900,27 +4023,27 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 244:  AmbiguousName ::= Identifier
+            // Rule 254:  AmbiguousName ::= Identifier
             //
-            case 244: {
-               //#line 2344 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2342 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 254: {
+               //#line 2399 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2397 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2344 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2399 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf, ts, pos(), Identifier));
                       break;
             }
     
             //
-            // Rule 245:  AmbiguousName ::= AmbiguousName . Identifier
+            // Rule 255:  AmbiguousName ::= AmbiguousName . Identifier
             //
-            case 245: {
-               //#line 2349 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2347 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 255: {
+               //#line 2404 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2402 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ParsedName AmbiguousName = (ParsedName) getRhsSym(1);
-                //#line 2347 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2402 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 2349 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2404 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -3930,17 +4053,17 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 246:  CompilationUnit ::= PackageDeclarationopt ImportDeclarationsopt TypeDeclarationsopt
+            // Rule 256:  CompilationUnit ::= PackageDeclarationopt ImportDeclarationsopt TypeDeclarationsopt
             //
-            case 246: {
-               //#line 2361 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2359 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 256: {
+               //#line 2416 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2414 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 PackageNode PackageDeclarationopt = (PackageNode) getRhsSym(1);
-                //#line 2359 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2414 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List ImportDeclarationsopt = (List) getRhsSym(2);
-                //#line 2359 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2414 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List TypeDeclarationsopt = (List) getRhsSym(3);
-                //#line 2361 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2416 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 // Add import x10.lang.* by default.
                 int token_pos = (ImportDeclarationsopt.size() == 0
                                      ? TypeDeclarationsopt.size() == 0
@@ -3956,13 +4079,13 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 247:  ImportDeclarations ::= ImportDeclaration
+            // Rule 257:  ImportDeclarations ::= ImportDeclaration
             //
-            case 247: {
-               //#line 2377 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2375 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 257: {
+               //#line 2432 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2430 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Import ImportDeclaration = (Import) getRhsSym(1);
-                //#line 2377 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2432 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Import.class, false);
                 l.add(ImportDeclaration);
                 setResult(l);
@@ -3970,15 +4093,15 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 248:  ImportDeclarations ::= ImportDeclarations ImportDeclaration
+            // Rule 258:  ImportDeclarations ::= ImportDeclarations ImportDeclaration
             //
-            case 248: {
-               //#line 2384 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2382 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 258: {
+               //#line 2439 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2437 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List ImportDeclarations = (List) getRhsSym(1);
-                //#line 2382 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2437 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Import ImportDeclaration = (Import) getRhsSym(2);
-                //#line 2384 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2439 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 if (ImportDeclaration != null)
                     ImportDeclarations.add(ImportDeclaration);
                 //setResult(l);
@@ -3986,13 +4109,13 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 249:  TypeDeclarations ::= TypeDeclaration
+            // Rule 259:  TypeDeclarations ::= TypeDeclaration
             //
-            case 249: {
-               //#line 2392 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2390 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 259: {
+               //#line 2447 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2445 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TopLevelDecl TypeDeclaration = (TopLevelDecl) getRhsSym(1);
-                //#line 2392 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2447 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), TopLevelDecl.class, false);
                 if (TypeDeclaration != null)
                     l.add(TypeDeclaration);
@@ -4001,15 +4124,15 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 250:  TypeDeclarations ::= TypeDeclarations TypeDeclaration
+            // Rule 260:  TypeDeclarations ::= TypeDeclarations TypeDeclaration
             //
-            case 250: {
-               //#line 2400 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2398 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 260: {
+               //#line 2455 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2453 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List TypeDeclarations = (List) getRhsSym(1);
-                //#line 2398 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2453 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TopLevelDecl TypeDeclaration = (TopLevelDecl) getRhsSym(2);
-                //#line 2400 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2455 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 if (TypeDeclaration != null)
                     TypeDeclarations.add(TypeDeclaration);
                 //setResult(l);
@@ -4017,15 +4140,15 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 251:  PackageDeclaration ::= Annotationsopt package PackageName ;
+            // Rule 261:  PackageDeclaration ::= Annotationsopt package PackageName ;
             //
-            case 251: {
-               //#line 2408 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2406 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 261: {
+               //#line 2463 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2461 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List Annotationsopt = (List) getRhsSym(1);
-                //#line 2406 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2461 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ParsedName PackageName = (ParsedName) getRhsSym(3);
-                //#line 2408 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2463 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 PackageNode pn = PackageName.toPackage();
                 pn = (PackageNode) ((X10Ext) pn.ext()).annotations(Annotationsopt);
                 setResult(pn.position(pos()));
@@ -4033,48 +4156,48 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 254:  SingleTypeImportDeclaration ::= import TypeName ;
+            // Rule 264:  SingleTypeImportDeclaration ::= import TypeName ;
             //
-            case 254: {
-               //#line 2422 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2420 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 264: {
+               //#line 2477 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2475 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(2);
-                //#line 2422 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2477 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Import(pos(getLeftSpan(), getRightSpan()), Import.CLASS, QName.make(TypeName.toString())));
                       break;
             }
     
             //
-            // Rule 255:  TypeImportOnDemandDeclaration ::= import PackageOrTypeName . * ;
+            // Rule 265:  TypeImportOnDemandDeclaration ::= import PackageOrTypeName . * ;
             //
-            case 255: {
-               //#line 2428 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2426 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 265: {
+               //#line 2483 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2481 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ParsedName PackageOrTypeName = (ParsedName) getRhsSym(2);
-                //#line 2428 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2483 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Import(pos(getLeftSpan(), getRightSpan()), Import.PACKAGE, QName.make(PackageOrTypeName.toString())));
                       break;
             }
     
             //
-            // Rule 259:  TypeDeclaration ::= ;
+            // Rule 269:  TypeDeclaration ::= ;
             //
-            case 259: {
-               //#line 2443 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 269: {
+               //#line 2498 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2443 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2498 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(null);
                       break;
             }
     
             //
-            // Rule 260:  ClassModifiers ::= ClassModifier
+            // Rule 270:  ClassModifiers ::= ClassModifier
             //
-            case 260: {
-               //#line 2451 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2449 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 270: {
+               //#line 2506 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2504 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List ClassModifier = (List) getRhsSym(1);
-                //#line 2451 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2506 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new LinkedList();
                 l.addAll(ClassModifier);
                 setResult(l);
@@ -4082,116 +4205,116 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 261:  ClassModifiers ::= ClassModifiers ClassModifier
+            // Rule 271:  ClassModifiers ::= ClassModifiers ClassModifier
             //
-            case 261: {
-               //#line 2458 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2456 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 271: {
+               //#line 2513 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2511 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List ClassModifiers = (List) getRhsSym(1);
-                //#line 2456 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2511 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List ClassModifier = (List) getRhsSym(2);
-                //#line 2458 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2513 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 ClassModifiers.addAll(ClassModifier);
                       break;
             }
     
             //
-            // Rule 262:  ClassModifier ::= Annotation
+            // Rule 272:  ClassModifier ::= Annotation
             //
-            case 262: {
-               //#line 2464 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2462 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 272: {
+               //#line 2519 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2517 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 2464 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2519 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(Annotation));
                       break;
             }
     
             //
-            // Rule 263:  ClassModifier ::= public
+            // Rule 273:  ClassModifier ::= public
             //
-            case 263: {
-               //#line 2469 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 273: {
+               //#line 2524 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2469 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2524 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PUBLIC)));
                       break;
             }
     
             //
-            // Rule 264:  ClassModifier ::= protected
+            // Rule 274:  ClassModifier ::= protected
             //
-            case 264: {
-               //#line 2474 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 274: {
+               //#line 2529 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2474 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2529 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PROTECTED)));
                       break;
             }
     
             //
-            // Rule 265:  ClassModifier ::= private
+            // Rule 275:  ClassModifier ::= private
             //
-            case 265: {
-               //#line 2479 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 275: {
+               //#line 2534 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2479 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2534 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
                       break;
             }
     
             //
-            // Rule 266:  ClassModifier ::= abstract
+            // Rule 276:  ClassModifier ::= abstract
             //
-            case 266: {
-               //#line 2484 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 276: {
+               //#line 2539 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2484 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2539 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.ABSTRACT)));
                       break;
             }
     
             //
-            // Rule 267:  ClassModifier ::= static
+            // Rule 277:  ClassModifier ::= static
             //
-            case 267: {
-               //#line 2489 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 277: {
+               //#line 2544 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2489 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2544 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STATIC)));
                       break;
             }
     
             //
-            // Rule 268:  ClassModifier ::= final
+            // Rule 278:  ClassModifier ::= final
             //
-            case 268: {
-               //#line 2494 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 278: {
+               //#line 2549 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2494 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2549 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL)));
                       break;
             }
     
             //
-            // Rule 269:  ClassModifier ::= safe
+            // Rule 279:  ClassModifier ::= safe
             //
-            case 269: {
-               //#line 2499 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 279: {
+               //#line 2554 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2499 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2554 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.SAFE)));
                       break;
             }
     
             //
-            // Rule 270:  TypeDefModifiers ::= TypeDefModifier
+            // Rule 280:  TypeDefModifiers ::= TypeDefModifier
             //
-            case 270: {
-               //#line 2505 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2503 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 280: {
+               //#line 2560 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2558 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List TypeDefModifier = (List) getRhsSym(1);
-                //#line 2505 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2560 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new LinkedList();
                 l.addAll(TypeDefModifier);
                 setResult(l);
@@ -4199,117 +4322,117 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 271:  TypeDefModifiers ::= TypeDefModifiers TypeDefModifier
+            // Rule 281:  TypeDefModifiers ::= TypeDefModifiers TypeDefModifier
             //
-            case 271: {
-               //#line 2512 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2510 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 281: {
+               //#line 2567 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2565 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List TypeDefModifiers = (List) getRhsSym(1);
-                //#line 2510 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2565 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List TypeDefModifier = (List) getRhsSym(2);
-                //#line 2512 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2567 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 TypeDefModifiers.addAll(TypeDefModifier);
                       break;
             }
     
             //
-            // Rule 272:  TypeDefModifier ::= Annotation
+            // Rule 282:  TypeDefModifier ::= Annotation
             //
-            case 272: {
-               //#line 2518 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2516 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 282: {
+               //#line 2573 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2571 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 2518 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2573 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(Annotation));
                       break;
             }
     
             //
-            // Rule 273:  TypeDefModifier ::= public
+            // Rule 283:  TypeDefModifier ::= public
             //
-            case 273: {
-               //#line 2523 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 283: {
+               //#line 2578 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2523 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2578 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PUBLIC)));
                       break;
             }
     
             //
-            // Rule 274:  TypeDefModifier ::= protected
+            // Rule 284:  TypeDefModifier ::= protected
             //
-            case 274: {
-               //#line 2528 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 284: {
+               //#line 2583 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2528 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2583 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PROTECTED)));
                       break;
             }
     
             //
-            // Rule 275:  TypeDefModifier ::= private
+            // Rule 285:  TypeDefModifier ::= private
             //
-            case 275: {
-               //#line 2533 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 285: {
+               //#line 2588 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2533 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2588 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
                       break;
             }
     
             //
-            // Rule 276:  TypeDefModifier ::= abstract
+            // Rule 286:  TypeDefModifier ::= abstract
             //
-            case 276: {
-               //#line 2538 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 286: {
+               //#line 2593 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2538 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2593 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.ABSTRACT)));
                       break;
             }
     
             //
-            // Rule 277:  TypeDefModifier ::= static
+            // Rule 287:  TypeDefModifier ::= static
             //
-            case 277: {
-               //#line 2543 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 287: {
+               //#line 2598 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2543 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2598 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STATIC)));
                       break;
             }
     
             //
-            // Rule 278:  TypeDefModifier ::= final
+            // Rule 288:  TypeDefModifier ::= final
             //
-            case 278: {
-               //#line 2548 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 288: {
+               //#line 2603 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2548 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2603 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL)));
                       break;
             }
     
             //
-            // Rule 279:  Interfaces ::= implements InterfaceTypeList
+            // Rule 289:  Interfaces ::= implements InterfaceTypeList
             //
-            case 279: {
-               //#line 2557 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2555 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 289: {
+               //#line 2612 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2610 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List InterfaceTypeList = (List) getRhsSym(2);
-                //#line 2557 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2612 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(InterfaceTypeList);
                       break;
             }
     
             //
-            // Rule 280:  InterfaceTypeList ::= Type
+            // Rule 290:  InterfaceTypeList ::= Type
             //
-            case 280: {
-               //#line 2563 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2561 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 290: {
+               //#line 2618 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2616 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(1);
-                //#line 2563 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2618 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), TypeNode.class, false);
                 l.add(Type);
                 setResult(l);
@@ -4317,55 +4440,55 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 281:  InterfaceTypeList ::= InterfaceTypeList , Type
+            // Rule 291:  InterfaceTypeList ::= InterfaceTypeList , Type
             //
-            case 281: {
-               //#line 2570 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2568 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 291: {
+               //#line 2625 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2623 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List InterfaceTypeList = (List) getRhsSym(1);
-                //#line 2568 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2623 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 2570 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2625 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 InterfaceTypeList.add(Type);
                 setResult(InterfaceTypeList);
                       break;
             }
     
             //
-            // Rule 282:  ClassBody ::= { ClassBodyDeclarationsopt }
+            // Rule 292:  ClassBody ::= { ClassBodyDeclarationsopt }
             //
-            case 282: {
-               //#line 2580 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2578 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 292: {
+               //#line 2635 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2633 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List ClassBodyDeclarationsopt = (List) getRhsSym(2);
-                //#line 2580 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2635 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.ClassBody(pos(getLeftSpan(), getRightSpan()), ClassBodyDeclarationsopt));
                       break;
             }
     
             //
-            // Rule 284:  ClassBodyDeclarations ::= ClassBodyDeclarations ClassBodyDeclaration
+            // Rule 294:  ClassBodyDeclarations ::= ClassBodyDeclarations ClassBodyDeclaration
             //
-            case 284: {
-               //#line 2587 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2585 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 294: {
+               //#line 2642 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2640 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List ClassBodyDeclarations = (List) getRhsSym(1);
-                //#line 2585 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2640 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List ClassBodyDeclaration = (List) getRhsSym(2);
-                //#line 2587 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2642 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 ClassBodyDeclarations.addAll(ClassBodyDeclaration);
                 // setResult(a);
                       break;
             }
     
             //
-            // Rule 286:  ClassBodyDeclaration ::= ConstructorDeclaration
+            // Rule 296:  ClassBodyDeclaration ::= ConstructorDeclaration
             //
-            case 286: {
-               //#line 2609 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2607 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 296: {
+               //#line 2664 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2662 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ConstructorDecl ConstructorDeclaration = (ConstructorDecl) getRhsSym(1);
-                //#line 2609 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2664 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(ConstructorDeclaration);
                 setResult(l);
@@ -4373,13 +4496,13 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 288:  ClassMemberDeclaration ::= MethodDeclaration
+            // Rule 298:  ClassMemberDeclaration ::= MethodDeclaration
             //
-            case 288: {
-               //#line 2618 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2616 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 298: {
+               //#line 2673 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2671 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ClassMember MethodDeclaration = (ClassMember) getRhsSym(1);
-                //#line 2618 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2673 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(MethodDeclaration);
                 setResult(l);
@@ -4387,13 +4510,13 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 289:  ClassMemberDeclaration ::= PropertyMethodDeclaration
+            // Rule 299:  ClassMemberDeclaration ::= PropertyMethodDeclaration
             //
-            case 289: {
-               //#line 2625 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2623 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 299: {
+               //#line 2680 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2678 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ClassMember PropertyMethodDeclaration = (ClassMember) getRhsSym(1);
-                //#line 2625 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2680 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(PropertyMethodDeclaration);
                 setResult(l);
@@ -4401,13 +4524,13 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 290:  ClassMemberDeclaration ::= TypeDefDeclaration
+            // Rule 300:  ClassMemberDeclaration ::= TypeDefDeclaration
             //
-            case 290: {
-               //#line 2632 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2630 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 300: {
+               //#line 2687 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2685 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeDecl TypeDefDeclaration = (TypeDecl) getRhsSym(1);
-                //#line 2632 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2687 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(TypeDefDeclaration);
                 setResult(l);
@@ -4415,13 +4538,13 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 291:  ClassMemberDeclaration ::= ClassDeclaration
+            // Rule 301:  ClassMemberDeclaration ::= ClassDeclaration
             //
-            case 291: {
-               //#line 2639 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2637 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 301: {
+               //#line 2694 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2692 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ClassDecl ClassDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 2639 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2694 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(ClassDeclaration);
                 setResult(l);
@@ -4429,13 +4552,13 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 292:  ClassMemberDeclaration ::= InterfaceDeclaration
+            // Rule 302:  ClassMemberDeclaration ::= InterfaceDeclaration
             //
-            case 292: {
-               //#line 2646 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2644 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 302: {
+               //#line 2701 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2699 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ClassDecl InterfaceDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 2646 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2701 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(InterfaceDeclaration);
                 setResult(l);
@@ -4443,25 +4566,25 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 293:  ClassMemberDeclaration ::= ;
+            // Rule 303:  ClassMemberDeclaration ::= ;
             //
-            case 293: {
-               //#line 2653 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 303: {
+               //#line 2708 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2653 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2708 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 setResult(l);
                       break;
             }
     
             //
-            // Rule 294:  FormalDeclarators ::= FormalDeclarator
+            // Rule 304:  FormalDeclarators ::= FormalDeclarator
             //
-            case 294: {
-               //#line 2660 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2658 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 304: {
+               //#line 2715 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2713 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Object[] FormalDeclarator = (Object[]) getRhsSym(1);
-                //#line 2660 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2715 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Object[].class, false);
                 l.add(FormalDeclarator);
                 setResult(l);
@@ -4469,27 +4592,27 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 295:  FormalDeclarators ::= FormalDeclarators , FormalDeclarator
+            // Rule 305:  FormalDeclarators ::= FormalDeclarators , FormalDeclarator
             //
-            case 295: {
-               //#line 2667 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2665 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 305: {
+               //#line 2722 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2720 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List FormalDeclarators = (List) getRhsSym(1);
-                //#line 2665 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2720 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Object[] FormalDeclarator = (Object[]) getRhsSym(3);
-                //#line 2667 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2722 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 FormalDeclarators.add(FormalDeclarator);
                       break;
             }
     
             //
-            // Rule 296:  FieldDeclarators ::= FieldDeclarator
+            // Rule 306:  FieldDeclarators ::= FieldDeclarator
             //
-            case 296: {
-               //#line 2674 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2672 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 306: {
+               //#line 2729 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2727 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Object[] FieldDeclarator = (Object[]) getRhsSym(1);
-                //#line 2674 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2729 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Object[].class, false);
                 l.add(FieldDeclarator);
                 setResult(l);
@@ -4497,28 +4620,28 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 297:  FieldDeclarators ::= FieldDeclarators , FieldDeclarator
+            // Rule 307:  FieldDeclarators ::= FieldDeclarators , FieldDeclarator
             //
-            case 297: {
-               //#line 2681 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2679 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 307: {
+               //#line 2736 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2734 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List FieldDeclarators = (List) getRhsSym(1);
-                //#line 2679 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2734 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Object[] FieldDeclarator = (Object[]) getRhsSym(3);
-                //#line 2681 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2736 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 FieldDeclarators.add(FieldDeclarator);
                 // setResult(FieldDeclarators);
                       break;
             }
     
             //
-            // Rule 298:  VariableDeclaratorsWithType ::= VariableDeclaratorWithType
+            // Rule 308:  VariableDeclaratorsWithType ::= VariableDeclaratorWithType
             //
-            case 298: {
-               //#line 2689 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2687 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 308: {
+               //#line 2744 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2742 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Object[] VariableDeclaratorWithType = (Object[]) getRhsSym(1);
-                //#line 2689 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2744 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Object[].class, false);
                 l.add(VariableDeclaratorWithType);
                 setResult(l);
@@ -4526,28 +4649,28 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 299:  VariableDeclaratorsWithType ::= VariableDeclaratorsWithType , VariableDeclaratorWithType
+            // Rule 309:  VariableDeclaratorsWithType ::= VariableDeclaratorsWithType , VariableDeclaratorWithType
             //
-            case 299: {
-               //#line 2696 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2694 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 309: {
+               //#line 2751 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2749 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List VariableDeclaratorsWithType = (List) getRhsSym(1);
-                //#line 2694 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2749 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Object[] VariableDeclaratorWithType = (Object[]) getRhsSym(3);
-                //#line 2696 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2751 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 VariableDeclaratorsWithType.add(VariableDeclaratorWithType);
                 // setResult(VariableDeclaratorsWithType);
                       break;
             }
     
             //
-            // Rule 300:  VariableDeclarators ::= VariableDeclarator
+            // Rule 310:  VariableDeclarators ::= VariableDeclarator
             //
-            case 300: {
-               //#line 2703 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2701 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 310: {
+               //#line 2758 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2756 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Object[] VariableDeclarator = (Object[]) getRhsSym(1);
-                //#line 2703 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2758 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Object[].class, false);
                 l.add(VariableDeclarator);
                 setResult(l);
@@ -4555,28 +4678,28 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 301:  VariableDeclarators ::= VariableDeclarators , VariableDeclarator
+            // Rule 311:  VariableDeclarators ::= VariableDeclarators , VariableDeclarator
             //
-            case 301: {
-               //#line 2710 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2708 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 311: {
+               //#line 2765 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2763 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List VariableDeclarators = (List) getRhsSym(1);
-                //#line 2708 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2763 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Object[] VariableDeclarator = (Object[]) getRhsSym(3);
-                //#line 2710 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2765 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 VariableDeclarators.add(VariableDeclarator);
                 // setResult(VariableDeclarators);
                       break;
             }
     
             //
-            // Rule 303:  FieldModifiers ::= FieldModifier
+            // Rule 313:  FieldModifiers ::= FieldModifier
             //
-            case 303: {
-               //#line 2719 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2717 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 313: {
+               //#line 2774 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2772 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List FieldModifier = (List) getRhsSym(1);
-                //#line 2719 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2774 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new LinkedList();
                 l.addAll(FieldModifier);
                 setResult(l);
@@ -4584,142 +4707,142 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 304:  FieldModifiers ::= FieldModifiers FieldModifier
+            // Rule 314:  FieldModifiers ::= FieldModifiers FieldModifier
             //
-            case 304: {
-               //#line 2726 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2724 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 314: {
+               //#line 2781 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2779 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List FieldModifiers = (List) getRhsSym(1);
-                //#line 2724 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2779 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List FieldModifier = (List) getRhsSym(2);
-                //#line 2726 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2781 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 FieldModifiers.addAll(FieldModifier);
                       break;
             }
     
             //
-            // Rule 305:  FieldModifier ::= Annotation
+            // Rule 315:  FieldModifier ::= Annotation
             //
-            case 305: {
-               //#line 2732 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2730 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 315: {
+               //#line 2787 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2785 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 2732 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2787 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(Annotation));
                       break;
             }
     
             //
-            // Rule 306:  FieldModifier ::= public
+            // Rule 316:  FieldModifier ::= public
             //
-            case 306: {
-               //#line 2737 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 316: {
+               //#line 2792 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2737 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2792 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PUBLIC)));
                       break;
             }
     
             //
-            // Rule 307:  FieldModifier ::= protected
+            // Rule 317:  FieldModifier ::= protected
             //
-            case 307: {
-               //#line 2742 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 317: {
+               //#line 2797 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2742 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2797 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PROTECTED)));
                       break;
             }
     
             //
-            // Rule 308:  FieldModifier ::= private
+            // Rule 318:  FieldModifier ::= private
             //
-            case 308: {
-               //#line 2747 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 318: {
+               //#line 2802 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2747 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2802 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
                       break;
             }
     
             //
-            // Rule 309:  FieldModifier ::= static
+            // Rule 319:  FieldModifier ::= static
             //
-            case 309: {
-               //#line 2752 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 319: {
+               //#line 2807 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2752 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2807 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STATIC)));
                       break;
             }
     
             //
-            // Rule 310:  FieldModifier ::= global
+            // Rule 320:  FieldModifier ::= global
             //
-            case 310: {
-               //#line 2757 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 320: {
+               //#line 2812 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2757 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2812 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.GLOBAL)));
                       break;
             }
     
             //
-            // Rule 311:  ResultType ::= : Type
+            // Rule 321:  ResultType ::= : Type
             //
-            case 311: {
-               //#line 2763 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2761 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 321: {
+               //#line 2818 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2816 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(2);
-                //#line 2763 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2818 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Type);
                       break;
             }
     
             //
-            // Rule 312:  HasResultType ::= : Type
+            // Rule 322:  HasResultType ::= : Type
             //
-            case 312: {
-               //#line 2768 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2766 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 322: {
+               //#line 2823 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2821 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(2);
-                //#line 2768 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2823 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Type);
                       break;
             }
     
             //
-            // Rule 313:  HasResultType ::= <: Type
+            // Rule 323:  HasResultType ::= <: Type
             //
-            case 313: {
-               //#line 2773 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2771 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 323: {
+               //#line 2828 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2826 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(2);
-                //#line 2773 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2828 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.HasType(Type));
                       break;
             }
     
             //
-            // Rule 314:  FormalParameters ::= ( FormalParameterList )
+            // Rule 324:  FormalParameters ::= ( FormalParameterList )
             //
-            case 314: {
-               //#line 2779 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2777 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 324: {
+               //#line 2834 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2832 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List FormalParameterList = (List) getRhsSym(2);
-                //#line 2779 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2834 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(FormalParameterList);
                       break;
             }
     
             //
-            // Rule 315:  FormalParameterList ::= FormalParameter
+            // Rule 325:  FormalParameterList ::= FormalParameter
             //
-            case 315: {
-               //#line 2785 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2783 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 325: {
+               //#line 2840 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2838 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(1);
-                //#line 2785 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2840 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Formal.class, false);
                 l.add(FormalParameter);
                 setResult(l);
@@ -4727,73 +4850,73 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 316:  FormalParameterList ::= FormalParameterList , FormalParameter
+            // Rule 326:  FormalParameterList ::= FormalParameterList , FormalParameter
             //
-            case 316: {
-               //#line 2792 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2790 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 326: {
+               //#line 2847 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2845 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List FormalParameterList = (List) getRhsSym(1);
-                //#line 2790 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2845 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 2792 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2847 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 FormalParameterList.add(FormalParameter);
                       break;
             }
     
             //
-            // Rule 317:  LoopIndexDeclarator ::= Identifier HasResultTypeopt
+            // Rule 327:  LoopIndexDeclarator ::= Identifier HasResultTypeopt
             //
-            case 317: {
-               //#line 2798 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2796 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 327: {
+               //#line 2853 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2851 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2796 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2851 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode HasResultTypeopt = (TypeNode) getRhsSym(2);
-                //#line 2798 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2853 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, null, HasResultTypeopt, null });
                       break;
             }
     
             //
-            // Rule 318:  LoopIndexDeclarator ::= ( IdentifierList ) HasResultTypeopt
+            // Rule 328:  LoopIndexDeclarator ::= ( IdentifierList ) HasResultTypeopt
             //
-            case 318: {
-               //#line 2803 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2801 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 328: {
+               //#line 2858 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2856 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(2);
-                //#line 2801 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2856 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode HasResultTypeopt = (TypeNode) getRhsSym(4);
-                //#line 2803 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2858 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), null, IdentifierList, null, HasResultTypeopt, null });
                       break;
             }
     
             //
-            // Rule 319:  LoopIndexDeclarator ::= Identifier ( IdentifierList ) HasResultTypeopt
+            // Rule 329:  LoopIndexDeclarator ::= Identifier ( IdentifierList ) HasResultTypeopt
             //
-            case 319: {
-               //#line 2808 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2806 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 329: {
+               //#line 2863 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2861 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2806 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2861 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(3);
-                //#line 2806 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2861 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode HasResultTypeopt = (TypeNode) getRhsSym(5);
-                //#line 2808 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2863 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), Identifier, IdentifierList, null, HasResultTypeopt, null });
                       break;
             }
     
             //
-            // Rule 320:  LoopIndex ::= VariableModifiersopt LoopIndexDeclarator
+            // Rule 330:  LoopIndex ::= VariableModifiersopt LoopIndexDeclarator
             //
-            case 320: {
-               //#line 2814 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2812 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 330: {
+               //#line 2869 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2867 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List VariableModifiersopt = (List) getRhsSym(1);
-                //#line 2812 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2867 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Object[] LoopIndexDeclarator = (Object[]) getRhsSym(2);
-                //#line 2814 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2869 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
             Formal f;
                         	FlagsNode fn = extractFlags(VariableModifiersopt, Flags.FINAL);
             Object[] o = LoopIndexDeclarator;
@@ -4817,17 +4940,17 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 321:  LoopIndex ::= VariableModifiersopt VarKeyword LoopIndexDeclarator
+            // Rule 331:  LoopIndex ::= VariableModifiersopt VarKeyword LoopIndexDeclarator
             //
-            case 321: {
-               //#line 2837 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2835 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 331: {
+               //#line 2892 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2890 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List VariableModifiersopt = (List) getRhsSym(1);
-                //#line 2835 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2890 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List VarKeyword = (List) getRhsSym(2);
-                //#line 2835 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2890 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Object[] LoopIndexDeclarator = (Object[]) getRhsSym(3);
-                //#line 2837 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2892 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
             Formal f;
                         	FlagsNode fn = extractFlags(VariableModifiersopt, VarKeyword);
             Object[] o = LoopIndexDeclarator;
@@ -4851,15 +4974,15 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 322:  FormalParameter ::= VariableModifiersopt FormalDeclarator
+            // Rule 332:  FormalParameter ::= VariableModifiersopt FormalDeclarator
             //
-            case 322: {
-               //#line 2861 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2859 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 332: {
+               //#line 2916 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2914 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List VariableModifiersopt = (List) getRhsSym(1);
-                //#line 2859 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2914 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Object[] FormalDeclarator = (Object[]) getRhsSym(2);
-                //#line 2861 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2916 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
             Formal f;
                         	FlagsNode fn = extractFlags(VariableModifiersopt, Flags.FINAL);
             Object[] o = FormalDeclarator;
@@ -4884,17 +5007,17 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 323:  FormalParameter ::= VariableModifiersopt VarKeyword FormalDeclarator
+            // Rule 333:  FormalParameter ::= VariableModifiersopt VarKeyword FormalDeclarator
             //
-            case 323: {
-               //#line 2885 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2883 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 333: {
+               //#line 2940 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2938 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List VariableModifiersopt = (List) getRhsSym(1);
-                //#line 2883 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2938 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List VarKeyword = (List) getRhsSym(2);
-                //#line 2883 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2938 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Object[] FormalDeclarator = (Object[]) getRhsSym(3);
-                //#line 2885 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2940 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
             Formal f;
                         	FlagsNode fn = extractFlags(VariableModifiersopt, VarKeyword);
             Object[] o = FormalDeclarator;
@@ -4919,13 +5042,13 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 324:  FormalParameter ::= Type
+            // Rule 334:  FormalParameter ::= Type
             //
-            case 324: {
-               //#line 2909 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2907 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 334: {
+               //#line 2964 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2962 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(1);
-                //#line 2909 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2964 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
             Formal f;
             f = nf.X10Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), Type, nf.Id(pos(), Name.makeFresh("id$")), Collections.EMPTY_LIST, true);
             setResult(f);
@@ -4933,13 +5056,13 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 325:  VariableModifiers ::= VariableModifier
+            // Rule 335:  VariableModifiers ::= VariableModifier
             //
-            case 325: {
-               //#line 2917 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2915 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 335: {
+               //#line 2972 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2970 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List VariableModifier = (List) getRhsSym(1);
-                //#line 2917 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2972 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new LinkedList();
                 l.addAll(VariableModifier);
                 setResult(l);
@@ -4947,50 +5070,50 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 326:  VariableModifiers ::= VariableModifiers VariableModifier
+            // Rule 336:  VariableModifiers ::= VariableModifiers VariableModifier
             //
-            case 326: {
-               //#line 2924 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2922 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 336: {
+               //#line 2979 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2977 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List VariableModifiers = (List) getRhsSym(1);
-                //#line 2922 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 2977 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List VariableModifier = (List) getRhsSym(2);
-                //#line 2924 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2979 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 VariableModifiers.addAll(VariableModifier);
                       break;
             }
     
             //
-            // Rule 327:  VariableModifier ::= Annotation
+            // Rule 337:  VariableModifier ::= Annotation
             //
-            case 327: {
-               //#line 2930 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2928 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 337: {
+               //#line 2985 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2983 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 2930 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2985 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(Annotation));
                       break;
             }
     
             //
-            // Rule 328:  VariableModifier ::= shared
+            // Rule 338:  VariableModifier ::= shared
             //
-            case 328: {
-               //#line 2935 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 338: {
+               //#line 2990 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2935 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2990 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.SHARED)));
                       break;
             }
     
             //
-            // Rule 329:  MethodModifiers ::= MethodModifier
+            // Rule 339:  MethodModifiers ::= MethodModifier
             //
-            case 329: {
-               //#line 2944 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2942 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 339: {
+               //#line 2999 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2997 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List MethodModifier = (List) getRhsSym(1);
-                //#line 2944 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 2999 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new LinkedList();
                 l.addAll(MethodModifier);
                 setResult(l);
@@ -4998,239 +5121,239 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 330:  MethodModifiers ::= MethodModifiers MethodModifier
+            // Rule 340:  MethodModifiers ::= MethodModifiers MethodModifier
             //
-            case 330: {
-               //#line 2951 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2949 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 340: {
+               //#line 3006 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3004 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List MethodModifiers = (List) getRhsSym(1);
-                //#line 2949 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3004 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List MethodModifier = (List) getRhsSym(2);
-                //#line 2951 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3006 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 MethodModifiers.addAll(MethodModifier);
                       break;
             }
     
             //
-            // Rule 331:  MethodModifier ::= Annotation
+            // Rule 341:  MethodModifier ::= Annotation
             //
-            case 331: {
-               //#line 2957 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2955 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 341: {
+               //#line 3012 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3010 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 2957 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3012 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(Annotation));
                       break;
             }
     
             //
-            // Rule 332:  MethodModifier ::= public
+            // Rule 342:  MethodModifier ::= public
             //
-            case 332: {
-               //#line 2962 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 342: {
+               //#line 3017 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2962 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3017 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PUBLIC)));
                       break;
             }
     
             //
-            // Rule 333:  MethodModifier ::= protected
+            // Rule 343:  MethodModifier ::= protected
             //
-            case 333: {
-               //#line 2967 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 343: {
+               //#line 3022 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2967 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3022 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PROTECTED)));
                       break;
             }
     
             //
-            // Rule 334:  MethodModifier ::= private
+            // Rule 344:  MethodModifier ::= private
             //
-            case 334: {
-               //#line 2972 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 344: {
+               //#line 3027 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2972 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3027 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
                       break;
             }
     
             //
-            // Rule 335:  MethodModifier ::= abstract
+            // Rule 345:  MethodModifier ::= abstract
             //
-            case 335: {
-               //#line 2977 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 345: {
+               //#line 3032 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2977 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3032 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.ABSTRACT)));
                       break;
             }
     
             //
-            // Rule 336:  MethodModifier ::= static
+            // Rule 346:  MethodModifier ::= static
             //
-            case 336: {
-               //#line 2982 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 346: {
+               //#line 3037 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2982 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3037 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STATIC)));
                       break;
             }
     
             //
-            // Rule 337:  MethodModifier ::= final
+            // Rule 347:  MethodModifier ::= final
             //
-            case 337: {
-               //#line 2987 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 347: {
+               //#line 3042 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2987 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3042 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL)));
                       break;
             }
     
             //
-            // Rule 338:  MethodModifier ::= native
+            // Rule 348:  MethodModifier ::= native
             //
-            case 338: {
-               //#line 2992 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 348: {
+               //#line 3047 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2992 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3047 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.NATIVE)));
                       break;
             }
     
             //
-            // Rule 339:  MethodModifier ::= atomic
+            // Rule 349:  MethodModifier ::= atomic
             //
-            case 339: {
-               //#line 2997 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 349: {
+               //#line 3052 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 2997 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3052 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.ATOMIC)));
                       break;
             }
     
             //
-            // Rule 340:  MethodModifier ::= extern
+            // Rule 350:  MethodModifier ::= extern
             //
-            case 340: {
-               //#line 3002 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 350: {
+               //#line 3057 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3002 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3057 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.EXTERN)));
                       break;
             }
     
             //
-            // Rule 341:  MethodModifier ::= safe
+            // Rule 351:  MethodModifier ::= safe
             //
-            case 341: {
-               //#line 3007 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 351: {
+               //#line 3062 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3007 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3062 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.SAFE)));
                       break;
             }
     
             //
-            // Rule 342:  MethodModifier ::= sequential
+            // Rule 352:  MethodModifier ::= sequential
             //
-            case 342: {
-               //#line 3012 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 352: {
+               //#line 3067 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3012 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3067 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.SEQUENTIAL)));
                       break;
             }
     
             //
-            // Rule 343:  MethodModifier ::= nonblocking
+            // Rule 353:  MethodModifier ::= nonblocking
             //
-            case 343: {
-               //#line 3017 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 353: {
+               //#line 3072 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3017 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3072 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.NON_BLOCKING)));
                       break;
             }
     
             //
-            // Rule 344:  MethodModifier ::= incomplete
+            // Rule 354:  MethodModifier ::= incomplete
             //
-            case 344: {
-               //#line 3022 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 354: {
+               //#line 3077 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3022 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3077 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.INCOMPLETE)));
                       break;
             }
     
             //
-            // Rule 345:  MethodModifier ::= property
+            // Rule 355:  MethodModifier ::= property
             //
-            case 345: {
-               //#line 3027 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 355: {
+               //#line 3082 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3027 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3082 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.PROPERTY)));
                       break;
             }
     
             //
-            // Rule 346:  MethodModifier ::= global
+            // Rule 356:  MethodModifier ::= global
             //
-            case 346: {
-               //#line 3032 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 356: {
+               //#line 3087 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3032 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3087 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.GLOBAL)));
                       break;
             }
     
             //
-            // Rule 347:  MethodModifier ::= proto
+            // Rule 357:  MethodModifier ::= proto
             //
-            case 347: {
-               //#line 3037 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 357: {
+               //#line 3092 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3037 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3092 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.PROTO)));
                       break;
             }
     
             //
-            // Rule 348:  Throws ::= throws ExceptionTypeList
+            // Rule 358:  Throws ::= throws ExceptionTypeList
             //
-            case 348: {
-               //#line 3044 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3042 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 358: {
+               //#line 3099 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3097 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List ExceptionTypeList = (List) getRhsSym(2);
-                //#line 3044 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3099 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(ExceptionTypeList);
                       break;
             }
     
             //
-            // Rule 349:  Offers ::= offers Type
+            // Rule 359:  Offers ::= offers Type
             //
-            case 349: {
-               //#line 3049 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3047 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 359: {
+               //#line 3104 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3102 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(2);
-                //#line 3049 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3104 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Type);
                       break;
             }
     
             //
-            // Rule 350:  ExceptionTypeList ::= ExceptionType
+            // Rule 360:  ExceptionTypeList ::= ExceptionType
             //
-            case 350: {
-               //#line 3055 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3053 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 360: {
+               //#line 3110 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3108 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode ExceptionType = (TypeNode) getRhsSym(1);
-                //#line 3055 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3110 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), TypeNode.class, false);
                 l.add(ExceptionType);
                 setResult(l);
@@ -5238,43 +5361,43 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 351:  ExceptionTypeList ::= ExceptionTypeList , ExceptionType
+            // Rule 361:  ExceptionTypeList ::= ExceptionTypeList , ExceptionType
             //
-            case 351: {
-               //#line 3062 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3060 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 361: {
+               //#line 3117 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3115 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List ExceptionTypeList = (List) getRhsSym(1);
-                //#line 3060 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3115 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode ExceptionType = (TypeNode) getRhsSym(3);
-                //#line 3062 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3117 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 ExceptionTypeList.add(ExceptionType);
                       break;
             }
     
             //
-            // Rule 353:  MethodBody ::= = LastExpression ;
+            // Rule 363:  MethodBody ::= = LastExpression ;
             //
-            case 353: {
-               //#line 3070 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3068 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 363: {
+               //#line 3125 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3123 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Stmt LastExpression = (Stmt) getRhsSym(2);
-                //#line 3070 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3125 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Block(pos(), LastExpression));
                       break;
             }
     
             //
-            // Rule 354:  MethodBody ::= = Annotationsopt { BlockStatementsopt LastExpression }
+            // Rule 364:  MethodBody ::= = Annotationsopt { BlockStatementsopt LastExpression }
             //
-            case 354: {
-               //#line 3075 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3073 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 364: {
+               //#line 3130 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3128 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List Annotationsopt = (List) getRhsSym(2);
-                //#line 3073 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3128 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List BlockStatementsopt = (List) getRhsSym(4);
-                //#line 3073 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3128 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Stmt LastExpression = (Stmt) getRhsSym(5);
-                //#line 3075 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3130 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new ArrayList();
                 l.addAll(BlockStatementsopt);
                 l.add(LastExpression);
@@ -5283,60 +5406,60 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 355:  MethodBody ::= = Annotationsopt Block
+            // Rule 365:  MethodBody ::= = Annotationsopt Block
             //
-            case 355: {
-               //#line 3083 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3081 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 365: {
+               //#line 3138 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3136 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List Annotationsopt = (List) getRhsSym(2);
-                //#line 3081 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3136 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(3);
-                //#line 3083 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3138 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult((Block) ((X10Ext) Block.ext()).annotations(Annotationsopt).position(pos()));
                       break;
             }
     
             //
-            // Rule 356:  MethodBody ::= Annotationsopt Block
+            // Rule 366:  MethodBody ::= Annotationsopt Block
             //
-            case 356: {
-               //#line 3088 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3086 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 366: {
+               //#line 3143 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3141 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List Annotationsopt = (List) getRhsSym(1);
-                //#line 3086 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3141 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(2);
-                //#line 3088 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3143 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult((Block) ((X10Ext) Block.ext()).annotations(Annotationsopt).position(pos()));
                       break;
             }
     
             //
-            // Rule 357:  MethodBody ::= ;
+            // Rule 367:  MethodBody ::= ;
             //
-            case 357:
+            case 367:
                 setResult(null);
                 break;
 
             //
-            // Rule 358:  SimpleTypeName ::= Identifier
+            // Rule 368:  SimpleTypeName ::= Identifier
             //
-            case 358: {
-               //#line 3108 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3106 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 368: {
+               //#line 3163 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3161 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3108 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3163 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf, ts, pos(), Identifier));
                       break;
             }
     
             //
-            // Rule 359:  ConstructorModifiers ::= ConstructorModifier
+            // Rule 369:  ConstructorModifiers ::= ConstructorModifier
             //
-            case 359: {
-               //#line 3114 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3112 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 369: {
+               //#line 3169 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3167 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List ConstructorModifier = (List) getRhsSym(1);
-                //#line 3114 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3169 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new LinkedList();
                 l.addAll(ConstructorModifier);
                 setResult(l);
@@ -5344,107 +5467,107 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 360:  ConstructorModifiers ::= ConstructorModifiers ConstructorModifier
+            // Rule 370:  ConstructorModifiers ::= ConstructorModifiers ConstructorModifier
             //
-            case 360: {
-               //#line 3121 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3119 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 370: {
+               //#line 3176 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3174 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List ConstructorModifiers = (List) getRhsSym(1);
-                //#line 3119 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3174 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List ConstructorModifier = (List) getRhsSym(2);
-                //#line 3121 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3176 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 ConstructorModifiers.addAll(ConstructorModifier);
                       break;
             }
     
             //
-            // Rule 361:  ConstructorModifier ::= Annotation
+            // Rule 371:  ConstructorModifier ::= Annotation
             //
-            case 361: {
-               //#line 3127 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3125 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 371: {
+               //#line 3182 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3180 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 3127 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3182 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(Annotation));
                       break;
             }
     
             //
-            // Rule 362:  ConstructorModifier ::= public
+            // Rule 372:  ConstructorModifier ::= public
             //
-            case 362: {
-               //#line 3132 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 372: {
+               //#line 3187 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3132 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3187 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PUBLIC)));
                       break;
             }
     
             //
-            // Rule 363:  ConstructorModifier ::= protected
+            // Rule 373:  ConstructorModifier ::= protected
             //
-            case 363: {
-               //#line 3137 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 373: {
+               //#line 3192 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3137 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3192 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PROTECTED)));
                       break;
             }
     
             //
-            // Rule 364:  ConstructorModifier ::= private
+            // Rule 374:  ConstructorModifier ::= private
             //
-            case 364: {
-               //#line 3142 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 374: {
+               //#line 3197 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3142 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3197 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
                       break;
             }
     
             //
-            // Rule 365:  ConstructorModifier ::= native
+            // Rule 375:  ConstructorModifier ::= native
             //
-            case 365: {
-               //#line 3147 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 375: {
+               //#line 3202 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3147 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3202 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.NATIVE)));
                       break;
             }
     
             //
-            // Rule 366:  ConstructorBody ::= = ConstructorBlock
+            // Rule 376:  ConstructorBody ::= = ConstructorBlock
             //
-            case 366: {
-               //#line 3153 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3151 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 376: {
+               //#line 3208 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3206 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Block ConstructorBlock = (Block) getRhsSym(2);
-                //#line 3153 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3208 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(ConstructorBlock);
                       break;
             }
     
             //
-            // Rule 367:  ConstructorBody ::= ConstructorBlock
+            // Rule 377:  ConstructorBody ::= ConstructorBlock
             //
-            case 367: {
-               //#line 3158 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3156 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 377: {
+               //#line 3213 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3211 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Block ConstructorBlock = (Block) getRhsSym(1);
-                //#line 3158 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3213 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(ConstructorBlock);
                       break;
             }
     
             //
-            // Rule 368:  ConstructorBody ::= = ExplicitConstructorInvocation
+            // Rule 378:  ConstructorBody ::= = ExplicitConstructorInvocation
             //
-            case 368: {
-               //#line 3163 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3161 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 378: {
+               //#line 3218 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3216 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ConstructorCall ExplicitConstructorInvocation = (ConstructorCall) getRhsSym(2);
-                //#line 3163 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3218 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l;
                 l = new TypedList(new LinkedList(), Stmt.class, false);
                 l.add(ExplicitConstructorInvocation);
@@ -5453,13 +5576,13 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 369:  ConstructorBody ::= = AssignPropertyCall
+            // Rule 379:  ConstructorBody ::= = AssignPropertyCall
             //
-            case 369: {
-               //#line 3171 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3169 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 379: {
+               //#line 3226 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3224 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Stmt AssignPropertyCall = (Stmt) getRhsSym(2);
-                //#line 3171 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3226 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l;
                 l = new TypedList(new LinkedList(), Stmt.class, false);
                 l.add(AssignPropertyCall);
@@ -5468,22 +5591,22 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 370:  ConstructorBody ::= ;
+            // Rule 380:  ConstructorBody ::= ;
             //
-            case 370:
+            case 380:
                 setResult(null);
                 break;
 
             //
-            // Rule 371:  ConstructorBlock ::= { ExplicitConstructorInvocationopt BlockStatementsopt }
+            // Rule 381:  ConstructorBlock ::= { ExplicitConstructorInvocationopt BlockStatementsopt }
             //
-            case 371: {
-               //#line 3182 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3180 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 381: {
+               //#line 3237 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3235 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Stmt ExplicitConstructorInvocationopt = (Stmt) getRhsSym(2);
-                //#line 3180 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3235 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List BlockStatementsopt = (List) getRhsSym(3);
-                //#line 3182 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3237 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l;
                 l = new TypedList(new LinkedList(), Stmt.class, false);
                 if (ExplicitConstructorInvocationopt != null)
@@ -5496,25 +5619,25 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 372:  Arguments ::= ( ArgumentListopt )
+            // Rule 382:  Arguments ::= ( ArgumentListopt )
             //
-            case 372: {
-               //#line 3195 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3193 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 382: {
+               //#line 3250 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3248 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(2);
-                //#line 3195 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3250 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(ArgumentListopt);
                       break;
             }
     
             //
-            // Rule 374:  InterfaceModifiers ::= InterfaceModifier
+            // Rule 384:  InterfaceModifiers ::= InterfaceModifier
             //
-            case 374: {
-               //#line 3205 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3203 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 384: {
+               //#line 3260 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3258 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List InterfaceModifier = (List) getRhsSym(1);
-                //#line 3205 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3260 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new LinkedList();
                 l.addAll(InterfaceModifier);
                 setResult(l);
@@ -5522,94 +5645,94 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 375:  InterfaceModifiers ::= InterfaceModifiers InterfaceModifier
+            // Rule 385:  InterfaceModifiers ::= InterfaceModifiers InterfaceModifier
             //
-            case 375: {
-               //#line 3212 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3210 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 385: {
+               //#line 3267 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3265 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List InterfaceModifiers = (List) getRhsSym(1);
-                //#line 3210 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3265 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List InterfaceModifier = (List) getRhsSym(2);
-                //#line 3212 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3267 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 InterfaceModifiers.addAll(InterfaceModifier);
                       break;
             }
     
             //
-            // Rule 376:  InterfaceModifier ::= Annotation
+            // Rule 386:  InterfaceModifier ::= Annotation
             //
-            case 376: {
-               //#line 3218 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3216 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 386: {
+               //#line 3273 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3271 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 3218 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3273 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(Annotation));
                       break;
             }
     
             //
-            // Rule 377:  InterfaceModifier ::= public
+            // Rule 387:  InterfaceModifier ::= public
             //
-            case 377: {
-               //#line 3223 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 387: {
+               //#line 3278 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3223 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3278 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PUBLIC)));
                       break;
             }
     
             //
-            // Rule 378:  InterfaceModifier ::= protected
+            // Rule 388:  InterfaceModifier ::= protected
             //
-            case 378: {
-               //#line 3228 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 388: {
+               //#line 3283 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3228 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3283 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PROTECTED)));
                       break;
             }
     
             //
-            // Rule 379:  InterfaceModifier ::= private
+            // Rule 389:  InterfaceModifier ::= private
             //
-            case 379: {
-               //#line 3233 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 389: {
+               //#line 3288 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3233 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3288 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
                       break;
             }
     
             //
-            // Rule 380:  InterfaceModifier ::= abstract
+            // Rule 390:  InterfaceModifier ::= abstract
             //
-            case 380: {
-               //#line 3238 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 390: {
+               //#line 3293 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3238 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3293 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.ABSTRACT)));
                       break;
             }
     
             //
-            // Rule 381:  InterfaceModifier ::= static
+            // Rule 391:  InterfaceModifier ::= static
             //
-            case 381: {
-               //#line 3243 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 391: {
+               //#line 3298 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3243 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3298 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STATIC)));
                       break;
             }
     
             //
-            // Rule 382:  ExtendsInterfaces ::= extends Type
+            // Rule 392:  ExtendsInterfaces ::= extends Type
             //
-            case 382: {
-               //#line 3249 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3247 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 392: {
+               //#line 3304 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3302 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(2);
-                //#line 3249 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3304 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), TypeNode.class, false);
                 l.add(Type);
                 setResult(l);
@@ -5617,54 +5740,54 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 383:  ExtendsInterfaces ::= ExtendsInterfaces , Type
+            // Rule 393:  ExtendsInterfaces ::= ExtendsInterfaces , Type
             //
-            case 383: {
-               //#line 3256 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3254 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 393: {
+               //#line 3311 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3309 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List ExtendsInterfaces = (List) getRhsSym(1);
-                //#line 3254 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3309 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 3256 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3311 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 ExtendsInterfaces.add(Type);
                       break;
             }
     
             //
-            // Rule 384:  InterfaceBody ::= { InterfaceMemberDeclarationsopt }
+            // Rule 394:  InterfaceBody ::= { InterfaceMemberDeclarationsopt }
             //
-            case 384: {
-               //#line 3265 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3263 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 394: {
+               //#line 3320 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3318 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List InterfaceMemberDeclarationsopt = (List) getRhsSym(2);
-                //#line 3265 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3320 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.ClassBody(pos(), InterfaceMemberDeclarationsopt));
                       break;
             }
     
             //
-            // Rule 386:  InterfaceMemberDeclarations ::= InterfaceMemberDeclarations InterfaceMemberDeclaration
+            // Rule 396:  InterfaceMemberDeclarations ::= InterfaceMemberDeclarations InterfaceMemberDeclaration
             //
-            case 386: {
-               //#line 3272 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3270 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 396: {
+               //#line 3327 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3325 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List InterfaceMemberDeclarations = (List) getRhsSym(1);
-                //#line 3270 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3325 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List InterfaceMemberDeclaration = (List) getRhsSym(2);
-                //#line 3272 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3327 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 InterfaceMemberDeclarations.addAll(InterfaceMemberDeclaration);
                 // setResult(l);
                       break;
             }
     
             //
-            // Rule 387:  InterfaceMemberDeclaration ::= MethodDeclaration
+            // Rule 397:  InterfaceMemberDeclaration ::= MethodDeclaration
             //
-            case 387: {
-               //#line 3279 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3277 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 397: {
+               //#line 3334 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3332 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ClassMember MethodDeclaration = (ClassMember) getRhsSym(1);
-                //#line 3279 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3334 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(MethodDeclaration);
                 setResult(l);
@@ -5672,13 +5795,13 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 388:  InterfaceMemberDeclaration ::= PropertyMethodDeclaration
+            // Rule 398:  InterfaceMemberDeclaration ::= PropertyMethodDeclaration
             //
-            case 388: {
-               //#line 3286 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3284 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 398: {
+               //#line 3341 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3339 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ClassMember PropertyMethodDeclaration = (ClassMember) getRhsSym(1);
-                //#line 3286 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3341 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(PropertyMethodDeclaration);
                 setResult(l);
@@ -5686,13 +5809,13 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 389:  InterfaceMemberDeclaration ::= FieldDeclaration
+            // Rule 399:  InterfaceMemberDeclaration ::= FieldDeclaration
             //
-            case 389: {
-               //#line 3293 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3291 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 399: {
+               //#line 3348 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3346 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List FieldDeclaration = (List) getRhsSym(1);
-                //#line 3293 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3348 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.addAll(FieldDeclaration);
                 setResult(l);
@@ -5700,13 +5823,13 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 390:  InterfaceMemberDeclaration ::= ClassDeclaration
+            // Rule 400:  InterfaceMemberDeclaration ::= ClassDeclaration
             //
-            case 390: {
-               //#line 3300 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3298 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 400: {
+               //#line 3355 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3353 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ClassDecl ClassDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 3300 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3355 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(ClassDeclaration);
                 setResult(l);
@@ -5714,13 +5837,13 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 391:  InterfaceMemberDeclaration ::= InterfaceDeclaration
+            // Rule 401:  InterfaceMemberDeclaration ::= InterfaceDeclaration
             //
-            case 391: {
-               //#line 3307 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3305 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 401: {
+               //#line 3362 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3360 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ClassDecl InterfaceDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 3307 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3362 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(InterfaceDeclaration);
                 setResult(l);
@@ -5728,13 +5851,13 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 392:  InterfaceMemberDeclaration ::= TypeDefDeclaration
+            // Rule 402:  InterfaceMemberDeclaration ::= TypeDefDeclaration
             //
-            case 392: {
-               //#line 3314 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3312 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 402: {
+               //#line 3369 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3367 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeDecl TypeDefDeclaration = (TypeDecl) getRhsSym(1);
-                //#line 3314 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3369 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(TypeDefDeclaration);
                 setResult(l);
@@ -5742,24 +5865,24 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 393:  InterfaceMemberDeclaration ::= ;
+            // Rule 403:  InterfaceMemberDeclaration ::= ;
             //
-            case 393: {
-               //#line 3321 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 403: {
+               //#line 3376 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3321 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3376 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.EMPTY_LIST);
                       break;
             }
     
             //
-            // Rule 394:  Annotations ::= Annotation
+            // Rule 404:  Annotations ::= Annotation
             //
-            case 394: {
-               //#line 3327 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3325 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 404: {
+               //#line 3382 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3380 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 3327 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3382 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), AnnotationNode.class, false);
                 l.add(Annotation);
                 setResult(l);
@@ -5767,63 +5890,63 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 395:  Annotations ::= Annotations Annotation
+            // Rule 405:  Annotations ::= Annotations Annotation
             //
-            case 395: {
-               //#line 3334 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3332 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 405: {
+               //#line 3389 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3387 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List Annotations = (List) getRhsSym(1);
-                //#line 3332 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3387 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(2);
-                //#line 3334 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3389 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 Annotations.add(Annotation);
                       break;
             }
     
             //
-            // Rule 396:  Annotation ::= @ NamedType
+            // Rule 406:  Annotation ::= @ NamedType
             //
-            case 396: {
-               //#line 3340 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3338 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 406: {
+               //#line 3395 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3393 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode NamedType = (TypeNode) getRhsSym(2);
-                //#line 3340 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3395 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.AnnotationNode(pos(), NamedType));
                       break;
             }
     
             //
-            // Rule 397:  SimpleName ::= Identifier
+            // Rule 407:  SimpleName ::= Identifier
             //
-            case 397: {
-               //#line 3346 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3344 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 407: {
+               //#line 3401 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3399 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3346 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3401 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf, ts, pos(), Identifier));
                       break;
             }
     
             //
-            // Rule 398:  Identifier ::= identifier
+            // Rule 408:  Identifier ::= identifier
             //
-            case 398: {
-               //#line 3352 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3350 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 408: {
+               //#line 3407 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3405 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 3352 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3407 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult( nf.Id(identifier.getPosition(), identifier.getIdentifier()));
                       break;
             }
     
             //
-            // Rule 399:  VariableInitializers ::= VariableInitializer
+            // Rule 409:  VariableInitializers ::= VariableInitializer
             //
-            case 399: {
-               //#line 3360 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3358 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 409: {
+               //#line 3415 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3413 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(1);
-                //#line 3360 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3415 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(VariableInitializer);
                 setResult(l);
@@ -5831,40 +5954,40 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 400:  VariableInitializers ::= VariableInitializers , VariableInitializer
+            // Rule 410:  VariableInitializers ::= VariableInitializers , VariableInitializer
             //
-            case 400: {
-               //#line 3367 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3365 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 410: {
+               //#line 3422 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3420 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List VariableInitializers = (List) getRhsSym(1);
-                //#line 3365 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3420 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(3);
-                //#line 3367 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3422 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 VariableInitializers.add(VariableInitializer);
                 //setResult(VariableInitializers);
                       break;
             }
     
             //
-            // Rule 401:  Block ::= { BlockStatementsopt }
+            // Rule 411:  Block ::= { BlockStatementsopt }
             //
-            case 401: {
-               //#line 3385 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3383 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 411: {
+               //#line 3440 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3438 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List BlockStatementsopt = (List) getRhsSym(2);
-                //#line 3385 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3440 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Block(pos(), BlockStatementsopt));
                       break;
             }
     
             //
-            // Rule 402:  BlockStatements ::= BlockStatement
+            // Rule 412:  BlockStatements ::= BlockStatement
             //
-            case 402: {
-               //#line 3391 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3389 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 412: {
+               //#line 3446 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3444 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List BlockStatement = (List) getRhsSym(1);
-                //#line 3391 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3446 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Stmt.class, false);
                 l.addAll(BlockStatement);
                 setResult(l);
@@ -5872,28 +5995,28 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 403:  BlockStatements ::= BlockStatements BlockStatement
+            // Rule 413:  BlockStatements ::= BlockStatements BlockStatement
             //
-            case 403: {
-               //#line 3398 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3396 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 413: {
+               //#line 3453 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3451 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List BlockStatements = (List) getRhsSym(1);
-                //#line 3396 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3451 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List BlockStatement = (List) getRhsSym(2);
-                //#line 3398 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3453 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 BlockStatements.addAll(BlockStatement);
                 //setResult(l);
                       break;
             }
     
             //
-            // Rule 405:  BlockStatement ::= ClassDeclaration
+            // Rule 415:  BlockStatement ::= ClassDeclaration
             //
-            case 405: {
-               //#line 3406 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3404 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 415: {
+               //#line 3461 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3459 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ClassDecl ClassDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 3406 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3461 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Stmt.class, false);
                 l.add(nf.LocalClassDecl(pos(), ClassDeclaration));
                 setResult(l);
@@ -5901,13 +6024,13 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 406:  BlockStatement ::= TypeDefDeclaration
+            // Rule 416:  BlockStatement ::= TypeDefDeclaration
             //
-            case 406: {
-               //#line 3413 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3411 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 416: {
+               //#line 3468 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3466 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeDecl TypeDefDeclaration = (TypeDecl) getRhsSym(1);
-                //#line 3413 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3468 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Stmt.class, false);
                 l.add(nf.LocalTypeDef(pos(), TypeDefDeclaration));
                 setResult(l);
@@ -5915,13 +6038,13 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 407:  BlockStatement ::= Statement
+            // Rule 417:  BlockStatement ::= Statement
             //
-            case 407: {
-               //#line 3420 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3418 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 417: {
+               //#line 3475 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3473 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(1);
-                //#line 3420 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3475 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Stmt.class, false);
                 l.add(Statement);
                 setResult(l);
@@ -5929,13 +6052,13 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 408:  IdentifierList ::= Identifier
+            // Rule 418:  IdentifierList ::= Identifier
             //
-            case 408: {
-               //#line 3428 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3426 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 418: {
+               //#line 3483 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3481 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3428 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3483 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Id.class, false);
                 l.add(Identifier);
                 setResult(l);
@@ -5943,205 +6066,205 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 409:  IdentifierList ::= IdentifierList , Identifier
+            // Rule 419:  IdentifierList ::= IdentifierList , Identifier
             //
-            case 409: {
-               //#line 3435 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3433 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 419: {
+               //#line 3490 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3488 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(1);
-                //#line 3433 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3488 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 3435 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3490 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 IdentifierList.add(Identifier);
                       break;
             }
     
             //
-            // Rule 410:  FormalDeclarator ::= Identifier ResultType
+            // Rule 420:  FormalDeclarator ::= Identifier ResultType
             //
-            case 410: {
-               //#line 3441 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3439 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 420: {
+               //#line 3496 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3494 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3439 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3494 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode ResultType = (TypeNode) getRhsSym(2);
-                //#line 3441 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3496 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, null, ResultType, null });
                       break;
             }
     
             //
-            // Rule 411:  FormalDeclarator ::= ( IdentifierList ) ResultType
+            // Rule 421:  FormalDeclarator ::= ( IdentifierList ) ResultType
             //
-            case 411: {
-               //#line 3446 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3444 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 421: {
+               //#line 3501 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3499 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(2);
-                //#line 3444 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3499 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode ResultType = (TypeNode) getRhsSym(4);
-                //#line 3446 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3501 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), null, IdentifierList, null, ResultType, null });
                       break;
             }
     
             //
-            // Rule 412:  FormalDeclarator ::= Identifier ( IdentifierList ) ResultType
+            // Rule 422:  FormalDeclarator ::= Identifier ( IdentifierList ) ResultType
             //
-            case 412: {
-               //#line 3451 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3449 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 422: {
+               //#line 3506 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3504 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3449 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3504 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(3);
-                //#line 3449 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3504 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode ResultType = (TypeNode) getRhsSym(5);
-                //#line 3451 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3506 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), Identifier, IdentifierList, null, ResultType, null });
                       break;
             }
     
             //
-            // Rule 413:  FieldDeclarator ::= Identifier HasResultType
+            // Rule 423:  FieldDeclarator ::= Identifier HasResultType
             //
-            case 413: {
-               //#line 3457 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3455 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 423: {
+               //#line 3512 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3510 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3455 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3510 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode HasResultType = (TypeNode) getRhsSym(2);
-                //#line 3457 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3512 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, HasResultType, null });
                       break;
             }
     
             //
-            // Rule 414:  FieldDeclarator ::= Identifier HasResultTypeopt = VariableInitializer
+            // Rule 424:  FieldDeclarator ::= Identifier HasResultTypeopt = VariableInitializer
             //
-            case 414: {
-               //#line 3462 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3460 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 424: {
+               //#line 3517 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3515 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3460 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3515 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode HasResultTypeopt = (TypeNode) getRhsSym(2);
-                //#line 3460 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3515 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(4);
-                //#line 3462 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3517 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, HasResultTypeopt, VariableInitializer });
                       break;
             }
     
             //
-            // Rule 415:  VariableDeclarator ::= Identifier HasResultTypeopt = VariableInitializer
+            // Rule 425:  VariableDeclarator ::= Identifier HasResultTypeopt = VariableInitializer
             //
-            case 415: {
-               //#line 3468 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3466 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 425: {
+               //#line 3523 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3521 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3466 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3521 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode HasResultTypeopt = (TypeNode) getRhsSym(2);
-                //#line 3466 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3521 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(4);
-                //#line 3468 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3523 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, null, HasResultTypeopt, VariableInitializer });
                       break;
             }
     
             //
-            // Rule 416:  VariableDeclarator ::= ( IdentifierList ) HasResultTypeopt = VariableInitializer
+            // Rule 426:  VariableDeclarator ::= ( IdentifierList ) HasResultTypeopt = VariableInitializer
             //
-            case 416: {
-               //#line 3473 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3471 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 426: {
+               //#line 3528 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3526 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(2);
-                //#line 3471 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3526 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode HasResultTypeopt = (TypeNode) getRhsSym(4);
-                //#line 3471 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3526 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(6);
-                //#line 3473 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3528 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), null, IdentifierList, null, HasResultTypeopt, VariableInitializer });
                       break;
             }
     
             //
-            // Rule 417:  VariableDeclarator ::= Identifier ( IdentifierList ) HasResultTypeopt = VariableInitializer
+            // Rule 427:  VariableDeclarator ::= Identifier ( IdentifierList ) HasResultTypeopt = VariableInitializer
             //
-            case 417: {
-               //#line 3478 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3476 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 427: {
+               //#line 3533 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3531 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3476 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3531 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(3);
-                //#line 3476 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3531 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode HasResultTypeopt = (TypeNode) getRhsSym(5);
-                //#line 3476 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3531 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(7);
-                //#line 3478 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3533 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), Identifier, IdentifierList, null, HasResultTypeopt, VariableInitializer });
                       break;
             }
     
             //
-            // Rule 418:  VariableDeclaratorWithType ::= Identifier HasResultType = VariableInitializer
+            // Rule 428:  VariableDeclaratorWithType ::= Identifier HasResultType = VariableInitializer
             //
-            case 418: {
-               //#line 3484 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3482 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 428: {
+               //#line 3539 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3537 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3482 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3537 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode HasResultType = (TypeNode) getRhsSym(2);
-                //#line 3482 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3537 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(4);
-                //#line 3484 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3539 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, null, HasResultType, VariableInitializer });
                       break;
             }
     
             //
-            // Rule 419:  VariableDeclaratorWithType ::= ( IdentifierList ) HasResultType = VariableInitializer
+            // Rule 429:  VariableDeclaratorWithType ::= ( IdentifierList ) HasResultType = VariableInitializer
             //
-            case 419: {
-               //#line 3489 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3487 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 429: {
+               //#line 3544 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3542 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(2);
-                //#line 3487 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3542 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode HasResultType = (TypeNode) getRhsSym(4);
-                //#line 3487 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3542 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(6);
-                //#line 3489 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3544 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), null, IdentifierList, null, HasResultType, VariableInitializer });
                       break;
             }
     
             //
-            // Rule 420:  VariableDeclaratorWithType ::= Identifier ( IdentifierList ) HasResultType = VariableInitializer
+            // Rule 430:  VariableDeclaratorWithType ::= Identifier ( IdentifierList ) HasResultType = VariableInitializer
             //
-            case 420: {
-               //#line 3494 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3492 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 430: {
+               //#line 3549 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3547 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3492 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3547 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(3);
-                //#line 3492 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3547 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode HasResultType = (TypeNode) getRhsSym(5);
-                //#line 3492 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3547 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(7);
-                //#line 3494 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3549 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), Identifier, IdentifierList, null, HasResultType, VariableInitializer });
                       break;
             }
     
             //
-            // Rule 422:  LocalVariableDeclaration ::= VariableModifiersopt VarKeyword VariableDeclarators
+            // Rule 432:  LocalVariableDeclaration ::= VariableModifiersopt VarKeyword VariableDeclarators
             //
-            case 422: {
-               //#line 3502 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3500 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 432: {
+               //#line 3557 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3555 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List VariableModifiersopt = (List) getRhsSym(1);
-                //#line 3500 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3555 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List VarKeyword = (List) getRhsSym(2);
-                //#line 3500 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3555 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List VariableDeclarators = (List) getRhsSym(3);
-                //#line 3502 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3557 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 FlagsNode fn = extractFlags(VariableModifiersopt, VarKeyword);
     
                 List l = new TypedList(new LinkedList(), LocalDecl.class, false);
@@ -6175,15 +6298,15 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 423:  LocalVariableDeclaration ::= VariableModifiersopt VariableDeclaratorsWithType
+            // Rule 433:  LocalVariableDeclaration ::= VariableModifiersopt VariableDeclaratorsWithType
             //
-            case 423: {
-               //#line 3535 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3533 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 433: {
+               //#line 3590 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3588 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List VariableModifiersopt = (List) getRhsSym(1);
-                //#line 3533 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3588 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List VariableDeclaratorsWithType = (List) getRhsSym(2);
-                //#line 3535 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3590 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 FlagsNode fn = extractFlags(VariableModifiersopt, Flags.FINAL);
     
                 List l = new TypedList(new LinkedList(), LocalDecl.class, false);
@@ -6218,17 +6341,17 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 424:  LocalVariableDeclaration ::= VariableModifiersopt VarKeyword FormalDeclarators
+            // Rule 434:  LocalVariableDeclaration ::= VariableModifiersopt VarKeyword FormalDeclarators
             //
-            case 424: {
-               //#line 3569 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3567 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 434: {
+               //#line 3624 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3622 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List VariableModifiersopt = (List) getRhsSym(1);
-                //#line 3567 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3622 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List VarKeyword = (List) getRhsSym(2);
-                //#line 3567 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3622 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List FormalDeclarators = (List) getRhsSym(3);
-                //#line 3569 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3624 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 FlagsNode fn = extractFlags(VariableModifiersopt, VarKeyword);
     
                 List l = new TypedList(new LinkedList(), LocalDecl.class, false);
@@ -6264,83 +6387,83 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 425:  Primary ::= here
+            // Rule 435:  Primary ::= here
             //
-            case 425: {
-               //#line 3610 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 435: {
+               //#line 3665 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3610 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3665 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(((X10NodeFactory) nf).Here(pos()));
                       break;
             }
     
             //
-            // Rule 426:  Primary ::= [ ArgumentListopt ]
+            // Rule 436:  Primary ::= [ ArgumentListopt ]
             //
-            case 426: {
-               //#line 3616 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3614 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 436: {
+               //#line 3671 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3669 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(2);
-                //#line 3616 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3671 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 Tuple tuple = nf.Tuple(pos(), ArgumentListopt);
                 setResult(tuple);
                       break;
             }
     
             //
-            // Rule 428:  Primary ::= self
+            // Rule 438:  Primary ::= self
             //
-            case 428: {
-               //#line 3624 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 438: {
+               //#line 3679 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3624 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3679 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Self(pos()));
                       break;
             }
     
             //
-            // Rule 429:  Primary ::= this
+            // Rule 439:  Primary ::= this
             //
-            case 429: {
-               //#line 3629 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 439: {
+               //#line 3684 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3629 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3684 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.This(pos()));
                       break;
             }
     
             //
-            // Rule 430:  Primary ::= ClassName . this
+            // Rule 440:  Primary ::= ClassName . this
             //
-            case 430: {
-               //#line 3634 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3632 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 440: {
+               //#line 3689 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3687 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ParsedName ClassName = (ParsedName) getRhsSym(1);
-                //#line 3634 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3689 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.This(pos(), ClassName.toType()));
                       break;
             }
     
             //
-            // Rule 431:  Primary ::= ( Expression )
+            // Rule 441:  Primary ::= ( Expression )
             //
-            case 431: {
-               //#line 3639 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3637 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 441: {
+               //#line 3694 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3692 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(2);
-                //#line 3639 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3694 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.ParExpr(pos(), Expression));
                       break;
             }
     
             //
-            // Rule 437:  OperatorFunction ::= TypeName . +
+            // Rule 447:  OperatorFunction ::= TypeName . +
             //
-            case 437: {
-               //#line 3650 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3648 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 447: {
+               //#line 3705 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3703 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3650 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3705 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6352,13 +6475,13 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 438:  OperatorFunction ::= TypeName . -
+            // Rule 448:  OperatorFunction ::= TypeName . -
             //
-            case 438: {
-               //#line 3661 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3659 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 448: {
+               //#line 3716 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3714 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3661 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3716 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6370,13 +6493,13 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 439:  OperatorFunction ::= TypeName . *
+            // Rule 449:  OperatorFunction ::= TypeName . *
             //
-            case 439: {
-               //#line 3672 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3670 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 449: {
+               //#line 3727 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3725 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3672 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3727 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6388,13 +6511,13 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 440:  OperatorFunction ::= TypeName . /
+            // Rule 450:  OperatorFunction ::= TypeName . /
             //
-            case 440: {
-               //#line 3683 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3681 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 450: {
+               //#line 3738 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3736 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3683 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3738 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6406,13 +6529,13 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 441:  OperatorFunction ::= TypeName . %
+            // Rule 451:  OperatorFunction ::= TypeName . %
             //
-            case 441: {
-               //#line 3694 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3692 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 451: {
+               //#line 3749 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3747 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3694 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3749 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6424,13 +6547,13 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 442:  OperatorFunction ::= TypeName . &
+            // Rule 452:  OperatorFunction ::= TypeName . &
             //
-            case 442: {
-               //#line 3705 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3703 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 452: {
+               //#line 3760 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3758 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3705 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3760 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6442,13 +6565,13 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 443:  OperatorFunction ::= TypeName . |
+            // Rule 453:  OperatorFunction ::= TypeName . |
             //
-            case 443: {
-               //#line 3716 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3714 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 453: {
+               //#line 3771 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3769 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3716 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3771 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6460,13 +6583,13 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 444:  OperatorFunction ::= TypeName . ^
+            // Rule 454:  OperatorFunction ::= TypeName . ^
             //
-            case 444: {
-               //#line 3727 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3725 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 454: {
+               //#line 3782 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3780 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3727 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3782 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6478,13 +6601,13 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 445:  OperatorFunction ::= TypeName . <<
+            // Rule 455:  OperatorFunction ::= TypeName . <<
             //
-            case 445: {
-               //#line 3738 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3736 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 455: {
+               //#line 3793 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3791 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3738 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3793 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6496,13 +6619,13 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 446:  OperatorFunction ::= TypeName . >>
+            // Rule 456:  OperatorFunction ::= TypeName . >>
             //
-            case 446: {
-               //#line 3749 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3747 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 456: {
+               //#line 3804 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3802 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3749 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3804 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6514,13 +6637,13 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 447:  OperatorFunction ::= TypeName . >>>
+            // Rule 457:  OperatorFunction ::= TypeName . >>>
             //
-            case 447: {
-               //#line 3760 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3758 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 457: {
+               //#line 3815 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3813 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3760 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3815 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6532,13 +6655,13 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 448:  OperatorFunction ::= TypeName . <
+            // Rule 458:  OperatorFunction ::= TypeName . <
             //
-            case 448: {
-               //#line 3771 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3769 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 458: {
+               //#line 3826 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3824 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3771 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3826 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6550,13 +6673,13 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 449:  OperatorFunction ::= TypeName . <=
+            // Rule 459:  OperatorFunction ::= TypeName . <=
             //
-            case 449: {
-               //#line 3782 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3780 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 459: {
+               //#line 3837 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3835 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3782 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3837 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6568,13 +6691,13 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 450:  OperatorFunction ::= TypeName . >=
+            // Rule 460:  OperatorFunction ::= TypeName . >=
             //
-            case 450: {
-               //#line 3793 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3791 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 460: {
+               //#line 3848 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3846 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3793 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3848 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6586,13 +6709,13 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 451:  OperatorFunction ::= TypeName . >
+            // Rule 461:  OperatorFunction ::= TypeName . >
             //
-            case 451: {
-               //#line 3804 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3802 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 461: {
+               //#line 3859 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3857 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3804 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3859 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6604,13 +6727,13 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 452:  OperatorFunction ::= TypeName . ==
+            // Rule 462:  OperatorFunction ::= TypeName . ==
             //
-            case 452: {
-               //#line 3815 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3813 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 462: {
+               //#line 3870 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3868 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3815 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3870 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6622,13 +6745,13 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 453:  OperatorFunction ::= TypeName . !=
+            // Rule 463:  OperatorFunction ::= TypeName . !=
             //
-            case 453: {
-               //#line 3826 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3824 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 463: {
+               //#line 3881 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3879 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3826 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3881 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -6640,164 +6763,164 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 454:  Literal ::= IntegerLiteral$lit
+            // Rule 464:  Literal ::= IntegerLiteral$lit
             //
-            case 454: {
-               //#line 3839 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3837 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 464: {
+               //#line 3894 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3892 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 IToken lit = (IToken) getRhsIToken(1);
-                //#line 3839 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3894 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 polyglot.lex.LongLiteral a = int_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.IntLit(pos(), IntLit.INT, a.getValue().longValue()));
                       break;
             }
     
             //
-            // Rule 455:  Literal ::= LongLiteral$lit
+            // Rule 465:  Literal ::= LongLiteral$lit
             //
-            case 455: {
-               //#line 3845 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3843 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 465: {
+               //#line 3900 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3898 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 IToken lit = (IToken) getRhsIToken(1);
-                //#line 3845 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3900 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 polyglot.lex.LongLiteral a = long_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.IntLit(pos(), IntLit.LONG, a.getValue().longValue()));
                       break;
             }
     
             //
-            // Rule 456:  Literal ::= UnsignedIntegerLiteral$lit
+            // Rule 466:  Literal ::= UnsignedIntegerLiteral$lit
             //
-            case 456: {
-               //#line 3851 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3849 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 466: {
+               //#line 3906 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3904 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 IToken lit = (IToken) getRhsIToken(1);
-                //#line 3851 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3906 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 polyglot.lex.LongLiteral a = uint_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.IntLit(pos(), X10IntLit_c.UINT, a.getValue().longValue()));
                       break;
             }
     
             //
-            // Rule 457:  Literal ::= UnsignedLongLiteral$lit
+            // Rule 467:  Literal ::= UnsignedLongLiteral$lit
             //
-            case 457: {
-               //#line 3857 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3855 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 467: {
+               //#line 3912 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3910 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 IToken lit = (IToken) getRhsIToken(1);
-                //#line 3857 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3912 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 polyglot.lex.LongLiteral a = ulong_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.IntLit(pos(), X10IntLit_c.ULONG, a.getValue().longValue()));
                       break;
             }
     
             //
-            // Rule 458:  Literal ::= FloatingPointLiteral$lit
+            // Rule 468:  Literal ::= FloatingPointLiteral$lit
             //
-            case 458: {
-               //#line 3863 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3861 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 468: {
+               //#line 3918 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3916 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 IToken lit = (IToken) getRhsIToken(1);
-                //#line 3863 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3918 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 polyglot.lex.FloatLiteral a = float_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.FloatLit(pos(), FloatLit.FLOAT, a.getValue().floatValue()));
                       break;
             }
     
             //
-            // Rule 459:  Literal ::= DoubleLiteral$lit
+            // Rule 469:  Literal ::= DoubleLiteral$lit
             //
-            case 459: {
-               //#line 3869 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3867 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 469: {
+               //#line 3924 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3922 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 IToken lit = (IToken) getRhsIToken(1);
-                //#line 3869 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3924 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 polyglot.lex.DoubleLiteral a = double_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.FloatLit(pos(), FloatLit.DOUBLE, a.getValue().doubleValue()));
                       break;
             }
     
             //
-            // Rule 460:  Literal ::= BooleanLiteral
+            // Rule 470:  Literal ::= BooleanLiteral
             //
-            case 460: {
-               //#line 3875 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3873 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 470: {
+               //#line 3930 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3928 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 polyglot.lex.BooleanLiteral BooleanLiteral = (polyglot.lex.BooleanLiteral) getRhsSym(1);
-                //#line 3875 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3930 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.BooleanLit(pos(), BooleanLiteral.getValue().booleanValue()));
                       break;
             }
     
             //
-            // Rule 461:  Literal ::= CharacterLiteral$lit
+            // Rule 471:  Literal ::= CharacterLiteral$lit
             //
-            case 461: {
-               //#line 3880 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3878 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 471: {
+               //#line 3935 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3933 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 IToken lit = (IToken) getRhsIToken(1);
-                //#line 3880 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3935 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 polyglot.lex.CharacterLiteral a = char_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.CharLit(pos(), a.getValue().charValue()));
                       break;
             }
     
             //
-            // Rule 462:  Literal ::= StringLiteral$str
+            // Rule 472:  Literal ::= StringLiteral$str
             //
-            case 462: {
-               //#line 3886 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3884 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 472: {
+               //#line 3941 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3939 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 IToken str = (IToken) getRhsIToken(1);
-                //#line 3886 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3941 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 polyglot.lex.StringLiteral a = string_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.StringLit(pos(), a.getValue()));
                       break;
             }
     
             //
-            // Rule 463:  Literal ::= null
+            // Rule 473:  Literal ::= null
             //
-            case 463: {
-               //#line 3892 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 473: {
+               //#line 3947 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 3892 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3947 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.NullLit(pos()));
                       break;
             }
     
             //
-            // Rule 464:  BooleanLiteral ::= true$trueLiteral
+            // Rule 474:  BooleanLiteral ::= true$trueLiteral
             //
-            case 464: {
-               //#line 3898 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3896 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 474: {
+               //#line 3953 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3951 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 IToken trueLiteral = (IToken) getRhsIToken(1);
-                //#line 3898 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3953 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(boolean_lit(getRhsFirstTokenIndex(1)));
                       break;
             }
     
             //
-            // Rule 465:  BooleanLiteral ::= false$falseLiteral
+            // Rule 475:  BooleanLiteral ::= false$falseLiteral
             //
-            case 465: {
-               //#line 3903 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3901 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 475: {
+               //#line 3958 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3956 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 IToken falseLiteral = (IToken) getRhsIToken(1);
-                //#line 3903 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3958 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(boolean_lit(getRhsFirstTokenIndex(1)));
                       break;
             }
     
             //
-            // Rule 466:  ArgumentList ::= Expression
+            // Rule 476:  ArgumentList ::= Expression
             //
-            case 466: {
-               //#line 3912 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3910 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 476: {
+               //#line 3967 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3965 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(1);
-                //#line 3912 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3967 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(Expression);
                 setResult(l);
@@ -6805,115 +6928,115 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 467:  ArgumentList ::= ArgumentList , Expression
+            // Rule 477:  ArgumentList ::= ArgumentList , Expression
             //
-            case 467: {
-               //#line 3919 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3917 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 477: {
+               //#line 3974 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3972 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentList = (List) getRhsSym(1);
-                //#line 3917 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3972 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 3919 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3974 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 ArgumentList.add(Expression);
                       break;
             }
     
             //
-            // Rule 468:  FieldAccess ::= Primary . Identifier
+            // Rule 478:  FieldAccess ::= Primary . Identifier
             //
-            case 468: {
-               //#line 3925 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3923 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 478: {
+               //#line 3980 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3978 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 3923 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3978 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 3925 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3980 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Field(pos(), Primary, Identifier));
                       break;
             }
     
             //
-            // Rule 469:  FieldAccess ::= super . Identifier
+            // Rule 479:  FieldAccess ::= super . Identifier
             //
-            case 469: {
-               //#line 3930 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3928 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 479: {
+               //#line 3985 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3983 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 3930 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3985 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Field(pos(), nf.Super(pos(getLeftSpan())), Identifier));
                       break;
             }
     
             //
-            // Rule 470:  FieldAccess ::= ClassName . super$sup . Identifier
+            // Rule 480:  FieldAccess ::= ClassName . super$sup . Identifier
             //
-            case 470: {
-               //#line 3935 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3933 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 480: {
+               //#line 3990 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3988 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ParsedName ClassName = (ParsedName) getRhsSym(1);
-                //#line 3933 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3988 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 3933 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3988 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(5);
-                //#line 3935 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3990 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Field(pos(), nf.Super(pos(getLeftSpan(),getRhsFirstTokenIndex(3)), ClassName.toType()), Identifier));
                       break;
             }
     
             //
-            // Rule 471:  FieldAccess ::= Primary . class$c
+            // Rule 481:  FieldAccess ::= Primary . class$c
             //
-            case 471: {
-               //#line 3940 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3938 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 481: {
+               //#line 3995 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3993 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 3938 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 3993 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 IToken c = (IToken) getRhsIToken(3);
-                //#line 3940 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3995 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Field(pos(), Primary, nf.Id(pos(getRhsFirstTokenIndex(3)), "class")));
                       break;
             }
     
             //
-            // Rule 472:  FieldAccess ::= super . class$c
+            // Rule 482:  FieldAccess ::= super . class$c
             //
-            case 472: {
-               //#line 3945 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3943 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 482: {
+               //#line 4000 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 3998 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 IToken c = (IToken) getRhsIToken(3);
-                //#line 3945 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4000 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Field(pos(), nf.Super(pos(getLeftSpan())), nf.Id(pos(getRhsFirstTokenIndex(3)), "class")));
                       break;
             }
     
             //
-            // Rule 473:  FieldAccess ::= ClassName . super$sup . class$c
+            // Rule 483:  FieldAccess ::= ClassName . super$sup . class$c
             //
-            case 473: {
-               //#line 3950 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3948 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 483: {
+               //#line 4005 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4003 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ParsedName ClassName = (ParsedName) getRhsSym(1);
-                //#line 3948 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4003 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 3948 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4003 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 IToken c = (IToken) getRhsIToken(5);
-                //#line 3950 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4005 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Field(pos(), nf.Super(pos(getLeftSpan(),getRhsFirstTokenIndex(3)), ClassName.toType()), nf.Id(pos(getRhsFirstTokenIndex(5)), "class")));
                       break;
             }
     
             //
-            // Rule 474:  MethodInvocation ::= MethodName TypeArgumentsopt ( ArgumentListopt )
+            // Rule 484:  MethodInvocation ::= MethodName TypeArgumentsopt ( ArgumentListopt )
             //
-            case 474: {
-               //#line 3956 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3954 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 484: {
+               //#line 4011 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4009 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ParsedName MethodName = (ParsedName) getRhsSym(1);
-                //#line 3954 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4009 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(2);
-                //#line 3954 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4009 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(4);
-                //#line 3956 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4011 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10Call(pos(), MethodName.prefix == null
                                                              ? null
                                                              : MethodName.prefix.toReceiver(), MethodName.name, TypeArgumentsopt, ArgumentListopt));
@@ -6921,71 +7044,71 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 475:  MethodInvocation ::= Primary . Identifier TypeArgumentsopt ( ArgumentListopt )
+            // Rule 485:  MethodInvocation ::= Primary . Identifier TypeArgumentsopt ( ArgumentListopt )
             //
-            case 475: {
-               //#line 3963 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3961 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 485: {
+               //#line 4018 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4016 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 3961 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4016 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 3961 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4016 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(4);
-                //#line 3961 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4016 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(6);
-                //#line 3963 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4018 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10Call(pos(), Primary, Identifier, TypeArgumentsopt, ArgumentListopt));
                       break;
             }
     
             //
-            // Rule 476:  MethodInvocation ::= super . Identifier TypeArgumentsopt ( ArgumentListopt )
+            // Rule 486:  MethodInvocation ::= super . Identifier TypeArgumentsopt ( ArgumentListopt )
             //
-            case 476: {
-               //#line 3968 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3966 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 486: {
+               //#line 4023 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4021 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 3966 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4021 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(4);
-                //#line 3966 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4021 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(6);
-                //#line 3968 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4023 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10Call(pos(), nf.Super(pos(getLeftSpan())), Identifier, TypeArgumentsopt, ArgumentListopt));
                       break;
             }
     
             //
-            // Rule 477:  MethodInvocation ::= ClassName . super$sup . Identifier TypeArgumentsopt ( ArgumentListopt )
+            // Rule 487:  MethodInvocation ::= ClassName . super$sup . Identifier TypeArgumentsopt ( ArgumentListopt )
             //
-            case 477: {
-               //#line 3973 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3971 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 487: {
+               //#line 4028 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4026 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ParsedName ClassName = (ParsedName) getRhsSym(1);
-                //#line 3971 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4026 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 3971 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4026 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(5);
-                //#line 3971 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4026 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(6);
-                //#line 3971 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4026 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(8);
-                //#line 3973 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4028 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10Call(pos(), nf.Super(pos(getRhsFirstTokenIndex(3)), ClassName.toType()), Identifier, TypeArgumentsopt, ArgumentListopt));
                       break;
             }
     
             //
-            // Rule 478:  MethodInvocation ::= Primary TypeArgumentsopt ( ArgumentListopt )
+            // Rule 488:  MethodInvocation ::= Primary TypeArgumentsopt ( ArgumentListopt )
             //
-            case 478: {
-               //#line 3978 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3976 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 488: {
+               //#line 4033 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4031 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 3976 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4031 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(2);
-                //#line 3976 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4031 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(4);
-                //#line 3978 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4033 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 if (Primary instanceof Field) {
                     Field f = (Field) Primary;
                     setResult(nf.X10Call(pos(), f.target(), f.name(), TypeArgumentsopt, ArgumentListopt));
@@ -7005,15 +7128,15 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 479:  MethodSelection ::= MethodName . ( FormalParameterListopt )
+            // Rule 489:  MethodSelection ::= MethodName . ( FormalParameterListopt )
             //
-            case 479: {
-               //#line 3998 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3996 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 489: {
+               //#line 4053 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4051 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ParsedName MethodName = (ParsedName) getRhsSym(1);
-                //#line 3996 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4051 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List FormalParameterListopt = (List) getRhsSym(4);
-                //#line 3998 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4053 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
 //                    List<TypeNode> typeArgs = toTypeArgs(TypeParametersopt);
 //                    List<TypeParamNode> typeParams = toTypeParams(TypeParametersopt);
                 List<Formal> formals = toFormals(FormalParameterListopt);
@@ -7027,17 +7150,17 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 480:  MethodSelection ::= Primary . Identifier . ( FormalParameterListopt )
+            // Rule 490:  MethodSelection ::= Primary . Identifier . ( FormalParameterListopt )
             //
-            case 480: {
-               //#line 4011 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4009 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 490: {
+               //#line 4066 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4064 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 4009 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4064 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 4009 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4064 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List FormalParameterListopt = (List) getRhsSym(6);
-                //#line 4011 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4066 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
 //                    List<TypeNode> typeArgs = toTypeArgs(TypeParametersopt);
 //                  List<TypeParamNode> typeParams = toTypeParams(TypeParametersopt);
                 List<Formal> formals = toFormals(FormalParameterListopt);
@@ -7050,15 +7173,15 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 481:  MethodSelection ::= super . Identifier . ( FormalParameterListopt )
+            // Rule 491:  MethodSelection ::= super . Identifier . ( FormalParameterListopt )
             //
-            case 481: {
-               //#line 4023 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4021 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 491: {
+               //#line 4078 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4076 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 4021 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4076 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List FormalParameterListopt = (List) getRhsSym(6);
-                //#line 4023 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4078 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
 //                    List<TypeNode> typeArgs = toTypeArgs(TypeParametersopt);
 //                    List<TypeParamNode> typeParams = toTypeParams(TypeParametersopt);
                 List<Formal> formals = toFormals(FormalParameterListopt);
@@ -7071,19 +7194,19 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 482:  MethodSelection ::= ClassName . super$sup . Identifier . ( FormalParameterListopt )
+            // Rule 492:  MethodSelection ::= ClassName . super$sup . Identifier . ( FormalParameterListopt )
             //
-            case 482: {
-               //#line 4035 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4033 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 492: {
+               //#line 4090 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4088 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ParsedName ClassName = (ParsedName) getRhsSym(1);
-                //#line 4033 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4088 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 4033 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4088 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(5);
-                //#line 4033 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4088 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List FormalParameterListopt = (List) getRhsSym(8);
-                //#line 4035 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4090 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
 //                    List<TypeNode> typeArgs = toTypeArgs(TypeParametersopt);
 //                    List<TypeParamNode> typeParams = toTypeParams(TypeParametersopt);
                 List<Formal> formals = toFormals(FormalParameterListopt);
@@ -7097,99 +7220,99 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 486:  PostIncrementExpression ::= PostfixExpression ++
+            // Rule 496:  PostIncrementExpression ::= PostfixExpression ++
             //
-            case 486: {
-               //#line 4053 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4051 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 496: {
+               //#line 4108 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4106 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr PostfixExpression = (Expr) getRhsSym(1);
-                //#line 4053 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4108 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Unary(pos(), PostfixExpression, Unary.POST_INC));
                       break;
             }
     
             //
-            // Rule 487:  PostDecrementExpression ::= PostfixExpression --
+            // Rule 497:  PostDecrementExpression ::= PostfixExpression --
             //
-            case 487: {
-               //#line 4059 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4057 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 497: {
+               //#line 4114 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4112 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr PostfixExpression = (Expr) getRhsSym(1);
-                //#line 4059 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4114 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Unary(pos(), PostfixExpression, Unary.POST_DEC));
                       break;
             }
     
             //
-            // Rule 490:  UnaryExpression ::= + UnaryExpressionNotPlusMinus
+            // Rule 500:  UnaryExpression ::= + UnaryExpressionNotPlusMinus
             //
-            case 490: {
-               //#line 4067 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4065 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 500: {
+               //#line 4122 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4120 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(2);
-                //#line 4067 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4122 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Unary(pos(), Unary.POS, UnaryExpressionNotPlusMinus));
                       break;
             }
     
             //
-            // Rule 491:  UnaryExpression ::= - UnaryExpressionNotPlusMinus
+            // Rule 501:  UnaryExpression ::= - UnaryExpressionNotPlusMinus
             //
-            case 491: {
-               //#line 4072 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4070 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 501: {
+               //#line 4127 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4125 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(2);
-                //#line 4072 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4127 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Unary(pos(), Unary.NEG, UnaryExpressionNotPlusMinus));
                       break;
             }
     
             //
-            // Rule 493:  PreIncrementExpression ::= ++ UnaryExpressionNotPlusMinus
+            // Rule 503:  PreIncrementExpression ::= ++ UnaryExpressionNotPlusMinus
             //
-            case 493: {
-               //#line 4079 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4077 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 503: {
+               //#line 4134 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4132 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(2);
-                //#line 4079 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4134 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Unary(pos(), Unary.PRE_INC, UnaryExpressionNotPlusMinus));
                       break;
             }
     
             //
-            // Rule 494:  PreDecrementExpression ::= -- UnaryExpressionNotPlusMinus
+            // Rule 504:  PreDecrementExpression ::= -- UnaryExpressionNotPlusMinus
             //
-            case 494: {
-               //#line 4085 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4083 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 504: {
+               //#line 4140 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4138 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(2);
-                //#line 4085 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4140 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Unary(pos(), Unary.PRE_DEC, UnaryExpressionNotPlusMinus));
                       break;
             }
     
             //
-            // Rule 496:  UnaryExpressionNotPlusMinus ::= ~ UnaryExpression
+            // Rule 506:  UnaryExpressionNotPlusMinus ::= ~ UnaryExpression
             //
-            case 496: {
-               //#line 4092 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4090 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 506: {
+               //#line 4147 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4145 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(2);
-                //#line 4092 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4147 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Unary(pos(), Unary.BIT_NOT, UnaryExpression));
                       break;
             }
     
             //
-            // Rule 497:  UnaryExpressionNotPlusMinus ::= Annotations UnaryExpression
+            // Rule 507:  UnaryExpressionNotPlusMinus ::= Annotations UnaryExpression
             //
-            case 497: {
-               //#line 4097 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4095 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 507: {
+               //#line 4152 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4150 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List Annotations = (List) getRhsSym(1);
-                //#line 4095 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4150 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(2);
-                //#line 4097 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4152 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 Expr e = UnaryExpression;
                 e = (Expr) ((X10Ext) e.ext()).annotations(Annotations);
                 setResult(e.position(pos()));
@@ -7197,1195 +7320,1195 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 498:  UnaryExpressionNotPlusMinus ::= ! UnaryExpression
+            // Rule 508:  UnaryExpressionNotPlusMinus ::= ! UnaryExpression
             //
-            case 498: {
-               //#line 4104 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4102 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 508: {
+               //#line 4159 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4157 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(2);
-                //#line 4104 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4159 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Unary(pos(), Unary.NOT, UnaryExpression));
                       break;
             }
     
             //
-            // Rule 500:  MultiplicativeExpression ::= MultiplicativeExpression * UnaryExpression
+            // Rule 510:  MultiplicativeExpression ::= MultiplicativeExpression * UnaryExpression
             //
-            case 500: {
-               //#line 4111 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4109 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 510: {
+               //#line 4166 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4164 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(1);
-                //#line 4109 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4164 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(3);
-                //#line 4111 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4166 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.MUL, UnaryExpression));
                       break;
             }
     
             //
-            // Rule 501:  MultiplicativeExpression ::= MultiplicativeExpression / UnaryExpression
+            // Rule 511:  MultiplicativeExpression ::= MultiplicativeExpression / UnaryExpression
             //
-            case 501: {
-               //#line 4116 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4114 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 511: {
+               //#line 4171 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4169 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(1);
-                //#line 4114 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4169 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(3);
-                //#line 4116 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4171 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.DIV, UnaryExpression));
                       break;
             }
     
             //
-            // Rule 502:  MultiplicativeExpression ::= MultiplicativeExpression % UnaryExpression
+            // Rule 512:  MultiplicativeExpression ::= MultiplicativeExpression % UnaryExpression
             //
-            case 502: {
-               //#line 4121 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4119 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 512: {
+               //#line 4176 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4174 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(1);
-                //#line 4119 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4174 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(3);
-                //#line 4121 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4176 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.MOD, UnaryExpression));
                       break;
             }
     
             //
-            // Rule 504:  AdditiveExpression ::= AdditiveExpression + MultiplicativeExpression
+            // Rule 514:  AdditiveExpression ::= AdditiveExpression + MultiplicativeExpression
             //
-            case 504: {
-               //#line 4128 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4126 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 514: {
+               //#line 4183 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4181 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr AdditiveExpression = (Expr) getRhsSym(1);
-                //#line 4126 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4181 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(3);
-                //#line 4128 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4183 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), AdditiveExpression, Binary.ADD, MultiplicativeExpression));
                       break;
             }
     
             //
-            // Rule 505:  AdditiveExpression ::= AdditiveExpression - MultiplicativeExpression
+            // Rule 515:  AdditiveExpression ::= AdditiveExpression - MultiplicativeExpression
             //
-            case 505: {
-               //#line 4133 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4131 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 515: {
+               //#line 4188 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4186 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr AdditiveExpression = (Expr) getRhsSym(1);
-                //#line 4131 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4186 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(3);
-                //#line 4133 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4188 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), AdditiveExpression, Binary.SUB, MultiplicativeExpression));
                       break;
             }
     
             //
-            // Rule 507:  ShiftExpression ::= ShiftExpression << AdditiveExpression
+            // Rule 517:  ShiftExpression ::= ShiftExpression << AdditiveExpression
             //
-            case 507: {
-               //#line 4140 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4138 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 517: {
+               //#line 4195 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4193 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr ShiftExpression = (Expr) getRhsSym(1);
-                //#line 4138 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4193 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr AdditiveExpression = (Expr) getRhsSym(3);
-                //#line 4140 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4195 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), ShiftExpression, Binary.SHL, AdditiveExpression));
                       break;
             }
     
             //
-            // Rule 508:  ShiftExpression ::= ShiftExpression >> AdditiveExpression
+            // Rule 518:  ShiftExpression ::= ShiftExpression >> AdditiveExpression
             //
-            case 508: {
-               //#line 4145 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4143 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 518: {
+               //#line 4200 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4198 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr ShiftExpression = (Expr) getRhsSym(1);
-                //#line 4143 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4198 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr AdditiveExpression = (Expr) getRhsSym(3);
-                //#line 4145 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4200 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), ShiftExpression, Binary.SHR, AdditiveExpression));
                       break;
             }
     
             //
-            // Rule 509:  ShiftExpression ::= ShiftExpression >>> AdditiveExpression
+            // Rule 519:  ShiftExpression ::= ShiftExpression >>> AdditiveExpression
             //
-            case 509: {
-               //#line 4150 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4148 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 519: {
+               //#line 4205 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4203 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr ShiftExpression = (Expr) getRhsSym(1);
-                //#line 4148 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4203 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr AdditiveExpression = (Expr) getRhsSym(3);
-                //#line 4150 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4205 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), ShiftExpression, Binary.USHR, AdditiveExpression));
                       break;
             }
     
             //
-            // Rule 511:  RangeExpression ::= ShiftExpression$expr1 .. ShiftExpression$expr2
+            // Rule 521:  RangeExpression ::= ShiftExpression$expr1 .. ShiftExpression$expr2
             //
-            case 511: {
-               //#line 4157 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4155 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 521: {
+               //#line 4212 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4210 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr expr1 = (Expr) getRhsSym(1);
-                //#line 4155 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4210 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr expr2 = (Expr) getRhsSym(3);
-                //#line 4157 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4212 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 Expr regionCall = nf.RegionMaker(pos(), expr1, expr2);
                 setResult(regionCall);
                       break;
             }
     
             //
-            // Rule 514:  RelationalExpression ::= RelationalExpression < RangeExpression
+            // Rule 524:  RelationalExpression ::= RelationalExpression < RangeExpression
             //
-            case 514: {
-               //#line 4166 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4164 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 524: {
+               //#line 4221 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4219 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 4164 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4219 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr RangeExpression = (Expr) getRhsSym(3);
-                //#line 4166 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4221 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.LT, RangeExpression));
                       break;
             }
     
             //
-            // Rule 515:  RelationalExpression ::= RelationalExpression > RangeExpression
+            // Rule 525:  RelationalExpression ::= RelationalExpression > RangeExpression
             //
-            case 515: {
-               //#line 4171 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4169 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 525: {
+               //#line 4226 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4224 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 4169 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4224 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr RangeExpression = (Expr) getRhsSym(3);
-                //#line 4171 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4226 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.GT, RangeExpression));
                       break;
             }
     
             //
-            // Rule 516:  RelationalExpression ::= RelationalExpression <= RangeExpression
+            // Rule 526:  RelationalExpression ::= RelationalExpression <= RangeExpression
             //
-            case 516: {
-               //#line 4176 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4174 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 526: {
+               //#line 4231 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4229 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 4174 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4229 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr RangeExpression = (Expr) getRhsSym(3);
-                //#line 4176 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4231 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.LE, RangeExpression));
                       break;
             }
     
             //
-            // Rule 517:  RelationalExpression ::= RelationalExpression >= RangeExpression
+            // Rule 527:  RelationalExpression ::= RelationalExpression >= RangeExpression
             //
-            case 517: {
-               //#line 4181 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4179 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 527: {
+               //#line 4236 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4234 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 4179 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4234 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr RangeExpression = (Expr) getRhsSym(3);
-                //#line 4181 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4236 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.GE, RangeExpression));
                       break;
             }
     
             //
-            // Rule 518:  RelationalExpression ::= RelationalExpression instanceof Type
+            // Rule 528:  RelationalExpression ::= RelationalExpression instanceof Type
             //
-            case 518: {
-               //#line 4186 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4184 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 528: {
+               //#line 4241 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4239 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 4184 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4239 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 4186 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4241 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Instanceof(pos(), RelationalExpression, Type));
                       break;
             }
     
             //
-            // Rule 519:  RelationalExpression ::= RelationalExpression in ShiftExpression
+            // Rule 529:  RelationalExpression ::= RelationalExpression in ShiftExpression
             //
-            case 519: {
-               //#line 4191 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4189 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 529: {
+               //#line 4246 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4244 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 4189 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4244 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr ShiftExpression = (Expr) getRhsSym(3);
-                //#line 4191 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4246 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Contains(pos(), RelationalExpression, ShiftExpression));
                       break;
             }
     
             //
-            // Rule 521:  EqualityExpression ::= EqualityExpression == RelationalExpression
+            // Rule 531:  EqualityExpression ::= EqualityExpression == RelationalExpression
             //
-            case 521: {
-               //#line 4198 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4196 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 531: {
+               //#line 4253 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4251 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr EqualityExpression = (Expr) getRhsSym(1);
-                //#line 4196 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4251 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(3);
-                //#line 4198 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4253 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), EqualityExpression, Binary.EQ, RelationalExpression));
                       break;
             }
     
             //
-            // Rule 522:  EqualityExpression ::= EqualityExpression != RelationalExpression
+            // Rule 532:  EqualityExpression ::= EqualityExpression != RelationalExpression
             //
-            case 522: {
-               //#line 4203 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4201 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 532: {
+               //#line 4258 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4256 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr EqualityExpression = (Expr) getRhsSym(1);
-                //#line 4201 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4256 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(3);
-                //#line 4203 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4258 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), EqualityExpression, Binary.NE, RelationalExpression));
                       break;
             }
     
             //
-            // Rule 523:  EqualityExpression ::= Type$t1 == Type$t2
+            // Rule 533:  EqualityExpression ::= Type$t1 == Type$t2
             //
-            case 523: {
-               //#line 4208 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4206 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 533: {
+               //#line 4263 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4261 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode t1 = (TypeNode) getRhsSym(1);
-                //#line 4206 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4261 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 TypeNode t2 = (TypeNode) getRhsSym(3);
-                //#line 4208 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4263 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.SubtypeTest(pos(), t1, t2, true));
                       break;
             }
     
             //
-            // Rule 525:  AndExpression ::= AndExpression & EqualityExpression
+            // Rule 535:  AndExpression ::= AndExpression & EqualityExpression
             //
-            case 525: {
-               //#line 4215 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4213 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 535: {
+               //#line 4270 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4268 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr AndExpression = (Expr) getRhsSym(1);
-                //#line 4213 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4268 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr EqualityExpression = (Expr) getRhsSym(3);
-                //#line 4215 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4270 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), AndExpression, Binary.BIT_AND, EqualityExpression));
                       break;
             }
     
             //
-            // Rule 527:  ExclusiveOrExpression ::= ExclusiveOrExpression ^ AndExpression
+            // Rule 537:  ExclusiveOrExpression ::= ExclusiveOrExpression ^ AndExpression
             //
-            case 527: {
-               //#line 4222 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4220 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 537: {
+               //#line 4277 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4275 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr ExclusiveOrExpression = (Expr) getRhsSym(1);
-                //#line 4220 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4275 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr AndExpression = (Expr) getRhsSym(3);
-                //#line 4222 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4277 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), ExclusiveOrExpression, Binary.BIT_XOR, AndExpression));
                       break;
             }
     
             //
-            // Rule 529:  InclusiveOrExpression ::= InclusiveOrExpression | ExclusiveOrExpression
+            // Rule 539:  InclusiveOrExpression ::= InclusiveOrExpression | ExclusiveOrExpression
             //
-            case 529: {
-               //#line 4229 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4227 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 539: {
+               //#line 4284 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4282 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr InclusiveOrExpression = (Expr) getRhsSym(1);
-                //#line 4227 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4282 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr ExclusiveOrExpression = (Expr) getRhsSym(3);
-                //#line 4229 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4284 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), InclusiveOrExpression, Binary.BIT_OR, ExclusiveOrExpression));
                       break;
             }
     
             //
-            // Rule 531:  ConditionalAndExpression ::= ConditionalAndExpression && InclusiveOrExpression
+            // Rule 541:  ConditionalAndExpression ::= ConditionalAndExpression && InclusiveOrExpression
             //
-            case 531: {
-               //#line 4236 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4234 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 541: {
+               //#line 4291 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4289 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr ConditionalAndExpression = (Expr) getRhsSym(1);
-                //#line 4234 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4289 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr InclusiveOrExpression = (Expr) getRhsSym(3);
-                //#line 4236 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4291 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), ConditionalAndExpression, Binary.COND_AND, InclusiveOrExpression));
                       break;
             }
     
             //
-            // Rule 533:  ConditionalOrExpression ::= ConditionalOrExpression || ConditionalAndExpression
+            // Rule 543:  ConditionalOrExpression ::= ConditionalOrExpression || ConditionalAndExpression
             //
-            case 533: {
-               //#line 4243 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4241 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 543: {
+               //#line 4298 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4296 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr ConditionalOrExpression = (Expr) getRhsSym(1);
-                //#line 4241 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4296 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr ConditionalAndExpression = (Expr) getRhsSym(3);
-                //#line 4243 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4298 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), ConditionalOrExpression, Binary.COND_OR, ConditionalAndExpression));
                       break;
             }
     
             //
-            // Rule 540:  ConditionalExpression ::= ConditionalOrExpression ? Expression : ConditionalExpression
+            // Rule 550:  ConditionalExpression ::= ConditionalOrExpression ? Expression : ConditionalExpression
             //
-            case 540: {
-               //#line 4256 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4254 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 550: {
+               //#line 4311 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4309 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr ConditionalOrExpression = (Expr) getRhsSym(1);
-                //#line 4254 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4309 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 4254 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4309 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr ConditionalExpression = (Expr) getRhsSym(5);
-                //#line 4256 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4311 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Conditional(pos(), ConditionalOrExpression, Expression, ConditionalExpression));
                       break;
             }
     
             //
-            // Rule 543:  Assignment ::= LeftHandSide AssignmentOperator AssignmentExpression
+            // Rule 553:  Assignment ::= LeftHandSide AssignmentOperator AssignmentExpression
             //
-            case 543: {
-               //#line 4265 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4263 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 553: {
+               //#line 4320 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4318 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr LeftHandSide = (Expr) getRhsSym(1);
-                //#line 4263 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4318 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Assign.Operator AssignmentOperator = (Assign.Operator) getRhsSym(2);
-                //#line 4263 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4318 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr AssignmentExpression = (Expr) getRhsSym(3);
-                //#line 4265 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4320 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Assign(pos(), LeftHandSide, AssignmentOperator, AssignmentExpression));
                       break;
             }
     
             //
-            // Rule 544:  Assignment ::= ExpressionName$e1 ( ArgumentList ) AssignmentOperator AssignmentExpression
+            // Rule 554:  Assignment ::= ExpressionName$e1 ( ArgumentList ) AssignmentOperator AssignmentExpression
             //
-            case 544: {
-               //#line 4270 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4268 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 554: {
+               //#line 4325 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4323 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ParsedName e1 = (ParsedName) getRhsSym(1);
-                //#line 4268 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4323 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentList = (List) getRhsSym(3);
-                //#line 4268 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4323 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Assign.Operator AssignmentOperator = (Assign.Operator) getRhsSym(5);
-                //#line 4268 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4323 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr AssignmentExpression = (Expr) getRhsSym(6);
-                //#line 4270 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4325 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.SettableAssign(pos(), e1.toExpr(), ArgumentList, AssignmentOperator, AssignmentExpression));
                       break;
             }
     
             //
-            // Rule 545:  Assignment ::= Primary$e1 ( ArgumentList ) AssignmentOperator AssignmentExpression
+            // Rule 555:  Assignment ::= Primary$e1 ( ArgumentList ) AssignmentOperator AssignmentExpression
             //
-            case 545: {
-               //#line 4275 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4273 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 555: {
+               //#line 4330 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4328 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr e1 = (Expr) getRhsSym(1);
-                //#line 4273 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4328 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 List ArgumentList = (List) getRhsSym(3);
-                //#line 4273 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4328 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Assign.Operator AssignmentOperator = (Assign.Operator) getRhsSym(5);
-                //#line 4273 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+                //#line 4328 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Expr AssignmentExpression = (Expr) getRhsSym(6);
-                //#line 4275 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4330 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.SettableAssign(pos(), e1, ArgumentList, AssignmentOperator, AssignmentExpression));
                       break;
             }
     
             //
-            // Rule 546:  LeftHandSide ::= ExpressionName
+            // Rule 556:  LeftHandSide ::= ExpressionName
             //
-            case 546: {
-               //#line 4281 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4279 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 556: {
+               //#line 4336 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4334 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 ParsedName ExpressionName = (ParsedName) getRhsSym(1);
-                //#line 4281 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4336 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(ExpressionName.toExpr());
                       break;
             }
     
             //
-            // Rule 548:  AssignmentOperator ::= =
+            // Rule 558:  AssignmentOperator ::= =
             //
-            case 548: {
-               //#line 4288 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 558: {
+               //#line 4343 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4288 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4343 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.ASSIGN);
                       break;
             }
     
             //
-            // Rule 549:  AssignmentOperator ::= *=
+            // Rule 559:  AssignmentOperator ::= *=
             //
-            case 549: {
-               //#line 4293 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 559: {
+               //#line 4348 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4293 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4348 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.MUL_ASSIGN);
                       break;
             }
     
             //
-            // Rule 550:  AssignmentOperator ::= /=
+            // Rule 560:  AssignmentOperator ::= /=
             //
-            case 550: {
-               //#line 4298 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 560: {
+               //#line 4353 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4298 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4353 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.DIV_ASSIGN);
                       break;
             }
     
             //
-            // Rule 551:  AssignmentOperator ::= %=
+            // Rule 561:  AssignmentOperator ::= %=
             //
-            case 551: {
-               //#line 4303 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 561: {
+               //#line 4358 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4303 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4358 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.MOD_ASSIGN);
                       break;
             }
     
             //
-            // Rule 552:  AssignmentOperator ::= +=
+            // Rule 562:  AssignmentOperator ::= +=
             //
-            case 552: {
-               //#line 4308 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 562: {
+               //#line 4363 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4308 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4363 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.ADD_ASSIGN);
                       break;
             }
     
             //
-            // Rule 553:  AssignmentOperator ::= -=
+            // Rule 563:  AssignmentOperator ::= -=
             //
-            case 553: {
-               //#line 4313 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 563: {
+               //#line 4368 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4313 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4368 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.SUB_ASSIGN);
                       break;
             }
     
             //
-            // Rule 554:  AssignmentOperator ::= <<=
+            // Rule 564:  AssignmentOperator ::= <<=
             //
-            case 554: {
-               //#line 4318 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 564: {
+               //#line 4373 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4318 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4373 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.SHL_ASSIGN);
                       break;
             }
     
             //
-            // Rule 555:  AssignmentOperator ::= >>=
+            // Rule 565:  AssignmentOperator ::= >>=
             //
-            case 555: {
-               //#line 4323 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 565: {
+               //#line 4378 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4323 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4378 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.SHR_ASSIGN);
                       break;
             }
     
             //
-            // Rule 556:  AssignmentOperator ::= >>>=
+            // Rule 566:  AssignmentOperator ::= >>>=
             //
-            case 556: {
-               //#line 4328 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 566: {
+               //#line 4383 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4328 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4383 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.USHR_ASSIGN);
                       break;
             }
     
             //
-            // Rule 557:  AssignmentOperator ::= &=
+            // Rule 567:  AssignmentOperator ::= &=
             //
-            case 557: {
-               //#line 4333 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 567: {
+               //#line 4388 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4333 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4388 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.BIT_AND_ASSIGN);
                       break;
             }
     
             //
-            // Rule 558:  AssignmentOperator ::= ^=
+            // Rule 568:  AssignmentOperator ::= ^=
             //
-            case 558: {
-               //#line 4338 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 568: {
+               //#line 4393 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4338 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4393 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.BIT_XOR_ASSIGN);
                       break;
             }
     
             //
-            // Rule 559:  AssignmentOperator ::= |=
+            // Rule 569:  AssignmentOperator ::= |=
             //
-            case 559: {
-               //#line 4343 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 569: {
+               //#line 4398 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4343 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4398 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Assign.BIT_OR_ASSIGN);
                       break;
             }
     
             //
-            // Rule 562:  PrefixOp ::= +
+            // Rule 572:  PrefixOp ::= +
             //
-            case 562: {
-               //#line 4354 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 572: {
+               //#line 4409 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4354 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4409 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Unary.POS);
                       break;
             }
     
             //
-            // Rule 563:  PrefixOp ::= -
+            // Rule 573:  PrefixOp ::= -
             //
-            case 563: {
-               //#line 4359 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 573: {
+               //#line 4414 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4359 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4414 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Unary.NEG);
                       break;
             }
     
             //
-            // Rule 564:  PrefixOp ::= !
+            // Rule 574:  PrefixOp ::= !
             //
-            case 564: {
-               //#line 4364 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 574: {
+               //#line 4419 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4364 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4419 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Unary.NOT);
                       break;
             }
     
             //
-            // Rule 565:  PrefixOp ::= ~
+            // Rule 575:  PrefixOp ::= ~
             //
-            case 565: {
-               //#line 4369 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 575: {
+               //#line 4424 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4369 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4424 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Unary.BIT_NOT);
                       break;
             }
     
             //
-            // Rule 566:  BinOp ::= +
+            // Rule 576:  BinOp ::= +
             //
-            case 566: {
-               //#line 4375 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 576: {
+               //#line 4430 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4375 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4430 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.ADD);
                       break;
             }
     
             //
-            // Rule 567:  BinOp ::= -
+            // Rule 577:  BinOp ::= -
             //
-            case 567: {
-               //#line 4380 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 577: {
+               //#line 4435 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4380 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4435 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.SUB);
                       break;
             }
     
             //
-            // Rule 568:  BinOp ::= *
+            // Rule 578:  BinOp ::= *
             //
-            case 568: {
-               //#line 4385 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 578: {
+               //#line 4440 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4385 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4440 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.MUL);
                       break;
             }
     
             //
-            // Rule 569:  BinOp ::= /
+            // Rule 579:  BinOp ::= /
             //
-            case 569: {
-               //#line 4390 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 579: {
+               //#line 4445 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4390 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4445 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.DIV);
                       break;
             }
     
             //
-            // Rule 570:  BinOp ::= %
+            // Rule 580:  BinOp ::= %
             //
-            case 570: {
-               //#line 4395 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 580: {
+               //#line 4450 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4395 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4450 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.MOD);
                       break;
             }
     
             //
-            // Rule 571:  BinOp ::= &
+            // Rule 581:  BinOp ::= &
             //
-            case 571: {
-               //#line 4400 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 581: {
+               //#line 4455 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4400 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4455 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.BIT_AND);
                       break;
             }
     
             //
-            // Rule 572:  BinOp ::= |
+            // Rule 582:  BinOp ::= |
             //
-            case 572: {
-               //#line 4405 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 582: {
+               //#line 4460 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4405 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4460 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.BIT_OR);
                       break;
             }
     
             //
-            // Rule 573:  BinOp ::= ^
+            // Rule 583:  BinOp ::= ^
             //
-            case 573: {
-               //#line 4410 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 583: {
+               //#line 4465 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4410 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4465 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.BIT_XOR);
                       break;
             }
     
             //
-            // Rule 574:  BinOp ::= &&
+            // Rule 584:  BinOp ::= &&
             //
-            case 574: {
-               //#line 4415 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 584: {
+               //#line 4470 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4415 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4470 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.COND_AND);
                       break;
             }
     
             //
-            // Rule 575:  BinOp ::= ||
+            // Rule 585:  BinOp ::= ||
             //
-            case 575: {
-               //#line 4420 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 585: {
+               //#line 4475 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4420 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4475 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.COND_OR);
                       break;
             }
     
             //
-            // Rule 576:  BinOp ::= <<
+            // Rule 586:  BinOp ::= <<
             //
-            case 576: {
-               //#line 4425 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 586: {
+               //#line 4480 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4425 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4480 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.SHL);
                       break;
             }
     
             //
-            // Rule 577:  BinOp ::= >>
+            // Rule 587:  BinOp ::= >>
             //
-            case 577: {
-               //#line 4430 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 587: {
+               //#line 4485 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4430 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4485 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.SHR);
                       break;
             }
     
             //
-            // Rule 578:  BinOp ::= >>>
+            // Rule 588:  BinOp ::= >>>
             //
-            case 578: {
-               //#line 4435 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 588: {
+               //#line 4490 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4435 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4490 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.USHR);
                       break;
             }
     
             //
-            // Rule 579:  BinOp ::= >=
+            // Rule 589:  BinOp ::= >=
             //
-            case 579: {
-               //#line 4440 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 589: {
+               //#line 4495 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4440 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4495 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.GE);
                       break;
             }
     
             //
-            // Rule 580:  BinOp ::= <=
+            // Rule 590:  BinOp ::= <=
             //
-            case 580: {
-               //#line 4445 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 590: {
+               //#line 4500 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4445 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4500 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.LE);
                       break;
             }
     
             //
-            // Rule 581:  BinOp ::= >
+            // Rule 591:  BinOp ::= >
             //
-            case 581: {
-               //#line 4450 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 591: {
+               //#line 4505 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4450 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4505 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.GT);
                       break;
             }
     
             //
-            // Rule 582:  BinOp ::= <
+            // Rule 592:  BinOp ::= <
             //
-            case 582: {
-               //#line 4455 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 592: {
+               //#line 4510 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4455 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4510 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.LT);
                       break;
             }
     
             //
-            // Rule 583:  BinOp ::= ==
+            // Rule 593:  BinOp ::= ==
             //
-            case 583: {
-               //#line 4463 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 593: {
+               //#line 4518 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4463 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4518 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.EQ);
                       break;
             }
     
             //
-            // Rule 584:  BinOp ::= !=
+            // Rule 594:  BinOp ::= !=
             //
-            case 584: {
-               //#line 4468 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 594: {
+               //#line 4523 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4468 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4523 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Binary.NE);
                       break;
             }
     
             //
-            // Rule 585:  Catchesopt ::= $Empty
+            // Rule 595:  Catchesopt ::= $Empty
             //
-            case 585: {
-               //#line 4477 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 595: {
+               //#line 4532 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4477 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4532 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), Catch.class, false));
                       break;
             }
     
             //
-            // Rule 587:  Identifieropt ::= $Empty
+            // Rule 597:  Identifieropt ::= $Empty
             //
-            case 587:
+            case 597:
                 setResult(null);
                 break;
 
             //
-            // Rule 588:  Identifieropt ::= Identifier
+            // Rule 598:  Identifieropt ::= Identifier
             //
-            case 588: {
-               //#line 4486 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4484 "C:/eclipse/workspace/3.5.2/x10.compiler/src/x10/parser/x10.g"
+            case 598: {
+               //#line 4541 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4539 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/x10.compiler/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 4486 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4541 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Identifier);
                       break;
             }
     
             //
-            // Rule 589:  ForUpdateopt ::= $Empty
+            // Rule 599:  ForUpdateopt ::= $Empty
             //
-            case 589: {
-               //#line 4492 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 599: {
+               //#line 4547 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4492 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4547 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), ForUpdate.class, false));
                       break;
             }
     
             //
-            // Rule 591:  Expressionopt ::= $Empty
-            //
-            case 591:
-                setResult(null);
-                break;
-
-            //
-            // Rule 593:  ForInitopt ::= $Empty
-            //
-            case 593: {
-               //#line 4503 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                
-                //#line 4503 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(new TypedList(new LinkedList(), ForInit.class, false));
-                      break;
-            }
-    
-            //
-            // Rule 595:  SwitchLabelsopt ::= $Empty
-            //
-            case 595: {
-               //#line 4510 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                
-                //#line 4510 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(new TypedList(new LinkedList(), Case.class, false));
-                      break;
-            }
-    
-            //
-            // Rule 597:  SwitchBlockStatementGroupsopt ::= $Empty
-            //
-            case 597: {
-               //#line 4517 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                
-                //#line 4517 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(new TypedList(new LinkedList(), SwitchElement.class, false));
-                      break;
-            }
-    
-            //
-            // Rule 599:  VariableModifiersopt ::= $Empty
-            //
-            case 599: {
-               //#line 4524 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                
-                //#line 4524 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(Collections.EMPTY_LIST);
-                      break;
-            }
-    
-            //
-            // Rule 601:  VariableInitializersopt ::= $Empty
+            // Rule 601:  Expressionopt ::= $Empty
             //
             case 601:
                 setResult(null);
                 break;
 
             //
-            // Rule 603:  InterfaceMemberDeclarationsopt ::= $Empty
+            // Rule 603:  ForInitopt ::= $Empty
             //
             case 603: {
-               //#line 4535 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4558 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4535 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(new TypedList(new LinkedList(), ClassMember.class, false));
+                //#line 4558 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                setResult(new TypedList(new LinkedList(), ForInit.class, false));
                       break;
             }
     
             //
-            // Rule 605:  ExtendsInterfacesopt ::= $Empty
+            // Rule 605:  SwitchLabelsopt ::= $Empty
             //
             case 605: {
-               //#line 4542 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4565 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4542 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(new TypedList(new LinkedList(), TypeNode.class, false));
+                //#line 4565 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                setResult(new TypedList(new LinkedList(), Case.class, false));
                       break;
             }
     
             //
-            // Rule 607:  InterfaceModifiersopt ::= $Empty
+            // Rule 607:  SwitchBlockStatementGroupsopt ::= $Empty
             //
             case 607: {
-               //#line 4549 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4572 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4549 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4572 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                setResult(new TypedList(new LinkedList(), SwitchElement.class, false));
+                      break;
+            }
+    
+            //
+            // Rule 609:  VariableModifiersopt ::= $Empty
+            //
+            case 609: {
+               //#line 4579 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                
+                //#line 4579 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.EMPTY_LIST);
                       break;
             }
     
             //
-            // Rule 609:  ClassBodyopt ::= $Empty
+            // Rule 611:  VariableInitializersopt ::= $Empty
             //
-            case 609:
+            case 611:
                 setResult(null);
                 break;
 
             //
-            // Rule 611:  Argumentsopt ::= $Empty
-            //
-            case 611: {
-               //#line 4560 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                
-                //#line 4560 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(new TypedList(new LinkedList(), Expr.class, false));
-                      break;
-            }
-    
-            //
-            // Rule 613:  ArgumentListopt ::= $Empty
+            // Rule 613:  InterfaceMemberDeclarationsopt ::= $Empty
             //
             case 613: {
-               //#line 4567 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+               //#line 4590 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4567 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4590 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                setResult(new TypedList(new LinkedList(), ClassMember.class, false));
+                      break;
+            }
+    
+            //
+            // Rule 615:  ExtendsInterfacesopt ::= $Empty
+            //
+            case 615: {
+               //#line 4597 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                
+                //#line 4597 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                setResult(new TypedList(new LinkedList(), TypeNode.class, false));
+                      break;
+            }
+    
+            //
+            // Rule 617:  InterfaceModifiersopt ::= $Empty
+            //
+            case 617: {
+               //#line 4604 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                
+                //#line 4604 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                setResult(Collections.EMPTY_LIST);
+                      break;
+            }
+    
+            //
+            // Rule 619:  ClassBodyopt ::= $Empty
+            //
+            case 619:
+                setResult(null);
+                break;
+
+            //
+            // Rule 621:  Argumentsopt ::= $Empty
+            //
+            case 621: {
+               //#line 4615 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                
+                //#line 4615 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), Expr.class, false));
                       break;
             }
     
             //
-            // Rule 615:  BlockStatementsopt ::= $Empty
+            // Rule 623:  ArgumentListopt ::= $Empty
             //
-            case 615: {
-               //#line 4574 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 623: {
+               //#line 4622 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4574 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4622 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                setResult(new TypedList(new LinkedList(), Expr.class, false));
+                      break;
+            }
+    
+            //
+            // Rule 625:  BlockStatementsopt ::= $Empty
+            //
+            case 625: {
+               //#line 4629 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
+                
+                //#line 4629 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), Stmt.class, false));
                       break;
             }
     
             //
-            // Rule 617:  ExplicitConstructorInvocationopt ::= $Empty
+            // Rule 627:  ExplicitConstructorInvocationopt ::= $Empty
             //
-            case 617:
+            case 627:
                 setResult(null);
                 break;
 
             //
-            // Rule 619:  ConstructorModifiersopt ::= $Empty
+            // Rule 629:  ConstructorModifiersopt ::= $Empty
             //
-            case 619: {
-               //#line 4585 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 629: {
+               //#line 4640 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4585 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4640 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.EMPTY_LIST);
                       break;
             }
     
             //
-            // Rule 621:  FormalParameterListopt ::= $Empty
+            // Rule 631:  FormalParameterListopt ::= $Empty
             //
-            case 621: {
-               //#line 4592 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 631: {
+               //#line 4647 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4592 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4647 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), Formal.class, false));
                       break;
             }
     
             //
-            // Rule 623:  Throwsopt ::= $Empty
+            // Rule 633:  Throwsopt ::= $Empty
             //
-            case 623: {
-               //#line 4599 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 633: {
+               //#line 4654 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4599 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4654 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), TypeNode.class, false));
                       break;
             }
     
             //
-            // Rule 625:  Offersopt ::= $Empty
+            // Rule 635:  Offersopt ::= $Empty
             //
-            case 625: {
-               //#line 4605 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 635: {
+               //#line 4660 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4605 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4660 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(null);
                       break;
             }
     
             //
-            // Rule 627:  MethodModifiersopt ::= $Empty
+            // Rule 637:  MethodModifiersopt ::= $Empty
             //
-            case 627: {
-               //#line 4612 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 637: {
+               //#line 4667 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4612 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4667 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.EMPTY_LIST);
                       break;
             }
     
             //
-            // Rule 629:  TypeModifieropt ::= $Empty
+            // Rule 639:  TypeModifieropt ::= $Empty
             //
-            case 629: {
-               //#line 4619 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 639: {
+               //#line 4674 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4619 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4674 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.EMPTY_LIST);
                       break;
             }
     
             //
-            // Rule 631:  FieldModifiersopt ::= $Empty
+            // Rule 641:  FieldModifiersopt ::= $Empty
             //
-            case 631: {
-               //#line 4626 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 641: {
+               //#line 4681 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4626 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4681 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.EMPTY_LIST);
                       break;
             }
     
             //
-            // Rule 633:  ClassBodyDeclarationsopt ::= $Empty
+            // Rule 643:  ClassBodyDeclarationsopt ::= $Empty
             //
-            case 633: {
-               //#line 4633 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 643: {
+               //#line 4688 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4633 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4688 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), ClassMember.class, false));
                       break;
             }
     
             //
-            // Rule 635:  Interfacesopt ::= $Empty
+            // Rule 645:  Interfacesopt ::= $Empty
             //
-            case 635: {
-               //#line 4640 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 645: {
+               //#line 4695 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4640 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4695 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), TypeNode.class, false));
                       break;
             }
     
             //
-            // Rule 637:  Superopt ::= $Empty
+            // Rule 647:  Superopt ::= $Empty
             //
-            case 637:
+            case 647:
                 setResult(null);
                 break;
 
             //
-            // Rule 639:  TypeParametersopt ::= $Empty
+            // Rule 649:  TypeParametersopt ::= $Empty
             //
-            case 639: {
-               //#line 4651 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 649: {
+               //#line 4706 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4651 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4706 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), TypeParamNode.class, false));
                       break;
             }
     
             //
-            // Rule 641:  FormalParametersopt ::= $Empty
+            // Rule 651:  FormalParametersopt ::= $Empty
             //
-            case 641: {
-               //#line 4658 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 651: {
+               //#line 4713 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4658 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4713 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), Formal.class, false));
                       break;
             }
     
             //
-            // Rule 643:  Annotationsopt ::= $Empty
+            // Rule 653:  Annotationsopt ::= $Empty
             //
-            case 643: {
-               //#line 4665 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 653: {
+               //#line 4720 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4665 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4720 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), AnnotationNode.class, false));
                       break;
             }
     
             //
-            // Rule 645:  TypeDeclarationsopt ::= $Empty
+            // Rule 655:  TypeDeclarationsopt ::= $Empty
             //
-            case 645: {
-               //#line 4672 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 655: {
+               //#line 4727 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4672 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4727 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), TopLevelDecl.class, false));
                       break;
             }
     
             //
-            // Rule 647:  ImportDeclarationsopt ::= $Empty
+            // Rule 657:  ImportDeclarationsopt ::= $Empty
             //
-            case 647: {
-               //#line 4679 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 657: {
+               //#line 4734 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4679 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4734 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), Import.class, false));
                       break;
             }
     
             //
-            // Rule 649:  PackageDeclarationopt ::= $Empty
+            // Rule 659:  PackageDeclarationopt ::= $Empty
             //
-            case 649:
+            case 659:
                 setResult(null);
                 break;
 
             //
-            // Rule 651:  ResultTypeopt ::= $Empty
+            // Rule 661:  ResultTypeopt ::= $Empty
             //
-            case 651:
+            case 661:
                 setResult(null);
                 break;
 
             //
-            // Rule 653:  HasResultTypeopt ::= $Empty
+            // Rule 663:  HasResultTypeopt ::= $Empty
             //
-            case 653:
+            case 663:
                 setResult(null);
                 break;
 
             //
-            // Rule 655:  TypeArgumentsopt ::= $Empty
+            // Rule 665:  TypeArgumentsopt ::= $Empty
             //
-            case 655: {
-               //#line 4697 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 665: {
+               //#line 4752 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4697 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4752 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), TypeNode.class, false));
                       break;
             }
     
             //
-            // Rule 657:  TypeParamsWithVarianceopt ::= $Empty
+            // Rule 667:  TypeParamsWithVarianceopt ::= $Empty
             //
-            case 657: {
-               //#line 4704 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 667: {
+               //#line 4759 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4704 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4759 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), TypeParamNode.class, false));
                       break;
             }
     
             //
-            // Rule 659:  Propertiesopt ::= $Empty
+            // Rule 669:  Propertiesopt ::= $Empty
             //
-            case 659: {
-               //#line 4711 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+            case 669: {
+               //#line 4766 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 
-                //#line 4711 "C:/eclipse/workspace/3.5.2/lpg.generator/templates/java/btParserTemplateF.gi"
+                //#line 4766 "/Users/pcharles/IMP-workspace-3.6.0/x10-trunk/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new TypedList(new LinkedList(), PropertyDecl.class, false));
                       break;
             }

@@ -1,7 +1,7 @@
 --
 -- The X10 Lexer
 --
-%Options la=2,list
+%Options la=2,verbose
 %Options fp=X10Lexer
 %options single_productions
 %options package=x10.parser

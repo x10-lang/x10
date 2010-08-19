@@ -39,6 +39,7 @@
 
     import polyglot.types.QName;
     import polyglot.types.Name;
+    import polyglot.ast.AmbTypeNode;
     import polyglot.ast.AmbExpr;
     import polyglot.ast.Assign;
     import polyglot.ast.Binary;
@@ -1017,7 +1018,7 @@ public static class MessageHandler implements IMessageHandler {
               Offersopt,
               MethodBody);
           if (! md.flags().flags().isStatic())
-              syntaxError("Unary operator with two parameters must be static.", md.position());
+              syntaxError("Unary operator with one parameter must be static.", md.position());
           md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(MethodModifiersopt));
           setResult(md);
           $EndJava
@@ -1319,34 +1320,88 @@ public static class MessageHandler implements IMessageHandler {
 --          $EndJava
 --        ./
 
-    NamedType ::= Primary . Identifier TypeArgumentsopt Argumentsopt DepParametersopt 
+    SimpleNamedType ::= TypeName
         /.$BeginJava
-                TypeNode type = nf.AmbTypeNode(pos(), Primary, Identifier);
-                // TODO: place constraint
-                if (DepParametersopt != null || (TypeArgumentsopt != null && ! TypeArgumentsopt.isEmpty()) || (Argumentsopt != null && ! Argumentsopt.isEmpty())) {
-                    type = nf.AmbDepTypeNode(pos(), Primary, Identifier, TypeArgumentsopt, Argumentsopt, DepParametersopt);
-                }
-                setResult(type);
+                setResult(TypeName.toType());
+          $EndJava
+        ./
+                      | Primary . Identifier
+        /.$BeginJava
+                setResult(nf.AmbTypeNode(pos(), Primary, Identifier));
+          $EndJava
+        ./
+                      | DepNamedType . Identifier
+        /.$BeginJava
+                setResult(nf.AmbTypeNode(pos(), DepNamedType, Identifier));
           $EndJava
         ./
 
-    NamedType ::= TypeName TypeArgumentsopt Argumentsopt DepParametersopt 
+    DepNamedType ::= SimpleNamedType DepParameters
         /.$BeginJava
-                TypeNode type;
-                
-                if (TypeName.name.id().toString().equals("void")) {
-                    type = nf.CanonicalTypeNode(pos(), ts.Void());
-                } else {
-                    type = TypeName.toType();
-                }
-                // TODO: place constraint
-                if (DepParametersopt != null || (TypeArgumentsopt != null && ! TypeArgumentsopt.isEmpty()) || (Argumentsopt != null && ! Argumentsopt.isEmpty())) {
-                    type = nf.AmbDepTypeNode(pos(), TypeName.prefix != null ? TypeName.prefix.toPrefix() : null, TypeName.name, TypeArgumentsopt, Argumentsopt, DepParametersopt);
-                }
+                TypeNode type = nf.AmbDepTypeNode(pos(), ((AmbTypeNode) SimpleNamedType).prefix(), ((AmbTypeNode) SimpleNamedType).name(),
+                                                  new TypedList(new LinkedList(), TypeNode.class, false),
+                                                  new TypedList(new LinkedList(), Expr.class, false),
+                                                  DepParameters);
+                setResult(type);
+          $EndJava
+        ./
+                | SimpleNamedType Arguments
+        /.$BeginJava
+                TypeNode type = nf.AmbDepTypeNode(pos(), ((AmbTypeNode) SimpleNamedType).prefix(), ((AmbTypeNode) SimpleNamedType).name(),
+                                                  new TypedList(new LinkedList(), TypeNode.class, false),
+                                                  Arguments,
+                                                  null);
+                setResult(type);
+          $EndJava
+        ./
+                | SimpleNamedType Arguments DepParameters
+        /.$BeginJava
+                TypeNode type = nf.AmbDepTypeNode(pos(), ((AmbTypeNode) SimpleNamedType).prefix(), ((AmbTypeNode) SimpleNamedType).name(),
+                                                  new TypedList(new LinkedList(), TypeNode.class, false),
+                                                  Arguments,
+                                                  DepParameters);
+                setResult(type);
+          $EndJava
+        ./
+                | SimpleNamedType TypeArguments
+        /.$BeginJava
+                TypeNode type = nf.AmbDepTypeNode(pos(), ((AmbTypeNode) SimpleNamedType).prefix(), ((AmbTypeNode) SimpleNamedType).name(),
+                                                  TypeArguments,
+                                                  new TypedList(new LinkedList(), Expr.class, false),
+                                                  null);
+                setResult(type);
+          $EndJava
+        ./
+                | SimpleNamedType TypeArguments DepParameters
+        /.$BeginJava
+                TypeNode type = nf.AmbDepTypeNode(pos(), ((AmbTypeNode) SimpleNamedType).prefix(), ((AmbTypeNode) SimpleNamedType).name(),
+                                                  TypeArguments,
+                                                  new TypedList(new LinkedList(), Expr.class, false),
+                                                  DepParameters);
+                setResult(type);
+          $EndJava
+        ./
+                | SimpleNamedType TypeArguments Arguments
+        /.$BeginJava
+                TypeNode type = nf.AmbDepTypeNode(pos(), ((AmbTypeNode) SimpleNamedType).prefix(), ((AmbTypeNode) SimpleNamedType).name(),
+                                                  TypeArguments,
+                                                  Arguments,
+                                                  null);
+                setResult(type);
+          $EndJava
+        ./
+                | SimpleNamedType TypeArguments Arguments DepParameters
+        /.$BeginJava
+                TypeNode type = nf.AmbDepTypeNode(pos(), ((AmbTypeNode) SimpleNamedType).prefix(), ((AmbTypeNode) SimpleNamedType).name(),
+                                                  TypeArguments,
+                                                  Arguments,
+                                                  DepParameters);
                 setResult(type);
           $EndJava
         ./
         
+    NamedType ::= SimpleNamedType
+                | DepNamedType
         
     DepParameters ::= { ExistentialListopt Conjunctionopt }
          /.$BeginJava
@@ -4720,6 +4775,8 @@ FinishExpression ::= finish ( Expression ) Block
     polyglot.ast.Lit ::= Literal
     TypeNode ::= Type
     TypeNode ::= AnnotatedType
+    TypeNode ::= SimpleNamedType
+    TypeNode ::= DepNamedType
     TypeNode ::= NamedType
     TypeNode ::= ClassType
     TypeNode ::= InterfaceType

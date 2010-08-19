@@ -10,22 +10,17 @@
  */
 
  /**  
- Check that circular dependencies between classes (through fields) are handled correctly
+ Check that circular dependencies between classes are handled correctly
  during TypeElaboration.
+ See CircularField.x10
  
  *@author vj
  *
  */
 
-import harness.x10Test;
-
- public class CircularField(k:int)  extends x10Test { 
-  
-     public def this(k:int):CircularField = { property(k);}
-     val h = new CircularField1(4,4) as CircularField1{i==j} ;
-     public  def run():boolean = true;
-   
-     public static def main(Rail[String]) = {
-	 new CircularField(4).execute();
+ public class CircularField1(i:int, j:int)  {
+     public def this(i:int, j:int):CircularField1{self.i==i,self.j==j} {
+	    property(i,j);
      }
+     var f:CircularField{k==3} = null;
  }
