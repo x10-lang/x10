@@ -44,8 +44,9 @@ public class PositionInvariantChecker extends NodeVisitor
                 (" n=")+(n).toString();
         	}
             job.compiler().errorQueue().enqueue(X10ErrorInfo.INVARIANT_VIOLATION_KIND,msg,n.position());
+        } else {
+            n.del().visitChildren(this); // if there is an error, I don't recurse to the children
         }
-        n.del().visitChildren(this); // if there is an error, I don't recurse to the children
         return n;
     }
     private String checkInvariants(Node parent, Node n) {
