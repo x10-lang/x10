@@ -25,20 +25,37 @@
 		
 	</path>
 
-	<target name="test" depends="init,build">
+	<target name="test" depends="quicktest,report"/>
+	<target name="alltests" depends="quicktest,slowtest,report"/>
+	<target name="report" depends="init,build">
+		<junitreport todir="${report}">
+			<fileset dir="${report}">
+				<include name="TEST-*.xml"/>
+			</fileset>
+			<report format="frames" todir="${report.html}"/>
+		</junitreport>
+	</target>
+	<target name="quicktest" depends="init,build">
 		<junit>
 			<classpath refid="classpath.test" />
 			<formatter type="xml" usefile="true" />
 			<test name="org.eclipse.imp.x10dt.core.tests.compiler.CompilerTests" todir="${report}"/>
 			<test name="org.eclipse.imp.x10dt.core.tests.compiler.CompletenessCompilerTests" todir="${report}" />
-					
 		</junit>
-		<junitreport todir="${report}">
-		  <fileset dir="${report}">
-		    <include name="TEST-*.xml"/>
-		  </fileset>
-		  <report format="frames" todir="${report.html}"/>
-		</junitreport>
+	</target>
+	<target name="slowtest" depends="init,build,fuzzgen">
+		<junit>
+			<classpath refid="classpath.test" />
+			<formatter type="xml" usefile="true" />
+			<test name="org.eclipse.imp.x10dt.core.tests.compiler.DataParamCompilerTests" todir="${report}" />
+			<test name="org.eclipse.imp.x10dt.core.tests.compiler.FuzzParamCompilerTests" todir="${report}" />
+			<test name="org.eclipse.imp.x10dt.core.tests.compiler.X10TestsParamCompilerTests" todir="${report}" />
+		</junit>
+	</target>
+	<target name="fuzzgen">
+		<java class="org.eclipse.imp.x10dt.core.tests.compiler.FuzzParamCompilerTests">
+			<classpath refid="classpath.test" />
+		</java>
 	</target>
 	<target name="build" depends="init">
 		<javac destdir="${tst-dir}" source="1.5" target="1.5" debug="on" excludes="org/eclipse/imp/x10dt/core/tests/builder/**">
@@ -48,6 +65,11 @@
 	</target>
 	<target name="init">
 		<mkdir dir="${report}"/>
+		<delete>
+			<fileset dir="${report}">
+				<include name="TEST-*.xml"/>
+			</fileset>
+		</delete>
 		<mkdir dir="${tst-dir}"/>
 	</target>
 
