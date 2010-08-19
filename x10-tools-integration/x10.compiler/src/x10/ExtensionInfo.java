@@ -345,9 +345,12 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 		   super(extInfo);
 	   }
 
-       public List<Goal> goals(Job job) {
+       protected List<Goal> validateOnlyGoals(Job job) {
            List<Goal> goals = new ArrayList<Goal>();
-
+           addValidateOnlyGoals(job, goals);
+           return goals;
+       }
+       private void addValidateOnlyGoals(Job job, List<Goal> goals) {
            goals.add(Parsed(job));
            goals.add(TypesInitialized(job));
            goals.add(ImportTableInitialized(job));
@@ -365,9 +368,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(PreTypeCheck(job));
            goals.add(TypesInitializedForCommandLineBarrier());
 
-           Goal typeCheckedGoal = TypeChecked(job);
-           goals.add(typeCheckedGoal);
-
+           goals.add(TypeChecked(job));
 
            goals.add(ReassembleAST(job));
            
@@ -386,10 +387,15 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(CheckASTForErrors(job));
 //           goals.add(TypeCheckBarrier());
 
+           goals.add(End(job));
+       }
+       public List<Goal> goals(Job job) {
+           List<Goal> goals = new ArrayList<Goal>();
 
-           if (x10.Configuration.ONLY_TYPE_CHECKING) {
-               goals.add(End(job));
-           } else {
+           addValidateOnlyGoals(job, goals);
+           Goal endGoal = goals.remove(goals.size()-1);
+
+           if (!x10.Configuration.ONLY_TYPE_CHECKING) {
 
            goals.add(X10Casted(job));
            goals.add(MoveFieldInitializers(job));
@@ -416,7 +422,6 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                goals.add(ExpressionFlattener(job));
            }
            goals.add(CodeGenerated(job));
-           goals.add(End(job));
            
            InnerClassRemover(job).addPrereq(Serialized(job));
            InnerClassRemover(job).addPrereq(TypeCheckBarrier());
@@ -435,6 +440,8 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
            }
 
+           goals.add(endGoal);
+
            if (x10.Configuration.CHECK_INVARIANTS) {
                ArrayList<Goal> newGoals = new ArrayList<Goal>(goals.size()*2);
                boolean reachedTypeChecking = false;
@@ -442,14 +449,14 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                    newGoals.add(g);
                    if (!reachedTypeChecking)
                        newGoals.add(new VisitorGoal("PositionInvariantChecker", job, new PositionInvariantChecker(job, g.name())));
-                   if (g==typeCheckedGoal) {
+                   if (g==TypeChecked(job)) {
                        newGoals.add(new VisitorGoal("InstanceInvariantChecker", job, new InstanceInvariantChecker(job)));
                        reachedTypeChecking = true;
                    }
                }
                goals = newGoals;
            }
-       
+
            return goals;
        }
        

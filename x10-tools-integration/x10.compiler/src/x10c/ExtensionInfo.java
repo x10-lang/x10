@@ -45,6 +45,9 @@ public class ExtensionInfo extends x10.ExtensionInfo {
         return new X10CTypeSystem_c();
     }
 
+//    public static final boolean PREPARE_FOR_INLINING = x10.Configuration.INLINE_OPTIMIZATIONS;
+    public static final boolean PREPARE_FOR_INLINING = true;
+
     static class X10CScheduler extends X10Scheduler {
         public X10CScheduler(ExtensionInfo extInfo) {
             super(extInfo);
@@ -58,7 +61,7 @@ public class ExtensionInfo extends x10.ExtensionInfo {
             CastsRemoved(job).addPrereq(JavaCaster(job));
             RailInLoopOptimizer(job).addPrereq(CastsRemoved(job));
             SharedBoxed(job).addPrereq(RailInLoopOptimizer(job));
-            if (x10.Configuration.INLINE_OPTIMIZATIONS) {
+            if (PREPARE_FOR_INLINING) {
                 InlineHelped(job).addPrereq(SharedBoxed(job));
             }
             CodeGenerated(job).addPrereq(Desugarer(job));
@@ -67,7 +70,7 @@ public class ExtensionInfo extends x10.ExtensionInfo {
             CodeGenerated(job).addPrereq(CastsRemoved(job));
             CodeGenerated(job).addPrereq(RailInLoopOptimizer(job));
             CodeGenerated(job).addPrereq(SharedBoxed(job));
-            if (x10.Configuration.INLINE_OPTIMIZATIONS) {
+            if (PREPARE_FOR_INLINING) {
                 CodeGenerated(job).addPrereq(InlineHelped(job));
             }
             return goals;
