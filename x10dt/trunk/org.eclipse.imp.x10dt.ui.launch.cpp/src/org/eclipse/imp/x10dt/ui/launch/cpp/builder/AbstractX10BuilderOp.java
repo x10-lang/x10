@@ -167,7 +167,12 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
     monitor.beginTask(null, this.fCppFiles.size());
     monitor.subTask(Messages.CPPB_RemoteCompilTaskName);
         
+    boolean succeeded = true;
     try {
+      final MessageConsole messageConsole = UIUtils.findOrCreateX10Console();
+      messageConsole.clearConsole();
+      final MessageConsoleStream mcStream = messageConsole.newMessageStream();
+
       for (final Map.Entry<String, String> entry : this.fCppFiles.entrySet()) {
         final String file = entry.getValue();
         final String extension = file.substring(file.lastIndexOf('.'));
@@ -185,9 +190,6 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
         command.add("-o"); //$NON-NLS-1$
         command.add(objectFile);
           
-        final MessageConsole messageConsole = UIUtils.findOrCreateX10Console();
-        messageConsole.clearConsole();
-        final MessageConsoleStream mcStream = messageConsole.newMessageStream();
         final StringBuilder cmdBuilder = new StringBuilder();
         for (final String str : command) {
           cmdBuilder.append(str).append(' ');
@@ -210,13 +212,14 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
           int fCounter;
           
         });
-                
+
         monitor.worked(1);
         
         if (returnCode != 0) {
+          succeeded = false;
+          mcStream.println();
           IResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.CPPB_CompilErrorMsg, getFileName(entry.getKey())), 
                                           IMarker.SEVERITY_ERROR, entry.getKey(), IMarker.PRIORITY_HIGH);
-          return false;
         }
       }
     } catch (IOException except) {
@@ -231,7 +234,7 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
     } finally {
       monitor.done();
     }
-    return true;
+    return succeeded;
   }
   
   public final void copyToOutputDir(final Collection<IFile> files, final SubMonitor monitor) throws CoreException {
