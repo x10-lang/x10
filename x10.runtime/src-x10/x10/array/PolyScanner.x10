@@ -55,7 +55,7 @@ import x10.io.*;
  *     minSum[1] = B+A0*X0
  *     ...
  *     minSum[k] = B+A0*X0+A1*X1+...+Ak-1*Xk-1
-z *
+ *
  * (and similiarly for maxSum) and updating each partial sum
  * minSum[i+1] (and similarly for maxSum[i+1]) every time Xi changes
  * by
@@ -64,10 +64,7 @@ z *
  *
  * The loop bounds for Xk are then obtained by computing mins and
  * maxes over the sum[k]/Ak for the halfspaces in elim[k].
- *
- * @author bdlucas
  */
-
 final public class PolyScanner(rank:Int)/*(C:PolyMat)*/ implements Region.Scanner {
 
      public val C: PolyMat;
