@@ -308,10 +308,11 @@ public class X10Disamb_c extends Disamb_c {
 
 	    try {
 	    Position prefixPos = pos.startOf().markCompilerGenerated();
-        if (fi.flags().isStatic() || cur.flags().isStatic()) {
+        if (fi.flags().isStatic()) {
 	        r = nf.CanonicalTypeNode(prefixPos, fi.container());
 	    } else {
-	        // The field is non-static (and the class is not static), so we must prepend with
+
+	        // The field is non-static, so we must prepend with
 	        // "this", but we need to determine if the "this"
 	        // should be qualified.  Get the enclosing class which
 	        // brought the field into scope.  This is different
@@ -319,7 +320,9 @@ public class X10Disamb_c extends Disamb_c {
 	        // type of the class we want.
 
 	        ClassType scope = c.findFieldScope(fi.name());
-	        if (c.inSuperTypeDeclaration()) {
+            if (cur.flags().isStatic()) { // The class is an inner static class
+                scope = cur;
+            } else if (c.inSuperTypeDeclaration()) {
 	            cur = c.supertypeDeclarationType().asType();
 	            scope = cur;
 	        }
