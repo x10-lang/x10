@@ -53,15 +53,18 @@ public class PositionInvariantChecker extends NodeVisitor
         if (n == null) return "Cannot visit null";
         Position pPos = parent.position();
         Position nPos = n.position();
-        if ((pPos == null) || (nPos == null)) return "Positions must never be null";
+        if ((pPos == null) || (nPos == null))
+            return "Positions must never be null";
         if (nPos.isCompilerGenerated()) return null;
         if (pPos.isCompilerGenerated()) {
             //myAssert(nPos.isCompilerGenerated()) : "If your parent is COMPILER_GENERATED, then you must be COMPILER_GENERATED";
             // todo: take from some ancestor
             return null;
         }
-        if (!(equals(pPos.file(), nPos.file()))) return "Positions must have the same file";
-        if (!(equals(pPos.path(), nPos.path()))) return "Positions must have the same path";
+        if (!(equals(pPos.file(), nPos.file())))
+            return "Positions must have the same file";
+        if (!(equals(pPos.path(), nPos.path())))
+            return "Positions must have the same path";
 
         /*
         todo: remove this.
@@ -106,8 +109,10 @@ public class PositionInvariantChecker extends NodeVisitor
     }
 
     public String checkNumbers(int pNum, int nNum, boolean isBeginning) {
-        if (nNum<0 || pNum<0) return "We have unknown numbers";
-        if (isBeginning ? pNum>nNum : pNum<nNum) return "Illegal containment of positions";
+        if (nNum<0 || pNum<0)
+            return "We have unknown numbers";
+        if (isBeginning ? pNum>nNum : pNum<nNum)
+            return "Illegal containment of positions";
         return null;
     }
 
