@@ -280,7 +280,7 @@ public class CompilerTests extends CompilerTestsBase {
 					 }
 					 return super.enterCall(node);
 				 }
-			});
+			}.begin());
 		}
 	}
 	@Test
@@ -299,14 +299,14 @@ public class CompilerTests extends CompilerTestsBase {
 		jira1551_check(jobs);
 	}
 	
-	@Test(timeout=1000)
+	@Test(timeout=10000)
 	public void jira1543_static_calls() throws Exception {
 		String[] sources = {"List.x10"};
 		compile(sources, STATIC_CALLS, new ArrayList<ErrorInfo>());
 	}
 	
 	
-	@Test(timeout=1000)
+	@Test(timeout=10000)
 	public void jira1543_not_static_calls() throws Exception {
 		String[] sources = {"List.x10"};
 		compile(sources, NOT_STATIC_CALLS, new ArrayList<ErrorInfo>());

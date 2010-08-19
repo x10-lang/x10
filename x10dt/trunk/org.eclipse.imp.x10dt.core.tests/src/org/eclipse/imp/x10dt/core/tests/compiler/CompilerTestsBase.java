@@ -115,7 +115,7 @@ public class CompilerTestsBase {
 			Assert.assertFalse("INTERNAL ERROR: "+getTestId(sources, options) + error.getMessage(), internalError(error));
 			Assert.assertFalse("WELL-FORMEDNESS: "+getTestId(sources, options) + error.getMessage(), notWellFormed(error));
 		}
-		Assert.assertFalse(getTestId(sources, options), duplicateErrors(errors));
+		Assert.assertFalse("DUPLICATE: "+getTestId(sources, options), duplicateErrors(errors));
 		return errors.isEmpty();
 	}
 	
@@ -176,7 +176,7 @@ public class CompilerTestsBase {
 	}
 	
 	private String getErrorString(ErrorInfo e){
-		return e.toString() + e.getPosition()==null?"":":" + e.getPosition();
+		return e.toString() + (e.getPosition()==null ? "" : (":" + e.getPosition()));
 	}
 	
 	
