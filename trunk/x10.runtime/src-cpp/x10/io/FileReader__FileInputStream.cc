@@ -15,14 +15,6 @@ using namespace x10aux;
 using namespace x10::lang;
 using namespace x10::io;
 
-static FileReader__FileInputStream* _STANDARD_IN_cache = NULL;
-x10aux::ref<FileReader__FileInputStream> FileReader__FileInputStream::STANDARD_IN()
-{
-	if (NULL == _STANDARD_IN_cache)
-		_STANDARD_IN_cache = new (x10aux::alloc<FileReader__FileInputStream>()) FileReader__FileInputStream(stdin);
-    return _STANDARD_IN_cache;
-}
-
 x10aux::ref<FileReader__FileInputStream>
 FileReader__FileInputStream::_make(x10aux::ref<x10::lang::String> name) {
     ref<FileReader__FileInputStream> this_ = new (x10aux::alloc<FileReader__FileInputStream>()) FileReader__FileInputStream (x10aux::io::FILEPtrStream::open_file(name, "r"));
