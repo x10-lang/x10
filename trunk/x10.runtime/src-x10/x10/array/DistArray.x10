@@ -406,9 +406,9 @@ public class DistArray[T] (
             // XXX EmptyLayout class?
             val min = ValRail.make[int](r.rank, (Int)=>0);
             val max = ValRail.make[int](r.rank, (Int)=>-1);
-            return new RectLayout(min, max);
+            return RectLayout(min, max);
         } else {
-            return new RectLayout(r.min(), r.max());
+            return RectLayout(r.min(), r.max());
         }
     }
 
