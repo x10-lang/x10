@@ -413,7 +413,7 @@ public class Inliner extends ContextVisitor {
      */
     public Expr createCast(Position pos, Expr expr, Type toType) {
         if (xts.typeDeepBaseEquals(expr.type(), toType, context())) return expr;
-       return xnf.X10Cast(pos, xnf.CanonicalTypeNode(pos, toType), expr, Converter.ConversionType.UNCHECKED ).type(toType);
+       return xnf.X10Cast(pos, xnf.CanonicalTypeNode(pos, toType), expr, Converter.ConversionType.CHECKED ).type(toType);
     }
 
     private LocalDecl createThisArg(X10Call c) {
