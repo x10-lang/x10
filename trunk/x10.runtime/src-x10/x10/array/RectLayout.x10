@@ -19,7 +19,6 @@ import x10.compiler.Inline;
  * region. It provides efficient access but wastes storage for
  * non-rectangular regions.
  *
- * @author bdlucas
  */
 final class RectLayout(rank: int) {
 

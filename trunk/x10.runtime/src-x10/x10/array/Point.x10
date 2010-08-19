@@ -20,9 +20,6 @@ import x10.util.Ordered;
  * <code>p(i)</code> because <code>Point</code> implements
  * <code>(Int)=>int</code>. The coordinates may also be accessed as a
  * Rail[int]. Point arithmetic is supported.
- *
- * @author bdlucas
- * @author vj
  */
 final public class Point(rank: Int) implements (Int) => Int, Ordered[Point(rank)] {
 

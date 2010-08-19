@@ -22,8 +22,6 @@ import x10.util.IndexedMemoryChunk;
 /**
  * This class represents an array with raw chunk in each place,
  * initialized at its place of access via a PlaceLocalHandle.
- *
- * @author bdlucas
  */
 public class DistArray[T] (
     /**

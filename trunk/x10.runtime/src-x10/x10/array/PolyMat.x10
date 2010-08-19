@@ -22,10 +22,7 @@ import x10.io.Printer;
  * the PolyMat, or equivalently, as the set of points satisfying the
  * conjunction of the linear inequalities represented by each PolyRow
  * object.
- *
- * @author bdlucas
  */
-
 public class PolyMat(rank: int) extends Mat[PolyRow] {
 
     static type PolyMat(rank:Int) = PolyMat{self.rank==rank};
