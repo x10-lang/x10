@@ -35,7 +35,7 @@ import org.eclipse.imp.x10dt.ui.launch.core.Constants;
 import org.eclipse.imp.x10dt.ui.launch.core.builder.target_op.ITargetOpHelper;
 import org.eclipse.imp.x10dt.ui.launch.core.builder.target_op.TargetOpHelperFactory;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.ETargetOS;
-import org.eclipse.imp.x10dt.ui.launch.core.utils.IResourceUtils;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.CoreResourceUtils;
 import org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IConnectionConf;
@@ -161,7 +161,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
           if (project.exists()) {
             this.fX10PlatformConf = CppLaunchCore.getInstance().getPlatformConfiguration(project);
             if (this.fX10PlatformConf != null) {
-            	final int errors = IResourceUtils.getNumberOfPlatformConfErrorMarkers(X10PlatformConfFactory.getFile(project));
+            	final int errors = CoreResourceUtils.getNumberOfPlatformConfErrorMarkers(X10PlatformConfFactory.getFile(project));
             	if (errors == 0) {
             		for (final ICppApplicationTabListener listener : this.fTabListeners) {
             			listener.platformConfSelected(this.fX10PlatformConf);
@@ -208,7 +208,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
           return false;
         }
         // Project exists and is not closed. Checks now that it does not have platform configuration error.
-    		final int errorCount = IResourceUtils.getNumberOfPlatformConfErrorMarkers(X10PlatformConfFactory.getFile(project));
+    		final int errorCount = CoreResourceUtils.getNumberOfPlatformConfErrorMarkers(X10PlatformConfFactory.getFile(project));
       	if (errorCount > 0) {
       		setErrorMessage(NLS.bind(LaunchMessages.CAT_FixPlatformConfErrors, project.getName()));
       		return false;
@@ -400,7 +400,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
         if (name.length() > 0) {
           final IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(name);
           if (project.exists() && project.hasNature(CppLaunchCore.X10_CPP_PRJ_NATURE_ID)) {
-          	final int errorCount = IResourceUtils.getNumberOfPlatformConfErrorMarkers(X10PlatformConfFactory.getFile(project));
+          	final int errorCount = CoreResourceUtils.getNumberOfPlatformConfErrorMarkers(X10PlatformConfFactory.getFile(project));
           	if (errorCount == 0) {
           		CppApplicationTab.this.fX10PlatformConf = CppLaunchCore.getInstance().getPlatformConfiguration(project);
           		for (final ICppApplicationTabListener listener : CppApplicationTab.this.fTabListeners) {

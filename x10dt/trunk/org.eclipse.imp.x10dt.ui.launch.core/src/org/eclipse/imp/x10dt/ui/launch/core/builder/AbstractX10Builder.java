@@ -48,7 +48,7 @@ import org.eclipse.imp.x10dt.ui.launch.core.utils.CollectionUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.CountableIterableFactory;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.IFilter;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.IFunctor;
-import org.eclipse.imp.x10dt.ui.launch.core.utils.IResourceUtils;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.CoreResourceUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.IdentityFunctor;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.ProjectUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.UIUtils;
@@ -131,8 +131,8 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       
       final IX10BuilderFileOp x10BuilderOp = createX10BuilderFileOp();
       if (! x10BuilderOp.hasAllPrerequisites()) {
-        IResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.AXB_IncompleteConfMsg, getProject().getName()), 
-                                        IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
+        CoreResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.AXB_IncompleteConfMsg, getProject().getName()), 
+                                           IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
         UIUtils.showProblemsView();
         return null;
       }
@@ -194,8 +194,8 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       this.fDependencyInfo.clearAllDependencies();
       final IX10BuilderFileOp x10BuilderOp = createX10BuilderFileOp();
       if (! x10BuilderOp.hasAllPrerequisites()) {
-        IResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.AXB_IncompleteConfMsg, getProject().getName()), 
-                                        IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
+        CoreResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.AXB_IncompleteConfMsg, getProject().getName()), 
+                                           IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
         UIUtils.showProblemsView();
       }
       cleanFiles(CLEAN_BUILD, SubMonitor.convert(monitor), new HashSet<IFile>(), new HashSet<IFile>(), 
@@ -218,9 +218,9 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
   
   private void clearMarkers(final Collection<IFile> sourcesToCompile) {
     for (final IFile file : sourcesToCompile) {
-      IResourceUtils.deleteBuildMarkers(file);
+      CoreResourceUtils.deleteBuildMarkers(file);
     }
-    IResourceUtils.deleteBuildMarkers(getProject());
+    CoreResourceUtils.deleteBuildMarkers(getProject());
   }
   
   private void collectSourceFilesToCompile(final Collection<IFile> sourcesToCompile, final Collection<IFile> nativeFiles,

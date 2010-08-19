@@ -15,7 +15,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.imp.x10dt.ui.launch.core.LaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.core.Messages;
-import org.eclipse.imp.x10dt.ui.launch.core.utils.IResourceUtils;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.CoreResourceUtils;
 import org.eclipse.osgi.util.NLS;
 
 import polyglot.util.AbstractErrorQueue;
@@ -42,8 +42,8 @@ final class X10ErrorQueue extends AbstractErrorQueue implements ErrorQueue {
       final IPath filePath = new Path(position.file());
       final String workspaceRelatedPath = filePath.removeFirstSegments(rootPath.segmentCount()).makeAbsolute().toString();
       final IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(workspaceRelatedPath));
-      IResourceUtils.addBuildMarkerTo(file, error.getMessage(), severity, position.file(), IMarker.PRIORITY_NORMAL, 
-                                      position.line(), position.offset(), position.endOffset());
+      CoreResourceUtils.addBuildMarkerTo(file, error.getMessage(), severity, position.file(), IMarker.PRIORITY_NORMAL, 
+                                         position.line(), position.offset(), position.endOffset());
     }
   }
   

@@ -20,7 +20,7 @@ import org.eclipse.imp.x10dt.ui.launch.core.Constants;
 import org.eclipse.imp.x10dt.ui.launch.core.LaunchImages;
 import org.eclipse.imp.x10dt.ui.launch.core.dialogs.DialogsFactory;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EValidationStatus;
-import org.eclipse.imp.x10dt.ui.launch.core.utils.IResourceUtils;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.CoreResourceUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.SWTFormUtils;
 import org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchImages;
@@ -941,7 +941,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
   
   private void validateRemoteHostConnection(final IConnectionInfo connectionInfo) {
   	if (connectionInfo == this.fCurrentConnection) {
-  		IResourceUtils.deletePlatformConfMarkers(((IFileEditorInput) getFormPage().getEditorInput()).getFile());
+  		CoreResourceUtils.deletePlatformConfMarkers(((IFileEditorInput) getFormPage().getEditorInput()).getFile());
   	}
   	
     final IX10PlatformValidationListener validationListener = new ConnectionInfoValidationListener(connectionInfo);

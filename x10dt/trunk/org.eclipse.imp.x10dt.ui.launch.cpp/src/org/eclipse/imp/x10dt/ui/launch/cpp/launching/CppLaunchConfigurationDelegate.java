@@ -40,7 +40,7 @@ import org.eclipse.imp.x10dt.ui.launch.core.builder.target_op.ITargetOpHelper;
 import org.eclipse.imp.x10dt.ui.launch.core.builder.target_op.TargetOpHelperFactory;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.ETargetOS;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.IProcessOuputListener;
-import org.eclipse.imp.x10dt.ui.launch.core.utils.IResourceUtils;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.CoreResourceUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.UIUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.X10BuilderUtils;
 import org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchCore;
@@ -311,8 +311,8 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
       });
       
       if (returnCode != 0) {
-        IResourceUtils.addPlatformConfMarker(X10PlatformConfFactory.getFile(project), LaunchMessages.CLCD_LinkCmdError, 
-                                             IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
+        CoreResourceUtils.addPlatformConfMarker(X10PlatformConfFactory.getFile(project), LaunchMessages.CLCD_LinkCmdError, 
+                                                IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
       }
       
       return returnCode;
@@ -456,11 +456,11 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
   }
   
   private boolean shouldProcessToLinkStep(final IProject project) {
-  	int errorCount = IResourceUtils.getNumberOfBuildErrorMarkers(project);
+  	int errorCount = CoreResourceUtils.getNumberOfBuildErrorMarkers(project);
   	String message = (errorCount == 0) ? null : NLS.bind(LaunchMessages.CLCD_FoundErrorMarkers, errorCount,
   	                                                     project.getName());
   	if (message == null) {
-  	  errorCount = IResourceUtils.getNumberOfPlatformConfErrorMarkers(X10PlatformConfFactory.getFile(project));
+  	  errorCount = CoreResourceUtils.getNumberOfPlatformConfErrorMarkers(X10PlatformConfFactory.getFile(project));
   	  message = (errorCount == 0) ? null : NLS.bind(LaunchMessages.CLCD_FoundPlatformConfErrors, errorCount, 
   	                                                project.getName());
   	}

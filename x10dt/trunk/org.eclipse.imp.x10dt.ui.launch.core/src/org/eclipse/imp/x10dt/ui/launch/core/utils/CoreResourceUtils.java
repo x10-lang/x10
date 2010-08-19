@@ -25,7 +25,7 @@ import org.eclipse.imp.x10dt.ui.launch.core.LaunchCore;
  * 
  * @author egeay
  */
-public final class IResourceUtils {
+public final class CoreResourceUtils {
 	
   /**
    * Adds an X10 Problem marker to the resource and the different characteristics provided.

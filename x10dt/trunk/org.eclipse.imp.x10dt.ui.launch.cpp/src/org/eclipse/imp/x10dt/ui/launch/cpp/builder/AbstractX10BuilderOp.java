@@ -46,7 +46,7 @@ import org.eclipse.imp.x10dt.ui.launch.core.builder.target_op.TargetOpHelperFact
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.ETargetOS;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.ICountableIterable;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.IProcessOuputListener;
-import org.eclipse.imp.x10dt.ui.launch.core.utils.IResourceUtils;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.CoreResourceUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.UIUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.X10BuilderUtils;
 import org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchCore;
@@ -113,17 +113,17 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
       });
     
       if (returnCode != 0) {
-        IResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.CPPB_LibCreationError, archiveCmd), 
-                                        IMarker.SEVERITY_ERROR,
-                                        getProject().getFullPath().toString(), IMarker.PRIORITY_HIGH);
+        CoreResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.CPPB_LibCreationError, archiveCmd), 
+                                           IMarker.SEVERITY_ERROR,
+                                           getProject().getFullPath().toString(), IMarker.PRIORITY_HIGH);
       }
     } catch (IOException except) {
-      IResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.CPPB_TargetOpError, this.fConfName), 
-                                      IMarker.SEVERITY_ERROR, getProject().getLocation().toString(), IMarker.PRIORITY_HIGH);
+      CoreResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.CPPB_TargetOpError, this.fConfName), 
+                                         IMarker.SEVERITY_ERROR, getProject().getLocation().toString(), IMarker.PRIORITY_HIGH);
       LaunchCore.log(IStatus.ERROR, NLS.bind(Messages.CPPB_TargetOpError, this.fConfName), except);
     } catch (InterruptedException except) {
-      IResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.CPPB_CancelOpMsg, this.fConfName), 
-                                      IMarker.SEVERITY_WARNING, getProject().getLocation().toString(), IMarker.PRIORITY_LOW);
+      CoreResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.CPPB_CancelOpMsg, this.fConfName), 
+                                         IMarker.SEVERITY_WARNING, getProject().getLocation().toString(), IMarker.PRIORITY_LOW);
     } finally {
       monitor.done();
     }
@@ -218,18 +218,18 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
         if (returnCode != 0) {
           succeeded = false;
           mcStream.println();
-          IResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.CPPB_CompilErrorMsg, getFileName(entry.getKey())), 
-                                          IMarker.SEVERITY_ERROR, entry.getKey(), IMarker.PRIORITY_HIGH);
+          CoreResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.CPPB_CompilErrorMsg, getFileName(entry.getKey())), 
+                                             IMarker.SEVERITY_ERROR, entry.getKey(), IMarker.PRIORITY_HIGH);
         }
       }
     } catch (IOException except) {
-      IResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.CPPB_TargetOpError, this.fConfName), 
-                                      IMarker.SEVERITY_ERROR, getProject().getLocation().toString(), IMarker.PRIORITY_HIGH);
+      CoreResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.CPPB_TargetOpError, this.fConfName), 
+                                         IMarker.SEVERITY_ERROR, getProject().getLocation().toString(), IMarker.PRIORITY_HIGH);
       LaunchCore.log(IStatus.ERROR, NLS.bind(Messages.CPPB_TargetOpError, this.fConfName), except);
       return false;
     } catch (InterruptedException except) {
-      IResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.CPPB_CancelOpMsg, this.fConfName), 
-                                      IMarker.SEVERITY_WARNING, getProject().getLocation().toString(), IMarker.PRIORITY_LOW);
+      CoreResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.CPPB_CancelOpMsg, this.fConfName), 
+                                         IMarker.SEVERITY_WARNING, getProject().getLocation().toString(), IMarker.PRIORITY_LOW);
       return false;
     } finally {
       monitor.done();

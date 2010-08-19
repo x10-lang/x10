@@ -35,7 +35,7 @@ import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.ETargetOS;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EValidationStatus;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.CodingUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.EnumUtils;
-import org.eclipse.imp.x10dt.ui.launch.core.utils.IResourceUtils;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.CoreResourceUtils;
 import org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
 import org.eclipse.imp.x10dt.ui.launch.cpp.editors.EOpenMPIVersion;
@@ -390,8 +390,8 @@ class X10PlatformConf implements IX10PlatformConf {
     final String ciType = getTextDataValue(ciMemento, SERVICE_TYPE_ID_TAG);
     final AbstractCommunicationInterfaceConfiguration ciConf = this.fCommInterfaceFact.getOrCreate(ciType);
     if (ciConf == null) {
-      IResourceUtils.addPlatformConfMarker(file, LaunchMessages.XPC_CITypeNotSupported, 
-                                           IMarker.SEVERITY_ERROR, IMarker.PRIORITY_NORMAL);
+      CoreResourceUtils.addPlatformConfMarker(file, LaunchMessages.XPC_CITypeNotSupported, 
+                                              IMarker.SEVERITY_ERROR, IMarker.PRIORITY_NORMAL);
     } else {
       this.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
       ciConf.fServiceModeId = getTextDataValue(ciMemento, SERVICE_MODE_ID_TAG);

@@ -32,7 +32,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.imp.x10dt.ui.launch.core.utils.IResourceUtils;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.CoreResourceUtils;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.X10PlatformConfFactory;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.validation.IX10PlatformChecker;
@@ -298,7 +298,7 @@ public class CppLaunchCore extends AbstractUIPlugin implements IResourceChangeLi
         safeRunForMarkers(file, new NullProgressMonitor(), new IWorkspaceRunnable() {
 
           public void run(final IProgressMonitor localMonitor) throws CoreException {
-            IResourceUtils.deletePlatformConfMarkers(file);
+            CoreResourceUtils.deletePlatformConfMarkers(file);
           }
 
         });
@@ -340,9 +340,9 @@ public class CppLaunchCore extends AbstractUIPlugin implements IResourceChangeLi
       safeRunForMarkers(this.fPlatformConfFile, new NullProgressMonitor(), new IWorkspaceRunnable() {
 
         public void run(final IProgressMonitor localMonitor) throws CoreException {
-          IResourceUtils.addPlatformConfMarker(CommunicationInterfaceListener.this.fPlatformConfFile,
-                                               NLS.bind(LaunchMessages.XPCFE_DiscoveryCmdFailedMarkerMsg, message),
-                                               IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
+          CoreResourceUtils.addPlatformConfMarker(CommunicationInterfaceListener.this.fPlatformConfFile,
+                                                  NLS.bind(LaunchMessages.XPCFE_DiscoveryCmdFailedMarkerMsg, message),
+                                                  IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
         }
 
       });
@@ -361,10 +361,10 @@ public class CppLaunchCore extends AbstractUIPlugin implements IResourceChangeLi
       safeRunForMarkers(this.fPlatformConfFile, new NullProgressMonitor(), new IWorkspaceRunnable() {
 
         public void run(final IProgressMonitor localMonitor) throws CoreException {
-          IResourceUtils.addPlatformConfMarker(CommunicationInterfaceListener.this.fPlatformConfFile,
-                                               NLS.bind(LaunchMessages.XPCFE_RemoteConnFailureMarkerMsg,
-                                                        exception.getMessage()), IMarker.SEVERITY_ERROR, 
-                                                        IMarker.PRIORITY_HIGH);
+          CoreResourceUtils.addPlatformConfMarker(CommunicationInterfaceListener.this.fPlatformConfFile,
+                                                  NLS.bind(LaunchMessages.XPCFE_RemoteConnFailureMarkerMsg,
+                                                           exception.getMessage()), IMarker.SEVERITY_ERROR, 
+                                                           IMarker.PRIORITY_HIGH);
         }
 
       });

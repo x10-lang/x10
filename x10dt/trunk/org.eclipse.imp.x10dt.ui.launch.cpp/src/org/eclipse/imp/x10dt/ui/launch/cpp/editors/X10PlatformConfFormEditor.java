@@ -27,7 +27,7 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.imp.x10dt.ui.launch.core.Constants;
 import org.eclipse.imp.x10dt.ui.launch.core.dialogs.DialogsFactory;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EValidationStatus;
-import org.eclipse.imp.x10dt.ui.launch.core.utils.IResourceUtils;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.CoreResourceUtils;
 import org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchImages;
 import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
@@ -107,9 +107,9 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
 
 	public void platformCommunicationInterfaceValidationFailure(final String message) {
 		this.fValidateAction.setImageDescriptor(this.fInvalidPlatformImg);
-		IResourceUtils.addPlatformConfMarker(((IFileEditorInput) getEditorInput()).getFile(), 
-                                         NLS.bind(LaunchMessages.XPCFE_DiscoveryCmdFailedMarkerMsg, Constants.EMPTY_STR),
-                                         IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
+		CoreResourceUtils.addPlatformConfMarker(((IFileEditorInput) getEditorInput()).getFile(), 
+                                            NLS.bind(LaunchMessages.XPCFE_DiscoveryCmdFailedMarkerMsg, Constants.EMPTY_STR),
+                                            IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
     DialogsFactory.createErrorBuilder().setDetailedMessage(message)
     					    .createAndOpen(getSite(), LaunchMessages.XPCFE_CommInterfaceFailure, 
     					                   LaunchMessages.XPCFE_DiscoveryCmdDialogMsg);
@@ -122,9 +122,9 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
   public void platformCppCompilationValidationFailure(final String message) {
     this.fValidateAction.setImageDescriptor(this.fInvalidPlatformImg);
     final String failureMessage = getCurrentPlatformConf().getCppCompilationConf().getValidationErrorMessage();
-    IResourceUtils.addPlatformConfMarker(((IFileEditorInput) getEditorInput()).getFile(), 
-                                         LaunchMessages.XPCFE_ValidationFailureDlgMsg, IMarker.SEVERITY_ERROR, 
-                                         IMarker.PRIORITY_HIGH);
+    CoreResourceUtils.addPlatformConfMarker(((IFileEditorInput) getEditorInput()).getFile(), 
+                                            LaunchMessages.XPCFE_ValidationFailureDlgMsg, IMarker.SEVERITY_ERROR, 
+                                            IMarker.PRIORITY_HIGH);
     DialogsFactory.createErrorBuilder().setDetailedMessage(failureMessage)
                   .createAndOpen(getSite(), LaunchMessages.XPCFE_ValidationFailureDlgTitle, 
                                  LaunchMessages.XPCFE_ValidationFailureDlgMsg); 
@@ -132,9 +132,9 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
   
   public void platformCppCompilationValidationError(final Exception exception) {
     this.fValidateAction.setImageDescriptor(this.fErrorPlatformImg);
-    IResourceUtils.addPlatformConfMarker(((IFileEditorInput) getEditorInput()).getFile(), 
-                                         LaunchMessages.XPCFE_ValidationErrorDlgMsg, IMarker.SEVERITY_ERROR, 
-                                         IMarker.PRIORITY_HIGH);
+    CoreResourceUtils.addPlatformConfMarker(((IFileEditorInput) getEditorInput()).getFile(), 
+                                            LaunchMessages.XPCFE_ValidationErrorDlgMsg, IMarker.SEVERITY_ERROR, 
+                                            IMarker.PRIORITY_HIGH);
     DialogsFactory.createErrorBuilder().setDetailedMessage(exception)
     							.createAndOpen(getSite(), LaunchMessages.XPCFE_ValidationErrorDlgTitle, 
     							               LaunchMessages.XPCFE_ValidationErrorDlgMsg);
@@ -142,9 +142,9 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
   
   public void remoteConnectionFailure(final Exception exception) {
     final IAction validationAction = this.fValidateAction;
-    IResourceUtils.addPlatformConfMarker(((IFileEditorInput) getEditorInput()).getFile(), 
-                                         NLS.bind(LaunchMessages.XPCFE_RemoteConnFailureMarkerMsg, Constants.EMPTY_STR),
-                                         IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
+    CoreResourceUtils.addPlatformConfMarker(((IFileEditorInput) getEditorInput()).getFile(), 
+                                            NLS.bind(LaunchMessages.XPCFE_RemoteConnFailureMarkerMsg, Constants.EMPTY_STR),
+                                            IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
     getSite().getShell().getDisplay().syncExec(new Runnable() {
       
       public void run() {
@@ -161,7 +161,7 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
   
   public void remoteConnectionUnknownStatus() {
     final IAction validationAction = this.fValidateAction;
-    IResourceUtils.deletePlatformConfMarkers(((IFileEditorInput) getEditorInput()).getFile());
+    CoreResourceUtils.deletePlatformConfMarkers(((IFileEditorInput) getEditorInput()).getFile());
     getSite().getShell().getDisplay().syncExec(new Runnable() {
       
       public void run() {
@@ -219,7 +219,7 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
   public void doSave(final IProgressMonitor monitor) {
     final IFile file = ((IFileEditorInput) getEditorInput()).getFile();
     synchronized (file) {
-      IResourceUtils.deletePlatformConfMarkers(file);
+      CoreResourceUtils.deletePlatformConfMarkers(file);
       
       final IProject project = file.getProject();
       final IWorkspace workspace = project.getWorkspace();
@@ -264,8 +264,8 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
         monitor.worked(1);
         commitPages(true);
         if (! getCurrentPlatformConf().isComplete(false)) {
-          IResourceUtils.addPlatformConfMarker(file, LaunchMessages.XPCFE_PlatformConfNotComplete, IMarker.SEVERITY_WARNING, 
-                                               IMarker.PRIORITY_HIGH);
+          CoreResourceUtils.addPlatformConfMarker(file, LaunchMessages.XPCFE_PlatformConfNotComplete, IMarker.SEVERITY_WARNING, 
+                                                  IMarker.PRIORITY_HIGH);
         }
         monitor.worked(1);
       } catch (CoreException except) {
@@ -369,7 +369,7 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
   
   private synchronized void validate() {
     final IX10PlatformChecker checker = PlatformCheckerFactory.create();
-  	IResourceUtils.deletePlatformConfMarkers(((IFileEditorInput) getEditorInput()).getFile());
+  	CoreResourceUtils.deletePlatformConfMarkers(((IFileEditorInput) getEditorInput()).getFile());
     checker.addValidationListener(this);
     try {
       final IRunnableWithProgress runnable = new IRunnableWithProgress() {
