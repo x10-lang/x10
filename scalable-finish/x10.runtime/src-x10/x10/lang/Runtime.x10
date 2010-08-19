@@ -592,10 +592,6 @@ public final class Runtime {
    public global def createRemote():RemoteFinishState!{
 	   return new RemoteFinish();
    }
-   public global def findOrCreate():RemoteFinishState!{
-	   val remoteFinish = runtime().finishStates(this);
-    	return remoteFinish;
-    }
 }
 
     /*static class RemoteCollectingFinish[T] extends RemoteFinish {
@@ -880,9 +876,6 @@ public final class Runtime {
         public global def createRemote():RemoteFinishState!{
         	return null;
         }
-        public global def findOrCreate():RemoteFinishState!{
-        	return null;
-        }
     }
     /**
      * SimpleRootFinish and SimpleRemoteFinish are desgined for the "finish"
@@ -1083,10 +1076,6 @@ public final class Runtime {
          }
          public global def createRemote():RemoteFinishState!{
         	 return new SimpleRemoteFinish();
-         }
-         public global def findOrCreate():RemoteFinishState!{
-        	 val remoteFinish = runtime().finishStates(this);
-        	 return remoteFinish;
          }
     }
 
@@ -1837,12 +1826,6 @@ public final class Runtime {
          * Push an exception onto the stack.
          */
         global def pushException(t:Throwable):Void;
-        
-        /**
-         * Look up the hashmap in runtime to find the correct RemoteFinishState 
-         */
-
-        global def findOrCreate():RemoteFinishState!;
         
         /**
          * should be only one new statement to create a corresponding remote finish
