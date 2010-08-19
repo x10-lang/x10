@@ -183,7 +183,7 @@ public class InlineHelper extends ContextVisitor {
                         
                         // generate bridge methods for private methods
                         nmembers.add(cm);
-                        if (mdcl.flags().flags().isNative() || !mdcl.flags().flags().isPrivate()) {
+                        if (!mdcl.flags().flags().isPrivate()) {
                             continue;
                         }
                         List<Formal> formals = new ArrayList<Formal>(mdcl.formals());
@@ -297,7 +297,7 @@ public class InlineHelper extends ContextVisitor {
             MethodInstance mi = call.methodInstance();
             // C.m(a,b) --> C.xxx.yyy.C.m$P(a,b);
             // c.m(a,b) --> xxx.yyy.C.m$P(a,b,c); (m is private)
-            if (mi.flags().isPrivate() && !mi.flags().isNative()) {
+            if (mi.flags().isPrivate()) {
                 if (!X10TypeMixin.baseType(target.type()).typeEquals(context.currentClass(), context)) {
                     Id id = xnf.Id(pos, call.name().toString() + BRIDGE_TO_PRIVATE_SUFFIX);
                         List<Type> typeArgs;
