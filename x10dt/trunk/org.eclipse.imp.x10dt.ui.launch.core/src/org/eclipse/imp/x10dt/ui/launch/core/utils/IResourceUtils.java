@@ -11,7 +11,12 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceRunnable;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.imp.x10dt.core.builder.X10Builder;
 import org.eclipse.imp.x10dt.ui.launch.core.LaunchCore;
 
@@ -237,19 +242,30 @@ public final class IResourceUtils {
                                    final String loc, final int priority, final int lineNum, final int startOffset, 
                                    final int endOffset) {
   	try {
-			final IMarker marker = resource.createMarker(markerId); 
+  	  final IWorkspace workspace = ResourcesPlugin.getWorkspace();
+  	  final ISchedulingRule rule = workspace.getRuleFactory().markerRule(resource);
+  	  
+  	  final IWorkspaceRunnable runnable = new IWorkspaceRunnable() {
+        
+        public void run(final IProgressMonitor monitor) throws CoreException {
+          final IMarker marker = resource.createMarker(markerId); 
 
-			marker.setAttribute(IMarker.MESSAGE, msg);
-			marker.setAttribute(IMarker.SEVERITY, severity);
-			marker.setAttribute(IMarker.LOCATION, loc);
-			marker.setAttribute(IMarker.PRIORITY, priority);
-			if (lineNum != -1) {
-			  marker.setAttribute(IMarker.LINE_NUMBER, lineNum);
-			}
-			if (startOffset >= 0) {
-			  marker.setAttribute(IMarker.CHAR_START, startOffset);
-			  marker.setAttribute(IMarker.CHAR_END, endOffset + 1);
-			}
+          marker.setAttribute(IMarker.MESSAGE, msg);
+          marker.setAttribute(IMarker.SEVERITY, severity);
+          marker.setAttribute(IMarker.LOCATION, loc);
+          marker.setAttribute(IMarker.PRIORITY, priority);
+          if (lineNum != -1) {
+            marker.setAttribute(IMarker.LINE_NUMBER, lineNum);
+          }
+          if (startOffset >= 0) {
+            marker.setAttribute(IMarker.CHAR_START, startOffset);
+            marker.setAttribute(IMarker.CHAR_END, endOffset + 1);
+          }          
+        }
+        
+      };
+			
+      workspace.run(runnable, rule, 0, null);
 		} catch (CoreException except) {
 			LaunchCore.log(except.getStatus());
 		}
