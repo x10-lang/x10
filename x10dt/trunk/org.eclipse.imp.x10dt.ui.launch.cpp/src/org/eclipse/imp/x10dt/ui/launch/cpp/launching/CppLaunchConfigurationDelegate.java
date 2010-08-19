@@ -285,7 +285,6 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
       command.addAll(X10BuilderUtils.getAllTokens(cppCompConf.getLinkingLibs(true)));
       
       final MessageConsole messageConsole = UIUtils.findOrCreateX10Console();
-      messageConsole.clearConsole();
       final MessageConsoleStream mcStream = messageConsole.newMessageStream();
       final StringBuilder cmdBuilder = new StringBuilder();
       for (final String str : command) {
@@ -311,6 +310,7 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
       });
       
       if (returnCode != 0) {
+        mcStream.println();
         CoreResourceUtils.addBuildMarkerTo(project, LaunchMessages.CLCD_LinkCmdError, IMarker.SEVERITY_ERROR,
                                            IMarker.PRIORITY_HIGH);
       }
