@@ -119,7 +119,7 @@ struct _X10ClassMap : public _X10TypeMap
   uint32_t _x10name; // Index of the X10 class type name in _X10 strings
   uint32_t _x10ClassSize; // number of bytes in the class
   uint32_t _x10ClassMemberCount; // number of members in the class
-  _X10TypeMember _x10members[]; // individual member types, repeated as necessary
+  _X10TypeMember* _x10members; // pointer to an array of individual member types
 };
 
 struct _X10ClosureMap : public _X10ClassMap
