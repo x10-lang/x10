@@ -12,7 +12,10 @@
 package x10.io;
 
 import x10.compiler.Native;
+import x10.compiler.NativeCPPInclude;
 
+@NativeCPPInclude("x10/io/FileWriter__FileOutputStream.h")
+@NativeCPPInclude("x10/io/FileReader__FileInputStream.h")
 public class Console {
         @Native("java", "java.lang.System.out")
         @Native("c++", "x10::io::FileWriter__FileOutputStream::STANDARD_OUT()")
