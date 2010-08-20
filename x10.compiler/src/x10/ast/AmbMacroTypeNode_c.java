@@ -37,6 +37,7 @@ import polyglot.types.LazyRef;
 import polyglot.types.LocalDef;
 import polyglot.types.Name;
 import polyglot.types.Named;
+import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -68,6 +69,7 @@ import x10.types.X10ParsedClassType;
 import x10.types.X10TypeEnv_c;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
+import x10.types.X10TypeSystem_c;
 import x10.visit.X10TypeChecker;
 import x10.visit.ChangePositionVisitor;
 import x10.types.checker.VarChecker;
@@ -287,7 +289,7 @@ public class AmbMacroTypeNode_c extends AmbTypeNode_c implements AmbMacroTypeNod
     }
     
     public Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException {
-        X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+        X10TypeSystem_c ts = (X10TypeSystem_c) tc.typeSystem();
         X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
         
         AmbMacroTypeNode_c n = this;
@@ -317,16 +319,19 @@ public class AmbMacroTypeNode_c extends AmbTypeNode_c implements AmbMacroTypeNod
         }
         catch (SemanticException e) {
             // Mark the type resolved to prevent us from trying to resolve this again and again.
-            sym.update(ts.unknownType(n.position()));
-            throw e;
+            X10ClassType ut = ts.createFakeClass(QName.make(null, name().id()), e);
+            ut.def().position(n.position());
+            sym.update(ut);
         }
         try {
             tn = n.disambiguateBase(tc);
         }
         catch (SemanticException e) {
             // Mark the type resolved to prevent us from trying to resolve this again and again.
-            sym.update(ts.unknownType(n.position()));
-            throw e;
+            X10ClassType ut = ts.createFakeClass(QName.make(null, name().id()), e);
+            ut.def().position(n.position());
+            sym.update(ut);
+            tn = n;
         }
         
         Type t = tn.type();

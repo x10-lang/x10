@@ -53,6 +53,7 @@ import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.types.checker.Converter;
+import x10.types.checker.PlaceChecker;
 import x10.types.matcher.DumbMethodMatcher;
 import x10.visit.X10TypeChecker;
 
@@ -266,7 +267,9 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 	        }
 	    }
 	    mi = xts.createFakeMethod(targetType.toClass(), Flags.PUBLIC, name, typeArgs, actualTypes, error);
-	    if (rt != null) mi = mi.returnType(rt);
+	    if (rt == null) rt = mi.returnType();
+	    rt = PlaceChecker.AddIsHereClause(rt, context);
+	    mi = mi.returnType(rt);
 	    return mi;
 	}
 

@@ -726,7 +726,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
             Type t = stref.get();
             t = followDefs(t);
             if (t instanceof UnknownType)
-                throw new SemanticException(); // already reported
+                return;
             if (! t.isClass() || t.toClass().flags().isInterface()) {
                 throw new SemanticException("Cannot extend type " +
                         t + "; not a class.",
@@ -853,7 +853,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
                     + "member classes.", position());
         }
 
-        if (type.superClass() != null) {
+        if (type.superClass() != null && !(type.superClass() instanceof UnknownType)) {
             if (! type.superClass().isClass() || type.superClass().toClass().flags().isInterface()) {
                 throw new SemanticException("Cannot extend non-class \"" +
                         type.superClass() + "\".",
