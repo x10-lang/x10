@@ -34,7 +34,7 @@ public class CallTableUtil {
      * we have three patterns:
      * a general pattern - code == 0
      * all local async - code == 1
-     * no nested remote async - code == 4
+     * no nested remote async - code == 2
      * @param key
      * @param ct
      * @param results
@@ -68,14 +68,14 @@ public class CallTableUtil {
 		}
 		// when the nested async is "local" but the outer one is not, the outer method/async has pattern 4 by now
 		if (tmpPattern == 1 && !((CallTableMethodVal) v).isLocal) {
-		    pattern = setPattern(pattern,4);
+		    pattern = setPattern(pattern,2);
 		}
 		// when the nested async does not have nested remote asyncs, and the outer is local, the outer method/async has pattern 1 by now
-		if (tmpPattern == 4 && ((CallTableMethodVal) v).isLocal) {
-		    pattern = setPattern(pattern,4);
+		if (tmpPattern == 2 && ((CallTableMethodVal) v).isLocal) {
+		    pattern = setPattern(pattern,2);
 		}
 		// otherwise, it is a general one
-		if (tmpPattern == 4 && !((CallTableMethodVal) v).isLocal) {
+		if (tmpPattern == 2 && !((CallTableMethodVal) v).isLocal) {
 		    results.put(key, new Integer(0));
 		    return 0;
 		}
@@ -96,7 +96,7 @@ public class CallTableUtil {
 	switch(p){
 	case 0: return 0;
 	case 1: return v;
-	case 4: return v==0?v:p;
+	case 2: return v==0?v:p;
 	default: return 0;
 	}
     }
