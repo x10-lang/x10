@@ -6,9 +6,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
-@Suite.SuiteClasses( { IndentationTests.class, X10DocProviderTest.class,
-		X10DocProviderTest_Parameterized.class })
-public class TestSuite {
-	// the class remains completely empty,
-	// being used only as a holder for the above annotations
+@Suite.SuiteClasses({ IndentationTests.class, X10DocProviderTest.class, X10DocProviderTest_Parameterized.class })
+public class PDEUITestSuite {
+  // The class remains completely empty, being used only as a holder for the above annotations.
 }
