@@ -180,7 +180,9 @@ public class X10Field_c extends Field_c {
 	    Flags flags = Flags.PUBLIC;
 	    if (isStatic) flags = flags.Static();
 	    fi = xts.createFakeField(targetType.toClass(), flags, name, e);
-	    if (rt != null) fi = fi.type(rt);
+	    if (rt == null) rt = fi.type();
+	    rt = PlaceChecker.AddIsHereClause(rt, context);
+	    fi = fi.type(rt);
 	    return fi;
 	}
 	

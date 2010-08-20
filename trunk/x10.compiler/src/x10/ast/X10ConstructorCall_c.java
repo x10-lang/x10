@@ -33,6 +33,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.types.UnknownType;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Pair;
 import polyglot.util.Position;
@@ -167,7 +168,7 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 	        }
 
 	        if (kind == SUPER) {
-	            if (! superType.isClass()) {
+	            if (! superType.isClass() && !(superType instanceof UnknownType)) {
 	                throw new SemanticException("Super type of " + ct +
 	                                            " is not a class.", position());
 	            }
@@ -232,7 +233,9 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 	            args = p.snd();
 	        }
 	        catch (SemanticException e2) {
-	            throw e;
+	            Pair<ConstructorInstance,List<Expr>> p = X10New_c.findConstructor(tc, this, ct, argTypes);
+	            ci = (X10ConstructorInstance) p.fst();
+	            args = p.snd();
 	        }
 	    }
 

@@ -409,7 +409,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
         X10Context c = (X10Context) tc.context();
         Position prefixPos = position().startOf().markCompilerGenerated();
         try {
-            if (mi.flags().isStatic()) {
+            if (mi.flags().isStatic() || c.inStaticContext()) {
                 Type container = findContainer(xts, mi);
                 XVar thisVar = getThis(container);
                 if (thisVar != null)
@@ -684,7 +684,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		// if the target is null, and thus implicit, find the target using the context
 		Receiver target = this.target() == null ? computeReceiver(tc, mi) : this.target();
 
-		if (this.target() != null) {
+		if (target != null) {
 		    /* This call is in a static context if and only if
 		     * the target (possibly implicit) is a type node.
 		     */

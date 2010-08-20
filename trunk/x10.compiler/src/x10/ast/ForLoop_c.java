@@ -23,6 +23,7 @@ import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.StructType;
 import polyglot.types.Type;
+import polyglot.types.UnknownType;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.CFGBuilder;
@@ -82,15 +83,12 @@ public class ForLoop_c extends X10Loop_c implements ForLoop {
 	    // TODO: generate a cast if STATIC_CALLS is off
 	    X10MethodInstance mi = null;
 	    Expr domain = result.domain();
-        try {
-	        mi = xts.findMethod(domain.type(),
-	                xts.MethodMatcher(domain.type(), ITERATOR, Collections.<Type>emptyList(), tc.context()));
-	    } catch (SemanticException e) { }
+	    mi = ClosureCall_c.findAppropriateMethod(tc, domain.type(), ITERATOR, Collections.<Type>emptyList(), Collections.<Type>emptyList());
 	    assert (mi != null);
 	    domain = (Expr) PlaceChecker.makeReceiverLocalIfNecessary(tc, domain, X10Flags.toX10Flags(mi.flags()));
 	    if (domain != null) {
 	        if (domain != result.domain()) result = result.domain(domain);
-	    } else {
+	    } else if (!(result.domain().type() instanceof UnknownType)) {
 	        Errors.issue(tc.job(),
 	                new SemanticException("The domain of this iterated for loop must be local",
 	                        result.domain().position()));
