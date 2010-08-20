@@ -8,3 +8,5 @@ Bundle-Vendor: rfuhrer@watson.ibm.com
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: org.junit.addons;bundle-version="1.4.0",
  org.junit4;bundle-version="4.5.0"
+Bundle-ClassPath: ui.jar,
+ .
