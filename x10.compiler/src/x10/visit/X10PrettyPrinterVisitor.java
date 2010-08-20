@@ -63,6 +63,7 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.PackageNode_c;
 import polyglot.ast.Receiver;
 import polyglot.ast.Return_c;
+import polyglot.ast.SourceFile;
 import polyglot.ast.Special;
 import polyglot.ast.Special_c;
 import polyglot.ast.Stmt;
@@ -75,6 +76,7 @@ import polyglot.ast.Try_c;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.ast.Unary_c;
+import polyglot.frontend.Source;
 import polyglot.types.ArrayType;
 import polyglot.types.ClassDef;
 import polyglot.types.Context;
@@ -210,8 +212,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 	public final Type imcType;
 	
-	private static final String X10_RTT_TYPES = "x10.rtt.Types";
-	
+        private static final String X10_RTT_TYPES = "x10.rtt.Types";
+        private static final List<ClassDef> generatedClasses = new ArrayList<ClassDef>(); 
+
 	private static int nextId_;
 	/* to provide a unique name for local variables introduce in the templates */
 	public static Integer getUniqueId_() {
@@ -702,6 +705,16 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 
 	public void visit(X10ClassDecl_c n) {
+	        String className = n.classDef().name().toString();
+	        if (n.classDef().isTopLevel() && !n.classDef().sourceFile().name().equals(className + ".x10") && !generatedClasses.contains(n.classDef())) {
+	            generatedClasses.add(n.classDef());
+	            // not include import
+	            SourceFile sf = tr.nodeFactory().SourceFile(n.position(), (List) Collections.singletonList(n));
+	            sf = sf.package_(tr.nodeFactory().PackageNode(n.position(), n.classDef().package_()));
+	            sf = sf.source(new Source(n.classDef().name().toString() + ".x10", n.position().path(), null));
+	            tr.translate(sf);
+	            return;
+	        }
 		X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
 		X10Context context = (X10Context) tr.context();
 
