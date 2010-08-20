@@ -27,7 +27,7 @@
 	</path>
 
 	<target name="test" depends="quicktest,report"/>
-	<target name="alltests" depends="quicktest,slowtest,report"/>
+	<target name="alltests" depends="quicktest,slowtest,fuzztest,report"/>
 	<target name="report" depends="init,build">
 		<junitreport todir="${report}">
 			<fileset dir="${report}">
@@ -36,21 +36,27 @@
 			<report format="frames" todir="${report.html}"/>
 		</junitreport>
 	</target>
-	<target name="quicktest" depends="init,build">
+	<target name="quicktest" depends="init,build" description="A quick set of tests (~2min)">
 		<junit>
 			<classpath refid="classpath.test" />
 			<formatter type="xml" usefile="true" />
 			<test name="org.eclipse.imp.x10dt.core.tests.compiler.CompilerTests" todir="${report}"/>
 			<test name="org.eclipse.imp.x10dt.core.tests.compiler.CompletenessCompilerTests" todir="${report}" />
+			<test name="org.eclipse.imp.x10dt.core.tests.compiler.DataParamCompilerTests" todir="${report}" />
 		</junit>
 	</target>
-	<target name="slowtest" depends="init,build,fuzzgen">
+	<target name="slowtest" depends="init,build" description="A slower set of tests (~20min)">
 		<junit>
 			<classpath refid="classpath.test" />
 			<formatter type="xml" usefile="true" />
-			<test name="org.eclipse.imp.x10dt.core.tests.compiler.DataParamCompilerTests" todir="${report}" />
-			<test name="org.eclipse.imp.x10dt.core.tests.compiler.FuzzParamCompilerTests" todir="${report}" />
 			<test name="org.eclipse.imp.x10dt.core.tests.compiler.X10TestsParamCompilerTests" todir="${report}" />
+		</junit>
+	</target>
+	<target name="fuzztest" depends="init,build,fuzzgen" description="A slow set of tests (~200min)">
+		<junit>
+			<classpath refid="classpath.test" />
+			<formatter type="xml" usefile="true" />
+			<test name="org.eclipse.imp.x10dt.core.tests.compiler.FuzzParamCompilerTests" todir="${report}" />
 		</junit>
 	</target>
 	<target name="fuzzgen">
