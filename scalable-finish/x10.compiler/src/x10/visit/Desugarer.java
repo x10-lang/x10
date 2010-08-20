@@ -616,12 +616,14 @@ public class Desugarer extends ContextVisitor {
         if (!((X10Ext) f.ext()).annotationMatching(annotation).isEmpty()) {
         	List<AnnotationNode> allannots = ((X10Ext)(f.ext())).annotations();
         	AnnotationNode a = null;
+        	int p1 = 0;
+        	int p2 = 0;
         	if(allannots.size()>0){
 				if (allannots.size() > 1) {
 					boolean isConsistent = true;
 					for(int i=0;i<allannots.size()-1;i++){
-						int p1 = getPatternFromAnnotation(allannots.get(i));
-						int p2 = getPatternFromAnnotation(allannots.get(i+1));
+						p1 = getPatternFromAnnotation(allannots.get(i));
+						p2 = getPatternFromAnnotation(allannots.get(i+1));
 						if(p1 != p2){
 							isConsistent = false;
 							break;
@@ -629,6 +631,8 @@ public class Desugarer extends ContextVisitor {
 					}
 					if(!isConsistent){
 						System.out.println("WARNING:compiler inferes different annotations from what the programer sets in "+job.source().name());
+						System.out.println("\tcompiler inferes "+p1);
+						System.out.println("\tprogrammer annotates "+p2);
 					}
 				}
 				a = allannots.get(allannots.size()-1);
