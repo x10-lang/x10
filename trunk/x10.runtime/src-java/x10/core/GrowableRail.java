@@ -20,7 +20,7 @@ import x10.rtt.Types;
 import x10.rtt.UnresolvedType;
 import x10.rtt.RuntimeType.Variance;
 
-public class GrowableRail<T> extends Ref implements Fun_0_1<Integer,T>, Settable<Integer, T>, Iterable<T> {
+public final class GrowableRail<T> extends Ref implements Fun_0_1<Integer,T>, Settable<Integer, T>, Iterable<T> {
 	private Type<T> elementType;
 	private Object array;
 	private int length;
@@ -53,16 +53,18 @@ public class GrowableRail<T> extends Ref implements Fun_0_1<Integer,T>, Settable
 
 	public T set$G(T v, int i) {
 		grow(i+1);
+		/*
 		assert i >= 0 : i + " < 0";
 		assert i < length: i + " >= length==" + length;
 		assert i < size(): i + " >= size()==" + size();
+		*/
 		return elementType.setArray(array, i, v);
 	}
 
 	public void add(T v) {
 		grow(length+1);
-		length++;
-		set$G(v, length-1);
+        elementType.setArray(array, length, v);
+        length++;
 	}
 
 	public void setLength(int newLength) {
@@ -132,9 +134,11 @@ public class GrowableRail<T> extends Ref implements Fun_0_1<Integer,T>, Settable
 		return apply$G((int)i);
 	}
 	public T apply$G(int i) {
+	    /*
 	    assert i >= 0 : i + " < 0";
 	    assert i < length: i + " >= length==" + length;
 	    assert i < size(): i + " >= size()==" + size();
+	    */
 	    return elementType.getArray(array, i);
 	}
 
