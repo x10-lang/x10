@@ -13,6 +13,7 @@ package x10.ast;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import polyglot.ast.Block;
@@ -37,6 +38,7 @@ import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
 import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
@@ -44,6 +46,7 @@ import polyglot.util.Position;
 import polyglot.util.TypedList;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
+import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
 import x10.constraint.XFailure;
@@ -537,4 +540,43 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         return flags.flags().translate() + "this(...)";
     }
 
+    /** Write the constructor to an output file. */
+    public void prettyPrintHeader(CodeWriter w, PrettyPrinter tr) {
+        w.begin(0);
+        
+        tr.print(this, flags, w);
+        w.write("def this(");
+
+        w.begin(0);
+
+        for (Iterator i = formals.iterator(); i.hasNext(); ) {
+            Formal f = (Formal) i.next();
+            print(f, w, tr);
+
+            if (i.hasNext()) {
+                w.write(",");
+                w.allowBreak(0, " ");
+            }
+        }
+
+        w.end();
+        w.write(")");
+
+        if (! throwTypes().isEmpty()) {
+            w.allowBreak(6);
+            w.write("throws ");
+
+            for (Iterator i = throwTypes().iterator(); i.hasNext(); ) {
+                TypeNode tn = (TypeNode) i.next();
+                print(tn, w, tr);
+
+                if (i.hasNext()) {
+                    w.write(",");
+                    w.allowBreak(4, " ");
+                }
+            }
+        }
+
+        w.end();
+    }
 }

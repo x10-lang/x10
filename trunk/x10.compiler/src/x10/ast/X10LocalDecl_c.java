@@ -12,6 +12,7 @@
 package x10.ast;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import polyglot.ast.ArrayInit;
@@ -46,11 +47,13 @@ import x10.errors.Errors;
 import x10.extension.X10Del;
 import x10.extension.X10Del_c;
 import x10.extension.X10Ext;
+import x10.types.ConstrainedType_c;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
 import x10.types.X10FieldDef;
 import x10.types.X10Flags;
 import x10.types.X10LocalDef;
+import x10.types.X10ParsedClassType_c;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.checker.Converter;
@@ -314,4 +317,37 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
             return n.hasType(hasType);
         }
 
+        public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
+            boolean printSemi = tr.appendSemicolon(true);
+            boolean printType = tr.printType(true);
+
+            Flags f = flags.flags();
+            Boolean fin = f.isFinal();
+            f = f.clearFinal();
+
+            w.write(f.translate());
+            if (fin)
+                w.write("val ");
+            else
+                w.write("var ");
+            
+            tr.print(this, name, w);
+            if (printType) {
+                w.write(":");
+                print(type, w, tr);
+            }
+
+            if (init != null) {
+                w.write(" =");
+                w.allowBreak(2, " ");
+                print(init, w, tr);
+            }
+
+            if (printSemi) {
+                w.write(";");
+            }
+
+            tr.printType(printType);
+            tr.appendSemicolon(printSemi);
+        }
 }
