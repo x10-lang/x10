@@ -29,6 +29,11 @@ public class Clock(name:String) {
         Runtime.clockPhases().put(clock, FIRST_PHASE);
         return clock;
     }
+    
+    public def this():Clock {
+        property("");
+        Runtime.clockPhases().put(this, FIRST_PHASE);
+    }
 
     private var count:Int = 1;
     private var alive:Int = 1;
