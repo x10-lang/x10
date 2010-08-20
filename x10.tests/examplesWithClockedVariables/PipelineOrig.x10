@@ -14,19 +14,22 @@ public class PipelineOrig {
                         for (i = 0; i < 10; i++)  {
                                 a(0) = i;
                                 next;  /*write phase over */
+                                next; /*read phase over */
                         }
                 }
                 async clocked (c) {
                         var i: int;
                         for (i = 0; i < 10; i++)  {
-                                next; /*write phase over */
+                                next; /*write phase over */                   
                                 b(0) = a(0) + 1;
+                                next;
                         }
                 }
                 var i: int;
-                next; /*write phase over */
+              
                 for (i = 0; i < 10; i++)  {
                         next; /*write phase over */
+                        next; /*read phase over */
                         val o = b(0) + 1;
                         Console.OUT.println(o);
                  }
