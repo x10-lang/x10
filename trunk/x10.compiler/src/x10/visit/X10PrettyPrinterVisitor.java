@@ -710,7 +710,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	            generatedClasses.add(n.classDef());
 	            // not include import
 	            SourceFile sf = tr.nodeFactory().SourceFile(n.position(), (List) Collections.singletonList(n));
-	            sf = sf.package_(tr.nodeFactory().PackageNode(n.position(), n.classDef().package_()));
+	            if (n.classDef().package_() != null) {
+	                sf = sf.package_(tr.nodeFactory().PackageNode(n.position(), n.classDef().package_()));
+	            }
 	            sf = sf.source(new Source(n.classDef().name().toString() + ".x10", n.position().path(), null));
 	            tr.translate(sf);
 	            return;
