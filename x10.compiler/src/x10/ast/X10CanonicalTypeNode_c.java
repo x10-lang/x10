@@ -46,6 +46,7 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.constraint.XConstraint;
 import x10.extension.X10Del;
+import x10.types.ClosureType_c;
 import x10.types.ConstrainedType;
 import x10.types.ConstrainedType_c;
 import x10.types.ParameterType;
@@ -319,7 +320,8 @@ AddFlags {
             w.write("<unknown-type>");
         } else {
             type.get().print(w);
-            if (extras && X10TypeMixin.baseType(type.get()) instanceof X10ParsedClassType_c) {
+            if (extras && X10TypeMixin.baseType(type.get()) instanceof X10ParsedClassType_c
+                    && !(X10TypeMixin.baseType(type.get()) instanceof ClosureType_c)) {
                 List<Type> typeArguments = ((X10ParsedClassType_c) X10TypeMixin.baseType(type.get())).typeArguments();
                 if (typeArguments.size() > 0) {
                     w.write("[");
