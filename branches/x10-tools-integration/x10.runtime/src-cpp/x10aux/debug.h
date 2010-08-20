@@ -101,14 +101,50 @@ struct _X10LocalVarMap
 	uint32_t _endLineIndex;     // Index into _CPPtoX10xrefList of the last line where the variable is still in scope
 };
 
-struct _X10MemberVarMap
+// The _X10TypeMap and extenders of it are used in the member variable mappings
+struct _X10TypeMap
 {
-	uint32_t _x10name;			// Index of the X10 variable name in _X10strings
-	uint32_t _x10type;     		// Index of the X10 type in _X10strings
-	uint32_t _x10class;			// Index of the X10 containing class/struct name in _X10strings
-	uint32_t _offset;			// byte offset of the variable value inside the class
-	uint32_t _size;				// size of the variable.
+  uint32_t _x10type; // Classification of this type
+  // The details of the type follow..
 };
+
+struct _X10TypeMember : public _X10TypeMap
+{
+  uint32_t _x10MemberName; // Index of the X10 member name in _X10strings
+  uint32_t _x10MemberOffset; // Offset of the member within the X10 class
+};
+
+struct _X10ClassMap : public _X10TypeMap
+{
+  uint32_t _x10name; // Index of the X10 class type name in _X10 strings
+  uint32_t _x10ClassSize; // number of bytes in the class
+  uint32_t _x10ClassMemberCount; // number of members in the class
+  _X10TypeMember* _x10members; // pointer to an array of individual member types
+};
+
+struct _X10ClosureMap : public _X10ClassMap
+{
+  uint32_t _x10StartLine; // the start line of the closure definition in the X10 source
+  uint32_t _x10EndLine; // the end line of the closure definition in the X10 source
+};
+
+struct _X10RefMap : public _X10TypeMap
+{
+  uint32_t _x10ReferredType; // type number of the referred type
+};
+
+struct _X10TypedefMap : public _X10RefMap
+{
+  uint32_t _x10Name; // Offset to the name of the typedef in _X10strings
+};
+
+struct _X10ArrayMap : public _X10TypeMap
+{
+  uint32_t _x10ElementCount; // Number of elements in the array
+  uint32_t _x10ElementType;  // type number of the array elements
+};
+
+
 
 enum _MetaLanguage {
   X10_META_LANG = 0    // Metalanguage 0 is X10

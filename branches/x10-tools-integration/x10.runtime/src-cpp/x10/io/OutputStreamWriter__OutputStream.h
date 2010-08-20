@@ -43,6 +43,10 @@ namespace x10 {
             virtual void write(x10aux::ref<x10::lang::Rail<x10_byte> > b, x10_int off, x10_int len);
             virtual void write(x10aux::ref<x10::lang::ValRail<x10_byte> > b, x10_int off, x10_int len);
 
+            static x10aux::ref<OutputStreamWriter__OutputStream> STANDARD_OUT();
+
+            static x10aux::ref<OutputStreamWriter__OutputStream> STANDARD_ERR();
+
             // Serialization
             virtual void _serialize_body(x10aux::serialization_buffer& buf);
             void _deserialize_body(x10aux::deserialization_buffer& buf);

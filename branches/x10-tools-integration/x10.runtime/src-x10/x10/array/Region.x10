@@ -20,10 +20,7 @@ package x10.array;
  * empty. There are a set of methods for supporting algebraic
  * operations on regions, such as intersection, union, difference, and
  * so on. The set of points in a region may be iterated over.
- *
- * @author bdlucas
  */
-
 public abstract class Region(
     rank: int,
     rect: boolean,

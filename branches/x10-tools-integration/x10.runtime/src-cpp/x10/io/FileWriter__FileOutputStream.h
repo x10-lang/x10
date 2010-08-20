@@ -54,10 +54,6 @@ namespace x10 {
                 _outputStream.close();
             }
 
-            static x10aux::ref<FileWriter__FileOutputStream> STANDARD_OUT();
-
-            static x10aux::ref<FileWriter__FileOutputStream> STANDARD_ERR();
-
             // Serialization
             static const x10aux::serialization_id_t _serialization_id;
             virtual x10aux::serialization_id_t _get_serialization_id() {

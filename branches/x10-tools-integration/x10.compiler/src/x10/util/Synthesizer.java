@@ -70,6 +70,7 @@ import x10.constraint.XEQV;
 import x10.constraint.XEquals;
 import x10.constraint.XFailure;
 import x10.constraint.XField;
+import x10.constraint.XFormula;
 import x10.constraint.XLit;
 import x10.constraint.XLocal;
 import x10.constraint.XName;
@@ -1422,6 +1423,8 @@ public class Synthesizer {
 			return makeExpr((XLocal) t, pos);
 		if (t instanceof XNot)
 			return makeExpr((XNot) t, pos);
+		if (t instanceof XFormula)
+			return makeExpr((XFormula) t, pos);
 		return null;
 	}
 	Expr makeExpr(XField t, Position pos) {
@@ -1478,38 +1481,51 @@ public class Synthesizer {
 	}
 	
 	Expr makeExpr(XLit t, Position pos) {
-		 Object val = t.val();
-		 if (val== null)
-			 return xnf.NullLit(pos);
-		 if (val instanceof String) 
-			 return xnf.StringLit(pos, (String) val);
-		 if (val instanceof Integer) 
-			 return xnf.IntLit(pos,  IntLit.INT, ((Integer) val).intValue());
-		 if (val instanceof Long) 
-			 return xnf.IntLit(pos,  IntLit.LONG, ((Long) val).longValue());
-		 if (val instanceof Boolean) 
-			 return xnf.BooleanLit(pos,   ((Boolean) val).booleanValue());
-		 if (val instanceof Character) 
-			 return xnf.CharLit(pos,   ((Character) val).charValue());
-		 if (val instanceof Float) 
-			 return xnf.FloatLit(pos,  FloatLit.DOUBLE, ((Double) val).doubleValue());
-		 return null;
+		Object val = t.val();
+		if (val== null)
+			return xnf.NullLit(pos);
+		if (val instanceof String) 
+			return xnf.StringLit(pos, (String) val);
+		if (val instanceof Integer) 
+			return xnf.IntLit(pos,  IntLit.INT, ((Integer) val).intValue());
+		if (val instanceof Long) 
+			return xnf.IntLit(pos,  IntLit.LONG, ((Long) val).longValue());
+		if (val instanceof Boolean) 
+			return xnf.BooleanLit(pos,   ((Boolean) val).booleanValue());
+		if (val instanceof Character) 
+			return xnf.CharLit(pos,   ((Character) val).charValue());
+		if (val instanceof Float) 
+			return xnf.FloatLit(pos,  FloatLit.DOUBLE, ((Double) val).doubleValue());
+		return null;
 	}
 	Expr makeExpr(XEquals t, Position pos) {
 		Expr left = makeExpr(t.arguments().get(0), pos);
-		 Expr right = makeExpr(t.arguments().get(1), pos);
-		 if (left == null)
-			 assert left != null;
-		 if (right == null)
-			 assert right != null;
-		 return xnf.Binary(pos, left, Binary.EQ, right);
+		Expr right = makeExpr(t.arguments().get(1), pos);
+		if (left == null)
+			assert left != null;
+		if (right == null)
+			assert right != null;
+		return xnf.Binary(pos, left, Binary.EQ, right);
 	}
 	Expr makeExpr(XDisEquals t, Position pos) {
 		Expr left = makeExpr(t.arguments().get(0), pos);
-		 Expr right = makeExpr(t.arguments().get(1), pos);
-		 return xnf.Binary(pos, left, Binary.NE, right);
+		Expr right = makeExpr(t.arguments().get(1), pos);
+		return xnf.Binary(pos, left, Binary.NE, right);
 	}
-	
+	Expr makeExpr(XFormula t, Position pos) {
+		List<Expr> args = new ArrayList<Expr>();
+		for (XTerm a : t.arguments()) {
+			args.add(makeExpr(a, pos));
+		}
+		Name n = Name.make(t.operator().toString());
+		// FIXME: [IP] Hack to handle the "at" atom added by XTypeTranslator for structs
+		if (n.toString().equals("at")) {
+			Receiver r = args.remove(0);
+			return xnf.Call(pos, r, xnf.Id(pos, n), args);
+		} else {
+			return xnf.Call(pos, xnf.Id(pos, n), args);
+		}
+	}	
 	
 	
     public List<Expr> makeExpr(CConstraint c, Position pos) {
