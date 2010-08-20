@@ -2,6 +2,7 @@
 <project name="Test" default="test" basedir=".">
 	<property name="report" location="report" />
 	<property name="report.html" location="report/html" />
+	<property name="data" location="data" />
 	<property name="tst-dir" location="bin" />
 	<property name="junit" location="lib/junit.jar" />
 	<property name="lpg" location="lib/lpg.jar" />
@@ -53,7 +54,9 @@
 		</junit>
 	</target>
 	<target name="fuzzgen">
-		<java class="org.eclipse.imp.x10dt.core.tests.compiler.FuzzParamCompilerTests">
+		<delete dir="${data}/fuzzgen" failonerror="false" />
+		<mkdir dir="${data}/fuzzgen" />
+		<java classname="org.eclipse.imp.x10dt.core.tests.compiler.FuzzParamCompilerTests">
 			<classpath refid="classpath.test" />
 		</java>
 	</target>
@@ -64,13 +67,13 @@
 		</javac>
 	</target>
 	<target name="init">
-		<mkdir dir="${report}"/>
-		<delete>
+		<mkdir dir="${report}" />
+		<delete failonerror="false">
 			<fileset dir="${report}">
-				<include name="TEST-*.xml"/>
+				<include name="TEST-*.xml" />
 			</fileset>
 		</delete>
-		<mkdir dir="${tst-dir}"/>
+		<mkdir dir="${tst-dir}" />
 	</target>
 
 </project>
