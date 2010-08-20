@@ -42,7 +42,6 @@ import x10.types.X10Context;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.visit.X10TypeChecker;
 
@@ -242,11 +241,15 @@ public class DepParameterExpr_c extends Node_c implements DepParameterExpr {
             }
         }
         
-            x10.types.constraints.CConstraint xvc = ts.xtypeTranslator().constraint(formals, values, (X10Context) tc.context());
+        try {
+            CConstraint xvc = ts.xtypeTranslator().constraint(formals, values, (X10Context) tc.context());
             ((LazyRef<CConstraint>) valueConstraint).update(xvc);
+        } catch (SemanticException e) { }
 
+        try {
             TypeConstraint xtc = ts.xtypeTranslator().typeConstraint(formals, types, (X10Context) tc.context());
             ((LazyRef<TypeConstraint>) typeConstraint).update(xtc);
+        } catch (SemanticException e) { }
         
         return this;
     }

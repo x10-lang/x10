@@ -13,9 +13,6 @@ package x10.array;
 
 /**
  * Represents an empty region.
- *
- * @author bdlucas
- * @author vj
  */
 final class EmptyRegion extends Region {
 

@@ -14,6 +14,7 @@
 #include <x10aux/alloc.h>
 
 #include <x10/io/OutputStreamWriter__OutputStream.h>
+#include <x10/io/FileWriter__FileOutputStream.h>
 #include <x10/lang/ValRail.h>
 #include <x10/lang/Rail.h>
 
@@ -21,6 +22,21 @@ using namespace x10::lang;
 using namespace x10::io;
 using namespace x10aux;
 
+static OutputStreamWriter__OutputStream* _STANDARD_OUT_cache = NULL;
+x10aux::ref<OutputStreamWriter__OutputStream> OutputStreamWriter__OutputStream::STANDARD_OUT()
+{
+	if (NULL == _STANDARD_OUT_cache)
+		_STANDARD_OUT_cache = new (x10aux::alloc<FileWriter__FileOutputStream>()) FileWriter__FileOutputStream(stdout);
+	return _STANDARD_OUT_cache;
+}
+
+static OutputStreamWriter__OutputStream* _STANDARD_ERR_cache = NULL;
+x10aux::ref<OutputStreamWriter__OutputStream> OutputStreamWriter__OutputStream::STANDARD_ERR()
+{
+	if (NULL == _STANDARD_ERR_cache)
+		_STANDARD_ERR_cache = new (x10aux::alloc<FileWriter__FileOutputStream>()) FileWriter__FileOutputStream(stderr);
+	return _STANDARD_ERR_cache;
+}
 
 void OutputStreamWriter__OutputStream::write(ref<Rail<x10_byte> > b) {
     placeCheck(nullCheck(b));

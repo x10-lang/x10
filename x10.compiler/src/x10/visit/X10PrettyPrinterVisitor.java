@@ -936,6 +936,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             case CHECKED:
             case PRIMITIVE:
             case SUBTYPE:
+            case UNCHECKED:
                     if (tn instanceof X10CanonicalTypeNode) {
                             X10CanonicalTypeNode xtn = (X10CanonicalTypeNode) tn;
 
@@ -1873,7 +1874,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			else {
 			        if (e.type().isBoolean() || e.type().isNumeric() || e.type().isChar()) {
 			            // e.g) m((Integer) a) for m(T a)
-			            if (X10TypeMixin.baseType(c.methodInstance().formalTypes().get(i)) instanceof ParameterType) {
+			            if (X10TypeMixin.baseType(c.methodInstance().def().formalTypes().get(i).get()) instanceof ParameterType) {
 			                w.write("(");
 			                er.printType(e.type(), BOX_PRIMITIVES);
 			                w.write(")");

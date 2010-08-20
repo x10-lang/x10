@@ -11,6 +11,7 @@
 
 package x10.ast;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -921,7 +922,10 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	    Job job = tc.job();
     	    if (job != null) {
     	        Source s = job.source();
-    	        if (! s.name().startsWith(type.name() + ".")) {
+    	        if (! (s.name().startsWith(type.name() + ".") ||
+    	                s.name().endsWith(File.separator + type.name() + ".x10") ||
+    	                s.name().endsWith("/" + type.name() + ".x10")))
+    	        {
     	            throw new SemanticException("Public type " + type.fullName() 
     	            		+ " must be declared in " + type.name() + ".x10.", result.position());
     	        }

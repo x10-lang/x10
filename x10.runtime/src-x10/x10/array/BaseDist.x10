@@ -22,10 +22,7 @@ import x10.util.Set;
  * such as default implementations of some Dist methods. Specific
  * Dist implementation classes may override these methods with more
  * efficient implementations.
- *
- * @author bdlucas
  */
-
 public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
 
     // XTENLANG-49

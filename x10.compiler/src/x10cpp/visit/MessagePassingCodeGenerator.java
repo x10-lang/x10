@@ -1062,10 +1062,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     // Get the list of methods of name "name" that ought to be accessible from class c
     // due to being locally defined or inherited
     List<MethodInstance> getOROLMeths(Name name, X10ClassType c) {
-        return getOROLMeths(name, c, new HashSet<List<Type>>());
+        return getOROLMeths(name, c, new ArrayList<MethodInstance>());
     }
 
-    List<MethodInstance> getOROLMeths(Name name, X10ClassType c, HashSet<List<Type>> shadowed) {
+    List<MethodInstance> getOROLMeths(Name name, X10ClassType c, ArrayList<MethodInstance> shadowed) {
         assert (name != null);
         assert (c != null);
         assert (shadowed != null);
@@ -1074,10 +1074,15 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         List<MethodInstance> cmeths = c.methodsNamed(name);
 
+        cmiLoop:
         for (MethodInstance cmi : cmeths) {
             if (cmi.flags().isStatic()) continue;
-            if (shadowed.contains(cmi.formalTypes())) continue;
-            shadowed.add(cmi.formalTypes());
+            
+            for (MethodInstance mightShadow : shadowed) {
+                if (mightShadow.isSameMethod(cmi, tr.context())) continue cmiLoop;
+            }
+
+            shadowed.add(cmi);
             if (cmi.flags().isPrivate()) continue;
             meths.add(cmi);
         }

@@ -18,10 +18,7 @@ import x10.io.Printer;
 /**
  * Additional builder utility functions for Mats destined to become
  * PolyMats.
- *
- * @author bdlucas
  */
-
 public class PolyMatBuilder(rank: int) extends MatBuilder {
 
     // XTENLANG-49

@@ -58,6 +58,8 @@ namespace x10 {
 
             virtual x10_boolean markSupported() { return false; }
 
+            static x10aux::ref<InputStreamReader__InputStream> STANDARD_IN();
+
             // Serialization
             virtual void _serialize_body(x10aux::serialization_buffer& buf);
             void _deserialize_body(x10aux::deserialization_buffer& buf);
