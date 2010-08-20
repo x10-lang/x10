@@ -31,8 +31,12 @@ import java.util.TreeSet;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import polyglot.ast.ClassMember;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.SourceFile;
+import polyglot.ast.TopLevelDecl;
+import polyglot.ast.TypeNode;
 import polyglot.frontend.AllBarrierGoal;
 import polyglot.frontend.BarrierGoal;
 import polyglot.frontend.Compiler;
@@ -52,6 +56,7 @@ import polyglot.frontend.TargetFactory;
 import polyglot.frontend.VisitorGoal;
 import polyglot.main.Options;
 import polyglot.main.Report;
+import polyglot.types.Flags;
 import polyglot.types.MemberClassResolver;
 import polyglot.types.QName;
 import polyglot.types.SemanticException;
@@ -180,7 +185,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 //              reader = ((polyglot.lex.EscapedUnicodeReader)reader).getSource();
             X10Lexer x10_lexer =
                 // Optimization: it's faster to read from a file
-                source instanceof FileSource && ((FileSource) source).resource().getClass() == FileResource.class ?
+                source.resource().getClass() == FileResource.class ?
                                 new X10Lexer(source.path()) :
                                 new X10Lexer(reader, source.toString());
             X10Parser x10_parser = new X10Parser(x10_lexer.getILexStream(), ts, nf, source, eq); // Create the parser
@@ -266,7 +271,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     	return errors;
     }
     
-    private static int weakCallsCount = 0;
+    private int weakCallsCount = 0;
     public void incrWeakCallsCount() { 
     	weakCallsCount++;
     }
@@ -650,12 +655,36 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            return cg2;
        }
 
+       static class X10ParserGoal extends ParserGoal {
+           public X10ParserGoal(Compiler compiler, Job job) {
+               super(compiler, job);
+           }
+
+           @Override
+           protected SourceFile createDummyAST() {
+               NodeFactory nf = job().extensionInfo().nodeFactory();
+               String fName = job.source().name();
+               Position pos = new Position(job.source().path(), fName, 1, 1);
+               String name = fName.substring(fName.lastIndexOf(File.separatorChar)+1, fName.lastIndexOf('.'));
+               TopLevelDecl decl = nf.ClassDecl(pos, nf.FlagsNode(pos, Flags.PUBLIC),
+                       nf.Id(pos, name), null, Collections.<TypeNode>emptyList(),
+                       nf.ClassBody(pos, Collections.<ClassMember>emptyList()));
+               SourceFile ast = nf.SourceFile(pos, Collections.singletonList(decl)).source(job.source());
+               return ast;
+           }
+       }
+
+       @Override
+       public Goal Parsed(Job job) {
+           return new X10ParserGoal(extInfo.compiler(), job).intern(this);
+       }
+
        public Goal X10MLTypeChecked(Job job) {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
            return new VisitorGoal("X10MLTypeChecked", job, new X10MLVerifier(job, ts, nf)).intern(this);
        }
-      
+
        @Override
        public Goal TypeChecked(Job job) {
        	TypeSystem ts = job.extensionInfo().typeSystem();

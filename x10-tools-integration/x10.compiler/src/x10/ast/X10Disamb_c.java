@@ -303,12 +303,15 @@ public class X10Disamb_c extends Disamb_c {
 	    Receiver r = null;
 	    X10NodeFactory nf = (X10NodeFactory) v.nodeFactory();
 	    X10TypeSystem ts = (X10TypeSystem) v.typeSystem();
+        X10Context c = (X10Context) v.context();
+        ClassType cur = c.currentClass();
 
 	    try {
 	    Position prefixPos = pos.startOf().markCompilerGenerated();
         if (fi.flags().isStatic()) {
 	        r = nf.CanonicalTypeNode(prefixPos, fi.container());
 	    } else {
+
 	        // The field is non-static, so we must prepend with
 	        // "this", but we need to determine if the "this"
 	        // should be qualified.  Get the enclosing class which
@@ -316,10 +319,10 @@ public class X10Disamb_c extends Disamb_c {
 	        // from fi.container().  fi.container() returns a super
 	        // type of the class we want.
 
-	        X10Context c = (X10Context) v.context();
-	        ClassType cur = c.currentClass();
 	        ClassType scope = c.findFieldScope(fi.name());
-	        if (c.inSuperTypeDeclaration()) {
+            if (cur!=null && cur.flags()!=null && cur.flags().isStatic()) { // The class is an inner static class
+                scope = cur;
+            } else if (c.inSuperTypeDeclaration()) {
 	            cur = c.supertypeDeclarationType().asType();
 	            scope = cur;
 	        }

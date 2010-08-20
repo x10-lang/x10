@@ -21,10 +21,7 @@ import x10.io.Printer;
  * HalfpaceList, adding some static factory methods for PolyRegions
  * and some methods such as region algebra that operate on
  * PolyMat objects.
- *
- * @author bdlucas
  */
-
 public class PolyRegion extends Region {
 
     // XTENLANG-49

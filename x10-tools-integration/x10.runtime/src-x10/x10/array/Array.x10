@@ -92,7 +92,7 @@ public final class Array[T](
 
     private global val raw:IndexedMemoryChunk[T];
     private global val rawLength:int;
-    private val layout:RectLayout!{self!=null};
+    private val layout:RectLayout;
 
     @Native("java", "(!`NO_CHECKS`)")
     @Native("c++", "BOUNDS_CHECK_BOOL")
@@ -127,7 +127,7 @@ public final class Array[T](
     public def this(reg:Region):Array[T]{self.region==reg} {
 	property(reg, reg.size(), reg.rail);
 
-        layout = new RectLayout(reg.min(), reg.max());
+        layout = RectLayout(reg.min(), reg.max());
         val n = layout.size();
         raw = IndexedMemoryChunk.allocate[T](n, true);
         rawLength = n;
@@ -144,7 +144,7 @@ public final class Array[T](
     public def this(reg:Region, init:(Point(reg.rank))=>T):Array[T]{self.region==reg} {
         property(reg, reg.size(), reg.rail);
 
-        layout = new RectLayout(reg.min(), reg.max());
+        layout = RectLayout(reg.min(), reg.max());
         val n = layout.size();
         val r  = IndexedMemoryChunk.allocate[T](n);
 	for (p:Point(reg.rank) in reg) {
@@ -165,7 +165,7 @@ public final class Array[T](
     public def this(reg:Region, init:T):Array[T]{self.region==reg} {
         property(reg, reg.size(), reg.rail);
 
-        layout = new RectLayout(reg.min(), reg.max());
+        layout = RectLayout(reg.min(), reg.max());
         val n = layout.size();
         val r  = IndexedMemoryChunk.allocate[T](n);
         if (reg.rect) {
@@ -655,7 +655,8 @@ public final class Array[T](
 
     /**
      * Copy all of the values from this Array to the destination Array.
-     * The two arrays must be defined over the same Region.
+     * The two arrays must be defined over equal Regions; if the Regions
+     * are not equal, then an IllegalArgumentExeption will be raised.
      * If the destination Array is in a different place, then this copy
      * is performed asynchronously and the resulting activity will be 
      * registered with the dynamically enclosing finish.</p>
@@ -667,14 +668,16 @@ public final class Array[T](
      *   system would enable this restriction to be checked statically.</p>
      *
      * @param dst the destination array.  May be local or remote
+     * @throws IllegalArgumentException if !region.equals(dst.region)
      */
-    public def copyTo(dst:Array[T](this.region)) {
+    public def copyTo(dst:Array[T](this.rank)) {
 	copyTo(dst,false);
     }
 
     /**
      * Copy all of the values from this Array to the destination Array.
-     * The two arrays must be defined over the same Region.
+     * The two arrays must be defined over equal Regions; if the Regions
+     * are not equal, then an IllegalArgumentExeption will be raised.
      * If the destination Array is in a different place, then this copy
      * is performed asynchronously. Depending on the value of the 
      * uncounted parameter, the resulting activity will either be 
@@ -689,8 +692,10 @@ public final class Array[T](
      *
      * @param dst the destination array.  May be local or remote
      * @param uncounted Should the spawned activity be treated as if it were annotated @Uncounted
+     * @throws IllegalArgumentException if !region.equals(dst.region)
      */
-    public def copyTo(dst:Array[T](this.region), uncounted:boolean) {
+    public def copyTo(dst:Array[T](this.rank), uncounted:boolean) {
+	if (checkBounds() && !region.equals(dst.region)) throw new IllegalArgumentException("source and destination Regions are not equal");
         raw.copyTo(0, dst.home, dst.raw, 0, rawLength, uncounted);
     }
 
@@ -752,7 +757,8 @@ public final class Array[T](
 
     /**
      * Copy all of the values from the source array into this Array.
-     * The two arrays must be defined over the same Region.
+     * The two arrays must be defined over equal Regions; if the Regions
+     * are not equal, then an IllegalArgumentExeption will be raised.
      * If the source Array is in a different place, then this copy
      * is performed asynchronously and the resulting activity will be 
      * registered with the dynamically enclosing finish.</p>
@@ -764,14 +770,16 @@ public final class Array[T](
      *   system would enable this restriction to be checked statically.</p>
      *
      * @param src the source array.  May be local or remote
+     * @throws IllegalArgumentException if !region.equals(dst.region)
      */
-    public def copyFrom(src:Array[T](this.region)) {
+    public def copyFrom(src:Array[T](this.rank)) {
         copyFrom(src, false);
     }
 
     /**
      * Copy all of the values from the source array into this Array.
-     * The two arrays must be defined over the same Region.
+     * The two arrays must be defined over equal Regions; if the Regions
+     * are not equal, then an IllegalArgumentExeption will be raised.
      * If the source Array is in a different place, then this copy
      * is performed asynchronously. Depending on the value of the 
      * uncounted parameter, the resulting activity will either be 
@@ -785,8 +793,10 @@ public final class Array[T](
      *   system would enable this restriction to be checked statically.</p>
      *
      * @param src the source array.  May be local or remote
+     * @throws IllegalArgumentException if !region.equals(dst.region)
      */
-    public def copyFrom(src:Array[T](this.region), uncounted:boolean) {
+    public def copyFrom(src:Array[T](this.rank), uncounted:boolean) {
+	if (checkBounds() && !region.equals(src.region)) throw new IllegalArgumentException("source and destination Regions are not equal");
 	raw.copyFrom(0, src.home, src.raw, 0, rawLength, uncounted);
     }
 
