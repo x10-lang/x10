@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -81,6 +82,7 @@ import polyglot.util.Position;
 import polyglot.util.TypedList;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
+import polyglot.visit.PrettyPrinter;
 import polyglot.visit.Translator;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeCheckPreparer;
@@ -97,6 +99,7 @@ import x10.errors.Errors;
 import x10.extension.X10Del;
 import x10.extension.X10Del_c;
 import x10.types.ConstrainedType;
+import x10.types.ConstrainedType_c;
 import x10.types.MacroType;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
@@ -107,6 +110,7 @@ import x10.types.X10Flags;
 import x10.types.X10MemberDef;
 import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
+import x10.types.X10ParsedClassType_c;
 import x10.types.X10ProcedureDef;
 import x10.types.X10TypeEnv_c;
 
@@ -1003,4 +1007,47 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		n = n.offerType(ot);
 		return n;
 	}
+
+    /** Write the method to an output file. */
+    public void prettyPrintHeader(CodeWriter w, PrettyPrinter tr) {
+        w.begin(0);
+        print(flags, w, tr);
+        w.write("def " + name + "(");
+    
+        w.allowBreak(2, 2, "", 0);
+        w.begin(0);
+    
+        for (Iterator<Formal> i = formals.iterator(); i.hasNext(); ) {
+            Formal f = i.next();
+            
+            print(f, w, tr);
+    
+            if (i.hasNext()) {
+            w.write(",");
+            w.allowBreak(0, " ");
+            }
+        }
+    
+        w.end();
+        w.write("):");
+        w.allowBreak(2, 2, "", 1);
+        print(returnType, w, tr);
+    
+        if (! throwTypes().isEmpty()) {
+            w.allowBreak(6);
+            w.write("throws ");
+    
+            for (Iterator i = throwTypes().iterator(); i.hasNext(); ) {
+                TypeNode tn = (TypeNode) i.next();
+            print(tn, w, tr);
+    
+            if (i.hasNext()) {
+                w.write(",");
+                w.allowBreak(4, " ");
+            }
+            }
+        }
+    
+        w.end();
+    }
 }

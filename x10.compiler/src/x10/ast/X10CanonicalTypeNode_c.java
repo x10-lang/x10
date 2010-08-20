@@ -12,6 +12,7 @@
 package x10.ast;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import polyglot.ast.CanonicalTypeNode;
@@ -34,8 +35,10 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
@@ -44,11 +47,13 @@ import polyglot.visit.NodeVisitor;
 import x10.constraint.XConstraint;
 import x10.extension.X10Del;
 import x10.types.ConstrainedType;
+import x10.types.ConstrainedType_c;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
 import x10.types.X10Flags;
+import x10.types.X10ParsedClassType_c;
 import x10.types.XTypeTranslator;
 
 import x10.types.X10TypeMixin;
@@ -305,6 +310,37 @@ AddFlags {
     	return (flags == null ? "" : flags.toString() + " ") + super.toString();
     }
     
-    
+    public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
+        prettyPrint(w, tr, true);
+    }
 
+    public void prettyPrint(CodeWriter w, PrettyPrinter tr, Boolean extras) {
+        if (type == null) {
+            w.write("<unknown-type>");
+        } else {
+            type.get().print(w);
+            if (extras && X10TypeMixin.baseType(type.get()) instanceof X10ParsedClassType_c) {
+                List<Type> typeArguments = ((X10ParsedClassType_c) X10TypeMixin.baseType(type.get())).typeArguments();
+                if (typeArguments.size() > 0) {
+                    w.write("[");
+                    w.allowBreak(2, 2, "", 0); // miser mode
+                    w.begin(0);
+                            
+                    for (Iterator<Type> i = typeArguments.iterator(); i.hasNext(); ) {
+                        Type t = i.next();
+                        t.print(w);
+                        if (i.hasNext()) {
+                        w.write(",");
+                        w.allowBreak(0, " ");
+                        }
+                    }
+                    w.write("]");
+                    w.end();
+                }
+            }
+            if (extras && type.get() instanceof ConstrainedType_c) {
+                ((ConstrainedType_c) type.get()).printConstraint(w);
+            }
+       }
+      }
 }

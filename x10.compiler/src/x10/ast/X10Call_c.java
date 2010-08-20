@@ -803,6 +803,9 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 	        if (target instanceof Expr) {
 	          printSubExpr((Expr) target, w, tr);
 	        }
+	        else if (target instanceof X10CanonicalTypeNode_c) {
+	            ((X10CanonicalTypeNode_c) target).prettyPrint(w, tr, false);
+	        }
 	        else if (target != null) {
 	          print(target, w, tr);
 	        }

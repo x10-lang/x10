@@ -1489,13 +1489,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		                w.write(") {");
 		                w.newline();
 	                        
-		                cb.formal().prettyPrint(w, tr);
+		                cb.formal().translate(w, tr);
 		                w.write(" = (");
 		                new TypeExpander(er, cb.catchType(), false, false, false).expand(tr);
 		                w.write(") " + temp + ".getCause();");
 		                w.newline();
 		                
-		                cb.body().prettyPrint(w, tr);
+		                cb.body().translate(w, tr);
 		                w.newline();
 		                
 		                w.write("}");
