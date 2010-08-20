@@ -642,8 +642,6 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         catch (SemanticException e) {
         }
 
-        systemResolver().install(fullName, cd.asType());
-
         return ((X10ParsedClassType) cd.asType()).error(error);
     }
 
