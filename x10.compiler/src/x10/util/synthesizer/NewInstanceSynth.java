@@ -30,6 +30,7 @@ import x10.ast.X10NodeFactory;
 import x10.extension.X10Del;
 import x10.types.X10Context;
 import x10.types.X10TypeSystem;
+import x10.types.checker.PlaceChecker;
 
 /**
  * An simple synthesizer to create a new instance: new classType
@@ -103,7 +104,7 @@ public class NewInstanceSynth extends AbstractStateSynth implements IStmtSynth, 
         if (annotations.size() > 0) {
             aNew = (New) ((X10Del) aNew.del()).annotations(annotations);
         }
-        Expr construct = aNew.constructorInstance(constructorIns).type(classType);            
+        Expr construct = aNew.constructorInstance(constructorIns).type(PlaceChecker.AddIsHereClause(classType, xct));            
         return construct;
     }
     
