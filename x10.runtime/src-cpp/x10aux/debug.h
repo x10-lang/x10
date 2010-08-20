@@ -165,12 +165,18 @@ struct _MetaDebugInfo_t {
   unsigned x10toCPPlistSize;      // the size in bytes of the X10->C++ cross reference
   unsigned cPPtoX10xrefListSize;  // the size in bytes of the C++->X10 cross reference
   unsigned x10methodNameListSize; // the size in bytes of the X10 method name mapping list
+// TODO - uncomment these two lines once the compiler starts generating them.
+//  unsigned x10localVarListSize;   // the size in bytes of the X10 local variable name mapping list
+//  unsigned x10typeListSize;       // the size in bytes of the X10 type mapping list
 
   const char*                  x10strings;        // The string table
   const struct _X10sourceFile* x10sourceList;     // The list of X10 source files
   const struct _X10toCPPxref*  x10toCPPlist;      // The X10->C++ cross reference
   const struct _CPPtoX10xref*  cPPtoX10xrefList;  // The C++->X10 cross reference
   const struct _X10methodName* x10methodNameList; // The method name mapping list
+// TODO - uncomment these two lines once the compiler starts generating them.
+//  const struct _X10LocalVarMap* x10localVarList;  // The local variable name mapping list
+//  const struct _X10TypeMap*    x10typeList;		  // The type mapping list
 };
 
 //extern void _X10_Entry_Hook();     // A hook at the start of every X10 method.
