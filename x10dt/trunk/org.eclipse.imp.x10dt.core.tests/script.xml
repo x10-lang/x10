@@ -5,9 +5,9 @@
 	<property name="data" location="data" />
 	<property name="tst-dir" location="bin" />
 	<property name="junit" location="lib/junit.jar" />
-	<property name="lpg" location="lib/lpg.jar" />
 	<property name="hamcrest" location="lib/hamcrest.jar" />
-	<property name="polyglot" location="lib/polyglot.jar" />
+	<property name="lpg" location="../x10.dist/lib/lpg.jar" />
+	<property name="polyglot" location="../x10.dist/lib/polyglot3.jar" />
 	<property name="x10.compiler" value="../x10.compiler/classes" />
 	<property name="x10.common" value="../x10.common/classes" />
 	<property name="x10.constraints" value="../x10.constraints/classes" />
@@ -27,7 +27,7 @@
 	</path>
 
 	<target name="test" depends="quicktest,report"/>
-	<target name="alltests" depends="quicktest,slowtest,fuzztest,report"/>
+	<target name="alltests" depends="smoketest,quicktest,slowtest,fuzztest,report"/>
 	<target name="report" depends="init,build">
 		<junitreport todir="${report}">
 			<fileset dir="${report}">
@@ -36,11 +36,17 @@
 			<report format="frames" todir="${report.html}"/>
 		</junitreport>
 	</target>
-	<target name="quicktest" depends="init,build" description="A quick set of tests (~2min)">
+	<target name="smoketest" depends="init,build" description="A very quick set of tests (~20sec)">
 		<junit>
 			<classpath refid="classpath.test" />
 			<formatter type="xml" usefile="true" />
 			<test name="org.eclipse.imp.x10dt.core.tests.compiler.CompilerTests" todir="${report}"/>
+		</junit>
+	</target>
+	<target name="quicktest" depends="init,build" description="A quick set of tests (~2min)">
+		<junit>
+			<classpath refid="classpath.test" />
+			<formatter type="xml" usefile="true" />
 			<test name="org.eclipse.imp.x10dt.core.tests.compiler.CompletenessCompilerTests" todir="${report}" />
 			<test name="org.eclipse.imp.x10dt.core.tests.compiler.DataParamCompilerTests" todir="${report}" />
 		</junit>
