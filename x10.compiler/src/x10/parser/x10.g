@@ -1445,11 +1445,6 @@ public static class MessageHandler implements IMessageHandler {
                     setResult(TypeParameterList);
           $EndJava
         ./
-    FormalParameters ::= ( FormalParameterListopt )
-        /.$BeginJava
-                    setResult(FormalParameterListopt);
-          $EndJava
-        ./
 
     Conjunction ::= Expression
         /.$BeginJava
@@ -2829,9 +2824,9 @@ FinishExpression ::= finish ( Expression ) Block
           $EndJava
         ./
        
-    FormalParameters ::= ( FormalParameterList )
+    FormalParameters ::= ( FormalParameterListopt )
         /.$BeginJava
-                    setResult(FormalParameterList);
+                    setResult(FormalParameterListopt);
           $EndJava
         ./
     
