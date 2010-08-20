@@ -17,16 +17,21 @@ import polyglot.ast.Call;
 import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Expr;
 import polyglot.ast.Formal;
+import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.ProcedureDecl;
 import polyglot.ast.Stmt;
+import polyglot.types.ArrayType;
 import polyglot.types.ClassType;
 import polyglot.types.CodeInstance;
 import polyglot.types.LocalDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.Named;
+import polyglot.types.ParsedClassType;
+import polyglot.types.ParsedClassType_c;
 import polyglot.types.QName;
+import polyglot.types.SemanticException;
 import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -57,14 +62,18 @@ import x10.ast.When;
 import x10.ast.When_c;
 import x10.ast.X10Formal;
 import x10.ast.X10Loop;
+import x10.types.ConstrainedType;
 import x10.types.FunctionType;
 import x10.types.ParametrizedType;
+import x10.types.X10ParsedClassType;
 import x10.types.X10TypeSystem;
 
+import com.ibm.wala.analysis.typeInference.PrimitiveType;
 import com.ibm.wala.cast.java.translator.polyglot.PolyglotIdentityMapper;
 import com.ibm.wala.cast.java.translator.polyglot.PolyglotJava2CAstTranslator;
 import com.ibm.wala.cast.java.translator.polyglot.PolyglotTypeDictionary;
 import com.ibm.wala.cast.java.translator.polyglot.TranslatingVisitor;
+import com.ibm.wala.cast.java.translator.polyglot.PolyglotJava2CAstTranslator.WalkContext;
 import com.ibm.wala.cast.tree.CAstControlFlowMap;
 import com.ibm.wala.cast.tree.CAstEntity;
 import com.ibm.wala.cast.tree.CAstNode;
@@ -74,6 +83,7 @@ import com.ibm.wala.cast.tree.CAstSourcePositionMap.Position;
 import com.ibm.wala.cast.tree.CAstType;
 import com.ibm.wala.cast.tree.CAstTypeDictionary;
 import com.ibm.wala.cast.tree.impl.CAstSymbolImpl;
+import com.ibm.wala.cast.x10.loader.X10Language;
 import com.ibm.wala.cast.x10.translator.X10CAstEntity;
 import com.ibm.wala.cast.x10.translator.X10CastNode;
 import com.ibm.wala.classLoader.CallSiteReference;
@@ -318,7 +328,55 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
     }
 
     class X10TranslatingVisitorImpl extends JavaTranslatingVisitorImpl implements X10TranslatorVisitor {
-        @Override
+    	
+    	
+    	@Override
+    	public CAstNode visit(New n, WalkContext wc) {
+    		// would be nice to write the following...
+    		// if (! n.type().isArray()) {
+    		// if only it gave the right answer...
+    		
+    		// this bit of code is pretty horrible...  
+    		// it would be so much better if .isArray() worked
+    		boolean is_array;
+			Type myType = n.type();
+			Type me = null;
+    		try {
+    			if (myType instanceof ConstrainedType) {
+    				myType = ((ConstrainedType)myType).baseType().get();
+    			
+    			}
+    			if (myType instanceof X10ParsedClassType) {
+    				
+    				me = ((ParsedClassType)myType).def().asType();
+    			
+    			}
+				Type x = ((ParsedClassType)n.type().typeSystem().typeForName(QName.make("x10.array.Array"))).def().asType();
+				is_array = n.type().typeSystem().isSubtype(me, x, n.type().typeSystem().emptyContext());
+			} catch (SemanticException e) {
+				is_array = false;
+			}
+    		if (! is_array) {
+    			return super.visit(n, wc);
+    		} else {
+    			Type elementType = ((X10ParsedClassType)myType).typeArguments().get(0);
+    			
+    			TypeReference arrayTypeRef = fIdentityMapper.getTypeRef(elementType).getArrayTypeForElementType();
+
+    		     List<Expr> dims = n.arguments();
+    		     CAstNode[] args = new CAstNode[dims.size() + 1];
+
+    		     int idx = 0;
+    		     args[idx++] = fFactory.makeConstant(arrayTypeRef);
+    		     for (Iterator iter = dims.iterator(); iter.hasNext();) {
+    		    	 Expr dimExpr = (Expr) iter.next();
+    		    	 args[idx++] = walkNodes(dimExpr, wc);
+    		        }
+    		     return makeNode(wc, fFactory, n, CAstNode.NEW, args);
+    		}
+    	}
+    	   
+    	@Override
         public CAstNode visit(ConstructorDecl cd, MethodContext mc) {
             if (cd.body() == null) { // PORT1.7 Body can be null
               return makeNode(mc, fFactory, cd, CAstNode.BLOCK_STMT, new CAstNode[0]);
