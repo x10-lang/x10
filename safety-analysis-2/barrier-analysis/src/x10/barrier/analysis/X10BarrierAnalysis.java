@@ -318,7 +318,7 @@ private Set retrieveClocks(int nodenum) {
 		   // a.print();
 		    a.composePar();
 		    System.out.println("Automata Composed Successfully");
-		   // a.print();
+		   a.print();
 		    a.mayHappenInParallel();
 	    }
 	  
