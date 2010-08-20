@@ -24,6 +24,13 @@ public class Test{
           next;
           y = 4;
        }
+       for(;;) {
+          y = 2;
+          next;
+          y = 3;
+          next;
+          y = 4;
+       }
     
     }
        
