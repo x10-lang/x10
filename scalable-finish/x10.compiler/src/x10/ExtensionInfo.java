@@ -373,11 +373,9 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
            Goal typeCheckedGoal = TypeChecked(job);
            goals.add(typeCheckedGoal);
-           
            Goal finishGoal = null;
            if (x10.Configuration.FINISH_ASYNCS && x10.Configuration.WALA) {
                try{
-            	   
                    ClassLoader cl = Thread.currentThread().getContextClassLoader();
                    Class<?> c = cl.loadClass("com.ibm.wala.cast.x10.translator.polyglot.X102IRGoal");
                    Constructor<?> con = c.getConstructor(Job.class);
@@ -395,7 +393,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                    
                } catch (Throwable e) {
                    System.err.println("WALA not found.");
-                   e.printStackTrace();
+                   //e.printStackTrace();
                }
            }
            goals.add(ReassembleAST(job));
@@ -890,10 +888,8 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                    //TODO: probably need to also annotation code in "runtime"
             	   if (!scheduler.commandLineJobs().contains(job) &&
                            ((ExtensionInfo) extInfo).manifestContains(job.source().path())) {
-                	   //System.out.println(job.source().name()+" omitted");
                        return null;
                    }
-                   //System.out.println(job.source().name()+" started");
                    return goal;
                }
                public boolean runTask() {
