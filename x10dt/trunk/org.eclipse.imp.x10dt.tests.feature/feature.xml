@@ -4,24 +4,95 @@
       label="X10DT Tests Feature"
       version="2.0.5.qualifier">
 
-   <requires>
-      <import feature="org.eclipse.imp.x10dt.feature" version="2.0.5.qualifier"/>
-      <import plugin="org.junit.addons"/>
-   </requires>
+   <includes
+         id="org.eclipse.imp.x10dt.feature"
+         version="2.0.5.qualifier"
+         os="win32,linux,macosx"
+         arch="x86,x86_64"/>
+
+   <includes
+         id="org.eclipse.test"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.swtbot"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.swtbot.eclipse"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.imp.java.hosted"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.imp.runtime"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.ptp"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.ptp.core"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.ptp.remote"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.ptp.remote.remotetools"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.ptp.remotetools"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.ptp.rm.ibm.ll"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.ptp.rm.ibm.pe"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.ptp.rm.mpich2"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.ptp.rm.openmpi"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.ptp.services"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.ptp.utils"
+         version="0.0.0"/>
+
+   <includes
+         id="lpg.runtime"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.swtbot.eclipse.test.junit4"
+         version="0.0.0"/>
 
    <plugin
          id="org.eclipse.imp.x10dt.core.tests"
          download-size="0"
          install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="org.eclipse.imp.x10dt.ui.tests"
          download-size="0"
          install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="org.eclipse.imp.x10dt.ui.launch.cpp.tests"
@@ -32,6 +103,34 @@
 
    <plugin
          id="x10.effects.tests"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.imp.x10dt.tests.services"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.junit.addons"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.swtbot.eclipse.junit4.headless"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="polyglot3"
          download-size="0"
          install-size="0"
          version="0.0.0"
