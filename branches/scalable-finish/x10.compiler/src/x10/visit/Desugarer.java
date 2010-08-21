@@ -44,6 +44,7 @@ import polyglot.ast.StringLit;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.frontend.Job;
+import polyglot.main.Report;
 import polyglot.types.ClassType;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
@@ -630,17 +631,20 @@ public class Desugarer extends ContextVisitor {
 						}
 					}
 					if(!isConsistent){
-						System.out.println("WARNING:compiler inferes different annotations from what the programer sets in "+job.source().name());
-						System.out.println("\tcompiler inferes "+p1);
-						System.out.println("\tprogrammer annotates "+p2);
+						Report.report(0,"WARNING:compiler inferes different annotations from what the programer sets in "+job.source().name());
+						if(Report.should_report("verbose", 1)){
+							Report.report(5,"\tcompiler inferes "+p1);
+							Report.report(5,"\tprogrammer annotates "+p2);
+						}
 					}
 				}
 				a = allannots.get(allannots.size()-1);
-				System.out.println(a);
+				if(Report.should_report("", 1)) 
+					Report.report(1,a.toString());
 				p = getPatternFromAnnotation(a);
 				
         	}else{
-        		System.out.println("annotation is not correct "+ allannots.size());
+        		Report.report(0,"annotation is not correct "+ allannots.size());
         	}
         }
         switch(p){
