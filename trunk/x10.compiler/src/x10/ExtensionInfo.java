@@ -260,7 +260,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     			return 1;
     		if (pa.column() < pb.column())
     			return -1;
-    		if (pb.line() < pa.line())
+    		if (pb.column() < pa.column())
     			return 1;
     		return 0;
     	}

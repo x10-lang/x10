@@ -252,12 +252,6 @@ public class X10Return_c extends Return_c {
                 throw new InternalCompilerError("Null return type for " + fi);
             }
             
-            if (ts.isUnknown(returnType)) {
-                if (Configuration.CHECK_INVARIANTS)
-                    Errors.issue(tc.job(), new SemanticException("Complaining about UnknownType", position()));
-                throw new SemanticException();
-            }
-
 //            if (fi instanceof X10MemberDef) {
 //                XRoot classThisVar = ((X10ClassDef) c.currentClassDef()).thisVar();
 //                XRoot methodThisVar = ((X10MemberDef) fi).thisVar();

@@ -321,7 +321,7 @@ public class X10Field_c extends Field_c {
 				XVar receiver = null;
 				
 				X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
-				XTerm r = ts.xtypeTranslator().trans((CConstraint) null, target, (X10Context) c);
+				XTerm r = ts.xtypeTranslator().trans(new CConstraint(), target, (X10Context) c);
 				if (r instanceof XVar) {
 				    receiver = (XVar) r;
 				}

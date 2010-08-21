@@ -261,7 +261,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 		            throw mi.error();
 		        Type bt = X10TypeMixin.baseType(array.type());
 		        boolean arrayP = xts.isX10Array(bt) || xts.isX10DistArray(bt);
-		        throw new Errors.CannotAssignToElement(leftToString(), arrayP, right, X10TypeMixin.arrayElementType(array.type()), position());
+		        Errors.issue(tc.job(), new Errors.CannotAssignToElement(leftToString(), arrayP, right, X10TypeMixin.arrayElementType(array.type()), position()));
 		    }
 		}
 
@@ -275,7 +275,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 		if (ami.error() != null) {
 		    Type bt = X10TypeMixin.baseType(array.type());
 		    boolean arrayP = xts.isX10Array(bt) || xts.isX10DistArray(bt);
-		    throw new Errors.CannotAssignToElement(leftToString(), arrayP, right, X10TypeMixin.arrayElementType(array.type()), position());
+		    Errors.issue(tc.job(), new Errors.CannotAssignToElement(leftToString(), arrayP, right, X10TypeMixin.arrayElementType(array.type()), position()));
 		}
 
 		if (op != Assign.ASSIGN) {
@@ -293,7 +293,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 		}
 
 		if (mi.flags().isStatic() ) {
-		    throw new Errors.AssignSetMethodCantBeStatic(mi, array, position());
+		    Errors.issue(tc.job(), new Errors.AssignSetMethodCantBeStatic(mi, array, position()));
 		}
 
 		SettableAssign_c a = this;
