@@ -601,9 +601,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
     public ClassDef unknownClassDef() {
         if (unknownClassDef == null) {
-            unknownClassDef = new X10ClassDef_c(this, null);
-            unknownClassDef.name(Name.make("<unknown class>"));
-            unknownClassDef.kind(ClassDef.TOP_LEVEL);
+            unknownClassDef = createFakeClass(QName.make("<unknown class>"), new SemanticException("Unknown class")).def();
         }
         return unknownClassDef;
     }
