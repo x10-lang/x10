@@ -42,7 +42,6 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
-import polyglot.types.UnknownType;
 import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
@@ -420,11 +419,11 @@ public class Closure_c extends Expr_c implements Closure {
 
         if (n.returnType() instanceof UnknownTypeNode) {
         	NodeFactory nf = tc.nodeFactory();
-        	TypeSystem ts = tc.typeSystem();
+        	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
         	// Body had no return statement.  Set to void.
         	Ref<Type> tr=((Ref<Type>) n.returnType().typeRef());
         	Type t = tr.getCached();
-        	if (t instanceof UnknownType) {
+        	if (ts.isUnknown(t)) {
         		t = ts.Void();
         	}
         	tr.update(t);

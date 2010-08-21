@@ -43,7 +43,6 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
-import polyglot.types.UnknownType;
 import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
@@ -336,7 +335,7 @@ public class AmbMacroTypeNode_c extends AmbTypeNode_c implements AmbMacroTypeNod
         
         Type t = tn.type();
 
-        if (t instanceof UnknownType) {
+        if (ts.isUnknown(t)) {
             // Mark the type resolved to prevent us from trying to resolve this again and again.
             sym.update(ts.unknownType(n.position()));
             return postprocess(nf.CanonicalTypeNode(n.position(), sym), n, childtc);

@@ -38,7 +38,6 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
-import polyglot.types.UnknownType;
 import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
@@ -468,17 +467,15 @@ public class X10New_c extends New_c implements X10New {
         X10ConstructorInstance ci;
         X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
         X10Context context = (X10Context) tc.context();
-        boolean haveUnknown = false;
+        boolean haveUnknown = xts.isUnknown(targetType);
         for (Type t : actualTypes) {
-            if (t instanceof UnknownType) haveUnknown = true;
+            if (xts.isUnknown(t)) haveUnknown = true;
         }
         SemanticException error = null;
-        if (!haveUnknown) {
-            try {
-                return findConstructor(tc, context, n, targetType, actualTypes, anonType);
-            } catch (SemanticException e) {
-                error = e;
-            }
+        try {
+            return findConstructor(tc, context, n, targetType, actualTypes, anonType);
+        } catch (SemanticException e) {
+            error = e;
         }
         // If not returned yet, fake the constructor instance.
         Collection<X10ConstructorInstance> cis = null;
@@ -503,6 +500,8 @@ public class X10New_c extends New_c implements X10New {
                 }
             }
         }
+        if (haveUnknown)
+            error = new SemanticException(); // null message
         ci = xts.createFakeConstructor(targetType.toClass(), Flags.PUBLIC, actualTypes, error);
         if (rt != null) ci = ci.returnType(rt);
         return new Pair<ConstructorInstance, List<Expr>>(ci, n.arguments());

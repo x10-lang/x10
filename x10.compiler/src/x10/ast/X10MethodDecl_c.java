@@ -73,7 +73,6 @@ import polyglot.types.Type;
 import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
-import polyglot.types.UnknownType;
 import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
 import polyglot.util.ErrorInfo;
@@ -980,10 +979,10 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 
 		if (nn.returnType() instanceof UnknownTypeNode) {
 			NodeFactory nf = tc.nodeFactory();
-			TypeSystem ts = tc.typeSystem();
+			X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 			// Body had no return statement.  Set to void.
 			Type t;
-			if (! (((Ref<Type>) nn.returnType().typeRef()).getCached() instanceof UnknownType)) {
+			if (! ts.isUnknown(((Ref<Type>) nn.returnType().typeRef()).getCached())) {
 				t = ((Ref<Type>) nn.returnType().typeRef()).getCached();
 			}
 			else {

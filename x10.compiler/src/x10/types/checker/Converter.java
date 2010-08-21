@@ -44,7 +44,6 @@ import polyglot.types.ProcedureInstance;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
-import polyglot.types.UnknownType;
 import polyglot.util.ErrorInfo;
 import polyglot.util.Pair;
 import polyglot.util.Position;
@@ -398,14 +397,17 @@ public class Converter {
 	}
 
 	public  static Expr checkCast(X10Cast_c cast, ContextVisitor tc) throws SemanticException {
-		Type toType = cast.castType().type();
-        // todo: Yoav added
-        if (toType instanceof UnknownType)
-				return cast;
-		Type fromType = cast.expr().type();
 		X10TypeSystem_c ts = (X10TypeSystem_c) tc.typeSystem();
+		Type toType = cast.castType().type();
+		Type fromType = cast.expr().type();
 		X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
 		X10Context context = (X10Context) tc.context();
+
+		if (ts.isUnknown(toType)) {
+		    if (Configuration.CHECK_INVARIANTS)
+			Errors.issue(tc.job(), new SemanticException("Complaining about UnknownType", cast.position()));
+		    return cast;
+		}
 
 		if (ts.isVoid(toType) || ts.isVoid(fromType))
 			throw new Errors.CannotConvertToType(fromType, toType, cast.position());
