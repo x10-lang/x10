@@ -20,6 +20,7 @@ import polyglot.ast.Node;
 import polyglot.ast.Receiver;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.UnknownType;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.TypeChecker;
@@ -52,9 +53,11 @@ public class RegionMaker_c extends X10Call_c implements RegionMaker {
 		Type type = n.type();
 		Type lType = left.type();
 		if (X10TypeMixin.entails(lType, X10TypeMixin.self(lType), xts.ZERO())) {
-			XVar self = X10TypeMixin.self(type);
-			type = X10TypeMixin.addTerm(type, X10TypeMixin.makeZeroBased(type));
-			n= (RegionMaker_c) n.type(type);
+		    if (!(type instanceof UnknownType)) {
+		        XVar self = X10TypeMixin.self(type);
+		        type = X10TypeMixin.addTerm(type, X10TypeMixin.makeZeroBased(type));
+		        n= (RegionMaker_c) n.type(type);
+		    }
 		}
 	
 		return n;

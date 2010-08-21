@@ -155,12 +155,10 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 	        if (t instanceof UnknownType) haveUnknown = true;
 	    }
 	    SemanticException error = null;
-	    if (!haveUnknown) {
-	        try {
-	            return findMethod(tc, context, n, targetType, name, typeArgs, actualTypes, context.inStaticContext());
-	        } catch (SemanticException e) {
-	            error = e;
-	        }
+	    try {
+	        return findMethod(tc, context, n, targetType, name, typeArgs, actualTypes, context.inStaticContext());
+	    } catch (SemanticException e) {
+	        error = e;
 	    }
 	    // If not returned yet, fake the method instance.
 	    Collection<X10MethodInstance> mis = null;
@@ -421,6 +419,10 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
                 // enclosing class which brought the method into scope.  This is
                 // different from mi.container().  mi.container() returns a super type
                 // of the class we want.
+                if (mi.error() != null) {
+                    // The method wasn't found -- assume current class.
+                    return (Special) nf.This(prefixPos).del().typeCheck(tc);
+                }
                 Type scope = c.findMethodScope(name.id());
                 if (!xts.typeEquals(scope, c.currentClass(), c)) {
                     XVar thisVar = getThis(scope);
