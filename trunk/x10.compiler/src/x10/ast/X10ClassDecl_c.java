@@ -57,7 +57,6 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
-import polyglot.types.UnknownType;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 import polyglot.visit.CFGBuilder;
@@ -720,12 +719,13 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     
     @Override
     protected void checkSupertypeCycles(TypeSystem ts) throws SemanticException {
+        X10TypeSystem xts = (X10TypeSystem) ts;
         Ref<? extends Type> stref = type.superType();
         
         if (stref != null) {
             Type t = stref.get();
             t = followDefs(t);
-            if (t instanceof UnknownType)
+            if (xts.isUnknown(t))
                 return;
             if (! t.isClass() || t.toClass().flags().isInterface()) {
                 throw new SemanticException("Cannot extend type " +
@@ -742,7 +742,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         for (Ref<? extends Type> tref : type.interfaces()) {
             Type t = tref.get();
             t = followDefs(t);
-            if (t instanceof UnknownType)
+            if (xts.isUnknown(t))
                 throw new SemanticException(); // already reported
             if (! t.isClass() || ! t.toClass().flags().isInterface()) {
                 String s = type.flags().isInterface() ? "extend" : "implement";
@@ -788,7 +788,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     }
 
     public Node superConformanceCheck(ContextVisitor tc) throws SemanticException {
-        TypeSystem ts = tc.typeSystem();
+        X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 
         ClassType type = this.type.asType();
         Name name = this.name.id();
@@ -853,7 +853,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
                     + "member classes.", position());
         }
 
-        if (type.superClass() != null && !(type.superClass() instanceof UnknownType)) {
+        if (type.superClass() != null && !ts.isUnknown(type.superClass())) {
             if (! type.superClass().isClass() || type.superClass().toClass().flags().isInterface()) {
                 throw new SemanticException("Cannot extend non-class \"" +
                         type.superClass() + "\".",

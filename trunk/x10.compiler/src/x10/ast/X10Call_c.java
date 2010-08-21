@@ -58,7 +58,6 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.TypeSystem_c;
 import polyglot.types.Types;
-import polyglot.types.UnknownType;
 import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
 import polyglot.util.ErrorInfo;
@@ -150,9 +149,9 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 	    X10MethodInstance mi;
 	    X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
 	    X10Context context = (X10Context) tc.context();
-	    boolean haveUnknown = false;
+	    boolean haveUnknown = xts.isUnknown(targetType);
 	    for (Type t : actualTypes) {
-	        if (t instanceof UnknownType) haveUnknown = true;
+	        if (xts.isUnknown(t)) haveUnknown = true;
 	    }
 	    SemanticException error = null;
 	    try {
@@ -185,6 +184,8 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 	    }
 	    if (targetType == null)
 	        targetType = context.currentClass();
+	    if (haveUnknown)
+	        error = new SemanticException(); // null message
 	    mi = xts.createFakeMethod(targetType.toClass(), Flags.PUBLIC, name, typeArgs, actualTypes, error);
 	    if (rt != null) mi = mi.returnType(rt);
 	    return new Pair<MethodInstance, List<Expr>>(mi, n.arguments());
@@ -336,8 +337,9 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
     }
     
     private static Type ambMacroTypeNodeType(ContextVisitor tc, Type t, List<TypeNode> typeArgs) {
+        X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
         
-        if (t instanceof UnknownType) {
+        if (xts.isUnknown(t)) {
             return null;
         }
         
@@ -402,7 +404,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
     }
 
     private Receiver computeReceiver(ContextVisitor tc, X10MethodInstance mi) {
-        X10TypeSystem xts = (X10TypeSystem) ((X10TypeSystem) tc.typeSystem());
+        X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
         NodeFactory nf = tc.nodeFactory();
         X10Context c = (X10Context) tc.context();
         Position prefixPos = position().startOf().markCompilerGenerated();
@@ -578,7 +580,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 			    if (ci.error() != null) {
 			        // Check for this case:
 			        // val x = x();
-			        if (e instanceof Local && e.type() instanceof UnknownType) {
+			        if (e instanceof Local && xts.isUnknown(e.type())) {
 			            throw new SemanticException("Possible closure call on uninitialized variable " + ((Local) e).name() + ".", position());
 			        }
 			    } else {

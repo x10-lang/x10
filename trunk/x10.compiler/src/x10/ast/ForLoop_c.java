@@ -23,7 +23,6 @@ import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.StructType;
 import polyglot.types.Type;
-import polyglot.types.UnknownType;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.CFGBuilder;
@@ -88,7 +87,7 @@ public class ForLoop_c extends X10Loop_c implements ForLoop {
 	    domain = (Expr) PlaceChecker.makeReceiverLocalIfNecessary(tc, domain, X10Flags.toX10Flags(mi.flags()));
 	    if (domain != null) {
 	        if (domain != result.domain()) result = result.domain(domain);
-	    } else if (!(result.domain().type() instanceof UnknownType)) {
+	    } else if (!xts.isUnknown(result.domain().type())) {
 	        Errors.issue(tc.job(),
 	                new SemanticException("The domain of this iterated for loop must be local",
 	                        result.domain().position()));

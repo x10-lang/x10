@@ -626,6 +626,22 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         }
     }
 
+    protected X10ClassType typeForNameSilent(QName fullName) {
+        try {
+            if (fullName == null) {
+                return (X10ClassType) unknownClassDef().asType();
+            }
+            return (X10ClassType) typeForName(fullName);
+        }
+        catch (SemanticException e) {
+            return createFakeClass(fullName, e);
+        }
+    }
+
+    public boolean isUnknown(Type t) {
+        return X10TypeMixin.baseType(t) instanceof UnknownType;
+    }
+
     public X10ClassType createFakeClass(QName fullName, SemanticException error) {
         X10ClassDef cd = (X10ClassDef) createClassDef();
         cd.name(fullName.name());
@@ -641,18 +657,6 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         }
 
         return ((X10ParsedClassType) cd.asType()).error(error);
-    }
-
-    protected X10ClassType typeForNameSilent(QName fullName) {
-        try {
-            if (fullName == null) {
-                return (X10ClassType) unknownClassDef().asType();
-            }
-            return (X10ClassType) typeForName(fullName);
-        }
-        catch (SemanticException e) {
-            return createFakeClass(fullName, e);
-        }
     }
 
     public X10FieldInstance createFakeField(QName containerName, Flags flags, Name name, SemanticException error) {

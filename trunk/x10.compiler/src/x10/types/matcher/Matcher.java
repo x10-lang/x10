@@ -27,7 +27,6 @@ import polyglot.types.LocalInstance;
 import polyglot.types.MethodInstance;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
-import polyglot.types.UnknownType;
 import polyglot.util.Position;
 import x10.ast.ClosureCall;
 import x10.constraint.XEQV;
@@ -214,7 +213,7 @@ public class Matcher {
 	        				// (rather than the point of definition). 
 	        			
 	        				Type newReturnType = Subst.subst(rt, y2eqv, x2, Y, X);
-	        				if (! newReturnType.isVoid() && ! (newReturnType instanceof UnknownType)) {
+	        				if (! newReturnType.isVoid() && ! xts.isUnknown(newReturnType)) {
 	        					try {
 	        						
 	        						newReturnType = Subst.addIn(newReturnType, returnEnv2);

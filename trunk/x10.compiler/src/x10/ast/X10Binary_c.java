@@ -47,7 +47,6 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
-import polyglot.types.UnknownType;
 import polyglot.util.CollectionUtil;
 import polyglot.util.Pair;
 import polyglot.util.Position;
@@ -574,7 +573,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
                     if (bestmd == md) continue;  // same method by a different path
 
                     Type besttd = Types.get(bestmd.container());
-                    if (besttd instanceof UnknownType || td instanceof UnknownType) {
+                    if (xts.isUnknown(besttd) || xts.isUnknown(td)) {
                         best.add(n1);
                         continue;
                     }

@@ -34,7 +34,6 @@ import polyglot.types.ProcedureInstance;
 import polyglot.types.SemanticException;
 import polyglot.types.Name;
 import polyglot.types.Type;
-import polyglot.types.UnknownType;
 import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
 import polyglot.util.Pair;
@@ -231,9 +230,9 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 	    X10MethodInstance mi;
 	    X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
 	    Context context = tc.context();
-	    boolean haveUnknown = false;
+	    boolean haveUnknown = xts.isUnknown(targetType);
 	    for (Type t : actualTypes) {
-	        if (t instanceof UnknownType) haveUnknown = true;
+	        if (xts.isUnknown(t)) haveUnknown = true;
 	    }
 	    SemanticException error = null;
 	    if (!haveUnknown) {

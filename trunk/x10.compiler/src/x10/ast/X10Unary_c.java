@@ -35,7 +35,6 @@ import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
-import polyglot.types.UnknownType;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import x10.errors.Errors;
@@ -261,7 +260,7 @@ public class X10Unary_c extends Unary_c {
                     if (bestmd == md) continue;  // same method by a different path (shouldn't happen for unary)
 
                     Type besttd = Types.get(bestmd.container());
-                    if (besttd instanceof UnknownType || td instanceof UnknownType) {
+                    if (xts.isUnknown(besttd) || xts.isUnknown(td)) {
                         best.add(n1);
                         continue;
                     }

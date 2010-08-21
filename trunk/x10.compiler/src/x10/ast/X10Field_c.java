@@ -34,7 +34,6 @@ import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.StructType;
 import polyglot.types.Type;
-import polyglot.types.UnknownType;
 import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
@@ -146,6 +145,7 @@ public class X10Field_c extends Field_c {
 	    X10FieldInstance fi;
 	    X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
 	    Context context = tc.context();
+	    boolean haveUnknown = xts.isUnknown(targetType);
 	    Set<FieldInstance> fis = xts.findFields(targetType, xts.FieldMatcher(targetType, name, context));
 	    // If exception was not thrown, there is at least one match.  Fake it.
 	    // See if all matches have the same type, and save that to avoid losing information.
@@ -179,6 +179,8 @@ public class X10Field_c extends Field_c {
 	    if (ct != null) targetType = ct;
 	    Flags flags = Flags.PUBLIC;
 	    if (isStatic) flags = flags.Static();
+	    if (haveUnknown)
+	        e = new SemanticException(); // null message
 	    fi = xts.createFakeField(targetType.toClass(), flags, name, e);
 	    if (rt == null) rt = fi.type();
 	    rt = PlaceChecker.AddIsHereClause(rt, context);

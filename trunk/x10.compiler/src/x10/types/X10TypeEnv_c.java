@@ -45,7 +45,6 @@ import polyglot.types.Type;
 import polyglot.types.TypeEnv_c;
 import polyglot.types.TypeSystem_c;
 import polyglot.types.Types;
-import polyglot.types.UnknownType;
 import polyglot.types.TypeSystem_c.ConstructorMatcher;
 import polyglot.types.TypeSystem_c.TypeEquals;
 import polyglot.util.CollectionUtil;
@@ -682,7 +681,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     boolean isSubtype(XVar x, Type t1, Type t2) {
     	assert t1 != null;
     	assert t2 != null;
-        if (t1 instanceof UnknownType || t2 instanceof UnknownType) return true;
+    	if (ts.isUnknown(t1) || ts.isUnknown(t2)) return true;
         
     	t1 = ts.expandMacros(t1);
     	t2 = ts.expandMacros(t2);

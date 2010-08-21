@@ -29,7 +29,6 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
-import polyglot.types.UnknownType;
 import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
@@ -133,7 +132,7 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode, AddF
         TypeNode tn = (TypeNode) visitChild(base, childtc);
         Type t = tn.type();
 
-        if (t instanceof UnknownType) {
+        if (ts.isUnknown(t)) {
             // Mark the type resolved to prevent us from trying to resolve this again and again.
             assert (false);
             sym.update(ts.unknownType(position()));
