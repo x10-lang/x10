@@ -10,6 +10,7 @@ import java.util.List;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.Job;
 import polyglot.frontend.SourceGoal_c;
+import polyglot.main.Report;
 import x10.finish.table.CallTableKey;
 import x10.finish.table.CallTableUtil;
 import x10.finish.table.CallTableVal;
@@ -33,7 +34,8 @@ public class X102IRGoal extends SourceGoal_c {
     // TODO: get rid of static state
     // TODO: figure out whether we need multiple loaders
 	static {
-		System.out.println("WALA is invoked!");
+		if(Report.should_report("verbose", 1))
+			Report.report(5,"WALA is invoked!");
 	}
     private static final ClassLoaderReference X10LOADER = X10SourceLoaderImpl.X10SourceLoader;
 
@@ -42,13 +44,20 @@ public class X102IRGoal extends SourceGoal_c {
     private static X10SourceAnalysisEngine engine = new X10SourceAnalysisEngine() {
         {
             try {
-            	System.out.println("building analysis scope ...");
-                buildAnalysisScope();
+            	if(Report.should_report("verbose", 1))
+        			Report.report(5,"building analysis scope ...");
+                
+            	buildAnalysisScope();
             } catch (Throwable t) {}
-            System.out.println("initializing class hierarchy ...");
+            
+            if(Report.should_report("verbose", 1))
+    			Report.report(5,"initializing class hierarchy ...");
+            
             X10ClassHierarchy cha = initClassHierarchy();
             setClassHierarchy(cha);
-            System.out.println("translating AST to IR ...");
+            
+            if(Report.should_report("verbose", 1))
+    			Report.report(5,"translating AST to IR ...");
         }
         
         public String getExclusionsFile() {
@@ -67,10 +76,13 @@ public class X102IRGoal extends SourceGoal_c {
     @Override
     public boolean runTask() {
         ExtensionInfo extInfo = job.extensionInfo();
-        //System.out.println("translating " + job.source().name() + " x10 ast to wala ast ...");
+        if(Report.should_report("verbose", 2))
+			Report.report(2,"translating " + job.source().name() + " x10 ast to wala ast ...");
         X10toCAstTranslator fTranslator = new X10toCAstTranslator(X10LOADER, extInfo.nodeFactory(), extInfo.typeSystem(), mapper, false);
         CAstEntity entity = fTranslator.translate(job.ast(), job.source().name());
-        //System.out.println("translating " + job.source().name() + " wala ast to ir ...");
+        
+        if(Report.should_report("verbose", 2))
+			Report.report(2,"translating " + job.source().name() + " wala ast to ir ...");
         new X10CAst2IRTranslator(entity, fSourceLoader).translate();
         return true;
     }
@@ -102,7 +114,8 @@ public class X102IRGoal extends SourceGoal_c {
                         Descriptor.findOrCreateUTF8("(Lx10/lang/Rail;)V"));
                 entrypoints.add(new DefaultEntrypoint(mainRef, engine.getClassHierarchy()));
             }
-            System.out.println("building call graph ...");
+            if(Report.should_report("verbose", 1))
+    			Report.report(5,"building call graph ...");
             return engine.buildCallGraph(entrypoints);
         } catch (Throwable t) {
         	System.err.println(t); 
@@ -128,24 +141,28 @@ public class X102IRGoal extends SourceGoal_c {
 		HashMap<CallTableKey, LinkedList<CallTableVal>> calltable = new HashMap<CallTableKey, LinkedList<CallTableVal>>();
 		X10FinishAsyncAnalysis x10fa = new X10FinishAsyncAnalysis();
 		CallGraph cg = buildCallGraph();
-		System.out.println("call graph built!");
-		System.out.println("analyzing programs ...");
+		if(Report.should_report("verbose", 1))
+			Report.report(5,"call graph built!\nanalyzing programs ...");
+
 		calltable = x10fa.build(cg,calltable);
 		calltable = CallTableUtil.findPatterns(calltable);
 		if (ifDump) {
 			CallTableUtil.dumpCallTable(calltable);
 		}
 		if (ifExpanded) {
-			System.out.println("expanding talbe ...");
+			if(Report.should_report("verbose", 1))
+    			Report.report(5,"expanding talbe ...");
 			CallTableUtil.expandCallTable(calltable, mask);
 			// CallTableUtil.updateAllArity(calltable);
 			// CallTableUtil.expandCallTable(calltable, mask);
 		}
 		if (ifDump && ifExpanded) {
-			System.out.println("New Talbe:");
+			if(Report.should_report("verbose", 1))
+    			Report.report(5,"New Talbe:");
 			CallTableUtil.dumpCallTable(calltable);
 		}
-		System.out.println("end ... ");
+		if(Report.should_report("verbose", 1))
+			Report.report(5,"done!");
 		return calltable;
 	}
     
