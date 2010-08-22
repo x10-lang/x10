@@ -42,12 +42,12 @@ public class RailCopy extends x10Test {
         val master2 = ValRail.make(sz, init2);
         var failures:Int = 0;
 
-        val local = Rail.make(sz, init1);
-        val localv = local as ValRail[T];
+        val local_ = Rail.make(sz, init1);
+        val localv = local_ as ValRail[T];
         val remote = at (there) Rail.make(sz, init2);
         val handle = PlaceLocalHandle.make[Rail[T]](Dist.makeUnique(here==there ? [here] : [here,there]), ()=>Rail.make(sz, init2));
 
-        failures += verify(at (here) local as ValRail[T], master1, prefix+": Local rail initialization");
+        failures += verify(at (here) local_ as ValRail[T], master1, prefix+": Local rail initialization");
         failures += verify(at (here) localv, master1, prefix+": Local valrail initialization");
         failures += verify(at (there) remote as ValRail[T], master2, prefix+": Remote rail initialization");
 
@@ -58,34 +58,34 @@ public class RailCopy extends x10Test {
         val notifier = () => { /*printRemotePtr(c); */ if (here==c.home) update(c); else Runtime.runAtNative(c.home.id, ()=>update(c)); };
 
 ///* temporarily commented out
-        finish local.copyTo(0,remote,0,sz);
+        finish local_.copyTo(0,remote,0,sz);
         failures += verify(at (there) remote as ValRail[T], master1, prefix+": test 1");
         at (remote) remote.reset(init2);
         failures += verify(at (there) remote as ValRail[T], master2, prefix+": test 1 (reset)");
 
-        finish local.copyTo(0,there,()=>Pair[Rail[T],Int](remote,0),sz);
+        finish local_.copyTo(0,there,()=>Pair[Rail[T],Int](remote,0),sz);
         failures += verify(at (there) remote as ValRail[T], master1, prefix+": test 2");
         at (remote) remote.reset(init2);
         failures += verify(at (there) remote as ValRail[T], master2, prefix+": test 2 (reset)");
 //*/
 
-        c(false); local.copyTo(0,remote,0,sz,notifier); await c.value;
+        c(false); local_.copyTo(0,remote,0,sz,notifier); await c.value;
         failures += verify(at (there) remote as ValRail[T], master1, prefix+": test 3");
         at (there) remote.reset(init2);
         failures += verify(at (there) remote as ValRail[T], master2, prefix+": test 3 (reset)");
 
-        c(false); local.copyTo(0,there,()=>Pair[Rail[T],Int](remote,0),sz,notifier);  await c.value; 
+        c(false); local_.copyTo(0,there,()=>Pair[Rail[T],Int](remote,0),sz,notifier);  await c.value; 
         failures += verify(at (there) remote as ValRail[T], master1, prefix+": test 4");
         at (remote) remote.reset(init2);
         failures += verify(at (there) remote as ValRail[T], master2, prefix+": test 4 (reset)");
 
 ///* temporarily commented out
-        finish local.copyTo(0,there,handle,0,sz);
+        finish local_.copyTo(0,there,handle,0,sz);
         failures += verify(at (there) handle() as ValRail[T], master1, prefix+": test 5");
         at (there) handle().reset(init2);
         failures += verify(at (there) handle() as ValRail[T], master2, prefix+": test 5 (reset)");
 
-        c(false); local.copyTo(0,there,handle,0,sz,notifier); await c.value;
+        c(false); local_.copyTo(0,there,handle,0,sz,notifier); await c.value;
         failures += verify(at (there) handle() as ValRail[T], master1, prefix+": test 6");
         at (there) handle().reset(init2);
         failures += verify(at (there) handle() as ValRail[T], master2, prefix+": test 6 (reset)");
@@ -131,31 +131,31 @@ public class RailCopy extends x10Test {
 */
 
 ///* temporarily commented out
-        local.reset(init2);
+        local_.reset(init2);
         at (remote) remote.reset(init1);
 
-        failures += verify(at (here) local as ValRail[T], master2, prefix+": Local rail initialization (swapped)");
+        failures += verify(at (here) local_ as ValRail[T], master2, prefix+": Local rail initialization (swapped)");
         failures += verify(at (there) remote as ValRail[T], master1, prefix+": Remote rail initialization (swapped)");
 
-        finish local.copyFrom(0,remote,0,sz);
-        failures += verify(local as ValRail[T], master1, prefix+": test 1f");
-        local.reset(init2);
-        failures += verify(local as ValRail[T], master2, prefix+": test 1f (reset)");
+        finish local_.copyFrom(0,remote,0,sz);
+        failures += verify(local_ as ValRail[T], master1, prefix+": test 1f");
+        local_.reset(init2);
+        failures += verify(local_ as ValRail[T], master2, prefix+": test 1f (reset)");
 
-        finish local.copyFrom(0,there,()=>Pair[Rail[T],Int](remote,0),sz);
-        failures += verify(local as ValRail[T], master1, prefix+": test 2f");
-        local.reset(init2);
-        failures += verify(local as ValRail[T], master2, prefix+": test 2f (reset)");
+        finish local_.copyFrom(0,there,()=>Pair[Rail[T],Int](remote,0),sz);
+        failures += verify(local_ as ValRail[T], master1, prefix+": test 2f");
+        local_.reset(init2);
+        failures += verify(local_ as ValRail[T], master2, prefix+": test 2f (reset)");
 
-        finish local.copyFrom(0,localv,0,sz);
-        failures += verify(local as ValRail[T], master1, prefix+": test 1fv");
-        local.reset(init2);
-        failures += verify(local as ValRail[T], master2, prefix+": test 1fv (reset)");
+        finish local_.copyFrom(0,localv,0,sz);
+        failures += verify(local_ as ValRail[T], master1, prefix+": test 1fv");
+        local_.reset(init2);
+        failures += verify(local_ as ValRail[T], master2, prefix+": test 1fv (reset)");
 
-        finish local.copyFrom(0,there,()=>Pair[ValRail[T],Int](remote as ValRail[T],0),sz);
-        failures += verify(local as ValRail[T], master1, prefix+": test 2fv");
-        local.reset(init2);
-        failures += verify(local as ValRail[T], master2, prefix+": test 2fv (reset)");
+        finish local_.copyFrom(0,there,()=>Pair[ValRail[T],Int](remote as ValRail[T],0),sz);
+        failures += verify(local_ as ValRail[T], master1, prefix+": test 2fv");
+        local_.reset(init2);
+        failures += verify(local_ as ValRail[T], master2, prefix+": test 2fv (reset)");
 //*/
 
 

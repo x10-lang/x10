@@ -17,7 +17,7 @@ import harness.x10Test;
  */
 public class AtomicTest extends x10Test {
 
-	var val: long = 0;
+	var val_: long = 0;
 	const N: long = 1000;
 	var startCount: long = 0;
 	var endCount: long = N;
@@ -26,13 +26,13 @@ public class AtomicTest extends x10Test {
 	var b: boolean; // temp
 	async(this) {
 	    atomic {
-		startCount = val;
-		for (var i: int = 0; i < N; i++) val++;
-		endCount = val;
+		startCount = val_;
+		for (var i: int = 0; i < N; i++) val_++;
+		endCount = val_;
 	    }
 	}
 	for (var i: long = 0; i < N*100; i++) {
-	    atomic { val = i; b = (endCount != 0); }
+	    atomic { val_ = i; b = (endCount != 0); }
 	    if (b) break;
 	}
 	// need a memory fence here
