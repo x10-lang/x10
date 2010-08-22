@@ -109,6 +109,12 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	    return n;
 	}
 
+	public AmbReceiver AmbReceiver(Position pos, Prefix prefix, Id name) {
+	    AmbReceiver n = new X10AmbReceiver_c(pos, prefix, name);
+	    n = (AmbReceiver)n.ext(extFactory().extAmbReceiver());
+	    n = (AmbReceiver)n.del(delFactory().delAmbReceiver());
+	    return n;
+	}
 
 	public X10AmbQualifierNode AmbQualifierNode(Position pos, Prefix prefix, Id name) {
 		X10AmbQualifierNode_c n = new X10AmbQualifierNode_c(pos, prefix, name);
