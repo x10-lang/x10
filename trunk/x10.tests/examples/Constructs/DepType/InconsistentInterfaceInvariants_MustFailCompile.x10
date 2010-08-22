@@ -30,7 +30,7 @@ public class InconsistentInterfaceInvariants_MustFailCompile extends x10Test {
     }
     
     public static interface Test1{this.l == 0, this.m == 1}  extends Test { 
-     public public def foo(): int;
+     public def foo(): int;
     }
     
     public def run()=true;

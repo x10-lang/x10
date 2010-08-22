@@ -36,15 +36,15 @@ public class Array1DCodeGen extends x10Test {
         return norma;
     }
 
-    final def write(val a: DistArray[double](3), val i: int, val j: int, val k: int, val val: double): void = {
-        async (a.dist(i, j, k)) atomic a(i, j, k) = val;
+    final def write(val a: DistArray[double](3), val i: int, val j: int, val k: int, val val_: double): void = {
+        async (a.dist(i, j, k)) atomic a(i, j, k) = val_;
     }
 
     final 
     static // BARD: This failed to compile with a place error.
            // So I made it static.
-    def plusWrite(val a: DistArray[double](3), val i: int, val j: int, val k: int, val val: double): void = {
-        async (a.dist(i, j, k)) atomic a(i, j, k) += val;
+    def plusWrite(val a: DistArray[double](3), val i: int, val j: int, val k: int, val val_: double): void = {
+        async (a.dist(i, j, k)) atomic a(i, j, k) += val_;
     }
     
     public def run(): boolean = {

@@ -21,14 +21,14 @@ public class NullObjectToNullableConstrained extends x10Test {
 	 
 	public def run(): boolean = {
 		var array: Rail[X10DepTypeClassOneB!]! = Rail.make[X10DepTypeClassOneB!](1);
-		var var: X10DepTypeClassOneB! = array(0);
+		var var_: X10DepTypeClassOneB! = array(0);
 		var nullableVarNull: Box[X10DepTypeClassOneB!] = null;
 		
 		// array[0] is null hence it is not an instance of targeted non nullable type
 		var res1: boolean = !(array(0) instanceof  X10DepTypeClassOneB{p==1});
 		
 		// var is null hence it is not an instance of targeted non nullable type
-		var res2: boolean = !(var instanceof  X10DepTypeClassOneB{p==1});
+		var res2: boolean = !(var_ instanceof  X10DepTypeClassOneB{p==1});
 		
 		// nullableVarNull is null hence it is not an instance of targeted non nullable type
 		// var res3: boolean = !(nullableVarNull instanceof  Box[X10DepTypeClassOneB{p==1}]);

@@ -31,7 +31,7 @@ public class ParStream1 extends Benchmark {
     //
     //
 
-    val as = ValRail.make[Rail[double]!](PARALLELISM, (p:int) =>
+    val as_ = ValRail.make[Rail[double]!](PARALLELISM, (p:int) =>
         Rail.make[double](localSize)
     );
     
@@ -45,7 +45,7 @@ public class ParStream1 extends Benchmark {
 
     public def once() {
         finish for (var p:int=0; p<PARALLELISM; p++) {
-            val a = as(p);
+            val a = as_(p);
             val b = bs(p);
             val c = cs(p);
             async {
@@ -54,7 +54,7 @@ public class ParStream1 extends Benchmark {
                         a(i) = b(i) + gamma*c(i);
             }
         }
-        return as(1)(1);
+        return as_(1)(1);
     }
 
     //

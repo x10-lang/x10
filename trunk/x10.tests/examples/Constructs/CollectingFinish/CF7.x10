@@ -41,9 +41,9 @@ public class CF7 extends x10Test{
             val iteration = 100;
             val result = finish(b) {
                 foreach ((p) in 0..numThreads-1){
-                      var case :Totals2 =new  Totals2(1,2);
+                      var case_ :Totals2 =new  Totals2(1,2);
                       for (var i:Int = 0; i < iteration; i++)
-                      offer case;
+                      offer case_;
              }
             };
             var ret : Boolean = false ;
