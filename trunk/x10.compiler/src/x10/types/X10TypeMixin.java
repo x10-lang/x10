@@ -431,7 +431,6 @@ public class X10TypeMixin {
         }
     }
     public static Type addConstraint(Type t, CConstraint xc) {
-    	assert (! (t instanceof UnknownType));
         try {
             CConstraint c = xclause(t);
             c = c == null ? new CConstraint() :c.copy();
