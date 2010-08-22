@@ -19,7 +19,7 @@ import x10.compiler.NativeRep;
 public final class AtomicLong {
 	
 	public native def this():AtomicLong;
-	public native def this(val:long):AtomicLong;
+	public native def this(v:long):AtomicLong;
 	
 	@Native("java", "#0.get()")
 	@Native("c++", "(#0)->get()")
@@ -27,7 +27,7 @@ public final class AtomicLong {
 	
 	@Native("java", "#0.set(#1)")
 	@Native("c++", "(#0)->set(#1)")
-	public safe native def set(newVal:long):void;
+	public safe native def set(newV:long):void;
 	
 	@Native("java", "#0.compareAndSet(#1,#2)")
 	@Native("c++", "(#0)->compareAndSet(#1,#2)")

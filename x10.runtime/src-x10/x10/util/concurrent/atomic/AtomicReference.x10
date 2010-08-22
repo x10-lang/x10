@@ -20,7 +20,7 @@ public final class AtomicReference[T]{T<:Object} {
 	
 	// Unusable due to compiler bug.  See http://jira.codehaus.org/browse/XTENLANG-127
 	// public native def this():AtomicReference[T];
-	// public native def this(val:T):AtomicReference[T];
+	// public native def this(v:T):AtomicReference[T];
 	
 	// Hack around XTENLANG-127.  Delete as soon as it is fixed.
 	@Native("java", "(new java.util.concurrent.atomic.AtomicReference<#1>())")
@@ -30,7 +30,7 @@ public final class AtomicReference[T]{T<:Object} {
 	// Hack around XTENLANG-127.  Delete as soon as it is fixed.
 	@Native("java", "(new java.util.concurrent.atomic.AtomicReference<#1>(#4))")
 	@Native("c++", "x10::util::concurrent::atomic::AtomicReference<#1 >::_make(#4)")
-	public static safe  native def newAtomicReference[T](val:T):AtomicReference[T];
+	public static safe  native def newAtomicReference[T](v:T):AtomicReference[T];
 
 	@Native("java", "#0.get()")
 	@Native("c++", "(#0)->get()")
@@ -38,7 +38,7 @@ public final class AtomicReference[T]{T<:Object} {
 
 	@Native("java", "#0.set(#1)")
 	@Native("c++", "(#0)->set(#1)")
-	public native safe def set(val:T):void;
+	public native safe def set(v:T):void;
 
 	@Native("java", "#0.compareAndSet(#1,#2)")
 	@Native("c++", "(#0)->compareAndSet(#1,#2)")
@@ -50,10 +50,10 @@ public final class AtomicReference[T]{T<:Object} {
 	
 	@Native("java", "#0.getAndSet(#1)")
 	@Native("c++", "(#0)->getAndSet(#1)")
-	public native safe def getAndSet(val:T):T;
+	public native safe def getAndSet(v:T):T;
 
 	@Native("java", "#0.toString()")
 	@Native("c++", "(#0)->toString()")
-	public global safe safe native def toString():String;
+	public global safe native def toString():String;
 }
  
