@@ -97,6 +97,7 @@ import x10.constraint.XVar;
 import x10.errors.Errors;
 import x10.extension.X10Del;
 import x10.extension.X10Del_c;
+import x10.extension.X10Ext;
 import x10.types.ConstrainedType;
 import x10.types.ConstrainedType_c;
 import x10.types.MacroType;
@@ -1010,6 +1011,11 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
     /** Write the method to an output file. */
     public void prettyPrintHeader(CodeWriter w, PrettyPrinter tr) {
         w.begin(0);
+        for (Iterator<AnnotationNode> i = (((X10Ext) this.ext()).annotations()).iterator(); i.hasNext(); ) {
+            AnnotationNode an = i.next();
+            an.prettyPrint(w, tr);
+            w.allowBreak(0, " ");
+        }
         print(flags, w, tr);
         w.write("def " + name + "(");
     

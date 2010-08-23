@@ -324,8 +324,12 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
             Flags f = flags.flags();
             Boolean fin = f.isFinal();
             f = f.clearFinal();
-
             w.write(f.translate());
+            for (Iterator<AnnotationNode> i = (((X10Ext) this.ext()).annotations()).iterator(); i.hasNext(); ) {
+                AnnotationNode an = i.next();
+                an.prettyPrint(w, tr);
+                w.allowBreak(0, " ");
+            }
             if (fin)
                 w.write("val ");
             else

@@ -497,6 +497,11 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
             }
             fs = fs.clearFinal();
             w.write(fs.translate());
+            for (Iterator<AnnotationNode> i = (((X10Ext) this.ext()).annotations()).iterator(); i.hasNext(); ) {
+                AnnotationNode an = i.next();
+                an.prettyPrint(w, tr);
+                w.allowBreak(0, " ");
+            }
             if (f)
 	            w.write("val ");
 	        else
