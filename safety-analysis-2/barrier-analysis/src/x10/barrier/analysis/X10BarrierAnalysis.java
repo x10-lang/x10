@@ -263,11 +263,9 @@ private Set retrieveClocks(int nodenum) {
 		s[epcfg.exit().getNumber()].isTerminal = true;
 		s[epcfg.exit().getNumber()].set(-2, -1);
 		if (funName.contains("<async") && (amIClocked)) {
-		    State terminal = new State();
+		    State terminal = new State(-3, -1, funName, true);
 		    s[epcfg.exit().getNumber()].isTerminal = false;
 		    terminal.isTerminal = true;
-		    terminal.set(-3, -1);
-		    terminal.funName = funName;
 		    new Edge(  s[epcfg.exit().getNumber()], terminal, Edge.NEXT); // add a next edge at the end of async
 		  
 		    
@@ -315,10 +313,10 @@ private Set retrieveClocks(int nodenum) {
 		Automaton a = parseIR(cg.getNumber(one_method), clk, true);
 		   a.compress();
 		   System.out.println("Automaton Compressed Successfully"); 
-		   // a.print();
+		   a.print();
 		    a.composePar();
 		    System.out.println("Automata Composed Successfully");
-		   a.print();
+		    a.print();
 		    a.mayHappenInParallel();
 	    }
 	  
