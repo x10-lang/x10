@@ -15,6 +15,32 @@ class ComposedState extends State {
 	isClocked = clocked;
     }
    
+    public ComposedState cloneMe() {
+	    ComposedState newComposedState = null;
+	    try {
+		newComposedState = (ComposedState) this.clone();
+	    } catch (CloneNotSupportedException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	    }
+	    List addList = new ArrayList ();
+	    List removeList = new ArrayList ();
+	       for (Object o: this.states) {
+		   State s = (State) o;
+		   String funName  = s.funName;
+		   if (funName.contains("async")) {
+		       	State newState = s.cloneMe();
+		        removeList.add(s);
+		        addList.add(newState);
+		       	
+		   }
+		   
+		}
+	       	newComposedState.states.addAll(addList);
+		newComposedState.states.removeAll(removeList);
+		return newComposedState;
+    }
+    
     public void addState (State s) {
 	   if (s instanceof ComposedState) {
 	       for (Object o: ((ComposedState) s).states) {
@@ -44,6 +70,27 @@ class ComposedState extends State {
 
 	 return result;
     }
+    
+    public boolean isSuperSetCopyof (ComposedState cs) { 
+	boolean result = true;
+	 // this is visited;'l
+	for(Object o1: cs.states) {
+	    boolean res = false;
+	    for (Object o2: this.states) {
+		State s1 = (State) o1;
+		State s2 = (State) o2;
+		if (s1.isEqual(s2)) {
+		    res = true;
+		   
+		}
+	    }
+	    result = result & res;
+	}
+
+	 return result;
+    }
+    
+    
     
     public void addOutgoingEdge(Edge e) {
 	this.outgoingEdges.add(e);

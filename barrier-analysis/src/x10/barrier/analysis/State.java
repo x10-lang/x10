@@ -16,6 +16,7 @@ class State implements Cloneable {
     int counter = 0;
     Set parallelBlocks = new HashSet();
     boolean isClocked = false;
+    State clone;
     
     
     public State () {
