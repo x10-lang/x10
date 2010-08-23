@@ -456,28 +456,31 @@
             id="x10dt.wizards.category">
       </category>
       <wizard
-            name="X10 Class"
-            icon="icons/newclass.gif"
             category="x10dt.wizards.category"
             class="org.eclipse.imp.x10dt.ui.wizards.NewX10ClassWizard"
+            finalPerspective="org.eclipse.imp.x10dt.ui.perspective"
             hasPages="true"
-            id="org.eclipse.imp.x10dt.ui.wizards.NewX10ClassWizard">
+            icon="icons/newclass.gif"
+            id="org.eclipse.imp.x10dt.ui.wizards.NewX10ClassWizard"
+            name="X10 Class">
       </wizard>
       <wizard
-            name="X10 Interface"
-            icon="icons/newinterface.gif"
             category="x10dt.wizards.category"
             class="org.eclipse.imp.x10dt.ui.wizards.NewX10InterfaceWizard"
+            finalPerspective="org.eclipse.imp.x10dt.ui.perspective"
             hasPages="true"
-            id="org.eclipse.imp.x10dt.ui.wizards.NewX10InterfaceWizard">
+            icon="icons/newinterface.gif"
+            id="org.eclipse.imp.x10dt.ui.wizards.NewX10InterfaceWizard"
+            name="X10 Interface">
       </wizard>
       <wizard
-            name="X10 Package"
-            icon="icons/newpackage.gif"
             category="x10dt.wizards.category"
             class="org.eclipse.imp.x10dt.ui.wizards.NewX10PackageWizard"
+            finalPerspective="org.eclipse.imp.x10dt.ui.perspective"
             hasPages="true"
-            id="org.eclipse.imp.x10dt.ui.wizards.NewX10PackageWizard">
+            icon="icons/newpackage.gif"
+            id="org.eclipse.imp.x10dt.ui.wizards.NewX10PackageWizard"
+            name="X10 Package">
       </wizard>
       <wizard
             canFinishEarly="false"
