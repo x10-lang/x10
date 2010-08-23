@@ -14,7 +14,7 @@
     <property name="etc" location="${x10.dist.location}/etc"/>
     <property name="config" value="*.cfg"/>
     <property name="lpg.jar" value="lpg.jar"/>
-    <property name="polyglot.jar" value="polyglot3.jar"/>
+    <property name="polyglot.jar" value="polyglot.jar"/>
     <path id="project.classpath">
         <path refid="mainproject.classpath"/>
         <path refid="lpg.classpath"/>
@@ -154,7 +154,7 @@
         <arg value="-R"/>
         <arg value="--exclude=classes"/>
         <arg value="lpg.runtime.java"/>
-        <arg value="polyglot"/>
+        <arg value="x10.polyglot"/>
         <arg value="x10.compiler"/>
         <arg value="x10.runtime"/>
         <arg value="x10.common"/>

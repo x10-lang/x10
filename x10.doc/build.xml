@@ -11,7 +11,7 @@
     <property name="xrx.xdoc.output.dir" location="${x10.dist.location}/x10doc"/>
     <property name="jar" value="x10doc.jar"/>
     <property name="lpg.jar" value="lpg.jar"/>
-    <property name="polyglot.jar" value="polyglot3.jar"/>
+    <property name="polyglot.jar" value="polyglot.jar"/>
     <property name="compiler.jar" value="x10c.jar"/>
     <property name="runtime.jar" value="x10.jar"/>
     <property name="tools.jar" value="tools.jar"/>
