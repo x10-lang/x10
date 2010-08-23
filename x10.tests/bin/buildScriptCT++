@@ -38,34 +38,14 @@ svnUpdate() {
 	fi
 }
 
-buildX10Module() {
-	printf "\n## [$prog]: building module $(basename $1)...\n"
-	case "$2" in
-		"polyglot")
-			( \
-				cd $1; \
-				ant clean jar; \
-				exit $?; \
-			)
-			;;
-	esac
-	if (( $? != 0 )); then
-		printf "\n[$prog: err]: x10 component build failed for $(basename $1)\n"
-		return 1
-	else
-		printf "\n## done.\n"
-		return 0
-	fi
-}
-
 main() {
     # source all the relevant modules -- do fresh checkout each time
 	declare -i status;
-	POLYGLOT_HOME=$X10_HOME/polyglot
+	POLYGLOT_HOME=$X10_HOME/x10.polyglot
 	if [[ -d $POLYGLOT_HOME ]]; then
 		rm -rf $POLYGLOT_HOME
 	fi
-	svnUpdate $POLYGLOT_HOME $POLYGLOT_SVNROOT
+	svnUpdate $POLYGLOT_HOME $X10_SVNROOT
 	status=$?
 	if (( $status != 0 )); then
 		return $status
@@ -139,16 +119,6 @@ main() {
 	fi
 
     # build modules in the listed order -- some builds may be redundant
-	buildX10Module $POLYGLOT_HOME polyglot
-	status=$?
-	if (( $status != 0 )); then
-		return $status
-	fi
-	export LOCAL_POLYGLOT_JAR=$POLYGLOT_HOME/lib/polyglot.jar
-	if [[ "$(uname -s)" == CYGWIN* ]]; then
-		export LOCAL_POLYGLOT_JAR=$(cygpath -w -a $LOCAL_POLYGLOT_JAR)
-	fi
-
 	printf "\n##### [$prog]: building X10 #####\n"
 	if [[ "$(uname -s)" == "AIX" ]]; then
 	    (cd $X10_DIST; ant dist);
@@ -176,10 +146,6 @@ fi
 
 if [[ -z "$X10_SVNROOT" ]]; then
 	export X10_SVNROOT="http://x10.svn.sf.net/svnroot/x10/trunk"
-fi
-
-if [[ -z "$POLYGLOT_SVNROOT" ]]; then
-	export POLYGLOT_SVNROOT="http://polyglot-compiler.googlecode.com/svn/trunk"
 fi
 
 main

@@ -114,11 +114,11 @@ buildX10Module() {
 main() {
     # source all the relevant modules -- do fresh checkout each time
 	declare -i status;
-	POLYGLOT_HOME=$X10_HOME/polyglot
+	POLYGLOT_HOME=$X10_HOME/x10.polyglot
 	if [[ -d $POLYGLOT_HOME ]]; then
 		rm -rf $POLYGLOT_HOME
 	fi
-	svnUpdate $POLYGLOT_HOME $POLYGLOT_SVNROOT
+	svnUpdate $POLYGLOT_HOME $X10_SVNROOT
 	status=$?
 	if (( $status != 0 )); then
 		return $status
@@ -197,10 +197,6 @@ main() {
 	if (( $status != 0 )); then
 		return $status
 	fi
-	export LOCAL_POLYGLOT_JAR=$POLYGLOT_HOME/lib/polyglot.jar
-	if [[ "$(uname -s)" == CYGWIN* ]]; then
-		export LOCAL_POLYGLOT_JAR=$(cygpath -w -a $LOCAL_POLYGLOT_JAR)
-	fi
 
 	buildX10Module $X10_CONSTRAINTS x10
 	status=$?
@@ -243,10 +239,6 @@ fi
 
 if [[ -z "$X10_SVNROOT" ]]; then
 	export X10_SVNROOT="http://x10.svn.sf.net/svnroot/x10/trunk"
-fi
-
-if [[ -z "$POLYGLOT_SVNROOT" ]]; then
-	export POLYGLOT_SVNROOT="http://polyglot-compiler.googlecode.com/svn/trunk"
 fi
 
 main
