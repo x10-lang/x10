@@ -14,6 +14,7 @@ package x10.ast;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import polyglot.ast.AmbTypeNode;
@@ -46,6 +47,7 @@ import polyglot.util.Position;
 import polyglot.util.TypedList;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
+import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
 import x10.constraint.XTerms;
@@ -618,4 +620,13 @@ public class X10New_c extends New_c implements X10New {
         w.end();
     }
 
+    public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
+        for (Iterator<AnnotationNode> i = (((X10Ext) this.ext()).annotations()).iterator(); i.hasNext(); ) {
+            AnnotationNode an = i.next();
+            an.prettyPrint(w, tr);
+            w.allowBreak(0, " ");
+        }
+        super.prettyPrint(w, tr);
+    }
+    
 }
