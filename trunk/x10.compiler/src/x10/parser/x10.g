@@ -256,7 +256,7 @@
 --    false
 --    final
 --    finally
-----    finish
+--    finish
 --    for
 --    foreach
 --    future
@@ -630,31 +630,29 @@ public static class MessageHandler implements IMessageHandler {
         private List checkModifiers(String kind, List modifiers, boolean legal_flags[]) {
             List l = new LinkedList();
 
-            if (modifiers.size() == 0)
-                l = Collections.singletonList(nf.FlagsNode(JPGPosition.COMPILER_GENERATED, X10Flags.toX10Flags(Flags.NONE)));
-            else {
-                boolean flags[] = new boolean[FlagModifier.NUM_FLAGS]; // initialized to false
-                for (int i = 0; i < modifiers.size(); i++) {
-                    Object element = modifiers.get(i);
-                    if (element instanceof FlagModifier) {
-                        FlagModifier modifier = (FlagModifier) element;
-                        l.addAll(Collections.singletonList(nf.FlagsNode(modifier.position(), modifier.flags())));
+            assert(modifiers.size() > 0);
 
-                        if (! flags[modifier.flag()]) {
-                            flags[modifier.flag()] = true;
-                        }
-                        else {
-                            syntaxError("Duplicate specification of modifier: " + modifier.name(), modifier.position());
-                        }
+            boolean flags[] = new boolean[FlagModifier.NUM_FLAGS]; // initialized to false
+            for (int i = 0; i < modifiers.size(); i++) {
+                Object element = modifiers.get(i);
+                if (element instanceof FlagModifier) {
+                    FlagModifier modifier = (FlagModifier) element;
+                    l.addAll(Collections.singletonList(nf.FlagsNode(modifier.position(), modifier.flags())));
 
-                        if (! legal_flags[modifier.flag()]) {
-                            syntaxError("\"" + modifier.name() + "\" is not a valid " + kind + " modifier", modifier.position());
-                        }
+                    if (! flags[modifier.flag()]) {
+                        flags[modifier.flag()] = true;
                     }
                     else {
-                        AnnotationModifier modifier = (AnnotationModifier) element;
-                        l.addAll(Collections.singletonList(modifier.annotation()));
+                        syntaxError("Duplicate specification of modifier: " + modifier.name(), modifier.position());
+                     }
+
+                    if (! legal_flags[modifier.flag()]) {
+                        syntaxError("\"" + modifier.name() + "\" is not a valid " + kind + " modifier", modifier.position());
                     }
+                }
+                else {
+                    AnnotationModifier modifier = (AnnotationModifier) element;
+                    l.addAll(Collections.singletonList(modifier.annotation()));
                 }
             }
 
@@ -662,31 +660,45 @@ public static class MessageHandler implements IMessageHandler {
         }
 
         private List checkClassModifiers(List modifiers) {
-            return checkModifiers("class", modifiers, FlagModifier.classModifiers);
+            return (modifiers.size() == 0
+                     ? Collections.singletonList(nf.FlagsNode(JPGPosition.COMPILER_GENERATED, X10Flags.toX10Flags(Flags.NONE)))
+                     : checkModifiers("class", modifiers, FlagModifier.classModifiers));
         }
 
         private List checkTypeDefModifiers(List modifiers) {
-            return checkModifiers("typedef",  modifiers, FlagModifier.typeDefModifiers);
+            return (modifiers.size() == 0
+                     ? Collections.singletonList(nf.FlagsNode(JPGPosition.COMPILER_GENERATED, X10Flags.toX10Flags(Flags.NONE)))
+                     : checkModifiers("typedef",  modifiers, FlagModifier.typeDefModifiers));
         }
 
         private List checkFieldModifiers(List modifiers) {
-            return checkModifiers("field",  modifiers, FlagModifier.fieldModifiers);
+            return (modifiers.size() == 0
+                     ? Collections.EMPTY_LIST
+                     : checkModifiers("field",  modifiers, FlagModifier.fieldModifiers));
         }
 
         private List checkVariableModifiers(List modifiers) {
-            return checkModifiers("variable",  modifiers, FlagModifier.variableModifiers);
+            return (modifiers.size() == 0
+                     ? Collections.EMPTY_LIST
+                     : checkModifiers("variable",  modifiers, FlagModifier.variableModifiers));
         }
 
         private List checkMethodModifiers(List modifiers) {
-            return checkModifiers("method",  modifiers, FlagModifier.methodModifiers);
+            return (modifiers.size() == 0
+                     ? Collections.EMPTY_LIST
+                     : checkModifiers("method",  modifiers, FlagModifier.methodModifiers));
         }
 
         private List checkConstructorModifiers(List modifiers) {
-            return checkModifiers("constructor",  modifiers, FlagModifier.constructorModifiers);
+            return (modifiers.size() == 0
+                     ? Collections.EMPTY_LIST
+                     : checkModifiers("constructor",  modifiers, FlagModifier.constructorModifiers));
         }
 
         private List checkInterfaceModifiers(List modifiers) {
-            return checkModifiers("interface",  modifiers, FlagModifier.interfaceModifiers);
+            return (modifiers.size() == 0
+                     ? Collections.EMPTY_LIST
+                     : checkModifiers("interface",  modifiers, FlagModifier.interfaceModifiers));
         }
 
         // RMF 11/7/2005 - N.B. This class has to be serializable, since it shows up inside Type objects,
@@ -1963,12 +1975,12 @@ public static class MessageHandler implements IMessageHandler {
                     setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL)));
           $EndJava
         ./
-                   | var 
+                   | var
         /.$BeginJava
                     setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.NONE)));
           $EndJava
         ./
-                   | const 
+                   | const
         /.$BeginJava
                     setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL.Static())));
           $EndJava
