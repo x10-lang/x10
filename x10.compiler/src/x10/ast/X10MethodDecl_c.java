@@ -394,7 +394,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 				final LazyRef<Type> r = (LazyRef<Type>) tn.typeRef();
 				TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo(), true);
 				tc = (TypeChecker) tc.context(tcp.context().freeze());
-				r.setResolver(new TypeCheckReturnTypeGoal(this, body, tc, r, true));
+				r.setResolver(new TypeCheckReturnTypeGoal(this, body, tc, r));
 			}
 		}
 		return super.setResolverOverride(parent, v);
