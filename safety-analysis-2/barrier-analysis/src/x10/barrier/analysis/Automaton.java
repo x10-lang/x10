@@ -206,9 +206,7 @@ public class Automaton {
    public ComposedState composeAgain(State sleft, State parState) {
          int i = 0;
 	 State s1 = null, s2 = null; 
-	 ComposedState cs = new ComposedState (sleft.isClocked || parState.isClocked);
-	 cs.addState(sleft);
-	 cs.addState(parState);
+
 	for(Object oe: parState.outgoingEdges) {
 		    if (i == 0)
 			s1 =( (Edge) oe).to;
@@ -220,10 +218,14 @@ public class Automaton {
 
 	
 	 ComposedState compState =  composeAutomaton(s1, s2);
+	 ComposedState cs = new ComposedState (sleft.isClocked || compState.isClocked);
+	 cs.addState(sleft);
+	 cs.addState(compState);
+
 
 	 ComposedState inVisited = this.inVisitedCopy(cs);
 	 if (inVisited == null) /* no repitition */ {
-	        this.visitedStates.add(cs);
+	        //this.visitedStates.add(cs);
 		return composeAutomaton(compState, sleft);
 	     
 	 }
@@ -236,6 +238,12 @@ public class Automaton {
    }
    
    public State compose(State head) {
+       ComposedState s = new ComposedState(head.isClocked);
+       s.addState(head);
+       ComposedState inVisited = this.inVisited(s);
+       if (inVisited != null)
+	    return inVisited;
+       visitedStates.add(s);
        if(this.isPar(head)) {
 	      
 		int i = 0;
@@ -248,16 +256,11 @@ public class Automaton {
 		    i++;
 		} 
 		
-		return composeAutomaton (s1, s2);
-	   
+		State child = composeAutomaton (s1, s2);
+		new Edge (s, child, Edge.NEXT);
        }
        
-       ComposedState s = new ComposedState(head.isClocked);
-       s.addState(head);
-       ComposedState inVisited = this.inVisited(s);
-       if (inVisited != null)
-	    return inVisited;
-       visitedStates.add(s);
+      
        for (Object o : head.outgoingEdges) {
 	   Edge e = (Edge) o;
 	   State result = compose(e.to);
@@ -328,20 +331,6 @@ public class Automaton {
 
     /* Automaton composition rules - implement using dfs */
     public ComposedState composeAutomaton (State s1, State s2) {
-  
-	
-
-	 if (this.isPar(s1)) {
-	       //System.out.println("prev" + prev.stateInsts());
-	     	return this.composeAgain(s2, s1);
-
-	 }
-	 if (this.isPar(s2)) {
-	     //System.out.println("prev" + prev.stateInsts());
-	     	return this.composeAgain(s1, s2);
-
-	 }
-	 
 	 ComposedState s = new ComposedState(s1.isClocked || s2.isClocked);
 	 s.addState(s1);
 	 s.addState(s2);
@@ -349,7 +338,20 @@ public class Automaton {
 	 if (inVisited != null)
 		return inVisited; // Already found
 	 visitedStates.add(s);
-	 if (s1.isTerminal && s2.isTerminal)  {
+	 if (this.isPar(s1)) {
+	       //System.out.println("prev" + prev.stateInsts());
+	     	State child =  this.composeAgain(s2, s1);
+	     	new Edge (s, child, Edge.COND);
+
+	 }
+	 else if (this.isPar(s2)) {
+	     //System.out.println("prev" + prev.stateInsts());
+	     	State child = composeAgain(s1, s2);
+	     	new Edge (s, child, Edge.COND);
+	 }
+	 
+	
+	 else if (s1.isTerminal && s2.isTerminal)  {
 	     s.isTerminal = true;
 	 }
 	 else if (s1.isTerminal) {
