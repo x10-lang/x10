@@ -469,9 +469,9 @@ public class X10New_c extends New_c implements X10New {
         X10ConstructorInstance ci;
         X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
         X10Context context = (X10Context) tc.context();
-        boolean haveUnknown = xts.isUnknown(targetType);
+        boolean haveUnknown = xts.hasUnknown(targetType);
         for (Type t : actualTypes) {
-            if (xts.isUnknown(t)) haveUnknown = true;
+            if (xts.hasUnknown(t)) haveUnknown = true;
         }
         SemanticException error = null;
         try {

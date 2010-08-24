@@ -538,13 +538,18 @@ public class Errors {
 
 	public static class CannotAssignToElement extends SemanticException {
 		private static final long serialVersionUID = -9118489907802078734L;
-		public CannotAssignToElement(String leftString, boolean arrayP, Expr right, Type t, Position pos) {
-			super("Cannot assign expression to " + (arrayP ? "array " : "rail ") + "element of given type."
+		public CannotAssignToElement(String leftString, boolean arrayP, Expr right, Type t, Position pos, SemanticException cause) {
+			super(toMessage(leftString, arrayP, right, t, cause), pos);
+		}
+		private static String toMessage(String leftString, boolean arrayP, Expr right, Type t, SemanticException cause) {
+			if (cause.getMessage() == null)
+				return null;
+			return "Cannot assign expression to " + (arrayP ? "array " : "rail ") + "element of given type."
 					+ "\n\t Expression: " + right
 					+ "\n\t Type: " + right.type()
 					+ "\n\t " + (arrayP ? "Array ": "Rail ") +"element: "  + leftString
-					+ "\n\t Type: " + t,
-					pos);
+					+ "\n\t Type: " + t
+					+ "\n\t Cause: " + cause.getMessage();
 		}
 		public boolean equals(Object o) {
 			if (o==null || ! (o instanceof CannotAssignToElement) )
@@ -803,6 +808,7 @@ public class Errors {
 		}
 	}
 	public static class IsNotReducible extends SemanticException {
+		private static final long serialVersionUID = 6604309927252841516L;
 		public IsNotReducible(Expr expr,  Position position) {
 			super("The reducer must be of type Reducible[T], for some type T."
 					+ "\n\t Reducer: " + expr
@@ -817,7 +823,7 @@ public class Errors {
 	}
 	public static class CannotCallCodeThatOffers extends SemanticException {
 		private static final long serialVersionUID = 1561991534265566375L;
-		public CannotCallCodeThatOffers(X10ProcedureInstance pi,  Position position) {
+		public CannotCallCodeThatOffers(X10ProcedureInstance<? extends ProcedureDef> pi,  Position position) {
 			super("Code that can offer values of given type is invoked in a context which does not expect offers."
 					+ "\n\t Offer type: " + Types.get(pi.offerType()),
 					position);
@@ -829,6 +835,7 @@ public class Errors {
 		}
 	}
 	public static class OfferTypeMismatch extends SemanticException {
+		private static final long serialVersionUID = 6476600577193965991L;
 		public OfferTypeMismatch(Type actualType, Type expectedType,   Position position) {
 			super("Offer type mismatch."
 					+ "\n\t Found offer type: " + actualType

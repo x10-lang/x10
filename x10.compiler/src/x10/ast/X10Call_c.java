@@ -150,9 +150,9 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 	    X10MethodInstance mi;
 	    X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
 	    X10Context context = (X10Context) tc.context();
-	    boolean haveUnknown = xts.isUnknown(targetType);
+	    boolean haveUnknown = xts.hasUnknown(targetType);
 	    for (Type t : actualTypes) {
-	        if (xts.isUnknown(t)) haveUnknown = true;
+	        if (xts.hasUnknown(t)) haveUnknown = true;
 	    }
 	    SemanticException error = null;
 	    try {
