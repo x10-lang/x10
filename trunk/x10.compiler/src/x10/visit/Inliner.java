@@ -91,6 +91,7 @@ import x10.ast.X10SourceFile_c;
 import x10.ast.X10Special;
 import x10.constraint.XFailure;
 import x10.constraint.XTerms;
+import x10.errors.Warnings;
 import x10.extension.X10Ext;
 import x10.optimizations.ForLoopOptimizer;
 import x10.types.AnnotatedType;
@@ -334,6 +335,8 @@ public class Inliner extends ContextVisitor {
         if (DEBUG) System.err.println("DEBUG: Inliner.getInlineDecl: def =\t" +def);
         decl = getDeclaration(def, container);
         if (null == decl) {
+            if (!def.annotationsMatching(InlineType).isEmpty()) 
+                Warnings.issue(job, "Unable to inline " + c, c.position());
             dontInline.add(def);
             return null;
         }
@@ -448,12 +451,15 @@ public class Inliner extends ContextVisitor {
     /*
      * In general, when the body of one method is inlined into the body of another,
      * the keywords "this" and "super" loose their meanings.  InlineRewriter deals
-     * with the case of "this".  It complains, if it encounters "super".  We could
-     * in effect rewrite "super" as "(this as ST)" where ST is the super-type.
-     * This same rewrite can be used to handle the "this parameter" when inlining
-     * calls of the form "super.foo()".  (Java does not allow the bare keyword
-     * "super" to occur where an expression is required.  It does, of course, allow
-     * "this" to be so used.  It just needs to be coersed to the right type.)
+     * with the case of "this".  It complains, if it encounters "super".  Rewriting
+     * "super" as "(this as ST)" won't work because we loose the fact that the call
+     * is non-virtual. 
+     * 
+     * However, this rewrite can be used to handle the "this parameter" when inlining
+     * calls of the form "super.foo()" (because the method instance has already been
+     * resolved).  (Java does not allow the bare keyword "super" to occur where an 
+     * expression is required.  It does, of course, allow "this" to be so used.  It just
+     * needs to be coersed to the right type.)
      */
     private Special rewriteSuperAsThis(Special special) {
         assert (special.kind() == Special.SUPER) : "Unexpected special kind: " + special;
