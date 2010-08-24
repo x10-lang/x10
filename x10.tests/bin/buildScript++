@@ -69,13 +69,6 @@ cvsUpdate() {
 buildX10Module() {
 	printf "\n>> [$prog]: building module $(basename $1)...\n"
 	case "$2" in
-		"polyglot")
-			( \
-				cd $1; \
-				ant clean jar; \
-				exit $?; \
-			)
-			;;
 		"x10c")
 			( \
 				cd $1; \
@@ -128,8 +121,6 @@ fi
 #export X10CPP_CVSROOT=":ext:userid@orquesta.watson.ibm.com:/usr/src/cvs/X10_FLASH"
 export X10CPP_CVSROOT=":ext:sreedhar@localhost:/usr/src/cvs/X10_FLASH"
 
-POLYGLOT_HOME=$X10_HOME/x10.polyglot
-svnUpdate $POLYGLOT_HOME $X10_SVNROOT
 X10_COMMON=$X10_HOME/x10.common
 svnUpdate $X10_COMMON $X10_SVNROOT
 X10_COMPILER=$X10_HOME/x10.compiler
@@ -145,7 +136,6 @@ svnUpdate $X10_TESTS $X10_SVNROOT
 svnUpdate $X10_SVNROOT
 
 
-buildX10Module $POLYGLOT_HOME polyglot
 buildX10Module $X10_CONSTRAINTS x10
 buildX10Module $X10_COMMON x10
 buildX10Module $X10_DIST x10j
