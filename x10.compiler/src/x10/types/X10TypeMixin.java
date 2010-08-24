@@ -374,17 +374,14 @@ public class X10TypeMixin {
     	return type.makeProto();
     	
     }
-    public static Type addBinding(Type t, XTerm t1, XTerm t2) {
+    public static Type addBinding(Type t, XTerm t1, XTerm t2) throws XFailure {
     	//assert (! (t instanceof UnknownType));
-        try {
+       
             CConstraint c = xclause(t);
             c = c == null ? new CConstraint() :c.copy();
             c.addBinding(t1, t2);
             return xclause(X10TypeMixin.baseType(t), c);
-        }
-        catch (XFailure f) {
-            throw new InternalCompilerError("Cannot bind " + t1 + " to " + t2 + ".", f);
-        }
+      
     }
 	public static Type instantiateSelf(XTerm t, Type type) {
 	 	assert (! (t instanceof UnknownType));

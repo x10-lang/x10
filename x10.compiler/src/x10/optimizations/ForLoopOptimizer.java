@@ -370,10 +370,10 @@ public class ForLoopOptimizer extends ContextVisitor {
      * @return the type with the additional constraint {name==value}, or null if no such property
      * TODO: move into Synthesizer
      */
-    public static Type addPropertyConstraint(Type type, Name name, XTerm value) {
-        XTerm property = X10TypeMixin.findOrSynthesize(type, name);
-        if (null == property) return null;
-        return X10TypeMixin.addBinding(type, property, value);
+    public static Type addPropertyConstraint(Type type, Name name, XTerm value) throws XFailure {
+    	XTerm property = X10TypeMixin.findOrSynthesize(type, name);
+    	if (null == property) return null;
+    	return X10TypeMixin.addBinding(type, property, value);
     }
 
     /**
@@ -385,9 +385,9 @@ public class ForLoopOptimizer extends ContextVisitor {
      * @return the type with the additional constraint {name==value}, or null if no such property
      * TODO: move into Synthesizer
      */
-    public static Type addPropertyConstraint(Type type, Name name, Object value) {
+   /* public static Type addPropertyConstraint(Type type, Name name, Object value) {
         return addPropertyConstraint(type, name, XTerms.makeLit(value));
-    }
+    }*/
 
     /**
      * Add a self constraint to the type that binds self to a given value.
