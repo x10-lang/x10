@@ -1,8 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: Polyglot3
-Main-Class: polyglot.main.Main
-Bundle-SymbolicName: polyglot3
-Bundle-Version: 3.2.0
-Bundle-Localization: plugin
-Bundle-Vendor: nate@nanocow.com
