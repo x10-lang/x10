@@ -65,36 +65,33 @@ import x10.types.constraints.CConstraint;
 import x10.types.constraints.XConstrainedTerm;
 
 /**
- * Start at centralizing Error messages. Goal is to support standardization of error messages for 
+ * Start at centralizing Error messages. Goal is to support standardization of error messages for
  * internationalization, to make unit tests more accurate, and to support better error-handling
- * inside compiler. 
- * 
+ * inside compiler.
+ *
  * @author vj 2010/02/06
  *
  */
 public class Errors {
-	
+
 	public static void issue(Job job, SemanticException e) {
 		issue(job, e, null);
 	}
 	public static void issue(Job job, SemanticException e, Node n) {
 		ExtensionInfo ei = (ExtensionInfo) job.extensionInfo();
+		if (e.getCause() == null && e.position() == null && n != null)
+			e = new SemanticException(e.getMessage(), n.position());
 		boolean newP = ei.errorSet().add(e);
 		if (newP && e.getMessage() != null) {
-			Position position = e.position();
-
-			if (position == null && n != null) {
-				position = n.position();
-			}
-
 			job.compiler().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR,
-					e.getMessage(), position);
+					e.getMessage(), e.position());
 		}
 	}
-    public static interface DepTypeException {}
+
+	public static interface DepTypeException {}
 	public static interface ProtoTypeException {}
 	public static interface ConversionException {}
-	
+
 	public static class CannotAssign extends SemanticException {
 		private static final long serialVersionUID = -4243637083971033996L;
 		public CannotAssign(Expr expr, Type targetType, Position pos) {
@@ -139,7 +136,7 @@ public class Errors {
 			return((IncompatibleReturnType)o).position().equals(position());
 		}
 	}
-	
+
 	public static class InvalidParameter extends SemanticException {
 		private static final long serialVersionUID = -1351185257724314440L;
 		public InvalidParameter(Type from, Type to, Position pos) {
@@ -152,7 +149,6 @@ public class Errors {
 		}
 	}
 
-	
 	public static class NoAssignmentInDepType extends SemanticException implements DepTypeException {
 		private static final long serialVersionUID = 8343234065357158485L;
 		public NoAssignmentInDepType(FieldAssign f, Position pos) {
@@ -171,7 +167,6 @@ public class Errors {
 		public PlaceTypeException(String s, Position p) {
 			super(s,p);
 		}
-		
 	}
 	public static class PlaceTypeErrorFieldShouldBeGlobal extends  PlaceTypeException {
 		private static final long serialVersionUID = -7491337042919050786L;
@@ -187,7 +182,7 @@ public class Errors {
 	public static class PlaceTypeErrorFieldShouldBeLocalOrGlobal extends PlaceTypeException {
 		private static final long serialVersionUID = 8839433155480902083L;
 		public PlaceTypeErrorFieldShouldBeLocalOrGlobal(Field f, XTerm place, XTerm targetPlace, Position pos) {
-			super("Place type error: either field target should be local or field should be global." 
+			super("Place type error: either field target should be local or field should be global."
 					+ "\n\t Field: " + f.name()
 					+ "\n\t Field target: " + f.target()
 					+ (targetPlace != null ? "\n\t Field target place: "+ targetPlace : "" )
@@ -200,7 +195,7 @@ public class Errors {
 			return posEquals(this.position(), ((SemanticError) o).position());
 		}
 	}
-	
+
 	public static class PlaceTypeErrorMethodShouldBeGlobal extends PlaceTypeException {
 		private static final long serialVersionUID = -657551989521522263L;
 
@@ -218,16 +213,16 @@ public class Errors {
 		private static final long serialVersionUID = 5212483087766572622L;
 
 		public PlaceTypeErrorMethodShouldBeLocalOrGlobal(Call c, XTerm place, XTerm targetPlace, Position pos) {
-			super("Place type error: either method target should be local or method should be global." 
+			super("Place type error: either method target should be local or method should be global."
 					+ "\n\t Method target: " + c.target()
-					+ "\n\t Method target place: " + targetPlace 
+					+ "\n\t Method target place: " + targetPlace
 					+ "\n\t Current place: " + place
 					+ "\n\t Method: " + c.name(), pos);
 		}
 		public boolean equals(Object o) {
 			if (o==null || ! (o instanceof PlaceTypeErrorMethodShouldBeLocalOrGlobal) )
 				return false;
-			
+
 			return posEquals(this.position(), ((SemanticError) o).position());
 		}
 	}
@@ -246,7 +241,7 @@ public class Errors {
 			return((DependentClauseErrorFieldMustBeFinal)o).position().equals(position());
 		}
 	}
-	
+
 	public static class DependentClauseErrorSelfMayAccessOnlyProperties extends SemanticException implements DepTypeException {
 		private static final long serialVersionUID = 8019315512496243771L;
 		public DependentClauseErrorSelfMayAccessOnlyProperties(FieldInstance fi,Position pos) {
@@ -260,7 +255,7 @@ public class Errors {
 			return((DependentClauseErrorSelfMayAccessOnlyProperties)o).position().equals(position());
 		}
 	}
-	
+
 	public static class DependentClauseIsInconsistent extends SemanticException {
 	    private static final long serialVersionUID = -737687218058693221L;
 	    public DependentClauseIsInconsistent(String entity, DepParameterExpr e) {
@@ -271,13 +266,13 @@ public class Errors {
 	        if (o==null || ! (o instanceof DependentClauseIsInconsistent) )
 	            return false;
 	        return((DependentClauseIsInconsistent)o).position().equals(position());
-	    }	    
+	    }
 	}
-	
+
 	public static class CannotAccessStaticFieldOfTypeParameter extends SemanticException {
 		private static final long serialVersionUID = -8016592273145691613L;
 		public CannotAccessStaticFieldOfTypeParameter(Type t,Position pos) {
-			super("Cannot access static field of a type parameter" 
+			super("Cannot access static field of a type parameter"
 					+ "\n\t Type Parameter: " + t, pos);
 		}
 		public boolean equals(Object o) {
@@ -286,11 +281,11 @@ public class Errors {
 			return((CannotAccessStaticFieldOfTypeParameter)o).position().equals(position());
 		}
 	}
-	
+
 	public static class CannotReadFieldOfProtoValue extends SemanticException implements ProtoTypeException {
 		private static final long serialVersionUID = -512760271069318563L;
 		public CannotReadFieldOfProtoValue(Field f,Position pos) {
-			super("Cannot read field of a proto value."  
+			super("Cannot read field of a proto value."
 					+ "\n\t Field: " + f
 					+ "\n\t Proto value:" + f.target(), pos);
 		}
@@ -307,7 +302,7 @@ public class Errors {
 					+ "\n\t Value: " + e
 					+ "\n\t Field: " + f.name()
 					+ "\n\t Target: "  + f.target()
-					+ "\n\t Target type: " + f.target().type(), 
+					+ "\n\t Target type: " + f.target().type(),
 					pos);
 		}
 		public boolean equals(Object o) {
@@ -344,11 +339,11 @@ public class Errors {
 			return((CannotConvertToType)o).position().equals(position());
 		}
 	}
-	
+
 	public static class CannotConvertExprToType extends SemanticException implements ConversionException {
 		private static final long serialVersionUID = -3353656656440601443L;
 		public CannotConvertExprToType(Expr expr, Converter.ConversionType conversion,  Type toType, Position pos) {
-			super("Cannot " 
+			super("Cannot "
 					+ (conversion == ConversionType.UNKNOWN_CONVERSION ? "cast" : "implicitly convert")
 					+ " expression to type."
 					+ "\n\t Expression: "  + expr
@@ -362,13 +357,13 @@ public class Errors {
 			return((CannotConvertExprToType)o).position().equals(position());
 		}
 	}
-	
+
 	public static class InconsistentReturnType extends SemanticException {
 		private static final long serialVersionUID = 5928425853367539997L;
 
 		public <PI extends X10ProcedureInstance<?>> InconsistentReturnType(Type t, PI me) {
 			super("Inconsistent return type."
-					+ "\n\t ReturnType: " + t 
+					+ "\n\t ReturnType: " + t
 					+ "\n\t Invocation: " + me
 					+ "\n\t Position: " + me.position());
 		}
@@ -407,7 +402,7 @@ public class Errors {
 	public static class TernaryConditionalTypeUndetermined extends SemanticException {
 		private static final long serialVersionUID = -3724235800269996470L;
 		public TernaryConditionalTypeUndetermined(Type t1, Type t2, Position p) {
-			super("Could not determine type of ternary conditional expression. " 
+			super("Could not determine type of ternary conditional expression. "
 					+ "Cannot assign expression of type T1 to T2 or vice versa."
 					+ "\n\t T1: " + t1
 					+ "\n\t T2: " + t2,
@@ -433,7 +428,7 @@ public class Errors {
 	public static class StructMustBeStatic extends SemanticException {
 		private static final long serialVersionUID = 1450037642852701286L;
 		public StructMustBeStatic(X10ClassDecl cd) {
-			super("Struct must be declared static." 
+			super("Struct must be declared static."
 					+ "\n\t Struct: " + cd.name(),
 					cd.position());
 		}
@@ -496,12 +491,12 @@ public class Errors {
 			return((VarMustBeAccessibleInTypeDef)o).position().equals(position());
 		}
 	}
-	
+
 	public static class CannotExtendTwoInstancesSameInterfaceLimitation extends SemanticException {
 		private static final long serialVersionUID = -1984266198367743732L;
 		public CannotExtendTwoInstancesSameInterfaceLimitation(Type t1, Type t2, Position pos) {
 			super("LIMITATION: Cannot extend different instantiations of the same type."
-					+ "\n\t Type 1: " + t1 
+					+ "\n\t Type 1: " + t1
 					+ "\n\t Type 2: " + t2,
 					pos);
 		}
@@ -511,11 +506,11 @@ public class Errors {
 			return((CannotExtendTwoInstancesSameInterfaceLimitation)o).position().equals(position());
 		}
 	}
-	
+
 	public static class TypeIsNotASubtypeOfTypeBound extends SemanticException {
 	    private static final long serialVersionUID = 5054688602611389407L;
 	    public TypeIsNotASubtypeOfTypeBound(Type type, Type hasType, Position pos) {
-	        super("Computed type is not a subtype of type bound." + 
+	        super("Computed type is not a subtype of type bound." +
 	              "\n\t Computed Type: " + type +
 	              "\n\t Type Bound: " + hasType, pos);
 	    }
@@ -525,12 +520,12 @@ public class Errors {
 	        return((TypeIsNotASubtypeOfTypeBound)o).position().equals(position());
 	    }
 	}
-	
+
 	public static class TypeIsMissingParameters extends SemanticException {
 		private static final long serialVersionUID = 1254563921501323608L;
 		public TypeIsMissingParameters(Type t1, List<ParameterType> t2, Position pos) {
 			super("Type is missing parameters."
-					+ "\n\t Type: " + t1 
+					+ "\n\t Type: " + t1
 					+ "\n\t Expected parameters: " + t2,
 					pos);
 		}
@@ -540,11 +535,11 @@ public class Errors {
 			return((TypeIsMissingParameters)o).position().equals(position());
 		}
 	}
-	
+
 	public static class CannotAssignToElement extends SemanticException {
 		private static final long serialVersionUID = -9118489907802078734L;
 		public CannotAssignToElement(String leftString, boolean arrayP, Expr right, Type t, Position pos) {
-			super("Cannot assign expression to " + (arrayP ? "array " : "rail ") + "element of given type." 
+			super("Cannot assign expression to " + (arrayP ? "array " : "rail ") + "element of given type."
 					+ "\n\t Expression: " + right
 					+ "\n\t Type: " + right.type()
 					+ "\n\t " + (arrayP ? "Array ": "Rail ") +"element: "  + leftString
@@ -560,7 +555,7 @@ public class Errors {
 	public static class CannotPerformAssignmentOperation extends SemanticException {
 	    private static final long serialVersionUID = 2577635917256629928L;
 	    public CannotPerformAssignmentOperation(String leftString, boolean arrayP, String op, Expr right, Type t, Position pos, SemanticException error) {
-	        super("Cannot perform assignment expression to " + (arrayP ? "array " : "rail ") + "element of given type." 
+	        super("Cannot perform assignment expression to " + (arrayP ? "array " : "rail ") + "element of given type."
 	              + "\n\t Expression: " + right
 	              + "\n\t Operation: " + op
 	              + "\n\t Type: " + right.type()
@@ -589,7 +584,7 @@ public class Errors {
 			return((CannotAssignToElement)o).position().equals(position());
 		}
 	}
-	
+
 	public static class ConstructorReturnTypeNotEntailed extends SemanticException {
 		private static final long serialVersionUID = -4705861378590877043L;
 		public ConstructorReturnTypeNotEntailed(CConstraint known, CConstraint ret,  Position pos) {
@@ -720,7 +715,6 @@ public class Errors {
 		public CannotFindIndexType(Type type, Position position) {
 			super("Cannot determine index type for given type."
 					+ "\n\t Type: "  + type,
-					
 					position);
 		}
 		public boolean equals(Object o) {
@@ -729,13 +723,12 @@ public class Errors {
 			return((CannotFindIndexType)o).position().equals(position());
 		}
 	}
-	
+
 	public static class CannotTranslateStaticField extends SemanticException {
 		private static final long serialVersionUID = -950551311327307252L;
 		public CannotTranslateStaticField(Type type, Position position) {
 			super("Cannot translate a static field of non-class type"
 					+ "\n\t Type: "  + type,
-					
 					position);
 		}
 		public boolean equals(Object o) {
@@ -744,7 +737,7 @@ public class Errors {
 			return((CannotTranslateStaticField)o).position().equals(position());
 		}
 	}
-	
+
 	public static class CannotDisambiguate extends SemanticException {
 		private static final long serialVersionUID = -4594440281666152534L;
 		public CannotDisambiguate(Node n, Position position) {
@@ -756,7 +749,7 @@ public class Errors {
 			return((CannotDisambiguate)o).position().equals(position());
 		}
 	}
-	
+
 	public static class CannotGenerateCast extends SemanticException {
 		private static final long serialVersionUID = 8124533664575933282L;
 		public CannotGenerateCast(Node n, Position position) {
@@ -769,7 +762,7 @@ public class Errors {
 			return((CannotGenerateCast)o).position().equals(position());
 		}
 	}
-		
+
 	public static class ClassMustHaveClassSupertype extends SemanticException {
 	    private static final long serialVersionUID = -7826831387240378409L;
 	    public ClassMustHaveClassSupertype(Ref<? extends Type> superType, ClassDef type, Position pos) {
@@ -787,7 +780,6 @@ public class Errors {
 		public NoCollectingFinishFound(String offer, Position position) {
 			super("Cannot find enclosing collecting finish for offer statement."
 					+ "\n\t Offer: "  + offer,
-					
 					position);
 		}
 		public boolean equals(Object o) {
@@ -811,7 +803,6 @@ public class Errors {
 		}
 	}
 	public static class IsNotReducible extends SemanticException {
-
 		public IsNotReducible(Expr expr,  Position position) {
 			super("The reducer must be of type Reducible[T], for some type T."
 					+ "\n\t Reducer: " + expr
@@ -838,12 +829,10 @@ public class Errors {
 		}
 	}
 	public static class OfferTypeMismatch extends SemanticException {
-		
 		public OfferTypeMismatch(Type actualType, Type expectedType,   Position position) {
 			super("Offer type mismatch."
 					+ "\n\t Found offer type: " + actualType
-					+ "\n\t Expected offer type: " + expectedType
-					, 
+					+ "\n\t Expected offer type: " + expectedType,
 					position);
 		}
 		public boolean equals(Object o) {
