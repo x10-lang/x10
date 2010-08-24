@@ -40,6 +40,7 @@ import polyglot.ast.TypeNode;
 import polyglot.frontend.AllBarrierGoal;
 import polyglot.frontend.BarrierGoal;
 import polyglot.frontend.Compiler;
+import polyglot.frontend.CyclicDependencyException;
 import polyglot.frontend.FileResource;
 import polyglot.frontend.FileSource;
 import polyglot.frontend.ForgivingVisitorGoal;
@@ -47,10 +48,13 @@ import polyglot.frontend.Globals;
 import polyglot.frontend.Goal;
 import polyglot.frontend.JLScheduler;
 import polyglot.frontend.Job;
+import polyglot.frontend.JobExt;
 import polyglot.frontend.OutputGoal;
 import polyglot.frontend.Parser;
 import polyglot.frontend.ParserGoal;
 import polyglot.frontend.Scheduler;
+import polyglot.frontend.Source;
+import polyglot.frontend.SourceGoal;
 import polyglot.frontend.SourceGoal_c;
 import polyglot.frontend.TargetFactory;
 import polyglot.frontend.VisitorGoal;
@@ -211,74 +215,80 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
             return true;
         return false;
     }
-    
+
     static class WarningComparator implements Comparator<ErrorInfo> {
-    	public int compare(ErrorInfo a, ErrorInfo b) {
-    		Position pa  = a.getPosition();
-    		if (pa == null)
-    			return -1;
-    		Position pb = b.getPosition();
-    		if (pb==null)
-    			return 1;
-    		if (pa.line() < pb.line())
-    			return -1;
-    		if (pb.line() < pa.line())
-    			return 1;
-    		if (pa.column() < pb.column())
-    			return -1;
-    		if (pb.line() < pa.line())
-    			return 1;
-    		return 0;
-    	}
+        public int compare(ErrorInfo a, ErrorInfo b) {
+            Position pa = a.getPosition();
+            Position pb = b.getPosition();
+            if (pa == null && pb == null) {
+                if (a.getMessage() == null && b.getMessage() == null)
+                    return 0;
+                else if (a.getMessage() != null && a.getMessage().equals(b.getMessage()))
+                    return 0;
+            }
+            if (pa == null)
+                return -1;
+            if (pb == null)
+                return 1;
+            if (pa.line() < pb.line())
+                return -1;
+            if (pb.line() < pa.line())
+                return 1;
+            if (pa.column() < pb.column())
+                return -1;
+            if (pb.column() < pa.column())
+                return 1;
+            return 0;
+        }
     }
     Set<ErrorInfo> warnings = new TreeSet<ErrorInfo>(new WarningComparator());
-    
+
     public Set<ErrorInfo> warningSet() {
-    	return warnings;
+        return warnings;
     }
-    
+
     static class ExceptionComparator implements Comparator<SemanticException> {
-    	public int compare(SemanticException a, SemanticException b) {
-    		int r = (a.getClass().toString().compareToIgnoreCase(b.getClass().toString()));
-    		if (r != 0)
-    			return r;
-    		Position pa  = a.position();
-    		Position pb = b.position();
-    		if (pa == null && pb == null) {
-    			if (a.getMessage() == null && b.getMessage() == null)
-				return 0;
-			else if (a.getMessage() != null && a.getMessage().equals(b.getMessage()))
-    		    return 0;
-		}
-    		if (pa == null)
-    			return -1;
-    		if (pb==null)
-    			return 1;
-    		if (pa.line() < pb.line())
-    			return -1;
-    		if (pb.line() < pa.line())
-    			return 1;
-    		if (pa.column() < pb.column())
-    			return -1;
-    		if (pb.column() < pa.column())
-    			return 1;
-    		return 0;
-    	}
+        public int compare(SemanticException a, SemanticException b) {
+            int r = (a.getClass().toString().compareToIgnoreCase(b.getClass().toString()));
+            if (r != 0)
+                return r;
+            Position pa = a.position();
+            Position pb = b.position();
+            if (pa == null && pb == null) {
+                if (a.getMessage() == null && b.getMessage() == null)
+                    return 0;
+                else if (a.getMessage() != null && a.getMessage().equals(b.getMessage()))
+                    return 0;
+            }
+            if (pa == null)
+                return -1;
+            if (pb == null)
+                return 1;
+            if (pa.line() < pb.line())
+                return -1;
+            if (pb.line() < pa.line())
+                return 1;
+            if (pa.column() < pb.column())
+                return -1;
+            if (pb.column() < pa.column())
+                return 1;
+            return 0;
+        }
     }
     Set<SemanticException> errors = new TreeSet<SemanticException>(new ExceptionComparator());
-    
+
     public Set<SemanticException> errorSet() {
-    	return errors;
+        return errors;
     }
-    
+
     private int weakCallsCount = 0;
     public void incrWeakCallsCount() { 
-    	weakCallsCount++;
+        weakCallsCount++;
     }
     public int weakCallsCount() {
-    	return weakCallsCount;
+        return weakCallsCount;
     }
-    
+
     protected void initTypeSystem() {
         try {
             TopLevelResolver r = new X10SourceClassResolver(compiler, this, getOptions().constructFullClasspath(),
@@ -414,7 +424,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            
            if (x10.Configuration.WORK_STEALING) {
                Goal wsCodeGenGoal = WSCodeGenerator(job);
-               if(wsCodeGenGoal != null){
+               if(wsCodeGenGoal != null) {
                    goals.add(wsCodeGenGoal);                   
                    wsCodeGenGoal.addPrereq(TypeCheckBarrier());
                    //wsCodeGenGoal.addPrereq(WSExpressionFlattener(job));
@@ -831,7 +841,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        public Goal WSExpressionFlattener(Job job) {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
-           VisitorGoal ef = new VisitorGoal("WorkStealing ExpressionFlattener", job, new ExpressionFlattener(job, ts, nf));
+           VisitorGoal ef = new ValidatingVisitorGoal("WorkStealing ExpressionFlattener", job, new ExpressionFlattener(job, ts, nf));
            Goal ef2 = ef.intern(this);
            if (ef == ef2) {
                ef.addPrereq(Serialized(job));
@@ -842,7 +852,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        public Goal ExpressionFlattener(Job job) {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
-           VisitorGoal ef = new VisitorGoal("ExpressionFlattener", job, new ExpressionFlattener(job, ts, nf));
+           VisitorGoal ef = new ValidatingVisitorGoal("ExpressionFlattener", job, new ExpressionFlattener(job, ts, nf));
            Goal ef2 = ef.intern(this);
            if (ef == ef2) {
                ef.addPrereq(Desugarer(job));
@@ -859,6 +869,31 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
            return new ValidatingVisitorGoal("StaticNestedClassRemover", job, new StaticNestedClassRemover(job, ts, nf)).intern(this);
+       }
+       
+       public static class X10Job extends Job {
+           public X10Job(polyglot.frontend.ExtensionInfo lang, JobExt ext, Source source, Node ast) {
+               super(lang, ext, source, ast);
+           }
+           public int initialErrorCount() { return initialErrorCount; }
+           public void initialErrorCount(int count) { initialErrorCount = count; }
+       }
+       
+       @Override
+       protected Job createSourceJob(Source source, Node ast) {
+           return new X10Job(extInfo, extInfo.jobExt(), source, ast);
+       }
+       
+       @Override
+       protected boolean runPass(Goal goal) throws CyclicDependencyException {
+           Job job = goal instanceof SourceGoal ? ((SourceGoal) goal).job() : null;
+           int savedInitialErrorCount = -1;
+           if (job != null)
+               savedInitialErrorCount = ((X10Job) job).initialErrorCount();
+           boolean result = super.runPass(goal);
+           if (job != null)
+               ((X10Job) job).initialErrorCount(savedInitialErrorCount);
+           return result;
        }
     }
     
