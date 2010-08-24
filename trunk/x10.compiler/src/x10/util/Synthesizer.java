@@ -247,7 +247,7 @@ public class Synthesizer {
          return X10TypeMixin.addTerm(type, v);
 	 }
 
-	 public Type addRankConstraint(Type type, XVar receiver, int n, X10TypeSystem ts) {
+	 /*public Type addRankConstraint(Type type, XVar receiver, int n, X10TypeSystem ts) {
 			XTerm v = makeRegionRankTerm(receiver);
 			XTerm rank = XTerms.makeLit(new Integer(n));
 			return X10TypeMixin.addBinding(type, v, rank);
@@ -264,7 +264,7 @@ public class Synthesizer {
 		 XTerm rank = XTerms.makeLit(new Integer(n));
 		 return X10TypeMixin.addBinding(type, v, rank);
 
-	 }
+	 }*/
 	 
 	 /**
 	  * If formal = p(x) construct
