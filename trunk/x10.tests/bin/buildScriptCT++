@@ -41,16 +41,6 @@ svnUpdate() {
 main() {
     # source all the relevant modules -- do fresh checkout each time
 	declare -i status;
-	POLYGLOT_HOME=$X10_HOME/x10.polyglot
-	if [[ -d $POLYGLOT_HOME ]]; then
-		rm -rf $POLYGLOT_HOME
-	fi
-	svnUpdate $POLYGLOT_HOME $X10_SVNROOT
-	status=$?
-	if (( $status != 0 )); then
-		return $status
-	fi
-
 	X10_COMMON=$X10_HOME/x10.common
 	if [[ -d $X10_COMMON ]]; then
 		rm -rf $X10_COMMON

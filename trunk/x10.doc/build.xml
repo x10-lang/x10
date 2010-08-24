@@ -11,7 +11,6 @@
     <property name="xrx.xdoc.output.dir" location="${x10.dist.location}/x10doc"/>
     <property name="jar" value="x10doc.jar"/>
     <property name="lpg.jar" value="lpg.jar"/>
-    <property name="polyglot.jar" value="polyglot.jar"/>
     <property name="compiler.jar" value="x10c.jar"/>
     <property name="runtime.jar" value="x10.jar"/>
     <property name="tools.jar" value="tools.jar"/>
@@ -22,7 +21,6 @@
     <path id="project.classpath">
         <path refid="mainproject.classpath"/>
         <path refid="lpg.classpath"/>
-        <path refid="polyglot.classpath"/>
         <path refid="compiler.classpath"/>
         <path refid="x10.runtime.classpath"/>
     </path>
@@ -31,9 +29,6 @@
     </path>
     <path id="lpg.classpath">
         <pathelement location="${lib}/${lpg.jar}"/>
-    </path>
-    <path id="polyglot.classpath">
-        <pathelement location="${lib}/${polyglot.jar}"/>
     </path>
     <path id="compiler.classpath">
         <pathelement location="${lib}/${compiler.jar}"/>
@@ -77,10 +72,6 @@
         </jar>
     </target>
     <target name="prereq-jars">
-        <condition property="polyglot.jar.present">
-            <available file="${lib}/${polyglot.jar}"/>
-        </condition>
-        <fail message="Unable to find required file ${lib}/${polyglot.jar}" unless="polyglot.jar.present"/>
         <condition property="lpg.jar.present">
             <available file="${lib}/${lpg.jar}"/>
         </condition>
