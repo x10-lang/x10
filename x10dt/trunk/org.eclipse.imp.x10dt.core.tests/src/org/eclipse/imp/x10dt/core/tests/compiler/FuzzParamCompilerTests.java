@@ -22,14 +22,16 @@ import polyglot.util.ErrorInfo;
  * and created the corresponding files in data/fuzzgen.
  * When run as a Junit test, this class runs the tests generated from available files in data/fuzzgen.
  * 
+ * To run a specific test number, use the "-test" argument to the Eclipse JUnit runner,
+ * e.g., to run test number 5996, invoke with
+ * -test "org.eclipse.imp.x10dt.core.tests.compiler.FuzzParamCompilerTests:compilerTest[5996]"
+ * 
  * @author mvaziri
  *
  */
 @RunWith(Parameterized.class)
 public class FuzzParamCompilerTests extends CompilerTestsBase {
 
-	private static int N = 165;
-	private static boolean allTests = false;
 	private File[] sources;
 	private String[] options;
 
@@ -51,14 +53,9 @@ public class FuzzParamCompilerTests extends CompilerTestsBase {
 	@Parameters
 	public static Collection inputs() {
 		ArrayList<Object[]> inputs = new ArrayList<Object[]>();
-		int count = 0;
 		for (File f : getSources(new File(FUZZ_PATH))) {
-			if (allTests || count++ == N){
-				inputs.add(new Object[] { new File[] { f }, STATIC_CALLS });
-			}
-			if (allTests || count++ == N) {
-				inputs.add(new Object[] { new File[] { f }, NOT_STATIC_CALLS });
-			}
+			inputs.add(new Object[] { new File[] { f }, STATIC_CALLS });
+			inputs.add(new Object[] { new File[] { f }, NOT_STATIC_CALLS });
 		}
 		return inputs;
 	}
