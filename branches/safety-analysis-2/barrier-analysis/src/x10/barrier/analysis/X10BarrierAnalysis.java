@@ -2,6 +2,7 @@ package x10.barrier.analysis;
 import java.io.ByteArrayInputStream;
 
 import java.io.ByteArrayOutputStream;
+import java.io.Console;
 import java.io.File;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -288,7 +289,7 @@ private Set retrieveClocks(int nodenum) {
      * callgraph of the input program. but it omits some "dummy" method, e.g.
      * "fake..." or "init..."
      */
-    private void buildCallTable() {
+    private void buildAutomata() {
 	Iterator<CGNode> all_methods = cg.iterator();
 	while (all_methods.hasNext()) {
 	    CGNode one_method = all_methods.next();
@@ -313,10 +314,10 @@ private Set retrieveClocks(int nodenum) {
 		Automaton a = parseIR(cg.getNumber(one_method), clk, true);
 		   a.compress();
 		   System.out.println("Automaton Compressed Successfully"); 
-		   a.print();
+		   //a.print();
 		    a.composePar();
 		    System.out.println("Automata Composed Successfully");
-		    a.print();
+		    //a.print();
 		    a.mayHappenInParallel();
 	    }
 	  
@@ -369,20 +370,37 @@ private Set retrieveClocks(int nodenum) {
 		return null;
 	    }
 	};
+	
+	long start1, start2, end1, end2;
+	
+	
+     
+	
+	
+	start1 = System.currentTimeMillis();
 
 	engine.addX10SystemModule(new SourceDirectoryTreeModule(new File("../x10.runtime/src-x10/"), "10"));
 	//engine.addX10SourceModule(new SourceDirectoryTreeModule(new File("../x10.tests/examples/x10lib/")));
 	//System.err.println(testedFile.getName());
 	engine.addX10SourceModule(new SourceFileModule(testedFile, testedFile.getName()));
 	
+	
+	
 	// build the call graph: ExplicitCallGraph
 	cg = engine.buildDefaultCallGraph();
 	pa = engine.getPointerAnalysis();
 	
+	end1 = System.currentTimeMillis();
+	
+	
 	//GraphUtil.printNumberedGraph(cg, "test");
-	buildCallTable();
+	start2 = System.currentTimeMillis();
+	buildAutomata();
+	end2 = System.currentTimeMillis();
 	
 	System.out.println("finished ... ");
+	System.out.println("Time to build call graph: " + (end1 - start1)/1000.0 + "s");
+	System.out.println("Time to analyse: " + (end2 - start2)/1000.0 + "s");
     } // end of compile
 }
 
