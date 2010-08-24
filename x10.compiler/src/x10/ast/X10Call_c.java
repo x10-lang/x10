@@ -74,6 +74,7 @@ import x10.constraint.XConstraint;
 import x10.constraint.XLocal;
 import x10.constraint.XVar;
 import x10.errors.Errors;
+import x10.errors.Warnings;
 import x10.errors.Errors.PlaceTypeErrorMethodShouldBeLocalOrGlobal;
 import x10.parser.X10ParsedName;
 import x10.types.ParameterType;
@@ -764,7 +765,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		    }
 		}
 		catch (SemanticException e) {
-		    tc.errorQueue().enqueue(ErrorInfo.WARNING, "WARNING (should be error, but method annotations in XRX are wrong): " + e.getMessage(), position());
+		    Warnings.issue(tc.job(), "WARNING (should be error, but method annotations in XRX are wrong): " + e.getMessage(), position());
 		}
 	}
 

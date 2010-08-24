@@ -64,6 +64,7 @@ import polyglot.util.Position;
 import polyglot.visit.Translator;
 import x10.ast.X10Special;
 import x10.ast.X10Special_c;
+import x10.errors.Warnings;
 import x10.extension.X10Ext;
 import x10.types.FunctionType;
 import x10.types.ParameterType;
@@ -508,7 +509,7 @@ public class Emitter {
 				if (returnType != null && !xts.typeDeepBaseEquals(returnType, newReturnType, context)) {
 					String msg = "Two supertypes declare " + from + " with "
 						+ "different return types: " + returnType + " != " + newReturnType;
-					tr.job().compiler().errorQueue().enqueue(ErrorInfo.WARNING, msg, pos);
+					Warnings.issue(tr.job(), msg, pos);
 				}
 				returnType = newReturnType;
 			}
@@ -567,7 +568,7 @@ public class Emitter {
 			        //    public: template<class T> Y m_impl(X a);
 			        // };
 			        String msg = n.methodDef()+" is generic and non-final, disabling virtual binding for this method";
-			        tr.job().compiler().errorQueue().enqueue(ErrorInfo.WARNING, msg, n.position());
+			        Warnings.issue(tr.job(), msg, n.position());
 			    }
 			}
             // [DC] there is no benefit to omitting the virtual keyword as we can
