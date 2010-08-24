@@ -141,9 +141,13 @@ public class Converter {
 				result = check(nf.X10Cast(e.position(), tn, e, ct),tc);
 			}
 			if (dynamicCallp) {
-                if (Configuration.STATIC_CALLS)
-                    throw new SemanticException("Expression " + e + " cannot be cast to type " + tn.type() + ".", e.position()); 
-				Warnings.issue(tc.job(), Warnings.CastingExprToType(e, tn.type(), e.position()));
+				if (Configuration.STATIC_CALLS) {
+					throw new SemanticException("Expression " + e + " cannot be cast to type " + tn.type() + ".", e.position());
+				} else if (Configuration.VERBOSE_CALLS) {
+					Warnings.issue(tc.job(), Warnings.CastingExprToType(e, tn.type(), e.position()));
+				} else {
+					((ExtensionInfo) tc.job().extensionInfo()).incrWeakCallsCount();
+				}
 			}
 		}
 
