@@ -19,7 +19,6 @@ import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.CanonicalTypeNode_c;
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
-import polyglot.ast.TypeCheckTypeGoal;
 import polyglot.ast.TypeNode;
 import polyglot.frontend.Globals;
 import polyglot.frontend.SetResolverGoal;
@@ -194,7 +193,7 @@ AddFlags {
     		LazyRef<Type> r = (LazyRef<Type>) typeRef();
     		TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
     		tc = (TypeChecker) tc.context(v.context().freeze());
-    		r.setResolver(new TypeCheckTypeGoal(parent, this, tc, r, false));
+    		r.setResolver(new TypeCheckTypeGoal(parent, this, tc, r));
     	}
     }
     @Override

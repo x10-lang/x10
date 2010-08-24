@@ -374,22 +374,22 @@ public class Closure_c extends Expr_c implements Closure {
 
     @Override
     public Node setResolverOverride(Node parent, TypeCheckPreparer v) {
-	    if (returnType() instanceof UnknownTypeNode && body != null) {
-		    UnknownTypeNode tn = (UnknownTypeNode) returnType();
-		    tn.setResolver(this, v);
+        if (returnType() instanceof UnknownTypeNode && body != null) {
+            UnknownTypeNode tn = (UnknownTypeNode) returnType();
+            tn.setResolver(this, v);
 
-		    NodeVisitor childv = v.enter(parent, this);
-		    childv = childv.enter(this, returnType());
+            NodeVisitor childv = v.enter(parent, this);
+            childv = childv.enter(this, returnType());
 
-		    if (childv instanceof TypeCheckPreparer) {
-		    	TypeCheckPreparer tcp = (TypeCheckPreparer) childv;
-		    	final LazyRef<Type> r = (LazyRef<Type>) tn.typeRef();
-		    	TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
-		    	tc = (TypeChecker) tc.context(tcp.context().freeze());
-		    	r.setResolver(new TypeCheckReturnTypeGoal(this, body, tc, r, true));
-		    }
-	    }
-	    return super.setResolverOverride(parent, v);
+            if (childv instanceof TypeCheckPreparer) {
+                TypeCheckPreparer tcp = (TypeCheckPreparer) childv;
+                final LazyRef<Type> r = (LazyRef<Type>) tn.typeRef();
+                TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
+                tc = (TypeChecker) tc.context(tcp.context().freeze());
+                r.setResolver(new TypeCheckReturnTypeGoal(this, body, tc, r));
+            }
+        }
+        return super.setResolverOverride(parent, v);
     }
 
     @Override
