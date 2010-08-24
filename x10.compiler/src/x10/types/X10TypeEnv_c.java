@@ -852,7 +852,12 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     			try {
     				xcontext = (X10Context) xcontext.pushBlock();	
 
-    				CConstraint r = c.addIn(c1);
+    				CConstraint r;
+    				try {
+    				 r = c.addIn(c1);
+    				} catch (XFailure z) {
+    					return false;
+    				}
     				xcontext.setCurrentConstraint(r);
 
     				X10TypeEnv_c tenv = copy();
@@ -862,8 +867,6 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     					t2 = Subst.subst(t2, x, c2.self());
     				
     				return tenv.isSubtype(x, baseType1, t2);
-    			} catch (XFailure z) {
-    				throw new InternalCompilerError("Unexpected failure ", z);
     			} 	 catch (SemanticException z) {
     				throw new InternalCompilerError("Unexpected failure ", z);
     			}
