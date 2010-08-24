@@ -443,4 +443,5 @@ public interface X10TypeSystem extends TypeSystem {
     public Type Reducible();
 
     public boolean isUnknown(Type t);
+    public boolean hasUnknown(Type t);
 }

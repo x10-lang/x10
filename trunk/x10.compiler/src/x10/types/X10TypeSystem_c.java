@@ -642,6 +642,36 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return X10TypeMixin.baseType(t) instanceof UnknownType;
     }
 
+    public boolean hasUnknown(Type t) {
+        if (isUnknown(t))
+            return true;
+        if (t instanceof X10ClassType) {
+            X10ClassType ct = (X10ClassType) t;
+            for (Type a : ct.typeArguments()) {
+                if (hasUnknown(a))
+                    return true;
+            }
+            if (ct.x10Def().isFunction()) {
+                // Look at the superclass and interfaces (if any)
+                if (hasUnknown(ct.superClass()))
+                    return true;
+                for (Type i : ct.interfaces()) {
+                    if (hasUnknown(i))
+                        return true;
+                }
+            }
+        }
+        if (t instanceof AnnotatedType) {
+            AnnotatedType at = (AnnotatedType) t;
+            List<Type> ann = at.annotations();
+            for (Type a : ann) {
+                if (hasUnknown(a))
+                    return true;
+            }
+        }
+        return false;
+    }
+
     public X10ClassType createFakeClass(QName fullName, SemanticException error) {
         X10ClassDef cd = (X10ClassDef) createClassDef();
         cd.name(fullName.name());

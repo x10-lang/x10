@@ -145,7 +145,7 @@ public class X10Field_c extends Field_c {
 	    X10FieldInstance fi;
 	    X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
 	    Context context = tc.context();
-	    boolean haveUnknown = xts.isUnknown(targetType);
+	    boolean haveUnknown = xts.hasUnknown(targetType);
 	    Set<FieldInstance> fis = xts.findFields(targetType, xts.FieldMatcher(targetType, name, context));
 	    // If exception was not thrown, there is at least one match.  Fake it.
 	    // See if all matches have the same type, and save that to avoid losing information.

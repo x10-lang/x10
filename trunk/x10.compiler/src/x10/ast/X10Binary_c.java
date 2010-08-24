@@ -410,7 +410,10 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         
         Type l = left.type();
         Type r = right.type();
-        
+
+        if (xts.hasUnknown(l) || xts.hasUnknown(r))
+            throw new SemanticException(); // null message
+
         if (op == COND_OR || op == COND_AND) {
             if (l.isBoolean() && r.isBoolean()) {
                 return type(ts.Boolean());

@@ -77,7 +77,6 @@ public class X10Unary_c extends Unary_c {
     public Node typeCheck(ContextVisitor tc) throws SemanticException {
         X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
         X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
-        Type t = expr.type();
         Unary.Operator op = this.operator();
 
         if (op == NEG && expr instanceof IntLit) {
@@ -172,6 +171,11 @@ public class X10Unary_c extends Unary_c {
                 }
             }
         }
+
+        Type t = expr.type();
+
+        if (ts.hasUnknown(t))
+            throw new SemanticException(); // null message
 
         X10Unary_c n = (X10Unary_c) super.typeCheck(tc);
 

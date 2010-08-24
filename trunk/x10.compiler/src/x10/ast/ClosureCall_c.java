@@ -230,9 +230,9 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 	    X10MethodInstance mi;
 	    X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
 	    Context context = tc.context();
-	    boolean haveUnknown = xts.isUnknown(targetType);
+	    boolean haveUnknown = xts.hasUnknown(targetType);
 	    for (Type t : actualTypes) {
-	        if (xts.isUnknown(t)) haveUnknown = true;
+	        if (xts.hasUnknown(t)) haveUnknown = true;
 	    }
 	    SemanticException error = null;
 	    if (!haveUnknown) {
@@ -265,6 +265,8 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 	            }
 	        }
 	    }
+	    if (haveUnknown)
+	        error = new SemanticException(); // null message
 	    mi = xts.createFakeMethod(targetType.toClass(), Flags.PUBLIC, name, typeArgs, actualTypes, error);
 	    if (rt == null) rt = mi.returnType();
 	    rt = PlaceChecker.AddIsHereClause(rt, context);
