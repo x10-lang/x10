@@ -61,6 +61,7 @@ import polyglot.frontend.Compiler;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Job;
 import polyglot.frontend.Source;
+import polyglot.util.InternalCompilerError;
 import x10.ExtensionInfo;
 
 /**
@@ -336,6 +337,9 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
     try {
       compiler.compile(toSources(sourcesToCompile));
       computeDependencies(extInfo.scheduler().commandLineJobs());
+    } catch (InternalCompilerError except) {
+      // The exception is also pushed on the error queue... A marker will be created accordingly for it.
+      sourcesToCompile.clear(); // To prevent post-compilation step.
     } finally {
       Globals.initialize(null);
     }
