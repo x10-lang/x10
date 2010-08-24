@@ -251,7 +251,7 @@ class IdeaTest {
 	 */
 	 
 	private def cipher_idea(text1: Rail[Int @ Clocked[int](c,op,0)]!, text2: Rail[Int @ Clocked[int](c,op,0)]!, key: Rail[Int]!) @ ClockedM(c) {
-		finish foreach ((i) in 0..(text1.length)/8 - 1) clocked (c)  {
+		finish for ((i) in 0..(text1.length)/8 - 1) async clocked (c)  {
 			val itmp = i * 8;
 			{
 		    var i1: Int = itmp;                 // Index into first text array.
