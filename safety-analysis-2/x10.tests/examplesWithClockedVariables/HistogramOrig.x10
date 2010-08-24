@@ -1,6 +1,6 @@
 import x10.util.Random;
 import x10.io.Console;
-import clocked.Clocked;
+
 
 public class HistogramOrig {
 

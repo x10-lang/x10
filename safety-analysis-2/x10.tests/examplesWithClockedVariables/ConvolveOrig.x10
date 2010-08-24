@@ -1,4 +1,4 @@
-import clocked.Clocked;
+
 
 class ConvolveOrig {
 
