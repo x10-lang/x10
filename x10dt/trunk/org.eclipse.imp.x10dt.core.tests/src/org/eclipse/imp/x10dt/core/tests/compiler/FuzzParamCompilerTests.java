@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -14,6 +15,11 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import com.sun.corba.se.impl.resolver.FileResolverImpl;
+
+import polyglot.frontend.FileResource;
+import polyglot.frontend.FileSource;
+import polyglot.frontend.Source;
 import polyglot.util.ErrorInfo;
 
 /**
@@ -32,7 +38,7 @@ import polyglot.util.ErrorInfo;
 @RunWith(Parameterized.class)
 public class FuzzParamCompilerTests extends CompilerTestsBase {
 
-	private File[] sources;
+	private Collection<Source> sources;
 	private String[] options;
 
 	/*
@@ -40,30 +46,37 @@ public class FuzzParamCompilerTests extends CompilerTestsBase {
 	 */
 	private static String FUZZ_PATH = "data" + File.separator + "fuzzgen"  + File.separator;
 	private static String DATA_PATH = "data" + File.separator + "fuzz"  + File.separator;
-	private static String LIB_PATH = ".." + File.separator + "x10.tests" + File.separator + "examples" + File.separator + "x10lib" + File.separator;
-	private static String SOURCE_PATH_BASE = getRuntimeJar() + File.pathSeparator + LIB_PATH + File.pathSeparator + DATA_PATH;
-
+	private static String LIB_PATH = ".." + File.separator + "x10.tests" + File.separator + "examples" + File.separator + 
+									 "x10lib" + File.separator;
+ 
 	
-	public FuzzParamCompilerTests(File[] sources, String[] options) {
+	public FuzzParamCompilerTests(Collection<Source> sources, String[] options) {
 		super();
 		this.sources = sources;
 		this.options = options;
 	}
+	
+	protected String getDataSourcePath() {
+		final StringBuilder sb = new StringBuilder();
+		sb.append(File.pathSeparator).append(DATA_PATH).append(File.pathSeparator).append(LIB_PATH);
+		return sb.toString();
+	}
 
 	@Parameters
-	public static Collection inputs() {
+	public static Collection<?> inputs() throws URISyntaxException, IOException {
 		ArrayList<Object[]> inputs = new ArrayList<Object[]>();
-		for (File f : getSources(new File(FUZZ_PATH))) {
-			inputs.add(new Object[] { new File[] { f }, STATIC_CALLS });
-			inputs.add(new Object[] { new File[] { f }, NOT_STATIC_CALLS });
+		for (File f : getSources(createFile(FUZZ_PATH))) {
+			final Collection<Source> sources = new ArrayList<Source>();
+			sources.add(new FileSource(new FileResource(f)));
+			inputs.add(new Object[] { sources, STATIC_CALLS });
+			inputs.add(new Object[] { sources, NOT_STATIC_CALLS });
 		}
 		return inputs;
 	}
 
 	@Test(timeout=10000)
 	public void compilerTest() throws Exception {
-		String sourcepath = SOURCE_PATH_BASE;
-		compile(sources, options, new ArrayList<ErrorInfo>(), sourcepath);
+		compile(sources, options, new ArrayList<ErrorInfo>());
 	}
 
 
