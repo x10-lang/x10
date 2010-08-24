@@ -28,6 +28,8 @@ import polyglot.util.ErrorInfo;
 @RunWith(Parameterized.class)
 public class FuzzParamCompilerTests extends CompilerTestsBase {
 
+	private static int N = 165;
+	private static boolean allTests = false;
 	private File[] sources;
 	private String[] options;
 
@@ -49,9 +51,14 @@ public class FuzzParamCompilerTests extends CompilerTestsBase {
 	@Parameters
 	public static Collection inputs() {
 		ArrayList<Object[]> inputs = new ArrayList<Object[]>();
+		int count = 0;
 		for (File f : getSources(new File(FUZZ_PATH))) {
-			inputs.add(new Object[] { new File[] { f }, STATIC_CALLS });
-			inputs.add(new Object[] { new File[] { f }, NOT_STATIC_CALLS });
+			if (allTests || count++ == N){
+				inputs.add(new Object[] { new File[] { f }, STATIC_CALLS });
+			}
+			if (allTests || count++ == N) {
+				inputs.add(new Object[] { new File[] { f }, NOT_STATIC_CALLS });
+			}
 		}
 		return inputs;
 	}
