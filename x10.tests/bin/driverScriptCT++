@@ -159,7 +159,6 @@ export CVS_RSH=ssh
 if [[ -z "X10_SVNROOT" ]]; then
     export X10_SVNROOT="http://x10.svn.sf.net/svnroot/x10/trunk"
 fi
-export POLYGLOT_SVNROOT="http://polyglot-compiler.googlecode.com/svn/trunk"
 
 ##### cat feed - init
 __cat_feed_stage=INIT
