@@ -212,7 +212,7 @@ public final class Runtime {
         }
 
         public def await():Void {
-            // avoid locking if state == true
+            // aVoid locking if state == true
             if (!state) {
                 lock();
                 while (!state) super.await();
@@ -807,7 +807,7 @@ public final class Runtime {
 
         public native def name():String;
 
-        public native def name(name:String):void;
+        public native def name(name:String):Void;
 
         public native def locInt():Int;
 
@@ -1035,7 +1035,7 @@ public final class Runtime {
             var next:Int = random.nextInt(size);
             for (;;) {
                 event_probe();
-                if (null != workers(next)) { // avoid race with increase method
+                if (null != workers(next)) { // aVoid race with increase method
                     activity = workers(next).steal();
                 }
                 if (null != activity || latch()) return activity;

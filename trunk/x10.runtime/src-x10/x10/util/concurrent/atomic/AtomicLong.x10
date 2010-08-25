@@ -27,7 +27,7 @@ public final class AtomicLong {
 	
 	@Native("java", "#0.set(#1)")
 	@Native("c++", "(#0)->set(#1)")
-	public safe native def set(newV:long):void;
+	public safe native def set(newV:long):Void;
 	
 	@Native("java", "#0.compareAndSet(#1,#2)")
 	@Native("c++", "(#0)->compareAndSet(#1,#2)")

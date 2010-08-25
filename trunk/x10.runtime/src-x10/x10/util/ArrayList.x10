@@ -239,7 +239,7 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
         qsort(a, l+1, hi, cmp);
     }
 
-    private def exch(a: GrowableRail[T]!, i: int, j: int): void {
+    private def exch(a: GrowableRail[T]!, i: int, j: int): Void {
         val temp = a(i);
         a(i) = a(j);
         a(j) = temp;

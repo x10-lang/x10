@@ -48,14 +48,14 @@ public class MultipleExceptions(exceptions: ValRail[Throwable]) extends RuntimeE
 
     // workarounds for XTENLANG-283, 284
 
-    public global def printStackTrace(): void {
+    public global def printStackTrace(): Void {
         //super.printStackTrace();
         for (t: Throwable in exceptions) {
 	        t.printStackTrace();
         }
     }
 
-    public global def printStackTrace(p:Printer): void {
+    public global def printStackTrace(p:Printer): Void {
         //super.printStackTrace(p);
         //for (t: Throwable in exceptions) t.printStackTrace(p);
     }

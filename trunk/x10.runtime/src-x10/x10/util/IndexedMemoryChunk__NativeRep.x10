@@ -22,15 +22,15 @@ import x10.compiler.NativeRep;
 public abstract class IndexedMemoryChunk__NativeRep {
 
     @Native("java", "(#4)._copyToLocal(#5,#6,#7,#8)")
-    private static def copyToLocal[T](src:IndexedMemoryChunk[T], srcIndex:int, dst:IndexedMemoryChunk[T], dstIndex:int, numElems:int):void {}
+    private static def copyToLocal[T](src:IndexedMemoryChunk[T], srcIndex:int, dst:IndexedMemoryChunk[T], dstIndex:int, numElems:int):Void {}
 
     @Native("java", "(#4)._copyFromLocal(#5,#6,#7,#8)")
-    private static def copyFromLocal[T](dst:IndexedMemoryChunk[T], dstIndex:int, src:IndexedMemoryChunk[T], srcIndex:int, numElems:int):void {}
+    private static def copyFromLocal[T](dst:IndexedMemoryChunk[T], dstIndex:int, src:IndexedMemoryChunk[T], srcIndex:int, numElems:int):Void {}
 
     public static def copyTo[T](src:IndexedMemoryChunk[T], srcIndex:int,
                                 dstPlace:Place, dst:IndexedMemoryChunk[T], dstIndex:int,
                                 numElems:int,
-                                uncounted:boolean):void {
+                                uncounted:boolean):Void {
         if (dstPlace == here) {
             copyToLocal(src, srcIndex, dst, dstIndex, numElems);
         } else {
@@ -46,7 +46,7 @@ public abstract class IndexedMemoryChunk__NativeRep {
     public static def copyFrom[T](dst:IndexedMemoryChunk[T], dstIndex:int, 
                                   srcPlace:Place, src:IndexedMemoryChunk[T], srcIndex:int, 
                                   numElems:int, 
-                                  uncounted:boolean):void {
+                                  uncounted:boolean):Void {
         if (srcPlace == here) {
             copyFromLocal(dst, dstIndex, src, srcIndex, numElems);
         } else {

@@ -45,7 +45,7 @@ public class System {
      */
     @Native("java", "java.lang.System.exit(#1)")
     @Native("c++", "x10aux::system_utils::exit(#1)")
-    static native def exit(code: Int): void;
+    static native def exit(code: Int): Void;
 
     /**
      * Terminates the application with exit code -1, as quickly as possible.
@@ -65,7 +65,7 @@ public class System {
      */
     @Native("java", "x10.runtime.impl.java.Runtime.setExitCode(#1)")
     @Native("c++", "(x10aux::exitCode = (#1))")
-    public static def setExitCode(exitCode: int){here==Place.FIRST_PLACE}: void {}
+    public static def setExitCode(exitCode: int){here==Place.FIRST_PLACE}: Void {}
 
     /**
      * Provides an estimate in bytes of the size of the X10 heap
@@ -91,7 +91,7 @@ public class System {
     // TODO: XTENLANG-180.  Provide full System properties API in straight X10
     @Native("java", "java.lang.System.setProperty(#1,#2)")
     @Native("c++", "printf(\"not setting %s\\n\", (#1)->c_str())") // FIXME: Trivial definition to allow XRX compilation to go through.
-    public static native def setProperty(p:String,v:String):void;
+    public static native def setProperty(p:String,v:String):Void;
 
 
 }
