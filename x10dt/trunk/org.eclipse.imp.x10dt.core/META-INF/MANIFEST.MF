@@ -29,7 +29,6 @@ Require-Bundle: org.eclipse.core.runtime,
  lpg.runtime.java;bundle-version="2.0.18"
 Bundle-ActivationPolicy: lazy
 Export-Package: org.eclipse.imp.x10dt.core,
- org.eclipse.imp.x10dt.core.actions,
  org.eclipse.imp.x10dt.core.builder,
  org.eclipse.imp.x10dt.core.preferences.generated,
  org.eclipse.imp.x10dt.core.utils

@@ -9,6 +9,7 @@ package org.eclipse.imp.x10dt.ui.launch.core;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.imp.x10dt.core.X10DTCorePlugin;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -25,6 +26,8 @@ public class LaunchCore extends AbstractUIPlugin {
    */
   public static final String PLUGIN_ID = "org.eclipse.imp.x10dt.ui.launch.core"; //$NON-NLS-1$
    
+
+  
   // --- Public services
   
   /**

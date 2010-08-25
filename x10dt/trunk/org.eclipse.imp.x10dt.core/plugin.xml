@@ -2,33 +2,7 @@
 <?eclipse version="3.0"?>
 <plugin>
 
-   <extension
-         id="X10Builder"
-         name="X10 Compiler"
-         point="org.eclipse.core.resources.builders">
-      <builder>
-         <run
-               class="org.eclipse.imp.x10dt.core.builder.X10Builder">
-         </run>
-      </builder>
-   </extension>
-   <extension
-         id="x10nature"
-         name="X10 Nature"
-         point="org.eclipse.core.resources.natures">
-      <runtime>
-         <run
-               class="org.eclipse.imp.x10dt.core.builder.X10ProjectNature">
-         </run>
-      </runtime>
-      <builder
-            id="org.eclipse.imp.x10dt.core.builder.X10Builder">
-      </builder>
-      <requires-nature
-            id="org.eclipse.jdt.core.javanature">
-      </requires-nature>
-   </extension>
-   <extension
+  <extension
          id="problemMarker"
          name="X10 Problem Marker"
          point="org.eclipse.core.resources.markers">
@@ -42,31 +16,7 @@
             type="org.eclipse.core.resources.textmarker">
       </super>
    </extension>
-   <extension
-         point="org.eclipse.ui.popupMenus">
-      <objectContribution
-            objectClass="org.eclipse.jdt.core.IJavaProject"
-            nameFilter="*"
-            id="org.eclipse.imp.x10dt.core.projectContextMenu">
-         <menu
-               label="X10"
-               path="additions"
-               id="org.eclipse.imp.x10dt.core.menu1">
-            <separator
-                  name="group1">
-            </separator>
-         </menu>
-         <action
-               label="Enable Builder"
-               icon="icons/builderEnable.gif"
-               tooltip="Enable the X10 Compiler for this project"
-               class="org.eclipse.imp.x10dt.core.actions.BuilderEnable"
-               menubarPath="org.eclipse.imp.x10dt.core.menu1/group1"
-               enablesFor="1"
-               id="org.eclipse.imp.x10dt.core.enableBuilderAction">
-         </action>
-      </objectContribution>
-   </extension>
+
    <extension
          point="org.eclipse.core.runtime.preferences">
       <initializer

@@ -19,6 +19,10 @@ public final class Constants {
   
   public static final String EMPTY_STR = ""; //$NON-NLS-1$
   
+  public static final String JAVA_EXT = ".java"; //$NON-NLS-1$
+  
+  public static final String CLASS_EXT = ".class"; //$NON-NLS-1$
+  
   public static final String CC_EXT = ".cc"; //$NON-NLS-1$
   
   public static final String CPP_EXT = ".cpp"; //$NON-NLS-1$

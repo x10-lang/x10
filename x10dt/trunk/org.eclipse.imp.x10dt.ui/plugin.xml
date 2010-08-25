@@ -6,7 +6,7 @@
       <language
             extensions="x10"
             description="X10 Concurrent Programming Language"
-            natureID="org.eclipse.imp.x10dt.core.x10nature"
+            natureID="org.eclipse.imp.x10dt.ui.launch.x10nature"
             icons="icons/compilationUnitNormal.gif"
             language="X10">
       </language>
@@ -92,7 +92,7 @@
                         </or>
                         <test
                               property="org.eclipse.debug.ui.projectNature"
-                              value="org.eclipse.imp.x10dt.core.x10nature">
+                              value="org.eclipse.imp.x10dt.ui.launch.java.x10nature">
                         </test>
                      </and>
                   </iterate>

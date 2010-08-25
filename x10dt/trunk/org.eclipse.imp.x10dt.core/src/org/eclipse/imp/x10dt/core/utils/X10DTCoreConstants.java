@@ -19,6 +19,12 @@ public final class X10DTCoreConstants {
    */
   public static final String X10_CONTAINER_ENTRY_ID = "org.eclipse.imp.x10dt.X10_CONTAINER"; //$NON-NLS-1$
   
+  /**
+   * Problem marker ID for X10 compiler errors/warnings/infos. Must match the ID of the marker extension defined in plugin.xml.
+   */
+  public static final String PROBLEMMARKER_ID= "org.eclipse.imp.x10dt.core.problemMarker";
+  
+  
   // --- Private code
   
   private X10DTCoreConstants() {}

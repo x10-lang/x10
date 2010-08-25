@@ -126,7 +126,7 @@ public class ExtensionInfo extends x10.ExtensionInfo {
                 
                 //For some reason, including this goal gives weird results: in Hello.x10 it complains that the type Hello does not appear in the file Hello.x10.
                 // To be checked with compiler team.
-//                goals.add(ConformanceChecked(job));
+                //goals.add(ConformanceChecked(job));
 
                 // Data-flow analyses
                 goals.add(ReachabilityChecked(job));

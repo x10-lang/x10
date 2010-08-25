@@ -10,9 +10,10 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.imp.utils.Pair;
-import org.eclipse.imp.x10dt.core.builder.X10ProjectNature;
 import org.eclipse.imp.x10dt.ui.Messages;
 import org.eclipse.imp.x10dt.ui.X10DTUIPlugin;
+import org.eclipse.imp.x10dt.ui.launch.java.Activator;
+import org.eclipse.imp.x10dt.ui.launch.java.nature.X10ProjectNature;
 import org.eclipse.imp.x10dt.ui.utils.LaunchUtils;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
@@ -87,14 +88,14 @@ public class X10MainTab extends JavaMainTab {
     } else {
       boolean hasValidNature = false;
       try {
-        hasValidNature = project.getProject().hasNature(X10ProjectNature.k_natureID);
+        hasValidNature = project.getProject().hasNature(Activator.X10_JAVA_NATURE_ID);
       } catch (CoreException except) {
         // Do nothing.
       }
       scope = hasValidNature ? new IJavaElement[] { project } : null;
     }
     try {
-      final Pair<ClassType, IJavaElement> mainType = LaunchUtils.findMainType(scope, X10ProjectNature.k_natureID, getShell());
+      final Pair<ClassType, IJavaElement> mainType = LaunchUtils.findMainType(scope, Activator.X10_JAVA_NATURE_ID, getShell());
       if (mainType != null) {
         super.fMainText.setText(mainType.first.fullName().toString());
         if ((project == null) || ! project.exists()) {

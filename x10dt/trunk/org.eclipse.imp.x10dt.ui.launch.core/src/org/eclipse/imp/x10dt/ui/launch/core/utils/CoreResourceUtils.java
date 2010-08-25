@@ -17,7 +17,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
-import org.eclipse.imp.x10dt.core.builder.X10Builder;
+import org.eclipse.imp.x10dt.core.utils.X10DTCoreConstants;
 import org.eclipse.imp.x10dt.ui.launch.core.LaunchCore;
 
 /**
@@ -37,7 +37,7 @@ public final class CoreResourceUtils {
    * @param priority The marker priority.
    */
   public static void addBuildMarkerTo(final IResource resource, final String msg, final int severity, final int priority) {
-    createMarker(X10Builder.PROBLEMMARKER_ID, resource, msg, severity, resource.getLocation().toString(), priority, -1, 0, 0);
+    createMarker(X10DTCoreConstants.PROBLEMMARKER_ID, resource, msg, severity, resource.getLocation().toString(), priority, -1, 0, 0);
   }
   
   /**
@@ -51,7 +51,7 @@ public final class CoreResourceUtils {
    */
   public static void addBuildMarkerTo(final IResource resource, final String msg, final int severity, final String loc, 
                                       final int priority) {
-    createMarker(X10Builder.PROBLEMMARKER_ID, resource, msg, severity, loc, priority, -1, 0, 0);
+    createMarker(X10DTCoreConstants.PROBLEMMARKER_ID, resource, msg, severity, loc, priority, -1, 0, 0);
   }
   
   /**
@@ -66,7 +66,7 @@ public final class CoreResourceUtils {
    */
   public static void addBuildMarkerTo(final IResource resource, final String msg, final int severity, final String loc, 
                                       final int priority, final int lineNum) {
-    createMarker(X10Builder.PROBLEMMARKER_ID, resource, msg, severity, loc, priority, lineNum, 0, 0);
+    createMarker(X10DTCoreConstants.PROBLEMMARKER_ID, resource, msg, severity, loc, priority, lineNum, 0, 0);
   }
   
   /**
@@ -84,7 +84,7 @@ public final class CoreResourceUtils {
   public static void addBuildMarkerTo(final IResource resource, final String msg, final int severity, final String loc, 
                                       final int priority, final int lineNum, final int startOffset, 
                                       final int endOffset) {
-  	createMarker(X10Builder.PROBLEMMARKER_ID, resource, msg, severity, loc, priority, lineNum, startOffset, endOffset);
+  	createMarker(X10DTCoreConstants.PROBLEMMARKER_ID, resource, msg, severity, loc, priority, lineNum, startOffset, endOffset);
   }
   
   /**
@@ -140,7 +140,7 @@ public final class CoreResourceUtils {
    */
   public static void deleteBuildMarkers(final IProject project) {
   	try {
-			project.deleteMarkers(X10Builder.PROBLEMMARKER_ID, true /* includeSubtypes */, IResource.DEPTH_INFINITE);
+			project.deleteMarkers(X10DTCoreConstants.PROBLEMMARKER_ID, true /* includeSubtypes */, IResource.DEPTH_INFINITE);
 		} catch (CoreException except) {
 			LaunchCore.log(except.getStatus());
 		}
@@ -153,7 +153,7 @@ public final class CoreResourceUtils {
    */
   public static void deleteBuildMarkers(final IFile file) {
   	try {
-			file.deleteMarkers(X10Builder.PROBLEMMARKER_ID, false /* includeSubtypes */, IResource.DEPTH_ZERO);
+			file.deleteMarkers(X10DTCoreConstants.PROBLEMMARKER_ID, false /* includeSubtypes */, IResource.DEPTH_ZERO);
 		} catch (CoreException except) {
 			LaunchCore.log(except.getStatus());
 		}
@@ -180,7 +180,7 @@ public final class CoreResourceUtils {
    * @throws CoreException Occurs if the project does not exist or is not open.
    */
   public static IMarker[] getBuildMarkers(final IProject project) throws CoreException {
-  	return project.findMarkers(X10Builder.PROBLEMMARKER_ID, true /* includeSubtypes */, IResource.DEPTH_INFINITE);
+  	return project.findMarkers(X10DTCoreConstants.PROBLEMMARKER_ID, true /* includeSubtypes */, IResource.DEPTH_INFINITE);
   }
   
   /**

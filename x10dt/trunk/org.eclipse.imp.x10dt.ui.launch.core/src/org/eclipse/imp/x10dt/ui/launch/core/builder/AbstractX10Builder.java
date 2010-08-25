@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
@@ -45,10 +47,10 @@ import org.eclipse.imp.x10dt.ui.launch.core.Messages;
 import org.eclipse.imp.x10dt.ui.launch.core.builder.target_op.IX10BuilderFileOp;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.AlwaysTrueFilter;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.CollectionUtils;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.CoreResourceUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.CountableIterableFactory;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.IFilter;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.IFunctor;
-import org.eclipse.imp.x10dt.ui.launch.core.utils.CoreResourceUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.IdentityFunctor;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.ProjectUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.UIUtils;
@@ -102,19 +104,19 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
    */
   public abstract IX10BuilderFileOp createX10BuilderFileOp() throws CoreException;
   
+ 
   /**
-   * Returns the main generated file for the X10 file provided, i.e. for C++ back-end this should return the C++ file
-   * corresponding to the X10 file in question.
    * 
-   * @param project The project containing the X10 file in question.
-   * @param x10File The x10 file to consider.
-   * @return A non-null file if we found one, otherwise <b>null</b>.
-   * @throws CoreException Occurs if we could not access some project information or get the local file for the location
-   * identified.
+   * @return The file extension corresponding to each backend (e.g., ".java" for Java backend).
    */
-  public abstract File getMainGeneratedFile(final IJavaProject project, final IFile x10File) throws CoreException;
+  public abstract String getFileExtension();
+  
+  
   
   // --- Abstract methods implementation
+  
+ 
+  
   
   @SuppressWarnings("rawtypes")
   protected final IProject[] build(final int kind, final Map args, final IProgressMonitor monitor) throws CoreException {
@@ -215,8 +217,44 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
     }
   }
   
-  // --- Private code
   
+  
+  /**
+   * Returns the main generated file for the X10 file provided, i.e. for C++ back-end this should return the C++ file
+   * corresponding to the X10 file in question.
+   * 
+   * @param project The project containing the X10 file in question.
+   * @param x10File The x10 file to consider.
+   * @return A non-null file if we found one, otherwise <b>null</b>.
+   * @throws CoreException Occurs if we could not access some project information or get the local file for the location
+   * identified.
+   */
+	public File getMainGeneratedFile(final IJavaProject project, final IFile x10File) throws CoreException {
+		final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		for (final IClasspathEntry cpEntry : project.getRawClasspath()) {
+			if (cpEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+				final IPath outputLocation;
+				if (cpEntry.getOutputLocation() == null) {
+					outputLocation = project.getOutputLocation();
+				} else {
+					outputLocation = cpEntry.getOutputLocation();
+				}
+				final StringBuilder sb = new StringBuilder();
+				sb.append(File.separatorChar).append(x10File.getProjectRelativePath().removeFileExtension().toString()).append(getFileExtension());
+				final IPath projectRelativeFilePath = new Path(sb.toString());
+				final int srcPathCount = cpEntry.getPath().removeFirstSegments(1).segmentCount();
+				final IPath generatedFilePath = outputLocation.append(projectRelativeFilePath.removeFirstSegments(srcPathCount));
+				final IFileStore fileStore = EFS.getLocalFileSystem().getStore(root.getFile(generatedFilePath).getLocationURI());
+				if (fileStore.fetchInfo().exists()) {
+					return fileStore.toLocalFile(EFS.NONE, null);
+				}
+			}
+		}
+		return null;
+	}
+  
+   // --- Private code
+	
   private void clearMarkers(final Collection<IFile> sourcesToCompile) {
     for (final IFile file : sourcesToCompile) {
       CoreResourceUtils.deleteBuildMarkers(file);
