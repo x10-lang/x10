@@ -43,6 +43,11 @@ public final class String implements (Int) => Char/*TODO, (Range) => String*//*T
 
 
     /**
+     * Construct a String from a Rail[Char].
+     */
+    public native def this(r:Rail[Char], offset:Int, length:Int): String;
+
+    /**
      * Return true if the given entity is a String, and this String is equal
      * to the given entity.
      * @param x the given entity
@@ -148,6 +153,16 @@ public final class String implements (Int) => Char/*TODO, (Range) => String*//*T
     @Native("c++", "(#0)->substring(#1, #2)")
     public native global def substring(fromIndex: Int, toIndex: Int): String;
 
+    /**
+     * Returns a new String that is a substring of this String.
+     * The substring begins at the specified fromIndex and extends to last Char in the String.
+     * Thus the length of the substring is length()-fromIndex-1.
+     * @param fromIndex the starting index, inclusive
+     * @return the specified substring.
+     */
+    @Native("java", "(#0).substring(#1)")
+    @Native("c++", "(#0)->substring(#1)")
+    public native global def substring(fromIndex: Int): String;
 
     /**
      * Returns the index within this String of the first occurrence of the specified Char ch.
@@ -419,6 +434,25 @@ public final class String implements (Int) => Char/*TODO, (Range) => String*//*T
     @Native("c++", "(#0)->compareToIgnoreCase(#1)")
     public native global def compareToIgnoreCase(arg: String): Int;
 
+    /**
+     * Checks if this String has another String as its head.
+     * @param arg The argument string.
+     * @return true if the argument string appears at the head of this String.
+     *         The method returns false otherwise.
+     */
+    @Native("java", "(#0).startsWith(#1)")
+    @Native("c++", "(#0)->startsWith(#1)")
+    public native global def startsWith(arg: String): Boolean;
+
+    /**
+     * Checks if this String has another String as its tail.
+     * @param arg The argument string.
+     * @return true if the argument string appears at the tail of this String.
+     *         The method returns false otherwise.
+     */
+    @Native("java", "(#0).endsWith(#1)")
+    @Native("c++", "(#0)->endsWith(#1)")
+    public native global def endsWith(arg: String): Boolean;
 
     // FIXME: Locale sensitivity
     /**
