@@ -98,7 +98,7 @@ public final class Rail[T](length: Int)
     /**
      * Creates an Rail whose contents are zero-initialized; in future releases
      * of X10, this method will only be callable of sizeof(T) bytes of zeros
-     * is a valid value of type T. 
+     * is a valid value of type T.
      *
      * @param length The number of Rail elements.
      * @return The reference to the new Rail.
@@ -108,9 +108,9 @@ public final class Rail[T](length: Int)
     public native static safe def make[S](length: Int): Rail[S]!{self.length==length};
 
     /**
-     * Creates an appropriately aligned Rail whose contents are zero-initialized; 
-     * in future releases of X10, this method will only be callable of sizeof(T) 
-     * bytes of zeros is a valid value of type T. 
+     * Creates an appropriately aligned Rail whose contents are zero-initialized;
+     * in future releases of X10, this method will only be callable of sizeof(T)
+     * bytes of zeros is a valid value of type T.
      *
      * @param length The number of Rail elements.
      * @param alignment The 0th element will be located at an address that is an integer multiple of this param (must be power of 2).
@@ -399,18 +399,18 @@ public final class Rail[T](length: Int)
     @Native("c++", "x10::lang::Rail__NativeRep::copyFrom(#0,#1,#2,#3,#4)")
     public native def copyFrom (dst_off:Int, src:ValRail[T], src_off:Int, len:Int):Void;
 
-    /** 
-     * Copies a portion of a ValRail indicated by the given closure into a given Rail (a DMA get). 
-     * Upon completion, notifies the enclosing finish. 
-     * 
-     * @param dst the destination Rail. 
-     * @param dst_off the offset of the first element to store in the destination. 
-     * @param src_place the location of the source ValRail (to evaluate the closure). 
-     * @param src_finder a function returning a {@link x10.util.Pair} that consists 
-     *                   of the reference to the source ValRail and the offset of 
-     *                   the first element to copy in the source. 
-     * @param len the number of elements to copy. 
-     */ 
+    /**
+     * Copies a portion of a ValRail indicated by the given closure into a given Rail (a DMA get).
+     * Upon completion, notifies the enclosing finish.
+     *
+     * @param dst the destination Rail.
+     * @param dst_off the offset of the first element to store in the destination.
+     * @param src_place the location of the source ValRail (to evaluate the closure).
+     * @param src_finder a function returning a {@link x10.util.Pair} that consists
+     *                   of the reference to the source ValRail and the offset of
+     *                   the first element to copy in the source.
+     * @param len the number of elements to copy.
+     */
     @Native("java", "x10.lang.Rail__NativeRep.copyFrom1(#7, #0,#1,#2,#3,#4)")
     @Native("c++", "x10::lang::Rail__NativeRep::copyFrom1(#0,#1,#2,#3,#4)")
     public native def copyFrom (dst_off:Int,
