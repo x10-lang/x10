@@ -19,6 +19,7 @@ import java.util.Set;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -37,8 +38,6 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.imp.preferences.IPreferencesService;
 import org.eclipse.imp.x10dt.core.X10DTCorePlugin;
-import org.eclipse.imp.x10dt.core.builder.ComputeDependenciesVisitor;
-import org.eclipse.imp.x10dt.core.builder.PolyglotDependencyInfo;
 import org.eclipse.imp.x10dt.core.builder.StreamSource;
 import org.eclipse.imp.x10dt.core.preferences.generated.X10Constants;
 import org.eclipse.imp.x10dt.ui.launch.core.Constants;
@@ -276,6 +275,10 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
         resourceDelta.accept(new IResourceDeltaVisitor() {
           
           public boolean visit(final IResourceDelta delta) throws CoreException {
+        	if (delta.getResource().getType() == IResource.FOLDER){
+        		final IFolder folder = (IFolder) delta.getResource();
+        		sourcesToCompile.addAll(getChangeDependents(folder));
+        	}
             if (delta.getResource().getType() == IResource.FILE) {
               final IFile file = (IFile) delta.getResource();
               if (isX10File(file)) {
@@ -385,7 +388,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
   
   private void computeDependencies(final Collection<Job> jobs){
     for (final Job job: jobs){
-      final ComputeDependenciesVisitor visitor = new ComputeDependenciesVisitor(job, job.extensionInfo().typeSystem(), 
+      final ComputeDependenciesVisitor visitor = new ComputeDependenciesVisitor(fProjectWrapper, job, job.extensionInfo().typeSystem(), 
                                                                                 this.fDependencyInfo);
       if (job.ast() != null) {
         job.ast().visit(visitor.begin());
@@ -393,7 +396,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
     }
   }
   
-  private Collection<IFile> getChangeDependents(final IFile srcFile) {
+  private Collection<IFile> getChangeDependents(final IResource srcFile) {
     final Collection<IFile> result = new ArrayList<IFile>();
     final Set<String> fileDependents = this.fDependencyInfo.getDependentsOf(srcFile.getFullPath().toString());
     final IWorkspaceRoot wsRoot = ResourcesPlugin.getWorkspace().getRoot();
@@ -403,7 +406,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       }
     }
     return result;
-  }
+  } 
   
   private boolean isX10File(final IFile file) {
     return Constants.X10_EXT.equals('.' + file.getFileExtension());

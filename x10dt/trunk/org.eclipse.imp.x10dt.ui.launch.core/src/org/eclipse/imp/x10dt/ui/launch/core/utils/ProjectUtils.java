@@ -8,6 +8,8 @@
 package org.eclipse.imp.x10dt.ui.launch.core.utils;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -70,6 +72,29 @@ public final class ProjectUtils {
     final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
     final URI outputFolderURI = root.getFolder(javaProject.getOutputLocation()).getLocationURI();
     return EFS.getStore(outputFolderURI).toLocalFile(EFS.NONE, new NullProgressMonitor()).getAbsolutePath();
+  }
+  
+  /**
+   * Returns the collection of source folders for a given project.
+   * 
+   * @param project The project of interest.
+   * @return A non-null collection of workspace-relative strings representing the src folders of the project.
+   * @throws JavaModelException
+   */
+  public static Collection<String> collectSourceFolders(final IJavaProject project) throws JavaModelException {
+      Collection<String> result = new ArrayList<String>();
+      IClasspathEntry[] cpEntries= project.getResolvedClasspath(true);
+      for(int i= 0; i < cpEntries.length; i++) {
+          IClasspathEntry cpEntry= cpEntries[i];
+          if (cpEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+              final IPath entryPath= cpEntry.getPath();
+              if (!entryPath.segment(0).equals(project.getElementName())) {
+                  continue;
+              }
+              result.add(entryPath.toOSString());
+          }
+      }
+      return result;
   }
   
   // --- Private code
