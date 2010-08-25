@@ -48,7 +48,7 @@ public class FlowGraph {
      */
     protected boolean forward;
 
-    FlowGraph(Term root, boolean forward) {
+    public FlowGraph(Term root, boolean forward) {
         this.root = root;
         this.forward = forward;
         this.peerMap = new HashMap();

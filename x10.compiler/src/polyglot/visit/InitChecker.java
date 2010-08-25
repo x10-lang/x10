@@ -16,6 +16,11 @@ import polyglot.frontend.Job;
 import polyglot.types.*;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import polyglot.util.ErrorInfo;
+import x10.ast.Finish;
+import x10.ast.Async;
+import x10.ast.ParExpr;
+import x10.ast.X10ClassDecl;
 
 /**
  * Visitor which checks that all local variables must be defined before use, 
@@ -32,7 +37,99 @@ import polyglot.util.Position;
  * If language extensions have new constructs that assign to local variables,
  * they can override the method <code>flowOther</code> to capture the way 
  * the new construct's initialization behavior.
- * 
+ *
+ Yoav Zibin added:
+
+  Adding finish-async initialization of val (and shared vars):
+  See XTENLANG-1565.
+  I kept the CFG without changes.
+  So, an Async_c exit has two incoming edges: from the exit of the body and from the exit of the place.
+  I changed in InitChecker's data structure:
+  for each variable we now keep:
+  [minSeq,maxSeq,minAsync,maxAsync]
+  minSeq - the minimal number of times the variable is assigned in sequential code.
+  maxSeq - the maximal number of times the variable is assigned in sequential code.
+  minAsync - the minimal number of times the variable is assigned (in async or sequential code).
+  maxAsync - the maximal number of times the variable is assigned (in async or sequential code).
+  We keep the invariant that: minSeq<=minAsync && maxSeq<=maxAsync
+  You can read from a variable only if minSeq>=1.
+  A val at the end of a ctor must have: [1,1,1,1]
+
+  Note that for our purposes, [0,0,1,1] and [0,1,1,1] carry the same information and restriction.
+  (After a finish, both will become the same: [1,1,0,0].)
+
+  Just having a boolean flag (i.e, [min,max,isAsync]) is ok, but I think it is less clear because of this example:
+  var k:Int;
+  k=1;
+  async { k=2; }
+  // can read from "k". The representation with a flag must be: [2,2,false]
+  So, the meaning of the flag is: isAsync=false means that at least one assignment was in sequential code.
+  Therefore, I prefer the representation as a quartet: [minSeq,maxSeq,minAsync,maxAsync]
+
+  For example, in this simple program the flow is as follows:
+  val i:Int;
+  // i=[0,0,0,0]
+  finish {
+    // i=[0,0,0,0]
+    async {
+      i=42;
+      // i=[1,1,1,1]
+    }
+    // i=[0,0,1,1]
+  }
+  // i=[1,1,1,1]
+
+  Here is a more complicated example:
+         shared var i:Int, j:Int, k:Int;
+         val m:Int, n:Int, q:Int;
+
+         i=1;
+         // i:[1,1,1,1]
+         finish {
+             m=2;
+             // m:[1,1,1,1]
+             if (true) {
+                 async {
+                     n=3; i=4; j=5; k=6; q=7;
+                     // n:[1,1,1,1] i:[2,2,2,2] j:[1,1,1,1] k:[1,1,1,1] q:[1,1,1,1]
+                 }
+                 // n:[0,0,1,1] i:[1,1,2,2] j:[0,0,1,1] k:[0,0,1,1] q:[0,0,1,1]
+                 k=8;
+                 // k:[1,1,2,2]
+             } else {
+                 // n:[0,0,0,0] m:[1,1,1,1] i:[1,1,1,1] j:[0,0,0,0] k:[0,0,0,0] q:[0,0,0,0]
+                 n=9; m=10;
+                 // n:[1,1,1,1] m:[2,2,2,2]
+             }
+             // k:[0,1,0,2] n:[0,1,1,1] m:[1,2,1,2] i:[1,1,1,2] j:[0,0,0,1] q:[0,0,0,1]
+             k=11;
+             // k:[1,2,1,3]
+         }
+         // k:[1,3,1,3] n:[1,1,1,1] m:[1,2,1,2] i:[1,2,1,2] j:[0,1,0,1] q:[0,1,0,1]
+         j=12;
+         // j:[1,2,1,2]
+         // all (except q) are definitely-assigned now. "m" was assigned too many times.
+
+
+  The exact rules are:
+  Consider a join between two elements: [a,b,c,d] and [a',b',c',d'].
+  1) If join (like at the end of an IF): [min(a,a'), max(b,b'), min(c,c'), max(d,d')]
+  2) join at the end of an Async_c(PLACE,BODY):  suppose that the first element has flown from the BODY and the second has flown from the PLACE (so a>=a', b>=b', ...).
+     Then, the result is: [a',b', c, d]
+  3) join at the end of a Finish_c: you have only one incoming edge, and the result is: [c,d,c,d]
+
+  Another way to write down these rules:
+  S [a,b,c,d]
+  S' [a',b',c',d']
+  0) S; S'  [a+a', b+b', c+c', d+d']
+  1) if S else S [min(a,a'), max(b,b'), min(c,c'), max(d,d')]
+  2) async S [0,0,c,d]
+  3) finish S [c,d,c,d]
+
+  For example (see variables "n", "i"):
+  IfJoin([0,0,1,1],[1,1,1,1]) = [0,1,1,1]
+  AsyncJoin([2,2,2,2],[1,1,1,1]) = [1,1,2,2]
+  FinishJoin([0,1,1,1]) = [1,1,1,1]
  */
 public class InitChecker extends DataFlow
 {
@@ -124,26 +221,14 @@ public class InitChecker extends DataFlow
      * different values of the counts that we are interested in are ZERO,
      * ONE and MANY.
      */
-    protected static class InitCount {
-        public static InitCount ZERO = new InitCount(0); 
-        public static InitCount ONE = new InitCount(1); 
-        public static InitCount MANY = new InitCount(2); 
-        public int count;
-        protected InitCount(int i) {
+    enum InitCount {
+        ZERO(0), ONE(1), MANY(2);
+
+        public final int count;
+        private InitCount(int i) {
             count = i;
         }
 
-        public int hashCode() {
-            return count;
-        }
-        
-        public boolean equals(Object o) {
-            if (o instanceof InitCount) {
-                return this.count == ((InitCount)o).count;
-            }
-            return false;
-        }
-        
         public String toString() {
             if (count == 0) {
                 return "0";
@@ -154,34 +239,29 @@ public class InitChecker extends DataFlow
             else if (count == 2) {
                 return "many";
             }
-            throw new RuntimeException("Unexpected value for count");            
+            throw new RuntimeException("Unexpected value for count");
         }
-        
+
         public InitCount increment() {
             if (count == 0) {
                 return ONE;
             }
             return MANY;
         }
-        public static InitCount min(InitCount a, InitCount b) {
-            if (ZERO.equals(a) || ZERO.equals(b)) {
-                return ZERO;
-            }
-            if (ONE.equals(a) || ONE.equals(b)) {
-                return ONE;
-            }
-            return MANY;
+        public InitCount min(InitCount b) {
+            return fromNum(Math.min(count,b.count));
         }
-        public static InitCount max(InitCount a, InitCount b) {
-            if (MANY.equals(a) || MANY.equals(b)) {
-                return MANY;
-            }
-            if (ONE.equals(a) || ONE.equals(b)) {
-                return ONE;
-            }
-            return ZERO;
+        public InitCount max(InitCount b) {
+            return fromNum(Math.max(count,b.count));
         }
-        
+        private static InitCount fromNum(int i) {
+            assert i>=0 : i;
+            switch (i) {
+                case 0: return ZERO;
+                case 1: return ONE;
+                default: return MANY;
+            }
+        }
     }
     
     /**
@@ -189,37 +269,74 @@ public class InitChecker extends DataFlow
      * a variable or field has been initialized or assigned to.
      */
     protected static class MinMaxInitCount {
-        protected InitCount min, max;
-        MinMaxInitCount(InitCount min, InitCount max) {
-            MinMaxInitCount.this.min = min;
-            MinMaxInitCount.this.max = max;
+        final static MinMaxInitCount ZERO = new MinMaxInitCount(InitCount.ZERO,InitCount.ZERO,InitCount.ZERO,InitCount.ZERO);
+        final static MinMaxInitCount ONE = new MinMaxInitCount(InitCount.ONE,InitCount.ONE,InitCount.ONE,InitCount.ONE);
+
+        protected final InitCount minSeq, maxSeq, minAsync, maxAsync;
+
+        private MinMaxInitCount(InitCount minSeq, InitCount maxSeq,InitCount minAsync, InitCount maxAsync) {
+            this.minSeq = minSeq;
+            this.maxSeq = maxSeq;
+            this.minAsync = minAsync;
+            this.maxAsync = maxAsync;
+            assert minSeq.count<=minAsync.count && maxSeq.count<=maxAsync.count;
         }
-        InitCount getMin() { return min; }
-        InitCount getMax() { return max; }
+        MinMaxInitCount increment() { // when a variable is sequentially assigned
+            return new MinMaxInitCount(minSeq.increment(),maxSeq.increment(),minAsync.increment(),maxAsync.increment());
+        }
+        InitCount getMin() { return minSeq; }
+        boolean isIllegalVal() { return maxSeq!=InitCount.ONE || maxAsync!=InitCount.ONE || minSeq!=InitCount.ONE || minAsync!=InitCount.ONE; }
         public int hashCode() {
-            return min.hashCode() * 4 + max.hashCode();
+            return minSeq.hashCode() * 64 + maxSeq.hashCode() * 16 + minAsync.hashCode() * 4 + maxAsync.hashCode();
         }
         public String toString() {
-            return "[ min: " + min + "; max: " + max + " ]";
+            return "[ min: " + minSeq + "; max: " + maxSeq + "; minAsync: " + minAsync + "; maxAsync: " + maxAsync + " ]";
         }
         public boolean equals(Object o) {
             if (o instanceof MinMaxInitCount) {
-                return this.min.equals(((MinMaxInitCount)o).min) &&
-                       this.max.equals(((MinMaxInitCount)o).max);
+                final MinMaxInitCount maxInitCount = (MinMaxInitCount) o;
+                return this.minSeq.equals(maxInitCount.minSeq) &&
+                       this.maxSeq.equals(maxInitCount.maxSeq) &&
+                       this.minAsync.equals(maxInitCount.minAsync) &&
+                       this.maxAsync.equals(maxInitCount.maxAsync);
             }
             return false;
         }
-        static MinMaxInitCount join(MinMaxInitCount initCount1, MinMaxInitCount initCount2) {
-            if (initCount1 == null) {
-                return initCount2;
+        MinMaxInitCount finish() {
+            return new MinMaxInitCount(minAsync,maxAsync,minAsync,maxAsync);//[c,d,c,d]
+        }
+        static MinMaxInitCount join(Term node, boolean entry, MinMaxInitCount initCount1, MinMaxInitCount initCount2) {
+            assert !(node instanceof Finish);
+            if (initCount1 == null) return initCount2;
+            if (initCount2 == null) return initCount1;
+
+            if (!entry && node instanceof Async) {
+                // one flow must be smaller than the other (the one coming after the PLACE is smaller or equal to the one coming after the BODY)
+                MinMaxInitCount small =
+                        initCount1.minSeq.count<initCount2.minSeq.count ? initCount1 :
+                        initCount1.maxSeq.count<initCount2.maxSeq.count ? initCount1 :
+                        initCount1.minAsync.count<initCount2.minAsync.count ? initCount1 :
+                        initCount1.maxAsync.count<initCount2.maxAsync.count ? initCount1 :
+                        initCount1.minSeq.count>initCount2.minSeq.count ? initCount2 :
+                        initCount1.maxSeq.count>initCount2.maxSeq.count ? initCount2 :
+                        initCount1.minAsync.count>initCount2.minAsync.count ? initCount2 :
+                        initCount1.maxAsync.count>initCount2.maxAsync.count ? initCount2 :
+                                initCount1; // equal
+                MinMaxInitCount big = small==initCount1 ? initCount2 : initCount1;
+                assert small.minSeq.count<=big.minSeq.count &&
+                        small.maxSeq.count<=big.maxSeq.count &&
+                        small.minAsync.count<=big.minAsync.count &&
+                        small.maxAsync.count<=big.maxAsync.count;
+
+                // todo We also need to mark the variable as "initialized in async" to allow the Java backend to implement such initializations.
+                return new MinMaxInitCount(small.minSeq, small.maxSeq, big.minAsync, big.maxAsync); // [a',b', c, d]
             }
-            if (initCount2 == null) {
-                return initCount1;
-            }
-            MinMaxInitCount t = new MinMaxInitCount(
-                                  InitCount.min(initCount1.getMin(), initCount2.getMin()),
-                                  InitCount.max(initCount1.getMax(), initCount2.getMax()));
-            return t;
+            // normal join: [min(a,a'), max(b,b'), min(c,c'), max(d,d')]
+            return new MinMaxInitCount(
+                    initCount1.minSeq.min(initCount2.minSeq),
+                    initCount1.maxSeq.min(initCount2.maxSeq),
+                    initCount1.minAsync.min(initCount2.minAsync),
+                    initCount1.maxAsync.min(initCount2.maxAsync));
 
         }
     }
@@ -284,11 +401,21 @@ public class InitChecker extends DataFlow
      * 
      * Set up the state that must be tracked during a Class Declaration.
      */
-    protected NodeVisitor enterCall(Node parent, Node n) throws SemanticException {
+    protected NodeVisitor enterCall(Node parent, Node n) {
         if (n instanceof ClassBody) {
             // we are starting to process a class declaration, but have yet
             // to do any of the dataflow analysis.
-            
+            ClassBody cb = (ClassBody) n;
+
+            // Add the properties to the class body when initializing.
+            if (parent instanceof X10ClassDecl) {
+                List<ClassMember> members;
+                members = new ArrayList<ClassMember>();
+                members.addAll(cb.members());
+                members.addAll(((X10ClassDecl) parent).properties());
+                cb = cb.members(members);
+            }
+
             // set up the new ClassBodyInfo, and make sure that it forms
             // a stack.
             ClassDef ct = null;
@@ -301,10 +428,11 @@ public class InitChecker extends DataFlow
             if (ct == null) {
                 throw new InternalCompilerError("ClassBody found but cannot find the class.", n.position());
             }
-            setupClassBody(ct, (ClassBody)n);
+            setupClassBody(ct, cb);
+            //n = cb; //todo?
         }
       
-        return super.enterCall(n);
+        return super.enterCall(n); // todo: we changed "cb", why not pass it here?
     }
 
     /**
@@ -318,7 +446,7 @@ public class InitChecker extends DataFlow
      * taking into account the constructor calls.
      * 
      */
-    protected Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
+    protected Node leaveCall(Node old, Node n, NodeVisitor v) {
         if (n instanceof ConstructorDecl) {
             // postpone the checking of the constructors until all the 
             // initializer blocks have been processed.
@@ -365,7 +493,7 @@ public class InitChecker extends DataFlow
         return super.leaveCall(old, n, v);
     }
 
-    protected void setupClassBody(ClassDef ct, ClassBody n) throws SemanticException {
+    protected void setupClassBody(ClassDef ct, ClassBody n) {
         ClassBodyInfo newCDI = new ClassBodyInfo();
         newCDI.outer = currCBI;  
         newCDI.currClass = ct;
@@ -382,7 +510,7 @@ public class InitChecker extends DataFlow
                     MinMaxInitCount initCount;
                     if (fd.init() != null) {
                         // the field has an initializer
-                        initCount = new MinMaxInitCount(InitCount.ONE, InitCount.ONE);
+                        initCount = MinMaxInitCount.ONE;
                             
                         // do dataflow over the initialization expression
                         // to pick up any uses of outer local variables.
@@ -391,7 +519,7 @@ public class InitChecker extends DataFlow
                     }
                     else {
                         // the field does not have an initializer
-                        initCount = new MinMaxInitCount(InitCount.ZERO, InitCount.ZERO);
+                        initCount = MinMaxInitCount.ZERO;
                     }
                     newCDI.currClassFinalFieldInitCounts.put(fd.fieldDef(),
                                                          initCount);
@@ -404,9 +532,8 @@ public class InitChecker extends DataFlow
      * Check that each static final field is initialized exactly once.
      * 
      * @param cb The ClassBody of the class declaring the fields to check.
-     * @throws SemanticException
      */
-    protected void checkStaticFinalFieldsInit(ClassBody cb) throws SemanticException {
+    protected void checkStaticFinalFieldsInit(ClassBody cb) {
         // check that all static fields have been initialized exactly once.             
         for (Iterator<Map.Entry<FieldDef,MinMaxInitCount>> iter = currCBI.currClassFinalFieldInitCounts.entrySet().iterator(); 
                 iter.hasNext(); ) {
@@ -416,7 +543,7 @@ public class InitChecker extends DataFlow
                 if (fi.flags().isStatic() && fi.flags().isFinal()) {
                     MinMaxInitCount initCount = (MinMaxInitCount)e.getValue();
                     if (InitCount.ZERO.equals(initCount.getMin())) {
-                        throw new SemanticException("Final field \"" + fi.name() +
+                        reportError("Final field \"" + fi.name() +
                             "\" might not have been initialized",
                             cb.position());                                
                     }
@@ -431,9 +558,8 @@ public class InitChecker extends DataFlow
      * constructors. 
      * 
      * @param cb The ClassBody of the class declaring the fields to check.
-     * @throws SemanticException
      */
-    protected void checkNonStaticFinalFieldsInit(ClassBody cb) throws SemanticException {
+    protected void checkNonStaticFinalFieldsInit(ClassBody cb) {
         // for each non-static final field def, check that all 
         // constructors intialize it exactly once, taking into account constructor calls.
         for (Iterator<FieldDef> iter = currCBI.currClassFinalFieldInitCounts.keySet().iterator(); 
@@ -455,6 +581,7 @@ public class InitChecker extends DataFlow
                         iter2.hasNext(); ) {
                     ConstructorDecl cd = (ConstructorDecl)iter2.next();
                     ConstructorDef ciStart = cd.constructorDef();
+                    assert ciStart!=null;
                     ConstructorDef ci = ciStart;
                     
                     boolean isInitialized = fieldInitializedBeforeConstructors;
@@ -469,7 +596,7 @@ public class InitChecker extends DataFlow
                         Set<FieldDef> s = currCBI.fieldsConstructorInitializes.get(ci);
                         if (s != null && s.contains(fi)) {
                             if (isInitialized) {
-                                throw new SemanticException("Final field \"" + fi.name() +
+                                reportError("Final field \"" + fi.name() +
                                         "\" might have already been initialized",
                                         cd.position());                                                                        
                             }
@@ -478,7 +605,7 @@ public class InitChecker extends DataFlow
                         ci = (ConstructorDef)currCBI.constructorCalls.get(ci);
                     }
                     if (!isInitialized) {
-                        throw new SemanticException("Final field \"" + fi.name() +
+                        reportError("Final field \"" + fi.name() +
                                 "\" might not have been initialized",
                                 ciStart.position());                                
                                 
@@ -496,7 +623,7 @@ public class InitChecker extends DataFlow
      * There is no need to push a CFG onto the stack, as dataflow is not
      * performed on entry in this analysis. 
      */
-    protected void dataflow(Expr root) throws SemanticException {
+    protected void dataflow(Expr root) {
         // Build the control flow graph.
         FlowGraph g = new FlowGraph(root, forward);
         CFGBuilder v = createCFGBuilder(ts, g);
@@ -570,7 +697,7 @@ public class InitChecker extends DataFlow
                     VarDef v = (VarDef)e.getKey();
                     MinMaxInitCount initCount1 = m.get(v);
                     MinMaxInitCount initCount2 = (MinMaxInitCount)e.getValue();
-                    m.put(v, MinMaxInitCount.join(initCount1, initCount2));                                        
+                    m.put(v, MinMaxInitCount.join(node,entry,initCount1, initCount2));
                 }
             }
         }
@@ -640,7 +767,17 @@ public class InitChecker extends DataFlow
                     (n instanceof Binary || n instanceof Unary)) {
             if (trueItem == null) trueItem = inDFItem;
             if (falseItem == null) falseItem = inDFItem;
-            ret = flowBooleanConditions(trueItem, falseItem, inDFItem, graph, (Expr)n, succEdgeKeys);                        
+            ret = flowBooleanConditions(trueItem, falseItem, inDFItem, graph, (Expr)n, succEdgeKeys);
+        } else if (n instanceof ParExpr && ((ParExpr)n).type().isBoolean()) {
+            if (trueItem == null) trueItem = inDFItem;
+            if (falseItem == null) falseItem = inDFItem;
+            return itemsToMap(trueItem, falseItem, inDFItem, succEdgeKeys);
+        } else if (n instanceof Finish) {
+            Map<VarDef, MinMaxInitCount> m = new LinkedHashMap<VarDef, MinMaxInitCount>();
+            for (Map.Entry<VarDef, MinMaxInitCount> e : inDFItem.initStatus.entrySet()) {
+                m.put(e.getKey(),e.getValue().finish());
+            }
+            return itemToMap(new DataFlowItem(m), succEdgeKeys);
         } 
         else {
             ret = flowOther(inDFItem, graph, n, succEdgeKeys);
@@ -658,7 +795,7 @@ public class InitChecker extends DataFlow
     protected Map flowFormal(DataFlowItem inItem, FlowGraph graph, Formal f, Set succEdgeKeys) {
         Map<VarDef, MinMaxInitCount> m = new LinkedHashMap<VarDef, MinMaxInitCount>(inItem.initStatus);
         // a formal argument is always defined.            
-        m.put(f.localDef(), new MinMaxInitCount(InitCount.ONE,InitCount.ONE));
+        m.put(f.localDef(), MinMaxInitCount.ONE);
             
         // record the fact that we have seen the formal declaration
         currCBI.localDeclarations.add(f.localDef());
@@ -679,12 +816,11 @@ public class InitChecker extends DataFlow
         //if (initCount == null) {
             if (ld.init() != null) {
                 // declaration of local var with initialization.
-                initCount = new MinMaxInitCount(InitCount.ONE,
-                                                InitCount.ONE);
+                initCount = MinMaxInitCount.ONE;
             }
             else {
                 // declaration of local var with no initialization.
-                initCount = new MinMaxInitCount(InitCount.ZERO,InitCount.ZERO);
+                initCount = MinMaxInitCount.ZERO;
             }     
 
             m.put(ld.localDef(), initCount);
@@ -721,11 +857,10 @@ public class InitChecker extends DataFlow
           // class, or if we have not yet seen its declaration (i.e. the
           // local is used in its own initialization)
           if (initCount == null) {
-              initCount = new MinMaxInitCount(InitCount.ZERO,InitCount.ZERO);
+              initCount = MinMaxInitCount.ZERO;
           }
 
-          initCount = new MinMaxInitCount(initCount.getMin().increment(),
-                                          initCount.getMax().increment());
+          initCount = initCount.increment();
 
           m.put(l.localInstance().def(), initCount);
           return itemToMap(new DataFlowItem(m), succEdgeKeys);  
@@ -748,8 +883,7 @@ public class InitChecker extends DataFlow
             // initCount may be null if the field is defined in an
             // outer class.
             if (initCount != null) {
-                initCount = new MinMaxInitCount(initCount.getMin().increment(),
-                          initCount.getMax().increment());
+                initCount = initCount.increment();
                 m.put(fi, initCount);
                 return itemToMap(new DataFlowItem(m), succEdgeKeys);
             }
@@ -856,7 +990,7 @@ public class InitChecker extends DataFlow
      * dataflows over Initializers, by copying back the appropriate 
      * MinMaxInitCounts to the map currClassFinalFieldInitCounts.
      */
-    public void check(FlowGraph graph, Term n, boolean entry, Item inItem, Map outItems) throws SemanticException {
+    public void check(FlowGraph graph, Term n, boolean entry, Item inItem, Map outItems) {
         DataFlowItem dfIn = (DataFlowItem)inItem;        
         if (dfIn == null) {
             // There is no input data flow item. This can happen if we are 
@@ -1002,6 +1136,15 @@ public class InitChecker extends DataFlow
             currCBI.fieldsConstructorInitializes.put(ci, s);
         }
     }
+
+    private void reportVarNotInit(Name n, Position p) {
+        reportError("\"" + n +
+                                    "\" may not have been initialized",
+                                    p);
+    }
+    private void reportVarNotInit(NamedVariable f) {
+        reportVarNotInit(f.name().id(),f.position());
+    }
     
     /**
      * Check that the field access <code>f</code> is used correctly.
@@ -1009,8 +1152,7 @@ public class InitChecker extends DataFlow
     protected void checkField(FlowGraph graph, 
 	    Field f, 
 	    DataFlowItem dfIn, 
-	    DataFlowItem dfOut) 
-    throws SemanticException {
+	    DataFlowItem dfOut) {
 	if (isFieldsTargetAppropriate(f) && f.flags().isFinal() && (currCBI.currCodeDecl instanceof ConstructorDecl || currCBI.currCodeDecl instanceof FieldDecl)) {
 	    MinMaxInitCount initCount = dfIn.initStatus.get(f.fieldInstance().def());         
 	    if (initCount != null && InitCount.ZERO.equals(initCount.getMin())) {
@@ -1027,9 +1169,7 @@ public class InitChecker extends DataFlow
 		    }
 		}
 		if (f.reachable()) {
-		    throw new SemanticException("Field \"" + f.name().id() +
-		                                "\" may not have been initialized",
-		                                f.position());
+		    reportVarNotInit(f);
 		}
 	    }
 	}
@@ -1042,8 +1182,7 @@ public class InitChecker extends DataFlow
     protected void checkLocal(FlowGraph graph, 
                               Local l, 
                               DataFlowItem dfIn, 
-                              DataFlowItem dfOut) 
-        throws SemanticException {
+                              DataFlowItem dfOut) {
         if (!currCBI.localDeclarations.contains(l.localInstance().def())) {
             // it's a local variable that has not been declared within
             // this scope. The only way this can arise is from an
@@ -1061,9 +1200,7 @@ public class InitChecker extends DataFlow
                 // the local variable may not have been initialized. 
                 // However, we only want to complain if the local is reachable
                 if (l.reachable()) {
-                    throw new SemanticException("Local variable \"" + l.name().id() +
-                            "\" may not have been initialized",
-                            l.position());
+                    reportVarNotInit(l);
             	}
             }
         }
@@ -1071,15 +1208,12 @@ public class InitChecker extends DataFlow
     
     protected void checkLocalInstanceInit(LocalDef li, 
                                           DataFlowItem dfIn, 
-                                          Position pos) 
-    throws SemanticException {
+                                          Position pos) {
         MinMaxInitCount initCount = dfIn.initStatus.get(li);         
         if (initCount != null && InitCount.ZERO.equals(initCount.getMin())) {
-            // the local variable may not have been initialized. 
-            throw new SemanticException("Local variable \"" + li.name() +
-                                        "\" may not have been initialized",
-                                        pos);
-	}
+            // the local variable may not have been initialized.
+            reportVarNotInit(li.name(), pos);
+	    }
     }
         
     /**
@@ -1088,19 +1222,18 @@ public class InitChecker extends DataFlow
     protected void checkLocalAssign(FlowGraph graph, 
                                     LocalAssign a, 
                                     DataFlowItem dfIn, 
-                                    DataFlowItem dfOut) 
-        throws SemanticException {
+                                    DataFlowItem dfOut) {
         LocalDef li = ((Local)a.local()).localInstance().def();
         if (!currCBI.localDeclarations.contains(li)) {
-            throw new SemanticException("Final local variable \"" + li.name() +
+            reportError("Final local variable \"" + li.name() +
                     "\" cannot be assigned to in an inner class.",
-                    a.position());                     
+                    a.position());
         }
         
         MinMaxInitCount initCount = dfOut.initStatus.get(li);                                
 
-        if (li.flags().isFinal() && InitCount.MANY.equals(initCount.getMax())) {
-            throw new SemanticException("Final variable \"" + li.name() +
+        if (li.flags().isFinal() && initCount.isIllegalVal()) {
+            reportError("Final variable \"" + li.name() +
                                         "\" might already have been initialized",
                                         a.position());
         }
@@ -1112,8 +1245,7 @@ public class InitChecker extends DataFlow
     protected void checkFieldAssign(FlowGraph graph, 
                                     FieldAssign a, 
                                     DataFlowItem dfIn, 
-                                    DataFlowItem dfOut) 
-        throws SemanticException {
+                                    DataFlowItem dfOut) {
 
         FieldDef fi = a.fieldInstance().def();
         if (fi.flags().isFinal()) {
@@ -1134,8 +1266,8 @@ public class InitChecker extends DataFlow
                             fi.name() + "\".",
                             a.position());
                 }
-                if (InitCount.MANY.equals(initCount.getMax())) {
-                    throw new SemanticException("Final field \"" + fi.name() +
+                if (initCount.isIllegalVal()) {
+                    reportError("Final field \"" + fi.name() +
                             "\" might already have been initialized",
                             a.position());
                 }                                    
@@ -1144,7 +1276,7 @@ public class InitChecker extends DataFlow
                 // not in a constructor or intializer, or the target is
                 // not appropriate. So we cannot assign 
                 // to a final field at all.
-                throw new SemanticException("Cannot assign a value " +
+                reportError("Cannot assign a value " +
                            "to final field \"" + fi.name() + "\" of \"" +
                            fi.container() + "\".",
                            a.position());
@@ -1156,13 +1288,11 @@ public class InitChecker extends DataFlow
      * <code>localsUsed</code>, which is the set of locals used in the inner 
      * class declared by <code>cb</code>
      * are initialized before the class declaration.
-     * @throws SemanticException
      */
     protected void checkClassBody(FlowGraph graph, 
                                   ClassBody cb, 
                                   DataFlowItem dfIn, 
-                                  DataFlowItem dfOut) 
-    throws SemanticException {  
+                                  DataFlowItem dfOut) {
         // we need to check that the locals used inside this class body
         // have all been defined at this point.
         Set localsUsed = currCBI.localsUsedInClassBodies.get(cb);
@@ -1186,8 +1316,7 @@ public class InitChecker extends DataFlow
                                                ClassBody cb,
                                                Set<LocalDef> localsUsed,
                                                DataFlowItem dfIn,
-                                               DataFlowItem dfOut) 
-    throws SemanticException {
+                                               DataFlowItem dfOut) {
         for (Iterator<LocalDef> iter = localsUsed.iterator(); iter.hasNext(); ) {
             LocalDef li = (LocalDef)iter.next();
             MinMaxInitCount initCount = dfOut.initStatus.get(li);                                
@@ -1203,7 +1332,7 @@ public class InitChecker extends DataFlow
                 // leave the inner class before we have performed flowLocalDecl
                 // for the local variable declaration.
                 
-                throw new SemanticException("Local variable \"" + li.name() +
+                reportError("Local variable \"" + li.name() +
                         "\" must be initialized before the class " + 
                         "declaration.",
                         cb.position());
@@ -1217,7 +1346,6 @@ public class InitChecker extends DataFlow
     protected void checkOther(FlowGraph graph, 
                               Node n, 
                               DataFlowItem dfIn, 
-                              DataFlowItem dfOut) 
-    throws SemanticException {
+                              DataFlowItem dfOut) {
     }    
 }

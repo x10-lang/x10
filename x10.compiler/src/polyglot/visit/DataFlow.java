@@ -396,12 +396,9 @@ public abstract class DataFlow extends ErrorHandlingVisitor
      * dataflow is checking for. This method is called for each term
      * in a code declaration block after the dataflow for that block of code 
      * has been performed.
-     * 
-     * @throws SemanticException if the properties this dataflow
-     *         analysis is checking for is not satisfied.
      */
     protected abstract void check(FlowGraph graph, Term n, boolean entry, 
-            Item inItem, Map outItems) throws SemanticException;
+            Item inItem, Map outItems);
 
     /**
      * Construct a flow graph for the <code>CodeNode</code> provided, and call 
@@ -411,11 +408,14 @@ public abstract class DataFlow extends ErrorHandlingVisitor
      * the <code>FlowGraph</code> onto the stack of <code>FlowGraph</code>s if
      * dataflow analysis is performed on entry to <code>CodeNode</code> nodes.
      */
-    protected void dataflow(CodeDecl cd) throws SemanticException {
+    protected void dataflow(CodeDecl cd) {
         this.dataflow((CodeNode) cd);
     }
 
-    protected void dataflow(CodeNode cd) throws SemanticException {
+    public void reportError(String msg, Position p) {
+        errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR,msg,p);
+    }
+    protected void dataflow(CodeNode cd) {
         // only bother to do the flow analysis if the body is not null...
         if (cd.codeBody() != null) {
             // Compute the successor of each child node.
@@ -431,7 +431,8 @@ public abstract class DataFlow extends ErrorHandlingVisitor
                     v.visitGraph();
                 }
                 catch (CFGBuildError e) {
-                    throw new SemanticException(e.message(), e.position());
+                    reportError(e.message(), e.position());
+                    return;
                 }
 
                 long t2 = System.currentTimeMillis();
@@ -708,7 +709,7 @@ public abstract class DataFlow extends ErrorHandlingVisitor
      * Overridden superclass method, to build the flow graph, perform dataflow
      * analysis, and check the analysis for CodeNode nodes.
      */
-    protected NodeVisitor enterCall(Node n) throws SemanticException {
+    protected NodeVisitor enterCall(Node n) {
         if (dataflowOnEntry && n instanceof CodeNode) {
             dataflow((CodeNode)n);
         }
@@ -740,7 +741,7 @@ public abstract class DataFlow extends ErrorHandlingVisitor
      * Overridden superclass method, to pop from the stack of
      * <code>FlowGraph</code>s if necessary.
      */
-    protected Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
+    protected Node leaveCall(Node old, Node n, NodeVisitor v) {
         if (n instanceof CodeNode) {
             if (!dataflowOnEntry) {
                 dataflow((CodeNode)n);
@@ -761,7 +762,7 @@ public abstract class DataFlow extends ErrorHandlingVisitor
      * Check all of the Peers in the graph, after the dataflow analysis has
      * been performed.
      */
-    protected void post(FlowGraph graph, Term root) throws SemanticException {
+    protected void post(FlowGraph graph, Term root) {
         if (Report.should_report(Report.cfg, 2)) {
             dumpFlowGraph(graph, root);
         }

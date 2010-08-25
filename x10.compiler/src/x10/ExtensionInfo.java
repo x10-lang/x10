@@ -90,7 +90,6 @@ import x10.plugin.CompilerPlugin;
 import x10.plugin.LoadJobPlugins;
 import x10.plugin.LoadPlugins;
 import x10.plugin.RegisterPlugins;
-import x10.query.QueryEngine;
 import x10.types.X10SourceClassResolver;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
@@ -106,7 +105,6 @@ import x10.visit.RewriteExternVisitor;
 import x10.visit.StaticNestedClassRemover;
 import x10.visit.X10Caster;
 import x10.visit.X10ImplicitDeclarationExpander;
-import x10.visit.X10InitChecker;
 import x10.visit.X10InnerClassRemover;
 import x10.visit.X10MLVerifier;
 import x10.visit.X10Translator;
@@ -634,7 +632,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        public Goal InitializationsChecked(Job job) {
 	   TypeSystem ts = job.extensionInfo().typeSystem();
 	   NodeFactory nf = job.extensionInfo().nodeFactory();
-           return new ForgivingVisitorGoal("InitializationsChecked", job, new X10InitChecker(job, ts, nf)).intern(this);
+           return new ForgivingVisitorGoal("InitializationsChecked", job, new InitChecker(job, ts, nf)).intern(this);
        }
 
        public static class ValidatingOutputGoal extends OutputGoal {
