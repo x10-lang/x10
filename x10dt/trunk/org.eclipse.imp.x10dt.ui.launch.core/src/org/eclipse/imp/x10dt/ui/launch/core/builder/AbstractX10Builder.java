@@ -105,17 +105,13 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
   
  
   /**
+   * Returns the file extension corresponding to each back-end (e.g., ".java" for Java back-end).
    * 
-   * @return The file extension corresponding to each backend (e.g., ".java" for Java backend).
+   * @return A non-null string in all cases.
    */
   public abstract String getFileExtension();
   
-  
-  
   // --- Abstract methods implementation
-  
- 
-  
   
   @SuppressWarnings("rawtypes")
   protected final IProject[] build(final int kind, final Map args, final IProgressMonitor monitor) throws CoreException {
@@ -239,7 +235,8 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 					outputLocation = cpEntry.getOutputLocation();
 				}
 				final StringBuilder sb = new StringBuilder();
-				sb.append(File.separatorChar).append(x10File.getProjectRelativePath().removeFileExtension().toString()).append(getFileExtension());
+				sb.append(File.separatorChar).append(x10File.getProjectRelativePath().removeFileExtension().toString())
+				  .append(getFileExtension());
 				final IPath projectRelativeFilePath = new Path(sb.toString());
 				final int srcPathCount = cpEntry.getPath().removeFirstSegments(1).segmentCount();
 				final IPath generatedFilePath = outputLocation.append(projectRelativeFilePath.removeFirstSegments(srcPathCount));
@@ -388,7 +385,8 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
   
   private void computeDependencies(final Collection<Job> jobs){
     for (final Job job: jobs){
-      final ComputeDependenciesVisitor visitor = new ComputeDependenciesVisitor(fProjectWrapper, job, job.extensionInfo().typeSystem(), 
+      final ComputeDependenciesVisitor visitor = new ComputeDependenciesVisitor(this.fProjectWrapper, job, 
+                                                                                job.extensionInfo().typeSystem(), 
                                                                                 this.fDependencyInfo);
       if (job.ast() != null) {
         job.ast().visit(visitor.begin());

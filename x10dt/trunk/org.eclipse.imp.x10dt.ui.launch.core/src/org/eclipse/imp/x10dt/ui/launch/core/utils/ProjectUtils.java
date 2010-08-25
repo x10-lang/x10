@@ -79,22 +79,20 @@ public final class ProjectUtils {
    * 
    * @param project The project of interest.
    * @return A non-null collection of workspace-relative strings representing the src folders of the project.
-   * @throws JavaModelException
+   * @throws JavaModelException Occurs if we could not resolve the project class path.
    */
   public static Collection<String> collectSourceFolders(final IJavaProject project) throws JavaModelException {
-      Collection<String> result = new ArrayList<String>();
-      IClasspathEntry[] cpEntries= project.getResolvedClasspath(true);
-      for(int i= 0; i < cpEntries.length; i++) {
-          IClasspathEntry cpEntry= cpEntries[i];
-          if (cpEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
-              final IPath entryPath= cpEntry.getPath();
-              if (!entryPath.segment(0).equals(project.getElementName())) {
-                  continue;
-              }
-              result.add(entryPath.toOSString());
-          }
+    final Collection<String> result = new ArrayList<String>();
+    for (final IClasspathEntry cpEntry : project.getResolvedClasspath(true)) {
+      if (cpEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+        final IPath entryPath = cpEntry.getPath();
+        if (! entryPath.segment(0).equals(project.getElementName())) {
+          continue;
+        }
+        result.add(entryPath.toOSString());
       }
-      return result;
+    }
+    return result;
   }
   
   // --- Private code
