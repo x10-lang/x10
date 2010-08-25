@@ -6,17 +6,17 @@ Bundle-Version: 2.0.5.qualifier
 Bundle-Activator: org.eclipse.imp.x10dt.ui.launch.java.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
- org.eclipse.imp.x10dt.ui.launch.core;bundle-version="2.0.5",
- x10.compiler;bundle-version="2.0.5",
- org.eclipse.core.resources;bundle-version="3.6.0",
- org.eclipse.jdt.core;bundle-version="3.6.0",
+ org.eclipse.imp.x10dt.ui.launch.core,
+ x10.compiler,
+ org.eclipse.core.resources,
+ org.eclipse.jdt.core,
  polyglot3;bundle-version="3.2.0",
- org.eclipse.imp.x10dt.core;bundle-version="2.0.5",
- org.eclipse.imp.runtime;bundle-version="0.1.108",
- x10.common;bundle-version="2.0.5",
- org.eclipse.ui.console;bundle-version="3.5.0",
- org.eclipse.imp.smapifier;bundle-version="0.1.90",
- org.eclipse.core.filesystem;bundle-version="1.3.0"
+ org.eclipse.imp.x10dt.core,
+ org.eclipse.imp.runtime,
+ x10.common,
+ org.eclipse.ui.console,
+ org.eclipse.imp.smapifier,
+ org.eclipse.core.filesystem
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Export-Package: org.eclipse.imp.x10dt.ui.launch.java,
