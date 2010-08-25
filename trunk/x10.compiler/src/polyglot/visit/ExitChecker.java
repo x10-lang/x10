@@ -113,7 +113,7 @@ public class ExitChecker extends DataFlow
         return DataFlowItem.EXITS; 
     }
 
-    public void check(FlowGraph graph, Term n, boolean entry, Item inItem, Map outItems) throws SemanticException {
+    public void check(FlowGraph graph, Term n, boolean entry, Item inItem, Map outItems) {
         // Check for statements not on the path to exit; compound
         // statements are allowed to be off the path.  (e.g., "{ return; }"
         // or "while (true) S").  If a compound statement is truly
@@ -125,7 +125,7 @@ public class ExitChecker extends DataFlow
                 // are the same, so just take the first one.
                 DataFlowItem outItem = (DataFlowItem)outItems.values().iterator().next(); 
                 if (outItem != null && !outItem.exits) { 
-                    throw new SemanticException("Missing return statement.",
+                    reportError("Missing return statement.",
                             code.position());
                 }
             }

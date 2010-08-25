@@ -132,7 +132,7 @@ public class Position implements Serializable, Copy
     }
 
     public Position truncateEnd(int len) {
-    	if (this == COMPILER_GENERATED)
+    	if (this.isCompilerGenerated())
     	    return this;
     	
 	int eo = endOffset;
@@ -163,13 +163,13 @@ public class Position implements Serializable, Copy
     }
     
     public Position startOf() {
-    	if (this == COMPILER_GENERATED)
+    	if (this.isCompilerGenerated())
     	    return this;
         return new Position(path, file, line, column, line, column, offset, offset);
     }
 
     public Position endOf() {
-    	if (this == COMPILER_GENERATED)
+    	if (this.isCompilerGenerated())
     	    return this;
         return new Position(path, file, endLine, endColumn, endLine, endColumn, endOffset, endOffset);
     }

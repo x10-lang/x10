@@ -175,15 +175,14 @@ public class DeadCodeEliminator extends DataFlow {
 	return result;
     }
 
-    public void post(FlowGraph graph, Term root) throws SemanticException {
+    public void post(FlowGraph graph, Term root) {
 	// No need to do any checking.
 	if (Report.should_report(Report.cfg, 2)) {
 	    dumpFlowGraph(graph, root);
 	}
     }
 
-    public void check(FlowGraph graph, Term n, boolean entry, Item inItem, Map outItems)
-	throws SemanticException {
+    public void check(FlowGraph graph, Term n, boolean entry, Item inItem, Map outItems) {
 
 	throw new InternalCompilerError("DeadCodeEliminator.check should "
 	    + "never be called.");
@@ -205,8 +204,7 @@ public class DeadCodeEliminator extends DataFlow {
 	return (DataFlowItem)confluence(items, n, false, g);
     }
 
-    public Node leaveCall(Node old, Node n, NodeVisitor v)
-	throws SemanticException {
+    public Node leaveCall(Node old, Node n, NodeVisitor v) {
 
 	if (n instanceof LocalDecl) {
 	    LocalDecl ld = (LocalDecl)n;

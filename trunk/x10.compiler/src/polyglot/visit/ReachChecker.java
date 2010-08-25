@@ -130,7 +130,7 @@ public class ReachChecker extends DataFlow
         return DataFlowItem.NOT_REACHABLE;
     }
 
-    public Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
+    public Node leaveCall(Node old, Node n, NodeVisitor v) {
         // check for reachability.
         if (n instanceof Term) {
            n = checkReachability((Term)n);
@@ -144,7 +144,7 @@ public class ReachChecker extends DataFlow
 
                if ((n instanceof Block && ((Block) n).statements().isEmpty()) ||
                    (n instanceof Stmt && ! (n instanceof CompoundStmt))) {
-                   throw new SemanticException("Unreachable statement.",
+                   reportError("Unreachable statement.",
                                                n.position());
                }
            }
@@ -154,7 +154,7 @@ public class ReachChecker extends DataFlow
         return super.leaveCall(old, n, v);
     }
 
-    protected Node checkReachability(Term n) throws SemanticException {
+    protected Node checkReachability(Term n) {
         FlowGraph g = currentFlowGraph();
         if (g != null) {   
             Collection peers = g.peers(n, Term.EXIT);
@@ -174,7 +174,7 @@ public class ReachChecker extends DataFlow
                         // there will only be one peer for an initializer,
                         // as it cannot occur in a finally block.
                         if (isInitializer && !dfi.normalReachable) {
-                            throw new SemanticException("Initializers must be able to complete normally.",
+                            reportError("Initializers must be able to complete normally.",
                                                         n.position());
                         }
 
@@ -202,7 +202,7 @@ public class ReachChecker extends DataFlow
         return n;
     }
     
-    public void post(FlowGraph graph, Term root) throws SemanticException {
+    public void post(FlowGraph graph, Term root) {
         // There is no need to do any checking in this method, as this will
         // be handled by leaveCall and checkReachability.
         if (Report.should_report(Report.cfg, 2)) {
@@ -211,7 +211,7 @@ public class ReachChecker extends DataFlow
     } 
 
     public void check(FlowGraph graph, Term n, boolean entry, 
-            Item inItem, Map outItems) throws SemanticException {
+            Item inItem, Map outItems) {
         throw new InternalCompilerError("ReachChecker.check should " +
                 "never be called.");
     }

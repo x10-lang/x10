@@ -399,22 +399,20 @@ public class CopyPropagator extends DataFlow {
 	return itemToMap(flow(in, graph, t, entry), succEdgeKeys);
     }
 
-    public void post(FlowGraph graph, Term root) throws SemanticException {
+    public void post(FlowGraph graph, Term root) {
 	// No need to do any checking.
 	if (Report.should_report(Report.cfg, 2)) {
 	    dumpFlowGraph(graph, root);
 	}
     }
 
-    public void check(FlowGraph graph, Term n, boolean entry, Item inItem, Map outItems)
-	throws SemanticException {
+    public void check(FlowGraph graph, Term n, boolean entry, Item inItem, Map outItems) {
 
 	throw new InternalCompilerError("CopyPropagator.check should never be "
 	    + "called.");
     }
 
-    public Node leaveCall(Node old, Node n, NodeVisitor v)
-	throws SemanticException {
+    public Node leaveCall(Node old, Node n, NodeVisitor v) {
 
 	if (n instanceof Local) {
 	    FlowGraph g = currentFlowGraph();
