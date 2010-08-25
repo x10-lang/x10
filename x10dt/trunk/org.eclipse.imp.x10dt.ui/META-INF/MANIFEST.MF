@@ -32,7 +32,7 @@ Require-Bundle: lpg.runtime.java;bundle-version="2.0.18",
  org.eclipse.ui.workbench.texteditor,
  polyglot3,
  x10.compiler,
- org.eclipse.imp.x10dt.ui.launch.java;bundle-version="1.0.0"
+ org.eclipse.imp.x10dt.ui.launch.java
 Bundle-Vendor: tibbitts@us.ibm.com
 Bundle-Activator: org.eclipse.imp.x10dt.ui.X10DTUIPlugin
 Export-Package: org.eclipse.imp.x10dt.ui,
