@@ -1,5 +1,6 @@
 package org.eclipse.imp.x10dt.core.tests.compiler;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -15,10 +16,7 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 
 public class CompilerTests extends CompilerTestsBase {
-	
-	protected String getDataSourcePath() {
-		return "";
-	}
+	private static String DATA_PATH = "data" + File.separator + "base" + File.separator;
 
 	@Test
 	public void hello1_static_calls() throws Exception {
@@ -271,8 +269,7 @@ public class CompilerTests extends CompilerTestsBase {
 	
 	private void jira1551_check(Collection<Job> jobs) {
 		for (Job job: jobs){
-			job.ast().visit(new ContextVisitor(job,job.extensionInfo().typeSystem(),
-											   job.extensionInfo().typeSystem().extensionInfo().nodeFactory()) {
+			job.ast().visit(new ContextVisitor(job,job.extensionInfo().typeSystem(),job.extensionInfo().typeSystem().extensionInfo().nodeFactory()){
 				 @Override
 				 public NodeVisitor enterCall(Node node) throws SemanticException {
 					 if (node instanceof ClassDecl) {
@@ -315,4 +312,15 @@ public class CompilerTests extends CompilerTestsBase {
 		compile(sources, NOT_STATIC_CALLS, new ArrayList<ErrorInfo>());
 	}
 	
+	private boolean compile(String[] files, String[] options, Collection<ErrorInfo> errors) throws Exception{
+		return compile(files, options, errors, new ArrayList<Job>());
+	}
+	
+	private boolean compile(String[] files, String[] options, Collection<ErrorInfo> errors, Collection<Job> jobs) throws Exception{
+		Collection<File> fs = new ArrayList<File>();
+		for(String s: files){
+			fs.add(new File(DATA_PATH + s));
+		}
+		return compile(fs.toArray(new File[0]), options, errors, getRuntimeJar() + File.pathSeparator + DATA_PATH, jobs);
+	}
 }

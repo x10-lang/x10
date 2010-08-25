@@ -1,8 +1,6 @@
 package org.eclipse.imp.x10dt.core.tests.compiler;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -12,9 +10,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import polyglot.frontend.FileResource;
-import polyglot.frontend.FileSource;
-import polyglot.frontend.Source;
 import polyglot.util.ErrorInfo;
 
 /**
@@ -27,7 +22,7 @@ import polyglot.util.ErrorInfo;
 @RunWith(Parameterized.class)
 public class CompletenessCompilerTests extends CompilerTestsBase {
 
-	private Collection<Source> sources;
+	private File[] sources;
 	private String[] options;
 	
 	/*
@@ -45,20 +40,17 @@ public class CompletenessCompilerTests extends CompilerTestsBase {
 	private static String[] NOT_STATIC_CALLS = {"-STATIC_CALLS=false"};
 	
 	
-	public CompletenessCompilerTests(Collection<Source> sources, String[] options){
+	public CompletenessCompilerTests(File[] sources, String[] options){
+		super();
 		this.sources = sources;
 		this.options = options;
 	}
-	  
-	protected String getDataSourcePath() {
-		return DATA_PATH;
-	}
 	
 	@Parameters
-	 public static Collection<?> inputs() throws IOException, URISyntaxException {
+	 public static Collection inputs() {
 		ArrayList<Object[]> inputs = new ArrayList<Object[]>();
-		for(FileCollectionIterator f = new FileCollectionIterator(createFile(DATA_PATH)); f.hasNext(); ){
-			Collection<Source> fs = f.next();
+		for(FileCollectionIterator f = new FileCollectionIterator(new File(DATA_PATH)); f.hasNext(); ){
+			File[] fs = f.next();
 			inputs.add(new Object[]{fs, STATIC_CALLS});
 			inputs.add(new Object[]{fs, NOT_STATIC_CALLS});
 		}
@@ -67,20 +59,21 @@ public class CompletenessCompilerTests extends CompilerTestsBase {
 
 	@Test
 	public void compilerTest() throws Exception {
+		String sourcepath = getRuntimeJar() + File.pathSeparatorChar + DATA_PATH;
+		
 		//Submit everything to the compiler at once
 		System.err.println("***Compiling all files");
 		Collection<ErrorInfo> allErrors = new ArrayList<ErrorInfo>();
-		compile(sources, options, allErrors);
+		compile(sources, options, allErrors, sourcepath);
 		
 		System.err.println("***Compiling files one at a time");
 		//Submit files one by one
 		Collection<ErrorInfo> errors = new ArrayList<ErrorInfo>();
 		Collection<String> paths = new ArrayList<String>();
-		for(Source f: sources){
-			Collection<Source> container = new ArrayList<Source>(1);
-			container.add(f);
-			compile(container, options, errors);
-			paths.add(f.path());
+		for(File f: sources){
+			File[] fs = {f};
+			compile(fs, options, errors, sourcepath);
+			paths.add(f.getPath());
 		}
 		
 		//Compare error queues
@@ -115,9 +108,9 @@ public class CompletenessCompilerTests extends CompilerTestsBase {
 	 * Iterator class that returns the first N leaf files of a directory.
 	 * Assume that dir has at least one x10 file in it.
 	 */
-	private static class FileCollectionIterator {
+	private static class FileCollectionIterator{
 		private File[] files;
-		private Collection<Source> currentFiles = new ArrayList<Source>();
+		private Collection<File> currentFiles = new ArrayList<File>();
 		private int i = 0;
 		
 		public FileCollectionIterator(File dir){
@@ -128,10 +121,9 @@ public class CompletenessCompilerTests extends CompilerTestsBase {
 			return currentFiles.size() < files.length;
 		}
 		
-		public Collection<Source> next() throws IOException{
-			currentFiles.add(new FileSource(new FileResource(files[i++])));
-			return new ArrayList<Source>(currentFiles);
+		public File[] next(){
+			currentFiles.add(files[i++]);
+			return currentFiles.toArray(new File[0]);
 		}
 	}
-	
 }
