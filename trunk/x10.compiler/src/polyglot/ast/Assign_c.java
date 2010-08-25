@@ -186,9 +186,9 @@ public abstract class Assign_c extends Expr_c implements Assign, Ambiguous
     return op == DIV_ASSIGN || op == MOD_ASSIGN;
   }
 
-  public String toString() {
-    return left(Globals.NF()) + " " + op + " " + right;
-  }
+  //public String toString() {
+  //  return leftString() + " " + op + " " + right;
+  // }
 
   /** Write the expression to an output file. */
   public void prettyPrint(CodeWriter w, PrettyPrinter tr) {

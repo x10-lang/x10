@@ -142,4 +142,7 @@ public boolean targetImplicit() {
       return l;
   }
 
+  public String toString() {
+	  return target + "." + name + " " + op + " " + right;
+  }
 }
