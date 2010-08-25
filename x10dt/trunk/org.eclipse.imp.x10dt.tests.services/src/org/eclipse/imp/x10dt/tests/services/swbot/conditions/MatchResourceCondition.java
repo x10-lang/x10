@@ -12,9 +12,9 @@ import java.util.List;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceVisitor;
-import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swtbot.swt.finder.waits.ICondition;
 import org.eclipse.swtbot.swt.finder.waits.WaitForObjectCondition;
@@ -24,7 +24,12 @@ import org.hamcrest.Matcher;
 final class MatchResourceCondition extends WaitForObjectCondition<IResource> implements ICondition {
   
   MatchResourceCondition(final Matcher<IResource> resourceMatcher) {
+    this(resourceMatcher, null);
+  }
+  
+  MatchResourceCondition(final Matcher<IResource> resourceMatcher, final String rootFolder) {
     super(resourceMatcher);
+    this.fRootFolder = rootFolder;
   }
   
   // --- Interface methods implementation
@@ -37,9 +42,14 @@ final class MatchResourceCondition extends WaitForObjectCondition<IResource> imp
   
   protected List<IResource> findMatches() {
     final List<IResource> resources = new ArrayList<IResource>();
-    final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+    final IResource rootResource;
+    if (this.fRootFolder == null) {
+      rootResource = ResourcesPlugin.getWorkspace().getRoot();
+    } else {
+      rootResource = ResourcesPlugin.getWorkspace().getRoot().getFolder(new Path(this.fRootFolder));
+    }
     try {
-      root.accept(new IResourceVisitor() {
+      rootResource.accept(new IResourceVisitor() {
         
         public boolean visit(final IResource resource) {
           if (MatchResourceCondition.super.matcher.matches(resource)) {
@@ -55,5 +65,9 @@ final class MatchResourceCondition extends WaitForObjectCondition<IResource> imp
     }
     return resources;
   }
+  
+  // --- Fields
+  
+  private final String fRootFolder;
 
 }

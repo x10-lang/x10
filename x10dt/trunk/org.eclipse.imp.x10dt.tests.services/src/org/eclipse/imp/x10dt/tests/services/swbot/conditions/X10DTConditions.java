@@ -41,6 +41,18 @@ public final class X10DTConditions {
     return new MatchResourceCondition(matcher);
   }
   
+  /**
+   * Creates a condition that tests in all the resources under a given root folder of the current workspace if 
+   * some satisfy the matcher provided. 
+   * 
+   * @param matcher The matcher instance to use to filter the resources of interest.
+   * @param rootFolder The absolute path to the root folder to consider as root. 
+   * @return A non-null implementation of {@link ICondition}.
+   */
+  public static ICondition matchResource(final Matcher<IResource> matcher, final String rootFolder) {
+    return new MatchResourceCondition(matcher, rootFolder);
+  }
+  
   // --- Fields
   
   private X10DTConditions() {}
