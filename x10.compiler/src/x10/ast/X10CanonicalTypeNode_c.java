@@ -76,48 +76,11 @@ AddFlags {
     public X10CanonicalTypeNode_c(Position pos, Ref<? extends Type> type) {
 	super(pos, type);
     }
-    public X10CanonicalTypeNode_c(Position pos, Ref<? extends Type> type, DepParameterExpr d) {
-    	super(pos, type);
-    	this.expr = d;
-        }
     
-    private DepParameterExpr expr; // todo: remove me, this hack is ugly! The constraint expression should be generated from the type's constraint
-    
-    public DepParameterExpr constraintExpr() {
-	return expr;
-    }
-    
-    public X10CanonicalTypeNode constraintExpr(DepParameterExpr e) {
-	X10CanonicalTypeNode_c n = (X10CanonicalTypeNode_c) copy();
-	n.expr = e;
-	return n;
-    }
-    
-   Flags flags;
+    Flags flags;
     public void addFlags(Flags f) {
     	flags = f;
     }
-    /** Visit the children of the expression. Added so as to permit arbitrary visitors
-     * to traverse the link from this to the DepExpr child. For instance, the InnerClassRemover 
-     * needs to rewrite occurrences of this in DepExpr with  reference to the appropriate field
-     * (out$ for the appropriate outer class.)
-     * vj 27 Jul 09
-     * 
-     * */
-    public Node visitChildren(NodeVisitor v) {
-    	// vj: Hack. Need a better way of handling this.
-    	// The TypeChecker should not visit children during the visitChildren 
-    	// phase. It will get its chance during the leaveCall phase, at which 
-    	// point the context will be set up properly so that the check that self
-    	// can only be referenced from within a depexpr can be performed accurately.
-    	if (v instanceof TypeChecker) {
-    		return this;
-    	}
-    	DepParameterExpr e = (DepParameterExpr) visitChild(this.expr, v);
-    	return constraintExpr(e);
-    }
-
- 
   
     @Override
     public Node typeCheck(ContextVisitor tc) throws SemanticException {

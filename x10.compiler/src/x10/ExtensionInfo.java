@@ -430,12 +430,12 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                    //wsCodeGenGoal.addPrereq(WSExpressionFlattener(job));
                }
            }
-           goals.add(InnerClassRemover(job));
            goals.addAll(Optimizer.goals(this, job));
            goals.add(Desugarer(job));
            if (x10.Configuration.FLATTEN_EXPRESSIONS) {
                goals.add(ExpressionFlattener(job));
            }
+           goals.add(InnerClassRemover(job));
            goals.add(CodeGenerated(job));
            
            InnerClassRemover(job).addPrereq(Serialized(job));

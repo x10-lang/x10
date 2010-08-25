@@ -100,6 +100,7 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.InnerClassRemover;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.Translator;
+import polyglot.visit.TypeBuilder;
 import x10.Configuration;
 import x10.ast.AssignPropertyBody_c;
 import x10.ast.Async_c;
@@ -177,6 +178,8 @@ import x10.types.X10MethodInstance;
 import x10.types.X10ParsedClassType_c;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
+import x10.types.constraints.CConstraint;
+import x10.util.Synthesizer;
 import x10c.ast.X10CBackingArrayAccessAssign_c;
 import x10c.ast.X10CBackingArrayAccess_c;
 import x10c.ast.X10CBackingArray_c;
@@ -976,10 +979,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                                     "}" +
                                 "}.cast((#0) #1))";
 
-                            DepParameterExpr dep = xtn.constraintExpr();
+                            DepParameterExpr dep = constraintExpr(xtn);
                             
                             // for constraintedType
                             if (dep != null) {
+                                    assert (false);
                                     List<Expr> conds = dep.condition();
                                     X10Context xct = (X10Context) tr.context();
                                     boolean inAnonObjectScope = xct.inAnonObjectScope();
@@ -1089,8 +1093,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		if (tn instanceof X10CanonicalTypeNode) {
 			X10CanonicalTypeNode xtn = (X10CanonicalTypeNode) tn;
 			Type t = X10TypeMixin.baseType(xtn.type());
-			DepParameterExpr dep = xtn.constraintExpr();
+			DepParameterExpr dep = constraintExpr(xtn);
 			if (dep != null) {
+			    assert (false);
 			    boolean isPrimitive = t.isBoolean() || t.isNumeric() || t.isChar();
 			    String template = isPrimitive ? "instanceof_primitive_deptype" : "instanceof_deptype";
 			    // SYNOPSIS: (#1 instanceof #0) #1 #0=type #1=object #2=depclause
@@ -1266,6 +1271,17 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		    }
 		}
 		w.write(")");
+	}
+
+	private DepParameterExpr constraintExpr(X10CanonicalTypeNode xtn) {
+	    CConstraint c = X10TypeMixin.xclause(xtn.type());
+	    if (c == null || c.valid())
+	        return null;
+	    X10NodeFactory xnf = (X10NodeFactory) tr.nodeFactory();
+	    X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+	    DepParameterExpr dep = xnf.DepParameterExpr(xtn.position(), new Synthesizer(xnf, xts).makeExpr(c, xtn.position()));
+	    dep = (DepParameterExpr) dep.visit(new TypeBuilder(tr.job(), xts, xnf)).visit(new X10TypeChecker(tr.job(), xts, xnf, tr.job().nodeMemo()).context(((X10Context) tr.context()).pushDepType(xtn.typeRef())));
+	    return dep;
 	}
 
 

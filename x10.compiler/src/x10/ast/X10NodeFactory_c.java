@@ -531,13 +531,6 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	    return n;
 	}
 	
-	public X10CanonicalTypeNode X10CanonicalTypeNode(Position pos, Ref<? extends Type> type, DepParameterExpr e) {
-	    X10CanonicalTypeNode n = new X10CanonicalTypeNode_c(pos, type, e);
-	    n = (X10CanonicalTypeNode)n.ext(extFactory().extCanonicalTypeNode());
-	    n = (X10CanonicalTypeNode)n.del(delFactory().delCanonicalTypeNode());
-	    return n;
-	}
-
 	public X10Formal X10Formal(Position pos, FlagsNode flags, TypeNode type, Id name,
 						 List<Formal> vars, boolean unnamed)
 	{
