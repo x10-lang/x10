@@ -91,4 +91,7 @@ public class AmbAssign_c extends Assign_c implements AmbAssign
       // Didn't finish disambiguation; just return.
       return this;
   }
+  public String toString() {
+	    return left + " " + op + " " + right;
+	   }
 }

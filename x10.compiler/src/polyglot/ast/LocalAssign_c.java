@@ -88,4 +88,7 @@ public class LocalAssign_c extends Assign_c implements LocalAssign
 	v.visitCFG(local(), right(), ENTRY);
 	v.visitCFG(right(), this, EXIT);
     }
+    public String toString() {
+  	  return local + " " + op + " " + right;
+    }
 }

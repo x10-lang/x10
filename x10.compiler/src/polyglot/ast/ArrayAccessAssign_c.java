@@ -132,4 +132,7 @@ public class ArrayAccessAssign_c extends Assign_c implements ArrayAccessAssign
   public boolean throwsArrayStoreException() {
     return op == ASSIGN && array.type().isReference();
   }
+  public String toString() {
+	    return array + "(" + index + ") " + op + " " + right;
+	   }
 }
