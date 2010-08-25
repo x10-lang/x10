@@ -102,7 +102,7 @@ public abstract class CompilerTestsBase {
 	protected final Compiler getCompiler(final ExtensionInfo extInfo, final String[] options,
 			final Collection<ErrorInfo> errors, final String sourcepath) {
 		buildOptions(extInfo, options, sourcepath);
-		return new Compiler(extInfo, new AbstractErrorQueue(1000000, extInfo.compilerName()) {
+		return new Compiler(extInfo, new AbstractErrorQueue(10000, extInfo.compilerName()) {
 			protected void displayError(ErrorInfo error) {
 				errors.add(error);
 			}
