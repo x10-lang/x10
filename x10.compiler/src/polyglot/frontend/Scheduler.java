@@ -247,14 +247,14 @@ public abstract class Scheduler {
     }
     
     public State pushGlobalState(Goal goal) {
-        TypeSystem ts = Globals.TS();
+        TypeSystem ts = extInfo.typeSystem();
 //        SystemResolver resolver = ts.saveSystemResolver();
         SystemResolver resolver = ts.systemResolver();
         return new State(resolver);
     }
 
     public void popGlobalState(Goal goal, State s) {
-        TypeSystem ts = Globals.TS();
+        //TypeSystem ts = Globals.TS();
         if (reached(goal)) {
 //            try {
 //                s.resolver.putAll(ts.systemResolver());

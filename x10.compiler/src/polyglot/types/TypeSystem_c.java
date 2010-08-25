@@ -22,7 +22,7 @@ import polyglot.util.*;
  * Overview:
  *    A TypeSystem_c is a universe of types, including all Java types.
  **/
-public class TypeSystem_c implements TypeSystem
+public abstract class TypeSystem_c implements TypeSystem
 {
     protected SystemResolver systemResolver;
     protected TopLevelResolver loadedResolver;
@@ -363,9 +363,7 @@ public class TypeSystem_c implements TypeSystem
 	return env(context).isCastValid(fromType, toType);
     }
 
-    public TypeEnv env(Context context) {
-	return new TypeEnv_c(context);
-    }
+    public abstract TypeEnv env(Context context);
 
     /**
      * Requires: all type arguments are canonical.

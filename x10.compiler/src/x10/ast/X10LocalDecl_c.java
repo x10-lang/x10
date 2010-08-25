@@ -64,10 +64,10 @@ import x10.visit.X10TypeChecker;
 
 public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 	TypeNode hasType;
-	public X10LocalDecl_c(Position pos, FlagsNode flags, TypeNode type,
+	public X10LocalDecl_c(X10NodeFactory nf, Position pos, FlagsNode flags, TypeNode type,
 			Id name, Expr init) {
 		super(pos, flags, 
-				type instanceof HasTypeNode_c ? ((X10NodeFactory) Globals.NF()).UnknownTypeNode(type.position()) : type, name, init);
+				type instanceof HasTypeNode_c ? nf.UnknownTypeNode(type.position()) : type, name, init);
 		if (type instanceof HasTypeNode_c) 
 			hasType = ((HasTypeNode_c) type).typeNode();
 	}
@@ -174,7 +174,7 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
                 TypeNode htn  = null;
                 if (hasType != null) {
                     htn = (TypeNode) visitChild(hasType, childtc);
-                    if (! Globals.TS().isSubtype(type().type(), htn.type(), tc.context())) {
+                    if (! tc.typeSystem().isSubtype(type().type(), htn.type(), tc.context())) {
                         Errors.issue(tc.job(),
                                      new Errors.TypeIsNotASubtypeOfTypeBound(type().type(),
                                                                              htn.type(),

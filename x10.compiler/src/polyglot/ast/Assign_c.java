@@ -23,12 +23,13 @@ public abstract class Assign_c extends Expr_c implements Assign, Ambiguous
 {
   protected Operator op;
   protected Expr right;
-
-  public Assign_c(Position pos, Operator op, Expr right) {
+  protected NodeFactory nf;
+  public Assign_c(NodeFactory nf, Position pos, Operator op, Expr right) {
     super(pos);
     assert(op != null && right != null);
     this.op = op;
     this.right = right;
+    this.nf = nf;
   }
 
   /** Get the precedence of the expression. */
@@ -37,7 +38,7 @@ public abstract class Assign_c extends Expr_c implements Assign, Ambiguous
   }
 
   /** Get the left operand of the expression. */
-  public abstract Expr left(NodeFactory nf);
+  public abstract Expr left();
 
   /** Get the operator of the expression. */
   public Operator operator() {
@@ -192,7 +193,7 @@ public abstract class Assign_c extends Expr_c implements Assign, Ambiguous
 
   /** Write the expression to an output file. */
   public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
-    printSubExpr(left(Globals.NF()), true, w, tr);
+    printSubExpr(left(), true, w, tr);
     w.write(" ");
     w.write(op.toString());
     w.allowBreak(2, 2, " ", 1); // miser mode

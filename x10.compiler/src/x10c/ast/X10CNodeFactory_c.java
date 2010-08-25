@@ -40,7 +40,7 @@ public class X10CNodeFactory_c extends X10NodeFactory_c {
     }
 
     public BackingArrayAccessAssign BackingArrayAccessAssign(Position pos, Expr rail, Expr index, Operator op, Expr right) {
-        BackingArrayAccessAssign n = new X10CBackingArrayAccessAssign_c(pos, rail, index, op, right);
+        BackingArrayAccessAssign n = new X10CBackingArrayAccessAssign_c(this, pos, rail, index, op, right);
         n = (BackingArrayAccessAssign) n.ext(extFactory().extArrayAccessAssign());
         n = (BackingArrayAccessAssign) n.del(delFactory().delArrayAccessAssign());
         return n;

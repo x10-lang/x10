@@ -255,7 +255,7 @@ public class JLScheduler extends Scheduler {
         public boolean runTask() {
         	LazyRef<ClassDef> ref = (LazyRef<ClassDef>) typeRef();
         	try {
-        		TypeSystem ts = Globals.TS();
+        		TypeSystem ts = ref.get().typeSystem();
 			Named n = ts.systemResolver().find(QName.make(className));
         		if (n instanceof ClassType) {
         			ClassType ct = (ClassType) n;

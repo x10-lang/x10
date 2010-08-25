@@ -24,8 +24,8 @@ public class LocalAssign_c extends Assign_c implements LocalAssign
 {
     Local local;
 
-    public LocalAssign_c(Position pos, Local left, Operator op, Expr right) {
-	super(pos, op, right);
+    public LocalAssign_c(NodeFactory nf, Position pos, Local left, Operator op, Expr right) {
+	super(nf, pos, op, right);
 	local = left;
     }
 
@@ -44,7 +44,7 @@ public class LocalAssign_c extends Assign_c implements LocalAssign
 	}
 	return this;
     }
-    public Expr left(NodeFactory nf) {
+    public Expr left() {
 	return local;
     }
 

@@ -863,7 +863,8 @@ public class Inliner extends ContextVisitor {
                     }
                     sigChanged |= d.guard() != ((X10MethodDecl) old).guard();
                     List<Ref <? extends Type>> excTypes = new ArrayList<Ref<? extends Type>>();
-                    SubtypeSet excs = d.exceptions();
+                    SubtypeSet excs = 
+                    	d.exceptions() == null ? new SubtypeSet(typeSystem()) : d.exceptions();
                     SubtypeSet oldExcs = ((X10MethodDecl) old).exceptions();
                     if (null != excs) {
                         for (Type et : excs) {

@@ -40,8 +40,8 @@ import x10.errors.Errors;
 
 public class X10FieldAssign_c extends FieldAssign_c {
     
-    public X10FieldAssign_c(Position pos, Receiver target, Id name, Operator op, Expr right) {
-        super(pos, target, name, op, right);
+    public X10FieldAssign_c(X10NodeFactory nf, Position pos, Receiver target, Id name, Operator op, Expr right) {
+        super(nf, pos, target, name, op, right);
     }
     
     @Override
@@ -112,7 +112,7 @@ public class X10FieldAssign_c extends FieldAssign_c {
     	    }
     	}
 
-    	X10Field_c target = (X10Field_c) n.left(tc.nodeFactory());
+    	X10Field_c target = (X10Field_c) n.left();
     	try {
     	    target = PlaceChecker.makeFieldAccessLocalIfNecessary(target, tc);
     	} catch (SemanticException e) {

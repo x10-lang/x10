@@ -388,7 +388,7 @@ public class AmbMacroTypeNode_c extends AmbTypeNode_c implements AmbMacroTypeNod
     	result = (CanonicalTypeNode) ((X10Del) result.del()).setComment(((X10Del) n.del()).comment());
     	result = (CanonicalTypeNode) result.del().typeCheck(childtc);
     	{
-    	    VarChecker ac = (VarChecker) new VarChecker(childtc.job(), Globals.TS(), Globals.NF()).context(childtc.context());
+    	    VarChecker ac = (VarChecker) new VarChecker(childtc.job()).context(childtc.context());
     	    try {
     	        result.visit(ac);
     	    } catch (InternalCompilerError e) {

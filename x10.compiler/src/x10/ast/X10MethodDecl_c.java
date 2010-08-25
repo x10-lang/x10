@@ -142,10 +142,10 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 
 	TypeNode offerType;
 	TypeNode hasType;
-	public X10MethodDecl_c(Position pos, FlagsNode flags, 
+	public X10MethodDecl_c(X10NodeFactory nf, Position pos, FlagsNode flags, 
 			TypeNode returnType, Id name,
 			List<TypeParamNode> typeParams, List<Formal> formals, DepParameterExpr guard, List<TypeNode> throwTypes, TypeNode offerType, Block body) {
-		super(pos, flags, returnType instanceof HasTypeNode_c ? ((X10NodeFactory) Globals.NF()).UnknownTypeNode(returnType.position()) : returnType, 
+		super(pos, flags, returnType instanceof HasTypeNode_c ? nf.UnknownTypeNode(returnType.position()) : returnType, 
 				name, formals, throwTypes, body);
 		this.guard = guard;
 		this.typeParameters = TypedList.copyAndCheck(typeParams, TypeParamNode.class, true);
@@ -850,7 +850,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 			DepParameterExpr processedWhere = (DepParameterExpr) nn.visitChild(nn.guard(), childtc);
 			nn = (X10MethodDecl) nn.guard(processedWhere);
 
-			VarChecker ac = new VarChecker(childtc.job(), Globals.TS(), Globals.NF());
+			VarChecker ac = new VarChecker(childtc.job());
 			ac = (VarChecker) ac.context(childtc.context());
 			processedWhere.visit(ac);
 
@@ -950,7 +950,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 				final TypeNode h = (TypeNode) nn.visitChild(((X10MethodDecl_c) nn).hasType, childtc1);
 				Type hasType = PlaceChecker.ReplaceHereByPlaceTerm(h.type(), ( X10Context ) childtc1.context());
 				nn = (X10MethodDecl) ((X10MethodDecl_c) nn).hasType(h);
-				if (! Globals.TS().isSubtype(type, hasType, tc.context())) {
+				if (! xts.isSubtype(type, hasType, tc.context())) {
 					Errors.issue(tc.job(),
 							new Errors.TypeIsNotASubtypeOfTypeBound(type, hasType, position()));
 				}

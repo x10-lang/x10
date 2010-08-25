@@ -2263,8 +2263,9 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return false;
     }
 
+    @Override
     public X10TypeEnv env(Context context) {
-        return new X10TypeEnv_c(context);
+        return new X10TypeEnv_c(context == null ? emptyContext() : context);
     }
 
     @Override

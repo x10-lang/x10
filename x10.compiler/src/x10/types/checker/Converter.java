@@ -134,7 +134,7 @@ public class Converter {
 				throw new Errors.CannotGenerateCast(e, e.position());
 			}
 			
-			tn = new Synthesizer().makeCanonicalTypeNodeWithDepExpr(e.position(), toType, tc);
+			tn = new Synthesizer(nf, ts).makeCanonicalTypeNodeWithDepExpr(e.position(), toType, tc);
 			if (tn.type() != toType) {
 				// alright, now we actually synthesized a new depexpr. 
 				// lets splice it in.

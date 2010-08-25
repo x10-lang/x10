@@ -690,7 +690,7 @@ public class Desugarer extends ContextVisitor {
         Name STOPFINISHEXPR = Name.make("stopFinishExpr");
         Stmt returnS = null;
         if ((l==null) && (n!=null)&& (r==null)) {
-        	Expr left = n.left(xnf).type(reducerTarget);
+        	Expr left = n.left().type(reducerTarget);
             Call instanceCall = synth.makeInstanceCall(pos, local1, STOPFINISHEXPR, Collections.EMPTY_LIST, Collections.EMPTY_LIST, reducerTarget, Collections.EMPTY_LIST, xContext());
             Expr b = assign(pos, left, Assign.ASSIGN, instanceCall);
             returnS = xnf.Eval(pos, b);
@@ -982,7 +982,7 @@ public class Desugarer extends ContextVisitor {
         Position pos = n.position();
         if (n.operator() == Assign.ASSIGN) return n;
         X10Binary_c.Operator op = n.operator().binaryOperator();
-        Local left = (Local) n.left(xnf);
+        Local left = (Local) n.left();
         Expr right = n.right();
         Type R = left.type();
         Expr val = visitBinary((X10Binary_c) xnf.Binary(pos, left, op, right).type(R));
@@ -994,7 +994,7 @@ public class Desugarer extends ContextVisitor {
         Position pos = n.position();
         if (n.operator() == Assign.ASSIGN) return n;
         X10Binary_c.Operator op = n.operator().binaryOperator();
-        Field left = (Field) n.left(xnf);
+        Field left = (Field) n.left();
         Expr right = n.right();
         Type R = left.type();
         if (left.flags().isStatic()) {
@@ -1042,7 +1042,7 @@ public class Desugarer extends ContextVisitor {
                     args).methodInstance(mi).type(mi.returnType());
         }
         X10Binary_c.Operator op = n.operator().binaryOperator();
-        X10Call left = (X10Call) n.left(xnf);
+        X10Call left = (X10Call) n.left();
         MethodInstance ami = left.methodInstance();
         List<Formal> parms = new ArrayList<Formal>();
         Name xn = Name.make("x");
@@ -1123,7 +1123,7 @@ public class Desugarer extends ContextVisitor {
         return left;
     }
 
-    private DepParameterExpr getClause(TypeNode tn) {
+ private DepParameterExpr getClause(TypeNode tn) {
         Type t = tn.type();
         if (tn instanceof X10CanonicalTypeNode) {
             CConstraint c = X10TypeMixin.xclause(t);

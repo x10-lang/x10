@@ -44,9 +44,8 @@ public interface Assign extends Expr
      * Left child (target) of the assignment.
      * The target must be a Variable, but this is not enforced
      * statically to keep Polyglot backward compatible.
-     * @param nf TODO
      */
-    Expr left(NodeFactory nf);
+    Expr left();
 
     Type leftType();	
 
