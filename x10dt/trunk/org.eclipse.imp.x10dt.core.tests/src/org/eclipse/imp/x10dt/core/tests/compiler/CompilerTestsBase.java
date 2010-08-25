@@ -14,12 +14,12 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.imp.x10dt.core.builder.StreamSource;
 import org.osgi.framework.Bundle;
 
 import junit.framework.Assert;
 import polyglot.frontend.Compiler;
 import polyglot.frontend.ExtensionInfo;
+import polyglot.frontend.FileSource;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Job;
 import polyglot.frontend.Source;
@@ -28,6 +28,7 @@ import polyglot.main.UsageError;
 import polyglot.util.AbstractErrorQueue;
 import polyglot.util.ErrorInfo;
 import x10.errors.X10ErrorInfo;
+import x10.util.StreamResource;
 
 /**
  * This class provides some base functionality for compilation
@@ -93,7 +94,7 @@ public abstract class CompilerTestsBase {
 		for (String s : files) {
 			final InputStream is = classLoader.getResourceAsStream(s);
 			if (is != null) {
-				fs.add(new StreamSource(is, s));
+				fs.add(new FileSource(new StreamResource(is, s)));
 			}
 		}
 		return compile(fs, options, errors, jobs);
