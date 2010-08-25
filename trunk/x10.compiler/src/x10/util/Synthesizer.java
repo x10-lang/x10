@@ -1441,7 +1441,7 @@ public class Synthesizer {
 	Expr makeExpr(XEQV t, Position pos) {
 		String str = t.toString();
 		//if (str.startsWith("_place"))
-		//	assert ! str.startsWith("_place");
+		//	assert ! str.startsWith("_place") : "Place var: "+str;
 		int i = str.indexOf("#");
 		TypeNode tn = null;
 		if (i > 0) {
@@ -1459,7 +1459,7 @@ public class Synthesizer {
 	Expr makeExpr(XLocal t, Position pos) {
 		String str = t.name().toString();
 		//if (str.startsWith("_place"))
-		//	assert ! str.startsWith("_place");
+		//	assert ! str.startsWith("_place") : "Place var: "+str;
 		if (str.equals("here"))
 			return xnf.Here(pos);
 		int i = str.indexOf("#");

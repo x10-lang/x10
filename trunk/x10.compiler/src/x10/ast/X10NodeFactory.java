@@ -72,7 +72,6 @@ public interface X10NodeFactory extends NodeFactory {
     ConstructorCall X10SuperCall(Position pos, List<TypeNode> typeArgs, List<Expr> args);
 
     X10CanonicalTypeNode X10CanonicalTypeNode(Position pos, Type t);
-    X10CanonicalTypeNode X10CanonicalTypeNode(Position pos, Ref<? extends Type> t, DepParameterExpr e);
 
     X10Cast X10Cast(Position pos, TypeNode castType, Expr expr);
     X10Cast X10Cast(Position pos, TypeNode castType, Expr expr, Converter.ConversionType conversionType);

@@ -150,7 +150,7 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode, AddF
 
         sym.update(t);
 
-        CanonicalTypeNode result = nf.X10CanonicalTypeNode(position(), sym, constr);
+        CanonicalTypeNode result = nf.CanonicalTypeNode(position(), sym);
         result = (CanonicalTypeNode) postprocess(result, this, childtc);
         return (TypeNode) result.del().typeCheck(childtc);
     }

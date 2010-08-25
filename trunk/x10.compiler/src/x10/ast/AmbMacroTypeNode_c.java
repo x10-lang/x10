@@ -378,47 +378,6 @@ public class AmbMacroTypeNode_c extends AmbTypeNode_c implements AmbMacroTypeNod
             throw new SemanticException("Could not find or instantiate type \"" + n + "\".", position());
          */   
         CanonicalTypeNode result = nf.CanonicalTypeNode(n.position(), sym);
-        // FIXME: [IP] HACK
-        if (t instanceof MacroType) {
-            TypeDef_c def = (TypeDef_c) ((MacroType) t).def();
-            TypeNode defNode = def.astNode();
-            if (defNode instanceof AmbDepTypeNode) {
-                AmbDepTypeNode adtNode = (AmbDepTypeNode) defNode;
-                adtNode = (AmbDepTypeNode) adtNode.typeCheck(childtc);
-                DepParameterExpr depExpr = adtNode.constraint();
-                final List<LocalDef> names = def.formalNames();
-                final XVar selfBinding = XTerms.makeEQV("self");
-                final Type selfType = X10TypeMixin.setSelfVar(t, selfBinding);
-                x10.visit.Desugarer.Substitution<Expr> subst =
-                    new x10.visit.Desugarer.Substitution<Expr>(Expr.class, args) {
-                        protected Expr subst(Expr n) {
-                            if (n instanceof Local) {
-                                LocalDef d = ((Local) n).localInstance().def();
-                                for (int i = 0; i < names.size(); i++) {
-                                    if (names.get(i) == d)
-                                        return by.get(i);
-                                }
-                            } else if (n instanceof AmbExpr) {
-                                Name name = ((AmbExpr) n).name().id();
-                                for (int i = 0; i < names.size(); i++) {
-                                    if (names.get(i).name().equals(name))
-                                        return by.get(i);
-                                }
-                            } else if (n instanceof X10Special_c) {
-                                return ((X10Special_c) n).type(selfType);
-                            }
-                            try {
-                                return (Expr) n.typeCheck(childtc);
-                            } catch (SemanticException e) {
-                                e.printStackTrace();
-                                return n;
-                            }
-                        }
-                    };
-                depExpr = (DepParameterExpr) depExpr.visit(subst).visit(new ChangePositionVisitor(n.position())); // todo: we should desugar only after type-checking
-                result = ((X10CanonicalTypeNode)result).constraintExpr(depExpr);
-            }
-        }
         return postprocess(result, n, childtc);   
     }
     
