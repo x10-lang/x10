@@ -3,7 +3,6 @@ public class PipelineOrig {
 
    public def pipeline() {
   		val c = new Clock (); 
-   		val op = Int.+;
      	val a = Rail.make[int] (1, (Int) => 0);
    		val b = Rail.make[int] (1, (Int)=> 0);
  	    async clocked(c)  {
