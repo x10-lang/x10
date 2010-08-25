@@ -203,6 +203,8 @@ private Set retrieveClocks(int nodenum) {
 		
 		for (int i = 0; i <=  epcfg.getMaxNumber(); i++) {
 		    ISSABasicBlock node = epcfg.getNode(i);
+		    if (node == null)
+			continue;
 		    int startIndex = node.getFirstInstructionIndex();
 		    s[i] = new State(startIndex, -1, funName, amIClocked);
 		}
@@ -210,6 +212,8 @@ private Set retrieveClocks(int nodenum) {
 		        
 		    	//printBlockInfo(epcfg.getNode(i));
 		    	ISSABasicBlock node = epcfg.getNode(i);
+		    	if (node == null)
+		    	    continue;
 		    	//s[i].set (node.getFirstInstructionIndex(), node.getLastInstructionIndex());
 		    	State incomingState = s[i];
 		    	State currState = s[i];
