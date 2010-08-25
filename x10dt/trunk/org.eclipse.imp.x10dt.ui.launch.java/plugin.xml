@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         id="X10JavaBuilder"
+         name="X10 Java Builder"
+         point="org.eclipse.core.resources.builders">
+      <builder>
+         <run
+               class="org.eclipse.imp.x10dt.ui.launch.java.builder.X10JavaBuilder">
+         </run>
+      </builder>
+   </extension>
+   <extension
+         id="x10nature"
+         name="X10 Project Nature"
+         point="org.eclipse.core.resources.natures">
+      <runtime>
+         <run
+               class="org.eclipse.imp.x10dt.ui.launch.java.nature.X10ProjectNature">
+         </run>
+      </runtime>
+      <builder
+            id="org.eclipse.imp.x10dt.ui.launch.java.builder.X10JavaBuilder">
+      </builder>
+      <requires-nature
+            id="org.eclipse.jdt.core.javanature">
+      </requires-nature>
+   </extension>
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <objectContribution
+            objectClass="org.eclipse.jdt.core.IJavaProject"
+            nameFilter="*"
+            id="org.eclipse.imp.x10dt.core.projectContextMenu">
+         <menu
+               label="X10"
+               path="additions"
+               id="org.eclipse.imp.x10dt.core.menu1">
+            <separator
+                  name="group1">
+            </separator>
+         </menu>
+         <action
+               label="Enable Builder"
+               icon="icons/builderEnable.gif"
+               tooltip="Enable the X10 Compiler for this project"
+               class="org.eclipse.imp.x10dt.ui.launch.java.actions.BuilderEnable"
+               menubarPath="org.eclipse.imp.x10dt.core.menu1/group1"
+               enablesFor="1"
+               id="org.eclipse.imp.x10dt.ui.launch.java.actions.enableBuilderAction">
+         </action>
+      </objectContribution>
+   </extension>
+ 
+
+</plugin>
