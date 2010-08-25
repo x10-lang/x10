@@ -28,7 +28,8 @@ Require-Bundle: org.junit4;bundle-version="4.5.0",
  x10.compiler,
  org.eclipse.ui.console,
  org.eclipse.imp.java.hosted,
- lpg.runtime.java;bundle-version="2.0.18"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+ lpg.runtime.java;bundle-version="2.0.18",
+ org.eclipse.imp.x10dt.core;resolution:=optional
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ClassPath: core.jar,
  .
