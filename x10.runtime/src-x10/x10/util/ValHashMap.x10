@@ -133,7 +133,7 @@ public class ValHashMap[K,V] implements ValMap[K,V] {
         
         def this(map: ValHashMap[Key,Value]) { this.map = map; this.i = 0; } // you call advance() after the ctor
 
-        def advance(): void {
+        def advance(): Void {
             while (i < map.table.length) {
                if (map.table(i) != null)
                    return;

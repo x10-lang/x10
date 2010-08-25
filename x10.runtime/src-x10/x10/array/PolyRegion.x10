@@ -69,7 +69,7 @@ public class PolyRegion extends Region {
                 throw new x10.util.NoSuchElementException("in scanner");
         }
 
-        public def remove(): void {
+        public def remove(): Void {
             throw new UnsupportedOperationException("remove");
         }
     }
@@ -170,7 +170,7 @@ public class PolyRegion extends Region {
         return PolyRegion.make(pm);
     }
 
-    private static def copy(tt: PolyMatBuilder!, ff: PolyMat, offset: int): void {
+    private static def copy(tt: PolyMatBuilder!, ff: PolyMat, offset: int): Void {
         for (r:PolyRow in ff) {
             val f = r;
             val t = Rail.make[int](tt.rank+1);
@@ -189,7 +189,7 @@ public class PolyRegion extends Region {
         return PolyRegion.make(pm);
     }
 
-    private static def translate(tt: PolyMatBuilder!, ff: PolyMat, v: Point(ff.rank)): void {
+    private static def translate(tt: PolyMatBuilder!, ff: PolyMat, v: Point(ff.rank)): Void {
         for (r:PolyRow in ff) {
             val f = r;
             val t = Rail.make[int](ff.rank+1);
@@ -355,7 +355,7 @@ public class PolyRegion extends Region {
     // debugging
     //
 
-    public global def printInfo(out: Printer): void {
+    public global def printInfo(out: Printer): Void {
         mat.printInfo(out, /*this.getClass().getName()*/this.toString());
     }
 

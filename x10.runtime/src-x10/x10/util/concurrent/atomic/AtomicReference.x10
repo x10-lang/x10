@@ -38,7 +38,7 @@ public final class AtomicReference[T]{T<:Object} {
 
 	@Native("java", "#0.set(#1)")
 	@Native("c++", "(#0)->set(#1)")
-	public native safe def set(v:T):void;
+	public native safe def set(v:T):Void;
 
 	@Native("java", "#0.compareAndSet(#1,#2)")
 	@Native("c++", "(#0)->compareAndSet(#1,#2)")
