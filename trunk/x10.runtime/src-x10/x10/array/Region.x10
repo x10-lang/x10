@@ -333,7 +333,7 @@ public abstract class Region(
      */
 
     public static interface Scanner {
-        def set(axis: int, position: int): Void;
+        def set(axis: int, position: int): void;
         def min(axis: int): int;
         def max(axis: int): int;
     }

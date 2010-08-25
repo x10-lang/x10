@@ -60,7 +60,7 @@ public class HashMap[K,V] implements Map[K,V] {
         init(pow2);
     }
     
-    protected proto def init(sz: int): Void {
+    protected proto def init(sz: int): void {
         // check that sz is a power of 2
         assert (sz & -sz) == sz;
         assert sz >= MIN_SIZE;
@@ -72,7 +72,7 @@ public class HashMap[K,V] implements Map[K,V] {
         shouldRehash = false;
     }
     
-    public def clear(): Void {
+    public def clear(): void {
         modCount++;
         init(MIN_SIZE);
     }
@@ -173,7 +173,7 @@ public class HashMap[K,V] implements Map[K,V] {
         }
     }
     
-    public def rehash(): Void {
+    public def rehash(): void {
         modCount++;
         val t = table;
         val oldSize = size;
@@ -225,7 +225,7 @@ public class HashMap[K,V] implements Map[K,V] {
         
         def this(map: HashMap[Key,Value]!) { this.map = map; this.i = 0; originalModCount = map.modCount; } // you call advance() after the ctor
 
-        def advance(): Void {
+        def advance(): void {
             while (i < map.table.length) {
                if (map.table(i) != null && ! map.table(i).removed)
                    return;

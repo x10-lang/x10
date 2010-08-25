@@ -173,7 +173,7 @@ final public class PolyScanner(rank:Int)/*(C:PolyMat)*/ implements Region.Scanne
         */
     }
 
-    final public def set(axis: int, v: int): Void {
+    final public def set(axis: int, v: int): void {
         for (var k: int = axis+1; k<rank; k++)
             for (var l: int = 0; l<minSum(k).rows; l++)
                 minSum(k)(l)(axis+1) = myMin(k)(l)(axis)*v + minSum(k)(l)(axis);
@@ -277,7 +277,7 @@ final public class PolyScanner(rank:Int)/*(C:PolyMat)*/ implements Region.Scanne
      * required by API, but less efficient b/c of allocation
      * XXX figure out how to expose
      *   1. Any/Var/ValPoint?
-     *   2. hide inside iterator(body:(Point)=>Void)?
+     *   2. hide inside iterator(body:(Point)=>void)?
      */
 
     final private class PointIt 
@@ -311,7 +311,7 @@ final public class PolyScanner(rank:Int)/*(C:PolyMat)*/ implements Region.Scanne
         C.printInfo(ps, "  C");
     }
 
-    public def printInfo2(ps: Printer): Void {
+    public def printInfo2(ps: Printer): void {
         for (var k: int = 0; k<myMin.length; k++) {
             ps.println("axis "+k);
             ps.println("  min");

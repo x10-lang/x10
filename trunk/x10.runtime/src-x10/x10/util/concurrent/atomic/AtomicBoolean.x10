@@ -27,7 +27,7 @@ public final class AtomicBoolean {
 
 	@Native("java", "#0.set(#1)")
 	@Native("c++", "(#0)->set(#1)")
-	public native def set(v:boolean):Void;
+	public native def set(v:boolean):void;
 
 	@Native("java", "#0.compareAndSet(#1,#2)")
 	@Native("c++", "(#0)->compareAndSet(#1,#2)")
