@@ -18,10 +18,7 @@ public class TypeEnv_c implements TypeEnv {
     protected TypeSystem ts;
 
     public TypeEnv_c(Context context) {
-	if (context == null) {
-	    TypeSystem ts = Globals.TS();
-	    context = ts.emptyContext();
-	}
+    	assert context != null; 
 	this.context = context;
 	this.ts = context.typeSystem();
     }

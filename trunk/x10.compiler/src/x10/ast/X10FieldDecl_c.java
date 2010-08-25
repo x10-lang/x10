@@ -84,11 +84,13 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	public Type hasType() {
 		return hasType==null ? null : hasType.type();
 	}
-    public X10FieldDecl_c(Position pos, FlagsNode flags, TypeNode type,
+    public X10FieldDecl_c(X10NodeFactory nf, Position pos, FlagsNode flags, TypeNode type,
             Id name, Expr init)
     {
         super(pos, flags, 
-        		type instanceof HasTypeNode_c ? ((X10NodeFactory) Globals.NF()).UnknownTypeNode(type.position()) : type, name, init);
+        		type instanceof HasTypeNode_c 
+        		? nf.UnknownTypeNode(type.position()) 
+        				: type, name, init);
         if (type instanceof HasTypeNode_c) 
 			hasType = ((HasTypeNode_c) type).typeNode();
     }
@@ -339,7 +341,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	                    TypeNode tn = (TypeNode) this.visitChild(type(), childtc);
 	                    if (hasType != null) {
 	                        htn = (TypeNode) visitChild(hasType, childtc);
-	                        if (! Globals.TS().isSubtype(type().type(), htn.type(),tc.context())) {
+	                        if (! htn.type().typeSystem().isSubtype(type().type(), htn.type(),tc.context())) {
 	                            Errors.issue(tc.job(),
 	                                         new Errors.TypeIsNotASubtypeOfTypeBound(type().type(),
 	                                                                                 htn.type(),

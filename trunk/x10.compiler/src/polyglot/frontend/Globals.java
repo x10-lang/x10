@@ -22,9 +22,9 @@ public class Globals {
     public static Options Options() { return Extension().getOptions(); }
     public static Stats Stats() { return Extension().getStats(); }
 
-    public static TypeSystem TS() { return Extension().typeSystem(); }
+   // public static TypeSystem TS() { return Extension().typeSystem(); }
 
-    public static NodeFactory NF() { return Extension().nodeFactory(); }
+   // public static NodeFactory NF() { return Extension().nodeFactory(); }
 
     public static Scheduler Scheduler() { return Extension().scheduler(); }
     public static Job currentJob() { return Scheduler().currentJob(); }

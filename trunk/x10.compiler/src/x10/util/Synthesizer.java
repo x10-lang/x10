@@ -110,10 +110,7 @@ public class Synthesizer {
 		xts=ts;
 		xnf=nf;
 	}
-	public Synthesizer() {
-		xts=(X10TypeSystem) Globals.TS();
-		xnf=(X10NodeFactory) Globals.NF();
-	}
+	
 
 	  /**
    * Create a synthetic MethodDecl from the given data and return

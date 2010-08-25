@@ -154,25 +154,25 @@ public class NodeFactory_c extends AbstractNodeFactory_c
     }
 
     public LocalAssign LocalAssign(Position pos, Local left, Assign.Operator op, Expr right) {
-        LocalAssign n = new LocalAssign_c(pos, left, op, right);
+        LocalAssign n = new LocalAssign_c(this, pos, left, op, right);
         n = (LocalAssign)n.ext(extFactory.extLocalAssign());
         n = (LocalAssign)n.del(delFactory.delLocalAssign());
         return n;
     }
     public FieldAssign FieldAssign(Position pos, Receiver target, Id name, Assign.Operator op, Expr right) {
-        FieldAssign n = new FieldAssign_c(pos, target, name, op, right);
+        FieldAssign n = new FieldAssign_c(this, pos, target, name, op, right);
         n = (FieldAssign)n.ext(extFactory.extFieldAssign());
         n = (FieldAssign)n.del(delFactory.delFieldAssign());
         return n;
     }
     public ArrayAccessAssign ArrayAccessAssign(Position pos, Expr array, Expr index, Assign.Operator op, Expr right) {
-        ArrayAccessAssign n = new ArrayAccessAssign_c(pos, array, index, op, right);
+        ArrayAccessAssign n = new ArrayAccessAssign_c(this, pos, array, index, op, right);
         n = (ArrayAccessAssign)n.ext(extFactory.extArrayAccessAssign());
         n = (ArrayAccessAssign)n.del(delFactory.delArrayAccessAssign());
         return n;
     }
     public AmbAssign AmbAssign(Position pos, Expr left, Assign.Operator op, Expr right) {
-        AmbAssign n = new AmbAssign_c(pos, left, op, right);
+        AmbAssign n = new AmbAssign_c(this, pos, left, op, right);
         n = (AmbAssign)n.ext(extFactory.extAmbAssign());
         n = (AmbAssign)n.del(delFactory.delAmbAssign());
         return n;

@@ -74,14 +74,14 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	}
 	
 	    public LocalAssign LocalAssign(Position pos, Local left, Assign.Operator op, Expr right) {
-	        LocalAssign n = new X10LocalAssign_c(pos, left, op, right);
+	        LocalAssign n = new X10LocalAssign_c(this, pos, left, op, right);
 	        n = (LocalAssign)n.ext(extFactory().extLocalAssign());
 	        n = (LocalAssign)n.del(delFactory().delLocalAssign());
 	        return n;
 	    }
 	    @Override
 	    public FieldAssign FieldAssign(Position pos, Receiver target, Id field, Assign.Operator op, Expr right) {
-	        FieldAssign n = new X10FieldAssign_c(pos, target, field, op, right);
+	        FieldAssign n = new X10FieldAssign_c(this, pos, target, field, op, right);
 	        n = (FieldAssign)n.ext(extFactory().extFieldAssign());
 	        n = (FieldAssign)n.del(delFactory().delFieldAssign());
 	        return n;
@@ -254,7 +254,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	}
 	
 	public Future Future(Position pos, Expr place, TypeNode returnType, TypeNode offerType, Block body) {
-		Future f = new Future_c(pos, place, returnType, offerType, body);
+		Future f = new Future_c(this, pos, place, returnType, offerType, body);
 		X10ExtFactory_c ext_fac = (X10ExtFactory_c) extFactory();
 		f = (Future) f.ext(ext_fac.extFutureImpl());
         X10DelFactory_c del_fac = (X10DelFactory_c) delFactory();
@@ -266,7 +266,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return AtExpr(pos, place, returnType, null, body);
 	}
 	public AtExpr AtExpr(Position pos, Expr place, TypeNode returnType, TypeNode offerType, Block body) {
-		AtExpr f = new AtExpr_c(pos, place, returnType,offerType, body);
+		AtExpr f = new AtExpr_c(this, pos, place, returnType,offerType, body);
 		X10ExtFactory_c ext_fac = (X10ExtFactory_c) extFactory();
 		f = (AtExpr) f.ext(ext_fac.extExpr()); // FIXME
         X10DelFactory_c del_fac = (X10DelFactory_c) delFactory();
@@ -478,13 +478,13 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	
 	@Override
 	public polyglot.ast.AmbAssign AmbAssign(Position pos, Expr left, Operator op, Expr right) {
-	    AmbAssign n = new X10AmbAssign_c(pos, left, op, right);
+	    AmbAssign n = new X10AmbAssign_c(this, pos, left, op, right);
 	    n = (AmbAssign)n.ext(extFactory().extAmbAssign());
 	    n = (AmbAssign)n.del(delFactory().delAmbAssign());
 	    return n;
 	}
 	public SettableAssign SettableAssign(Position pos, Expr array, List<Expr> index, Operator op, Expr right) {
-	    SettableAssign n = new SettableAssign_c(pos, array, index, op, right);
+	    SettableAssign n = new SettableAssign_c(this, pos, array, index, op, right);
 	    n = (SettableAssign)n.ext(extFactory().extAssign());
 	    n = (SettableAssign)n.del(delFactory().delAssign());
 	    return n;
@@ -567,7 +567,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	public FieldDecl FieldDecl(Position pos, FlagsNode flags, TypeNode type,
 							   Id name, Expr init)
 	{
-		FieldDecl n = new X10FieldDecl_c(pos, flags, type, name, init);
+		FieldDecl n = new X10FieldDecl_c(this, pos, flags, type, name, init);
 		n = (FieldDecl) n.ext(extFactory().extFieldDecl());
 		n = (FieldDecl) n.del(delFactory().delFieldDecl());
 		return n;
@@ -599,7 +599,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 
 	public X10MethodDecl X10MethodDecl(Position pos, FlagsNode flags, TypeNode returnType, Id name, List<TypeParamNode> typeParams, List<Formal> formals,
 			DepParameterExpr guard, List<TypeNode> throwTypes, TypeNode offerType, Block body) {
-		X10MethodDecl n = new X10MethodDecl_c(pos, flags, returnType, name, typeParams,
+		X10MethodDecl n = new X10MethodDecl_c(this, pos, flags, returnType, name, typeParams,
 				formals, guard, throwTypes, offerType, body);
 		n = (X10MethodDecl)n.ext(extFactory().extMethodDecl());
 		n = (X10MethodDecl)n.del(delFactory().delMethodDecl());
@@ -609,7 +609,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	public LocalDecl LocalDecl(Position pos, FlagsNode flags, TypeNode type,
 							   Id name, Expr init)
 	{
-		LocalDecl n = new X10LocalDecl_c(pos, flags, type, name, init);
+		LocalDecl n = new X10LocalDecl_c(this, pos, flags, type, name, init);
 		n = (LocalDecl)n.ext(extFactory().extLocalDecl());
 		n = (LocalDecl)n.del(delFactory().delLocalDecl());
 		return n;
@@ -794,7 +794,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	}
 	public Closure Closure(Position pos, List<Formal> formals, 
 			DepParameterExpr guard, TypeNode returnType, List<TypeNode> throwTypes, TypeNode offerType, Block body) {
-		Closure n = new Closure_c(pos, formals, returnType, guard, throwTypes, offerType, body);
+		Closure n = new Closure_c(this, pos, formals, returnType, guard, throwTypes, offerType, body);
 		X10ExtFactory_c ext_fac = (X10ExtFactory_c) extFactory();
 		n = (Closure) n.ext(ext_fac.extClosureImpl());
 		X10DelFactory_c del_fac = (X10DelFactory_c) delFactory();

@@ -71,14 +71,10 @@ public abstract class ParserlessJLExtensionInfo extends AbstractExtensionInfo {
     }
 
     /** Create the type system for this extension. */
-    protected TypeSystem createTypeSystem() {
-        return new TypeSystem_c();
-    }
+    abstract protected TypeSystem createTypeSystem();
 
     /** Create the node factory for this extension. */
-    protected NodeFactory createNodeFactory() {
-        return new NodeFactory_c();
-    }
+    abstract protected NodeFactory createNodeFactory();
 
     public JobExt jobExt() {
       return null;

@@ -10,6 +10,7 @@ package polyglot.ast;
 import java.util.ArrayList;
 import java.util.List;
 
+import polyglot.frontend.Globals;
 import polyglot.types.*;
 import polyglot.util.*;
 import polyglot.visit.*;
@@ -28,8 +29,8 @@ public class FieldAssign_c extends Assign_c implements FieldAssign
     Id name;
     protected FieldInstance fi;
     
-  public FieldAssign_c(Position pos, Receiver target, Id name, Operator op, Expr right) {
-    super(pos, op, right);
+  public FieldAssign_c(NodeFactory nf, Position pos, Receiver target, Id name, Operator op, Expr right) {
+    super(nf, pos, op, right);
     assert name != null;
     this.target = target;
     this.name = name;
@@ -62,7 +63,7 @@ public boolean targetImplicit() {
 	return n;
     }
   
-  public Expr left(NodeFactory nf) {
+  public Expr left() {
       Field f = nf.Field(position(), target, name);
       if (fi != null) f = f.fieldInstance(fi);
       f = f.targetImplicit(targetImplicit);
@@ -97,7 +98,7 @@ public boolean targetImplicit() {
 
   @Override
   public Assign typeCheckLeft(ContextVisitor tc) throws SemanticException {
-      Field left = (Field) left(tc.nodeFactory());
+      Field left = (Field) left();
       left = (Field) left.del().typeCheck(tc);
       FieldAssign_c n = (FieldAssign_c) reconstruct(left.target(), left.name());
       return n.fieldInstance(left.fieldInstance());
@@ -145,4 +146,5 @@ public boolean targetImplicit() {
   public String toString() {
 	  return target + "." + name + " " + op + " " + right;
   }
+ 
 }

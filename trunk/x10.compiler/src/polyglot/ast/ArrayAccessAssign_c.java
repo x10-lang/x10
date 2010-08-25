@@ -11,7 +11,9 @@ package polyglot.ast;
 import java.util.ArrayList;
 import java.util.List;
 
+import polyglot.frontend.Globals;
 import polyglot.types.*;
+import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.*;
@@ -29,8 +31,8 @@ public class ArrayAccessAssign_c extends Assign_c implements ArrayAccessAssign
     Expr array;
     Expr index;
     
-  public ArrayAccessAssign_c(Position pos, Expr array, Expr index, Operator op, Expr right) {
-    super(pos, op, right);
+  public ArrayAccessAssign_c(NodeFactory nf, Position pos, Expr array, Expr index, Operator op, Expr right) {
+    super(nf, pos, op, right);
     this.array = array;
     this.index = index;
   }
@@ -74,7 +76,7 @@ public class ArrayAccessAssign_c extends Assign_c implements ArrayAccessAssign
       return null;
   }
   
-  public Expr left(NodeFactory nf) {
+  public Expr left() {
       ArrayAccess aa = nf.ArrayAccess(position(), array, index);
       if (type != null)
             return aa.type(type);
@@ -135,4 +137,16 @@ public class ArrayAccessAssign_c extends Assign_c implements ArrayAccessAssign
   public String toString() {
 	    return array + "(" + index + ") " + op + " " + right;
 	   }
+  public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
+		printSubExpr(array, w, tr);
+		w.write ("[");
+		printBlock(index, w, tr);
+		w.write ("]");
+	    w.write(" ");
+	    w.write(op.toString());
+	    w.allowBreak(2, 2, " ", 1); // miser mode
+	    w.begin(0);
+	    printSubExpr(right, false, w, tr);
+	    w.end();
+	  }
 }

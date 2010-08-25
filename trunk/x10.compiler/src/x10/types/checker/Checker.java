@@ -99,7 +99,7 @@ public class Checker {
 	    {
 	        Binary.Operator bop = op.binaryOperator();
 	        NodeFactory nf = tc.nodeFactory();
-	        Binary bin = (Binary) nf.Binary(n.position(), n.left(nf), bop, right);
+	        Binary bin = (Binary) nf.Binary(n.position(), n.left(), bop, right);
 	        Call c = X10Binary_c.desugarBinaryOp(bin, tc);
 	        if (c != null) {
 	            X10MethodInstance mi = (X10MethodInstance) c.methodInstance();

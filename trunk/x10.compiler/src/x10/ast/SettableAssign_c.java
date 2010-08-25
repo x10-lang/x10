@@ -89,8 +89,8 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 	 * @param op
 	 * @param right
 	 */
-    public SettableAssign_c(Position pos, Expr array, List<Expr> index, Operator op, Expr right) {
-		super(pos, op, right);
+    public SettableAssign_c(X10NodeFactory nf, Position pos, Expr array, List<Expr> index, Operator op, Expr right) {
+		super(nf, pos, op, right);
 		if (index.size() < 1)
 		assert index.size() >= 1;
 		this.array = array;
@@ -102,7 +102,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 	    return mi.formalTypes().get(0);
 	}
 
-	public Expr left(NodeFactory nf) {
+	public Expr left() {
 		return left(nf, null);
 	}
 	//@Override

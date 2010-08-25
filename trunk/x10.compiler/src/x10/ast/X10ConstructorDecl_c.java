@@ -464,7 +464,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
                 final TypeNode h = (TypeNode) nn.visitChild(((X10ConstructorDecl_c) nn).hasType, childtc1);
                 Type hasType = PlaceChecker.ReplaceHereByPlaceTerm(h.type(), ( X10Context ) childtc1.context());
                 nn = (X10ConstructorDecl) ((X10ConstructorDecl_c) nn).hasType(h);
-                if (! Globals.TS().isSubtype(nnci.returnType().get(), hasType,tc.context())) {
+                if (! tc.typeSystem().isSubtype(nnci.returnType().get(), hasType,tc.context())) {
                     Errors.issue(tc.job(),
                             new Errors.TypeIsNotASubtypeOfTypeBound(type, hasType, position()));
                 }

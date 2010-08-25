@@ -8,8 +8,10 @@
 
 package polyglot.ast;
 
+import polyglot.frontend.Globals;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.*;
 
@@ -20,9 +22,10 @@ import polyglot.visit.*;
 public class AmbAssign_c extends Assign_c implements AmbAssign
 {
   protected Expr left;
+  
     
-  public AmbAssign_c(Position pos, Expr left, Operator op, Expr right) {
-    super(pos, op, right);
+  public AmbAssign_c(NodeFactory nf, Position pos, Expr left, Operator op, Expr right) {
+    super(nf, pos, op, right);
     this.left = left;
   }
   
@@ -31,7 +34,7 @@ public class AmbAssign_c extends Assign_c implements AmbAssign
   }
   
   @Override
-  public Expr left(NodeFactory nf) {
+  public Expr left() {
       return left;
   }
 
@@ -94,4 +97,13 @@ public class AmbAssign_c extends Assign_c implements AmbAssign
   public String toString() {
 	    return left + " " + op + " " + right;
 	   }
+  public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
+	    printSubExpr(left, true, w, tr);
+	    w.write(" ");
+	    w.write(op.toString());
+	    w.allowBreak(2, 2, " ", 1); // miser mode
+	    w.begin(0);
+	    printSubExpr(right, false, w, tr);
+	    w.end();
+	  }
 }
