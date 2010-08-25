@@ -21,7 +21,7 @@ public class Random {
         setSeed(seed);
     }
     
-    public proto def setSeed(seed: Long): Void {
+    public proto def setSeed(seed: Long): void {
         init(seed);
     }
      
@@ -160,7 +160,7 @@ public class Random {
         return MT(index++);
     }
 
-    private static def twist(MT:Rail[int]!): Void {
+    private static def twist(MT:Rail[int]!): void {
         var i: int = 0;
         var s: int;
         for (; i < N - M; i++) {

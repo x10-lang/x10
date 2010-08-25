@@ -39,27 +39,27 @@ public struct IndexedMemoryChunk[T] {
     private native def this(); // unused; prevent instantiaton outside of native code
 
     @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4)")
-    @Native("c++", "x10::util::IndexedMemoryChunk<Void>::allocate<#1 >(#4, 8, false, false)")
+    @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#1 >(#4, 8, false, false)")
     public static native def allocate[T](numElements:int):IndexedMemoryChunk[T];
 
     @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4)")
-    @Native("c++", "x10::util::IndexedMemoryChunk<Void>::allocate<#1 >(#4, 8, false, #5)")
+    @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#1 >(#4, 8, false, #5)")
     public static native def allocate[T](numElements:int, zeroed:boolean):IndexedMemoryChunk[T];
 
     @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4)")
-    @Native("c++", "x10::util::IndexedMemoryChunk<Void>::allocate<#1 >(#4, #5, #6, #7)")
+    @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#1 >(#4, #5, #6, #7)")
     public static native def allocate[T](numElements:int, alignment:int, pinned:boolean, zeroed:boolean):IndexedMemoryChunk[T];
 
     @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4)")
-    @Native("c++", "x10::util::IndexedMemoryChunk<Void>::allocate<#1 >(#4, 8, false, false)")
+    @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#1 >(#4, 8, false, false)")
     public static native def allocate[T](numElements:long):IndexedMemoryChunk[T];
 
     @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4)")
-    @Native("c++", "x10::util::IndexedMemoryChunk<Void>::allocate<#1 >(#4, 8, false, #5)")
+    @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#1 >(#4, 8, false, #5)")
     public static native def allocate[T](numElements:long, zeroed:boolean):IndexedMemoryChunk[T];
 
     @Native("java", "x10.core.IndexedMemoryChunk.<#2>allocate(#3, #4)")
-    @Native("c++", "x10::util::IndexedMemoryChunk<Void>::allocate<#1 >(#4, #5, #6, #7)")
+    @Native("c++", "x10::util::IndexedMemoryChunk<void>::allocate<#1 >(#4, #5, #6, #7)")
     public static native def allocate[T](numElements:long, alignment:int, pinned:boolean, zeroed:boolean):IndexedMemoryChunk[T];
 
 
@@ -94,7 +94,7 @@ public struct IndexedMemoryChunk[T] {
      */
     @Native("java", "(#0).set(#1, #2)")
     @Native("c++", "(#0)->set(#1, #2)")
-    public native safe def set(value:T, index:int):Void;
+    public native safe def set(value:T, index:int):void;
 
 
     /**
@@ -106,7 +106,7 @@ public struct IndexedMemoryChunk[T] {
      */
     @Native("java", "(#0).set(#1, (int)(#2))")
     @Native("c++", "(#0)->set(#1, #2)")
-    public native safe def set(value:T, index:long):Void;
+    public native safe def set(value:T, index:long):void;
 
 
     /**
@@ -131,7 +131,7 @@ public struct IndexedMemoryChunk[T] {
     public native def copyTo (srcIndex:int, 
                               dstPlace:Place, dst:IndexedMemoryChunk[T], dstIndex:int, 
                               numElems:int, 
-                              uncounted:boolean):Void;
+                              uncounted:boolean):void;
 
 
     /**
@@ -156,7 +156,7 @@ public struct IndexedMemoryChunk[T] {
     public native def copyFrom(dstIndex:int,
                                srcPlace:Place, src:IndexedMemoryChunk[T], srcIndex:int,
                                numElems:int,
-                               uncounted:boolean):Void;
+                               uncounted:boolean):void;
 
 
    /*

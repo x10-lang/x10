@@ -27,7 +27,7 @@ public final class AtomicInteger {
 	
 	@Native("java", "#0.set(#1)")
 	@Native("c++", "(#0)->set(#1)")
-	public native def set(newV:int):Void;
+	public native def set(newV:int):void;
 	
 	@Native("java", "#0.compareAndSet(#1,#2)")
 	@Native("c++", "(#0)->compareAndSet(#1,#2)")

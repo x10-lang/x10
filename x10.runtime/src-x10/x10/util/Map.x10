@@ -26,13 +26,13 @@ public interface Map[K,V]   {
 
 	public def keySet(): Set[K]!;
 
-	public def clear(): Void;
+	public def clear(): void;
 	
 	public def entries(): Set[Entry[K,V]!]!;
 	
 	public static interface Entry[Key,Val] {
 	    public def getKey(): Key;
 	    public def getValue(): Val;
-	    public def setValue(Val): Void;
+	    public def setValue(Val): void;
 	}
 }

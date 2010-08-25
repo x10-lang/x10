@@ -27,7 +27,7 @@ public abstract class Mat[+T](rows:Int, cols:Int){T <: Row}
 
     public global def iterator() = mat.iterator();
 
-    public global def printInfo(ps: Printer, label: String): Void {
+    public global def printInfo(ps: Printer, label: String): void {
         ps.printf("%s\n", label);
         var row:int = 0;
         for (r:Row in this) {
