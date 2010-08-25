@@ -21,9 +21,7 @@ import x10.config.ConfigurationError;
 import x10.config.OptionError;
 
 public class X10JavaBuilder extends AbstractX10Builder {
-
 	
-	@Override
 	public ExtensionInfo createExtensionInfo(String classPath,
 			List<File> sourcePath, String localOutputDir,
 			boolean withMainMethod, IProgressMonitor monitor) {
@@ -32,11 +30,9 @@ public class X10JavaBuilder extends AbstractX10Builder {
 	    return extInfo;
 	}
 
-	@Override
 	public IFilter<IFile> createNativeFilesFilter() {
 		return new IFilter<IFile>(){
 
-			@Override
 			public boolean accepts(IFile element) {
 				// -- We do not need a filter for the Java backend.
 				return false;
@@ -45,12 +41,10 @@ public class X10JavaBuilder extends AbstractX10Builder {
 		};
 	}
 
-	@Override
 	public IX10BuilderFileOp createX10BuilderFileOp() throws CoreException {
 		return new X10JavaBuilderOp(getProject(), this);
 	}
 
-	@Override
 	public String getFileExtension() {
 		return Constants.JAVA_EXT;
 	}

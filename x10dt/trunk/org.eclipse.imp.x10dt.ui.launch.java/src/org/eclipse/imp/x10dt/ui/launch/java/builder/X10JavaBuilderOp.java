@@ -29,13 +29,11 @@ public class X10JavaBuilderOp implements IX10BuilderFileOp {
 	}
 	
 	
-	@Override
 	public void archive(IProgressMonitor monitor) throws CoreException {
 		// NoOp for Java Backend
 
 	}
 
-	@Override
 	public void cleanFiles(ICountableIterable<IFile> files, SubMonitor monitor)
 			throws CoreException {
 		for(IFile file: files){
@@ -56,24 +54,20 @@ public class X10JavaBuilderOp implements IX10BuilderFileOp {
 
 	}
 
-	@Override
 	public boolean compile(IProgressMonitor monitor) throws CoreException {
 			return true; //NoOp for Java Backend -- This is done using the post-compilation goal. See JavaBuilderExtensionInfo
 	}
 
-	@Override
 	public void copyToOutputDir(Collection<IFile> files, SubMonitor monitor)
 			throws CoreException {
 		// NoOp for Java Backend
 
 	}
 
-	@Override
 	public boolean hasAllPrerequisites() {
 		return true;
 	}
 
-	@Override
 	public void transfer(Collection<File> files, IProgressMonitor monitor)
 			throws CoreException {
 		// NoOp for Jaca Backend
