@@ -47,14 +47,13 @@ String::_make(x10aux::ref<String> s) {
 }
 
 x10aux::ref<String>
-String::_make(x10aux::ref<Rail<char> > rail, x10_int start, x10_int length) {
+String::_make(x10aux::ref<Rail<x10_char> > rail, x10_int start, x10_int length) {
     x10aux::ref<String> this_ = new (x10aux::alloc<String>()) String();
     nullCheck(rail);
     x10_int i = 0;
-    size_t len = rail->FMGL(length);
     char *content= x10aux::alloc<char>(length+1);
     for (i=0; i<length; i++) {
-        content[i] = rail->raw()[start + i];
+        content[i] = (char)(rail->raw()[start + i].v);
     }
     content[i] = '\0';
 
