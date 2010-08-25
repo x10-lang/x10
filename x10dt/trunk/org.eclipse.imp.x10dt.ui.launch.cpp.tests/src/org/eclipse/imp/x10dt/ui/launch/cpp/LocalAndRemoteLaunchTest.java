@@ -18,7 +18,6 @@ import junit.framework.Assert;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.imp.x10dt.tests.services.swbot.conditions.X10DTConditions;
 import org.eclipse.imp.x10dt.tests.services.swbot.constants.LaunchConstants;
 import org.eclipse.imp.x10dt.tests.services.swbot.constants.PlatformConfConstants;
 import org.eclipse.imp.x10dt.tests.services.swbot.constants.ViewConstants;
@@ -30,11 +29,16 @@ import org.eclipse.imp.x10dt.tests.services.swbot.utils.SWTBotUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.Constants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
+import org.eclipse.swtbot.eclipse.finder.matchers.WidgetMatcherFactory;
+import org.eclipse.swtbot.eclipse.finder.waits.Conditions;
+import org.eclipse.swtbot.eclipse.finder.waits.WaitForView;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.SWTBot;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTableItem;
+import org.eclipse.ui.IViewReference;
+import org.hamcrest.Matcher;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -54,6 +58,7 @@ public final class LocalAndRemoteLaunchTest {
   @BeforeClass @SuppressWarnings("all") public static void beforeClass() throws Exception {
     bot = new SWTWorkbenchBot();
     bot.viewByTitle("Welcome").close();
+    fProjectName = "demo"; //$NON-NLS-1$
   }
   
   @AfterClass @SuppressWarnings("all") public static void sleep() {
@@ -66,8 +71,7 @@ public final class LocalAndRemoteLaunchTest {
    * Tests compilation and run of an X10 program without any intermediate actions.
    */
   @Test public void shouldCompileAndRunHelloWorldLocally() {
-    final String projectName = "demo"; //$NON-NLS-1$
-    ProjectUtils.createX10ProjectWithCppBackEndFromTopMenu(bot, projectName);
+    ProjectUtils.createX10ProjectWithCppBackEndFromTopMenu(bot, fProjectName);
     
     bot.menu(LaunchConstants.RUN_MENU).menu(LaunchConstants.RUN_CONFS_MENU_ITEM).click();
     final SWTBotShell runShell = bot.shell(LaunchConstants.RUN_CONF_DIALOG_TITLE);
@@ -75,14 +79,16 @@ public final class LocalAndRemoteLaunchTest {
     bot.tree().select(LaunchConstants.NEW_CPP_LAUNCH_CONFIG).contextMenu(LaunchConstants.NEW_CONF_CONTEXT_MENU).click();
     
     bot.cTabItem(LaunchConstants.CPP_LAUNCH_CONFIG_APPLICATION_TAB).activate();
-    bot.textInGroup(LaunchConstants.CPP_LAUNCH_CONFIG_X10_PROJECT, 0).setText(projectName);
+    bot.textInGroup(LaunchConstants.CPP_LAUNCH_CONFIG_X10_PROJECT, 0).setText(fProjectName);
     bot.textInGroup(LaunchConstants.CPP_LAUNCH_CONFIG_MAIN_CLASS, 0).setText("Hello"); //$NON-NLS-1$
     
     runShell.bot().button(LaunchConstants.RUN_BUTTON).click();
     
-    final SWTBotView consoleView = bot.viewByTitle(ViewConstants.CONSOLE_VIEW_NAME);
-    bot.waitUntil(X10DTConditions.workbenchPartIsActive(consoleView), 20000);
-    consoleView.bot().styledText().getText().contains("Hello X10 world"); //$NON-NLS-1$
+    final Matcher<IViewReference> withPartName = WidgetMatcherFactory.withPartName(ViewConstants.CONSOLE_VIEW_NAME);
+    final WaitForView waitForView = Conditions.waitForView(withPartName);
+    bot.waitUntil(waitForView, 20000);
+    final SWTBotView consoleView = new SWTBotView(waitForView.get(0), bot);
+    consoleView.bot().styledText().getText().contains("Hello World!"); //$NON-NLS-1$
   }
   
   /**
@@ -90,19 +96,19 @@ public final class LocalAndRemoteLaunchTest {
    * Then, we cancel it and test that the project is still here in the Package Explorer.
    */
   @Test public void shouldNotCreateProjectWithExistingName() {
-    final String projectName = "demo"; //$NON-NLS-1$    
     PerspectiveUtils.switchToX10Perspective(bot);
-    bot.viewByTitle(ViewConstants.PACKAGE_EXPLORER_VIEW_NAME).setFocus();
+    final SWTBotView view = bot.viewByTitle(ViewConstants.PACKAGE_EXPLORER_VIEW_NAME);
+    view.setFocus();
     bot.sleep(1000);
-    SWTBotUtils.findSubMenu(bot.tree().contextMenu(ViewConstants.NEW_MENU), X10_PROJECT_CPP_BACKEND).click();
+    SWTBotUtils.findSubMenu(view.bot().tree().contextMenu(ViewConstants.NEW_MENU), X10_PROJECT_CPP_BACKEND).click();
     
-    bot.textWithLabel(NEW_CPP_PROJECT_NAME).setText(projectName);
+    bot.textWithLabel(NEW_CPP_PROJECT_NAME).setText(fProjectName);
     
     Assert.assertFalse(bot.button(WizardConstants.NEXT_BUTTON).isEnabled());
     bot.button(WizardConstants.CANCEL_BUTTON).click();
     
     bot.viewByTitle(ViewConstants.PACKAGE_EXPLORER_VIEW_NAME).setFocus();
-    Assert.assertTrue(bot.tree().hasItems());
+    Assert.assertTrue(view.bot().tree().hasItems());
   }
   
   /**
@@ -110,7 +116,7 @@ public final class LocalAndRemoteLaunchTest {
    * @throws IOException Occurs if we could not resolve the URL for the X10 distribution bundle.
    */
   @Test public void shouldCompileAndLaunchRemotely() throws IOException {
-    bot.viewByTitle(ViewConstants.PACKAGE_EXPLORER_VIEW_NAME).bot().tree().expandNode("demo") //$NON-NLS-1$
+    bot.viewByTitle(ViewConstants.PACKAGE_EXPLORER_VIEW_NAME).bot().tree().expandNode(fProjectName)
        .expandNode(PlatformConfConstants.PLATFORM_CONF_FILE).doubleClick();
     
     final SWTBot editorBot = bot.editorByTitle(PlatformConfConstants.PLATFORM_CONF_FILE).bot();
@@ -156,13 +162,17 @@ public final class LocalAndRemoteLaunchTest {
     SWTBotUtils.findSubMenu(bot.menu(LaunchConstants.RUN_MENU).menu(LaunchConstants.RUN_HISTORY_ITEM), "&1 New_configuration") //$NON-NLS-1$
                .click();
     
-    final SWTBotView consoleView = bot.viewByTitle(ViewConstants.CONSOLE_VIEW_NAME);
-    bot.waitUntil(X10DTConditions.workbenchPartIsActive(consoleView), 10000);
-    consoleView.bot().styledText().getText().contains("Hello X10 world"); //$NON-NLS-1$
+    final Matcher<IViewReference> withPartName = WidgetMatcherFactory.withPartName(ViewConstants.CONSOLE_VIEW_NAME);
+    final WaitForView waitForView = Conditions.waitForView(withPartName);
+    bot.waitUntil(waitForView, 20000);
+    final SWTBotView consoleView = new SWTBotView(waitForView.get(0), bot);
+    consoleView.bot().styledText().getText().contains("Hello World!"); //$NON-NLS-1$
   }
   
   // --- Fields
   
   private static SWTWorkbenchBot bot;
+  
+  private static String fProjectName;
 
 }
