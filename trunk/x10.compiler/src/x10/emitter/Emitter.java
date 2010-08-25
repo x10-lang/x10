@@ -242,10 +242,16 @@ public class Emitter {
 				w.newline(0);
 				start = pos + 1;
 			} else if (regex.charAt(pos) == '#') {
-				w.write(regex.substring(start, pos));
-				Integer idx = new Integer(regex.substring(pos + 1, pos + 2));
-				pos++;
-				start = pos + 1;
+			    w.write(regex.substring(start, pos));
+			    Integer idx;
+			    if (pos<len-2 && Character.isDigit(regex.charAt(pos+2))) {
+			        idx = new Integer(regex.substring(pos + 1, pos + 3));
+			        pos += 2;			    
+			    } else {
+			        idx = new Integer(regex.substring(pos + 1, pos + 2));
+			        pos++;				    
+			    }
+			    start = pos + 1;
 				if (idx.intValue() >= components.length)
 					throw new InternalCompilerError("Template '" + id
 							+ "' uses #" + idx);

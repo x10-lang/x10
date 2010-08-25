@@ -1259,25 +1259,29 @@ public class Emitter {
 		int pos = 0;
 		int start = 0;
 		while (pos < len) {
-			if (regex.charAt(pos) == '\n') {
-				w.write(regex.substring(start, pos));
-				w.newline(0);
-				start = pos+1;
-			}
-			else
-			if (regex.charAt(pos) == '#') {
-				w.write(regex.substring(start, pos) /*translateFQN(regex.substring(start, pos))*/);
-				Integer idx = new Integer(regex.substring(pos+1,pos+2));
-				pos++;
-				start = pos+1;
-				if (idx.intValue() >= components.length) {
-					throw new InternalCompilerError("Template '"+id+"' '"+regex+"' uses #"+idx+" (max is "+(components.length-1)+")");
-				}
-				prettyPrint(components[idx.intValue()], tr, w);
-			}
-			pos++;
+		    if (regex.charAt(pos) == '\n') {
+		        w.write(regex.substring(start, pos));
+		        w.newline(0);
+		        start = pos+1;
+		    } else if (regex.charAt(pos) == '#') {
+		        w.write(regex.substring(start, pos));
+		        Integer idx;
+		        if (pos<len-2 && Character.isDigit(regex.charAt(pos+2))) {
+		            idx = new Integer(regex.substring(pos+1,pos+3));
+		            pos += 2;		            
+		        } else {
+		            idx = new Integer(regex.substring(pos+1,pos+2));
+		            pos++;
+		        }
+		        start = pos+1;
+		        if (idx.intValue() >= components.length) {
+		            throw new InternalCompilerError("Template '"+id+"' '"+regex+"' uses #"+idx+" (max is "+(components.length-1)+")");
+		        }
+		        prettyPrint(components[idx.intValue()], tr, w);
+		    }
+		    pos++;
 		}
-		w.write(regex.substring(start) /*translateFQN(regex.substring(start))*/);
+		w.write(regex.substring(start));
 	}
     private void prettyPrint(Object o, Translator tr, CodeWriter w) {
         if (o instanceof Node) {
