@@ -1096,7 +1096,7 @@ public class X10TypeMixin {
 			X10ParsedClassType xt1 = (X10ParsedClassType) xt;
 			
 			if (xt1.subst() == null || xt1.subst().isMissingParameters()){
-			List<ParameterType> expectedArgs = ((X10ClassDef) xt1.def()).typeParameters();
+				List<ParameterType> expectedArgs = ((X10ClassDef) xt1.def()).typeParameters();
 				throw new Errors.TypeIsMissingParameters(xt, expectedArgs, pos);
 			}
 		}

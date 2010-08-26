@@ -468,14 +468,11 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 	    return null;
 	}
 
-	public Node typeCheck(ContextVisitor tc) throws SemanticException {
+	public Node typeCheck(ContextVisitor tc) {
 	    Node n;
 	    try {
 	        n = typeCheck1(tc);
 	    } catch (SemanticException e) {
-	        X10TypeChecker xtc = X10TypeChecker.getTypeChecker(tc);
-	        if (xtc.throwExceptions())
-	            throw e;
 	        Errors.issue(tc.job(), e, this);
 	        X10TypeSystem_c ts = (X10TypeSystem_c) tc.typeSystem();
 	        List<Type> typeArgs = new ArrayList<Type>(this.typeArguments.size());
