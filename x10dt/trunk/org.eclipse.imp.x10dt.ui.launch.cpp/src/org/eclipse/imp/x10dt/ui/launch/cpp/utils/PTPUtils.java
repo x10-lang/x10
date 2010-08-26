@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at                    *
  * http://www.eclipse.org/legal/epl-v10.html                                   *
  *******************************************************************************/
-package org.eclipse.imp.x10dt.ui.launch.core.utils;
+package org.eclipse.imp.x10dt.ui.launch.cpp.utils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,6 +14,8 @@ import java.io.InputStreamReader;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.imp.x10dt.ui.launch.core.LaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.core.Messages;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.IProcessOuputListener;
+import org.eclipse.imp.x10dt.ui.launch.core.utils.PTPConstants;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
 import org.eclipse.ptp.remote.core.IRemoteFileManager;
 import org.eclipse.ptp.remote.core.IRemoteProcess;

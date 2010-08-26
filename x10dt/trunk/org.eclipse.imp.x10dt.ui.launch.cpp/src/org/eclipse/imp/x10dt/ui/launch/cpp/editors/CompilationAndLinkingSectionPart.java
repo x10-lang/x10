@@ -10,8 +10,6 @@ package org.eclipse.imp.x10dt.ui.launch.cpp.editors;
 import java.util.Arrays;
 
 import org.eclipse.imp.utils.Pair;
-import org.eclipse.imp.x10dt.ui.launch.core.builder.target_op.ITargetOpHelper;
-import org.eclipse.imp.x10dt.ui.launch.core.builder.target_op.TargetOpHelperFactory;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EArchitecture;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EBitsArchitecture;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.ETargetOS;
@@ -20,6 +18,8 @@ import org.eclipse.imp.x10dt.ui.launch.core.utils.IProcessOuputListener;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.KeyboardUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.SWTFormUtils;
 import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
+import org.eclipse.imp.x10dt.ui.launch.cpp.builder.target_op.ITargetOpHelper;
+import org.eclipse.imp.x10dt.ui.launch.cpp.builder.target_op.TargetOpHelperFactory;
 import org.eclipse.imp.x10dt.ui.launch.cpp.editors.form_validation.FormCheckerFactory;
 import org.eclipse.imp.x10dt.ui.launch.cpp.editors.form_validation.IFormControlChecker;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IConnectionConf;

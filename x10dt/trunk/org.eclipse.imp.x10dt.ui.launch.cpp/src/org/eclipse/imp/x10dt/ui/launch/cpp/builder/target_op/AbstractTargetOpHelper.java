@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at                    *
  * http://www.eclipse.org/legal/epl-v10.html                                   *
  *******************************************************************************/
-package org.eclipse.imp.x10dt.ui.launch.core.builder.target_op;
+package org.eclipse.imp.x10dt.ui.launch.cpp.builder.target_op;
 
 import java.io.IOException;
 import java.net.URI;
@@ -14,7 +14,7 @@ import java.util.Map;
 
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.IProcessOuputListener;
-import org.eclipse.imp.x10dt.ui.launch.core.utils.PTPUtils;
+import org.eclipse.imp.x10dt.ui.launch.cpp.utils.PTPUtils;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
 import org.eclipse.ptp.remote.core.IRemoteFileManager;
 import org.eclipse.ptp.remote.core.IRemoteProcessBuilder;

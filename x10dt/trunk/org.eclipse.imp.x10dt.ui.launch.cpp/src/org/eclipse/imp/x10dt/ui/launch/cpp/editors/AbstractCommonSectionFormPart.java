@@ -11,13 +11,13 @@ import java.util.Collection;
 
 import org.eclipse.imp.utils.Pair;
 import org.eclipse.imp.x10dt.ui.launch.core.Constants;
-import org.eclipse.imp.x10dt.ui.launch.core.utils.PTPUtils;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.SWTFormUtils;
 import org.eclipse.imp.x10dt.ui.launch.cpp.LaunchMessages;
 import org.eclipse.imp.x10dt.ui.launch.cpp.editors.form_validation.FormCheckerFactory;
 import org.eclipse.imp.x10dt.ui.launch.cpp.editors.form_validation.IFormControlChecker;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IX10PlatformConfWorkCopy;
 import org.eclipse.imp.x10dt.ui.launch.cpp.utils.PTPConfUtils;
+import org.eclipse.imp.x10dt.ui.launch.cpp.utils.PTPUtils;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
 import org.eclipse.ptp.services.core.IServiceProvider;
 import org.eclipse.swt.events.SelectionEvent;

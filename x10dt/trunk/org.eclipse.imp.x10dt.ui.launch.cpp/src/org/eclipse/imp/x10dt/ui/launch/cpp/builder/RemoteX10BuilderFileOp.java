@@ -7,7 +7,9 @@
  *******************************************************************************/
 package org.eclipse.imp.x10dt.ui.launch.cpp.builder;
 
-import static org.eclipse.imp.x10dt.ui.launch.core.Constants.*;
+import static org.eclipse.imp.x10dt.ui.launch.core.Constants.CC_EXT;
+import static org.eclipse.imp.x10dt.ui.launch.core.Constants.H_EXT;
+import static org.eclipse.imp.x10dt.ui.launch.core.Constants.INC_EXT;
 
 import java.io.File;
 import java.util.Collection;
@@ -22,12 +24,12 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.imp.x10dt.ui.launch.core.Messages;
-import org.eclipse.imp.x10dt.ui.launch.core.builder.target_op.ITargetOpHelper;
 import org.eclipse.imp.x10dt.ui.launch.core.builder.target_op.IX10BuilderFileOp;
-import org.eclipse.imp.x10dt.ui.launch.core.builder.target_op.TargetOpHelperFactory;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.ETargetOS;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.ICountableIterable;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.ProjectUtils;
+import org.eclipse.imp.x10dt.ui.launch.cpp.builder.target_op.ITargetOpHelper;
+import org.eclipse.imp.x10dt.ui.launch.cpp.builder.target_op.TargetOpHelperFactory;
 import org.eclipse.imp.x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 
 

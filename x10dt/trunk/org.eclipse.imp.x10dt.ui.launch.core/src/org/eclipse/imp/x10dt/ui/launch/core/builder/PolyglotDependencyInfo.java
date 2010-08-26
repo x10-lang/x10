@@ -23,10 +23,8 @@ import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.imp.builder.DependencyInfo;
-import org.eclipse.imp.x10dt.ui.launch.core.Constants;
 
 import polyglot.types.ClassType;
-import polyglot.types.ReferenceType;
 import polyglot.types.Type;
 import polyglot.util.Position;
 import x10.types.X10TypeMixin;

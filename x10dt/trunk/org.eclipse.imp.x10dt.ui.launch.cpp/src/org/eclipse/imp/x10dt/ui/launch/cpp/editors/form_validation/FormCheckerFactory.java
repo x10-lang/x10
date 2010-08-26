@@ -7,9 +7,9 @@
  *******************************************************************************/
 package org.eclipse.imp.x10dt.ui.launch.cpp.editors.form_validation;
 
-import org.eclipse.imp.x10dt.ui.launch.core.builder.target_op.ITargetOpHelper;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.EArchitecture;
 import org.eclipse.imp.x10dt.ui.launch.core.platform_conf.ETargetOS;
+import org.eclipse.imp.x10dt.ui.launch.cpp.builder.target_op.ITargetOpHelper;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.forms.editor.IFormPage;
 
