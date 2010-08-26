@@ -21,10 +21,7 @@ import x10.io.Printer;
  * HalfpaceList, adding some static factory methods for PolyRegions
  * and some methods such as region algebra that operate on
  * PolyMat objects.
- *
- * @author bdlucas
  */
-
 public class PolyRegion extends Region {
 
     // XTENLANG-49
@@ -69,11 +66,11 @@ public class PolyRegion extends Region {
                 hasNext = false;
                 return scanner();
             } else
-                throw new NoSuchElementException("in scanner");
+                throw new x10.util.NoSuchElementException("in scanner");
         }
 
         public def remove(): void {
-            throw U.unsupported(this, "remove");
+            throw new UnsupportedOperationException("remove");
         }
     }
 
@@ -124,7 +121,7 @@ public class PolyRegion extends Region {
             return (t as Region(rank)).intersection(this);
 
         } */  else {
-            throw U.unsupported(this, "intersection(" + t/*.getClass().getName()*/ + ")");
+            throw new UnsupportedOperationException("intersection(" + t/*.getClass().getName()*/ + ")");
         }
     }
                           
@@ -164,7 +161,7 @@ public class PolyRegion extends Region {
 
     public global def product(r: Region): Region {
         if (!(r instanceof PolyRegion))
-            throw U.unsupported(this, "product(" + r/*.getClass().getName()*/ + ")");
+            throw new UnsupportedOperationException("product(" + r/*.getClass().getName()*/ + ")");
         val that = r as PolyRegion;
         val pmb = new PolyMatBuilder(this.rank + that.rank);
         copy(pmb, this.mat, 0);         // padded w/ 0s on the right

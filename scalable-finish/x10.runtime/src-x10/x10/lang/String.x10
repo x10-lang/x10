@@ -28,7 +28,7 @@ import x10.util.Ordered;
  * with all characters translated to uppercase or to lowercase.  Case mapping
  * is defined in {@link x10.lang.Char}.
  */
-@NativeRep("java", "java.lang.String", null, null)
+@NativeRep("java", "java.lang.String", null, "x10.rtt.Types.STR")
 @NativeRep("c++", "x10aux::ref<x10::lang::String>", "x10::lang::String", null)
 public final class String implements (Int) => Char/*TODO, (Range) => String*//*TODO, Ordered[String]*/, Comparable[String] {
     /**
@@ -41,6 +41,11 @@ public final class String implements (Int) => Char/*TODO, (Range) => String*//*T
      */
     public native def this(String): String;
 
+
+    /**
+     * Construct a String from a Rail[Char].
+     */
+    public native def this(r:Rail[Char], offset:Int, length:Int): String;
 
     /**
      * Return true if the given entity is a String, and this String is equal
@@ -148,6 +153,16 @@ public final class String implements (Int) => Char/*TODO, (Range) => String*//*T
     @Native("c++", "(#0)->substring(#1, #2)")
     public native global def substring(fromIndex: Int, toIndex: Int): String;
 
+    /**
+     * Returns a new String that is a substring of this String.
+     * The substring begins at the specified fromIndex and extends to last Char in the String.
+     * Thus the length of the substring is length()-fromIndex-1.
+     * @param fromIndex the starting index, inclusive
+     * @return the specified substring.
+     */
+    @Native("java", "(#0).substring(#1)")
+    @Native("c++", "(#0)->substring(#1)")
+    public native global def substring(fromIndex: Int): String;
 
     /**
      * Returns the index within this String of the first occurrence of the specified Char ch.
@@ -325,6 +340,7 @@ public final class String implements (Int) => Char/*TODO, (Range) => String*//*T
      * @return the ValRail of Strings computed by splitting this String around matches of the given regular expression.
      */
     @Native("java", "x10.core.RailFactory.<java.lang.String>makeValRailFromJavaArray(new x10.rtt.RuntimeType<java.lang.String>(java.lang.String.class), (#0).split(#1))")
+//    @Native("java", "x10.core.StringAux.split((#0), (#1))")
     @Native("c++", "(#0)->split(#1)")
     public native global def split(regex: String): ValRail[String];
 
@@ -418,6 +434,25 @@ public final class String implements (Int) => Char/*TODO, (Range) => String*//*T
     @Native("c++", "(#0)->compareToIgnoreCase(#1)")
     public native global def compareToIgnoreCase(arg: String): Int;
 
+    /**
+     * Checks if this String has another String as its head.
+     * @param arg The argument string.
+     * @return true if the argument string appears at the head of this String.
+     *         The method returns false otherwise.
+     */
+    @Native("java", "(#0).startsWith(#1)")
+    @Native("c++", "(#0)->startsWith(#1)")
+    public native global def startsWith(arg: String): Boolean;
+
+    /**
+     * Checks if this String has another String as its tail.
+     * @param arg The argument string.
+     * @return true if the argument string appears at the tail of this String.
+     *         The method returns false otherwise.
+     */
+    @Native("java", "(#0).endsWith(#1)")
+    @Native("c++", "(#0)->endsWith(#1)")
+    public native global def endsWith(arg: String): Boolean;
 
     // FIXME: Locale sensitivity
     /**

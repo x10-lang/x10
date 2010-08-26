@@ -43,9 +43,9 @@ public class InstanceInvariantChecker extends NodeVisitor
     	if (m!=null) {
     		String msg = m+("!")+(" n=")+(n).toString();
     		job.compiler().errorQueue().enqueue(X10ErrorInfo.INVARIANT_VIOLATION_KIND,msg,n.position());
-    	}
-
-    	n.del().visitChildren(this); // if there is an error, I don't recurse to the children
+    	} else {
+    	    n.del().visitChildren(this); // if there is an error, I don't recurse to the children
+        }
     	return n;
     }
     
@@ -56,36 +56,49 @@ public class InstanceInvariantChecker extends NodeVisitor
     	}
     	return false;
     }
-    private void myAssert(boolean cond, String msg) throws SemanticException {
-        if (!cond)
-            throw new SemanticException(msg);
-    }
     
     private String checkInvariants(Node n) {
         if (n == null) return "Cannot visit null";
 
-        if (isAmbiguous(n)) return "Ambiguous node found in AST";
+        if (isAmbiguous(n))
+            return "Ambiguous node found in AST";
 
         if (n instanceof Typed) {
-            if (((Typed)n).type()==null) return "Typed node is missing type";
-        } else if (n instanceof ClassMember) {
-            if (((ClassMember)n).memberDef()==null) return "ClassMember missing memberDef";
-        } else if (n instanceof VarDecl) {
-            if (((VarDecl)n).localDef()==null) return "VarDecl missing localDef";
-        } else if (n instanceof ProcedureCall) {
-            if (((ProcedureCall)n).procedureInstance()==null) return "ProcedureCall missing procedureInstance";
-        } else if (n instanceof NamedVariable) {
-            if (((NamedVariable)n).varInstance()==null) return "NamedVariable missing varInstance";
-        } else if (n instanceof FieldAssign) {
-            if (((FieldAssign)n).fieldInstance()==null) return "FieldAssign missing fieldInstance";
+            if (((Typed)n).type()==null)
+                return "Typed node is missing type";
+        }
+        if (n instanceof ClassMember) {
+            if (((ClassMember)n).memberDef()==null)
+                return "ClassMember missing memberDef";
+        }
+        if (n instanceof VarDecl) {
+            if (((VarDecl)n).localDef()==null)
+                return "VarDecl missing localDef";
+        }
+        if (n instanceof ProcedureCall) {
+            if (((ProcedureCall)n).procedureInstance()==null)
+                return "ProcedureCall missing procedureInstance";
+        }
+        if (n instanceof NamedVariable) {
+            if (((NamedVariable)n).varInstance()==null)
+                return "NamedVariable missing varInstance";
+        }
+        if (n instanceof FieldAssign) {
+            if (((FieldAssign)n).fieldInstance()==null)
+                return "FieldAssign missing fieldInstance";
         }
         // x10 specific
-        else if (n instanceof Closure) {
-            if (((Closure)n).closureDef()==null) return "Closure missing closureDef";
-        } else if (n instanceof AssignPropertyBody) {
-            if (((AssignPropertyBody)n).constructorInstance()==null) return "AssignPropertyBody missing constructorInstance";
-        } else if (n instanceof SettableAssign) {
-            if (((SettableAssign)n).methodInstance()==null) return "SettableAssign missing methodInstance";
+        if (n instanceof Closure) {
+            if (((Closure)n).closureDef()==null)
+                return "Closure missing closureDef";
+        }
+        if (n instanceof AssignPropertyBody) {
+            if (((AssignPropertyBody)n).constructorInstance()==null)
+                return "AssignPropertyBody missing constructorInstance";
+        }
+        if (n instanceof SettableAssign) {
+            if (((SettableAssign)n).methodInstance()==null)
+                return "SettableAssign missing methodInstance";
         }
         return null;
     }

@@ -91,7 +91,18 @@ namespace x10 {
              * Pushes a task. Called only by current thread.
              * @param t the task. Caller must ensure nonnull
              */
-            void push(x10aux::ref<x10::lang::Reference> t);
+            void push(x10aux::ref<x10::lang::Reference> t) {
+                Slots *q = queue;
+                int mask = q->capacity - 1;
+                int s = sp;
+                setSlot(q, s & mask, t.operator->());
+                storeSp(++s);
+                if ((s -= base) == 1) {
+                    ;
+                } else if (s >= mask) {
+                    growQueue();
+                }
+            }
 
             /**
              * Tries to take a task from the base of the queue, failing if
@@ -104,7 +115,20 @@ namespace x10 {
              * Returns a popped task, or null if empty. Ensures active status
              * if nonnull. Called only by current thread.
              */
-            x10aux::ref<x10::lang::Reference> poll();
+            x10aux::ref<x10::lang::Reference> poll() {
+                int s = sp;
+                while (s != base) {
+                    Slots *q = queue;
+                    int mask = q->capacity - 1;
+                    int i = (s - 1) & mask;
+                    Reference *t = (Reference*)(q->data[i]);
+                    if (t == NULL || !casSlotNull(q, i, t))
+                        break;
+                    storeSp(s - 1);
+                    return t;
+                }
+                return NULL;
+            }
 
             /**
              * Returns next task to pop.

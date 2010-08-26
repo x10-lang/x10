@@ -52,13 +52,12 @@ public class RegionMaker_c extends X10Call_c implements RegionMaker {
 		Type type = n.type();
 		Type lType = left.type();
 		if (X10TypeMixin.entails(lType, X10TypeMixin.self(lType), xts.ZERO())) {
-			XVar self = X10TypeMixin.self(type);
-			type = X10TypeMixin.addTerm(type, X10TypeMixin.makeZeroBased(type));
-			n= (RegionMaker_c) n.type(type);
+		    if (!xts.isUnknown(type)) {
+		        XVar self = X10TypeMixin.self(type);
+		        type = X10TypeMixin.addTerm(type, X10TypeMixin.makeZeroBased(type));
+		        n= (RegionMaker_c) n.type(type);
+		    }
 		}
-	
 		return n;
-		   
 	}
-	
 }

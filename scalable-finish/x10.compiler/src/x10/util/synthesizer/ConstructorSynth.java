@@ -117,6 +117,19 @@ public class ConstructorSynth extends AbstractStateSynth implements IClassMember
     }
 
     /**
+     * Add a formal to this method, and return a ref to this formal.
+     * 
+     * @param pos
+     * @param flags
+     * @param type
+     * @param name
+     * @return
+     */
+    public Expr addFormal(Position pos, Flags flags, Type type, String name) {
+        return addFormal(pos, flags, type, Name.make(name));
+    }
+
+    /**
      * Add a formal to this method, and return a ref to this formal
      * 
      * @param pos
@@ -127,7 +140,7 @@ public class ConstructorSynth extends AbstractStateSynth implements IClassMember
      */
     public Expr addFormal(Position pos, Flags flags, Type type, Name name) {
         X10TypeSystem xts = (X10TypeSystem) xct.typeSystem();
-        LocalDef lDef = xts.localDef(pos, X10Flags.NONE, Types.ref(type), name);
+        LocalDef lDef = xts.localDef(pos, flags, Types.ref(type), name);
         Formal f = xnf.Formal(pos, xnf.FlagsNode(pos, flags), xnf.CanonicalTypeNode(pos, type), xnf.Id(pos, name))
                 .localDef(lDef);
         return addFormal(f);

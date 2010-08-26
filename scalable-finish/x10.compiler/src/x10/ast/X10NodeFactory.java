@@ -72,7 +72,6 @@ public interface X10NodeFactory extends NodeFactory {
     ConstructorCall X10SuperCall(Position pos, List<TypeNode> typeArgs, List<Expr> args);
 
     X10CanonicalTypeNode X10CanonicalTypeNode(Position pos, Type t);
-    X10CanonicalTypeNode X10CanonicalTypeNode(Position pos, Ref<? extends Type> t, DepParameterExpr e);
 
     X10Cast X10Cast(Position pos, TypeNode castType, Expr expr);
     X10Cast X10Cast(Position pos, TypeNode castType, Expr expr, Converter.ConversionType conversionType);
@@ -172,6 +171,7 @@ public interface X10NodeFactory extends NodeFactory {
 
 	X10MLSourceFile X10MLSourceFile(Position position, PackageNode packageName, List<Import> imports, List<TopLevelDecl> decls);
 
+	X10New X10New(Position pos, boolean newOmitted, Expr qualifier, TypeNode objectType, List<TypeNode> typeArguments, List<Expr> arguments, ClassBody body);
 	X10New X10New(Position pos, Expr qualifier, TypeNode objectType, List<TypeNode> typeArguments, List<Expr> arguments, ClassBody body);
 	X10New X10New(Position pos, Expr qualifier, TypeNode objectType, List<TypeNode> typeArguments, List<Expr> arguments);
 	X10New X10New(Position pos, TypeNode objectType, List<TypeNode> typeArguments, List<Expr> arguments, ClassBody body);

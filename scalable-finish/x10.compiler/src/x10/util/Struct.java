@@ -16,21 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.HashSet;
 
-import polyglot.ast.Expr;
-import polyglot.ast.Block;
-import polyglot.ast.Stmt;
-import polyglot.ast.Binary;
-import polyglot.ast.FieldDecl;
-import polyglot.ast.ClassMember;
-import polyglot.ast.FieldDecl_c;
-import polyglot.ast.IntLit;
-import polyglot.ast.Assign;
-import polyglot.ast.Local;
-import polyglot.ast.MethodDecl_c;
-import polyglot.ast.Unary;
-import polyglot.ast.TypeNode;
-import polyglot.ast.Formal;
-import polyglot.ast.Id;
+import polyglot.ast.*;
 import polyglot.types.Flags;
 import polyglot.types.LazyRef;
 import polyglot.types.LocalDef;
@@ -47,6 +33,7 @@ import x10.constraint.XNameWrapper;
 import x10.constraint.XVar;
 import x10.constraint.XTerms;
 import x10.types.*;
+import x10.extension.X10Ext;
 import x10cpp.visit.SharedVarsMethods;
 
 public class Struct {
@@ -117,141 +104,9 @@ public class Struct {
            }
        });
 
-       X10MethodDef mi;
-	
-       // @Native("java", "x10.lang.Place.place(x10.core.Ref.home(#0))")
-       // property def home():Place
-       mi = xts.methodDef(pos, Types.ref(ct), 
-               X10Flags.toX10Flags(Flags.PUBLIC.Native()).Property().Global().Safe(), 
-               PLACE,
-               xts.homeName(), 
-               Collections.EMPTY_LIST, 
-               Collections.EMPTY_LIST, 
-               thisVar,
-               Collections.EMPTY_LIST, 
-               null, 
-               null, 
-               Collections.EMPTY_LIST, 
-               null, //offerType
-               null);
-       final LazyRef<X10ParsedClassType> NATIVE_LOC = Types.lazyRef(null);
-       NATIVE_LOC.setResolver(new Runnable() {
-           public void run() {
-               List<Expr> list = new ArrayList<Expr>(2);
-               list.add(new X10StringLit_c(pos, "java"));
-               list.add(new X10StringLit_c(pos,  "x10.lang.Place.place(x10.core.Ref.home(#0))"));
-               X10ParsedClassType ann=  (X10ParsedClassType) ((X10ParsedClassType) xts.NativeType()).propertyInitializers(list);
-               NATIVE_LOC.update(ann);
-           }
-       });
-       mi.setDefAnnotations(Collections.<Ref<? extends Type>> singletonList(NATIVE_LOC));
-       cd.addMethod(mi);
-        
-       // @Native("java", "x10.core.Ref.at(#0, #1)")
-       // property def at(p:Object):boolean;
-       List<LocalDef> parameters = xts.dummyLocalDefs(Collections.<Ref<? extends Type>> singletonList(OBJECT));
-       mi = xts.methodDef(pos, Types.ref(ct), 
-               X10Flags.toX10Flags(Flags.PUBLIC.Native()).Property().Safe(), 
-               BOOLEAN,
-               Name.make("at"), 
-               Collections.EMPTY_LIST, 
-               Collections.<Ref<? extends Type>> singletonList(OBJECT),
-               thisVar,
-               parameters,
-               null, 
-               null, 
-               Collections.EMPTY_LIST, 
-               null, //offerType
-               null);
-       final LazyRef<X10ParsedClassType> NATIVE_AT_1 = Types.lazyRef(null);
-       NATIVE_AT_1.setResolver(new Runnable() {
-           public void run() {
-               List<Expr> list = new ArrayList<Expr>(2);
-               list.add(new X10StringLit_c(pos, "java"));
-               list.add(new X10StringLit_c(pos, "x10.core.Ref.at(#0, #1)"));
-               X10ParsedClassType ann=  (X10ParsedClassType) ((X10ParsedClassType) xts.NativeType()).propertyInitializers(list);
-               NATIVE_AT_1.update(ann);
-           }
-       });
-       mi.setDefAnnotations(Collections.<Ref<? extends Type>> singletonList(NATIVE_AT_1));
-       cd.addMethod(mi);
 
-        /*
-       // @Native("java", "x10.core.Ref.typeName(#0)")
-       // @Native("c++", "x10aux::type_name(#0)")
-       // native final global safe def typeName():String;        
-       mi = xts.methodDef(pos,
-               Types.ref(ct),
-               X10Flags.toX10Flags(Flags.PUBLIC.Native().Final()).Global().Safe(), 
-               STRING,
-               Name.make("typeName"),
-               Collections.EMPTY_LIST, 
-               Collections.EMPTY_LIST,
-               thisVar,
-               Collections.EMPTY_LIST, 
-               null,
-               null,
-               Collections.EMPTY_LIST,
-               null, // offerType
-               null
-       );
-       final LazyRef<X10ParsedClassType> NATIVE_TYPE_NAME = Types.lazyRef(null);
-       NATIVE_TYPE_NAME.setResolver(new Runnable() {
-           public void run() {
-               List<Expr> list = new ArrayList<Expr>(2);
-               list.add(new X10StringLit_c(pos, "java"));
-               list.add(new X10StringLit_c(pos,  "x10.core.Ref.typeName(#0)"));
-               X10ParsedClassType ann=  (X10ParsedClassType) ((X10ParsedClassType) xts.NativeType()).propertyInitializers(list);
-               NATIVE_TYPE_NAME.update(ann);
-           }
-       });
-       final LazyRef<X10ParsedClassType> NATIVE_CPP_TYPE_NAME = Types.lazyRef(null);
-       NATIVE_CPP_TYPE_NAME.setResolver(new Runnable() {
-           public void run() {
-               List<Expr> list = new ArrayList<Expr>(2);
-               list.add(new X10StringLit_c(pos, "c++"));
-               list.add(new X10StringLit_c(pos,  "x10aux::type_name(#0)"));
-               X10ParsedClassType ann=  (X10ParsedClassType) ((X10ParsedClassType) xts.NativeType()).propertyInitializers(list);
-               NATIVE_CPP_TYPE_NAME.update(ann);
-           }
-       });
 
-       List<Ref<? extends Type>> tn_ann = new ArrayList<Ref<? extends Type>>();
-       tn_ann.add(NATIVE_TYPE_NAME);
-       tn_ann.add(NATIVE_CPP_TYPE_NAME);
-       mi.setDefAnnotations(tn_ann);
-       //mi.setDefAnnotations(Collections.<Ref<? extends Type>> singletonList(NATIVE_TYPE_NAME));
-       cd.addMethod(mi);
-       */
 
-       // @Native("java", "x10.core.Ref.at(#0, #1.id)")
-       // property def at(p:Place):boolean;
-       parameters = xts.dummyLocalDefs(Collections.<Ref<? extends Type>> singletonList(PLACE));
-       mi = xts.methodDef(pos, Types.ref(ct), 
-               X10Flags.toX10Flags(Flags.PUBLIC.Native()).Property().Safe(), 
-               BOOLEAN,
-               Name.make("at"), 
-               Collections.EMPTY_LIST, 
-               Collections.<Ref<? extends Type>> singletonList(PLACE),
-               thisVar,
-               parameters,
-               null, 
-               null, 
-               Collections.EMPTY_LIST, 
-               null, // offerType
-               null);
-       final LazyRef<X10ParsedClassType> NATIVE_AT_2 = Types.lazyRef(null);
-       NATIVE_AT_2.setResolver(new Runnable() {
-           public void run() {
-               List<Expr> list = new ArrayList<Expr>(2);
-               list.add(new X10StringLit_c(pos, "java"));
-               list.add(new X10StringLit_c(pos, "x10.core.Ref.at(#0, #1.id)"));
-               X10ParsedClassType ann=  (X10ParsedClassType) ((X10ParsedClassType) xts.NativeType()).propertyInitializers(list);
-               NATIVE_AT_2.update(ann);
-           }
-       });
-       mi.setDefAnnotations(Collections.<Ref<? extends Type>> singletonList(NATIVE_AT_2));
-       cd.addMethod(mi);
 
 
 
@@ -314,6 +169,8 @@ public class Struct {
         final X10NodeFactory nf = (X10NodeFactory)tb.nodeFactory();
         final TypeNode intTypeNode = nf.TypeNodeFromQualifiedName(pos,QName.make("x10.lang","Int"));
         final TypeNode boolTypeNode = nf.TypeNodeFromQualifiedName(pos,QName.make("x10.lang","Boolean"));
+        final TypeNode placeTypeNode = nf.TypeNodeFromQualifiedName(pos,QName.make("x10.lang","Place"));
+        final TypeNode objectTypeNode = nf.TypeNodeFromQualifiedName(pos,QName.make("x10.lang","Object"));
         final TypeNode stringTypeNode = nf.TypeNodeFromQualifiedName(pos,QName.make("x10.lang","String"));
         final TypeNode anyTypeNode = nf.TypeNodeFromQualifiedName(pos,QName.make("x10.lang","Any"));
         final List<TypeParamNode> typeParamNodeList = n.typeParameters();
@@ -330,6 +187,7 @@ public class Struct {
         X10MethodDecl md;
 
 
+        /*
         // final public global safe def typeName():String { return "FULL_NAME"; }
         bodyStmts = new ArrayList<Stmt>();
         expr = nf.StringLit(pos, fullName.toString());
@@ -338,6 +196,55 @@ public class Struct {
         methodName = "typeName";
         md = nf.MethodDecl(pos,nf.FlagsNode(pos,flags),stringTypeNode,nf.Id(pos,Name.make(methodName)),Collections.EMPTY_LIST,Collections.EMPTY_LIST,block);
         n = (X10ClassDecl_c) n.body(n.body().addMember(md));
+        */
+
+        {
+            X10Flags nativeFlags = X10Flags.toX10Flags(Flags.PUBLIC.Native().Final()).Global().Safe();
+            ArrayList<AnnotationNode> natives;
+            Formal formal;
+           // In the Java backend, some structs (like Int) are mapped to primitives (like int)
+           // So I must add a native annotation on this method.
+
+
+            //@Native("java", "x10.lang.Place.place(x10.core.Ref.home(#0))")
+            //@Native("c++", "x10::lang::Place_methods::place(x10aux::get_location(#0))")
+            //property def home():Place;
+            natives = createNative(nf, pos, "x10.lang.Place.place(x10.core.Ref.home(#0))", "x10::lang::Place_methods::place(x10aux::get_location(#0))");
+            methodName = "home";
+            md = nf.MethodDecl(pos,nf.FlagsNode(pos,nativeFlags.Property()),placeTypeNode,nf.Id(pos,Name.make(methodName)),Collections.EMPTY_LIST,Collections.EMPTY_LIST,null);
+            md = (X10MethodDecl) ((X10Ext) md.ext()).annotations(natives);
+            n = (X10ClassDecl_c) n.body(n.body().addMember(md));
+
+            //@Native("java", "x10.core.Ref.typeName(#0)")
+            //@Native("c++", "x10aux::type_name(#0)")
+            //global safe def typeName():String;
+            natives = createNative(nf, pos, "x10.core.Ref.typeName(#0)", "x10aux::type_name(#0)");
+            methodName = "typeName";
+            md = nf.MethodDecl(pos,nf.FlagsNode(pos,nativeFlags),stringTypeNode,nf.Id(pos,Name.make(methodName)),Collections.EMPTY_LIST,Collections.EMPTY_LIST,null);
+            md = (X10MethodDecl) ((X10Ext) md.ext()).annotations(natives);
+            n = (X10ClassDecl_c) n.body(n.body().addMember(md));
+
+            //@Native("java", "x10.core.Ref.at((java.lang.Object)(#0), #1.id)")
+            //@Native("c++", "(x10aux::get_location(#0) == (#1)->FMGL(id))")
+            // property def at(p:Place):boolean;
+            natives = createNative(nf, pos, "x10.core.Ref.at((java.lang.Object)(#0), #1.id)", "(x10aux::get_location(#0) == (#1)->FMGL(id))");
+            methodName = "at";
+            formal = nf.Formal(pos,nf.FlagsNode(pos,Flags.NONE),placeTypeNode,nf.Id(pos,"p"));
+            md = nf.MethodDecl(pos,nf.FlagsNode(pos,nativeFlags.Property()),boolTypeNode,nf.Id(pos,Name.make(methodName)),Collections.singletonList(formal),Collections.EMPTY_LIST,null);
+            md = (X10MethodDecl) ((X10Ext) md.ext()).annotations(natives);
+            n = (X10ClassDecl_c) n.body(n.body().addMember(md));
+
+
+            //@Native("java", "x10.core.Ref.at((java.lang.Object)(#0), #1)")
+            //@Native("c++", "(x10aux::get_location(#0) == (#1)->location)")
+            //property safe def at(r:Object):Boolean;
+            natives = createNative(nf, pos, "x10.core.Ref.at((java.lang.Object)(#0), #1)", "(x10aux::get_location(#0) == (#1)->location)");
+            methodName = "at";
+            formal = nf.Formal(pos,nf.FlagsNode(pos,Flags.NONE),objectTypeNode,nf.Id(pos,"r"));
+            md = nf.MethodDecl(pos,nf.FlagsNode(pos,nativeFlags.Property()),boolTypeNode,nf.Id(pos,Name.make(methodName)),Collections.singletonList(formal),Collections.EMPTY_LIST,null);
+            md = (X10MethodDecl) ((X10Ext) md.ext()).annotations(natives);
+            n = (X10ClassDecl_c) n.body(n.body().addMember(md));
+        }
 
         if (!seenToString) {
             // final public global safe def toString():String {
@@ -426,5 +333,14 @@ public class Struct {
 
        return n;
     }
-
+    private static ArrayList<AnnotationNode> createNative(X10NodeFactory nf,Position pos, String java, String cpp) {
+        ArrayList<AnnotationNode> res = new ArrayList<AnnotationNode>(2);
+        for (int i=0; i<2; i++) {
+            List<Expr> list = new ArrayList<Expr>(2);
+            list.add(nf.StringLit(pos, i==0 ? "java" : "c++"));
+            list.add(nf.StringLit(pos, i==0 ? java : cpp));
+            res.add( nf.AnnotationNode(pos, nf.AmbMacroTypeNode(pos, nf.PrefixFromQualifiedName(pos,QName.make("x10.compiler")), nf.Id(pos, "Native"), Collections.EMPTY_LIST, list)) );
+        }
+        return res;
+    }
 }

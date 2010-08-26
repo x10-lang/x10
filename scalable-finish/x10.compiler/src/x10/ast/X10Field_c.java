@@ -31,11 +31,9 @@ import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.Name;
-import polyglot.types.NoMemberException;
 import polyglot.types.SemanticException;
 import polyglot.types.StructType;
 import polyglot.types.Type;
-import polyglot.types.UnknownType;
 import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
@@ -131,11 +129,11 @@ public class X10Field_c extends Field_c {
             Type tType2 = placeTerm==null ? targetType : Subst.subst(targetType, currentPlace, (XVar) placeTerm);
             fi = (X10FieldInstance) ts.findField(targetType, ts.FieldMatcher(tType2, receiverInContext, name, c));
             if (isStatic && !fi.flags().isStatic())
-                throw new NoMemberException(NoMemberException.FIELD, "Cannot access non-static field "+name+" in static context");
+                throw new SemanticException("Cannot access non-static field "+name+" in static context");
             assert (fi != null);
             // substitute currentPlace back in.
             fi = placeTerm == null ? fi : Subst.subst(fi, placeTerm, currentPlace);
-        } catch (NoMemberException e) {
+        } catch (SemanticException e) {
             fi = findAppropriateField(tc, targetType, name, isStatic, e);
         }
         return fi;
@@ -147,6 +145,7 @@ public class X10Field_c extends Field_c {
 	    X10FieldInstance fi;
 	    X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
 	    Context context = tc.context();
+	    boolean haveUnknown = xts.hasUnknown(targetType);
 	    Set<FieldInstance> fis = xts.findFields(targetType, xts.FieldMatcher(targetType, name, context));
 	    // If exception was not thrown, there is at least one match.  Fake it.
 	    // See if all matches have the same type, and save that to avoid losing information.
@@ -180,8 +179,12 @@ public class X10Field_c extends Field_c {
 	    if (ct != null) targetType = ct;
 	    Flags flags = Flags.PUBLIC;
 	    if (isStatic) flags = flags.Static();
+	    if (haveUnknown)
+	        e = new SemanticException(); // null message
 	    fi = xts.createFakeField(targetType.toClass(), flags, name, e);
-	    if (rt != null) fi = fi.type(rt);
+	    if (rt == null) rt = fi.type();
+	    rt = PlaceChecker.AddIsHereClause(rt, context);
+	    fi = fi.type(rt);
 	    return fi;
 	}
 	
@@ -311,22 +314,25 @@ public class X10Field_c extends Field_c {
 		return result;
 	}
 
-	public static Type rightType(Type t, X10MemberDef fi, Receiver target, Context c) throws SemanticException {
+	public static Type rightType(Type t, X10MemberDef fi, Receiver target, Context c) {
 		CConstraint x = X10TypeMixin.xclause(t);
 		if (x != null && fi.thisVar() != null) {
 			if (target instanceof Expr) {
 				XVar receiver = null;
 				
-					X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
-					XTerm r = ts.xtypeTranslator().trans((CConstraint) null, target, (X10Context) c);
-					if (r instanceof XVar) {
-						receiver = (XVar) r;
-					}
-				
+				X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
+				XTerm r = ts.xtypeTranslator().trans(new CConstraint(), target, (X10Context) c);
+				if (r instanceof XVar) {
+				    receiver = (XVar) r;
+				}
 				
 				if (receiver == null)
 					receiver = XTerms.makeEQV();
-				t = Subst.subst(t, (new XVar[] { receiver }), (new XVar[] { fi.thisVar() }), new Type[] { }, new ParameterType[] { });
+				try {
+				    t = Subst.subst(t, (new XVar[] { receiver }), (new XVar[] { fi.thisVar() }), new Type[] { }, new ParameterType[] { });
+				} catch (SemanticException e) {
+				    throw new InternalCompilerError("Unexpected error while computing field type", e);
+				}
 			}
 		}
 		return t;

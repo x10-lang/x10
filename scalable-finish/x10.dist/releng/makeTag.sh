@@ -41,3 +41,6 @@ fi
 svn copy -r $REVISION https://x10.svn.sourceforge.net/svnroot/x10/trunk/ \
          https://x10.svn.sourceforge.net/svnroot/x10/tags/$TAG \
          -m "Tagging trunk revision $REVISION as $TAG release of X10"
+svn copy -r $REVISION https://x10.svn.sourceforge.net/svnroot/x10/documentation/trunk/ \
+         https://x10.svn.sourceforge.net/svnroot/x10/documentation/tags/$TAG \
+         -m "Tagging documentation trunk revision $REVISION as $TAG release of X10"

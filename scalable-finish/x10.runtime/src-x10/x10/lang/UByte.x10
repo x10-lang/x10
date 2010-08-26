@@ -442,7 +442,12 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "x10.core.Floats.toUByte(#1)")
     @Native("c++",  "((x10_ubyte) (#1))")
-    public static safe operator (x:Float) as UByte = UByte(x as Byte);
+    public static safe operator (x:Float) as UByte {
+        val temp : Int = x as Int;
+        if (temp > 0xff) return UByte(0xff as Byte);
+        else if (temp < 0) return UByte(0);
+        else return UByte(temp as Byte);
+    }
 
     /**
      * Convert a given Double to a UByte.
@@ -451,7 +456,12 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "x10.core.Floats.toUByte(#1)")
     @Native("c++",  "((x10_ubyte) (#1))")
-    public static safe operator (x:Double) as UByte = UByte(x as Byte);
+    public static safe operator (x:Double) as UByte {
+        val temp : Int = x as Int;
+        if (temp > 0xff) return UByte(0xff as Byte);
+        else if (temp < 0) return UByte(0);
+        else return UByte(temp as Byte);
+    }
 
     /**
      * Coerce a given Byte to a UByte.
@@ -466,14 +476,14 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
     /**
      * A constant holding the minimum value a UByte can have, 0.
      */
-    @Native("java", "0")
+    // @Native("java", "0")
     @Native("c++", "0U")
     public const MIN_VALUE = 0 as UByte;
 
     /**
      * A constant holding the maximum value a UByte can have, 2<sup>8</sup>-1.
      */
-    @Native("java", "((byte)0xff)")
+    // @Native("java", "((byte)0xff)")
     @Native("c++", "0xffU")
     public const MAX_VALUE = 0xff as UByte;
 
@@ -599,5 +609,5 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public global safe def equals(x:UByte):Boolean = this.byteVal.equals(x);
+    public global safe def equals(x:UByte):Boolean = this.byteVal == x.byteVal;
 }

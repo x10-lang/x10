@@ -20,10 +20,7 @@ package x10.array;
  * empty. There are a set of methods for supporting algebraic
  * operations on regions, such as intersection, union, difference, and
  * so on. The set of points in a region may be iterated over.
- *
- * @author bdlucas
  */
-
 public abstract class Region(
     rank: int,
     rect: boolean,
@@ -307,30 +304,6 @@ public abstract class Region(
 
 
     /**
-     * Utility method to return an array of n regions, which together
-     * block divide the rank-1 region r.
-     */
-
-    // XXX temp port from previous util/Dist.x10 to support Rice trial
-    // refactor dist, region to generalize this; and/or connect to
-    // tiled regions
-
-    public static def makeBlock(r: Region(1), n:int): ValRail[Region(1)](n) {
-        assert n >=0;
-        val min = r.min(0);
-        val max = r.max(0);
-        val count = max-min+1;
-        val baseSize = count/n;
-        val extra = count - baseSize*n;
-        val result = ValRail.make[Region(1)](n, (i:Int):Region(1) => {
-            val start = min + i*baseSize + (i<extra?i:extra);
-            return start..start+baseSize+(i<extra?0:-1);
-        });
-        return result;
-    }
-
-
-    /**
      * Return an iterator for this region. Normally accessed using the
      * syntax
      *
@@ -367,7 +340,7 @@ public abstract class Region(
 
     public abstract global def scanners(): Iterator[Scanner]!;
 
-    public global def scan() = new x10.array.PolyScanner(this);
+    // public global def scan() = new x10.array.PolyScanner(this);
 
 
     //
@@ -390,6 +363,8 @@ public abstract class Region(
 
     public global operator this + (v: Point(rank)) = translate(v);
     public global operator (v: Point(rank)) + this = translate(v);
+
+    public global operator this - (v: Point(rank)) = translate(-v);
 
 
     //

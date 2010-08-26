@@ -41,20 +41,25 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.UnknownType;
+import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
+import polyglot.visit.PrettyPrinter;
+import polyglot.visit.Translator;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
 import x10.extension.X10Del;
+import x10.types.ConstrainedType_c;
 import x10.types.FunctionType;
 import x10.types.X10Context;
 import x10.types.X10LocalDef;
 import x10.types.X10LocalInstance;
 import x10.types.X10MethodInstance;
+import x10.types.X10ParsedClassType_c;
 
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
@@ -392,5 +397,20 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 		return explode(tc, name, pos, flags, vars, null);
 	}
 	
+    /** Write the formal to an output file. */
+    public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
+        Boolean f = flags.flags().isFinal();
+        Flags fs = flags.flags().clearFinal();
+        if (!f) w.write("var ");
+        w.write(fs.translate());
+        tr.print(this, name, w);
+        w.write(":");
+        print(type, w, tr);
+    }
+
+    @Override
+    public void translate(CodeWriter w, Translator tr) {
+        super.prettyPrint(w, tr);
+    }
 }
 

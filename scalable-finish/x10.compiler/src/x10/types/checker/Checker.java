@@ -16,6 +16,7 @@ import java.util.Map;
 import polyglot.ast.Assign;
 import polyglot.ast.Assign_c;
 import polyglot.ast.Binary;
+import polyglot.ast.Call;
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
@@ -39,6 +40,7 @@ import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
+import x10.types.X10MethodInstance;
 import x10.types.X10ProcedureInstance;
 import x10.types.X10TypeMixin;
 import x10.visit.X10TypeChecker;
@@ -86,7 +88,7 @@ public class Checker {
 	            return n.right(e).type(t);
 	        }
 	        catch (SemanticException e) {
-	        	// Dont try to extract the LHS expression, this is called by X10FieldAssign_c as well.
+	        	// Don't try to extract the LHS expression, this is called by X10FieldAssign_c as well.
 	        	throw new Errors.CannotAssign(right, t, n.position());
 	        }
 	    }
@@ -96,10 +98,17 @@ public class Checker {
 	        op == BIT_XOR_ASSIGN || op == SHL_ASSIGN || op == SHR_ASSIGN || op == USHR_ASSIGN)
 	    {
 	        Binary.Operator bop = op.binaryOperator();
-	        X10TypeChecker xtc = X10TypeChecker.getTypeChecker(tc).throwExceptions(true);
 	        NodeFactory nf = tc.nodeFactory();
-	        Binary bin = (Binary) nf.Binary(n.position(), n.left(nf), bop, right).typeCheck(xtc);
-	        return n.type(bin.type());
+	        Binary bin = (Binary) nf.Binary(n.position(), n.left(), bop, right);
+	        Call c = X10Binary_c.desugarBinaryOp(bin, tc);
+	        if (c != null) {
+	            X10MethodInstance mi = (X10MethodInstance) c.methodInstance();
+	            if (mi.error() != null)
+	                throw mi.error();
+	            return n.type(c.type());
+	        } else {
+	            throw new Errors.CannotAssign(right, t, n.position());
+	        }
 	    }
 
 	    assert (false);

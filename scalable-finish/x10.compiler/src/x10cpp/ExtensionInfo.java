@@ -15,6 +15,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.util.List;
 
 import polyglot.ast.NodeFactory;
@@ -34,9 +35,11 @@ import polyglot.types.SemanticException;
 import polyglot.types.TopLevelResolver;
 import polyglot.types.TypeSystem;
 import polyglot.util.ErrorQueue;
+import polyglot.visit.ContextVisitor;
 import polyglot.visit.PostCompiled;
 import polyglot.util.InternalCompilerError;
 import x10.Configuration;
+import x10.ExtensionInfo.X10Scheduler.ValidatingVisitorGoal;
 import x10.ast.X10NodeFactory_c;
 import x10.optimizations.Optimizer;
 import x10.visit.CheckNativeAnnotationsVisitor;
@@ -142,6 +145,34 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 		    NodeFactory nf = extInfo.nodeFactory();
 		    return new VisitorGoal("NativeClassVisitor", job, new NativeClassVisitor(job, ts, nf, "c++")).intern(this);
 		}
+        @Override
+	       public Goal WSCodeGenerator(Job job) {
+	           TypeSystem ts = extInfo.typeSystem();
+	           NodeFactory nf = extInfo.nodeFactory();
+
+	           Goal result = null;          
+	                      
+	           try{
+	               //Use reflect to load the class from
+	               ClassLoader cl = Thread.currentThread().getContextClassLoader();
+	               Class<?> c = cl
+	               .loadClass("x10.compiler.ws.WSCodeGenerator");
+	               Constructor<?> con = c.getConstructor(Job.class,
+	                                                     TypeSystem.class,
+	                                                     NodeFactory.class,
+	                                                     String.class);
+	               ContextVisitor wsvisitor = (ContextVisitor) con.newInstance(job, ts, nf, "c++");
+	               result = new ValidatingVisitorGoal("WSCodeGenerator", job, wsvisitor).intern(this);
+	           }
+	           catch (ClassNotFoundException e) {
+	               System.err.println("[X10_WS_ERR]Cannot load Work-Stealing code gen class. Ignore Work-Stealing transform.");
+	           } catch (Throwable e) {
+	               System.err.println("[X10_WS_ERR]Error in load Work-Stealing code gen class. Ignore Work-Stealing transform.");
+	               e.printStackTrace();
+	           }
+	           return result;
+	       }
+	       
 		@Override
 		public Goal CodeGenerated(Job job) {
 			TypeSystem ts = extInfo.typeSystem();

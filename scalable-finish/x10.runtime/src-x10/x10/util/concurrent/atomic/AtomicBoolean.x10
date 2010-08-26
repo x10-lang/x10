@@ -19,7 +19,7 @@ import x10.compiler.NativeRep;
 public final class AtomicBoolean {
 	
 	public native def this():AtomicBoolean;
-	public native def this(val:boolean):AtomicBoolean;
+	public native def this(v:boolean):AtomicBoolean;
 	
 	@Native("java", "#0.get()")
 	@Native("c++", "(#0)->get()")
@@ -27,7 +27,7 @@ public final class AtomicBoolean {
 
 	@Native("java", "#0.set(#1)")
 	@Native("c++", "(#0)->set(#1)")
-	public native def set(val:boolean):void;
+	public native def set(v:boolean):void;
 
 	@Native("java", "#0.compareAndSet(#1,#2)")
 	@Native("c++", "(#0)->compareAndSet(#1,#2)")
@@ -39,7 +39,7 @@ public final class AtomicBoolean {
 	
 	@Native("java", "#0.getAndSet(#1)")
 	@Native("c++", "(#0)->getAndSet(#1)")
-	public native def getAndSet(val:boolean):boolean;
+	public native def getAndSet(v:boolean):boolean;
 
 	@Native("java", "#0.toString()")
 	@Native("c++", "(#0)->toString()")

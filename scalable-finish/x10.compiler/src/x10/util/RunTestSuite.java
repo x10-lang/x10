@@ -32,9 +32,9 @@ public class RunTestSuite {
             "NOT_WORKING","SSCA2","FT-alltoall","FT-global"
     };
     private static final String[] EXCLUDE_FILES_WITH = {
-            "TypedefOverloading","NQueens",
+            "HeatTransfer_v0.x10",
+            "TypedefOverloading",
             "PlaceCheckArray.x10",
-            "XTENLANG_106.x10","XTENLANG_111.x10","XTENLANG_217.x10","XTENLANG_62.x10"
     };
     private static final String[] INCLUDE_ONLY_FILES_WITH = {
             //"_MustFailCompile.x10",
@@ -69,7 +69,7 @@ public class RunTestSuite {
      *  E.g.,
      *  C:\cygwin\home\Yoav\intellij\sourceforge\x10.runtime\src-x10
      *  C:\cygwin\home\Yoav\intellij\sourceforge\x10.tests
-     * @throws Throwable
+     * @throws Throwable Can be a failed assertion or missing file.
      */
     public static void main(String[] args) throws Throwable {
         assert args.length>0 : "The first command line argument must be an x10 filename or a comma separated list of the directories.\n"+
@@ -129,7 +129,7 @@ public class RunTestSuite {
         List<String> allArgs = new ArrayList<String>(fileNames);
         allArgs.addAll(args);
         String[] newArgs = allArgs.toArray(new String[allArgs.size()]);
-        System.out.println("Running: "+ allArgs);
+        System.out.println("Running: "+ Arrays.toString(newArgs));
         SilentErrorQueue errQueue = new SilentErrorQueue(10000,"TestSuiteErrQueue");
         try {
             new polyglot.main.Main().start(newArgs,errQueue);
@@ -178,14 +178,14 @@ public class RunTestSuite {
         int warningCount = 0;
         for (ErrorInfo err : errors)
             if (err.getErrorKind()==ErrorInfo.WARNING) {
-                System.err.println(err);
+                System.err.println("Got a warning in position: "+err.getPosition()+"\nMessage: "+err+"\n");
                 warningCount++;
             }
         if (errors.size()>warningCount) {
             System.err.println("\nThe following errors did not have a matching ERR marker:\n\n");
             for (ErrorInfo err : errors)
                 if (err.getErrorKind()!=ErrorInfo.WARNING)
-                    System.err.println("Position: "+err.getPosition()+"\nMessage: "+err+"\n");
+                    System.err.println("Position:\n"+err.getPosition()+"\nMessage: "+err+"\n");
         }
         // todo: check that for each file (without errors) we generated a *.class file, and load them and run their main method (except for the ones with _MustFailTimeout) 
     }

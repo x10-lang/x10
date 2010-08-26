@@ -13,6 +13,7 @@ package x10.ast;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import polyglot.ast.Block;
@@ -37,6 +38,7 @@ import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
 import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
@@ -44,6 +46,7 @@ import polyglot.util.Position;
 import polyglot.util.TypedList;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
+import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
 import x10.constraint.XFailure;
@@ -57,6 +60,7 @@ import x10.constraint.XVar;
 import x10.errors.Errors;
 import x10.extension.X10Del;
 import x10.extension.X10Del_c;
+import x10.extension.X10Ext;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorDef;
@@ -193,13 +197,6 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         
         if (n.typeParameters().size() > 0)
             throw new SemanticException("Constructors cannot have type parameters.", n.position());
-        
-//        List<Ref<? extends Type>> typeParameters = new ArrayList<Ref<? extends Type>>(n.typeParameters().size());
-//        for (TypeParamNode tpn : n.typeParameters()) {
-//        	typeParameters.add(Types.ref(tpn.type()));
-//        }
-//        ci.setTypeParameters(typeParameters);
-        ci.setTypeParameters(Collections.EMPTY_LIST);
         
         List<LocalDef> formalNames = new ArrayList<LocalDef>(n.formals().size());
         for (Formal f : n.formals()) {
@@ -467,7 +464,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
                 final TypeNode h = (TypeNode) nn.visitChild(((X10ConstructorDecl_c) nn).hasType, childtc1);
                 Type hasType = PlaceChecker.ReplaceHereByPlaceTerm(h.type(), ( X10Context ) childtc1.context());
                 nn = (X10ConstructorDecl) ((X10ConstructorDecl_c) nn).hasType(h);
-                if (! Globals.TS().isSubtype(nnci.returnType().get(), hasType,tc.context())) {
+                if (! tc.typeSystem().isSubtype(nnci.returnType().get(), hasType,tc.context())) {
                     Errors.issue(tc.job(),
                             new Errors.TypeIsNotASubtypeOfTypeBound(type, hasType, position()));
                 }
@@ -508,9 +505,6 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         X10TypeMixin.protoTypeCheck(n.formals(), returnT,
         		n.position(), false);
 
-        // for native ctors, we don't have a body
-        if (false && body!=null)
-            body.visit(new CheckEscapingThis(tc.job(),returnT,tc.typeSystem()));
         return n;
     }
 
@@ -547,4 +541,47 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         return flags.flags().translate() + "this(...)";
     }
 
+    /** Write the constructor to an output file. */
+    public void prettyPrintHeader(CodeWriter w, PrettyPrinter tr) {
+        w.begin(0);
+        for (Iterator<AnnotationNode> i = (((X10Ext) this.ext()).annotations()).iterator(); i.hasNext(); ) {
+            AnnotationNode an = i.next();
+            an.prettyPrint(w, tr);
+            w.allowBreak(0, " ");
+        }
+        tr.print(this, flags, w);
+        w.write("def this(");
+
+        w.begin(0);
+
+        for (Iterator i = formals.iterator(); i.hasNext(); ) {
+            Formal f = (Formal) i.next();
+            print(f, w, tr);
+
+            if (i.hasNext()) {
+                w.write(",");
+                w.allowBreak(0, " ");
+            }
+        }
+
+        w.end();
+        w.write(")");
+
+        if (! throwTypes().isEmpty()) {
+            w.allowBreak(6);
+            w.write("throws ");
+
+            for (Iterator i = throwTypes().iterator(); i.hasNext(); ) {
+                TypeNode tn = (TypeNode) i.next();
+                print(tn, w, tr);
+
+                if (i.hasNext()) {
+                    w.write(",");
+                    w.allowBreak(4, " ");
+                }
+            }
+        }
+
+        w.end();
+    }
 }

@@ -73,7 +73,7 @@ public class ClosureSynthesizer {
 	 */
 	public static Closure makeClosure(X10TypeSystem_c xts, X10NodeFactory xnf, Position pos, Type retType, 
 			List<Formal> parms, Block body,
-			 X10Context context) {
+			 X10Context context, List<X10ClassType> annotations) {
 	        List<Ref<? extends Type>> fTypes = new ArrayList<Ref<? extends Type>>();
 	        List<LocalDef> fNames = new ArrayList<LocalDef>();
 	        for (Formal f : parms) {
@@ -91,6 +91,13 @@ public class ClosureSynthesizer {
 	             //   null, 
 	                Collections.EMPTY_LIST, 
 	                null);
+	        if (null != annotations && !annotations.isEmpty()) {
+	            List<Ref<? extends Type>> ats = new ArrayList<Ref<? extends Type>>();
+	            for (Type at : annotations) {
+	                ats.add(Types.ref(at));
+	            }
+	            cDef.setDefAnnotations(ats);
+	        }
 	        Closure closure = (Closure) xnf.Closure(pos, //Collections.EMPTY_LIST,
 	                parms, 
 	                null, 

@@ -70,6 +70,7 @@ import x10.constraint.XEQV;
 import x10.constraint.XEquals;
 import x10.constraint.XFailure;
 import x10.constraint.XField;
+import x10.constraint.XFormula;
 import x10.constraint.XLit;
 import x10.constraint.XLocal;
 import x10.constraint.XName;
@@ -109,10 +110,7 @@ public class Synthesizer {
 		xts=ts;
 		xnf=nf;
 	}
-	public Synthesizer() {
-		xts=(X10TypeSystem) Globals.TS();
-		xnf=(X10NodeFactory) Globals.NF();
-	}
+	
 
 	  /**
    * Create a synthetic MethodDecl from the given data and return
@@ -246,7 +244,7 @@ public class Synthesizer {
          return X10TypeMixin.addTerm(type, v);
 	 }
 
-	 public Type addRankConstraint(Type type, XVar receiver, int n, X10TypeSystem ts) {
+	 /*public Type addRankConstraint(Type type, XVar receiver, int n, X10TypeSystem ts) {
 			XTerm v = makeRegionRankTerm(receiver);
 			XTerm rank = XTerms.makeLit(new Integer(n));
 			return X10TypeMixin.addBinding(type, v, rank);
@@ -263,7 +261,7 @@ public class Synthesizer {
 		 XTerm rank = XTerms.makeLit(new Integer(n));
 		 return X10TypeMixin.addBinding(type, v, rank);
 
-	 }
+	 }*/
 	 
 	 /**
 	  * If formal = p(x) construct
@@ -703,9 +701,13 @@ public class Synthesizer {
 	 * @return
 	 */
 	public Closure makeClosure(Position pos, Type retType, List<Formal> parms, Block body, X10Context context) {
-		return ClosureSynthesizer.makeClosure((X10TypeSystem_c) xts, xnf, pos, retType, parms, body, context);
+		return ClosureSynthesizer.makeClosure((X10TypeSystem_c) xts, xnf, pos, retType, parms, body, context, null);
 	}
 	
+    public Closure makeClosure(Position pos, Type retType, List<Formal> parms, Block body, X10Context context, List<X10ClassType> annotations) {
+        return ClosureSynthesizer.makeClosure((X10TypeSystem_c) xts, xnf, pos, retType, parms, body, context, annotations);
+    }
+    
 	/**
 	 * Return a synthesized AST node for ():retType => body, at the given position and context.
 	 * @param pos
@@ -716,10 +718,13 @@ public class Synthesizer {
 	 * @return
 	 */
 	
-	public Closure makeClosure(Position pos, Type retType, Block body, X10Context context) {
-		return makeClosure(pos, retType, Collections.EMPTY_LIST, body, context);
+	public Closure makeClosure(Position pos, Type retType, Block body, X10Context context, List<X10ClassType> annotations) {
+		return makeClosure(pos, retType, Collections.EMPTY_LIST, body, context, annotations);
 	}
 	 
+    public Closure makeClosure(Position pos, Type retType, Block body, X10Context context) {
+        return makeClosure(pos, retType, Collections.EMPTY_LIST, body, context);
+    }
 	 
 	public Block toBlock(Stmt body) {
 		return body instanceof Block ? (Block) body : xnf.Block(body.position(), body);
@@ -1352,11 +1357,11 @@ public class Synthesizer {
      */
     
     // TODO: This has to be made to work with nested types.
-    public X10CanonicalTypeNode makeCanonicalTypeNodeWithDepExpr(Position pos, Type type, ContextVisitor tc) throws SemanticException {
+    public X10CanonicalTypeNode makeCanonicalTypeNodeWithDepExpr(Position pos, Type type, ContextVisitor tc) {
     	X10NodeFactory nf = ((X10NodeFactory) tc.nodeFactory());
     	X10TypeSystem ts = ((X10TypeSystem) tc.typeSystem());
     	
-    	type = PlaceChecker.ReplacePlaceTermByHere(type, ((X10Context) tc.context()).currentPlaceTerm().term());
+    	type = PlaceChecker.ReplacePlaceTermByHere(type, tc.context());
 		CConstraint c = X10TypeMixin.xclause(type);
 		
 		if (c == null || c.valid())
@@ -1415,6 +1420,8 @@ public class Synthesizer {
 			return makeExpr((XLocal) t, pos);
 		if (t instanceof XNot)
 			return makeExpr((XNot) t, pos);
+		if (t instanceof XFormula)
+			return makeExpr((XFormula) t, pos);
 		return null;
 	}
 	Expr makeExpr(XField t, Position pos) {
@@ -1431,7 +1438,7 @@ public class Synthesizer {
 	Expr makeExpr(XEQV t, Position pos) {
 		String str = t.toString();
 		//if (str.startsWith("_place"))
-		//	assert ! str.startsWith("_place");
+		//	assert ! str.startsWith("_place") : "Place var: "+str;
 		int i = str.indexOf("#");
 		TypeNode tn = null;
 		if (i > 0) {
@@ -1449,7 +1456,7 @@ public class Synthesizer {
 	Expr makeExpr(XLocal t, Position pos) {
 		String str = t.name().toString();
 		//if (str.startsWith("_place"))
-		//	assert ! str.startsWith("_place");
+		//	assert ! str.startsWith("_place") : "Place var: "+str;
 		if (str.equals("here"))
 			return xnf.Here(pos);
 		int i = str.indexOf("#");
@@ -1471,38 +1478,51 @@ public class Synthesizer {
 	}
 	
 	Expr makeExpr(XLit t, Position pos) {
-		 Object val = t.val();
-		 if (val== null)
-			 return xnf.NullLit(pos);
-		 if (val instanceof String) 
-			 return xnf.StringLit(pos, (String) val);
-		 if (val instanceof Integer) 
-			 return xnf.IntLit(pos,  IntLit.INT, ((Integer) val).intValue());
-		 if (val instanceof Long) 
-			 return xnf.IntLit(pos,  IntLit.LONG, ((Long) val).longValue());
-		 if (val instanceof Boolean) 
-			 return xnf.BooleanLit(pos,   ((Boolean) val).booleanValue());
-		 if (val instanceof Character) 
-			 return xnf.CharLit(pos,   ((Character) val).charValue());
-		 if (val instanceof Float) 
-			 return xnf.FloatLit(pos,  FloatLit.DOUBLE, ((Double) val).doubleValue());
-		 return null;
+		Object val = t.val();
+		if (val== null)
+			return xnf.NullLit(pos);
+		if (val instanceof String) 
+			return xnf.StringLit(pos, (String) val);
+		if (val instanceof Integer) 
+			return xnf.IntLit(pos,  IntLit.INT, ((Integer) val).intValue());
+		if (val instanceof Long) 
+			return xnf.IntLit(pos,  IntLit.LONG, ((Long) val).longValue());
+		if (val instanceof Boolean) 
+			return xnf.BooleanLit(pos,   ((Boolean) val).booleanValue());
+		if (val instanceof Character) 
+			return xnf.CharLit(pos,   ((Character) val).charValue());
+		if (val instanceof Float) 
+			return xnf.FloatLit(pos,  FloatLit.DOUBLE, ((Double) val).doubleValue());
+		return null;
 	}
 	Expr makeExpr(XEquals t, Position pos) {
 		Expr left = makeExpr(t.arguments().get(0), pos);
-		 Expr right = makeExpr(t.arguments().get(1), pos);
-		 if (left == null)
-			 assert left != null;
-		 if (right == null)
-			 assert right != null;
-		 return xnf.Binary(pos, left, Binary.EQ, right);
+		Expr right = makeExpr(t.arguments().get(1), pos);
+		if (left == null)
+			assert left != null;
+		if (right == null)
+			assert right != null;
+		return xnf.Binary(pos, left, Binary.EQ, right);
 	}
 	Expr makeExpr(XDisEquals t, Position pos) {
 		Expr left = makeExpr(t.arguments().get(0), pos);
-		 Expr right = makeExpr(t.arguments().get(1), pos);
-		 return xnf.Binary(pos, left, Binary.NE, right);
+		Expr right = makeExpr(t.arguments().get(1), pos);
+		return xnf.Binary(pos, left, Binary.NE, right);
 	}
-	
+	Expr makeExpr(XFormula t, Position pos) {
+		List<Expr> args = new ArrayList<Expr>();
+		for (XTerm a : t.arguments()) {
+			args.add(makeExpr(a, pos));
+		}
+		Name n = Name.make(t.operator().toString());
+		// FIXME: [IP] Hack to handle the "at" atom added by XTypeTranslator for structs
+		if (n.toString().equals("at")) {
+			Receiver r = args.remove(0);
+			return xnf.Call(pos, r, xnf.Id(pos, n), args);
+		} else {
+			return xnf.Call(pos, xnf.Id(pos, n), args);
+		}
+	}	
 	
 	
     public List<Expr> makeExpr(CConstraint c, Position pos) {

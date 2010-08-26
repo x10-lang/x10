@@ -92,7 +92,7 @@ public final class Array[T](
 
     private global val raw:IndexedMemoryChunk[T];
     private global val rawLength:int;
-    private val layout:RectLayout!{self!=null};
+    private val layout:RectLayout;
 
     @Native("java", "(!`NO_CHECKS`)")
     @Native("c++", "BOUNDS_CHECK_BOOL")
@@ -127,7 +127,7 @@ public final class Array[T](
     public def this(reg:Region):Array[T]{self.region==reg} {
 	property(reg, reg.size(), reg.rail);
 
-        layout = new RectLayout(reg.min(), reg.max());
+        layout = RectLayout(reg.min(), reg.max());
         val n = layout.size();
         raw = IndexedMemoryChunk.allocate[T](n, true);
         rawLength = n;
@@ -144,7 +144,7 @@ public final class Array[T](
     public def this(reg:Region, init:(Point(reg.rank))=>T):Array[T]{self.region==reg} {
         property(reg, reg.size(), reg.rail);
 
-        layout = new RectLayout(reg.min(), reg.max());
+        layout = RectLayout(reg.min(), reg.max());
         val n = layout.size();
         val r  = IndexedMemoryChunk.allocate[T](n);
 	for (p:Point(reg.rank) in reg) {
@@ -165,7 +165,7 @@ public final class Array[T](
     public def this(reg:Region, init:T):Array[T]{self.region==reg} {
         property(reg, reg.size(), reg.rail);
 
-        layout = new RectLayout(reg.min(), reg.max());
+        layout = RectLayout(reg.min(), reg.max());
         val n = layout.size();
         val r  = IndexedMemoryChunk.allocate[T](n);
         if (reg.rect) {
@@ -486,36 +486,36 @@ public final class Array[T](
 
 	
     /**
-     * Map the given unary operation onto the elements of this array
+     * Map the function onto the elements of this array
      * constructing a new result array such that for all points <code>p</code>
      * in <code>this.region</code>,
      * <code>result(p) == op(this(p))</code>.<p>
      * 
-     * @param op the given unary operation
+     * @param op the function to apply to each element of the array
      * @return a new array with the same region as this array where <code>result(p) == op(this(p))</code>
      * 
-     * @see #reduce((T,T)=>T,T)
-     * @see #scan((T,T)=>T,T)
+     * @see #reduce((U,T)=>U,U)
+     * @see #scan((U,T)=>U,U)
      */
-    public def map(op:(T)=>T):Array[T](region)! {
-        return new Array[T](region, (p:Point(this.rank))=>op(apply(p)));
+    public def map[U](op:(T)=>U):Array[U](region)! {
+        return new Array[U](region, (p:Point(this.rank))=>op(apply(p)));
     }
 
 
     /**
-     * Map the given unary operation onto the elements of this array
+     * Map the given function onto the elements of this array
      * storing the results in the dst array such that for all points <code>p</code>
      * in <code>this.region</code>,
      * <code>dst(p) == op(this(p))</code>.<p>
      *
      * @param dst the destination array for the results of the map operation
-     * @param op the given unary operation
+     * @param op the function to apply to each element of the array
      * @return dst after applying the map operation.
      * 
-     * @see #reduce((T,T)=>T,T)
-     * @see #scan((T,T)=>T,T)
+     * @see #reduce((U,T)=>U,U)
+     * @see #scan((U,T)=>U,U)
      */
-    public def map(dst:Array[T](region)!, op:(T)=>T):Array[T](region)!{self==dst} {
+    public def map[U](dst:Array[U](region)!, op:(T)=>U):Array[U](region)!{self==dst} {
 	// TODO: parallelize these loops.
 	if (region.rect) {
             // In a rect region, every element in the backing raw IndexedMemoryChunk[T]
@@ -534,39 +534,39 @@ public final class Array[T](
 
 
     /**
-     * Map the given binary operation onto the elements of this array
+     * Map the given function onto the elements of this array
      * and the other src array, storing the results in a new result array 
      * such that for all points <code>p</code> in <code>this.region</code>,
      * <code>result(p) == op(this(p), src(p))</code>.<p>
      *
-     * @param op the given binary operation
      * @param src the other src array
+     * @param op the function to apply to each element of the array
      * @return a new array with the same region as this array containing the result of the map
-     * @see #reduce((T,T)=>T,T)
-     * @see #scan((T,T)=>T,T)
+     * @see #reduce((U,T)=>U,U)
+     * @see #scan((U,T)=>U,U)
      */
-    public def map(src:Array[T](this.region)!, op:(T,T)=>T):Array[T](region)! {
-        return new Array[T](region, (p:Point(this.rank))=>op(apply(p), src(p)));
+    public def map[S,U](src:Array[U](this.region)!, op:(T,U)=>S):Array[S](region)! {
+        return new Array[S](region, (p:Point(this.rank))=>op(apply(p), src(p)));
     }
 
 
     /**
-     * Map the given binary operation onto the elements of this array
+     * Map the given function onto the elements of this array
      * and the other src array, storing the results in the given dst array 
      * such that for all points <code>p</code> in <code>this.region</code>,
      * <code>dst(p) == op(this(p), src(p))</code>.<p>
      *
      * @param dst the destination array for the map operation
      * @param src the second source array for the map operation
-     * @param op the given binary operation
+     * @param op the function to apply to each element of the array
      * @return destination after applying the map operation.
-     * @see #reduce((T,T)=>T,T)
-     * @see #scan((T,T)=>T,T)
+     * @see #reduce((U,T)=>U,U)
+     * @see #scan((U,T)=>U,U)
      */
-    public def map(dst:Array[T](region)!, src:Array[T](region)!, op:(T,T)=>T):Array[T](region)! {
+    public def map[S,U](dst:Array[S](region)!, src:Array[U](region)!, op:(T,U)=>S):Array[S](region)! {
 	// TODO: parallelize these loops.
 	if (region.rect) {
-            // In a rect region, every element in the backing raw IndexedMemoryChunk[T]
+            // In a rect region, every element in the backing raw IndexedMemoryChunk
             // is included in the points of region, therfore we can optimize
             // the traversal and simply map on the IndexedMemoryChunk itself.
             for (var i:int =0; i<rawLength; i++) {
@@ -582,21 +582,21 @@ public final class Array[T](
 
 
     /**
-     * Reduce this array using the given binary operation and the given initial value.
+     * Reduce this array using the given function and the given initial value.
      * Starting with the initial value, apply the operation pointwise to the current running value
      * and each element of this array.
      * Return the final result of the reduction.
      *
-     * @param op the given binary operation
+     * @param op the reduction function
      * @param unit the given initial value
      * @return the final result of the reduction.
-     * @see #map((T)=>T)
-     * @see #scan((T,T)=>T,T)
+     * @see #map((T)=>S)
+     * @see #scan((U,T)=>U,U)
      */
-    public def reduce(op:(T,T)=>T, unit:T):T {
+    public def reduce[U](op:(U,T)=>U, unit:U):U {
         // TODO: once collecting finish is available,
         //       use it to efficiently parallelize these loops.
-        var accum:T = unit;
+        var accum:U = unit;
 	if (region.rect) {
             // In a rect region, every element in the backing raw IndexedMemoryChunk[T]
             // is included in the points of region, therfore we can optimize
@@ -613,38 +613,38 @@ public final class Array[T](
     }
 
     /**
-     * Scan this array using the given binary operation and the given initial value.
+     * Scan this array using the function and the given initial value.
      * Starting with the initial value, apply the operation pointwise to the current running value
      * and each element of this array.
      * Return a new array with the same region as this array.
-     * Each element of the new array is the result of applying the given operation to the
+     * Each element of the new array is the result of applying the given function to the
      * current running value and the corresponding element of this array.
      *
-     * @param op the given binary operation
+     * @param op the scan function
      * @param unit the given initial value
      * @return a new array containing the result of the scan 
-     * @see #map((T)=>T)
-     * @see #reduce((T,T)=>T,T)
+     * @see #map((T)=>U)
+     * @see #reduce((U,T)=>U,U)
      */
-    public def scan(op:(T,T)=>T, unit:T) = scan(new Array[T](region), op, unit); // TODO: private constructor to avoid useless zeroing
+    public def scan[U](op:(U,T)=>U, unit:U) = scan(new Array[U](region), op, unit); // TODO: private constructor to avoid useless zeroing
 
 
     /**
-     * Scan this array using the given binary operation and the given initial value.
+     * Scan this array using the given function and the given initial value.
      * Starting with the initial value, apply the operation pointwise to the current running value
      * and each element of this array storing the result in the destination array.
      * Return the destination array where each element has been set to the result of 
      * applying the given operation to the current running value and the corresponding 
      * element of this array.
      *
-     * @param op the given binary operation
+     * @param op the scan function
      * @param unit the given initial value
      * @return a new array containing the result of the scan 
-     * @see #map((T)=>T)
-     * @see #reduce((T,T)=>T,T)
+     * @see #map((T)=>U)
+     * @see #reduce((U,T)=>U,U)
      */
-    public def scan(dst:Array[T](region)!, op:(T,T)=>T, unit:T): Array[T](region)! {
-        var accum:T = unit;
+    public def scan[U](dst:Array[U](region)!, op:(U,T)=>U, unit:U): Array[U](region)! {
+        var accum:U = unit;
         for (p in region) {
             accum = op(accum, apply(p));
             dst(p) = accum;
@@ -655,7 +655,8 @@ public final class Array[T](
 
     /**
      * Copy all of the values from this Array to the destination Array.
-     * The two arrays must be defined over the same Region.
+     * The two arrays must be defined over equal Regions; if the Regions
+     * are not equal, then an IllegalArgumentExeption will be raised.
      * If the destination Array is in a different place, then this copy
      * is performed asynchronously and the resulting activity will be 
      * registered with the dynamically enclosing finish.</p>
@@ -667,14 +668,16 @@ public final class Array[T](
      *   system would enable this restriction to be checked statically.</p>
      *
      * @param dst the destination array.  May be local or remote
+     * @throws IllegalArgumentException if !region.equals(dst.region)
      */
-    public def copyTo(dst:Array[T](this.region)) {
+    public def copyTo(dst:Array[T](this.rank)) {
 	copyTo(dst,false);
     }
 
     /**
      * Copy all of the values from this Array to the destination Array.
-     * The two arrays must be defined over the same Region.
+     * The two arrays must be defined over equal Regions; if the Regions
+     * are not equal, then an IllegalArgumentExeption will be raised.
      * If the destination Array is in a different place, then this copy
      * is performed asynchronously. Depending on the value of the 
      * uncounted parameter, the resulting activity will either be 
@@ -689,8 +692,10 @@ public final class Array[T](
      *
      * @param dst the destination array.  May be local or remote
      * @param uncounted Should the spawned activity be treated as if it were annotated @Uncounted
+     * @throws IllegalArgumentException if !region.equals(dst.region)
      */
-    public def copyTo(dst:Array[T](this.region), uncounted:boolean) {
+    public def copyTo(dst:Array[T](this.rank), uncounted:boolean) {
+	if (checkBounds() && !region.equals(dst.region)) throw new IllegalArgumentException("source and destination Regions are not equal");
         raw.copyTo(0, dst.home, dst.raw, 0, rawLength, uncounted);
     }
 
@@ -752,7 +757,8 @@ public final class Array[T](
 
     /**
      * Copy all of the values from the source array into this Array.
-     * The two arrays must be defined over the same Region.
+     * The two arrays must be defined over equal Regions; if the Regions
+     * are not equal, then an IllegalArgumentExeption will be raised.
      * If the source Array is in a different place, then this copy
      * is performed asynchronously and the resulting activity will be 
      * registered with the dynamically enclosing finish.</p>
@@ -764,14 +770,16 @@ public final class Array[T](
      *   system would enable this restriction to be checked statically.</p>
      *
      * @param src the source array.  May be local or remote
+     * @throws IllegalArgumentException if !region.equals(dst.region)
      */
-    public def copyFrom(src:Array[T](this.region)) {
+    public def copyFrom(src:Array[T](this.rank)) {
         copyFrom(src, false);
     }
 
     /**
      * Copy all of the values from the source array into this Array.
-     * The two arrays must be defined over the same Region.
+     * The two arrays must be defined over equal Regions; if the Regions
+     * are not equal, then an IllegalArgumentExeption will be raised.
      * If the source Array is in a different place, then this copy
      * is performed asynchronously. Depending on the value of the 
      * uncounted parameter, the resulting activity will either be 
@@ -785,8 +793,10 @@ public final class Array[T](
      *   system would enable this restriction to be checked statically.</p>
      *
      * @param src the source array.  May be local or remote
+     * @throws IllegalArgumentException if !region.equals(dst.region)
      */
-    public def copyFrom(src:Array[T](this.region), uncounted:boolean) {
+    public def copyFrom(src:Array[T](this.rank), uncounted:boolean) {
+	if (checkBounds() && !region.equals(src.region)) throw new IllegalArgumentException("source and destination Regions are not equal");
 	raw.copyFrom(0, src.home, src.raw, 0, rawLength, uncounted);
     }
 

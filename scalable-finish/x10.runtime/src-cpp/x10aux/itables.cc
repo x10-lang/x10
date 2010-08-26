@@ -16,14 +16,29 @@
 using namespace x10aux;
 using namespace x10::lang;
 
-void* x10aux::outlinedITableLookup(itable_entry* itables, RuntimeType* targetInterface) {
+void* x10aux::outlinedITableLookup(itable_entry* itables, const RuntimeType* targetInterface) {
+    // First walk through itables and force RTT initialization
+    for (int i=0; true; i++) {
+        if (NULL == itables[i].initFunction) {
+            // Have hit the end of the itables; done forcing initialization
+            break;
+        }
+        if (NULL == itables[i].id) {
+            itables[i].id = (itables[i].initFunction)();
+        }
+        // Now that we are positive the id field has been initialized, do the cheap compare again.
+        if (itables[i].id == targetInterface) {
+            return itables[i].itable;
+        }
+    }
+
     if (targetInterface->paramsc > 0) {
         // Have to look again considering type parameters.
         // Note: it would be wrong to just call subtypeOf(itables[i].id, targetInterface)
         // because we must ensure that itables[i].id->canonical == targetInterface->canonical
         // so that the returned itable has the layout the caller of findITable is expecting.
         for (int i=0; true; i++) {
-            const RuntimeType *candidate = itables[i].id;
+            const RuntimeType *candidate = (const RuntimeType *)itables[i].id;
             if (NULL == candidate) {
                 // Have hit the end of itables again; this is a lookup failure
                 break;
@@ -59,7 +74,7 @@ void* x10aux::outlinedITableLookup(itable_entry* itables, RuntimeType* targetInt
     fprintf(stderr, "\tRTT of interfaces implemented by receiver\n");
     int i = 0;
     for (; itables[i].id != 0; i++) {
-        fprintf(stderr, "\t\t%p %s\n", (void*)(itables[i].id), itables[i].id->name());
+        fprintf(stderr, "\t\t%p %s\n", (void*)(itables[i].id), ((RuntimeType*)itables[i].id)->name());
     }
     fprintf(stderr, "\tRTT of receiver %p %s\n", itables[i].itable, itables[i].itable == NULL ? "NULL!" : ((RuntimeType*)(itables[i].itable))->name());
     fprintf(stderr, "\n");

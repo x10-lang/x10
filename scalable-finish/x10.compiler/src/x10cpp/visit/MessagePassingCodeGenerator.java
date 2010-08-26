@@ -126,6 +126,7 @@ import polyglot.types.ClassType;
 import polyglot.types.CodeInstance;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.Context;
+import polyglot.types.Def_c;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.FunctionDef;
@@ -211,6 +212,7 @@ import x10.types.X10FieldInstance;
 import x10.types.X10Flags;
 import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
+import x10.types.X10ParsedClassType_c;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
@@ -1060,10 +1062,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     // Get the list of methods of name "name" that ought to be accessible from class c
     // due to being locally defined or inherited
     List<MethodInstance> getOROLMeths(Name name, X10ClassType c) {
-        return getOROLMeths(name, c, new HashSet<List<Type>>());
+        return getOROLMeths(name, c, new ArrayList<MethodInstance>());
     }
 
-    List<MethodInstance> getOROLMeths(Name name, X10ClassType c, HashSet<List<Type>> shadowed) {
+    List<MethodInstance> getOROLMeths(Name name, X10ClassType c, ArrayList<MethodInstance> shadowed) {
         assert (name != null);
         assert (c != null);
         assert (shadowed != null);
@@ -1072,10 +1074,15 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         List<MethodInstance> cmeths = c.methodsNamed(name);
 
+        cmiLoop:
         for (MethodInstance cmi : cmeths) {
             if (cmi.flags().isStatic()) continue;
-            if (shadowed.contains(cmi.formalTypes())) continue;
-            shadowed.add(cmi.formalTypes());
+            
+            for (MethodInstance mightShadow : shadowed) {
+                if (mightShadow.isSameMethod(cmi, tr.context())) continue cmiLoop;
+            }
+
+            shadowed.add(cmi);
             if (cmi.flags().isPrivate()) continue;
             meths.add(cmi);
         }
@@ -1344,9 +1351,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         // We must define them all in the struct_methods class so they can be picked up by the ITables
         // FIXME: The home method should call Place_methods::make(here) instead of doing a C++ level construction.
-        h.writeln("static x10_boolean at("+StructCType+" this_, x10aux::ref<x10::lang::Object> obj) { return true; }");
-        h.writeln("static x10_boolean at("+StructCType+" this_, x10::lang::Place place) { return true; }");
-        h.writeln("static x10::lang::Place home("+StructCType+" this_) { /* FIXME: Should probably call Place_methods::make, but don't want to include Place.h */ x10::lang::Place tmp; tmp->FMGL(id)=x10aux::here; return tmp; }");
+        //h.writeln("static x10_boolean at("+StructCType+" this_, x10aux::ref<x10::lang::Object> obj) { return true; }");
+        //h.writeln("static x10_boolean at("+StructCType+" this_, x10::lang::Place place) { return true; }");
+        //h.writeln("static x10::lang::Place home("+StructCType+" this_) { /* FIXME: Should probably call Place_methods::make, but don't want to include Place.h */ x10::lang::Place tmp; tmp->FMGL(id)=x10aux::here; return tmp; }");
         //h.writeln("static x10aux::ref<x10::lang::String> typeName("+StructCType+" this_) { return this_->typeName(); }");
 
         // We also have to define a redirection method from the struct itself to the implementation
@@ -1436,7 +1443,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			itableNum = 0;
 			for (Type interfaceType : allInterfaces) {
 				ITable itable = ITable.getITable((X10ClassType) X10TypeMixin.baseType(interfaceType));
-				itable.emitITableInitialization(currentClass, itableNum, emitter, h, sw);
+				itable.emitITableInitialization(currentClass, itableNum, this, h, sw);
 				itableNum += 1;
 			}
 
@@ -1446,7 +1453,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			sw.write("x10aux::itable_entry "+Emitter.translateType(currentClass)+"::_itables["+(numInterfaces+1)+"] = {");
 			itableNum = 0;
 			for (Type interfaceType : allInterfaces) {
-				sw.write("x10aux::itable_entry(x10aux::getRTT"+chevrons(Emitter.translateType(interfaceType, false))+"(), &_itable_"+itableNum+"), ");
+				sw.write("x10aux::itable_entry(&x10aux::getRTT"+chevrons(Emitter.translateType(interfaceType, false))+", &_itable_"+itableNum+"), ");
 				itableNum += 1;
 			}
 			sw.write("x10aux::itable_entry(NULL, (void*)x10aux::getRTT"+chevrons(Emitter.translateType(currentClass, false))+"())};"); sw.newline();
@@ -1482,7 +1489,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        int itableNum = 0;
 	        for (Type interfaceType : allInterfaces) {
 	            ITable itable = ITable.getITable((X10ClassType) X10TypeMixin.baseType(interfaceType));
-	            itable.emitITableInitialization(currentClass, itableNum, emitter, h, sw);
+	            itable.emitITableInitialization(currentClass, itableNum, this, h, sw);
 	            itableNum += 1;
 	        }
 
@@ -1495,7 +1502,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	            sw.write("x10aux::itable_entry "+clsCType+"::_"+ibox+"itables["+(numInterfaces+1)+"] = {");
 	            itableNum = 0;
 	            for (Type interfaceType : allInterfaces) {
-	                sw.write("x10aux::itable_entry(x10aux::getRTT"+chevrons(Emitter.translateType(interfaceType, false))+"(), &"+
+	                sw.write("x10aux::itable_entry(&x10aux::getRTT"+chevrons(Emitter.translateType(interfaceType, false))+", &"+
 	                         thunkBaseName+"_"+ibox+"ithunk"+itableNum+thunkParams+"::itable), ");
 	                itableNum += 1;
 	            }
@@ -2366,7 +2373,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        opString = opString.substring(1);
 	    }
 
-	    Expr lhs = asgn.left(nf);
+	    Expr lhs = asgn.left();
 	    Expr rhs = asgn.right();
 	    if (unsigned_op) {
 	        sw.write("("+Emitter.translateType(asgn.type())+")(");
@@ -2985,8 +2992,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		        sw.write(Emitter.translateType(t));
 		        sw.write("::");
 		    }
-		    // [IP] FIXME: virtual_dispatch test is temporary, until xlC is upgraded to v10
-		    if (context.inTemplate() && mi.typeParameters().size() != 0 && virtual_dispatch) {
+		    if (context.inTemplate() && mi.typeParameters().size() != 0) {
 		        sw.write("template ");
 		    }
 		    if (!isInterfaceInvoke) {
@@ -4007,7 +4013,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 
         // create closure and packed arguments
-
+                
         // Prepend this stream to closures.  Closures are created from the outside in.
         // Thus, later closures can be used by earlier ones, but not vice versa.
         ClassifiedStream inc_s = in_template_closure ?
@@ -4016,6 +4022,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         sw.pushCurrentStream(inc_s);
 
         StreamWrapper inc = sw;
+        
+        // A stream to put definitions of static variables.
+        // If the def is templatized, it has to go in the inc stream.
+        // If the def is not templatized, it has to go in the CC stream (even if sw is the Header stream).
+        ClassifiedStream defn_s =  in_template_closure ? inc.currentStream() : sw.getNewStream(StreamWrapper.CC, false);
+
 
         if (in_template_closure) {
             String guard = getHeaderGuard(cname);
@@ -4061,7 +4073,16 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         inc.newline(); inc.forceNewline();
 
         inc.write("// captured environment"); inc.newline();
-        emitter.printDeclarationList(inc, c, c.variables);
+        List<Type> ats = closureDef.annotationsNamed(QName.make("x10.compiler.Ref"));
+        List<VarInstance> refs = new ArrayList<VarInstance>();
+        for (Type at : ats) {
+            Expr exp = ((X10ParsedClassType_c) at).propertyInitializer(0);
+            if (exp instanceof X10Local_c) {
+                refs.add(((X10Local_c) exp).varInstance());
+            }
+        }
+
+        emitter.printDeclarationList(inc, c, c.variables, refs);
         inc.forceNewline();
 
         inc.write("x10aux::serialization_id_t "+SERIALIZE_ID_METHOD+"() {");
@@ -4071,8 +4092,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         generateClosureSerializationFunctions(c, cnamet, inc, n.body());
 
-        inc.write(cname+"("+SERIALIZATION_MARKER+") { }");
-        inc.newline(); inc.forceNewline();
+//        inc.write(cname+"("+SERIALIZATION_MARKER+") { }");
+//        inc.newline(); inc.forceNewline();
 
         inc.write(cname+"(");
         for (int i = 0; i < c.variables.size(); i++) {
@@ -4082,10 +4103,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             if (name.equals(THIS))
                 name = SAVED_THIS;
             else name = mangled_non_method_name(name);
-            inc.write(Emitter.translateType(var.type(), true) + " " + name);
+            if (refs.contains(var)) {
+                inc.write(Emitter.translateType(var.type(), true) + "& " + name);
+            } else {
+                inc.write(Emitter.translateType(var.type(), true) + " " + name);
+            }
         }
-        inc.write(") {");
-        inc.newline(4); inc.begin(0);
+        inc.write(")");
+        inc.begin(0);
         // FIXME: factor out this loop
         for (int i = 0 ; i < c.variables.size() ; i++) {
             VarInstance var = (VarInstance) c.variables.get(i);
@@ -4093,11 +4118,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             if (name.equals(THIS))
                 name = SAVED_THIS;
             else name = mangled_non_method_name(name);
-            if (i > 0) inc.newline();
-            inc.write("this->" + name + " = " + name + ";");
+            if (i > 0) inc.write(", "); else inc.write(" : ");
+            inc.write(name + "(" + name + ")");
         }
-        inc.end(); inc.newline();
-        inc.write("}"); inc.newline(); inc.forceNewline();
+        inc.end();
+        inc.write(" { }"); inc.newline(); inc.forceNewline();
 
         inc.write("static const x10aux::serialization_id_t "+SERIALIZATION_ID_FIELD+";");
         inc.newline(); inc.forceNewline();
@@ -4126,23 +4151,23 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         inc.write("};"); inc.newline(); inc.forceNewline();
 
         if (in_template_closure)
-            emitter.printTemplateSignature(freeTypeParams, inc);
+            emitter.printTemplateSignature(freeTypeParams, defn_s);
         // TODO: To workaround XTENLANG-467, we are explicitly qualifying inherited member functions here.
         // This is less than ideal, since it can introduce subtle bugs when the C++ code is refactored
         // (an overridden member function will not be called from the itable, which is very non-intuitive).
         // As soon as XTENLANG-467 is fixed, take out the explicit qualifications and let C++ member lookup do its job...
-        inc.write((in_template_closure ? "typename ": "")+superType+(in_template_closure ? "::template itable ": "::itable")+chevrons(cnamet)+
+        defn_s.write((in_template_closure ? "typename ": "")+superType+(in_template_closure ? "::template itable ": "::itable")+chevrons(cnamet)+
         			cnamet+"::_itable(&"+cnamet+"::apply, &"+REFERENCE_TYPE+"::at, &"+REFERENCE_TYPE+"::at, "+
         			"&"+REFERENCE_TYPE+"::equals, &"+CLOSURE_TYPE+"::hashCode, &"+REFERENCE_TYPE+"::home, &"
         			+cnamet+"::toString, &"+CLOSURE_TYPE+"::typeName);");
 
         if (in_template_closure)
-            emitter.printTemplateSignature(freeTypeParams, inc);
-		inc.write("x10aux::itable_entry "+cnamet+"::_itables[2] = {");
-		inc.write("x10aux::itable_entry(x10aux::getRTT"+chevrons(superType)+"(), &"+cnamet+"::_itable),");
-		inc.write("x10aux::itable_entry(NULL, NULL)};"); inc.newline();
+            emitter.printTemplateSignature(freeTypeParams, defn_s);
+		defn_s.write("x10aux::itable_entry "+cnamet+"::_itables[2] = {");
+		defn_s.write("x10aux::itable_entry(&x10aux::getRTT"+chevrons(superType)+", &"+cnamet+"::_itable),");
+		defn_s.write("x10aux::itable_entry(NULL, NULL)};"); defn_s.newline(); defn_s.forceNewline();
 
-		generateClosureDeserializationIdDef(inc, cnamet, freeTypeParams, hostClassName, n.body());
+		generateClosureDeserializationIdDef(defn_s, cnamet, freeTypeParams, hostClassName, n.body());
 
         if (in_template_closure) {
             String guard = getHeaderGuard(cname);
@@ -4194,6 +4219,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     }
 
     protected void generateClosureSerializationFunctions(X10CPPContext_c c, String cnamet, StreamWrapper inc, Block block) {
+        inc.write("// TODO: handle serialization of ref fields correctly"); inc.newline(); inc.forceNewline();
+
         inc.write("void "+SERIALIZE_BODY_METHOD+"("+SERIALIZATION_BUFFER+" &buf) {");
         inc.newline(4); inc.begin(0);
         // FIXME: factor out this loop
@@ -4211,11 +4238,20 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         inc.write("template<class __T> static "+make_ref("__T")+" "+DESERIALIZE_METHOD+"("+DESERIALIZATION_BUFFER+" &buf) {");
         inc.newline(4); inc.begin(0);
+        // FIXME: factor out this loop
+        for (int i = 0; i < c.variables.size(); i++) {
+            VarInstance var = (VarInstance) c.variables.get(i);
+            Type t = var.type();
+            String type = Emitter.translateType(t, true);
+            String name = var.name().toString();
+            if (name.equals(THIS))
+                name = SAVED_THIS;
+            else name = mangled_non_method_name(name);
+            inc.write(type + " that_"+name+" = buf.read"+chevrons(Emitter.translateType(var.type(), true))+"();");
+            inc.newline();
+        }
         inc.write(make_ref(cnamet)+" this_ = new (x10aux::alloc"+chevrons(cnamet)+"()) "+
-                  cnamet+"("+SERIALIZATION_MARKER+"());");
-        inc.newline();
-        inc.write("buf.record_reference(this_); // TODO: avoid; closure");
-        inc.newline();
+                  cnamet+"(");
         // FIXME: factor out this loop
         for (int i = 0; i < c.variables.size(); i++) {
             VarInstance var = (VarInstance) c.variables.get(i);
@@ -4223,26 +4259,30 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             if (name.equals(THIS))
                 name = SAVED_THIS;
             else name = mangled_non_method_name(name);
-            inc.write("this_->"+name+" = buf.read"+chevrons(Emitter.translateType(var.type(), true))+"();");
-            inc.newline();
+            if (i > 0) inc.write(", ");
+            inc.write("that_"+name);
         }
+        inc.write(");");
+        inc.newline();
+        inc.write("buf.record_reference(this_); // TODO: avoid; closure");
+        inc.newline();
         inc.write("return this_;"); inc.end(); inc.newline();
         inc.write("}"); inc.newline(); inc.forceNewline();
     }
 
 
-    protected void generateClosureDeserializationIdDef(StreamWrapper inc, String cnamet, List<Type> freeTypeParams, String hostClassName, Block block) {
+    protected void generateClosureDeserializationIdDef(ClassifiedStream defn_s, String cnamet, List<Type> freeTypeParams, String hostClassName, Block block) {
         X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
         boolean in_template_closure = freeTypeParams.size()>0;
         if (in_template_closure)
-            emitter.printTemplateSignature(freeTypeParams, inc);
-        inc.write("const x10aux::serialization_id_t "+cnamet+"::"+SERIALIZATION_ID_FIELD+" = ");
-        inc.newline(4);
+            emitter.printTemplateSignature(freeTypeParams, defn_s);
+        defn_s.write("const x10aux::serialization_id_t "+cnamet+"::"+SERIALIZATION_ID_FIELD+" = ");
+        defn_s.newline(4);
         String template = in_template_closure ? "template " : "";
-        inc.write("x10aux::DeserializationDispatcher::addDeserializer("+
+        defn_s.write("x10aux::DeserializationDispatcher::addDeserializer("+
                   cnamet+"::"+template+DESERIALIZE_METHOD+
                   chevrons(Emitter.translateType(xts.Object()))+");");
-        inc.newline(); inc.forceNewline();
+        defn_s.newline(); defn_s.forceNewline();
     }
 
 
@@ -4670,7 +4710,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     // [DC] FIXME: ASTQuery.getCppRepParam still uses CPP_NATIVE_STRING directly
     protected String[] getCurrentNativeStrings() { return new String[] {CPP_NATIVE_STRING}; }
 
-	private String getCppImplForDef(X10Def o) {
+	String getCppImplForDef(X10Def o) {
 	    X10TypeSystem xts = (X10TypeSystem) o.typeSystem();
 	    try {
 	        Type annotation = (Type) xts.systemResolver().find(QName.make("x10.compiler.Native"));
@@ -4716,13 +4756,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     }
 
 	// FIXME: generic native methods will break
-	private void emitNativeAnnotation(String pat, List<Type> types, Receiver receiver, List<? extends Object> args, List<Type> typeArguments) {
+	void emitNativeAnnotation(String pat, List<Type> types, Object receiver, List<? extends Object> args, List<Type> typeArguments) {
 	    Object[] components = new Object[1+3*types.size() + args.size() + 3*typeArguments.size()];
 	    assert (receiver != null);
 	    components[0] = receiver;
 	    if (receiver instanceof X10Special_c && ((X10Special_c)receiver).kind() == X10Special_c.SUPER) {
 	        pat = pat.replaceAll("\\(#0\\)->", "#0::"); // FIXME: HACK
-	        pat = pat.replaceAll("\\(#0\\)", "("+Emitter.translateType(receiver.type(), true)+"((#0*)this))"); // FIXME: An even bigger HACK (remove when @Native migrates to the body)
+	        pat = pat.replaceAll("\\(#0\\)", "("+Emitter.translateType(((X10Special_c)receiver).type(), true)+"((#0*)this))"); // FIXME: An even bigger HACK (remove when @Native migrates to the body)
 	    }
 
 	    int i = 1;

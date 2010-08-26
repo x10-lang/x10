@@ -285,13 +285,13 @@ abstract public class TestRegion extends x10Test {
 
     public def reg(rank: int, var coeff: int, op: int, k: int): Region(rank) {
         coeff += ZERO;
-        val as = Rail.make[int](rank);
+        val as_ = Rail.make[int](rank);
         for (var i: int = 0; i<rank; i++) {
             var a: int = (coeff&3) - 2;
-            as(i) = op==LE? a : - a;
+            as_(i) = op==LE? a : - a;
             coeff = coeff >> 2;
         }
-        return Region.makeHalfspace(as, op==LE? -k : k);
+        return Region.makeHalfspace(as_, op==LE? -k : k);
     }
 
 

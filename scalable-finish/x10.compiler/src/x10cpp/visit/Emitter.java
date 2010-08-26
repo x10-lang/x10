@@ -64,6 +64,7 @@ import polyglot.util.Position;
 import polyglot.visit.Translator;
 import x10.ast.X10Special;
 import x10.ast.X10Special_c;
+import x10.errors.Warnings;
 import x10.extension.X10Ext;
 import x10.types.FunctionType;
 import x10.types.ParameterType;
@@ -508,7 +509,7 @@ public class Emitter {
 				if (returnType != null && !xts.typeDeepBaseEquals(returnType, newReturnType, context)) {
 					String msg = "Two supertypes declare " + from + " with "
 						+ "different return types: " + returnType + " != " + newReturnType;
-					tr.job().compiler().errorQueue().enqueue(ErrorInfo.WARNING, msg, pos);
+					Warnings.issue(tr.job(), msg, pos);
 				}
 				returnType = newReturnType;
 			}
@@ -567,7 +568,7 @@ public class Emitter {
 			        //    public: template<class T> Y m_impl(X a);
 			        // };
 			        String msg = n.methodDef()+" is generic and non-final, disabling virtual binding for this method";
-			        tr.job().compiler().errorQueue().enqueue(ErrorInfo.WARNING, msg, n.position());
+			        Warnings.issue(tr.job(), msg, n.position());
 			    }
 			}
             // [DC] there is no benefit to omitting the virtual keyword as we can
@@ -920,16 +921,16 @@ public class Emitter {
 		return;
 	}
 
-	public void printDeclarationList(CodeWriter w, X10CPPContext_c c, ArrayList<VarInstance<?>> vars) {
-		printDeclarationList(w, c, vars, true, false);
+	public void printDeclarationList(CodeWriter w, X10CPPContext_c c, ArrayList<VarInstance<?>> vars, List<VarInstance> refs) {
+		printDeclarationList(w, c, vars, true, false, refs);
 	}
 
-	void printDeclarationList(CodeWriter w, X10CPPContext_c c, ArrayList<VarInstance<?>> vars, boolean saved_this_mechanism, boolean writable) {
+	void printDeclarationList(CodeWriter w, X10CPPContext_c c, ArrayList<VarInstance<?>> vars, boolean saved_this_mechanism, boolean writable, List<VarInstance> refs) {
 		for (int i = 0; i < vars.size(); i++) {
 			VarInstance<?> var = vars.get(i);
 			Type t = var.type();
 			String type = translateType(t, true);
-			if (writable && !var.name().toString().equals(THIS)) // this is a temporary ref
+			if ((writable && !var.name().toString().equals(THIS)) || refs.contains(var)) // this is a temporary ref
 			    type = type + "&"; // FIXME: Hack to get writable args in finally closures
 			String name = var.name().toString();
 			if (saved_this_mechanism && name.equals(THIS)) {
@@ -1258,25 +1259,29 @@ public class Emitter {
 		int pos = 0;
 		int start = 0;
 		while (pos < len) {
-			if (regex.charAt(pos) == '\n') {
-				w.write(regex.substring(start, pos));
-				w.newline(0);
-				start = pos+1;
-			}
-			else
-			if (regex.charAt(pos) == '#') {
-				w.write(regex.substring(start, pos) /*translateFQN(regex.substring(start, pos))*/);
-				Integer idx = new Integer(regex.substring(pos+1,pos+2));
-				pos++;
-				start = pos+1;
-				if (idx.intValue() >= components.length) {
-					throw new InternalCompilerError("Template '"+id+"' '"+regex+"' uses #"+idx+" (max is "+(components.length-1)+")");
-				}
-				prettyPrint(components[idx.intValue()], tr, w);
-			}
-			pos++;
+		    if (regex.charAt(pos) == '\n') {
+		        w.write(regex.substring(start, pos));
+		        w.newline(0);
+		        start = pos+1;
+		    } else if (regex.charAt(pos) == '#') {
+		        w.write(regex.substring(start, pos));
+		        Integer idx;
+		        if (pos<len-2 && Character.isDigit(regex.charAt(pos+2))) {
+		            idx = new Integer(regex.substring(pos+1,pos+3));
+		            pos += 2;		            
+		        } else {
+		            idx = new Integer(regex.substring(pos+1,pos+2));
+		            pos++;
+		        }
+		        start = pos+1;
+		        if (idx.intValue() >= components.length) {
+		            throw new InternalCompilerError("Template '"+id+"' '"+regex+"' uses #"+idx+" (max is "+(components.length-1)+")");
+		        }
+		        prettyPrint(components[idx.intValue()], tr, w);
+		    }
+		    pos++;
 		}
-		w.write(regex.substring(start) /*translateFQN(regex.substring(start))*/);
+		w.write(regex.substring(start));
 	}
     private void prettyPrint(Object o, Translator tr, CodeWriter w) {
         if (o instanceof Node) {

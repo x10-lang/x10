@@ -25,7 +25,6 @@ import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
-import polyglot.types.UnknownType;
 import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
@@ -91,14 +90,14 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
         // monotonically from uknown to some known value. 
         // Hence force a recompute each time rightType() is called
         // if .rightType is an UnknownType.
-        if (rightType == null || rightType instanceof UnknownType) {
+        if (rightType == null || xts.isUnknown(rightType)) {
             Type t = type();
 
             // If the field is final, replace T by T{self==t} 
             Flags flags = flags();
 
             if (flags.isFinal()) {
-                if (t instanceof UnknownType) {
+                if (xts.isUnknown(t)) {
                     rightType = t;
                 }
                 else {

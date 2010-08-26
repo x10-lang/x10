@@ -16,10 +16,10 @@ import harness.x10Test;
  */
 public class AwaitTest2 extends x10Test {
 
-	var val: int = 42;
+	var val_: int = 42;
 
 	public def run(): boolean = {
-		await(val == 42);
+		await(val_ == 42);
 		return true;
 	}
 

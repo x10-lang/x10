@@ -98,20 +98,20 @@ public final class DistributedRail[T] implements Settable[Int,T], Iterable[T] {
 
     private global def reduceGlobal (op:(T,T)=>T) {
         if (firstPlace!=here) {
-            val local_ = data();
+            val lrail_ = data();
             {
-                val local = local_ as ValRail[T];
+                val lrail = lrail_ as ValRail[T];
                 val data_ = data;
                 at (firstPlace) {
                     val master = data_();
                     atomic for (var i:Int=0 ; i<master.length ; ++i) {
-                        master(i) = op(master(i), local(i));
+                        master(i) = op(master(i), lrail(i));
                     }
                 }
             }
             next; // every place has transmitted contents to master
             val handle = data; // avoid 'this' being serialised
-            finish local_.copyFrom(0, firstPlace, ()=>Pair[Rail[T],Int](handle(),0), local_.length);
+            finish lrail_.copyFrom(0, firstPlace, ()=>Pair[Rail[T],Int](handle(),0), lrail_.length);
         } else {
             next;
         }
