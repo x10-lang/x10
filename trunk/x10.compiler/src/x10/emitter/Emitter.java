@@ -1987,20 +1987,6 @@ public class Emitter {
 		return true;
 	}
 
-	public boolean needsHereCheck(Receiver target, X10Context context) {
-		return false;
-		/*
-		 * boolean needsHereCheck = true; // calls on new objects needsHereCheck
-		 * &= ! (target instanceof New); // others... needsHereCheck &=
-		 * QueryEngine.INSTANCE().needsHereCheck(target.type(), context);
-		 * 
-		 * if (needsHereCheck) { if (target instanceof X10Cast) { X10Cast c =
-		 * (X10Cast) target; if (c.conversionType() ==
-		 * X10Cast.ConversionType.CHECKED) { return needsHereCheck(c.expr(),
-		 * context); } } } return needsHereCheck;
-		 */
-	}
-
 	public String convertToString(Object[] a) {
 		StringBuffer s = new StringBuffer("[");
 		for (int i = 0; i < a.length; ++i) {
