@@ -1,0 +1,322 @@
+<html>
+<body>
+
+<h1>Linux X10 Command Line Installation</h1>
+In order to run X10 on Linux, you need to satisfy the follow pre-requisites.
+<h2>Prereqs</h2>
+<ul>
+	<li>gcc/g++</li>
+	<li>java</li>
+	<li>open MPI</li>
+</ul>
+
+<h4>gcc/g++</h4>
+gcc is included with the os. Do the following to verify the location and version
+<pre>
+whereis gcc
+gcc -v
+</pre>
+In my case, running Fedora 9, gcc version 4.3.0 is installed
+
+<h4>java</h4>
+Although Java is often times included with Linux, it usually is the OpenJDK runtime
+environment. Do the following to verify the location and version
+<pre>
+	whereis java
+	java -version
+</pre>
+In the case of Fedora 9, java version 1.6.0 is installed.
+However, it is recommended that you download and install the latest Sun JDK for 1.5.0_x or 1.6.0_x.
+<pre>
+	cd /usr
+	mkdir java
+	cd java
+	cp ~/Download/jdk-1_5_0_11-linux-i586.bin .
+	chmod 777 jdk-1_5_0_11-linux-i586.bin
+	./jdk-1_5_0_11-linux-i586.bin
+	...license...
+	yes
+</pre>
+Then you should modify your .bash_profile file to contain this directory in the PATH statement.
+<pre>
+.bash_profile
+PATH=/usr/java/jdk1.5.0_11/bin:$PATH
+export PATH
+</pre>
+Then modify your .bashrc file to define JAVA_HOME
+<pre>
+.bashrc
+JAVA_HOME=/usr/java/jdk1.5.0_11
+export JAVA_HOME
+</pre>
+
+<h4>openmpi</h4>
+OpenMPI is often not included with Linux. To check do the following
+<pre>
+	whereis mpirun
+	mpirun -version
+</pre>
+In the case of Fedora 9, you should download version 1.3.x or later from the openmpi web site -
+http://www.open-mpi.org/software/ompi/
+<p>
+You should retrieve the openmpi-1.3.3.tar file or later version and unpack it.
+<pre>
+	tar -xvf openmpi-1.3.3.tar
+</pre>
+This will create an openmpi-1.3.3 directory.  Now you need to compile and
+install openmpi using the following command sequence.
+<pre>
+	cd openmpi-1.3.3
+	./configure --prefix=/usr/local
+	
+  ...lots of output...
+	
+	make all
+	make install
+</pre>
+Note that the configure script supports a lot of different command line options. 
+For example, the --prefix option in the above example tells Open MPI to install under the directory /usr/local/. 
+
+</p>
+
+<h2>Getting started</h2>
+You need to download the X10 2.0.2 distribution for your platform,
+<pre>
+AIX/PowerPC 
+Cygwin/x86 
+Linux/x86 
+Linux/x86_64 
+MacOS/x86 
+MacOS/x86_64 
+</pre>
+in this case Linux/x86.
+The Common PGAS runtime is inlcuded in the download.
+Go to the <a href="http://x10.codehaus.org/X10+2.0.2+Release">X10 release 2.0.2 (http://x10.codehaus.org/X10+2.0.2+Release)</a> and download
+the X10 distribution.  This will be usually stored in your "Downloads" directory depending on how
+your browser is configured. You should modify Firefox on Linux to ask you where to download files.
+You should check periodically for new releases at http://x10.codehaus.org/X10+Releases.
+<p>
+Next you need to install the X10 distribution so that it is available to use.  My recommendation is to
+make a directory in the /usr tree. This procedure also allows easy updating to newer versions as they become 
+available. Note that you may have to use the "sudo" command to get access. 
+
+<pre>
+	cd /usr
+	mkdir x10-2.0.2
+	cd x10-2.0.2
+	mkdir x10dist
+</pre>
+
+Make all of these directories accessible by everyone
+<pre>
+	cd /usr
+	chmod -R 755 x10-2.0.2
+</pre>
+
+Now copy the x10 distribution that you downloaded to x10dist directory and unpack it.
+<pre>
+	cd /usr
+	cd x10-2.0.2
+	cd x10dist
+	cp ~/Downloads/x10-2.0.2_linux_x86.tgz .
+	gunzip x10-2.0.2_linux_x86.tgz
+	tar -xvf x10-2.0.2_linux_x86.tar
+</pre>
+
+<p>
+Now you are ready to setup your environment that makes use of this directory.
+On Linux running the bash shell, it is probably better to modify .bash_profile to add the x10 bin directory
+to your path.  You can also define aliases here, etc.  
+<p>
+Here is a sample .bash_profile
+<pre>
+.bash_profile
+PATH=/usr/java/jdk1.5.0_11/bin:/usr/x10-2.0.2/x10dist/bin:$PATH
+export PATH
+</pre>
+
+Now you will be able to use the x10 commands to compile and run your programs.
+My recommendation is to make an x10 directory or an x10work directory in your
+home path, and create a directory for each project.
+<p>
+To get started we will copy the Hello program from the x10 samples directory into your
+working directory
+<pre>
+	cd ~
+	mkdir x10
+	cd x10
+	mkdir Hello
+	cd Hello
+	cp /usr/x10-2.0.2/x10dist/samples/Hello.x10 .
+</pre>
+<h4>java backend</h4>
+To compile the this program with the java backend you would enter
+<pre>
+	x10c Hello.x10	
+</pre>
+You should now see some java classes in your directory.
+<pre>
+	ls
+	Hello.class	Hello$Main$1.class	Hello$Main.class Hello.x10
+	Hello.java	Hello$Main$2.class	Hello$RTT.class	x10
+</pre>
+You can now run this program by entering
+<pre>
+	x10 Hello
+</pre>
+You should see
+<pre>
+	Hello, X10 world!
+	The answer is: true
+</pre>
+
+<h4>C++ backend</h4>
+To compile the this program with the c++ backend you would enter
+<pre>
+	x10c++ -MAIN_CLASS=Hello Hello.x10	
+</pre>
+The reason for using the -MAIN_CLASS is so that the compiler generates a
+runtime called "Hello". If you leave off the -MAIN_CLASS directive, 
+your output will be under a.out.
+<p>
+You should now see the following files in your directory.  
+<pre>
+	Hello	Hello.cc Hello.h	Hello.inc	Hello.x10	x10
+</pre>
+You can now run this program by entering
+<pre>
+	runx10 Hello
+</pre>
+You should see
+<pre>
+	Hello, X10 world!
+	The answer is: true
+</pre>
+
+Note that the C++ backend makes use of the OpenMPI runtime that is installed on your
+system, so you can also enter the following command to run an x10 program
+<pre>
+	mpirun -np 1 Hello
+</pre>
+
+<p>
+At this point, you may want to compile the other sample programs from the "samples"
+directory.  Then you can begin creating your own programs.
+
+
+<h4>Compiler options</h4>
+Use "x10c -- -help" to get more detailed help on compiler options.
+<pre>
+$ x10c -- -help
+usage: x10c [options] <source-file>.x10 ...
+where [options] includes:
+  @<file>                  read options from <file>
+  -d <directory>           output directory
+  -assert                  recognize the assert keyword
+  -sourcepath <path>       source path
+  -bootclasspath <path>    path for bootstrap class files
+  -ext <extension>         use language extension
+  -extclass <ext-class>    use language extension
+  -commandlineonly         only compile files named on the command-line (may
+                           also require -c)
+  -preferclassfiles        prefer class files to source files even if the
+                           source is newer
+  -fqcn                    use fully-qualified class names
+  -sx <ext>                set source extension
+  -ox <ext>                set output extension
+  -errors <num>            set the maximum number of errors
+  -w <num>                 set the maximum width of the .java output files
+  -dump <pass>             dump the ast after pass <pass>
+  -print <pass>            pretty-print the ast after pass <pass>
+  -disable <pass>          disable pass <pass>
+  -noserial                disable class serialization
+  -nooutput                delete output files after compilation
+  -c                       compile only to .java
+  -post <compiler>         run javac-like compiler after translation
+  -debugpositions          generate position information for
+                           compiler-generated code
+  -simpleoutput            use SimpleCodeWriter
+  -v -verbose              print verbose debugging information
+  -report <topic>=<level>  print verbose debugging information about topic
+                           at specified verbosity
+        Allowed topics: imports, jl, x10, serialize, types, frontend, time,
+        resolver, cfg, visit, clock, dataflow, debug, errors, context,
+        loader, verbose, qq
+  -version                 print version info
+  -h                       print this message
+  -COMPILER_FRAGMENT_DATA_DIRECTORY=String
+                           Advanced functionality: Directory for compiler
+                           templates (default = "data/")
+  -OPTIMIZE=boolean        Generate optimized code (default = false)
+  -DEBUG=boolean           Generate debug information (default = false)
+  -NO_CHECKS=boolean       Disable generation of all null, bounds, and place
+                           checks (default = false)
+  -BAD_PLACE_RUNTIME_CHECK=boolean
+                           Generate runtime place checks (default = false)
+  -LOOP_OPTIMIZATIONS=boolean
+                           Generate specialized Java version of for-loop X10
+                           code (default = true)
+  -ARRAY_OPTIMIZATIONS=boolean
+                           Generate allocation of specialized Java array
+                           classes (default = true)
+  -INLINE_OPTIMIZATIONS=boolean
+                           Perform inlining optimizations (default = false)
+  -CLOSURE_INLINING=boolean
+                           Perform closure literal inlining (default = true)
+  -PLUGINS=String          Comma-separated list of compiler plugins to run.
+                           (default = "")
+  -PLUGIN_COMPILER=String  Javac-like compiler to use to compile plugins
+                           (default = "")
+  -XML_PROCESSOR=String    External program to transform ASTs externalized
+                           as XML (default = "")
+  -EXTERNALIZE_ASTS=boolean
+                           Externalize ASTs to XML (default = false)
+  -MANIFEST=String         The path to the pre-built library manifest file
+                           (default = null)
+</pre>                           
+
+<h4>Possible errors</h4>
+
+If you see an error like this
+<pre>
+	0; xlupc transport: can't get network address associated with 	listner socket: Device not configured
+	Abort trap
+</pre>
+This means that your ip address is being used by another program and the pgas library cannot
+access the ip address using gethostbyname(). Check your /etc/hostconfig file does not contain
+a HOSTNAME and /etc/hosts is configured properly
+
+<h4>Make your own commands</h4>
+You might want to make your own scripts or aliases so that you don't have to remember the exact
+syntax. If you create scripts make sure that they are excutable.  If you place them in ~/bin
+then you should add this to your PATH in your .bash_profile. You might also want to add
+"./" to the beginning of your PATH statement so it will look first in the directory that you are in.
+<h5>makejava shell script</h5>
+<pre>
+	x10c $1.x10
+</pre>
+
+<h5>runjava shell script</h5>
+<pre>
+	x10 $1
+</pre>
+
+<h5>makecpp shell script</h5>
+<pre>
+	x10c++ -MAIN_CLASS=$1 $1.x10
+</pre>
+
+<h5>runcpp shell script</h5>
+<pre>
+	runx10 -MAIN_CLASS=$1 $1.x10
+</pre>
+or use the mpirun systax mentioned above
+
+<h2>Comments</h2>
+Comments and suggestions are welcome. 
+Please send email to 
+<a href="mailto:cals@us.ibm.com">Cal Swart (cals@us.ibm.com)</a>
+
+</body>
+
+</html>

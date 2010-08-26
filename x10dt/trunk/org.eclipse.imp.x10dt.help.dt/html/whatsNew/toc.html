@@ -1,0 +1,41 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+	<title>New and Noteworty</title>
+</head>
+
+<body>
+
+<h1>New and Noteworthy</h1>
+
+<h3>Memory consumption</h3>
+
+Memory consumption by the editor and the build process has been improved since previous releases. It is still a work in 
+progress. You may encounter either two memory-related errors:
+<ul>
+  <li>Java Heap Space OutOfMemory: You can increase the maximum heap size by specifying the -Xmx (Sun VM) VM option in the eclipse.ini
+  in your Eclipse installation. For more details, see the Eclipse online help.</li>
+  <li>Java PermGen OutOfMemory: You can increase the PermGen area's size by specifying the -XX:MaxPermSize (Sun VM) in the
+  eclipse.ini file.</li>
+</ul> 
+
+Additionally, it may be useful to reduce the number of simultaneously opened editors.
+
+<h3>Build performance</h3>
+
+<p>The current build mechanism is somewhat conservative in determining the set of files to be recompiled upon each save.
+This will cause longer build times under certain circumstances.</p>
+<p>We've provided a building option, "Conservative Build" - turned on by default, which if turned off (see <a href="../prefs.html#compiler">X10 Preferences</a>) can result in shorter 
+build times. However the shorter build time comes at the expense of incorrect behavior for certain X10 source programs. 
+</p>
+
+<h3>Previous versions</h3>
+  <ul>
+  	<li><a href="whatsNew-2_0_5.html">2.0.5</a></li>
+  	<li><a href="newAndNoteworthy_old.html">2.0.x/a></li>
+  </ul>
+  
+</body>
+</html>

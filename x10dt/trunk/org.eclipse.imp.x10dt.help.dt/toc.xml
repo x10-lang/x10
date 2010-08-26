@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?NLS TYPE="org.eclipse.help.toc"?>
+      
+<toc label="X10DT Help">
+<topic label="Installation and pre-reqs">
+	<topic label="Install" href="html/installp/install.html"/>
+	<topic label="Mac" href="html/installp/mac-cl-install.html"/> 
+	<topic label="Linux" href="html/installp/linux-cl-install.html"/> 
+	<topic label="Windows" href="html/installp/windows-cl-install.html"/> 
+</topic>
+
+<topic label="Getting Started" href="html/x10dt/contents.html"> 
+<!--
+	<topic label="Main Topic"  href="html/gettingstarted/maintopic.html"> 
+		<topic label="Sub Topic" href="html/gettingstarted/subtopic.html" /> 
+	</topic>
+	<topic label="Main Topic 2">
+		<topic label="Sub Topic 2" href="html/gettingstarted/subtopic2.html" />
+	</topic> 
+-->
+	<topic label="X10DT Overview" href="html/x10dt/Overview.html">X10DT Overview</topic>
+	<topic label="Starting to use X10DT" href="html/x10dt/01start.html">Starting to use X10DT </topic>
+	<topic label="X10 projects - Java back-end vs. C++ back-end" href="html/x10dt/01whichBackend.html"> </topic>
+
+	<topic label="Creating a New X10 Project - Java back-end" href="html/x10dt/02NewProjJavaBackend.html"> </topic>
+	<topic label="Creating a new X10 Project - C++  back-end" href="html/x10dt/02NewProjCppBackend.html"> </topic> 
+
+	<topic label="Developing/editing your X10 source code" href="html/x10dt/03develop.html">
+		<topic label="Content Assist" href="html/x10dt/ContentAssist.html"/>
+		<topic label="Refactoring" href="html/x10dt/refactoring.html"/>
+	</topic>
+
+	<topic label="Running X10 programs (java back-end)" href="html/x10dt/04runJavaBackend.html"></topic>
+	<topic label="Running X10 programs (C++ backend)" href="html/x10dt/04runCppBackend.html"></topic>
+	<topic label="X10 Preferences" href="html/x10dt/prefs.html"/>
+
+<!--	<topic label="What&apos;s New 2.0.5" href="html/x10dt/whatsNew/whatsNew-2_0_5.html"/> -->
+</topic>
+<!--  PLEASE NOTE if you make a change/addition here, please also change contents.html 
+      which is needed for our online versions of the docs.-->
+
+<!--
+<topic label="X10DT"  href="html/x10dt/contents.html">
+	<topic label="X10DT Overview" href="html/x10dt/Overview.html">X10DT Overview</topic>
+	<topic label="Starting to use X10DT" href="html/x10dt/01start.html">Starting to use X10DT </topic>
+	<topic label="X10 projects - Java back-end vs. C++ back-end" href="html/x10dt/01whichBackend.html"> </topic>
+
+	<topic label="Creating a New X10 Project - Java back-end" href="html/x10dt/02NewProjJavaBackend.html"> </topic>
+	<topic label="Creating a new X10 Project - C++  back-end" href="html/x10dt/02NewProjCppBackend.html"> </topic> 
+
+	<topic label="Developing/editing your X10 source code" href="html/x10dt/03develop.html">
+		<topic label="Content Assist" href="html/x10dt/ContentAssist.html"/>
+		<topic label="Refactoring" href="html/x10dt/refactoring.html"/>
+	</topic>
+
+	<topic label="Running X10 programs (java back-end)" href="html/x10dt/04runJavaBackend.html"></topic>
+	<topic label="Running X10 programs (C++ backend)" href="html/x10dt/04runCppBackend.html"></topic>
+	<topic label="X10 Preferences" href="html/x10dt/prefs.html"/>
+
+	<topic label="What&apos;s New 2.0.5" href="html/x10dt/whatsNew/whatsNew-2_0_5.html"/>
+</topic>
+-->
+<!--  PLEASE NOTE if you make a change/addition here, please also change contents.html 
+      which is needed for our online versions of the docs.-->
+
+<topic label="X10DT FAQs"  href="html/x10dtfaqs.html"/>
+<!--
+<topic label="FAQs"> 
+	<topic label="Main Topic"  href="html/faqs/maintopic.html"> 
+		<topic label="Sub Topic" href="html/faqs/subtopic.html" /> 
+	</topic>
+	<topic label="Main Topic 2">
+		<topic label="Sub Topic 2" href="html/faqs/subtopic2.html" /> 
+	</topic> 
+</topic>
+--> 
+
+<!-- 
+<topic label="Concepts"> 
+	<topic label="Main Topic"  href="html/concepts/maintopic.html"> 
+		<topic label="Sub Topic" href="html/concepts/subtopic.html" /> 
+	</topic>
+	<topic label="Main Topic 2">
+		<topic label="Sub Topic 2" href="html/concepts/subtopic2.html" /> 
+	</topic> 
+</topic>
+-->
+
+<!--
+<topic label="Tasks"> 
+	<topic label="Main Topic"  href="html/tasks/maintopic.html"> 
+		<topic label="Sub Topic" href="html/tasks/subtopic.html" /> 
+	</topic>
+	<topic label="Main Topic 2">
+		<topic label="Sub Topic 2" href="html/tasks/subtopic2.html" /> 
+	</topic> 
+</topic>
+-->
+
+<!--
+<topic label="Reference"> 
+	<topic label="Main Topic"  href="html/reference/maintopic.html"> 
+		<topic label="Sub Topic" href="html/reference/subtopic.html" /> 
+	</topic>
+	<topic label="Main Topic 2">
+		<topic label="Sub Topic 2" href="html/reference/subtopic2.html" /> 
+	</topic> 
+</topic>
+-->
+   
+<topic label="Samples">
+	<topic label="Hello" href="html/samples/Hello.html">Hello</topic>
+	<topic label="HelloWorld" href="html/samples/HelloWorld.html">HelloWorld</topic>
+	<topic label="HelloWholeWorld" href="html/samples/HelloWholeWorld.html">HelloWholeWorld</topic>
+	<topic label="Fib" href="html/samples/Fib.html">Fib</topic>
+	<topic label="MontyPi" href="html/samples/MontyPi.html">MontyPi</topic>
+	<topic label="NQueensDist" href="html/samples/NQueensDist.html">NQueensDist</topic>
+	<topic label="NQueensPar" href="html/samples/NQueensPar.html">NQueensPar</topic>
+	<topic label="ArraySum" href="html/samples/ArraySum.html">ArraySum</topic>
+	<topic label="Integrate" href="html/samples/Integrate.html">Integrate</topic>
+	<topic label="Histogram" href="html/samples/Histogram.html">Histogram</topic>
+</topic>
+
+<topic label="New and Noteworty" href="html/whatsNew/toc.html"> 
+	<topic label="Current"  href="html/whatsNew/toc.html" /> 
+	<topic label="New and Noteworthy 2.0.5" href="html/whatsNew/whatsNew-2_0_5.html" /> 
+	<topic label="New and Noteworthjy 2.0.x" href="html/whatsNew/newAndNoteworthy_old.html" /> 
+</topic>
+
+</toc>
