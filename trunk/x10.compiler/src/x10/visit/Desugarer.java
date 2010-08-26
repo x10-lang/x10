@@ -871,6 +871,7 @@ public class Desugarer extends ContextVisitor {
     }
 
     private Expr getLiteral(Position pos, Type type, long val) throws SemanticException {
+        type = X10TypeMixin.baseType(type);
         Expr lit = null;
         if (xts.isIntOrLess(type)) {
             lit = xnf.IntLit(pos, IntLit.INT, val);
@@ -1063,7 +1064,7 @@ public class Desugarer extends ContextVisitor {
         }
         Name zn = Name.make("z");
         Type T = mi.formalTypes().get(0);
-        assert (xts.typeEquals(T, ami.returnType(), context));
+        assert (xts.isSubtype(ami.returnType(), T, context));
         LocalDef zDef = xts.localDef(pos, xts.Final(), Types.ref(T), zn);
         Formal z = xnf.Formal(pos, xnf.FlagsNode(pos, xts.Final()),
                 xnf.CanonicalTypeNode(pos, T), xnf.Id(pos, zn)).localDef(zDef);
