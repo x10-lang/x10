@@ -21,7 +21,6 @@ import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10TypeSystem;
-import x10.types.constraints.CConstraint;
 import x10.visit.X10PrettyPrinterVisitor;
 
 final public class RuntimeTypeExpander extends Expander {
@@ -134,18 +133,7 @@ final public class RuntimeTypeExpander extends Expander {
         if (at instanceof ConstrainedType) {
             ConstrainedType ct = (ConstrainedType) at;
             Type base = ct.baseType().get();
-            if (X10PrettyPrinterVisitor.serialize_runtime_constraints) {
-                CConstraint constraint = ct.constraint().get();
-                er.w.write("new x10.rtt.ConstrainedType(");
-                new RuntimeTypeExpander(er, base).expand(tr);
-                er.w.write(", ");
-                er.w.write("null, ");
-                er.serializeConstraint(constraint);
-                er.w.write(")");
-            }
-            else {
-                new RuntimeTypeExpander(er, base).expand(tr);
-            }
+            new RuntimeTypeExpander(er, base).expand(tr);
             return;
         }
 

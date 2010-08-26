@@ -101,7 +101,6 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.InnerClassRemover;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.Translator;
-import polyglot.visit.TypeBuilder;
 import x10.Configuration;
 import x10.ast.AssignPropertyBody_c;
 import x10.ast.Async_c;
@@ -114,7 +113,6 @@ import x10.ast.ClosureCall;
 import x10.ast.ClosureCall_c;
 import x10.ast.Closure_c;
 import x10.ast.Contains_c;
-import x10.ast.DepParameterExpr;
 import x10.ast.Finish_c;
 import x10.ast.ForEach_c;
 import x10.ast.ForLoop_c;
@@ -126,7 +124,6 @@ import x10.ast.Now_c;
 import x10.ast.ParExpr;
 import x10.ast.ParExpr_c;
 import x10.ast.PropertyDecl;
-import x10.ast.PropertyDecl_c;
 import x10.ast.SettableAssign_c;
 import x10.ast.StmtExpr_c;
 import x10.ast.StmtSeq_c;
@@ -179,8 +176,6 @@ import x10.types.X10MethodInstance;
 import x10.types.X10ParsedClassType_c;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
-import x10.types.constraints.CConstraint;
-import x10.util.Synthesizer;
 import x10c.ast.X10CBackingArrayAccessAssign_c;
 import x10c.ast.X10CBackingArrayAccess_c;
 import x10c.ast.X10CBackingArray_c;
@@ -205,7 +200,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	public static final int BOX_PRIMITIVES = 2;
 	public static final int NO_VARIANCE = 4;
 	public static final int NO_QUALIFIER = 8;
-	public static final boolean serialize_runtime_constraints = false;
 	public static final boolean reduce_generic_cast = true;
 
 	public static final String RETURN_PARAMETER_TYPE_SUFFIX = "$G";
@@ -890,7 +884,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		er.generateRTTInstance(def);
 		
 		// Generate dispatcher methods.
-		er.generateDispatchers(def);
+//		er.generateDispatchers(def);
 
 		er.generateBridgeMethods(def);
 
@@ -929,9 +923,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		w.write("}");
 		w.newline(0);
 
-		if (def.isLocal()) {
-			er.generateRTType(def);
-		}
+//		if (def.isLocal()) {
+//			er.generateRTType(def);
+//		}
 	}
 
 
@@ -1359,7 +1353,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 Type type = n.objectType().type();
                 if (type instanceof X10ClassType) {
                     X10ClassDef cd = ((X10ClassType) type).x10Def();
-                    String pat = er.getJavaRepParam(cd, 1);
+                    String pat = er.getJavaRep(cd);
                     if (pat != null && pat.startsWith("java.")) {
                         return true;
                     }
@@ -2252,15 +2246,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         }
 
         w.write(";");
-	}
-
-	public void visit(PropertyDecl_c dec) {
-		//		polyglot.types.Context c = tr.context();
-		// Don't generate property declarations for fields.
-		//		if (c.currentClass().flags().isInterface()) {
-		//			return;
-		//		}
-		super.visit(dec);
 	}
 
 	public void visit(X10LocalDecl_c n) {
