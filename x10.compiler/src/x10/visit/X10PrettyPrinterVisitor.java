@@ -63,6 +63,7 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.PackageNode_c;
 import polyglot.ast.Receiver;
 import polyglot.ast.Return_c;
+import polyglot.ast.SourceFile;
 import polyglot.ast.Special;
 import polyglot.ast.Special_c;
 import polyglot.ast.Stmt;
@@ -75,6 +76,7 @@ import polyglot.ast.Try_c;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.ast.Unary_c;
+import polyglot.frontend.Source;
 import polyglot.types.ArrayType;
 import polyglot.types.ClassDef;
 import polyglot.types.Context;
@@ -98,6 +100,7 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.InnerClassRemover;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.Translator;
+import polyglot.visit.TypeBuilder;
 import x10.Configuration;
 import x10.ast.AssignPropertyBody_c;
 import x10.ast.Async_c;
@@ -175,6 +178,8 @@ import x10.types.X10MethodInstance;
 import x10.types.X10ParsedClassType_c;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
+import x10.types.constraints.CConstraint;
+import x10.util.Synthesizer;
 import x10c.ast.X10CBackingArrayAccessAssign_c;
 import x10c.ast.X10CBackingArrayAccess_c;
 import x10c.ast.X10CBackingArray_c;
@@ -210,8 +215,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 	public final Type imcType;
 	
-	private static final String X10_RTT_TYPES = "x10.rtt.Types";
-	
+        private static final String X10_RTT_TYPES = "x10.rtt.Types";
+        private static final List<ClassDef> generatedClasses = new ArrayList<ClassDef>(); 
+
 	private static int nextId_;
 	/* to provide a unique name for local variables introduce in the templates */
 	public static Integer getUniqueId_() {
@@ -702,6 +708,18 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 
 	public void visit(X10ClassDecl_c n) {
+	        String className = n.classDef().name().toString();
+	        if (n.classDef().isTopLevel() && !n.classDef().sourceFile().name().equals(className + ".x10") && !generatedClasses.contains(n.classDef())) {
+	            generatedClasses.add(n.classDef());
+	            // not include import
+	            SourceFile sf = tr.nodeFactory().SourceFile(n.position(), (List) Collections.singletonList(n));
+	            if (n.classDef().package_() != null) {
+	                sf = sf.package_(tr.nodeFactory().PackageNode(n.position(), n.classDef().package_()));
+	            }
+	            sf = sf.source(new Source(n.classDef().name().toString() + ".x10", n.position().path(), null));
+	            tr.translate(sf);
+	            return;
+	        }
 		X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
 		X10Context context = (X10Context) tr.context();
 
@@ -936,6 +954,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             case CHECKED:
             case PRIMITIVE:
             case SUBTYPE:
+            case UNCHECKED:
                     if (tn instanceof X10CanonicalTypeNode) {
                             X10CanonicalTypeNode xtn = (X10CanonicalTypeNode) tn;
 
@@ -960,10 +979,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                                     "}" +
                                 "}.cast((#0) #1))";
 
-                            DepParameterExpr dep = xtn.constraintExpr();
+                            DepParameterExpr dep = constraintExpr(xtn);
                             
                             // for constraintedType
                             if (dep != null) {
+                                    assert (false);
                                     List<Expr> conds = dep.condition();
                                     X10Context xct = (X10Context) tr.context();
                                     boolean inAnonObjectScope = xct.inAnonObjectScope();
@@ -1073,8 +1093,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		if (tn instanceof X10CanonicalTypeNode) {
 			X10CanonicalTypeNode xtn = (X10CanonicalTypeNode) tn;
 			Type t = X10TypeMixin.baseType(xtn.type());
-			DepParameterExpr dep = xtn.constraintExpr();
+			DepParameterExpr dep = constraintExpr(xtn);
 			if (dep != null) {
+			    assert (false);
 			    boolean isPrimitive = t.isBoolean() || t.isNumeric() || t.isChar();
 			    String template = isPrimitive ? "instanceof_primitive_deptype" : "instanceof_deptype";
 			    // SYNOPSIS: (#1 instanceof #0) #1 #0=type #1=object #2=depclause
@@ -1250,6 +1271,17 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		    }
 		}
 		w.write(")");
+	}
+
+	private DepParameterExpr constraintExpr(X10CanonicalTypeNode xtn) {
+	    CConstraint c = X10TypeMixin.xclause(xtn.type());
+	    if (c == null || c.valid())
+	        return null;
+	    X10NodeFactory xnf = (X10NodeFactory) tr.nodeFactory();
+	    X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+	    DepParameterExpr dep = xnf.DepParameterExpr(xtn.position(), new Synthesizer(xnf, xts).makeExpr(c, xtn.position()));
+	    dep = (DepParameterExpr) dep.visit(new TypeBuilder(tr.job(), xts, xnf)).visit(new X10TypeChecker(tr.job(), xts, xnf, tr.job().nodeMemo()).context(((X10Context) tr.context()).pushDepType(xtn.typeRef())));
+	    return dep;
 	}
 
 
@@ -1473,13 +1505,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		                w.write(") {");
 		                w.newline();
 	                        
-		                cb.formal().prettyPrint(w, tr);
+		                cb.formal().translate(w, tr);
 		                w.write(" = (");
 		                new TypeExpander(er, cb.catchType(), false, false, false).expand(tr);
 		                w.write(") " + temp + ".getCause();");
 		                w.newline();
 		                
-		                cb.body().prettyPrint(w, tr);
+		                cb.body().translate(w, tr);
 		                w.newline();
 		                
 		                w.write("}");
@@ -1629,7 +1661,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    if (xts.isRail(c.target().type()) || xts.isValRail(c.target().type())) {
 	        String methodName = c.methodInstance().name().toString();
 	        if (methodName.equals("make")) {
-	            Type rt = X10TypeMixin.baseType(ptype);
+	            Type rt = X10TypeMixin.baseType(c.type());
 	            if (rt instanceof X10ClassType) {
 	                Type pt = ((X10ClassType) rt).typeArguments().get(0);
 	                if (!(X10TypeMixin.baseType(pt) instanceof ParameterType)) {
@@ -1645,13 +1677,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	                                tr2 = tr2.context(expr.enterScope(tr2.context()));
 	                                
 	                                final Expander ex;
-	                                if (pt.isBoolean() || pt.isNumeric() || pt.isChar()) {
-	                                    ex = new TypeExpander(er, pt, false, false, false);
-	                                } else {
-	                                    ex = new Expander(er) {
-	                                        public void expand(Translator tr2) {w.write("Object");}
-	                                    };
-	                                }
+	                                ex = new TypeExpander(er, pt, false, false, false);
 	                                final Node n = c;
 	                                final Id id = closure.formals().get(0).name();
 	                                Expander ex1 = new Expander(er) {
@@ -1878,10 +1904,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 //			}
 			else {
 			        if (e.type().isBoolean() || e.type().isNumeric() || e.type().isChar()) {
-			            if (X10TypeMixin.baseType(c.methodInstance().formalTypes().get(i)) instanceof ParameterType) {
+			            // e.g) m((Integer) a) for m(T a)
+			            if (X10TypeMixin.baseType(c.methodInstance().def().formalTypes().get(i).get()) instanceof ParameterType) {
 			                w.write("(");
 			                er.printType(e.type(), BOX_PRIMITIVES);
 			                w.write(")");
+			            // e.g) m((int) a) for m(int a)
 			            } else {
 			                w.write("(");
 			                er.printType(e.type(), 0);
@@ -1915,9 +1943,18 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			                }
 			            }
 			            w.write("(");
-			        } 
-			        c.print(e, w, tr);
-			        if (e.type().isBoolean() || e.type().isNumeric() || e.type().isChar()) {
+			            c.print(e, w, tr);
+                                    w.write(")");
+			        }
+			        // XTENLANG-1704
+			        else {
+			            w.write("(");
+			            w.write("(");
+			            er.printType(mi.formalTypes().get(i), 0);
+			            w.write(")");
+			            w.write("(");
+			            c.print(e, w, tr);
+			            w.write(")");
 			            w.write(")");
 			        }
 			}
@@ -3039,22 +3076,32 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         Binary.Operator op = n.operator();
 
         boolean asPrimitive = false;
+        boolean asUnsignedPrimitive = false;
         if (op == Binary.EQ || op == Binary.NE) {
             if (l.isNumeric() && r.isNumeric() || l.isBoolean() && r.isBoolean() || l.isChar() && r.isChar()) {
                 asPrimitive = true;
+
+                if (l.isNumeric() && !(l.isByte() || l.isShort() || l.isInt() || l.isLong() || l.isFloat() || l.isDouble())) {
+                    asUnsignedPrimitive = true;
+                }
             }
         }
 
         if (asPrimitive) {
+            if (asUnsignedPrimitive && (op == Binary.NE)) w.write("!");
             w.write("((");
             er.printType(l, 0);
             w.write(") ");
         }
         n.printSubExpr(left, true, w, tr);
         if (asPrimitive) w.write(")");
-        w.write(" ");
-        w.write(op.toString());
-        w.allowBreak(n.type() == null || n.type().isPrimitive() ? 2 : 0, " ");
+        if (asUnsignedPrimitive) {
+            w.write(".equals(");
+        } else {
+            w.write(" ");
+            w.write(op.toString());
+            w.allowBreak(n.type() == null || n.type().isPrimitive() ? 2 : 0, " ");
+        }
         if (asPrimitive) {
             w.write("((");
             er.printType(r, 0);
@@ -3062,6 +3109,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         }
         n.printSubExpr(right, false, w, tr);
         if (asPrimitive) w.write(")");
+        if (asUnsignedPrimitive) w.write(")");
     }
 
     public void visit(X10Binary_c n) {

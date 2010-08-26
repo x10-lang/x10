@@ -12,7 +12,6 @@
 package x10.ast;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -168,7 +167,7 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 	        }
 
 	        if (kind == SUPER) {
-	            if (! superType.isClass()) {
+	            if (! superType.isClass() && !ts.isUnknown(superType)) {
 	                throw new SemanticException("Super type of " + ct +
 	                                            " is not a class.", position());
 	            }
@@ -222,18 +221,20 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 	        }
 	    
 	    try {
-	        ci = (X10ConstructorInstance) ts.findConstructor(ct, ts.ConstructorMatcher(ct, Collections.EMPTY_LIST, argTypes, context));
+	        ci = (X10ConstructorInstance) ts.findConstructor(ct, ts.ConstructorMatcher(ct, argTypes, context));
 	        args = n.arguments();
 	    }
 	    catch (SemanticException e) {
 	        // Now, try to find the method with implicit conversions, making them explicit.
 	        try {
-	            Pair<ConstructorInstance,List<Expr>> p = tryImplicitConversions(this, tc, ct, Collections.<Type>emptyList(), argTypes);
+	            Pair<ConstructorInstance,List<Expr>> p = tryImplicitConversions(this, tc, ct, argTypes);
 	            ci = (X10ConstructorInstance) p.fst();
 	            args = p.snd();
 	        }
 	        catch (SemanticException e2) {
-	            throw e;
+	            Pair<ConstructorInstance,List<Expr>> p = X10New_c.findConstructor(tc, this, ct, argTypes);
+	            ci = (X10ConstructorInstance) p.fst();
+	            args = p.snd();
 	        }
 	    }
 
@@ -257,18 +258,18 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 	}
 	
         static Pair<ConstructorInstance,List<Expr>> tryImplicitConversions(X10ConstructorCall_c n, 
-        		ContextVisitor tc, Type targetType, List<Type> typeArgs, List<Type> argTypes) throws SemanticException {
+        		ContextVisitor tc, Type targetType, List<Type> argTypes) throws SemanticException {
             final X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
             final Context context = tc.context();
             ClassDef currentClassDef = context.currentClassDef();
 
             List<ConstructorInstance> methods 
             = ts.findAcceptableConstructors(targetType, 
-            		new DumbConstructorMatcher(targetType, typeArgs, argTypes, context));
+            		new DumbConstructorMatcher(targetType, argTypes, context));
             return Converter.tryImplicitConversions(n, tc, targetType, methods, 
             		new MatcherMaker<ConstructorInstance>() {
                 public Matcher<ConstructorInstance> matcher(Type ct, List<Type> typeArgs, List<Type> argTypes) {
-                    return ts.ConstructorMatcher(ct, typeArgs, argTypes, context);
+                    return ts.ConstructorMatcher(ct, argTypes, context);
                 }
             });
         }

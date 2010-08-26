@@ -25,11 +25,11 @@ class RemoteRefEquality extends x10Test {
 
     public def run(): boolean {
         chk(Place.places.length > 1, "This test must be run with multiple places");
-        val local = new RemoteRefEquality();
-        val remote = at (here.next()) new RemoteRefEquality(local);
-        Console.OUT.println(local == (at (remote) remote.rr)); // workaround XTENLANG-1124
-        Console.OUT.println(at (remote) remote.rr == local);
-        return at (remote) remote.rr == local;
+        val local_ = new RemoteRefEquality();
+        val remote = at (here.next()) new RemoteRefEquality(local_);
+        Console.OUT.println(local_ == (at (remote) remote.rr)); // workaround XTENLANG-1124
+        Console.OUT.println(at (remote) remote.rr == local_);
+        return at (remote) remote.rr == local_;
     }
 
     public static def main(Rail[String]) {

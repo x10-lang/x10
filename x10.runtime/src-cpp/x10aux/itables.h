@@ -58,19 +58,20 @@ namespace x10 { namespace lang { class Reference; }}
 
 namespace x10aux {
     class RuntimeType;
-    
+
     /*
      * An itables array is an array of itable_entry.
      * Each interface declares a unique struct for its itable,
      * therfore in the itable entry it must be declared as a void*.
      */
     struct itable_entry {
-        itable_entry(const RuntimeType* id_, void* itable_) : id(id_), itable(itable_) {}
-        const RuntimeType* id;
+        itable_entry(const RuntimeType* (initFunction_)(), void* itable_) : id(NULL), itable(itable_), initFunction(initFunction_) {}
+        volatile const RuntimeType* id;
         void* itable;
+        const RuntimeType* (*initFunction)();
     };
 
-    void* outlinedITableLookup(itable_entry* itables, RuntimeType* targetInterface);
+    void* outlinedITableLookup(itable_entry* itables, const RuntimeType* targetInterface);
     
     /*
      * Search itables to find the itable that matches I and return it.
@@ -81,14 +82,17 @@ namespace x10aux {
      * cases are handled in the out-of-line outlinedITableLookup routine.
      */
     template<class I> inline typename I::template itable<x10::lang::Reference>* findITable(itable_entry* itables) {
-        RuntimeType *id = &I::rtt;
+        const RuntimeType *id = &I::rtt; // NOTE: I::rtt may be uninitialized, but that's ok here. Make common case as fast as possible.
         for (int i=0; true; i++) {
             if (itables[i].id == id) {
                 return (typename I::template itable<x10::lang::Reference>*)(itables[i].itable);
             }
             if (NULL == itables[i].id) {
-                // Hit the end of itables, now deal with complex cases involving generic types.
-                return (typename I::template itable<x10::lang::Reference>*)outlinedITableLookup(itables, id);
+                // Either itables hasn't been initialized yet, or we've hit the end of itables and
+                // we need to deal with complex cases involving generic types.
+                // By calling getRTT<I>(), we ensure that I::rtt will now be initialized before we need to look at its content.
+                // in the body of outlineITableLookup.
+                return (typename I::template itable<x10::lang::Reference>*)outlinedITableLookup(itables, x10aux::getRTT<I>());
             }
         }
     }

@@ -23,6 +23,7 @@ import x10.visit.SharedBoxer;
 import x10c.ast.X10CNodeFactory_c;
 import x10c.types.X10CTypeSystem_c;
 import x10c.visit.CastRemover;
+import x10c.visit.ClosuresToStaticMethods;
 import x10c.visit.Desugarer;
 import x10c.visit.InlineHelper;
 import x10c.visit.JavaCaster;
@@ -44,6 +45,9 @@ public class ExtensionInfo extends x10.ExtensionInfo {
         return new X10CTypeSystem_c();
     }
 
+//    public static final boolean PREPARE_FOR_INLINING = x10.Configuration.INLINE_OPTIMIZATIONS;
+    public static final boolean PREPARE_FOR_INLINING = true;
+
     static class X10CScheduler extends X10Scheduler {
         public X10CScheduler(ExtensionInfo extInfo) {
             super(extInfo);
@@ -52,19 +56,21 @@ public class ExtensionInfo extends x10.ExtensionInfo {
         @Override
         public List<Goal> goals(Job job) {
             List<Goal> goals = super.goals(job);
-            JavaCaster(job).addPrereq(Desugarer(job));
+            ClosuresToStaticMethods(job).addPrereq(Desugarer(job));
+            JavaCaster(job).addPrereq(ClosuresToStaticMethods(job));
             CastsRemoved(job).addPrereq(JavaCaster(job));
             RailInLoopOptimizer(job).addPrereq(CastsRemoved(job));
             SharedBoxed(job).addPrereq(RailInLoopOptimizer(job));
-            if (x10.Configuration.INLINE_OPTIMIZATIONS) {
+            if (PREPARE_FOR_INLINING) {
                 InlineHelped(job).addPrereq(SharedBoxed(job));
             }
             CodeGenerated(job).addPrereq(Desugarer(job));
+            CodeGenerated(job).addPrereq(ClosuresToStaticMethods(job));
             CodeGenerated(job).addPrereq(JavaCaster(job));
             CodeGenerated(job).addPrereq(CastsRemoved(job));
             CodeGenerated(job).addPrereq(RailInLoopOptimizer(job));
             CodeGenerated(job).addPrereq(SharedBoxed(job));
-            if (x10.Configuration.INLINE_OPTIMIZATIONS) {
+            if (PREPARE_FOR_INLINING) {
                 CodeGenerated(job).addPrereq(InlineHelped(job));
             }
             return goals;
@@ -75,6 +81,12 @@ public class ExtensionInfo extends x10.ExtensionInfo {
             TypeSystem ts = extInfo.typeSystem();
             NodeFactory nf = extInfo.nodeFactory();
             return new VisitorGoal("Desugarer", job, new Desugarer(job, ts, nf)).intern(this);
+        }
+
+        public Goal ClosuresToStaticMethods(Job job) {
+            TypeSystem ts = extInfo.typeSystem();
+            NodeFactory nf = extInfo.nodeFactory();
+            return new VisitorGoal("ClosuresToStaticMethods", job, new ClosuresToStaticMethods(job, ts, nf)).intern(this);
         }
 
         private Goal RailInLoopOptimizer(Job job) {

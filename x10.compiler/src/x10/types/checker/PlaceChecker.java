@@ -130,7 +130,15 @@ public class PlaceChecker {
 		return c;
 	}
 	
+	/**
+	 * Caller must ensure that self.home==here constraint can be consistently added to type.
+	 * @param type
+	 * @param cxt
+	 * @return
+	 */
 	public static Type AddIsHereClause(Type type, Context cxt) {
+		if (X10TypeMixin.isX10Struct(type))
+			return type;
 		XVar selfVar = X10TypeMixin.selfVar(type);
 		if (selfVar == null) {
 		    selfVar = XTerms.makeEQV("self");
@@ -140,11 +148,13 @@ public class PlaceChecker {
 		        throw new InternalCompilerError("Cannot set self var for type "+type, e);
 		    }
 		}
-    	XTerm locVar = homeVar(selfVar, (X10TypeSystem) cxt.typeSystem());
-    	//XConstrainedTerm pt = ((X10Context) cxt).currentPlaceTerm();
-    	// if (pt != null)
-    	type = X10TypeMixin.addBinding(type, locVar, here());// here, not pt); // pt, not PlaceChecker.here()
-    	return type;
+		XTerm locVar = homeVar(selfVar, (X10TypeSystem) cxt.typeSystem());
+		try {
+			type = X10TypeMixin.addBinding(type, locVar, here());// here, not pt); // pt, not PlaceChecker.here()
+		} catch (XFailure z) {
+			// caller responsibility to ensure that this could be consistently added.
+		}
+		return type;
 	}
 	
 	public static Type ReplaceHereByPlaceTerm(Type type, X10Context xct) {
@@ -188,7 +198,8 @@ public class PlaceChecker {
 		return type;
 	}
 	
-	public static Type ReplacePlaceTermByHere(Type type, XTerm term) {
+	public static Type ReplacePlaceTermByHere(Type type, Context context) {
+		XTerm term = ((X10Context) context).currentPlaceTerm().term();
 		try {
 			if ( term instanceof XVar)
 				type = Subst.subst(type,  here(), (XVar) term); 
@@ -444,13 +455,13 @@ public class PlaceChecker {
         // compensate by generating a dynamic cast
         if (target instanceof Expr) {
             Type type = PlaceChecker.AddIsHereClause(X10TypeMixin.baseType(target.type()), tc.context());
-            type = PlaceChecker.ReplacePlaceTermByHere(type, ((X10Context) tc.context()).currentPlaceTerm().term());
+            type = PlaceChecker.ReplacePlaceTermByHere(type, tc.context());
             target = Converter.attemptCoercion(true, tc, (Expr) target, type);
         }
         return target;
     }
 
-    public static Call makeReceiverLocalIfNecessary(X10Call n, ContextVisitor tc) throws SemanticException {
+    public static X10Call makeReceiverLocalIfNecessary(X10Call n, ContextVisitor tc) throws SemanticException {
         Receiver res =
             makeReceiverLocalIfNecessary(tc, n.target(), X10Flags.toX10Flags(n.methodInstance().flags()));
         if (res != null) {

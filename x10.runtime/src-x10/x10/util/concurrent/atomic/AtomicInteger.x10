@@ -19,7 +19,7 @@ import x10.compiler.NativeRep;
 public final class AtomicInteger {
 	
 	public native def this(): AtomicInteger;
-	public native def this(val:int):  AtomicInteger;
+	public native def this(v:int):  AtomicInteger;
 
 	@Native("java", "#0.get()")
 	@Native("c++", "(#0)->get()")
@@ -27,7 +27,7 @@ public final class AtomicInteger {
 	
 	@Native("java", "#0.set(#1)")
 	@Native("c++", "(#0)->set(#1)")
-	public native def set(newVal:int):void;
+	public native def set(newV:int):void;
 	
 	@Native("java", "#0.compareAndSet(#1,#2)")
 	@Native("c++", "(#0)->compareAndSet(#1,#2)")

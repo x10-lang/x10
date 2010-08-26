@@ -26,8 +26,8 @@ import x10.types.X10Context;
 
 public class X10AmbAssign_c extends AmbAssign_c {
 
-    public X10AmbAssign_c(Position pos, Expr left, Operator op, Expr right) {
-	super(pos, left, op, right);
+    public X10AmbAssign_c(X10NodeFactory nf, Position pos, Expr left, Operator op, Expr right) {
+	super(nf, pos, left, op, right);
     }
     
     @Override

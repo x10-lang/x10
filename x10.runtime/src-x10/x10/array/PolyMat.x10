@@ -22,10 +22,7 @@ import x10.io.Printer;
  * the PolyMat, or equivalently, as the set of points satisfying the
  * conjunction of the linear inequalities represented by each PolyRow
  * object.
- *
- * @author bdlucas
  */
-
 public class PolyMat(rank: int) extends Mat[PolyRow] {
 
     static type PolyMat(rank:Int) = PolyMat{self.rank==rank};
@@ -133,21 +130,21 @@ public class PolyMat(rank: int) extends Mat[PolyRow] {
             } else {
                 for (jr:PolyRow in this) {
                     val ja = jr(k);
-                    val as = Rail.make[int](rank+1);
+                    val as_ = Rail.make[int](rank+1);
                     if (ia>0 && ja<0) {
                         for (var l: int = 0; l<=rank; l++)
-                            as(l) = ia*jr(l) - ja*ir(l);
+                            as_(l) = ia*jr(l) - ja*ir(l);
                     } else if (ia<0 && ja>0) {
                         for (var l: int = 0; l<=rank; l++)
-                            as(l) = ja*ir(l) - ia*jr(l);
+                            as_(l) = ja*ir(l) - ia*jr(l);
                     }
                     val lim = simplifyDegenerate? rank : rank+1;
                     var degenerate: boolean = true;
                     for (var l: int = 0; l<lim; l++)
-                        if (as(l)!=0)
+                        if (as_(l)!=0)
                             degenerate = false;
                     if (!degenerate) {
-                        var r: PolyRow = new PolyRow(as);
+                        var r: PolyRow = new PolyRow(as_);
                         pmb.add(r);
                     }
                 }
@@ -249,20 +246,6 @@ public class PolyMat(rank: int) extends Mat[PolyRow] {
         }
 
         return false;
-    }
-
-
-    /**
-     * Matrix multiplication.
-     */
-
-    public global operator this * (that: XformMat): PolyMat {
-        return new PolyMat(this.rows, that.cols, (i:Int,j:Int) => {
-            var sum:int = 0;
-            for (var k:int=0; k<this.cols; k++)
-                sum += this(i)(k)*that(k)(j);
-            return sum;
-        }, true);
     }
 
 

@@ -11,7 +11,10 @@
 
 package x10.types;
 
+import polyglot.types.ClassType;
 import polyglot.types.Flags;
+import polyglot.types.QName;
+import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.UnknownType_c;
@@ -38,5 +41,10 @@ public class X10UnknownType_c extends UnknownType_c  {
 	public Type clearFlags(Flags f) { return this; }
 	public String toString() { return  super.toString(); }
 	public boolean equalsNoFlag(Type t2) { return this == t2;}
-	public boolean permitsNull() { return false; }
+	public boolean permitsNull() { return true; }
+
+	public boolean isClass() { return true; }
+	public ClassType toClass() {
+	    return ((X10TypeSystem_c)ts).createFakeClass(QName.make("<unknown>"), new SemanticException("Unknown class"));
+	}
 }

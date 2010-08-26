@@ -68,10 +68,6 @@ public class MatBuilder {
         while (mat.size()<n)
             mat.add(new VarRow(cols));
     }
-
-    public safe def toXformMat() {
-        return new XformMat(mat.size(), cols, (i:Int,j:Int)=>mat(i)(j));
-    }
 }
 
 

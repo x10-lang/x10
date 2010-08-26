@@ -34,7 +34,7 @@ public final class Configuration extends x10.config.Configuration {
     public static final ConfigurationError LOAD_ERROR;
 
     public static boolean CHECK_INVARIANTS = false;
-    private static final String CHECK_INVARIANTS_desc = "Check AST invariants such as position containment, existance of xxxInstance(), etc";
+    private static final String CHECK_INVARIANTS_desc = "Check AST invariants such as position containment, existence of xxxInstance(), etc";
 
     public static boolean ONLY_TYPE_CHECKING = false;
     private static final String ONLY_TYPE_CHECKING_desc = "Do only type-checking, without optimizations or code generation";
@@ -71,6 +71,9 @@ public final class Configuration extends x10.config.Configuration {
 
     public static String MANIFEST = null;
     private static final String MANIFEST_desc = "The path to the pre-built library manifest file";
+
+    public static boolean CHECK_INITIALIZATIONS = true;
+    private static final String CHECK_INITIALIZATIONS_desc = "Check variables are initialized correctly";
 
     public static boolean WORK_STEALING = false;
     private static final String WORK_STEALING_desc = "Code generation for work-stealing scheduling";

@@ -38,7 +38,7 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
     
     public PropertyDecl_c(Position pos, FlagsNode flags, TypeNode type,
             Id name, Expr init, X10NodeFactory nf) {
-        super(pos, flags, type, name, init);
+        super(nf, pos, flags, type, name, init);
     }
 
     @Override

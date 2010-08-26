@@ -27,15 +27,23 @@ import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.ast.Unary_c;
 import polyglot.types.ClassDef;
+import polyglot.types.ClassType;
+import polyglot.types.Flags;
 import polyglot.types.MethodDef;
+import polyglot.types.MethodInstance;
 import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
+import x10.errors.Errors;
+import x10.types.X10MethodInstance;
+import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
+import x10.types.X10TypeSystem_c;
 import x10.types.checker.Converter;
+import x10.types.checker.PlaceChecker;
 import x10.visit.X10TypeChecker;
 
 /**
@@ -69,7 +77,6 @@ public class X10Unary_c extends Unary_c {
     public Node typeCheck(ContextVisitor tc) throws SemanticException {
         X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
         X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
-        Type t = expr.type();
         Unary.Operator op = this.operator();
 
         if (op == NEG && expr instanceof IntLit) {
@@ -84,8 +91,11 @@ public class X10Unary_c extends Unary_c {
         
         Call c = desugarUnaryOp(this, tc);
         if (c != null) {
+            X10MethodInstance mi = (X10MethodInstance) c.methodInstance();
+            if (mi.error() != null)
+                throw mi.error();
             // rebuild the unary using the call's arguments.  We'll actually use the call node after desugaring.
-            if (c.methodInstance().flags().isStatic()) {
+            if (mi.flags().isStatic()) {
                 return this.expr(c.arguments().get(0)).type(c.type());
             }
             else {
@@ -162,6 +172,11 @@ public class X10Unary_c extends Unary_c {
             }
         }
 
+        Type t = expr.type();
+
+        if (ts.hasUnknown(t))
+            throw new SemanticException(); // null message
+
         X10Unary_c n = (X10Unary_c) super.typeCheck(tc);
 
         Type resultType = n.type();
@@ -173,144 +188,156 @@ public class X10Unary_c extends Unary_c {
         return n;
     }
 
-    public static X10Call_c desugarUnaryOp(Unary n, ContextVisitor tc) throws SemanticException {
+    public static X10Call_c desugarUnaryOp(Unary n, ContextVisitor tc) {
         Expr left = n.expr();
         Unary.Operator op = n.operator();
         Position pos = n.position();
-        
+
         Type l = left.type();
-        
-        X10TypeChecker xtc = X10TypeChecker.getTypeChecker(tc).throwExceptions(true);
+
         X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
         Name methodName = unaryMethodName(op);
-        
+
+        if (methodName == null) return null;
+
         // TODO: byte+byte should convert both bytes to int and search int
         // For now, we have to define byte+byte in byte.x10.
-        
+
         X10Call_c virtual_left = null;
         X10Call_c static_left = null;
-        
+
         if (methodName != null) {
             // Check if there is a method with the appropriate name and type with the operand as receiver.   
             X10Call_c n2 = (X10Call_c) nf.X10Call(pos, left, nf.Id(pos, methodName), Collections.EMPTY_LIST, Collections.EMPTY_LIST);
-            if (n.isConstant())
-                n2 = n2.constantValue(n.constantValue());
-            
-            try {
-                n2 = Converter.check(n2, xtc);
-                if (! n2.methodInstance().def().flags().isStatic())
-                    virtual_left = n2;
-            }
-            catch (SemanticException e2) {
-                // Cannot find the method.  Fall through.
-            }
+            n2 = X10Binary_c.typeCheckCall(tc, n2);
+            X10MethodInstance mi2 = (X10MethodInstance) n2.methodInstance();
+            if (mi2.error() == null && !mi2.def().flags().isStatic())
+                virtual_left = n2;
         }
-        
+
         if (methodName != null) {
             // Check if there is a static method of the left type with the appropriate name and type.   
             X10Call_c n4 = (X10Call_c) nf.X10Call(pos, nf.CanonicalTypeNode(pos, Types.ref(l)), nf.Id(pos, methodName), Collections.EMPTY_LIST, Collections.singletonList(left));
-            if (n.isConstant())
-                n4 = n4.constantValue(n.constantValue());
-            
-            try {
-                n4 = Converter.check(n4, xtc);
-                if (n4.methodInstance().def().flags().isStatic())
-                    static_left = n4;
-            }
-            catch (SemanticException e2) {
-                // Cannot find the method.  Fall through.
-            }
+            n4 = X10Binary_c.typeCheckCall(tc, n4);
+            X10MethodInstance mi4 = (X10MethodInstance) n4.methodInstance();
+            if (mi4.error() == null && mi4.def().flags().isStatic())
+                static_left = n4;
         }
-        
+
         List<X10Call_c> defs = new ArrayList<X10Call_c>();
         if (virtual_left != null) defs.add(virtual_left);
         if (static_left != null) defs.add(static_left);
-        
-        if (defs.size() > 1) {
-            X10TypeSystem  ts = (X10TypeSystem) tc.typeSystem();
-            
-            X10Call_c best = null;
-            boolean bestNeedsConversion = false;
-            boolean bestNeedsExplicitConversion = false;
-            
-            for (int i = 0; i < defs.size(); i++) {
-                X10Call_c n1 = defs.get(i);
-                
-                // Check if n needs a conversio
-                boolean needsConversion = false;
-                boolean needsExplicitConversion = false;
-                if (n1.arguments().size() == 0 && n1.target() instanceof Expr) {
-                    Expr[] actuals = new Expr[] { (Expr) n1.target() };
-                    Expr[] original = new Expr[] { left };
-                    needsConversion = X10Binary_c.needsConversion(actuals, original);
-                    needsExplicitConversion = X10Binary_c.needsExplicitConversion(actuals, original);
-                }
-                else if (n1.arguments().size() == 1) {
-                    Expr[] actuals = new Expr[] { n1.arguments().get(0) };
-                    Expr[] original = new Expr[] { left };
-                    needsConversion = X10Binary_c.needsConversion(actuals, original);
-                    needsExplicitConversion = X10Binary_c.needsExplicitConversion(actuals, original);
-                }
-                
-                if (best == null) {
-                    best = n1;
-                    bestNeedsConversion = needsConversion;
-                    bestNeedsExplicitConversion = needsExplicitConversion;
-                }
-                else if (needsExplicitConversion && ! bestNeedsExplicitConversion) {
-                    // best is still the best
-                }
-                else if (needsConversion && ! bestNeedsConversion) {
-                    // best is still the best
-                }
-                else if (! needsExplicitConversion && bestNeedsExplicitConversion) {
-                    best = n1;
-                    bestNeedsConversion = needsConversion;
-                    bestNeedsExplicitConversion = needsExplicitConversion;
-                }
-                else if (! needsConversion && bestNeedsConversion) {
-                    best = n1;
-                    bestNeedsConversion = needsConversion;
-                    bestNeedsExplicitConversion = needsExplicitConversion;
-                }
-                else {
-                    MethodDef m0 = best.methodInstance().def();
-                    MethodDef mi = n1.methodInstance().def();
-                    if (m0 == mi)
+
+        if (defs.size() == 0) return null;
+
+        X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
+
+        List<X10Call_c> best = new ArrayList<X10Call_c>();
+        X10Binary_c.Conversion bestConversion = X10Binary_c.Conversion.UNKNOWN;
+
+        for (int i = 0; i < defs.size(); i++) {
+            X10Call_c n1 = defs.get(i);
+
+            // Check if n needs a conversion
+            Expr[] actuals = new Expr[] {
+                n1.arguments().size() != 1 ? (Expr) n1.target() : n1.arguments().get(0)
+            };
+            Expr[] original = new Expr[] { left };
+            X10Binary_c.Conversion conversion = X10Binary_c.conversionNeeded(actuals, original);
+
+            if (bestConversion.harder(conversion)) {
+                best.clear();
+                best.add(n1);
+                bestConversion = conversion;
+            }
+            else if (conversion.harder(bestConversion)) {
+                // best is still the best
+            }
+            else {  // all other things being equal
+                MethodDef md = n1.methodInstance().def();
+                Type td = Types.get(md.container());
+                ClassDef cd = X10Binary_c.def(td);
+
+                for (X10Call_c c : best) {
+                    MethodDef bestmd = c.methodInstance().def();
+                    assert (bestmd != md) : pos.toString();
+                    if (bestmd == md) continue;  // same method by a different path (shouldn't happen for unary)
+
+                    Type besttd = Types.get(bestmd.container());
+                    if (xts.isUnknown(besttd) || xts.isUnknown(td)) {
+                        best.add(n1);
                         continue;
-                    
-                    Type t0 = Types.get(m0.container());
-                    Type ti = Types.get(mi.container());
-                    
-                    ClassDef d0 = X10Binary_c.def(t0);
-                    ClassDef di = X10Binary_c.def(ti);
-                    
-                    if (d0 == null || di == null) {
-                        throw new SemanticException("Ambiguous operator: multiple methods match operator " + op + ": " + m0 + " and " + mi + ".", pos);
                     }
-                    
-                    if (ts.descendsFrom(d0, di)) {
+
+                    ClassDef bestcd = X10Binary_c.def(besttd);
+                    assert (bestcd != null && cd != null);
+
+                    if (xts.descendsFrom(cd, bestcd)) {
+                        best.clear();
+                        best.add(n1);
+                        bestConversion = conversion;
+                    }
+                    else if (xts.descendsFrom(bestcd, cd)) {
                         // best is still the best
                     }
-                    else if (ts.descendsFrom(di, d0)) {
-                        best = n1;
-                        bestNeedsConversion = needsConversion;
-                        bestNeedsExplicitConversion = needsExplicitConversion;
-                    }
                     else {
-                        throw new SemanticException("Ambiguous operator: multiple methods match operator " + op + ": " + m0 + " and " + mi + ".", pos);
+                        best.add(n1);
                     }
                 }
             }
-            
-            assert best != null;
-            return best;
         }
-        
-        if (defs.size() == 1)
-            return defs.get(0);
-        
-        return null;
+        assert (best.size() != 0);
+
+        X10Call_c result = best.get(0);
+        if (best.size() > 1) {
+            List<MethodInstance> bestmis = new ArrayList<MethodInstance>();
+            Type rt = null;
+            boolean rtset = false;
+            ClassType ct = null;
+            boolean ctset = false;
+            // See if all matches have the same container and return type, and save that to avoid losing information.
+            for (X10Call_c c : best) {
+                MethodInstance xmi = c.methodInstance();
+                bestmis.add(xmi);
+                if (!rtset) {
+                    rt = xmi.returnType();
+                    rtset = true;
+                } else if (rt != null && !xts.typeEquals(rt, xmi.returnType(), tc.context())) {
+                    if (xts.typeBaseEquals(rt, xmi.returnType(), tc.context())) {
+                        rt = X10TypeMixin.baseType(rt);
+                    } else {
+                        rt = null;
+                    }
+                }
+                if (!ctset) {
+                    ct = xmi.container().toClass();
+                    ctset = true;
+                } else if (ct != null && !xts.typeEquals(ct, xmi.container(), tc.context())) {
+                    if (xts.typeBaseEquals(ct, xmi.container(), tc.context())) {
+                        ct = X10TypeMixin.baseType(ct).toClass();
+                    } else {
+                        ct = null;
+                    }
+                }
+            }
+            if (ct == null) ct = l.toClass();
+            SemanticException error = new Errors.AmbiguousOperator(op, bestmis, pos);
+            X10MethodInstance mi = xts.createFakeMethod(ct, Flags.PUBLIC.Static(), methodName, Collections.EMPTY_LIST, Collections.singletonList(l), error);
+            if (rt != null) mi = mi.returnType(rt);
+            result = (X10Call_c) nf.X10Call(pos, nf.CanonicalTypeNode(pos, Types.ref(ct)),
+                    nf.Id(pos, methodName), Collections.EMPTY_LIST,
+                    Collections.singletonList(left)).methodInstance(mi).type(mi.returnType());
+        }
+        try {
+            result = (X10Call_c) PlaceChecker.makeReceiverLocalIfNecessary(result, tc);
+        } catch (SemanticException e) {
+            X10MethodInstance mi = (X10MethodInstance) result.methodInstance();
+            if (mi.error() == null)
+                result = (X10Call_c) result.methodInstance(mi.error(e));
+        }
+        if (n.isConstant())
+            result = result.constantValue(n.constantValue());
+        return result;
     }
 
     public static Name unaryMethodName(Unary.Operator op) {

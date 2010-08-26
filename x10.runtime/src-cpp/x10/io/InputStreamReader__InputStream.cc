@@ -14,11 +14,20 @@
 #include <x10aux/alloc.h>
 
 #include <x10/io/InputStreamReader__InputStream.h>
+#include <x10/io/FileReader__FileInputStream.h>
 #include <x10/lang/Rail.h>
 
 using namespace x10::lang;
 using namespace x10::io;
 using namespace x10aux;
+
+static InputStreamReader__InputStream* _STANDARD_IN_cache = NULL;
+x10aux::ref<InputStreamReader__InputStream> InputStreamReader__InputStream::STANDARD_IN()
+{
+	if (NULL == _STANDARD_IN_cache)
+		_STANDARD_IN_cache = new (x10aux::alloc<FileReader__FileInputStream>()) FileReader__FileInputStream(stdin);
+    return _STANDARD_IN_cache;
+}
 
 x10_int InputStreamReader__InputStream::read(ref<Rail<x10_byte> > b) {
     nullCheck(b);

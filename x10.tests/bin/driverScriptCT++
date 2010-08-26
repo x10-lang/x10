@@ -159,7 +159,6 @@ export CVS_RSH=ssh
 if [[ -z "X10_SVNROOT" ]]; then
     export X10_SVNROOT="http://x10.svn.sf.net/svnroot/x10/trunk"
 fi
-export POLYGLOT_SVNROOT="http://polyglot-compiler.googlecode.com/svn/trunk"
 
 ##### cat feed - init
 __cat_feed_stage=INIT
@@ -210,20 +209,37 @@ __cat_arch_os="${__cat_arch}-${__cat_os}"
 __cat_hostname=$(hostname)
 __cat_target_arch=${__cat_arch}
 __cat_target_os=${__cat_os}
+if [[ "$(uname -s)" == CYGWIN* ]]; then
+__cat_target_jvm="$(java -classpath $(cygpath -w -a $DATADIR) GetProp java.vm.name)"
+else
 __cat_target_jvm="$(java -classpath $DATADIR GetProp java.vm.name)"
+fi
 case "${__cat_target_jvm}" in
 	*J9*)
+if [[ "$(uname -s)" == CYGWIN* ]]; then
+		__cat_target_jvm_size=$(java -classpath $(cygpath -w -a $DATADIR) GetProp com.ibm.vm.bitmode)
+else
 		__cat_target_jvm_size=$(java -classpath $DATADIR GetProp com.ibm.vm.bitmode)
+fi
 		;;
 	*HotSpot*)
+if [[ "$(uname -s)" == CYGWIN* ]]; then
+		__cat_target_jvm_size=$(java -classpath $(cygpath -w -a $DATADIR) GetProp sun.arch.data.model)
+else
 		__cat_target_jvm_size=$(java -classpath $DATADIR GetProp sun.arch.data.model)
+fi
 		;;
 	*)
 		__cat_target_jvm_size=32
 		;;
 esac
+if [[ "$(uname -s)" == CYGWIN* ]]; then
+__cat_target_jvm_version="$(java -classpath $(cygpath -w -a $DATADIR) GetProp java.vm.version)"
+__cat_target_jre_version="$(java -classpath $(cygpath -w -a $DATADIR) GetProp java.version)"
+else
 __cat_target_jvm_version="$(java -classpath $DATADIR GetProp java.vm.version)"
 __cat_target_jre_version="$(java -classpath $DATADIR GetProp java.version)"
+fi
 __cat_build_type="snapshot"
 __cat_config_name="${__cat_build_type}"
 __cat_config_java_compiler="${__cat_target_jre_version}"
@@ -307,7 +323,11 @@ fi
 touch $TLOGF
 __cat_test_configuration="default"
 __cat_x10_home="$X10_HOME"
+if [[ "$(uname -s)" == CYGWIN* ]]; then
+__cat_java_home="$(java -classpath $(cygpath -w -a $DATADIR) GetProp java.home)"
+else
 __cat_java_home="$(java -classpath $DATADIR GetProp java.home)"
+fi
 if [[ "${__cat_backend}" == x10c ]]; then
 	__cat_x10lang_path=NA
 else

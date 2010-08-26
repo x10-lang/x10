@@ -66,9 +66,22 @@ import x10.util.Pair;
                                                 src: ValRail[T], src_off:Int,
                                                 len:Int) : Void;
 
-        public static def copyTo[T] (src: Rail[T]!, src_off:Int,
-                                     dst: Rail[T], dst_off:Int,
-                                     len:Int) : Void {
+        /**
+         * A local version of the 'copyTo' method, only for C++.
+         *
+         * @param T         Type of the data elements.
+         * @param src_off   Offset from the source rail.
+         * @param dst       Reference to the target rail.
+         * @param dst_off   Offset into the target rail.
+         * @param len       Number of items to be copied.
+         */
+        public static def localCopyTo[T](src: Rail[T]!, src_off:Int, dst: Rail[T], dst_off:Int, len:Int) : Void {
+            for (var i:int=0 ; i<len ; ++i) {
+                dst(dst_off+i) = src(src_off+i);
+            }
+        }
+
+        public static def copyTo[T](src: Rail[T]!, src_off:Int, dst: Rail[T], dst_off:Int, len:Int) : Void {
             if (dst.home == here && isJava()) { copyToLocal_(src,src_off,dst,dst_off,len); return; }
             if (useNativeFor(dst.home)) { copyTo_(src,src_off,dst,dst_off,len); return; }
             // could be further optimised to send only the part of the valrail needed
@@ -79,6 +92,15 @@ import x10.util.Pair;
                 for (var i:Int=0 ; i<len ; ++i) {
                     dst(dst_off+i) = to_serialize(src_off+i);
                 }
+            }
+        }
+
+        /**
+         * A local version of the 'copyFrom' method, only for C++.
+         */
+        public static def localCopyFrom[T](dst: Rail[T]!, dst_off:Int, src: Rail[T], src_off:Int, len:Int) : Void {
+            for (var i:int=0 ; i<len ; ++i) {
+                dst(dst_off+i) = src(src_off+i);
             }
         }
 
@@ -249,8 +271,8 @@ import x10.util.Pair;
             if (useNativeFor(dst_place)) { copyTo_(src,src_off,dst_place,dst_finder,len,notifier); return; }
             if (dst_place==here) {
                 val pair = dst_finder();
-                val dst = pair.first; 
-                val dst_off = pair.second; 
+                val dst = pair.first;
+                val dst_off = pair.second;
                 for (var i:Int=0 ; i<len ; ++i) {
                     dst(dst_off+i) = src(src_off+i);
                 }

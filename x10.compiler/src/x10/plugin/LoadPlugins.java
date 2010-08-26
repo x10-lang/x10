@@ -16,6 +16,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.StringTokenizer;
 
+import polyglot.ast.NodeFactory;
 import polyglot.frontend.AbstractGoal_c;
 import polyglot.frontend.FileSource;
 import polyglot.frontend.Globals;
@@ -24,6 +25,7 @@ import polyglot.frontend.ParserlessJLExtensionInfo;
 import polyglot.frontend.Source;
 import polyglot.frontend.SourceLoader;
 import polyglot.types.QName;
+import polyglot.types.TypeSystem;
 import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorQueue;
 import polyglot.util.InternalCompilerError;
@@ -73,6 +75,12 @@ public class LoadPlugins extends AbstractGoal_c {
 			}
 			public String[] fileExtensions() {
 				return new String[] { "java" };
+			}
+			protected TypeSystem createTypeSystem() {
+				throw new InternalCompilerError("Missing type system");
+			}
+			protected NodeFactory createNodeFactory() {
+				throw new InternalCompilerError("Missing node factory.");
 			}
 		};
 		

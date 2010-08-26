@@ -61,6 +61,8 @@ namespace x10 {
                 return this;
             }
             static x10aux::ref<String> _make(x10aux::ref<String> s);
+            static x10aux::ref<String> _make(x10aux::ref<Rail<x10_char> > rail,
+                                             x10_int start, x10_int length);
 
             // This is for string literals, brought out here so we have easier control
             // (Can later make this return a String without allocation)
@@ -155,6 +157,10 @@ namespace x10 {
             x10_int compareTo(x10aux::ref<x10::lang::String> s);
 
             x10_int compareToIgnoreCase(x10aux::ref<x10::lang::String> s);
+
+            x10_boolean startsWith(x10aux::ref<x10::lang::String> s);
+
+            x10_boolean endsWith(x10aux::ref<x10::lang::String> s);
 
             String () : FMGL(content)(NULL) { }
             virtual ~String () {

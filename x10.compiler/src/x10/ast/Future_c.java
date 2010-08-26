@@ -51,8 +51,8 @@ import x10.visit.ExprFlattener.Flattener;
 public class Future_c extends PlacedClosure_c
     implements Future {
     
-    public Future_c(Position p, Expr place, TypeNode returnType, TypeNode offerType, Block body) {
-	    super(p, place, returnType, offerType, body);
+    public Future_c(X10NodeFactory nf, Position p, Expr place, TypeNode returnType, TypeNode offerType, Block body) {
+	    super(nf, p, place, returnType, offerType, body);
     }
 
     /** Type check the expression. */

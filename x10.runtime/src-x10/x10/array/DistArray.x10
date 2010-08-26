@@ -17,11 +17,11 @@ import x10.compiler.Native;
 import x10.compiler.NoInline;
 import x10.compiler.NoReturn;
 
+import x10.util.IndexedMemoryChunk;
+
 /**
  * This class represents an array with raw chunk in each place,
  * initialized at its place of access via a PlaceLocalHandle.
- *
- * @author bdlucas
  */
 public class DistArray[T] (
     /**
@@ -34,9 +34,9 @@ public class DistArray[T] (
 
     private static class LocalState[T] {
         val layout:RectLayout;
-        val raw:Rail[T]!;
+        val raw:IndexedMemoryChunk[T];
 
-        def this(l:RectLayout, r:Rail[T]!) {
+        def this(l:RectLayout, r:IndexedMemoryChunk[T]) {
             layout = l;
             raw = r;
         }
@@ -124,7 +124,7 @@ public class DistArray[T] (
 
 
     private global val localHandle:PlaceLocalHandle[LocalState[T]];
-    final protected global def raw():Rail[T]! = localHandle().raw;
+    final protected global def raw():IndexedMemoryChunk[T] = localHandle().raw;
     final protected global def layout() = localHandle().layout;
 
 
@@ -256,13 +256,13 @@ public class DistArray[T] (
         val plsInit:()=>LocalState[T]! = () => {
             val region = dist.get(here);
             val localLayout = layout(region);
-            val localRaw = Rail.make[T](localLayout.size());
+            val localRaw = IndexedMemoryChunk.allocate[T](localLayout.size());
 
             for (pt  in region) {
                localRaw(localLayout.offset(pt)) = init(pt as Point(dist.rank));
             }
 
-	        return new LocalState[T](localLayout, localRaw);
+            return new LocalState[T](localLayout, localRaw);
         };
 
         localHandle = PlaceLocalHandle.make[LocalState[T]](dist, plsInit);
@@ -273,7 +273,7 @@ public class DistArray[T] (
         val plsInit:()=>LocalState[T]! = () => {
             val region = dist.get(here);
             val localLayout = layout(region);
-            val localRaw = Rail.make[T](localLayout.size());
+            val localRaw = IndexedMemoryChunk.allocate[T](localLayout.size());
 
 	    return new LocalState[T](localLayout, localRaw);
         };
@@ -400,14 +400,15 @@ public class DistArray[T] (
      */
 
     // safe to call from witin a constructor, does not read fields.
-    protected proto global def layout(r: Region): RectLayout {
+    //protected proto global def layout(r: Region): RectLayout {
+    protected static def layout(r: Region): RectLayout {
         if (r.isEmpty()) {
             // XXX EmptyLayout class?
             val min = ValRail.make[int](r.rank, (Int)=>0);
             val max = ValRail.make[int](r.rank, (Int)=>-1);
-            return new RectLayout(min, max);
+            return RectLayout(min, max);
         } else {
-            return new RectLayout(r.min(), r.max());
+            return RectLayout(r.min(), r.max());
         }
     }
 
