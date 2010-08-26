@@ -7,6 +7,8 @@
 
 package polyglot.types;
 
+import java.util.Map;
+
 import polyglot.main.Report;
 import polyglot.util.Position;
 
@@ -16,8 +18,9 @@ import polyglot.util.Position;
  */
 public class SemanticException extends Exception {
     protected Position position;
-    
-    public SemanticException() {
+    Map<String, Object> attributes;
+
+	public SemanticException() {
         super();
     }
 
@@ -39,13 +42,21 @@ public class SemanticException extends Exception {
     }
 
     public SemanticException(String m, Position position) {
-	super(m);
-	this.position = position;
+    	super(m);
+		this.position = position;
     }
 
     public Position position() {
-	return position;
+    	return position;
     }
+    
+    public Map<String, Object> attributes() {
+		return attributes;
+	}
+
+	public void setAttributes(Map<String, Object> attributes) {
+		this.attributes = attributes;
+	}
     
     private static boolean init = false;
     public static boolean fillInStackTrace = true;
