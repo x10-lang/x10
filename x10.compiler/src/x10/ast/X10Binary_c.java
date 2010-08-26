@@ -238,10 +238,6 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         methodNameMap.put(LE, "operator<=");
         methodNameMap.put(GE, "operator>=");
 
-        // these should not be overridable
-        methodNameMap.put(EQ, "operator==");
-        methodNameMap.put(NE, "operator!=");
-
         String methodName = methodNameMap.get(op);
         if (methodName == null)
             return null;
