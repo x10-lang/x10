@@ -6,12 +6,13 @@
 	<property name="tst-dir" location="bin" />
 	<property name="junit" location="lib/junit.jar" />
 	<property name="hamcrest" location="lib/hamcrest.jar" />
-	<property name="lpg" location="../x10.dist/lib/lpg.jar" />
-	<property name="polyglot" location="../x10.dist/lib/polyglot3.jar" />
-	<property name="x10.compiler" value="../x10.compiler/classes" />
-	<property name="x10.common" value="../x10.common/classes" />
-	<property name="x10.constraints" value="../x10.constraints/classes" />
-	<property name="x10.runtime" value="../x10.runtime/classes" />
+	<property name="x10.root" location=".." />
+	<property name="lpg" location="${x10.root}/x10.dist/lib/lpg.jar" />
+	<property name="polyglot" location="${x10.root}/x10.dist/lib/polyglot3.jar" />
+	<property name="x10.compiler" value="${x10.root}/x10.compiler/classes" />
+	<property name="x10.common" value="${x10.root}/x10.common/classes" />
+	<property name="x10.constraints" value="${x10.root}/x10.constraints/classes" />
+	<property name="x10.runtime" value="${x10.root}/x10.runtime/classes" />
 			
 	<path id="classpath.test">
 		<pathelement location="${junit}" />
