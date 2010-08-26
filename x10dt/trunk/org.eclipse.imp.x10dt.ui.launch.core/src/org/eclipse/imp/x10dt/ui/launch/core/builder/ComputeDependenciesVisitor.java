@@ -99,14 +99,24 @@ public class ComputeDependenciesVisitor extends ContextVisitor {
     	fDependencyInfo.addDependency(fDependencyInfo.getPath(fFromFile.position()), path);
     }
     
-    private Collection<String> getPossiblePaths(QName name){
+    /**
+     * This method returns the collection of possible paths that an import statement may represent.
+     * 
+     * @param name The name of the package or class being imported.
+     * @param maybeBoth True if the last segment of name may be either a package or a class name.
+     * @return The collection of possible paths corresponding to the name in the import statement.
+     */
+    private Collection<String> getPossiblePaths(QName name, boolean maybeBoth){
     	if (name == null)
     		return null;
     	Collection<String> results = new ArrayList<String>();
+    	String n = File.separator + name.toString().replace('.', File.separatorChar);
     	for (String path: getSrcFolders()){
-    		results.add(path + File.separator + name.toString().replace('.', File.separatorChar));
+    		results.add(path + n + Constants.X10_EXT);
+    		if (maybeBoth) // --- Since name may be a package, we record a dependency conservatively.
+    			results.add(path + n);
     	}
-    	Collection<String> rest = getPossiblePaths(name.qualifier());
+    	Collection<String> rest = getPossiblePaths(name.qualifier(), false); //We know that it is a package
     	if (rest != null)
     		results.addAll(rest);
     	return results;
@@ -233,17 +243,9 @@ public class ComputeDependenciesVisitor extends ContextVisitor {
 				
 				Import node  = (Import) n;
 				QName name = node.name();
-				for (String path: getPossiblePaths(name)){
-					if (node.kind() == Import.CLASS){
-						recordPathDependency(path + Constants.X10_EXT);
-					} else { 
-						// --- The node kind is package (e.g. the import is of the form import foo.*).
-						// --- In this case, foo may be a class or package.
-						// --- We record a dependence to both conservatively.
-						recordPathDependency(path + Constants.X10_EXT);
-						recordPathDependency(path);
-						
-					}
+				Collection<String> paths = (node.kind() == Import.PACKAGE)? getPossiblePaths(name, true) : getPossiblePaths(name, false);
+				for (String path: paths){
+					recordPathDependency(path);
 				}
 				
 			}

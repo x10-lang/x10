@@ -274,7 +274,9 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
           public boolean visit(final IResourceDelta delta) throws CoreException {
         	if (delta.getResource().getType() == IResource.FOLDER){
         		final IFolder folder = (IFolder) delta.getResource();
-        		sourcesToCompile.addAll(getChangeDependents(folder));
+        		if (delta.getKind() == IResourceDelta.REMOVED) {
+        			sourcesToCompile.addAll(getChangeDependents(folder));
+        		}
         	}
             if (delta.getResource().getType() == IResource.FILE) {
               final IFile file = (IFile) delta.getResource();
