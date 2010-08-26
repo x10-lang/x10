@@ -29,7 +29,10 @@ public abstract class TypeSystem_c implements TypeSystem
     protected Map<String, Flags> flagsForName;
     protected ExtensionInfo extInfo;
 
-    public TypeSystem_c() {}
+    private Throwable creator;
+    public TypeSystem_c() {
+        creator = new Throwable().fillInStackTrace();
+    }
 
     /**
      * Initializes the type system and its internal constants (which depend on
@@ -2268,8 +2271,17 @@ public abstract class TypeSystem_c implements TypeSystem
 	return f;
     }
 
+    protected String getCreatorStack() {
+        StackTraceElement[] trace = creator.getStackTrace();
+        int size = trace.length < 6 ? trace.length : 6;
+        StackTraceElement[] res = new StackTraceElement[size];
+        for (int i = 0; i < res.length; i++)
+            res[i] = trace[i];
+        return Arrays.toString(res);
+    }
+
     public String toString() {
-	return StringUtil.getShortNameComponent(getClass().getName());
+	return StringUtil.getShortNameComponent(getClass().getName()) + " created at " + getCreatorStack();
     }
 
 }
