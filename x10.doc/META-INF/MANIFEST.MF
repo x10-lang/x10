@@ -8,7 +8,6 @@ Require-Bundle: x10.common,
  x10.compiler;visibility:=reexport,
  x10.constraints;visibility:=reexport,
  x10.runtime;resolution:=optional,
- polyglot3;visibility:=reexport,
  lpg.runtime.java;bundle-version="2.0.18"
 Export-Package: x10doc,
  x10doc.doc,
