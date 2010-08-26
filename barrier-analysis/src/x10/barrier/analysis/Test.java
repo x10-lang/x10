@@ -19,7 +19,7 @@ public class Test {
 	 * *********************************************************
 	 * ***************
 	 */
-	File f = new File("x10.barrier.tests/HistogramOrig.x10");
+	File f = new File("x10.barrier.tests/TestIf.x10");
 	X10BarrierAnalysis x10fa = new X10BarrierAnalysis();
 
 	/* *********************************
