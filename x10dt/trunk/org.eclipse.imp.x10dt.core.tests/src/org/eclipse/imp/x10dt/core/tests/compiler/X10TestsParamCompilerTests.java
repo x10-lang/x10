@@ -9,9 +9,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import polyglot.frontend.FileResource;
-import polyglot.frontend.FileSource;
-import polyglot.frontend.Source;
 import polyglot.util.ErrorInfo;
 
 /**
@@ -23,7 +20,7 @@ import polyglot.util.ErrorInfo;
 @RunWith(Parameterized.class)
 public class X10TestsParamCompilerTests extends CompilerTestsBase {
 	
-	private Collection<Source> sources;
+	private File[] sources;
 	private String[] options;
 	
 	/*
@@ -32,6 +29,7 @@ public class X10TestsParamCompilerTests extends CompilerTestsBase {
 	 */
 	private static String DATA_PATH = ".." + File.separator+ "x10.tests" + File.separator + "examples" + File.separator;
 	private static String LIB_PATH = ".." + File.separator + "x10.tests" + File.separator + "examples" + File.separator + "x10lib" + File.separator;
+	private static String SOURCE_PATH_BASE = getRuntimeJar() + File.pathSeparator + LIB_PATH;
 
 	
 	/*
@@ -43,33 +41,19 @@ public class X10TestsParamCompilerTests extends CompilerTestsBase {
 	
 	
 	
-	public X10TestsParamCompilerTests(Collection<Source> sources, String[] options){
+	public X10TestsParamCompilerTests(File[] sources, String[] options){
 		super();
 		this.sources = sources;
 		this.options = options;
 	}
 	
-	protected String getDataSourcePath() {
-		final StringBuilder sb = new StringBuilder();
-		sb.append(File.pathSeparator).append(DATA_PATH).append(File.pathSeparator).append(LIB_PATH);
-		for (final Source source : sources) {
-			final int index = source.path().lastIndexOf(File.separatorChar);
-			if (index != -1) {
-				sb.append(File.pathSeparator).append(source.path().substring(0, index));
-			}
-		}
-		return sb.toString();
-	}
-	
 	
 	@Parameters
-	 public static Collection inputs() throws Exception {
+	 public static Collection inputs() {
 		ArrayList<Object[]> inputs = new ArrayList<Object[]>();
-		for (File f: getSources(createFile(DATA_PATH))){
-			final Collection<Source> sources = new ArrayList<Source>();
-			sources.add(new FileSource(new FileResource(f)));
-			inputs.add(new Object[]{sources, STATIC_CALLS});
-			inputs.add(new Object[]{sources, NOT_STATIC_CALLS});
+		for (File f: getSources(new File(DATA_PATH))){
+			inputs.add(new Object[]{new File[]{f}, STATIC_CALLS});
+			inputs.add(new Object[]{new File[]{f}, NOT_STATIC_CALLS});
 				
 		}
 		return inputs;
@@ -77,7 +61,19 @@ public class X10TestsParamCompilerTests extends CompilerTestsBase {
 
 	@Test(timeout=10000)
 	public void compilerTest() throws Exception {
-		compile(sources, options, new ArrayList<ErrorInfo>());
+		String sourcepath = SOURCE_PATH_BASE + File.pathSeparator + getCurrentDirsPath(sources);
+		compile(sources, options, new ArrayList<ErrorInfo>(), sourcepath);
+	}
+
+	
+
+	private static String getCurrentDirsPath(File[] files) {
+		String result = "";
+		for (File f : files) {
+			// TODO: Need to get the package out of the file here
+			result += f.getParent();
+		}
+		return result;
 	}
 
 }
