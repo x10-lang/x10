@@ -255,7 +255,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	        n instanceof Async_c || n instanceof AtStmt_c || n instanceof Atomic_c || n instanceof Here_c 
 	        || n instanceof Await_c || n instanceof Next_c || n instanceof Future_c || n instanceof AtExpr_c
 	        || n instanceof ForEach_c || n instanceof AtEach_c || n instanceof Now_c || n instanceof When_c
-	        || n instanceof Finish_c
+	        || n instanceof Finish_c || n instanceof Contains_c
 	    ) {
 	        tr.job().compiler().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR,
 	            "Unhandled node type: "+n.getClass(), n.position());
@@ -694,10 +694,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		else {
 			w.write(";");
 		}
-	}
-
-	public void visit(Contains_c n) {
-		assert false;
 	}
 
 	public void visit(TypeDecl_c n) {
