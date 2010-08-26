@@ -1695,23 +1695,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 		String pat = er.getJavaImplForDef(mi.x10Def());
 		if (pat != null) {
-		    boolean needsHereCheck = er.needsHereCheck(target, context);
 			
 			CastExpander targetArg;
 			boolean cast = xts.isParameterType(t);
-			if (needsHereCheck && ! (target instanceof TypeNode || target instanceof New)) {
-                // SYNOPSIS: (#0)((#1)!here) #0=type #1=object -- wrap in Object to help javac
-                String regex = "((#0) x10.runtime.Runtime.placeCheck(x10.runtime.Runtime.here(), #1))";
-				Template tmplate = Template.createTemplateFromRegex(er, "place-check", regex, new TypeExpander(er, target.type(), true, false, false), target);
-				targetArg = new CastExpander(w, er, tmplate);
-				if (cast) {
-					targetArg = targetArg.castTo(mi.container(), BOX_PRIMITIVES);
-				}
-			} else {
-				targetArg = new CastExpander(w, er, target);
-				if (cast) {
-					targetArg = targetArg.castTo(mi.container(), BOX_PRIMITIVES);
-				}
+			targetArg = new CastExpander(w, er, target);
+			if (cast) {
+			    targetArg = targetArg.castTo(mi.container(), BOX_PRIMITIVES);
 			}
 			List<Type> typeArguments  = Collections.<Type>emptyList();
 			if (mi.container().isClass() && !mi.flags().isStatic()) {
@@ -1768,21 +1757,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			// add a check that verifies if the target of the call is in place 'here'
 			// This is not needed for:
 
-			boolean needsHereCheck = er.needsHereCheck((Expr) target, context);
-
 			if (! (target instanceof Special || target instanceof New)) {
 
-				if (needsHereCheck) {
-					// don't annotate calls with implicit target, or this and super
-					// the template file only emits the target
-		            // SYNOPSIS: (#0)((#1)!here) #0=type #1=object -- wrap in Object to help javac
-		            String regex = "((#0) x10.runtime.Runtime.placeCheck(x10.runtime.Runtime.here(), #1))";
-		            Template template = Template.createTemplateFromRegex(er, "place-check", regex, new TypeExpander(er, t, true, false, false), target);
-					miContainer = new CastExpander(w, er, template);
-				}
-				else {
-					miContainer = new CastExpander(w, er, target);
-				}
+			    miContainer = new CastExpander(w, er, target);
 
 				if (xts.isParameterType(t)) {
 					miContainer = new CastExpander(w, er, new TypeExpander(er,  mi.container(), false, false, false), miContainer);
@@ -2423,20 +2400,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		else {
 
 			boolean is_location_access = xts.isReferenceOrInterfaceType(fi.container(), context) && fi.name().equals(xts.homeName());
-			boolean needsHereCheck = er.needsHereCheck((Expr) target, context) && ! is_location_access;
-
-			if (needsHereCheck) {
-				// no check required for implicit targets, this and super
-				// the template file only emits the target
-			    // SYNOPSIS: (#0)((#1)!here) #0=type #1=object -- wrap in Object to help javac
-			    String regex = "((#0) x10.runtime.Runtime.placeCheck(x10.runtime.Runtime.here(), #1))";
-				Template.createTemplateFromRegex(er, "place-check", regex, new TypeExpander(er, t, true, false, false), target).expand();
-				// then emit '.' and name of the field.
-				w.write(".");
-				w.write(Emitter.mangleToJava(n.name().id()));
-			} else
-				// WARNING: it's important to delegate to the appropriate visit() here!
-			        n.translate(w, tr);
+			// WARNING: it's important to delegate to the appropriate visit() here!
+			n.translate(w, tr);
 
 		}
 
@@ -2499,13 +2464,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		X10Context context = (X10Context) tr.context();
 		Type t = n.leftType();
 
-		boolean needsHereCheck = er.needsHereCheck(array, context);
+//		boolean needsHereCheck = er.needsHereCheck(array, context);
 		Template tmp = null; 
-		if (needsHereCheck) {
-            // SYNOPSIS: (#0)((#1)!here) #0=type #1=object -- wrap in Object to help javac
-            String regex = "((#0) x10.runtime.Runtime.placeCheck(x10.runtime.Runtime.here(), #1))";
-			tmp = Template.createTemplateFromRegex(er, "place-check", regex, new TypeExpander(er, array.type(), true, false, false), array);
-		}
+//		if (needsHereCheck) {
+//            // SYNOPSIS: (#0)((#1)!here) #0=type #1=object -- wrap in Object to help javac
+//            String regex = "((#0) x10.runtime.Runtime.placeCheck(x10.runtime.Runtime.here(), #1))";
+//			tmp = Template.createTemplateFromRegex(er, "place-check", regex, new TypeExpander(er, array.type(), true, false, false), array);
+//		}
 
 		boolean nativeop = false;
 		if (t.isNumeric() || t.isBoolean() || t.isChar() || t.isSubtype(ts.String(), context)) {
