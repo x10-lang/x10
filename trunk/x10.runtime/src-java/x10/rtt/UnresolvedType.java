@@ -2,7 +2,6 @@ package x10.rtt;
 
 import java.util.List;
 
-import x10.constraint.XConstraint;
 import x10.core.fun.Fun_0_1;
 import x10.core.fun.Fun_0_2;
 
@@ -35,10 +34,6 @@ public final class UnresolvedType implements Type {
     }
 
     public final Object getArray(Object array, int i) {
-        throw new UnsupportedOperationException();
-    }
-
-    public final XConstraint getConstraint() {
         throw new UnsupportedOperationException();
     }
 
