@@ -1,0 +1,94 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+	<title>Usage</title>
+</head>
+
+<body>
+<h1>Compiler options</h1>
+<pre>
+$ x10c++ -- -help
+usage: x10c++ [options] <source-file>.x10 ...
+where [options] includes:
+  @<file>                  read options from <file>
+  -d <directory>           output directory
+  -assert                  recognize the assert keyword
+  -sourcepath <path>       source path
+  -bootclasspath <path>    path for bootstrap class files
+  -ext <extension>         use language extension
+  -extclass <ext-class>    use language extension
+  -commandlineonly         only compile files named on the command-line (may
+                           also require -c)
+  -preferclassfiles        prefer class files to source files even if the
+                           source is newer
+  -fqcn                    use fully-qualified class names
+  -sx <ext>                set source extension
+  -ox <ext>                set output extension
+  -errors <num>            set the maximum number of errors
+  -w <num>                 set the maximum width of the .java output files
+  -dump <pass>             dump the ast after pass <pass>
+  -print <pass>            pretty-print the ast after pass <pass>
+  -disable <pass>          disable pass <pass>
+  -noserial                disable class serialization
+  -nooutput                delete output files after compilation
+  -c                       compile only to .java
+  -post <compiler>         run a C++ compiler after translation. The
+                           structure of <compiler> is "[pre-command with
+                           options (usually g++)] [(#|%) [post-options
+                           (usually extra files)] [(#|%) [library
+                           options]]]". Using '%' instead of '#' to delimit
+                           a section will cause the default values in that
+                           section to be omitted.
+  -debugpositions          generate position information for
+                           compiler-generated code
+  -simpleoutput            use SimpleCodeWriter
+  -v -verbose              print verbose debugging information
+  -report <topic>=<level>  print verbose debugging information about topic
+                           at specified verbosity
+        Allowed topics: imports, jl, x10, serialize, types, frontend, time,
+        resolver, cfg, visit, clock, dataflow, debug, errors, context,
+        loader, verbose, qq
+  -version                 print version info
+  -h                       print this message
+  -COMPILER_FRAGMENT_DATA_DIRECTORY=String
+                           Advanced functionality: Directory for compiler
+                           templates (default = "data/")
+  -OPTIMIZE=boolean        Generate optimized code (default = false)
+  -DEBUG=boolean           Generate debug information (default = false)
+  -NO_CHECKS=boolean       Disable generation of all null, bounds, and place
+                           checks (default = false)
+  -BAD_PLACE_RUNTIME_CHECK=boolean
+                           Generate runtime place checks (default = false)
+  -LOOP_OPTIMIZATIONS=boolean
+                           Generate specialized Java version of for-loop X10
+                           code (default = true)
+  -ARRAY_OPTIMIZATIONS=boolean
+                           Generate allocation of specialized Java array
+                           classes (default = true)
+  -INLINE_OPTIMIZATIONS=boolean
+                           Perform inlining optimizations (default = false)
+  -CLOSURE_INLINING=boolean
+                           Perform closure literal inlining (default = true)
+  -PLUGINS=String          Comma-separated list of compiler plugins to run.
+                           (default = "")
+  -PLUGIN_COMPILER=String  Javac-like compiler to use to compile plugins
+                           (default = "")
+  -XML_PROCESSOR=String    External program to transform ASTs externalized
+                           as XML (default = "")
+  -EXTERNALIZE_ASTS=boolean
+                           Externalize ASTs to XML (default = false)
+  -MANIFEST=String         The path to the pre-built library manifest file
+                           (default = null)
+  -o path                  set generated executable path (for the
+                           post-compiler)
+  -MAIN_CLASS=String       The class whose main() will be invoked (default =
+                           null)
+  -VIM_MODELINE=boolean    Generate a modeline (formatting instructions) for
+                           VIm (default = true)
+  -DISABLE_GC=boolean      Disable the linking in of the BDW conservative
+                           garbage collector (default = false)
+</pre>
+</body>
+</html>

@@ -2,8 +2,11 @@
 <?NLS TYPE="org.eclipse.help.toc"?>
 
 <toc label="X10 Help">
-<topic label="X10 FAQs"  href="html/x10faqs.html"/> 
-<topic label="X10 Summary"  href="html/x10summary.html"/> 
+<topic label="Installation and pre-reqs">
+	<topic label="Mac" href="html/installp/mac-cl-install.html"/> 
+	<topic label="Linux" href="html/installp/linux-cl-install.html"/> 
+	<topic label="Windows" href="html/installp/windows-cl-install.html"/> 
+</topic>
 <topic label="Getting started with X10" href="html/tutorial/toc.html">
 	<topic label="Getting Started" href="html/tutorial/01-Tutorial.html"/> 
 	<topic label="Concurrency" href="html/tutorial/02-Tutorial.html"/> 
@@ -13,6 +16,38 @@
 	<topic label="Objects" href="html/tutorial/06-Tutorial.html"/> 
 	<topic label="Objects and Places" href="html/tutorial/07-Tutorial.html"/> 
 </topic>
+<topic label="X10 FAQs"  href="html/x10faqs.html"/>
+<!--
+<topic label="X10 FAQs">
+	<topic label="Hello" href="html/faqs/Hello.html">Hello</topic>
+	<topic label="HelloWorld" href="html/faqs/HelloWorld.html">HelloWorld</topic>
+	<topic label="HelloWholeWorld" href="html/faqs/HelloWholeWorld.html">HelloWholeWorld</topic>
+</topic> 
+<topic label="X10 Summary Inline"  href="html/x10summary.html"/>
+-->
+<topic label="X10 Summary" href="html/summary/toc.html">
+	<topic label="usage" href="html/summary/usage.html">Usage</topic>
+	<topic label="options" href="html/summary/options.html">Compiler options</topic>
+	<topic label="at" href="html/summary/at.html">at</topic>
+	<topic label="async" href="html/summary/async.html">async</topic>
+	<topic label="finish" href="html/summary/finish.html">finish</topic>
+</topic> 
+<!-- 
+<topic label="Samples Inline"  href="html/samples/contents.html"/>
+-->
+<topic label="Samples">
+	<topic label="Hello" href="html/samples/Hello.html">Hello</topic>
+	<topic label="HelloWorld" href="html/samples/HelloWorld.html">HelloWorld</topic>
+	<topic label="HelloWholeWorld" href="html/samples/HelloWholeWorld.html">HelloWholeWorld</topic>
+	<topic label="Fib" href="html/samples/Fib.html">Fib</topic>
+	<topic label="MontyPi" href="html/samples/MontyPi.html">MontyPi</topic>
+	<topic label="NQueensDist" href="html/samples/NQueensDist.html">NQueensDist</topic>
+	<topic label="NQueensPar" href="html/samples/NQueensPar.html">NQueensPar</topic>
+	<topic label="ArraySum" href="html/samples/ArraySum.html">ArraySum</topic>
+	<topic label="Integrate" href="html/samples/Integrate.html">Integrate</topic>
+	<topic label="Histogram" href="html/samples/Histogram.html">Histogram</topic>
+</topic> 
+
 <topic label="X10 Language Reference" href="html/langref/toc.html">
 	<topic label="Summary"  href="html/langref/summary.html"/> 
 	<topic label="Introduction"  href="html/langref/introduction.html"/> 
@@ -173,6 +208,8 @@
 	<topic label="References" href="html/langref/refs.html"/>
 	<topic label="Changes" href="html/langref/changelog.html"/>
 </topic>
+
+<!--
 <topic label="X10DT"  href="html/x10dt/contents.html">
 	<topic label="X10DT Overview" href="html/x10dt/Overview.html">X10DT Overview</topic>
 	<topic label="Starting to use X10DT" href="html/x10dt/01start.html">Starting to use X10DT </topic>
@@ -192,6 +229,7 @@
 
 	<topic label="What&apos;s New 2.0.5" href="html/x10dt/whatsNew/whatsNew-2_0_5.html"/>
 </topic> 
+-->
 <!--  PLEASE NOTE if you make a change/addition here, please also change contents.html 
       which is needed for our online versions of the docs.-->
 </toc>
