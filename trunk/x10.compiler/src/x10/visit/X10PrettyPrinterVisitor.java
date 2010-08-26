@@ -94,6 +94,7 @@ import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.types.VarInstance;
 import polyglot.util.CodeWriter;
+import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
@@ -249,6 +250,18 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    if (n instanceof FlagsNode_c) {visit((FlagsNode_c)n); return;}
 	    if (n instanceof TypeParamNode_c) {visit((TypeParamNode_c)n); return;}
 	    
+	    // already known unhandled node type
+	    if (
+	        n instanceof Async_c || n instanceof AtStmt_c || n instanceof Atomic_c || n instanceof Here_c 
+	        || n instanceof Await_c || n instanceof Next_c || n instanceof Future_c || n instanceof AtExpr_c
+	        || n instanceof ForEach_c || n instanceof AtEach_c || n instanceof Now_c || n instanceof When_c
+	        || n instanceof Finish_c
+	    ) {
+	        tr.job().compiler().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR,
+	            "Unhandled node type: "+n.getClass(), n.position());
+	        return;
+	    }
+	    
 	    System.err.println(n.position() + ": Unhandled node type: " + n.getClass());
 	    // FIXME
 //    	    tr.job().compiler().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR,
@@ -386,7 +399,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	            throw new InternalCompilerError("Statement expression uses non-final variable " +li+ "(at " +li.position()+ ") from the outer scope", n.position());
 	        }
 	    }
-	    w.write("(new Object() { ");
+	    w.write("(new java.lang.Object() { ");
 	    er.printType(n.type(), PRINT_TYPE_PARAMS);
 	    w.write(" eval() {");
 	    w.newline(4); w.begin(0);
@@ -577,19 +590,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		}
 
 		X10MethodInstance mi = (X10MethodInstance) n.methodDef().asInstance();
-
-		boolean boxPrimitives = true;
-
-		if (mi.name() == Name.make("hashCode") && mi.formalTypes().size() == 0)
-			boxPrimitives = false;
-		if (mi.name() == Name.make("equals") && mi.formalTypes().size() == 1)
-			boxPrimitives = false;
-		if (mi.name() == Name.make("hasNext") && mi.formalTypes().size() == 0)
-			boxPrimitives = false;
-
-		// Olivier: uncomment hack below to generate java code with unboxed primitives 
-		//	    if (mi.name() != Name.make("apply") && mi.name() != Name.make("write") && mi.name() != Name.make("read") && mi.name() != Name.make("set"))
-		//            boxPrimitives = false;
 		er.generateMethodDecl(n, false);
 	}
 
@@ -1246,17 +1246,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		    }
 		}
 		w.write(")");
-	}
-
-	private DepParameterExpr constraintExpr(X10CanonicalTypeNode xtn) {
-	    CConstraint c = X10TypeMixin.xclause(xtn.type());
-	    if (c == null || c.valid())
-	        return null;
-	    X10NodeFactory xnf = (X10NodeFactory) tr.nodeFactory();
-	    X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
-	    DepParameterExpr dep = xnf.DepParameterExpr(xtn.position(), new Synthesizer(xnf, xts).makeExpr(c, xtn.position()));
-	    dep = (DepParameterExpr) dep.visit(new TypeBuilder(tr.job(), xts, xnf)).visit(new X10TypeChecker(tr.job(), xts, xnf, tr.job().nodeMemo()).context(((X10Context) tr.context()).pushDepType(xtn.typeRef())));
-	    return dep;
 	}
 
 
@@ -2285,43 +2274,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		super.visit(dec);
 	}
 
-
-
-	public void visit(Async_c a) {
-		assert false;
-		//		Translator tr2 = ((X10Translator) tr).inInnerClass(true);
-		//		new Template("Async",
-		//				a.place(),
-		//				processClocks(a),
-		//				a.body(),
-		//				a.position().nameAndLineString().replace("\\", "\\\\")).expand(tr2);
-	}
-
-	public void visit(AtStmt_c a) {
-		assert false;
-		//		Translator tr2 = ((X10Translator) tr).inInnerClass(true);
-		//		new Template("At",
-		//					 a.place(),
-		//					 a.body(),
-		//                     getUniqueId_(),
-		//                     a.position().nameAndLineString().replace("\\", "\\\\")).expand(tr2);
-	}
-
-	public void visit(Atomic_c a) {
-		assert false;
-		//		new Template("Atomic", a.body(), getUniqueId_()).expand();
-	}
-
-	public void visit(Here_c a) {
-		assert false;
-		//		new Template("here").expand();
-	}
-
-	public void visit(Await_c c) {
-		assert false;
-		//		new Template("await", c.expr(), getUniqueId_()).expand();
-	}
-	
 	public void visit(X10LocalDecl_c n) {
 		if (!X10PrettyPrinterVisitor.reduce_generic_cast) {
 			n.prettyPrint(w, tr);
@@ -2355,22 +2307,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         tr.appendSemicolon(printSemi);
 	}
 
-	public void visit(Next_c d) {
-		assert false;
-		//		new Template("next").expand();
-	}
-
-	public void visit(Future_c f) {
-		assert false;
-		//		Translator tr2 = ((X10Translator) tr).inInnerClass(true);
-		//		new Template("Future", f.place(), new TypeExpander(f.returnType().type(), true, true, false, false), f.body(), new RuntimeTypeExpander(f.returnType().type()), f.position().nameAndLineString().replace("\\", "\\\\")).expand(tr2);
-	}
-
-	public void visit(AtExpr_c f) {
-		assert false;
-		//		Translator tr2 = ((X10Translator) tr).inInnerClass(true);
-		//		new Template("AtExpr", f.place(), new TypeExpander(f.returnType().type(), true, true, false, false), f.body(), new RuntimeTypeExpander(f.returnType().type()), f.position().nameAndLineString().replace("\\", "\\\\")).expand(tr2);
-	}
 
 	public void visit(Formal_c f) {
 		if (f.name().id().toString().equals(""))
@@ -2454,77 +2390,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     new TypeExpander(er, form.type().type(), PRINT_TYPE_PARAMS | BOX_PRIMITIVES)
 			        }, tr, regex);
 		}
-	}
-
-
-
-	public void visit(ForEach_c f) {
-		assert (false);
-		// System.out.println("X10PrettyPrinter.visit(ForEach c): |" + f.formal().flags().translate() + "|");
-		// SYNOPSIS: foreach (#0 #2: #1 in #3) clocked(#5) {#4}    #6=locals #7=boxed type #8=position
-		String regex =
-		    "for (x10.core.Iterator<#7> #2__ = (#3).iterator(); #2__.hasNext(); ) {\n" +
-		        "#0 #1 #2 = #2__.next();\n" +
-		        "#6\n" +
-                "x10.runtime.Runtime.runAsync(x10.runtime.Runtime.here(), #5,\n" +
-                    "new x10.core.fun.VoidFun_0_0() {\n" +
-                        "public void apply() {\n" +
-                            "#4\n" +
-                        "}\n" +
-                        "public x10.rtt.RuntimeType<?> getRTT() {\n" +
-                            "return _RTT;\n" +
-                        "}\n" +
-                        "public x10.rtt.Type<?> getParam(int i) {\n" +
-                            "return null;\n" +
-                        "}\n" +
-                    "}, \"foreach-#8\");\n" +
-            "}";
-		er.processClockedLoop("foreach", regex, f);
-	}
-
-	public void visit(AtEach_c f) {
-		assert (false);
-		// SYNOPSIS: ateach (#0 #2: #1 in #3) clocked(#5) {#4}    #6=locals #7=boxed type #8=position
-		String regex =
-		    "{\n" +
-		        "x10.array.Dist #2__distCopy = #3; // make copy to avoid recomputation\n" +
-		        "for (x10.core.Iterator<#7> #2__ = #2__distCopy.iterator(); #2__.hasNext(); ) {\n" +
-		            "#0 #1 #2 = #2__.next();\n" +
-		            "#6\n" +
-		            "x10.runtime.Runtime.runAsync(#2__distCopy.apply(#2), #5,\n" +
-                        "new x10.core.fun.VoidFun_0_0() {\n" +
-                            "public void apply() {\n" +
-                                "#4\n" +
-                            "}\n" +
-                            "public x10.rtt.RuntimeType<?> getRTT() {\n" +
-                                "return _RTT;\n" +
-                            "}\n" +
-                            "public x10.rtt.Type<?> getParam(int i) {\n" +
-                                "return null;\n" +
-                            "}\n" +
-                        "}, \"ateach-#8\");\n" +
-                "}\n" +
-            "}";
-		er.processClockedLoop("ateach", regex, f);
-	}
-
-	public void visit(Now_c n) {
-		Translator tr2 = ((X10Translator) tr).inInnerClass(true);
-		// SYNOPSIS: now(#0) #1
-		String regex =
-		    "x10.runtime.Runtime.runNow(#0,\n" +
-		        "new x10.core.fun.VoidFun_0_0() {\n" +
-		            "public void apply() {\n" +
-		                "#2\n" +
-		            "}\n" +
-                    "public x10.rtt.RuntimeType<?> getRTT() {\n" +
-                        "return _RTT;\n" +
-                    "}\n" +
-                    "public x10.rtt.Type<?> getParam(int i) {\n" +
-                        "return null;\n" +
-                    "}\n" +
-		        "});";
-		er.dumpRegex("Now", new Object[] { n.clock(), n.body() }, tr2, regex);
 	}
 
 	public void visit(Labeled_c n) {
@@ -2642,28 +2507,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	////		return nf.Empty(s.position());
 	//		return null;
 	//	}
-
-	public void visit(When_c w) {
-		assert false;
-		//		Integer id = getUniqueId_();
-		//		List breaks = new ArrayList(w.stmts().size());
-		//		for (Iterator i = w.stmts().iterator(); i.hasNext(); ) {
-		//			Stmt s = (Stmt) i.next();
-		//			breaks.add(optionalBreak(s));
-		//		}
-		//		new Template("when",
-		//						 w.expr(),
-		//						 w.stmt(),
-		//						 optionalBreak(w.stmt()),
-		//						 new Loop("when-branch", w.exprs(), w.stmts(), breaks),
-		//						 id
-		//					 ).expand();
-	}
-
-	public void visit(Finish_c a) {
-		assert false;
-		//		new Template("finish", a.body(), getUniqueId_()).expand();
-	}
 
 	public void visit(SettableAssign_c n) {
 		SettableAssign_c a = n;
@@ -3018,7 +2861,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	}
 
 	public void visit(SubtypeTest_c n) {
-		// TODO: generate a real run-time test: if sub and sup are parameters, then this should test the actual parameters.
 		TypeNode sub = n.subtype();
 		TypeNode sup = n.supertype();
 
@@ -3033,13 +2875,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		}
 		new RuntimeTypeExpander(er, sup.type()).expand(tr);
 		w.write("))");
-
-		//	    if (sub.type().isSubtype(sup.type())) {
-		//	        w.write("true");
-		//	    }
-		//	    else {
-		//	        w.write("false");
-		//	    }
 	}
 
 	// This is an enhanced version of Binary_c#prettyPrint(CodeWriter, PrettyPrinter)
