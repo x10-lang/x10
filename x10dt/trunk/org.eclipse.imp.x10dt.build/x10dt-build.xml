@@ -1,6 +1,7 @@
 <project name="X10DT Build" basedir="." default="main">
 
   <import file="utilities.xml" />
+  <property file="common.properties" />
   <property file="build.properties" />
 
   <target name="x10dt-checkouts-existence">
@@ -10,10 +11,12 @@
         <available file="${build.folder}/org.eclipse.imp.x10dt.core" type="dir" />
         <available file="${build.folder}/org.eclipse.imp.x10dt.feature" type="dir" />
         <available file="${build.folder}/org.eclipse.imp.x10dt.help" type="dir" />
+        <available file="${build.folder}/org.eclipse.imp.x10dt.help.dt" type="dir" />
         <available file="${build.folder}/org.eclipse.imp.x10dt.refactoring" type="dir" />
         <available file="${build.folder}/org.eclipse.imp.x10dt.ui" type="dir" />
         <available file="${build.folder}/org.eclipse.imp.x10dt.ui.launch.core" type="dir" />
         <available file="${build.folder}/org.eclipse.imp.x10dt.ui.launch.cpp" type="dir" />
+        <available file="${build.folder}/org.eclipse.imp.x10dt.ui.launch.java" type="dir" />
         <available file="${build.folder}/x10.effects" type="dir" />
       </and>
     </condition>
@@ -29,6 +32,8 @@
                 revision="${x10dt.revision}" destPath="${build.folder}/org.eclipse.imp.x10dt.feature" />
       <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/org.eclipse.imp.x10dt.help" 
                 revision="${x10dt.revision}" destPath="${build.folder}/org.eclipse.imp.x10dt.help" />
+      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/org.eclipse.imp.x10dt.help.dt" 
+                revision="${x10dt.revision}" destPath="${build.folder}/org.eclipse.imp.x10dt.help.dt" />
       <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/org.eclipse.imp.x10dt.refactoring" 
                 revision="${x10dt.revision}" destPath="${build.folder}/org.eclipse.imp.x10dt.refactoring" />
       <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/org.eclipse.imp.x10dt.ui" 
@@ -37,6 +42,8 @@
                 revision="${x10dt.revision}" destPath="${build.folder}/org.eclipse.imp.x10dt.ui.launch.core" />
       <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/org.eclipse.imp.x10dt.ui.launch.cpp" 
                 revision="${x10dt.revision}" destPath="${build.folder}/org.eclipse.imp.x10dt.ui.launch.cpp" />
+      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/org.eclipse.imp.x10dt.ui.launch.java" 
+                revision="${x10dt.revision}" destPath="${build.folder}/org.eclipse.imp.x10dt.ui.launch.java" />
       <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10.effects" 
                 revision="${x10dt.revision}" destPath="${build.folder}/x10.effects" />       
     </svn>

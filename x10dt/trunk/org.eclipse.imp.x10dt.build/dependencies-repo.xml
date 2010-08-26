@@ -1,5 +1,6 @@
 <project name="Dependencies Repository" basedir="." default="main">
 
+  <property file="common.properties" />
 	<property file="build.properties" />
 
 	<target name="main">
