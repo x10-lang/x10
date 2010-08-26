@@ -601,9 +601,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
     public ClassDef unknownClassDef() {
         if (unknownClassDef == null) {
-            unknownClassDef = new X10ClassDef_c(this, null);
-            unknownClassDef.name(Name.make("<unknown class>"));
-            unknownClassDef.kind(ClassDef.TOP_LEVEL);
+            unknownClassDef = createFakeClass(QName.make("<unknown class>"), new SemanticException("Unknown class")).def();
         }
         return unknownClassDef;
     }
@@ -628,6 +626,52 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         }
     }
 
+    protected X10ClassType typeForNameSilent(QName fullName) {
+        try {
+            if (fullName == null) {
+                return (X10ClassType) unknownClassDef().asType();
+            }
+            return (X10ClassType) typeForName(fullName);
+        }
+        catch (SemanticException e) {
+            return createFakeClass(fullName, e);
+        }
+    }
+
+    public boolean isUnknown(Type t) {
+        return X10TypeMixin.baseType(t) instanceof UnknownType;
+    }
+
+    public boolean hasUnknown(Type t) {
+        if (isUnknown(t))
+            return true;
+        if (t instanceof X10ClassType) {
+            X10ClassType ct = (X10ClassType) t;
+            for (Type a : ct.typeArguments()) {
+                if (hasUnknown(a))
+                    return true;
+            }
+            if (ct.x10Def().isFunction()) {
+                // Look at the superclass and interfaces (if any)
+                if (hasUnknown(ct.superClass()))
+                    return true;
+                for (Type i : ct.interfaces()) {
+                    if (hasUnknown(i))
+                        return true;
+                }
+            }
+        }
+        if (t instanceof AnnotatedType) {
+            AnnotatedType at = (AnnotatedType) t;
+            List<Type> ann = at.annotations();
+            for (Type a : ann) {
+                if (hasUnknown(a))
+                    return true;
+            }
+        }
+        return false;
+    }
+
     public X10ClassType createFakeClass(QName fullName, SemanticException error) {
         X10ClassDef cd = (X10ClassDef) createClassDef();
         cd.name(fullName.name());
@@ -642,21 +686,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         catch (SemanticException e) {
         }
 
-        systemResolver().install(fullName, cd.asType());
-
         return ((X10ParsedClassType) cd.asType()).error(error);
-    }
-
-    protected X10ClassType typeForNameSilent(QName fullName) {
-        try {
-            if (fullName == null) {
-                return (X10ClassType) unknownClassDef().asType();
-            }
-            return (X10ClassType) typeForName(fullName);
-        }
-        catch (SemanticException e) {
-            return createFakeClass(fullName, e);
-        }
     }
 
     public X10FieldInstance createFakeField(QName containerName, Flags flags, Name name, SemanticException error) {
@@ -705,10 +735,10 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return ((X10MethodInstance) md.asInstance()).error(error);
     }
 
-    public X10ConstructorInstance createFakeConstructor(QName containerName, List<Type> typeArgs, List<Type> argTypes, SemanticException error) {
-        return createFakeConstructor(typeForNameSilent(containerName).typeArguments(typeArgs), argTypes, error);
+    public X10ConstructorInstance createFakeConstructor(QName containerName, Flags flags, List<Type> typeArgs, List<Type> argTypes, SemanticException error) {
+        return createFakeConstructor(typeForNameSilent(containerName).typeArguments(typeArgs), flags, argTypes, error);
     }
-    public X10ConstructorInstance createFakeConstructor(ClassType container, List<Type> argTypes, SemanticException error) {
+    public X10ConstructorInstance createFakeConstructor(ClassType container, Flags flags, List<Type> argTypes, SemanticException error) {
         Position pos = X10NodeFactory_c.compilerGenerated(container);
         List<Ref<? extends Type>> args = new ArrayList<Ref<? extends Type>>();
         List<LocalDef> formalNames = new ArrayList<LocalDef>();
@@ -719,9 +749,9 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         }
         XVar thisVar = XTerms.makeEQV();
         List<Ref<? extends Type>> excTypes = Collections.emptyList();
-        X10ConstructorDef cd = (X10ConstructorDef) constructorDef(pos, Types.ref(container), Flags.PUBLIC,
-                Types.ref(container), Collections.EMPTY_LIST,
-                args, thisVar, formalNames, null, null, excTypes, null);
+        X10ConstructorDef cd = (X10ConstructorDef) constructorDef(pos, Types.ref(container), flags,
+                Types.ref(container), args,
+                thisVar, formalNames, null, null, excTypes, null);
 //        List<Ref<? extends Type>> typeParams = new ArrayList<Ref<? extends Type>>();
 //        i = 0;
 //        for (Ref<? extends Type> r : typeParams) {
@@ -2146,13 +2176,13 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
         XVar thisVar = XTerms.makeLocal(thisName);
 		
-        return constructorDef(pos, container, flags, Types.ref(Types.get(container)), Collections.EMPTY_LIST, argTypes, thisVar, 
-        		dummyLocalDefs(argTypes), null, null, throwTypes, offerType);
+        return constructorDef(pos, container, flags, Types.ref(Types.get(container)), argTypes, thisVar, dummyLocalDefs(argTypes), 
+        		null, null, throwTypes, offerType);
     }
 
     public X10ConstructorDef constructorDef(Position pos, Ref<? extends ClassType> container, Flags flags, Ref<? extends ClassType> returnType,
-            List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes, XVar thisVar, List<LocalDef> formalNames, Ref<CConstraint> guard,
-            Ref<TypeConstraint> typeGuard, List<Ref<? extends Type>> excTypes, Ref<? extends Type> offerType) {
+            List<Ref<? extends Type>> argTypes, XVar thisVar, List<LocalDef> formalNames, Ref<CConstraint> guard, Ref<TypeConstraint> typeGuard,
+            List<Ref<? extends Type>> excTypes, Ref<? extends Type> offerType) {
         assert_(container);
         assert_(argTypes);
         assert_(excTypes);
@@ -2164,7 +2194,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		//t = (X10ClassType) t.setFlags(X10Flags.ROOTED);
 		((Ref<X10ClassType>)returnType).update(t);
 		//returnType = new Ref_c<X10ClassType>(t);
-        return new X10ConstructorDef_c(this, pos, container, flags, returnType, typeParams, argTypes, thisVar, formalNames, guard, typeGuard, excTypes, offerType);
+        return new X10ConstructorDef_c(this, pos, container, flags, returnType, argTypes, thisVar, formalNames, guard, typeGuard, excTypes, offerType);
     }
 
     public void addAnnotation(X10Def o, Type annoType, boolean replace) {
@@ -2233,8 +2263,9 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return false;
     }
 
+    @Override
     public X10TypeEnv env(Context context) {
-        return new X10TypeEnv_c(context);
+        return new X10TypeEnv_c(context == null ? emptyContext() : context);
     }
 
     @Override
@@ -2308,10 +2339,6 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
     public X10ConstructorMatcher ConstructorMatcher(Type container, List<Type> argTypes, Context context) {
         return new X10ConstructorMatcher(container, argTypes, context);
-    }
-
-    public X10ConstructorMatcher ConstructorMatcher(Type container, List<Type> typeArgs, List<Type> argTypes, Context context) {
-        return new X10ConstructorMatcher(container, typeArgs, argTypes, context);
     }
 
     public X10FieldMatcher FieldMatcher(Type container, Name name, Context context) {

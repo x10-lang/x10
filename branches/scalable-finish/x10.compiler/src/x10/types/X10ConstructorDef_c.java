@@ -23,6 +23,7 @@ import polyglot.types.Ref;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.CollectionUtil;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 
@@ -50,17 +51,15 @@ public class X10ConstructorDef_c extends ConstructorDef_c implements X10Construc
 
     public X10ConstructorDef_c(TypeSystem ts, Position pos,
             Ref<? extends ClassType> container,
-            Flags flags, 
+            Flags flags,
             Ref<? extends ClassType> returnType,
-            List<Ref<? extends Type>> typeParameters,
-            List<Ref<? extends Type>> formalTypes, 
-            XVar thisVar, List<LocalDef> formalNames,
-            Ref<CConstraint> guard, Ref<TypeConstraint> typeGuard, 
-            List<Ref<? extends Type>> throwTypes,
+            List<Ref<? extends Type>> formalTypes,
+            XVar thisVar,
+            List<LocalDef> formalNames, Ref<CConstraint> guard,
+            Ref<TypeConstraint> typeGuard, List<Ref<? extends Type>> throwTypes,
             Ref<? extends Type> offerType) {
         super(ts, pos, container, flags, formalTypes, throwTypes);
         this.returnType = returnType;
-        this.typeParameters = TypedList.copyAndCheck(typeParameters, Ref.class, true);
         this.thisVar = thisVar;
         this.formalNames = TypedList.copyAndCheck(formalNames, LocalDef.class, true);
         this.guard = guard;
@@ -148,15 +147,14 @@ public class X10ConstructorDef_c extends ConstructorDef_c implements X10Construc
         this.typeGuard = s;
     }
     
-    List<Ref<? extends Type>> typeParameters;
     public List<Ref<? extends Type>> typeParameters() {
-	        return Collections.unmodifiableList(typeParameters);
+        return Collections.<Ref<? extends Type>>emptyList();
     }
 
     public void setTypeParameters(List<Ref<? extends Type>> typeParameters) {
-	    this.typeParameters = TypedList.copyAndCheck(typeParameters, Ref.class, true);
+        throw new InternalCompilerError("Attempt to set type parameters on a constructor def: "+this, position());
     }
-
+    
     public String toString() {
 	    String s = designator() + " " + flags().translate() + container() + "." + signature() + (guard() != null ? guard() : "") + ": " + returnType();
 
@@ -168,6 +166,6 @@ public class X10ConstructorDef_c extends ConstructorDef_c implements X10Construc
     }
 
     public String signature() {
-	    return "this" + (typeParameters.isEmpty() ? "" : typeParameters.toString()) + "(" + CollectionUtil.listToString(formalTypes) + ")";
+	    return "this" + "(" + CollectionUtil.listToString(formalTypes) + ")";
     }
 }

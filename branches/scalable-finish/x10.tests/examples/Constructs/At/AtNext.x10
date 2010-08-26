@@ -24,9 +24,9 @@ public class AtNext extends x10Test {
 		val t = new T();
 		at (Other) {
 			val t1: T = new T();
-			at (t) t.val = t1;
+			at (t) t.val_ = t1;
 		}
-		return t.val.home == Other;
+		return t.val_.home == Other;
 	}
 
 	public static def main(Rail[String]) {
@@ -34,6 +34,6 @@ public class AtNext extends x10Test {
 	}
 
 	static class T {
-		var val:Object;
+		var val_:Object;
 	}
 }

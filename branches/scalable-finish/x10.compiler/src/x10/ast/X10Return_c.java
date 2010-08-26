@@ -31,14 +31,15 @@ import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
-import polyglot.types.UnknownType;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
+import x10.Configuration;
 import x10.constraint.XEQV;
 import x10.constraint.XFailure;
 import x10.constraint.XLocal;
 import x10.constraint.XTerms;
+import x10.errors.Errors;
 import x10.types.ClosureDef;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
@@ -48,6 +49,7 @@ import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.types.checker.Converter;
+import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 
 public class X10Return_c extends Return_c {
@@ -105,13 +107,25 @@ public class X10Return_c extends Return_c {
 				&& ((MethodDef) ci).name().toString().equals(X10TypeSystem_c.DUMMY_ASYNC)) {
 		    throw new SemanticException("Cannot return from an async.");
 		}
-		
+		Type exprType = expr != null ? expr.type() : null;
+
+
+		// In the exprType, we may have replaced here by PlaceTerm from the context
+		// in support of checking references to this object across place boundaries within
+		// the code for this method. 
+		// Now this value is being returned from this method.
+		// Replace PlaceTerm from the context with here so that exprType will 
+		// correctly be of ! type in the calling environment (which does not know about PlaceTerm.
+		if (exprType != null) {
+			exprType = PlaceChecker.ReplacePlaceTermByHere(exprType, tc.context());
+
+			expr = expr.type(exprType);
+		}
+		    
 		// If the return type is not yet known, set it to the type of the value being returned.
 		if (ci instanceof FunctionDef) {
 		    FunctionDef fi = (FunctionDef) ci;
-
-		    Type exprType = expr != null ? expr.type() : null;
-
+		    
 		    if (exprType instanceof X10ClassType) {
 		        X10ClassType ct = (X10ClassType) exprType;
 		        if (ct.isAnonymous()) {
@@ -238,10 +252,6 @@ public class X10Return_c extends Return_c {
                 throw new InternalCompilerError("Null return type for " + fi);
             }
             
-            if (returnType instanceof UnknownType) {
-                throw new SemanticException();
-            }
-
 //            if (fi instanceof X10MemberDef) {
 //                XRoot classThisVar = ((X10ClassDef) c.currentClassDef()).thisVar();
 //                XRoot methodThisVar = ((X10MemberDef) fi).thisVar();

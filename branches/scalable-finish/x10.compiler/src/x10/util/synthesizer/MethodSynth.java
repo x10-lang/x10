@@ -155,7 +155,7 @@ public class MethodSynth extends AbstractStateSynth implements IClassMemberSynth
      */
     public Expr addFormal(Position pos, Flags flags, Type type, Name name){
         X10TypeSystem xts = (X10TypeSystem) xct.typeSystem();
-        LocalDef lDef = xts.localDef(pos, X10Flags.NONE, Types.ref(type), name);
+        LocalDef lDef = xts.localDef(pos, flags, Types.ref(type), name);
         Formal f = xnf.Formal(pos,
                               xnf.FlagsNode(pos, flags), 
                               xnf.CanonicalTypeNode(pos, type), 

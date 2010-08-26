@@ -82,7 +82,7 @@ public class ConditionalAtomicQueue extends x10Test {
 	public def run(): boolean = {
 		val N = T.N;
 		val NP = Place.MAX_PLACES;
-		val D2  = MyDist.val(N*NP);
+		val D2  = MyDist.val_(N*NP);
 		val received = DistArray.make[int](D2);
 
 		finish {
@@ -131,16 +131,16 @@ public class ConditionalAtomicQueue extends x10Test {
 
 		public const N: int = 2;
 
-		var val: int; // the id of the item
+		var val_: int; // the id of the item
 
 		def this(var i: int, var j: int) = { // produce a T
-			val = N*i+j;
+			val_ = N*i+j;
 		}
 
 		public def consume(): void = { // consume a T
 		}
 
-		public def getval(): int = { return val; }
+		public def getval(): int = { return val_; }
 	}
 
 	/**
@@ -163,7 +163,7 @@ public class ConditionalAtomicQueue extends x10Test {
 		/**
 		 * create a constant-Here dist
 		 */
-		static def val(var arraySize: int) = {
+		static def val_(var arraySize: int) = {
 			return [0..(arraySize-1)]->here;
 		}
 	}

@@ -666,7 +666,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
                       "\""+hostClassName+".cubin\", \""+cnamet+"\");");
             inc.newline(); inc.forceNewline();
         } else {
-            super.generateClosureDeserializationIdDef(inc, cnamet, freeTypeParams, hostClassName, block);
+            super.generateClosureDeserializationIdDef(inc.currentStream(), cnamet, freeTypeParams, hostClassName, block);
         }
     }    
     

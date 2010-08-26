@@ -45,7 +45,6 @@ import polyglot.types.Type;
 import polyglot.types.TypeEnv_c;
 import polyglot.types.TypeSystem_c;
 import polyglot.types.Types;
-import polyglot.types.UnknownType;
 import polyglot.types.TypeSystem_c.ConstructorMatcher;
 import polyglot.types.TypeSystem_c.TypeEquals;
 import polyglot.util.CollectionUtil;
@@ -682,7 +681,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     boolean isSubtype(XVar x, Type t1, Type t2) {
     	assert t1 != null;
     	assert t2 != null;
-        if (t1 instanceof UnknownType || t2 instanceof UnknownType) return true;
+    	if (ts.isUnknown(t1) || ts.isUnknown(t2)) return true;
         
     	t1 = ts.expandMacros(t1);
     	t2 = ts.expandMacros(t2);
@@ -802,9 +801,17 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     	
     	Type baseType2 = X10TypeMixin.baseType(t2);
     	CConstraint c1 = X10TypeMixin.realX(t1);
+    	if (c1!= null && x != null) {
+    		c1 = c1.instantiateSelf(x);
+    	}
+    	
     	CConstraint c2 = X10TypeMixin.xclause(t2);  // NOTE: xclause, not realX
+    
     	if (c2 != null && c2.valid()) { 
     		c2 = null; 
+    	}
+    	if (c2 != null && x != null) {
+    		c2 = c2.instantiateSelf(x);
     	}
     	if (c1 != null && c1.valid()) 
     		c1 = null; 
@@ -845,7 +852,12 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     			try {
     				xcontext = (X10Context) xcontext.pushBlock();	
 
-    				CConstraint r = c.addIn(c1);
+    				CConstraint r;
+    				try {
+    				 r = c.addIn(c1);
+    				} catch (XFailure z) {
+    					return false;
+    				}
     				xcontext.setCurrentConstraint(r);
 
     				X10TypeEnv_c tenv = copy();
@@ -855,8 +867,6 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     					t2 = Subst.subst(t2, x, c2.self());
     				
     				return tenv.isSubtype(x, baseType1, t2);
-    			} catch (XFailure z) {
-    				throw new InternalCompilerError("Unexpected failure ", z);
     			} 	 catch (SemanticException z) {
     				throw new InternalCompilerError("Unexpected failure ", z);
     			}

@@ -12,12 +12,8 @@
     <property name="lpg.jar.url" value="http://dist.codehaus.org/x10/dependencies/lpg.runtime.java_2.0.18.jar"/>
     <property name="ecj.jar" value="ecj.jar"/>
     <property name="ecj.jar.url" value="http://dist.codehaus.org/x10/dependencies/ecj-3.5.1.jar"/>
-<!--change-->
     <property name="wala.tar" value="wala.tar" />
     <property name="wala.tar.url" value="http://www.cs.columbia.edu/~bshao/tmp/wala.tar" />
-    <property name="polyglot.jar" value="polyglot3.jar"/>
-    <property name="polyglot.url" value="http://polyglot-compiler.googlecode.com/svn/trunk/updates/plugins"/>
-    <property name="polyglot.jar.url" value="${polyglot.url}/polyglot3_3.2.0.jar"/>
     <property name="x10.constraints.location" location="${x10.home}/x10.constraints"/>
     <property name="constraints.jar" value="x10constraints.jar"/>
     <property name="x10.common.location" location="${x10.home}/x10.common"/>
@@ -37,9 +33,6 @@
         <mkdir dir="${etc}" />
         <mkdir dir="${incdir}" />
         <mkdir dir="${lib}" />
-        <condition property="local.polyglot.jar" value="${env.LOCAL_POLYGLOT_JAR}">
-            <isset property="env.LOCAL_POLYGLOT_JAR"/>
-        </condition>
         <condition property="local.lpg.jar" value="${env.LOCAL_LPG_JAR}">
             <isset property="env.LOCAL_LPG_JAR"/>
         </condition>
@@ -105,16 +98,12 @@
     <target name="check-jar-cache" depends="init">
         <available property="lpg.jar.present" file="${lib}/${lpg.jar}"/>
         <available property="ecj.jar.present" file="${lib}/${ecj.jar}"/>
-<!--change-->
         <available property="wala.tar.present" file="${lib}/${wala.tar}"/>
-        <available property="polyglot.jar.present" file="${lib}/${polyglot.jar}"/>
         <condition property="cache.up-to-date">
             <and>
                 <isset property="lpg.jar.present"/>
                 <isset property="ecj.jar.present"/>
-<!--change-->
                 <isset property="wala.tar.present"/>
-		<isset property="polyglot.jar.present"/>
             </and>
         </condition>
     </target>
@@ -145,12 +134,11 @@
         <available property="ecj.jar.present" file="${lib}/${ecj.jar}"/>
         <fail message="Unable to find ${ecj.jar} at ${local.ecj.jar}" unless="ecj.jar.present"/>
     </target>
-<!--change-->
     <target name="wala-tar" depends="init" >
         <mkdir dir="${lib}"/>
         <get usetimestamp="true" src="${wala.tar.url}" dest="${lib}/${wala.tar}"/>
         <untar src="${lib}/${wala.tar}" dest="${lib}"/>
-	<available property="wala.tar.present" file="${lib}/${wala.tar}"/>
+    <available property="wala.tar.present" file="${lib}/${wala.tar}"/>
         <fail message="Unable to get ${wala.tar} from ${wala.tar.url}" unless="wala.tar.present"/>
     </target>
     <target name="wala-local-tar" depends="init" if="local.wala.tar">
@@ -159,21 +147,7 @@
         <available property="wala.tar.present" file="${lib}/${wala.jar}"/>
         <fail message="Unable to find ${wala.tar} at ${local.wala.tar}" unless="wala.tar.present"/>
     </target>
-    <target name="polyglot-jar" depends="init,polyglot-local-jar" unless="local.polyglot.jar">
-        <mkdir dir="${lib}"/>
-        <get usetimestamp="true" src="${polyglot.jar.url}" dest="${lib}/${polyglot.jar}"/>
-        <available property="polyglot.jar.present" file="${lib}/${polyglot.jar}"/>
-        <fail message="Unable to get ${polyglot.jar} from ${polyglot.jar.url}" unless="polyglot.jar.present"/>
-    </target>
-    <target name="polyglot-local-jar" depends="init" if="local.polyglot.jar">
-        <mkdir dir="${lib}"/>
-        <copy file="${local.polyglot.jar}" tofile="${lib}/${polyglot.jar}"/>
-        <available property="polyglot.jar.present" file="${lib}/${polyglot.jar}"/>
-        <fail message="Unable to find ${polyglot.jar} at ${local.polyglot.jar}" unless="polyglot.jar.present"/>
-    </target>
-
-<!--change-->
-    <target name="update-jar-cache" depends="init,lpg-jar,ecj-jar,wala-tar,polyglot-jar"/>
+    <target name="update-jar-cache" depends="init,lpg-jar,ecj-jar,wala-tar"/>
     <target name="prereq-jars" depends="init,check-jar-cache" unless="cache.up-to-date">
         <antcall target="update-jar-cache"/>
     </target>
@@ -334,12 +308,10 @@
 #FILE_SEP='${file.separator}'
 #PATH_SEP='${path.separator}'
 #CONFIG_FILE='${config}'
-POLYGLOT_JAR='${polyglot.jar}'
 LPG_JAR='${lpg.jar}'
 ECJ_JAR='${ecj.jar}'
 WALA_TAR='${wala.tar}'
 WALA_URL='${wala.tar.url}'
-POLYGLOT_URL='${polyglot.jar.url}'
 LPG_URL='${lpg.jar.url}'
 ECJ_URL='${ecj.jar.url}'
 
@@ -496,7 +468,7 @@ if [[ "$UNAME" = CYGWIN* ]]; then JAVA_HOME="$(cygpath -am "$JAVA_HOME")"; fi
         <zip destfile="${src.zip.location}/x10-${src.zip.version}.zip">
             <zipfileset prefix="" dir="${basedir}" includes="epl-v10.html,RELEASE.NOTES,BUILD"/>
             <zipfileset prefix="" dir="${x10.tests.location}" includes="TESTING"/>
-            <zipfileset prefix="x10.dist" dir="${basedir}" excludes="releng/**,**/.*.swp,lib/**,etc/**" includes=".launchConfigs/*,.classpath,.project,README,INSTALL,build*,exportPlugin.xml,bin/*.in,bin/x10c++,lib/${polyglot.jar},lib/${lpg.jar},lib/${ecj.jar},samples/**"/>
+            <zipfileset prefix="x10.dist" dir="${basedir}" excludes="releng/**,**/.*.swp,lib/**,etc/**" includes=".launchConfigs/*,.classpath,.project,README,INSTALL,build*,exportPlugin.xml,bin/*.in,bin/x10c++,lib/${lpg.jar},lib/${ecj.jar},samples/**"/>
             <zipfileset prefix="x10.compiler" dir="${x10.compiler.location}" excludes="releng/**,**/.*.swp,classes/**"/>
             <zipfileset prefix="x10.runtime" dir="${x10.runtime.location}" excludes="releng/**,**/.*.swp,classes/**,src-cpp/gen/**"/>
             <zipfileset prefix="x10.constraints" dir="${x10.constraints.location}" excludes="releng/**,**/.*.swp,classes/**"/>

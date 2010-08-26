@@ -18,29 +18,27 @@ import x10.compiler.Inline;
  * A RectLayout represents a rectangular memory layout for a
  * region. It provides efficient access but wastes storage for
  * non-rectangular regions.
- *
- * @author bdlucas
  */
-final class RectLayout(rank: int) extends Layout {
+struct RectLayout(rank:int) {
 
-    global val size: int;
+    val size: int;
 
-    global val min: ValRail[int];
-    global val min0: int;
-    global val min1: int;
-    global val min2: int;
-    global val min3: int;
+    val min:ValRail[int];
+    val min0:int;
+    val min1:int;
+    val min2:int;
+    val min3:int;
 
-    global val delta: ValRail[int];
-    global val delta0: int;
-    global val delta1: int;
-    global val delta2: int;
-    global val delta3: int;
+    val delta:ValRail[int];
+    val delta0:int;
+    val delta1:int;
+    val delta2:int;
+    val delta3:int;
 
     def this(min: ValRail[int], max: ValRail[int]) {
         
         if (max.length!=min.length)
-            throw U.illegal("min and max must have same length");
+            throw new IllegalArgumentException("min and max must have same length");
 
         val r = min.length;
         property(r);
@@ -69,37 +67,36 @@ final class RectLayout(rank: int) extends Layout {
     //
     // Layout
     //
-
-    final global @Header @Inline def size(): int {
+    @Header @Inline def size(): int {
         return size;
     }
 
-    final global def offset(pt: Point): int {
+    def offset(pt: Point): int {
         var offset: int = pt(0) - min(0);
         for (var i:int=1; i<rank; i++)
             offset = offset*delta(i) + pt(i) - min(i);
         return offset;
     }
 
-    final global @Header @Inline def offset(i0: int): int  {
+    @Header @Inline def offset(i0: int): int  {
         var offset:int = i0 - min0;
         return offset;
     }
 
-    final global @Header @Inline def offset(i0: int, i1: int): int {
+    @Header @Inline def offset(i0: int, i1: int): int {
         var offset:int  = i0 - min0;
         offset = offset*delta1 + i1 - min1;
         return offset;
     }
 
-    final global @Header @Inline def offset(i0: int, i1: int, i2: int): int {
+    @Header @Inline def offset(i0: int, i1: int, i2: int): int {
         var offset:int = i0 - min0;
         offset = offset*delta1 + i1 - min1;
         offset = offset*delta2 + i2 - min2;
         return offset;
     }
 
-    final global @Header @Inline def offset(i0: int, i1: int, i2: int, i3: int): int {
+    @Header @Inline def offset(i0: int, i1: int, i2: int, i3: int): int {
         var offset:int = i0 - min0;
         offset = offset*delta1 + i1 - min1;
         offset = offset*delta2 + i2 - min2;

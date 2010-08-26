@@ -41,6 +41,7 @@ public class X10LocalDef_c extends LocalDef_c implements X10LocalDef {
             Ref<? extends Type> type,
             Name name) {
         super(ts, pos, flags, type, name);
+        // TODO: Add the {self==name} constraint to the type
     }
     
     public String toString() {

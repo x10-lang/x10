@@ -20,10 +20,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import polyglot.ast.Expr;
 import polyglot.types.Context;
 import polyglot.types.MethodInstance;
 import polyglot.types.Type;
 import polyglot.util.CodeWriter;
+import polyglot.util.Position;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10MethodDef;
@@ -31,6 +33,7 @@ import x10.types.X10MethodInstance;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
+import x10cpp.types.X10CPPContext_c;
 
 /**
  * A class to encapsulate details of how the methods
@@ -179,7 +182,7 @@ public final class ITable {
 		h.newline();
 	}
 
-	public void emitITableInitialization(X10ClassType cls, int itableNum, Emitter emitter, CodeWriter h, CodeWriter sw) {
+	public void emitITableInitialization(X10ClassType cls, int itableNum, MessagePassingCodeGenerator cg, CodeWriter h, CodeWriter sw) {
 	    if (cls.isX10Struct()) {
             String interfaceCType = Emitter.translateType(interfaceType, false);
             String clsCType = Emitter.translateType(cls, false);
@@ -208,7 +211,7 @@ public final class ITable {
                 String recvArg = ibox ? "this->value" : "*this";
 
                 if (!cls.typeArguments().isEmpty()) {
-                    emitter.printTemplateSignature(cls.typeArguments(), sw);
+                    cg.emitter.printTemplateSignature(cls.typeArguments(), sw);
                 }
                 sw.write("class "+thunkType+" : public "+parentCType+" {"); sw.newline();
                 sw.write("public:"); sw.newline(4); sw.begin(0);
@@ -230,11 +233,30 @@ public final class ITable {
                     }
                     sw.write(") {"); sw.newline(4); sw.begin(0);
                     if (!meth.returnType().isVoid()) sw.write("return ");
-                    sw.write(Emitter.structMethodClass(cls, true, true)+"::"+Emitter.mangled_method_name(meth.name().toString())+"("+recvArg);
-                    for (int j=0; j<meth.formalTypes().size(); j++) {
-                        sw.write(", arg"+j);
+                    
+                    List<MethodInstance> implMeths = cls.methods(meth.name(), meth.formalTypes(), cg.tr.context());
+                    assert implMeths.size() == 1 : "Can't be more than 1 matching method; how on earth did this typecheck???";
+                    MethodInstance implMeth = implMeths.iterator().next();
+                    
+                    String pat = cg.getCppImplForDef(((X10MethodInstance)implMeth).x10Def());
+                    if (pat != null) {
+                        X10ClassType ct = (X10ClassType) implMeth.container().toClass();
+                        List<Type> typeArguments  = ct.typeArguments();
+                        ArrayList<String> args = new ArrayList<String>();
+                        int numArgs = implMeth.formalTypes().size();
+                        argNum = 0;
+                        for (Type f : meth.formalTypes()) {
+                            args.add("arg"+(argNum++));
+                        }
+                        cg.emitNativeAnnotation(pat, ((X10MethodInstance)implMeth).typeParameters(), recvArg, args, typeArguments);
+                    } else {
+                        sw.write(Emitter.structMethodClass(cls, true, true)+"::"+Emitter.mangled_method_name(meth.name().toString())+"("+recvArg);
+                        for (int j=0; j<meth.formalTypes().size(); j++) {
+                            sw.write(", arg"+j);
+                        }
+                        sw.write(")");
                     }
-                    sw.write(");");
+                    sw.write(";");
                     sw.end(); sw.newline();
                     sw.write("}"); sw.newline();
                 }            
@@ -242,7 +264,7 @@ public final class ITable {
                 sw.write("};"); sw.newline();
 
                 if (!cls.typeArguments().isEmpty()) {
-                    emitter.printTemplateSignature(cls.typeArguments(), sw);
+                    cg.emitter.printTemplateSignature(cls.typeArguments(), sw);
                 }           
                 sw.write((doubleTemplate ? "typename " : "")+interfaceCType+(doubleTemplate ? "::template itable<" : "::itable<")+
                          thunkType+thunkParams+" > "+" "+thunkType+thunkParams+"::itable");
@@ -267,7 +289,7 @@ public final class ITable {
 	        boolean doubleTemplate = cls.typeArguments().size() > 0 && interfaceType.typeArguments().size() > 0;
 
 	        if (!cls.typeArguments().isEmpty()) {
-	            emitter.printTemplateSignature(cls.typeArguments(), sw);
+	            cg.emitter.printTemplateSignature(cls.typeArguments(), sw);
 	        }
 	        sw.write((doubleTemplate ? "typename " : "")+interfaceCType+(doubleTemplate ? "::template itable<" : "::itable<")+
 	                 Emitter.translateType(cls, false)+" > "+" "+clsCType+"::_itable_"+itableNum+"");

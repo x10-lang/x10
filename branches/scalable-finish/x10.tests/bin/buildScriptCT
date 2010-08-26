@@ -70,60 +70,9 @@ cvsUpdate() {
 	fi
 }
 
-buildX10Module() {
-	printf "\n## [$prog]: building module $(basename $1)...\n"
-	case "$2" in
-		"polyglot")
-			( \
-				cd $1; \
-				ant clean jar; \
-				exit $?; \
-			)
-			;;
-		"x10c")
-			( \
-				cd $1; \
-				ant clean grammar dist; \
-				exit $?; \
-			)
-			;;
-		"x10j")
-			( \
-				cd $1; \
-				ant clean dist-java; \
-				exit $?; \
-			)
-			;;
-		"x10")
-			( \
-				cd $1; \
-				ant clean dist; \
-				exit $?; \
-			)
-			;;
-	esac
-	if (( $? != 0 )); then
-		printf "\n[$prog: err]: x10 component build failed for $(basename $1)\n"
-		return 1
-	else
-		printf "\n## done.\n"
-		return 0
-	fi
-}
-
 main() {
     # source all the relevant modules -- do fresh checkout each time
 	declare -i status;
-	POLYGLOT_HOME=$X10_HOME/polyglot
-	if [[ -d $POLYGLOT_HOME ]]; then
-		rm -rf $POLYGLOT_HOME
-	fi
-	svnUpdate $POLYGLOT_HOME $POLYGLOT_SVNROOT
-	status=$?
-	if (( $status != 0 )); then
-		return $status
-	fi
-
 	X10_COMMON=$X10_HOME/x10.common
 	if [[ -d $X10_COMMON ]]; then
 		rm -rf $X10_COMMON
@@ -192,41 +141,17 @@ main() {
 	fi
 
     # build modules in the listed order -- some builds may be redundant
-	buildX10Module $POLYGLOT_HOME polyglot
-	status=$?
-	if (( $status != 0 )); then
-		return $status
-	fi
-	export LOCAL_POLYGLOT_JAR=$POLYGLOT_HOME/lib/polyglot.jar
-	if [[ "$(uname -s)" == CYGWIN* ]]; then
-		export LOCAL_POLYGLOT_JAR=$(cygpath -w -a $LOCAL_POLYGLOT_JAR)
-	fi
-
-	buildX10Module $X10_CONSTRAINTS x10
-	status=$?
-	if (( $status != 0 )); then
-		return $status
+	printf "\n##### [$prog]: building X10 #####\n"
+	if [[ "$(uname -s)" == "AIX" ]]; then
+	    (cd $X10_DIST; ant dist);
+	elif [[ "$(uname -s)"  == "Linux" && "$(uname -m)" == "x86_64" ]]; then
+	    (cd $X10_DIST; ant dist);
+	elif [[ "$(uname -s)" == "SunOS" && "$(uname -p)" == "sparc" ]]; then
+	    (cd $X10_DIST; ant dist);
+	else
+	    (cd $X10_DIST; ant dist);
 	fi
 
-	buildX10Module $X10_COMMON x10
-	status=$?
-	if (( $status != 0 )); then
-		return $status
-	fi
-
-	buildX10Module $X10_DIST x10j
-	status=$?
-	if (( $status != 0 )); then
-		return $status
-	fi
-
-	buildX10Module $X10_COMPILER x10
-	status=$?
-	if (( $status != 0 )); then
-		return $status
-	fi
-
-	buildX10Module $X10_TESTS x10
 	return $?
 }
 
@@ -243,10 +168,6 @@ fi
 
 if [[ -z "$X10_SVNROOT" ]]; then
 	export X10_SVNROOT="http://x10.svn.sf.net/svnroot/x10/trunk"
-fi
-
-if [[ -z "$POLYGLOT_SVNROOT" ]]; then
-	export POLYGLOT_SVNROOT="http://polyglot-compiler.googlecode.com/svn/trunk"
 fi
 
 main

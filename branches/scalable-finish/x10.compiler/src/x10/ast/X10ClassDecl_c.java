@@ -11,6 +11,7 @@
 
 package x10.ast;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -56,7 +57,6 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
-import polyglot.types.UnknownType;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 import polyglot.visit.CFGBuilder;
@@ -88,6 +88,7 @@ import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.util.Synthesizer;
 import x10.visit.ChangePositionVisitor;
+import x10.visit.CheckEscapingThis;
 
 /**
  * The same as a Java class, except that it needs to handle properties.
@@ -195,9 +196,6 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
 
         if (thisType.fullName().equals(QName.make("x10.lang.Object"))) {
         	thisType.superType(null);
-        } else  if (thisType.fullName().equals(QName.make("x10.lang.Struct"))) {
-        	assert false;
-        	thisType.superType(null);
         }
         else if (flags().flags().isInterface()) {
         	thisType.superType(null);
@@ -212,6 +210,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         	thisType.superType(null);
         }
         else if (superClass == null) {
+            // The default superclass is Object
         	superRef.setResolver(new Runnable() {
         		public void run() {
         			superRef.update(xts.Object());
@@ -637,7 +636,8 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         	}
         }
         if (n.superClass == null && type.superType() != null) {
-            n = (X10ClassDecl_c) n.superClass(nf.CanonicalTypeNode(position(), type.superType()));
+            n = (X10ClassDecl_c) n.superClass(nf.CanonicalTypeNode(
+                    (body!=null ? body.position().startOf() : position()).markCompilerGenerated(), type.superType()));
         }
    
         List<TypeNode> newInterfaces = new ArrayList<TypeNode>();
@@ -705,7 +705,9 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     		}
     		n.checkStructMethods(parent, tc);
     	}
-    	
+
+        if (false)
+            new CheckEscapingThis(this,tc.job(),tc.typeSystem()).typeCheck();
     	return n;
     }
     
@@ -717,13 +719,14 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     
     @Override
     protected void checkSupertypeCycles(TypeSystem ts) throws SemanticException {
+        X10TypeSystem xts = (X10TypeSystem) ts;
         Ref<? extends Type> stref = type.superType();
         
         if (stref != null) {
             Type t = stref.get();
             t = followDefs(t);
-            if (t instanceof UnknownType)
-                throw new SemanticException(); // already reported
+            if (xts.isUnknown(t))
+                return;
             if (! t.isClass() || t.toClass().flags().isInterface()) {
                 throw new SemanticException("Cannot extend type " +
                         t + "; not a class.",
@@ -739,7 +742,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         for (Ref<? extends Type> tref : type.interfaces()) {
             Type t = tref.get();
             t = followDefs(t);
-            if (t instanceof UnknownType)
+            if (xts.isUnknown(t))
                 throw new SemanticException(); // already reported
             if (! t.isClass() || ! t.toClass().flags().isInterface()) {
                 String s = type.flags().isInterface() ? "extend" : "implement";
@@ -785,7 +788,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     }
 
     public Node superConformanceCheck(ContextVisitor tc) throws SemanticException {
-        TypeSystem ts = tc.typeSystem();
+        X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 
         ClassType type = this.type.asType();
         Name name = this.name.id();
@@ -850,7 +853,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
                     + "member classes.", position());
         }
 
-        if (type.superClass() != null) {
+        if (type.superClass() != null && !ts.isUnknown(type.superClass())) {
             if (! type.superClass().isClass() || type.superClass().toClass().flags().isInterface()) {
                 throw new SemanticException("Cannot extend non-class \"" +
                         type.superClass() + "\".",
@@ -919,7 +922,10 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	    Job job = tc.job();
     	    if (job != null) {
     	        Source s = job.source();
-    	        if (! s.name().startsWith(type.name() + ".")) {
+    	        if (! (s.name().startsWith(type.name() + ".") ||
+    	                s.name().endsWith(File.separator + type.name() + ".x10") ||
+    	                s.name().endsWith("/" + type.name() + ".x10")))
+    	        {
     	            throw new SemanticException("Public type " + type.fullName() 
     	            		+ " must be declared in " + type.name() + ".x10.", result.position());
     	        }

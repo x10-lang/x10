@@ -16,7 +16,7 @@ import x10.ast.X10Special;
  */
 public class ThisChecker extends ContextVisitor {
     public ThisChecker(Job job) {
-        super(job, Globals.TS(), Globals.NF());
+    	   super(job, job.extensionInfo().typeSystem(), job.extensionInfo().nodeFactory());
     }
     @Override
     public Node override(Node n) {

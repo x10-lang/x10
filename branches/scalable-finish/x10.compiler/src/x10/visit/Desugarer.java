@@ -64,6 +64,7 @@ import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.ErrorHandlingVisitor;
 import polyglot.visit.NodeVisitor;
+import polyglot.visit.TypeBuilder;
 import x10.Configuration;
 import x10.ExtensionInfo;
 import x10.ast.AnnotationNode;
@@ -102,9 +103,10 @@ import x10.ast.X10New;
 import x10.ast.X10NodeFactory;
 import x10.ast.X10Special_c;
 import x10.ast.X10Unary_c;
-import x10.constraint.XConstraint;
+import x10.constraint.XFailure;
 import x10.constraint.XVar;
 import x10.emitter.Emitter;
+import x10.extension.X10Ext;
 import x10.types.ClosureDef;
 import x10.types.ConstrainedType;
 import x10.types.X10ClassType;
@@ -118,6 +120,8 @@ import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
+import x10.types.constraints.CConstraint;
+import x10.types.constraints.XConstrainedTerm;
 import x10.util.ClosureSynthesizer;
 import x10.util.Synthesizer;
 import x10.extension.X10Ext;
@@ -318,17 +322,19 @@ public class Desugarer extends ContextVisitor {
     // Begin asyncs
     private Stmt visitAsync(Node old, Async a) throws SemanticException {
         Position pos = a.position();
+        X10Ext ext = (X10Ext) a.ext();
+        List<X10ClassType> refs = Emitter.annotationsNamed(xts, a, REF);
         if (Emitter.hasAnnotation(xts, a, UNCOUNTED)) {
             if (old instanceof Async && ((Async) old).place() instanceof Here)
                 return uncountedAsync(pos, a.body());
             return uncountedAsync(pos, a.body(), a.place());
         }
         if (old instanceof Async && ((Async) old).place() instanceof Here)
-            return async(pos, a.body(), a.clocks());
+            return async(pos, a.body(), a.clocks(), refs);
         Stmt specializedAsync = specializeAsync(old, a);
         if (specializedAsync != null)
             return specializedAsync;
-        return async(pos, a.body(), a.clocks(), a.place());
+        return async(pos, a.body(), a.clocks(), a.place(), refs);
     }
 
     // TODO: add more rules from SPMDcppCodeGenerator
@@ -342,6 +348,7 @@ public class Desugarer extends ContextVisitor {
     private static final Name XOR = Name.make("xor");
     private static final Name FENCE = Name.make("fence");
     private static final QName IMMEDIATE = QName.make("x10.compiler.Immediate");
+    private static final QName REF = QName.make("x10.compiler.Ref");
     private static final QName UNCOUNTED = QName.make("x10.compiler.Uncounted");
     private static final QName REMOTE_OPERATION = QName.make("x10.compiler.RemoteOperation");
 
@@ -439,45 +446,45 @@ public class Desugarer extends ContextVisitor {
         }
     }
 
-    private Stmt async(Position pos, Stmt body, List<Expr> clocks, Expr place) throws SemanticException {
+    private Stmt async(Position pos, Stmt body, List<Expr> clocks, Expr place, List<X10ClassType> annotations) throws SemanticException {
         if (xts.isImplicitCastValid(place.type(), xts.Object(), context)) {
             place = synth.makeFieldAccess(pos,place, xts.homeName(), xContext());
         }
         if (clocks.size() == 0)
-        	return async(pos, body, place);
+        	return async(pos, body, place, annotations);
         Type clockRailType = xts.ValRail(xts.Clock());
         Tuple clockRail = (Tuple) xnf.Tuple(pos, clocks).type(clockRailType);
 
         return makeAsyncBody(pos, new ArrayList<Expr>(Arrays.asList(new Expr[] { place, clockRail })),
                              new ArrayList<Type>(Arrays.asList(new Type[] { xts.Place(), clockRailType})),
-                             body);
+                             body, annotations);
     }
 
-    private Stmt async(Position pos, Stmt body, Expr place) throws SemanticException {
+    private Stmt async(Position pos, Stmt body, Expr place, List<X10ClassType> annotations) throws SemanticException {
     	List<Expr> l = new ArrayList<Expr>(1);
     	l.add(place);
     	List<Type> t = new ArrayList<Type>(1);
     	t.add(xts.Place());
-    	return makeAsyncBody(pos, l, t, body);
+    	return makeAsyncBody(pos, l, t, body, annotations);
     }
 
-    private Stmt async(Position pos, Stmt body, List clocks) throws SemanticException {
+    private Stmt async(Position pos, Stmt body, List clocks, List<X10ClassType> annotations) throws SemanticException {
         if (clocks.size() == 0)
-        	return async(pos, body);
+        	return async(pos, body, annotations);
         Type clockRailType = xts.ValRail(xts.Clock());
         Tuple clockRail = (Tuple) xnf.Tuple(pos, clocks).type(clockRailType);
         return makeAsyncBody(pos, new ArrayList<Expr>(Arrays.asList(new Expr[] { clockRail })),
-                             new ArrayList<Type>(Arrays.asList(new Type[] { clockRailType})), body);
+                             new ArrayList<Type>(Arrays.asList(new Type[] { clockRailType})), body, annotations);
     }
 
-    private Stmt async(Position pos, Stmt body) throws SemanticException {
+    private Stmt async(Position pos, Stmt body, List<X10ClassType> annotations) throws SemanticException {
         return makeAsyncBody(pos, new LinkedList<Expr>(),
-                new LinkedList<Type>(), body);
+                new LinkedList<Type>(), body, annotations);
     }
 
-    private Stmt makeAsyncBody(Position pos, List<Expr> exprs, List<Type> types, Stmt body) throws SemanticException {
+    private Stmt makeAsyncBody(Position pos, List<Expr> exprs, List<Type> types, Stmt body, List<X10ClassType> annotations) throws SemanticException {
         Closure closure = synth.makeClosure(body.position(), xts.Void(),
-                synth.toBlock(body), xContext());
+                synth.toBlock(body), xContext(), annotations);
         exprs.add(closure);
         types.add(closure.closureDef().asType());
         Stmt result = xnf.Eval(pos,
@@ -752,7 +759,7 @@ public class Desugarer extends ContextVisitor {
         Name STOPFINISHEXPR = Name.make("stopFinishExpr");
         Stmt returnS = null;
         if ((l==null) && (n!=null)&& (r==null)) {
-        	Expr left = n.left(xnf).type(reducerTarget);
+        	Expr left = n.left().type(reducerTarget);
             Call instanceCall = synth.makeInstanceCall(pos, local1, STOPFINISHEXPR, Collections.EMPTY_LIST, Collections.EMPTY_LIST, reducerTarget, Collections.EMPTY_LIST, xContext());
             Expr b = assign(pos, left, Assign.ASSIGN, instanceCall);
             returnS = xnf.Eval(pos, b);
@@ -837,7 +844,7 @@ public class Desugarer extends ContextVisitor {
         Position pos = f.position();
         // Have to desugar some newly-created nodes
         Expr here = visitHere(xnf.Here(f.body().position()));
-        Stmt body = async(f.body().position(), f.body(), f.clocks(), here);
+        Stmt body = async(f.body().position(), f.body(), f.clocks(), here, null);
         X10Formal formal = (X10Formal) f.formal();
         return xnf.ForLoop(pos, formal, f.domain(), body).locals(formal.explode(this));
     }
@@ -873,7 +880,7 @@ public class Desugarer extends ContextVisitor {
                 xnf.Id(bpos, RESTRICTION),
                 here).methodInstance(rmi).type(rmi.returnType());
         Expr here1 = visitHere(xnf.Here(bpos));
-        Stmt body = async(a.body().position(), a.body(), a.clocks(), here1);
+        Stmt body = async(a.body().position(), a.body(), a.clocks(), here1, null);
         Stmt inner = xnf.ForLoop(pos, formal, dAtPlace, body).locals(formal.explode(this));
         MethodInstance pmi = xts.findMethod(dType,
                 xts.MethodMatcher(dType, PLACES, Collections.EMPTY_LIST, context));
@@ -885,7 +892,7 @@ public class Desugarer extends ContextVisitor {
         Formal pFormal = xnf.Formal(pos, xnf.FlagsNode(pos, xts.Final()),
                 xnf.CanonicalTypeNode(pos, pType), xnf.Id(pos, pTmp)).localDef(pDef);
         Stmt body1 = async(bpos, inner, a.clocks(),
-                xnf.Local(bpos, xnf.Id(bpos, pTmp)).localInstance(pDef.asInstance()).type(pType));
+                xnf.Local(bpos, xnf.Id(bpos, pTmp)).localInstance(pDef.asInstance()).type(pType), null);
         return xnf.Block(pos, local, xnf.ForLoop(pos, pFormal, places, body1));
     }
 
@@ -895,6 +902,9 @@ public class Desugarer extends ContextVisitor {
 
         Call c = X10Binary_c.desugarBinaryOp(n, this);
         if (c != null) {
+            X10MethodInstance mi = (X10MethodInstance) c.methodInstance();
+            if (mi.error() != null)
+                throw mi.error();
             return c;
         }
 
@@ -994,6 +1004,9 @@ public class Desugarer extends ContextVisitor {
 
         Call c = X10Unary_c.desugarUnaryOp(n, this);
         if (c != null) {
+            X10MethodInstance mi = (X10MethodInstance) c.methodInstance();
+            if (mi.error() != null)
+                throw mi.error();
             return c;
         }
 
@@ -1038,7 +1051,7 @@ public class Desugarer extends ContextVisitor {
         Position pos = n.position();
         if (n.operator() == Assign.ASSIGN) return n;
         X10Binary_c.Operator op = n.operator().binaryOperator();
-        Local left = (Local) n.left(xnf);
+        Local left = (Local) n.left();
         Expr right = n.right();
         Type R = left.type();
         Expr val = visitBinary((X10Binary_c) xnf.Binary(pos, left, op, right).type(R));
@@ -1050,7 +1063,7 @@ public class Desugarer extends ContextVisitor {
         Position pos = n.position();
         if (n.operator() == Assign.ASSIGN) return n;
         X10Binary_c.Operator op = n.operator().binaryOperator();
-        Field left = (Field) n.left(xnf);
+        Field left = (Field) n.left();
         Expr right = n.right();
         Type R = left.type();
         if (left.flags().isStatic()) {
@@ -1098,7 +1111,7 @@ public class Desugarer extends ContextVisitor {
                     args).methodInstance(mi).type(mi.returnType());
         }
         X10Binary_c.Operator op = n.operator().binaryOperator();
-        X10Call left = (X10Call) n.left(xnf);
+        X10Call left = (X10Call) n.left();
         MethodInstance ami = left.methodInstance();
         List<Formal> parms = new ArrayList<Formal>();
         Name xn = Name.make("x");
@@ -1164,18 +1177,36 @@ public class Desugarer extends ContextVisitor {
         Expr left = null;
         for (Expr clause : clauses) {
             Expr right = (Expr) clause.visit(subst);
+            right = (Expr) right.visit(this);
             if (left == null)
                 left = right;
-            else
+            else {
                 left = xnf.Binary(pos, left, X10Binary_c.COND_AND, right).type(xts.Boolean());
+                try {
+                    left = visitBinary((X10Binary_c) left);
+                } catch (SemanticException e) {
+                    assert false : "Unexpected exception when typechecking "+left+": "+e;
+                }
+            }
         }
         return left;
     }
 
-    private DepParameterExpr getClause(TypeNode tn) {
+ private DepParameterExpr getClause(TypeNode tn) {
+        Type t = tn.type();
         if (tn instanceof X10CanonicalTypeNode) {
-            X10CanonicalTypeNode ctn = (X10CanonicalTypeNode) tn;
-            return ctn.constraintExpr();
+            CConstraint c = X10TypeMixin.xclause(t);
+            if (c == null || c.valid())
+                return null;
+            XConstrainedTerm here = ((X10Context) context).currentPlaceTerm();
+            if (here != null && here.term() instanceof XVar) {
+                try {
+                    c = c.substitute(PlaceChecker.here(), (XVar) here.term());
+                } catch (XFailure e) { }
+            }
+            DepParameterExpr res = xnf.DepParameterExpr(tn.position(), new Synthesizer(xnf, xts).makeExpr(c, tn.position()));
+            res = (DepParameterExpr) res.visit(new TypeBuilder(job, xts, xnf)).visit(new X10TypeChecker(job, xts, xnf, job.nodeMemo()).context(((X10Context) context).pushDepType(tn.typeRef())));
+            return res;
         } else {
             assert false : "Unknown type node type: "+tn.getClass();
         }
@@ -1185,7 +1216,6 @@ public class Desugarer extends ContextVisitor {
     private TypeNode stripClause(TypeNode tn) {
         Type t = tn.type();
         if (tn instanceof X10CanonicalTypeNode) {
-            X10CanonicalTypeNode ctn = (X10CanonicalTypeNode) tn;
             return xnf.CanonicalTypeNode(tn.position(), X10TypeMixin.baseType(t));
         } else {
             assert false : "Unknown type node type: "+tn.getClass();

@@ -21,6 +21,7 @@
  * x10rt_register_msg_receiver for the various message handlers.
  */
 static x10rt_msg_type V_Handler;
+static x10rt_msg_type Z_Handler;
 static x10rt_msg_type I_Handler;
 static x10rt_msg_type II_Handler;
 static x10rt_msg_type III_Handler;
@@ -122,6 +123,17 @@ public:
 #endif
     }
 
+    jboolean readJBoolean() {
+#ifndef NDEBUG
+        bytesRead += sizeof(jboolean);
+        assert(bytesRead <= msg->len);
+#endif
+        // TODO: Proper endian encoding/decoding
+        jboolean ans = *((jboolean*)cursor);
+        cursor = (void*) (((char*)cursor)+sizeof(jboolean));
+        return ans;
+    }
+
     jint readJInt() {
 #ifndef NDEBUG
         bytesRead += sizeof(jint);
@@ -186,6 +198,15 @@ public:
         bytesWritten = 0;
     }
 
+    void writeJBoolean(jboolean val) {
+        bytesWritten += sizeof(jboolean);
+        assert(bytesWritten <= size);
+
+        // TODO: Proper endian encoding/decoding
+        *((jboolean*)cursor) = val;
+        cursor = (void*) (((char*)cursor)+sizeof(jboolean));
+    }
+
     void writeJInt(jint val) {
         bytesWritten += sizeof(jint);
         assert(bytesWritten <= size);
@@ -244,6 +265,20 @@ void jni_messageReceiver_V(const x10rt_msg_params *msg) {
     jmethodID targetMethod = registeredMethods[messageId].targetMethod;
 
     env->CallStaticVoidMethod(targetClass, targetMethod);
+}    
+
+
+void jni_messageReceiver_Z(const x10rt_msg_params *msg) {
+    JNIEnv *env = getEnv();
+    MessageReader reader(msg);
+
+    int messageId = reader.readJInt();
+    jclass targetClass = registeredMethods[messageId].targetClass;
+    jmethodID targetMethod = registeredMethods[messageId].targetMethod;
+
+    jboolean arg1 = reader.readJBoolean();
+    
+    env->CallStaticVoidMethod(targetClass, targetMethod, arg1);
 }    
 
 
@@ -790,6 +825,24 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__II(JNIEnv *env, 
     x10rt_send_msg(&msg);
     free(msg.msg);
 }
+
+
+/*
+ * Class:     x10_x10rt_ActiveMessage
+ * Method:    sendRemote
+ * Signature: (IIZ)V
+ */
+JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_sendRemote__IIZ(JNIEnv *env, jclass klazz, jint place, jint messageId,
+                                                                    jboolean arg1) {
+    unsigned long numBytes = sizeof(jint) + sizeof(jboolean);
+    MessageWriter writer(numBytes);
+    writer.writeJInt(messageId);
+    writer.writeJBoolean(arg1);
+    
+    x10rt_msg_params msg = {place, Z_Handler, writer.buffer, numBytes};
+    x10rt_send_msg(&msg);
+    free(msg.msg);
+}    
 
 
 /*
@@ -1428,6 +1481,8 @@ JNIEXPORT void JNICALL Java_x10_x10rt_ActiveMessage_initializeMessageHandlers(JN
     /* Register message receiver functions */
     V_Handler = x10rt_register_msg_receiver(&jni_messageReceiver_V, NULL, NULL, NULL, NULL);
     
+    Z_Handler = x10rt_register_msg_receiver(&jni_messageReceiver_Z, NULL, NULL, NULL, NULL);
+
     I_Handler = x10rt_register_msg_receiver(&jni_messageReceiver_I, NULL, NULL, NULL, NULL);
     II_Handler = x10rt_register_msg_receiver(&jni_messageReceiver_II, NULL, NULL, NULL, NULL);
     III_Handler = x10rt_register_msg_receiver(&jni_messageReceiver_III, NULL, NULL, NULL, NULL);

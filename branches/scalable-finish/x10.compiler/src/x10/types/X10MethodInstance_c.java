@@ -37,7 +37,6 @@ import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
-import polyglot.types.UnknownType;
 import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
@@ -378,7 +377,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
             X10Flags flags = X10Flags.toX10Flags(flags());
 
             if (flags.isProperty() && formalTypes.size() == 0) {
-                if (t instanceof UnknownType) {
+                if (xts.isUnknown(t)) {
                     rightType = t;
                 }
                 else {

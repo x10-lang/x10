@@ -41,6 +41,7 @@ import polyglot.types.Type;
 import polyglot.types.TypeObject;
 import polyglot.types.Types;
 import polyglot.types.ClassDef.Kind;
+import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.Transformation;
@@ -128,5 +129,9 @@ public class ClosureType_c extends X10ParsedClassType_c implements FunctionType 
 		return def.get().hashCode();
 	}
     
-    
+
+    public void print(CodeWriter w) {
+        w.write(toString());
+    }
+   
 }

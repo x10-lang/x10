@@ -18,17 +18,16 @@ import java.util.List;
 import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
-import polyglot.ast.TypeCheckTypeGoal;
 import polyglot.ast.TypeNode;
 import polyglot.ast.TypeNode_c;
 import polyglot.types.Context;
 import polyglot.types.Flags;
 import polyglot.types.LazyRef;
+import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
-import polyglot.types.UnknownType;
 import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
@@ -44,6 +43,7 @@ import x10.types.X10ClassType;
 import x10.types.X10Context;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
+import x10.types.X10TypeSystem_c;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.visit.X10TypeChecker;
@@ -116,25 +116,27 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode, AddF
     		LazyRef<Type> r = (LazyRef<Type>) typeRef();
     		TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
     		tc = (TypeChecker) tc.context(v.context().freeze());
-    		r.setResolver(new TypeCheckTypeGoal(parent, this, tc, r, false));
+    		r.setResolver(new TypeCheckTypeGoal(parent, this, tc, r));
     	}
     }
     public Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException {
-	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-	X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
+        X10TypeSystem_c ts = (X10TypeSystem_c) tc.typeSystem();
+        X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
 
-	LazyRef<Type> sym = (LazyRef<Type>) this.type;
-	assert sym != null;
+        LazyRef<Type> sym = (LazyRef<Type>) this.type;
+        assert sym != null;
 	
         TypeChecker childtc = (TypeChecker) tc.enter(parent, this);
         
         TypeNode tn = (TypeNode) visitChild(base, childtc);
         Type t = tn.type();
 
-        if (t instanceof UnknownType) {
+        if (ts.isUnknown(t)) {
             // Mark the type resolved to prevent us from trying to resolve this again and again.
+            assert (false);
             sym.update(ts.unknownType(position()));
-            return postprocess(nf.CanonicalTypeNode(position(), sym), this, childtc);
+            TypeNode result = postprocess(nf.CanonicalTypeNode(position(), sym), this, childtc);
+            return result.del().typeCheck(childtc);
         }
         
         DepParameterExpr constr = (DepParameterExpr) visitChild(dep, childtc);
@@ -148,8 +150,9 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode, AddF
 
         sym.update(t);
 
-        CanonicalTypeNode result = nf.X10CanonicalTypeNode(position(), sym, constr);
-        return postprocess(result, this, childtc);
+        CanonicalTypeNode result = nf.CanonicalTypeNode(position(), sym);
+        result = (CanonicalTypeNode) postprocess(result, this, childtc);
+        return (TypeNode) result.del().typeCheck(childtc);
     }
     
     static TypeNode postprocess(CanonicalTypeNode result, TypeNode n, ContextVisitor childtc) throws SemanticException {
@@ -158,12 +161,14 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode, AddF
         result = (CanonicalTypeNode) ((X10Del) result.del()).annotations(((X10Del) n.del()).annotations());
         result = (CanonicalTypeNode) ((X10Del) result.del()).setComment(((X10Del) n.del()).comment());
 
-        LazyRef<Type> sym = (LazyRef<Type>) result.typeRef();
-        sym.update(fixInnerParams(sym.get()));
+        // [IP] This is wrong!
+        //LazyRef<Type> sym = (LazyRef<Type>) result.typeRef();
+        //sym.update(fixInnerParams(sym.get()));
 
-        return (TypeNode) result.del().typeCheck(childtc);
+        return result;
     }
     
+    // [IP] This is wrong!
     // Fix inner classes by adding type arguments from their enclosing classes.
     // That is, convert C[T].D into C[T].D[T].
     static Type fixInnerParams(Type t) {

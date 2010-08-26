@@ -55,7 +55,7 @@ import x10.io.*;
  *     minSum[1] = B+A0*X0
  *     ...
  *     minSum[k] = B+A0*X0+A1*X1+...+Ak-1*Xk-1
-z *
+ *
  * (and similiarly for maxSum) and updating each partial sum
  * minSum[i+1] (and similarly for maxSum[i+1]) every time Xi changes
  * by
@@ -64,14 +64,10 @@ z *
  *
  * The loop bounds for Xk are then obtained by computing mins and
  * maxes over the sum[k]/Ak for the halfspaces in elim[k].
- *
- * @author bdlucas
  */
-
-final public class PolyScanner(rank:Int)/*(C:PolyMat, X:XformMat)*/ implements Region.Scanner {
+final public class PolyScanner(rank:Int)/*(C:PolyMat)*/ implements Region.Scanner {
 
      public val C: PolyMat;
-    public val X1: ValRail[XformMat];
 
   //  global public val rank: int;
 
@@ -89,30 +85,12 @@ final public class PolyScanner(rank:Int)/*(C:PolyMat, X:XformMat)*/ implements R
         x.init();
 	return x;
     }
-    public static def make(pm:PolyMat, X:XformMat) {
-	val x = new PolyScanner(pm,[X]);
-        x.init();
-	return x;
-    }
-    public static def make(pm:PolyMat, Xl:ValRail[XformMat]):PolyScanner!{self.rank==pm.rank} {
-	val x = new PolyScanner(pm,Xl);
-        x.init();
-	return x;
-    }
 
-    private def this(pm: PolyMat):PolyScanner{self.rank==pm.rank} {
-        this(pm, XformMat.identity(pm.rank));
-    }
-
-    private def this(var pm: PolyMat, X: XformMat) = this(pm, [X]);
-
-    private def this(pm: PolyMat, X1: ValRail[XformMat]):PolyScanner!{self.rank==pm.rank} {
-    	 property(pm.rank);
+    private def this(pm: PolyMat):PolyScanner!{self.rank==pm.rank} {
+	property(pm.rank);
         var pm0:PolyMat = pm.simplifyAll();
        
-        //property(pm, X);
         this.C = pm;
-        this.X1 = X1;
         val r = pm0.rank;
         val n = Rail.make[VarMat](r);
         myMin = n;
@@ -324,125 +302,6 @@ final public class PolyScanner(rank:Int)/*(C:PolyMat, X:XformMat)*/ implements R
 
 
     //
-    // Xform support
-    // XXX move to Scanner
-    //
-
-    public def this(r:Region) = this((r as PolyRegion).mat);
-
-    /*
-    public def $for(body:(p:Point)=>void) {
-        for (p:Point in this)
-            body(X*p);
-    }
-    */
-
-    public def $for(body: (p0:int)=>void) {
-        loop((p:Rail[int]!) => {body(p(0));});
-    }
-
-    public def $for(body: (p0:int, p1:int)=>void) {
-        loop((p:Rail[int]!) => {body(p(0), p(1));});
-    }
-
-    public def $for(body: (p0:int, p1:int, p2:int)=>void) {
-        loop((p:Rail[int]!) => {body(p(0), p(1), p(2));});
-    }
-
-    public def loop(body:(Rail[int]!)=>void) {
-        val p = Rail.make[int](X1(0).rows);
-        val q = Rail.make[int](X1(0).cols);
-        loop(body, p, q, 0);
-    }
-
-    public def par(axis: int) {
-        parFlags(axis) = true;
-    }
-
-    public def loop(body: (Rail[int]!)=>void, p:Rail[int]!, 
-    		q:Rail[int]!, r:int) {
-
-        if (r<rank) {
-
-            // lb
-            val mn = this.min2(r);
-            var min:int = Int.MIN_VALUE;
-            for (var l:int=0; l<mn.length; l++) {
-                var b:int = mn(l)(rank);
-                for (var k:int=0; k<r; k++)
-                    b += mn(l)(k) * q(k);
-                var a:int = mn(l)(r);
-                // ax+b<=0 where a<0 => x>=ceil(-b/a)
-                val m = b>0? (-b+a+1)/a : -b/a;
-                if (m > min) min = m;
-            }
-
-            // ub
-            val mx = this.max2(r);
-            var max:int = Int.MAX_VALUE;
-            for (var l:int=0; l<mx.length; l++) {
-                var b:int = mx(l)(rank);
-                for (var k:int=0; k<r; k++)
-                    b += mx(l)(k) * q(k);
-                var a:int = mx(l)(r);
-                // ax+b<=0 where a>0 => x<=floor(-b/a)
-                val m = b>0? (-b-a+1)/a : -b/a;
-                if (m < max) max = m;
-            }
-
-
-            if (parFlags(r)) {
-                //Console.OUT.println("finish{");
-                finish {
-                    for (var i:int=min; i<=max; i++) {
-                        q(r) = i;
-                        val qq = Rail.make[int](q.length, (i:Int)=>q(i));
-                        async {
-                            //Console.OUT.println("async{");
-                            loop(body, p, qq, r+1);
-                            //Console.OUT.println("}async");
-                        }
-                    }
-                }
-                //Console.OUT.println("}finish");
-            } else {
-                for (var i:int=min; i<=max; i++) {
-                    set(r, i);
-                    q(r) = i;
-                    loop(body, p, q, r+1);
-                }
-            }
-        } else {
-            for (var i:int=0; i<X1(0).rows; i++) {
-                var x:int = 0;
-                for (var j:int=0; j<X1(0).cols; j++)
-                    x += X1(0)(i)(j)*q(j);
-                p(i) = x;
-            }
-            body(p);
-        }
-    }
-
-    // XXX doesn't handle n-body scanners correctly
-    public operator this * (that:Xform!): PolyScanner {
-        if (that instanceof PolyXform) {
-            val p = that as PolyXform;
-            return new PolyScanner((C*p.T)||p.E, X1(0)*p.T);
-        } else {
-            throw new UnsupportedOperationException(this.typeName() + ".xform(" + that.typeName() + ")");
-        }
-    }
-
-    // XXX makes simplifying assumptions about conformance of regions
-    // - make this more general!!!
-    public operator this || (that:PolyScanner!) {
-        val x = ValRail.make(this.X1.length + that.X1.length, (i:Int) =>
-            i<this.X1.length? this.X1(i) : that.X1(i-this.X1.length));
-        return new PolyScanner(this.C, x);
-    }
-
-
-    //
     // debugging info
     //
 
@@ -450,7 +309,6 @@ final public class PolyScanner(rank:Int)/*(C:PolyMat, X:XformMat)*/ implements R
     public def printInfo(ps: Printer) {
         ps.println("PolyScanner");
         C.printInfo(ps, "  C");
-        X1(0).printInfo(ps, "  X");
     }
 
     public def printInfo2(ps: Printer): void {

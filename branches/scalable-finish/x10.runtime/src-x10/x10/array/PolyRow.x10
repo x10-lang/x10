@@ -39,10 +39,10 @@ public class PolyRow(rank:Int) extends ValRow {
     //
 
 
-    def this(as: ValRail[int])= this(as, as.length-1);
+    def this(as_: ValRail[int])= this(as_, as_.length-1);
 
-    private def this(as: ValRail[int], n:int): PolyRow(n) {
-        super(as);
+    private def this(as_: ValRail[int], n:int): PolyRow(n) {
+        super(as_);
         property(n);
     }
 
@@ -131,8 +131,8 @@ public class PolyRow(rank:Int) extends ValRow {
 
     global def complement(): PolyRow {
         val init = (i:Int) => i<rank? -this(i) : -this(rank)+1;
-        val as = ValRail.make[int](rank+1, init);
-        return new PolyRow(as);
+        val as_ = ValRail.make[int](rank+1, init);
+        return new PolyRow(as_);
     }
 
 

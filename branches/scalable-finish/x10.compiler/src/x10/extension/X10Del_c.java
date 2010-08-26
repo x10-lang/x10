@@ -21,6 +21,7 @@ import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.types.Context;
+import polyglot.types.QName;
 import polyglot.types.Type;
 import polyglot.util.CollectionUtil;
 import polyglot.visit.NodeVisitor;
@@ -80,6 +81,11 @@ public class X10Del_c extends JL_c implements X10Del {
 		if (node().ext() == null) return null;
 		return ((X10Ext) node().ext()).annotationMatching(t);
 	}
+
+    public List<X10ClassType> annotationNamed(QName fullName) {
+        if (node().ext() == null) return null;
+        return ((X10Ext) node().ext()).annotationNamed(fullName);
+    }
 
 	/* (non-Javadoc)
 	 * @see x10.extension.X10Ext#annotations(java.util.List)

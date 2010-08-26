@@ -67,9 +67,9 @@ public class NewLocalVarSynth extends AbstractStateSynth implements IStmtSynth{
     }
     
     public NewLocalVarSynth(X10NodeFactory xnf, X10Context xct, Position pos,
-                            Expr initializer) {
+                            Flags flags, Expr initializer) {
         this(xnf, xct, pos, xct.getNewVarName(), 
-             Flags.NONE, initializer, initializer.type(), new ArrayList<AnnotationNode>());
+             flags, initializer, initializer.type(), new ArrayList<AnnotationNode>());
     }
     
     public Local getLocal(){

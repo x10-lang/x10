@@ -37,6 +37,7 @@ import polyglot.visit.CFGBuilder;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 
+import x10.Configuration;
 import x10.constraint.XFailure;
 import x10.constraint.XRef;
 import x10.constraint.XVar;
@@ -186,8 +187,10 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 	throws SemanticException {
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 		X10Context ctx = (X10Context) tc.context();
-		if (Types.get(thisConstructor.returnType()) instanceof UnknownType) {
-			throw new SemanticException();
+		if (ts.isUnknown(Types.get(thisConstructor.returnType()))) {
+		    if (Configuration.CHECK_INVARIANTS)
+		        Errors.issue(tc.job(), new SemanticException("Complaining about UnknownType", pos));
+		    throw new SemanticException();
 		}
 
 		Type returnType = Types.get(thisConstructor.returnType());
