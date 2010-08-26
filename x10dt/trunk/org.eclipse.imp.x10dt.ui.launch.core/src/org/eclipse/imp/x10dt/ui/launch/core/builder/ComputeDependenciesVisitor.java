@@ -101,22 +101,28 @@ public class ComputeDependenciesVisitor extends ContextVisitor {
     
     /**
      * This method returns the collection of possible paths that an import statement may represent.
+     * When both isClass and isPackage are true, this means that the last segment of name may be either
+     * a class or a package.
      * 
      * @param name The name of the package or class being imported.
-     * @param maybeBoth True if the last segment of name may be either a package or a class name.
+     * @param isClass True if the last segment of name is a class.
+     * @param isPackage True if the last segment of name is a package.
      * @return The collection of possible paths corresponding to the name in the import statement.
      */
-    private Collection<String> getPossiblePaths(QName name, boolean maybeBoth){
+    
+    private Collection<String> getPossiblePaths(QName name, boolean isClass, boolean isPackage){
     	if (name == null)
     		return null;
     	Collection<String> results = new ArrayList<String>();
     	String n = File.separator + name.toString().replace('.', File.separatorChar);
+    	
     	for (String path: getSrcFolders()){
-    		results.add(path + n + Constants.X10_EXT);
-    		if (maybeBoth) // --- Since name may be a package, we record a dependency conservatively.
+    		if (isClass)
+    			results.add(path + n + Constants.X10_EXT);
+    		if (isPackage) // --- name may be either a class or a package
     			results.add(path + n);
     	}
-    	Collection<String> rest = getPossiblePaths(name.qualifier(), false); //We know that it is a package
+    	Collection<String> rest = getPossiblePaths(name.qualifier(), false, true); //We know that it is a package
     	if (rest != null)
     		results.addAll(rest);
     	return results;
@@ -243,7 +249,9 @@ public class ComputeDependenciesVisitor extends ContextVisitor {
 				
 				Import node  = (Import) n;
 				QName name = node.name();
-				Collection<String> paths = (node.kind() == Import.PACKAGE)? getPossiblePaths(name, true) : getPossiblePaths(name, false);
+				// --- When Import.PACKAGE, this means that the last segment is either a class or a package.
+				// --- All this indicates is that the import statement is of the form: import foo.*;
+				Collection<String> paths = (node.kind() == Import.PACKAGE)? getPossiblePaths(name, true, true) : getPossiblePaths(name, true, false);
 				for (String path: paths){
 					recordPathDependency(path);
 				}
