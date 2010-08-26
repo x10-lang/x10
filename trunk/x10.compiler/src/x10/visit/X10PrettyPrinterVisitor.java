@@ -978,21 +978,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                                         "return self;" +
                                     "}" +
                                 "}.cast((#0) #1))";
-
-                            DepParameterExpr dep = constraintExpr(xtn);
                             
-                            // for constraintedType
-                            if (dep != null) {
-                                    assert (false);
-                                    List<Expr> conds = dep.condition();
-                                    X10Context xct = (X10Context) tr.context();
-                                    boolean inAnonObjectScope = xct.inAnonObjectScope();
-                                    xct.setAnonObjectScope();
-                                    er.dumpRegex(template, new Object[] { ex, expr, rt, new Join(er, " && ", conds) }, tr, regex);
-                                    xct.restoreAnonObjectScope(inAnonObjectScope);
-                            }
+                            // Note: constraint checking should be desugared when compiling without NO_CHECKS flag
+
                             // e.g. any as Int (any:Any), t as Int (t:T)
-                            else if (
+                            if (
                                     (X10TypeMixin.baseType(type) instanceof ParameterType || ((X10TypeSystem) type.typeSystem()).isAny(X10TypeMixin.baseType(type)))
                                     && (t.isBoolean() || t.isByte() || t.isShort() || t.isInt() || t.isLong() || t.isFloat() || t.isDouble() || t.isChar())
                             ) { 
@@ -1090,22 +1080,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	public void visit(X10Instanceof_c c) {
 		TypeNode tn = c.compareType();
 
-		if (tn instanceof X10CanonicalTypeNode) {
-			X10CanonicalTypeNode xtn = (X10CanonicalTypeNode) tn;
-			Type t = X10TypeMixin.baseType(xtn.type());
-			DepParameterExpr dep = constraintExpr(xtn);
-			if (dep != null) {
-			    assert (false);
-			    boolean isPrimitive = t.isBoolean() || t.isNumeric() || t.isChar();
-			    String template = isPrimitive ? "instanceof_primitive_deptype" : "instanceof_deptype";
-			    // SYNOPSIS: (#1 instanceof #0) #1 #0=type #1=object #2=depclause
-			    String regex =
-			        isPrimitive ? "(new java.lang.Object() { final boolean isa(#0 self) { return #2; } }.isa(#1))" : 
-			            "(new java.lang.Object() { final boolean isa(java.lang.Object __self__) { if (__self__ instanceof #0) { #0 self = (#0) __self__; return #2; } return false; } }.isa(#1))";
-			    er.dumpRegex(template, new Object[] { xtn.typeRef(Types.ref(t)), c.expr(), new Join(er, " && ", dep.condition()) }, tr, regex);
-				return;
-			}
-		}
+        // Note: constraint checking should be desugared when compiling without NO_CHECKS flag
 
 		Type t = tn.type();
 		
