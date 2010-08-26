@@ -13,10 +13,12 @@ package x10.types;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import polyglot.main.Report;
@@ -144,10 +146,20 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                     		}
                     	}
                         if (!ct.flags().isAbstract()) {
-                            throw new SemanticException(ct.fullName() + " should be " +
-                                                        "declared abstract; it does not define " +
-                                                        mi.signature() + ", which is declared in " +
-                                                        rt.toClass().fullName(), ct.position());
+                        	SemanticException e = new SemanticException(ct
+                        			.fullName()
+						+ " should be "
+						+ "declared abstract; it does not define "
+						+ mi.signature()
+						+ ", which is declared in "
+						+ rt.toClass().fullName(), ct.position());
+				Map<String, Object> map = new HashMap<String, Object>();
+				map.put("ERROR_CODE", 1004);
+				map.put("CLASS", ct.name().toString());
+				map.put("METHOD", mi.name().toString());
+				map.put("SUPER_CLASS", rt.toClass().name().toString());
+				e.setAttributes(map);
+				throw e;
                         }
                         else { 
                             // no implementation, but that's ok, the class is abstract.
@@ -2074,7 +2086,12 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
 	if (acceptable.size() == 0) {
 	    if (error == null) {
-		error = new NoMemberException(NoMemberException.CONSTRUCTOR, "No valid constructor found for " + matcher.signature() + ".");
+	    	error = new NoMemberException(NoMemberException.CONSTRUCTOR, "No valid constructor found for " + matcher.signature() + ".");
+	    	Map<String, Object> map = new HashMap<String, Object>();
+            map.put("ERROR_CODE", 1003);
+            map.put("CONSTRUCTOR", matcher.name().toString());
+            map.put("ARGUMENTS", matcher.argumentString());
+            error.setAttributes(map);
 	    }
 
 	    throw error;
