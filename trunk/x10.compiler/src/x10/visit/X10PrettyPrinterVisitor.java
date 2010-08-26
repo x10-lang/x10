@@ -959,22 +959,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
                             Expander rt = new RuntimeTypeExpander(er, t);
 
-                            boolean isPrimitive = t.isBoolean() || t.isNumeric() || t.isChar();
-                            String template= isPrimitive ? "primitive_cast_deptype" : "cast_deptype";
-                            // cast_deptype or primitive_cast_dep_type
-                            // SYNOPSIS: (#0) #1 #0=type #1=object #2=runtime type #3=depclause
-                            String regex =
-                                "(new java.lang.Object() {" +
-                                    "final #0 cast(final #0 self) {" +
-                                        (isPrimitive ? "" : "if (self==null) return null;") +
-                                        "x10.rtt.Type rtt = #2;" +
-                                        "if (rtt != null && ! rtt.instanceof$(self)) throw new java.lang.ClassCastException();" +
-                                        "boolean sat = #3;" +
-                                        "if (! sat) throw new java.lang.ClassCastException();" +
-                                        "return self;" +
-                                    "}" +
-                                "}.cast((#0) #1))";
-                            
                             // Note: constraint checking should be desugared when compiling without NO_CHECKS flag
 
                             // e.g. any as Int (any:Any), t as Int (t:T)
@@ -1039,23 +1023,32 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             }
                             // e.g. i as T (T is parameterType)
                             else if (t instanceof ParameterType) {
-                                // SYNOPSIS: (#0) #1 #0=param type #1=primitive or Parameter type #2=runtime type #3=depclause
-                                String regex2 =
+                                // SYNOPSIS: (#0) #1 #0=param type #1=primitive or object #2=runtime type
+                                String regex =
                                     "(new java.lang.Object() {" +
                                         "final #0 cast(final Object self) {" +
                                             "x10.rtt.Type rtt = #2;" +
                                             "#0 dep = (#0) x10.rtt.Types.conversion(rtt,self);" +
                                             "if (self==null) return null;" +
                                             "if (rtt != null && ! rtt.instanceof$(dep)) throw new java.lang.ClassCastException();" +
-                                            "boolean sat = #3;" +
-                                            "if (! sat) throw new java.lang.ClassCastException();" +
                                             "return dep;" +
                                         "}" +
                                     "}.cast(#1))";
-                                er.dumpRegex("cast_deptype_primitive_param", new Object[] { ex, expr, rt, "true" }, tr, regex2);
+                                er.dumpRegex("cast_deptype_primitive_param", new Object[] { ex, expr, rt }, tr, regex);
                             }
                             else {
-                                er.dumpRegex(template, new Object[] { ex, expr, rt, "true" }, tr, regex);
+                                assert !(t.isBoolean() || t.isNumeric() || t.isChar());
+                                // SYNOPSIS: (#0) #1 #0=type #1=object #2=runtime type
+                                String regex =
+                                    "(new java.lang.Object() {" +
+                                        "final #0 cast(final #0 self) {" +
+                                            "if (self==null) return null;" +
+                                            "x10.rtt.Type rtt = #2;" +
+                                            "if (rtt != null && ! rtt.instanceof$(self)) throw new java.lang.ClassCastException();" +
+                                            "return self;" +
+                                        "}" +
+                                    "}.cast((#0) #1))";
+                                er.dumpRegex("cast_deptype", new Object[] { ex, expr, rt }, tr, regex);
                             }
                     }
                     else {
