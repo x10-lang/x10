@@ -25,7 +25,7 @@ public class PointDiv extends x10Test {
         val q = [1, 1, 1, 1, 1] as Point;
     
         val a = p / q;
-        return p==a*q;
+        return p.equals(a*q);
     }
 
     public static def main(var args: Rail[String]): void = {
