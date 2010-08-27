@@ -34,7 +34,6 @@ import polyglot.types.ProcedureInstance;
 import polyglot.types.SemanticException;
 import polyglot.types.Name;
 import polyglot.types.Type;
-import polyglot.types.UnknownType;
 import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
 import polyglot.util.Pair;
@@ -53,6 +52,7 @@ import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.types.checker.Converter;
+import x10.types.checker.PlaceChecker;
 import x10.types.matcher.DumbMethodMatcher;
 import x10.visit.X10TypeChecker;
 
@@ -230,9 +230,9 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 	    X10MethodInstance mi;
 	    X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
 	    Context context = tc.context();
-	    boolean haveUnknown = false;
+	    boolean haveUnknown = xts.hasUnknown(targetType);
 	    for (Type t : actualTypes) {
-	        if (t instanceof UnknownType) haveUnknown = true;
+	        if (xts.hasUnknown(t)) haveUnknown = true;
 	    }
 	    SemanticException error = null;
 	    if (!haveUnknown) {
@@ -265,13 +265,17 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 	            }
 	        }
 	    }
+	    if (haveUnknown)
+	        error = new SemanticException(); // null message
 	    mi = xts.createFakeMethod(targetType.toClass(), Flags.PUBLIC, name, typeArgs, actualTypes, error);
-	    if (rt != null) mi = mi.returnType(rt);
+	    if (rt == null) rt = mi.returnType();
+	    rt = PlaceChecker.AddIsHereClause(rt, context);
+	    mi = mi.returnType(rt);
 	    return mi;
 	}
 
 	@Override
-	public Node typeCheck(ContextVisitor tc) throws SemanticException {
+	public Node typeCheck(ContextVisitor tc) {
 		Type targetType = target.type();
 
 		List<Type> typeArgs = Collections.emptyList();
@@ -291,9 +295,6 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 				args = p.snd();
 			}
 			catch (SemanticException e) {
-			    X10TypeChecker xtc = X10TypeChecker.getTypeChecker(tc);
-			    if (xtc.throwExceptions())
-			        throw mi.error();
 			    Errors.issue(tc.job(), mi.error(), this);
 			}
 		}

@@ -19,8 +19,8 @@ import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
 import polyglot.frontend.Scheduler;
-import polyglot.frontend.VisitorGoal;
 import polyglot.types.TypeSystem;
+import x10.ExtensionInfo.X10Scheduler.ValidatingVisitorGoal;
 import x10.visit.ExpressionFlattener;
 import x10.visit.Inliner;
 
@@ -53,21 +53,21 @@ public class Optimizer {
         ExtensionInfo extInfo = job.extensionInfo();
         TypeSystem ts = extInfo.typeSystem();
         NodeFactory nf = extInfo.nodeFactory();
-        return new VisitorGoal("For Loop Optimizations", job, new ForLoopOptimizer(job, ts, nf)).intern(scheduler);
+        return new ValidatingVisitorGoal("For Loop Optimizations", job, new ForLoopOptimizer(job, ts, nf)).intern(scheduler);
     }
 
     public Goal LoopUnrolling(Job job) {
         ExtensionInfo extInfo = job.extensionInfo();
         TypeSystem ts = extInfo.typeSystem();
         NodeFactory nf = extInfo.nodeFactory();
-        return new VisitorGoal("Loop Unrolling", job, new LoopUnroller(job, ts, nf)).intern(scheduler);
+        return new ValidatingVisitorGoal("Loop Unrolling", job, new LoopUnroller(job, ts, nf)).intern(scheduler);
     }
 
     public Goal Inliner(Job job) {
         ExtensionInfo extInfo = job.extensionInfo();
         TypeSystem ts = extInfo.typeSystem();
         NodeFactory nf = extInfo.nodeFactory();
-        return new VisitorGoal("Inlined", job, new Inliner(job, ts, nf)).intern(scheduler);
+        return new ValidatingVisitorGoal("Inlined", job, new Inliner(job, ts, nf)).intern(scheduler);
     }
 
 }

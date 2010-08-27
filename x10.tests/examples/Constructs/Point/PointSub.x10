@@ -25,7 +25,7 @@ public class PointSub extends x10Test {
         val q = [1, 1, 1, 1, 1] as Point;
     
         val a = p - q;
-        return a+q==p;
+        return (a+q).equals(p);
     }
 
     public static def main(var args: Rail[String]): void = {

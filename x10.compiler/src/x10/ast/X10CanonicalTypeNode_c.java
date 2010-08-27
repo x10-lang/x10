@@ -12,13 +12,13 @@
 package x10.ast;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.CanonicalTypeNode_c;
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
-import polyglot.ast.TypeCheckTypeGoal;
 import polyglot.ast.TypeNode;
 import polyglot.frontend.Globals;
 import polyglot.frontend.SetResolverGoal;
@@ -34,8 +34,10 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
@@ -43,12 +45,15 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.constraint.XConstraint;
 import x10.extension.X10Del;
+import x10.types.ClosureType_c;
 import x10.types.ConstrainedType;
+import x10.types.ConstrainedType_c;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
 import x10.types.X10Flags;
+import x10.types.X10ParsedClassType_c;
 import x10.types.XTypeTranslator;
 
 import x10.types.X10TypeMixin;
@@ -71,48 +76,11 @@ AddFlags {
     public X10CanonicalTypeNode_c(Position pos, Ref<? extends Type> type) {
 	super(pos, type);
     }
-    public X10CanonicalTypeNode_c(Position pos, Ref<? extends Type> type, DepParameterExpr d) {
-    	super(pos, type);
-    	this.expr = d;
-        }
     
-    private DepParameterExpr expr; // todo: remove me, this hack is ugly! The constraint expression should be generated from the type's constraint
-    
-    public DepParameterExpr constraintExpr() {
-	return expr;
-    }
-    
-    public X10CanonicalTypeNode constraintExpr(DepParameterExpr e) {
-	X10CanonicalTypeNode_c n = (X10CanonicalTypeNode_c) copy();
-	n.expr = e;
-	return n;
-    }
-    
-   Flags flags;
+    Flags flags;
     public void addFlags(Flags f) {
     	flags = f;
     }
-    /** Visit the children of the expression. Added so as to permit arbitrary visitors
-     * to traverse the link from this to the DepExpr child. For instance, the InnerClassRemover 
-     * needs to rewrite occurrences of this in DepExpr with  reference to the appropriate field
-     * (out$ for the appropriate outer class.)
-     * vj 27 Jul 09
-     * 
-     * */
-    public Node visitChildren(NodeVisitor v) {
-    	// vj: Hack. Need a better way of handling this.
-    	// The TypeChecker should not visit children during the visitChildren 
-    	// phase. It will get its chance during the leaveCall phase, at which 
-    	// point the context will be set up properly so that the check that self
-    	// can only be referenced from within a depexpr can be performed accurately.
-    	if (v instanceof TypeChecker) {
-    		return this;
-    	}
-    	DepParameterExpr e = (DepParameterExpr) visitChild(this.expr, v);
-    	return constraintExpr(e);
-    }
-
- 
   
     @Override
     public Node typeCheck(ContextVisitor tc) throws SemanticException {
@@ -188,7 +156,7 @@ AddFlags {
     		LazyRef<Type> r = (LazyRef<Type>) typeRef();
     		TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
     		tc = (TypeChecker) tc.context(v.context().freeze());
-    		r.setResolver(new TypeCheckTypeGoal(parent, this, tc, r, false));
+    		r.setResolver(new TypeCheckTypeGoal(parent, this, tc, r));
     	}
     }
     @Override
@@ -305,6 +273,38 @@ AddFlags {
     	return (flags == null ? "" : flags.toString() + " ") + super.toString();
     }
     
-    
+    public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
+        prettyPrint(w, tr, true);
+    }
 
+    public void prettyPrint(CodeWriter w, PrettyPrinter tr, Boolean extras) {
+        if (type == null) {
+            w.write("<unknown-type>");
+        } else {
+            type.get().print(w);
+            if (extras && X10TypeMixin.baseType(type.get()) instanceof X10ParsedClassType_c
+                    && !(X10TypeMixin.baseType(type.get()) instanceof ClosureType_c)) {
+                List<Type> typeArguments = ((X10ParsedClassType_c) X10TypeMixin.baseType(type.get())).typeArguments();
+                if (typeArguments.size() > 0) {
+                    w.write("[");
+                    w.allowBreak(2, 2, "", 0); // miser mode
+                    w.begin(0);
+                            
+                    for (Iterator<Type> i = typeArguments.iterator(); i.hasNext(); ) {
+                        Type t = i.next();
+                        t.print(w);
+                        if (i.hasNext()) {
+                        w.write(",");
+                        w.allowBreak(0, " ");
+                        }
+                    }
+                    w.write("]");
+                    w.end();
+                }
+            }
+            if (extras && type.get() instanceof ConstrainedType_c) {
+                ((ConstrainedType_c) type.get()).printConstraint(w);
+            }
+       }
+      }
 }

@@ -34,7 +34,6 @@ import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.StructType;
 import polyglot.types.Type;
-import polyglot.types.UnknownType;
 import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
@@ -85,7 +84,7 @@ public class X10Field_c extends Field_c {
 	public X10Field_c reconstruct(Receiver target, Id name) {
 	    return (X10Field_c) super.reconstruct(target, name);
 	}
-	public Node typeCheck(ContextVisitor tc) throws SemanticException {
+	public Node typeCheck(ContextVisitor tc) {
 		Node n;
 		try {
 		    n = typeCheck1(tc);
@@ -102,9 +101,6 @@ public class X10Field_c extends Field_c {
 		        }
 		    }
 		} catch (SemanticException e) {
-		    X10TypeChecker xtc = X10TypeChecker.getTypeChecker(tc);
-		    if (xtc.throwExceptions())
-		        throw e;
 		    Errors.issue(tc.job(), e, this);
 		    Type tType = target != null ? target.type() : tc.context().currentClass();
 		    X10FieldInstance fi = findAppropriateField(tc, tType, name.id(), target instanceof TypeNode, e);
@@ -114,8 +110,7 @@ public class X10Field_c extends Field_c {
 	}
 
     public static X10FieldInstance findAppropriateField(ContextVisitor tc,
-            Type targetType, Name name, boolean isStatic, boolean receiverInContext) throws SemanticException
-    {
+            Type targetType, Name name, boolean isStatic, boolean receiverInContext) {
         X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
         X10Context c = (X10Context) tc.context();
         X10FieldInstance fi = null;
@@ -146,6 +141,7 @@ public class X10Field_c extends Field_c {
 	    X10FieldInstance fi;
 	    X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
 	    Context context = tc.context();
+	    boolean haveUnknown = xts.hasUnknown(targetType);
 	    Set<FieldInstance> fis = xts.findFields(targetType, xts.FieldMatcher(targetType, name, context));
 	    // If exception was not thrown, there is at least one match.  Fake it.
 	    // See if all matches have the same type, and save that to avoid losing information.
@@ -179,8 +175,12 @@ public class X10Field_c extends Field_c {
 	    if (ct != null) targetType = ct;
 	    Flags flags = Flags.PUBLIC;
 	    if (isStatic) flags = flags.Static();
+	    if (haveUnknown)
+	        e = new SemanticException(); // null message
 	    fi = xts.createFakeField(targetType.toClass(), flags, name, e);
-	    if (rt != null) fi = fi.type(rt);
+	    if (rt == null) rt = fi.type();
+	    rt = PlaceChecker.AddIsHereClause(rt, context);
+	    fi = fi.type(rt);
 	    return fi;
 	}
 	
@@ -317,7 +317,7 @@ public class X10Field_c extends Field_c {
 				XVar receiver = null;
 				
 				X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
-				XTerm r = ts.xtypeTranslator().trans((CConstraint) null, target, (X10Context) c);
+				XTerm r = ts.xtypeTranslator().trans(new CConstraint(), target, (X10Context) c);
 				if (r instanceof XVar) {
 				    receiver = (XVar) r;
 				}

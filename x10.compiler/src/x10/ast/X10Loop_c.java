@@ -36,6 +36,7 @@ import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.types.UnknownType;
 import polyglot.util.ErrorInfo;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.ContextVisitor;
@@ -403,7 +404,11 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 							Synthesizer synth = new Synthesizer(nf, ts);
 							XTerm v = synth.makePointRankTerm((XVar) self);
 							XTerm rank = XTerms.makeLit(new Integer(length));
-							indexType = X10TypeMixin.addBinding(indexType, v, rank);
+							try {
+								indexType = X10TypeMixin.addBinding(indexType, v, rank);
+							} catch (XFailure z) {
+								throw new InternalCompilerError("Unexpected error: " + z);
+							}
 							r.update(indexType);
 							return;
 						}

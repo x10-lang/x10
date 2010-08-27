@@ -441,4 +441,7 @@ public interface X10TypeSystem extends TypeSystem {
     public boolean isIterator(Type me);
     public boolean isReducible(Type me);
     public Type Reducible();
+
+    public boolean isUnknown(Type t);
+    public boolean hasUnknown(Type t);
 }

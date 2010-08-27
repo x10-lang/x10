@@ -232,79 +232,79 @@
 %End
 
 %SoftKeywords
-    abstract
-    as
-    assert
-    async
+--    abstract
+--    as
+--    assert
+--    async
     at
-    ateach
+--    ateach
     atomic
     await
-    break
-    case
-    catch
-    class
-    clocked
-    const
-    continue
-    def
-    default
-    do
-    else
-    extends
-    extern
-    false
-    final
-    finally
+--    break
+--    case
+--    catch
+--    class
+--    clocked
+--    const
+--    continue
+--    def
+--    default
+--    do
+--    else
+--    extends
+--    extern
+--    false
+--    final
+--    finally
 --    finish
-    for
-    foreach
+--    for
+--    foreach
 --    future
-    global
-    goto
+--    global
+--    goto
     here
-    if
-    implements
-    import
+--    if
+--    implements
+--    import
 --    in
-    incomplete
-    instanceof
-    interface
-    local
-    native
-    new
+--    incomplete
+--    instanceof
+--    interface
+--    local
+--    native
+--    new
     next
-    nonblocking
-    null
+--    nonblocking
+--    null
     offer
-    offers
+--    offers
 --    operator
-    or
-    package
-    private
-    property
-    protected
-    proto
-    public
-    return
+--    or
+--    package
+--    private
+--    property
+--    protected
+--    proto
+--    public
+--    return
     safe
-    self
-    sequential
-    shared
-    static
-    struct
+--    self
+--    sequential
+--    shared
+--    static
+--    struct
 --    super
-    switch
+--    switch
 --    this
-    throw
-    throws
-    true
-    try
+--    throw
+--    throws
+--    true
+--    try
     type
-    val
-    var
-    when
-    while
+    val -- used in Boxed... classes!
+--    var
+--    when
+--    while
 %End
 
 %Headers
@@ -436,6 +436,269 @@ public static class MessageHandler implements IMessageHandler {
         {
             return new JPGPosition(null, prsStream.getFileName(),
                    prsStream.getIToken(lefttok), prsStream.getIToken(righttok));
+        }
+
+        //
+        // Temporary classes used to wrap modifiers.
+        //
+        private static class Modifier {
+        }
+
+        private static class FlagModifier extends Modifier {
+            public static int ABSTRACT    = 0;
+            public static int ATOMIC      = 1;
+            public static int EXTERN      = 2;
+            public static int FINAL       = 3;
+            public static int GLOBAL      = 4;
+            public static int INCOMPLETE  = 5;
+            public static int NATIVE      = 6;
+            public static int NON_BLOCKING = 7;
+            public static int PRIVATE     = 8;
+            public static int PROPERTY    = 9;
+            public static int PROTECTED   = 10;
+            public static int PROTO       = 11;
+            public static int PUBLIC      = 12;
+            public static int SAFE        = 13;
+            public static int SEQUENTIAL  = 14;
+            public static int SHARED      = 15;
+            public static int STATIC      = 16;
+            public static int NUM_FLAGS   = STATIC + 1;
+
+            private JPGPosition pos;
+            private int flag;
+
+            public JPGPosition position() { return pos; }
+            public int flag() { return flag; }
+            public Flags flags() {
+                if (flag == ABSTRACT)     return Flags.ABSTRACT;
+                if (flag == ATOMIC)       return X10Flags.ATOMIC;
+                if (flag == EXTERN)       return X10Flags.EXTERN;
+                if (flag == FINAL)        return Flags.FINAL;
+                if (flag == GLOBAL)       return X10Flags.GLOBAL;
+                if (flag == INCOMPLETE)   return X10Flags.INCOMPLETE;
+                if (flag == NATIVE)       return Flags.NATIVE;
+                if (flag == NON_BLOCKING) return X10Flags.NON_BLOCKING;
+                if (flag == PRIVATE)      return Flags.PRIVATE;
+                if (flag == PROPERTY)     return X10Flags.PROPERTY;
+                if (flag == PROTECTED)    return Flags.PROTECTED;
+                if (flag == PROTO)        return X10Flags.PROTO;
+                if (flag == PUBLIC)       return Flags.PUBLIC;
+                if (flag == SAFE)         return X10Flags.SAFE;
+                if (flag == SEQUENTIAL)   return X10Flags.SEQUENTIAL;
+                if (flag == SHARED)       return X10Flags.SHARED;
+                if (flag == STATIC)       return Flags.STATIC;
+                assert(false);
+                return null;
+            }
+
+            public String name() {
+                if (flag == ABSTRACT)     return "abstract";
+                if (flag == ATOMIC)       return "atomic";
+                if (flag == EXTERN)       return "extern";
+                if (flag == FINAL)        return "final";
+                if (flag == GLOBAL)       return "global";
+                if (flag == INCOMPLETE)   return "incomplete";
+                if (flag == NATIVE)       return "native";
+                if (flag == NON_BLOCKING) return "nonblocking";
+                if (flag == PRIVATE)      return "private";
+                if (flag == PROPERTY)     return "property";
+                if (flag == PROTECTED)    return "protected";
+                if (flag == PROTO)        return "proto";
+                if (flag == PUBLIC)       return "public";
+                if (flag == SAFE)         return "safe";
+                if (flag == SEQUENTIAL)   return "sequential";
+                if (flag == SHARED)       return "shared";
+                if (flag == STATIC)       return "static";
+                assert(false);
+                return "?";
+            }
+
+
+            public static boolean classModifiers[] = new boolean[NUM_FLAGS];
+            static {
+                classModifiers[ABSTRACT] = true;
+                classModifiers[FINAL] = true;
+                classModifiers[PRIVATE] = true;
+                classModifiers[PROTECTED] = true;
+                classModifiers[PUBLIC] = true;
+                classModifiers[SAFE] = true;
+                classModifiers[STATIC] = true;
+            }
+            public boolean isClassModifier(int flag) {
+                return  classModifiers[flag];
+            }
+
+            public static boolean typeDefModifiers[] = new boolean[NUM_FLAGS];
+            static {
+                typeDefModifiers[ABSTRACT] = true;
+                typeDefModifiers[FINAL] = true;
+                typeDefModifiers[PRIVATE] = true;
+                typeDefModifiers[PROTECTED] = true;
+                typeDefModifiers[PUBLIC] = true;
+                typeDefModifiers[STATIC] = true;
+            }
+            public boolean isTypeDefModifier(int flag) {
+                return typeDefModifiers[flag];
+            }
+
+            public static boolean fieldModifiers[] = new boolean[NUM_FLAGS];
+            static {
+                fieldModifiers[GLOBAL] = true;
+                fieldModifiers[PRIVATE] = true;
+                fieldModifiers[PROTECTED] = true;
+                fieldModifiers[PROPERTY] = true;
+                fieldModifiers[PUBLIC] = true;
+                fieldModifiers[STATIC] = true;
+            }
+            public boolean isFieldModifier(int flag) {
+                return fieldModifiers[flag];
+            }
+
+            public static boolean variableModifiers[] = new boolean[NUM_FLAGS];
+            static {
+                variableModifiers[SHARED] = true;
+            }
+            public boolean isVariableModifier(int flag) {
+                return variableModifiers[flag];
+            }
+
+            public static boolean methodModifiers[] = new boolean[NUM_FLAGS];
+            static {
+                methodModifiers[ABSTRACT] = true;
+                methodModifiers[ATOMIC] = true;
+                methodModifiers[EXTERN] = true;
+                methodModifiers[FINAL] = true;
+                methodModifiers[GLOBAL] = true;
+                methodModifiers[INCOMPLETE] = true;
+                methodModifiers[NATIVE] = true;
+                methodModifiers[NON_BLOCKING] = true;
+                methodModifiers[PRIVATE] = true;
+                methodModifiers[PROPERTY] = true;
+                methodModifiers[PROTECTED] = true;
+                methodModifiers[PROTO] = true;
+                methodModifiers[PUBLIC] = true;
+                methodModifiers[SAFE] = true;
+                methodModifiers[SEQUENTIAL] = true;
+                methodModifiers[STATIC] = true;
+            }
+            public boolean isMethodModifier(int flag) {
+                return methodModifiers[flag];
+            }
+
+            public static boolean constructorModifiers[] = new boolean[NUM_FLAGS];
+            static {
+                constructorModifiers[NATIVE] = true;
+                constructorModifiers[PRIVATE] = true;
+                constructorModifiers[PROTECTED] = true;
+                constructorModifiers[PUBLIC] = true;
+            }
+            public boolean isConstructorModifier(int flag) {
+                return constructorModifiers[flag];
+            }
+
+            public static boolean interfaceModifiers[] = new boolean[NUM_FLAGS];
+            static {
+                interfaceModifiers[ABSTRACT] = true;
+                interfaceModifiers[PRIVATE] = true;
+                interfaceModifiers[PROTECTED] = true;
+                interfaceModifiers[PUBLIC] = true;
+                interfaceModifiers[STATIC] = true;
+            }
+            public boolean isInterfaceModifier(int flag) {
+                return interfaceModifiers[flag];
+            }
+
+            public FlagModifier(JPGPosition pos, int flag) {
+                this.pos = pos;
+                this.flag = flag;
+            }
+        }
+
+        private static class AnnotationModifier extends Modifier {
+            private AnnotationNode annotation;
+
+            public AnnotationNode annotation() { return annotation; }
+            
+            public AnnotationModifier(AnnotationNode annotation) {
+                this.annotation = annotation;
+            }
+        }
+
+        //    
+        // TODO: Say something!
+        //    
+        private List checkModifiers(String kind, List modifiers, boolean legal_flags[]) {
+            List l = new LinkedList();
+
+            assert(modifiers.size() > 0);
+
+            boolean flags[] = new boolean[FlagModifier.NUM_FLAGS]; // initialized to false
+            for (int i = 0; i < modifiers.size(); i++) {
+                Object element = modifiers.get(i);
+                if (element instanceof FlagModifier) {
+                    FlagModifier modifier = (FlagModifier) element;
+                    l.addAll(Collections.singletonList(nf.FlagsNode(modifier.position(), modifier.flags())));
+
+                    if (! flags[modifier.flag()]) {
+                        flags[modifier.flag()] = true;
+                    }
+                    else {
+                        syntaxError("Duplicate specification of modifier: " + modifier.name(), modifier.position());
+                     }
+
+                    if (! legal_flags[modifier.flag()]) {
+                        syntaxError("\"" + modifier.name() + "\" is not a valid " + kind + " modifier", modifier.position());
+                    }
+                }
+                else {
+                    AnnotationModifier modifier = (AnnotationModifier) element;
+                    l.addAll(Collections.singletonList(modifier.annotation()));
+                }
+            }
+
+            return l;
+        }
+
+        private List checkClassModifiers(List modifiers) {
+            return (modifiers.size() == 0
+                     ? Collections.singletonList(nf.FlagsNode(JPGPosition.COMPILER_GENERATED, X10Flags.toX10Flags(Flags.NONE)))
+                     : checkModifiers("class", modifiers, FlagModifier.classModifiers));
+        }
+
+        private List checkTypeDefModifiers(List modifiers) {
+            return (modifiers.size() == 0
+                     ? Collections.singletonList(nf.FlagsNode(JPGPosition.COMPILER_GENERATED, X10Flags.toX10Flags(Flags.NONE)))
+                     : checkModifiers("typedef",  modifiers, FlagModifier.typeDefModifiers));
+        }
+
+        private List checkFieldModifiers(List modifiers) {
+            return (modifiers.size() == 0
+                     ? Collections.EMPTY_LIST
+                     : checkModifiers("field",  modifiers, FlagModifier.fieldModifiers));
+        }
+
+        private List checkVariableModifiers(List modifiers) {
+            return (modifiers.size() == 0
+                     ? Collections.EMPTY_LIST
+                     : checkModifiers("variable",  modifiers, FlagModifier.variableModifiers));
+        }
+
+        private List checkMethodModifiers(List modifiers) {
+            return (modifiers.size() == 0
+                     ? Collections.EMPTY_LIST
+                     : checkModifiers("method",  modifiers, FlagModifier.methodModifiers));
+        }
+
+        private List checkConstructorModifiers(List modifiers) {
+            return (modifiers.size() == 0
+                     ? Collections.EMPTY_LIST
+                     : checkModifiers("constructor",  modifiers, FlagModifier.constructorModifiers));
+        }
+
+        private List checkInterfaceModifiers(List modifiers) {
+            return (modifiers.size() == 0
+                     ? Collections.EMPTY_LIST
+                     : checkModifiers("interface",  modifiers, FlagModifier.interfaceModifiers));
         }
 
         // RMF 11/7/2005 - N.B. This class has to be serializable, since it shows up inside Type objects,
@@ -659,7 +922,7 @@ public static class MessageHandler implements IMessageHandler {
             }
             return nf.FlagsNode(pos == null ? JPGPosition.COMPILER_GENERATED : pos, xf);
         }
-    
+
         /* Roll our own integer parser.  We can't use Long.parseLong because
          * it doesn't handle numbers greater than 0x7fffffffffffffff correctly.
          */
@@ -914,10 +1177,120 @@ public static class MessageHandler implements IMessageHandler {
 %End
 
 %Rules
-    TypeDefDeclaration ::= TypeDefModifiersopt type Identifier TypeParametersopt FormalParametersopt WhereClauseopt = Type ;
+    Modifiersopt ::= %Empty
         /.$BeginJava
-                    FlagsNode f = extractFlags(TypeDefModifiersopt);
-                    List annotations = extractAnnotations(TypeDefModifiersopt);
+                    setResult(new LinkedList());
+          $EndJava
+        ./
+                   | Modifiersopt Modifier
+        /.$BeginJava
+                    Modifiersopt.add(Modifier);
+          $EndJava
+        ./
+
+    Modifier ::= abstract
+        /.$BeginJava
+                    setResult(new FlagModifier(pos(), FlagModifier.ABSTRACT));
+          $EndJava
+        ./
+                   | Annotation
+        /.$BeginJava
+                    setResult(new AnnotationModifier(Annotation));
+          $EndJava
+        ./
+                   | atomic
+        /.$BeginJava
+                    setResult(new FlagModifier(pos(), FlagModifier.ATOMIC));
+          $EndJava
+        ./
+                   | extern
+        /.$BeginJava
+                    setResult(new FlagModifier(pos(), FlagModifier.EXTERN));
+          $EndJava
+        ./
+                   | final
+        /.$BeginJava
+                    setResult(new FlagModifier(pos(), FlagModifier.FINAL));
+          $EndJava
+        ./
+                   | global
+        /.$BeginJava
+                    setResult(new FlagModifier(pos(), FlagModifier.GLOBAL));
+          $EndJava
+        ./
+                   | incomplete
+        /.$BeginJava
+                    setResult(new FlagModifier(pos(), FlagModifier.INCOMPLETE));
+          $EndJava
+        ./
+                   | native
+        /.$BeginJava
+                    setResult(new FlagModifier(pos(), FlagModifier.NATIVE));
+          $EndJava
+        ./
+                   | nonblocking
+        /.$BeginJava
+                    setResult(new FlagModifier(pos(), FlagModifier.NON_BLOCKING));
+          $EndJava
+        ./
+                   | private
+        /.$BeginJava
+                    setResult(new FlagModifier(pos(), FlagModifier.PRIVATE));
+          $EndJava
+        ./
+                   | protected
+        /.$BeginJava
+                    setResult(new FlagModifier(pos(), FlagModifier.PROTECTED));
+          $EndJava
+        ./
+                   | proto
+        /.$BeginJava
+                    setResult(new FlagModifier(pos(), FlagModifier.PROTO));
+          $EndJava
+        ./
+                   | public
+        /.$BeginJava
+                    setResult(new FlagModifier(pos(), FlagModifier.PUBLIC));
+          $EndJava
+        ./
+                   | safe
+        /.$BeginJava
+                    setResult(new FlagModifier(pos(), FlagModifier.SAFE));
+          $EndJava
+        ./
+                   | sequential
+        /.$BeginJava
+                    setResult(new FlagModifier(pos(), FlagModifier.SEQUENTIAL));
+          $EndJava
+        ./
+                   | shared
+        /.$BeginJava
+                    setResult(new FlagModifier(pos(), FlagModifier.SHARED));
+          $EndJava
+        ./
+                   | static
+        /.$BeginJava
+                    setResult(new FlagModifier(pos(), FlagModifier.STATIC));
+          $EndJava
+        ./
+
+    MethodModifiersopt ::= Modifiersopt
+                         | MethodModifiersopt property$property
+        /.$BeginJava
+                    MethodModifiersopt.add(new FlagModifier(pos(getRhsFirstTokenIndex($property)), FlagModifier.PROPERTY));
+          $EndJava
+        ./
+                         | MethodModifiersopt Modifier
+        /.$BeginJava
+                    MethodModifiersopt.add(Modifier);
+          $EndJava
+        ./
+
+    TypeDefDeclaration ::= Modifiersopt type Identifier TypeParametersopt FormalParametersopt WhereClauseopt = Type ;
+        /.$BeginJava
+                    Modifiersopt = checkTypeDefModifiers(Modifiersopt);
+                    FlagsNode f = extractFlags(Modifiersopt);
+                    List annotations = extractAnnotations(Modifiersopt);
                     for (Formal v : (List<Formal>) FormalParametersopt) {
                         if (!v.flags().flags().isFinal()) syntaxError("Type definition parameters must be final.", v.position());
                     }
@@ -957,6 +1330,7 @@ public static class MessageHandler implements IMessageHandler {
 
     MethodDeclaration ::= MethodModifiersopt def Identifier TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
         /.$BeginJava
+           MethodModifiersopt = checkMethodModifiers(MethodModifiersopt);
            ProcedureDecl pd;
            if (Identifier.id().toString().equals("this")) {
                        pd = nf.X10ConstructorDecl(pos(),
@@ -989,10 +1363,16 @@ public static class MessageHandler implements IMessageHandler {
         ./
       | MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) BinOp ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
         /.$BeginJava
+           MethodModifiersopt = checkMethodModifiers(MethodModifiersopt);
+           Name opName = X10Binary_c.binaryMethodName(BinOp);
+           if (opName == null) {
+               syntaxError("Cannot override binary operator '"+BinOp+"'.", pos());
+               opName = Name.make("invalid operator");
+           }
            MethodDecl md = nf.X10MethodDecl(pos(),
               extractFlags(MethodModifiersopt),
               HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
-              nf.Id(pos(getRhsFirstTokenIndex($BinOp)), X10Binary_c.binaryMethodName(BinOp)),
+              nf.Id(pos(getRhsFirstTokenIndex($BinOp)), opName),
               TypeParametersopt,
               Arrays.<Formal>asList(fp1, fp2),
               WhereClauseopt,
@@ -1007,10 +1387,16 @@ public static class MessageHandler implements IMessageHandler {
         ./
       | MethodModifiersopt operator TypeParametersopt PrefixOp ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
         /.$BeginJava
+           MethodModifiersopt = checkMethodModifiers(MethodModifiersopt);
+           Name opName = X10Unary_c.unaryMethodName(PrefixOp);
+           if (opName == null) {
+               syntaxError("Cannot override unary operator '"+PrefixOp+"'.", pos());
+               opName = Name.make("invalid operator");
+           }
            MethodDecl md = nf.X10MethodDecl(pos(),
               extractFlags(MethodModifiersopt),
               HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
-              nf.Id(pos(getRhsFirstTokenIndex($PrefixOp)), X10Unary_c.unaryMethodName(PrefixOp)),
+              nf.Id(pos(getRhsFirstTokenIndex($PrefixOp)), opName),
               TypeParametersopt,
               Collections.<Formal>singletonList(fp2),
               WhereClauseopt,
@@ -1025,10 +1411,16 @@ public static class MessageHandler implements IMessageHandler {
         ./
       | MethodModifiersopt operator TypeParametersopt this BinOp ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
         /.$BeginJava
+           MethodModifiersopt = checkMethodModifiers(MethodModifiersopt);
+           Name opName = X10Binary_c.binaryMethodName(BinOp);
+           if (opName == null) {
+               syntaxError("Cannot override binary operator '"+BinOp+"'.", pos());
+               opName = Name.make("invalid operator");
+           }
            MethodDecl md = nf.X10MethodDecl(pos(),
               extractFlags(MethodModifiersopt),
               HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
-              nf.Id(pos(getRhsFirstTokenIndex($BinOp)), X10Binary_c.binaryMethodName(BinOp)),
+              nf.Id(pos(getRhsFirstTokenIndex($BinOp)), opName),
               TypeParametersopt,
               Collections.<Formal>singletonList(fp2),
               WhereClauseopt,
@@ -1044,11 +1436,16 @@ public static class MessageHandler implements IMessageHandler {
         ./
       | MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) BinOp this WhereClauseopt HasResultTypeopt  Throwsopt Offersopt MethodBody
         /.$BeginJava
-           Name op = X10Binary_c.invBinaryMethodName(BinOp);
+           MethodModifiersopt = checkMethodModifiers(MethodModifiersopt);
+           Name opName = X10Binary_c.invBinaryMethodName(BinOp);
+           if (opName == null) {
+               syntaxError("Cannot override binary operator '"+BinOp+"'.", pos());
+               opName = Name.make("invalid operator");
+           }
            MethodDecl md = nf.X10MethodDecl(pos(),
               extractFlags(MethodModifiersopt),
               HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
-              nf.Id(pos(getRhsFirstTokenIndex($BinOp)), X10Binary_c.invBinaryMethodName(BinOp)),
+              nf.Id(pos(getRhsFirstTokenIndex($BinOp)), opName),
               TypeParametersopt,
               Collections.<Formal>singletonList(fp1),
               WhereClauseopt,
@@ -1064,10 +1461,16 @@ public static class MessageHandler implements IMessageHandler {
         ./
       | MethodModifiersopt operator TypeParametersopt PrefixOp this WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
         /.$BeginJava
+           MethodModifiersopt = checkMethodModifiers(MethodModifiersopt);
+           Name opName = X10Unary_c.unaryMethodName(PrefixOp);
+           if (opName == null) {
+               syntaxError("Cannot override unary operator '"+PrefixOp+"'.", pos());
+               opName = Name.make("invalid operator");
+           }
            MethodDecl md = nf.X10MethodDecl(pos(),
               extractFlags(MethodModifiersopt),
               HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
-              nf.Id(pos(getRhsFirstTokenIndex($PrefixOp)), X10Unary_c.unaryMethodName(PrefixOp)),
+              nf.Id(pos(getRhsFirstTokenIndex($PrefixOp)), opName),
               TypeParametersopt,
               Collections.EMPTY_LIST,
               WhereClauseopt,
@@ -1082,6 +1485,7 @@ public static class MessageHandler implements IMessageHandler {
         ./
       | MethodModifiersopt operator this TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
         /.$BeginJava
+           MethodModifiersopt = checkMethodModifiers(MethodModifiersopt);
            MethodDecl md = nf.X10MethodDecl(pos(),
               extractFlags(MethodModifiersopt),
               HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
@@ -1100,6 +1504,7 @@ public static class MessageHandler implements IMessageHandler {
         ./
       | MethodModifiersopt operator this TypeParametersopt FormalParameters = ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
         /.$BeginJava
+           MethodModifiersopt = checkMethodModifiers(MethodModifiersopt);
            MethodDecl md = nf.X10MethodDecl(pos(),
               extractFlags(MethodModifiersopt),
               HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
@@ -1118,6 +1523,7 @@ public static class MessageHandler implements IMessageHandler {
         ./
       | MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) as Type WhereClauseopt Throwsopt Offersopt MethodBody
         /.$BeginJava
+           MethodModifiersopt = checkMethodModifiers(MethodModifiersopt);
            MethodDecl md = nf.X10MethodDecl(pos(),
               extractFlags(MethodModifiersopt),
               Type,
@@ -1136,6 +1542,7 @@ public static class MessageHandler implements IMessageHandler {
         ./
       | MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) as ? WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
         /.$BeginJava
+           MethodModifiersopt = checkMethodModifiers(MethodModifiersopt);
            MethodDecl md = nf.X10MethodDecl(pos(),
               extractFlags(MethodModifiersopt),
               HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
@@ -1154,6 +1561,7 @@ public static class MessageHandler implements IMessageHandler {
         ./
       | MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
         /.$BeginJava
+           MethodModifiersopt = checkMethodModifiers(MethodModifiersopt);
            MethodDecl md = nf.X10MethodDecl(pos(),
               extractFlags(MethodModifiersopt),
               HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
@@ -1171,8 +1579,9 @@ public static class MessageHandler implements IMessageHandler {
           $EndJava
         ./
 
-    PropertyMethodDeclaration ::= MethodModifiersopt property Identifier TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt MethodBody
+    PropertyMethodDeclaration ::= MethodModifiersopt Identifier TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt MethodBody
         /.$BeginJava
+           MethodModifiersopt = checkMethodModifiers(MethodModifiersopt);
            MethodDecl md = nf.X10MethodDecl(pos(),
               extractFlags(MethodModifiersopt, X10Flags.PROPERTY),
               HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
@@ -1187,8 +1596,9 @@ public static class MessageHandler implements IMessageHandler {
           setResult(md);
           $EndJava
         ./
-                                | MethodModifiersopt property Identifier WhereClauseopt HasResultTypeopt MethodBody
+                                | MethodModifiersopt Identifier WhereClauseopt HasResultTypeopt MethodBody
         /.$BeginJava
+           MethodModifiersopt = checkMethodModifiers(MethodModifiersopt);
            MethodDecl md = nf.X10MethodDecl(pos(),
               extractFlags(MethodModifiersopt, X10Flags.PROPERTY),
               HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
@@ -1225,13 +1635,14 @@ public static class MessageHandler implements IMessageHandler {
           $EndJava
         ./
 
-    NormalInterfaceDeclaration ::= InterfaceModifiersopt interface Identifier TypeParamsWithVarianceopt Propertiesopt WhereClauseopt ExtendsInterfacesopt InterfaceBody
+    NormalInterfaceDeclaration ::= Modifiersopt interface Identifier TypeParamsWithVarianceopt Propertiesopt WhereClauseopt ExtendsInterfacesopt InterfaceBody
         /.$BeginJava
+          Modifiersopt = checkInterfaceModifiers(Modifiersopt);
           checkTypeName(Identifier);
           List TypeParametersopt = TypeParamsWithVarianceopt;
           List/*<PropertyDecl>*/ props = Propertiesopt;
           DepParameterExpr ci = WhereClauseopt;
-          FlagsNode fn = extractFlags(InterfaceModifiersopt, Flags.INTERFACE);
+          FlagsNode fn = extractFlags(Modifiersopt, Flags.INTERFACE);
           ClassDecl cd = nf.X10ClassDecl(pos(),
                        fn,
                        Identifier,
@@ -1241,7 +1652,7 @@ public static class MessageHandler implements IMessageHandler {
                        null,
                        ExtendsInterfacesopt,
                        InterfaceBody);
-          cd = (ClassDecl) ((X10Ext) cd.ext()).annotations(extractAnnotations(InterfaceModifiersopt));
+          cd = (ClassDecl) ((X10Ext) cd.ext()).annotations(extractAnnotations(Modifiersopt));
           setResult(cd);
           $EndJava
         ./
@@ -1294,7 +1705,11 @@ public static class MessageHandler implements IMessageHandler {
         ./
 
     ClassType ::= NamedType
-    InterfaceType ::= FunctionType | NamedType | ( Type )
+
+--
+-- This is a useless nonterminal that is not used anywhere else in the grammar.
+--
+--    InterfaceType ::= FunctionType | NamedType | ( Type )
     
     AnnotatedType ::= Type Annotations
         /.$BeginJava
@@ -1445,6 +1860,7 @@ public static class MessageHandler implements IMessageHandler {
                     setResult(TypeParameterList);
           $EndJava
         ./
+
     FormalParameters ::= ( FormalParameterListopt )
         /.$BeginJava
                     setResult(FormalParameterListopt);
@@ -1522,14 +1938,15 @@ public static class MessageHandler implements IMessageHandler {
     ClassDeclaration ::= StructDeclaration
                        | NormalClassDeclaration
         
-    NormalClassDeclaration ::= ClassModifiersopt class Identifier TypeParamsWithVarianceopt Propertiesopt WhereClauseopt Superopt Interfacesopt ClassBody
+    NormalClassDeclaration ::= Modifiersopt class Identifier TypeParamsWithVarianceopt Propertiesopt WhereClauseopt Superopt Interfacesopt ClassBody
         /.$BeginJava
+          Modifiersopt = checkClassModifiers(Modifiersopt);
           checkTypeName(Identifier);
                     List TypeParametersopt = TypeParamsWithVarianceopt;
           List/*<PropertyDecl>*/ props = Propertiesopt;
           DepParameterExpr ci = WhereClauseopt;
-          FlagsNode f = extractFlags(ClassModifiersopt);
-          List annotations = extractAnnotations(ClassModifiersopt);
+          FlagsNode f = extractFlags(Modifiersopt);
+          List annotations = extractAnnotations(Modifiersopt);
           ClassDecl cd = nf.X10ClassDecl(pos(),
                   f, Identifier, TypeParametersopt, props, ci, Superopt, Interfacesopt, ClassBody);
           cd = (ClassDecl) ((X10Ext) cd.ext()).annotations(annotations);
@@ -1538,24 +1955,26 @@ public static class MessageHandler implements IMessageHandler {
         ./
 
 
-    StructDeclaration ::= ClassModifiersopt struct Identifier TypeParamsWithVarianceopt Propertiesopt WhereClauseopt Interfacesopt ClassBody
+    StructDeclaration ::= Modifiersopt struct Identifier TypeParamsWithVarianceopt Propertiesopt WhereClauseopt Interfacesopt ClassBody
         /.$BeginJava
+        Modifiersopt = checkClassModifiers(Modifiersopt);
         checkTypeName(Identifier);
                     List TypeParametersopt = TypeParamsWithVarianceopt;
         List props = Propertiesopt;
         DepParameterExpr ci = WhereClauseopt;
         ClassDecl cd = (nf.X10ClassDecl(pos(getLeftSpan(), getRightSpan()),
-        extractFlags(ClassModifiersopt, X10Flags.STRUCT), Identifier,  TypeParametersopt,
+        extractFlags(Modifiersopt, X10Flags.STRUCT), Identifier,  TypeParametersopt,
         props, ci, null, Interfacesopt, ClassBody));
-        cd = (ClassDecl) ((X10Ext) cd.ext()).annotations(extractAnnotations(ClassModifiersopt));
+        cd = (ClassDecl) ((X10Ext) cd.ext()).annotations(extractAnnotations(Modifiersopt));
         setResult(cd);
           $EndJava
         ./
 
-    ConstructorDeclaration ::= ConstructorModifiersopt def this TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt Throwsopt Offersopt ConstructorBody
+    ConstructorDeclaration ::= Modifiersopt def this TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt Throwsopt Offersopt ConstructorBody
        /.$BeginJava
+         Modifiersopt = checkConstructorModifiers(Modifiersopt);
          ConstructorDecl cd = nf.X10ConstructorDecl(pos(),
-                                                 extractFlags(ConstructorModifiersopt),
+                                                 extractFlags(Modifiersopt),
                                                  nf.Id(pos(getRhsFirstTokenIndex(3)), "this"),
                                                  HasResultTypeopt,
                                                  TypeParametersopt,
@@ -1564,7 +1983,7 @@ public static class MessageHandler implements IMessageHandler {
                                                  Throwsopt,
                                                  Offersopt,
                                                  ConstructorBody);
-         cd = (ConstructorDecl) ((X10Ext) cd.ext()).annotations(extractAnnotations(ConstructorModifiersopt));
+         cd = (ConstructorDecl) ((X10Ext) cd.ext()).annotations(extractAnnotations(Modifiersopt));
          setResult(cd);
          $EndJava
        ./
@@ -1580,12 +1999,12 @@ public static class MessageHandler implements IMessageHandler {
                     setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL)));
           $EndJava
         ./
-                   | var 
+                   | var
         /.$BeginJava
                     setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.NONE)));
           $EndJava
         ./
-                   | const 
+                   | const
         /.$BeginJava
                     setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL.Static())));
           $EndJava
@@ -1605,9 +2024,10 @@ public static class MessageHandler implements IMessageHandler {
         ./
                     
                    
-    FieldDeclaration ::= FieldModifiersopt FieldKeyword FieldDeclarators ;
+    FieldDeclaration ::= Modifiersopt FieldKeyword FieldDeclarators ;
         /.$BeginJava
-                        FlagsNode fn = extractFlags(FieldModifiersopt, FieldKeyword);
+                    Modifiersopt = checkFieldModifiers(Modifiersopt);
+                    FlagsNode fn = extractFlags(Modifiersopt, FieldKeyword);
         
                     List l = new TypedList(new LinkedList(), ClassMember.class, false);
                         for (Iterator i = FieldDeclarators.iterator(); i.hasNext(); )
@@ -1622,7 +2042,7 @@ public static class MessageHandler implements IMessageHandler {
                             Expr init = (Expr) o[4];
                             FieldDecl fd = nf.FieldDecl(pos, fn,
                                                type, name, init);
-                            fd = (FieldDecl) ((X10Ext) fd.ext()).annotations(extractAnnotations(FieldModifiersopt));
+                            fd = (FieldDecl) ((X10Ext) fd.ext()).annotations(extractAnnotations(Modifiersopt));
                             fd = (FieldDecl) ((X10Ext) fd.ext()).setComment(comment(getRhsFirstTokenIndex(1)));
                             l.add(fd);
                         }
@@ -1630,10 +2050,11 @@ public static class MessageHandler implements IMessageHandler {
           $EndJava
         ./
         
-                       | FieldModifiersopt FieldDeclarators ;
+                       | Modifiersopt FieldDeclarators ;
         /.$BeginJava
-                        List FieldKeyword = Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL));
-                        FlagsNode fn = extractFlags(FieldModifiersopt, FieldKeyword);
+                    Modifiersopt = checkFieldModifiers(Modifiersopt);
+                    List FieldKeyword = Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL));
+                    FlagsNode fn = extractFlags(Modifiersopt, FieldKeyword);
         
                     List l = new TypedList(new LinkedList(), ClassMember.class, false);
                         for (Iterator i = FieldDeclarators.iterator(); i.hasNext(); )
@@ -1648,7 +2069,7 @@ public static class MessageHandler implements IMessageHandler {
                             Expr init = (Expr) o[4];
                             FieldDecl fd = nf.FieldDecl(pos, fn,
                                                type, name, init);
-                            fd = (FieldDecl) ((X10Ext) fd.ext()).annotations(extractAnnotations(FieldModifiersopt));
+                            fd = (FieldDecl) ((X10Ext) fd.ext()).annotations(extractAnnotations(Modifiersopt));
                             fd = (FieldDecl) ((X10Ext) fd.ext()).setComment(comment(getRhsFirstTokenIndex(1)));
                             l.add(fd);
                         }
@@ -2123,21 +2544,24 @@ public static class MessageHandler implements IMessageHandler {
           $EndJava
         ./
 
-    RegionExpression ::= Expression
-
-    RegionExpressionList ::= RegionExpression
-        /.$BeginJava
-                    List l = new TypedList(new LinkedList(), Expr.class, false);
-                    l.add(RegionExpression);
-                    setResult(l);
-          $EndJava
-        ./
-               | RegionExpressionList , RegionExpression
-        /.$BeginJava
-                    RegionExpressionList.add(RegionExpression);
-                    //setResult(RegionExpressionList);
-          $EndJava
-        ./
+--
+-- This is a useless nonterminal that is not used anywhere else in the grammar.
+--
+--    RegionExpression ::= Expression
+--
+--    RegionExpressionList ::= RegionExpression
+--        /.$BeginJava
+--                    List l = new TypedList(new LinkedList(), Expr.class, false);
+--                    l.add(RegionExpression);
+--                    setResult(l);
+--          $EndJava
+--        ./
+--               | RegionExpressionList , RegionExpression
+--        /.$BeginJava
+--                    RegionExpressionList.add(RegionExpression);
+--                    //setResult(RegionExpressionList);
+--          $EndJava
+--        ./
 
     AssignmentExpression ::= Expression$expr1 '->' Expression$expr2
         /.$BeginJava
@@ -2210,7 +2634,7 @@ public static class MessageHandler implements IMessageHandler {
         ./
 
 
-FinishExpression ::= finish ( Expression ) Block
+    FinishExpression ::= finish ( Expression ) Block
         /.$BeginJava
                     setResult(nf.FinishExpr(pos(), Expression, Block));
           $EndJava
@@ -2239,15 +2663,22 @@ FinishExpression ::= finish ( Expression ) Block
 
     ---------------------------------------- All the opts...
 
-    DepParametersopt ::= %Empty
-        /.$NullAction./
-                       | DepParameters
-    PropertyListopt ::=  %Empty
-        /.$BeginJava
-                    setResult(new TypedList(new LinkedList(), PropertyDecl.class, false));
-          $EndJava
-        ./
-                       | PropertyList
+--
+-- This is a useless nonterminal that is not used anywhere else in the grammar.
+--
+--    DepParametersopt ::= %Empty
+--        /.$NullAction./
+--                       | DepParameters
+
+--
+-- This is a useless nonterminal that is not used anywhere else in the grammar.
+--
+--    PropertyListopt ::=  %Empty
+--        /.$BeginJavppa
+--                    setResult(new TypedList(new LinkedList(), PropertyDecl.class, false));
+--          $EndJava
+--        ./
+--                       | PropertyList
                        
     WhereClauseopt ::= %Empty
         /.$NullAction./
@@ -2257,17 +2688,20 @@ FinishExpression ::= finish ( Expression ) Block
         /.$NullAction./
                                    | PlaceExpressionSingleList
 
-    ClassModifiersopt ::= %Empty
-        /.$BeginJava
-             setResult(Collections.singletonList(nf.FlagsNode(JPGPosition.COMPILER_GENERATED, X10Flags.toX10Flags(Flags.NONE))));
-          $EndJava ./
-          | ClassModifiers
-          
-    TypeDefModifiersopt ::= %Empty
-        /.$BeginJava
-             setResult(Collections.singletonList(nf.FlagsNode(JPGPosition.COMPILER_GENERATED, X10Flags.toX10Flags(Flags.NONE))));
-          $EndJava ./
-          | TypeDefModifiers
+--
+-- This is a useless nonterminal that is not used anywhere else in the grammar.
+--
+--    ClassModifiersopt ::= %Empty
+--        /.$BeginJava
+--             setResult(Collections.singletonList(nf.FlagsNode(JPGPosition.COMPILER_GENERATED, X10Flags.toX10Flags(Flags.NONE))));
+--          $EndJava ./
+--          | ClassModifiers
+--          
+--    TypeDefModifiersopt ::= %Empty
+--        /.$BeginJava
+--             setResult(Collections.singletonList(nf.FlagsNode(JPGPosition.COMPILER_GENERATED, X10Flags.toX10Flags(Flags.NONE))));
+--          $EndJava ./
+--          | TypeDefModifiers
           
     ClockedClauseopt ::= %Empty
         /.$BeginJava
@@ -2501,108 +2935,111 @@ FinishExpression ::= finish ( Expression ) Block
 
     -- Chapter 8
 
-    ClassModifiers ::= ClassModifier
-        /.$BeginJava
-                    List l = new LinkedList();
-                    l.addAll(ClassModifier);
-                    setResult(l);
-          $EndJava
-        ./
-                     | ClassModifiers ClassModifier
-        /.$BeginJava
-                    ClassModifiers.addAll(ClassModifier);
-          $EndJava
-        ./
-
-    ClassModifier ::= Annotation
-        /.$BeginJava
-                    setResult(Collections.singletonList(Annotation));
-          $EndJava
-        ./
-                    | public
-        /.$BeginJava
-                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PUBLIC)));
-          $EndJava
-        ./
-                    | protected
-        /.$BeginJava
-                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PROTECTED)));
-          $EndJava
-        ./
-                    | private
-        /.$BeginJava
-                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
-          $EndJava
-        ./
-                    | abstract
-        /.$BeginJava
-                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.ABSTRACT)));
-          $EndJava
-        ./
-                    | static
-        /.$BeginJava
-                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STATIC)));
-          $EndJava
-        ./
-                    | final
-        /.$BeginJava
-                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL)));
-          $EndJava
-        ./
-                    | safe
-        /.$BeginJava
-                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.SAFE)));
-          $EndJava
-        ./
-        
-    TypeDefModifiers ::= TypeDefModifier
-        /.$BeginJava
-                    List l = new LinkedList();
-                    l.addAll(TypeDefModifier);
-                    setResult(l);
-          $EndJava
-        ./
-                     | TypeDefModifiers TypeDefModifier
-        /.$BeginJava
-                    TypeDefModifiers.addAll(TypeDefModifier);
-          $EndJava
-        ./
-
-    TypeDefModifier ::= Annotation
-        /.$BeginJava
-                    setResult(Collections.singletonList(Annotation));
-          $EndJava
-        ./
-                    | public
-        /.$BeginJava
-                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PUBLIC)));
-          $EndJava
-        ./
-                    | protected
-        /.$BeginJava
-                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PROTECTED)));
-          $EndJava
-        ./
-                    | private
-        /.$BeginJava
-                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
-          $EndJava
-        ./
-                    | abstract
-        /.$BeginJava
-                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.ABSTRACT)));
-          $EndJava
-        ./
-                    | static
-        /.$BeginJava
-                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STATIC)));
-          $EndJava
-        ./
-                    | final
-        /.$BeginJava
-                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL)));
-          $EndJava
-        ./
+--
+-- This is a useless nonterminal that is not used anywhere else in the grammar.
+--
+--    ClassModifiers ::= ClassModifier
+--        /.$BeginJava
+--                    List l = new LinkedList();
+--                    l.addAll(ClassModifier);
+--                    setResult(l);
+--          $EndJava
+--        ./
+--                     | ClassModifiers ClassModifier
+--        /.$BeginJava
+--                    ClassModifiers.addAll(ClassModifier);
+--          $EndJava
+--        ./
+--
+--    ClassModifier ::= Annotation
+--        /.$BeginJava
+--                    setResult(Collections.singletonList(Annotation));
+--          $EndJava
+--        ./
+--                    | public
+--        /.$BeginJava
+--                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PUBLIC)));
+--          $EndJava
+--        ./
+--                    | protected
+--        /.$BeginJava
+--                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PROTECTED)));
+--          $EndJava
+--        ./
+--                    | private
+--        /.$BeginJava
+--                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
+--          $EndJava
+--        ./
+--                    | abstract
+--        /.$BeginJava
+--                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.ABSTRACT)));
+--          $EndJava
+--        ./
+--                    | static
+--        /.$BeginJava
+--                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STATIC)));
+--          $EndJava
+--        ./
+--                    | final
+--        /.$BeginJava
+--                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL)));
+--          $EndJava
+--        ./
+--                    | safe
+--        /.$BeginJava
+--                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.SAFE)));
+--          $EndJava
+--        ./
+--        
+--    TypeDefModifiers ::= TypeDefModifier
+--        /.$BeginJava
+--                    List l = new LinkedList();
+--                    l.addAll(TypeDefModifier);
+--                    setResult(l);
+--          $EndJava
+--        ./
+--                     | TypeDefModifiers TypeDefModifier
+--        /.$BeginJava
+--                    TypeDefModifiers.addAll(TypeDefModifier);
+--          $EndJava
+--        ./
+--
+--    TypeDefModifier ::= Annotation
+--        /.$BeginJava
+--                    setResult(Collections.singletonList(Annotation));
+--          $EndJava
+--        ./
+--                    | public
+--        /.$BeginJava
+--                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PUBLIC)));
+--          $EndJava
+--        ./
+--                    | protected
+--        /.$BeginJava
+--                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PROTECTED)));
+--          $EndJava
+--        ./
+--                    | private
+--        /.$BeginJava
+--                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
+--          $EndJava
+--        ./
+--                    | abstract
+--        /.$BeginJava
+--                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.ABSTRACT)));
+--          $EndJava
+--        ./
+--                    | static
+--        /.$BeginJava
+--                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STATIC)));
+--          $EndJava
+--        ./
+--                    | final
+--        /.$BeginJava
+--                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL)));
+--          $EndJava
+--        ./
         
     --
     -- See Chapter 4
@@ -2769,49 +3206,52 @@ FinishExpression ::= finish ( Expression ) Block
     
     VariableInitializer ::= Expression
     
-    FieldModifiers ::= FieldModifier
-        /.$BeginJava
-                    List l = new LinkedList();
-                    l.addAll(FieldModifier);
-                    setResult(l);
-          $EndJava
-        ./
-                     | FieldModifiers FieldModifier
-        /.$BeginJava
-                    FieldModifiers.addAll(FieldModifier);
-          $EndJava
-        ./
-    
-    FieldModifier ::= Annotation
-        /.$BeginJava
-                    setResult(Collections.singletonList(Annotation));
-          $EndJava
-        ./
-                    | public
-        /.$BeginJava
-                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PUBLIC)));
-          $EndJava
-        ./
-                    | protected
-        /.$BeginJava
-                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PROTECTED)));
-          $EndJava
-        ./
-                    | private
-        /.$BeginJava
-                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
-          $EndJava
-        ./
-                    | static
-        /.$BeginJava
-                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STATIC)));
-          $EndJava
-        ./
-                    | global
-        /.$BeginJava
-                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.GLOBAL)));
-          $EndJava
-        ./
+--
+-- This is a useless nonterminal that is not used anywhere else in the grammar.
+--
+--    FieldModifiers ::= FieldModifier
+--        /.$BeginJava
+--                    List l = new LinkedList();
+--                    l.addAll(FieldModifier);
+--                    setResult(l);
+--          $EndJava
+--        ./
+--                     | FieldModifiers FieldModifier
+--        /.$BeginJava
+--                    FieldModifiers.addAll(FieldModifier);
+--          $EndJava
+--        ./
+--    
+--    FieldModifier ::= Annotation
+--        /.$BeginJava
+--                    setResult(Collections.singletonList(Annotation));
+--          $EndJava
+--        ./
+--                    | public
+--        /.$BeginJava
+--                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PUBLIC)));
+--          $EndJava
+--        ./
+--                    | protected
+--        /.$BeginJava
+--                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PROTECTED)));
+--          $EndJava
+--        ./
+--                    | private
+--        /.$BeginJava
+--                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
+--          $EndJava
+--        ./
+--                    | static
+--        /.$BeginJava
+--                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STATIC)));
+--          $EndJava
+--        ./
+--                    | global
+--        /.$BeginJava
+--                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.GLOBAL)));
+--          $EndJava
+--        ./
     
     ResultType ::= : Type
      /.$BeginJava
@@ -2828,12 +3268,15 @@ FinishExpression ::= finish ( Expression ) Block
                     setResult(nf.HasType(Type));
           $EndJava
         ./
-       
-    FormalParameters ::= ( FormalParameterList )
-        /.$BeginJava
-                    setResult(FormalParameterList);
-          $EndJava
-        ./
+
+--
+-- This duplicated rule is not needed!
+--       
+--    FormalParameters ::= ( FormalParameterList )
+--        /.$BeginJava
+--                    setResult(FormalParameterList);
+--          $EndJava
+--        ./
     
     FormalParameterList ::= FormalParameter
         /.$BeginJava
@@ -2864,10 +3307,11 @@ FinishExpression ::= finish ( Expression ) Block
           $EndJava
         ./
         
-    LoopIndex ::= VariableModifiersopt LoopIndexDeclarator
+    LoopIndex ::= Modifiersopt LoopIndexDeclarator
         /.$BeginJava
+                Modifiersopt = checkVariableModifiers(Modifiersopt);
                 Formal f;
-                            	FlagsNode fn = extractFlags(VariableModifiersopt, Flags.FINAL);
+                FlagsNode fn = extractFlags(Modifiersopt, Flags.FINAL);
                 Object[] o = LoopIndexDeclarator;
                 Position pos = (Position) o[0];
                 Id name = (Id) o[1];
@@ -2883,14 +3327,15 @@ FinishExpression ::= finish ( Expression ) Block
                             	explodedFormals.add(nf.Formal(id.position(), fn, nf.UnknownTypeNode(id.position()), id));
                             }
                 f = nf.X10Formal(pos(), fn, type, name, explodedFormals, unnamed);
-                f = (Formal) ((X10Ext) f.ext()).annotations(extractAnnotations(VariableModifiersopt));
+                f = (Formal) ((X10Ext) f.ext()).annotations(extractAnnotations(Modifiersopt));
                 setResult(f);
           $EndJava
         ./
-                      | VariableModifiersopt VarKeyword LoopIndexDeclarator
+                      | Modifiersopt VarKeyword LoopIndexDeclarator
         /.$BeginJava
+                Modifiersopt = checkVariableModifiers(Modifiersopt);
                 Formal f;
-                            	FlagsNode fn = extractFlags(VariableModifiersopt, VarKeyword);
+                FlagsNode fn = extractFlags(Modifiersopt, VarKeyword);
                 Object[] o = LoopIndexDeclarator;
                 Position pos = (Position) o[0];
                 Id name = (Id) o[1];
@@ -2906,15 +3351,16 @@ FinishExpression ::= finish ( Expression ) Block
                             	explodedFormals.add(nf.Formal(id.position(), fn, nf.UnknownTypeNode(id.position()), id));
                             }
                 f = nf.X10Formal(pos(), fn, type, name, explodedFormals, unnamed);
-                f = (Formal) ((X10Ext) f.ext()).annotations(extractAnnotations(VariableModifiersopt));
+                f = (Formal) ((X10Ext) f.ext()).annotations(extractAnnotations(Modifiersopt));
                 setResult(f);
           $EndJava
         ./
     
-    FormalParameter ::= VariableModifiersopt FormalDeclarator
+    FormalParameter ::= Modifiersopt FormalDeclarator
         /.$BeginJava
+                Modifiersopt = checkVariableModifiers(Modifiersopt);
                 Formal f;
-                            	FlagsNode fn = extractFlags(VariableModifiersopt, Flags.FINAL);
+                FlagsNode fn = extractFlags(Modifiersopt, Flags.FINAL);
                 Object[] o = FormalDeclarator;
                 Position pos = (Position) o[0];
                 Id name = (Id) o[1];
@@ -2931,14 +3377,15 @@ FinishExpression ::= finish ( Expression ) Block
                             	explodedFormals.add(nf.Formal(id.position(), fn, nf.UnknownTypeNode(id.position()), id));
                             }
                 f = nf.X10Formal(pos(), fn, type, name, explodedFormals, unnamed);
-                f = (Formal) ((X10Ext) f.ext()).annotations(extractAnnotations(VariableModifiersopt));
+                f = (Formal) ((X10Ext) f.ext()).annotations(extractAnnotations(Modifiersopt));
                 setResult(f);
           $EndJava
         ./
-                      | VariableModifiersopt VarKeyword FormalDeclarator
+                      | Modifiersopt VarKeyword FormalDeclarator
         /.$BeginJava
+                Modifiersopt = checkVariableModifiers(Modifiersopt);
                 Formal f;
-                            	FlagsNode fn = extractFlags(VariableModifiersopt, VarKeyword);
+                FlagsNode fn = extractFlags(Modifiersopt, VarKeyword);
                 Object[] o = FormalDeclarator;
                 Position pos = (Position) o[0];
                 Id name = (Id) o[1];
@@ -2955,7 +3402,7 @@ FinishExpression ::= finish ( Expression ) Block
                             	explodedFormals.add(nf.Formal(id.position(), fn, nf.UnknownTypeNode(id.position()), id));
                             }
                 f = nf.X10Formal(pos(), fn, type, name, explodedFormals, unnamed);
-                f = (Formal) ((X10Ext) f.ext()).annotations(extractAnnotations(VariableModifiersopt));
+                f = (Formal) ((X10Ext) f.ext()).annotations(extractAnnotations(Modifiersopt));
                 setResult(f);
           $EndJava
         ./
@@ -2967,131 +3414,137 @@ FinishExpression ::= finish ( Expression ) Block
           $EndJava
         ./
     
-    VariableModifiers ::= VariableModifier
-        /.$BeginJava
-                    List l = new LinkedList();
-                    l.addAll(VariableModifier);
-                    setResult(l);
-          $EndJava
-        ./
-                        | VariableModifiers VariableModifier
-        /.$BeginJava
-                    VariableModifiers.addAll(VariableModifier);
-          $EndJava
-        ./
-    
-    VariableModifier ::= Annotation
-        /.$BeginJava
-                    setResult(Collections.singletonList(Annotation));
-          $EndJava
-        ./
-                       | shared
-        /.$BeginJava
-                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.SHARED)));
-          $EndJava
-        ./
+--
+-- This is a useless nonterminal that is not used anywhere else in the grammar.
+--
+--    VariableModifiers ::= VariableModifier
+--        /.$BeginJava
+--                    List l = new LinkedList();
+--                    l.addAll(VariableModifier);
+--                    setResult(l);
+--          $EndJava
+--        ./
+--                        | VariableModifiers VariableModifier
+--        /.$BeginJava
+--                    VariableModifiers.addAll(VariableModifier);
+--          $EndJava
+--        ./
+--    
+--    VariableModifier ::= Annotation
+--        /.$BeginJava
+--                    setResult(Collections.singletonList(Annotation));
+--          $EndJava
+--        ./
+--                       | shared
+--        /.$BeginJava
+--                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.SHARED)));
+--          $EndJava
+--        ./
     
     --
     -- See above
     --    
-    MethodModifiers ::= MethodModifier
-        /.$BeginJava
-                    List l = new LinkedList();
-                    l.addAll(MethodModifier);
-                    setResult(l);
-          $EndJava
-        ./
-                      | MethodModifiers MethodModifier
-        /.$BeginJava
-                    MethodModifiers.addAll(MethodModifier);
-          $EndJava
-        ./
-    
-    MethodModifier ::= Annotation
-        /.$BeginJava
-                    setResult(Collections.singletonList(Annotation));
-          $EndJava
-        ./
-                     | public
-        /.$BeginJava
-                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PUBLIC)));
-          $EndJava
-        ./
-                     | protected
-        /.$BeginJava
-                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PROTECTED)));
-          $EndJava
-        ./
-                     | private
-        /.$BeginJava
-                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
-          $EndJava
-        ./
-                     | abstract
-        /.$BeginJava
-                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.ABSTRACT)));
-          $EndJava
-        ./
-                     | static
-        /.$BeginJava
-                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STATIC)));
-          $EndJava
-        ./
-                     | final
-        /.$BeginJava
-                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL)));
-          $EndJava
-        ./
-                     | native
-        /.$BeginJava
-                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.NATIVE)));
-          $EndJava
-        ./
-                     | atomic
-        /.$BeginJava
-                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.ATOMIC)));
-          $EndJava
-        ./
-                     | extern
-        /.$BeginJava
-                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.EXTERN)));
-          $EndJava
-        ./
-                     | safe
-        /.$BeginJava
-                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.SAFE)));
-          $EndJava
-        ./
-                     | sequential
-        /.$BeginJava
-                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.SEQUENTIAL)));
-          $EndJava
-        ./
-                     | nonblocking
-        /.$BeginJava
-                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.NON_BLOCKING)));
-          $EndJava
-        ./
-                     | incomplete
-        /.$BeginJava
-                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.INCOMPLETE)));
-          $EndJava
-        ./
-                     | property
-        /.$BeginJava
-                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.PROPERTY)));
-          $EndJava
-        ./
-                     | global
-        /.$BeginJava
-                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.GLOBAL)));
-          $EndJava
-        ./
-                     | proto
-        /.$BeginJava
-                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.PROTO)));
-          $EndJava
-        ./
+--
+-- This is a useless nonterminal that is not used anywhere else in the grammar.
+--
+--    MethodModifiers ::= MethodModifier
+--        /.$BeginJava
+--                    List l = new LinkedList();
+--                    l.addAll(MethodModifier);
+--                    setResult(l);
+--          $EndJava
+--        ./
+--                      | MethodModifiers MethodModifier
+--        /.$BeginJava
+--                    MethodModifiers.addAll(MethodModifier);
+--          $EndJava
+--        ./
+--    
+--    MethodModifier ::= Annotation
+--        /.$BeginJava
+--                    setResult(Collections.singletonList(Annotation));
+--          $EndJava
+--        ./
+--                     | public
+--        /.$BeginJava
+--                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PUBLIC)));
+--          $EndJava
+--        ./
+--                     | protected
+--        /.$BeginJava
+--                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PROTECTED)));
+--          $EndJava
+--        ./
+--                     | private
+--        /.$BeginJava
+--                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
+--          $EndJava
+--        ./
+--                     | abstract
+--        /.$BeginJava
+--                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.ABSTRACT)));
+--          $EndJava
+--        ./
+--                     | static
+--        /.$BeginJava
+--                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STATIC)));
+--          $EndJava
+--        ./
+--                     | final
+--        /.$BeginJava
+--                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL)));
+--          $EndJava
+--        ./
+--                     | native
+--        /.$BeginJava
+--                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.NATIVE)));
+--          $EndJava
+--        ./
+--                     | atomic
+--        /.$BeginJava
+--                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.ATOMIC)));
+--          $EndJava
+--        ./
+--                     | extern
+--        /.$BeginJava
+--                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.EXTERN)));
+--          $EndJava
+--        ./
+--                     | safe
+--        /.$BeginJava
+--                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.SAFE)));
+--          $EndJava
+--        ./
+--                     | sequential
+--        /.$BeginJava
+--                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.SEQUENTIAL)));
+--          $EndJava
+--        ./
+--                     | nonblocking
+--        /.$BeginJava
+--                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.NON_BLOCKING)));
+--          $EndJava
+--        ./
+--                     | incomplete
+--        /.$BeginJava
+--                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.INCOMPLETE)));
+--          $EndJava
+--        ./
+--                     | property
+--        /.$BeginJava
+--                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.PROPERTY)));
+--          $EndJava
+--        ./
+--                     | global
+--        /.$BeginJava
+--                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.GLOBAL)));
+--          $EndJava
+--        ./
+--                     | proto
+--        /.$BeginJava
+--                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.PROTO)));
+--          $EndJava
+--        ./
 
     
     Throws ::= throws ExceptionTypeList
@@ -3158,50 +3611,56 @@ FinishExpression ::= finish ( Expression ) Block
 --          $EndJava
 --        ./
       
-    SimpleTypeName ::= Identifier
-        /.$BeginJava
-                    setResult(new X10ParsedName(nf, ts, pos(), Identifier));
-          $EndJava
-        ./
+--
+-- This is a useless nonterminal that is not used anywhere else in the grammar.
+--
+--    SimpleTypeName ::= Identifier
+--        /.$BeginJava
+--                    setResult(new X10ParsedName(nf, ts, pos(), Identifier));
+--          $EndJava
+--        ./
 
-    ConstructorModifiers ::= ConstructorModifier
-        /.$BeginJava
-                    List l = new LinkedList();
-                    l.addAll(ConstructorModifier);
-                    setResult(l);
-          $EndJava
-        ./
-                           | ConstructorModifiers ConstructorModifier
-        /.$BeginJava
-                    ConstructorModifiers.addAll(ConstructorModifier);
-          $EndJava
-        ./
-    
-    ConstructorModifier ::= Annotation
-        /.$BeginJava
-                    setResult(Collections.singletonList(Annotation));
-          $EndJava
-        ./
-                          | public
-        /.$BeginJava
-                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PUBLIC)));
-          $EndJava
-        ./
-                          | protected
-        /.$BeginJava
-                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PROTECTED)));
-          $EndJava
-        ./
-                          | private
-        /.$BeginJava
-                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
-          $EndJava
-        ./
-                          | native
-        /.$BeginJava
-                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.NATIVE)));
-          $EndJava
-        ./
+--
+-- This is a useless nonterminal that is not used anywhere else in the grammar.
+--
+--    ConstructorModifiers ::= ConstructorModifier
+--        /.$BeginJava
+--                    List l = new LinkedList();
+--                    l.addAll(ConstructorModifier);
+--                    setResult(l);
+--          $EndJava
+--        ./
+--                           | ConstructorModifiers ConstructorModifier
+--        /.$BeginJava
+--                    ConstructorModifiers.addAll(ConstructorModifier);
+--          $EndJava
+--        ./
+--    
+--    ConstructorModifier ::= Annotation
+--        /.$BeginJava
+--                    setResult(Collections.singletonList(Annotation));
+--          $EndJava
+--        ./
+--                          | public
+--        /.$BeginJava
+--                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PUBLIC)));
+--          $EndJava
+--        ./
+--                          | protected
+--        /.$BeginJava
+--                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PROTECTED)));
+--          $EndJava
+--        ./
+--                          | private
+--        /.$BeginJava
+--                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
+--          $EndJava
+--        ./
+--                          | native
+--        /.$BeginJava
+--                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.NATIVE)));
+--          $EndJava
+--        ./
     
     ConstructorBody ::= = ConstructorBlock
         /.$BeginJava
@@ -3255,49 +3714,52 @@ FinishExpression ::= finish ( Expression ) Block
     
     InterfaceDeclaration ::= NormalInterfaceDeclaration
     
-    InterfaceModifiers ::= InterfaceModifier
-        /.$BeginJava
-                    List l = new LinkedList();
-                    l.addAll(InterfaceModifier);
-                    setResult(l);
-          $EndJava
-        ./
-                         | InterfaceModifiers InterfaceModifier
-        /.$BeginJava
-                    InterfaceModifiers.addAll(InterfaceModifier);
-          $EndJava
-        ./
-    
-    InterfaceModifier ::= Annotation
-        /.$BeginJava
-                    setResult(Collections.singletonList(Annotation));
-          $EndJava
-        ./
-                        | public
-        /.$BeginJava
-                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PUBLIC)));
-          $EndJava
-        ./
-                        | protected
-        /.$BeginJava
-                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PROTECTED)));
-          $EndJava
-        ./
-                        | private
-        /.$BeginJava
-                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
-          $EndJava
-        ./
-                        | abstract
-        /.$BeginJava
-                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.ABSTRACT)));
-          $EndJava
-        ./
-                        | static
-        /.$BeginJava
-                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STATIC)));
-          $EndJava
-        ./
+--
+-- This is a useless nonterminal that is not used anywhere else in the grammar.
+--
+--    InterfaceModifiers ::= InterfaceModifier
+--        /.$BeginJava
+--                    List l = new LinkedList();
+--                    l.addAll(InterfaceModifier);
+--                    setResult(l);
+--          $EndJava
+--        ./
+--                         | InterfaceModifiers InterfaceModifier
+--        /.$BeginJava
+--                    InterfaceModifiers.addAll(InterfaceModifier);
+--          $EndJava
+--        ./
+--    
+--    InterfaceModifier ::= Annotation
+--        /.$BeginJava
+--                    setResult(Collections.singletonList(Annotation));
+--          $EndJava
+--        ./
+--                        | public
+--        /.$BeginJava
+--                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PUBLIC)));
+--          $EndJava
+--        ./
+--                        | protected
+--        /.$BeginJava
+--                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PROTECTED)));
+--          $EndJava
+--        ./
+--                        | private
+--        /.$BeginJava
+--                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
+--          $EndJava
+--        ./
+--                        | abstract
+--        /.$BeginJava
+--                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.ABSTRACT)));
+--          $EndJava
+--        ./
+--                        | static
+--        /.$BeginJava
+--                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STATIC)));
+--          $EndJava
+--        ./
     
     ExtendsInterfaces ::= extends Type
         /.$BeginJava
@@ -3396,11 +3858,14 @@ FinishExpression ::= finish ( Expression ) Block
           $EndJava
         ./
     
-    SimpleName ::= Identifier
-        /.$BeginJava
-                    setResult(new X10ParsedName(nf, ts, pos(), Identifier));
-          $EndJava
-        ./
+--
+-- This is a useless nonterminal that is not used anywhere else in the grammar.
+--
+--    SimpleName ::= Identifier
+--        /.$BeginJava
+--                    setResult(new X10ParsedName(nf, ts, pos(), Identifier));
+--          $EndJava
+--        ./
         
     Identifier ::= identifier
         /.$BeginJava
@@ -3410,19 +3875,22 @@ FinishExpression ::= finish ( Expression ) Block
 
     -- Chapter 10
     
-    VariableInitializers ::= VariableInitializer
-        /.$BeginJava
-                    List l = new TypedList(new LinkedList(), Expr.class, false);
-                    l.add(VariableInitializer);
-                    setResult(l);
-          $EndJava
-        ./
-                           | VariableInitializers , VariableInitializer
-        /.$BeginJava
-                    VariableInitializers.add(VariableInitializer);
-                    //setResult(VariableInitializers);
-          $EndJava
-        ./
+--
+-- This is a useless nonterminal that is not used anywhere else in the grammar.
+--
+--    VariableInitializers ::= VariableInitializer
+--        /.$BeginJava
+--                    List l = new TypedList(new LinkedList(), Expr.class, false);
+--                    l.add(VariableInitializer);
+--                    setResult(l);
+--          $EndJava
+--        ./
+--                           | VariableInitializers , VariableInitializer
+--        /.$BeginJava
+--                    VariableInitializers.add(VariableInitializer);
+--                    //setResult(VariableInitializers);
+--          $EndJava
+--        ./
     
     --
     -- See Chapter 8
@@ -3552,9 +4020,10 @@ FinishExpression ::= finish ( Expression ) Block
     
     LocalVariableDeclarationStatement ::= LocalVariableDeclaration ;
     
-    LocalVariableDeclaration ::= VariableModifiersopt VarKeyword VariableDeclarators
+    LocalVariableDeclaration ::= Modifiersopt VarKeyword VariableDeclarators
         /.$BeginJava
-                    FlagsNode fn = extractFlags(VariableModifiersopt, VarKeyword);
+                    Modifiersopt = checkVariableModifiers(Modifiersopt);
+                    FlagsNode fn = extractFlags(Modifiersopt, VarKeyword);
         
                     List l = new TypedList(new LinkedList(), LocalDecl.class, false);
                     List s = new TypedList(new LinkedList(), Stmt.class, false);
@@ -3571,7 +4040,7 @@ FinishExpression ::= finish ( Expression ) Block
                             Expr init = (Expr) o[5];
                             LocalDecl ld = nf.LocalDecl(pos, fn,
                                                type, name, init);
-                            ld = (LocalDecl) ((X10Ext) ld.ext()).annotations(extractAnnotations(VariableModifiersopt));
+                            ld = (LocalDecl) ((X10Ext) ld.ext()).annotations(extractAnnotations(Modifiersopt));
                             int index = 0;
                             l.add(ld);
                             for (Iterator j = exploded.iterator(); j.hasNext(); ) {
@@ -3585,9 +4054,10 @@ FinishExpression ::= finish ( Expression ) Block
                     setResult(l);
           $EndJava
         ./
-                               | VariableModifiersopt VariableDeclaratorsWithType
+                               | Modifiersopt VariableDeclaratorsWithType
         /.$BeginJava
-                    FlagsNode fn = extractFlags(VariableModifiersopt, Flags.FINAL);
+                    Modifiersopt = checkVariableModifiers(Modifiersopt);
+                    FlagsNode fn = extractFlags(Modifiersopt, Flags.FINAL);
         
                     List l = new TypedList(new LinkedList(), LocalDecl.class, false);
                     List s = new TypedList(new LinkedList(), Stmt.class, false);
@@ -3604,7 +4074,7 @@ FinishExpression ::= finish ( Expression ) Block
                             Expr init = (Expr) o[5];
                             LocalDecl ld = nf.LocalDecl(pos, fn,
                                                type, name, init);
-                            ld = (LocalDecl) ((X10Ext) ld.ext()).annotations(extractAnnotations(VariableModifiersopt));
+                            ld = (LocalDecl) ((X10Ext) ld.ext()).annotations(extractAnnotations(Modifiersopt));
                             int index = 0;
                             l.add(ld);
                             for (Iterator j = exploded.iterator(); j.hasNext(); ) {
@@ -3619,9 +4089,10 @@ FinishExpression ::= finish ( Expression ) Block
                     setResult(l);
           $EndJava
         ./
-                  | VariableModifiersopt VarKeyword FormalDeclarators
+                  | Modifiersopt VarKeyword FormalDeclarators
         /.$BeginJava
-                    FlagsNode fn = extractFlags(VariableModifiersopt, VarKeyword);
+                    Modifiersopt = checkVariableModifiers(Modifiersopt);
+                    FlagsNode fn = extractFlags(Modifiersopt, VarKeyword);
         
                     List l = new TypedList(new LinkedList(), LocalDecl.class, false);
                     List s = new TypedList(new LinkedList(), Stmt.class, false);
@@ -3638,7 +4109,7 @@ FinishExpression ::= finish ( Expression ) Block
                             Expr init = (Expr) o[5];
                             LocalDecl ld = nf.LocalDecl(pos, fn,
                                                type, name, init);
-                            ld = (LocalDecl) ((X10Ext) ld.ext()).annotations(extractAnnotations(VariableModifiersopt));
+                            ld = (LocalDecl) ((X10Ext) ld.ext()).annotations(extractAnnotations(Modifiersopt));
                             int index = 0;
                             l.add(ld);
                             for (Iterator j = exploded.iterator(); j.hasNext(); ) {
@@ -4115,7 +4586,7 @@ FinishExpression ::= finish ( Expression ) Block
           $EndJava
         ./
     
-    UnaryExpression ::= PreIncrementExpression
+    UnannotatedUnaryExpression ::= PreIncrementExpression
                       | PreDecrementExpression
                       | + UnaryExpressionNotPlusMinus
         /.$BeginJava
@@ -4128,6 +4599,15 @@ FinishExpression ::= finish ( Expression ) Block
           $EndJava
         ./
                       | UnaryExpressionNotPlusMinus
+
+    UnaryExpression ::= UnannotatedUnaryExpression
+                      | Annotations UnannotatedUnaryExpression
+        /.$BeginJava
+                    Expr e = UnannotatedUnaryExpression;
+                    e = (Expr) ((X10Ext) e.ext()).annotations(Annotations);
+                    setResult(e.position(pos()));
+          $EndJava
+        ./
     
     PreIncrementExpression ::= ++ UnaryExpressionNotPlusMinus
         /.$BeginJava
@@ -4145,13 +4625,6 @@ FinishExpression ::= finish ( Expression ) Block
                                   | ~ UnaryExpression
         /.$BeginJava
                     setResult(nf.Unary(pos(), Unary.BIT_NOT, UnaryExpression));
-          $EndJava
-        ./
-                      | Annotations UnaryExpression
-        /.$BeginJava
-                    Expr e = UnaryExpression;
-                    e = (Expr) ((X10Ext) e.ext()).annotations(Annotations);
-                    setResult(e.position(pos()));
           $EndJava
         ./
                                   | ! UnaryExpression
@@ -4574,16 +5047,22 @@ FinishExpression ::= finish ( Expression ) Block
         ./
                                     | SwitchBlockStatementGroups
 
-    VariableModifiersopt ::= %Empty
-        /.$BeginJava
-                    setResult(Collections.EMPTY_LIST);
-          $EndJava
-        ./
-                           | VariableModifiers
+--
+-- This is a useless nonterminal that is not used anywhere else in the grammar.
+--
+--    VariableModifiersopt ::= %Empty
+--        /.$BeginJava
+--                    setResult(Collections.EMPTY_LIST);
+--          $EndJava
+--        ./
+--                           | VariableModifiers
 
-    VariableInitializersopt ::= %Empty
-        /.$NullAction./
-                              | VariableInitializers
+--
+-- This is a useless nonterminal that is not used anywhere else in the grammar.
+--
+--    VariableInitializersopt ::= %Empty
+--        /.$NullAction./
+--                              | VariableInitializers
 
     InterfaceMemberDeclarationsopt ::= %Empty
         /.$BeginJava
@@ -4599,23 +5078,29 @@ FinishExpression ::= finish ( Expression ) Block
         ./
                            | ExtendsInterfaces
 
-    InterfaceModifiersopt ::= %Empty
-        /.$BeginJava
-                    setResult(Collections.EMPTY_LIST);
-          $EndJava
-        ./
-                            | InterfaceModifiers
+--
+-- This is a useless nonterminal that is not used anywhere else in the grammar.
+--
+--    InterfaceModifiersopt ::= %Empty
+--        /.$BeginJava
+--                    setResult(Collections.EMPTY_LIST);
+--          $EndJava
+--        ./
+--                            | InterfaceModifiers
 
     ClassBodyopt ::= %Empty
         /.$NullAction./
                    | ClassBody
 
-    Argumentsopt ::= %Empty
-        /.$BeginJava
-                    setResult(new TypedList(new LinkedList(), Expr.class, false));
-          $EndJava
-        ./
-                   | Arguments
+--
+-- This is a useless nonterminal that is not used anywhere else in the grammar.
+--
+--    Argumentsopt ::= %Empty
+--        /.$BeginJava
+--                    setResult(new TypedList(new LinkedList(), Expr.class, false));
+--          $EndJava
+--        ./
+--                   | Arguments
 
     ArgumentListopt ::= %Empty
         /.$BeginJava
@@ -4635,12 +5120,15 @@ FinishExpression ::= finish ( Expression ) Block
         /.$NullAction./
                                        | ExplicitConstructorInvocation
 
-    ConstructorModifiersopt ::= %Empty
-        /.$BeginJava
-                    setResult(Collections.EMPTY_LIST);
-          $EndJava
-        ./
-                              | ConstructorModifiers
+--
+-- This is a useless nonterminal that is not used anywhere else in the grammar.
+--
+--    ConstructorModifiersopt ::= %Empty
+--        /.$BeginJava
+--                    setResult(Collections.EMPTY_LIST);
+--          $EndJava
+--        ./
+--                              | ConstructorModifiers
 
     FormalParameterListopt ::= %Empty
         /.$BeginJava
@@ -4662,26 +5150,35 @@ FinishExpression ::= finish ( Expression ) Block
         ./
                 | Offers
 
-    MethodModifiersopt ::= %Empty
-        /.$BeginJava
-                    setResult(Collections.EMPTY_LIST);
-          $EndJava
-        ./
-                         | MethodModifiers
+--
+-- This is a useless nonterminal that is not used anywhere else in the grammar.
+--
+--    MethodModifiersopt ::= %Empty
+--        /.$BeginJava
+--                    setResult(Collections.EMPTY_LIST);
+--          $EndJava
+--        ./
+--                         | MethodModifiers
 
-    TypeModifieropt ::= %Empty
-        /.$BeginJava
-                    setResult(Collections.EMPTY_LIST);
-          $EndJava
-        ./
-                         | TypeModifier
+--
+-- This is a useless nonterminal that is not used anywhere else in the grammar.
+--
+--    TypeModifieropt ::= %Empty
+--        /.$BeginJava
+--                    setResult(Collections.EMPTY_LIST);
+--          $EndJava
+--        ./
+--                         | TypeModifier
 
-    FieldModifiersopt ::= %Empty
-        /.$BeginJava
-                    setResult(Collections.EMPTY_LIST);
-          $EndJava
-        ./
-                        | FieldModifiers
+--
+-- This is a useless nonterminal that is not used anywhere else in the grammar.
+--
+--    FieldModifiersopt ::= %Empty
+--        /.$BeginJava
+--                    setResult(Collections.EMPTY_LIST);
+--          $EndJava
+--        ./
+--                        | FieldModifiers
 
     ClassBodyDeclarationsopt ::= %Empty
         /.$BeginJava
@@ -4740,9 +5237,12 @@ FinishExpression ::= finish ( Expression ) Block
         /.$NullAction./
                             | PackageDeclaration
                             
-    ResultTypeopt ::= %Empty
-        /.$NullAction./
-                            | ResultType
+--
+-- This is a useless nonterminal that is not used anywhere else in the grammar.
+--
+--    ResultTypeopt ::= %Empty
+--        /.$NullAction./
+--                            | ResultType
     HasResultTypeopt ::= %Empty
         /.$NullAction./
                             | HasResultType
@@ -4779,9 +5279,15 @@ FinishExpression ::= finish ( Expression ) Block
     TypeNode ::= DepNamedType
     TypeNode ::= NamedType
     TypeNode ::= ClassType
-    TypeNode ::= InterfaceType
+--
+-- This is a useless nonterminal that is not used anywhere else in the grammar.
+--
+--    TypeNode ::= InterfaceType
     TypeNode ::= FunctionType
-    ParsedName ::= SimpleName
+--
+-- This is a useless nonterminal that is not used anywhere else in the grammar.
+--
+--    ParsedName ::= SimpleName
     PackageNode ::= PackageDeclarationopt | PackageDeclaration
     List ::= ImportDeclarationsopt | ImportDeclarations
     List ::= TypeDeclarationsopt | TypeDeclarations
@@ -4789,24 +5295,32 @@ FinishExpression ::= finish ( Expression ) Block
     Import ::= SingleTypeImportDeclaration
     Import ::= TypeImportOnDemandDeclaration
     TopLevelDecl ::= TypeDeclaration
-    List ::= ClassModifier
-            | ClassModifiers
-            | ClassModifiersopt
-    List ::= ConstructorModifier
-            | ConstructorModifiers
-            | ConstructorModifiersopt
-    List ::= FieldModifier
-            | FieldModifiers
-            | FieldModifiersopt
-    List ::= InterfaceModifier
-            | InterfaceModifiers
-            | InterfaceModifiersopt
-    List ::= MethodModifier
-            | MethodModifiers
-            | MethodModifiersopt
-    List ::= VariableModifier
-            | VariableModifiers
-            | VariableModifiersopt
+--
+-- This is a useless nonterminal that is not used anywhere else in the grammar.
+--
+--    List ::= ClassModifier
+--            | ClassModifiers
+--            | ClassModifiersopt
+--    List ::= ConstructorModifier
+--            | ConstructorModifiers
+--            | ConstructorModifiersopt
+--    List ::= FieldModifier
+--            | FieldModifiers
+--            | FieldModifiersopt
+--    List ::= InterfaceModifier
+--            | InterfaceModifiers
+--            | InterfaceModifiersopt
+--    List ::= MethodModifier
+--            | MethodModifiers
+--            | MethodModifiersopt
+--    List ::= VariableModifier
+--            | VariableModifiers
+--            | VariableModifiersopt
+--    List ::= TypeDefModifier
+--           | TypeDefModifiers
+--           | TypeDefModifiersopt
+    Modifier ::= Modifier
+    List ::= Modifiersopt | MethodModifiersopt
     ClassDecl ::= ClassDeclaration | NormalClassDeclaration
     TypeNode ::= Super | Superopt
     List ::= Interfaces | Interfacesopt | InterfaceTypeList
@@ -4823,6 +5337,9 @@ FinishExpression ::= finish ( Expression ) Block
     'Object[]' ::= FieldDeclarator
     Expr ::= VariableInitializer
     ClassMember ::= MethodDeclaration 
+--
+-- I do not think this is needed.  Review later...
+--
     ClassMember ::= PropertyMethodDeclaration 
     List ::= FormalParameterListopt | FormalParameterList 
     List ::= FormalParametersopt | FormalParameters 
@@ -4843,7 +5360,10 @@ FinishExpression ::= finish ( Expression ) Block
     ClassBody ::= InterfaceBody
     List ::= InterfaceMemberDeclarationsopt | InterfaceMemberDeclarations
     List ::= InterfaceMemberDeclaration
-    List ::= VariableInitializers
+--
+-- This is a useless nonterminal that is not used anywhere else in the grammar.
+--
+--    List ::= VariableInitializers
     Block ::= Block
     List ::= BlockStatementsopt | BlockStatements
     List ::= BlockStatement
@@ -4888,14 +5408,14 @@ FinishExpression ::= finish ( Expression ) Block
     Call ::= MethodInvocation
     Expr ::= PostfixExpression
     Unary ::= PostIncrementExpression | PostDecrementExpression
-    Expr ::= UnaryExpression | UnaryExpressionNotPlusMinus
+    Expr ::= UnaryExpression | UnaryExpressionNotPlusMinus | UnannotatedUnaryExpression
     Unary ::= PreIncrementExpression | PreDecrementExpression
     Expr ::= CastExpression
     Expr ::= MultiplicativeExpression | AdditiveExpression
     Expr ::= ShiftExpression | RelationalExpression | EqualityExpression
     Expr ::= AndExpression | ExclusiveOrExpression | InclusiveOrExpression
     Expr ::= ConditionalAndExpression | ConditionalOrExpression
-    Expr ::= ConditionalExpression | AssignmentExpression
+    Expr ::= ConditionalExpression | AssignmentExpression | FinishExpression
     Expr ::= Assignment
     Expr ::= LeftHandSide
     Assign.Operator ::= AssignmentOperator
@@ -4913,11 +5433,21 @@ FinishExpression ::= finish ( Expression ) Block
     TypeNode ::= HasResultType
     List ::= ExceptionTypeList
     TypeNode ::= ExceptionType
-    ParsedName ::= SimpleTypeName
+--
+-- This is a useless nonterminal that is not used anywhere else in the grammar.
+--
+--    ParsedName ::= SimpleTypeName
     Stmt ::= ExplicitConstructorInvocationopt
-    List ::= Argumentsopt
-           | Arguments
-    List ::= VariableInitializersopt
+    List ::= Arguments
+--
+-- This is a useless nonterminal that is not used anywhere else in the grammar.
+--
+--           | Argumentsopt
+
+--
+-- This is a useless nonterminal that is not used anywhere else in the grammar.
+--
+--    List ::= VariableInitializersopt
     List ::= SwitchBlockStatementGroupsopt
     List ::= SwitchLabelsopt
     For ::= BasicForStatement
@@ -4942,30 +5472,44 @@ FinishExpression ::= finish ( Expression ) Block
     List ::= ClockList
            | ClockedClause
            | ClockedClauseopt
-    Expr ::= RegionExpression
-    List ::= RegionExpressionList
+--
+-- This is a useless nonterminal that is not used anywhere else in the grammar.
+--
+--    Expr ::= RegionExpression
+--    List ::= RegionExpressionList
     Expr ::= PlaceExpressionSingleListopt
            | PlaceExpressionSingleList
     Stmt ::= AssignPropertyCall
     Future ::= FutureExpression
     Expr ::= AsyncExpression
-    DepParameterExpr ::= DepParametersopt
-                       | DepParameters
+    DepParameterExpr ::= DepParameters
+--
+-- This is a useless nonterminal that is not used anywhere else in the grammar.
+--
+--                     | DepParametersopt
+
     List ::= Properties | Propertiesopt 
-    List ::=  PropertyList | PropertyListopt
+    List ::=  PropertyList 
+--
+-- This is a useless nonterminal that is not used anywhere else in the grammar.
+--
+--         | PropertyListopt
     PropertyDecl ::= Property
     List ::= Annotations | Annotationsopt
     AnnotationNode ::= Annotation
     Block ::= ClosureBody
     Stmt ::= LastExpression
-    List ::= Conjunction
+    List ::= Conjunction | Conjunctionopt
     Expr ::= ClosureExpression
     List ::=  TypeArguments | TypeArgumentsopt
     TypeParamNode ::= TypeParameter
     List ::=  TypeParameterList
     List ::=  TypeParameters | TypeParametersopt
     TypeParamNode ::= TypeParamWithVariance
-    TypeNode ::= ResultTypeopt
+--
+-- This is a useless nonterminal that is not used anywhere else in the grammar.
+--
+--    TypeNode ::= ResultTypeopt
     TypeNode ::= HasResultTypeopt
     List ::=  TypeParamWithVarianceList
     List ::= TypeParamsWithVariance | TypeParamsWithVarianceopt
@@ -4973,7 +5517,6 @@ FinishExpression ::= finish ( Expression ) Block
     Id ::= Identifier
     List ::= IdentifierList
     List ::= VarKeyword | FieldKeyword
-    List ::= TypeDefModifier | TypeDefModifiers | TypeDefModifiersopt
     Expr ::= MethodSelection
     Expr ::= SubtypeConstraint
     Expr ::= RangeExpression

@@ -167,7 +167,7 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 	        }
 
 	        if (kind == SUPER) {
-	            if (! superType.isClass()) {
+	            if (! superType.isClass() && !ts.isUnknown(superType)) {
 	                throw new SemanticException("Super type of " + ct +
 	                                            " is not a class.", position());
 	            }
@@ -232,7 +232,9 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 	            args = p.snd();
 	        }
 	        catch (SemanticException e2) {
-	            throw e;
+	            Pair<ConstructorInstance,List<Expr>> p = X10New_c.findConstructor(tc, this, ct, argTypes);
+	            ci = (X10ConstructorInstance) p.fst();
+	            args = p.snd();
 	        }
 	    }
 

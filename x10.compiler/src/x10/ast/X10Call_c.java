@@ -12,30 +12,23 @@
 package x10.ast;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import polyglot.ast.Ambiguous;
-import polyglot.ast.Call;
 import polyglot.ast.Call_c;
-import polyglot.ast.ClassBody;
 import polyglot.ast.Disamb;
 import polyglot.ast.Expr;
 import polyglot.ast.Id;
 import polyglot.ast.Local;
-import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Prefix;
 import polyglot.ast.Receiver;
 import polyglot.ast.Special;
 import polyglot.ast.TypeNode;
-import polyglot.ast.Variable;
-import polyglot.main.Report;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.CodeDef;
@@ -43,40 +36,27 @@ import polyglot.types.ConstructorDef;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.Context;
 import polyglot.types.Def;
-import polyglot.types.ErrorRef_c;
 import polyglot.types.Flags;
 import polyglot.types.LazyRef;
-import polyglot.types.LocalDef;
-import polyglot.types.LocalInstance;
 import polyglot.types.Matcher;
 import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
 import polyglot.types.SemanticException;
-import polyglot.types.StructType;
 import polyglot.types.Type;
-import polyglot.types.TypeSystem;
 import polyglot.types.TypeSystem_c;
 import polyglot.types.Types;
-import polyglot.types.UnknownType;
 import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
-import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Pair;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
-import polyglot.visit.ErrorHandlingVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
-import polyglot.visit.TypeBuilder;
-import polyglot.visit.TypeChecker;
-import x10.constraint.XConstraint;
-import x10.constraint.XLocal;
 import x10.constraint.XVar;
 import x10.errors.Errors;
-import x10.errors.Errors.PlaceTypeErrorMethodShouldBeLocalOrGlobal;
-import x10.parser.X10ParsedName;
+import x10.errors.Warnings;
 import x10.types.ParameterType;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorInstance;
@@ -85,12 +65,11 @@ import x10.types.X10FieldInstance;
 import x10.types.X10Flags;
 import x10.types.X10LocalInstance;
 import x10.types.X10MemberDef;
-import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
 import x10.types.X10ParsedClassType;
-import x10.types.X10TypeSystem_c;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
+import x10.types.X10TypeSystem_c;
 import x10.types.XTypeTranslator;
 import x10.types.checker.Checker;
 import x10.types.checker.Converter;
@@ -150,17 +129,15 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 	    X10MethodInstance mi;
 	    X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
 	    X10Context context = (X10Context) tc.context();
-	    boolean haveUnknown = false;
+	    boolean haveUnknown = xts.hasUnknown(targetType);
 	    for (Type t : actualTypes) {
-	        if (t instanceof UnknownType) haveUnknown = true;
+	        if (xts.hasUnknown(t)) haveUnknown = true;
 	    }
 	    SemanticException error = null;
-	    if (!haveUnknown) {
-	        try {
-	            return findMethod(tc, context, n, targetType, name, typeArgs, actualTypes, context.inStaticContext());
-	        } catch (SemanticException e) {
-	            error = e;
-	        }
+	    try {
+	        return findMethod(tc, context, n, targetType, name, typeArgs, actualTypes, context.inStaticContext());
+	    } catch (SemanticException e) {
+	        error = e;
 	    }
 	    // If not returned yet, fake the method instance.
 	    Collection<X10MethodInstance> mis = null;
@@ -187,6 +164,8 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 	    }
 	    if (targetType == null)
 	        targetType = context.currentClass();
+	    if (haveUnknown)
+	        error = new SemanticException(); // null message
 	    mi = xts.createFakeMethod(targetType.toClass(), Flags.PUBLIC, name, typeArgs, actualTypes, error);
 	    if (rt != null) mi = mi.returnType(rt);
 	    return new Pair<MethodInstance, List<Expr>>(mi, n.arguments());
@@ -338,8 +317,9 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
     }
     
     private static Type ambMacroTypeNodeType(ContextVisitor tc, Type t, List<TypeNode> typeArgs) {
+        X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
         
-        if (t instanceof UnknownType) {
+        if (xts.isUnknown(t)) {
             return null;
         }
         
@@ -404,12 +384,12 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
     }
 
     private Receiver computeReceiver(ContextVisitor tc, X10MethodInstance mi) {
-        X10TypeSystem xts = (X10TypeSystem) ((X10TypeSystem) tc.typeSystem());
+        X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
         NodeFactory nf = tc.nodeFactory();
         X10Context c = (X10Context) tc.context();
         Position prefixPos = position().startOf().markCompilerGenerated();
         try {
-            if (mi.flags().isStatic()) {
+            if (mi.flags().isStatic() || c.inStaticContext()) {
                 Type container = findContainer(xts, mi);
                 XVar thisVar = getThis(container);
                 if (thisVar != null)
@@ -421,6 +401,10 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
                 // enclosing class which brought the method into scope.  This is
                 // different from mi.container().  mi.container() returns a super type
                 // of the class we want.
+                if (mi.error() != null) {
+                    // The method wasn't found -- assume current class.
+                    return (Special) nf.This(prefixPos).del().typeCheck(tc);
+                }
                 Type scope = c.findMethodScope(name.id());
                 if (!xts.typeEquals(scope, c.currentClass(), c)) {
                     XVar thisVar = getThis(scope);
@@ -463,14 +447,11 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 	    return null;
 	}
 
-	public Node typeCheck(ContextVisitor tc) throws SemanticException {
+	public Node typeCheck(ContextVisitor tc) {
 	    Node n;
 	    try {
 	        n = typeCheck1(tc);
 	    } catch (SemanticException e) {
-	        X10TypeChecker xtc = X10TypeChecker.getTypeChecker(tc);
-	        if (xtc.throwExceptions())
-	            throw e;
 	        Errors.issue(tc.job(), e, this);
 	        X10TypeSystem_c ts = (X10TypeSystem_c) tc.typeSystem();
 	        List<Type> typeArgs = new ArrayList<Type>(this.typeArguments.size());
@@ -576,7 +557,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 			    if (ci.error() != null) {
 			        // Check for this case:
 			        // val x = x();
-			        if (e instanceof Local && e.type() instanceof UnknownType) {
+			        if (e instanceof Local && xts.isUnknown(e.type())) {
 			            throw new SemanticException("Possible closure call on uninitialized variable " + ((Local) e).name() + ".", position());
 			        }
 			    } else {
@@ -684,7 +665,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		// if the target is null, and thus implicit, find the target using the context
 		Receiver target = this.target() == null ? computeReceiver(tc, mi) : this.target();
 
-		if (this.target() != null) {
+		if (target != null) {
 		    /* This call is in a static context if and only if
 		     * the target (possibly implicit) is a type node.
 		     */
@@ -760,7 +741,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		    }
 		}
 		catch (SemanticException e) {
-		    tc.errorQueue().enqueue(ErrorInfo.WARNING, "WARNING (should be error, but method annotations in XRX are wrong): " + e.getMessage(), position());
+		    Warnings.issue(tc.job(), "WARNING (should be error, but method annotations in XRX are wrong): " + e.getMessage(), position());
 		}
 	}
 
@@ -802,6 +783,9 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 	    if (!targetImplicit) {
 	        if (target instanceof Expr) {
 	          printSubExpr((Expr) target, w, tr);
+	        }
+	        else if (target instanceof X10CanonicalTypeNode_c) {
+	            ((X10CanonicalTypeNode_c) target).prettyPrint(w, tr, false);
 	        }
 	        else if (target != null) {
 	          print(target, w, tr);

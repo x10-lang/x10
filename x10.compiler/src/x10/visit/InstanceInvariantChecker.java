@@ -60,35 +60,45 @@ public class InstanceInvariantChecker extends NodeVisitor
     private String checkInvariants(Node n) {
         if (n == null) return "Cannot visit null";
 
-        if (isAmbiguous(n)) return "Ambiguous node found in AST";
+        if (isAmbiguous(n))
+            return "Ambiguous node found in AST";
 
         if (n instanceof Typed) {
-            if (((Typed)n).type()==null) return "Typed node is missing type";
+            if (((Typed)n).type()==null)
+                return "Typed node is missing type";
         }
         if (n instanceof ClassMember) {
-            if (((ClassMember)n).memberDef()==null) return "ClassMember missing memberDef";
+            if (((ClassMember)n).memberDef()==null)
+                return "ClassMember missing memberDef";
         }
         if (n instanceof VarDecl) {
-            if (((VarDecl)n).localDef()==null) return "VarDecl missing localDef";
+            if (((VarDecl)n).localDef()==null)
+                return "VarDecl missing localDef";
         }
         if (n instanceof ProcedureCall) {
-            if (((ProcedureCall)n).procedureInstance()==null) return "ProcedureCall missing procedureInstance";
+            if (((ProcedureCall)n).procedureInstance()==null)
+                return "ProcedureCall missing procedureInstance";
         }
         if (n instanceof NamedVariable) {
-            if (((NamedVariable)n).varInstance()==null) return "NamedVariable missing varInstance";
+            if (((NamedVariable)n).varInstance()==null)
+                return "NamedVariable missing varInstance";
         }
         if (n instanceof FieldAssign) {
-            if (((FieldAssign)n).fieldInstance()==null) return "FieldAssign missing fieldInstance";
+            if (((FieldAssign)n).fieldInstance()==null)
+                return "FieldAssign missing fieldInstance";
         }
         // x10 specific
         if (n instanceof Closure) {
-            if (((Closure)n).closureDef()==null) return "Closure missing closureDef";
+            if (((Closure)n).closureDef()==null)
+                return "Closure missing closureDef";
         }
         if (n instanceof AssignPropertyBody) {
-            if (((AssignPropertyBody)n).constructorInstance()==null) return "AssignPropertyBody missing constructorInstance";
+            if (((AssignPropertyBody)n).constructorInstance()==null)
+                return "AssignPropertyBody missing constructorInstance";
         }
         if (n instanceof SettableAssign) {
-            if (((SettableAssign)n).methodInstance()==null) return "SettableAssign missing methodInstance";
+            if (((SettableAssign)n).methodInstance()==null)
+                return "SettableAssign missing methodInstance";
         }
         return null;
     }

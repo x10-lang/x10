@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -72,7 +73,6 @@ import polyglot.types.Type;
 import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
-import polyglot.types.UnknownType;
 import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
 import polyglot.util.ErrorInfo;
@@ -81,6 +81,7 @@ import polyglot.util.Position;
 import polyglot.util.TypedList;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
+import polyglot.visit.PrettyPrinter;
 import polyglot.visit.Translator;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeCheckPreparer;
@@ -96,7 +97,9 @@ import x10.constraint.XVar;
 import x10.errors.Errors;
 import x10.extension.X10Del;
 import x10.extension.X10Del_c;
+import x10.extension.X10Ext;
 import x10.types.ConstrainedType;
+import x10.types.ConstrainedType_c;
 import x10.types.MacroType;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
@@ -107,6 +110,7 @@ import x10.types.X10Flags;
 import x10.types.X10MemberDef;
 import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
+import x10.types.X10ParsedClassType_c;
 import x10.types.X10ProcedureDef;
 import x10.types.X10TypeEnv_c;
 
@@ -138,10 +142,10 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 
 	TypeNode offerType;
 	TypeNode hasType;
-	public X10MethodDecl_c(Position pos, FlagsNode flags, 
+	public X10MethodDecl_c(X10NodeFactory nf, Position pos, FlagsNode flags, 
 			TypeNode returnType, Id name,
 			List<TypeParamNode> typeParams, List<Formal> formals, DepParameterExpr guard, List<TypeNode> throwTypes, TypeNode offerType, Block body) {
-		super(pos, flags, returnType instanceof HasTypeNode_c ? ((X10NodeFactory) Globals.NF()).UnknownTypeNode(returnType.position()) : returnType, 
+		super(pos, flags, returnType instanceof HasTypeNode_c ? nf.UnknownTypeNode(returnType.position()) : returnType, 
 				name, formals, throwTypes, body);
 		this.guard = guard;
 		this.typeParameters = TypedList.copyAndCheck(typeParams, TypeParamNode.class, true);
@@ -390,7 +394,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 				final LazyRef<Type> r = (LazyRef<Type>) tn.typeRef();
 				TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo(), true);
 				tc = (TypeChecker) tc.context(tcp.context().freeze());
-				r.setResolver(new TypeCheckReturnTypeGoal(this, body, tc, r, true));
+				r.setResolver(new TypeCheckReturnTypeGoal(this, body, tc, r));
 			}
 		}
 		return super.setResolverOverride(parent, v);
@@ -846,7 +850,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 			DepParameterExpr processedWhere = (DepParameterExpr) nn.visitChild(nn.guard(), childtc);
 			nn = (X10MethodDecl) nn.guard(processedWhere);
 
-			VarChecker ac = new VarChecker(childtc.job(), Globals.TS(), Globals.NF());
+			VarChecker ac = new VarChecker(childtc.job());
 			ac = (VarChecker) ac.context(childtc.context());
 			processedWhere.visit(ac);
 
@@ -946,7 +950,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 				final TypeNode h = (TypeNode) nn.visitChild(((X10MethodDecl_c) nn).hasType, childtc1);
 				Type hasType = PlaceChecker.ReplaceHereByPlaceTerm(h.type(), ( X10Context ) childtc1.context());
 				nn = (X10MethodDecl) ((X10MethodDecl_c) nn).hasType(h);
-				if (! Globals.TS().isSubtype(type, hasType, tc.context())) {
+				if (! xts.isSubtype(type, hasType, tc.context())) {
 					Errors.issue(tc.job(),
 							new Errors.TypeIsNotASubtypeOfTypeBound(type, hasType, position()));
 				}
@@ -976,10 +980,10 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 
 		if (nn.returnType() instanceof UnknownTypeNode) {
 			NodeFactory nf = tc.nodeFactory();
-			TypeSystem ts = tc.typeSystem();
+			X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 			// Body had no return statement.  Set to void.
 			Type t;
-			if (! (((Ref<Type>) nn.returnType().typeRef()).getCached() instanceof UnknownType)) {
+			if (! ts.isUnknown(((Ref<Type>) nn.returnType().typeRef()).getCached())) {
 				t = ((Ref<Type>) nn.returnType().typeRef()).getCached();
 			}
 			else {
@@ -1003,4 +1007,52 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		n = n.offerType(ot);
 		return n;
 	}
+
+    /** Write the method to an output file. */
+    public void prettyPrintHeader(CodeWriter w, PrettyPrinter tr) {
+        w.begin(0);
+        for (Iterator<AnnotationNode> i = (((X10Ext) this.ext()).annotations()).iterator(); i.hasNext(); ) {
+            AnnotationNode an = i.next();
+            an.prettyPrint(w, tr);
+            w.allowBreak(0, " ");
+        }
+        print(flags, w, tr);
+        w.write("def " + name + "(");
+    
+        w.allowBreak(2, 2, "", 0);
+        w.begin(0);
+    
+        for (Iterator<Formal> i = formals.iterator(); i.hasNext(); ) {
+            Formal f = i.next();
+            
+            print(f, w, tr);
+    
+            if (i.hasNext()) {
+            w.write(",");
+            w.allowBreak(0, " ");
+            }
+        }
+    
+        w.end();
+        w.write("):");
+        w.allowBreak(2, 2, "", 1);
+        print(returnType, w, tr);
+    
+        if (! throwTypes().isEmpty()) {
+            w.allowBreak(6);
+            w.write("throws ");
+    
+            for (Iterator i = throwTypes().iterator(); i.hasNext(); ) {
+                TypeNode tn = (TypeNode) i.next();
+            print(tn, w, tr);
+    
+            if (i.hasNext()) {
+                w.write(",");
+                w.allowBreak(4, " ");
+            }
+            }
+        }
+    
+        w.end();
+    }
 }

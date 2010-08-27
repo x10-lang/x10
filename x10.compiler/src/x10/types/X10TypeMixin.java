@@ -374,17 +374,14 @@ public class X10TypeMixin {
     	return type.makeProto();
     	
     }
-    public static Type addBinding(Type t, XTerm t1, XTerm t2) {
+    public static Type addBinding(Type t, XTerm t1, XTerm t2) throws XFailure {
     	//assert (! (t instanceof UnknownType));
-        try {
+       
             CConstraint c = xclause(t);
             c = c == null ? new CConstraint() :c.copy();
             c.addBinding(t1, t2);
             return xclause(X10TypeMixin.baseType(t), c);
-        }
-        catch (XFailure f) {
-            throw new InternalCompilerError("Cannot bind " + t1 + " to " + t2 + ".", f);
-        }
+      
     }
 	public static Type instantiateSelf(XTerm t, Type type) {
 	 	assert (! (t instanceof UnknownType));
@@ -431,7 +428,6 @@ public class X10TypeMixin {
         }
     }
     public static Type addConstraint(Type t, CConstraint xc) {
-    	assert (! (t instanceof UnknownType));
         try {
             CConstraint c = xclause(t);
             c = c == null ? new CConstraint() :c.copy();
@@ -550,28 +546,29 @@ public class X10TypeMixin {
     }
 
     public static X10PrimitiveType promote(Unary.Operator op, X10PrimitiveType t) throws SemanticException {
-        TypeSystem ts = t.typeSystem();
+        X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
         X10PrimitiveType pt = (X10PrimitiveType) ts.promote(t);
-        return (X10PrimitiveType) xclause(X10TypeMixin.baseType(pt), promoteClause(op, xclause(t)));
+        return (X10PrimitiveType) xclause(X10TypeMixin.baseType(pt), 
+        		promoteClause(ts, op, xclause(t)));
     }
 
-    public static CConstraint promoteClause(polyglot.ast.Unary.Operator op, CConstraint c) {
+    public static CConstraint promoteClause(X10TypeSystem ts, polyglot.ast.Unary.Operator op, CConstraint c) {
         if (c == null)
             return null;
-        X10TypeSystem ts = (X10TypeSystem) Globals.TS();
+   
         return ts.xtypeTranslator().unaryOp(op, c);
     }
 
     public static X10PrimitiveType promote(Binary.Operator op, X10PrimitiveType t1, X10PrimitiveType t2) throws SemanticException {
-        TypeSystem ts = t1.typeSystem();
+        X10TypeSystem ts = (X10TypeSystem) t1.typeSystem();
         X10PrimitiveType pt = (X10PrimitiveType) ts.promote(t1, t2);
-        return (X10PrimitiveType) xclause(X10TypeMixin.baseType(pt), promoteClause(op, xclause(t1), xclause(t2)));
+        return (X10PrimitiveType) xclause(X10TypeMixin.baseType(pt), 
+        		promoteClause(ts, op, xclause(t1), xclause(t2)));
     }
 
-    public static CConstraint promoteClause(Operator op, CConstraint c1, CConstraint c2) {
+    public static CConstraint promoteClause(X10TypeSystem ts, Operator op, CConstraint c1, CConstraint c2) {
         if (c1 == null || c2 == null)
             return null;
-        X10TypeSystem ts = (X10TypeSystem) Globals.TS();
         return ts.xtypeTranslator().binaryOp(op, c1, c2);
     }
 
@@ -1099,7 +1096,7 @@ public class X10TypeMixin {
 			X10ParsedClassType xt1 = (X10ParsedClassType) xt;
 			
 			if (xt1.subst() == null || xt1.subst().isMissingParameters()){
-			List<ParameterType> expectedArgs = ((X10ClassDef) xt1.def()).typeParameters();
+				List<ParameterType> expectedArgs = ((X10ClassDef) xt1.def()).typeParameters();
 				throw new Errors.TypeIsMissingParameters(xt, expectedArgs, pos);
 			}
 		}

@@ -89,8 +89,8 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 	 * @param op
 	 * @param right
 	 */
-    public SettableAssign_c(Position pos, Expr array, List<Expr> index, Operator op, Expr right) {
-		super(pos, op, right);
+    public SettableAssign_c(X10NodeFactory nf, Position pos, Expr array, List<Expr> index, Operator op, Expr right) {
+		super(nf, pos, op, right);
 		if (index.size() < 1)
 		assert index.size() >= 1;
 		this.array = array;
@@ -102,7 +102,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 	    return mi.formalTypes().get(0);
 	}
 
-	public Expr left(NodeFactory nf) {
+	public Expr left() {
 		return left(nf, null);
 	}
 	//@Override
@@ -261,7 +261,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 		            throw mi.error();
 		        Type bt = X10TypeMixin.baseType(array.type());
 		        boolean arrayP = xts.isX10Array(bt) || xts.isX10DistArray(bt);
-		        throw new Errors.CannotAssignToElement(leftToString(), arrayP, right, X10TypeMixin.arrayElementType(array.type()), position());
+		        Errors.issue(tc.job(), new Errors.CannotAssignToElement(leftToString(), arrayP, right, X10TypeMixin.arrayElementType(array.type()), position(), mi.error()));
 		    }
 		}
 
@@ -275,7 +275,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 		if (ami.error() != null) {
 		    Type bt = X10TypeMixin.baseType(array.type());
 		    boolean arrayP = xts.isX10Array(bt) || xts.isX10DistArray(bt);
-		    throw new Errors.CannotAssignToElement(leftToString(), arrayP, right, X10TypeMixin.arrayElementType(array.type()), position());
+		    Errors.issue(tc.job(), new Errors.CannotAssignToElement(leftToString(), arrayP, right, X10TypeMixin.arrayElementType(array.type()), position(), ami.error()));
 		}
 
 		if (op != Assign.ASSIGN) {
@@ -293,7 +293,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 		}
 
 		if (mi.flags().isStatic() ) {
-		    throw new Errors.AssignSetMethodCantBeStatic(mi, array, position());
+		    Errors.issue(tc.job(), new Errors.AssignSetMethodCantBeStatic(mi, array, position()));
 		}
 
 		SettableAssign_c a = this;

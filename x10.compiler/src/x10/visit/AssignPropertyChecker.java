@@ -225,7 +225,7 @@ public class AssignPropertyChecker extends DataFlow {
 		return createItem(min, max); 
 	}
 	
-	public void check(FlowGraph graph, Term n, boolean entry, Item inItem, Map outItems) throws SemanticException {
+	public void check(FlowGraph graph, Term n, boolean entry, Item inItem, Map outItems) {
                 if (entry)
                     return;
 
@@ -238,8 +238,9 @@ public class AssignPropertyChecker extends DataFlow {
 				if (outItem != null) {
 					if (outItem.max == DataFlowItem.MANY) {
 						// This should be caught by InitChecker, but report it here just in case.
-						throw new SemanticException("The constructor may have initialized properties more than once.  There is a path with more than one property(...) statement or this(...) call.",
+						reportError("The constructor may have initialized properties more than once.  There is a path with more than one property(...) statement or this(...) call.",
 								cd.position());
+                        return;
 					}
 					
 					if (!needsProperty() || outItem.min != DataFlowItem.ZERO) {
@@ -250,7 +251,7 @@ public class AssignPropertyChecker extends DataFlow {
 				}
 			}
 
-			throw new SemanticException("The constructor incorrectly initializes properties.  There is a path without a property(...) statement or this(...) call.",
+			reportError("The constructor incorrectly initializes properties.  There is a path without a property(...) statement or this(...) call.",
 					cd.position());
 		}
 	}

@@ -2373,7 +2373,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        opString = opString.substring(1);
 	    }
 
-	    Expr lhs = asgn.left(nf);
+	    Expr lhs = asgn.left();
 	    Expr rhs = asgn.right();
 	    if (unsigned_op) {
 	        sw.write("("+Emitter.translateType(asgn.type())+")(");

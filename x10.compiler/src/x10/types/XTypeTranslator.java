@@ -38,7 +38,6 @@ import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
-import polyglot.types.UnknownType;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import x10.ast.Contains;
@@ -587,7 +586,7 @@ public class XTypeTranslator {
 			return trans(c, (Variable) term, xc);
 		if (term instanceof X10Special)
 			return trans(c, (X10Special) term, xc);
-		if (term instanceof Expr && term.type() instanceof UnknownType)
+		if (term instanceof Expr && ts.isUnknown(term.type()))
 			return null;
 		if (term instanceof Expr) {
 			Expr e = (Expr) term;

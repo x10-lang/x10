@@ -41,9 +41,9 @@ public class CF9 extends x10Test{
             finalResult = finish (b) {
             result = finish(b) {
             ateach(p in Dist.makeUnique()){
-                      var case :Totals2 =new  Totals2(1,2);
+                      var case_ :Totals2 =new  Totals2(1,2);
                       for (var i:Int = 0; i < iteration; i++)
-                      offer case;
+                      offer case_;
              }
             };
             var newCase :Totals2 =new  Totals2(2,2);

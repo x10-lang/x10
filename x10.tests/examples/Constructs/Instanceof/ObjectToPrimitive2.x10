@@ -20,8 +20,8 @@ public class ObjectToPrimitive2 extends x10Test {
 	public def run(): boolean = {
 		var array: Rail[X10DepTypeClassOneB]!
 		= Rail.make[X10DepTypeClassOneB](1, (int):X10DepTypeClassOneB=>null);
-		var var: x10.lang.Any = array(0);
-		return !(var instanceof X10DepTypeClassOneB);
+		var var_: x10.lang.Any = array(0);
+		return !(var_ instanceof X10DepTypeClassOneB);
 	}
 	
 	public static def main(Rail[String])  {

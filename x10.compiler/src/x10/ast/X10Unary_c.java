@@ -35,7 +35,6 @@ import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
-import polyglot.types.UnknownType;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import x10.errors.Errors;
@@ -78,7 +77,6 @@ public class X10Unary_c extends Unary_c {
     public Node typeCheck(ContextVisitor tc) throws SemanticException {
         X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
         X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
-        Type t = expr.type();
         Unary.Operator op = this.operator();
 
         if (op == NEG && expr instanceof IntLit) {
@@ -174,6 +172,11 @@ public class X10Unary_c extends Unary_c {
             }
         }
 
+        Type t = expr.type();
+
+        if (ts.hasUnknown(t))
+            throw new SemanticException(); // null message
+
         X10Unary_c n = (X10Unary_c) super.typeCheck(tc);
 
         Type resultType = n.type();
@@ -261,7 +264,7 @@ public class X10Unary_c extends Unary_c {
                     if (bestmd == md) continue;  // same method by a different path (shouldn't happen for unary)
 
                     Type besttd = Types.get(bestmd.container());
-                    if (besttd instanceof UnknownType || td instanceof UnknownType) {
+                    if (xts.isUnknown(besttd) || xts.isUnknown(td)) {
                         best.add(n1);
                         continue;
                     }

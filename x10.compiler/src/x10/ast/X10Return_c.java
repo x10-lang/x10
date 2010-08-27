@@ -31,14 +31,15 @@ import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
-import polyglot.types.UnknownType;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
+import x10.Configuration;
 import x10.constraint.XEQV;
 import x10.constraint.XFailure;
 import x10.constraint.XLocal;
 import x10.constraint.XTerms;
+import x10.errors.Errors;
 import x10.types.ClosureDef;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
@@ -251,10 +252,6 @@ public class X10Return_c extends Return_c {
                 throw new InternalCompilerError("Null return type for " + fi);
             }
             
-            if (returnType instanceof UnknownType) {
-                throw new SemanticException();
-            }
-
 //            if (fi instanceof X10MemberDef) {
 //                XRoot classThisVar = ((X10ClassDef) c.currentClassDef()).thisVar();
 //                XRoot methodThisVar = ((X10MemberDef) fi).thisVar();

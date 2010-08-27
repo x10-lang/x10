@@ -28,23 +28,27 @@ import polyglot.ast.Block;
 import polyglot.ast.Call;
 import polyglot.ast.Call_c;
 import polyglot.ast.ClassDecl;
+import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Expr;
+import polyglot.ast.Ext;
 import polyglot.ast.Field;
+import polyglot.ast.FieldAssign;
 import polyglot.ast.FieldDecl;
 import polyglot.ast.Formal;
 import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
+import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Return;
 import polyglot.ast.Special;
 import polyglot.ast.Stmt;
+import polyglot.ast.TopLevelDecl;
 import polyglot.ast.TypeNode;
 import polyglot.frontend.Job;
 import polyglot.frontend.Source;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorInstance;
-import polyglot.types.Context;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.FunctionDef;
@@ -68,19 +72,26 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.ErrorHandlingVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.AnnotationNode;
+import x10.ast.AssignPropertyBody;
 import x10.ast.Closure;
 import x10.ast.ClosureCall;
 import x10.ast.DepParameterExpr;
 import x10.ast.ParExpr;
+import x10.ast.SettableAssign;
 import x10.ast.StmtExpr;
 import x10.ast.X10Call;
 import x10.ast.X10Call_c;
+import x10.ast.X10ConstructorCall;
+import x10.ast.X10FieldAssign_c;
 import x10.ast.X10Formal;
 import x10.ast.X10MethodDecl;
+import x10.ast.X10New;
 import x10.ast.X10NodeFactory;
+import x10.ast.X10SourceFile_c;
 import x10.ast.X10Special;
 import x10.constraint.XFailure;
 import x10.constraint.XTerms;
+import x10.errors.Warnings;
 import x10.extension.X10Ext;
 import x10.optimizations.ForLoopOptimizer;
 import x10.types.AnnotatedType;
@@ -91,11 +102,12 @@ import x10.types.MacroType;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
+import x10.types.X10ConstructorDef;
+import x10.types.X10ConstructorInstance;
 import x10.types.X10FieldInstance;
 import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
 import x10.types.X10ParsedClassType;
-import x10.types.X10ProcedureDef;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.checker.Converter;
@@ -119,8 +131,11 @@ import x10.types.checker.Converter;
  */
 public class Inliner extends ContextVisitor {
 
+    private static final boolean DEBUG = false;
+ // private static final boolean DEBUG = true;
+
     /**
-     * This constantcontrols accesses to inaccessible fields.
+     * This constant controls accesses to inaccessible fields.
      */
     private static final boolean ALLOW_STMTEXPR = true;
 
@@ -186,21 +201,21 @@ public class Inliner extends ContextVisitor {
             InlineType = (Type) ts.systemResolver().find(INLINE_ANNOTATION);
         }
         catch (SemanticException e) {
-            System.out.println("Unable to find " +INLINE_ANNOTATION+ ": "+e);
+            System.err.println("Unable to find " +INLINE_ANNOTATION+ ": "+e);
             InlineType = null;
         }
         try {
             InlineOnlyType = (Type) ts.systemResolver().find(INLINE_ONLY_ANNOTATION);
         }
         catch (SemanticException e) {
-            System.out.println("Unable to find " +INLINE_ONLY_ANNOTATION+ ": "+e);
+            System.err.println("Unable to find " +INLINE_ONLY_ANNOTATION+ ": "+e);
             InlineOnlyType = null;
         }
         try {
             NoInlineType = (Type) ts.systemResolver().find(NO_INLINE_ANNOTATION);
         }
         catch (SemanticException e) {
-            System.out.println("Unable to find " +NO_INLINE_ANNOTATION+ ": "+e);
+            System.err.println("Unable to find " +NO_INLINE_ANNOTATION+ ": "+e);
             NoInlineType = null;
         }
         return super.begin();
@@ -314,8 +329,14 @@ public class Inliner extends ContextVisitor {
         }
         // TODO ASK: is there an easier way to get form a def to a job (or an AST)?
         X10ClassDef container = getContainer(def);
+        if (DEBUG) System.err.println();
+        if (DEBUG) System.err.println("DEBUG: Inliner.getInlineDecl: cal =\t" +c);
+        if (DEBUG) System.err.println("DEBUG: Inliner.getInlineDecl: pos =\t" +c.position());
+        if (DEBUG) System.err.println("DEBUG: Inliner.getInlineDecl: def =\t" +def);
         decl = getDeclaration(def, container);
         if (null == decl) {
+            if (!def.annotationsMatching(InlineType).isEmpty()) 
+                Warnings.issue(job, "Unable to inline " + c, c.position());
             dontInline.add(def);
             return null;
         }
@@ -418,9 +439,33 @@ public class Inliner extends ContextVisitor {
 
     private LocalDecl createThisArg(X10Call c) {
         if (!(c.target() instanceof Expr)) return null;
+        Expr target = (Expr) c.target();
+        if (target instanceof Special && ((Special) target).kind() == Special.SUPER) {
+            target = rewriteSuperAsThis((Special) target);
+        }
         LocalDef def  = xts.localDef(c.target().position(), xts.Final(), Types.ref(c.target().type()), Name.make("target"));
-        LocalDecl ths = syn.createLocalDecl(c.target().position(), def, (Expr) c.target());
+        LocalDecl ths = syn.createLocalDecl(c.target().position(), def, target);
         return ths;
+    }
+
+    /*
+     * In general, when the body of one method is inlined into the body of another,
+     * the keywords "this" and "super" loose their meanings.  InlineRewriter deals
+     * with the case of "this".  It complains, if it encounters "super".  Rewriting
+     * "super" as "(this as ST)" won't work because we loose the fact that the call
+     * is non-virtual. 
+     * 
+     * However, this rewrite can be used to handle the "this parameter" when inlining
+     * calls of the form "super.foo()" (because the method instance has already been
+     * resolved).  (Java does not allow the bare keyword "super" to occur where an 
+     * expression is required.  It does, of course, allow "this" to be so used.  It just
+     * needs to be coersed to the right type.)
+     */
+    private Special rewriteSuperAsThis(Special special) {
+        assert (special.kind() == Special.SUPER) : "Unexpected special kind: " + special;
+        Special result = xnf.Special(special.position(), Special.THIS, special.qualifier());
+        result = (Special) result.type(special.type());
+        return result;
     }
 
     private LocalDecl createThisFormal(X10MethodInstance mi, LocalDecl init) {
@@ -467,7 +512,24 @@ public class Inliner extends ContextVisitor {
         }
         Node ast = job.ast();
         if (job != this.job()) {
-            ast = ast.visit(new X10TypeChecker(job, ts, nf, job.nodeMemo()).begin());
+            if (ast instanceof X10SourceFile_c) {
+                X10SourceFile_c sf = (X10SourceFile_c) ast;
+                for (TopLevelDecl tld : sf.decls()) {
+                    Ext x = tld.ext();
+                    if (x.node() instanceof AnnotationNode){
+                        AnnotationNode an = (AnnotationNode) x.node();
+                        if (DEBUG) System.err.println("DEBUG: Inliner.getDeclaration: ann = " +an+ " (" +an.annotationType()+ ")");
+                    }
+                }
+                // TODO: don't visit native classes
+                // return null;
+            }
+            try {
+            ast = ast.visit(new X10TypeChecker(job, ts, nf, job.nodeMemo()).begin()); 
+            } catch (Exception e) {
+                if (DEBUG) System.err.println("Unable to typeCheck " +job+ " to inline " +md+ " exception: " +e);
+                return null;
+            }
         }
         final X10MethodDecl[] decl = new X10MethodDecl[1];
         ast.visit(new NodeVisitor() { // find the declaration of md
@@ -508,7 +570,7 @@ public class Inliner extends ContextVisitor {
         Job job = xts.extensionInfo().scheduler().addJob(source);
         return job;
     }
-    
+
 /*
     private Type instantiate(X10MethodInstance mi, ParameterType t) {
         List<Ref<? extends Type>> mParms = mi.x10Def().typeParameters();
@@ -569,7 +631,7 @@ public class Inliner extends ContextVisitor {
     private Type instantiate(X10MethodInstance mi, X10ParsedClassType t) { // TODO
         List<Type> initialTypes = t.typeArguments();
         if (null != initialTypes) {
-            List<Type> finalTypes   = new ArrayList<Type>();
+            List<Type> finalTypes = new ArrayList<Type>();
             for (Type type : initialTypes) {
                 finalTypes.add(instantiate(mi, type));
             }
@@ -595,31 +657,71 @@ public class Inliner extends ContextVisitor {
         return (Type) t.copy();
     }
 
-
     private X10MethodInstance instantiate(X10MethodInstance mi, X10MethodInstance methodInstance) {
         X10MethodInstance resultInstance = (X10MethodInstance) methodInstance.copy();
         resultInstance = methodInstance.returnType(instantiate(mi, resultInstance.returnType()));
-        // TODO: handle throws types
+        List<Type> formalTypes = new ArrayList<Type>();
+        for (Type f : methodInstance.formalTypes()) {
+            Type type = instantiate(mi, f);
+            formalTypes.add(type);
+        }
+        resultInstance = (X10MethodInstance) resultInstance.formalTypes(formalTypes);
+        List<Type> throwTypes = new ArrayList<Type>();
+        for (Type t :  methodInstance.throwTypes()) {
+            Type type = instantiate(mi, t);
+            throwTypes.add(type);
+        }
+        resultInstance = (X10MethodInstance) resultInstance.throwTypes(throwTypes);
+        // TODO: handle offer type(s)
+        return resultInstance;
+    }
+
+    private X10ConstructorInstance instantiate(X10MethodInstance mi, X10ConstructorInstance constructorInstance) {
+        X10ConstructorInstance resultInstance = (X10ConstructorInstance) constructorInstance.copy();
+        resultInstance = constructorInstance.returnType(instantiate(mi, resultInstance.returnType()));
         List<Type> formalTypes = new ArrayList<Type>();
         List<Ref<? extends Type>> typeParameters = new ArrayList<Ref<? extends Type>>();
-        for (Type f : methodInstance.formalTypes()) {
+        for (Type f : constructorInstance.formalTypes()) {
             Type type = instantiate(mi, f);
             formalTypes.add(type);
             typeParameters.add(Types.ref(type));
         }
-        resultInstance = (X10MethodInstance) resultInstance.formalTypes(formalTypes);
-        // ((X10ProcedureDef) resultInstance.def()).setTypeParameters(typeParameters);
-        List<Type> resultTypes = resultInstance.formalTypes();
-        
+        resultInstance = (X10ConstructorInstance) resultInstance.formalTypes(formalTypes);
+        List<Type> throwTypes = new ArrayList<Type>();
+        for (Type t :  constructorInstance.throwTypes()) {
+            Type type = instantiate(mi, t);
+            throwTypes.add(type);
+        }
+        resultInstance = (X10ConstructorInstance) resultInstance.throwTypes(throwTypes);
+        // TODO: handle offer type(s)
         return resultInstance;
     }
 
     private X10FieldInstance instantiate(X10MethodInstance mi, X10FieldInstance fieldInstance) {
-        Type type = fieldInstance.type();
-        Type type2 = instantiate(mi, type);
-        if (!type.typeEquals(type2, context()))
-            return fieldInstance.type(type2);
-        return fieldInstance;
+        return fieldInstance.type(instantiate(mi, fieldInstance.type()));
+    }
+
+    /**
+     * @param mi
+     * @param constructorInstance
+     * @return
+     */
+    protected ConstructorInstance instantiate(X10MethodInstance mi, ConstructorInstance constructorInstance) {
+        X10ConstructorInstance resultInstance = (X10ConstructorInstance) constructorInstance.copy();
+        List<Type> formalTypes = new ArrayList<Type>();
+        for (Type f : constructorInstance.formalTypes()) {
+            Type type = instantiate(mi, f);
+            formalTypes.add(type);
+        }
+        resultInstance = (X10ConstructorInstance) resultInstance.formalTypes(formalTypes);
+        List<Type> throwTypes = new ArrayList<Type>();
+        for (Type t :  constructorInstance.throwTypes()) {
+            Type type = instantiate(mi, t);
+            throwTypes.add(type);
+        }
+        resultInstance = (X10ConstructorInstance) resultInstance.throwTypes(throwTypes);
+        // TODO: handle offer type(s)???
+        return resultInstance;
     }
 
     private X10MethodDecl instantiate(final X10MethodDecl decl, X10Call c) {
@@ -628,41 +730,71 @@ public class Inliner extends ContextVisitor {
         return (X10MethodDecl) decl.visit(new ContextVisitor(job, ts, nf) {
             protected Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
                 if (n instanceof TypeNode) {
-                    Type type = ((TypeNode) n).type();
-                    Type iType = instantiate(mi, type);
-                    if (iType != type) { // conservative compare detects changes in substructure
-                        return ((TypeNode) n).typeRef(Types.ref(iType));
-                    }
-                    return n;
+                    return ((TypeNode) n).typeRef(Types.ref(instantiate(mi, ((TypeNode) n).type())));
                 }
                 if (n instanceof Expr) {
-                    Expr e = (Expr) n;
-                    Expr ie = e.type(instantiate(mi, e.type()));
-                    if (ie instanceof X10Call) {
-                        X10Call c = (X10Call) ie;
-                        if (c.isTargetImplicit()) {
-                            c = (X10Call) c.targetImplicit(false);
+                    Expr e = ((Expr) n).type(instantiate(mi, ((Expr) n).type()));
+                    if (e instanceof Special) {
+                        if (((Special) e).kind().equals(Special.SUPER)) {
+                            assert (false) : "Not yet implemented, can't instantiate " +e;
                         }
-                        X10MethodInstance methodInstance = (X10MethodInstance) c.methodInstance();
-                        methodInstance = instantiate(mi, methodInstance);
-                        c = (X10Call) c.methodInstance(methodInstance);
-                        // c = (X10Call) c.typeCheck(this); // can't do this since we inline method that refer to private fields
-                        return c;
-                    } else if (ie instanceof Field) {
-                        Field f = (Field) ie;
-                        if (f.isTargetImplicit()) {
-                            f = f.targetImplicit(false);
+                        return e;
+                    } else if (e instanceof Local) {
+                        Local l = (Local) e;
+                        LocalDef ld = vars.get(l.name().id());
+                        if (ld != null) {
+                            return l.localInstance(ld.asInstance());
                         }
+                        return l;
+                    } else if (e instanceof Field) {
+                        Field f = (Field) e;
+                        f = f.targetImplicit(false);
                         f = f.fieldInstance(instantiate(mi, (X10FieldInstance) f.fieldInstance()));
                         // f = (Field) f.typeCheck(this); // can we do this ??
                         return f;
-                    } else if (ie instanceof Local) {
-                        LocalDef ld = vars.get(((Local) ie).name().id());
-                        if (ld != null) {
-                            return ((Local) ie).localInstance(ld.asInstance());
-                        }
+                    } else if (e instanceof Call) {
+                        X10Call c = (X10Call) e;
+                        c = (X10Call) c.targetImplicit(false);
+                        c = (X10Call) c.methodInstance(instantiate(mi, (X10MethodInstance) c.methodInstance()));
+                     // c = (X10Call) c.typeCheck(this); // can't do this since we inline method that refer to private fields
+                        return c;
+                    } else if (e instanceof New) {
+                        X10New x = (X10New) n;
+                        x = (X10New) x.type(instantiate(mi, x.type()));
+                        x = (X10New) x.constructorInstance(instantiate(mi, (X10ConstructorInstance) x.constructorInstance()));
+                        // x = (X10New) x.typeCheck(this); // can't do this since we inline method that refer to private fields
+                        return x;
+                    } else if (e instanceof ClosureCall) {
+                        ClosureCall c = (ClosureCall) e;
+                        c = c.closureInstance(instantiate(mi, c.closureInstance()));
+                        assert (false) : "Not yet implemented.";
+                     // c = (X10ClosureCall) c.typeCheck(this); // can't do this since we inline method that refer to private fields
+                        return c;
+                    } else if (e instanceof X10ConstructorCall) {
+                        X10ConstructorCall c = (X10ConstructorCall) n;
+                        c = (X10ConstructorCall) c.constructorInstance(instantiate(mi, c.constructorInstance()));
+                        assert (false) : "Not yet implemented.";
+                     // x = (X10ConstructorCall) x.typeCheck(this); // can't do this since we inline method that refer to private fields
+                        return c;
+                    } else if (e instanceof SettableAssign) {
+                        SettableAssign a = (SettableAssign) n;
+                        a = (SettableAssign) a.type(instantiate(mi, a.type()));
+                        assert (false) : "Not yet implemented, can't instantiate " +e;
+                        return a;
+                    } else if (e instanceof FieldAssign) {
+                        X10FieldAssign_c f = (X10FieldAssign_c) n;
+                        f = (X10FieldAssign_c) f.type(instantiate(mi, f.type()));
+                        assert (false) : "Not yet implemented, can't instantiate " +e;
+                        return f;
+                    } else if (e instanceof AssignPropertyBody) {
+                        AssignPropertyBody b = (AssignPropertyBody) n;
+                        List<FieldInstance> fieldInstances =b.fieldInstances();
+                        X10ConstructorDef def = b.constructorInstance();
+                        assert (false) : "Not yet implemented, can't instantiate " +e;
+                        // TODO: ASK IGOR: how to handle AssignPropertyBody
+                        return b;
                     }
-                    return ie;
+                    return e;
                 }
                 if (n instanceof LocalDecl) {
                     LocalDecl d = (LocalDecl) n;
@@ -674,6 +806,7 @@ public class Inliner extends ContextVisitor {
                         vars.put(name, ild); // FIXME: scoping // TODO: understand this issue
                         return d.localDef(ild);
                     }
+                    return d;
                 }
                 if (n instanceof Formal) {
                     Formal f = (Formal) n;
@@ -685,6 +818,7 @@ public class Inliner extends ContextVisitor {
                         vars.put(name, ild);
                         return f.localDef(ild);
                     }
+                    return f;
                 }
                 if (n instanceof ClassDecl) {
                     ClassDecl d = (ClassDecl) n;
@@ -697,13 +831,23 @@ public class Inliner extends ContextVisitor {
                     if (sigChanged) {
                         throw new InternalCompilerError("Inlining of code with instantiated local classes not supported");
                     }
+                    return d;
                 }
                 if (n instanceof FieldDecl) {
                     FieldDecl d = (FieldDecl) n;
-                    
+                    assert (false) : "Not yet implemented, can't instantiate " +n;
                     return d;
                 }
-                // TODO: handle fieldDecl (X10FieldDecl, PropertyDecl), ClosureLit, classDecl, constructorDecl, 
+                if (n instanceof Closure) {
+                    Closure c = (Closure) n;
+                    assert (false) : "Not yet implemented, can't instantiate " +n;
+                    return c;
+                }
+                if (n instanceof ConstructorDecl) {
+                    ConstructorDecl c = (ConstructorDecl) n;
+                    assert (false) : "Not yet implemented, can't instantiate " +n;
+                    return c;
+                }
                 if (n instanceof X10MethodDecl) {
                     X10MethodDecl d = (X10MethodDecl) n;
                     boolean sigChanged = d.returnType() != ((X10MethodDecl) old).returnType();
@@ -719,7 +863,8 @@ public class Inliner extends ContextVisitor {
                     }
                     sigChanged |= d.guard() != ((X10MethodDecl) old).guard();
                     List<Ref <? extends Type>> excTypes = new ArrayList<Ref<? extends Type>>();
-                    SubtypeSet excs = d.exceptions();
+                    SubtypeSet excs = 
+                    	d.exceptions() == null ? new SubtypeSet(typeSystem()) : d.exceptions();
                     SubtypeSet oldExcs = ((X10MethodDecl) old).exceptions();
                     if (null != excs) {
                         for (Type et : excs) {
@@ -739,6 +884,7 @@ public class Inliner extends ContextVisitor {
                                                      ot == null ? null : ot.typeRef(), null /* the body will never be used */);
                         return d.methodDef(imd);
                     }
+                    return d;
                 }
                 return n;
             }

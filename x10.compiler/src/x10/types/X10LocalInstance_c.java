@@ -22,7 +22,6 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
-import polyglot.types.UnknownType;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import x10.constraint.XFailure;
@@ -71,7 +70,8 @@ public class X10LocalInstance_c extends LocalInstance_c implements X10LocalInsta
         assert rightType != null : "The type() for " + this + " at " + position() + " is null.";
         	rightType = PlaceChecker.ReplaceHereByPlaceTerm(rightType, x10Def().placeTerm());
         Flags flags = flags();
-        if ((! flags.isFinal())|| rightType instanceof UnknownType) {
+        X10TypeSystem xts = (X10TypeSystem) ts;
+        if ((! flags.isFinal())|| xts.isUnknown(rightType)) {
         	return rightType;
         }
         // If the local variable is final, replace T by T{self==t}, 
@@ -80,7 +80,6 @@ public class X10LocalInstance_c extends LocalInstance_c implements X10LocalInsta
         	CConstraint c = X10TypeMixin.xclause(rightType);
         	c = c==null? new CConstraint() : c.copy();
 
-        	X10TypeSystem xts = (X10TypeSystem) ts;
         	XLocal var = xts.xtypeTranslator().trans(this.type(rightType), rightType);
         	c.addSelfBinding(var);
         	rightType = X10TypeMixin.xclause(X10TypeMixin.baseType(rightType), c);
