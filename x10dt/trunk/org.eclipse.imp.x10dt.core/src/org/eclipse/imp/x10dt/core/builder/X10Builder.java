@@ -73,6 +73,7 @@ import polyglot.frontend.Source;
 import polyglot.main.Options;
 import polyglot.main.UsageError;
 import polyglot.util.AbstractErrorQueue;
+import polyglot.util.CodedErrorInfo;
 import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
@@ -498,7 +499,7 @@ public class X10Builder extends IncrementalProjectBuilder {
                 IFile errorFile= wsRoot.getFileForLocation(new Path(filePath));
 
                 if (errorFile != null)
-                    addProblemMarkerTo(errorFile, "Probable missing package declaration", IMarker.SEVERITY_ERROR, "", IMarker.PRIORITY_NORMAL, 0, 0, 0);
+                    addProblemMarkerTo(errorFile, "Probable missing package declaration", IMarker.SEVERITY_ERROR, "", IMarker.PRIORITY_NORMAL, 0, 0, 0, null);
             } else {
                 String msg= ice.getMessage();
                 X10DTCorePlugin.getInstance().writeErrorMsg("Internal X10 compiler error: " + (msg != null ? msg : ice.getClass().getName()));
@@ -826,7 +827,7 @@ public class X10Builder extends IncrementalProjectBuilder {
             		X10DTCorePlugin.getInstance().writeErrorMsg(errorInfo.getMessage());
             	else
             		addProblemMarkerTo(errorFile, errorInfo.getMessage(), severity, errorPos.nameAndLineString(), IMarker.PRIORITY_NORMAL, errorPos.line(), errorPos
-                        .offset(), errorPos.endOffset());
+                        .offset(), errorPos.endOffset(), errorInfo);
             }
         }
     }
@@ -859,7 +860,7 @@ public class X10Builder extends IncrementalProjectBuilder {
         }
     }
 
-    protected void addMarkerTo(final IFile sourceFile, final String type, final String msg, final int severity, final String loc, final int priority, final int lineNum, final int startOffset, final int endOffset) {
+    protected void addMarkerTo(final IFile sourceFile, final String type, final String msg, final int severity, final String loc, final int priority, final int lineNum, final int startOffset, final int endOffset, final ErrorInfo error) {
     	IWorkspace ws= ResourcesPlugin.getWorkspace();
     	IWorkspaceRunnable runnable= new IWorkspaceRunnable() {
             public void run(IProgressMonitor monitor) {
@@ -878,6 +879,14 @@ public class X10Builder extends IncrementalProjectBuilder {
                         marker.setAttribute(IMarker.CHAR_START, 0);
                         marker.setAttribute(IMarker.CHAR_END, 0);
                     }
+                    
+					if (error instanceof CodedErrorInfo) {
+						Map<String, Object> attributes = ((CodedErrorInfo) error)
+								.getAttributes();
+						for (String key : attributes.keySet()) {
+							marker.setAttribute(key, attributes.get(key));
+						}
+					}
                 } catch (CoreException e) {
                     X10DTCorePlugin.getInstance().writeErrorMsg("Couldn't add marker to file " + sourceFile);
                 }
@@ -890,12 +899,12 @@ public class X10Builder extends IncrementalProjectBuilder {
         }  
     }
 
-    protected void addProblemMarkerTo(IFile sourceFile, String msg, int severity, String loc, int priority, int lineNum, int startOffset, int endOffset) {
-        addMarkerTo(sourceFile, PROBLEMMARKER_ID, msg, severity, loc, priority, lineNum, startOffset, endOffset);
+    protected void addProblemMarkerTo(IFile sourceFile, String msg, int severity, String loc, int priority, int lineNum, int startOffset, int endOffset, ErrorInfo error) {
+        addMarkerTo(sourceFile, PROBLEMMARKER_ID, msg, severity, loc, priority, lineNum, startOffset, endOffset, error);
     }
 
-    protected void addTaskTo(IFile sourceFile, String msg, int severity, int priority, int lineNum, int startOffset, int endOffset) {
-        addMarkerTo(sourceFile, IMarker.TASK, msg, severity, "", priority, lineNum, startOffset, endOffset);
+    protected void addTaskTo(IFile sourceFile, String msg, int severity, int priority, int lineNum, int startOffset, int endOffset, ErrorInfo error) {
+        addMarkerTo(sourceFile, IMarker.TASK, msg, severity, "", priority, lineNum, startOffset, endOffset, error);
     }
 
     protected void addProblemMarkerTo(final IProject project, final String msg, final int severity, final int priority) {

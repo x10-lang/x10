@@ -70,7 +70,7 @@ public class CollectBookmarksGoal extends SourceGoal_c {
                     int startOffset= adjunct.getStartOffset();
                     int endOffset= adjunct.getEndOffset();
 
-                    fBuilder.addTaskTo(file, msg, IMarker.SEVERITY_INFO, IMarker.PRIORITY_NORMAL, lineNum, startOffset, endOffset);
+                    fBuilder.addTaskTo(file, msg, IMarker.SEVERITY_INFO, IMarker.PRIORITY_NORMAL, lineNum, startOffset, endOffset, null);
                 }
             }
         }
