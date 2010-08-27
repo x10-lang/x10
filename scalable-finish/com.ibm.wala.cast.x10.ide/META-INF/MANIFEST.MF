@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: X10 WALA AST Translator
-Bundle-SymbolicName: com.ibm.wala.cast.x10;singleton:=true
+Bundle-SymbolicName: com.ibm.wala.cast.x10.ide;singleton:=true
 Bundle-Version: 1.0.0
-Bundle-Activator: com.ibm.wala.cast.x10.X10Plugin
+Bundle-Activator: com.ibm.wala.cast.x10.ide.X10Plugin
 Bundle-Vendor: rfuhrer@watson.ibm.com
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.core.runtime,
