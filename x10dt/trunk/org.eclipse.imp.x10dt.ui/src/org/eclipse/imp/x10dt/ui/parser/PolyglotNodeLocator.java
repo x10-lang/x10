@@ -14,6 +14,7 @@ package org.eclipse.imp.x10dt.ui.parser;
 import lpg.runtime.ILexStream;
 import lpg.runtime.IPrsStream;
 import lpg.runtime.IToken;
+
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.imp.model.ISourceProject;
@@ -26,6 +27,8 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
+import polyglot.ast.ClassDecl;
+import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.types.Def;
 import polyglot.types.TypeObject;
@@ -161,6 +164,96 @@ public class PolyglotNodeLocator implements ISourcePositionLocator {
         }
     };
 
+    private NodeVisitor fEnclosingMethodDeclVisitor= new NodeVisitor() {
+    	private MethodDecl md = null;
+        public NodeVisitor enter(Node n) {
+            if (DEBUG) {
+            	System.out.println("Entering node type = " + n.getClass().getName());
+            	if (fLS != null)
+            		System.out.println("  first token '" + fLS.getPrsStream().getTokenAtCharacter(n.position().offset()) + "'");
+            }
+
+            NodeVisitor v = this;
+            if (n instanceof MethodDecl) {
+            	md = (MethodDecl) n;
+            	v = (NodeVisitor) this.copy();
+            }
+
+            // N.B.: Polyglot's notion of line # is 1 off from that of Eclipse's.
+            Position pos= n.position();
+
+            if (pos == null || pos.line() < 0) {
+                if (DEBUG)
+                    System.out.println("PolyglotNodeLocator.NodeVisitor.enter(Node):  node positions < 0 for node type = " + n.getClass().getName());
+                return this;
+            }
+
+            if (DEBUG)
+                System.out.println("Node extent: " + pos.offset() + " => " + pos.endOffset() + " [" + pos.line() + ":" + pos.column() + " => [" + pos.endLine() + ":" + pos.endColumn() + "]");
+            int nodeStartOffset= pos.offset();
+            int nodeEndOffset= pos.endOffset();
+            //System.out.println("Examining " + n.getClass().getName() + " node @ [" + nodeStartOffset + "->" + nodeEndOffset + ']');
+
+            if (nodeStartOffset <= fOffset && nodeEndOffset >= fEndOffset) {
+                if (DEBUG)
+                    System.out.println(" --> " + n + " (" + n.getClass().getName() + ") node @ [" + nodeStartOffset + "->" + nodeEndOffset + "] selected.");
+                fNode[0]= md;
+            }
+            return v;
+        }
+
+        // Note:  Returning null is interpreted as a signal to *not* override
+        // the given node
+        public Node override(Node n) {
+            return null;
+        }
+    };
+    
+    private NodeVisitor fEnclosingClassDeclVisitor= new NodeVisitor() {
+    	private ClassDecl cd = null;
+        public NodeVisitor enter(Node n) {
+            if (DEBUG) {
+            	System.out.println("Entering node type = " + n.getClass().getName());
+            	if (fLS != null)
+            		System.out.println("  first token '" + fLS.getPrsStream().getTokenAtCharacter(n.position().offset()) + "'");
+            }
+
+            NodeVisitor v = this;
+            if (n instanceof ClassDecl) {
+            	cd = (ClassDecl) n;
+            	v = (NodeVisitor) this.copy();
+            }
+
+            // N.B.: Polyglot's notion of line # is 1 off from that of Eclipse's.
+            Position pos= n.position();
+
+            if (pos == null || pos.line() < 0) {
+                if (DEBUG)
+                    System.out.println("PolyglotNodeLocator.NodeVisitor.enter(Node):  node positions < 0 for node type = " + n.getClass().getName());
+                return this;
+            }
+
+            if (DEBUG)
+                System.out.println("Node extent: " + pos.offset() + " => " + pos.endOffset() + " [" + pos.line() + ":" + pos.column() + " => [" + pos.endLine() + ":" + pos.endColumn() + "]");
+            int nodeStartOffset= pos.offset();
+            int nodeEndOffset= pos.endOffset();
+            //System.out.println("Examining " + n.getClass().getName() + " node @ [" + nodeStartOffset + "->" + nodeEndOffset + ']');
+
+            if (nodeStartOffset <= fOffset && nodeEndOffset >= fEndOffset) {
+                if (DEBUG)
+                    System.out.println(" --> " + n + " (" + n.getClass().getName() + ") node @ [" + nodeStartOffset + "->" + nodeEndOffset + "] selected.");
+                fNode[0]= cd;
+            }
+            return v;
+        }
+
+        // Note:  Returning null is interpreted as a signal to *not* override
+        // the given node
+        public Node override(Node n) {
+            return null;
+        }
+    };
+
     private Node fTargetNode; // Used only by getParentNode().
 
     /**
@@ -255,6 +348,72 @@ public class PolyglotNodeLocator implements ISourcePositionLocator {
         fNode[0]= null;
         fTargetNode= (Node) node;
         ((Node) root).visit(fParentNodeVisitor);
+        return fNode[0];
+    }
+
+    public Object findEnclosingMethodDecl(Object ast, int offset) {
+    	return findEnclosingMethodDecl(ast, offset, offset);
+    }
+
+    public Object findEnclosingMethodDecl(Object ast, int startOffset, int endOffset) {
+        fNode[0]= null;
+        if (DEBUG) {
+            System.out.println("Looking for method decl that contains the node spanning offsets " + startOffset + " => " + endOffset);
+        }
+        if (ast == null) return null;
+//      if (endOffset == startOffset && Character.isWhitespace(fLS.getCharValue(startOffset)))
+//        return null;
+        if (DEBUG && fLS != null) {
+            IPrsStream ps= fLS.getPrsStream();
+            if (endOffset == startOffset)
+                System.out.println("Token at this offset: '" + ps.getTokenAtCharacter(startOffset) + "'");
+            else {
+                System.out.println("Token span: '" + ps.getTokenAtCharacter(startOffset) + "' to '" + ps.getTokenAtCharacter(endOffset) + "'");
+            }
+        }
+        fOffset= startOffset;
+        fEndOffset= endOffset;
+        ((Node) ast).visit(fEnclosingMethodDeclVisitor); // assigns to fNode[0], if a suitable node is found
+        // SMS 14 Jun 2006:  Elaborated on println:
+        if (fNode[0] == null) {
+            //System.out.println("Selected node is null");
+        } else {
+            if (DEBUG)
+                System.out.println("Selected node (type): " + fNode[0] + " (" + fNode[0].getClass().getName() + ")");
+        }
+        return fNode[0];
+    }
+    
+    public Object findEnclosingClassDecl(Object ast, int offset) {
+    	return findEnclosingClassDecl(ast, offset, offset);
+    }
+
+    public Object findEnclosingClassDecl(Object ast, int startOffset, int endOffset) {
+        fNode[0]= null;
+        if (DEBUG) {
+            System.out.println("Looking for class decl that contains the node spanning offsets " + startOffset + " => " + endOffset);
+        }
+        if (ast == null) return null;
+//      if (endOffset == startOffset && Character.isWhitespace(fLS.getCharValue(startOffset)))
+//        return null;
+        if (DEBUG && fLS != null) {
+            IPrsStream ps= fLS.getPrsStream();
+            if (endOffset == startOffset)
+                System.out.println("Token at this offset: '" + ps.getTokenAtCharacter(startOffset) + "'");
+            else {
+                System.out.println("Token span: '" + ps.getTokenAtCharacter(startOffset) + "' to '" + ps.getTokenAtCharacter(endOffset) + "'");
+            }
+        }
+        fOffset= startOffset;
+        fEndOffset= endOffset;
+        ((Node) ast).visit(fEnclosingClassDeclVisitor); // assigns to fNode[0], if a suitable node is found
+        // SMS 14 Jun 2006:  Elaborated on println:
+        if (fNode[0] == null) {
+            //System.out.println("Selected node is null");
+        } else {
+            if (DEBUG)
+                System.out.println("Selected node (type): " + fNode[0] + " (" + fNode[0].getClass().getName() + ")");
+        }
         return fNode[0];
     }
 
