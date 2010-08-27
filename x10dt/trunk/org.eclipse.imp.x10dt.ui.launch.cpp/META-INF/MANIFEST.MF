@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: X10DT UI Launch
 Bundle-SymbolicName: org.eclipse.imp.x10dt.ui.launch.cpp;singleton:=true
-Bundle-Version: 2.0.5.qualifier
+Bundle-Version: 2.0.6.qualifier
 Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Require-Bundle: lpg.runtime.java,
@@ -43,4 +43,4 @@ Require-Bundle: lpg.runtime.java,
  x10.compiler
 Bundle-Activator: org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchCore
 Bundle-ActivationPolicy: lazy
-Bundle-Vendor: tibbitts@us.ibm.com
+Bundle-Vendor: x10-users@lists.sourceforge.net

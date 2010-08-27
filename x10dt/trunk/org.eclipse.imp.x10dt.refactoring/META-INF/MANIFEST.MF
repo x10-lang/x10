@@ -4,7 +4,7 @@ Bundle-Name: X10 Refactoring
 Bundle-SymbolicName: org.eclipse.imp.x10dt.refactoring;singleton:=true
 Bundle-Version: 2.0.5.qualifier
 Bundle-Activator: org.eclipse.imp.x10dt.refactoring.X10DTRefactoringPlugin
-Bundle-Vendor: rfuhrer@watson.ibm.com
+Bundle-Vendor: x10-users@lists.sourceforge.net
 Require-Bundle: org.eclipse.core.resources;bundle-version="3.4.2",
  org.eclipse.core.runtime,
  org.eclipse.imp.runtime;bundle-version="0.1.97",
