@@ -163,8 +163,7 @@
          id="org.eclipse.imp.x10dt"
          download-size="0"
          install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="org.eclipse.imp.x10dt.refactoring"
