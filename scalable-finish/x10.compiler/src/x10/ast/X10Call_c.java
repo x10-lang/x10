@@ -12,30 +12,23 @@
 package x10.ast;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import polyglot.ast.Ambiguous;
-import polyglot.ast.Call;
 import polyglot.ast.Call_c;
-import polyglot.ast.ClassBody;
 import polyglot.ast.Disamb;
 import polyglot.ast.Expr;
 import polyglot.ast.Id;
 import polyglot.ast.Local;
-import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Prefix;
 import polyglot.ast.Receiver;
 import polyglot.ast.Special;
 import polyglot.ast.TypeNode;
-import polyglot.ast.Variable;
-import polyglot.main.Report;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.CodeDef;
@@ -43,40 +36,27 @@ import polyglot.types.ConstructorDef;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.Context;
 import polyglot.types.Def;
-import polyglot.types.ErrorRef_c;
 import polyglot.types.Flags;
 import polyglot.types.LazyRef;
-import polyglot.types.LocalDef;
-import polyglot.types.LocalInstance;
 import polyglot.types.Matcher;
 import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
 import polyglot.types.SemanticException;
-import polyglot.types.StructType;
 import polyglot.types.Type;
-import polyglot.types.TypeSystem;
 import polyglot.types.TypeSystem_c;
 import polyglot.types.Types;
 import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
-import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Pair;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
-import polyglot.visit.ErrorHandlingVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
-import polyglot.visit.TypeBuilder;
-import polyglot.visit.TypeChecker;
-import x10.constraint.XConstraint;
-import x10.constraint.XLocal;
 import x10.constraint.XVar;
 import x10.errors.Errors;
 import x10.errors.Warnings;
-import x10.errors.Errors.PlaceTypeErrorMethodShouldBeLocalOrGlobal;
-import x10.parser.X10ParsedName;
 import x10.types.ParameterType;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorInstance;
@@ -85,12 +65,11 @@ import x10.types.X10FieldInstance;
 import x10.types.X10Flags;
 import x10.types.X10LocalInstance;
 import x10.types.X10MemberDef;
-import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
 import x10.types.X10ParsedClassType;
-import x10.types.X10TypeSystem_c;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
+import x10.types.X10TypeSystem_c;
 import x10.types.XTypeTranslator;
 import x10.types.checker.Checker;
 import x10.types.checker.Converter;
@@ -468,14 +447,11 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 	    return null;
 	}
 
-	public Node typeCheck(ContextVisitor tc) throws SemanticException {
+	public Node typeCheck(ContextVisitor tc) {
 	    Node n;
 	    try {
 	        n = typeCheck1(tc);
 	    } catch (SemanticException e) {
-	        X10TypeChecker xtc = X10TypeChecker.getTypeChecker(tc);
-	        if (xtc.throwExceptions())
-	            throw e;
 	        Errors.issue(tc.job(), e, this);
 	        X10TypeSystem_c ts = (X10TypeSystem_c) tc.typeSystem();
 	        List<Type> typeArgs = new ArrayList<Type>(this.typeArguments.size());

@@ -202,17 +202,13 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
      * then typeCheckOverride would have set it from the type of the initializer.
      */
     @Override
-    public Node typeCheck(ContextVisitor tc) throws SemanticException {
+    public Node typeCheck(ContextVisitor tc) {
         final TypeNode typeNode = type();
         Type type = typeNode.type();
-
-        X10TypeChecker xtc = X10TypeChecker.getTypeChecker(tc);
 
         try {
             X10TypeMixin.checkMissingParameters(typeNode);
         } catch (SemanticException e) {
-            if (xtc.throwExceptions())
-                throw e;
             Errors.issue(tc.job(), e, this);
         }
         // Replace here by PlaceTerm because this local variable may be referenced
@@ -224,8 +220,6 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 
         if (type.isVoid()) {
             SemanticException e = new SemanticException("Local variable cannot have type " + this.type().type() + ".", position());
-            if (xtc.throwExceptions())
-                throw e;
             Errors.issue(tc.job(), e);
         }
 
@@ -235,8 +229,6 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
             ts.checkLocalFlags(flags.flags());
         }
         catch (SemanticException e) {
-            if (xtc.throwExceptions())
-                throw new SemanticException(e.getMessage(), position());
             Errors.issue(tc.job(), e, this);
         }
 
@@ -251,8 +243,6 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
             }
             catch (SemanticException e) {
                 Errors.CannotAssign e2 = new Errors.CannotAssign(n.init, type, n.init.position());
-                if (xtc.throwExceptions())
-                    throw e2;
                 Errors.issue(tc.job(), e2, n);
             }
         }

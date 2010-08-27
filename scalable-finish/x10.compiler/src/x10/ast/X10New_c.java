@@ -382,13 +382,10 @@ public class X10New_c extends New_c implements X10New {
         }
     }
 
-    public Node typeCheck(ContextVisitor tc) throws SemanticException {
+    public Node typeCheck(ContextVisitor tc) {
         try {
             return typeCheck1(tc);
         } catch (SemanticException e) {
-            X10TypeChecker xtc = X10TypeChecker.getTypeChecker(tc);
-            if (xtc.throwExceptions())
-                throw e;
             Errors.issue(tc.job(), e, this);
             X10TypeSystem_c ts = (X10TypeSystem_c) tc.typeSystem();
             List<Type> argTypes = new ArrayList<Type>(this.arguments.size());

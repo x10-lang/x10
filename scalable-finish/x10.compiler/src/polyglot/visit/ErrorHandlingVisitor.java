@@ -286,8 +286,7 @@ public class ErrorHandlingVisitor extends NodeVisitor
                     position = n.position();
                 }
 
-                errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR,
-                                    e.getMessage(), position);
+                errorQueue().enqueue(new CodedErrorInfo(ErrorInfo.SEMANTIC_ERROR, e.getMessage(), position, e.attributes()));
             }
             else {
                 // silent error; these should be thrown only

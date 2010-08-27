@@ -96,7 +96,7 @@ public class X10Return_c extends Return_c {
 	}
 
 	@Override
-	public Node typeCheck(ContextVisitor tc) throws SemanticException {
+	public Node typeCheck(ContextVisitor tc) {
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 		X10Context c = (X10Context) tc.context();
 	
@@ -105,7 +105,8 @@ public class X10Return_c extends Return_c {
 		if ((ci != null) 
 				&& (ci instanceof MethodDef)
 				&& ((MethodDef) ci).name().toString().equals(X10TypeSystem_c.DUMMY_ASYNC)) {
-		    throw new SemanticException("Cannot return from an async.");
+		    Errors.issue(tc.job(), new SemanticException("Cannot return from an async."), this);
+		    return this;
 		}
 		Type exprType = expr != null ? expr.type() : null;
 
@@ -163,8 +164,12 @@ public class X10Return_c extends Return_c {
 		            else {
 		                // Merge the types
 		                exprType = removeLocals((X10Context) tc.context(), exprType, tc.context().currentCode());
-		                Type t = ts.leastCommonAncestor(typeRef.getCached(), exprType, c);
-		                typeRef.update(t);
+		                try {
+		                    Type t = ts.leastCommonAncestor(typeRef.getCached(), exprType, c);
+		                    typeRef.update(t);
+		                } catch (SemanticException e) {
+		                    Errors.issue(tc.job(), e, this);
+		                }
 		            }
 		        }
 		    }
@@ -189,10 +194,12 @@ public class X10Return_c extends Return_c {
 		    }
 
 		    if (expr == null && ! typeRef.getCached().isVoid()) {
-			throw new SemanticException("Must return value from non-void method.", position());
+		        Errors.issue(tc.job(),
+		                new SemanticException("Must return value from non-void method.", position()));
 		    }
 		    if (expr != null && typeRef.getCached().isVoid()) {
-			throw new SemanticException("Cannot return value from void method or closure.", position());
+		        Errors.issue(tc.job(),
+		                new SemanticException("Cannot return value from void method or closure.", position()));
 		    }
 		}
 		
@@ -215,12 +222,19 @@ public class X10Return_c extends Return_c {
 //		                return n.superTypeCheck(tc);
 //		            }
 //		        }
-		        Expr e = Converter.attemptCoercion(tc, expr, returnType);
-		        n = (X10Return_c) n.expr(e);
+		        try {
+		            Expr e = Converter.attemptCoercion(tc, expr, returnType);
+		            n = (X10Return_c) n.expr(e);
+		        } catch (SemanticException e) { }
 		    }
 		}
 		
-		return n.superTypeCheck(tc);
+		try {
+		    return n.superTypeCheck(tc);
+		} catch (SemanticException e) {
+		    Errors.issue(tc.job(), e, n);
+		    return n;
+		}
 	}
 
 	private Node superTypeCheck(ContextVisitor tc) throws SemanticException {

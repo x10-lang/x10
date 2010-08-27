@@ -8,6 +8,7 @@
     <property name="x10.common.location" location="${x10.home}/x10.common"/>
     <property name="build" location="${basedir}/classes"/>
     <property name="src" location="${basedir}/src-java"/>
+    <property name="gen" location="${src}/gen"/>
     <property name="inc" location="${x10.dist.location}/include"/>
     <property name="lib" location="${x10.dist.location}/lib"/>
     <property name="jar" value="x10.jar"/>
@@ -46,7 +47,7 @@
 
     <target name="init">
         <mkdir dir="${build}"/>
-        <mkdir dir="${build}/gen"/>
+        <mkdir dir="${gen}"/>
         <javac destdir="${build}" source="1.5" target="1.5" debug="on" nowarn="on">
             <src path="${x10.common.location}/contrib/ant"/>
             <include name="Ejc.java"/>
@@ -73,7 +74,7 @@
     <condition property="bdwgc.enabled">
         <and>
             <isfalse value="${DISABLE_GC}" />
-	    <isfalse value="${CROSS_COMPILE_BGP}" />
+            <isfalse value="${CROSS_COMPILE_BGP}" />
             <or>
                 <os family="unix" name="linux"/>
                 <os family="mac"/>
@@ -137,6 +138,11 @@
     <target name="distclean-java" depends="clean-java"/>
     <target name="clean-java">
         <delete dir="${build}" failonerror="false"/>
+        <delete failonerror="false"> <!-- keep the gen directory itself because Eclipse needs it -->
+            <fileset dir="${gen}">
+                <include name="**"/>
+            </fileset>
+        </delete>
     </target>
     <target name="distclean-cpp" depends="clean-cpp,clean-bdwgc"/>
     <target name="clean-cpp" depends="available-procs">
@@ -180,7 +186,7 @@
     <target name="dist-java" depends="jar">
         <mkdir dir="${lib}"/>
         <copy todir="${lib}">
-            <fileset dir="${build}" includes="${jar}"/>
+            <fileset dir="${gen}" includes="${jar}"/>
         </copy>
     </target>
     <target name="dist-cpp" depends="dist-x10rt,build-cpp,available-procs">
@@ -197,9 +203,8 @@
     <target name="dist" depends="dist-java,dist-cpp" description="generate part of the distribution">
     </target>
     <target name="jar" depends="build-xrx">
-        <jar jarfile="${build}/${jar}">
+        <jar jarfile="${gen}/${jar}">
             <fileset dir="${build}" includes="x10/**/*.class" excludes="${jar}"/>
-            <fileset dir="${build}/gen" includes="x10/**/*.class" excludes="${jar}"/>
             <fileset dir="${basedir}/src-x10" includes="x10/**" excludes="${jar}"/>
             <fileset dir="${x10.constraints.location}/classes" includes="x10/constraint/**" excludes="x10/constraint/test/**"/>
             <fileset dir="${x10.common.location}/classes" includes="x10/**"/>
@@ -208,12 +213,15 @@
     <target name="build-java" depends="init,gen-xrx">
         <ejc destdir="${build}" source="1.5" target="1.5" debug="on" nowarn="on">
             <src path="${src}"/>
+            <size value="50" when="more"/>
             <classpath>
               <path refid="project.classpath"/>
+              <path>
+                  <pathelement location="${build}"/>
+              </path>
             </classpath>
         </ejc>
     </target>
-    <property name="gen" location="${build}/gen"/>
     <!-- TODO: check the generated files with respect to the compiler jar -->
     <target name="check-xrx" depends="init">
         <fileset id="xrx.files" dir="${basedir}/src-x10" includes="**/*.x10"/>
@@ -235,43 +243,22 @@
         <echo message="x10c ${x10c.optimize} ${x10c.inline_optimizations} ${x10c.no_checks} -c ${xrx.list}"/>
         <exec executable="${bash.exe}" failonerror="true" dir="${basedir}/src-x10">
             <arg value="-c" />
-            <arg value="'${x10.dist.location}/bin/x10c' ${x10c.optimize} ${x10c.inline_optimizations} ${x10c.no_checks} -d '${gen}' -J-ea -rtdev -sourcepath . -STATIC_CALLS -commandlineonly -c ${xrx.list}" />
+            <arg value="'${x10.dist.location}/bin/x10c' -J-Xmx1024M ${x10c.optimize} ${x10c.inline_optimizations} ${x10c.no_checks} -d '${gen}' -J-ea -rtdev -sourcepath . -STATIC_CALLS -commandlineonly -c ${xrx.list}" />
         </exec>
     </target>
     <target name="build-xrx" depends="init,gen-xrx,build-java">
         <!--
-        <fileset id="generated.files" dir="${build}/gen" includes="**/*.java"/>
-        <pathconvert property="generated.list" refid="generated.files" dirsep="/" pathsep=" "/>
-        <java jar="${lib}/ecj.jar" fork="true" dir="${build}/gen" failonerror="true">
-            <arg value="-1.5"/>
-            <arg value="-nowarn"/>
-            <arg line="-classpath .${path.separator}.."/>
-            <arg line="${generated.list}"/>
-        </java>
-        -->
-        <!--
-        <javac destdir="${build}/gen" compiler="${ejc.compiler}" source="1.5" target="1.5" debug="on" nowarn="on">
-            <src path="${build}/gen"/>
-            <classpath>
-              <path refid="project.classpath"/>
-              <path>
-                  <pathelement location="${build}/gen"/>
-                  <pathelement location="${build}"/>
-              </path>
-            </classpath>
-        </javac>
-        -->
-        <ejc destdir="${gen}" source="1.5" target="1.5" debug="on" nowarn="on">
+        <ejc destdir="${build}" source="1.5" target="1.5" debug="on" nowarn="on">
             <src path="${gen}"/>
             <size value="50" when="more"/>
             <classpath>
               <path refid="project.classpath"/>
               <path>
-                  <pathelement location="${gen}"/>
                   <pathelement location="${build}"/>
               </path>
             </classpath>
         </ejc>
+        -->
     </target>
 
     <target name="jni-headers" depends="init,build-java">
@@ -318,11 +305,11 @@
             <echo message="Installing BDWGC to ${bdwgc.platform.dir}"/>
             <if>
               <conditions>
-		<or>
+                <or>
                   <os family="unix" name="linux" arch="ppc"/>
                   <os family="unix" name="linux" arch="ppc32"/>
                   <os family="unix" name="linux" arch="ppc64"/>
-		</or>
+                </or>
               </conditions>
               <sequential>
                 <exec executable="${bash.exe}" dir="${bdwgc.dir}/src" failonerror="true">
@@ -339,12 +326,12 @@
                 <and>
                   <os family="unix" name="linux" />
                   <not>
-		    <or>
+                    <or>
                       <os family="unix" name="linux" arch="ppc"/>
                       <os family="unix" name="linux" arch="ppc32"/>
                       <os family="unix" name="linux" arch="ppc64"/>
-		    </or>
-		  </not>
+                    </or>
+                  </not>
                 </and>
               </conditions>
               <sequential>

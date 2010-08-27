@@ -93,16 +93,6 @@ public class X10TypeChecker extends TypeChecker {
 	    }
 	}
 
-	private boolean throwExceptions = false;
-	public boolean throwExceptions() {
-	    return throwExceptions;
-	}
-	public X10TypeChecker throwExceptions(boolean val) {
-	    X10TypeChecker tc = (X10TypeChecker) copy();
-	    tc.throwExceptions = val;
-	    return tc;
-	}
-
 	protected NodeVisitor enterCall(Node n) throws SemanticException {
 	    try {
 	        return super.enterCall(n);

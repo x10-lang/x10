@@ -11,27 +11,25 @@
 
 package x10.errors;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import polyglot.ast.Binary;
 import polyglot.ast.Call;
-import polyglot.ast.ConstructorCall;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
 import polyglot.ast.FieldAssign;
 import polyglot.ast.Formal;
 import polyglot.ast.New;
 import polyglot.ast.Node;
-import polyglot.ast.Receiver;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
-import polyglot.frontend.Globals;
 import polyglot.frontend.Job;
 import polyglot.types.ClassDef;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.FieldInstance;
 import polyglot.types.MethodInstance;
-import polyglot.types.Name;
 import polyglot.types.ProcedureDef;
 import polyglot.types.ProcedureInstance;
 import polyglot.types.Ref;
@@ -41,13 +39,12 @@ import polyglot.types.Types;
 import polyglot.types.VarInstance;
 import polyglot.types.TypeSystem_c.ConstructorMatcher;
 import polyglot.types.TypeSystem_c.MethodMatcher;
+import polyglot.util.CodedErrorInfo;
 import polyglot.util.ErrorInfo;
 import polyglot.util.Position;
 import x10.ExtensionInfo;
 import x10.ast.DepParameterExpr;
 import x10.ast.SemanticError;
-import x10.ast.X10Call;
-import x10.ast.X10CanonicalTypeNode;
 import x10.ast.X10ClassDecl;
 import x10.ast.X10FieldDecl;
 import x10.constraint.XTerm;
@@ -56,13 +53,9 @@ import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10FieldInstance;
 import x10.types.X10ProcedureInstance;
-import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
 import x10.types.checker.Converter;
-import x10.types.checker.PlaceChecker;
 import x10.types.checker.Converter.ConversionType;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.XConstrainedTerm;
 
 /**
  * Start at centralizing Error messages. Goal is to support standardization of error messages for
@@ -83,8 +76,16 @@ public class Errors {
 			e = new SemanticException(e.getMessage(), n.position());
 		boolean newP = ei.errorSet().add(e);
 		if (newP && e.getMessage() != null) {
-			job.compiler().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR,
-					e.getMessage(), e.position());
+
+			Position position = e.position();
+
+			if (position == null && n != null) {
+				position = n.position();
+			}
+			
+			ErrorInfo errorInfo = new CodedErrorInfo(ErrorInfo.SEMANTIC_ERROR,
+			 					e.getMessage(), position, e.attributes());
+			job.compiler().errorQueue().enqueue(errorInfo);
 		}
 	}
 
@@ -650,6 +651,12 @@ public class Errors {
 	        super("Method or static constructor not found for given matcher."
 	              + "\n\t Matcher: "  + mm,
 	              pos);
+	        
+	        Map<String, Object> map = new HashMap<String, Object>();
+		    map.put("ERROR_CODE", 1002);
+		    map.put("METHOD", mm.name().toString());
+		    map.put("ARGUMENTS", mm.argumentString());
+		    setAttributes(map);
 	    }
 	    public MethodOrStaticConstructorNotFound(ConstructorMatcher mm,  Position pos) {
 	        super("Method or static constructor not found for given matcher."

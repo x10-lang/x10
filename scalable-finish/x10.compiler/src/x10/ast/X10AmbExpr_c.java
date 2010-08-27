@@ -17,13 +17,10 @@ public class X10AmbExpr_c extends AmbExpr_c {
     }
 
     @Override
-    public Node disambiguate(ContextVisitor ar) throws SemanticException {
+    public Node disambiguate(ContextVisitor ar) {
         try {
             return super.disambiguate(ar);
         } catch (SemanticException e) {
-            X10TypeChecker xtc = X10TypeChecker.getTypeChecker(ar);
-            if (xtc.throwExceptions())
-                throw e;
             Errors.issue(ar.job(), e, this);
             X10TypeSystem_c xts = (X10TypeSystem_c) ar.typeSystem();
             X10LocalInstance li = xts.createFakeLocal(name.id(), e);

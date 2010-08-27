@@ -793,12 +793,25 @@ public class Desugarer extends ContextVisitor {
                 ConstrainedType ct = (ConstrainedType) reducerType;
                 reducerType = X10TypeMixin.baseType(Types.get(ct.baseType()));
             }
-
-            for (Type t : xts.interfaces(reducerType)) {
-                for (Type tt : ((X10ParsedClassType)t).typeArguments()) {
-                    expectType = tt;
+            //First check the reducerType itself is a reducible or not;
+            //If not, it should be a class that implements reducible
+            X10ParsedClassType reducerTypeWithGenericType = null;
+            if(xts.isReducible(((ClassType)reducerType).def().asType())){
+                //generic type case
+                reducerTypeWithGenericType = (X10ParsedClassType) reducerType;
+            }
+            else{ 
+                //implement interface case
+                for (Type t : xts.interfaces(reducerType)) {
+                    ClassType baseType = ((X10ParsedClassType)t).def().asType();
+                    if(xts.isReducible(baseType)){
+                        reducerTypeWithGenericType = (X10ParsedClassType) t;
+                    }
                 }
             }
+            assert(reducerTypeWithGenericType != null);
+            //because Reducible type only has one argument, we could take it directly
+            expectType = reducerTypeWithGenericType.typeArguments().get(0);
         }
         else {
             expectType = offerTarget.type();
@@ -940,6 +953,7 @@ public class Desugarer extends ContextVisitor {
     }
 
     private Expr getLiteral(Position pos, Type type, long val) throws SemanticException {
+        type = X10TypeMixin.baseType(type);
         Expr lit = null;
         if (xts.isIntOrLess(type)) {
             lit = xnf.IntLit(pos, IntLit.INT, val);
@@ -1132,7 +1146,7 @@ public class Desugarer extends ContextVisitor {
         }
         Name zn = Name.make("z");
         Type T = mi.formalTypes().get(0);
-        assert (xts.typeEquals(T, ami.returnType(), context));
+        assert (xts.isSubtype(ami.returnType(), T, context));
         LocalDef zDef = xts.localDef(pos, xts.Final(), Types.ref(T), zn);
         Formal z = xnf.Formal(pos, xnf.FlagsNode(pos, xts.Final()),
                 xnf.CanonicalTypeNode(pos, T), xnf.Id(pos, zn)).localDef(zDef);
