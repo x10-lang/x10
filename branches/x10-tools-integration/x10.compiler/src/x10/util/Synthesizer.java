@@ -110,10 +110,7 @@ public class Synthesizer {
 		xts=ts;
 		xnf=nf;
 	}
-	public Synthesizer() {
-		xts=(X10TypeSystem) Globals.TS();
-		xnf=(X10NodeFactory) Globals.NF();
-	}
+	
 
 	  /**
    * Create a synthetic MethodDecl from the given data and return
@@ -247,7 +244,7 @@ public class Synthesizer {
          return X10TypeMixin.addTerm(type, v);
 	 }
 
-	 public Type addRankConstraint(Type type, XVar receiver, int n, X10TypeSystem ts) {
+	 /*public Type addRankConstraint(Type type, XVar receiver, int n, X10TypeSystem ts) {
 			XTerm v = makeRegionRankTerm(receiver);
 			XTerm rank = XTerms.makeLit(new Integer(n));
 			return X10TypeMixin.addBinding(type, v, rank);
@@ -264,7 +261,7 @@ public class Synthesizer {
 		 XTerm rank = XTerms.makeLit(new Integer(n));
 		 return X10TypeMixin.addBinding(type, v, rank);
 
-	 }
+	 }*/
 	 
 	 /**
 	  * If formal = p(x) construct
@@ -1441,7 +1438,7 @@ public class Synthesizer {
 	Expr makeExpr(XEQV t, Position pos) {
 		String str = t.toString();
 		//if (str.startsWith("_place"))
-		//	assert ! str.startsWith("_place");
+		//	assert ! str.startsWith("_place") : "Place var: "+str;
 		int i = str.indexOf("#");
 		TypeNode tn = null;
 		if (i > 0) {
@@ -1459,7 +1456,7 @@ public class Synthesizer {
 	Expr makeExpr(XLocal t, Position pos) {
 		String str = t.name().toString();
 		//if (str.startsWith("_place"))
-		//	assert ! str.startsWith("_place");
+		//	assert ! str.startsWith("_place") : "Place var: "+str;
 		if (str.equals("here"))
 			return xnf.Here(pos);
 		int i = str.indexOf("#");
@@ -1484,18 +1481,20 @@ public class Synthesizer {
 		Object val = t.val();
 		if (val== null)
 			return xnf.NullLit(pos);
-		if (val instanceof String) 
+		if (val instanceof String)
 			return xnf.StringLit(pos, (String) val);
-		if (val instanceof Integer) 
-			return xnf.IntLit(pos,  IntLit.INT, ((Integer) val).intValue());
-		if (val instanceof Long) 
-			return xnf.IntLit(pos,  IntLit.LONG, ((Long) val).longValue());
-		if (val instanceof Boolean) 
-			return xnf.BooleanLit(pos,   ((Boolean) val).booleanValue());
-		if (val instanceof Character) 
-			return xnf.CharLit(pos,   ((Character) val).charValue());
-		if (val instanceof Float) 
-			return xnf.FloatLit(pos,  FloatLit.DOUBLE, ((Double) val).doubleValue());
+		if (val instanceof Integer)
+			return xnf.IntLit(pos, IntLit.INT, ((Integer) val).intValue());
+		if (val instanceof Long)
+			return xnf.IntLit(pos, IntLit.LONG, ((Long) val).longValue());
+		if (val instanceof Boolean)
+			return xnf.BooleanLit(pos, ((Boolean) val).booleanValue());
+		if (val instanceof Character)
+			return xnf.CharLit(pos, ((Character) val).charValue());
+		if (val instanceof Float)
+			return xnf.FloatLit(pos, FloatLit.FLOAT, ((Float) val).doubleValue());
+		if (val instanceof Double)
+			return xnf.FloatLit(pos, FloatLit.DOUBLE, ((Double) val).doubleValue());
 		return null;
 	}
 	Expr makeExpr(XEquals t, Position pos) {

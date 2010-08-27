@@ -20,8 +20,8 @@ import x10.types.X10TypeEnv_c;
  *
  */
 public class VarChecker extends ContextVisitor {
-    public VarChecker(Job job, TypeSystem ts, polyglot.ast.NodeFactory nf) {
-        super(job, ts, nf);
+    public VarChecker(Job job) {
+        super(job, job.extensionInfo().typeSystem(), job.extensionInfo().nodeFactory());
     }
     public SemanticException error = null;
     @Override

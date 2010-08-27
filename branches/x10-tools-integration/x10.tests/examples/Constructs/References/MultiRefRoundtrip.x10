@@ -19,14 +19,14 @@ class MultiRefRoundtrip extends x10Test {
 
     public def run(): boolean {
         chk(Place.places.length > 1, "This test must be run with multiple places");
-        val local = new MultiRefRoundtrip();
-        val second = local;
+        val local_ = new MultiRefRoundtrip();
+        val second = local_;
         at (here.next()) {
-            at (local) {
-                Console.OUT.println(local == second);
+            at (local_) {
+                Console.OUT.println(local_ == second);
             }
         }
-        return at (here.next()) at (local) second == local;
+        return at (here.next()) at (local_) second == local_;
     }
 
     public static def main(Rail[String]) {

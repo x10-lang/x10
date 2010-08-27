@@ -601,9 +601,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
     public ClassDef unknownClassDef() {
         if (unknownClassDef == null) {
-            unknownClassDef = new X10ClassDef_c(this, null);
-            unknownClassDef.name(Name.make("<unknown class>"));
-            unknownClassDef.kind(ClassDef.TOP_LEVEL);
+            unknownClassDef = createFakeClass(QName.make("<unknown class>"), new SemanticException("Unknown class")).def();
         }
         return unknownClassDef;
     }
@@ -628,6 +626,52 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         }
     }
 
+    protected X10ClassType typeForNameSilent(QName fullName) {
+        try {
+            if (fullName == null) {
+                return (X10ClassType) unknownClassDef().asType();
+            }
+            return (X10ClassType) typeForName(fullName);
+        }
+        catch (SemanticException e) {
+            return createFakeClass(fullName, e);
+        }
+    }
+
+    public boolean isUnknown(Type t) {
+        return X10TypeMixin.baseType(t) instanceof UnknownType;
+    }
+
+    public boolean hasUnknown(Type t) {
+        if (isUnknown(t))
+            return true;
+        if (t instanceof X10ClassType) {
+            X10ClassType ct = (X10ClassType) t;
+            for (Type a : ct.typeArguments()) {
+                if (hasUnknown(a))
+                    return true;
+            }
+            if (ct.x10Def().isFunction()) {
+                // Look at the superclass and interfaces (if any)
+                if (hasUnknown(ct.superClass()))
+                    return true;
+                for (Type i : ct.interfaces()) {
+                    if (hasUnknown(i))
+                        return true;
+                }
+            }
+        }
+        if (t instanceof AnnotatedType) {
+            AnnotatedType at = (AnnotatedType) t;
+            List<Type> ann = at.annotations();
+            for (Type a : ann) {
+                if (hasUnknown(a))
+                    return true;
+            }
+        }
+        return false;
+    }
+
     public X10ClassType createFakeClass(QName fullName, SemanticException error) {
         X10ClassDef cd = (X10ClassDef) createClassDef();
         cd.name(fullName.name());
@@ -642,21 +686,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         catch (SemanticException e) {
         }
 
-        systemResolver().install(fullName, cd.asType());
-
         return ((X10ParsedClassType) cd.asType()).error(error);
-    }
-
-    protected X10ClassType typeForNameSilent(QName fullName) {
-        try {
-            if (fullName == null) {
-                return (X10ClassType) unknownClassDef().asType();
-            }
-            return (X10ClassType) typeForName(fullName);
-        }
-        catch (SemanticException e) {
-            return createFakeClass(fullName, e);
-        }
     }
 
     public X10FieldInstance createFakeField(QName containerName, Flags flags, Name name, SemanticException error) {
@@ -2233,8 +2263,9 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return false;
     }
 
+    @Override
     public X10TypeEnv env(Context context) {
-        return new X10TypeEnv_c(context);
+        return new X10TypeEnv_c(context == null ? emptyContext() : context);
     }
 
     @Override

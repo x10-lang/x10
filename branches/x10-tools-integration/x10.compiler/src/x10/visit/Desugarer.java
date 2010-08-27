@@ -62,6 +62,7 @@ import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.ErrorHandlingVisitor;
 import polyglot.visit.NodeVisitor;
+import polyglot.visit.TypeBuilder;
 import x10.Configuration;
 import x10.ast.Async;
 import x10.ast.AtEach;
@@ -98,7 +99,7 @@ import x10.ast.X10New;
 import x10.ast.X10NodeFactory;
 import x10.ast.X10Special_c;
 import x10.ast.X10Unary_c;
-import x10.constraint.XConstraint;
+import x10.constraint.XFailure;
 import x10.constraint.XVar;
 import x10.emitter.Emitter;
 import x10.extension.X10Ext;
@@ -114,6 +115,8 @@ import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
+import x10.types.constraints.CConstraint;
+import x10.types.constraints.XConstrainedTerm;
 import x10.util.ClosureSynthesizer;
 import x10.util.Synthesizer;
 
@@ -687,7 +690,7 @@ public class Desugarer extends ContextVisitor {
         Name STOPFINISHEXPR = Name.make("stopFinishExpr");
         Stmt returnS = null;
         if ((l==null) && (n!=null)&& (r==null)) {
-        	Expr left = n.left(xnf).type(reducerTarget);
+        	Expr left = n.left().type(reducerTarget);
             Call instanceCall = synth.makeInstanceCall(pos, local1, STOPFINISHEXPR, Collections.EMPTY_LIST, Collections.EMPTY_LIST, reducerTarget, Collections.EMPTY_LIST, xContext());
             Expr b = assign(pos, left, Assign.ASSIGN, instanceCall);
             returnS = xnf.Eval(pos, b);
@@ -868,6 +871,7 @@ public class Desugarer extends ContextVisitor {
     }
 
     private Expr getLiteral(Position pos, Type type, long val) throws SemanticException {
+        type = X10TypeMixin.baseType(type);
         Expr lit = null;
         if (xts.isIntOrLess(type)) {
             lit = xnf.IntLit(pos, IntLit.INT, val);
@@ -979,7 +983,7 @@ public class Desugarer extends ContextVisitor {
         Position pos = n.position();
         if (n.operator() == Assign.ASSIGN) return n;
         X10Binary_c.Operator op = n.operator().binaryOperator();
-        Local left = (Local) n.left(xnf);
+        Local left = (Local) n.left();
         Expr right = n.right();
         Type R = left.type();
         Expr val = visitBinary((X10Binary_c) xnf.Binary(pos, left, op, right).type(R));
@@ -991,7 +995,7 @@ public class Desugarer extends ContextVisitor {
         Position pos = n.position();
         if (n.operator() == Assign.ASSIGN) return n;
         X10Binary_c.Operator op = n.operator().binaryOperator();
-        Field left = (Field) n.left(xnf);
+        Field left = (Field) n.left();
         Expr right = n.right();
         Type R = left.type();
         if (left.flags().isStatic()) {
@@ -1039,7 +1043,7 @@ public class Desugarer extends ContextVisitor {
                     args).methodInstance(mi).type(mi.returnType());
         }
         X10Binary_c.Operator op = n.operator().binaryOperator();
-        X10Call left = (X10Call) n.left(xnf);
+        X10Call left = (X10Call) n.left();
         MethodInstance ami = left.methodInstance();
         List<Formal> parms = new ArrayList<Formal>();
         Name xn = Name.make("x");
@@ -1060,7 +1064,7 @@ public class Desugarer extends ContextVisitor {
         }
         Name zn = Name.make("z");
         Type T = mi.formalTypes().get(0);
-        assert (xts.typeEquals(T, ami.returnType(), context));
+        assert (xts.isSubtype(ami.returnType(), T, context));
         LocalDef zDef = xts.localDef(pos, xts.Final(), Types.ref(T), zn);
         Formal z = xnf.Formal(pos, xnf.FlagsNode(pos, xts.Final()),
                 xnf.CanonicalTypeNode(pos, T), xnf.Id(pos, zn)).localDef(zDef);
@@ -1105,18 +1109,36 @@ public class Desugarer extends ContextVisitor {
         Expr left = null;
         for (Expr clause : clauses) {
             Expr right = (Expr) clause.visit(subst);
+            right = (Expr) right.visit(this);
             if (left == null)
                 left = right;
-            else
+            else {
                 left = xnf.Binary(pos, left, X10Binary_c.COND_AND, right).type(xts.Boolean());
+                try {
+                    left = visitBinary((X10Binary_c) left);
+                } catch (SemanticException e) {
+                    assert false : "Unexpected exception when typechecking "+left+": "+e;
+                }
+            }
         }
         return left;
     }
 
-    private DepParameterExpr getClause(TypeNode tn) {
+ private DepParameterExpr getClause(TypeNode tn) {
+        Type t = tn.type();
         if (tn instanceof X10CanonicalTypeNode) {
-            X10CanonicalTypeNode ctn = (X10CanonicalTypeNode) tn;
-            return ctn.constraintExpr();
+            CConstraint c = X10TypeMixin.xclause(t);
+            if (c == null || c.valid())
+                return null;
+            XConstrainedTerm here = ((X10Context) context).currentPlaceTerm();
+            if (here != null && here.term() instanceof XVar) {
+                try {
+                    c = c.substitute(PlaceChecker.here(), (XVar) here.term());
+                } catch (XFailure e) { }
+            }
+            DepParameterExpr res = xnf.DepParameterExpr(tn.position(), new Synthesizer(xnf, xts).makeExpr(c, tn.position()));
+            res = (DepParameterExpr) res.visit(new TypeBuilder(job, xts, xnf)).visit(new X10TypeChecker(job, xts, xnf, job.nodeMemo()).context(((X10Context) context).pushDepType(tn.typeRef())));
+            return res;
         } else {
             assert false : "Unknown type node type: "+tn.getClass();
         }
@@ -1126,7 +1148,6 @@ public class Desugarer extends ContextVisitor {
     private TypeNode stripClause(TypeNode tn) {
         Type t = tn.type();
         if (tn instanceof X10CanonicalTypeNode) {
-            X10CanonicalTypeNode ctn = (X10CanonicalTypeNode) tn;
             return xnf.CanonicalTypeNode(tn.position(), X10TypeMixin.baseType(t));
         } else {
             assert false : "Unknown type node type: "+tn.getClass();

@@ -40,18 +40,15 @@ import x10.errors.Errors;
 
 public class X10FieldAssign_c extends FieldAssign_c {
     
-    public X10FieldAssign_c(Position pos, Receiver target, Id name, Operator op, Expr right) {
-        super(pos, target, name, op, right);
+    public X10FieldAssign_c(X10NodeFactory nf, Position pos, Receiver target, Id name, Operator op, Expr right) {
+        super(nf, pos, target, name, op, right);
     }
     
     @Override
-    public Assign typeCheckLeft(ContextVisitor tc) throws SemanticException {
+    public Assign typeCheckLeft(ContextVisitor tc) {
     	X10Context cxt = (X10Context) tc.context();
     	if (cxt.inDepType()) {
     	    SemanticException e = new Errors.NoAssignmentInDepType(this, this.position());
-    	    X10TypeChecker xtc = X10TypeChecker.getTypeChecker(tc);
-    	    if (xtc.throwExceptions())
-    	        throw e;
     	    Errors.issue(tc.job(), e, this);
     	}
     	
@@ -60,9 +57,6 @@ public class X10FieldAssign_c extends FieldAssign_c {
         try {
             res = super.typeCheckLeft(tc);
         } catch (SemanticException e) {
-            X10TypeChecker xtc = X10TypeChecker.getTypeChecker(tc);
-            if (xtc.throwExceptions())
-                throw e;
             Errors.issue(tc.job(), e, this);
         }
         return res;
@@ -79,9 +73,6 @@ public class X10FieldAssign_c extends FieldAssign_c {
         X10FieldInstance fd = (X10FieldInstance) n.fieldInstance();
         if (fd.isProperty()) {
             SemanticException e = new Errors.CannotAssignToProperty(fd, n.position());
-            X10TypeChecker xtc = X10TypeChecker.getTypeChecker(tc);
-            if (xtc.throwExceptions())
-                throw e;
             Errors.issue(tc.job(), e, n);
         }
         Type targetType =  n.target().type();
@@ -105,20 +96,14 @@ public class X10FieldAssign_c extends FieldAssign_c {
     		if (! (ts.isSubtype(s, t, tc.context()))) 
     			throw new Errors.CannotAssign(n.right(), n.target().type(), n.position);
     	    } catch (SemanticException e) {
-    	        X10TypeChecker xtc = X10TypeChecker.getTypeChecker(tc);
-    	        if (xtc.throwExceptions())
-    	            throw e;
     	        Errors.issue(tc.job(), e, this);
     	    }
     	}
 
-    	X10Field_c target = (X10Field_c) n.left(tc.nodeFactory());
+    	X10Field_c target = (X10Field_c) n.left();
     	try {
     	    target = PlaceChecker.makeFieldAccessLocalIfNecessary(target, tc);
     	} catch (SemanticException e) {
-    	    X10TypeChecker xtc = X10TypeChecker.getTypeChecker(tc);
-    	    if (xtc.throwExceptions())
-    	        throw e;
     	    Errors.issue(tc.job(), e, this);
     	}
     	n = (X10FieldAssign_c) n.reconstruct(target.target(), n.name());
@@ -127,9 +112,6 @@ public class X10FieldAssign_c extends FieldAssign_c {
     	try {
     	    return Checker.typeCheckAssign(n, tc);
     	} catch (SemanticException e) {
-    	    X10TypeChecker xtc = X10TypeChecker.getTypeChecker(tc);
-    	    if (xtc.throwExceptions())
-    	        throw e;
     	    Errors.issue(tc.job(), e, this);
     	    return n;
     	}

@@ -47,7 +47,6 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
-import polyglot.types.UnknownType;
 import polyglot.util.CollectionUtil;
 import polyglot.util.Pair;
 import polyglot.util.Position;
@@ -239,10 +238,6 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         methodNameMap.put(LE, "operator<=");
         methodNameMap.put(GE, "operator>=");
 
-        // these should not be overridable
-        methodNameMap.put(EQ, "operator==");
-        methodNameMap.put(NE, "operator!=");
-
         String methodName = methodNameMap.get(op);
         if (methodName == null)
             return null;
@@ -394,8 +389,9 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         Call c = desugarBinaryOp(this, tc);
         if (c != null) {
             X10MethodInstance mi = (X10MethodInstance) c.methodInstance();
-            if (mi.error() != null)
-                throw mi.error();
+            if (mi.error() != null) {
+                Errors.issue(tc.job(), mi.error(), this);
+            }
             // rebuild the binary using the call's arguments.  We'll actually use the call node after desugaring.
             if (mi.flags().isStatic()) {
                 return this.left(c.arguments().get(0)).right(c.arguments().get(1)).type(c.type());
@@ -411,7 +407,10 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         
         Type l = left.type();
         Type r = right.type();
-        
+
+        if (xts.hasUnknown(l) || xts.hasUnknown(r))
+            throw new SemanticException(); // null message
+
         if (op == COND_OR || op == COND_AND) {
             if (l.isBoolean() && r.isBoolean()) {
                 return type(ts.Boolean());
@@ -484,6 +483,14 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         Type l = left.type();
         Type r = right.type();
 
+        // Equality operators are special
+        if (op == EQ || op == NE)
+            return null;
+
+        // Conditional operators on Booleans are special
+        if ((op == COND_OR || op == COND_AND) && l.isBoolean() && r.isBoolean())
+            return null;
+
         X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
         Name methodName = X10Binary_c.binaryMethodName(op);
         Name invMethodName = X10Binary_c.invBinaryMethodName(op);
@@ -498,7 +505,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 
         if (methodName != null) {
             // Check if there is a method with the appropriate name and type with the left operand as receiver.   
-            X10Call_c n2 = (X10Call_c) nf.X10Call(pos, left, nf.Id(pos, methodName), Collections.EMPTY_LIST, Collections.singletonList(right));
+            X10Call_c n2 = (X10Call_c) nf.X10Call(pos, left, nf.Id(pos, methodName), Collections.<TypeNode>emptyList(), Collections.singletonList(right));
             n2 = typeCheckCall(tc, n2);
             X10MethodInstance mi2 = (X10MethodInstance) n2.methodInstance();
             if (mi2.error() == null && !mi2.def().flags().isStatic())
@@ -507,7 +514,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 
         if (methodName != null) {
             // Check if there is a static method of the left type with the appropriate name and type.   
-            X10Call_c n4 = (X10Call_c) nf.X10Call(pos, nf.CanonicalTypeNode(pos, Types.ref(l)), nf.Id(pos, methodName), Collections.EMPTY_LIST, CollectionUtil.list(left, right));
+            X10Call_c n4 = (X10Call_c) nf.X10Call(pos, nf.CanonicalTypeNode(pos, Types.ref(l)), nf.Id(pos, methodName), Collections.<TypeNode>emptyList(), CollectionUtil.list(left, right));
             n4 = typeCheckCall(tc, n4);
             X10MethodInstance mi4 = (X10MethodInstance) n4.methodInstance();
             if (mi4.error() == null && mi4.def().flags().isStatic())
@@ -516,7 +523,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 
         if (methodName != null) {
             // Check if there is a static method of the right type with the appropriate name and type.   
-            X10Call_c n3 = (X10Call_c) nf.X10Call(pos, nf.CanonicalTypeNode(pos, Types.ref(r)), nf.Id(pos, methodName), Collections.EMPTY_LIST, CollectionUtil.list(left, right));
+            X10Call_c n3 = (X10Call_c) nf.X10Call(pos, nf.CanonicalTypeNode(pos, Types.ref(r)), nf.Id(pos, methodName), Collections.<TypeNode>emptyList(), CollectionUtil.list(left, right));
             n3 = typeCheckCall(tc, n3);
             X10MethodInstance mi3 = (X10MethodInstance) n3.methodInstance();
             if (mi3.error() == null && mi3.def().flags().isStatic())
@@ -525,7 +532,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 
         if (invMethodName != null) {
             // Check if there is a method with the appropriate name and type with the left operand as receiver.   
-            X10Call_c n5 = (X10Call_c) nf.X10Call(pos, right, nf.Id(pos, invMethodName), Collections.EMPTY_LIST, Collections.singletonList(left));
+            X10Call_c n5 = (X10Call_c) nf.X10Call(pos, right, nf.Id(pos, invMethodName), Collections.<TypeNode>emptyList(), Collections.singletonList(left));
             n5 = typeCheckCall(tc, n5);
             X10MethodInstance mi5 = (X10MethodInstance) n5.methodInstance();
             if (mi5.error() == null && !mi5.def().flags().isStatic())
@@ -538,7 +545,14 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         if (static_left != null) defs.add(static_left);
         if (static_right != null) defs.add(static_right);
 
-        if (defs.size() == 0) return null;
+        if (defs.size() == 0) {
+            if (methodName == null)
+                return null;
+            // Create a fake instance method of the left type with the appropriate name and type.   
+            X10Call_c fake = (X10Call_c) nf.X10Call(pos, left, nf.Id(pos, methodName), Collections.<TypeNode>emptyList(), Collections.singletonList(right));
+            fake = typeCheckCall(tc, fake);
+            return fake;
+        }
 
         X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
 
@@ -574,7 +588,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
                     if (bestmd == md) continue;  // same method by a different path
 
                     Type besttd = Types.get(bestmd.container());
-                    if (besttd instanceof UnknownType || td instanceof UnknownType) {
+                    if (xts.isUnknown(besttd) || xts.isUnknown(td)) {
                         best.add(n1);
                         continue;
                     }

@@ -46,6 +46,22 @@ String::_make(x10aux::ref<String> s) {
     return this_;
 }
 
+x10aux::ref<String>
+String::_make(x10aux::ref<Rail<x10_char> > rail, x10_int start, x10_int length) {
+    x10aux::ref<String> this_ = new (x10aux::alloc<String>()) String();
+    nullCheck(rail);
+    x10_int i = 0;
+    char *content= x10aux::alloc<char>(length+1);
+    for (i=0; i<length; i++) {
+        content[i] = (char)(rail->raw()[start + i].v);
+    }
+    content[i] = '\0';
+
+    this_->_constructor(content, i);
+    return this_;
+}
+
+
 x10_int String::hashCode() {
     x10_int hc = 0;
     x10_int l = length();
@@ -416,6 +432,25 @@ x10_int String::compareToIgnoreCase(ref<String> s) {
     if (length_diff != 0)
         return length_diff;
     return (x10_int) strncasecmp(this->FMGL(content), s->FMGL(content), this->length());
+}
+
+x10_boolean String::startsWith(ref<String> s) {
+    nullCheck(s);
+    size_t len = s->FMGL(content_length);
+    if (len > this->FMGL(content_length))
+        return false;
+    int cmp = strncmp(this->FMGL(content), s->FMGL(content), len);
+    return (cmp == 0);
+}
+
+x10_boolean String::endsWith(ref<String> s) {
+    nullCheck(s);
+    size_t len = s->FMGL(content_length);
+    if (len > this->FMGL(content_length))
+        return false;
+    int length_diff = this->FMGL(content_length) - s->FMGL(content_length);
+    int cmp = strncmp(this->FMGL(content) + length_diff, s->FMGL(content), len);
+    return (cmp == 0);
 }
 
 const serialization_id_t String::_serialization_id =

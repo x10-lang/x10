@@ -3,7 +3,6 @@ package x10.rtt;
 import java.util.Arrays;
 import java.util.List;
 
-import x10.constraint.XConstraint;
 import x10.core.fun.Fun_0_1;
 import x10.core.fun.Fun_0_2;
 
@@ -105,10 +104,6 @@ public final class ParameterizedType<T> implements Type<T>{
 
     public final T getArray(Object array, int i) {
         return rtt.getArray(array, i);
-    }
-
-    public final XConstraint getConstraint() {
-        return rtt.getConstraint();
     }
 
     public final Class<?> getJavaClass() {

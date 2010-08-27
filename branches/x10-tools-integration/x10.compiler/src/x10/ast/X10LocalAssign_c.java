@@ -31,8 +31,8 @@ import x10.types.checker.Checker;
 
 public class X10LocalAssign_c extends LocalAssign_c {
 
-    public X10LocalAssign_c(Position pos, Local left, Operator op, Expr right) {
-        super(pos, left, op, right);
+    public X10LocalAssign_c(X10NodeFactory nf, Position pos, Local left, Operator op, Expr right) {
+        super(nf, pos, left, op, right);
     }
 
     @Override

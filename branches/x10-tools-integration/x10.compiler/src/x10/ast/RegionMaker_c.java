@@ -45,20 +45,19 @@ public class RegionMaker_c extends X10Call_c implements RegionMaker {
 		super(pos, target, name, Collections.EMPTY_LIST, arguments);
 	
 	}
-	public Node typeCheck(ContextVisitor tc) throws SemanticException {
+	public Node typeCheck(ContextVisitor tc) {
 		X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
 		RegionMaker_c n = (RegionMaker_c) super.typeCheck(tc);
 		Expr left = (Expr) n.arguments.get(0);
 		Type type = n.type();
 		Type lType = left.type();
 		if (X10TypeMixin.entails(lType, X10TypeMixin.self(lType), xts.ZERO())) {
-			XVar self = X10TypeMixin.self(type);
-			type = X10TypeMixin.addTerm(type, X10TypeMixin.makeZeroBased(type));
-			n= (RegionMaker_c) n.type(type);
+		    if (!xts.isUnknown(type)) {
+		        XVar self = X10TypeMixin.self(type);
+		        type = X10TypeMixin.addTerm(type, X10TypeMixin.makeZeroBased(type));
+		        n= (RegionMaker_c) n.type(type);
+		    }
 		}
-	
 		return n;
-		   
 	}
-	
 }

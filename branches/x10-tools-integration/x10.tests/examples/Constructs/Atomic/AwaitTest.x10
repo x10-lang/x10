@@ -16,29 +16,29 @@ import harness.x10Test;
  */
 public class AwaitTest extends x10Test {
 
-	var val: int = 0;
+	var val_: int = 0;
 
 	public def run(): boolean = {
 		val c: Clock = Clock.make();
 		async(this) clocked(c) {
-			await (val > 43);
-			atomic val = 42;
-			await (val == 0);
-			atomic val = 42;
+			await (val_ > 43);
+			atomic val_ = 42;
+			await (val_ == 0);
+			atomic val_ = 42;
 		}
-		atomic val = 44;
-		await (val == 42);
+		atomic val_ = 44;
+		await (val_ == 42);
 		var temp: int;
-		atomic temp = val;
+		atomic temp = val_;
 		x10.io.Console.OUT.println("temp = " + temp);
 		if (temp != 42)
 			return false;
-		atomic val = 0;
-		await (val == 42);
+		atomic val_ = 0;
+		await (val_ == 42);
 		next;
 		var temp2: int;
-		atomic temp2 = val;
-		x10.io.Console.OUT.println("val = " + temp2);
+		atomic temp2 = val_;
+		x10.io.Console.OUT.println("val_ = " + temp2);
 		return temp2 == 42;
 	}
 

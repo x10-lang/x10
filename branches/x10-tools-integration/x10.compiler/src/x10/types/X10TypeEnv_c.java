@@ -13,10 +13,12 @@ package x10.types;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import polyglot.main.Report;
@@ -45,7 +47,6 @@ import polyglot.types.Type;
 import polyglot.types.TypeEnv_c;
 import polyglot.types.TypeSystem_c;
 import polyglot.types.Types;
-import polyglot.types.UnknownType;
 import polyglot.types.TypeSystem_c.ConstructorMatcher;
 import polyglot.types.TypeSystem_c.TypeEquals;
 import polyglot.util.CollectionUtil;
@@ -145,10 +146,20 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                     		}
                     	}
                         if (!ct.flags().isAbstract()) {
-                            throw new SemanticException(ct.fullName() + " should be " +
-                                                        "declared abstract; it does not define " +
-                                                        mi.signature() + ", which is declared in " +
-                                                        rt.toClass().fullName(), ct.position());
+                        	SemanticException e = new SemanticException(ct
+                        			.fullName()
+						+ " should be "
+						+ "declared abstract; it does not define "
+						+ mi.signature()
+						+ ", which is declared in "
+						+ rt.toClass().fullName(), ct.position());
+				Map<String, Object> map = new HashMap<String, Object>();
+				map.put("ERROR_CODE", 1004);
+				map.put("CLASS", ct.name().toString());
+				map.put("METHOD", mi.name().toString());
+				map.put("SUPER_CLASS", rt.toClass().name().toString());
+				e.setAttributes(map);
+				throw e;
                         }
                         else { 
                             // no implementation, but that's ok, the class is abstract.
@@ -682,7 +693,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     boolean isSubtype(XVar x, Type t1, Type t2) {
     	assert t1 != null;
     	assert t2 != null;
-        if (t1 instanceof UnknownType || t2 instanceof UnknownType) return true;
+    	if (ts.isUnknown(t1) || ts.isUnknown(t2)) return true;
         
     	t1 = ts.expandMacros(t1);
     	t2 = ts.expandMacros(t2);
@@ -853,7 +864,12 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     			try {
     				xcontext = (X10Context) xcontext.pushBlock();	
 
-    				CConstraint r = c.addIn(c1);
+    				CConstraint r;
+    				try {
+    				 r = c.addIn(c1);
+    				} catch (XFailure z) {
+    					return false;
+    				}
     				xcontext.setCurrentConstraint(r);
 
     				X10TypeEnv_c tenv = copy();
@@ -863,8 +879,6 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     					t2 = Subst.subst(t2, x, c2.self());
     				
     				return tenv.isSubtype(x, baseType1, t2);
-    			} catch (XFailure z) {
-    				throw new InternalCompilerError("Unexpected failure ", z);
     			} 	 catch (SemanticException z) {
     				throw new InternalCompilerError("Unexpected failure ", z);
     			}
@@ -2072,7 +2086,12 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
 	if (acceptable.size() == 0) {
 	    if (error == null) {
-		error = new NoMemberException(NoMemberException.CONSTRUCTOR, "No valid constructor found for " + matcher.signature() + ".");
+	    	error = new NoMemberException(NoMemberException.CONSTRUCTOR, "No valid constructor found for " + matcher.signature() + ".");
+	    	Map<String, Object> map = new HashMap<String, Object>();
+            map.put("ERROR_CODE", 1003);
+            map.put("CONSTRUCTOR", matcher.name().toString());
+            map.put("ARGUMENTS", matcher.argumentString());
+            error.setAttributes(map);
 	    }
 
 	    throw error;

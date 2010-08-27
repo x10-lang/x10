@@ -14,6 +14,7 @@ package x10.ast;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import polyglot.ast.AmbTypeNode;
@@ -38,7 +39,6 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
-import polyglot.types.UnknownType;
 import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
@@ -47,6 +47,7 @@ import polyglot.util.Position;
 import polyglot.util.TypedList;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
+import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
 import x10.constraint.XTerms;
@@ -381,13 +382,10 @@ public class X10New_c extends New_c implements X10New {
         }
     }
 
-    public Node typeCheck(ContextVisitor tc) throws SemanticException {
+    public Node typeCheck(ContextVisitor tc) {
         try {
             return typeCheck1(tc);
         } catch (SemanticException e) {
-            X10TypeChecker xtc = X10TypeChecker.getTypeChecker(tc);
-            if (xtc.throwExceptions())
-                throw e;
             Errors.issue(tc.job(), e, this);
             X10TypeSystem_c ts = (X10TypeSystem_c) tc.typeSystem();
             List<Type> argTypes = new ArrayList<Type>(this.arguments.size());
@@ -468,17 +466,15 @@ public class X10New_c extends New_c implements X10New {
         X10ConstructorInstance ci;
         X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
         X10Context context = (X10Context) tc.context();
-        boolean haveUnknown = false;
+        boolean haveUnknown = xts.hasUnknown(targetType);
         for (Type t : actualTypes) {
-            if (t instanceof UnknownType) haveUnknown = true;
+            if (xts.hasUnknown(t)) haveUnknown = true;
         }
         SemanticException error = null;
-        if (!haveUnknown) {
-            try {
-                return findConstructor(tc, context, n, targetType, actualTypes, anonType);
-            } catch (SemanticException e) {
-                error = e;
-            }
+        try {
+            return findConstructor(tc, context, n, targetType, actualTypes, anonType);
+        } catch (SemanticException e) {
+            error = e;
         }
         // If not returned yet, fake the constructor instance.
         Collection<X10ConstructorInstance> cis = null;
@@ -503,6 +499,8 @@ public class X10New_c extends New_c implements X10New {
                 }
             }
         }
+        if (haveUnknown)
+            error = new SemanticException(); // null message
         ci = xts.createFakeConstructor(targetType.toClass(), Flags.PUBLIC, actualTypes, error);
         if (rt != null) ci = ci.returnType(rt);
         return new Pair<ConstructorInstance, List<Expr>>(ci, n.arguments());
@@ -619,4 +617,13 @@ public class X10New_c extends New_c implements X10New {
         w.end();
     }
 
+    public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
+        for (Iterator<AnnotationNode> i = (((X10Ext) this.ext()).annotations()).iterator(); i.hasNext(); ) {
+            AnnotationNode an = i.next();
+            an.prettyPrint(w, tr);
+            w.allowBreak(0, " ");
+        }
+        super.prettyPrint(w, tr);
+    }
+    
 }

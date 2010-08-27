@@ -89,7 +89,7 @@ public class ASTQuery {
     public boolean isSyntheticOuterAccessor(Stmt n) {
         if (n instanceof Eval && ((Eval)n).expr() instanceof FieldAssign) {
             FieldAssign init = (FieldAssign) ((Eval)n).expr();
-            Field_c f = (Field_c)init.left(tr.nodeFactory());
+            Field_c f = (Field_c)init.left();
             return f.fieldInstance().name().equals(InnerClassRemover.OUTER_FIELD_NAME);
         }
         return false;

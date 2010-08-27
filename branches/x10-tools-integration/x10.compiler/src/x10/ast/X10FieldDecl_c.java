@@ -13,6 +13,7 @@ package x10.ast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -43,11 +44,13 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.types.VarDef_c.ConstantValue;
+import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
 import polyglot.visit.AscriptionVisitor;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
+import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
@@ -56,6 +59,7 @@ import x10.errors.Errors;
 import x10.extension.X10Del;
 import x10.extension.X10Del_c;
 import x10.extension.X10Ext;
+import x10.types.ConstrainedType_c;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
@@ -64,6 +68,7 @@ import x10.types.X10Def;
 import x10.types.X10FieldDef;
 import x10.types.X10Flags;
 import x10.types.X10InitializerDef;
+import x10.types.X10ParsedClassType_c;
 
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
@@ -79,11 +84,13 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	public Type hasType() {
 		return hasType==null ? null : hasType.type();
 	}
-    public X10FieldDecl_c(Position pos, FlagsNode flags, TypeNode type,
+    public X10FieldDecl_c(X10NodeFactory nf, Position pos, FlagsNode flags, TypeNode type,
             Id name, Expr init)
     {
         super(pos, flags, 
-        		type instanceof HasTypeNode_c ? ((X10NodeFactory) Globals.NF()).UnknownTypeNode(type.position()) : type, name, init);
+        		type instanceof HasTypeNode_c 
+        		? nf.UnknownTypeNode(type.position()) 
+        				: type, name, init);
         if (type instanceof HasTypeNode_c) 
 			hasType = ((HasTypeNode_c) type).typeNode();
     }
@@ -334,7 +341,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	                    TypeNode tn = (TypeNode) this.visitChild(type(), childtc);
 	                    if (hasType != null) {
 	                        htn = (TypeNode) visitChild(hasType, childtc);
-	                        if (! Globals.TS().isSubtype(type().type(), htn.type(),tc.context())) {
+	                        if (! htn.type().typeSystem().isSubtype(type().type(), htn.type(),tc.context())) {
 	                            Errors.issue(tc.job(),
 	                                         new Errors.TypeIsNotASubtypeOfTypeBound(type().type(),
 	                                                                                 htn.type(),
@@ -478,6 +485,41 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	    	  TypeNode hasType = (TypeNode) visitChild(n.hasType, v);
 	    	  return n.reconstruct(hasType);
 	        }
-	    
+
+
+	    public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
+	        boolean isInterface = fi != null && fi.container() != null &&
+	        fi.container().get().toClass().flags().isInterface();
+
+	        Flags fs = flags.flags();
+	        Boolean f = fs.isFinal();
+            if (isInterface) {
+                fs = fs.clearPublic();
+                fs = fs.clearStatic();
+            }
+            fs = fs.clearFinal();
+            w.write(fs.translate());
+            for (Iterator<AnnotationNode> i = (((X10Ext) this.ext()).annotations()).iterator(); i.hasNext(); ) {
+                AnnotationNode an = i.next();
+                an.prettyPrint(w, tr);
+                w.allowBreak(0, " ");
+            }
+            if (f)
+	            w.write("val ");
+	        else
+                w.write("var ");
+	        tr.print(this, name, w);
+            w.allowBreak(2, 2, ":", 1);
+            print(type, w, tr);
+
+	        if (init != null) {
+	            w.write(" =");
+	            w.allowBreak(2, " ");
+	            print(init, w, tr);
+	        }
+
+	        w.write(";");
+	    }
+	
 }
 

@@ -12,6 +12,7 @@
 package x10.ast;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import polyglot.ast.ArrayInit;
@@ -46,11 +47,13 @@ import x10.errors.Errors;
 import x10.extension.X10Del;
 import x10.extension.X10Del_c;
 import x10.extension.X10Ext;
+import x10.types.ConstrainedType_c;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
 import x10.types.X10FieldDef;
 import x10.types.X10Flags;
 import x10.types.X10LocalDef;
+import x10.types.X10ParsedClassType_c;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.checker.Converter;
@@ -61,10 +64,10 @@ import x10.visit.X10TypeChecker;
 
 public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 	TypeNode hasType;
-	public X10LocalDecl_c(Position pos, FlagsNode flags, TypeNode type,
+	public X10LocalDecl_c(X10NodeFactory nf, Position pos, FlagsNode flags, TypeNode type,
 			Id name, Expr init) {
 		super(pos, flags, 
-				type instanceof HasTypeNode_c ? ((X10NodeFactory) Globals.NF()).UnknownTypeNode(type.position()) : type, name, init);
+				type instanceof HasTypeNode_c ? nf.UnknownTypeNode(type.position()) : type, name, init);
 		if (type instanceof HasTypeNode_c) 
 			hasType = ((HasTypeNode_c) type).typeNode();
 	}
@@ -171,7 +174,7 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
                 TypeNode htn  = null;
                 if (hasType != null) {
                     htn = (TypeNode) visitChild(hasType, childtc);
-                    if (! Globals.TS().isSubtype(type().type(), htn.type(), tc.context())) {
+                    if (! tc.typeSystem().isSubtype(type().type(), htn.type(), tc.context())) {
                         Errors.issue(tc.job(),
                                      new Errors.TypeIsNotASubtypeOfTypeBound(type().type(),
                                                                              htn.type(),
@@ -199,17 +202,13 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
      * then typeCheckOverride would have set it from the type of the initializer.
      */
     @Override
-    public Node typeCheck(ContextVisitor tc) throws SemanticException {
+    public Node typeCheck(ContextVisitor tc) {
         final TypeNode typeNode = type();
         Type type = typeNode.type();
-
-        X10TypeChecker xtc = X10TypeChecker.getTypeChecker(tc);
 
         try {
             X10TypeMixin.checkMissingParameters(typeNode);
         } catch (SemanticException e) {
-            if (xtc.throwExceptions())
-                throw e;
             Errors.issue(tc.job(), e, this);
         }
         // Replace here by PlaceTerm because this local variable may be referenced
@@ -221,8 +220,6 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 
         if (type.isVoid()) {
             SemanticException e = new SemanticException("Local variable cannot have type " + this.type().type() + ".", position());
-            if (xtc.throwExceptions())
-                throw e;
             Errors.issue(tc.job(), e);
         }
 
@@ -232,8 +229,6 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
             ts.checkLocalFlags(flags.flags());
         }
         catch (SemanticException e) {
-            if (xtc.throwExceptions())
-                throw new SemanticException(e.getMessage(), position());
             Errors.issue(tc.job(), e, this);
         }
 
@@ -248,8 +243,6 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
             }
             catch (SemanticException e) {
                 Errors.CannotAssign e2 = new Errors.CannotAssign(n.init, type, n.init.position());
-                if (xtc.throwExceptions())
-                    throw e2;
                 Errors.issue(tc.job(), e2, n);
             }
         }
@@ -314,4 +307,41 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
             return n.hasType(hasType);
         }
 
+        public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
+            boolean printSemi = tr.appendSemicolon(true);
+            boolean printType = tr.printType(true);
+
+            Flags f = flags.flags();
+            Boolean fin = f.isFinal();
+            f = f.clearFinal();
+            w.write(f.translate());
+            for (Iterator<AnnotationNode> i = (((X10Ext) this.ext()).annotations()).iterator(); i.hasNext(); ) {
+                AnnotationNode an = i.next();
+                an.prettyPrint(w, tr);
+                w.allowBreak(0, " ");
+            }
+            if (fin)
+                w.write("val ");
+            else
+                w.write("var ");
+            
+            tr.print(this, name, w);
+            if (printType) {
+                w.write(":");
+                print(type, w, tr);
+            }
+
+            if (init != null) {
+                w.write(" =");
+                w.allowBreak(2, " ");
+                print(init, w, tr);
+            }
+
+            if (printSemi) {
+                w.write(";");
+            }
+
+            tr.printType(printType);
+            tr.appendSemicolon(printSemi);
+        }
 }

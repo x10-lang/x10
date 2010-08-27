@@ -21,13 +21,13 @@ import polyglot.ast.Id;
 import polyglot.ast.Node;
 import polyglot.ast.PackageNode;
 import polyglot.ast.Prefix;
-import polyglot.ast.TypeCheckTypeGoal;
 import polyglot.ast.TypeNode;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Goal;
 import polyglot.types.Context;
 import polyglot.types.Flags;
 import polyglot.types.LazyRef;
+import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -43,11 +43,13 @@ import x10.errors.Errors;
 import x10.extension.X10Del;
 import x10.extension.X10Del_c;
 import x10.types.MacroType;
+import x10.types.X10ClassType;
 import x10.types.X10Context;
 import x10.types.X10Flags;
 import x10.types.X10ParsedClassType;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
+import x10.types.X10TypeSystem_c;
 import x10.visit.X10TypeChecker;
 
 /**
@@ -104,13 +106,13 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode, A
       throw ex;
   }
 
-  public Node disambiguate(ContextVisitor ar) throws SemanticException {
+  public Node disambiguate(ContextVisitor ar) {
       SemanticException ex;
       
       Position pos = position();
       ContextVisitor tc = ar;
     
-      X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+      X10TypeSystem_c ts = (X10TypeSystem_c) tc.typeSystem();
       X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
     
       try {
@@ -119,8 +121,10 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode, A
 	      return tn;
       }
       catch (SemanticException e) {
-	  ((Ref<Type>) type).update(ts.unknownType(pos));
-	  return this;
+          X10ClassType ut = ts.createFakeClass(QName.make(null, name().id()), e);
+          ut.def().position(pos);
+          ((Ref<Type>) type).update(ut);
+          return this;
       }
 
       Prefix prefix = this.prefix;
@@ -200,10 +204,9 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode, A
     
       // Mark the type as an error, so we don't try looking it up again.
       LazyRef<Type> sym = (LazyRef<Type>) type;
-      sym.update(ar.typeSystem().unknownType(position()));
-      X10TypeChecker xtc = X10TypeChecker.getTypeChecker(tc);
-      if (xtc.throwExceptions())
-          throw ex;
+      X10ClassType ut = ts.createFakeClass(QName.make(null, name().id()), ex);
+      ut.def().position(position());
+      sym.update(ut);
       Errors.issue(tc.job(), ex, this);
       return nf.CanonicalTypeNode(position(), sym);
   }
@@ -214,7 +217,7 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode, A
   		LazyRef<Type> r = (LazyRef<Type>) typeRef();
   		TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
   		tc = (TypeChecker) tc.context(v.context().freeze());
-  		r.setResolver(new TypeCheckTypeGoal(parent, this, tc, r, false));
+  		r.setResolver(new TypeCheckTypeGoal(parent, this, tc, r));
   	}
   }
   static TypeNode postprocess(CanonicalTypeNode result, TypeNode n, ContextVisitor childtc) 

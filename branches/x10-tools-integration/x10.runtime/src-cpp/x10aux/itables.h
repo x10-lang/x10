@@ -66,7 +66,7 @@ namespace x10aux {
      */
     struct itable_entry {
         itable_entry(const RuntimeType* (initFunction_)(), void* itable_) : id(NULL), itable(itable_), initFunction(initFunction_) {}
-        const RuntimeType* id;
+        volatile const RuntimeType* id;
         void* itable;
         const RuntimeType* (*initFunction)();
     };
