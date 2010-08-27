@@ -181,7 +181,7 @@ public class ReachingDefsVisitor extends DataFlow {
     }
 
     @Override
-    protected void check(FlowGraph graph, Term n, boolean entry, Item inItem, Map outItems) throws SemanticException {
+    protected void check(FlowGraph graph, Term n, boolean entry, Item inItem, Map outItems) {
         if (n == fTopNode && !entry) {
             fTopValueMap= (ValueMap) inItem;
         }

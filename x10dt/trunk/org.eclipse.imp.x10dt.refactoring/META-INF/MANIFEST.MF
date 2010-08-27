@@ -20,7 +20,6 @@ Require-Bundle: org.eclipse.core.resources;bundle-version="3.4.2",
  org.eclipse.ui.editors,
  org.eclipse.ui.ide,
  org.eclipse.ui.workbench.texteditor,
- polyglot3;bundle-version="3.0.0",
  x10.constraints;bundle-version="1.7.3",
  x10.compiler;bundle-version="1.7.3",
  x10.effects;bundle-version="1.0.0"

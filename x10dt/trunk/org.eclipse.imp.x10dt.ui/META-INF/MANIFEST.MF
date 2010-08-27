@@ -30,7 +30,6 @@ Require-Bundle: lpg.runtime.java;bundle-version="2.0.18",
  org.eclipse.ui.console,
  org.eclipse.ui.editors,
  org.eclipse.ui.workbench.texteditor,
- polyglot3,
  x10.compiler,
  org.eclipse.imp.x10dt.ui.launch.java
 Bundle-Vendor: tibbitts@us.ibm.com
