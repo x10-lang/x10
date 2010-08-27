@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="X10DT Product" uid="org.eclipse.imp.x10dt.product" id="org.eclipse.platform.ide" application="org.eclipse.ui.ide.workbench" version="2.0.5.qualifier" useFeatures="true" includeLaunchers="true">
+<product name="X10DT Product" uid="org.eclipse.imp.x10dt.product" id="org.eclipse.platform.ide" application="org.eclipse.ui.ide.workbench" version="2.0.6.qualifier" useFeatures="true" includeLaunchers="true">
+
 
    <configIni use="default">
    </configIni>
@@ -12,12 +13,14 @@
 
    <windowImages/>
 
+
    <launcher name="x10dt">
       <solaris/>
       <win useIco="false">
          <bmp/>
       </win>
    </launcher>
+
 
    <vm>
    </vm>
