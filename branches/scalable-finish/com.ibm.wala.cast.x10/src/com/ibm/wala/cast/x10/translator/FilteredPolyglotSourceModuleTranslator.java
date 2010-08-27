@@ -6,8 +6,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import org.eclipse.core.resources.ResourcesPlugin;
-
 import com.ibm.wala.cast.java.translator.polyglot.IRTranslatorExtension;
 import com.ibm.wala.cast.java.translator.polyglot.PolyglotSourceLoaderImpl;
 import com.ibm.wala.cast.java.translator.polyglot.PolyglotSourceModuleTranslator;
@@ -44,16 +42,16 @@ public class FilteredPolyglotSourceModuleTranslator extends PolyglotSourceModule
     }
 
     /**
-     * Reads the contents of the given input stream into a string using the given encoding.
+     * Reads the contents of the given input stream.
      * Returns null if an error occurred.
      */
-    public static String readStreamContents(InputStream is, String encoding) {
+    public static String readStreamContents(InputStream is) {
         BufferedReader reader= null;
         try {
             StringBuffer buffer= new StringBuffer();
             char[] part= new char[2048];
             int read= 0;
-            reader= new BufferedReader(new InputStreamReader(is, encoding));
+            reader= new BufferedReader(new InputStreamReader(is));
     
             while ((read= reader.read(part)) != -1)
                 buffer.append(part, 0, read);
@@ -71,9 +69,5 @@ public class FilteredPolyglotSourceModuleTranslator extends PolyglotSourceModule
             }
         }
         return null;
-    }
-
-    public static String readStreamContents(InputStream is) {
-        return readStreamContents(is, ResourcesPlugin.getEncoding());
     }
 }
