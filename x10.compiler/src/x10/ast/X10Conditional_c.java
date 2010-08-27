@@ -110,25 +110,25 @@ public class X10Conditional_c extends Conditional_c implements X10Conditional {
                     
                     if ((ts.isByte(t1) || ts.isShort(t1) || ts.isInt(t1) || ts.isUByte(t1) || ts.isUShort(t1) || ts.isUInt(t1)) &&
                             t2.isInt() &&
-                            ts.numericConversionValid(t1, e2.constantValue(), context)) {
+                            ts.numericConversionValid(t1, t2, e2.constantValue(), context)) {
                         return type(t1);
                     }
 
                     if ((ts.isByte(t1) || ts.isShort(t1) || ts.isInt(t1) || ts.isUByte(t1) || ts.isUShort(t1) || ts.isUInt(t1)) &&
                             ts.isUInt(t2) &&
-                            ts.numericConversionValid(t1, e2.constantValue(), context)) {
+                            ts.numericConversionValid(t1, t2, e2.constantValue(), context)) {
                         return type(t1);
                     }
 
                     if ((ts.isByte(t2) || ts.isShort(t2) || ts.isInt(t2) || ts.isUByte(t2) || ts.isUShort(t2) || ts.isUInt(t2)) &&
                             t1.isInt() &&
-                            ts.numericConversionValid(t2, e2.constantValue(), context)) {
+                            ts.numericConversionValid(t2, t2, e2.constantValue(), context)) {
                         return type(t2);
                     }
 
                     if ((ts.isByte(t2) || ts.isShort(t2) || ts.isInt(t2) || ts.isUByte(t2) || ts.isUShort(t2) || ts.isUInt(t2)) &&
                             ts.isUInt(t1) &&
-                            ts.numericConversionValid(t2, e2.constantValue(), context)) {
+                            ts.numericConversionValid(t2, t2, e2.constantValue(), context)) {
                         return type(t2);
                     }
 

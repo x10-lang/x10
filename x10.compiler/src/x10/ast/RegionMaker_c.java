@@ -45,7 +45,7 @@ public class RegionMaker_c extends X10Call_c implements RegionMaker {
 		super(pos, target, name, Collections.EMPTY_LIST, arguments);
 	
 	}
-	public Node typeCheck(ContextVisitor tc) throws SemanticException {
+	public Node typeCheck(ContextVisitor tc) {
 		X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
 		RegionMaker_c n = (RegionMaker_c) super.typeCheck(tc);
 		Expr left = (Expr) n.arguments.get(0);

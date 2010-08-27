@@ -106,7 +106,7 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode, A
       throw ex;
   }
 
-  public Node disambiguate(ContextVisitor ar) throws SemanticException {
+  public Node disambiguate(ContextVisitor ar) {
       SemanticException ex;
       
       Position pos = position();
@@ -207,9 +207,6 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode, A
       X10ClassType ut = ts.createFakeClass(QName.make(null, name().id()), ex);
       ut.def().position(position());
       sym.update(ut);
-      X10TypeChecker xtc = X10TypeChecker.getTypeChecker(tc);
-      if (xtc.throwExceptions())
-          throw ex;
       Errors.issue(tc.job(), ex, this);
       return nf.CanonicalTypeNode(position(), sym);
   }

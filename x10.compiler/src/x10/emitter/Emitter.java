@@ -11,8 +11,6 @@
 
 package x10.emitter;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -29,7 +27,6 @@ import java.util.Set;
 import polyglot.ast.Binary;
 import polyglot.ast.Call;
 import polyglot.ast.Cast;
-import polyglot.ast.CharLit;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
 import polyglot.ast.Field_c;
@@ -41,7 +38,6 @@ import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
-import polyglot.ast.StringLit;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.types.ClassDef;
@@ -66,25 +62,10 @@ import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.StringUtil;
 import polyglot.visit.Translator;
-import x10.Configuration;
-import x10.ast.Clocked;
 import x10.ast.ClosureCall;
 import x10.ast.ParExpr_c;
 import x10.ast.TypeParamNode;
-import x10.ast.X10ClockedLoop;
 import x10.ast.X10MethodDecl_c;
-import x10.constraint.XAnd;
-import x10.constraint.XEQV;
-import x10.constraint.XEquals;
-import x10.constraint.XField;
-import x10.constraint.XFormula;
-import x10.constraint.XLit;
-import x10.constraint.XLocal;
-import x10.constraint.XName;
-import x10.constraint.XNameWrapper;
-import x10.constraint.XNot;
-import x10.constraint.XTerm;
-import x10.constraint.XTerms;
 import x10.extension.X10Ext;
 import x10.types.ConstrainedType_c;
 import x10.types.FunctionType;
@@ -99,12 +80,8 @@ import x10.types.X10MethodInstance;
 import x10.types.X10ParsedClassType_c;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
-import x10.types.XTypeTranslator.XTypeLit_c;
 import x10.types.checker.Converter;
-import x10.types.constraints.CConstraint;
 import x10.visit.X10PrettyPrinterVisitor;
-import x10.visit.X10Translator;
-import x10.visit.X10PrettyPrinterVisitor.CircularList;
 import x10c.types.BackingArrayType;
 
 public class Emitter {
@@ -150,7 +127,7 @@ public class Emitter {
 		return mangleIdentifier(Name.make(n)).toString();
 	}
 
-	public static Name mangleIdentifier(Name n) {
+	private static Name mangleIdentifier(Name n) {
 		Map<Name,Name> map = new HashMap<Name,Name>();
 		map.put(Converter.operator_as, Name.make("$convert"));
 		map.put(Converter.implicit_operator_as, Name.make("$implicit_convert"));
@@ -342,7 +319,7 @@ public class Emitter {
 		return null;
 	}
 	
-	public boolean isPrimitiveJavaRep(X10ClassDef def) {
+	private boolean isPrimitiveJavaRep(X10ClassDef def) {
 		String pat = getJavaRepParam(def, 1);
 		if (pat == null) {
 			return false;
@@ -357,7 +334,7 @@ public class Emitter {
 		return false;
 	}
 
-	public String getJavaRep(X10ClassDef def, boolean boxPrimitives) {
+	private String getJavaRep(X10ClassDef def, boolean boxPrimitives) {
 		String pat = getJavaRepParam(def, 1);
 		if (pat != null && boxPrimitives) {
 			String[] s = new String[] { "boolean", "byte", "char",
@@ -385,7 +362,7 @@ public class Emitter {
 		return getJavaRepParam(def, 3);
 	}
 
-	public String getJavaRepParam(X10ClassDef def, int i) {
+	private String getJavaRepParam(X10ClassDef def, int i) {
 		try {
 			X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
 			Type rep = (Type) xts.systemResolver().find(
@@ -403,7 +380,7 @@ public class Emitter {
 		return null;
 	}
 
-	public String getPropertyInit(Type at, int index) {
+	private String getPropertyInit(Type at, int index) {
 		at = X10TypeMixin.baseType(at);
 		if (at instanceof X10ClassType) {
 			X10ClassType act = (X10ClassType) at;
@@ -420,7 +397,7 @@ public class Emitter {
 		return null;
 	}
 
-	public void assertNumberOfInitializers(Type at, int len) {
+	private void assertNumberOfInitializers(Type at, int len) {
 		at = X10TypeMixin.baseType(at);
 		if (at instanceof X10ClassType) {
 			X10ClassType act = (X10ClassType) at;
@@ -428,7 +405,7 @@ public class Emitter {
 		}
 	}
 
-	boolean printRepType(Type type, boolean printGenerics,
+	private boolean printRepType(Type type, boolean printGenerics,
 			boolean boxPrimitives, boolean inSuper) {
 		if (type.isVoid()) {
 			w.write("void");
@@ -462,13 +439,14 @@ public class Emitter {
 		return false;
 	}
 
-	public String rttShortName(X10ClassDef cd) {
+	private String rttShortName(X10ClassDef cd) {
 		if (cd.isMember() || cd.isLocal())
 			return cd.name() + "$RTT";
 		else
 			return "RTT";
 	}
 
+	@Deprecated
 	public String rttName(X10ClassDef cd) {
 		if (cd.isTopLevel())
 			return cd.fullName() + "." + rttShortName(cd);
@@ -617,201 +595,8 @@ public class Emitter {
 			}
 		}
 	}
-	public void serializeConstraint(CConstraint constraint) {
-		//       String serializedConstraint = serializedForm(constraint);
-		//       StringLit lit = tr.nodeFactory().StringLit(Position.COMPILER_GENERATED, serializedConstraint);
-		//       tr.print(null, lit, w);
-		w.write("new x10.constraint.CConstraint_c() {{");
-		w.newline(4);
-		w.begin(0);
-		w.write("try {");
-		w.newline(4);
-		w.begin(0);
-		List<XTerm> terms = constraint.constraints();
-		for (XTerm term : terms) {
-			w.write("addTerm(");
-			w.begin(0);
-			serializeTerm(term, constraint);
-			w.end();
-			w.write(");");
-			w.newline();
-			// XConstraint_c c = new XConstraint_c();
-			// c.addTerm(XTerms.makeEquals(XTerms.makeField(c.self(),
-			// XTerms.makeName("p")), XTerms.makeLit(2)))
-		}
-		w.end();
-		w.newline();
-		w.write("} catch (x10.constraint.XFailure f) {");
-		w.newline(4);
-		w.begin(0);
-		w.write("setInconsistent();");
-		w.end();
-		w.newline();
-		w.write("}");
-		w.end();
-		w.newline();
-		w.write("}}");
-	}
 
-	private static final String XTERMS = "x10.constraint.XTerms";
-	private void serializeTerm(XTerm term, CConstraint parent) {
-		if (term.equals(parent.self())) {
-			w.write("self()");
-		} else if (term == XTerms.OPERATOR) {
-			w.write(XTERMS + ".OPERATOR");
-		} else if (term instanceof XAnd) {
-			w.write(XTERMS + ".makeAnd(");
-			w.begin(0);
-			serializeTerm(((XAnd) term).left(), parent);
-			w.write(",");
-			w.allowBreak(0, " ");
-			serializeTerm(((XAnd) term).right(), parent);
-			w.end();
-			w.write(")");
-		} else if (term instanceof XEquals) {
-			w.write(XTERMS + ".makeEquals(");
-			w.begin(0);
-			serializeTerm(((XEquals) term).left(), parent);
-			w.write(",");
-			w.allowBreak(0, " ");
-			serializeTerm(((XEquals) term).right(), parent);
-			w.end();
-			w.write(")");
-		} else if (term instanceof XNot) {
-			w.write(XTERMS + ".makeNot(");
-			w.begin(0);
-			serializeTerm(((XNot) term).unaryArg(), parent);
-			w.end();
-			w.write(")");
-		} else if (term instanceof XFormula) {
-			if (!((XFormula) term).isAtomicFormula())
-				throw new RuntimeException("Non-atomic formula encountered: "
-						+ term);
-			w.write(XTERMS + ".makeAtom(");
-			w.begin(0);
-			serializeName(((XFormula) term).operator());
-			List<XTerm> arguments = ((XFormula) term).arguments();
-			for (XTerm arg : arguments) {
-				w.write(",");
-				w.allowBreak(0, " ");
-				serializeTerm(arg, parent);
-			}
-			w.end();
-			w.write(")");
-		} else if (term instanceof XTypeLit_c) {
-			w.write("new x10.rtt.ConstrainedType.XTypeLit_c(");
-			w.begin(0);
-			new RuntimeTypeExpander(this, ((XTypeLit_c) term).type())
-					.expand(tr);
-			w.end();
-			w.write(")");
-		} else if (term instanceof XLit) {
-			Object val = ((XLit) term).val();
-			w.write(XTERMS + ".makeLit(");
-			w.begin(0);
-			if (val == null) {
-				w.write("null");
-			} else if (val instanceof Boolean || val instanceof Number) {
-				w.write(val.toString());
-			} else if (val instanceof Character) {
-				CharLit lit = tr.nodeFactory().CharLit(
-						Position.COMPILER_GENERATED,
-						((Character) val).charValue());
-				tr.print(null, lit, w);
-			} else if (val instanceof String) {
-				StringLit lit = tr.nodeFactory().StringLit(
-						Position.COMPILER_GENERATED, (String) val);
-				tr.print(null, lit, w);
-			} else if (val instanceof QName) {
-				StringLit lit = tr.nodeFactory().StringLit(
-						Position.COMPILER_GENERATED, ((QName) val).toString());
-				tr.print(null, lit, w);
-			} else if (val instanceof XName) {
-				serializeName((XName) val);
-			} else if (val.getClass() == Object.class) {
-				StringLit lit = tr.nodeFactory().StringLit(
-						Position.COMPILER_GENERATED, val.toString());
-				tr.print(null, lit, w);
-			} else {
-				throw new RuntimeException("Unknown value type "
-						+ val.getClass());
-			}
-			w.end();
-			w.write(")");
-		} else if (term instanceof XField) {
-			w.write(XTERMS + ".makeField((x10.constraint.XVar)");
-			w.begin(0);
-			serializeTerm(((XField) term).receiver(), parent);
-			w.write(",");
-			w.allowBreak(0, " ");
-			serializeName(((XField) term).field());
-			w.end();
-			w.write(")");
-		} else if (term instanceof XEQV) {
-			w.write("genEQV(");
-			w.begin(0);
-			serializeName(((XEQV) term).name());
-			w.write(",");
-			w.allowBreak(0, " ");
-			w.write("" + ((XEQV) term).isEQV());
-			w.end();
-			w.write(")");
-		} else if (term instanceof XLocal) {
-			w.write(XTERMS + ".makeLocal(");
-			w.begin(0);
-			serializeName(((XLocal) term).name());
-			w.end();
-			w.write(")");
-		} else {
-			throw new RuntimeException("Unknown term type " + term.getClass()
-					+ ": " + term);
-		}
-	}
-
-	private void serializeName(XName n) {
-		assert (n instanceof XNameWrapper<?>);
-		XNameWrapper<?> name = (XNameWrapper<?>) n;
-		w.write(XTERMS + ".makeName(");
-		w.begin(0);
-		Object val = name.val();
-		if (val == null) {
-			w.write("null");
-		} else if (val instanceof Def) {
-			StringLit lit = tr.nodeFactory().StringLit(
-					Position.COMPILER_GENERATED, val.toString());
-			tr.print(null, lit, w);
-		} else if (val instanceof ParameterType) {
-			StringLit lit = tr.nodeFactory().StringLit(
-					Position.COMPILER_GENERATED, val.toString());
-			tr.print(null, lit, w);
-		} else if (val instanceof Binary.Operator) {
-			StringLit lit = tr.nodeFactory().StringLit(
-					Position.COMPILER_GENERATED, val.toString());
-			tr.print(null, lit, w);
-		} else if (val instanceof Unary.Operator) {
-			StringLit lit = tr.nodeFactory().StringLit(
-					Position.COMPILER_GENERATED, val.toString());
-			tr.print(null, lit, w);
-		} else if (val instanceof String) {
-			StringLit lit = tr.nodeFactory().StringLit(
-					Position.COMPILER_GENERATED, val.toString());
-			tr.print(null, lit, w);
-		} else if (val.getClass() == Object.class) {
-			StringLit lit = tr.nodeFactory().StringLit(
-					Position.COMPILER_GENERATED, val.toString());
-			tr.print(null, lit, w);
-		} else {
-			throw new RuntimeException("Unknown value type " + val.getClass());
-		}
-		w.write(",");
-		w.allowBreak(0, " ");
-		StringLit lit = tr.nodeFactory().StringLit(Position.COMPILER_GENERATED,
-				name.toString());
-		tr.print(null, lit, w);
-		w.end();
-		w.write(")");
-	}
-
+	@Deprecated
 	public void generateDispatchers(X10ClassDef cd) {
 		if (true)
 			return;
@@ -887,7 +672,7 @@ public class Emitter {
 		return false;
 	}
 
-	public void getInheritedVirtualMethods(X10ClassType ct,
+	private void getInheritedVirtualMethods(X10ClassType ct,
 			List<MethodInstance> methods) {
 		for (MethodInstance mi : ct.methods()) {
 			if (!mi.flags().isStatic())
@@ -904,7 +689,7 @@ public class Emitter {
 		}
 	}
 
-	public void generateDispatcher(X10MethodInstance md, boolean usesClassParam) {
+	private void generateDispatcher(X10MethodInstance md, boolean usesClassParam) {
 		X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
 
 		Flags flags = md.flags();
@@ -1067,10 +852,12 @@ public class Emitter {
 		return false;
 	}
 
+	@Deprecated
 	public void generateRTTMethods(X10ClassDef def) {
 		generateRTTMethods(def, false);
 	}
 
+	@Deprecated
 	public void generateRTTMethods(X10ClassDef def, boolean boxed) {
 		Set<ClassDef> visited = new HashSet<ClassDef>();
 		visited.add(def);
@@ -1707,6 +1494,7 @@ public class Emitter {
 	    return false;
 	}
 
+	@Deprecated
 	public void generateRTType(X10ClassDef def) {
 		w.newline();
 
@@ -1716,10 +1504,6 @@ public class Emitter {
 				&& !def.classInvariant().get().valid();
 
 		String superClass = "x10.rtt.RuntimeType";
-		if (X10PrettyPrinterVisitor.serialize_runtime_constraints
-				&& isConstrained) { // constrained type; treat specially
-			superClass = "x10.rtt.ConstrainedType";
-		}
 
 		if (def.asType().isGloballyAccessible()) {
 			w.write("public static ");
@@ -1786,25 +1570,8 @@ public class Emitter {
 		w.begin(4);
 		w.write("super(");
 
-		if (X10PrettyPrinterVisitor.serialize_runtime_constraints
-				&& isConstrained) { // constrained type; treat specially
-			w.write("new x10.rtt.RuntimeType<");
-			printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES);
-			w.write(">(");
-			printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES);
-			w.write(".class");
-			w.write(")");
-			// new RuntimeTypeExpander(def.asType()).expand(tr); // Cannot do
-			// this, because we are *defining* T.it here
-			w.write(", ");
-			w.write("null, "); // TODO
-			CConstraint constraint = def.classInvariant().get();
-			assert (constraint != null);
-			serializeConstraint(constraint);
-		} else {
-			printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES);
-			w.write(".class");
-		}
+		printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+		w.write(".class");
 		w.write(");");
 		w.newline();
 		for (int i = 0; i < def.typeParameters().size(); i++) {
@@ -2218,62 +1985,6 @@ public class Emitter {
 					return false;
 		}
 		return true;
-	}
-
-	public boolean needsHereCheck(Receiver target, X10Context context) {
-		return false;
-		/*
-		 * boolean needsHereCheck = true; // calls on new objects needsHereCheck
-		 * &= ! (target instanceof New); // others... needsHereCheck &=
-		 * QueryEngine.INSTANCE().needsHereCheck(target.type(), context);
-		 * 
-		 * if (needsHereCheck) { if (target instanceof X10Cast) { X10Cast c =
-		 * (X10Cast) target; if (c.conversionType() ==
-		 * X10Cast.ConversionType.CHECKED) { return needsHereCheck(c.expr(),
-		 * context); } } } return needsHereCheck;
-		 */
-	}
-
-	private Template processClocks(Clocked c) {
-		assert (null != c.clocks());
-		Template clocks = null;
-		// if (c.clocks().isEmpty())
-		// clocks = null;
-		// else if (c.clocks().size() == 1)
-		// clocks = new Template("clock", c.clocks().get(0));
-		// else {
-		Integer id = X10PrettyPrinterVisitor.getUniqueId_();
-//		clocks = new Template(this, "clocked", new Loop(this, "clocked-loop", c
-//				.clocks(), new CircularList<Integer>(id)), id);
-		// }
-
-		// SYNOPSIS: #0=clock    #1=unique_id
-		String regex = "#0,";
-		Loop loop = new Loop(this, "clocked-loop", regex, c.clocks(), new CircularList<Integer>(id));
-		clocks = Template.createTemplateFromRegex(this, null,
-		                                          "x10.core.RailFactory.<x10.lang.Clock>makeValRailFromJavaArray(x10.lang.Clock._RTT, new x10.lang.Clock[] { #0 })",
-		                                          loop,
-		                                          id);
-
-		return clocks;
-	}
-
-	public void processClockedLoop(String template, String regex, X10ClockedLoop l) {
-		Translator tr2 = ((X10Translator) tr).inInnerClass(true);
-		Template.createTemplateFromRegex(this, template, regex,
-	                    /* #0 */l.formal().flags(),
-	                    /* #1 */l.formal().type(),
-	                    /* #2 */l.formal().name(),
-	                    /* #3 */l.domain(),
-	                            /* #4 */new Join(this, "\n", new Join(this, "\n", l.locals()),
-	                                    l.body()),
-	                            /* #5 */processClocks(l),
-	                            /* #6 */new Join(this, "\n", l.locals()),
-	                            /* #7 */new TypeExpander(this, l.formal().type().type(),
-	                                    X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS
-	                                            | X10PrettyPrinterVisitor.BOX_PRIMITIVES),
-	                            /* #8 */l.position().nameAndLineString().replace("\\", "\\\\"))
-	                            .expand(tr2);
 	}
 
 	public String convertToString(Object[] a) {

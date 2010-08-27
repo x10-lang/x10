@@ -41,6 +41,7 @@ import x10.constraint.XFailure;
 import x10.constraint.XLocal;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
+import x10.errors.Errors;
 import x10.types.X10Context;
 import x10.types.X10FieldInstance;
 import x10.types.X10Flags;
@@ -59,25 +60,26 @@ public class X10Local_c extends Local_c {
 		super(pos, name);
 		
 	}
-	public Node typeCheck(ContextVisitor tc) throws SemanticException {
-		
-		try {
-			X10Context context = (X10Context) tc.context();
-			LocalInstance li = localInstance();
-			if (!((X10LocalInstance) li).isValid()) li = context.findLocal(name.id());
+	public Node typeCheck(ContextVisitor tc) {
+	    X10Context context = (X10Context) tc.context();
+	    LocalInstance li = localInstance();
+	    if (!((X10LocalInstance) li).isValid()) {
+	        li = findAppropriateLocal(tc, name.id());
+	    }
 
-			// if the local is defined in an outer class, then it must be final
-			if (!context.isLocal(li.name())) {
-				// this local is defined in an outer class
-				if (!li.flags().isFinal() && !X10Flags.toX10Flags(li.flags()).isShared()) {
-					throw new SemanticException("Local variable \"" + li.name() + 
-							"\" is accessed from an inner class or a closure, and must be declared final or shared.",
-							this.position());                     
-				}
-			}
-			
-			X10Local_c result = (X10Local_c) localInstance(li).type(li.type());
-			
+	    // if the local is defined in an outer class, then it must be final
+	    if (!context.isLocal(li.name())) {
+	        // this local is defined in an outer class
+	        if (!li.flags().isFinal() && !X10Flags.toX10Flags(li.flags()).isShared()) {
+	            Errors.issue(tc.job(), new SemanticException("Local variable \"" + li.name() + 
+	                    "\" is accessed from an inner class or a closure, and must be declared final or shared.",
+	                    this.position()));                     
+	        }
+	    }
+
+	    X10Local_c result = (X10Local_c) localInstance(li).type(li.type());
+
+		try {
 			VarDef dli = context.varWhoseTypeIsBeingElaborated();
 			if (context.inDepType()) {
 				li = result.localInstance();
@@ -117,7 +119,11 @@ public class X10Local_c extends Local_c {
         			else dep = dep.copy();
 //        			XTerm resultTerm = xts.xtypeTranslator().trans(result);
 //        			dep.addSelfBinding((XVar) resultTerm);
-        			dep.addIn(c);
+        			try {
+        			    dep.addIn(c);
+        			} catch (XFailure e) {
+        			    throw new SemanticException(e.getMessage(), position());
+        			}
         			
         			t = X10TypeMixin.xclause(X10TypeMixin.baseType(t), dep);
         			
@@ -125,23 +131,10 @@ public class X10Local_c extends Local_c {
 				}
 			}
 			
-			return result;
 		} catch (SemanticException z) {
-//			if (tc instanceof TypeElaborator && !(z instanceof SemanticError)) {
-//				// Ignore semantic exceptions that may arise during TypeElaboration. The
-//				// field being referenced may not exist because of an MDE -- e.g. its type
-//				// does not yet have its signature resolved. 
-//				if (Report.should_report("types", 2)) 
-//					Report.report(2, "X10Local_c: " + this 
-//							+ " encountered exception " + z + " during " + tc + "; being ignored.");
-//				return this;
-//			} else {
-				throw z;
-//			}
+			Errors.issue(tc.job(), z, this);
 		}
-		catch (XFailure e) {
-			throw new SemanticException(e.getMessage(), position());
-		}
+		return result;
 	}
 
     public static X10LocalInstance findAppropriateLocal(ContextVisitor tc, Name name) {

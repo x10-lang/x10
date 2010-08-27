@@ -131,7 +131,7 @@ public class Tuple_c extends Expr_c implements Tuple {
 
         for (Expr e : elements) {
             if (e == child) {
-                if (ts.numericConversionValid(base, e.constantValue(), av.context())) {
+                if (ts.numericConversionValid(base, child.type(), e.constantValue(), av.context())) {
                     return child.type();
                 }
                 else {

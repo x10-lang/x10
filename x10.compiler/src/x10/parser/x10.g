@@ -1364,10 +1364,15 @@ public static class MessageHandler implements IMessageHandler {
       | MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) BinOp ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
         /.$BeginJava
            MethodModifiersopt = checkMethodModifiers(MethodModifiersopt);
+           Name opName = X10Binary_c.binaryMethodName(BinOp);
+           if (opName == null) {
+               syntaxError("Cannot override binary operator '"+BinOp+"'.", pos());
+               opName = Name.make("invalid operator");
+           }
            MethodDecl md = nf.X10MethodDecl(pos(),
               extractFlags(MethodModifiersopt),
               HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
-              nf.Id(pos(getRhsFirstTokenIndex($BinOp)), X10Binary_c.binaryMethodName(BinOp)),
+              nf.Id(pos(getRhsFirstTokenIndex($BinOp)), opName),
               TypeParametersopt,
               Arrays.<Formal>asList(fp1, fp2),
               WhereClauseopt,
@@ -1383,10 +1388,15 @@ public static class MessageHandler implements IMessageHandler {
       | MethodModifiersopt operator TypeParametersopt PrefixOp ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
         /.$BeginJava
            MethodModifiersopt = checkMethodModifiers(MethodModifiersopt);
+           Name opName = X10Unary_c.unaryMethodName(PrefixOp);
+           if (opName == null) {
+               syntaxError("Cannot override unary operator '"+PrefixOp+"'.", pos());
+               opName = Name.make("invalid operator");
+           }
            MethodDecl md = nf.X10MethodDecl(pos(),
               extractFlags(MethodModifiersopt),
               HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
-              nf.Id(pos(getRhsFirstTokenIndex($PrefixOp)), X10Unary_c.unaryMethodName(PrefixOp)),
+              nf.Id(pos(getRhsFirstTokenIndex($PrefixOp)), opName),
               TypeParametersopt,
               Collections.<Formal>singletonList(fp2),
               WhereClauseopt,
@@ -1402,10 +1412,15 @@ public static class MessageHandler implements IMessageHandler {
       | MethodModifiersopt operator TypeParametersopt this BinOp ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
         /.$BeginJava
            MethodModifiersopt = checkMethodModifiers(MethodModifiersopt);
+           Name opName = X10Binary_c.binaryMethodName(BinOp);
+           if (opName == null) {
+               syntaxError("Cannot override binary operator '"+BinOp+"'.", pos());
+               opName = Name.make("invalid operator");
+           }
            MethodDecl md = nf.X10MethodDecl(pos(),
               extractFlags(MethodModifiersopt),
               HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
-              nf.Id(pos(getRhsFirstTokenIndex($BinOp)), X10Binary_c.binaryMethodName(BinOp)),
+              nf.Id(pos(getRhsFirstTokenIndex($BinOp)), opName),
               TypeParametersopt,
               Collections.<Formal>singletonList(fp2),
               WhereClauseopt,
@@ -1422,11 +1437,15 @@ public static class MessageHandler implements IMessageHandler {
       | MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) BinOp this WhereClauseopt HasResultTypeopt  Throwsopt Offersopt MethodBody
         /.$BeginJava
            MethodModifiersopt = checkMethodModifiers(MethodModifiersopt);
-           Name op = X10Binary_c.invBinaryMethodName(BinOp);
+           Name opName = X10Binary_c.invBinaryMethodName(BinOp);
+           if (opName == null) {
+               syntaxError("Cannot override binary operator '"+BinOp+"'.", pos());
+               opName = Name.make("invalid operator");
+           }
            MethodDecl md = nf.X10MethodDecl(pos(),
               extractFlags(MethodModifiersopt),
               HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
-              nf.Id(pos(getRhsFirstTokenIndex($BinOp)), X10Binary_c.invBinaryMethodName(BinOp)),
+              nf.Id(pos(getRhsFirstTokenIndex($BinOp)), opName),
               TypeParametersopt,
               Collections.<Formal>singletonList(fp1),
               WhereClauseopt,
@@ -1443,10 +1462,15 @@ public static class MessageHandler implements IMessageHandler {
       | MethodModifiersopt operator TypeParametersopt PrefixOp this WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
         /.$BeginJava
            MethodModifiersopt = checkMethodModifiers(MethodModifiersopt);
+           Name opName = X10Unary_c.unaryMethodName(PrefixOp);
+           if (opName == null) {
+               syntaxError("Cannot override unary operator '"+PrefixOp+"'.", pos());
+               opName = Name.make("invalid operator");
+           }
            MethodDecl md = nf.X10MethodDecl(pos(),
               extractFlags(MethodModifiersopt),
               HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
-              nf.Id(pos(getRhsFirstTokenIndex($PrefixOp)), X10Unary_c.unaryMethodName(PrefixOp)),
+              nf.Id(pos(getRhsFirstTokenIndex($PrefixOp)), opName),
               TypeParametersopt,
               Collections.EMPTY_LIST,
               WhereClauseopt,

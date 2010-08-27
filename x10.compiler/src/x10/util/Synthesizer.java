@@ -1432,8 +1432,18 @@ public class Synthesizer {
 		        r = xnf.TypeNodeFromQualifiedName(pos, (QName) val);
 		    }
 		}
-		Name n = Name.make(t.field().toString());
-		return xnf.Field(pos, r, xnf.Id(pos, n));
+		String str = t.field().toString();
+		int i = str.indexOf("#");
+		//TypeNode tn = null;
+		if (i > 0) {
+		    // FIXME: should we create a type node and cast?  Can we ever access fields of a superclass?
+		    //String typeName = str.substring(0, i);
+		    //tn = xnf.TypeNodeFromQualifiedName(pos,  QName.make(typeName));
+		    str = str.substring(i+1);
+		    if (str.endsWith("()"))
+		        str = str.substring(0, str.length()-2);
+		}
+		return xnf.Field(pos, r, xnf.Id(pos, Name.make(str)));
 	}
 	Expr makeExpr(XEQV t, Position pos) {
 		String str = t.toString();
@@ -1481,18 +1491,20 @@ public class Synthesizer {
 		Object val = t.val();
 		if (val== null)
 			return xnf.NullLit(pos);
-		if (val instanceof String) 
+		if (val instanceof String)
 			return xnf.StringLit(pos, (String) val);
-		if (val instanceof Integer) 
-			return xnf.IntLit(pos,  IntLit.INT, ((Integer) val).intValue());
-		if (val instanceof Long) 
-			return xnf.IntLit(pos,  IntLit.LONG, ((Long) val).longValue());
-		if (val instanceof Boolean) 
-			return xnf.BooleanLit(pos,   ((Boolean) val).booleanValue());
-		if (val instanceof Character) 
-			return xnf.CharLit(pos,   ((Character) val).charValue());
-		if (val instanceof Float) 
-			return xnf.FloatLit(pos,  FloatLit.DOUBLE, ((Double) val).doubleValue());
+		if (val instanceof Integer)
+			return xnf.IntLit(pos, IntLit.INT, ((Integer) val).intValue());
+		if (val instanceof Long)
+			return xnf.IntLit(pos, IntLit.LONG, ((Long) val).longValue());
+		if (val instanceof Boolean)
+			return xnf.BooleanLit(pos, ((Boolean) val).booleanValue());
+		if (val instanceof Character)
+			return xnf.CharLit(pos, ((Character) val).charValue());
+		if (val instanceof Float)
+			return xnf.FloatLit(pos, FloatLit.FLOAT, ((Float) val).doubleValue());
+		if (val instanceof Double)
+			return xnf.FloatLit(pos, FloatLit.DOUBLE, ((Double) val).doubleValue());
 		return null;
 	}
 	Expr makeExpr(XEquals t, Position pos) {

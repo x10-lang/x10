@@ -305,7 +305,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 	}
 	
 	@Override
-	public Node typeCheck(ContextVisitor tc) throws SemanticException {
+	public Node typeCheck(ContextVisitor tc) {
 	    SettableAssign_c a = (SettableAssign_c) x10.types.checker.Checker.typeCheckAssign(this, tc);
 	    return a.type(a.mi.returnType());
 	}
