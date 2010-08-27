@@ -1247,7 +1247,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             XVar self = X10TypeMixin.selfVar(c1);
             if (self instanceof XLit) {
                 Object val = ((XLit) self).val();
-                if (numericConversionValid(baseType2, val)) {
+                if (numericConversionValid(baseType2, baseType1, val)) {
                     return true;
                 }
             }
