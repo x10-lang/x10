@@ -152,7 +152,7 @@ do
     ssh ${userID}@$host "bash -l -c 'cd /tmp; ./buildToolIntegration.sh ${noClean} -dir $remoteTmpDir -rev $rev'"
     rc=$?
     ssh ${userID}@$host "(cd /tmp; rm ./buildToolIntegration.sh)"
-    if [ $rc == 0 && -z "$noTransfer" ]; then
+    if [[ $rc == 0 && -z "$noTransfer" ]]; then
         echo "Transferring file from $host to localhost"
         scp "${userID}@$host:$remoteTmpDir/x10/x10.dist/x10-tib*.tgz" .
         echo "Transferring from localhost to orquesta"
