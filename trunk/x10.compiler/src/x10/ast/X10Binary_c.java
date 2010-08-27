@@ -385,9 +385,11 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 //                return type(xts.Boolean());
 //            }
 
-            throw new SemanticException("The " + op +
-                                        " operator must have operands of comparable type; the types " + lbase + " and " + rbase + " do not share any values.",
-                                        position());
+            Errors.issue(tc.job(),
+                    new SemanticException("The " + op +
+                            " operator must have operands of comparable type; the types " + lbase + " and " + rbase + " do not share any values.",
+                            position()));
+            return type(xts.Boolean());
         }
 
         Call c = desugarBinaryOp(this, tc);
@@ -418,28 +420,6 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         if (op == COND_OR || op == COND_AND) {
             if (l.isBoolean() && r.isBoolean()) {
                 return type(ts.Boolean());
-            }
-        }
-
-        if (op == ADD) {
-            assert (false);
-            if (ts.isSubtype(l, ts.String(), context) || ts.isSubtype(r, ts.String(), context)) {
-                assert (false);
-                if (!ts.canCoerceToString(l, tc.context())) {
-                    throw new SemanticException("Cannot coerce an expression " + 
-                                                "of type " + l + " to a String.", 
-                                                left.position());
-                }
-                if (!ts.canCoerceToString(r, tc.context())) {
-                    throw new SemanticException("Cannot coerce an expression " + 
-                                                "of type " + r + " to a String.", 
-                                                right.position());
-                }
-
-                Expr newLeft = coerceToString(tc, left);
-                Expr newRight = coerceToString(tc, right);
-
-                return precedence(Precedence.STRING_ADD).left(newLeft).right(newRight).type(ts.String());
             }
         }
 
