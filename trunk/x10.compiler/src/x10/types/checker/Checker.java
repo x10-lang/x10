@@ -68,8 +68,14 @@ public class Checker {
 		
 	}
 
-	public static Node typeCheckAssign(Assign_c a, ContextVisitor tc) throws SemanticException {
-	    Assign_c n = (Assign_c) a.typeCheckLeft(tc);
+	public static Node typeCheckAssign(Assign_c a, ContextVisitor tc) {
+	    Assign n = a;
+	    
+	    try {
+	        n = (Assign) a.typeCheckLeft(tc);
+	    } catch (SemanticException e) {
+	        Errors.issue(tc.job(), e, a);
+	    }
 
 	    TypeSystem ts = tc.typeSystem();
 	    Type t = n.leftType();
@@ -85,11 +91,11 @@ public class Checker {
 	    if (op == ASSIGN) {
 	        try {
 	            Expr e = Converter.attemptCoercion(tc, right, t);
-	            return n.right(e).type(t);
+	            n = n.right(e);
 	        }
 	        catch (SemanticException e) {
 	        	// Don't try to extract the LHS expression, this is called by X10FieldAssign_c as well.
-	        	throw new Errors.CannotAssign(right, t, n.position());
+	        	Errors.issue(tc.job(), new Errors.CannotAssign(right, t, n.position()));
 	        }
 	    }
 
@@ -104,70 +110,13 @@ public class Checker {
 	        if (c != null) {
 	            X10MethodInstance mi = (X10MethodInstance) c.methodInstance();
 	            if (mi.error() != null)
-	                throw mi.error();
-	            return n.type(c.type());
+	                Errors.issue(tc.job(), mi.error(), n);
+	            t = c.type();
 	        } else {
-	            throw new Errors.CannotAssign(right, t, n.position());
+	            Errors.issue(tc.job(), new Errors.CannotAssign(right, t, n.position()));
 	        }
 	    }
-
-	    assert (false);
-	    if (op == ADD_ASSIGN) {
-	        // t += s
-	        if (ts.typeEquals(X10TypeMixin.baseType(t), ts.String(), tc.context()) && ts.canCoerceToString(s, tc.context())) {
-	            Expr newRight = X10Binary_c.coerceToString(tc, right);
-	            return n.right(newRight).type(ts.String());
-	        }                
-
-	        if (t.isNumeric() && s.isNumeric()) {
-	            return n.type(ts.promote(t, s));
-	        }
-	
-	        throw new SemanticException("The " + op + " operator must have "
-	                                    + "numeric or String operands.",
-	                                    n.position());
-	    }
-	
-	    if (op == Assign.SUB_ASSIGN || op == Assign.MUL_ASSIGN ||
-	            op == DIV_ASSIGN || op == MOD_ASSIGN) {
-	        if (t.isNumeric() && s.isNumeric()) {
-	            return n.type(ts.promote(t, s));
-	        }
-	
-	        throw new SemanticException("The " + op + " operator must have "
-	                                    + "numeric operands.",
-	                                    n.position());
-	    }
-	
-	    if (op == BIT_AND_ASSIGN || op == BIT_OR_ASSIGN || op == BIT_XOR_ASSIGN) {
-	        if (t.isBoolean() && s.isBoolean()) {
-	            return n.type(ts.Boolean());
-	        }
-	
-	        if (ts.isLongOrLess(t) &&
-	                ts.isLongOrLess(s)) {
-	            return n.type(ts.promote(t, s));
-	        }
-	
-	        throw new SemanticException("The " + op + " operator must have "
-	                                    + "integral or boolean operands.",
-	                                    n.position());
-	    }
-	
-	    if (op == SHL_ASSIGN || op == SHR_ASSIGN || op == USHR_ASSIGN) {
-	        if (ts.isLongOrLess(t) &&
-	                ts.isLongOrLess(s)) {
-	            // Only promote the left of a shift.
-	            return n.type(ts.promote(t));
-	        }
-	
-	        throw new SemanticException("The " + op + " operator must have "
-	                                    + "integral operands.",
-	                                    n.position());
-	    }
-	
-	    throw new InternalCompilerError("Unrecognized assignment operator " +
-	                                    op + ".");
+	    return n.type(t);
 	}
 	
 	public static void checkVariancesOfType(Position pos, Type t, ParameterType.Variance requiredVariance, 
