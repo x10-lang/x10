@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: X10DT Core Tests
 Bundle-SymbolicName: org.eclipse.imp.x10dt.core.tests
-Bundle-Version: 2.0.4.qualifier
+Bundle-Version: 2.0.6.qualifier
 Require-Bundle: org.junit4;bundle-version="4.5.0",
  org.eclipse.swtbot.eclipse.core;bundle-version="2.0.0";resolution:=optional,
  org.eclipse.swtbot.eclipse.finder;bundle-version="2.0.0";resolution:=optional,
@@ -31,3 +31,4 @@ Require-Bundle: org.junit4;bundle-version="4.5.0",
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ClassPath: core.jar,
  .
+Bundle-Vendor: x10-users@lists.sourceforge.net

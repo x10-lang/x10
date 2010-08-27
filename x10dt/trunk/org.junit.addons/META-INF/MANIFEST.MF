@@ -10,4 +10,4 @@ Export-Package: junitx.ant,
  junitx.framework,
  junitx.tool,
  junitx.util
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: J2SE-1.5

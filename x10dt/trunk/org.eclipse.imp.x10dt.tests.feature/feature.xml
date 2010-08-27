@@ -2,7 +2,7 @@
 <feature
       id="org.eclipse.imp.x10dt.tests.feature"
       label="X10DT Tests Feature"
-      version="2.0.5.qualifier">
+      version="2.0.6.qualifier">
 
    <includes
          id="org.eclipse.imp.x10dt.feature"
@@ -124,13 +124,6 @@
 
    <plugin
          id="org.eclipse.swtbot.eclipse.junit4.headless"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="polyglot3"
          download-size="0"
          install-size="0"
          version="0.0.0"

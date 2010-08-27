@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: X10DT Tests Base Plugin
 Bundle-SymbolicName: org.eclipse.imp.x10dt.tests.services
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 2.0.6.qualifier
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Require-Bundle: org.apache.log4j,
  org.eclipse.core.resources,
