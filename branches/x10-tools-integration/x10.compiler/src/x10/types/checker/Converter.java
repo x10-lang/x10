@@ -121,7 +121,7 @@ public class Converter {
 		X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
 
 		X10CanonicalTypeNode tn = (X10CanonicalTypeNode) nf.CanonicalTypeNode(e.position(), toType);
-		Expr result = check(nf.X10Cast(e.position(), tn, e, ct),tc);
+		Expr result = check(nf.X10Cast(e.position(), tn, e, ct),tc); // FIXME
 		
 		if (result instanceof X10Cast && ((X10Cast) result).conversionType()==ConversionType.CHECKED) {
 			// OK that succeeded. Now ensure that there is a depexpr created for the check.
@@ -138,7 +138,7 @@ public class Converter {
 			if (tn.type() != toType) {
 				// alright, now we actually synthesized a new depexpr. 
 				// lets splice it in.
-				result = check(nf.X10Cast(e.position(), tn, e, ct),tc);
+				result = check(nf.X10Cast(e.position(), tn, e, ct),tc); // FIXME
 			}
 			if (dynamicCallp) {
 				if (Configuration.STATIC_CALLS) {
@@ -336,7 +336,7 @@ public class Converter {
 					Expr newE = converterChain(newCast, tc);
 					assert newE.type() != null;
 					X10Cast_c newC = (X10Cast_c) cast.expr(newE);
-					return Converter.checkCast(newC, tc);
+					return Converter.checkCast(newC, tc); // FIXME
 				}
 
 				throw new Errors.CannotConvertToType(fromType, toType, cast.position());
@@ -400,7 +400,7 @@ public class Converter {
 		throw new Errors.CannotConvertExprToType(cast.expr(), cast.conversionType(), toType, cast.position());
 	}
 
-	public  static Expr checkCast(X10Cast_c cast, ContextVisitor tc) throws SemanticException {
+	public static Expr checkCast(X10Cast_c cast, ContextVisitor tc) throws SemanticException {
 		X10TypeSystem_c ts = (X10TypeSystem_c) tc.typeSystem();
 		Type toType = cast.castType().type();
 		Type fromType = cast.expr().type();

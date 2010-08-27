@@ -5,6 +5,5 @@ Bundle-SymbolicName: x10.runtime
 Bundle-Version: 2.0.5.qualifier
 Eclipse-AutoStart: true
 Bundle-Vendor: rfuhrer@watson.ibm.com
-Require-Bundle: x10.common,
- x10.constraints
+Require-Bundle: x10.common
 
