@@ -11,6 +11,8 @@
 
 package x10.runtime.impl.java;
 
+import java.lang.reflect.InvocationTargetException;
+
 public abstract class Runtime implements Runnable {
 	private String[] args;
 
@@ -113,5 +115,43 @@ public abstract class Runtime implements Runnable {
 	 */
 	public static boolean local(int id) {
 		return true; // single process implementation
+	}
+
+	/**
+	 * Redirect to the specified user class's main().
+	 */
+	public static void main(String[] args) throws Throwable {
+	    boolean verbose = false;
+	    String className = null;
+	    for (int i = 0; i < args.length; i++) {
+	        String arg = args[i];
+	        if (arg.equals("-v") || arg.equals("-verbose") || arg.equals("--verbose")) {
+	            verbose=true;
+	        } else if (arg.charAt(0)=='-') {
+	            int eq = arg.indexOf('=');
+	            String key = "x10." + (eq<0 ? arg.substring(1) : arg.substring(1, eq));
+	            String value = eq<0 ? "true" : arg.substring(eq+1);
+	            System.setProperty(key, value);
+	        } else {
+	            int dotx10 = arg.indexOf(".x10");
+	            className = (dotx10<0 ? arg : arg.substring(0, dotx10)) + "$Main";
+	            int len = args.length-i-1;
+	            System.arraycopy(args, i+1, args = new String[len], 0, len);
+	        }
+	    }
+	    if (verbose) {
+	        System.err.println("Invoking user class: "+className+" with classpath '"+System.getProperty("java.class.path")+"'");
+	    }
+	    try {
+	        Class.forName(className).getMethod("main", String[].class).invoke(null, (Object)args);
+	    } catch (ClassNotFoundException e) {
+	        System.err.println("Class not found: "+className);
+	    } catch (InvocationTargetException e) {
+	        throw e.getCause();
+	    } catch (Exception e) {
+	        System.err.println("Unable to invoke user program: "+e);
+	        if (verbose)
+	            e.printStackTrace();
+	    }
 	}
 }

@@ -26,12 +26,17 @@ public class ValRailBuilder[T] implements Builder[T,ValRail[T]] {
         buf.add(x);
         return this;
     }
-    
+
+    public def insert(loc:Int, items:ValRail[T]):ValRailBuilder[T] {
+        buf.insert(loc, items);
+        return this;
+    }
+
     public def length(): Int {
         return buf.length();
     }
 
     public  def result() = buf.toValRail();
-    
+
 }
 
