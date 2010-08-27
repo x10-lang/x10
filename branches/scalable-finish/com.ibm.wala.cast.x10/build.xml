@@ -4,6 +4,10 @@
     <property name="src" location="${basedir}/src"/>
     <property name="lib" location="${basedir}/lib"/>
     <property name="jar" value="com.ibm.wala.cast.x10.jar"/>
+    <property name="wala.jar.url" value="http://dist.codehaus.org/x10/wala/wala.jar"/>
+    <property name="rcp.zip.url" value="http://fullmoon.rtp.raleigh.ibm.com/downloads/drops/R-3.6-201006080911/org.eclipse.rcp-3.6.zip"/>
+    <property name="wala.jar" value="wala.jar"/>
+    <property name="rcp.zip" value="rcp.zip"/>
     <path id="project.classpath">
         <path refid="mainproject.classpath"/>
         <path refid="compiler.classpath"/>
@@ -16,25 +20,20 @@
         <pathelement location="${basedir}/../x10.compiler/classes"/>
     </path>
     <path id="lib.classpath">
-        <pathelement path="${basedir}/lib/wala.jar"/>
-        <pathelement path="${basedir}/lib/org.eclipse.core.runtime_3.6.0.v20100505.jar"/>
-        <pathelement path="${basedir}/lib/org.eclipse.osgi_3.6.0.v20100517.jar"/>
-        <pathelement path="${basedir}/lib/org.eclipse.equinox.common_3.6.0.v20100503.jar"/>
-        <pathelement path="${basedir}/lib/org.eclipse.core.jobs_3.5.0.v20100515.jar"/>
-        <pathelement path="${basedir}/lib/org.eclipse.core.runtime.compatibility.registry_3.3.0.v20100520/runtime_registry_compatibility.jar"/>
-        <pathelement path="${basedir}/lib/org.eclipse.equinox.registry_3.5.0.v20100503.jar"/>
-        <pathelement path="${basedir}/lib/org.eclipse.equinox.preferences_3.3.0.v20100503.jar"/>
-        <pathelement path="${basedir}/lib/org.eclipse.core.contenttype_3.4.100.v20100505-1235.jar"/>
-        <pathelement path="${basedir}/lib/org.eclipse.equinox.app_1.3.0.v20100512.jar"/>
+        <fileset dir="${lib}" includes="wala.jar,plugins/*.jar"/>
     </path>
     <!-- get the environment variables -->
     <property environment="env"/>
     <target name="init">
         <tstamp/>
         <mkdir dir="${build}"/>
+        <mkdir dir="${lib}"/>
     </target>
     <target name="clean">
         <delete dir="${build}" failonerror="false"/>
+    </target>
+    <target name="distclean" depends="clean">
+        <delete dir="${lib}" failonerror="false"/>
     </target>
     <target name="check-jar" depends="init">
         <fileset id="classes" dir="${build}" includes="com/**" excludes="${jar}"/>
@@ -53,5 +52,14 @@
         <copy todir="${build}">
             <fileset dir="." includes="data/**"/>
         </copy>
+    </target>
+    <target name="wala.jar" depends="init">
+        <get usetimestamp="true" src="${wala.jar.url}" dest="${lib}/${wala.jar}"/>
+    </target>
+    <target name="rcp.zip" depends="init">
+        <get usetimestamp="true" src="${rcp.zip.url}" dest="${lib}/${rcp.zip}"/>
+    </target>
+    <target name="rcp.unzip">
+        <unzip src="${lib}/${rcp.zip}" dest="${lib}"/>
     </target>
 </project>
