@@ -47,7 +47,7 @@ public class X10LocalAssign_c extends LocalAssign_c {
     }
 
     /** Type check the expression. */
-    public Node typeCheck(ContextVisitor tc) throws SemanticException {
+    public Node typeCheck(ContextVisitor tc) {
         return Checker.typeCheckAssign(this, tc);
     }
 

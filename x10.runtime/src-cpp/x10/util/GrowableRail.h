@@ -65,6 +65,7 @@ namespace x10 {
             T set(T v, x10_int i);
 
             void add(T v);
+            void insert(x10_int loc, x10aux::ref<x10::lang::ValRail<T> > items);
 
             T apply(x10_int i);
 
@@ -124,6 +125,20 @@ namespace x10 {
             grow(_len+1);
             (*_array)[_len] = v;
             _len++;
+        }
+
+        template<class T> inline void GrowableRail<T>::insert(x10_int loc,
+                    x10aux::ref<x10::lang::ValRail<T> > items) {
+            int addLen = items->FMGL(length);
+            int newLen = _len + addLen;
+            int movLen = _len - loc;
+            grow(newLen);
+            if (movLen > 0) {
+                memmove(&(*_array)[loc + addLen], &(*_array)[loc], 
+                        movLen * sizeof(T));
+            }
+            memcpy(&(*_array)[loc], &(*items)[0], addLen * sizeof(T));
+            _len = newLen;
         }
 
         template<class T> inline T GrowableRail<T>::apply(x10_int i) {
@@ -202,12 +217,7 @@ namespace x10 {
             _array = tmp;
         }
 
-        template<class T> inline void GrowableRail<T>::shrink(x10_int newSize) {
-            if (newSize <= size()/2 && newSize >= 8) {
-                shrink_internal(newSize);
-            }
-        }
-        template<class T> void GrowableRail<T>::shrink_internal(x10_int newSize) {
+        template<class T> void GrowableRail<T>::shrink(x10_int newSize) {
             if (newSize > size()/2 || newSize < 8) {
                 return;
             }

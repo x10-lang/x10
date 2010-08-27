@@ -319,18 +319,18 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         Type rbase = X10TypeMixin.baseType(right.type());
 
         if (op == EQ || op == NE) {
-        	if (xts.isExactlyFunctionType(lbase)) {
-        		 throw new SemanticException("The " + op +
-                         " operator cannot be applied to the function " + left,
-                         position());
-        	}
-        	if (xts.isExactlyFunctionType(rbase)) {
-       		 throw new SemanticException("The " + op +
+            if (xts.isExactlyFunctionType(lbase)) {
+                throw new SemanticException("The " + op +
+                        " operator cannot be applied to the function " + left,
+                        position());
+            }
+            if (xts.isExactlyFunctionType(rbase)) {
+                throw new SemanticException("The " + op +
                         " operator cannot be applied to the function " + right,
                         position());
-       	}
-        	
+            }
         }
+
         if (op == EQ || op == NE || op == LT || op == GT || op == LE || op == GE) {
             Object lv = left.isConstant() ? left.constantValue() : null;
             Object rv = right.isConstant() ? right.constantValue() : null;
@@ -338,13 +338,17 @@ public class X10Binary_c extends Binary_c implements X10Binary {
             // If comparing signed vs. unsigned, check if one operand is a constant convertible to the other (base) type.
             // If so, insert the conversion and check again.
             
-            if (xts.isSigned(lbase) && xts.isUnsigned(rbase) || xts.isSigned(lbase) && xts.isUnsigned(rbase)) {
-                if (lv != null && xts.numericConversionValid(rbase, lv, context)) {
+            if ((xts.isSigned(lbase) && xts.isUnsigned(rbase)) || (xts.isUnsigned(lbase) && xts.isSigned(rbase))) {
+                if (lv != null && xts.numericConversionValid(rbase, lbase, lv, context)) {
                     Expr e = Converter.attemptCoercion(tc, left, rbase);
+                    if (e == left)
+                        return this;
                     return Converter.check(left(e), tc);
                 }
-                if (rv != null && xts.numericConversionValid(lbase, rv, context)) {
+                if (rv != null && xts.numericConversionValid(lbase, rbase, rv, context)) {
                     Expr e = Converter.attemptCoercion(tc, right, lbase);
+                    if (e == right)
+                        return this;
                     return Converter.check(right(e), tc);
                 }
             }
@@ -381,9 +385,11 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 //                return type(xts.Boolean());
 //            }
 
-            throw new SemanticException("The " + op +
-                                        " operator must have operands of comparable type; the types " + lbase + " and " + rbase + " do not share any values.",
-                                        position());
+            Errors.issue(tc.job(),
+                    new SemanticException("The " + op +
+                            " operator must have operands of comparable type; the types " + lbase + " and " + rbase + " do not share any values.",
+                            position()));
+            return type(xts.Boolean());
         }
 
         Call c = desugarBinaryOp(this, tc);
@@ -414,28 +420,6 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         if (op == COND_OR || op == COND_AND) {
             if (l.isBoolean() && r.isBoolean()) {
                 return type(ts.Boolean());
-            }
-        }
-
-        if (op == ADD) {
-            assert (false);
-            if (ts.isSubtype(l, ts.String(), context) || ts.isSubtype(r, ts.String(), context)) {
-                assert (false);
-                if (!ts.canCoerceToString(l, tc.context())) {
-                    throw new SemanticException("Cannot coerce an expression " + 
-                                                "of type " + l + " to a String.", 
-                                                left.position());
-                }
-                if (!ts.canCoerceToString(r, tc.context())) {
-                    throw new SemanticException("Cannot coerce an expression " + 
-                                                "of type " + r + " to a String.", 
-                                                right.position());
-                }
-
-                Expr newLeft = coerceToString(tc, left);
-                Expr newRight = coerceToString(tc, right);
-
-                return precedence(Precedence.STRING_ADD).left(newLeft).right(newRight).type(ts.String());
             }
         }
 

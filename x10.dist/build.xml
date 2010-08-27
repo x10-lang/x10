@@ -51,9 +51,26 @@
         </delete>
     </target>
 
-    <target name="squeakyclean" depends="clean">
+    <target name="clean-java" depends="clean">
         <delete dir="${etc}" failonerror="false"/>
         <mkdir dir="${etc}" />
+        <mkdir dir="${lib}" />
+        <delete> <!-- TODO: download jars elsewhere and copy -->
+            <fileset dir="${lib}">
+                <include name="x10*.jar"/>
+            </fileset>
+        </delete>
+        <!-- TODO: remove generated libs, but not downloaded ones
+        <delete dir="${lib}" failonerror="false"/>
+        <mkdir dir="${lib}" />
+        -->
+        <ant antfile="${x10.constraints.location}/build.xml" target="clean" inheritAll="false" dir="${x10.constraints.location}"/>
+        <ant antfile="${x10.common.location}/build.xml" target="clean" inheritAll="false" dir="${x10.common.location}"/>
+        <ant antfile="${x10.runtime.location}/build.xml" target="clean-java" inheritAll="false" dir="${x10.runtime.location}"/>
+        <ant antfile="${x10.compiler.location}/build.xml" target="clean" inheritAll="false" dir="${x10.compiler.location}"/>
+    </target>
+
+    <target name="clean-cpp" depends="clean-java">
         <delete dir="${incdir}" failonerror="false"/>
         <mkdir dir="${incdir}" />
         <mkdir dir="${lib}" />
@@ -65,18 +82,16 @@
                 <include name="*.dylib"/>
                 <include name="*.dll"/>
                 <include name="*.mft"/>
-                <include name="x10*.jar"/>
             </fileset>
         </delete>
         <!-- TODO: remove generated libs, but not downloaded ones
         <delete dir="${lib}" failonerror="false"/>
         <mkdir dir="${lib}" />
         -->
-        <ant antfile="${x10.constraints.location}/build.xml" target="clean" inheritAll="false" dir="${x10.constraints.location}"/>
-        <ant antfile="${x10.common.location}/build.xml" target="clean" inheritAll="false" dir="${x10.common.location}"/>
         <ant antfile="${x10.runtime.location}/build.xml" target="clean" inheritAll="false" dir="${x10.runtime.location}"/>
-        <ant antfile="${x10.compiler.location}/build.xml" target="clean" inheritAll="false" dir="${x10.compiler.location}"/>
     </target>
+
+    <target name="squeakyclean" depends="clean-java,clean-cpp"/>
 
     <target name="distclean" depends="squeakyclean">
         <delete dir="${lib}" failonerror="false"/>
