@@ -275,7 +275,7 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 	}
 
 	@Override
-	public Node typeCheck(ContextVisitor tc) throws SemanticException {
+	public Node typeCheck(ContextVisitor tc) {
 		Type targetType = target.type();
 
 		List<Type> typeArgs = Collections.emptyList();
@@ -295,9 +295,6 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 				args = p.snd();
 			}
 			catch (SemanticException e) {
-			    X10TypeChecker xtc = X10TypeChecker.getTypeChecker(tc);
-			    if (xtc.throwExceptions())
-			        throw mi.error();
 			    Errors.issue(tc.job(), mi.error(), this);
 			}
 		}

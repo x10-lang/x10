@@ -21,7 +21,7 @@ public class TestPointHash extends x10Test {
 	public def run(): Boolean = {
         val b = Point.make(1,1,1);
         val c = Point.make(1,1,1);
-        chk (b == c);
+        chk (b.equals(c));
         chk (b.hashCode() == c.hashCode());
 
         return true;

@@ -84,7 +84,7 @@ public class X10Field_c extends Field_c {
 	public X10Field_c reconstruct(Receiver target, Id name) {
 	    return (X10Field_c) super.reconstruct(target, name);
 	}
-	public Node typeCheck(ContextVisitor tc) throws SemanticException {
+	public Node typeCheck(ContextVisitor tc) {
 		Node n;
 		try {
 		    n = typeCheck1(tc);
@@ -101,9 +101,6 @@ public class X10Field_c extends Field_c {
 		        }
 		    }
 		} catch (SemanticException e) {
-		    X10TypeChecker xtc = X10TypeChecker.getTypeChecker(tc);
-		    if (xtc.throwExceptions())
-		        throw e;
 		    Errors.issue(tc.job(), e, this);
 		    Type tType = target != null ? target.type() : tc.context().currentClass();
 		    X10FieldInstance fi = findAppropriateField(tc, tType, name.id(), target instanceof TypeNode, e);
@@ -113,8 +110,7 @@ public class X10Field_c extends Field_c {
 	}
 
     public static X10FieldInstance findAppropriateField(ContextVisitor tc,
-            Type targetType, Name name, boolean isStatic, boolean receiverInContext) throws SemanticException
-    {
+            Type targetType, Name name, boolean isStatic, boolean receiverInContext) {
         X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
         X10Context c = (X10Context) tc.context();
         X10FieldInstance fi = null;

@@ -14,7 +14,6 @@ package x10.rtt;
 import java.lang.reflect.Array;
 import java.util.List;
 
-import x10.constraint.XConstraint;
 import x10.core.Any;
 import x10.core.fun.Fun;
 import x10.core.fun.Fun_0_1;
@@ -75,11 +74,7 @@ public class RuntimeType<T> implements Type<T> {
         }
         return false;
     }
-    
-    public XConstraint getConstraint() {
-        return null;
-    }
-    
+
     public List<Type<?>> getTypeParameters() {
         return null;
     }

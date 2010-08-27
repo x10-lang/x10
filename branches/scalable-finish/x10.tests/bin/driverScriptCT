@@ -59,10 +59,12 @@ cleanUpExit() {
 		-e 's;@build_result@;'"${__cat_build_result}"';' \
 		$DATADIR/build_configurationH.xml.tmpl >> $REPORTF
 	printf "\t\t<output>\n" >> $REPORTF
-	sed -e 's/</\&lt;/g' \
-		-e 's/>/\&gt;/g' \
-		-e 's/&&/\&amp;\&amp;/g' \
-		-e 's/ & / \&amp; /g' $BLOGF >> $REPORTF
+	perl -pe 's/&/\&amp;/g;
+	          s/</\&lt;/g;
+	          s/>/\&gt;/g;
+	          s/"/\&quot;/g;
+	          s/'"'"'/\&apos;/g;
+	          s/([^[:print:]\t\n\r])/sprintf("\&#%04x;", ord($1))/eg' $BLOGF >> $REPORTF
 	#cat $BLOGF >> $REPORTF
 	printf "\t\t</output>\n" >> $REPORTF
 	if [[ "${__cat_feed_stage}" == TEST ]]; then

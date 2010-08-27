@@ -171,16 +171,6 @@ final public class Point(rank: Int) implements (Int) => Int, Ordered[Point(rank)
         return true;
     }
 
-    /** Two points of the same rank are equal if and only if their
-     * corresponding indices are equal.
-     */
-    public global safe operator this == (that: Point(rank)): boolean {
-        for (var i: int = 0; i<rank; i++)
-            if (!(this.coords(i)==that.coords(i)))
-                return false;
-        return true;
-    }
-
     /** For points a, b, <code> a &lt; b</code> if <code>a</code> is lexicographically smaller than <code>b</code>.
      */
     public global safe operator this < (that: Point(rank)): boolean {
@@ -227,18 +217,6 @@ final public class Point(rank: Int) implements (Int) => Int, Ordered[Point(rank)
 	    if (a > b) return true;
 	}
         return this.coords(rank-1) >= that.coords(rank-1);
-    }
-
-    /** For points <code>a, b</code>, <code> a &ne; b</code> if <code>a</code> is for some index 
-	<code> a</code> is distinct from <code>b</code>.
-     */
-    public global safe operator this != (that: Point(rank)): boolean {
-        for (var i: int = 0; i<rank; i++) {
-	    val a = this.coords(i);
-	    val b = that.coords(i);
-	    if (a !=b) return true;
-	}
-        return false;
     }
 
     /** A point with coordinates <code>i1,..., ik</code> is printed as <code>(i1,.., ik)</code>.
