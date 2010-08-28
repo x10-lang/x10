@@ -124,6 +124,7 @@ import x10.ast.Now_c;
 import x10.ast.ParExpr;
 import x10.ast.ParExpr_c;
 import x10.ast.PropertyDecl;
+import x10.ast.SettableAssign;
 import x10.ast.SettableAssign_c;
 import x10.ast.StmtExpr_c;
 import x10.ast.StmtSeq_c;
@@ -1554,9 +1555,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    }
 	    
             if (!isParameterType && (xts.isRail(c.target().type()) || xts.isValRail(c.target().type()) || isIMC(ttype))) {
-	        String methodName = c.methodInstance().name().toString();
+	        Name methodName = c.methodInstance().name();
 	        // e.g. rail.set(a,i) -> ((Object[]) rail.value)[i] = a or ((int[]/* primitive array */)rail.value)[i] = a
-	        if (methodName.equals("set")) {
+	        if (methodName==SettableAssign.SET) {
 	            w.write("(");
 	            w.write("(");
 	            new TypeExpander(er, ptype, 0).expand();
@@ -1575,7 +1576,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	            return;
 	        }
 	        // e.g. rail.apply(i) -> ((String)((Object[])rail.value)[i]) or ((int[])rail.value)[i]
-	        if (methodName.equals("apply")) {
+	        if (methodName==ClosureCall.APPLY) {
 	            if (!(ptype.isBoolean() || ptype.isNumeric() || ptype.isChar())) {
 	                    w.write("(");
 	                    w.write("(");
@@ -2682,7 +2683,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			}
 			else if (expr instanceof X10Call) {
 				X10Call e = (X10Call) expr;
-				if (e.target() instanceof Expr && e.name().id() == Name.make("apply")) {
+				if (e.target() instanceof Expr && e.name().id() == ClosureCall.APPLY) {
 					target = (Expr) e.target();
 					args = e.arguments();
 					typeArgs = e.typeArguments();
