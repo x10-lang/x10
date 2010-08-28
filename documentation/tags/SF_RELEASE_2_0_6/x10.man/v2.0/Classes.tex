@@ -1,0 +1,2192 @@
+\chapter{Classes}
+\label{XtenClasses}\index{class}
+
+\section{Principles of X10 Objects}\label{XtenObjects}\index{Object}
+
+\subsection{Basic Design}
+
+Objects are instances of classes: the most common and most powerful sort of
+value in X10.  The other kinds of values, structs and functions, are more
+specialized, better in some circumstances but not in all.
+\xcd"x10.lang.Object" is the most general class; all other classes inherit
+from it, directly or indirectly. 
+
+
+Classes are structured in a single-inheritance code
+hierarchy, may implement multiple interfaces, may have static and
+instance fields, may have static and instance methods, may have
+constructors, may have static and instance initializers, may have
+static and instance inner classes and interfaces. \Xten{} does not
+permit mutable static state.
+
+Unlike \java{}, {}\Xten{} objects do not have locks associated with them.
+Programmers should use atomic blocks (\Sref{AtomicBlocks}) for mutual
+exclusion and clocks (\Sref{XtenClocks}) for sequencing multiple parallel
+operations.
+
+\xcd`Object` has one property \xcd"home" of type
+\xcd"x10.lang.Place"\index{place.home}, telling where the object is located.
+Objects stay resident at the place at which they were created for their entire
+lifetime. However, the programmer may designate certain immutable field of an
+object as \Xcd{global}, accessible from everywhere.
+
+
+Activities at places other than \xcd`ob.home` are allowed to have references
+to object \xcd`ob`.   These {\em remote references} do not grant all the
+privileges of a local reference; only \xcd`ob`'s \xcd`global` methods and
+fields are usable remotely. An X10
+implementation should try to ensure that the creation of a second or
+subsequent reference to the same remote object at a given place does
+not incur any (additional) communication cost.
+
+A reference to an object carries with it the values of  \Xcd{global} \xcd`val`
+fields 
+of the object. The implementation should try to ensure that the cost
+of communicating the values of \xcd`val` fields of an object from the
+place where it is hosted to any other place is not incurred more than
+once for each target place.
+
+{}\Xten{} does not have an operation (such as Pascal's ``dereference''
+operation) which returns an object given a reference to the
+object. Rather, most operations on object references are transparently
+performed on the bound object, as indicated below. The operations on
+objects and object references include:
+\begin{itemize}
+
+{}\item Field access (\Sref{FieldAccess}). 
+All fields can be accessed locally; only \xcd`global` fields can be accessed
+remotely.   \xcd`global` fields are more expensive than non-\xcd`global` ones,
+and should be used sparingly as needed.  Properties are global fields.
+
+{}\item Method invocation (\Sref{MethodInvocation}).  
+\label{GlobalAnnotation}
+All methods can be accessed locally; only \xcd`global` methods can be accessed
+remotely.  \xcd`global` methods are no more expensive than local ones, and can
+be used freely where possible.  However, \xcd`global` methods can only perform
+a subset of operations (\Sref{GlobalMethod}).
+
+{}\item Casting (\Sref{ClassCast}) and instance testing with \xcd`instanceof`
+(\Sref{instanceOf}) Objects can be cast or tested either locally or remotely.
+These operations involve the class and the object's properties, both of which
+are available globally.
+
+\item The equality operators \xcd"==" and \xcd"!="
+(\Sref{StableEquality}). On creation, each object is associated with a globally
+unique identifier. Two object references are \xcd"==" iff they refer to objects
+with the same identifier.
+
+\end{itemize}
+
+\subsection{Distributed Object Model}
+
+The state of an object is partitioned into \emph{global} state (a
+programmer defined subset of \Xcd{val} fields, \Sref{GlobalField}) and
+\emph{non-global} state.  Global state is available from anywhere without
+communication at the time of reference; non-global state is only available
+directly from the object's home place. 
+
+ \begin{itemize}
+\item Field definitions are marked with the qualifier \Xcd{global} if
+  they are intended to be included in the global state.
+\item If the \Xcd{global} qualifier is omitted, the field is
+  considered non-global.
+\item Properties and static fields are implicitly marked \Xcd{global}.
+\item \Xcd{var} fields cannot be marked \Xcd{global}.
+%\item  Fields marked \Xcd{global} cannot be overriden by fields not marked \Xcd{global}.
+\end{itemize}
+ 
+Similarly, the methods of an object may be qualified as
+\Xcd{global}(\Sref{GlobalMethod}) ; if they are not global they are
+said to be \emph{non-global}. 
+Global methods cannot be overridden by non-global methods.
+
+Consider the execution of an \Xcd{at (P) S} statement at a place
+\Xcd{Q} different from \Xcd{P}. Suppose \Xcd{x} is an in-scope
+immutable local variable and contains a reference to an object \Xcd{o}
+created at \Xcd{Q}. Then within \Xcd{S}, \Xcd{x} is said to be a
+\emph{remote reference} to \Xcd{o}. References to \Xcd{o} from place
+\Xcd{Q} are said to be \emph{local references}. \Xten{} permits
+\Xcd{global} fields to be read and \Xcd{global} methods to be invoked
+through a remote reference.
+
+Like local references, remote references are first-class entities:
+they may be passed as arguments to methods, returned from methods,
+stored in fields of objects.
+
+Remote references may also be compared for equality (\Xcd{==}). Two
+remote reference are equal if they are references to the same
+object. Equality is guaranteed to be a constant-time operation and not
+involve any communication.
+
+When a remote reference to an object \Xcd{o} located at place \Xcd{P} is
+transmitted to \Xcd{P} it automatically becomes a local reference to
+\Xcd{o}. Therefore the situation in which a local reference can be compared
+to a remote reference simply cannot arise.
+
+The \Xten{} compiler ensures that non-global methods on \Xcd{o} can
+only be invoked in a place where \Xcd{here == o.home()}, i.e. the place
+where \Xcd{o} was created.
+
+\paragraph{Implementation notes}
+Remote references to an object \Xcd{o} are intended to be implemented by
+serializing the global state of \Xcd{o} and sending it across the network,
+together with a globally unique id. The data is deserialized at the receiver
+to create an implementation-level entity that is the remote reference.
+There is no requirement that a remote reference use only as much space as a
+local reference; \eg, it is possible that remote references have space for
+global data, and local references do not.
+
+  
+
+  
+\subsection{Examples of Local and Remote References}
+Given the class declarations: 
+\begin{xten}
+class C { } 
+class D {
+   var f:C=null;
+}
+\end{xten}
+
+%%TODO--Add a variant of the following code to the test suite
+Let \xcd`P` and \xcd`Q` be different places, neither equal to \xcd`here`.
+Then all of the \xcd`truly(b)`'s in the following code have \xcd`b==true`.
+The locality of references is described in comments.
+%~~gen
+% package objects.dwiffle.and.a.half.a.moon;
+% class C { } 
+% class D {
+%    var f:C=null;
+% }
+% class Fudders {
+% global def truly(b:Boolean) {}
+% def plongent(P:Place, Q:Place) throws Exception {
+%~~vis
+\begin{xten}
+
+val x = new C(); 
+// C object o1 created, local reference stored in x. 
+at (P) { 
+      // In the body x contains a remote reference to o1
+      val d = new D();
+      d.f  = x; // remote reference stored in d.f
+      truly(d.f == x);        
+      truly(x == x);          
+      at (Q) { 
+         // x continues to be a remote reference to o1.
+         at (P) {  
+             truly(d.f == x); 
+             truly(x == x);   
+         }
+      }
+}
+\end{xten}
+%~~siv
+%}}
+%~~neg
+  
+%%TODO--Add a variant of the following code to the test suite
+%%TODO--rewrite this
+Here is another example.
+%~~gen
+% package objects.armor.of.eyeballs;
+% class C { } 
+% class D {
+%    var f:C=null;
+% }
+% class Fudders {
+% def plongent(P:Place, Q:Place) throws Exception {
+%~~vis
+\begin{xten}
+val x = new C(); 
+// C object o created, reference stored in x. 
+// The type inferred for x is C!
+at (P) { 
+    val x1 = x; 
+    // The type inferred for x1 is C, not C!;
+    // the change is due to the place shift 'at(P)'
+  at (x.home) {
+        // x is now bound to o through a local reference. So is x1.
+    Console.OUT.println(x1==x); // Must print true.
+      // non-global methods can be invoked on x or x1 and will 
+      // execute locally on o
+      // type of both x and x1 is C!.
+  }
+}
+\end{xten}
+%~~siv
+%}}
+%~~neg
+ 
+\subsection{Class Declaration Syntax}
+
+The {\em class declaration} has a list of type \params, properties, a
+constraint (the {\em class invariant}), a single superclass, zero or more
+interfaces, and a class body containing the the definition of fields,
+properties, methods, and member types. Each such declaration introduces a
+class type (\Sref{ReferenceTypes}).
+
+\bard{Redo grammar}
+
+%%OW  
+%%OW  \begin{grammar}
+%%OW  NormalClassDeclaration \:
+%%OW        ClassModifiers\opt \xcd"class" Identifier  \\
+%%OW     && TypeParameterList\opt PropertyList\opt Guard\opt \\
+%%OW     && Super\opt Interfaces\opt ClassBody \\
+%%OW  \\
+%%OW  TypeParameterList     \:  \xcd"[" TypeParameters \xcd"]" \\
+%%OW  TypeParameters        \:  TypeParameter ( \xcd"," TypeParameter )\star \\
+%%OW  TypeParameter         \:  Variance\opt Annotation\star Identifier     \\
+%%OW  Variance \: \xcd"+" \\
+%%OW           && \xcd"-" \\
+%%OW  \\
+%%OW  PropertyList     \:  \xcd"(" Properties \xcd")" \\
+%%OW  Properties       \:  Property ( \xcd"," Property )\star \\
+%%OW  Property         \:  Annotation\star \xcd"val"\opt Identifier \xcd":" Type \\
+%%OW  \\
+%%OW  Super \: \xcd"extends" ClassType \\
+%%OW  Interfaces \: \xcd"implements" InterfaceType ( \xcd"," InterfaceType)\star \\
+%%OW  \\
+%%OW  ClassBody \: ClassMember\star \\
+%%OW  ClassMember \: ClassDeclaration \\
+%%OW              \| InterfaceDeclaration \\
+%%OW              \| FieldDeclaration \\
+%%OW              \| MethodDeclaration \\
+%%OW              \| ConstructorDeclaration \\
+%%OW  \end{grammar}
+%%OW  
+ 
+
+
+
+
+\section{Fields}
+\label{FieldDefinitions}
+
+Objects may have {\em instance fields}, or simply {\em fields}: places to
+store data that is pertinent to the object. Fields, like variables, may be
+either mutable (\xcd`val`) or immutable (\xcd`var`).
+
+Class may have {\em static fields}, which store data pertinent to the
+entire class of objects.   Static fields are global, \viz{} they may be
+accessed from any place.  Like all globals, static fields must be immutable
+(\xcd`val`).  See \Sref{StaticInitialization} for more information.
+
+No two fields of the same class may have the same name.
+To avoid an ambiguity, it is a static error for a class to
+declare a field with a function type (\Sref{FunctionTypes}) with
+the same name and signature  as a method of the same class.  
+(Consider the class 
+\begin{xten}
+class Crash {
+  val f : (Int) => Boolean = (Int)=>true;
+  def f(Int) = false;
+}
+\end{xten}
+\noindent
+Then \xcd`crash.f(3)` might either mean ``call the function \xcd`crash.f` on
+argument \xcd`3`'', or ``invoke the method \xcd`f` on argument \xcd`3`''.)
+
+\subsection{Field Initialization}
+
+Fields may be given values via {\em field initialization expressions}: 
+\xcd`val f1 = E;` and \xcd`var f2 : Int = F;`.  There are a few restrictions
+on the initializer expressions \xcd`E`: 
+\begin{itemize}
+\item No checked exceptions may be thrown.  (There is no place to put a
+      \xcd`try-catch` block to deal with them.)
+\item Other fields of \xcd`this` may be referenced, but only those that {\em
+      precede} the field being initialized.  For example, this is correct, but
+      would not be if the fields were reversed: 
+%~~gen
+%package Classes.Are.For.Lasses.Structs.Are.For.Bucks;
+%~~vis
+\begin{xten}
+class Fld{
+  val a = 1;
+  val b = 2+a;
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+
+\end{itemize}
+
+\subsection{Field hiding}
+
+A subclass that defines a field \xcd"f" hides any field \xcd"f"
+declared in a superclass, regardless of their types.  The
+superclass field \xcd"f" may be accessed within the body of
+the subclass via the reference \xcd"super.f".
+
+%~~gen
+% package classes.fields.primus;
+%~~vis
+\begin{xten}
+class Super{ 
+  val f = 1; 
+}
+class Sub extends Super {
+  val f = true;
+  def superf() : Int = super.f; // 1
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+
+With inner classes, it is occasionally necessary to 
+write \xcd`Cls.super.f` to get at a hidden field \xcd`f` of an outer class
+\xcd`Cls`, as in 
+%~~gen
+% package classes.fields.secundus;
+%~~vis
+\begin{xten}
+class A {
+   global val f = 3;
+}
+class B extends A {
+   global val f = 4;
+   class C extends B {
+      val f = 5;
+      def foo()
+         = f          // 5
+         + super.f    // 4
+         + B.this.f   // 4 (the "f" of the outer instance)
+         + B.super.f; // 3 (the "super.f" of the outer instance)
+    }
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+
+
+\subsection{Field qualifiers}
+\label{FieldQualifier}
+\index{Qualifier!field}
+
+The behavior of a field may be changed by a field qualifier, such as
+\xcd`static` or \xcd`global`.  
+
+\subsubsection{\Xcd{global} qualifier}
+\index{global!field}
+\label{GlobalField}
+
+A \xcd`val` field may be declared \xcd"global". Global fields are available at
+all places, and should be thought of as being part of remote object references
+to the object. Global fields are good for distributing data, but increase
+space and communication costs; they should be used sparingly as required.
+
+\begin{grammar}
+  FieldModifier \: \xcd"global"  
+\end{grammar}
+
+Properties and static fields are implicitly \Xcd{global}.
+Fields not marked \Xcd{global} cannot be overridden by fields marked
+\Xcd{global}.
+
+
+
+\subsubsection{\Xcd{static} qualifier}
+
+A \xcd`val` field may be declared to be {\em static}, as described in
+\Sref{FieldDefinitions}. 
+
+\section{Properties}
+\label{PropertiesInClasses}
+
+The properties of an object (or struct) are global, public \xcd`val` fields
+usable at compile time in constraints.\footnote{In many cases, a 
+\xcd`global val` field can be upgraded to a \xcd`property`, which 
+entails no compile-time or runtime cost.  Some cannot be, \eg, in cases where
+cyclic structures of \xcd`val` fields are required.} Every
+object has a \xcd`home` property, 
+telling what place the object lives in. Every array has a \xcd`rank` telling
+how many subscripts it takes.  User-defined classes can have whatever
+properties are desired. 
+
+Properties are defined in parentheses, after the name of the class.  They are
+given values by the \xcd`property` command in constructors.
+%~~gen
+% package Classes.Toss.Freedom.Disk2;
+%~~vis
+\begin{xten}
+class Proper(t:Int) {
+  def this(t:Int) {property(t);}
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+
+
+\begin{staticrule*}
+It is a compile-time error for a class
+defining a property \xcd"x: T" to have an ancestor class that defines
+a property with the name \xcd"x".  
+\end{staticrule*}
+
+A property \xcd`x:T` induces a field with the same name and type, 
+as if defined with: 
+%~~gen
+% package Classes.For.Masses.Of.NevermindTheRest;
+% class Exampll[T] {
+%~~vis
+\begin{xten}
+public global val x : T;
+\end{xten} 
+%~~siv
+% def this(y:T) { x=y; }
+% }
+%~~neg
+\noindent It also defines a nullary getter method, 
+%~~gen
+% package Classes.For.Masses.Of.NevermindTheRest;
+% class Exampllll[T] {
+% public global val x : T;
+% def this(y:T) { x=y; }
+%~~vis
+\begin{xten}
+public global final def x()=x;
+\end{xten}
+%~~siv
+%}
+%~~neg
+
+\noindent (As noted in \Sref{DepType:Interface}, interfaces can define
+properties too. They define the same nullary getter methods, though they do
+not require fields.)
+
+
+\begin{staticrule*}
+It is a compile-time error for a class or
+interface defining a property \xcd"x :T" to have an existing method with
+the signature \xcd"x(): T".
+\end{staticrule*}
+
+
+Properties are initialized by the invocation of a special \Xcd{property}
+statement, which must be performed in each constructor of the class:
+\begin{xten}
+property(e1,..., en);
+\end{xten}
+The number and types of arguments to the \Xcd{property} statement must match
+the number and types of the properties in the class declaration.  
+Every constructor of a class with properties must invoke \xcd`property(...)`
+precisely once; it is a static error if X10 cannot prove that this holds.
+
+The requirement to use the \xcd`property` statement means that all properties
+must be given values at the same time.  
+
+By construction, the graph whose nodes are values and whose edges are
+properties is acyclic.  \Eg, there cannot be values \xcd`a` and \xcd`b` with
+properties \xcd`c` and \xcd`d` such that \xcd`a.c == b` and \xcd`b.d == a`.
+(The similar graph whose edges are \xcd`global public val` fields {\em can} have
+cycles..) 
+
+
+\index{property!call}
+\index{property!initialization}
+\label{PropertyCall}
+
+
+
+
+
+
+\oldtodo{Figure out class modifiers. Figure out which new ones need to be added to support IEEE FP.}
+
+\index{class}\label{ReferenceClasses}
+
+Class declarations may
+be used to construct class types (\Sref{ReferenceTypes}). Classes may
+have mutable fields. Instances of a class are always created in a
+fixed place and in \XtenCurrVer{} stay there for the lifetime of the
+object.  Variables declared at a class type always store a reference
+to the object, regardless of whether the object is local or remote.
+
+
+\section{Methods}
+
+As is common in object-oriented languages, objects can have {\em methods}, of
+two sorts.  {\em Static methods} are functions, conceptually associated with a
+class and defined in its namespace.  {\em Instance methods} are parameterized
+code bodies associated with an instance of the class, which execute with
+priveleged access to that instance's fields. 
+
+Each method has a {\em signature}, telling what arguments it accepts, what
+type it returns, what precondition it requires, and what exceptions it may
+throw. Method definitions may be overridden by subclasses; the overriding
+definition may have a declared return type that is a subclass of the return
+type of the definition being overridden. Multiple methods with the same name
+but different signatures may be provided on a class (ad hoc polymorphism).
+Methods may be declared \Xcd{public}, \Xcd{private}, \Xcd{protected}, or given
+default access rights.
+
+
+\begin{grammar}
+MethodDeclaration \: MethodHeader \xcd";" \\
+                  \| MethodHeader \xcd"="\opt ClosureBody \\
+MethodHeader \:  
+  MethodModifiers\opt \xcd"def" Identifier TypeParameters\opt \\
+&& \xcd"(" 
+  FormalParameterList\opt \xcd")" Guard\opt \\
+  && ReturnType\opt Throws\opt \\
+\end{grammar}
+
+A formal parameter may have a \xcd"val" or \xcd"var"
+modifier; \xcd`val` is the default.
+The body of the method is executed in an environment in which 
+each formal parameter corresponds to a local variable (\xcd`var` iff the
+formal parameter is \xcd`var`)
+and is initialized with the value of the actual parameter.
+
+
+\subsection{Method Guards}
+\label{MethodGuard}
+
+Often, a method will only make sense to invoke under certain
+statically-determinable conditions.  For example, \xcd`example(x)` is only
+well-defined when \xcd`x != null`, as \xcd`null.toString()` throws a null
+pointer exception: 
+%~~gen
+% package Classes.Make.Passes.At.Girls.Who.Wear.Glasses;
+%~~vis
+\begin{xten}
+class Example {
+   var f : String = "";
+   def example(x:Object){x != null} = {
+      this.f = x.toString();
+   }
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+\noindent
+(We could have used a constrained type \xcd`Object{self!=null}` instead; in
+most cases it is a matter of personal preference or convenience of expression
+which one to use.) 
+
+The requirement of having a method guard is that callers must demonstrate to
+the X10
+compiler that the guard is satisfied.  (As usual with static constraint
+checking, there is no runtime cost.  Indeed, this code can be more efficient
+than usual, as it is statically provable that \xcd`x != null`.)
+This may require a cast: 
+%~~gen
+% package Classes.Make.Asses.Of.Girls.With.Fake.Passes;
+% class Example {var f : String = ""; def example(x:Object){x != null} = {this.f = x.toString();}}
+% class Eyample {
+%~~vis
+\begin{xten}
+  def exam(e:Example!, x:Object) {
+    if (x != null) 
+       e.example(x as Object{x != null});
+    // WRONG: if (x != null) e.example(x);
+  }
+\end{xten}
+%~~siv
+%}
+%~~neg
+
+The guard \xcd`{c}` 
+in a guarded method 
+\xcd`def m(){c} = E;`
+specifies a constraint \xcd"c" on the
+properties of the class \xcd"C" on which the method is being defined. The
+method exists only for those instances of \xcd"C" which satisfy \xcd"c".  It is
+illegal for code to invoke the method on objects whose static type is
+not a subtype of \xcd"C{c}".
+
+\begin{staticrule*}
+    The compiler checks that every method invocation
+    \xcdmath"o.m(e$_1$, $\dots$, e$_n$)"
+    for a method is type correct. Each argument
+    \xcdmath"e$_i$" must have a
+    static type \xcdmath"S$_i$" that is a subtype of the declared type
+    \xcdmath"T$_i$" for the $i$th
+    argument of the method, and the conjunction of the constraints on the
+    static types 
+    of the arguments must entail the guard in the parameter list
+    of the method.
+
+    The compiler checks that in every method invocation
+    \xcdmath"o.m(e$_1$, $\dots$, e$_n$)"
+    the static type of \xcd"o", \xcd"S", is a subtype of \xcd"C{c}", where the method
+    is defined in class \xcd"C" and the guard for \xcd"m" is equivalent to
+    \xcd"c".
+
+    Finally, if the declared return type of the method is
+    \xcd"D{d}", the
+    return type computed for the call is
+    \xcdmath"D{a: S; x$_1$: S$_1$; $\dots$; x$_n$: S$_n$; d[a/this]}",
+    where \xcd"a" is a new
+    variable that does not occur in
+    \xcdmath"d, S, S$_1$, $\dots$, S$_n$", and
+    \xcdmath"x$_1$, $\dots$, x$_n$" are the formal
+    parameters of the method.
+\end{staticrule*}
+
+
+\subsection{Property methods}
+
+A method declared with the modifier \xcd"property" may be used
+in constraints.  A property method declared in a class must have
+a body and must not be \xcd"Void".  The body of the method must
+consist of only a single \xcd"return" statement or a single
+expression.  It is a static error if the expression cannot be
+represented in the constraint system. 
+
+The expression may contain invocations of other property methods. It is the
+responsibility of the programmer to ensure that the evaluation of a property
+terminates at compile-time, otherwise the type-checker will not terminate and
+the program will fail to compile in a potentially most unfortunate way.
+
+Property methods in classes are implicitly \xcd"final"; they cannot be
+overridden. Property methods are also implicitly \xcd"global".
+
+A nullary property method definition may omit the formal parameters and
+the \xcd"def" keyword.  That is, the following are equivalent:
+
+
+%~~gen
+% package classes.not.harpoons.instead.of.python;
+% class Waif(rect:Boolean, onePlace:Place, zeroBased:Boolean) {
+%~~vis
+\begin{xten}
+property def rail(): Boolean = rect && onePlace == here && zeroBased;
+\end{xten}
+%~~siv
+%}
+%~~neg
+and
+%~~gen
+% package classes.not.muskrats.instead.of.blueberry.cake.with.honey;
+% class Waif(rect:Boolean, onePlace:Place, zeroBased:Boolean) {
+%~~vis
+\begin{xten}
+property rail: Boolean = rect && onePlace == here && zeroBased;
+\end{xten}
+%~~siv
+%}
+%~~neg
+
+Similarly, nullary property methods can be inspected in constraints without
+\xcd`()`.  
+%~~longexp~~`~~`
+% package classes.not.weasels;
+% class Waif(rect:Boolean, onePlace:Place, zeroBased:Boolean) {
+%   def this(rect:Boolean, onePlace:Place, zeroBased:Boolean) 
+%          :Waif{self.rect==rect, self.onePlace==onePlace, self.zeroBased==zeroBased}
+%          = {property(rect, onePlace, zeroBased);}
+%   property rail: Boolean = rect && onePlace == here && zeroBased;
+%   static def zoink() {
+%      val w : Waif{
+%~~vis
+\xcd`w.rail`, with either definition above, 
+% }= new Waif(true, here, true);
+% }}
+%~~pxegnol
+is equivalent to 
+%~~longexp~~`~~`
+% package classes.not.ferrets;
+% class Waif(rect:Boolean, onePlace:Place, zeroBased:Boolean) {
+%   def this(rect:Boolean, onePlace:Place, zeroBased:Boolean) 
+%          :Waif{self.rect==rect, self.onePlace==onePlace, self.zeroBased==zeroBased}
+%          = {property(rect, onePlace, zeroBased);}
+%   property rail: Boolean = rect && onePlace == here && zeroBased;
+%   static def zoink() {
+%      val w : Waif{
+%~~vis
+\xcd`w.rail()`
+% }= new Waif(true, here, true);
+% }}
+%~~pxegnol
+
+
+
+\subsection{Method overloading, overriding, hiding, shadowing and obscuring}
+\label{MethodOverload}
+
+\bard{Import this from Java!}
+
+The definitions of method overloading, overriding, hiding, shadowing
+and obscuring in \Xten{} are the same as in \Java, modulo the following
+considerations motivated by type parameters and dependent types.
+
+Two or more methods of a class or interface may have the same
+name if they have a different number of type parameters, or
+they have formal parameters of different types.  \Eg, the following is legal: 
+
+%~~gen
+%
+%~~vis
+\begin{xten}
+class Mful{
+   def m() = 1;
+   def m[T]() = 2;
+   def m(x:Int) = 3;
+   def m[T](x:Int) = 4;
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+
+\XtenCurrVer{} does not permit overloading based on constraints. That is, the
+following is {\em not} legal, although either method definition individually
+is legal:
+\begin{xten}
+   def n(x:Int){x==1} = "one";
+   def n(x:Int){x!=1} = "not";
+\end{xten}
+
+
+The definition of a method declaration \xcdmath"m$_1$" ``having the same signature
+as'' a method declaration \xcdmath"m$_2$" involves identity of types. 
+
+The {\em constraint erasure} of a type \xcdmath"T" is defined as follows.
+The constraint erasure of  (a)~a class, interface or struct type \xcdmath"T" is 
+\xcdmath"T"; (b)~a type \xcdmath"T{c}" is the constraint erasure of 
+\xcdmath"T"; (b)~a type \xcdmath"T[S$_1$,\ldots,S$_n$]" 
+is \xcdmath"T'[S$_1$',\ldots,S$_n$']" where each primed type is the erasure of 
+the corresponding unprimed type.
+ Two methods are said to have {\em the
+  same signature} if (a) they have the same number of type parameters,
+(b) they have the same number of formal (value) parameters, and (c)
+for each formal parameter the constraint erasure of its types are equivalent. It is a
+compile-time error for there to be two methods with the same name and
+same signature in a class (either defined in that class or in a
+superclass).
+
+\begin{staticrule*}
+  A class \xcd"C" may not have two declarations for a method named \xcd"m"---either
+  defined at \xcd"C" or inherited:
+\begin{xtenmath}
+def m[X$_1$, $\dots$, X$_m$](v$_1$: T$_1$, $\dots$, v$_n$: T$_n$){tc}: T {...}
+def m[X$_1$, $\dots$, X$_m$](v$_1$: S$_1$, $\dots$, v$_n$: S$_n$){sc}: S {...}
+\end{xtenmath}
+\noindent
+if it is the case that the constraint erasures of the types \xcdmath"T$_1$",
+\dots, \xcdmath"T$_n$" are
+equivalent to the constraint erasures of the types \xcdmath"S$_1$, $\dots$, T$_n$"
+respectively.
+\end{staticrule*}
+
+In addition, the guard of a overriding method must be 
+no stronger than the guard of the overridden method.   This
+ensures that any virtual call to the method
+satisfies the guard of the callee.
+
+\begin{staticrule*}
+  If a class \xcd"C" overrides a method of a class or interface
+  \xcd"B", the guard of the method in \xcd"B" must entail
+  the guard of the method in \xcd"C".
+\end{staticrule*}
+
+A class \xcd"C" inherits from its direct superclass and superinterfaces all
+their methods visible according to the access modifiers
+of the superclass/superinterfaces that are not hidden or overridden. A method \xcdmath"M$_1$" in a class
+\xcd"C" overrides
+a method \xcdmath"M$_2$" in a superclass \xcd"D" if
+\xcdmath"M$_1$" and \xcdmath"M$_2$" have the same signature.
+Methods are overriden on a signature-by-signature basis.
+
+A method invocation \xcdmath"o.m(e$_1$, $\dots$, e$_n$)"
+is said to have the {\em static signature}
+\xcdmath"<T, T$_1$, $\dots$, T$_n$>" where \xcd"T" is the static type of
+\xcd"o", and
+\xcdmath"T$_1$",
+\dots,
+\xcdmath"T$_n$"
+are the static types of \xcdmath"e$_1$", \dots, \xcdmath"e$_n$",
+respectively.  As in
+\Java, it must be the case that the compiler can determine a single
+method defined on \xcd"T" with argument type
+\xcdmath"T$_1$", \dots \xcdmath"T$_n$"; otherwise, a
+compile-time error is declared. However, unlike \Java, the \Xten{} type \xcd"T"
+may be a dependent type \xcd"C{c}". Therefore, given a class definition for
+\xcd"C" we must determine which methods of \xcd"C" are available at a type
+\xcd"C{c}". But the answer to this question is clear: exactly those methods
+defined on \xcd"C" are available at the type \xcd"C{c}"
+whose guard \xcd"d" is implied by \xcd"c".
+
+\subsection{Method qualifiers}
+\label{MethodQualifier}
+\index{Qualifier!method}
+
+There are a number of qualifiers which may be applied to X10 methods.
+
+\begin{grammar}
+  MethodModifier \: \xcd"atomic"  \\
+  MethodModifier \: \xcd"global"  \\
+  MethodModifier \: \xcd"pinned"  \\
+  MethodModifier \: \xcd"nonblocking"  \\
+  MethodModifier \: \xcd"sequential"  \\
+  MethodModifier \: \xcd"safe"  
+\end{grammar}
+
+
+\subsubsection{\Xcd{atomic} qualifier}
+\label{AtomicAnnotation}
+\index{atomic}
+
+A method may be declared \xcd"atomic", indicating that it will be executed
+atomically---as if its body were wrapped in an \xcd`atomic` statement.
+
+\subsubsection{\Xcd{global} qualifier}
+\label{LocalAnnotation}
+\label{GlobalMethod}
+\index{global!method}
+
+A method may be declared \xcd"global", indicating that it can be invoked in
+any place. Unlike non-global methods, the body of a global method is
+type-checked without assuming that 
+\Xcd{here==this.home}. This permits \Xcd{global} fields of \Xcd{o} to be
+accessed, but not local fields. The programmer must insert an explicit
+\Xcd{at(this)...} to get to the place where the object lives to access local fields.
+
+\Xcd{global} methods can be overridden only by methods also marked \Xcd{global}.
+
+
+\subsubsection{\Xcd{pinned} qualifier}
+\label{PinnedAnnotation}
+\label{PinnedMethod}
+\index{pinned!method}
+
+A method may be declared \xcd"pinned", indicating that the evaluation of the
+method takes place entirely \xcd`here`, without any communication necessary.
+A \Xcd{pinned} method may not
+contain any \Xcd{at} statement or expression whose place argument
+is not statically equivalent to \Xcd{here}. It must call only
+\Xcd{pinned} methods. 
+
+\Xcd{pinned} methods can be overridden only by methods marked \Xcd{pinned}.
+
+\subsubsection{\Xcd{nonblocking} qualifier}
+\label{NonblockingAnnotation}
+\label{NonblockingMethod}
+\index{nonblocking!method}
+
+A method may be declared \xcd"nonblocking", indicating that it does not block.  
+A \Xcd{nonblocking} method may not
+contain any \Xcd{when} statement whose condition
+is not statically equivalent to \Xcd{true}. It must call only
+\Xcd{nonblocking} methods. 
+
+\Xcd{nonblocking} methods can be overridden only by methods marked \Xcd{nonblocking}.
+
+\subsubsection{\Xcd{sequential} qualifier}
+\label{SequentialAnnotation}
+\label{SequentialMethod}
+\index{sequential!method}
+
+A method may be declared \xcd"sequential", indicating that it does not spawn
+any other activities.
+A \Xcd{sequential} method may not contain any \Xcd{async}
+statement. It must call only \Xcd{sequential} methods. 
+
+\Xcd{sequential} methods can be overridden only by methods marked \Xcd{sequential}.
+
+\subsubsection{\Xcd{safe} qualifier}
+\label{SafeAnnotation}
+\label{SafeMethod}
+\index{safe!method}
+
+A method may be declared \xcd"safe", indicating that it is 
+\xcd`pinned`, \xcd`nonblocking`, and \xcd`sequential`.
+Safe methods are the only methods which can be called inside of \xcd`atomic`
+and \xcd`when` statements.
+
+\section{Instance Initialization}
+
+\section{Constructors}
+
+Constructors allow the initialization of objects by the execution of
+almost-arbitrary code.  Like methods, constructors can have formal parameters,
+a constraint, a return type, a \xcd`throws` clause, an \Xcd{offers} clause, 
+and a body. The formals,
+constraint, and \xcd`throws` and \Xcd{offers} clauses are identical to those for a method.
+A constructor is declared by \xcd`def this()...`; that is, as if it were a
+method whose name were the reserved word \xcd`this`.  
+
+
+\subsection{Constructor Return Types}
+
+The return type of a constructor describes the values that constructor can
+create.  While all constructors for class \xcd`C` create objects of base class
+\xcd`C`, some individual constructors may construct objects with more specific
+constraints.    For example, in
+%~~gen
+% package Classes.Are.For.Grasses;
+%~~vis
+\begin{xten}
+class Crate(n:Int) {
+  def this() : Crate{self.n==0} = { property(0); }
+  def this(b:Boolean) : Crate{self.n==1} = { property(1); }
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+\noindent
+the nullary constructor call \xcd`new Crate()` will return a value of type 
+\xcd`Crate{self.n == 0}`--- the \xcd`n` field is zero and the compiler knows
+it.  The unary Boolean constructor will return an object of type 
+\xcd`Crate{self.n==1}`.
+A less trivial example might be a specialized constructor for a square matrix, 
+which returned type \xcd`Matrix{self.rows==self.cols}`.  
+
+If the constructor type is omitted, the constructor returns 
+the type of its class, constrained by the actual parameters to the
+\xcd`property` call in the constructor.  That is, the first constructor 
+call above could be abbreviated:
+%~~gen
+% package Classes.Are.For.Grasses.In.Mountain.Passes;
+% class Crate(n:Int) {
+%~~vis
+\begin{xten}
+  def this() { property(0); }
+  // And to prove that the nullary constructor knows n==0: 
+  static def confirm() {
+    val v : Crate{self.n == 0} = new Crate();
+  }
+\end{xten}
+%~~siv
+% }
+%~~neg
+
+\subsection{Constructor Bodies}
+
+Constructors have many restrictions, designed to ensure that objects behave
+sanely while being constructed.  
+
+\bard{Finish this section}
+
+
+
+
+
+\bard{Write this!}
+\subsection{\Xcd{ proto} qualifier on types}
+\label{Prototypes}
+\index{proto}
+\Xten{} ensures that every variable must have a value consistent with its type
+before it is read.  This is to prevent the unfortunate situations possible in
+other languages, such as: 
+\begin{xten}
+class Evil {
+   val f : Int; // uninitialized
+   def getf() = this.f;
+   def this() { 
+       val f0 = this.getf();
+       println("initially, f0=" + f0);
+       this.f = f0 + 1;
+       println("now, this.f =" + this.f);
+   }
+}
+\end{xten}
+\noindent
+\xcd`f` is a \xcd`val` field and should never change.  However, in this
+example, it starts out uninitialized.  Its uninitialized value is read by the
+call \xcd`this.getf()`, giving a meaningless value---no value could be
+meaningful, since the field is not initialized.  The constructor prints
+\xcd`f`'s initial value, increments it, initializes \xcd`f` to the incremented
+value, and prints the new value.  This program prints two different numbers.
+That is, a \xcd`val` field---supposedly immutable---has been observed to
+change.  
+
+This approach can be extended to give almost arbitrarily bad behavior 
+for partially-initialized objects.  The issue is particularly pernicious with
+concurrency, where one activity initializes an object while another one uses
+it.  
+
+Many languages with constructors simply admit (or avoid admitting) that method
+calls on partially-initialized objects are dangerous and should be avoided.
+X10 takes a more careful approach: some method calls in constructors are
+allowed, but ones which could cause this problem are not.  
+
+The approach is based on \xcd`proto` types. If \xcd`C` is a class, 
+\xcd`proto C` is a type that describes partially-initialized values of
+\xcd`C`.  The rules in this section are designed to allow methods to {\em
+write} into fields of a \xcd`proto C` object, thus initializing it, but not
+{\em read} them and thus not stumble into the error above.
+
+%%BARD-HERE
+\bard{The rest of this is under reconsideration}
+
+For local variables, this is ensured by using a pre-specified static
+analysis to ensure that every local variable is written into before it
+is read. Type-checking of assignment ensures the value written is
+consistent with the static type of the variable.
+
+For fields, this is ensured by introducing a form of ownership types
+called {\em incomplete types} to address the {\em escaping-this}
+problem.  To permit flexibility in writing constructors, \Xten{} v1.7
+permits \Xcd{this} to be used in a constructor as a reference to the
+object currently being constructed. Unfortunately there are no
+restrictions on the usage of \Xcd{this}. In particular, this reference
+can be permitted to escape: it may be stored in variables on the heap
+(thereby permitting concurrently executing activities to read the
+value of fields that may not yet have been initialized), passed as an
+argument to method invocations, or used as the target for a method
+invocation. Indeed, the method may be invoked in a super constructor,
+and may have been overridden at a subclass, guaranteeing that accesses
+to fields defined in the subclass are accesses to uninitialized
+variables. For instance an immutable field may be observed containing
+a value (the value the field was initialized with) which may be
+different from the value it will contain once the constructor has
+returned.
+
+Incomplete types are designed with the following goals:
+ \begin{itemize}
+
+\item Guarantee that fields are not read before they are initialized.
+
+\item  Allow the creation of immutable cyclic object graphs.\footnote{(Mutable
+       graphs can be created without escaping \Xcd{this} 
+    by initializing the backpointer to \Xcd{null} and then
+    changing it later.}  This requires that it be possible to pass an
+  object under construction into a constructor invocation.
+
+\item Allow appropriate user-defined methods can be called during object
+  creation (so that the transformation between the values supplied as
+  parameters to a constructor and the values actually placed in fields
+  is determined by arbitrary user-defined code).
+
+\item Keep the design minimally invasive. Most programmers should
+  not have to be concerned about this problem.
+
+\item Ensure that there is no runtime overhead. 
+\end{itemize}
+
+These goals are met by introducing incomplete types through the type
+qualifier \Xcd{proto}. Types of the form \Xcd{proto T} are said to be
+{\em incomplete types}; types that do not have the qualifier are said to be
+{\em complete}.
+ Say that an object \Xcd{o} is {\em confined}
+to a given activity \Xcd{A} if it can be reached only from stack
+frames of \Xcd{A} or from objects which are, recursively, confined to
+\Xcd{A}. Thus confined objects cannot be accessed by activities other
+than \Xcd{A}.
+
+Incomplete types ensure that objects whose construtors have not exited
+are confined. Further, all references to such objects on the stack
+are contained in variables of incomplete types. The compiler does not
+permit the fields of variables of incomplete types to be read. 
+Thus incomplete types permit the construction of graphs of objects
+while ensuring that these objects are confined and their fields are not
+read during construction. 
+
+The return value of a constructor for class \Xcd{C} that takes no
+incomplete arguments is (a subtype of) \Xcd{C}, that is, a complete
+type. It will point only to completed objects. It can now be
+assigned to any (type-consistent) field of any object, that is, it is
+now allowed to escape.
+
+
+
+
+
+\section{Static initialization}
+\label{StaticInitialization}
+\index{initialization!static}
+The \Xten{} runtime implements the following procedure to ensure
+reliable initialization of the static state of classes.
+
+
+Execution commences with a single thread executing the
+\emph{initialization} phase of an \Xten{} computation at place \Xcd{0}. This
+phase must complete successfully before the body of the \Xcd{main} method is
+executed.
+
+The initialization phase must be thought of as if it is implemented in
+the following fashion: (The implementation may do something more
+efficient as long as it is faithful to this semantics.)
+
+\begin{xten}
+Within the scope of a new finish
+for every static field f of every class C 
+   (with type T and initializer e):
+async {
+  val l = e; 
+  ateach (Dist.makeUnique()) {
+     assign l to the static f field of 
+         the local C class object;
+     mark the f field of the local C 
+         class object as initialized;
+  }
+}
+\end{xten}
+
+During this phase, any read of a static field \Xcd{C.f} (where \Xcd{f} is of type \Xcd{T})
+is replaced by a call to the method \Xcd{C.read\_f():T} defined on class \Xcd{C}
+as follows
+
+\begin{xten}
+def read_f():T {
+   await (initialized(C.f));
+   return C.f;
+}
+\end{xten}
+ 
+
+If all these activities terminate normally, all static field have a
+legal value (per their type), and the finish terminates normally. If
+any activity throws an exception, the finish throws an
+exception. Since no user code is executing which can catch exceptions
+thrown by the finish, the exceptions are printed on the console, and
+computation aborts.
+
+If the activities deadlock, the implementation deadlocks.
+
+In all cases, the main method is executed only once all static fields
+have been initialized correctly.
+
+Since static state is immutable and is replicated to all places via 
+the initialization phase as described above, it can be accessed from
+any place.
+
+
+
+\section{User-Defined Operators}
+
+It is often convenient to have methods named by symbols rather than words.
+For example, suppose that we wish to define a \xcd`Poly` class of
+polynomials -- for the sake of illustration, single-variable polynomials with
+\xcd`Int` coefficients.  It would be very nice to be able to manipulate these
+polynomials by the usual operations: \xcd`+` to add, \xcd`*` to multiply,
+\xcd`-` to subtract, and \xcd`p(x)` to compute the value of the polynomial at
+argument \xcd`x`.  We would like to write code thus: 
+%~~gen
+% package Classes.In.Poly101;
+% // Integer-coefficient polynomials of one variable.
+% class Poly {
+%   public global val coeff : ValRail[Int];
+%   public def this(coeff: ValRail[Int]) { this.coeff = coeff;}
+%   public global def degree() = coeff.length()-1;
+%   public global def  a(i:Int) = (i<0 || i>this.degree()) ? 0 : coeff(i);
+% 
+%   public static safe operator (c : Int) as Poly! = new Poly([c]);
+% 
+%   public safe def apply(x:Int) {
+%     val d = this.degree();
+%     var s : Int = this.a(d);
+%     for( (i) in 1 .. this.degree() ) {
+%        s = x * s + a(d-i);
+%     }
+%     return s;
+%   }
+% 
+%   public operator this + (p:Poly!) =  new Poly(
+%      ValRail.make[Int](
+%         Math.max(this.coeff.length(), p.coeff.length()),
+%         (i:Int) => this.a(i) + p.a(i)
+%      ));
+%   public operator this - (p:Poly!) = this + (-1)*p;
+% 
+%   public operator this * (p:Poly!) = new Poly(
+%      ValRail.make[Int](
+%        this.degree() + p.degree() + 1,
+%        (k:Int) => sumDeg(k, this, p)
+%        )
+%      );
+%   
+% 
+%   public operator (n : Int) + this = (n as Poly) + this;
+%   public operator this + (n : Int) = (n as Poly) + this;
+% 
+%   public operator (n : Int) - this = (n as Poly) + (-1) * this;
+%   public operator this - (n : Int) = ((-n) as Poly) + this;
+% 
+%   public operator (n : Int) * this = new Poly(
+%      ValRail.make[Int](
+%        this.degree()+1,
+%        (k:Int) => n * this.a(k)
+%      ));
+%   private static def sumDeg(k:Int, a:Poly, b:Poly) {
+%      var s : Int = 0;
+%      for ( (i) in 0 .. k ) s += a.a(i) * b.a(k-i);
+%        // x10.io.Console.OUT.println("sumdeg(" + k + "," + a + "," + b + ")=" + s);
+%      return s;
+%      };
+%   public global final safe def toString() = {
+%      var allZeroSoFar : Boolean = true;
+%      var s : String ="";
+%      for ( (i) in 0..this.degree() ) {
+%        val ai = this.a(i);
+%        if (ai == 0) continue;
+%        if (allZeroSoFar) {
+%           allZeroSoFar = false;
+%           s = term(ai, i);
+%        }
+%        else 
+%           s += 
+%              (ai > 0 ? " + " : " - ")
+%             +term(ai, i);
+%      }
+%      if (allZeroSoFar) s = "0";
+%      return s;
+%   }
+%   private global final safe def term(ai: Int, n:Int) = {
+%      val xpow = (n==0) ? "" : (n==1) ? "x" : "x^" + n ;
+%      return (ai == 1) ? xpow : "" + Math.abs(ai) + xpow;
+%   }
+%   
+%   public static def Main(ss:Rail[String]) = main(ss);
+% 
+%~~vis
+\begin{xten}
+  public static def main(Rail[String]):Void {
+     val X = new Poly([0,1]);
+     val t <: Poly = 7 * X + 6 * X * X * X; 
+     val u <: Poly = 3 + 5*X - 7*X*X;
+     val v <: Poly = t * u - 1;
+     for ( (i) in -3 .. 3) {
+       x10.io.Console.OUT.println(
+         "" + i + "	X:" + X(i) + "	t:" + t(i) 
+         + "	u:" + u(i) + "	v:" + v(i)
+         );
+     }
+  }
+
+\end{xten}
+%~~siv
+%}
+%~~neg
+
+Writing the same code with method calls, while possible, is far less elegant: 
+%~~gen
+%package Classes.In.Poly101;
+% // Integer-coefficient polynomials of one variable.
+% class UglyPoly {
+%   public global val coeff : ValRail[Int];
+%   public def this(coeff: ValRail[Int]) { this.coeff = coeff;}
+%   public global def degree() = coeff.length()-1;
+%   public global def  a(i:Int) = (i<0 || i>this.degree()) ? 0 : coeff(i);
+% 
+%   public static safe operator (c : Int) as UglyPoly! = new UglyPoly([c]);
+% 
+%   public safe def apply(x:Int) {
+%     val d = this.degree();
+%     var s : Int = this.a(d);
+%     for( (i) in 1 .. this.degree() ) {
+%        s = x * s + a(d-i);
+%     }
+%     return s;
+%   }
+% 
+%   public operator this + (p:UglyPoly!) =  new UglyPoly(
+%      ValRail.make[Int](
+%         Math.max(this.coeff.length(), p.coeff.length()),
+%         (i:Int) => this.a(i) + p.a(i)
+%      ));
+%   public operator this - (p:UglyPoly!) = this + (-1)*p;
+% 
+%   public operator this * (p:UglyPoly!) = new UglyPoly(
+%      ValRail.make[Int](
+%        this.degree() + p.degree() + 1,
+%        (k:Int) => sumDeg(k, this, p)
+%        )
+%      );
+%   
+% 
+%   public operator (n : Int) + this = (n as UglyPoly) + this;
+%   public operator this + (n : Int) = (n as UglyPoly) + this;
+% 
+%   public operator (n : Int) - this = (n as UglyPoly) + (-1) * this;
+%   public operator this - (n : Int) = ((-n) as UglyPoly) + this;
+% 
+%   public operator (n : Int) * this = new UglyPoly(
+%      ValRail.make[Int](
+%        this.degree()+1,
+%        (k:Int) => n * this.a(k)
+%      ));
+%   private static def sumDeg(k:Int, a:UglyPoly, b:UglyPoly) {
+%      var s : Int = 0;
+%      for ( (i) in 0 .. k ) s += a.a(i) * b.a(k-i);
+%        // x10.io.Console.OUT.println("sumdeg(" + k + "," + a + "," + b + ")=" + s);
+%      return s;
+%      };
+%   public global final safe def toString() = {
+%      var allZeroSoFar : Boolean = true;
+%      var s : String ="";
+%      for ( (i) in 0..this.degree() ) {
+%        val ai = this.a(i);
+%        if (ai == 0) continue;
+%        if (allZeroSoFar) {
+%           allZeroSoFar = false;
+%           s = term(ai, i);
+%        }
+%        else 
+%           s += 
+%              (ai > 0 ? " + " : " - ")
+%             +term(ai, i);
+%      }
+%      if (allZeroSoFar) s = "0";
+%      return s;
+%   }
+%   private global final safe def term(ai: Int, n:Int) = {
+%      val xpow = (n==0) ? "" : (n==1) ? "x" : "x^" + n ;
+%      return (ai == 1) ? xpow : "" + Math.abs(ai) + xpow;
+%   }
+%   
+%   def mult(p:UglyPoly!) = this * p;
+%   def mult(n:Int) = n * this;
+%   def plus(p:UglyPoly!) = this + p;
+%   def plus(n:Int) = n + this;
+%   def minus(p:UglyPoly!) = this - p;
+%   def minus(n:Int) = this - n;
+%   static def const(n:Int) = n as UglyPoly;
+% 
+%   public static def Main(x:Rail[String]) = main(x);
+%   public static def main(Rail[String]):Void {
+%      val X = new UglyPoly([0,1]);
+%      val t <: UglyPoly = 7 * X + 6 * X * X * X; 
+% 
+%      val u <: UglyPoly = 3 + 5*X - 7*X*X;
+%      val v <: UglyPoly = t * u - 1;
+%      for ( (i) in -3 .. 3) {
+%        x10.io.Console.OUT.println(
+%          "" + i + "	X:" + X(i) + "	t:" + t(i) + "	u:" + u(i) + "	v:" + v(i)
+%          );
+%      }
+%      uglymain();
+%   }
+% 
+%~~vis
+\begin{xten}
+  public static def uglymain() {
+     val X = new UglyPoly([0,1]);
+     val t <: UglyPoly = X.mult(7).plus(X.mult(X).mult(X).mult(6));  
+     val u <: UglyPoly = const(3).plus(X.mult(5)).minus(X.mult(X).mult(7));
+     val v <: UglyPoly = t.mult(u).minus(1);
+     for ( (i) in -3 .. 3) {
+       x10.io.Console.OUT.println(
+         "" + i + "	X:" + X.apply(i) + "	t:" + t.apply(i) 
+          + "	u:" + u.apply(i) + "	v:" + v.apply(i)
+         );
+     }
+  }
+\end{xten}
+%~~siv
+%}
+%~~neg
+
+The operator-using code can be written in X10, though a few variations are
+necessary to handle such exotic cases as \xcd`1+X`.
+
+\subsection{Binary Operators}
+
+Defining the sum \xcd`P+Q` of two polynomials looks much like a method
+definition.  It uses the \xcd`operator` keyword instead of \xcd`def`, and
+\xcd`this` appears in the definition in the place that a \xcd`Poly` would
+appear in a use of the operator.  So, 
+\xcd`operator this + (p:Poly!)` explains how to add \xcd`this` to a
+\xcd`Poly!` value.
+%~~gen
+% package Classes.In.Poly102;
+%~~vis
+\begin{xten}
+class Poly {
+  public global val coeff : ValRail[Int];
+  public def this(coeff: ValRail[Int]) { this.coeff = coeff;}
+  public global def degree() = coeff.length()-1;
+  public global def  a(i:Int) = (i<0 || i>this.degree()) ? 0 : coeff(i);
+
+  public operator this + (p:Poly!) =  new Poly(
+     ValRail.make[Int](
+        Math.max(this.coeff.length(), p.coeff.length()),
+        (i:Int) => this.a(i) + p.a(i)
+     )); 
+  // ... 
+\end{xten}
+%~~siv
+%   public operator (n : Int) + this = new Poly([n]) + this;
+%   public operator this + (n : Int) = new Poly([n]) + this;
+% 
+%   def makeSureItWorks() {
+%      val x = new Poly([0,1]);
+%      val p <: Poly = x+x+x;
+%      val q <: Poly = 1+x;
+%      val r <: Poly = x+1;
+%   }
+%     
+% }
+%~~neg
+
+
+The sum of a polynomial and an integer, \xcd`P+3`, looks like
+an overloaded method definition.  
+%~~gen
+% package Classes.In.Poly103;
+% class Poly {
+%   public global val coeff : ValRail[Int];
+%   public def this(coeff: ValRail[Int]) { this.coeff = coeff;}
+%   public global def degree() = coeff.length()-1;
+%   public global def  a(i:Int) = (i<0 || i>this.degree()) ? 0 : coeff(i);
+% 
+%   public operator this + (p:Poly!) =  new Poly(
+%      ValRail.make[Int](
+%         Math.max(this.coeff.length(), p.coeff.length()),
+%         (i:Int) => this.a(i) + p.a(i)
+%      ));
+%~~vis
+\begin{xten}
+   public operator (n : Int) + this = new Poly([n]) + this;
+\end{xten}
+%~~siv
+
+%   public operator this + (n : Int) = new Poly([n]) + this;
+% 
+%   def makeSureItWorks() {
+%      val x = new Poly([0,1]);
+%      val p <: Poly = x+x+x;
+%      val q <: Poly = 1+x;
+%      val r <: Poly = x+1;
+%   }
+%     
+% }
+%~~neg
+
+
+However, we want to allow the sum of an integer and a polynomial as well:
+\xcd`3+P`.  It would be quite inconvenient to have to define this as a method
+on \xcd`Int`; changing \xcd`Int` is far outside of normal coding.  So, we
+allow it as a method on \xcd`Poly` as well.
+
+
+%~~gen
+% package Classes.In.Poly104o;
+% class Poly {
+%   public global val coeff : ValRail[Int];
+%   public def this(coeff: ValRail[Int]) { this.coeff = coeff;}
+%   public global def degree() = coeff.length()-1;
+%   public global def  a(i:Int) = (i<0 || i>this.degree()) ? 0 : coeff(i);
+% 
+%   public operator this + (p:Poly!) =  new Poly(
+%      ValRail.make[Int](
+%         Math.max(this.coeff.length(), p.coeff.length()),
+%         (i:Int) => this.a(i) + p.a(i)
+%      ));
+%    public operator (n : Int) + this = new Poly([n]) + this;
+%~~vis
+\begin{xten}
+   public operator this + (n : Int) = new Poly([n]) + this;
+\end{xten}
+%~~siv
+% 
+%   def makeSureItWorks() {
+%      val x = new Poly([0,1]);
+%      val p <: Poly = x+x+x;
+%      val q <: Poly = 1+x;
+%      val r <: Poly = x+1;
+%   }
+%     
+% }
+%~~neg
+
+Furthermore, it is sometimes convenient to express a binary operation as a
+static method on a class. 
+The definition for the sum of two
+\xcd`Poly`s could have been written:
+%~~gen
+% package Classes.In.Poly105;
+% class Poly {
+%   public global val coeff : ValRail[Int];
+%   public def this(coeff: ValRail[Int]) { this.coeff = coeff;}
+%   public global def degree() = coeff.length()-1;
+%   public global def  a(i:Int) = (i<0 || i>this.degree()) ? 0 : coeff(i);
+%~~vis
+\begin{xten}
+  public static operator (p:Poly!) + (q:Poly!) =  new Poly(
+     ValRail.make[Int](
+        Math.max(q.coeff.length(), p.coeff.length()),
+        (i:Int) => q.a(i) + p.a(i)
+     ));
+\end{xten}
+%~~siv
+%
+%   public operator (n : Int) + this = new Poly([n]) + this;
+%   public operator this + (n : Int) = new Poly([n]) + this;
+% 
+%   def makeSureItWorks() {
+%      val x = new Poly([0,1]);
+%      val p <: Poly = x+x+x;
+%      val q <: Poly = 1+x;
+%      val r <: Poly = x+1;
+%   }
+%     
+% }
+%~~neg
+
+
+This requires the following syntax:\\ 
+\begin{grammar}
+MethodHeader \:
+  \xcd`operator` TypeParameterList\opt \xcd`this` BinOp \xcd`(`  FormalParameter \xcd")" \\
+  && Guard\opt ReturnType\opt  Throws\opt \\
+MethodHeader \:
+  \xcd`operator` TypeParameterList\opt \xcd`(`  FormalParameter \xcd")" BinOp \xcd`this`  \\
+  && Guard\opt ReturnType\opt  Throws\opt \\
+MethodHeader \:
+  \xcd`operator` TypeParameterList\opt \xcd`(`  FormalParameter \xcd")" BinOp  \xcd`(`  FormalParameter \xcd")"  \\
+  && Guard\opt ReturnType\opt  Throws\opt \\
+\end{grammar}
+
+When X10 attempts to typecheck a binary operator expression like \xcd`P+Q`, it
+first typechecks \xcd`P` and \xcd`Q`. Then, it looks for operator declarations
+for \xcd`+` in the types of \xcd`P` and \xcd`Q`. If there are none, it is a
+static error. If there is precisely one, that one will be used. If there are
+several, X10 looks for a {\em best-matching} operation, \viz{} one which does
+not require the operands to be converted to another type. For example,
+\xcd`operator this + (n:Long)` and \xcd`operator this + (n:Int)` both apply to
+\xcd`p+1`, because \xcd`1` can be converted from an \xcd`Int` to a \xcd`Long`.
+However, the \xcd`Int` version will be chosen because it does not require a
+conversion. If even the best-matching operation is not uniquely determined,
+the compiler will report a static error.
+
+The main difference between expressing a binary operation as an instance
+method (with a \xcd`this` in the definition) and a static one (no \xcd`this`)
+is that instance methods don't apply any conversions, while static methods
+attempt to convert both arguments. 
+\bard{give an example}
+
+\bard{List the operators which this works for, in precedence order}
+
+\subsection{Unary Operators}
+
+Unary operators are defined in a similar way, with \xcd`this` appearing in the
+\xcd`operator` definition where an actual value would occur in a unary
+expression.  The operator to negate a polynomial is: 
+
+%~~gen
+% package Classes.In.Poly106;
+% class Poly {
+%   public global val coeff : ValRail[Int];
+%   public def this(coeff: ValRail[Int]) { this.coeff = coeff;}
+%   public global def degree() = coeff.length()-1;
+%   public global def  a(i:Int) = (i<0 || i>this.degree()) ? 0 : coeff(i);
+%~~vis
+\begin{xten}
+  public operator - this = new Poly(
+    ValRail.make[Int](coeff.length(), (i:Int) => -coeff(i))
+    );
+\end{xten}
+%~~siv
+%   def makeSureItWorks() {
+%      val x = new Poly([0,1]);
+%      val p <: Poly = -x;
+%   }
+% }
+%~~neg
+
+The syntax for unary operators is:
+
+\begin{grammar}
+MethodHeader \:
+  \xcd`operator` PrefixOp \xcd`this`    Guard\opt ReturnType\opt  Throws\opt 
+\end{grammar}
+
+The rules for typechecking a unary operation are the same as for methods; the
+complexities of binary operations are not needed.
+
+\bard{List the operators which this works for, in precedence order}
+
+
+\subsection{Type Conversions}
+
+Explicit type conversions, \xcd`e as T{c}`, can be defined as operators on
+class \xcd`T`.
+
+%~~gen
+% package Classes.And.Type.Conversions.For.Sea.Urchins;
+%~~vis
+\begin{xten}
+class Poly {
+  public global val coeff : ValRail[Int];
+  public def this(coeff: ValRail[Int]) { this.coeff = coeff;}
+  public static operator (a:Int) as Poly! = new Poly([a]);
+  public static def main(Rail[String]):Void {
+     val three : Poly! = 3 as Poly!;
+  }
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+
+
+
+You may define a type conversion to a constrained type, like \xcd`Poly!` in
+the previous example.   If you convert to a more specific constraint, X10 will use
+the conversion, but insert a dynamic check to make sure that you have
+satisfied the more specific constraint.  For example: 
+%~~gen
+%package Classes.And.Type.Conversions.For.Street.Urchins;
+%~~vis
+\begin{xten}
+class Uni(n:Int) {
+  public def this(n:Int) : Uni{self.n==n} = {property(n);}
+  static operator (String) as Uni{self.n != 9} = new Uni(3);
+  public static def main(Rail[String]):Void {
+    val u = "" as Uni{self.n != 9 && self.n != 3};
+  }
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+The string \xcd`""` is converted to \xcd`Uni{self.n != 9}` via the defined
+conversion operator, and that value is checked against the remaining
+constraints \xcd`{self.n != 3}` at runtime.  (In this case it will fail.)
+
+There may be many conversions from different types to \xcd`T`, but there may
+be at most one conversion from any given type to \xcd`T`. 
+
+\bard{Syntax}
+
+\subsection{Implicit Type Coercions}
+
+You may also define {\em implicit} type coercions to \xcd`T{c}` as static
+operators in class \xcd`T`.  The syntax for this is
+\xcd`static operator (x:U) : T{c} = e`.
+Implicit coercions are used automatically by the compiler.  
+\bard{How does this work?  One coercion, or a chain, and how about ambiguity?}
+
+For example, we can define an implicit coercion from \xcd`Int` to \xcd`Poly!`,
+and avoid having to define the sum of an integer and a polynomial
+as many special cases.  In the following example, we only define \xcd`+` on
+two polynomials (using a \xcd`static` operator, so that implicit coercions
+will be used -- they would not be for an instance method operator).  The
+calculation \xcd`1+x` coerces \xcd`1` to a polynomial and uses polynomial
+addition to add it to \xcd`x`.
+
+%~~gen
+% package Classes.And.Implicit.Coercions;
+% class Poly {
+%   public global val coeff : ValRail[Int];
+%   public def this(coeff: ValRail[Int]) { this.coeff = coeff;}
+%   public global def degree() = coeff.length()-1;
+%   public global def  a(i:Int) = (i<0 || i>this.degree()) ? 0 : coeff(i);
+%   public global final safe def toString() = {
+%      var allZeroSoFar : Boolean = true;
+%      var s : String ="";
+%      for ( (i) in 0..this.degree() ) {
+%        val ai = this.a(i);
+%        if (ai == 0) continue;
+%        if (allZeroSoFar) {
+%           allZeroSoFar = false;
+%           s = term(ai, i);
+%        }
+%        else 
+%           s += 
+%              (ai > 0 ? " + " : " - ")
+%             +term(ai, i);
+%      }
+%      if (allZeroSoFar) s = "0";
+%      return s;
+%   }
+%   private global final safe def term(ai: Int, n:Int) = {
+%      val xpow = (n==0) ? "" : (n==1) ? "x" : "x^" + n ;
+%      return (ai == 1) ? xpow : "" + Math.abs(ai) + xpow;
+%   }
+
+%~~vis
+\begin{xten}
+  public static safe operator (c : Int) : Poly! = new Poly([c]);
+
+  public static operator (p:Poly!) + (q:Poly!) = new Poly(
+      ValRail.make[Int](
+        Math.max(p.coeff.length(), q.coeff.length()),
+        (i:Int) => p.a(i) + q.a(i)
+     ));
+
+  public static def main(Rail[String]):Void {
+     val x = new Poly([0,1]);
+     x10.io.Console.OUT.println("1+x=" + (1+x));
+  }
+\end{xten}
+%~~siv
+%}
+%~~neg
+
+\bard{Syntax}
+
+\subsection{\xcd`set` and \xcd`apply`}
+\index{set}
+\index{apply}
+\index{()}
+\index{()=}
+\label{set-and-apply}
+X10 allows types to implement the subscripting / function application
+operator, and indexed assignment.  The \xcd`Array`-like classes take advantage
+of both of these in \xcd`a(i) = a(i) + 1`.  Unlike unary and binary operators,
+subscripting and indexed assignment are done by methods, \xcd`apply` and
+\xcd`set` respectively.
+
+\xcd`a(b,c,d)` is short for the method call \xcd`a.apply(b,c,d)`.  Since it is
+possible to overload methods, the application syntax can be overloaded.  For
+example, an ordered dictionary structure could allow subscripting by numbers
+with \xcd`def apply(i:Int)`, and by string-valued keys with 
+\xcd`def apply(s:String)`.  
+
+\xcd`a(i)=b` is short for the method call \xcd`a.set(b,i)`, with one or more
+indices \xcd`i`. (This has a
+possibly surprising consequence for the order of evaluation: in \xcd`a(i)=b`,
+as in \xcd`a.set(b,i)`, \xcd`a` is evaluated first, then \xcd`b`, and finally
+\xcd`i`.)  Again, it is possible to overload \xcd`set` to provide a variety of
+subscripting operations.  Each \xcd`set` method must have a corresponding
+\xcd`apply` method; that is, \xcd`a(i,j)=b` is only defined when \xcd`a(i,j)`
+is defined, despite the fact that \xcd`a(i,j)=b` does not evaluate \xcd`a(i,j)`.
+
+The \xcd`Oddvec` class of somewhat peculiar vectors illustrates this.
+\xcd`a()` returns a string representation of the oddvec, which probably should
+be done by \xcd`toString()` instead.  \xcd`a(i)` picks out one of the three
+coordinates of \xcd`a`, which is sensible.  \xcd`a(i)=b` assigns to one of the
+coordinates.  \xcd`a(i,j)=b` assigns different values to \xcd`a(i)` and
+\xcd`a(j)`, purely for the sake of the example.
+
+%~~gen
+% package Classes.Assignments.Are.Not.From.Any.Course.Of.Study;
+%~~vis
+\begin{xten}
+class Oddvec {
+  var v : Rail[Int]! = Rail.make[Int](3, (Int)=>0);
+  public def apply() = "(" + v(0) + "," + v(1) + "," + v(2) + ")";
+  public def apply(i:Int) = v(i);
+  public def apply(i:Int, j:Int) = [v(i),v(j)];
+  public def set(newval:Int, i:Int) = {v(i) = newval;}
+  public def set(newval:Int, i:Int, j:Int) = {
+       v(i) = newval; v(j) = newval+1;} 
+  // ... 
+\end{xten}
+%~~siv
+%  public static def main(argv:Rail[String]!):Void {
+%     val a = new Oddvec();
+%     x10.io.Console.OUT.println(a() + " ... " + a(0));
+%     a(1) = 20;
+%     x10.io.Console.OUT.println(a());
+%     a(0) = 30;
+%     x10.io.Console.OUT.println(a());
+%     a(0,1) = 100;
+%     x10.io.Console.OUT.println(a());
+%   }
+% }
+%~~neg
+
+
+\subsubsection{\Xcd{proto} Rules}
+\label{protorules}
+\label{ProtoRules}
+\index{proto!rules}
+
+For every type \Xcd{T} (where \Xcd{T} is not a type variable), we
+introduce the type \Xcd{proto T}. 
+
+There is no relationship between types \Xcd{T} and \Xcd{proto T} --
+neither is a subtype of the other.\footnote{Clearly, a value of type
+  \Xcd{proto T} cannot be used anywhere that a \Xcd{T} is needed,
+  since its fields cannot be read.  As discussed below, an incomplete
+  value \Xcd{v} can be assigned to a field {\tt f} of an object {\tt
+    o} only if {\tt o} is incomplete. This ensures that \Xcd{v} cannot
+  escape through this assignment. A completed value \Xcd{p} cannot be
+  substituted for \Xcd{o} -- it may permit \Xcd{v} to escape through
+  an assignment to its field. Therefore \Xcd{T} cannot be a subtype of
+  \Xcd{proto T}.}
+
+Incomplete types are permitted to occur only as types of method
+parameters or local variables or as return types for methods and
+constructors. They may not occur in (the source or target of) cast
+statements, \Xcd{extends} or \Xcd{implements} clauses, \Xcd{catch}
+clauses, or as types of class fields.
+
+Within the body of a class \Xcd{C} the type of \Xcd{this} in
+constructors, instance initializers and instance variable initializers
+is \Xcd{proto C}.
+
+Let \Xcd{v} be a value of type \Xcd{proto C}, for some class \Xcd{C}. 
+
+No fields of \Xcd{v} can be read.  (This is the defining property of
+\Xcd{proto} types.)  However, \Xcd{v}'s (accessible) instance fields
+can be assigned.
+
+\Xcd{v} can be assigned to an instance field \Xcd{o.f} only if \Xcd{f}
+is of some type \Xcd{S} such that \Xcd{T <: S} and \Xcd{o} has an
+incomplete type.
+
+\Xcd{v} can be assigned to local variables  only if they are of some type
+\Xcd{proto S} (such that \Xcd{T <: S}).
+
+Instance methods of class \Xcd{C} may be qualified with \Xcd{proto}
+(these methods are called {\em incomplete methods}). The type of \Xcd{this}
+in incomplete methods is \Xcd{proto C}. Incomplete methods can be
+overridden only by incomplete methods.  Only incomplete methods can be
+invoked on \Xcd{v}. Incomplete methods which do not take an argument of incomplete
+type can be invoked on completed values. 
+
+
+\Xcd{v} can be passed as argument into a constructor or method call,
+or returned from a method.  The return type of a method taking an
+argument at an incomplete type must be \Xcd{void} or incomplete.  The
+return type of a constructor taking an argument at a \Xcd{proto} type
+must be incomplete.
+ 
+A generic type parameter \Xcd{T} can be instantiated with the type \Xcd{proto
+  S} (where \Xcd{S} is not a type parameter itself), provided that the body of
+the entity being instantiated satisfies the conditions above for \Xcd{proto
+  S}.
+
+During code generation, the type \Xcd{proto T} is treated as if it were
+\Xcd{T}. That is, there is no run-time cost to \Xcd{proto} types.
+
+The invariants maintained by the design are as follows.  Say that an
+object field or stack variable (local variable) contains an incomplete
+value if a value of type \Xcd{proto T} (for some \Xcd{T}) was written
+into it.
+
+\begin{itemize}
+\item If an object \Xcd{o} has a field containing an incomplete value \Xcd{v},
+then either \Xcd{v}'s constructor has exited or \Xcd{o} is confined.
+Further, every reference to \Xcd{o} on the stack is held at an incomplete type.
+
+\item If a stack variable contains an incomplete value, then
+  the variable's type is incomplete.
+
+\end{itemize}
+
+Say that a constructor invocation for a class \Xcd{C} on the call
+stack is a {\em root} if it takes no incomplete arguments. Such a
+constructor invocation will return an object of type \Xcd{C} whose
+fields may point to an arbitrary graph of newly created objects
+(objects created by the activity after the constructor
+invocation). Since the object returned is at type \Xcd{C} -- and not
+\Xcd{proto C} -- It may be assigned to any field of any object on the
+heap of type \Xcd{D} such that \Xcd{C <: D}.  It is no longer
+confined. Thus the ``magic moment'' when an incomplete value becomes
+complete is when the last constructor for any incomplete value it
+references (including itself) returns.
+
+\subsubsection{Proto Example: Circular Buffer}
+
+\begin{example}
+This example shows how to create a fixed-size circular buffer.
+(Its pointer structure is immutable, though the contents of each
+field are mutable.)
+\end{example}
+\bard{Write this example}
+
+
+\section{Class Guards and Invariants}\label{DepType:ClassGuard}
+\index{type invariants}
+\index{class invariants}
+\index{guards}
+
+%%OLD-INVAR%%  There is a general recipe for constructing a list of parameters or
+%%OLD-INVAR%%  properties \xcdmath"x$_1$: T$_1${c$_1$}, $\dots$, x$_k$: T$_k${c$_k$}" that must satisfy a given
+%%OLD-INVAR%%  (satisfiable) constraint \xcd"c". 
+%%OLD-INVAR%%  
+%%OLD-INVAR%%  \begin{xtenmath}
+%%OLD-INVAR%%  class Foo(x$_1$: T1{x$_2$: T$_2$; $\dots$; x$_k$: T$_k$; c},
+%%OLD-INVAR%%            x$_2$: T2{x$_3$: T$_3$; $\dots$; x$_k$: T$_k$; c},
+%%OLD-INVAR%%            $\dots$
+%%OLD-INVAR%%            x$_k$: T$_k${c}) {
+%%OLD-INVAR%%    $\dots$
+%%OLD-INVAR%%  }
+%%OLD-INVAR%%  \end{xtenmath}
+%%OLD-INVAR%%  
+%%OLD-INVAR%%  The first type \xcdmath"x$_1$: T$_1${x$_2$: T$_2$; $\dots$; x$_k$: T$_k$; c}" is consistent iff
+%%OLD-INVAR%%  \xcdmath"$\exists$x$_1$: T$_1$, x$_2$: T$_2$, $\dots$, x$_k$: T$_k$. c" is consistent. The second is
+%%OLD-INVAR%%  consistent iff
+%%OLD-INVAR%%  \begin{xtenmath}
+%%OLD-INVAR%%  $\forall$x$_1$: T$_1${x$_2$: T$_2$; $\dots$; x$_k$: T$_k$; c}
+%%OLD-INVAR%%  $\exists$x$_2$: T$_2$. $\exists$x$_3$: T$_3$, $\dots$, x$_k$: T$_k$. c
+%%OLD-INVAR%%  \end{xtenmath}
+%%OLD-INVAR%%  \noindent But this is always true. Similarly for the conditions for the other
+%%OLD-INVAR%%  properties.
+%%OLD-INVAR%%  
+%%OLD-INVAR%%  Thus logically every satisfiable constraint \xcd"c" on a list of parameters
+%%OLD-INVAR%%  \xcdmath"x$_1$", \dots, \xcdmath"x$_k$"
+%%OLD-INVAR%%  can be expressed using the dependent types of 
+%%OLD-INVAR%%  \xcdmath"x$_i$", provided
+%%OLD-INVAR%%  that the constraint language is rich enough to permit existential
+%%OLD-INVAR%%  quantifiers.
+%%OLD-INVAR%%  
+%%OLD-INVAR%%  Nevertheless we will find it convenient to permit the programmer to
+%%OLD-INVAR%%  explicitly specify a depclause after the list of properties, thus:
+%%OLD-INVAR%%  \begin{xten}
+%%OLD-INVAR%%  class Point(i: Int, j: Int) { ... }
+%%OLD-INVAR%%  class Line(start: Point, end: Point){end != start} { ... }
+%%OLD-INVAR%%  class Triangle (a: Line, b: Line, c: Line)
+%%OLD-INVAR%%     {a.end == b.start,  b.end == c.start,
+%%OLD-INVAR%%      c.end == a.start} { ... }
+%%OLD-INVAR%%  \end{xten}
+%%OLD-INVAR%%  
+%%OLD-INVAR%%  Consider the definition of the class \xcd"Line". This may be thought of as
+%%OLD-INVAR%%  saying: the class \xcd"Line" has two fields, \xcd"start: Point" and
+%%OLD-INVAR%%  \xcd"end: Point".
+%%OLD-INVAR%%  Further, every instance of \xcd"Line" must satisfy the constraint that
+%%OLD-INVAR%%  \xcd"end != start". Similarly for the other class definitions. 
+%%OLD-INVAR%%  
+%%OLD-INVAR%%  In the general case, the production for \grammarrule{NormalClassDeclaration}
+%%OLD-INVAR%%  specifies that the list of properties may be followed by a
+%%OLD-INVAR%%  \grammarrule{Guard}.
+%%OLD-INVAR%%  
+%%OLD-INVAR%%  \begin{grammar}
+%%OLD-INVAR%%  NormalClassDeclaration \:
+%%OLD-INVAR%%        ClassModifiers\opt \xcd"class" Identifier  \\
+%%OLD-INVAR%%     && TypeParameterList\opt PropertyList\opt Guard\opt \\
+%%OLD-INVAR%%     && Extends\opt Interfaces\opt ClassBody \\
+%%OLD-INVAR%%  \\
+%%OLD-INVAR%%  NormalInterfaceDeclaration \:
+%%OLD-INVAR%%        InterfaceModifiers\opt \xcd"interface" Identifier  \\
+%%OLD-INVAR%%     && TypeParameterList\opt PropertyList\opt Guard\opt \\
+%%OLD-INVAR%%     && ExtendsInterfaces\opt InterfaceBody \\
+%%OLD-INVAR%%  \end{grammar}
+%%OLD-INVAR%%  
+%%OLD-INVAR%%  All the properties in the list, together with inherited properties,
+%%OLD-INVAR%%  may appear in the \grammarrule{Guard}. A guard \xcd"c" with
+%%OLD-INVAR%%  property list \xcdmath"x$_1$: T$_1$, $\dots$, x$_n$: T$_n$"
+%%OLD-INVAR%%  for a class \xcd"C" is said to be consistent if each of the \xcdmath"T$_i$" are
+%%OLD-INVAR%%  consistent and the constraint
+%%OLD-INVAR%%  \begin{xtenmath}
+%%OLD-INVAR%%  $\exists$x$_1$: T$_1$, $\dots$, x$_n$: T$_n$, self: C. c
+%%OLD-INVAR%%  \end{xtenmath}
+%%OLD-INVAR%%  \noindent is valid (always true).
+%%OLD-INVAR%%  
+
+Classes (and structs and interfaces) may specify a {\em class guard}, a
+constraint which must hold on all values of the class.    In the following
+example, a \xcd`Line` is defined by two distinct \xcd`Pt`s\footnote{We use \xcd`Pt`
+to avoid any possible confusion with the built-in class \xcd`Point`.}
+%~~gen
+% package classes.guards.invariants.glurp;
+%~~vis
+\begin{xten}
+class Pt(x:Int, y:Int){}
+class Line(a:Pt, b:Pt){a != b} {}
+\end{xten}
+%~~siv
+%
+%~~neg
+
+In most cases the class guard could be phrased as a type constraint on a property of
+the class instead, if preferred.  Arguably, a symmetric constraint like two
+points being different is better expressed as a class guard, rather than
+asymmetrically as a constraint on one type: 
+%~~gen
+% package classes.guards.invariants.glurp2;
+% class Pt(x:Int, y:Int){}
+%~~vis
+\begin{xten}
+class Line(a:Pt, b:Pt{a != b}) {}
+\end{xten}
+%~~siv
+%
+%~~neg
+
+
+
+\label{DepType:TypeInvariant}
+\index{Class invariant}
+\label{DepType:ClassGuardDef}
+
+
+
+With every defined class, struct,  or interface \xcd"T" we associate a {\em type
+invariant} $\mathit{inv}($\xcd"T"$)$, which describes the guarantees on the
+properties of values of type \xcd`T`.  
+
+Every value of \xcd`T` satisfies $\mathit{inv}($\xcd"T"$)$ at all times.  This
+is somewhat stronger than the concept of type invariant in most languages
+(which only requires that the invariant holds when no method calls are
+active).  X10 invariants only concern properties, which are immutable; thus,
+once established, they cannot be falsified.
+
+The type
+invariant associated with \xcd"x10.lang.Any"
+is 
+\xcd"true".
+
+The type invariant associated with any interface or struct \xcd"I" that extends
+interfaces \xcdmath"I$_1$, $\dots$, I$_k$" and defines properties
+\xcdmath"x$_1$: P$_1$, $\dots$, x$_n$: P$_n$" and
+specifies a guard \xcd"c" is given by:
+
+\begin{xtenmath}
+$\mathit{inv}$(I$_1$) && $\dots$ && $\mathit{inv}$(I$_k$) 
+    && self.x$_1$ instanceof P$_1$ &&  $\dots$ &&  self.x$_n$ instanceof P$_n$ 
+    && c  
+\end{xtenmath}
+
+Similarly the type invariant associated with any class \xcd"C" that
+implements interfaces \xcdmath"I$_1$, $\dots$, I$_k$",
+extends class \xcd"D" and defines properties
+\xcdmath"x$_1$: P$_1$, $\dots$, x$_n$: P$_n$" and
+specifies a guard \xcd"c" is
+given by the same thing with the invariant of the superclass \xcd`D` conjoined:
+\begin{xtenmath}
+$\mathit{inv}$(I$_1$) && $\dots$ && $\mathit{inv}$(I$_k$) 
+    && self.x$_1$ instanceof P$_1$ &&  $\dots$ &&  self.x$_n$ instanceof P$_n$ 
+    && c  
+    && $\mathit{inv}$(D)
+\end{xtenmath}
+
+
+Note that the type invariant associated with a class entails the type
+invariants of each interface that it implements (directly or indirectly), and
+the type invariant of each ancestor class.
+It is guaranteed that for any variable \xcd"v" of
+type \xcd"T{c}" (where \xcd"T" is an interface name or a class name) the only
+objects \xcd"o" that may be stored in \xcd"v" are such that \xcd"o" satisfies
+$\mathit{inv}(\mbox{\xcd"T"}[\mbox{\xcd"o"}/\mbox{\xcd"this"}])
+\wedge \mbox{\xcd"c"}[\mbox{\xcd"o"}/\mbox{\xcd"self"}]$.
+
+
+
+\subsection{Invariants for \Xcd{implements} and \Xcd{extends} clauses}\label{DepType:Implements}
+\label{DepType:Extends}
+\index{type-checking!implements clause}
+\index{type-checking!extends clause}
+\index{implements clause}
+\index{extends  clause}
+Consider a class definition
+\begin{xtenmath}
+$\mbox{\emph{ClassModifiers}}^{\mbox{?}}$
+class C(x$_1$: P$_1$, $\dots$, x$_n$: P$_n$) extends D{d}
+   implements I$_1${c$_1$}, $\dots$, I$_k${c$_k$}
+$\mbox{\emph{ClassBody}}$
+\end{xtenmath}
+
+Each of the following static semantics rules must be satisfied:
+
+\begin{staticrule}{Int-implements}
+The type invariant \xcdmath"$\mathit{inv}$(C)" of \xcd"C" must entail
+\xcdmath"c$_i$[this/self]" for each $i$ in $\{1, \dots, k\}$
+\end{staticrule}
+
+\begin{staticrule}{Super-extends}
+The return type \xcd"c" of each constructor in \grammarrule{ClassBody}
+must entail \xcd"d".
+\end{staticrule}
+
+\subsection{Invariants and constructor definitions}
+
+A constructor for a class \xcd"C" is guaranteed to return an object of the
+class on successful termination. This object must satisfy  \xcdmath"$\mathit{inv}$(C)", the
+class invariant associated with \xcd"C" (\Sref{DepType:TypeInvariant}).
+However,
+often the objects returned by a constructor may satisfy {\em stronger}
+properties than the class invariant. \Xten{}'s dependent type system
+permits these extra properties to be asserted with the constructor in
+the form of a constrained type (the ``return type'' of the constructor):
+
+\begin{grammar}
+ConstructorDeclarator \:
+  \xcd"def" \xcd"this" TypeParameterList\opt \xcd"(" FormalParameterList\opt \xcd")" \\
+  && ReturnType\opt Guard\opt Throws\opt Offers\opt \\
+ReturnType    \: \xcd":" Type \\
+Guard   \: "\{" DepExpression "\}" \\
+Throws    \: \xcd"throws" ExceptionType  ( \xcd"," ExceptionType )\star \\
+Offers    \: \xcd"offers" Type \\
+ExceptionType \: ClassBaseType Annotation\star \\
+\end{grammar}
+
+\label{ConstructorGuard}
+
+The parameter list for the constructor
+may specify a \emph{guard} that is to be satisfied by the parameters
+to the list.
+
+\begin{example}
+%%TODO--rewrite this
+Here is another example, constructed as a simplified 
+version of \Xcd{x10.lang.Region}.  The \xcd`mockUnion` method 
+has the type that a true \xcd`union` method would have.
+
+%~~gen
+%package Classes.Are.For.Wussies.Wimps.And.People.With.Vowels.In.Their.Names;
+%~~vis
+\begin{xten}
+class MyRegion(rank:Int) {
+  static type MyRegion(n:Int)=MyRegion{self.rank==n};
+  def this(r:Int):MyRegion(r) {
+    property(r);
+  }
+  def this(diag:ValRail[Int]):MyRegion(diag.length){ 
+    property(diag.length);
+  }
+  def mockUnion(r:MyRegion(rank)):MyRegion(rank) = this;
+  def example() {
+    val R1 : MyRegion(3)! = new MyRegion([4,4,4]); 
+    val R2 : MyRegion(3)! = new MyRegion([5,4,1]); 
+    val R3 = R1.mockUnion(R2); // inferred type MyRegion(3)
+  }
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+The first constructor returns the empty region of rank \Xcd{r}.  The
+second constructor takes a \Xcd{ValRail[Int]} of arbitrary length
+\Xcd{n} and returns a \Xcd{MyRegion(n)} (intended to represent the set
+of points in the rectangular parallelopiped between the origin and the
+\Xcd{diag}.)
+
+The code in \xcd`example` typechecks, and \xcd`R3`'s type is inferred as
+\xcd`MyRegion(3)`.  
+
+
+\end{example}
+
+\begin{staticrule}{Super-invoke}
+   Let \xcd"C" be a class with properties
+   \xcdmath"p$_1$: P$_1$, $\dots$, p$_n$: P$_n$", invariant \xcd"c"
+   extending the constrained type \xcd"D{d}" (where \xcd"D" is the name of a class).
+
+   For every constructor in \xcd"C" the compiler checks that the call to
+   super invokes a constructor for \xcd"D" whose return type is strong enough
+   to entail \xcd"d". Specifically, if the call to super is of the form 
+     \xcdmath"super(e$_1$, $\dots$, e$_k$)"
+   and the static type of each expression \xcdmath"e$_i$" is
+   \xcdmath"S$_i$", and the invocation
+   is statically resolved to a constructor
+\xcdmath"def this(x$_1$: T$_1$, $\dots$, x$_k$: T$_k$){c}: D{d$_1$}"
+   then it must be the case that 
+\begin{xtenmath}
+x$_1$: S$_1$, $\dots$, x$_i$: S$_i$ $\vdash$ x$_i$: T$_i$  (for $i \in \{1, \dots, k\}$)
+x$_1$: S$_1$, $\dots$, x$_k$: S$_k$ $\vdash$ c  
+d$_1$[a/self], x$_1$: S$_1$, ..., x$_k$: S$_k$ $\vdash$ d[a/self]      
+\end{xtenmath}
+\noindent where \xcd"a" is a constant that does not appear in 
+\xcdmath"x$_1$: S$_1$ $\wedge$ ... $\wedge$ x$_k$: S$_k$".
+\end{staticrule}
+
+\begin{staticrule}{Constructor return}
+   The compiler checks that every constructor for \xcd"C" ensures that
+   the properties \xcdmath"p$_1$,..., p$_n$" are initialized with values which satisfy
+   \xcdmath"t(C)", and its own return type \xcd"c'" as follows.  In each constructor, the
+   compiler checks that the static types \xcdmath"T$_i$" of the expressions \xcdmath"e$_i$"
+   assigned to \xcdmath"p$_i$" are such that the following is
+   true:
+\begin{xtenmath}
+p$_1$: T$_1$, $\dots$, p$_n$: T$_n$ $\vdash$ t(C) $\wedge$ c'     
+\end{xtenmath}
+\end{staticrule}
+(Note that for the assignment of \xcdmath"e$_i$" to \xcdmath"p$_i$"
+to be type-correct it must be the
+    case that \xcdmath"p$_i$: T$_i$ $\wedge$ p$_i$: P$_i$".) 
+
+
+\begin{staticrule}{Constructor invocation}
+The compiler must check that every invocation \xcdmath"C(e$_1$, $\dots$, e$_n$)" to a
+constructor is type correct: each argument \xcdmath"e$_i$" must have a static type
+that is a subtype of the declared type \xcdmath"T$_i$" for the $i$th
+argument of the
+constructor, and the conjunction of static types of the argument must
+entail the \grammarrule{Guard} in the parameter list of the constructor.
+\end{staticrule}

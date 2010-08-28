@@ -1,0 +1,508 @@
+\chapter{Statements}\label{XtenStatements}\index{statements}
+
+This chapter describes the statements in the sequential core of
+\Xten{}.  Statements involving concurrency and distribution
+are described in \Sref{XtenActivities}.
+
+\section{Empty statement}
+
+\begin{grammar}
+Statement \: \xcd";" \\
+\end{grammar}
+
+The empty statement \xcd";" does nothing.  It is useful when a
+loop header is evaluated for its side effects.  For example,
+the following code sums the elements of a rail.
+
+%~~gen
+% package statements.should.be.called.commands.but.nobody.ever.does.that;
+% class EmptyStatementExample {
+% def summizmo (a:Rail[Int]!){
+%~~vis
+\begin{xten}
+var sum: Int = 0;
+for (var i: Int = 0; i < a.length; i++, sum += a(i))
+    ;
+\end{xten}
+%~~siv
+%}}
+%~~neg
+
+\section{Local variable declaration}
+
+Short-lived variables are introduced by local variables declarations, as
+described in \Sref{VariableDeclarations}. Local variables may be declared only
+within a block statement (\Sref{Blocks}). The scope of a local variable
+declaration is the statement itself and the subsequent statements in the
+block.
+%~~gen
+% package statements.should.have.locals;
+% class LocalExample {
+% def example(a:Int) {
+%~~vis
+\begin{xten}
+  if (a > 1) {
+     val b = a/2;
+     var c : Int = 0;
+     // b and c are defined here
+  }
+  // b and c are not defined here.
+\end{xten}
+%~~siv
+%} }
+%~~neg
+
+
+\section{Block statement}
+\label{Blocks}
+
+\begin{grammar}
+Statement \: BlockStatement \\
+BlockStatement \: \xcd"{" Statement\star \xcd"}" \\
+\end{grammar}
+
+A block statement consists of a sequence of statements delimited by
+``\xcd"{"'' and ``\xcd"}"''. When a block is evaluated, the statements inside
+of it are evaluated in order.  Blocks are useful for putting several
+statements in a place where X10 asks for a single one, such as the consequent
+of an \xcd`if`, and for limiting the scope of local variables.
+%~~gen
+% package statements.FOR.block.heads;
+% class Example {
+% def example(b:Boolean, S1:(Int)=>Void, S2:(Int)=>Void ) {
+%~~vis
+\begin{xten}
+if (b) {
+  // This is a block
+  val v = 1;
+  S1(v); 
+  S2(v);
+}
+\end{xten}
+%~~siv
+%  } } 
+%~~neg
+
+
+\section{Expression statement}
+
+\begin{grammar}
+Statement \: ExpressionStatement \\
+ExpressionStatement \: StatementExpression \xcd";" \\
+StatementExpression \: Assignment \\
+          \| NewExpression \\
+          \| Call \\
+\end{grammar}
+
+The expression statement evaluates an expression.  The value of the expression
+is not used.
+Side effects of the expression occur.  
+%~~gen
+% package Sta.tem.ent.s.expressions;
+% import x10.util.*;
+%~~vis
+\begin{xten}
+class StmtEx {
+  def this() { x10.io.Console.OUT.println("New StmtEx made");  }
+  static def call() { x10.io.Console.OUT.println("call!");  }
+  def example() {
+     var a : Int = 0;
+     a = 1; // assignment
+     new StmtEx(); // allocation
+     call(); // call
+  }
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+Note that only selected forms of expression can appear in expression
+statements.  
+
+
+\section{Labeled statement}
+
+\begin{grammar}
+Statement \: LabeledStatement \\
+LabeledStatement \: Identifier \xcd":" LoopStatement \\
+\end{grammar}
+
+Loop statements (\xcd`for`, \xcd`while`, \xcd`do`, \xcd`ateach`,
+\xcd`foreach`) may be labeled. The label may be used as the target of a break
+or continue statement. The scope of a label is the statement labeled.
+%~~gen
+% package state.meant.labe.L;
+% class Example {
+% def example(a:(Int,Int) => Int, do_things_to:(Int)=>Int) {
+%~~vis
+\begin{xten}
+lbl : for ((i) in 1..10) {
+   for ((j) in i..10) {  
+      if (a(i,j) == 0) break lbl;
+      if (a(i,j) == 1) continue lbl;
+      do_things_to(a(i,j)); 
+   }
+}
+\end{xten}
+%~~siv
+%} } 
+%~~neg
+
+
+\section{Break statement}
+
+\begin{grammar}
+Statement \: BreakStatement \\
+BreakStatement \: \xcd"break" Identifier\opt \\
+\end{grammar}
+
+An unlabeled break statement exits the currently enclosing loop or switch
+statement. An labeled break statement exits the enclosing loop or switch
+statement with the given label.
+It is illegal to break out of a loop not defined in the current
+method, constructor, initializer, or closure.  
+
+The following code searches for an element of a two-dimensional
+array and breaks out of the loop when it is found:
+
+%~~gen
+% package statements.come.from.banks.and.cranks;
+% class LabelledBreakeyBreakyHeart {
+% def findy(a:ValRail[ValRail[Int]], v:Int): Boolean {
+%~~vis
+\begin{xten}
+var found: Boolean = false;
+outer: for (var i: Int = 0; i < a.length; i++)
+    for (var j: Int = 0; j < a(i).length; j++)
+        if (a(i)(j) == v) {
+            found = true;
+            break outer;
+        }
+\end{xten}
+%~~siv
+% return found;
+%}}
+%~~neg
+
+\section{Continue statement}
+
+\begin{grammar}
+Statement \: ContinueStatement \\
+ContinueStatement \: \xcd"continue" Identifier\opt \\
+\end{grammar}
+
+An unlabeled \xcd`continue` skips the rest of the current iteration of the
+innermost enclosing loop, and proceeds on to the next.  A labeled
+\xcd`continue` does the same to the enclosing loop with that label.
+It is illegal to continue a loop not defined in the current
+method, constructor, initializer, or closure.
+
+\section{If statement}
+
+\begin{grammar}
+Statement \: IfThenStatement \\
+          \| IfThenElseStatement \\
+IfThenStatement \: \xcd"if" \xcd"(" Expression \xcd")" Statement \\
+IfThenElseStatement \: \xcd"if" \xcd"(" Expression \xcd")" Statement \xcd"else" Statement \\
+\end{grammar}
+
+An if statement comes in two forms: with and without an else
+clause.
+
+The if-then statement evaluates a condition expression, which must be of type
+\xcd`Boolean`. If the condition is \xcd`true`, it evaluates the then-clause.
+If the condition is \xcd"false", the if-then statement completes normally.
+
+The if-then-else statement evaluates a condition expression and 
+evaluates the then-clause if the condition is
+\xcd"true"; otherwise, the \xcd`else`-clause is evaluated.
+
+As is traditional in languages derived from Algol, the if-statement is syntactically
+ambiguous.  That is, 
+\begin{xten}
+if (B1) if (B2) S1 else S2
+\end{xten}
+could be intended to mean either 
+\begin{xten}
+if (B1) { if (B2) S1 else S2 }
+\end{xten} 
+or 
+\begin{xten}
+if (B1) {if (B2) S1} else S2
+\end{xten}
+X10, as is traditional, attaches an \xcd`else` clause to the most recent
+\xcd`if` that doesn't have one.
+This example is interpreted as 
+\xcd`if (B1) { if (B2) S1 else S2 }`. 
+
+
+
+\section{Switch statement}
+
+\begin{grammar}
+Statement \: SwitchStatement \\
+SwitchStatement \: \xcd"switch" \xcd"(" Expression \xcd")" \xcd"{" Case\plus \xcd"}" \\
+Case \: \xcd"case" Expression \xcd":" Statement\star \\
+     \| \xcd"default" \xcd":" Statement\star \\
+\end{grammar}
+
+A switch statement evaluates an index expression and then branches to
+a case whose value equal to the value of the index expression.
+If no such case exists, the switch branches to the 
+\xcd"default" case, if any.
+
+Statements in each case branch evaluated in sequence.  At the
+end of the branch, normal control-flow falls through to the next case, if
+any.  To prevent fall-through, a case branch may be exited using
+a \xcd"break" statement.
+
+The index expression must be of type \xcd"Int".
+Case labels must be of type \xcd"Int", \xcd`Byte`, \xcd`Short`, or \xcd`Char`
+and must be compile-time 
+constants.  Case labels cannot be duplicated within the
+\xcd"switch" statement.
+
+In the following example, case \xcd`1` falls through to case3 \xcd`2`.  The
+other cases are separated by \xcd`break`s.
+%~~gen
+% package Statement.Case;
+% class Example {
+% def example(i : Int, println: (String)=>Void) {
+%~~vis
+\begin{xten}
+switch (i) {
+  case 1: println("one, and ");
+  case 2: println("two"); 
+          break;
+  case 3: println("three");
+          break;
+  default: println("Something else");
+           break;
+}
+\end{xten}
+%~~siv
+% } } 
+%~~neg
+
+
+\section{While statement}
+\index{\Xcd{while}}
+
+\begin{grammar}
+Statement \: WhileStatement \\
+WhileStatement \: \xcd"while" \xcd"(" Expression \xcd")" Statement \\
+\end{grammar}
+
+A while statement evaluates a \xcd`Boolean`-valued condition and executes a
+loop body if \xcd"true". If the loop body completes normally (either by
+reaching the end or via a \xcd"continue" statement with the loop header as
+target), the condition is reevaluated and the loop repeats if \xcd"true". If
+the condition is \xcd"false", the loop exits.
+
+%~~gen
+% package Statements.AreFor.Flatements;
+% class Example {
+% def example(var n:Int) {
+%~~vis
+\begin{xten}
+  while (n > 1) {
+     n = (n % 2 == 1) ? 3*n+1 : n/2;
+  }
+\end{xten}
+%~~siv
+% } } 
+%~~neg
+
+\section{Do--while statement}
+\index{\Xcd{do}}
+
+\begin{grammar}
+Statement \: DoWhileStatement \\
+DoWhileStatement \: \xcd"do" Statement \xcd"while" \xcd"(" Expression \xcd")" \xcd";" \\
+\end{grammar}
+
+
+A do-while statement executes a loop body, and then evaluates a
+\xcd`Boolean`-valued condition expression. If \xcd"true", the loop repeats.
+Otherwise, the loop exits.
+
+
+
+\section{For statement}
+\index{\Xcd{for}}
+
+\begin{grammar}
+Statement \: ForStatement \\
+          \| EnhancedForStatement \\
+ForStatement \: \xcd"for" \xcd"("
+        ForInit\opt \xcd";" Expression\opt \xcd";" ForUpdate\opt
+        \xcd")" Statement \\
+ForInit \:
+        StatementExpression ( \xcd"," StatementExpression )\star
+        \\
+      \| LocalVariableDeclaration \\
+ForUpdate \:
+        StatementExpression ( \xcd"," StatementExpression )\star\\
+EnhancedForStatement \: \xcd"for" \xcd"("
+        Formal \xcd"in" Expression 
+        \xcd")" Statement \\
+\end{grammar}
+
+\xcd`for` statements provide bounded iteration, such as looping over a list.
+It has two forms: a basic form allowing near-arbitrary iteration, {\em a la}
+C, and an enhanced form designed to iterate over a collection.
+
+A basic \xcd`for` statement provides for arbitrary iteration in a somewhat
+more organized fashion than a \xcd`while`.  \xcd`for(init; test; step)body` is
+equivalent to: 
+\begin{xten}
+{
+   init;
+   while(test) {
+      body;
+      step;
+   }
+}
+\end{xten}
+
+\xcd`init` is performed before the loop, and is traditionally used to declare
+and/or initialize the loop variables. It may be a single variable binding
+statement, such as \xcd`var i:Int = 0` or \xcd`var i:Int=0, j:Int=100`. (Note
+that a single variable binding statement may bind multiple variables.)
+Variables introduced by \xcd`init` may appear anywhere in the \xcd`for`
+statement, but not outside of it.  Or, it may be a sequence of expression
+statements, such as \xcd`i=0, j=100`, operating on already-defined variables.
+If omitted, \xcd`init` does nothing.
+
+\xcd`test` is a Boolean-valued expression; an iteration of the loop will only
+proceed if \xcd`test` is true at the beginning of the loop, after \xcd`init`
+on the first iteration or or \xcd`step` on later ones. If omitted, \xcd`test`
+defaults to \xcd`true`, giving a loop that will run until stopped by some
+other means such as \xcd`break`, \xcd`return`, or \xcd`throw`.
+
+\xcd`step` is performed after the loop body, between one iteration and the
+next. It traditionally updates the loop variables from one iteration to the
+next: \eg, \xcd`i++` and \xcd`i++,j--`.  If omitted, \xcd`step` does nothing.
+
+\xcd`body` is a statement, often a code block, which is performed whenever
+\xcd`test` is true.  If omitted, \xcd`body` does nothing.
+
+
+
+
+\label{ForAllLoop}
+
+
+An enhanced for statement is used to iterate over a collection, or other
+structure designed to support iteration by implementing the interface
+\xcd`Iterable[T]`.    The loop variable must be of type \xcd`T`, 
+or destructurable from a value of type \xcd`T`
+(\Sref{exploded-syntax}; in practice, this means that 
+\xcd`for ((i) in 1..10)` iterates over numbers from 1 to 10, while 
+\xcd`for (i in 1..10` iterates over \xcd`Point`s from 1 to 10).
+Each iteration of the loop
+binds the iteration variable to another element of the collection.
+
+%~~gen
+% package statements.for_for;
+% class Example {
+% def example(n:Int) {
+%~~vis
+\begin{xten}
+  var sum : Int = 0;
+  for ((i) in 1..n) sum += i;
+\end{xten}
+%~~siv
+% } } 
+%~~neg
+
+
+
+Certain common variant cases are accepted.  If collection is of type
+\xcd"Region", the iteration variable may be of type \xcd"Point". 
+If the iteratable \xcd`e` is of type \xcd`Dist` or \xcd`Array`, it is treated
+as if it were \xcd`e.region`.  
+
+
+
+
+
+\section{Throw statement}
+\index{throw}
+
+\begin{grammar}
+Statement \: ThrowStatement \\
+ThrowStatement \: \xcd"throw" Expression \xcd";"
+\end{grammar}
+
+\index{Exception}
+The \xcd"throw" statement throws an exception, which 
+must be an instance of \xcd"x10.lang.Throwable". 
+
+For example, the following code checks if an index is in range and
+throws an exception if not.
+
+%~~gen
+% package statements.are.from.mars.expressions.are.from.venus;
+% class ThrowStatementExample {
+% def thingie(i:Int, x:ValRail[Boolean]) throws MyIndexOutOfBoundsException {
+%~~vis
+\begin{xten}
+if (i < 0 || i >= x.length)
+    throw new MyIndexOutOfBoundsException();
+\end{xten}
+%~~siv
+%} }
+% class MyIndexOutOfBoundsException extends Exception {}
+%~~neg
+
+\section{Try--catch statement}
+
+\begin{grammar}
+Statement \: TryStatement \\
+TryStatement \: \xcd"try" BlockStatement Catch\plus  \\
+             \| \xcd"try" BlockStatement Catch\star Finally \\
+Catch \: \xcd"catch" \xcd"(" Formal \xcd")" BlockStatement \\
+Finally \: \xcd"finally" BlockStatement \\
+\end{grammar}
+
+Exceptions are handled with a \xcd"try" statement.
+A \xcd"try" statement consists of a \xcd"try" block, zero or more
+\xcd"catch" blocks, and an optional \xcd"finally" block.
+
+First, the \xcd"try" block is evaluated.  If the block throws an
+exception, control transfers to the first matching \xcd"catch"
+block, if any.  A \xcd"catch" matches if the value of the
+exception thrown is a subclass of the \xcd"catch" block's formal
+parameter type.
+
+The \xcd"finally" block, if present, is evaluated on all normal
+and exceptional control-flow paths from the \xcd"try" block.
+If the \xcd"try" block completes normally
+or via a \xcd"return", a \xcd"break", or a
+\xcd"continue" statement, 
+the \xcd"finally"
+block is evaluated, and then control resumes at
+the statement following the \xcd"try" statement, at the branch target, or at
+the caller as appropriate.
+If the \xcd"try" block completes
+exceptionally, the \xcd"finally" block is evaluated after the
+matching \xcd"catch" block, if any, and then the
+exception is rethrown.
+
+It is a static error to attempt to catch an exception type which is not
+throwable by the block.  
+
+\section{Return statement}
+\label{ReturnStatement}
+\index{ReturnStatement}
+\begin{grammar}
+Statement \: ReturnStatement \\
+ReturnStatement \: \xcd"return" Expression \xcd";" \\
+             \| \xcd"return" \xcd";" \\
+\end{grammar}
+
+Methods and closures may return values using a return statement.
+If the method's return type is expliclty declared \xcd"Void",
+the method must return without a value; otherwise, it must return
+a value of the appropriate type.

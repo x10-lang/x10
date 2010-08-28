@@ -1,0 +1,162 @@
+\chapter{Places}\label{XtenPlaces}\index{places}
+
+An \Xten{} place is a repository for data and activities, corresponding
+loosely to a process or a processor. Places induce a concept of ``local''. The
+activities running in a place may access data items located at that place with
+the efficiency of on-chip access. Accesses to remote places may take orders of
+magnitude longer. X10's system of places is designed to make this obvious.
+Programmers are aware of the places of their data, and know when they are
+incurring communication costs, but the actual operation to do so is easy. It's
+not hard to use non-local data; it's simply hard to to do so accidentally.
+
+The set of places available to a computation is determined at the time that
+the program is started, and remains fixed through the run of the program. See
+the {\tt README} documentation on how to set command line and configuration
+options to set the number of places.)
+
+Places are first-class values in X10, as instances of the built-in struct,
+\xcd"x10.lang.Place".   \xcd`Place` provides a number of useful ways to
+query places, such as \xcd`Place.places`, a \xcd`ValRail` of all the places
+available to the current run of the program.
+
+Every object \xcd`ob` created by the program has a {\em home place}
+\xcd`ob.home`. Accesses to \xcd`ob` from activities located at \xcd`ob.home`
+are privileged.  Mutable fields can only be changed from \xcd`ob.home`, and
+normal fields and methods can only be accessed from there. 
+
+However, objects can be referred to from anywhere.  Places other than
+\xcd`ob.home` may have {\em remote references} to \xcd`ob`.  Remote references
+convey fewer privileges than local ones, but they are far from useless.
+Fields and methods can be defined to be \xcd`global`, usable from anywhere. 
+
+
+\section{The Structure of Places}
+
+Places are numbered 0 through \xcd`Places.MAX_PLACES`, stored in the field
+\xcd`pl.id`.  The \xcd`ValRail` \xcd`Place.places` contains the places of the
+program, in numeric order. 
+The program starts by executing a \xcd`main` method at
+\xcd`Place.FIRST_PLACE`, which is \xcd`Place.places(0)`; see
+\Sref{initial-computation}. 
+
+Operations on places include \xcd`pl.next()`, which gives the next entry
+(looping around) in \xcd`Place.places` and its opposite \xcd`pl.prev()`. In
+particular, \xcd`here.next()` means ``a place other than \xcd`here`'', except
+in single-place executions.
+%~~exp~~`~~`~~pl:Place~~
+There are also a number of tests, like \xcd`pl.isSPE()` and 
+%~~exp~~`~~`~~pl:Place ~~
+\xcd`pl.isCUDA()`, which test for particular kinds of processors.
+
+Future versions of the language may permit user-definable
+places, and the ability to dynamically create places.
+
+Place expressions \index{place expression} (\viz, expressions of type
+\xcd`Place`), such as \xcd`here` 
+%~~exp~~`~~`~~ ob:Object~~
+and \xcd`ob.home`, are used in \xcd`at` and
+\xcd`asynch` statements.  
+
+
+
+\section{\Xcd{here}}\index{here}\label{Here}
+
+The variable \xcd"here" is always bound to the place at which the current
+computation is running, in the same way that \xcd`this` is always bound to the
+instance of the current class (for non-static code), or \xcd`self` is bound to
+the instance of the type currently being constrained.  
+\xcd`here` may denote different places in the same method body, due to
+place-shifting operations. In the following code, \xcd`here` has one value at
+\xcd`h0`, and a different one at \xcd`h1`. 
+%~~gen
+% package places.are.For.Graces;
+% class Example {
+% def example() {
+%~~vis
+\begin{xten}
+val h0 = here;
+at (here.next()) {
+  val h1 = here; 
+  assert (h0 != h1);
+}
+\end{xten}
+%~~siv
+%} } 
+%~~neg
+\noindent
+(Similar examples show that \xcd`self` and \xcd`this` have the same behavior:
+\xcd`self` can be modified by constrained types appearing inside of type
+constraints, and \xcd`this` by inner classes.)
+
+
+\begin{grammar}
+Expression \: \xcd"here" \\
+\end{grammar}
+
+\begin{example}
+For example, the following method looks through a collection of \xcd`Thing`s
+for ones which belong in the current place \xcd`here`, and deals with the
+things which do.  Note that every object \xcd`thing` has a property
+\xcd`thing.home` giving its home location.
+%~~gen
+%package Places.Are.For.Graces;;
+%abstract class Thing {}
+%class DoMine {
+%  static def dealWith(Thing) {}	
+%~~vis
+\begin{xten}
+  public static def dealWithLocal(things: Rail[Thing]!) {
+     for(thing in things) {
+    	 if (thing.home == here) 
+            dealWith(thing);
+     }	  
+  }
+\end{xten}
+%~~siv
+%}
+%~~neg
+
+
+
+\end{example}
+
+\xcd`here` is frequently used in constraints, quite often of the form
+\xcd`ob.home == here`. Such constraints are necessary to check that a
+non-global method can be called on \xcd`ob`: 
+
+
+%TODO~~gen
+% package Places.Are.For.Aces.Of.Spaces;
+% class Thing {
+% def nonGlobalMethod():Void{}
+% static def example() {
+%TODO~~vis
+\begin{xten}
+val ob : Thing{self.home == here} = new Thing();
+ob.nonGlobalMethod();
+\end{xten}
+%TODO~~siv
+%}}
+%TODO~~neg
+
+This idiom is so common and useful that the constraint
+\xcd`T{self.home==here}` can be abbreviated as \xcd`T!`: 
+
+%~~gen
+% package Places.Are.For.Aces.Of.Graces;
+% class Thing {
+% def nonGlobalMethod():Void{}
+% static def example() {
+%~~vis
+\begin{xten}
+val ob : Thing! = new Thing();
+ob.nonGlobalMethod();
+\end{xten}
+%~~siv
+%}}
+%~~neg
+
+
+\limitationx {\em In the current implementation, sometimes \xcd^T{self.home==here}^
+does not work, though \Xcd{T!} does.}
+

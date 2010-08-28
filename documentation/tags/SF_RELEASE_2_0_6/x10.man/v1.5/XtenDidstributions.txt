@@ -1,0 +1,75 @@
+'''Distributions'''
+
+A distribution is a mapping from an XtenRegions to the set of places. Each program runs in a fixed number of places, determined  by runtime parameters. The static constant place.MAX_PLACES specifies the maximum number of places. The collection of places is assumed to be totally ordered.
+
+When operated on as a distribution, a region R implicitly behaves as the distribution mapping each item in R to "here" (i.e. R->here, see below).
+
+    region R = [100]
+    distribution D = R block;
+    distribution D = R cycle;
+    distribution D = R -> here;
+    distribution D = R random N;
+
+Let R be a region and Q a set of places.
+
+The distribution "R block(Q)" distributes the elements of R (in order) over the set of places Q in blocks of size R as follows. Let p = R div N and q = R mod N, where N is the size of Q. The first q places get successive blocks of size (p+1) and the remaining places get blocks of size p. 
+
+The distribution "R block" is taken as shorthand for "R block(place.places)".
+
+The distribution "R cyclic(Q)" distributes the points in R cyclically across places in Q in order. 
+
+The distribution "R cyclic" is taken as shorthand for "R cyclic(place.places)".
+
+Thus the distribution "place.MAX_PLACES cyclic" provides a 1-1 mapping from the region 1..place.MAX_PLACES to the set of all places.
+
+The distribution "R random(Q)" randomly allocates points in R to Q. As above, "R random" is taken as shorthand for "R random(place.places)".
+
+'''User-defined primitive distributions'''
+
+TBD
+
+'''Operations on Distributions'''
+
+Let D be a distribution. D.domain denotes the underlying region of the distribution. D.range is the set of places constituting  the range of the distribution D (viewed as a function).
+
+Let D be a distribution. A ''sub-distribution'' of D is any distribution E defined on some subset of the domain of D, which agrees with D on all points in its domain. We also say that D is a ''super-distribution'' of E. A distribution D1 ''is larger than'' D2 if D1 is a super-distribution of D2.
+
+Let D1 and D2 be two distributions.  
+
+D1 && D2 is the largest common sub-distribution of D1 and D2.
+
+D1 || D2, the disjoint union of D1 and D2, is defined only if the domains of D1 and D2 are disjoint. It is the least super-distribution of D1 and D2.
+
+D1 - D2 is the largest sub-distribution of D1 whose domain is disjoint from that of D2.
+
+
+''->'' 
+
+If R is a region expression, and P a place expression, the term '''R->P''' denotes the distribution that maps every element in R to the place P.
+
+''D.places'' 
+
+Let D be some arbitrary distribution with range {p1,..., pk} (in
+canonical order). Then D.places is the new distribution defined over
+the index set 1..k mapping each point i to pi.
+
+
+''|'' 
+
+If D is a distribution expression, and P a place expression, the term '''D | P''' denotes the sub-distribution of D defined over all the points in the domain of D mapped to P.
+
+Example: 
+
+	<distribution D(1)> public static
+	    T[D] dotProduct(T a[D], T b[D]) {
+	    return (new T[D.places] (j) {
+		return (new T[D | here] (i) {
+		    return a[i]*b[i];
+		}) >> (+);
+	    }) >> (+);
+	}
+
+This code returns the inner product of two T vectors defined over the same (otherwise unknown) distribution. The result is the sum reduction of an array of T with one element at each place in the range of D. The value of this array at each point is the sum reduction of the array formed by multiplying the corresponding elements of a and b in the local sub-array at the current place. 
+
+Note that D | here does not necessarily contain adjacent points. For instance, if D is a cyclic distribution, D | here will typically contain points that are P apart, where P is the number of places.
+

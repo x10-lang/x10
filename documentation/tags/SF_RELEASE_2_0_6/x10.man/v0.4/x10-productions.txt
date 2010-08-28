@@ -1,0 +1,532 @@
+0     $accept ::= CompilationUnit
+1     identifier ::= IDENTIFIER
+2     PrimitiveType ::= NumericType
+3                     | boolean
+4     NumericType ::= IntegralType
+5                   | FloatingPointType
+6     IntegralType ::= byte
+7                    | char
+8                    | short
+9                    | int
+10                   | long
+11    FloatingPointType ::= float
+12                        | double
+13    ClassType ::= TypeName
+14    InterfaceType ::= TypeName
+15    TypeName ::= identifier
+16               | TypeName DOT identifier
+17    ClassName ::= TypeName
+18    ArrayType ::= Type LBRACKET RBRACKET
+19    PackageName ::= identifier
+20                  | PackageName DOT identifier
+21    ExpressionName ::= identifier
+22                     | here
+23                     | AmbiguousName DOT identifier
+24    MethodName ::= identifier
+25                 | AmbiguousName DOT identifier
+26    PackageOrTypeName ::= identifier
+27                        | PackageOrTypeName DOT identifier
+28    AmbiguousName ::= identifier
+29                    | AmbiguousName DOT identifier
+30    CompilationUnit ::= PackageDeclarationopt ImportDeclarationsopt TypeDeclarationsopt
+31    ImportDeclarations ::= ImportDeclaration
+32                         | ImportDeclarations ImportDeclaration
+33    TypeDeclarations ::= TypeDeclaration
+34                       | TypeDeclarations TypeDeclaration
+35    PackageDeclaration ::= package PackageName SEMICOLON
+36    ImportDeclaration ::= SingleTypeImportDeclaration
+37                        | TypeImportOnDemandDeclaration
+38                        | SingleStaticImportDeclaration
+39                        | StaticImportOnDemandDeclaration
+40    SingleTypeImportDeclaration ::= import TypeName SEMICOLON
+41    TypeImportOnDemandDeclaration ::= import PackageOrTypeName DOT MULTIPLY SEMICOLON
+42    SingleStaticImportDeclaration ::= import static TypeName DOT identifier SEMICOLON
+43    StaticImportOnDemandDeclaration ::= import static TypeName DOT MULTIPLY SEMICOLON
+44    TypeDeclaration ::= ClassDeclaration
+45                      | InterfaceDeclaration
+46                      | SEMICOLON
+47    ClassDeclaration ::= NormalClassDeclaration
+48    NormalClassDeclaration ::= ClassModifiersopt class identifier Superopt Interfacesopt ClassBody
+49    ClassModifiers ::= ClassModifier
+50                     | ClassModifiers ClassModifier
+51    ClassModifier ::= public
+52                    | protected
+53                    | private
+54                    | abstract
+55                    | static
+56                    | final
+57                    | strictfp
+58    Super ::= extends ClassType
+59    Interfaces ::= implements InterfaceTypeList
+60    InterfaceTypeList ::= InterfaceType
+61                        | InterfaceTypeList COMMA InterfaceType
+62    ClassBody ::= LBRACE ClassBodyDeclarationsopt RBRACE
+63    ClassBodyDeclarations ::= ClassBodyDeclaration
+64                            | ClassBodyDeclarations ClassBodyDeclaration
+65    ClassBodyDeclaration ::= ClassMemberDeclaration
+66                           | InstanceInitializer
+67                           | StaticInitializer
+68                           | ConstructorDeclaration
+69    ClassMemberDeclaration ::= FieldDeclaration
+70                             | MethodDeclaration
+71                             | ClassDeclaration
+72                             | InterfaceDeclaration
+73                             | SEMICOLON
+74    FieldDeclaration ::= FieldModifiersopt Type VariableDeclarators SEMICOLON
+75    VariableDeclarators ::= VariableDeclarator
+76                          | VariableDeclarators COMMA VariableDeclarator
+77    VariableDeclarator ::= VariableDeclaratorId
+78                         | VariableDeclaratorId EQUAL VariableInitializer
+79    VariableDeclaratorId ::= identifier
+80                           | VariableDeclaratorId LBRACKET RBRACKET
+81                           | identifier LBRACKET IdentifierList RBRACKET
+82                           | LBRACKET IdentifierList RBRACKET
+83    VariableInitializer ::= Expression
+84                          | ArrayInitializer
+85    FieldModifiers ::= FieldModifier
+86                     | FieldModifiers FieldModifier
+87    FieldModifier ::= public
+88                    | protected
+89                    | private
+90                    | static
+91                    | final
+92                    | transient
+93                    | volatile
+94    MethodDeclaration ::= MethodHeader MethodBody
+95    MethodHeader ::= MethodModifiersopt ResultType MethodDeclarator Throwsopt
+96    ResultType ::= Type
+97                 | void
+98    MethodDeclarator ::= identifier LPAREN FormalParameterListopt RPAREN
+99                       | MethodDeclarator LBRACKET RBRACKET
+100   FormalParameterList ::= LastFormalParameter
+101                         | FormalParameters COMMA LastFormalParameter
+102   FormalParameters ::= FormalParameter
+103                      | FormalParameters COMMA FormalParameter
+104   FormalParameter ::= VariableModifiersopt Type VariableDeclaratorId
+105   VariableModifiers ::= VariableModifier
+106                       | VariableModifiers VariableModifier
+107   VariableModifier ::= final
+108   LastFormalParameter ::= VariableModifiersopt Type ...opt VariableDeclaratorId
+109   MethodModifiers ::= MethodModifier
+110                     | MethodModifiers MethodModifier
+111   MethodModifier ::= public
+112                    | protected
+113                    | private
+114                    | abstract
+115                    | static
+116                    | final
+117                    | synchronized
+118                    | native
+119                    | strictfp
+120   Throws ::= throws ExceptionTypeList
+121   ExceptionTypeList ::= ExceptionType
+122                       | ExceptionTypeList COMMA ExceptionType
+123   ExceptionType ::= ClassType
+124   MethodBody ::= Block
+125                | SEMICOLON
+126   InstanceInitializer ::= Block
+127   StaticInitializer ::= static Block
+128   ConstructorDeclaration ::= ConstructorModifiersopt ConstructorDeclarator Throwsopt ConstructorBody
+129   ConstructorDeclarator ::= SimpleTypeName LPAREN FormalParameterListopt RPAREN
+130   SimpleTypeName ::= identifier
+131   ConstructorModifiers ::= ConstructorModifier
+132                          | ConstructorModifiers ConstructorModifier
+133   ConstructorModifier ::= public
+134                         | protected
+135                         | private
+136   ConstructorBody ::= LBRACE ExplicitConstructorInvocationopt BlockStatementsopt RBRACE
+137   ExplicitConstructorInvocation ::= this LPAREN ArgumentListopt RPAREN SEMICOLON
+138                                   | super LPAREN ArgumentListopt RPAREN SEMICOLON
+139                                   | Primary DOT this LPAREN ArgumentListopt RPAREN SEMICOLON
+140                                   | Primary DOT super LPAREN ArgumentListopt RPAREN SEMICOLON
+141   Arguments ::= LPAREN ArgumentListopt RPAREN
+142   InterfaceDeclaration ::= NormalInterfaceDeclaration
+143   NormalInterfaceDeclaration ::= InterfaceModifiersopt interface identifier ExtendsInterfacesopt InterfaceBody
+144   InterfaceModifiers ::= InterfaceModifier
+145                        | InterfaceModifiers InterfaceModifier
+146   InterfaceModifier ::= public
+147                       | protected
+148                       | private
+149                       | abstract
+150                       | static
+151                       | strictfp
+152   ExtendsInterfaces ::= extends InterfaceType
+153                       | ExtendsInterfaces COMMA InterfaceType
+154   InterfaceBody ::= LBRACE InterfaceMemberDeclarationsopt RBRACE
+155   InterfaceMemberDeclarations ::= InterfaceMemberDeclaration
+156                                 | InterfaceMemberDeclarations InterfaceMemberDeclaration
+157   InterfaceMemberDeclaration ::= ConstantDeclaration
+158                                | AbstractMethodDeclaration
+159                                | ClassDeclaration
+160                                | InterfaceDeclaration
+161                                | SEMICOLON
+162   ConstantDeclaration ::= ConstantModifiersopt Type VariableDeclarators
+163   ConstantModifiers ::= ConstantModifier
+164                       | ConstantModifiers ConstantModifier
+165   ConstantModifier ::= public
+166                      | static
+167                      | final
+168   AbstractMethodDeclaration ::= AbstractMethodModifiersopt ResultType MethodDeclarator Throwsopt SEMICOLON
+169   AbstractMethodModifiers ::= AbstractMethodModifier
+170                             | AbstractMethodModifiers AbstractMethodModifier
+171   AbstractMethodModifier ::= public
+172                            | abstract
+173   ArrayInitializer ::= LBRACE VariableInitializersopt ,opt RBRACE
+174   VariableInitializers ::= VariableInitializer
+175                          | VariableInitializers COMMA VariableInitializer
+176   Block ::= LBRACE BlockStatementsopt RBRACE
+177   BlockStatements ::= BlockStatement
+178                     | BlockStatements BlockStatement
+179   BlockStatement ::= LocalVariableDeclarationStatement
+180                    | ClassDeclaration
+181                    | Statement
+182   LocalVariableDeclarationStatement ::= LocalVariableDeclaration SEMICOLON
+183   LocalVariableDeclaration ::= VariableModifiersopt Type VariableDeclarators
+184   Statement ::= StatementWithoutTrailingSubstatement
+185               | LabeledStatement
+186               | IfThenStatement
+187               | IfThenElseStatement
+188               | WhileStatement
+189               | ForStatement
+190   StatementWithoutTrailingSubstatement ::= Block
+191                                          | EmptyStatement
+192                                          | ExpressionStatement
+193                                          | AssertStatement
+194                                          | SwitchStatement
+195                                          | DoStatement
+196                                          | BreakStatement
+197                                          | ContinueStatement
+198                                          | ReturnStatement
+199                                          | SynchronizedStatement
+200                                          | ThrowStatement
+201                                          | TryStatement
+202   StatementNoShortIf ::= StatementWithoutTrailingSubstatement
+203                        | LabeledStatementNoShortIf
+204                        | IfThenElseStatementNoShortIf
+205                        | WhileStatementNoShortIf
+206                        | ForStatementNoShortIf
+207   IfThenStatement ::= if LPAREN Expression RPAREN Statement
+208   IfThenElseStatement ::= if LPAREN Expression RPAREN StatementNoShortIf else Statement
+209   IfThenElseStatementNoShortIf ::= if LPAREN Expression RPAREN StatementNoShortIf else StatementNoShortIf
+210   EmptyStatement ::= SEMICOLON
+211   LabeledStatement ::= identifier COLON Statement
+212   LabeledStatementNoShortIf ::= identifier COLON StatementNoShortIf
+213   ExpressionStatement ::= StatementExpression SEMICOLON
+214   StatementExpression ::= Assignment
+215                         | PreIncrementExpression
+216                         | PreDecrementExpression
+217                         | PostIncrementExpression
+218                         | PostDecrementExpression
+219                         | MethodInvocation
+220                         | ClassInstanceCreationExpression
+221   AssertStatement ::= assert Expression SEMICOLON
+222                     | assert Expression COLON Expression SEMICOLON
+223   SwitchStatement ::= switch LPAREN Expression RPAREN SwitchBlock
+224   SwitchBlock ::= LBRACE SwitchBlockStatementGroupsopt SwitchLabelsopt RBRACE
+225   SwitchBlockStatementGroups ::= SwitchBlockStatementGroup
+226                                | SwitchBlockStatementGroups SwitchBlockStatementGroup
+227   SwitchBlockStatementGroup ::= SwitchLabels BlockStatements
+228   SwitchLabels ::= SwitchLabel
+229                  | SwitchLabels SwitchLabel
+230   SwitchLabel ::= case ConstantExpression COLON
+231                 | default COLON
+232   WhileStatement ::= while LPAREN Expression RPAREN Statement
+233   WhileStatementNoShortIf ::= while LPAREN Expression RPAREN StatementNoShortIf
+234   DoStatement ::= do Statement while LPAREN Expression RPAREN SEMICOLON
+235   ForStatement ::= BasicForStatement
+236                  | EnhancedForStatement
+237   BasicForStatement ::= for LPAREN ForInitopt SEMICOLON Expressionopt SEMICOLON ForUpdateopt RPAREN Statement
+238   ForStatementNoShortIf ::= for LPAREN ForInitopt SEMICOLON Expressionopt SEMICOLON ForUpdateopt RPAREN StatementNoShortIf
+239                           | EnhancedForStatementNoShortIf
+240   ForInit ::= StatementExpressionList
+241             | LocalVariableDeclaration
+242   ForUpdate ::= StatementExpressionList
+243   StatementExpressionList ::= StatementExpression
+244                             | StatementExpressionList COMMA StatementExpression
+245   BreakStatement ::= break identifieropt SEMICOLON
+246   ContinueStatement ::= continue identifieropt SEMICOLON
+247   ReturnStatement ::= return Expressionopt SEMICOLON
+248   ThrowStatement ::= throw Expression SEMICOLON
+249   SynchronizedStatement ::= synchronized LPAREN Expression RPAREN Block
+250   TryStatement ::= try Block Catches
+251                  | try Block Catchesopt Finally
+252   Catches ::= CatchClause
+253             | Catches CatchClause
+254   CatchClause ::= catch LPAREN FormalParameter RPAREN Block
+255   Finally ::= finally Block
+256   Primary ::= PrimaryNoNewArray
+257             | ArrayCreationExpression
+258   PrimaryNoNewArray ::= Literal
+259                       | Type DOT class
+260                       | void DOT class
+261                       | this
+262                       | ClassName DOT this
+263                       | LPAREN Expression RPAREN
+264                       | ClassInstanceCreationExpression
+265                       | FieldAccess
+266                       | MethodInvocation
+267                       | ArrayAccess
+268   Literal ::= IntegerLiteral
+269             | LongLiteral
+270             | FloatingPointLiteral
+271             | DoubleLiteral
+272             | BooleanLiteral
+273             | CharacterLiteral
+274             | StringLiteral
+275             | null
+276   BooleanLiteral ::= true
+277                    | false
+278   ClassInstanceCreationExpression ::= new ClassOrInterfaceType LPAREN ArgumentListopt RPAREN ClassBodyopt
+279                                     | Primary DOT new identifier LPAREN ArgumentListopt RPAREN ClassBodyopt
+280                                     | AmbiguousName DOT new identifier LPAREN ArgumentListopt RPAREN ClassBodyopt
+281   ArgumentList ::= Expression
+282                  | ArgumentList COMMA Expression
+283   FieldAccess ::= Primary DOT identifier
+284                 | super DOT identifier
+285                 | ClassName DOT super DOT identifier
+286   MethodInvocation ::= MethodName LPAREN ArgumentListopt RPAREN
+287                      | Primary DOT identifier LPAREN ArgumentListopt RPAREN
+288                      | super DOT identifier LPAREN ArgumentListopt RPAREN
+289                      | ClassName DOT super DOT identifier LPAREN ArgumentListopt RPAREN
+290   PostfixExpression ::= Primary
+291                       | ExpressionName
+292                       | PostIncrementExpression
+293                       | PostDecrementExpression
+294   PostIncrementExpression ::= PostfixExpression PLUS_PLUS
+295   PostDecrementExpression ::= PostfixExpression MINUS_MINUS
+296   UnaryExpression ::= PreIncrementExpression
+297                     | PreDecrementExpression
+298                     | PLUS UnaryExpression
+299                     | MINUS UnaryExpression
+300                     | UnaryExpressionNotPlusMinus
+301   PreIncrementExpression ::= PLUS_PLUS UnaryExpression
+302   PreDecrementExpression ::= MINUS_MINUS UnaryExpression
+303   UnaryExpressionNotPlusMinus ::= PostfixExpression
+304                                 | TWIDDLE UnaryExpression
+305                                 | NOT UnaryExpression
+306                                 | CastExpression
+307   MultiplicativeExpression ::= UnaryExpression
+308                              | MultiplicativeExpression MULTIPLY UnaryExpression
+309                              | MultiplicativeExpression DIVIDE UnaryExpression
+310                              | MultiplicativeExpression REMAINDER UnaryExpression
+311   AdditiveExpression ::= MultiplicativeExpression
+312                        | AdditiveExpression PLUS MultiplicativeExpression
+313                        | AdditiveExpression MINUS MultiplicativeExpression
+314   ShiftExpression ::= AdditiveExpression
+315                     | ShiftExpression LEFT_SHIFT AdditiveExpression
+316                     | ShiftExpression GREATER GREATER AdditiveExpression
+317                     | ShiftExpression GREATER GREATER GREATER AdditiveExpression
+318   RelationalExpression ::= ShiftExpression
+319                          | RelationalExpression LESS ShiftExpression
+320                          | RelationalExpression GREATER ShiftExpression
+321                          | RelationalExpression LESS_EQUAL ShiftExpression
+322                          | RelationalExpression GREATER EQUAL ShiftExpression
+323   EqualityExpression ::= RelationalExpression
+324                        | EqualityExpression EQUAL_EQUAL RelationalExpression
+325                        | EqualityExpression NOT_EQUAL RelationalExpression
+326   AndExpression ::= EqualityExpression
+327                   | AndExpression AND EqualityExpression
+328   ExclusiveOrExpression ::= AndExpression
+329                           | ExclusiveOrExpression XOR AndExpression
+330   InclusiveOrExpression ::= ExclusiveOrExpression
+331                           | InclusiveOrExpression OR ExclusiveOrExpression
+332   ConditionalAndExpression ::= InclusiveOrExpression
+333                              | ConditionalAndExpression AND_AND InclusiveOrExpression
+334   ConditionalOrExpression ::= ConditionalAndExpression
+335                             | ConditionalOrExpression OR_OR ConditionalAndExpression
+336   ConditionalExpression ::= ConditionalOrExpression
+337                           | ConditionalOrExpression QUESTION Expression COLON ConditionalExpression
+338   AssignmentExpression ::= ConditionalExpression
+339                          | Assignment
+340   Assignment ::= LeftHandSide AssignmentOperator AssignmentExpression
+341   LeftHandSide ::= ExpressionName
+342                  | FieldAccess
+343                  | ArrayAccess
+344   AssignmentOperator ::= EQUAL
+345                        | MULTIPLY_EQUAL
+346                        | DIVIDE_EQUAL
+347                        | REMAINDER_EQUAL
+348                        | PLUS_EQUAL
+349                        | MINUS_EQUAL
+350                        | LEFT_SHIFT_EQUAL
+351                        | GREATER GREATER EQUAL
+352                        | GREATER GREATER GREATER EQUAL
+353                        | AND_EQUAL
+354                        | XOR_EQUAL
+355                        | OR_EQUAL
+356   Expression ::= AssignmentExpression
+357   ConstantExpression ::= Expression
+358   Catchesopt ::=
+359                | Catches
+360   identifieropt ::=
+361                   | identifier
+362   ForUpdateopt ::=
+363                  | ForUpdate
+364   Expressionopt ::=
+365                   | Expression
+366   ForInitopt ::=
+367                | ForInit
+368   SwitchLabelsopt ::=
+369                     | SwitchLabels
+370   SwitchBlockStatementGroupsopt ::=
+371                                   | SwitchBlockStatementGroups
+372   VariableModifiersopt ::=
+373                          | VariableModifiers
+374   VariableInitializersopt ::=
+375                             | VariableInitializers
+376   AbstractMethodModifiersopt ::=
+377                                | AbstractMethodModifiers
+378   ConstantModifiersopt ::=
+379                          | ConstantModifiers
+380   InterfaceMemberDeclarationsopt ::=
+381                                    | InterfaceMemberDeclarations
+382   ExtendsInterfacesopt ::=
+383                          | ExtendsInterfaces
+384   InterfaceModifiersopt ::=
+385                           | InterfaceModifiers
+386   ClassBodyopt ::=
+387                  | ClassBody
+388   ,opt ::=
+389          | COMMA
+390   ArgumentListopt ::=
+391                     | ArgumentList
+392   BlockStatementsopt ::=
+393                        | BlockStatements
+394   ExplicitConstructorInvocationopt ::=
+395                                      | ExplicitConstructorInvocation
+396   ConstructorModifiersopt ::=
+397                             | ConstructorModifiers
+398   ...opt ::=
+399            | ELLIPSIS
+400   FormalParameterListopt ::=
+401                            | FormalParameterList
+402   Throwsopt ::=
+403               | Throws
+404   MethodModifiersopt ::=
+405                        | MethodModifiers
+406   FieldModifiersopt ::=
+407                       | FieldModifiers
+408   ClassBodyDeclarationsopt ::=
+409                              | ClassBodyDeclarations
+410   Interfacesopt ::=
+411                   | Interfaces
+412   Superopt ::=
+413              | Super
+414   ClassModifiersopt ::=
+415                       | ClassModifiers
+416   TypeDeclarationsopt ::=
+417                         | TypeDeclarations
+418   ImportDeclarationsopt ::=
+419                           | ImportDeclarations
+420   PackageDeclarationopt ::=
+421                           | PackageDeclaration
+422   Type ::= DataType PlaceTypeSpecifieropt
+423          | nullable Type
+424          | future LESS Type GREATER
+425   DataType ::= PrimitiveType
+426   DataType ::= ClassOrInterfaceType
+427              | ArrayType
+428   PlaceTypeSpecifier ::= AT PlaceType
+429   PlaceType ::= placelocal
+430               | activitylocal
+431               | current
+432               | PlaceExpression
+433   ClassOrInterfaceType ::= TypeName DepParametersopt
+434   DepParameters ::= LPAREN DepParameterExpr RPAREN
+435   DepParameterExpr ::= ArgumentList WhereClauseopt
+436                      | WhereClause
+437   WhereClause ::= COLON Expression
+438   ArrayType ::= X10ArrayType
+439   X10ArrayType ::= Type LBRACKET DOT RBRACKET
+440                  | Type reference LBRACKET DOT RBRACKET
+441                  | Type value LBRACKET DOT RBRACKET
+442                  | Type LBRACKET DepParameterExpr RBRACKET
+443                  | Type reference LBRACKET DepParameterExpr RBRACKET
+444                  | Type value LBRACKET DepParameterExpr RBRACKET
+445   MethodModifier ::= atomic
+446                    | extern
+447   ClassDeclaration ::= ValueClassDeclaration
+448   ValueClassDeclaration ::= ClassModifiersopt value identifier Superopt Interfacesopt ClassBody
+449                           | ClassModifiersopt value class identifier Superopt Interfacesopt ClassBody
+450   ArrayCreationExpression ::= new ArrayBaseType Unsafeopt LBRACKET RBRACKET ArrayInitializer
+451                             | new ArrayBaseType Unsafeopt LBRACKET Expression RBRACKET
+452                             | new ArrayBaseType Unsafeopt LBRACKET Expression RBRACKET Expression
+453                             | new ArrayBaseType Unsafeopt LBRACKET Expression RBRACKET LPAREN FormalParameter RPAREN MethodBody
+454                             | new ArrayBaseType value Unsafeopt LBRACKET Expression RBRACKET
+455                             | new ArrayBaseType value Unsafeopt LBRACKET Expression RBRACKET Expression
+456                             | new ArrayBaseType value Unsafeopt LBRACKET Expression RBRACKET LPAREN FormalParameter RPAREN MethodBody
+457   ArrayBaseType ::= PrimitiveType
+458                   | ClassOrInterfaceType
+459   ArrayAccess ::= ExpressionName LBRACKET ArgumentList RBRACKET
+460                 | PrimaryNoNewArray LBRACKET ArgumentList RBRACKET
+461   Statement ::= NowStatement
+462               | ClockedStatement
+463               | AsyncStatement
+464               | AtomicStatement
+465               | WhenStatement
+466               | ForEachStatement
+467               | AtEachStatement
+468               | FinishStatement
+469   StatementWithoutTrailingSubstatement ::= NextStatement
+470                                          | AwaitStatement
+471   StatementNoShortIf ::= NowStatementNoShortIf
+472                        | ClockedStatementNoShortIf
+473                        | AsyncStatementNoShortIf
+474                        | AtomicStatementNoShortIf
+475                        | WhenStatementNoShortIf
+476                        | ForEachStatementNoShortIf
+477                        | AtEachStatementNoShortIf
+478                        | FinishStatementNoShortIf
+479   NowStatement ::= now LPAREN Clock RPAREN Statement
+480   ClockedStatement ::= clocked LPAREN ClockList RPAREN Statement
+481   AsyncStatement ::= async PlaceExpressionSingleListopt Statement
+482   AtomicStatement ::= atomic PlaceExpressionSingleListopt Statement
+483   WhenStatement ::= when LPAREN Expression RPAREN Statement
+484                   | WhenStatement or LPAREN Expression RPAREN Statement
+485   ForEachStatement ::= foreach LPAREN FormalParameter COLON Expression RPAREN Statement
+486   AtEachStatement ::= ateach LPAREN FormalParameter COLON Expression RPAREN Statement
+487   EnhancedForStatement ::= for LPAREN FormalParameter COLON Expression RPAREN Statement
+488   FinishStatement ::= finish Statement
+489   NowStatementNoShortIf ::= now LPAREN Clock RPAREN StatementNoShortIf
+490   ClockedStatementNoShortIf ::= clocked LPAREN ClockList RPAREN StatementNoShortIf
+491   AsyncStatementNoShortIf ::= async PlaceExpressionSingleListopt StatementNoShortIf
+492   AtomicStatementNoShortIf ::= atomic StatementNoShortIf
+493   WhenStatementNoShortIf ::= when LPAREN Expression RPAREN StatementNoShortIf
+494                            | WhenStatement or LPAREN Expression RPAREN StatementNoShortIf
+495   ForEachStatementNoShortIf ::= foreach LPAREN FormalParameter COLON Expression RPAREN StatementNoShortIf
+496   AtEachStatementNoShortIf ::= ateach LPAREN FormalParameter COLON Expression RPAREN StatementNoShortIf
+497   EnhancedForStatementNoShortIf ::= for LPAREN FormalParameter COLON Expression RPAREN StatementNoShortIf
+498   FinishStatementNoShortIf ::= finish StatementNoShortIf
+499   PlaceExpressionSingleList ::= LPAREN PlaceExpression RPAREN
+500   PlaceExpression ::= Expression
+501   NextStatement ::= next SEMICOLON
+502   AwaitStatement ::= await Expression SEMICOLON
+503   ClockList ::= Clock
+504               | ClockList COMMA Clock
+505   Clock ::= identifier
+506   CastExpression ::= LPAREN Type RPAREN UnaryExpressionNotPlusMinus
+507   MethodInvocation ::= Primary ARROW identifier LPAREN ArgumentListopt RPAREN
+508   RelationalExpression ::= RelationalExpression instanceof Type
+509   IdentifierList ::= IdentifierList COMMA identifier
+510                    | identifier
+511   Primary ::= FutureExpression
+512   Primary ::= LBRACKET ArgumentList RBRACKET
+513   AssignmentExpression ::= Expression ARROW Expression
+514   Primary ::= Expression COLON Expression
+515   FutureExpression ::= future PlaceExpressionSingleListopt LBRACE Expression RBRACE
+516   FieldModifier ::= mutable
+517                   | const
+518   PlaceTypeSpecifieropt ::=
+519                           | PlaceTypeSpecifier
+520   DepParametersopt ::=
+521                      | DepParameters
+522   WhereClauseopt ::=
+523                    | WhereClause
+524   PlaceExpressionSingleListopt ::=
+525                                  | PlaceExpressionSingleList
+526   ArgumentListopt ::=
+527                     | ArgumentList
+528   DepParametersopt ::=
+529                      | DepParameters
+530   Unsafeopt ::=
+531               | unsafe
