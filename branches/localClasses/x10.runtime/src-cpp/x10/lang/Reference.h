@@ -30,14 +30,17 @@ namespace x10 {
 
         class String;
         class Any;
-
+        class Object;
+        class GlobalObject;
+        
         /**
          * This is a class that exists only at the C++ implementation level,
          * not at the X10 language level.  Therefore it does not have an
          * associated RTT.
          * 
          * The purpose of this class is to provide a common C++ level superclass
-         * for Object (X10 objects), Closure (function objects created from X10 closure literals),
+         * for Object (X10 local objects), GlobalObject (X10 global objects),
+         * Closure (function objects created from X10 closure literals),
          * and IBox<T> (X10 structs of type T that have been boxed because they were upcast to an interface type).
          * The single common superclass is needed because pointers to instances of any of its subclasses could
          * appear in variables of interface type and we need a common C++ level
@@ -49,6 +52,7 @@ namespace x10 {
          */
         class Reference {
         public:
+            // TODO: Moves down to GlobalObject.h
             x10aux::place location;
 
             Reference(){ }
@@ -65,10 +69,12 @@ namespace x10 {
             /*********************************************************************************
              * X10-level functions assumed to be defined for all types
              *********************************************************************************/
+            // TODO: Moves down to GlobalObject.h
             virtual x10_boolean at(x10::lang::Place p) {
                 return location == p->FMGL(id);
             }
             
+            // TODO: Moves down to GlobalObject.h
             virtual x10_boolean at(x10aux::ref<x10::lang::Object> o);
             
             virtual x10_boolean equals(x10aux::ref<Any> other) {
@@ -81,6 +87,7 @@ namespace x10 {
             
             virtual x10_int hashCode() = 0;
 
+            // TODO: Moves down to GlobalObject.h
             virtual x10::lang::Place home();
 
             virtual x10aux::ref<String> toString() = 0;
@@ -109,10 +116,10 @@ namespace x10 {
 
             template<class T> static x10aux::ref<T> _deserialize(x10aux::deserialization_buffer &buf);
 
-            // Should only be overridden in Object
+            // Should only be overridden in Object and GlobalObject
             virtual x10aux::serialization_id_t _get_interface_serialization_id();
 
-            // Should only be overridden in Object
+            // Should only be overridden in Object and GlobalObject
             virtual void _serialize_interface(x10aux::serialization_buffer &buf);
         };
 

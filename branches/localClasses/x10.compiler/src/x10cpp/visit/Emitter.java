@@ -966,7 +966,7 @@ public class Emitter {
             w.write("const x10aux::serialization_id_t "+klass+"::"+SERIALIZATION_ID_FIELD+" = ");
             w.newline(4);
             w.write("x10aux::DeserializationDispatcher::addDeserializer(");
-            w.write(klass+"::"+template+DESERIALIZER_METHOD+chevrons(translateType(ts.Object()))+");");
+            w.write(klass+"::"+template+DESERIALIZER_METHOD+chevrons("x10::lang::Reference")+");");
             w.newline(); w.forceNewline();
         }
 
