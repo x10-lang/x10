@@ -23,7 +23,7 @@ FileReader__FileInputStream::_make(x10aux::ref<x10::lang::String> name) {
 }
 
 const x10aux::serialization_id_t FileReader__FileInputStream::_serialization_id = 
-    x10aux::DeserializationDispatcher::addDeserializer(FileReader__FileInputStream::_deserializer<x10::lang::Object>);
+    x10aux::DeserializationDispatcher::addDeserializer(FileReader__FileInputStream::_deserializer<x10::lang::Reference>);
 
 void FileReader__FileInputStream::_serialize_body(x10aux::serialization_buffer& buf) {
     InputStreamReader__InputStream::_serialize_body(buf);

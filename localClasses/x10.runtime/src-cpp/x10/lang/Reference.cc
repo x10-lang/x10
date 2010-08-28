@@ -20,10 +20,12 @@ using namespace x10::lang;
 using namespace x10aux;
 
 
+// TODO: Moves down to GlobalObject.cc
 x10_boolean Reference::at(x10aux::ref<x10::lang::Object> o) {
     return location == o->location;
 }
 
+// TODO: Moves down to GlobalObject.cc
 Place Reference::home() {
     return x10::lang::Place_methods::_make(location);
 }

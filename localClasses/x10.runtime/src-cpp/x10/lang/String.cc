@@ -454,7 +454,7 @@ x10_boolean String::endsWith(ref<String> s) {
 }
 
 const serialization_id_t String::_serialization_id =
-    DeserializationDispatcher::addDeserializer(String::_deserializer<Object>);
+    DeserializationDispatcher::addDeserializer(String::_deserializer<Reference>);
 
 // Specialized serialization
 void String::_serialize(x10aux::ref<String> this_, x10aux::serialization_buffer &buf) {
