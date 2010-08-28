@@ -1,0 +1,142 @@
+#!/bin/bash
+
+#
+# (c) Copyright IBM Coporation 2007-09
+#
+# $Id$
+# Script that sources and builds all components required for regression.
+
+svnUpdate() {
+	if [[ ! -d $1 ]]; then
+		( \
+			cd $(dirname $1); \
+			printf "\n>> [$prog]: checking out module $(basename $1)...\n"; \
+			svn co -q "${2}/$(basename $1)" >/dev/null 2>&1; \
+			exit $?; \
+		)
+		if [[ $? != 0 ]]; then
+			printf "\n[$prog: err]: checkout failed for module $(basename $1)\n"
+			exit 1
+		else
+			printf "\ndone. <<\n"
+		fi
+	else
+		( \
+			cd $1; \
+			printf "\n>> [$prog]: updating module $(basename $1)...\n"; \
+			svn update -q >/dev/null 2>&1; \
+			exit $?; \
+		)
+		if [[ $? != 0 ]]; then
+			printf "\n[$prog: err]: update failed for module $(basename $1)\n"
+			exit 1
+		else
+			printf "\ndone. <<\n"
+		fi
+	fi
+}
+
+cvsUpdate() {
+	if [[ ! -d $1 ]]; then
+		( \
+			cd $(dirname $1); \
+			printf "\n>> [$prog]: checking out module $(basename $1)...\n"; \
+			cvs -Q -d "$2" co $(basename $1) >/dev/null 2>&1; \
+			exit $?; \
+		)
+		if [[ $? != 0 ]]; then
+			printf "\n[$prog: err]: checkout failed for module $(basename $1)\n"
+			exit 1
+		else
+			printf "\ndone. <<\n"
+		fi
+	else
+		( \
+			cd $1; \
+			printf "\n>> [$prog]: updating module $(basename $1)...\n"; \
+			cvs -Q -d "$2" update -d >/dev/null 2>&1; \
+			exit $?; \
+		)
+		if [[ $? != 0 ]]; then
+			printf "\n[$prog: err]: update failed for module $(basename $1)\n"
+			exit 1
+		else
+			printf "\ndone. <<\n"
+		fi
+	fi
+}
+
+buildX10Module() {
+	printf "\n>> [$prog]: building module $(basename $1)...\n"
+	case "$2" in
+		"x10c")
+			( \
+				cd $1; \
+				ant -q clean grammar dist; \
+				exit $?; \
+			)
+			;;
+		"x10j")
+			( \
+				cd $1; \
+				ant -q clean dist-java; \
+				exit $?; \
+			)
+			;;
+		"x10")
+			( \
+				cd $1; \
+				ant -q clean dist; \
+				exit $?; \
+			)
+			;;
+	esac
+	if [[ $? != 0 ]]; then
+		printf "\n[$prog: err]: x10 component build failed for $(basename $1)\n"
+		exit 1
+	else
+		printf "\ndone. <<\n"
+	fi
+}
+
+cleanUpExit() {
+	# cleanup code, if any
+	exit $1
+}
+
+trap 'cleanUpExit 1' INT QUIT TERM
+
+prog=$(basename $0)
+MYDIR=$(dirname $0)
+if [[ -z "$X10_HOME" ]]; then
+	X10_HOME=$(cd $MYDIR/../..; pwd)
+fi
+
+export CVS_RSH=ssh
+if [[ -z "X10_SVNROOT" ]]; then
+    export X10_SVNROOT="https://x10.svn.sf.net/svnroot/x10/trunk"
+fi
+
+X10_COMMON=$X10_HOME/x10.common
+svnUpdate $X10_COMMON $X10_SVNROOT
+X10_COMPILER=$X10_HOME/x10.compiler
+svnUpdate $X10_COMPILER $X10_SVNROOT
+X10_RUNTIME=$X10_HOME/x10.runtime
+svnUpdate $X10_RUNTIME $X10_SVNROOT
+X10_CONSTRAINTS=$X10_HOME/x10.constraints
+svnUpdate $X10_CONSTRAINTS $X10_SVNROOT
+X10_DIST=$X10_HOME/x10.dist
+svnUpdate $X10_DIST $X10_SVNROOT
+X10_TESTS=$X10_HOME/x10.tests
+svnUpdate $X10_TESTS $X10_SVNROOT
+X10_WEB=$X10_HOME/x10.web
+svnUpdate $X10_WEB $X10_SVNROOT
+
+
+buildX10Module $X10_CONSTRAINTS x10
+buildX10Module $X10_COMMON x10
+buildX10Module $X10_DIST x10j
+buildX10Module $X10_COMPILER x10
+buildX10Module $X10_TESTS x10
+
+cleanUpExit 0
