@@ -64,6 +64,7 @@ import x10.ast.AddFlags;
 import x10.ast.AnnotationNode;
 import x10.ast.Closure;
 import x10.ast.ClosureCall;
+import x10.ast.SettableAssign;
 import x10.ast.Here;
 import x10.ast.DepParameterExpr;
 import x10.ast.Tuple;
@@ -2031,7 +2032,7 @@ public static class MessageHandler implements IMessageHandler {
        MethodDecl md = nf.X10MethodDecl(pos(),
           extractFlags(MethodModifiersopt),
           HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
-          nf.Id(pos(), Name.make("apply")),
+          nf.Id(pos(), ClosureCall.APPLY),
           TypeParametersopt,
           FormalParameters,
           WhereClauseopt,
@@ -2073,7 +2074,7 @@ public static class MessageHandler implements IMessageHandler {
        MethodDecl md = nf.X10MethodDecl(pos(),
           extractFlags(MethodModifiersopt),
           HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
-          nf.Id(pos(), Name.make("set")),
+          nf.Id(pos(), SettableAssign.SET),
           TypeParametersopt,
           CollectionUtil.append(Collections.singletonList(fp2), FormalParameters),
           WhereClauseopt,

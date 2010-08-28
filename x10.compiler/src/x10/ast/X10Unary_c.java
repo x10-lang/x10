@@ -137,7 +137,7 @@ public class X10Unary_c extends Unary_c {
                 }
                 else if (expr instanceof X10Call) {
                     X10Call e = (X10Call) expr;
-                    if (e.target() instanceof Expr && e.name().id() == Name.make("apply")) {
+                    if (e.target() instanceof Expr && e.name().id() == ClosureCall.APPLY) {
                         target = (Expr) e.target();
                         args = e.arguments();
                         typeArgs = e.typeArguments();
@@ -157,7 +157,7 @@ public class X10Unary_c extends Unary_c {
                         setTypeArgs.add(tn);
                     }
 
-                    X10Call_c n = (X10Call_c) nf.X10Call(position(), target, nf.Id(position(), Name.make("set")), setTypeArgs, setArgTypes);
+                    X10Call_c n = (X10Call_c) nf.X10Call(position(), target, nf.Id(position(), SettableAssign.SET), setTypeArgs, setArgTypes);
 
                     n = (X10Call_c) n.del().disambiguate(tc).typeCheck(tc).checkConstants(tc);
 
