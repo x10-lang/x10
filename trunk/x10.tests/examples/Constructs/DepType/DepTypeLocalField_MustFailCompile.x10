@@ -12,21 +12,23 @@
 import harness.x10Test;
 
 /**
- * Tests that a free variable in DepType that is not parametrically consistent
+ * Tests that a field not known to be local accessed in DepType
  * causes a compilation failure.
  *
- * @author pvarma
+ * @author igor
  */
-public class DepTypeConsistency_MustFailCompile extends x10Test {
-    static val j:int = 3;
-    /* free variable j is not parametrically consistent */
+public class DepTypeLocalField_MustFailCompile extends x10Test {
+    val j:int;
+    /* free variable j is not local */
     class Tester(i:int){j == 2} {
         public def this(arg:int):Tester { property(arg); }
     }
 
+    public def this() { j = 2; }
+
     public def run() = true;
 
     public static def main(var args: Rail[String]): void = {
-        new DepTypeConsistency_MustFailCompile().execute();
+        new DepTypeLocalField_MustFailCompile().execute();
     }
 }
