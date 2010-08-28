@@ -2163,7 +2163,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    if (!globalInit) {
 	        sw.pushCurrentStream(h);
 	        // declare the deserializer method
-	        h.write("static "+Emitter.translateType(xts.Object(), true));
+	        h.write("static x10aux::ref<x10::lang::Reference>");
 	        h.allowBreak(2, 2, " ", 1);
 	        h.write(deserializer + "(" + DESERIALIZATION_BUFFER + " &buf);");
 	        h.newline();
@@ -2179,7 +2179,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        sw.newline();
 	        // define the deserializer method
 	        sw.write("// extract value from a buffer"); sw.newline();
-	        sw.write(Emitter.translateType(xts.Object(), true));
+	        sw.write("x10aux::ref<x10::lang::Reference>");
 	        sw.allowBreak(2, 2, " ", 1);
 	        sw.write(container + "::" + deserializer + "(" + DESERIALIZATION_BUFFER + " &buf) {");
 	        sw.newline(4); sw.begin(0);
@@ -4281,7 +4281,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         String template = in_template_closure ? "template " : "";
         defn_s.write("x10aux::DeserializationDispatcher::addDeserializer("+
                   cnamet+"::"+template+DESERIALIZE_METHOD+
-                  chevrons(Emitter.translateType(xts.Object()))+");");
+                  chevrons("x10::lang::Reference")+");");
         defn_s.newline(); defn_s.forceNewline();
     }
 

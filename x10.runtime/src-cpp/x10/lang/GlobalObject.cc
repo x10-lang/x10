@@ -12,17 +12,17 @@
 #include <x10aux/ref.h>
 #include <x10aux/alloc.h>
 
-#include <x10/lang/Object.h>
+#include <x10/lang/GlobalObject.h>
 #include <x10/lang/String.h>
 
 using namespace x10::lang;
 using namespace x10aux;
 
-x10aux::ref<Object> Object::_make() {
-    return (new (x10aux::alloc<Object>()) Object())->_constructor();
+x10aux::ref<GlobalObject> GlobalObject::_make() {
+    return (new (x10aux::alloc<GlobalObject>()) GlobalObject())->_constructor();
 }
 
-x10_int x10::lang::Object::hashCode() {
+x10_int x10::lang::GlobalObject::hashCode() {
     // STEP 1: Figure out the address to use as for the object.
     void *v;
     if (this->location == x10aux::here) {
@@ -42,7 +42,7 @@ x10_int x10::lang::Object::hashCode() {
     return hc;
 }
 
-x10aux::ref<x10::lang::String> x10::lang::Object::toString() {
+x10aux::ref<x10::lang::String> x10::lang::GlobalObject::toString() {
     void *v;
     if (this->location == x10aux::here) {
         v = (void*)this; 
@@ -52,14 +52,14 @@ x10aux::ref<x10::lang::String> x10::lang::Object::toString() {
     return String::Lit(alloc_printf("%s@%p",this->_type()->name(),v));
 }
 
-x10aux::ref<x10::lang::String> x10::lang::Object::typeName() {
+x10aux::ref<x10::lang::String> x10::lang::GlobalObject::typeName() {
     return x10::lang::String::Lit(_type()->name());
 }
 
-const serialization_id_t Object::_serialization_id =
-    DeserializationDispatcher::addDeserializer(Object::_deserializer<Reference>);
+const serialization_id_t GlobalObject::_serialization_id =
+    DeserializationDispatcher::addDeserializer(GlobalObject::_deserializer<Reference>);
 
-void Object::_serialize(ref<Object> this_, serialization_buffer &buf)
+void GlobalObject::_serialize(ref<GlobalObject> this_, serialization_buffer &buf)
 {
     serialization_id_t id = this_.isNull() ? 0 : this_->_get_serialization_id();
     _S_("Serializing a "<<ANSI_SER<<ANSI_BOLD<<"class id "<<id<<ANSI_RESET<<" to buf: "<<&buf);
@@ -72,15 +72,15 @@ void Object::_serialize(ref<Object> this_, serialization_buffer &buf)
     }
 }
 
-const serialization_id_t Object::_interface_serialization_id =
-    DeserializationDispatcher::addDeserializer(Object::_deserialize<Reference>);
+const serialization_id_t GlobalObject::_interface_serialization_id =
+    DeserializationDispatcher::addDeserializer(GlobalObject::_deserialize<Reference>);
 
-void Object::_serialize_interface(serialization_buffer &buf)
+void GlobalObject::_serialize_interface(serialization_buffer &buf)
 {
     _serialize(this, buf);
 }
 
-void Object::_serialize_reference(ref<Object> this_, serialization_buffer &buf)
+void GlobalObject::_serialize_reference(ref<GlobalObject> this_, serialization_buffer &buf)
 {
     bool isNull = this_.isNull();
     x10_int loc = isNull ? 0 : this_->location;
@@ -89,7 +89,7 @@ void Object::_serialize_reference(ref<Object> this_, serialization_buffer &buf)
         _S_("Serializing a "<<ANSI_SER<<ANSI_BOLD<<"null reference"<<ANSI_RESET<<" to buf: "<<&buf);
         buf.write((x10_addr_t)0);
     } else if (loc == x10aux::here) {
-        _S_("Serialising a "<<ANSI_SER<<ANSI_BOLD<<"local Object"<<ANSI_RESET<<
+        _S_("Serialising a "<<ANSI_SER<<ANSI_BOLD<<"local GlobalObject"<<ANSI_RESET<<
                 " object of type "<<this_->_type()->name());
         buf.write((x10_addr_t)(size_t)this_.operator->()); 
         #if defined(X10_USE_BDWGC) || defined(X10_DEBUG_REFERENCE_LOGGER)
@@ -98,14 +98,14 @@ void Object::_serialize_reference(ref<Object> this_, serialization_buffer &buf)
         }
         #endif
     } else {
-        _S_("Serialising a "<<ANSI_SER<<ANSI_BOLD<<"remote Object"<<ANSI_RESET<<
+        _S_("Serialising a "<<ANSI_SER<<ANSI_BOLD<<"remote GlobalObject"<<ANSI_RESET<<
                 " object of type "<<this_->_type()->name()<<" (loc="<<loc<<")");
         x10_addr_t tmp = get_remote_ref(this_.operator->());
         buf.write(tmp);
     }
 }
 
-void Object::dealloc_object(Object* obj) {
+void GlobalObject::dealloc_object(GlobalObject* obj) {
     _M_("Attempting to dealloc object "<<(void*)obj<<", location="<<obj->location);
     obj->_destructor();
     if (obj->location == x10aux::here)
@@ -114,14 +114,14 @@ void Object::dealloc_object(Object* obj) {
         dealloc_remote(obj);
 }
 
-x10aux::RuntimeType x10::lang::Object::rtt;
+x10aux::RuntimeType x10::lang::GlobalObject::rtt;
 
-void x10::lang::Object::_initRTT() {
+void x10::lang::GlobalObject::_initRTT() {
     if (rtt.initStageOne(&rtt)) return;
     const x10aux::RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
-    rtt.initStageTwo("x10.lang.Object", 1, parents, 0, NULL, NULL);
+    rtt.initStageTwo("x10.lang.GlobalObject", 1, parents, 0, NULL, NULL);
 }
 
-itable_entry Object::_itables[1] = { itable_entry(NULL,  (void*)x10aux::getRTT<Object>()) };
+itable_entry GlobalObject::_itables[1] = { itable_entry(NULL,  (void*)x10aux::getRTT<GlobalObject>()) };
 
 // vim:tabstop=4:shiftwidth=4:expandtab

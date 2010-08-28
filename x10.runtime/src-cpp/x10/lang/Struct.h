@@ -18,7 +18,8 @@ namespace x10 {
     namespace lang {
 
         struct Place;
-
+        class Object;
+        
         class Struct_methods {
         public:
             static void _instance_init(x10::lang::Struct& this_) {}
