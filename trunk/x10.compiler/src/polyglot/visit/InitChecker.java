@@ -139,7 +139,7 @@ public class InitChecker extends DataFlow
               false /* perform dataflow when leaving CodeDecls, not when entering */);
     }
     
-    protected ClassBodyInfo currCBI = null;
+    protected ClassBodyInfo currCBI = new ClassBodyInfo();
     
     /**
      * This class is just a data structure containing relevant information
