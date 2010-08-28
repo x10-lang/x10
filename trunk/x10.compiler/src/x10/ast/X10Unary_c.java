@@ -109,7 +109,8 @@ public class X10Unary_c extends Unary_c {
         Type t = expr.type();
 
         if (op == POST_INC || op == POST_DEC || op == PRE_INC || op == PRE_DEC) {
-            // Compute the type
+            // Compute the type and the expected type
+            Type et = t;
             if (expr instanceof Variable) {
                 Variable v = (Variable) expr;
                 if (v.flags().isFinal()) {
@@ -135,6 +136,7 @@ public class X10Unary_c extends Unary_c {
                         Errors.issue(tc.job(),
                                 new SemanticException("Cannot apply " + op + " to an arbitrary method call.", position()));
                         t = ts.unknownType(position());
+                        et = null;
                     } else {
                         target = (Expr) e.target();
                         typeArgs = e.typeArguments();
@@ -144,6 +146,7 @@ public class X10Unary_c extends Unary_c {
                     Errors.issue(tc.job(),
                             new SemanticException("Cannot apply " + op + " to an arbitrary expression.", position()));
                     t = ts.unknownType(position());
+                    et = null;
                 }
 
                 if (target != null) {
@@ -169,32 +172,35 @@ public class X10Unary_c extends Unary_c {
                                     new SemanticException("No "+SettableAssign.SET+" method found in " + target.type(), position()));
                     }
                     t = mi.returnType();
+                    et = fTypes.get(0);
                 }
             }
 
-            // Check that there's a binary operator with the right return type
-            IntLit lit = nf.IntLit(position(), IntLit.INT, 1);
-            try {
-                lit = Converter.check(lit, tc);
-            } catch (SemanticException e) {
-                throw new InternalCompilerError("Unexpected error while typechecking literal: "+lit, e);
-            }
-            Binary.Operator binaryOp = getBinaryOp(op);
-            Call c = X10Binary_c.desugarBinaryOp(nf.Binary(position(), expr, binaryOp, lit), tc);
-            if (c == null) {
-                Errors.issue(tc.job(),
-                        new SemanticException("No binary operator " + binaryOp + " found in type " + t, expr.position()));
-            } else {
-                X10MethodInstance mi = (X10MethodInstance) c.methodInstance();
-                if (mi.error() != null) {
-                    Errors.issue(tc.job(), new SemanticException("Unable to perform operation", mi.error()), this);
+            if (et != null) {
+                // Check that there's a binary operator with the right return type
+                IntLit lit = nf.IntLit(position(), IntLit.INT, 1);
+                try {
+                    lit = Converter.check(lit, tc);
+                } catch (SemanticException e) {
+                    throw new InternalCompilerError("Unexpected error while typechecking literal: "+lit, e);
                 }
-                Type resultType = mi.returnType();
-                if (!ts.isSubtype(resultType, t, tc.context())) {
+                Binary.Operator binaryOp = getBinaryOp(op);
+                Call c = X10Binary_c.desugarBinaryOp(nf.Binary(position(), expr, binaryOp, lit), tc);
+                if (c == null) {
                     Errors.issue(tc.job(),
-                            new SemanticException("Incompatible return type of binary operator "+binaryOp+" found:" +
-                                                  "\n\t operator return type: " + resultType +
-                                                  "\n\t expression type: "+t, expr.position()));
+                            new SemanticException("No binary operator " + binaryOp + " found in type " + t, expr.position()));
+                } else {
+                    X10MethodInstance mi = (X10MethodInstance) c.methodInstance();
+                    if (mi.error() != null) {
+                        Errors.issue(tc.job(), new SemanticException("Unable to perform operation", mi.error()), this);
+                    }
+                    Type resultType = mi.returnType();
+                    if (!ts.isSubtype(resultType, et, tc.context())) {
+                        Errors.issue(tc.job(),
+                                new SemanticException("Incompatible return type of binary operator "+binaryOp+" found:" +
+                                                      "\n\t operator return type: " + resultType +
+                                                      "\n\t expression type: "+et, expr.position()));
+                    }
                 }
             }
 
