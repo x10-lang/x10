@@ -45,6 +45,7 @@ import polyglot.visit.TypeBuilder;
 
 import x10.constraint.XFailure;
 import x10.constraint.XVar;
+import x10.errors.Errors;
 import x10.extension.X10Del_c;
 import x10.types.AnnotatedType;
 import x10.types.ConstrainedType;
@@ -141,7 +142,7 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 	/** Visit the children of the method. */
 	public Node visitChildren(NodeVisitor v) {
 		Id id = (Id) this.visitChild(this.name, v);
-		FlagsNode flags = (FlagsNode) this.visitChild(this.flags, v);
+		FlagsNode flags = (FlagsNode) this.visitChild(this.flags(), v);
 		List<TypeParamNode> typeParams = this.visitList(this.typeParams, v);
 		List<Formal> formals = this.visitList(this.formals, v);
 		DepParameterExpr guard = (DepParameterExpr) this.visitChild(this.guard, v);
@@ -151,7 +152,7 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 	/** Visit the children of the method. */
 	public Node visitSignature(NodeVisitor v) {
 		Id id = (Id) this.visitChild(this.name, v);
-		FlagsNode flags = (FlagsNode) this.visitChild(this.flags, v);
+		FlagsNode flags = (FlagsNode) this.visitChild(this.flags(), v);
 		List<TypeParamNode> typeParams = this.visitList(this.typeParams, v);
 		List<Formal> formals = this.visitList(this.formals, v);
 		DepParameterExpr guard = (DepParameterExpr) this.visitChild(this.guard, v);
@@ -188,8 +189,10 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 	        return super.enterChildScope(child, c);
 	}
 
+	private static final boolean ALLOW_TOP_LEVEL_TYPEDEFS = false;
+    
 	@Override
-	public Node buildTypesOverride(TypeBuilder tb) throws SemanticException {
+	public Node buildTypesOverride(TypeBuilder tb) {
 		final X10TypeSystem ts = (X10TypeSystem) tb.typeSystem();
 		X10NodeFactory nf = (X10NodeFactory) tb.nodeFactory();
 		
@@ -197,12 +200,11 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 		Package package_ = tb.currentPackage();
 		
 		boolean local = tb.inCode();
-		boolean topLevel = ct == null;
+		boolean topLevel = !local && ct == null;
 		
-		final boolean ALLOW_TOP_LEVEL_TYPEDEFS = false;
-		
-		if (! local && ct == null && ! ALLOW_TOP_LEVEL_TYPEDEFS) {
-		    throw new SemanticException("Type definitions must be static class or interface members.  This is a limitation of the current implementation.", position());
+		if (topLevel && !ALLOW_TOP_LEVEL_TYPEDEFS) {
+		    Errors.issue(tb.job(),
+		                 new SemanticException("Type definitions must be static class or interface members.  This is a limitation of the current implementation.", position()));
 		}
 /*
 		if (ALLOW_TOP_LEVEL_TYPEDEFS) {
@@ -228,94 +230,95 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 		    }
 		}
 */		
-		TypeDef typeDef;
 
-		XVar thisVar = ct != null ? ct.thisVar() : null;
-		
-		if (local) {
-		    typeDef = new TypeDef_c(ts, position(), Flags.NONE, name.id(), null,
-		                            Collections.EMPTY_LIST,
-		                            thisVar,
-		                            Collections.EMPTY_LIST, Collections.EMPTY_LIST, null, null, null);
-		}
-		else {		
-		    if (ct == null)
-		        throw new SemanticException("Could not find enclosing class or package for type definition \"" + name.id() + "\".", position());
+		// FIXME: also check if the current method is static
+		XVar thisVar = ct == null ? null : ct.thisVar();
+		Ref<ClassType> container = ct == null ? null : Types.ref(ct.asType());
+		Flags flags = local ? Flags.NONE : this.flags().flags();
+		if (topLevel)
+		    flags = flags.Static();
 
-		    typeDef = new TypeDef_c(ts, position(), topLevel ? flags.flags().Static() : flags.flags(), name.id(), Types.ref(ct.asType()),
-		                                                     Collections.EMPTY_LIST,
-		                                                     thisVar,
-		                                                     Collections.EMPTY_LIST, Collections.EMPTY_LIST, null, null, null);
-		    ct.addMemberType(typeDef);
+		TypeDef typeDef = new TypeDef_c(ts, position(), flags, name.id(), container,
+		                                Collections.<Ref<? extends Type>>emptyList(),
+		                                thisVar, Collections.<LocalDef>emptyList(),
+		                                Collections.<Ref<? extends Type>>emptyList(), null, null, null);
+		if (!local) {
+		    if (ct == null) {
+		        Errors.issue(tb.job(),
+		                     new SemanticException("Could not find enclosing class or package for type definition \"" + name.id() + "\".", position()));
+		    } else {
+		        ct.addMemberType(typeDef);
+		    }
 		}
 		
 		typeDef.setPackage(package_ != null ? Types.ref(package_) : null);
 
-	        TypeDecl_c n = (TypeDecl_c) copy();
-	        TypeBuilder tb2 = tb.pushDef(typeDef);
+		TypeDecl_c n = (TypeDecl_c) copy();
+		TypeBuilder tb2 = tb.pushDef(typeDef);
 		n = (TypeDecl_c) n.visitSignature(tb2);
 		
-	        n = (TypeDecl_c) X10Del_c.visitAnnotations(n, tb2);
+		n = (TypeDecl_c) X10Del_c.visitAnnotations(n, tb2);
 
-	        List<Ref<? extends Type>> typeParameters = new ArrayList<Ref<? extends Type>>();
-	        for (TypeParamNode tpn : n.typeParameters()) {
-	        	typeParameters.add(Types.ref(tpn.type()));
-	        }
-	        typeDef.setTypeParameters(typeParameters);
+		List<Ref<? extends Type>> typeParameters = new ArrayList<Ref<? extends Type>>();
+		for (TypeParamNode tpn : n.typeParameters()) {
+			typeParameters.add(Types.ref(tpn.type()));
+		}
+		typeDef.setTypeParameters(typeParameters);
 	        
-	        List<Ref<? extends Type>> formalTypes = new ArrayList<Ref<? extends Type>>();
-	        List<LocalDef> formalNames = new ArrayList<LocalDef>();
-	        for (Formal f : n.formals()) {
-	            final Formal f2 = f;
-	            final LazyRef<CConstraint> cref = Types.<CConstraint>lazyRef(new CConstraint());
-	            Type t = X10TypeMixin.xclause(f.type().typeRef(), cref);
-	            cref.setResolver(new Runnable() {
-	        	public void run() {
-	        	    CConstraint c = new CConstraint();
-	        	    try {
-	        		c.addSelfBinding(ts.xtypeTranslator().trans(f2.localDef().asInstance()));
-	        	    }
-	        	    catch (XFailure e) {
-	        	    }
-	        	    cref.update(c);
-	        	}
-	            });
-	            formalTypes.add(f.type().typeRef());
-	            formalNames.add(f.localDef());
-	        }
-	        typeDef.setFormalTypes(formalTypes);
-	        typeDef.setFormalNames(formalNames);
+		List<Ref<? extends Type>> formalTypes = new ArrayList<Ref<? extends Type>>();
+		List<LocalDef> formalNames = new ArrayList<LocalDef>();
+		for (Formal f : n.formals()) {
+		    final Formal f2 = f;
+		    final LazyRef<CConstraint> cref = Types.<CConstraint>lazyRef(new CConstraint());
+		    Type t = X10TypeMixin.xclause(f.type().typeRef(), cref);
+		    cref.setResolver(new Runnable() {
+		        public void run() {
+		            CConstraint c = new CConstraint();
+		            try {
+		                c.addSelfBinding(ts.xtypeTranslator().trans(f2.localDef().asInstance()));
+		            }
+		            catch (XFailure e) {
+		            }
+		            cref.update(c);
+		        }
+		    });
+		    formalTypes.add(f.type().typeRef());
+		    formalNames.add(f.localDef());
+		}
+		typeDef.setFormalTypes(formalTypes);
+		typeDef.setFormalNames(formalNames);
 
-	        if (n.guard != null) {
-	            typeDef.setGuard(n.guard.valueConstraint());
-	            typeDef.setTypeGuard(n.guard.typeConstraint());
-	        }
-	
-	        if (n.type != null) {
-	        	TypeNode tn = (TypeNode) n.visitChild(n.type, tb2);
-	        	n = (TypeDecl_c) n.type(tn);
-	        	typeDef.setType(tn.typeRef());
-	        }
+		if (n.guard != null) {
+		    typeDef.setGuard(n.guard.valueConstraint());
+		    typeDef.setTypeGuard(n.guard.typeConstraint());
+		}
 
-	        // FIXME: [IP] HACK
-	        ((TypeDef_c) typeDef).setAstNode(type());
-	        
-	        n = (TypeDecl_c) n.typeDef(typeDef);
-	        
-	        // Add to the system resolver if the type def takes no arguments.
-	        // Otherwise, we'll search through the container.
-	        if (! local && ct.asType().isGloballyAccessible() && formalTypes.size() == 0 && typeParameters.size() == 0) {
-	        	if (ALLOW_TOP_LEVEL_TYPEDEFS) {
-	        		if (ct.name().equals(X10TypeSystem.DUMMY_PACKAGE_CLASS_NAME) && ct.package_() != null)
-	        			ts.systemResolver().install(QName.make(ct.package_().get().fullName(), name.id()), typeDef.asType());
-	        		else if (ct.name().equals(X10TypeSystem.DUMMY_PACKAGE_CLASS_NAME) && ct.package_() == null)
-	        			ts.systemResolver().install(QName.make(null, name.id()), typeDef.asType());
-	        	}
-	            
+		if (n.type != null) {
+		    TypeNode tn = (TypeNode) n.visitChild(n.type, tb2);
+		    n = (TypeDecl_c) n.type(tn);
+		    typeDef.setType(tn.typeRef());
+		}
+
+		n = (TypeDecl_c) n.typeDef(typeDef);
+
+		if (ALLOW_TOP_LEVEL_TYPEDEFS) {
+		    assert (ct != null);
+		}
+
+		// Add to the system resolver if the type def takes no arguments.
+		// Otherwise, we'll search through the container.
+		if (!local && ct != null && ct.asType().isGloballyAccessible() && formalTypes.size() == 0 && typeParameters.size() == 0) {
+		    if (ALLOW_TOP_LEVEL_TYPEDEFS) {
+		        if (ct.name().equals(X10TypeSystem.DUMMY_PACKAGE_CLASS_NAME) && ct.package_() != null)
+		            ts.systemResolver().install(QName.make(ct.package_().get().fullName(), name.id()), typeDef.asType());
+		        else if (ct.name().equals(X10TypeSystem.DUMMY_PACKAGE_CLASS_NAME) && ct.package_() == null)
+		            ts.systemResolver().install(QName.make(null, name.id()), typeDef.asType());
+		    }
+
 		    ts.systemResolver().install(QName.make(ct.fullName(), name.id()), typeDef.asType());
 		}
-		
-	        return n;
+
+		return n;
 	}
 	
 	@Override
