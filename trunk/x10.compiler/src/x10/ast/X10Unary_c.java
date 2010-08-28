@@ -108,9 +108,71 @@ public class X10Unary_c extends Unary_c {
 
         Type t = expr.type();
 
-        Unary n = (Unary) this.type(t);
-
         if (op == POST_INC || op == POST_DEC || op == PRE_INC || op == PRE_DEC) {
+            // Compute the type
+            if (expr instanceof Variable) {
+                Variable v = (Variable) expr;
+                if (v.flags().isFinal()) {
+                    Errors.issue(tc.job(),
+                            new SemanticException("Cannot apply " + op + " to a final variable.", position()));
+                }
+            }
+            else {
+                Expr target = null;
+                List<TypeNode> typeArgs = null;
+                List<Expr> args = null;
+
+                // Handle a(i)++ and a.apply(i)++
+                if (expr instanceof ClosureCall) {
+                    ClosureCall e = (ClosureCall) expr;
+                    target = e.target();
+                    typeArgs = e.typeArguments();
+                    args = e.arguments();
+                }
+                else if (expr instanceof X10Call) {
+                    X10Call e = (X10Call) expr;
+                    if (!(e.target() instanceof Expr) || e.name().id() != ClosureCall.APPLY) {
+                        Errors.issue(tc.job(),
+                                new SemanticException("Cannot apply " + op + " to an arbitrary method call.", position()));
+                        t = ts.unknownType(position());
+                    } else {
+                        target = (Expr) e.target();
+                        typeArgs = e.typeArguments();
+                        args = e.arguments();
+                    }
+                } else {
+                    Errors.issue(tc.job(),
+                            new SemanticException("Cannot apply " + op + " to an arbitrary expression.", position()));
+                    t = ts.unknownType(position());
+                }
+
+                if (target != null) {
+                    List<Type> tArgs = new ArrayList<Type>();
+                    for (TypeNode tn : typeArgs) {
+                        tArgs.add(tn.type());
+                    }
+                    List<Type> actualTypes = new ArrayList<Type>();
+                    // value goes before args
+                    actualTypes.add(t);
+                    for (Expr a : args) {
+                        actualTypes.add(a.type());
+                    }
+                    X10MethodInstance mi = ClosureCall_c.findAppropriateMethod(tc, target.type(), SettableAssign.SET, tArgs, actualTypes);
+                    if (mi.error() != null) {
+                        Errors.issue(tc.job(), new SemanticException("Unable to perform operation", mi.error()), this);
+                    }
+                    // Make sure we don't coerce here.
+                    List<Type> fTypes = mi.formalTypes();
+                    for (int i = 0; i < actualTypes.size(); i++) {
+                        if (!ts.isSubtype(actualTypes.get(i), fTypes.get(i), tc.context()))
+                            Errors.issue(tc.job(),
+                                    new SemanticException("No "+SettableAssign.SET+" method found in " + target.type(), position()));
+                    }
+                    t = mi.returnType();
+                }
+            }
+
+            // Check that there's a binary operator with the right return type
             IntLit lit = nf.IntLit(position(), IntLit.INT, 1);
             try {
                 lit = Converter.check(lit, tc);
@@ -136,68 +198,7 @@ public class X10Unary_c extends Unary_c {
                 }
             }
 
-            if (expr instanceof Variable) {
-                Variable v = (Variable) expr;
-                if (v.flags().isFinal()) {
-                    Errors.issue(tc.job(),
-                            new SemanticException("Cannot apply " + op + " to a final variable.", position()));
-                }
-            }
-            else {
-                Expr target = null;
-                List<TypeNode> typeArgs = null;
-                List<Expr> args = null;
-
-                // Handle a(i)++ and a.apply(i)++
-                if (expr instanceof ClosureCall) {
-                    ClosureCall e = (ClosureCall) expr;
-                    target = e.target();
-                    typeArgs = e.typeArguments();
-                    args = e.arguments();
-                }
-                else if (expr instanceof X10Call) {
-                    X10Call e = (X10Call) expr;
-                    if (!(e.target() instanceof Expr) || e.name().id() != ClosureCall.APPLY) {
-                        Errors.issue(tc.job(),
-                                new SemanticException("Cannot apply " + op + " to an arbitrary method call.", position()));
-                        return n.type(ts.unknownType(n.position()));
-                    }
-                    target = (Expr) e.target();
-                    typeArgs = e.typeArguments();
-                    args = e.arguments();
-                } else {
-                    Errors.issue(tc.job(),
-                            new SemanticException("Cannot apply " + op + " to an arbitrary expression.", position()));
-                    return n.type(ts.unknownType(n.position()));
-                }
-
-                assert (target != null);
-                List<Type> tArgs = new ArrayList<Type>();
-                for (TypeNode tn : typeArgs) {
-                    tArgs.add(tn.type());
-                }
-                List<Type> actualTypes = new ArrayList<Type>();
-                // value goes before args
-                actualTypes.add(t);
-                for (Expr a : args) {
-                    actualTypes.add(a.type());
-                }
-                X10MethodInstance mi = ClosureCall_c.findAppropriateMethod(tc, target.type(), SettableAssign.SET, tArgs, actualTypes);
-                if (mi.error() != null) {
-                    Errors.issue(tc.job(), new SemanticException("Unable to perform operation", mi.error()), this);
-                }
-                // Make sure we don't coerce here.
-                List<Type> fTypes = mi.formalTypes();
-                for (int i = 0; i < actualTypes.size(); i++) {
-                    if (!ts.isSubtype(actualTypes.get(i), fTypes.get(i), tc.context()))
-                        Errors.issue(tc.job(),
-                                new SemanticException("No "+SettableAssign.SET+" method found in " + target.type()),
-                                n);
-                }
-
-                return n.type(mi.returnType());
-            }
-            return n;
+            return this.type(t);
         }
 
         Call c = desugarUnaryOp(this, tc);
