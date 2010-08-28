@@ -186,7 +186,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 	}
 
 	@Override
-	public Node buildTypesOverride(TypeBuilder tb) throws SemanticException {
+	public Node buildTypesOverride(TypeBuilder tb) {
 		X10MethodDecl_c n = (X10MethodDecl_c) super.buildTypesOverride(tb);
 
 		X10MethodDef mi = (X10MethodDef) n.methodDef();
