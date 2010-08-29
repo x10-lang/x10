@@ -188,7 +188,7 @@
 		<mkdir dir="${lib}"/>
 		<copy todir="${lib}">
 			<fileset dir="${cast.x10.location}/bin" includes="${cast.x10.jar}"/>
-			<fileset dir="${cast.x10.location}/lib/plugins" includes="org.eclipse.equinox.common*.jar"/>
+			<fileset dir="${basedir}/../lib/plugins" includes="org.eclipse.equinox.common*.jar"/>
 		</copy>
 	</target>
     <target name="constraints-jar" depends="init">
