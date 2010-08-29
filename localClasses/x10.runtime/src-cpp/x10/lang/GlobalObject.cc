@@ -118,7 +118,7 @@ x10aux::RuntimeType x10::lang::GlobalObject::rtt;
 
 void x10::lang::GlobalObject::_initRTT() {
     if (rtt.initStageOne(&rtt)) return;
-    const x10aux::RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Any>()};
+    const x10aux::RuntimeType* parents[1] = { x10aux::getRTT<x10::lang::Global>()};
     rtt.initStageTwo("x10.lang.GlobalObject", 1, parents, 0, NULL, NULL);
 }
 
