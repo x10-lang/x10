@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE project [<!ENTITY buildfile SYSTEM "./build-user.xml">]>
-<project name="wala" default="jar" basedir=".">
-	<property name="script" location="${basedir}/build"/>
+<project name="wala" default="jar" basedir="..">
+	<property name="script" location="./build"/>
 	<property name="build" location="${basedir}/bin"/>
     <property name="lib" location="${basedir}/lib"/>
 	<property name="jar" value="wala.jar"/>
@@ -48,6 +48,10 @@
         <ant antfile="${cast.java.location}/build.xml" target="distclean" inheritAll="false" dir="${cast.java.location}"/>
         <ant antfile="${core.location}/build.xml" target="distclean" inheritAll="false" dir="${core.location}"/>
         <ant antfile="${shrike.location}/build.xml" target="distclean" inheritAll="false" dir="${shrike.location}"/>
+    	<delete file="${cast.location}/build.xml"/>
+    	<delete file="${cast.java.location}/build.xml"/>
+    	<delete file="${core.location}/build.xml"/>
+    	<delete file="${shrike.location}/build.xml"/>
     </target>
 
 
