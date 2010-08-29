@@ -47,7 +47,8 @@ class IdeaTest {
 	var array_rows:Int;
 	
 	global val c = Clock.make();
-	val op = Int.+;
+	// val op = Int.+;
+	val op = Math.noOp.(Int, Int);
 
 	var plain1: Rail[int @ Clocked[int](c, op, 0)]!;       // Buffer for plaintext data.
 	var crypt1: Rail[int @ Clocked[int](c, op, 0)]!;       // Buffer for encrypted data.

@@ -10,7 +10,7 @@ public class MergeSort{
     public def this () {
     } 	
 
-	static val op = Int.+;
+	static val op = Math.noOp.(Int, Int);
 
     static val N: int = 128;
     public static def main(args:Rail[String]!){

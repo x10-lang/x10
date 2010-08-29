@@ -104,6 +104,7 @@ public class ClockedVariableRefactor extends ContextVisitor {
 	
 	 private static final QName CLOCKEDVAR = QName.make("x10.compiler.ClockedVar");
 	 private static final QName CLOCKEDINT = QName.make("x10.compiler.ClockedAtomicInt");
+	 private static final QName CLOCKEDOPLESSVAR = QName.make("x10.compiler.ClockedOpLessVar");
 	 private static final QName RAIL = QName.make("x10.lang.Rail");
 	 private static final QName ARRAY = QName.make("x10.array.Array");
 	 private static final QName CLOCKEDARRAY = QName.make("x10.array.ClockedArray");
@@ -172,6 +173,24 @@ public class ClockedVariableRefactor extends ContextVisitor {
 		 return isInt && isPlus;
 	 }
 	 
+	 private boolean isNoOp(Expr op) {
+		 boolean isNoOp = false;
+		 Expr init = null;
+		 if (op instanceof Field) {
+			init =((X10FieldDef)(((Field) op).fieldInstance()).def()).fieldDecl().init();
+		 } else if (op instanceof  Local) {		
+			LocalDecl  lDecl = ((X10LocalDef)((Local)op).localInstance().def()).localDecl(); 
+			if (lDecl != null)
+				init = lDecl.init();
+		 }
+		 if (init !=  null) {
+			 isNoOp = init.toString().contains("noOp");
+		 }
+		
+		 return isNoOp;
+	 }
+	 
+	 
 	 private Expr extractOp(Type t) {
 		 AnnotatedType at = (AnnotatedType) t;
 		 for (Type an : at.annotations()) {
@@ -226,10 +245,12 @@ public class ClockedVariableRefactor extends ContextVisitor {
 	                argsType.add(init.type());
 	                argsType.add(n.type().type());	               
 	                Type type2;
-	                if (!this.isOpIntPlus(op))
-	                	type2 = ((X10ClassType) type).typeArguments(typeArgs);
-	                else 
+	                if (this.isOpIntPlus(op))
 	                	type2 = xts.typeForName(CLOCKEDINT);
+	                else if (this.isNoOp(op))
+	                	type2 = xts.typeForName(CLOCKEDOPLESSVAR);
+	                else
+	                	type2 = ((X10ClassType) type).typeArguments(typeArgs);
 	                Expr construct = xnf.New(position,xnf.CanonicalTypeNode(position, type2), args)
 	               
 	                .constructorInstance(xts.findConstructor(type2, xts.ConstructorMatcher(n.type().type(), argsType, context)))
@@ -276,10 +297,13 @@ public class ClockedVariableRefactor extends ContextVisitor {
 	                argsType.add(n.type().type());	               
 
 	                Type type2;
-	                if (!this.isOpIntPlus(op))
-	                	type2 = ((X10ClassType) type).typeArguments(typeArgs);
-	                else 
+	                if (this.isOpIntPlus(op))
 	                	type2 = xts.typeForName(CLOCKEDINT);
+	                else if (this.isNoOp(op))
+	                	type2 = xts.typeForName(CLOCKEDOPLESSVAR);
+	                else
+	                	type2 = ((X10ClassType) type).typeArguments(typeArgs);
+	                
 	                Expr construct = xnf.New(position,xnf.CanonicalTypeNode(position, type2), args)
 	               
 	                .constructorInstance(xts.findConstructor(type2, xts.ConstructorMatcher(type2, argsType, context)))
@@ -504,10 +528,12 @@ public class ClockedVariableRefactor extends ContextVisitor {
 							args.add(op);
 							args.add(opInit);
 							String mName;
-							 if (!this.isOpIntPlus(op))
-				                	mName = "makeClocked";
+							 if (this.isOpIntPlus(op))
+				                	mName = "makeIntClocked";
+							 else if (this.isNoOp(op))
+								 	mName = "makeOpLessClocked";
 							 else
-								 	mName = "makeIntClocked";
+								 	mName = "makeClocked";
 				                
 							
 							mi = (X10MethodInstance) xts.findMethod(type, xts.MethodMatcher(call.type(), Name.make(mName), typeArgs, argTypes, context));
