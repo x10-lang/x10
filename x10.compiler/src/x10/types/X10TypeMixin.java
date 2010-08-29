@@ -340,7 +340,19 @@ public class X10TypeMixin {
 	}
 
     public static boolean isConstrained(Type t) {
-	    return t instanceof ConstrainedType;
+    	
+	        if (t instanceof AnnotatedType) {
+	            AnnotatedType at = (AnnotatedType) t;
+	            return isConstrained(at.baseType());
+	        }
+	        if (t instanceof MacroType) {
+	                MacroType mt = (MacroType) t;
+	                return isConstrained(mt.definedType());
+	        }
+		if (t instanceof ConstrainedType) {
+			return true;
+		}
+		return false;
     }
     public static boolean isX10Struct(Type t) {
     	if (! (t instanceof X10Struct))
@@ -427,15 +439,19 @@ public class X10TypeMixin {
             throw new InternalCompilerError("Cannot bind " + t1 + " to " + t2 + ".", f);
         }
     }
+    static CConstraint tryAddingConstraint(Type t, CConstraint xc) throws XFailure {
+    	 CConstraint c = xclause(t);
+         c = c == null ? new CConstraint() :c.copy();
+         c.addIn(xc);
+         return c;
+    }
     public static Type addConstraint(Type t, CConstraint xc) {
         try {
-            CConstraint c = xclause(t);
-            c = c == null ? new CConstraint() :c.copy();
-            c.addIn(xc);
+            CConstraint c = tryAddingConstraint(t, xc);
             return xclause(X10TypeMixin.baseType(t), c);
         }
         catch (XFailure f) {
-            throw new InternalCompilerError("X10TypeMixin_c: Cannot add " + xc + "to " + t + ".", f);
+            throw new InternalCompilerError("X10TypeMixin: Cannot add " + xc + "to " + t + ".", f);
         }
     }
     
@@ -1166,4 +1182,13 @@ public class X10TypeMixin {
 			}
 			return null;
 		}
+	public static boolean areConsistent(Type t1, Type t2) {
+		try {
+			if ( isConstrained(t1) &&  isConstrained(t2))
+				tryAddingConstraint(t1, xclause(t2));
+			return true;
+		} catch (XFailure z) {
+			return false;
+		}
+	}
 }
