@@ -428,7 +428,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(Serialized(job));
            
            Goal finishGoal = null;
-           if (x10.Configuration.FINISH_ASYNCS && x10.Configuration.WALA) {
+           if (x10.Configuration.WALA) {
                try{
                    ClassLoader cl = Thread.currentThread().getContextClassLoader();
                    Class<?> c = cl.loadClass("com.ibm.wala.cast.x10.translator.polyglot.X102IRGoal");
@@ -440,14 +440,16 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                    Goal finder = MainMethodFinder(job, hasMain);
                    finder.addPrereq(TypeCheckBarrier());
                    ir.addPrereq(finder);
-                   Goal barrier = IRBarrier(ir, buildCallTableMethod);
+                   Goal barrier = IRBarrier(ir, buildCallTableMethod,x10.Configuration.FINISH_ASYNCS);
                    goals.add(barrier);
-                   finishGoal = FinishAsyncBarrier(barrier,job,this);
-                   goals.add(finishGoal);
+                   if(x10.Configuration.FINISH_ASYNCS){
+                	   finishGoal = FinishAsyncBarrier(barrier,job,this);
+                	   goals.add(finishGoal);
+                   }
                    
                } catch (Throwable e) {
                    System.err.println("WALA not found.");
-                   //e.printStackTrace();
+                   e.printStackTrace();
                }
            }
 
@@ -548,7 +550,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
        }
        
-       public Goal IRBarrier(final Goal goal, final Method method) {
+       public Goal IRBarrier(final Goal goal, final Method method, final boolean finishAsync) {
            return new AllBarrierGoal("IRBarrier", this) {
                @Override
                public Goal prereqForJob(Job job) {
@@ -560,9 +562,9 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                }
                public boolean runTask() {
                    try {
-                	   
-                       calltable = (HashMap<CallTableKey, LinkedList<CallTableVal>>) method.invoke(null);
-                       
+                	   if(finishAsync)
+                		   calltable = (HashMap<CallTableKey, LinkedList<CallTableVal>>) method.invoke(null);
+                   
                    } catch (Throwable t) {}
                    return true;
                }
