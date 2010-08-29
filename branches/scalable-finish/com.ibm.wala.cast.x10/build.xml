@@ -5,7 +5,7 @@
     <property name="lib" location="${basedir}/lib"/>
     <property name="jar" value="com.ibm.wala.cast.x10.jar"/>
     <property name="wala.jar.url" value="http://dist.codehaus.org/x10/wala/wala.jar"/>
-    <property name="rcp.zip.url" value="http://fullmoon.rtp.raleigh.ibm.com/downloads/drops/R-3.6-201006080911/org.eclipse.rcp-3.6.zip"/>
+    <property name="rcp.zip.url" value="http://eclipse.unixheads.org/eclipse/downloads/drops/R-3.6-201006080911/org.eclipse.rcp-3.6.zip"/>
     <property name="wala.jar" value="wala.jar"/>
     <property name="rcp.zip" value="rcp.zip"/>
     <path id="project.classpath">
@@ -43,7 +43,35 @@
             <fileset refid="classes"/>
         </jar>
     </target>
-    <target name="build" depends="init">
+	<target name="check-jar-cache" depends="init">
+        <available property="wala.jar.present" file="${lib}/${wala.jar}"/>
+    	<available property="rcp.zip.present" file="${lib}/${rcp.zip}"/>
+        <condition property="cache.up-to-date">
+            <and>
+                <isset property="wala.jar.present"/>
+            	<isset property="rcp.zip.present"/>
+            </and>
+        </condition>
+	 </target>
+	<target name="wala-jar" depends="init,check-jar-cache" unless="wala.jar.present" >
+        <mkdir dir="${lib}"/>
+        <get usetimestamp="true" src="${wala.jar.url}" dest="${lib}/${wala.jar}"/>
+    	<available property="wala.jar.present" file="${lib}/${wala.jar}"/>
+        <fail message="Unable to get ${wala.jar} from ${wala.jar.url}" unless="wala.jar.present"/>
+    </target>
+    <target name="rcp-zip" depends="init,check-jar-cache" unless="rcp.zip.present">
+        <mkdir dir="${lib}"/>
+        <get usetimestamp="true" src="${rcp.zip.url}" dest="${lib}/${rcp.zip}"/>
+    	<available property="rcp.zip.present" file="${lib}/${rcp.zip}"/>
+        <fail message="Unable to get ${rcp.zip} from ${rcp.zip.url}" unless="rcp.zip.present"/>
+    </target>
+	<target name="update-jar-cache" depends="init,wala-jar,rcp-zip">
+		<antcall target="rcp-unzip"></antcall>
+	</target>
+	<target name="prereq-jars" depends="init,check-jar-cache" unless="cache.up-to-date">
+		<antcall target="update-jar-cache"/>
+	</target>
+	<target name="build" depends="init,prereq-jars">
         <echo message="${ant.project.name}: ${ant.file}"/>
         <javac destdir="${build}" source="1.5" target="1.5" debug="on" includes="com/**">
             <src path="${src}"/>
@@ -53,13 +81,11 @@
             <fileset dir="." includes="data/**"/>
         </copy>
     </target>
-    <target name="wala.jar" depends="init">
-        <get usetimestamp="true" src="${wala.jar.url}" dest="${lib}/${wala.jar}"/>
-    </target>
-    <target name="rcp.zip" depends="init">
-        <get usetimestamp="true" src="${rcp.zip.url}" dest="${lib}/${rcp.zip}"/>
-    </target>
-    <target name="rcp.unzip">
-        <unzip src="${lib}/${rcp.zip}" dest="${lib}"/>
-    </target>
+    <target name="rcp-unzip" depends="init,check-jar-cache" if="rcp.zip.present">
+		<unzip src="${lib}/${rcp.zip}" dest="${lib}">
+			<patternset>
+		    	<include name="plugins/*.jar"/>
+		    </patternset>
+		</unzip>
+	</target>
 </project>
