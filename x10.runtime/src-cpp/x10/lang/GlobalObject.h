@@ -19,9 +19,9 @@
 
 #include <x10/lang/Reference.h>
 
-#define X10_LANG_ANY_H_NODEPS
-#include <x10/lang/Any.h>
-#undef X10_LANG_ANY_H_NODEPS
+#define X10_LANG_GLOBAL_H_NODEPS
+#include <x10/lang/Global.h>
+#undef X10_LANG_GLOBAL_H_NODEPS
 
 namespace x10 {
     namespace lang {
