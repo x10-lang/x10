@@ -369,4 +369,6 @@ public final class Math {
     public static safe def pow2(i:Int) {
         return 1 << i;
     }
+    
+    public static safe def noOp(a:Int, b:Int)= 0;
 }

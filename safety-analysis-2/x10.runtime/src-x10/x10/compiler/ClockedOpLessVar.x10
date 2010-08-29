@@ -17,15 +17,13 @@ import x10.lang.Runtime;
 
 
 
-public class ClockedVar[T] implements ClockableVar{
+public class ClockedOpLessVar[T] extends ClockedVar[T]  implements ClockableVar{
 
 
     var xRead:T;
-    val MAXWORKERS = 1024;
-    val xWrite: Rail[T]! = Rail.make[T](MAXWORKERS);
-    val op:(T,T)=>T;
-    var opInit:T;
-    var changed:Boolean;
+    var xWrite:T;
+    val changed: AtomicInteger! = new AtomicInteger(0);
+    
 
     
    @NativeClass("java", "java.util.concurrent.locks", "ReentrantLock")
@@ -47,46 +45,31 @@ public class ClockedVar[T] implements ClockableVar{
     //val lock = new Lock();
 
     public def this () {
-				 			        op = null;
+				 			  
    }
 
     public def this (c: Clock!, oper: (T,T)=>T!, opInitial:T) {
-		  
-    	c.addClockedVar(this); 
-     	op = oper;
-     	opInit = opInitial;
-     	changed = false;
-     	var i: int;
-     	for ( i = 0; i < MAXWORKERS; i++)	
-     		xWrite(i) = opInitial;
+    
+    	  c.addClockedVar(this); 
      }
      
     public def this(c:Clock, oper: (T,T)=>T, opInitial:T, x:T)
      {
-    	val clk = c as Clock!; 
-    	xRead = x;
-        clk.addClockedVar(this); 
-        op = oper; 
-        opInit = opInitial;
-        changed = false; 
-        var i: int;
-     	for ( i = 0; i < MAXWORKERS; i++)	
-     		xWrite(i) = opInitial;
+    	  val clk = c as Clock!; 
+          xRead = x;
+          clk.addClockedVar(this); 
       }
       
-    public @Inline @Header def get$G():ClockedVar[T] = this;
+    public @Inline @Header def get$G():ClockedOpLessVar[T] = this;
    
 
     public @Inline @Header def getClocked():T = xRead;
     
 
 
-
-
     public @Inline @Header def setClocked(x:T) {
-        	val i = Runtime.workerTid();
-	        changed = true;
-        this.xWrite(i) = op(xWrite(i), x);
+	    changed.incrementAndGet();
+        xWrite = x;
     } 
     
     public @Inline @Header def setR(x:T) {
@@ -95,20 +78,13 @@ public class ClockedVar[T] implements ClockableVar{
     
 
     public def move(): Void {
-        if (changed) {
-        	this.xRead = this.xWrite(0);
-        	this.xWrite(0) = opInit;
-		        val numOfWorkers = Runtime.numOfWorkers();
-        	//Console.OUT.println("Worker id" + numOfWorkers);
-		         var i: int;
-        	for (i = 1; i < numOfWorkers; i++) {
-        		this.xRead =  op (this.xRead, this.xWrite(i));
-        		this.xWrite(i) = opInit;
-         	}
-         	this.changed = false;
+        if (changed.get() == 1) {
+		            xRead = xWrite;
+         	   
         } 
+        changed.set(0);
     	
-    }
+    }	
 
     
 }

@@ -16,6 +16,7 @@ import x10.compiler.NativeRep;
 import x10.util.Pair;
 import x10.compiler.ClockedVar;
 import x10.compiler.ClockedAtomicInt;
+import x10.compiler.ClockedOpLessVar;
 import x10.compiler.Inline;
 
 // FIXME: should be static class in Rail
@@ -347,6 +348,15 @@ import x10.compiler.Inline;
     	public static safe @Inline def makeIntClockedRail[T](length: Int, init: (Int) => int, c:Clock, op:(int,int)=>int, opInit:int): Rail[ClockedAtomicInt]!{self.length==length} 
      	   =  Rail.make[ClockedAtomicInt](length, (i:int) => new ClockedAtomicInt  (c as Clock!, op, opInit, init(i)));
 	
+
+     	public static safe @Inline def makeOpLessClockedRail[T](length: Int, c:Clock, op:(T,T)=>T, opInit:T): Rail[ClockedOpLessVar[T]]!{self.length==length} 
+     	   =  Rail.make[ClockedOpLessVar[T]](length, (int) => new ClockedOpLessVar [T] (c as Clock!, op as (T,T) => T!, opInit as T!));
+    	
+    	
+    	
+    	
+    	public static safe @Inline def makeOpLessClockedRail[T](length: Int, init: (Int) => T, c:Clock, op:(T,T)=>T, opInit:T): Rail[ClockedOpLessVar[T]]!{self.length==length} 
+     	   =  Rail.make[ClockedOpLessVar[T]](length, (i:int) => new ClockedOpLessVar [T] (c as Clock!, op as (T,T) => T!, opInit as T!, init(i)));
 
 
 
