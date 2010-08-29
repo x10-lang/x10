@@ -70,7 +70,7 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
                     val r3 = Region.makeFull(r.rank-axis-1);
                     (r1.product(r2).product(r3) as Region(r.rank)).intersection(r)
         		});	
-        return new BaseDist(r, Place.places, regions);
+        return new BaseDist(r, Place.places, ValRail.make(regions));
     }
 /*
 
@@ -287,7 +287,7 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
     //
 
     // XXX should allow places to be in any order??
-    protected static def isUnique(places: Rail[Place]!): boolean {
+    protected static def isUnique(places: ValRail[Place]): boolean {
         if (places.length!=Place.MAX_PLACES)
             return false;
         for (var i: int = 0; i<places.length; i++) {
@@ -297,14 +297,14 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
         return true;
     }
 
-    protected static def isConstant(places: Rail[Place]!): boolean {
+    protected static def isConstant(places: ValRail[Place]): boolean {
         for (p:Place in places)
             if (p!=places(0))
                 return false;
         return true;
     }
 
-    protected static def onePlace(places: Rail[Place]!): Place {
+    protected static def onePlace(places: ValRail[Place]): Place {
         return places.length==0? here : places(0);
     }
 
