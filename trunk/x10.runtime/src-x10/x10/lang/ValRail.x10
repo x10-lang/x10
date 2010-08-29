@@ -50,13 +50,13 @@ public final class ValRail[+T](length: Int) implements (Int) => T, Iterable[T] {
     public native static def makeAligned[T](length: Int, init: (Int) => T, alignment: Int): ValRail[T](length)!;
 
     /**
-     * Cast operator that creates a new ValRail from a Rail.
+     * Create a ValRail from a Rail.
      *
      * @param init The length and elements will be copied from this Rail.
      */
     @Native("java", "x10.core.RailFactory.<#2>makeValRailFromRail(#3, #4)")
     @Native("c++", "x10::lang::ValRail<#1 >::make(#4)")
-    public native static operator[U](r: Rail[U]): ValRail[U]{self.length==r.length};
+    public native static def make[U](r: Rail[U]): ValRail[U]{self.length==r.length};
 
     /**
      * Operator that allows access of ValRail elements by index.

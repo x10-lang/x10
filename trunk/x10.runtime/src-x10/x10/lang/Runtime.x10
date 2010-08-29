@@ -610,7 +610,7 @@ public final class Runtime {
         val e = exceptions;
         exceptions = null;
         if (2*length > Place.MAX_PLACES) {
-            val m = counts as ValRail[Int];
+            val m = ValRail.make(counts);
             for (var i:Int=0; i<Place.MAX_PLACES; i++) counts(i) = 0;
             length = 1;
             lock.unlock();
@@ -721,7 +721,7 @@ public final class Runtime {
             val e = exceptions;
             exceptions = null;
             if (2*length > Place.MAX_PLACES) {
-                val m = counts as ValRail[Int];
+                val m = ValRail.make(counts);
                 for (var i:Int=0; i<Place.MAX_PLACES; i++) counts(i) = 0;
                 length = 1;
                 lock.unlock();
