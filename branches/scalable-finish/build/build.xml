@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE project [<!ENTITY buildfile SYSTEM "./build-user.xml">]>
+<project name="wala" default="jar" basedir=".">
+	<property name="build" location="${basedir}/bin"/>
+    <property name="lib" location="${basedir}/lib"/>
+	<property name="jar" value="wala.jar"/>
+	<property name="cast" value="com.ibm.wala.cast"/>
+    <property name="cast.location" location="${basedir}/${cast}"/>
+    <property name="cast.jar" value="${cast}.jar"/>
+	<property name="cast.java" value="com.ibm.wala.cast.java"/>
+	<property name="cast.java.location" location="${basedir}/${cast.java}"/>
+    <property name="cast.java.jar" value="${cast.java}.jar"/>
+	<property name="core" value="com.ibm.wala.core"/>
+    <property name="core.location" location="${basedir}/${core}"/>
+    <property name="core.jar" value="${core}.jar"/>
+	<property name="shrike" value="com.ibm.wala.shrike"/>
+    <property name="shrike.location" location="${basedir}/${shrike}"/>
+    <property name="shrike.jar" value="${shrike}.jar"/>
+	<property name="rcp.zip.url" value="http://eclipse.unixheads.org/eclipse/downloads/drops/R-3.6-201006080911/org.eclipse.rcp-3.6.zip"/>
+	<property name="rcp.zip" value="rcp.zip"/>
+    <target name="init">
+        <tstamp/>
+        <mkdir dir="${lib}" />
+    	<mkdir dir="${build}" />
+    </target>
+    <target name="clean" >
+        <ant antfile="${cast.location}/build.xml" target="clean" inheritAll="false" dir="${cast.location}"/>
+        <ant antfile="${cast.java.location}/build.xml" target="clean" inheritAll="false" dir="${cast.java.location}"/>
+        <ant antfile="${core.location}/build.xml" target="clean" inheritAll="false" dir="${core.location}"/>
+        <ant antfile="${shrike.location}/build.xml" target="clean" inheritAll="false" dir="${shrike.location}"/>
+    </target>
+
+    <target name="distclean" >
+        <ant antfile="${cast.location}/build.xml" target="distclean" inheritAll="false" dir="${cast.location}"/>
+        <ant antfile="${cast.java.location}/build.xml" target="distclean" inheritAll="false" dir="${cast.java.location}"/>
+        <ant antfile="${core.location}/build.xml" target="distclean" inheritAll="false" dir="${core.location}"/>
+        <ant antfile="${shrike.location}/build.xml" target="distclean" inheritAll="false" dir="${shrike.location}"/>
+    </target>
+
+
+    <target name="check-jar" depends="init">
+        <mkdir dir="${basedir}/tmpwala"/>
+    	<copy todir="${basedir}/tmpwala">
+    	    <fileset dir="${cast.location}/bin/" includes="com/**"/>
+    	</copy>
+    	<copy todir="${basedir}/tmpwala">
+    	    <fileset dir="${cast.java.location}/bin/" includes="com/**"/>
+    	</copy>
+    	<copy todir="${basedir}/tmpwala">
+    	    <fileset dir="${core.location}/bin/" includes="com/**"/>
+    	</copy>
+    	<copy todir="${basedir}/tmpwala">
+    	    <fileset dir="${shrike.location}/bin/" includes="com/**"/>
+    	</copy>
+    	<fileset id="classes" dir="${basedir}/tmpwala" includes="com/**"/>
+    </target>
+    <target name="jar" depends="build,check-jar">
+        <jar jarfile="${build}/${jar}">
+            <fileset refid="classes"/>
+        </jar>
+        <delete dir="${basedir}/tmpwala"/>
+    </target>
+	
+	<target name="check-jar-cache" depends="init">
+    	<available property="rcp.zip.present" file="${lib}/${rcp.zip}"/>
+		<available property="plugins.present" file="${lib}/plugins" type="dir"/>
+        <condition property="cache.up-to-date">
+            <and>
+            	<isset property="rcp.zip.present"/>
+            	<isset property="plugins.present"/>
+            </and>
+        </condition>
+	 </target>
+	<target name="rcp-zip" depends="init,check-jar-cache" unless="rcp.zip.present">
+	        <mkdir dir="${lib}"/>
+	        <get usetimestamp="true" src="${rcp.zip.url}" dest="${lib}/${rcp.zip}"/>
+	    	<available property="rcp.zip.present" file="${lib}/${rcp.zip}"/>
+	        <fail message="Unable to get ${rcp.zip} from ${rcp.zip.url}" unless="rcp.zip.present"/>
+	</target>
+	<target name="update-jar-cache" depends="init,rcp-zip">
+			<antcall target="rcp-unzip"></antcall>
+	</target>
+	<target name="prereq-jars" depends="init,check-jar-cache" unless="cache.up-to-date">
+			<antcall target="update-jar-cache"/>
+	</target>
+	<target name="build" depends="init,prereq-jars,shrike-jar,core-jar,cast-jar,cast.java-jar"/>
+	<target name="rcp-unzip" depends="init,check-jar-cache" if="rcp.zip.present">
+		<unzip src="${lib}/${rcp.zip}" dest="${lib}">
+			<patternset>
+			    <include name="plugins/*.jar"/>
+			</patternset>
+		</unzip>
+	</target>
+    <target name="shrike-jar" depends="init">
+        <ant antfile="${shrike.location}/build.xml" target="jar" inheritAll="false" dir="${shrike.location}"/>
+    </target>
+   
+    <target name="core-jar" depends="init,shrike-jar">
+        <ant antfile="${core.location}/build.xml" target="jar" inheritAll="false" dir="${core.location}"/>
+    </target>
+
+    <target name="cast-jar" depends="init,shrike-jar,core-jar">
+        <ant antfile="${cast.location}/build.xml" target="jar" inheritAll="false" dir="${cast.location}"/>
+    </target>
+
+    <target name="cast.java-jar" depends="init,shrike-jar,core-jar,cast-jar">
+        <ant antfile="${cast.java.location}/build.xml" target="jar" inheritAll="false" dir="${cast.java.location}"/>
+    </target>
+
+</project>
