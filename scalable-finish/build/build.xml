@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE project [<!ENTITY buildfile SYSTEM "./build-user.xml">]>
 <project name="wala" default="jar" basedir=".">
+	<property name="script" location="${basedir}/build"/>
 	<property name="build" location="${basedir}/bin"/>
     <property name="lib" location="${basedir}/lib"/>
 	<property name="jar" value="wala.jar"/>
@@ -22,6 +23,18 @@
         <tstamp/>
         <mkdir dir="${lib}" />
     	<mkdir dir="${build}" />
+    	<copy tofile="${cast.location}/build.xml">
+    		<fileset file="${script}/cast.build.xml"/>
+    	</copy>
+    	<copy tofile="${cast.java.location}/build.xml">
+    		<fileset file="${script}/cast.java.build.xml"/>
+    	</copy>
+    	<copy tofile="${core.location}/build.xml">
+    		<fileset file="${script}/core.build.xml"/>
+    	</copy>
+    	<copy tofile="${shrike.location}/build.xml">
+    		<fileset file="${script}/shrike.build.xml"/>
+    	</copy>
     </target>
     <target name="clean" >
         <ant antfile="${cast.location}/build.xml" target="clean" inheritAll="false" dir="${cast.location}"/>
