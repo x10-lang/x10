@@ -87,6 +87,38 @@ public class CompilerTestsBase {
 		}
 	}
 	
+	/**
+	 * 
+	 * @param files
+	 * @param options
+	 * @param sourcepath
+	 * @param jobs: non-null collection of jobs to return to caller (from which ASTs can be extracted and visited)
+	 * @return true if compilation succeeds without errors
+	 * @throws Exception 
+	 */
+	public boolean compileStreams(Source[] files, String[] options,
+			final Collection<ErrorInfo> errors, String sourcepath, Collection<Job> jobs) throws Exception {
+		Collection<String> paths = new ArrayList<String>();
+		Collection<Source> sources = new ArrayList<Source>();
+		for (Source f : files) {
+			paths.add(f.path());
+			sources.add(f);
+		}
+		try {	
+			ExtensionInfo extInfo = new x10.ExtensionInfo();
+			Compiler compiler = getCompiler(extInfo, options, errors, sourcepath);
+			Globals.initialize(compiler);
+			compiler.compile(sources);
+			return outcome(paths, options, sourcepath, errors, jobs, extInfo);
+			
+		} catch (Throwable e) {
+			throw new Exception(getTestId(paths, options), e);
+		}
+	}
+	
+	
+	
+	
 	private Compiler getCompiler(ExtensionInfo extInfo, String[] options, final Collection<ErrorInfo> errors, String sourcepath){
 		buildOptions(extInfo, options, sourcepath);
 		return new Compiler(extInfo,
@@ -226,6 +258,7 @@ public class CompilerTestsBase {
 			return true;
 		return false;
 	}
+	
 	
 	
 }

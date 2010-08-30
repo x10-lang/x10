@@ -1,6 +1,9 @@
 package org.eclipse.imp.x10dt.core.tests.compiler;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -9,7 +12,10 @@ import org.junit.Test;
 
 import polyglot.ast.ClassDecl;
 import polyglot.ast.Node;
+import polyglot.frontend.FileSource;
 import polyglot.frontend.Job;
+import polyglot.frontend.Resource;
+import polyglot.frontend.Source;
 import polyglot.types.SemanticException;
 import polyglot.util.ErrorInfo;
 import polyglot.visit.ContextVisitor;
@@ -17,7 +23,67 @@ import polyglot.visit.NodeVisitor;
 
 public class CompilerTests extends CompilerTestsBase {
 	private static String DATA_PATH = "data" + File.separator + "base" + File.separator;
+	
+	@Test
+	public void jira1768() throws Exception {
+		String[] files = {"Hello5.x10", "pac" + File.separator + "MyStruct.x10"};
+		Collection<ErrorInfo> errors = new ArrayList<ErrorInfo>();
+		Collection<Job> jobs = new ArrayList<Job>();
+		compileStreams(toSources(files), NOT_STATIC_CALLS, errors,
+				getRuntimeJar() + File.pathSeparator + DATA_PATH, jobs);
+		for(ErrorInfo error: errors){
+			if (error.getMessage().contains("Duplicate class")){
+				Assert.assertTrue("Duplicate class error when there is no duplication.", false);
+			}
+		}
+	}
+	
+	private Source[] toSources(final String[] files) {
+		Source[] result = new Source[files.length];
+		for(int i = 0; i < files.length; i++){
+			String file = files[i];
+			try {
+				FileInputStream fis = new FileInputStream(DATA_PATH + file);
+		        result[i] = new StreamSource(fis, DATA_PATH + file);
+		    	
+		      } catch (Exception except) {
+		        System.err.println(except);
+		      }
+		}
+		
+	    return result;
+	  }
+	
+	/**
+	 * This is a copy of org.eclipse.imp.x10dt.core.builder.StreamSource.
+	 * Copied to avoid introducing a dependence.
+	 *
+	 */
+	private class StreamSource extends FileSource {
+	    public StreamSource(final InputStream s, final String fullPath) throws IOException {
+	    	super(new Resource() {
+				public File file() {
+					return new File(fullPath);
+				}
 
+				public InputStream getInputStream() throws IOException {
+					return s;
+				}
+
+				public String name() {
+					int idx= fullPath.lastIndexOf(File.separatorChar);
+					return (idx > 0) ? fullPath.substring(idx+1) : fullPath;
+				}
+
+				public String toString() {
+				  return fullPath;
+				}
+				
+	    	}, true);
+	    }
+	}
+
+	
 	@Test
 	public void hello1_static_calls() throws Exception {
 		String[] sources = {"Hello1.x10"};
@@ -321,6 +387,14 @@ public class CompilerTests extends CompilerTestsBase {
 		for(String s: files){
 			fs.add(new File(DATA_PATH + s));
 		}
+		
 		return compile(fs.toArray(new File[0]), options, errors, getRuntimeJar() + File.pathSeparator + DATA_PATH, jobs);
 	}
+	
+	
+	
+	
+	 
+
+	  
 }
