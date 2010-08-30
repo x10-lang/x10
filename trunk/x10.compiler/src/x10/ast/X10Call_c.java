@@ -682,8 +682,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		    if (target instanceof Special &&
 		            ((Special) target).kind() == Special.SUPER &&
 		            mi.flags().isAbstract()) {
-		        throw new SemanticException("Cannot call an abstract method " +
-		                "of the super class", this.position());
+		        throw new SemanticException("Cannot call an abstract method of the super class", this.position());
 		    }
 		}
 
