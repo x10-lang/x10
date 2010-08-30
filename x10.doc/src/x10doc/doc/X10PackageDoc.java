@@ -13,7 +13,6 @@ import com.sun.javadoc.AnnotationDesc;
 import com.sun.javadoc.AnnotationTypeDoc;
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.PackageDoc;
-import com.sun.javadoc.Tag;
 
 public class X10PackageDoc extends X10Doc implements PackageDoc {
 	String name;
@@ -59,26 +58,6 @@ public class X10PackageDoc extends X10Doc implements PackageDoc {
 	
 	public boolean isIncluded() {
 		return included;
-	}
-	
-	
-
-	@Override
-	public Tag[] firstSentenceTags() {
-		// TODO Auto-generated method stub
-		return super.firstSentenceTags();
-	}
-
-	@Override
-	public String commentText() {
-		// TODO Auto-generated method stub
-		return super.commentText();
-	}
-
-	@Override
-	public String getRawCommentText() {
-		// TODO Auto-generated method stub
-		return super.getRawCommentText();
 	}
 
 	// returns all *included* classes and interfaces, as per definition
@@ -175,13 +154,14 @@ public class X10PackageDoc extends X10Doc implements PackageDoc {
 	}
 	
 	private String getComment() {
+		FileChannel fc;
+		BufferedReader br;
 		try {
 			File file = new File(path + "package.html");
 			if (file.exists()) {
 				StringBuilder builder = new StringBuilder();
-				FileChannel fc = new FileInputStream(file).getChannel();
-				BufferedReader br = new BufferedReader(Channels.newReader(fc,
-						"UTF-8"));
+				fc = new FileInputStream(file).getChannel();
+				br = new BufferedReader(Channels.newReader(fc, "UTF-8"));
 
 				String delim = System.getProperty("line.separator");
 				String line = "";
@@ -196,6 +176,9 @@ public class X10PackageDoc extends X10Doc implements PackageDoc {
 				int end = html.toLowerCase().indexOf("</body>", start);
 				String body = html.substring(start, end);
 
+				br.close();
+				fc.close();
+
 				return "/**" + body + "*/";
 			}
 		} catch (Exception e) {
@@ -203,5 +186,4 @@ public class X10PackageDoc extends X10Doc implements PackageDoc {
 		}
 		return "";
 	}
-
 }
