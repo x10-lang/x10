@@ -1,8 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="X10DT Product" uid="org.eclipse.imp.x10dt.product" id="org.eclipse.platform.ide" application="org.eclipse.ui.ide.workbench" version="2.0.6.qualifier" useFeatures="true" includeLaunchers="true">
+<product name="X10DT Product" uid="org.eclipse.imp.x10dt.product" id="org.eclipse.imp.x10dt.product" application="org.eclipse.ui.ide.workbench" version="2.0.6.qualifier" useFeatures="true" includeLaunchers="true">
 
+   <aboutInfo>
+      <image path="/org.eclipse.imp.x10dt/about.png"/>
+      <text>
+         X10 Development Toolkit\n\
+\n\
+Version: {featureVersion}\n\
+Build id: {0}\n\
+\n\
+(c) Copyright Eclipse contributors and others 2000, 2010.  All rights reserved.\n\
+Visit http://www.eclipse.org/platform\n\
+\n\
+This product includes software developed by the\n\
+Apache Software Foundation http://www.apache.org/\n\
+and the Eclipse platform http://www.eclipse.org
+      </text>
+   </aboutInfo>
 
    <configIni use="default">
    </configIni>
@@ -11,12 +27,15 @@
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
    </launcherArgs>
 
-   <windowImages/>
+   <windowImages i16="/org.eclipse.imp.x10dt/images/x10dt_16x16x32.png" i32="/org.eclipse.imp.x10dt/images/x10dt_32x32x32.png" i48="/org.eclipse.imp.x10dt/images/x10dt_48x48x32.png" i64="/org.eclipse.imp.x10dt/images/x10dt_64x64x32.png" i128="/org.eclipse.imp.x10dt/images/x10dt_128x128x32.png"/>
 
 
    <launcher name="x10dt">
+      <linux icon="/org.eclipse.imp.x10dt/icons/linux/x10dt.xpm"/>
+      <macosx icon="/org.eclipse.imp.x10dt/icons/mac/x10dt.icns"/>
       <solaris/>
-      <win useIco="false">
+      <win useIco="true">
+         <ico path="/org.eclipse.imp.x10dt/icons/win/x10dt.ico"/>
          <bmp/>
       </win>
    </launcher>
