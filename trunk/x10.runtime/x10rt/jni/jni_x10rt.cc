@@ -151,5 +151,7 @@ JNIEXPORT void JNICALL Java_x10_x10rt_X10RT_x10rt_1probe(JNIEnv *, jclass) {
  * Signature: ()V
  */
 JNIEXPORT void JNICALL Java_x10_x10rt_X10RT_x10rt_1barrier(JNIEnv *, jclass) {
-    x10rt_barrier();
+    int finished = 0;
+    x10rt_barrier(0, x10rt_here(), x10rt_one_setter, &finished);
+    while (!finished) x10rt_probe();
 }
