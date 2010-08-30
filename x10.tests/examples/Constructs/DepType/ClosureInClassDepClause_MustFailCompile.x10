@@ -9,15 +9,18 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-package x10cpp;
+import harness.x10Test;
 
 /**
- * Version information for x10 extension
+ * Tests that a closure occurring in DepType causes a compilation failure.
+ *
+ * @author igor
  */
-public class Version extends polyglot.main.Version {
-	public String name() { return "x10c++"; }
+public class ClosureInClassDepClause_MustFailCompile(p:()=>Int){p==(()=>3)} extends x10Test {
 
-	public int major() { return 2; }
-	public int minor() { return 0; }
-	public int patch_level() { return 6; }
+    public def run() = true;
+
+    public static def main(var args: Rail[String]): void = {
+        new ClosureInClassDepClause_MustFailCompile(()=>3).execute();
+    }
 }

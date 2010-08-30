@@ -46,10 +46,6 @@ public class TypeDef_c extends Def_c implements TypeDef {
 	protected Ref<TypeConstraint> typeGuard;
 	protected Ref<? extends Type> type;
 	protected MacroType asType;
-	// FIXME: [IP] HACK
-	protected polyglot.ast.TypeNode astNode;
-	public void setAstNode(polyglot.ast.TypeNode tn) { astNode = tn; }
-	public polyglot.ast.TypeNode astNode() { return astNode; }
 	
 	public TypeDef_c(TypeSystem ts, Position pos, Flags flags, Name name, Ref<? extends StructType> container, List<Ref<? extends Type>> typeParams,
 	        XVar thisVar, List<LocalDef> formalNames, List<Ref<? extends Type>> formalTypes, Ref<CConstraint> guard, Ref<TypeConstraint> typeGuard, Ref<? extends Type> type) {

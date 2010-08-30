@@ -158,7 +158,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
     }
 
     @Override
-    public Node buildTypesOverride(TypeBuilder tb) throws SemanticException {
+    public Node buildTypesOverride(TypeBuilder tb) {
 	NodeFactory nf = tb.nodeFactory();
 	
         X10ConstructorDecl_c n = (X10ConstructorDecl_c) super.buildTypesOverride(tb);
@@ -195,8 +195,10 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
             ci.setTypeGuard(n.guard().typeConstraint());
         }
         
-        if (n.typeParameters().size() > 0)
-            throw new SemanticException("Constructors cannot have type parameters.", n.position());
+        if (n.typeParameters().size() > 0) {
+            Errors.issue(tb.job(), new SemanticException("Constructors cannot have type parameters.", n.position()));
+            n = (X10ConstructorDecl_c) n.typeParameters(Collections.<TypeParamNode>emptyList());
+        }
         
         List<LocalDef> formalNames = new ArrayList<LocalDef>(n.formals().size());
         for (Formal f : n.formals()) {
@@ -250,7 +252,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         X10Context xc = (X10Context) c;
         
         X10TypeSystem xts = (X10TypeSystem) c.typeSystem();
-        if (child == body) {
+        if (child == body || child == returnType || child == hasType || child == throwTypes || child == offerType || (formals != null && formals.contains(child))) {
         	c = PlaceChecker.pushHereIsThisHome(xc);
         }
         
@@ -479,20 +481,20 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         X10ConstructorDecl_c n = this;
         
         ThisChecker thisC = (ThisChecker) new ThisChecker(tc.job()).context(tc.context());
-       if (formals != null) {
-           visitList(formals, thisC);
-           if (thisC.error()) {
-                   throw new Errors.ThisNotPermittedInConstructorFormals(formals, position());
-           }
-       }
-       thisC.clearError();
-    
-       if (returnType != null) {
-           visitChild(returnType, thisC);
-           if (thisC.error()) {
-                   throw new Errors.ThisNotPermittedInConstructorReturnType(returnType, position());
-           }
-       }
+        if (formals != null) {
+            visitList(formals, thisC);
+            if (thisC.error()) {
+                throw new Errors.ThisNotPermittedInConstructorFormals(formals, position());
+            }
+        }
+        thisC.clearError();
+        
+        if (returnType != null) {
+            visitChild(returnType, thisC);
+            if (thisC.error()) {
+                throw new Errors.ThisNotPermittedInConstructorReturnType(returnType, position());
+            }
+        }
         
         for (TypeNode type : n.throwTypes()) {
             CConstraint rc = X10TypeMixin.xclause(type.type());
