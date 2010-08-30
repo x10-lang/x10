@@ -19,7 +19,7 @@ ifndef USE_GCC
   ifndef USE_XLC
     ifeq ($(shell uname -s),AIX)
       export USE_XLC=1
-    else 
+    else
       export USE_GCC=1
     endif
   endif
@@ -97,7 +97,7 @@ else
   # platform independent compiler flags and commands
   ifdef USE_GCC
     override CXX = g++
-    override MPICXX = mpicxx 
+    override MPICXX = mpicxx
     override SHLINK = g++
     ifdef OPTIMIZE
       override CXXFLAGS += -O2 -finline-functions
