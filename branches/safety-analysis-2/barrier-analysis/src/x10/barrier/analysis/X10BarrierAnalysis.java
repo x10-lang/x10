@@ -185,19 +185,21 @@ private Set retrieveClocks(int nodenum) {
 	    int index =  funName.lastIndexOf("x10");
 	    funName = "<async" + funName.substring(index + 3);
 	}
-	this.printInstructions(nodenum);
+	//this.printInstructions(nodenum);
 	
 	if (ir != null) {
 	   
 	    // original control flow graph
 	    ControlFlowGraph<SSAInstruction, ISSABasicBlock> cfg = ir
 		    .getControlFlowGraph();
+	    AstMethod method = (AstMethod)cfg.getMethod();
 	    
 	    // control flow graph without exception
 	    PrunedCFG<SSAInstruction, ISSABasicBlock> epcfg = MyExceptionPrunedCFG.make(cfg);
 	    //ControlFlowGraph<SSAInstruction, ISSABasicBlock> epcfg = cfg;
 	    if (epcfg != null) {
 			//System.out.println(epcfg);
+		
 		
 		State [] s = new State [epcfg.getMaxNumber() + 1];
 		
@@ -206,7 +208,7 @@ private Set retrieveClocks(int nodenum) {
 		    if (node == null)
 			continue;
 		    int startIndex = node.getFirstInstructionIndex();
-		    s[i] = new State(startIndex, -1, funName, amIClocked);
+		    s[i] = new State(startIndex, -1, funName, amIClocked, method);
 		}
 		for (int i = 0; i <= epcfg.getMaxNumber(); i++) {
 		        
@@ -225,7 +227,7 @@ private Set retrieveClocks(int nodenum) {
 		    	 SSAInstruction currInst = epcfg.getInstructions()[j];
 		    	
 		    	    if (currInst != null && currInst instanceof  SSANextInstruction && amIClocked) {
-		    		currState = new State(j, j, funName, amIClocked);
+		    		currState = new State(j, j, funName, amIClocked, method);
 
 		    		Edge e = new Edge(incomingState, currState, Edge.NEXT);
 		    		incomingState = currState; 
@@ -238,17 +240,17 @@ private Set retrieveClocks(int nodenum) {
 		    		Set<CGNode> asyncNodes = cg.getNodes(asyncSite.getDeclaredTarget());
 		    		for (CGNode asyncNode: asyncNodes) {
 		    		    Automaton asyncAutomaton = this.parseIR(asyncNode.getGraphNodeId(), clk, isAsyncClocked);
-		    		    State asyncState = new State (j, -1, funName, amIClocked);
+		    		    State asyncState = new State (j, -1, funName, amIClocked, method);
 		    		    new Edge (incomingState, asyncState, Edge.ASYNC);
 		    		 
-		    		    currState = new State(j, j, funName, amIClocked);
+		    		    currState = new State(j, j, funName, amIClocked, method);
 		    		    new Edge(asyncState, currState, Edge.PAR);
 		    		    new Edge (asyncState, asyncAutomaton.root, Edge.PAR);
 		    		    incomingState = currState; 
 		    		
 		    		}
 		    	    } else {
-		    		currState = new State(j, j, funName, amIClocked);
+		    		currState = new State(j, j, funName, amIClocked, method);
 		    		Edge e = new Edge(incomingState, currState, Edge.COND);
 		    		incomingState = currState; 
 		    		
@@ -268,7 +270,7 @@ private Set retrieveClocks(int nodenum) {
 		s[epcfg.exit().getNumber()].isTerminal = true;
 		s[epcfg.exit().getNumber()].set(-2, -1);
 		if (funName.contains("<async") && (amIClocked)) {
-		    State terminal = new State(-3, -1, funName, true);
+		    State terminal = new State(-3, -1, funName, true, method);
 		    s[epcfg.exit().getNumber()].isTerminal = false;
 		    terminal.isTerminal = true;
 		    new Edge(  s[epcfg.exit().getNumber()], terminal, Edge.NEXT); // add a next edge at the end of async
@@ -398,6 +400,7 @@ private Set retrieveClocks(int nodenum) {
 	
 	
 	//GraphUtil.printNumberedGraph(cg, "test");
+	System.out.println("ANALYZING " + testedFile.getName());
 	start2 = System.currentTimeMillis();
 	buildAutomata();
 	end2 = System.currentTimeMillis();

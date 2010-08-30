@@ -94,9 +94,8 @@ public class Automaton {
     public boolean isBlockPresent (State s, Set c) {
 	for (Object o : c) {
 	    State ss = (State) o;
-	    if (s.startInst >= ss.startInst && s.endInst <=  ss.endInst && (s.funName.contentEquals(ss.funName) 
-		    || s.funName.substring(1).contentEquals(ss.funName) || ss.funName.substring(1).contentEquals(s.funName))) 
-		return true;
+	    if (s.startInst >= ss.startInst && s.endInst <=  ss.endInst && (s.method.equals(ss.method)))
+		   return true;
 	}
 	return false;
     }
@@ -107,8 +106,7 @@ public class Automaton {
 		(s2.startInst >= s1.startInst && s2.endInst <= s1.endInst)  ||
 		s1.startInst == s2.endInst || s1.startInst == s2.endInst + 1 ||
 		s2.startInst == s1.endInst || s2.startInst == s1.endInst + 1)
-	     && (s1.funName.contentEquals(s2.funName) 
-		    || s1.funName.substring(1).contentEquals(s2.funName) || s1.funName.substring(1).contentEquals(s2.funName))) 
+	     && (s1.method.equals(s2.method))) 
 		return true;
 	 return false;
 	
@@ -130,7 +128,7 @@ public class Automaton {
 		if (this.isSubOrConsecutiveBlock(s1, s2)) {
 			int start = Math.min (s1.startInst, s2.startInst);
 		        int end = Math.max(s1.endInst, s2.endInst);
-		        State s = new State (start, end, s1.funName, false);
+		        State s = new State (start, end, s1.funName, false, s1.method);
 		        toRemove.add(s2);
 		        toRemove.add(s1);
 		        if (!this.isBlockPresent(s, toAdd))
@@ -203,7 +201,7 @@ public class Automaton {
    }
    
    
-   public ComposedState composeAgain(State sleft, State parState) {
+   public ComposedState composeWithPar(State sleft, State parState) {
          int i = 0;
 	 State s1 = null, s2 = null; 
 
@@ -340,13 +338,13 @@ public class Automaton {
 	 visitedStates.add(s);
 	 if (this.isPar(s1)) {
 	       //System.out.println("prev" + prev.stateInsts());
-	     	State child =  this.composeAgain(s2, s1);
+	     	State child =  this.composeWithPar(s2, s1);
 	     	new Edge (s, child, Edge.COND);
 
 	 }
 	 else if (this.isPar(s2)) {
 	     //System.out.println("prev" + prev.stateInsts());
-	     	State child = composeAgain(s1, s2);
+	     	State child = composeWithPar(s1, s2);
 	     	new Edge (s, child, Edge.COND);
 	 }
 	 
@@ -443,27 +441,6 @@ public class Automaton {
 
     }
     
-    public void parallelStatementsof(State head, State state) {
-	if (this.visitedLocalStates.contains(head)) 
-	    return;
-	this.visitedLocalStates.add(head);
-	for (Object o: head.outgoingEdges) {
-	    Edge e = (Edge) o;
-	    if (e.type == Edge.COND) {
-		for (Object oo : ((ComposedState) e.to).states) {
-		    State s = (State) oo;
-			    if (! (s.endInst == -1)) {
-				state.addParallelBlock(s);
-			        s.addParallelBlock(state);
-			    }
-		}
-		parallelStatementsof(e.to, state);
-	    }
-	    
-	}
-	
-	
-    }
     
     /* What blocks may happen in parallel with states of h? */
     public void mayHappenInParallel(State h) {
@@ -484,7 +461,7 @@ public class Automaton {
 			ss.addParallelBlock(s);
 		    }
 	    }
-	    this.parallelStatementsof(head, s);
+	    //this.parallelStatementsof(head, s);
 	}
 	for (Object o: head.outgoingEdges) {
 	    this.mayHappenInParallel(((Edge) o).to);

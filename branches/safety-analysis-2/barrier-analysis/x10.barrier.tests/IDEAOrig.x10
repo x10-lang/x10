@@ -246,7 +246,7 @@ class IDEAOrigTest {
 	 
 	private def cipher_idea(text1: Rail[Int]!, text2: Rail[Int]!, key: Rail[Int]!)  {
 		val c = new Clock();
-for ((i) in 0..(text1.length)/8 - 1) async clocked(c) {
+	for ((i) in 0..(text1.length)/8 - 1) async clocked(c) {
 			val itmp = i * 8;
 			{
 	
