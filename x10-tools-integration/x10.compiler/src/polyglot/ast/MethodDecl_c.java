@@ -168,7 +168,7 @@ public class MethodDecl_c extends Term_c implements MethodDecl
 	return body == n.body ? n : n.body(body);
     }
 
-    public Node buildTypesOverride(TypeBuilder tb) throws SemanticException {
+    public Node buildTypesOverride(TypeBuilder tb) {
         TypeSystem ts = tb.typeSystem();
 
         ClassDef ct = tb.currentClass();

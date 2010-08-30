@@ -42,9 +42,9 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
     }
 
     @Override
-    public Node buildTypesOverride(TypeBuilder tb) throws SemanticException {
+    public Node buildTypesOverride(TypeBuilder tb) {
         assert tb.currentClass() != null;
-	PropertyDecl_c n = (PropertyDecl_c) super.buildTypesOverride(tb);
+        PropertyDecl_c n = (PropertyDecl_c) super.buildTypesOverride(tb);
         X10FieldDef fi = (X10FieldDef) n.fieldDef();
         fi.setProperty();
         
