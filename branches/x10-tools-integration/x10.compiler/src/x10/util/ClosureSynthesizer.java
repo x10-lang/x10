@@ -31,6 +31,7 @@ import polyglot.types.Types;
 import polyglot.types.MethodInstance;
 import polyglot.util.Position;
 import x10.ast.Closure;
+import x10.ast.ClosureCall;
 import x10.ast.X10NodeFactory;
 import x10.ast.X10Local_c;
 import x10.constraint.XName;
@@ -305,7 +306,7 @@ public class ClosureSynthesizer {
         List<LocalDef> formalNames = xts.dummyLocalDefs(argTypes);
         X10MethodDef mi = xts.methodDef(pos, Types.ref(ct),
         		Flags.PUBLIC.Abstract(), Types.ref(rt),
-        		Name.make("apply"), 
+        		ClosureCall.APPLY, 
         		typeParams, 
         		argTypes, 
         		thisVar,

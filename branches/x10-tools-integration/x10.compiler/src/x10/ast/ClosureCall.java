@@ -16,9 +16,14 @@ import java.util.List;
 import polyglot.ast.Expr;
 import polyglot.ast.ProcedureCall;
 import polyglot.ast.TypeNode;
+import polyglot.types.Name;
 import x10.types.X10MethodInstance;
 
 public interface ClosureCall extends Expr, X10ProcedureCall {
+
+    /** The name of the method to use for closure invocations */
+    public static final Name APPLY = Name.make("apply");
+
     /**
      * @return the target of this closure invocation, which should be an expression
      * of type <code>ClosureType</code>.
@@ -26,10 +31,20 @@ public interface ClosureCall extends Expr, X10ProcedureCall {
     Expr target();
 
     /**
-     * @return a new ClosureInvocation like the receiver, but with the given target.
+     * @return a new closure invocation like the receiver, but with the given target.
      */
     ClosureCall target(Expr target);
-    
+
+    /**
+     * @return the arguments of this closure invocation.
+     */
+    List<Expr> arguments();
+
+    /**
+     * @return a new closure invocation like the receiver, but with the given arguments.
+     */
+    ClosureCall arguments(List<Expr> arguments);
+
  //   List<TypeNode> typeArgs();
  //   ClosureCall typeArgs(List<TypeNode> typeArgs);
 
