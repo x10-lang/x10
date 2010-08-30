@@ -7,10 +7,8 @@
 		<p2.mirror destination="file:${repoBaseLocation}/mirror">
 			<source>
 				<repository location="${lpg.update.url}" />
-				<repository location="${polyglot.update.url}" />
 			</source>
 			<iu id="lpg.runtime.feature.group" version="${lpg.version}" />
-			<iu id="polyglot3.feature.group" version="${polyglot.version}" />
 
 			<slicingOptions followStrict="true" includeOptional="false" />
 		</p2.mirror>

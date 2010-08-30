@@ -13,14 +13,13 @@
       <isset property="build.qualifier" />
     </not>
   </condition>
-  <path id="polyglot-lpg.path.ref">
-    <fileset dir="${build.folder}/dependencies/repos/mirror/plugins" includes="polyglot3_*.jar" />
+  <path id="lpg.path.ref">
     <fileset dir="${build.folder}/dependencies/repos/mirror/plugins" includes="lpg.runtime_*.jar" />
     <fileset dir="${build.folder}/dependencies/repos/mirror/plugins" includes="lpg.runtime.java_*.jar" />
   </path>
   <!-- For building with build files in X10 plugins -->
   <property name="eclipse.target.platform" value="../../eclipse" />
-  <property name="x10.compiler.extra.build.path" value="${toString:polyglot-lpg.path.ref}" />
+  <property name="x10.compiler.extra.build.path" value="${toString:lpg.path.ref}" />
 
   <target name="x10-checkouts-existence">
     <condition property="are-plugins-present">
@@ -38,16 +37,24 @@
 
   <target name="x10-checkouts" depends="x10-checkouts-existence" unless="are-plugins-present">
     <svn username="anonymous">
-      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/${x10.tag}/x10.compiler" revision="${x10.revision}" destPath="${x10-build-loc}/x10.compiler" />
-      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/${x10.tag}/x10.common" revision="${x10.revision}" destPath="${x10-build-loc}/x10.common" />
-      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/${x10.tag}/x10.constraints" revision="${x10.revision}" destPath="${x10-build-loc}/x10.constraints" />
-      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/${x10.tag}/x10.runtime" revision="${x10.revision}" destPath="${x10-build-loc}/x10.runtime" />
-      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/${x10.tag}/x10.dist" revision="${x10.revision}" destPath="${x10-build-loc}/x10.dist" />
+      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/${x10.tag}/x10.compiler" revision="${x10.revision}" 
+                destPath="${x10-build-loc}/x10.compiler" />
+      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/${x10.tag}/x10.common" revision="${x10.revision}" 
+                destPath="${x10-build-loc}/x10.common" />
+      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/${x10.tag}/x10.constraints" revision="${x10.revision}" 
+                destPath="${x10-build-loc}/x10.constraints" />
+      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/${x10.tag}/x10.runtime" revision="${x10.revision}" 
+                destPath="${x10-build-loc}/x10.runtime" />
+      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/${x10.tag}/x10.dist" revision="${x10.revision}" 
+                destPath="${x10-build-loc}/x10.dist" />
 
-      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/org.eclipse.imp.x10dt.update" revision="${x10dt.revision}" destPath="${x10-build-loc}/org.eclipse.imp.x10dt.update" />
-      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/org.eclipse.imp.x10dt.feature" revision="${x10dt.revision}" destPath="${x10-build-loc}/org.eclipse.imp.x10dt.feature" />
+      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/org.eclipse.imp.x10dt.update" 
+                revision="${x10dt.revision}" destPath="${x10-build-loc}/org.eclipse.imp.x10dt.update" />
+      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/org.eclipse.imp.x10dt.feature" 
+                revision="${x10dt.revision}" destPath="${x10-build-loc}/org.eclipse.imp.x10dt.feature" />
 
-      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10.dist.host" revision="${x10dt.revision}" destPath="${x10-build-loc}/x10.dist.host" />
+      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10.dist.host" 
+                revision="${x10dt.revision}" destPath="${x10-build-loc}/x10.dist.host" />
     </svn>
   </target>
 
@@ -100,7 +107,7 @@
   </target>
 
   <target name="build" depends="check-build-required" unless="x10.dist.available">
-    <ant antfile="${x10-build-loc}/x10.constraints/exportPlugin.xml" dir="${x10-build-loc}/x10.constraints" target="build.jars" />
+    <ant antfile="${x10-build-loc}/x10.constraints/exportPlugin.xml" dir="${x10-build-loc}/x10.constraints" target="build.jars"/>
     <ant antfile="${x10-build-loc}/x10.common/exportPlugin.xml" dir="${x10-build-loc}/x10.common" target="build.jars" />
     <ant antfile="${x10-build-loc}/x10.compiler/exportPlugin.xml" dir="${x10-build-loc}/x10.compiler" target="build.jars">
       <property name="extra.build.path" value="${x10.compiler.extra.build.path}" />
@@ -136,33 +143,33 @@
   </target>
 
   <target name="transfer">
-    <property name="dist.file" value="${x10.build.base}/${svn.info.rev}/x10-tib_${svn.info.rev}_${os}.tgz" />
+    <property name="dist.file" value="${x10.build.base}/${svn.info.lastRev}/x10-tib_${svn.info.lastRev}_${os}.tgz" />
     <fail message="Could not find ${dist.file}">
       <condition>
         <resourcecount when="greater" count="0">
           <restrict>
             <exists xmlns="antlib:org.apache.tools.ant.types.resources.selectors" />
-            <fileset dir="${x10.build.base}/${svn.info.rev}">
-              <include name="x10-tlib_${svn.info.rev}_${os}.tgz" />
+            <fileset dir="${x10.build.base}/${svn.info.lastRev}">
+              <include name="x10-tlib_${svn.info.lastRev}_${os}.tgz" />
             </fileset>
           </restrict>
         </resourcecount>
       </condition>
     </fail>
-    <untar src="${dist.file}" dest="/tmp/x10-tlib_${svn.info.rev}_${os}" compression="gzip" />
-    <property name="fragment-dir-name" value="${fragment-name}_${zip.release.tag}.${build.qualifier}" />
+    <untar src="${dist.file}" dest="/tmp/x10-tlib_${svn.info.lastRev}_${os}" compression="gzip" />
+    <property name="fragment-dir-name" value="${fragment-name}_2.0.5.${build.qualifier}" />
     <svn username="anonymous">
       <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/${fragment-name}" 
                 revision="${x10dt.revision}" destPath="${transformedRepoLocation}/plugins/${fragment-dir-name}" />
     </svn>
 
     <copy todir="${transformedRepoLocation}/plugins/${fragment-dir-name}">
-      <fileset dir="/tmp/x10-tlib_${svn.info.rev}_${os}">
+      <fileset dir="/tmp/x10-tlib_${svn.info.lastRev}_${os}">
         <include name="include/**" />
         <include name="lib/**" />
       </fileset>
     </copy>
-    <delete dir="/tmp/x10-tlib_${svn.info.rev}_${os}" />
+    <delete dir="/tmp/x10-tlib_${svn.info.lastRev}_${os}" />
     <delete includeemptydirs="true">
       <fileset dir="${transformedRepoLocation}/plugins/${fragment-dir-name}" defaultexcludes="false">
         <exclude name="lib/**" />
@@ -173,7 +180,7 @@
     <loadfile srcfile="${transformedRepoLocation}/plugins/${fragment-dir-name}/META-INF/MANIFEST.MF" 
               property="file.replaced">
       <filterchain>
-         <replaceregex pattern="Bundle-Version: (.*)\.qualifier" replace="Bundle-Version: \1.${build.qualifier}"/>
+        <replaceregex pattern="Bundle-Version: (.*)\.qualifier" replace="Bundle-Version: \1.${build.qualifier}"/>
       </filterchain>
     </loadfile>
     <echo message="${file.replaced}" file="${transformedRepoLocation}/plugins/${fragment-dir-name}/META-INF/MANIFEST.MF"/>
@@ -210,7 +217,6 @@
     <ant antfile="${x10-build-loc}/x10.dist/build.xml" dir="${x10-build-loc}/x10.dist" target="squeakyclean" />
     <ant antfile="${x10-build-loc}/x10.dist/build.xml" dir="${x10-build-loc}/x10.dist" target="bin" />
     <ant antfile="${x10-build-loc}/x10.dist/build.xml" dir="${x10-build-loc}/x10.dist" target="ecj-jar" />
-    <ant antfile="${x10-build-loc}/x10.dist/build.xml" dir="${x10-build-loc}/x10.dist" target="polyglot-jar" />
     <ant antfile="${x10-build-loc}/x10.dist/build.xml" dir="${x10-build-loc}/x10.dist" target="lpg-jar" />
     <ant antfile="${x10-build-loc}/x10.dist/build.xml" dir="${x10-build-loc}/x10.dist" target="compiler-jar" />
   </target>
@@ -218,12 +224,20 @@
   <target name="main">
     <antcall target="x10-checkouts" />
     <antcall target="build" />
-    <!--    <svn>
-          <info target="http://x10.svn.sourceforge.net/svnroot/x10/branches/x10-tools-integration"/>
-        </svn> -->
-    <antcall target="transfer-all">
-      <param name="svn.info.rev" value="15566" />
-    </antcall>
+    <svn>
+      <info target="https://x10.svn.sourceforge.net/svnroot/x10/${x10.tag}"/>
+    </svn>
+    <fail message="Could not find directory ${x10.build.base}/${svn.info.lastRev}">
+      <condition>
+        <resourcecount when="greater" count="0">
+          <restrict>
+            <exists xmlns="antlib:org.apache.tools.ant.types.resources.selectors" />
+            <fileset dir="${x10.build.base}" includes="${svn.info.lastRev}" />
+          </restrict>
+        </resourcecount>
+      </condition>
+    </fail>
+    <antcall target="transfer-all" />
   </target>
 
 </project>

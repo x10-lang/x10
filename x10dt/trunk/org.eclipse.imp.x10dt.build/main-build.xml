@@ -117,6 +117,26 @@
       </fileset>
     </delete>
   </target>
+  
+  <target name="deploy-or-clean-release-if" if="release">
+      <property name="target.folder" value="${releases.folder}/${buildLabel}"/>
+      <mkdir dir="${target.folder}"/>
+      <copy todir="${target.folder}">
+        <fileset dir="${x10dtBuildDirectory}/${buildLabel}">
+          <include name="*.zip"/>
+        </fileset>
+      </copy>
+    </target>
+  
+  <target name="deploy-or-clean-release-else">
+    <delete includeemptydirs="true">
+      <fileset dir="${x10dtBuildDirectory}/${buildLabel}">
+        <include name="*.zip"/>
+      </fileset>
+    </delete>
+  </target>
+  
+  <target name="deploy-or-clean-release" depends="deploy-or-clean-release-if,deploy-or-clean-release-else"/>
 
   <!--- Testing tasks -->
 
@@ -277,7 +297,6 @@
           <include name="org.junit_4*/junit.jar"/>
           <include name="lpg*.jar"/>
           <include name="org.hamcrest.core_*.jar"/>
-          <include name="polyglot*.jar"/>
           <include name="x10.compiler_*.jar"/>
           <include name="x10.constraints_*.jar"/>
           <include name="x10.common_*.jar"/>
@@ -314,11 +333,11 @@
   </target>
 
   <target name="run-all-tests" if="testing">
-    <antcall target="run-tests">
+<!--    <antcall target="run-tests">
       <param name="plugin-name" value="org.eclipse.imp.x10dt.core.tests" />
       <param name="activityId" value="test-x10dt-core" />
       <param name="action.message" value="Run X10DT Core Tests..." />
-    </antcall>
+    </antcall> -->
     <antcall target="run-tests">
       <param name="plugin-name" value="org.eclipse.imp.x10dt.ui.tests" />
       <param name="activityId" value="test-x10dt-ui" />
@@ -347,8 +366,8 @@
     <ant antfile="get-eclipse.xml" />
 
     <antcall target="run-with-pde-build">
-      <param name="action.message" value="Get LPG and Polyglot..." />
-      <param name="activityId" value="download-lpg-polyglot" />
+      <param name="action.message" value="Get LPG..." />
+      <param name="activityId" value="download-lpg" />
       <param name="xml.file" value="dependencies-repo.xml" />
     </antcall>
 
@@ -364,7 +383,7 @@
       <param name="activityId" value="build-x10dt-dist" />
       <param name="xml.file" value="x10dt-build.xml" />
     </antcall>
-
+    
     <antcall target="publish-compilation-results"/>
     <antcall target="publishLink">
       <param name="link.url" value="http://orquesta.watson.ibm.com/x10dt/2.0/x10dt-update-site-${zip.release.tag}-${buildLabel}.zip"/>
@@ -379,6 +398,8 @@
     <antcall target="run-all-tests" />
 
     <antcall target="post-build-cleaning"/>
+    
+    <antcall target="deploy-or-clean-release"/>
   </target>
 
 </project>

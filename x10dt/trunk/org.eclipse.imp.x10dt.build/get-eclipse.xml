@@ -1,5 +1,6 @@
 <project name="X10DT Release Build Setup" basedir="." default="main">
 
+  <import file="utilities.xml" />
   <property file="common.properties" />
 
   <target name="check-eclipse-existence">

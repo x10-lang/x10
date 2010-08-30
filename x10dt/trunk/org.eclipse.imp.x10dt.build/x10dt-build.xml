@@ -45,7 +45,7 @@
       <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/org.eclipse.imp.x10dt.ui.launch.java" 
                 revision="${x10dt.revision}" destPath="${build.folder}/org.eclipse.imp.x10dt.ui.launch.java" />
       <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10.effects" 
-                revision="${x10dt.revision}" destPath="${build.folder}/x10.effects" />       
+                revision="${x10dt.revision}" destPath="${build.folder}/x10.effects" />
     </svn>
   </target>
 
@@ -67,6 +67,14 @@
   </target>
 
   <target name="main" depends="x10dt-checkouts">
+    <loadfile srcfile="${build.folder}/org.eclipse.imp.x10dt/plugin.properties" property="properties.replaced">
+      <filterchain>
+        <replaceregex pattern="Version: (.*)" replace="Version: ${zip.release.tag}\\\\n\\\\" />
+        <replaceregex pattern="Build Id: (.*)" replace="Build Id: ${buildLabel}\\\\n\\\\" />
+      </filterchain>
+    </loadfile>
+    <echo message="${properties.replaced}" file="${build.folder}/org.eclipse.imp.x10dt/plugin.properties" />
+    
     <ant antfile="${eclipse.pdebuild.scripts}/productBuild/productBuild.xml" />
     <antcall target="publish-update-site" />
   </target>
