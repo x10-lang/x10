@@ -138,7 +138,7 @@ echo "Using revision $rev"
 echo "Building on hosts: $hosts"
 echo "Using user ID $userID"
 
-ssh ${userID}@orquesta.watson.ibm.com "mkdir -p $tarballDest/$rev"
+ssh ${userID}@orquesta.watson.ibm.com "mkdir -p $tarballDest/$rev; chmod go+rx $tarballDest/$rev"
 
 for host in $hosts
 do
@@ -153,10 +153,14 @@ do
     rc=$?
     ssh ${userID}@$host "(cd /tmp; rm ./buildToolIntegration.sh)"
     if [[ $rc == 0 && -z "$noTransfer" ]]; then
-        echo "Transferring file from $host to localhost"
+        echo "Transferring file from $host to localhost..."
         scp "${userID}@$host:$remoteTmpDir/x10/x10.dist/x10-tib*.tgz" .
-        echo "Transferring from localhost to orquesta"
+        echo "Transferring from localhost to orquesta..."
         scp x10-tib_*.tgz ${userID}@orquesta.watson.ibm.com:$tarballDest/$rev
+	echo "Transfer complete."
+	echo -n "Setting tarball permissions..."
+	ssh ${userID}@orquesta.watson.ibm.com "chmod go+r $tarballDest/$rev/*.tgz"
+	echo "done."
         rm x10-tib_*.tgz
         #ssh $host rm -rf $remoteTmpDir
     fi ) > ${logFile} 2>&1 &
