@@ -42,7 +42,7 @@
             </separator>
          </menu>
          <action
-               label="Enable Builder"
+               label="Enable Java Back-end Builder"
                icon="icons/builderEnable.gif"
                tooltip="Enable the X10 Compiler for this project"
                class="org.eclipse.imp.x10dt.ui.launch.java.actions.BuilderEnable"
