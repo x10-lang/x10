@@ -1,10 +1,12 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: X10 Development Toolkit
-Bundle-SymbolicName: org.eclipse.imp.x10dt
+Bundle-Localization: plugin
+Bundle-SymbolicName: org.eclipse.imp.x10dt;singleton:=true
 Bundle-Version: 2.0.6.qualifier
 Bundle-Activator: org.eclipse.imp.x10dt.Activator
 Bundle-Vendor: x10-users@lists.sourceforge.net
 Bundle-Localization: plugin
-Require-Bundle: org.eclipse.core.runtime
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.ui
 Eclipse-LazyStart: true
