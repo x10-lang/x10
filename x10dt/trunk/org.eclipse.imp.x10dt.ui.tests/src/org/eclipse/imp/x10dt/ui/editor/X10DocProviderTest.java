@@ -1,34 +1,13 @@
 package org.eclipse.imp.x10dt.ui.editor;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.Arrays;
-import java.util.Collection;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 import junit.framework.Assert;
-import junitx.util.PrivateAccessor;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.imp.language.ServiceFactory;
-import org.eclipse.imp.parser.ISourcePositionLocator;
-import org.eclipse.imp.services.IReferenceResolver;
-import org.eclipse.imp.x10dt.ui.X10DTUIPlugin;
-import org.eclipse.jface.text.BadLocationException;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
-import org.osgi.framework.Bundle;
 
 @SuppressWarnings( { "unused" })
 public class X10DocProviderTest {
@@ -38,13 +17,25 @@ public class X10DocProviderTest {
 	private static String NEWLINE;
 	private static String PARA;
 
+	public static Object getPrivateField(Object o, String fieldName) throws Exception {
+	    Field f= o.getClass().getField(fieldName);
+	    f.setAccessible(true);
+	    return f.get(o);
+	}
+
+	public static Object invokePrivate(Object o, String methodName, Class<?>[] formalTypes, Object[] actualParms) throws Exception {
+	    Method m= o.getClass().getMethod(methodName, formalTypes);
+	    m.setAccessible(true);
+	    return m.invoke(o, actualParms);
+	}
+
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		dp = new X10DocProvider();
-		BOLD = (String) PrivateAccessor.getField(dp, "BOLD");
-		UNBOLD = (String) PrivateAccessor.getField(dp, "UNBOLD");
-		NEWLINE = (String) PrivateAccessor.getField(dp, "NEWLINE");
-		PARA = (String) PrivateAccessor.getField(dp, "PARA");
+		BOLD = (String) getPrivateField(dp, "BOLD");
+		UNBOLD = (String) getPrivateField(dp, "UNBOLD");
+		NEWLINE = (String) getPrivateField(dp, "NEWLINE");
+		PARA = (String) getPrivateField(dp, "PARA");
 	}
 
 	@AfterClass
@@ -54,7 +45,7 @@ public class X10DocProviderTest {
 	@Test
 	public void testAddNameToDoc() throws Throwable {
 
-		String doc = (String) PrivateAccessor.invoke(dp, "addNameToDoc",
+		String doc = (String) invokePrivate(dp, "addNameToDoc",
 				new Class[] { String.class, String.class }, new Object[] {
 						new String("name"), new String("doc") });
 
@@ -62,7 +53,7 @@ public class X10DocProviderTest {
 				"Incorrect format string produced for non-null doc", BOLD
 						+ "name" + UNBOLD + PARA + "doc" + PARA, doc);
 
-		String emptyDoc = (String) PrivateAccessor.invoke(dp, "addNameToDoc",
+		String emptyDoc = (String) invokePrivate(dp, "addNameToDoc",
 				new Class[] { String.class, String.class }, new Object[] {
 						new String("name"), null });
 
