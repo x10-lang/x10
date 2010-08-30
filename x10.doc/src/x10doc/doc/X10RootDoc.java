@@ -174,8 +174,8 @@ public class X10RootDoc extends X10Doc implements RootDoc {
 		this.specPackages.put(pd.name(), pd);
 	}
 
-	public X10PackageDoc createPackage(String pkgName) {
-		X10PackageDoc pd = new X10PackageDoc(pkgName);
+	public X10PackageDoc createPackage(String pkgName, String path) {
+		X10PackageDoc pd = new X10PackageDoc(pkgName, path);
 		otherPackages.put(pkgName, pd);
 		return pd;
 	}
@@ -453,10 +453,10 @@ public class X10RootDoc extends X10Doc implements RootDoc {
 		return otherPackages.get(arg0);
 	}
 
-	public X10PackageDoc getPackage(Ref<? extends Package> pkg) {
+	public X10PackageDoc getPackage(Ref<? extends Package> pkg, String path) {
 		String pkgName = ((pkg == null) ? "unknown" : pkg.toString());
 		X10PackageDoc pd = (X10PackageDoc) packageNamed(pkgName);
-		return ((pd == null) ? createPackage(pkgName) : pd); 
+		return ((pd == null) ? createPackage(pkgName, path) : pd); 
 	}
 	
 	/**
