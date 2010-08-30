@@ -5,6 +5,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.ibm.wala.cast.loader.AstMethod;
+
 class State implements Cloneable {
     int startInst;
     int endInst;
@@ -17,6 +19,7 @@ class State implements Cloneable {
     Set parallelBlocks = new HashSet();
     boolean isClocked = false;
     State clone;
+    AstMethod method;
     
     
     public State () {
@@ -38,8 +41,6 @@ class State implements Cloneable {
     }
     
     public void  addParallelBlock(State s) {
-	if (this.funName.contentEquals(s.funName))
-	    return;
 	for (Object o: this.parallelBlocks) {
 	    if (s.isEqualOrCopy((State) o))
 		return;
@@ -47,11 +48,12 @@ class State implements Cloneable {
 	this.parallelBlocks.add(s);
     }
     
-    public State(int startInstruction, int endInstruction, String funcName, boolean clocked) {
+    public State(int startInstruction, int endInstruction, String funcName, boolean clocked, AstMethod m) {
 	startInst = startInstruction;
 	endInst = endInstruction;
 	funName = funcName;
 	isClocked = clocked;
+	method = m;
     }
     
     
@@ -84,7 +86,19 @@ class State implements Cloneable {
     }
     
     public String stateInsts() {
-	return "[" + this.startInst + ":" + this.endInst + "](" + funName + ")" + " "; //+ this.counter;
+	//return "[" + this.startInst + ":" + this.endInst + "](" + funName + ")" + " "; //+ this.counter;
+	int start, end;
+	if (startInst == 0)
+	    start = 1;
+	else start = startInst;
+
+	int sl = method.getSourcePosition(start).getFirstLine();
+	int sc = method.getSourcePosition(start).getFirstCol();
+	
+	int el = method.getSourcePosition(endInst).getLastLine();
+	int ec = method.getSourcePosition(endInst).getLastCol();
+	
+	return "[" + sl + ":" + sc + "->" + el + ":" + ec + "](" + funName + ")" + " ";
     }
     
     public String toString() {
