@@ -27,7 +27,7 @@ class XTENLANG_52 extends x10Test {
     
         incomplete public def get(): R(rank);
     
-        val rs: Rail[R] = [get()];
+        val rs: ValRail[R] = [get()];
         //workaround: val rs:Rail[R] = ValRail.make[R](1, (int)=&gt;get());
     
         protected def this(rank:int) = property(rank);
