@@ -55,6 +55,62 @@ void x10rt_net_finalize (void)
 int x10rt_net_supports (x10rt_opt o)
 {
     switch (o) {
-        default: return 1;
+        default: return 0;
     }
+}
+
+void x10rt_net_team_new (x10rt_place placec, x10rt_place *placev,
+                         x10rt_completion_handler2 *ch, void *arg)
+{
+    stub();
+}
+
+void x10rt_net_team_del (x10rt_team team, x10rt_place role,
+                         x10rt_completion_handler *ch, void *arg)
+{
+    stub();
+}
+
+x10rt_place x10rt_net_team_sz (x10rt_team team)
+{
+    stub();
+}
+
+void x10rt_net_team_split (x10rt_team parent, x10rt_place parent_role,
+                           x10rt_place color, x10rt_place new_role,
+                           x10rt_completion_handler2 *ch, void *arg)
+{
+    stub();
+}
+
+void x10rt_net_barrier (x10rt_team team, x10rt_place role,
+                        x10rt_completion_handler *ch, void *arg)
+{
+    stub();
+}
+
+void x10rt_net_bcast (x10rt_team team, x10rt_place role,
+                      x10rt_place root, const void *sbuf, void *dbuf,
+                      size_t el, size_t count,
+                      x10rt_completion_handler *ch, void *arg)
+{
+    stub();
+}
+
+void x10rt_net_alltoall (x10rt_team team, x10rt_place role,
+                         const void *sbuf, void *dbuf,
+                         size_t el, size_t count,
+                         x10rt_completion_handler *ch, void *arg)
+{
+    stub();
+}
+
+void x10rt_net_allreduce (x10rt_team team, x10rt_place role,
+                          const void *sbuf, void *dbuf,
+                          x10rt_red_op_type op,
+                          x10rt_red_type dtype,
+                          size_t count,
+                          x10rt_completion_handler *ch, void *arg)
+{
+    stub();
 }

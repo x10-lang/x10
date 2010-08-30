@@ -1,6 +1,8 @@
 #include <cstdlib>
-#include <cstdio>
 #include <cstring>
+
+#include <iostream>
+#include <iomanip>
 
 #include <x10rt_front.h>
 
@@ -27,7 +29,7 @@ bool finished = false;
 static void recv_msg_ping (const x10rt_msg_params *p)
 {
     if (validate && (p->len > 0) && memcmp(buf, (const char*)p->msg, p->len)) {
-        fprintf(stderr, "\nReceived scrambled ping message (len: %lu).\n", p->len);
+        std::cerr << "\nReceived scrambled ping message (len: "<<p->len<<")." << std::endl;
         abort();
     }
     x10rt_msg_params p2 = {0, PONG_ID, p->msg, p->len};
@@ -37,7 +39,7 @@ static void recv_msg_ping (const x10rt_msg_params *p)
 static void recv_msg_pong (const x10rt_msg_params *p)
 {
     if (validate && (p->len > 0) && memcmp(buf, (const char*)p->msg, p->len)) {
-        fprintf(stderr, "\nReceived scrambled pong message (len: %lu).\n", p->len);
+        std::cerr << "\nReceived scrambled pong message (len: "<<p->len<<")." << std::endl;
         abort();
     }
     pongs_outstanding--;
@@ -45,29 +47,29 @@ static void recv_msg_pong (const x10rt_msg_params *p)
 
 
 // {{{ put handlers
-static void *recv_put_ping_hh (const x10rt_msg_params *, unsigned long len)
+static void *recv_put_ping_hh (const x10rt_msg_params *, x10rt_copy_sz len)
 {
     if(validate) memset(ping_buf, 0, len);
     return ping_buf;
 }
-static void recv_put_ping (const x10rt_msg_params *p, unsigned long len)
+static void recv_put_ping (const x10rt_msg_params *p, x10rt_copy_sz len)
 {
     if (validate && (p->len > 0) && memcmp(buf, ping_buf, len)) {
-        fprintf(stderr, "\nReceived scrambled ping message (len: %lu).\n", p->len);
+        std::cerr << "\nReceived scrambled ping message (len: "<<p->len<<")." << std::endl;
         abort();
     }
     x10rt_msg_params p2 = {0, PONG_PUT_ID, NULL, 0};
     x10rt_send_put(&p2, buf, len);
 }
 
-static void *recv_put_pong_hh (const x10rt_msg_params *, unsigned long)
+static void *recv_put_pong_hh (const x10rt_msg_params *, x10rt_copy_sz)
 {
     return pong_buf;
 }
-static void recv_put_pong (const x10rt_msg_params *p, unsigned long)
+static void recv_put_pong (const x10rt_msg_params *p, x10rt_copy_sz)
 {
     if (validate && (p->len > 0) && memcmp(buf, pong_buf, p->len)) {
-        fprintf(stderr, "\nReceived scrambled pong message (len: %lu).\n", p->len);
+        std::cerr << "\nReceived scrambled pong message (len: "<<p->len<<")." << std::endl;
         abort();
     }
     pongs_outstanding--;
@@ -75,14 +77,14 @@ static void recv_put_pong (const x10rt_msg_params *p, unsigned long)
 
 
 // {{{ get handlers
-static void *recv_get_ping_hh (const x10rt_msg_params *, unsigned long)
+static void *recv_get_ping_hh (const x10rt_msg_params *, x10rt_copy_sz)
 {
     return buf;
 }
-static void recv_get_ping (const x10rt_msg_params *p, unsigned long len)
+static void recv_get_ping (const x10rt_msg_params *p, x10rt_copy_sz len)
 {
     if (validate && (p->len > 0) && memcmp(buf, ping_buf, len)) {
-        fprintf(stderr, "\nReceived scrambled ping message (len: %lu).\n", p->len);
+        std::cerr << "\nReceived scrambled ping message (len: "<<p->len<<")." << std::endl;
         abort();
     }
     // send to dest place again
@@ -90,14 +92,14 @@ static void recv_get_ping (const x10rt_msg_params *p, unsigned long len)
     x10rt_send_get(&p2, pong_buf, len);
 }
 
-static void *recv_get_pong_hh (const x10rt_msg_params *, unsigned long)
+static void *recv_get_pong_hh (const x10rt_msg_params *, x10rt_copy_sz)
 {
     return buf;
 }
-static void recv_get_pong (const x10rt_msg_params *p, unsigned long len)
+static void recv_get_pong (const x10rt_msg_params *p, x10rt_copy_sz len)
 {
     if (validate && (p->len > 0) && memcmp(buf, pong_buf, len)) {
-        fprintf(stderr, "\nReceived scrambled pong message (len: %lu).\n", p->len);
+        std::cerr << "\nReceived scrambled pong message (len: "<<p->len<<")." << std::endl;
         abort();
     }
     pongs_outstanding--;
@@ -108,26 +110,26 @@ void recv_quit(const x10rt_msg_params *) { finished = true; }
 
 
 // {{{ show_help
-void show_help(FILE *out, char* name)
+void show_help(std::ostream &out, char* name)
 {
     if (x10rt_here()!=0) return;
-    fprintf(out,"Usage: %s <args>\n", name);
-    fprintf(out,"-h (--help)        ");
-    fprintf(out,"this message\n");
-    fprintf(out,"-l (--length) <n>      ");
-    fprintf(out,"size of individual message\n");
-    fprintf(out,"-w (--window) <n>       ");
-    fprintf(out,"number of pongs to wait for in parallel (window size)\n");
-    fprintf(out,"-i (--iterations) <n>  ");
-    fprintf(out,"top-level iterations (round trips)\n");
-    fprintf(out,"-v (--validate)    ");
-    fprintf(out,"check whether messages are mangled in transit\n");
-    fprintf(out,"-p (--put)    ");
-    fprintf(out,"use x10rt_send_put instead of x10rt_send_msg\n");
-    fprintf(out,"-g (--get)    ");
-    fprintf(out,"use x10rt_send_get instead of x10rt_send_msg\n");
-    fprintf(out,"-a (--auto)    ");
-    fprintf(out,"test a variety of --length and --window\n");
+    out << "Usage: "<<name<<" <args>\n"
+        << "-h (--help)        "
+        << "this message\n"
+        << "-l (--length) <n>      "
+        << "size of individual message\n"
+        << "-w (--window) <n>       "
+        << "number of pongs to wait for in parallel (window size)\n"
+        << "-i (--iterations) <n>  "
+        << "top-level iterations (round trips)\n"
+        << "-v (--validate)    "
+        << "check whether messages are mangled in transit\n"
+        << "-p (--put)    "
+        << "use x10rt_send_put instead of x10rt_send_msg\n"
+        << "-g (--get)    "
+        << "use x10rt_send_get instead of x10rt_send_msg\n"
+        << "-a (--auto)    "
+        << "test a variety of --length and --window" << std::endl;
 } // }}}
 
 
@@ -179,7 +181,7 @@ int main(int argc, char **argv)
     x10rt_registration_complete();
 
     if (x10rt_nhosts()==1) {
-        fprintf(stderr, "This is a communications test so needs at least 2 hosts.\n");
+        std::cerr << "This is a communications test so needs at least 2 hosts." << std::endl;
         exit(EXIT_FAILURE);
     }
 
@@ -191,10 +193,10 @@ int main(int argc, char **argv)
 
     for (int i=1 ; i<argc; ++i) {
         if (!strcmp(argv[i], "--help")) {
-            show_help(stdout,argv[0]);
+            show_help(std::cout,argv[0]);
             exit(EXIT_SUCCESS);
         } else if (!strcmp(argv[i], "-h")) {
-            show_help(stdout,argv[0]);
+            show_help(std::cerr,argv[0]);
             exit(EXIT_SUCCESS);
 
         } else if (!strcmp(argv[i], "--length")) {
@@ -234,8 +236,8 @@ int main(int argc, char **argv)
 
         } else {
             if (x10rt_here()==0) {
-                fprintf(stderr,"Didn't understand: \"%s\"\n", argv[i]);
-                show_help(stderr,argv[0]);
+                std::cerr << "Didn't understand: \""<<argv[i]<<"\"" << std::endl;
+                show_help(std::cerr,argv[0]);
             }
             exit(EXIT_FAILURE);
         }
@@ -243,8 +245,8 @@ int main(int argc, char **argv)
 
     if (put && get) {
         if (x10rt_here()==0) {
-            fprintf(stderr, "You can't specify both put and get.\n");
-            show_help(stderr,argv[0]);
+            std::cerr << "You can't specify both put and get." << std::endl;
+            show_help(std::cerr,argv[0]);
         }
         exit(EXIT_FAILURE);
     }
@@ -271,27 +273,25 @@ int main(int argc, char **argv)
     if (x10rt_here()==0) {
 
         if (automatic) {
-            printf("         ");
+            std::cout << "         ";
             for (int j=1 ; j<=16 ; ++j) {
-                    printf("%5d  ", j);
+                    std::cout << std::setw(5) << j;
             }
-            printf(" b/w (MB)\n");
-            fflush(stdout);
+            std::cout << " b/w (MB)" << std::endl;
             for (int l=0 ; l<512*1024 ; l=(l*2)>0?(l*2):1) {
-                printf("%8d ", l);
+                std::cout << std::setw(8) << l;
                 float micros = 0;
                 for (int j=1 ; j<=16 ; ++j) {
                     micros = run_test(iterations/j, j, l, put, get)
                              / 1E3 / (iterations/j*j) / 2 / (x10rt_nhosts() - 1);
-                    printf("%6.1f ",micros);
+                    std::cout << std::setw(6) << std::setprecision(3) << micros << " ";
                 }
-                printf("%0.3f\n", l/micros);
-                fflush(stdout);
+                std::cout << std::setprecision(3) << l/micros << std::endl;
             }
         } else {
             float micros = run_test(iterations, window, len, put, get)
                            / 1E3 / (iterations*window) / 2 / (x10rt_nhosts() - 1);
-            printf("Half roundtrip time: %f us  Bandwidth: %f MB/s\n",micros,len/micros);
+            std::cout << "Half roundtrip time: "<<micros<<" us  Bandwidth: "<<len/micros<<" MB/s" << std::endl;
         }
 
         for (unsigned long i=1 ; i<x10rt_nhosts() ; ++i) {
