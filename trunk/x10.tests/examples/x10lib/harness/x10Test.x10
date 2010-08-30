@@ -28,7 +28,7 @@ abstract public class x10Test {
     abstract public def run(): boolean;
 
     public def executeAsync() {
-        val b: Rail[boolean]! = [ false as Boolean ]; // use a rail until we have shared locals working
+        val b  = Rail.make([ false as Boolean ]);  
         try {
             finish async b(0) = this.run();
         } catch (e: Throwable) {
