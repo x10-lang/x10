@@ -722,22 +722,29 @@ public class Desugarer extends ContextVisitor {
                 ConstrainedType ct = (ConstrainedType) reducerType;
                 reducerType = X10TypeMixin.baseType(Types.get(ct.baseType()));
             }
-            //First check the reducerType itself is a reducible or not;
-            //If not, it should be a class that implements reducible
             X10ParsedClassType reducerTypeWithGenericType = null;
-            if(xts.isReducible(((ClassType)reducerType).def().asType())){
+            Type thisType = reducerType;
+            while(thisType != null) {
+            //First check the reducerType itself is a reducible or not;
+            //If not, it should be a class that implements reducible            
+            if(xts.isReducible(((ClassType)thisType).def().asType())){
                 //generic type case
-                reducerTypeWithGenericType = (X10ParsedClassType) reducerType;
+                reducerTypeWithGenericType = (X10ParsedClassType) thisType;
+                break;
             }
             else{ 
                 //implement interface case
-                for (Type t : xts.interfaces(reducerType)) {
+                for (Type t : xts.interfaces(thisType)) {
                     ClassType baseType = ((X10ParsedClassType)t).def().asType();
                     if(xts.isReducible(baseType)){
                         reducerTypeWithGenericType = (X10ParsedClassType) t;
+                        break;
                     }
                 }
             }
+            thisType = xts.superClass(thisType);
+            }
+            
             assert(reducerTypeWithGenericType != null);
             //because Reducible type only has one argument, we could take it directly
             expectType = reducerTypeWithGenericType.typeArguments().get(0);
