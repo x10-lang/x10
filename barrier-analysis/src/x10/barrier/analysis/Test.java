@@ -19,7 +19,7 @@ public class Test {
 	 * *********************************************************
 	 * ***************
 	 */
-	File f = new File("x10.barrier.tests/TestIf.x10");
+
 	X10BarrierAnalysis x10fa = new X10BarrierAnalysis();
 
 	/* *********************************
@@ -34,7 +34,49 @@ public class Test {
 
 	// compile(file, package, entrymethod, methodsig)
 	//x10fa.compile(f, "","run","()Lx10/lang/Boolean;");
+	File f = new File("x10.barrier.tests/AllReduceParallelOrig.x10");
 	x10fa.compile(f,"","main","(Lx10/lang/Rail;)V");
+	
+	f = new File("x10.barrier.tests/ConvolveOrig.x10");
+	x10fa.compile(f,"","main","(Lx10/lang/Rail;)V");
+	
+	f = new File("x10.barrier.tests/HistogramOrig.x10");
+	x10fa.compile(f,"","main","(Lx10/lang/Rail;)V");
+	
+	f = new File("x10.barrier.tests/IDEAOrig.x10");
+	x10fa.compile(f,"","main","(Lx10/lang/Rail;)V");
+	
+	f = new File("x10.barrier.tests/KMeansScalarOrig.x10");
+	x10fa.compile(f,"","main","(Lx10/lang/Rail;)V");
+	
+	f = new File("x10.barrier.tests/LUFactOrig.x10");
+	x10fa.compile(f,"","main","(Lx10/lang/Rail;)V");
+	
+	f = new File("x10.barrier.tests/MontyPiParallelOrig.x10");
+	x10fa.compile(f,"","main","(Lx10/lang/Rail;)V");
+	
+	f = new File("x10.barrier.tests/ParRandomAccessOrig.x10");
+	x10fa.compile(f,"","main","(Lx10/lang/Rail;)V");
+	
+	f = new File("x10.barrier.tests/PipelineOrig.x10");
+	x10fa.compile(f,"","main","(Lx10/lang/Rail;)V");
+	
+	f = new File("x10.barrier.tests/SeriesOrig.x10");
+	x10fa.compile(f,"","main","(Lx10/lang/Rail;)V");
+	
+	f = new File("x10.barrier.tests/SOROrig.x10");
+	x10fa.compile(f,"","main","(Lx10/lang/Rail;)V");
+	
+	f = new File("x10.barrier.tests/SparseMatMulOrig.x10");
+	x10fa.compile(f,"","main","(Lx10/lang/Rail;)V");
+	
+	f = new File("x10.barrier.tests/StencilOrig.x10");
+	x10fa.compile(f,"","main","(Lx10/lang/Rail;)V");
+	
+	f = new File("x10.barrier.tests/StreamOrig.x10");
+	x10fa.compile(f,"","main","(Lx10/lang/Rail;)V");
+	
+	
 	//OutputUtil.Write2Plot("SimpleFinish5");
 	//OutputUtil.Write2Plot("SimpleFinish4");
 	//OutputUtil.Write2Plot("SimpleFinish3");
