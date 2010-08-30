@@ -18,7 +18,7 @@ public class CUDAKernelTest {
         val remote = Rail.makeRemote(p,len,(Int)=>0.0 as Float); // allocate 
 
         //finish init.copyTo(0, remote, 0, len); // dma there
-        val init_ = init as ValRail[Float];
+        val init_ = ValRail.make[Float](init);
 
         finish async (p) @CUDA {
             for ((block):Point in 0..7) {
