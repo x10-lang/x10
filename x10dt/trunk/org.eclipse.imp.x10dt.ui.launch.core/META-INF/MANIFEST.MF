@@ -16,7 +16,9 @@ Require-Bundle: org.eclipse.core.runtime,
  x10.compiler,
  org.eclipse.core.filesystem,
  org.eclipse.ui.console,
- org.eclipse.ui.forms
+ org.eclipse.ui.forms,
+ x10.common;bundle-version="2.0.5",
+ lpg.runtime.java;bundle-version="2.0.18"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Export-Package: org.eclipse.imp.x10dt.ui.launch.core,

@@ -139,11 +139,7 @@ public final class CoreResourceUtils {
    * @param project The project to consider.
    */
   public static void deleteBuildMarkers(final IProject project) {
-  	try {
-			project.deleteMarkers(X10DTCoreConstants.PROBLEMMARKER_ID, true /* includeSubtypes */, IResource.DEPTH_INFINITE);
-		} catch (CoreException except) {
-			LaunchCore.log(except.getStatus());
-		}
+  	deleteMarker(X10DTCoreConstants.PROBLEMMARKER_ID, project, true /* includeSubtypes */, IResource.DEPTH_INFINITE);
   }
   
   /**
@@ -152,12 +148,9 @@ public final class CoreResourceUtils {
    * @param file The file to consider.
    */
   public static void deleteBuildMarkers(final IFile file) {
-  	try {
-			file.deleteMarkers(X10DTCoreConstants.PROBLEMMARKER_ID, false /* includeSubtypes */, IResource.DEPTH_ZERO);
-		} catch (CoreException except) {
-			LaunchCore.log(except.getStatus());
-		}
+  	deleteMarker(X10DTCoreConstants.PROBLEMMARKER_ID, file, false /* includeSubtypes */, IResource.DEPTH_ZERO);
   }
+  
   
   /**
    * Deletes all the X10 platform configuration markers for a given project.
@@ -165,11 +158,7 @@ public final class CoreResourceUtils {
    * @param file The platform configuration file to consider.
    */
   public static void deletePlatformConfMarkers(final IFile file) {
-  	try {
-			file.deleteMarkers(PLATFORM_CONF_MARKER_ID, false /* includeSubtypes */, IResource.DEPTH_ZERO);
-		} catch (CoreException except) {
-			LaunchCore.log(except.getStatus());
-		}
+  	deleteMarker(PLATFORM_CONF_MARKER_ID, file, false /* includeSubtypes */, IResource.DEPTH_ZERO);
   }
   
   /**
@@ -236,9 +225,26 @@ public final class CoreResourceUtils {
 		}
   }
   
-  // --- Private code
+  public static void deleteMarker(final String markerId, final IResource resource, final boolean includeSubtypes, final int depth){
+	  try {
+	  	  final IWorkspace workspace = ResourcesPlugin.getWorkspace();
+	  	  final ISchedulingRule rule = workspace.getRuleFactory().markerRule(resource);
+	  	  
+	  	  final IWorkspaceRunnable runnable = new IWorkspaceRunnable() {
+	        
+	        public void run(final IProgressMonitor monitor) throws CoreException {
+	        	resource.deleteMarkers(markerId, includeSubtypes, depth);
+	        }
+	       
+	      };
+				
+	      workspace.run(runnable, rule, IWorkspace.AVOID_UPDATE, null);
+	  } catch (CoreException except) {
+		  LaunchCore.log(except.getStatus());
+	  }
+  }
   
-  private static void createMarker(final String markerId, final IResource resource, final String msg, final int severity,
+  public static void createMarker(final String markerId, final IResource resource, final String msg, final int severity,
                                    final String loc, final int priority, final int lineNum, final int startOffset, 
                                    final int endOffset) {
   	try {
@@ -265,7 +271,7 @@ public final class CoreResourceUtils {
         
       };
 			
-      workspace.run(runnable, rule, 0, null);
+      workspace.run(runnable, rule, IWorkspace.AVOID_UPDATE, null);
 		} catch (CoreException except) {
 			LaunchCore.log(except.getStatus());
 		}

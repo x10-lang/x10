@@ -72,48 +72,13 @@ public final class X10CppBuilder extends AbstractX10Builder {
   // --- Private code
   
   private void buildOptions(final String classPath, final List<File> sourcePath, final String localOutputDir,
-                            final X10CPPCompilerOptions options, final boolean withMainMethod) {
-    options.assertions = true;
-    options.classpath = classPath;
-    options.output_classpath = options.classpath;
-    options.serialize_type_info = false;
-    options.output_directory = new File(localOutputDir);
-    options.source_path = sourcePath;
-    options.compile_command_line_only = true;
-    options.post_compiler = null;
-    x10cpp.Configuration.MAIN_CLASS = (withMainMethod) ? null : Constants.EMPTY_STR;
-    
-    final IPreferencesService prefService = X10DTCorePlugin.getInstance().getPreferencesService();
-    // Compiler prefs
-    Configuration.STATIC_CALLS = prefService.getBooleanPreference(X10Constants.P_STATICCALLS);
-    Configuration.VERBOSE_CALLS = prefService.getBooleanPreference(X10Constants.P_VERBOSECALLS);
-    options.assertions = prefService.getBooleanPreference(X10Constants.P_PERMITASSERT);
-    final String additionalOptions = prefService.getStringPreference(X10Constants.P_ADDITIONALCOMPILEROPTIONS);
-    if ((additionalOptions != null) && (additionalOptions.length() > 0)) {
-      // First initialize to default values.
-      Configuration.DEBUG = false;
-      Configuration.CHECK_INVARIANTS = false;
-      Configuration.ONLY_TYPE_CHECKING = false;
-      Configuration.NO_CHECKS = false;
-      Configuration.FLATTEN_EXPRESSIONS = false;
-      for (final String opt : additionalOptions.split("\\s")) { ////$NON-NLS-1$
-        try {
-          Configuration.parseArgument(opt);
-        } catch (OptionError except) {
-          CppLaunchCore.log(IStatus.ERROR,  NLS.bind(LaunchMessages.XCB_OptionError, opt), except);
-        } catch (ConfigurationError except) {
-          CppLaunchCore.log(IStatus.ERROR,  NLS.bind(LaunchMessages.XCB_ConfigurationError, opt), except);
-        }
-      }
-    }
-    // Optimization prefs
-    Configuration.OPTIMIZE = prefService.getBooleanPreference(X10Constants.P_OPTIMIZE);
-    Configuration.LOOP_OPTIMIZATIONS = prefService.getBooleanPreference(X10Constants.P_LOOPOPTIMIZATIONS);
-    Configuration.INLINE_OPTIMIZATIONS = prefService.getBooleanPreference(X10Constants.P_INLINEOPTIMIZATIONS);
-    Configuration.CLOSURE_INLINING = prefService.getBooleanPreference(X10Constants.P_CLOSUREINLINING);
-    Configuration.WORK_STEALING = prefService.getBooleanPreference(X10Constants.P_WORKSTEALING);
+          final X10CPPCompilerOptions options, final boolean withMainMethod) {
+	  super.buildOptions(classPath, sourcePath, localOutputDir, options, withMainMethod);
+	  options.post_compiler = null;
+	  x10cpp.Configuration.MAIN_CLASS = (withMainMethod) ? null : Constants.EMPTY_STR;
   }
   
+ 
   // --- Private classes
   
   private static final class NativeFilesFilter implements IFilter<IFile> {
