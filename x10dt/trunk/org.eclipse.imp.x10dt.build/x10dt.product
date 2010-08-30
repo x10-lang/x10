@@ -3,23 +3,6 @@
 
 <product name="X10DT Product" uid="org.eclipse.imp.x10dt.product" id="org.eclipse.imp.x10dt.product" application="org.eclipse.ui.ide.workbench" version="2.0.6.qualifier" useFeatures="true" includeLaunchers="true">
 
-   <aboutInfo>
-      <image path="/org.eclipse.imp.x10dt/about.png"/>
-      <text>
-         X10 Development Toolkit\n\
-\n\
-Version: {featureVersion}\n\
-Build id: {0}\n\
-\n\
-(c) Copyright Eclipse contributors and others 2000, 2010.  All rights reserved.\n\
-Visit http://www.eclipse.org/platform\n\
-\n\
-This product includes software developed by the\n\
-Apache Software Foundation http://www.apache.org/\n\
-and the Eclipse platform http://www.eclipse.org
-      </text>
-   </aboutInfo>
-
    <configIni use="default">
    </configIni>
 
