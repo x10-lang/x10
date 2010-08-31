@@ -104,8 +104,11 @@ public class Automaton {
     public boolean isSubOrConsecutiveBlock(State s1, State s2 ) {
 	 if (((s1.startInst >= s2.startInst && s1.endInst <=  s2.endInst) ||
 		(s2.startInst >= s1.startInst && s2.endInst <= s1.endInst)  ||
+		(s1.startInst <= s2.endInst && s1.endInst >= s2.startInst) ||
+		(s2.startInst <= s1.endInst && s2.endInst >= s1.startInst) ||
 		s1.startInst == s2.endInst || s1.startInst == s2.endInst + 1 ||
-		s2.startInst == s1.endInst || s2.startInst == s1.endInst + 1)
+		s2.startInst == s1.endInst || s2.startInst == s1.endInst + 1) 
+		
 	     && (s1.method.equals(s2.method))) 
 		return true;
 	 return false;
