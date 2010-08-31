@@ -135,6 +135,6 @@ public final class X10ClasspathContainerInitializer extends ClasspathContainerIn
 
   private static final String CLASSES_DIR = "classes"; //$NON-NLS-1$
 
-  private static final String X10_JAR = "classes/x10.jar"; //$NON-NLS-1$
+  private static final String X10_JAR = "src-java/gen/x10.jar"; //$NON-NLS-1$
 
 }
