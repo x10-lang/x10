@@ -11,6 +11,7 @@
 
 package org.eclipse.imp.x10dt.ui.tests;
 
+import org.eclipse.imp.x10dt.ui.editor.QuickOutlineTests;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
@@ -19,6 +20,6 @@ import org.junit.runners.Suite;
  * @author rfuhrer@watson.ibm.com
  */
 @RunWith(Suite.class)
-@Suite.SuiteClasses({ JavaBackEndSmokeTest.class })
+@Suite.SuiteClasses({ JavaBackEndSmokeTest.class, QuickOutlineTests.class })
 public final class SWTBotTestSuite {
 }
