@@ -28,37 +28,31 @@ public class TestEditor {
 
 	public TestEditor(IFile file) throws CoreException {
 		input = new FileEditorInput(file);
-		docProvider = DocumentProviderRegistry.getDefault()
-				.getDocumentProvider(input);
+		docProvider = DocumentProviderRegistry.getDefault().getDocumentProvider(input);
 		docProvider.connect(input);
 
 		document = docProvider.getDocument(input);
 		language = LanguageRegistry.findLanguage(input, docProvider);
 
-		parseController = ServiceFactory.getInstance().getParseController(
-				language);
-		parseController.initialize(file.getProjectRelativePath(), EditorUtility
-				.getSourceProject(input), new IMessageHandler() {
+		parseController = ServiceFactory.getInstance().getParseController(language);
+		parseController.initialize(file.getProjectRelativePath(), EditorUtility.getSourceProject(input),
+		                           new IMessageHandler() {
 					
 					public void startMessageGroup(String groupName) {
 						// TODO Auto-generated method stub
-						
 					}
 					
 					public void handleSimpleMessage(String msg, int startOffset, int endOffset,
 							int startCol, int endCol, int startLine, int endLine) {
 						// TODO Auto-generated method stub
-						
 					}
 					
 					public void endMessageGroup() {
 						// TODO Auto-generated method stub
-						
 					}
 					
 					public void clearMessages() {
 						// TODO Auto-generated method stub
-						
 					}
 				});
 	}
