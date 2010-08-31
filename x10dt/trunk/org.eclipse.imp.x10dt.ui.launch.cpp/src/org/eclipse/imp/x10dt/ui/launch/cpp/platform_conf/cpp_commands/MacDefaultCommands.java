@@ -23,7 +23,7 @@ final class MacDefaultCommands extends AbstractDefaultCPPCommands implements IDe
   }
 
   public String getArchivingOpts() {
-    return "r"; //$NON-NLS-1$
+    return "rcs"; //$NON-NLS-1$
   }
 
   public String getCompiler() {
