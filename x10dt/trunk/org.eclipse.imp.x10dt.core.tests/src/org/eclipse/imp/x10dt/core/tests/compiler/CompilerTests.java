@@ -83,6 +83,16 @@ public class CompilerTests extends CompilerTestsBase {
 	    }
 	}
 
+	@Test
+	public void jira1771() throws Exception {
+		String[] sources = {"Hello6.x10"};
+		Collection<ErrorInfo> errors = new ArrayList<ErrorInfo>();
+		compile(sources, NOT_STATIC_CALLS, errors);
+		if (errors.isEmpty()) {
+				Assert.assertTrue("Should have complained that 'A' is an unknown type.", false);
+		}
+		
+	}
 	
 	@Test
 	public void hello1_static_calls() throws Exception {
