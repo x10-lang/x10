@@ -17,18 +17,6 @@
       %license
    </license>
 
-   <includes
-         id="org.eclipse.cdt"
-         version="0.0.0"/>
-
-   <includes
-         id="org.eclipse.cdt.gdb"
-         version="0.0.0"/>
-
-   <includes
-         id="org.eclipse.cdt.platform"
-         version="0.0.0"/>
-
    <requires>
       <import feature="lpg.runtime" version="2.0.18" match="greaterOrEqual"/>
       <import feature="org.eclipse.imp.java.hosted"/>
