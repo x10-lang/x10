@@ -33,12 +33,20 @@ public final class LaunchConstants {
   
   public static final String NEW_CPP_LAUNCH_CONFIG = "X10 Application (C++ back-end)"; //$NON-NLS-1$
   
+  public static final String JAVA_BACK_END_LAUNCH_CONFIG_TYPE= "X10 Application (Java back-end)"; //$NON-NLS-1$
+
   public static final String CPP_LAUNCH_CONFIG_APPLICATION_TAB = "Application"; //$NON-NLS-1$
   
   public static final String CPP_LAUNCH_CONFIG_X10_PROJECT = "X10 Project"; //$NON-NLS-1$
   
   public static final String CPP_LAUNCH_CONFIG_MAIN_CLASS = "Main class"; //$NON-NLS-1$
-  
+
+  public static final String JAVA_BACK_END_LAUNCH_CONFIG_MAIN_TAB= "Main"; //$NON-NLS-1$
+
+  public static final String JAVA_BACK_END_LAUNCH_CONFIG_PROJECT= "Project:"; //$NON-NLS-1$
+
+  public static final String JAVA_BACK_END_LAUNCH_CONFIG_MAIN_CLASS= "Main class:"; //$NON-NLS-1$
+
   // --- Private code
   
   private LaunchConstants() {}

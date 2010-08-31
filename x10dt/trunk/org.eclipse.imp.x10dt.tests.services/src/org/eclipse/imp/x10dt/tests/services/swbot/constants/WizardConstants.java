@@ -49,8 +49,28 @@ public final class WizardConstants {
   
   public static final String X10_PROJECT_JAVA_BACKEND = "X10 Project (Java back-end)"; //$NON-NLS-1$
   
+  public static final String X10_PROJECT_SHELL_JAVA_BACKEND = "New X10 Project (Java back-end)"; //$NON-NLS-1$
+  
   public static final String NEW_JAVA_PROJECT_NAME = "Name:"; //$NON-NLS-1$
   
+  public static final String NEW_X10_PACKAGE_MENU_ITEM = "X10 Package"; //$NON-NLS-1$
+
+  public static final String NEW_X10_PACKAGE_SHELL = "New X10 Package"; //$NON-NLS-1$
+
+  public static final String NEW_X10_PACKAGE_NAME_FIELD= "Name:"; //$NON-NLS-1$
+
+  public static final String NEW_X10_CLASS_MENU_ITEM= "Class"; //$NON-NLS-1$
+
+  public static final String NEW_X10_CLASS_SHELL = "New X10 Class"; //$NON-NLS-1$
+
+  public static final String NEW_X10_CLASS_NAME_FIELD= "Name:"; //$NON-NLS-1$
+
+  public static final String NEW_X10_PROJECT_SAMPLE_SOURCE_GROUP= "Sample source"; //$NON-NLS-1$
+
+  public static final String NEW_X10_PROJECT_NO_SAMPLE_SOURCE_RADIO= "Create no sample source code"; //$NON-NLS-1$
+
+  public static final String NEW_X10_PROJECT_HELLO_SOURCE_RADIO= "Create a sample 'Hello World' X10 application"; //$NON-NLS-1$
+
   // --- Private code
   
   private WizardConstants() {}

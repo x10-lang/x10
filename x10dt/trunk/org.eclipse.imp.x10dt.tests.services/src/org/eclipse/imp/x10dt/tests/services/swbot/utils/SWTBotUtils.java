@@ -7,13 +7,22 @@
  *******************************************************************************/
 package org.eclipse.imp.x10dt.tests.services.swbot.utils;
 
+import java.util.List;
+
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.Widget;
+import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
+import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEditor;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.finders.UIThreadRunnable;
+import org.eclipse.swtbot.swt.finder.results.Result;
 import org.eclipse.swtbot.swt.finder.results.WidgetResult;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotMenu;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
 
 /**
  * Some utilities that are missing in SWTBot.
@@ -56,5 +65,50 @@ public final class SWTBotUtils {
   // --- Private code
   
   private SWTBotUtils() {}
+
+  public static void resetWorkbench(SWTWorkbenchBot bot) {
+    closeAllShells(bot);
+    saveAllEditors(bot);
+    closeAllEditors(bot);
+  }
+
+  public static void closeAllShells(SWTWorkbenchBot bot) {
+    SWTBotShell[] shells = bot.shells();
+    for (SWTBotShell shell : shells) {
+        if (!isEclipseShell(shell, bot)) {
+            shell.close();
+        }
+    }
+  }
+
+  public static void saveAllEditors(SWTWorkbenchBot bot) {
+    List<? extends SWTBotEditor> editors = bot.editors();
+    for (SWTBotEditor editor : editors) {
+        editor.save();
+    }
+  }
+
+  public static void closeAllEditors(SWTWorkbenchBot bot) {
+    List<? extends SWTBotEditor> editors = bot.editors();
+    for (SWTBotEditor editor : editors) {
+        editor.close();
+    }
+  }
+
+  public static boolean isEclipseShell(final SWTBotShell shell, SWTWorkbenchBot bot) {
+    return getActiveWorkbenchWindowShell(bot) == shell.widget;
+  }
+
+  public static IWorkbenchWindow getActiveWorkbenchWindow(SWTWorkbenchBot bot) {
+    return UIThreadRunnable.syncExec(bot.getDisplay(), new Result<IWorkbenchWindow>() {
+        public IWorkbenchWindow run() {
+            return PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+        }
+    });
+  }
+
+  public static Widget getActiveWorkbenchWindowShell(SWTWorkbenchBot bot) {
+    return getActiveWorkbenchWindow(bot).getShell();
+  }
 
 }
