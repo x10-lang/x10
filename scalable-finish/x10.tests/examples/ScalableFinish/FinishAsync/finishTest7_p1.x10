@@ -1,20 +1,4 @@
-/*
- *  This file is part of the X10 project (http://x10-lang.org).
- *
- *  This file is licensed to You under the Eclipse Public License (EPL);
- *  You may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *      http://www.opensource.org/licenses/eclipse-1.0.php
- *
- *  (C) Copyright IBM Corporation 2006-2010.
- */
-
-
-/**
- * Description: 
- * Expected Result: run() returns true if successful, false otherwise.
- * @author Baolin Shao (bshao@us.ibm.com)
- */
+import x10.compiler.*;
 public class finishTest7_p1  {
 
         public def f1():void {
@@ -29,7 +13,7 @@ public class finishTest7_p1  {
 		
                 //TODO: test code
         var i:int = 1;
-        finish{
+        @FinishAsync(0,0,true,1) finish{
         	for(i=1;i<10;i++){
         		for(i=1;i<10;i++){
         			async{}
@@ -47,13 +31,13 @@ public class finishTest7_p1  {
         	f1();
         }
         for(i=1;i<10;i++){
-		 finish{
+		 @FinishAsync(0,0,true,1) finish{
 			 for(i=1;i<10;i++){
 				 async{}
 			 }
 		 }
         }
-        finish{
+        @FinishAsync(0,0,true,1) finish{
 		 for(i=1;i<10;i++){
 			 async{}
 		 }

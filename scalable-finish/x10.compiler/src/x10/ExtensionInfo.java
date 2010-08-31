@@ -555,9 +555,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                }
                public boolean runTask() {
                    try {
-                	   if(finishAsync)
-                		   calltable = (HashMap<CallTableKey, LinkedList<CallTableVal>>) method.invoke(null);
-                   
+                	   calltable = (HashMap<CallTableKey, LinkedList<CallTableVal>>) method.invoke(null);
                    } catch (Throwable t) {}
                    return true;
                }
