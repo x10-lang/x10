@@ -1,4 +1,4 @@
-package org.eclipse.imp.x10dt.ui.editor;
+package org.eclipse.imp.x10dt.ui.tests.utils;
 
 import java.io.BufferedReader;
 import java.io.File;
