@@ -15,6 +15,7 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Widget;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEditor;
+import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.finders.UIThreadRunnable;
 import org.eclipse.swtbot.swt.finder.results.Result;
@@ -30,6 +31,16 @@ import org.eclipse.ui.PlatformUI;
  * @author egeay
  */
 public final class SWTBotUtils {
+
+  public static void closeWelcomeViewIfNeeded(SWTWorkbenchBot topLevelBot) {
+    List<SWTBotView> views= topLevelBot.views();
+    for(SWTBotView v: views) {
+      if ("Welcome".equals(v.getTitle())) {
+        v.close();
+        return;
+      }
+    }
+  }
   
   /**
    * Finds a SWTBot sub menu from a given menu item.
