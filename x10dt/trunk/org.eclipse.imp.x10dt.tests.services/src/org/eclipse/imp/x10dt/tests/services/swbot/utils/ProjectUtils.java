@@ -7,8 +7,26 @@
  *******************************************************************************/
 package org.eclipse.imp.x10dt.tests.services.swbot.utils;
 
-import static org.eclipse.imp.x10dt.tests.services.swbot.constants.PlatformConfConstants.*;
-import static org.eclipse.imp.x10dt.tests.services.swbot.constants.WizardConstants.*;
+import static org.eclipse.imp.x10dt.tests.services.swbot.constants.PlatformConfConstants.PLATFORM_CONF_FILE_PATH;
+import static org.eclipse.imp.x10dt.tests.services.swbot.constants.WizardConstants.FILE_MENU;
+import static org.eclipse.imp.x10dt.tests.services.swbot.constants.WizardConstants.FINISH_BUTTON;
+import static org.eclipse.imp.x10dt.tests.services.swbot.constants.WizardConstants.NEW_CPP_PROJECT_NAME;
+import static org.eclipse.imp.x10dt.tests.services.swbot.constants.WizardConstants.NEW_JAVA_PROJECT_NAME_FIELD;
+import static org.eclipse.imp.x10dt.tests.services.swbot.constants.WizardConstants.NEW_MENU_ITEM;
+import static org.eclipse.imp.x10dt.tests.services.swbot.constants.WizardConstants.NEW_OTHER_MENU;
+import static org.eclipse.imp.x10dt.tests.services.swbot.constants.WizardConstants.NEW_OTHER_SHELL;
+import static org.eclipse.imp.x10dt.tests.services.swbot.constants.WizardConstants.NEW_PROJECT_DIALOG_TITLE;
+import static org.eclipse.imp.x10dt.tests.services.swbot.constants.WizardConstants.NEW_X10_CLASS_NAME_FIELD;
+import static org.eclipse.imp.x10dt.tests.services.swbot.constants.WizardConstants.NEW_X10_CLASS_SHELL;
+import static org.eclipse.imp.x10dt.tests.services.swbot.constants.WizardConstants.NEW_X10_CLASS_WIZARD;
+import static org.eclipse.imp.x10dt.tests.services.swbot.constants.WizardConstants.NEXT_BUTTON;
+import static org.eclipse.imp.x10dt.tests.services.swbot.constants.WizardConstants.OPEN_ASSOCIATED_PERSPECTIVE_DIALOG_TITLE;
+import static org.eclipse.imp.x10dt.tests.services.swbot.constants.WizardConstants.PROJECTS_SUB_MENU_ITEM;
+import static org.eclipse.imp.x10dt.tests.services.swbot.constants.WizardConstants.X10_FOLDER;
+import static org.eclipse.imp.x10dt.tests.services.swbot.constants.WizardConstants.X10_PROJECT_CPP_BACKEND;
+import static org.eclipse.imp.x10dt.tests.services.swbot.constants.WizardConstants.X10_PROJECT_JAVA_BACKEND;
+import static org.eclipse.imp.x10dt.tests.services.swbot.constants.WizardConstants.X10_PROJECT_SHELL_JAVA_BACKEND;
+import static org.eclipse.imp.x10dt.tests.services.swbot.constants.WizardConstants.YES_BUTTON;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,6 +49,7 @@ import org.eclipse.imp.x10dt.tests.services.swbot.matcher.WithFullPath;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
+import org.eclipse.swtbot.swt.finder.SWTBot;
 import org.eclipse.swtbot.swt.finder.waits.Conditions;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
@@ -94,15 +113,18 @@ public final class ProjectUtils {
    */
   public static void createX10ProjectWithJavaBackEndFromTopMenu(final SWTWorkbenchBot bot, final String projectName) {
     bot.menu(FILE_MENU).menu(NEW_MENU_ITEM).menu(PROJECTS_SUB_MENU_ITEM).click();
-    
+
     final SWTBotShell shell = bot.shell(NEW_PROJECT_DIALOG_TITLE);
     shell.activate();
     bot.tree().expandNode(X10_FOLDER).select(X10_PROJECT_JAVA_BACKEND);
     bot.button(NEXT_BUTTON).click();
- 
-    bot.textWithLabel(NEW_JAVA_PROJECT_NAME).setText(projectName);
- 
+
+    SWTBotShell x10ProjShell= bot.shell(X10_PROJECT_SHELL_JAVA_BACKEND);
+
+    bot.textWithLabel(NEW_JAVA_PROJECT_NAME_FIELD).setText(projectName);
+
     bot.button(FINISH_BUTTON).click();
+    bot.waitUntil(Conditions.shellCloses(x10ProjShell));
   }
 
   public static void createPackage(final SWTWorkbenchBot bot, String projName, String srcFolderName, String pkgName) {
@@ -131,14 +153,27 @@ public final class ProjectUtils {
 
   public static SWTBotShell createClass(SWTWorkbenchBot bot, String name) {
     // Shouldn't the following use the X10 folder/category to qualify the "Class" menu item???
-    bot.menu(WizardConstants.FILE_MENU).menu(WizardConstants.NEW_MENU_ITEM).menu(WizardConstants.NEW_X10_CLASS_MENU_ITEM).click();
+    bot.menu(FILE_MENU).menu(NEW_MENU_ITEM).menu(NEW_OTHER_MENU).click();
 
-    SWTBotShell newClassShell= bot.shell(WizardConstants.NEW_X10_CLASS_SHELL);
+    SWTBotShell otherShell= bot.shell(NEW_OTHER_SHELL);
+
+    otherShell.activate();
+
+    SWTBot otherBot= otherShell.bot();
+
+    SWTBotTree wizardTree= otherBot.tree();
+
+    wizardTree.expandNode(X10_FOLDER).select(NEW_X10_CLASS_WIZARD);
+    otherBot.button(NEXT_BUTTON).click();
+
+    SWTBotShell newClassShell= bot.shell(NEW_X10_CLASS_SHELL);
 
     newClassShell.activate();
-    bot.textWithLabel(WizardConstants.NEW_X10_CLASS_NAME_FIELD).setText(name);
-//  bot.checkBoxWithLabel("Create sample program").deselect();
-    bot.button(WizardConstants.FINISH_BUTTON).click();
+    bot.textWithLabel(NEW_X10_CLASS_NAME_FIELD).setText(name);
+
+    bot.button(FINISH_BUTTON).click();
+
+    bot.waitUntil(Conditions.shellCloses(newClassShell));
     return newClassShell;
   }
   
@@ -193,5 +228,4 @@ public final class ProjectUtils {
   // --- Private code
   
   private ProjectUtils() {}
-
 }
