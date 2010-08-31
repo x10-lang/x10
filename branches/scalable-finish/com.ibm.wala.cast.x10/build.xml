@@ -41,6 +41,10 @@
     <target name="jar" depends="build,check-jar">
         <jar jarfile="${build}/${jar}">
             <fileset refid="classes"/>
+        	<fileset dir="${build}/data" >
+        	  <include name="**/*.xml"/>
+        	</fileset>
+
         </jar>
     </target>
 	<target name="check-jar-cache" depends="init">

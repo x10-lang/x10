@@ -23,35 +23,35 @@
         <tstamp/>
         <mkdir dir="${lib}" />
     	<mkdir dir="${build}" />
-    	<copy tofile="${cast.location}/build.xml">
+    	<copy tofile="${cast.location}/build1.xml">
     		<fileset file="${script}/cast.build.xml"/>
     	</copy>
-    	<copy tofile="${cast.java.location}/build.xml">
+    	<copy tofile="${cast.java.location}/build1.xml">
     		<fileset file="${script}/cast.java.build.xml"/>
     	</copy>
-    	<copy tofile="${core.location}/build.xml">
+    	<copy tofile="${core.location}/build1.xml">
     		<fileset file="${script}/core.build.xml"/>
     	</copy>
-    	<copy tofile="${shrike.location}/build.xml">
+    	<copy tofile="${shrike.location}/build1.xml">
     		<fileset file="${script}/shrike.build.xml"/>
     	</copy>
     </target>
     <target name="clean" >
-        <ant antfile="${cast.location}/build.xml" target="clean" inheritAll="false" dir="${cast.location}"/>
-        <ant antfile="${cast.java.location}/build.xml" target="clean" inheritAll="false" dir="${cast.java.location}"/>
-        <ant antfile="${core.location}/build.xml" target="clean" inheritAll="false" dir="${core.location}"/>
-        <ant antfile="${shrike.location}/build.xml" target="clean" inheritAll="false" dir="${shrike.location}"/>
+        <ant antfile="${cast.location}/build1.xml" target="clean" inheritAll="false" dir="${cast.location}"/>
+        <ant antfile="${cast.java.location}/build1.xml" target="clean" inheritAll="false" dir="${cast.java.location}"/>
+        <ant antfile="${core.location}/build1.xml" target="clean" inheritAll="false" dir="${core.location}"/>
+        <ant antfile="${shrike.location}/build1.xml" target="clean" inheritAll="false" dir="${shrike.location}"/>
     </target>
 
     <target name="distclean" >
-        <ant antfile="${cast.location}/build.xml" target="distclean" inheritAll="false" dir="${cast.location}"/>
-        <ant antfile="${cast.java.location}/build.xml" target="distclean" inheritAll="false" dir="${cast.java.location}"/>
-        <ant antfile="${core.location}/build.xml" target="distclean" inheritAll="false" dir="${core.location}"/>
-        <ant antfile="${shrike.location}/build.xml" target="distclean" inheritAll="false" dir="${shrike.location}"/>
-    	<delete file="${cast.location}/build.xml"/>
-    	<delete file="${cast.java.location}/build.xml"/>
-    	<delete file="${core.location}/build.xml"/>
-    	<delete file="${shrike.location}/build.xml"/>
+        <ant antfile="${cast.location}/build1.xml" target="distclean" inheritAll="false" dir="${cast.location}"/>
+        <ant antfile="${cast.java.location}/build1.xml" target="distclean" inheritAll="false" dir="${cast.java.location}"/>
+        <ant antfile="${core.location}/build1.xml" target="distclean" inheritAll="false" dir="${core.location}"/>
+        <ant antfile="${shrike.location}/build1.xml" target="distclean" inheritAll="false" dir="${shrike.location}"/>
+    	<delete file="${cast.location}/build1.xml"/>
+    	<delete file="${cast.java.location}/build1.xml"/>
+    	<delete file="${core.location}/build1.xml"/>
+    	<delete file="${shrike.location}/build1.xml"/>
     </target>
 
 
@@ -109,19 +109,19 @@
 		</unzip>
 	</target>
     <target name="shrike-jar" depends="init">
-        <ant antfile="${shrike.location}/build.xml" target="jar" inheritAll="false" dir="${shrike.location}"/>
+        <ant antfile="${shrike.location}/build1.xml" target="jar" inheritAll="false" dir="${shrike.location}"/>
     </target>
    
     <target name="core-jar" depends="init,shrike-jar">
-        <ant antfile="${core.location}/build.xml" target="jar" inheritAll="false" dir="${core.location}"/>
+        <ant antfile="${core.location}/build1.xml" target="jar" inheritAll="false" dir="${core.location}"/>
     </target>
 
     <target name="cast-jar" depends="init,shrike-jar,core-jar">
-        <ant antfile="${cast.location}/build.xml" target="jar" inheritAll="false" dir="${cast.location}"/>
+        <ant antfile="${cast.location}/build1.xml" target="jar" inheritAll="false" dir="${cast.location}"/>
     </target>
 
     <target name="cast.java-jar" depends="init,shrike-jar,core-jar,cast-jar">
-        <ant antfile="${cast.java.location}/build.xml" target="jar" inheritAll="false" dir="${cast.java.location}"/>
+        <ant antfile="${cast.java.location}/build1.xml" target="jar" inheritAll="false" dir="${cast.java.location}"/>
     </target>
 
 </project>

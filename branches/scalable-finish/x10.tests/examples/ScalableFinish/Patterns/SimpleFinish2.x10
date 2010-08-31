@@ -10,7 +10,7 @@ public class SimpleFinish2 {
 		val p1 = Place.place(i % Place.MAX_PLACES);
 	    	async(p1){    
  			val p = here;
-            		@FinishAsync(1,1,false,4)
+            		@FinishAsync(1,1,false,2)
             		finish{
                     		async(p.next()){}
             		}
