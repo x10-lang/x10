@@ -59,8 +59,8 @@ public class JavaBackEndSmokeTest extends X10DTTestBase {
     @BeforeClass
     public static void beforeClass() throws Exception {
         SWTBotPreferences.KEYBOARD_STRATEGY= "org.eclipse.swtbot.swt.finder.keyboard.SWTKeyboardStrategy"; //$NON-NLS-1$
-        bot= new SWTWorkbenchBot();
-        bot.viewByTitle("Welcome").close(); //$NON-NLS-1$
+        topLevelBot= new SWTWorkbenchBot();
+        topLevelBot.viewByTitle("Welcome").close(); //$NON-NLS-1$
         // SWTBotPreferences.TIMEOUT = 10000;
     }
 
@@ -68,9 +68,9 @@ public class JavaBackEndSmokeTest extends X10DTTestBase {
     public void basicLaunchTest() {
         createJavaBackEndProject(PROJECT_NAME, true);
 
-        bot.waitUntil(Conditions.waitForEditor(new EditorMatcher(CLASS_SRCFILE_NAME)));
+        topLevelBot.waitUntil(Conditions.waitForEditor(new EditorMatcher(CLASS_SRCFILE_NAME)));
 
-        fSrcEditor= bot.editorByTitle(CLASS_SRCFILE_NAME).toTextEditor();
+        fSrcEditor= topLevelBot.editorByTitle(CLASS_SRCFILE_NAME).toTextEditor();
 
         String launchName= PROJECT_NAME;
 
@@ -95,20 +95,20 @@ public class JavaBackEndSmokeTest extends X10DTTestBase {
     }
 
     private void launchRunModeLaunchConfig(String launchMenuItemName) {
-        SWTBotMenu runMenu= bot.menu(LaunchConstants.RUN_MENU);
+        SWTBotMenu runMenu= topLevelBot.menu(LaunchConstants.RUN_MENU);
         SWTBotMenu helloLaunch= runMenu.menu(launchMenuItemName); //$NON-NLS-1$
 
         helloLaunch.click();
     }
 
     public static void createAndRunJavaBackEndLaunchConfig(String launchName, String projectName, String mainTypeName) {
-        SWTBotMenu runMenu= bot.menu(LaunchConstants.RUN_MENU);
+        SWTBotMenu runMenu= topLevelBot.menu(LaunchConstants.RUN_MENU);
         SWTBotMenu runConfigs= runMenu.menu(LaunchConstants.RUN_CONFS_MENU_ITEM);
 
         runConfigs.click();
-        bot.waitUntil(Conditions.shellIsActive(LaunchConstants.RUN_CONF_DIALOG_TITLE));
+        topLevelBot.waitUntil(Conditions.shellIsActive(LaunchConstants.RUN_CONF_DIALOG_TITLE));
 
-        SWTBotShell configsShell= bot.shell(LaunchConstants.RUN_CONF_DIALOG_TITLE);
+        SWTBotShell configsShell= topLevelBot.shell(LaunchConstants.RUN_CONF_DIALOG_TITLE);
 
         configsShell.activate();
         SWTBot configsBot= configsShell.bot();
@@ -133,9 +133,9 @@ public class JavaBackEndSmokeTest extends X10DTTestBase {
         final Matcher<IViewReference> withPartName= WidgetMatcherFactory.withPartName(ViewConstants.CONSOLE_VIEW_NAME);
         final WaitForView waitForConsole= Conditions.waitForView(withPartName);
 
-        bot.waitUntil(waitForConsole);
+        topLevelBot.waitUntil(waitForConsole);
 
-        SWTBotView consoleView= new SWTBotView(waitForConsole.get(0), bot);
+        SWTBotView consoleView= new SWTBotView(waitForConsole.get(0), topLevelBot);
 
         consoleView.bot().styledText().getText().equals(contents);
     }

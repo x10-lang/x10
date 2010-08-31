@@ -25,12 +25,12 @@ public class X10DTTestBase {
     /**
      * The top-level "bot" for the entire workbench.
      */
-    public static SWTWorkbenchBot bot;
+    public static SWTWorkbenchBot topLevelBot;
 
     public static void createJavaBackEndProject(String projName, boolean withHello) {
-        bot.menu(WizardConstants.FILE_MENU).menu(WizardConstants.NEW_MENU_ITEM).menu(WizardConstants.PROJECTS_SUB_MENU_ITEM).click();
+        topLevelBot.menu(WizardConstants.FILE_MENU).menu(WizardConstants.NEW_MENU_ITEM).menu(WizardConstants.PROJECTS_SUB_MENU_ITEM).click();
 
-        SWTBotShell newProjShell= bot.shell(WizardConstants.NEW_PROJECT_DIALOG_TITLE);
+        SWTBotShell newProjShell= topLevelBot.shell(WizardConstants.NEW_PROJECT_DIALOG_TITLE);
 
         newProjShell.activate();
 
@@ -43,10 +43,10 @@ public class X10DTTestBase {
 
         nextBut.click();
 
-        SWTBotShell newX10ProjShell= bot.shell(WizardConstants.X10_PROJECT_SHELL_JAVA_BACKEND);
+        SWTBotShell newX10ProjShell= topLevelBot.shell(WizardConstants.X10_PROJECT_SHELL_JAVA_BACKEND);
         SWTBot newX10ProjBot= newX10ProjShell.bot();
 
-        newX10ProjBot.textWithLabel(WizardConstants.NEW_JAVA_PROJECT_NAME).setText(projName);
+        newX10ProjBot.textWithLabel(WizardConstants.NEW_JAVA_PROJECT_NAME_FIELD).setText(projName);
         if (withHello) {
             newX10ProjBot.radioInGroup(WizardConstants.NEW_X10_PROJECT_HELLO_SOURCE_RADIO, WizardConstants.NEW_X10_PROJECT_SAMPLE_SOURCE_GROUP).click();
         } else {
