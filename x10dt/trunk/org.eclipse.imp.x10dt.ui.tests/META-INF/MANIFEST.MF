@@ -6,7 +6,15 @@ Bundle-Version: 2.0.6.qualifier
 Fragment-Host: org.eclipse.imp.x10dt.ui;bundle-version="2.0.4"
 Bundle-Vendor: x10-users@lists.sourceforge.net
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
-Require-Bundle: org.junit.addons;bundle-version="1.4.0",
- org.junit4;bundle-version="4.5.0"
+Require-Bundle: org.apache.log4j;bundle-version="1.2.13",
+ org.eclipse.compare;bundle-version="3.5.2",
+ org.eclipse.swtbot.eclipse.core;bundle-version="2.0.0",
+ org.eclipse.swtbot.eclipse.finder;bundle-version="2.0.0",
+ org.eclipse.swtbot.eclipse.ui;bundle-version="2.0.0",
+ org.eclipse.swtbot.junit4_x;bundle-version="2.0.0",
+ org.eclipse.swtbot.swt.finder;bundle-version="2.0.0",
+ org.hamcrest;bundle-version="1.1.0",
+ org.junit4;bundle-version="4.5.0",
+ org.eclipse.imp.x10dt.tests.services;bundle-version="2.0.6"
 Bundle-ClassPath: ui.jar,
  .
