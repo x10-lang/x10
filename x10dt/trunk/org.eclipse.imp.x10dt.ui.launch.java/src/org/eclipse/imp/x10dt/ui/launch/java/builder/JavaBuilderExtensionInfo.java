@@ -59,7 +59,7 @@ public class JavaBuilderExtensionInfo extends x10.ExtensionInfo {
 							final MessageConsoleStream consoleStream = console.newMessageStream();
 							if (!BatchCompiler.compile(commandline.toArray(new String[0]), new PrintWriter(System.out), new PrintWriter(consoleStream), null)) {
 								throw new InternalCompilerError(
-										"Generated Java file has compilation errors");
+										"Generated Java file has compilation errors. See Console for details.");
 							}
 						}
 						return true;
