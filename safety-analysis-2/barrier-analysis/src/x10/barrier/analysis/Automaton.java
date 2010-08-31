@@ -191,9 +191,7 @@ public class Automaton {
 	}
        	inVisited.states.addAll(addList);
 	inVisited.states.removeAll(removeList);
-	
-	
-	//System.out.println("------------" + inVisited + inVisited.asyncsRenamed);
+
  
       for (Object o: inVisited.outgoingEdges) {
 	  renameAsync((ComposedState) ((Edge) o).to);
@@ -221,12 +219,13 @@ public class Automaton {
 	 cs.addState(compState);
 
 
-	 ComposedState inVisited = this.inVisitedCopy(cs);
-	 if (inVisited == null) /* no repitition */ {
-	        //this.visitedStates.add(cs);
-		return composeAutomaton(compState, sleft);
-	     
+	 if (sleft instanceof ComposedState) { /* no repitition */
+		 if(!compState.states.containsAll(((ComposedState) sleft).states))
+		     return composeAutomaton(compState, sleft);
 	 }
+	 else if( !compState.states.contains(sleft)) /* no repitition */
+	     return composeAutomaton(compState, sleft);
+	 ComposedState inVisited = this.inVisitedCopy(cs);
 	 if (inVisited.asyncsRenamed) /*Repitition and duplication done */ 
 	     return inVisited; 
 	 
@@ -420,18 +419,7 @@ public class Automaton {
 			 child =  composeAutomaton(ss1, s2);
 			    new Edge(s, child, e1.type);
 		     
-		     } /*else {
-			 ss1 = e1.to;
-			 ss2 = e2.to;
-			 State child =  composeAutomaton(ss1, ss2);
-			    new Edge(s, child, Edge.COND);
-			 
-		     }*/
-		  
-
-		    /*System.out.print("s1: " + s1);
-		     System.out.print("s2: " + s2);
-		     System.out.println("s3: " + s);*/
+		     }
 		     
 		  }
 	     
@@ -494,12 +482,12 @@ public class Automaton {
 	    
 	if (s.parallelBlocks.size() == 0)
 	    continue;
-	System.out.println("Parallel blocks of" + s.stateInsts());
+	System.out.println("\nParallel blocks of" + s.stateInsts());
 	s.parallelBlocks = mergeStates(s.parallelBlocks);
 	for (Object p: s.parallelBlocks)
 	    System.out.println(" " + ((State) p).stateInsts());
 	
-    }
+       }
 	for(Object o: head.outgoingEdges) {
 	    printParallelBlocks(((Edge) o).to);
 	}
