@@ -485,7 +485,6 @@ public class X10FinishAsyncAnalysis {
 	 */
 	private void parseIR(int nodenum) {
 		CGNode md = cg.getNode(nodenum);
-		System.err.println("node:"+md.getMethod());
 		IR ir = md.getIR();
 		if (ir != null) {
 			if(DEBUG_IR){

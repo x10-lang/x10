@@ -8,7 +8,7 @@ public class SimpleFinish5 {
 	   for(i=0;i<1000;i++){
 		val p1 = Place.place(i % Place.MAX_PLACES);
 	    	async(p1){    
-		    @FinishAsync(1,1,false,4)
+		    @FinishAsync(1,1,false,2)
                     finish {
 			for(var j:int = 0; j< 500; j++){
                         	async{}

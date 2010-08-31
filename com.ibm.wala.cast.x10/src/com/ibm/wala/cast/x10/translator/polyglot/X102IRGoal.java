@@ -117,8 +117,9 @@ public class X102IRGoal extends SourceGoal_c {
             if(Report.should_report("verbose", 1))
     			Report.report(5,"building call graph ...");
             return engine.buildCallGraph(entrypoints);
-        } catch (Throwable t) {
+        }catch (Throwable t) {
         	System.err.println(t); 
+        	t.printStackTrace();
         	return null;
         }
     	
@@ -126,7 +127,7 @@ public class X102IRGoal extends SourceGoal_c {
     public static HashMap<CallTableKey, LinkedList<CallTableVal>> analyze() throws Exception {
         boolean[] options = {
         		false, // whether to do fixed-point computation on calltable
-        		true, // whether to print the calltable
+        		false, // whether to print the calltable
         		true, // whether to expand everthing call in "at"
         		true,// whether to expand everthing call in "async"
         		true // whether to expand everthing call in "method"
@@ -143,7 +144,6 @@ public class X102IRGoal extends SourceGoal_c {
 		CallGraph cg = buildCallGraph();
 		if(Report.should_report("verbose", 1))
 			Report.report(5,"call graph built!\nanalyzing programs ...");
-
 		calltable = x10fa.build(cg,calltable);
 		calltable = CallTableUtil.findPatterns(calltable);
 		if (ifDump) {
