@@ -89,15 +89,7 @@ public class X10BarrierAnalysis {
   
     CallGraph cg;
     PointerAnalysis pa;
- 
-   
-    /**mr
-     * A Depth-First Search of a Control Flow Graph
-     * 
-     * @param epcfg
-     * @param env
-     */
-    
+
     
 private Set retrieveClocks(int nodenum) {
 	
@@ -148,8 +140,27 @@ private Set retrieveClocks(int nodenum) {
 			}
 		}
 	}
-		//System.out.println("clcock 
+	
        return false;
+   }
+   
+   private boolean isMethodClocked(SSAInstruction inst, NormalAllocationInNode clk,  CGNode md) {
+       if (inst != null && inst.toString().contains("new <X10Source,Lx10/lang/Clock>")) {
+   
+	   OrdinalSet<InstanceKey> os = pa.getPointsToSet(new LocalPointerKey(md
+			, inst.getDef()));
+	   Iterator<InstanceKey> it = os.iterator();
+	
+	   while (it.hasNext()) {
+	       InstanceKey ik = it.next();
+		if (ik.equals(clk)) {
+		    return true;
+		}
+	   }
+	       
+	 }
+       return false;
+       
    }
 
    
@@ -185,7 +196,7 @@ private Set retrieveClocks(int nodenum) {
 	    int index =  funName.lastIndexOf("x10");
 	    funName = "<async" + funName.substring(index + 3);
 	}
-	//this.printInstructions(nodenum);
+	this.printInstructions(nodenum);
 	
 	if (ir != null) {
 	   
@@ -225,7 +236,9 @@ private Set retrieveClocks(int nodenum) {
 		    	
 		    	for (int j = node.getFirstInstructionIndex(); j <= node.getLastInstructionIndex() && j >= 0 ; j++) {
 		    	 SSAInstruction currInst = epcfg.getInstructions()[j];
-		    	
+		    	   if (isMethodClocked(currInst, clk, md))
+		    	       amIClocked = true;
+		    	 
 		    	    if (currInst != null && currInst instanceof  SSANextInstruction && amIClocked) {
 		    		currState = new State(j, j, funName, amIClocked, method);
 
@@ -278,10 +291,6 @@ private Set retrieveClocks(int nodenum) {
 		    
 		}
 		
-
-		
-		       // System.out.println("Neighbors:");
-		    
 		
 		
 	    }// end of (epcfg!=null)

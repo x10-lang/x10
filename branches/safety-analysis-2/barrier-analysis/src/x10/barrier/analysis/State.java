@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.ibm.wala.cast.loader.AstMethod;
+import com.ibm.wala.cast.tree.CAstSourcePositionMap.Position;
 
 class State implements Cloneable {
     int startInst;
@@ -27,6 +28,15 @@ class State implements Cloneable {
 	endInst = -2;
     }
     
+    public State(int startInstruction, int endInstruction, String funcName, boolean clocked, AstMethod m) {
+	startInst = startInstruction;
+	endInst = endInstruction;
+	funName = funcName;
+	isClocked = clocked;
+	method = m;
+    }
+    
+    
     public State cloneMe() {
 	State s = null;
 	try {
@@ -41,21 +51,16 @@ class State implements Cloneable {
     }
     
     public void  addParallelBlock(State s) {
+	if (this.isEqual(s)) 
+	    return;
 	for (Object o: this.parallelBlocks) {
-	    if (s.isEqualOrCopy((State) o))
+	    if (s.isEqual((State) o))
 		return;
 	}
 	this.parallelBlocks.add(s);
     }
     
-    public State(int startInstruction, int endInstruction, String funcName, boolean clocked, AstMethod m) {
-	startInst = startInstruction;
-	endInst = endInstruction;
-	funName = funcName;
-	isClocked = clocked;
-	method = m;
-    }
-    
+ 
     
     public void setEndInstruction (int endInstruction) {
 	endInst = endInstruction;
@@ -86,19 +91,26 @@ class State implements Cloneable {
     }
     
     public String stateInsts() {
-	//return "[" + this.startInst + ":" + this.endInst + "](" + funName + ")" + " "; //+ this.counter;
-	int start, end;
+      String str = "[" + this.startInst + ":" + this.endInst + "](" + funName + ")" + " " + " --- "; //+ this.counter;
+	/*int start, end;
 	if (startInst == 0)
 	    start = 1;
 	else start = startInst;
-
-	int sl = method.getSourcePosition(start).getFirstLine();
-	int sc = method.getSourcePosition(start).getFirstCol();
+         Set sourcePosSet = new HashSet();
+	for (int i = start; i <= endInst; i++) {
+	    Position sourcePos = method.getSourcePosition(i);
+	    if (sourcePosSet.contains(sourcePos))
+		continue;
+	    sourcePosSet.add(sourcePos);
+	    int sl = sourcePos.getFirstLine();
+	    int sc = sourcePos.getFirstCol();
 	
-	int el = method.getSourcePosition(endInst).getLastLine();
-	int ec = method.getSourcePosition(endInst).getLastCol();
+	    int el = sourcePos.getLastLine();
+	    int ec = sourcePos.getLastCol();
 	
-	return "[" + sl + ":" + sc + "->" + el + ":" + ec + "](" + funName + ")" + " ";
+	     str +=  "[" + sl + ":" + sc + "->" + el + ":" + ec + "]" + "    ";
+	}*/
+	return str;
     }
     
     public String toString() {

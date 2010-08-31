@@ -79,7 +79,7 @@ class ComposedState extends State {
 	    for (Object o2: this.states) {
 		State s1 = (State) o1;
 		State s2 = (State) o2;
-		if (s1.isEqual(s2)) {
+		if (s1.isEqualOrCopy(s2)) {
 		    res = true;
 		   
 		}
