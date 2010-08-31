@@ -34,7 +34,8 @@ public class Test {
 
 	// compile(file, package, entrymethod, methodsig)
 	//x10fa.compile(f, "","run","()Lx10/lang/Boolean;");
-	File f = new File("x10.barrier.tests/AllReduceParallelOrig.x10");
+	File f;
+	 f = new File("x10.barrier.tests/AllReduceParallelOrig.x10");
 	x10fa.compile(f,"","main","(Lx10/lang/Rail;)V");
 	
 	f = new File("x10.barrier.tests/ConvolveOrig.x10");
