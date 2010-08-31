@@ -415,20 +415,8 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
            if (!x10.Configuration.ONLY_TYPE_CHECKING) {
 
-           goals.add(X10Casted(job));
-           goals.add(MoveFieldInitializers(job));
-           goals.add(X10Expanded(job));
-           goals.add(X10RewriteExtern(job));
-           goals.add(X10RewriteAtomicMethods(job));
-           
-           
-           
-           goals.add(NativeClassVisitor(job));
-
-           goals.add(Serialized(job));
-           
-           Goal finishGoal = null;
-           if (x10.Configuration.WALA) {
+       
+           if (x10.Configuration.WALA || x10.Configuration.FINISH_ASYNCS) {
                try{
                    ClassLoader cl = Thread.currentThread().getContextClassLoader();
                    Class<?> c = cl.loadClass("com.ibm.wala.cast.x10.translator.polyglot.X102IRGoal");
@@ -443,8 +431,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                    Goal barrier = IRBarrier(ir, buildCallTableMethod,x10.Configuration.FINISH_ASYNCS);
                    goals.add(barrier);
                    if(x10.Configuration.FINISH_ASYNCS){
-                	   finishGoal = FinishAsyncBarrier(barrier,job,this);
-                	   goals.add(finishGoal);
+                	   goals.add(FinishAsyncBarrier(barrier,job,this));
                    }
                    
                } catch (Throwable e) {
@@ -452,7 +439,17 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                    e.printStackTrace();
                }
            }
+           goals.add(X10Casted(job));
+           goals.add(MoveFieldInitializers(job));
+           goals.add(X10Expanded(job));
+           goals.add(X10RewriteExtern(job));
+           goals.add(X10RewriteAtomicMethods(job));
+           
+           
+           
+           goals.add(NativeClassVisitor(job));
 
+           goals.add(Serialized(job));
            if (x10.Configuration.WORK_STEALING) {
                Goal wsCodeGenGoal = WSCodeGenerator(job);
                if(wsCodeGenGoal != null) {
@@ -474,10 +471,6 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
            // the barrier will handle prereqs on its own
            CodeGenerated(job).addPrereq(CodeGenBarrier());
-       
-           if(finishGoal != null){
-        	   Desugarer(job).addPrereq(finishGoal);
-           }
            Desugarer(job).addPrereq(TypeCheckBarrier());
            CodeGenerated(job).addPrereq(Desugarer(job));
            List<Goal> optimizations = Optimizer.goals(this, job);
