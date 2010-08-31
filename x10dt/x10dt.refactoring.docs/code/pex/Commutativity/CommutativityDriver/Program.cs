@@ -4,6 +4,9 @@ using System.Linq;
 using System.Text;
 using CommutativityTests;
 
+/*
+ * @author Mohsen Vakilian
+ */ 
 namespace CommutativityDriver
 {
     class Program

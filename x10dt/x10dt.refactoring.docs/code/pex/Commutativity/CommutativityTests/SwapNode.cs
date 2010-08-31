@@ -3,8 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Pex.Framework;
-using System.Diagnostics.Contracts;
 
+/*
+ * @author Mohsen Vakilian
+ * @author Tihomir Gvero
+ * 
+ */
 namespace CommutativityTests
 {
     [PexClass]
@@ -135,8 +139,13 @@ namespace CommutativityTests
             return new List(head.OldCloneRecursive());
         }
 
-        public Boolean Equals(List l)
+        public override bool Equals(Object obj)
         {
+            var l = obj as List;
+
+            if (l == null)
+                return false;
+
             Node thisCurrentNode = head;
             Node otherCurrentNode = l.head;
 
@@ -156,6 +165,11 @@ namespace CommutativityTests
                     return false;
                 }
             }
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode() ^ 348204098;
         }
 
     }
@@ -203,28 +217,24 @@ namespace CommutativityTests
 
  */
     [PexClass]
-    public class SwapNode
+    public partial class SwapNode
     {
         [PexMethod]
         public void IsSwapNodeByIdCommutative(List l1, List l2, int id1, int id2)
         {
-            Contract.Requires(l1 != null && l2 != null && l1.Equals(l2));
-            Contract.Ensures(l1.Equals(l2));
 
             PexAssume.IsNotNull(l1);
             PexAssume.IsNotNull(l2);
             PexAssume.AreEqual(l1, l2);
 
-            if (l1 != null && l2 != null && l1.Equals(l2) && l1.RepOK())
-            {
-                l1.SwapNode(id1);
-                l1.SwapNode(id2);
+            l1.SwapNode(id1);
+            l1.SwapNode(id2);
 
-                l2.SwapNode(id2);
-                l2.SwapNode(id1);
+            l2.SwapNode(id2);
+            l2.SwapNode(id1);
 
-                PexAssert.IsTrue(l1.Equals(l2));
-            }
+            PexAssert.AreEqual(l1, l2);
+
         }
 /*
         [PexMethod]
