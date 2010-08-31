@@ -18,6 +18,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.imp.editor.HoverHelper;
 import org.eclipse.imp.x10dt.ui.X10DTUIPlugin;
+import org.eclipse.imp.x10dt.ui.tests.utils.FileUtils;
+import org.eclipse.imp.x10dt.ui.tests.utils.ProjectUtils;
 import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Shell;
