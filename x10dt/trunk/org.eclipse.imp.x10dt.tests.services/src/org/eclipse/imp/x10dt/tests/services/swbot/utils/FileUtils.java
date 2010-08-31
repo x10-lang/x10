@@ -1,4 +1,4 @@
-package org.eclipse.imp.x10dt.ui.tests.utils;
+package org.eclipse.imp.x10dt.tests.services.swbot.utils;
 
 import java.io.BufferedReader;
 import java.io.File;
