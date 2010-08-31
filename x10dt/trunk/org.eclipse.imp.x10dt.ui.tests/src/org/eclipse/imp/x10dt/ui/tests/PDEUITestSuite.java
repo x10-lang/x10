@@ -1,7 +1,6 @@
 package org.eclipse.imp.x10dt.ui.tests;
 
 import org.eclipse.imp.x10dt.ui.editor.X10DocProviderTest;
-import org.eclipse.imp.x10dt.ui.editor.X10DocProviderTest_Parameterized;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
