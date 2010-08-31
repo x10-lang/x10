@@ -15,6 +15,7 @@ import java.util.List;
 
 import org.eclipse.imp.x10dt.tests.services.swbot.constants.LaunchConstants;
 import org.eclipse.imp.x10dt.tests.services.swbot.constants.ViewConstants;
+import org.eclipse.imp.x10dt.tests.services.swbot.utils.SWTBotUtils;
 import org.eclipse.imp.x10dt.ui.tests.utils.EditorMatcher;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.matchers.WidgetMatcherFactory;
@@ -60,7 +61,7 @@ public class JavaBackEndSmokeTest extends X10DTTestBase {
     public static void beforeClass() throws Exception {
         SWTBotPreferences.KEYBOARD_STRATEGY= "org.eclipse.swtbot.swt.finder.keyboard.SWTKeyboardStrategy"; //$NON-NLS-1$
         topLevelBot= new SWTWorkbenchBot();
-        topLevelBot.viewByTitle("Welcome").close(); //$NON-NLS-1$
+        SWTBotUtils.closeWelcomeViewIfNeeded(topLevelBot);
         // SWTBotPreferences.TIMEOUT = 10000;
     }
 
