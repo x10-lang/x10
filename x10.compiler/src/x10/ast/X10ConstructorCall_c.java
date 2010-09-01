@@ -40,6 +40,7 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeBuilder;
 import x10.ast.X10New_c.MatcherMaker;
+import x10.errors.Errors;
 import x10.types.X10ConstructorDef;
 import x10.types.X10ConstructorInstance;
 
@@ -227,15 +228,19 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 	    catch (SemanticException e) {
 	        // Now, try to find the method with implicit conversions, making them explicit.
 	        try {
-	            Pair<ConstructorInstance,List<Expr>> p = tryImplicitConversions(this, tc, ct, argTypes);
+	            Pair<ConstructorInstance,List<Expr>> p = tryImplicitConversions(n, tc, ct, argTypes);
 	            ci = (X10ConstructorInstance) p.fst();
 	            args = p.snd();
 	        }
 	        catch (SemanticException e2) {
-	            Pair<ConstructorInstance,List<Expr>> p = X10New_c.findConstructor(tc, this, ct, argTypes);
+	            Pair<ConstructorInstance,List<Expr>> p = X10New_c.findConstructor(tc, n, ct, argTypes);
 	            ci = (X10ConstructorInstance) p.fst();
 	            args = p.snd();
 	        }
+	    }
+
+	    if (ci.error() != null) {
+	        Errors.issue(tc.job(), ci.error(), n);
 	    }
 
 	    n = (X10ConstructorCall_c) n.constructorInstance(ci);

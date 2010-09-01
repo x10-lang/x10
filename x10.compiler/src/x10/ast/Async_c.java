@@ -14,6 +14,8 @@ package x10.ast;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Set;
 
 import polyglot.ast.Expr;
 import polyglot.ast.Formal;
@@ -26,6 +28,8 @@ import polyglot.types.Context;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.VarDef_c;
+import polyglot.types.VarDef;
 import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
@@ -55,6 +59,13 @@ import x10.types.constraints.XConstrainedTerm;
  */
 
 public class Async_c extends Stmt_c implements Async {
+    /*
+    For example:
+    val x:Int;
+    finish async { x = 42; } // "x" can either be boxed or be passed (to the async closure) by ref, because we need to assign to it. It cannot be passed by value.
+    async { val y = x; } // "x" can be passed by value or be be boxed. It cannot be passed by ref because the async outlives the var "x".
+     */
+    public Set<VarDef> asyncInitVal = null; // used by the backend to know whether to pass a var to an async closure by ref or by value
 
 	public Expr place;
 	public Stmt body;

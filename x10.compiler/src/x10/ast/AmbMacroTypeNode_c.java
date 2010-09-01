@@ -63,11 +63,12 @@ import x10.types.ParameterType;
 import x10.types.TypeDef_c;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
+import x10.types.X10Def;
 import x10.types.X10ParsedClassType;
-import x10.types.X10TypeEnv_c;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
+import x10.types.X10Use;
 import x10.visit.X10TypeChecker;
 import x10.visit.ChangePositionVisitor;
 import x10.types.checker.VarChecker;
@@ -341,10 +342,15 @@ public class AmbMacroTypeNode_c extends AmbTypeNode_c implements AmbMacroTypeNod
         }
         
         if (t instanceof MacroType) {
+            // FIXME: [IP] We are losing the arguments here!
             n = (AmbMacroTypeNode_c) n.typeArgs(Collections.EMPTY_LIST);
             n = (AmbMacroTypeNode_c) n.args(Collections.EMPTY_LIST);
         }
         
+        if (t instanceof X10Use && ((X10Use<? extends X10Def>) t).error() != null) {
+            Errors.issue(tc.job(), ((X10Use<? extends X10Def>) t).error(), n);
+        }
+
         if (! typeArgs.isEmpty()) {
             if (t instanceof X10ParsedClassType) {
         	X10ParsedClassType ct = (X10ParsedClassType) t;

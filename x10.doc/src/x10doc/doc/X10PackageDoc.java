@@ -1,5 +1,10 @@
 package x10doc.doc;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -11,27 +16,33 @@ import com.sun.javadoc.PackageDoc;
 
 public class X10PackageDoc extends X10Doc implements PackageDoc {
 	String name;
+	String path;
+	
 	ArrayList<X10ClassDoc> classes;
 	X10RootDoc rootDoc;
 	boolean included;
 	
 	X10ClassDoc[] includedClasses;
 
-	public X10PackageDoc(String name) {
+	public X10PackageDoc(String name, String path) {
 	//super("");
 		
 		this.name = name;
+		this.path = path;
 		this.rootDoc = X10RootDoc.getRootDoc();
 		this.classes = new ArrayList<X10ClassDoc>();
 		this.included = false; // defn of included: set of entities (classes/packages) that are specified on the
 		                       // command-line and that pass through the access modifier filter; at present, x10doc
 		                       // does not handle command-line specified packages, so X10PackageDoc.included is
 		                       // false for all packages
-		super.processComment("");
+		
+		
+		super.processComment(getComment());
 	}
 	
 	public void addClass(X10ClassDoc cd) {
 		classes.add(cd);
+		
 		/*
 		if (!included && cd.isIncluded()) {
 			included = true;
@@ -141,5 +152,38 @@ public class X10PackageDoc extends X10Doc implements PackageDoc {
 		System.out.println("PackageDoc.ordinaryClasses() called.");
 		return allClasses();
 	}
+	
+	private String getComment() {
+		FileChannel fc;
+		BufferedReader br;
+		try {
+			File file = new File(path + "package.html");
+			if (file.exists()) {
+				StringBuilder builder = new StringBuilder();
+				fc = new FileInputStream(file).getChannel();
+				br = new BufferedReader(Channels.newReader(fc, "UTF-8"));
 
+				String delim = System.getProperty("line.separator");
+				String line = "";
+				while ((line = br.readLine()) != null) {
+					builder.append(line);
+					builder.append(delim);
+				}
+
+				String html = builder.toString();
+				int start = html.toLowerCase().indexOf("<body");
+				start = html.indexOf(">", start) + 1;
+				int end = html.toLowerCase().indexOf("</body>", start);
+				String body = html.substring(start, end);
+
+				br.close();
+				fc.close();
+
+				return "/**" + body + "*/";
+			}
+		} catch (Exception e) {
+			// fall through
+		}
+		return "";
+	}
 }

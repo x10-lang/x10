@@ -163,7 +163,7 @@ public class FieldDecl_c extends Term_c implements FieldDecl {
         return init == n.init ? n : n.init(init);
     }
 
-    public Node buildTypesOverride(TypeBuilder tb) throws SemanticException {
+    public Node buildTypesOverride(TypeBuilder tb) {
         TypeSystem ts = tb.typeSystem();
 
         ClassDef ct = tb.currentClass();

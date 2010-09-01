@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import polyglot.ast.Binary;
 import polyglot.ast.Call;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
@@ -26,6 +27,7 @@ import polyglot.ast.Node;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.ast.Unary_c;
+import polyglot.ast.Variable;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.Flags;
@@ -35,6 +37,7 @@ import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import x10.errors.Errors;
@@ -68,13 +71,22 @@ public class X10Unary_c extends Unary_c {
         return super.constantValue();
     }
 
+    public static Binary.Operator getBinaryOp(Unary.Operator op) {
+        if (op == PRE_INC || op == POST_INC) {
+            return Binary.ADD;
+        } else if (op == PRE_DEC || op == POST_DEC) {
+            return Binary.SUB;
+        }
+        return null;
+    }
+
     /**
      * Type check a binary expression. Must take care of various cases because
      * of operators on regions, distributions, points, places and arrays.
      * An alternative implementation strategy is to resolve each into a method
      * call.
      */
-    public Node typeCheck(ContextVisitor tc) throws SemanticException {
+    public Node typeCheck(ContextVisitor tc) {
         X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
         X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
         Unary.Operator op = this.operator();
@@ -86,106 +98,138 @@ public class X10Unary_c extends Unary_c {
                 kind = IntLit.INT;
             else
                 kind = IntLit.LONG;
-            return Converter.check(nf.IntLit(position(), kind, -((IntLit) expr).longValue()), tc);
-        }
-        
-        Call c = desugarUnaryOp(this, tc);
-        if (c != null) {
-            X10MethodInstance mi = (X10MethodInstance) c.methodInstance();
-            if (mi.error() != null)
-                throw mi.error();
-            // rebuild the unary using the call's arguments.  We'll actually use the call node after desugaring.
-            if (mi.flags().isStatic()) {
-                return this.expr(c.arguments().get(0)).type(c.type());
-            }
-            else {
-                return this.expr((Expr) c.target()).type(c.type());
-            }
-        }
-
-        if (op == POST_INC || op == POST_DEC || op == PRE_INC || op == PRE_DEC) {
-            if (! expr.type().isNumeric()) {
-                throw new SemanticException("Operand of " + op +
-                                            " operator must be numeric.", expr.position());
-            }
-
-            if (expr instanceof Local) {
-                Local l = (Local) expr;
-                if (l.localInstance().flags().isFinal()) {
-                    throw new SemanticException("Cannot apply " + op + " to a final variable.", position());
-                }
-                return type(expr.type());
-            }
-            else if (expr instanceof Field) {
-                Field l = (Field) expr;
-                if (l.fieldInstance().flags().isFinal()) {
-                    throw new SemanticException("Cannot apply " + op + " to a final variable.", position());
-                }
-                return type(expr.type());
-            }
-            else {
-                Expr target = null;
-                List<Expr> args = null;
-                List<TypeNode> typeArgs = null;
-
-                // Handle a(i)++ and a.apply(i)++
-                if (expr instanceof ClosureCall) {
-                    ClosureCall e = (ClosureCall) expr;
-                    target = e.target();
-                    args = e.arguments();
-                    typeArgs = Collections.EMPTY_LIST; // e.typeArgs();
-                }
-                else if (expr instanceof X10Call) {
-                    X10Call e = (X10Call) expr;
-                    if (e.target() instanceof Expr && e.name().id() == Name.make("apply")) {
-                        target = (Expr) e.target();
-                        args = e.arguments();
-                        typeArgs = e.typeArguments();
-                    }
-                }
-
-                if (target != null) {
-                    List<Expr> setArgTypes = new ArrayList<Expr>();
-                    List<TypeNode> setTypeArgs = new ArrayList<TypeNode>();
-
-                    // RHS goes before index
-                    setArgTypes.add(expr);
-                    for (Expr e : args) {
-                        setArgTypes.add(e);
-                    }
-                    for (TypeNode tn : typeArgs) {
-                        setTypeArgs.add(tn);
-                    }
-
-                    X10Call_c n = (X10Call_c) nf.X10Call(position(), target, nf.Id(position(), Name.make("set")), setTypeArgs, setArgTypes);
-
-                    n = (X10Call_c) n.del().disambiguate(tc).typeCheck(tc).checkConstants(tc);
-
-                    // Make sure we don't coerce here.
-                    for (int i = 0; i < setArgTypes.size(); i++) {
-                        if (setArgTypes.get(i) != n.arguments().get(i))
-                            throw new SemanticException("Cannot find method set in " + target.type());
-                    }
-
-                    return type(n.methodInstance().returnType());
-                }
+            IntLit lit = nf.IntLit(position(), kind, -((IntLit) expr).longValue());
+            try {
+                return Converter.check(lit, tc);
+            } catch (SemanticException e) {
+                throw new InternalCompilerError("Unexpected error while typechecking literal: "+lit, e);
             }
         }
 
         Type t = expr.type();
 
-        if (ts.hasUnknown(t))
-            throw new SemanticException(); // null message
+        if (op == POST_INC || op == POST_DEC || op == PRE_INC || op == PRE_DEC) {
+            // Compute the type and the expected type
+            Type et = t;
+            if (expr instanceof Variable) {
+                Variable v = (Variable) expr;
+                if (v.flags().isFinal()) {
+                    Errors.issue(tc.job(),
+                            new SemanticException("Cannot apply " + op + " to a final variable.", position()));
+                }
+            }
+            else {
+                Expr target = null;
+                List<TypeNode> typeArgs = null;
+                List<Expr> args = null;
 
-        X10Unary_c n = (X10Unary_c) super.typeCheck(tc);
+                // Handle a(i)++ and a.apply(i)++
+                if (expr instanceof ClosureCall) {
+                    ClosureCall e = (ClosureCall) expr;
+                    target = e.target();
+                    typeArgs = e.typeArguments();
+                    args = e.arguments();
+                }
+                else if (expr instanceof X10Call) {
+                    X10Call e = (X10Call) expr;
+                    if (!(e.target() instanceof Expr) || e.name().id() != ClosureCall.APPLY) {
+                        Errors.issue(tc.job(),
+                                new SemanticException("Cannot apply " + op + " to an arbitrary method call.", position()));
+                        t = ts.unknownType(position());
+                        et = null;
+                    } else {
+                        target = (Expr) e.target();
+                        typeArgs = e.typeArguments();
+                        args = e.arguments();
+                    }
+                } else {
+                    Errors.issue(tc.job(),
+                            new SemanticException("Cannot apply " + op + " to an arbitrary expression.", position()));
+                    t = ts.unknownType(position());
+                    et = null;
+                }
 
-        Type resultType = n.type();
-        resultType = ts.performUnaryOperation(resultType, t, op);
-        if (resultType != n.type()) {
-            n = (X10Unary_c) n.type(resultType);
+                if (target != null) {
+                    List<Type> tArgs = new ArrayList<Type>();
+                    for (TypeNode tn : typeArgs) {
+                        tArgs.add(tn.type());
+                    }
+                    List<Type> actualTypes = new ArrayList<Type>();
+                    // value goes before args
+                    actualTypes.add(t);
+                    for (Expr a : args) {
+                        actualTypes.add(a.type());
+                    }
+                    X10MethodInstance mi = ClosureCall_c.findAppropriateMethod(tc, target.type(), SettableAssign.SET, tArgs, actualTypes);
+                    if (mi.error() != null) {
+                        Errors.issue(tc.job(), new SemanticException("Unable to perform operation", mi.error()), this);
+                    }
+                    // Make sure we don't coerce here.
+                    List<Type> fTypes = mi.formalTypes();
+                    for (int i = 0; i < actualTypes.size(); i++) {
+                        if (!ts.isSubtype(actualTypes.get(i), fTypes.get(i), tc.context()))
+                            Errors.issue(tc.job(),
+                                    new SemanticException("No "+SettableAssign.SET+" method found in " + target.type(), position()));
+                    }
+                    t = mi.returnType();
+                    et = fTypes.get(0);
+                }
+            }
+
+            if (et != null) {
+                // Check that there's a binary operator with the right return type
+                IntLit lit = nf.IntLit(position(), IntLit.INT, 1);
+                try {
+                    lit = Converter.check(lit, tc);
+                } catch (SemanticException e) {
+                    throw new InternalCompilerError("Unexpected error while typechecking literal: "+lit, e);
+                }
+                Binary.Operator binaryOp = getBinaryOp(op);
+                Call c = X10Binary_c.desugarBinaryOp(nf.Binary(position(), expr, binaryOp, lit), tc);
+                if (c == null) {
+                    Errors.issue(tc.job(),
+                            new SemanticException("No binary operator " + binaryOp + " found in type " + t, expr.position()));
+                } else {
+                    X10MethodInstance mi = (X10MethodInstance) c.methodInstance();
+                    if (mi.error() != null) {
+                        Errors.issue(tc.job(), new SemanticException("Unable to perform operation", mi.error()), this);
+                    }
+                    Type resultType = mi.returnType();
+                    if (!ts.isSubtype(resultType, et, tc.context())) {
+                        Errors.issue(tc.job(),
+                                new SemanticException("Incompatible return type of binary operator "+binaryOp+" found:" +
+                                                      "\n\t operator return type: " + resultType +
+                                                      "\n\t expression type: "+et, expr.position()));
+                    }
+                }
+            }
+
+            return this.type(t);
         }
 
-        return n;
+        Call c = desugarUnaryOp(this, tc);
+        if (c != null) {
+            X10MethodInstance mi = (X10MethodInstance) c.methodInstance();
+            if (mi.error() != null) {
+                Errors.issue(tc.job(), mi.error(), this);
+            }
+            // rebuild the unary using the call's arguments.  We'll actually use the call node after desugaring.
+            Type resultType = c.type();
+            resultType = ts.performUnaryOperation(resultType, t, op);
+            if (mi.flags().isStatic()) {
+                return this.expr(c.arguments().get(0)).type(resultType);
+            }
+            else {
+                return this.expr((Expr) c.target()).type(resultType);
+            }
+        }
+
+        if (!ts.hasUnknown(t)) {
+            Errors.issue(tc.job(),
+                    new SemanticException("No operation " + op + " found for operand " + t + ".", position()));
+        }
+
+        return this.type(ts.unknownType(position()));
     }
 
     public static X10Call_c desugarUnaryOp(Unary n, ContextVisitor tc) {
@@ -208,7 +252,7 @@ public class X10Unary_c extends Unary_c {
 
         if (methodName != null) {
             // Check if there is a method with the appropriate name and type with the operand as receiver.   
-            X10Call_c n2 = (X10Call_c) nf.X10Call(pos, left, nf.Id(pos, methodName), Collections.EMPTY_LIST, Collections.EMPTY_LIST);
+            X10Call_c n2 = (X10Call_c) nf.X10Call(pos, left, nf.Id(pos, methodName), Collections.<TypeNode>emptyList(), Collections.<Expr>emptyList());
             n2 = X10Binary_c.typeCheckCall(tc, n2);
             X10MethodInstance mi2 = (X10MethodInstance) n2.methodInstance();
             if (mi2.error() == null && !mi2.def().flags().isStatic())
@@ -217,7 +261,7 @@ public class X10Unary_c extends Unary_c {
 
         if (methodName != null) {
             // Check if there is a static method of the left type with the appropriate name and type.   
-            X10Call_c n4 = (X10Call_c) nf.X10Call(pos, nf.CanonicalTypeNode(pos, Types.ref(l)), nf.Id(pos, methodName), Collections.EMPTY_LIST, Collections.singletonList(left));
+            X10Call_c n4 = (X10Call_c) nf.X10Call(pos, nf.CanonicalTypeNode(pos, Types.ref(l)), nf.Id(pos, methodName), Collections.<TypeNode>emptyList(), Collections.singletonList(left));
             n4 = X10Binary_c.typeCheckCall(tc, n4);
             X10MethodInstance mi4 = (X10MethodInstance) n4.methodInstance();
             if (mi4.error() == null && mi4.def().flags().isStatic())
@@ -322,10 +366,10 @@ public class X10Unary_c extends Unary_c {
             }
             if (ct == null) ct = l.toClass();
             SemanticException error = new Errors.AmbiguousOperator(op, bestmis, pos);
-            X10MethodInstance mi = xts.createFakeMethod(ct, Flags.PUBLIC.Static(), methodName, Collections.EMPTY_LIST, Collections.singletonList(l), error);
+            X10MethodInstance mi = xts.createFakeMethod(ct, Flags.PUBLIC.Static(), methodName, Collections.<Type>emptyList(), Collections.singletonList(l), error);
             if (rt != null) mi = mi.returnType(rt);
             result = (X10Call_c) nf.X10Call(pos, nf.CanonicalTypeNode(pos, Types.ref(ct)),
-                    nf.Id(pos, methodName), Collections.EMPTY_LIST,
+                    nf.Id(pos, methodName), Collections.<TypeNode>emptyList(),
                     Collections.singletonList(left)).methodInstance(mi).type(mi.returnType());
         }
         try {

@@ -327,19 +327,24 @@ public final class Math {
    @Native("c++", "x10aux::math_utils::log1p(#1)")
    public static native def log1p(a:Double):Double;
 
-   /* FIXME: since NativeRep of Int and UInt are the same, can't overload these methods with unsigned. */
-   public static safe def max(a:Int, b:Int)= a<b?b:a;
-   public static safe def min(a:Int, b:Int)= a<b?a:b;
+    /* FIXME: since NativeRep of Int and UInt are the same, can't overload these methods with unsigned. */
+    public static safe def max(a:Int, b:Int)= a<b?b:a;
+    public static safe def min(a:Int, b:Int)= a<b?a:b;
 // public static safe def max(a:UInt, b:UInt)= a<b?b:a;
 // public static safe def min(a:UInt, b:UInt)= a<b?a:b;
-   public static safe def max(a:Long, b:Long)= a<b?b:a;
-   public static safe def min(a:Long, b:Long)= a<b?a:b;
-// public static safe def max(a:ULong, b:ULong)= a<b?b:a;
-// public static safe def min(a:ULong, b:ULong)= a<b?a:b;
-   public static safe def max(a:Float, b:Float)= a<b?b:a;
-   public static safe def min(a:Float, b:Float)= a<b?a:b;
-   public static safe def max(a:Double, b:Double)= a<b?b:a;
-   public static safe def min(a:Double, b:Double)= a<b?a:b;
+    public static safe def max(a:Long, b:Long)= a<b?b:a;
+    public static safe def min(a:Long, b:Long)= a<b?a:b;
+//  public static safe def max(a:ULong, b:ULong)= a<b?b:a;
+//  public static safe def min(a:ULong, b:ULong)= a<b?a:b;
+    public static safe def max(a:Float, b:Float)= a<b?b:a;
+    public static safe def min(a:Float, b:Float)= a<b?a:b;
+    public static safe def max(a:Double, b:Double)= a<b?b:a;
+    public static safe def min(a:Double, b:Double)= a<b?a:b;
+
+    public static safe def signum(a:Int) = (a == 0) ? 0 : ((a>0) ? 1 : -1);
+    public static safe def signum(a:Long) = (a == 0L) ? 0 : ((a>0L) ? 1 : -1);
+    public static safe def signum(a:Float) = (a == 0.0f) ? 0 : ((a>0.0f) ? 1 : -1);
+    public static safe def signum(a:Double) = (a == 0.0d) ? 0 : ((a>0.0d) ? 1 : -1);
 
     /**
      * @return the value of a with the sign of b
@@ -355,7 +360,7 @@ public final class Math {
             pow2 <<= 1;
         return pow2;
     }
-    
+
     public static safe def powerOf2(p:int) {
        return (p & -p) == p;
     }

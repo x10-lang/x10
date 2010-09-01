@@ -310,9 +310,8 @@ public class X10Binary_c extends Binary_c implements X10Binary {
      * An alternative implementation strategy is to resolve each into a method
      * call.
      */
-    public Node typeCheck(ContextVisitor tc) throws SemanticException {
+    public Node typeCheck(ContextVisitor tc) {
         X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
-        TypeSystem ts = xts;
         Context context = tc.context();
 
         Type lbase = X10TypeMixin.baseType(left.type());
@@ -320,14 +319,16 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 
         if (op == EQ || op == NE) {
             if (xts.isExactlyFunctionType(lbase)) {
-                throw new SemanticException("The " + op +
-                        " operator cannot be applied to the function " + left,
-                        position());
+                Errors.issue(tc.job(),
+                        new SemanticException("The " + op +
+                                " operator cannot be applied to the function " + left,
+                                position()));
             }
             if (xts.isExactlyFunctionType(rbase)) {
-                throw new SemanticException("The " + op +
-                        " operator cannot be applied to the function " + right,
-                        position());
+                Errors.issue(tc.job(),
+                        new SemanticException("The " + op +
+                                " operator cannot be applied to the function " + right,
+                                position()));
             }
         }
 
@@ -339,35 +340,42 @@ public class X10Binary_c extends Binary_c implements X10Binary {
             // If so, insert the conversion and check again.
             
             if ((xts.isSigned(lbase) && xts.isUnsigned(rbase)) || (xts.isUnsigned(lbase) && xts.isSigned(rbase))) {
-                if (lv != null && xts.numericConversionValid(rbase, lbase, lv, context)) {
-                    Expr e = Converter.attemptCoercion(tc, left, rbase);
-                    if (e == left)
-                        return this;
-                    return Converter.check(left(e), tc);
-                }
-                if (rv != null && xts.numericConversionValid(lbase, rbase, rv, context)) {
-                    Expr e = Converter.attemptCoercion(tc, right, lbase);
-                    if (e == right)
-                        return this;
-                    return Converter.check(right(e), tc);
-                }
+                try {
+                    if (lv != null && xts.numericConversionValid(rbase, lbase, lv, context)) {
+                        Expr e = Converter.attemptCoercion(tc, left, rbase);
+                        if (e == left)
+                            return this.type(xts.Boolean());
+                        return Converter.check(left(e), tc);
+                    }
+                    if (rv != null && xts.numericConversionValid(lbase, rbase, rv, context)) {
+                        Expr e = Converter.attemptCoercion(tc, right, lbase);
+                        if (e == right)
+                            return this.type(xts.Boolean());
+                        return Converter.check(right(e), tc);
+                    }
+                } catch (SemanticException e) { } // FIXME
             }
             
             if (xts.isUnsigned(lbase) && xts.isSigned(rbase))
-                throw new SemanticException("Cannot compare unsigned versus signed values.", position());
+                Errors.issue(tc.job(),
+                        new SemanticException("Cannot compare unsigned versus signed values.", position()));
 
             if (xts.isSigned(lbase) && xts.isUnsigned(rbase))
-                throw new SemanticException("Cannot compare signed versus unsigned values.", position());
+                Errors.issue(tc.job(),
+                        new SemanticException("Cannot compare signed versus unsigned values.", position()));
             
             Type promoted = promote(xts, lbase, rbase);
             
             if (promoted != null &&
                 (! xts.typeBaseEquals(lbase, promoted, context) ||
-                 ! xts.typeBaseEquals(rbase, promoted, context))) {
+                 ! xts.typeBaseEquals(rbase, promoted, context)))
+            {
+                try {
                 Expr el = Converter.attemptCoercion(tc, left, promoted);
                 Expr er = Converter.attemptCoercion(tc, right, promoted);
                 if (el != left || er != right)
                 	return Converter.check(left(el).right(er), tc);
+                } catch (SemanticException e) { } // FIXME
             }
         }
         
@@ -413,16 +421,18 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         Type l = left.type();
         Type r = right.type();
 
-        if (xts.hasUnknown(l) || xts.hasUnknown(r))
-            throw new SemanticException(); // null message
-
-        if (op == COND_OR || op == COND_AND) {
-            if (l.isBoolean() && r.isBoolean()) {
-                return type(ts.Boolean());
+        if (!xts.hasUnknown(l) && !xts.hasUnknown(r)) {
+            if (op == COND_OR || op == COND_AND) {
+                if (l.isBoolean() && r.isBoolean()) {
+                    return type(xts.Boolean());
+                }
             }
+
+            Errors.issue(tc.job(),
+                    new SemanticException("No operation " + op + " found for operands " + l + " and " + r + ".", position()));
         }
 
-        throw new SemanticException("No operation " + op + " found for operands " + l + " and " + r + ".", position());
+        return this.type(xts.unknownType(position()));
     }
 
     public static X10Call_c typeCheckCall(ContextVisitor tc, X10Call_c call) {

@@ -50,6 +50,8 @@ import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.Closure;
+import x10.ast.ClosureCall;
+import x10.ast.SettableAssign;
 import x10.ast.SettableAssign_c;
 import x10.ast.X10Call;
 import x10.ast.X10CanonicalTypeNode;
@@ -199,7 +201,7 @@ public class RailInLoopOptimizer extends ContextVisitor {
                         Position pos = call.position();
                         Receiver target = call.target();
                         Type type = X10TypeMixin.baseType(call.type());
-                        if (!(type instanceof ParameterType) && target != null && (xts.isRail(target.type()) || xts.isValRail(target.type())) && (call.methodInstance().name().toString().equals("apply") || call.methodInstance().name().toString().equals("set"))) {
+                        if (!(type instanceof ParameterType) && target != null && (xts.isRail(target.type()) || xts.isValRail(target.type())) && (call.methodInstance().name()==ClosureCall.APPLY || call.methodInstance().name()==SettableAssign.SET)) {
                             if (ignores.contains(target.toString())) {
                                 return n;
                             }
@@ -432,7 +434,7 @@ public class RailInLoopOptimizer extends ContextVisitor {
                             Position pos = call.position();
                             Receiver target = call.target();
                             Type type = X10TypeMixin.baseType(call.type());
-                            if (!(type instanceof ParameterType) && target != null && (xts.isRail(target.type()) || xts.isValRail(target.type())) && (call.methodInstance().name().toString().equals("apply") || call.methodInstance().name().toString().equals("set"))) {
+                            if (!(type instanceof ParameterType) && target != null && (xts.isRail(target.type()) || xts.isValRail(target.type())) && (call.methodInstance().name()==ClosureCall.APPLY || call.methodInstance().name()==SettableAssign.SET)) {
                                 if (ignores.contains(target.toString())) {
                                     return n;
                                 }

@@ -34,6 +34,7 @@ import polyglot.types.CodeDef;
 import polyglot.types.Context;
 import polyglot.types.Def;
 import polyglot.types.FieldDef;
+import polyglot.types.Flags;
 import polyglot.types.LazyRef;
 import polyglot.types.LocalDef;
 import polyglot.types.MethodInstance;
@@ -250,7 +251,7 @@ public class Closure_c extends Expr_c implements Closure {
 		return reconstruct(/*typeParams,*/ formals, guard, returnType, throwTypes, body).hasType(htn);
 	}
 
-	public Node buildTypesOverride(TypeBuilder tb) throws SemanticException {
+	public Node buildTypesOverride(TypeBuilder tb) {
 		X10TypeSystem ts = (X10TypeSystem) tb.typeSystem();
 
 		X10ClassDef ct = (X10ClassDef) tb.currentClass();
@@ -264,7 +265,10 @@ public class Closure_c extends Expr_c implements Closure {
 		}
 
 		if (! (def instanceof CodeDef)) {
-			throw new SemanticException("Closure cannot occur outside code body.", position());
+			Errors.issue(tb.job(),
+			             new SemanticException("Closure cannot occur outside code body.", position()));
+			// Fake it
+			def = ts.initializerDef(position(), Types.ref(ct.asType()), Flags.STATIC);
 		}
 
 		CodeDef code = (CodeDef) def;
@@ -335,8 +339,10 @@ public class Closure_c extends Expr_c implements Closure {
 		if (code instanceof X10MemberDef)
 			assert mi.thisVar() == ((X10MemberDef) code).thisVar();
 
-		if (returnType instanceof UnknownTypeNode && body == null)
-			throw new SemanticException("Cannot infer return type; closure has no body.", position());
+		if (returnType instanceof UnknownTypeNode && body == null) {
+			Errors.issue(tb.job(),
+			             new SemanticException("Cannot infer return type; closure has no body.", position()));
+		}
 
 		return n.closureDef(mi);
 	}

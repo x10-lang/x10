@@ -84,6 +84,7 @@ import polyglot.visit.PruningVisitor;
 import polyglot.visit.ReachChecker;
 import polyglot.visit.Translator;
 import x10.ast.X10NodeFactory_c;
+import x10.errors.Warnings;
 import x10.extension.X10Ext;
 import x10.finish.table.CallTableKey;
 import x10.finish.table.CallTableVal;
@@ -458,6 +459,12 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                    //wsCodeGenGoal.addPrereq(WSExpressionFlattener(job));
                }
            }
+           
+           // try retypechecking before inlining
+           // TypeSystem ts = job.extensionInfo().typeSystem();
+           // NodeFactory nf = job.extensionInfo().nodeFactory();
+           // goals.add( new ForgivingVisitorGoal("TypeChecked", job, new X10TypeChecker(job, ts, nf, job.nodeMemo())));
+          
            goals.addAll(Optimizer.goals(this, job));
            goals.add(Desugarer(job));
            if (x10.Configuration.FLATTEN_EXPRESSIONS) {
@@ -802,6 +809,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            public boolean runTask() {
                Node ast = job().ast();
                if (ast != null && !((X10Ext)ast.ext()).subtreeValid()) {
+                   Warnings.issue(job(), "Invalid Visitor Goal: " +this.name()+ ", visitor: " +this.visitor(), Position.COMPILER_GENERATED);
                    return true;
                }
                return super.runTask();

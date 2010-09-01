@@ -410,7 +410,8 @@ void insertNewMessage(MSGTYPE mt, x10rt_msg_params *p, void *dataPtr, x10rt_copy
 	// check to see if this is simply too big.
 	if (entrySize > X10RT_DATABUFFERSIZE-sizeof(MSGSTATUS))
 	{
-		printf("Unable to send a message of size %lu through a buffer of size %d!!!!  ABORT\n", entrySize, X10RT_DATABUFFERSIZE);
+		printf("Unable to send a message of size %lu through a buffer of size %d!!!!  ABORT\n",
+               (unsigned long)entrySize, (int)X10RT_DATABUFFERSIZE);
 		abort();
 	}
 
@@ -443,10 +444,10 @@ void insertNewMessage(MSGTYPE mt, x10rt_msg_params *p, void *dataPtr, x10rt_copy
 			// not enough room in the buffer to hold our message.
 			// unlock the buffer, do a yield (to give the other place some CPU), and try again.
 			// TODO: grow the buffer instead of blocking
-			#ifdef DEBUG
-				printf("X10rt.Standalone: place %lu's buffer is full!  Head=%u, Tail=%u\n", p->dest_place, dest->messageQueueHead, dest->messageQueueTail);
+			//#ifdef DEBUG
+				printf("X10rt.Standalone: place %lu's buffer is full!  Head=%u, Tail=%u\n", (unsigned long)p->dest_place, dest->messageQueueHead, dest->messageQueueTail);
 				fflush(stdout);
-			#endif
+			//#endif
 			if (pthread_mutex_unlock(&dest->messageQueueLock) != 0) error("Unable to unlock the message queue after inserting a message");
 			sched_yield();
 		}
@@ -880,3 +881,60 @@ int x10rt_net_supports (x10rt_opt o)
         default: return 0;
     }
 }
+
+void x10rt_net_team_new (x10rt_place placec, x10rt_place *placev,
+                         x10rt_completion_handler2 *ch, void *arg)
+{
+    abort();
+}
+
+void x10rt_net_team_del (x10rt_team team, x10rt_place role,
+                         x10rt_completion_handler *ch, void *arg)
+{
+    abort();
+}
+
+x10rt_place x10rt_net_team_sz (x10rt_team team)
+{
+    abort();
+}
+
+void x10rt_net_team_split (x10rt_team parent, x10rt_place parent_role,
+                           x10rt_place color, x10rt_place new_role,
+                           x10rt_completion_handler2 *ch, void *arg)
+{
+    abort();
+}
+
+void x10rt_net_barrier (x10rt_team team, x10rt_place role,
+                        x10rt_completion_handler *ch, void *arg)
+{
+    abort();
+}
+
+void x10rt_net_bcast (x10rt_team team, x10rt_place role,
+                      x10rt_place root, const void *sbuf, void *dbuf,
+                      size_t el, size_t count,
+                      x10rt_completion_handler *ch, void *arg)
+{
+    abort();
+}
+
+void x10rt_net_alltoall (x10rt_team team, x10rt_place role,
+                         const void *sbuf, void *dbuf,
+                         size_t el, size_t count,
+                         x10rt_completion_handler *ch, void *arg)
+{
+    abort();
+}
+
+void x10rt_net_allreduce (x10rt_team team, x10rt_place role,
+                          const void *sbuf, void *dbuf,
+                          x10rt_red_op_type op, 
+                          x10rt_red_type dtype,
+                          size_t count,
+                          x10rt_completion_handler *ch, void *arg)
+{
+    abort();
+}
+

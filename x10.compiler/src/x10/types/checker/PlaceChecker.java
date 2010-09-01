@@ -199,9 +199,12 @@ public class PlaceChecker {
 	}
 	
 	public static Type ReplacePlaceTermByHere(Type type, Context context) {
-		XTerm term = ((X10Context) context).currentPlaceTerm().term();
+		XConstrainedTerm h = ((X10Context) context).currentPlaceTerm();
+		if (h == null)
+			return type;
+		XTerm term = h.term();
 		try {
-			if ( term instanceof XVar)
+			if (term instanceof XVar)
 				type = Subst.subst(type,  here(), (XVar) term); 
 		} catch (SemanticException z) {
 			throw new InternalCompilerError("Unexpectedly inconsistent constraint.");
@@ -452,6 +455,8 @@ public class PlaceChecker {
     public static Receiver makeReceiverLocalIfNecessary(ContextVisitor tc, Receiver target, X10Flags flags) throws SemanticException {
         if (isTargetPlaceSafe(tc, target, flags)) return target;  // nothing to do
         if (Configuration.STATIC_CALLS) return null;              // nothing we can do
+        if (((X10Context) tc.context()).currentPlaceTerm() == null)
+            return null;                                          // cannot compensate
         // compensate by generating a dynamic cast
         if (target instanceof Expr) {
             Type type = PlaceChecker.AddIsHereClause(X10TypeMixin.baseType(target.type()), tc.context());

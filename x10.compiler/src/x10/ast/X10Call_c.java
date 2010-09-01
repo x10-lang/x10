@@ -83,6 +83,7 @@ import x10.visit.X10TypeChecker;
  * @author vj
  */
 public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
+	// TODO: implement Settable and decompose x.apply(i)
 	public X10Call_c(Position pos, Receiver target, Id name,
 			List<TypeNode> typeArguments, List<Expr> arguments) {
 		super(pos, target, name, arguments);
@@ -543,12 +544,12 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 			        actualTypes.add(ei.type());
 			    }
 			    // First try to find the method without implicit conversions.
-			    X10MethodInstance ci = ClosureCall_c.findAppropriateMethod(tc, e.type(), Name.make("apply"), typeArgs, actualTypes);
+			    X10MethodInstance ci = ClosureCall_c.findAppropriateMethod(tc, e.type(), ClosureCall.APPLY, typeArgs, actualTypes);
 			    List<Expr> args = this.arguments;
 			    if (ci.error() != null) {
 			        // Now, try to find the method with implicit conversions, making them explicit.
 			        try {
-			            Pair<MethodInstance,List<Expr>> p = X10Call_c.tryImplicitConversions(this, tc, e.type(), Name.make("apply"), typeArgs, actualTypes);
+			            Pair<MethodInstance,List<Expr>> p = X10Call_c.tryImplicitConversions(this, tc, e.type(), ClosureCall.APPLY, typeArgs, actualTypes);
 			            ci = (X10MethodInstance) p.fst();
 			            args = p.snd();
 			        }
@@ -681,8 +682,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		    if (target instanceof Special &&
 		            ((Special) target).kind() == Special.SUPER &&
 		            mi.flags().isAbstract()) {
-		        throw new SemanticException("Cannot call an abstract method " +
-		                "of the super class", this.position());
+		        throw new SemanticException("Cannot call an abstract method of the super class", this.position());
 		    }
 		}
 

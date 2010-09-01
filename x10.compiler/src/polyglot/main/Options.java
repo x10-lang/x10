@@ -544,4 +544,70 @@ public class Options {
               + "." + File.pathSeparator
               + output_classpath;
   }
+  
+  /**
+   * Returns a string representation for the compiler options, usable from the command line.
+   */
+  public String toString(){
+	  String result = "";
+	  if (classpath != null && !classpath.equals("")){
+		  result += "-classpath " + classpath;
+	  }
+	  if (output_directory != null){
+		  result += " -d " + output_directory.getAbsolutePath();
+	  }
+	  if (assertions) {
+		  result += " -assert";
+	  }
+	  if (source_path != null && !source_path.isEmpty()){
+		  result += " -sourcepath ";
+		  for (int i = 0; i < source_path.size(); i++){
+			  result += ((i > 0)? ":" : "") + source_path.get(i).getAbsolutePath();
+		  }
+	  }
+	  if (bootclasspath != null && !bootclasspath.equals("")) {
+		  result += " -bootclasspath " + bootclasspath;
+	  }
+	  if (compile_command_line_only){
+		  result += " -commandlineonly";
+	  }
+	  if (fully_qualified_names){
+		  result += " -fqcn";
+	  }
+	  if (source_ext != null){
+		  for (int i = 0; i < source_ext.length; i++){
+			  result += " -sx "+ source_ext[i];
+		  }
+	  }
+	  if (output_ext != null && !output_ext.equals("")){
+		  result += " -ox " + output_ext;
+	  }
+	  result += " -errors " + error_count;
+	  result += " -w " + output_width;
+	  for (String s: dump_ast){
+		  result += " -dump " + s;
+	  }
+	  for (String s: print_ast){
+		  result += " -print " + s;
+	  }
+	  for (String s: disable_passes){
+		  result += " -disable " + s;
+	  }
+	  if (!serialize_type_info){
+		  result += " -noserial";
+	  }
+	  if (!keep_output_files){
+		  result += " -nooutput";
+	  }
+	  if (post_compiler != null && !post_compiler.equals("")){
+		  result += " -post " + post_compiler;
+	  }
+	  if (precise_compiler_generated_positions){
+		  result += " -debugpositions";
+	  }
+	  if (use_simple_code_writer){
+		  result += " -simpleoutput";
+	  }
+	  return result;
+  }
 }

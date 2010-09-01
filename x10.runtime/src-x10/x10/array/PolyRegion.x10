@@ -177,7 +177,7 @@ public class PolyRegion extends Region {
             for (var i: int = 0; i<ff.rank; i++)
                 t(offset+i) = f(i);
             t(tt.rank) = f(ff.rank);
-            tt.add(new PolyRow(t));
+            tt.add(new PolyRow(ValRail.make(t)));
         }
     }
 
@@ -199,7 +199,7 @@ public class PolyRegion extends Region {
                 s += f(i)*v(i);
             }
             t(ff.rank) = f(ff.rank) - s;
-            tt.add(new PolyRow(t));
+            tt.add(new PolyRow(ValRail.make(t)));
         }
     }
 

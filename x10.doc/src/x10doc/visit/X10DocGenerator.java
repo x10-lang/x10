@@ -3,36 +3,25 @@ package x10doc.visit;
 import java.io.IOException;
 import java.util.Stack;
 
-import com.sun.javadoc.ClassDoc;
-import com.sun.javadoc.PackageDoc;
-import com.sun.javadoc.RootDoc;
-
 import lpg.runtime.IToken;
 import polyglot.ast.ClassMember;
-import polyglot.ast.Formal;
 import polyglot.ast.Node;
 import polyglot.ast.SourceFile_c;
 import polyglot.ast.TopLevelDecl;
-import polyglot.ast.TypeNode;
 import polyglot.frontend.FileSource;
 import polyglot.frontend.Job;
 import polyglot.types.FieldDef;
-import polyglot.types.MethodDef;
-import polyglot.types.Package;
-import polyglot.types.Ref;
-import polyglot.types.Type;
 import polyglot.util.SilentErrorQueue;
 import x10.ast.PropertyDecl;
 import x10.ast.PropertyDecl_c;
 import x10.ast.TypeDecl_c;
-import x10.ast.TypeParamNode;
 import x10.ast.X10ClassDecl_c;
 import x10.ast.X10ConstructorDecl_c;
 import x10.ast.X10FieldDecl_c;
 import x10.ast.X10MethodDecl_c;
+import x10.ast.X10SourceFile_c;
 import x10.extension.X10Ext;
 import x10.parser.X10Parser;
-import x10.types.ParameterType;
 import x10.types.TypeDef;
 import x10.types.X10ClassDef;
 import x10.types.X10ConstructorDef;
@@ -41,11 +30,6 @@ import x10.types.X10MethodDef;
 import x10.visit.X10DelegatingVisitor;
 import x10doc.ExtensionInfo;
 import x10doc.doc.X10ClassDoc;
-import x10doc.doc.X10ConstructorDoc;
-import x10doc.doc.X10Doc;
-import x10doc.doc.X10FieldDoc;
-import x10doc.doc.X10MethodDoc;
-import x10doc.doc.X10PackageDoc;
 import x10doc.doc.X10RootDoc;
 
 public class X10DocGenerator extends X10DelegatingVisitor {
@@ -54,6 +38,7 @@ public class X10DocGenerator extends X10DelegatingVisitor {
 	private X10Parser parser;
 	private X10RootDoc rootDoc;
 	private Stack<X10ClassDoc> stack; 
+	private X10SourceFile_c source;
 	  // stack of X10ClassDoc objects created as X10ClassDecl_c objects are visited; the 
 	  // X10ClassDecl_c objects visited included top level class declarations and inner classes;
 	  // when a Doc object is created for a class member, it is added as a member of the top 
@@ -72,6 +57,7 @@ public class X10DocGenerator extends X10DelegatingVisitor {
 	public void visit(SourceFile_c n) {
 		assert (job.source() instanceof FileSource);
 		FileSource source = (FileSource) job.source();
+		this.source = (X10SourceFile_c)n;
 		try {
 			this.parser = (X10Parser) job.extensionInfo().parser(source.open(), source, new SilentErrorQueue(0, "Ignored"));
 		} catch (IOException e) {
@@ -145,6 +131,7 @@ public class X10DocGenerator extends X10DelegatingVisitor {
 		  // the class is included in the "specified set" if it is specified on the command line
 		  // or it is an inner class of an included class
 		X10ClassDoc cd = rootDoc.getSpecCLass(classDef, containingClass, comments);
+		cd.setSource(source);
 		  // all classes, including inner classes are added to rootDoc
 
 // 		for (TypeNode i: n.interfaces()) {
