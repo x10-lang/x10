@@ -29,6 +29,14 @@ public class Compiler
     /** The error queue handles outputting error messages. */
     private ErrorQueue eq;
 
+    /** FIXME: TEMPRORARY Inliner hack: Errors in speculative compilation for inlining should not be fatal
+     * @depricated DO NOT USE
+     */
+    public ErrorQueue swapErrorQueue (ErrorQueue newEq) {
+        ErrorQueue oldEq = eq;
+        eq = newEq;
+        return oldEq;
+    }
     /**
      * Class file loader.  There should be only one of these so we can cache
      * across type systems.

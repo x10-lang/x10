@@ -30,22 +30,24 @@ import polyglot.ast.Call_c;
 import polyglot.ast.ClassDecl;
 import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Expr;
-import polyglot.ast.Ext;
 import polyglot.ast.Field;
 import polyglot.ast.FieldAssign;
 import polyglot.ast.FieldDecl;
 import polyglot.ast.Formal;
 import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
+import polyglot.ast.MethodDecl;
 import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Return;
 import polyglot.ast.Special;
 import polyglot.ast.Stmt;
-import polyglot.ast.TopLevelDecl;
 import polyglot.ast.TypeNode;
+import polyglot.frontend.Compiler;
+import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
+import polyglot.frontend.Scheduler;
 import polyglot.frontend.Source;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorInstance;
@@ -60,12 +62,15 @@ import polyglot.types.Name;
 import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
+import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.types.UnknownType;
+import polyglot.util.ErrorQueue;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import polyglot.util.SimpleErrorQueue;
 import polyglot.util.SubtypeSet;
 import polyglot.visit.AlphaRenamer;
 import polyglot.visit.ContextVisitor;
@@ -87,10 +92,10 @@ import x10.ast.X10Formal;
 import x10.ast.X10MethodDecl;
 import x10.ast.X10New;
 import x10.ast.X10NodeFactory;
-import x10.ast.X10SourceFile_c;
 import x10.ast.X10Special;
 import x10.constraint.XFailure;
 import x10.constraint.XTerms;
+import x10.errors.Errors;
 import x10.errors.Warnings;
 import x10.extension.X10Ext;
 import x10.optimizations.ForLoopOptimizer;
@@ -100,11 +105,12 @@ import x10.types.ConstrainedType;
 import x10.types.FunctionType;
 import x10.types.MacroType;
 import x10.types.ParameterType;
+import x10.types.TypeParamSubst;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
-import x10.types.X10ConstructorDef;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10FieldInstance;
+import x10.types.X10LocalInstance;
 import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
 import x10.types.X10ParsedClassType;
@@ -176,6 +182,8 @@ public class Inliner extends ContextVisitor {
     private static final Set<X10MethodDef> dontInline              = new HashSet<X10MethodDef>();
     private static final Map<X10MethodDef, X10MethodDecl> def2decl = new HashMap<X10MethodDef, X10MethodDecl>();
 
+    private TypeParamSubst typeMap;
+
     /**
      * 
      */
@@ -244,8 +252,7 @@ public class Inliner extends ContextVisitor {
         if (null == InlineType) return c;
         try {
             X10MethodDecl decl = getInlineDecl(c);
-            if (null == decl) 
-                return c;
+            if (null == decl) return c;
             String methodId = getMethodId(decl);
             decl = instantiate(decl, c);
             // TODO: handle "this" parameter like formals (cache actual in temp, assign to local (transformed this)
@@ -309,55 +316,80 @@ public class Inliner extends ContextVisitor {
     }
 
     /**
-     * @param c
-     * @return
+     * Get the declaration corresponding to a call to be inlined.
+     * 
+     * @param call
+     * @return the declaration of the method invoked by call, or null if 
+     *    the declaration cannot be found, or
+     *    the call should not be inlined
      */
-    private X10MethodDecl getInlineDecl(X10Call_c c) {
-        Set<Type> annotations = getAnnotations(c);
-        if (annotations.contains(NoInlineType))
+    private X10MethodDecl getInlineDecl(X10Call_c call) {
+        
+        // get inline candidate
+        X10MethodDef candidate = ((X10MethodInstance) call.methodInstance()).x10Def();
+        
+        // determine whether annotations suggest inlining, and
+        Set<Type> callAnnotations = getExprAnnotations(call);
+        if (callAnnotations.contains(NoInlineType)) 
             return null;
-        Boolean forceInline = annotations.contains(InlineType);
-        X10MethodDef def = ((X10MethodInstance) c.methodInstance()).x10Def();
-        if (!forceInline && dontInline.contains(def)) 
-            return null;
-        X10MethodDecl decl = def2decl.get(def);
-        if (null != decl) 
-            return decl;
-        if (!forceInline && !def.annotationsMatching(NoInlineType).isEmpty()) {
-            dontInline.add(def);
+        
+        // require inlining if either the call of the candidate are so annotated
+        Boolean inliningRequired = callAnnotations.contains(InlineType) || !candidate.annotationsMatching(InlineType).isEmpty();
+        
+        // unless required, skip candidates previously found to be uninlinable
+        if (!inliningRequired && dontInline.contains(candidate)) return null;
+        
+        // unless required, don't inlin
+        if (!inliningRequired && !candidate.annotationsMatching(NoInlineType).isEmpty()) {
+            dontInline.add(candidate);
             return null;
         }
-        // TODO ASK: is there an easier way to get form a def to a job (or an AST)?
-        X10ClassDef container = getContainer(def);
-        if (DEBUG) System.err.println();
-        if (DEBUG) System.err.println("DEBUG: Inliner.getInlineDecl: cal =\t" +c);
-        if (DEBUG) System.err.println("DEBUG: Inliner.getInlineDecl: pos =\t" +c.position());
-        if (DEBUG) System.err.println("DEBUG: Inliner.getInlineDecl: def =\t" +def);
-        decl = getDeclaration(def, container);
+        
+        // see if the declaration for this candidate has already been cached
+        X10MethodDecl decl = def2decl.get(candidate);
+        if (null != decl) return decl;
+        
+        // get container and declaration for inline candidate
+        X10ClassDef container = getContainer(candidate);
+        if (null == container || isVolatileOrNative(candidate, container))  {
+            if (inliningRequired) Warnings.issue(this.job, "Unable to inline " + call, call.position());
+            dontInline.add(candidate);
+            return null;
+        }
+        Job job = getJob(candidate, container);
+        if (null == job) {
+            if (inliningRequired) Warnings.issue(this.job, "Unable to inline " + call, call.position());
+            dontInline.add(candidate);
+            return null;
+        }
+        
+        decl = getDeclaration(candidate, job.ast());
         if (null == decl) {
-            if (!def.annotationsMatching(InlineType).isEmpty()) 
-                Warnings.issue(job, "Unable to inline " + c, c.position());
-            dontInline.add(def);
+            if (inliningRequired) Warnings.issue(this.job, "Unable to inline " + call, call.position());
+            dontInline.add(candidate);
             return null;
         }
-        if ( !forceInline && def.annotationsMatching(InlineType).isEmpty() && 
-             ( !x10.Configuration.INLINE_SMALL_METHODS ||
-               SMALL_METHOD_MAX_SIZE < ice.getCost(decl, container.job()) )
-           ) {
-            dontInline.add(def);
+        
+        // decide whether to inline candidate
+        if (!inliningRequired && (!x10.Configuration.INLINE_SMALL_METHODS || SMALL_METHOD_MAX_SIZE < getCost(decl, job) )) {
+            dontInline.add(candidate);
             return null;
         }
-        def2decl.put(def, decl);
+        
+        // remember what to inline this candidate with if we ever see it again
+        def2decl.put(candidate, decl);
         return decl;
     }
-    
+
     private ClassType EA = null;
-    
     /**
-     * @param c
-     * @return
+     * Get the annotations associated with a given expression.
+     * Note: it does not seem to be possible to annotate a call to void method.
+     * 
+     * @param expr the expression, possibly with annotations
+     * @return the annotations associated with expr
      */
-    private Set<Type> getAnnotations(Expr expr) { 
+    private Set<Type> getExprAnnotations(Expr expr) { 
         // TODO: get the annotations on an expression correctly
         // allow annotations to void calls
         try {
@@ -380,6 +412,144 @@ public class Inliner extends ContextVisitor {
             throw new InternalCompilerError("Unable to resolve ExpressionAnnotation", e);
         }
     }
+
+    /**
+     * Get the definition of the X10 Class that implements a given method.
+     * 
+     * @param candidate the method definition whose container is desired
+     * @return the definition of the X10 Class containing md
+     */
+    private X10ClassDef getContainer(X10MethodDef candidate) {
+        Ref<? extends StructType> containerRef = candidate.container();
+        StructType containerType = Types.get(containerRef);
+        Type containerBase = X10TypeMixin.baseType(containerType);
+        assert (containerBase instanceof X10ClassType);
+        X10ClassDef container = ((X10ClassType) containerBase).x10Def();
+        return container;
+    }
+
+    /**
+     * Check that a candidate method is eligible to be inlined.
+     * 
+     * @param candidate the method conside red for inlining
+     * @param container the class containing the candidate
+     * @return true if the method obviously should not be inlined, false otherwise
+     */
+    private boolean isVolatileOrNative(X10MethodDef candidate, X10ClassDef container) {
+        Flags mflags = candidate.flags();
+        Flags cflags = container.flags();
+        if (!mflags.isFinal() && !mflags.isPrivate() && ! mflags.isStatic() && !cflags.isFinal() && !container.isStruct()) 
+            return true;
+        if (mflags.isNative() || cflags.isNative()) 
+            return true;
+        return false;
+    }
+
+    /**
+     * Obtain the job for containing the declaration for a given method.
+     * Run the preliminary compilation phases on the job's AST.
+     * 
+     * Note Errors during speculative compilation should not be fatal.
+     * The mechanism implementing this behavior consists of a pair of hacks that should be fixed.
+     * 
+     * @param candidate 
+     * @param container
+     * @return
+     */
+    private Job getJob(X10MethodDef candidate, X10ClassDef container) {
+        Compiler compiler      = job.compiler(); 
+        Scheduler scheduler    = job.extensionInfo().scheduler();
+        Goal goal              = scheduler.currentGoal();
+        // FIXME: TEMPRORARY Inliner hack: Errors during speculative compilation for inlining should not be fatal
+        Goal.Status savedState = goal.state();
+        ErrorQueue  savedQueue = compiler.swapErrorQueue(new SimpleErrorQueue());
+        Position pos           = candidate.position();
+        Job job                = container.job();
+        try {
+            /*
+            if (null == job) {
+                // reconstruct job from position
+                String file = pos.file();
+                String path = pos.path();
+                Source source = new Source(file, path, null);
+                job = xts.extensionInfo().scheduler().addJob(source);
+            }
+            */
+            if (null == job) {
+                Warnings.issue(job, "Unable to find or create job for method: " +candidate, pos);
+            } else if (job != this.job()) {
+                // TODO reconstruct the AST for the job will all preliminary compiler passes
+                job.ast(job.ast().visit(new X10TypeChecker(job, ts, nf, job.nodeMemo()).begin())); 
+            }
+        } catch (Exception e) {
+            Errors.issue(job, new SemanticException("AST for inline candidate job, " +job+ ", does not typecheck (" +e+ ")"));
+            // e.printStackTrace();
+            job = null;
+        }
+        ErrorQueue speculativeQueue = compiler.swapErrorQueue(savedQueue);
+        if (0 < speculativeQueue.errorCount()) {
+            speculativeQueue.flush();
+            Warnings.issue(this.job, "WARNING: speculative compilation Errors ignored while trying to inline " +candidate, pos);
+            scheduler.clearFailed();
+            goal.update(savedState);
+            /*
+            if (decl != null) { // TODO: this may not be necessary
+                Warnings.issue(this.job, "Discarding suspect decl: " +decl, c.position());
+                decl = null;
+            }
+             */
+            // System.err.println("\tdef: \t" +def);
+            // System.err.println("\tpos: \t" +c.position());
+            // System.err.println("\tcall:\t" +c);
+            // System.err.println();
+        }
+        return job;
+    }
+
+    /**
+     * Walk an AST looking for the declaration of a given method.
+     * 
+     * @param candidate the method whose declaration is desired
+     * @param ast the abstract syntax tree containing the declaration
+     * @return the declaration for the indicated method, or null if no declaration can be found or it has an empty body.
+     */
+    private X10MethodDecl getDeclaration(final X10MethodDef candidate, final Node ast) {
+    final Position pos         = candidate.position();
+    final X10MethodDecl[] decl = new X10MethodDecl[1];
+    ast.visit(new NodeVisitor() { // find the declaration of md
+        public Node override(Node n) {
+            if (null != decl[0]) 
+                return n;  // we've already found the decl, short-circuit search
+            if (n instanceof TypeNode) 
+                return n;  // TypeNodes don't contain decls, short-circuit search
+            if (!pos.isCompilerGenerated() && !contains(n.position(), pos))
+                return n;  // definition of md isn't inside n, short-circuit search
+            if (n instanceof X10MethodDecl && candidate == ((X10MethodDecl) n).methodDef()) {
+                decl[0] = (X10MethodDecl) n;
+                return n;  // we found the decl for the candidate, short-circuit search
+            }
+            return null;   // look for the decl inside n
+        }
+    });
+    if (null == decl[0]) {
+        Warnings.issue(job, "Declaration not found for " +candidate, pos);
+        return null;
+    }
+    if (null == decl[0].body()) {
+        Warnings.issue(job, "No declaration body for " +decl[0]+ " (" +candidate+ ")", pos);
+        return null;
+    }
+    return decl[0];
+}
+
+/**
+ * @param decl
+ * @param job
+ * @return
+ */
+private int getCost(X10MethodDecl decl, Job job) {
+    return ice.getCost(decl, job);
+}
 
     /**
      * @param c
@@ -482,93 +652,11 @@ public class Inliner extends ContextVisitor {
         return xts.localDef(def.position(), xts.Final(), def.container(), Name.makeFresh("this"));
     }
 
-    /**
-     * Get the definition of the X10 Class that implements a given method.
-     * 
-     * @param md the method definition whose container is desired
-     * @return the definition of the X10 Class containing md
-     */
-    private X10ClassDef getContainer(X10MethodDef md) {
-        Type containerBase = X10TypeMixin.baseType(Types.get(md.container()));
-        assert (containerBase instanceof X10ClassType);
-        return ((X10ClassType) containerBase).x10Def();
-    }
-
     // TODO: move this to Position
     private static boolean contains(Position outer, Position inner) {
         if (!outer.file().equals(inner.file())) return false;
         if (!outer.path().equals(inner.path())) return false;
         return (outer.offset() <= inner.offset() && inner.endOffset() <= inner.endOffset());
-    }
-
-    private X10MethodDecl getDeclaration(final X10MethodDef md, X10ClassDef cd) {
-        if (!md.flags().isStatic() && !md.flags().isFinal() && !md.flags().isPrivate() && !cd.flags().isFinal() && !cd.isStruct())
-            return null;
-        Job job = cd.job();
-        if (job == null) {
-            job = reconstructJobFromPosition(md.position());
-            if (job == null)
-                return null;
-        }
-        Node ast = job.ast();
-        if (job != this.job()) {
-            if (ast instanceof X10SourceFile_c) {
-                X10SourceFile_c sf = (X10SourceFile_c) ast;
-                for (TopLevelDecl tld : sf.decls()) {
-                    Ext x = tld.ext();
-                    if (x.node() instanceof AnnotationNode){
-                        AnnotationNode an = (AnnotationNode) x.node();
-                        if (DEBUG) System.err.println("DEBUG: Inliner.getDeclaration: ann = " +an+ " (" +an.annotationType()+ ")");
-                    }
-                }
-                // TODO: don't visit native classes
-                // return null;
-            }
-            try {
-            ast = ast.visit(new X10TypeChecker(job, ts, nf, job.nodeMemo()).begin()); 
-            } catch (Exception e) {
-                if (DEBUG) System.err.println("Unable to typeCheck " +job+ " to inline " +md+ " exception: " +e);
-                return null;
-            }
-        }
-        final X10MethodDecl[] decl = new X10MethodDecl[1];
-        ast.visit(new NodeVisitor() { // find the declaration of md
-            public Node override(Node n) {
-                if (null != decl[0]) 
-                    return n;  // we've already found the decl, short-circuit search
-                if (n instanceof TypeNode) 
-                    return n;  // TypeNodes don't contain decls, short-circuit search
-                if (!md.position().isCompilerGenerated() && !contains(n.position(), md.position()))
-                    return n;  // definition of md isn't inside n, short-circuit search
-                return null;   // look for the decl inside n
-            }
-            public Node leave(Node old, Node n, NodeVisitor v) {
-                if (n instanceof X10MethodDecl) {
-                    X10MethodDecl d = (X10MethodDecl) n;
-                    if (d.methodDef() == md) // we found it!
-                        decl[0] = d;
-                }
-                return n;
-            }
-        });
-        if (null == decl[0] || null == decl[0].body()) 
-            return null;
-        return decl[0];
-    }
-
-    /**
-     * Reconstruct a Job from Position information.
-     * 
-     * @param posthe Position of a node in the AST of a Job
-     * @return the Job (with its AST) associated with the given pos
-     * TODO: make sure the typeChecked AST gets reconstructed
-     */
-    private Job reconstructJobFromPosition(Position pos) {
-        String file = pos.file();
-        String path = pos.path();
-        Source source = new Source(file, path, null);
-        Job job = xts.extensionInfo().scheduler().addJob(source);
-        return job;
     }
 
 /*
@@ -587,7 +675,14 @@ public class Inliner extends ContextVisitor {
     }
 */
 
-    private Type instantiate(X10MethodInstance mi, ParameterType genericType) {
+    public Type instantiate(X10MethodInstance mi, ParameterType genericType) {
+        if (null != typeMap) {
+            Type type = typeMap.reinstantiateType(genericType);
+            TypeParamSubst localTypeMap = typeMap;
+            if (!type.typeEquals(genericType, context()))
+                return type;
+            return type;
+        }
         Type concreteType = instantiate(getGenericTypes(mi.x10Def().typeParameters()), mi.typeParameters(), genericType);
         if (null != concreteType)
             return concreteType;
@@ -726,73 +821,103 @@ public class Inliner extends ContextVisitor {
 
     private X10MethodDecl instantiate(final X10MethodDecl decl, X10Call c) {
         final X10MethodInstance mi = (X10MethodInstance) c.methodInstance();
+        typeMap = makeTypeMap(mi);
+        TypeParamSubst localTypeMap = typeMap; // DEBUG
         final HashMap<Name, LocalDef> vars = new HashMap<Name, LocalDef>();
         return (X10MethodDecl) decl.visit(new ContextVisitor(job, ts, nf) {
             protected Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
                 if (n instanceof TypeNode) {
-                    return ((TypeNode) n).typeRef(Types.ref(instantiate(mi, ((TypeNode) n).type())));
+                    //return ((TypeNode) n).typeRef(Types.ref(instantiate(mi, ((TypeNode) n).type())));
+                    TypeNode node = ((TypeNode) n).typeRef(typeMap.reinstantiateRef(((TypeNode) n).typeRef()));
+                    if (!node.type().typeEquals(((TypeNode) n).type(), context()))
+                        return node;
+                    return node;
                 }
                 if (n instanceof Expr) {
-                    Expr e = ((Expr) n).type(instantiate(mi, ((Expr) n).type()));
-                    if (e instanceof Special) {
+                    // Expr e = ((Expr) n).type(instantiate(mi, ((Expr) n).type()));
+                    Expr d = (Expr) n;
+                    Expr e = d.type(typeMap.reinstantiateType(d.type()));
+                    if (e instanceof Local) {
+                        Local l = (Local) e;
+                        LocalDef ld = vars.get(l.name().id());
+                        if (ld != null) {
+                            Local reins = l.localInstance(typeMap.reinstantiateLI((X10LocalInstance) l.localInstance()));
+                            Local local = l.localInstance(ld.asInstance());
+                            if (local.type().typeEquals(reins.type(), context())) {
+                                LocalInstance rli = reins.localInstance();
+                                LocalInstance lli = local.localInstance();
+                                if (lli.name().equals(rli.name())) {
+                                    if (lli.def().equals(rli.def())) 
+                                        return reins;
+                                    return local;
+                                }
+                                return local;
+                            }
+                            return local;
+                        }
+                        return l;
+                        // return l.localInstance(typeMap.reinstantiateLI((X10LocalInstance) l.localInstance()));
+                    } else if (e instanceof Field) {
+                        Field f = (Field) e;
+                        f = f.targetImplicit(false);
+                        // f = f.fieldInstance(instantiate(mi, (X10FieldInstance) f.fieldInstance()));
+                        // // f = (Field) f.typeCheck(this); // can we do this ??
+                        // return f;
+                        return f.fieldInstance(typeMap.reinstantiateFI((X10FieldInstance) f.fieldInstance()));
+                    } else if (e instanceof Call) {
+                        X10Call c = (X10Call) e;
+                        c = (X10Call) c.targetImplicit(false);
+                        // c = (X10Call) c.methodInstance(instantiate(mi, (X10MethodInstance) c.methodInstance()));
+                        // // c = (X10Call) c.typeCheck(this); // can't do this since we inline method that refer to private fields
+                        // return c;
+                        return c.methodInstance(typeMap.reinstantiateMI((X10MethodInstance) c.methodInstance()));
+                    } else if (e instanceof New) {
+                        X10New w = (X10New) n;
+                        // w = (X10New) w.type(instantiate(mi, w.type()));
+                        // w = (X10New) w.constructorInstance(instantiate(mi, (X10ConstructorInstance) w.constructorInstance()));
+                        // // w = (X10New) w.typeCheck(this); // can't do this since we inline method that refer to private fields
+                        // return w;
+                        w = (X10New) w.type(typeMap.reinstantiateType(w.type()));
+                        return w.constructorInstance(typeMap.reinstantiateCI((X10ConstructorInstance) w.constructorInstance()));
+                    } else if (e instanceof ClosureCall) {
+                        ClosureCall c = (ClosureCall) e;
+                        // c = c.closureInstance(instantiate(mi, c.closureInstance()));
+                        // assert (false) : "Not yet implemented.";
+                        // // c = (X10ClosureCall) c.typeCheck(this); // can't do this since we inline method that refer to private fields
+                        // return c;
+                        return c.closureInstance(typeMap.reinstantiateMI(c.closureInstance()));
+                    } else if (e instanceof X10ConstructorCall) {
+                        X10ConstructorCall c = (X10ConstructorCall) n;
+                        // c = (X10ConstructorCall) c.constructorInstance(instantiate(mi, c.constructorInstance()));
+                        // assert (false) : "Not yet implemented.";
+                        // // x = (X10ConstructorCall) x.typeCheck(this); // can't do this since we inline method that refer to private fields
+                        // return c;
+                        return c.constructorInstance(typeMap.reinstantiateCI((X10ConstructorInstance) c.constructorInstance()));
+                    } else if (e instanceof SettableAssign) {
+                        SettableAssign a = (SettableAssign) n;
+                        // a = (SettableAssign) a.type(instantiate(mi, a.type()));
+                        // assert (false) : "Not yet implemented, can't instantiate " +e;
+                        // return a;
+                        a = (SettableAssign) a.type(typeMap.reinstantiateType(a.type()));
+                        a = a.methodInstance(typeMap.reinstantiateMI((X10MethodInstance) a.methodInstance()));
+                        return a.applyMethodInstance(typeMap.reinstantiateMI((X10MethodInstance) a.applyMethodInstance()));
+                    } else if (e instanceof FieldAssign) {
+                        X10FieldAssign_c f = (X10FieldAssign_c) n;
+                        // f = (X10FieldAssign_c) f.type(instantiate(mi, f.type()));
+                        // assert (false) : "Not yet implemented, can't instantiate " +e;
+                        // return f;
+                        f = (X10FieldAssign_c) f.type(typeMap.reinstantiateType(f.type()));
+                        return f.fieldInstance(typeMap.reinstantiateFI((X10FieldInstance) f.fieldInstance()));
+                    } else if (e instanceof AssignPropertyBody) {
+                        AssignPropertyBody b = (AssignPropertyBody) n;
+                        assert (false) : "Not yet implemented, can't instantiate " +e;
+                        // TODO: ASK IGOR: how to handle AssignPropertyBody
+                        return b;
+                    } else if (e instanceof Special) {
                         if (((Special) e).kind().equals(Special.SUPER)) {
                             assert (false) : "Not yet implemented, can't instantiate " +e;
                         }
                         return e;
-                    } else if (e instanceof Local) {
-                        Local l = (Local) e;
-                        LocalDef ld = vars.get(l.name().id());
-                        if (ld != null) {
-                            return l.localInstance(ld.asInstance());
-                        }
-                        return l;
-                    } else if (e instanceof Field) {
-                        Field f = (Field) e;
-                        f = f.targetImplicit(false);
-                        f = f.fieldInstance(instantiate(mi, (X10FieldInstance) f.fieldInstance()));
-                        // f = (Field) f.typeCheck(this); // can we do this ??
-                        return f;
-                    } else if (e instanceof Call) {
-                        X10Call c = (X10Call) e;
-                        c = (X10Call) c.targetImplicit(false);
-                        c = (X10Call) c.methodInstance(instantiate(mi, (X10MethodInstance) c.methodInstance()));
-                     // c = (X10Call) c.typeCheck(this); // can't do this since we inline method that refer to private fields
-                        return c;
-                    } else if (e instanceof New) {
-                        X10New x = (X10New) n;
-                        x = (X10New) x.type(instantiate(mi, x.type()));
-                        x = (X10New) x.constructorInstance(instantiate(mi, (X10ConstructorInstance) x.constructorInstance()));
-                        // x = (X10New) x.typeCheck(this); // can't do this since we inline method that refer to private fields
-                        return x;
-                    } else if (e instanceof ClosureCall) {
-                        ClosureCall c = (ClosureCall) e;
-                        c = c.closureInstance(instantiate(mi, c.closureInstance()));
-                        assert (false) : "Not yet implemented.";
-                     // c = (X10ClosureCall) c.typeCheck(this); // can't do this since we inline method that refer to private fields
-                        return c;
-                    } else if (e instanceof X10ConstructorCall) {
-                        X10ConstructorCall c = (X10ConstructorCall) n;
-                        c = (X10ConstructorCall) c.constructorInstance(instantiate(mi, c.constructorInstance()));
-                        assert (false) : "Not yet implemented.";
-                     // x = (X10ConstructorCall) x.typeCheck(this); // can't do this since we inline method that refer to private fields
-                        return c;
-                    } else if (e instanceof SettableAssign) {
-                        SettableAssign a = (SettableAssign) n;
-                        a = (SettableAssign) a.type(instantiate(mi, a.type()));
-                        assert (false) : "Not yet implemented, can't instantiate " +e;
-                        return a;
-                    } else if (e instanceof FieldAssign) {
-                        X10FieldAssign_c f = (X10FieldAssign_c) n;
-                        f = (X10FieldAssign_c) f.type(instantiate(mi, f.type()));
-                        assert (false) : "Not yet implemented, can't instantiate " +e;
-                        return f;
-                    } else if (e instanceof AssignPropertyBody) {
-                        AssignPropertyBody b = (AssignPropertyBody) n;
-                        List<FieldInstance> fieldInstances =b.fieldInstances();
-                        X10ConstructorDef def = b.constructorInstance();
-                        assert (false) : "Not yet implemented, can't instantiate " +e;
-                        // TODO: ASK IGOR: how to handle AssignPropertyBody
-                        return b;
                     }
                     return e;
                 }
@@ -863,8 +988,7 @@ public class Inliner extends ContextVisitor {
                     }
                     sigChanged |= d.guard() != ((X10MethodDecl) old).guard();
                     List<Ref <? extends Type>> excTypes = new ArrayList<Ref<? extends Type>>();
-                    SubtypeSet excs = 
-                    	d.exceptions() == null ? new SubtypeSet(typeSystem()) : d.exceptions();
+                    SubtypeSet excs = d.exceptions() == null ? new SubtypeSet(typeSystem()) : d.exceptions();
                     SubtypeSet oldExcs = ((X10MethodDecl) old).exceptions();
                     if (null != excs) {
                         for (Type et : excs) {
@@ -889,6 +1013,20 @@ public class Inliner extends ContextVisitor {
                 return n;
             }
         }.context(context()));
+    }
+
+    /**
+     * @param decl
+     * @return
+     */
+    private TypeParamSubst makeTypeMap(X10MethodInstance method) {
+        List<Type>          typeArgs  = new ArrayList<Type>();
+        List<ParameterType> typeParms = new ArrayList<ParameterType>();
+        typeArgs.addAll(method.typeParameters());
+        typeArgs.addAll(((X10ClassType) method.container()).typeArguments());
+        typeParms.addAll(getGenericTypes(method.x10Def().typeParameters()));
+        typeParms.addAll(((X10ClassType) method.container()).x10Def().typeParameters());
+        return new TypeParamSubst(xts, typeArgs, typeParms);
     }
 
     // TODO: generate a closure call instead of a statement expression // is this still necessary?
