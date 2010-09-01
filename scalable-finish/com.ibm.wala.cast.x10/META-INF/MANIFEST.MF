@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: X10 WALA AST Translator
 Bundle-SymbolicName: com.ibm.wala.cast.x10;singleton:=true
 Bundle-Version: 1.0.0
-Bundle-Activator: com.ibm.wala.cast.x10.X10Plugin
 Bundle-Vendor: rfuhrer@watson.ibm.com
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.core.runtime,
@@ -13,8 +12,7 @@ Require-Bundle: org.eclipse.core.runtime,
  com.ibm.wala.shrike,
  x10.compiler
 Eclipse-AutoStart: true
-Export-Package: com.ibm.wala.cast.x10,
- com.ibm.wala.cast.java.translator.polyglot,
+Export-Package: com.ibm.wala.cast.java.translator.polyglot,
  com.ibm.wala.cast.x10.analysis,
  com.ibm.wala.cast.x10.analysis.typeInference,
  com.ibm.wala.cast.x10.client,
