@@ -1,26 +1,77 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE project [<!ENTITY buildfile SYSTEM "./build-user.xml">]>
 <project name="wala" default="jar" basedir="..">
+	<property name="wala.url" value="https://wala.svn.sourceforge.net/svnroot/wala/trunk"/>
 	<property name="script" location="./build"/>
 	<property name="build" location="${basedir}/bin"/>
     <property name="lib" location="${basedir}/lib"/>
 	<property name="jar" value="wala.jar"/>
 	<property name="cast" value="com.ibm.wala.cast"/>
+	<property name="cast.url" value="${wala.url}/${cast}"/>
     <property name="cast.location" location="${basedir}/${cast}"/>
     <property name="cast.jar" value="${cast}.jar"/>
 	<property name="cast.java" value="com.ibm.wala.cast.java"/>
+	<property name="cast.java.url" value="${wala.url}/${cast.java}"/>
 	<property name="cast.java.location" location="${basedir}/${cast.java}"/>
     <property name="cast.java.jar" value="${cast.java}.jar"/>
 	<property name="core" value="com.ibm.wala.core"/>
+	<property name="core.url" value="${wala.url}/${core}"/>
     <property name="core.location" location="${basedir}/${core}"/>
     <property name="core.jar" value="${core}.jar"/>
 	<property name="shrike" value="com.ibm.wala.shrike"/>
+	<property name="shrike.url" value="${wala.url}/${shrike}"/>
     <property name="shrike.location" location="${basedir}/${shrike}"/>
     <property name="shrike.jar" value="${shrike}.jar"/>
 	<property name="rcp.zip.url" value="http://eclipse.unixheads.org/eclipse/downloads/drops/R-3.6-201006080911/org.eclipse.rcp-3.6.zip"/>
 	<property name="rcp.zip" value="rcp.zip"/>
-    <target name="init">
+
+     <target name="check-project">
+        <available property="project.cast.present" file="${basedir}/${cast}" type="dir"/>
+        <available property="project.cast.java.present" file="${basedir}/${cast.java}" type="dir"/>
+        <available property="project.core.present" file="${basedir}/${core}" type="dir"/>
+        <available property="project.shrike.present" file="${basedir}/${shrike}" type="dir"/>
+        <condition property="projects.up-to-date">
+            <and>
+            	<isset property="project.cast.present"/>
+            	<isset property="project.cast.java.present"/>
+            	<isset property="project.core.present"/>
+            	<isset property="project.shrike.present"/>
+            </and>
+        </condition>
+     </target>
+     <target name="update-cast" depends="check-project" unless="project.cast.present">
+        <!-- svn here -->
+       <exec executable="svn">
+        <arg value="co"/>
+        <arg value="${cast.url}"/>
+       </exec> 
+     </target>
+     <target name="update-cast.java" depends="check-project" unless="project.cast.java.present">
+        <exec executable="svn">
+        <arg value="co"/>
+        <arg value="${cast.java.url}"/>
+       </exec> 
+     </target>
+     <target name="update-core" depends="check-project" unless="project.core.present">
+        <exec executable="svn">
+        <arg value="co"/>
+        <arg value="${core.url}"/>
+       </exec> 
+     </target>
+     <target name="update-shrike" depends="check-project" unless="project.shrike.present">
+        <exec executable="svn">
+        <arg value="co"/>
+        <arg value="${shrike.url}"/>
+       </exec> 
+     </target>
+
+     <target name="init">
         <tstamp/>
+
+	<antcall target="update-cast"></antcall>
+	<antcall target="update-cast.java"></antcall>
+	<antcall target="update-core"></antcall>
+	<antcall target="update-shrike"></antcall>
         <mkdir dir="${lib}" />
     	<mkdir dir="${build}" />
     	<copy tofile="${cast.location}/build1.xml">
