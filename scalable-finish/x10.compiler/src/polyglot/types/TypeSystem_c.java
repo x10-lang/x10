@@ -2281,7 +2281,7 @@ public abstract class TypeSystem_c implements TypeSystem
     }
 
     public String toString() {
-	return StringUtil.getShortNameComponent(getClass().getName()) + " created at " + getCreatorStack(16);
+	return StringUtil.getShortNameComponent(getClass().getName()) + " created at " + getCreatorStack(10);
     }
 
 }

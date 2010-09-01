@@ -162,13 +162,13 @@ public final class Rail[T](length: Int)
     public native safe def reset(init: T): Void;
 
     /**
-     * Cast operator that creates a new Rail from a ValRail.
+     * Make a new Rail from a given ValRail.
      *
      * @param init The length and elements will be copied from this ValRail.
      */
     @Native("java", "x10.core.RailFactory.<#2>makeRailFromValRail(#3, #4)")
     @Native("c++", "x10::lang::Rail<void>::make<#1 >(#4)")
-    public native static safe operator [U](r: ValRail[U]): Rail[U]!{self.length==r.length};
+    public native static safe def make[U](r: ValRail[U]): Rail[U]!{self.length==r.length};
 
     /**
      * Operator that allows access of Rail elements by index.

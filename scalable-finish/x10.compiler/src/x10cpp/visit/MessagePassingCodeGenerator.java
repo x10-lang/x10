@@ -161,6 +161,7 @@ import x10.ast.AtStmt_c;
 import x10.ast.Atomic_c;
 import x10.ast.Await_c;
 import x10.ast.Closure;
+import x10.ast.ClosureCall;
 import x10.ast.ClosureCall_c;
 import x10.ast.Closure_c;
 import x10.ast.ConstantDistMaker_c;
@@ -1701,7 +1702,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 //        X10ClassType container = (X10ClassType) mi.container().toClass();
 //        // TODO: [IP] Add an extra apply to something that's both Settable and Indexable
 //        try {
-//        if (mi.name().toString().equals("apply") &&
+//        if (mi.name()==ClosureCall.APPLY &&
 //            xts.isImplicitCastValid(container, (Type) xts.forName(QName.make("x10.lang.Indexable"))) &&
 //            xts.isImplicitCastValid(container, (Type) xts.forName(QName.make("x10.lang.Settable"))))
 //        {
@@ -4511,7 +4512,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		            actualTypes.add(a.type());
 		        }
 		        ami = xts.findMethod(t,
-		                xts.MethodMatcher(c.type(), Name.make("apply"), actualTypes, context));  // todo: double check this code
+		                xts.MethodMatcher(c.type(), ClosureCall.APPLY, actualTypes, context));  // todo: double check this code
 		    } catch (SemanticException e) {
 		        e.printStackTrace();
 		        assert (false);

@@ -174,7 +174,7 @@ public abstract class Dist(
      * @param ps the rail of places
      * @return a "unique" distribution over the places in ps
      */
-    public static def makeUnique(ps:Rail[Place]): Dist(1)
+    public static def makeUnique(ps:ValRail[Place]): Dist(1)
         = BaseDist.makeUnique1(ps);
 
     /**

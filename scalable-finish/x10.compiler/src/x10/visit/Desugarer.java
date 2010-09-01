@@ -163,10 +163,8 @@ public class Desugarer extends ContextVisitor {
     private static final Name START_FINISH = Name.make("startFinish");
     private static final Name PUSH_EXCEPTION = Name.make("pushException");
     private static final Name STOP_FINISH = Name.make("stopFinish");
-    private static final Name APPLY = Name.make("apply");
     private static final Name PLACES = Name.make("places");
     private static final Name RESTRICTION = Name.make("restriction");
-    private static final Name SET = Name.make("set");
     private static final Name CONVERT = Converter.operator_as;
     private static final Name CONVERT_IMPLICITLY = Converter.implicit_operator_as;
     private static final Name DIST = Name.make("dist");
@@ -793,22 +791,29 @@ public class Desugarer extends ContextVisitor {
                 ConstrainedType ct = (ConstrainedType) reducerType;
                 reducerType = X10TypeMixin.baseType(Types.get(ct.baseType()));
             }
-            //First check the reducerType itself is a reducible or not;
-            //If not, it should be a class that implements reducible
             X10ParsedClassType reducerTypeWithGenericType = null;
-            if(xts.isReducible(((ClassType)reducerType).def().asType())){
+            Type thisType = reducerType;
+            while(thisType != null) {
+            //First check the reducerType itself is a reducible or not;
+            //If not, it should be a class that implements reducible            
+            if(xts.isReducible(((ClassType)thisType).def().asType())){
                 //generic type case
-                reducerTypeWithGenericType = (X10ParsedClassType) reducerType;
+                reducerTypeWithGenericType = (X10ParsedClassType) thisType;
+                break;
             }
             else{ 
                 //implement interface case
-                for (Type t : xts.interfaces(reducerType)) {
+                for (Type t : xts.interfaces(thisType)) {
                     ClassType baseType = ((X10ParsedClassType)t).def().asType();
                     if(xts.isReducible(baseType)){
                         reducerTypeWithGenericType = (X10ParsedClassType) t;
+                        break;
                     }
                 }
             }
+            thisType = xts.superClass(thisType);
+            }
+            
             assert(reducerTypeWithGenericType != null);
             //because Reducible type only has one argument, we could take it directly
             expectType = reducerTypeWithGenericType.typeArguments().get(0);
@@ -938,7 +943,7 @@ public class Desugarer extends ContextVisitor {
         } else if (a instanceof SettableAssign_c) {
             assert (e instanceof X10Call);
             X10Call call = (X10Call) e;
-            X10Call_c n = (X10Call_c) xnf.X10Call(pos, call.target(), nf.Id(pos, SET), call.typeArguments(), CollectionUtil.append(Collections.singletonList(val), call.arguments()));
+            X10Call_c n = (X10Call_c) xnf.X10Call(pos, call.target(), nf.Id(pos, SettableAssign.SET), call.typeArguments(), CollectionUtil.append(Collections.singletonList(val), call.arguments()));
             n = (X10Call_c) n.del().disambiguate(this).typeCheck(this).checkConstants(this);
             MethodInstance smi = n.methodInstance();
             MethodInstance ami = call.methodInstance();

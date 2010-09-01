@@ -21,7 +21,6 @@ import polyglot.frontend.Job;
 import polyglot.frontend.Scheduler;
 import polyglot.types.TypeSystem;
 import x10.ExtensionInfo.X10Scheduler.ValidatingVisitorGoal;
-import x10.visit.ExpressionFlattener;
 import x10.visit.Inliner;
 
 public class Optimizer {

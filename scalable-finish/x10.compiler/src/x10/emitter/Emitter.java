@@ -1980,7 +1980,7 @@ public class Emitter {
 					return true;
 			}
 			X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
-			if (c.name().id().equals(Name.make("apply")))
+			if (c.name().id().equals(ClosureCall.APPLY))
 				if (ts.isRail(target.type()) || ts.isValRail(target.type()))
 					return false;
 		}

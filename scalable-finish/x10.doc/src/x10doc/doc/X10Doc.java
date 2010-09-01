@@ -121,29 +121,41 @@ public class X10Doc implements Doc {
 	}
 	
 	
-	private void processBlockTag(String tagText){
+	private void processBlockTag(String tagText) {
 		String kind = null;
 		String text = null;
 		Pattern p = Pattern.compile("@[^\\s]*");
 		Matcher m = p.matcher(tagText);
-		if (m.find()){
+		if (m.find()) {
 			kind = m.group().substring(1);
 			text = tagText.substring(m.end()).trim();
 		}
-		if (kind.equals(X10Tag.PARAM)){
-			
-			
+		if (kind.equals(X10Tag.PARAM)) {
 			Pattern p1 = Pattern.compile("[^\\s]*");
 			Matcher m1 = p1.matcher(text);
-			if (m1.find()){
+			if (m1.find()) {
 				String name = m1.group();
 				String paramComment = text.substring(m1.end()).trim();
-				X10Tag[] inTags = createInlineTags(paramComment, this).toArray(new X10Tag[0]);
-				X10ParamTag t = new X10ParamTag(false, name, inTags, paramComment, text , this);
+				X10Tag[] inTags = createInlineTags(paramComment, this).toArray(
+						new X10Tag[0]);
+				X10ParamTag t = new X10ParamTag(false, name, inTags,
+						paramComment, text, this);
 				blockTags.add(t);
 				paramTags.add(t);
 			}
-		} else {
+
+		}
+
+		else if (kind.equals("see") || kind.equals("link")
+				|| kind.equals("linkplain")) {
+			blockTags.add(new X10SeeTag("@" + kind, text, text, this));
+		}
+		
+		else if (kind.equals(X10Tag.THROWS)) {
+			blockTags.add(new X10ThrowsTag(kind, text, this));
+		}
+
+		else {
 			blockTags.add(new X10Tag(kind, text, this));
 		}
 	}
@@ -272,7 +284,7 @@ public class X10Doc implements Doc {
 	 */
 	public Tag[] inlineTags() {
 		if (X10RootDoc.printSwitch)
-			System.out.println("Doc.inlineTags() called for "+name());
+			System.out.println("Doc.inlineTags() called for " + name());
 		return inlineTags;
 	}
 
@@ -348,7 +360,11 @@ public class X10Doc implements Doc {
 	public SeeTag[] seeTags() {
 		if (X10RootDoc.printSwitch)
 			System.out.println("Doc.seeTags() called for "+name());
-		return new SeeTag[0];
+		
+		Tag[] tags = tags(X10Tag.SEE);
+		SeeTag[] newTags = new SeeTag[tags.length];
+		System.arraycopy(tags, 0, newTags, 0, tags.length);
+		return newTags;
 	}
 
 	public void setRawCommentText(String arg0) {
@@ -436,7 +452,7 @@ public class X10Doc implements Doc {
 		//flagsToHex.put(Flags.STRICTFP.toString(), 0x0800);
 	}
 
-	public static int flagsToModifierSpecifier(Set flags) {
+	public static int flagsToModifierSpecifier(Set<Object> flags) {
 		int r = 0;
 		for (Object flag : flags) {
 			// flag could be "property" which is not in flagsToHex (and not recognized by 

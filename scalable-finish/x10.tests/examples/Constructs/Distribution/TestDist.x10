@@ -262,7 +262,7 @@ abstract public class TestDist extends x10Test {
         val init = (Point) => -1.0D;
         val a = new Array[double](d.region, init);
 
-        var ps: Rail[Place]! = d.places();
+        val ps = d.places();
         for (var i: int = 0; i<ps.length; i++) {
             val r: Region = d.get(ps(i));
             for (p:Point(r.rank) in r) {

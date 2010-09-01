@@ -246,7 +246,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
     }
 
     @Override
-    public Node buildTypesOverride(TypeBuilder tb) throws SemanticException {
+    public Node buildTypesOverride(TypeBuilder tb) {
         X10TypeSystem ts = (X10TypeSystem) tb.typeSystem();
 
         X10FieldDecl_c n = (X10FieldDecl_c) super.buildTypesOverride(tb);
@@ -283,11 +283,11 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 
         // TODO: Could infer type of final fields as LCA of types assigned in the constructor.
         if (type instanceof UnknownTypeNode && init == null)
-        	throw new SemanticException("Cannot infer field type; field has no initializer.", position());
+        	Errors.issue(tb.job(), new SemanticException("Cannot infer field type; field has no initializer.", position()));
         
         // Do not infer types of mutable fields, since there could be more than one assignment and the compiler might not see them all.
         if (type instanceof UnknownTypeNode && ! flags.flags().isFinal())
-        	throw new SemanticException("Cannot infer type of non-final fields.", position());
+        	Errors.issue(tb.job(), new SemanticException("Cannot infer type of non-final fields.", position()));
 
         return n;
     }

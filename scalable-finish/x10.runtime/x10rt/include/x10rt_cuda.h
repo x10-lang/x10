@@ -1,3 +1,6 @@
+#ifndef X10RT_CUDA_H
+#define X10RT_CUDA_H
+
 #include <cstdlib>
 
 #include <x10rt_types.h>
@@ -160,4 +163,5 @@ X10RT_C void x10rt_cuda_probe (x10rt_cuda_ctx *ctx);
  */
 X10RT_C void x10rt_cuda_finalize (x10rt_cuda_ctx *ctx); 
 
+#endif
 // vim: tabstop=4:shiftwidth=4:expandtab:textwidth=100

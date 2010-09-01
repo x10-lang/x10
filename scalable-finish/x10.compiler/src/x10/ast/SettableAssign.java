@@ -17,10 +17,15 @@ import polyglot.ast.Assign;
 import polyglot.ast.Expr;
 import polyglot.types.ClassDef;
 import polyglot.types.MethodInstance;
+import polyglot.types.Name;
 import polyglot.types.Type;
 import polyglot.util.TypedList;
 
 public interface SettableAssign extends Assign {
+
+    /** The name of the method to use for settable assignment */
+    public static final Name SET = Name.make("set");
+
     /** Get the array of the expression. */
     public Expr array();
 

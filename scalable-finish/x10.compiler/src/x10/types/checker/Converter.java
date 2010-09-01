@@ -466,8 +466,10 @@ public class Converter {
 				try {
 					mi = ts.findMethod(toType, ts.MethodMatcher(toType, Converter.operator_as, 
 							Collections.singletonList(fromType), context));
-					Type baseMiType = X10TypeMixin.baseType(mi.returnType());
-					if (mi.flags().isStatic() && baseMiType.isSubtype(baseTo, context)) {
+					Type miType = mi.returnType();
+					Type baseMiType = X10TypeMixin.baseType(miType);
+					if (mi.flags().isStatic() && baseMiType.isSubtype(baseTo, context)
+							&& X10TypeMixin.areConsistent(miType, toType)) {
 						converter = mi;
 						// Do the conversion.
 						c = nf.Call(p, nf.CanonicalTypeNode(p, toType), nf.Id(p, mi.name()), e);
@@ -484,9 +486,11 @@ public class Converter {
 				try {
 					mi = ts.findMethod(toType, ts.MethodMatcher(toType, Converter.implicit_operator_as, 
 							Collections.singletonList(fromType), context));
-					//Type baseMiType = X10TypeMixin.baseType(mi.returnType());
+					
 					Type miType = mi.returnType();
-					if (mi.flags().isStatic() && miType.isSubtype(baseTo, context)) {
+					Type baseMiType = X10TypeMixin.baseType(miType);
+					if (mi.flags().isStatic() && baseMiType.isSubtype(baseTo, context)
+							&& X10TypeMixin.areConsistent(miType, toType)) {
 						converter = mi;
 						// Do the conversion.
 						c = nf.Call(p, nf.CanonicalTypeNode(p, toType), nf.Id(p, mi.name()), e);
@@ -498,8 +502,10 @@ public class Converter {
 					try {
 						mi = ts.findMethod(fromType, ts.MethodMatcher(fromType, Converter.implicit_operator_as, 
 								Collections.singletonList(fromType), context));
-						Type baseMiType = X10TypeMixin.baseType(mi.returnType());
-						if (mi.flags().isStatic() && baseMiType.isSubtype(baseTo, context)) {
+						Type miType = mi.returnType();
+						Type baseMiType = X10TypeMixin.baseType(miType);
+						if (mi.flags().isStatic() && baseMiType.isSubtype(baseTo, context)
+								&& X10TypeMixin.areConsistent(miType, toType)) {
 							converter = mi;
 							c = nf.Call(p, nf.CanonicalTypeNode(p, fromType), nf.Id(p, mi.name()), e);
 							c = c.methodInstance(mi);
