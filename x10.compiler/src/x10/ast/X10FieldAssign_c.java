@@ -63,7 +63,7 @@ public class X10FieldAssign_c extends FieldAssign_c {
     }
 
     /** Type check the expression. */
-    public Node typeCheck(ContextVisitor tc) throws SemanticException {
+    public Node typeCheck(ContextVisitor tc) {
     
     	TypeSystem ts = tc.typeSystem();
         X10FieldAssign_c n = (X10FieldAssign_c) typeCheckLeft(tc);
@@ -109,12 +109,7 @@ public class X10FieldAssign_c extends FieldAssign_c {
     	n = (X10FieldAssign_c) n.reconstruct(target.target(), n.name());
     	t = n.leftType();
     	n = (X10FieldAssign_c) n.type(t);
-    	try {
-    	    return Checker.typeCheckAssign(n, tc);
-    	} catch (SemanticException e) {
-    	    Errors.issue(tc.job(), e, this);
-    	    return n;
-    	}
+    	return Checker.typeCheckAssign(n, tc);
     }
     
 }

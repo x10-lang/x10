@@ -1,3 +1,6 @@
+#ifndef X10RT_FRONT_H
+#define X10RT_FRONT_H
+
 #include <cstdlib>
 
 #include <x10rt_types.h>
@@ -426,13 +429,6 @@ X10RT_C void x10rt_remote_op (x10rt_place place, x10rt_remote_ptr remote_addr,
  */
 X10RT_C x10rt_remote_ptr x10rt_register_mem (void *ptr, size_t len);
 
-/** Perform a global SPMD-style barrier. Blocks until every place calls the barrier operation.
- * \bug Should be a non-blocking operation. \bug Should allow a subset of places. \bug Should be
- * distinguishable from other concurrent barriers in the system.
- */
-X10RT_C void x10rt_barrier (void);
-
-
 /** Automatically configure a CUDA kernel.  By studying the characteristics of the hardware upon
  * which the kernel will be executed, and the kernel itself, we can traverse a list of supported
  * configurations to find the first one that 'fits'.  If the configurations are listed in order of
@@ -490,6 +486,45 @@ X10RT_C void x10rt_blocks_threads (x10rt_place d, x10rt_msg_type type, int dyn_s
  */
 X10RT_C void x10rt_probe (void);
 
+
+X10RT_C void x10rt_team_new (x10rt_place placec, x10rt_place *placev,
+                             x10rt_completion_handler2 *ch, void *arg);
+
+X10RT_C void x10rt_team_del (x10rt_team team, x10rt_place role,
+                             x10rt_completion_handler *ch, void *arg);
+
+X10RT_C x10rt_place x10rt_team_sz (x10rt_team team);
+
+X10RT_C void x10rt_team_split (x10rt_team parent, x10rt_place parent_role,
+                               x10rt_place color, x10rt_place new_role,
+                               x10rt_completion_handler2 *ch, void *arg);
+
+X10RT_C void x10rt_barrier (x10rt_team team, x10rt_place role,
+                            x10rt_completion_handler *ch, void *arg);
+
+X10RT_C void x10rt_bcast (x10rt_team team, x10rt_place role,
+                          x10rt_place root, const void *sbuf, void *dbuf,
+                          size_t el, size_t count,
+                          x10rt_completion_handler *ch, void *arg);
+
+X10RT_C void x10rt_alltoall (x10rt_team team, x10rt_place role,
+                             const void *sbuf, void *dbuf,
+                             size_t el, size_t count,
+                             x10rt_completion_handler *ch, void *arg);
+
+X10RT_C void x10rt_allreduce (x10rt_team team, x10rt_place role,
+                              const void *sbuf, void *dbuf,
+                              x10rt_red_op_type op,
+                              x10rt_red_type dtype,
+                              size_t count,
+                              x10rt_completion_handler *ch, void *arg);
+
+X10RT_C void x10rt_one_setter (void *arg);
+
+X10RT_C void x10rt_team_setter (x10rt_team v, void *arg);
+
 /** \} */
+
+#endif
 
 // vim: tabstop=4:shiftwidth=4:expandtab:textwidth=100

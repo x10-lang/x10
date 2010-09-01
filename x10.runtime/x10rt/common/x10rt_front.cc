@@ -103,3 +103,70 @@ void x10rt_probe (void)
 
 void x10rt_finalize (void)
 { x10rt_lgl_finalize(); }
+
+
+
+void x10rt_team_new (x10rt_place placec, x10rt_place *placev,
+                     x10rt_completion_handler2 *ch, void *arg)
+{
+    x10rt_lgl_team_new(placec, placev, ch, arg);
+}
+
+void x10rt_team_del (x10rt_team team, x10rt_place role,
+                     x10rt_completion_handler *ch, void *arg)
+{
+    x10rt_lgl_team_del(team, role, ch, arg);
+}
+
+x10rt_place x10rt_team_sz (x10rt_team team)
+{
+    return x10rt_lgl_team_sz(team);
+}
+
+void x10rt_team_split (x10rt_team parent, x10rt_place parent_role,
+                       x10rt_place color, x10rt_place new_role,
+                       x10rt_completion_handler2 *ch, void *arg)
+{
+    x10rt_lgl_team_split(parent, parent_role, color, new_role, ch, arg);
+}
+
+void x10rt_barrier (x10rt_team team, x10rt_place role,
+                    x10rt_completion_handler *ch, void *arg)
+{
+    x10rt_lgl_barrier(team, role, ch, arg);
+}
+
+void x10rt_bcast (x10rt_team team, x10rt_place role,
+                  x10rt_place root, const void *sbuf, void *dbuf,
+                  size_t el, size_t count,
+                  x10rt_completion_handler *ch, void *arg)
+{
+    x10rt_lgl_bcast(team, role, root, sbuf, dbuf, el, count, ch, arg);
+}
+
+void x10rt_alltoall (x10rt_team team, x10rt_place role,
+                     const void *sbuf, void *dbuf,
+                     size_t el, size_t count,
+                     x10rt_completion_handler *ch, void *arg)
+{
+    x10rt_lgl_alltoall(team, role, sbuf, dbuf, el, count, ch, arg);
+}
+
+void x10rt_allreduce (x10rt_team team, x10rt_place role,
+                      const void *sbuf, void *dbuf,
+                      x10rt_red_op_type op, 
+                      x10rt_red_type dtype,
+                      size_t count,
+                      x10rt_completion_handler *ch, void *arg)
+{
+    x10rt_lgl_allreduce(team, role, sbuf, dbuf, op, dtype, count, ch, arg);
+}
+
+
+void x10rt_one_setter (void *arg)
+{ *((int*)arg) = 1; }
+
+void x10rt_team_setter (x10rt_team v, void *arg)
+{ *((x10rt_team*)arg) = v; }
+
+

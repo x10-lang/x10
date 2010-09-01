@@ -106,7 +106,7 @@ public class KMeansSPMD {
 
                             Console.OUT.println("Iteration: "+iter);
 
-                            val old_clusters = clusters() as ValRail[Float];
+                            val old_clusters = ValRail.make[Float](clusters());
 
                             host_clusters.reset(0);
                             host_cluster_counts.reset(0);

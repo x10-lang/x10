@@ -16,11 +16,10 @@ import polyglot.frontend.Job;
 import polyglot.types.*;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
-import polyglot.util.ErrorInfo;
 import x10.ast.Finish;
-import x10.ast.Async;
 import x10.ast.ParExpr;
 import x10.ast.X10ClassDecl;
+import x10.ast.Async_c;
 
 /**
  * Visitor which checks that all local variables must be defined before use, 
@@ -139,7 +138,7 @@ public class InitChecker extends DataFlow
               false /* perform dataflow when leaving CodeDecls, not when entering */);
     }
     
-    protected ClassBodyInfo currCBI = null;
+    protected ClassBodyInfo currCBI = new ClassBodyInfo();
     
     /**
      * This class is just a data structure containing relevant information
@@ -222,24 +221,19 @@ public class InitChecker extends DataFlow
      * ONE and MANY.
      */
     enum InitCount {
-        ZERO(0), ONE(1), MANY(2);
+        ZERO(0,"0"), ONE(1,"1"), MANY(2,"many");
 
         public final int count;
-        private InitCount(int i) {
+        private final String name;
+        private InitCount(int i, String name) {
             count = i;
+            this.name = name;
         }
+        public boolean isZero() { return this==ZERO; }
+        public boolean isOne() { return this==ONE; }
 
         public String toString() {
-            if (count == 0) {
-                return "0";
-            }
-            else if (count == 1) {
-                return "1";
-            }
-            else if (count == 2) {
-                return "many";
-            }
-            throw new RuntimeException("Unexpected value for count");
+            return name;
         }
 
         public InitCount increment() {
@@ -295,48 +289,56 @@ public class InitChecker extends DataFlow
         public boolean equals(Object o) {
             if (o instanceof MinMaxInitCount) {
                 final MinMaxInitCount maxInitCount = (MinMaxInitCount) o;
-                return this.minSeq.equals(maxInitCount.minSeq) &&
-                       this.maxSeq.equals(maxInitCount.maxSeq) &&
-                       this.minAsync.equals(maxInitCount.minAsync) &&
-                       this.maxAsync.equals(maxInitCount.maxAsync);
+                return this.minSeq==maxInitCount.minSeq &&
+                       this.maxSeq==maxInitCount.maxSeq &&
+                       this.minAsync==maxInitCount.minAsync &&
+                       this.maxAsync==maxInitCount.maxAsync;
             }
             return false;
         }
         MinMaxInitCount finish() {
             return new MinMaxInitCount(minAsync,maxAsync,minAsync,maxAsync);//[c,d,c,d]
         }
-        static MinMaxInitCount join(Term node, boolean entry, MinMaxInitCount initCount1, MinMaxInitCount initCount2) {
+        static MinMaxInitCount join(Term node, VarDef v, boolean entry, MinMaxInitCount initCount1, MinMaxInitCount initCount2) {
             assert !(node instanceof Finish);
             if (initCount1 == null) return initCount2;
             if (initCount2 == null) return initCount1;
 
-            if (!entry && node instanceof Async) {
+            if (!entry && node instanceof Async_c) {
+                Async_c async = (Async_c) node;
                 // one flow must be smaller than the other (the one coming after the PLACE is smaller or equal to the one coming after the BODY)
                 MinMaxInitCount small =
+                                // is initCount1 the min?
                         initCount1.minSeq.count<initCount2.minSeq.count ? initCount1 :
                         initCount1.maxSeq.count<initCount2.maxSeq.count ? initCount1 :
                         initCount1.minAsync.count<initCount2.minAsync.count ? initCount1 :
                         initCount1.maxAsync.count<initCount2.maxAsync.count ? initCount1 :
+                                // is initCount2 the min?
                         initCount1.minSeq.count>initCount2.minSeq.count ? initCount2 :
                         initCount1.maxSeq.count>initCount2.maxSeq.count ? initCount2 :
                         initCount1.minAsync.count>initCount2.minAsync.count ? initCount2 :
                         initCount1.maxAsync.count>initCount2.maxAsync.count ? initCount2 :
-                                initCount1; // equal
+                                initCount1; // both are equal, so we just choose initCount1
                 MinMaxInitCount big = small==initCount1 ? initCount2 : initCount1;
                 assert small.minSeq.count<=big.minSeq.count &&
                         small.maxSeq.count<=big.maxSeq.count &&
                         small.minAsync.count<=big.minAsync.count &&
                         small.maxAsync.count<=big.maxAsync.count;
 
-                // todo We also need to mark the variable as "initialized in async" to allow the Java backend to implement such initializations.
+                // We also need to mark the variable as "initialized in async" to allow the backend to implement such initializations.
+                if (!small.equals(big) && v.flags().isFinal()) {
+                    if (async.asyncInitVal ==null) async.asyncInitVal = new HashSet<VarDef>();
+                    async.asyncInitVal.add(v);
+                }
+
                 return new MinMaxInitCount(small.minSeq, small.maxSeq, big.minAsync, big.maxAsync); // [a',b', c, d]
             }
             // normal join: [min(a,a'), max(b,b'), min(c,c'), max(d,d')]
             return new MinMaxInitCount(
                     initCount1.minSeq.min(initCount2.minSeq),
-                    initCount1.maxSeq.min(initCount2.maxSeq),
+                    initCount1.maxSeq.max(initCount2.maxSeq),
                     initCount1.minAsync.min(initCount2.minAsync),
-                    initCount1.maxAsync.min(initCount2.maxAsync));
+                    initCount1.maxAsync.max(initCount2.maxAsync));
 
         }
     }
@@ -542,7 +544,7 @@ public class InitChecker extends DataFlow
                 FieldDef fi = (FieldDef)e.getKey();
                 if (fi.flags().isStatic() && fi.flags().isFinal()) {
                     MinMaxInitCount initCount = (MinMaxInitCount)e.getValue();
-                    if (InitCount.ZERO.equals(initCount.getMin())) {
+                    if (initCount.getMin().isZero()) {
                         reportError("Final field \"" + fi.name() +
                             "\" might not have been initialized",
                             cb.position());                                
@@ -573,7 +575,7 @@ public class InitChecker extends DataFlow
                                     
                 boolean fieldInitializedBeforeConstructors = false;
                 MinMaxInitCount ic = currCBI.currClassFinalFieldInitCounts.get(fi);
-                if (ic != null && !InitCount.ZERO.equals(ic.getMin())) {
+                if (ic != null && !ic.getMin().isZero()) {
                     fieldInitializedBeforeConstructors = true;
                 }
                             
@@ -697,7 +699,7 @@ public class InitChecker extends DataFlow
                     VarDef v = (VarDef)e.getKey();
                     MinMaxInitCount initCount1 = m.get(v);
                     MinMaxInitCount initCount2 = (MinMaxInitCount)e.getValue();
-                    m.put(v, MinMaxInitCount.join(node,entry,initCount1, initCount2));
+                    m.put(v, MinMaxInitCount.join(node,v,entry,initCount1, initCount2));
                 }
             }
         }
@@ -1125,8 +1127,8 @@ public class InitChecker extends DataFlow
                 FieldDef fi = (FieldDef)e.getKey();
                 MinMaxInitCount initCount = (MinMaxInitCount)e.getValue();
                 MinMaxInitCount origInitCount = currCBI.currClassFinalFieldInitCounts.get(fi);
-                if (initCount.getMin() == InitCount.ONE &&
-                     (origInitCount == null || origInitCount.getMin() == InitCount.ZERO)) {
+                if (initCount.getMin().isOne() &&
+                     (origInitCount == null || origInitCount.getMin().isZero())) {
                     // the constructor initialized this field
                     s.add(fi);
                 }
@@ -1155,7 +1157,7 @@ public class InitChecker extends DataFlow
 	    DataFlowItem dfOut) {
 	if (isFieldsTargetAppropriate(f) && f.flags().isFinal() && (currCBI.currCodeDecl instanceof ConstructorDecl || currCBI.currCodeDecl instanceof FieldDecl)) {
 	    MinMaxInitCount initCount = dfIn.initStatus.get(f.fieldInstance().def());         
-	    if (initCount != null && InitCount.ZERO.equals(initCount.getMin())) {
+	    if (initCount != null && initCount.getMin().isZero()) {
 		// the field may not have been initialized. 
 		// However, we only want to complain if the field is reachable
 		if (currCBI.currCodeDecl instanceof ConstructorDecl) {
@@ -1196,7 +1198,7 @@ public class InitChecker extends DataFlow
         }
         else { 
             MinMaxInitCount initCount = dfIn.initStatus.get(l.localInstance().def());         
-            if (initCount != null && InitCount.ZERO.equals(initCount.getMin())) {
+            if (initCount != null && initCount.getMin().isZero()) {
                 // the local variable may not have been initialized. 
                 // However, we only want to complain if the local is reachable
                 if (l.reachable()) {
@@ -1210,7 +1212,7 @@ public class InitChecker extends DataFlow
                                           DataFlowItem dfIn, 
                                           Position pos) {
         MinMaxInitCount initCount = dfIn.initStatus.get(li);         
-        if (initCount != null && InitCount.ZERO.equals(initCount.getMin())) {
+        if (initCount != null && initCount.getMin().isZero()) {
             // the local variable may not have been initialized.
             reportVarNotInit(li.name(), pos);
 	    }
@@ -1324,7 +1326,7 @@ public class InitChecker extends DataFlow
                 // the local wasn't defined in this scope.
                 currCBI.outerLocalsUsed.add(li);
             }
-            else if (initCount == null || InitCount.ZERO.equals(initCount.getMin())) {
+            else if (initCount == null || initCount.getMin().isZero()) {
                 // initCount will in general not be null, as the local variable
                 // li is declared in the current class; however, if the inner
                 // class is declared in the initializer of the local variable

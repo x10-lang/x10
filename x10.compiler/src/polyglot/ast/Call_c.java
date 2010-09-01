@@ -235,8 +235,7 @@ public class Call_c extends Expr_c implements Call
         if (this.target instanceof Special && 
             ((Special)this.target).kind() == Special.SUPER &&
             mi.flags().isAbstract()) {
-                throw new SemanticException("Cannot call an abstract method " +
-                               "of the super class", this.position());            
+                throw new SemanticException("Cannot call an abstract method of the super class", this.position());            
         }
 
         Call_c call = (Call_c)this.methodInstance(mi).type(mi.returnType());
