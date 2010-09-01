@@ -1,3 +1,6 @@
+#ifndef X10RT_LOGICAL_H
+#define X10RT_LOGICAL_H
+
 #include <cstdlib>
 
 #include <x10rt_types.h>
@@ -300,5 +303,7 @@ X10RT_C void x10rt_lgl_allreduce (x10rt_team team, x10rt_place role,
                                   x10rt_red_type dtype,
                                   size_t count,
                                   x10rt_completion_handler *ch, void *arg);
+
+#endif
 
 // vim: tabstop=4:shiftwidth=4:expandtab:textwidth=100
