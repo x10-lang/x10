@@ -652,7 +652,7 @@ namespace {
             }
         }
 
-        safe_free(tmp);
+        free(tmp);
 
         if (m.allreduce.ch != NULL) {
             m.allreduce.ch(m.allreduce.arg);
