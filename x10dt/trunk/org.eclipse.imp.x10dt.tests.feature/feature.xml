@@ -30,13 +30,14 @@
          id="org.eclipse.imp.runtime"
          version="0.0.0"/>
 
-   <includes
-         id="org.eclipse.ptp"
-         version="0.0.0"/>
 
    <includes
          id="org.eclipse.ptp.core"
          version="0.0.0"/>
+         
+   <includes
+         id="org.eclipse.ptp.external"
+         version="0.0.0"/>         
 
    <includes
          id="org.eclipse.ptp.remote"
