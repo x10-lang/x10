@@ -63,9 +63,15 @@
 	</target>
 	<target name="build" depends="init,prereq-jars">
         <echo message="${ant.project.name}: ${ant.file}"/>
-        <javac destdir="${build}" source="1.5" target="1.5" debug="on" includes="com/**">
+        <exec executable="ls">
+                <arg value="-l"/>
+                <arg value="${src}/com/ibm/wala/classLoader/EclipseSourceFileModule.java"/>
+        </exec>
+        <javac destdir="${build}" source="1.5" target="1.5" 
+                debug="on" includes="com/**" excludes="com/ibm/wala/classLoader/EclipseSourceFileModule.java">
             <src path="${src}"/>
             <classpath refid="project.classpath"/>
+
         </javac>
         <copy todir="${build}">
             <fileset dir="." includes="data/**"/>
