@@ -21,7 +21,6 @@ import polyglot.ast.Expr;
 import polyglot.ast.Expr_c;
 import polyglot.ast.Node;
 import polyglot.ast.Precedence;
-import polyglot.ast.ProcedureCall;
 import polyglot.ast.Term;
 import polyglot.ast.TypeNode;
 import polyglot.types.Context;
@@ -62,7 +61,7 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 
 	protected X10MethodInstance ci;
 
-	public ClosureCall_c(Position pos, Expr target,  List<Expr> arguments) {
+	public ClosureCall_c(Position pos, Expr target, List<Expr> arguments) {
 		super(pos);
 		assert target != null;
 		assert arguments != null;
@@ -167,7 +166,7 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 	}
 
 	/** Set the actual arguments of the call. */
-	public ProcedureCall arguments(List<Expr> arguments) {
+	public ClosureCall arguments(List<Expr> arguments) {
 		assert arguments != null;
 		ClosureCall_c n= (ClosureCall_c) copy();
 		n.arguments= TypedList.copyAndCheck(arguments, Expr.class, true);
@@ -188,7 +187,7 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
     }*/
 
 	public List<TypeNode> typeArguments() {
-		return Collections.EMPTY_LIST; // typeArgs();
+		return Collections.<TypeNode>emptyList(); // typeArgs();
 	}
 
 	/** Reconstruct the call. */
@@ -285,12 +284,12 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 		}
 
 		// First try to find the method without implicit conversions.
-		X10MethodInstance mi = findAppropriateMethod(tc, targetType, Name.make("apply"), typeArgs, actualTypes);
+		X10MethodInstance mi = findAppropriateMethod(tc, targetType, APPLY, typeArgs, actualTypes);
 		List<Expr> args = this.arguments;
 		if (mi.error() != null) {
 			// Now, try to find the method with implicit conversions, making them explicit.
 			try {
-				Pair<MethodInstance,List<Expr>> p = X10Call_c.tryImplicitConversions(this, tc, targetType, Name.make("apply"), typeArgs, actualTypes);
+				Pair<MethodInstance,List<Expr>> p = X10Call_c.tryImplicitConversions(this, tc, targetType, APPLY, typeArgs, actualTypes);
 				mi = (X10MethodInstance) p.fst();
 				args = p.snd();
 			}

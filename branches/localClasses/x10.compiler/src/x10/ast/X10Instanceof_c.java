@@ -41,8 +41,8 @@ public class X10Instanceof_c extends Instanceof_c implements X10Instanceof, X10C
 	}
  
     /** Type check the expression. */
-    public Node typeCheck(ContextVisitor tc) throws SemanticException {
-        X10Instanceof_c n = (X10Instanceof_c) copy();
+    public Node typeCheck(ContextVisitor tc) {
+        X10Instanceof_c n = this;
         final TypeNode toTypeNode = n.compareType();
         Type toType = toTypeNode.type();
         Type fromType = n.expr().type();
@@ -50,10 +50,14 @@ public class X10Instanceof_c extends Instanceof_c implements X10Instanceof, X10C
         X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
 
         if (! xts.isCastValid(fromType, toType, tc.context())) {
-            throw new Errors.InstanceofError(fromType, toType, position());
+            Errors.issue(tc.job(), new Errors.InstanceofError(fromType, toType, position()));
         }
-        
-        X10TypeMixin.checkMissingParameters(toTypeNode);
+
+        try {
+            X10TypeMixin.checkMissingParameters(toTypeNode);
+        } catch (SemanticException e) {
+            Errors.issue(tc.job(), e, this);
+        }
 
         return n.type(xts.Boolean());
 	}

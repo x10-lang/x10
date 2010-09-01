@@ -16,7 +16,7 @@ import harness.x10Test;
  */
 public class IntArrayIndexing extends x10Test {
 
-	var _tests: Rail[String] = [ "testDouble" ];
+	var _tests: ValRail[String] = [ "testDouble" ];
 
 	const verbose: boolean = false;
 

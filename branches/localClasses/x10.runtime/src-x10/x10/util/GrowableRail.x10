@@ -20,7 +20,7 @@ import x10.compiler.NativeRep;
 public final class GrowableRail[T] implements Indexable[Int,T], Settable[Int,T] {
     /** Return a rail of length 0 */
     public native def this();
-    
+
     /** Return a rail of length 0, with Int elements allocated */
     public native def this(Int);
 
@@ -28,6 +28,11 @@ public final class GrowableRail[T] implements Indexable[Int,T], Settable[Int,T] 
     @Native("java", "(#0).add(#1)")
     @Native("c++", "(#0)->add(#1)")
     public native def add(T): Void;
+
+    /** Insert an existing valrail to the rail at specified location, incrementing length. */
+    @Native("java", "(#0).insert(#1, #2)")
+    @Native("c++", "(#0)->insert(#1, #2)")
+    public native def insert(p:Int, items:ValRail[T]): Void;
 
     /** Get the Int element of the rail, failing unless 0 &lt;= Int &lt; length. */
     @Native("java", "(#0).apply$G(#1)")
@@ -43,12 +48,12 @@ public final class GrowableRail[T] implements Indexable[Int,T], Settable[Int,T] 
     @Native("java", "(#0).length()")
     @Native("c++", "(#0)->length()")
     public native def length(): Int;
-    
+
     /** Set the length of the rail */
     @Native("java", "(#0).setLength(#1)")
     @Native("c++", "(#0)->setLength(#1)")
     public native def setLength(Int): Void;
-    
+
     /** Remove the last element of the rail, decrementing the length. */
     @Native("java", "(#0).removeLast()")
     @Native("c++", "(#0)->removeLast()")

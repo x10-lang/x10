@@ -2234,6 +2234,8 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         CConstraint ca = X10TypeMixin.realX(a);
         X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
         CConstraint c = xts.xtypeTranslator().unaryOp(op, ca);
+        if (c == null)
+            return t;
         return X10TypeMixin.xclause(X10TypeMixin.baseType(t), c);
     }
 

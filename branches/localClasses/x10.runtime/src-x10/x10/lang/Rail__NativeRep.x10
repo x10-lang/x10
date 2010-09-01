@@ -85,7 +85,7 @@ import x10.util.Pair;
             if (dst.home == here && isJava()) { copyToLocal_(src,src_off,dst,dst_off,len); return; }
             if (useNativeFor(dst.home)) { copyTo_(src,src_off,dst,dst_off,len); return; }
             // could be further optimised to send only the part of the valrail needed
-            val to_serialize = src as ValRail[T];
+            val to_serialize = ValRail.make(src);
             at (dst) {
                 if (isJava()) { ValRail__NativeRep.copyToLocal_(to_serialize,src_off,dst,dst_off,len); } else
                 //TODO: implement optimisation in backend so we can use: for ((i):Point(1) in 0..len-1) {
@@ -113,7 +113,7 @@ import x10.util.Pair;
             // this version is optimised to use a single async for the whole rail
             // it could be further optimised to send only the part of the rail needed
             at (src) {
-                val to_serialize = src as ValRail[T];
+                val to_serialize = ValRail.make(src);
                 at (dst) {
                     if (isJava()) { copyFromLocal_(dst,dst_off,to_serialize,src_off,len); } else
                     //TODO: implement optimisation in backend so we can use: for ((i):Point(1) in 0..len-1) {
@@ -167,7 +167,7 @@ import x10.util.Pair;
             // semantics allows an async per rail element inside a single finish
             // this version is optimised to use a single async for the whole rail
             // it could be further optimised to send only the part of the rail needed
-            val to_serialize = src as ValRail[T];
+            val to_serialize = ValRail.make(src);
             at (dst_place) {
                 val pair = dst_finder();
                 val dst = pair.first;
@@ -190,7 +190,7 @@ import x10.util.Pair;
                 val pair = src_finder();
                 val src = pair.first;
                 val src_off = pair.second;
-                val to_serialize = src as ValRail[T];
+                val to_serialize = ValRail.make(src);
                 at (dst) {
                     //TODO: implement optimisation in backend so we can use: for ((i):Point(1) in 0..len-1) {
                     for (var i:Int=0 ; i<len ; ++i) {
@@ -248,7 +248,7 @@ import x10.util.Pair;
             // semantics allows an async per rail element inside a single finish
             // this version is optimised to use a single async for the whole rail
             // it could be further optimised to send only the part of the rail needed
-            val to_serialize = src as ValRail[T];
+            val to_serialize = ValRail.make(src);
             Runtime.runAtNative(dst.home.id, ()=>{
                 val dst2 = dst as Rail[T]!; // type system does not understand runAtNative (understandably)
                 //TODO: implement optimisation in backend so we can use: for ((i):Point(1) in 0..len-1) {
@@ -282,7 +282,7 @@ import x10.util.Pair;
             // semantics allows an async per rail element inside a single finish
             // this version is optimised to use a single async for the whole rail
             // it could be further optimised to send only the part of the rail needed
-            val to_serialize = src as ValRail[T];
+            val to_serialize = ValRail.make(src);
             Runtime.runAtNative(dst_place.id, ()=>{
                 val pair = dst_finder();
                 val dst = pair.first;

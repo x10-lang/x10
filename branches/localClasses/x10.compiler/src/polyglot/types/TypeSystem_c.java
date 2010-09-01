@@ -2271,9 +2271,9 @@ public abstract class TypeSystem_c implements TypeSystem
 	return f;
     }
 
-    protected String getCreatorStack() {
+    protected String getCreatorStack(int limit) {
         StackTraceElement[] trace = creator.getStackTrace();
-        int size = trace.length < 6 ? trace.length : 6;
+        int size = trace.length < limit ? trace.length : limit;
         StackTraceElement[] res = new StackTraceElement[size];
         for (int i = 0; i < res.length; i++)
             res[i] = trace[i];
@@ -2281,7 +2281,7 @@ public abstract class TypeSystem_c implements TypeSystem
     }
 
     public String toString() {
-	return StringUtil.getShortNameComponent(getClass().getName()) + " created at " + getCreatorStack();
+	return StringUtil.getShortNameComponent(getClass().getName()) + " created at " + getCreatorStack(10);
     }
 
 }

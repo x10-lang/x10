@@ -77,7 +77,7 @@ public abstract class Region(
      */
 
     public static def makeRectangular(minArg: Rail[int]!, maxArg: Rail[int](minArg.length)!):Region(minArg.length){self.rect}
-        = makeRectangular(minArg as ValRail[int], maxArg as ValRail[int](minArg.length));  
+        = makeRectangular(ValRail.make(minArg), ValRail.make(maxArg));  
     public static def makeRectangular(minArg: ValRail[int], maxArg: ValRail[int](minArg.length)):Region(minArg.length){self.rect}
         = new RectRegion(minArg, maxArg);
 

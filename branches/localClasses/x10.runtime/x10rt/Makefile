@@ -21,13 +21,13 @@ override CXXFLAGS += -Iinclude -Icommon ${JNI_INCLUDES}
 # these are used only for building tests
 override LDFLAGS         += -Llib -lpthread
 
-BASE_TESTS      = test/x10rt_basic test/x10rt_gups test/x10rt_topology
+BASE_TESTS      = test/x10rt_basic test/x10rt_gups test/x10rt_topology test/x10rt_coll
 
 EXECUTABLES     =
 
 X10_HOME        = ${CURDIR}/../..
 
-COMMON_OBJS     = common/x10rt_front.o common/x10rt_logical.o common/x10rt_cuda.o common/x10rt_emu.o
+COMMON_OBJS     = common/x10rt_front.o common/x10rt_logical.o common/x10rt_cuda.o common/x10rt_emu.o common/x10rt_emu_coll.o
 
 # Include JNI bindings in x10rt if we can find a JDK unless cross-compiling for BGP
 ifndef ENABLE_CROSS_COMPILE_BGP
@@ -55,6 +55,7 @@ endif
 
 ifndef ENABLE_CROSS_COMPILE_BGP
    include standalone/standalone.mk
+   include socket/socket.mk
 endif
 
 install: $(LIBS) $(PROPERTIES)
@@ -80,7 +81,11 @@ debug::
 	@echo TESTS = $(TESTS)
 
 clean:
-	-$(RM) -r */*.o lib/* bin/* etc/*.properties test/*.mpi test/*.standalone test/*.pgas_* */*~ *~ core* vgcore* include/pgasrt*.h include/xlupc*.h
+	-$(RM) -r */*.o lib/* bin/* etc/*.properties test/*.mpi test/*.standalone test/*.socket test/*.pgas_* */*~ *~ core* vgcore* include/pgasrt*.h include/xlupc*.h
+
+depend:
+	makedepend -I include -I common -Y */*.cc
+
 
 %.o: %.cc
 	$(CXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) -c $< -o $@
@@ -90,16 +95,27 @@ clean:
 
 common/x10rt_cuda.o: include/x10rt_types.h common/x10rt_internal.h
 common/x10rt_cuda.o: include/x10rt_cuda.h
+common/x10rt_emu.o: include/x10rt_net.h include/x10rt_types.h
+common/x10rt_emu.o: common/x10rt_internal.h include/x10rt_ser.h
+common/x10rt_emu_coll.o: include/x10rt_types.h common/x10rt_internal.h
+common/x10rt_emu_coll.o: include/x10rt_net.h include/x10rt_ser.h
 common/x10rt_front.o: include/x10rt_front.h include/x10rt_types.h
 common/x10rt_front.o: include/x10rt_logical.h
 common/x10rt_logical.o: include/x10rt_logical.h include/x10rt_types.h
 common/x10rt_logical.o: include/x10rt_net.h include/x10rt_cuda.h
-common/x10rt_logical.o: common/x10rt_internal.h
-common/x10rt_emu.o: common/x10rt_internal.h include/x10rt_net.h include/x10rt_types.h
-jni/jni_x10rt.o: include/x10rt_front.h include/x10rt_types.h
-jni/jni_message.o: include/x10rt_front.h include/x10rt_types.h
+common/x10rt_logical.o: common/x10rt_internal.h include/x10rt_ser.h
+jni/jni_message.o: include/x10_x10rt_ActiveMessage.h include/x10rt_front.h
+jni/jni_message.o: include/x10rt_types.h
+jni/jni_x10rt.o: include/x10_x10rt_X10RT.h include/x10rt_front.h
+jni/jni_x10rt.o: include/x10rt_types.h
 mpi/x10rt_mpi.o: include/x10rt_net.h include/x10rt_types.h
 standalone/x10rt_standalone.o: include/x10rt_net.h include/x10rt_types.h
+socket/x10rt_socket.o: include/x10rt_net.h include/x10rt_types.h
 test/x10rt_basic.o: include/x10rt_front.h include/x10rt_types.h
+test/x10rt_coll.o: include/x10rt_front.h include/x10rt_types.h
+test/x10rt_coll.o: include/x10rt_ser.h include/x10rt_net.h
+test/x10rt_coll.o: include/x10rt_logical.h common/x10rt_internal.h
 test/x10rt_gups.o: include/x10rt_front.h include/x10rt_types.h
+test/x10rt_gups.o: include/x10rt_ser.h include/x10rt_net.h
+test/x10rt_gups.o: include/x10rt_logical.h
 test/x10rt_topology.o: include/x10rt_front.h include/x10rt_types.h

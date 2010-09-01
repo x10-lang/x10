@@ -6,6 +6,7 @@
 
 
 #include <x10rt_front.h>
+#include <x10rt_ser.h>
 #include <x10rt_net.h>
 #include <x10rt_logical.h>
 
@@ -85,11 +86,9 @@ void decrement (unsigned long place)
 // {{{ msg handlers
 
 static void recv_dist (const x10rt_msg_params *p) {
-    uint32_t src;
-    uint64_t address;
-    unsigned char *buf = (unsigned char*) p->msg;
-    memcpy(&src, buf+0, 4);
-    memcpy(&address, buf+4, 8);
+    x10rt_deserbuf b; x10rt_deserbuf_init(&b, p);
+    uint32_t src; x10rt_deserbuf_read(&b, &src);
+    uint64_t address; x10rt_deserbuf_read(&b, &address);
     globalTable[src] = address;
     x10rt_msg_params p2 = {src, PONG_ID, NULL, 0};
     x10rt_send_msg(&p2);
@@ -105,13 +104,9 @@ static void do_update (uint64_t index, uint64_t update) {
 
 static void recv_update (const x10rt_msg_params *p)
 {
-    uint64_t index;
-    uint64_t update;
-
-    char *buf = (char*) p->msg;
-    memcpy(&index, buf+0, 8);
-    memcpy(&update, buf+8, 8);
-
+    x10rt_deserbuf b; x10rt_deserbuf_init(&b, p);
+    uint64_t index; x10rt_deserbuf_read(&b, &index);
+    uint64_t update; x10rt_deserbuf_read(&b, &update);
     do_update(index, update);
 }
 
@@ -142,12 +137,11 @@ static void do_main (uint64_t logLocalTableSize, uint64_t numUpdates) {
             do_update(index,update);
         } else {
             #ifdef OP_EMULATE
-            char *buf2 = (char*)malloc(16);
-            memcpy(buf2+0, &index, 8);
-            memcpy(buf2+8, &update, 8);
-            x10rt_msg_params params = {place, UPDATE_ID, buf2, 16};
-            x10rt_send_msg(&params);
-            free(buf2);
+            x10rt_serbuf b; x10rt_serbuf_init(&b, place, UPDATE_ID);
+            x10rt_serbuf_write(&b, &index);
+            x10rt_serbuf_write(&b, &update);
+            x10rt_send_msg(&b.p);
+            x10rt_serbuf_free(&b);
             #endif
             #ifdef OP_OLD
             uint64_t remote_addr = globalTable[place];
@@ -175,12 +169,9 @@ static void do_main (uint64_t logLocalTableSize, uint64_t numUpdates) {
 }
 
 static void recv_main (const x10rt_msg_params *p) {
-    uint64_t logLocalTableSize;
-    uint64_t numUpdates;
-    unsigned char *buf = (unsigned char*) p->msg;
-    memcpy(&logLocalTableSize, buf+0, 8);
-    memcpy(&numUpdates, buf+8, 8);
-
+    x10rt_deserbuf b; x10rt_deserbuf_init(&b, p);
+    uint64_t logLocalTableSize; x10rt_deserbuf_read(&b, &logLocalTableSize);
+    uint64_t numUpdates; x10rt_deserbuf_read(&b, &numUpdates);
     do_main(logLocalTableSize, numUpdates);
 }
 
@@ -228,12 +219,11 @@ void runBenchmark (uint64_t logLocalTableSize,
     pongs_outstanding=x10rt_nhosts();
     #endif
     for (unsigned long p=1 ; p<x10rt_nhosts() ; ++p) {
-        unsigned char *buf = (unsigned char*)malloc(16);
-        memcpy(buf+0, &logLocalTableSize, 8);
-        memcpy(buf+8, &numUpdates, 8);
-        x10rt_msg_params params = {p, MAIN_ID, buf, 16};
-        x10rt_send_msg(&params);
-        free(buf);
+        x10rt_serbuf b; x10rt_serbuf_init(&b, p, MAIN_ID);
+        x10rt_serbuf_write(&b, &logLocalTableSize);
+        x10rt_serbuf_write(&b, &numUpdates);
+        x10rt_send_msg(&b.p);
+        x10rt_serbuf_free(&b);
     }
     do_main(logLocalTableSize, numUpdates);
     while (pongs_outstanding) {
@@ -360,26 +350,27 @@ int main(int argc, char **argv)
     // make sure everyone knows the address of everyone else's rail
     pongs_outstanding = x10rt_nhosts();
     uint64_t intptr = x10rt_register_mem(localTable, localTableSize*sizeof(uint64_t));
+    uint32_t src = x10rt_here();
     for (unsigned long i=0 ; i<x10rt_nhosts() ; ++i) {
 	intptr = (size_t) localTable;
         if (i==x10rt_here()) {
             globalTable[i] = intptr;
             pongs_outstanding--;
         } else {
-            char *buf = (char*)malloc(12);
-            uint32_t src = x10rt_here();
-            memcpy(buf+0, &src, 4);
-            memcpy(buf+4, &intptr, 8);
-            x10rt_msg_params p = {i, DIST_ID, buf, 12};
-            x10rt_send_msg(&p);
-            free(buf);
+            x10rt_serbuf b; x10rt_serbuf_init(&b, i, DIST_ID);
+            x10rt_serbuf_write(&b, &src);
+            x10rt_serbuf_write(&b, &intptr);
+            x10rt_send_msg(&b.p);
+            x10rt_serbuf_free(&b);
         }
     }
     while (pongs_outstanding) {
         x10rt_probe();
     }
 
-    x10rt_barrier();
+    int finished = 0;
+    x10rt_barrier(0, x10rt_here(), x10rt_one_setter, &finished);
+    while (!finished) x10rt_probe();
 
 /*
     std::cerr << "globalTable = { ";

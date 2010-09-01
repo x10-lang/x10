@@ -157,7 +157,9 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 	// class
 	public void initializeRelatedEntities() {
 		// set package of class
-		this.containingPackage = rootDoc.getPackage(classDef.package_());
+		this.containingPackage = rootDoc.getPackage(classDef.package_(),
+				classDef.position().file().replace(classDef.name().toString(),
+						"").replace(".x10", ""));
 		this.containingPackage.addClass(this);
 
 		// obtain ClassDoc and Type objects for superclass

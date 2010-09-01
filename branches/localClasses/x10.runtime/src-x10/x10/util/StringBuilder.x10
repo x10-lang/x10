@@ -22,7 +22,7 @@ public class StringBuilder implements Builder[Object,String] {
 
     /**
      * When invoked by an activity at the same place as the StringBuider object,
-     * toString() returns the String being constructed by the StringBuilder 
+     * toString() returns the String being constructed by the StringBuilder
      * (same as calling @link{#result}). When invoked by an activity at a different
      * place, an UnsupportedOperationException is raised.
      *
@@ -40,16 +40,38 @@ public class StringBuilder implements Builder[Object,String] {
             return addString((o as Object!).toString());
     }
 
+    public def insert(p:Int, o:Object): StringBuilder {
+        if (o == null)
+            return insertString(p, "null");
+        else
+            return insertString(p, (o as Object!).toString());
+    }
+
+    public def add(x:Char):StringBuilder {
+        buf.add(x);
+        return this;
+    }
+
     public def add(x:Boolean) = addString(x.toString());
     public def add(x:Byte) = addString(x.toString());
-    public def add(x:Char) = addString(x.toString());
     public def add(x:Short) = addString(x.toString());
     public def add(x:Int) = addString(x.toString());
     public def add(x:Long) = addString(x.toString());
     public def add(x:Float) = addString(x.toString());
     public def add(x:Double) = addString(x.toString());
-    
-    protected def addString(s: String): StringBuilder {
+    public def add(x:String) = addString(x);
+
+    public def insert(p:Int, x:Boolean) = insertString(p, x.toString());
+    public def insert(p:Int, x:Byte) = insertString(p, x.toString());
+    public def insert(p:Int, x:Char) = insertString(p, x.toString());
+    public def insert(p:Int, x:Short) = insertString(p, x.toString());
+    public def insert(p:Int, x:Int) = insertString(p, x.toString());
+    public def insert(p:Int, x:Long) = insertString(p, x.toString());
+    public def insert(p:Int, x:Float) = insertString(p, x.toString());
+    public def insert(p:Int, x:Double) = insertString(p, x.toString());
+    public def insert(p:Int, x:String) = insertString(p, x);
+
+    public def addString(s: String): StringBuilder {
         for (var i: int = 0; i < s.length(); i++) {
             val ch = s(i);
             buf.add(ch);
@@ -62,16 +84,29 @@ public class StringBuilder implements Builder[Object,String] {
         */
         return this;
     }
-    
+
+    public def insertString(pos:Int, s: String): StringBuilder {
+        var loc:Int = pos;
+        if (s.length() == 0)
+            return this;
+
+        if (loc > buf.length()) { // treat it as append if postion is beyond the tail.
+            return addString(s);
+        }
+
+        if (loc < 0)    // Ensure loc is a valid index.
+            loc = 0;
+        buf.insert(loc, s.chars());
+        return this;
+    }
+
     public def length() {
         return buf.length();
     }
-    
+
     @Native("java", "new String(#1.getCharArray())")
     @Native("c++", "x10aux::vrc_to_string(#1)")
     private static safe global native def makeString(ValRail[Char]): String;
 
     public def result() = makeString(buf.result());
-    
-    
 }

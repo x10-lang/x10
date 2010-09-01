@@ -1,6 +1,7 @@
 #include <x10rt_net.h>
 #include <x10rt_internal.h>
 #include <x10rt_types.h>
+#include <x10rt_ser.h>
 
 #include <cstring>
 #include <cstdio>
@@ -15,21 +16,11 @@ namespace {
     void extract_remote_op_data (const x10rt_msg_params *p,
                                  unsigned long long *&victim_, unsigned long long &value)
     {
-        char *buf = (char*) p->msg;
         x10rt_remote_ptr victim;
-        // FIXME: SERIALIZATION FRAMEWORK
-        ::memcpy(&victim, buf+0, 8);
-        ::memcpy(&value, buf+8, 8);
+        x10rt_deserbuf b; x10rt_deserbuf_init(&b, p);
+        x10rt_deserbuf_read(&b, &victim);
+        x10rt_deserbuf_read(&b, &value);
         victim_ = (unsigned long long*)(size_t)victim;
-    }
-
-    void *pack_remote_op_data (x10rt_remote_ptr victim, unsigned long long value)
-    {
-        // FIXME: SERIALIZATION FRAMEWORK
-        char *buf = (char*)malloc(16);
-        ::memcpy(buf+0, &victim, 8);
-        ::memcpy(buf+8, &value, 8);
-        return buf;
     }
 
     void recv_remote_add (const x10rt_msg_params *p) {
@@ -61,7 +52,6 @@ namespace {
     }
 
 }
-
 void x10rt_emu_remote_op (x10rt_place place, x10rt_remote_ptr victim,
                           x10rt_op_type type, unsigned long long value)
 {
@@ -75,10 +65,12 @@ void x10rt_emu_remote_op (x10rt_place place, x10rt_remote_ptr victim,
             fprintf(stderr,"Garbage op type given to x10rt_remote_op.\n");
             abort();
     }
-    x10rt_msg_params params = {place, id, pack_remote_op_data(victim,value), 16};
-    x10rt_net_send_msg(&params);
+    x10rt_serbuf b; x10rt_serbuf_init(&b, place, id);
+    x10rt_serbuf_write(&b, &victim);
+    x10rt_serbuf_write(&b, &value);
+    x10rt_net_send_msg(&b.p);
     x10rt_net_probe();
-    free(params.msg);
+    x10rt_serbuf_free(&b);
 }
 
 void x10rt_emu_init (x10rt_msg_type *counter)
