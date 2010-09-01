@@ -5,11 +5,13 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import polyglot.types.ClassType;
 import polyglot.types.Ref;
+import x10.ast.X10SourceFile_c;
 import x10.types.ParameterType;
 import x10.types.TypeDef;
 import x10.types.X10ClassDef;
@@ -37,6 +39,7 @@ import com.sun.javadoc.TypeVariable;
 import com.sun.javadoc.WildcardType;
 
 public class X10ClassDoc extends X10Doc implements ClassDoc {
+	X10SourceFile_c source;
 	X10ClassDef classDef;
 	X10ClassDoc containingClass;
 	X10ClassDoc superclass;
@@ -85,14 +88,21 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 			if (doc.name().equals(name))
 				return doc;
 		}
-		String shortname = "";
-		String signature = "";
+		String shortname = name;
+		String signature = "()";
 		int index = name.indexOf("(");
 		if (index != -1) {
 			shortname = name.substring(0,name.indexOf("("));
 			signature = name.substring(index);
 			signature = makeQualifiedParams(signature);
 		}
+		
+		index = shortname.indexOf("[");
+		if(index != -1)
+		{
+			shortname = shortname.substring(0, index);
+		}
+		
 		for(X10ConstructorDoc doc: constructors.values()){
 			if (doc.name().equals(shortname) 
 				&& doc.signature().equals(signature)){
@@ -110,19 +120,38 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 		return null;
 	}
 	
-	private String makeQualifiedParams(String signature){
-		String sig= "(";
-		Pattern p = Pattern.compile("[^,)]*");
-		Matcher m = p.matcher(signature.substring(1));
-		while(m.find()){
-			String s = m.group();
-			if (s.equals("")) continue; //Hack
-			if (!s.contains("."))
-				s =  "x10.lang." + s;
-			if (sig.equals("(")) sig += s; else sig += ", " + s;
+	private String makeQualifiedParams(String signature) {
+		String sig = "";
+		String delim = "(),>";
+		StringTokenizer tok = new StringTokenizer(signature, delim, true);
+		while (tok.hasMoreTokens()) {
+			String token = tok.nextToken();
+			if (delim.contains(token)) {
+				sig += token;
+				if (token.equals(">")) {
+					sig += " ";
+				}
+			}
+
+			else {
+				token = token.trim();
+				if (token.length() > 0) {
+					X10ClassDoc doc = X10RootDoc.getRootDoc().findClass(this,
+							token.trim());
+					if (doc != null) {
+						sig += doc.qualifiedName();
+					}
+
+					else {
+						sig += token;
+					}
+				}
+			}
 		}
-		return sig + ")";
+
+		return sig;
 	}
+	
 	public void setSuperclass(X10ClassDoc superclass) {
 		this.superclass = superclass;
 	}
@@ -373,6 +402,11 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 
 	public static String typeParameterKey(ParameterType p) {
 		return p.name().toString();
+	}
+	
+	public void setSource(X10SourceFile_c source)
+	{
+		this.source = source;
 	}
 
 	public X10FieldDoc updateField(X10FieldDef fdef, String comments) {
@@ -627,6 +661,7 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 		// TODO Auto-generated method stub
 		if (X10RootDoc.printSwitch)
 			System.out.println("ClassDoc.importedClasses() called for "+name());
+		
 		return new ClassDoc[0];
 	}
 

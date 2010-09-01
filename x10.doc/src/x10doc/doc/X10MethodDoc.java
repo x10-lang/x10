@@ -187,7 +187,20 @@ public class X10MethodDoc extends X10Doc implements MethodDoc {
 	public String name() {
 		if (X10RootDoc.printSwitch)
 			System.out.println(methodDef.name() + ".name() called.");
-		return methodDef.name().toString();
+		
+		String name = methodDef.name().toString();
+//		if(methodDef.typeParameters().size() > 0)
+//		{
+//			String types = "";
+//			for(Ref<? extends polyglot.types.Type> type : methodDef.typeParameters())
+//			{
+//				types += type.toString() + ",";
+//			}
+//			
+//			return name + "[" + types.substring(0, types.length() - 1) + "]";
+//		}
+		
+		return name;
 	}
 
 	public ClassDoc overriddenClass() {
@@ -256,8 +269,6 @@ public class X10MethodDoc extends X10Doc implements MethodDoc {
 		// System.out.println(name() + ".paramTags() called.");
 		return paramTags.toArray(new ParamTag[0]);
 	}
-	
-
 
 	public Parameter[] parameters() {
 		// System.out.println(name() + ".parameters() called.");
@@ -273,6 +284,10 @@ public class X10MethodDoc extends X10Doc implements MethodDoc {
 	
 	public static String signature(X10MethodDef md) {
 		String sig = md.signature();
+		sig = sig.replaceAll("[^(:,]+:", "");
+		sig = sig.replaceAll("\\{[^}]+\\}", "");
+		//sig = sig.replaceAll("\\$[^,)]*", "");
+		
 		return sig.substring(sig.indexOf('('));
 	}
 
