@@ -4,29 +4,92 @@
       label="X10DT Tests Feature"
       version="2.0.6.qualifier">
 
-   <requires>
-      <import feature="lpg.runtime" version="2.0.18"/>
-      <import feature="org.eclipse.imp.x10dt.feature"/>
-      <import feature="org.eclipse.cdt"/>
-      <import feature="org.eclipse.test"/>
-      <import feature="org.eclipse.swtbot"/>
-      <import feature="org.eclipse.swtbot.eclipse"/>
-      <import feature="org.eclipse.swtbot.ide"/>
-      <import feature="org.eclipse.swtbot.eclipse.test.junit4"/>
-      <import feature="org.eclipse.imp.java.hosted"/>
-      <import feature="org.eclipse.imp.runtime"/>
-      <import feature="org.eclipse.ptp.core"/>
-      <import feature="org.eclipse.ptp.external"/>
-      <import feature="org.eclipse.ptp.remote"/>
-      <import feature="org.eclipse.ptp.remote.remotetools"/>
-      <import feature="org.eclipse.ptp.remotetools"/>
-      <import feature="org.eclipse.ptp.rm.ibm.ll"/>
-      <import feature="org.eclipse.ptp.rm.ibm.pe"/>
-      <import feature="org.eclipse.ptp.rm.mpich2"/>
-      <import feature="org.eclipse.ptp.rm.openmpi"/>
-      <import feature="org.eclipse.ptp.services"/>
-      <import feature="org.eclipse.ptp.utils"/>
-   </requires>
+   <includes
+         id="org.eclipse.imp.x10dt.feature"
+         version="0.0.0"
+         os="win32,linux,macosx"
+         arch="x86,x86_64"/>
+
+   <includes
+         id="org.eclipse.test"
+         version="0.0.0"/>
+         
+   <includes
+         id="org.eclipse.cdt"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.swtbot"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.swtbot.eclipse"
+         version="0.0.0"/>
+         
+   <includes
+         id="org.eclipse.swtbot.ide"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.imp.java.hosted"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.imp.runtime"
+         version="0.0.0"/>
+
+
+   <includes
+         id="org.eclipse.ptp.core"
+         version="0.0.0"/>
+         
+   <includes
+         id="org.eclipse.ptp.external"
+         version="0.0.0"/>         
+
+   <includes
+         id="org.eclipse.ptp.remote"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.ptp.remote.remotetools"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.ptp.remotetools"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.ptp.rm.ibm.ll"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.ptp.rm.ibm.pe"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.ptp.rm.mpich2"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.ptp.rm.openmpi"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.ptp.services"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.ptp.utils"
+         version="0.0.0"/>
+
+   <includes
+         id="lpg.runtime"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.swtbot.eclipse.test.junit4"
+         version="0.0.0"/>
 
    <plugin
          id="org.eclipse.imp.x10dt.core.tests"
