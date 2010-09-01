@@ -1,12 +1,8 @@
 package x10doc.doc;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import polyglot.types.Flags;
 
 import com.sun.javadoc.Doc;
 import com.sun.javadoc.SourcePosition;
@@ -124,6 +120,7 @@ public class X10Tag implements Tag {
             if (name.equals(LINK) || name.equals(LINKPLAIN)) {
                 return new X10SeeTag(name, rest, text, holder);
             }
+
             else {
             	return new X10Tag(name, text, holder);
             }

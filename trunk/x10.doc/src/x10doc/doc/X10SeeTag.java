@@ -15,7 +15,6 @@ public class X10SeeTag extends X10Tag implements SeeTag {
 	PackageDoc pkgDoc;
 	X10ClassDoc classDoc;
 	MemberDoc memberDoc;
-	boolean beenCalled;
 
 	public X10SeeTag(String name, String label, String text, X10Doc holder) {
 		super(name, text, holder);
@@ -40,7 +39,6 @@ public class X10SeeTag extends X10Tag implements SeeTag {
 	}
 	
 	void processText() {
-		beenCalled = true;
 		String text = label;
 		int index = text.indexOf("#");
 		String classname = null;

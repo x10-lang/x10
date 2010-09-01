@@ -22,7 +22,6 @@ public class X10Doc implements Doc {
 	X10Tag[] firstSentenceTags, inlineTags;
 	List<Tag> blockTags = new ArrayList<Tag>();
 	List<Tag> paramTags = new ArrayList<Tag>();
-	List<SeeTag> seeTags = new ArrayList<SeeTag>();
 	
 	public void processComment(String rawComment) {
 		this.rawComment = rawComment;
@@ -149,7 +148,11 @@ public class X10Doc implements Doc {
 
 		else if (kind.equals("see") || kind.equals("link")
 				|| kind.equals("linkplain")) {
-			seeTags.add(new X10SeeTag("@" + kind, text, text, this));
+			blockTags.add(new X10SeeTag("@" + kind, text, text, this));
+		}
+		
+		else if (kind.equals(X10Tag.THROWS)) {
+			blockTags.add(new X10ThrowsTag(kind, text, this));
 		}
 
 		else {
@@ -358,7 +361,10 @@ public class X10Doc implements Doc {
 		if (X10RootDoc.printSwitch)
 			System.out.println("Doc.seeTags() called for "+name());
 		
-		return seeTags.toArray(new SeeTag[seeTags.size()]);
+		Tag[] tags = tags(X10Tag.SEE);
+		SeeTag[] newTags = new SeeTag[tags.length];
+		System.arraycopy(tags, 0, newTags, 0, tags.length);
+		return newTags;
 	}
 
 	public void setRawCommentText(String arg0) {
@@ -374,13 +380,11 @@ public class X10Doc implements Doc {
 	public Tag[] tags() {
 		if (X10RootDoc.printSwitch)
 			System.out.println("Doc.tags() called for "+name());
-		Tag[] result = new Tag[blockTags.size() + seeTags.size() + inlineTags.length];
+		Tag[] result = new Tag[blockTags.size() + inlineTags.length];
 		if (blockTags.size() > 0)
 			System.arraycopy(blockTags.toArray(new Tag[0]), 0, result, 0, blockTags.size());
-		if (seeTags.size() > 0)
-			System.arraycopy(seeTags.toArray(new Tag[0]), 0, result, blockTags.size(), seeTags.size());
 		if (inlineTags.length > 0)
-			System.arraycopy(inlineTags, 0, result, blockTags.size() + seeTags.size(), inlineTags.length);
+			System.arraycopy(inlineTags, 0, result, blockTags.size(), inlineTags.length);
 		return result;
 		//return inlineTags();
 	}

@@ -1,26 +1,14 @@
 package x10doc.doc;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.prefs.PreferenceChangeEvent;
 
-import polyglot.types.ClassDef;
-import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.Ref;
-
-import x10.constraint.XConstraint;
 import x10.types.ParameterType;
-import x10.types.X10ClassDef;
 import x10.types.X10MethodDef;
-import x10.types.X10ProcedureDef;
-import x10.types.X10TypeMixin;
 
 import com.sun.javadoc.AnnotationDesc;
-import com.sun.javadoc.ProgramElementDoc;
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.MethodDoc;
 import com.sun.javadoc.PackageDoc;
@@ -121,8 +109,8 @@ public class X10MethodDoc extends X10Doc implements MethodDoc {
 
 	public String declString() {
 		// the X10 method declaration needs to be displayed in the method's comments only if a param type 
-		// or the return type is X10-specific (has associated closures, constraints)
-		if (!(X10Type.isX10Specific(returnType))) {
+		// or return type is X10-specific (has associated closures, constraints) or the method has contraints
+		if (!(X10Type.isX10Specific(returnType)) && methodDef.guard() == null) {
 			boolean hasConstraints = false;
 			for (X10Parameter p: parameters) {
 				if (p.isX10Specific()) {
@@ -150,14 +138,15 @@ public class X10MethodDoc extends X10Doc implements MethodDoc {
 				desc += X10Type.descriptor(p.type());
 			}
 		}
-		desc += "): " + methodDef.returnType();
+		desc += ") " + methodDef.guard() + ": " + methodDef.returnType();
 		if (X10Type.isX10Specific(returnType)) {
 			desc += X10Type.descriptor(returnType);
 		}
 //		System.out.println("X10MethodDoc{" + methodDef.signature() + "}.declString(): descriptor = " + desc);
 
+		String guard = (methodDef.guard() == null) ? "" : methodDef.guard().toString();
 		// construct result from X10 compiler method signatures and toString functions
-		String result = "<B>Declaration</B>: <TT>" + methodDef.signature() + ": " + 
+		String result = "<B>Declaration</B>: <TT>" + methodDef.signature() +  guard + ": " + 
 		                methodDef.returnType().toString() + ".</TT><PRE>\n</PRE>";
 			// earlier: ... + X10Doc.toString(this.returnType)
 		return result; 
@@ -187,20 +176,7 @@ public class X10MethodDoc extends X10Doc implements MethodDoc {
 	public String name() {
 		if (X10RootDoc.printSwitch)
 			System.out.println(methodDef.name() + ".name() called.");
-		
-		String name = methodDef.name().toString();
-//		if(methodDef.typeParameters().size() > 0)
-//		{
-//			String types = "";
-//			for(Ref<? extends polyglot.types.Type> type : methodDef.typeParameters())
-//			{
-//				types += type.toString() + ",";
-//			}
-//			
-//			return name + "[" + types.substring(0, types.length() - 1) + "]";
-//		}
-		
-		return name;
+		return methodDef.name().toString();
 	}
 
 	public ClassDoc overriddenClass() {
@@ -286,31 +262,45 @@ public class X10MethodDoc extends X10Doc implements MethodDoc {
 		String sig = md.signature();
 		sig = sig.replaceAll("[^(:,]+:", "");
 		sig = sig.replaceAll("\\{[^}]+\\}", "");
-		//sig = sig.replaceAll("\\$[^,)]*", "");
 		
 		return sig.substring(sig.indexOf('('));
 	}
 
 	public Type[] thrownExceptionTypes() {
-		// TODO Auto-generated method stub
 		if (X10RootDoc.printSwitch)
 			System.out.println(name() + ".thrownExceptionTypes() called.");
-		return new Type[0];
+		return thrownExceptions();
 	}
 
 	public ClassDoc[] thrownExceptions() {
-		// TODO Auto-generated method stub
 		if (X10RootDoc.printSwitch)
 			System.out.println(name() + ".thrownExceptions() called.");
+		
+		List<Ref<? extends polyglot.types.Type>> throwTypes = methodDef.throwTypes();
+		if(throwTypes != null && throwTypes.size() > 0)
+		{
+			ClassDoc[] types = new ClassDoc[throwTypes.size()];
+			int i = 0;
+			for(Ref<? extends polyglot.types.Type> type : throwTypes)
+			{
+				types[i++] = (ClassDoc)rootDoc.getType(type.get());
+			}
+			
+			return types;
+		}
+		
 		return new ClassDoc[0];
 	}
 
 	public ThrowsTag[] throwsTags() {
-		// TODO Auto-generated method stub
 		if (X10RootDoc.printSwitch)
 			System.out.println(name() + ".throwsTags() called.");
-		return new ThrowsTag[0];
+		Tag[] tags = tags(X10Tag.THROWS);
+		ThrowsTag[] newTags = new ThrowsTag[tags.length];
+		System.arraycopy(tags, 0, newTags, 0, tags.length);
+		return newTags;
 	}
+	
 
 	public ParamTag[] typeParamTags() {
 		// TODO Auto-generated method stub
