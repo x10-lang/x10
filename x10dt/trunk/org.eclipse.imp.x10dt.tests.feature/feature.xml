@@ -13,6 +13,10 @@
    <includes
          id="org.eclipse.test"
          version="0.0.0"/>
+         
+   <includes
+         id="org.eclipse.cdt"
+         version="0.0.0"/>
 
    <includes
          id="org.eclipse.swtbot"
@@ -20,6 +24,10 @@
 
    <includes
          id="org.eclipse.swtbot.eclipse"
+         version="0.0.0"/>
+         
+   <includes
+         id="org.eclipse.swtbot.ide"
          version="0.0.0"/>
 
    <includes
