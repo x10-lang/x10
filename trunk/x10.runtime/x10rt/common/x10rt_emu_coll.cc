@@ -10,6 +10,7 @@
 #include <x10rt_internal.h>
 #include <x10rt_net.h>
 #include <x10rt_ser.h>
+#include <x10rt_cpp.h>
 
 namespace {
 
@@ -578,19 +579,6 @@ void x10rt_emu_alltoall (x10rt_team team, x10rt_place role,
 }
 
 namespace {
-        // should never hit this, check specialisations are working
-    template<x10rt_red_type t> struct typeconv { };
-
-    template<> struct typeconv<X10RT_RED_TYPE_U8>  { typedef uint8_t Type; };
-    template<> struct typeconv<X10RT_RED_TYPE_S8>  { typedef uint8_t Type; };
-    template<> struct typeconv<X10RT_RED_TYPE_U16> { typedef uint16_t Type; };
-    template<> struct typeconv<X10RT_RED_TYPE_S16> { typedef uint16_t Type; };
-    template<> struct typeconv<X10RT_RED_TYPE_U32> { typedef uint32_t Type; };
-    template<> struct typeconv<X10RT_RED_TYPE_S32> { typedef uint32_t Type; };
-    template<> struct typeconv<X10RT_RED_TYPE_U64> { typedef uint64_t Type; };
-    template<> struct typeconv<X10RT_RED_TYPE_S64> { typedef uint64_t Type; };
-    template<> struct typeconv<X10RT_RED_TYPE_DBL> { typedef double Type; };
-    template<> struct typeconv<X10RT_RED_TYPE_FLT> { typedef float Type; };
 
     // should never hit this, check specialisations are working
     template<class T, x10rt_red_op_type op> struct reduce { static T _ (const T &a, const T &b)
@@ -640,7 +628,7 @@ namespace {
         MemberObj &m = *(static_cast<MemberObj*>(arg));
         TeamObj &t = *gtdb[m.team];
 
-        typedef typename typeconv<dtype>::Type T;
+        typedef typename x10rt_red_type_info<dtype>::Type T;
 
         T *tmp = static_cast<T*>(m.allreduce.rbuf);
 
@@ -676,7 +664,7 @@ namespace {
 
         m.allreduce.sbuf = sbuf;
         m.allreduce.dbuf = dbuf;
-        m.allreduce.el = sizeof(typename typeconv<dtype>::Type);
+        m.allreduce.el = sizeof(typename x10rt_red_type_info<dtype>::Type);
         m.allreduce.rbuf = safe_malloc<char>(x10rt_emu_team_sz(team) * count * m.allreduce.el);
         m.allreduce.count = count;
         m.allreduce.ch = ch;

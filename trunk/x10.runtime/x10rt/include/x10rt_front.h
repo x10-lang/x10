@@ -1,3 +1,6 @@
+#ifndef X10RT_FRONT_H
+#define X10RT_FRONT_H
+
 #include <cstdlib>
 
 #include <x10rt_types.h>
@@ -521,5 +524,7 @@ X10RT_C void x10rt_one_setter (void *arg);
 X10RT_C void x10rt_team_setter (x10rt_team v, void *arg);
 
 /** \} */
+
+#endif
 
 // vim: tabstop=4:shiftwidth=4:expandtab:textwidth=100
