@@ -10,7 +10,8 @@
 #
 
 X10_VERSION=svn head
-VERSION=20100709
+#X10_VERSION=2.0.6
+VERSION=20100830
 SOCKETS_TGZ = pgas-$(VERSION)-$(WPLATFORM)-sockets.tgz
 LAPI_TGZ = pgas-$(VERSION)-$(WPLATFORM)-lapi.tgz
 BGP_TGZ = pgas-$(VERSION)-$(WPLATFORM)-bgp.tgz
@@ -38,6 +39,7 @@ ifeq ($(X10RT_PLATFORM), bgp)
   BGP_LDLIBS     += -ldcmf.cnk -ldcmfcoll.cnk -lSPI.cna -lpthread -lrt -lm
 endif
 ifeq ($(X10RT_PLATFORM), aix_xlc)
+  LAPI_CXX	 := mpCC_r
   WPLATFORM      := aix_xlc
   PLATFORM_SUPPORTS_LAPI       := yes
   #PLATFORM_SUPPORTS_SOCKETS    := yes
@@ -46,6 +48,7 @@ endif
 ifeq ($(X10RT_PLATFORM), aix_gcc)
   WPLATFORM      := aix_g++4
   PLATFORM_SUPPORTS_LAPI       := yes
+  LAPI_CXX	 := $(CXX)
   LAPI_LDFLAGS   += -Wl,-binitfini:poe_remote_main -L/usr/lpp/ppe.poe/lib
   LAPI_LDLIBS    += -lmpi_r -lvtd_r -llapi_r -lpthread -lm
   PANE_LDFLAGS   += -Wl,-binitfini:poe_remote_main -L/usr/lpp/ppe.poe/lib
@@ -54,9 +57,18 @@ ifeq ($(X10RT_PLATFORM), aix_gcc)
   #PLATFORM_SUPPORTS_SOCKETS    := yes
   PLATFORM_SUPPORTS_PANE       := yes
 endif
-ifeq ($(X10RT_PLATFORM), linux_ppc_64)
+ifeq ($(X10RT_PLATFORM), linux_ppc_64_gcc)
   WPLATFORM      := linux_ppc_64_g++4
   PLATFORM_SUPPORTS_LAPI       := yes
+  LAPI_CXX	 := $(CXX)
+  LAPI_LDFLAGS   += -L/opt/ibmhpc/ppe.poe/lib
+  LAPI_LDLIBS    += -lpoe -lmpi_ibm -llapi
+  PLATFORM_SUPPORTS_SOCKETS    := yes
+endif
+ifeq ($(X10RT_PLATFORM), linux_ppc_64_xlc)
+  WPLATFORM      := linux_ppc_64_xlc
+  PLATFORM_SUPPORTS_LAPI       := yes
+  LAPI_CXX	 := mpCC_r
   LAPI_LDFLAGS   += -L/opt/ibmhpc/ppe.poe/lib
   LAPI_LDLIBS    += -lpoe -lmpi_ibm -llapi
   PLATFORM_SUPPORTS_SOCKETS    := yes
@@ -64,6 +76,7 @@ endif
 ifeq ($(X10RT_PLATFORM), linux_x86_64)
   WPLATFORM      := linux_x86_64_g++4
   PLATFORM_SUPPORTS_LAPI       := yes
+  LAPI_CXX	 := $(CXX)
   LAPI_LDFLAGS   += -L/opt/ibmhpc/ppe.poe/lib
   LAPI_LDLIBS    += -lpoe -lmpi_ibm -llapi
   PLATFORM_SUPPORTS_SOCKETS    := yes
@@ -72,6 +85,7 @@ ifeq ($(X10RT_PLATFORM), linux_x86_32)
   WPLATFORM      := linux_x86_g++4
 # TODO: re-enable when we build the 32 bit lapi version of pgas and post it.
 #  PLATFORM_SUPPORTS_LAPI       := yes
+  LAPI_CXX	 := $(CXX)
   LAPI_LDFLAGS   += -L/opt/ibmhpc/ppe.poe/lib
   LAPI_LDLIBS    += -lpoe -lmpi_ibm -llapi
   PLATFORM_SUPPORTS_SOCKETS    := yes
@@ -276,7 +290,7 @@ endif
 endif
 
 etc/x10rt_pgas_lapi.properties:
-	echo "CXX=$(CXX)" > $@
+	echo "CXX=$(LAPI_CXX)" > $@
 	echo "LDFLAGS=$(LAPI_LDFLAGS)" >> $@
 	echo "LDLIBS=$(LAPI_LDLIBS)" >> $@
 

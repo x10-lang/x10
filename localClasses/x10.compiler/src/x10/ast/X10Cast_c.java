@@ -32,6 +32,7 @@ import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
+import x10.errors.Errors;
 import x10.types.ParameterType;
 import x10.types.X10ClassType;
 import x10.types.X10TypeMixin;
@@ -86,13 +87,23 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
     }
 
     public Node typeCheck(ContextVisitor tc) throws SemanticException {
-    	if (castType()!= null)
-    		X10TypeMixin.checkMissingParameters(castType());
-        Expr e = Converter.converterChain(this, tc);
-        assert e.type() != null;
-        assert ! (e instanceof X10Cast_c) || ((X10Cast_c) e).convert != Converter.ConversionType.UNKNOWN_CONVERSION;
-        assert ! (e instanceof X10Cast_c) || ((X10Cast_c) e).convert != Converter.ConversionType.UNKNOWN_IMPLICIT_CONVERSION;
-        return e;
+        if (castType()!= null) {
+            try {
+                X10TypeMixin.checkMissingParameters(castType());
+            } catch (SemanticException e) {
+                throw e; // FIXME: cannot remove this -- used by Converter.attemptCoercion()
+            }
+        }
+        try {
+            Expr e = Converter.converterChain(this, tc);
+            assert e.type() != null;
+            assert ! (e instanceof X10Cast_c) || ((X10Cast_c) e).convert != Converter.ConversionType.UNKNOWN_CONVERSION;
+            assert ! (e instanceof X10Cast_c) || ((X10Cast_c) e).convert != Converter.ConversionType.UNKNOWN_IMPLICIT_CONVERSION;
+            return e;
+        } catch (SemanticException e) {
+            throw e; // FIXME: cannot remove this -- used by Converter.attemptCoercion()
+        }
+        //return this;
     }
 
     public TypeNode getTypeNode() {

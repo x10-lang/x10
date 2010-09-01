@@ -1432,8 +1432,18 @@ public class Synthesizer {
 		        r = xnf.TypeNodeFromQualifiedName(pos, (QName) val);
 		    }
 		}
-		Name n = Name.make(t.field().toString());
-		return xnf.Field(pos, r, xnf.Id(pos, n));
+		String str = t.field().toString();
+		int i = str.indexOf("#");
+		//TypeNode tn = null;
+		if (i > 0) {
+		    // FIXME: should we create a type node and cast?  Can we ever access fields of a superclass?
+		    //String typeName = str.substring(0, i);
+		    //tn = xnf.TypeNodeFromQualifiedName(pos,  QName.make(typeName));
+		    str = str.substring(i+1);
+		    if (str.endsWith("()"))
+		        str = str.substring(0, str.length()-2);
+		}
+		return xnf.Field(pos, r, xnf.Id(pos, Name.make(str)));
 	}
 	Expr makeExpr(XEQV t, Position pos) {
 		String str = t.toString();

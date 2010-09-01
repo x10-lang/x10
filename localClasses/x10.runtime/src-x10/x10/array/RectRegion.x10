@@ -237,7 +237,7 @@ public final class RectRegion extends Region{rect} {
             min = rr.mins as ValRail[int](myRank);
             max = rr.maxs as ValRail[int](myRank);
             done = rr.size == 0;
-            cur = rr.mins as Rail[int](myRank)!;
+            cur = Rail.make(rr.mins) as Rail[int](myRank)!;
         }        
 
         public def hasNext() = !done;

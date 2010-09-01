@@ -1,3 +1,6 @@
+#ifndef X10RT_LOGICAL_H
+#define X10RT_LOGICAL_H
+
 #include <cstdlib>
 
 #include <x10rt_types.h>
@@ -268,5 +271,39 @@ X10RT_C void x10rt_lgl_probe (void);
 /** Clean up the logical layer.  Called by #x10rt_finalize.
  */
 X10RT_C void x10rt_lgl_finalize (void); 
+
+X10RT_C void x10rt_lgl_team_new (x10rt_place placec, x10rt_place *placev,
+                                 x10rt_completion_handler2 *ch, void *arg);
+
+X10RT_C void x10rt_lgl_team_del (x10rt_team team, x10rt_place role,
+                                 x10rt_completion_handler *ch, void *arg);
+
+X10RT_C x10rt_place x10rt_lgl_team_sz (x10rt_team team);
+
+X10RT_C void x10rt_lgl_team_split (x10rt_team parent, x10rt_place parent_role,
+                                   x10rt_place color, x10rt_place new_role,
+                                   x10rt_completion_handler2 *ch, void *arg);
+
+X10RT_C void x10rt_lgl_barrier (x10rt_team team, x10rt_place role,
+                                x10rt_completion_handler *ch, void *arg);
+
+X10RT_C void x10rt_lgl_bcast (x10rt_team team, x10rt_place role,
+                              x10rt_place root, const void *sbuf, void *dbuf,
+                              size_t el, size_t count,
+                              x10rt_completion_handler *ch, void *arg);
+
+X10RT_C void x10rt_lgl_alltoall (x10rt_team team, x10rt_place role,
+                                 const void *sbuf, void *dbuf,
+                                 size_t el, size_t count,
+                                 x10rt_completion_handler *ch, void *arg);
+
+X10RT_C void x10rt_lgl_allreduce (x10rt_team team, x10rt_place role,
+                                  const void *sbuf, void *dbuf,
+                                  x10rt_red_op_type op,
+                                  x10rt_red_type dtype,
+                                  size_t count,
+                                  x10rt_completion_handler *ch, void *arg);
+
+#endif
 
 // vim: tabstop=4:shiftwidth=4:expandtab:textwidth=100
