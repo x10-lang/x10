@@ -16,6 +16,7 @@ import com.sun.javadoc.ConstructorDoc;
 import com.sun.javadoc.PackageDoc;
 import com.sun.javadoc.ParamTag;
 import com.sun.javadoc.Parameter;
+import com.sun.javadoc.Tag;
 import com.sun.javadoc.ThrowsTag;
 import com.sun.javadoc.Type;
 import com.sun.javadoc.TypeVariable;
@@ -165,18 +166,31 @@ public class X10ConstructorDoc extends X10Doc implements ConstructorDoc {
 	}
 
 	public Type[] thrownExceptionTypes() {
-		// TODO Auto-generated method stub
-		return new Type[0];
+		return thrownExceptions();
 	}
 
 	public ClassDoc[] thrownExceptions() {
-		// TODO Auto-generated method stub
+		List<Ref<? extends polyglot.types.Type>> throwTypes = constrDef.throwTypes();
+		if(throwTypes != null && throwTypes.size() > 0)
+		{
+			ClassDoc[] types = new ClassDoc[throwTypes.size()];
+			int i = 0;
+			for(Ref<? extends polyglot.types.Type> type : throwTypes)
+			{
+				types[i++] = (ClassDoc)rootDoc.getType(type.get());
+			}
+			
+			return types;
+		}
+		
 		return new ClassDoc[0];
 	}
 
 	public ThrowsTag[] throwsTags() {
-		// TODO Auto-generated method stub
-		return new ThrowsTag[0];
+		Tag[] tags = tags(X10Tag.THROWS);
+		ThrowsTag[] newTags = new ThrowsTag[tags.length];
+		System.arraycopy(tags, 0, newTags, 0, tags.length);
+		return newTags;
 	}
 
 	public ParamTag[] typeParamTags() {

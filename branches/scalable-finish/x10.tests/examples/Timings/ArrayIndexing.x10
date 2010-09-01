@@ -15,7 +15,7 @@ import harness.x10Test;
  * Synthetic benchmark to time array accesses.
  */
 public class ArrayIndexing extends x10Test {
-	var _tests: Rail[String] = [ "testDouble" ];
+	var _tests: ValRail[String] = [ "testDouble" ];
 
 	const verbose: boolean = false;
 

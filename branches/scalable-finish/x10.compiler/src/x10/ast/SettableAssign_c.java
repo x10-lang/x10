@@ -30,6 +30,7 @@ import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Precedence;
 import polyglot.ast.Term;
+import polyglot.ast.TypeNode;
 import polyglot.ast.Assign.Operator;
 import polyglot.frontend.Globals;
 import polyglot.types.ClassDef;
@@ -107,8 +108,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 	}
 	//@Override
 	public Expr left(NodeFactory nf, ContextVisitor cv) {
-	    Name apply = Name.make("apply");
-	    Call c = nf.Call(position(), array, nf.Id(position(), apply), index);
+	    Call c = nf.Call(position(), array, nf.Id(position(), ClosureCall.APPLY), index);
 	    if (ami != null) {
 	        c = c.methodInstance(ami);
 	    }
@@ -235,7 +235,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 
 		X10MethodInstance mi = null;
 
-		List<Type> typeArgs = Collections.EMPTY_LIST;
+		List<Type> typeArgs = Collections.<Type>emptyList();
 		List<Type> actualTypes = new ArrayList<Type>(index.size()+1);
 		actualTypes.add(right.type());
 		for (Expr ei : index) {
@@ -247,11 +247,11 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 		args.addAll(index);
 
 		// First try to find the method without implicit conversions.
-		mi = ClosureCall_c.findAppropriateMethod(tc, array.type(), Name.make("set"), typeArgs, actualTypes);
+		mi = ClosureCall_c.findAppropriateMethod(tc, array.type(), SET, typeArgs, actualTypes);
 		if (mi.error() != null) {
 		    // Now, try to find the method with implicit conversions, making them explicit.
 		    try {
-		        X10Call_c n = (X10Call_c) nf.X10Call(position(), array, nf.Id(position(), Name.make("set")), Collections.EMPTY_LIST, args);
+		        X10Call_c n = (X10Call_c) nf.X10Call(position(), array, nf.Id(position(), SET), Collections.<TypeNode>emptyList(), args);
 		        Pair<MethodInstance,List<Expr>> p = tryImplicitConversions(n, tc, array.type(), typeArgs, actualTypes);
 		        mi = (X10MethodInstance) p.fst();
 		        args = p.snd();
@@ -271,7 +271,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 		actualTypes.remove(0);
 
 		// First try to find the method without implicit conversions.
-		ami = ClosureCall_c.findAppropriateMethod(tc, array.type(), Name.make("apply"), typeArgs, actualTypes);
+		ami = ClosureCall_c.findAppropriateMethod(tc, array.type(), ClosureCall.APPLY, typeArgs, actualTypes);
 		if (ami.error() != null) {
 		    Type bt = X10TypeMixin.baseType(array.type());
 		    boolean arrayP = xts.isX10Array(bt) || xts.isX10DistArray(bt);
@@ -280,7 +280,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 
 		if (op != Assign.ASSIGN) {
 		    X10Call_c left = (X10Call_c) nf.X10Call(position(), array, nf.Id(position(),
-		            Name.make("apply")), Collections.EMPTY_LIST,
+		            ClosureCall.APPLY), Collections.<TypeNode>emptyList(),
 		            index).methodInstance(ami).type(ami.returnType());
 		    X10Binary_c n = (X10Binary_c) nf.Binary(position(), left, op.binaryOperator(), right);
 		    X10Call c = X10Binary_c.desugarBinaryOp(n, tc);

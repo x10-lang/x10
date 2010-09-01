@@ -20,7 +20,7 @@ import x10.io.IOException;
     
 class XTENLANG_35 extends x10Test {
 
-    def foo(os:Writer, buf:Rail[Byte]) {
+    def foo(os:Writer, buf:Rail[Byte]!) {
         try {
             os.write(buf, 0, buf.length);
         } catch (Exception) {}

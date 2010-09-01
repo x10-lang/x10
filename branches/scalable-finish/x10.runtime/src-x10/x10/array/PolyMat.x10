@@ -144,7 +144,7 @@ public class PolyMat(rank: int) extends Mat[PolyRow] {
                         if (as_(l)!=0)
                             degenerate = false;
                     if (!degenerate) {
-                        var r: PolyRow = new PolyRow(as_);
+                        var r: PolyRow = new PolyRow(ValRail.make(as_));
                         pmb.add(r);
                     }
                 }

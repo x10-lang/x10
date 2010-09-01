@@ -64,7 +64,8 @@ public class Printer extends FilterWriter {
     public global def printf(fmt: String, o1: Any, o2: Any, o3: Any, o4: Any, o5: Any, o6: Any): Void { 
        printf(fmt, [o1,o2,o3,o4,o5,o6]); 
     }
-    public global def printf(fmt: String, args: Rail[Any]): Void { print(String.format(fmt, args)); }
+    public global def printf(fmt: String, args: Rail[Any]): Void { print(String.format(fmt, 
+    		ValRail.make(args))); }
     public global def printf(fmt: String, args: ValRail[Any]): Void { print(String.format(fmt, args)); }
         
     public global def flush(): Void {

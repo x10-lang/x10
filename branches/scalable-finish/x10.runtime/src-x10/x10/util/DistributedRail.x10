@@ -45,7 +45,7 @@ public final class DistributedRail[T] implements Settable[Int,T], Iterable[T] {
         original_len = len;
     }
 
-    public static safe operator[S] (x:DistributedRail[S]) = x() as ValRail[S];
+    public static safe operator[S] (x:DistributedRail[S]) = ValRail.make(x());
 
     public global safe def apply () : Rail[T]! {
         val a = Runtime.activity();
@@ -100,7 +100,7 @@ public final class DistributedRail[T] implements Settable[Int,T], Iterable[T] {
         if (firstPlace!=here) {
             val lrail_ = data();
             {
-                val lrail = lrail_ as ValRail[T];
+                val lrail = ValRail.make(lrail_);
                 val data_ = data;
                 at (firstPlace) {
                     val master = data_();

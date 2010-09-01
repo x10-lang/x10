@@ -50,7 +50,7 @@ public interface ExtensionInfo {
      */
     void initCompiler(polyglot.frontend.Compiler compiler);
 
-    Compiler compiler();
+    public Compiler compiler();
 
     /** The extensions that source files are expected to have.
      * Defaults to the array defaultFileExtensions. */
