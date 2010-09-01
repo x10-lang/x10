@@ -1,4 +1,4 @@
-package x10.util.Team;
+package x10.util;
 
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
