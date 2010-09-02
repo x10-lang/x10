@@ -463,7 +463,8 @@ public static class MessageHandler implements IMessageHandler {
             public static int SEQUENTIAL  = 14;
             public static int SHARED      = 15;
             public static int STATIC      = 16;
-            public static int NUM_FLAGS   = STATIC + 1;
+            public static int TRANSIENT   = 17;
+            public static int NUM_FLAGS   = TRANSIENT + 1;
 
             private JPGPosition pos;
             private int flag;
@@ -487,6 +488,7 @@ public static class MessageHandler implements IMessageHandler {
                 if (flag == SAFE)         return X10Flags.SAFE;
                 if (flag == SEQUENTIAL)   return X10Flags.SEQUENTIAL;
                 if (flag == SHARED)       return X10Flags.SHARED;
+                if (flag == TRANSIENT)    return X10Flags.TRANSIENT;
                 if (flag == STATIC)       return Flags.STATIC;
                 assert(false);
                 return null;
@@ -510,6 +512,7 @@ public static class MessageHandler implements IMessageHandler {
                 if (flag == SEQUENTIAL)   return "sequential";
                 if (flag == SHARED)       return "shared";
                 if (flag == STATIC)       return "static";
+                if (flag == TRANSIENT)    return "transient";
                 assert(false);
                 return "?";
             }
@@ -524,6 +527,7 @@ public static class MessageHandler implements IMessageHandler {
                 classModifiers[PUBLIC] = true;
                 classModifiers[SAFE] = true;
                 classModifiers[STATIC] = true;
+                classModifiers[GLOBAL] = true;
             }
             public boolean isClassModifier(int flag) {
                 return  classModifiers[flag];
@@ -544,7 +548,8 @@ public static class MessageHandler implements IMessageHandler {
 
             public static boolean fieldModifiers[] = new boolean[NUM_FLAGS];
             static {
-                fieldModifiers[GLOBAL] = true;
+                fieldModifiers[TRANSIENT] = true;
+                 fieldModifiers[GLOBAL] = true;
                 fieldModifiers[PRIVATE] = true;
                 fieldModifiers[PROTECTED] = true;
                 fieldModifiers[PROPERTY] = true;
@@ -569,7 +574,7 @@ public static class MessageHandler implements IMessageHandler {
                 methodModifiers[ATOMIC] = true;
                 methodModifiers[EXTERN] = true;
                 methodModifiers[FINAL] = true;
-                methodModifiers[GLOBAL] = true;
+                 methodModifiers[GLOBAL] = true;
                 methodModifiers[INCOMPLETE] = true;
                 methodModifiers[NATIVE] = true;
                 methodModifiers[NON_BLOCKING] = true;
@@ -1272,6 +1277,11 @@ public static class MessageHandler implements IMessageHandler {
                    | static
         /.$BeginJava
                     setResult(new FlagModifier(pos(), FlagModifier.STATIC));
+          $EndJava
+        ./
+                          | transient
+        /.$BeginJava
+                    setResult(new FlagModifier(pos(), FlagModifier.TRANSIENT));
           $EndJava
         ./
 
