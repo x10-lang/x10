@@ -250,20 +250,14 @@ namespace x10 {
                                            x10aux::getRTT<Iterable<T> >());
         }
 
-        template <class T> typename Iterable<T>::template itable<Rail<T> > Rail<T>::_itable_iterable(&Rail<T>::at,
-                                                                                                     &Rail<T>::at,
-                                                                                                     &Rail<T>::equals,
+        template <class T> typename Iterable<T>::template itable<Rail<T> > Rail<T>::_itable_iterable(&Rail<T>::equals,
                                                                                                      &Rail<T>::hashCode,
-                                                                                                     &Rail<T>::home,
                                                                                                      &Rail<T>::iterator,
                                                                                                      &Rail<T>::toString,
                                                                                                      &Rail<T>::typeName);
 
-        template <class T> typename Settable<x10_int, T>::template itable<Rail<T> > Rail<T>::_itable_settable(&Rail<T>::at,
-                                                                                                              &Rail<T>::at,
-                                                                                                              &Rail<T>::equals,
+        template <class T> typename Settable<x10_int, T>::template itable<Rail<T> > Rail<T>::_itable_settable(&Rail<T>::equals,
                                                                                                               &Rail<T>::hashCode,
-                                                                                                              &Rail<T>::home,
                                                                                                               &Rail<T>::set,
                                                                                                               &Rail<T>::toString,
                                                                                                               &Rail<T>::typeName);
