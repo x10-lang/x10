@@ -7,6 +7,12 @@
 	<topic label="Linux" href="html/installp/linux-cl-install.html"/> 
 	<topic label="Windows" href="html/installp/windows-cl-install.html"/> 
 </topic>
+<topic label="Usage">
+    <topic label="Overview" href="html/usage/usage.html"/> 
+	<topic label="Java" href="html/usage/java.html"/> 
+	<topic label="C++" href="html/usage/cpp.html"/> 
+	<topic label="Options" href="html/usage/options.html"/> 
+</topic>
 <topic label="Getting started with X10" href="html/tutorial/toc.html">
 	<topic label="Getting Started" href="html/tutorial/01-Tutorial.html"/> 
 	<topic label="Concurrency" href="html/tutorial/02-Tutorial.html"/> 
@@ -26,8 +32,6 @@
 <topic label="X10 Summary Inline"  href="html/x10summary.html"/>
 -->
 <topic label="X10 Summary" href="html/summary/toc.html">
-	<topic label="usage" href="html/summary/usage.html">Usage</topic>
-	<topic label="options" href="html/summary/options.html">Compiler options</topic>
 	<topic label="at" href="html/summary/at.html">at</topic>
 	<topic label="async" href="html/summary/async.html">async</topic>
 	<topic label="finish" href="html/summary/finish.html">finish</topic>

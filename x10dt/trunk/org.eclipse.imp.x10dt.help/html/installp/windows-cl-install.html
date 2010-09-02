@@ -136,7 +136,7 @@ export PATH
 </pre>
 
 <h2>Getting started</h2>
-You need to download the X10 2.0.2 distributions for your platform,
+You need to download the X10 2.0.6 distributions for your platform,
 <pre>
 AIX/PowerPC 
 Cygwin/x86 
@@ -146,39 +146,42 @@ MacOS/x86
 MacOS/x86_64 
 </pre>
 in this case Windows Cygwin/x86. The Common PGAS runtime is inlcuded in the download.
-Go to the <a href="http://x10.codehaus.org/X10+2.0.2+Release">X10 release 2.0.2 (http://x10.codehaus.org/X10+2.0.2+Release)</a> and download
+Go to the <a href="http://x10.codehaus.org/X10+2.0.6+Release">X10 release 2.0.6 (http://x10.codehaus.org/X10+2.0.6+Release)</a> and download
 the X10 distribution.  You should save this file in the same location as the cygwin installation directories.
 You should check periodically for new releases at http://x10.codehaus.org/X10+Releases.
 <p>
 Next you need to install the X10 distribution so that it is available to use.  My recommendation is to
-make a directory in the /usr tree.  To do this do the following. Note that you may have to use
+make a directory in the /usr or /opt tree.  To do this do the following. Note that you may have to use
 the "sudo" command to get access.
 
 Start the cygwin bash shell.
 <pre>
 cd /usr
-mkdir x10-2.0.2
-cd x10-2.0.2
-mkdir x10dist
+mkdir local
+cd local
+mkdir x10
+cd x10
+mkdir 2.0.6
 </pre>
 
 Make all of these directories accessible by everyone
 <pre>
 cd /usr
-chmod -R 755 x10-2.0.2
+chmod -R 755 local
 </pre>
 
 Now copy the x10 download to x10dist directory and unpack it.
 <pre>
-cp /cygdrive/c/cygwinInstall/x10-2.0.2_cygwin_x86.gz /usr/x10-2.0.2/x10dist
+cp /cygdrive/c/cygwinInstall/x10-2.0.6_cygwin_x86.gz /usr/local/x10/2.0.6
 </pre>
 and then unpack the x10 distribution.
 <pre>
 cd /usr
-cd x10-2.0.2
-cd x10dist
-gunzip x10-2.0.2_cygwin_x86.gz
-tar -xvf x10-2.0.2_cygwin_x86
+cd local
+cd x10
+cd 2.0.6
+gunzip x10-2.0.6_cygwin_x86.gz
+tar -xvf x10-2.0.6_cygwin_x86
 </pre>
 
 <p>
@@ -190,7 +193,7 @@ system knows how to find the cyggc-1.dll file.
 Here is a sample .bash_profile
 <pre>
 .bash_profile
-PATH=/usr/x10-2.0.2/x10dist/bin:/usr/x10-2.0.2/x10dist/lib:$PATH
+PATH=/usr/local/x10.2.0.6/bin:/usr/local/x10/2.0.6/lib:$PATH
 export PATH
 </pre>
 
@@ -206,7 +209,7 @@ mkdir x10
 cd x10
 mkdir Hello
 cd Hello
-cp /usr/x10-2.0.2/x10dist/samples/Hello.x10 .
+cp /usr/local/x10/2.0.6/samples/Hello.x10 .
 </pre>
 <h4>java backend</h4>
 To compile the this program with the java backend you would enter

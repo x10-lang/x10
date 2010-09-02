@@ -3,14 +3,14 @@
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-	<title>Usage</title>
+	<title>Compiler options</title>
 </head>
 
 <body>
 <h1>Compiler options</h1>
 <pre>
-$ x10c++ -- -help
-usage: x10c++ [options] <source-file>.x10 ...
+$ bin/x10c -- --help
+usage: x10c [options] <source-file>.x10 ...
 where [options] includes:
   @<file>                  read options from <file>
   -d <directory>           output directory
@@ -34,13 +34,7 @@ where [options] includes:
   -noserial                disable class serialization
   -nooutput                delete output files after compilation
   -c                       compile only to .java
-  -post <compiler>         run a C++ compiler after translation. The
-                           structure of <compiler> is "[pre-command with
-                           options (usually g++)] [(#|%) [post-options
-                           (usually extra files)] [(#|%) [library
-                           options]]]". Using '%' instead of '#' to delimit
-                           a section will cause the default values in that
-                           section to be omitted.
+  -post <compiler>         run javac-like compiler after translation
   -debugpositions          generate position information for
                            compiler-generated code
   -simpleoutput            use SimpleCodeWriter
@@ -52,43 +46,40 @@ where [options] includes:
         loader, verbose, qq
   -version                 print version info
   -h                       print this message
-  -COMPILER_FRAGMENT_DATA_DIRECTORY=String
-                           Advanced functionality: Directory for compiler
-                           templates (default = "data/")
+  -noassert                turn off assertion generation
+  -CHECK_INVARIANTS=boolean
+                           Check AST invariants such as position
+                           containment, existance of xxxInstance(), etc
+                           (default = false)
+  -ONLY_TYPE_CHECKING=boolean
+                           Do only type-checking, without optimizations or
+                           code generation (default = false)
   -OPTIMIZE=boolean        Generate optimized code (default = false)
   -DEBUG=boolean           Generate debug information (default = false)
   -NO_CHECKS=boolean       Disable generation of all null, bounds, and place
                            checks (default = false)
-  -BAD_PLACE_RUNTIME_CHECK=boolean
-                           Generate runtime place checks (default = false)
   -LOOP_OPTIMIZATIONS=boolean
-                           Generate specialized Java version of for-loop X10
-                           code (default = true)
-  -ARRAY_OPTIMIZATIONS=boolean
-                           Generate allocation of specialized Java array
-                           classes (default = true)
+                           Optimize rectangular region iteration (default =
+                           true)
   -INLINE_OPTIMIZATIONS=boolean
                            Perform inlining optimizations (default = false)
   -CLOSURE_INLINING=boolean
                            Perform closure literal inlining (default = true)
+  -FLATTEN_EXPRESSIONS=boolean
+                           Flatten all expressions (default = false)
   -PLUGINS=String          Comma-separated list of compiler plugins to run.
                            (default = "")
   -PLUGIN_COMPILER=String  Javac-like compiler to use to compile plugins
                            (default = "")
-  -XML_PROCESSOR=String    External program to transform ASTs externalized
-                           as XML (default = "")
-  -EXTERNALIZE_ASTS=boolean
-                           Externalize ASTs to XML (default = false)
   -MANIFEST=String         The path to the pre-built library manifest file
                            (default = null)
-  -o path                  set generated executable path (for the
-                           post-compiler)
-  -MAIN_CLASS=String       The class whose main() will be invoked (default =
-                           null)
-  -VIM_MODELINE=boolean    Generate a modeline (formatting instructions) for
-                           VIm (default = true)
-  -DISABLE_GC=boolean      Disable the linking in of the BDW conservative
-                           garbage collector (default = false)
+  -WORK_STEALING=boolean   Code generation for work-stealing scheduling
+                           (default = false)
+  -VERBOSE_CALLS=boolean   Print details of casts introduced for
+                           dynamically-checked calls. (default = false)
+  -STATIC_CALLS=boolean    Treat dynamically-checked calls as errors.
+                           (default = false)
+
 </pre>
 </body>
 </html>

@@ -161,7 +161,7 @@ mpirun (Open MPI) 1.2.3
 
 <h2>Getting started</h2>
 
-You need to download the X10 2.0.2 distribution for your platform,
+You need to download the X10 2.0.6 distribution for your platform,
 <pre>
 AIX/PowerPC 
 Cygwin/x86 
@@ -171,36 +171,40 @@ MacOS/x86
 MacOS/x86_64 
 </pre>
 in this case MacOS/x86. The Common PGAS runtime is included with the X10 platform.
-Go to the <a href="http://x10.codehaus.org/X10+2.0.2+Release">X10 release 2.0.2 (http://x10.codehaus.org/X10+2.0.2+Release)</a> 
+Go to the <a href="http://x10.codehaus.org/X10+2.0.6+Release">X10 release 2.0.6 (http://x10.codehaus.org/X10+2.0.6+Release)</a> 
 and download the X10 distribution.  This will be usually stored in your "Downloads" directory depending on how
 your browser is configured. You should check periodically for new releases at http://x10.codehaus.org/X10+Releases.
 <p>
 Next you need to install the X10 distribution so that it is available to use.  
-You should make a directory in the /usr directory for this version.  This procedure
+You should make a directory in the /usr or /opt directory for this version.  This procedure
 will allow easy updating to a newer version when it becomes available. 
 Note that you may have to use the "sudo" command to get access. 
 
 <pre>
 cd /usr
-mkdir x10-2.0.2
-cd x10-2.0.2
-mkdir x10dist
+mkdir local
+cd local
+mkdir x10
+cd x10
+mkdir 
+cd 2.0.6
 </pre>
 
 Make the directory accessible by everyone
 <pre>
 cd /usr
-chmod -R 755 x10-2.0.2
+chmod -R 755 local
 </pre>
 
 Now copy the x10 download to x10dist directory 
 and unpack it.
 <pre>
 cd /usr
-cd x10-2.0.2
-cd x10dist
-cp /Users/cals/Downloads/x10-2.0.2_macos_x86.tar .
-tar -xvf x10-2.0.2_macos_x86.tgz
+cd local
+cd x10
+cd 2.0.6
+cp /Users/cals/Downloads/x10-2.0.6_macos_x86.tar .
+tar -xvf x10-2.0.6_macos_x86.tgz
 </pre>
 
 <p>
@@ -211,7 +215,7 @@ to your path.  You can also define aliases here, etc.
 Here is a sample .bash_profile that adds the X10 bin directory to your path.
 <pre>
 .bash_profile
-PATH=${PATH}:/usr/x10-2.0.2/x10dist/bin
+PATH=${PATH}:/usr/local/x10/2.0.6/bin
 export PATH
 </pre>
 
@@ -228,7 +232,7 @@ mkdir x10
 cd x10
 mkdir Hello
 cd Hello
-cp /usr/x10-2.0.2/x10dist/samples/Hello.x10 .
+cp /usr/local/x10/2.0.6/samples/Hello.x10 .
 </pre>
 
 <h4>Using the java backend</h4>

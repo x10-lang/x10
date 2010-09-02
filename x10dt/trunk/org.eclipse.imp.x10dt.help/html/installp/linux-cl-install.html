@@ -80,7 +80,7 @@ For example, the --prefix option in the above example tells Open MPI to install 
 </p>
 
 <h2>Getting started</h2>
-You need to download the X10 2.0.2 distribution for your platform,
+You need to download the X10 2.0.6 distribution for your platform,
 <pre>
 AIX/PowerPC 
 Cygwin/x86 
@@ -91,36 +91,39 @@ MacOS/x86_64
 </pre>
 in this case Linux/x86.
 The Common PGAS runtime is inlcuded in the download.
-Go to the <a href="http://x10.codehaus.org/X10+2.0.2+Release">X10 release 2.0.2 (http://x10.codehaus.org/X10+2.0.2+Release)</a> and download
+Go to the <a href="http://x10.codehaus.org/X10+2.0.6+Release">X10 release 2.0.6 (http://x10.codehaus.org/X10+2.0.6+Release)</a> and download
 the X10 distribution.  This will be usually stored in your "Downloads" directory depending on how
 your browser is configured. You should modify Firefox on Linux to ask you where to download files.
 You should check periodically for new releases at http://x10.codehaus.org/X10+Releases.
 <p>
 Next you need to install the X10 distribution so that it is available to use.  My recommendation is to
-make a directory in the /usr tree. This procedure also allows easy updating to newer versions as they become 
+make a directory in the /usr or /opt tree. This procedure also allows easy updating to newer versions as they become 
 available. Note that you may have to use the "sudo" command to get access. 
 
 <pre>
 	cd /usr
-	mkdir x10-2.0.2
-	cd x10-2.0.2
-	mkdir x10dist
+	mkdir local
+	cd local
+	mkdir x10
+	cd x10
+	mkdir 2.0.6
 </pre>
 
 Make all of these directories accessible by everyone
 <pre>
 	cd /usr
-	chmod -R 755 x10-2.0.2
+	chmod -R 755 local
 </pre>
 
 Now copy the x10 distribution that you downloaded to x10dist directory and unpack it.
 <pre>
 	cd /usr
-	cd x10-2.0.2
-	cd x10dist
-	cp ~/Downloads/x10-2.0.2_linux_x86.tgz .
-	gunzip x10-2.0.2_linux_x86.tgz
-	tar -xvf x10-2.0.2_linux_x86.tar
+	cd local
+	cd x10
+	cd 2.0.6
+	cp ~/Downloads/x10-2.0.6_linux_x86.tgz .
+	gunzip x10-2.0.6_linux_x86.tgz
+	tar -xvf x10-2.0.6_linux_x86.tar
 </pre>
 
 <p>
@@ -131,7 +134,7 @@ to your path.  You can also define aliases here, etc.
 Here is a sample .bash_profile
 <pre>
 .bash_profile
-PATH=/usr/java/jdk1.5.0_11/bin:/usr/x10-2.0.2/x10dist/bin:$PATH
+PATH=/usr/java/jdk1.5.0_11/bin:/usr/local/x10/2.0.6/bin:$PATH
 export PATH
 </pre>
 
@@ -147,7 +150,7 @@ working directory
 	cd x10
 	mkdir Hello
 	cd Hello
-	cp /usr/x10-2.0.2/x10dist/samples/Hello.x10 .
+	cp /usr/local/x10/2.0.6/samples/Hello.x10 .
 </pre>
 <h4>java backend</h4>
 To compile the this program with the java backend you would enter

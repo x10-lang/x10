@@ -26,10 +26,9 @@ the compilers shows me how many dynamic checks it inserted:
 $ x10c DataFlowExample.x10 
 x10c: 7 dynamically checked calls or field accesses.
 </pre>
-Is there a way to tell, where exactly those dynamic checks are? Maybe
-they could be made static with some code changes.
+Is there a way to tell, where exactly those dynamic checks are?
 <br>
-compile with 
+You should compile with 
 <pre>
 -VERBOSE_CALLS=true
 </pre>
@@ -39,24 +38,24 @@ This will print details of all inserted dynamic casts.
 
 <h2><a name="faq3">How to show compile time errors...<a></h2>
 <p>
-As it is, the
-compiler inserts a dynamic check for you, which then fails at
-runtime.
-If you ran the compiler with the -STATIC_CALLS flag,
-you would have gotten a compile-time error.  
+As it is, the compiler inserts a dynamic check for you, 
+which then fails at runtime.
+If you run the compiler with the -STATIC_CALLS flag,
+you will get a compile-time error.  
 </p>
 
 <h2><a name="faq4">How to use ! ...<a></h2>
 <p>
 Every object has a place, that's the point of the PGAS paradigm. You
-can access fields and methods of the object only in it's home place. Only
-"global" methods and fields can be accessed everywhere.
+can access fields and methods of the object only in it's home place. 
+Only "global" methods and fields can be accessed everywhere.
 </p>
 <p>
 You should use "!" to make sure you don't have ClassCastException for home
-constraints. When you compiled your program, you probably saw the warning: 
+constraints. When you compile your program, you may see the warning: 
 ZZZ dynamic checks added. If you compile with the parameter -STATIC_CALLS then 
-the compiler will give you errors instead of warnings, and you will know what to mark as "!".
+the compiler will give you errors instead of warnings, and 
+you will know what to mark as "!".
 </p>
 
 <h2><a name="faq5">Struct initialization...<a></h2>
