@@ -185,7 +185,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     }
     
     @Override
-    protected void setSuperClass(TypeSystem ts, ClassDef thisType) throws SemanticException {
+    protected void setSuperClass(TypeSystem ts, final ClassDef thisType) throws SemanticException {
         TypeNode superClass = this.superClass;
 
         final X10TypeSystem xts = (X10TypeSystem) ts;
@@ -194,7 +194,8 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         // during bootstrapping: Object, refers to Int, refers to Object, ...
         final LazyRef<Type> superRef = Types.lazyRef(null);
 
-        if (thisType.fullName().equals(QName.make("x10.lang.Object"))) {
+        if (thisType.fullName().equals(QName.make("x10.lang.Object"))
+        		|| thisType.fullName().equals(QName.make("x10.lang.GlobalObject"))) {
         	thisType.superType(null);
         }
         else if (flags().flags().isInterface()) {
@@ -213,7 +214,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
             // The default superclass is Object
         	superRef.setResolver(new Runnable() {
         		public void run() {
-        			superRef.update(xts.Object());
+        			superRef.update(X10TypeMixin.isGlobalType(thisType.asType()) ? xts.GlobalObject() : xts.Object());
         		}
         	});
         	thisType.superType(superRef);
