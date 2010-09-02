@@ -2,6 +2,7 @@ package x10doc.doc;
 
 import java.text.BreakIterator;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -160,9 +161,37 @@ public class X10Doc implements Doc {
 		}
 	}
 	
-	public void addX10Tags()
+	public X10Tag[] getX10Tags()
 	{
-		
+		return new X10Tag[0];
+	}
+	
+	public void addGuardTags(List<X10Tag> list)
+	{
+		StringBuilder sb = new StringBuilder();
+		Tag[] tags = tags(X10Tag.GUARD);
+		if (tags.length > 0) {
+			sb.append("<DL><DT><B>Guard:</B>");
+			for (Tag tag : tags) {
+				sb.append("<DD><CODE>");
+				String code = tag.text();
+				String tokens[] = code.split("\\s");
+
+				if (tokens.length > 1) {
+					sb.append(tokens[0]);
+					sb.append("</CODE> - ");
+					sb.append(code.replace(tokens[0], "").trim());
+				}
+
+				else {
+					sb.append("</CODE>");
+				}
+
+			}
+			sb.append("</DL><P>");
+		}
+
+		list.addAll(createInlineTags(sb.toString(), this));
 	}
 	
 	// used to add comment lines displaying X10 class declarations, specifically the class constraints in 
