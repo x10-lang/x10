@@ -7,21 +7,14 @@
 *
 * Contributors:
 *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
-
 *******************************************************************************/
 
-/*
- * (C) Copyright IBM Corporation 2007
- * 
- * This file is part of the Eclipse IMP.
- */
 package org.eclipse.imp.x10dt.ui.editor;
 
 import lpg.runtime.IToken;
 
 import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.parser.SimpleLPGParseController;
-import org.eclipse.imp.services.ITokenColorer;
 import org.eclipse.imp.services.base.TokenColorerBase;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.TextAttribute;
@@ -30,13 +23,28 @@ import org.eclipse.swt.widgets.Display;
 
 import x10.parser.X10Parsersym;
 
-public class X10TokenColorer extends TokenColorerBase implements X10Parsersym, ITokenColorer {
-
+public class X10TokenColorer extends TokenColorerBase implements X10Parsersym {
 	TextAttribute commentAttribute, docCommentAttribute, characterAttribute, numberAttribute, identifierAttribute;
 	
-	@Override
+    public X10TokenColorer() {
+        super();
+        Display display = Display.getDefault();
+        commentAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_DARK_RED), null, SWT.ITALIC);         
+        characterAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_DARK_BLUE), null, SWT.BOLD);        
+        docCommentAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_BLUE), null, SWT.ITALIC);      
+        identifierAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_BLACK), null, SWT.NORMAL);         
+        numberAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_DARK_YELLOW), null, SWT.BOLD);         
+    }
+
+    public void setLanguage(String language) { }
+
+    TextAttribute getKeywordAttribute() {
+        return keywordAttribute;
+    }
+
+    @Override
 	public TextAttribute getColoring(IParseController controller, Object o) {
-            IToken token= (IToken) o;
+	    IToken token= (IToken) o;
 	    switch (token.getKind()) {
 	    	case TK_DocComment: case TK_SlComment: case TK_MlComment:
 	    		if (token.toString().startsWith("/**"))
@@ -54,27 +62,13 @@ public class X10TokenColorer extends TokenColorerBase implements X10Parsersym, I
                  return characterAttribute;
             default: {
                 SimpleLPGParseController lpgPC= (SimpleLPGParseController) controller;
-        	// TODO Can the following either be removed altogether or folded into the base class impl?
-        	// RMF 10/26/2006 - Avoid AIOOB that happens if we pass error tokens to isKeyword()
-                if (token.getKind() < TK_ERROR_TOKEN && lpgPC.isKeyword(token.getKind()))
+                // TODO The following should be folded into an LPG-specific token colorer base class
+                if (lpgPC.isKeyword(token.getKind()))
                      return keywordAttribute;
                 else return null;
             }
 	    }
 	}
-
-	public X10TokenColorer() {
-		super();
-		Display display = Display.getDefault();
-		commentAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_DARK_RED), null, SWT.ITALIC); 		
-		characterAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_DARK_BLUE), null, SWT.BOLD); 		
-		docCommentAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_BLUE), null, SWT.ITALIC); 		
-		identifierAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_BLACK), null, SWT.NORMAL); 		
-		numberAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_DARK_YELLOW), null, SWT.BOLD); 		
-	}
-
-	public void setLanguage(String language) { }
-
 
 	/**
 	 * Some day this should probably expand the damage region if the damage was
