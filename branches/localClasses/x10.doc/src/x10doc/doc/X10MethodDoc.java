@@ -1,26 +1,14 @@
 package x10doc.doc;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.prefs.PreferenceChangeEvent;
 
-import polyglot.types.ClassDef;
-import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.Ref;
-
-import x10.constraint.XConstraint;
 import x10.types.ParameterType;
-import x10.types.X10ClassDef;
 import x10.types.X10MethodDef;
-import x10.types.X10ProcedureDef;
-import x10.types.X10TypeMixin;
 
 import com.sun.javadoc.AnnotationDesc;
-import com.sun.javadoc.ProgramElementDoc;
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.MethodDoc;
 import com.sun.javadoc.PackageDoc;
@@ -107,22 +95,28 @@ public class X10MethodDoc extends X10Doc implements MethodDoc {
 		return p.name().toString();
 	}
 	
+	public X10Tag[] getX10Tags() {
+		List<X10Tag> list = new ArrayList<X10Tag>();
+		addGuardTags(list);
+		return list.toArray(new X10Tag[list.size()]);
+	}
+	
 	public void addDeclTag(String declString) {
 		if (declString == null) {
 			return;
 		}
 		X10Tag[] declTags = createInlineTags(declString, this).toArray(new X10Tag[0]);
-
+		X10Tag[] tags = getX10Tags();
 		// place declaration before the first sentence of the existing comment so that
 		// the declaration is displayed in the "Methods Summary" table before the first sentence
-		firstSentenceTags = X10Doc.concat(declTags, firstSentenceTags);
-		inlineTags = concat(declTags, inlineTags);
+		firstSentenceTags = concat(declTags, firstSentenceTags);
+		inlineTags = concat(concat(declTags, tags), inlineTags);
 	}
 
 	public String declString() {
 		// the X10 method declaration needs to be displayed in the method's comments only if a param type 
-		// or the return type is X10-specific (has associated closures, constraints)
-		if (!(X10Type.isX10Specific(returnType))) {
+		// or return type is X10-specific (has associated closures, constraints) or the method has contraints
+		if (!(X10Type.isX10Specific(returnType)) && methodDef.guard() == null) {
 			boolean hasConstraints = false;
 			for (X10Parameter p: parameters) {
 				if (p.isX10Specific()) {
@@ -150,14 +144,15 @@ public class X10MethodDoc extends X10Doc implements MethodDoc {
 				desc += X10Type.descriptor(p.type());
 			}
 		}
-		desc += "): " + methodDef.returnType();
+		desc += ") " + methodDef.guard() + ": " + methodDef.returnType();
 		if (X10Type.isX10Specific(returnType)) {
 			desc += X10Type.descriptor(returnType);
 		}
 //		System.out.println("X10MethodDoc{" + methodDef.signature() + "}.declString(): descriptor = " + desc);
 
+		String guard = (methodDef.guard() == null) ? "" : methodDef.guard().toString();
 		// construct result from X10 compiler method signatures and toString functions
-		String result = "<B>Declaration</B>: <TT>" + methodDef.signature() + ": " + 
+		String result = "<B>Declaration:</B> <TT>" + methodDef.signature() +  guard + ": " + 
 		                methodDef.returnType().toString() + ".</TT><PRE>\n</PRE>";
 			// earlier: ... + X10Doc.toString(this.returnType)
 		return result; 
@@ -256,8 +251,6 @@ public class X10MethodDoc extends X10Doc implements MethodDoc {
 		// System.out.println(name() + ".paramTags() called.");
 		return paramTags.toArray(new ParamTag[0]);
 	}
-	
-
 
 	public Parameter[] parameters() {
 		// System.out.println(name() + ".parameters() called.");
@@ -273,29 +266,47 @@ public class X10MethodDoc extends X10Doc implements MethodDoc {
 	
 	public static String signature(X10MethodDef md) {
 		String sig = md.signature();
+		sig = sig.replaceAll("[^(:,]+:", "");
+		sig = sig.replaceAll("\\{[^}]+\\}", "");
+		
 		return sig.substring(sig.indexOf('('));
 	}
 
 	public Type[] thrownExceptionTypes() {
-		// TODO Auto-generated method stub
 		if (X10RootDoc.printSwitch)
 			System.out.println(name() + ".thrownExceptionTypes() called.");
-		return new Type[0];
+		return thrownExceptions();
 	}
 
 	public ClassDoc[] thrownExceptions() {
-		// TODO Auto-generated method stub
 		if (X10RootDoc.printSwitch)
 			System.out.println(name() + ".thrownExceptions() called.");
+		
+		List<Ref<? extends polyglot.types.Type>> throwTypes = methodDef.throwTypes();
+		if(throwTypes != null && throwTypes.size() > 0)
+		{
+			ClassDoc[] types = new ClassDoc[throwTypes.size()];
+			int i = 0;
+			for(Ref<? extends polyglot.types.Type> type : throwTypes)
+			{
+				types[i++] = (ClassDoc)rootDoc.getType(type.get());
+			}
+			
+			return types;
+		}
+		
 		return new ClassDoc[0];
 	}
 
 	public ThrowsTag[] throwsTags() {
-		// TODO Auto-generated method stub
 		if (X10RootDoc.printSwitch)
 			System.out.println(name() + ".throwsTags() called.");
-		return new ThrowsTag[0];
+		Tag[] tags = tags(X10Tag.THROWS);
+		ThrowsTag[] newTags = new ThrowsTag[tags.length];
+		System.arraycopy(tags, 0, newTags, 0, tags.length);
+		return newTags;
 	}
+	
 
 	public ParamTag[] typeParamTags() {
 		// TODO Auto-generated method stub

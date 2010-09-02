@@ -1,14 +1,12 @@
 package x10doc.doc;
 
-import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import polyglot.frontend.Job;
+import polyglot.ast.Import;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorDef;
@@ -16,13 +14,11 @@ import polyglot.types.FieldDef;
 import polyglot.types.MethodDef;
 import polyglot.types.Package;
 import polyglot.types.Ref;
-import x10.types.FunctionType;
 import x10.types.ConstrainedType;
+import x10.types.FunctionType;
 import x10.types.ParameterType;
-import x10.types.ParametrizedType;
 import x10.types.TypeDef;
 import x10.types.X10ClassDef;
-import x10.types.X10ClassType;
 import x10.types.X10ConstructorDef;
 import x10.types.X10Def;
 import x10.types.X10FieldDef;
@@ -30,17 +26,14 @@ import x10.types.X10MethodDef;
 import x10.types.X10ParsedClassType;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
+import x10.util.HierarchyUtils;
 
 import com.sun.javadoc.ClassDoc;
-import com.sun.javadoc.ConstructorDoc;
 import com.sun.javadoc.Doc;
-import com.sun.javadoc.MethodDoc;
+import com.sun.javadoc.MemberDoc;
 import com.sun.javadoc.PackageDoc;
-import com.sun.javadoc.ProgramElementDoc;
 import com.sun.javadoc.RootDoc;
-import com.sun.javadoc.SeeTag;
 import com.sun.javadoc.SourcePosition;
-import com.sun.javadoc.Tag;
 import com.sun.javadoc.Type;
 
 public class X10RootDoc extends X10Doc implements RootDoc {
@@ -567,4 +560,119 @@ public class X10RootDoc extends X10Doc implements RootDoc {
 //			return cd;
 //		}
 //	}
+	
+	public X10ClassDoc findClass(X10Doc holder, String classname)
+	{
+		/*
+		   1. the current class or interface
+		   2. any enclosing classes and interfaces, searching closest first
+		   3. any superclasses and superinterfaces, searching closest first
+		   4. the current package
+		   5. any imported packages, classes and interfaces, searching in the order of the import statement 
+		*/
+		
+		X10ClassDoc classDoc = null;
+		
+		// check current class
+		classDoc = findInCurrentClass(holder, classname);
+		if(classDoc != null)
+		{
+			return classDoc;
+		}
+		
+		// check superclasses and superinterfaces
+		classDoc = findInEnclosingAndSuperClasses(holder, classname);
+		if(classDoc != null)
+		{
+			return classDoc;
+		}
+		
+		//check current package
+		classDoc = findInCurrentPackage(holder, classname);
+		if(classDoc != null)
+		{
+			return classDoc;
+		}
+		
+		//check imported
+		classDoc = findInImports(holder, classname);
+		if(classDoc != null)
+		{
+			return classDoc;
+		}
+		
+		return classDoc;
+	}
+	
+	private X10ClassDoc findInCurrentClass(X10Doc holder, String startingName) {
+		String newClassName = holderClass(holder).classDef.fullName().toString()
+				+ "." + startingName;
+		X10ClassDoc classDoc = (X10ClassDoc) this.classNamed(newClassName);
+		return classDoc;
+	}
+	
+	private X10ClassDoc findInEnclosingAndSuperClasses(X10Doc holder, String startingName)
+	{
+		ClassType ct = holderClass(holder).classDef.asType();
+		for(ClassType superType : HierarchyUtils.getSuperTypes(ct))
+		{
+			String superName = superType.fullName().toString();
+			X10ClassDoc classDoc = null;
+			if((classDoc = isName(superName, startingName)) != null)
+			{
+				return classDoc;
+			}
+		}
+		
+		return null;
+	}
+	
+	private X10ClassDoc findInCurrentPackage(X10Doc holder, String startingName)
+	{
+		String newClassName = holderClass(holder).classDef.package_().toString() + "." + startingName;
+		X10ClassDoc classDoc = (X10ClassDoc) this.classNamed(newClassName);
+		return classDoc;
+	}
+	
+	private X10ClassDoc findInImports(X10Doc holder, String startingName) {
+		X10ClassDoc classDoc = null;
+		if (holderClass(holder).source != null) {
+			for (Import i : holderClass(holder).source.imports()) {
+				
+				if ((classDoc = isName(i.name().toString(), startingName)) != null) {
+					return classDoc;
+				}
+			}
+		}
+
+		String lang = "x10.lang." + startingName;
+		classDoc = (X10ClassDoc) this.classNamed(lang);
+		return classDoc;
+	}
+	
+	private X10ClassDoc isName(String fullName, String inputName)
+	{
+		if(fullName.endsWith(inputName))
+		{
+			X10ClassDoc classDoc = (X10ClassDoc) this.classNamed(fullName);
+			if(classDoc != null)
+			{
+				return classDoc;
+			}
+		}
+		
+		return null;
+	}
+	
+	public X10ClassDoc holderClass(X10Doc holder) {
+		if (holder instanceof X10ClassDoc) {
+			return ((X10ClassDoc) holder);
+		}
+		else if (holder instanceof MemberDoc) {
+			return ((X10ClassDoc) ((MemberDoc) holder).containingClass());
+		}
+		else {
+			return null;
+		}
+	}
 }
