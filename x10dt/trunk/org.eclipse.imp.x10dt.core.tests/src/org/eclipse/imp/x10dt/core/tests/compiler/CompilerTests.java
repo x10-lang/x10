@@ -29,8 +29,7 @@ public class CompilerTests extends CompilerTestsBase {
 		String[] files = {"Hello5.x10", "pac" + File.separator + "MyStruct.x10"};
 		Collection<ErrorInfo> errors = new ArrayList<ErrorInfo>();
 		Collection<Job> jobs = new ArrayList<Job>();
-		compileStreams(toSources(files), NOT_STATIC_CALLS, errors,
-				getRuntimeJar() + File.pathSeparator + DATA_PATH, jobs);
+		compile(files, NOT_STATIC_CALLS, errors, jobs);
 		for(ErrorInfo error: errors){
 			if (error.getMessage().contains("Duplicate class")){
 				Assert.assertTrue("Duplicate class error when there is no duplication.", false);
