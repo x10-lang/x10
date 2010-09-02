@@ -54,23 +54,6 @@ namespace x10 {
         public:
             Reference(){ }
             virtual ~Reference() { }
-
-
-
-            // TODO: LocalClasses.  Kill this method!
-            virtual x10_boolean at(x10::lang::Place p) {
-                assert(false);
-                return true;
-            }
-            // TODO: LocalClasses.  Kill this method!
-            virtual x10_boolean at(x10aux::ref<x10::lang::Object> o) {
-                assert(false);
-                return true;
-            }
-            // TODO: LocalClasses.  Kill this method!
-            virtual x10::lang::Place home();
-            
-
             
             /*********************************************************************************
              * Implementation-level object model functions assumed to be defined for all types
