@@ -46,16 +46,13 @@ namespace x10 {
                 return this;
             }
 
-            // TODO: localClasses.  Make non-virtual
-            virtual x10_boolean at(x10::lang::Place p) {
+            x10_boolean at(x10::lang::Place p) {
                 return location == p->FMGL(id);
             }
             
-            // TODO: localClasses.  Make non-virtual
-            virtual x10_boolean at(x10aux::ref<x10::lang::GlobalObject> o);
+            x10_boolean at(x10aux::ref<x10::lang::GlobalObject> o);
 
-            // TODO: localClasses.  Make non-virtual
-            virtual x10::lang::Place home();
+            x10::lang::Place home();
             
             static const x10aux::serialization_id_t _serialization_id;
 
