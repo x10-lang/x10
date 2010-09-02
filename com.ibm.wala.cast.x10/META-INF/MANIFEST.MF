@@ -6,10 +6,6 @@ Bundle-Version: 1.0.0
 Bundle-Vendor: rfuhrer@watson.ibm.com
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.core.runtime,
- com.ibm.wala.core,
- com.ibm.wala.cast,
- com.ibm.wala.cast.java,
- com.ibm.wala.shrike,
  x10.compiler
 Eclipse-AutoStart: true
 Export-Package: com.ibm.wala.cast.java.translator.polyglot,
