@@ -14,12 +14,21 @@
 
 #include <x10/lang/GlobalObject.h>
 #include <x10/lang/String.h>
+#include <x10/lang/Place.h>
 
 using namespace x10::lang;
 using namespace x10aux;
 
 x10aux::ref<GlobalObject> GlobalObject::_make() {
     return (new (x10aux::alloc<GlobalObject>()) GlobalObject())->_constructor();
+}
+
+x10_boolean GlobalObject::at(x10aux::ref<x10::lang::GlobalObject> o) {
+    return location == o->location;
+}
+
+Place GlobalObject::home() {
+    return x10::lang::Place_methods::_make(location);
 }
 
 x10_int x10::lang::GlobalObject::hashCode() {

@@ -209,7 +209,7 @@ public class Struct {
             //@Native("java", "x10.lang.Place.place(x10.core.Ref.home(#0))")
             //@Native("c++", "x10::lang::Place_methods::place(x10aux::get_location(#0))")
             //property def home():Place;
-            natives = createNative(nf, pos, "x10.lang.Place.place(x10.core.Ref.home(#0))", "x10::lang::Place_methods::place(x10aux::get_location(#0))");
+            natives = createNative(nf, pos, "x10.lang.Place.place(x10.core.Ref.home(#0))", "x10::lang::Place_methods::place(x10aux::here)");
             methodName = "home";
             md = nf.MethodDecl(pos,nf.FlagsNode(pos,nativeFlags.Property()),placeTypeNode,nf.Id(pos,Name.make(methodName)),Collections.EMPTY_LIST,Collections.EMPTY_LIST,null);
             md = (X10MethodDecl) ((X10Ext) md.ext()).annotations(natives);
@@ -227,7 +227,7 @@ public class Struct {
             //@Native("java", "x10.core.Ref.at((java.lang.Object)(#0), #1.id)")
             //@Native("c++", "(x10aux::get_location(#0) == (#1)->FMGL(id))")
             // property def at(p:Place):boolean;
-            natives = createNative(nf, pos, "x10.core.Ref.at((java.lang.Object)(#0), #1.id)", "(x10aux::get_location(#0) == (#1)->FMGL(id))");
+            natives = createNative(nf, pos, "x10.core.Ref.at((java.lang.Object)(#0), #1.id)", "(true/*HACK DAVE*/)");
             methodName = "at";
             formal = nf.Formal(pos,nf.FlagsNode(pos,Flags.NONE),placeTypeNode,nf.Id(pos,"p"));
             md = nf.MethodDecl(pos,nf.FlagsNode(pos,nativeFlags.Property()),boolTypeNode,nf.Id(pos,Name.make(methodName)),Collections.singletonList(formal),Collections.EMPTY_LIST,null);
@@ -238,7 +238,7 @@ public class Struct {
             //@Native("java", "x10.core.Ref.at((java.lang.Object)(#0), #1)")
             //@Native("c++", "(x10aux::get_location(#0) == (#1)->location)")
             //property safe def at(r:Object):Boolean;
-            natives = createNative(nf, pos, "x10.core.Ref.at((java.lang.Object)(#0), #1)", "(x10aux::get_location(#0) == (#1)->location)");
+            natives = createNative(nf, pos, "x10.core.Ref.at((java.lang.Object)(#0), #1)", "(true/*HACK DAVE*/)");
             methodName = "at";
             formal = nf.Formal(pos,nf.FlagsNode(pos,Flags.NONE),objectTypeNode,nf.Id(pos,"r"));
             md = nf.MethodDecl(pos,nf.FlagsNode(pos,nativeFlags.Property()),boolTypeNode,nf.Id(pos,Name.make(methodName)),Collections.singletonList(formal),Collections.EMPTY_LIST,null);

@@ -34,9 +34,7 @@ namespace x10 {
         public:
             T value;
             
-            IBox(T val) : value(val) {
-                location = x10aux::here;
-            }
+            IBox(T val) : value(val) { }
 
             virtual x10aux::itable_entry* _getITables();
 
