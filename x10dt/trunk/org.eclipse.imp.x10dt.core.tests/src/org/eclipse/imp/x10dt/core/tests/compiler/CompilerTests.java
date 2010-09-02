@@ -394,17 +394,11 @@ public class CompilerTests extends CompilerTestsBase {
 	
 	private boolean compile(String[] files, String[] options, Collection<ErrorInfo> errors, Collection<Job> jobs) throws Exception{
 		Collection<File> fs = new ArrayList<File>();
+		final ClassLoader classLoader = getClass().getClassLoader();
 		for(String s: files){
-			fs.add(new File(DATA_PATH + s));
+			fs.add(toFile(classLoader.getResource(DATA_PATH + s)));
 		}
-		
 		return compile(fs.toArray(new File[0]), options, errors, getRuntimeJar() + File.pathSeparator + DATA_PATH, jobs);
 	}
-	
-	
-	
-	
-	 
-
 	  
 }

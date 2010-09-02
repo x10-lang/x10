@@ -6,6 +6,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -40,8 +42,6 @@ public class FuzzParamCompilerTests extends CompilerTestsBase {
 	 */
 	private static String FUZZ_PATH = "data" + File.separator + "fuzzgen"  + File.separator;
 	private static String DATA_PATH = "data" + File.separator + "fuzz"  + File.separator;
-	private static String LIB_PATH = ".." + File.separator + "x10.tests" + File.separator + "examples" + File.separator + "x10lib" + File.separator;
-	private static String SOURCE_PATH_BASE = getRuntimeJar() + File.pathSeparator + LIB_PATH + File.pathSeparator + DATA_PATH;
 
 	
 	public FuzzParamCompilerTests(File[] sources, String[] options) {
@@ -51,9 +51,10 @@ public class FuzzParamCompilerTests extends CompilerTestsBase {
 	}
 
 	@Parameters
-	public static Collection inputs() {
+	public static Collection inputs() throws URISyntaxException {
 		ArrayList<Object[]> inputs = new ArrayList<Object[]>();
-		for (File f : getSources(new File(FUZZ_PATH))) {
+		final URL fuzzURL = FuzzParamCompilerTests.class.getClassLoader().getResource(FUZZ_PATH);
+		for (File f : getSources(toFile(fuzzURL))) {
 			inputs.add(new Object[] { new File[] { f }, STATIC_CALLS });
 			inputs.add(new Object[] { new File[] { f }, NOT_STATIC_CALLS });
 		}
@@ -62,7 +63,8 @@ public class FuzzParamCompilerTests extends CompilerTestsBase {
 
 	@Test(timeout=10000)
 	public void compilerTest() throws Exception {
-		String sourcepath = SOURCE_PATH_BASE;
+	  final URL dataURL = FuzzParamCompilerTests.class.getClassLoader().getResource(DATA_PATH);
+		final String sourcepath = getRuntimeJar() + File.pathSeparator + File.pathSeparator + toFile(dataURL).getAbsolutePath();
 		compile(sources, options, new ArrayList<ErrorInfo>(), sourcepath);
 	}
 
@@ -73,18 +75,17 @@ public class FuzzParamCompilerTests extends CompilerTestsBase {
 	 * 
 	 * @param f file to fuzz
 	 */
-	private static void fuzz(File f){
+	private static void fuzz(final File f, final String fuzzPath){
 		try {
 			long length = f.length();
 			BufferedReader reader = new BufferedReader(new FileReader(f));
 			char[] buffer = new char[(int)length];
 			reader.read(buffer);
 			reader.close();
-			String path = "data" + File.separator + "fuzzgen" + File.separator;
 			int count = 0;
 			for(FuzzIterator t = new FuzzIterator(buffer); t.hasNext();){
 				char[] newBuffer = t.next();
-				String dir = path + f.getName() + (count++);
+				String dir = fuzzPath + f.getName() + (count++);
 				boolean success = (new File(dir)).mkdir();
 				if (success){
 					BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dir + File.separator + f.getName())));
@@ -126,9 +127,12 @@ public class FuzzParamCompilerTests extends CompilerTestsBase {
 		}
 	}
 	
-	public static void main(String[] args){
-		for (File f : getSources(new File(DATA_PATH))) {
-			fuzz(f);
+	public static void main(String[] args) throws URISyntaxException {
+	  final URL dataURL = FuzzParamCompilerTests.class.getClassLoader().getResource(DATA_PATH);
+	  final URL fuzzURL = FuzzParamCompilerTests.class.getClassLoader().getResource(FUZZ_PATH);
+	  final String fuzzPath = toFile(fuzzURL).getAbsolutePath();
+		for (File f : getSources(toFile(dataURL))) {
+			fuzz(f, fuzzPath);
 		}
 	}
 }

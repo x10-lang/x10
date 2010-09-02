@@ -1,6 +1,8 @@
 package org.eclipse.imp.x10dt.core.tests.compiler;
 
 import java.io.File;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -29,9 +31,6 @@ public class DataParamCompilerTests extends CompilerTestsBase {
 	 * 
 	 */
 	private static String DATA_PATH = "data" + File.separator + "pppp" + File.separator;
-	private static String LIB_PATH = ".." + File.separator + "x10.tests" + File.separator + "examples" + File.separator + "x10lib" + File.separator;
-	private static String SOURCE_PATH_BASE = getRuntimeJar() + File.pathSeparator + LIB_PATH + File.pathSeparator + DATA_PATH;
-
 	
 	
 	public DataParamCompilerTests(File[] sources, String[] options){
@@ -42,9 +41,10 @@ public class DataParamCompilerTests extends CompilerTestsBase {
 	
 	
 	@Parameters
-	 public static Collection inputs() {
+	 public static Collection inputs() throws URISyntaxException {
 		ArrayList<Object[]> inputs = new ArrayList<Object[]>();
-		for (File f: getSources(new File(DATA_PATH))){
+		final URL dataURL = CompletenessCompilerTests.class.getClassLoader().getResource(DATA_PATH);
+		for (File f: getSources(toFile(dataURL))){
 			inputs.add(new Object[]{new File[]{f}, STATIC_CALLS});
 			inputs.add(new Object[]{new File[]{f}, NOT_STATIC_CALLS});
 				
@@ -54,10 +54,10 @@ public class DataParamCompilerTests extends CompilerTestsBase {
 
 	@Test
 	public void compilerTest() throws Exception {
-		String sourcepath = SOURCE_PATH_BASE;
+	  final URL dataURL = CompletenessCompilerTests.class.getClassLoader().getResource(DATA_PATH);
+		final String sourcepath = getRuntimeJar() + File.pathSeparator + toFile(dataURL).getAbsolutePath();
 		compile(sources, options, new ArrayList<ErrorInfo>(), sourcepath);
 	}
-
 	
 }
 

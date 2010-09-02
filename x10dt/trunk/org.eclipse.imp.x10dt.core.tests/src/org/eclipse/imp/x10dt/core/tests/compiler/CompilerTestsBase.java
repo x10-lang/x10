@@ -1,6 +1,8 @@
 package org.eclipse.imp.x10dt.core.tests.compiler;
 
 import java.io.File;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -18,6 +20,7 @@ import polyglot.main.Options;
 import polyglot.main.UsageError;
 import polyglot.util.AbstractErrorQueue;
 import polyglot.util.ErrorInfo;
+import x10.core.Any;
 import x10.errors.X10ErrorInfo;
 
 /**
@@ -203,8 +206,14 @@ public class CompilerTestsBase {
 		return results;
 	}
 	
-	protected static String getRuntimeJar(){
-		return ".." + File.separator + "x10.dist" + File.separator + "lib" + File.separator + "x10.jar";
+	protected static String getRuntimeJar() throws URISyntaxException{
+	  final ClassLoader classLoader = Any.class.getClassLoader();
+	  final URL url = classLoader.getResource("x10.jar");
+	  return toFile(url).getAbsolutePath();
+	}
+	
+	protected static File toFile(final URL url) throws URISyntaxException {
+	  return new File(url.toURI());
 	}
 	
 	private String getErrorString(ErrorInfo e){

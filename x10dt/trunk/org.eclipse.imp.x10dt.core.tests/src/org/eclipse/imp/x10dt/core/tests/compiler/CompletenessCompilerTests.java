@@ -1,6 +1,8 @@
 package org.eclipse.imp.x10dt.core.tests.compiler;
 
 import java.io.File;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -47,9 +49,10 @@ public class CompletenessCompilerTests extends CompilerTestsBase {
 	}
 	
 	@Parameters
-	 public static Collection inputs() {
+	 public static Collection inputs() throws URISyntaxException {
 		ArrayList<Object[]> inputs = new ArrayList<Object[]>();
-		for(FileCollectionIterator f = new FileCollectionIterator(new File(DATA_PATH)); f.hasNext(); ){
+		final URL dataURL = CompletenessCompilerTests.class.getClassLoader().getResource(DATA_PATH);
+		for(FileCollectionIterator f = new FileCollectionIterator(toFile(dataURL)); f.hasNext(); ){
 			File[] fs = f.next();
 			inputs.add(new Object[]{fs, STATIC_CALLS});
 			inputs.add(new Object[]{fs, NOT_STATIC_CALLS});
@@ -59,7 +62,8 @@ public class CompletenessCompilerTests extends CompilerTestsBase {
 
 	@Test
 	public void compilerTest() throws Exception {
-		String sourcepath = getRuntimeJar() + File.pathSeparatorChar + DATA_PATH;
+	  final URL dataURL = CompletenessCompilerTests.class.getClassLoader().getResource(DATA_PATH);
+		String sourcepath = getRuntimeJar() + File.pathSeparatorChar + toFile(dataURL).getAbsolutePath();
 		
 		//Submit everything to the compiler at once
 		System.err.println("***Compiling all files");
