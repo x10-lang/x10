@@ -179,7 +179,7 @@ public class X10Field_c extends Field_c {
 	        e = new SemanticException(); // null message
 	    fi = xts.createFakeField(targetType.toClass(), flags, name, e);
 	    if (rt == null) rt = fi.type();
-	    rt = PlaceChecker.AddIsHereClause(rt, context);
+	    // rt = PlaceChecker.AddIsHereClause(rt, context);
 	    fi = fi.type(rt);
 	    return fi;
 	}
