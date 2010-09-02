@@ -79,9 +79,9 @@ import x10.config.OptionError;
  * @author egeay
  */
 public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
-  
+
   // --- Abstract methods definition
-  
+
   /**
    * Creates the Polyglot extension information that controls the compiler options for the particular back-end.
    * 
@@ -93,16 +93,16 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
    * @return A non-null object.
    */
   public abstract ExtensionInfo createExtensionInfo(final String classPath, final List<File> sourcePath,
-                                                    final String localOutputDir, final boolean withMainMethod, 
+                                                    final String localOutputDir, final boolean withMainMethod,
                                                     final IProgressMonitor monitor);
-  
+
   /**
    * Creates a filter for all the native files that may be present in the projects for the current back-end.
    * 
    * @return A non-null filter instance.
    */
   public abstract IFilter<IFile> createNativeFilesFilter();
-  
+
   /**
    * Creates the instance of {@link IX10BuilderFileOp} depending of the connection type, local or remote.
    * 
@@ -110,20 +110,19 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
    * @throws CoreException Occurs if we could not load the X10 platform configuration associated with the project.
    */
   public abstract IX10BuilderFileOp createX10BuilderFileOp() throws CoreException;
-  
- 
+
   /**
    * Returns the file extension corresponding to each back-end (e.g., ".java" for Java back-end).
    * 
    * @return A non-null string in all cases.
    */
   public abstract String getFileExtension();
-  
+
   // --- Abstract methods implementation
-  
+
   @SuppressWarnings("rawtypes")
   protected final IProject[] build(final int kind, final Map args, final IProgressMonitor monitor) throws CoreException {
-    if (! getProject().isAccessible()) {
+    if (!getProject().isAccessible()) {
       return null;
     }
     try {
@@ -134,15 +133,15 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       final Collection<IFile> sourcesToCompile = new HashSet<IFile>();
       final Collection<IFile> deletedSources = new HashSet<IFile>();
       final Collection<IFile> nativeFiles = new HashSet<IFile>();
-      
+
       final IX10BuilderFileOp x10BuilderOp = createX10BuilderFileOp();
-      if (! x10BuilderOp.hasAllPrerequisites()) {
-        CoreResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.AXB_IncompleteConfMsg, getProject().getName()), 
+      if (!x10BuilderOp.hasAllPrerequisites()) {
+        CoreResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.AXB_IncompleteConfMsg, getProject().getName()),
                                            IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
         UIUtils.showProblemsView();
         return null;
       }
-      final Set<IProject> dependentProjects = cleanFiles(kind, subMonitor.newChild(10), sourcesToCompile, deletedSources, 
+      final Set<IProject> dependentProjects = cleanFiles(kind, subMonitor.newChild(10), sourcesToCompile, deletedSources,
                                                          nativeFiles, x10BuilderOp);
       if (dependentProjects == null) {
         return null;
@@ -150,37 +149,18 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 
       final String localOutputDir = ProjectUtils.getProjectOutputDirPath(getProject());
       x10BuilderOp.copyToOutputDir(nativeFiles, subMonitor.newChild(5));
-      
+
       compile(localOutputDir, sourcesToCompile, x10BuilderOp, subMonitor);
-     
+
       return dependentProjects.toArray(new IProject[dependentProjects.size()]);
     } catch (Exception except) {
-    	LaunchCore.log(IStatus.ERROR,Messages.AXB_BuildException, except);
+      LaunchCore.log(IStatus.ERROR, Messages.AXB_BuildException, except);
     } finally {
       monitor.done();
     }
     return new IProject[0];
   }
 
-  private void compile(final String localOutputDir, final Collection<IFile> sourcesToCompile, 
-		  			   final IX10BuilderFileOp builderOp, final SubMonitor subMonitor) throws CoreException {
-	  try {
-	  	  final IWorkspace workspace = ResourcesPlugin.getWorkspace();
-	  	  final IWorkspaceRunnable runnable = new IWorkspaceRunnable() {
-	        
-	        public void run(final IProgressMonitor monitor) throws CoreException {
-	        	compileX10Files(localOutputDir, sourcesToCompile, subMonitor.newChild(20)); 
-	            compileGeneratedFiles(builderOp, sourcesToCompile, subMonitor.newChild(65));
-	        }
-	        
-	      };
-				
-	      workspace.run(runnable, ResourcesPlugin.getWorkspace().getRoot(), IWorkspace.AVOID_UPDATE, subMonitor);
-	  } catch (CoreException except) {
-		  LaunchCore.log(except.getStatus());
-	  }
-  }
-  
   private Set<IProject> cleanFiles(final int kind, final SubMonitor subMonitor, final Collection<IFile> sourcesToCompile,
                                    final Collection<IFile> deletedSources, final Collection<IFile> nativeFiles,
                                    final IX10BuilderFileOp x10BuilderFileOp) throws CoreException {
@@ -193,16 +173,16 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       } else {
         shouldBuildAll = this.fDependencyInfo.getDependencies().isEmpty();
       }
-      
+
       final Set<IProject> dependentProjects = new HashSet<IProject>();
       collectSourceFilesToCompile(sourcesToCompile, nativeFiles, deletedSources, this.fProjectWrapper, dependentProjects,
                                   createNativeFilesFilter(), shouldBuildAll, subMonitor.newChild(5));
       if (subMonitor.isCanceled()) {
         return null;
       }
-      
+
       clearMarkers(sourcesToCompile);
-      
+
       x10BuilderFileOp.cleanFiles(CountableIterableFactory.create(sourcesToCompile, nativeFiles, deletedSources),
                                   subMonitor.newChild(5));
       return dependentProjects;
@@ -210,9 +190,9 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       subMonitor.done();
     }
   }
-  
+
   // --- Overridden methods
-  
+
   protected void clean(final IProgressMonitor monitor) throws CoreException {
     if (getProject().isAccessible()) {
       if (this.fProjectWrapper == null) {
@@ -220,16 +200,16 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       }
       this.fDependencyInfo.clearAllDependencies();
       final IX10BuilderFileOp x10BuilderOp = createX10BuilderFileOp();
-      if (! x10BuilderOp.hasAllPrerequisites()) {
-        CoreResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.AXB_IncompleteConfMsg, getProject().getName()), 
+      if (!x10BuilderOp.hasAllPrerequisites()) {
+        CoreResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.AXB_IncompleteConfMsg, getProject().getName()),
                                            IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
         UIUtils.showProblemsView();
       }
-      cleanFiles(CLEAN_BUILD, SubMonitor.convert(monitor), new HashSet<IFile>(), new HashSet<IFile>(), 
-                 new HashSet<IFile>(), x10BuilderOp);
+      cleanFiles(CLEAN_BUILD, SubMonitor.convert(monitor), new HashSet<IFile>(), new HashSet<IFile>(), new HashSet<IFile>(),
+                 x10BuilderOp);
     }
   }
-  
+
   protected void startupOnInitialize() {
     if (getProject().isAccessible()) {
       if (this.fProjectWrapper == null) {
@@ -240,144 +220,143 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       }
     }
   }
-  
-  
-  
+
   /**
    * Returns the main generated file for the X10 file provided, i.e. for C++ back-end this should return the C++ file
    * corresponding to the X10 file in question.
    * 
-   * @param project The project containing the X10 file in question.
-   * @param x10File The x10 file to consider.
+   * @param project
+   *          The project containing the X10 file in question.
+   * @param x10File
+   *          The x10 file to consider.
    * @return A non-null file if we found one, otherwise <b>null</b>.
-   * @throws CoreException Occurs if we could not access some project information or get the local file for the location
-   * identified.
+   * @throws CoreException
+   *           Occurs if we could not access some project information or get the local file for the location identified.
    */
-	public File getMainGeneratedFile(final IJavaProject project, final IFile x10File) throws CoreException {
-		final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-		for (final IClasspathEntry cpEntry : project.getRawClasspath()) {
-			if (cpEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
-				final IPath outputLocation;
-				if (cpEntry.getOutputLocation() == null) {
-					outputLocation = project.getOutputLocation();
-				} else {
-					outputLocation = cpEntry.getOutputLocation();
-				}
-				final StringBuilder sb = new StringBuilder();
-				sb.append(File.separatorChar).append(x10File.getProjectRelativePath().removeFileExtension().toString())
-				  .append(getFileExtension());
-				final IPath projectRelativeFilePath = new Path(sb.toString());
-				final int srcPathCount = cpEntry.getPath().removeFirstSegments(1).segmentCount();
-				final IPath generatedFilePath = outputLocation.append(projectRelativeFilePath.removeFirstSegments(srcPathCount));
-				final IFileStore fileStore = EFS.getLocalFileSystem().getStore(root.getFile(generatedFilePath).getLocationURI());
-				if (fileStore.fetchInfo().exists()) {
-					return fileStore.toLocalFile(EFS.NONE, null);
-				}
-			}
-		}
-		return null;
-	}
-	
-	protected void buildOptions(final String classPath,
-			final List<File> sourcePath, final String localOutputDir,
-			final Options options, final boolean withMainMethod) {
-		options.assertions = true;
-		options.classpath = classPath;
-		options.output_classpath = options.classpath;
-		options.serialize_type_info = false;
-		options.output_directory = new File(localOutputDir);
-		options.source_path = sourcePath;
-		options.compile_command_line_only = true;
-
-		final IPreferencesService prefService = X10DTCorePlugin.getInstance().getPreferencesService();
-		// Compiler prefs
-		Configuration.STATIC_CALLS = prefService.getBooleanPreference(X10Constants.P_STATICCALLS);
-		Configuration.VERBOSE_CALLS = prefService.getBooleanPreference(X10Constants.P_VERBOSECALLS);
-		options.assertions = prefService.getBooleanPreference(X10Constants.P_PERMITASSERT);
-		final String additionalOptions = prefService.getStringPreference(X10Constants.P_ADDITIONALCOMPILEROPTIONS);
-		if ((additionalOptions != null) && (additionalOptions.length() > 0)) {
-			// First initialize to default values.
-			Configuration.DEBUG = false;
-			Configuration.CHECK_INVARIANTS = false;
-			Configuration.ONLY_TYPE_CHECKING = false;
-			Configuration.NO_CHECKS = false;
-			Configuration.FLATTEN_EXPRESSIONS = false;
-			for (final String opt : additionalOptions.split("\\s")) { ////$NON-NLS-1$
-				try {
-					Configuration.parseArgument(opt);
-				} catch (OptionError except) {
-					LaunchCore.log(IStatus.ERROR,NLS.bind(Messages.AXB_OptionError, opt), except);
-				} catch (ConfigurationError except) {
-					LaunchCore.log(IStatus.ERROR,NLS.bind(Messages.AXB_ConfigurationError, opt),except);
-				}
-			}
-		}
-		// Optimization prefs
-		Configuration.OPTIMIZE = prefService.getBooleanPreference(X10Constants.P_OPTIMIZE);
-		Configuration.LOOP_OPTIMIZATIONS = prefService.getBooleanPreference(X10Constants.P_LOOPOPTIMIZATIONS);
-		Configuration.INLINE_OPTIMIZATIONS = prefService.getBooleanPreference(X10Constants.P_INLINEOPTIMIZATIONS);
-		Configuration.CLOSURE_INLINING = prefService.getBooleanPreference(X10Constants.P_CLOSUREINLINING);
-		Configuration.WORK_STEALING = prefService.getBooleanPreference(X10Constants.P_WORKSTEALING);
-
-		if (prefService.getBooleanPreference(X10Constants.P_ECHOCOMPILEARGUMENTSTOCONSOLE)) {
-			final MessageConsole console = UIUtils.findOrCreateX10Console();
-			final MessageConsoleStream consoleStream = console.newMessageStream();
-			try {
-				consoleStream.write(options.toString());
-				String[][] opts = Configuration.options(); // --- The shape of this data structure is an array of:
-														   // --- (option,type,description,value) for each field in Configuration.
-				String result = "";
-				for (int i = 0; i < opts.length; i++) {
-					if (opts[i][1].equals("boolean")) {
-						if (opts[i][3].equals("true")) {
-							result += " -" + opts[i][0] + " ";
-						}
-					}
-					if (opts[i][1].equals("String")) {
-						if (!opts[i][3].equals("null")
-								&& !opts[i][3].equals("")) {
-							result += " -" + opts[i][0] + "=" + opts[i][3]
-									+ " ";
-						}
-					}
-				}
-				consoleStream.write(result);
-				console.activate();
-			} catch (IOException except) {
-				LaunchCore.log(IStatus.ERROR,Messages.AXB_EchoIOException,except);
-			}
-		}
-	}
+  public File getMainGeneratedFile(final IJavaProject project, final IFile x10File) throws CoreException {
+    final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+    for (final IClasspathEntry cpEntry : project.getRawClasspath()) {
+      if (cpEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+        final IPath outputLocation;
+        if (cpEntry.getOutputLocation() == null) {
+          outputLocation = project.getOutputLocation();
+        } else {
+          outputLocation = cpEntry.getOutputLocation();
+        }
+        final StringBuilder sb = new StringBuilder();
+        sb.append(File.separatorChar).append(x10File.getProjectRelativePath().removeFileExtension().toString())
+          .append(getFileExtension());
+        final IPath projectRelativeFilePath = new Path(sb.toString());
+        final int srcPathCount = cpEntry.getPath().removeFirstSegments(1).segmentCount();
+        final IPath generatedFilePath = outputLocation.append(projectRelativeFilePath.removeFirstSegments(srcPathCount));
+        final IFileStore fileStore = EFS.getLocalFileSystem().getStore(root.getFile(generatedFilePath).getLocationURI());
+        if (fileStore.fetchInfo().exists()) {
+          return fileStore.toLocalFile(EFS.NONE, null);
+        }
+      }
+    }
+    return null;
+  }
   
-   // --- Private code
-	
+  // --- Code for descendants
+  
+  protected void buildOptions(final String classPath, final List<File> sourcePath, final String localOutputDir,
+                              final Options options, final boolean withMainMethod) {
+    options.assertions = true;
+    options.classpath = classPath;
+    options.output_classpath = options.classpath;
+    options.serialize_type_info = false;
+    options.output_directory = new File(localOutputDir);
+    options.source_path = sourcePath;
+    options.compile_command_line_only = true;
+
+    final IPreferencesService prefService = X10DTCorePlugin.getInstance().getPreferencesService();
+    // Compiler prefs
+    Configuration.STATIC_CALLS = prefService.getBooleanPreference(X10Constants.P_STATICCALLS);
+    Configuration.VERBOSE_CALLS = prefService.getBooleanPreference(X10Constants.P_VERBOSECALLS);
+    options.assertions = prefService.getBooleanPreference(X10Constants.P_PERMITASSERT);
+    final String additionalOptions = prefService.getStringPreference(X10Constants.P_ADDITIONALCOMPILEROPTIONS);
+    if ((additionalOptions != null) && (additionalOptions.length() > 0)) {
+      // First initialize to default values.
+      Configuration.DEBUG = false;
+      Configuration.CHECK_INVARIANTS = false;
+      Configuration.ONLY_TYPE_CHECKING = false;
+      Configuration.NO_CHECKS = false;
+      Configuration.FLATTEN_EXPRESSIONS = false;
+      for (final String opt : additionalOptions.split("\\s")) { ////$NON-NLS-1$
+        try {
+          Configuration.parseArgument(opt);
+        } catch (OptionError except) {
+          LaunchCore.log(IStatus.ERROR, NLS.bind(Messages.AXB_OptionError, opt), except);
+        } catch (ConfigurationError except) {
+          LaunchCore.log(IStatus.ERROR, NLS.bind(Messages.AXB_ConfigurationError, opt), except);
+        }
+      }
+    }
+    // Optimization prefs
+    Configuration.OPTIMIZE = prefService.getBooleanPreference(X10Constants.P_OPTIMIZE);
+    Configuration.LOOP_OPTIMIZATIONS = prefService.getBooleanPreference(X10Constants.P_LOOPOPTIMIZATIONS);
+    Configuration.INLINE_OPTIMIZATIONS = prefService.getBooleanPreference(X10Constants.P_INLINEOPTIMIZATIONS);
+    Configuration.CLOSURE_INLINING = prefService.getBooleanPreference(X10Constants.P_CLOSUREINLINING);
+    Configuration.WORK_STEALING = prefService.getBooleanPreference(X10Constants.P_WORKSTEALING);
+
+    if (prefService.getBooleanPreference(X10Constants.P_ECHOCOMPILEARGUMENTSTOCONSOLE)) {
+      final MessageConsole console = UIUtils.findOrCreateX10Console();
+      final MessageConsoleStream consoleStream = console.newMessageStream();
+      try {
+        consoleStream.write(options.toString());
+        String[][] opts = Configuration.options(); // --- The shape of this data structure is an array of:
+        // --- (option,type,description,value) for each field in Configuration.
+        String result = "";
+        for (int i = 0; i < opts.length; i++) {
+          if (opts[i][1].equals("boolean")) {
+            if (opts[i][3].equals("true")) {
+              result += " -" + opts[i][0] + " ";
+            }
+          }
+          if (opts[i][1].equals("String")) {
+            if (!opts[i][3].equals("null") && !opts[i][3].equals("")) {
+              result += " -" + opts[i][0] + "=" + opts[i][3] + " ";
+            }
+          }
+        }
+        consoleStream.write(result);
+        console.activate();
+      } catch (IOException except) {
+        LaunchCore.log(IStatus.ERROR, Messages.AXB_EchoIOException, except);
+      }
+    }
+  }
+
+  // --- Private code
+
   private void clearMarkers(final Collection<IFile> sourcesToCompile) {
     for (final IFile file : sourcesToCompile) {
       CoreResourceUtils.deleteBuildMarkers(file);
     }
     CoreResourceUtils.deleteBuildMarkers(getProject());
   }
-  
+
   private void collectSourceFilesToCompile(final Collection<IFile> sourcesToCompile, final Collection<IFile> nativeFiles,
-                                           final Collection<IFile> deletedSources, final IJavaProject javaProject, 
-                                           final Set<IProject> dependentProjects, final IFilter<IFile> nativeFilesFilter, 
+                                           final Collection<IFile> deletedSources, final IJavaProject javaProject,
+                                           final Set<IProject> dependentProjects, final IFilter<IFile> nativeFilesFilter,
                                            final boolean fullBuild, final SubMonitor monitor) throws CoreException {
     try {
       monitor.beginTask(Messages.CPPB_CollectingSourcesTaskName, 1);
-      
+
       final IProject project = javaProject.getProject();
-      
+
       final IResourceDelta resourceDelta = getDelta(project);
       if (resourceDelta != null) {
         resourceDelta.accept(new IResourceDeltaVisitor() {
-          
+
           public boolean visit(final IResourceDelta delta) throws CoreException {
-        	if (delta.getResource().getType() == IResource.FOLDER){
-        		final IFolder folder = (IFolder) delta.getResource();
-        		if (delta.getKind() == IResourceDelta.REMOVED) {
-        			sourcesToCompile.addAll(getChangeDependents(folder));
-        		}
-        	}
+            if (delta.getResource().getType() == IResource.FOLDER) {
+              final IFolder folder = (IFolder) delta.getResource();
+              if (delta.getKind() == IResourceDelta.REMOVED) {
+                sourcesToCompile.addAll(getChangeDependents(folder));
+              }
+            }
             if (delta.getResource().getType() == IResource.FILE) {
               final IFile file = (IFile) delta.getResource();
               if (isX10File(file)) {
@@ -394,26 +373,26 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
             }
             return true;
           }
-          
+
         });
       }
-      
+
       final IPreferencesService prefService = X10DTCorePlugin.getInstance().getPreferencesService();
       final boolean conservativeBuild = prefService.getBooleanPreference(X10Constants.P_CONSERVATIVEBUILD);
-      
+
       final IResourceVisitor visitor = new IResourceVisitor() {
-        
+
         // --- Interface methods implementation
-        
+
         public boolean visit(final IResource resource) throws CoreException {
-          if ((resource.getType() == IResource.FILE) && ! resource.isDerived()) {
+          if ((resource.getType() == IResource.FILE) && !resource.isDerived()) {
             final IFile file = (IFile) resource;
             if (isX10File(file)) {
               final File generatedFile = getMainGeneratedFile(AbstractX10Builder.this.fProjectWrapper, file);
               if (fullBuild || (generatedFile == null)) {
                 sourcesToCompile.add(file);
-                
-                if (! resource.getProject().equals(project)) {
+
+                if (!resource.getProject().equals(project)) {
                   dependentProjects.add(resource.getProject());
                 }
               }
@@ -423,9 +402,9 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
           }
           return true;
         }
-        
+
       };
-      
+
       if (fullBuild || conservativeBuild) {
         final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
         for (final IClasspathEntry cpEntry : javaProject.getRawClasspath()) {
@@ -438,23 +417,38 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       monitor.done();
     }
   }
-  
+
+  private void compile(final String localOutputDir, final Collection<IFile> sourcesToCompile,
+                       final IX10BuilderFileOp builderOp, final SubMonitor subMonitor) throws CoreException {
+    final IWorkspace workspace = ResourcesPlugin.getWorkspace();
+    final IWorkspaceRunnable runnable = new IWorkspaceRunnable() {
+
+      public void run(final IProgressMonitor monitor) throws CoreException {
+        compileX10Files(localOutputDir, sourcesToCompile, subMonitor.newChild(20));
+        compileGeneratedFiles(builderOp, sourcesToCompile, subMonitor.newChild(65));
+      }
+
+    };
+
+    workspace.run(runnable, ResourcesPlugin.getWorkspace().getRoot(), IWorkspace.AVOID_UPDATE, subMonitor);
+  }
+
   private void compileGeneratedFiles(final IX10BuilderFileOp builderOp, final Collection<IFile> sourcesToCompile,
                                      final SubMonitor monitor) throws CoreException {
     monitor.beginTask(null, 100);
 
     final List<File> files = CollectionUtils.transform(sourcesToCompile, new IFileToFileFunctor());
-    if (! files.isEmpty()) {
+    if (!files.isEmpty()) {
       builderOp.transfer(files, monitor.newChild(10));
       if (builderOp.compile(monitor.newChild(70))) {
         builderOp.archive(monitor.newChild(20));
       }
     }
   }
-  
+
   private void compileX10Files(final String localOutputDir, final Collection<IFile> sourcesToCompile,
                                final IProgressMonitor monitor) throws CoreException {
-    final Set<String> cps = ProjectUtils.getFilteredCpEntries(this.fProjectWrapper, new CpEntryAsStringFunc(), 
+    final Set<String> cps = ProjectUtils.getFilteredCpEntries(this.fProjectWrapper, new CpEntryAsStringFunc(),
                                                               new AlwaysTrueFilter<IPath>());
     final StringBuilder cpBuilder = new StringBuilder();
     int i = -1;
@@ -464,66 +458,68 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       }
       cpBuilder.append(cpEntry);
     }
-    
+
     final Set<IPath> srcPaths = ProjectUtils.getFilteredCpEntries(this.fProjectWrapper, new IdentityFunctor<IPath>(),
                                                                   new RuntimeFilter());
     final List<File> sourcePath = CollectionUtils.transform(srcPaths, new IPathToFileFunc());
-    
-    final ExtensionInfo extInfo = createExtensionInfo(cpBuilder.toString(), sourcePath, localOutputDir, 
+
+    final ExtensionInfo extInfo = createExtensionInfo(cpBuilder.toString(), sourcePath, localOutputDir,
                                                       false /* withMainMethod */, monitor);
-    
-    final Compiler compiler = new Compiler(extInfo, new X10ErrorQueue(fProjectWrapper, 1000000, extInfo.compilerName()));
+
+    final Compiler compiler = new Compiler(extInfo, new X10ErrorQueue(this.fProjectWrapper, 1000000, extInfo.compilerName()));
     Globals.initialize(compiler);
     try {
-    	Collection<String> files = new ArrayList<String>();
-    	for(IFile f: sourcesToCompile){
-    		files.add(f.getLocation().toOSString());
-    	}
-    	compiler.compileFiles(files);
-        //compiler.compile(toSources(sourcesToCompile)); // --- This way of calling the compiler causes a bad behavior (duplicate class error), 
-    												     // --- when there is a file that imports another one file a bad syntactic error.
-        analyze(extInfo.scheduler().commandLineJobs());
+      final Collection<String> files = new ArrayList<String>();
+      for (final IFile f : sourcesToCompile) {
+        files.add(f.getLocation().toOSString());
+      }
+      compiler.compileFiles(files);
+      // compiler.compile(toSources(sourcesToCompile)); // --- This way of calling the compiler causes a bad behavior
+      // (duplicate class error),
+      // --- when there is a file that imports another one file a bad syntactic error.
+      analyze(extInfo.scheduler().commandLineJobs());
     } catch (InternalCompilerError except) {
+      LaunchCore.log(IStatus.ERROR, "Internal compiler error occurred.", except);
       // The exception is also pushed on the error queue... A marker will be created accordingly for it.
       sourcesToCompile.clear(); // To prevent post-compilation step.
     } finally {
       Globals.initialize(null);
     }
   }
-  
-  private void analyze(final Collection<Job> jobs){
-	  computeDependencies(jobs);
-	  collectBookmarks(jobs);
-	  checkPackageDeclarations(jobs);
+
+  private void analyze(final Collection<Job> jobs) {
+    computeDependencies(jobs);
+    collectBookmarks(jobs);
+    checkPackageDeclarations(jobs);
   }
-  
-  private void computeDependencies(final Collection<Job> jobs){
-    for (final Job job: jobs){
+
+  private void checkPackageDeclarations(final Collection<Job> jobs) {
+    for (final Job job : jobs) {
+      final CheckPackageDeclVisitor visitor = new CheckPackageDeclVisitor(job, this.fProjectWrapper.getProject(), this);
+      if (job.ast() != null) {
+        job.ast().visit(visitor.begin());
+      }
+    }
+  }
+
+  private void collectBookmarks(final Collection<Job> jobs) {
+    for (final Job job : jobs) {
+      final CollectBookmarks cb = new CollectBookmarks(job, this);
+      cb.perform();
+    }
+  }
+
+  private void computeDependencies(final Collection<Job> jobs) {
+    for (final Job job : jobs) {
       final ComputeDependenciesVisitor visitor = new ComputeDependenciesVisitor(this.fProjectWrapper, job, 
-                                                                                job.extensionInfo().typeSystem(), 
+                                                                                job.extensionInfo().typeSystem(),
                                                                                 this.fDependencyInfo);
       if (job.ast() != null) {
         job.ast().visit(visitor.begin());
       }
     }
   }
-  
-  private void collectBookmarks(final Collection<Job> jobs){
-	  for (final Job job: jobs){
-		  final CollectBookmarks cb = new CollectBookmarks(job, this);
-		  cb.perform();
-	  }
-  }
-  
-  private void checkPackageDeclarations(final Collection<Job> jobs){
-	  for (final Job job: jobs){
-		  final CheckPackageDeclVisitor visitor = new CheckPackageDeclVisitor(job, this.fProjectWrapper.getProject(),this);
-		  if (job.ast() != null) {
-			  job.ast().visit(visitor.begin());
-		  }
-	  }
-  }
-  
+
   private Collection<IFile> getChangeDependents(final IResource srcFile) {
     final Collection<IFile> result = new ArrayList<IFile>();
     final Set<String> fileDependents = this.fDependencyInfo.getDependentsOf(srcFile.getFullPath().toString());
@@ -534,31 +530,31 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       }
     }
     return result;
-  } 
-  
+  }
+
   private boolean isX10File(final IFile file) {
     return Constants.X10_EXT.equals('.' + file.getFileExtension());
   }
-  
+
   private Collection<Source> toSources(final Collection<IFile> sources) throws CoreException {
     final Collection<Source> pSources = new ArrayList<Source>(sources.size());
     for (final IFile file : sources) {
       try {
         pSources.add(new StreamSource(file.getContents(), file.getLocation().toOSString()));
       } catch (IOException except) {
-        throw new CoreException(new Status(IStatus.ERROR, LaunchCore.getInstance().getBundle().getSymbolicName(), 
+        throw new CoreException(new Status(IStatus.ERROR, LaunchCore.getInstance().getBundle().getSymbolicName(),
                                            NLS.bind(Messages.CPPB_FileReadingErrorMessage, file), except));
       }
     }
     return pSources;
   }
-  
+
   // --- Private classes
-  
+
   private final class IFileToFileFunctor implements IFunctor<IFile, File> {
 
     // --- Interface methods implementation
-    
+
     public File apply(final IFile file) {
       try {
         return getMainGeneratedFile(AbstractX10Builder.this.fProjectWrapper, file);
@@ -567,13 +563,13 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
         return null;
       }
     }
-    
+
   }
-  
+
   // --- Fields
-  
+
   private PolyglotDependencyInfo fDependencyInfo;
-  
+
   private IJavaProject fProjectWrapper;
-  
+
 }

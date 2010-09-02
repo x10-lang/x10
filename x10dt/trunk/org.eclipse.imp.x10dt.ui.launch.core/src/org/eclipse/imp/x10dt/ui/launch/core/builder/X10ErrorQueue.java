@@ -11,9 +11,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.imp.x10dt.ui.launch.core.LaunchCore;
 import org.eclipse.imp.x10dt.ui.launch.core.utils.CoreResourceUtils;
 import org.eclipse.jdt.core.IJavaProject;
 
@@ -35,8 +33,7 @@ final class X10ErrorQueue extends AbstractErrorQueue implements ErrorQueue {
   
   protected void displayError(final ErrorInfo error) {
 	if (error.getErrorKind() == ErrorInfo.INTERNAL_ERROR){
-		CoreResourceUtils.addBuildMarkerTo(fProject.getResource(), "An internal compiler error occurred. Please see Error Log for details.", IMarker.SEVERITY_ERROR, IMarker.PRIORITY_NORMAL);
-	    LaunchCore.log(IStatus.ERROR, error.getMessage());
+		  CoreResourceUtils.addBuildMarkerTo(fProject.getResource(), "An internal compiler error occurred. Please see Error Log for details.", IMarker.SEVERITY_ERROR, IMarker.PRIORITY_NORMAL);
 	} else {
     
 	if (error.getPosition() == null) {
