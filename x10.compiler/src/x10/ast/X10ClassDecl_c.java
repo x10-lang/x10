@@ -89,6 +89,7 @@ import x10.types.constraints.TypeConstraint;
 import x10.util.Synthesizer;
 import x10.visit.ChangePositionVisitor;
 import x10.visit.CheckEscapingThis;
+import x10.Configuration;
 
 /**
  * The same as a Java class, except that it needs to handle properties.
@@ -706,8 +707,6 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     		n.checkStructMethods(parent, tc);
     	}
 
-        if (false)
-            new CheckEscapingThis(this,tc.job(),tc.typeSystem()).typeCheck();
     	return n;
     }
     
