@@ -37,6 +37,7 @@ public final class SWTBotUtils {
     for(SWTBotView v: views) {
       if ("Welcome".equals(v.getTitle())) {
         v.close();
+        topLevelBot.shells()[0].activate();
         return;
       }
     }
@@ -89,6 +90,15 @@ public final class SWTBotUtils {
         if (!isEclipseShell(shell, bot)) {
             shell.close();
         }
+    }
+  }
+
+  public static void saveAllDirtyEditors(SWTWorkbenchBot bot) {
+    List<? extends SWTBotEditor> editors = bot.editors();
+    for (SWTBotEditor editor : editors) {
+      if (editor.isDirty()) {
+          editor.save();
+      }
     }
   }
 
