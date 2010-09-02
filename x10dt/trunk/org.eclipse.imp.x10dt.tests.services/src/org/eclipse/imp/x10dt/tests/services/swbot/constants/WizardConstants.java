@@ -63,7 +63,7 @@ public final class WizardConstants {
 
   public static final String NEW_X10_PACKAGE_NAME_FIELD= "Name:"; //$NON-NLS-1$
 
-  public static final String NEW_X10_CLASS_MENU_ITEM= "Class"; //$NON-NLS-1$
+  public static final String NEW_X10_CLASS_MENU_ITEM= "X10 Class"; //$NON-NLS-1$
 
   public static final String NEW_X10_CLASS_WIZARD = "X10 Class"; //$NON-NLS-1$
 

@@ -29,7 +29,17 @@ public final class ProblemsViewUtils {
    * @return A non-null array but possibly empty if no errors are present.
    */
   public static String[] getErrorMessages(final SWTWorkbenchBot bot) {
-    return getMessages(bot, "Errors"); //$NON-NLS-1$
+    return getMessages(bot, "Errors", 0); //$NON-NLS-1$
+  }
+  
+  /**
+   * Returns the resources on which there are compilation errors in the Problems view.
+   * 
+   * @param bot The current SWTBot instance to test the workbench.
+   * @return A non-null array but possibly empty if no errors are present.
+   */
+  public static String[] getErrorResources(final SWTWorkbenchBot bot){
+	  return getMessages(bot, "Errors", 1);
   }
   
   /**
@@ -39,14 +49,14 @@ public final class ProblemsViewUtils {
    * @return A non-null array but possibly empty if no warnings are present.
    */
   public static String[] getWarningMessages(final SWTWorkbenchBot bot) {
-    return getMessages(bot, "Warnings"); //$NON-NLS-1$
+    return getMessages(bot, "Warnings", 0); //$NON-NLS-1$
   }
   
   // --- Private code
   
   private ProblemsViewUtils() {}
   
-  private static String[] getMessages(final SWTWorkbenchBot bot, final String messageType) {
+  private static String[] getMessages(final SWTWorkbenchBot bot, final String messageType, final int col) {
     final SWTBotView view = bot.viewByTitle("Problems"); //$NON-NLS-1$
     view.setFocus();
     final List<String> messages = new ArrayList<String>();
@@ -57,7 +67,7 @@ public final class ProblemsViewUtils {
     for (final SWTBotTreeItem item : tree.getAllItems()) {
       if (item.getText().contains(messageType)) {
         for (final SWTBotTreeItem subItem : item.expand().getItems()) {
-          messages.add(subItem.row().get(0));
+          messages.add(subItem.row().get(col));
         }
       }
     }
