@@ -39,8 +39,8 @@ namespace x10 {
             ref<Reference> fs = buf.read<ref<Reference> >();
             ref<Runtime> rt = PlaceLocalHandle_methods<ref<Runtime> >::apply(Runtime::FMGL(runtime));
             // olivier says the incr should be just after the notifySubActivitySpawn
-            (fs.operator->()->*(findITable<Runtime__RootFinishState>(fs->_getITables())->notifyActivityCreation))();
-            (fs.operator->()->*(findITable<Runtime__RootFinishState>(fs->_getITables())->notifyActivityTermination))();
+            (fs.operator->()->*(findITable<Runtime__FinishState>(fs->_getITables())->notifyActivityCreation))();
+            (fs.operator->()->*(findITable<Runtime__FinishState>(fs->_getITables())->notifyActivityTermination))();
         }
 
         void IMC_serialize_finish_state(place dst, serialization_buffer &buf) {
@@ -48,7 +48,7 @@ namespace x10 {
             dst = parent(dst);
             ref<Runtime> rt = PlaceLocalHandle_methods<ref<Runtime> >::apply(Runtime::FMGL(runtime));
             ref<Reference> fs = rt->currentState();
-            (fs.operator->()->*(findITable<Runtime__RootFinishState>(fs->_getITables())->notifySubActivitySpawn))(Place_methods::_make(dst));
+            (fs.operator->()->*(findITable<Runtime__FinishState>(fs->_getITables())->notifySubActivitySpawn))(Place_methods::_make(dst));
             buf.write(fs);
         }
 
