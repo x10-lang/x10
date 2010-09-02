@@ -1012,7 +1012,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
     /** All flags allowed for a top-level class. */
     public Flags legalTopLevelClassFlags() {
-        return X10Flags.toX10Flags(super.legalTopLevelClassFlags()).Safe().Value().Struct();
+        return X10Flags.toX10Flags(super.legalTopLevelClassFlags()).Safe().Global().Struct();
     }
 
     protected final X10Flags X10_TOP_LEVEL_CLASS_FLAGS = (X10Flags) legalTopLevelClassFlags();
@@ -1318,7 +1318,18 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     // return XOBJECT_;
     // }
 
-    
+    protected Type GLOBAL_OBJECT_;
+    public Type GlobalObject() {
+        if (GLOBAL_OBJECT_ == null)
+            GLOBAL_OBJECT_ = load("x10.lang.GlobalObject");
+        return GLOBAL_OBJECT_;
+    }
+    protected Type GLOBAL_;
+    public Type Global() {
+        if (GLOBAL_ == null)
+            GLOBAL_ = load("x10.lang.Global");
+        return GLOBAL_;
+    }
     public Type Object() {
         if (OBJECT_ == null)
             OBJECT_ = load("x10.lang.Object");
