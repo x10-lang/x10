@@ -1,0 +1,8 @@
+remove x10aux::get_location
+remove Reference::at
+remove Reference::home
+make GlobalObject::at non-virtual
+make GlobalObject::home non-virtual
+Remove Hacks in @Native for Any and Object
+Reference::struct_equals.
+    Must check for instanceof GlobalObject, then read location field and do compare.

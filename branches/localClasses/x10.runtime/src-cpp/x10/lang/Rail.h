@@ -838,20 +838,26 @@ namespace x10 {
             x10_int length = this->FMGL(length);
             buf.write(length);
             this->Object::_serialize_body(buf); // intentional change of order
+            T* raw = this->raw();
+            for (x10_int i=0 ; i<length ; ++i) {
+                buf.write(raw[i]); // avoid bounds check
+            }
         }
 
         template <class T> void Rail<T>::_deserialize_body(x10aux::deserialization_buffer &buf) {
             // length read out earlier, in _deserializer()
             this->Object::_deserialize_body(buf);
+            x10_int length = this->FMGL(length);
+            T* raw = this->raw();
+            for (x10_int i=0 ; i<length ; ++i) {
+                raw[i] = buf.read<T>(); // avoid bounds check
+            }
         }
 
         template <class T> template<class S> x10aux::ref<S> Rail<T>::_deserializer(x10aux::deserialization_buffer &buf) {
             x10_int length = buf.read<x10_int>();
-            // Don't allocate any storage for the data - it's a remote rail
-            R this_ = x10aux::alloc_rail_remote<T,Rail<T> >(0);
-            buf.record_reference(this_); // TODO: avoid; no global refs; final class
-            // But the above set the length to 0, so set it correctly
-            const_cast<x10_int&>(this_->FMGL(length)) = length;
+            x10aux::ref<Rail<T> > this_ = x10aux::alloc_rail<T,Rail<T> >(length);
+            buf.record_reference(this_); 
             this_->_deserialize_body(buf);
             return this_;
         }
@@ -859,11 +865,14 @@ namespace x10 {
         // Specialized deserialization
         template <class T> template<class S> x10aux::ref<S> Rail<T>::_deserialize(x10aux::deserialization_buffer &buf) {
             Object::_reference_state rr = Object::_deserialize_reference_state(buf);
-            R this_;
-            if (rr.ref != 0) {
-                this_ = Rail<T>::template _deserializer<Rail<T> >(buf);
+            if (0 == rr.ref) {
+                return x10aux::null;
+            } else {
+                R res = Rail<T>::template _deserializer<Rail<T> >(buf);
+                _S_("Deserialized a "<<ANSI_SER<<ANSI_BOLD<<"class"<<ANSI_RESET<<
+                    " "<<res->_type()->name());
+                return res;
             }
-            return Object::_finalize_reference<S>(this_, rr, buf);
         }
     }
 }

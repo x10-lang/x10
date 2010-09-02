@@ -20,7 +20,7 @@
 #include <x10aux/RTT.h>
 #include <x10aux/network.h>
 
-namespace x10 { namespace lang { class NullType; } }
+namespace x10 { namespace lang { class NullType; class GlobalObject; } }
 
 namespace x10aux {
 
@@ -180,7 +180,7 @@ namespace x10aux {
     }
 #endif
 
-    x10aux::place location (ref<x10::lang::Reference> obj);
+    x10aux::place location (ref<x10::lang::GlobalObject> obj);
 
     void throwNPE() X10_PRAGMA_NORETURN;
 

@@ -261,7 +261,7 @@ namespace x10 {
         template <class T> template<class S> x10aux::ref<S> ValRail<T>::_deserializer(x10aux::deserialization_buffer &buf) {
             x10_int length = buf.read<x10_int>();
             x10aux::ref<ValRail<T> > this_ = x10aux::alloc_rail<T,ValRail<T> >(length);
-            buf.record_reference(this_); // TODO: avoid; no global refs; final class
+            buf.record_reference(this_); 
             this_->_deserialize_body(buf);
             return this_;
         }
@@ -269,11 +269,14 @@ namespace x10 {
         // Specialized deserialization
         template <class T> template<class S> x10aux::ref<S> ValRail<T>::_deserialize(x10aux::deserialization_buffer &buf) {
             Object::_reference_state rr = Object::_deserialize_reference_state(buf);
-            x10aux::ref<ValRail<T> > this_;
-            if (rr.ref != 0) {
-                this_ = ValRail<T>::template _deserializer<ValRail<T> >(buf);
+            if (0 == rr.ref) {
+                return x10aux::null;
+            } else {
+                x10aux::ref<ValRail<T> > res = ValRail<T>::template _deserializer<ValRail<T> >(buf);
+                _S_("Deserialized a "<<ANSI_SER<<ANSI_BOLD<<"class"<<ANSI_RESET<<
+                    " "<<res->_type()->name());
+                return res;
             }
-            return Object::_finalize_reference<S>(this_, rr, buf);
         }
     }
 }

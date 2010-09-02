@@ -33,6 +33,8 @@ namespace x10 {
             static x10aux::itable_entry _itables[1];
 
         public:
+            x10aux::place location;
+
             RTT_H_DECLS_CLASS;
 
             virtual x10aux::itable_entry* _getITables() { return _itables; }
@@ -44,7 +46,19 @@ namespace x10 {
                 return this;
             }
 
+            // TODO: localClasses.  Make non-virtual
+            virtual x10_boolean at(x10::lang::Place p) {
+                return location == p->FMGL(id);
+            }
+            
+            // TODO: localClasses.  Make non-virtual
+            virtual x10_boolean at(x10aux::ref<x10::lang::GlobalObject> o);
+
+            // TODO: localClasses.  Make non-virtual
+            virtual x10::lang::Place home();
+            
             static const x10aux::serialization_id_t _serialization_id;
+
 
             static void _serialize(x10aux::ref<GlobalObject> this_,
                                    x10aux::serialization_buffer &buf);
@@ -113,11 +127,15 @@ namespace x10 {
                 assert(other!=x10aux::null); // checked in basic_functions.h x10aux::struct_equals
                 if (other == x10aux::ref<Reference>(this)) return true;
                 if (this->location == x10aux::here) return false; // already tested above
+                // FIXME:local classes
+                assert(false);
+                /*
                 if (other->location == this->location &&
                     x10aux::get_remote_ref(other.operator->()) == x10aux::get_remote_ref(this))
                 {
                     return true;
                 }
+                */
                 return false;
             }
 

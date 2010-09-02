@@ -52,11 +52,11 @@ namespace x10 {
         }
 
         template<class T> inline x10_boolean Struct_methods::at(T v, x10aux::ref<Object> p) {
-            return x10aux::here == p->location;
+            return true;
         }
 
         template<class T> inline x10_boolean Struct_methods::at(T v, Place p) {
-            return x10aux::here == p->FMGL(id);
+            return true;
         }
 
     }
