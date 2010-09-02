@@ -21,9 +21,13 @@ public final class WizardConstants {
   
   public static final String YES_BUTTON = "Yes"; //$NON-NLS-1$
   
+  public static final String OK_BUTTON = "OK"; //$NON-NLS-1$
+  
   // --- Constants for project creation
   
   public static final String FILE_MENU = "File"; //$NON-NLS-1$
+  
+  public static final String EDIT_MENU = "Edit"; //$NON-NLS-1$
   
   public static final String NEW_MENU_ITEM = "New"; //$NON-NLS-1$
   
@@ -79,6 +83,17 @@ public final class WizardConstants {
 
   public static final String QUICK_OUTLINE_SHELL= ""; // This value is really correct, at least for now //$NON-NLS-1$
 
+ 
+  // --- Constants for project and file deletion
+  
+  public static final String DELETE_MENU_ITEM = "Delete"; //$NON-NLS-1$
+  
+  public static final String DELETE_RESOURCES_SHELL = "Delete Resources"; //$NON-NLS-1$
+  
+  public static final String DELETE_CONFIRMATION_SHELL = "Confirm Delete"; //$NON-NLS-1$
+  
+  public static final String DELETE_PROJECT_CONTENTS = "Delete project contents on disk (cannot be undone)"; //$NON-NLS-1$
+  
   // --- Private code
   
   private WizardConstants() {}
