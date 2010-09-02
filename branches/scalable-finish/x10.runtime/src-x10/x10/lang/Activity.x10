@@ -41,7 +41,7 @@ public class Activity {
     /**
      * the finish state governing the execution of this activity (may be remote)
      */
-    val finishState:Runtime.RootFinishState;
+    val finishState:Runtime.FinishState;
 
     /**
      * safe to run pending jobs while waiting for a finish (temporary)
@@ -63,12 +63,12 @@ public class Activity {
      * The finish states for the finish statements currently executed by this activity.
      * Lazily created.
      */
-    var finishStack:Stack[Runtime.RootFinishState!]!;
+    var finishStack:Stack[Runtime.FinishState!]!;
 
     /**
      * Create activity.
      */
-    def this(body:()=>Void, finishState:Runtime.RootFinishState, safe:Boolean) {
+    def this(body:()=>Void, finishState:Runtime.FinishState, safe:Boolean) {
         this.finishState = finishState;
         this.safe = safe;
         finishState.notifyActivityCreation();
@@ -78,7 +78,7 @@ public class Activity {
     /**
      * Create clocked activity.
      */
-    def this(body:()=>Void, finishState:Runtime.RootFinishState, clocks:ValRail[Clock], phases:ValRail[Int]) {
+    def this(body:()=>Void, finishState:Runtime.FinishState, clocks:ValRail[Clock], phases:ValRail[Int]) {
         this(body, finishState, false);
         clockPhases = Runtime.ClockPhases.make(clocks, phases);
     }
