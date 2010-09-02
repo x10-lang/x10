@@ -398,6 +398,30 @@ public abstract class Scheduler {
                 
         return result;             
     }
+    
+    /** FIXME: TEMPRORARY Inliner hack: Errors in speculative compilation for inlining should not be fatal
+     * @depricated DO NOT USE
+     */
+    public boolean getFailed() {
+        return failed;
+    }
+    
+    /** FIXME: TEMPRORARY Inliner hack: Errors in speculative compilation for inlining should not be fatal
+     * @depricated DO NOT USE
+     */
+    
+    public void setFailed (boolean b) {
+        failed = b;
+    }
+    
+    /** FIXME: TEMPRORARY Inliner hack: Errors in speculative compilation for inlining should not be fatal
+     * @depricated DO NOT USE
+     */
+    
+    public void clearFailed () {
+        if (failed)
+            setFailed(false);
+    }
                                    
     protected static String statusString(boolean okay) {
         if (okay) {

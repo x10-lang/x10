@@ -32,6 +32,7 @@ import polyglot.ast.FieldAssign_c;
 import polyglot.ast.FloatLit;
 import polyglot.ast.Formal;
 import polyglot.ast.IntLit;
+import polyglot.ast.IntLit_c;
 import polyglot.ast.Local;
 import polyglot.ast.LocalAssign_c;
 import polyglot.ast.LocalDecl;
@@ -43,6 +44,7 @@ import polyglot.ast.StringLit;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.frontend.Job;
+import polyglot.main.Report;
 import polyglot.types.ClassType;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
@@ -64,6 +66,8 @@ import polyglot.visit.ErrorHandlingVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeBuilder;
 import x10.Configuration;
+import x10.ExtensionInfo;
+import x10.ast.AnnotationNode;
 import x10.ast.Async;
 import x10.ast.AtEach;
 import x10.ast.AtExpr;
@@ -110,6 +114,7 @@ import x10.types.X10ConstructorInstance;
 import x10.types.X10Context;
 import x10.types.X10MethodInstance;
 import x10.types.X10ParsedClassType;
+import x10.types.X10ParsedClassType_c;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
@@ -119,7 +124,7 @@ import x10.types.constraints.CConstraint;
 import x10.types.constraints.XConstrainedTerm;
 import x10.util.ClosureSynthesizer;
 import x10.util.Synthesizer;
-
+import x10.extension.X10Ext;
 /**
  * Visitor to desugar the AST before code gen.
  */
@@ -163,7 +168,9 @@ public class Desugarer extends ContextVisitor {
     private static final Name CONVERT = Converter.operator_as;
     private static final Name CONVERT_IMPLICITLY = Converter.implicit_operator_as;
     private static final Name DIST = Name.make("dist");
-
+    //added for scalable finish
+    private static final Name START_LOCAL_FINISH = Name.make("startLocalFinish");
+    private static final Name START_SIMPLE_FINISH = Name.make("startSimpleFinish");
     public Node override(Node parent, Node n) {    
         if (n instanceof Eval) {
             try {
@@ -590,7 +597,68 @@ public class Desugarer extends ContextVisitor {
         List<Expr> args = new ArrayList<Expr>();
         return xnf.Block(pos, f.body(), xnf.Eval(pos, synth.makeStaticCall(pos, target, FENCE, args, xts.Void(), xContext())));
     }
-
+    
+    private int getPatternFromAnnotation(AnnotationNode a){
+    	Ref r = a.annotationType().typeRef();
+		X10ParsedClassType_c xpct = (X10ParsedClassType_c) r.getCached();
+		List<Expr> allProperties = xpct.propertyInitializers();
+		Expr pattern = allProperties.get(3);
+		if (pattern instanceof IntLit_c) {
+			return (int) ((IntLit_c) pattern).value();
+		}
+		return 0;
+    }
+    /**
+     * Recognize the following pattern:
+     * @FinishAsync(,,,"local") which means all asyncs in this finish are in the same place as finish
+     * @param f
+     * @return a method call expression that invokes "startLocalFinish"
+     * @throws SemanticException
+     */
+    private Expr specializedFinish2(Finish f) throws SemanticException {
+        Position pos = f.position();
+    	int p=0;
+        Type annotation = (Type) xts.systemResolver().find(QName.make("x10.compiler.FinishAsync"));
+        if (!((X10Ext) f.ext()).annotationMatching(annotation).isEmpty()) {
+        	List<AnnotationNode> allannots = ((X10Ext)(f.ext())).annotations();
+        	AnnotationNode a = null;
+        	int p1 = 0;
+        	int p2 = 0;
+        	if(allannots.size()>0){
+				if (allannots.size() > 1) {
+					boolean isConsistent = true;
+					for(int i=0;i<allannots.size()-1;i++){
+						p1 = getPatternFromAnnotation(allannots.get(i));
+						p2 = getPatternFromAnnotation(allannots.get(i+1));
+						if(p1 != p2){
+							isConsistent = false;
+							break;
+						}
+					}
+					if(!isConsistent){
+						Report.report(0,"WARNING:compiler inferes different annotations from what the programer sets in "+job.source().name());
+						if(Report.should_report("verbose", 1)){
+							Report.report(5,"\tcompiler inferes "+p1);
+							Report.report(5,"\tprogrammer annotates "+p2);
+						}
+					}
+				}
+				a = allannots.get(allannots.size()-1);
+				if(Report.should_report("", 1)) 
+					Report.report(1,a.toString());
+				p = getPatternFromAnnotation(a);
+				
+        	}else{
+        		Report.report(0,"annotation is not correct "+ allannots.size());
+        	}
+        }
+        switch(p){
+        case 1:return call(pos, START_LOCAL_FINISH, xts.Void());
+        case 2:return call(pos, START_SIMPLE_FINISH, xts.Void());
+        //TODO:more patterns can be filled here
+        default:return call(pos, START_FINISH, xts.Void());
+        }
+    }
     // finish S; ->
     //    try { Runtime.startFinish(); S; }
     //    catch (t:Throwable) { Runtime.pushException(t); }
@@ -614,7 +682,7 @@ public class Desugarer extends ContextVisitor {
                 xnf.Id(pos, PUSH_EXCEPTION), Collections.EMPTY_LIST,
                 Collections.singletonList(local)).methodInstance(mi).type(xts.Void());
 
-        Block tryBlock = xnf.Block(pos, xnf.Eval(pos, call(pos, START_FINISH, xts.Void())), f.body());
+        Block tryBlock = xnf.Block(pos, xnf.Eval(pos,specializedFinish2(f)), f.body());
         Catch catchBlock = xnf.Catch(pos, formal, xnf.Block(pos, xnf.Eval(pos, call)));
         Block finallyBlock = xnf.Block(pos, xnf.Eval(pos, call(pos, STOP_FINISH, xts.Void())));
 

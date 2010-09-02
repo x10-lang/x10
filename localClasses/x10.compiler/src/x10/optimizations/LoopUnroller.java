@@ -454,7 +454,7 @@ public class LoopUnroller extends ContextVisitor {
         if (right instanceof XLit) {
             XLit lit= (XLit) right;
             Object litVal= lit.val();
-            return litVal.equals(new Integer(1));
+            return (litVal instanceof Number) && ((Number)litVal).intValue()==1;
         } else if (right instanceof XLocal) {
             // Might we need to know what values flow into this RHS operand?
         } else if (right instanceof XField) {

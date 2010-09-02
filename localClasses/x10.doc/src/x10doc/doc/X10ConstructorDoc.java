@@ -16,6 +16,7 @@ import com.sun.javadoc.ConstructorDoc;
 import com.sun.javadoc.PackageDoc;
 import com.sun.javadoc.ParamTag;
 import com.sun.javadoc.Parameter;
+import com.sun.javadoc.Tag;
 import com.sun.javadoc.ThrowsTag;
 import com.sun.javadoc.Type;
 import com.sun.javadoc.TypeVariable;
@@ -87,22 +88,30 @@ public class X10ConstructorDoc extends X10Doc implements ConstructorDoc {
 		return constrDef;
 	}
 	
+	public X10Tag[] getX10Tags() {
+		List<X10Tag> list = new ArrayList<X10Tag>();
+		addGuardTags(list);
+		return list.toArray(new X10Tag[list.size()]);
+	}
+	
 	public void addDeclTag(String declString) {
 		if (declString == null) {
 			return;
 		}
 		X10Tag[] declTags = createInlineTags(declString, this).toArray(new X10Tag[0]);
-
+		X10Tag[] tags = getX10Tags();
+		
 		// place declaration before the first sentence of the existing comment so that
 		// the declaration is displayed in the "Methods Summary" table before the first sentence
-		firstSentenceTags = X10Doc.concat(declTags, firstSentenceTags);
-		inlineTags = concat(declTags, inlineTags);
+		firstSentenceTags = concat(declTags, firstSentenceTags);
+		inlineTags = concat(concat(declTags, tags), inlineTags);
 	}
 
 	public String declString() {
-		// the X10 constructor declaration needs to be displayed in the constructors's comments only if a param type 
-		// or the return type is X10-specific
-		if (!(X10Type.isX10Specific(returnType))) {
+		// the X10 constructor declaration needs to be displayed in the constructors's comments only if a param type,  
+		// return type or the constructor is X10-specific
+		
+		if (!(X10Type.isX10Specific(returnType)) && constrDef.guard() == null) {
 			boolean hasConstraints = false;
 			for (X10Parameter p: parameters) {
 				if (p.isX10Specific()) {
@@ -114,7 +123,8 @@ public class X10ConstructorDoc extends X10Doc implements ConstructorDoc {
 				return "";
 			}
 		}
-		String result = "<B>Declaration</B>: <TT>" + constrDef.signature() + ": " + 
+		String guard = (constrDef.guard() == null) ? "" : constrDef.guard().toString();
+		String result = "<B>Declaration</B>: <TT>" + constrDef.signature() + guard + ": " + 
 		                constrDef.returnType().toString() + ".</TT><PRE>\n</PRE>";
 		return result; 
 	}
@@ -165,18 +175,31 @@ public class X10ConstructorDoc extends X10Doc implements ConstructorDoc {
 	}
 
 	public Type[] thrownExceptionTypes() {
-		// TODO Auto-generated method stub
-		return new Type[0];
+		return thrownExceptions();
 	}
 
 	public ClassDoc[] thrownExceptions() {
-		// TODO Auto-generated method stub
+		List<Ref<? extends polyglot.types.Type>> throwTypes = constrDef.throwTypes();
+		if(throwTypes != null && throwTypes.size() > 0)
+		{
+			ClassDoc[] types = new ClassDoc[throwTypes.size()];
+			int i = 0;
+			for(Ref<? extends polyglot.types.Type> type : throwTypes)
+			{
+				types[i++] = (ClassDoc)rootDoc.getType(type.get());
+			}
+			
+			return types;
+		}
+		
 		return new ClassDoc[0];
 	}
 
 	public ThrowsTag[] throwsTags() {
-		// TODO Auto-generated method stub
-		return new ThrowsTag[0];
+		Tag[] tags = tags(X10Tag.THROWS);
+		ThrowsTag[] newTags = new ThrowsTag[tags.length];
+		System.arraycopy(tags, 0, newTags, 0, tags.length);
+		return newTags;
 	}
 
 	public ParamTag[] typeParamTags() {

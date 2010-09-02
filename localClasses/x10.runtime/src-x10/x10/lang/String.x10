@@ -45,6 +45,7 @@ public final class String implements (Int) => Char/*TODO, (Range) => String*//*T
     /**
      * Construct a String from a Rail[Char].
      */
+    @Native("java", "new java.lang.String((#1).getCharArray(),#2,#3)")
     public native def this(r:Rail[Char], offset:Int, length:Int): String;
 
     /**

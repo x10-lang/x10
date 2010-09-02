@@ -1298,6 +1298,35 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	}
 	public void visit(X10New_c c) {
 		X10New_c n = c;
+		
+		X10ConstructorInstance mi = (X10ConstructorInstance) n.constructorInstance();
+		
+		String pat = er.getJavaImplForDef(mi.x10Def());
+		if (pat != null) {
+		    List<Type> typeArguments  = Collections.<Type>emptyList();
+		    if (mi.container().isClass() && !mi.flags().isStatic()) {
+		        X10ClassType ct = (X10ClassType) mi.container().toClass();
+		        typeArguments = ct.typeArguments();
+		    }
+		    List<CastExpander> args = new ArrayList<CastExpander>();
+		    List<Expr> arguments = n.arguments();
+		    for (int i = 0; i < arguments.size(); ++ i) {
+		        Type ft = n.constructorInstance().def().formalTypes().get(i).get();
+		        Type at = arguments.get(i).type();
+		        if ((at.isBoolean() || at.isNumeric() || at.isChar()) && X10TypeMixin.baseType(ft) instanceof ParameterType) {
+		            args.add(new CastExpander(w, er, arguments.get(i)).castTo(at, BOX_PRIMITIVES));
+		        }
+		        else if ((at.isBoolean() || at.isNumeric() || at.isChar())) {
+		            args.add(new CastExpander(w, er, arguments.get(i)).castTo(at, 0));
+		        }
+		        else {
+		            args.add(new CastExpander(w, er, arguments.get(i)));                                    
+		        }
+		    }
+		    er.emitNativeAnnotation(pat, null, mi.typeParameters(), args, typeArguments);
+		    return;
+		}
+		
 		if (n.qualifier() != null) {
 
 			tr.print(c, n.qualifier(), w);
@@ -1316,7 +1345,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		w.write("(");
 		w.begin(0);
 
-		X10ConstructorInstance mi = (X10ConstructorInstance) n.constructorInstance();
 		X10ClassType ct = (X10ClassType) mi.container();
 		
 		List<Type> ta = ct.typeArguments();

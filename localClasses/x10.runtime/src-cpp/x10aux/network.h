@@ -16,6 +16,7 @@
 #include <x10aux/network.h>
 
 #include <x10rt_front.h>
+#include <x10rt_cpp.h>
 
 namespace x10 { namespace lang { class VoidFun_0_0; } }
 namespace x10 { namespace lang { class Reference; } }
