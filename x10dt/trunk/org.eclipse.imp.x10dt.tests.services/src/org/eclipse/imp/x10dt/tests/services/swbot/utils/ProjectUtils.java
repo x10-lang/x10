@@ -150,7 +150,7 @@ public final class ProjectUtils {
       SWTBotTreeItem newPkgItem= srcItem.getNode(pkgName);
       newPkgItem.select();
   }
-
+ 
   public static SWTBotShell createClass(SWTWorkbenchBot bot, String name) {
     // Shouldn't the following use the X10 folder/category to qualify the "Class" menu item???
     bot.menu(FILE_MENU).menu(NEW_MENU_ITEM).menu(NEW_OTHER_MENU).click();
@@ -215,10 +215,6 @@ public final class ProjectUtils {
 		url = FileLocator.toFileURL(url);
 
 		FileUtils.copyFile(new File(url.toURI()),
-				new File(container.getLocation().toPortableString()
-						+ File.separatorChar + path.lastSegment()));
-
-		FileUtils.copyDirectory(new File(url.toURI()),
 				new File(container.getLocation().toPortableString()
 						+ File.separatorChar + path.lastSegment()));
 
