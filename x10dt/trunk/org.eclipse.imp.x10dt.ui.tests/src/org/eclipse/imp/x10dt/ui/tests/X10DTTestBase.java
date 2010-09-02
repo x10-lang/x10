@@ -14,6 +14,7 @@ package org.eclipse.imp.x10dt.ui.tests;
 import org.eclipse.imp.x10dt.tests.services.swbot.constants.WizardConstants;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.swt.finder.SWTBot;
+import org.eclipse.swtbot.swt.finder.waits.Conditions;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotButton;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
@@ -53,5 +54,6 @@ public class X10DTTestBase {
             newX10ProjBot.radioInGroup(WizardConstants.NEW_X10_PROJECT_NO_SAMPLE_SOURCE_RADIO, WizardConstants.NEW_X10_PROJECT_SAMPLE_SOURCE_GROUP).click();
         }
         newX10ProjBot.button(WizardConstants.FINISH_BUTTON).click();
+        topLevelBot.waitUntil(Conditions.shellCloses(newX10ProjShell));
     }
 }
