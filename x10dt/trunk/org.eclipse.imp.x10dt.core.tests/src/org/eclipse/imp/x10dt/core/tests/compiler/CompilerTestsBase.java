@@ -20,7 +20,6 @@ import polyglot.main.Options;
 import polyglot.main.UsageError;
 import polyglot.util.AbstractErrorQueue;
 import polyglot.util.ErrorInfo;
-import x10.core.Any;
 import x10.errors.X10ErrorInfo;
 
 /**
