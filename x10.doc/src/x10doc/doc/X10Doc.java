@@ -160,6 +160,11 @@ public class X10Doc implements Doc {
 		}
 	}
 	
+	public void addX10Tags()
+	{
+		
+	}
+	
 	// used to add comment lines displaying X10 class declarations, specifically the class constraints in 
 	// the declarations; the declaration string argument contains @link tags to entities in the constraint
 	// TODO: update this.rawComment, this.comment appropriately

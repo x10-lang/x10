@@ -3,20 +3,18 @@ package x10doc;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sun.javadoc.ClassDoc;
-import com.sun.javadoc.RootDoc;
-import com.sun.tools.doclets.standard.Standard;
-
-import polyglot.ast.NodeFactory;
 import polyglot.frontend.AllBarrierGoal;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
 import polyglot.frontend.Scheduler;
-import polyglot.types.TypeSystem;
 import x10doc.doc.X10ClassDoc;
 import x10doc.doc.X10RootDoc;
 import x10doc.goals.ASTTraversalGoal;
 import x10doc.visit.X10DocGenerator;
+
+import com.sun.javadoc.ClassDoc;
+import com.sun.javadoc.RootDoc;
+import com.sun.tools.doclets.standard.Standard;
 
 public class ExtensionInfo extends x10.ExtensionInfo {
 
@@ -81,7 +79,7 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 	        			cd.addDeclTag(cd.declString());
 	        			cd.addDeclsToMemberComments();
 	        		}
-
+	        		
 	            	Standard.start(((X10DocScheduler) scheduler).extensionInfo().root);
 	            	return true;
 	            }
