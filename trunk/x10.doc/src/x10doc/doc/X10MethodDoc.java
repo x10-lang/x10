@@ -96,30 +96,9 @@ public class X10MethodDoc extends X10Doc implements MethodDoc {
 	}
 	
 	public X10Tag[] getX10Tags() {
-		StringBuilder sb = new StringBuilder();
-		Tag[] tags = tags(X10Tag.GUARD);
-		if (tags.length > 0) {
-			sb.append("<DL><DT><B>Guard:</B>");
-			for (Tag tag : tags) {
-				sb.append("<DD><CODE>");
-				String code = tag.text();
-				String tokens[] = code.split("\\s");
-
-				if (tokens.length > 1) {
-					sb.append(tokens[0]);
-					sb.append("</CODE> - ");
-					sb.append(code.replace(tokens[0], "").trim());
-				}
-
-				else {
-					sb.append("</CODE>");
-				}
-
-			}
-			sb.append("</DL><P>");
-		}
-
-		return createInlineTags(sb.toString(), this).toArray(new X10Tag[0]);
+		List<X10Tag> list = new ArrayList<X10Tag>();
+		addGuardTags(list);
+		return list.toArray(new X10Tag[list.size()]);
 	}
 	
 	public void addDeclTag(String declString) {
