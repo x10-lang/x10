@@ -24,6 +24,9 @@ public class X10Tag implements Tag {
     public static final String DEPRECATED = "deprecated";
     public static final String THROWS = "throws";
 
+    public static final String GUARD = "guard";
+
+    
 	public static final ArrayList<String> inlineTagTypes = new ArrayList<String>();
 	static {
 		inlineTagTypes.add(DOCROOT);
@@ -43,7 +46,7 @@ public class X10Tag implements Tag {
 			this.kind = this.name = name;
 			this.text = "";
 		}
-		else if (name.equals(CODE) || name.equals(LITERAL) || name.equals(AUTHOR) || name.equals(PARAM) || name.equals(RETURN) || name.equals(DEPRECATED) || name.equals(THROWS)) {
+		else if (name.equals(CODE) || name.equals(LITERAL) || name.equals(AUTHOR) || name.equals(PARAM) || name.equals(RETURN) || name.equals(DEPRECATED) || name.equals(THROWS)|| name.equals(GUARD)) {
 			this.kind = this.name = name;
 			this.text = text;
 		}

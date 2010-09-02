@@ -379,6 +379,7 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 		for (MethodDoc md: methods.values()) {
 			X10Doc d = (X10Doc) md;
 			d.addDeclTag(d.declString());
+			d.addX10Tags();
 		}
 	}
 	

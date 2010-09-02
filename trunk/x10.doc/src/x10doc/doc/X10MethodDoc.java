@@ -95,16 +95,43 @@ public class X10MethodDoc extends X10Doc implements MethodDoc {
 		return p.name().toString();
 	}
 	
+	public X10Tag[] getX10Tags() {
+		StringBuilder sb = new StringBuilder();
+		Tag[] tags = tags(X10Tag.GUARD);
+		if (tags.length > 0) {
+			sb.append("<DL><DT><B>Guard:</B>");
+			for (Tag tag : tags) {
+				sb.append("<DD><CODE>");
+				String code = tag.text();
+				String tokens[] = code.split("\\s");
+
+				if (tokens.length > 1) {
+					sb.append(tokens[0]);
+					sb.append("</CODE> - ");
+					sb.append(code.replace(tokens[0], "").trim());
+				}
+
+				else {
+					sb.append("</CODE>");
+				}
+
+			}
+			sb.append("</DL><P>");
+		}
+
+		return createInlineTags(sb.toString(), this).toArray(new X10Tag[0]);
+	}
+	
 	public void addDeclTag(String declString) {
 		if (declString == null) {
 			return;
 		}
 		X10Tag[] declTags = createInlineTags(declString, this).toArray(new X10Tag[0]);
-
+		X10Tag[] tags = getX10Tags();
 		// place declaration before the first sentence of the existing comment so that
 		// the declaration is displayed in the "Methods Summary" table before the first sentence
-		firstSentenceTags = X10Doc.concat(declTags, firstSentenceTags);
-		inlineTags = concat(declTags, inlineTags);
+		firstSentenceTags = concat(declTags, firstSentenceTags);
+		inlineTags = concat(concat(declTags, tags), inlineTags);
 	}
 
 	public String declString() {
@@ -146,7 +173,7 @@ public class X10MethodDoc extends X10Doc implements MethodDoc {
 
 		String guard = (methodDef.guard() == null) ? "" : methodDef.guard().toString();
 		// construct result from X10 compiler method signatures and toString functions
-		String result = "<B>Declaration</B>: <TT>" + methodDef.signature() +  guard + ": " + 
+		String result = "<B>Declaration:</B> <TT>" + methodDef.signature() +  guard + ": " + 
 		                methodDef.returnType().toString() + ".</TT><PRE>\n</PRE>";
 			// earlier: ... + X10Doc.toString(this.returnType)
 		return result; 
