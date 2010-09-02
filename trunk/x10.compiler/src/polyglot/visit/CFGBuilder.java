@@ -150,8 +150,7 @@ public class CFGBuilder implements Copy
                           FlowGraph.EDGE_KEY_OTHER);
                 }
                 else {
-                  throw new CFGBuildError("Target of continue statement must " +
-                                          "be a loop.", l.position());
+                  throw new CFGBuildError("Target of continue or break statement must be a loop.", l.position());
                 }
               }
 

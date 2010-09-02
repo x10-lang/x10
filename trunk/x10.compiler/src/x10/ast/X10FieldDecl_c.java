@@ -421,31 +421,34 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	        Type at = (Type) ts.systemResolver().find(QName.make("x10.compiler.Uninitialized"));
 
 	    	if (! n.flags().flags().isFinal() && n.init() == null && ((X10FieldDef) n.fieldDef()).annotationsMatching(at).isEmpty()) {
+                // creating an init.
 	    		Type t = n.type().type();
 	    		Expr e = null;
 	    		if (t.isBoolean()) {
 	    			e = (Expr) nf.BooleanLit(position(), false).del().typeCheck(tc).checkConstants(tc);
-	    		}
+	    		} else
 	    		if (t.isIntOrLess()) {
 	    			e = (Expr) nf.IntLit(position(), IntLit.INT, 0L).del().typeCheck(tc).checkConstants(tc);
-	    		}
+	    		} else
 	    		if (t.isLong()) {
 	    			e = (Expr) nf.IntLit(position(), IntLit.LONG, 0L).del().typeCheck(tc).checkConstants(tc);
-	    		}
+	    		} else
 	    		if (t.isFloat()) {
 	    			e = (Expr) nf.FloatLit(position(), FloatLit.FLOAT, 0.0).del().typeCheck(tc).checkConstants(tc);
-	    		}
+	    		} else
 	    		if (t.isDouble()) {
 	    			e = (Expr) nf.FloatLit(position(), FloatLit.DOUBLE, 0.0).del().typeCheck(tc).checkConstants(tc);
-	    		}
+	    		} else
 	    		if (ts.isSubtype(t, ts.String(), tc.context())) {
 	    			e = (Expr) nf.StringLit(position(), "").del().typeCheck(tc).checkConstants(tc);
-	    		}
+	    		} else
 	    		if (ts.isReferenceType(t, context)) {
 	    			e = (Expr) nf.NullLit(position()).del().typeCheck(tc).checkConstants(tc);
 	    		}
+                // todo: we should handle user-defined structs, as well as generic type parameters with hasDefault. see hasZero
 
-	    		if (e != null) {
+	    		if (e != null &&
+                        ts.isSubtype(e.type(),type,context)) { // suppose the field is "var i:Int{self!=0}", then you cannot create an initializer which is 0!
 	    			n = (X10FieldDecl_c) n.init(e);
 	    		}
 	    	}

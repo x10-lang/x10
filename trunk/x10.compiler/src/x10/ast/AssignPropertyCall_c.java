@@ -198,7 +198,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 		CConstraint result = X10TypeMixin.xclause(returnType);
 
 		if (result.valid())
-			result = null;
+			result = null;   // todo: the code below that infers the return type of a ctor is buggy, since it infers "this". see XTENLANG-1770
 
 		 {
 			CConstraint known = Types.get(thisConstructor.supClause());

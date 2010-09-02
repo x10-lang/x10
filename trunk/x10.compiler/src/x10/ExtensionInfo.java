@@ -118,6 +118,7 @@ import x10.visit.X10Translator;
 import x10.visit.X10TypeChecker;
 import x10.visit.PositionInvariantChecker;
 import x10.visit.InstanceInvariantChecker;
+import x10.visit.CheckEscapingThis;
 
 /**
  * Extension information for x10 extension.
@@ -405,6 +406,9 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 //           goals.add(CheckNativeAnnotations(job));
            goals.add(CheckASTForErrors(job));
 //           goals.add(TypeCheckBarrier());
+
+           if (Configuration.NO_PROTO)
+            goals.add(new VisitorGoal("CheckEscapingThis", job, new CheckEscapingThis.Main(job)));
 
            goals.add(End(job));
        }

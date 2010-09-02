@@ -986,19 +986,31 @@ public class X10TypeMixin {
         }
         return res;
     }
+    public static boolean hasZero(Type t) { // see X10FieldDecl_c.typeCheck 
+        // does the type include 0/false/null value? (hasDeafult)
+        // todo: this is an under-approximation (it is always safe to return 'false', i.e., the user will just get more errors). In the future we will improve the precision so more types might have zero.
+        if (X10TypeMixin.disEntailsSelf(t, XTerms.NULL))
+			return false; // Any{self!=null}
+		X10TypeSystem ts = ((X10TypeSystem) t.typeSystem());
+        if (ts.isParameterType(t)) {
+			return false; // a parameter type might be instantiated with a type that doesn't have a default/zero. todo: In the future we'll add the "hasDefault" constraint
+		}
+        if (isX10Struct(t)) {
+            return false;
+        } else {
+            // todo: how do I know if a type is a closure? (cause closures do not have zero/default)
+            return true;
+        }
+    }
+    
 	public static boolean permitsNull(Type t) {
 		if (isX10Struct(t))
 			return false;
 		if (X10TypeMixin.disEntailsSelf(t, XTerms.NULL))
 			return false;
 		X10TypeSystem ts = ((X10TypeSystem) t.typeSystem());
-		if (ts.isParameterType(t)) {
-			List<Type> upper =  ts.env(ts.emptyContext()).upperBounds(t);
-			for (Type type : upper) {
-				if (permitsNull(type)) 
-					return true;
-			}
-			return false;
+		if (ts.isParameterType(t)) {			
+			return false; // a parameter type might be instantiated with a struct that doesn't permit null.
 		}
 		return true;
 	}

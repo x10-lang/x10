@@ -488,11 +488,13 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
             }
         }
         thisC.clearError();
-        
-        if (returnType != null) {
-            visitChild(returnType, thisC);
-            if (thisC.error()) {
-                throw new Errors.ThisNotPermittedInConstructorReturnType(returnType, position());
+
+        if (false) { // todo: remove this after fixing XTENLANG-1770
+            if (returnType != null) {
+                visitChild(returnType, thisC);
+                if (thisC.error()) {
+                    throw new Errors.ThisNotPermittedInConstructorReturnType(returnType, position());
+                }
             }
         }
         
