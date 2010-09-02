@@ -52,12 +52,26 @@ namespace x10 {
          */
         class Reference {
         public:
-            // TODO: Moves down to GlobalObject.h
-            x10aux::place location;
-
             Reference(){ }
             virtual ~Reference() { }
 
+
+
+            // TODO: LocalClasses.  Kill this method!
+            virtual x10_boolean at(x10::lang::Place p) {
+                assert(false);
+                return true;
+            }
+            // TODO: LocalClasses.  Kill this method!
+            virtual x10_boolean at(x10aux::ref<x10::lang::Object> o) {
+                assert(false);
+                return true;
+            }
+            // TODO: LocalClasses.  Kill this method!
+            virtual x10::lang::Place home();
+            
+
+            
             /*********************************************************************************
              * Implementation-level object model functions assumed to be defined for all types
              *********************************************************************************/
@@ -69,14 +83,6 @@ namespace x10 {
             /*********************************************************************************
              * X10-level functions assumed to be defined for all types
              *********************************************************************************/
-            // TODO: Moves down to GlobalObject.h
-            virtual x10_boolean at(x10::lang::Place p) {
-                return location == p->FMGL(id);
-            }
-            
-            // TODO: Moves down to GlobalObject.h
-            virtual x10_boolean at(x10aux::ref<x10::lang::Object> o);
-            
             virtual x10_boolean equals(x10aux::ref<Any> other) {
                 return this->_struct_equals(x10aux::ref<Reference>(other));
             }
@@ -86,9 +92,6 @@ namespace x10 {
             }
             
             virtual x10_int hashCode() = 0;
-
-            // TODO: Moves down to GlobalObject.h
-            virtual x10::lang::Place home();
 
             virtual x10aux::ref<String> toString() = 0;
             

@@ -14,6 +14,7 @@
 #include <x10aux/ref.h>
 #include <x10aux/network.h>
 #include <x10aux/throw.h>
+#include <x10/lang/GlobalObject.h>
 #include <x10/lang/NullPointerException.h>
 #include <x10/lang/BadPlaceException.h>
 #include <x10aux/reference_logger.h>
@@ -28,7 +29,7 @@ void x10aux::throwNPE() { throwException<NullPointerException>(); }
 
 void x10aux::throwBPE() { throwException<BadPlaceException>(); }
 
-x10aux::place x10aux::location(x10aux::ref<x10::lang::Reference> obj) {
+x10aux::place x10aux::location(x10aux::ref<x10::lang::GlobalObject> obj) {
     return obj->location;
 }
 

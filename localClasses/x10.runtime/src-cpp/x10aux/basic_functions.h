@@ -40,11 +40,13 @@ namespace x10aux {
 
     /******* get_location ********/
 
+    // TODO: LocalClasses.  x10aux::get_location to be removed as soon as home removed from Object.
     template<class T> inline place get_location(ref<T> x) {
         if (x.isNull()) {
             return x10aux::here;
         } else {
-            return (ref<x10::lang::Reference>(x))->location;
+            assert(false);
+            return x10aux::here;
         }
     }
 
