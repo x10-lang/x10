@@ -17,7 +17,7 @@ public class Histogram {
   /**
     * Compute the histogram of the array a in the rail b.
     */
-    public static def run(a:Array[int](1)!, b:Array[int](1)!) {
+    public static def run(a:Array[int](1), b:Array[int](1)) {
 	finish 
 	    foreach((i) in a) {
 	       val bin = a(i)% b.size();
@@ -25,7 +25,7 @@ public class Histogram {
 	    }
     }
 
-    public static def main(args:Rail[String]!) {
+    public static def main(args:Rail[String]) {
 	if (args.length != 2) {
 	    Console.OUT.println("Usage: Histogram SizeOfArray Buckets");
 	    at (Place.FIRST_PLACE) System.setExitCode(-1);

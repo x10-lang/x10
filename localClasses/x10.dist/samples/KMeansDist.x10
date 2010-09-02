@@ -18,7 +18,7 @@ public class KMeansDist {
 
     static val points_region = [0,0]..[POINTS-1,DIM-1];
 
-    public static def main (args : Rail[String]!) {
+    public static def main (args : Rail[String]) {
         val rnd = PlaceLocalHandle.make[Random](Dist.makeUnique(), () => new Random(0));
         val local_curr_clusters = PlaceLocalHandle.make[Rail[Float]](Dist.makeUnique(), 
                                                                      () => Rail.make[Float](CLUSTERS*DIM, (i:Int) => 0 as Float));
@@ -41,9 +41,6 @@ public class KMeansDist {
 
             Console.OUT.println("Iteration: "+i);
 
-            // have to create a valrail so that it will be serialised
-            val central_clusters_copy = ValRail.make(CLUSTERS*DIM, (i:Int) => central_clusters(i));
-
             for (var j:Int=0 ; j<CLUSTERS ; ++j) {
                 local_cluster_counts()(j) = 0;
             }
@@ -52,7 +49,7 @@ public class KMeansDist {
                 // reset state
                 for (d in points_dist.places()) async(d) {
                     for (var j:Int=0 ; j<DIM*CLUSTERS ; ++j) {
-                        local_curr_clusters()(j) = central_clusters_copy(j);
+                        local_curr_clusters()(j) = central_clusters(j);
                         local_new_clusters()(j) = 0;
                     }
                     for (var j:Int=0 ; j<CLUSTERS ; ++j) {
@@ -97,11 +94,7 @@ public class KMeansDist {
 
             finish {
                 for (d in points_dist.places()) async(d) {
-                    // have to create valrails for serialisation
-                    val local_new_clusters_copy =
-                        ValRail.make(CLUSTERS*DIM, (i:Int) => local_new_clusters()(i));
-                    val local_cluster_counts_copy =
-                        ValRail.make(CLUSTERS, (i:Int) => local_cluster_counts()(i));
+               
                     at (central_clusters) atomic {
                         for (var j:Int=0 ; j<DIM*CLUSTERS ; ++j) {
                             central_clusters(j) += local_new_clusters()(j);

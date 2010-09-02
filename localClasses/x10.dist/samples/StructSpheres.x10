@@ -25,14 +25,7 @@ class StructSpheres {
     static type Real = Float;
 
 
-    static struct Vector3 {
-
-        public def this (x:Real, y:Real, z:Real) {
-            this.x = x;
-            this.y = y;
-            this.z = z;
-        }
-
+    static struct Vector3(x:Real, y:Real, z:Real) {
         public def getX () = x; 
         public def getY () = y;
         public def getZ () = z;
@@ -47,8 +40,6 @@ class StructSpheres {
         public def length () = Math.sqrt(length2());
 
         public def length2 () = x*x + y*y + z*z;
-
-        protected val x:Real, y:Real, z:Real;
     }
 
 
@@ -94,7 +85,7 @@ class StructSpheres {
         var counter : Long = 0;
 
         // HOT LOOP BEGINS
-        for ((frame):Point in [1..reps]) {
+        for ((frame):Point in 1..reps) {
 
             val x = (ran.nextDouble()*world_size) as Real;
             val y = (ran.nextDouble()*world_size) as Real;
