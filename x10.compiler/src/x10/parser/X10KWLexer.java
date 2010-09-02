@@ -17,7 +17,7 @@ import java.util.*;
 public class X10KWLexer extends X10KWLexerprs
 {
     private char[] inputChars;
-    private final int keywordKind[] = new int[73 + 1];
+    private final int keywordKind[] = new int[74 + 1];
 
     public int[] getKeywordKinds() { return keywordKind; }
 
@@ -553,52 +553,59 @@ public class X10KWLexer extends X10KWLexerprs
       
     
         //
-        // Rule 67:  KeyWord ::= t r u e
+        // Rule 67:  KeyWord ::= t r a n s i e n t
         //
         
-            keywordKind[67] = (X10Parsersym.TK_true);
+            keywordKind[67] = (X10Parsersym.TK_transient);
       
     
         //
-        // Rule 68:  KeyWord ::= t r y
+        // Rule 68:  KeyWord ::= t r u e
         //
         
-            keywordKind[68] = (X10Parsersym.TK_try);
+            keywordKind[68] = (X10Parsersym.TK_true);
       
     
         //
-        // Rule 69:  KeyWord ::= t y p e
+        // Rule 69:  KeyWord ::= t r y
         //
         
-            keywordKind[69] = (X10Parsersym.TK_type);
+            keywordKind[69] = (X10Parsersym.TK_try);
       
     
         //
-        // Rule 70:  KeyWord ::= v a l
+        // Rule 70:  KeyWord ::= t y p e
         //
         
-            keywordKind[70] = (X10Parsersym.TK_val);
+            keywordKind[70] = (X10Parsersym.TK_type);
       
     
         //
-        // Rule 71:  KeyWord ::= v a r
+        // Rule 71:  KeyWord ::= v a l
         //
         
-            keywordKind[71] = (X10Parsersym.TK_var);
+            keywordKind[71] = (X10Parsersym.TK_val);
       
     
         //
-        // Rule 72:  KeyWord ::= w h e n
+        // Rule 72:  KeyWord ::= v a r
         //
         
-            keywordKind[72] = (X10Parsersym.TK_when);
+            keywordKind[72] = (X10Parsersym.TK_var);
       
     
         //
-        // Rule 73:  KeyWord ::= w h i l e
+        // Rule 73:  KeyWord ::= w h e n
         //
         
-            keywordKind[73] = (X10Parsersym.TK_while);
+            keywordKind[73] = (X10Parsersym.TK_when);
+      
+    
+        //
+        // Rule 74:  KeyWord ::= w h i l e
+        //
+        
+            keywordKind[74] = (X10Parsersym.TK_while);
       
     
         for (int i = 0; i < keywordKind.length; i++)
