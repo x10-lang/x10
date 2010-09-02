@@ -1,7 +1,7 @@
 <html>
 <body>
 
-<h1>Windows X10 Command Line Installation</h1>
+<h1>Windows Installation</h1>
 In order to run X10 on Windows, you need to satisfy the follow pre-requisites.
 <h2>Prereqs</h2>
 <ul>
@@ -135,123 +135,7 @@ PATH=/usr/contrib/mpich2-1.2.1/bin:${PATH}
 export PATH
 </pre>
 
-<h2>Getting started</h2>
-You need to download the X10 2.0.2 distributions for your platform,
-<pre>
-AIX/PowerPC 
-Cygwin/x86 
-Linux/x86 
-Linux/x86_64 
-MacOS/x86 
-MacOS/x86_64 
-</pre>
-in this case Windows Cygwin/x86. The Common PGAS runtime is inlcuded in the download.
-Go to the <a href="http://x10.codehaus.org/X10+2.0.2+Release">X10 release 2.0.2 (http://x10.codehaus.org/X10+2.0.2+Release)</a> and download
-the X10 distribution.  You should save this file in the same location as the cygwin installation directories.
-You should check periodically for new releases at http://x10.codehaus.org/X10+Releases.
-<p>
-Next you need to install the X10 distribution so that it is available to use.  My recommendation is to
-make a directory in the /usr tree.  To do this do the following. Note that you may have to use
-the "sudo" command to get access.
-
-Start the cygwin bash shell.
-<pre>
-cd /usr
-mkdir x10-2.0.2
-cd x10-2.0.2
-mkdir x10dist
-</pre>
-
-Make all of these directories accessible by everyone
-<pre>
-cd /usr
-chmod -R 755 x10-2.0.2
-</pre>
-
-Now copy the x10 download to x10dist directory and unpack it.
-<pre>
-cp /cygdrive/c/cygwinInstall/x10-2.0.2_cygwin_x86.gz /usr/x10-2.0.2/x10dist
-</pre>
-and then unpack the x10 distribution.
-<pre>
-cd /usr
-cd x10-2.0.2
-cd x10dist
-gunzip x10-2.0.2_cygwin_x86.gz
-tar -xvf x10-2.0.2_cygwin_x86
-</pre>
-
-<p>
-Now you are ready to setup your environment that makes use of these directories.
-On Cygwin running the bash shell, it is probably better to modify .bash_profile to add the x10 bin directory
-to your path.  You can also define aliases here, etc.  You will also need to add the x10 lib directory so the
-system knows how to find the cyggc-1.dll file.
-<p>
-Here is a sample .bash_profile
-<pre>
-.bash_profile
-PATH=/usr/x10-2.0.2/x10dist/bin:/usr/x10-2.0.2/x10dist/lib:$PATH
-export PATH
-</pre>
-
-Now you will be able to use the x10 commands to compile and run your programs.
-My recommendation is to make an x10 directory or an x10work directory in your
-home path, and create a directory for each project.
-<p>
-To get started we will copy the Hello program from the x10 samples directory into your
-working directory
-<pre>
-cd ~
-mkdir x10
-cd x10
-mkdir Hello
-cd Hello
-cp /usr/x10-2.0.2/x10dist/samples/Hello.x10 .
-</pre>
-<h4>java backend</h4>
-To compile the this program with the java backend you would enter
-<pre>
-x10c Hello.x10	
-</pre>
-You should now see some java classes in your directory.
-<pre>
-ls
-Hello.class	Hello$Main$1.class	Hello$Main.class Hello.x10
-Hello.java	Hello$Main$2.class	Hello$RTT.class
-</pre>
-You can now run this program by entering
-<pre>
-x10 Hello
-</pre>
-You should see
-<pre>
-Hello, X10 world!
-The answer is: true
-</pre>
-
-<h4>C++ backend</h4>
-To compile the this program with the c++ backend you would enter
-<pre>
-x10c++ -MAIN_CLASS=Hello Hello.x10	
-</pre>
-The reason for using the -MAIN_CLASS is so that the compiler generates a
-runtime called "Hello". If you leave off the -MAIN_CLASS directive, 
-your output will be under a.exe .
-<p>
-You should now see a .cc and .inc file in your directory.  
-<pre>
-Hello.exe	Hello.cc Hello.h	Hello.inc	Hello.x10
-</pre>
-<p>
-You can now run this program by entering
-<pre>
-runx10 Hello.exe
-</pre>
-You should see
-<pre>
-Hello, X10 world!
-The answer is: true
-</pre>
+<h2>Running X10 programs</h2>
 <p>
 Note that the C++ backend makes use of the MPICH2 runtime that is installed on your
 system, so you can also enter the following command to run an x10 program
@@ -280,6 +164,7 @@ Now you can start the mpd daemon in the background so you can use mpirun to exec
 <pre>
 mpd&
 </pre>
+<p>
 <p>
 You will need to prefix your program
 with a "./" so that mpirun knows to look in the current directory for the program. You
@@ -317,133 +202,6 @@ and then use an editor to insert a line like
   MPD_SECRETWORD=mr45-j9z
 into the file. (Of course use some other secret word than mr45-j9z.)
 </pre>
-
-<p>
-At this point, you may want to compile the other sample programs from the "samples"
-directory.  Then you can begin creating your own programs.
-
-<h4>Compiler options</h4>
-Use "x10c -- -help" to get more detailed help on compiler options.
-<pre>
-$ x10c -- -help
-usage: x10c [options] <source-file>.x10 ...
-where [options] includes:
-  @<file>                  read options from <file>
-  -d <directory>           output directory
-  -assert                  recognize the assert keyword
-  -sourcepath <path>       source path
-  -bootclasspath <path>    path for bootstrap class files
-  -ext <extension>         use language extension
-  -extclass <ext-class>    use language extension
-  -commandlineonly         only compile files named on the command-line (may
-                           also require -c)
-  -preferclassfiles        prefer class files to source files even if the
-                           source is newer
-  -fqcn                    use fully-qualified class names
-  -sx <ext>                set source extension
-  -ox <ext>                set output extension
-  -errors <num>            set the maximum number of errors
-  -w <num>                 set the maximum width of the .java output files
-  -dump <pass>             dump the ast after pass <pass>
-  -print <pass>            pretty-print the ast after pass <pass>
-  -disable <pass>          disable pass <pass>
-  -noserial                disable class serialization
-  -nooutput                delete output files after compilation
-  -c                       compile only to .java
-  -post <compiler>         run javac-like compiler after translation
-  -debugpositions          generate position information for
-                           compiler-generated code
-  -simpleoutput            use SimpleCodeWriter
-  -v -verbose              print verbose debugging information
-  -report <topic>=<level>  print verbose debugging information about topic
-                           at specified verbosity
-        Allowed topics: imports, jl, x10, serialize, types, frontend, time,
-        resolver, cfg, visit, clock, dataflow, debug, errors, context,
-        loader, verbose, qq
-  -version                 print version info
-  -h                       print this message
-  -COMPILER_FRAGMENT_DATA_DIRECTORY=String
-                           Advanced functionality: Directory for compiler
-                           templates (default = "data/")
-  -OPTIMIZE=boolean        Generate optimized code (default = false)
-  -DEBUG=boolean           Generate debug information (default = false)
-  -NO_CHECKS=boolean       Disable generation of all null, bounds, and place
-                           checks (default = false)
-  -BAD_PLACE_RUNTIME_CHECK=boolean
-                           Generate runtime place checks (default = false)
-  -LOOP_OPTIMIZATIONS=boolean
-                           Generate specialized Java version of for-loop X10
-                           code (default = true)
-  -ARRAY_OPTIMIZATIONS=boolean
-                           Generate allocation of specialized Java array
-                           classes (default = true)
-  -INLINE_OPTIMIZATIONS=boolean
-                           Perform inlining optimizations (default = false)
-  -CLOSURE_INLINING=boolean
-                           Perform closure literal inlining (default = true)
-  -PLUGINS=String          Comma-separated list of compiler plugins to run.
-                           (default = "")
-  -PLUGIN_COMPILER=String  Javac-like compiler to use to compile plugins
-                           (default = "")
-  -XML_PROCESSOR=String    External program to transform ASTs externalized
-                           as XML (default = "")
-  -EXTERNALIZE_ASTS=boolean
-                           Externalize ASTs to XML (default = false)
-  -MANIFEST=String         The path to the pre-built library manifest file
-                           (default = null)
-</pre>                           
-
-
-<h4>Possible errors</h4>
-<p>
-If you see an error like this
-<pre>
-	0; xlupc transport: can't get network address associated with 	listner socket: Device not configured
-	Abort trap
-</pre>
-This means that your ip address is being used by another program and the pgas library cannot
-access the ip address using gethostbyname(). Check your /etc/hostconfig file does not contain
-a HOSTNAME and /etc/hosts is configured properly.
-
-<p>
-If you see this error
-<pre>
-JAVA_HOME (C:/Program Files/IBM/Java60) is not pointing to a JRE or a JDK
-</pre>
-It means that you have to define a JAVA_HOME environment variable for X10. You should
-refer to the java prereq section above to define this.
-
-<h4>Make your own commands</h4>
-You might want to make your own scripts or aliases so that you don't have to remember the exact
-syntax. If you create scripts make sure that they are excutable.  If you place them in ~/bin
-then you should add this to your PATH in your .bash_profile. You might also want to add
-"./" to the beginning of your PATH statement so it will look first in the directory that you are in.
-
-<h5>makejava shell script</h5>
-<pre>
-makejava
-x10c $1.x10
-</pre>
-
-<h5>runjava shell script</h5>
-<pre>
-runjava
-x10 $1
-</pre>
-
-<h5>makecpp shell script</h5>
-<pre>
-makecpp
-x10c++ -MAIN_CLASS=$1 $1.x10
-</pre>
-
-<h5>runcpp shell script</h5>
-<pre>
-runcpp
-runx10 -MAIN_CLASS=$1 $1.x10
-</pre>
-or use the mpirun systax mentioned above
-
 <h2>Comments</h2>
 Comments and suggestions are welcome. 
 Please send email to 

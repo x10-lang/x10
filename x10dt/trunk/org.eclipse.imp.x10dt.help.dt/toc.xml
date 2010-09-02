@@ -107,7 +107,8 @@
 	</topic> 
 </topic>
 -->
-   
+
+<!--
 <topic label="Samples">
 	<topic label="Hello" href="html/samples/Hello.html">Hello</topic>
 	<topic label="HelloWorld" href="html/samples/HelloWorld.html">HelloWorld</topic>
@@ -120,6 +121,7 @@
 	<topic label="Integrate" href="html/samples/Integrate.html">Integrate</topic>
 	<topic label="Histogram" href="html/samples/Histogram.html">Histogram</topic>
 </topic>
+-->
 
 <topic label="New and Noteworty" href="html/whatsNew/toc.html"> 
 	<topic label="Current"  href="html/whatsNew/toc.html" /> 
