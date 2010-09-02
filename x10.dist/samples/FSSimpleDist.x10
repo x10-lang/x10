@@ -15,6 +15,7 @@ import x10.io.Console;
 /**
  * Version of Stream with a collection of local arrays implementing a
  * global array.
+ * Converted to 2.1.
  */
 public class FSSimpleDist {
 
@@ -27,7 +28,7 @@ public class FSSimpleDist {
 
     const NUM_PLACES = Place.MAX_PLACES;
 
-    public static def main(args:Rail[String]!) {
+    public static def main(args:Rail[String]) {
         val verified = new Cell[Boolean](true);
         val times = Rail.make[double](NUM_TIMES);
         val N0 = args.length > 0 ? int.parse(args(0)) : DEFAULT_SIZE;

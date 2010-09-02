@@ -13,6 +13,7 @@ import x10.io.Console;
 
 /**
  * The classic hello world program, with a twist - lists each place
+ * Converted to 2.1 9/1/2010
  */
 class HelloWholeWorld {
   public static def main(args:Rail[String]):void {
