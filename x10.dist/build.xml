@@ -12,6 +12,12 @@
     <property name="lpg.jar.url" value="http://dist.codehaus.org/x10/dependencies/lpg.runtime.java_2.0.18.jar"/>
     <property name="ecj.jar" value="ecj.jar"/>
     <property name="ecj.jar.url" value="http://dist.codehaus.org/x10/dependencies/ecj-3.5.1.jar"/>
+    <property name="wala.jar" value="wala.jar"/>
+    <property name="wala.jar.url" value="http://dist.codehaus.org/x10/dependencies/wala.jar"/>
+    <property name="equinox.jar" value="org.eclipse.equinox.common_3.6.0.v20100503.jar"/>
+    <property name="equinox.jar.url" value="http://dist.codehaus.org/x10/dependencies/org.eclipse.equinox.common_3.6.0.v20100503.jar"/>
+    <property name="x10.bridge.location" location="${x10.home}/com.ibm.wala.cast.x10"/>
+    <property name="bridge.jar" value="com.ibm.wala.cast.x10.jar" />
     <property name="x10.constraints.location" location="${x10.home}/x10.constraints"/>
     <property name="constraints.jar" value="x10constraints.jar"/>
     <property name="x10.common.location" location="${x10.home}/x10.common"/>
@@ -91,7 +97,7 @@
         <ant antfile="${x10.runtime.location}/build.xml" target="clean" inheritAll="false" dir="${x10.runtime.location}"/>
     </target>
 
-    <target name="squeakyclean" depends="clean-java,clean-cpp"/>
+    <target name="squeakyclean" depends="clean-java,clean-cpp,clean-bridge"/>
 
     <target name="distclean" depends="squeakyclean">
         <delete dir="${lib}" failonerror="false"/>
@@ -99,17 +105,30 @@
         <ant antfile="${x10.runtime.location}/build.xml" target="distclean" inheritAll="false" dir="${x10.runtime.location}"/>
     </target>
 
+    <target name="clean-bridge">
+        <delete>
+            <fileset dir="${lib}">
+                <include name="${bridge.jar}"/>
+            </fileset>
+        </delete>
+    </target>
+
     <target name="dist-java" depends="init,build,common-jar,constraints-jar,compiler-jar,runtime-java"/>
     <target name="dist-cpp" depends="dist-java,runtime-cpp"/>
     <target name="dist" depends="dist-java,dist-cpp"/>
+    <target name="dist-bridge" depends="dist-java,bridge-jar"/>
 
     <target name="check-jar-cache" depends="init">
         <available property="lpg.jar.present" file="${lib}/${lpg.jar}"/>
         <available property="ecj.jar.present" file="${lib}/${ecj.jar}"/>
+        <available property="wala.jar.present" file="${lib}/${wala.jar}"/>
+        <available property="equinox.jar.present" file="${lib}/${equinox.jar}"/>
         <condition property="cache.up-to-date">
             <and>
                 <isset property="lpg.jar.present"/>
                 <isset property="ecj.jar.present"/>
+                <isset property="wala.jar.present"/>
+                <isset property="equinox.jar.present"/>
             </and>
         </condition>
     </target>
@@ -141,7 +160,21 @@
         <fail message="Unable to find ${ecj.jar} at ${local.ecj.jar}" unless="ecj.jar.present"/>
     </target>
 
-    <target name="update-jar-cache" depends="init,lpg-jar,ecj-jar"/>
+    <target name="wala-jar" depends="init">
+        <mkdir dir="${lib}"/>
+        <get usetimestamp="true" src="${wala.jar.url}" dest="${lib}/${wala.jar}"/>
+        <available property="wala.jar.present" file="${lib}/${wala.jar}"/>
+        <fail message="Unable to get ${wala.jar} from ${wala.jar.url}" unless="wala.jar.present"/>
+    </target>
+
+    <target name="equinox-jar" depends="init">
+        <mkdir dir="${lib}"/>
+        <get usetimestamp="true" src="${equinox.jar.url}" dest="${lib}/${equinox.jar}"/>
+        <available property="equinox.jar.present" file="${lib}/${equinox.jar}"/>
+        <fail message="Unable to get ${equinox.jar} from ${equinox.jar.url}" unless="equinox.jar.present"/>
+    </target>
+
+    <target name="update-jar-cache" depends="init,lpg-jar,ecj-jar,wala-jar,equinox-jar"/>
 
     <target name="prereq-jars" depends="init,check-jar-cache" unless="cache.up-to-date">
         <antcall target="update-jar-cache"/>
@@ -161,6 +194,14 @@
 
     <target name="runtime-cpp" depends="init">
         <ant antfile="${x10.runtime.location}/build.xml" target="dist-cpp" inheritAll="false" dir="${x10.runtime.location}"/>
+    </target>
+
+    <target name="bridge-jar" depends="init,compiler-jar">
+        <ant antfile="${x10.bridge.location}/build.xml" target="jar" inheritAll="false" dir="${x10.bridge.location}"/>
+        <mkdir dir="${lib}"/>
+        <copy todir="${lib}">
+            <fileset dir="${x10.bridge.location}/bin" includes="${bridge.jar}"/>
+        </copy>
     </target>
 
     <target name="constraints-jar" depends="init">
@@ -305,8 +346,10 @@
 #CONFIG_FILE='${config}'
 LPG_JAR='${lpg.jar}'
 ECJ_JAR='${ecj.jar}'
+WALA_JAR='${wala.jar}'
 LPG_URL='${lpg.jar.url}'
 ECJ_URL='${ecj.jar.url}'
+WALA_URL='${wala.jar.url}'
 
 UNAME=`uname -smp | sed -e 's/ /,/g'`
 FILE_SEP='/'; if [[ "$UNAME" = CYGWIN* ]]; then FILE_SEP='\\'; fi
