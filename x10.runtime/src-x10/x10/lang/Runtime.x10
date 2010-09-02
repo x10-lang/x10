@@ -332,16 +332,19 @@ public final class Runtime {
          * Wait for pending subactivities to complete.
          */
         def waitForFinish(safe:Boolean):Void;
-    
-}
 
+        /**
+         * Create a corresponding remote finish
+         */
+        global def makeRemote():RemoteFinishState!;
+    }
 
-    static class FinishStates implements (RootFinish)=>RemoteFinish {
+    static class FinishStates implements (FinishState)=>RemoteFinishState {
 
-        private val map = new HashMap[RootFinish, RemoteFinish!]();
+        private val map = new HashMap[FinishState, RemoteFinishState!]();
         private val lock = new Lock();
 
-        public def apply(rootFinish:RootFinish):RemoteFinish! {
+        public def apply(rootFinish:FinishState):RemoteFinishState! {
             lock.lock();
             val finishState = map.getOrElse(rootFinish, null);
             if (null != finishState) {
@@ -354,7 +357,7 @@ public final class Runtime {
             lock.unlock();
             return remoteFinish;
         }
-        public def remove(rootFinish:RootFinish) {
+        public def remove(rootFinish:FinishState) {
             lock.lock();
             map.remove(rootFinish);
             lock.unlock();
@@ -443,7 +446,7 @@ public final class Runtime {
         unlock();
     }
 
-    global def makeRemote() = new RemoteCollectingFinish[T](reducer);
+    public global def makeRemote() = new RemoteCollectingFinish[T](reducer);
     
     //Collecting Finish Use: for start merger at each place to collect result
     final public def waitForFinishExpr(safe:Boolean):T {
@@ -468,7 +471,7 @@ public final class Runtime {
             c(here.id) = 1;
             counts = c;
         }
-        global def makeRemote() = new RemoteFinish();
+        public global def makeRemote() = new RemoteFinish();
 
         private def notifySubActivitySpawnLocal(place:Place):Void {
             lock();
@@ -670,7 +673,7 @@ public final class Runtime {
     
     }
 
-    static class RemoteFinish {
+    static class RemoteFinish implements RemoteFinishState {
         /**
          * The Exception Stack is used to collect exceptions
          * issued when activities associated with this finish state terminate abruptly.
@@ -711,7 +714,7 @@ public final class Runtime {
         /**
          * An activity created under this finish has terminated.
          */
-        public def notifyActivityTermination(r:RootFinish):Void {
+        public def notifyActivityTermination(r:FinishState):Void {
             lock.lock();
             counts(here.id)--;
             if (count.decrementAndGet() > 0) {
@@ -1086,7 +1089,7 @@ public final class Runtime {
      */
     private const runtime = PlaceLocalHandle[Runtime]();
 
-    static def proxy(rootFinish:RootFinish) = runtime().finishStates(rootFinish);
+    static def proxy(rootFinish:FinishState) = runtime().finishStates(rootFinish);
 
     /**
      * Return the current worker
@@ -1483,6 +1486,25 @@ public final class Runtime {
 
     }
 
+    static interface RemoteFinishState {
+        
+        public def notifyActivityCreation():Void;
+
+        /**
+         * An activity created under this finish has been created. Increment the count
+         * associated with the finish.
+         */
+        public def notifySubActivitySpawn(place:Place):Void;
+
+        /**
+         * An activity created under this finish has terminated.
+         */
+        public def notifyActivityTermination(r:FinishState):Void;
+        /**
+         * Push an exception onto the stack.
+         */
+        public def pushException(t:Throwable):Void;
+    }
 }
 
 // vim:shiftwidth=4:tabstop=4:expandtab
