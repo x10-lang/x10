@@ -19,10 +19,7 @@ import x10.compiler.NativeRep;
  */
 @NativeRep("java", "java.lang.Object", null, null)
 @NativeRep("c++", "x10aux::ref<x10::lang::Object>", "x10::lang::Object", null)
-public class Object (
-        @Native("java", "x10.lang.Place.place(x10.core.Ref.home(#0))")
-        @Native("c++", "x10::lang::Place_methods::place((#0)->location)")
-        home: Place) 
+public class Object 
         implements Any 
 {
     /**
@@ -84,26 +81,6 @@ public class Object (
     @Native("c++", "(#0)->toString()")
     public global safe native def toString() : String;
 
-    /**
-     * Return true if the home location of this object is the given place.
-     *
-     * @param p The given place
-     * @return true if the home location of this object is p.
-     */
-    @Native("java", "x10.core.Ref.at(#0, #1.id)")
-    @Native("c++", "(#0)->at(#1)")
-    public property safe def at(p:Place) = home==p;
-
-    /**
-     * Return true if this object is in the same home location as the given Object.
-     *
-     * @param r The given Object
-     * @return true if the home location of this object is the same as the home location of r.
-     */
-    @Native("java", "x10.core.Ref.at(#0, #1)")
-    @Native("c++", "(#0)->at(#1)")
-    public property safe def at(r:Object) = home==r.home;
-    
     /**
      * Return a string representation of the run-time type of this object.
      *
