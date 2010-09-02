@@ -337,8 +337,7 @@ public final class Runtime {
          * Create a corresponding remote finish
          */
         global def makeRemote():RemoteFinishState!;
-    
-}
+    }
 
     static class FinishStates implements (FinishState)=>RemoteFinishState {
 
@@ -353,7 +352,7 @@ public final class Runtime {
                 return finishState;
             }
             
-            val remoteFinish:RemoteFinishState! = rootFinish.makeRemote();
+            val remoteFinish = rootFinish.makeRemote();
             map.put(rootFinish, remoteFinish);
             lock.unlock();
             return remoteFinish;
@@ -401,7 +400,7 @@ public final class Runtime {
 	}
     }
 
-    /*static class RootCollectingFinish[T] extends RootFinish {
+    static class RootCollectingFinish[T] extends RootFinish {
     	val sr:StatefulReducer[T]!;
     	global val reducer:Reducible[T];
     def this(r:Reducible[T]) {
@@ -447,7 +446,7 @@ public final class Runtime {
         unlock();
     }
 
-    global def makeRemote() = new RemoteCollectingFinish[T](reducer);
+    public global def makeRemote() = new RemoteCollectingFinish[T](reducer);
     
     //Collecting Finish Use: for start merger at each place to collect result
     final public def waitForFinishExpr(safe:Boolean):T {
@@ -458,7 +457,7 @@ public final class Runtime {
         return result;
     }
 
-    }*/
+    }
     	
     	
     
@@ -594,17 +593,17 @@ public final class Runtime {
       
 }
 
-    /*static class RemoteCollectingFinish[T] extends RemoteFinish {
+    static class RemoteCollectingFinish[T] extends RemoteFinish {
     	val sr:StatefulReducer[T]!;
     def this(r:Reducible[T]) {
     	super();
     	this.sr=new StatefulReducer[T](r);
-    }*/
+    }
     
     /**
      * An activity created under this finish has terminated.
      */
-    /*public def notifyActivityTermination(r:RootFinish):Void {
+    public def notifyActivityTermination(r:RootFinish):Void {
         lock.lock();
         counts(here.id)--;
         if (count.decrementAndGet() > 0) {
@@ -672,46 +671,46 @@ public final class Runtime {
         sr.accept(t,id);
     }
     
-    }*/
+    }
 
     static class RemoteFinish implements RemoteFinishState {
         /**
          * The Exception Stack is used to collect exceptions
          * issued when activities associated with this finish state terminate abruptly.
          */
-         protected var exceptions:Stack[Throwable]!;
-    
+        protected var exceptions:Stack[Throwable]!;
+
         /**
          * The monitor is used to serialize updates to the finish state.
          */
-         protected val lock = new Lock();
+        protected val lock = new Lock();
 
         /**
          * Keep track of the number of activities associated with this finish state.
          */
-         protected val counts = Rail.make[Int](Place.MAX_PLACES, (Int)=>0);
+        protected val counts = Rail.make[Int](Place.MAX_PLACES, (Int)=>0);
 
-         protected val message = Rail.make[Int](Place.MAX_PLACES, (Int)=>here.id);
-         protected var length:Int = 1;
+        protected val message = Rail.make[Int](Place.MAX_PLACES, (Int)=>here.id);
+        protected var length:Int = 1;
 
-         protected var count:AtomicInteger! = new AtomicInteger(0);
+        protected var count:AtomicInteger! = new AtomicInteger(0);
 
-         public def notifyActivityCreation():Void {
-             count.getAndIncrement();
-         }
-         
-         /**
-          * An activity created under this finish has been created. Increment the count
-          * associated with the finish.
-          */
-          public def notifySubActivitySpawn(place:Place):Void {
-             lock.lock();
-             if (counts(place.id)++ == 0 && here.id != place.id) {
-                 message(length++) = place.id;
-             }
-             lock.unlock();
-         }
-         
+        public def notifyActivityCreation():Void {
+            count.getAndIncrement();
+        }
+
+        /**
+         * An activity created under this finish has been created. Increment the count
+         * associated with the finish.
+         */
+        public def notifySubActivitySpawn(place:Place):Void {
+            lock.lock();
+            if (counts(place.id)++ == 0 && here.id != place.id) {
+                message(length++) = place.id;
+            }
+            lock.unlock();
+        }
+
         /**
          * An activity created under this finish has terminated.
          */
@@ -797,16 +796,13 @@ public final class Runtime {
         }
         
         public def notifySubActivitySpawnLocal(place:Place):Void {
-        	debug("root notify act spawn local@"+here);
         	lock();
         	counts++;
-            debug("\tcounts="+counts);
             unlock();
             
         }
 
         public def notifyActivityTerminationLocal():Void {
-        	debug("root notify act term local@"+here);
             lock();
             counts--;
             if (counts!= 0) {
@@ -814,7 +810,6 @@ public final class Runtime {
             	unlock();
                 return;
             } 
-            debug("\tcounts="+counts);
             release();
             unlock();
             
@@ -830,7 +825,6 @@ public final class Runtime {
         public def waitForFinish(safe:Boolean):Void {
             if (!NO_STEALS && safe) worker().join(this);
             await();
-            debug("root wait"+here);
             if (null != exceptions) {
                 if (exceptions.size() == 1) {
                     val t = exceptions.peek();
@@ -896,9 +890,7 @@ public final class Runtime {
         protected var liveActCounts:AtomicInteger! = new AtomicInteger(0);
 
         public def notifyActivityCreation():Void {
-            debug("remote notifyActCreation@"+here);
             liveActCounts.getAndIncrement();
-            debug("\tliveActCounts++="+liveActCounts);
         }
 
         /**
@@ -906,18 +898,15 @@ public final class Runtime {
          * associated with the finish.
          */
         public def notifySubActivitySpawn(place:Place):Void {
-        	debug("remote notifyActSpawn@"+here);
             lock.lock();
             spawnedActCounts++;
             lock.unlock();
-            debug("\tspawnedActCounts++="+spawnedActCounts);
         }
 
         /**
          * An activity created under this finish has terminated.
          */
          public def notifyActivityTermination(r:FinishState):Void {
-        	debug("remote notifyActTerm@"+here);
             lock.lock();
             spawnedActCounts--;
             if (liveActCounts.decrementAndGet() > 0) {
@@ -926,7 +915,6 @@ public final class Runtime {
                 return;
             }
             //if terminated
-            debug("\tspawnedActCounts--="+spawnedActCounts+"\n\tliveActCounts--="+liveActCounts);
             val e = exceptions;
             exceptions = null;
             val m = spawnedActCounts;
@@ -975,20 +963,15 @@ public final class Runtime {
              counts = 1;
          }
          public  def notifySubActivitySpawnLocal(place:Place):Void {
-        	 debug("root notify sub spawn local@"+here);
         	 lock();
         	 counts++;
         	 unlock();
-        	 debug("\tcounts="+counts);
          }
 
          public def notifyActivityTerminationLocal():Void {     
-        	 debug("root notify local term@"+here);
         	 lock();
         	 counts--;
-        	 debug("\tcounts="+counts);
         	 if (counts!= 0) {
-        		 debug("\tcounts="+counts+" !=0, then return");
         		 unlock();
         		 return;
         	 }   	 
@@ -1002,11 +985,9 @@ public final class Runtime {
         	 unlock();
          }
          def notify(remoteCount:Int):Void {
-        	 debug("root notify with "+remoteCount+"@"+here);
         	 var b:Boolean = true; 
         	 lock();
         	 counts+= remoteCount;
-             debug("\tRoot counters - counts="+counts);
              if (counts == 0) release();
         	 unlock();
          }
@@ -1015,7 +996,6 @@ public final class Runtime {
     		 notify(remoteCount);
          }
          public def waitForFinish(safe:Boolean):Void {
-         	debug("root wait@"+here); 
              if (!NO_STEALS && safe) worker().join(this);
              await();
              if (null != exceptions) {
@@ -1034,11 +1014,9 @@ public final class Runtime {
 
          //global methods
          public global def notifySubActivitySpawn(place:Place):Void {
-        	 //debug("root notify sub spawn@"+here); 
         	 if (here.equals(home)) {
         		 (this as SimpleRootFinish!).notifySubActivitySpawnLocal(place);
              } else {
-            	 //debug("root sub spawn");
             	 (Runtime.proxy(this) as SimpleRemoteFinish!).notifySubActivitySpawn(place);
              }
          }
@@ -1046,13 +1024,11 @@ public final class Runtime {
          public global def notifyActivityCreation():Void {
         	 
         	 if (!here.equals(home)){
-        		 //debug("root notify creation@"+here);
         		 (Runtime.proxy(this) as SimpleRemoteFinish!).notifyActivityCreation();
         	 } 
          }
          
          public global def notifyActivityTermination():Void {
-        	 //debug("root notify term@"+here);
         	 if (here.equals(home)) {
         		 (this as SimpleRootFinish!).notifyActivityTerminationLocal();
         	 } else {
@@ -1356,11 +1332,6 @@ public final class Runtime {
 
     // for debugging
     const PRINT_STATS = false;
-
-    const DEBUG = false;
-    static public def debug(s:String){
-        if(DEBUG) Runtime.println(s);
-    }
 
     static public def dump() {
         runtime().pool.dump();
@@ -1764,7 +1735,7 @@ public final class Runtime {
     }
     //Collecting Finish Implementation
     // All these methods should be moved to Pool.
-    /*public static class CollectingFinish[T] {
+    public static class CollectingFinish[T] {
         //Exposed API
     	// should become startFinish(r:Reducible[T])
         public def this(r:Reducible[T]) {
@@ -1799,8 +1770,7 @@ public final class Runtime {
             
        }
 
-    }*/
-
+    }
 
     static interface RemoteFinishState {
         
