@@ -207,8 +207,7 @@ public class CompilerTestsBase {
 	}
 	
 	protected static String getRuntimeJar() throws URISyntaxException{
-	  final ClassLoader classLoader = Any.class.getClassLoader();
-	  final URL url = classLoader.getResource("x10.jar");
+	  final URL url = CompilerTestsBase.class.getClassLoader().getResource("x10.jar");
 	  return toFile(url).getAbsolutePath();
 	}
 	
