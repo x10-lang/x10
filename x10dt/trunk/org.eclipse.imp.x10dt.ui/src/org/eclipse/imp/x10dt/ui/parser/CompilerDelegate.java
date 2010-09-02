@@ -77,7 +77,8 @@ public class CompilerDelegate {
                 			handler.handleSimpleMessage(error.getMessage(), pos.offset(), pos.endOffset(), pos.column(), pos.endColumn(), pos.line(), pos.endLine());
                 		}
                 	} else {
-                	    handler.handleSimpleMessage(error.getMessage(), 0, 0, 1, 1, 1, 1);
+                		if (error.getErrorKind()!=ErrorInfo.WARNING)
+                			handler.handleSimpleMessage(error.getMessage(), 0, 0, 1, 1, 1, 1);
                 	}
             	}
             }

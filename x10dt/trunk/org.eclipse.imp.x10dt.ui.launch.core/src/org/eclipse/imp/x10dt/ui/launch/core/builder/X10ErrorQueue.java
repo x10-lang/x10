@@ -33,7 +33,8 @@ final class X10ErrorQueue extends AbstractErrorQueue implements ErrorQueue {
   
   protected void displayError(final ErrorInfo error) {
     if (error.getPosition() == null) {
-      CoreResourceUtils.addBuildMarkerTo(fProject.getResource(), error.getMessage(), IMarker.SEVERITY_ERROR, IMarker.PRIORITY_NORMAL);
+    	final int severity = (error.getErrorKind() == ErrorInfo.WARNING) ? IMarker.SEVERITY_WARNING : IMarker.SEVERITY_ERROR;
+    	CoreResourceUtils.addBuildMarkerTo(fProject.getResource(), error.getMessage(), severity, IMarker.PRIORITY_NORMAL);
     } else {
       final int severity = (error.getErrorKind() == ErrorInfo.WARNING) ? IMarker.SEVERITY_WARNING : IMarker.SEVERITY_ERROR;
       final Position position = error.getPosition();
