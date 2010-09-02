@@ -359,6 +359,10 @@ public class X10TypeMixin {
     		return false;
     	return ((X10Struct) t).isX10Struct();
     }
+    public static boolean isGlobalType(Type t) {
+    	return isX10Struct(t) || X10Flags.toX10Flags(((X10ParsedClassType_c) baseType(t)).flags()).isGlobal();
+    	 
+    }
     public static boolean isClass(Type t) {
 	    return ! isX10Struct(t);
     }
@@ -927,13 +931,14 @@ public class X10TypeMixin {
 	 * Are instances of this type accessible from anywhere?
 	 * @param t
 	 * @return
-	 */
+	 
 	public static boolean isGlobalType(Type t) {
 		if (isX10Struct(t))
 			return true;
 		return false;
 		
 	}
+	*/
 
 	/**
 	 * We need to ensure that there is a symbolic name for this type. i.e. self is bound to some variable.
