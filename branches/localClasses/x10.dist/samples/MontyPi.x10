@@ -12,8 +12,14 @@
 import x10.util.Random;
 import x10.io.Console;
 
+/**
+ * Calculation of an approximation to pi by using a Monte Carlo simulation
+ * (throwing darts into the unit square and determining the fraction that land
+ * in the unit circle).
+ * Converted to 2.1 9/1/2010.
+ */
 public class MontyPi {
-    public static  def main(s: Rail[String]!) {
+    public static  def main(s: Rail[String]) {
         if (s.length != 1) {
             Console.OUT.println("Usage: MontyPi <number of points>");
             at (Place.FIRST_PLACE) System.setExitCode(-1);

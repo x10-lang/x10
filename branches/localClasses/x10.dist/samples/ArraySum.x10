@@ -13,11 +13,12 @@ import x10.io.Console;
 
 /**
  * A simple illustration of loop parallelization within a single place.
+ * Converted to X10 2.1 vj 9/1/2010
  */
 public class ArraySum {
 
     var sum:Int;
-    val data:Array[Int](1)!;
+    val data:Array[Int](1);
 
     public def this(n:Int) {
 	// Create an Array of rank 1 with n elements (0..n-1), all initialized to 1.
@@ -25,7 +26,7 @@ public class ArraySum {
         sum = 0;
     }
 
-    def sum(a:Array[Int](1)!, start:Int, last:Int) {
+    def sum(a:Array[Int](1), start:Int, last:Int) {
         var mySum: Int = 0;
         for ((i) in start..last-1) mySum += a(i);
         return mySum;
@@ -41,7 +42,7 @@ public class ArraySum {
         }
     }
     
-    public static def main(args: Rail[String]!) {
+    public static def main(args: Rail[String]) {
         var size:Int = 5*1000*1000;
         if (args.length >=1)
             size = Int.parse(args(0));
