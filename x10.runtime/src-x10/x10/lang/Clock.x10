@@ -13,8 +13,18 @@ package x10.lang;
 
 /**
  * @author tardieu
+ *
+ * TODO: Ported from 2.0 to 2.1 via naive simulation of 
+ *       2.0 style global object by injecting a root field
+ *       that is a GlobalRef(this) and always accessing fields 
+ *       as this.root().f instead of this.f.
+ *
+ *       Needs to be cleaned up and simplified
+ *
  */
 public class Clock(name:String) {
+    private val root:GlobalRef[Clock] = GlobalRef[Clock](this);
+
     public static def make(): Clock = make("");
 
     public const FIRST_PHASE = 1;
@@ -25,90 +35,91 @@ public class Clock(name:String) {
         return clock;
     }
 
-    private var count:Int = 1;
-    private var alive:Int = 1;
-    private var phase:Int = FIRST_PHASE;
+    // NOTE: all transient fields must always be accessed as root().f, not .f
+    private transient var count:Int = 1;
+    private transient var alive:Int = 1;
+    private transient var phase:Int = FIRST_PHASE;
 
     private def this(name:String) {
         property(name);
     }
 
-    private global def get() = Runtime.clockPhases().get(this).value;
+    private def get() = Runtime.clockPhases().get(this.root).value;
 
-    private global def put(ph:Int) = Runtime.clockPhases().put(this, ph);
+    private def put(ph:Int) = Runtime.clockPhases().put(this.root, ph);
 
-    private global def remove() = Runtime.clockPhases().remove(this).value;
+    private def remove() = Runtime.clockPhases().remove(this.root).value;
 
-    private atomic def resumeLocal() {
-        if (--alive == 0) {
-            alive = count;
-            ++phase;
+    private atomic def resumeLocal(){here==root.home} {
+        if (--root().alive == 0) {
+            root().alive = root().count;
+            ++root().phase;
         }
     }
 
-    private def dropLocal(ph:Int) {
-        --count;
-        if (-ph != phase)
+    private def dropLocal(ph:Int){here==root.home} {
+        --root().count;
+        if (-ph != root().phase)
             resumeLocal();
     }
 
-    global def register() {
+    def register() {
         if (dropped()) throw new ClockUseException();
         val ph = get();
-        at (this) atomic {
-            ++count;
-            if (-ph != phase) ++alive;
+        at (this.root) atomic {
+            ++root().count;
+            if (-ph != root().phase) ++root().alive;
         }
         return ph;
     }
 
-    global def resumeUnsafe() {
+    def resumeUnsafe() {
         val ph = get();
         if (ph < 0) return;
-        at (this) resumeLocal();
+        at (this.root) resumeLocal();
         put(-ph);
     }
 
-    global def nextUnsafe() {
+    def nextUnsafe() {
         val ph = get();
         val abs = Math.abs(ph);
-        at (this) {
+        at (this.root) {
             if (ph > 0) resumeLocal();
-            await (abs < phase);
+            await (abs < root().phase);
         }
         put(abs + 1);
     }
 
-    global def dropUnsafe() {
+    def dropUnsafe() {
         val ph = remove();
-        async (this) dropLocal(ph);
+        async (this.root) dropLocal(ph);
     }
 
-    global def dropInternal() {
+    def dropInternal() {
         val ph = get();
-        async (this) dropLocal(ph);
+        async (this.root) dropLocal(ph);
     }
 
-    public global def registered():Boolean = Runtime.clockPhases().containsKey(this);
+    public def registered():Boolean = Runtime.clockPhases().containsKey(this.root);
 
-    public global def dropped():Boolean = !registered();
+    public def dropped():Boolean = !registered();
 
-    public global def phase():Int {
+    public def phase():Int {
         if (dropped()) throw new ClockUseException();
         return Math.abs(get());
     }
 
-    public global def resume():Void {
+    public def resume():Void {
         if (dropped()) throw new ClockUseException();
         resumeUnsafe();
     }
 
-    public global def next():Void {
+    public def next():Void {
         if (dropped()) throw new ClockUseException();
         nextUnsafe();
     }
 
-    public global def drop():Void {
+    public def drop():Void {
         if (dropped()) throw new ClockUseException();
         dropUnsafe();
     }
