@@ -12,7 +12,6 @@
 package x10.util;
 
 public interface ValMap[K,V] {
-	// All methods are global
 	public safe def containsKey(k: K): boolean;
 	public safe def get(k: K): Box[V];
     public safe def getOrElse(k: K, orelse: V): V;
