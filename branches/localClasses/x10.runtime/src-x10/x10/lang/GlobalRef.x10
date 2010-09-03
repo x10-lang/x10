@@ -13,7 +13,6 @@ package x10.lang;
 
 
 /**
- *
  * Create a global reference encapsulating a given object.  The ref has
  * the property home specifying the place at which it was
  * created. Besides that, the ref offers only the operations of Any at a
@@ -24,16 +23,24 @@ package x10.lang;
  * <p> At its home place, the value when applied to the empty list of
  * arguments returns its encapsulated value.
  */
-public struct GlobalRef[T](home:Place) { 
+@NativeRep("java", "x10.core.GlobalRef<#1>", null, "new x10.rtt.ParameterizedType(x10.core.GlobalRef._RTT, #2)")
+@NativeRep("c++", "x10::lang::GlobalRef<#1 >", "x10::lang::GlobalRef<#1 >", null)
+public struct GlobalRef[T](
+    @Native("java", "x10.lang.Place.place((#0).home)")
+    @Native("c++", "x10::lang::Place_methods::place((#0)->location)")
+    home:Place) { 
 
    /** 
     * Create a value encapsulating the given object of type T.
     */
+   @Native("c++", "x10::lang::GlobalRef(#0)")
    native public this(t:T); 
 
    /** 
     * Can only be invoked at the place at which the value was
     * created. Returns the object encapsulated in the value.
     */
+   @Native("java", "(#0).apply$G()")
+   @Native("c++", "(#0)->ref")
    native def apply(){here == this.home}:T; 
 }
