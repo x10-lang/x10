@@ -14,19 +14,21 @@ package x10.compiler;
 /**
  * @author igor
  */
+// FIXME: This code should be dead (ie, not used in 2.1 object model)
+//        It won't actually work as written anymore!
 public final class RemoteOperation {
     // FIXME: HACK
     @Native("c++", "x10rt_remote_op((#1)->FMGL(id), (x10rt_remote_ptr) &(((#2)->raw())[(#3)]), X10RT_OP_XOR, #4)")
     public static def xor(p:Place, r:Rail[Long]/*!p*/, i:Int, v:Long) {
         async (p) {
-            (r as Rail[Long]!)(i) ^= v;
+            r(i) ^= v;
         }
     }
 
     @Native("c++", "x10rt_remote_op((#1), (x10rt_remote_ptr) &(((#2)->raw())[(#3)]), X10RT_OP_XOR, #4)")
     public static def xor(id:Int, r:Rail[Long]/*!p*/, i:Int, v:Long) {
         async (Place(id)) {
-            (r as Rail[Long]!)(i) ^= v;
+            r(i) ^= v;
         }
     }
 
