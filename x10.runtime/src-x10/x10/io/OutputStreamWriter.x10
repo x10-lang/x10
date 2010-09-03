@@ -20,60 +20,60 @@ public class OutputStreamWriter extends Writer {
     protected abstract static class OutputStream {
         @Native("java", "#0.close()")
         @Native("c++", "(#0)->close()")
-        public native global def close(): Void throws IOException;
+        public native def close(): Void throws IOException;
 
         @Native("java", "#0.flush()")
         @Native("c++", "(#0)->flush()")
-        public native global def flush(): Void throws IOException;
+        public native def flush(): Void throws IOException;
         
         @Native("java", "#0.write(#1)")
         @Native("c++", "(#0)->write(#1)")
-        public native global def write(Int): Void throws IOException;
+        public native def write(Int): Void throws IOException;
         
         @Native("java", "#0.write((#1).getByteArray())")
         @Native("c++", "(#0)->write(#1)")
-        public native global def write(Rail[Byte]): Void throws IOException;
+        public native def write(Rail[Byte]): Void throws IOException;
         
         @Native("java", "#0.write((#1).getByteArray())")
         @Native("c++", "(#0)->write(#1)")
-        public native global def write(ValRail[Byte]): Void throws IOException;
+        public native def write(ValRail[Byte]): Void throws IOException;
         
         @Native("java", "#0.write((#1).getByteArray(), #2, #3)")
         @Native("c++", "(#0)->write(#1)")
-        public native global def write(Rail[Byte], Int, Int): Void throws IOException;
+        public native def write(Rail[Byte], Int, Int): Void throws IOException;
         
         @Native("java", "#0.write((#1).getByteArray(), #2, #3)")
         @Native("c++", "(#0)->write(#1)")
-        public native global def write(ValRail[Byte], Int, Int): Void throws IOException;
+        public native def write(ValRail[Byte], Int, Int): Void throws IOException;
     }
 
-    global val out: OutputStream;
+    val out: OutputStream;
     
-    global def stream(): OutputStream = out;
+    def stream(): OutputStream = out;
     
     public def this(out: OutputStream) {
         this.out = out;
     }
     
-    public global def flush(): Void throws IOException = out.flush();
+    public def flush(): Void throws IOException = out.flush();
 
-    public global def close(): Void throws IOException = out.close();
+    public def close(): Void throws IOException = out.close();
     
-    public global def write(x: Byte): Void throws IOException = out.write(x);
+    public def write(x: Byte): Void throws IOException = out.write(x);
     
-    public global def write(buf: ValRail[Byte]): Void throws IOException {
+    public def write(buf: ValRail[Byte]): Void throws IOException {
         out.write(buf);
     }
 
-    public global def write(buf: Rail[Byte]!): Void throws IOException {
+    public def write(buf: Rail[Byte]): Void throws IOException {
         out.write(buf);
     }
 
-    public global def write(buf:Rail[Byte]!, off: Int, len: Int): Void throws IOException {
+    public def write(buf:Rail[Byte], off: Int, len: Int): Void throws IOException {
         out.write(buf, off, len);
     }
 
-    public global def write(buf: ValRail[Byte], off: Int, len: Int): Void throws IOException {
+    public def write(buf: ValRail[Byte], off: Int, len: Int): Void throws IOException {
         out.write(buf, off, len);
     }
 }
