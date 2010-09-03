@@ -598,7 +598,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	public void visit(X10ConstructorDecl_c n) {
 		w.begin(0);
 
-		tr.print(n, n.flags(), w);
+		tr.print(n, tr.nodeFactory().FlagsNode(n.flags().position(), n.flags().flags().clearPrivate().clearProtected().Public()), w);
 		tr.print(n, n.name(), w);
 		w.write("(");
 
