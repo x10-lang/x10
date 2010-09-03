@@ -21,15 +21,15 @@ final class FullRegion extends Region{rect} {
 	if (rank<0) throw new IllegalArgumentException("Rank is negative ("+rank+")");
     }
 
-    public global def isConvex() = true;
-    public global def isEmpty() = false;
-    public global def size():int {
+    public def isConvex() = true;
+    public def isEmpty() = false;
+    public def size():int {
         throw new IllegalOperationException("Full Region is infinite; size not supported");
     }
-    public global def min() = ValRail.make(rank, (Int)=>Int.MIN_VALUE);
-    public global def max() = ValRail.make(rank, (Int)=>Int.MAX_VALUE);
-    public global def intersection(that: Region(rank)): Region(rank) = that;
-    public global def product(that: Region): Region/*(this.rank+that.rank)*/ {
+    public def min() = ValRail.make(rank, (Int)=>Int.MIN_VALUE);
+    public def max() = ValRail.make(rank, (Int)=>Int.MAX_VALUE);
+    public def intersection(that: Region(rank)): Region(rank) = that;
+    public def product(that: Region): Region/*(this.rank+that.rank)*/ {
         if (that.isEmpty()) {
             return Region.makeEmpty(rank+that.rank);
         } else if (that instanceof FullRegion) {
@@ -45,20 +45,20 @@ final class FullRegion extends Region{rect} {
 	    throw new UnsupportedOperationException("haven't implemented FullRegion product with "+that.typeName());
         }
     }
-    public global def projection(axis: int): Region(1) = new FullRegion(1);
-    public global def translate(p:Point(rank)): Region(rank) = this;
-    public global def eliminate(i:Int)= new FullRegion(rank-1);
-    protected global def computeBoundingBox(): Region(rank) = this;
-    public global def contains(that: Region(rank)):Boolean = true;
-    public global def contains(p:Point):Boolean = true;
-    public global safe def toString() = "full(" + rank + ")";
+    public def projection(axis: int): Region(1) = new FullRegion(1);
+    public def translate(p:Point(rank)): Region(rank) = this;
+    public def eliminate(i:Int)= new FullRegion(rank-1);
+    protected def computeBoundingBox(): Region(rank) = this;
+    public def contains(that: Region(rank)):Boolean = true;
+    public def contains(p:Point):Boolean = true;
+    public safe def toString() = "full(" + rank + ")";
 
 
-    public global def scanners():Iterator[Region.Scanner]! {
+    public def scanners():Iterator[Region.Scanner] {
         throw new IllegalOperationException("Full Region is infinite: scanning is not supported");
     }
 
-    public global def iterator():Iterator[Point(rank)] {
+    public def iterator():Iterator[Point(rank)] {
         throw new IllegalOperationException("Full Region is infinite: iteration is not supported");
     }
 }

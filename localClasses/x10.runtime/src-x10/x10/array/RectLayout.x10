@@ -104,7 +104,7 @@ struct RectLayout(rank:int) {
         return offset;
     }
 
-    public global safe def toString() {
+    public safe def toString() {
         var s:String = "RectLayout[";
         s += "size=" + size;
         for (var i:int=0; i<min.length; i++)

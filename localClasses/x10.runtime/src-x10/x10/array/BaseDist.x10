@@ -126,36 +126,36 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
     // mapping places to region
     //
 
-    public global def places(): ValRail[Place] {
+    public def places(): ValRail[Place] {
         return places;
     }
 
-    public global def regions(): ValRail[Region(rank)] {
+    public def regions(): ValRail[Region(rank)] {
         return regions;
     }
 
-    public global def get(p: Place): Region(rank) {
+    public def get(p: Place): Region(rank) {
         return regionMap(p.id) as Region(rank); // XXXX
     }
 
-    public global def apply(p: Place): Region(rank) = get(p);
+    public def apply(p: Place): Region(rank) = get(p);
 
 
     //
     // mapping points to places
     //
 
-    public global def apply(pt: Point/*(rank)*/): Place {
+    public def apply(pt: Point/*(rank)*/): Place {
         for (var i:int=0; i<regionMap.length; i++)
             if (regionMap(i).contains(pt as Point(rank)))
                 return Place.places(i);
         throw new ArrayIndexOutOfBoundsException("point " + pt + " not contained in distribution");
     }
 
-    public global def apply(i0: int) = apply([i0] as Point(rank));
-    public global def apply(i0: int, i1: int) = apply([i0,i1] as Point(rank));
-    public global def apply(i0: int, i1: int, i2: int) = apply([i0,i1,i2] as Point(rank));
-    public global def apply(i0: int, i1: int, i2: int, i3: int) = apply([i0,i1,i2,i3] as Point(rank));
+    public def apply(i0: int) = apply([i0] as Point(rank));
+    public def apply(i0: int, i1: int) = apply([i0,i1] as Point(rank));
+    public def apply(i0: int, i1: int, i2: int) = apply([i0,i1,i2] as Point(rank));
+    public def apply(i0: int, i1: int, i2: int, i3: int) = apply([i0,i1,i2,i3] as Point(rank));
 
 
     //
@@ -163,7 +163,7 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
     // Dist op Place
     //
 
-    public global def restriction(r: Region(rank)): Dist(rank) {
+    public def restriction(r: Region(rank)): Dist(rank) {
 
         // XXX need to throw exception if r is not contained in this.region
         // XXX throw away places that map to empty regions!!!
@@ -178,15 +178,15 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
         return new BaseDist(r, ps, rs);
     }
 
-    public global def restriction(p: Place): Dist(rank) {
+    public def restriction(p: Place): Dist(rank) {
         val ps = [p];
         val rs = ValRail.make[Region(rank)](1, (Int)=>get(p));
         return new BaseDist(region.intersection(rs(0)) as Region(rank), ps, rs);
     }
 
-    //incomplete public global def intersection(r: Region(rank)): Dist(rank);
+    //incomplete public def intersection(r: Region(rank)): Dist(rank);
 
-    //incomplete public global def difference(r: Region(rank)): Dist(rank);
+    //incomplete public def difference(r: Region(rank)): Dist(rank);
 
 
 
@@ -194,7 +194,7 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
     // Dist op Dist
     //
 
-    /*public global def intersection(that: Dist(rank)): Dist(rank) {
+    /*public def intersection(that: Dist(rank)): Dist(rank) {
 
         // places
         val ps = this.places;
@@ -217,7 +217,7 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
     }
 */
     /*
-    public global def difference(that: Dist(rank)): Dist(rank) {
+    public def difference(that: Dist(rank)): Dist(rank) {
 
         // places
         val ps = this.places;
@@ -238,7 +238,7 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
         return new BaseDist(overall, ps, rs);
     }
 
-    public global def overlay(that: Dist(rank)): Dist(rank) {
+    public def overlay(that: Dist(rank)): Dist(rank) {
 
         // places
         val ps = Place.places;
@@ -253,7 +253,7 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
 
         return new BaseDist(this.region.union(that.region), ps, rs) as Dist(rank);
     }
-    public global def union(that: Dist(rank)): Dist(rank) {
+    public def union(that: Dist(rank)): Dist(rank) {
 
         // places
         val ps = Place.places;
@@ -274,7 +274,7 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
         return new BaseDist(overall, ps, rs) as Dist(rank);
     }
 */
-    public global def isSubdistribution(that: Dist(rank)): boolean {
+    public def isSubdistribution(that: Dist(rank)): boolean {
         for (p:Place in Place.places)
             if (!that.get(p).contains(this.get(p)))
                 return false;
@@ -308,7 +308,7 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
         return places.length==0? here : places(0);
     }
 
-    public global safe def equals(thatObj:Any): boolean {
+    public safe def equals(thatObj:Any): boolean {
 	if (!(thatObj instanceof Dist)) return false;
         val that:Dist = thatObj as Dist;
         for (p:Place in Place.places)
@@ -318,7 +318,7 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
     }
 
 
-    public global def contains(p:Point) = region.contains(p);
+    public def contains(p:Point) = region.contains(p);
 
 
     //
@@ -330,9 +330,9 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
     // access.
     //
 
-    protected global val places: ValRail[Place];
-    protected global val regions: ValRail[Region(rank)];
-    private global val regionMap: ValRail[Region];
+    protected val places: ValRail[Place];
+    protected val regions: ValRail[Region(rank)];
+    private val regionMap: ValRail[Region];
 
     public def this(r: Region, ps: ValRail[Place], rs: ValRail[Region(r.rank)]): BaseDist{self.region==r} {
 
@@ -365,7 +365,7 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
     //
     //
 
-    public global safe def toString(): String {
+    public safe def toString(): String {
         var s: String = "Dist(";
         var first: boolean = true;
         for (p:Place in places) {
