@@ -32,7 +32,7 @@ public class PolyMat(rank: int) extends Mat[PolyRow] {
     // value
     //
 
-    private global val isSimplified: boolean;
+    private val isSimplified: boolean;
 
 
     /**
@@ -54,7 +54,7 @@ public class PolyMat(rank: int) extends Mat[PolyRow] {
      * captures the strongest halfspace.
      */
 
-    global def simplifyParallel(): PolyMat{self.rank==this.rank} {
+    def simplifyParallel(): PolyMat{self.rank==this.rank} {
 
         if (rows==0)
             return this;
@@ -81,7 +81,7 @@ public class PolyMat(rank: int) extends Mat[PolyRow] {
      * be expensive.
      */
 
-    public global def simplifyAll(): PolyMat{self.rank==this.rank} {
+    public def simplifyAll(): PolyMat{self.rank==this.rank} {
 
         if (isSimplified)
             return this;
@@ -121,7 +121,7 @@ public class PolyMat(rank: int) extends Mat[PolyRow] {
      * by eliminating axis k
      */
 
-    global def eliminate(k: int, simplifyDegenerate: boolean): PolyMat{self.rank==this.rank} {
+    def eliminate(k: int, simplifyDegenerate: boolean): PolyMat{self.rank==this.rank} {
         val pmb = new PolyMatBuilder(rank);
         for (ir:PolyRow in this) {
             val ia = ir(k);
@@ -165,7 +165,7 @@ public class PolyMat(rank: int) extends Mat[PolyRow] {
      * XXX cache rectMin/rectMax/isZeroBased for performance
      */
 
-    global def isRect(): boolean {
+    def isRect(): boolean {
         for (r:PolyRow in this) {
             if (!r.isRect())
                 return false;
@@ -173,7 +173,7 @@ public class PolyMat(rank: int) extends Mat[PolyRow] {
         return true;
     }
 
-    global def rectMin(axis: int): int {
+    def rectMin(axis: int): int {
 
         for (r:PolyRow in this) {
             val a = r(axis);
@@ -185,7 +185,7 @@ public class PolyMat(rank: int) extends Mat[PolyRow] {
         throw new UnboundedRegionException(msg);
     }
     
-    global def rectMax(axis: int): int {
+    def rectMax(axis: int): int {
 
         for (r:PolyRow in this) {
             val a = r(axis);
@@ -197,11 +197,11 @@ public class PolyMat(rank: int) extends Mat[PolyRow] {
         throw new UnboundedRegionException(msg);
     }
 
-    global def rectMin() = ValRail.make[int](rank, (i:Int)=>rectMin(i));
+    def rectMin() = ValRail.make[int](rank, (i:Int)=>rectMin(i));
 
-    global def rectMax() = ValRail.make[int](rank, (i:Int)=>rectMax(i));
+    def rectMax() = ValRail.make[int](rank, (i:Int)=>rectMax(i));
 
-    global def isZeroBased(): boolean {
+    def isZeroBased(): boolean {
         if (!isRect())
             return false;
         try {
@@ -214,7 +214,7 @@ public class PolyMat(rank: int) extends Mat[PolyRow] {
         return true;
     }
 
-    global def isBounded(): boolean {
+    def isBounded(): boolean {
         try {
             for (var i: int = 0; i<rank; i++) {
                 rectMin(i);
@@ -233,7 +233,7 @@ public class PolyMat(rank: int) extends Mat[PolyRow] {
      * halfspace k<=0 where k>0.
      */
 
-    global def isEmpty(): boolean {
+    def isEmpty(): boolean {
         // eliminate all variables
         var pm: PolyMat = this;
         for (var i: int = 0; i<rank; i++)
@@ -253,7 +253,7 @@ public class PolyMat(rank: int) extends Mat[PolyRow] {
      * Concatenate matrices
      */
 
-    public global operator this || (that: PolyMat) {
+    public operator this || (that: PolyMat) {
         val pmb = new PolyMatBuilder(rank);
         for (r:PolyRow in this)
             pmb.add(r);
@@ -263,7 +263,7 @@ public class PolyMat(rank: int) extends Mat[PolyRow] {
     }
 
 
-    public global safe def toString(): String {
+    public safe def toString(): String {
 
         var s: String = "(";
         var first: boolean = true;

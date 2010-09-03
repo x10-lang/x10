@@ -249,12 +249,12 @@ public abstract class Dist(
     /**
      * Return the set of places that this distribution maps some point to.
      */
-    abstract public global def places(): ValRail[Place];
+    abstract public def places(): ValRail[Place];
 
     /**
      * Return the set of regions that this distribution maps some place to.
      */
-    abstract public global def regions(): ValRail[Region(rank)]; // essentially regionMap().values()
+    abstract public def regions(): ValRail[Region(rank)]; // essentially regionMap().values()
 
     /**
      * Return the region consisting of points which this distribution
@@ -263,7 +263,7 @@ public abstract class Dist(
      * @param p the given place
      * @return the points that this distribution maps to p.
      */
-    abstract public global def get(p: Place): Region(rank);
+    abstract public def get(p: Place): Region(rank);
 
 
 
@@ -277,7 +277,7 @@ public abstract class Dist(
      * @param pt the given point
      * @return the place that this distribution maps pt to.
      */
-    abstract public global def apply(pt: Point/*(rank)*/): Place;
+    abstract public def apply(pt: Point/*(rank)*/): Place;
 
     /**
      * Return the place which this distribution maps the specified index to.
@@ -288,7 +288,7 @@ public abstract class Dist(
      * @return the place that this distribution maps the given index to.
      * @see #apply(Point)
      */
-    abstract public global def apply(i0: int): Place;
+    abstract public def apply(i0: int): Place;
 
     /**
      * Return the place which this distribution maps the specified pair of indices to.
@@ -300,7 +300,7 @@ public abstract class Dist(
      * @return the place that this distribution maps the given pair of indices to.
      * @see #apply(Point)
      */
-    abstract public global def apply(i0: int, i1: int): Place;
+    abstract public def apply(i0: int, i1: int): Place;
 
     /**
      * Return the place which this distribution maps the specified triple of indices to.
@@ -313,7 +313,7 @@ public abstract class Dist(
      * @return the place that this distribution maps the given triple of indices to.
      * @see #apply(Point)
      */
-    abstract public global def apply(i0: int, i1: int, i2: int): Place;
+    abstract public def apply(i0: int, i1: int, i2: int): Place;
 
     /**
      * Return the place which this distribution maps the specified quartet of indices to.
@@ -327,7 +327,7 @@ public abstract class Dist(
      * @return the place that this distribution maps the given quartet of indices to.
      * @see #apply(Point)
      */
-    abstract public global def apply(i0: int, i1: int, i2: int, i3: int): Place;
+    abstract public def apply(i0: int, i1: int, i2: int, i3: int): Place;
 
 
     //
@@ -344,7 +344,7 @@ public abstract class Dist(
      * @return an iterator over the points in the region of this distribution.
      * @see x10.lang.Iterable[T]#iterator()
      */
-    public global def iterator(): Iterator[Point{self.rank==region.rank}] = region.iterator() as Iterator[Point{self.rank==region.rank}];
+    public def iterator(): Iterator[Point{self.rank==region.rank}] = region.iterator() as Iterator[Point{self.rank==region.rank}];
 
 
     //
@@ -359,7 +359,7 @@ public abstract class Dist(
      * @param r the given region
      * @return the intersection of this distribution with r.
     
-     abstract public global def intersection(r: Region(rank)): Dist(rank);
+     abstract public def intersection(r: Region(rank)): Dist(rank);
  */
     /**
      * Return the distribution defined over this.region-that.region,
@@ -369,7 +369,7 @@ public abstract class Dist(
      * @param r the given region
      * @return the difference of this distribution and r.
     
-    abstract public global def difference(r: Region(rank)): Dist(rank);
+    abstract public def difference(r: Region(rank)): Dist(rank);
  */
     
     /**
@@ -381,7 +381,7 @@ public abstract class Dist(
      * @param r the given region
      * @return the restriction of this distribution to r.
      */
-    abstract public global def restriction(r: Region(rank)): Dist(rank);
+    abstract public def restriction(r: Region(rank)): Dist(rank);
 
 
     //
@@ -396,7 +396,7 @@ public abstract class Dist(
      * @param that the given distribution
      * @return true if that is a sub-distribution of this distribution.
      */
-    abstract public global def isSubdistribution(that: Dist(rank)): boolean;
+    abstract public def isSubdistribution(that: Dist(rank)): boolean;
 
     /**
      * Return a distribution containing only points that are
@@ -406,7 +406,7 @@ public abstract class Dist(
      * @param that the given distribution
      * @return the intersection of this distribution with that.
    
-    abstract public global def intersection(that: Dist(rank)): Dist(rank);
+    abstract public def intersection(that: Dist(rank)): Dist(rank);
   */
     /**
      * Return the distribution that contains every point in this
@@ -417,7 +417,7 @@ public abstract class Dist(
      * @param that the given distribution
      * @return the difference of this distribution and that.
     
-    abstract public global def difference(that: Dist(rank)): Dist(rank);
+    abstract public def difference(that: Dist(rank)): Dist(rank);
  */
     /**
      * If this distribution and that distribution are disjoint,
@@ -428,7 +428,7 @@ public abstract class Dist(
      * @param that the given distribution
      * @return the disjoint union of this distribution and that.
      
-    abstract public global def union(that: Dist(rank)): Dist(rank);
+    abstract public def union(that: Dist(rank)): Dist(rank);
 */
     
     /**
@@ -439,7 +439,7 @@ public abstract class Dist(
      * @param that the given distribution
      * @return the union of this distribution and that.
      */
-   // abstract public global def overlay(that: Dist(rank)): Dist(rank);
+   // abstract public def overlay(that: Dist(rank)): Dist(rank);
 
     /**
      * Return true iff that is a distribution and both distributions are defined
@@ -448,7 +448,7 @@ public abstract class Dist(
      * @param that the given distribution
      * @return true if that is equal to this distribution.
      */
-    abstract public global safe def equals(that:Any):boolean;
+    abstract public safe def equals(that:Any):boolean;
 
     //
     // other geometric ops
@@ -461,7 +461,7 @@ public abstract class Dist(
      * @param p the given place
      * @return the portion of this distribution that maps to p.
      */
-    abstract public global def restriction(p: Place): Dist(rank);
+    abstract public def restriction(p: Place): Dist(rank);
 
     /**
      * Return true iff this.region contains p.
@@ -469,7 +469,7 @@ public abstract class Dist(
      * @param p the given point
      * @return true if this distribution contains p.
      */
-    abstract public global def contains(p: Point): boolean;
+    abstract public def contains(p: Point): boolean;
 
 
     //
@@ -482,7 +482,7 @@ public abstract class Dist(
      * @param r the given region
      * @return the restriction of this distribution to r.
      */
-    public global operator this | (r: Region(this.rank)): Dist(this.rank)
+    public operator this | (r: Region(this.rank)): Dist(this.rank)
 	= restriction(r);
 
     /**
@@ -491,7 +491,7 @@ public abstract class Dist(
      * @param p the given place
      * @return the restriction of this distribution to p.
      */
-    public global operator this | (p: Place): Dist(rank) = restriction(p);
+    public operator this | (p: Place): Dist(rank) = restriction(p);
 
     /**
      * Intersect this distribution with the specified distribution.
@@ -499,7 +499,7 @@ public abstract class Dist(
      * @param d the given distribution
      * @return the intersection of this distribution and d.
      */
-   //  public global operator this && (d: Dist(rank)): Dist(rank) = intersection(d);
+   //  public operator this && (d: Dist(rank)): Dist(rank) = intersection(d);
 
     /**
      * Union this distribution with the specified distribution.
@@ -507,7 +507,7 @@ public abstract class Dist(
      * @param d the given distribution
      * @return the disjoint union of this distribution and d.
     
-    public global operator this || (d: Dist(rank)): Dist(rank) = union(d);
+    public operator this || (d: Dist(rank)): Dist(rank) = union(d);
  */
     
     /**
@@ -516,7 +516,7 @@ public abstract class Dist(
      * @param d the given distribution
      * @return the difference of this distribution and d.
     
-    public global operator this - (d: Dist(rank)): Dist(rank) = difference(d);
+    public operator this - (d: Dist(rank)): Dist(rank) = difference(d);
  */
     
     /**
@@ -525,7 +525,7 @@ public abstract class Dist(
      * @param r the given region
      * @return the difference of this distribution and r.
      
-    public global operator this - (r: Region(rank)): Dist(rank) = difference(r);
+    public operator this - (r: Region(rank)): Dist(rank) = difference(r);
 */
 
     //
