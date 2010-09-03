@@ -5,6 +5,11 @@ x10.lang.Array: copyTo/copyFrom
       IndexedMemoryChunk is native.  Need to special case Array in compiler
       to get efficient implementation.
 
+x10.compiler.RemoteOperation.
+  Kill this code.  Won't work anymore.  
+  Recode RA to use IndexedMemoryChunk directly.
+
+
 remove x10aux::get_location
 Reference::struct_equals.
     Must check for instanceof GlobalObject, then read location field and do compare.
