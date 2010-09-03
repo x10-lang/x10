@@ -13,11 +13,6 @@ x10.compiler.RemoteOperation.
 x10.io.GlobalStringWriter
   Do we really want this class?  See todo in the class header.
 
-x10.util. DistributedRail
-  Needs to be rethought in context of new object model.  
-  Did enough to get it to compile, but I don't think the
-    semantics were preserved.
-
 x10.util.
   Kill various Val<Foo> classes.  No longer needed in 2.1
 
