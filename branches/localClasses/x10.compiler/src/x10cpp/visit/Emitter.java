@@ -1022,9 +1022,10 @@ public class Emitter {
             if (i != 0)
                 w.newline();
             FieldInstance f = (FieldInstance) type.fields().get(i);
+            
             if (f.flags().isStatic() || query.isSyntheticField(f.name().toString()))
                 continue;
-            if (!X10Flags.toX10Flags(f.flags()).isGlobal()) // only serialize global fields of classes
+            if (f.flags().isTransient()) // don't serialize transient fields
                 continue;
             String fieldName = mangled_field_name(f.name().toString());
             w.write("buf.write(this->"+fieldName+");"); w.newline();
@@ -1063,31 +1064,19 @@ public class Emitter {
             sw.write("template<class __T> ");
             sw.write(make_ref("__T")+" "+klass+"::"+DESERIALIZE_METHOD+"("+DESERIALIZATION_BUFFER+"& buf) {");
             sw.newline(4); sw.begin(0);
-            if (/*type.isGlobalObject()*/false) { // TODO local classes: proper test once front-end support is available
-                sw.writeln("x10::lang::GlobalObject::_reference_state rr = " +
-                        "x10::lang::GlobalObject::_deserialize_reference_state(buf);");
-                sw.writeln(make_ref(klass)+" this_;");
-                sw.write("if (rr.ref != 0) {");
-                sw.newline(4); sw.begin(0);
-                sw.write("this_ = "+klass+"::"+template+DESERIALIZER_METHOD+chevrons(klass)+"(buf);");
-                sw.end(); sw.newline();
-                sw.writeln("}");
-                sw.write("return x10::lang::GlobalObject::_finalize_reference"+chevrons("__T")+"(this_, rr, buf);");
-            } else {
-                sw.writeln("x10::lang::Object::_reference_state rr = x10::lang::Object::_deserialize_reference_state(buf);");
-                sw.write("if (0 == rr.ref) {");                
-                sw.newline(4); sw.begin(0);
-                sw.write("return x10aux::null;");
-                sw.end(); sw.newline();
-                sw.write("} else {");
-                sw.newline(4); sw.begin(0);
-                sw.writeln(make_ref(klass)+" res;");
-                sw.writeln("res = "+klass+"::"+template+DESERIALIZER_METHOD+chevrons(klass)+"(buf);");
-                sw.writeln("_S_(\"Deserialized a \"<<ANSI_SER<<ANSI_BOLD<<\"class\"<<ANSI_RESET<<\""+klass+"\");");
-                sw.write("return res;");
-                sw.end(); sw.newline();
-                sw.writeln("}");
-            }
+            sw.writeln("x10::lang::Object::_reference_state rr = x10::lang::Object::_deserialize_reference_state(buf);");
+            sw.write("if (0 == rr.ref) {");                
+            sw.newline(4); sw.begin(0);
+            sw.write("return x10aux::null;");
+            sw.end(); sw.newline();
+            sw.write("} else {");
+            sw.newline(4); sw.begin(0);
+            sw.writeln(make_ref(klass)+" res;");
+            sw.writeln("res = "+klass+"::"+template+DESERIALIZER_METHOD+chevrons(klass)+"(buf);");
+            sw.writeln("_S_(\"Deserialized a \"<<ANSI_SER<<ANSI_BOLD<<\"class\"<<ANSI_RESET<<\""+klass+"\");");
+            sw.write("return res;");
+            sw.end(); sw.newline();
+            sw.writeln("}");
             sw.end(); sw.newline();
             sw.writeln("}"); sw.forceNewline();
             sw.popCurrentStream();
@@ -1109,7 +1098,7 @@ public class Emitter {
             FieldInstance f = (FieldInstance) type.fields().get(i);
             if (f.flags().isStatic() || query.isSyntheticField(f.name().toString()))
                 continue;
-            if (!X10Flags.toX10Flags(f.flags()).isGlobal()) // only serialize global fields of classes
+            if (f.flags().isTransient()) // don't serialize transient fields of classes
                 continue;
             String fieldName = mangled_field_name(f.name().toString());
             w.write(fieldName+" = buf.read"+chevrons(translateType(f.type(),true))+"();");
@@ -1148,6 +1137,8 @@ public class Emitter {
             FieldInstance f = (FieldInstance) type.fields().get(i);
             if (f.flags().isStatic() || query.isSyntheticField(f.name().toString()))
                 continue;
+            if (f.flags().isTransient()) // don't serialize transient fields
+                continue;
             String fieldName = mangled_field_name(f.name().toString());
             w.write("buf.write(this_->"+fieldName+");"); w.newline();
         }
@@ -1178,6 +1169,8 @@ public class Emitter {
                 w.newline();
             FieldInstance f = (FieldInstance) type.fields().get(i);
             if (f.flags().isStatic() || query.isSyntheticField(f.name().toString()))
+                continue;
+            if (f.flags().isTransient()) // don't serialize transient fields
                 continue;
             String fieldName = mangled_field_name(f.name().toString());
             w.write(fieldName+" = buf.read"+chevrons(translateType(f.type(),true))+"();");
