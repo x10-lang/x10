@@ -63,7 +63,7 @@ public final class AtomicLong {
 	
 	@Native("java", "#0.toString()")
 	@Native("c++", "(#0)->toString()")
-	public native global safe def toString():String;
+	public native safe def toString():String;
 
 	@Native("java", "#0.intValue()")
 	@Native("c++", "(#0)->intValue()")
