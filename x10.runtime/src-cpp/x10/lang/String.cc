@@ -328,7 +328,7 @@ ref<String> String::format(ref<String> format, ref<ValRail<ref<Any> > > parms) {
 ref<String> String::format(ref<String> format, ref<Rail<ref<Any> > > parms) {
     std::ostringstream ss;
     nullCheck(format);
-    placeCheck(nullCheck(parms));
+    nullCheck(parms);
     //size_t len = format->FMGL(content_length);
     char* orig = const_cast<char*>(format->c_str());
     char* fmt = orig;
