@@ -73,7 +73,7 @@ public final class GrowableRail[T] implements Indexable[Int,T], Settable[Int,T] 
     /** Convert to a mutable rail.  This copies the content of the rail. */
     @Native("java", "(#0).toRail()")
     @Native("c++", "(#0)->toRail()")
-    public native def toRail(): Rail[T]!;
+    public native def toRail(): Rail[T];
 
     /** Convert to an immutable rail.  This copies the content of the rail. */
     @Native("java", "(#0).toValRail()")

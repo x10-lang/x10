@@ -24,11 +24,11 @@ public interface Map[K,V]   {
 
 	public def remove(k: K): Box[V];
 
-	public def keySet(): Set[K]!;
+	public def keySet(): Set[K];
 
 	public def clear(): void;
 	
-	public def entries(): Set[Entry[K,V]!]!;
+	public def entries(): Set[Entry[K,V]];
 	
 	public static interface Entry[Key,Val] {
 	    public def getKey(): Key;
