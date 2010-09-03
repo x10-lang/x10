@@ -527,7 +527,7 @@ public static class MessageHandler implements IMessageHandler {
                 classModifiers[PUBLIC] = true;
                 classModifiers[SAFE] = true;
                 classModifiers[STATIC] = true;
-                classModifiers[GLOBAL] = true;
+                // classModifiers[GLOBAL] = true;
             }
             public boolean isClassModifier(int flag) {
                 return  classModifiers[flag];
@@ -549,7 +549,7 @@ public static class MessageHandler implements IMessageHandler {
             public static boolean fieldModifiers[] = new boolean[NUM_FLAGS];
             static {
                 fieldModifiers[TRANSIENT] = true;
-                 fieldModifiers[GLOBAL] = true;
+                // fieldModifiers[GLOBAL] = true;
                 fieldModifiers[PRIVATE] = true;
                 fieldModifiers[PROTECTED] = true;
                 fieldModifiers[PROPERTY] = true;
@@ -574,7 +574,7 @@ public static class MessageHandler implements IMessageHandler {
                 methodModifiers[ATOMIC] = true;
                 methodModifiers[EXTERN] = true;
                 methodModifiers[FINAL] = true;
-                 methodModifiers[GLOBAL] = true;
+                // methodModifiers[GLOBAL] = true;
                 methodModifiers[INCOMPLETE] = true;
                 methodModifiers[NATIVE] = true;
                 methodModifiers[NON_BLOCKING] = true;
