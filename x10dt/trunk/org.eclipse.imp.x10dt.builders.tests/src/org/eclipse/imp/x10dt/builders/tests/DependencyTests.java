@@ -195,6 +195,68 @@ public class DependencyTests {
 		}
 		
 		/**
+		 * In this test, Hello.x10 refers to the field f of type F. If we remove F, Hello.x10 should have a compilation error.
+		 * @throws Exception
+		 */
+		@Test
+		public void depTest7() throws Exception {
+			SWTBotView pkgView = bot.viewByTitle("Package Explorer");
+			SWTBotTree pkgTree = pkgView.bot().tree();
+			SWTBotTreeItem projItem = pkgTree.getTreeItem(Data.DependencyTestsProject);
+			projItem.expand();
+			SWTBotTreeItem srcItem = projItem.getNode("src");
+			srcItem.expand();
+			SWTBotTreeItem pakpacItem = srcItem.getNode("pak.pac").select();
+			pakpacItem.expand();
+			createClass("F", Data.F);
+			SWTBotEclipseEditor srcEditor = bot.editorByTitle("Hello.x10").toTextEditor();
+			srcEditor.setText(Data.Hello3);
+			srcEditor.save();
+			waitForBuildToFinish();
+			SWTBotEclipseEditor DEditor = bot.editorByTitle("D.x10").toTextEditor();
+			DEditor.setText(Data.D1);
+			DEditor.save();
+			waitForBuildToFinish();
+			pakpacItem.getNode("F.x10").select();
+			deleteSelection();
+			String[] errors = ProblemsViewUtils.getErrorResources(bot);
+		    assertError(errors, "Hello");
+		}
+		
+		/**
+		 * In this test, Hello.x10 refers to the field f of type F. If we rename field f, Hello.x10 should have a compilation error.
+		 * @throws Exception
+		 */
+		@Test
+		public void depTest8() throws Exception {
+			SWTBotView pkgView = bot.viewByTitle("Package Explorer");
+			SWTBotTree pkgTree = pkgView.bot().tree();
+			SWTBotTreeItem projItem = pkgTree.getTreeItem(Data.DependencyTestsProject);
+			projItem.expand();
+			SWTBotTreeItem srcItem = projItem.getNode("src");
+			srcItem.expand();
+			SWTBotTreeItem pakpacItem = srcItem.getNode("pak.pac").select();
+			pakpacItem.expand();
+			createClass("F", Data.F);
+			SWTBotEclipseEditor srcEditor = bot.editorByTitle("Hello.x10").toTextEditor();
+			srcEditor.setText(Data.Hello3);
+			srcEditor.save();
+			waitForBuildToFinish();
+			SWTBotEclipseEditor DEditor = bot.editorByTitle("D.x10").toTextEditor();
+			DEditor.setText(Data.D1);
+			DEditor.save();
+			waitForBuildToFinish();
+			SWTBotEclipseEditor FEditor = bot.editorByTitle("F.x10").toTextEditor();
+			FEditor.insertText(2,20,"1");
+			FEditor.save();
+			waitForBuildToFinish();
+			String[] errors = ProblemsViewUtils.getErrorResources(bot);
+		    assertError(errors, "Hello");
+		}
+		
+		
+		
+		/**
 		 * This method asserts that there is an error in errors that belongs to file.
 		 * 
 		 * @param errors

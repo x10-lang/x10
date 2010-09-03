@@ -46,6 +46,15 @@ public class Data {
 							+"}"
 							+"}";
 
+	public static String Hello3 = "public class Hello extends A { \n"
+							+"public static def main(args:Rail[String]) {\n"
+							+    "Console.OUT.println(\"Hello World!\" );\n"
+							+    "val h = new Hello();\n"
+							+    "val v1 = h.methA().methC().d.f;\n"
+							+    "v1.f = 9;\n"
+							+    "h.methB();\n"
+							+"}"
+							+"}";
 	
 	public static String A = "import pac.B;\n"
 							+ "public class A extends B{\n"
@@ -70,6 +79,19 @@ public class Data {
 							+	"public global def methD(){}\n"
 							+ "}";
 	
+	public static String D1 =  "package pak.pac;\n" 
+		+ "public class D {\n"
+		+ 	"public var f: int;\n"
+		+   "public global val d = new F();\n"
+		+	"public global def methD(){}\n"
+		+ "}";
+	
+	
 	public static String E = "public class E {\n"
+							+ "}";
+	
+	public static String F = "package pak.pac;\n"
+							+ "public class F {\n"
+							+ "public global val f = 0;\n"		
 							+ "}";
 }
