@@ -40,10 +40,10 @@ public final struct PlaceLocalHandle[T]{T <: Object} {
     /**
      * @return the object mapped to the handle at the current place
      */
-    public safe native def apply():T!;
+    public safe native def apply():T;
 
     // Only to be used by make method and Runtime class
-    native def set(newVal:T!):Void;
+    native def set(newVal:T):Void;
 
     public safe native def hashCode():Int;
 
@@ -83,7 +83,7 @@ public final struct PlaceLocalHandle[T]{T <: Object} {
      * @param init the initialization closure used to create the local object.
      * @return a PlaceLocalHandle that can be used to access the local objects.
      */
-    public static def make[T](dist:Dist, init:()=>T!){T <: Object}:PlaceLocalHandle[T] {
+    public static def make[T](dist:Dist, init:()=>T){T <: Object}:PlaceLocalHandle[T] {
         val handle = at(Place.FIRST_PLACE) PlaceLocalHandle[T]();
         finish for (p in dist.places()) {
             async (p) handle.set(init());

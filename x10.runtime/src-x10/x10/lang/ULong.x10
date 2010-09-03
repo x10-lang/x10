@@ -512,7 +512,7 @@ public final struct ULong /*TODO implements Arithmetic[ULong], Bitwise[ULong], O
      */
     // @Native("java", "java.lang.Long.toString(#0 & 0xffffffffffffffffL, #1)")
     @Native("c++", "x10aux::long_utils::toString(#0, #1)")
-    public global safe def toString(radix:Int): String = (this.longVal & 0xFFFFFFFFFFFFFFFFL).toString(radix);
+    public safe def toString(radix:Int): String = (this.longVal & 0xFFFFFFFFFFFFFFFFL).toString(radix);
 
     /**
      * Returns a String representation of this ULong as a hexadecimal number.
@@ -520,7 +520,7 @@ public final struct ULong /*TODO implements Arithmetic[ULong], Bitwise[ULong], O
      */
     // @Native("java", "java.lang.Long.toHexString(#0)")
     @Native("c++", "x10aux::long_utils::toHexString(#0)")
-    public global safe def toHexString(): String = this.longVal.toHexString();
+    public safe def toHexString(): String = this.longVal.toHexString();
 
     /**
      * Returns a String representation of this ULong as an octal number.
@@ -528,7 +528,7 @@ public final struct ULong /*TODO implements Arithmetic[ULong], Bitwise[ULong], O
      */
     // @Native("java", "java.lang.Long.toOctalString(#0)")
     @Native("c++", "x10aux::long_utils::toOctalString(#0)")
-    public global safe def toOctalString(): String = this.longVal.toOctalString();
+    public safe def toOctalString(): String = this.longVal.toOctalString();
 
     /**
      * Returns a String representation of this ULong as a binary number.
@@ -536,7 +536,7 @@ public final struct ULong /*TODO implements Arithmetic[ULong], Bitwise[ULong], O
      */
     // @Native("java", "java.lang.Long.toBinaryString(#0)")
     @Native("c++", "x10aux::long_utils::toBinaryString(#0)")
-    public global safe def toBinaryString(): String = this.longVal.toBinaryString();
+    public safe def toBinaryString(): String = this.longVal.toBinaryString();
 
     /**
      * Returns a String representation of this ULong as a decimal number.
@@ -544,7 +544,7 @@ public final struct ULong /*TODO implements Arithmetic[ULong], Bitwise[ULong], O
      */
     // @Native("java", "java.lang.Long.toString(#0 & 0xffffffffffffffffL)")
     @Native("c++", "x10aux::to_string(#0)")
-    public global safe def toString(): String = (this.longVal & 0xFFFFFFFFFFFFFFFFL).toString();
+    public safe def toString(): String = (this.longVal & 0xFFFFFFFFFFFFFFFFL).toString();
 
     /**
      * @deprecated use {@link #parse(String,Int)} instead
@@ -720,7 +720,7 @@ public final struct ULong /*TODO implements Arithmetic[ULong], Bitwise[ULong], O
      */
     // @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public global safe def equals(x:Any):Boolean = this.longVal.equals(x);
+    public safe def equals(x:Any):Boolean = this.longVal.equals(x);
 
     /**
      * Returns true if this ULong is equal to the given ULong.
@@ -729,5 +729,5 @@ public final struct ULong /*TODO implements Arithmetic[ULong], Bitwise[ULong], O
      */
     // @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public global safe def equals(x:ULong):Boolean = this.longVal == x.longVal;
+    public safe def equals(x:ULong):Boolean = this.longVal == x.longVal;
 }

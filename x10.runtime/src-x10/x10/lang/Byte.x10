@@ -314,7 +314,7 @@ public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Orde
      */
     @Native("java", "x10.core.Bytes.toString(#0, #1)")
     @Native("c++", "x10aux::byte_utils::toString(#0, #1)")
-    public global safe native def toString(radix:Int): String;
+    public safe native def toString(radix:Int): String;
 
     /**
      * Returns a String representation of this Byte as a hexadecimal number.
@@ -322,7 +322,7 @@ public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Orde
      */
     @Native("java", "x10.core.Bytes.toString(#0, 16)")
     @Native("c++", "x10aux::byte_utils::toHexString(#0)")
-    public global safe native def toHexString(): String;
+    public safe native def toHexString(): String;
 
     /**
      * Returns a String representation of this Byte as an octal number.
@@ -330,7 +330,7 @@ public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Orde
      */
     @Native("java", "x10.core.Bytes.toString(#0, 8)")
     @Native("c++", "x10aux::byte_utils::toOctalString(#0)")
-    public global safe native def toOctalString(): String;
+    public safe native def toOctalString(): String;
 
     /**
      * Returns a String representation of this Byte as a binary number.
@@ -338,7 +338,7 @@ public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Orde
      */
     @Native("java", "x10.core.Bytes.toString(#0, 2)")
     @Native("c++", "x10aux::byte_utils::toBinaryString(#0)")
-    public global safe native def toBinaryString(): String;
+    public safe native def toBinaryString(): String;
 
     /**
      * Returns a String representation of this Byte as a decimal number.
@@ -346,7 +346,7 @@ public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Orde
      */
     @Native("java", "java.lang.Byte.toString(#0)")
     @Native("c++", "x10aux::to_string(#0)")
-    public global safe native def toString(): String;
+    public safe native def toString(): String;
 
     /**
      * @deprecated use {@link #parse(String,Int)} instead
@@ -412,7 +412,7 @@ public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Orde
      */
     @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public global safe native def equals(x:Any):Boolean;
+    public safe native def equals(x:Any):Boolean;
 
     /**
      * Returns true if this Byte is equal to the given Byte.
@@ -421,5 +421,5 @@ public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Orde
      */
     @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public global safe native def equals(x:Byte):Boolean;
+    public safe native def equals(x:Byte):Boolean;
 }
