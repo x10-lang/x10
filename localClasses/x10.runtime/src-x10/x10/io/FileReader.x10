@@ -15,7 +15,9 @@ import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
 public class FileReader extends InputStreamReader {
-    global val file:File;
+    // TODO: This is questionable.
+    //       What does it mean to send a File to another node?
+    val file:File;
 
     @NativeRep("java", "java.io.FileInputStream", null, null)
     @NativeRep("c++", "x10aux::ref<x10::io::FileReader__FileInputStream>", "x10::io::FileReader__FileInputStream", null)
@@ -23,7 +25,7 @@ public class FileReader extends InputStreamReader {
         public native def this(String);
     }
 
-    public def this(file: File!) throws IOException {
+    public def this(file: File) throws IOException {
         super(new FileInputStream(file.getPath()));
         this.file = file;
     }
