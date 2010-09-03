@@ -166,15 +166,15 @@ public struct IndexedMemoryChunk[T] {
 
     @Native("java", "((Object)#0).toString()")
     @Native("c++", "(#0)->toString()")
-    public global safe native def  toString():String;
+    public safe native def  toString():String;
 
     @Native("java", "((Object)#0).equals(#1)")
     @Native("c++", "(#0)->equals(#1)")
-    public global safe native def equals(that:Any):Boolean;
+    public safe native def equals(that:Any):Boolean;
 
     @Native("java", "((Object)#0).hashCode()")
     @Native("c++", "(#0)->hash_code()")
-    public global safe native def  hashCode():Int;
+    public safe native def  hashCode():Int;
 }
 
 // vim:shiftwidth=4:tabstop=4:expandtab

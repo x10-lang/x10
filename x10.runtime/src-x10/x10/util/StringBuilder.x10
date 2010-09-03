@@ -14,37 +14,34 @@ package x10.util;
 import x10.compiler.Native;
 
 public class StringBuilder implements Builder[Object,String] {
-     val buf: ValRailBuilder[Char]!;
+     val buf: ValRailBuilder[Char];
 
     public def this() {
         buf = new ValRailBuilder[Char]();
     }
 
     /**
-     * When invoked by an activity at the same place as the StringBuider object,
      * toString() returns the String being constructed by the StringBuilder
-     * (same as calling @link{#result}). When invoked by an activity at a different
-     * place, an UnsupportedOperationException is raised.
+     * (same as calling @link{#result}).
      *
      * @return the String object being constructed by the StringBuilder
      */
-    public global safe def toString() {
-      if (!at(here)) throw new UnsupportedOperationException();
-      return (this as StringBuilder!).result();
+    public safe def toString() {
+      return result();
     }
 
     public def add(o:Object): StringBuilder {
         if (o == null)
             return addString("null");
         else
-            return addString((o as Object!).toString());
+            return addString(o.toString());
     }
 
     public def insert(p:Int, o:Object): StringBuilder {
         if (o == null)
             return insertString(p, "null");
         else
-            return insertString(p, (o as Object!).toString());
+            return insertString(p, o.toString());
     }
 
     public def add(x:Char):StringBuilder {
@@ -106,7 +103,7 @@ public class StringBuilder implements Builder[Object,String] {
 
     @Native("java", "new String(#1.getCharArray())")
     @Native("c++", "x10aux::vrc_to_string(#1)")
-    private static safe global native def makeString(ValRail[Char]): String;
+    private static safe native def makeString(ValRail[Char]): String;
 
     public def result() = makeString(buf.result());
 }

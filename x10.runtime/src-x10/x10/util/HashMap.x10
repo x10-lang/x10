@@ -31,7 +31,7 @@ public class HashMap[K,V] implements Map[K,V] {
     }
     
     /** The actual table, must be of size 2**n */
-    var table: Rail[HashEntry[K,V]!]!;
+    var table: Rail[HashEntry[K,V]];
     
     /** Number of non-null, non-removed entries in the table. */
     var size: Int;
@@ -65,7 +65,7 @@ public class HashMap[K,V] implements Map[K,V] {
         assert (sz & -sz) == sz;
         assert sz >= MIN_SIZE;
     
-        table = Rail.make[HashEntry[K,V]!](sz);
+        table = Rail.make[HashEntry[K,V]](sz);
         mask = sz - 1;
         size = 0;
         occupation = 0;
@@ -101,7 +101,7 @@ public class HashMap[K,V] implements Map[K,V] {
         return e.value;
     }
     
-    protected def getEntry(k: K): HashEntry[K,V]! {
+    protected def getEntry(k: K): HashEntry[K,V] {
         if (size == 0)
             return null;
  
@@ -177,7 +177,7 @@ public class HashMap[K,V] implements Map[K,V] {
         modCount++;
         val t = table;
         val oldSize = size;
-        table = Rail.make[HashEntry[K,V]!](t.length*2);
+        table = Rail.make[HashEntry[K,V]](t.length*2);
         mask = table.length - 1;
         size = 0;
         occupation = 0;
@@ -209,21 +209,21 @@ public class HashMap[K,V] implements Map[K,V] {
         return null;
     }
     
-    public def keySet(): Set[K]! = new KeySet[K,V](this);
-    public def entries(): Set[Map.Entry[K,V]!]! = new EntrySet[K,V](this);
+    public def keySet(): Set[K] = new KeySet[K,V](this);
+    public def entries(): Set[Map.Entry[K,V]] = new EntrySet[K,V](this);
     
-    protected def entriesIterator(): Iterator[HashEntry[K,V]!]! {
+    protected def entriesIterator(): Iterator[HashEntry[K,V]] {
     val iterator = new EntriesIterator[K,V](this);
     iterator.advance();
     return iterator;
     }
 
-    protected static class EntriesIterator[-Key,Value] implements Iterator[HashEntry[Key,Value]!] {
-        val map: HashMap[Key,Value]!;
+    protected static class EntriesIterator[-Key,Value] implements Iterator[HashEntry[Key,Value]] {
+        val map: HashMap[Key,Value];
         var i: Int;
 		var originalModCount:Int;
         
-        def this(map: HashMap[Key,Value]!) { this.map = map; this.i = 0; originalModCount = map.modCount; } // you call advance() after the ctor
+        def this(map: HashMap[Key,Value]) { this.map = map; this.i = 0; originalModCount = map.modCount; } // you call advance() after the ctor
 
         def advance(): void {
             while (i < map.table.length) {
@@ -241,7 +241,7 @@ public class HashMap[K,V] implements Map[K,V] {
             return false;
         }
         
-        public def next(): HashEntry[Key,Value]! {
+        public def next(): HashEntry[Key,Value] {
 			if (originalModCount!=map.modCount) throw new RuntimeException("Your code has a concurrency bug! You updated the hashmap "+(map.modCount-originalModCount)+" times since you created the iterator.");
             val j = i;
 //            assert map.table(j) != null && ! map.table(j).removed : "map entry " + j + " is null or removed";
@@ -254,12 +254,12 @@ public class HashMap[K,V] implements Map[K,V] {
     public def size() = size;
     
     protected static class KeySet[-Key,Value] extends AbstractCollection[Key] implements Set[Key] {
-        val map: HashMap[Key,Value]!;
+        val map: HashMap[Key,Value];
         
-        def this(map: HashMap[Key,Value]!) { this.map = map; }
+        def this(map: HashMap[Key,Value]) { this.map = map; }
         
         public def iterator(): Iterator[Key] {
-            return new MapIterator[HashEntry[Key,Value]!,Key](map.entriesIterator(), (e: HashEntry[Key,Value]!) => e.key);
+            return new MapIterator[HashEntry[Key,Value],Key](map.entriesIterator(), (e: HashEntry[Key,Value]) => e.key);
         }
         
         public def contains(k: Key) {
@@ -268,7 +268,7 @@ public class HashMap[K,V] implements Map[K,V] {
         
         public def add(k: Key): Boolean { throw new UnsupportedOperationException(); }
         public def remove(k: Key): Boolean { throw new UnsupportedOperationException(); }
-        public def clone(): KeySet[Key,Value]! { throw new UnsupportedOperationException(); }
+        public def clone(): KeySet[Key,Value] { throw new UnsupportedOperationException(); }
         public def size(): Int = map.size();
     }
 

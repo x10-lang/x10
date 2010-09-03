@@ -14,12 +14,12 @@ package x10.util;
 public final class Box[+T](value: T) implements ()=> T {
     public def this(x: T) { property(x); }
 
-    public global safe def apply()=value;
-    public global safe def hashCode(): int = value.hashCode();
+    public safe def apply()=value;
+    public safe def hashCode(): int = value.hashCode();
 
-    public global safe def toString(): String = value.toString();
+    public safe def toString(): String = value.toString();
 
-    public global safe def equals(x:Any): Boolean {
+    public safe def equals(x:Any): Boolean {
         if (x == null) {
             return false;
         }
