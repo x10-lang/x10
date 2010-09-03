@@ -310,7 +310,7 @@ public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]
      */
     @Native("java", "java.lang.Double.toString(#0)")
     @Native("c++", "x10aux::to_string(#0)")
-    public global safe native def toString(): String;
+    public safe native def toString(): String;
 
 
     /**
@@ -400,7 +400,7 @@ public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]
      */
     @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public global safe native def equals(x:Any):Boolean;
+    public safe native def equals(x:Any):Boolean;
 
     /**
      * Returns true if this Double is equal to the given Double.
@@ -409,5 +409,5 @@ public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]
      */
     @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public global safe native def equals(x:Double):Boolean;
+    public safe native def equals(x:Double):Boolean;
 }

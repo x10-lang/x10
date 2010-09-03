@@ -315,7 +315,7 @@ public final struct Short /*TODO implements Arithmetic[Short], Bitwise[Short], O
      */
     @Native("java", "java.lang.Integer.toString(#0, #1)")
     @Native("c++", "x10aux::short_utils::toString(#0, #1)")
-    public global safe native def toString(radix:Int): String;
+    public safe native def toString(radix:Int): String;
 
     /**
      * Returns a String representation of this Short as a hexadecimal number.
@@ -323,7 +323,7 @@ public final struct Short /*TODO implements Arithmetic[Short], Bitwise[Short], O
      */
     @Native("java", "java.lang.Integer.toHexString(#0)")
     @Native("c++", "x10aux::short_utils::toHexString(#0)")
-    public global safe native def toHexString(): String;
+    public safe native def toHexString(): String;
 
     /**
      * Returns a String representation of this Short as an octal number.
@@ -331,7 +331,7 @@ public final struct Short /*TODO implements Arithmetic[Short], Bitwise[Short], O
      */
     @Native("java", "java.lang.Integer.toOctalString(#0)")
     @Native("c++", "x10aux::short_utils::toOctalString(#0)")
-    public global safe native def toOctalString(): String;
+    public safe native def toOctalString(): String;
 
     /**
      * Returns a String representation of this Short as a binary number.
@@ -339,7 +339,7 @@ public final struct Short /*TODO implements Arithmetic[Short], Bitwise[Short], O
      */
     @Native("java", "java.lang.Integer.toBinaryString(#0)")
     @Native("c++", "x10aux::short_utils::toBinaryString(#0)")
-    public global safe native def toBinaryString(): String;
+    public safe native def toBinaryString(): String;
 
     /**
      * Returns a String representation of this Short as a decimal number.
@@ -347,7 +347,7 @@ public final struct Short /*TODO implements Arithmetic[Short], Bitwise[Short], O
      */
     @Native("java", "java.lang.Short.toString(#0)")
     @Native("c++", "x10aux::to_string(#0)")
-    public global safe native def toString(): String;
+    public safe native def toString(): String;
 
     /**
      * @deprecated use {@link #parse(String,Int)} instead
@@ -422,7 +422,7 @@ public final struct Short /*TODO implements Arithmetic[Short], Bitwise[Short], O
      */
     @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public global safe native def equals(x:Any):Boolean;
+    public safe native def equals(x:Any):Boolean;
 
     /**
      * Returns true if this Short is equal to the given Short.
@@ -431,5 +431,5 @@ public final struct Short /*TODO implements Arithmetic[Short], Bitwise[Short], O
      */
     @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public global safe native def equals(x:Short):Boolean;
+    public safe native def equals(x:Short):Boolean;
 }

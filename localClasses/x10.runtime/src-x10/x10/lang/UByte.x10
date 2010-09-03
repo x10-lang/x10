@@ -495,7 +495,7 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "java.lang.Integer.toString((#0) & 0xff, #1)")
     @Native("c++", "x10aux::int_utils::toString((#0) & 0xff, #1)")
-    public global safe def toString(radix:Int): String = ((this.byteVal & 0xFF) as Int).toString(radix);
+    public safe def toString(radix:Int): String = ((this.byteVal & 0xFF) as Int).toString(radix);
 
     /**
      * Returns a String representation of this UByte as a hexadecimal number.
@@ -503,7 +503,7 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "java.lang.Integer.toHexString((#0) & 0xff)")
     @Native("c++", "x10aux::int_utils::toHexString((#0) & 0xff)")
-    public global safe def toHexString(): String = this.byteVal.toHexString();
+    public safe def toHexString(): String = this.byteVal.toHexString();
 
     /**
      * Returns a String representation of this UByte as an octal number.
@@ -511,7 +511,7 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "java.lang.Integer.toOctalString((#0) & 0xff)")
     @Native("c++", "x10aux::int_utils::toOctalString((#0) & 0xff)")
-    public global safe def toOctalString(): String = this.byteVal.toOctalString();
+    public safe def toOctalString(): String = this.byteVal.toOctalString();
 
     /**
      * Returns a String representation of this UByte as a binary number.
@@ -519,7 +519,7 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "java.lang.Integer.toBinaryString((#0) & 0xff)")
     @Native("c++", "x10aux::int_utils::toBinaryString((#0) & 0xff)")
-    public global safe def toBinaryString(): String = this.byteVal.toBinaryString();
+    public safe def toBinaryString(): String = this.byteVal.toBinaryString();
 
     /**
      * Returns a String representation of this UByte as a decimal number.
@@ -527,7 +527,7 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "java.lang.Integer.toString((#0) & 0xff)")
     @Native("c++", "x10aux::to_string(#0)")
-    public global safe def toString(): String = ((this.byteVal & 0xFF) as Int).toString();
+    public safe def toString(): String = ((this.byteVal & 0xFF) as Int).toString();
 
     /**
      * @deprecated use {@link #parse(String,Int)} instead
@@ -600,7 +600,7 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public global safe def equals(x:Any):Boolean = this.byteVal.equals(x);
+    public safe def equals(x:Any):Boolean = this.byteVal.equals(x);
 
     /**
      * Returns true if this UByte is equal to the given UByte.
@@ -609,5 +609,5 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public global safe def equals(x:UByte):Boolean = this.byteVal == x.byteVal;
+    public safe def equals(x:UByte):Boolean = this.byteVal == x.byteVal;
 }

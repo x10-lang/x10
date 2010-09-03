@@ -489,7 +489,7 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "java.lang.Long.toString((#0) & 0xffffffffL, #1)")
     @Native("c++", "x10aux::int_utils::toString(#0, #1)")
-    public global safe def toString(radix:Int): String = ((this.intVal & 0xFFFFFFFFL) as Long).toString(radix);
+    public safe def toString(radix:Int): String = ((this.intVal & 0xFFFFFFFFL) as Long).toString(radix);
 
     /**
      * Returns a String representation of this UInt as a hexadecimal number.
@@ -497,7 +497,7 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "java.lang.Integer.toHexString(#0)")
     @Native("c++", "x10aux::int_utils::toHexString(#0)")
-    public global safe def toHexString(): String = this.intVal.toHexString();
+    public safe def toHexString(): String = this.intVal.toHexString();
 
     /**
      * Returns a String representation of this UInt as an octal number.
@@ -505,7 +505,7 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "java.lang.Integer.toOctalString(#0)")
     @Native("c++", "x10aux::int_utils::toOctalString(#0)")
-    public global safe def toOctalString(): String = this.intVal.toOctalString();
+    public safe def toOctalString(): String = this.intVal.toOctalString();
 
     /**
      * Returns a String representation of this UInt as a binary number.
@@ -513,7 +513,7 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "java.lang.Integer.toBinaryString(#0)")
     @Native("c++", "x10aux::int_utils::toBinaryString(#0)")
-    public global safe def toBinaryString(): String = this.intVal.toBinaryString();
+    public safe def toBinaryString(): String = this.intVal.toBinaryString();
 
     /**
      * Returns a String representation of this UInt as a decimal number.
@@ -521,7 +521,7 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "java.lang.Long.toString((#0) & 0xffffffffL)")
     @Native("c++", "x10aux::to_string(#0)")
-    public global safe def toString(): String = ((this.intVal & 0xFFFFFFFFL) as Long).toString();
+    public safe def toString(): String = ((this.intVal & 0xFFFFFFFFL) as Long).toString();
 
     /**
      * @deprecated use {@link #parse(String,Int)} instead
@@ -697,7 +697,7 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public global safe def equals(x:Any):Boolean = this.intVal.equals(x);
+    public safe def equals(x:Any):Boolean = this.intVal.equals(x);
 
     /**
      * Returns true if this UInt is equal to the given UInt.
@@ -706,5 +706,5 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public global safe def equals(x:UInt):Boolean = this.intVal == x.intVal;
+    public safe def equals(x:UInt):Boolean = this.intVal == x.intVal;
 }

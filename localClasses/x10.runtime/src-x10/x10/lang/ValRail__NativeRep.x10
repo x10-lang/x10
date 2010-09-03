@@ -63,11 +63,11 @@ import x10.util.Pair;
         @Native("c++", "(#4)->copyTo(#5,#6,#7,#8)")
         @Native("java", "java.lang.System.out.println(\"Should never occur, see ValRail.x10\")")
         private static native def copyTo_[T] (src: ValRail[T], src_off:Int,
-                                              dst_place:Place, dst_finder:()=>Pair[Rail[T]!,Int],
+                                              dst_place:Place, dst_finder:()=>Pair[Rail[T],Int],
                                               len:Int) : Void;
 
         public static def copyTo[T] (src: ValRail[T], src_off:Int,
-                                     dst_place:Place, dst_finder:()=>Pair[Rail[T]!,Int],
+                                     dst_place:Place, dst_finder:()=>Pair[Rail[T],Int],
                                      len:Int) : Void {
             //NOT IMPLEMENTED! if (useNativeFor(dst_place)) { copyTo_(src,src_off,dst_place,dst_finder,len); return; }
             // could be further optimised to send only the part of the valrail needed

@@ -35,18 +35,17 @@ public class Object
      * then so should y.equals(x) be; and x.equals(y) should return the same
      * value on subsequent invocations.
      *
-     * Note that the method is global and safe, so the implementations cannot
+     * Note that the method is safe, so the implementations cannot
      * spawn activities at other places.  So, either the equality comparison
-     * has to be based on only global information, or the implementation has
-     * to ensure that the home location of this object and the given entity is
-     * 'here', and possibly throw an exception if not.
+     * has to be based on only information available at the current place, 
+     * or the implementation has to throw an exception if the information is not available.
      *
      * @param that the given entity
      * @return true if this object is equal to the given entity.
      */
     @Native("java", "((Object)#0).equals(#1)")
     @Native("c++", "(#0)->equals(#1)")
-    public global safe native def equals(that:Any): boolean;
+    public safe native def equals(that:Any): boolean;
 
     /**
      * Return the implementation-defined hash code of this object.
@@ -54,32 +53,31 @@ public class Object
      * same value on subsequent invocations, with an additional invariant that
      * if x.equals(y) is true, then x.hashCode() should equal y.hashCode().
      *
-     * Note that the method is global and safe, so the implementations cannot
+     * Note that the method is safe, so the implementations cannot
      * spawn activities at other places.  So, either the equality comparison
-     * has to be based on only global information, or the implementation has
-     * to ensure that the home location of this object is 'here', and
-     * possibly throw an exception if not.
+     * has to be based on only information available at the current place, 
+     * or the implementation has to throw an exception if the information is not available.
      *
      * @return the hash code of this object.
      */
     @Native("java", "((Object)#0).hashCode()")
     @Native("c++", "(#0)->hashCode()")
-    public global safe native def hashCode() : Int;
+    public safe native def hashCode() : Int;
 
     /**
      * Return the string representation of this object.
      *
-     * Note that the method is global and safe, so the implementations cannot
+     * Note that the method is safe, so the implementations cannot
      * spawn activities at other places.  So, either the string representation
-     * has to include only global information, or the implementation has to
-     * ensure that the home location of the object is 'here', and possibly
-     * throw an exception if not.
+     * has to be based on only information available at the current place, 
+     * or the implementation has to throw an exception if it cannot perform the toString
+     * operation with the avaiable information.
      *
      * @return a string representation of this object.
      */
     @Native("java", "((Object)#0).toString()")
     @Native("c++", "(#0)->toString()")
-    public global safe native def toString() : String;
+    public safe native def toString() : String;
 
     /**
      * Return a string representation of the run-time type of this object.
@@ -88,5 +86,5 @@ public class Object
      */
     @Native("java", "x10.core.Ref.typeName(#0)")
     @Native("c++", "x10aux::type_name(#0)")
-    public global safe native final def typeName():String;
+    public safe native final def typeName():String;
 }
