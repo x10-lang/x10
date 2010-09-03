@@ -492,7 +492,7 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "java.lang.Integer.toString((#0) & 0xffff, #1)")
     @Native("c++", "x10aux::int_utils::toString((#0) & 0xffff, #1)")
-    public global safe def toString(radix:Int): String = ((this.shortVal & 0xFFFF) as Int).toString(radix);
+    public safe def toString(radix:Int): String = ((this.shortVal & 0xFFFF) as Int).toString(radix);
 
     /**
      * Returns a String representation of this UShort as a hexadecimal number.
@@ -500,7 +500,7 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "java.lang.Integer.toHexString((#0) & 0xffff)")
     @Native("c++", "x10aux::int_utils::toHexString((#0) & 0xffff)")
-    public global safe def toHexString(): String = this.shortVal.toHexString();
+    public safe def toHexString(): String = this.shortVal.toHexString();
 
     /**
      * Returns a String representation of this UShort as an octal number.
@@ -508,7 +508,7 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "java.lang.Integer.toOctalString((#0) & 0xffff)")
     @Native("c++", "x10aux::int_utils::toOctalString((#0) & 0xffff)")
-    public global safe def toOctalString(): String = this.shortVal.toOctalString();
+    public safe def toOctalString(): String = this.shortVal.toOctalString();
 
     /**
      * Returns a String representation of this UShort as a binary number.
@@ -516,7 +516,7 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "java.lang.Integer.toBinaryString((#0) & 0xffff)")
     @Native("c++", "x10aux::int_utils::toBinaryString((#0) & 0xffff)")
-    public global safe def toBinaryString(): String = this.shortVal.toBinaryString();
+    public safe def toBinaryString(): String = this.shortVal.toBinaryString();
 
     /**
      * Returns a String representation of this UShort as a decimal number.
@@ -524,7 +524,7 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "java.lang.Integer.toString((#0) & 0xffff)")
     @Native("c++", "x10aux::to_string(#0)")
-    public global safe def toString(): String = ((this.shortVal & 0xFFFF) as Int).toString();
+    public safe def toString(): String = ((this.shortVal & 0xFFFF) as Int).toString();
 
     /**
      * @deprecated use {@link #parse(String,Int)} instead
@@ -606,7 +606,7 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public global safe def equals(x:Any):Boolean = this.shortVal.equals(x);
+    public safe def equals(x:Any):Boolean = this.shortVal.equals(x);
 
     /**
      * Returns true if this UShort is equal to the given UShort.
@@ -615,5 +615,5 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public global safe def equals(x:UShort):Boolean = this.shortVal == x.shortVal;
+    public safe def equals(x:UShort):Boolean = this.shortVal == x.shortVal;
 }

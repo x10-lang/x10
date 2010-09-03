@@ -158,7 +158,7 @@ public final struct Char /*TODO implements Ordered[Char]*/ {
      */
     @Native("java", "java.lang.Character.toString(#0)")
     @Native("c++", "x10aux::to_string(#0)")
-    public global safe native def toString(): String;
+    public safe native def toString(): String;
 
 
     // Duplicate the methods from java.lang.Character, changing static methods to non-static.
@@ -307,7 +307,7 @@ public final struct Char /*TODO implements Ordered[Char]*/ {
      */
     @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public global safe native def equals(x:Any):Boolean;
+    public safe native def equals(x:Any):Boolean;
 
     /**
      * Returns true if this Byte is equal to the given Byte.
@@ -316,5 +316,5 @@ public final struct Char /*TODO implements Ordered[Char]*/ {
      */
     @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public global safe native def equals(x:Char):Boolean;
+    public safe native def equals(x:Char):Boolean;
 }

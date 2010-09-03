@@ -313,7 +313,7 @@ public final struct Float /*TODO implements Arithmetic[Float], Ordered[Float]*/ 
      */
     @Native("java", "java.lang.Float.toString(#0)")
     @Native("c++", "x10aux::to_string(#0)")
-    public global safe native def toString(): String;
+    public safe native def toString(): String;
 
 
     /**
@@ -403,7 +403,7 @@ public final struct Float /*TODO implements Arithmetic[Float], Ordered[Float]*/ 
      */
     @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public global safe native def equals(x:Any):Boolean;
+    public safe native def equals(x:Any):Boolean;
 
     /**
      * Returns true if this Float is equal to the given Float.
@@ -412,5 +412,5 @@ public final struct Float /*TODO implements Arithmetic[Float], Ordered[Float]*/ 
      */
     @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public global safe native def equals(x:Float):Boolean;
+    public safe native def equals(x:Float):Boolean;
 }

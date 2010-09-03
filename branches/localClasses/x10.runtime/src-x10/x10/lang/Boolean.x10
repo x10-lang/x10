@@ -91,7 +91,7 @@ public final struct Boolean {
      */
     @Native("java", "java.lang.Boolean.toString(#0)")
     @Native("c++", "x10aux::to_string(#0)")
-    public global safe native def toString(): String;
+    public safe native def toString(): String;
 
     /**
      * @deprecated use {@link #parse(String)} instead
@@ -121,7 +121,7 @@ public final struct Boolean {
     //FIXME Java: use equalsequals()?
     @Native("java", "((((#2) instanceof boolean) && #1 == ((boolean)#2)) || (((#2) instanceof Boolean) && #1 == ((Boolean) #2).booleanValue()))")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public global safe native def equals(x:Any):Boolean;
+    public safe native def equals(x:Any):Boolean;
 
     /**
      * Returns true if this Boolean is equal to the given Boolean.
@@ -130,7 +130,7 @@ public final struct Boolean {
      */
     @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public global safe native def equals(x:Boolean):Boolean;
+    public safe native def equals(x:Boolean):Boolean;
 
     // These operations are built-in.  Declaring them will prevent the
     // short-circuiting behavior.
