@@ -44,13 +44,13 @@
  *
  * The mechanism (3) is designed for 4 cases:
  *
- * a) Interfaces (unknown(*) whether they are an Object, GlobalObject or a closure)
+ * a) Interfaces (unknown(*) whether they are an Object, boxed struct, or a closure)
  *
  * b) null references
  *
- * c) Polymorphic subclasses of Object or GlobalObject (whose concrete type is not known at compile time)
+ * c) Polymorphic subclasses of Object (whose concrete type is not known at compile time)
  *
- * d) Final subclasses of Object, GlobalObject, and closures
+ * d) Final subclasses of Object and closures
  *
  *
  * The mechanism (3) invokes a static function T::_serialize whenever a ref<T> is written into
@@ -61,8 +61,7 @@
  * The mechanism is used in exactly the same way by hand-written c++ classes and by c++ code that is
  * generated from X10 classes by the X10 compiler.
  *
- * 'Reference' is a common supertype of all Objects, GlobalObjects  and closures, and is used to represent
- * interface types.
+ * 'Reference' is a common supertype of all Objects and closures, and is used to represent interface types.
  * 'Reference' declares a static function _serialize which behaves the same way regardless of the
  * concrete type of the target.  Reference::_serialize will emit an interface id (via a virtual
  * function _get_serialization_id) that is unique to each class, and then serialize the object's
@@ -70,7 +69,7 @@
  * reference (b) it does not defer to these virtual functions.  Since interfaces do not, in general,
  * define _serialize and _deserialize functions, they are "inherited" from Reference.
  * For all other cases, assuming all classes implement _get_serialization_id and _serialize_body
- * properly, this is sufficient.  All subclasses of Reference, namely closures, Object, and GlobalObject
+ * properly, this is sufficient.  All subclasses of Reference, namely closures and Object
  * must define _serialize and _deserialize functions.
  *
  * Unique ids are generated at runtime in a place-independent fashion.  Classes obtain their id by
@@ -83,9 +82,6 @@
  * An internal cursor is incremented ready for the next write().  Note that a class's
  * _serialize_body function should also serialize its super class's representation, e.g. by
  * deferring to the super class's _serialize_body function.
- *
- * To implement (c) we have GlobalObject provide a _serialize_reference that serializes the location and
- * address of the object so that other places can use it as a remote reference.
  *
  * In the case (d) where the object is statically known to be a particular class at deserialization
  * time (e.g. if we are deserializing into a variable whose type is final), we would like to omit
@@ -122,17 +118,6 @@
  * representation too, e.g. by calling their parent's _deserialize_body function.  The two functions
  * _serialize_body and _deserialize_body are dual, and obviously they should be written to match
  * each other.
- *
- * Deserialization of GlobalObject instances is handled through a special function,
- * GlobalObject::_deserialize_reference_state, which reads the location and address information from the
- * stream into an instance of GlobalObject::_reference_state.  This function must be invoked by all
- * subclasses of GlobalObject upon deserialization.  After invoking _deserialize_body, subclasses of
- * GlobalObject must call GlobalObject::_finalize_reference, which will return either the local address, the
- * constructed remote proxy, or null, as appropriate.  If a subclass of GlobalObject wants to override the
- * remote object behavior (i.e., handle remote references itself), the class must override the
- * virtual function _custom_deserialization to return true, which will cause _finalize_reference to
- * ignore the transmitted location information and always return the object produced by the
- * deserialization mechanism.
  *
  * Classes must call buf.record_reference(R) on the deserialization buffer buf right after
  * allocating the object in the DeserializationDispatcher callback (where R is the newly allocated
