@@ -10,6 +10,9 @@ x10.compiler.RemoteOperation.
   Recode RA to use IndexedMemoryChunk directly.
 
 
+x10.io.GlobalStringWriter
+  Do we really want this class?  See todo in the class header.
+
 remove x10aux::get_location
 Reference::struct_equals.
     Must check for instanceof GlobalObject, then read location field and do compare.
