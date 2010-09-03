@@ -133,8 +133,6 @@ ALL_XRCPP_OBJECTS = \
 	x10/lang/Any.o \
 	x10/lang/Closure.o \
 	x10/lang/Fun.o \
-	x10/lang/Global.o \
-	x10/lang/GlobalObject.o \
 	x10/lang/Object.o \
 	x10/lang/Rail.o \
 	x10/lang/Reference.o \

@@ -31,7 +31,6 @@ namespace x10 {
         class String;
         class Any;
         class Object;
-        class GlobalObject;
         
         /**
          * This is a class that exists only at the C++ implementation level,
@@ -39,8 +38,7 @@ namespace x10 {
          * associated RTT.
          * 
          * The purpose of this class is to provide a common C++ level superclass
-         * for Object (X10 local objects), GlobalObject (X10 global objects),
-         * Closure (function objects created from X10 closure literals),
+         * for Object (X10 local objects), Closure (function objects created from X10 closure literals),
          * and IBox<T> (X10 structs of type T that have been boxed because they were upcast to an interface type).
          * The single common superclass is needed because pointers to instances of any of its subclasses could
          * appear in variables of interface type and we need a common C++ level
@@ -102,10 +100,10 @@ namespace x10 {
 
             template<class T> static x10aux::ref<T> _deserialize(x10aux::deserialization_buffer &buf);
 
-            // Should only be overridden in Object and GlobalObject
+            // Should only be overridden in Object
             virtual x10aux::serialization_id_t _get_interface_serialization_id();
 
-            // Should only be overridden in Object and GlobalObject
+            // Should only be overridden in Object
             virtual void _serialize_interface(x10aux::serialization_buffer &buf);
         };
 

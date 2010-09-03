@@ -38,22 +38,6 @@ namespace x10aux {
         return string_utils::lit(getRTT<T>()->name());
     }
 
-    /******* get_location ********/
-
-    // TODO: LocalClasses.  x10aux::get_location to be removed as soon as home removed from Object.
-    template<class T> inline place get_location(ref<T> x) {
-        if (x.isNull()) {
-            return x10aux::here;
-        } else {
-            assert(false);
-            return x10aux::here;
-        }
-    }
-
-    template<typename T> inline place get_location(T x) {
-        return x10aux::here;
-    }
-
     /******* equals ********/
 
     // covers all heap-allocated values (Objects, Functions, Structs boxes to interface types)

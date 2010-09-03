@@ -16,6 +16,3 @@ x10.io.GlobalStringWriter
 x10.util.
   Kill various Val<Foo> classes.  No longer needed in 2.1
 
-remove x10aux::get_location
-Reference::struct_equals.
-    Must check for instanceof GlobalObject, then read location field and do compare.
