@@ -19,7 +19,6 @@ extern "C"
 
 #ifdef __cplusplus
 }
-;
 #endif
 
 // Environment variable names
