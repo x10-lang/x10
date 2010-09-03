@@ -1,3 +1,10 @@
+x10.lang.Array: copyTo/copyFrom
+  (1) need to define variants that take a RemoteArray[T]
+      currently code is just plain wrong.
+  (2) serialization of array doesn't match new semantics because
+      IndexedMemoryChunk is native.  Need to special case Array in compiler
+      to get efficient implementation.
+
 remove x10aux::get_location
 Reference::struct_equals.
     Must check for instanceof GlobalObject, then read location field and do compare.
