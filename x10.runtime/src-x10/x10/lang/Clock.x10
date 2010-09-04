@@ -11,31 +11,38 @@
 
 package x10.lang;
 
+import x10.compiler.Global;
+import x10.compiler.Pinned;
+
 /**
  * @author tardieu
  *
- * TODO: Ported from 2.0 to 2.1 via naive simulation of 
+ * Ported from 2.0 to 2.1 via naive simulation of 
  *       2.0 style global object by injecting a root field
  *       that is a GlobalRef(this) and always accessing fields 
  *       as this.root().f instead of this.f.
- *
- *       Needs to be cleaned up and simplified
- *
+ * TODO: Port to Dual Class implementation of global objects.
  */
 public class Clock(name:String) {
-    private val root:GlobalRef[Clock] = GlobalRef[Clock](this);
-
+	
+	protected val root = GlobalRef[Clock](this);
+	public safe def equals(a:Any) {
+		if (a == null || ! (a instanceof Clock))
+			return false;
+		return (a as Clock).root == this.root;
+	}
+	public safe def hashCode() = root.hashCode();
+	
     public static def make(): Clock = make("");
-
-    public const FIRST_PHASE = 1;
-
     public static def make(name:String):Clock {
         val clock = new Clock(name);
         Runtime.clockPhases().put(clock, FIRST_PHASE);
         return clock;
     }
 
-    // NOTE: all transient fields must always be accessed as root().f, not .f
+    public static FIRST_PHASE = 1;
+    // NOTE: all transient fields must always be accessed as this.root().f (and at place this.root.home), 
+    // not this.f
     private transient var count:Int = 1;
     private transient var alive:Int = 1;
     private transient var phase:Int = FIRST_PHASE;
@@ -44,82 +51,82 @@ public class Clock(name:String) {
         property(name);
     }
 
-    private def get() = Runtime.clockPhases().get(this.root).value;
-
-    private def put(ph:Int) = Runtime.clockPhases().put(this.root, ph);
-
-    private def remove() = Runtime.clockPhases().remove(this.root).value;
-
-    private atomic def resumeLocal(){here==root.home} {
-        if (--root().alive == 0) {
-            root().alive = root().count;
-            ++root().phase;
-        }
+    // should be accessed through root()
+    @Pinned private def resumeLocal()  {
+        atomic 
+            if (--alive == 0) {
+                alive = count;
+                ++phase;
+            }
     }
-
-    private def dropLocal(ph:Int){here==root.home} {
-        --root().count;
-        if (-ph != root().phase)
+    // should be accessed through root()
+    @Pinned private def dropLocal(ph:Int) {
+        --count;
+        if (-ph != phase)
             resumeLocal();
     }
 
-    def register() {
+    @Global private def get() = Runtime.clockPhases().get(this).value;
+    @Global private def put(ph:Int) = Runtime.clockPhases().put(this, ph);
+    @Global private def remove() = Runtime.clockPhases().remove(this).value;
+    @Global def register() {
         if (dropped()) throw new ClockUseException();
         val ph = get();
-        at (this.root) atomic {
-            ++root().count;
-            if (-ph != root().phase) ++root().alive;
-        }
+        at (root) {
+        	val me = root();
+        	atomic {
+        		 ++ me.count;
+                 if (-ph != me.phase) 
+                	 ++ me.alive;
+        	}
+        }   
         return ph;
-    }
-
-    def resumeUnsafe() {
+     }
+     @Global def resumeUnsafe() {
         val ph = get();
         if (ph < 0) return;
-        at (this.root) resumeLocal();
+        at (root) {
+        	val me = root();
+        	me.resumeLocal();
+        }
         put(-ph);
     }
-
-    def nextUnsafe() {
+    @Global def nextUnsafe() {
         val ph = get();
         val abs = Math.abs(ph);
-        at (this.root) {
-            if (ph > 0) resumeLocal();
-            await (abs < root().phase);
+        at (root) {
+        	val me = root();
+            if (ph > 0) me.resumeLocal();
+            await (abs < me.phase);
         }
         put(abs + 1);
     }
-
-    def dropUnsafe() {
+    @Global def dropUnsafe() {
         val ph = remove();
-        async (this.root) dropLocal(ph);
+        async at(root) {
+        	val me = root();
+        	me.dropLocal(ph);
+        }
     }
-
-    def dropInternal() {
+    @Global def dropInternal() {
         val ph = get();
-        async (this.root) dropLocal(ph);
+        async (root) root().dropLocal(ph);
     }
-
-    public def registered():Boolean = Runtime.clockPhases().containsKey(this.root);
-
-    public def dropped():Boolean = !registered();
-
-    public def phase():Int {
+    public @Global def registered():Boolean = Runtime.clockPhases().containsKey(this);
+    public @Global def dropped():Boolean = !registered();
+    public @Global def phase():int {
         if (dropped()) throw new ClockUseException();
         return Math.abs(get());
     }
-
-    public def resume():Void {
+    public @Global def resume():void {
         if (dropped()) throw new ClockUseException();
         resumeUnsafe();
     }
-
-    public def next():Void {
+    public @Global def next():void {
         if (dropped()) throw new ClockUseException();
         nextUnsafe();
     }
-
-    public def drop():Void {
+    public @Global def drop():void {
         if (dropped()) throw new ClockUseException();
         dropUnsafe();
     }
