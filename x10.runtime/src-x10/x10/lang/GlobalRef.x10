@@ -11,7 +11,8 @@
 
 package x10.lang;
 
-
+import x10.compiler.NativeRep;
+import x10.compiler.Native;
 /**
  * Create a global reference encapsulating a given object.  The ref has
  * the property home specifying the place at which it was
