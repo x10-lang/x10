@@ -493,7 +493,7 @@ public class X10Flags extends Flags {
      *            TODO
      */
     public X10Flags Property() {
-        return setX(PROPERTY).setX(GLOBAL);
+        return setX(PROPERTY);
     }
 
     /**

@@ -154,9 +154,9 @@ public interface X10TypeSystem extends TypeSystem {
     //Type Value();
     
     Type Object();
-    Type GlobalObject();
+    Type GlobalRef();
     Type Any();
-    Type Global();
+  
     Type NativeType();
     Type NativeRep();
 

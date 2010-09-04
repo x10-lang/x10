@@ -238,6 +238,25 @@ public class X10TypeMixin {
 	    }
 	    return t;
 	}
+	public static Type erasedType(Type t) {
+	    if (t instanceof AnnotatedType) {
+	        AnnotatedType at = (AnnotatedType) t;
+	        return erasedType(at.baseType());
+	    }
+	    if (t instanceof MacroType) {
+	        MacroType mt = (MacroType) t;
+	        return erasedType(mt.definedType());
+	    }
+	    if (t instanceof ConstrainedType) {
+	        ConstrainedType ct = (ConstrainedType) t;
+	        return erasedType(baseType(Types.get(ct.baseType())));
+	    }
+	    if (t instanceof ConstrainedType) {
+	        ConstrainedType ct = (ConstrainedType) t;
+	        return erasedType(baseType(Types.get(ct.baseType())));
+	    }
+	    return t;
+	}
 	
     public static Type stripConstraints(Type t) {
         X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
@@ -359,10 +378,8 @@ public class X10TypeMixin {
     		return false;
     	return ((X10Struct) t).isX10Struct();
     }
-    public static boolean isGlobalType(Type t) {
-    	return isX10Struct(t) || X10Flags.toX10Flags(((X10ParsedClassType_c) baseType(t)).flags()).isGlobal();
-    	 
-    }
+   
+
     public static boolean isClass(Type t) {
 	    return ! isX10Struct(t);
     }

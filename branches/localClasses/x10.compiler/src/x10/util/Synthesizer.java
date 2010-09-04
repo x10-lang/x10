@@ -1112,7 +1112,7 @@ public class Synthesizer {
 
         // Find the right super constructor: def (args)
         Type sType = cDecl.superClass().type();
-        Type scType = PlaceChecker.AddIsHereClause(sType, context);
+        Type scType = sType; // PlaceChecker.AddIsHereClause(sType, context);
        
         ConstructorDef sDef = xts.findConstructor(sType,    // receiver's type
                 xts.ConstructorMatcher(sType, 
