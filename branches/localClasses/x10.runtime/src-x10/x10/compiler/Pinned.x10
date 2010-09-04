@@ -12,6 +12,7 @@
 package x10.compiler;
 
 import x10.lang.annotations.ClassAnnotation;
+import x10.lang.annotations.MethodAnnotation;
 
 /**
  * Pinned has two uses -- as an annotation for Classes and for Methods. These uses
@@ -44,7 +45,7 @@ import x10.lang.annotations.ClassAnnotation;
  * place guard. They should not directly access any transient field, but should place-shift to root.home. 
  * At root.home they can access the root object by evaluating root(), and may access its transient fields. 
  * 
-
+ * <p> Note that one can move from the Singl Class Idiom to the Dual Class Idiom (highy recommended)
  * <p> The @Pinned class annotation is used to support the Dual Class idiom: it
  * marks the class whose instances are root objects. The @Pinned method annotation is used to 
  * support the Single Class idiom: it marks methods that are intended to be invoked on the root object.
