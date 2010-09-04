@@ -208,7 +208,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         final XVar[] y = ys.toArray(new XVar[ys.size()]);
         final XVar[] x = xs.toArray(new XVar[ys.size()]);
 
-        Context cxt = PlaceChecker.pushHereTerm(mi.def(), (X10Context) context);
+        Context cxt = context; // PlaceChecker.pushHereTerm(mi.def(), (X10Context) context);
         X10TypeEnv_c newEnv = new X10TypeEnv_c(cxt);
         mi = newEnv.fixThis(mi, y, x);
         mj = newEnv.fixThis(mj, y, x);

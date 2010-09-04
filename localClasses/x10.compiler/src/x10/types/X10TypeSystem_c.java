@@ -1318,18 +1318,13 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     // return XOBJECT_;
     // }
 
-    protected Type GLOBAL_OBJECT_;
-    public Type GlobalObject() {
-        if (GLOBAL_OBJECT_ == null)
-            GLOBAL_OBJECT_ = load("x10.lang.GlobalObject");
-        return GLOBAL_OBJECT_;
+    protected Type GLOBAL_REF_;
+    public Type GlobalRef() {
+        if (GLOBAL_REF_ == null)
+            GLOBAL_REF_ = load("x10.lang.GlobalRef");
+        return GLOBAL_REF_;
     }
-    protected Type GLOBAL_;
-    public Type Global() {
-        if (GLOBAL_ == null)
-            GLOBAL_ = load("x10.lang.Global");
-        return GLOBAL_;
-    }
+   
     public Type Object() {
         if (OBJECT_ == null)
             OBJECT_ = load("x10.lang.Object");

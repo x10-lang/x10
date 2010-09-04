@@ -185,7 +185,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     }
     
     @Override
-    protected void setSuperClass(TypeSystem ts, final ClassDef thisType) throws SemanticException {
+    protected void setSuperClass(TypeSystem ts, ClassDef thisType) throws SemanticException {
         TypeNode superClass = this.superClass;
 
         final X10TypeSystem xts = (X10TypeSystem) ts;
@@ -194,8 +194,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         // during bootstrapping: Object, refers to Int, refers to Object, ...
         final LazyRef<Type> superRef = Types.lazyRef(null);
 
-        if (thisType.fullName().equals(QName.make("x10.lang.Object"))
-        		|| thisType.fullName().equals(QName.make("x10.lang.GlobalObject"))) {
+        if (thisType.fullName().equals(QName.make("x10.lang.Object"))) {
         	thisType.superType(null);
         }
         else if (flags().flags().isInterface()) {
@@ -211,10 +210,10 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         	thisType.superType(null);
         }
         else if (superClass == null) {
-            // The default superclass is Object, unless the global flag is present.
+            // The default superclass is Object
         	superRef.setResolver(new Runnable() {
         		public void run() {
-        			superRef.update(X10TypeMixin.isGlobalType(thisType.asType()) ? xts.GlobalObject() : xts.Object());
+        			superRef.update(xts.Object());
         		}
         	});
         	thisType.superType(superRef);
@@ -573,18 +572,18 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     }
  
     public Node typeCheckClassInvariant(Node parent, ContextVisitor tc, TypeChecker childtc) throws SemanticException {
-    	X10ClassDecl_c n = this;
-    	DepParameterExpr classInvariant = (DepParameterExpr) n.visitChild(n.classInvariant, childtc);
-    	n = (X10ClassDecl_c) n.classInvariant(classInvariant);
+	X10ClassDecl_c n = this;
+	DepParameterExpr classInvariant = (DepParameterExpr) n.visitChild(n.classInvariant, childtc);
+	n = (X10ClassDecl_c) n.classInvariant(classInvariant);
+	
 
-
-    	// TODO: Add check that the invariant established by this class is adequate
-    	// to entail the invariants associated with all interfaces (after applying
-    	// a substitution which replaces all fields specified in the interface with the fields
-    	// implementing them in the class).
-
-
-    	return n;
+	// TODO: Add check that the invariant established by this class is adequate
+	// to entail the invariants associated with all interfaces (after applying
+	// a substitution which replaces all fields specified in the interface with the fields
+	// implementing them in the class).
+	
+	
+	return n;
     }
     
     public Node typeCheckProperties(Node parent, ContextVisitor tc, TypeChecker childtc) throws SemanticException {
@@ -635,14 +634,6 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         			                                                      position()));
         		}
         	}
-        	if (X10TypeMixin.isGlobalType(((X10ClassDef) type).asType())
-        			&& ! X10TypeMixin.isGlobalType(type.superType().get())){
-        			Errors.issue(tc.job(),
-        			             new Errors.GlobalClassMustHaveGlobalClassSupertype(type.superType(),
-        			                                                      type,
-        			                                                      position()));
-        	}
-        	
         }
         if (n.superClass == null && type.superType() != null) {
             n = (X10ClassDecl_c) n.superClass(nf.CanonicalTypeNode(
@@ -682,10 +673,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
                 worklist.addAll(ot.interfaces());
             }
         }
-        // Declare an error if global is used to modify a struct declaration.
-        if (X10Flags.toX10Flags(flags().flags()).isGlobal() && ((X10ClassDef) type).isStruct()) {
-        	  Errors.issue(tc.job(), new Errors.StructMayNotBeGlobal( position(), this));
-        }
+        
         // Check for instance type definitions -- these are not supported.
         for (TypeDef def : ((X10ClassDef) type).memberTypes()) {
             MacroType mt = def.asType();
@@ -718,6 +706,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     		n.checkStructMethods(parent, tc);
     	}
 
+       
     	return n;
     }
     

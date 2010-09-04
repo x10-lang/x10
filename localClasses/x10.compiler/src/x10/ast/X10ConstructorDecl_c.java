@@ -253,7 +253,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         
         X10TypeSystem xts = (X10TypeSystem) c.typeSystem();
         if (child == body || child == returnType || child == hasType || child == throwTypes || child == offerType || (formals != null && formals.contains(child))) {
-        	c = PlaceChecker.pushHereIsThisHome(xc);
+        	// c = PlaceChecker.pushHereIsThisHome(xc);
         }
         
 

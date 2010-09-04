@@ -73,7 +73,7 @@ import x10.types.X10TypeSystem_c;
 import x10.types.XTypeTranslator;
 import x10.types.checker.Checker;
 import x10.types.checker.Converter;
-import x10.types.checker.PlaceChecker;
+// import x10.types.checker.PlaceChecker;
 import x10.types.matcher.DumbMethodMatcher;
 import x10.visit.X10TypeChecker;
 
@@ -692,7 +692,8 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		if (this.target() == null)
 		    methodCall = (X10Call_c) methodCall.targetImplicit(true).target(target);
 		methodCall.checkProtoMethod();
-		methodCall = (X10Call_c) PlaceChecker.makeReceiverLocalIfNecessary(methodCall, tc);
+		// Eliminate for orthogonal locality.
+		// methodCall = (X10Call_c) PlaceChecker.makeReceiverLocalIfNecessary(methodCall, tc);
 		//methodCall.checkConsistency(c); // [IP] Removed -- this is dead code at this point
 		methodCall.checkAnnotations(tc);
 		X10TypeMixin.checkMissingParameters(methodCall);

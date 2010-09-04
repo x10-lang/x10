@@ -507,7 +507,8 @@ public class XTypeTranslator {
 			if (body == null) {
 				// hardwire s.at(t) for an interface
 				// return s.home = t is Place ? t : t.home
-				body  = PlaceChecker.rewriteAtClause(c, xmi, t, r, xc);
+				// stub out for orthogonal locality
+				// body  = PlaceChecker.rewriteAtClause(c, xmi, t, r, xc);
 			}
 			if (body != null) {
 				if (xmi.x10Def().thisVar() != null && t.target() instanceof Expr) {
