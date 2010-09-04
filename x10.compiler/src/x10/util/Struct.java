@@ -209,11 +209,11 @@ public class Struct {
             //@Native("java", "x10.lang.Place.place(x10.core.Ref.home(#0))")
             //@Native("c++", "x10::lang::Place_methods::place(x10aux::get_location(#0))")
             //property def home():Place;
-            natives = createNative(nf, pos, "x10.lang.Place.place(x10.core.Ref.home(#0))", "x10::lang::Place_methods::place(x10aux::here)");
-            methodName = "home";
-            md = nf.MethodDecl(pos,nf.FlagsNode(pos,nativeFlags.Property()),placeTypeNode,nf.Id(pos,Name.make(methodName)),Collections.EMPTY_LIST,Collections.EMPTY_LIST,null);
-            md = (X10MethodDecl) ((X10Ext) md.ext()).annotations(natives);
-            n = (X10ClassDecl_c) n.body(n.body().addMember(md));
+            //natives = createNative(nf, pos, "x10.lang.Place.place(x10.core.Ref.home(#0))", "x10::lang::Place_methods::place(x10aux::here)");
+            //methodName = "home";
+           // md = nf.MethodDecl(pos,nf.FlagsNode(pos,nativeFlags.Property()),placeTypeNode,nf.Id(pos,Name.make(methodName)),Collections.EMPTY_LIST,Collections.EMPTY_LIST,null);
+           // md = (X10MethodDecl) ((X10Ext) md.ext()).annotations(natives);
+            //n = (X10ClassDecl_c) n.body(n.body().addMember(md));
 
             //@Native("java", "x10.core.Ref.typeName(#0)")
             //@Native("c++", "x10aux::type_name(#0)")
