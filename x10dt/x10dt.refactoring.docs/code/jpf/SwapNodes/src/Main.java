@@ -12,7 +12,9 @@ public class Main {
 	}
 
 	public static void swapNodeShouldSucceed(Node node) {
-		node.swapByNext();
+		if (node != null) {
+			node.swapByNext();
+		}
 	}
 
 }

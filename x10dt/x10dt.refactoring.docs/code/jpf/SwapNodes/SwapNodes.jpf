@@ -1,4 +1,4 @@
-@using jpf-symbc
+@using=jpf-symbc
 
 target=Main
 
