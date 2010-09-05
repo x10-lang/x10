@@ -19,7 +19,7 @@ import x10.util.StringBuilder;
 //       I think we actually should remove this class.  --dave Sep 3, 2010.
 public class GlobalStringWriter extends Writer {
     val b:GlobalRef[StringBuilder];
-    public def this() { this.b = new GlobalRef[new StringBuilder()]; }
+    public def this() { this.b = new GlobalRef[StringBuilder](new StringBuilder()); }
 
     public def write(x:Byte): Void { 
         at(b) { b().add((x as Byte) as Char); }
