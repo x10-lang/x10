@@ -12,6 +12,8 @@
 package x10.lang;
 
 import x10.util.GrowableRail;
+import x10.compiler.Pinned;
+import x10.compiler.Global;
 
 /**
  * The representation of an X10 future expression.
@@ -28,56 +30,61 @@ import x10.util.GrowableRail;
  *
  */
 public class Future[+T] implements ()=>T {
+	val root = GlobalRef[Future[T]](this);
     /**
      * Latch for signaling and wait
      */
-    private val latch = GlobalRef[Runtime.Latch](new Runtime.Latch());
+    transient private val latch = new Runtime.Latch();
 
     /**
      * Set if the activity terminated with an exception.
      * Can only be of type Error or RuntimeException
      */
-    private val exception = GlobalRef[GrowableRail[Throwable]](new GrowableRail[Throwable]());
+    transient private val exception = new GrowableRail[Throwable]();
 
-    private val result:GloablRef[GrowableRail[T]];
+    transient private val result:GrowableRail[T];
 
-    private val eval:()=>T;
+    transient private val eval:()=>T;
 
     def this(eval:()=>T) {
         this.eval = eval;
-        result = GlobalRef[GrowableRail[T]](new GrowableRail[T]());
+        result = new GrowableRail[T]();
     }
 
-    private def result() = at (result) result();
+    private def result() = at (root) (root as GlobalRef[Future[T]]{self.home==here})().result(0);
 
     /**
      * Return true if this activity has completed.
      */
-    public def forced():boolean = at (latch) latch()();
+    public def forced():boolean = at (root) (root as GlobalRef[Future[T]])().latch();
 
     public def apply():T = force();
 
     /**
      * Wait for the completion of this activity and return the computed value.
      */
-    public def force():T {
-        return at (latch) {
-            latch.await();
-            if (exception.length() > 0) {
-                val e = exception(0);
-                if (e instanceof Error)
-                    throw e as Error;
-                if (e instanceof RuntimeException)
-                    throw e as RuntimeException;
-                assert false;
-            }
-            result()(0)
+    @Global public def force():T {
+        return at (root) {
+        	val me = (root as GlobalRef[Future[T]]{self.home==here})();
+            me.forceLocal()
         };
     }
 
-    def run():Void {
+    @Pinned private def forceLocal():T {
+    	 latch.await();
+         if (exception.length() > 0) {
+             val e = exception(0);
+             if (e instanceof Error)
+                 throw e as Error;
+             if (e instanceof RuntimeException)
+                 throw e as RuntimeException;
+             assert false;
+         }
+         return result(0);
+    }
+    @Pinned def run():Void {
         try {
-            finish result().add(eval());
+            finish result.add(eval());
             latch.release();
         } catch (t:Throwable) {
             exception.add(t);
