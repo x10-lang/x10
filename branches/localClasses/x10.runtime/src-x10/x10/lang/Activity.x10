@@ -20,6 +20,9 @@ import x10.util.Stack;
  */
 public class Activity {
 
+	// Useful for the Java runtime? 
+	val root = GlobalRef[Activity](this);
+	def home():Place=root.home();
     /**
      * Sleep for the specified number of milliseconds.
      * [IP] NOTE: Unlike Java, x10 sleep() simply exits when interrupted.
