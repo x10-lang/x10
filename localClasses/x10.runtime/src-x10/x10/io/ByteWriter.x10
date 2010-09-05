@@ -26,6 +26,7 @@ public class ByteWriter[T] /*extends Writer*/ {
       } else {
           b.toString();
       }
+    }
     public def result() = at (b) b().result(); 
     
     public def flush(): Void { }
