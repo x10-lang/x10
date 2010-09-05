@@ -148,11 +148,9 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
         NodeVisitor childtc = tc.enter(parent, this);
 
         XConstrainedTerm  pt = ((X10Context) tc.context()).currentPlaceTerm();
-        if (pt == null || pt.term() == null)
-        assert pt.term()!= null;
-        ((X10LocalDef) localDef()).setPlaceTerm(pt.term());
+        if (pt != null && pt.term() != null)
+        	((X10LocalDef) localDef()).setPlaceTerm(pt.term());
         if (type() instanceof UnknownTypeNode) {
-
 
             Expr init = (Expr) this.visitChild(init(), childtc);
             if (init != null) {
