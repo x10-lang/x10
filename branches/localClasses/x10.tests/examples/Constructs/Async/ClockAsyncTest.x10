@@ -24,7 +24,7 @@ public class ClockAsyncTest extends x10Test {
     public def run(): boolean = {
 	try {
 	    val clocks = new Array[Clock](0..5, (Point)=>Clock.make());
-	    finish async (here) clocked (clocks(0)){
+	    finish async clocked (clocks(0)){
 		next;
 	    }
 	} catch (x:ClockUseException) {
@@ -33,7 +33,7 @@ public class ClockAsyncTest extends x10Test {
 	return false;
     }
 
-    public static def main(var args: Rail[String]) {
+    public static def main(Rail[String]) {
 	new ClockAsyncTest().execute();
     }
 }
