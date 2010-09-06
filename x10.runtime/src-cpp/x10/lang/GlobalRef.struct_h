@@ -23,7 +23,7 @@ namespace x10 {
             x10aux::ref<T> value; 
 	    x10aux::place location;	
 
-	    GlobalRef(x10aux::ref<T> obj) : value(obj), location(x10aux::here) {}
+	    GlobalRef(x10aux::ref<T> obj = NULL) : value(obj), location(x10aux::here) {}
 
             inline x10aux::ref<T> apply() { return value; }
 
