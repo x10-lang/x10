@@ -15,21 +15,22 @@ import harness.x10Test;
  * Testing that a value created remotely has the right type so it can be accessed safely within a subsequent remote at.
  */
 public class AtFieldWrite extends x10Test {
-	var t: T;
-public def run() {
-  val Second = Place.FIRST_PLACE.next();
-  val newT = at (Second) new T();
-  at (Second) { 
-	newT.i = 3; 
-  }
-  return true;
-}
+	var t: GlobalRef[T];
+    public def run() {
+       val Second = Place.FIRST_PLACE.next();
+       val newT = (at (Second) new T()).root;
+       at (newT) { 
+	      newT().i = 3; 
+       }
+       return true;
+    }
 
-public static def main(Rail[String]) {
-	new AtFieldWrite().execute();
-}
+    public static def main(Rail[String]) {
+	   new AtFieldWrite().execute();
+    }
 
-static class T {
-	public var i: int;
-}
+    static class T {
+       val root = GlobalRef[T](this);
+	   transient public var i: int;
+    }
 }
