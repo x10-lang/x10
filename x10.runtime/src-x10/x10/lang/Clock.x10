@@ -110,7 +110,7 @@ public class Clock(name:String) {
     }
     @Global def dropInternal() {
         val ph = get();
-        async (root) root().dropLocal(ph);
+        async (root.home) root().dropLocal(ph);
     }
     public @Global def registered():Boolean = Runtime.clockPhases().containsKey(this);
     public @Global def dropped():Boolean = !registered();
