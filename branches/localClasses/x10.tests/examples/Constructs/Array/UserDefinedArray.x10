@@ -37,13 +37,13 @@ public class UserDefinedArray extends x10Test {
         chk((future(a.dist(0)){a(0)}).force() == v1);
         x10.io.Console.OUT.println("v1.home() " + v1.home() + " D(1) " + D(1));
         chk(v1.home() == D(1));
-        chk((future(v1.home){v1.v}).force() == 1);
+        chk((future(v1.home()){v1.v}).force() == 1);
 
 
         chk(a.dist(1) == D(1));
         chk((future(a.dist(1)){a(1)}).force() == v2);
         chk(v2.home() == D(0));
-        chk((future(v2.home){v2.v}).force() == 2);
+        chk((future(v2.home()){v2.v}).force() == 2);
 
         //this top level future runs in D[1] since a[0]==v1 && v1.home()==D[1]
         var i0: int = (future((future(a.dist(0)){a(0)}).force().home())
@@ -61,6 +61,8 @@ public class UserDefinedArray extends x10Test {
     }
 
     static class E {
+    	val root = GlobalRef[E](this);
+    	def home() = root.home;
         var v: int;
         def this(var i: int): E = { v = i; }
     }

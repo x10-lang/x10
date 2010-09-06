@@ -23,11 +23,9 @@ public class Force extends x10Test {
         return (future { x }).force();
     }
    
-    public def run(): boolean = {
-        return true;
-    }
+    public def run(): boolean = true;
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(Rail[String])  {
         new Force().execute();
     }
 }
