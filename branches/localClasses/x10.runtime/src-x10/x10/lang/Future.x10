@@ -56,7 +56,7 @@ public class Future[+T] implements ()=>T {
     /**
      * Return true if this activity has completed.
      */
-    public def forced():boolean = at (root) (root as GlobalRef[Future[T]])().latch();
+    public def forced():boolean = at (root) root().latch();
 
     public def apply():T = force();
 
