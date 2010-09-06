@@ -87,7 +87,7 @@ public class PolyMat(rank: int) extends Mat[PolyRow] {
             return this;
 
         val pmb = new PolyMatBuilder(rank);
-        var removed:Rail[boolean]! = Rail.make[boolean](rows, (Int)=>false); // XTENLANG-39 workaround
+        val removed = Rail.make[boolean](rows, (Int)=>false);
 
         for (var i: int = 0; i<rows; i++) {
             val r = this(i);
