@@ -253,7 +253,7 @@ public class DistArray[T] (
     def this(dist: Dist, init: (Point(dist.rank))=>T): DistArray[T]{self.dist==dist} {
         property(dist);
 
-        val plsInit:()=>LocalState[T]! = () => {
+        val plsInit:()=>LocalState[T] = () => {
             val region = dist.get(here);
             val localLayout = layout(region);
             val localRaw = IndexedMemoryChunk.allocate[T](localLayout.size());
@@ -270,7 +270,7 @@ public class DistArray[T] (
     def this(dist: Dist): DistArray[T]{self.dist==dist} {
         property(dist);
 
-        val plsInit:()=>LocalState[T]! = () => {
+        val plsInit:()=>LocalState[T] = () => {
             val region = dist.get(here);
             val localLayout = layout(region);
             val localRaw = IndexedMemoryChunk.allocate[T](localLayout.size());
