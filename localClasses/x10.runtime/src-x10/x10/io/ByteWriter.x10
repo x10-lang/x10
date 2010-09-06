@@ -23,24 +23,26 @@ public class ByteWriter[T] /*extends Writer*/ {
 
     @Global public def write(x: Byte): Void { 
     	if (here == root.home) {
-    		val me = (root as GlobalRef[ByteWriter[T]]{self.home==here})();
+   	   val me = (root as GlobalRef[ByteWriter[T]]{self.home==here})();
      	   me.b.add(x); 
      	   return;
     	}
     	at (root) {
-    		val me = (root as GlobalRef[ByteWriter[T]]{self.home==here})();
+    	   val me = (root as GlobalRef[ByteWriter[T]]{self.home==here})();
     	   me.b.add(x); 
     	}
     }
     @Global public incomplete def size() : Long;
     @Global public safe def toString():String { 
-      if (here == root.home) 
-          return (root as GlobalRef[ByteWriter[T]]{self.home==here})().toString();
+      if (here == root.home) { 
+          val me = (root as GlobalRef[ByteWriter[T]]{self.home==here})();
+          return me.toString();
+      }
       return root.toString();
     }
     @Global public def result() {
     	if (here == root.home) {
-    		val me = (root as GlobalRef[ByteWriter[T]]{self.home==here})();
+    	   val me = (root as GlobalRef[ByteWriter[T]]{self.home==here})();
      	   return me.b.result();
     	}
     	return at (root) {

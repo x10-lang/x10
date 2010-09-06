@@ -42,7 +42,7 @@ public struct GlobalRef[T](
     * created. Returns the object encapsulated in the value.
     */
    @Native("java", "(#0).apply$G()")
-   @Native("c++", "(#0)->ref")
+   @Native("c++", "(#0)->value")
    public native def apply(){here == this.home}:T; 
 
    /*
@@ -59,6 +59,6 @@ public struct GlobalRef[T](
     public safe native def equals(that:Any):Boolean;
 
     @Native("java", "((Object)#0).hashCode()")
-    @Native("c++", "(#0)->hash_code()")
+    @Native("c++", "(#0)->hashCode()")
     public safe native def  hashCode():Int;
 }
