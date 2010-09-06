@@ -15,21 +15,32 @@ import harness.x10Test;
  * Testing that an at spawned at some other place cannot access a remote field.
  */
 public class AtFieldWrite_MustFailCompile extends x10Test {
-	var t: T;
-public def run() {
-	val Second = Place.FIRST_PLACE.next();
-	val newT = new T();
-	at (Second) { 
-		this.t = newT; 
-	}
-return true;
-}
+	val root = GlobalRef[AtFieldWrite_MustFailCompile](this);
+	transient var t: T;
+    public def run() {
+	    val Second = Place.FIRST_PLACE.next();
+	    val newT = new T();
+	    val root = this.root;
+	    at (Second) { 
+	    	// Note that  this statement will not be flagged as an error by the compiler
+	    	this.t = newT;
+	    	// It is a perfectly legal write to the local object implicitly created
+	    	// across the place shift and bound to this.
+	    	
+	    	// The right way to try to assign to the transient t field of the original object is to use
+	    	// root to access it. 
+		    root().t = newT; 
+		    // THe correct pattern should be at (root) root().t = (newT.root as {root.home==here})();
+	    }
+        return true;
+    }
 
-public static def main(Rail[String]) {
-	new AtFieldWrite_MustFailCompile().execute();
-}
+    public static def main(Rail[String]) {
+	    new AtFieldWrite_MustFailCompile().execute();
+    }
 
-static class T {
-	public var i: int;
-}
+    static class T {
+    	val root = GlobalRef[T](this);
+	    transient public var i: int;
+    }
 }
