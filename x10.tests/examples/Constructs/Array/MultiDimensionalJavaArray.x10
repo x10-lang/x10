@@ -25,7 +25,7 @@ public class MultiDimensionalJavaArray extends x10Test {
     public def run(): boolean = {
         val MIN = 0..99;
         val MAJ = 0..9;
-        val a = new Array[Array[Double](1)!](MIN, (Point) => new Array[Double](MAJ));
+        val a = new Array[Array[Double](1)](MIN, (Point) => new Array[Double](MAJ));
 
         for (val (i,j): Point(2) in ([MIN, MAJ] as Region))
             a(i)(j) = (i * j / PI);
@@ -37,7 +37,7 @@ public class MultiDimensionalJavaArray extends x10Test {
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(Rail[String])  {
         new MultiDimensionalJavaArray().execute();
     }
 }

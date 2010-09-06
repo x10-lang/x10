@@ -28,9 +28,7 @@ public class FlattenAsyncExpr extends x10Test {
         a = DistArray.make[int](1..10 -> here, ((j): Point): int => { return j;});
     }
 
-    global def m(var x: int): int = {
-      return x;
-    }
+    static def m(x: int)=x;
     
     public def run(): boolean = {
         async(a.dist(1)) {

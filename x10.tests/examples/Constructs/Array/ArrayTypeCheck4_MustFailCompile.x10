@@ -45,9 +45,9 @@ public class ArrayTypeCheck4_MustFailCompile extends x10Test {
         var j: int = 2;
         var k: int = 0;
 
-        val p = [i, j, k] as Point;
-        val q = [i, j] as Point;
-        val r = [i] as Point;
+        val p = [i, j, k] as Point(3);
+        val q = [i, j] as Point(2);
+        val r = [i] as Point(1);
 
         // should be a compile time error. a Point(3) can never equal a Point(2)
         if (p == q)  
