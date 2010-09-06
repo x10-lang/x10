@@ -20,12 +20,12 @@ namespace x10 {
             x10aux::itable_entry* _getITables() { return _itables; }
             x10aux::itable_entry* _getIBoxITables() { return _iboxitables; }
     
-            x10aux::ref<T> ref; 
+            x10aux::ref<T> value; 
 	    x10aux::place location;	
 
-	    GlobalRef(ref<T> it) ref(it), place(x10aux::here) : {}
+	    GlobalRef(x10aux::ref<T> obj) : value(obj), location(x10aux::here) {}
 
-            inline x10aux::ref<T> apply() { return ref; }
+            inline x10aux::ref<T> apply() { return value; }
 
             GlobalRef<T>* operator->() { return this; }
         
@@ -46,7 +46,7 @@ namespace x10 {
             x10_boolean _struct_equals(x10aux::ref<x10::lang::Any>);
     
             x10_boolean _struct_equals(GlobalRef<T> that) { 
-                return (location == that->location) && x10aux::struct_equals(ref, that->ref)
+                return (location == that->location) && x10aux::struct_equals(value, that->value);
             }
     
             x10aux::ref<x10::lang::String> toString();
