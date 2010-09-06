@@ -22,13 +22,13 @@ public class GlobalStringWriter extends Writer {
     public def this() { this.b = GlobalRef[StringBuilder](new StringBuilder()); }
 
     public def write(x:Byte): Void { 
-        at(b) { 
-        	(b as GlobalRef[StringBuilder]{here==self.home})().add((x as Byte) as Char); 
+        at (b) {
+       	    b().add((x as Byte) as Char);
         }
     }
 
-    public def size() = at (b) (b as GlobalRef[StringBuilder]{here==self.home})().length();
-    public def result() = at (b) (b as GlobalRef[StringBuilder]{here==self.home})().result(); 
+    public def size() = at (b) b().length();
+    public def result() = at (b) b().result(); 
     
     public def flush(): Void { }
     public def close(): Void { }

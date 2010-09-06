@@ -444,7 +444,13 @@ Thread::worker(void)
 x10_int
 Thread::locInt(void)
 {
-    return (x10_int) location;
+    return (x10_int) x10aux::here;
+}
+
+x10::lang::Place
+Thread::home(void)
+{
+    return x10::lang::Place_methods::_make(x10aux::here);
 }
 
 // Set the current worker.

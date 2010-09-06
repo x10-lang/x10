@@ -592,7 +592,8 @@ import x10.util.Box;
         
         @Global public def notifySubActivitySpawn(place:Place):void {
             if (here.equals(root.home)) {
-                (root as GlobalRef[RootFinish]{here==root.home})().notifySubActivitySpawnLocal(place);
+                val rf:RootFinish = (root as GlobalRef[RootFinish]{here==root.home})();
+	        rf.notifySubActivitySpawnLocal(place);
             } else {
                 (Runtime.proxy(this) as RemoteFinish).notifySubActivitySpawn(place);
             }
@@ -605,7 +606,8 @@ import x10.util.Box;
 
         @Global public def notifyActivityTermination():void {
             if (here.equals(root.home)) {
-            	(root as GlobalRef[RootFinish]{here==root.home})().notifyActivityTerminationLocal();
+            	val rf:RootFinish = (root as GlobalRef[RootFinish]{here==root.home})();
+            	rf.notifyActivityTerminationLocal();
             } else {
                 (Runtime.proxy(this) as RemoteFinish).notifyActivityTermination(this);
             }
@@ -613,7 +615,8 @@ import x10.util.Box;
 
         @Global public def pushException(t:Throwable):void {
             if (here.equals(root.home)) {
-            	(root as GlobalRef[RootFinish]{here==root.home})().pushExceptionLocal(t);
+            	val rf:RootFinish = (root as GlobalRef[RootFinish]{here==root.home})();
+            	rf.pushExceptionLocal(t);
             } else {
                 (Runtime.proxy(this) as RemoteFinish).pushException(t);
             }
@@ -1036,8 +1039,9 @@ import x10.util.Box;
          }
 
          @Global public def notifySubActivitySpawn(place:Place):void {
-        	 if (here.equals(home())) {
-                     (root as GlobalRef[SimpleRootFinish]{here==root.home})().notifySubActivitySpawnLocal(place);
+       	     if (here.equals(home())) {
+                 val srf:SimpleRootFinish = (root as GlobalRef[SimpleRootFinish]{here==root.home})();
+                 srf.notifySubActivitySpawnLocal(place);
              } else {
             	 (Runtime.proxy(this) as SimpleRemoteFinish).notifySubActivitySpawn(place);
              }
@@ -1051,7 +1055,8 @@ import x10.util.Box;
          
          @Global public def notifyActivityTermination():void {
         	 if (here.equals(root.home)) {
-        		 (root as GlobalRef[SimpleRootFinish]{here==root.home})().notifyActivityTerminationLocal();
+        	     val srf:SimpleRootFinish = (root as GlobalRef[SimpleRootFinish]{here==root.home})();
+                     srf.notifyActivityTerminationLocal();
         	 } else {
         		 (Runtime.proxy(this) as SimpleRemoteFinish).notifyActivityTermination(this);
         	 }
@@ -1059,7 +1064,8 @@ import x10.util.Box;
          
          @Global public def pushException(t:Throwable):void {
         	 if (here.equals(root.home)) {
-        		 (root as GlobalRef[SimpleRootFinish]{here==root.home})().pushExceptionLocal(t);
+        	     val srf:SimpleRootFinish = (root as GlobalRef[SimpleRootFinish]{here==root.home})();
+                     srf.pushExceptionLocal(t);
         	 } else {
                      (Runtime.proxy(this) as SimpleRemoteFinish).pushException(t);
         	 }

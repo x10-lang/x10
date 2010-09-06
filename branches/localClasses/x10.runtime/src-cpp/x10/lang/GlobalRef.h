@@ -27,6 +27,14 @@ template<class T> class GlobalRef;
 namespace x10 {
     namespace lang { 
 
+        template<class T> class GlobalRef_methods  {
+        public:
+            static inline GlobalRef<T> _make(x10aux::ref<T> obj) {
+                return GlobalRef<T>(obj);
+            }
+        };
+        
+        
         template<class T> class GlobalRef_ithunk0 : public x10::lang::GlobalRef<T> {
         public:
             static x10::lang::Any::itable<GlobalRef_ithunk0<T> > itable;
@@ -84,7 +92,7 @@ template<class T> x10_boolean x10::lang::GlobalRef<T>::_struct_equals(x10aux::re
 }
 
 template<class T> x10aux::ref<x10::lang::String> x10::lang::GlobalRef<T>::toString() {
-    char* tmp = x10aux::alloc_printf("x10.lang.GlobalRef<%s>(%p)", x10aux::getRTT<T>()->name(), value);
+    char* tmp = x10aux::alloc_printf("x10.lang.GlobalRef<%s>", x10aux::getRTT<T>()->name());
     return x10::lang::String::Steal(tmp);
 }
 
