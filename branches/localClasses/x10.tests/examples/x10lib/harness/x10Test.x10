@@ -80,7 +80,7 @@ abstract public class x10Test {
         if (!b) throw new Error(s);
     }
 
-    private var myRand:Random! = new Random(1L);
+    private var myRand:Random = new Random(1L);
 
     /**
      * Return a random integer between lb and ub (inclusive)
@@ -121,7 +121,7 @@ abstract public class x10Test {
 
         public abstract def test() : Void;
 
-        public val errors : List[String]! = new ArrayList[String]();
+        public val errors : List[String] = new ArrayList[String]();
 
         public def errorString() : String = {
           var s : String = "";
