@@ -28,7 +28,7 @@ abstract public class x10Test {
     abstract public def run(): boolean;
 
     public def executeAsync() {
-        val b  = Rail.make([ false as Boolean ]);  
+        val b  = Rail.make([ false] as ValRail[boolean]);  
         try {
             finish async b(0) = this.run();
         } catch (e: Throwable) {
