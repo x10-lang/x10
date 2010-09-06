@@ -16,11 +16,11 @@ import harness.x10Test;
  */
 public class Array4 extends x10Test {
 
-    var ia: Array[int](2)!;
+    var ia: Array[int](2);
 
     public def this(): Array4 = {}
 
-    public def this(var ia: Array[int](2)!): Array4 = {
+    public def this(var ia: Array[int](2)): Array4 = {
         this.ia = ia;
     }
 

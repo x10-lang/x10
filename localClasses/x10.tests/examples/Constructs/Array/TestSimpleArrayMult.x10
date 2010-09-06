@@ -51,7 +51,7 @@ public class TestSimpleArrayMult extends x10Test {
         return true;
     }
     
-    public static def sum(ia : Array[Int]!) : Int {
+    public static def sum(ia : Array[Int]) : Int {
         var s : Int = 0;
         for(i in ia) s += ia(i);
         return s;

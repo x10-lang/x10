@@ -16,13 +16,15 @@ import x10.io.StringWriter;
 import x10.util.Box;
 
 import harness.x10Test;
-
+import x10.compiler.Pinned;
+import x10.compiler.Global;
 
 abstract public class TestArray extends x10Test {
+    val root = GlobalRef[TestArray](this);
     
-    global val os: StringWriter;
-    global val out: Printer;
-    val testName = typeName();
+    /*global*/ val os: StringWriter;
+    /* global*/ val out: Printer;
+    transient val testName = typeName();
 
     def this() {
         System.setProperty("line.separator", "\n");
@@ -66,26 +68,26 @@ abstract public class TestArray extends x10Test {
     }
             
     class Grid {
+    	val root = GlobalRef[Grid](this);
+        transient var os: Rail[Object] = Rail.make[Object](10);
 
-        var os: Rail[Object]! = Rail.make[Object](10);
-
-        def set(i0: int, vue: double): void = {
+        @Pinned def set(i0: int, vue: double): void = {
             os(i0) = vue as Box[Double]; 
         }
 
-        def set(i0: int, i1: int, vue: double): void = {
+        @Pinned def set(i0: int, i1: int, vue: double): void = {
             if (os(i0)==null) os(i0) = new Grid();
-            val grid = os(i0) as Grid!;
+            val grid = os(i0) as Grid;
             grid.set(i1, vue);
         }
 
-        def set(i0: int, i1: int, i2: int, vue: double): void = {
+        @Pinned def set(i0: int, i1: int, i2: int, vue: double): void = {
             if (os(i0)==null) os(i0) = new Grid();
-            val grid = os(i0) as Grid!;
+            val grid = os(i0) as Grid;
             grid.set(i1, i2, vue);
         }
 
-        def pr(rank: int): void = {
+        @Pinned def pr(rank: int): void = {
             var min: int = os.length;
             var max: int = 0;
             for (var i: int = 0; i<os.length; i++) {
@@ -112,7 +114,7 @@ abstract public class TestArray extends x10Test {
                             out.print("-");
                         out.print(" " + i + "\n");
                     }
-                    (o as Grid!).pr(rank-1);
+                    (o as Grid).pr(rank-1);
                 } else {
                     val d = (o as Box[double]).value;
                     out.print((d as int)+"");
@@ -124,13 +126,13 @@ abstract public class TestArray extends x10Test {
             if (rank==1)
                 out.print("\n");
         }
-    }
+    } // Grid
 
-    def prArray(test: String, r: Region): DistArray[double]{rank==r.rank} = {
+    @Global def prArray(test: String, r: Region): DistArray[double]{rank==r.rank} = {
         return prArray(test, r, false);
     }
 
-    def prArray(test: String, r: Region, bump: boolean): DistArray[double]{rank==r.rank} = {
+    @Global def prArray(test: String, r: Region, bump: boolean): DistArray[double]{rank==r.rank} = {
 
         val init1 = (pt: Point) => {
             var v: int = 1;
@@ -147,24 +149,25 @@ abstract public class TestArray extends x10Test {
         return a as DistArray[double]{rank==r.rank};
     }
 
-    def prDistributed(test:String!, a: DistArray[double]): void = {
-        val ps = a.dist.places();
+    @Global def prDistributed(test:String, a: DistArray[double]): void = {
+        var ps: ValRail[Place] = a.dist.places();
         for (var i: int = 0; i<ps.length; i++) {
             val p: Place = ps(i);
+            val root = this.root;
             finish {
-                async (p) {
+                async at(p) {
                     val ans1 = a | p;
-                    at (this) prArray(test + " at " + p + " (by place)", ans1);
+                    at (root) prArray(test + " at " + p + " (by place)", ans1);
                     val r = a.dist.get(p);
                     val ans2 = a | r; 
-                    at (this) prArray(test + " at " + p + " (by region)", ans2);
+                    at (root) prArray(test + " at " + p + " (by region)", ans2);
                 }
             }
         }
     }
 
 
-    def prUnbounded(test: String, r: Region): void = {
+    @Global def prUnbounded(test: String, r: Region): void = {
         try {
             prRegion(test, r);
             var s: Region.Scanner = r.scanners().next() as Region.Scanner; // XTENLANG-55
@@ -175,7 +178,7 @@ abstract public class TestArray extends x10Test {
     }
 
 
-    def prRegion(test: String, r: Region): void = {
+    @Global def prRegion(test: String, r: Region): void = {
 
         pr("--- " + testName + ": " + test);
 
@@ -191,21 +194,21 @@ abstract public class TestArray extends x10Test {
 
     }
 
-    def prArray(test: String, a: DistArray[double]): void = {
+   @Global def prArray(test: String, a: DistArray[double]): void = {
         prArray(test, a, false);
     }
 
-    def prArray(test: String, a: DistArray[double], bump: boolean): void = {
+    @Global def prArray(test: String, a: DistArray[double], bump: boolean): void = {
 
         val r: Region = a.region;
 
         prRegion(test, r);
 
         // scanner api
-        var grid:Grid! = new Grid();
-        var it: Iterator[Region.Scanner]! = r.scanners();
+        var grid:Grid = new Grid();
+        var it: Iterator[Region.Scanner] = r.scanners();
         while (it.hasNext()) {
-            var s: Region.Scanner! = it.next() as Region.Scanner!; // XTENLANG-55
+            var s: Region.Scanner = it.next();// as Region.Scanner!; // XTENLANG-55
             pr("  poly");
             if (r.rank==0) {
                 pr("ERROR rank==0");
@@ -256,9 +259,9 @@ abstract public class TestArray extends x10Test {
         prArray1(a, /*bump*/ false); // XXX use bump, update tests
     }
 
-    def prArray1(a: DistArray[double], bump: boolean): void = {
+    @Global def prArray1(a: DistArray[double], bump: boolean): void = {
         // iterator api
-        var grid: Grid! = new Grid();
+        var grid: Grid = new Grid();
         for (p:Point in a.region) {
             //var v: double = a(p as Point(a.rank));
             if (p.rank==1) {
@@ -279,7 +282,7 @@ abstract public class TestArray extends x10Test {
     }
 
 
-    def prPoint(test: String, p: Point): void = {
+    @Global def prPoint(test: String, p: Point): void = {
         var sum: int = 0;
         for (var i: int = 0; i<p.rank; i++)
             sum += p(i);
@@ -287,14 +290,14 @@ abstract public class TestArray extends x10Test {
     }
 
 
-    def prDist(test: String, d: Dist): void = {
+    @Global def prDist(test: String, d: Dist): void = {
 
         pr("--- " + test + ": " + d);
 
         val init = (Point) => -1.0D;
         val a = DistArray.make[double](d.region->here, init);
 
-        val ps = d.places();
+        var ps: ValRail[Place] = d.places();
         for (var i: int = 0; i<ps.length; i++) {
             val r: Region = d.get(ps(i));
             for (p:Point(r.rank) in r) {
