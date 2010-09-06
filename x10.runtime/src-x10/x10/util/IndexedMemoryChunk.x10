@@ -132,14 +132,6 @@ public struct IndexedMemoryChunk[T] {
                               dstPlace:Place, dst:IndexedMemoryChunk[T], dstIndex:int, 
                               numElems:int, 
                               uncounted:boolean):void;
-    
-    // TODO: This needs to be fixed to take a GlobalArrayRef instead of an IndexedMemoryChunk.
-    @Native("java", "x10.util.IndexedMemoryChunk__NativeRep.copyTo(#9, #0,#1,#2,#3,#4,#5,#6)")
-    @Native("c++", "(#0)->copyTo(#1,#2,#3,#4,#5,#6)")
-    public native def copyTo (srcIndex:int, 
-                              dstPlace:Place, dst:GlobalArrayRef[T], dstIndex:int, 
-                              numElems:int, 
-                              uncounted:boolean):void;
 
 
     /**
@@ -163,14 +155,6 @@ public struct IndexedMemoryChunk[T] {
     @Native("c++", "(#0)->copyFrom(#1,#2,#3,#4,#5,#6)")
     public native def copyFrom(dstIndex:int,
                                srcPlace:Place, src:IndexedMemoryChunk[T], srcIndex:int,
-                               numElems:int,
-                               uncounted:boolean):void;
-    
-    // TODO: This needs to be fixed to take a GlobalArrayRef instead of an IndexedMemoryChunk.
-    @Native("java", "x10.util.IndexedMemoryChunk__NativeRep.copyFrom(#9, #0,#1,#2,#3,#4,#5,#6)")
-    @Native("c++", "(#0)->copyFrom(#1,#2,#3,#4,#5,#6)")
-    public native def copyFrom(dstIndex:int,
-                               srcPlace:Place, src:GlobalArrayRef[T], srcIndex:int,
                                numElems:int,
                                uncounted:boolean):void;
 
