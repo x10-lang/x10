@@ -654,6 +654,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	}
 
 
+/*
 	private boolean inBootLoads(ClassDef classScope) {
 		QName q = classScope.fullName();
 		return q.equals(QName.make("x10.lang.Place"))
@@ -664,15 +665,26 @@ public class X10Context_c extends Context_c implements X10Context {
 		|| q.equals(QName.make("x10.lang.NativeRuntime"));
 
 	}
+*/
+	private X10Context_c superPushClass(ClassDef classScope, ClassType type) {
+	    return (X10Context_c) super.pushClass(classScope, type);
+	}
 	public Context pushClass(ClassDef classScope, ClassType type) {
 		//System.err.println("Pushing class " + classScope);
 		assert (depType == null);
+/*
 		XConstrainedTerm currentHere = null;
 		if (! (inBootLoads(classScope)) ){
 			currentHere = currentPlaceTerm();
 		}
 		//XConstrainedTerm currentHere = currentPlaceTerm();
-		X10Context_c result = (X10Context_c) super.pushClass(classScope, type);
+*/
+		X10Context_c result = this;
+		// Pushing a nested (non-inner) class should be done in a static context
+		if (classScope.isMember() && classScope.flags().isStatic()) {
+		    result = (X10Context_c) pushStatic();
+		}
+		result = result.superPushClass(classScope, type);
 /*
 		if ( (type.kind() == ClassDef.ANONYMOUS) || ! (
 		        type.toString().startsWith("x10.lang.Boolean") ||
@@ -737,7 +749,11 @@ public class X10Context_c extends Context_c implements X10Context {
 	public Context pushCode(CodeDef ci) {
 		//System.err.println("Pushing code " + ci);
 		assert (depType == null);
-		return super.pushCode(ci);
+		X10Context_c result = (X10Context_c) super.pushCode(ci);
+		// For closures, propagate the static context of the outer scope
+		if (ci instanceof ClosureDef)
+		    result.staticContext = staticContext;
+		return result;
 	}
 
 	/**
