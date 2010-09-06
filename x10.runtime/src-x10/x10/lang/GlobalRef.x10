@@ -44,4 +44,21 @@ public struct GlobalRef[T](
    @Native("java", "(#0).apply$G()")
    @Native("c++", "(#0)->ref")
    public native def apply(){here == this.home}:T; 
+
+   /*
+    * @Native methods from Any because the handwritten C++ code doesn't 100% match 
+    * what the compiler would have generated.
+    */
+
+    @Native("java", "((Object)#0).toString()")
+    @Native("c++", "(#0)->toString()")
+    public safe native def  toString():String;
+
+    @Native("java", "((Object)#0).equals(#1)")
+    @Native("c++", "(#0)->equals(#1)")
+    public safe native def equals(that:Any):Boolean;
+
+    @Native("java", "((Object)#0).hashCode()")
+    @Native("c++", "(#0)->hash_code()")
+    public safe native def  hashCode():Int;
 }

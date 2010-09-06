@@ -1,14 +1,12 @@
-x10.lang.Array: copyTo/copyFrom
-  (1) need to define variants that take a RemoteArray[T]
-      currently code is just plain wrong.
-  (2) serialization of array doesn't match new semantics because
-      IndexedMemoryChunk is native.  Need to special case Array in compiler
-      to get efficient implementation.
+Serialization of x10.lang.array doesn't match new semantics because
+IndexedMemoryChunk is native and (for other uses) needs to only send the address.  
+Need to special case Array in compiler to get efficient implementation (avoid Any custom pickling path)
 
 x10.compiler.RemoteOperation.
   Kill this code.  Won't work anymore.  
   Recode RA to use IndexedMemoryChunk directly.
 
+GlobalRef: when a global ref is constructed, call reference logger.
 
 x10.io.GlobalStringWriter
   Do we really want this class?  See todo in the class header.
