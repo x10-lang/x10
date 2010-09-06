@@ -190,9 +190,11 @@ public final class Array[T](
      * argument Rail.
      *
      */    
-    public def this(aRail:Rail[T]):Array[T]{self.rank==1,self.rect,self.zeroBased,self.rail} {
-	this(Region.makeRectangular(0, aRail.length-1), ((i):Point(1)) => aRail(i));
-    }
+// HACKING around typechecking bug:
+// Error message is: Cannot refer to type parameter T of x10.array.Array from a static context
+//    public def this(aRail:Rail[T]):Array[T]{self.rank==1,self.rect,self.zeroBased,self.rail} {
+//	this(Region.makeRectangular(0, aRail.length-1), ((i):Point(1)) => aRail(i));
+//    }
 
 
     /**
@@ -200,9 +202,11 @@ public final class Array[T](
      * values are initialized to the corresponding values in the 
      * argument ValRail.
      */    
-    public def this(aRail:ValRail[T]):Array[T]{self.rank==1,self.rect,self.zeroBased,self.rail} {
-	this(Region.makeRectangular(0, aRail.length-1), ((i):Point(1)) => aRail(i));
-    }
+// HACKING around typechecking bug:
+// Error message is: Cannot refer to type parameter T of x10.array.Array from a static context
+//    public def this(aRail:ValRail[T]):Array[T]{self.rank==1,self.rect,self.zeroBased,self.rail} {
+//	this(Region.makeRectangular(0, aRail.length-1), ((i):Point(1)) => aRail(i));
+//    }
 
 
     /**
