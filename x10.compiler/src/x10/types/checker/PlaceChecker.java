@@ -64,14 +64,19 @@ public class PlaceChecker {
 	public static XLocal here() {
 		return HERE;
 	}
+	
+	static XTerm arbitraryPlace;
 	/**
 	 * 
 	 * @return a newly constructed UQV representing a fixed but unknown place.
 	 */
 	public static XTerm makePlace() {
-		XTerm place = XTerms.makeUQV("_place");
+		if (arbitraryPlace == null) {
+			arbitraryPlace = XTerms.makeUQV("_place");
+		}
+		// XTerm place = XTerms.makeUQV("_place");
 		
-		return place;
+		return  arbitraryPlace;
 	}
 
 	public static boolean isGlobalPlace(XTerm term) {
@@ -269,10 +274,12 @@ public class PlaceChecker {
 	 * (if this is a global method) or this.home, where this is obtained from cxt.
 	 */
 	public static Context pushHereTerm(MethodDef md, X10Context cxt) {
-		return 
+		return cxt.pushPlace(XConstrainedTerm.make(makePlace()));
+		/*return 
 			isGlobalCode(md) ?
 					cxt.pushPlace(XConstrainedTerm.make(makePlace()))
 					: pushHereIsThisHome(cxt);
+					*/
 	
 	}
 	public static Context pushHereTerm(InitializerDef id, X10Context cxt) {
@@ -300,23 +307,27 @@ public class PlaceChecker {
 		X10Context xc = (X10Context) c;
 		ClassDef cd = c.currentClassDef();
 		
-		// bypass Any to avoid infinite recursion (pushPlace will again look for Any.home..)
-		// This means that the types in Any cannot reference here.
+		// bypass GlobalRef to avoid infinite recursion (pushPlace will again look for GlobalRef.home..)
+		// This means that the types in GlobalRef cannot reference here.
 		if (cd != null)
 			if ( ! xts.hasSameClassDef(X10TypeMixin.baseType(cd.asType()), xts.GlobalRef())) {
 				XTerm h =  homeVar(xc.thisVar(),xts);
-				if (h != null)  // null for structs.
-					return((X10Context) c).pushPlace(XConstrainedTerm.make(h)); 	
+				// if (h != null)  // null for structs.
+					return((X10Context) c).pushPlace(XConstrainedTerm.make(makePlace())); // XConstrainedTerm.make(h)); 	
 			}
 		return c;
 	}
 	
 	public static XTerm methodPT(Flags flags, ClassDef ct) {
-		X10Flags xflags = X10Flags.toX10Flags(flags);
-    	boolean isGlobal = xflags.isGlobal() || xflags.isStatic() || X10TypeMixin.isX10Struct(ct.asType());
-    	return (isGlobal) ? 
+		// Fixed for 2.1. The body of a method is always evaluated in some place in which all objects are local.
+		/*
+		 X10Flags xflags = X10Flags.toX10Flags(flags);
+    	 boolean isGlobal = xflags.isGlobal() || xflags.isStatic() || X10TypeMixin.isX10Struct(ct.asType());
+    	return (isGlobal ) ? 
     			makePlace() :
     				homeVar(((X10ClassDef) ct).thisVar(), (X10TypeSystem) ct.typeSystem());
+    				*/
+		return makePlace();
 	}
 	/**
 	 * The method is global if it declared with a global flag or if it is a static method, or
