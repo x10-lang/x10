@@ -27,7 +27,7 @@ import x10.compiler.Native;
 @NativeRep("java", "x10.core.GlobalRef<#1>", null, "new x10.rtt.ParameterizedType(x10.core.GlobalRef._RTT, #2)")
 @NativeRep("c++", "x10::lang::GlobalRef<#1 >", "x10::lang::GlobalRef<#1 >", null)
 public struct GlobalRef[T](
-    @Native("java", "x10.lang.Place.place((#0).home)")
+    @Native("java", "((#0).home)")
     @Native("c++", "x10::lang::Place_methods::place((#0)->location)")
     home:Place) { 
 
