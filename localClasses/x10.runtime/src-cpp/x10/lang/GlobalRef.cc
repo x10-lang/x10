@@ -1,4 +1,4 @@
-#include <x10/util/GlobalRef.h>
+#include <x10/lang/GlobalRef.h>
 
-x10aux::RuntimeType x10::util::GlobalRef<void>::rtt;
+x10aux::RuntimeType x10::lang::GlobalRef<void>::rtt;
 

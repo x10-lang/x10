@@ -4144,8 +4144,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         // (an overridden member function will not be called from the itable, which is very non-intuitive).
         // As soon as XTENLANG-467 is fixed, take out the explicit qualifications and let C++ member lookup do its job...
         defn_s.write((in_template_closure ? "typename ": "")+superType+(in_template_closure ? "::template itable ": "::itable")+chevrons(cnamet)+
-        			cnamet+"::_itable(&"+cnamet+"::apply, &"+REFERENCE_TYPE+"::at, &"+REFERENCE_TYPE+"::at, "+
-        			"&"+REFERENCE_TYPE+"::equals, &"+CLOSURE_TYPE+"::hashCode, &"+REFERENCE_TYPE+"::home, &"
+        			cnamet+"::_itable(&"+cnamet+"::apply, "+
+        			"&"+REFERENCE_TYPE+"::equals, &"+CLOSURE_TYPE+"::hashCode, &"
         			+cnamet+"::toString, &"+CLOSURE_TYPE+"::typeName);");
 
         if (in_template_closure)

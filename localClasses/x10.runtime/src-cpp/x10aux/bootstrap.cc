@@ -20,18 +20,18 @@ using namespace x10aux;
 
 x10_int x10aux::exitCode = 0;
 
-x10::lang::VoidFun_0_0::itable<StaticInitClosure> StaticInitClosure::_itable(&StaticInitClosure::apply, &StaticInitClosure::at, &StaticInitClosure::at,
+x10::lang::VoidFun_0_0::itable<StaticInitClosure> StaticInitClosure::_itable(&StaticInitClosure::apply,
                                                                              &StaticInitClosure::equals, &StaticInitClosure::hashCode,
-                                                                             &StaticInitClosure::home, &StaticInitClosure::toString, &StaticInitClosure::typeName);
+                                                                             &StaticInitClosure::toString, &StaticInitClosure::typeName);
 
 x10aux::itable_entry StaticInitClosure::_itables[2] = {
     x10aux::itable_entry(&x10aux::getRTT<x10::lang::VoidFun_0_0>, &_itable),
     x10aux::itable_entry(NULL, NULL)
 };
 
-x10::lang::VoidFun_0_0::itable<BootStrapClosure> BootStrapClosure::_itable(&BootStrapClosure::apply, &BootStrapClosure::at, &BootStrapClosure::at,
+x10::lang::VoidFun_0_0::itable<BootStrapClosure> BootStrapClosure::_itable(&BootStrapClosure::apply,
                                                                            &BootStrapClosure::equals, &BootStrapClosure::hashCode,
-                                                                           &BootStrapClosure::home, &BootStrapClosure::toString, &BootStrapClosure::typeName);
+                                                                           &BootStrapClosure::toString, &BootStrapClosure::typeName);
 
 x10aux::itable_entry BootStrapClosure::_itables[2] = {
     x10aux::itable_entry(&x10aux::getRTT<x10::lang::VoidFun_0_0>, &_itable),
