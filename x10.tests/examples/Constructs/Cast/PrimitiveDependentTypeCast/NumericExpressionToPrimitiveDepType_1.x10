@@ -27,7 +27,7 @@ public class NumericExpressionToPrimitiveDepType_1 extends x10Test {
 		return j == 0;
 	}
 	
-	private def incr(): NumericExpressionToPrimitiveDepType_1! = {
+	private def incr(): NumericExpressionToPrimitiveDepType_1 = {
 		j++;
 		return this;
 	}
