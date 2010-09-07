@@ -10,7 +10,11 @@
 namespace x10 {
     namespace lang { 
 
+        extern void logGlobalReference(x10aux::ref<x10::lang::Object> obj);
+
+        
         template<class T> class GlobalRef  {
+            
           public:
             RTT_H_DECLS_STRUCT
 
@@ -21,10 +25,14 @@ namespace x10 {
             x10aux::itable_entry* _getIBoxITables() { return _iboxitables; }
     
             x10aux::ref<T> value; 
-	    x10aux::place location;	
+            x10aux::place location;	
 
-	    GlobalRef(x10aux::ref<T> obj = NULL) : value(obj), location(x10aux::here) {}
-
+            GlobalRef(x10aux::ref<T> obj = NULL) : value(obj), location(x10aux::here) {
+                #if defined(X10_USE_BDWGC) || defined(X10_DEBUG_REFERENCE_LOGGER)
+                if (NULL != obj) logGlobalReference(obj);
+                #endif
+            }
+	
             inline x10aux::ref<T> apply() { return value; }
 
             GlobalRef<T>* operator->() { return this; }
