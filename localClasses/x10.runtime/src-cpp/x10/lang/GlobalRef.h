@@ -96,6 +96,10 @@ template<class T> x10aux::ref<x10::lang::String> x10::lang::GlobalRef<T>::toStri
     return x10::lang::String::Steal(tmp);
 }
 
+template<class T> x10_int x10::lang::GlobalRef<T>::hashCode() {
+    return x10aux::hash_code(value);
+}
+
 template<class T> x10aux::ref<x10::lang::String> x10::lang::GlobalRef<T>::typeName() {
     char* tmp = x10aux::alloc_printf("x10.lang.GlobalRef<%s>", x10aux::getRTT<T>()->name());
     return x10::lang::String::Steal(tmp);
