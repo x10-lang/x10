@@ -2142,14 +2142,15 @@ public class Emitter {
                         }
                         else {
                             X10ClassDef cd = x10Type.x10Def();
-                            if (getJavaRep(cd) != null) {
+                            if (getJavaRep(cd) != null && getJavaRTTRep(cd) == null) {
                                 w.write("new x10.rtt.RuntimeType(");
                                 printType(x10Type, 0);
                                 w.write(".class");
                                 w.write(")");
                             }
                             else {
-                                w.write(x10Type.def().fullName() + "._RTT");
+                                printType(x10Type, 0);
+                                w.write("._RTT");
                             }
                         }
                     }
