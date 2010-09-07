@@ -23,9 +23,9 @@ public class FinishTest2 extends x10Test {
 	public def run(): boolean = {
 		atomic flag = false;
 		finish {
-			async (here) {
+			async  {
 				atomic foo = 123;
-				async (here) {
+				async  {
 					atomic foo = 42;
 					x10.io.Console.OUT.print("waiting ...");
 					Activity.sleep(2000);
