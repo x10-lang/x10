@@ -129,17 +129,18 @@ remoteTmpDir=/tmp/x10-tib-$userID
 # Make sure we can get to all the remote hosts without a password challenge #
 #############################################################################
 echo "Testing prompt-free host access via ssh..."
+hostsWithErrors=""
 for host in $hosts orquesta
 do
     echo -n "  Testing $host... "
     ssh -o 'BatchMode=yes' ${userID}@${host} "echo ok"
     if [[ $? != 0 ]]; then
-        hostErrors="true"
+        hostsWithErrors="$hostsWithErrors $host"
     fi
 done
 
-if [[ ! -z "$hostErrors" ]]; then
-    echo "Errors when attempting to log onto some host; aborting."
+if [[ ! -z "$hostsWithErrors" ]]; then
+    echo "Errors when attempting to log onto$hostsWithErrors; aborting."
     exit 1
 fi
 
