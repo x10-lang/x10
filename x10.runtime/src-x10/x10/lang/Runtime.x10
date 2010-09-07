@@ -603,7 +603,7 @@ public final class Runtime {
     /**
      * An activity created under this finish has terminated.
      */
-    public def notifyActivityTermination(r:RootFinish):Void {
+    public def notifyActivityTermination(r:FinishState):Void {
         lock.lock();
         counts(here.id)--;
         if (count.decrementAndGet() > 0) {
