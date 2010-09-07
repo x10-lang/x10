@@ -22,7 +22,7 @@ public class FinishTest1 extends x10Test {
 
 	public def run() {
 		finish {
-			async (here) { atomic { flag = true; } }
+			async { atomic { flag = true; } }
 		}
 		var b: boolean = false;
 		atomic { b = flag; }
