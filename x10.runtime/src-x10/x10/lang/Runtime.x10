@@ -415,12 +415,8 @@ import x10.util.Box;
     	   this.sr=new StatefulReducer[T](r);
         }
         @Global public def makeRemote() = new RemoteCollectingFinish[T](reducer);
-        @Global public safe def equals(a:Any) {
-            if (a == null || ! (a instanceof RootCollectingFinish[T]))
-                return false;
-            val other = a as RootCollectingFinish[T];
-            return this.root == other.root;
-        }
+        @Global public safe def equals(a:Any) =
+        	(a instanceof RootCollectingFinish[T]) && this.root.equals((a as RootCollectingFinish[T]).root);
         @Global public safe def hashCode():Int = root.hashCode();
         @Global public safe def home():Place = root.home;
         @Pinned def accept(t:T) {
@@ -490,13 +486,8 @@ import x10.util.Box;
            get the effect of 2.0 interning for global object references
            in their home place.
          */
-        @Global public safe def equals(a:Any) {
-            if (a == null || ! (a instanceof RootFinish)) {
-                return false;
-            }
-            val other = a as RootFinish;
-            return this.root == other.root;
-        }
+        @Global public safe def equals(a:Any) =
+        	(a instanceof RootFinish) && (a as RootFinish).root.equals(this.root);
         @Global public safe def home():Place = root.home;
         
         @Pinned private def notifySubActivitySpawnLocal(place:Place):void {
@@ -593,14 +584,14 @@ import x10.util.Box;
         @Global public def notifySubActivitySpawn(place:Place):void {
             if (here.equals(root.home)) {
                 val rf:RootFinish = (root as GlobalRef[RootFinish]{here==root.home})();
-	        rf.notifySubActivitySpawnLocal(place);
+	            rf.notifySubActivitySpawnLocal(place);
             } else {
                 (Runtime.proxy(this) as RemoteFinish).notifySubActivitySpawn(place);
             }
         }
 
         @Global public def notifyActivityCreation():void {
-            if (here != root.home)
+            if (! here.equals(root.home))
                 (Runtime.proxy(this) as RemoteFinish).notifyActivityCreation();
         }
 
@@ -979,12 +970,8 @@ import x10.util.Box;
          public def this() {
              counts = 1;
          }
-         @Global public safe def equals(a:Any) {
-             if (a == null || ! (a instanceof SimpleRootFinish)) {
-                 return false;
-             }
-             return (a as SimpleRootFinish).root == this.root;
-         }
+         @Global public safe def equals(a:Any) =
+        	 (a instanceof SimpleRootFinish) && this.root.equals((a as SimpleRootFinish).root);
         @Global public safe def hashCode() = root.hashCode();
         @Global public safe def home()=root.home;
         
@@ -1535,37 +1522,35 @@ import x10.util.Box;
     	val root = GlobalRef[RemoteControl](this);
         transient var e:Box[Throwable] = null;
         transient val latch = new Latch();
-        @Global public safe def equals(a:Any) {
-        	if (a == null || !(a instanceof RemoteControl))
-        		return false;
-        	return (a as RemoteControl).root == this.root;
-        }
+        @Global public safe def equals(a:Any) =
+        	(a instanceof RemoteControl) && this.root.equals((a as RemoteControl).root);
         @Global public safe def hashCode()=root.hashCode();
         @Global public safe def home() = root.home();
     }
 
     public static def runAt(place:Place, body:()=>void):void {
-        val box = new RemoteControl();
-        val there = here;
-        async (place) {
+    	
+        val box = (new RemoteControl()).root;
+        async(place) {
             try {
                 body();
-                async (there) {
-                	val me = (box.root as GlobalRef[RemoteControl]{here==self.home})();
+                async(box.home) {
+                	val me = box();
                 	me.latch.release();
                 }
             } catch (e:Throwable) {
-                async (there) {
-                	val me = (box.root as GlobalRef[RemoteControl]{here==self.home})();
+                async(box.home) {
+                	val me = box();
                     me.e = new Box[Throwable](e);
                     me.latch.release();
                 }
             }
         }
-        if (!NO_STEALS && safe()) worker().join(box.latch);
-        box.latch.await();
-        if (null != box.e) {
-            val x = box.e.value;
+        val me = box();
+        if (!NO_STEALS && safe()) worker().join(me.latch);
+        me.latch.await();
+        if (null != me.e) {
+            val x = me.e.value;
             if (x instanceof Error)
                 throw x as Error;
             if (x instanceof RuntimeException)
@@ -1581,43 +1566,41 @@ import x10.util.Box;
         transient var e:Box[Throwable] = null;
         transient val latch = new Latch();
         val root = GlobalRef[Remote](this);
-        @Global public safe def equals(a:Any) {
-        	if (a == null || !(a instanceof Remote[T]))
-        		return false;
-        	return (a as Remote[T]).root == this.root;
-        }
+        @Global public safe def equals(a:Any)=
+        	(a instanceof Remote[T]) && this.root.equals((a as Remote[T]).root);
         @Global public safe def hashCode()=root.hashCode();
         @Global public safe def home() = root.home();
     }
 
     public static def evalAt[T](place:Place, eval:()=>T):T {
-        val box = new Remote[T]();
-        async (place) {
+        val box = (new Remote[T]()).root;
+        async(place) {
             try {
                 val result = eval();
-                async (box.home()) {
-                	val me = (box.root as GlobalRef[Remote[T]]{here==self.home})();
+                async(box.home) {
+                	val me = box();
                     me.t = result;
                     me.latch.release();
                 }
             } catch (e:Throwable) {
-                async (box.home()) {
-                	val me = (box.root as GlobalRef[Remote[T]]{here==self.home})();
+                async(box.home) {
+                	val me = box();
                 	me.e = e;
                     me.latch.release();
                 }
             }
         }
-        if (!NO_STEALS && safe()) worker().join(box.latch);
-        box.latch.await();
-        if (null != box.e) {
-            val x = box.e.value;
+        val me = box();
+        if (!NO_STEALS && safe()) worker().join(me.latch);
+        me.latch.await();
+        if (null != me.e) {
+            val x = me.e.value;
             if (x instanceof Error)
                 throw x as Error;
             if (x instanceof RuntimeException)
                 throw x as RuntimeException;
         }
-        return box.t.value;
+        return me.t.value;
     }
 
     /**
@@ -1625,10 +1608,10 @@ import x10.util.Box;
      */
     public static def evalFuture[T](place:Place, eval:()=>T):Future[T] {
         val f = at (place) {
-        val f1 = new Future[T](eval);
-                async f1.run();
-                f1
-        };
+                   val f1 = new Future[T](eval);
+                   async f1.run();
+                   f1
+                };
         return f;
     }
 
