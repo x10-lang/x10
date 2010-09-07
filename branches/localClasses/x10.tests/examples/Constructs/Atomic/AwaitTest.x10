@@ -20,7 +20,7 @@ public class AwaitTest extends x10Test {
 
 	public def run(): boolean = {
 		val c: Clock = Clock.make();
-		async(this) clocked(c) {
+		async clocked(c) {
 			await (val_ > 43);
 			atomic val_ = 42;
 			await (val_ == 0);
@@ -30,7 +30,7 @@ public class AwaitTest extends x10Test {
 		await (val_ == 42);
 		var temp: int;
 		atomic temp = val_;
-		x10.io.Console.OUT.println("temp = " + temp);
+		//x10.io.Console.OUT.println("temp = " + temp);
 		if (temp != 42)
 			return false;
 		atomic val_ = 0;
@@ -38,7 +38,7 @@ public class AwaitTest extends x10Test {
 		next;
 		var temp2: int;
 		atomic temp2 = val_;
-		x10.io.Console.OUT.println("val_ = " + temp2);
+		//x10.io.Console.OUT.println("val_ = " + temp2);
 		return temp2 == 42;
 	}
 

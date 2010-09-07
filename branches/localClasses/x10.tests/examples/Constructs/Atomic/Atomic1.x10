@@ -17,10 +17,10 @@ import harness.x10Test;
  * inside the same atomic section.
  */
 public class Atomic1 extends x10Test {
-
-	var cnt: int = 0;
-	var cnt_broken: int = 0;
-	public const N: int = 100;
+    val root = GlobalRef[Atomic1](this);
+	transient var cnt: int = 0;
+	transient var cnt_broken: int = 0;
+	public static N: int = 100;
 	def threadRun(): int = {
 		for (var i: int = 0; i < N; ++i) {
 			var t: int;
@@ -32,14 +32,15 @@ public class Atomic1 extends x10Test {
 	}
 
 	public def run(): boolean = {
-		val a = future(this) threadRun();
-		val b = future(this) threadRun();
-		val c = future(this) threadRun();
-		val d = future(this) threadRun();
-		val e = future(this) threadRun();
-		val f = future(this) threadRun();
-		val g = future(this) threadRun();
-		val h = future(this) threadRun();
+			val root = this.root;
+		val a = future root().threadRun();
+		val b = future  root().threadRun();
+		val c = future root().threadRun();
+		val d = future root().threadRun();
+		val e = future root().threadRun();
+		val f = future root().threadRun();
+		val g = future  root().threadRun();
+		val h = future  root().threadRun();
 		val i = a.force();
 		val j = b.force();
 		val k = c.force();
@@ -52,11 +53,11 @@ public class Atomic1 extends x10Test {
 		var t2: int;
 		atomic t1 = cnt;
 		atomic t2 = cnt_broken;
-		x10.io.Console.OUT.println("Atomic1: " + t1 + " =?= " + t2);
+		// x10.io.Console.OUT.println("Atomic1: " + t1 + " =?= " + t2);
 		return t1 == 8*N && t1 >= t2;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(Rail[String]) {
 		new Atomic1().execute();
 	}
 }
