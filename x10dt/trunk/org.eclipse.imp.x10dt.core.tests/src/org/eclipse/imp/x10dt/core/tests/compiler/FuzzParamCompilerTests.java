@@ -11,6 +11,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import javax.annotation.processing.FilerException;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -40,8 +42,11 @@ public class FuzzParamCompilerTests extends CompilerTestsBase {
 	/*
 	 * Paths
 	 */
-	private static String FUZZ_PATH = "data" + File.separator + "fuzzgen"  + File.separator;
-	private static String DATA_PATH = "data" + File.separator + "fuzz"  + File.separator;
+	private static final String DATA_DIRNAME = "data"; //$NON-NLS-1$
+	private static final String FUZZGEN_DIRNAME = "fuzzgen"; //$NON-NLS-1$
+	private static final String FUZZ_DIRNAME = "fuzz"; //$NON-NLS-1$
+	private static final String FUZZ_PATH = DATA_DIRNAME + File.separator + FUZZGEN_DIRNAME  + File.separator;
+	private static final String DATA_PATH = DATA_DIRNAME + File.separator + FUZZ_DIRNAME  + File.separator;
 
 	
 	public FuzzParamCompilerTests(File[] sources, String[] options) {
@@ -85,7 +90,7 @@ public class FuzzParamCompilerTests extends CompilerTestsBase {
 			int count = 0;
 			for(FuzzIterator t = new FuzzIterator(buffer); t.hasNext();){
 				char[] newBuffer = t.next();
-				String dir = fuzzPath + f.getName() + (count++);
+				String dir = fuzzPath + File.separatorChar + f.getName() + (count++);
 				boolean success = (new File(dir)).mkdir();
 				if (success){
 					BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dir + File.separator + f.getName())));
@@ -127,10 +132,14 @@ public class FuzzParamCompilerTests extends CompilerTestsBase {
 		}
 	}
 	
-	public static void main(String[] args) throws URISyntaxException {
+	public static void main(String[] args) throws URISyntaxException, FilerException {
 	  final URL dataURL = FuzzParamCompilerTests.class.getClassLoader().getResource(DATA_PATH);
-	  final URL fuzzURL = FuzzParamCompilerTests.class.getClassLoader().getResource(FUZZ_PATH);
-	  final String fuzzPath = toFile(fuzzURL).getAbsolutePath();
+	  final URL fuzzURL = FuzzParamCompilerTests.class.getClassLoader().getResource(DATA_DIRNAME);
+	  final File fuzzgenFile = new File(toFile(fuzzURL), FUZZGEN_DIRNAME);
+	  if (! fuzzgenFile.mkdir()) {
+	    throw new FilerException("Could not created directory: " + fuzzgenFile.getAbsolutePath());
+	  }
+	  final String fuzzPath = fuzzgenFile.getAbsolutePath();
 		for (File f : getSources(toFile(dataURL))) {
 			fuzz(f, fuzzPath);
 		}
