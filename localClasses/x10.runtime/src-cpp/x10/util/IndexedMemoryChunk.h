@@ -133,10 +133,10 @@ template<class T> x10aux::ref<x10::lang::String> x10::util::IndexedMemoryChunk<T
 
 template<class T> x10aux::RuntimeType x10::util::IndexedMemoryChunk<T>::rtt;
 
-template<class T> x10aux::itable_entry x10::util::IndexedMemoryChunk<T>::_itables[2] = {x10aux::itable_entry(x10aux::getRTT<x10::lang::Any>(), &IndexedMemoryChunk_ithunk0<T>::itable),
+template<class T> x10aux::itable_entry x10::util::IndexedMemoryChunk<T>::_itables[2] = {&x10aux::itable_entry(x10aux::getRTT<x10::lang::Any>, &IndexedMemoryChunk_ithunk0<T>::itable),
                                                                                         x10aux::itable_entry(NULL, (void*)x10aux::getRTT<x10::util::IndexedMemoryChunk<T> >())};
 
-template<class T> x10aux::itable_entry x10::util::IndexedMemoryChunk<T>::_iboxitables[2] = {x10aux::itable_entry(x10aux::getRTT<x10::lang::Any>(), &IndexedMemoryChunk_iboxithunk0<T>::itable),
+template<class T> x10aux::itable_entry x10::util::IndexedMemoryChunk<T>::_iboxitables[2] = {&x10aux::itable_entry(x10aux::getRTT<x10::lang::Any>, &IndexedMemoryChunk_iboxithunk0<T>::itable),
                                                                                             x10aux::itable_entry(NULL, (void*)x10aux::getRTT<x10::util::IndexedMemoryChunk<T> >())};
 
 template<class T> void x10::util::IndexedMemoryChunk<T>::_initRTT() {
