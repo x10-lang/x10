@@ -25,7 +25,7 @@ import x10.compiler.Native;
  * arguments returns its encapsulated value.
  */
 @NativeRep("java", "x10.core.GlobalRef<#1>", null, "new x10.rtt.ParameterizedType(x10.core.GlobalRef._RTT, #2)")
-@NativeRep("c++", "x10::lang::GlobalRef<#1 >", "x10::lang::GlobalRef<#1 >", null)
+@NativeRep("c++", "x10aux::ref<x10::lang::GlobalRef<#1 > >", "x10::lang::GlobalRef<#1 >", null)
 public struct GlobalRef[T](
     @Native("java", "((#0).home)")
     @Native("c++", "x10::lang::Place_methods::place((#0)->location)")
@@ -42,7 +42,7 @@ public struct GlobalRef[T](
     * created. Returns the object encapsulated in the value.
     */
    @Native("java", "(#0).apply$G()")
-   @Native("c++", "(#0)->value")
+   @Native("c++", "((#1)((#0)->value))")
    public native def apply(){here == this.home}:T; 
 
    /*
