@@ -950,7 +950,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             X10CanonicalTypeNode xtn = (X10CanonicalTypeNode) tn;
 
                             Type t = X10TypeMixin.baseType(xtn.type());
-                            Expander ex = new TypeExpander(er, t, PRINT_TYPE_PARAMS);
+                            //TODO need fix for XTENLANG-1787
+                            Expander ex = new TypeExpander(er, t, reduce_generic_cast ? 0 : PRINT_TYPE_PARAMS);
 
                             Expander rt = new RuntimeTypeExpander(er, t);
 
