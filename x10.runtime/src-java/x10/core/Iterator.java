@@ -20,7 +20,7 @@ public interface Iterator<T> {
 	public T next$G();
 
 	public static final RuntimeType<Iterator<?>> _RTT = new RuntimeType<Iterator<?>>(
-	    Rail.class, 
+	    Iterator.class, 
 	    new Variance[] {Variance.COVARIANT}
 	) {
 	    @Override
