@@ -11,8 +11,21 @@
 
 package x10.core;
 
+import x10.rtt.RuntimeType;
+import x10.rtt.RuntimeType.Variance;
+
 /** Just like java.util.Iterator, but without remove(). */
 public interface Iterator<T> {
 	public boolean hasNext();
 	public T next$G();
+
+	public static final RuntimeType<Iterator<?>> _RTT = new RuntimeType<Iterator<?>>(
+	    Rail.class, 
+	    new Variance[] {Variance.COVARIANT}
+	) {
+	    @Override
+	    public String typeName() {
+	        return "x10.lang.Iterator";
+	    }
+	};
 }
