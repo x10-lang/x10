@@ -15,15 +15,16 @@ SOCKET_DYNLIB = lib/$(LIBPREFIX)x10rt_socket$(LIBSUFFIX)
 LIBS += $(SOCKET_DYNLIB)
 
 PROPERTIES += etc/x10rt_socket.properties
+LAUNCHER_OBJS = socket/Launcher_IF.o socket/Launcher_Init.o socket/Launcher_SSH.o socket/Launcher.o socket/tcp.o
 
 %.socket: %.cc $(SOCKET_DYNLIB)
 	$(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS) -lx10rt_socket $(X10RT_TEST_LDFLAGS)
 
 ifdef X10_STATIC_LIB
-$(SOCKET_DYNLIB): socket/x10rt_socket.o $(COMMON_OBJS)
+$(SOCKET_DYNLIB): socket/x10rt_socket.o $(LAUNCHER_OBJS) $(COMMON_OBJS)
 	$(AR) $(ARFLAGS) $@ $^
 else
-$(SOCKET_DYNLIB): socket/x10rt_socket.o $(COMMON_OBJS)
+$(SOCKET_DYNLIB): socket/x10rt_socket.o $(LAUNCHER_OBJS) $(COMMON_OBJS) 
 ifeq ($(X10RT_PLATFORM),aix_xlc)
 	$(SHLINK) $(CXXFLAGS) $(CXXFLAGS_SHARED) $(LDFLAGS_SHARED) -o $@ $^
 else

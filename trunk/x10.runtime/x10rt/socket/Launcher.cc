@@ -390,7 +390,7 @@ void Sock::Launcher::cb_ctrl_child(int childNo)
 	// interpret message from child
 	assert (_ctrlfd[childNo] >= 0);
 
-	size_t n = read(_ctrlfd[childNo], buf, sizeof(buf));
+	int n = read(_ctrlfd[childNo], buf, sizeof(buf));
 	if (n <= 0)
 		cb_ctrl_deadChild(childNo);
 	TRACEPM((stderr, "PM %d: ctrl message, %d bytes from child %d\n", _myproc, n, childNo));
@@ -403,7 +403,7 @@ void Sock::Launcher::cb_ctrl_parent()
 {
 	char buf[1024];
 	assert (_ctrlfdp >= 0);
-	size_t n = read(_ctrlfdp, buf, sizeof(buf));
+	int n = read(_ctrlfdp, buf, sizeof(buf));
 	if (n <= 0)
 		cb_ctrl_deadParent();
 	TRACEPM((stderr, "PM %d: ctrl message from parent, %d bytes\n", _myproc, n));

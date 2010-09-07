@@ -11,13 +11,14 @@
  * The network is read/written directly.
  **********************************************************************************************/
 
-#include <cstdlib>
-#include <cstdio>
+#include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <errno.h>
 
 #include <x10rt_net.h>
 #include "Launcher.h"
+#include "TCP.h"
 
 // mechanisms for the callback functions used in the register and probe methods
 typedef void (*handlerCallback)(const x10rt_msg_params *);
@@ -37,6 +38,7 @@ struct x10SocketState
 	x10rt_place myPlaceId; // which place we're at.  Also used as the index to the array below. Local per-place memory is used.
 	x10SocketCallback* callBackTable; // I'm told message ID's run from 0 to n, so a simple array using message indexes is the best solution for this table.  Local per-place memory is used.
 	x10rt_msg_type callBackTableSize; // length of the above array
+	int* socketLinks; // handles to each remote place.  Unconnected links have a value of 0.
 } state;
 
 /*********************************************
@@ -45,23 +47,19 @@ struct x10SocketState
 
 void error(const char* message)
 {
-	printf("Fatal Error: %s: %s\n", message, strerror(errno));
+	fprintf(stderr, "Fatal Error: %s: %s\n", message, strerror(errno));
 	abort();
 }
 
-static void stub (void)
+/******************************************************
+ *  Main API calls.  See x10rt_net.h for documentation
+*******************************************************/
+void x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 {
-    fprintf(stderr,"Not implemented yet!\n");
-    abort();
-}
-
-
-void x10rt_net_init (int *, char ***, x10rt_msg_type *)
-{
-	// TODO call the launcher.
 	// If this is to be a launcher process, this method will not return.
+	Launcher_Init(*argc, *argv);
 
-	// determine the number of places (processes) to create, using an environment variable
+	// determine the number of places
 	char* NPROCS = getenv(X10LAUNCHER_NPROCS);
 	if (NPROCS == NULL)
 	{
@@ -71,9 +69,22 @@ void x10rt_net_init (int *, char ***, x10rt_msg_type *)
 	else
 		state.numPlaces = atol(NPROCS);
 
+	state.socketLinks = new int[state.numPlaces];
+
+	// determine my place ID
+	char* ID = getenv(X10LAUNCHER_MYID);
+	if (ID == NULL)
+		error("X10LAUNCHER_MYID not set!");
+	else
+		state.myPlaceId = atol(ID);
+
+	// TODO open local listen port.
+	// TODO establish a link to the local launcher, and tell it our port.
+	// TODO wait for the launcher to give us our link information.
+	// TODO if not using lazy connections, establish links to other places.
 }
 
-void x10rt_net_register_msg_receiver (x10rt_msg_type msg_type, x10rt_handler *cb)
+void x10rt_net_register_msg_receiver (x10rt_msg_type msg_type, x10rt_handler *callback)
 {
 	// register a pointer to methods that will handle specific message types.
 	// add an entry to our type/handler table
@@ -86,7 +97,7 @@ void x10rt_net_register_msg_receiver (x10rt_msg_type msg_type, x10rt_handler *cb
 		state.callBackTableSize = msg_type+1;
 	}
 
-	state.callBackTable[msg_type].handler = cb;
+	state.callBackTable[msg_type].handler = callback;
 	state.callBackTable[msg_type].finder = NULL;
 	state.callBackTable[msg_type].notifier = NULL;
 
@@ -95,7 +106,7 @@ void x10rt_net_register_msg_receiver (x10rt_msg_type msg_type, x10rt_handler *cb
 	#endif
 }
 
-void x10rt_net_register_put_receiver (x10rt_msg_type msg_type, x10rt_finder *cb1, x10rt_notifier *cb2)
+void x10rt_net_register_put_receiver (x10rt_msg_type msg_type, x10rt_finder *finderCallback, x10rt_notifier *notifierCallback)
 {
 	// register a pointer to methods that will handle specific message types.
 	// add an entry to our type/handler table
@@ -108,15 +119,15 @@ void x10rt_net_register_put_receiver (x10rt_msg_type msg_type, x10rt_finder *cb1
 	}
 
 	state.callBackTable[msg_type].handler = NULL;
-	state.callBackTable[msg_type].finder = cb1;
-	state.callBackTable[msg_type].notifier = cb2;
+	state.callBackTable[msg_type].finder = finderCallback;
+	state.callBackTable[msg_type].notifier = notifierCallback;
 
 	#ifdef DEBUG
 		printf("X10rt.Socket: place %lu registered put message %u\n", state.myPlaceId, msg_type);
 	#endif
 }
 
-void x10rt_net_register_get_receiver (x10rt_msg_type msg_type, x10rt_finder *cb1, x10rt_notifier *cb2)
+void x10rt_net_register_get_receiver (x10rt_msg_type msg_type, x10rt_finder *finderCallback, x10rt_notifier *notifierCallback)
 {
 	// register a pointer to methods that will handle specific message types.
 	// add an entry to our type/handler table
@@ -129,8 +140,8 @@ void x10rt_net_register_get_receiver (x10rt_msg_type msg_type, x10rt_finder *cb1
 	}
 
 	state.callBackTable[msg_type].handler = NULL;
-	state.callBackTable[msg_type].finder = cb1;
-	state.callBackTable[msg_type].notifier = cb2;
+	state.callBackTable[msg_type].finder = finderCallback;
+	state.callBackTable[msg_type].notifier = notifierCallback;
 
 	#ifdef DEBUG
 		printf("X10rt.Socket: place %lu registered get message %u\n", state.myPlaceId, msg_type);
@@ -140,7 +151,7 @@ void x10rt_net_register_get_receiver (x10rt_msg_type msg_type, x10rt_finder *cb1
 
 void x10rt_net_internal_barrier (void)
 {
-	stub();
+	error("x10rt_net_internal_barrier not implemented");
 }
 
 x10rt_place x10rt_net_nhosts (void)
@@ -155,31 +166,52 @@ x10rt_place x10rt_net_here (void)
 	return state.myPlaceId;
 }
 
-void x10rt_net_send_msg (x10rt_msg_params *)
-{ stub(); }
+void x10rt_net_send_msg (x10rt_msg_params *parameters)
+{
+	error("x10rt_net_send_msg not implemented");
+}
 
-void x10rt_net_send_get (x10rt_msg_params *, void *, x10rt_copy_sz )
-{ stub(); }
+void x10rt_net_send_get (x10rt_msg_params *parameters, void *buffer, x10rt_copy_sz bufferLen)
+{
+	error("x10rt_net_send_get not implemented");
+}
 
-void x10rt_net_send_put (x10rt_msg_params *, void *, x10rt_copy_sz)
-{ stub(); }
+void x10rt_net_send_put (x10rt_msg_params *paremeters, void *buffer, x10rt_copy_sz bufferLen)
+{
+	error("x10rt_net_send_put not implemented");
+}
 
 void x10rt_net_probe ()
-{ }
-
-void x10rt_net_remote_op (x10rt_place place, x10rt_remote_ptr victim, x10rt_op_type type, unsigned long long value)
-{ stub(); }
-
-x10rt_remote_ptr x10rt_net_register_mem (void *ptr, size_t len)
-{ return NULL; }
+{
+}
 
 void x10rt_net_finalize (void)
 {
 	#ifdef DEBUG
 		printf("X10rt.Socket: shutting down place %lu\n", state.myPlaceId);
 	#endif
-		// TODO
+
+	// TODO - close sockets
+
+	free(state.socketLinks);
 }
+
+/*************************************************
+ * TODO - talk to Cunningham to see if anything
+ * needs to be done for these methods below.
+ *************************************************/
+
+void x10rt_net_remote_op (x10rt_place place, x10rt_remote_ptr victim, x10rt_op_type type, unsigned long long value)
+{
+	error("x10rt_net_remote_op not implemented");
+}
+
+x10rt_remote_ptr x10rt_net_register_mem (void *ptr, size_t len)
+{
+	error("x10rt_net_register_mem not implemented");
+	return NULL;
+}
+
 
 int x10rt_net_supports (x10rt_opt o)
 {
@@ -191,18 +223,18 @@ int x10rt_net_supports (x10rt_opt o)
 void x10rt_net_team_new (x10rt_place placec, x10rt_place *placev,
                          x10rt_completion_handler2 *ch, void *arg)
 {
-    stub();
+	error("x10rt_net_team_new not implemented");
 }
 
 void x10rt_net_team_del (x10rt_team team, x10rt_place role,
                          x10rt_completion_handler *ch, void *arg)
 {
-    stub();
+	error("x10rt_net_team_del not implemented");
 }
 
 x10rt_place x10rt_net_team_sz (x10rt_team team)
 {
-    stub();
+	error("x10rt_net_team_sz not implemented");
     return 0;
 }
 
@@ -210,13 +242,13 @@ void x10rt_net_team_split (x10rt_team parent, x10rt_place parent_role,
                            x10rt_place color, x10rt_place new_role,
                            x10rt_completion_handler2 *ch, void *arg)
 {
-    stub();
+	error("x10rt_net_team_split not implemented");
 }
 
 void x10rt_net_barrier (x10rt_team team, x10rt_place role,
                         x10rt_completion_handler *ch, void *arg)
 {
-    stub();
+	error("x10rt_net_barrier not implemented");
 }
 
 void x10rt_net_bcast (x10rt_team team, x10rt_place role,
@@ -224,7 +256,7 @@ void x10rt_net_bcast (x10rt_team team, x10rt_place role,
                       size_t el, size_t count,
                       x10rt_completion_handler *ch, void *arg)
 {
-    stub();
+	error("x10rt_net_bcast not implemented");
 }
 
 void x10rt_net_alltoall (x10rt_team team, x10rt_place role,
@@ -232,7 +264,7 @@ void x10rt_net_alltoall (x10rt_team team, x10rt_place role,
                          size_t el, size_t count,
                          x10rt_completion_handler *ch, void *arg)
 {
-    stub();
+	error("x10rt_net_alltoall not implemented");
 }
 
 void x10rt_net_allreduce (x10rt_team team, x10rt_place role,
@@ -242,5 +274,5 @@ void x10rt_net_allreduce (x10rt_team team, x10rt_place role,
                           size_t count,
                           x10rt_completion_handler *ch, void *arg)
 {
-    stub();
+	error("x10rt_net_allreduce not implemented");
 }
