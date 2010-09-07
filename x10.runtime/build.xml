@@ -209,6 +209,9 @@
             <fileset dir="${x10.constraints.location}/classes" includes="x10/constraint/**" excludes="x10/constraint/test/**"/>
             <fileset dir="${x10.common.location}/classes" includes="x10/**"/>
         </jar>
+        <copy todir="${build}"><!-- copy x10.jar into classes to let scripts find it there too -->
+            <fileset dir="${gen}" includes="${jar}"/>
+        </copy>
     </target>
     <target name="build-java" depends="init,gen-xrx">
         <ejc destdir="${build}" source="1.5" target="1.5" debug="on" nowarn="on">
