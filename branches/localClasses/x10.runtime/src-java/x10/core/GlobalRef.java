@@ -56,7 +56,7 @@ public class GlobalRef<T> extends x10.core.Struct {
     }
 
     final public int hashCode() {
-        return (31 * this.home.hashCode()) + this.value.hashCode();
+        return (31 * this.home.hashCode()) + System.identityHashCode(this.value); // this.value.hashCode();
     }
 
     final public boolean equals(java.lang.Object other) {
