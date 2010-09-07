@@ -25,6 +25,8 @@ typedef void (*handlerCallback)(const x10rt_msg_params *);
 typedef void *(*finderCallback)(const x10rt_msg_params *, x10rt_copy_sz);
 typedef void (*notifierCallback)(const x10rt_msg_params *, x10rt_copy_sz);
 
+enum MSGTYPE {CONTROL, STANDARD, PUT, GET, GET_COMPLETED};
+
 struct x10SocketCallback
 {
 	handlerCallback handler;
@@ -38,7 +40,7 @@ struct x10SocketState
 	x10rt_place myPlaceId; // which place we're at.  Also used as the index to the array below. Local per-place memory is used.
 	x10SocketCallback* callBackTable; // I'm told message ID's run from 0 to n, so a simple array using message indexes is the best solution for this table.  Local per-place memory is used.
 	x10rt_msg_type callBackTableSize; // length of the above array
-	int* socketLinks; // handles to each remote place.  Unconnected links have a value of 0.
+	int* socketLinks; // handles to each remote place.  Unconnected links have a value of 0.  The slot for my place holds my listen port.
 } state;
 
 /*********************************************
@@ -69,8 +71,6 @@ void x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 	else
 		state.numPlaces = atol(NPROCS);
 
-	state.socketLinks = new int[state.numPlaces];
-
 	// determine my place ID
 	char* ID = getenv(X10LAUNCHER_MYID);
 	if (ID == NULL)
@@ -78,7 +78,18 @@ void x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 	else
 		state.myPlaceId = atol(ID);
 
-	// TODO open local listen port.
+	state.socketLinks = new int[state.numPlaces];
+	for (unsigned int i=0; i<state.numPlaces; i++)
+		state.socketLinks[i] = 0;
+
+	// open local listen port.
+	// TODO: for now, use a well-known fixed port number.  This will be changed to dynamic before it's released.
+	unsigned listenPort = 7000+state.myPlaceId;
+	//unsigned listenPort = 0;
+	state.socketLinks[state.myPlaceId] = TCP::listen(&listenPort, 10);
+	if (state.socketLinks[state.myPlaceId] < 0)
+		error("cannot create listener port");
+
 	// TODO establish a link to the local launcher, and tell it our port.
 	// TODO wait for the launcher to give us our link information.
 	// TODO if not using lazy connections, establish links to other places.
@@ -168,17 +179,55 @@ x10rt_place x10rt_net_here (void)
 
 void x10rt_net_send_msg (x10rt_msg_params *parameters)
 {
-	error("x10rt_net_send_msg not implemented");
+	if (state.socketLinks[parameters->dest_place] == 0)
+		// TODO: change to use remote hosts
+		state.socketLinks[parameters->dest_place] = TCP::connect("localhost", 7000+parameters->dest_place, 0);
+
+	// write out the x10SocketMessage data
+	enum MSGTYPE m = STANDARD;
+	TCP::write(state.socketLinks[parameters->dest_place], &m, sizeof(enum MSGTYPE));
+	TCP::write(state.socketLinks[parameters->dest_place], &state.myPlaceId, sizeof(x10rt_place));
+	TCP::write(state.socketLinks[parameters->dest_place], &parameters->type, sizeof(x10rt_msg_type));
+	TCP::write(state.socketLinks[parameters->dest_place], &parameters->len, sizeof(uint32_t));
+	if (parameters->len > 0)
+		TCP::write(state.socketLinks[parameters->dest_place], parameters->msg, parameters->len);
 }
 
 void x10rt_net_send_get (x10rt_msg_params *parameters, void *buffer, x10rt_copy_sz bufferLen)
 {
-	error("x10rt_net_send_get not implemented");
+	if (state.socketLinks[parameters->dest_place] == 0)
+		// TODO: change to use remote hosts
+		state.socketLinks[parameters->dest_place] = TCP::connect("localhost", 7000+parameters->dest_place, 0);
+
+	// write out the x10SocketMessage data
+	enum MSGTYPE m = GET;
+	TCP::write(state.socketLinks[parameters->dest_place], &m, sizeof(enum MSGTYPE));
+	TCP::write(state.socketLinks[parameters->dest_place], &state.myPlaceId, sizeof(x10rt_place));
+	TCP::write(state.socketLinks[parameters->dest_place], &parameters->type, sizeof(x10rt_msg_type));
+	TCP::write(state.socketLinks[parameters->dest_place], &parameters->len, sizeof(uint32_t));
+	if (parameters->len > 0)
+		TCP::write(state.socketLinks[parameters->dest_place], parameters->msg, parameters->len);
+
+	// TODO set up receive buffer
 }
 
-void x10rt_net_send_put (x10rt_msg_params *paremeters, void *buffer, x10rt_copy_sz bufferLen)
+void x10rt_net_send_put (x10rt_msg_params *parameters, void *buffer, x10rt_copy_sz bufferLen)
 {
-	error("x10rt_net_send_put not implemented");
+	if (state.socketLinks[parameters->dest_place] == 0)
+		// TODO: change to use remote hosts
+		state.socketLinks[parameters->dest_place] = TCP::connect("localhost", 7000+parameters->dest_place, 0);
+
+	// write out the x10SocketMessage data
+	enum MSGTYPE m = PUT;
+	TCP::write(state.socketLinks[parameters->dest_place], &m, sizeof(enum MSGTYPE));
+	TCP::write(state.socketLinks[parameters->dest_place], &state.myPlaceId, sizeof(x10rt_place));
+	TCP::write(state.socketLinks[parameters->dest_place], &parameters->type, sizeof(x10rt_msg_type));
+	TCP::write(state.socketLinks[parameters->dest_place], &parameters->len, sizeof(uint32_t));
+	if (parameters->len > 0)
+		TCP::write(state.socketLinks[parameters->dest_place], parameters->msg, parameters->len);
+	TCP::write(state.socketLinks[parameters->dest_place], &bufferLen, sizeof(x10rt_copy_sz));
+	if (bufferLen > 0)
+		TCP::write(state.socketLinks[parameters->dest_place], buffer, bufferLen);
 }
 
 void x10rt_net_probe ()
