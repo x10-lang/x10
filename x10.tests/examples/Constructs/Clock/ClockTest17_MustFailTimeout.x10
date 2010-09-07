@@ -48,9 +48,9 @@ public class ClockTest17_MustFailTimeout extends x10Test {
 	public def run(): boolean = {
 		/*A0*/
 		val c0: Clock = Clock.make();
-		var x: X! = new X();
+		val x = new X();
 		// f0 does not transmit clocks to subactivity
-		var f0: foo! = new foo() {
+		val f0  = new foo() {
 			public def apply(): void = {
 				async {
 					x10.io.Console.OUT.println("hello from finish async S");
@@ -58,7 +58,7 @@ public class ClockTest17_MustFailTimeout extends x10Test {
 			}
 		};
 		// f1 transmits clocks to subactivity
-		var f1: foo! = new foo() {
+		val f1  = new foo() {
 			public def apply(): void = {
 				/*Activity A1*/
 				async clocked(c0) {
@@ -69,10 +69,10 @@ public class ClockTest17_MustFailTimeout extends x10Test {
 			}
 		};
 
-		val fooArray: Rail[foo]! = [f0,f1];  // FIXME: should be Rail[foo!]!
+		val fooArray  = [f0,f1];  // FIXME: should be Rail[foo!]!
 
 		// This is invoking Y.test(f0) but not clear to a compiler
-		Y.test(fooArray(x.zero()) as foo!);
+		Y.test(fooArray(x.zero()));
 		// Finish in Y.test completes and then the following executes.
 		//No deadlock occurs here.
 		x10.io.Console.OUT.println("#0a before next");
@@ -80,7 +80,7 @@ public class ClockTest17_MustFailTimeout extends x10Test {
 		x10.io.Console.OUT.println("#0a after next");
 
 		// This is invoking Y.test(f1) but not clear to a compiler
-		Y.test(fooArray(x.one()) as foo!);
+		Y.test(fooArray(x.one()));
 		// Execution never reaches here (deadlock occurs) since:
 		// A1 inside Y.test(f1) must first finish, but it
 		// cannot since A0 has not executed next on clock c0 yet.
@@ -91,7 +91,7 @@ public class ClockTest17_MustFailTimeout extends x10Test {
 		return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(Rail[String]) {
 		new ClockTest17_MustFailTimeout().execute();
 	}
 
@@ -99,7 +99,7 @@ public class ClockTest17_MustFailTimeout extends x10Test {
 	 * A class to invoke a 'function pointer' inside of finish
 	 */
 	static class Y {
-		static def test(var f: foo!): void = {
+		static def test(var f: foo): void = {
 			finish {
 				f.apply(); // it is hard to determine f does an async clocked(c) S
 			}
@@ -126,7 +126,7 @@ public class ClockTest17_MustFailTimeout extends x10Test {
 	 * for a typical compiler
 	 */
 	static class X {
-		public val z:Rail[Int]! = [1,0];
+		public val z  = Rail.make[int]([1,0]);
 		def zero(): int = { return z(z(z(1))); }
 		def one(): int = { return z(z(z(0))); }
 		def modify(): void = { z(0) += 1; }
