@@ -103,10 +103,10 @@ template<class T> x10aux::ref<x10::lang::String> x10::lang::GlobalRef<T>::typeNa
 
 template<class T> x10aux::RuntimeType x10::lang::GlobalRef<T>::rtt;
 
-template<class T> x10aux::itable_entry x10::lang::GlobalRef<T>::_itables[2] = {x10aux::itable_entry(x10aux::getRTT<x10::lang::Any>(), &GlobalRef_ithunk0<T>::itable),
+template<class T> x10aux::itable_entry x10::lang::GlobalRef<T>::_itables[2] = {x10aux::itable_entry(&x10aux::getRTT<x10::lang::Any>, &GlobalRef_ithunk0<T>::itable),
                                                                                x10aux::itable_entry(NULL, (void*)x10aux::getRTT<x10::lang::GlobalRef<T> >())};
 
-template<class T> x10aux::itable_entry x10::lang::GlobalRef<T>::_iboxitables[2] = {x10aux::itable_entry(x10aux::getRTT<x10::lang::Any>(), &GlobalRef_iboxithunk0<T>::itable),
+template<class T> x10aux::itable_entry x10::lang::GlobalRef<T>::_iboxitables[2] = {x10aux::itable_entry(&x10aux::getRTT<x10::lang::Any>, &GlobalRef_iboxithunk0<T>::itable),
                                                                                    x10aux::itable_entry(NULL, (void*)x10aux::getRTT<x10::lang::GlobalRef<T> >())};
 
 template<class T> void x10::lang::GlobalRef<T>::_initRTT() {
