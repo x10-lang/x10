@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -35,7 +36,11 @@ public class CompilerTests extends CompilerTestsBase {
 		String[] files = {"Hello5.x10", "pac" + File.separator + "MyStruct.x10"};
 		Collection<ErrorInfo> errors = new ArrayList<ErrorInfo>();
 		Collection<Job> jobs = new ArrayList<Job>();
-		compile(files, NOT_STATIC_CALLS, errors, jobs);
+		final URL dataURL = getClass().getClassLoader().getResource(DATA_PATH);
+		final String dataPath = toFile(dataURL).getAbsolutePath();
+		compileStreams(toSources(dataPath, files), NOT_STATIC_CALLS, errors,
+		               getRuntimeJar() + File.pathSeparator + dataPath,
+		               jobs);
 		for(ErrorInfo error: errors){
 			if (error.getMessage().contains("Duplicate class")){
 				Assert.assertTrue("Duplicate class error when there is no duplication.", false);
@@ -43,14 +48,13 @@ public class CompilerTests extends CompilerTestsBase {
 		}
 	}
 	
-	private Source[] toSources(final String[] files) {
+	private Source[] toSources(final String dataPath, final String[] files) {
 		Source[] result = new Source[files.length];
 		for(int i = 0; i < files.length; i++){
 			String file = files[i];
 			try {
-				FileInputStream fis = new FileInputStream(DATA_PATH + file);
-		        result[i] = new StreamSource(fis, DATA_PATH + file);
-		    	
+				FileInputStream fis = new FileInputStream(dataPath + File.separator + file);
+		        result[i] = new StreamSource(fis, dataPath + File.separator + file);
 		      } catch (Exception except) {
 		        System.err.println(except);
 		      }
