@@ -21,7 +21,7 @@ import harness.x10Test;
 
 public class ClosureEnclosingScope5 extends ClosureTest {
 
-	global val a = 1;
+	val a = 1;
 
 	class C(a:int) {
 		def this(x:int) { 

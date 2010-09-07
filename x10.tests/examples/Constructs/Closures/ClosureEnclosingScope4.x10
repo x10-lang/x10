@@ -21,12 +21,12 @@ import harness.x10Test;
 
 public class ClosureEnclosingScope4 extends ClosureTest {
 
-    global val a = 1;
+    val a = 1;
 
     public def run(): boolean = {
         
         class C {
-            global val a = 2;
+            val a = 2;
             class D {
                 val a = 4;
                 val sum = (()=>(ClosureEnclosingScope4.this.a+C.this.a+D.this.a+a))();
