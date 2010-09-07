@@ -6,8 +6,6 @@ x10.compiler.RemoteOperation.
   Kill this code.  Won't work anymore.  
   Recode RA to use IndexedMemoryChunk directly.
 
-GlobalRef: when a global ref is constructed, call reference logger.
-
 x10.io.GlobalStringWriter
   Do we really want this class?  See todo in the class header.
 
