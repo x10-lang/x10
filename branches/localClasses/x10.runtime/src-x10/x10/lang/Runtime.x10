@@ -467,11 +467,12 @@ import x10.util.Box;
         }
     }
     	
-    static class RootFinish extends Latch implements FinishState, Mortal {
+    static class RootFinish implements FinishState, Mortal {
         protected val root = GlobalRef[RootFinish](this);
         transient protected val counts:Rail[Int];
         transient protected val seen:Rail[Boolean];
         transient protected var exceptions:Stack[Throwable];
+        transient protected val latch = new Latch();
         def this() {
             val c = Rail.make[Int](Place.MAX_PLACES, (Int)=>0);
             seen = Rail.make[Boolean](Place.MAX_PLACES, (Int)=>false);
@@ -489,7 +490,14 @@ import x10.util.Box;
         @Global public safe def equals(a:Any) =
         	(a instanceof RootFinish) && (a as RootFinish).root.equals(this.root);
         @Global public safe def home():Place = root.home;
-        
+
+        @Pinned public def lock() = latch.lock();
+        @Pinned public def unlock() = latch.unlock();
+        @Pinned public def tryLock() = latch.tryLock();
+        @Pinned public def release() = latch.release();
+        @Pinned public def await() = latch.await();
+        @Pinned public def apply() = latch.apply();
+	    
         @Pinned private def notifySubActivitySpawnLocal(place:Place):void {
             lock();
             counts(place.parent().id)++;
@@ -517,7 +525,7 @@ import x10.util.Box;
         }
 
         @Pinned public def waitForFinish(safe:Boolean):void {
-            if (!NO_STEALS && safe) worker().join(this);
+            if (!NO_STEALS && safe) worker().join(this.latch);
             await();
             val closure = ()=>runtime().finishStates.remove(this);
             seen(hereInt()) = false;
@@ -966,6 +974,7 @@ import x10.util.Box;
     	 protected val root = GlobalRef[SimpleRootFinish](this);
     	 transient protected var counts:int;
          transient protected var exceptions:Stack[Throwable];
+	 transient protected val latch = new Latch();
                                         
          public def this() {
              counts = 1;
@@ -974,6 +983,13 @@ import x10.util.Box;
         	 (a instanceof SimpleRootFinish) && this.root.equals((a as SimpleRootFinish).root);
         @Global public safe def hashCode() = root.hashCode();
         @Global public safe def home()=root.home;
+
+        @Pinned public def lock() = latch.lock();
+        @Pinned public def unlock() = latch.unlock();
+        @Pinned public def tryLock() = latch.tryLock();
+        @Pinned public def release() = latch.release();
+        @Pinned public def await() = latch.await();
+        @Pinned public def apply() = latch.apply();
         
         @Pinned public  def notifySubActivitySpawnLocal(place:Place):void {
         	 lock();
@@ -1356,11 +1372,11 @@ import x10.util.Box;
     // instance fields
 
     // per process members
-    private val pool:Pool;
+    private transient val pool:Pool;
 
     // per place members
-    private val monitor = new Monitor();
-    private val finishStates = new FinishStates();
+    private transient val monitor = new Monitor();
+    private transient val finishStates = new FinishStates();
 
     // constructor
 
@@ -1411,7 +1427,7 @@ import x10.util.Box;
      */
     public static def start(init:()=>void, body:()=>void):void {
         val rootFinish = new RootFinish();
-        val pool = new Pool(rootFinish, INIT_THREADS);
+        val pool = new Pool(rootFinish.latch, INIT_THREADS);
         try {
             for (var i:Int=0; i<Place.MAX_PLACES; i++) {
                 if (isLocal(i)) {
