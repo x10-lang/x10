@@ -1010,7 +1010,7 @@ public class X10TypeMixin {
             if (t.isBoolean()) {
                 e = nf.BooleanLit(p, false);
 
-                // todo: add literals for short, byte, and their unsigned versions
+            // todo: add literals for short, byte, and their unsigned versions
             } else if (ts.isShort(t)) {
                 e = nf.IntLit(p, X10IntLit_c.INT, 0L);
             } else if (ts.isUShort(t)) {
@@ -1052,10 +1052,11 @@ then we substitute 0/false/null in all the constraints in C and if they all eval
 //            // a parameter type might be instantiated with a type that doesn't have a default/zero. todo: In the future we'll add the "hasDefault" constraint
 //            if (ts.isParameterType(t)) {
 
-            if (e!=null) e = (Expr) e.del().typeCheck(tc).checkConstants(tc);
-            if (e != null &&
-                    ts.isSubtype(e.type(),t,context)) { // suppose the field is "var i:Int{self!=0}", then you cannot create an initializer which is 0!
-                return e;
+            if (e != null) {
+                e = (Expr) e.del().typeCheck(tc).checkConstants(tc);
+                if (!ts.isSubtype(e.type(), t, context)) { // suppose the field is "var i:Int{self!=0}", then you cannot create an initializer which is 0!
+                    return e;
+                }
             }
             return null;
         } catch (SemanticException e1) {
