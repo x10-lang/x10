@@ -494,4 +494,16 @@
             project="true">
       </wizard>
    </extension>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="org.eclipse.imp.editor.UniversalEditor"
+            contributorClass="org.eclipse.imp.editor.internal.TextEditorActionContributor"
+            default="false"
+            extensions="x10"
+            icon="icons/compilationUnitNormal.gif"
+            id="x10dt.ui.editor"
+            name="X10 Editor">
+      </editor>
+   </extension>
 </plugin>
