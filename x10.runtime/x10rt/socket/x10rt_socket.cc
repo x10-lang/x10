@@ -14,7 +14,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <errno.h>
+#include <unistd.h> // for close()
+#include <errno.h> // for the strerror function
+#include <sys/socket.h> // for sockets
+#include <pthread.h> // for locks on the sockets
+#include <poll.h> // for poll()
 
 #include <x10rt_net.h>
 #include "Launcher.h"
@@ -40,7 +44,9 @@ struct x10SocketState
 	x10rt_place myPlaceId; // which place we're at.  Also used as the index to the array below. Local per-place memory is used.
 	x10SocketCallback* callBackTable; // I'm told message ID's run from 0 to n, so a simple array using message indexes is the best solution for this table.  Local per-place memory is used.
 	x10rt_msg_type callBackTableSize; // length of the above array
-	int* socketLinks; // handles to each remote place.  Unconnected links have a value of 0.  The slot for my place holds my listen port.
+	struct pollfd* socketLinks; // the file descriptors for each socket to other places
+	pthread_mutex_t* writeLocks; // a lock to prevent overlapping writes on each socket
+	pthread_mutex_t* readLocks; // a lock to prevent overlapping reads on each socket
 } state;
 
 /*********************************************
@@ -51,6 +57,21 @@ void error(const char* message)
 {
 	fprintf(stderr, "Fatal Error: %s: %s\n", message, strerror(errno));
 	abort();
+}
+
+int initLink(int remotePlace)
+{
+	if (state.socketLinks[remotePlace].fd <= 0)
+	{
+		// TODO: change to use remote hosts
+		if ((state.socketLinks[remotePlace].fd = TCP::connect("localhost", 7000+remotePlace, 0)) > 0)
+		{
+			state.socketLinks[remotePlace].events = POLLHUP | POLLERR | POLLIN | POLLPRI;
+			pthread_mutex_init(&state.readLocks[remotePlace], NULL);
+			pthread_mutex_init(&state.writeLocks[remotePlace], NULL);
+		}
+	}
+	return state.socketLinks[remotePlace].fd;
 }
 
 /******************************************************
@@ -78,16 +99,18 @@ void x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 	else
 		state.myPlaceId = atol(ID);
 
-	state.socketLinks = new int[state.numPlaces];
+	state.socketLinks = new struct pollfd[state.numPlaces];
+	state.writeLocks = new pthread_mutex_t[state.numPlaces];
+	state.readLocks = new pthread_mutex_t[state.numPlaces];
 	for (unsigned int i=0; i<state.numPlaces; i++)
-		state.socketLinks[i] = 0;
+		state.socketLinks[i].fd = 0;
 
 	// open local listen port.
 	// TODO: for now, use a well-known fixed port number.  This will be changed to dynamic before it's released.
 	unsigned listenPort = 7000+state.myPlaceId;
 	//unsigned listenPort = 0;
-	state.socketLinks[state.myPlaceId] = TCP::listen(&listenPort, 10);
-	if (state.socketLinks[state.myPlaceId] < 0)
+	state.socketLinks[state.myPlaceId].fd = TCP::listen(&listenPort, 10);
+	if (state.socketLinks[state.myPlaceId].fd < 0)
 		error("cannot create listener port");
 
 	// TODO establish a link to the local launcher, and tell it our port.
@@ -159,12 +182,6 @@ void x10rt_net_register_get_receiver (x10rt_msg_type msg_type, x10rt_finder *fin
 	#endif
 }
 
-
-void x10rt_net_internal_barrier (void)
-{
-	error("x10rt_net_internal_barrier not implemented");
-}
-
 x10rt_place x10rt_net_nhosts (void)
 {
 	// return the number of places that exist.
@@ -179,59 +196,85 @@ x10rt_place x10rt_net_here (void)
 
 void x10rt_net_send_msg (x10rt_msg_params *parameters)
 {
-	if (state.socketLinks[parameters->dest_place] == 0)
-		// TODO: change to use remote hosts
-		state.socketLinks[parameters->dest_place] = TCP::connect("localhost", 7000+parameters->dest_place, 0);
+	// TODO: if we're not using lazy initialization, remove this line
+	if (initLink(parameters->dest_place) <= 0)
+		error("establishing a connection");
+	pthread_mutex_lock(&state.writeLocks[parameters->dest_place]);
 
 	// write out the x10SocketMessage data
+	// Format: type, source, p.type, p.len, p.msg
 	enum MSGTYPE m = STANDARD;
-	TCP::write(state.socketLinks[parameters->dest_place], &m, sizeof(enum MSGTYPE));
-	TCP::write(state.socketLinks[parameters->dest_place], &state.myPlaceId, sizeof(x10rt_place));
-	TCP::write(state.socketLinks[parameters->dest_place], &parameters->type, sizeof(x10rt_msg_type));
-	TCP::write(state.socketLinks[parameters->dest_place], &parameters->len, sizeof(uint32_t));
+	TCP::write(state.socketLinks[parameters->dest_place].fd, &m, sizeof(enum MSGTYPE));
+	TCP::write(state.socketLinks[parameters->dest_place].fd, &state.myPlaceId, sizeof(x10rt_place));
+	TCP::write(state.socketLinks[parameters->dest_place].fd, &parameters->type, sizeof(x10rt_msg_type));
+	TCP::write(state.socketLinks[parameters->dest_place].fd, &parameters->len, sizeof(uint32_t));
 	if (parameters->len > 0)
-		TCP::write(state.socketLinks[parameters->dest_place], parameters->msg, parameters->len);
+		TCP::write(state.socketLinks[parameters->dest_place].fd, parameters->msg, parameters->len);
+	pthread_mutex_unlock(&state.writeLocks[parameters->dest_place]);
 }
 
 void x10rt_net_send_get (x10rt_msg_params *parameters, void *buffer, x10rt_copy_sz bufferLen)
 {
-	if (state.socketLinks[parameters->dest_place] == 0)
-		// TODO: change to use remote hosts
-		state.socketLinks[parameters->dest_place] = TCP::connect("localhost", 7000+parameters->dest_place, 0);
+	// TODO: if we're not using lazy initialization, remove this line
+	if (initLink(parameters->dest_place) <= 0)
+		error("establishing a connection");
+	pthread_mutex_lock(&state.writeLocks[parameters->dest_place]);
 
 	// write out the x10SocketMessage data
+	// Format: type, source, p.type, p.len, p.msg, bufferlen, bufferADDRESS
 	enum MSGTYPE m = GET;
-	TCP::write(state.socketLinks[parameters->dest_place], &m, sizeof(enum MSGTYPE));
-	TCP::write(state.socketLinks[parameters->dest_place], &state.myPlaceId, sizeof(x10rt_place));
-	TCP::write(state.socketLinks[parameters->dest_place], &parameters->type, sizeof(x10rt_msg_type));
-	TCP::write(state.socketLinks[parameters->dest_place], &parameters->len, sizeof(uint32_t));
+	TCP::write(state.socketLinks[parameters->dest_place].fd, &m, sizeof(enum MSGTYPE));
+	TCP::write(state.socketLinks[parameters->dest_place].fd, &state.myPlaceId, sizeof(x10rt_place));
+	TCP::write(state.socketLinks[parameters->dest_place].fd, &parameters->type, sizeof(x10rt_msg_type));
+	TCP::write(state.socketLinks[parameters->dest_place].fd, &parameters->len, sizeof(uint32_t));
 	if (parameters->len > 0)
-		TCP::write(state.socketLinks[parameters->dest_place], parameters->msg, parameters->len);
-
-	// TODO set up receive buffer
+		TCP::write(state.socketLinks[parameters->dest_place].fd, parameters->msg, parameters->len);
+	TCP::write(state.socketLinks[parameters->dest_place].fd, &bufferLen, sizeof(x10rt_copy_sz));
+	TCP::write(state.socketLinks[parameters->dest_place].fd, buffer, sizeof(void*));
+	pthread_mutex_unlock(&state.writeLocks[parameters->dest_place]);
 }
 
 void x10rt_net_send_put (x10rt_msg_params *parameters, void *buffer, x10rt_copy_sz bufferLen)
 {
-	if (state.socketLinks[parameters->dest_place] == 0)
-		// TODO: change to use remote hosts
-		state.socketLinks[parameters->dest_place] = TCP::connect("localhost", 7000+parameters->dest_place, 0);
+	// TODO: if we're not using lazy initialization, remove this line
+	if (initLink(parameters->dest_place) <= 0)
+		error("establishing a connection");
+	pthread_mutex_lock(&state.writeLocks[parameters->dest_place]);
 
 	// write out the x10SocketMessage data
+	// Format: type, source, p.type, p.len, p.msg, bufferlen, buffer contents
 	enum MSGTYPE m = PUT;
-	TCP::write(state.socketLinks[parameters->dest_place], &m, sizeof(enum MSGTYPE));
-	TCP::write(state.socketLinks[parameters->dest_place], &state.myPlaceId, sizeof(x10rt_place));
-	TCP::write(state.socketLinks[parameters->dest_place], &parameters->type, sizeof(x10rt_msg_type));
-	TCP::write(state.socketLinks[parameters->dest_place], &parameters->len, sizeof(uint32_t));
+	TCP::write(state.socketLinks[parameters->dest_place].fd, &m, sizeof(enum MSGTYPE));
+	TCP::write(state.socketLinks[parameters->dest_place].fd, &state.myPlaceId, sizeof(x10rt_place));
+	TCP::write(state.socketLinks[parameters->dest_place].fd, &parameters->type, sizeof(x10rt_msg_type));
+	TCP::write(state.socketLinks[parameters->dest_place].fd, &parameters->len, sizeof(uint32_t));
 	if (parameters->len > 0)
-		TCP::write(state.socketLinks[parameters->dest_place], parameters->msg, parameters->len);
-	TCP::write(state.socketLinks[parameters->dest_place], &bufferLen, sizeof(x10rt_copy_sz));
+		TCP::write(state.socketLinks[parameters->dest_place].fd, parameters->msg, parameters->len);
+	TCP::write(state.socketLinks[parameters->dest_place].fd, &bufferLen, sizeof(x10rt_copy_sz));
 	if (bufferLen > 0)
-		TCP::write(state.socketLinks[parameters->dest_place], buffer, bufferLen);
+		TCP::write(state.socketLinks[parameters->dest_place].fd, buffer, bufferLen);
+	pthread_mutex_unlock(&state.writeLocks[parameters->dest_place]);
 }
 
 void x10rt_net_probe ()
 {
+	int ret = poll(state.socketLinks, state.numPlaces, 0);
+	if (ret > 0)
+	{
+		/* An event on one of the fds has occurred. */
+		// POLLHUP | POLLERR | POLLIN | POLLPRI;
+	    for (int i=0; i<state.numPlaces; i++)
+	    {
+	    	if ((state.socketLinks[i].revents & POLLHUP) || (state.socketLinks[i].revents & POLLERR))
+	    	{
+	    		// TODO connection broken
+	    	}
+	    	if ((state.socketLinks[i].revents & POLLIN) || (state.socketLinks[i].revents & POLLPRI))
+	    	{
+	    		// TODO data to read
+	    	}
+	    }
+	}
 }
 
 void x10rt_net_finalize (void)
@@ -240,15 +283,33 @@ void x10rt_net_finalize (void)
 		printf("X10rt.Socket: shutting down place %lu\n", state.myPlaceId);
 	#endif
 
-	// TODO - close sockets
-
+	for (unsigned int i=0; i<state.numPlaces; i++)
+	{
+		if (state.socketLinks[i].fd != 0)
+		{
+			close(state.socketLinks[i].fd);
+			pthread_mutex_destroy(&state.readLocks[i]);
+			pthread_mutex_destroy(&state.writeLocks[i]);
+		}
+	}
 	free(state.socketLinks);
+	free(state.readLocks);
+	free(state.writeLocks);
 }
 
 /*************************************************
- * TODO - talk to Cunningham to see if anything
- * needs to be done for these methods below.
+ * All of the stuff below is not used in the socket
+ * backend, and we rely on the emulation layer to
+ * convert these into messages for us.
  *************************************************/
+
+
+void x10rt_net_internal_barrier (void){}
+
+int x10rt_net_supports (x10rt_opt o)
+{
+    return 0;
+}
 
 void x10rt_net_remote_op (x10rt_place place, x10rt_remote_ptr victim, x10rt_op_type type, unsigned long long value)
 {
@@ -259,14 +320,6 @@ x10rt_remote_ptr x10rt_net_register_mem (void *ptr, size_t len)
 {
 	error("x10rt_net_register_mem not implemented");
 	return NULL;
-}
-
-
-int x10rt_net_supports (x10rt_opt o)
-{
-    switch (o) {
-        default: return 0;
-    }
 }
 
 void x10rt_net_team_new (x10rt_place placec, x10rt_place *placev,
@@ -287,41 +340,31 @@ x10rt_place x10rt_net_team_sz (x10rt_team team)
     return 0;
 }
 
-void x10rt_net_team_split (x10rt_team parent, x10rt_place parent_role,
-                           x10rt_place color, x10rt_place new_role,
-                           x10rt_completion_handler2 *ch, void *arg)
+void x10rt_net_team_split (x10rt_team parent, x10rt_place parent_role, x10rt_place color,
+		x10rt_place new_role, x10rt_completion_handler2 *ch, void *arg)
 {
 	error("x10rt_net_team_split not implemented");
 }
 
-void x10rt_net_barrier (x10rt_team team, x10rt_place role,
-                        x10rt_completion_handler *ch, void *arg)
+void x10rt_net_barrier (x10rt_team team, x10rt_place role, x10rt_completion_handler *ch, void *arg)
 {
 	error("x10rt_net_barrier not implemented");
 }
 
-void x10rt_net_bcast (x10rt_team team, x10rt_place role,
-                      x10rt_place root, const void *sbuf, void *dbuf,
-                      size_t el, size_t count,
-                      x10rt_completion_handler *ch, void *arg)
+void x10rt_net_bcast (x10rt_team team, x10rt_place role, x10rt_place root, const void *sbuf,
+		void *dbuf, size_t el, size_t count, x10rt_completion_handler *ch, void *arg)
 {
 	error("x10rt_net_bcast not implemented");
 }
 
-void x10rt_net_alltoall (x10rt_team team, x10rt_place role,
-                         const void *sbuf, void *dbuf,
-                         size_t el, size_t count,
-                         x10rt_completion_handler *ch, void *arg)
+void x10rt_net_alltoall (x10rt_team team, x10rt_place role, const void *sbuf, void *dbuf,
+		size_t el, size_t count, x10rt_completion_handler *ch, void *arg)
 {
 	error("x10rt_net_alltoall not implemented");
 }
 
-void x10rt_net_allreduce (x10rt_team team, x10rt_place role,
-                          const void *sbuf, void *dbuf,
-                          x10rt_red_op_type op,
-                          x10rt_red_type dtype,
-                          size_t count,
-                          x10rt_completion_handler *ch, void *arg)
+void x10rt_net_allreduce (x10rt_team team, x10rt_place role, const void *sbuf, void *dbuf,
+		x10rt_red_op_type op, x10rt_red_type dtype, size_t count, x10rt_completion_handler *ch, void *arg)
 {
 	error("x10rt_net_allreduce not implemented");
 }
