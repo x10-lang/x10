@@ -1,6 +1,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
+#include <cmath>
 #include <iostream>
 #include <string>
 
@@ -122,7 +123,7 @@ static void coll_test (x10rt_team team, x10rt_place role)
                       << " correctness (if no warnings follow then OK)..." << std::endl;
         finished = 0;
         x10rt_bcast(team, role, root, root==role ? sbuf : NULL, dbuf,
-                        el, count, x10rt_one_setter, &finished);
+                    el, count, x10rt_one_setter, &finished);
         while (!finished) { x10rt_probe(); }
         for (size_t i=0 ; i<count ; ++i) {
             float oracle = float(root) * i * i + 1;
@@ -147,26 +148,75 @@ static void coll_test (x10rt_team team, x10rt_place role)
     }
 
     {
-        float sbuf[113];
-        size_t el = sizeof(float);
-        size_t count = sizeof(sbuf)/sizeof(*sbuf);
-        float *dbuf = new float[113*x10rt_team_sz(team)];
+        x10rt_place root = 43 % x10rt_team_sz(team);
+        size_t count = 123;
+        typedef double test_t;
+        test_t *sbuf = new test_t[count*x10rt_team_sz(team)];
+        size_t el = sizeof(test_t);
+        test_t *dbuf = new test_t[count*x10rt_team_sz(team)];
 
-        for (size_t i=0 ; i<count ; ++i) sbuf[i] = float(role) * i * i + 1;
-        for (size_t i=0 ; i<count*x10rt_team_sz(team) ; ++i) dbuf[i] = -(float)i;
+        for (size_t p=0 ; p<x10rt_team_sz(team) ; ++p) {
+            for (size_t i=0 ; i<count ; ++i) {
+                sbuf[p*count + i] = pow(test_t(p+2),test_t(role+1)) + i;
+            }
+        }
+        for (size_t i=0 ; i<count*x10rt_team_sz(team) ; ++i) dbuf[i] = -(test_t)i;
+
+        if (0==role)
+            std::cout << team << ": scatter from " << root
+                      << " correctness (if no warnings follow then OK)..." << std::endl;
+        finished = 0;
+        x10rt_scatter(team, role, root, root==role ? sbuf : NULL, dbuf,
+                      el, count, x10rt_one_setter, &finished);
+        while (!finished) { x10rt_probe(); }
+        for (size_t i=0 ; i<count ; ++i) {
+            test_t oracle = pow(test_t(role+2),test_t(root+1)) + i;
+            if (dbuf[i] != oracle) {
+                std::cout << team << ": role " << role
+                          << " has received invalid data from scatter: ["<<i<<"] = " << dbuf[i]
+                          << " (not " << oracle << ")" << std::endl;
+            }
+        }
+
+        if (0==role) std::cout << team << ": scatter timing test..." << std::endl;
+        x10rt_barrier_b(team,role);
+        taken = -nano_time();
+        for (int i=0 ; i<tests ; ++i) {
+            finished = 0;
+            x10rt_scatter(team, role, root, sbuf, dbuf, el, count, x10rt_one_setter, &finished);
+            while (!finished) { sched_yield(); x10rt_probe(); }
+        }
+        taken += nano_time();
+        if (0==role) std::cout << team << ": scatter time:  "
+                               << ((double)taken)/tests/1000 << " μs" << std::endl;
+    }
+
+    {
+        size_t count = 123;
+        typedef double test_t;
+        test_t *sbuf = new test_t[count*x10rt_team_sz(team)];
+        size_t el = sizeof(test_t);
+        test_t *dbuf = new test_t[count*x10rt_team_sz(team)];
+
+        for (size_t p=0 ; p<x10rt_team_sz(team) ; ++p) {
+            for (size_t i=0 ; i<count ; ++i) {
+                sbuf[p*count + i] = pow(test_t(p+2),test_t(role+1)) + i;
+            }
+        }
+        for (size_t i=0 ; i<count*x10rt_team_sz(team) ; ++i) dbuf[i] = -(test_t)i;
 
         if (0==role)
             std::cout<<team<<": alltoall correctness (if no errors then OK):" << std::endl;
         finished = 0;
-        x10rt_alltoall(team, role, sbuf, dbuf, el, count, x10rt_one_setter, &finished);
+        x10rt_alltoall(team, role, sbuf, dbuf, el, count,x10rt_one_setter, &finished);
         while (!finished) { x10rt_probe(); }
-        for (size_t r=0 ; r<x10rt_team_sz(team) ; ++r) {
+        for (size_t p=0 ; p<x10rt_team_sz(team) ; ++p) {
             for (size_t i=0 ; i<count ; ++i) {
-                float oracle = float(r) * i * i + 1;
-                if (dbuf[r*count + i] != oracle) {
+                test_t oracle = pow(test_t(role+2),test_t(p+1)) + i;
+                if (dbuf[p*count + i] != oracle) {
                     std::cout << team << ": role " << role
-                              << " has received invalid data from "<< r
-                              << ": ["<<i<<"] = " << dbuf[i]
+                              << " has received invalid data from " << p
+                              << ": ["<<i<<"] = " << dbuf[p*count+i]
                               << " (not " << oracle << ")" << std::endl;
                 }
             }
@@ -185,6 +235,7 @@ static void coll_test (x10rt_team team, x10rt_place role)
         if (0==role) std::cout << team << ": alltoall time:  "
                                << ((double)taken)/tests/1000 << " μs" << std::endl;
 
+        delete [] sbuf;
         delete [] dbuf;
     }
 
