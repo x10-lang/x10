@@ -1,7 +1,3 @@
-Serialization of x10.lang.array doesn't match new semantics because
-IndexedMemoryChunk is native and (for other uses) needs to only send the address.  
-Need to special case Array in compiler to get efficient implementation (avoid Any custom pickling path)
-
 x10.compiler.RemoteOperation.
   Kill this code.  Won't work anymore.  
   Recode RA to use IndexedMemoryChunk directly.

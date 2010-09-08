@@ -1030,6 +1030,14 @@ public class Emitter {
             String fieldName = mangled_field_name(f.name().toString());
             w.write("buf.write(this->"+fieldName+");"); w.newline();
         }
+        // Special case x10.lang.Array to serialize the contents of rawChunk too
+        if (ts.isX10Array(type)) {
+            w.write("for (x10_int i = 0; i<this->FMGL(rawLength); i++) {");
+            w.newline(4); w.begin(0);
+            w.write("buf.write(this->FMGL(raw)->apply(i));");
+            w.end(); w.newline();
+            w.write("}");
+        }
         w.end(); w.newline();
         w.write("}");
         w.newline(); w.forceNewline();
@@ -1102,6 +1110,17 @@ public class Emitter {
                 continue;
             String fieldName = mangled_field_name(f.name().toString());
             w.write(fieldName+" = buf.read"+chevrons(translateType(f.type(),true))+"();");
+        }
+        // Special case x10.lang.Array to deserialize the contents of rawChunk too
+        if (ts.isX10Array(type)) {
+            String elemType = translateType(ct.typeArguments().get(0),true);
+            w.newline();
+            w.writeln("FMGL(raw) = x10::util::IndexedMemoryChunk<void>::allocate"+chevrons(elemType)+"(FMGL(rawLength),8,false,false);");
+            w.write("for (x10_int i = 0; i<this->FMGL(rawLength); i++) {");
+            w.newline(4); w.begin(0);
+            w.write("this->FMGL(raw)->set(buf.read"+chevrons(elemType)+"(), i);");
+            w.end(); w.newline();
+            w.write("}");
         }
         w.end(); w.newline();
         w.write("}");
