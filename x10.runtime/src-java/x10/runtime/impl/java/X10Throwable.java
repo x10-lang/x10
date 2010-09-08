@@ -1,6 +1,10 @@
 package x10.runtime.impl.java;
 
-public class X10Throwable extends RuntimeException {
+import x10.core.Any;
+import x10.rtt.RuntimeType;
+import x10.rtt.Type;
+
+public class X10Throwable extends RuntimeException implements Any {
 
     public X10Throwable() {
         super();
@@ -63,4 +67,20 @@ public class X10Throwable extends RuntimeException {
         }
         throw new Error();
     }
+
+    public static final RuntimeType<X10Throwable> _RTT = new RuntimeType<X10Throwable>(
+        X10Throwable.class
+    ) {
+        @Override
+        public String typeName() {
+            return "x10.lang.Throwable";
+        }
+    };
+    public RuntimeType<?> getRTT() {
+        return _RTT;
+    }
+    public Type<?> getParam(int i) {
+        return null;
+    }
+
 }
