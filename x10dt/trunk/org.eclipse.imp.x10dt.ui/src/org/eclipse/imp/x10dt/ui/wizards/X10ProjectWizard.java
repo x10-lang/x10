@@ -26,6 +26,8 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IExecutableExtension;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Platform;
@@ -42,12 +44,15 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.wizards.newresource.BasicNewProjectResourceWizard;
 import org.eclipse.ui.wizards.newresource.BasicNewResourceWizard;
 
-public class X10ProjectWizard extends Wizard implements INewWizard {
+public class X10ProjectWizard extends Wizard implements INewWizard, IExecutableExtension {
   private X10ProjectWizardFirstPage fFirstPage;
 
   private NewProjectWizardSecondPage fSecondPage;
+  
+  private IConfigurationElement fConfigElement;
 
   public X10ProjectWizard() {
     super();
@@ -55,6 +60,12 @@ public class X10ProjectWizard extends Wizard implements INewWizard {
     // setDialogSettings(JavaPlugin.getDefault().getDialogSettings());
     setWindowTitle("New X10 Project (Java back-end)");
   }
+  
+  public void setInitializationData(
+			final IConfigurationElement configElement,
+			final String propertyName, final Object data) {
+		this.fConfigElement = configElement;
+	}
 
   public boolean performFinish() {
     IWorkspaceRunnable op = new IWorkspaceRunnable() {
@@ -77,6 +88,7 @@ public class X10ProjectWizard extends Wizard implements INewWizard {
       else
         runnable = new WorkbenchRunnableAdapter(op, getSchedulingRule());
       getContainer().run(canRunForked(), true, runnable);
+      BasicNewProjectResourceWizard.updatePerspective(fConfigElement);
     } catch (InvocationTargetException e) {
       handleFinishException(getShell(), e);
       return false;
