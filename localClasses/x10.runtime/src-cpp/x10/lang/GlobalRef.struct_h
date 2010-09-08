@@ -26,11 +26,7 @@ namespace x10 {
             x10aux::ref<T> value; 
             x10aux::place location;	
 
-            GlobalRef(x10aux::ref<T> obj = NULL) : value(obj), location(x10aux::here) {
-                #if defined(X10_USE_BDWGC) || defined(X10_DEBUG_REFERENCE_LOGGER)
-                if (!obj.isNull()) logGlobalReference(obj);
-                #endif
-            }
+            GlobalRef(x10aux::ref<T> obj = NULL) : value(obj), location(x10aux::here) { }
 	
             inline x10aux::ref<T> apply() { return value; }
 

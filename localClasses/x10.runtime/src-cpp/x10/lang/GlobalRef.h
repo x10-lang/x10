@@ -76,6 +76,11 @@ template<class T> void x10::lang::GlobalRef<T>::_serialize(x10::lang::GlobalRef<
                                                            x10aux::serialization_buffer& buf) {
     buf.write(this_->location);
     buf.write((x10_long)(size_t)(this_->value.operator->()));
+    #if defined(X10_USE_BDWGC) || defined(X10_DEBUG_REFERENCE_LOGGER)
+    if (this_->location == x10aux::here) {
+        if (!this_->value.isNull()) logGlobalReference(this_->value);
+    }
+    #endif
 }
 
 template<class T> void x10::lang::GlobalRef<T>::_deserialize_body(x10aux::deserialization_buffer& buf) {
