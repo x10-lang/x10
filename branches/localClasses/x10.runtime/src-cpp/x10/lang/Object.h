@@ -96,8 +96,23 @@ namespace x10 {
             // Used in _serialize_reference to disable reference logging for specific classes.
             virtual x10_boolean _isMortal() { return false; }
 
-            virtual x10_int hashCode();
+            virtual x10_int hashCode() { return identityHashCode(this); }
 
+            static inline x10_int identityHashCode(x10aux::ref<Object> obj) {
+                // STEP 1: Figure out the address to use as for the object.
+                void *v = (void*)(obj.operator->());
+
+                // STEP 2: Combine the bits of the pointer into a 32 bit integer.
+                //         Note: intentionally not doing some type-punning pointer thing here as
+                //         the behavior of that is somewhat underdefined and tends to expose
+                //         "interesting" behavior in C++ compilers (especially at high optimization level).
+                uint64_t v2 = (uint64_t)v;
+                x10_int lower = (x10_int)(v2 & 0xffffffff);
+                x10_int upper = (x10_int)(v2 >> 32);
+                x10_int hc = lower ^ upper;
+                return hc;
+            }
+            
             virtual x10aux::ref<String> toString();
 
             virtual x10aux::ref<x10::lang::String> typeName();
