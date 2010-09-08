@@ -25,7 +25,7 @@ public class B_CheckThisTypeInCall extends x10Test {
          def this(r:Int){property(r);}
        }
        def this(r:Int){property(r);}
-       var r:R!{self.rank == this.rank} =null;
+       var r:R{self.rank == this.rank} =null;
        def m(t:Test{self.rank==this.rank}) {
          r.check(t);
        }

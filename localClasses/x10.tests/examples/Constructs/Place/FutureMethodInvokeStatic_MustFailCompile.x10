@@ -17,14 +17,15 @@ import harness.x10Test;
 
 public class FutureMethodInvokeStatic_MustFailCompile extends x10Test {
 
-    class C[S] {
+	static class C[S](home:Place) {
         property p:int = 0;
         val x:S;
         var y:S;
-        def foo() {}
-        global def foo(x:S) {}
+        def foo(){here == this.home} {}
+        def foo(x:S) {}
         final def foo[T](x:T) {}
         def this(s:S) {
+        	property(here);
             x = s;
             y = s;
         }
@@ -36,7 +37,7 @@ public class FutureMethodInvokeStatic_MustFailCompile extends x10Test {
     		val p = Place.places(1);
     		val cc = this.c;
             val f = future (p) {
-            	// cannot access a field that is not global
+            	// cannot access a method with a local guard
                 val a = cc.foo();
             return true;
         };

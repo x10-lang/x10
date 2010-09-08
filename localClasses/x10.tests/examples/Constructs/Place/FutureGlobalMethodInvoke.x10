@@ -12,6 +12,7 @@
 import harness.x10Test;
 
 /**
+ * In 2.1, all methods are global.
  * @author bdlucas
  */
 
@@ -22,7 +23,7 @@ public class FutureGlobalMethodInvoke extends x10Test {
         val x:S;
         var y:S;
         def foo() {}
-        global def foo(x:S) {}
+        def foo(x:S) {}
         final def foo[T](x:T) {}
         def this(s:S) {
             x = s;

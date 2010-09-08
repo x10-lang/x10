@@ -19,15 +19,15 @@ import harness.x10Test;
 
 public class FutureFieldAccessRev_MustFailCompile extends x10Test {
 
-    class C[S] {
+	class C[S] {
         property p:int = 0;
-        val x:S;
+        val x:GlobalRef[S];
         var y:S;
         def foo() {}
         def foo(x:S) {}
         final def foo[T](x:T) {}
         def this(s:S) {
-            x = s;
+            x = GlobalRef[S](s);
             y = s;
         }
     }
