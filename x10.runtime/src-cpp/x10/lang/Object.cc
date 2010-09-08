@@ -62,7 +62,7 @@ void Object::_serialize_reference(ref<Object> this_, serialization_buffer &buf)
         _S_("Serializing a "<<ANSI_SER<<ANSI_BOLD<<"null reference"<<ANSI_RESET<<" to buf: "<<&buf);
         buf.write((x10_addr_t)0);
     } else {
-        _S_("Serialising an "<<ANSI_SER<<ANSI_BOLD<<" Object"<<ANSI_RESET<<
+        _S_("Serializing an "<<ANSI_SER<<ANSI_BOLD<<" Object"<<ANSI_RESET<<
                 " object of type "<<this_->_type()->name());
         buf.write((x10_addr_t)(size_t)this_.operator->()); 
     }
