@@ -28,7 +28,7 @@ namespace x10 {
 
             GlobalRef(x10aux::ref<T> obj = NULL) : value(obj), location(x10aux::here) {
                 #if defined(X10_USE_BDWGC) || defined(X10_DEBUG_REFERENCE_LOGGER)
-                if (NULL != obj) logGlobalReference(obj);
+                if (!obj.isNull()) logGlobalReference(obj);
                 #endif
             }
 	
