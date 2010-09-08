@@ -90,7 +90,7 @@ public final class Array[T](
      */
     public property zeroBased: boolean = region.zeroBased;
 
-    private val raw:IndexedMemoryChunk[T];
+    private transient val raw:IndexedMemoryChunk[T];
     /* package */ val rawLength:int; // Made accessible to RemoteArray
     private val layout:RectLayout;
 
