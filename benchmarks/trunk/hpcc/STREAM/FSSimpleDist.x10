@@ -1,5 +1,5 @@
 import x10.util.Timer;
-import util.Comm;
+import x10.util.Team;
 
 public class FSSimpleDist {
 
@@ -13,7 +13,7 @@ public class FSSimpleDist {
     const NUM_PLACES = Place.MAX_PLACES;
 
     public static def main(args:Rail[String]!){here == Place.FIRST_PLACE} {
-        val verified: Rail[boolean]! = [true];
+        val verified: Cell[Boolean]! = new Cell[Boolean](true);
         val times = Rail.make[double](NUM_TIMES);
         val N0 = args.length>0? int.parseInt(args(0)) : DEFAULT_SIZE;
         val N = (N0 as long) * NUM_PLACES;
@@ -28,7 +28,6 @@ public class FSSimpleDist {
                 val p = pp;
                 
                 async(Place.places(p)) {
-                    val world = Comm.WORLD();
                     val a = Rail.make[double](localSize);
                     val b = Rail.make[double](localSize);
                     val c = Rail.make[double](localSize);
@@ -44,7 +43,7 @@ public class FSSimpleDist {
                         if (p==0) (times as Rail[Double]!)(j) = -now(); 
                         for (var i:int=0; i<localSize; i++)
                             a(i) = b(i) + beta*c(i);
-                        world.barrier();
+                        Team.WORLD.barrier(here.id);
                         if (p==0) (times as Rail[Double]!)(j) = (times as Rail[Double]!)(j) + now();
                     }
                     
@@ -52,7 +51,7 @@ public class FSSimpleDist {
                     for (var i:int=0; i<localSize; i++)
                         if (a(i) != b(i) + alpha*c(i)) 
                             async(verified)
-                                verified(0) = false;
+                                verified(false);
                 }
             }
         }
@@ -61,7 +60,7 @@ public class FSSimpleDist {
         for (var j:int=1; j<NUM_TIMES; j++)
             if (times(j) < min)
                 min = times(j);
-        printStats(N, min, verified(0));
+        printStats(N, min, verified());
     }
 
     static def now():double = Timer.nanoTime() * 1e-9;
