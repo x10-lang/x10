@@ -64,7 +64,7 @@ public class CompilerTests extends CompilerTestsBase {
 	  }
 	
 	/**
-	 * This is a copy of org.eclipse.imp.x10dt.core.builder.StreamSource.
+	 * This is a copy of x10dt.core.builder.StreamSource.
 	 * Copied to avoid introducing a dependence.
 	 *
 	 */

@@ -74,7 +74,7 @@
 		</java>
 	</target>
 	<target name="build" depends="init">
-		<javac destdir="${tst-dir}" source="1.5" target="1.5" debug="on" excludes="org/eclipse/imp/x10dt/core/tests/builder/**">
+		<javac destdir="${tst-dir}" source="1.5" target="1.5" debug="on">
 			<src path="src"/>
 			<classpath refid="classpath.test" />
 		</javac>
