@@ -1,7 +1,7 @@
 package rc7;
 
 import x10.compiler.*;
-import util.Comm;
+import x10.util.Team;
 
 @NativeCPPInclude("essl_natives.h")
 @NativeCPPCompilationUnit("essl_natives.cc")
@@ -35,9 +35,10 @@ class LU {
     val py:Int;
     val A:PlaceLocalHandle[BlockedArray];
     val A_here:BlockedArray!;
-    val world:Comm!;
-    val col:Comm!;
-    val row:Comm!;
+    val colRole:UInt;
+    val rowRole:UInt;
+    val col:Team;
+    val row:Team;
     var ready:Boolean;
     val pivot:Rail[Int]!;
     val rowForBroadcast:Rail[Double]!;
@@ -64,7 +65,8 @@ class LU {
                 }
             }
             for (var k:Int = 0; k < B; ++k) { 
-                sum(k) = row.sum(sum(k));
+                // [DC] This probably ought to be optimised to sum the whole array, instead of each element with its own collective op
+                sum(k) = row.allreduce(rowRole,sum(k),Team.ADD);
                 if (A_here.hasCol(NB)) A_here(IB + k, M) = sum(k);
             }
         }
@@ -84,19 +86,19 @@ class LU {
                 }
             }
         }
-        return col.indexOfAbsMax(max, id);
+        return col.indexOfMax(colRole, Math.abs(max), id);
     }
 
-    def exchange(row:Int, row2:Int, min:Int, max:Int, dest:Int) {
+    def exchange(row1:Int, row2:Int, min:Int, max:Int, dest:Int) {
         val source = here; 
         ready = false;
-        val size = A_here.getRow(row, min, max, buffer);
+        val size = A_here.getRow(row1, min, max, buffer);
         val _buffers = buffers;
         val _A = A;
         buffers.copyTo[Double](Place.places(dest), size, ()=>{
             val size = _A().swapRow(row2, min, max, _buffers());
             _buffers.copyTo[Double](source, size, ()=>{
-                A_here.setRow(row, min, max, buffer);
+                A_here.setRow(row1, min, max, buffer);
                 atomic ready=true;
             });
         });
@@ -115,20 +117,20 @@ class LU {
                 timer.stop(5);
                 timer.start(6);
                 if (A_here.hasBlock(J, J)) {
-                    val row = LUCol;
+                    val row1 = LUCol;
                     pivot(n) = row2;
-                    if (row2 != row) {
+                    if (row2 != row1) {
                         val dest = A_here.placeOf(row2, LUCol);
                         if (dest == here.id) {
-                            val b0 = A_ext_panel_j.blockOf(row, LUCol);
+                            val b0 = A_ext_panel_j.blockOf(row1, LUCol);
                             val b1 = A_ext_panel_j.blockOf(row2, LUCol);
                             for (var j:Int = J*B; j < J*B + B; ++j) {
-                                var tmp:Double = b0(row, j); 
-                                b0(row, j) =  b1(row2, j);
+                                var tmp:Double = b0(row1, j); 
+                                b0(row1, j) =  b1(row2, j);
                                 b1(row2, j) =  tmp;
                             }
                         } else {
-                            exchange(row, row2, LUColStart, LUColStart + B - 1, dest);
+                            exchange(row1, row2, LUColStart, LUColStart + B - 1, dest);
                         }
                     }
                     val block = A_here.block(J, J);
@@ -137,7 +139,7 @@ class LU {
                 timer.stop(6);
                 timer.start(7);
                 timer.start(11);
-                col.broadcast_d(rowForBroadcast, J%px); 
+                col.bcast(colRole, J%px as UInt, rowForBroadcast, 0u, rowForBroadcast, 0u, rowForBroadcast.length as UInt);
                 timer.stop(11);
                 timer.stop(7);
                 if(!A_panel_j.empty()) {
@@ -154,30 +156,30 @@ class LU {
     
     def swapRows(J:Int, timer:Timer!) {
         timer.start(10);
-        row.broadcast(pivot, J%py);
+        row.bcast(rowRole, J%py as UInt, pivot, 0u, pivot, 0u, pivot.length as UInt);
         timer.stop(10);
 
         val row_panel = A_here.blocks(J, J, J + 1, NB);
         if (!row_panel.empty()) {
             var n:Int = 0;
-            for (var row:Int = J * B; row < (J + 1) * B; ++row) {
+            for (var row1:Int = J * B; row1 < (J + 1) * B; ++row1) {
                 val row2 = pivot(n++);
-                if (row2 == row) continue;
+                if (row2 == row1) continue;
                 val dest = A_here.placeOf(row2, row_panel.min_y * B);
                 if (dest == here.id) {
                     for (var j:Int = (J + 1) * B; j < N; j += B) {
-                        if (A_here.placeOf(row, j) == here.id) {
-                            val b1 = A_here.blockOf(row, j);
+                        if (A_here.placeOf(row1, j) == here.id) {
+                            val b1 = A_here.blockOf(row1, j);
                             val b2 = A_here.blockOf(row2, j);
                             for (var k:Int = j; k < j + B; ++k) {
-                                var tmp:Double = b1(row, k); 
-                                b1(row, k) = b2(row2, k);
+                                var tmp:Double = b1(row1, k); 
+                                b1(row1, k) = b2(row2, k);
                                 b2(row2, k) = tmp;
                             }  
                         }
                     }
                 } else {        
-                    exchange(row, row2, (J + 1) * B, N - 1, dest);
+                    exchange(row1, row2, (J + 1) * B, N - 1, dest);
                 }
             } 
         }
@@ -189,7 +191,7 @@ class LU {
             if (A_here.hasCol(J)) tmp = A_here.block(J, J).raw; else tmp = colBuffer;
             val diag = tmp;
             timer.start(10);
-            row.broadcast_d(diag, J%py);
+            row.bcast(rowRole, J%py as UInt, diag, 0u, diag, 0u, diag.length as UInt);
             timer.stop(10);
             for (var cj:Int = J + 1; cj <= NB; ++cj) if (A_here.hasCol(cj)) {
                 blockTriSolve(A_here.block(J, cj).raw, diag, B);
@@ -203,24 +205,24 @@ class LU {
             for (var cj:Int = A_U.min_y; cj <= A_U.max_y; cj += py) {
                 val block = A_here.hasBlock(J, cj) ? A_U.block(J, cj).raw : colBuffers(cj/py);
                 timer.start(11);
-                col.broadcast_d(block,  J%px);
+                col.bcast(colRole, J%px as UInt, block, 0u, block, 0u, block.length as UInt);
                 timer.stop(11);
             }
         }
 
-        world.barrier();
+        Team.WORLD.barrier(here.id);
 
         val A_L = A_here.blocks(J + 1, MB, 0, NB);
         if (!A_L.empty()) {
             for (var ci:Int = A_L.min_x; ci <= A_L.max_x; ci += px) {
                 val block = A_here.hasBlock(ci, J) ? A_L.block(ci, J).raw : rowBuffers(ci/px);
                 timer.start(10);
-                row.broadcast_d(block, J%py);
+                row.bcast(rowRole, J%py as UInt, block, 0u, block, 0u, block.length as UInt);
                 timer.stop(10);
             }
         }
         
-        world.barrier();
+        Team.WORLD.barrier(here.id);
 
         val A_trail = A_here.blocks(J + 1, MB, J + 1, NB);
 
@@ -239,15 +241,15 @@ class LU {
         progressInc:Int = 2;
         var nextJ:Int = progressInc;
 
-        computeRowSum(); world.barrier();
+        computeRowSum(); Team.WORLD.barrier(here.id);
 
         timer.start(9);
 
         for (var J:Int = 0; J < NB; J++){
-            timer.start(1); panel(J, timer);            world.barrier(); timer.stop(1);
-            timer.start(2); swapRows(J, timer);         world.barrier(); timer.stop(2);
-            timer.start(3); triSolve(J, timer);         world.barrier(); timer.stop(3);
-            timer.start(4); if (J != NB - 1) update(J, timer); world.barrier(); timer.stop(4);
+            timer.start(1); panel(J, timer);            Team.WORLD.barrier(here.id); timer.stop(1);
+            timer.start(2); swapRows(J, timer);         Team.WORLD.barrier(here.id); timer.stop(2);
+            timer.start(3); triSolve(J, timer);         Team.WORLD.barrier(here.id); timer.stop(3);
+            timer.start(4); if (J != NB - 1) update(J, timer); Team.WORLD.barrier(here.id); timer.stop(4);
 
             /* Progress meter */
             if(0 == here.id && J > nextJ) {
@@ -291,14 +293,14 @@ class LU {
                 var tmp:Rail[Double]!;
                 if (A_here.hasRow(I)) tmp = A_here.block(I, NB).raw; else tmp = colBuffer;
                 val bufferY = tmp;
-                col.broadcast_d(bufferY, I%px);
+                col.bcast(colRole, I%px as UInt, bufferY, 0u, bufferY, 0u, bufferY.length as UInt);
                 for (var ci:Int = 0; ci < I; ++ci) if (A_here.hasRow(ci)) {
                     blockMulSub(A_here.block(ci, NB).raw, memget(ci, I), bufferY, B);
                 }
-                col.barrier();
+                col.barrier(colRole);
             }
         }
-        world.barrier();
+        Team.WORLD.barrier(here.id);
     }
 
     def check() {
@@ -310,7 +312,7 @@ class LU {
             }
         }
         Console.OUT.println("diff " + max + " " + here.id);
-        return col.max(max);
+        return col.allreduce(colRole,max,Team.MAX);
     }
 
     public static def main(args:Rail[String]!) {
@@ -339,12 +341,10 @@ class LU {
         this.buffers = buffers; buffer = buffers();
         MB = M / B - 1;
         NB = N / B - 1;
-        val world = Comm.WORLD();
-        this.world = world;
-        val pi = here.id / py;
-        val pj = here.id % py;
-        col = world.split(pj, pi);
-        row = world.split(pi, pj);
+        colRole = here.id / py;
+        rowRole = here.id % py;
+        col = Team.WORLD.split(here.id, rowRole, colRole);
+        row = Team.WORLD.split(here.id, colRole, rowRole);
         pivot = Rail.make[Int](B);
         rowForBroadcast = Rail.make[Double](B);
         val rowBuffers = ValRail.make[Rail[Double]!](M / B / px + 1, (Int)=>Rail.make[Double](B * B));
