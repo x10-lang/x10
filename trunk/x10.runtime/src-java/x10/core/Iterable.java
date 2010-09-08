@@ -11,6 +11,20 @@
 
 package x10.core;
 
+import x10.rtt.RuntimeType;
+import x10.rtt.RuntimeType.Variance;
+
 public interface Iterable<T> {
 	Iterator<T> iterator();
+
+	public static final RuntimeType<Iterable<?>> _RTT = new RuntimeType<Iterable<?>>(
+	    Iterable.class, 
+	    new Variance[] {Variance.COVARIANT}
+	) {
+	    @Override
+	    public String typeName() {
+	        return "x10.lang.Iterable";
+	    }
+	};
+
 }
