@@ -48,14 +48,6 @@ namespace {
     };
     #define PREEMPT(x) Preempt MACROVAR(__LINE__) (x)
 
-    // What types of collective are there?
-    // Also used to tag the union in MemberObj
-    enum coll_op_type {
-        IDLE = 0, // used to indicate that no collective operation is in progress
-        BARRIER,
-        BCAST
-    };
-
     // Store everything a particular member needs to know about itself
     struct MemberObj {
         x10rt_team team;
@@ -65,6 +57,17 @@ namespace {
             x10rt_completion_handler *ch;
             void *arg;
         } barrier; // other collectives use barrier so keep its state separate
+        struct {
+            x10rt_place root;
+            const void *sbuf;
+            void *dbuf;
+            size_t el; // element size
+            size_t count;
+            x10rt_completion_handler *ch;
+            void *arg;
+            bool barrier_done;
+            bool data_done;
+        } scatter;
         struct {
             x10rt_place root;
             const void *sbuf;
@@ -86,16 +89,16 @@ namespace {
             void *arg;
         } alltoall;
         struct {
-            const void *sbuf;
+            char *sbuf; // not const because it is not the buffer given by the user
             void *dbuf;
-            void *rbuf; // a temporary buffer allocated large enough to hold everything
+            char *rbuf; // a temporary buffer allocated large enough to hold everything
             size_t el; // element size
             size_t count;
             x10rt_completion_handler *ch;
             void *arg;
         } allreduce;
         struct {
-            x10rt_place sbuf;
+            x10rt_place *sbuf;
             x10rt_place role; // this member's role in the new team
             x10rt_completion_handler2 *ch;
             x10rt_place *rbuf; // a temporary buffer for storing results of alltoall
@@ -149,9 +152,8 @@ namespace {
     struct CollOp : FifoElement<CollOp> {
         const x10rt_team team;
         const x10rt_place role;
-        const coll_op_type type;
-        CollOp (x10rt_team team_, x10rt_place role_, coll_op_type type_)
-          : team(team_), role(role_), type(type_) { }
+        CollOp (x10rt_team team_, x10rt_place role_)
+          : team(team_), role(role_) { }
     };
 
     // global team database: stores the teams currently in use
@@ -236,6 +238,8 @@ namespace {
     x10rt_msg_type BARRIER_UPDATE_ID;
 
     x10rt_msg_type SPLIT_ID;
+
+    x10rt_msg_type SCATTER_COPY_ID;
 
     x10rt_msg_type BCAST_COPY_ID;
 
@@ -428,8 +432,110 @@ void x10rt_emu_barrier (x10rt_team team, x10rt_place role, x10rt_completion_hand
     }
     if (ch!=NULL) {
         //if (x10rt_net_here()==0) fprintf(stderr,"before pushd\n");
-        gtdb.fifo.push_back(new (safe_malloc<CollOp>()) CollOp(team, role, BARRIER));
+        gtdb.fifo.push_back(new (safe_malloc<CollOp>()) CollOp(team, role));
     }
+}
+
+static void scatter_copy_recv (const x10rt_msg_params *p)
+{
+    x10rt_deserbuf b;
+    x10rt_deserbuf_init(&b, p);
+    x10rt_team team; x10rt_deserbuf_read(&b, &team);
+    x10rt_place role; x10rt_deserbuf_read(&b, &role);
+    TeamObj &t = *gtdb[team];
+    MemberObj &m = *t[role];
+    x10rt_deserbuf_read_ex(&b, m.scatter.dbuf, m.scatter.el, m.scatter.count);
+
+    m.scatter.data_done = true;
+    if (m.scatter.barrier_done && m.scatter.ch != NULL) {
+        m.scatter.ch(m.scatter.arg);
+    }
+}
+
+namespace {
+    struct callback_arg {
+        x10rt_team team;
+        x10rt_place role;
+    };
+}
+
+static void scatter_after_barrier (void *arg)
+{
+    MemberObj &m = *(static_cast<MemberObj*>(arg));
+    TeamObj &t = *gtdb[m.team];
+
+    if (m.scatter.root == m.role) {
+
+        // send data to everyone
+        for (x10rt_place i=0 ; i<t.memberc ; ++i) {
+            x10rt_place role_place = t.placev[i];
+            const char *sbuf_ = reinterpret_cast<const char*>(m.scatter.sbuf);
+            const char *sbuf = &sbuf_[i * m.scatter.count * m.scatter.el];
+            if (role_place==x10rt_net_here()) {
+                MemberObj *m2 = t.memberv[i];
+                assert(m2!=NULL);
+                memcpy(m2->scatter.dbuf, sbuf, m.scatter.count * m.scatter.el);
+            } else {
+                // serialise all the data
+                // TODO: hoist some of this serialisation out of the loop (reuse buffer)
+                x10rt_serbuf b;
+                x10rt_serbuf_init(&b, role_place, SCATTER_COPY_ID);
+                x10rt_serbuf_write(&b, &m.team);
+                x10rt_serbuf_write(&b, &i);
+                x10rt_serbuf_write_ex(&b, sbuf, m.scatter.el, m.scatter.count);
+                x10rt_net_send_msg(&b.p);
+                x10rt_serbuf_free(&b);
+            }
+        }
+
+        // the barrier must have completed or we wouldn't even be here
+        // signal completion to root role
+        if (m.scatter.ch != NULL) {
+            m.scatter.ch(m.scatter.arg);
+        }
+
+    } else {
+
+        // if we have already received the data (rare) then signal completion to non-root role
+        m.scatter.barrier_done = true;
+        if (m.scatter.data_done && m.scatter.ch != NULL) {
+            m.scatter.ch(m.scatter.arg);
+        }
+    }
+}
+
+void x10rt_emu_scatter (x10rt_team team, x10rt_place role,
+                      x10rt_place root, const void *sbuf, void *dbuf,
+                      size_t el, size_t count, x10rt_completion_handler *ch, void *arg)
+{
+    TeamObj &t = *gtdb[team];
+
+    MemberObj &m = *t[role];
+
+    m.scatter.root = root;
+    m.scatter.sbuf = sbuf;
+    m.scatter.dbuf = dbuf;
+    m.scatter.el = el;
+    m.scatter.count = count;
+    m.scatter.ch = ch;
+    m.scatter.arg = arg;
+    m.scatter.barrier_done = false;
+    m.scatter.data_done = false;
+
+    // FIXME: there is currently no support for preventing, warning, or
+    // accepting two 'concurrent' collective operations from the same role of
+    // the same team.  In other words.  This looks like an atomicity violation
+    // here because m.scatter.* may change but this in fact will not happen
+    // unless operations are invoked in this way..
+
+    x10rt_emu_barrier (team, role, scatter_after_barrier, &m);
+
+    // after barrier:
+    // root sends to everyone else and immediately signals completion
+    // everyone else signals completion when they receive root's message
+    //    AND after the barrier is done
+    // if you don't wait until after the barrier is done then the next barrier will
+    // 'run into' the current barrier causing race conditions
 }
 
 static void bcast_copy_recv (const x10rt_msg_params *p)
@@ -446,13 +552,6 @@ static void bcast_copy_recv (const x10rt_msg_params *p)
     if (m.bcast.barrier_done && m.bcast.ch != NULL) {
         m.bcast.ch(m.bcast.arg);
     }
-}
-
-namespace {
-    struct callback_arg {
-        x10rt_team team;
-        x10rt_place role;
-    };
 }
 
 static void bcast_after_barrier (void *arg)
@@ -540,14 +639,14 @@ static void alltoall_intermediate (void *arg)
     // do lots of bcasts then a barrier
     if (m.alltoall.counter > 0) {
         x10rt_place root = --m.alltoall.counter;
-        const char *sbuf = static_cast<const char*>(m.alltoall.sbuf);
         char *dbuf = static_cast<char*>(m.alltoall.dbuf);
         size_t el=m.alltoall.el, count=m.alltoall.count;
         // FIXME: would be good to avoid the extra barriers within the bcast
-        x10rt_emu_bcast(m.team, m.role, root,
-                        sbuf, &dbuf[el*count*root],
-                        el, count,
-                        alltoall_intermediate, arg);
+        x10rt_emu_scatter(m.team, m.role, root,
+                          m.alltoall.sbuf,
+                          &dbuf[el*count*root],
+                          el, count,
+                          alltoall_intermediate, arg);
     } else {
         //fprintf(stderr, "Finished alltoall send at role %d\n", cbarg->role);
         x10rt_emu_barrier(m.team, m.role, m.alltoall.ch, m.alltoall.arg);
@@ -630,7 +729,7 @@ namespace {
 
         typedef typename x10rt_red_type_info<dtype>::Type T;
 
-        T *tmp = static_cast<T*>(m.allreduce.rbuf);
+        T *tmp = reinterpret_cast<T*>(m.allreduce.rbuf);
 
         for (size_t i=0 ; i<m.allreduce.count ; ++i) {
             T &dest = static_cast<T*>(m.allreduce.dbuf)[i];
@@ -641,6 +740,7 @@ namespace {
         }
 
         free(tmp);
+        free(m.allreduce.sbuf);
 
         if (m.allreduce.ch != NULL) {
             m.allreduce.ch(m.allreduce.arg);
@@ -662,15 +762,19 @@ namespace {
 
         MemberObj &m = *t[role];
 
-        m.allreduce.sbuf = sbuf;
-        m.allreduce.dbuf = dbuf;
         m.allreduce.el = sizeof(typename x10rt_red_type_info<dtype>::Type);
+        m.allreduce.sbuf = safe_malloc<char>(x10rt_emu_team_sz(team) * count * m.allreduce.el);
+        m.allreduce.dbuf = dbuf;
         m.allreduce.rbuf = safe_malloc<char>(x10rt_emu_team_sz(team) * count * m.allreduce.el);
         m.allreduce.count = count;
         m.allreduce.ch = ch;
         m.allreduce.arg = arg;
 
-        x10rt_emu_alltoall(team, role, sbuf, m.allreduce.rbuf, m.allreduce.el, count,
+        for (x10rt_place p=0 ; p<x10rt_emu_team_sz(team) ; ++p) {
+            memcpy(&m.allreduce.sbuf[p*count*m.allreduce.el], sbuf, count*m.allreduce.el);
+        }
+
+        x10rt_emu_alltoall(team, role, m.allreduce.sbuf, m.allreduce.rbuf, m.allreduce.el, count,
                            allreduce3<op,dtype>, &m);
     }
 
@@ -829,6 +933,7 @@ static void split (void *arg)
     }
 
     safe_free(m.split.rbuf);
+    safe_free(m.split.sbuf);
 }
 
 void x10rt_emu_team_split (x10rt_team parent, x10rt_place parent_role,
@@ -846,11 +951,13 @@ void x10rt_emu_team_split (x10rt_team parent, x10rt_place parent_role,
 
     m.split.rbuf = safe_malloc<x10rt_place>(t.memberc);
     m.split.role = new_role;
-    m.split.sbuf = color;
+    m.split.sbuf = safe_malloc<x10rt_place>(t.memberc);
     m.split.ch = ch;
     m.split.arg = arg;
 
-    x10rt_emu_alltoall(parent, parent_role, &m.split.sbuf, m.split.rbuf,
+    for (x10rt_place p=0 ; p<x10rt_emu_team_sz(parent) ; ++p) m.split.sbuf[p] = color;
+
+    x10rt_emu_alltoall(parent, parent_role, m.split.sbuf, m.split.rbuf,
                        sizeof(x10rt_place), 1,
                        split, &m);
 }
@@ -877,6 +984,9 @@ void x10rt_emu_coll_init (x10rt_msg_type *counter)
     x10rt_net_register_msg_receiver(BARRIER_UPDATE_ID = (*counter)++,
                                     barrier_update_recv);
 
+    x10rt_net_register_msg_receiver(SCATTER_COPY_ID = (*counter)++,
+                                    scatter_copy_recv);
+
     x10rt_net_register_msg_receiver(BCAST_COPY_ID = (*counter)++,
                                     bcast_copy_recv);
 
@@ -897,18 +1007,12 @@ void x10rt_emu_coll_probe (void)
         if (op == NULL) break; // can happen if the queue shrinks while we're in the loop
         TeamObj &t = *gtdb[op->team];
         MemberObj &m = *t[op->role];
-        assert(op->type != IDLE);
-        if (op->type == BARRIER) {
-            if (m.barrier.wait > 0) {
-                gtdb.fifo_push_back(op);
-            } else {
-                safe_free(op);
-                //if (x10rt_net_here()==0) fprintf(stderr,"before callback\n");
-                m.barrier.ch(m.barrier.arg);
-            }
+        if (m.barrier.wait > 0) {
+            gtdb.fifo_push_back(op);
         } else {
-            fprintf(stderr, "Garbage in emulated collective operation fifo type: %llx\n",
-                            (unsigned long long) op->type);
+            safe_free(op);
+            //if (x10rt_net_here()==0) fprintf(stderr,"before callback\n");
+            m.barrier.ch(m.barrier.arg);
         }
     }
 }

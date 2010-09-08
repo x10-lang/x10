@@ -47,7 +47,7 @@ public struct Team {
                 "int finished = 0;" +
                 "x10rt_red_op_type op = X10RT_RED_OP_ADD;" +
                 "x10rt_red_type type = x10rt_get_red_type<FMGL(T)>;" +
-                "x10rt_alltoall(this_.FMGL(id), role, &src->raw()[src_off], &dst->raw()[dst_off], op, type, count, x10rt_one_setter, &finished);" +
+                "x10rt_allreduce(this_.FMGL(id), role, &src->raw()[src_off], &dst->raw()[dst_off], op, type, count, x10rt_one_setter, &finished);" +
                 "while (!finished) x10rt_probe();") {}
     }
     
