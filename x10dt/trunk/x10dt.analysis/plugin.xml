@@ -5,14 +5,14 @@
          point="org.eclipse.imp.pdb.analyzerFactory">
       <analyzerFactory
             class="x10dt.analysis.X10FactGeneratorFactory"
-            name="org.eclipse.imp.x10dt.analysis.analyzerFactory">
+            name="x10dt.analysis.analyzerFactory">
          <signatureDescriptor>
             <outputs>
                <typeDescriptor
-                     typeName="org.eclipse.imp.x10dt.typeHierarchy">
+                     typeName="x10dt.typeHierarchy">
                </typeDescriptor>
                <typeDescriptor
-                     typeName="org.eclipse.imp.x10dt.allTypes">
+                     typeName="x10dt.allTypes">
                </typeDescriptor>
             </outputs>
          </signatureDescriptor>
