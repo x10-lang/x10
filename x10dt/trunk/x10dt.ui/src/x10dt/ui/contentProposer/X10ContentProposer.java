@@ -532,7 +532,7 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
     	StringBuffer buffer= new StringBuffer();
     	HTMLPrinter.insertPageProlog(buffer, 0);
     	buffer.append(X10BrowserInformationControlInput.PATTERN); //Ugly HACK!!! need a placeholder for pattern (it will be evaluated later).
-    	//String base = "PLUGINS_ROOT/org.eclipse.imp.x10dt.help/html/langref/variables.html";
+    	//String base = "PLUGINS_ROOT/x10dt.help/html/langref/variables.html";
     	String langrefurl = "http://dist.codehaus.org/x10/documentation/languagespec/x10-latest.pdf";
     	if (infos.get(template) != null) 
     		buffer.append("\n<h4>"+ infos.get(template) + "</h4>\n"); 

@@ -1,7 +1,7 @@
 
 // This is the grammar for parsing formatting patterns for  the X10 language.
 
-//#line 18 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+//#line 18 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
 //
 // Licensed Material
 // (C) Copyright IBM Corp, 2006
@@ -28,7 +28,7 @@ import lpg.runtime.*;
  import x10.parser.X10ParsedName;
  import lpg.runtime.IMessageHandler;
 
-//#line 28 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+//#line 28 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -37,8 +37,8 @@ import java.util.List;
 import java.util.Arrays;
 import java.io.File;
 
-import polyglot.ext.x10.ast.X10Binary_c;
-import polyglot.ext.x10.ast.X10Unary_c;
+import x10.ast.X10Binary_c;
+import x10.ast.X10Unary_c;
 import polyglot.types.QName;
 import polyglot.types.Name;
 import polyglot.ast.AmbExpr;
@@ -82,28 +82,28 @@ import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.ast.FlagsNode;
 import polyglot.parse.ParsedName;
-import polyglot.ext.x10.ast.AnnotationNode;
-import polyglot.ext.x10.ast.Closure;
-import polyglot.ext.x10.ast.ClosureCall;
-import polyglot.ext.x10.ast.Here;
-import polyglot.ext.x10.ast.DepParameterExpr;
-import polyglot.ext.x10.ast.Tuple;
-import polyglot.ext.x10.ast.When;
-import polyglot.ext.x10.ast.X10Formal;
-import polyglot.ext.x10.ast.X10Formal_c;
-import polyglot.ext.x10.ast.X10Loop;
-import polyglot.ext.x10.ast.X10Call;
-import polyglot.ext.x10.ast.ConstantDistMaker;
-import polyglot.ext.x10.ast.TypeDecl;
-import polyglot.ext.x10.ast.TypeParamNode;
-import polyglot.ext.x10.ast.TypePropertyNode;
-import polyglot.ext.x10.ast.X10NodeFactory;
-import polyglot.ext.x10.types.TypeProperty;
-import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.ext.x10.types.X10TypeSystem_c;
-import polyglot.ext.x10.ast.PropertyDecl;
-import polyglot.ext.x10.ast.RegionMaker;
-import polyglot.ext.x10.extension.X10Ext;
+import x10.ast.AnnotationNode;
+import x10.ast.Closure;
+import x10.ast.ClosureCall;
+import x10.ast.Here;
+import x10.ast.DepParameterExpr;
+import x10.ast.Tuple;
+import x10.ast.When;
+import x10.ast.X10Formal;
+import x10.ast.X10Formal_c;
+import x10.ast.X10Loop;
+import x10.ast.X10Call;
+import x10.ast.ConstantDistMaker;
+import x10.ast.TypeDecl;
+import x10.ast.TypeParamNode;
+import x10.ast.TypePropertyNode;
+import x10.ast.X10NodeFactory;
+import x10.types.TypeProperty;
+import x10.types.X10TypeSystem;
+import x10.types.X10TypeSystem_c;
+import x10.ast.PropertyDecl;
+import x10.ast.RegionMaker;
+import x10.extension.X10Ext;
 import polyglot.frontend.FileSource;
 import polyglot.frontend.Source;
 import polyglot.frontend.Parser;
@@ -120,7 +120,7 @@ import polyglot.lex.StringLiteral;
 import polyglot.main.Report;
 import polyglot.parse.VarDeclarator;
 import polyglot.types.Flags;
-import polyglot.ext.x10.types.X10Flags;
+import x10.types.X10Flags;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -302,7 +302,7 @@ public class X10Parser implements RuleAction , IParser, ParseErrorCodes
     //
     
 
-    //#line 315 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+    //#line 315 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
     private ErrorQueue eq;
     private X10TypeSystem ts;
     private X10NodeFactory nf;
@@ -871,7 +871,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 1: {
                //#line 8 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 6 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/MissingId.gi"
+                //#line 6 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/MissingId.gi"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
                 //#line 8 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                     setResult(new ParsedName(nf,
@@ -887,7 +887,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 2: {
                //#line 18 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 16 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/MissingId.gi"
+                //#line 16 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/MissingId.gi"
                 ParsedName PackageName = (ParsedName) getRhsSym(1);
                 //#line 18 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                     setResult(new ParsedName(nf,
@@ -903,7 +903,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 3: {
                //#line 28 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 26 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/MissingId.gi"
+                //#line 26 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/MissingId.gi"
                 ParsedName AmbiguousName = (ParsedName) getRhsSym(1);
                 //#line 28 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                     setResult(new ParsedName(nf,
@@ -919,7 +919,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 4: {
                //#line 38 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 36 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/MissingId.gi"
+                //#line 36 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/MissingId.gi"
                 ParsedName AmbiguousName = (ParsedName) getRhsSym(1);
                 //#line 38 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                     setResult(new ParsedName(nf,
@@ -935,7 +935,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 5: {
                //#line 48 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 46 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/MissingId.gi"
+                //#line 46 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/MissingId.gi"
                 ParsedName PackageOrTypeName = (ParsedName) getRhsSym(1);
                 //#line 48 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                     setResult(new ParsedName(nf,
@@ -951,7 +951,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 6: {
                //#line 58 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 56 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/MissingId.gi"
+                //#line 56 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/MissingId.gi"
                 ParsedName AmbiguousName = (ParsedName) getRhsSym(1);
                 //#line 58 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                     setResult(new ParsedName(nf,
@@ -967,7 +967,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 7: {
                //#line 68 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 66 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/MissingId.gi"
+                //#line 66 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/MissingId.gi"
                 Expr Primary = (Expr) getRhsSym(1);
                 //#line 68 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Field(pos(), Primary,
@@ -992,9 +992,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 9: {
                //#line 80 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 78 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/MissingId.gi"
+                //#line 78 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/MissingId.gi"
                 ParsedName ClassName = (ParsedName) getRhsSym(1);
-                //#line 78 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/MissingId.gi"
+                //#line 78 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/MissingId.gi"
                 IToken sup = (IToken) getRhsIToken(3);
                 //#line 80 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getRhsFirstTokenIndex(3)), ClassName.toType()),
@@ -1007,9 +1007,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 10: {
                //#line 87 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 85 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/MissingId.gi"
+                //#line 85 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/MissingId.gi"
                 Object MethodPrimaryPrefix = (Object) getRhsSym(1);
-                //#line 85 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/MissingId.gi"
+                //#line 85 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/MissingId.gi"
                 List ArgumentListopt = (List) getRhsSym(3);
                 //#line 87 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 Expr Primary = (Expr) ((Object[]) MethodPrimaryPrefix)[0];
@@ -1023,9 +1023,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 11: {
                //#line 94 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 92 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/MissingId.gi"
+                //#line 92 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/MissingId.gi"
                 polyglot.lex.Identifier MethodSuperPrefix = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 92 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/MissingId.gi"
+                //#line 92 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/MissingId.gi"
                 List ArgumentListopt = (List) getRhsSym(3);
                 //#line 94 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 polyglot.lex.Identifier identifier = MethodSuperPrefix;
@@ -1038,9 +1038,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 12: {
                //#line 100 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 98 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/MissingId.gi"
+                //#line 98 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/MissingId.gi"
                 Object MethodClassNameSuperPrefix = (Object) getRhsSym(1);
-                //#line 98 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/MissingId.gi"
+                //#line 98 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/MissingId.gi"
                 List ArgumentListopt = (List) getRhsSym(3);
                 //#line 100 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 ParsedName ClassName = (ParsedName) ((Object[]) MethodClassNameSuperPrefix)[0];
@@ -1055,9 +1055,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 13: {
                //#line 109 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 107 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/MissingId.gi"
+                //#line 107 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/MissingId.gi"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 107 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/MissingId.gi"
+                //#line 107 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/MissingId.gi"
                 IToken ErrorId = (IToken) getRhsIToken(3);
                 //#line 109 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 Object[] a = new Object[2];
@@ -1072,7 +1072,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 14: {
                //#line 117 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 115 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/MissingId.gi"
+                //#line 115 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/MissingId.gi"
                 IToken ErrorId = (IToken) getRhsIToken(3);
                 //#line 117 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(id(getRhsFirstTokenIndex(3)));
@@ -1084,11 +1084,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 15: {
                //#line 122 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 120 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/MissingId.gi"
+                //#line 120 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/MissingId.gi"
                 ParsedName ClassName = (ParsedName) getRhsSym(1);
-                //#line 120 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/MissingId.gi"
+                //#line 120 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/MissingId.gi"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 120 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/MissingId.gi"
+                //#line 120 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/MissingId.gi"
                 IToken ErrorId = (IToken) getRhsIToken(5);
                 //#line 122 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 Object[] a = new Object[3];
@@ -1104,17 +1104,17 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 16: {
                //#line 878 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 876 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 876 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List TypeDefModifiersopt = (List) getRhsSym(1);
-                //#line 876 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 876 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 876 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 876 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(4);
-                //#line 876 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 876 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List FormalParametersopt = (List) getRhsSym(5);
-                //#line 876 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 876 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 876 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 876 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(8);
                 //#line 878 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 FlagsNode f = extractFlags(TypeDefModifiersopt);
@@ -1133,15 +1133,15 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 17: {
                //#line 890 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 888 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 888 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List TypeDefModifiersopt = (List) getRhsSym(1);
-                //#line 888 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 888 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 888 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 888 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(4);
-                //#line 888 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 888 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List FormalParametersopt = (List) getRhsSym(5);
-                //#line 888 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 888 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
                 //#line 890 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 FlagsNode f = extractFlags(TypeDefModifiersopt);
@@ -1160,7 +1160,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 18: {
                //#line 903 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 901 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 901 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List PropertyList = (List) getRhsSym(2);
                 //#line 903 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
    setResult(PropertyList);
@@ -1171,7 +1171,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 19: {
                //#line 908 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 906 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 906 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 PropertyDecl Property = (PropertyDecl) getRhsSym(1);
                 //#line 908 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), PropertyDecl.class, false);
@@ -1185,9 +1185,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 20: {
                //#line 915 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 913 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 913 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List PropertyList = (List) getRhsSym(1);
-                //#line 913 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 913 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 PropertyDecl Property = (PropertyDecl) getRhsSym(3);
                 //#line 915 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 PropertyList.add(Property);
@@ -1199,11 +1199,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 21: {
                //#line 922 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 920 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 920 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List Annotationsopt = (List) getRhsSym(1);
-                //#line 920 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 920 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(2);
-                //#line 920 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 920 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(4);
                 //#line 922 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List annotations = extractAnnotations(Annotationsopt);
@@ -1218,21 +1218,21 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 22: {
                //#line 931 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 929 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 929 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 929 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 929 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 929 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 929 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(4);
-                //#line 929 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 929 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List FormalParameters = (List) getRhsSym(5);
-                //#line 929 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 929 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 929 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 929 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(7);
-                //#line 929 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 929 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(8);
-                //#line 929 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 929 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(9);
                 //#line 931 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
        if (Identifier.id().toString().equals("this")) {
@@ -1269,23 +1269,23 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 23: {
                //#line 961 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 959 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 959 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 959 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 959 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(3);
-                //#line 959 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 959 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 X10Formal fp1 = (X10Formal) getRhsSym(5);
-                //#line 959 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 959 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Binary.Operator BinOp = (Binary.Operator) getRhsSym(7);
-                //#line 959 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 959 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 X10Formal fp2 = (X10Formal) getRhsSym(9);
-                //#line 959 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 959 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(11);
-                //#line 959 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 959 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(12);
-                //#line 959 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 959 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(13);
-                //#line 959 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 959 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(14);
                 //#line 961 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
        MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(14)),
@@ -1309,21 +1309,21 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 24: {
                //#line 978 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 976 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 976 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 976 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 976 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(3);
-                //#line 976 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 976 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Unary.Operator PrefixOp = (Unary.Operator) getRhsSym(4);
-                //#line 976 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 976 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 X10Formal fp2 = (X10Formal) getRhsSym(6);
-                //#line 976 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 976 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(8);
-                //#line 976 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 976 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(9);
-                //#line 976 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 976 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(10);
-                //#line 976 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 976 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(11);
                 //#line 978 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
        MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(11)),
@@ -1347,21 +1347,21 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 25: {
                //#line 995 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 993 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 993 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 993 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 993 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(3);
-                //#line 993 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 993 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Binary.Operator BinOp = (Binary.Operator) getRhsSym(5);
-                //#line 993 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 993 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 X10Formal fp2 = (X10Formal) getRhsSym(7);
-                //#line 993 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 993 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(9);
-                //#line 993 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 993 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(10);
-                //#line 993 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 993 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(11);
-                //#line 993 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 993 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(12);
                 //#line 995 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
        MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(12)),
@@ -1386,21 +1386,21 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 26: {
                //#line 1013 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1011 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1011 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 1011 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1011 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(3);
-                //#line 1011 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1011 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 X10Formal fp1 = (X10Formal) getRhsSym(5);
-                //#line 1011 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1011 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Binary.Operator BinOp = (Binary.Operator) getRhsSym(7);
-                //#line 1011 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1011 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(9);
-                //#line 1011 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1011 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(10);
-                //#line 1011 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1011 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(11);
-                //#line 1011 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1011 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(12);
                 //#line 1013 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
        Name op = X10Binary_c.invBinaryMethodName(BinOp);
@@ -1426,19 +1426,19 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 27: {
                //#line 1032 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1030 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1030 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 1030 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1030 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(3);
-                //#line 1030 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1030 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Unary.Operator PrefixOp = (Unary.Operator) getRhsSym(4);
-                //#line 1030 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1030 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 1030 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1030 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(7);
-                //#line 1030 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1030 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(8);
-                //#line 1030 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1030 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(9);
                 //#line 1032 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
        MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(9)),
@@ -1462,19 +1462,19 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 28: {
                //#line 1049 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1047 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1047 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 1047 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1047 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(4);
-                //#line 1047 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1047 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List FormalParameters = (List) getRhsSym(5);
-                //#line 1047 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1047 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 1047 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1047 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(7);
-                //#line 1047 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1047 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(8);
-                //#line 1047 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1047 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(9);
                 //#line 1049 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
        MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(9)),
@@ -1498,21 +1498,21 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 29: {
                //#line 1066 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1064 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1064 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 1064 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1064 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(4);
-                //#line 1064 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1064 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List FormalParameters = (List) getRhsSym(5);
-                //#line 1064 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1064 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 X10Formal fp2 = (X10Formal) getRhsSym(8);
-                //#line 1064 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1064 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(10);
-                //#line 1064 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1064 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(11);
-                //#line 1064 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1064 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(12);
-                //#line 1064 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1064 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(13);
                 //#line 1066 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
        MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(13)),
@@ -1536,19 +1536,19 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 30: {
                //#line 1083 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1081 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1081 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 1081 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1081 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(3);
-                //#line 1081 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1081 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 X10Formal fp1 = (X10Formal) getRhsSym(5);
-                //#line 1081 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1081 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(8);
-                //#line 1081 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1081 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(9);
-                //#line 1081 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1081 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(10);
-                //#line 1081 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1081 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(11);
                 //#line 1083 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
        MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(11)),
@@ -1572,19 +1572,19 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 31: {
                //#line 1100 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1098 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1098 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 1098 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1098 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(3);
-                //#line 1098 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1098 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 X10Formal fp1 = (X10Formal) getRhsSym(5);
-                //#line 1098 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1098 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(9);
-                //#line 1098 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1098 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(10);
-                //#line 1098 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1098 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(11);
-                //#line 1098 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1098 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(12);
                 //#line 1100 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
        MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(12)),
@@ -1608,21 +1608,21 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 32: {
                //#line 1119 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1117 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1117 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 1117 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1117 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 1117 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1117 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(4);
-                //#line 1117 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1117 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List FormalParameters = (List) getRhsSym(5);
-                //#line 1117 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1117 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 1117 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1117 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(7);
-                //#line 1117 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1117 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(8);
-                //#line 1117 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1117 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(9);
                 //#line 1119 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
        MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(9)),
@@ -1644,15 +1644,15 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 33: {
                //#line 1134 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1132 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1132 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 1132 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1132 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 1132 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1132 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(4);
-                //#line 1132 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1132 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(5);
-                //#line 1132 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1132 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(6);
                 //#line 1134 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
        MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(6)),
@@ -1674,9 +1674,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 34: {
                //#line 1150 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1148 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1148 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(2);
-                //#line 1148 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1148 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(4);
                 //#line 1150 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10ThisCall(pos(), TypeArgumentsopt, ArgumentListopt));
@@ -1688,9 +1688,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 35: {
                //#line 1155 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1153 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1153 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(2);
-                //#line 1153 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1153 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(4);
                 //#line 1155 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10SuperCall(pos(), TypeArgumentsopt, ArgumentListopt));
@@ -1702,11 +1702,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 36: {
                //#line 1160 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1158 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1158 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 1158 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1158 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(4);
-                //#line 1158 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1158 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(6);
                 //#line 1160 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10ThisCall(pos(), Primary, TypeArgumentsopt, ArgumentListopt));
@@ -1718,11 +1718,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 37: {
                //#line 1165 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1163 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1163 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 1163 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1163 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(4);
-                //#line 1163 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1163 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(6);
                 //#line 1165 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10SuperCall(pos(), Primary, TypeArgumentsopt, ArgumentListopt));
@@ -1734,19 +1734,19 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 38: {
                //#line 1171 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1169 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1169 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List InterfaceModifiersopt = (List) getRhsSym(1);
-                //#line 1169 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1169 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 1169 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1169 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List TypePropertiesopt = (List) getRhsSym(4);
-                //#line 1169 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1169 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List Propertiesopt = (List) getRhsSym(5);
-                //#line 1169 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1169 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 1169 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1169 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List ExtendsInterfacesopt = (List) getRhsSym(7);
-                //#line 1169 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1169 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ClassBody InterfaceBody = (ClassBody) getRhsSym(8);
                 //#line 1171 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
       checkTypeName(Identifier);
@@ -1774,13 +1774,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 39: {
                //#line 1193 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1191 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1191 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(2);
-                //#line 1191 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1191 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(3);
-                //#line 1191 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1191 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(5);
-                //#line 1191 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1191 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ClassBody ClassBodyopt = (ClassBody) getRhsSym(7);
                 //#line 1193 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 if (ClassBodyopt == null)
@@ -1794,15 +1794,15 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 40: {
                //#line 1200 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1198 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1198 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 1198 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1198 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(4);
-                //#line 1198 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1198 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(5);
-                //#line 1198 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1198 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(7);
-                //#line 1198 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1198 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ClassBody ClassBodyopt = (ClassBody) getRhsSym(9);
                 //#line 1200 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 ParsedName b = new X10ParsedName(nf, ts, pos(), Identifier);
@@ -1817,15 +1817,15 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 41: {
                //#line 1208 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1206 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1206 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ParsedName AmbiguousName = (ParsedName) getRhsSym(1);
-                //#line 1206 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1206 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(4);
-                //#line 1206 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1206 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(5);
-                //#line 1206 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1206 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(7);
-                //#line 1206 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1206 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ClassBody ClassBodyopt = (ClassBody) getRhsSym(9);
                 //#line 1208 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 ParsedName b = new X10ParsedName(nf, ts, pos(), Identifier);
@@ -1840,9 +1840,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 42: {
                //#line 1217 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1215 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1215 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(2);
-                //#line 1215 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1215 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(4);
                 //#line 1217 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.AssignPropertyCall(pos(), TypeArgumentsopt, ArgumentListopt));
@@ -1854,15 +1854,15 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 45: {
                //#line 1229 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1227 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1227 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(1);
-                //#line 1227 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1227 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List FormalParameterListopt = (List) getRhsSym(3);
-                //#line 1227 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1227 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(5);
-                //#line 1227 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1227 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(6);
-                //#line 1227 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1227 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(8);
                 //#line 1229 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.FunctionTypeNode(pos(), TypeArgumentsopt, FormalParameterListopt, WhereClauseopt, Type, Throwsopt));
@@ -1874,9 +1874,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 50: {
                //#line 1238 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1236 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1236 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(1);
-                //#line 1236 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1236 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List Annotations = (List) getRhsSym(2);
                 //#line 1238 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 TypeNode tn = Type;
@@ -1890,7 +1890,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 54: {
                //#line 1249 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1247 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1247 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(2);
                 //#line 1249 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Type);
@@ -1926,7 +1926,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 57: {
                //#line 1267 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1265 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1265 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr PlaceExpression = (Expr) getRhsSym(1);
                 //#line 1267 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(),
@@ -1940,15 +1940,15 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 58: {
                //#line 1275 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1273 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1273 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 1273 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1273 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 1273 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1273 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(4);
-                //#line 1273 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1273 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List Argumentsopt = (List) getRhsSym(5);
-                //#line 1273 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1273 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(6);
                 //#line 1275 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
             TypeNode type = nf.X10AmbTypeNode(pos(), Primary, Identifier);
@@ -1965,13 +1965,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 59: {
                //#line 1286 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1284 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1284 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 1284 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1284 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(2);
-                //#line 1284 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1284 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List Argumentsopt = (List) getRhsSym(3);
-                //#line 1284 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1284 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(4);
                 //#line 1286 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
             TypeNode type;
@@ -2002,9 +2002,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 60: {
                //#line 1312 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1310 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1310 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List ExistentialListopt = (List) getRhsSym(2);
-                //#line 1310 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1310 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr Conjunction = (Expr) getRhsSym(3);
                 //#line 1312 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.DepParameterExpr(pos(), ExistentialListopt, Conjunction));
@@ -2016,9 +2016,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 61: {
                //#line 1317 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1315 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1315 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List ExistentialListopt = (List) getRhsSym(2);
-                //#line 1315 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1315 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr Conjunction = (Expr) getRhsSym(3);
                 //#line 1317 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.DepParameterExpr(pos(), ExistentialListopt, Conjunction));
@@ -2030,11 +2030,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 62: {
                //#line 1322 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1320 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1320 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List ExistentialListopt = (List) getRhsSym(2);
-                //#line 1320 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1320 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr Conjunction = (Expr) getRhsSym(3);
-                //#line 1320 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1320 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr PlaceType = (Expr) getRhsSym(6);
                 //#line 1322 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 if (PlaceType != null)
@@ -2049,7 +2049,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 63: {
                //#line 1331 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1329 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1329 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List TypePropertyList = (List) getRhsSym(2);
                 //#line 1331 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(TypePropertyList);
@@ -2061,7 +2061,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 64: {
                //#line 1337 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1335 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1335 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List TypeParameterList = (List) getRhsSym(2);
                 //#line 1337 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(TypeParameterList);
@@ -2073,7 +2073,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 65: {
                //#line 1342 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1340 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1340 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List FormalParameterListopt = (List) getRhsSym(2);
                 //#line 1342 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(FormalParameterListopt);
@@ -2085,7 +2085,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 66: {
                //#line 1348 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1346 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1346 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(1);
                 //#line 1348 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Expression);
@@ -2097,9 +2097,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 67: {
                //#line 1353 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1351 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1351 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr Conjunction = (Expr) getRhsSym(1);
-                //#line 1351 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1351 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
                 //#line 1353 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), Conjunction, Binary.COND_AND, Expression));
@@ -2111,9 +2111,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 68: {
                //#line 1359 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1357 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1357 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode t1 = (TypeNode) getRhsSym(1);
-                //#line 1357 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1357 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode t2 = (TypeNode) getRhsSym(3);
                 //#line 1359 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.SubtypeTest(pos(), t1, t2, false));
@@ -2125,9 +2125,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 69: {
                //#line 1364 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1362 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1362 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode t1 = (TypeNode) getRhsSym(1);
-                //#line 1362 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1362 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode t2 = (TypeNode) getRhsSym(3);
                 //#line 1364 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.SubtypeTest(pos(), t2, t1, false));
@@ -2139,7 +2139,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 70: {
                //#line 1370 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1368 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1368 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 DepParameterExpr DepParameters = (DepParameterExpr) getRhsSym(1);
                 //#line 1370 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
             setResult(DepParameters);
@@ -2162,7 +2162,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 72: {
                //#line 1381 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1379 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1379 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List ExistentialList = (List) getRhsSym(1);
                 //#line 1381 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
             setResult(ExistentialList);
@@ -2174,7 +2174,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 73: {
                //#line 1387 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1385 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1385 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(1);
                 //#line 1387 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Formal.class, false);
@@ -2188,9 +2188,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 74: {
                //#line 1394 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1392 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1392 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List ExistentialList = (List) getRhsSym(1);
-                //#line 1392 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1392 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
                 //#line 1394 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 ExistentialList.add(FormalParameter.flags(nf.FlagsNode(pos(), Flags.FINAL)));
@@ -2202,21 +2202,21 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 77: {
                //#line 1405 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1403 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1403 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List ClassModifiersopt = (List) getRhsSym(1);
-                //#line 1403 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1403 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 1403 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1403 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List TypePropertiesopt = (List) getRhsSym(4);
-                //#line 1403 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1403 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List Propertiesopt = (List) getRhsSym(5);
-                //#line 1403 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1403 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 1403 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1403 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode Superopt = (TypeNode) getRhsSym(7);
-                //#line 1403 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1403 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List Interfacesopt = (List) getRhsSym(8);
-                //#line 1403 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1403 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ClassBody ClassBody = (ClassBody) getRhsSym(9);
                 //#line 1405 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
       checkTypeName(Identifier);
@@ -2237,21 +2237,21 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 78: {
                //#line 1420 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1418 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1418 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List ClassModifiersopt = (List) getRhsSym(1);
-                //#line 1418 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1418 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 1418 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1418 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List TypePropertiesopt = (List) getRhsSym(4);
-                //#line 1418 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1418 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List Propertiesopt = (List) getRhsSym(5);
-                //#line 1418 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1418 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 1418 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1418 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode Superopt = (TypeNode) getRhsSym(7);
-                //#line 1418 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1418 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List Interfacesopt = (List) getRhsSym(8);
-                //#line 1418 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1418 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ClassBody ClassBody = (ClassBody) getRhsSym(9);
                 //#line 1420 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
     checkTypeName(Identifier);
@@ -2271,19 +2271,19 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 79: {
                //#line 1434 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1432 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1432 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List ConstructorModifiersopt = (List) getRhsSym(1);
-                //#line 1432 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1432 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(4);
-                //#line 1432 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1432 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List FormalParameters = (List) getRhsSym(5);
-                //#line 1432 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1432 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 1432 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1432 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(7);
-                //#line 1432 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1432 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(8);
-                //#line 1432 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1432 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Block ConstructorBody = (Block) getRhsSym(9);
                 //#line 1434 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
      ConstructorDecl cd = nf.X10ConstructorDecl(pos(),
@@ -2305,7 +2305,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 80: {
                //#line 1450 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1448 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1448 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode ClassType = (TypeNode) getRhsSym(2);
                 //#line 1450 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(ClassType);
@@ -2372,11 +2372,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 86: {
                //#line 1486 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1484 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1484 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List FieldModifiersopt = (List) getRhsSym(1);
-                //#line 1484 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1484 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List FieldKeyword = (List) getRhsSym(2);
-                //#line 1484 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1484 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List FieldDeclarators = (List) getRhsSym(3);
                 //#line 1486 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                     FlagsNode fn = extractFlags(FieldModifiersopt, FieldKeyword);
@@ -2406,9 +2406,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 87: {
                //#line 1511 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1509 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1509 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List FieldModifiersopt = (List) getRhsSym(1);
-                //#line 1509 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1509 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List FieldDeclarators = (List) getRhsSym(2);
                 //#line 1511 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                     List FieldKeyword = Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL));
@@ -2439,9 +2439,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 118: {
                //#line 1570 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1568 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1568 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1568 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1568 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(5);
                 //#line 1570 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.If(pos(), Expression, Statement));
@@ -2453,11 +2453,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 119: {
                //#line 1576 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1574 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1574 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1574 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1574 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Stmt s1 = (Stmt) getRhsSym(5);
-                //#line 1574 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1574 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Stmt s2 = (Stmt) getRhsSym(7);
                 //#line 1576 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.If(pos(), Expression, s1, s2));
@@ -2480,9 +2480,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 121: {
                //#line 1588 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1586 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1586 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 1586 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1586 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Stmt LoopStatement = (Stmt) getRhsSym(3);
                 //#line 1588 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Labeled(pos(), Identifier, LoopStatement));
@@ -2494,7 +2494,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 127: {
                //#line 1600 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1598 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1598 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr StatementExpression = (Expr) getRhsSym(1);
                 //#line 1600 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 boolean eval = true;
@@ -2523,7 +2523,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 135: {
                //#line 1631 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1629 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1629 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(2);
                 //#line 1631 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Assert(pos(), Expression));
@@ -2535,9 +2535,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 136: {
                //#line 1636 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1634 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1634 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr expr1 = (Expr) getRhsSym(2);
-                //#line 1634 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1634 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr expr2 = (Expr) getRhsSym(4);
                 //#line 1636 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Assert(pos(), expr1, expr2));
@@ -2549,9 +2549,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 137: {
                //#line 1642 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1640 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1640 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1640 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1640 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List SwitchBlock = (List) getRhsSym(5);
                 //#line 1642 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Switch(pos(), Expression, SwitchBlock));
@@ -2563,9 +2563,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 138: {
                //#line 1648 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1646 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1646 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List SwitchBlockStatementGroupsopt = (List) getRhsSym(2);
-                //#line 1646 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1646 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List SwitchLabelsopt = (List) getRhsSym(3);
                 //#line 1648 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 SwitchBlockStatementGroupsopt.addAll(SwitchLabelsopt);
@@ -2578,9 +2578,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 140: {
                //#line 1656 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1654 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1654 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List SwitchBlockStatementGroups = (List) getRhsSym(1);
-                //#line 1654 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1654 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List SwitchBlockStatementGroup = (List) getRhsSym(2);
                 //#line 1656 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 SwitchBlockStatementGroups.addAll(SwitchBlockStatementGroup);
@@ -2593,9 +2593,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 141: {
                //#line 1663 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1661 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1661 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List SwitchLabels = (List) getRhsSym(1);
-                //#line 1661 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1661 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List BlockStatements = (List) getRhsSym(2);
                 //#line 1663 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), SwitchElement.class, false);
@@ -2610,7 +2610,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 142: {
                //#line 1672 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1670 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1670 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Case SwitchLabel = (Case) getRhsSym(1);
                 //#line 1672 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Case.class, false);
@@ -2624,9 +2624,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 143: {
                //#line 1679 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1677 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1677 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List SwitchLabels = (List) getRhsSym(1);
-                //#line 1677 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1677 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Case SwitchLabel = (Case) getRhsSym(2);
                 //#line 1679 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 SwitchLabels.add(SwitchLabel);
@@ -2639,7 +2639,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 144: {
                //#line 1686 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1684 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1684 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr ConstantExpression = (Expr) getRhsSym(2);
                 //#line 1686 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Case(pos(), ConstantExpression));
@@ -2662,9 +2662,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 146: {
                //#line 1697 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1695 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1695 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1695 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1695 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(5);
                 //#line 1697 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.While(pos(), Expression, Statement));
@@ -2676,9 +2676,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 147: {
                //#line 1703 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1701 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1701 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(2);
-                //#line 1701 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1701 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(5);
                 //#line 1703 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Do(pos(), Statement, Expression));
@@ -2690,13 +2690,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 150: {
                //#line 1712 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1710 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1710 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List ForInitopt = (List) getRhsSym(3);
-                //#line 1710 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1710 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr Expressionopt = (Expr) getRhsSym(5);
-                //#line 1710 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1710 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List ForUpdateopt = (List) getRhsSym(7);
-                //#line 1710 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1710 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(9);
                 //#line 1712 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.For(pos(), ForInitopt, Expressionopt, ForUpdateopt, Statement));
@@ -2708,7 +2708,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 152: {
                //#line 1719 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1717 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1717 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List LocalVariableDeclaration = (List) getRhsSym(1);
                 //#line 1719 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ForInit.class, false);
@@ -2722,7 +2722,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 154: {
                //#line 1729 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1727 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1727 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr StatementExpression = (Expr) getRhsSym(1);
                 //#line 1729 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Eval.class, false);
@@ -2736,9 +2736,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 155: {
                //#line 1736 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1734 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1734 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List StatementExpressionList = (List) getRhsSym(1);
-                //#line 1734 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1734 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr StatementExpression = (Expr) getRhsSym(3);
                 //#line 1736 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 StatementExpressionList.add(nf.Eval(pos(), StatementExpression));
@@ -2750,7 +2750,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 156: {
                //#line 1742 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1740 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1740 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifieropt = (Id) getRhsSym(2);
                 //#line 1742 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Break(pos(), Identifieropt));
@@ -2762,7 +2762,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 157: {
                //#line 1748 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1746 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1746 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifieropt = (Id) getRhsSym(2);
                 //#line 1748 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Continue(pos(), Identifieropt));
@@ -2774,7 +2774,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 158: {
                //#line 1754 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1752 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1752 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr Expressionopt = (Expr) getRhsSym(2);
                 //#line 1754 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Return(pos(), Expressionopt));
@@ -2786,7 +2786,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 159: {
                //#line 1760 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1758 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1758 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(2);
                 //#line 1760 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Throw(pos(), Expression));
@@ -2798,9 +2798,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 160: {
                //#line 1766 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1764 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1764 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Block Block = (Block) getRhsSym(2);
-                //#line 1764 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1764 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List Catches = (List) getRhsSym(3);
                 //#line 1766 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Try(pos(), Block, Catches));
@@ -2812,11 +2812,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 161: {
                //#line 1771 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1769 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1769 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Block Block = (Block) getRhsSym(2);
-                //#line 1769 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1769 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List Catchesopt = (List) getRhsSym(3);
-                //#line 1769 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1769 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Block Finally = (Block) getRhsSym(4);
                 //#line 1771 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Try(pos(), Block, Catchesopt, Finally));
@@ -2828,7 +2828,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 162: {
                //#line 1777 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1775 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1775 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Catch CatchClause = (Catch) getRhsSym(1);
                 //#line 1777 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Catch.class, false);
@@ -2842,9 +2842,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 163: {
                //#line 1784 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1782 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1782 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List Catches = (List) getRhsSym(1);
-                //#line 1782 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1782 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Catch CatchClause = (Catch) getRhsSym(2);
                 //#line 1784 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 Catches.add(CatchClause);
@@ -2857,9 +2857,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 164: {
                //#line 1791 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1789 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1789 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 1789 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1789 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Block Block = (Block) getRhsSym(5);
                 //#line 1791 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Catch(pos(), FormalParameter, Block));
@@ -2871,7 +2871,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 165: {
                //#line 1797 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1795 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1795 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Block Block = (Block) getRhsSym(2);
                 //#line 1797 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Block);
@@ -2883,9 +2883,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 166: {
                //#line 1803 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1801 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1801 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr Clock = (Expr) getRhsSym(3);
-                //#line 1801 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1801 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(5);
                 //#line 1803 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
               setResult(nf.Now(pos(), Clock, Statement));
@@ -2897,7 +2897,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 167: {
                //#line 1809 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1807 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1807 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List ClockList = (List) getRhsSym(3);
                 //#line 1809 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(ClockList);
@@ -2909,11 +2909,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 168: {
                //#line 1815 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1813 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1813 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr PlaceExpressionSingleListopt = (Expr) getRhsSym(2);
-                //#line 1813 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1813 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List ClockedClauseopt = (List) getRhsSym(3);
-                //#line 1813 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1813 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(4);
                 //#line 1815 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
               setResult(nf.Async(pos(), (PlaceExpressionSingleListopt == null
@@ -2928,9 +2928,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 169: {
                //#line 1824 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1822 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1822 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr PlaceExpressionSingleList = (Expr) getRhsSym(2);
-                //#line 1822 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1822 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(3);
                 //#line 1824 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
               setResult(nf.AtStmt(pos(), PlaceExpressionSingleList, Statement));
@@ -2942,7 +2942,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 170: {
                //#line 1830 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1828 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1828 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(2);
                 //#line 1830 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
               setResult(nf.Atomic(pos(), nf.Here(pos(getLeftSpan())), Statement));
@@ -2954,9 +2954,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 171: {
                //#line 1837 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1835 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1835 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1835 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1835 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(5);
                 //#line 1837 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.When(pos(), Expression, Statement));
@@ -2968,13 +2968,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 172: {
                //#line 1842 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1840 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1840 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 When WhenStatement = (When) getRhsSym(1);
-                //#line 1840 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1840 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 IToken or = (IToken) getRhsIToken(2);
-                //#line 1840 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1840 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(4);
-                //#line 1840 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1840 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(6);
                 //#line 1842 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
               WhenStatement.addBranch(pos(getRhsFirstTokenIndex(2), getRightSpan()), Expression, Statement);
@@ -2987,13 +2987,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 173: {
                //#line 1849 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1847 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1847 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 X10Formal LoopIndex = (X10Formal) getRhsSym(3);
-                //#line 1847 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1847 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(5);
-                //#line 1847 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1847 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List ClockedClauseopt = (List) getRhsSym(7);
-                //#line 1847 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1847 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(8);
                 //#line 1849 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 FlagsNode fn = LoopIndex.flags();
@@ -3013,13 +3013,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 174: {
                //#line 1863 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1861 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1861 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 X10Formal LoopIndex = (X10Formal) getRhsSym(3);
-                //#line 1861 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1861 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(5);
-                //#line 1861 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1861 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List ClockedClauseopt = (List) getRhsSym(7);
-                //#line 1861 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1861 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(8);
                 //#line 1863 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 FlagsNode fn = LoopIndex.flags();
@@ -3039,11 +3039,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 175: {
                //#line 1877 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1875 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1875 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 X10Formal LoopIndex = (X10Formal) getRhsSym(3);
-                //#line 1875 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1875 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(5);
-                //#line 1875 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1875 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(7);
                 //#line 1877 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 FlagsNode fn = LoopIndex.flags();
@@ -3062,7 +3062,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 176: {
                //#line 1890 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1888 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1888 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(2);
                 //#line 1890 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Finish(pos(),  Statement));
@@ -3074,9 +3074,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 177: {
                //#line 1897 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1895 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1895 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List Annotations = (List) getRhsSym(1);
-                //#line 1895 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1895 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(2);
                 //#line 1897 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 if (Statement.ext() instanceof X10Ext && Annotations instanceof List) {
@@ -3091,7 +3091,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 178: {
                //#line 1906 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1904 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1904 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr PlaceExpression = (Expr) getRhsSym(2);
                 //#line 1906 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
               setResult(PlaceExpression);
@@ -3114,7 +3114,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 181: {
                //#line 1920 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1918 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1918 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(2);
                 //#line 1920 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Await(pos(), Expression));
@@ -3126,7 +3126,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 182: {
                //#line 1926 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1924 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1924 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr Clock = (Expr) getRhsSym(1);
                 //#line 1926 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Expr.class, false);
@@ -3140,9 +3140,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 183: {
                //#line 1933 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1931 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1931 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List ClockList = (List) getRhsSym(1);
-                //#line 1931 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1931 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr Clock = (Expr) getRhsSym(3);
                 //#line 1933 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 ClockList.add(Clock);
@@ -3155,7 +3155,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 184: {
                //#line 1941 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1939 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1939 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(1);
                 //#line 1941 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
     setResult(Expression);
@@ -3167,9 +3167,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 185: {
                //#line 1955 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1953 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1953 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr CastExpression = (Expr) getRhsSym(1);
-                //#line 1953 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1953 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
                 //#line 1955 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10Cast(pos(), Type, CastExpression));
@@ -3181,9 +3181,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 186: {
                //#line 1960 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1958 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1958 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr ConditionalExpression = (Expr) getRhsSym(1);
-                //#line 1958 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1958 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
                 //#line 1960 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.PlaceCast(pos(), Expression, ConditionalExpression));
@@ -3195,7 +3195,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 188: {
                //#line 1969 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1967 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1967 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypePropertyNode TypeProperty = (TypePropertyNode) getRhsSym(1);
                 //#line 1969 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), TypePropertyNode.class, false);
@@ -3209,9 +3209,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 189: {
                //#line 1976 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1974 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1974 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List TypePropertyList = (List) getRhsSym(1);
-                //#line 1974 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1974 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypePropertyNode TypeProperty = (TypePropertyNode) getRhsSym(3);
                 //#line 1976 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 TypePropertyList.add(TypeProperty);
@@ -3224,7 +3224,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 190: {
                //#line 1983 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1981 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1981 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeParamNode TypeParameter = (TypeParamNode) getRhsSym(1);
                 //#line 1983 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), TypeParamNode.class, false);
@@ -3238,9 +3238,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 191: {
                //#line 1990 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1988 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1988 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List TypeParameterList = (List) getRhsSym(1);
-                //#line 1988 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1988 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeParamNode TypeParameter = (TypeParamNode) getRhsSym(3);
                 //#line 1990 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 TypeParameterList.add(TypeParameter);
@@ -3253,7 +3253,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 192: {
                //#line 1997 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1995 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 1995 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
                 //#line 1997 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.TypePropertyNode(pos(), Identifier, TypeProperty.Variance.INVARIANT));
@@ -3265,7 +3265,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 193: {
                //#line 2002 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2000 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2000 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(2);
                 //#line 2002 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.TypePropertyNode(pos(), Identifier, TypeProperty.Variance.COVARIANT));
@@ -3277,7 +3277,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 194: {
                //#line 2007 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2005 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2005 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(2);
                 //#line 2007 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.TypePropertyNode(pos(), Identifier, TypeProperty.Variance.CONTRAVARIANT));
@@ -3289,7 +3289,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 195: {
                //#line 2013 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2011 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2011 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
                 //#line 2013 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.TypeParamNode(pos(), Identifier));
@@ -3312,7 +3312,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 198: {
                //#line 2027 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2025 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2025 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr RegionExpression = (Expr) getRhsSym(1);
                 //#line 2027 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Expr.class, false);
@@ -3326,9 +3326,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 199: {
                //#line 2034 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2032 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2032 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List RegionExpressionList = (List) getRhsSym(1);
-                //#line 2032 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2032 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr RegionExpression = (Expr) getRhsSym(3);
                 //#line 2034 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 RegionExpressionList.add(RegionExpression);
@@ -3341,7 +3341,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 200: {
                //#line 2041 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2039 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2039 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(2);
                 //#line 2041 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 Tuple tuple = nf.Tuple(pos(), ArgumentListopt);
@@ -3354,9 +3354,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 201: {
                //#line 2048 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2046 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2046 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr expr1 = (Expr) getRhsSym(1);
-                //#line 2046 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2046 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr expr2 = (Expr) getRhsSym(3);
                 //#line 2048 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 Expr call = nf.ConstantDistMaker(pos(), expr1, expr2);
@@ -3369,17 +3369,17 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 202: {
                //#line 2055 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2053 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2053 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(1);
-                //#line 2053 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2053 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List FormalParameters = (List) getRhsSym(2);
-                //#line 2053 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2053 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(3);
-                //#line 2053 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2053 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(4);
-                //#line 2053 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2053 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(5);
-                //#line 2053 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2053 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(7);
                 //#line 2055 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Closure(pos(), TypeParametersopt, FormalParameters, WhereClauseopt, 
@@ -3392,7 +3392,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 203: {
                //#line 2062 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2060 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2060 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(1);
                 //#line 2062 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10Return(pos(), Expression, true));
@@ -3404,7 +3404,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 204: {
                //#line 2068 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2066 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2066 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr CastExpression = (Expr) getRhsSym(1);
                 //#line 2068 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Block(pos(), nf.X10Return(pos(), CastExpression, true)));
@@ -3416,11 +3416,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 205: {
                //#line 2073 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2071 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2071 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List Annotationsopt = (List) getRhsSym(1);
-                //#line 2071 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2071 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List BlockStatementsopt = (List) getRhsSym(3);
-                //#line 2071 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2071 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Stmt LastExpression = (Stmt) getRhsSym(4);
                 //#line 2073 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Stmt> l = new ArrayList<Stmt>();
@@ -3437,9 +3437,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 206: {
                //#line 2083 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2081 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2081 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List Annotationsopt = (List) getRhsSym(1);
-                //#line 2081 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2081 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Block Block = (Block) getRhsSym(2);
                 //#line 2083 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 Block b = Block;
@@ -3453,9 +3453,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 207: {
                //#line 2092 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2090 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2090 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr PlaceExpressionSingleList = (Expr) getRhsSym(2);
-                //#line 2090 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2090 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(3);
                 //#line 2092 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.AtExpr(pos(), PlaceExpressionSingleList, nf.UnknownTypeNode(pos()), ClosureBody));
@@ -3467,7 +3467,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 208: {
                //#line 2098 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2096 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2096 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(2);
                 //#line 2098 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Call(pos(), nf.Future(pos(), nf.Here(pos(getLeftSpan())), nf.UnknownTypeNode(pos()), ClosureBody), nf.Id(pos(), "force")));
@@ -3479,9 +3479,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 209: {
                //#line 2103 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2101 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2101 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr PlaceExpressionSingleList = (Expr) getRhsSym(2);
-                //#line 2101 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2101 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(3);
                 //#line 2103 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Call(pos(), nf.Future(pos(), PlaceExpressionSingleList, nf.UnknownTypeNode(pos()), ClosureBody), nf.Id(pos(), "force")));
@@ -3493,9 +3493,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 210: {
                //#line 2108 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2106 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2106 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 2106 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2106 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(5);
                 //#line 2108 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Call(pos(), nf.Future(pos(), nf.Here(pos(getLeftSpan())), Type, ClosureBody), nf.Id(pos(), "force")));
@@ -3507,11 +3507,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 211: {
                //#line 2113 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2111 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2111 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 2111 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2111 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr PlaceExpressionSingleList = (Expr) getRhsSym(5);
-                //#line 2111 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2111 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(6);
                 //#line 2113 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Call(pos(), nf.Future(pos(), PlaceExpressionSingleList, Type, ClosureBody), nf.Id(pos(), "force")));
@@ -3523,7 +3523,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 212: {
                //#line 2119 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2117 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2117 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(2);
                 //#line 2119 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Future(pos(), nf.Here(pos(getLeftSpan())), nf.UnknownTypeNode(pos()), ClosureBody));
@@ -3535,9 +3535,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 213: {
                //#line 2124 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2122 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2122 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr PlaceExpressionSingleList = (Expr) getRhsSym(2);
-                //#line 2122 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2122 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(3);
                 //#line 2124 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Future(pos(), PlaceExpressionSingleList, nf.UnknownTypeNode(pos()), ClosureBody));
@@ -3549,9 +3549,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 214: {
                //#line 2129 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2127 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2127 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 2127 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2127 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(5);
                 //#line 2129 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Future(pos(), nf.Here(pos(getLeftSpan())), Type, ClosureBody));
@@ -3563,11 +3563,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 215: {
                //#line 2134 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2132 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2132 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 2132 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2132 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr PlaceExpressionSingleList = (Expr) getRhsSym(5);
-                //#line 2132 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2132 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(6);
                 //#line 2134 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Future(pos(), PlaceExpressionSingleList, Type, ClosureBody));
@@ -3668,7 +3668,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 234: {
                //#line 2196 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2194 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2194 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 IToken ident = (IToken) getRhsIToken(1);
                 //#line 2196 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 ident.setKind(X10Parsersym.TK_IDENTIFIER);
@@ -3681,7 +3681,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 235: {
                //#line 2203 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2201 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2201 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
                 //#line 2203 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf, ts, pos(), Identifier));
@@ -3693,9 +3693,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 236: {
                //#line 2208 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2206 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2206 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 2206 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2206 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
                 //#line 2208 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf,
@@ -3711,7 +3711,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 238: {
                //#line 2220 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2218 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2218 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List TypeArgumentList = (List) getRhsSym(2);
                 //#line 2220 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(TypeArgumentList);
@@ -3723,7 +3723,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 239: {
                //#line 2227 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2225 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2225 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(1);
                 //#line 2227 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new ArrayList();
@@ -3737,9 +3737,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 240: {
                //#line 2234 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2232 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2232 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List TypeArgumentList = (List) getRhsSym(1);
-                //#line 2232 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2232 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
                 //#line 2234 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 TypeArgumentList.add(Type);
@@ -3751,7 +3751,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 241: {
                //#line 2244 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2242 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2242 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
                 //#line 2244 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf, ts, pos(), Identifier));
@@ -3763,9 +3763,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 242: {
                //#line 2249 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2247 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2247 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ParsedName PackageName = (ParsedName) getRhsSym(1);
-                //#line 2247 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2247 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
                 //#line 2249 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf,
@@ -3781,7 +3781,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 243: {
                //#line 2265 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2263 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2263 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
                 //#line 2265 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf, ts, pos(), Identifier));
@@ -3793,9 +3793,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 244: {
                //#line 2270 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2268 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2268 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ParsedName AmbiguousName = (ParsedName) getRhsSym(1);
-                //#line 2268 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2268 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
                 //#line 2270 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf,
@@ -3811,7 +3811,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 245: {
                //#line 2280 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2278 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2278 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
                 //#line 2280 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf, ts, pos(), Identifier));
@@ -3823,9 +3823,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 246: {
                //#line 2285 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2283 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2283 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ParsedName AmbiguousName = (ParsedName) getRhsSym(1);
-                //#line 2283 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2283 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
                 //#line 2285 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf,
@@ -3841,7 +3841,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 247: {
                //#line 2295 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2293 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2293 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
                 //#line 2295 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf, ts, pos(), Identifier));
@@ -3853,9 +3853,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 248: {
                //#line 2300 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2298 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2298 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ParsedName PackageOrTypeName = (ParsedName) getRhsSym(1);
-                //#line 2298 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2298 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
                 //#line 2300 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf,
@@ -3871,7 +3871,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 249: {
                //#line 2310 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2308 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2308 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
                 //#line 2310 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf, ts, pos(), Identifier));
@@ -3883,9 +3883,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 250: {
                //#line 2315 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2313 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2313 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ParsedName AmbiguousName = (ParsedName) getRhsSym(1);
-                //#line 2313 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2313 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
                 //#line 2315 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf,
@@ -3901,11 +3901,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 251: {
                //#line 2327 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2325 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2325 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 PackageNode PackageDeclarationopt = (PackageNode) getRhsSym(1);
-                //#line 2325 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2325 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List ImportDeclarationsopt = (List) getRhsSym(2);
-                //#line 2325 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2325 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List TypeDeclarationsopt = (List) getRhsSym(3);
                 //#line 2327 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 // Add import x10.lang.* by default.
@@ -3927,7 +3927,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 252: {
                //#line 2343 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2341 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2341 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Import ImportDeclaration = (Import) getRhsSym(1);
                 //#line 2343 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Import.class, false);
@@ -3941,9 +3941,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 253: {
                //#line 2350 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2348 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2348 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List ImportDeclarations = (List) getRhsSym(1);
-                //#line 2348 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2348 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Import ImportDeclaration = (Import) getRhsSym(2);
                 //#line 2350 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 if (ImportDeclaration != null)
@@ -3957,7 +3957,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 254: {
                //#line 2358 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2356 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2356 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TopLevelDecl TypeDeclaration = (TopLevelDecl) getRhsSym(1);
                 //#line 2358 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), TopLevelDecl.class, false);
@@ -3972,9 +3972,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 255: {
                //#line 2366 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2364 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2364 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List TypeDeclarations = (List) getRhsSym(1);
-                //#line 2364 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2364 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TopLevelDecl TypeDeclaration = (TopLevelDecl) getRhsSym(2);
                 //#line 2366 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 if (TypeDeclaration != null)
@@ -3988,9 +3988,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 256: {
                //#line 2374 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2372 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2372 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List Annotationsopt = (List) getRhsSym(1);
-                //#line 2372 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2372 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ParsedName PackageName = (ParsedName) getRhsSym(3);
                 //#line 2374 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 PackageNode pn = PackageName.toPackage();
@@ -4004,7 +4004,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 259: {
                //#line 2388 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2386 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2386 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(2);
                 //#line 2388 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Import(pos(getLeftSpan(), getRightSpan()), Import.CLASS, QName.make(TypeName.toString())));
@@ -4016,7 +4016,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 260: {
                //#line 2394 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2392 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2392 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ParsedName PackageOrTypeName = (ParsedName) getRhsSym(2);
                 //#line 2394 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Import(pos(getLeftSpan(), getRightSpan()), Import.PACKAGE, QName.make(PackageOrTypeName.toString())));
@@ -4039,7 +4039,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 265: {
                //#line 2417 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2415 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2415 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List ClassModifier = (List) getRhsSym(1);
                 //#line 2417 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new LinkedList();
@@ -4053,9 +4053,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 266: {
                //#line 2424 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2422 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2422 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List ClassModifiers = (List) getRhsSym(1);
-                //#line 2422 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2422 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List ClassModifier = (List) getRhsSym(2);
                 //#line 2424 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 ClassModifiers.addAll(ClassModifier);
@@ -4067,7 +4067,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 267: {
                //#line 2430 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2428 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2428 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
                 //#line 2430 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(Annotation));
@@ -4178,7 +4178,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 277: {
                //#line 2481 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2479 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2479 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List TypeDefModifier = (List) getRhsSym(1);
                 //#line 2481 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new LinkedList();
@@ -4192,9 +4192,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 278: {
                //#line 2488 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2486 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2486 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List TypeDefModifiers = (List) getRhsSym(1);
-                //#line 2486 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2486 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List TypeDefModifier = (List) getRhsSym(2);
                 //#line 2488 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 TypeDefModifiers.addAll(TypeDefModifier);
@@ -4206,7 +4206,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 279: {
                //#line 2494 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2492 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2492 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
                 //#line 2494 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(Annotation));
@@ -4284,7 +4284,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 286: {
                //#line 2533 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2531 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2531 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List InterfaceTypeList = (List) getRhsSym(2);
                 //#line 2533 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(InterfaceTypeList);
@@ -4296,7 +4296,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 287: {
                //#line 2539 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2537 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2537 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(1);
                 //#line 2539 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), TypeNode.class, false);
@@ -4310,9 +4310,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 288: {
                //#line 2546 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2544 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2544 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List InterfaceTypeList = (List) getRhsSym(1);
-                //#line 2544 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2544 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
                 //#line 2546 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 InterfaceTypeList.add(Type);
@@ -4325,7 +4325,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 289: {
                //#line 2556 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2554 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2554 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List ClassBodyDeclarationsopt = (List) getRhsSym(2);
                 //#line 2556 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.ClassBody(pos(getLeftSpan(), getRightSpan()), ClassBodyDeclarationsopt));
@@ -4337,9 +4337,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 291: {
                //#line 2563 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2561 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2561 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List ClassBodyDeclarations = (List) getRhsSym(1);
-                //#line 2561 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2561 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List ClassBodyDeclaration = (List) getRhsSym(2);
                 //#line 2563 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 ClassBodyDeclarations.addAll(ClassBodyDeclaration);
@@ -4352,7 +4352,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 293: {
                //#line 2571 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2569 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2569 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Initializer InstanceInitializer = (Initializer) getRhsSym(1);
                 //#line 2571 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
@@ -4366,7 +4366,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 294: {
                //#line 2578 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2576 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2576 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Initializer StaticInitializer = (Initializer) getRhsSym(1);
                 //#line 2578 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
@@ -4380,7 +4380,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 295: {
                //#line 2585 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2583 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2583 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ConstructorDecl ConstructorDeclaration = (ConstructorDecl) getRhsSym(1);
                 //#line 2585 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
@@ -4394,7 +4394,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 297: {
                //#line 2594 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2592 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2592 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ClassMember MethodDeclaration = (ClassMember) getRhsSym(1);
                 //#line 2594 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
@@ -4408,7 +4408,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 298: {
                //#line 2601 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2599 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2599 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ClassMember PropertyMethodDeclaration = (ClassMember) getRhsSym(1);
                 //#line 2601 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
@@ -4422,7 +4422,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 299: {
                //#line 2608 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2606 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2606 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeDecl TypeDefDeclaration = (TypeDecl) getRhsSym(1);
                 //#line 2608 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
@@ -4436,7 +4436,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 300: {
                //#line 2615 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2613 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2613 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ClassDecl ClassDeclaration = (ClassDecl) getRhsSym(1);
                 //#line 2615 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
@@ -4450,7 +4450,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 301: {
                //#line 2622 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2620 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2620 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ClassDecl InterfaceDeclaration = (ClassDecl) getRhsSym(1);
                 //#line 2622 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
@@ -4476,7 +4476,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 303: {
                //#line 2636 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2634 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2634 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Object[] FormalDeclarator = (Object[]) getRhsSym(1);
                 //#line 2636 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Object[].class, false);
@@ -4490,9 +4490,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 304: {
                //#line 2643 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2641 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2641 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List FormalDeclarators = (List) getRhsSym(1);
-                //#line 2641 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2641 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Object[] FormalDeclarator = (Object[]) getRhsSym(3);
                 //#line 2643 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 FormalDeclarators.add(FormalDeclarator);
@@ -4504,7 +4504,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 305: {
                //#line 2650 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2648 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2648 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Object[] FieldDeclarator = (Object[]) getRhsSym(1);
                 //#line 2650 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Object[].class, false);
@@ -4518,9 +4518,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 306: {
                //#line 2657 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2655 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2655 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List FieldDeclarators = (List) getRhsSym(1);
-                //#line 2655 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2655 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Object[] FieldDeclarator = (Object[]) getRhsSym(3);
                 //#line 2657 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 FieldDeclarators.add(FieldDeclarator);
@@ -4533,7 +4533,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 307: {
                //#line 2665 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2663 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2663 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Object[] VariableDeclaratorWithType = (Object[]) getRhsSym(1);
                 //#line 2665 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Object[].class, false);
@@ -4547,9 +4547,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 308: {
                //#line 2672 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2670 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2670 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List VariableDeclaratorsWithType = (List) getRhsSym(1);
-                //#line 2670 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2670 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Object[] VariableDeclaratorWithType = (Object[]) getRhsSym(3);
                 //#line 2672 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 VariableDeclaratorsWithType.add(VariableDeclaratorWithType);
@@ -4562,7 +4562,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 309: {
                //#line 2679 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2677 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2677 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Object[] VariableDeclarator = (Object[]) getRhsSym(1);
                 //#line 2679 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Object[].class, false);
@@ -4576,9 +4576,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 310: {
                //#line 2686 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2684 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2684 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List VariableDeclarators = (List) getRhsSym(1);
-                //#line 2684 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2684 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Object[] VariableDeclarator = (Object[]) getRhsSym(3);
                 //#line 2686 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 VariableDeclarators.add(VariableDeclarator);
@@ -4591,7 +4591,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 312: {
                //#line 2695 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2693 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2693 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List FieldModifier = (List) getRhsSym(1);
                 //#line 2695 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new LinkedList();
@@ -4605,9 +4605,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 313: {
                //#line 2702 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2700 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2700 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List FieldModifiers = (List) getRhsSym(1);
-                //#line 2700 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2700 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List FieldModifier = (List) getRhsSym(2);
                 //#line 2702 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 FieldModifiers.addAll(FieldModifier);
@@ -4619,7 +4619,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 314: {
                //#line 2708 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2706 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2706 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
                 //#line 2708 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(Annotation));
@@ -4697,7 +4697,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 321: {
                //#line 2744 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2742 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2742 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(2);
                 //#line 2744 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Type);
@@ -4709,7 +4709,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 322: {
                //#line 2750 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2748 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2748 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List FormalParameterList = (List) getRhsSym(2);
                 //#line 2750 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(FormalParameterList);
@@ -4721,7 +4721,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 323: {
                //#line 2756 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2754 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2754 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(1);
                 //#line 2756 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Formal.class, false);
@@ -4735,9 +4735,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 324: {
                //#line 2763 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2761 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2761 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List FormalParameterList = (List) getRhsSym(1);
-                //#line 2761 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2761 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
                 //#line 2763 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 FormalParameterList.add(FormalParameter);
@@ -4749,9 +4749,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 325: {
                //#line 2769 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2767 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2767 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2767 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2767 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(2);
                 //#line 2769 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, null, ResultTypeopt, null });
@@ -4763,9 +4763,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 326: {
                //#line 2774 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2772 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2772 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(2);
-                //#line 2772 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2772 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(4);
                 //#line 2774 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), null, IdentifierList, null, ResultTypeopt, null });
@@ -4777,11 +4777,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 327: {
                //#line 2779 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2777 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2777 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2777 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2777 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(3);
-                //#line 2777 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2777 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(5);
                 //#line 2779 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), Identifier, IdentifierList, null, ResultTypeopt, null });
@@ -4793,9 +4793,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 328: {
                //#line 2785 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2783 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2783 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List VariableModifiersopt = (List) getRhsSym(1);
-                //#line 2783 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2783 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Object[] LoopIndexDeclarator = (Object[]) getRhsSym(2);
                 //#line 2785 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
             Formal f;
@@ -4825,11 +4825,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 329: {
                //#line 2808 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2806 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2806 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List VariableModifiersopt = (List) getRhsSym(1);
-                //#line 2806 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2806 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List VarKeyword = (List) getRhsSym(2);
-                //#line 2806 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2806 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Object[] LoopIndexDeclarator = (Object[]) getRhsSym(3);
                 //#line 2808 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
             Formal f;
@@ -4859,9 +4859,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 330: {
                //#line 2832 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2830 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2830 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List VariableModifiersopt = (List) getRhsSym(1);
-                //#line 2830 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2830 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Object[] FormalDeclarator = (Object[]) getRhsSym(2);
                 //#line 2832 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
             Formal f;
@@ -4892,11 +4892,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 331: {
                //#line 2856 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2854 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2854 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List VariableModifiersopt = (List) getRhsSym(1);
-                //#line 2854 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2854 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List VarKeyword = (List) getRhsSym(2);
-                //#line 2854 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2854 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Object[] FormalDeclarator = (Object[]) getRhsSym(3);
                 //#line 2856 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
             Formal f;
@@ -4927,7 +4927,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 332: {
                //#line 2880 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2878 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2878 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(1);
                 //#line 2880 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
             Formal f;
@@ -4941,7 +4941,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 333: {
                //#line 2888 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2886 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2886 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List VariableModifier = (List) getRhsSym(1);
                 //#line 2888 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new LinkedList();
@@ -4955,9 +4955,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 334: {
                //#line 2895 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2893 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2893 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List VariableModifiers = (List) getRhsSym(1);
-                //#line 2893 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2893 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List VariableModifier = (List) getRhsSym(2);
                 //#line 2895 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 VariableModifiers.addAll(VariableModifier);
@@ -4969,7 +4969,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 335: {
                //#line 2901 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2899 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2899 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
                 //#line 2901 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(Annotation));
@@ -4992,7 +4992,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 337: {
                //#line 2915 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2913 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2913 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List MethodModifier = (List) getRhsSym(1);
                 //#line 2915 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new LinkedList();
@@ -5006,9 +5006,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 338: {
                //#line 2922 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2920 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2920 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List MethodModifiers = (List) getRhsSym(1);
-                //#line 2920 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2920 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List MethodModifier = (List) getRhsSym(2);
                 //#line 2922 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 MethodModifiers.addAll(MethodModifier);
@@ -5020,7 +5020,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 339: {
                //#line 2928 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2926 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 2926 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
                 //#line 2928 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(Annotation));
@@ -5208,7 +5208,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 356: {
                //#line 3015 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3013 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3013 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List ExceptionTypeList = (List) getRhsSym(2);
                 //#line 3015 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(ExceptionTypeList);
@@ -5220,7 +5220,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 357: {
                //#line 3021 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3019 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3019 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode ExceptionType = (TypeNode) getRhsSym(1);
                 //#line 3021 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), TypeNode.class, false);
@@ -5234,9 +5234,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 358: {
                //#line 3028 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3026 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3026 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List ExceptionTypeList = (List) getRhsSym(1);
-                //#line 3026 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3026 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode ExceptionType = (TypeNode) getRhsSym(3);
                 //#line 3028 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 ExceptionTypeList.add(ExceptionType);
@@ -5248,7 +5248,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 360: {
                //#line 3036 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3034 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3034 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Stmt LastExpression = (Stmt) getRhsSym(2);
                 //#line 3036 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Block(pos(), LastExpression));
@@ -5260,9 +5260,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 361: {
                //#line 3041 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3039 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3039 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List BlockStatementsopt = (List) getRhsSym(3);
-                //#line 3039 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3039 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Stmt LastExpression = (Stmt) getRhsSym(4);
                 //#line 3041 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new ArrayList();
@@ -5277,7 +5277,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 362: {
                //#line 3049 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3047 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3047 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Block Block = (Block) getRhsSym(2);
                 //#line 3049 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Block);
@@ -5289,7 +5289,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 363: {
                //#line 3054 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3052 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3052 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Block Block = (Block) getRhsSym(1);
                 //#line 3054 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Block);
@@ -5308,7 +5308,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 365: {
                //#line 3062 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3060 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3060 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Block Block = (Block) getRhsSym(1);
                 //#line 3062 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Initializer(pos(), nf.FlagsNode(pos(), Flags.NONE), Block));
@@ -5320,7 +5320,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 366: {
                //#line 3068 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3066 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3066 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Block Block = (Block) getRhsSym(2);
                 //#line 3068 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Initializer(pos(), nf.FlagsNode(pos(getLeftSpan()), Flags.STATIC), Block));
@@ -5332,7 +5332,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 367: {
                //#line 3074 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3072 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3072 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
                 //#line 3074 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf, ts, pos(), Identifier));
@@ -5344,7 +5344,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 368: {
                //#line 3080 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3078 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3078 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List ConstructorModifier = (List) getRhsSym(1);
                 //#line 3080 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new LinkedList();
@@ -5358,9 +5358,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 369: {
                //#line 3087 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3085 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3085 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List ConstructorModifiers = (List) getRhsSym(1);
-                //#line 3085 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3085 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List ConstructorModifier = (List) getRhsSym(2);
                 //#line 3087 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 ConstructorModifiers.addAll(ConstructorModifier);
@@ -5372,7 +5372,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 370: {
                //#line 3093 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3091 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3091 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
                 //#line 3093 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(Annotation));
@@ -5428,7 +5428,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 375: {
                //#line 3119 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3117 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3117 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Block ConstructorBlock = (Block) getRhsSym(2);
                 //#line 3119 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(ConstructorBlock);
@@ -5440,7 +5440,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 376: {
                //#line 3124 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3122 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3122 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Block ConstructorBlock = (Block) getRhsSym(1);
                 //#line 3124 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(ConstructorBlock);
@@ -5452,7 +5452,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 377: {
                //#line 3129 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3127 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3127 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ConstructorCall ExplicitConstructorInvocation = (ConstructorCall) getRhsSym(2);
                 //#line 3129 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l;
@@ -5467,7 +5467,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 378: {
                //#line 3137 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3135 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3135 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Stmt AssignPropertyCall = (Stmt) getRhsSym(2);
                 //#line 3137 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l;
@@ -5490,9 +5490,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 380: {
                //#line 3149 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3147 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3147 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Stmt ExplicitConstructorInvocationopt = (Stmt) getRhsSym(2);
-                //#line 3147 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3147 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List BlockStatementsopt = (List) getRhsSym(3);
                 //#line 3149 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l;
@@ -5515,7 +5515,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 381: {
                //#line 3166 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3164 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3164 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(2);
                 //#line 3166 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(ArgumentListopt);
@@ -5527,7 +5527,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 383: {
                //#line 3176 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3174 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3174 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List InterfaceModifier = (List) getRhsSym(1);
                 //#line 3176 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new LinkedList();
@@ -5541,9 +5541,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 384: {
                //#line 3183 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3181 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3181 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List InterfaceModifiers = (List) getRhsSym(1);
-                //#line 3181 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3181 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List InterfaceModifier = (List) getRhsSym(2);
                 //#line 3183 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 InterfaceModifiers.addAll(InterfaceModifier);
@@ -5555,7 +5555,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 385: {
                //#line 3189 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3187 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3187 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
                 //#line 3189 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Collections.singletonList(Annotation));
@@ -5633,7 +5633,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 392: {
                //#line 3225 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3223 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3223 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(2);
                 //#line 3225 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), TypeNode.class, false);
@@ -5647,9 +5647,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 393: {
                //#line 3232 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3230 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3230 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List ExtendsInterfaces = (List) getRhsSym(1);
-                //#line 3230 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3230 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
                 //#line 3232 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 ExtendsInterfaces.add(Type);
@@ -5661,7 +5661,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 394: {
                //#line 3241 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3239 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3239 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List InterfaceMemberDeclarationsopt = (List) getRhsSym(2);
                 //#line 3241 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.ClassBody(pos(), InterfaceMemberDeclarationsopt));
@@ -5673,9 +5673,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 396: {
                //#line 3248 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3246 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3246 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List InterfaceMemberDeclarations = (List) getRhsSym(1);
-                //#line 3246 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3246 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List InterfaceMemberDeclaration = (List) getRhsSym(2);
                 //#line 3248 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 InterfaceMemberDeclarations.addAll(InterfaceMemberDeclaration);
@@ -5688,7 +5688,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 397: {
                //#line 3255 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3253 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3253 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ClassMember MethodDeclaration = (ClassMember) getRhsSym(1);
                 //#line 3255 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
@@ -5702,7 +5702,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 398: {
                //#line 3262 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3260 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3260 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ClassMember PropertyMethodDeclaration = (ClassMember) getRhsSym(1);
                 //#line 3262 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
@@ -5716,7 +5716,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 399: {
                //#line 3269 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3267 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3267 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List FieldDeclaration = (List) getRhsSym(1);
                 //#line 3269 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
@@ -5730,7 +5730,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 400: {
                //#line 3276 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3274 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3274 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ClassDecl ClassDeclaration = (ClassDecl) getRhsSym(1);
                 //#line 3276 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
@@ -5744,7 +5744,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 401: {
                //#line 3283 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3281 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3281 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ClassDecl InterfaceDeclaration = (ClassDecl) getRhsSym(1);
                 //#line 3283 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
@@ -5758,7 +5758,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 402: {
                //#line 3290 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3288 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3288 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeDecl TypeDefDeclaration = (TypeDecl) getRhsSym(1);
                 //#line 3290 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
@@ -5783,7 +5783,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 404: {
                //#line 3303 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3301 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3301 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
                 //#line 3303 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), AnnotationNode.class, false);
@@ -5797,9 +5797,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 405: {
                //#line 3310 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3308 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3308 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List Annotations = (List) getRhsSym(1);
-                //#line 3308 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3308 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(2);
                 //#line 3310 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 Annotations.add(Annotation);
@@ -5811,7 +5811,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 406: {
                //#line 3316 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3314 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3314 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode NamedType = (TypeNode) getRhsSym(2);
                 //#line 3316 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.AnnotationNode(pos(), NamedType));
@@ -5823,7 +5823,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 407: {
                //#line 3322 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3320 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3320 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
                 //#line 3322 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new X10ParsedName(nf, ts, pos(), Identifier));
@@ -5835,7 +5835,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 408: {
                //#line 3328 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3326 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3326 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
                 //#line 3328 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult( nf.Id(identifier.getPosition(), identifier.getIdentifier()));
@@ -5847,9 +5847,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 409: {
                //#line 3336 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3334 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3334 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List VariableInitializersopt = (List) getRhsSym(2);
-                //#line 3334 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3334 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Object opt = (Object) getRhsSym(3);
                 //#line 3336 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 if (VariableInitializersopt == null)
@@ -5863,7 +5863,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 410: {
                //#line 3344 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3342 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3342 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(1);
                 //#line 3344 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Expr.class, false);
@@ -5877,9 +5877,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 411: {
                //#line 3351 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3349 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3349 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List VariableInitializers = (List) getRhsSym(1);
-                //#line 3349 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3349 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(3);
                 //#line 3351 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 VariableInitializers.add(VariableInitializer);
@@ -5892,7 +5892,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 412: {
                //#line 3369 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3367 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3367 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List BlockStatementsopt = (List) getRhsSym(2);
                 //#line 3369 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Block(pos(), BlockStatementsopt));
@@ -5904,7 +5904,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 413: {
                //#line 3375 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3373 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3373 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List BlockStatement = (List) getRhsSym(1);
                 //#line 3375 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Stmt.class, false);
@@ -5918,9 +5918,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 414: {
                //#line 3382 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3380 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3380 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List BlockStatements = (List) getRhsSym(1);
-                //#line 3380 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3380 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List BlockStatement = (List) getRhsSym(2);
                 //#line 3382 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 BlockStatements.addAll(BlockStatement);
@@ -5933,7 +5933,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 416: {
                //#line 3390 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3388 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3388 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ClassDecl ClassDeclaration = (ClassDecl) getRhsSym(1);
                 //#line 3390 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Stmt.class, false);
@@ -5947,7 +5947,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 417: {
                //#line 3397 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3395 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3395 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeDecl TypeDefDeclaration = (TypeDecl) getRhsSym(1);
                 //#line 3397 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Stmt.class, false);
@@ -5961,7 +5961,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 418: {
                //#line 3404 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3402 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3402 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(1);
                 //#line 3404 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Stmt.class, false);
@@ -5975,7 +5975,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 419: {
                //#line 3412 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3410 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3410 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
                 //#line 3412 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Id.class, false);
@@ -5989,9 +5989,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 420: {
                //#line 3419 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3417 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3417 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(1);
-                //#line 3417 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3417 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
                 //#line 3419 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 IdentifierList.add(Identifier);
@@ -6003,9 +6003,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 421: {
                //#line 3425 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3423 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3423 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3423 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3423 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
                 //#line 3425 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, null, Type, null });
@@ -6017,9 +6017,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 422: {
                //#line 3430 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3428 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3428 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(2);
-                //#line 3428 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3428 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(5);
                 //#line 3430 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), null, IdentifierList, null, Type, null });
@@ -6031,11 +6031,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 423: {
                //#line 3435 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3433 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3433 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3433 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3433 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(3);
-                //#line 3433 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3433 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(6);
                 //#line 3435 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), Identifier, IdentifierList, null, Type, null });
@@ -6047,9 +6047,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 424: {
                //#line 3441 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3439 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3439 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3439 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3439 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
                 //#line 3441 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, Type, null });
@@ -6061,11 +6061,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 425: {
                //#line 3446 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3444 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3444 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3444 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3444 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(2);
-                //#line 3444 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3444 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(4);
                 //#line 3446 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, ResultTypeopt, VariableInitializer });
@@ -6077,11 +6077,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 426: {
                //#line 3452 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3450 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3450 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3450 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3450 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(2);
-                //#line 3450 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3450 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(4);
                 //#line 3452 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, null, ResultTypeopt, VariableInitializer });
@@ -6093,11 +6093,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 427: {
                //#line 3457 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3455 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3455 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(2);
-                //#line 3455 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3455 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(4);
-                //#line 3455 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3455 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(6);
                 //#line 3457 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), null, IdentifierList, null, ResultTypeopt, VariableInitializer });
@@ -6109,13 +6109,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 428: {
                //#line 3462 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3460 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3460 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3460 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3460 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(3);
-                //#line 3460 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3460 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(5);
-                //#line 3460 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3460 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(7);
                 //#line 3462 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), Identifier, IdentifierList, null, ResultTypeopt, VariableInitializer });
@@ -6127,11 +6127,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 429: {
                //#line 3468 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3466 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3466 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3466 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3466 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode ResultType = (TypeNode) getRhsSym(2);
-                //#line 3466 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3466 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(4);
                 //#line 3468 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, null, ResultType, VariableInitializer });
@@ -6143,11 +6143,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 430: {
                //#line 3473 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3471 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3471 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(2);
-                //#line 3471 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3471 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode ResultType = (TypeNode) getRhsSym(4);
-                //#line 3471 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3471 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(6);
                 //#line 3473 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), null, IdentifierList, null, ResultType, VariableInitializer });
@@ -6159,13 +6159,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 431: {
                //#line 3478 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3476 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3476 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3476 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3476 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(3);
-                //#line 3476 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3476 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode ResultType = (TypeNode) getRhsSym(5);
-                //#line 3476 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3476 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(7);
                 //#line 3478 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(new Object[] { pos(), Identifier, IdentifierList, null, ResultType, VariableInitializer });
@@ -6177,11 +6177,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 433: {
                //#line 3486 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3484 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3484 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List VariableModifiersopt = (List) getRhsSym(1);
-                //#line 3484 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3484 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List VarKeyword = (List) getRhsSym(2);
-                //#line 3484 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3484 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List VariableDeclarators = (List) getRhsSym(3);
                 //#line 3486 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 FlagsNode fn = extractFlags(VariableModifiersopt, VarKeyword);
@@ -6221,9 +6221,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 434: {
                //#line 3519 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3517 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3517 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List VariableModifiersopt = (List) getRhsSym(1);
-                //#line 3517 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3517 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List VariableDeclaratorsWithType = (List) getRhsSym(2);
                 //#line 3519 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 FlagsNode fn = extractFlags(VariableModifiersopt, Flags.FINAL);
@@ -6264,11 +6264,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 435: {
                //#line 3553 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3551 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3551 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List VariableModifiersopt = (List) getRhsSym(1);
-                //#line 3551 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3551 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List VarKeyword = (List) getRhsSym(2);
-                //#line 3551 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3551 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List FormalDeclarators = (List) getRhsSym(3);
                 //#line 3553 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 FlagsNode fn = extractFlags(VariableModifiersopt, VarKeyword);
@@ -6309,7 +6309,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 437: {
                //#line 3594 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3592 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3592 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
                 //#line 3594 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 if (TypeName instanceof ParsedName)
@@ -6348,7 +6348,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 440: {
                //#line 3614 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3612 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3612 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ParsedName ClassName = (ParsedName) getRhsSym(1);
                 //#line 3614 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.This(pos(), ClassName.toType()));
@@ -6360,7 +6360,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 441: {
                //#line 3619 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3617 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3617 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(2);
                 //#line 3619 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.ParExpr(pos(), Expression));
@@ -6372,7 +6372,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 447: {
                //#line 3630 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3628 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3628 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
                 //#line 3630 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
@@ -6390,7 +6390,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 448: {
                //#line 3641 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3639 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3639 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
                 //#line 3641 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
@@ -6408,7 +6408,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 449: {
                //#line 3652 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3650 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3650 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
                 //#line 3652 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
@@ -6426,7 +6426,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 450: {
                //#line 3663 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3661 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3661 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
                 //#line 3663 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
@@ -6444,7 +6444,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 451: {
                //#line 3674 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3672 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3672 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
                 //#line 3674 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
@@ -6462,7 +6462,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 452: {
                //#line 3685 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3683 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3683 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
                 //#line 3685 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
@@ -6480,7 +6480,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 453: {
                //#line 3696 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3694 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3694 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
                 //#line 3696 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
@@ -6498,7 +6498,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 454: {
                //#line 3707 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3705 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3705 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
                 //#line 3707 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
@@ -6516,7 +6516,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 455: {
                //#line 3718 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3716 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3716 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
                 //#line 3718 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
@@ -6534,7 +6534,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 456: {
                //#line 3729 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3727 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3727 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
                 //#line 3729 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
@@ -6552,7 +6552,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 457: {
                //#line 3740 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3738 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3738 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
                 //#line 3740 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
@@ -6570,7 +6570,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 458: {
                //#line 3751 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3749 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3749 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
                 //#line 3751 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
@@ -6588,7 +6588,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 459: {
                //#line 3762 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3760 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3760 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
                 //#line 3762 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
@@ -6606,7 +6606,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 460: {
                //#line 3773 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3771 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3771 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
                 //#line 3773 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
@@ -6624,7 +6624,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 461: {
                //#line 3784 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3782 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3782 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
                 //#line 3784 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
@@ -6642,7 +6642,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 462: {
                //#line 3795 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3793 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3793 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
                 //#line 3795 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
@@ -6660,7 +6660,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 463: {
                //#line 3806 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3804 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3804 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
                 //#line 3806 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<Formal> formals = new ArrayList<Formal>();
@@ -6678,7 +6678,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 464: {
                //#line 3819 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3817 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3817 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 IToken IntegerLiteral = (IToken) getRhsIToken(1);
                 //#line 3819 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 polyglot.lex.LongLiteral a = int_lit(getRhsFirstTokenIndex(1));
@@ -6691,7 +6691,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 465: {
                //#line 3825 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3823 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3823 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 IToken LongLiteral = (IToken) getRhsIToken(1);
                 //#line 3825 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 polyglot.lex.LongLiteral a = long_lit(getRhsFirstTokenIndex(1));
@@ -6704,7 +6704,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 466: {
                //#line 3831 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3829 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3829 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 IToken FloatLiteral = (IToken) getRhsIToken(1);
                 //#line 3831 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 polyglot.lex.FloatLiteral a = float_lit(getRhsFirstTokenIndex(1));
@@ -6717,7 +6717,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 467: {
                //#line 3837 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3835 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3835 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 IToken DoubleLiteral = (IToken) getRhsIToken(1);
                 //#line 3837 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 polyglot.lex.DoubleLiteral a = double_lit(getRhsFirstTokenIndex(1));
@@ -6730,7 +6730,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 468: {
                //#line 3843 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3841 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3841 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 polyglot.lex.BooleanLiteral BooleanLiteral = (polyglot.lex.BooleanLiteral) getRhsSym(1);
                 //#line 3843 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.BooleanLit(pos(), BooleanLiteral.getValue().booleanValue()));
@@ -6742,7 +6742,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 469: {
                //#line 3848 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3846 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3846 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 IToken CharacterLiteral = (IToken) getRhsIToken(1);
                 //#line 3848 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 polyglot.lex.CharacterLiteral a = char_lit(getRhsFirstTokenIndex(1));
@@ -6755,7 +6755,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 470: {
                //#line 3854 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3852 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3852 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 IToken str = (IToken) getRhsIToken(1);
                 //#line 3854 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 polyglot.lex.StringLiteral a = string_lit(getRhsFirstTokenIndex(1));
@@ -6779,7 +6779,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 472: {
                //#line 3866 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3864 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3864 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 IToken trueLiteral = (IToken) getRhsIToken(1);
                 //#line 3866 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(boolean_lit(getRhsFirstTokenIndex(1)));
@@ -6791,7 +6791,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 473: {
                //#line 3871 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3869 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3869 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 IToken falseLiteral = (IToken) getRhsIToken(1);
                 //#line 3871 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(boolean_lit(getRhsFirstTokenIndex(1)));
@@ -6803,7 +6803,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 474: {
                //#line 3880 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3878 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3878 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(1);
                 //#line 3880 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List l = new TypedList(new LinkedList(), Expr.class, false);
@@ -6817,9 +6817,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 475: {
                //#line 3887 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3885 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3885 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List ArgumentList = (List) getRhsSym(1);
-                //#line 3885 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3885 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
                 //#line 3887 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 ArgumentList.add(Expression);
@@ -6831,9 +6831,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 476: {
                //#line 3893 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3891 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3891 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 3891 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3891 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
                 //#line 3893 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Field(pos(), Primary, Identifier));
@@ -6845,7 +6845,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 477: {
                //#line 3898 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3896 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3896 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
                 //#line 3898 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getLeftSpan())), Identifier));
@@ -6857,11 +6857,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 478: {
                //#line 3903 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3901 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3901 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ParsedName ClassName = (ParsedName) getRhsSym(1);
-                //#line 3901 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3901 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 3901 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3901 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(5);
                 //#line 3903 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getRhsFirstTokenIndex(3)), ClassName.toType()), Identifier));
@@ -6873,9 +6873,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 479: {
                //#line 3908 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3906 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3906 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 3906 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3906 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 IToken c = (IToken) getRhsIToken(3);
                 //#line 3908 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Field(pos(), Primary, nf.Id(pos(getRhsFirstTokenIndex(3)), "class")));
@@ -6887,7 +6887,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 480: {
                //#line 3913 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3911 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3911 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 IToken c = (IToken) getRhsIToken(3);
                 //#line 3913 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getLeftSpan())), nf.Id(pos(getRhsFirstTokenIndex(3)), "class")));
@@ -6899,11 +6899,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 481: {
                //#line 3918 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3916 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3916 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ParsedName ClassName = (ParsedName) getRhsSym(1);
-                //#line 3916 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3916 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 3916 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3916 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 IToken c = (IToken) getRhsIToken(5);
                 //#line 3918 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getRhsFirstTokenIndex(3)), ClassName.toType()), nf.Id(pos(getRhsFirstTokenIndex(5)), "class")));
@@ -6915,11 +6915,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 482: {
                //#line 3924 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3922 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3922 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ParsedName MethodName = (ParsedName) getRhsSym(1);
-                //#line 3922 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3922 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(2);
-                //#line 3922 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3922 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(4);
                 //#line 3924 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10Call(pos(), MethodName.prefix == null
@@ -6933,13 +6933,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 483: {
                //#line 3931 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3929 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3929 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 3929 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3929 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 3929 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3929 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(4);
-                //#line 3929 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3929 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(6);
                 //#line 3931 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10Call(pos(), Primary, Identifier, TypeArgumentsopt, ArgumentListopt));
@@ -6951,11 +6951,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 484: {
                //#line 3936 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3934 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3934 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 3934 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3934 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(4);
-                //#line 3934 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3934 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(6);
                 //#line 3936 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10Call(pos(), nf.Super(pos(getLeftSpan())), Identifier, TypeArgumentsopt, ArgumentListopt));
@@ -6967,15 +6967,15 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 485: {
                //#line 3941 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3939 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3939 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ParsedName ClassName = (ParsedName) getRhsSym(1);
-                //#line 3939 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3939 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 3939 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3939 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(5);
-                //#line 3939 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3939 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(6);
-                //#line 3939 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3939 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(8);
                 //#line 3941 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.X10Call(pos(), nf.Super(pos(getRhsFirstTokenIndex(3)), ClassName.toType()), Identifier, TypeArgumentsopt, ArgumentListopt));
@@ -6987,11 +6987,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 486: {
                //#line 3946 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3944 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3944 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 3944 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3944 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(2);
-                //#line 3944 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3944 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(4);
                 //#line 3946 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 if (Primary instanceof Field) {
@@ -7017,11 +7017,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 487: {
                //#line 3966 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3964 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3964 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ParsedName MethodName = (ParsedName) getRhsSym(1);
-                //#line 3964 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3964 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(3);
-                //#line 3964 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3964 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List FormalParameterListopt = (List) getRhsSym(5);
                 //#line 3966 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<TypeNode> typeArgs = toTypeArgs(TypeParametersopt);
@@ -7041,13 +7041,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 488: {
                //#line 3979 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3977 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3977 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 3977 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3977 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 3977 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3977 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(5);
-                //#line 3977 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3977 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List FormalParameterListopt = (List) getRhsSym(7);
                 //#line 3979 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<TypeNode> typeArgs = toTypeArgs(TypeParametersopt);
@@ -7066,11 +7066,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 489: {
                //#line 3991 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 3989 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3989 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 3989 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3989 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(5);
-                //#line 3989 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 3989 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List FormalParameterListopt = (List) getRhsSym(7);
                 //#line 3991 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<TypeNode> typeArgs = toTypeArgs(TypeParametersopt);
@@ -7089,15 +7089,15 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 490: {
                //#line 4003 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4001 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4001 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ParsedName ClassName = (ParsedName) getRhsSym(1);
-                //#line 4001 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4001 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 4001 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4001 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(5);
-                //#line 4001 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4001 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(7);
-                //#line 4001 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4001 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List FormalParameterListopt = (List) getRhsSym(9);
                 //#line 4003 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 List<TypeNode> typeArgs = toTypeArgs(TypeParametersopt);
@@ -7116,7 +7116,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 493: {
                //#line 4018 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4016 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4016 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ParsedName ExpressionName = (ParsedName) getRhsSym(1);
                 //#line 4018 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(ExpressionName.toExpr());
@@ -7128,7 +7128,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 496: {
                //#line 4026 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4024 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4024 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr PostfixExpression = (Expr) getRhsSym(1);
                 //#line 4026 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Unary(pos(), PostfixExpression, Unary.POST_INC));
@@ -7140,7 +7140,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 497: {
                //#line 4032 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4030 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4030 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr PostfixExpression = (Expr) getRhsSym(1);
                 //#line 4032 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Unary(pos(), PostfixExpression, Unary.POST_DEC));
@@ -7152,7 +7152,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 500: {
                //#line 4040 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4038 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4038 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(2);
                 //#line 4040 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Unary(pos(), Unary.POS, UnaryExpressionNotPlusMinus));
@@ -7164,7 +7164,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 501: {
                //#line 4045 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4043 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4043 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(2);
                 //#line 4045 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Unary(pos(), Unary.NEG, UnaryExpressionNotPlusMinus));
@@ -7176,7 +7176,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 503: {
                //#line 4052 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4050 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4050 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(2);
                 //#line 4052 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Unary(pos(), Unary.PRE_INC, UnaryExpressionNotPlusMinus));
@@ -7188,7 +7188,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 504: {
                //#line 4058 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4056 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4056 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(2);
                 //#line 4058 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Unary(pos(), Unary.PRE_DEC, UnaryExpressionNotPlusMinus));
@@ -7200,7 +7200,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 506: {
                //#line 4065 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4063 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4063 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(2);
                 //#line 4065 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Unary(pos(), Unary.BIT_NOT, UnaryExpression));
@@ -7212,9 +7212,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 507: {
                //#line 4070 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4068 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4068 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List Annotations = (List) getRhsSym(1);
-                //#line 4068 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4068 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(2);
                 //#line 4070 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 Expr e = UnaryExpression;
@@ -7228,7 +7228,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 508: {
                //#line 4077 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4075 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4075 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(2);
                 //#line 4077 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Unary(pos(), Unary.NOT, UnaryExpression));
@@ -7240,9 +7240,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 510: {
                //#line 4084 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4082 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4082 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(1);
-                //#line 4082 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4082 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(3);
                 //#line 4084 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.MUL, UnaryExpression));
@@ -7254,9 +7254,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 511: {
                //#line 4089 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4087 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4087 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(1);
-                //#line 4087 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4087 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(3);
                 //#line 4089 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.DIV, UnaryExpression));
@@ -7268,9 +7268,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 512: {
                //#line 4094 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4092 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4092 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(1);
-                //#line 4092 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4092 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(3);
                 //#line 4094 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.MOD, UnaryExpression));
@@ -7282,9 +7282,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 514: {
                //#line 4101 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4099 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4099 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr AdditiveExpression = (Expr) getRhsSym(1);
-                //#line 4099 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4099 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(3);
                 //#line 4101 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), AdditiveExpression, Binary.ADD, MultiplicativeExpression));
@@ -7296,9 +7296,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 515: {
                //#line 4106 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4104 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4104 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr AdditiveExpression = (Expr) getRhsSym(1);
-                //#line 4104 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4104 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(3);
                 //#line 4106 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), AdditiveExpression, Binary.SUB, MultiplicativeExpression));
@@ -7310,9 +7310,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 517: {
                //#line 4113 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4111 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4111 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr ShiftExpression = (Expr) getRhsSym(1);
-                //#line 4111 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4111 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr AdditiveExpression = (Expr) getRhsSym(3);
                 //#line 4113 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), ShiftExpression, Binary.SHL, AdditiveExpression));
@@ -7324,9 +7324,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 518: {
                //#line 4118 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4116 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4116 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr ShiftExpression = (Expr) getRhsSym(1);
-                //#line 4116 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4116 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr AdditiveExpression = (Expr) getRhsSym(3);
                 //#line 4118 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), ShiftExpression, Binary.SHR, AdditiveExpression));
@@ -7338,9 +7338,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 519: {
                //#line 4123 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4121 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4121 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr ShiftExpression = (Expr) getRhsSym(1);
-                //#line 4121 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4121 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr AdditiveExpression = (Expr) getRhsSym(3);
                 //#line 4123 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), ShiftExpression, Binary.USHR, AdditiveExpression));
@@ -7352,9 +7352,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 521: {
                //#line 4130 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4128 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4128 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr expr1 = (Expr) getRhsSym(1);
-                //#line 4128 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4128 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr expr2 = (Expr) getRhsSym(3);
                 //#line 4130 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 Expr regionCall = nf.RegionMaker(pos(), expr1, expr2);
@@ -7367,9 +7367,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 524: {
                //#line 4139 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4137 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4137 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 4137 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4137 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr RangeExpression = (Expr) getRhsSym(3);
                 //#line 4139 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.LT, RangeExpression));
@@ -7381,9 +7381,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 525: {
                //#line 4144 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4142 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4142 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 4142 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4142 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr RangeExpression = (Expr) getRhsSym(3);
                 //#line 4144 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.GT, RangeExpression));
@@ -7395,9 +7395,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 526: {
                //#line 4149 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4147 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4147 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 4147 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4147 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr RangeExpression = (Expr) getRhsSym(3);
                 //#line 4149 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.LE, RangeExpression));
@@ -7409,9 +7409,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 527: {
                //#line 4154 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4152 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4152 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 4152 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4152 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr RangeExpression = (Expr) getRhsSym(3);
                 //#line 4154 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.GE, RangeExpression));
@@ -7423,9 +7423,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 528: {
                //#line 4159 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4157 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4157 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 4157 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4157 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
                 //#line 4159 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Instanceof(pos(), RelationalExpression, Type));
@@ -7437,9 +7437,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 529: {
                //#line 4164 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4162 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4162 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 4162 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4162 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr ShiftExpression = (Expr) getRhsSym(3);
                 //#line 4164 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Contains(pos(), RelationalExpression, ShiftExpression));
@@ -7451,9 +7451,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 531: {
                //#line 4171 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4169 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4169 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr EqualityExpression = (Expr) getRhsSym(1);
-                //#line 4169 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4169 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(3);
                 //#line 4171 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), EqualityExpression, Binary.EQ, RelationalExpression));
@@ -7465,9 +7465,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 532: {
                //#line 4176 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4174 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4174 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr EqualityExpression = (Expr) getRhsSym(1);
-                //#line 4174 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4174 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(3);
                 //#line 4176 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), EqualityExpression, Binary.NE, RelationalExpression));
@@ -7479,9 +7479,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 533: {
                //#line 4181 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4179 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4179 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode t1 = (TypeNode) getRhsSym(1);
-                //#line 4179 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4179 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 TypeNode t2 = (TypeNode) getRhsSym(3);
                 //#line 4181 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.SubtypeTest(pos(), t1, t2, true));
@@ -7493,9 +7493,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 535: {
                //#line 4188 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4186 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4186 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr AndExpression = (Expr) getRhsSym(1);
-                //#line 4186 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4186 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr EqualityExpression = (Expr) getRhsSym(3);
                 //#line 4188 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), AndExpression, Binary.BIT_AND, EqualityExpression));
@@ -7507,9 +7507,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 537: {
                //#line 4195 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4193 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4193 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr ExclusiveOrExpression = (Expr) getRhsSym(1);
-                //#line 4193 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4193 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr AndExpression = (Expr) getRhsSym(3);
                 //#line 4195 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), ExclusiveOrExpression, Binary.BIT_XOR, AndExpression));
@@ -7521,9 +7521,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 539: {
                //#line 4202 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4200 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4200 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr InclusiveOrExpression = (Expr) getRhsSym(1);
-                //#line 4200 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4200 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr ExclusiveOrExpression = (Expr) getRhsSym(3);
                 //#line 4202 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), InclusiveOrExpression, Binary.BIT_OR, ExclusiveOrExpression));
@@ -7535,9 +7535,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 541: {
                //#line 4209 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4207 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4207 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr ConditionalAndExpression = (Expr) getRhsSym(1);
-                //#line 4207 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4207 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr InclusiveOrExpression = (Expr) getRhsSym(3);
                 //#line 4209 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), ConditionalAndExpression, Binary.COND_AND, InclusiveOrExpression));
@@ -7549,9 +7549,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 543: {
                //#line 4216 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4214 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4214 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr ConditionalOrExpression = (Expr) getRhsSym(1);
-                //#line 4214 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4214 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr ConditionalAndExpression = (Expr) getRhsSym(3);
                 //#line 4216 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Binary(pos(), ConditionalOrExpression, Binary.COND_OR, ConditionalAndExpression));
@@ -7563,11 +7563,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 549: {
                //#line 4228 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4226 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4226 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr ConditionalOrExpression = (Expr) getRhsSym(1);
-                //#line 4226 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4226 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 4226 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4226 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr ConditionalExpression = (Expr) getRhsSym(5);
                 //#line 4228 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Conditional(pos(), ConditionalOrExpression, Expression, ConditionalExpression));
@@ -7579,11 +7579,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 552: {
                //#line 4237 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4235 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4235 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr LeftHandSide = (Expr) getRhsSym(1);
-                //#line 4235 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4235 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Assign.Operator AssignmentOperator = (Assign.Operator) getRhsSym(2);
-                //#line 4235 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4235 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr AssignmentExpression = (Expr) getRhsSym(3);
                 //#line 4237 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.Assign(pos(), LeftHandSide, AssignmentOperator, AssignmentExpression));
@@ -7595,13 +7595,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 553: {
                //#line 4242 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4240 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4240 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ParsedName e1 = (ParsedName) getRhsSym(1);
-                //#line 4240 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4240 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List ArgumentList = (List) getRhsSym(3);
-                //#line 4240 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4240 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Assign.Operator AssignmentOperator = (Assign.Operator) getRhsSym(5);
-                //#line 4240 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4240 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr AssignmentExpression = (Expr) getRhsSym(6);
                 //#line 4242 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.SettableAssign(pos(), e1.toExpr(), ArgumentList, AssignmentOperator, AssignmentExpression));
@@ -7613,13 +7613,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 554: {
                //#line 4247 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4245 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4245 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr e1 = (Expr) getRhsSym(1);
-                //#line 4245 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4245 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 List ArgumentList = (List) getRhsSym(3);
-                //#line 4245 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4245 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Assign.Operator AssignmentOperator = (Assign.Operator) getRhsSym(5);
-                //#line 4245 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4245 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Expr AssignmentExpression = (Expr) getRhsSym(6);
                 //#line 4247 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(nf.SettableAssign(pos(), e1, ArgumentList, AssignmentOperator, AssignmentExpression));
@@ -7631,7 +7631,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 555: {
                //#line 4253 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4251 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4251 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 ParsedName ExpressionName = (ParsedName) getRhsSym(1);
                 //#line 4253 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(ExpressionName.toExpr());
@@ -7793,7 +7793,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 574: {
                //#line 4337 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 4335 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+                //#line 4335 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
                 //#line 4337 "/Users/beth/ews/x10dt17-apr-34/lpg.generator/templates/java/btParserTemplateF.gi"
                 setResult(Identifier);

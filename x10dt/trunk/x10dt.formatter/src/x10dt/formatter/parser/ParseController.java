@@ -23,11 +23,11 @@ import org.eclipse.imp.parser.MessageHandlerAdapter;
 import org.eclipse.imp.parser.SimpleLPGParseController;
 import org.eclipse.imp.services.ILanguageSyntaxProperties;
 
-import polyglot.ext.x10.ExtensionInfo;
-import polyglot.ext.x10.ast.X10NodeFactory;
-import polyglot.ext.x10.ast.X10NodeFactory_c;
-import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.ext.x10.types.X10TypeSystem_c;
+import x10.ExtensionInfo;
+import x10.ast.X10NodeFactory;
+import x10.ast.X10NodeFactory_c;
+import x10.types.X10TypeSystem;
+import x10.types.X10TypeSystem_c;
 import polyglot.frontend.FileSource;
 import polyglot.frontend.Resource;
 import polyglot.frontend.Source;

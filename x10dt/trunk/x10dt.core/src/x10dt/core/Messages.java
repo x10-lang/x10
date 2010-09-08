@@ -10,7 +10,7 @@ package x10dt.core;
 import org.eclipse.osgi.util.NLS;
 
 /**
- * Bundle class for all messages of "org.eclipse.imp.x10dt.ui.cpp.launch".
+ * Bundle class for all messages of "x10dt.ui.cpp.launch".
  * 
  * @author egeay
  */

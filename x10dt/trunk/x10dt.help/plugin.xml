@@ -8,7 +8,7 @@
          point="org.eclipse.help.contexts">
       <contexts
             file="contexts.xml"
-            plugin="org.eclipse.imp.x10dt.ui">
+            plugin="x10dt.ui">
       </contexts>
    </extension>
       <extension

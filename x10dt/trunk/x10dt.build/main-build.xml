@@ -64,32 +64,32 @@
 
   <target name="publish-compilation-results" if="requestUUID">
     <antcall target="publish-compilation-log">
-      <param name="log.file" value="${build.folder}/org.eclipse.imp.x10dt/@dot.log" />
-      <param name="component.name" value="org.eclipse.imp.x10dt" />
+      <param name="log.file" value="${build.folder}/x10dt/@dot.log" />
+      <param name="component.name" value="x10dt" />
     </antcall>
     <antcall target="publish-compilation-log">
-      <param name="log.file" value="${build.folder}/org.eclipse.imp.x10dt.core/@dot.log" />
-      <param name="component.name" value="org.eclipse.imp.x10dt.core" />
+      <param name="log.file" value="${build.folder}/x10dt.core/@dot.log" />
+      <param name="component.name" value="x10dt.core" />
     </antcall>
     <antcall target="publish-compilation-log">
-      <param name="log.file" value="${build.folder}/org.eclipse.imp.x10dt.help/@dot.log" />
-      <param name="component.name" value="org.eclipse.imp.x10dt.help" />
+      <param name="log.file" value="${build.folder}/x10dt.help/@dot.log" />
+      <param name="component.name" value="x10dt.help" />
     </antcall>
     <antcall target="publish-compilation-log">
-      <param name="log.file" value="${build.folder}/org.eclipse.imp.x10dt.refactoring/@dot.log" />
-      <param name="component.name" value="org.eclipse.imp.x10dt.refactoring" />
+      <param name="log.file" value="${build.folder}/x10dt.refactoring/@dot.log" />
+      <param name="component.name" value="x10dt.refactoring" />
     </antcall>
     <antcall target="publish-compilation-log">
-      <param name="log.file" value="${build.folder}/org.eclipse.imp.x10dt.ui/@dot.log" />
-      <param name="component.name" value="org.eclipse.imp.x10dt.ui" />
+      <param name="log.file" value="${build.folder}/x10dt.ui/@dot.log" />
+      <param name="component.name" value="x10dt.ui" />
     </antcall>
     <antcall target="publish-compilation-log">
-      <param name="log.file" value="${build.folder}/org.eclipse.imp.x10dt.ui.launch.core/@dot.log" />
-      <param name="component.name" value="org.eclipse.imp.x10dt.ui.launch.core" />
+      <param name="log.file" value="${build.folder}/x10dt.ui.launch.core/@dot.log" />
+      <param name="component.name" value="x10dt.ui.launch.core" />
     </antcall>
     <antcall target="publish-compilation-log">
-      <param name="log.file" value="${build.folder}/org.eclipse.imp.x10dt.ui.launch.cpp/@dot.log" />
-      <param name="component.name" value="org.eclipse.imp.x10dt.ui.launch.cpp" />
+      <param name="log.file" value="${build.folder}/x10dt.ui.launch.cpp/@dot.log" />
+      <param name="component.name" value="x10dt.ui.launch.cpp" />
     </antcall>
     <antcall target="publish-compilation-log">
       <param name="log.file" value="${build.folder}/x10.effects/@dot.log" />
@@ -334,17 +334,17 @@
 
   <target name="run-all-tests" if="testing">
 <!--    <antcall target="run-tests">
-      <param name="plugin-name" value="org.eclipse.imp.x10dt.core.tests" />
+      <param name="plugin-name" value="x10dt.core.tests" />
       <param name="activityId" value="test-x10dt-core" />
       <param name="action.message" value="Run X10DT Core Tests..." />
     </antcall> -->
     <antcall target="run-tests">
-      <param name="plugin-name" value="org.eclipse.imp.x10dt.ui.tests" />
+      <param name="plugin-name" value="x10dt.ui.tests" />
       <param name="activityId" value="test-x10dt-ui" />
       <param name="action.message" value="Run X10DT UI Tests..." />
     </antcall>
     <!--    <antcall target="run-tests">
-      <param name="plugin-name" value="org.eclipse.imp.x10dt.ui.launch.cpp.tests" />
+      <param name="plugin-name" value="x10dt.ui.launch.cpp.tests" />
       <param name="activityId" value="test-x10dt-launch-cpp" />
       <param name="action.message" value="Run X10DT UI Launch C++ Tests..." />
     </antcall> -->

@@ -7,16 +7,16 @@
   <target name="x10dt-checkouts-existence">
     <condition property="are-plugins-present">
       <and>
-        <available file="${build.folder}/org.eclipse.imp.x10dt" type="dir" />
-        <available file="${build.folder}/org.eclipse.imp.x10dt.core" type="dir" />
-        <available file="${build.folder}/org.eclipse.imp.x10dt.feature" type="dir" />
-        <available file="${build.folder}/org.eclipse.imp.x10dt.help" type="dir" />
-        <available file="${build.folder}/org.eclipse.imp.x10dt.help.dt" type="dir" />
-        <available file="${build.folder}/org.eclipse.imp.x10dt.refactoring" type="dir" />
-        <available file="${build.folder}/org.eclipse.imp.x10dt.ui" type="dir" />
-        <available file="${build.folder}/org.eclipse.imp.x10dt.ui.launch.core" type="dir" />
-        <available file="${build.folder}/org.eclipse.imp.x10dt.ui.launch.cpp" type="dir" />
-        <available file="${build.folder}/org.eclipse.imp.x10dt.ui.launch.java" type="dir" />
+        <available file="${build.folder}/x10dt" type="dir" />
+        <available file="${build.folder}/x10dt.core" type="dir" />
+        <available file="${build.folder}/x10dt.feature" type="dir" />
+        <available file="${build.folder}/x10dt.help" type="dir" />
+        <available file="${build.folder}/x10dt.help.dt" type="dir" />
+        <available file="${build.folder}/x10dt.refactoring" type="dir" />
+        <available file="${build.folder}/x10dt.ui" type="dir" />
+        <available file="${build.folder}/x10dt.ui.launch.core" type="dir" />
+        <available file="${build.folder}/x10dt.ui.launch.cpp" type="dir" />
+        <available file="${build.folder}/x10dt.ui.launch.java" type="dir" />
         <available file="${build.folder}/x10.effects" type="dir" />
       </and>
     </condition>
@@ -24,26 +24,26 @@
 
   <target name="x10dt-checkouts" depends="x10dt-checkouts-existence" unless="are-plugins-present">
     <svn username="anonymous">
-      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/org.eclipse.imp.x10dt" 
-                revision="${x10dt.revision}" destPath="${build.folder}/org.eclipse.imp.x10dt" />
-      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/org.eclipse.imp.x10dt.core" 
-                revision="${x10dt.revision}" destPath="${build.folder}/org.eclipse.imp.x10dt.core" />
-      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/org.eclipse.imp.x10dt.feature" 
-                revision="${x10dt.revision}" destPath="${build.folder}/org.eclipse.imp.x10dt.feature" />
-      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/org.eclipse.imp.x10dt.help" 
-                revision="${x10dt.revision}" destPath="${build.folder}/org.eclipse.imp.x10dt.help" />
-      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/org.eclipse.imp.x10dt.help.dt" 
-                revision="${x10dt.revision}" destPath="${build.folder}/org.eclipse.imp.x10dt.help.dt" />
-      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/org.eclipse.imp.x10dt.refactoring" 
-                revision="${x10dt.revision}" destPath="${build.folder}/org.eclipse.imp.x10dt.refactoring" />
-      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/org.eclipse.imp.x10dt.ui" 
-                revision="${x10dt.revision}" destPath="${build.folder}/org.eclipse.imp.x10dt.ui" />
-      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/org.eclipse.imp.x10dt.ui.launch.core" 
-                revision="${x10dt.revision}" destPath="${build.folder}/org.eclipse.imp.x10dt.ui.launch.core" />
-      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/org.eclipse.imp.x10dt.ui.launch.cpp" 
-                revision="${x10dt.revision}" destPath="${build.folder}/org.eclipse.imp.x10dt.ui.launch.cpp" />
-      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/org.eclipse.imp.x10dt.ui.launch.java" 
-                revision="${x10dt.revision}" destPath="${build.folder}/org.eclipse.imp.x10dt.ui.launch.java" />
+      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10dt" 
+                revision="${x10dt.revision}" destPath="${build.folder}/x10dt" />
+      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10dt.core" 
+                revision="${x10dt.revision}" destPath="${build.folder}/x10dt.core" />
+      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10dt.feature" 
+                revision="${x10dt.revision}" destPath="${build.folder}/x10dt.feature" />
+      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10dt.help" 
+                revision="${x10dt.revision}" destPath="${build.folder}/x10dt.help" />
+      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10dt.help.dt" 
+                revision="${x10dt.revision}" destPath="${build.folder}/x10dt.help.dt" />
+      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10dt.refactoring" 
+                revision="${x10dt.revision}" destPath="${build.folder}/x10dt.refactoring" />
+      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10dt.ui" 
+                revision="${x10dt.revision}" destPath="${build.folder}/x10dt.ui" />
+      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10dt.ui.launch.core" 
+                revision="${x10dt.revision}" destPath="${build.folder}/x10dt.ui.launch.core" />
+      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10dt.ui.launch.cpp" 
+                revision="${x10dt.revision}" destPath="${build.folder}/x10dt.ui.launch.cpp" />
+      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10dt.ui.launch.java" 
+                revision="${x10dt.revision}" destPath="${build.folder}/x10dt.ui.launch.java" />
       <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10.effects" 
                 revision="${x10dt.revision}" destPath="${build.folder}/x10.effects" />
     </svn>
@@ -67,13 +67,13 @@
   </target>
 
   <target name="main" depends="x10dt-checkouts">
-    <loadfile srcfile="${build.folder}/org.eclipse.imp.x10dt/plugin.properties" property="properties.replaced">
+    <loadfile srcfile="${build.folder}/x10dt/plugin.properties" property="properties.replaced">
       <filterchain>
         <replaceregex pattern="Version: (.*)" replace="Version: ${zip.release.tag}\\\\n\\\\" />
         <replaceregex pattern="Build Id: (.*)" replace="Build Id: ${buildLabel}\\\\n\\\\" />
       </filterchain>
     </loadfile>
-    <echo message="${properties.replaced}" file="${build.folder}/org.eclipse.imp.x10dt/plugin.properties" />
+    <echo message="${properties.replaced}" file="${build.folder}/x10dt/plugin.properties" />
     
     <ant antfile="${eclipse.pdebuild.scripts}/productBuild/productBuild.xml" />
     <antcall target="publish-update-site" />

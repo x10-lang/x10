@@ -21,7 +21,7 @@
          </run>
       </runtime>
       <builder
-            id="org.eclipse.imp.x10dt.ui.launch.java.builder.X10JavaBuilder">
+            id="x10dt.ui.launch.java.builder.X10JavaBuilder">
       </builder>
       <requires-nature
             id="org.eclipse.jdt.core.javanature">
@@ -48,7 +48,7 @@
                class="x10dt.ui.launch.java.actions.BuilderEnable"
                menubarPath="x10dt.core.menu1/group1"
                enablesFor="1"
-               id="org.eclipse.imp.x10dt.ui.launch.java.actions.enableBuilderAction">
+               id="x10dt.ui.launch.java.actions.enableBuilderAction">
          </action>
       </objectContribution>
    </extension>

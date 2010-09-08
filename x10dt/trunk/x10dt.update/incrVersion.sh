@@ -76,7 +76,7 @@ readFeatures() {
 }
 
 setDefaults() {
-    features="org.eclipse.imp.runtime org.eclipse.imp org.eclipse.imp.lpg org.eclipse.imp.x10dt"
+    features="org.eclipse.imp.runtime org.eclipse.imp org.eclipse.imp.lpg x10dt"
     excludePlugins="com.ibm.wala.shrike polyglot lpg.runtime.java"
     processIncr "0.0.1"
 }

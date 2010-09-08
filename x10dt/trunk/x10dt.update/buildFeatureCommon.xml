@@ -3,8 +3,8 @@
     <target name="init">
         <xmlproperty file="./feature.xml"/>
 
-        <property name="global.plugin.script" value="../org.eclipse.imp.x10dt.update/exportPlugin.xml"/>
-        <property name="default.feature.script" value="../org.eclipse.imp.x10dt.update/exportFeature.xml"/>
+        <property name="global.plugin.script" value="../x10dt.update/exportPlugin.xml"/>
+        <property name="default.feature.script" value="../x10dt.update/exportFeature.xml"/>
 
         <propertyRegexp name="feature.version" input="${feature(version)}" regexp="(.*).qualifier" value="\1.${build.qualifier}"/>
         <echo message="Building feature ${ant.project.name} for version ${feature.version}"/>
@@ -160,7 +160,7 @@
         <filter token="provider.name" value="rfuhrer@watson.ibm.com"/>
     	<filter token="plugin.list" value=""/>
     	<property name="feature.manifest.file" value="${feature.temp.folder}/feature.xml"/>
-        <copy file="../org.eclipse.imp.x10dt.update/SourceFeatureManifest.in" tofile="${feature.manifest.file}" filtering="true"/>
+        <copy file="../x10dt.update/SourceFeatureManifest.in" tofile="${feature.manifest.file}" filtering="true"/>
     	<for param="plugin.id" values="${plugins.ids}">
     		<antcall target="gen.plugin.source.line">
     		    <param name="plugin.id" value="${plugin.id}"/>

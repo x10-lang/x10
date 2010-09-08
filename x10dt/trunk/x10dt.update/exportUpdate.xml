@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="org.eclipse.imp.x10dt.update" default="build.update.zip" basedir=".">
+<project name="x10dt.update" default="build.update.zip" basedir=".">
     <property file="./update.properties"/>
 
     <import file="./buildCommon.xml"/>
@@ -12,9 +12,9 @@
 		<property name="build.qualifier" value="v${build.time}"/>
 		<echo message="Build qualifier is ${build.qualifier}"/>
 
-	    <xmlproperty file="../org.eclipse.imp.x10dt.feature/feature.xml" prefix="x10dt"/>
+	    <xmlproperty file="../x10dt.feature/feature.xml" prefix="x10dt"/>
 
-		<property name="update.name"        value="org.eclipse.imp.x10dt.update"/>
+		<property name="update.name"        value="x10dt.update"/>
 <!--    <property name="update.version"     value="${x10dt.feature(version)}"/> -->
 		<propertyRegexp name="update.version" input="${x10dt.feature(version)}" regexp="(.*).qualifier" value="\1.${build.qualifier}"/>
 		<property name="update.temp.folder" value="${basedir}/update.temp.folder"/>

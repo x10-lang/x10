@@ -1,7 +1,7 @@
 
 // This is the grammar for parsing formatting patterns for  the X10 language.
 
-//#line 18 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.g"
+//#line 18 "/Users/beth/ews/x10dt17-apr-34/x10dt.formatter/src/x10dt/formatter/parser/x10.g"
 //
 // Licensed Material
 // (C) Copyright IBM Corp, 2006

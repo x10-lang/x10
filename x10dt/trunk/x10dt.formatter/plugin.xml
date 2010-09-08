@@ -12,7 +12,7 @@
          point="org.eclipse.imp.formatting.formattingSpecification">
       <formattingSpecification
             astAdapter="x10dt.formatter.parser.ASTAdapter"
-            file="org/eclipse/imp/x10dt/formatter/X10.fsp"
+            file="x10dt/formatter/X10.fsp"
             language="X10"
             parseController="x10dt.formatter.parser.ParseController">
       </formattingSpecification>

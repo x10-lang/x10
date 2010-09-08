@@ -28,8 +28,8 @@
         <available file="${x10-build-loc}/x10.constraints" type="dir" />
         <available file="${x10-build-loc}/x10.compiler" type="dir" />
         <available file="${x10-build-loc}/x10.runtime" type="dir" />
-        <available file="${x10-build-loc}/org.eclipse.imp.x10dt.update" type="dir" />
-        <available file="${x10-build-loc}/org.eclipse.imp.x10dt.feature" type="dir" />
+        <available file="${x10-build-loc}/x10dt.update" type="dir" />
+        <available file="${x10-build-loc}/x10dt.feature" type="dir" />
         <available file="${x10-build-loc}/x10.dist.host" type="dir" />
       </and>
     </condition>
@@ -48,10 +48,10 @@
       <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/${x10.tag}/x10.dist" revision="${x10.revision}" 
                 destPath="${x10-build-loc}/x10.dist" />
 
-      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/org.eclipse.imp.x10dt.update" 
-                revision="${x10dt.revision}" destPath="${x10-build-loc}/org.eclipse.imp.x10dt.update" />
-      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/org.eclipse.imp.x10dt.feature" 
-                revision="${x10dt.revision}" destPath="${x10-build-loc}/org.eclipse.imp.x10dt.feature" />
+      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10dt.update" 
+                revision="${x10dt.revision}" destPath="${x10-build-loc}/x10dt.update" />
+      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10dt.feature" 
+                revision="${x10dt.revision}" destPath="${x10-build-loc}/x10dt.feature" />
 
       <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10.dist.host" 
                 revision="${x10dt.revision}" destPath="${x10-build-loc}/x10.dist.host" />

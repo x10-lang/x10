@@ -11,14 +11,14 @@
          point="org.eclipse.ui.editors.annotationTypes">
       <type
             markerSeverity="0"
-            name="org.eclipse.imp.x10dt.refactoring.contextAnnotation"
+            name="x10dt.refactoring.contextAnnotation"
             super="org.eclipse.ui.workbench.texteditor.info">
       </type>
    </extension>
    <extension
          point="org.eclipse.ui.editors.markerAnnotationSpecification">
       <specification
-            annotationType="org.eclipse.imp.x10dt.refactoring.contextAnnotation"
+            annotationType="x10dt.refactoring.contextAnnotation"
             colorPreferenceKey="contextColorPreference"
             colorPreferenceValue="0,255,128"
             contributesToHeader="false"

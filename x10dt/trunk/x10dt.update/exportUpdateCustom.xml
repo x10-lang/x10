@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="org.eclipse.imp.x10dt.update.custom" basedir=".">
+<project name="x10dt.update.custom" basedir=".">
 
     <target name="init.custom">
-        <property name="global.plugin.script" value="../org.eclipse.imp.x10dt.update/exportPlugin.xml"/>
-        <property name="default.feature.script" value="../org.eclipse.imp.x10dt.update/exportFeature.xml"/>
+        <property name="global.plugin.script" value="../x10dt.update/exportPlugin.xml"/>
+        <property name="default.feature.script" value="../x10dt.update/exportFeature.xml"/>
 
         <property name="cache.dir" value="./cache"/>
         <mkdir dir="${cache.dir}"/>

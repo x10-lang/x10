@@ -10,27 +10,27 @@
     </system>
         
     <!-- ============================================= -->
-    <!-- Feature org.eclipse.imp.x10dt                         -->
+    <!-- Feature x10dt                         -->
     <!-- ============================================= -->
             
-    <project name="org.eclipse.imp.x10dt.feature">
+    <project name="x10dt.feature">
         <listeners>
-            <currentbuildstatuslistener file="logs/org.eclipse.imp.x10dt.feature/status.txt"/>
+            <currentbuildstatuslistener file="logs/x10dt.feature/status.txt"/>
         </listeners>
 
         <bootstrappers>
-            <svnbootstrapper localWorkingCopy="projects/org.eclipse.imp.x10dt.feature" />
+            <svnbootstrapper localWorkingCopy="projects/x10dt.feature" />
         </bootstrappers>
 
         <modificationset quietperiod="30">
-            <svn localWorkingCopy="projects/org.eclipse.imp.x10dt.feature"/>
+            <svn localWorkingCopy="projects/x10dt.feature"/>
         </modificationset>
 
         <schedule interval="900">
-            <ant antWorkingDir="projects/org.eclipse.imp.x10dt.feature"
+            <ant antWorkingDir="projects/x10dt.feature"
                     buildfile="../org.eclipse.imp.update/exportFeature.xml"
                     target="build.feature.jar"
-                    saveLogDir="logs/org.eclipse.imp.x10dt.feature">
+                    saveLogDir="logs/x10dt.feature">
                 <property name="ant.regexp.regexpimpl" value="org.apache.tools.ant.util.regexp.JakartaOroRegexp"/>
                 <property name="eclipse.target.platform" value="/usr/lib/eclipse-3.5"/>
                 <property name="basedir" value="."/>
@@ -47,7 +47,7 @@
     </project>
             
     <!-- ============================================= -->
-    <!-- Plugin projects for feature org.eclipse.imp.x10dt     -->
+    <!-- Plugin projects for feature x10dt     -->
     <!-- ============================================= -->
         
     <!-- ============================================= -->
@@ -130,17 +130,17 @@
             
     <!-- ============================================= -->
 
-    <project name="org.eclipse.imp.x10dt.core">
+    <project name="x10dt.core">
         <listeners>
-            <currentbuildstatuslistener file="logs/org.eclipse.imp.x10dt.core/status.txt"/>
+            <currentbuildstatuslistener file="logs/x10dt.core/status.txt"/>
         </listeners>
 
         <bootstrappers>
-            <svnbootstrapper localWorkingCopy="projects/org.eclipse.imp.x10dt.core" />
+            <svnbootstrapper localWorkingCopy="projects/x10dt.core" />
         </bootstrappers>
 
         <modificationset quietperiod="30">
-            <svn localWorkingCopy="projects/org.eclipse.imp.x10dt.core"/>
+            <svn localWorkingCopy="projects/x10dt.core"/>
                <buildstatus logdir="logs/x10.runtime"/>
                    <buildstatus logdir="logs/x10.common"/>
                    <buildstatus logdir="logs/polyglot3"/>
@@ -152,10 +152,10 @@
                 </modificationset>
 
         <schedule interval="900">
-            <ant antWorkingDir="projects/org.eclipse.imp.x10dt.core"
+            <ant antWorkingDir="projects/x10dt.core"
                     buildfile="../org.eclipse.imp.update/exportPlugin.xml"
                     target="cruise.update.and.build"
-                    saveLogDir="logs/org.eclipse.imp.x10dt.core">
+                    saveLogDir="logs/x10dt.core">
                 <property name="ant.regexp.regexpimpl" value="org.apache.tools.ant.util.regexp.JakartaOroRegexp"/>
                 <property name="eclipse.target.platform" value="/usr/lib/eclipse-3.5"/>
                 <property name="basedir" value="."/>
@@ -173,30 +173,30 @@
             
     <!-- ============================================= -->
 
-    <project name="org.eclipse.imp.x10dt.ui">
+    <project name="x10dt.ui">
         <listeners>
-            <currentbuildstatuslistener file="logs/org.eclipse.imp.x10dt.ui/status.txt"/>
+            <currentbuildstatuslistener file="logs/x10dt.ui/status.txt"/>
         </listeners>
 
         <bootstrappers>
-            <svnbootstrapper localWorkingCopy="projects/org.eclipse.imp.x10dt.ui" />
+            <svnbootstrapper localWorkingCopy="projects/x10dt.ui" />
         </bootstrappers>
 
         <modificationset quietperiod="30">
-            <svn localWorkingCopy="projects/org.eclipse.imp.x10dt.ui"/>
+            <svn localWorkingCopy="projects/x10dt.ui"/>
                <buildstatus logdir="logs/polyglot3"/>
                    <buildstatus logdir="logs/lpg.runtime.java"/>
                    <buildstatus logdir="logs/org.eclipse.imp.runtime"/>
-                   <buildstatus logdir="logs/org.eclipse.imp.x10dt.core"/>
+                   <buildstatus logdir="logs/x10dt.core"/>
                    <buildstatus logdir="logs/x10.compiler"/>
                    <buildstatus logdir="logs/org.eclipse.imp.java.hosted"/>
                 </modificationset>
 
         <schedule interval="900">
-            <ant antWorkingDir="projects/org.eclipse.imp.x10dt.ui"
+            <ant antWorkingDir="projects/x10dt.ui"
                     buildfile="../org.eclipse.imp.update/exportPlugin.xml"
                     target="cruise.update.and.build"
-                    saveLogDir="logs/org.eclipse.imp.x10dt.ui">
+                    saveLogDir="logs/x10dt.ui">
                 <property name="ant.regexp.regexpimpl" value="org.apache.tools.ant.util.regexp.JakartaOroRegexp"/>
                 <property name="eclipse.target.platform" value="/usr/lib/eclipse-3.5"/>
                 <property name="basedir" value="."/>
@@ -214,24 +214,24 @@
             
     <!-- ============================================= -->
 
-    <project name="org.eclipse.imp.x10dt">
+    <project name="x10dt">
         <listeners>
-            <currentbuildstatuslistener file="logs/org.eclipse.imp.x10dt/status.txt"/>
+            <currentbuildstatuslistener file="logs/x10dt/status.txt"/>
         </listeners>
 
         <bootstrappers>
-            <svnbootstrapper localWorkingCopy="projects/org.eclipse.imp.x10dt" />
+            <svnbootstrapper localWorkingCopy="projects/x10dt" />
         </bootstrappers>
 
         <modificationset quietperiod="30">
-            <svn localWorkingCopy="projects/org.eclipse.imp.x10dt"/>
+            <svn localWorkingCopy="projects/x10dt"/>
             </modificationset>
 
         <schedule interval="900">
-            <ant antWorkingDir="projects/org.eclipse.imp.x10dt"
+            <ant antWorkingDir="projects/x10dt"
                     buildfile="../org.eclipse.imp.update/exportPlugin.xml"
                     target="cruise.update.and.build"
-                    saveLogDir="logs/org.eclipse.imp.x10dt">
+                    saveLogDir="logs/x10dt">
                 <property name="ant.regexp.regexpimpl" value="org.apache.tools.ant.util.regexp.JakartaOroRegexp"/>
                 <property name="eclipse.target.platform" value="/usr/lib/eclipse-3.5"/>
                 <property name="basedir" value="."/>
@@ -249,24 +249,24 @@
             
     <!-- ============================================= -->
 
-    <project name="org.eclipse.imp.x10dt.help">
+    <project name="x10dt.help">
         <listeners>
-            <currentbuildstatuslistener file="logs/org.eclipse.imp.x10dt.help/status.txt"/>
+            <currentbuildstatuslistener file="logs/x10dt.help/status.txt"/>
         </listeners>
 
         <bootstrappers>
-            <svnbootstrapper localWorkingCopy="projects/org.eclipse.imp.x10dt.help" />
+            <svnbootstrapper localWorkingCopy="projects/x10dt.help" />
         </bootstrappers>
 
         <modificationset quietperiod="30">
-            <svn localWorkingCopy="projects/org.eclipse.imp.x10dt.help"/>
+            <svn localWorkingCopy="projects/x10dt.help"/>
             </modificationset>
 
         <schedule interval="900">
-            <ant antWorkingDir="projects/org.eclipse.imp.x10dt.help"
+            <ant antWorkingDir="projects/x10dt.help"
                     buildfile="../org.eclipse.imp.update/exportPlugin.xml"
                     target="cruise.update.and.build"
-                    saveLogDir="logs/org.eclipse.imp.x10dt.help">
+                    saveLogDir="logs/x10dt.help">
                 <property name="ant.regexp.regexpimpl" value="org.apache.tools.ant.util.regexp.JakartaOroRegexp"/>
                 <property name="eclipse.target.platform" value="/usr/lib/eclipse-3.5"/>
                 <property name="basedir" value="."/>
@@ -354,28 +354,28 @@
             
     <!-- ============================================= -->
 
-    <project name="org.eclipse.imp.x10dt.debug">
+    <project name="x10dt.debug">
         <listeners>
-            <currentbuildstatuslistener file="logs/org.eclipse.imp.x10dt.debug/status.txt"/>
+            <currentbuildstatuslistener file="logs/x10dt.debug/status.txt"/>
         </listeners>
 
         <bootstrappers>
-            <svnbootstrapper localWorkingCopy="projects/org.eclipse.imp.x10dt.debug" />
+            <svnbootstrapper localWorkingCopy="projects/x10dt.debug" />
         </bootstrappers>
 
         <modificationset quietperiod="30">
-            <svn localWorkingCopy="projects/org.eclipse.imp.x10dt.debug"/>
-               <buildstatus logdir="logs/org.eclipse.imp.x10dt.ui"/>
-                   <buildstatus logdir="logs/org.eclipse.imp.x10dt.core"/>
+            <svn localWorkingCopy="projects/x10dt.debug"/>
+               <buildstatus logdir="logs/x10dt.ui"/>
+                   <buildstatus logdir="logs/x10dt.core"/>
                    <buildstatus logdir="logs/org.eclipse.imp.runtime"/>
                    <buildstatus logdir="logs/x10.runtime"/>
                 </modificationset>
 
         <schedule interval="900">
-            <ant antWorkingDir="projects/org.eclipse.imp.x10dt.debug"
+            <ant antWorkingDir="projects/x10dt.debug"
                     buildfile="../org.eclipse.imp.update/exportPlugin.xml"
                     target="cruise.update.and.build"
-                    saveLogDir="logs/org.eclipse.imp.x10dt.debug">
+                    saveLogDir="logs/x10dt.debug">
                 <property name="ant.regexp.regexpimpl" value="org.apache.tools.ant.util.regexp.JakartaOroRegexp"/>
                 <property name="eclipse.target.platform" value="/usr/lib/eclipse-3.5"/>
                 <property name="basedir" value="."/>
@@ -429,20 +429,20 @@
             
     <!-- ============================================= -->
 
-    <project name="org.eclipse.imp.x10dt.refactoring">
+    <project name="x10dt.refactoring">
         <listeners>
-            <currentbuildstatuslistener file="logs/org.eclipse.imp.x10dt.refactoring/status.txt"/>
+            <currentbuildstatuslistener file="logs/x10dt.refactoring/status.txt"/>
         </listeners>
 
         <bootstrappers>
-            <svnbootstrapper localWorkingCopy="projects/org.eclipse.imp.x10dt.refactoring" />
+            <svnbootstrapper localWorkingCopy="projects/x10dt.refactoring" />
         </bootstrappers>
 
         <modificationset quietperiod="30">
-            <svn localWorkingCopy="projects/org.eclipse.imp.x10dt.refactoring"/>
+            <svn localWorkingCopy="projects/x10dt.refactoring"/>
                <buildstatus logdir="logs/org.eclipse.imp.runtime"/>
-                   <buildstatus logdir="logs/org.eclipse.imp.x10dt.ui"/>
-                   <buildstatus logdir="logs/org.eclipse.imp.x10dt.core"/>
+                   <buildstatus logdir="logs/x10dt.ui"/>
+                   <buildstatus logdir="logs/x10dt.core"/>
                    <buildstatus logdir="logs/polyglot3"/>
                    <buildstatus logdir="logs/x10.constraints"/>
                    <buildstatus logdir="logs/x10.compiler"/>
@@ -450,10 +450,10 @@
                 </modificationset>
 
         <schedule interval="900">
-            <ant antWorkingDir="projects/org.eclipse.imp.x10dt.refactoring"
+            <ant antWorkingDir="projects/x10dt.refactoring"
                     buildfile="../org.eclipse.imp.update/exportPlugin.xml"
                     target="cruise.update.and.build"
-                    saveLogDir="logs/org.eclipse.imp.x10dt.refactoring">
+                    saveLogDir="logs/x10dt.refactoring">
                 <property name="ant.regexp.regexpimpl" value="org.apache.tools.ant.util.regexp.JakartaOroRegexp"/>
                 <property name="eclipse.target.platform" value="/usr/lib/eclipse-3.5"/>
                 <property name="basedir" value="."/>
@@ -471,28 +471,28 @@
             
     <!-- ============================================= -->
 
-    <project name="org.eclipse.imp.x10dt.ui.launch.core">
+    <project name="x10dt.ui.launch.core">
         <listeners>
-            <currentbuildstatuslistener file="logs/org.eclipse.imp.x10dt.ui.launch.core/status.txt"/>
+            <currentbuildstatuslistener file="logs/x10dt.ui.launch.core/status.txt"/>
         </listeners>
 
         <bootstrappers>
-            <svnbootstrapper localWorkingCopy="projects/org.eclipse.imp.x10dt.ui.launch.core" />
+            <svnbootstrapper localWorkingCopy="projects/x10dt.ui.launch.core" />
         </bootstrappers>
 
         <modificationset quietperiod="30">
-            <svn localWorkingCopy="projects/org.eclipse.imp.x10dt.ui.launch.core"/>
+            <svn localWorkingCopy="projects/x10dt.ui.launch.core"/>
                <buildstatus logdir="logs/org.eclipse.imp.runtime"/>
-                   <buildstatus logdir="logs/org.eclipse.imp.x10dt.core"/>
+                   <buildstatus logdir="logs/x10dt.core"/>
                    <buildstatus logdir="logs/polyglot3"/>
                    <buildstatus logdir="logs/x10.compiler"/>
                 </modificationset>
 
         <schedule interval="900">
-            <ant antWorkingDir="projects/org.eclipse.imp.x10dt.ui.launch.core"
+            <ant antWorkingDir="projects/x10dt.ui.launch.core"
                     buildfile="../org.eclipse.imp.update/exportPlugin.xml"
                     target="cruise.update.and.build"
-                    saveLogDir="logs/org.eclipse.imp.x10dt.ui.launch.core">
+                    saveLogDir="logs/x10dt.ui.launch.core">
                 <property name="ant.regexp.regexpimpl" value="org.apache.tools.ant.util.regexp.JakartaOroRegexp"/>
                 <property name="eclipse.target.platform" value="/usr/lib/eclipse-3.5"/>
                 <property name="basedir" value="."/>
@@ -510,32 +510,32 @@
             
     <!-- ============================================= -->
 
-    <project name="org.eclipse.imp.x10dt.ui.launch.cpp">
+    <project name="x10dt.ui.launch.cpp">
         <listeners>
-            <currentbuildstatuslistener file="logs/org.eclipse.imp.x10dt.ui.launch.cpp/status.txt"/>
+            <currentbuildstatuslistener file="logs/x10dt.ui.launch.cpp/status.txt"/>
         </listeners>
 
         <bootstrappers>
-            <svnbootstrapper localWorkingCopy="projects/org.eclipse.imp.x10dt.ui.launch.cpp" />
+            <svnbootstrapper localWorkingCopy="projects/x10dt.ui.launch.cpp" />
         </bootstrappers>
 
         <modificationset quietperiod="30">
-            <svn localWorkingCopy="projects/org.eclipse.imp.x10dt.ui.launch.cpp"/>
+            <svn localWorkingCopy="projects/x10dt.ui.launch.cpp"/>
                <buildstatus logdir="logs/polyglot3"/>
                    <buildstatus logdir="logs/x10.compiler"/>
                    <buildstatus logdir="logs/org.eclipse.imp.runtime"/>
-                   <buildstatus logdir="logs/org.eclipse.imp.x10dt.core"/>
+                   <buildstatus logdir="logs/x10dt.core"/>
                    <buildstatus logdir="logs/org.eclipse.imp.smapifier"/>
-                   <buildstatus logdir="logs/org.eclipse.imp.x10dt.ui"/>
-                   <buildstatus logdir="logs/org.eclipse.imp.x10dt.ui.launch.core"/>
+                   <buildstatus logdir="logs/x10dt.ui"/>
+                   <buildstatus logdir="logs/x10dt.ui.launch.core"/>
                    <buildstatus logdir="logs/lpg.runtime.java"/>
                 </modificationset>
 
         <schedule interval="900">
-            <ant antWorkingDir="projects/org.eclipse.imp.x10dt.ui.launch.cpp"
+            <ant antWorkingDir="projects/x10dt.ui.launch.cpp"
                     buildfile="../org.eclipse.imp.update/exportPlugin.xml"
                     target="cruise.update.and.build"
-                    saveLogDir="logs/org.eclipse.imp.x10dt.ui.launch.cpp">
+                    saveLogDir="logs/x10dt.ui.launch.cpp">
                 <property name="ant.regexp.regexpimpl" value="org.apache.tools.ant.util.regexp.JakartaOroRegexp"/>
                 <property name="eclipse.target.platform" value="/usr/lib/eclipse-3.5"/>
                 <property name="basedir" value="."/>

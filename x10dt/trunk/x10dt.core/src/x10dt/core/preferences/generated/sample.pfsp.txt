@@ -1,4 +1,4 @@
-package org.eclipse.imp.x10dt.preferences;
+package x10dt.preferences;
 //Here's a fairly complete sample prefspecs file (though be warned: some of it is valid, but nonsense):
 details off; // Don't show the "Details..." links
 
@@ -50,7 +50,7 @@ page X10.Compiler {
         defvalue true;
         }
         string AdditionalCompilerOptions {
-            validator "org.eclipse.imp.x10dt.preferences.CompilerOptionsValidator";
+            validator "x10dt.preferences.CompilerOptionsValidator";
         }
     }
 }

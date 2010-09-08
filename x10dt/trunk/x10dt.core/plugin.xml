@@ -26,7 +26,7 @@
          point="org.eclipse.jdt.core.classpathContainerInitializer">
       <classpathContainerInitializer
             class="x10dt.core.project.X10ClasspathContainerInitializer"
-            id="org.eclipse.imp.x10dt.X10_CONTAINER">
+            id="x10dt.X10_CONTAINER">
       </classpathContainerInitializer>
    </extension>
    <extension
@@ -45,43 +45,43 @@
       <page
             name="X10"
             class="x10dt.core.preferences.generated.X10PreferencePage"
-            id="org.eclipse.imp.x10dt.core.preferences.generated.X10">
+            id="x10dt.core.preferences.generated.X10">
       </page>
    </extension>
    <extension
          point="org.eclipse.ui.preferencePages">
       <page
             name="Formatting"
-            category="org.eclipse.imp.x10dt.core.preferences.generated.X10"
+            category="x10dt.core.preferences.generated.X10"
             class="x10dt.core.preferences.generated.X10FormattingPreferencePage"
-            id="org.eclipse.imp.x10dt.core.preferences.generated.X10.Formatting">
+            id="x10dt.core.preferences.generated.X10.Formatting">
       </page>
    </extension>
    <extension
          point="org.eclipse.ui.preferencePages">
       <page
             name="Compiler"
-            category="org.eclipse.imp.x10dt.core.preferences.generated.X10"
+            category="x10dt.core.preferences.generated.X10"
             class="x10dt.core.preferences.generated.X10CompilerPreferencePage"
-            id="org.eclipse.imp.x10dt.core.preferences.generated.X10.Compiler">
+            id="x10dt.core.preferences.generated.X10.Compiler">
       </page>
    </extension>
    <extension
          point="org.eclipse.ui.preferencePages">
       <page
             name="Optimizations"
-            category="org.eclipse.imp.x10dt.core.preferences.generated.X10.Compiler"
+            category="x10dt.core.preferences.generated.X10.Compiler"
             class="x10dt.core.preferences.generated.X10CompilerOptimizationsPreferencePage"
-            id="org.eclipse.imp.x10dt.core.preferences.generated.X10.Compiler.Optimizations">
+            id="x10dt.core.preferences.generated.X10.Compiler.Optimizations">
       </page>
    </extension>
    <extension
          point="org.eclipse.ui.preferencePages">
       <page
             name="Runtime"
-            category="org.eclipse.imp.x10dt.core.preferences.generated.X10"
+            category="x10dt.core.preferences.generated.X10"
             class="x10dt.core.preferences.generated.X10RuntimePreferencePage"
-            id="org.eclipse.imp.x10dt.core.preferences.generated.X10.Runtime">
+            id="x10dt.core.preferences.generated.X10.Runtime">
       </page>
    </extension>
    <extension

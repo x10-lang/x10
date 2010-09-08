@@ -301,7 +301,7 @@
 		<filter token="plugin.version" value="${plugin.version}"/>
 		<filter token="plugin.name" value="${plugin.name}"/>
         <filter token="provider.name" value="tibbitts@us.ibm.com"/>
-		<copy file="../org.eclipse.imp.x10dt.update/SourcePluginManifest.in" tofile="${temp.folder}/MANIFEST.MF" filtering="true"/>
+		<copy file="../x10dt.update/SourcePluginManifest.in" tofile="${temp.folder}/MANIFEST.MF" filtering="true"/>
 <!--	<concat>
 			<fileset file="${temp.folder}/MANIFEST.MF"/>
 		</concat>
@@ -319,7 +319,7 @@
         <filter token="provider.name" value="tibbitts@us.ibm.com"/>
         <property name="src.manifest" value="${temp.folder}/MANIFEST.MF"/>
 
-        <copy file="../org.eclipse.imp.x10dt.update/SourcePluginManifest.in" tofile="${temp.folder}/MANIFEST.MF" filtering="true" overwrite="true"/>
+        <copy file="../x10dt.update/SourcePluginManifest.in" tofile="${temp.folder}/MANIFEST.MF" filtering="true" overwrite="true"/>
 
         <jar destfile="${build.result.folder}/${plugin.src.jar}" filesonly="false" whenempty="skip" update="false" manifest="${temp.folder}/MANIFEST.MF">
             <fileset dir="${plugin.src.path}" includes="**/*.java,**/*.properties,**/*.exsd"/>

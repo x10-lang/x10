@@ -34,9 +34,9 @@ setDefaults() {
     eclipseDir=""
     archiveFile=""
     extraFeatures="lpg.runtime polyglot"
-    featureNames="org.eclipse.imp.x10dt"
+    featureNames="  "
     # TODO read feature manifests to determine set of plugins
-    pluginNames="polyglot x10.runtime x10.compiler org.eclipse.imp.x10dt.core org.eclipse.imp.x10dt.ui"
+    pluginNames="polyglot x10.runtime x10.compiler x10dt.core x10dt.ui"
 }
 
 checkSettings() {

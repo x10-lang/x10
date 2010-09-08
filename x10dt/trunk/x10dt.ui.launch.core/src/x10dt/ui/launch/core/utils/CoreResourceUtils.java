@@ -280,6 +280,6 @@ public final class CoreResourceUtils {
   
   // --- Fields
   
-  private static final String PLATFORM_CONF_MARKER_ID = "org.eclipse.imp.x10dt.ui.launch.cpp.platformConfMarker"; //$NON-NLS-1$
+  private static final String PLATFORM_CONF_MARKER_ID = "x10dt.ui.launch.cpp.platformConfMarker"; //$NON-NLS-1$
 
 }
