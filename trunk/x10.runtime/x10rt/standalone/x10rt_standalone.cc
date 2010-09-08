@@ -628,19 +628,7 @@ void x10rt_net_register_get_receiver (x10rt_msg_type msg_type, x10rt_finder *cb1
 
 void x10rt_net_internal_barrier (void)
 {
-	// this is called by all places, and blocks until all places have reached it
-	#ifdef DEBUG
-		printf("X10rt.Standalone: place %lu reached barrier\n", state.myPlaceId);
-		fflush(stdout);
-	#endif
-	int ret = pthread_barrier_wait(state.barrier);
-	if (ret != PTHREAD_BARRIER_SERIAL_THREAD && ret != 0)
-		error("Unable to block on the barrier");
-	#ifdef DEBUG
-		printf("X10rt.Standalone: place %lu left barrier\n", state.myPlaceId);
-		fflush(stdout);
-		sched_yield(); // simply a way to help keep the stdout messages across places in-line
-	#endif
+    abort(); // FUNCTION IS ON DEATH ROW
 }
 
 x10rt_place x10rt_net_nhosts (void)

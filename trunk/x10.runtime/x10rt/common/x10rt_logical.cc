@@ -34,6 +34,9 @@ namespace {
     x10rt_lgl_ctx g;
 }
 
+static void one_setter (void *arg)
+{ *((int*)arg) = 1; }
+
 x10rt_place x10rt_lgl_nplaces (void)
 {
     return g.nplaces;
@@ -249,7 +252,11 @@ namespace {
         x10rt_net_register_msg_receiver(send_cat_id, recv_cat);
         x10rt_net_register_msg_receiver(send_finish_id, recv_finish);
 
-        x10rt_net_internal_barrier();
+        {
+            int finished = 0;
+            x10rt_lgl_barrier(0, x10rt_lgl_here(), one_setter, &finished);
+            while (!finished) { x10rt_emu_coll_probe(); x10rt_net_probe(); }
+        }
 
         // Spread the knowledge of accelerators around
         
@@ -262,7 +269,11 @@ namespace {
         }
         while (finish_counter!=0) x10rt_net_probe();
 
-        x10rt_net_internal_barrier();
+        {
+            int finished = 0;
+            x10rt_lgl_barrier(0, x10rt_lgl_here(), one_setter, &finished);
+            while (!finished) { x10rt_emu_coll_probe(); x10rt_net_probe(); }
+        }
 
         // Now we can calculate the total number of places
         g.nplaces = x10rt_lgl_nhosts();
@@ -308,7 +319,11 @@ namespace {
             g.type[g.child[x10rt_lgl_here()][j]] = cfgv[j].cat;
         }
 
-        x10rt_net_internal_barrier();
+        {
+            int finished = 0;
+            x10rt_lgl_barrier(0, x10rt_lgl_here(), one_setter, &finished);
+            while (!finished) { x10rt_emu_coll_probe(); x10rt_net_probe(); }
+        }
 
         for (x10rt_place i=0 ; i<x10rt_lgl_nhosts() ; ++i) {
             if (i==x10rt_lgl_here()) continue;
@@ -319,7 +334,11 @@ namespace {
 
         while (finish_counter!=0) x10rt_net_probe();
 
-        x10rt_net_internal_barrier();
+        {
+            int finished = 0;
+            x10rt_lgl_barrier(0, x10rt_lgl_here(), one_setter, &finished);
+            while (!finished) { x10rt_emu_coll_probe(); x10rt_net_probe(); }
+        }
 
     }
 
@@ -481,9 +500,13 @@ void x10rt_lgl_register_put_receiver_cuda (x10rt_msg_type msg_type,
     }
 }
 
-void x10rt_lgl_internal_barrier (void)
+void x10rt_lgl_registration_complete (void)
 {
-    x10rt_net_internal_barrier();
+    {
+        int finished = 0;
+        x10rt_lgl_barrier(0, x10rt_lgl_here(), one_setter, &finished);
+        while (!finished) x10rt_lgl_probe();
+    }
 
     // accelerators
     for (x10rt_place i=0 ; i<g.naccels[x10rt_lgl_here()] ; ++i) {
