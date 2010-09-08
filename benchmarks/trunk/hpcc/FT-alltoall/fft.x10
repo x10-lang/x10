@@ -5,8 +5,7 @@ import x10.compiler.Immediate;
 import x10.lang.PlaceLocalHandle;
 import x10.util.Pair;
 import x10.compiler.*;
-
-import util.Comm;
+import x10.util.Team;
 
 @NativeCPPInclude("ft_natives.h")
 @NativeCPPOutputFile("hpccfft.h")
@@ -36,7 +35,6 @@ class fft {
         val N:Long;
         val fftwPlan:Long;
         val fftwInversePlan:Long;
-        val world:Comm! = Comm.WORLD();
         var nCopy:Int;
         var alltoall_timer:Long = 0;
  
@@ -60,8 +58,8 @@ class fft {
                 }
             } else {
                 for (var i:Int=0; i<localSize; ++i) {
-             		A(i) = rand.nextDouble() - 0.5;
-             	}
+                    A(i) = rand.nextDouble() - 0.5;
+                }
             }
         }
 
@@ -74,7 +72,7 @@ class fft {
 
         def rowFFTS(fwd:Boolean) {
             execute_plan(fwd?fftwPlan:fftwInversePlan, A, B, SQRTN, 0, nRows);
-            world.barrier();
+            Team.WORLD.barrier(here.id as UInt);
         }
 
         def bytwiddle(sign:Int) {
@@ -91,7 +89,7 @@ class fft {
                     A(idx+1) = ai * c - ar * s;
                 }
             }
-        world.barrier();
+            Team.WORLD.barrier(here.id as UInt);
         }
 
         def check() {
@@ -100,7 +98,7 @@ class fft {
             for (var q:Int=0; q<A.length; ++q) {
                 if (Math.abs(A(q)-D(q)) > threshold) Console.ERR.println("Error at "+q+" "+A(q).toString()+" "+D(q).toString());
             }
-        world.barrier();
+            Team.WORLD.barrier(here.id as UInt);
         }
 
         def transpose() {           
@@ -131,12 +129,12 @@ class fft {
                 //B.copyTo(k * chunkSize, Place.places(k), Cs, dstIndex, chunkSize, ()=>{++nCopy;});
             }
             alltoall_timer -= System.nanoTime();
-            world.alltoall(B, C, chunkSize);
+            Team.WORLD.alltoall(here.id as UInt, B, 0u, C, 0u, chunkSize as UInt);
             alltoall_timer += System.nanoTime();
             //await (nCopy == Place.MAX_PLACES);
             //nCopy = 0;
             //x10.io.Console.OUT.println("before barrier" + here.id);                   
-	    world.barrier();
+            Team.WORLD.barrier(here.id as UInt);
             //x10.io.Console.OUT.println("after barrier" + here.id);                   
         }
 
@@ -162,7 +160,7 @@ class fft {
                     }                   
                 }
             }
-        world.barrier();
+            Team.WORLD.barrier(here.id as UInt);
         }
     }
 
@@ -229,28 +227,29 @@ class fft {
         val Cs = PlaceLocalHandle.make[Rail[Double]](unique, ()=>Rail.make[Double](localSize));
         val FFT = PlaceLocalHandle.make[Block](unique, ()=>Block.make(here.id, nRows, localSize, N, SQRTN, verify, Cs));
 
-        @Immediate finish ateach ((p) in unique){
-        // FFT
-        if (p==0) Console.OUT.println("Start FFT");
-        var secs:Double = compute(FFT, true, N);
-        if (p==0) Console.OUT.println("alltoall: " + FFT().alltoall_timer/1e9 + " s");
-        if (p==0) Console.OUT.println("FFT complete");
+        finish ateach ((p) in unique) {
+            // FFT
+            if (p==0) Console.OUT.println("Start FFT");
+            var secs:Double = compute(FFT, true, N);
+            if (p==0) Console.OUT.println("alltoall: " + FFT().alltoall_timer/1e9 + " s");
+            if (p==0) Console.OUT.println("FFT complete");
 
-        // Reverse FFT
-        if (p==0) Console.OUT.println("Start reverse FFT");
-        secs += compute(FFT, false, N);
-        if (p==0) Console.OUT.println("Reverse FFT complete");
+            // Reverse FFT
+            if (p==0) Console.OUT.println("Start reverse FFT");
+            secs += compute(FFT, false, N);
+            if (p==0) Console.OUT.println("Reverse FFT complete");
 
-        // Output
-        if (p==0) Console.OUT.println("Now combining forward and inverse FTT measurements");
-        val Gigaflops = 2.0e-9*N*5*Math.log(N as double)/Math.log(2.0)/secs;
-        if (p==0) Console.OUT.println("execution time=" + secs + " secs"+" Gigaflops="+Gigaflops);
+            // Output
+            if (p==0) Console.OUT.println("Now combining forward and inverse FTT measurements");
+            val Gigaflops = 2.0e-9*N*5*Math.log(N as double)/Math.log(2.0)/secs;
+            if (p==0) Console.OUT.println("execution time=" + secs + " secs"+" Gigaflops="+Gigaflops);
 
-        // Verification
-        if (verify) {        
-            if (p == 0) Console.OUT.println("Start verification");
-            check(FFT);
-            if (p ==0 ) Console.OUT.println("Verification complete");
+            // Verification
+            if (verify) {        
+                if (p == 0) Console.OUT.println("Start verification");
+                check(FFT);
+                if (p == 0) Console.OUT.println("Verification complete");
+            }
         }
-    }}
+    }
 }
