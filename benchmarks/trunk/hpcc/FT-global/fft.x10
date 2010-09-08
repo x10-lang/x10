@@ -5,8 +5,6 @@ import x10.lang.Complex;
 import x10.util.Pair;
 import x10.compiler.*;
 
-import util.Comm;
-
 class Random {
 	@Native("c++", "srandom(#1)")
 	static native def srandom(seed:Int):Void;
