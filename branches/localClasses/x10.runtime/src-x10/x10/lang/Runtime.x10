@@ -655,14 +655,22 @@ import x10.util.Box;
                 } else {
                     t = new MultipleExceptions(e);
                 }
-                val closure = () => { (r as RootCollectingFinish[T]).notify(m, t); deallocObject(m); };
+                val closure = () => { 
+                    val rrcf = (r as RootCollectingFinish[T]).root as GlobalRef[RootCollectingFinish[T]]{self.home==here};
+                    rrcf().notify(m, t); 
+                    deallocObject(m); 
+                };
                 runAtNative(r.home().id, closure);
                 dealloc(closure);
             } else {
             	sr.placeMerge();
                 val x = sr.result();
 		        sr.reset();
-                val closure = () => { (r as RootCollectingFinish[T]).notify(m, x); deallocObject(m); };
+                val closure = () => { 
+                    val rrcf = (r as RootCollectingFinish[T]).root as GlobalRef[RootCollectingFinish[T]]{self.home==here};
+                    rrcf().notify(m, x); 
+                    deallocObject(m); 
+                };
                 runAtNative(r.home().id, closure);
                 dealloc(closure);
             }
@@ -774,11 +782,19 @@ import x10.util.Box;
                     } else {
                         t = new MultipleExceptions(e);
                     }
-                    val closure = () => { (r as RootFinish).notify(m, t); deallocObject(m); };
+                    val closure = () => { 
+                        val rrf = (r as RootFinish).root as GlobalRef[RootFinish]{self.home==here};
+                        rrf().notify(m, t); 
+                        deallocObject(m); 
+                    };
                     runAtNative(r.home().id, closure);
                     dealloc(closure);
                 } else {
-                    val closure = () => { (r as RootFinish).notify(m); deallocObject(m); };
+                    val closure = () => {
+                        val rrf = (r as RootFinish).root as GlobalRef[RootFinish]{self.home==here};
+                        rrf().notify(m); 
+                        deallocObject(m); 
+                    };
                     runAtNative(r.home().id, closure);
                     dealloc(closure);
                 }
