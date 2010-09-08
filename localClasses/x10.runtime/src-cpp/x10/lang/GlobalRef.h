@@ -74,7 +74,7 @@ namespace x10 {
 
 template<class T> void x10::lang::GlobalRef<T>::_serialize(x10::lang::GlobalRef<T> this_,
                                                            x10aux::serialization_buffer& buf) {
-    buf.write((x10_long)(size_t)(this_->location));
+    buf.write(this_->location);
     buf.write((x10_long)(size_t)(this_->value.operator->()));
 }
 
