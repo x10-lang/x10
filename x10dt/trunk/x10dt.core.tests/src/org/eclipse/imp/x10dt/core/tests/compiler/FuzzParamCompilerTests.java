@@ -11,8 +11,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import javax.annotation.processing.FilerException;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -56,7 +54,7 @@ public class FuzzParamCompilerTests extends CompilerTestsBase {
 	}
 
 	@Parameters
-	public static Collection inputs() throws URISyntaxException {
+	public static Collection<?> inputs() throws URISyntaxException {
 		ArrayList<Object[]> inputs = new ArrayList<Object[]>();
 		final URL fuzzURL = FuzzParamCompilerTests.class.getClassLoader().getResource(FUZZ_PATH);
 		for (File f : getSources(toFile(fuzzURL))) {
@@ -132,12 +130,12 @@ public class FuzzParamCompilerTests extends CompilerTestsBase {
 		}
 	}
 	
-	public static void main(String[] args) throws URISyntaxException, FilerException {
+	public static void main(String[] args) throws URISyntaxException, IOException {
 	  final URL dataURL = FuzzParamCompilerTests.class.getClassLoader().getResource(DATA_PATH);
 	  final URL fuzzURL = FuzzParamCompilerTests.class.getClassLoader().getResource(DATA_DIRNAME);
 	  final File fuzzgenFile = new File(toFile(fuzzURL), FUZZGEN_DIRNAME);
 	  if (! fuzzgenFile.mkdir()) {
-	    throw new FilerException("Could not created directory: " + fuzzgenFile.getAbsolutePath());
+	    throw new IOException("Could not created directory: " + fuzzgenFile.getAbsolutePath());
 	  }
 	  final String fuzzPath = fuzzgenFile.getAbsolutePath();
 		for (File f : getSources(toFile(dataURL))) {
