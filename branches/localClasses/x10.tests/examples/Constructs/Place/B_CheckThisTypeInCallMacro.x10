@@ -36,7 +36,7 @@ static class Test(rank:Int) {
 	static type Test(r:int)=Test{self.rank==r};
 	static type R(r:int)=R{self.rank==r};
     def this(r:Int){property(r);}
-    var r:R(this.rank)! =null;
+    var r:R(this.rank) =null;
     def m(t:Test(this.rank)) {
          r.check(t);
     }

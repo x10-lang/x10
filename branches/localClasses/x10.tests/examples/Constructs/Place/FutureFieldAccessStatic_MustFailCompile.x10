@@ -15,17 +15,17 @@ import harness.x10Test;
  * @author bdlucas
  */
 
-public class FutureFieldAccess_MustFailCompile extends x10Test {
+public class FutureFieldAccessStatic_MustFailCompile extends x10Test {
 
-    static class C[S] {
+	static class C[S] {
         property p:int = 0;
-        val x:S;
+        val x:GlobalRef[S];
         var y:S;
         def foo() {}
         def foo(x:S) {}
         final def foo[T](x:T) {}
         def this(s:S) {
-            x = s;
+            x = GlobalRef[S](s);
             y = s;
         }
     }
@@ -37,7 +37,7 @@ public class FutureFieldAccess_MustFailCompile extends x10Test {
     		val cc = this.c;
             val f = future (p) {
             	// cannot access a field that is not global
-                val a = cc.x;
+                val a = cc.x();
             return true;
         };
         return f.force();
