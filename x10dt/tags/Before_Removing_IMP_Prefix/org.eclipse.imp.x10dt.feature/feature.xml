@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="org.eclipse.imp.x10dt.feature"
+      label="%featureName"
+      version="2.0.6.qualifier"
+      provider-name="%providerName"
+      plugin="org.eclipse.imp.x10dt"
+      os="win32,linux,macosx"
+      arch="x86,x86_64"
+      image="eclipse_update_120.jpg">
+
+   <description url="http://x10-lang.org">
+      %description
+   </description>
+
+   <license url="%licenseURL">
+      %license
+   </license>
+
+   <requires>
+      <import feature="lpg.runtime" version="2.0.18" match="greaterOrEqual"/>
+      <import feature="org.eclipse.imp.java.hosted"/>
+      <import feature="org.eclipse.imp.runtime"/>
+      <import feature="org.eclipse.ptp.core" version="4.0.0" match="greaterOrEqual"/>
+      <import feature="org.eclipse.ptp.external" version="4.0.0" match="greaterOrEqual"/>
+      <import feature="org.eclipse.ptp.remote" version="4.0.0" match="greaterOrEqual"/>
+      <import feature="org.eclipse.ptp.remote.remotetools" version="4.0.0" match="greaterOrEqual"/>
+      <import feature="org.eclipse.ptp.remotetools" version="4.0.0" match="greaterOrEqual"/>
+      <import feature="org.eclipse.ptp.rm.ibm.ll" version="4.0.0" match="greaterOrEqual"/>
+      <import feature="org.eclipse.ptp.rm.ibm.pe" version="4.0.0" match="greaterOrEqual"/>
+      <import feature="org.eclipse.ptp.rm.mpich2" version="4.0.0" match="greaterOrEqual"/>
+      <import feature="org.eclipse.ptp.rm.openmpi" version="4.0.0" match="greaterOrEqual"/>
+      <import feature="org.eclipse.ptp.services" version="4.0.0" match="greaterOrEqual"/>
+      <import feature="org.eclipse.ptp.utils" version="4.0.0" match="greaterOrEqual"/>
+   </requires>
+
+   <plugin
+         id="x10.compiler"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="x10.runtime"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.imp.x10dt.core"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.imp.x10dt.ui"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.imp.x10dt.help"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="x10.constraints"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="x10.common"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="x10.effects"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.imp.x10dt.ui.launch.core"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.imp.x10dt.ui.launch.cpp"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="x10.dist.host"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="x10.dist.linux.x86.fragment"
+         os="linux"
+         arch="x86"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         fragment="true"/>
+
+   <plugin
+         id="x10.dist.linux.x86_64.fragment"
+         os="linux"
+         arch="x86_64"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         fragment="true"/>
+
+   <plugin
+         id="x10.dist.macosx.x86.fragment"
+         os="macosx"
+         arch="x86,x86_64"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         fragment="true"/>
+
+   <plugin
+         id="x10.dist.win32.x86.fragment"
+         os="win32"
+         arch="x86"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         fragment="true"/>
+
+   <plugin
+         id="org.eclipse.imp.x10dt"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.eclipse.imp.x10dt.refactoring"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.imp.x10dt.ui.launch.java"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.imp.x10dt.help.dt"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>
