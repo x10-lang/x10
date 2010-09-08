@@ -69,7 +69,7 @@ public class ClockTest17_MustFailTimeout extends x10Test {
 			}
 		};
 
-		val fooArray: Rail[foo]! = [f0,f1];  // FIXME: should be Rail[foo!]!
+		val fooArray: Rail[foo!]! = Rail.make([f0,f1]);
 
 		// This is invoking Y.test(f0) but not clear to a compiler
 		Y.test(fooArray(x.zero()) as foo!);
@@ -126,7 +126,7 @@ public class ClockTest17_MustFailTimeout extends x10Test {
 	 * for a typical compiler
 	 */
 	static class X {
-		public val z:Rail[Int]! = [1,0];
+		public val z:Rail[Int]! = Rail.make([1,0]);
 		def zero(): int = { return z(z(z(1))); }
 		def one(): int = { return z(z(z(0))); }
 		def modify(): void = { z(0) += 1; }

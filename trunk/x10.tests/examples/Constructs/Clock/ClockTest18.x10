@@ -51,7 +51,7 @@ public class ClockTest18 extends x10Test {
 			}
 		};
 
-		var fooArray: Rail[foo!]! = [f0,f1];
+		var fooArray: Rail[foo!]! = Rail.make([f0,f1]);
 		x10.io.Console.OUT.println("#A0 before resume");
 		c0.resume();
 		x10.io.Console.OUT.println("#A0 before spawning A3");
@@ -104,7 +104,7 @@ public class ClockTest18 extends x10Test {
 	 * for a typical compiler
 	 */
 	static class X {
-		public var z: Rail[int]! = [1,0];
+		public var z: Rail[int]! = Rail.make([1,0]);
 		def zero(): int = { return z(z(z(1))); /* that is a 0 */ }
 		def one(): int = { return z(z(z(0))); /* that is a 1 */ }
 		def modify(): void = { z(0) += 1; }
