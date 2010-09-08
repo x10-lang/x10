@@ -12,7 +12,6 @@
 package x10.core;
 
 
-import x10.core.fun.Fun_0_1;
 import x10.rtt.ParameterizedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
@@ -20,7 +19,7 @@ import x10.rtt.Types;
 import x10.rtt.UnresolvedType;
 import x10.rtt.RuntimeType.Variance;
 
-public final class GrowableRail<T> extends Ref implements Fun_0_1<Integer,T>, Settable<Integer, T>, Iterable<T> {
+public final class GrowableRail<T> extends Ref implements Indexable<Integer,T>, Iterable<T>, Settable<Integer, T> {
     private Type<T> elementType;
     private Object array;
     private int length;
@@ -181,7 +180,8 @@ public final class GrowableRail<T> extends Ref implements Fun_0_1<Integer,T>, Se
         GrowableRail.class,
         new Variance[] {Variance.INVARIANT},
         new Type<?>[] {
-            new ParameterizedType(Fun_0_1._RTT, Types.INT, new UnresolvedType(0)),
+            new ParameterizedType(Indexable._RTT, Types.INT, new UnresolvedType(0)),
+            new ParameterizedType(Iterable._RTT, new UnresolvedType(0)),
             new ParameterizedType(Settable._RTT, Types.INT, new UnresolvedType(0))
         }
     ) {

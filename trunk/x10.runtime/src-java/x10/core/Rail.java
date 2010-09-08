@@ -216,7 +216,8 @@ public final class Rail<T> extends Ref implements AnyRail<T>, Settable<Integer,T
         Rail.class, 
         new Variance[] {Variance.INVARIANT},
         new Type<?>[] {
-            new ParameterizedType(Fun_0_1._RTT, Types.INT, new UnresolvedType(0)),
+            new ParameterizedType(Indexable._RTT, Types.INT, new UnresolvedType(0)),
+            new ParameterizedType(Iterable._RTT, new UnresolvedType(0)),
             new ParameterizedType(Settable._RTT, Types.INT, new UnresolvedType(0))
         }
     ) {

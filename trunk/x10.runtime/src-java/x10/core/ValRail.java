@@ -11,7 +11,6 @@
 
 package x10.core;
 
-import x10.core.fun.Fun_0_1;
 import x10.rtt.ParameterizedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
@@ -178,7 +177,10 @@ public final class ValRail<T> implements AnyRail<T> {
     public static final RuntimeType<ValRail<?>> _RTT = new RuntimeType<ValRail<?>>(
         ValRail.class,
         new Variance[] {Variance.COVARIANT},
-        new Type<?>[] {new ParameterizedType(Fun_0_1._RTT, Types.INT, new UnresolvedType(0))}
+        new Type<?>[] {
+            new ParameterizedType(Indexable._RTT, Types.INT, new UnresolvedType(0)),
+            new ParameterizedType(Iterable._RTT, new UnresolvedType(0))
+        }
     ) {
         @Override
         public String typeName() {
