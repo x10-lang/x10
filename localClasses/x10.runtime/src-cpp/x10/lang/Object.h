@@ -84,6 +84,8 @@ namespace x10 {
                 rr.ref = buf.read<x10aux::x10_addr_t>();
                 if (rr.ref == 0) {
                     _S_("Deserializing a "<<ANSI_SER<<ANSI_BOLD<<"null reference"<<ANSI_RESET<<" from buf: "<<&buf);
+                } else {
+                    _S_("Deserializing a "<<ANSI_SER<<ANSI_BOLD<<"non-null reference "<<rr.ref<<ANSI_RESET<<" from buf: "<<&buf);
                 }
                 return rr;
             }
