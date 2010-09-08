@@ -97,7 +97,7 @@ template<class T> x10aux::ref<x10::lang::String> x10::lang::GlobalRef<T>::toStri
 }
 
 template<class T> x10_int x10::lang::GlobalRef<T>::hashCode() {
-    return x10aux::hash_code(value);
+    return x10::lang::Object::identityHashCode(value);
 }
 
 template<class T> x10aux::ref<x10::lang::String> x10::lang::GlobalRef<T>::typeName() {
