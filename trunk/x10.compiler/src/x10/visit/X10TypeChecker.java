@@ -104,7 +104,7 @@ public class X10TypeChecker extends TypeChecker {
 	    }
 	}
 	    
-	protected Node leaveCall(Node old, final Node n, NodeVisitor v) throws SemanticException {
+	protected Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
 	    try {
 	        final TypeChecker tc = (TypeChecker) v;
 	        // Inline the super call without checking for expressions with unknown type
@@ -123,7 +123,7 @@ public class X10TypeChecker extends TypeChecker {
 	            throw z;
 	    }
 	    // continue, errors have been reported, maybe you will find more errors.
-	    return old;
+	    return n;
 	}
 
 	public static X10TypeChecker getTypeChecker(ContextVisitor tc) {
