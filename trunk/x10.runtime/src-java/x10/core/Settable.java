@@ -15,6 +15,16 @@ import x10.rtt.RuntimeType;
 import x10.rtt.RuntimeType.Variance;
 
 public interface Settable<D,R> {
-    public static RuntimeType _RTT = new RuntimeType(Settable.class, new Variance[]{Variance.CONTRAVARIANT, Variance.INVARIANT});
     R set$G(R v, D i);
+    
+    public static final RuntimeType<Settable<?,?>> _RTT = new RuntimeType<Settable<?,?>>(
+        Settable.class, 
+        new Variance[] {Variance.CONTRAVARIANT, Variance.INVARIANT}
+    ) {
+        @Override
+        public String typeName() {
+            return "x10.lang.Settable";
+        }
+    };
+
 }
