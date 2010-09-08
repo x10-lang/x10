@@ -180,6 +180,7 @@ namespace {
     {
         x10rt_emu_init(counter);
         x10rt_emu_coll_init(counter);
+        sleep(1);
         has_remote_op = getenv("X10RT_EMULATE_REMOTE_OP")==NULL && 0!=x10rt_net_supports(X10RT_OPT_REMOTE_OP);
         has_collectives = getenv("X10RT_EMULATE_COLLECTIVES")==NULL && 0!=x10rt_net_supports(X10RT_OPT_COLLECTIVES);
         g.nhosts = x10rt_net_nhosts();
