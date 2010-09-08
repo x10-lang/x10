@@ -19,6 +19,7 @@ template<> struct x10rt_red_type_info<X10RT_RED_TYPE_U64> { typedef uint64_t Typ
 template<> struct x10rt_red_type_info<X10RT_RED_TYPE_S64> { typedef int64_t Type; };
 template<> struct x10rt_red_type_info<X10RT_RED_TYPE_DBL> { typedef double Type; };
 template<> struct x10rt_red_type_info<X10RT_RED_TYPE_FLT> { typedef float Type; };
+template<> struct x10rt_red_type_info<X10RT_RED_TYPE_DBL_S32> { typedef x10rt_dbl_s32 Type; };
 
 // should never hit this, check specialisations are working
 template<class T> inline x10rt_red_type x10rt_get_red_type (void) { return T::error; }
@@ -33,6 +34,8 @@ template<> inline x10rt_red_type x10rt_get_red_type<uint64_t> (void) { return X1
 template<> inline x10rt_red_type x10rt_get_red_type<int64_t>  (void) { return X10RT_RED_TYPE_S64; }
 template<> inline x10rt_red_type x10rt_get_red_type<double>   (void) { return X10RT_RED_TYPE_DBL; }
 template<> inline x10rt_red_type x10rt_get_red_type<float>    (void) { return X10RT_RED_TYPE_FLT; }
+
+template<> inline x10rt_red_type x10rt_get_red_type<x10rt_dbl_s32> (void) { return X10RT_RED_TYPE_DBL_S32; }
 
 #endif
 

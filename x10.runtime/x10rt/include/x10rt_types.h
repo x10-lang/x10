@@ -117,6 +117,11 @@ typedef enum {
     X10RT_RED_OP_MIN = 7
 } x10rt_red_op_type;
 
+struct x10rt_dbl_s32 {
+    double val;
+    int32_t idx;
+};
+
 typedef enum
   {
     X10RT_RED_TYPE_U8  = 0,
@@ -128,7 +133,8 @@ typedef enum
     X10RT_RED_TYPE_S64 = 6,
     X10RT_RED_TYPE_U64 = 7,
     X10RT_RED_TYPE_DBL = 8,
-    X10RT_RED_TYPE_FLT = 9
+    X10RT_RED_TYPE_FLT = 9,
+    X10RT_RED_TYPE_DBL_S32 = 10
 } x10rt_red_type;
 
 /** The list of optional x10rt_net features.
