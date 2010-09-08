@@ -14,6 +14,8 @@
 import harness.x10Test;
 
 /**
+ * Updated to 2.1.
+ * 
  * Cannot reference a banged local variable across a place-shift.
  *
  * 
@@ -24,17 +26,15 @@ class BangAcrossPlaces_MustFailCompile  extends x10Test {
 		var x:Int=0;
 		def x() =x;
 	}
-	def m(z:C!) {
-		val x = new C();
+	def m() {
+		val x = GlobalRef[C](new C()); // implicitly banged.
 		at (here.next()) {
 			// this should generate an error.
-			val y = x.x();
+			val y = x();
 		}
 	}
-    public def run() {
-    	m(new C());
-    	return true;
-    }
+    public def run() = true;
+    
     public static def main(Rail[String]) {
 	  new 
 	  BangAcrossPlaces_MustFailCompile().execute();
