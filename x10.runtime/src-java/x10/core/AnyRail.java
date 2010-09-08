@@ -11,9 +11,7 @@
 
 package x10.core;
 
-import x10.core.fun.Fun_0_1;
-
-public interface AnyRail<T> extends Indexable<Integer,T>, Fun_0_1<Integer,T>, Iterable<T> {
+public interface AnyRail<T> extends Indexable<Integer,T>, Iterable<T> {
 
     // Methods to get the backing array.   May be called by generated code.
     public Object getBackingArray();
