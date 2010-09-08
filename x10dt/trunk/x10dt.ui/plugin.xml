@@ -14,21 +14,21 @@
    <extension
          point="org.eclipse.imp.runtime.parser">
       <parser
-            class="org.eclipse.imp.x10dt.ui.parser.ParseController"
+            class="x10dt.ui.parser.ParseController"
             language="X10">
       </parser>
    </extension>
    <extension
          point="org.eclipse.imp.runtime.tokenColorer">
       <tokenColorer
-            class="org.eclipse.imp.x10dt.ui.editor.X10TokenColorer"
+            class="x10dt.ui.editor.X10TokenColorer"
             language="X10">
       </tokenColorer>
    </extension>
    <extension
          point="org.eclipse.debug.core.launchConfigurationTypes">
       <launchConfigurationType
-            delegate="org.eclipse.imp.x10dt.ui.launching.X10LaunchConfigurationDelegate"
+            delegate="x10dt.ui.launching.X10LaunchConfigurationDelegate"
             id="org.eclipse.imp.x10dt.ui.launching.X10LaunchConfigurationType"
             modes="run,debug"
             name="X10 Application (Java back-end)"
@@ -49,7 +49,7 @@
          point="org.eclipse.debug.ui.launchConfigurationTabGroups">
       <launchConfigurationTabGroup
             type="org.eclipse.imp.x10dt.ui.launching.X10LaunchConfigurationType"
-            class="org.eclipse.imp.x10dt.ui.launching.X10LaunchConfigurationTabGroup"
+            class="x10dt.ui.launching.X10LaunchConfigurationTabGroup"
             id="org.eclipse.imp.x10dt.ui.launching.X10LaunchConfigurationTabGroup">
       </launchConfigurationTabGroup>
    </extension>
@@ -59,7 +59,7 @@
             label="X10 Application (Java back-end)"
             icon="icons/x10_application.gif"
             modes="run,debug"
-            class="org.eclipse.imp.x10dt.ui.launching.X10JavaLaunchShortcut"
+            class="x10dt.ui.launching.X10JavaLaunchShortcut"
             id="org.eclipse.imp.x10dt.ui.launching.x10LaunchShortcut">
          <contextualLaunch>
             <enablement>
@@ -92,7 +92,7 @@
                         </or>
                         <test
                               property="org.eclipse.debug.ui.projectNature"
-                              value="org.eclipse.imp.x10dt.ui.launch.java.x10nature">
+                              value="x10dt.ui.launch.java.x10nature">
                         </test>
                      </and>
                   </iterate>
@@ -107,7 +107,7 @@
    <extension
          point="org.eclipse.imp.runtime.autoEditStrategy">
       <autoEditStrategy
-            class="org.eclipse.imp.x10dt.ui.editor.formatting.X10AutoIndentStrategy"
+            class="x10dt.ui.editor.formatting.X10AutoIndentStrategy"
             language="X10">
       </autoEditStrategy>
    </extension>
@@ -144,35 +144,35 @@
    <extension
          point="org.eclipse.imp.runtime.outliner">
       <outliner
-            class="org.eclipse.imp.x10dt.ui.views.Outliner"
+            class="x10dt.ui.views.Outliner"
             language="X10">
       </outliner>
    </extension>
    <extension
          point="org.eclipse.imp.runtime.foldingUpdater">
       <foldingUpdater
-            class="org.eclipse.imp.x10dt.ui.editor.X10FoldingUpdater"
+            class="x10dt.ui.editor.X10FoldingUpdater"
             language="X10">
       </foldingUpdater>
    </extension>
    <extension
          point="org.eclipse.imp.runtime.contentProposer">
       <proposer
-            class="org.eclipse.imp.x10dt.ui.contentProposer.X10ContentProposer"
+            class="x10dt.ui.contentProposer.X10ContentProposer"
             language="X10">
       </proposer>
    </extension>
    <extension
          point="org.eclipse.imp.runtime.modelTreeBuilder">
       <treeBuilder
-            class="org.eclipse.imp.x10dt.ui.editor.X10TreeModelBuilder"
+            class="x10dt.ui.editor.X10TreeModelBuilder"
             language="X10">
       </treeBuilder>
    </extension>
    <extension
          point="org.eclipse.imp.runtime.labelProvider">
       <labelProvider
-            class="org.eclipse.imp.x10dt.ui.editor.X10LabelProvider"
+            class="x10dt.ui.editor.X10LabelProvider"
             language="X10">
       </labelProvider>
    </extension>
@@ -197,7 +197,7 @@
    <extension
          point="org.eclipse.imp.runtime.referenceResolvers">
       <referenceResolver
-            class="org.eclipse.imp.x10dt.ui.editor.X10ReferenceResolver"
+            class="x10dt.ui.editor.X10ReferenceResolver"
             language="X10">
       </referenceResolver>
    </extension>
@@ -206,7 +206,7 @@
       <perspective
             name="X10"
             icon="icons/x10perspective.gif"
-            class="org.eclipse.imp.x10dt.ui.perspective.X10PerspectiveFactory"
+            class="x10dt.ui.perspective.X10PerspectiveFactory"
             id="org.eclipse.imp.x10dt.ui.perspective">
       </perspective>
    </extension>
@@ -264,7 +264,7 @@
    <extension
          point="org.eclipse.imp.runtime.documentationProvider">
       <docProvider
-            class="org.eclipse.imp.x10dt.ui.editor.X10DocProvider"
+            class="x10dt.ui.editor.X10DocProvider"
             language="X10">
       </docProvider>
    </extension>
@@ -309,7 +309,7 @@
          point="org.eclipse.ui.commands">
       <command
             name="Format"
-            defaultHandler="org.eclipse.imp.x10dt.ui.commands.handlers.FormatCmdHandler"
+            defaultHandler="x10dt.ui.commands.handlers.FormatCmdHandler"
             description="Format X10 source"
             id="org.eclipse.imp.x10dt.ui.formatCmd">
       </command>
@@ -317,7 +317,7 @@
    <extension
          point="org.eclipse.imp.runtime.contextHelper">
       <contextHelper
-            class="org.eclipse.imp.x10dt.ui.help.X10ContextHelper"
+            class="x10dt.ui.help.X10ContextHelper"
             language="X10">
       </contextHelper>
    </extension>
@@ -328,7 +328,7 @@
             id="imp.rulerActions">
          <action
                label="SelectRulerAction"
-               class="org.eclipse.imp.x10dt.ui.editor.actions.X10SelectRulerAction"
+               class="x10dt.ui.editor.actions.X10SelectRulerAction"
                actionID="RulerClick"
                id="org.eclipse.imp.x10dt.ui.editor.actions.X10SelectRulerAction">
          </action>
@@ -367,7 +367,7 @@
    <extension
          point="org.eclipse.imp.runtime.markOccurrences">
       <occurrenceIdentifier
-            class="org.eclipse.imp.x10dt.ui.editor.X10OccurrenceIdentifier"
+            class="x10dt.ui.editor.X10OccurrenceIdentifier"
             language="X10">
       </occurrenceIdentifier>
    </extension>
@@ -377,7 +377,7 @@
             id="org.eclipse.imp.x10dt.ui.X10ElementCreation"
             label="%perspective.actionsets">
          <action
-               class="org.eclipse.imp.x10dt.ui.perspective.actions.OpenX10InterfaceWizardToolbarAction"
+               class="x10dt.ui.perspective.actions.OpenX10InterfaceWizardToolbarAction"
                icon="icons/newint_wiz.gif"
                id="org.eclipse.imp.x10dt.ui.NewX10InterfaceToolbarAction"
                label="%new.interface.label"
@@ -386,7 +386,7 @@
                tooltip="%new.interface.tooltip">
          </action>
          <action
-               class="org.eclipse.imp.x10dt.ui.perspective.actions.OpenX10ClassWizardToolbarAction"
+               class="x10dt.ui.perspective.actions.OpenX10ClassWizardToolbarAction"
                icon="icons/newclass_wiz.gif"
                id="org.eclipse.imp.x10dt.ui.NewX10ClassToolbarAction"
                label="%new.class.label"
@@ -395,7 +395,7 @@
                tooltip="%new.class.tooltip">
          </action>
          <action
-               class="org.eclipse.imp.x10dt.ui.perspective.actions.OpenX10PackageWizardToolbarAction"
+               class="x10dt.ui.perspective.actions.OpenX10PackageWizardToolbarAction"
                icon="icons/newpack_wiz.gif"
                id="org.eclipse.imp.x10dt.ui.NewX10PackageToolbarAction"
                label="%new.package.label"
@@ -404,7 +404,7 @@
                tooltip="%new.package.tooltip">
          </action>
          <action
-               class="org.eclipse.imp.x10dt.ui.perspective.actions.OpenX10ProjectJavaBCWizardToolbarAction"
+               class="x10dt.ui.perspective.actions.OpenX10ProjectJavaBCWizardToolbarAction"
                icon="icons/newx10prj_java.gif"
                id="org.eclipse.imp.x10dt.ui.NewX10ProjectJavaToolbarAction"
                label="%new.project.java.label"
@@ -418,20 +418,20 @@
          point="org.eclipse.imp.runtime.toggleBreakpointHandler">
          <toggleBreakpointHandler
              language="x10"
-             class="org.eclipse.imp.x10dt.ui.debug.X10ToggleBreakpointHandler"/>
+             class="x10dt.ui.debug.X10ToggleBreakpointHandler"/>
             </extension>
    <extension
          point="org.eclipse.imp.runtime.entityNameLocator">
          <entityNameLocator
              language="x10"
-             class="org.eclipse.imp.x10dt.ui.editor.X10EntityNameLocator"/>
+             class="x10dt.ui.editor.X10EntityNameLocator"/>
    </extension>
    <extension
          point="org.eclipse.ui.views">
       <view
             allowMultiple="false"
             category="org.eclipse.imp.x10dt.ui.developerTools"
-            class="org.eclipse.imp.x10dt.ui.views.ASTValidatorViewPart"
+            class="x10dt.ui.views.ASTValidatorViewPart"
             id="org.eclipse.imp.x10dt.ui.astValidationView"
             name="X10 AST Validator"
             restorable="true">
@@ -443,7 +443,7 @@
       <view
             allowMultiple="false"
             category="org.eclipse.imp.x10dt.ui.developerTools"
-            class="org.eclipse.imp.x10dt.ui.views.ASTInfoViewPart"
+            class="x10dt.ui.views.ASTInfoViewPart"
             id="org.eclipse.imp.x10dt.ui.astInfoView"
             name="X10 AST Info"
             restorable="true">
@@ -457,7 +457,7 @@
       </category>
       <wizard
             category="x10dt.wizards.category"
-            class="org.eclipse.imp.x10dt.ui.wizards.NewX10ClassWizard"
+            class="x10dt.ui.wizards.NewX10ClassWizard"
             finalPerspective="org.eclipse.imp.x10dt.ui.perspective"
             hasPages="true"
             icon="icons/newclass.gif"
@@ -466,7 +466,7 @@
       </wizard>
       <wizard
             category="x10dt.wizards.category"
-            class="org.eclipse.imp.x10dt.ui.wizards.NewX10InterfaceWizard"
+            class="x10dt.ui.wizards.NewX10InterfaceWizard"
             finalPerspective="org.eclipse.imp.x10dt.ui.perspective"
             hasPages="true"
             icon="icons/newinterface.gif"
@@ -475,7 +475,7 @@
       </wizard>
       <wizard
             category="x10dt.wizards.category"
-            class="org.eclipse.imp.x10dt.ui.wizards.NewX10PackageWizard"
+            class="x10dt.ui.wizards.NewX10PackageWizard"
             finalPerspective="org.eclipse.imp.x10dt.ui.perspective"
             hasPages="true"
             icon="icons/newpackage.gif"
@@ -485,7 +485,7 @@
       <wizard
             canFinishEarly="false"
             category="x10dt.wizards.category"
-            class="org.eclipse.imp.x10dt.ui.wizards.X10ProjectWizard"
+            class="x10dt.ui.wizards.X10ProjectWizard"
             finalPerspective="org.eclipse.imp.x10dt.ui.perspective"
             hasPages="true"
             icon="icons/newproject.gif"

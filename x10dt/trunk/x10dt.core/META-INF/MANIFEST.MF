@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: X10 Language Support
 Bundle-SymbolicName: x10dt.core;singleton:=true
 Bundle-Version: 2.0.6.qualifier
-Bundle-Activator: org.eclipse.imp.x10dt.core.X10DTCorePlugin
+Bundle-Activator: x10dt.core.X10DTCorePlugin
 Bundle-Vendor: x10-users@lists.sourceforge.net
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.core.resources,
@@ -27,8 +27,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.imp.java.hosted,
  lpg.runtime.java;bundle-version="2.0.18"
 Bundle-ActivationPolicy: lazy
-Export-Package: org.eclipse.imp.x10dt.core,
- org.eclipse.imp.x10dt.core.builder,
- org.eclipse.imp.x10dt.core.preferences.generated,
- org.eclipse.imp.x10dt.core.utils
+Export-Package: x10dt.core,
+ x10dt.core.builder,
+ x10dt.core.preferences.generated,
+ x10dt.core.utils
 Bundle-RequiredExecutionEnvironment: J2SE-1.5

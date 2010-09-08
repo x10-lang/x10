@@ -7,7 +7,7 @@
          point="org.eclipse.core.resources.builders">
       <builder>
          <run
-               class="org.eclipse.imp.x10dt.ui.launch.java.builder.X10JavaBuilder">
+               class="x10dt.ui.launch.java.builder.X10JavaBuilder">
          </run>
       </builder>
    </extension>
@@ -17,7 +17,7 @@
          point="org.eclipse.core.resources.natures">
       <runtime>
          <run
-               class="org.eclipse.imp.x10dt.ui.launch.java.nature.X10ProjectNature">
+               class="x10dt.ui.launch.java.nature.X10ProjectNature">
          </run>
       </runtime>
       <builder
@@ -32,11 +32,11 @@
       <objectContribution
             objectClass="org.eclipse.jdt.core.IJavaProject"
             nameFilter="*"
-            id="org.eclipse.imp.x10dt.core.projectContextMenu">
+            id="x10dt.core.projectContextMenu">
          <menu
                label="X10"
                path="additions"
-               id="org.eclipse.imp.x10dt.core.menu1">
+               id="x10dt.core.menu1">
             <separator
                   name="group1">
             </separator>
@@ -45,8 +45,8 @@
                label="Enable Java Back-end Builder"
                icon="icons/builderEnable.gif"
                tooltip="Enable the X10 Compiler for this project"
-               class="org.eclipse.imp.x10dt.ui.launch.java.actions.BuilderEnable"
-               menubarPath="org.eclipse.imp.x10dt.core.menu1/group1"
+               class="x10dt.ui.launch.java.actions.BuilderEnable"
+               menubarPath="x10dt.core.menu1/group1"
                enablesFor="1"
                id="org.eclipse.imp.x10dt.ui.launch.java.actions.enableBuilderAction">
          </action>

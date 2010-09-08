@@ -13,7 +13,7 @@ To switch perspectives, invoke &quot;Window&quot; -&gt; &quot;Open Perspective&q
 <br/>
 (The perspective button bar usually appears in the upper right, the upper left, or the left-hand side of the Eclipse window, and contains 1 or more iconic buttons, each representing a perspective, e.g. &quot;Java&quot;, &quot;X10&quot;, &quot;Resource&quot;, &quot;Debug&quot;, &quot;CVS&quot;.)
       </description>
-      <command serialization="org.eclipse.ui.perspectives.showPerspective(org.eclipse.ui.perspectives.showPerspective.perspectiveId=org.eclipse.imp.x10dt.ui.perspective)" confirm="false">
+      <command serialization="org.eclipse.ui.perspectives.showPerspective(org.eclipse.ui.perspectives.showPerspective.perspectiveId=x10dt.ui.perspective)" confirm="false">
       </command>
    </item>
    <item title="Create an X10 project" dialog="true" skip="false">
@@ -33,7 +33,7 @@ Hit &quot;Finish&quot; when done editing the various fields.<br/>
 In this dialog, go to the &quot;Shortcuts&quot; page, and locate &quot;X10&quot; in the &quot;Shortcut Categories&quot; list in the left-hand pane. Check that box, and click &quot;Ok&quot;.]<br/>
 <br/>
       </description>
-      <action class="org.eclipse.imp.x10dt.ui.cheatsheet.actions.NewX10ProjectAction" pluginId="org.eclipse.imp.x10dt.ui" confirm="false">
+      <action class="x10dt.ui.cheatsheet.actions.NewX10ProjectAction" pluginId="x10dt.ui" confirm="false">
       </action>
    </item>
    <item title="Create a new X10 Class" dialog="true" skip="false">
@@ -64,7 +64,7 @@ To make it always appear in the &quot;New&quot; menu, invoke &quot;Window&quot; 
 In this dialog, go to the &quot;Shortcuts&quot; page, and locate &quot;X10&quot; in the &quot;Shortcut Categories&quot; list in the left-hand pane. Check that box, and click &quot;Ok&quot;.]<br/>
 <br/>
       </description>
-      <action class="org.eclipse.imp.x10dt.ui.cheatsheet.actions.NewX10TypeAction" pluginId="org.eclipse.imp.x10dt.ui" confirm="false">
+      <action class="x10dt.ui.cheatsheet.actions.NewX10TypeAction" pluginId="x10dt.ui" confirm="false">
       </action>
    </item>
    <item title="Using the Editor and Outline View" dialog="true" skip="false">
@@ -97,7 +97,7 @@ Arguments to be passed to your X10 application can be specified in the &quot;Arg
 &quot;Runtime arguments&quot; pane).<br/>
 <br/>
       </description>
-      <command serialization="org.eclipse.imp.x10dt.ui.launching.x10LaunchShortcut.run" confirm="false">
+      <command serialization="x10dt.ui.launching.x10LaunchShortcut.run" confirm="false">
       </command>
    </item>
    <item title="Debugging your X10 program" dialog="true" skip="false">
@@ -117,7 +117,7 @@ application can land you inside the X10 runtime (much like stepping into a strin
 In the future, we hope to provide a more X10-savvy debugging perspective.<br/>
 <br/>
       </description>
-      <command serialization="org.eclipse.imp.x10dt.ui.launching.x10LaunchShortcut.debug" confirm="false">
+      <command serialization="x10dt.ui.launching.x10LaunchShortcut.debug" confirm="false">
       </command>
    </item>
 </cheatsheet>

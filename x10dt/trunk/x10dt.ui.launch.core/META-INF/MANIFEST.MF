@@ -4,7 +4,7 @@ Bundle-Name: X10DT Core Launch
 Bundle-SymbolicName: x10dt.ui.launch.core;singleton:=true
 Bundle-Version: 2.0.6.qualifier
 Bundle-Localization: plugin
-Bundle-Activator: org.eclipse.imp.x10dt.ui.launch.core.LaunchCore
+Bundle-Activator: x10dt.ui.launch.core.LaunchCore
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.jface,
  org.eclipse.ui.workbench,
@@ -21,10 +21,10 @@ Require-Bundle: org.eclipse.core.runtime,
  lpg.runtime.java;bundle-version="2.0.18"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
-Export-Package: org.eclipse.imp.x10dt.ui.launch.core,
- org.eclipse.imp.x10dt.ui.launch.core.builder,
- org.eclipse.imp.x10dt.ui.launch.core.builder.target_op,
- org.eclipse.imp.x10dt.ui.launch.core.dialogs,
- org.eclipse.imp.x10dt.ui.launch.core.platform_conf,
- org.eclipse.imp.x10dt.ui.launch.core.utils
+Export-Package: x10dt.ui.launch.core,
+ x10dt.ui.launch.core.builder,
+ x10dt.ui.launch.core.builder.target_op,
+ x10dt.ui.launch.core.dialogs,
+ x10dt.ui.launch.core.platform_conf,
+ x10dt.ui.launch.core.utils
 Bundle-Vendor: x10-users@lists.sourceforge.net

@@ -10,7 +10,7 @@ Require-Bundle: org.apache.log4j,
  org.eclipse.swtbot.eclipse.finder,
  org.eclipse.ui,
  org.hamcrest
-Export-Package: org.eclipse.imp.x10dt.tests.services.swbot.conditions,
- org.eclipse.imp.x10dt.tests.services.swbot.constants,
- org.eclipse.imp.x10dt.tests.services.swbot.matcher,
- org.eclipse.imp.x10dt.tests.services.swbot.utils
+Export-Package: x10dt.tests.services.swbot.conditions,
+ x10dt.tests.services.swbot.constants,
+ x10dt.tests.services.swbot.matcher,
+ x10dt.tests.services.swbot.utils

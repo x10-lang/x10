@@ -1,4 +1,4 @@
-<project name="org.eclipse.imp.x10dt.core" default="all">
+<project name="x10dt.core" default="all">
     <target name="all" depends="compile, test, publish"/>
 
     <target name="compile">

@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: X10 Code Formatter Plug-in
 Bundle-SymbolicName: x10dt.formatter;singleton:=true
 Bundle-Version: 1.7.3.1
-Bundle-Activator: org.eclipse.imp.x10dt.formatter.Activator
+Bundle-Activator: x10dt.formatter.Activator
 Bundle-ActivationPolicy: lazy
 Eclipse-LazyStart: true
 Require-Bundle: org.eclipse.ui,

@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: X10DT Java back-end
 Bundle-SymbolicName: x10dt.ui.launch.java;singleton:=true
 Bundle-Version: 2.0.6.qualifier
-Bundle-Activator: org.eclipse.imp.x10dt.ui.launch.java.Activator
+Bundle-Activator: x10dt.ui.launch.java.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  x10dt.ui.launch.core,
@@ -18,8 +18,8 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.filesystem
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
-Export-Package: org.eclipse.imp.x10dt.ui.launch.java,
- org.eclipse.imp.x10dt.ui.launch.java.actions,
- org.eclipse.imp.x10dt.ui.launch.java.builder,
- org.eclipse.imp.x10dt.ui.launch.java.nature
+Export-Package: x10dt.ui.launch.java,
+ x10dt.ui.launch.java.actions,
+ x10dt.ui.launch.java.builder,
+ x10dt.ui.launch.java.nature
 Bundle-Vendor: x10-users@lists.sourceforge.net

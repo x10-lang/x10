@@ -41,35 +41,35 @@
 		<junit>
 			<classpath refid="classpath.test" />
 			<formatter type="xml" usefile="true" />
-			<test name="org.eclipse.imp.x10dt.core.tests.compiler.CompilerTests" todir="${report}"/>
+			<test name="x10dt.core.tests.compiler.CompilerTests" todir="${report}"/>
 		</junit>
 	</target>
 	<target name="quicktest" depends="init,build" description="A quick set of tests (~2min)">
 		<junit>
 			<classpath refid="classpath.test" />
 			<formatter type="xml" usefile="true" />
-			<test name="org.eclipse.imp.x10dt.core.tests.compiler.CompletenessCompilerTests" todir="${report}" />
-			<test name="org.eclipse.imp.x10dt.core.tests.compiler.DataParamCompilerTests" todir="${report}" />
+			<test name="x10dt.core.tests.compiler.CompletenessCompilerTests" todir="${report}" />
+			<test name="x10dt.core.tests.compiler.DataParamCompilerTests" todir="${report}" />
 		</junit>
 	</target>
 	<target name="slowtest" depends="init,build" description="A slower set of tests (~20min)">
 		<junit>
 			<classpath refid="classpath.test" />
 			<formatter type="xml" usefile="true" />
-			<test name="org.eclipse.imp.x10dt.core.tests.compiler.X10TestsParamCompilerTests" todir="${report}" />
+			<test name="x10dt.core.tests.compiler.X10TestsParamCompilerTests" todir="${report}" />
 		</junit>
 	</target>
 	<target name="fuzztest" depends="init,build,fuzzgen" description="A slow set of tests (~200min)">
 		<junit>
 			<classpath refid="classpath.test" />
 			<formatter type="xml" usefile="true" />
-			<test name="org.eclipse.imp.x10dt.core.tests.compiler.FuzzParamCompilerTests" todir="${report}" />
+			<test name="x10dt.core.tests.compiler.FuzzParamCompilerTests" todir="${report}" />
 		</junit>
 	</target>
 	<target name="fuzzgen">
 		<delete dir="${data}/fuzzgen" failonerror="false" />
 		<mkdir dir="${data}/fuzzgen" />
-		<java classname="org.eclipse.imp.x10dt.core.tests.compiler.FuzzParamCompilerTests">
+		<java classname="x10dt.core.tests.compiler.FuzzParamCompilerTests">
 			<classpath refid="classpath.test" />
 		</java>
 	</target>

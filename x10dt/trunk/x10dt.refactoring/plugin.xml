@@ -5,7 +5,7 @@
          point="org.eclipse.imp.runtime.refactoringContributions">
          <refactoringContributor
          	language="X10"
-         	class="org.eclipse.imp.x10dt.refactoring.actions.X10DTRefactoringContributor"/>
+         	class="x10dt.refactoring.actions.X10DTRefactoringContributor"/>
    </extension>
    <extension
          point="org.eclipse.ui.editors.annotationTypes">

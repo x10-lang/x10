@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: X10 Refactoring
 Bundle-SymbolicName: x10dt.refactoring;singleton:=true
 Bundle-Version: 2.0.5.qualifier
-Bundle-Activator: org.eclipse.imp.x10dt.refactoring.X10DTRefactoringPlugin
+Bundle-Activator: x10dt.refactoring.X10DTRefactoringPlugin
 Bundle-Vendor: x10-users@lists.sourceforge.net
 Require-Bundle: org.eclipse.core.resources;bundle-version="3.4.2",
  org.eclipse.core.runtime,
@@ -25,6 +25,6 @@ Require-Bundle: org.eclipse.core.resources;bundle-version="3.4.2",
  x10.effects;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-ActivationPolicy: lazy
-Export-Package: org.eclipse.imp.x10dt.refactoring.analysis,
- org.eclipse.imp.x10dt.refactoring.effects,
- org.eclipse.imp.x10dt.refactoring.utils
+Export-Package: x10dt.refactoring.analysis,
+ x10dt.refactoring.effects,
+ x10dt.refactoring.utils

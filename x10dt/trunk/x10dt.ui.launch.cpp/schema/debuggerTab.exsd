@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!-- Schema file written by PDE -->
-<schema targetNamespace="org.eclipse.imp.x10dt.ui.cpp.launch" xmlns="http://www.w3.org/2001/XMLSchema">
+<schema targetNamespace="x10dt.ui.cpp.launch" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appinfo>
-         <meta.schema plugin="org.eclipse.imp.x10dt.ui.cpp.launch" id="debuggerTab" name="debuggerTab"/>
+         <meta.schema plugin="x10dt.ui.cpp.launch" id="debuggerTab" name="debuggerTab"/>
       </appinfo>
       <documentation>
          [Enter description of this extension point.]

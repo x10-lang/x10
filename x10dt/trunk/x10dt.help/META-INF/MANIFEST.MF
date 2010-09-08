@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: X10 Help
 Bundle-SymbolicName: x10dt.help;singleton:=true
 Bundle-Version: 2.0.6.qualifier
-Bundle-Activator: org.eclipse.imp.x10dt.help.Activator
+Bundle-Activator: x10dt.help.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.help.ui,

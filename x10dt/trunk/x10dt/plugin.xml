@@ -5,7 +5,7 @@
          point="org.eclipse.ui.intro">
       <introProductBinding
             introId="org.eclipse.ui.intro.universal"
-            productId="org.eclipse.imp.x10dt.product">
+            productId="x10dt.product">
       </introProductBinding>
    </extension>
    <extension

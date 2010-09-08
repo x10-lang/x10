@@ -11,10 +11,10 @@
    <extension
          point="org.eclipse.imp.formatting.formattingSpecification">
       <formattingSpecification
-            astAdapter="org.eclipse.imp.x10dt.formatter.parser.ASTAdapter"
+            astAdapter="x10dt.formatter.parser.ASTAdapter"
             file="org/eclipse/imp/x10dt/formatter/X10.fsp"
             language="X10"
-            parseController="org.eclipse.imp.x10dt.formatter.parser.ParseController">
+            parseController="x10dt.formatter.parser.ParseController">
       </formattingSpecification>
    </extension>
 </plugin>

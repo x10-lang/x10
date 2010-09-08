@@ -11,7 +11,7 @@
             hasNature="true"
             isConfigurable="false">
          <run
-               class="org.eclipse.imp.x10dt.ui.launch.cpp.builder.X10CppBuilder">
+               class="x10dt.ui.launch.cpp.builder.X10CppBuilder">
          </run>
       </builder>
    </extension>
@@ -21,11 +21,11 @@
          point="org.eclipse.core.resources.natures">
       <runtime>
          <run
-               class="org.eclipse.imp.x10dt.ui.launch.cpp.nature.CppProjectNature">
+               class="x10dt.ui.launch.cpp.nature.CppProjectNature">
          </run>
       </runtime>
       <builder
-            id="org.eclipse.imp.x10dt.ui.launch.cpp.X10CppBuilder">
+            id="x10dt.ui.launch.cpp.X10CppBuilder">
       </builder>
       <requires-nature
             id="org.eclipse.jdt.core.javanature">
@@ -36,11 +36,11 @@
       <wizard
             canFinishEarly="false"
             category="x10dt.wizards.category"
-            class="org.eclipse.imp.x10dt.ui.launch.cpp.wizards.CppProjectWizard"
-            finalPerspective="org.eclipse.imp.x10dt.ui.perspective"
+            class="x10dt.ui.launch.cpp.wizards.CppProjectWizard"
+            finalPerspective="x10dt.ui.perspective"
             hasPages="true"
             icon="icons/obj/newx10prj_cpp.gif"
-            id="org.eclipse.imp.x10dt.ui.cpp.launch.NewX10Project"
+            id="x10dt.ui.cpp.launch.NewX10Project"
             name="%new_prj_name"
             project="true">
       </wizard>
@@ -48,12 +48,12 @@
    <extension
          point="org.eclipse.ui.actionSets">
       <actionSet
-            id="org.eclipse.imp.x10dt.ui.cpp.launch.X10ElementCreation"
+            id="x10dt.ui.cpp.launch.X10ElementCreation"
             label="%perspective.actionsets">
          <action
-               class="org.eclipse.imp.x10dt.ui.launch.cpp.actions.OpenX10ProjectCppBCWizardToolbarAction"
+               class="x10dt.ui.launch.cpp.actions.OpenX10ProjectCppBCWizardToolbarAction"
                icon="icons/obj/newx10prj_cpp.gif"
-               id="org.eclipse.imp.x10dt.ui.cpp.launch.NewX10ProjectCppToolbarAction"
+               id="x10dt.ui.cpp.launch.NewX10ProjectCppToolbarAction"
                label="%new.project.cpp.label"
                style="push"
                toolbarPath="Normal/X10Wizards"
@@ -64,32 +64,32 @@
    <extension
          point="org.eclipse.ui.perspectiveExtensions">
       <perspectiveExtension
-            targetID="org.eclipse.imp.x10dt.ui.perspective">
+            targetID="x10dt.ui.perspective">
          <actionSet
-               id="org.eclipse.imp.x10dt.ui.cpp.launch.X10ElementCreation">
+               id="x10dt.ui.cpp.launch.X10ElementCreation">
          </actionSet>
          <newWizardShortcut
-               id="org.eclipse.imp.x10dt.ui.cpp.launch.NewX10Project">
+               id="x10dt.ui.cpp.launch.NewX10Project">
          </newWizardShortcut>rdShortcut>
       </perspectiveExtension>
    </extension>
    <extension
          point="org.eclipse.debug.core.launchConfigurationTypes">
       <launchConfigurationType
-            delegate="org.eclipse.imp.x10dt.ui.launch.cpp.launching.CppLaunchConfigurationDelegate"
-            id="org.eclipse.imp.x10dt.ui.cpp.launch.X10LaunchConfigurationType"
+            delegate="x10dt.ui.launch.cpp.launching.CppLaunchConfigurationDelegate"
+            id="x10dt.ui.cpp.launch.X10LaunchConfigurationType"
             modes="run,debug"
             name="%launch.config.cpp.name"
-            sourceLocatorId="org.eclipse.imp.x10dt.ui.cpp.launch.SourceLocator"
+            sourceLocatorId="x10dt.ui.cpp.launch.SourceLocator"
             sourcePathComputerId="org.eclipse.ptp.debug.core.sourcePathComputer">
       </launchConfigurationType>
    </extension>
    <extension
          point="org.eclipse.debug.ui.launchConfigurationTabGroups">
       <launchConfigurationTabGroup
-            class="org.eclipse.imp.x10dt.ui.launch.cpp.launching.CppLaunchConfigurationTabGroup"
-            id="org.eclipse.imp.x10dt.ui.cpp.launch.X10LaunchConfigurationTabGroup"
-            type="org.eclipse.imp.x10dt.ui.cpp.launch.X10LaunchConfigurationType">
+            class="x10dt.ui.launch.cpp.launching.CppLaunchConfigurationTabGroup"
+            id="x10dt.ui.cpp.launch.X10LaunchConfigurationTabGroup"
+            type="x10dt.ui.cpp.launch.X10LaunchConfigurationType">
          <launchMode
                description="%parallelLaunch.run"
                mode="run"
@@ -105,29 +105,29 @@
    <extension
          point="org.eclipse.debug.ui.launchConfigurationTypeImages">
       <launchConfigurationTypeImage
-            configTypeID="org.eclipse.imp.x10dt.ui.cpp.launch.X10LaunchConfigurationType"
+            configTypeID="x10dt.ui.cpp.launch.X10LaunchConfigurationType"
             icon="icons/obj/parallel_run.gif"
-            id="org.eclipse.imp.x10dt.ui.cpp.launch.X10LaunchConfigurationTypeImage">
+            id="x10dt.ui.cpp.launch.X10LaunchConfigurationTypeImage">
       </launchConfigurationTypeImage>
    </extension>
    <extension
          point="org.eclipse.debug.core.sourceLocators">
       <sourceLocator
-            class="org.eclipse.imp.x10dt.ui.launch.cpp.launching.CppSourceLocator"
-            id="org.eclipse.imp.x10dt.ui.cpp.launch.SourceLocator"
+            class="x10dt.ui.launch.cpp.launching.CppSourceLocator"
+            id="x10dt.ui.cpp.launch.SourceLocator"
             name="X10 C++ back-end source locator">
       </sourceLocator>
    </extension>
    <extension
          point="org.eclipse.ui.editors">
       <editor
-            class="org.eclipse.imp.x10dt.ui.launch.cpp.editors.X10PlatformConfFormEditor"
+            class="x10dt.ui.launch.cpp.editors.X10PlatformConfFormEditor"
             default="true"
             icon="icons/obj/x10-platform-conf.png"
-            id="org.eclipse.imp.x10dt.ui.launch.cpp.platformConfEditor"
+            id="x10dt.ui.launch.cpp.platformConfEditor"
             name="%editors.platformConfEditor">
          <contentTypeBinding
-               contentTypeId="org.eclipse.imp.x10dt.ui.launch.cpp.x10-platform-conf.content-type">
+               contentTypeId="x10dt.ui.launch.cpp.x10-platform-conf.content-type">
          </contentTypeBinding>
       </editor>
    </extension>
@@ -136,7 +136,7 @@
       <content-type
             base-type="org.eclipse.core.runtime.xml"
             file-names="x10_platform.conf"
-            id="org.eclipse.imp.x10dt.ui.launch.cpp.x10-platform-conf.content-type"
+            id="x10dt.ui.launch.cpp.x10-platform-conf.content-type"
             name="%x10-platform-conf.content-type"
             priority="normal">
       </content-type>
@@ -155,9 +155,9 @@
    <extension
          point="org.eclipse.debug.ui.launchShortcuts">
       <shortcut
-            class="org.eclipse.imp.x10dt.ui.launch.cpp.launching.X10CppLaunchShortcut"
+            class="x10dt.ui.launch.cpp.launching.X10CppLaunchShortcut"
             icon="icons/obj/parallel_run.gif"
-            id="org.eclipse.imp.x10dt.ui.launch.cpp.x10.app"
+            id="x10dt.ui.launch.cpp.x10.app"
             label="%run.as.x10app"
             modes="run,debug">
          <contextualLaunch>
@@ -191,7 +191,7 @@
                         </or>
                         <test
                               property="org.eclipse.debug.ui.projectNature"
-                              value="org.eclipse.imp.x10dt.ui.launch.cpp.x10nature">
+                              value="x10dt.ui.launch.cpp.x10nature">
                         </test>
                      </and>
                   </iterate>
@@ -199,7 +199,7 @@
             </enablement>
          </contextualLaunch>
          <configurationType
-               id="org.eclipse.imp.x10dt.ui.cpp.launch.X10LaunchConfigurationType">
+               id="x10dt.ui.cpp.launch.X10LaunchConfigurationType">
          </configurationType>
          <description
                description="%run.as.description"
@@ -214,13 +214,13 @@
    <extension
          point="org.eclipse.ui.bindings">
       <key
-            commandId="org.eclipse.imp.x10dt.ui.launch.cpp.x10.app.run"
+            commandId="x10dt.ui.launch.cpp.x10.app.run"
             contextId="org.eclipse.ui.contexts.window"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+M3+X C">
       </key>
       <key
-            commandId="org.eclipse.imp.x10dt.ui.launch.cpp.x10.app.debug"
+            commandId="x10dt.ui.launch.cpp.x10.app.debug"
             contextId="org.eclipse.ui.contexts.window"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+M3+D C">
@@ -230,12 +230,12 @@
          point="org.eclipse.ui.commands">
       <command
             categoryId="org.eclipse.debug.ui.category.run"
-            id="org.eclipse.imp.x10dt.ui.launch.cpp.x10.app.run"
+            id="x10dt.ui.launch.cpp.x10.app.run"
             name="%run.app.command">
       </command>
       <command
             categoryId="org.eclipse.debug.ui.category.run"
-            id="org.eclipse.imp.x10dt.ui.launch.cpp.x10.app.debug"
+            id="x10dt.ui.launch.cpp.x10.app.debug"
             name="%debug.app.command">
       </command>
    </extension>

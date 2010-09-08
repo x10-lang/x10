@@ -41,6 +41,6 @@ Require-Bundle: lpg.runtime.java,
  org.eclipse.ui.forms,
  x10.common,
  x10.compiler
-Bundle-Activator: org.eclipse.imp.x10dt.ui.launch.cpp.CppLaunchCore
+Bundle-Activator: x10dt.ui.launch.cpp.CppLaunchCore
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: x10-users@lists.sourceforge.net

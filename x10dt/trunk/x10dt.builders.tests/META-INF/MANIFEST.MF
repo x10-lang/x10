@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Tests
 Bundle-SymbolicName: x10dt.builders.tests
 Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: org.eclipse.imp.x10dt.builders.tests.Activator
+Bundle-Activator: x10dt.builders.tests.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.core.resources;bundle-version="3.5.0",
