@@ -28,13 +28,13 @@ abstract public class x10Test {
     abstract public def run(): boolean;
 
     public def executeAsync() {
-        val b  = Rail.make([ false as Boolean ]);  
+        val b = new Cell[Boolean](false);  
         try {
-            finish async b(0) = this.run();
+            finish async b(this.run());
         } catch (e: Throwable) {
             e.printStackTrace();
         }
-        reportResult(b(0));
+        reportResult(b());
     }
 
     public def execute(): void = {
