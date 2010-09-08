@@ -561,7 +561,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			                        "} catch (java.lang.Error e) {\n" +
 			                            "throw e;\n" +
 			                        "} catch (java.lang.Throwable t) {\n" +
-			                            "throw new x10.lang.MultipleExceptions(t);\n" +
+			                            "throw new x10.runtime.impl.java.X10WrappedThrowable(t);\n" +
 			                        "}\n" +
 			                    "}\n" +
                                 "public x10.rtt.RuntimeType<?> getRTT() {\n" +
@@ -1026,7 +1026,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                                             "x10.rtt.Type rtt = #2;" +
                                             "#0 dep = (#0) x10.rtt.Types.conversion(rtt,self);" +
                                             "if (self==null) return null;" +
-                                            "if (rtt != null && ! rtt.instanceof$(dep)) throw new java.lang.ClassCastException();" +
+                                            "if (rtt != null && ! rtt.instanceof$(dep)) throw new x10.lang.ClassCastException();" +
                                             "return dep;" +
                                         "}" +
                                     "}.cast(#1))";
@@ -1040,7 +1040,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                                         "final #0 cast(final #0 self) {" +
                                             "if (self==null) return null;" +
                                             "x10.rtt.Type rtt = #2;" +
-                                            "if (rtt != null && ! rtt.instanceof$(self)) throw new java.lang.ClassCastException();" +
+                                            "if (rtt != null && ! rtt.instanceof$(self)) throw new x10.lang.ClassCastException();" +
                                             "return self;" +
                                         "}" +
                                     "}.cast((#0) #1))";
@@ -1466,14 +1466,30 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		}
 		TryCatchExpander expander = new TryCatchExpander(w, er, c.tryBlock(), c.finallyBlock());
 		final List<Catch> catchBlocks = c.catchBlocks();
-		if (!catchBlocks.isEmpty()) {
+
+		boolean isJavaCheckedExceptionCaught = false;
+        for (int i = 0; i < catchBlocks.size(); ++i) {
+            Type type = catchBlocks.get(i).catchType();
+            if (type.toString().startsWith("java") && !type.isUncheckedException()) {
+                // found Java checked exceptions caught here!!
+                isJavaCheckedExceptionCaught = true;
+            }
+        }
+		if (isJavaCheckedExceptionCaught) {
 		    final String temp = "__$generated_wrappedex$__";
-		    expander.addCatchBlock("x10.runtime.impl.java.WrappedRuntimeException", temp, new Expander(er) {
+		    expander.addCatchBlock("x10.runtime.impl.java.X10WrappedThrowable", temp, new Expander(er) {
 		        public void expand(Translator tr) {
                     w.newline();
 
                     for (int i = 0; i < catchBlocks.size(); ++i) {
 		                Catch cb = catchBlocks.get(i);
+		                Type type = cb.catchType();
+		                if (!type.toString().startsWith("java") || type.isUncheckedException())
+//		                if (type.isSubtype(tr.typeSystem().Error(), tr.context()) || 
+//		                    type.isSubtype(tr.typeSystem().RuntimeException(), tr.context()))
+		                    // nothing to do, since X10WrappedThrowable wrap only Java checked exceptions
+		                    continue;
+
 		                if (i > 0) {
 		                    w.write("else ");
 		                }
@@ -1502,12 +1518,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     w.newline();
 		        }
 		    });
+        }
 		    
-		    for (int i = 0; i < catchBlocks.size(); ++i) {
-		        expander.addCatchBlock(catchBlocks.get(i));
-		    }
+		for (int i = 0; i < catchBlocks.size(); ++i) {
+		    expander.addCatchBlock(catchBlocks.get(i));
 		}
-		
+
 		expander.expand(tr);
 	}
 
@@ -2039,9 +2055,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 
                 TryCatchExpander tryCatchExpander = new TryCatchExpander(w, er, n.body(), null);
                 if (runAsync) {
-                    tryCatchExpander.addCatchBlock("x10.runtime.impl.java.WrappedRuntimeException", "ex", new Expander(er) {
+                    tryCatchExpander.addCatchBlock("x10.runtime.impl.java.X10WrappedThrowable", "ex", new Expander(er) {
                         public void expand(Translator tr) {
-                            w.write("x10.lang.Runtime.pushException(ex.getCause());");
+                            w.write("x10.lang.Runtime.pushException(ex);");
                         }
                     });
                 }
@@ -2059,13 +2075,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     if (runAsync) {
                         tryCatchExpander.addCatchBlock("java.lang.Throwable", "t", new Expander(er) {
                             public void expand(Translator tr) {
-                                w.write("x10.lang.Runtime.pushException(t);");
+                                w.write("x10.lang.Runtime.pushException(new x10.runtime.impl.java.X10WrappedThrowable(t));");
                             }
                         });
                     } else {
                         tryCatchExpander.addCatchBlock("java.lang.Throwable", "t", new Expander(er) {
                             public void expand(Translator tr) {
-                                w.write("throw new x10.runtime.impl.java.WrappedRuntimeException(t);");
+                                w.write("throw new x10.runtime.impl.java.X10WrappedThrowable(t);");
                             }
                         });
                     }
@@ -2081,13 +2097,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     if (runAsync) {
                         tryCatchExpander.addCatchBlock("java.lang.Exception", "ex", new Expander(er) {
                             public void expand(Translator tr) {
-                                w.write("x10.lang.Runtime.pushException(ex);");
+                                w.write("x10.lang.Runtime.pushException(new x10.runtime.impl.java.X10WrappedThrowable(ex));");
                             }
                         });
                     } else {
                         tryCatchExpander.addCatchBlock("java.lang.Exception", "ex", new Expander(er) {
                             public void expand(Translator tr) {
-                                w.write("throw new x10.runtime.impl.java.WrappedRuntimeException(ex);");
+                                w.write("throw new x10.runtime.impl.java.X10WrappedThrowable(ex);");
                             }
                         });
                     }

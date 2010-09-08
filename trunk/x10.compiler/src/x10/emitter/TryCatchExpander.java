@@ -14,6 +14,7 @@ import java.io.OutputStream;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import polyglot.ast.Block;
 import polyglot.ast.Catch;
@@ -80,6 +81,23 @@ public class TryCatchExpander extends Expander {
 				w.write("}");
 			}
 		}
+
+		int conversionRequired() {
+		    String catchExClassName = (catchBlock != null) ? catchBlock.catchType().toString() : exClass;
+		    int rc = 0;
+		    for (String exc : x10RuntimeExceptions)
+		        if (catchExClassName.equals(exc)) {
+		            rc |= EXC_CONVERSION;
+		            break;
+		        }
+            for (String exc : x10Errors)
+                if (catchExClassName.equals(exc)) {
+                    rc |= ERROR_CONVERSION;
+                    break;
+                }
+            return rc;
+		}
+
 	}
 
 	private final CodeWriter w;
@@ -118,11 +136,38 @@ public class TryCatchExpander extends Expander {
 	@Override
 	public void expand(Translator tr) {
 		w.write("try {");
+		
+		int additionalTryCatchForConversion = checkConversionRequired();
+		if (additionalTryCatchForConversion != NO_CONVERSION) {
+		    // inner try-catch generation for exception type conversion
+            w.write("try {");
+        }
+
 
 		if (block != null) {
 			er.prettyPrint(block, tr);
 		} else if (child != null) {
 			child.expand(tr);
+		}
+
+		if (additionalTryCatchForConversion != NO_CONVERSION) {
+	        w.write("}");
+
+            w.write("catch (x10.runtime.impl.java.X10Throwable __t__) {");
+            w.write("throw __t__;");
+            w.write("}");
+
+            if ((additionalTryCatchForConversion & EXC_CONVERSION) != 0) {
+                w.write("catch (java.lang.RuntimeException __e__) {");
+                w.write("throw x10.runtime.impl.java.X10Throwable.getCorrespondingX10Exception(__e__);");
+                w.write("}");
+            }
+
+            if ((additionalTryCatchForConversion & ERROR_CONVERSION) != 0) {
+                w.write("catch (java.lang.Error __e__) {");
+                w.write("throw x10.runtime.impl.java.X10Throwable.getCorrespondingX10Error(__e__);");
+                w.write("}");
+            }
 		}
 
 		w.write("}");
@@ -137,5 +182,39 @@ public class TryCatchExpander extends Expander {
 			er.prettyPrint(finalBlock, tr);
 			w.write("}");
 		}
+	}
+
+	static final String[] x10RuntimeExceptions = {
+//	    "x10.array.UnboundedRegionException",
+//	    "x10.io.IORuntimeException",
+	    "x10.lang.ArithmeticException",
+	    "x10.lang.ArrayIndexOutOfBoundsException",
+//	    "x10.lang.BadPlaceException",
+	    "x10.lang.ClassCastException",
+//	    "x10.lang.ClockUseException",
+	    "x10.lang.IllegalArgumentException",
+//	    "x10.lang.IllegalOperationException",
+        "x10.util.NoSuchElementException",
+        "x10.lang.NullPointerException",
+        "x10.lang.UnsupportedOperationException",
+	    "x10.lang.RuntimeException",
+	    "x10.lang.Exception",
+	    "x10.lang.Throwable"
+	};
+    static final String[] x10Errors = {
+        "x10.lang.OutOfMemoryError",
+        "x10.lang.Error",
+        "x10.lang.Throwable"
+    };
+    static final int NO_CONVERSION = 0;
+    static final int EXC_CONVERSION = 0x01;
+    static final int ERROR_CONVERSION = 0x10;
+    
+	private int checkConversionRequired() {
+	    int rc = 0;
+        for (CatchBlock catchBlock : catches) {
+            rc |= catchBlock.conversionRequired();
+        }
+	    return rc;
 	}
 }

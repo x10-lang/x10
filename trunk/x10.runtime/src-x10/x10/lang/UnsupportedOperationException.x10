@@ -13,7 +13,7 @@ package x10.lang;
 
 import x10.compiler.NativeRep;
 
-@NativeRep("java", "java.lang.UnsupportedOperationException", null, null)
+// @NativeRep("java", "java.lang.UnsupportedOperationException", null, null)
 public class UnsupportedOperationException extends RuntimeException {
     public def this() = super("unsupported operation exception");
     public def this(message: String) = super(message);

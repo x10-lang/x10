@@ -879,7 +879,7 @@ public class Emitter {
 				w.write(mangleToJava(pt.name()));
 				w.write("; }");
 			} else {
-				w.write(" { throw new java.lang.RuntimeException(); }");
+				w.write(" { throw new x10.lang.RuntimeException(); }");
 			}
 			w.newline();
 		}
@@ -921,7 +921,7 @@ public class Emitter {
 							Type at = ct.typeArguments().get(i);
 							new RuntimeTypeExpander(this, at).expand();
 						} else {
-							w.write("throw new java.lang.RuntimeException()");
+							w.write("throw new x10.lang.RuntimeException()");
 						}
 
 						w.write("; }");
