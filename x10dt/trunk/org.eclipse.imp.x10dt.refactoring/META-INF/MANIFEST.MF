@@ -1,15 +1,15 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: X10 Refactoring
-Bundle-SymbolicName: org.eclipse.imp.x10dt.refactoring;singleton:=true
+Bundle-SymbolicName: x10dt.refactoring;singleton:=true
 Bundle-Version: 2.0.5.qualifier
 Bundle-Activator: org.eclipse.imp.x10dt.refactoring.X10DTRefactoringPlugin
 Bundle-Vendor: x10-users@lists.sourceforge.net
 Require-Bundle: org.eclipse.core.resources;bundle-version="3.4.2",
  org.eclipse.core.runtime,
  org.eclipse.imp.runtime;bundle-version="0.1.97",
- org.eclipse.imp.x10dt.ui;bundle-version="1.7.3",
- org.eclipse.imp.x10dt.core;bundle-version="1.7.3",
+ x10dt.ui;bundle-version="1.7.3",
+ x10dt.core;bundle-version="1.7.3",
  org.eclipse.jdt.core;bundle-version="3.4.4",
  org.eclipse.jface.text,
  org.eclipse.ltk.core.refactoring;bundle-version="3.4.2",

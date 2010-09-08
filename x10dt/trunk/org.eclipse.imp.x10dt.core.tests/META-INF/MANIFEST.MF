@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: X10DT Core Tests
-Bundle-SymbolicName: org.eclipse.imp.x10dt.core.tests
+Bundle-SymbolicName: x10dt.core.tests
 Bundle-Version: 2.0.6.qualifier
 Require-Bundle: org.junit4;bundle-version="4.5.0",
  x10.compiler,

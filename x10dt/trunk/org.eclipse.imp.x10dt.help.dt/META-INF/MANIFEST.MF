@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: X10DT Help
-Bundle-SymbolicName: org.eclipse.imp.x10dt.help.dt; singleton:=true
+Bundle-SymbolicName: x10dt.help.dt;singleton:=true
 Bundle-Version: 2.0.6.qualifier
 Bundle-Activator: org.eclipse.imp.x10dt.help.dt.Activator
 Require-Bundle: org.eclipse.ui,

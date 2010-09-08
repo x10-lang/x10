@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="org.eclipse.imp.x10dt.feature"
+      id="x10dt.feature"
       label="%featureName"
       version="2.0.6.qualifier"
       provider-name="%providerName"
-      plugin="org.eclipse.imp.x10dt"
+      plugin="x10dt"
       os="win32,linux,macosx"
       arch="x86,x86_64"
       image="eclipse_update_120.jpg">
@@ -49,21 +49,21 @@
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.imp.x10dt.core"
+         id="x10dt.core"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.imp.x10dt.ui"
+         id="x10dt.ui"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.imp.x10dt.help"
+         id="x10dt.help"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -91,14 +91,14 @@
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.imp.x10dt.ui.launch.core"
+         id="x10dt.ui.launch.core"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.imp.x10dt.ui.launch.cpp"
+         id="x10dt.ui.launch.cpp"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -148,27 +148,27 @@
          fragment="true"/>
 
    <plugin
-         id="org.eclipse.imp.x10dt"
+         id="x10dt"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
 
    <plugin
-         id="org.eclipse.imp.x10dt.refactoring"
+         id="x10dt.refactoring"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.imp.x10dt.ui.launch.java"
+         id="x10dt.ui.launch.java"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.imp.x10dt.help.dt"
+         id="x10dt.help.dt"
          download-size="0"
          install-size="0"
          version="0.0.0"

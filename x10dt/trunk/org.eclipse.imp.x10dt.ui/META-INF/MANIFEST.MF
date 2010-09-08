@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: X10 IDE
-Bundle-SymbolicName: org.eclipse.imp.x10dt.ui;singleton:=true
+Bundle-SymbolicName: x10dt.ui;singleton:=true
 Bundle-Version: 2.0.6.qualifier
 Bundle-Localization: plugin
 Bundle-ActivationPolicy: lazy
@@ -15,7 +15,7 @@ Require-Bundle: lpg.runtime.java;bundle-version="2.0.18",
  org.eclipse.help,
  org.eclipse.imp.java.hosted;bundle-version="0.1.3",
  org.eclipse.imp.runtime,
- org.eclipse.imp.x10dt.core,
+ x10dt.core,
  org.eclipse.jdt.core,
  org.eclipse.jdt.debug.ui,
  org.eclipse.jdt.launching,
@@ -31,7 +31,7 @@ Require-Bundle: lpg.runtime.java;bundle-version="2.0.18",
  org.eclipse.ui.editors,
  org.eclipse.ui.workbench.texteditor,
  x10.compiler,
- org.eclipse.imp.x10dt.ui.launch.java
+ x10dt.ui.launch.java
 Bundle-Vendor: x10-users@lists.sourceforge.net
 Bundle-Activator: org.eclipse.imp.x10dt.ui.X10DTUIPlugin
 Export-Package: org.eclipse.imp.x10dt.ui,

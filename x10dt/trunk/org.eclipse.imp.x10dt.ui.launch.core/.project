@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>org.eclipse.imp.x10dt.ui.launch.core</name>
+	<name>x10dt.ui.launch.core</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -21,10 +21,10 @@
 			</arguments>
 		</buildCommand>
 		<buildCommand>
-      <name>org.eclipse.pde.api.tools.apiAnalysisBuilder</name>
-      <arguments>
-      </arguments>
-    </buildCommand>
+			<name>org.eclipse.pde.api.tools.apiAnalysisBuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
 	</buildSpec>
 	<natures>
 		<nature>org.eclipse.pde.PluginNature</nature>
