@@ -679,9 +679,13 @@ void x10rt_emu_alltoall (x10rt_team team, x10rt_place role,
 
 namespace {
 
+    template<class T> static T zero (void) { return 0; }
+
+    template<> x10rt_dbl_s32 zero<x10rt_dbl_s32> (void) { x10rt_dbl_s32 z = {0,0}; return z; }
+
     // should never hit this, check specialisations are working
     template<class T, x10rt_red_op_type op> struct reduce { static T _ (const T &a, const T &b)
-{  T::error(); } };
+    { T::error(); } };
 
     template<class T> struct reduce<T,X10RT_RED_OP_ADD> { static T _ (const T &a, const T &b)
     { return a + b; } };
@@ -720,6 +724,34 @@ namespace {
     template<> struct reduce<double,X10RT_RED_OP_XOR>
     { static double _ (const double &, const double &) { return bitwise_err(); } };
     
+    static x10rt_dbl_s32 arith_err (void)
+    {
+        fprintf(stderr, "X10RT: Cannot do arithmetic on paired values.\n");
+        abort();
+        return zero<x10rt_dbl_s32>();
+    }
+    template<> struct reduce<x10rt_dbl_s32,X10RT_RED_OP_ADD>
+    { static x10rt_dbl_s32 _ (const x10rt_dbl_s32 &, const x10rt_dbl_s32 &) {return arith_err();} };
+    template<> struct reduce<x10rt_dbl_s32,X10RT_RED_OP_MUL>
+    { static x10rt_dbl_s32 _ (const x10rt_dbl_s32 &, const x10rt_dbl_s32 &) {return arith_err();} };
+    template<> struct reduce<x10rt_dbl_s32,X10RT_RED_OP_DIV>
+    { static x10rt_dbl_s32 _ (const x10rt_dbl_s32 &, const x10rt_dbl_s32 &) {return arith_err();} };
+    template<> struct reduce<x10rt_dbl_s32,X10RT_RED_OP_AND>
+    { static x10rt_dbl_s32 _ (const x10rt_dbl_s32 &, const x10rt_dbl_s32 &) {return arith_err();} };
+    template<> struct reduce<x10rt_dbl_s32,X10RT_RED_OP_OR>
+    { static x10rt_dbl_s32 _ (const x10rt_dbl_s32 &, const x10rt_dbl_s32 &) {return arith_err();} };
+    template<> struct reduce<x10rt_dbl_s32,X10RT_RED_OP_XOR>
+    { static x10rt_dbl_s32 _ (const x10rt_dbl_s32 &, const x10rt_dbl_s32 &) {return arith_err();} };
+    template<> struct reduce<x10rt_dbl_s32,X10RT_RED_OP_MAX> {
+        static x10rt_dbl_s32 _ (const x10rt_dbl_s32 &a, const x10rt_dbl_s32 &b) {
+            return a.val>=b.val?a:b;
+        }
+    };
+    template<> struct reduce<x10rt_dbl_s32,X10RT_RED_OP_MIN> {
+        static x10rt_dbl_s32 _ (const x10rt_dbl_s32 &a, const x10rt_dbl_s32 &b) {
+            return a.val<=b.val?a:b;
+        }
+    };
 
     template<x10rt_red_op_type op, x10rt_red_type dtype>
     void allreduce3 (void *arg)
@@ -733,7 +765,7 @@ namespace {
 
         for (size_t i=0 ; i<m.allreduce.count ; ++i) {
             T &dest = static_cast<T*>(m.allreduce.dbuf)[i];
-            dest = 0;
+            dest = zero<T>();
             for (x10rt_place j=0 ; j<t.memberc ; ++j) {
                 dest = reduce<T,op>::_(dest,tmp[i+j*m.allreduce.count]);
             }
@@ -818,6 +850,7 @@ void x10rt_emu_allreduce (x10rt_team team, x10rt_place role,
         BORING_MACRO(X10RT_RED_TYPE_U64);
         BORING_MACRO(X10RT_RED_TYPE_DBL);
         BORING_MACRO(X10RT_RED_TYPE_FLT);
+        BORING_MACRO(X10RT_RED_TYPE_DBL_S32);
         #undef BORING_MACRO
         default: fprintf(stderr, "Corrupted type? %x\n", dtype); abort();
     }
