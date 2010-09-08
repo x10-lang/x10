@@ -507,19 +507,7 @@ void x10rt_net_register_get_receiver(x10rt_msg_type msg_type,
 
 void x10rt_net_internal_barrier (void)
 {
-    assert(global_state.init);
-    assert(!global_state.finalized);
-
-    while(global_state.pending_send_list.length() > 0) {
-        x10rt_net_probe();
-    }
-
-    LOCK_IF_MPI_IS_NOT_MULTITHREADED;
-    if(MPI_SUCCESS != MPI_Barrier(global_state.mpi_comm)) {
-        fprintf(stderr, "[%s:%d] Error in MPI_Barrier\n", __FILE__, __LINE__);
-        exit(EXIT_FAILURE);
-    }
-    UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
+    abort(); // FUNCTION IS ON DEATH ROW
 }
 
 x10rt_place x10rt_net_nhosts(void) {
