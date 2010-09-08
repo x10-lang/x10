@@ -126,10 +126,6 @@ public final class Rail<T> extends Ref implements AnyRail<T>, Settable<Integer,T
         return length;
     }
     
-    public T get(int i) {
-        return apply$G(i);
-    }
-    
     public T apply$G(Integer i) {
     	return apply$G((int)i);
     }
@@ -142,13 +138,13 @@ public final class Rail<T> extends Ref implements AnyRail<T>, Settable<Integer,T
     	return type.setArray(value, i, v);
     }
     
-    public boolean isZero() {
-    	boolean zero = true;
-		for (int i = 0; i < length && zero; ++i) {
-			zero &= get(i) == type.zeroValue();
-		}
-		return zero;
-    }
+//    public boolean isZero() {
+//    	boolean zero = true;
+//		for (int i = 0; i < length && zero; ++i) {
+//			zero &= apply$G(i) == type.zeroValue();
+//		}
+//		return zero;
+//    }
     
     public String toString() {
         StringBuilder sb = new StringBuilder();

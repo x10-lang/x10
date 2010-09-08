@@ -27,7 +27,7 @@ public class RailIterator<T> implements Iterator<T> {
 	}
 
 	public T next() {
-		return r.get(i++);
+		return r.apply$G(i++);
 	}
 
 	public void remove() {
