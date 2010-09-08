@@ -472,8 +472,9 @@ import x10.util.Box;
         transient protected val counts:Rail[Int];
         transient protected val seen:Rail[Boolean];
         transient protected var exceptions:Stack[Throwable];
-        transient protected val latch = new Latch();
+        transient protected val latch:Latch; 
         def this() {
+	    latch = new Latch();
             val c = Rail.make[Int](Place.MAX_PLACES, (Int)=>0);
             seen = Rail.make[Boolean](Place.MAX_PLACES, (Int)=>false);
             c(here.id) = 1;
@@ -491,12 +492,12 @@ import x10.util.Box;
         	(a instanceof RootFinish) && (a as RootFinish).root.equals(this.root);
         @Global public safe def home():Place = root.home;
 
-        @Pinned public def lock() = latch.lock();
-        @Pinned public def unlock() = latch.unlock();
-        @Pinned public def tryLock() = latch.tryLock();
-        @Pinned public def release() = latch.release();
-        @Pinned public def await() = latch.await();
-        @Pinned public def apply() = latch.apply();
+        @Pinned public def lock() = root().latch.lock();
+        @Pinned public def unlock() = root().latch.unlock();
+        @Pinned public def tryLock() = root().latch.tryLock();
+        @Pinned public def release() = root().latch.release();
+        @Pinned public def await() = root().latch.await();
+        @Pinned public def apply() = root().latch.apply();
 	    
         @Pinned private def notifySubActivitySpawnLocal(place:Place):void {
             lock();
@@ -678,14 +679,22 @@ import x10.util.Box;
                 } else {
                     t = new MultipleExceptions(e);
                 }
-                val closure = () => { (r as RootCollectingFinish[T]).notify2(m, t); deallocObject(m); };
+                val closure = () => { 
+                     val rrcf = (r as RootCollectingFinish[T]).root as GlobalRef[RootCollectingFinish[T]]{self.home==here};
+                     rrcf().notify2(m, t); 
+                     deallocObject(m); 
+                };
                 runAtNative(r.home().id, closure);
                 dealloc(closure);
             } else {
             	sr.placeMerge();
                 val x = sr.result();
 		        sr.reset();
-                val closure = () => { (r as RootCollectingFinish[T]).notify2(m, x) ; deallocObject(m); };
+                val closure = () => {
+                     val rrcf = (r as RootCollectingFinish[T]).root as GlobalRef[RootCollectingFinish[T]]{self.home==here};
+                     rrcf().notify2(m, x); 
+                     deallocObject(m); 
+                };
                 runAtNative(r.home().id, closure);
                 dealloc(closure);
             }
@@ -786,11 +795,19 @@ import x10.util.Box;
                     } else {
                         t = new MultipleExceptions(e);
                     }
-                    val closure = () => { (r as RootFinish).notify2(m, t); deallocObject(m); };
+                    val closure = () => { 
+                        val rrf = (r as RootFinish).root as GlobalRef[RootFinish]{self.home==here};
+                        rrf().notify2(m, t); 
+                        deallocObject(m); 
+                    };
                     runAtNative(r.home().id, closure);
                     dealloc(closure);
                 } else {
-                    val closure = () => { (r as RootFinish).notify2(m) ; deallocObject(m); };
+                    val closure = () => { 
+                        val rrf = (r as RootFinish).root as GlobalRef[RootFinish]{self.home==here};
+                        rrf().notify2(m); 
+                        deallocObject(m); 
+                    };
                     runAtNative(r.home().id, closure);
                     dealloc(closure);
                 }
