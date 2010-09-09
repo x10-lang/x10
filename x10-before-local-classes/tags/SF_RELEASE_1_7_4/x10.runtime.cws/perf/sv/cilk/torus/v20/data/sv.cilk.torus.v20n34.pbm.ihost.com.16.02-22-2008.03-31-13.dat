@@ -1,0 +1,2312 @@
+############################################################
+# Benchmark Host: v20n34.pbm.ihost.com
+# Number Of Processors: 16
+#
+# Number Of Scheduled Runs: 3
+# Start Time: 02/22/2008 - 03:31:13
+############################################################
+#
+# Run: 1
+#
+
+## Size: 500
+
+### nproc: 1
+../../../../SVBlock.pwr5 --nproc 1 1 500 64
+n_vertics=250000 (k=500), n_edges=1000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 249999 and N = 250000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.184309 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../SVBlock.pwr5 --nproc 2 1 500 64
+n_vertics=250000 (k=500), n_edges=1000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 249999 and N = 250000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.098050 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../SVBlock.pwr5 --nproc 4 1 500 64
+n_vertics=250000 (k=500), n_edges=1000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 249999 and N = 250000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.051776 s
+Work = 0.000000 s
+
+### nproc: 6
+../../../../SVBlock.pwr5 --nproc 6 1 500 64
+n_vertics=250000 (k=500), n_edges=1000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 249999 and N = 250000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 6 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.041272 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../SVBlock.pwr5 --nproc 8 1 500 64
+n_vertics=250000 (k=500), n_edges=1000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 249999 and N = 250000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.032728 s
+Work = 0.000000 s
+
+### nproc: 10
+../../../../SVBlock.pwr5 --nproc 10 1 500 64
+n_vertics=250000 (k=500), n_edges=1000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 249999 and N = 250000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 10 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.028222 s
+Work = 0.000000 s
+
+### nproc: 12
+../../../../SVBlock.pwr5 --nproc 12 1 500 64
+n_vertics=250000 (k=500), n_edges=1000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 249999 and N = 250000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 12 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.023602 s
+Work = 0.000000 s
+
+### nproc: 14
+../../../../SVBlock.pwr5 --nproc 14 1 500 64
+n_vertics=250000 (k=500), n_edges=1000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 249999 and N = 250000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 14 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.024148 s
+Work = 0.000000 s
+
+### nproc: 16
+../../../../SVBlock.pwr5 --nproc 16 1 500 64
+n_vertics=250000 (k=500), n_edges=1000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 249999 and N = 250000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 16 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.023212 s
+Work = 0.000000 s
+
+## Size: 1000
+
+### nproc: 1
+../../../../SVBlock.pwr5 --nproc 1 1 1000 64
+n_vertics=1000000 (k=1000), n_edges=4000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 999999 and N = 1000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.972141 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../SVBlock.pwr5 --nproc 2 1 1000 64
+n_vertics=1000000 (k=1000), n_edges=4000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 999999 and N = 1000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.513870 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../SVBlock.pwr5 --nproc 4 1 1000 64
+n_vertics=1000000 (k=1000), n_edges=4000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 999999 and N = 1000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.270325 s
+Work = 0.000000 s
+
+### nproc: 6
+../../../../SVBlock.pwr5 --nproc 6 1 1000 64
+n_vertics=1000000 (k=1000), n_edges=4000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 999999 and N = 1000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 6 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.193304 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../SVBlock.pwr5 --nproc 8 1 1000 64
+n_vertics=1000000 (k=1000), n_edges=4000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 999999 and N = 1000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.151401 s
+Work = 0.000000 s
+
+### nproc: 10
+../../../../SVBlock.pwr5 --nproc 10 1 1000 64
+n_vertics=1000000 (k=1000), n_edges=4000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 999999 and N = 1000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 10 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.125743 s
+Work = 0.000000 s
+
+### nproc: 12
+../../../../SVBlock.pwr5 --nproc 12 1 1000 64
+n_vertics=1000000 (k=1000), n_edges=4000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 999999 and N = 1000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 12 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.109590 s
+Work = 0.000000 s
+
+### nproc: 14
+../../../../SVBlock.pwr5 --nproc 14 1 1000 64
+n_vertics=1000000 (k=1000), n_edges=4000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 999999 and N = 1000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 14 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.097371 s
+Work = 0.000000 s
+
+### nproc: 16
+../../../../SVBlock.pwr5 --nproc 16 1 1000 64
+n_vertics=1000000 (k=1000), n_edges=4000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 999999 and N = 1000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 16 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.089024 s
+Work = 0.000000 s
+
+## Size: 2000
+
+### nproc: 1
+../../../../SVBlock.pwr5 --nproc 1 1 2000 64
+n_vertics=4000000 (k=2000), n_edges=16000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 3999999 and N = 4000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 6.132703 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../SVBlock.pwr5 --nproc 2 1 2000 64
+n_vertics=4000000 (k=2000), n_edges=16000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 3999999 and N = 4000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 3.075532 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../SVBlock.pwr5 --nproc 4 1 2000 64
+n_vertics=4000000 (k=2000), n_edges=16000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 3999999 and N = 4000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.484890 s
+Work = 0.000000 s
+
+### nproc: 6
+../../../../SVBlock.pwr5 --nproc 6 1 2000 64
+n_vertics=4000000 (k=2000), n_edges=16000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 3999999 and N = 4000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 6 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.029649 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../SVBlock.pwr5 --nproc 8 1 2000 64
+n_vertics=4000000 (k=2000), n_edges=16000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 3999999 and N = 4000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.832859 s
+Work = 0.000000 s
+
+### nproc: 10
+../../../../SVBlock.pwr5 --nproc 10 1 2000 64
+n_vertics=4000000 (k=2000), n_edges=16000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 3999999 and N = 4000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 10 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.718970 s
+Work = 0.000000 s
+
+### nproc: 12
+../../../../SVBlock.pwr5 --nproc 12 1 2000 64
+n_vertics=4000000 (k=2000), n_edges=16000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 3999999 and N = 4000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 12 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.586401 s
+Work = 0.000000 s
+
+### nproc: 14
+../../../../SVBlock.pwr5 --nproc 14 1 2000 64
+n_vertics=4000000 (k=2000), n_edges=16000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 3999999 and N = 4000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 14 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.516960 s
+Work = 0.000000 s
+
+### nproc: 16
+../../../../SVBlock.pwr5 --nproc 16 1 2000 64
+n_vertics=4000000 (k=2000), n_edges=16000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 3999999 and N = 4000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 16 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.466387 s
+Work = 0.000000 s
+
+## Size: 3000
+
+### nproc: 1
+../../../../SVBlock.pwr5 --nproc 1 1 3000 64
+n_vertics=9000000 (k=3000), n_edges=36000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 8999999 and N = 9000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 21.894870 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../SVBlock.pwr5 --nproc 2 1 3000 64
+n_vertics=9000000 (k=3000), n_edges=36000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 8999999 and N = 9000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 10.512507 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../SVBlock.pwr5 --nproc 4 1 3000 64
+n_vertics=9000000 (k=3000), n_edges=36000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 8999999 and N = 9000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 5.074543 s
+Work = 0.000000 s
+
+### nproc: 6
+../../../../SVBlock.pwr5 --nproc 6 1 3000 64
+n_vertics=9000000 (k=3000), n_edges=36000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 8999999 and N = 9000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 6 processor(s)
+
+options: number of elements = 111
+
+Running time = 3.390735 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../SVBlock.pwr5 --nproc 8 1 3000 64
+n_vertics=9000000 (k=3000), n_edges=36000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 8999999 and N = 9000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 2.513096 s
+Work = 0.000000 s
+
+### nproc: 10
+../../../../SVBlock.pwr5 --nproc 10 1 3000 64
+n_vertics=9000000 (k=3000), n_edges=36000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 8999999 and N = 9000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 10 processor(s)
+
+options: number of elements = 111
+
+Running time = 2.168706 s
+Work = 0.000000 s
+
+### nproc: 12
+../../../../SVBlock.pwr5 --nproc 12 1 3000 64
+n_vertics=9000000 (k=3000), n_edges=36000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 8999999 and N = 9000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 12 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.885223 s
+Work = 0.000000 s
+
+### nproc: 14
+../../../../SVBlock.pwr5 --nproc 14 1 3000 64
+n_vertics=9000000 (k=3000), n_edges=36000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 8999999 and N = 9000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 14 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.716462 s
+Work = 0.000000 s
+
+### nproc: 16
+../../../../SVBlock.pwr5 --nproc 16 1 3000 64
+n_vertics=9000000 (k=3000), n_edges=36000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 8999999 and N = 9000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 16 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.438526 s
+Work = 0.000000 s
+#
+# Run: 2
+#
+
+## Size: 500
+
+### nproc: 1
+../../../../SVBlock.pwr5 --nproc 1 1 500 64
+n_vertics=250000 (k=500), n_edges=1000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 249999 and N = 250000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.206227 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../SVBlock.pwr5 --nproc 2 1 500 64
+n_vertics=250000 (k=500), n_edges=1000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 249999 and N = 250000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.100195 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../SVBlock.pwr5 --nproc 4 1 500 64
+n_vertics=250000 (k=500), n_edges=1000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 249999 and N = 250000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.057387 s
+Work = 0.000000 s
+
+### nproc: 6
+../../../../SVBlock.pwr5 --nproc 6 1 500 64
+n_vertics=250000 (k=500), n_edges=1000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 249999 and N = 250000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 6 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.038134 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../SVBlock.pwr5 --nproc 8 1 500 64
+n_vertics=250000 (k=500), n_edges=1000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 249999 and N = 250000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.033609 s
+Work = 0.000000 s
+
+### nproc: 10
+../../../../SVBlock.pwr5 --nproc 10 1 500 64
+n_vertics=250000 (k=500), n_edges=1000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 249999 and N = 250000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 10 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.028319 s
+Work = 0.000000 s
+
+### nproc: 12
+../../../../SVBlock.pwr5 --nproc 12 1 500 64
+n_vertics=250000 (k=500), n_edges=1000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 249999 and N = 250000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 12 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.025525 s
+Work = 0.000000 s
+
+### nproc: 14
+../../../../SVBlock.pwr5 --nproc 14 1 500 64
+n_vertics=250000 (k=500), n_edges=1000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 249999 and N = 250000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 14 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.021316 s
+Work = 0.000000 s
+
+### nproc: 16
+../../../../SVBlock.pwr5 --nproc 16 1 500 64
+n_vertics=250000 (k=500), n_edges=1000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 249999 and N = 250000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 16 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.023043 s
+Work = 0.000000 s
+
+## Size: 1000
+
+### nproc: 1
+../../../../SVBlock.pwr5 --nproc 1 1 1000 64
+n_vertics=1000000 (k=1000), n_edges=4000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 999999 and N = 1000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.974477 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../SVBlock.pwr5 --nproc 2 1 1000 64
+n_vertics=1000000 (k=1000), n_edges=4000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 999999 and N = 1000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.506175 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../SVBlock.pwr5 --nproc 4 1 1000 64
+n_vertics=1000000 (k=1000), n_edges=4000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 999999 and N = 1000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.271872 s
+Work = 0.000000 s
+
+### nproc: 6
+../../../../SVBlock.pwr5 --nproc 6 1 1000 64
+n_vertics=1000000 (k=1000), n_edges=4000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 999999 and N = 1000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 6 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.190828 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../SVBlock.pwr5 --nproc 8 1 1000 64
+n_vertics=1000000 (k=1000), n_edges=4000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 999999 and N = 1000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.150267 s
+Work = 0.000000 s
+
+### nproc: 10
+../../../../SVBlock.pwr5 --nproc 10 1 1000 64
+n_vertics=1000000 (k=1000), n_edges=4000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 999999 and N = 1000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 10 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.135020 s
+Work = 0.000000 s
+
+### nproc: 12
+../../../../SVBlock.pwr5 --nproc 12 1 1000 64
+n_vertics=1000000 (k=1000), n_edges=4000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 999999 and N = 1000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 12 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.110296 s
+Work = 0.000000 s
+
+### nproc: 14
+../../../../SVBlock.pwr5 --nproc 14 1 1000 64
+n_vertics=1000000 (k=1000), n_edges=4000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 999999 and N = 1000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 14 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.096170 s
+Work = 0.000000 s
+
+### nproc: 16
+../../../../SVBlock.pwr5 --nproc 16 1 1000 64
+n_vertics=1000000 (k=1000), n_edges=4000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 999999 and N = 1000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 16 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.096806 s
+Work = 0.000000 s
+
+## Size: 2000
+
+### nproc: 1
+../../../../SVBlock.pwr5 --nproc 1 1 2000 64
+n_vertics=4000000 (k=2000), n_edges=16000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 3999999 and N = 4000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 6.120507 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../SVBlock.pwr5 --nproc 2 1 2000 64
+n_vertics=4000000 (k=2000), n_edges=16000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 3999999 and N = 4000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 3.067586 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../SVBlock.pwr5 --nproc 4 1 2000 64
+n_vertics=4000000 (k=2000), n_edges=16000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 3999999 and N = 4000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.589456 s
+Work = 0.000000 s
+
+### nproc: 6
+../../../../SVBlock.pwr5 --nproc 6 1 2000 64
+n_vertics=4000000 (k=2000), n_edges=16000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 3999999 and N = 4000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 6 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.123709 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../SVBlock.pwr5 --nproc 8 1 2000 64
+n_vertics=4000000 (k=2000), n_edges=16000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 3999999 and N = 4000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.779398 s
+Work = 0.000000 s
+
+### nproc: 10
+../../../../SVBlock.pwr5 --nproc 10 1 2000 64
+n_vertics=4000000 (k=2000), n_edges=16000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 3999999 and N = 4000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 10 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.674448 s
+Work = 0.000000 s
+
+### nproc: 12
+../../../../SVBlock.pwr5 --nproc 12 1 2000 64
+n_vertics=4000000 (k=2000), n_edges=16000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 3999999 and N = 4000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 12 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.590538 s
+Work = 0.000000 s
+
+### nproc: 14
+../../../../SVBlock.pwr5 --nproc 14 1 2000 64
+n_vertics=4000000 (k=2000), n_edges=16000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 3999999 and N = 4000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 14 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.545829 s
+Work = 0.000000 s
+
+### nproc: 16
+../../../../SVBlock.pwr5 --nproc 16 1 2000 64
+n_vertics=4000000 (k=2000), n_edges=16000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 3999999 and N = 4000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 16 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.431829 s
+Work = 0.000000 s
+
+## Size: 3000
+
+### nproc: 1
+../../../../SVBlock.pwr5 --nproc 1 1 3000 64
+n_vertics=9000000 (k=3000), n_edges=36000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 8999999 and N = 9000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 21.822799 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../SVBlock.pwr5 --nproc 2 1 3000 64
+n_vertics=9000000 (k=3000), n_edges=36000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 8999999 and N = 9000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 9.985527 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../SVBlock.pwr5 --nproc 4 1 3000 64
+n_vertics=9000000 (k=3000), n_edges=36000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 8999999 and N = 9000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 5.075423 s
+Work = 0.000000 s
+
+### nproc: 6
+../../../../SVBlock.pwr5 --nproc 6 1 3000 64
+n_vertics=9000000 (k=3000), n_edges=36000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 8999999 and N = 9000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 6 processor(s)
+
+options: number of elements = 111
+
+Running time = 3.624336 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../SVBlock.pwr5 --nproc 8 1 3000 64
+n_vertics=9000000 (k=3000), n_edges=36000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 8999999 and N = 9000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 2.511675 s
+Work = 0.000000 s
+
+### nproc: 10
+../../../../SVBlock.pwr5 --nproc 10 1 3000 64
+n_vertics=9000000 (k=3000), n_edges=36000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 8999999 and N = 9000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 10 processor(s)
+
+options: number of elements = 111
+
+Running time = 2.333383 s
+Work = 0.000000 s
+
+### nproc: 12
+../../../../SVBlock.pwr5 --nproc 12 1 3000 64
+n_vertics=9000000 (k=3000), n_edges=36000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 8999999 and N = 9000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 12 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.884655 s
+Work = 0.000000 s
+
+### nproc: 14
+../../../../SVBlock.pwr5 --nproc 14 1 3000 64
+n_vertics=9000000 (k=3000), n_edges=36000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 8999999 and N = 9000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 14 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.723348 s
+Work = 0.000000 s
+
+### nproc: 16
+../../../../SVBlock.pwr5 --nproc 16 1 3000 64
+n_vertics=9000000 (k=3000), n_edges=36000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 8999999 and N = 9000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 16 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.618969 s
+Work = 0.000000 s
+#
+# Run: 3
+#
+
+## Size: 500
+
+### nproc: 1
+../../../../SVBlock.pwr5 --nproc 1 1 500 64
+n_vertics=250000 (k=500), n_edges=1000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 249999 and N = 250000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.205132 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../SVBlock.pwr5 --nproc 2 1 500 64
+n_vertics=250000 (k=500), n_edges=1000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 249999 and N = 250000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.101242 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../SVBlock.pwr5 --nproc 4 1 500 64
+n_vertics=250000 (k=500), n_edges=1000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 249999 and N = 250000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.056912 s
+Work = 0.000000 s
+
+### nproc: 6
+../../../../SVBlock.pwr5 --nproc 6 1 500 64
+n_vertics=250000 (k=500), n_edges=1000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 249999 and N = 250000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 6 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.041371 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../SVBlock.pwr5 --nproc 8 1 500 64
+n_vertics=250000 (k=500), n_edges=1000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 249999 and N = 250000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.030638 s
+Work = 0.000000 s
+
+### nproc: 10
+../../../../SVBlock.pwr5 --nproc 10 1 500 64
+n_vertics=250000 (k=500), n_edges=1000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 249999 and N = 250000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 10 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.029524 s
+Work = 0.000000 s
+
+### nproc: 12
+../../../../SVBlock.pwr5 --nproc 12 1 500 64
+n_vertics=250000 (k=500), n_edges=1000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 249999 and N = 250000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 12 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.023677 s
+Work = 0.000000 s
+
+### nproc: 14
+../../../../SVBlock.pwr5 --nproc 14 1 500 64
+n_vertics=250000 (k=500), n_edges=1000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 249999 and N = 250000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 14 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.023963 s
+Work = 0.000000 s
+
+### nproc: 16
+../../../../SVBlock.pwr5 --nproc 16 1 500 64
+n_vertics=250000 (k=500), n_edges=1000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 249999 and N = 250000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 16 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.023463 s
+Work = 0.000000 s
+
+## Size: 1000
+
+### nproc: 1
+../../../../SVBlock.pwr5 --nproc 1 1 1000 64
+n_vertics=1000000 (k=1000), n_edges=4000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 999999 and N = 1000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.980635 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../SVBlock.pwr5 --nproc 2 1 1000 64
+n_vertics=1000000 (k=1000), n_edges=4000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 999999 and N = 1000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.515408 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../SVBlock.pwr5 --nproc 4 1 1000 64
+n_vertics=1000000 (k=1000), n_edges=4000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 999999 and N = 1000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.267587 s
+Work = 0.000000 s
+
+### nproc: 6
+../../../../SVBlock.pwr5 --nproc 6 1 1000 64
+n_vertics=1000000 (k=1000), n_edges=4000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 999999 and N = 1000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 6 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.193842 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../SVBlock.pwr5 --nproc 8 1 1000 64
+n_vertics=1000000 (k=1000), n_edges=4000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 999999 and N = 1000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.149057 s
+Work = 0.000000 s
+
+### nproc: 10
+../../../../SVBlock.pwr5 --nproc 10 1 1000 64
+n_vertics=1000000 (k=1000), n_edges=4000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 999999 and N = 1000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 10 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.123027 s
+Work = 0.000000 s
+
+### nproc: 12
+../../../../SVBlock.pwr5 --nproc 12 1 1000 64
+n_vertics=1000000 (k=1000), n_edges=4000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 999999 and N = 1000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 12 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.110800 s
+Work = 0.000000 s
+
+### nproc: 14
+../../../../SVBlock.pwr5 --nproc 14 1 1000 64
+n_vertics=1000000 (k=1000), n_edges=4000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 999999 and N = 1000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 14 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.097536 s
+Work = 0.000000 s
+
+### nproc: 16
+../../../../SVBlock.pwr5 --nproc 16 1 1000 64
+n_vertics=1000000 (k=1000), n_edges=4000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 999999 and N = 1000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 16 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.092841 s
+Work = 0.000000 s
+
+## Size: 2000
+
+### nproc: 1
+../../../../SVBlock.pwr5 --nproc 1 1 2000 64
+n_vertics=4000000 (k=2000), n_edges=16000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 3999999 and N = 4000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 6.095105 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../SVBlock.pwr5 --nproc 2 1 2000 64
+n_vertics=4000000 (k=2000), n_edges=16000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 3999999 and N = 4000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 3.091562 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../SVBlock.pwr5 --nproc 4 1 2000 64
+n_vertics=4000000 (k=2000), n_edges=16000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 3999999 and N = 4000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.491357 s
+Work = 0.000000 s
+
+### nproc: 6
+../../../../SVBlock.pwr5 --nproc 6 1 2000 64
+n_vertics=4000000 (k=2000), n_edges=16000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 3999999 and N = 4000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 6 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.027746 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../SVBlock.pwr5 --nproc 8 1 2000 64
+n_vertics=4000000 (k=2000), n_edges=16000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 3999999 and N = 4000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.851122 s
+Work = 0.000000 s
+
+### nproc: 10
+../../../../SVBlock.pwr5 --nproc 10 1 2000 64
+n_vertics=4000000 (k=2000), n_edges=16000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 3999999 and N = 4000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 10 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.673264 s
+Work = 0.000000 s
+
+### nproc: 12
+../../../../SVBlock.pwr5 --nproc 12 1 2000 64
+n_vertics=4000000 (k=2000), n_edges=16000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 3999999 and N = 4000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 12 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.627927 s
+Work = 0.000000 s
+
+### nproc: 14
+../../../../SVBlock.pwr5 --nproc 14 1 2000 64
+n_vertics=4000000 (k=2000), n_edges=16000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 3999999 and N = 4000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 14 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.513062 s
+Work = 0.000000 s
+
+### nproc: 16
+../../../../SVBlock.pwr5 --nproc 16 1 2000 64
+n_vertics=4000000 (k=2000), n_edges=16000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 3999999 and N = 4000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 16 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.434547 s
+Work = 0.000000 s
+
+## Size: 3000
+
+### nproc: 1
+../../../../SVBlock.pwr5 --nproc 1 1 3000 64
+n_vertics=9000000 (k=3000), n_edges=36000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 8999999 and N = 9000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 21.803866 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../SVBlock.pwr5 --nproc 2 1 3000 64
+n_vertics=9000000 (k=3000), n_edges=36000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 8999999 and N = 9000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 10.143428 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../SVBlock.pwr5 --nproc 4 1 3000 64
+n_vertics=9000000 (k=3000), n_edges=36000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 8999999 and N = 9000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 5.019071 s
+Work = 0.000000 s
+
+### nproc: 6
+../../../../SVBlock.pwr5 --nproc 6 1 3000 64
+n_vertics=9000000 (k=3000), n_edges=36000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 8999999 and N = 9000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 6 processor(s)
+
+options: number of elements = 111
+
+Running time = 3.438157 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../SVBlock.pwr5 --nproc 8 1 3000 64
+n_vertics=9000000 (k=3000), n_edges=36000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 8999999 and N = 9000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 2.482933 s
+Work = 0.000000 s
+
+### nproc: 10
+../../../../SVBlock.pwr5 --nproc 10 1 3000 64
+n_vertics=9000000 (k=3000), n_edges=36000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 8999999 and N = 9000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 10 processor(s)
+
+options: number of elements = 111
+
+Running time = 2.157092 s
+Work = 0.000000 s
+
+### nproc: 12
+../../../../SVBlock.pwr5 --nproc 12 1 3000 64
+n_vertics=9000000 (k=3000), n_edges=36000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 8999999 and N = 9000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 12 processor(s)
+
+options: number of elements = 111
+
+Running time = 2.062522 s
+Work = 0.000000 s
+
+### nproc: 14
+../../../../SVBlock.pwr5 --nproc 14 1 3000 64
+n_vertics=9000000 (k=3000), n_edges=36000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 8999999 and N = 9000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 14 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.852036 s
+Work = 0.000000 s
+
+### nproc: 16
+../../../../SVBlock.pwr5 --nproc 16 1 3000 64
+n_vertics=9000000 (k=3000), n_edges=36000000 n_workers=64 
+2D torus graph generator
+t_graph returning 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 8999999 and N = 9000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 16 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.539040 s
+Work = 0.000000 s
+
+############################################################
+# End Time: 02/22/2008 - 03:36:40
+############################################################

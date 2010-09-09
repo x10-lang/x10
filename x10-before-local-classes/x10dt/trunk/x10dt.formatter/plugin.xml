@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         point="org.eclipse.imp.runtime.formatter">
+      <formatter
+            class="org.eclipse.imp.formatting.SourceFormatter"
+            language="X10">
+      </formatter>
+   </extension>
+   <extension
+         point="org.eclipse.imp.formatting.formattingSpecification">
+      <formattingSpecification
+            astAdapter="x10dt.formatter.parser.ASTAdapter"
+            file="x10dt/formatter/X10.fsp"
+            language="X10"
+            parseController="x10dt.formatter.parser.ParseController">
+      </formattingSpecification>
+   </extension>
+</plugin>
+

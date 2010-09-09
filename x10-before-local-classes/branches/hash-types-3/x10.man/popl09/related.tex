@@ -1,0 +1,309 @@
+Constraint-based type systems, dependent types, and generic types
+have been well studied in the literature.
+Further discussion of
+related work for constrained types can be found in our earlier
+work~\cite{constrained-types}.
+
+\paragraph{Constraint-based type systems.}
+
+The use of type constraints for type inference and subtyping was
+first proposed by
+Mitchell~\cite{mitchell84} and 
+Reynolds~\cite{reynolds85}.  
+\hmx~\cite{sulzmann97type} is a constraint-based framework for
+Hindley--Milner-style type systems.  The framework is parametrized on
+the specific constraint system $X$; instantiating $X$ yields
+extensions of the HM type system.  Constraints in \hmx{} are over
+types, not values. The \hmx{} approach is an important precursor to
+our constrained types approach. The principal difference is that
+\hmx{} applies to functional languages and does not integrate
+dependent types.
+We consider object-oriented languages with constraint-based type systems when 
+we discuss generic types, below.
+
+\eat{
+Ancona and Zucca~\cite{principal-typings}
+describe a type system for separate compilation in Java-like languages that uses an entailment relation on type environments.
+XXX
+}
+
+\paragraph{Dependent types.}
+
+Dependent type
+systems~\cite{xi99dependent,epigram,cayenne}
+param\-etrize types on values.
+Our work is closely related to Dependent ML (DML~\cite{xi99dependent}), which
+is also built
+parametrically on a constraint solver.
+The main distinction between DML and constrained types
+lies in the target
+domain: DML is a functional programming language;
+constrained types are designed for imperative, concurrent
+object-oriented languages. 
+Types in DML are refinement types~\cite{refinement-types}:
+they do not affect the operational semantics, and erasing the
+constraints yields a legal DML program.  This differs from
+generic constrained
+types, where erasure of subtyping constraints can prevent the program from
+type-checking.
+DML does not permit any run-time checking of constraints
+(dynamic casts).
+Another distinction between DML and constrained types
+is that constraints in DML are
+defined over a set of ``index'' variables are introduced; in \Xten, constraints
+are defined over program variables and types.
+
+% \emph{Conditional
+% types}~\cite{conditional-types} extend refinement types to
+% encode control-flow information in the types.
+% %
+% Jones introduced \emph{qualified types}, which permit
+% types to be constrained by a finite set of
+% predicates~\cite{jones94}.
+% %
+% \emph{Sized types}~\cite{sized-types}
+% annotate types with the sizes of recursive data structures.
+% Sizes are linear functions of size variables.
+% Size inference is performed using a constraint solver for
+% Presburger arithmetic~\cite{omega}.
+% % constraints on types, support primitive recursion only
+
+% Index objects must be pure.
+% Singleton types int(n).
+% ML$^{\Pi}_0$:
+% Refinement of the ML type system: does not affect the
+% operational semantics.  Can erase to ML$_0$.
+
+% Jay and Sekanina 1996: array bounds checking based on shape
+% types.
+
+% Ada dependent types.
+% Ada has constrained array definitions.  A constraint
+% \cite{ada-ref-man}.  Not clear if they're dependent.  Are
+% there other dependent types?  Generics are dependent?
+
+        % Used for array bounds by Morrisett et al (I think--need
+        % to find paper)
+
+% Singleton types~\cite{aspinall-singletons}.
+
+Logically qualified types, or liquid types~\cite{liquid-types},
+permit types in a base Hindley--Milner-style type system to be refined with
+conjunctions of logical qualifiers.  The subtyping relation is similar to
+\Xten{}'s; that is, two liquid types are in the subtyping relation if their base
+types are in the relation and if one type's qualifier implies the other's.
+Liquid types support type inference and 
+the type system is path sensitive; neither is the case in \Xten.
+Liquid types do not provide subtyping constraints.
+
+% Where clauses for F-bounded polymorphism~\cite{where-clauses}
+% Bounded quantification: Cardelli and Wegner.  Bound T with T'
+% In F-bounded polymorphism~\cite{f-bounds}, type variables are bounded by a function of 
+% the type variable. 
+% Not dependent types.
+
+Another dependent-type approach is to integrate theorem 
+provers into the programming language.
+Concoqtion~\cite{concoqtion} extends types in OCaml~\cite{ocaml}
+with constraints written as Coq~\cite{coq} rules.
+While the types are expressive, supporting the full generality
+of the Coq language, proofs must be
+provided to satisfy the type checker.
+\Xten{} supports only constraints that can be checked by a
+constraint solver during compilation.
+Ynot~\cite{ynot} is an extension to Coq for reasoning about 
+dependently-typed functional programs with side-effects using a
+form of separation logic.
+Constrained types permit a more natural expression of constraints
+than Coq formulas; however, unlike Ynot, they do not capture
+side-effects since they constrain
+only immutable object state.
+
+\eat{
+Cayenne~\cite{cayenne} is a Haskell-like language with fully dependent types.
+There is no distinction between static and dynamic types.
+Type-checking is undecidable.
+There is no notion of datatype refinement as in DML.
+
+Epigram~\cite{epigram,epigram-matter}
+is a dependently typed functional programming language based on
+a type theory with inductive families.
+Epigram does not have a phase distinction between values and
+types.
+}
+
+\eat{
+$\lambda^{\sf Con}$ is a lambda calculus with assertions.
+Findler, Felleisen, Contracts for higher-order functions (ICFP02)
+
+  example: int[> 9]
+
+contracts are either simple predicates or function contracts.
+defined by (define/contract ...)
+
+enforced at run-time.
+}
+
+% Jif~\cite{jif,jflow} is an extension of Java in which
+% types are labeled with security policies enforced by the
+% compiler.
+
+\eat{
+ESC/Java~\cite{esc-java}
+allow programmers to write object invariants and pre- and
+post-conditions that are enforced statically
+by the compiler using an automated theorem prover.
+Static checking is undecidable and, in the presence of loops,
+is unsound (but still useful) unless the programmer supplies loop invariants.
+ESC/Java can enforce invariants on mutable state.
+}
+
+% and Spec$\sharp$~\cite{specsharp}
+
+\eat{
+Pluggable and optional type systems were proposed by
+Bracha~\cite{bracha04-pluggable} and provide another means of
+specifying refinement types.
+Type annotations, implemented in compiler plugins, serve only to
+reject programs statically that might otherwise have dynamic
+type errors.
+CQual~\cite{foster-popl02} extends C with user-defined type
+qualifiers.  These
+qualifiers may be flow-sensitive and may be inferred. 
+CQual supports only a fixed set of typing rules
+for all qualifiers.
+In contrast, the \emph{semantic type qualifiers} of
+Chin, Markstrum, and Millstein~\cite{chin05-qualifiers}
+allow programmers to define typing rules for qualifiers
+in a meta language that allows type-checking rules to be
+specified declaratively.
+JavaCOP~\cite{javacop-oopsla06} is a pluggable type system
+framework for Java.  Annotations are defined in a meta language
+that allows type-checking rules to be specified declaratively.
+JSR 308~\cite{jsr308} is a proposal for adding user-defined type qualifiers
+to Java.
+}
+
+% Holt, Cordy, the Turing programming language
+
+% Ou, Tan, Mandelbaum, Walker, Dynamic typing with dependent types
+% Separate dependent and simple parts of the program.
+% Statically type the dependent parts.
+% Dynamic checks when passing values into dependent part.
+
+\paragraph{Genericity.}
+
+Genericity in object-oriented languages is usually
+supported through
+type parametrization.
+%Type parametrization is common
+%in functional languages~\cite{ml,haskell}.
+
+A number of proposals 
+for adding genericity to Java quickly followed
+the initial release of
+the language~\cite{GJ,java-popl97,thorup97,allen03}.
+GJ~\cite{GJ} implements invariant type
+parameters via type erasure.  Java5~\cite{Java3} adopted the same
+implementation approach, incorporating wildcards and raw types.
+Other proposals~\cite{java-popl97,nextgen,reflective-generics,type-passing-generics} support run-time representation of type parameters.
+PolyJ~\cite{java-popl97} permits instantiation of
+parameters on primitive types and structural parameter bounds.
+MixGen~\cite{allen03} supported mixins through type parametrization.
+
+Like \Xten's generics, Scala~\cite{scala}'s generic types provide
+definition-site variance annotations and polymorphic methods.  Type parameters
+definitions can specify bounds.  Scala also provides mixins and self types,
+abstract type members, and virtual types.
+
+Fortress~\cite{fortress} also support generic types.  Traits and objects may be
+parametrized on values as well as types.  Parametrization on values is
+limited to integers, naturals, booleans, and operators that are compile-time
+constants.  Value properties in \Xten can be of arbitrary type and can be
+initialized with arbitrary values; run-time constants (i.e., final expressions)
+can be used in constraints.  Fortress allows parameters to be hidden, reducing
+the programmer burden by allowing the compiler to infer the arguments.
+
+\emph{Virtual classes} and \emph{virtual types}~\cite{beta,mp89-virtual-classes,ernst06-virtual}
+are another mechanism for supporting genericity, using nested types
+rather than parametrization.
+Thorup~\cite{thorup97} proposed using virtual types to provide genericity in
+Java, and much of the developemnt of Java's generics followed from virtual
+classes:
+use-site variance based on structural virtual types was proposed by
+Thorup and Torgersen~\cite{unifying-genericity} and extended for
+parametrized type systems by Igarashi and
+Viroli~\cite{variant-parametric-types}; the latter type system lead
+to the development of wildcards in Java~\cite{Java3,adding-wildcards,wildcards-safe}.
+Dependent classes~\cite{dependent-classes} generalize virtual
+classes to express similar semantics via parametrization rather
+than nesting.  Virtual classes depend only on their enclosing
+instance; dependent classes, in contrast, depend on all the
+objects in which they are parametrized.  With type
+properties, classes are not parametrized on their values;
+rather properties are members and types are constructed by
+constraining these properties.  Parametrization can be 
+encoded with type properties using equality constraints.
+
+\eat{
+\Xten{}'s generics have a hybrid implementation, adopting PolyJ's
+adapter object approach for dependent types and for 
+type introspection and using NextGen's run-time
+instantiation approach for greater efficiency.
+}
+% MixGen~\cite{allen04} extends NextGen with mixins.
+
+\csharp also supports generic types via run-time instantiation in the
+CLR~\cite{csharp-generics}.  Type parameters may be declared
+with definition-site variance tags.
+Generalized type constraints were proposed for
+\csharp~\cite{emir06}: methods can be annotated with subtyping
+constraints that must be satisfied to invoke the method.
+Generic \Xten{} supports these constraints, as well as constraints
+on values, with method and constructor where clauses.
+
+\eat{
+\FXG{} does not support \emph{bivariance}~\cite{variant-parametric-types}; a
+class \xcd"C" is bivariant in a type property \xcd"X" if \xcd"C{self.X==S}" is
+a subtype of \xcd"C{self.X==T}" for any \xcd"S" and \xcd"T".  Bivariance is
+useful for writing code in which the property \xcd"X" is ignored.  One can
+achieve  this effect in \FXG{} simply by leaving \xcd"X" unconstrained.
+}
+
+\eat{
+Parametric types with use-site variance are related to existential types:
+\xcd"C<+T>" corresponds to the bounded existential $\exists\tcd{X<=T}.C<X>$;
+\xcd"C<-T>" corresponds to the bounded existential $\exists\tcd{X>=T}.C<X>$;
+\xcd"C<*>" corresponds to the unbounded existential $\exists\tcd{X}.C<X>$.
+\FXG{} has a similar correspondence:
+\xcd"C{X<=T}" corresponds to the bounded existential \xcdmath"C\{\exists\tcd{self}:C.self.X<=T\}";
+\xcd"C{X>=T}" corresponds to the bounded existential \xcdmath"C\{\exists\tcd{self}.C<X\}";
+\xcd"C" corresponds to the unbounded existential \xcdmath"C\{\exists\tcd{self}.C<X\}".
+}
+
+\paragraph{Contracts.}
+
+Constrained types have many similarities to
+contracts~\cite{Parnas72,eiffel,Findler02},
+constraint annotations on methods and classes.
+A key difference is that contracts are dynamically enforced
+assertions; whereas, constrained types are statically enforced.
+Dynamic enforcement enables a more expressive assertion language
+at the cost of possible run-time failures.
+Integration of constrained types and generic types
+effectively allow parametrization of classes on constraints.
+Consider a \xcd"List" class parametrized on the element type.
+If the class is instantiated on a constrained type \xcd"C{c}",
+i.e., \xcd"List[C{c}]",
+then all elements of the list satisfy \xcd"c".
+Guha et al.~\cite{GMFK07} 
+explore polymorphic contracts as a way to achieve this
+parametrization in a functional language.
+Generic constrained types provide constraint parametrization
+in a natural extension of object-oriented languages.
+
+ESC/Java~\cite{escjava-pldi02}, Spec\#~\cite{specsharp}, and
+JML~\cite{leavens00jml} are instances of
+static assertion checkers for OO languages.  Constrained types
+offer a less expressive, but more modular, lightweight solution.
+

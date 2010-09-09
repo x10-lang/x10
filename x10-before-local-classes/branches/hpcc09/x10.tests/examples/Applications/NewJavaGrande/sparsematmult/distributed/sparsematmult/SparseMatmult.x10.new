@@ -1,0 +1,45 @@
+/**************************************************************************
+*                                                                         *
+*         Java Grande Forum Benchmark Suite - Thread Version 1.0          *
+*                                                                         *
+*                            produced by                                  *
+*                                                                         *
+*                  Java Grande Benchmarking Project                       *
+*                                                                         *
+*                                at                                       *
+*                                                                         *
+*                Edinburgh Parallel Computing Centre                      *
+*                                                                         *
+*                email: epcc-javagrande@epcc.ed.ac.uk                     *
+*                                                                         *
+*      adapted from SciMark 2.0, author Roldan Pozo (pozo@cam.nist.gov)   *
+*                                                                         *
+*      This version copyright (c) The University of Edinburgh, 2001.      *
+*                         All rights reserved.                            *
+*                                                                         *
+**************************************************************************/
+package sparsematmult;
+
+import jgfutil.*;
+import x10.lang.Double;;
+
+public class SparseMatmult {
+
+	// final checksum -- cvp
+	public const ytotal: Double = new Double(0.0);
+
+	/* 10 iterations used to make kernel have roughly
+	   same granulairty as other Scimark kernels. */
+	public static def test(val y: Array[double], val val: Array[double], val row: Array[int], val col: Array[int], val x: Array[double], val NUM_ITERATIONS: int, val lowsum: Array[int], val highsum: Array[int]): void = {
+		final val nz: int = val.region.size();
+
+		JGFInstrumentor.startTimer("Section2:SparseMatmult:Kernel");
+
+		finish foreach (val (id]: point in distmakeUnique(place.places)) for (val point [reps]: point in [0..NUM_ITERATIONS-1]) for (val point [i): point in [Region.makeRange(lowsum(id), highsum(id)-1)]) finish async (y.dist(row(i))) { y(row(i)) += x(col(i))*val(i); }
+
+		JGFInstrumentor.stopTimer("Section2:SparseMatmult:Kernel");
+		for (val (i): point in [0..nz-1]) {
+			ytotal.val += future (y.dist(row(i))) { y(row(i)) }.force();
+		}
+	}
+}

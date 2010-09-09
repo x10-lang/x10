@@ -1,0 +1,29 @@
+x10.lang.System.cudaMakeRail(Lx10/lang/Place;Lx10/lang/Int;)Lx10/lang/Rail;: 
+
+x10.lang.System.makeRemoteRail(Lx10/lang/Place;Lx10/lang/Int;Lx10/lang/Rail;)Lx10/lang/Rail;: 
+	One-x10.lang.Place.isCUDA()Lx10/lang/Boolean;@1
+	ZerOrOne-x10.lang.System.cudaMakeRail(Lx10/lang/Place;Lx10/lang/Int;)Lx10/lang/Rail;@3
+
+x10.lang.RuntimeTest.foo()V: 
+	One-x10.lang.Rail.implicit_operator_as(Lx10/lang/ValRail;)Lx10/lang/Rail;@2
+	One-x10.lang.System.makeRemoteRail(Lx10/lang/Place;Lx10/lang/Int;Lx10/lang/Rail;)Lx10/lang/Rail;@4
+
+x10.lang.System.makeRemoteRail(Lx10/lang/Place;Lx10/lang/Int;Lx10/lang/Rail;)Lx10/lang/Rail;.finish.465.16: 
+	One-x10.lang.Rail.copyTo(Lx10/lang/Int;Lx10/lang/Rail;Lx10/lang/Int;Lx10/lang/Int;)V@9
+
+new table
+
+x10.lang.System.cudaMakeRail(Lx10/lang/Place;Lx10/lang/Int;)Lx10/lang/Rail;: 
+
+x10.lang.System.makeRemoteRail(Lx10/lang/Place;Lx10/lang/Int;Lx10/lang/Rail;)Lx10/lang/Rail;: 
+	One-x10.lang.Place.isCUDA()Lx10/lang/Boolean;@1
+	ZerOrOne-x10.lang.System.cudaMakeRail(Lx10/lang/Place;Lx10/lang/Int;)Lx10/lang/Rail;@3
+
+x10.lang.RuntimeTest.foo()V: 
+	One-x10.lang.Rail.implicit_operator_as(Lx10/lang/ValRail;)Lx10/lang/Rail;@2
+	One-x10.lang.System.makeRemoteRail(Lx10/lang/Place;Lx10/lang/Int;Lx10/lang/Rail;)Lx10/lang/Rail;@4
+	One-x10.lang.Place.isCUDA()Lx10/lang/Boolean;@1
+	ZerOrOne-x10.lang.System.cudaMakeRail(Lx10/lang/Place;Lx10/lang/Int;)Lx10/lang/Rail;@3
+
+x10.lang.System.makeRemoteRail(Lx10/lang/Place;Lx10/lang/Int;Lx10/lang/Rail;)Lx10/lang/Rail;.finish.465.16: 
+	One-x10.lang.Rail.copyTo(Lx10/lang/Int;Lx10/lang/Rail;Lx10/lang/Int;Lx10/lang/Int;)V@9

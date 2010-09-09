@@ -1,0 +1,502 @@
+# Hostname: v20n17.pbm.ihost.com
+# Start Time: Sat Aug 18 05:42:52 EDT 2007
+
+# C Linpack [Roll]
+
+#
+Run: 1
+#
+Rolled Double Precision Linpack
+
+    times are reported for matrices of order   100
+      dgefa      dgesl      total       kflops     unit      ratio
+ times for array with leading dimension of  201
+       0.00       0.00       0.00        INF       0.00       0.00
+       0.00       0.00       0.00        INF       0.00       0.00
+       0.00       0.00       0.00     239925       0.01       0.05
+       0.00       0.00       0.00    4624018       0.00       0.00
+ times for array with leading dimension of 200
+       0.00       0.00       0.00        INF       0.00       0.00
+       0.00       0.00       0.00        INF       0.00       0.00
+       0.00       0.00       0.00        INF       0.00       0.00
+       0.00       0.00       0.00     715278       0.00       0.02
+Rolled Double  Precision 715278 Kflops ; 10 Reps 
+Rolled Double Precision Linpack
+
+     norm. resid      resid           machep         x[0]-1        x[n-1]-1
+       1.9        8.46778499e-14  2.22044605e-16 -1.11799459e-13 -9.60342916e-14
+
+#
+Run: 2
+#
+Rolled Double Precision Linpack
+
+    times are reported for matrices of order   100
+      dgefa      dgesl      total       kflops     unit      ratio
+ times for array with leading dimension of  201
+       0.00       0.00       0.00        INF       0.00       0.00
+       0.00       0.00       0.00        INF       0.00       0.00
+       0.00       0.00       0.00        INF       0.00       0.00
+       0.00       0.00       0.00    1178625       0.00       0.01
+ times for array with leading dimension of 200
+       0.00       0.00       0.00        INF       0.00       0.00
+       0.00       0.00       0.00        INF       0.00       0.00
+       0.00       0.00       0.00        INF       0.00       0.00
+       0.00       0.00       0.00     691020       0.00       0.02
+Rolled Double  Precision 691020 Kflops ; 10 Reps 
+Rolled Double Precision Linpack
+
+     norm. resid      resid           machep         x[0]-1        x[n-1]-1
+       1.9        8.46778499e-14  2.22044605e-16 -1.11799459e-13 -9.60342916e-14
+
+#
+Run: 3
+#
+Rolled Double Precision Linpack
+
+    times are reported for matrices of order   100
+      dgefa      dgesl      total       kflops     unit      ratio
+ times for array with leading dimension of  201
+       0.00       0.00       0.00        INF       0.00       0.00
+       0.00       0.00       0.00        INF       0.00       0.00
+       0.00       0.00       0.00        INF       0.00       0.00
+       0.00       0.00       0.0015833455329934030405632       0.00       0.00
+ times for array with leading dimension of 200
+       0.00       0.00       0.00        INF       0.00       0.00
+       0.00       0.00       0.00        INF       0.00       0.00
+       0.00       0.00       0.00        INF       0.00       0.00
+       0.00       0.00       0.00     687698       0.00       0.02
+Rolled Double  Precision 687698 Kflops ; 10 Reps 
+Rolled Double Precision Linpack
+
+     norm. resid      resid           machep         x[0]-1        x[n-1]-1
+       1.9        8.46778499e-14  2.22044605e-16 -1.11799459e-13 -9.60342916e-14
+
+# C Linpack [Unroll]
+
+#
+Run: 1
+#
+Unrolled Double Precision Linpack
+
+    times are reported for matrices of order   100
+      dgefa      dgesl      total       kflops     unit      ratio
+ times for array with leading dimension of  201
+       0.00       0.00       0.00        INF       0.00       0.00
+       0.00       0.00       0.00        INF       0.00       0.00
+       0.00       0.00       0.00        INF       0.00       0.00
+       0.00       0.00       0.00     888659       0.00       0.01
+ times for array with leading dimension of 200
+       0.00       0.00       0.00        INF       0.00       0.00
+       0.00       0.00       0.00        INF       0.00       0.00
+       0.00       0.00       0.00        INF       0.00       0.00
+       0.00       0.00       0.00     686941       0.00       0.02
+Unrolled Double  Precision 686941 Kflops ; 10 Reps 
+Unrolled Double Precision Linpack
+
+     norm. resid      resid           machep         x[0]-1        x[n-1]-1
+       1.9        8.46778499e-14  2.22044605e-16 -1.11799459e-13 -9.60342916e-14
+
+#
+Run: 2
+#
+Unrolled Double Precision Linpack
+
+    times are reported for matrices of order   100
+      dgefa      dgesl      total       kflops     unit      ratio
+ times for array with leading dimension of  201
+       0.00       0.00       0.00        INF       0.00       0.00
+       0.00       0.00       0.00        INF       0.00       0.00
+       0.00       0.00       0.00        INF       0.00       0.00
+       0.00       0.00       0.00     797986       0.00       0.02
+ times for array with leading dimension of 200
+       0.00       0.00       0.00        INF       0.00       0.00
+       0.00       0.00       0.00        INF       0.00       0.00
+       0.00       0.00       0.00        INF       0.00       0.00
+       0.00       0.00       0.00     687216       0.00       0.02
+Unrolled Double  Precision 687216 Kflops ; 10 Reps 
+Unrolled Double Precision Linpack
+
+     norm. resid      resid           machep         x[0]-1        x[n-1]-1
+       1.9        8.46778499e-14  2.22044605e-16 -1.11799459e-13 -9.60342916e-14
+
+#
+Run: 3
+#
+Unrolled Double Precision Linpack
+
+    times are reported for matrices of order   100
+      dgefa      dgesl      total       kflops     unit      ratio
+ times for array with leading dimension of  201
+       0.00       0.00       0.00     361023       0.01       0.03
+       0.00       0.00       0.00        INF       0.00       0.00
+       0.00       0.00       0.00        INF       0.00       0.00
+       0.00       0.00       0.00    2553613       0.00       0.00
+ times for array with leading dimension of 200
+       0.00       0.00       0.00        INF       0.00       0.00
+       0.00       0.00       0.00        INF       0.00       0.00
+       0.00       0.00       0.00        INF       0.00       0.00
+       0.00       0.00       0.00     686873       0.00       0.02
+Unrolled Double  Precision 686873 Kflops ; 10 Reps 
+Unrolled Double Precision Linpack
+
+     norm. resid      resid           machep         x[0]-1        x[n-1]-1
+       1.9        8.46778499e-14  2.22044605e-16 -1.11799459e-13 -9.60342916e-14
+
+# Fotran Linpack [Double Precision]
+
+#
+Run: 1
+#
+ Please send the results of this run to:
+
+ Jack J. Dongarra
+ Computer Science Department
+ University of Tennessee
+ Knoxville, Tennessee 37996-1300
+
+ Fax: 865-974-8296
+
+ Internet: dongarra@cs.utk.edu
+
+ This is version 29.5.04.
+
+     norm. resid      resid           machep         x(1)          x(n)
+  1.31002021E+00  1.45439216E-14  2.22044605E-16  1.00000000E+00  1.00000000E+00
+
+
+    times are reported for matrices of order   100
+      dgefa      dgesl      total     mflops       unit      ratio       b(1)
+ times for array with leading dimension of 201
+  2.696E-03  0.000E+00  2.696E-03  2.547E+02  7.852E-03  4.814E-02  9.770E-15
+  0.000E+00  0.000E+00  0.000E+00        INF  0.000E+00  0.000E+00  1.000E+00
+  0.000E+00  0.000E+00  0.000E+00        INF  0.000E+00  0.000E+00  1.000E+00
+  9.995E-04  0.000E+00  9.995E-04  6.870E+02  2.911E-03  1.785E-02  5.298E+02
+
+ times for array with leading dimension of 200
+  0.000E+00  0.000E+00  0.000E+00        INF  0.000E+00  0.000E+00  1.000E+00
+  0.000E+00  0.000E+00  0.000E+00        INF  0.000E+00  0.000E+00  1.000E+00
+  0.000E+00  0.000E+00  0.000E+00        INF  0.000E+00  0.000E+00  1.000E+00
+  9.997E-04  0.000E+00  9.997E-04  6.869E+02  2.912E-03  1.785E-02  5.298E+02
+  end of tests -- this version dated 05/29/04
+
+#
+Run: 2
+#
+ Please send the results of this run to:
+
+ Jack J. Dongarra
+ Computer Science Department
+ University of Tennessee
+ Knoxville, Tennessee 37996-1300
+
+ Fax: 865-974-8296
+
+ Internet: dongarra@cs.utk.edu
+
+ This is version 29.5.04.
+
+     norm. resid      resid           machep         x(1)          x(n)
+  1.31002021E+00  1.45439216E-14  2.22044605E-16  1.00000000E+00  1.00000000E+00
+
+
+    times are reported for matrices of order   100
+      dgefa      dgesl      total     mflops       unit      ratio       b(1)
+ times for array with leading dimension of 201
+  0.000E+00  0.000E+00  0.000E+00        INF  0.000E+00  0.000E+00  9.770E-15
+  0.000E+00  0.000E+00  0.000E+00        INF  0.000E+00  0.000E+00  1.000E+00
+  0.000E+00  0.000E+00  0.000E+00        INF  0.000E+00  0.000E+00  1.000E+00
+  0.000E+00  0.000E+00  0.000E+00        INF  0.000E+00  0.000E+00  5.298E+02
+
+ times for array with leading dimension of 200
+  0.000E+00  0.000E+00  0.000E+00        INF  0.000E+00  0.000E+00  1.000E+00
+  0.000E+00  0.000E+00  0.000E+00        INF  0.000E+00  0.000E+00  1.000E+00
+  0.000E+00  0.000E+00  0.000E+00        INF  0.000E+00  0.000E+00  1.000E+00
+  9.989E-04  0.000E+00  9.989E-04  6.874E+02  2.909E-03  1.784E-02  5.298E+02
+  end of tests -- this version dated 05/29/04
+
+#
+Run: 3
+#
+ Please send the results of this run to:
+
+ Jack J. Dongarra
+ Computer Science Department
+ University of Tennessee
+ Knoxville, Tennessee 37996-1300
+
+ Fax: 865-974-8296
+
+ Internet: dongarra@cs.utk.edu
+
+ This is version 29.5.04.
+
+     norm. resid      resid           machep         x(1)          x(n)
+  1.31002021E+00  1.45439216E-14  2.22044605E-16  1.00000000E+00  1.00000000E+00
+
+
+    times are reported for matrices of order   100
+      dgefa      dgesl      total     mflops       unit      ratio       b(1)
+ times for array with leading dimension of 201
+  0.000E+00  0.000E+00  0.000E+00        INF  0.000E+00  0.000E+00  9.770E-15
+  0.000E+00  0.000E+00  0.000E+00        INF  0.000E+00  0.000E+00  1.000E+00
+  0.000E+00  0.000E+00  0.000E+00        INF  0.000E+00  0.000E+00  1.000E+00
+  9.883E-04  0.000E+00  9.883E-04  6.948E+02  2.879E-03  1.765E-02  5.298E+02
+
+ times for array with leading dimension of 200
+  0.000E+00  0.000E+00  0.000E+00        INF  0.000E+00  0.000E+00  1.000E+00
+  0.000E+00  0.000E+00  0.000E+00        INF  0.000E+00  0.000E+00  1.000E+00
+  0.000E+00  0.000E+00  0.000E+00        INF  0.000E+00  0.000E+00  1.000E+00
+  9.997E-04  0.000E+00  9.997E-04  6.869E+02  2.912E-03  1.785E-02  5.298E+02
+  end of tests -- this version dated 05/29/04
+
+# Fotran Linpack [Single Precision]
+
+#
+Run: 1
+#
+ Please send the results of this run to:
+
+ Jack J. Dongarra
+ Computer Science Department
+ University of Tennessee
+ Knoxville, Tennessee 37996-1300
+
+ Fax: 865-974-8296
+
+ Internet: dongarra@cs.utk.edu
+
+     norm. resid      resid           machep         x(1)          x(n)
+  1.22000778E+00  7.27176666E-06  1.19209290E-07  9.99998212E-01  1.00000215E+00
+
+
+    times are reported for matrices of order   100
+      sgefa      sgesl      total     mflops       unit      ratio
+ times for array with leading dimension of 201
+  0.000E+00  0.000E+00  0.000E+00        INF  0.000E+00  0.000E+00
+  0.000E+00  0.000E+00  0.000E+00        INF  0.000E+00  0.000E+00
+  0.000E+00  0.000E+00  0.000E+00        INF  0.000E+00  0.000E+00
+  0.000E+00  0.000E+00  0.000E+00        INF  0.000E+00  0.000E+00
+
+ times for array with leading dimension of 200
+  0.000E+00  0.000E+00  0.000E+00        INF  0.000E+00  0.000E+00
+  0.000E+00  0.000E+00  0.000E+00        INF  0.000E+00  0.000E+00
+  0.000E+00  0.000E+00  0.000E+00        INF  0.000E+00  0.000E+00
+  0.000E+00  0.000E+00  0.000E+00        INF  0.000E+00  0.000E+00
+  end of tests -- this version dated 10/12/92
+
+#
+Run: 2
+#
+ Please send the results of this run to:
+
+ Jack J. Dongarra
+ Computer Science Department
+ University of Tennessee
+ Knoxville, Tennessee 37996-1300
+
+ Fax: 865-974-8296
+
+ Internet: dongarra@cs.utk.edu
+
+     norm. resid      resid           machep         x(1)          x(n)
+  1.22000778E+00  7.27176666E-06  1.19209290E-07  9.99998212E-01  1.00000215E+00
+
+
+    times are reported for matrices of order   100
+      sgefa      sgesl      total     mflops       unit      ratio
+ times for array with leading dimension of 201
+  0.000E+00  0.000E+00  0.000E+00        INF  0.000E+00  0.000E+00
+  4.105E-03  0.000E+00  4.105E-03  1.673E+02  1.196E-02  7.330E-02
+  9.060E-04  0.000E+00  9.060E-04  7.579E+02  2.639E-03  1.618E-02
+  9.030E-04  0.000E+00  9.030E-04  7.604E+02  2.630E-03  1.612E-02
+
+ times for array with leading dimension of 200
+  0.000E+00  0.000E+00  0.000E+00        INF  0.000E+00  0.000E+00
+  0.000E+00  0.000E+00  0.000E+00        INF  0.000E+00  0.000E+00
+  0.000E+00  0.000E+00  0.000E+00        INF  0.000E+00  0.000E+00
+  1.520E-03  0.000E+00  1.520E-03  4.518E+02  4.426E-03  2.714E-02
+  end of tests -- this version dated 10/12/92
+
+#
+Run: 3
+#
+ Please send the results of this run to:
+
+ Jack J. Dongarra
+ Computer Science Department
+ University of Tennessee
+ Knoxville, Tennessee 37996-1300
+
+ Fax: 865-974-8296
+
+ Internet: dongarra@cs.utk.edu
+
+     norm. resid      resid           machep         x(1)          x(n)
+  1.22000778E+00  7.27176666E-06  1.19209290E-07  9.99998212E-01  1.00000215E+00
+
+
+    times are reported for matrices of order   100
+      sgefa      sgesl      total     mflops       unit      ratio
+ times for array with leading dimension of 201
+  0.000E+00  0.000E+00  0.000E+00        INF  0.000E+00  0.000E+00
+  0.000E+00  0.000E+00  0.000E+00        INF  0.000E+00  0.000E+00
+  0.000E+00  0.000E+00  0.000E+00        INF  0.000E+00  0.000E+00
+  0.000E+00  0.000E+00  0.000E+00        INF  0.000E+00  0.000E+00
+
+ times for array with leading dimension of 200
+  0.000E+00  0.000E+00  0.000E+00        INF  0.000E+00  0.000E+00
+  0.000E+00  0.000E+00  0.000E+00        INF  0.000E+00  0.000E+00
+  0.000E+00  0.000E+00  0.000E+00        INF  0.000E+00  0.000E+00
+  9.313E-11  0.000E+00  9.313E-11  7.373E+09  2.713E-10  1.663E-09
+  end of tests -- this version dated 10/12/92
+
+# Fotran Linpack 1000 [Double Precision]
+
+#
+Run: 1
+#
+ Please send the results of this run to:
+
+ Jack J. Dongarra
+ Computer Science Department
+ University of Tennessee
+ Knoxville, Tennessee 37996-1300
+
+ Fax: 615-974-8296
+
+ Internet: dongarra@cs.utk.edu
+
+     norm. resid      resid           machep         x(1)          x(n)
+  9.39800192E+00  1.04338760E-12  2.22044605E-16  1.00000000E+00  1.00000000E+00
+
+
+    times are reported for matrices of order  1000
+      factor     solve      total     mflops       unit      ratio
+ times for array with leading dimension of1001
+  6.891E-01  9.997E-03  6.991E-01  9.565E+02  2.091E-03  1.248E+01
+  end of tests -- this version dated 10/12/92
+
+#
+Run: 2
+#
+ Please send the results of this run to:
+
+ Jack J. Dongarra
+ Computer Science Department
+ University of Tennessee
+ Knoxville, Tennessee 37996-1300
+
+ Fax: 615-974-8296
+
+ Internet: dongarra@cs.utk.edu
+
+     norm. resid      resid           machep         x(1)          x(n)
+  9.39800192E+00  1.04338760E-12  2.22044605E-16  1.00000000E+00  1.00000000E+00
+
+
+    times are reported for matrices of order  1000
+      factor     solve      total     mflops       unit      ratio
+ times for array with leading dimension of1001
+  6.989E-01  0.000E+00  6.989E-01  9.568E+02  2.090E-03  1.248E+01
+  end of tests -- this version dated 10/12/92
+
+#
+Run: 3
+#
+ Please send the results of this run to:
+
+ Jack J. Dongarra
+ Computer Science Department
+ University of Tennessee
+ Knoxville, Tennessee 37996-1300
+
+ Fax: 615-974-8296
+
+ Internet: dongarra@cs.utk.edu
+
+     norm. resid      resid           machep         x(1)          x(n)
+  9.39800192E+00  1.04338760E-12  2.22044605E-16  1.00000000E+00  1.00000000E+00
+
+
+    times are reported for matrices of order  1000
+      factor     solve      total     mflops       unit      ratio
+ times for array with leading dimension of1001
+  6.977E-01  0.000E+00  6.977E-01  9.584E+02  2.087E-03  1.246E+01
+  end of tests -- this version dated 10/12/92
+
+# Fotran Linpack 1000 [Single Precision]
+
+#
+Run: 1
+#
+ Please send the results of this run to:
+
+ Jack J. Dongarra
+ Computer Science Department
+ University of Tennessee
+ Knoxville, Tennessee 37996-1300
+
+ Fax: 615-974-8296
+
+ Internet: dongarra@cs.utk.edu
+
+     norm. resid      resid           machep         x(1)          x(n)
+  9.61876011E+00  5.73515892E-04  1.19209290E-07  1.00005484E+00  9.99970138E-01
+
+
+    times are reported for matrices of order  1000
+      factor     solve      total     mflops       unit      ratio
+ times for array with leading dimension of1001
+  5.284E-01  9.946E-03  5.383E-01  1.242E+03  1.610E-03  9.613E+00
+  end of tests -- this version dated 10/12/92
+
+#
+Run: 2
+#
+ Please send the results of this run to:
+
+ Jack J. Dongarra
+ Computer Science Department
+ University of Tennessee
+ Knoxville, Tennessee 37996-1300
+
+ Fax: 615-974-8296
+
+ Internet: dongarra@cs.utk.edu
+
+     norm. resid      resid           machep         x(1)          x(n)
+  9.61876011E+00  5.73515892E-04  1.19209290E-07  1.00005484E+00  9.99970138E-01
+
+
+    times are reported for matrices of order  1000
+      factor     solve      total     mflops       unit      ratio
+ times for array with leading dimension of1001
+  5.392E-01  0.000E+00  5.392E-01  1.240E+03  1.613E-03  9.629E+00
+  end of tests -- this version dated 10/12/92
+
+#
+Run: 3
+#
+ Please send the results of this run to:
+
+ Jack J. Dongarra
+ Computer Science Department
+ University of Tennessee
+ Knoxville, Tennessee 37996-1300
+
+ Fax: 615-974-8296
+
+ Internet: dongarra@cs.utk.edu
+
+     norm. resid      resid           machep         x(1)          x(n)
+  9.61876011E+00  5.73515892E-04  1.19209290E-07  1.00005484E+00  9.99970138E-01
+
+
+    times are reported for matrices of order  1000
+      factor     solve      total     mflops       unit      ratio
+ times for array with leading dimension of1001
+  5.305E-01  0.000E+00  5.305E-01  1.260E+03  1.587E-03  9.473E+00
+  end of tests -- this version dated 10/12/92
+# End Time: Sat Aug 18 05:42:59 EDT 2007
+

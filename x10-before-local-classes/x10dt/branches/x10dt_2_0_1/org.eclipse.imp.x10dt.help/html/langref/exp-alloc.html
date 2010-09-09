@@ -1,0 +1,69 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Allocation</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc22">
+22</a>&nbsp;&nbsp;Allocation</h2>
+<a name="ClassCreation">
+</a>
+
+<div class="p"><!----></div>
+  :  |        <em>  
+<table>
+<tr><td align="right">NewExpression &nbsp;"new" ClassName TypeArguments<sup>?</sup>&nbsp;"(" ArgumentList<sup>?</sup>&nbsp;")"
+        ClassBody<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">\ -  "new" InterfaceName TypeArguments<sup>?</sup>&nbsp;"(" ArgumentList<sup>?</sup>&nbsp;")"
+        ClassBody
+</td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+An allocation expression creates a new instance of a class and
+invokes a constructor of the class.
+The expression designates the class name and passes
+type and value arguments to the constructor.
+
+<div class="p"><!----></div>
+The allocation expression may have an optional class body.
+In this case, an anonymous subclass of the given class is
+allocated.   An anonymous class allocation may also specify a
+single super-interface rather than a superclass; the superclass
+of the anonymous class is "x10.lang.Object".
+
+<div class="p"><!----></div>
+If the class is anonymous-that is, if a class body is
+provided-then the constructor is selected from the superclass.
+The constructor to invoke is selected using the same rules as
+for method invocation (&#167;<a href="#MethodInvocation">6</a>).
+
+<div class="p"><!----></div>
+The type of an allocation expression
+is the return type of the constructor invoked, with appropriate
+substitutions  of actual arguments for formal parameters, as
+specified in &#167;<a href="#MethodInvocationSubstitution">6</a>.
+
+<div class="p"><!----></div>
+It is illegal to allocate an instance of an &#228;bstract" class.
+It is illegal to allocate an instance of a class or to invoke a
+constructor that is not visible at
+the allocation expression.
+
+<div class="p"><!----></div>
+
+</body>
+</html>

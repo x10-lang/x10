@@ -1,0 +1,212 @@
+<html>
+<body>
+
+<h1>Windows Installation</h1>
+In order to run X10 on Windows, you need to satisfy the follow pre-requisites.
+<h2>Prereqs</h2>
+<ul>
+	<li>gcc/g++</li>
+	<li>java</li>
+	<li>open MPI / mpich2</li>
+</ul>
+
+<h4>gcc/g++</h4>
+gcc is not installed with Windows. To get gcc you will need to install cygwin.
+To get the base cygwin do the following
+<ul>
+<li>Go to the cygwin site
+  http://www.cygwin.com/
+<li>Click on install or update
+  The latest Cygwin release is 1.7.1-1
+<li>Save the setup file to a local folder, e.g. cygwinInstall
+<li>Execute setup.exe
+  Allow any firewall rules, if needed
+<li>Click next
+<li>select download source, click next
+<li>select root install directory, usually C:\cygwin, click next
+<li>select local package directory, usually c:\cygwin, click next
+<li>select your internet connection, usually Direct connection, click next
+<li>select a download site, usually one closest to you, click next
+<li>click ok on any setup alerts
+<li>select the packages, usually the defaults to begin with, click next
+<li>select icons, click Finish
+</ul>
+
+<p>
+Once the default packages have completed installing, you can start cygwin by
+doing the following.
+<pre>
+cd c:\cygwin
+cygwin.bat
+</pre>
+You should see the skeleton files being created for your userid.  The userid is
+created from your windows id.
+
+<p>
+Once cygwin is working, you should relaunch setup and select the gcc/g++ compiler that
+is required by X10. Note any dependencies will be downloaded also.
+<pre>
+Devel - 4.3.4-3 - gcc4-g++ G++ subpackage
+</pre>
+
+<p>
+Select any other packages that you may want. Note any dependencies will be downloaded also.
+<pre>
+Utils - util-linux 2.14.1
+</pre>
+
+
+<h4>java</h4>
+Java is not included by default with Windows. However, nost people will have installed one already.
+If not, you should download and install the latest Sun Java runtime or JDK for 1.5.0_x or 1.6.0_x.
+You should install Java in the normal fashion either in "Program Files" or directly at the
+root level. Usually you would make this installation your system JVM.
+<p>
+Cygwin should recognize that you have java installed and use it. The only thing that you should
+do is make sure that JAVA_HOME is defined in your environment variables for X10 to use.
+You can do this using the Windows control panel System application.
+<pre>
+Control Panel -> System -> Advanced -> Environment Variables
+</pre>
+Under System variables, check for JAVA_HOME and if not defined, click edit and enter the 
+"Variable name" JAVA_HOME and the "Varible value" as the JRE or JDK path. Click Ok to save
+your values.
+<p>
+You should start cygwin and test for Java by doing the following
+<pre>
+which java
+java -version
+echo $JAVA_HOME
+</pre>
+You should see something like this
+<pre>
+$ which java
+/cygdrive/c/WINDOWS/System32/java
+
+$ java -version
+java version "1.5.0_11"
+Java(TM) 2 Runtime Environment, Standard Edition (build 1.5.0_11-b03)
+Java HotSpot(TM) Client VM (build 1.5.0_11-b03, mixed mode)
+
+$ echo $JAVA_HOME
+C:\jdk1.5.0_15
+</pre>
+
+
+<h4>openmpi / mpich2</h4>
+OpenMPI is not include with Windows.
+We have created a version of MPICH2 for Windows on the codehaus site that should be downloaded
+and installed in the cygwin directory. Start the cygwin setup again and add this as a Cygwin mirror.
+You'll have to run Cygwin setup with -X (command line, or through a shortcut) 
+to make it avoid checking signatures.
+<pre>
+http://dist.codehaus.org/x10/x10dt/2.0/cygwin/
+</pre>
+If you do not ignore signatures, you will get this error:
+<pre>
+Unable to get http://dist.codehaus.org/x10/x10dt/2.0/cygwin/setup.ini.sig from 
+<http://dist.codehaus.org/x10/x10dt/2.0/cygwin>
+</pre>
+The following package should be selected
+<pre>
+Base - 1.2.1-2 - mpich2: A high performance...
+</pre>
+Click next to install.
+</p>
+After it is installed you will find mpirun and other commands in
+/usr/contrib/mpich2-1.1.1p1/bin
+<p>
+If you see the following error using mpirun
+<pre>
+cd /usr/contrib/mpich2-1.1.1p1/bin
+./mpirun
+/usr/bin/env: python2.5: No such file or directory
+</pre>
+you need to restart the cygwin setup, select your mirror, and make sure the following package is installed.
+<pre>
+Python - 2.5.5-1 - python: Python language interpreter
+</pre>
+
+<p>
+Then you should modify your .bash_profile file to contain this directory in the PATH
+<pre>
+.bash_profile
+PATH=/usr/contrib/mpich2-1.2.1/bin:${PATH}
+export PATH
+</pre>
+
+<h2>Running X10 programs</h2>
+<p>
+Note that the C++ backend makes use of the MPICH2 runtime that is installed on your
+system, so you can also enter the following command to run an x10 program
+<p>
+<pre>
+mpirun -np 1 ./Hello.exe
+</pre>
+<p>
+However, on Windows, a daemon (mpd) has to be running to use mpirun. This daemon requires a
+.mpd.conf file in your home directory. You can create this by doing the following
+<pre>
+cd $HOME
+touch .mpd.conf
+chmod 600 .mpd.conf
+
+...and then use an editor to insert a line like
+
+  MPD_SECRETWORD=mr45-j9z
+  
+Of course use some other secret word than mr45-j9z.
+
+</pre>
+<p>
+Now you can start the mpd daemon in the background so you can use mpirun to execute programs. 
+<p>
+<pre>
+mpd&
+</pre>
+<p>
+<p>
+You will need to prefix your program
+with a "./" so that mpirun knows to look in the current directory for the program. You
+can fix this by adding "./" to your PATH directive in your profile.
+<p>
+Now you should be able to use mpirun to schedule programs.
+
+<p>
+If you see this error, it means that you have not started the daemon
+<pre>
+mpiexec_IBM_575BEBB7377: cannot connect to local mpd (/tmp/mpd2.console_infos5);
+  posssible causes:
+  1. no mpd is running on this host
+  2. an mpd is running but was started without a "console" (-n option)
+In case 1, you can start an mpd on this host with:
+     mpd&
+and you will be able to run jobs just on this host.
+For more details on starting mpds on a set of hosts, se
+the MPICH2 installation guide.
+</pre>
+
+<p>
+If you get this error when starting the mpd daemon, you have not created the .mpd.conf
+file in your home directory.
+<pre>
+A file named .mpd.conf file must be present in the user's home
+directory (/etc/mpd.conf if root) with read and write access
+only for the user, and must contain a least one line with:
+MPD_SECRETWORD=<secretword>
+One way to safely create this file is to do the following:
+  cd $HOME
+  touch .mpd.conf
+  chmod 600 .mpd.conf
+and then use an editor to insert a line like
+  MPD_SECRETWORD=mr45-j9z
+into the file. (Of course use some other secret word than mr45-j9z.)
+</pre>
+<h2>Comments</h2>
+Comments and suggestions are welcome. 
+Please send email to 
+<a href="mailto:cals@us.ibm.com">Cal Swart (cals@us.ibm.com)</a>
+
+</body>
+
+</html>

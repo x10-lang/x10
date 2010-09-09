@@ -1,0 +1,58 @@
+\subsection{Self types}
+
+Type properties can also be used to support a form of self
+types~\cite{bruce-binary,bsg95}.
+%
+Self types can be implemented by introducing a
+type property \Xcd{class} to the root of the class hierarchy, \Xcd{Object}:
+{\footnotesize
+\begin{xtenmath}
+class Object[class] { $\dots$ }
+\end{xtenmath}}
+
+\noindent
+Scala's path-dependent types~\cite{scala} and J\&'s
+dependent classes~\cite{nqm06}
+take a similar approach.
+
+Self types are achieved by
+implicitly constraining types so that if a path expression \Xcd{p}
+has type \Xcd{C}, then
+$\Xcd{p}.\Xcd{class} \subtype \Xcd{C}$.  In particular,
+$\Xcd{this}.\Xcd{class}$ is guaranteed to be a subtype
+of the lexically enclosing class; the type
+$\Xcd{this}.\Xcd{class}$ represents all instances of the fixed,
+but statically unknown, run-time class referred to by the \Xcd{this}
+parameter.
+
+Self types address the binary method problem~\cite{bruce-binary}.
+In the following
+example, the class \xcd"BitSet" can be written with a
+\xcd"union" method that takes a self type as argument.
+
+{\footnotesize
+\begin{xtenmath}
+interface Set {
+  def union(s: this.class): void;
+}
+
+class BitSet implements Set {
+  int bits;
+  def union(s: this.class): void {
+    this.bits |= s.bits;
+  }
+}
+\end{xtenmath}}
+
+\noindent
+Since \xcd"s" has type this \Xcd{this}.\Xcd{class}, and the class
+invariant of \xcd"BitSet" implies
+$\Xcd{this}.\Xcd{class} \subtype \Xcd{BitSet}$,
+the implementation of the method is free to access the
+\xcd"bits" field of \xcd"s".
+
+Callers of \xcd"BitSet".\xcd"union()" must call the method with
+an argument that has the same run-time class as the
+receiver.  For a receiver \xcd"p", the
+type of the actual argument of the call must have a constraint
+that entails \xcd"self".\xcd"class==p".\xcd"class".

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="org.eclipse.imp.x10dt.ui.launch.core" default="build.update.jar" basedir=".">
+	<import file="../org.eclipse.imp.x10dt.update/buildCommon.xml"/>
+	<import file="../org.eclipse.imp.x10dt.update/buildPluginCommon.xml"/>
+
+</project>

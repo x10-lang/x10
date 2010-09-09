@@ -1,0 +1,13 @@
+// SYNOPSIS: foreach (#0 #1 #2 : #3) clocked(#5) {#4} #6=locals #0=modifiers #1=type #2=var
+
+for (java.util.Iterator #2__ = (#3).iterator(); #2__.hasNext(); ) {
+	#0 #1 #2 = (#1) #2__.next();
+	#6
+	x10.runtime.Runtime.here().runAsync
+		(new x10.runtime.Activity(#5) {
+			public void runX10Task() {
+				#4
+			}
+		});
+}
+

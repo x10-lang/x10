@@ -1,0 +1,35 @@
+Modern object-oriented languages such as \Xten require a rich framework
+for types capable of expressing value-dependency, type-dependency
+and supporting pluggable, application-specific extensions.
+
+In earlier work, we presented the framework of \emph{constrained
+types} for concurrent, object-oriented languages, parametrized by
+an underlying constraint system $\cal X$. Constraint systems are a
+very expressive framework for partial information. Types are viewed
+as formulas \Xcd{C\{c\}} where \Xcd{C} is the name of a class
+or an interface and \Xcd{c} is a constraint in $\cal X$ on the
+immutable instance state of \Xcd{C} (the \emph{properties}).
+Many (value-)dependent type systems for object-oriented languages
+can be viewed as constrained types.
+
+This paper extends the constrained types approach to handle
+\emph{type-dependency} (``genericity''). The key idea is to extend
+the constraint system to introduce \emph{constrained kinds}: in
+the same way that constraints on values can be used to define
+constrained types, constraints on types can
+define constrained kinds.
+Generic types are supported
+by introducing type variables and permitting programs to impose
+constraints on such variables.
+
+To illustrate the underlying theory, we develop a formal family of
+programming languages with a common set of sound type-checking rules
+parametrized on a constraint system.  By varying the constraint system
+and by extending the typing rules in a simple way, we obtain
+languages with the power
+of \FJ, \FGJ, and languages that provide dependent types, structural
+subtyping, and constraints that relate values and types.  The core
+of the \Xten language is a concrete instantiation of the framework.  We
+describe the design of \Xten, which is available
+for download at \texttt{x10-lang.org}.
+

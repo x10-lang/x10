@@ -1,0 +1,108 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+<title>Methods selectors</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc3">
+3</a>&nbsp;&nbsp;Methods selectors</h2>
+<a name="MethodSelectors">
+</a>
+
+
+
+<div class="p"><!----></div>
+A method selector expression allows a method to be used as a
+first-class function.
+
+<div class="p"><!----></div>
+  :  |        <em>  
+<table>
+<tr><td align="right">MethodSelector &nbsp;
+        Primary "."
+        MethodName "."
+                TypeParameters<sup>?</sup>&nbsp;"(" Formals<sup>?</sup>&nbsp;")" </td></tr>
+<tr><td align="right">\ - 
+        TypeName "."
+        MethodName "."
+                TypeParameters<sup>?</sup>&nbsp;"(" Formals<sup>?</sup>&nbsp;")" </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+The <em>method selector expression</em> &#235;.m.(T1,...,Tn)" is type
+correct only if it is the case that the static type of &#235;" is a
+class or struct or interface with a method
+"m(x1:T1,...xn:Tn){c}:T" defined on it (for some
+"x1,...,xn,c,T)". At runtime the evaluation of this expression
+evaluates &#235;" to a value "v" and creates a function "f"
+which, when applied to an argument list "(a1,...,an)" (of the right
+type) yields the value obtained by evaluating "v.m(a1,...,an)".
+
+<div class="p"><!----></div>
+Thus, the method selector
+
+<div class="p"><!----></div>
+<pre>
+e.m.[X<sub>1</sub>, ..., X<sub>m</sub>](T<sub>1</sub>, ..., T<sub>n</sub>)
+</pre>
+ behaves as if it were the function
+<pre>
+((v:T)=&#62;
+  (X<sub>1</sub>, ..., X<sub>m</sub>](x<sub>1</sub>: T<sub>1</sub>, ..., x<sub>n</sub>: T<sub>n</sub>) =&#62; v.m[X<sub>1</sub>, ..., X<sub>m</sub>](x<sub>1</sub>, ..., x<sub>n</sub>))
+(e)
+</pre>
+
+<div class="p"><!----></div>
+ Note:
+Because of overloading, a method name is not sufficient to
+uniquely identify a function for a given class (in Java-like languages).
+One needs the argument type information as well.
+The selector syntax (dot) is used to distinguish &#235;.m()" (a
+method invocation on &#235;" of method named "m" with no arguments)
+from &#235;.m.()"
+(the function bound to the method). 
+
+
+<div class="p"><!----></div>
+A static method provides a binding from a name to a function that is
+independent of any instance of a class; rather it is associated with the
+class itself. The static function selector
+"T.m.(T<sub>1</sub>, ..., T<sub>n</sub>)" denotes the
+function bound to the static method named "m", with argument types
+"(T<sub>1</sub>, ..., T<sub>n</sub>)" for the type "T". The return type
+of the function is specified by the declaration of "T.m".
+
+<div class="p"><!----></div>
+Users of a function type do not care whether a function was defined
+directly (using the function syntax), or obtained via (static or
+instance) function selectors.
+
+<div class="p"><!----></div>
+ Note:
+Design note: The function selector syntax is consistent with the
+reinterpretation of the usual method invocation syntax
+&#235;.m(e<sub>1</sub>,..., e<sub>n</sub>)"
+into a function specifier, &#235;.m", applied to a tuple of arguments
+"(e<sub>1</sub>,..., e<sub>n</sub>)". Note that the receiver is not
+treated as "an extra argument" to the
+function. That would break the above approach.
+
+
+<div class="p"><!----></div>
+
+</body>
+</html>

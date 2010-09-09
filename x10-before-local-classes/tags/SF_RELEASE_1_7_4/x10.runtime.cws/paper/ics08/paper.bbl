@@ -1,0 +1,114 @@
+\begin{thebibliography}{10}
+
+\bibitem{BC04a}
+D.~A. Bader and G.~Cong.
+\newblock A fast, parallel spanning tree algorithm for symmetric
+  multiprocessors ({SMPs}).
+\newblock In {\em Proceedings of the 18th International Parallel and
+  Distributed Processing Symposium (IPDPS 2004)}, Santa Fe, New Mexico, Apr
+  2004.
+
+\bibitem{BC04b}
+D.~A. Bader and G.~Cong.
+\newblock Fast shared-memory algorithms for computing the minimum spanning
+  forest of sparse graphs.
+\newblock In {\em Proc.\ 18th Int'l Parallel and Distributed Processing Symp.\
+  (IPDPS 2004)}, Santa Fe, New Mexico, Apr 2004.
+
+\bibitem{CZF04}
+D.~Chakrabarti, Y.~Zhan, and C.~Faloutsos.
+\newblock {R-MAT}: {A} recursive model for graph mining.
+\newblock In {\em Proc. 4th SIAM Intl. Conf. on Data Mining}, April 2004.
+
+\bibitem{X10-OOPSLA05}
+P.~Charles, C.~Donawa, K.~Ebcioglu, C.~Grothoff, A.~Kielstra, C.~V. Praun,
+  V.~Saraswat, and V.~Sarkar.
+\newblock X10: An object-oriented approach to non-uniform cluster computing.
+\newblock In {\em Proceedings of the 2005 ACM SIGPLAN Conference on
+  Object-Oriented Programming Systems, Languages and Applications (OOPSLA)},
+  2005.
+
+\bibitem{G06}
+G.~Cong.
+\newblock An evaluation of parallel algorithms on current memory consistency
+  models.
+\newblock In {\em Proc.\ {IASTED} Paralle and Distributed Computing and Sytems,
+  ({IASTED-PDCS})}, pages 513--519, Dallas, TX, Nov. 2006.
+
+\bibitem{titaniumDoc}
+P.~H. (ed.)~et. al.
+\newblock Titanium language reference manual, version 2.19.
+\newblock Technical Report UCB/EECS-2005-15, University of California,
+  Berkeley, 2005.
+
+\bibitem{frigo98implementation}
+M.~Frigo, C.~E. Leiserson, and K.~H. Randall.
+\newblock The implementation of the cilk-5 multithreaded language.
+\newblock In {\em {SIGPLAN} Conference on Programming Language Design and
+  Implementation}, pages 212--223, 1998.
+
+\bibitem{GKP97}
+S.~Goddard, S.~Kumar, and J.~Prins.
+\newblock Connected components algorithms for mesh-connected parallel
+  computers.
+\newblock In S.~N. Bhatt, editor, {\em Parallel Algorithms: 3rd {DIMACS}
+  Implementation Challenge {October} 17-19, 1994}, volume~30 of {\em {DIMACS}
+  Series in Discrete Mathematics and Theoretical Computer Science}, pages
+  43--58, 1997.
+
+\bibitem{Gre94}
+J.~Greiner.
+\newblock A comparison of data-parallel algorithms for connected components.
+\newblock In {\em Proc.\ 6th Ann.\ Symp.\ Parallel Algorithms and Architectures
+  ({SPAA-94})}, pages 16--25, Cape May, NJ, June 1994.
+
+\bibitem{HRD97}
+T.-S. Hsu, V.~Ramachandran, and N.~Dean.
+\newblock Parallel implementation of algorithms for finding connected
+  components in graphs.
+\newblock In S.~N. Bhatt, editor, {\em Parallel Algorithms: 3rd {DIMACS}
+  Implementation Challenge {October} 17-19, 1994}, volume~30 of {\em {DIMACS}
+  Series in Discrete Mathematics and Theoretical Computer Science}, pages
+  23--41, 1997.
+
+\bibitem{x10-webpage}
+{http://x10.sf.net}.
+\newblock {The X10 Programming Language v1.0}, 2006.
+
+\bibitem{KR88}
+P.~Klein and J.~Reif.
+\newblock An efficient parallel algorithm for planarity.
+\newblock {\em J.~Comput. Syst. Sci.}, 37(2):190--246, 1988.
+
+\bibitem{KLC97}
+A.~Krishnamurthy, S.~S. Lumetta, D.~E. Culler, and K.~Yelick.
+\newblock Connected components on distributed memory machines.
+\newblock In S.~N. Bhatt, editor, {\em Parallel Algorithms: 3rd {DIMACS}
+  Implementation Challenge {October} 17-19, 1994}, volume~30 of {\em {DIMACS}
+  Series in Discrete Mathematics and Theoretical Computer Science}, pages
+  1--21. American Mathematical Society, 1997.
+
+\bibitem{MN99}
+K.~Melhorn and S.~N{\"a}her.
+\newblock {\em The {LEDA} Platform of Combinatorial and Geometric Computing}.
+\newblock Cambridge University Press, 1999.
+
+\bibitem{MR86}
+G.~L. Miller and V.~Ramachandran.
+\newblock Efficient parallel ear decomposition with applications.
+\newblock Manuscript, UC Berkeley, MSRI, Jan. 1986.
+
+\bibitem{MS94}
+B.~Moret and H.~Shapiro.
+\newblock An empirical assessment of algorithms for constructing a minimal
+  spanning tree.
+\newblock In {\em {DIMACS} Monographs in Discrete Mathematics and Theoretical
+  Computer Science: Computational Support for Discrete Mathematics
+  \textbf{15}}, pages 99--117. American Mathematical Society, 1994.
+
+\bibitem{SV82}
+Y.~Shiloach and U.~Vishkin.
+\newblock An {$O(\log n)$} parallel connectivity algorithm.
+\newblock {\em J.\ Algs.}, 3(1):57--67, 1982.
+
+\end{thebibliography}

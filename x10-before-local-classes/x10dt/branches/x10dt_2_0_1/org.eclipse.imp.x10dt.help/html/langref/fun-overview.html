@@ -1,0 +1,70 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+<title>Overview</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc1">
+1</a>&nbsp;&nbsp;Overview</h2>
+The runtime entities in X10 are of three kinds: <em>structs</em>,
+<em>objects</em>, and <em>functions</em>. This section is concerned with
+functions and their types - how they are created, and what operations
+can be performed on them.
+
+<div class="p"><!----></div>
+Intuitively, a function is a piece of code which can be applied to a
+set of arguments to produce a value. The application may not
+terminate, or may terminate abruptly. Functions may throw checked and
+unchecked exceptions. The body of a function may be any X10
+expression: hence a function evaluation may spawn multiple activities,
+read and write mutable locations, wait until memory locations contain
+a desired value, and execute over multiple places. In particular,
+function evaluation may be non-deterministic. When applied to the same
+input twice, a function may yield two different results.
+
+<div class="p"><!----></div>
+It is a limitation of X10 v2.0 that functions do not support
+type arguments. This limitation may be removed in future versions of
+the language.
+
+<div class="p"><!----></div>
+A <em>function literal</em> "(x1:T1,..,xn:Tn){c}:T=&#62;e" creates a
+function of type "(x1:T1,...,xn:Tn){c}:T"
+(&#167;). The body &#235;" of such an expression is
+type-checked in an environment in which "c" is true. At runtime,
+function execution results in the evaluation of &#235;" in an
+environment in which each formal is bound to the given actual
+parameter.
+
+<div class="p"><!----></div>
+The <em>method selector expression</em> &#235;.m.(x1:T1,...,xn:Tn)" (&#167;)
+permits the specification of the function underlying
+the method "m", which takes arguments of type "(x1:T1,..., xn:Tn)".
+Within this function, "this" is bound to the result of evaluating &#235;".
+
+<div class="p"><!----></div>
+Function types may be used in &#239;mplements" clauses of class
+definitions. Instances of such classes may be used as functions of the
+given type.  Indeed, an object may behave like any (fixed) number of
+functions, since the class it is an instance of may implement any
+(fixed) number of function types.
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+
+</body>
+</html>

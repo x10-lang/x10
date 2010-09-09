@@ -1,0 +1,699 @@
+
+moxie% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 1 K 10000000 4 false false false
+Number of procs=1
+graphType=K
+N=10000000
+D=4
+verification=false
+generating graph done
+
+Creation time:59.8173 s
+N=10000000 t=18.6581 s 2.1438 MegaEdges/s
+N=10000000 t=17.9177 s 2.2324 MegaEdges/s
+N=10000000 t=17.9472 s 2.2288 MegaEdges/s
+N=10000000 t=17.9478 s 2.2287 MegaEdges/s
+N=10000000 t=17.9402 s 2.2296 MegaEdges/s
+N=10000000 t=17.9559 s 2.2277 MegaEdges/s
+N=10000000 t=17.9468 s 2.2288 MegaEdges/s
+N=10000000 t=17.9414 s 2.2295 MegaEdges/s
+N=10000000 t=17.9494 s 2.2285 MegaEdges/s
+N=10000000 t=17.9589 s 2.2273 MegaEdges/s
+N=10000000 t=18.0355 s 2.2179 MegaEdges/s
+N=10000000 t=18.0185 s 2.2199 MegaEdges/s
+N=10000000 t=18.0000 s 2.2222 MegaEdges/s
+N=10000000 t=17.9964 s 2.2227 MegaEdges/s
+N=10000000 t=17.9854 s 2.2240 MegaEdges/s
+N=10000000 t=17.9967 s 2.2226 MegaEdges/s
+N=10000000 t=17.9902 s 2.2234 MegaEdges/s
+N=10000000 t=17.9766 s 2.2251 MegaEdges/s
+N=10000000 t=17.9433 s 2.2292 MegaEdges/s
+Completed iterations for N=10000000
+moxie% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 2 K 10000000 4 false false false
+Number of procs=2
+graphType=K
+N=10000000
+D=4
+verification=false
+generating graph done
+
+Creation time:59.9923 s
+N=10000000 t=9.2098 s 4.3432 MegaEdges/s
+N=10000000 t=8.8348 s 4.5275 MegaEdges/s
+N=10000000 t=8.8476 s 4.5210 MegaEdges/s
+N=10000000 t=9.3066 s 4.2980 MegaEdges/s
+N=10000000 t=8.8493 s 4.5201 MegaEdges/s
+N=10000000 t=8.8490 s 4.5203 MegaEdges/s
+N=10000000 t=8.8493 s 4.5201 MegaEdges/s
+N=10000000 t=8.8345 s 4.5277 MegaEdges/s
+N=10000000 t=8.8315 s 4.5293 MegaEdges/s
+N=10000000 t=8.8305 s 4.5298 MegaEdges/s
+N=10000000 t=8.8355 s 4.5272 MegaEdges/s
+N=10000000 t=8.8304 s 4.5298 MegaEdges/s
+N=10000000 t=8.8303 s 4.5298 MegaEdges/s
+N=10000000 t=8.8734 s 4.5079 MegaEdges/s
+N=10000000 t=8.8383 s 4.5258 MegaEdges/s
+N=10000000 t=8.8304 s 4.5298 MegaEdges/s
+N=10000000 t=8.8310 s 4.5295 MegaEdges/s
+N=10000000 t=8.8810 s 4.5040 MegaEdges/s
+N=10000000 t=8.8420 s 4.5239 MegaEdges/s
+Completed iterations for N=10000000
+moxie% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 4 K 10000000 4 false false false
+Number of procs=4
+graphType=K
+N=10000000
+D=4
+verification=false
+generating graph done
+
+Creation time:59.6602 s
+N=10000000 t=4.7182 s 8.4779 MegaEdges/s
+N=10000000 t=4.4483 s 8.9921 MegaEdges/s
+N=10000000 t=4.4793 s 8.9300 MegaEdges/s
+N=10000000 t=4.4445 s 8.9999 MegaEdges/s
+N=10000000 t=4.4396 s 9.0099 MegaEdges/s
+N=10000000 t=4.4749 s 8.9386 MegaEdges/s
+N=10000000 t=4.4337 s 9.0217 MegaEdges/s
+N=10000000 t=4.4849 s 8.9189 MegaEdges/s
+N=10000000 t=4.4415 s 9.0061 MegaEdges/s
+N=10000000 t=4.4700 s 8.9486 MegaEdges/s
+N=10000000 t=4.4451 s 8.9986 MegaEdges/s
+N=10000000 t=4.4296 s 9.0302 MegaEdges/s
+N=10000000 t=4.4495 s 8.9897 MegaEdges/s
+N=10000000 t=4.4542 s 8.9802 MegaEdges/s
+N=10000000 t=4.4533 s 8.9821 MegaEdges/s
+N=10000000 t=4.4391 s 9.0109 MegaEdges/s
+N=10000000 t=4.4269 s 9.0356 MegaEdges/s
+N=10000000 t=4.4430 s 9.0030 MegaEdges/s
+N=10000000 t=4.4591 s 8.9704 MegaEdges/s
+Completed iterations for N=10000000
+moxie% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 8 K 10000000 4 false false false
+Number of procs=8
+graphType=K
+N=10000000
+D=4
+verification=false
+generating graph done
+
+Creation time:59.3583 s
+N=10000000 t=2.4895 s 16.0674 MegaEdges/s
+N=10000000 t=2.3556 s 16.9812 MegaEdges/s
+N=10000000 t=2.3406 s 17.0893 MegaEdges/s
+N=10000000 t=2.3737 s 16.8513 MegaEdges/s
+N=10000000 t=2.4014 s 16.6568 MegaEdges/s
+N=10000000 t=2.3391 s 17.1008 MegaEdges/s
+N=10000000 t=2.3571 s 16.9700 MegaEdges/s
+N=10000000 t=2.3618 s 16.9360 MegaEdges/s
+N=10000000 t=2.3450 s 17.0579 MegaEdges/s
+N=10000000 t=2.3528 s 17.0011 MegaEdges/s
+N=10000000 t=2.3316 s 17.1558 MegaEdges/s
+N=10000000 t=2.3744 s 16.8465 MegaEdges/s
+N=10000000 t=2.3456 s 17.0531 MegaEdges/s
+N=10000000 t=2.3522 s 17.0056 MegaEdges/s
+N=10000000 t=2.3626 s 16.9305 MegaEdges/s
+N=10000000 t=2.3317 s 17.1548 MegaEdges/s
+N=10000000 t=2.3377 s 17.1106 MegaEdges/s
+N=10000000 t=2.3319 s 17.1535 MegaEdges/s
+N=10000000 t=2.3202 s 17.2398 MegaEdges/s
+Completed iterations for N=10000000
+moxie% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 16 K 10000000 4 false false false
+Number of procs=16
+graphType=K
+N=10000000
+D=4
+verification=false
+java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 24 K 10000000 4 false false false
+java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 30 K 10000000 4 false false false
+java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 32 K 10000000 4 false false false
+generating graph done
+
+Creation time:59.8957 s
+N=10000000 t=1.5119 s 26.4563 MegaEdges/s
+N=10000000 t=1.2864 s 31.0951 MegaEdges/s
+N=10000000 t=1.3035 s 30.6856 MegaEdges/s
+N=10000000 t=1.3063 s 30.6215 MegaEdges/s
+N=10000000 t=1.2692 s 31.5161 MegaEdges/s
+N=10000000 t=1.2820 s 31.2015 MegaEdges/s
+N=10000000 t=1.2722 s 31.4428 MegaEdges/s
+N=10000000 t=1.5266 s 26.2022 MegaEdges/s
+N=10000000 t=1.2754 s 31.3633 MegaEdges/s
+N=10000000 t=1.2794 s 31.2640 MegaEdges/s
+N=10000000 t=1.2836 s 31.1612 MegaEdges/s
+N=10000000 t=1.2726 s 31.4310 MegaEdges/s
+N=10000000 t=1.3188 s 30.3299 MegaEdges/s
+N=10000000 t=1.2824 s 31.1922 MegaEdges/s
+N=10000000 t=1.3064 s 30.6190 MegaEdges/s
+N=10000000 t=1.2975 s 30.8280 MegaEdges/s
+N=10000000 t=1.3048 s 30.6557 MegaEdges/s
+N=10000000 t=1.2855 s 31.1159 MegaEdges/s
+N=10000000 t=1.2852 s 31.1236 MegaEdges/s
+Completed iterations for N=10000000
+moxie% Number of procs=24
+graphType=K
+N=10000000
+D=4
+verification=false
+generating graph done
+
+Creation time:66.5758 s
+N=10000000 t=1.3479 s 29.6752 MegaEdges/s
+N=10000000 t=0.9095 s 43.9806 MegaEdges/s
+N=10000000 t=0.9266 s 43.1678 MegaEdges/s
+N=10000000 t=0.9046 s 44.2205 MegaEdges/s
+N=10000000 t=0.9016 s 44.3675 MegaEdges/s
+N=10000000 t=0.8982 s 44.5335 MegaEdges/s
+N=10000000 t=0.8945 s 44.7155 MegaEdges/s
+N=10000000 t=0.8969 s 44.5975 MegaEdges/s
+N=10000000 t=0.8979 s 44.5483 MegaEdges/s
+N=10000000 t=0.9087 s 44.0179 MegaEdges/s
+N=10000000 t=0.8873 s 45.0795 MegaEdges/s
+N=10000000 t=0.8920 s 44.8408 MegaEdges/s
+N=10000000 t=0.9002 s 44.4328 MegaEdges/s
+N=10000000 t=0.9025 s 44.3202 MegaEdges/s
+N=10000000 t=0.9006 s 44.4167 MegaEdges/s
+N=10000000 t=0.8976 s 44.5636 MegaEdges/s
+N=10000000 t=0.8972 s 44.5836 MegaEdges/s
+N=10000000 t=0.9015 s 44.3710 MegaEdges/s
+N=10000000 t=0.8939 s 44.7459 MegaEdges/s
+Completed iterations for N=10000000
+moxie% Number of procs=30
+graphType=K
+N=10000000
+D=4
+verification=false
+generating graph done
+
+Creation time:59.7712 s
+N=10000000 t=1.2152 s 32.9172 MegaEdges/s
+N=10000000 t=0.8013 s 49.9172 MegaEdges/s
+N=10000000 t=0.8165 s 48.9902 MegaEdges/s
+N=10000000 t=0.7915 s 50.5341 MegaEdges/s
+N=10000000 t=0.7956 s 50.2752 MegaEdges/s
+N=10000000 t=0.7951 s 50.3112 MegaEdges/s
+N=10000000 t=0.7910 s 50.5668 MegaEdges/s
+N=10000000 t=0.7870 s 50.8256 MegaEdges/s
+N=10000000 t=0.7923 s 50.4842 MegaEdges/s
+N=10000000 t=0.7868 s 50.8360 MegaEdges/s
+N=10000000 t=0.7893 s 50.6773 MegaEdges/s
+N=10000000 t=0.7888 s 50.7117 MegaEdges/s
+N=10000000 t=0.7876 s 50.7877 MegaEdges/s
+N=10000000 t=0.7862 s 50.8804 MegaEdges/s
+N=10000000 t=0.8001 s 49.9959 MegaEdges/s
+N=10000000 t=0.7900 s 50.6339 MegaEdges/s
+N=10000000 t=0.7880 s 50.7599 MegaEdges/s
+N=10000000 t=0.7873 s 50.8082 MegaEdges/s
+N=10000000 t=0.7872 s 50.8123 MegaEdges/s
+Completed iterations for N=10000000
+moxie% Number of procs=32
+graphType=K
+N=10000000
+D=4
+verification=false
+generating graph done
+
+Creation time:60.3418 s
+N=10000000 t=1.1741 s 34.0674 MegaEdges/s
+N=10000000 t=0.7692 s 52.0024 MegaEdges/s
+N=10000000 t=0.8390 s 47.6758 MegaEdges/s
+N=10000000 t=0.7782 s 51.4007 MegaEdges/s
+N=10000000 t=0.7456 s 53.6509 MegaEdges/s
+N=10000000 t=0.7469 s 53.5522 MegaEdges/s
+N=10000000 t=0.7499 s 53.3409 MegaEdges/s
+N=10000000 t=0.7722 s 51.7981 MegaEdges/s
+N=10000000 t=0.7523 s 53.1699 MegaEdges/s
+N=10000000 t=0.7952 s 50.3019 MegaEdges/s
+N=10000000 t=0.7469 s 53.5538 MegaEdges/s
+N=10000000 t=0.7505 s 53.2954 MegaEdges/s
+N=10000000 t=0.7496 s 53.3610 MegaEdges/s
+N=10000000 t=0.7518 s 53.2091 MegaEdges/s
+N=10000000 t=0.7557 s 52.9276 MegaEdges/s
+N=10000000 t=0.7470 s 53.5488 MegaEdges/s
+N=10000000 t=0.7759 s 51.5555 MegaEdges/s
+N=10000000 t=0.7730 s 51.7474 MegaEdges/s
+N=10000000 t=0.8117 s 49.2804 MegaEdges/s
+Completed iterations for N=10000000
+moxie% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 1 K 5000000 4 false false false
+Number of procs=1
+graphType=K
+N=5000000
+D=4
+verification=false
+generating graph done
+
+Creation time:28.9947 s
+N=5000000 t=8.1398 s 2.4571 MegaEdges/s
+N=5000000 t=7.7496 s 2.5808 MegaEdges/s
+N=5000000 t=7.7262 s 2.5886 MegaEdges/s
+N=5000000 t=7.6976 s 2.5982 MegaEdges/s
+N=5000000 t=7.7740 s 2.5727 MegaEdges/s
+N=5000000 t=7.7730 s 2.5730 MegaEdges/s
+N=5000000 t=7.7836 s 2.5695 MegaEdges/s
+N=5000000 t=7.7966 s 2.5652 MegaEdges/s
+N=5000000 t=7.7535 s 2.5795 MegaEdges/s
+N=5000000 t=7.7517 s 2.5801 MegaEdges/s
+N=5000000 t=7.7529 s 2.5797 MegaEdges/s
+N=5000000 t=7.7540 s 2.5793 MegaEdges/s
+N=5000000 t=7.7623 s 2.5766 MegaEdges/s
+N=5000000 t=7.8219 s 2.5569 MegaEdges/s
+N=5000000 t=7.7865 s 2.5685 MegaEdges/s
+N=5000000 t=7.7977 s 2.5649 MegaEdges/s
+N=5000000 t=7.7376 s 2.5848 MegaEdges/s
+N=5000000 t=7.6346 s 2.6197 MegaEdges/s
+N=5000000 t=8.0406 s 2.4874 MegaEdges/s
+Completed iterations for N=5000000
+moxie% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 2 K 5000000 4 false false false
+Number of procs=2
+graphType=K
+N=5000000
+D=4
+verification=false
+generating graph done
+
+Creation time:28.6589 s
+N=5000000 t=4.0084 s 4.9896 MegaEdges/s
+N=5000000 t=3.7328 s 5.3580 MegaEdges/s
+N=5000000 t=3.7825 s 5.2875 MegaEdges/s
+N=5000000 t=3.8194 s 5.2365 MegaEdges/s
+N=5000000 t=3.8203 s 5.2351 MegaEdges/s
+N=5000000 t=3.8496 s 5.1954 MegaEdges/s
+N=5000000 t=3.8306 s 5.2211 MegaEdges/s
+N=5000000 t=3.8159 s 5.2412 MegaEdges/s
+N=5000000 t=3.8041 s 5.2575 MegaEdges/s
+N=5000000 t=3.8292 s 5.2231 MegaEdges/s
+N=5000000 t=3.8130 s 5.2452 MegaEdges/s
+N=5000000 t=3.8128 s 5.2454 MegaEdges/s
+N=5000000 t=3.8149 s 5.2426 MegaEdges/s
+N=5000000 t=3.8779 s 5.1574 MegaEdges/s
+N=5000000 t=3.9082 s 5.1175 MegaEdges/s
+N=5000000 t=3.8402 s 5.2081 MegaEdges/s
+N=5000000 t=3.8235 s 5.2309 MegaEdges/s
+N=5000000 t=3.8025 s 5.2597 MegaEdges/s
+N=5000000 t=3.8093 s 5.2503 MegaEdges/s
+Completed iterations for N=5000000
+moxie% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 4 K 5000000 4 false false false
+Number of procs=4
+graphType=K
+N=5000000
+D=4
+verification=false
+generating graph done
+
+Creation time:29.0069 s
+N=5000000 t=2.0336 s 9.8346 MegaEdges/s
+N=5000000 t=1.9285 s 10.3706 MegaEdges/s
+N=5000000 t=1.9144 s 10.4472 MegaEdges/s
+N=5000000 t=1.9769 s 10.1167 MegaEdges/s
+N=5000000 t=1.8953 s 10.5527 MegaEdges/s
+N=5000000 t=1.8864 s 10.6023 MegaEdges/s
+N=5000000 t=2.5764 s 7.7627 MegaEdges/s
+N=5000000 t=1.9260 s 10.3840 MegaEdges/s
+N=5000000 t=1.8851 s 10.6097 MegaEdges/s
+N=5000000 t=1.8451 s 10.8397 MegaEdges/s
+N=5000000 t=1.9657 s 10.1747 MegaEdges/s
+N=5000000 t=1.9333 s 10.3448 MegaEdges/s
+N=5000000 t=1.9261 s 10.3837 MegaEdges/s
+N=5000000 t=1.8907 s 10.5783 MegaEdges/s
+N=5000000 t=1.8406 s 10.8660 MegaEdges/s
+N=5000000 t=1.8589 s 10.7593 MegaEdges/s
+N=5000000 t=1.8811 s 10.6322 MegaEdges/s
+N=5000000 t=1.9394 s 10.3126 MegaEdges/s
+N=5000000 t=1.9142 s 10.4483 MegaEdges/s
+Completed iterations for N=5000000
+moxie% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 8 K 5000000 4 false false false
+Number of procs=8
+graphType=K
+N=5000000
+D=4
+verification=false
+generating graph done
+
+Creation time:28.7842 s
+N=5000000 t=1.1594 s 17.2509 MegaEdges/s
+N=5000000 t=1.0122 s 19.7593 MegaEdges/s
+N=5000000 t=1.0176 s 19.6540 MegaEdges/s
+N=5000000 t=1.0326 s 19.3688 MegaEdges/s
+N=5000000 t=1.0089 s 19.8229 MegaEdges/s
+N=5000000 t=0.9755 s 20.5032 MegaEdges/s
+N=5000000 t=0.9953 s 20.0947 MegaEdges/s
+N=5000000 t=0.9935 s 20.1316 MegaEdges/s
+N=5000000 t=0.9811 s 20.3849 MegaEdges/s
+N=5000000 t=1.0178 s 19.6501 MegaEdges/s
+N=5000000 t=1.0490 s 19.0659 MegaEdges/s
+N=5000000 t=1.0254 s 19.5037 MegaEdges/s
+N=5000000 t=1.0147 s 19.7099 MegaEdges/s
+N=5000000 t=0.9987 s 20.0254 MegaEdges/s
+N=5000000 t=0.9977 s 20.0453 MegaEdges/s
+N=5000000 t=0.9838 s 20.3300 MegaEdges/s
+N=5000000 t=1.0025 s 19.9495 MegaEdges/s
+N=5000000 t=0.9972 s 20.0555 MegaEdges/s
+N=5000000 t=0.9814 s 20.3782 MegaEdges/s
+Completed iterations for N=5000000
+moxie% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 16 K 5000000 4 false false false
+Number of procs=16
+graphType=K
+N=5000000
+D=4
+verification=false
+generating graph done
+
+Creation time:29.2771 s
+N=5000000 t=0.8228 s 24.3080 MegaEdges/s
+N=5000000 t=0.5548 s 36.0490 MegaEdges/s
+N=5000000 t=0.5965 s 33.5298 MegaEdges/s
+N=5000000 t=0.5725 s 34.9368 MegaEdges/s
+N=5000000 t=0.5788 s 34.5559 MegaEdges/s
+N=5000000 t=0.5528 s 36.1779 MegaEdges/s
+N=5000000 t=0.5795 s 34.5140 MegaEdges/s
+N=5000000 t=0.5611 s 35.6459 MegaEdges/s
+N=5000000 t=0.5634 s 35.5001 MegaEdges/s
+N=5000000 t=0.5759 s 34.7302 MegaEdges/s
+N=5000000 t=0.5697 s 35.1080 MegaEdges/s
+N=5000000 t=0.5644 s 35.4343 MegaEdges/s
+N=5000000 t=0.5700 s 35.0878 MegaEdges/s
+N=5000000 t=0.5724 s 34.9434 MegaEdges/s
+N=5000000 t=0.5630 s 35.5264 MegaEdges/s
+N=5000000 t=0.6053 s 33.0433 MegaEdges/s
+N=5000000 t=0.5613 s 35.6315 MegaEdges/s
+N=5000000 t=0.5865 s 34.1003 MegaEdges/s
+N=5000000 t=0.5611 s 35.6450 MegaEdges/s
+Completed iterations for N=5000000
+moxie% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 24 K 5000000 4 false false false
+Number of procs=24
+graphType=K
+N=5000000
+D=4
+verification=false
+generating graph done
+
+Creation time:29.1089 s
+N=5000000 t=0.7378 s 27.1060 MegaEdges/s
+N=5000000 t=0.4113 s 48.6267 MegaEdges/s
+N=5000000 t=0.4573 s 43.7319 MegaEdges/s
+N=5000000 t=0.4061 s 49.2461 MegaEdges/s
+N=5000000 t=0.4187 s 47.7659 MegaEdges/s
+N=5000000 t=0.4049 s 49.3897 MegaEdges/s
+N=5000000 t=0.4104 s 48.7341 MegaEdges/s
+N=5000000 t=0.4093 s 48.8673 MegaEdges/s
+N=5000000 t=0.4207 s 47.5423 MegaEdges/s
+N=5000000 t=0.4081 s 49.0092 MegaEdges/s
+N=5000000 t=0.4050 s 49.3829 MegaEdges/s
+N=5000000 t=0.4173 s 47.9284 MegaEdges/s
+N=5000000 t=0.4075 s 49.0819 MegaEdges/s
+N=5000000 t=0.4084 s 48.9677 MegaEdges/s
+N=5000000 t=0.4266 s 46.8805 MegaEdges/s
+N=5000000 t=0.4191 s 47.7161 MegaEdges/s
+N=5000000 t=0.4063 s 49.2259 MegaEdges/s
+N=5000000 t=0.4103 s 48.7395 MegaEdges/s
+N=5000000 t=0.4091 s 48.8825 MegaEdges/s
+Completed iterations for N=5000000
+moxie% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 30 K 5000000 4 false false false
+Number of procs=30
+graphType=K
+N=5000000
+D=4
+verification=false
+generating graph done
+
+Creation time:28.6044 s
+N=5000000 t=0.6620 s 30.2095 MegaEdges/s
+N=5000000 t=0.3438 s 58.1773 MegaEdges/s
+N=5000000 t=0.4115 s 48.6001 MegaEdges/s
+N=5000000 t=0.3317 s 60.2947 MegaEdges/s
+N=5000000 t=0.3322 s 60.2018 MegaEdges/s
+N=5000000 t=0.3342 s 59.8395 MegaEdges/s
+N=5000000 t=0.3335 s 59.9781 MegaEdges/s
+N=5000000 t=0.3325 s 60.1459 MegaEdges/s
+N=5000000 t=0.3316 s 60.3071 MegaEdges/s
+N=5000000 t=0.3351 s 59.6916 MegaEdges/s
+N=5000000 t=0.3303 s 60.5450 MegaEdges/s
+N=5000000 t=0.3331 s 60.0344 MegaEdges/s
+N=5000000 t=0.3333 s 60.0098 MegaEdges/s
+N=5000000 t=0.3361 s 59.5020 MegaEdges/s
+N=5000000 t=0.3345 s 59.7958 MegaEdges/s
+N=5000000 t=0.3316 s 60.3206 MegaEdges/s
+N=5000000 t=0.3364 s 59.4614 MegaEdges/s
+N=5000000 t=0.3362 s 59.4883 MegaEdges/s
+N=5000000 t=0.3331 s 60.0346 MegaEdges/s
+Completed iterations for N=5000000
+moxie% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 32 K 5000000 4 false false false
+Number of procs=32
+graphType=K
+N=5000000
+D=4
+verification=false
+generating graph done
+
+Creation time:29.1123 s
+N=5000000 t=0.8119 s 24.6350 MegaEdges/s
+N=5000000 t=0.3474 s 57.5761 MegaEdges/s
+N=5000000 t=0.4548 s 43.9707 MegaEdges/s
+N=5000000 t=0.4078 s 49.0467 MegaEdges/s
+N=5000000 t=0.3288 s 60.8334 MegaEdges/s
+N=5000000 t=0.3150 s 63.4849 MegaEdges/s
+N=5000000 t=0.3222 s 62.0772 MegaEdges/s
+N=5000000 t=0.3251 s 61.5102 MegaEdges/s
+N=5000000 t=0.3255 s 61.4420 MegaEdges/s
+N=5000000 t=0.3162 s 63.2607 MegaEdges/s
+N=5000000 t=0.3174 s 63.0155 MegaEdges/s
+N=5000000 t=0.3159 s 63.3189 MegaEdges/s
+N=5000000 t=0.3556 s 56.2380 MegaEdges/s
+N=5000000 t=0.3653 s 54.7505 MegaEdges/s
+N=5000000 t=0.3645 s 54.8745 MegaEdges/s
+N=5000000 t=0.3204 s 62.4193 MegaEdges/s
+N=5000000 t=0.3401 s 58.8147 MegaEdges/s
+N=5000000 t=0.3506 s 57.0445 MegaEdges/s
+N=5000000 t=0.3220 s 62.1090 MegaEdges/s
+Completed iterations for N=5000000
+moxie% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 1 K 1000000 4 false false false
+
+Number of procs=1
+graphType=K
+N=1000000
+D=4
+verification=false
+generating graph done
+
+Creation time:5.7760 s
+N=1000000 t=1.2068 s 3.3146 MegaEdges/s
+N=1000000 t=1.0322 s 3.8752 MegaEdges/s
+N=1000000 t=1.0308 s 3.8805 MegaEdges/s
+N=1000000 t=1.0309 s 3.8802 MegaEdges/s
+N=1000000 t=1.0304 s 3.8821 MegaEdges/s
+N=1000000 t=1.0307 s 3.8809 MegaEdges/s
+N=1000000 t=1.0401 s 3.8458 MegaEdges/s
+N=1000000 t=1.0499 s 3.8099 MegaEdges/s
+N=1000000 t=1.0306 s 3.8812 MegaEdges/s
+N=1000000 t=1.0412 s 3.8418 MegaEdges/s
+N=1000000 t=1.0426 s 3.8366 MegaEdges/s
+N=1000000 t=1.0423 s 3.8378 MegaEdges/s
+N=1000000 t=1.0362 s 3.8603 MegaEdges/s
+N=1000000 t=1.0441 s 3.8309 MegaEdges/s
+N=1000000 t=1.0427 s 3.8362 MegaEdges/s
+N=1000000 t=1.0433 s 3.8342 MegaEdges/s
+N=1000000 t=1.0427 s 3.8363 MegaEdges/s
+N=1000000 t=1.0439 s 3.8318 MegaEdges/s
+N=1000000 t=1.0430 s 3.8350 MegaEdges/s
+Completed iterations for N=1000000
+moxie% moxie% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 2 K 1000000 4 false false false
+Number of procs=2
+graphType=K
+N=1000000
+D=4
+verification=false
+generating graph done
+
+Creation time:5.7372 s
+N=1000000 t=0.6746 s 5.9294 MegaEdges/s
+N=1000000 t=0.5222 s 7.6593 MegaEdges/s
+N=1000000 t=0.5215 s 7.6705 MegaEdges/s
+N=1000000 t=0.5119 s 7.8140 MegaEdges/s
+N=1000000 t=0.5121 s 7.8113 MegaEdges/s
+N=1000000 t=0.5178 s 7.7257 MegaEdges/s
+N=1000000 t=0.5096 s 7.8499 MegaEdges/s
+N=1000000 t=0.5155 s 7.7592 MegaEdges/s
+N=1000000 t=0.5146 s 7.7730 MegaEdges/s
+N=1000000 t=0.5086 s 7.8655 MegaEdges/s
+N=1000000 t=0.5073 s 7.8855 MegaEdges/s
+N=1000000 t=0.5065 s 7.8974 MegaEdges/s
+N=1000000 t=0.5090 s 7.8585 MegaEdges/s
+N=1000000 t=0.5089 s 7.8596 MegaEdges/s
+N=1000000 t=0.5141 s 7.7813 MegaEdges/s
+N=1000000 t=0.5075 s 7.8822 MegaEdges/s
+N=1000000 t=0.5088 s 7.8619 MegaEdges/s
+N=1000000 t=0.5168 s 7.7392 MegaEdges/s
+N=1000000 t=0.5065 s 7.8978 MegaEdges/s
+Completed iterations for N=1000000
+moxie% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 4 K 1000000 4 false false false
+Number of procs=4
+graphType=K
+N=1000000
+D=4
+verification=false
+generating graph done
+
+Creation time:5.8592 s
+N=1000000 t=0.4618 s 8.6622 MegaEdges/s
+N=1000000 t=0.2960 s 13.5114 MegaEdges/s
+N=1000000 t=0.2633 s 15.1890 MegaEdges/s
+N=1000000 t=0.2713 s 14.7447 MegaEdges/s
+N=1000000 t=0.2707 s 14.7767 MegaEdges/s
+N=1000000 t=0.2620 s 15.2655 MegaEdges/s
+N=1000000 t=0.2628 s 15.2229 MegaEdges/s
+N=1000000 t=0.2642 s 15.1398 MegaEdges/s
+N=1000000 t=0.2622 s 15.2573 MegaEdges/s
+N=1000000 t=0.2590 s 15.4420 MegaEdges/s
+N=1000000 t=0.2731 s 14.6488 MegaEdges/s
+N=1000000 t=0.2593 s 15.4265 MegaEdges/s
+N=1000000 t=0.2619 s 15.2730 MegaEdges/s
+N=1000000 t=0.2624 s 15.2451 MegaEdges/s
+N=1000000 t=0.2596 s 15.4098 MegaEdges/s
+N=1000000 t=0.2698 s 14.8269 MegaEdges/s
+N=1000000 t=0.2691 s 14.8640 MegaEdges/s
+N=1000000 t=0.2685 s 14.8966 MegaEdges/s
+N=1000000 t=0.2607 s 15.3420 MegaEdges/s
+Completed iterations for N=1000000
+moxie% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 8 K 1000000 4 false false false
+Number of procs=8
+graphType=K
+N=1000000
+D=4
+verification=false
+generating graph done
+
+Creation time:5.8004 s
+N=1000000 t=0.3684 s 10.8591 MegaEdges/s
+N=1000000 t=0.2011 s 19.8917 MegaEdges/s
+N=1000000 t=0.1380 s 28.9866 MegaEdges/s
+N=1000000 t=0.1411 s 28.3469 MegaEdges/s
+N=1000000 t=0.1384 s 28.9045 MegaEdges/s
+N=1000000 t=0.1361 s 29.3922 MegaEdges/s
+N=1000000 t=0.1381 s 28.9640 MegaEdges/s
+N=1000000 t=0.1378 s 29.0377 MegaEdges/s
+N=1000000 t=0.1373 s 29.1355 MegaEdges/s
+N=1000000 t=0.1357 s 29.4743 MegaEdges/s
+N=1000000 t=0.1405 s 28.4789 MegaEdges/s
+N=1000000 t=0.1374 s 29.1180 MegaEdges/s
+N=1000000 t=0.1416 s 28.2486 MegaEdges/s
+N=1000000 t=0.1374 s 29.1016 MegaEdges/s
+N=1000000 t=0.1363 s 29.3395 MegaEdges/s
+N=1000000 t=0.1366 s 29.2884 MegaEdges/s
+N=1000000 t=0.1370 s 29.1885 MegaEdges/s
+N=1000000 t=0.1366 s 29.2819 MegaEdges/s
+N=1000000 t=0.1383 s 28.9178 MegaEdges/s
+Completed iterations for N=1000000
+moxie% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 16 K 1000000 4 false false false
+Number of procs=16
+graphType=K
+N=1000000
+D=4
+verification=false
+generating graph done
+
+Creation time:5.5720 s
+N=1000000 t=0.3234 s 12.3673 MegaEdges/s
+N=1000000 t=0.1400 s 28.5693 MegaEdges/s
+N=1000000 t=0.0952 s 42.0284 MegaEdges/s
+N=1000000 t=0.2938 s 13.6169 MegaEdges/s
+N=1000000 t=0.0824 s 48.5457 MegaEdges/s
+N=1000000 t=0.1575 s 25.4028 MegaEdges/s
+N=1000000 t=0.0990 s 40.4100 MegaEdges/s
+N=1000000 t=0.1090 s 36.7094 MegaEdges/s
+N=1000000 t=0.0810 s 49.3539 MegaEdges/s
+N=1000000 t=0.0770 s 51.9446 MegaEdges/s
+N=1000000 t=0.0790 s 50.6296 MegaEdges/s
+N=1000000 t=0.0773 s 51.7685 MegaEdges/s
+N=1000000 t=0.0779 s 51.3392 MegaEdges/s
+N=1000000 t=0.0765 s 52.3216 MegaEdges/s
+N=1000000 t=0.0794 s 50.3804 MegaEdges/s
+N=1000000 t=0.0794 s 50.3909 MegaEdges/s
+N=1000000 t=0.0798 s 50.1146 MegaEdges/s
+N=1000000 t=0.0774 s 51.6820 MegaEdges/s
+N=1000000 t=0.0761 s 52.5376 MegaEdges/s
+Completed iterations for N=1000000
+moxie% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 24 K 1000000 4 false false false
+Number of procs=24
+graphType=K
+N=1000000
+D=4
+verification=false
+generating graph done
+
+Creation time:5.6075 s
+N=1000000 t=0.3295 s 12.1385 MegaEdges/s
+N=1000000 t=0.0566 s 70.7293 MegaEdges/s
+N=1000000 t=0.0975 s 41.0448 MegaEdges/s
+N=1000000 t=0.0574 s 69.7225 MegaEdges/s
+N=1000000 t=0.0591 s 67.7132 MegaEdges/s
+N=1000000 t=0.0590 s 67.8192 MegaEdges/s
+N=1000000 t=0.0563 s 71.0757 MegaEdges/s
+N=1000000 t=0.0596 s 67.1358 MegaEdges/s
+N=1000000 t=0.0563 s 71.0078 MegaEdges/s
+N=1000000 t=0.0566 s 70.7070 MegaEdges/s
+N=1000000 t=0.0562 s 71.1189 MegaEdges/s
+N=1000000 t=0.0564 s 70.9071 MegaEdges/s
+N=1000000 t=0.0564 s 70.9778 MegaEdges/s
+N=1000000 t=0.0567 s 70.5947 MegaEdges/s
+N=1000000 t=0.0560 s 71.4297 MegaEdges/s
+N=1000000 t=0.0563 s 70.9904 MegaEdges/s
+N=1000000 t=0.0557 s 71.8162 MegaEdges/s
+N=1000000 t=0.0563 s 71.0243 MegaEdges/s
+N=1000000 t=0.0557 s 71.8482 MegaEdges/s
+Completed iterations for N=1000000
+moxie% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 30 K 1000000 4 false false false
+Number of procs=30
+graphType=K
+N=1000000
+D=4
+verification=false
+generating graph done
+
+Creation time:5.5211 s
+N=1000000 t=0.3193 s 12.5271 MegaEdges/s
+N=1000000 t=0.0510 s 78.4251 MegaEdges/s
+N=1000000 t=0.0866 s 46.1706 MegaEdges/s
+N=1000000 t=0.0508 s 78.6961 MegaEdges/s
+N=1000000 t=0.0509 s 78.6407 MegaEdges/s
+N=1000000 t=0.0505 s 79.2529 MegaEdges/s
+N=1000000 t=0.0509 s 78.6392 MegaEdges/s
+N=1000000 t=0.0498 s 80.3045 MegaEdges/s
+N=1000000 t=0.0491 s 81.5377 MegaEdges/s
+N=1000000 t=0.0494 s 81.0015 MegaEdges/s
+N=1000000 t=0.0495 s 80.8165 MegaEdges/s
+N=1000000 t=0.0497 s 80.5591 MegaEdges/s
+N=1000000 t=0.0491 s 81.4947 MegaEdges/s
+N=1000000 t=0.0500 s 79.9626 MegaEdges/s
+N=1000000 t=0.0487 s 82.1375 MegaEdges/s
+N=1000000 t=0.0486 s 82.2773 MegaEdges/s
+N=1000000 t=0.0499 s 80.1727 MegaEdges/s
+N=1000000 t=0.0489 s 81.7420 MegaEdges/s
+N=1000000 t=0.0490 s 81.5618 MegaEdges/s
+Completed iterations for N=1000000
+moxie% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 32 K 1000000 4 false false false
+Number of procs=32
+graphType=K
+N=1000000
+D=4
+verification=false
+generating graph done
+
+Creation time:5.6601 s
+N=1000000 t=0.3468 s 11.5335 MegaEdges/s
+N=1000000 t=0.0509 s 78.6382 MegaEdges/s
+N=1000000 t=0.0866 s 46.2107 MegaEdges/s
+N=1000000 t=0.0596 s 67.1379 MegaEdges/s
+N=1000000 t=0.0486 s 82.2602 MegaEdges/s
+N=1000000 t=0.0493 s 81.1236 MegaEdges/s
+N=1000000 t=0.0488 s 82.0494 MegaEdges/s
+N=1000000 t=0.0597 s 67.0296 MegaEdges/s
+N=1000000 t=0.0484 s 82.6981 MegaEdges/s
+N=1000000 t=0.0486 s 82.2587 MegaEdges/s
+N=1000000 t=0.0480 s 83.3721 MegaEdges/s
+N=1000000 t=0.0494 s 80.9513 MegaEdges/s
+N=1000000 t=0.0504 s 79.4223 MegaEdges/s
+N=1000000 t=0.0489 s 81.7445 MegaEdges/s
+N=1000000 t=0.0491 s 81.5179 MegaEdges/s
+N=1000000 t=0.0489 s 81.7798 MegaEdges/s
+N=1000000 t=0.0504 s 79.4157 MegaEdges/s
+N=1000000 t=0.0491 s 81.5049 MegaEdges/s
+N=1000000 t=0.0586 s 68.2073 MegaEdges/s
+Completed iterations for N=1000000
+moxie% 

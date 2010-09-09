@@ -1,0 +1,47 @@
+\begin{tightcode}
+\quad\num{1}/**
+\quad\num{2}   A distributed binary tree.
+\quad\num{3}   @author Satish Chandra 4/6/2006
+\quad\num{4}   @author vj
+\quad\num{5} */
+\quad\num{6}\emph{//                             \_\_\_\_P0}
+\quad\num{7}\emph{//                            |     |}
+\quad\num{8}\emph{//                            |     |}
+\quad\num{9}\emph{//                          \_P2  \_\_P0}
+\quad\num{10}\emph{//                         |  | |   |}
+\quad\num{11}\emph{//                         |  | |   |}
+\quad\num{12}\emph{//                        P3 P2 P1 P0}
+\quad\num{13}\emph{//                         *  *  *  *}
+\quad\num{14}\emph{// Right child is always on the same place as its parent;}
+\quad\num{15}\emph{// left child is at a different place at the top few levels of the tree,}
+\quad\num{16}\emph{// but at the same place as its parent at the lower levels.}
+\quad\num{17}
+\quad\num{18}class Tree(localLeft: boolean,
+\quad\num{19}           left: nullable Tree(& localLeft => loc=here),
+\quad\num{20}           right: nullable Tree(& loc=here),
+\quad\num{21}           next: nullable Tree) extends Object \{
+\quad\num{22}    def postOrder:Tree = \{
+\quad\num{23}        val result:Tree = this;
+\quad\num{24}        if (right != null) \{
+\quad\num{25}            val result:Tree = right.postOrder();
+\quad\num{26}            right.next = this;
+\quad\num{27}            if (left != null) return left.postOrder(tt);
+\quad\num{28}        \} else if (left != null) return left.postOrder(tt);
+\quad\num{29}        this
+\quad\num{30}    \}
+\quad\num{31}    def postOrder(rest: Tree):Tree = \{
+\quad\num{32}        this.next = rest;
+\quad\num{33}        postOrder
+\quad\num{34}    \}
+\quad\num{35}    def sum:int = size + (right==null => 0 : right.sum()) + (left==null => 0 : left.sum)
+\quad\num{36}\}
+\quad\num{37}value TreeMaker \{
+\quad\num{38}    \emph{// Create a binary tree on span places.}
+\quad\num{39}    def build(count:int, span:int): nullable Tree(& localLeft==(span/2==0)) = \{
+\quad\num{40}        if (count == 0) return null;
+\quad\num{41}        \{val ll:boolean = (span/2==0);
+\quad\num{42}         new Tree(ll,  eval(ll => here : place.places(here.id+span/2))\{build(count/2, span/2)\},
+\quad\num{43}           build(count/2, span/2),count)\}
+\quad\num{44}    \}
+\quad\num{45}\}
+\end{tightcode}

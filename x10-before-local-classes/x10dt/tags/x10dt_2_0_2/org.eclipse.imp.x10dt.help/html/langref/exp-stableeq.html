@@ -1,0 +1,80 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Stable equality</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc21">
+21</a>&nbsp;&nbsp;Stable equality</h2>
+<a name="StableEquality">
+</a>
+
+
+<div class="p"><!----></div>
+  :  |        <em>  
+<table>
+<tr><td align="right">EqualityExpression &nbsp;Expression "==" Expression </td></tr>
+<tr><td align="right">\ -  Expression "!=" Expression </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+The "==" and "!=" operators provide <em>stable
+equality</em>; that is, the result of the equality operation is not affected
+by the mutable state of the program.
+
+<div class="p"><!----></div>
+Two operands may be compared with the infix predicate "==".
+The operation
+evaluates to "true" if and only if no action taken by any
+user program can distinguish between the two operands.  In more detail,
+the rules are as follows.
+
+<div class="p"><!----></div>
+If the operands both have reference type, then the operation evaluates
+to "true" if both are references to the same object.
+
+<div class="p"><!----></div>
+If one operand evaluates to "null" then the predicate
+evaluates to "true" if and only if the
+other operand is also "null".
+
+<div class="p"><!----></div>
+If the operands both have struct type, then they must be structurally equal;
+that is, they must be instances of the same struct
+and all their fields or components must be "==". 
+
+<div class="p"><!----></div>
+The definition of equality for function types is specified in &#167;FunctionEquality.
+
+<div class="p"><!----></div>
+If the operands both have numeric type, binary promotion
+(&#167;<a href="#XtenPromotions">9</a>) is performed on the operands before the
+comparison.
+
+<div class="p"><!----></div>
+The predicate "!=" returns "true" ("false") on two
+arguments if and only if the operand "==" returns "false"
+("true") on the same operands.
+
+<div class="p"><!----></div>
+The predicates "==" and "!=" may not be overridden by the
+programmer.
+
+<div class="p"><!----></div>
+
+</body>
+</html>

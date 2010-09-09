@@ -1,0 +1,153 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Type Checking Rules</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc8">
+8</a>&nbsp;&nbsp;Type checking rules</h2>
+
+     <h3><a name="tth_sEc8.1">
+8.1</a>&nbsp;&nbsp;Class definitions</h3>
+
+<div class="p"><!----></div>
+Consider a class definition
+<pre>
+ClassModifiersopt 
+ class C (P1 x1,..., Pn xn)  extends D(:d) 
+   implements I1(:c1),..., Ik(:ck)
+ ClassBody  
+</pre>
+
+<div class="p"><!----></div>
+Each of the following static semantics rules must be satisfied:
+
+<div class="p"><!----></div>
+
+<blockquote> Static Semantics: Int-implements
+    The type invariant <tt>i(C)</tt> of <tt>C</tt> must entail <tt>ci[this/self]</tt> for each 
+  <tt>i</tt> in <tt>1:k</tt>.  
+
+<div class="p"><!----></div>
+ Static Semantics: Super-extends
+    The return type <tt>c</tt> of each constructor in <tt>ClassBody</tt> must entail <tt>d</tt>.
+</blockquote>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc8.2">
+8.2</a>&nbsp;&nbsp;Constructor definitions</h3>
+
+<div class="p"><!----></div>
+A constructor for a class <tt>C</tt> is guaranteed to return an object of the
+class on successful termination. This object must satisfy i(C), the
+class invariant associated with <tt>C</tt> (&#167;&nbsp;4.5</a>). However,
+often the objects returned by a constructor may satisfy <em>stronger</em>
+properties than the class invariant.  X10's dependent type system
+permits these extra properties to be asserted with the constructor in
+the form of a deptype (the "return type" of the constructor):
+
+<div class="p"><!----></div>
+<pre>
+ConstructorDeclarator ::=  
+  SimpleTypeName DepParametersopt 
+ ( FormalParameterListopt WhereClauseopt )
+</pre>
+
+<div class="p"><!----></div>
+As with method declarations, the parameter list for the constructor
+may specify a where clause that is to be satisfied by the parameters
+to the list.
+
+<div class="p"><!----></div>
+<b>Example 8.1</b> Here is another example.
+<pre>
+public class List(int(:n &#62;=0) n) {
+ protected nullable&lt;Object&#62;   value;
+ protected nullable&lt;List(n-1)&#62;  tail;
+ public List(t.n+1)(Object o, final List t) {
+     n=t.n+1;
+     tail=t;
+     value=o;
+ }
+ public List(0) () {
+     n=0;
+     value=null;
+     tail=null;
+ }
+ ...
+}
+</pre>
+
+<div class="p"><!----></div>
+The second constructor returns a <tt>List</tt> that is guaranteed to have <tt>n==0</tt>;
+the first constructor is guaranteed to return a List with <tt>n&#62;0</tt>
+(in fact, <tt>n==t.n+1</tt>, where the argument to the constructor is <tt>t</tt>). 
+This is recorded by the programmer in the deptype associated with the
+constructor.
+
+
+<div class="p"><!----></div>
+
+<blockquote> Static Semantics:  Super-invoke
+   Let <tt>C</tt> be a class with properties <tt>P1 p1, ..., Pn pn</tt>, invariant <tt>c</tt>
+   extending the deptype <tt>D(:d)</tt> (where <tt>D</tt> is the name of a class).
+
+<div class="p"><!----></div>
+   For every constructor in <tt>C</tt> the compiler checks that the call to
+   super invokes a constructor for D whose return type is strong enough
+   to entail d. Specifically, if the call to super is of the form 
+     <tt>super(e1, ..., ek)</tt>
+   and the static type of each expression ei is Si, and the invocation
+   is statically resolved to a constructor
+<tt>D(:d1) (T1 x1,..., Tk xk : c)</tt>
+   then it must be the case that 
+   <pre>
+S1 x1, ..., Si xi  | - Ti xi  (for i in 1:k)
+S1 x1, ..., Sk xk  | - c  
+d1[a/self] &amp;&amp; S1 x1 ... &amp;&amp; Sk xk  | - d[a/self]      
+   </pre>
+
+<div class="p"><!----></div>
+   where <tt>a</tt> is a constant that does not appear in 
+<tt>S1 x1 &amp;&amp; ... &amp;&amp; Sk xk</tt>.
+
+<div class="p"><!----></div>
+</blockquote>
+<blockquote><tt>Static Semantics: Constructor return</tt>
+   The compiler checks that every constructor for <tt>C</tt> ensures that
+   the properties <tt>p1,..., pn</tt> are initialized with values which satisfy
+   <tt>t(C)</tt>, and its own return type <tt>c'</tt> as follows.  In each constructor, the
+   compiler checks that the static types <tt>Ti</tt> of the expressions <tt>ei</tt>
+   assigned to pi are such that the following is true
+   <pre>
+    T1 p1, ...., Tn pn  | - t(C) &amp;&amp; c'     
+</pre>   
+
+<div class="p"><!----></div>
+</blockquote>(Note that for the assignment of ei to pi to be type-correct it must be the
+    case that Ti pi  -- Pi pi.) 
+
+<div class="p"><!----></div>
+
+<blockquote> Static Semantics: constructor invocation
+The compiler must check that every invocation <tt>C(e1,..., en)</tt> to a
+constructor is type correct: each argument <tt>ei</tt> must have a static type
+that is a subtype of the declared type <tt>Ti</tt> for the <tt>i</tt>th argument of the
+constructor, and the conjunction of static types of the argument must
+entail the <tt>WhereClause</tt> in the parameter-list of the constructor.
+</blockquote>
+</body>
+</html>

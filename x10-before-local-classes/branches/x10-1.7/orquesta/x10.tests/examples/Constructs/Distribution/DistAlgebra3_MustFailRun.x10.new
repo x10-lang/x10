@@ -1,0 +1,33 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;;
+
+/**
+ * Testing that disjoint union of dists
+ * actually checks for disjointness.
+ *
+ * @author kemal 4/2005
+ */
+public class DistAlgebra3_MustFailRun extends x10Test {
+
+	public const N: int = 24;
+
+	public def run(): boolean = {
+		final val D: dist{rank==1} = (dist{rank==1})) dist.factory.cyclic([0..N-1]);
+		final val D2: dist{rank==1} = D | [0..N/2-1];
+		final val D3: dist{rank==1} = D | [(N/2)..N-1]; 
+		final val D4: dist = D2 || D3; // disjoint
+		chk(D4.equals(D));
+		final val D5: dist = D || D2; // not disjoint
+		return true;
+	}
+
+	public static def main(var args: Rail[String]): void = {
+		new DistAlgebra3_MustFailRun().execute();
+	}
+}

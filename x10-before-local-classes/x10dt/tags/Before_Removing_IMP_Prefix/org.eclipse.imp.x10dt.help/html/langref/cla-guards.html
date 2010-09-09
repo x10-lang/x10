@@ -1,0 +1,287 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Class Guards and Invariants</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc9">
+9</a>&nbsp;&nbsp;Class Guards and Invariants</h2><a name="DepType:ClassGuard">
+</a>
+
+
+
+
+<div class="p"><!----></div>
+<pre>
+</pre>
+<pre>
+</pre>
+<pre>
+</pre>
+<pre>
+</pre>
+
+<div class="p"><!----></div>
+Classes (and structs and interfaces) may specify a <em>class guard</em>, a
+constraint which must hold on all values of the class.    In the following
+example, a <b>Line</b> is defined by two distinct <b>Pt</b>s<a href="#tthFtNtAAE" name="tthFrefAAE"><sup>4</sup></a>
+<pre>
+class Pt(x:Int, y:Int){}
+class Line(a:Pt, b:Pt){a != b} {}
+</pre>
+
+<div class="p"><!----></div>
+In most cases the class guard could be phrased as a type constraint on a property of
+the class instead, if preferred.  Arguably, a symmetric constraint like two
+points being different is better expressed as a class guard, rather than
+asymmetrically as a constraint on one type: 
+<pre>
+class Line(a:Pt, b:Pt{a != b}) {}
+</pre>
+
+<div class="p"><!----></div>
+<a name="DepType:TypeInvariant">
+</a><a name="DepType:ClassGuardDef">
+</a>With every defined class, struct,  or interface <b>T</b> we associate a <em>type
+invariant</em> <i>inv</i>(<b>T</b>), which describes the guarantees on the
+properties of values of type <b>T</b>.  
+
+<div class="p"><!----></div>
+Every value of <b>T</b> satisfies <i>inv</i>(<b>T</b>) at all times.  This
+is somewhat stronger than the concept of type invariant in most languages
+(which only requires that the invariant holds when no method calls are
+active).  X10 invariants only concern properties, which are immutable; thus,
+once established, they cannot be falsified.
+
+<div class="p"><!----></div>
+The type
+invariant associated with <b>x10.lang.Any</b>
+is 
+<b>true</b>.
+
+<div class="p"><!----></div>
+The type invariant associated with any interface or struct <b>I</b> that extends
+interfaces &#207;<sub>1</sub>, ..., I<sub>k</sub>" and defines properties
+"x<sub>1</sub>: P<sub>1</sub>, ..., x<sub>n</sub>: P<sub>n</sub>" and
+specifies a guard <b>c</b> is given by:
+
+<div class="p"><!----></div>
+<pre>
+{inv}(I<sub>1</sub>) &amp;&amp; ... &amp;&amp; {inv}(I<sub>k</sub>) 
+    &amp;&amp; self.x<sub>1</sub> instanceof P<sub>1</sub> &amp;&amp;  ... &amp;&amp;  self.x<sub>n</sub> instanceof P<sub>n</sub> 
+    &amp;&amp; c  
+</pre>
+
+<div class="p"><!----></div>
+Similarly the type invariant associated with any class <b>C</b> that
+implements interfaces &#207;<sub>1</sub>, ..., I<sub>k</sub>",
+extends class <b>D</b> and defines properties
+"x<sub>1</sub>: P<sub>1</sub>, ..., x<sub>n</sub>: P<sub>n</sub>" and
+specifies a guard <b>c</b> is
+given by the same thing with the invariant of the superclass <b>D</b> conjoined:
+<pre>
+{inv}(I<sub>1</sub>) &amp;&amp; ... &amp;&amp; {inv}(I<sub>k</sub>) 
+    &amp;&amp; self.x<sub>1</sub> instanceof P<sub>1</sub> &amp;&amp;  ... &amp;&amp;  self.x<sub>n</sub> instanceof P<sub>n</sub> 
+    &amp;&amp; c  
+    &amp;&amp; {inv}(D)
+</pre>
+
+<div class="p"><!----></div>
+Note that the type invariant associated with a class entails the type
+invariants of each interface that it implements (directly or indirectly), and
+the type invariant of each ancestor class.
+It is guaranteed that for any variable <b>v</b> of
+type <b>T{c}</b> (where <b>T</b> is an interface name or a class name) the only
+objects <b>o</b> that may be stored in <b>v</b> are such that <b>o</b> satisfies
+<i>inv</i>(T[o/this])&#8743;c[o/self].
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc9.1">
+9.1</a>&nbsp;&nbsp;Invariants for <b>implements</b> and <b>extends</b> clauses</h3><a name="DepType:Implements">
+</a>
+<a name="DepType:Extends">
+</a>
+
+
+
+
+Consider a class definition
+<pre>
+{<em>{</em>ClassModifiers}}<sup>{</sup>{?}}
+class C(x<sub>1</sub>: P<sub>1</sub>, ..., x<sub>n</sub>: P<sub>n</sub>) extends D{d}
+   implements I<sub>1</sub>{c<sub>1</sub>}, ..., I<sub>k</sub>{c<sub>k</sub>}
+{<em>{</em>ClassBody}}
+</pre>
+
+<div class="p"><!----></div>
+Each of the following static semantics rules must be satisfied:
+
+<div class="p"><!----></div>
+ S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font> (Int-implements):
+The type invariant  of <b>C</b> must entail
+"c<sub>i</sub>[this/self]" for each i in {1, ..., k}
+
+
+<div class="p"><!----></div>
+ S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font> (Super-extends):
+The return type <b>c</b> of each constructor in <em>ClassBody</em>
+must entail <b>d</b>.
+
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc9.2">
+9.2</a>&nbsp;&nbsp;Invariants and constructor definitions</h3>
+
+<div class="p"><!----></div>
+A constructor for a class <b>C</b> is guaranteed to return an object of the
+class on successful termination. This object must satisfy  "<i>inv</i>(C)", the
+class invariant associated with <b>C</b> (&#167;<a href="#DepType:TypeInvariant">9</a>).
+However,
+often the objects returned by a constructor may satisfy <em>stronger</em>
+properties than the class invariant. X10's dependent type system
+permits these extra properties to be asserted with the constructor in
+the form of a constrained type (the "return type" of the constructor):
+
+<div class="p"><!----></div>
+  :  |        <em>  
+<table>
+<tr><td align="right">ConstructorDeclarator ::=
+  <b>def</b> <b>this</b> TypeParameterList<sup>?</sup>&nbsp;<b>(</b> FormalParameterList<sup>?</sup>&nbsp;<b>)</b> </td></tr>
+<tr><td align="right">&amp;&amp; ReturnType<sup>?</sup>&nbsp;Guard<sup>?</sup>&nbsp;Throws<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">ReturnType    ::= <b>:</b> Type </td></tr>
+<tr><td align="right">Guard   ::= "{" DepExpression "}" </td></tr>
+<tr><td align="right">Throws    ::= <b>throws</b> ExceptionType  ( <b>,</b> ExceptionType )<sup>*</sup>&nbsp;</td></tr>
+<tr><td align="right">ExceptionType ::= ClassBaseType Annotation<sup>*</sup>&nbsp;</td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+<a name="ConstructorGuard">
+</a>The parameter list for the constructor
+may specify a <em>guard</em> that is to be satisfied by the parameters
+to the list.
+
+<div class="p"><!----></div>
+Here is another example, constructed as a simplified 
+version of <b>x10.lang.Region</b>.  The <b>mockUnion</b> method 
+has the type that a true <b>union</b> method would have.
+
+<div class="p"><!----></div>
+<pre>
+class MyRegion(rank:Int) {
+  static type MyRegion(n:Int)=MyRegion{self.rank==n};
+  def this(r:Int):MyRegion(r) {
+    property(r);
+  }
+  def this(diag:ValRail[Int]):MyRegion(diag.length){ 
+    property(diag.length);
+  }
+  def mockUnion(r:MyRegion(rank)):MyRegion(rank) = this;
+  def example() {
+    val R1 : MyRegion(3)! = new MyRegion([4,4,4]); 
+    val R2 : MyRegion(3)! = new MyRegion([5,4,1]); 
+    val R3 = R1.mockUnion(R2); // inferred type MyRegion(3)
+  }
+}
+</pre>
+The first constructor returns the empty region of rank <b>r</b>.  The
+second constructor takes a <b>ValRail[Int]</b> of arbitrary length
+<b>n</b> and returns a <b>MyRegion(n)</b> (intended to represent the set
+of points in the rectangular parallelopiped between the origin and the
+<b>diag</b>.)
+
+<div class="p"><!----></div>
+The code in <b>example</b> typechecks, and <b>R3</b>'s type is inferred as
+<b>MyRegion(3)</b>.  
+
+<div class="p"><!----></div>
+ S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font> (Super-invoke):
+   Let <b>C</b> be a class with properties
+   , invariant <b>c</b>
+   extending the constrained type <b>D{d}</b> (where <b>D</b> is the name of a class).
+
+<div class="p"><!----></div>
+   For every constructor in <b>C</b> the compiler checks that the call to
+   super invokes a constructor for <b>D</b> whose return type is strong enough
+   to entail <b>d</b>. Specifically, if the call to super is of the form 
+     &#223;uper(e<sub>1</sub>, ..., e<sub>k</sub>)"
+   and the static type of each expression &#235;<sub>i</sub>" is
+   "S<sub>i</sub>", and the invocation
+   is statically resolved to a constructor
+"def this(x<sub>1</sub>: T<sub>1</sub>, ..., x<sub>k</sub>: T<sub>k</sub>){c}: D{d<sub>1</sub>}"
+   then it must be the case that 
+<pre>
+x<sub>1</sub>: S<sub>1</sub>, ..., x<sub>i</sub>: S<sub>i</sub> \vdash x<sub>i</sub>: T<sub>i</sub>  (for i  &#8712; 1, ..., k)
+x<sub>1</sub>: S<sub>1</sub>, ..., x<sub>k</sub>: S<sub>k</sub> \vdash c  
+d<sub>1</sub>[a/self], x<sub>1</sub>: S<sub>1</sub>, ..., x<sub>k</sub>: S<sub>k</sub> \vdash d[a/self]      
+</pre>
+ where <b>a</b> is a constant that does not appear in 
+"x<sub>1</sub>: S<sub>1</sub> &#8743; ... &#8743; x<sub>k</sub>: S<sub>k</sub>".
+
+
+<div class="p"><!----></div>
+ S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font> (Constructor return):
+   The compiler checks that every constructor for <b>C</b> ensures that
+   the properties "p<sub>1</sub>,..., p<sub>n</sub>" are initialized with values which satisfy
+   , and its own return type <b>c'</b> as follows.  In each constructor, the
+   compiler checks that the static types "T<sub>i</sub>" of the expressions &#235;<sub>i</sub>"
+   assigned to "p<sub>i</sub>" are such that the following is
+   true:
+<pre>
+p<sub>1</sub>: T<sub>1</sub>, ..., p<sub>n</sub>: T<sub>n</sub> \vdash t(C) &#8743; c'     
+</pre>
+
+(Note that for the assignment of &#235;<sub>i</sub>" to "p<sub>i</sub>"
+to be type-correct it must be the
+    case that "p<sub>i</sub>: T<sub>i</sub> &#8743; p<sub>i</sub>: P<sub>i</sub>".) 
+
+<div class="p"><!----></div>
+ S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font> (Constructor invocation):
+The compiler must check that every invocation "C(e<sub>1</sub>, ..., e<sub>n</sub>)" to a
+constructor is type correct: each argument &#235;<sub>i</sub>" must have a static type
+that is a subtype of the declared type "T<sub>i</sub>" for the ith
+argument of the
+constructor, and the conjunction of static types of the argument must
+entail the <em>Guard</em> in the parameter list of the constructor.
+
+<hr /><h3>Footnotes:</h3>
+
+<div class="p"><!----></div>
+<a name="tthFtNtAAB"></a><a href="#tthFrefAAB"><sup>1</sup></a>In many cases, a 
+<b>global val</b> field can be upgraded to a <b>property</b>, which 
+entails no compile-time or runtime cost.  Some cannot be,  , in cases where
+cyclic structures of <b>val</b> fields are required.
+<div class="p"><!----></div>
+<a name="tthFtNtAAC"></a><a href="#tthFrefAAC"><sup>2</sup></a>(Mutable
+       graphs can be created without escaping <b>this</b> 
+    by initializing the backpointer to <b>null</b> and then
+    changing it later.
+<div class="p"><!----></div>
+<a name="tthFtNtAAD"></a><a href="#tthFrefAAD"><sup>3</sup></a>Clearly, a value of type
+  <b>proto T</b> cannot be used anywhere that a <b>T</b> is needed,
+  since its fields cannot be read.  As discussed below, an incomplete
+  value  {v} can be assigned to a field <tt>f</tt> of an object <tt>
+    o</tt> only if <tt>o</tt> is incomplete. This ensures that  {v} cannot
+  escape through this assignment. A completed value <b>p</b> cannot be
+  substituted for <b>o</b> - it may permit  {v} to escape through
+  an assignment to its field. Therefore <b>T</b> cannot be a subtype of
+  <b>proto T</b>.
+<div class="p"><!----></div>
+<a name="tthFtNtAAE"></a><a href="#tthFrefAAE"><sup>4</sup></a>We use <b>Pt</b>
+to avoid any possible confusion with the built-in class <b>Point</b>.
+
+</body>
+</html>

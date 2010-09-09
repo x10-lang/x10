@@ -1,0 +1,124 @@
+/*
+ * Version of nqueens in cilk with no inlets. A single counter is
+ * atomically updated (by one) everytime a solution is found. 
+ * @author Sriram Krishnamoorthy
+ */
+
+#include <cilk.h>
+/*#include <cilk-lib.cilkh>*/
+#include <cilk-lib.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <memory.h>
+#include <time.h>
+#include <assert.h>
+
+static void atomic_add(volatile int* mem, int val)
+{
+    int tmp;
+
+  __asm__ __volatile__ (                                      
+			" #Inline atomic add\n"  
+			"l1:\n\t"
+			"lwarx    %0,0,%2 \n\t"
+			"add%I3   %0,%0,%3 \n\t"
+			"stwcx.   %0,0,%2 \n\t"
+			"bne-     l1 \n\t"  
+			"isync \n\t"
+			: "=&b"(tmp), "=m" (*mem)
+			: "r" (mem), "Ir"(val), "m" (*mem) 
+			: "cr0");
+}
+
+long long nanoTime() {
+  struct timespec ts;
+  clock_gettime(CLOCK_REALTIME, &ts);
+  return (long long)(ts.tv_sec * 1000000000LL + ts.tv_nsec);
+}
+
+
+static int board_size;
+static volatile int nSolutions;
+
+cilk void nqueens(int *a, int a_size) {
+  int *next;
+  int row = a_size;
+  int q, i;
+  int attacked;
+  int p, k;
+
+  if(row >= board_size) {
+    /*return 1;*/
+    atomic_add(&nSolutions, 1);
+  }
+  
+  q=0;
+
+  while (q < board_size) {
+    attacked = 0;
+    for (i = 0; i < row && ! attacked; i++) {
+      p = a[i];
+      attacked = (q == p || q == p - (row - i) || q == p + (row - i));
+    }
+    if (!attacked) { 
+      next = Cilk_alloca((row+1)*sizeof(int));
+      assert(next != NULL);
+
+      for (k = 0; k < row; ++k)
+	next[k]=a[k]; 
+      next[row]=q; 
+
+      spawn nqueens(next, row+1);
+    }
+    q++;
+  }
+  sync;
+
+  return;
+}
+
+cilk int cilk_main(int argc, char *argv[])
+{
+     int n, nreps;
+     int count;
+     int i;
+     long long s, t;
+     long long minT;
+     int a[1];
+     int expectedSolutions[20] = {0, 1, 0, 0, 2, 10, 4, 40, 92, 352, 724, 2680, 14200,73712, 365596, 2279184, 14772512};
+
+
+     if (argc < 3) {
+	  printf("Usage: %s <cilk options> <nreps> <board-size>\n", argv[0]);
+	  return 1;
+     }
+     if (argc > 3)
+	  printf("%s: extra arguments being ignored\n", argv[0]);
+
+     nreps = atoi(argv[1]);
+     n = atoi(argv[2]);
+/*      a = Cilk_alloca(0 * sizeof(int)); */
+
+/*      printf("running queens %d\n", n); */
+
+	board_size = n;	
+	CILK_MB();
+
+     for(i=0; i<nreps; i++) {
+       nSolutions=0;
+       CILK_MB();
+       s = nanoTime();
+       spawn nqueens(a, 0);
+       sync;
+       t = nanoTime();
+       minT = (i>0 && minT<(t-s) ? minT : (t-s));
+     }
+     count = nSolutions;
+
+     printf("nqueens(%d)=%d\t %s time=%.3lf us \n",
+	    n, count, (count==expectedSolutions[n]?"ok":"fail"),
+	    minT/1000.0);
+
+     return 0;
+}
+

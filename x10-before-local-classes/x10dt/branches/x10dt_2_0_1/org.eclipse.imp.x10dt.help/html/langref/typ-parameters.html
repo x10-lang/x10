@@ -1,0 +1,156 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+<title>Type parameters</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc2">
+2</a>&nbsp;&nbsp;Type parameters</h2>
+<a name="TypeParameters">
+</a>
+
+<div class="p"><!----></div>
+        A class, interface, method, or closure may have type parameters
+        whose scope is the signature and body of the declaring
+        class, interface, method,
+        or closure.
+
+<div class="p"><!----></div>
+        Similarly, a type definition may have
+        type parameters that scope over the body of the type
+        definition.
+
+<div class="p"><!----></div>
+        Type parameters may be constrained by a <em>guard</em> on the declaration
+        (&#167;, &#167;,
+        &#167;,&#167;).
+        The type parameters of classes and interfaces must be
+        bound to concrete types (possibly to a type parameter)
+        for the type to be legal; thus "List[int]" and
+        "List[C]" are legal types, but "List" alone is
+        not.
+        The type parameters of
+        methods and closures
+        must be bound to
+        concrete types at invocation.
+        Parametrized type definitions specify new type
+        constructors; the type parameters of a type definition must be bound
+        to yield a type.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc2.1">
+2.1</a>&nbsp;&nbsp;Generic types</h3>
+<a name="Generics">
+</a>
+
+        A <em>generic class</em> is a class
+        declared with one or more type parameters.  Generic
+        classes can be instantiated by instantiating the type
+        parameters of the base type.
+
+<div class="p"><!----></div>
+Consider the following declaration of a "Cell" class.
+<pre>
+class Cell[X] {
+    var x: X;
+    def this(x: X) { this.x = x; }
+    def get(): X = x;
+    def set(x: X) = { this.x = x: }
+}
+</pre>
+
+<div class="p"><!----></div>
+This declares a class "Cell" with a type parameter "X".
+"Cell" may be used as a type by instantiating "X".
+
+<div class="p"><!----></div>
+"Cell[Int]" is the type of all "Cell" containing an
+&#207;nt".  The "get" method returns an &#207;nt"; the
+&#223;et" method takes an &#207;nt" as argument.  Note that
+"Cell" alone is not a legal type because the parameter is
+not bound.
+
+<div class="p"><!----></div>
+Parameters may be declares as <em>invariant</em>, <em>covariant</em>, or
+<em>contravariant</em>.  The "X" parameter of "Cell" above is
+invariant.  
+Consider the following classes:
+<pre>
+class Get[+X] {
+    var x: X;
+    def this(x: X) { this.x = x; }
+    def get(): X = x;
+}
+
+<div class="p"><!----></div>
+class Set[-X] {
+    var x: X;
+    def this(x: X) { this.x = x; }
+    def set(x: X) = { this.x = x: }
+}
+</pre>
+The "X" parameter of the "Get" class is covariant;
+the "X" parameter of the "Set" class is contravariant.
+
+<div class="p"><!----></div>
+A covariant type parameter is permitted to appear only in covariant type positions,
+and a contravariant type parameter in contravariant positions. 
+
+<ul>
+<li> The return type of a method is a covariant position.
+<div class="p"><!----></div>
+</li>
+
+<li> The argument types of a method are contravariant positions.
+<div class="p"><!----></div>
+</li>
+
+<li> Whether a type argument position of a generic class, interface or struct type "C"
+is covariant or contravariant is determined by the "+" or "-" annotation
+at that position in the declaration of "C".
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+Given types "S" and "T".
+
+<ul>
+<li>If the parameter of "Get" is covariant, then
+"Get[S]" is a subtype of "Get[T]" if
+"S" is a <em>subtype</em> of "T".
+<div class="p"><!----></div>
+</li>
+
+<li>
+If the parameter of "Set" is covariant, then
+"Set[S]" is a subtype of "Set[T]" if
+"S" is a <em>supertype</em> of "T".
+<div class="p"><!----></div>
+</li>
+
+<li>
+If the parameter of "Cell" is invariant, then
+"Cell[S]" is a subtype of "Cell[T]" if
+"S" is a <em>equal</em> to "T".
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+
+</body>
+</html>

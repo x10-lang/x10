@@ -1,0 +1,18 @@
+#!/bin/bash
+OUTPUT=cilk_metrics_scale
+n=5000000 
+m=20000000
+echo cilk results on rand graphs: >$OUTPUT
+i=1
+echo $n $m 1 processor $ss >>$OUTPUT
+./ST -nproc 1 --stack 200000000 --pthread-stacksize 800000000 5000000 20000000 >>$OUTPUT
+echo $n $m 2 processor $ss >>$OUTPUT
+./ST -nproc 2 --stack 200000000 --pthread-stacksize 400000000 5000000 20000000 >>$OUTPUT
+echo $n $m 4 processor $ss >>$OUTPUT
+./ST -nproc 4 --stack 100000000 --pthread-stacksize 200000000 5000000 20000000 >>$OUTPUT
+echo $n $m 8 processor $ss >>$OUTPUT
+./ST -nproc 8 --stack 50000000 --pthread-stacksize 80000000 5000000 20000000 >>$OUTPUT
+echo $n $m 16 processor $ss >>$OUTPUT
+./ST -nproc 16 --stack 30000000 --pthread-stacksize 50000000 5000000
+ 20000000 >>$OUTPUT
+

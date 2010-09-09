@@ -1,0 +1,134 @@
+<html>
+<title>X10DT - C++ backend and remote projects</title>
+<body>
+<h1>X10DT Usage - C++ backend and remote projects</h1>
+
+<p>Adapted from wiki page 
+<a href="http://docs.codehaus.org/display/XTENLANG/X10DT+2.0+Installation">X10DT+2.0+Installation and usage</a></p>
+<p>This section describes how to create an X10 project with the C++ back-end (both local and remote)</p>
+<p>Once you have Eclipse and X10DT installed, you should be able to change to the X10 perspective to create X10 projects 
+and classes, compile, run, debug, etc.<br/>
+<p>Window &gt; Open Perspective &gt; Other ... and select "X10"</p>
+
+<ol>
+	<li>Create an X10 (C++ backend) project:
+	<ul>
+		<li>File &gt; New &gt; X10 Project (C++ backend)<br/>
+<img src="images/cppNewProj.png" border="0" /><br/>
+&nbsp;</li>
+		<li>or File &gt; New &gt; Other ... and navigate to find X10 project.</li>
+		<li>Enter a project name to create a trivial first X10 project.<br/>
+Here we will accept all the defaults, including "Create a sample 'Hello World' X10 Application" which <br/>
+will generate some sample X10 code in the project. Hit Next.<br/>
+<img src="images/newCPPproject.png" border="0" /></span></li>
+		<li>On Target Environment Project Configuration Page,<br/>
+<img src="images/targetEnvProjConfig.png" border="0" /></span>
+		<ul>
+			<li><b>Resource Manager:</b> If you have not created a Resource Manager, 
+			click the link in "You must create a Resource Manager first".<br/>
+A resource manager manages the remote connection (if any) to the target machine, and defines a communication interface (like OpenMPI, MPICH-2, ...) in order to allow the X10 program created to be executed properly on a multi-core machine.<br/>
+&nbsp;<br/>
+Here we choose OpenMPI as our Resource Manager type.<br/>
+<img src="images/newResMgr.png " border="0" /></span><br/>
+Hit Next.<br/>
+&nbsp;<br/>
+For OpenMPI use, the next dialog appears as follows:<br/>
+<img src="images/openMPIconnectionConfig.png " border="0" /></span>
+			<ul>
+				<li>Remote service provider: you will probably select "Remote Tools" for a remote project.</li>
+				<li>Remote location: Select "New..." to create a new remote location.
+				<ul>
+					<li>In the next dialog, "Target Environment Configuration" - "Remote Host" - select radio button (Localhost or Remote host), for remote host fill in user name and password. (Or public/private key information.)<br/>
+<img src="images/newRemoteHost.png " border="0" /></span><br/>
+Hit 'Finish' and the Remote Host you just created will appear in the "Open MPI connection configuration" dialog.  </li>
+					<li>Hit Next, MPI information can be changed in this "Open MPI tool configuration" dialog if necessary.  Hit Next.</li>
+					<li>Next dialog allows you to change the name and description of this resource manager if desired. Hit Next.</li>
+					<li>Next dialog is "Select Service Configuration" Select the radio button to create a new one here if you need to. Hit Finish.</li>
+					<li>Now back in the "New X10 Project (C++ back-end) dialog,
+					make sure the 
+Resource manager you just created is selected.  
+In the case of a remote machine its name may be something like "Open_MPI@Remote Host"<br/>
+<br/>
+<img src="images/targetEnvProjConfigRMsel.png"/>
+&nbsp;</li>
+				</ul>
+				</li>
+			</ul>
+			</li>
+			<li><b>X10 Platform Configuration:</b> Now in the "New X10 Project (C++ back-end)" dialog,<br/>
+Create a platform configuration via the link first, if one does not exist. <br/>
+<img src="images/newX10ProjPlatform.png " border="0" /></span><br/>
+&nbsp;<br/>
+In the Preference Dialog that appears, for "X10 Platform Configuration," click the "Add" button.<br/>
+<img src="images/x10PrefsPlatformConfig.png " border="0" /></span><br/>
+&nbsp;<br/>
+Give the Configuration a name, and select the back-end and Location information for your project:<br/>
+<img src="images/newX10PlatConfig.png " /></span><br/>
+&nbsp;<br/>
+Hit Next.<br/>
+&nbsp;<br/>
+For a local project,<br/>
+<img src="images/localPlatformDefn.png " border="0" /></span><br/>
+The options should be filled in for your platform (Target Operating System: Mac, Linux, Win32, etc...)<br/>
+For a remote project, you will have to select the Target Operating System
+and specify the location of  x10.dist: This could be within an eclipse installation, or, more likely, in some other directory on your target machine (Such as the directory where the command line version of X10 has been installed.  It should be the directory that contains lib/ and include/ for your platform).<br/>
+
+<img src="images/newX10PlatConfigRemote.png " border="0" /></span><br/>
+After you hit Finish on the above dialog for a local or remote project, your configuration will be verified by <br/>
+attempting to link it with the commands specified.  The green "check mark" indicates that your configuration is verified.<br/>
+<img src="images/x10PrefsPlatformConfigVerified.png " border="0" /></span><br/>
+&nbsp;</li>
+			<li>Hit OK in the above dialog.</li>
+			<li>Back in the "New X10 Project (C++ back-end)" dialog, under "X10 Platform Configuration," select the Platform configuration that you just created.<br/>
+If your project is remote, you can change the location of the target workspace (if this is a remote project), if desired. <br/>
+<img src="images/platformAndTargetWS.png " /></span><br/>
+&nbsp;<br/>
+Target workspace location:
+			<ul>
+				<li>For remote projects,  select a location on the (remote) machine, or accept the default location.  The contents of the workspace will be created in this directory. Note that the existing contents may be deleted during project creation and build, so don't point this at a directory you don't want emptied.</li>
+				<li>For local projects, the project files are created in the workspace project directory on the local machine.</li>
+			</ul>
+			</li>
+			<li>Hit Finish.</li>
+			<li>Your project is created and configured, and you will see it in the Package Explorer view of X10DT.  If the editor is not open on the new source file, double-click on the file name ("Hello.x10") to open the editor.<br/>
+<img src="images/projCreatedWorkbench.png"></img><br/>
+&nbsp;<br/>
+&nbsp;<br/>
+&nbsp;</li>
+		</ul>
+		</li>
+	</ul>
+	</li>
+	<li>Launch your X10 remote C++ backend project
+	<ul>
+		<li>Run &gt; Run Configurations (or use toolbar icon); Create a new X10 Application (C++ back-end)<br/>
+		    <img src="images/x10dt-new-runConfig1.png"></img>
+            </li>
+		<li>On Resources tab, select your Resource Manager (If you cannot select your resource manager here, it may not be started... Only running resource managers can be selected.)</li>
+		<li>Also on Resources tab, you probably want to increase the number of processes past 1. (e.g. 4)</li>
+		<li>On Application tab, browse to select your Application's project
+		<br/><img src="images/x10dt-new-runConfig2.png" border="0" />
+		</li>
+		<li>C++ file with main method:  select, on the remote system, the C++ class that contains the main method.  
+		For example, select "Hello" from the search dialog 
+		<br><img src="images/selectX10mainType.png"/> 
+		<br> 
+		and the <b>Hello.cc</b> file will appear in the text field.</li>
+		
+		<li>Also on the Application tab, at the bottom, be sure to check "Display output from all processes in a console view"</li>
+		<li>Click the "Run" button to execute your program.</li>
+		<li>The PTP Runtime Perspective should open, and you should see your output in the console view.</li>
+		<li>Double click on your host name in the Machines view to see the processes/processors in the right pane.  Icons indicate which processes ran your job.
+		<ul>
+			<li>Note that with some older versions of OpenMPI, the output in the Console view may be wrapped in XML tags.</li>
+		</ul>
+		</li>
+	</ul>
+	</li>
+</ol>
+<p>&nbsp;
+<p>&nbsp;
+<p>&nbsp;
+<p><a href="Overview.html">Back to Overview/Contents</a>
+</body>
+</html>

@@ -1,0 +1,161 @@
+\chapter{Interfaces}
+\label{XtenInterfaces}\index{interfaces}
+
+{}\XtenCurrVer{} interfaces are generally modelled on Java interfaces \cite[\S
+  9]{jls2}. An interface specifies signatures for public methods, properties,
+\xcd`static val`s, and an invariant. It may extend several interfaces, giving
+X10 a large fraction of the power of multiple inheritance at a tiny fraction
+of the cost.
+
+The following puny example illustrates all these features: 
+%~~gen
+%
+%~~vis
+\begin{xten}
+interface Pushable(text:String, prio:Int) {
+  def push(): Void;
+  static val MAX_PRIO = 100;
+}
+class MessageButton(text:String, prio:Int) 
+  implements Pushable{self.prio==Pushable.MAX_PRIO} {
+  public def push() { 
+    x10.io.Console.OUT.println(text + " pushed");
+  }
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+\noindent
+\xcd`Pushable` defines two properties, a method, and a static value.  
+\xcd`MessageButton` implements a constrained version of \xcd`Pushable`,
+\viz\ one with maximum priority.  It also has \xcd`Pushable`'s properties.  It
+defines the \xcd`push()` method given in the interface, as a \xcd`public`
+method---interface methods are implicitly \xcd`public`.
+
+A concrete type---a class or struct---can {\em implement} an interface,
+typically by having all the methods and properties that the interface
+requires.
+
+A variable may be declared to be of interface type.  Such a variable has all
+the fields and methods declared (directly or indirectly) by the interface;
+nothing else is statically available.  Values of a concrete type which
+implement the interface may be stored in the variable.  
+
+
+\label{DepType:Interface}
+
+
+\begin{grammar}
+NormalInterfaceDeclaration \:
+      InterfaceModifiers\opt \xcd"interface" Identifier  \\
+   && TypePropertyList\opt PropertyList\opt Constraint\opt \\
+   && ExtendsInterfaces\opt InterfaceBody \\
+\end{grammar}
+\noindent
+The invariant associated with an interface is the conjunction of the
+invariants associated with its superinterfaces and the invariant
+defined at the interface. 
+
+\begin{staticrule*}
+The compiler declares an error if this constraint
+is not consistent.  
+\end{staticrule*}
+
+Each interface implicitly defines a nullary getter method
+\xcd"def p(): T" for each property \xcd"p: T". The interface may not have
+another definition of a method \xcd`p()`. 
+
+
+
+A class \xcd"C" is said to implement an interface \xcd"I" if
+\begin{itemize}
+\item \xcd`I`, or a subtype of \xcd`I`, appears in the \xcd`implements` list
+      of \xcd`C`, 
+\item \xcd`C`'s properties include all the properties of \xcd"I",
+\item \xcd`C`'s class invariant $\mathit{inv}($\xcd"C"$)$ implies
+$\mathit{inv}($\xcd"I"$)$.
+\item Each method \xcd`m` defined by \xcd`I` is also a method of \xcd`C` --
+      {\em with the \xcd`public`} modifier added.   These methods may be
+      \xcd`abstract` if \xcd`C` is \xcd`abstract`.
+\end{itemize}
+
+\section{Field Definitions}
+
+An interface may declare a \xcd`val` field, with a value.  This field is implicitly
+\xcd`public static val`: 
+%~~gen
+% package Interface.Field;
+%~~vis
+\begin{xten}
+interface KnowsPi {
+  PI = 3.14159265358;
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+
+Classes and structs implementing such an interface get the interface's fields as
+\xcd`public static` fields.  Unlike properties and methods, there is no need
+for the implementing class to declare them. 
+%~~gen
+% package Interface.Field.Two;
+% interface KnowsPi {PI = 3.14159265358;}
+%~~vis
+\begin{xten}
+class Circle implements KnowsPi {
+  static def area(r:Double) = PI * r * r;
+}
+\end{xten}
+%~~siv
+%
+%~~neg
+
+\subsection{Fine Points of Fields}
+
+It can happen that two parent interfaces give fields of the same name.  In
+that case, those fields must be referred to by qualified names.
+%~fails~gen
+%
+%~fails~vis
+\begin{xten}
+interface E1 {static val a = 1;}
+interface E2 {static val a = 2;}
+interface E3 extends E1, E2{}
+class Example implements E3 {
+  def example() = E1.a + E2.a;
+}
+\end{xten}
+%~fails~siv
+%
+%~fails~neg
+
+If the {\em same} field \xcd`a` is inherited through many paths, there is no need to
+disambiguate it:
+%~fails~gen
+% package Interfaces.Mult.Inher.Field;
+%~fails~vis
+\begin{xten}
+interface I1 { static val a = 1;} 
+interface I2 extends I1 {}
+interface I3 extends I1 {}
+interface I4 extends I2,I3 {}
+class Example implements I4 {
+  def example() = a;
+}
+\end{xten}
+%~fails~siv
+%
+%~fails~neg
+
+\section{Interfaces Specifying Properties}
+
+Interfaces may specify properties.  
+
+
+\bard{Methods}
+\bard{Properties}
+\bard{Invariannt}
+
+

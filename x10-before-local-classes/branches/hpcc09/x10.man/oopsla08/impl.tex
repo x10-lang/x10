@@ -1,0 +1,186 @@
+%IV. Implementation (0.5 page)
+%
+%Specify what has been implemented and how. What is interesting about
+%the implementation.
+
+The \Xten{} compiler provides a framework for writing and
+checking constrained types.  
+Constraints in the base \Xten{} language are conjunctions
+of equalities over immutable side-effect-free expressions.
+Compiler plugins may be installed
+to support other constraint languages and solvers.
+
+The \Xten{} compiler is implemented as an extension of
+Java using the Polyglot compiler framework~\cite{ncm03}.
+Expressions used in constrained
+types are type-checked as normal non-dependent \Xten{} expressions;
+no constraint solving is performed on these expressions.
+During type-checking, constraints are generated and solved using
+the built-in constraint solver or using solvers provided by
+plugins.  The system allows types to constrained by conjunctions
+of constraints in different constraint languages.
+If constraints cannot be solved, an error is reported.
+
+\subsection{Constraint checking}
+
+After type-checking a constraint as a boolean expression \xcd{e},
+the abstract syntax tree for
+the boolean expression is transformed into a conjunction of
+predicates, \tcd{e$_1$\;\&\;$\dots$\;\&\;e$_k$}.
+Each conjunct \tcd{e$_i$} is given to 
+the installed constraint system plugins, which symbolically
+evaluate the expression to create an internal representation of
+the conjunct.  If no
+constraint system can handle the conjunct, an error is reported.
+
+To interoperate, the constraint solvers must share a common
+vocabulary: constraint terms \xcd{t} range over the properties of the
+base type, the final variables in scope at the type (including
+\xcd{this}), the special variable \xcd{self} representing
+a value of the type, and field selections \xcd{t.f}.
+All
+constraint systems are required to support the trivial
+constraint
+\xcd{true}, conjunction, existential quantification, and equality on
+constraint terms.
+
+
+In this form, the constraint is represented as a 
+conjunction of constraints from different theories.  Constraints
+are checked for satisfiability using a Nelson--Oppen
+procedure~\cite{nelson-oppen}.
+After constructing a constraint-system specific 
+representation of a conjunct, each plugin computes the set of
+term equalities entailed by the conjunct.  These equalities are
+propagated to the other conjuncts, which are again checked for
+satisfiability and any new equalities generated are propagated.
+If a conjunct is found to be unsatisfiable, an error is
+reported. 
+
+\if 0
+Individual constraint systems may interpret a conjunct as a
+formula containing constraint-system-specific atomic functions
+\xcd{g} and predicates \xcd{p}.  
+
+For example, given the constrained type
+\xcd{Node\{self.x >= 0 \& reachable(self).contains(y)\}},
+Presburger constraint system interprets the formula as:
+
+a Presburger constraint \xcd{self.x >= 0}
+and
+an uninterpreted constraint \xcd{`reachable/contains'(self,y)}.
+
+A reachability constraint system interprets the formula with the
+inequality uninterpreted and the reachability constraint
+interpreted.
+
+The base system sees \xcd{'>='(self, 0) \&\& 'reachable-contains'(self,y)} 
+
+Need to propagate implied bindings between terms.  For instance:
+
+\xcd{int\{self >= x \&\& self <= x\}}
+should be equivalent to the type
+\xcd{int\{self == x\}}.
+
+By ensuring constraint systems share the same vocabulary and all
+support equality on constraint terms, we can propagate
+equalities between constraint systems.
+cf. Nelson-Oppen.
+
+Constraint systems must not have conflicting or overlapping
+constraints ..XXX
+
+Above, ``,'' binds tighter than ``;''. We use the syntax \xcd{T\;x;\;c} for the constraint obtained by existentially
+quantifying the
+variable \xcd{x} of type \xcd{T} in \xcd{c}. \xcd{p} ranges over
+the collection of predicates supplied by the underlying
+constraint
+system, and \xcd{g} over the collection of functions.
+
+
+
+
+After this translation step, constraints are represented as
+lists of constraint-system-specific conjuncts.
+
+The constraints are checked for consistency as follows.
+\ref{TODO}
+\fi
+
+During type-checking, the type checker needs to determine if the
+type
+\xcd{C\{c\}} is a subtype of \xcd{D\{d\}}.  This is true if 
+the base type \xcd{C} is a subtype of \xcd{D} and if the
+constraint \xcd{c} entails \xcd{d}.
+%
+To check entailment, each constraint solver is asked if
+a given conjunct of \xcd{d} is entailed by \xcd{c}.
+If any report false, the entailment does not hold and the
+subtyping check fails.
+
+% what if a conjunct of d that makes c unsat is ignored?
+
+% propagation of bindings.
+
+
+
+\subsection{Translation}
+
+After constraint-checking, the \Xten{} code is translated to
+Java in a straightforward manner.  Each dependent class
+is translated into a single class of the same name without dependent
+types. The explicit properties of the dependent class are translated
+into \xcd{public} \xcd{final} instance fields of the target class.
+A \xcd{property} statement in a constructor is translated to a
+sequence of assignments to initialize the property fields.
+
+For each property, a getter method is also generated in the
+target Java class.
+Properties declared in interfaces are translated into getter
+method signatures.  Subclasses implementing these interfaces
+thus provide the required properties by implementing the
+generated interfaces.
+
+Usually, constrained types are simply translated to
+non-constrained types by erasure; constraints are checked
+statically and need no run-time representation.
+However, dependent types may be used in casts
+and \xcd{instanceof} expressions.  
+The values of the properties of the object whose type is being tested
+are sufficient to implement the test.
+The language does not allow
+existential constraints to be used in run-time type tests; this
+allows the tests of constrained types to be implemented
+by evaluating the constraint with
+\xcd{self} bound to the expression being tested.
+For example, casts are translated as:
+\eat{
+\begin{code}
+  $\Lb$e instanceof C\{c\}$\Rb$ = 
+    new Object() \{
+      boolean check(Object o) \{
+        if (o instanceof C) \{
+          C self = (C) o;
+          return $\Lb$c$\Rb$;
+        \}
+        return false;
+      \}
+    \}.check($\Lb$e$\Rb$)
+\end{code}
+}
+\begin{code}
+  $\Lb$e as C\{c\}$\Rb$ = 
+    new Object() \{
+      C cast(C self) \{
+        if ($\Lb$c$\Rb$) return self;
+        throw new ClassCastException(); \}
+    \}.cast((C) $\Lb$e$\Rb$)
+\end{code}
+\noindent Wrapping the evaluation of \xcd{c} in an anonymous class
+ensures the expression \xcd{e} is evaluated only once.
+
+To support separate compilation, abstract syntax trees for
+constraints are embedded into the generated Java code, and from
+there into the generated class file.  The compiler reconstructs
+dependent types in referenced class files from their ASTs.
+

@@ -1,0 +1,28 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;;
+
+/**
+ * Region r occuring in a distribution context is converted to r->here
+ */
+public class ArrayOverRegion extends x10Test {
+
+	public def run(): boolean = {
+		var r: region = [1..10, 1..10];
+		var ia: Array[double] = new Array[double](r, (var point [i,j]: point): double => { return i+j; });
+		chk(ia.dist.equals(Dist.makeConstant(r, here)));
+
+		for (val p: point[i,j] in [1..10, 1..10]) chk(ia(p) == i+j);
+
+		return true;
+	}
+
+	public static def main(var args: Rail[String]): void = {
+		new ArrayOverRegion().execute();
+	}
+}

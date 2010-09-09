@@ -1,0 +1,44 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Point and Region Construction</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc2">
+2</a>&nbsp;&nbsp;Point and region construction</h2><a name="point-syntax">
+</a>
+ X10 specifies a simple syntax for the construction of points and regions.
+<pre>
+281   ArgumentList ::= Expression
+282      |  ArgumentList , Expression
+512   Primary ::= [ ArgumentList ]
+</pre>
+
+<div class="p"><!----></div>
+Each element in the argument list must be either of type <tt>int</tt> or 
+of type <tt>region</tt>. In the former case the expression 
+<tt>[ a1,..., ak ] </tt> is treated as syntactic shorthand for
+<pre>
+  point.factory.point(a1,..., ak)
+</pre>
+
+<div class="p"><!----></div>
+ and in the latter case as shorthand for
+<pre>
+  region.factory.region(a1,..., ak)
+</pre>
+</body>
+</html>

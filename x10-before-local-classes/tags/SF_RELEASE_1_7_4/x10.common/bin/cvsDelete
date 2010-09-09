@@ -1,0 +1,62 @@
+#!/bin/bash -e
+
+usage() {
+echo "
+
+cvsDelete src
+
+will delete src, and  also remove it from cvs, and commit the
+removal to cvs.
+
+src must exist in the local file system and in cvs 
+before invoking this command.
+
+When src is a directory, subdirectories of src are recursively
+deleted and the deletion is committed to cvs.
+
+Be sure to clean all files not in cvs, before invoking this
+command. This command first executes a \"cvs -q up -dPA\" on src,
+before starting the deletion process.
+
+"
+
+exit 1
+}
+
+cvsDelete() {
+#delete $srcFile and also delete it from cvs
+
+local srcFile="$1"
+
+if [[ -f $srcFile ]]; then
+  echo "deleting $srcFile" > logTmp
+  rm -f "$srcFile"
+  cvs remove "$srcFile"
+  cvs commit -F logTmp "$srcFile"
+elif [[ -d "$srcFile" ]]; then
+  for f in $srcFile/* ; do 
+    local tail=${f##*/}
+    if [[ "$tail" != CVS ]]; then cvsDelete "$f"; fi
+  done
+fi
+}
+
+main() {
+#main method
+
+#check parameters
+if [[ ! ( $# -eq 1 && -e "$1" ) || "$1" == "-help" || "$1" == "--help" ]]; then 
+  usage
+fi
+shopt -s dotglob #also delete files beginning with .
+local srcFile="$1"
+cvs -q update -dPA "$srcFile"
+cvsDelete "$srcFile"
+rm -f logTmp
+#if all files are deleted this
+#should also delete the empty directories
+cvs -q up -dPA "$srcFile" 
+}
+
+main $*
+exit 0

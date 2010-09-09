@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: X10 unit tests
+Bundle-SymbolicName: x10.test
+Bundle-Version: 1.0.0
+Bundle-Localization: plugin
+Require-Bundle: x10.runtime,
+ x10.compiler,
+ org.junit,
+ polyglot

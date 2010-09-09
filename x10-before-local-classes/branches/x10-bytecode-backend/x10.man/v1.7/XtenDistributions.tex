@@ -1,0 +1,186 @@
+\section{Distributions}\label{XtenDistributions}
+\index{distribution}
+
+A {\em distribution} is a mapping from a region to a set of places.
+{}\Xten{} provides a built-in value class, \xcd"x10.lang.Dist", to allow the creation of new distributions and
+to perform operations on distributions. This class is \xcd"final" in
+{}\XtenCurrVer; future versions of the language may permit
+user-definable distributions. Since distributions play a dual role
+(values as well as types), variables of type \xcd"Dist" must
+be initialized and are implicitly \xcd"final".
+
+The {\em rank} of a distribution is the rank of the underlying region.
+
+%Recall that each program runs in a fixed number of places, determined
+%by runtime parameters. The static constant Place.MAX_PLACES specifies
+%the maximum number of places. The collection of places is assumed to
+%be totally ordered.
+
+
+\begin{xten}
+R: Region = 1..100;
+D: Dist = Dist.block(R);
+D: Dist = Dist.cyclic(R);
+D: Dist = R -> here;
+D: Dist = Dist.random(R);
+\end{xten}
+
+Let \xcd"D" be a distribution. \xcd"D.region" denotes the underlying
+region. \xcd"D.places" is the set of places constituting the range of
+\xcd"D" (viewed as a function). Given a point \xcd"p", the expression
+\xcd"D(p)" represents the application of \xcd"D" to \xcd"p", that is,
+the place that \xcd"p" is mapped to by \xcd"D". The evaluation of the
+expression \xcd"D(p)" throws an \xcd"ArrayIndexOutofBoundsException"
+if \xcd"p" does not lie in the underlying region.
+
+When operated on as a distribution, a region \xcd"R" implicitly
+behaves as the distribution mapping each item in \xcd"R" to \xcd"here"
+(i.e., \xcd"R->here", see below). Conversely, when used in a context
+expecting a region, a distribution \xcd"D" should be thought of as
+standing for \xcd"D.region".
+
+{}\oldtodo{Allan: We do not specify how the values of an array at a place
+are stored, e.g. in row-major or column major order. Need to work this
+out.}
+
+\subsection{Operations returning distributions}
+
+Let \xcd"R" be a region, \xcd"Q" a set of places \{\xcd"p1", \dots, \xcd"pk"\}
+(enumerated in canonical order), and \xcd"P" a place. All the operations
+described below may be performed on \xcd"Dist.factory".
+
+\paragraph{Unique distribution} \index{distribution!unique}
+The distribution \xcd"unique(Q)" is the unique distribution from the
+region \xcd"1:k" to \xcd"Q" mapping each point \xcd"i" to \xcd"pi".
+
+\paragraph{Constant distributions.} \index{distribution!constant}
+The distribution \xcd"R->P" maps every point in \xcd"R" to \xcd"P".
+
+\paragraph{Block distributions.}\index{distribution!block}
+The distribution \xcd"block(R, Q)" distributes the elements of \xcd"R"
+(in order) over the set of places \xcd"Q" in blocks  as
+follows. Let $p$ equal \xcd"|R| div N" and $q$ equal \xcd"|R| mod N",
+where \xcd"N" is the size of \xcd"Q", and 
+\xcd"|R|" is the size of \xcd"R".  The first $q$ places get
+successive blocks of size $(p+1)$ and the remaining places get blocks of
+size $p$.
+
+The distribution \xcd"block(R)" is the same distribution as {\cf
+block(R, Place.places)}.
+
+\oldtodo{Check into block distributions per dimension.}
+\paragraph{Cyclic distributions.} \index{distribution!cyclic}
+The distribution \xcd"cyclic(R, Q)" distributes the points in \xcd"R"
+cyclically across places in \xcd"Q" in order.
+
+The distribution \xcd"cyclic(R)" is the same distribution as \xcd"cyclic(R, Place.places)".
+
+Thus the distribution \xcd"cyclic(Place.MAX_PLACES)" provides a 1--1
+mapping from the region \xcd"Place.MAX_PLACES" to the set of all
+places and is the same as the distribution \xcd"unique(Place.places)".
+
+\paragraph{Block cyclic distributions.}\index{distribution!block cyclic}
+The distribution \xcd"blockCyclic(R, N, Q)" distributes the elements
+of \xcd"R" cyclically over the set of places \xcd"Q" in blocks of size
+\xcd"N".
+
+\paragraph{Arbitrary distributions.} \index{distribution!arbitrary}
+The distribution \xcd"arbitrary(R,Q)" arbitrarily allocates points in {\cf
+R} to \xcd"Q". As above, \xcd"arbitrary(R)" is the same distribution as
+\xcd"arbitrary(R, Place.places)".
+
+\oldtodo{Determine which other built-in distributions to provide.}
+
+\paragraph{Domain Restriction.} \index{distribution!restriction!region}
+
+If \xcd"D" is a distribution and \xcd"R" is a sub-region of {\cf
+D.region}, then \xcd"D | R" represents the restriction of \xcd"D" to
+\xcd"R".  The compiler throws an error if it cannot determine that
+\xcd"R" is a sub-region of \xcd"D.region".
+
+\paragraph{Range Restriction.}\index{distribution!restriction!range}
+
+If \xcd"D" is a distribution and \xcd"P" a place expression, the term
+\xcd"D | P" denotes the sub-distribution of \xcd"D" defined over all the
+points in the region of \xcd"D" mapped to \xcd"P".
+
+Note that \xcd"D | here" does not necessarily contain adjacent points
+in \xcd"D.region". For instance, if \xcd"D" is a cyclic distribution,
+\xcd"D | here" will typically contain points that are \xcd"P" apart,
+where \xcd"P" is the number of places. An implementation may find a
+way to still represent them in contiguous memory, e.g., using a
+complex arithmetic function to map from the region index to an index
+into the array.
+
+\subsection{User-defined distributions}\index{distribution!user-defined}
+
+Future versions of \Xten{} may provide user-defined distributions, in
+a way that supports static reasoning.
+
+\oldtodo{TBD. Make distribution a value type. What is the API? Return a
+set of indices. For each index point, return the place. A method to
+return a subdistribution given a subregion. A method to check if a
+given distribution is a subdistribution. But may need to provide
+methods that the compiler can use to reason about the
+distribution. \\
+Postpone to 0.7.}
+
+\subsection{Operations on distributions}
+
+A {\em sub-distribution}\index{sub-distribution} of \xcd"D" is
+any distribution \xcd"E" defined on some subset of the region of
+\xcd"D", which agrees with \xcd"D" on all points in its region.
+We also say that \xcd"D" is a {\em super-distribution} of
+\xcd"E". A distribution \xcdmath"D$_1$" {\em is larger than}
+\xcdmath"D$_2$" if \xcdmath"D$_1$" is a super-distribution of
+\xcdmath"D$_2$".
+
+Let \xcdmath"D$_1$" and \xcdmath"D$_2$" be two distributions.  
+
+
+\paragraph{Intersection of distributions.}\index{distribution!intersection}
+\xcdmath"D$_1$ && D$_2$", the intersection of \xcdmath"D$_1$"
+and \xcdmath"D$_2$", is the largest common sub-distribution of
+\xcdmath"D$_1$" and \xcdmath"D$_2$".
+
+\paragraph{Asymmetric union of distributions.}\index{distribution!union!asymmetric}
+\xcdmath"D$_1$.overlay(D$_2$", the asymmetric union of
+\xcdmath"D$_1$" and \xcdmath"D$_2$", is the distribution whose
+region is the union of the regions of \xcdmath"D$_1$" and
+\xcdmath"D$_2$", and whose value at each point \xcd"p" in its
+region is \xcdmath"D$_2$(p)" if \xcdmath"p" lies in
+\xcdmath"D.region" otherwise it is \xcdmath"D$_1$(p)".
+(\xcdmath"D$_1$" provides the defaults.)
+
+\paragraph{Disjoint union of distributions.}\index{distribution!union!disjoint}
+\xcdmath"D$_1$ || D$_2$", the disjoint union of \xcdmath"D$_1$"
+and \xcdmath"D$_2$", is defined only if the regions of
+\xcdmath"D$_1$" and \xcdmath"D$_2$" are disjoint. Its value is
+\xcdmath"D$_1$.overlay(D$_2$)" (or equivalently
+\xcdmath"D$_2$.overlay(D$_1$)".  (It is the least
+super-distribution of \xcdmath"D$_1$" and \xcdmath"D$_2$".)
+
+\paragraph{Difference of distributions.}\index{distribution!difference}
+\xcdmath"D$_1$ - D$_2$" is the largest sub-distribution of
+\xcdmath"D$_1$" whose region is disjoint from that of
+\xcdmath"D$_2$".
+
+
+\subsection{Example}
+\begin{xten}
+def dotProduct(a: Array[T](D), b: Array[T](D)): Array[Double](D) =
+  (Array.make[T]([1:D.places],
+      (Point) => (Array.make[T](D | here,
+                    (i): Point) => a(i)*b(i)).sum())).sum();
+\end{xten}
+
+This code returns the inner product of two \xcd"T" vectors defined
+over the same (otherwise unknown) distribution. The result is the sum
+reduction of an array of \xcd"T" with one element at each place in the
+range of \xcd"D". The value of this array at each point is the sum
+reduction of the array formed by multiplying the corresponding
+elements of \xcd"a" and \xcd"b" in the local sub-array at the current
+place.
+
+
+

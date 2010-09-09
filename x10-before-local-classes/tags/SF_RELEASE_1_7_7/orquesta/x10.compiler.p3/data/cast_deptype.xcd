@@ -1,0 +1,8 @@
+// SYNOPSIS: (#0) #1 #0=type #1=object #2=depclause
+(new java.lang.Object() {
+    #0 cast(#0 self) {
+        boolean sat = #2;
+        if (! sat) throw new ClassCastException();
+        return self;
+    }
+}.cast((#0) #1))

@@ -1,0 +1,7 @@
+#!/bin/bash
+OUTPUT=cilk_metrics_scale
+n=5000000 
+m=20000000
+echo $n $m 16 processor $ss >>$OUTPUT
+./ST -nproc 16 --stack 30000000 --pthread-stacksize 50000000 5000000 20000000 >>$OUTPUT
+

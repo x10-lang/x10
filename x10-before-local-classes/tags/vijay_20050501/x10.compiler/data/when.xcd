@@ -1,0 +1,15 @@
+{
+	synchronized (x10.lang.Runtime.here()) {
+  		try {
+  			while (true) {
+  			    #0
+  				x10.lang.Runtime.here().wait();    			
+    		}
+    		x10.lang.Runtime.here().notifyAll();
+  		} catch (Throwable e) {
+  			e.printStackTrace();
+  			x10.lang.Runtime.getRuntime().java.log(0, "Unexpected exception during conditional atomoic.", e);
+  			throw new RuntimeException(e);
+  		}
+	}
+}

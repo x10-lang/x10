@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+   <extension
+         point="org.eclipse.imp.runtime.refactoringContributions">
+         <refactoringContributor
+         	language="X10"
+         	class="x10.refactorings.actions.RefactoringContributor"/>
+   </extension>
+
+</plugin>

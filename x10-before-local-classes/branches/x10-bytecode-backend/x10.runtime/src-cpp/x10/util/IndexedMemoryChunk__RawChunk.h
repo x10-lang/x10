@@ -1,0 +1,7 @@
+#ifndef __X10_UTIL_INDEXEDMEMORYCHUNK__RAWCHUNK_H
+#define __X10_UTIL_INDEXEDMEMORYCHUNK__RAWCHUNK_H
+
+#include <x10/util/IndexedMemoryChunk__RawChunk.struct_h>
+
+#endif // X10_UTIL_INDEXEDMEMORYCHUNK__RAWCHUNK_H
+

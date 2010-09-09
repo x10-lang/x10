@@ -1,0 +1,98 @@
+\newif\iflongproof
+\longprooffalse
+\newif\ifdraft
+\newif\ifpreprint
+\@ifclasswith{article}{draft}{\drafttrue}{\draftfalse}
+\@ifclasswith{sigplanconf}{preprint}{\preprinttrue}{\preprintfalse}
+
+\newcommand\trlabel[1]{\label{#1}\ifpreprint\textbf{(#1)}\fi}
+\newcommand\trref[1]{\ifpreprint\textbf{\ref{#1} (#1)}\else\ref{#1}\fi}
+
+\newcounter{thm}
+\setcounter{thm}{1}
+
+\newtheorem{thm}{Theorem}[section]
+\newtheorem{lem}[thm]{Lemma}
+\newtheorem{dem}[thm]{Definition}
+
+\newcommand\loc[1]{\ell_{#1}}
+
+\newcommand\K[1]{\mathsf{#1}}
+\newcommand\EM[1]{\mathit{#1}}
+
+\newcommand\simplebd{\rhd}
+\newcommand\explicitbd{\blacktriangleright}
+
+\newcommand\mbody{\K{mbody}}
+\newcommand\fields{\K{fields}}
+\newcommand\methods{\K{methods}}
+\newcommand\members{\K{members}}
+\newcommand\mtype{\K{mtype}}
+\newcommand\ftype{\K{ftype}}
+\newcommand\finit{\K{finit}}
+\newcommand\fnames{\K{fnames}}
+
+\newcommand\matches{\mathbin{\lt\!\!\#}}
+\newcommand\subtypeof{\mathbin{\le}}
+\newcommand\notsubtypeof{\mathbin{\not\le}}
+\newcommand\related{\sim}
+\newcommand\fbrelated{\mathbin{\sim_{\mathsf{fb}}}}
+\newcommand\subclassstar{\mathbin{\sqsubset^*_{\mathsf{sc}}}}
+\newcommand\furtherbindstar{\mathbin{\sqsubset^*_{\mathsf{fb}}}}
+\newcommand\inheritstar{\mathbin{\sqsubset^*}}
+
+\newcommand\join{\sqcup}
+\newcommand\meet{\sqcap}
+\newcommand\sqlt{\sqsubset}
+\newcommand\sqle{\sqsubseteq}
+\newcommand\sqgt{\sqsupset}
+\newcommand\sqge{\sqsupseteq}
+
+\newcommand\langname{ConJava}
+
+% alignment to be used in array{rl} environment when align* is not allowed
+\newcommand\backup{\!\!\!\!\!\!\!}
+
+\newcommand\ljoin{\mathbin{\rtimes}}
+\newcommand\rjoin{\mathbin{\ltimes}}
+
+\newcommand\subsetapprox{\mathbin{\raisebox{2pt}{$\subset$}\!\!\!\!\!\!\!\raisebox{-2pt}{$\sim$}}}
+
+\newcommand\ttamp{\ensuremath{\mbox{\normalfont\texttt \&}}}
+\newcommand\intersect{\mathbin{\ttamp}}
+\newcommand\bigttamp{\ensuremath{\mbox{\large \texttt \&}}}
+
+\newcommand\all[2]{{#2}^{\forall#1}}
+\newcommand\range[2]{#1..#2}
+%\newcommand\all[2]{\forall#1.~#2}
+%\newcommand\range[2]{#1,\dots,#2}
+
+\newcommand\nop{\emph{no-op}}
+\newcommand\textparameterize[2]{#1{\textlt}#2{\textgt}}
+\newcommand\parameterize[2]{#1{\langle}#2{\rangle}}
+
+\newcommand\fixspacing{\vspace{-5pt}\quad{}}
+
+\newcommand\eat[1]{}
+
+\renewcommand\bar[1]{\overline{#1}}
+
+\newcommand{\starderives}{\derives^*}
+
+\newcommand\rn[1]{\textsc{#1}}
+\def\from#1\infer#2{{{\textstyle #1}\over{\textstyle #2}}}
+\def\axname#1\axiom#2{{\textstyle #2}{\ \textstyle(\mbox{#1)}}}
+\def\rname#1\from#2\infer#3{{{\textstyle #2}\over{\textstyle #3}}{\ \textstyle(\mbox{\rn{#1}})}}
+\def\derives{\longrightarrow}
+\def\subtype{\sqsubseteq}
+
+\def\super{\mbox{\tt super}}
+\def\class{\mbox{\tt class}}
+\def\extends{\mbox{\tt extends}}
+\def\return{\mbox{\tt return}}
+\def\new{\mbox{\tt new}}
+\def\this{\mbox{\tt this}}
+\def\self{\mbox{\tt self}}
+\def\true{\mbox{\tt true}}
+\def\inv{\mbox{\em inv}}
+

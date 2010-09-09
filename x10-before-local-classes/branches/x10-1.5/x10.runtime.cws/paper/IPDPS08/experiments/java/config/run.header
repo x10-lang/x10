@@ -1,0 +1,42 @@
+#
+# (c) IBM Corportation 2007
+#
+# $Id: run.header,v 1.1 2008-01-18 15:12:10 srkodali Exp $
+# Common header for running benchmarks on Power5.
+#
+
+# Do a single run by default.
+MAX_RUNS=$MAX_RUNS
+if [ -z "${MAX_RUNS}" ]
+then
+	MAX_RUNS=1
+fi
+
+# Set and create data directory.
+DATA_DIR=$DATA_DIR
+if [ -z "${DATA_DIR}" ]
+then
+	DATA_DIR="data"
+fi
+
+if [ ! -d "${DATA_DIR}" ]
+then
+	echo "mkdir -p ${DATA_DIR}"
+	mkdir -p "${DATA_DIR}"
+fi
+
+date_time=`date +"%m-%d-%Y.%H-%M-%S"`
+num_proc=8
+OUT_FILE=${DATA_DIR}/${prog_name}.`hostname`.${num_proc}.${date_time}.dat
+
+printf "############################################################\n" \
+	2>&1| tee $OUT_FILE
+printf "# Benchmark Host: `hostname`\n" 2>&1| tee -a $OUT_FILE
+printf "# Number Of Processors: ${num_proc}\n" 2>&1| tee -a $OUT_FILE
+
+printf "#\n" 2>&1| tee -a $OUT_FILE
+printf "# Number Of Scheduled Runs: ${MAX_RUNS}\n" 2>&1| tee -a $OUT_FILE
+date_time=`date +"%m/%d/%Y - %H:%M:%S"`
+printf "# Start Time: ${date_time}\n" 2>&1| tee -a $OUT_FILE
+printf "############################################################\n" \
+	2>&1| tee -a $OUT_FILE

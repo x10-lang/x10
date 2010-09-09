@@ -1,0 +1,589 @@
+First reviewer's review:
+
+          >>> Summary of the submission <<<
+
+The paper extends earlier work by Nystrom et al. on constrained types
+to also support generic type parameters. Because the constraint system
+already was expressed in terms of existential types, the resulting
+amalgamation supports the combination of X10 constraint types with 
+Java style generics and wildcards. 
+
+The system is described through the calculus FX(C), where FX stands for
+the core of the system, and C stands for the constraint system. C can
+be the empty system, resulting to featherweight Java, or A, resulting to
+the X10 types, or G, resulting to FGJ style types. The paper outlines a
+proof of soundness for the amalgamated system, FX(G+A). 
+
+The paper contains an introduction to X10 types (sect. 2), a formal description
+of FX, A and G, and outline of soundness results (sect. 3), a translation onto
+the JVM (sect. 4), and a long comparison with related work.
+
+The implication that genericity can be encoded through constraints is nice
+- is it known or folklore? The fact that generics and constraints 
+(and several other type systems) can be amalgamated and encoded in this one
+is elegant and useful. The formal treatment is clear and complete - up to
+question on well formed classes, see below. The result is plausible 
+(again up to the question on well-formed classes), but I have not checked 
+it (note that as I have no experience with constraint type systems, 
+I would not have spotted obvious errors).
+
+My main concern is that the rule on well-formed classes is too weak -
+see below.
+
+Finally, even though this question does not pertain to the current 
+submission, I believe that the soundness results should ideally be 
+proven for an imperative calculus. Your type system is sufficiently
+subtle, for the soundness result not to necessarily transfer from 
+the functional to the imperative world. In particular, it has recently 
+been shown (paper currently submitted and under review) 
+ 
+http://www.doc.ic.ac.uk/~ajs300m/wiki/lib/exe/fetch.php?media=papers:exists.pdf
+that
+the introduction of existential types into Featherweight Java allows
+for a sound type system, which however becomes unsound when adapted 
+in the straightforward way to the imperative calculus.
+
+          >>> Evaluation <<<
+
+MAIN QUESTION FOR THE AUTHOR RESPONSE
+-------------------------------------
+* Well formed classes.
+On page 7 you list two restrictions on inheritance, but you the proceed to
+tell us that you do not define these formally. I find this disturbing in
+a formal system, esp. as the definition would not have taken you longer than
+2-3 lines. More importantly, I would expect that in (OK-Class) the constraints
+in the subclass should imply the constraints of the superclass. Therefore, it
+seems to me that the following would be a well-formed program
+  class C(i : int){i>5} extends Object{ 
+    void m(){ ... } // expects i to be greater than 5
+  }
+  class D extends C{ 
+  }
+and the following to type check
+ new D(4).m()
+If this is the case, how can you have soundness of the type system
+
+Furthermore, if you expanded (OK-class) the way I am suggesting, then
+the class D on line 9, second column from page 11 would be illegal 
+(as it should be).
+ 
+FURTHER QUESTIONS in decreasing order of importance
+---------------------------------------------------  
+* Consistency of \Gamma 
+You define consistency of \Gamma in terms of consistency of a set of
+constraints, but you do not define the latter. I can imagine that this
+would be something in terms of the existence of a substitution, but
+I would still like to see that. More importantly, I am not sure whether 
+consistency is in general decidable, and in particular is it decidable for
+{\cal G} (I expect yes), for {\cal A} (I expect that this depends on the
+predicates and functions).
+ 
+* Fresh
+I do not understand your treatment of ``fresh''. You say that fresh in a rule
+means
+not free in the consequent of a rule. But the consequent is a judgement, not a
+term,
+and ``fresh'' usually talks about terms. For example, if you have 
+``y fresh in \Gamma |- e : T'' do you mean that ``y not free in in \Gamma, and
+if 
+y free in e or T, then y\in dom(\Gamma)''? 
+
+
+* FX(G)
+You say that FX(G) corresponds to FGJ, but I think that it corresponds
+to FGJ with wildcards, with the exception that it allows what would
+correspond to the Java types
+  class C<X extends A> { ... }
+  class D<X extends Object> extends C<X>{ ... }
+Yes?
+
+* Translation
+I think that in ``implementation specializes code based on type constraints,
+not value constraints''what you are saying is that your translation can only
+deal
+with generics, and not the X10 constraints. Yes?
+
+ 
+other QUESTIONS 
+---------------
+* Modelling cast
+Why do you model cast in FX? Does it play a particular (interesting) role?
+The reason GJ and FGJ model cast is that they needed it for their encoding,
+but if you do not need it for anything, I would suggest you omit it.
+
+
+In page 5, rhs column top, rather than ``List xs'' did you mean
+``List{T>=String}''
+
+In page 11, second line of example I think you forgot a ``='' sign.
+
+I cannot make much sense of the sentence ``derive from X a larger deduction
+system
+that captures the oo structure of P''
+
+In (R-Field) I think you need to replace t_{i} by e_{i}.
+ 
+On page 14, does ``[[C<?,...>]]=C{...}'' stand for 
+ ``[[C<?,\overline{T}>]]=C{\overline{T}}''?
+
+TYPOS
+----- 
+page 5 ``for novices users'' --> ``for novice users''
+page 5 ``these features gives'' --> ``these features give'' 
+
+
+ 
+
+*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*
+
+Second reviewer's review:
+
+          >>> Summary of the submission <<<
+
+This paper presents an extension of constrained types to support
+generics, based on type valued properties (immutable object state) and
+a corresponding extension of the constraint framework that lies behind
+constrained types.
+
+          >>> Evaluation <<<
+
+Pro:
+
+ Very good introduction and presentation of the underlying ideas.
+
+ Supported by an implementation (of the X10 language, whose core can
+ be considered to be presented as the full FX(\cal G, \cal A)
+ calculus.
+
+ The formalization of the calculus family makes sense almost
+ everywhere, and the collection of object identities via constraints
+ on the form 'self==p' is a very interesting way to integrate path
+ types into the constraint system. 
+
+Con:
+
+ There are a number of technical glitches, most of them small:
+
+ The List examples (Fig.1 and Fig.2) do not seem to work: In
+ order to create an empty list we must provide a list of length -1 to
+ its constructor. How do we create such a thing, and how do we
+ create the list of length -2 that it needs for its tail, etc.etc.?
+ This is probably not hard to fix.
+
+ A number of things to clarify: (*) The semantics of '==' is not
+ obvious. (*) The rule (R-Invk) ignores the method guard c, i.e.,
+ the dynamic semantics will _not_ enforce these guards. This means
+ that the progress result says nothing about whether or not these
+ guards will be violated at run-time. (*) The rules do not check
+ subclass invariant entailment, which again means that there is
+ nothing stopping us from violating a superclass invariant via
+ subsumption. (*) The soundness situation around (S-Exists-R) is
+ really delicate (see the detailed comments about this, and about
+ other issues of a similar nature).
+
+ The soundness related theorems are stated, and a proof sketch is
+ given. The conclusion claims that soundness has been proven.
+ However, because of such things as the missing subclass invariant
+ entailment there cannot be a complete proof based on the
+ given rules. It is definitely possible that the glitches could be
+ fixed and the proof could be completed, but the claim in the
+ conclusion is a bit more bold than it should be.
+
+ Given that this work is connected with a serious language design and
+ implementation effort, the proof is not the only validation there is.
+
+All in all, this is an interesting paper that provides novel, useful
+input with respect to the integration of path dependent types and
+constraints in a more general sense. The main problem is that the
+status of the proof of soundness is a bit uncertain, but the work is
+also validated in other ways.
+
+Detailed comments:
+
+- p4c1-2: Everything makes very good sense so far, but the SortedList
+example is a bit confusing: Does 'sort' have a return type? Is it
+allowed to leave it out if it can be inferred, or does it default to
+void or unit or a similar "nothing returned" type? The variables x
+and y are not defined. Probably it would be less confusing if you
+delete the method 'sort', or extend the example to be complete, like
+all the others.
+
+- until p4: Are properties defined in the class declaration header,
+and only there? This seems to be the case, but I couldn't find a
+place where it is stated explicitly.
+
+- p4c2, 'additional constraints [..] on the method parameters': Why
+isn't 'int{0<=self, self<len}' simply a constrained type as described
+earlier (the C{c} construct)? If it is the same construct then please
+emphasize this, rather than presenting it as something new.
+
+- p4c2, 'The constraint on get ensures that the guard on tail is
+satisfied in the method body': This seems to be wrong -- the
+constraint on get ensures that 'len>0' for the receiver, but this does
+not ensure 'len>0' for its tail. As you mention a few lines further
+down, you actually need a dynamic check to establish that the tail is
+non-empty. Performing a dynamic check doesn't normally justify a
+wording like "ensures that the guard is satisfied". Also, it would be
+interesting to hear what happens if the check fails (presumably it's
+similar to ClassCastException)?
+
+- Fig.2: How do you model the empty list? It seems that List{len==0}
+is a somewhat awkward type because such an object would have an unused
+head and tail. But worse, the constructor requires that there is a
+tail, and it should have length -1, etc. How do you get started with
+these lists at all?!
+
+- p4c2-p5, about the 'print' method: The point is that T is not a
+type argument of 'print', otherwise you could easily model it via
+something like
+
+ <X extends Printable> void print(List<X> xs) {.. xs.get(i).print() ..}
+
+It would probably be helpful if you briefly explain why ordinary type
+arguments are insufficient before you go on to refer to CLU etc. Note
+that Cecil has had this kind of conditional method for many years, too.
+
+- p6c1, 'type properties .. behave similarly to type parameters':
+Given that the syntax e.X is gone, is the result actually equivalent
+to traditional type parameters or is there still a difference in
+expressive power?
+
+- footnote 5: Moving variance annotations to the definition site would
+be a change in language design rather than a simplification -- making
+it more convenient for immutable (functional) data structures.
+
+- Sect.3, 'of "type" type': A brief hint about the stratification of
+kinds would be nice at this point (so does type: type hold? .. or do
+you have type_0 for values, type_1 for types, type_2 for the type of
+types, etc?)
+
+- p6c2, bottom: A formula x:T should be interpreted as meaning 'the
+variable x has type T', right? It seems counter-intuitive to use the
+word 'formula' for such a binding, especially in this context where a
+constraint is much more like a formula in the traditional sense. Even
+more confusing, it seems that you are using the word formula to denote
+both forms, x:T and c, later on (e.g., p7).
+
+- footnote 6, 'overriding only informally': Are you sure this is a
+wise trade-off? Is it _so_ verbose?
+
+- p7c2: 'generics types' --> 'generic types'
+
+- p7c2, '\Gamma is consistent': .. and a set of constraints is
+consistent if it does not entail false? How does it help you to know
+that all subsets are consistent? Presumably it would hold that if a
+finite set of constraints A is consistent then any subset A' of A is
+also consistent (contradiction: a proof of false from A' could be
+reused as a proof from A via weakening). So what is this about?
+
+- Fig.3, (Constraint): It is not clear what the semantics of the ==
+operator is. It could hardly be object identity, given that there is
+no heap and no notion of addresses. Is it structural equality? By
+the way, how would it generalize to the case where there is a heap,
+e.g., how deep would the structural comparison be, and how would
+cycles be handled?
+
+- (R-Invk): It is surprising that this rule does not check the method
+guard c. This seems to imply that your progress result may support
+the claim that well-typed programs do not "go wrong", but only if
+violation of method guards is ignored. If a particular method guard
+was inserted for domain specific reasons it may not have other
+run-time errors as a consequence, and then the program may produce a
+(wrong) result where it should have stopped with an error message---so
+primitive run-time errors are not guaranteed to save you. For the
+static semantics, a progress result does not say anything about the
+treatment of method guards, and in particular it does _not_ show such
+a thing as "method guards are satisfied for all invocations in a type
+correct program".
+
+- (W-Class): It seems that P is a global name, similar to CT in the
+Featherweight Java paper. I couldn't find an explicit remark about
+this; please check it and add a few words if they aren't there. Of
+course, if there are other global names they should be listed, too.
+
+- (L-Member-C): Why is there no substitution [x/self] on c?
+Presumably, c is able to use 'self', but that identifier would not be
+interpreted correctly (if defined at all) outside the constrained
+type.
+
+- (L-Member-E): What does the premise 'y fresh' mean here? Usually,
+it would mean "y does not occur" in a number of expressions, usually
+all premises. But in this case it occurs explicitly in the context,
+and in order to be useful it would need also occur in T. In other
+words, y is not allowed to occur in \Gamma; but this is already
+required when \Gamma was introduced (p6c2). In other words, it's hard
+to explain what 'y fresh' means here and maybe it could simply be
+deleted.
+
+- (X-Proj): '\sigma(\Gamma) \turnstile_{\Chi} c' depends on the meaning
+of \turnstile_{\Chi}, which was introduced in a very imprecise
+manner. Is it entailment in \Chi (i.e., any valuation that satisfies
+\sigma(\Gamma) will also satisfy c)?
+
+- (OK-Class): There is no check that the subclass invariant c is
+entailed by the superclass invariant, even though you stated this as a
+requirement on p5c1, paragraph 2. As far as I can see, this
+entailment is not enforced anywhere.
+
+- (S-Exists-L): Same kind of problem as earlier -- it is hard to tell
+what it would mean for x to be fresh, and it would be expected that x
+can be used in U, but it should hardly be allowed in V.
+
+- (S-Exists-R): This rule looks unsound -- but after a while I haven't
+been able to create an unsoundness example, so it might just work
+after all. The reason why it looks so bad is that it specifies,
+intuitively, "U is a subtype of '\exists x:T. V' if U is a subtype of
+one of the types that '\exists x:T. V' might stand for": the term t is
+chosen freely to be one of the possible values for x and inserted to
+replace x in V, and then we just check that U is a subtype of that.
+It sounds like a line of reasoning with the same structure as "to show
+that 5<x where we know that x<10, let us try it with x==7 (which is ok
+because 7<10), and then check that 5<7; but that's true, so we
+conclude 5<x". ;-)
+ The reason why this isn't as easily demonstrated unsound as one
+should think is that the type of a path includes equality constraints
+(like x:T |- x : T{self==x}, rather than x:T |- x:T). Because these
+equality constraints are carried into the existential type it actually
+nullifies its flexibility --- we end up with '\exists x: T{self==y}. V'
+which is actually the same thing as V[y/x].
+ But if we add general subsumption then we can show x:T |- x:T, and
+then it's immediately unsound. Another thing to consider is that we
+could show y:T |- y.m().f <: \exists x:T. x.f where m returns 'this'
+and f is a type property (the method allows us to use subsumption and
+get return type T rather than T{self==y}). This is unsound in the
+sense that y.m().f is a run-time expression that denotes a type, and 
+'\exists x:T. x.f' is a type expression that stands for the f
+property of some unknown object of type T, and there is no reason to
+believe that the former is related to the latter, and in particular we
+may not have the subtype relationship that (S-Exists-R) promises.
+
+- p11c2: 'm():B new' --> 'm():B = new'
+
+- p11c2: 'this.f.m()': How could this expression even make sense? If
+this.f: type then it does not have methods, such as m. Maybe you were
+thinking about something else?
+
+- Sect. 3.5: The proof sketch may or may not indicate that a complete
+proof could be carried out as described, but already the fact that
+a subclass is not required to have an invariant that is entailed by
+the superclass invariant shows that the rules have not been studied
+case by case in order to check that the entire proof works.
+
+- p13c1, '@ParametricMethod': The treatment of polymorphic methods
+sounds expensive. Do you have plans for any kind of shortcuts in this
+scheme?
+
+- p13c2, 'Constrained types are more expressive..': Note that
+constraints on virtual classes or types at the use-site already exist:
+"Reconciling Virtual Classes with Genericity", Erik Ernst, JMLC 2006
+in LNCS 4228, and in Scala under the name type refinements (see, e.g.,
+Chap.3 in http://www.scala-lang.org/docu/files/ScalaReference.pdf).
+The difference would mainly be that your constraint systems are more
+general and in particular they may be more expressive with respect to
+numbers because of the built-in support for Presburger arithmetics etc.
+These constraints allow for both covariant and contravariant
+restriction, too, providing upper and/or lower bounds as needed.
+ Also note that there might be a difference in the opposite
+direction: Virtual classes are computed using a combination operator,
+propagating recursively into the block structure, but with abstract
+type members (aka virtual types) as in Scala, all the constraints
+(such as T<:A and T<:B) must be solved by the programmer when a
+concrete class is created, which creates a much tighter coupling
+between all those constraints and the client code that contains the
+'new' expression. Presumably constrained types would create the same
+kind of coupling. Finally, the reference to virtual types in Java is
+a little bit dangerous because that proposal was developed without any
+considerations of static type checking, which makes it quite different
+from other versions of virtual classes or types.
+
+- p15c2, 'Another option is to test .. the interpretation': This
+sounds like a terrible idea! ;-)
+
+Remark added after the PC meeting:
+
+I would like to add a few words on the soundness of (S-Exists-R), in
+response to your author response. As I wrote, I have not been able to
+create an example which demonstrates a hole in the type system, and it
+may actually be sound. However, the following line of thought
+illustrates why it is so delicate:
+
+The rule (S-Exists-R) states (leaving environments implicit for a
+minute) that a type U is a subtype of an existential type 
+\exists x:T.V, if we can find a term t of type T such that the
+subtyping relation holds when we insert t in place of x (i.e., that 
+U <: V[t/x]). 
+
+In other words, we just need to show subtyping for one possible value
+of x, then we conclude subtyping for the existential. But what if we
+have just been lucky to choose a t such that U <: V[t/x], but at
+runtime the entity with type \exists x:T.V is of type V[t'/x] where
+t':T, but it is _not_ true that U <: V[t'/x]? How do we know that all
+such t provide the subtyping relationship, just because we have seen
+that one of them do? We must be prepared for _any_ of all those t,
+given that we only know that the type is \exists x:T.V.
+
+So, \exists x:T.V corresponds to _some_element_ in the set 
+{V[t/x]| t:T}, and we just check that U <: S for _some_other_element_
+in the same set, and this is the same kind of reasoning as 
+
+ "assume that x<10, then show that x>5"
+
+ "OK, let us try with 7, because 7<10: Yep, 7>5"
+
+That kind of reasoning is not sound, because we have to check that the
+property holds for _any_ element in the set, not just for _some_.
+
+This is the reason why I was close to concluding that _you_ had mixed
+up "exists" and "forall". ;-)
+
+*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*=--=*
+
+Third reviewer's review:
+
+          >>> Summary of the submission <<<
+
+This paper describes the underlying design of the Generic X10
+programming language. X10 has often seemed a language in search of an
+underlying theory: this paper promises to provide such a theory for
+X10. After a long abstract, the first section introduces generic types
+and constrained types. Section 2 then gives an overview of the Generic
+X10 (GX10) language.  Section 3 presents a series of formal models -
+primarily FX(.) and FX(G) for generic constraints, and ending with a
+proof sketch of FX(A,G).  Section 4 briefly describes the
+implementation of generic classes in GX10; section 5 discusses various
+language design issues; section 6 discusses related work and section 7
+concludes. 
+
+          >>> Evaluation <<<
+
+Many of the best ideas in programming language design are obvious in
+retrospect. This paper is one of them: taking the existing type
+constraints from X10 [40], adding in a type "type" and a few predicates
+on that type (equality, subtyping, field and method type structure
+predicates), results in a very nice language design that has the
+potential to offer solid practical advantages. The underlying ideas
+are clean and simple, the implementation seems straightforward, and
+even for formal systems appear much more straightforward than those
+for similar systems. 
+
+Unfortunately I have a number of issues with this paper in its current
+form, which regretfully leads me to conclude its publication may be
+premature. 
+
+First, the paper doesn't make a clear distinction between the GX10
+language, previous versions of the X10 language, and the various
+formal models that will be introduce in the paper. It's not clear
+which features or which restrictions are in which language, or more
+importantly, which are accidents of the implementation (or the
+formalism) and which are essential to the language design. Issues here
+involve support for existential types; the similarities (or
+differences) between type properties and value properties --- are
+there two different kinds of properties; or just properties, some of
+which are values and some of which are types; the support for type
+"type"); (I take it X10 doesn't support this - why not?); the
+distinction between type properties and type parameters - is this just
+syntactic sugar, or is the some important underlying unification?
+This is compounded because the paper seems unable to present the
+design coherently - some important points are scattered around the
+paper, some repeated, some others only mentioned in passing (see my
+comments below). This makes the paper unnecessarily hard to follow.
+
+I strongly encourage the authors to get a clear story about which
+feature belongs where; ideally to have a *minimal* featherweight X10
+version, introduce that, use that for all examples (perhaps without
+type parameterisation, using only fields?); do the formal work on that
+version; and *then* talk about the implemented version of GX10 - or
+rather, not the *implemented* language but the design or specification
+of GX10.
+
+Second, the paper offers only a proof sketch, not a full proof. I have
+not checked the formalism (or proof sketch) in any detail, but it
+seems to be that at OOPSLA it is incumbent on papers to provide at
+least a solid manual proof. Given the power of the type system, and
+the claim that there is a proof, and that this system can encompass
+many other more complex type systems --- systems that have been known
+to be difficult to prove correct --- this proof sketch does not
+convince me of the soundness of the system. Alternatively, paper does
+not attempt to make an argument as to why some distinguishing feature
+of this approach (e.g. because all the work is being done by the
+constraint system as a oracle) means that a proof sketch is
+sufficient.
+
+Third, while the paper discusses an implementation design, this is
+(again) not described particularly clearly. I had to read this section
+two or three times to work out if one or if multiple versions of a
+generic class are created when that class is instantiated at multiple
+types - a diagram could help here! It seems that you have only one
+template class on a disk, but will expand it as many times as
+necessary in memory - this expansion is done by the classloader, is
+that correct? But doesn't mean that "a class is instantiated multiple
+times on different constraints may lead to significant code bloat"?
+(sec 1.3, p3) How do you deal with that? How expensive is this
+"load-time" generation; how many instances of template classes do you
+have in real programs?
+
+
+minor comments:
+
+* are there other systems with similar models of paramterisation.
+ One I know of is Gunther Blaschek's Omega; there may be others.
+ How is this related to palsberg and schwartzbach's model of generics?
+
+* delete para 2 of abstract
+
+* I wouldn't call X10 a "modern" OO language. Contemporary if you
+ must; or, well, *postmodern*. But then you'd expect me to say that. 
+
+* p3 "restrictions imposed by the X10 compiler" - so are these in the
+ X10 language; the current *implementation* of that language; or only
+ in the formal core, or what? and more importantly, why?
+
+* para 2 of sec 2 repeats most of para in 1.1.
+
+* sec 2 should say return types are declared after the colon
+ * and make clear difference between round and square brackets
+
+* are those run-time checks part of the (core) language, or the
+ implementation, or just an effect of the weakness of a particular
+ type system? (or constraint solver?)
+
+* p5 List[float] equivalent to List{T==float} needs to be much earlier!
+  in fact, pick one! get the story straight! 
+
+* p5 similarly get syntactic sugar for variance later - or in fact *just
+delete it*
+
+* casting up to disambiguate seems *horrible*. 
+ is this in the formal model? or does that requite unique names to
+ avoid these problems?
+
+* p6 "using square brackets"... why is this here, not on page 2???
+ ditto footnote 5? Do you have a coherent idea of your own design?
+
+*p6 do you mean "runtime constraint solving"? can you give an example
+ when that is needed - rather than simply evaluating a constraint
+ expression at runtime using the values of the objects & their properties?
+
+* footnote 9 - why? What are the problems here? how is this worse than
+ fields? 
+
+* p11 (end of 3.3) vs sec 5.2 
+ If you forbid existentials, how can you have wildcards?
+
+* you don't need to motivate wildcards at 5.2 --- people who can cope
+ with this will understand.
+
+* can you do Beta style further-binding (e.g. constrained genericity).
+ How is that checked? 
+
+* the abstract says "run-time code generation" is required to support
+ casts - but I didn't see that anywhere in the body of the paper.
+
+* generally, the structural constraints has method and has field seem
+ peripheral in the paper
+
+
+To encourage accountability, I'm signing all my reviews in 2009,
+positive or negative. For the record, I'm James Noble,
+kjx@ecs.vuw.ac.nz. 
+

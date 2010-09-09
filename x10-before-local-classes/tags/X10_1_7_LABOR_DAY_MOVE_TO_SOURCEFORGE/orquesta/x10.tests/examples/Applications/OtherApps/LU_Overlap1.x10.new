@@ -1,0 +1,208 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+ import harness.x10Test;;
+/**************************************************************************************************************
+                               LU Factorization with partial pivoting. 
+
+The three steps (pivot, exchange, update) are sequential in LUPartial, although there is parallelism in each of them. 
+This implementation overlaps these three steps using X10's conditional blocks. The operation of previous update is 
+overlapped with the current ones of pivot and exchange. We use the flag approach to coordinate the three operations.
+
+The computation is in place, where the part below the diagonal of A is the corresponding part of L (whose diagnals are 
+all ones), and the rest is the corresponding part of U. The permutation information is stored in m_p so that L*U=A(m_p,:)
+in Matlab notation. The matrix A can have any distribution. Note that the code is in the implicit syntax.
+
+Author: Tong Wen, IBM Research
+Date:   10/15/06
+        11/08/06 clean up comments
+        01/12/07 break up update to reduce the usage of flags and when clause
+        01/22/07 propagate the bug fixes of LU_Overlap
+******************************************************************************************************************/
+
+public class LU_Overlap1 extends x10Test {
+	const eps: double = 0.00000000001;
+	var m_A: Array[double]; //Can this array be referred to globally? Right now, it can be (error?).
+	var m_R: region;
+	var m_D: dist;
+	var m: intvar n: int;
+	var m_pivotInfo: int; 
+	var m_p: Array[int]; //Can be also be referred to globally. It looks like an error.
+	//flags for coordinating activities
+	var pivotPlusExchangeDone: boolean;
+	//array to store the scores of each row
+	var m_rowScore: Array[int]; 
+	
+	public def LU_Overlap1(): void = {}
+	
+	public def lu(val a_A: Array[double]): void = {
+		assert a_A.rank==2;
+		m_A=a_A;
+		m_R=a_A.region;
+		m_D=a_A.dist;
+		m=m_R.rank(0).size(); n=m_R.rank(1).size();
+		final val steps: int = Math.min(m,n)-1;
+		final val STEPS: region = [-1..steps-1];
+		m_p=new Array[int](steps+1); for (var i: int = 0;i<steps+1;i++) {m_p(i)= i;};
+		m_rowScore=new Array[int]([0..m-1]);
+		pivotPlusExchangeDone=true; //It is true when pivot() and exchange() are finished
+		
+		
+		final val pivots: Array[double] = {0.0,0.0};	
+		//for(int k=0;k<steps;k++){
+		for (val (k): point in STEPS) {	
+			when (pivotPlusExchangeDone) {pivotPlusExchangeDone=false;}
+			pivots(0)=pivots(1);
+			if (pivots(0)!=0) update1(k);
+			if (k<steps) async{
+				final val K: int = k+1;
+				pivots(1)=pivot(K);
+				final val score: int = n-K;
+				await ((m_rowScore(K)==score) && (m_rowScore(m_pivotInfo)==score));
+				exchange(K);
+				atomic pivotPlusExchangeDone=true;
+			}
+			if (pivots(0)!=0) 
+				update2(k);
+			else 
+				for (var i: int = k+1;i<m;i++) atomic m_rowScore(i)=n-k-1;
+		}
+	}
+	/*update the first column of the submatrix A[k:m-1, k:n-1]*/
+	def update1(val a_k: int): void = {
+		finish ateach (val (i,j): point in m_D|[a_k+1..m-1, a_k+1..a_k+1]) m_A(i, j)-=m_A(i, a_k)*m_A(a_k, j);
+	}
+	/*unpdate the rest columns of the submatrix A[k:m-1, k:n-1]*/
+	def update2(val a_k: int): void = {
+		for (var i: int = a_k+1;i<m;i++) atomic m_rowScore(i)=1;
+		finish ateach (val (i,j): point in m_D|[a_k+1..m-1, a_k+2..n-1]) {
+			m_A(i, j)-=m_A(i, a_k)*m_A(a_k, j);
+			async (m_rowScore.dist(i)) atomic m_rowScore(i)++;
+		}
+	}
+	/*exchange the k_th row with the row found in pivot()*/ 
+	def exchange(val a_k: int): void = {
+		final val pivotIdx: int = m_pivotInfo;
+		if (pivotIdx!=a_k){
+			//exchange the row a_k and m_pivotInfo[0]
+			final val r: region = [a_k..a_k, 0..n-1];
+			finish ateach (val (i,j): point in m_D|r) {
+				final val temp: double = m_A(i, j);
+				m_A(i, j)=m_A(pivotIdx, j); 
+				m_A(pivotIdx, j)=temp;
+			}
+			m_p(pivotIdx)=m_p(a_k);m_p(a_k)=pivotIdx;
+		}
+	}
+	/*Find the maximum abs value of the sub column [k:m-1] and its location
+	  The all reduction uses the barrier approach. A point-to-point synchronization approach using flags can 
+	  also be used. Note that here we also need the location of the maximum.
+	 */ 
+	def pivot(val a_k: int): double = {
+		final val r: region{rank==2} = [a_k..m-1, a_k..a_k];
+		//padding to make the size a power of 2
+		var logSize: double = Math.log(r.size())/Math.log(2);
+	    	logSize=Math.ceil(logSize);
+	    	final val factor: int = pow2((int)logSize);
+		final val d: dist{rank==2} = (dist{rank==2}))dist.factory.cyclic([a_k..a_k+factor-1, a_k..a_k]-r);
+		final val Dr: dist{rank==2} = (dist{rank==2}))(m_D|r);
+		final val D: dist = Dr||d; //can't put casting in this statement. Have to do it separately
+		//defining buffers
+		final val A: Array[double] = new Array[double](D);
+		final val B: Array[double] = new Array[double](D);
+		finish ateach (val p: point in D|r) A(p)=m_A(p);
+		final val maxLocation: Array[int] = new Array[int](D, (var point [i,j]: point): int => {return i;});
+		//all reduction to find the value and location of the maximum
+		final val phases: int = log2(factor);
+		finish async{
+			  final val clk: clock = clock.factory.clock();
+			  ateach (val (i,j): point in D) {
+				var red: boolean = true;
+				var Factor: int = factor;
+				var shift: int;
+				var disp: int = j;
+				var temp: double;
+				for (var l: int = 0;l<phases;l++){
+					shift=Factor/2;
+					final val destProcID: int = (i-disp+shift)%Factor+(i-disp)/Factor*Factor+disp;
+					if (red){
+						temp=A(destProcID, j);
+						if (Math.abs(A(i, j))<Math.abs(temp)){
+							B(i, j)=temp;
+							maxLocation(i, j)=maxLocation(destProcID, j);
+						}
+						else
+							B(i, j)=A(i, j);
+					}
+					else{
+						temp=B(destProcID, j);
+						if (Math.abs(B(i, j))<Math.abs(temp)){
+							A(i, j)=temp;
+							maxLocation(i, j)=maxLocation(destProcID, j);
+						}
+						else
+							A(i, j)=B(i, j);
+					}
+					next;
+					Factor/=2;
+					red=!red;
+					
+				}
+				if (!red) A(i, j)=B(i, j);
+				
+			  }
+		}
+		
+		//scaling
+		var temp: double = A(a_k, a_k); //remote read. The location of a local element of A can be computed.
+		if(temp!=0){
+			finish ateach (val (i,j): point in m_D|r) {
+				if (i!=maxLocation(i, j) && m_A(i, j)!=0) m_A(i, j)/=A(i, j);
+			}
+			m_pivotInfo=maxLocation(a_k, a_k); //remote read. The same as above: a local copy can be found.
+		}
+
+		return temp;
+	}
+	public def log2(var a_int: int): int = { return (int)(Math.log(a_int)/Math.log(2));}
+	public def pow2(var a_int: int): int = { return (int)Math.pow(2,a_int); }
+	
+	public def run(): boolean = {
+		//set up a test problem
+		final val size: int = 10;
+		final val R: region = [0..size-1, 0..size-1];
+		final val A: Array[double] = new Array[double](dist.factory.cyclic(R), (var point [i,j]: point): double => {
+			var res: int = i%2;
+			if (i-1==j) res=i*(res==0?-1:1);
+			return res;});
+			
+		//compute LU factorization of A
+		lu(A);
+		/* verify results
+		** The first column of L should be equal to array l.
+		** The diagonals of U should be equal to array u and its first row are all ones.
+		** The content of p should be equal to array permulation
+		*/
+		var err1: double = 0; var err2: int = 0;
+		final val l: Array[double] = {1, 0, 1, 0, 1, 0, 1, 0, 1, 0};
+		final val u: Array[double] = {1, -2, 2, -4, 4, -6, 6, -8, 8, 0};
+		final val permulation: Array[int] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 0};
+		
+		for (var i: int = 0;i<size;i++){
+			err1+=A(i, 0)-l(i);
+			err1+=A(i, i)-u(i);
+			err1+=A(0, i)-1;
+			err2+=m_p(i)-permulation(i);
+		}
+		return (Math.abs(err1)<eps && err2==0);
+		
+	}
+	public static def main(var a: Rail[String]): void = {
+		new LU_Overlap1().execute();
+	}
+	
+}

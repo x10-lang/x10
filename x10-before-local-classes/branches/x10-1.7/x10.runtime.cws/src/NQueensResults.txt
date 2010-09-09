@@ -1,0 +1,14 @@
+Number of procs=2
+Result:1 1 ok Time=22 ms Steals=0
+Result:2 0 ok Time=4 ms Steals=0
+Result:3 0 ok Time=0 ms Steals=0
+Result:4 2 ok Time=0 ms Steals=0
+Result:5 10 ok Time=0 ms Steals=0
+Result:6 4 ok Time=0 ms Steals=0
+Result:7 40 ok Time=3 ms Steals=0
+Result:8 92 ok Time=8 ms Steals=0
+Result:9 352 ok Time=9 ms Steals=0
+Result:10 724 ok Time=63 ms Steals=9
+Result:11 2680 ok Time=376 ms Steals=23
+Result:12 14200 ok Time=933 ms Steals=43
+Result:13 73712 ok Time=5687 ms Steals=71

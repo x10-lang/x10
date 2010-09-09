@@ -1,0 +1,86 @@
+// @author: Pradeep Varma
+//=============== IR Representation of HelloWorld1.X10 ================
+
+// Namespace is an IR construct, to represent X10 classes and interfaces
+NAMESPACE HelloWorld EXTENDS harness$$$x10Test 
+
+// Method signatures are given below
+
+        NULLABLE Exception NULLABLE BOOLEAN HelloWorld$$run ( HelloWorld );
+
+        @ static NULLABLE Exception NULLABLE VOID HelloWorld$$main ( [] String) ;
+
+// Function declarations are given below
+
+NULLABLE Exception NULLABLE BOOLEAN HelloWorld$$run HelloWorld TEMP0
+            L# 0 @ FUNCSTART Place TEMP5 := Place OBJECTDEREF HelloWorld TEMP0 Place loc
+            L# 5 NULLABLE $Activity TEMP10 := 
+                       @ Async NULLABLE $Activity CREATEACTIVITY Place TEMP5 L# 20
+            // check if activity got created
+            L# 6 BOOLEAN TEMP16 := BOOLEAN NULLCHECKPASS NULLABLE $Activity TEMP10
+            L# 7 IF BOOLEAN TEMP16 GOTO L# 60             // If created fine, goto L 60
+            L# 8 PRETURN NULLABLE Exception $createActivityFailureException NULLABLE BOOLEAN NULL
+                             // using global exception values for now to aVOID dealing with
+                             // exceptions in creating exceptions
+            // Ought to revisit createActivity’s exception mechanism 
+            // (return explicit exception than NULL)
+
+         
+           // Async code
+            L# 20 ASYNCBEGIN
+            L# 25 String TEMP20 := String "Hello X10 world!"
+            
+            // call to System.out.println
+            L# 30 NULLABLE Exception TEMP25 NULLABLE VOID TEMP26:= 
+                        CALL PrintStream$$println PrintStream x10$$$lang$$$System$$out, String TEMP20   
+                        // overloaded function names? Need to flatten out?
+            
+            L# 35 BOOLEAN TEMP35 := BOOLEAN NULLCHECKPASS NULLABLE Exception TEMP25
+
+            L# 40 IF BOOLEAN TEMP35 GOTO L# 44             // If exception, goto 44
+            L# 42 GOTO L# 50
+            // throw exception to root activity
+            L# 44 @ verified Exception TEMP37 := Exception TYPECAST NULLABLE Exception TEMP25 Exception
+            L# 45 MULTIEXCEPTIONUPDATE Exception TEMP37
+
+            L# 50 ASYNCEND
+
+            L# 60 @ FUNCEND PRETURN NULLABLE Exception NULL NULLABLE BOOLEAN false
+
+     
+
+@ static NULLABLE Exception VOID HelloWold$$main  []String TEMP101
+ 
+           // new HelloWorld() -- object creation
+            L# 105 @ FUNCSTART NULLABLE HelloWorld TEMP100 := 
+                            HelloWorld NEW HelloWorld
+            // check if memory got allocated
+            L# 110 BOOLEAN TEMP105 := BOOLEAN NULLCHECKPASS NULLABLE HelloWorld TEMP100
+            L# 115 IF BOOLEAN TEMP105 GOTO L# 121             // If allocated fine, goto L 121
+            L# 120 PRETURN NULLABLE Exception $mallocFailureException NULLABLE VOID NULL
+                             // using global exception values for now to aVOID dealing with
+                             // exceptions in creating exceptions
+            // Who will initialize loc? – MEMALLOC
+            // Ought to revisit MEMALLOC’s exception mechanism 
+            // (return explicit exception than NULL)
+            L# 121 @ verified HelloWorld TEMP106 := HelloWorld TYPECAST NULLABLE HelloWorld TEMP100 HelloWorld
+  
+            // Bad place check  
+            L# 125 Place TEMP110 := Place OBJECTDEREF HelloWorld TEMP106 Place loc
+            L# 130 BOOLEAN TEMP115 := BOOLEAN BADPLACECHECKPASS Place HERE Place TEMP110
+            L# 135 IF BOOLEAN TEMP115 GOTO L# 145             // If badplacepass, goto L# 145
+            L# 140 PRETURN NULLABLE Exception $badPlaceException NULLABLE VOID NULL // using global exception value for simplicity
+  
+            // call to run
+            L# 145  NULLABLE Exception TEMP120 NULLABLE BOOLEAN TEMP125 := 
+                               CALL HelloWorld$$run HelloWorld  TEMP106
+            // catch exception and handle
+            L# 150 BOOLEAN TEMP130 := 
+                                     BOOLEAN NULLCHECKPASS NULLABLE Exception TEMP120
+
+            L# 155 IF BOOLEAN TEMP130 GOTO L# 160            // If exception, goto L160
+            L# 157 GOTO L# 165
+            L# 160 PRETURN NULLABLE Exception TEMP120 NULLABLE VOID NULL   // excepting return
+
+            L# 165 @ FUNCEND PRETURN NULLABLE Exception NULL NULLABLE VOID NULL // normal return
+                                 

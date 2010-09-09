@@ -1,0 +1,423 @@
+<html>
+<body>
+
+<h1>Macintosh X10 Command Line Installation on Leopard</h1>
+In order to run X10 on OS X Leopard, you need to satisfy the following pre-requisites.
+<h2>Prereqs</h2>
+<ul>
+	<li>gcc/g++ 4.0.x or higher</li>
+	<li>java 1.5.0_x or higher</li>
+	<li>Open MPI 1.2.x or higher</li>
+</ul>
+Fortunately, Mac OS X Leopard provides most of these as part of its environment. Although
+you may have to download the development environment called Xcode to get the compiler tools.
+
+<h3>gcc/g++</h3>
+gcc is included with OS X. You can verify the location and version
+with the following commands
+
+<pre>
+whereis gcc
+gcc -v
+</pre>
+
+You should see something similar to this
+
+<pre>
+$ whereis gcc
+/usr/bin/gcc
+</pre>
+
+<pre>
+$ gcc -v
+Using builtin specs.
+Target i686-apple-darwin9
+Configured with: ....
+Thread model: posix
+gcc version 4.0.1 (Apple Inc. build 5493)
+</pre>
+
+If you do not get these results, you will have to install Apple's
+Developer Tools called Xcode.  There are 2 ways to do this
+<p>
+1) There should be a version on your installation disk for Leopard.
+You should insert your disk and go the the "Optional Installs" folder.
+There you will see a "Xcode Tools" folder. When you select this folder,
+you will see the "XcodeTools.mpkg" package installer. You should double
+click on this and follow the instructions to install the Xcode tools.
+You should let this install to the default folder "Developer". When the
+installation is complete, check the installation as described above.
+<p> 
+2) You can download Xcode from Apple's Developer Connection (ADC) site. 
+<a href="https://connect.apple.com/cgi-bin/WebObjects/MemberSite.woa/303/wo/3K14hrg1ACiF2P18GAizqThJ6TZ/0.0">Developer Connection Member Site</a> 
+This method insures that you will get the latest Xcode version whereas 
+method 1 may be an earlier version available at the time of packaging the
+Leopard installation DVD.
+<P>
+To access this site, you may have to signup for an ADC id. Once you are
+logged into the member site, you should select the "Downloads" area
+and then select "Developer Tools" on the right hand side from the Downloads area. 
+You should scroll until you find "Xcode 3.1.4 Developer Tools"
+which is the version for Leopard. You should note that "Xcode 3.2.1 Developer Tools"
+is the version for Snow Leopard. 
+<p>
+Once you have downloaded the Xcode Disk Image, you can invoke the package installer.
+You should let this install to the default folder "Developer". When the
+installation is complete, check the installation as described above.
+
+<p>
+Actually Xcode Tools comes with 2 versions of the gcc compiler, 
+4.0 and 4.2.  Leopard defaults to 4.0.
+If you go to the /usr/bin directory, you can
+see how the gcc and g++ commands are linked.
+
+<pre>
+$ cd /usr/bin
+$ ls -al g*
+</pre>
+
+You should see something like this
+<pre>
+g++ -> g++-4.0
+g++-4.0
+g++-4.2
+gatherheaderdoc
+gcc -> gcc-4.0
+gcc-4.0
+gcc-4.2
+gcov -> gcov-4.0
+gcov-4.0
+gcov-4.2
+</pre>
+
+If you want to switch to the 4.2 compiler, you just need to change the
+links (g++, gcc, gcov, C++) to point to the 4.2 versions. You should also
+change the links under Developer directory where Xcode was installed to be
+consistent. See the chapter XX.
+You will need to do this in order to build the x10 distribution which
+will be discussed in another chapter.
+
+<h4>java</h4>
+Java is also included with the OS X. You can verify the location and version
+with the following commands
+<pre>
+whereis java
+java -version</li>
+</pre>
+
+You should see something like this
+
+<pre>
+$ whereis java
+/usr/bin/java
+</pre>
+
+<pre>
+$ java -version
+java version "1.5.0_20"
+Java(TM) 2 Runtime Environment, Standard Edition (build 1.5.0_20-b02-315)
+Java HotSpot(TM) Client VM (build 1.5.0_20-141, mixed mode, sharing)
+</pre>
+
+If you go to the /usr/bin directory, you can see that the java command
+is a link.
+
+<pre>
+$ cd /usr/bin
+$ ls -al java
+</pre>
+
+You should see something like this
+<pre>
+java -> /System/Library/Frameworks/JavaVM.framework/Versions/Current/Commands/java
+</pre>
+
+Actually OS X ships with multiple versions of java
+under
+/System/Library/Frameworks/JavaVM.framework/Versions
+If you are up to date with patches, you will also find java 1.6 here.
+If you want to switch to java 1.6, you can change the links to "Current" and
+"CurrentJDK" in the JavaVM.framworks versions directory.  See chapter XX.
+
+<h4>Open MPI</h4>
+OpenMPI is also included with OS X. You can verify the location and version
+with the following commands
+<pre>
+whereis mpirun
+mpirun -version</li>
+</pre>
+
+You should see something similar to this
+
+<pre>
+$ whereis mpirun
+/usr/bin/mpirun
+</pre>
+
+<pre>
+$ mpirun -version
+mpirun (Open MPI) 1.2.3
+</pre>
+
+<h2>Getting started</h2>
+
+You need to download the X10 2.0.6 distribution for your platform,
+<pre>
+AIX/PowerPC 
+Cygwin/x86 
+Linux/x86 
+Linux/x86_64 
+MacOS/x86 
+MacOS/x86_64 
+</pre>
+in this case MacOS/x86. The Common PGAS runtime is included with the X10 platform.
+Go to the <a href="http://x10.codehaus.org/X10+2.0.6+Release">X10 release 2.0.6 (http://x10.codehaus.org/X10+2.0.6+Release)</a> 
+and download the X10 distribution.  This will be usually stored in your "Downloads" directory depending on how
+your browser is configured. You should check periodically for new releases at http://x10.codehaus.org/X10+Releases.
+<p>
+Next you need to install the X10 distribution so that it is available to use.  
+You should make a directory in the /usr/local or /opt directory for this version.  This procedure
+will allow easy updating to a newer version when it becomes available. 
+Note that you may have to use the "sudo" command to get access. 
+
+<pre>
+cd /usr
+mkdir local
+cd local
+mkdir x10
+cd x10
+mkdir 
+cd 2.0.6
+</pre>
+
+Make the directory accessible by everyone
+<pre>
+cd /usr
+chmod -R 755 local
+</pre>
+
+Now copy the x10 download to x10dist directory 
+and unpack it.
+<pre>
+cd /usr
+cd local
+cd x10
+cd 2.0.6
+cp /Users/cals/Downloads/x10-2.0.6_macos_x86.tar .
+tar -xvf x10-2.0.6_macos_x86.tgz
+</pre>
+
+<p>
+Now you are ready to setup your environment that makes use of this directory.
+On the Mac it is probably better to create a .bash_profile to add the x10 bin directory
+to your path.  You can also define aliases here, etc.  
+<p>
+Here is a sample .bash_profile that adds the X10 bin directory to your path.
+<pre>
+.bash_profile
+PATH=${PATH}:/usr/local/x10/2.0.6/bin
+export PATH
+</pre>
+
+Now you will be able to use the x10 commands to compile and run your programs.
+You should make an x10 or an x10work directory in your
+home path, and create a subdirectory for each project.
+
+<p>
+To get started you should copy the Hello program from the x10 samples directory into your
+working directory. For example,
+<pre>
+cd ~
+mkdir x10
+cd x10
+mkdir Hello
+cd Hello
+cp /usr/local/x10/2.0.6/samples/Hello.x10 .
+</pre>
+
+<h4>Using the java backend</h4>
+To compile the this program with the java backend you would enter
+<pre>
+x10c Hello.x10	
+</pre>
+
+You should now see some java classes in your directory.  
+<pre>
+Hello$Main$1.class	Hello$RTT.class		Hello.x10
+Hello$Main$2.class	Hello.class		x10
+Hello$Main.class	Hello.java			
+</pre>
+
+You can now run this program by entering
+<pre>
+x10 Hello
+</pre>
+
+You should see the program output
+<pre>
+Hello, x10 World!
+The answer is: true
+</pre>
+
+<h4>Using the C++ backend</h4>
+To compile this program with the c++ backend you would enter
+<pre>
+x10c++ -MAIN_CLASS=Hello Hello.x10	
+</pre>
+The reason for using the -MAIN_CLASS is so that the compiler generates a
+runtime called "Hello". If you leave off the -MAIN_CLASS directive, 
+your output will be under a.out.
+<p>
+You should now see the following files in your directory.  
+<pre>
+Hello			Hello.dSYM		Hello.inc	x10
+Hello.cc		Hello.h			Hello.x10		
+</pre>
+
+You can now run this program by entering
+<pre>
+runx10 Hello
+</pre>
+
+You should see the program output
+<pre>
+Hello, x10 World!
+The answer is: true
+</pre>
+
+Note that the C++ backend makes use of the OpenMPI runtime that is installed on your
+system, so you can also enter the following command to run an x10 program
+<pre>
+mpirun -np 1 Hello
+</pre>
+
+<p>
+At this point, you may want to compile the other sample programs from the "samples"
+directory.  Then you can begin creating your own programs.
+
+<h4>Compiler options</h4>
+Use "x10c -- -help" to get more detailed help on compiler options.
+<pre>
+$ x10c -- -help
+usage: x10c [options] <source-file>.x10 ...
+where [options] includes:
+  @<file>                  read options from <file>
+  -d <directory>           output directory
+  -assert                  recognize the assert keyword
+  -sourcepath <path>       source path
+  -bootclasspath <path>    path for bootstrap class files
+  -ext <extension>         use language extension
+  -extclass <ext-class>    use language extension
+  -commandlineonly         only compile files named on the command-line (may
+                           also require -c)
+  -preferclassfiles        prefer class files to source files even if the
+                           source is newer
+  -fqcn                    use fully-qualified class names
+  -sx <ext>                set source extension
+  -ox <ext>                set output extension
+  -errors <num>            set the maximum number of errors
+  -w <num>                 set the maximum width of the .java output files
+  -dump <pass>             dump the ast after pass <pass>
+  -print <pass>            pretty-print the ast after pass <pass>
+  -disable <pass>          disable pass <pass>
+  -noserial                disable class serialization
+  -nooutput                delete output files after compilation
+  -c                       compile only to .java
+  -post <compiler>         run javac-like compiler after translation
+  -debugpositions          generate position information for
+                           compiler-generated code
+  -simpleoutput            use SimpleCodeWriter
+  -v -verbose              print verbose debugging information
+  -report <topic>=<level>  print verbose debugging information about topic
+                           at specified verbosity
+        Allowed topics: imports, jl, x10, serialize, types, frontend, time,
+        resolver, cfg, visit, clock, dataflow, debug, errors, context,
+        loader, verbose, qq
+  -version                 print version info
+  -h                       print this message
+  -COMPILER_FRAGMENT_DATA_DIRECTORY=String
+                           Advanced functionality: Directory for compiler
+                           templates (default = "data/")
+  -OPTIMIZE=boolean        Generate optimized code (default = false)
+  -DEBUG=boolean           Generate debug information (default = false)
+  -NO_CHECKS=boolean       Disable generation of all null, bounds, and place
+                           checks (default = false)
+  -BAD_PLACE_RUNTIME_CHECK=boolean
+                           Generate runtime place checks (default = false)
+  -LOOP_OPTIMIZATIONS=boolean
+                           Generate specialized Java version of for-loop X10
+                           code (default = true)
+  -ARRAY_OPTIMIZATIONS=boolean
+                           Generate allocation of specialized Java array
+                           classes (default = true)
+  -INLINE_OPTIMIZATIONS=boolean
+                           Perform inlining optimizations (default = false)
+  -CLOSURE_INLINING=boolean
+                           Perform closure literal inlining (default = true)
+  -PLUGINS=String          Comma-separated list of compiler plugins to run.
+                           (default = "")
+  -PLUGIN_COMPILER=String  Javac-like compiler to use to compile plugins
+                           (default = "")
+  -XML_PROCESSOR=String    External program to transform ASTs externalized
+                           as XML (default = "")
+  -EXTERNALIZE_ASTS=boolean
+                           Externalize ASTs to XML (default = false)
+  -MANIFEST=String         The path to the pre-built library manifest file
+                           (default = null)
+</pre>                           
+
+
+<h4>Possible errors</h4>
+<p>
+If you see an error like this
+<pre>
+0; xlupc transport: can't get network address associated with 	listner socket: Device not configured
+Abort trap
+</pre>
+This means that your ip address is being used by another program and the pgas library cannot
+access the ip address using gethostbyname(). Check your /etc/hostconfig file does not contain
+a HOSTNAME and /etc/hosts is configured properly
+
+<P>
+To speed up C++ compilation, use the -commandlineonly flag to make the compiler
+only generate C++ code for the exact files specified on the command line.
+</p>
+
+<h4>Make your own commands</h4>
+You might want to make your own scripts or aliases so that you don't have to remember the exact
+syntax for java and C++. If you create scripts make sure that they are excutable.  
+If you place them in ~/bin then you should add this to your PATH in your .bash_profile.
+For example
+<h5>makejava shell script</h5>
+<pre>
+makejava
+	x10c $1.x10
+</pre>
+
+<h5>runjava shell script</h5>
+<pre>
+runjava
+	x10 $1
+</pre>
+
+<h5>makecpp shell script</h5>
+<pre>
+makecpp
+	x10c++ -MAIN_CLASS=$1 $1.x10
+</pre>
+
+<h5>runcpp shell script</h5>
+<pre>
+runcpp
+	runx10 -MAIN_CLASS=$1 $1.x10
+</pre>
+or use the mpirun systax mentioned above
+
+<h2>Comments</h2>
+Comments and suggestions are welcome. 
+Please send email to 
+<a href="mailto:cals@us.ibm.com">Cal Swart (cals@us.ibm.com)</a>
+
+</body>
+
+</html>

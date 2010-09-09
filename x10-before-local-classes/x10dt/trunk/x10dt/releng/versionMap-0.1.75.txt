@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<version pluginID="org.eclipse.imp.x10dt"
+         versionID="0.1.75">
+    <file path="/org.eclipse.imp.x10dt/META-INF/MANIFEST.MF"
+          version="1.49"/>
+    <file path="/org.eclipse.imp.x10dt/plugin.xml"
+          version="1.1"/>
+    <file path="/org.eclipse.imp.x10dt/src/org/eclipse/imp/x10dt/Activator.java"
+          version="1.4"/>
+</version>

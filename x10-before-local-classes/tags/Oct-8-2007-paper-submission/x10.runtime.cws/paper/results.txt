@@ -1,0 +1,38 @@
+
+-------- Original Message --------
+Subject: 	DFS traversal number on altair
+Date: 	Thu, 16 Aug 2007 16:15:05 -0400
+From: 	Guojing Cong <gcong@us.ibm.com>
+To: 	Vijay Saraswat <vijay@saraswat.org>
+CC: 	Sriram Krishnamoorthy <sriramkr@us.ibm.com>, Tong Wen <tongwen@us.ibm.com>
+
+
+
+Hi Vijay,
+
+
+CILK numbers, 16 processors:
+1M 0.388035
+2M  0.887880
+3M  1.208113
+4M  1.646906 s 
+========================
+8/10
+ Vijay,
+>
+> After second thought, for a fair comparison, I believe we should use the following numbers for the C impl.
+> Since for the last batch of numbers that I sent you are for an implementation that tolerates races.  It is proven to be correct under sequential consistency, and it probably can also be proved on certain relaxed consistency models.  But then it is too much for the programmer, memory barriers might have to be inserted.
+>
+> The following numbers are achieved using the compare and swap instruction for synchronization on moxie. They are slightly worse that those I sent last time.
+>
+> 1M 0.094987
+> 2M 0.209143
+> 3M 0.328513
+> 4M  0.440869
+> 5M  0.559464
+>
+> I still think the java numbers are pretty good for a potential runtime system.  
+> The synchronization in the C impl takes problem knowledge into consideration and that is not something that can easily go into a runtime system.  For example,  the heuristic exploits the fact that the algorithm knows how many vertices are there, and when it goes out to steal work, it may avoid certain conditions and overhead.  In addition, the heuristic may work well for this problem, and may screw up for other problems.
+>
+> Regards
+> Guojing 

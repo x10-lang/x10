@@ -1,0 +1,6 @@
+*.backup
+*.backup2
+*.l
+*.local
+*.txt
+tmp

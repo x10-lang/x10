@@ -1,0 +1,34 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;;
+
+/**
+ * Array Initializer test.
+ */
+public class ArrayInitializer extends x10Test {
+
+	public def run(): boolean = {
+		var e: region{rank==1} = [0..9];
+		var r: region = [e, e, e];
+		//TODO: next line causes runtime error
+		//dist d=r->here;
+		final val d: dist = Dist.makeConstant([0..9, 0..9, 0..9], here);
+
+		final val ia: Array[int]{distribution==d} = new Array[int](d, (var point [i,j,k]: point): int => {
+				return i;
+			});
+
+		for (val (i,j,k): point in d) chk(ia(i, j, k) == i);
+
+		return true;
+	}
+
+	public static def main(var args: Rail[String]): void = {
+		new ArrayInitializer().execute();
+	}
+}

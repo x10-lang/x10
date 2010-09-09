@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+   <extension
+         point="org.eclipse.imp.runtime.languageDescription">
+      <language
+            description="X10 Concurrent Programming Language"
+            extensions="x10"
+            language="X10"/>
+   </extension>
+   <extension
+         point="org.eclipse.imp.runtime.parser">
+      <parser
+            class="org.eclipse.imp.x10dt.ui.parser.ParseController"
+            language="X10"/>
+   </extension>
+   <extension
+         point="org.eclipse.imp.runtime.tokenColorer">
+      <tokenColorer
+            class="org.eclipse.imp.x10dt.ui.editor.MyTokenColorer"
+            language="X10"/>
+   </extension>
+   <extension
+         point="org.eclipse.debug.core.launchConfigurationTypes">
+      <launchConfigurationType
+            delegate="org.eclipse.imp.x10dt.ui.launching.X10LaunchConfigurationDelegate"
+            id="org.eclipse.imp.x10dt.ui.launching.X10LaunchConfigurationType"
+            modes="run,debug"
+            name="X10 Application"
+            public="true"
+            sourceLocatorId="org.eclipse.jdt.launching.sourceLocator.JavaSourceLookupDirector"
+            sourcePathComputerId="org.eclipse.jdt.launching.sourceLookup.javaSourcePathComputer"/>
+   </extension>
+   <extension
+         point="org.eclipse.debug.ui.launchConfigurationTypeImages">
+      <launchConfigurationTypeImage
+            configTypeID="org.eclipse.imp.x10dt.ui.launching.X10LaunchConfigurationType"
+            icon="icons/x10_application.gif"
+            id="org.eclipse.imp.x10dt.ui.launching.X10LaunchConfigurationTypeImage"/>
+   </extension>
+   <extension
+         point="org.eclipse.debug.ui.launchConfigurationTabGroups">
+      <launchConfigurationTabGroup
+            class="org.eclipse.imp.x10dt.ui.launching.X10LaunchConfigurationTabGroup"
+            id="org.eclipse.imp.x10dt.ui.launching.X10LaunchConfigurationTabGroup"
+            type="org.eclipse.imp.x10dt.ui.launching.X10LaunchConfigurationType"/>
+   </extension>
+   <extension
+         point="org.eclipse.debug.ui.launchShortcuts">
+      <shortcut
+            class="org.eclipse.imp.x10dt.ui.launching.X10LaunchShortcut"
+            icon="icons/x10_application.gif"
+            id="org.eclipse.imp.x10dt.ui.launching.x10LaunchShortcut"
+            label="X10 Application"
+            modes="run,debug">
+         <perspective id="org.eclipse.jdt.ui.JavaPerspective"/>
+         <perspective id="org.eclipse.debug.ui.DebugPerspective"/>
+         <contextualLaunch>
+            <enablement>
+               <with variable="selection">
+                  <count value="1"/>
+               </with>
+            </enablement>
+         </contextualLaunch>
+      </shortcut>
+   </extension>
+   <extension
+         point="org.eclipse.imp.runtime.autoEditStrategy">
+      <autoEditStrategy
+            class="org.eclipse.imp.x10dt.ui.editor.X10AutoIndentStrategy"
+            language="X10"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.bindings">
+      <key
+            commandId="org.eclipse.imp.x10dt.ui.launching.x10LaunchShortcut.debug"
+            contextId="org.eclipse.ui.globalScope"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M3+M2+D X"/>
+      <key
+            commandId="org.eclipse.imp.x10dt.ui.launching.x10LaunchShortcut.run"
+            contextId="org.eclipse.ui.globalScope"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M3+M2+X X"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            categoryId="org.eclipse.debug.ui.category.run"
+            description="Run the selected main type as an X10 application"
+            id="org.eclipse.imp.x10dt.ui.launching.x10LaunchShortcut.run"
+            name="Run X10 Application"/>
+      <command
+            categoryId="org.eclipse.debug.ui.category.run"
+            description="Run the selected main type as an X10 application"
+            id="org.eclipse.imp.x10dt.ui.launching.x10LaunchShortcut.debug"
+            name="Debug X10 Application"/>
+   </extension>
+   <extension
+         point="org.eclipse.imp.runtime.outliner">
+      <outliner
+            class="org.eclipse.imp.x10dt.ui.views.Outliner"
+            language="X10"/>
+   </extension>
+   <extension
+         point="org.eclipse.imp.runtime.foldingUpdater">
+      <foldingUpdater
+            class="org.eclipse.imp.x10dt.ui.editor.X10FoldingUpdater"
+            language="X10">
+      </foldingUpdater>
+   </extension>
+   <extension
+         point="org.eclipse.imp.runtime.contentProposer">
+      <proposer
+            class="org.eclipse.imp.x10dt.ui.contentProposer.X10ContentProposer"
+            language="X10">
+      </proposer>
+   </extension>
+   <extension
+         point="org.eclipse.imp.runtime.outlineContentProvider">
+         <outlineContentProvider
+         		class="org.eclipse.imp.x10dt.ui.editor.X10ContentProvider"
+         		language="X10"/>
+   </extension>
+   <extension
+         point="org.eclipse.imp.runtime.labelProvider">
+         <labelProvider
+               class="org.eclipse.imp.x10dt.ui.editor.X10LabelProvider"
+               language="X10"/>
+   </extension>
+   <extension
+         id="org.eclipse.imp.x10dt.ui.cheatSheets"
+         name="X10 Cheat Sheets"
+         point="org.eclipse.ui.cheatsheets.cheatSheetContent">
+      <category
+         name="X10"
+         id="org.eclipse.imp.x10dt">
+      </category>
+      <cheatsheet
+         name="Using the X10DT"
+         category="org.eclipse.imp.x10"
+         id="org.eclipse.imp.x10dt.ui.cheatSheets.using"
+         contentFile="cheatsheets/UsingX10DT.xml">
+         <description>
+           A brief introduction to using the X10 Development Toolkit.
+         </description>
+      </cheatsheet>
+   </extension>
+   <extension
+         point="org.eclipse.imp.runtime.referenceResolvers">
+         <referenceResolver
+             language="X10"
+             class="org.eclipse.imp.x10dt.ui.editor.X10ReferenceResolver"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="org.eclipse.imp.x10dt.ui.perspective.X10PerspectiveFactory"
+            icon="icons/x10perspective.gif"
+            id="org.eclipse.imp.x10dt.ui.perspective"
+            name="X10"/>
+   </extension>
+   <extension
+         point="org.eclipse.imp.runtime.refactoringContributions">
+      <refactoringContributor
+            class="org.eclipse.imp.x10dt.ui.refactoring.actions.RefactoringContributor"
+            language="X10">
+      </refactoringContributor>
+   </extension>
+   <extension
+         point="org.eclipse.imp.runtime.documentationProvider">
+         <docProvider
+             class="org.eclipse.imp.x10dt.ui.editor.X10DocProvider"
+             language="X10">
+         </docProvider>
+   </extension>
+</plugin>

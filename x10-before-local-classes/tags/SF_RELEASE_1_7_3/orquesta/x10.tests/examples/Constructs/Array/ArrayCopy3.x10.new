@@ -1,0 +1,165 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;;
+
+/**
+ * Test for arrays, regions and dists.
+ * Based on original arraycopy3 by vj.
+ *
+ * @author kemal 1/2005
+ */
+public class ArrayCopy3 extends x10Test {
+
+	/**
+	 * Returns true iff point x is not in the domain of
+	 * dist D
+	 */
+	static def outOfRange(val D: dist, val x: point): boolean = {
+		var gotException: boolean = false;
+		try {
+			async(D(x)) {}; // dummy op just to use D[x]
+		} catch (var e: Throwable) {
+			gotException = true;
+		}
+		return gotException;
+	}
+
+	/**
+	 * Does not throw an error iff A[i] == B[i] for all points i.
+	 */
+	public def arrayEqual(val A: Array[int], val B: Array[int]): void = {
+		final val D: dist = A.dist;
+		final val E: dist = B.dist;
+		// Spawn an activity for each index to
+		// fetch the B[i] value
+		// Then compare it to the A[i] value
+		finish
+			ateach (val p: point in D) chk(A(p) == future(E(p)){B(p)}.force());
+	}
+
+	/**
+	 * Set A[i] = B[i] for all points i.
+	 * A and B can have different dists whose
+	 * regions are equal.
+	 * Throws an error iff some assertion failed.
+	 */
+	public def arrayCopy(val A: Array[int], val B: Array[int]{rank==A.rank}): void = {
+		final val D: dist{rank==A.rank} = A.dist;
+		final val E: dist{rank==A.rank} = B.dist;
+		// Allows message aggregation
+
+		final val D_1: dist = distmakeUnique(D.places());
+		// number of times elems of A are accessed
+		final val accessed_a: Array[int] = new Array[int](D);
+		// number of times elems of B are accessed
+		final val accessed_b: Array[int] = new Array[int](E);
+
+		finish
+			ateach (val x: point in D_1) {
+				final val px: place = D_1(x);
+				chk(here == px);
+				final val LocalD: region{rank==A.rank} = (D | px).region;
+				for (val py: place in (E | LocalD).places()) {
+					final val RemoteE: region{rank==A.rank} = (E | py).region;
+					final val Common: region{rank==A.rank} = LocalD && RemoteE;
+					final val D_common: dist{rank==A.rank} = D | Common;
+					// the future's can be aggregated
+					for (val i: point in D_common) {
+						async(py) atomic accessed_b(i) += 1;
+						final val temp: int = future(py){B(i)}.force();
+						// the following may need to be bracketed in
+						// atomic, unless the disambiguator
+						// knows about dists
+						A(i) = temp;
+						atomic accessed_a(i) += 1;
+					}
+					// check if dist ops are working
+					final val D_notCommon: dist{rank==A.rank} = D - D_common;
+					chk((D_common || D_notCommon).equals(D));
+					final val E_common: dist{rank==A.rank} = E | Common;
+					final val E_notCommon: dist{rank==A.rank} = E - E_common;
+
+					chk((E_common || E_notCommon).equals(E));
+					for (val k: point in D_common) {
+						chk(D_common(k) == px);
+						chk(outOfRange(D_notCommon, k));
+						chk(E_common(k) == py);
+						chk(outOfRange(E_notCommon, k));
+						chk(D(k) == px && E(k) == py);
+					}
+
+					for (val k: point in D_notCommon) {
+						chk(outOfRange(D_common, k));
+						chk(!outOfRange(D_notCommon, k));
+						chk(outOfRange(E_common, k));
+						chk(!outOfRange(E_notCommon, k));
+						chk(!(D(k) == px && E(k) == py));
+					}
+				}
+			}
+		// ensure each A[i] was accessed exactly once
+		finish ateach (val i: point in D) chk(accessed_a(i) == 1);
+		// ensure each B[i] was accessed exactly once
+		finish ateach (val i: point in E) chk(accessed_b(i) == 1);
+	}
+
+	public const N: int = 3;
+
+	/**
+	 * For all combinations of dists of arrays B and A,
+	 * do an array copy from B to A, and verify.
+	 */
+	public def run(): boolean = {
+		final val R: region{rank==4} = [0..N-1, 0..N-1, 0..N-1, 0..N-1];
+		final val TestDists: region = [0..dist2.N_DIST_TYPES-1, 0..dist2.N_DIST_TYPES-1];
+
+		for (val distP: point[dX,dY] in TestDists) {
+			final val D: dist{rank==4} = dist2.getDist(dX, R);
+			final val E: dist{rank==4} = dist2.getDist(dY, R);
+			chk(D.region.equals(E.region) && D.region.equals(R));
+			final val A: Array[int]{rank==4} = new Array[int](D);
+			final val B: Array[int]{rank==A.rank} = (Array[int]{rank==A.rank})  new Array[int](E, (var p: point[i,j,k,l]): int => { var x: int = ((i*N+j)*N+k)*N+l; return x*x+1; });
+			arrayCopy(A, B);
+			arrayEqual(A, B);
+		}
+		return true;
+	}
+
+	public static def main(var args: Rail[String]): void = {
+		new ArrayCopy3().execute();
+	}
+
+	/**
+	 * utility for creating a dist from a
+	 * a dist type int value and a region
+	 */
+	static class dist2 {
+		public const BLOCK: int = 0;
+		public const CYCLIC: int = 1;
+		public const BLOCKCYCLIC: int = 2;
+		public const CONSTANT: int = 3;
+		public const RANDOM: int = 4;
+		public const ARBITRARY: int = 5;
+		public const N_DIST_TYPES: int = 6;
+
+		/**
+		 * Return a dist with region r, of type disttype
+		 */
+		public static def getDist(var distType: int, val r: region): dist{rank==r.rank} = {
+			switch(distType) {
+				case BLOCK:case BLOCK: return (dist{rank==r.rank})) distmakeBlock(r);
+				case CYCLIC:case CYCLIC: return (dist{rank==r.rank}))dist.factory.cyclic(r);
+				case BLOCKCYCLIC:case BLOCKCYCLIC: return (dist{rank==r.rank}))distmakeBlockCyclic(r, 3);
+				case CONSTANT:case CONSTANT: return (dist{rank==r.rank})) r->here;
+				case RANDOM:case RANDOM: return (dist{rank==r.rank})) dist.factory.random(r);
+				case ARBITRARY:case ARBITRARY: return (dist{rank==r.rank})) dist.factory.arbitrary(r);
+				default:default: throw new Error();
+			}
+		}
+	}
+}

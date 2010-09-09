@@ -1,0 +1,15 @@
+1) Dependencies
+
+In order to compile this plugin, you need PTP.
+You can take the plugins listed in the MANIFEST from 
+  :pserver:anonymous@dev.eclipse.org:/cvsroot/tools 
+under "org.eclipse.ptp" folder.
+(However, you should get the ptp_3_0 branch since HEAD is now ptp 4.0 which requires Helios/3.6 and CDT 7.0)
+In such case, you will also need to take the CDT dependencies from the same repository under "org.eclipse.cdt" folder.
+
+Better recommendation:
+Another alternative is to install PTP on your target platform. For that you will need to install the latest version of PTP 
+(I recommend at least 3.0.1 from http://wiki.eclipse.org/PTP/builds/3.0.1) and follow the instructions at the next 
+following page: http://wiki.eclipse.org/PTP/release_notes/3.0 You don't really need to install RDT.
+
+Eclipse 3.5 is recommended.

@@ -1,0 +1,6 @@
+PagePackage=org.eclipse.imp.x10dt.core.preferences.generated
+PageClassNameBase=X10Preferences
+PageName=X10Preferences
+PageId=org.eclipse.imp.x10dt.core.preferences.generated
+PageMenuItem=X10 pref menu
+AlternativeMessage=Message omitted.

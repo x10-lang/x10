@@ -1,0 +1,82 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import x10.lang.Object;
+import harness.x10Test;;
+
+/**
+* Building arrays distributed accross places using the encapsulation approach 
+* (1D array of 2D arrays).
+* @author Tong
+  11/29/2006
+*/
+public class EncapsulatedArray1D extends x10Test /*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import x10.lang.Object;
+import harness.x10Test;
+
+/**
+* Building arrays distributed accross places using the encapsulation approach 
+* (1D array of 2D arrays).
+* @author Tong
+  11/29/2006
+*/
+public class EncapsulatedArray1D extends x10Test {
+	
+	static value Wrapper{.{.{*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import x10.lang.Object;
+import harness.x10Test;
+
+/**
+* Building arrays distributed accross places using the encapsulation approach 
+* (1D array of 2D arrays).
+* @author Tong
+  11/29/2006
+*/
+public class EncapsulatedArray1D extends x10Test {
+	
+	static value Wrapper{
+		var m_array: Array[double];
+		def this(var a_array: Array[double]): Wrapper = {
+			m_array=a_array;
+		}
+	}
+	
+        public def run(): boolean = {
+        	final val size: int = 5;
+        	final val R: region = [0..size-1, 0..size-1];
+        	final val D: dist = distmakeUnique(); 
+        	final val numOfPlaces: int = place.MAX_PLACES;
+        	
+        	final val A: Array[Wrapper] = new Array[Wrapper](D);
+        	finish ateach (val (i): point in D) A(i)=new Wrapper(new Array[double](R));
+        		
+        	//for (int i=0;i<numOfPlaces;i++){	
+        	finish ateach (val (i): point in D) { 
+        		final val temp: Array[double] = A(i).m_array;
+        		for (val p: point in temp) temp(p)=i;
+        	}
+    	
+	    return true;
+	}
+	
+	public static def main(var args: Rail[String]): void = {
+		new EncapsulatedArray1D().execute();
+	}
+
+}

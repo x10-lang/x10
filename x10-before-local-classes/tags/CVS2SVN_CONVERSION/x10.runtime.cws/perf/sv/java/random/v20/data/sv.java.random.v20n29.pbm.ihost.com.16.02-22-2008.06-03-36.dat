@@ -1,0 +1,1711 @@
+############################################################
+# Benchmark Host: v20n29.pbm.ihost.com
+# Number Of Processors: 16
+#
+# Number Of Scheduled Runs: 3
+# Start Time: 02/22/2008 - 06:03:36
+############################################################
+#
+# Run: 1
+#
+
+## Size: 250000
+
+### nproc: 1
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 1 E 250000
+Number of procs=1
+graphType=E
+N=250000
+N=250000 t=794179309 ns 1.259 GE/s
+N=250000 t=555390583 ns 1.801 GE/s
+N=250000 t=1377704162 ns 0.726 GE/s
+N=250000 t=591141744 ns 1.692 GE/s
+N=250000 t=1443111987 ns 0.693 GE/s
+N=250000 t=831529059 ns 1.203 GE/s
+N=250000 t=501872279 ns 1.993 GE/s
+N=250000 t=511888064 ns 1.954 GE/s
+N=250000 t=500086039 ns 2.000 GE/s
+N=250000 t=491036021 ns 2.037 GE/s
+Completed iterations for N=250000
+
+### nproc: 2
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 2 E 250000
+Number of procs=2
+graphType=E
+N=250000
+N=250000 t=514912215 ns 1.942 GE/s
+N=250000 t=257726063 ns 3.880 GE/s
+N=250000 t=1294515668 ns 0.772 GE/s
+N=250000 t=463085135 ns 2.159 GE/s
+N=250000 t=949534485 ns 1.053 GE/s
+N=250000 t=241959172 ns 4.133 GE/s
+N=250000 t=235206913 ns 4.252 GE/s
+N=250000 t=233067327 ns 4.291 GE/s
+N=250000 t=237108828 ns 4.217 GE/s
+N=250000 t=269715073 ns 3.708 GE/s
+Completed iterations for N=250000
+
+### nproc: 4
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 4 E 250000
+Number of procs=4
+graphType=E
+N=250000
+N=250000 t=381664415 ns 2.620 GE/s
+N=250000 t=473506536 ns 2.112 GE/s
+N=250000 t=1478517880 ns 0.676 GE/s
+N=250000 t=987355720 ns 1.013 GE/s
+N=250000 t=840149307 ns 1.190 GE/s
+N=250000 t=119909952 ns 8.340 GE/s
+N=250000 t=115745179 ns 8.640 GE/s
+N=250000 t=111454734 ns 8.972 GE/s
+N=250000 t=124306647 ns 8.045 GE/s
+N=250000 t=122078561 ns 8.191 GE/s
+Completed iterations for N=250000
+
+### nproc: 6
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 6 E 250000
+Number of procs=6
+graphType=E
+N=250000
+N=250000 t=342803653 ns 2.917 GE/s
+N=250000 t=980648638 ns 1.020 GE/s
+N=250000 t=732249566 ns 1.366 GE/s
+N=250000 t=822409023 ns 1.216 GE/s
+N=250000 t=77492643 ns 12.904 GE/s
+N=250000 t=77305525 ns 12.936 GE/s
+N=250000 t=144751687 ns 6.908 GE/s
+N=250000 t=122527079 ns 8.161 GE/s
+N=250000 t=119978073 ns 8.335 GE/s
+N=250000 t=124141804 ns 8.055 GE/s
+Completed iterations for N=250000
+
+### nproc: 8
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 8 E 250000
+Number of procs=8
+graphType=E
+N=250000
+N=250000 t=323944897 ns 3.087 GE/s
+N=250000 t=82638939 ns 12.101 GE/s
+N=250000 t=1619910785 ns 0.617 GE/s
+N=250000 t=732281890 ns 1.366 GE/s
+N=250000 t=777730345 ns 1.286 GE/s
+N=250000 t=636112146 ns 1.572 GE/s
+N=250000 t=65710792 ns 15.218 GE/s
+N=250000 t=62102376 ns 16.102 GE/s
+N=250000 t=61300220 ns 16.313 GE/s
+N=250000 t=64644537 ns 15.469 GE/s
+Completed iterations for N=250000
+
+### nproc: 10
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 10 E 250000
+Number of procs=10
+graphType=E
+N=250000
+N=250000 t=309615893 ns 3.230 GE/s
+N=250000 t=953730581 ns 1.049 GE/s
+N=250000 t=762401805 ns 1.312 GE/s
+N=250000 t=752851059 ns 1.328 GE/s
+N=250000 t=63153277 ns 15.834 GE/s
+N=250000 t=50290160 ns 19.885 GE/s
+N=250000 t=54380539 ns 18.389 GE/s
+N=250000 t=57062254 ns 17.525 GE/s
+N=250000 t=54911660 ns 18.211 GE/s
+N=250000 t=69643868 ns 14.359 GE/s
+Completed iterations for N=250000
+
+### nproc: 12
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 12 E 250000
+Number of procs=12
+graphType=E
+N=250000
+N=250000 t=307969594 ns 3.247 GE/s
+N=250000 t=1472224491 ns 0.679 GE/s
+N=250000 t=794010617 ns 1.259 GE/s
+N=250000 t=40223431 ns 24.861 GE/s
+N=250000 t=49615507 ns 20.155 GE/s
+N=250000 t=39423029 ns 25.366 GE/s
+N=250000 t=42109521 ns 23.748 GE/s
+N=250000 t=48784351 ns 20.498 GE/s
+N=250000 t=39597501 ns 25.254 GE/s
+N=250000 t=52659873 ns 18.990 GE/s
+Completed iterations for N=250000
+
+### nproc: 14
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 14 E 250000
+Number of procs=14
+graphType=E
+N=250000
+N=250000 t=432560130 ns 2.312 GE/s
+N=250000 t=1553540929 ns 0.644 GE/s
+N=250000 t=729033262 ns 1.372 GE/s
+N=250000 t=772282030 ns 1.295 GE/s
+N=250000 t=46828876 ns 21.354 GE/s
+N=250000 t=45058435 ns 22.193 GE/s
+N=250000 t=35973561 ns 27.798 GE/s
+N=250000 t=37337078 ns 26.783 GE/s
+N=250000 t=43385263 ns 23.049 GE/s
+N=250000 t=40255207 ns 24.842 GE/s
+Completed iterations for N=250000
+
+### nproc: 16
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 16 E 250000
+Number of procs=16
+graphType=E
+N=250000
+N=250000 t=405957304 ns 2.463 GE/s
+N=250000 t=1427537388 ns 0.701 GE/s
+N=250000 t=768575781 ns 1.301 GE/s
+N=250000 t=43816018 ns 22.823 GE/s
+N=250000 t=37252153 ns 26.844 GE/s
+N=250000 t=1065318205 ns 0.939 GE/s
+N=250000 t=47696571 ns 20.966 GE/s
+N=250000 t=34999234 ns 28.572 GE/s
+N=250000 t=40746012 ns 24.542 GE/s
+N=250000 t=39452009 ns 25.347 GE/s
+Completed iterations for N=250000
+
+## Size: 1000000
+
+### nproc: 1
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 1 E 1000000
+Number of procs=1
+graphType=E
+N=1000000
+N=1000000 t=3288454895 ns -0.090 GE/s
+N=1000000 t=3825925603 ns -0.077 GE/s
+N=1000000 t=4038983100 ns -0.073 GE/s
+N=1000000 t=3472105097 ns -0.085 GE/s
+N=1000000 t=2727934331 ns -0.108 GE/s
+N=1000000 t=2850799257 ns -0.103 GE/s
+N=1000000 t=2728816611 ns -0.108 GE/s
+N=1000000 t=2736807114 ns -0.108 GE/s
+N=1000000 t=2793295897 ns -0.106 GE/s
+N=1000000 t=2726698602 ns -0.108 GE/s
+Completed iterations for N=1000000
+
+### nproc: 2
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 2 E 1000000
+Number of procs=2
+graphType=E
+N=1000000
+N=1000000 t=2410315388 ns -0.122 GE/s
+N=1000000 t=2755481463 ns -0.107 GE/s
+N=1000000 t=1921954255 ns -0.153 GE/s
+N=1000000 t=2117624424 ns -0.139 GE/s
+N=1000000 t=1530021198 ns -0.193 GE/s
+N=1000000 t=1598095532 ns -0.185 GE/s
+N=1000000 t=1384307796 ns -0.213 GE/s
+N=1000000 t=1392889747 ns -0.212 GE/s
+N=1000000 t=1844877600 ns -0.160 GE/s
+N=1000000 t=1685985973 ns -0.175 GE/s
+Completed iterations for N=1000000
+
+### nproc: 4
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 4 E 1000000
+Number of procs=4
+graphType=E
+N=1000000
+N=1000000 t=1063959593 ns -0.277 GE/s
+N=1000000 t=2987139355 ns -0.099 GE/s
+N=1000000 t=2520382828 ns -0.117 GE/s
+N=1000000 t=1472130212 ns -0.200 GE/s
+N=1000000 t=1080497094 ns -0.273 GE/s
+N=1000000 t=736833221 ns -0.400 GE/s
+N=1000000 t=1016393994 ns -0.290 GE/s
+N=1000000 t=724392817 ns -0.407 GE/s
+N=1000000 t=1025651873 ns -0.288 GE/s
+N=1000000 t=725845486 ns -0.406 GE/s
+Completed iterations for N=1000000
+
+### nproc: 6
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 6 E 1000000
+Number of procs=6
+graphType=E
+N=1000000
+N=1000000 t=1170445750 ns -0.252 GE/s
+N=1000000 t=3396810921 ns -0.087 GE/s
+N=1000000 t=2566652995 ns -0.115 GE/s
+N=1000000 t=1258621862 ns -0.234 GE/s
+N=1000000 t=994676449 ns -0.297 GE/s
+N=1000000 t=916576711 ns -0.322 GE/s
+N=1000000 t=759045295 ns -0.389 GE/s
+N=1000000 t=780598464 ns -0.378 GE/s
+N=1000000 t=474565316 ns -0.622 GE/s
+N=1000000 t=1251439483 ns -0.236 GE/s
+Completed iterations for N=1000000
+
+### nproc: 8
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 8 E 1000000
+Number of procs=8
+graphType=E
+N=1000000
+N=1000000 t=659944299 ns -0.447 GE/s
+N=1000000 t=3702851475 ns -0.080 GE/s
+N=1000000 t=2846651931 ns -0.104 GE/s
+N=1000000 t=1644828174 ns -0.179 GE/s
+N=1000000 t=971788805 ns -0.304 GE/s
+N=1000000 t=356289541 ns -0.828 GE/s
+N=1000000 t=367514195 ns -0.803 GE/s
+N=1000000 t=934558018 ns -0.316 GE/s
+N=1000000 t=909743425 ns -0.324 GE/s
+N=1000000 t=340564167 ns -0.866 GE/s
+Completed iterations for N=1000000
+
+### nproc: 10
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 10 E 1000000
+Number of procs=10
+graphType=E
+N=1000000
+N=1000000 t=684645963 ns -0.431 GE/s
+N=1000000 t=5011221138 ns -0.059 GE/s
+N=1000000 t=2581447908 ns -0.114 GE/s
+N=1000000 t=1175567272 ns -0.251 GE/s
+N=1000000 t=1773624820 ns -0.166 GE/s
+N=1000000 t=308590090 ns -0.956 GE/s
+N=1000000 t=322450591 ns -0.915 GE/s
+N=1000000 t=325391870 ns -0.906 GE/s
+N=1000000 t=1578292014 ns -0.187 GE/s
+N=1000000 t=310316880 ns -0.951 GE/s
+Completed iterations for N=1000000
+
+### nproc: 12
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 12 E 1000000
+Number of procs=12
+graphType=E
+N=1000000
+N=1000000 t=540952598 ns -0.545 GE/s
+N=1000000 t=3330017073 ns -0.089 GE/s
+N=1000000 t=2502623558 ns -0.118 GE/s
+N=1000000 t=1819059507 ns -0.162 GE/s
+N=1000000 t=1134509304 ns -0.260 GE/s
+N=1000000 t=265516395 ns -1.111 GE/s
+N=1000000 t=265637223 ns -1.110 GE/s
+N=1000000 t=1038450621 ns -0.284 GE/s
+N=1000000 t=1120601946 ns -0.263 GE/s
+N=1000000 t=451439727 ns -0.653 GE/s
+Completed iterations for N=1000000
+
+### nproc: 14
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 14 E 1000000
+Number of procs=14
+graphType=E
+N=1000000
+N=1000000 t=556848081 ns -0.530 GE/s
+N=1000000 t=3208145400 ns -0.092 GE/s
+N=1000000 t=3355252792 ns -0.088 GE/s
+N=1000000 t=956626716 ns -0.308 GE/s
+N=1000000 t=1199296187 ns -0.246 GE/s
+N=1000000 t=221270395 ns -1.333 GE/s
+N=1000000 t=1198219459 ns -0.246 GE/s
+N=1000000 t=220312207 ns -1.339 GE/s
+N=1000000 t=1144045560 ns -0.258 GE/s
+N=1000000 t=227373945 ns -1.297 GE/s
+Completed iterations for N=1000000
+
+### nproc: 16
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 16 E 1000000
+Number of procs=16
+graphType=E
+N=1000000
+N=1000000 t=1439611898 ns -0.205 GE/s
+N=1000000 t=2495317188 ns -0.118 GE/s
+N=1000000 t=2074230496 ns -0.142 GE/s
+N=1000000 t=210297465 ns -1.403 GE/s
+N=1000000 t=1310039083 ns -0.225 GE/s
+N=1000000 t=193215136 ns -1.527 GE/s
+N=1000000 t=1270717008 ns -0.232 GE/s
+N=1000000 t=249326029 ns -1.183 GE/s
+N=1000000 t=1326444349 ns -0.222 GE/s
+N=1000000 t=260947588 ns -1.130 GE/s
+Completed iterations for N=1000000
+
+## Size: 4000000
+
+### nproc: 1
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 1 E 4000000
+Number of procs=1
+graphType=E
+N=4000000
+N=4000000 t=23838602093 ns -0.049 GE/s
+N=4000000 t=23980017140 ns -0.049 GE/s
+N=4000000 t=22712635191 ns -0.052 GE/s
+N=4000000 t=22294486570 ns -0.053 GE/s
+N=4000000 t=21964332636 ns -0.054 GE/s
+N=4000000 t=21892101349 ns -0.054 GE/s
+N=4000000 t=21361279110 ns -0.055 GE/s
+N=4000000 t=22057539507 ns -0.053 GE/s
+N=4000000 t=21698130868 ns -0.054 GE/s
+N=4000000 t=21469750152 ns -0.055 GE/s
+Completed iterations for N=4000000
+
+### nproc: 2
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 2 E 4000000
+Number of procs=2
+graphType=E
+N=4000000
+N=4000000 t=10276069791 ns -0.115 GE/s
+N=4000000 t=13819453460 ns -0.085 GE/s
+N=4000000 t=10537670892 ns -0.112 GE/s
+N=4000000 t=9785634594 ns -0.121 GE/s
+N=4000000 t=9855383534 ns -0.120 GE/s
+N=4000000 t=9747148967 ns -0.121 GE/s
+N=4000000 t=9484834348 ns -0.124 GE/s
+N=4000000 t=9653022965 ns -0.122 GE/s
+N=4000000 t=9428684483 ns -0.125 GE/s
+N=4000000 t=9457628272 ns -0.125 GE/s
+Completed iterations for N=4000000
+
+### nproc: 4
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 4 E 4000000
+Number of procs=4
+graphType=E
+N=4000000
+N=4000000 t=6230325424 ns -0.189 GE/s
+N=4000000 t=12344241285 ns -0.096 GE/s
+N=4000000 t=10931238076 ns -0.108 GE/s
+N=4000000 t=6792783013 ns -0.174 GE/s
+N=4000000 t=6007021283 ns -0.196 GE/s
+N=4000000 t=6097002965 ns -0.194 GE/s
+N=4000000 t=5829778988 ns -0.202 GE/s
+N=4000000 t=5909240763 ns -0.200 GE/s
+N=4000000 t=5756769373 ns -0.205 GE/s
+N=4000000 t=5890257550 ns -0.200 GE/s
+Completed iterations for N=4000000
+
+### nproc: 6
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 6 E 4000000
+Number of procs=6
+graphType=E
+N=4000000
+N=4000000 t=4362084011 ns -0.270 GE/s
+N=4000000 t=12723709765 ns -0.093 GE/s
+N=4000000 t=12583062961 ns -0.094 GE/s
+N=4000000 t=6037534385 ns -0.195 GE/s
+N=4000000 t=5041199856 ns -0.234 GE/s
+N=4000000 t=4389481031 ns -0.269 GE/s
+N=4000000 t=4050844556 ns -0.291 GE/s
+N=4000000 t=4059414083 ns -0.291 GE/s
+N=4000000 t=3591427723 ns -0.329 GE/s
+N=4000000 t=4116339866 ns -0.287 GE/s
+Completed iterations for N=4000000
+
+### nproc: 8
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 8 E 4000000
+Number of procs=8
+graphType=E
+N=4000000
+N=4000000 t=3118365200 ns -0.378 GE/s
+N=4000000 t=15099953140 ns -0.078 GE/s
+N=4000000 t=13452303236 ns -0.088 GE/s
+N=4000000 t=3772038322 ns -0.313 GE/s
+N=4000000 t=4101184936 ns -0.288 GE/s
+N=4000000 t=3090099806 ns -0.382 GE/s
+N=4000000 t=3482974760 ns -0.339 GE/s
+N=4000000 t=3739356775 ns -0.316 GE/s
+N=4000000 t=3103268296 ns -0.380 GE/s
+N=4000000 t=3294370975 ns -0.358 GE/s
+Completed iterations for N=4000000
+
+### nproc: 10
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 10 E 4000000
+Number of procs=10
+graphType=E
+N=4000000
+N=4000000 t=2946942991 ns -0.400 GE/s
+N=4000000 t=14995519327 ns -0.079 GE/s
+N=4000000 t=13081291241 ns -0.090 GE/s
+N=4000000 t=5048386529 ns -0.234 GE/s
+N=4000000 t=4771341940 ns -0.247 GE/s
+N=4000000 t=3506688103 ns -0.336 GE/s
+N=4000000 t=2746587191 ns -0.430 GE/s
+N=4000000 t=3272102514 ns -0.361 GE/s
+N=4000000 t=2788267081 ns -0.423 GE/s
+N=4000000 t=2670110317 ns -0.442 GE/s
+Completed iterations for N=4000000
+
+### nproc: 12
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 12 E 4000000
+Number of procs=12
+graphType=E
+N=4000000
+N=4000000 t=3678508193 ns -0.321 GE/s
+N=4000000 t=13402240296 ns -0.088 GE/s
+N=4000000 t=4439863993 ns -0.266 GE/s
+N=4000000 t=3479044063 ns -0.339 GE/s
+N=4000000 t=2670615363 ns -0.442 GE/s
+N=4000000 t=3554096117 ns -0.332 GE/s
+N=4000000 t=3187032500 ns -0.370 GE/s
+N=4000000 t=2970864241 ns -0.397 GE/s
+N=4000000 t=3697591162 ns -0.319 GE/s
+N=4000000 t=2727550957 ns -0.433 GE/s
+Completed iterations for N=4000000
+
+### nproc: 14
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 14 E 4000000
+Number of procs=14
+graphType=E
+N=4000000
+N=4000000 t=2134511634 ns -0.553 GE/s
+N=4000000 t=13898780763 ns -0.085 GE/s
+N=4000000 t=13333714248 ns -0.088 GE/s
+N=4000000 t=4313927298 ns -0.274 GE/s
+N=4000000 t=3511265845 ns -0.336 GE/s
+N=4000000 t=3644195010 ns -0.324 GE/s
+N=4000000 t=2688560689 ns -0.439 GE/s
+N=4000000 t=3580643132 ns -0.330 GE/s
+N=4000000 t=2678601635 ns -0.440 GE/s
+N=4000000 t=2909044244 ns -0.406 GE/s
+Completed iterations for N=4000000
+
+### nproc: 16
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 16 E 4000000
+Number of procs=16
+graphType=E
+N=4000000
+N=4000000 t=3057047250 ns -0.386 GE/s
+N=4000000 t=12417009090 ns -0.095 GE/s
+N=4000000 t=4425969978 ns -0.267 GE/s
+N=4000000 t=4903731144 ns -0.241 GE/s
+N=4000000 t=4744299009 ns -0.249 GE/s
+N=4000000 t=4276334841 ns -0.276 GE/s
+N=4000000 t=2662745486 ns -0.443 GE/s
+N=4000000 t=3691029207 ns -0.320 GE/s
+N=4000000 t=2563972147 ns -0.460 GE/s
+N=4000000 t=2655352435 ns -0.444 GE/s
+Completed iterations for N=4000000
+
+## Size: 9000000
+
+### nproc: 1
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 1 E 9000000
+Number of procs=1
+graphType=E
+N=9000000
+N=9000000 t=87384955832 ns 0.019 GE/s
+N=9000000 t=80421213268 ns 0.020 GE/s
+N=9000000 t=81778804763 ns 0.020 GE/s
+N=9000000 t=77591695624 ns 0.021 GE/s
+N=9000000 t=77486954251 ns 0.021 GE/s
+N=9000000 t=77427743952 ns 0.021 GE/s
+N=9000000 t=73948844692 ns 0.022 GE/s
+N=9000000 t=74167768423 ns 0.022 GE/s
+N=9000000 t=72689350592 ns 0.023 GE/s
+N=9000000 t=71413685012 ns 0.023 GE/s
+Completed iterations for N=9000000
+
+### nproc: 2
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 2 E 9000000
+Number of procs=2
+graphType=E
+N=9000000
+N=9000000 t=43600018175 ns 0.038 GE/s
+N=9000000 t=41797594590 ns 0.039 GE/s
+N=9000000 t=45415436993 ns 0.036 GE/s
+N=9000000 t=49048361044 ns 0.033 GE/s
+N=9000000 t=37390226131 ns 0.044 GE/s
+N=9000000 t=45272964311 ns 0.036 GE/s
+N=9000000 t=41028252911 ns 0.040 GE/s
+N=9000000 t=36316631511 ns 0.045 GE/s
+N=9000000 t=34968916669 ns 0.047 GE/s
+N=9000000 t=39228917531 ns 0.042 GE/s
+Completed iterations for N=9000000
+
+### nproc: 4
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 4 E 9000000
+Number of procs=4
+graphType=E
+N=9000000
+N=9000000 t=28058450717 ns 0.058 GE/s
+N=9000000 t=33500926440 ns 0.049 GE/s
+N=9000000 t=21885837864 ns 0.075 GE/s
+N=9000000 t=19207565698 ns 0.085 GE/s
+N=9000000 t=19546955555 ns 0.084 GE/s
+N=9000000 t=21527783514 ns 0.076 GE/s
+N=9000000 t=18953851867 ns 0.087 GE/s
+N=9000000 t=18931411547 ns 0.087 GE/s
+N=9000000 t=18699150699 ns 0.088 GE/s
+N=9000000 t=18403976224 ns 0.089 GE/s
+Completed iterations for N=9000000
+
+### nproc: 6
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 6 E 9000000
+Number of procs=6
+graphType=E
+N=9000000
+N=9000000 t=14461058284 ns 0.113 GE/s
+N=9000000 t=32455760515 ns 0.051 GE/s
+N=9000000 t=31141015314 ns 0.053 GE/s
+N=9000000 t=14789578039 ns 0.111 GE/s
+N=9000000 t=21775622140 ns 0.075 GE/s
+N=9000000 t=14033141147 ns 0.117 GE/s
+N=9000000 t=13839656078 ns 0.119 GE/s
+N=9000000 t=13256367345 ns 0.124 GE/s
+N=9000000 t=13400399420 ns 0.122 GE/s
+N=9000000 t=12842206673 ns 0.128 GE/s
+Completed iterations for N=9000000
+
+### nproc: 8
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 8 E 9000000
+Number of procs=8
+graphType=E
+N=9000000
+N=9000000 t=11024099339 ns 0.149 GE/s
+N=9000000 t=38024302946 ns 0.043 GE/s
+N=9000000 t=33499233895 ns 0.049 GE/s
+N=9000000 t=12089589745 ns 0.136 GE/s
+N=9000000 t=11856516517 ns 0.138 GE/s
+N=9000000 t=11660153681 ns 0.141 GE/s
+N=9000000 t=11153018439 ns 0.147 GE/s
+N=9000000 t=11035855799 ns 0.149 GE/s
+N=9000000 t=10288319951 ns 0.159 GE/s
+N=9000000 t=10051067696 ns 0.163 GE/s
+Completed iterations for N=9000000
+
+### nproc: 10
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 10 E 9000000
+Number of procs=10
+graphType=E
+N=9000000
+N=9000000 t=9284981048 ns 0.177 GE/s
+N=9000000 t=40541227813 ns 0.040 GE/s
+N=9000000 t=32340274908 ns 0.051 GE/s
+N=9000000 t=10897056874 ns 0.151 GE/s
+N=9000000 t=9912751973 ns 0.165 GE/s
+N=9000000 t=9436218602 ns 0.174 GE/s
+N=9000000 t=9979600235 ns 0.164 GE/s
+N=9000000 t=9894976934 ns 0.166 GE/s
+N=9000000 t=7507264212 ns 0.218 GE/s
+N=9000000 t=9083717748 ns 0.181 GE/s
+Completed iterations for N=9000000
+
+### nproc: 12
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 12 E 9000000
+Number of procs=12
+graphType=E
+N=9000000
+N=9000000 t=8470807750 ns 0.194 GE/s
+N=9000000 t=27699824451 ns 0.059 GE/s
+N=9000000 t=29940876985 ns 0.055 GE/s
+N=9000000 t=10828059222 ns 0.151 GE/s
+N=9000000 t=9237744293 ns 0.178 GE/s
+N=9000000 t=15911347261 ns 0.103 GE/s
+N=9000000 t=8909643381 ns 0.184 GE/s
+N=9000000 t=8711279644 ns 0.188 GE/s
+N=9000000 t=9122000762 ns 0.180 GE/s
+N=9000000 t=7873508030 ns 0.208 GE/s
+Completed iterations for N=9000000
+
+### nproc: 14
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 14 E 9000000
+Number of procs=14
+graphType=E
+N=9000000
+N=9000000 t=7269321041 ns 0.226 GE/s
+N=9000000 t=29096724099 ns 0.056 GE/s
+N=9000000 t=31140157875 ns 0.053 GE/s
+N=9000000 t=8907107822 ns 0.184 GE/s
+N=9000000 t=8836760162 ns 0.186 GE/s
+N=9000000 t=8213553896 ns 0.200 GE/s
+N=9000000 t=8285961977 ns 0.198 GE/s
+N=9000000 t=9014028100 ns 0.182 GE/s
+N=9000000 t=7478644524 ns 0.219 GE/s
+N=9000000 t=13780017897 ns 0.119 GE/s
+Completed iterations for N=9000000
+
+### nproc: 16
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 16 E 9000000
+Number of procs=16
+graphType=E
+N=9000000
+N=9000000 t=7569526233 ns 0.217 GE/s
+N=9000000 t=29150407055 ns 0.056 GE/s
+N=9000000 t=26010164865 ns 0.063 GE/s
+N=9000000 t=8905173134 ns 0.184 GE/s
+N=9000000 t=8046333928 ns 0.204 GE/s
+N=9000000 t=8114407572 ns 0.202 GE/s
+N=9000000 t=7803919513 ns 0.210 GE/s
+N=9000000 t=7803486540 ns 0.210 GE/s
+N=9000000 t=7156692112 ns 0.229 GE/s
+N=9000000 t=6897237903 ns 0.238 GE/s
+Completed iterations for N=9000000
+#
+# Run: 2
+#
+
+## Size: 250000
+
+### nproc: 1
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 1 E 250000
+Number of procs=1
+graphType=E
+N=250000
+N=250000 t=804794281 ns 1.243 GE/s
+N=250000 t=553372271 ns 1.807 GE/s
+N=250000 t=1416264006 ns 0.706 GE/s
+N=250000 t=538746580 ns 1.856 GE/s
+N=250000 t=1240958314 ns 0.806 GE/s
+N=250000 t=504541464 ns 1.982 GE/s
+N=250000 t=575247338 ns 1.738 GE/s
+N=250000 t=748567280 ns 1.336 GE/s
+N=250000 t=506290231 ns 1.975 GE/s
+N=250000 t=517806921 ns 1.931 GE/s
+Completed iterations for N=250000
+
+### nproc: 2
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 2 E 250000
+Number of procs=2
+graphType=E
+N=250000
+N=250000 t=519012471 ns 1.927 GE/s
+N=250000 t=257356232 ns 3.886 GE/s
+N=250000 t=1279920989 ns 0.781 GE/s
+N=250000 t=474622232 ns 2.107 GE/s
+N=250000 t=953518204 ns 1.049 GE/s
+N=250000 t=227640520 ns 4.393 GE/s
+N=250000 t=223064752 ns 4.483 GE/s
+N=250000 t=229644891 ns 4.355 GE/s
+N=250000 t=235590047 ns 4.245 GE/s
+N=250000 t=276213184 ns 3.620 GE/s
+Completed iterations for N=250000
+
+### nproc: 4
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 4 E 250000
+Number of procs=4
+graphType=E
+N=250000
+N=250000 t=380682707 ns 2.627 GE/s
+N=250000 t=466386907 ns 2.144 GE/s
+N=250000 t=1396116621 ns 0.716 GE/s
+N=250000 t=956600113 ns 1.045 GE/s
+N=250000 t=798565585 ns 1.252 GE/s
+N=250000 t=113155128 ns 8.837 GE/s
+N=250000 t=118209024 ns 8.460 GE/s
+N=250000 t=102741496 ns 9.733 GE/s
+N=250000 t=122213954 ns 8.182 GE/s
+N=250000 t=120150342 ns 8.323 GE/s
+Completed iterations for N=250000
+
+### nproc: 6
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 6 E 250000
+Number of procs=6
+graphType=E
+N=250000
+N=250000 t=344612471 ns 2.902 GE/s
+N=250000 t=108419799 ns 9.223 GE/s
+N=250000 t=1593651401 ns 0.627 GE/s
+N=250000 t=751884321 ns 1.330 GE/s
+N=250000 t=772608869 ns 1.294 GE/s
+N=250000 t=88097551 ns 11.351 GE/s
+N=250000 t=72075974 ns 13.874 GE/s
+N=250000 t=69868674 ns 14.313 GE/s
+N=250000 t=580913292 ns 1.721 GE/s
+N=250000 t=160962381 ns 6.213 GE/s
+Completed iterations for N=250000
+
+### nproc: 8
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 8 E 250000
+Number of procs=8
+graphType=E
+N=250000
+N=250000 t=324350361 ns 3.083 GE/s
+N=250000 t=90807245 ns 11.012 GE/s
+N=250000 t=1529340334 ns 0.654 GE/s
+N=250000 t=732942945 ns 1.364 GE/s
+N=250000 t=748670077 ns 1.336 GE/s
+N=250000 t=625546149 ns 1.599 GE/s
+N=250000 t=69307236 ns 14.429 GE/s
+N=250000 t=58189303 ns 17.185 GE/s
+N=250000 t=66641454 ns 15.006 GE/s
+N=250000 t=61619293 ns 16.229 GE/s
+Completed iterations for N=250000
+
+### nproc: 10
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 10 E 250000
+Number of procs=10
+graphType=E
+N=250000
+N=250000 t=306395114 ns 3.264 GE/s
+N=250000 t=1568297709 ns 0.638 GE/s
+N=250000 t=766227477 ns 1.305 GE/s
+N=250000 t=781059411 ns 1.280 GE/s
+N=250000 t=62798164 ns 15.924 GE/s
+N=250000 t=43315404 ns 23.086 GE/s
+N=250000 t=64438267 ns 15.519 GE/s
+N=250000 t=59571637 ns 16.787 GE/s
+N=250000 t=45146880 ns 22.150 GE/s
+N=250000 t=54677714 ns 18.289 GE/s
+Completed iterations for N=250000
+
+### nproc: 12
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 12 E 250000
+Number of procs=12
+graphType=E
+N=250000
+N=250000 t=301324182 ns 3.319 GE/s
+N=250000 t=121441750 ns 8.234 GE/s
+N=250000 t=2344232978 ns 0.427 GE/s
+N=250000 t=659698422 ns 1.516 GE/s
+N=250000 t=755458313 ns 1.324 GE/s
+N=250000 t=50432505 ns 19.828 GE/s
+N=250000 t=34875135 ns 28.674 GE/s
+N=250000 t=49741937 ns 20.104 GE/s
+N=250000 t=46823046 ns 21.357 GE/s
+N=250000 t=53219935 ns 18.790 GE/s
+Completed iterations for N=250000
+
+### nproc: 14
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 14 E 250000
+Number of procs=14
+graphType=E
+N=250000
+N=250000 t=289082670 ns 3.459 GE/s
+N=250000 t=118292797 ns 8.454 GE/s
+N=250000 t=1537553888 ns 0.650 GE/s
+N=250000 t=714743455 ns 1.399 GE/s
+N=250000 t=781716986 ns 1.279 GE/s
+N=250000 t=949998423 ns 1.053 GE/s
+N=250000 t=57133672 ns 17.503 GE/s
+N=250000 t=46033421 ns 21.723 GE/s
+N=250000 t=42665672 ns 23.438 GE/s
+N=250000 t=39933178 ns 25.042 GE/s
+Completed iterations for N=250000
+
+### nproc: 16
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 16 E 250000
+Number of procs=16
+graphType=E
+N=250000
+N=250000 t=397023280 ns 2.519 GE/s
+N=250000 t=140329508 ns 7.126 GE/s
+N=250000 t=1425207998 ns 0.702 GE/s
+N=250000 t=596093896 ns 1.678 GE/s
+N=250000 t=754111049 ns 1.326 GE/s
+N=250000 t=1071226021 ns 0.934 GE/s
+N=250000 t=38161896 ns 26.204 GE/s
+N=250000 t=48141210 ns 20.772 GE/s
+N=250000 t=39958696 ns 25.026 GE/s
+N=250000 t=38799034 ns 25.774 GE/s
+Completed iterations for N=250000
+
+## Size: 1000000
+
+### nproc: 1
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 1 E 1000000
+Number of procs=1
+graphType=E
+N=1000000
+N=1000000 t=3297110275 ns -0.089 GE/s
+N=1000000 t=3798660196 ns -0.078 GE/s
+N=1000000 t=3115722034 ns -0.095 GE/s
+N=1000000 t=3463454683 ns -0.085 GE/s
+N=1000000 t=2736009720 ns -0.108 GE/s
+N=1000000 t=2861683237 ns -0.103 GE/s
+N=1000000 t=2719899383 ns -0.108 GE/s
+N=1000000 t=2739026078 ns -0.108 GE/s
+N=1000000 t=2801989123 ns -0.105 GE/s
+N=1000000 t=2738431130 ns -0.108 GE/s
+Completed iterations for N=1000000
+
+### nproc: 2
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 2 E 1000000
+Number of procs=2
+graphType=E
+N=1000000
+N=1000000 t=2077852779 ns -0.142 GE/s
+N=1000000 t=2771762160 ns -0.106 GE/s
+N=1000000 t=2182590867 ns -0.135 GE/s
+N=1000000 t=2144181525 ns -0.138 GE/s
+N=1000000 t=1641311118 ns -0.180 GE/s
+N=1000000 t=1452614821 ns -0.203 GE/s
+N=1000000 t=1589131246 ns -0.186 GE/s
+N=1000000 t=1449626606 ns -0.203 GE/s
+N=1000000 t=1579058401 ns -0.187 GE/s
+N=1000000 t=1443941814 ns -0.204 GE/s
+Completed iterations for N=1000000
+
+### nproc: 4
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 4 E 1000000
+Number of procs=4
+graphType=E
+N=1000000
+N=1000000 t=1065555777 ns -0.277 GE/s
+N=1000000 t=3024203994 ns -0.098 GE/s
+N=1000000 t=2551366819 ns -0.116 GE/s
+N=1000000 t=1453152747 ns -0.203 GE/s
+N=1000000 t=1192017018 ns -0.247 GE/s
+N=1000000 t=731343362 ns -0.403 GE/s
+N=1000000 t=1003885360 ns -0.294 GE/s
+N=1000000 t=723239561 ns -0.408 GE/s
+N=1000000 t=1063985309 ns -0.277 GE/s
+N=1000000 t=780765621 ns -0.378 GE/s
+Completed iterations for N=1000000
+
+### nproc: 6
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 6 E 1000000
+Number of procs=6
+graphType=E
+N=1000000
+N=1000000 t=843471398 ns -0.350 GE/s
+N=1000000 t=3368347257 ns -0.088 GE/s
+N=1000000 t=3009251224 ns -0.098 GE/s
+N=1000000 t=1497197756 ns -0.197 GE/s
+N=1000000 t=1879720642 ns -0.157 GE/s
+N=1000000 t=471826315 ns -0.625 GE/s
+N=1000000 t=860824350 ns -0.343 GE/s
+N=1000000 t=473691468 ns -0.623 GE/s
+N=1000000 t=866433191 ns -0.340 GE/s
+N=1000000 t=490158808 ns -0.602 GE/s
+Completed iterations for N=1000000
+
+### nproc: 8
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 8 E 1000000
+Number of procs=8
+graphType=E
+N=1000000
+N=1000000 t=657333692 ns -0.449 GE/s
+N=1000000 t=3661379934 ns -0.081 GE/s
+N=1000000 t=2819310437 ns -0.105 GE/s
+N=1000000 t=1647693929 ns -0.179 GE/s
+N=1000000 t=985126704 ns -0.299 GE/s
+N=1000000 t=348277659 ns -0.847 GE/s
+N=1000000 t=349655364 ns -0.844 GE/s
+N=1000000 t=863892333 ns -0.341 GE/s
+N=1000000 t=944958528 ns -0.312 GE/s
+N=1000000 t=340831775 ns -0.865 GE/s
+Completed iterations for N=1000000
+
+### nproc: 10
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 10 E 1000000
+Number of procs=10
+graphType=E
+N=1000000
+N=1000000 t=654632078 ns -0.451 GE/s
+N=1000000 t=5009323199 ns -0.059 GE/s
+N=1000000 t=2595244419 ns -0.114 GE/s
+N=1000000 t=1102442974 ns -0.268 GE/s
+N=1000000 t=1090544690 ns -0.270 GE/s
+N=1000000 t=1123743081 ns -0.262 GE/s
+N=1000000 t=306386394 ns -0.963 GE/s
+N=1000000 t=341959706 ns -0.863 GE/s
+N=1000000 t=1032484980 ns -0.286 GE/s
+N=1000000 t=968977569 ns -0.304 GE/s
+Completed iterations for N=1000000
+
+### nproc: 12
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 12 E 1000000
+Number of procs=12
+graphType=E
+N=1000000
+N=1000000 t=539003853 ns -0.547 GE/s
+N=1000000 t=3411186694 ns -0.086 GE/s
+N=1000000 t=3342785507 ns -0.088 GE/s
+N=1000000 t=983368611 ns -0.300 GE/s
+N=1000000 t=1118808145 ns -0.264 GE/s
+N=1000000 t=261619453 ns -1.127 GE/s
+N=1000000 t=1059572437 ns -0.278 GE/s
+N=1000000 t=322703317 ns -0.914 GE/s
+N=1000000 t=1098137315 ns -0.269 GE/s
+N=1000000 t=262887013 ns -1.122 GE/s
+Completed iterations for N=1000000
+
+### nproc: 14
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 14 E 1000000
+Number of procs=14
+graphType=E
+N=1000000
+N=1000000 t=562826075 ns -0.524 GE/s
+N=1000000 t=3229394929 ns -0.091 GE/s
+N=1000000 t=2505475643 ns -0.118 GE/s
+N=1000000 t=958747119 ns -0.308 GE/s
+N=1000000 t=1182950360 ns -0.249 GE/s
+N=1000000 t=1223531735 ns -0.241 GE/s
+N=1000000 t=293258046 ns -1.006 GE/s
+N=1000000 t=220705580 ns -1.336 GE/s
+N=1000000 t=1189592975 ns -0.248 GE/s
+N=1000000 t=1158469700 ns -0.255 GE/s
+Completed iterations for N=1000000
+
+### nproc: 16
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 16 E 1000000
+Number of procs=16
+graphType=E
+N=1000000
+N=1000000 t=733105719 ns -0.402 GE/s
+N=1000000 t=3310290462 ns -0.089 GE/s
+N=1000000 t=3594416245 ns -0.082 GE/s
+N=1000000 t=960481240 ns -0.307 GE/s
+N=1000000 t=1304274151 ns -0.226 GE/s
+N=1000000 t=282532782 ns -1.044 GE/s
+N=1000000 t=1302744326 ns -0.226 GE/s
+N=1000000 t=222916211 ns -1.323 GE/s
+N=1000000 t=1241885519 ns -0.238 GE/s
+N=1000000 t=280820989 ns -1.050 GE/s
+Completed iterations for N=1000000
+
+## Size: 4000000
+
+### nproc: 1
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 1 E 4000000
+Number of procs=1
+graphType=E
+N=4000000
+N=4000000 t=24232291821 ns -0.049 GE/s
+N=4000000 t=24390723384 ns -0.048 GE/s
+N=4000000 t=23307977043 ns -0.051 GE/s
+N=4000000 t=22672334059 ns -0.052 GE/s
+N=4000000 t=21847920388 ns -0.054 GE/s
+N=4000000 t=21407372119 ns -0.055 GE/s
+N=4000000 t=21791015045 ns -0.054 GE/s
+N=4000000 t=21832475008 ns -0.054 GE/s
+N=4000000 t=21544861196 ns -0.055 GE/s
+N=4000000 t=21953142026 ns -0.054 GE/s
+Completed iterations for N=4000000
+
+### nproc: 2
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 2 E 4000000
+Number of procs=2
+graphType=E
+N=4000000
+N=4000000 t=10058822113 ns -0.117 GE/s
+N=4000000 t=12099806168 ns -0.098 GE/s
+N=4000000 t=10819315724 ns -0.109 GE/s
+N=4000000 t=10315693639 ns -0.114 GE/s
+N=4000000 t=9562770231 ns -0.123 GE/s
+N=4000000 t=9588342113 ns -0.123 GE/s
+N=4000000 t=9499369103 ns -0.124 GE/s
+N=4000000 t=9542937544 ns -0.124 GE/s
+N=4000000 t=9387040845 ns -0.126 GE/s
+N=4000000 t=9503456332 ns -0.124 GE/s
+Completed iterations for N=4000000
+
+### nproc: 4
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 4 E 4000000
+Number of procs=4
+graphType=E
+N=4000000
+N=4000000 t=6364014507 ns -0.185 GE/s
+N=4000000 t=12098621479 ns -0.098 GE/s
+N=4000000 t=6860489241 ns -0.172 GE/s
+N=4000000 t=6129433141 ns -0.192 GE/s
+N=4000000 t=6066051087 ns -0.195 GE/s
+N=4000000 t=6163973014 ns -0.191 GE/s
+N=4000000 t=6089014006 ns -0.194 GE/s
+N=4000000 t=6122966112 ns -0.193 GE/s
+N=4000000 t=6043125076 ns -0.195 GE/s
+N=4000000 t=6134479831 ns -0.192 GE/s
+Completed iterations for N=4000000
+
+### nproc: 6
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 6 E 4000000
+Number of procs=6
+graphType=E
+N=4000000
+N=4000000 t=4313459634 ns -0.274 GE/s
+N=4000000 t=14269180915 ns -0.083 GE/s
+N=4000000 t=11639264225 ns -0.101 GE/s
+N=4000000 t=5718986305 ns -0.206 GE/s
+N=4000000 t=5068710522 ns -0.233 GE/s
+N=4000000 t=4468601320 ns -0.264 GE/s
+N=4000000 t=4066544639 ns -0.290 GE/s
+N=4000000 t=4151157446 ns -0.284 GE/s
+N=4000000 t=4088853444 ns -0.289 GE/s
+N=4000000 t=4102987315 ns -0.288 GE/s
+Completed iterations for N=4000000
+
+### nproc: 8
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 8 E 4000000
+Number of procs=8
+graphType=E
+N=4000000
+N=4000000 t=3551232848 ns -0.332 GE/s
+N=4000000 t=14221981337 ns -0.083 GE/s
+N=4000000 t=12724566481 ns -0.093 GE/s
+N=4000000 t=4467026562 ns -0.264 GE/s
+N=4000000 t=3028377869 ns -0.390 GE/s
+N=4000000 t=3225561101 ns -0.366 GE/s
+N=4000000 t=4038240814 ns -0.292 GE/s
+N=4000000 t=3456131456 ns -0.341 GE/s
+N=4000000 t=3600964004 ns -0.328 GE/s
+N=4000000 t=4040970435 ns -0.292 GE/s
+Completed iterations for N=4000000
+
+### nproc: 10
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 10 E 4000000
+Number of procs=10
+graphType=E
+N=4000000
+N=4000000 t=2584937498 ns -0.456 GE/s
+N=4000000 t=14401528589 ns -0.082 GE/s
+N=4000000 t=11981401166 ns -0.098 GE/s
+N=4000000 t=4874757264 ns -0.242 GE/s
+N=4000000 t=4319956740 ns -0.273 GE/s
+N=4000000 t=3428071478 ns -0.344 GE/s
+N=4000000 t=2975983942 ns -0.396 GE/s
+N=4000000 t=3377779169 ns -0.349 GE/s
+N=4000000 t=2673638522 ns -0.441 GE/s
+N=4000000 t=2709047692 ns -0.436 GE/s
+Completed iterations for N=4000000
+
+### nproc: 12
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 12 E 4000000
+Number of procs=12
+graphType=E
+N=4000000
+N=4000000 t=2220152958 ns -0.531 GE/s
+N=4000000 t=12842676945 ns -0.092 GE/s
+N=4000000 t=12245656403 ns -0.096 GE/s
+N=4000000 t=3602519827 ns -0.328 GE/s
+N=4000000 t=3459699877 ns -0.341 GE/s
+N=4000000 t=2451238959 ns -0.481 GE/s
+N=4000000 t=2577866857 ns -0.458 GE/s
+N=4000000 t=3403336969 ns -0.347 GE/s
+N=4000000 t=2680160015 ns -0.440 GE/s
+N=4000000 t=2754356266 ns -0.428 GE/s
+Completed iterations for N=4000000
+
+### nproc: 14
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 14 E 4000000
+Number of procs=14
+graphType=E
+N=4000000
+N=4000000 t=2254147136 ns -0.523 GE/s
+N=4000000 t=12629427647 ns -0.093 GE/s
+N=4000000 t=5405514511 ns -0.218 GE/s
+N=4000000 t=2752702329 ns -0.429 GE/s
+N=4000000 t=3818195974 ns -0.309 GE/s
+N=4000000 t=2780315190 ns -0.424 GE/s
+N=4000000 t=2750468303 ns -0.429 GE/s
+N=4000000 t=3602808565 ns -0.327 GE/s
+N=4000000 t=2747279341 ns -0.429 GE/s
+N=4000000 t=2763807131 ns -0.427 GE/s
+Completed iterations for N=4000000
+
+### nproc: 16
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 16 E 4000000
+Number of procs=16
+graphType=E
+N=4000000
+N=4000000 t=3361659919 ns -0.351 GE/s
+N=4000000 t=11921457447 ns -0.099 GE/s
+N=4000000 t=4485978705 ns -0.263 GE/s
+N=4000000 t=3678268456 ns -0.321 GE/s
+N=4000000 t=3694441994 ns -0.319 GE/s
+N=4000000 t=3736801183 ns -0.316 GE/s
+N=4000000 t=4538787741 ns -0.260 GE/s
+N=4000000 t=5144516576 ns -0.229 GE/s
+N=4000000 t=4685764490 ns -0.252 GE/s
+N=4000000 t=4292011920 ns -0.275 GE/s
+Completed iterations for N=4000000
+
+## Size: 9000000
+
+### nproc: 1
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 1 E 9000000
+Number of procs=1
+graphType=E
+N=9000000
+N=9000000 t=81623179179 ns 0.020 GE/s
+N=9000000 t=87021141076 ns 0.019 GE/s
+N=9000000 t=78723039129 ns 0.021 GE/s
+N=9000000 t=74672867089 ns 0.022 GE/s
+N=9000000 t=75550328901 ns 0.022 GE/s
+N=9000000 t=74320828106 ns 0.022 GE/s
+N=9000000 t=73910064980 ns 0.022 GE/s
+N=9000000 t=73417374865 ns 0.022 GE/s
+N=9000000 t=71100148054 ns 0.023 GE/s
+N=9000000 t=72092818651 ns 0.023 GE/s
+Completed iterations for N=9000000
+
+### nproc: 2
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 2 E 9000000
+Number of procs=2
+graphType=E
+N=9000000
+N=9000000 t=39643372379 ns 0.041 GE/s
+N=9000000 t=54826511301 ns 0.030 GE/s
+N=9000000 t=40660995483 ns 0.040 GE/s
+N=9000000 t=39722141269 ns 0.041 GE/s
+N=9000000 t=35660140100 ns 0.046 GE/s
+N=9000000 t=54742372460 ns 0.030 GE/s
+N=9000000 t=36526424093 ns 0.045 GE/s
+N=9000000 t=40020180368 ns 0.041 GE/s
+N=9000000 t=35347876716 ns 0.046 GE/s
+N=9000000 t=39517714968 ns 0.042 GE/s
+Completed iterations for N=9000000
+
+### nproc: 4
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 4 E 9000000
+Number of procs=4
+graphType=E
+N=9000000
+N=9000000 t=20312578078 ns 0.081 GE/s
+N=9000000 t=33324011722 ns 0.049 GE/s
+N=9000000 t=29514110666 ns 0.056 GE/s
+N=9000000 t=21953949582 ns 0.075 GE/s
+N=9000000 t=19366221891 ns 0.085 GE/s
+N=9000000 t=19493970747 ns 0.084 GE/s
+N=9000000 t=19714051100 ns 0.083 GE/s
+N=9000000 t=19042577997 ns 0.086 GE/s
+N=9000000 t=20514099675 ns 0.080 GE/s
+N=9000000 t=22385535777 ns 0.073 GE/s
+Completed iterations for N=9000000
+
+### nproc: 6
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 6 E 9000000
+Number of procs=6
+graphType=E
+N=9000000
+N=9000000 t=14030110291 ns 0.117 GE/s
+N=9000000 t=35080911533 ns 0.047 GE/s
+N=9000000 t=30767795586 ns 0.053 GE/s
+N=9000000 t=14655539929 ns 0.112 GE/s
+N=9000000 t=22936906936 ns 0.072 GE/s
+N=9000000 t=14132814942 ns 0.116 GE/s
+N=9000000 t=13732710636 ns 0.119 GE/s
+N=9000000 t=13674149374 ns 0.120 GE/s
+N=9000000 t=13429838126 ns 0.122 GE/s
+N=9000000 t=12874393381 ns 0.127 GE/s
+Completed iterations for N=9000000
+
+### nproc: 8
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 8 E 9000000
+Number of procs=8
+graphType=E
+N=9000000
+N=9000000 t=11297946373 ns 0.145 GE/s
+N=9000000 t=37556962007 ns 0.044 GE/s
+N=9000000 t=36785555057 ns 0.045 GE/s
+N=9000000 t=12660296494 ns 0.130 GE/s
+N=9000000 t=11757073152 ns 0.140 GE/s
+N=9000000 t=11804470305 ns 0.139 GE/s
+N=9000000 t=11309747388 ns 0.145 GE/s
+N=9000000 t=10431197639 ns 0.157 GE/s
+N=9000000 t=10220384564 ns 0.160 GE/s
+N=9000000 t=10188493026 ns 0.161 GE/s
+Completed iterations for N=9000000
+
+### nproc: 10
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 10 E 9000000
+Number of procs=10
+graphType=E
+N=9000000
+N=9000000 t=10986388161 ns 0.149 GE/s
+N=9000000 t=41238896742 ns 0.040 GE/s
+N=9000000 t=33826164402 ns 0.048 GE/s
+N=9000000 t=11372818336 ns 0.144 GE/s
+N=9000000 t=10132581480 ns 0.162 GE/s
+N=9000000 t=9728558355 ns 0.169 GE/s
+N=9000000 t=10026452766 ns 0.164 GE/s
+N=9000000 t=9302824994 ns 0.176 GE/s
+N=9000000 t=9243955567 ns 0.177 GE/s
+N=9000000 t=8981772814 ns 0.183 GE/s
+Completed iterations for N=9000000
+
+### nproc: 12
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 12 E 9000000
+Number of procs=12
+graphType=E
+N=9000000
+N=9000000 t=8648962986 ns 0.190 GE/s
+N=9000000 t=29376862684 ns 0.056 GE/s
+N=9000000 t=9959147389 ns 0.165 GE/s
+N=9000000 t=9333088454 ns 0.176 GE/s
+N=9000000 t=9625756175 ns 0.170 GE/s
+N=9000000 t=18263577614 ns 0.090 GE/s
+N=9000000 t=9002568546 ns 0.182 GE/s
+N=9000000 t=9254245844 ns 0.177 GE/s
+N=9000000 t=8048633042 ns 0.204 GE/s
+N=9000000 t=7925870373 ns 0.207 GE/s
+Completed iterations for N=9000000
+
+### nproc: 14
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 14 E 9000000
+Number of procs=14
+graphType=E
+N=9000000
+N=9000000 t=7659107990 ns 0.214 GE/s
+N=9000000 t=31928528277 ns 0.051 GE/s
+N=9000000 t=31977186707 ns 0.051 GE/s
+N=9000000 t=9825027512 ns 0.167 GE/s
+N=9000000 t=8819594435 ns 0.186 GE/s
+N=9000000 t=8786380796 ns 0.187 GE/s
+N=9000000 t=8953122098 ns 0.183 GE/s
+N=9000000 t=8951539706 ns 0.183 GE/s
+N=9000000 t=8599324485 ns 0.191 GE/s
+N=9000000 t=13649497295 ns 0.120 GE/s
+Completed iterations for N=9000000
+
+### nproc: 16
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 16 E 9000000
+Number of procs=16
+graphType=E
+N=9000000
+N=9000000 t=8206688053 ns 0.200 GE/s
+N=9000000 t=26160911807 ns 0.063 GE/s
+N=9000000 t=8983641012 ns 0.183 GE/s
+N=9000000 t=8434533981 ns 0.194 GE/s
+N=9000000 t=8057683738 ns 0.204 GE/s
+N=9000000 t=8283365380 ns 0.198 GE/s
+N=9000000 t=8182630948 ns 0.200 GE/s
+N=9000000 t=7883276326 ns 0.208 GE/s
+N=9000000 t=8845748384 ns 0.185 GE/s
+N=9000000 t=6801493792 ns 0.241 GE/s
+Completed iterations for N=9000000
+#
+# Run: 3
+#
+
+## Size: 250000
+
+### nproc: 1
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 1 E 250000
+Number of procs=1
+graphType=E
+N=250000
+N=250000 t=990344674 ns 1.010 GE/s
+N=250000 t=573418302 ns 1.744 GE/s
+N=250000 t=1381874768 ns 0.724 GE/s
+N=250000 t=550749862 ns 1.816 GE/s
+N=250000 t=1226195994 ns 0.816 GE/s
+N=250000 t=514997838 ns 1.942 GE/s
+N=250000 t=509446780 ns 1.963 GE/s
+N=250000 t=501456248 ns 1.994 GE/s
+N=250000 t=500911344 ns 1.996 GE/s
+N=250000 t=500838391 ns 1.997 GE/s
+Completed iterations for N=250000
+
+### nproc: 2
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 2 E 250000
+Number of procs=2
+graphType=E
+N=250000
+N=250000 t=514856152 ns 1.942 GE/s
+N=250000 t=411163510 ns 2.432 GE/s
+N=250000 t=1305145341 ns 0.766 GE/s
+N=250000 t=466940791 ns 2.142 GE/s
+N=250000 t=934854705 ns 1.070 GE/s
+N=250000 t=229638266 ns 4.355 GE/s
+N=250000 t=228099423 ns 4.384 GE/s
+N=250000 t=230382070 ns 4.341 GE/s
+N=250000 t=221057817 ns 4.524 GE/s
+N=250000 t=225804284 ns 4.429 GE/s
+Completed iterations for N=250000
+
+### nproc: 4
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 4 E 250000
+Number of procs=4
+graphType=E
+N=250000
+N=250000 t=381386096 ns 2.622 GE/s
+N=250000 t=470368005 ns 2.126 GE/s
+N=250000 t=1476098682 ns 0.677 GE/s
+N=250000 t=984866630 ns 1.015 GE/s
+N=250000 t=828145921 ns 1.208 GE/s
+N=250000 t=121462864 ns 8.233 GE/s
+N=250000 t=118077534 ns 8.469 GE/s
+N=250000 t=100482377 ns 9.952 GE/s
+N=250000 t=116665832 ns 8.571 GE/s
+N=250000 t=121698976 ns 8.217 GE/s
+Completed iterations for N=250000
+
+### nproc: 6
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 6 E 250000
+Number of procs=6
+graphType=E
+N=250000
+N=250000 t=350046140 ns 2.857 GE/s
+N=250000 t=978735560 ns 1.022 GE/s
+N=250000 t=655896997 ns 1.525 GE/s
+N=250000 t=822356788 ns 1.216 GE/s
+N=250000 t=72979289 ns 13.703 GE/s
+N=250000 t=68749033 ns 14.546 GE/s
+N=250000 t=526773714 ns 1.898 GE/s
+N=250000 t=133712604 ns 7.479 GE/s
+N=250000 t=119006490 ns 8.403 GE/s
+N=250000 t=125438386 ns 7.972 GE/s
+Completed iterations for N=250000
+
+### nproc: 8
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 8 E 250000
+Number of procs=8
+graphType=E
+N=250000
+N=250000 t=327904522 ns 3.050 GE/s
+N=250000 t=80177386 ns 12.472 GE/s
+N=250000 t=1569893439 ns 0.637 GE/s
+N=250000 t=735982275 ns 1.359 GE/s
+N=250000 t=755365326 ns 1.324 GE/s
+N=250000 t=625721920 ns 1.598 GE/s
+N=250000 t=68202762 ns 14.662 GE/s
+N=250000 t=46045677 ns 21.718 GE/s
+N=250000 t=57001868 ns 17.543 GE/s
+N=250000 t=58216902 ns 17.177 GE/s
+Completed iterations for N=250000
+
+### nproc: 10
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 10 E 250000
+Number of procs=10
+graphType=E
+N=250000
+N=250000 t=305732596 ns 3.271 GE/s
+N=250000 t=62214210 ns 16.073 GE/s
+N=250000 t=1481486776 ns 0.675 GE/s
+N=250000 t=763529198 ns 1.310 GE/s
+N=250000 t=752872006 ns 1.328 GE/s
+N=250000 t=55166935 ns 18.127 GE/s
+N=250000 t=57212532 ns 17.479 GE/s
+N=250000 t=53957641 ns 18.533 GE/s
+N=250000 t=62448530 ns 16.013 GE/s
+N=250000 t=41517287 ns 24.086 GE/s
+Completed iterations for N=250000
+
+### nproc: 12
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 12 E 250000
+Number of procs=12
+graphType=E
+N=250000
+N=250000 t=301436691 ns 3.317 GE/s
+N=250000 t=880882681 ns 1.135 GE/s
+N=250000 t=1488215851 ns 0.672 GE/s
+N=250000 t=659938701 ns 1.515 GE/s
+N=250000 t=778967029 ns 1.284 GE/s
+N=250000 t=53059781 ns 18.847 GE/s
+N=250000 t=46038948 ns 21.721 GE/s
+N=250000 t=40286929 ns 24.822 GE/s
+N=250000 t=51907766 ns 19.265 GE/s
+N=250000 t=40609770 ns 24.625 GE/s
+Completed iterations for N=250000
+
+### nproc: 14
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 14 E 250000
+Number of procs=14
+graphType=E
+N=250000
+N=250000 t=351520059 ns 2.845 GE/s
+N=250000 t=2454906932 ns 0.407 GE/s
+N=250000 t=713888560 ns 1.401 GE/s
+N=250000 t=782242736 ns 1.278 GE/s
+N=250000 t=41111470 ns 24.324 GE/s
+N=250000 t=46452867 ns 21.527 GE/s
+N=250000 t=38655414 ns 25.870 GE/s
+N=250000 t=40248923 ns 24.845 GE/s
+N=250000 t=36685627 ns 27.259 GE/s
+N=250000 t=40317781 ns 24.803 GE/s
+Completed iterations for N=250000
+
+### nproc: 16
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 16 E 250000
+Number of procs=16
+graphType=E
+N=250000
+N=250000 t=379516942 ns 2.635 GE/s
+N=250000 t=1476063058 ns 0.677 GE/s
+N=250000 t=585005119 ns 1.709 GE/s
+N=250000 t=1902212949 ns 0.526 GE/s
+N=250000 t=47906457 ns 20.874 GE/s
+N=250000 t=41812246 ns 23.916 GE/s
+N=250000 t=42087836 ns 23.760 GE/s
+N=250000 t=45300645 ns 22.075 GE/s
+N=250000 t=34742635 ns 28.783 GE/s
+N=250000 t=41395151 ns 24.157 GE/s
+Completed iterations for N=250000
+
+## Size: 1000000
+
+### nproc: 1
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 1 E 1000000
+Number of procs=1
+graphType=E
+N=1000000
+N=1000000 t=3310046330 ns -0.089 GE/s
+N=1000000 t=3740407315 ns -0.079 GE/s
+N=1000000 t=3146911744 ns -0.094 GE/s
+N=1000000 t=3508280078 ns -0.084 GE/s
+N=1000000 t=2755050216 ns -0.107 GE/s
+N=1000000 t=2894486612 ns -0.102 GE/s
+N=1000000 t=2757730488 ns -0.107 GE/s
+N=1000000 t=2754571499 ns -0.107 GE/s
+N=1000000 t=2833813570 ns -0.104 GE/s
+N=1000000 t=2761896989 ns -0.107 GE/s
+Completed iterations for N=1000000
+
+### nproc: 2
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 2 E 1000000
+Number of procs=2
+graphType=E
+N=1000000
+N=1000000 t=2112545358 ns -0.140 GE/s
+N=1000000 t=3791521994 ns -0.078 GE/s
+N=1000000 t=2139849322 ns -0.138 GE/s
+N=1000000 t=1612597757 ns -0.183 GE/s
+N=1000000 t=1635537451 ns -0.180 GE/s
+N=1000000 t=1434413284 ns -0.206 GE/s
+N=1000000 t=1451608903 ns -0.203 GE/s
+N=1000000 t=1541178682 ns -0.191 GE/s
+N=1000000 t=1596148894 ns -0.185 GE/s
+N=1000000 t=1416889271 ns -0.208 GE/s
+Completed iterations for N=1000000
+
+### nproc: 4
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 4 E 1000000
+Number of procs=4
+graphType=E
+N=1000000
+N=1000000 t=1091065732 ns -0.270 GE/s
+N=1000000 t=3074639162 ns -0.096 GE/s
+N=1000000 t=2592510406 ns -0.114 GE/s
+N=1000000 t=1456164752 ns -0.203 GE/s
+N=1000000 t=1083816725 ns -0.272 GE/s
+N=1000000 t=725710720 ns -0.406 GE/s
+N=1000000 t=1001375029 ns -0.295 GE/s
+N=1000000 t=728767081 ns -0.405 GE/s
+N=1000000 t=1046443252 ns -0.282 GE/s
+N=1000000 t=727352598 ns -0.406 GE/s
+Completed iterations for N=1000000
+
+### nproc: 6
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 6 E 1000000
+Number of procs=6
+graphType=E
+N=1000000
+N=1000000 t=782149160 ns -0.377 GE/s
+N=1000000 t=3380680049 ns -0.087 GE/s
+N=1000000 t=3039677572 ns -0.097 GE/s
+N=1000000 t=1521222480 ns -0.194 GE/s
+N=1000000 t=1867278324 ns -0.158 GE/s
+N=1000000 t=477955592 ns -0.617 GE/s
+N=1000000 t=903791190 ns -0.326 GE/s
+N=1000000 t=479115044 ns -0.616 GE/s
+N=1000000 t=856613442 ns -0.344 GE/s
+N=1000000 t=484166661 ns -0.609 GE/s
+Completed iterations for N=1000000
+
+### nproc: 8
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 8 E 1000000
+Number of procs=8
+graphType=E
+N=1000000
+N=1000000 t=826833578 ns -0.357 GE/s
+N=1000000 t=3658461485 ns -0.081 GE/s
+N=1000000 t=2837549598 ns -0.104 GE/s
+N=1000000 t=1638413359 ns -0.180 GE/s
+N=1000000 t=972213470 ns -0.303 GE/s
+N=1000000 t=341994990 ns -0.862 GE/s
+N=1000000 t=356981384 ns -0.826 GE/s
+N=1000000 t=863480425 ns -0.342 GE/s
+N=1000000 t=904522628 ns -0.326 GE/s
+N=1000000 t=345277748 ns -0.854 GE/s
+Completed iterations for N=1000000
+
+### nproc: 10
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 10 E 1000000
+Number of procs=10
+graphType=E
+N=1000000
+N=1000000 t=655631600 ns -0.450 GE/s
+N=1000000 t=4987360253 ns -0.059 GE/s
+N=1000000 t=1115745222 ns -0.264 GE/s
+N=1000000 t=307453725 ns -0.959 GE/s
+N=1000000 t=1703619797 ns -0.173 GE/s
+N=1000000 t=316450364 ns -0.932 GE/s
+N=1000000 t=314974150 ns -0.936 GE/s
+N=1000000 t=400232999 ns -0.737 GE/s
+N=1000000 t=2364528172 ns -0.125 GE/s
+N=1000000 t=312080138 ns -0.945 GE/s
+Completed iterations for N=1000000
+
+### nproc: 12
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 12 E 1000000
+Number of procs=12
+graphType=E
+N=1000000
+N=1000000 t=540494091 ns -0.546 GE/s
+N=1000000 t=3312343446 ns -0.089 GE/s
+N=1000000 t=2605807715 ns -0.113 GE/s
+N=1000000 t=1831927134 ns -0.161 GE/s
+N=1000000 t=1149242303 ns -0.257 GE/s
+N=1000000 t=255347580 ns -1.155 GE/s
+N=1000000 t=267907260 ns -1.101 GE/s
+N=1000000 t=1115455575 ns -0.264 GE/s
+N=1000000 t=1068239299 ns -0.276 GE/s
+N=1000000 t=435242387 ns -0.678 GE/s
+Completed iterations for N=1000000
+
+### nproc: 14
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 14 E 1000000
+Number of procs=14
+graphType=E
+N=1000000
+N=1000000 t=498748637 ns -0.591 GE/s
+N=1000000 t=3517963496 ns -0.084 GE/s
+N=1000000 t=3358683313 ns -0.088 GE/s
+N=1000000 t=1005513855 ns -0.293 GE/s
+N=1000000 t=1206914945 ns -0.244 GE/s
+N=1000000 t=310532946 ns -0.950 GE/s
+N=1000000 t=1135749386 ns -0.260 GE/s
+N=1000000 t=285389957 ns -1.034 GE/s
+N=1000000 t=1218976152 ns -0.242 GE/s
+N=1000000 t=224057956 ns -1.316 GE/s
+Completed iterations for N=1000000
+
+### nproc: 16
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 16 E 1000000
+Number of procs=16
+graphType=E
+N=1000000
+N=1000000 t=805887783 ns -0.366 GE/s
+N=1000000 t=3290910920 ns -0.090 GE/s
+N=1000000 t=2207766164 ns -0.134 GE/s
+N=1000000 t=1996057968 ns -0.148 GE/s
+N=1000000 t=1327231964 ns -0.222 GE/s
+N=1000000 t=199520126 ns -1.478 GE/s
+N=1000000 t=197521695 ns -1.493 GE/s
+N=1000000 t=1278649021 ns -0.231 GE/s
+N=1000000 t=1372644247 ns -0.215 GE/s
+N=1000000 t=218743056 ns -1.348 GE/s
+Completed iterations for N=1000000
+
+## Size: 4000000
+
+### nproc: 1
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 1 E 4000000
+Number of procs=1
+graphType=E
+N=4000000
+N=4000000 t=24567099886 ns -0.048 GE/s
+N=4000000 t=24535119612 ns -0.048 GE/s
+N=4000000 t=23274843253 ns -0.051 GE/s
+N=4000000 t=22433450633 ns -0.053 GE/s
+N=4000000 t=21488676028 ns -0.055 GE/s
+N=4000000 t=21397049867 ns -0.055 GE/s
+N=4000000 t=21648976585 ns -0.054 GE/s
+N=4000000 t=21661122451 ns -0.054 GE/s
+N=4000000 t=21400535979 ns -0.055 GE/s
+N=4000000 t=21773590237 ns -0.054 GE/s
+Completed iterations for N=4000000
+
+### nproc: 2
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 2 E 4000000
+Number of procs=2
+graphType=E
+N=4000000
+N=4000000 t=10224224902 ns -0.115 GE/s
+N=4000000 t=12350482456 ns -0.096 GE/s
+N=4000000 t=11037165344 ns -0.107 GE/s
+N=4000000 t=10490483020 ns -0.112 GE/s
+N=4000000 t=9678044050 ns -0.122 GE/s
+N=4000000 t=9723126018 ns -0.121 GE/s
+N=4000000 t=9559455622 ns -0.123 GE/s
+N=4000000 t=9812677984 ns -0.120 GE/s
+N=4000000 t=9445442061 ns -0.125 GE/s
+N=4000000 t=10830694060 ns -0.109 GE/s
+Completed iterations for N=4000000
+
+### nproc: 4
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 4 E 4000000
+Number of procs=4
+graphType=E
+N=4000000
+N=4000000 t=6435714257 ns -0.183 GE/s
+N=4000000 t=13121476753 ns -0.090 GE/s
+N=4000000 t=12146683170 ns -0.097 GE/s
+N=4000000 t=7450530334 ns -0.158 GE/s
+N=4000000 t=6044609804 ns -0.195 GE/s
+N=4000000 t=5994763089 ns -0.197 GE/s
+N=4000000 t=6065438259 ns -0.195 GE/s
+N=4000000 t=6000394373 ns -0.197 GE/s
+N=4000000 t=6008856561 ns -0.196 GE/s
+N=4000000 t=7411105194 ns -0.159 GE/s
+Completed iterations for N=4000000
+
+### nproc: 6
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 6 E 4000000
+Number of procs=6
+graphType=E
+N=4000000
+N=4000000 t=4289859887 ns -0.275 GE/s
+N=4000000 t=14460919038 ns -0.082 GE/s
+N=4000000 t=12819051617 ns -0.092 GE/s
+N=4000000 t=4851745941 ns -0.243 GE/s
+N=4000000 t=4557764570 ns -0.259 GE/s
+N=4000000 t=4119034797 ns -0.286 GE/s
+N=4000000 t=4161231296 ns -0.284 GE/s
+N=4000000 t=4777782416 ns -0.247 GE/s
+N=4000000 t=3984939664 ns -0.296 GE/s
+N=4000000 t=3821163515 ns -0.309 GE/s
+Completed iterations for N=4000000
+
+### nproc: 8
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 8 E 4000000
+Number of procs=8
+graphType=E
+N=4000000
+N=4000000 t=3572558014 ns -0.330 GE/s
+N=4000000 t=14391625593 ns -0.082 GE/s
+N=4000000 t=13803003588 ns -0.085 GE/s
+N=4000000 t=4825443837 ns -0.245 GE/s
+N=4000000 t=3651450499 ns -0.323 GE/s
+N=4000000 t=3537706341 ns -0.334 GE/s
+N=4000000 t=4176087498 ns -0.283 GE/s
+N=4000000 t=3479917385 ns -0.339 GE/s
+N=4000000 t=3590474394 ns -0.329 GE/s
+N=4000000 t=3828326580 ns -0.308 GE/s
+Completed iterations for N=4000000
+
+### nproc: 10
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 10 E 4000000
+Number of procs=10
+graphType=E
+N=4000000
+N=4000000 t=2524932551 ns -0.467 GE/s
+N=4000000 t=13683535330 ns -0.086 GE/s
+N=4000000 t=4527142703 ns -0.261 GE/s
+N=4000000 t=3855608836 ns -0.306 GE/s
+N=4000000 t=4321006507 ns -0.273 GE/s
+N=4000000 t=3490107381 ns -0.338 GE/s
+N=4000000 t=3113155990 ns -0.379 GE/s
+N=4000000 t=3554801937 ns -0.332 GE/s
+N=4000000 t=2775835055 ns -0.425 GE/s
+N=4000000 t=2861925359 ns -0.412 GE/s
+Completed iterations for N=4000000
+
+### nproc: 12
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 12 E 4000000
+Number of procs=12
+graphType=E
+N=4000000
+N=4000000 t=2631902327 ns -0.448 GE/s
+N=4000000 t=12599848859 ns -0.094 GE/s
+N=4000000 t=11402150321 ns -0.103 GE/s
+N=4000000 t=4191536971 ns -0.281 GE/s
+N=4000000 t=2694202922 ns -0.438 GE/s
+N=4000000 t=3374115300 ns -0.350 GE/s
+N=4000000 t=2910534120 ns -0.405 GE/s
+N=4000000 t=2504467054 ns -0.471 GE/s
+N=4000000 t=3957776355 ns -0.298 GE/s
+N=4000000 t=2778506797 ns -0.425 GE/s
+Completed iterations for N=4000000
+
+### nproc: 14
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 14 E 4000000
+Number of procs=14
+graphType=E
+N=4000000
+N=4000000 t=2285067541 ns -0.516 GE/s
+N=4000000 t=14015539928 ns -0.084 GE/s
+N=4000000 t=12512127377 ns -0.094 GE/s
+N=4000000 t=3281039318 ns -0.360 GE/s
+N=4000000 t=3454765521 ns -0.342 GE/s
+N=4000000 t=2540557072 ns -0.464 GE/s
+N=4000000 t=2677858861 ns -0.441 GE/s
+N=4000000 t=3661769171 ns -0.322 GE/s
+N=4000000 t=2541884934 ns -0.464 GE/s
+N=4000000 t=2746654960 ns -0.430 GE/s
+Completed iterations for N=4000000
+
+### nproc: 16
+java -d64 -Xdump:heap:none -Xdump:system:none -Xtrace:none -Xdisablejavadump -Xcheck:memory:quick -Xgcpolicy:gencon -Xjit:count=0 -cp ../../../../../xwsn.jar -Xmx8G SV 16 E 4000000
+Number of procs=16
+graphType=E
+N=4000000
+N=4000000 t=2300037590

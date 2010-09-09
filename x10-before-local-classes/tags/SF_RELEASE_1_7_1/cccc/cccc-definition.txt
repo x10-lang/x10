@@ -1,0 +1,90 @@
+**** CCCC model snapshot ****
+
+NOTATION:
+
+G = (S,-->) is a set of nodes S and a binary (directed) relation --> on
+   the nodes. Nodes are of type:
+     e ranges over read and write events,
+     r over read events and
+     w over write events.
+G is a partial order if --> is transitive and irreflexive.
+G is a total order if --> is a partial order and for any two
+     distinct nodes a and b in S, either a --> b or b --> a.
+G | T is graph G restricted to subset T; that is, the graph with nodes
+     in T and with a --> b in T iff a --> b in S.
+G* is the transitive closure of graph G.
+'u' is set union
+
+p(e) is the processor which executed event e,
+E(p) is the set of events executed by processor p.
+W(x) is the set of all write events on variable x
+W    is the set of all write events (across all variables)
+E    is the set of all evets (across all variables)
+w(S) is set S together with all elements of W with an edge into or out of S.
+b(S) is set S together with all elements of E with an edge into or out of S.
+
+RULES:
+
+An execution is a graph G=(S, -->) over a set of events S satisfying:
+
+[Write Serialization]
+  For each variable x, G | W(x) is a total order, with minimal
+  element w0 setting x to 0.
+
+[Freshness]
+  For every read r of x, min(W(x)) --> r and G | (W(x) u {r}) is a
+  total order.
+
+[Causal Propagation]
+  e --> e'' if there is an e' in E(p(e)) u E(p(e'')) st e --> e' --> e'' .
+
+[Local Consistency]
+  For all processors i, (G | (E(i) u W))* is a partial order (i.e., is acyclic)
+  Additionally, volatiles obey local program order:
+    For all processors p, G | E(p) is a total order.
+
+===============================================================
+CCCC with world maps
+
+A world map is a partial map from variables to non-negative integers. Each event 
+e is decorated with a world map, m(e), recording the last version of the variable
+seen by the event.
+
+World maps are partially ordered by: f1 <= f2 if dom(f1) is contained in dom(f2)
+and for each x in dom(f1) f1(x) <= f2(x).
+
+The rules above are extended to deal with world maps.
+
+[Write Serialization]
+  For each variable x, G | W(x) is a total order, with minimal
+  element w0 setting x to 0. For every event w in G | W(x), x in dom(m(w)), 
+  and m(w)(x)=i, where w's rank in the total order is i.
+
+[Freshness]
+  For every read r of x, min(W(x)) --> r and G | (W(x) u {r}) is a
+  total order, x in dom(m(r)) and m(r)(x)=m(w)(x) where w is the
+  last event in W(x) before r.
+
+[Causal Propagation]
+  e --> e'' if there is an e' in E(p(e)) u E(p(e'')) st 
+  e --> e' --> e'' .
+
+Monotonicity]
+  m(e) <= m(e') if e --> e'.
+  
+[Local Consistency]
+  For all processors i, (G | b(E(i))* is a partial order (i.e., is acyclic)
+  Additionally, volatiles obey local program order:
+    For all processors p, G | E(p) is a total order.
+    
+===============================================================
+CCCC with scyncs
+
+We introduce two new events, scync_start and scync_end. Their semantics
+is described by the following condition they impose on valid executions:
+
+[Scync]
+   Let e be an scync_start event in E(i), and f its corresponding scync_end. 
+   For every other processor j, either E(j) --> e, or there is an
+   e' in E(j) s.t.  e --> e' --> f.
+   

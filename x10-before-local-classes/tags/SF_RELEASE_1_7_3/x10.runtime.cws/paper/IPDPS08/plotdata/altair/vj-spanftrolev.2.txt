@@ -1,0 +1,2416 @@
+$ pwd
+/home/vijay/ics08/altair/dfs.java
+$ csh
+altair% source ~dl/sparc-j7-paths 
+altair% pwd
+/home/vijay/ics08/altair/dfs.java
+altair% java -d64  -Xms16G -Xmx16G -cp xws.jar SpanFTROLev 8 K 10000000 4 false false false
+Number of procs=8
+graphType=K
+N=10000000
+D=4
+generating graph done
+
+Creation time:35.8207 s
+N=10000000 t=2.1987 s 18.1925 MegaEdges/s
+altair% altair% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 8 K 10000000 4 false false false
+Number of procs=8
+graphType=K
+N=10000000
+D=4
+verification=false
+generating graph done
+
+Creation time:35.5512 s
+   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@31e4457d
+Thread[main,5,main] ....done.
+N=10000000 t=1.8977 s 21.0781 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(6,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1cb1c5fa
+Thread[main,5,main] ....done.
+N=10000000 t=1.4375 s 27.8259 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(7,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@5b3caecd
+Thread[main,5,main] ....done.
+N=10000000 t=1.4234 s 28.1012 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6cf84386
+Thread[main,5,main] ....done.
+N=10000000 t=1.4046 s 28.4778 MegaEdges/s   Thread[main,5,main] Starting timed section...
+
+Worker(6,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1f194a4e
+Worker(4,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1f194a4e
+Thread[main,5,main] ....done.
+N=10000000 t=1.4273 s 28.0245 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(6,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@355d56d5
+Thread[main,5,main] ....done.
+N=10000000 t=1.5725 s 25.4371 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(7,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@2efd552
+Thread[main,5,main] ....done.
+N=10000000 t=1.5542 s 25.7373 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(4,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@d0b4b2f
+Thread[main,5,main] ....done.
+N=10000000 t=1.4083 s 28.4029 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@60750159
+Thread[main,5,main] ....done.
+N=10000000 t=1.4664 s 27.2784 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(4,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@21abab88
+Thread[main,5,main] ....done.
+N=10000000 t=1.4100 s 28.3678 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(2,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@d8a7efd
+Thread[main,5,main] ....done.
+N=10000000 t=1.4090 s 28.3884 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(2,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@7f971afc
+Thread[main,5,main] ....done.
+N=10000000 t=1.4182 s 28.2039 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(5,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@196cd7d5
+Thread[main,5,main] ....done.
+N=10000000 t=1.4403 s 27.7715 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(6,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@38cdedfd
+Thread[main,5,main] ....done.
+N=10000000 t=1.4294 s 27.9829 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(4,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@57c39a2d
+Thread[main,5,main] ....done.
+N=10000000 t=1.4091 s 28.3861 MegaEdges/s   Thread[main,5,main] Starting timed section...
+
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6abf2d5e
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6abf2d5e
+Thread[main,5,main] ....done.
+N=10000000 t=1.4394 s 27.7893 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@2d3bad12
+Thread[main,5,main] ....done.
+N=10000000 t=1.4090 s 28.3890 MegaEdges/s   Thread[main,5,main] Starting timed section...
+altair% altair% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 8 K 1000000 4 false false false
+Number of procs=8
+graphType=K
+N=1000000
+D=4
+verification=false
+generating graph done
+
+Creation time:2.2835 s
+   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6727734f
+Thread[main,5,main] ....done.
+N=1000000 t=0.3434 s 11.6475 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(2,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6ddf073d
+Thread[main,5,main] ....done.
+N=1000000 t=0.1805 s 22.1623 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1cb1c5fa
+Thread[main,5,main] ....done.
+N=1000000 t=0.2132 s 18.7640 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6cf84386
+Thread[main,5,main] ....done.
+N=1000000 t=0.1914 s 20.8953 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1f194a4e
+Thread[main,5,main] ....done.
+N=1000000 t=0.1806 s 22.1451 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(2,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@355d56d5
+Thread[main,5,main] ....done.
+N=1000000 t=0.1787 s 22.3822 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(5,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@2efd552
+Thread[main,5,main] ....done.
+N=1000000 t=0.1896 s 21.0943 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(5,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@d0b4b2f
+Thread[main,5,main] ....done.
+N=1000000 t=0.1760 s 22.7241 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(4,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@60750159
+Thread[main,5,main] ....done.
+N=1000000 t=0.1825 s 21.9191 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(2,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@21abab88
+Thread[main,5,main] ....done.
+N=1000000 t=0.1757 s 22.7605 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(4,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@d8a7efd
+Thread[main,5,main] ....done.
+N=1000000 t=0.1807 s 22.1412 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(6,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@7f971afc
+Thread[main,5,main] ....done.
+N=1000000 t=0.1800 s 22.2195 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(7,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@196cd7d5
+Thread[main,5,main] ....done.
+N=1000000 t=0.1763 s 22.6851 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@38cdedfd
+Thread[main,5,main] ....done.
+N=1000000 t=0.1784 s 22.4194 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(4,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@57c39a2d
+Thread[main,5,main] ....done.
+N=1000000 t=0.1798 s 22.2465 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6abf2d5e
+Thread[main,5,main] ....done.
+N=1000000 t=0.1769 s 22.6130 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(6,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@2d3bad12
+Thread[main,5,main] ....done.
+N=1000000 t=0.1767 s 22.6393 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(6,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@28df8ff1
+Thread[main,5,main] ....done.
+N=1000000 t=0.1782 s 22.4508 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(6,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6d632c2d
+Thread[main,5,main] ....done.
+N=1000000 t=0.1767 s 22.6427 MegaEdges/sCompleted iterations for N=1000000
+altair% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 8 K 5000000 4 false false false
+Number of procs=8
+graphType=K
+N=5000000
+D=4
+verification=false
+generating graph done
+
+Creation time:15.8655 s
+   Thread[main,5,main] Starting timed section...
+Worker(2,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@31e4457d
+Thread[main,5,main] ....done.
+N=5000000 t=1.5169 s 13.1848 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1cb1c5fa
+Thread[main,5,main] ....done.
+N=5000000 t=1.0744 s 18.6150 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@5b3caecd
+Thread[main,5,main] ....done.
+N=5000000 t=1.0602 s 18.8653 MegaEdges/s   Thread[main,5,main] Starting timed section...
+
+Worker(7,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6cf84386
+Worker(6,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6cf84386
+Thread[main,5,main] ....done.
+N=5000000 t=1.0555 s 18.9480 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(7,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1f194a4e
+Thread[main,5,main] ....done.
+N=5000000 t=1.0805 s 18.5101 MegaEdges/s   Thread[main,5,main] Starting timed section...
+
+Worker(7,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@355d56d5
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@355d56d5
+Thread[main,5,main] ....done.
+N=5000000 t=1.0569 s 18.9224 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(7,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@4f9dfbff
+Thread[main,5,main] ....done.
+N=5000000 t=1.0696 s 18.6978 MegaEdges/s   Thread[main,5,main] Starting timed section...
+altair% altair% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 8 K 100000 4 false false false
+Number of procs=8
+graphType=K
+N=100000
+D=4
+verification=false
+generating graph done
+
+Creation time:0.2871 s
+   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6ddf073d
+Thread[main,5,main] ....done.
+N=100000 t=0.1681 s 2.3799 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(2,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@620b66cc
+Thread[main,5,main] ....done.
+N=100000 t=0.0188 s 21.2770 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(5,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@5a8a0d5d
+Thread[main,5,main] ....done.
+N=100000 t=0.0203 s 19.7381 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(2,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1d73831b
+Thread[main,5,main] ....done.
+N=100000 t=0.0186 s 21.5630 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@aa470b8
+Thread[main,5,main] ....done.
+N=100000 t=0.0175 s 22.8029 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1cb1c5fa
+Thread[main,5,main] ....done.
+N=100000 t=0.0183 s 21.8154 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6cf84386
+Thread[main,5,main] ....done.
+N=100000 t=0.0196 s 20.3694 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(6,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@4f9dfbff
+Thread[main,5,main] ....done.
+N=100000 t=0.0232 s 17.2470 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@d0b4b2f
+Thread[main,5,main] ....done.
+N=100000 t=0.0221 s 18.0996 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@60750159
+Thread[main,5,main] ....done.
+N=100000 t=0.0209 s 19.1690 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(5,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@21abab88
+Thread[main,5,main] ....done.
+N=100000 t=0.0191 s 20.9008 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(6,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@d8a7efd
+Thread[main,5,main] ....done.
+N=100000 t=0.0172 s 23.2080 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(6,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@7f971afc
+Thread[main,5,main] ....done.
+N=100000 t=0.0175 s 22.8963 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@196cd7d5
+Thread[main,5,main] ....done.
+N=100000 t=0.0180 s 22.2592 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(4,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@57c39a2d
+Thread[main,5,main] ....done.
+N=100000 t=0.0181 s 22.1598 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(7,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6abf2d5e
+Thread[main,5,main] ....done.
+N=100000 t=0.0182 s 21.9642 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(7,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@2d3bad12
+Thread[main,5,main] ....done.
+N=100000 t=0.0184 s 21.7915 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@28df8ff1
+Thread[main,5,main] ....done.
+N=100000 t=0.0204 s 19.6052 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6d632c2d
+Thread[main,5,main] ....done.
+N=100000 t=0.0178 s 22.5340 MegaEdges/sCompleted iterations for N=100000
+altair% which java
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java
+altair% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 8 E 100000 4 false false false
+Number of procs=8
+graphType=E
+N=100000
+D=4
+verification=false
+Creation time:0.5321 s
+   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@aa470b8
+Thread[main,5,main] ....done.
+N=100000 t=0.1929 s 2.0738 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1cb1c5fa
+Thread[main,5,main] ....done.
+N=100000 t=0.0392 s 10.2143 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@5b3caecd
+Thread[main,5,main] ....done.
+N=100000 t=0.0406 s 9.8521 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6cf84386
+Thread[main,5,main] ....done.
+N=100000 t=0.0306 s 13.0709 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(4,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1f194a4e
+Thread[main,5,main] ....done.
+N=100000 t=0.0361 s 11.0892 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@355d56d5
+Thread[main,5,main] ....done.
+N=100000 t=0.0355 s 11.2760 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@2efd552
+Thread[main,5,main] ....done.
+N=100000 t=0.0382 s 10.4638 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(4,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@d0b4b2f
+Thread[main,5,main] ....done.
+N=100000 t=0.0267 s 14.9887 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(2,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@60750159
+Thread[main,5,main] ....done.
+N=100000 t=0.0251 s 15.9456 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@21abab88
+Thread[main,5,main] ....done.
+N=100000 t=0.0249 s 16.0345 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(4,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@d8a7efd
+Thread[main,5,main] ....done.
+N=100000 t=0.0248 s 16.1147 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(5,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@7f971afc
+Thread[main,5,main] ....done.
+N=100000 t=0.0247 s 16.1637 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@196cd7d5
+Thread[main,5,main] ....done.
+N=100000 t=0.0294 s 13.5826 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(5,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@38cdedfd
+Thread[main,5,main] ....done.
+N=100000 t=0.0248 s 16.1603 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(2,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@57c39a2d
+Thread[main,5,main] ....done.
+N=100000 t=0.0250 s 16.0059 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6abf2d5e
+Thread[main,5,main] ....done.
+N=100000 t=0.0254 s 15.7698 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@2d3bad12
+Thread[main,5,main] ....done.
+N=100000 t=0.0248 s 16.1607 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@28df8ff1
+Thread[main,5,main] ....done.
+N=100000 t=0.0249 s 16.0656 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6d632c2d
+Thread[main,5,main] ....done.
+N=100000 t=0.0249 s 16.0876 MegaEdges/sCompleted iterations for N=100000
+altair% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 8 E 1000000 4 false false false
+Number of procs=8
+graphType=E
+N=1000000
+D=4
+verification=false
+Creation time:5.0299 s
+   Thread[main,5,main] Starting timed section...
+Worker(2,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@31e4457d
+Thread[main,5,main] ....done.
+N=1000000 t=0.8206 s 4.8744 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(4,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@18e2b22
+Thread[main,5,main] ....done.
+N=1000000 t=0.2213 s 18.0778 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(4,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1cb1c5fa
+Thread[main,5,main] ....done.
+N=1000000 t=0.2115 s 18.9092 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(5,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@5b3caecd
+Thread[main,5,main] ....done.
+N=1000000 t=0.2104 s 19.0107 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(5,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6cf84386
+Thread[main,5,main] ....done.
+N=1000000 t=0.2077 s 19.2567 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(7,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1f194a4e
+Thread[main,5,main] ....done.
+N=1000000 t=0.2207 s 18.1205 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@355d56d5
+Thread[main,5,main] ....done.
+N=1000000 t=0.2082 s 19.2151 MegaEdges/s   Thread[main,5,main] Starting timed section...
+
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@4f9dfbff
+Worker(5,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@4f9dfbff
+Thread[main,5,main] ....done.
+N=1000000 t=0.2073 s 19.2965 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(4,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@d0b4b2f
+Thread[main,5,main] ....done.
+N=1000000 t=0.2284 s 17.5115 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(7,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@60750159
+Thread[main,5,main] ....done.
+N=1000000 t=0.2088 s 19.1590 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@21abab88
+Thread[main,5,main] ....done.
+N=1000000 t=0.2078 s 19.2519 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(6,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@d8a7efd
+Thread[main,5,main] ....done.
+N=1000000 t=0.2122 s 18.8490 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(2,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@7f971afc
+Thread[main,5,main] ....done.
+N=1000000 t=0.2070 s 19.3237 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(2,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@196cd7d5
+Thread[main,5,main] ....done.
+N=1000000 t=0.2078 s 19.2462 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@38cdedfd
+Thread[main,5,main] ....done.
+N=1000000 t=0.2105 s 18.9979 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(7,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@57c39a2d
+Thread[main,5,main] ....done.
+N=1000000 t=0.2091 s 19.1337 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(7,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6abf2d5e
+Thread[main,5,main] ....done.
+N=1000000 t=0.2111 s 18.9484 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@2d3bad12
+Thread[main,5,main] ....done.
+N=1000000 t=0.2106 s 18.9902 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(7,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@28df8ff1
+Thread[main,5,main] ....done.
+N=1000000 t=0.2074 s 19.2833 MegaEdges/sCompleted iterations for N=1000000
+altair% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 8 E 10000000 4 false false false
+Number of procs=8
+graphType=E
+N=10000000
+D=4
+verification=false
+Creation time:171.5062 s
+   Thread[main,5,main] Starting timed section...
+Worker(5,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@31e4457d
+Thread[main,5,main] ....done.
+N=10000000 t=3.1941 s 12.5229 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(4,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@18e2b22
+Thread[main,5,main] ....done.
+N=10000000 t=3.1053 s 12.8810 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1cb1c5fa
+Thread[main,5,main] ....done.
+N=10000000 t=3.0206 s 13.2423 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@5b3caecd
+Thread[main,5,main] ....done.
+N=10000000 t=3.0049 s 13.3117 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(4,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6cf84386
+Thread[main,5,main] ....done.
+N=10000000 t=3.0775 s 12.9974 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(2,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1f194a4e
+Thread[main,5,main] ....done.
+N=10000000 t=3.0528 s 13.1026 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(6,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@355d56d5
+Thread[main,5,main] ....done.
+N=10000000 t=3.0073 s 13.3010 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(2,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@4f9dfbff
+Thread[main,5,main] ....done.
+N=10000000 t=3.0790 s 12.9913 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(2,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@d0b4b2f
+Thread[main,5,main] ....done.
+N=10000000 t=3.0691 s 13.0330 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(7,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@60750159
+Thread[main,5,main] ....done.
+N=10000000 t=3.0199 s 13.2455 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(5,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@21abab88
+Thread[main,5,main] ....done.
+N=10000000 t=3.0203 s 13.2438 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(2,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@d8a7efd
+Thread[main,5,main] ....done.
+N=10000000 t=3.0098 s 13.2897 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@7f971afc
+Thread[main,5,main] ....done.
+N=10000000 t=3.0149 s 13.2674 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@196cd7d5
+Thread[main,5,main] ....done.
+N=10000000 t=3.0213 s 13.2391 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(6,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@38cdedfd
+Thread[main,5,main] ....done.
+N=10000000 t=3.0237 s 13.2286 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@57c39a2d
+Thread[main,5,main] ....done.
+N=10000000 t=3.0288 s 13.2065 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(4,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6abf2d5e
+Thread[main,5,main] ....done.
+N=10000000 t=3.0041 s 13.3152 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(7,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@2d3bad12
+Thread[main,5,main] ....done.
+N=10000000 t=3.0912 s 12.9398 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(5,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@28df8ff1
+Thread[main,5,main] ....done.
+N=10000000 t=3.0215 s 13.2385 MegaEdges/sCompleted iterations for N=10000000
+altair% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 8 E 5000000 4 false false false
+Number of procs=8
+graphType=E
+N=5000000
+D=4
+verification=false
+Creation time:37.4016 s
+   Thread[main,5,main] Starting timed section...
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@31e4457d
+Thread[main,5,main] ....done.
+N=5000000 t=1.5614 s 12.8092 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(2,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@18e2b22
+Thread[main,5,main] ....done.
+N=5000000 t=0.9387 s 21.3069 MegaEdges/s   Thread[main,5,main] Starting timed section...
+
+Worker(5,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1cb1c5fa
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1cb1c5fa
+Thread[main,5,main] ....done.
+N=5000000 t=0.9364 s 21.3574 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@5b3caecd
+Thread[main,5,main] ....done.
+N=5000000 t=0.9783 s 20.4430 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(2,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6cf84386
+Thread[main,5,main] ....done.
+N=5000000 t=0.9206 s 21.7239 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1f194a4e
+Thread[main,5,main] ....done.
+N=5000000 t=0.9223 s 21.6855 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@355d56d5
+Thread[main,5,main] ....done.
+N=5000000 t=0.9290 s 21.5291 MegaEdges/s   Thread[main,5,main] Starting timed section...
+
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@4f9dfbff
+Worker(4,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@4f9dfbff
+Thread[main,5,main] ....done.
+N=5000000 t=0.9268 s 21.5797 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(2,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@d0b4b2f
+Thread[main,5,main] ....done.
+N=5000000 t=0.9309 s 21.4836 MegaEdges/s   Thread[main,5,main] Starting timed section...
+altair% altair% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 8 T 300 4 false false false
+Number of procs=8
+graphType=T
+N=300
+D=4
+verification=false
+Generating graph...
+Graph generated.
+Creation time:0.2088 s
+   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@5a8a0d5d
+Thread[main,5,main] ....done.
+N=300 t=0.1366 s 2.6351 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1cb1c5fa
+Thread[main,5,main] ....done.
+N=300 t=0.0442 s 8.1540 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(4,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6cf84386
+Thread[main,5,main] ....done.
+N=300 t=0.0189 s 19.0607 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(2,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1f194a4e
+Thread[main,5,main] ....done.
+N=300 t=0.0153 s 23.5355 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(5,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@355d56d5
+Thread[main,5,main] ....done.
+N=300 t=0.0196 s 18.3756 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(6,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@2efd552
+Thread[main,5,main] ....done.
+N=300 t=0.0193 s 18.6911 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(4,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@4f9dfbff
+Thread[main,5,main] ....done.
+N=300 t=0.0154 s 23.3309 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(6,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@60750159
+Thread[main,5,main] ....done.
+N=300 t=0.0151 s 23.8391 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(6,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@21abab88
+Thread[main,5,main] ....done.
+N=300 t=0.0149 s 24.1791 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(7,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@d8a7efd
+Thread[main,5,main] ....done.
+N=300 t=0.0148 s 24.2488 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(6,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@7f971afc
+Thread[main,5,main] ....done.
+N=300 t=0.0162 s 22.1898 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@196cd7d5
+Thread[main,5,main] ....done.
+N=300 t=0.0145 s 24.7447 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@38cdedfd
+Thread[main,5,main] ....done.
+N=300 t=0.0152 s 23.6767 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(6,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@57c39a2d
+Thread[main,5,main] ....done.
+N=300 t=0.0144 s 24.9540 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(5,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6abf2d5e
+Thread[main,5,main] ....done.
+N=300 t=0.0131 s 27.3865 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@2d3bad12
+Thread[main,5,main] ....done.
+N=300 t=0.0183 s 19.6317 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(5,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@28df8ff1
+Thread[main,5,main] ....done.
+N=300 t=0.0150 s 24.0390 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6d632c2d
+Thread[main,5,main] ....done.
+N=300 t=0.0177 s 20.3483 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(5,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@9e97676
+Thread[main,5,main] ....done.
+N=300 t=0.0146 s 24.5848 MegaEdges/sCompleted iterations for N=300
+altair% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 8 T 900 4 false false false
+Number of procs=8
+graphType=T
+N=900
+D=4
+verification=false
+Generating graph...
+Graph generated.
+Creation time:0.7615 s
+   Thread[main,5,main] Starting timed section...
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@18e2b22
+Thread[main,5,main] ....done.
+N=900 t=0.3858 s 8.3971 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(5,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@5b3caecd
+Thread[main,5,main] ....done.
+N=900 t=0.1680 s 19.2856 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6cf84386
+Thread[main,5,main] ....done.
+N=900 t=0.1377 s 23.5336 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(6,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1f194a4e
+Thread[main,5,main] ....done.
+N=900 t=0.1378 s 23.5155 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(5,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@355d56d5
+Thread[main,5,main] ....done.
+N=900 t=0.1540 s 21.0420 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@2efd552
+Thread[main,5,main] ....done.
+N=900 t=0.1642 s 19.7352 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(5,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@4f9dfbff
+Thread[main,5,main] ....done.
+N=900 t=0.1565 s 20.7002 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(4,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@60750159
+Thread[main,5,main] ....done.
+N=900 t=0.1735 s 18.6796 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@21abab88
+Thread[main,5,main] ....done.
+N=900 t=0.1493 s 21.7071 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@d8a7efd
+Thread[main,5,main] ....done.
+N=900 t=0.1664 s 19.4671 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(7,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@7f971afc
+Thread[main,5,main] ....done.
+N=900 t=0.1720 s 18.8412 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(5,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@196cd7d5
+Thread[main,5,main] ....done.
+N=900 t=0.1626 s 19.9253 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@38cdedfd
+Thread[main,5,main] ....done.
+N=900 t=0.1413 s 22.9379 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@57c39a2d
+Thread[main,5,main] ....done.
+N=900 t=0.1608 s 20.1553 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6abf2d5e
+Thread[main,5,main] ....done.
+N=900 t=0.1577 s 20.5498 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@2d3bad12
+Thread[main,5,main] ....done.
+N=900 t=0.1719 s 18.8477 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(2,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@28df8ff1
+Thread[main,5,main] ....done.
+N=900 t=0.1700 s 19.0580 MegaEdges/s
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ null
+   Thread[main,5,main] Starting timed section...
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6d632c2d
+Thread[main,5,main] ....done.
+N=900 t=0.1506 s 21.5143 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(7,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@9e97676
+Thread[main,5,main] ....done.
+N=900 t=0.1746 s 18.5568 MegaEdges/sCompleted iterations for N=900
+altair% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 8 T 2700 4 false false false
+Number of procs=8
+graphType=T
+N=2700
+D=4
+verification=false
+Generating graph...
+Graph generated.
+Creation time:10.8179 s
+   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@18e2b22
+Thread[main,5,main] ....done.
+N=2700 t=2.1300 s 13.6898 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@5b3caecd
+Thread[main,5,main] ....done.
+N=2700 t=1.6416 s 17.7631 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(4,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6cf84386
+Thread[main,5,main] ....done.
+N=2700 t=1.9209 s 15.1803 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(6,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1f194a4e
+Thread[main,5,main] ....done.
+N=2700 t=2.0415 s 14.2836 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(2,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@355d56d5
+Thread[main,5,main] ....done.
+N=2700 t=1.4717 s 19.8132 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@2efd552
+Thread[main,5,main] ....done.
+N=2700 t=1.8630 s 15.6519 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(4,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@4f9dfbff
+Thread[main,5,main] ....done.
+N=2700 t=1.3523 s 21.5638 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(2,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@60750159
+Thread[main,5,main] ....done.
+N=2700 t=1.5045 s 19.3823 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(4,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@21abab88
+Thread[main,5,main] ....done.
+N=2700 t=1.8595 s 15.6814 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(6,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@d8a7efd
+Thread[main,5,main] ....done.
+N=2700 t=1.7704 s 16.4711 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(5,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@7f971afc
+Thread[main,5,main] ....done.
+N=2700 t=1.9177 s 15.2059 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@196cd7d5
+Thread[main,5,main] ....done.
+N=2700 t=1.4782 s 19.7266 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(6,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@38cdedfd
+Thread[main,5,main] ....done.
+N=2700 t=1.5243 s 19.1301 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@57c39a2d
+Thread[main,5,main] ....done.
+N=2700 t=1.8833 s 15.4833 MegaEdges/s   Thread[main,5,main] Starting timed section...
+
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6abf2d5e
+Worker(4,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6abf2d5e
+Thread[main,5,main] ....done.
+N=2700 t=1.3700 s 21.2845 MegaEdges/s   Thread[main,5,main] Starting timed section...
+
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@2d3bad12
+Worker(2,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@2d3bad12
+Thread[main,5,main] ....done.
+N=2700 t=1.4170 s 20.5788 MegaEdges/s   Thread[main,5,main] Starting timed section...
+
+Worker(6,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@28df8ff1
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@28df8ff1
+Thread[main,5,main] ....done.
+N=2700 t=1.4814 s 19.6846 MegaEdges/s   Thread[main,5,main] Starting timed section...
+altair% altair% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 4 T 2700 4 false false false
+Number of procs=4
+graphType=T
+N=2700
+D=4
+verification=false
+Generating graph...
+Graph generated.
+Creation time:10.2272 s
+   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@18e2b22
+Thread[main,5,main] ....done.
+N=2700 t=2.6727 s 10.9103 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@5b3caecd
+Thread[main,5,main] ....done.
+N=2700 t=1.7633 s 16.5369 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6cf84386
+Thread[main,5,main] ....done.
+N=2700 t=1.9197 s 15.1901 MegaEdges/s   Thread[main,5,main] Starting timed section...
+
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1f194a4e
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1f194a4e
+Thread[main,5,main] ....done.
+N=2700 t=1.5171 s 19.2208 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@355d56d5
+Thread[main,5,main] ....done.
+N=2700 t=1.7256 s 16.8989 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(2,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@2efd552
+Thread[main,5,main] ....done.
+N=2700 t=1.5008 s 19.4291 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@4f9dfbff
+Thread[main,5,main] ....done.
+N=2700 t=2.0380 s 14.3080 MegaEdges/s   Thread[main,5,main] Starting timed section...
+
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@60750159
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@60750159
+Thread[main,5,main] ....done.
+N=2700 t=1.5967 s 18.2630 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@21abab88
+Thread[main,5,main] ....done.
+N=2700 t=1.5243 s 19.1297 MegaEdges/s   Thread[main,5,main] Starting timed section...
+altair% altair% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 2 T 2700 4 false false false
+Number of procs=2
+graphType=T
+N=2700
+D=4
+verification=false
+Generating graph...
+Graph generated.
+Creation time:10.3379 s
+   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@18e2b22
+Thread[main,5,main] ....done.
+N=2700 t=2.3069 s 12.6405 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@5b3caecd
+Thread[main,5,main] ....done.
+N=2700 t=1.4399 s 20.2509 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6cf84386
+Thread[main,5,main] ....done.
+N=2700 t=1.4112 s 20.6633 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1f194a4e
+Thread[main,5,main] ....done.
+N=2700 t=1.4864 s 19.6176 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@355d56d5
+Thread[main,5,main] ....done.
+N=2700 t=1.3912 s 20.9597 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@2efd552
+Thread[main,5,main] ....done.
+N=2700 t=1.4267 s 20.4383 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@4f9dfbff
+Thread[main,5,main] ....done.
+N=2700 t=1.4536 s 20.0612 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@60750159
+Thread[main,5,main] ....done.
+N=2700 t=1.5834 s 18.4165 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@21abab88
+Thread[main,5,main] ....done.
+N=2700 t=1.4359 s 20.3084 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@d8a7efd
+Thread[main,5,main] ....done.
+N=2700 t=1.3912 s 20.9598 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@7f971afc
+Thread[main,5,main] ....done.
+N=2700 t=1.4591 s 19.9850 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@196cd7d5
+Thread[main,5,main] ....done.
+N=2700 t=1.3905 s 20.9707 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@38cdedfd
+Thread[main,5,main] ....done.
+N=2700 t=1.4301 s 20.3899 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@57c39a2d
+Thread[main,5,main] ....done.
+N=2700 t=1.4611 s 19.9578 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6abf2d5e
+Thread[main,5,main] ....done.
+N=2700 t=1.4244 s 20.4722 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@2d3bad12
+Thread[main,5,main] ....done.
+N=2700 t=1.4250 s 20.4634 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@28df8ff1
+Thread[main,5,main] ....done.
+N=2700 t=1.4289 s 20.4075 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6d632c2d
+Thread[main,5,main] ....done.
+N=2700 t=1.5463 s 18.8583 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@9e97676
+Thread[main,5,main] ....done.
+N=2700 t=1.4294 s 20.3996 MegaEdges/sCompleted iterations for N=2700
+altair% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 1 T 2700 4 false false false
+Number of procs=1
+graphType=T
+N=2700
+D=4
+verification=false
+Generating graph...
+Graph generated.
+Creation time:11.0887 s
+   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6727734f
+Thread[main,5,main] ....done.
+N=2700 t=3.8616 s 7.5512 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6ddf073d
+Thread[main,5,main] ....done.
+N=2700 t=2.9378 s 9.9258 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@4d546e25
+Thread[main,5,main] ....done.
+N=2700 t=2.9135 s 10.0086 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@620b66cc
+Thread[main,5,main] ....done.
+N=2700 t=2.9109 s 10.0175 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@5a8a0d5d
+Thread[main,5,main] ....done.
+N=2700 t=2.9119 s 10.0142 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1d73831b
+Thread[main,5,main] ....done.
+N=2700 t=2.9129 s 10.0107 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@aa470b8
+Thread[main,5,main] ....done.
+N=2700 t=2.8959 s 10.0693 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@31e4457d
+Thread[main,5,main] ....done.
+N=2700 t=2.9118 s 10.0143 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1cb1c5fa
+Thread[main,5,main] ....done.
+N=2700 t=2.9131 s 10.0101 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@5b3caecd
+Thread[main,5,main] ....done.
+N=2700 t=2.9129 s 10.0105 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6cf84386
+Thread[main,5,main] ....done.
+N=2700 t=2.9125 s 10.0120 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1f194a4e
+Thread[main,5,main] ....done.
+N=2700 t=2.9150 s 10.0034 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@355d56d5
+Thread[main,5,main] ....done.
+N=2700 t=2.9134 s 10.0089 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@2efd552
+Thread[main,5,main] ....done.
+N=2700 t=2.9125 s 10.0122 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@4f9dfbff
+Thread[main,5,main] ....done.
+N=2700 t=2.8886 s 10.0950 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@d0b4b2f
+Thread[main,5,main] ....done.
+N=2700 t=2.9130 s 10.0104 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@60750159
+Thread[main,5,main] ....done.
+N=2700 t=2.9139 s 10.0070 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@21abab88
+Thread[main,5,main] ....done.
+N=2700 t=2.9124 s 10.0123 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@d8a7efd
+Thread[main,5,main] ....done.
+N=2700 t=2.9120 s 10.0138 MegaEdges/sCompleted iterations for N=2700
+altair% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 1 T 900 4 false false false
+Number of procs=1
+graphType=T
+N=900
+D=4
+verification=false
+Generating graph...
+Graph generated.
+Creation time:0.6732 s
+   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6727734f
+Thread[main,5,main] ....done.
+N=900 t=0.3377 s 9.5936 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6ddf073d
+Thread[main,5,main] ....done.
+N=900 t=0.2563 s 12.6401 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@4d546e25
+Thread[main,5,main] ....done.
+N=900 t=0.2753 s 11.7674 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@620b66cc
+Thread[main,5,main] ....done.
+N=900 t=0.2631 s 12.3132 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@5a8a0d5d
+Thread[main,5,main] ....done.
+N=900 t=0.2683 s 12.0749 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1d73831b
+Thread[main,5,main] ....done.
+N=900 t=0.2724 s 11.8948 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@aa470b8
+Thread[main,5,main] ....done.
+N=900 t=0.2560 s 12.6550 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@31e4457d
+Thread[main,5,main] ....done.
+N=900 t=0.2510 s 12.9069 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1cb1c5fa
+Thread[main,5,main] ....done.
+N=900 t=0.2514 s 12.8904 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@5b3caecd
+Thread[main,5,main] ....done.
+N=900 t=0.2509 s 12.9148 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6cf84386
+Thread[main,5,main] ....done.
+N=900 t=0.2623 s 12.3538 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1f194a4e
+Thread[main,5,main] ....done.
+N=900 t=0.2524 s 12.8373 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@355d56d5
+Thread[main,5,main] ....done.
+N=900 t=0.2515 s 12.8806 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@2efd552
+Thread[main,5,main] ....done.
+N=900 t=0.2507 s 12.9228 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@4f9dfbff
+Thread[main,5,main] ....done.
+N=900 t=0.2710 s 11.9563 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@d0b4b2f
+Thread[main,5,main] ....done.
+N=900 t=0.2724 s 11.8925 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@60750159
+Thread[main,5,main] ....done.
+N=900 t=0.2599 s 12.4656 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@21abab88
+Thread[main,5,main] ....done.
+N=900 t=0.2818 s 11.4993 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@d8a7efd
+Thread[main,5,main] ....done.
+N=900 t=0.2537 s 12.7702 MegaEdges/sCompleted iterations for N=900
+altair% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 2 T 900 4 false false false
+Number of procs=2
+graphType=T
+N=900
+D=4
+verification=false
+Generating graph...
+Graph generated.
+Creation time:0.6856 s
+   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6727734f
+Thread[main,5,main] ....done.
+N=900 t=0.2686 s 12.0618 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6ddf073d
+Thread[main,5,main] ....done.
+N=900 t=0.1960 s 16.5346 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@4d546e25
+Thread[main,5,main] ....done.
+N=900 t=0.1643 s 19.7208 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@620b66cc
+Thread[main,5,main] ....done.
+N=900 t=0.1611 s 20.1111 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@5a8a0d5d
+Thread[main,5,main] ....done.
+N=900 t=0.1604 s 20.2031 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@aa470b8
+Thread[main,5,main] ....done.
+N=900 t=0.1879 s 17.2390 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@31e4457d
+Thread[main,5,main] ....done.
+N=900 t=0.1591 s 20.3649 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1cb1c5fa
+Thread[main,5,main] ....done.
+N=900 t=0.1616 s 20.0476 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@5b3caecd
+Thread[main,5,main] ....done.
+N=900 t=0.1694 s 19.1273 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6cf84386
+Thread[main,5,main] ....done.
+N=900 t=0.1637 s 19.7893 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1f194a4e
+Thread[main,5,main] ....done.
+N=900 t=0.1618 s 20.0241 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@355d56d5
+Thread[main,5,main] ....done.
+N=900 t=0.1704 s 19.0159 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@7f971afc
+Thread[main,5,main] ....done.
+N=900 t=0.1864 s 17.3853 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@196cd7d5
+Thread[main,5,main] ....done.
+N=900 t=0.1649 s 19.6526 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6abf2d5e
+Thread[main,5,main] ....done.
+N=900 t=0.1731 s 18.7139 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@2d3bad12
+Thread[main,5,main] ....done.
+N=900 t=0.1850 s 17.5156 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@28df8ff1
+Thread[main,5,main] ....done.
+N=900 t=0.1692 s 19.1525 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6d632c2d
+Thread[main,5,main] ....done.
+N=900 t=0.1631 s 19.8634 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@9e97676
+Thread[main,5,main] ....done.
+N=900 t=0.1639 s 19.7724 MegaEdges/sCompleted iterations for N=900
+altair% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 4 T 900 4 false false false
+Number of procs=4
+graphType=T
+N=900
+D=4
+verification=false
+Generating graph...
+Graph generated.
+Creation time:0.7476 s
+   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@18e2b22
+Thread[main,5,main] ....done.
+N=900 t=0.2750 s 11.7832 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@5b3caecd
+Thread[main,5,main] ....done.
+N=900 t=0.1615 s 20.0593 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6cf84386
+Thread[main,5,main] ....done.
+N=900 t=0.1676 s 19.3360 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1f194a4e
+Thread[main,5,main] ....done.
+N=900 t=0.1635 s 19.8217 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(2,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@355d56d5
+Thread[main,5,main] ....done.
+N=900 t=0.1656 s 19.5677 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@2efd552
+Thread[main,5,main] ....done.
+N=900 t=0.1764 s 18.3630 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@4f9dfbff
+Thread[main,5,main] ....done.
+N=900 t=0.1611 s 20.1070 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(2,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@60750159
+Thread[main,5,main] ....done.
+N=900 t=0.1639 s 19.7708 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@21abab88
+Thread[main,5,main] ....done.
+N=900 t=0.1611 s 20.1094 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@d8a7efd
+Thread[main,5,main] ....done.
+N=900 t=0.1587 s 20.4167 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@7f971afc
+Thread[main,5,main] ....done.
+N=900 t=0.1718 s 18.8629 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(2,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@196cd7d5
+Thread[main,5,main] ....done.
+N=900 t=0.1703 s 19.0261 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@38cdedfd
+Thread[main,5,main] ....done.
+N=900 t=0.1707 s 18.9781 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(2,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@57c39a2d
+Thread[main,5,main] ....done.
+N=900 t=0.1629 s 19.8955 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6abf2d5e
+Thread[main,5,main] ....done.
+N=900 t=0.1690 s 19.1739 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(2,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@2d3bad12
+Thread[main,5,main] ....done.
+N=900 t=0.1450 s 22.3499 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@28df8ff1
+Thread[main,5,main] ....done.
+N=900 t=0.1423 s 22.7613 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6d632c2d
+Thread[main,5,main] ....done.
+N=900 t=0.1666 s 19.4499 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@9e97676
+Thread[main,5,main] ....done.
+N=900 t=0.1749 s 18.5237 MegaEdges/sCompleted iterations for N=900
+altair% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 8 T 900 4 false false false
+Number of procs=8
+graphType=T
+N=900
+D=4
+verification=false
+Generating graph...
+Graph generated.
+Creation time:0.7462 s
+   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@18e2b22
+Thread[main,5,main] ....done.
+N=900 t=0.4329 s 7.4852 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@5b3caecd
+Thread[main,5,main] ....done.
+N=900 t=0.1712 s 18.9288 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(6,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6cf84386
+Thread[main,5,main] ....done.
+N=900 t=0.1686 s 19.2134 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1f194a4e
+Thread[main,5,main] ....done.
+N=900 t=0.1371 s 23.6409 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@355d56d5
+Thread[main,5,main] ....done.
+N=900 t=0.1555 s 20.8423 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(4,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@2efd552
+Thread[main,5,main] ....done.
+N=900 t=0.1669 s 19.4107 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@4f9dfbff
+Thread[main,5,main] ....done.
+N=900 t=0.1534 s 21.1192 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(6,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@60750159
+Thread[main,5,main] ....done.
+N=900 t=0.1699 s 19.0728 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@21abab88
+Thread[main,5,main] ....done.
+N=900 t=0.1448 s 22.3829 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(5,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@d8a7efd
+Thread[main,5,main] ....done.
+N=900 t=0.1609 s 20.1343 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(4,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@7f971afc
+Thread[main,5,main] ....done.
+N=900 t=0.1581 s 20.4908 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@196cd7d5
+Thread[main,5,main] ....done.
+N=900 t=0.1649 s 19.6490 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@38cdedfd
+Thread[main,5,main] ....done.
+N=900 t=0.1494 s 21.6908 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@57c39a2d
+Thread[main,5,main] ....done.
+N=900 t=0.1584 s 20.4529 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6abf2d5e
+Thread[main,5,main] ....done.
+N=900 t=0.1577 s 20.5423 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(7,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@2d3bad12
+Thread[main,5,main] ....done.
+N=900 t=0.1517 s 21.3594 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@28df8ff1
+Thread[main,5,main] ....done.
+N=900 t=0.1466 s 22.1055 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6d632c2d
+Thread[main,5,main] ....done.
+N=900 t=0.1478 s 21.9170 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@9e97676
+Thread[main,5,main] ....done.
+N=900 t=0.1661 s 19.5071 MegaEdges/sCompleted iterations for N=900
+altair% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 8 T 300 4 false false false
+Number of procs=8
+graphType=T
+N=300
+D=4
+verification=false
+Generating graph...
+Graph generated.
+Creation time:0.1834 s
+   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1d73831b
+Thread[main,5,main] ....done.
+N=300 t=0.1345 s 2.6762 MegaEdges/s   Thread[main,5,main] Starting timed section...
+
+Worker(6,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@18e2b22
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@18e2b22
+Thread[main,5,main] ....done.
+N=300 t=0.0225 s 16.0148 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(6,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6cf84386
+Thread[main,5,main] ....done.
+N=300 t=0.0485 s 7.4196 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(5,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1f194a4e
+Thread[main,5,main] ....done.
+N=300 t=0.0427 s 8.4228 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@355d56d5
+Thread[main,5,main] ....done.
+N=300 t=0.0174 s 20.7093 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(4,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@2efd552
+Thread[main,5,main] ....done.
+N=300 t=0.0171 s 21.0698 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(6,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@4f9dfbff
+Thread[main,5,main] ....done.
+N=300 t=0.0172 s 20.8821 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(7,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@60750159
+Thread[main,5,main] ....done.
+N=300 t=0.0122 s 29.4218 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(2,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@21abab88
+Thread[main,5,main] ....done.
+N=300 t=0.0172 s 20.9267 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(6,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@d8a7efd
+Thread[main,5,main] ....done.
+N=300 t=0.0179 s 20.1474 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(2,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@7f971afc
+Thread[main,5,main] ....done.
+N=300 t=0.0143 s 25.2017 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(5,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@196cd7d5
+Thread[main,5,main] ....done.
+N=300 t=0.0155 s 23.1776 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(7,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@38cdedfd
+Thread[main,5,main] ....done.
+N=300 t=0.0161 s 22.3765 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@57c39a2d
+Thread[main,5,main] ....done.
+N=300 t=0.0154 s 23.3968 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(7,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6abf2d5e
+Thread[main,5,main] ....done.
+N=300 t=0.0175 s 20.5220 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(5,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@2d3bad12
+Thread[main,5,main] ....done.
+N=300 t=0.0162 s 22.2860 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@28df8ff1
+Thread[main,5,main] ....done.
+N=300 t=0.0129 s 27.8553 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(5,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6d632c2d
+Thread[main,5,main] ....done.
+N=300 t=0.0169 s 21.3105 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@9e97676
+Thread[main,5,main] ....done.
+N=300 t=0.0161 s 22.3885 MegaEdges/sCompleted iterations for N=300
+altair% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 4 T 300 4 false false false
+Number of procs=4
+graphType=T
+N=300
+D=4
+verification=false
+Generating graph...
+Graph generated.
+Creation time:0.1887 s
+   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6ddf073d
+Thread[main,5,main] ....done.
+N=300 t=0.1149 s 3.1319 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(2,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@620b66cc
+Thread[main,5,main] ....done.
+N=300 t=0.0171 s 21.0081 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(2,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1d73831b
+Thread[main,5,main] ....done.
+N=300 t=0.0167 s 21.5684 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@aa470b8
+Thread[main,5,main] ....done.
+N=300 t=0.0154 s 23.4280 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1f194a4e
+Thread[main,5,main] ....done.
+N=300 t=0.0146 s 24.6996 MegaEdges/s   Thread[main,5,main] Starting timed section...
+
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@2efd552
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@2efd552
+Thread[main,5,main] ....done.
+N=300 t=0.0142 s 25.3583 MegaEdges/s   Thread[main,5,main] Starting timed section...
+altair% altair% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 4 T 300 4 false false false
+Number of procs=4
+graphType=T
+N=300
+D=4
+verification=false
+Generating graph...
+Graph generated.
+Creation time:0.1864 s
+   Thread[main,5,main] Starting timed section...
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@620b66cc
+Thread[main,5,main] ....done.
+N=300 t=0.1106 s 3.2540 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1d73831b
+Thread[main,5,main] ....done.
+N=300 t=0.0184 s 19.5954 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(2,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@5b3caecd
+Thread[main,5,main] ....done.
+N=300 t=0.0441 s 8.1679 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(2,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6cf84386
+Thread[main,5,main] ....done.
+N=300 t=0.0214 s 16.8013 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1f194a4e
+Thread[main,5,main] ....done.
+N=300 t=0.0165 s 21.8216 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@2efd552
+Thread[main,5,main] ....done.
+N=300 t=0.0134 s 26.9007 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(2,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@4f9dfbff
+Thread[main,5,main] ....done.
+N=300 t=0.0156 s 23.0367 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(2,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@60750159
+Thread[main,5,main] ....done.
+N=300 t=0.0171 s 21.0563 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@21abab88
+Thread[main,5,main] ....done.
+N=300 t=0.0158 s 22.8300 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@d8a7efd
+Thread[main,5,main] ....done.
+N=300 t=0.0159 s 22.5880 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@7f971afc
+Thread[main,5,main] ....done.
+N=300 t=0.0186 s 19.3177 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@196cd7d5
+Thread[main,5,main] ....done.
+N=300 t=0.0104 s 34.7226 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@38cdedfd
+Thread[main,5,main] ....done.
+N=300 t=0.0125 s 28.8220 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@57c39a2d
+Thread[main,5,main] ....done.
+N=300 t=0.0166 s 21.7517 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6abf2d5e
+Thread[main,5,main] ....done.
+N=300 t=0.0173 s 20.7891 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@2d3bad12
+Thread[main,5,main] ....done.
+N=300 t=0.0210 s 17.1667 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@28df8ff1
+Thread[main,5,main] ....done.
+N=300 t=0.0143 s 25.1297 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6d632c2d
+Thread[main,5,main] ....done.
+N=300 t=0.0104 s 34.7066 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@9e97676
+Thread[main,5,main] ....done.
+N=300 t=0.0179 s 20.0810 MegaEdges/sCompleted iterations for N=300
+altair% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 2 T 300 4 false false false
+Number of procs=2
+graphType=T
+N=300
+D=4
+verification=false
+Generating graph...
+Graph generated.
+Creation time:0.1820 s
+   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6727734f
+Thread[main,5,main] ....done.
+N=300 t=0.1137 s 3.1656 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6ddf073d
+Thread[main,5,main] ....done.
+N=300 t=0.0158 s 22.8480 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@620b66cc
+Thread[main,5,main] ....done.
+N=300 t=0.0385 s 9.3534 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@5a8a0d5d
+Thread[main,5,main] ....done.
+N=300 t=0.0244 s 14.7630 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@aa470b8
+Thread[main,5,main] ....done.
+N=300 t=0.0204 s 17.6523 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@31e4457d
+Thread[main,5,main] ....done.
+N=300 t=0.0151 s 23.8713 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@18e2b22
+Thread[main,5,main] ....done.
+N=300 t=0.0146 s 24.7227 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@5b3caecd
+Thread[main,5,main] ....done.
+N=300 t=0.0147 s 24.4562 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6cf84386
+Thread[main,5,main] ....done.
+N=300 t=0.0146 s 24.6347 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1f194a4e
+Thread[main,5,main] ....done.
+N=300 t=0.0142 s 25.3319 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@355d56d5
+Thread[main,5,main] ....done.
+N=300 t=0.0142 s 25.4258 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@2efd552
+Thread[main,5,main] ....done.
+N=300 t=0.0142 s 25.4080 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@4f9dfbff
+Thread[main,5,main] ....done.
+N=300 t=0.0142 s 25.3351 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@d0b4b2f
+Thread[main,5,main] ....done.
+N=300 t=0.0186 s 19.3736 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@60750159
+Thread[main,5,main] ....done.
+N=300 t=0.0143 s 25.1477 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@21abab88
+Thread[main,5,main] ....done.
+N=300 t=0.0166 s 21.6487 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@d8a7efd
+Thread[main,5,main] ....done.
+N=300 t=0.0145 s 24.7968 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@7f971afc
+Thread[main,5,main] ....done.
+N=300 t=0.0179 s 20.1556 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@196cd7d5
+Thread[main,5,main] ....done.
+N=300 t=0.0142 s 25.3198 MegaEdges/sCompleted iterations for N=300
+altair% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 1 T 300 4 false false false
+Number of procs=1
+graphType=T
+N=300
+D=4
+verification=false
+Generating graph...
+Graph generated.
+Creation time:0.1822 s
+   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6727734f
+Thread[main,5,main] ....done.
+N=300 t=0.1085 s 3.3194 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6ddf073d
+Thread[main,5,main] ....done.
+N=300 t=0.0284 s 12.6803 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@4d546e25
+Thread[main,5,main] ....done.
+N=300 t=0.0398 s 9.0549 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@620b66cc
+Thread[main,5,main] ....done.
+N=300 t=0.0277 s 12.9732 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@5a8a0d5d
+Thread[main,5,main] ....done.
+N=300 t=0.0282 s 12.7861 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1d73831b
+Thread[main,5,main] ....done.
+N=300 t=0.0280 s 12.8732 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@aa470b8
+Thread[main,5,main] ....done.
+N=300 t=0.0280 s 12.8645 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@31e4457d
+Thread[main,5,main] ....done.
+N=300 t=0.0280 s 12.8796 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1cb1c5fa
+Thread[main,5,main] ....done.
+N=300 t=0.0281 s 12.8326 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@5b3caecd
+Thread[main,5,main] ....done.
+N=300 t=0.0280 s 12.8753 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6cf84386
+Thread[main,5,main] ....done.
+N=300 t=0.0280 s 12.8697 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1f194a4e
+Thread[main,5,main] ....done.
+N=300 t=0.0280 s 12.8745 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@355d56d5
+Thread[main,5,main] ....done.
+N=300 t=0.0280 s 12.8629 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@2efd552
+Thread[main,5,main] ....done.
+N=300 t=0.0280 s 12.8751 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@4f9dfbff
+Thread[main,5,main] ....done.
+N=300 t=0.0279 s 12.8833 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@d0b4b2f
+Thread[main,5,main] ....done.
+N=300 t=0.0280 s 12.8672 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@60750159
+Thread[main,5,main] ....done.
+N=300 t=0.0280 s 12.8697 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@21abab88
+Thread[main,5,main] ....done.
+N=300 t=0.0280 s 12.8790 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@d8a7efd
+Thread[main,5,main] ....done.
+N=300 t=0.0280 s 12.8786 MegaEdges/sCompleted iterations for N=300
+altair% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 1 E 100000 4 false false false
+Number of procs=1
+graphType=E
+N=100000
+D=4
+verification=false
+Creation time:0.5791 s
+   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@158b649
+Thread[main,5,main] ....done.
+N=100000 t=0.1642 s 2.4360 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6727734f
+Thread[main,5,main] ....done.
+N=100000 t=0.0845 s 4.7320 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@4f037c71
+Thread[main,5,main] ....done.
+N=100000 t=0.0754 s 5.3068 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6ddf073d
+Thread[main,5,main] ....done.
+N=100000 t=0.0844 s 4.7415 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@4d546e25
+Thread[main,5,main] ....done.
+N=100000 t=0.0743 s 5.3866 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@620b66cc
+Thread[main,5,main] ....done.
+N=100000 t=0.0742 s 5.3903 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@5a8a0d5d
+Thread[main,5,main] ....done.
+N=100000 t=0.0741 s 5.3956 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1d73831b
+Thread[main,5,main] ....done.
+N=100000 t=0.0742 s 5.3897 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@31e4457d
+Thread[main,5,main] ....done.
+N=100000 t=0.0742 s 5.3887 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@18e2b22
+Thread[main,5,main] ....done.
+N=100000 t=0.0742 s 5.3920 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1cb1c5fa
+Thread[main,5,main] ....done.
+N=100000 t=0.0742 s 5.3916 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@5b3caecd
+Thread[main,5,main] ....done.
+N=100000 t=0.0741 s 5.4008 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6cf84386
+Thread[main,5,main] ....done.
+N=100000 t=0.0741 s 5.3983 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1f194a4e
+Thread[main,5,main] ....done.
+N=100000 t=0.0740 s 5.4019 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@355d56d5
+Thread[main,5,main] ....done.
+N=100000 t=0.0740 s 5.4022 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@2efd552
+Thread[main,5,main] ....done.
+N=100000 t=0.0741 s 5.4006 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@4f9dfbff
+Thread[main,5,main] ....done.
+N=100000 t=0.0741 s 5.3992 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@d0b4b2f
+Thread[main,5,main] ....done.
+N=100000 t=0.0741 s 5.3992 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@60750159
+Thread[main,5,main] ....done.
+N=100000 t=0.0742 s 5.3944 MegaEdges/sCompleted iterations for N=100000
+altair% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 1 E 1000000 4 false false false
+Number of procs=1
+graphType=E
+N=1000000
+D=4
+verification=false
+Creation time:5.6361 s
+   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@158b649
+Thread[main,5,main] ....done.
+N=1000000 t=0.9990 s 4.0040 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6727734f
+Thread[main,5,main] ....done.
+N=1000000 t=0.9082 s 4.4045 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@4f037c71
+Thread[main,5,main] ....done.
+N=1000000 t=0.9046 s 4.4216 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6ddf073d
+Thread[main,5,main] ....done.
+N=1000000 t=0.8944 s 4.4721 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@4d546e25
+Thread[main,5,main] ....done.
+N=1000000 t=0.8942 s 4.4731 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@620b66cc
+Thread[main,5,main] ....done.
+N=1000000 t=0.8946 s 4.4715 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@5a8a0d5d
+Thread[main,5,main] ....done.
+N=1000000 t=0.8944 s 4.4725 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1d73831b
+Thread[main,5,main] ....done.
+N=1000000 t=0.8944 s 4.4724 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@31e4457d
+Thread[main,5,main] ....done.
+N=1000000 t=0.8945 s 4.4718 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@18e2b22
+Thread[main,5,main] ....done.
+N=1000000 t=0.8946 s 4.4713 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1cb1c5fa
+Thread[main,5,main] ....done.
+N=1000000 t=0.8945 s 4.4717 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@5b3caecd
+Thread[main,5,main] ....done.
+N=1000000 t=0.8944 s 4.4723 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6cf84386
+Thread[main,5,main] ....done.
+N=1000000 t=0.8955 s 4.4666 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1f194a4e
+Thread[main,5,main] ....done.
+N=1000000 t=0.8945 s 4.4718 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@355d56d5
+Thread[main,5,main] ....done.
+N=1000000 t=0.8944 s 4.4725 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@2efd552
+Thread[main,5,main] ....done.
+N=1000000 t=0.8944 s 4.4724 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@4f9dfbff
+Thread[main,5,main] ....done.
+N=1000000 t=0.8945 s 4.4717 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@d0b4b2f
+Thread[main,5,main] ....done.
+N=1000000 t=0.8943 s 4.4730 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@60750159
+Thread[main,5,main] ....done.
+N=1000000 t=0.8944 s 4.4723 MegaEdges/sCompleted iterations for N=1000000
+altair% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 1 E 5000000 4 false false false
+Number of procs=1
+graphType=E
+N=5000000
+D=4
+verification=false
+Creation time:36.8696 s
+   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@158b649
+Thread[main,5,main] ....done.
+N=5000000 t=5.7953 s 3.4510 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@4f037c71
+Thread[main,5,main] ....done.
+N=5000000 t=4.9841 s 4.0128 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6ddf073d
+Thread[main,5,main] ....done.
+N=5000000 t=4.9860 s 4.0113 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@4d546e25
+Thread[main,5,main] ....done.
+N=5000000 t=4.9079 s 4.0751 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@620b66cc
+Thread[main,5,main] ....done.
+N=5000000 t=4.8734 s 4.1039 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@5a8a0d5d
+Thread[main,5,main] ....done.
+N=5000000 t=4.8726 s 4.1045 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1d73831b
+Thread[main,5,main] ....done.
+N=5000000 t=4.8759 s 4.1018 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@aa470b8
+Thread[main,5,main] ....done.
+N=5000000 t=4.8748 s 4.1027 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@18e2b22
+Thread[main,5,main] ....done.
+N=5000000 t=4.8738 s 4.1035 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1cb1c5fa
+Thread[main,5,main] ....done.
+N=5000000 t=4.8904 s 4.0896 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@5b3caecd
+Thread[main,5,main] ....done.
+N=5000000 t=4.8726 s 4.1046 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6cf84386
+Thread[main,5,main] ....done.
+N=5000000 t=4.8769 s 4.1010 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1f194a4e
+Thread[main,5,main] ....done.
+N=5000000 t=4.9243 s 4.0615 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@355d56d5
+Thread[main,5,main] ....done.
+N=5000000 t=5.0218 s 3.9826 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@2efd552
+Thread[main,5,main] ....done.
+N=5000000 t=4.8937 s 4.0869 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@4f9dfbff
+Thread[main,5,main] ....done.
+N=5000000 t=4.8728 s 4.1044 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@d0b4b2f
+Thread[main,5,main] ....done.
+N=5000000 t=4.8749 s 4.1026 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@60750159
+Thread[main,5,main] ....done.
+N=5000000 t=4.9548 s 4.0365 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@21abab88
+Thread[main,5,main] ....done.
+N=5000000 t=5.1199 s 3.9064 MegaEdges/sCompleted iterations for N=5000000
+altair% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 1 E 10000000 4 false false false
+Number of procs=1
+graphType=E
+N=10000000
+D=4
+verification=false
+Creation time:174.7091 s
+   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@158b649
+Thread[main,5,main] ....done.
+N=10000000 t=14.9731 s 2.6715 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@4f037c71
+Thread[main,5,main] ....done.
+N=10000000 t=13.2346 s 3.0224 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6ddf073d
+Thread[main,5,main] ....done.
+N=10000000 t=13.2271 s 3.0241 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@4d546e25
+Thread[main,5,main] ....done.
+N=10000000 t=13.2997 s 3.0076 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@620b66cc
+Thread[main,5,main] ....done.
+N=10000000 t=13.3156 s 3.0040 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@5a8a0d5d
+Thread[main,5,main] ....done.
+N=10000000 t=13.2546 s 3.0178 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1d73831b
+Thread[main,5,main] ....done.
+N=10000000 t=13.2452 s 3.0200 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@31e4457d
+Thread[main,5,main] ....done.
+N=10000000 t=13.4998 s 2.9630 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@18e2b22
+Thread[main,5,main] ....done.
+N=10000000 t=13.2412 s 3.0209 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1cb1c5fa
+Thread[main,5,main] ....done.
+N=10000000 t=13.2433 s 3.0204 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@5b3caecd
+Thread[main,5,main] ....done.
+N=10000000 t=13.2408 s 3.0210 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6cf84386
+Thread[main,5,main] ....done.
+N=10000000 t=13.1950 s 3.0315 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1f194a4e
+Thread[main,5,main] ....done.
+N=10000000 t=13.2373 s 3.0218 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@355d56d5
+Thread[main,5,main] ....done.
+N=10000000 t=13.2088 s 3.0283 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@2efd552
+Thread[main,5,main] ....done.
+N=10000000 t=13.1682 s 3.0376 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@4f9dfbff
+Thread[main,5,main] ....done.
+N=10000000 t=13.3343 s 2.9998 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@d0b4b2f
+Thread[main,5,main] ....done.
+N=10000000 t=13.3049 s 3.0064 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@60750159
+Thread[main,5,main] ....done.
+N=10000000 t=13.2054 s 3.0291 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@21abab88
+Thread[main,5,main] ....done.
+N=10000000 t=13.2238 s 3.0249 MegaEdges/sCompleted iterations for N=10000000
+altair% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 2 E 100000 4 false false false
+Number of procs=2
+graphType=E
+N=100000
+D=4
+verification=false
+Creation time:0.5869 s
+   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@158b649
+Thread[main,5,main] ....done.
+N=100000 t=0.1510 s 2.6482 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6ddf073d
+Thread[main,5,main] ....done.
+N=100000 t=0.0687 s 5.8238 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@4d546e25
+Thread[main,5,main] ....done.
+N=100000 t=0.0565 s 7.0775 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@620b66cc
+Thread[main,5,main] ....done.
+N=100000 t=0.0413 s 9.6755 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@5a8a0d5d
+Thread[main,5,main] ....done.
+N=100000 t=0.0417 s 9.5899 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1d73831b
+Thread[main,5,main] ....done.
+N=100000 t=0.0518 s 7.7199 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@aa470b8
+Thread[main,5,main] ....done.
+N=100000 t=0.0415 s 9.6300 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@18e2b22
+Thread[main,5,main] ....done.
+N=100000 t=0.0418 s 9.5614 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1cb1c5fa
+Thread[main,5,main] ....done.
+N=100000 t=0.0417 s 9.5859 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@5b3caecd
+Thread[main,5,main] ....done.
+N=100000 t=0.0414 s 9.6647 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6cf84386
+Thread[main,5,main] ....done.
+N=100000 t=0.0418 s 9.5796 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1f194a4e
+Thread[main,5,main] ....done.
+N=100000 t=0.0417 s 9.5937 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@355d56d5
+Thread[main,5,main] ....done.
+N=100000 t=0.0419 s 9.5434 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@2efd552
+Thread[main,5,main] ....done.
+N=100000 t=0.0417 s 9.6022 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@d0b4b2f
+Thread[main,5,main] ....done.
+N=100000 t=0.0585 s 6.8372 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@60750159
+Thread[main,5,main] ....done.
+N=100000 t=0.0419 s 9.5465 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@21abab88
+Thread[main,5,main] ....done.
+N=100000 t=0.0414 s 9.6551 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@d8a7efd
+Thread[main,5,main] ....done.
+N=100000 t=0.0417 s 9.6005 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@7f971afc
+Thread[main,5,main] ....done.
+N=100000 t=0.0418 s 9.5752 MegaEdges/sCompleted iterations for N=100000
+altair% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 2 E 1000000 4 false false false
+Number of procs=2
+graphType=E
+N=1000000
+D=4
+verification=false
+Creation time:5.2493 s
+   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@4f037c71
+Thread[main,5,main] ....done.
+N=1000000 t=0.6471 s 6.1810 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6ddf073d
+Thread[main,5,main] ....done.
+N=1000000 t=0.4904 s 8.1564 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1d73831b
+Thread[main,5,main] ....done.
+N=1000000 t=0.4817 s 8.3044 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@aa470b8
+Thread[main,5,main] ....done.
+N=1000000 t=0.4875 s 8.2049 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@18e2b22
+Thread[main,5,main] ....done.
+N=1000000 t=0.4772 s 8.3823 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1cb1c5fa
+Thread[main,5,main] ....done.
+N=1000000 t=0.4773 s 8.3796 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@5b3caecd
+Thread[main,5,main] ....done.
+N=1000000 t=0.4776 s 8.3760 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1f194a4e
+Thread[main,5,main] ....done.
+N=1000000 t=0.4770 s 8.3853 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@2efd552
+Thread[main,5,main] ....done.
+N=1000000 t=0.4783 s 8.3627 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@60750159
+Thread[main,5,main] ....done.
+N=1000000 t=0.4820 s 8.2980 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@21abab88
+Thread[main,5,main] ....done.
+N=1000000 t=0.4809 s 8.3182 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@d8a7efd
+Thread[main,5,main] ....done.
+N=1000000 t=0.4747 s 8.4259 MegaEdges/s   Thread[main,5,main] Starting timed section...
+
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@7f971afc
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@7f971afc
+Thread[main,5,main] ....done.
+N=1000000 t=0.4748 s 8.4248 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@196cd7d5
+Thread[main,5,main] ....done.
+N=1000000 t=0.4838 s 8.2681 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@38cdedfd
+Thread[main,5,main] ....done.
+N=1000000 t=0.4880 s 8.1975 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@57c39a2d
+Thread[main,5,main] ....done.
+N=1000000 t=0.4892 s 8.1773 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6abf2d5e
+Thread[main,5,main] ....done.
+N=1000000 t=0.4838 s 8.2675 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@2d3bad12
+Thread[main,5,main] ....done.
+N=1000000 t=0.4766 s 8.3930 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@28df8ff1
+Thread[main,5,main] ....done.
+N=1000000 t=0.4752 s 8.4176 MegaEdges/sCompleted iterations for N=1000000
+altair% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 2 E 5000000 4 false false false
+Number of procs=2
+graphType=E
+N=5000000
+D=4
+verification=false
+Creation time:37.2371 s
+   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@158b649
+Thread[main,5,main] ....done.
+N=5000000 t=2.7910 s 7.1658 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6ddf073d
+Thread[main,5,main] ....done.
+N=5000000 t=2.4680 s 8.1037 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1d73831b
+Thread[main,5,main] ....done.
+N=5000000 t=2.4911 s 8.0287 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@31e4457d
+Thread[main,5,main] ....done.
+N=5000000 t=2.4837 s 8.0524 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1cb1c5fa
+Thread[main,5,main] ....done.
+N=5000000 t=2.3937 s 8.3553 MegaEdges/s   Thread[main,5,main] Starting timed section...
+
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1f194a4e
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1f194a4e
+Thread[main,5,main] ....done.
+N=5000000 t=2.3869 s 8.3791 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@355d56d5
+Thread[main,5,main] ....done.
+N=5000000 t=2.3873 s 8.3776 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@4f9dfbff
+Thread[main,5,main] ....done.
+N=5000000 t=2.3816 s 8.3975 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@d0b4b2f
+Thread[main,5,main] ....done.
+N=5000000 t=2.5209 s 7.9338 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@60750159
+Thread[main,5,main] ....done.
+N=5000000 t=2.3864 s 8.3810 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@21abab88
+Thread[main,5,main] ....done.
+N=5000000 t=2.4285 s 8.2356 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@d8a7efd
+Thread[main,5,main] ....done.
+N=5000000 t=2.4143 s 8.2841 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@7f971afc
+Thread[main,5,main] ....done.
+N=5000000 t=2.4092 s 8.3014 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@196cd7d5
+Thread[main,5,main] ....done.
+N=5000000 t=2.4232 s 8.2534 MegaEdges/s   Thread[main,5,main] Starting timed section...
+
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@38cdedfd
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@38cdedfd
+Thread[main,5,main] ....done.
+N=5000000 t=2.4053 s 8.3148 MegaEdges/s   Thread[main,5,main] Starting timed section...
+altair% altair% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 2 E 10000000 4 false false false
+Number of procs=2
+graphType=E
+N=10000000
+D=4
+verification=false
+Creation time:165.8085 s
+   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@158b649
+Thread[main,5,main] ....done.
+N=10000000 t=7.5433 s 5.3027 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1cb1c5fa
+Thread[main,5,main] ....done.
+N=10000000 t=6.8405 s 5.8476 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@5b3caecd
+Thread[main,5,main] ....done.
+N=10000000 t=6.8022 s 5.8805 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6cf84386
+Thread[main,5,main] ....done.
+N=10000000 t=6.7885 s 5.8923 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1f194a4e
+Thread[main,5,main] ....done.
+N=10000000 t=6.7946 s 5.8870 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@355d56d5
+Thread[main,5,main] ....done.
+N=10000000 t=6.7745 s 5.9045 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@2efd552
+Thread[main,5,main] ....done.
+N=10000000 t=6.7902 s 5.8909 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@d0b4b2f
+Thread[main,5,main] ....done.
+N=10000000 t=6.7726 s 5.9061 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@60750159
+Thread[main,5,main] ....done.
+N=10000000 t=6.7753 s 5.9038 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@21abab88
+Thread[main,5,main] ....done.
+N=10000000 t=6.7750 s 5.9041 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@d8a7efd
+Thread[main,5,main] ....done.
+N=10000000 t=6.7850 s 5.8953 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@7f971afc
+Thread[main,5,main] ....done.
+N=10000000 t=6.7752 s 5.9039 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@196cd7d5
+Thread[main,5,main] ....done.
+N=10000000 t=6.7807 s 5.8991 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@38cdedfd
+Thread[main,5,main] ....done.
+N=10000000 t=6.7838 s 5.8964 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@57c39a2d
+Thread[main,5,main] ....done.
+N=10000000 t=6.7770 s 5.9023 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6abf2d5e
+Thread[main,5,main] ....done.
+N=10000000 t=6.7742 s 5.9048 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@2d3bad12
+Thread[main,5,main] ....done.
+N=10000000 t=6.7824 s 5.8976 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@28df8ff1
+Thread[main,5,main] ....done.
+N=10000000 t=7.1360 s 5.6054 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6d632c2d
+Thread[main,5,main] ....done.
+N=10000000 t=6.7815 s 5.8984 MegaEdges/sCompleted iterations for N=10000000
+altair% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 4 E 100000 4 false false false
+Number of procs=4
+graphType=E
+N=100000
+D=4
+verification=false
+Creation time:0.5806 s
+   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@158b649
+Thread[main,5,main] ....done.
+N=100000 t=0.1482 s 2.6999 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6727734f
+Thread[main,5,main] ....done.
+N=100000 t=0.0238 s 16.8216 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@4d546e25
+Thread[main,5,main] ....done.
+N=100000 t=0.0539 s 7.4247 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@620b66cc
+Thread[main,5,main] ....done.
+N=100000 t=0.0260 s 15.3944 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(2,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@5a8a0d5d
+Thread[main,5,main] ....done.
+N=100000 t=0.0232 s 17.2225 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1d73831b
+Thread[main,5,main] ....done.
+N=100000 t=0.0232 s 17.2452 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@aa470b8
+Thread[main,5,main] ....done.
+N=100000 t=0.0234 s 17.0698 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@18e2b22
+Thread[main,5,main] ....done.
+N=100000 t=0.0240 s 16.6366 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1cb1c5fa
+Thread[main,5,main] ....done.
+N=100000 t=0.0341 s 11.7272 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@5b3caecd
+Thread[main,5,main] ....done.
+N=100000 t=0.0234 s 17.1057 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6cf84386
+Thread[main,5,main] ....done.
+N=100000 t=0.0232 s 17.2777 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(2,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1f194a4e
+Thread[main,5,main] ....done.
+N=100000 t=0.0236 s 16.9243 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@355d56d5
+Thread[main,5,main] ....done.
+N=100000 t=0.0241 s 16.6075 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@2efd552
+Thread[main,5,main] ....done.
+N=100000 t=0.0234 s 17.0863 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(2,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@4f9dfbff
+Thread[main,5,main] ....done.
+N=100000 t=0.0232 s 17.2151 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(2,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@d0b4b2f
+Thread[main,5,main] ....done.
+N=100000 t=0.0232 s 17.2421 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@60750159
+Thread[main,5,main] ....done.
+N=100000 t=0.0232 s 17.2492 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@21abab88
+Thread[main,5,main] ....done.
+N=100000 t=0.0239 s 16.7022 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@d8a7efd
+Thread[main,5,main] ....done.
+N=100000 t=0.0233 s 17.1804 MegaEdges/sCompleted iterations for N=100000
+altair% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 4 E 1000000 4 false false false
+Number of procs=4
+graphType=E
+N=1000000
+D=4
+verification=false
+Creation time:5.0957 s
+   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@31e4457d
+Thread[main,5,main] ....done.
+N=1000000 t=0.6311 s 6.3380 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(2,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@18e2b22
+Thread[main,5,main] ....done.
+N=1000000 t=0.2828 s 14.1423 MegaEdges/s   Thread[main,5,main] Starting timed section...
+
+Worker(2,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1cb1c5fa
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1cb1c5fa
+Thread[main,5,main] ....done.
+N=1000000 t=0.2544 s 15.7232 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(2,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@5b3caecd
+Thread[main,5,main] ....done.
+N=1000000 t=0.3266 s 12.2470 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(2,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6cf84386
+Thread[main,5,main] ....done.
+N=1000000 t=0.3241 s 12.3407 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1f194a4e
+Thread[main,5,main] ....done.
+N=1000000 t=0.3304 s 12.1066 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@355d56d5
+Thread[main,5,main] ....done.
+N=1000000 t=0.2521 s 15.8678 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@4f9dfbff
+Thread[main,5,main] ....done.
+N=1000000 t=0.2489 s 16.0694 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@d0b4b2f
+Thread[main,5,main] ....done.
+N=1000000 t=0.2500 s 16.0020 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@60750159
+Thread[main,5,main] ....done.
+N=1000000 t=0.2495 s 16.0292 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@21abab88
+Thread[main,5,main] ....done.
+N=1000000 t=0.3252 s 12.3017 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@d8a7efd
+Thread[main,5,main] ....done.
+N=1000000 t=0.2485 s 16.0968 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(2,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@7f971afc
+Thread[main,5,main] ....done.
+N=1000000 t=0.2488 s 16.0793 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@196cd7d5
+Thread[main,5,main] ....done.
+N=1000000 t=0.2569 s 15.5693 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@38cdedfd
+Thread[main,5,main] ....done.
+N=1000000 t=0.2498 s 16.0117 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@57c39a2d
+Thread[main,5,main] ....done.
+N=1000000 t=0.2493 s 16.0465 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6abf2d5e
+Thread[main,5,main] ....done.
+N=1000000 t=0.2582 s 15.4930 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@2d3bad12
+Thread[main,5,main] ....done.
+N=1000000 t=0.2490 s 16.0628 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@28df8ff1
+Thread[main,5,main] ....done.
+N=1000000 t=0.2535 s 15.7810 MegaEdges/sCompleted iterations for N=1000000
+altair% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 4 E 5000000 4 false false false
+Number of procs=4
+graphType=E
+N=5000000
+D=4
+verification=false
+Creation time:40.0679 s
+   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@31e4457d
+Thread[main,5,main] ....done.
+N=5000000 t=1.8270 s 10.9469 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(2,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@18e2b22
+Thread[main,5,main] ....done.
+N=5000000 t=1.4038 s 14.2473 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(2,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1cb1c5fa
+Thread[main,5,main] ....done.
+N=5000000 t=1.4099 s 14.1856 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@5b3caecd
+Thread[main,5,main] ....done.
+N=5000000 t=1.3775 s 14.5190 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6cf84386
+Thread[main,5,main] ....done.
+N=5000000 t=1.3865 s 14.4244 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@1f194a4e
+Thread[main,5,main] ....done.
+N=5000000 t=1.3837 s 14.4543 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@355d56d5
+Thread[main,5,main] ....done.
+N=5000000 t=1.3769 s 14.5253 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@4f9dfbff
+Thread[main,5,main] ....done.
+N=5000000 t=1.3803 s 14.4893 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(2,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@d0b4b2f
+Thread[main,5,main] ....done.
+N=5000000 t=1.3789 s 14.5044 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@60750159
+Thread[main,5,main] ....done.
+N=5000000 t=1.3778 s 14.5162 MegaEdges/s   Thread[main,5,main] Starting timed section...
+
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@21abab88
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@21abab88
+Thread[main,5,main] ....done.
+N=5000000 t=1.3930 s 14.3570 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@d8a7efd
+Thread[main,5,main] ....done.
+N=5000000 t=1.8187 s 10.9969 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(2,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@7f971afc
+Thread[main,5,main] ....done.
+N=5000000 t=2.9525 s 6.7740 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@196cd7d5
+Thread[main,5,main] ....done.
+N=5000000 t=1.3956 s 14.3308 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(2,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@38cdedfd
+Thread[main,5,main] ....done.
+N=5000000 t=1.3784 s 14.5092 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(2,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@57c39a2d
+Thread[main,5,main] ....done.
+N=5000000 t=1.3775 s 14.5186 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(0,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@6abf2d5e
+Thread[main,5,main] ....done.
+N=5000000 t=1.3918 s 14.3695 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(3,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@2d3bad12
+Thread[main,5,main] ....done.
+N=5000000 t=1.3910 s 14.3778 MegaEdges/s   Thread[main,5,main] Starting timed section...
+Worker(1,phase=0,checkedIn=true,nextPhaseHasWork=false) in barrier w/ x10.runtime.cws.Job$GloballyQuiescentVoidJob@28df8ff1
+Thread[main,5,main] ....done.
+N=5000000 t=1.3903 s 14.3855 MegaEdges/sCompleted iterations for N=5000000
+altair% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 4 E 10000000 4 false false false
+Number of procs=4
+graphType=E
+N=10000000
+D=4
+verification=false
+Creation time:168.2244 s
+N=10000000 t=3.7603 s 10.6375 MegaEdges/sN=10000000 t=3.4031 s 11.7538 MegaEdges/sN=10000000 t=3.4419 s 11.6216 MegaEdges/sN=10000000 t=3.4115 s 11.7250 MegaEdges/sN=10000000 t=3.4254 s 11.6774 MegaEdges/sN=10000000 t=3.4096 s 11.7314 MegaEdges/sN=10000000 t=3.4078 s 11.7376 MegaEdges/sN=10000000 t=3.4075 s 11.7388 MegaEdges/sN=10000000 t=3.4318 s 11.6557 MegaEdges/sN=10000000 t=3.4700 s 11.5273 MegaEdges/sN=10000000 t=3.4652 s 11.5432 MegaEdges/sN=10000000 t=3.4574 s 11.5694 MegaEdges/sN=10000000 t=3.4040 s 11.7509 MegaEdges/sN=10000000 t=3.4871 s 11.4708 MegaEdges/sN=10000000 t=3.4359 s 11.6418 MegaEdges/sN=10000000 t=3.4372 s 11.6373 MegaEdges/sN=10000000 t=3.4273 s 11.6711 MegaEdges/sN=10000000 t=3.4377 s 11.6357 MegaEdges/sN=10000000 t=3.4071 s 11.7402 MegaEdges/sCompleted iterations for N=10000000
+altair% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 4 K 10000000 4 false false false
+Number of procs=4
+graphType=K
+N=10000000
+D=4
+verification=false
+generating graph done
+
+Creation time:35.3556 s
+N=10000000 t=3.1305 s 12.7774 MegaEdges/s
+N=10000000 t=2.5909 s 15.4388 MegaEdges/s
+N=10000000 t=2.6032 s 15.3656 MegaEdges/s
+N=10000000 t=2.5423 s 15.7335 MegaEdges/s
+N=10000000 t=2.5624 s 15.6102 MegaEdges/s
+N=10000000 t=2.5351 s 15.7786 MegaEdges/s
+N=10000000 t=2.5446 s 15.7196 MegaEdges/s
+N=10000000 t=2.5437 s 15.7250 MegaEdges/s
+N=10000000 t=2.5446 s 15.7197 MegaEdges/s
+N=10000000 t=2.5436 s 15.7255 MegaEdges/s
+N=10000000 t=2.5986 s 15.3932 MegaEdges/s
+N=10000000 t=2.5509 s 15.6806 MegaEdges/s
+N=10000000 t=2.5688 s 15.5717 MegaEdges/s
+N=10000000 t=2.5403 s 15.7460 MegaEdges/s
+N=10000000 t=2.5598 s 15.6261 MegaEdges/s
+N=10000000 t=2.5266 s 15.8317 MegaEdges/s
+N=10000000 t=2.5551 s 15.6548 MegaEdges/s
+N=10000000 t=2.5469 s 15.7054 MegaEdges/s
+N=10000000 t=2.5375 s 15.7635 MegaEdges/s
+Completed iterations for N=10000000
+altair% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 4 K 5000000 4 false false false
+Number of procs=4
+graphType=K
+N=5000000
+D=4
+verification=false
+generating graph done
+
+Creation time:15.8558 s
+N=5000000 t=1.3244 s 15.1010 MegaEdges/s
+N=5000000 t=1.0631 s 18.8122 MegaEdges/s
+N=5000000 t=1.0772 s 18.5661 MegaEdges/s
+N=5000000 t=1.0509 s 19.0305 MegaEdges/s
+N=5000000 t=1.0511 s 19.0284 MegaEdges/s
+N=5000000 t=1.0500 s 19.0484 MegaEdges/s
+N=5000000 t=1.0501 s 19.0458 MegaEdges/s
+N=5000000 t=1.0483 s 19.0787 MegaEdges/s
+N=5000000 t=1.0537 s 18.9816 MegaEdges/s
+N=5000000 t=1.0610 s 18.8510 MegaEdges/s
+N=5000000 t=1.0481 s 19.0821 MegaEdges/s
+N=5000000 t=1.0506 s 19.0373 MegaEdges/s
+N=5000000 t=1.0538 s 18.9793 MegaEdges/s
+N=5000000 t=1.0552 s 18.9541 MegaEdges/s
+N=5000000 t=1.0537 s 18.9805 MegaEdges/s
+N=5000000 t=1.0526 s 19.0005 MegaEdges/s
+N=5000000 t=1.0463 s 19.1146 MegaEdges/s
+N=5000000 t=1.0513 s 19.0234 MegaEdges/s
+N=5000000 t=1.0509 s 19.0318 MegaEdges/s
+Completed iterations for N=5000000
+altair% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 4 K 1000000 4 false false false
+Number of procs=4
+graphType=K
+N=1000000
+D=4
+verification=false
+generating graph done
+
+Creation time:2.1061 s
+N=1000000 t=0.3423 s 11.6840 MegaEdges/s
+N=1000000 t=0.2113 s 18.9326 MegaEdges/s
+N=1000000 t=0.2117 s 18.8910 MegaEdges/s
+N=1000000 t=0.2108 s 18.9756 MegaEdges/s
+N=1000000 t=0.2109 s 18.9627 MegaEdges/s
+N=1000000 t=0.2113 s 18.9315 MegaEdges/s
+N=1000000 t=0.2122 s 18.8498 MegaEdges/s
+N=1000000 t=0.2128 s 18.7993 MegaEdges/s
+N=1000000 t=0.2113 s 18.9308 MegaEdges/s
+N=1000000 t=0.2126 s 18.8135 MegaEdges/s
+N=1000000 t=0.2115 s 18.9095 MegaEdges/s
+N=1000000 t=0.2142 s 18.6735 MegaEdges/s
+N=1000000 t=0.2139 s 18.6967 MegaEdges/s
+N=1000000 t=0.2134 s 18.7455 MegaEdges/s
+N=1000000 t=0.2263 s 17.6784 MegaEdges/s
+N=1000000 t=0.2234 s 17.9086 MegaEdges/s
+N=1000000 t=0.2249 s 17.7868 MegaEdges/s
+N=1000000 t=0.2162 s 18.5031 MegaEdges/s
+N=1000000 t=0.2145 s 18.6478 MegaEdges/s
+Completed iterations for N=1000000
+altair% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 4 K 100000 4 false false false
+Number of procs=4
+graphType=K
+N=100000
+D=4
+verification=false
+generating graph done
+
+Creation time:0.3094 s
+N=100000 t=0.1370 s 2.9186 MegaEdges/s
+N=100000 t=0.0542 s 7.3773 MegaEdges/s
+N=100000 t=0.0183 s 21.8871 MegaEdges/s
+N=100000 t=0.0182 s 22.0305 MegaEdges/s
+N=100000 t=0.0180 s 22.1672 MegaEdges/s
+N=100000 t=0.0182 s 22.0087 MegaEdges/s
+N=100000 t=0.0181 s 22.0569 MegaEdges/s
+N=100000 t=0.0182 s 21.9211 MegaEdges/s
+N=100000 t=0.0181 s 22.0977 MegaEdges/s
+N=100000 t=0.0181 s 22.1540 MegaEdges/s
+N=100000 t=0.0181 s 22.1192 MegaEdges/s
+N=100000 t=0.0183 s 21.8206 MegaEdges/s
+N=100000 t=0.0181 s 22.0436 MegaEdges/s
+N=100000 t=0.0181 s 22.0404 MegaEdges/s
+N=100000 t=0.0184 s 21.7212 MegaEdges/s
+N=100000 t=0.0190 s 21.0876 MegaEdges/s
+N=100000 t=0.0182 s 21.9490 MegaEdges/s
+N=100000 t=0.0182 s 21.9846 MegaEdges/s
+N=100000 t=0.0181 s 22.1440 MegaEdges/s
+Completed iterations for N=100000
+altair% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 2 K 100000 4 false false false
+Number of procs=2
+graphType=K
+N=100000
+D=4
+verification=false
+generating graph done
+
+Creation time:0.3055 s
+N=100000 t=0.1513 s 2.6434 MegaEdges/s
+N=100000 t=0.0359 s 11.1467 MegaEdges/s
+N=100000 t=0.0619 s 6.4633 MegaEdges/s
+N=100000 t=0.0434 s 9.2178 MegaEdges/s
+N=100000 t=0.0345 s 11.5875 MegaEdges/s
+N=100000 t=0.0347 s 11.5393 MegaEdges/s
+N=100000 t=0.0346 s 11.5595 MegaEdges/s
+N=100000 t=0.0346 s 11.5534 MegaEdges/s
+N=100000 t=0.0347 s 11.5354 MegaEdges/s
+N=100000 t=0.0345 s 11.5832 MegaEdges/s
+N=100000 t=0.0346 s 11.5487 MegaEdges/s
+N=100000 t=0.0344 s 11.6342 MegaEdges/s
+N=100000 t=0.0346 s 11.5659 MegaEdges/s
+N=100000 t=0.0448 s 8.9204 MegaEdges/s
+N=100000 t=0.0346 s 11.5490 MegaEdges/s
+N=100000 t=0.0346 s 11.5647 MegaEdges/s
+N=100000 t=0.0346 s 11.5767 MegaEdges/s
+N=100000 t=0.0346 s 11.5655 MegaEdges/s
+N=100000 t=0.0345 s 11.5802 MegaEdges/s
+Completed iterations for N=100000
+altair% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 2 K 1000000 4 false false false
+Number of procs=2
+graphType=K
+N=1000000
+D=4
+verification=false
+generating graph done
+
+Creation time:2.3542 s
+N=1000000 t=0.4309 s 9.2835 MegaEdges/s
+N=1000000 t=0.3590 s 11.1419 MegaEdges/s
+N=1000000 t=0.3461 s 11.5560 MegaEdges/s
+N=1000000 t=0.3391 s 11.7947 MegaEdges/s
+N=1000000 t=0.3487 s 11.4709 MegaEdges/s
+N=1000000 t=0.3393 s 11.7874 MegaEdges/s
+N=1000000 t=0.3389 s 11.8014 MegaEdges/s
+N=1000000 t=0.3393 s 11.7907 MegaEdges/s
+N=1000000 t=0.3391 s 11.7964 MegaEdges/s
+N=1000000 t=0.3392 s 11.7928 MegaEdges/s
+N=1000000 t=0.3392 s 11.7916 MegaEdges/s
+N=1000000 t=0.3390 s 11.7984 MegaEdges/s
+N=1000000 t=0.3395 s 11.7835 MegaEdges/s
+N=1000000 t=0.3446 s 11.6086 MegaEdges/s
+N=1000000 t=0.3394 s 11.7867 MegaEdges/s
+N=1000000 t=0.3397 s 11.7752 MegaEdges/s
+N=1000000 t=0.3393 s 11.7881 MegaEdges/s
+N=1000000 t=0.3388 s 11.8054 MegaEdges/s
+N=1000000 t=0.3387 s 11.8085 MegaEdges/s
+Completed iterations for N=1000000
+altair% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 2 K 5000000 4 false false false
+Number of procs=2
+graphType=K
+N=5000000
+D=4
+verification=false
+generating graph done
+
+Creation time:16.2273 s
+N=5000000 t=2.4819 s 8.0583 MegaEdges/s
+N=5000000 t=2.1374 s 9.3570 MegaEdges/s
+N=5000000 t=2.1293 s 9.3926 MegaEdges/s
+N=5000000 t=2.1238 s 9.4171 MegaEdges/s
+N=5000000 t=2.1161 s 9.4513 MegaEdges/s
+N=5000000 t=2.1563 s 9.2752 MegaEdges/s
+N=5000000 t=2.1196 s 9.4357 MegaEdges/s
+N=5000000 t=2.1163 s 9.4505 MegaEdges/s
+N=5000000 t=2.1170 s 9.4475 MegaEdges/s
+N=5000000 t=2.1008 s 9.5203 MegaEdges/s
+N=5000000 t=2.1191 s 9.4382 MegaEdges/s
+N=5000000 t=2.1159 s 9.4525 MegaEdges/s
+N=5000000 t=2.1202 s 9.4332 MegaEdges/s
+N=5000000 t=2.1223 s 9.4239 MegaEdges/s
+N=5000000 t=2.1210 s 9.4296 MegaEdges/s
+N=5000000 t=2.1205 s 9.4317 MegaEdges/s
+N=5000000 t=2.1255 s 9.4094 MegaEdges/s
+N=5000000 t=2.1202 s 9.4332 MegaEdges/s
+N=5000000 t=2.1214 s 9.4278 MegaEdges/s
+Completed iterations for N=5000000
+altair% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 2 K 10000000 4 false false false
+Number of procs=2
+graphType=K
+N=10000000
+D=4
+verification=false
+generating graph done
+
+Creation time:36.3004 s
+N=10000000 t=6.0887 s 6.5695 MegaEdges/s
+N=10000000 t=4.8499 s 8.2477 MegaEdges/s
+N=10000000 t=4.8615 s 8.2280 MegaEdges/s
+N=10000000 t=4.8399 s 8.2647 MegaEdges/s
+N=10000000 t=4.8134 s 8.3101 MegaEdges/s
+N=10000000 t=4.8330 s 8.2765 MegaEdges/s
+N=10000000 t=4.8502 s 8.2471 MegaEdges/s
+N=10000000 t=4.8384 s 8.2671 MegaEdges/s
+N=10000000 t=4.8338 s 8.2751 MegaEdges/s
+N=10000000 t=4.8435 s 8.2584 MegaEdges/s
+N=10000000 t=4.8481 s 8.2506 MegaEdges/s
+N=10000000 t=4.8546 s 8.2396 MegaEdges/s
+N=10000000 t=4.8427 s 8.2599 MegaEdges/s
+N=10000000 t=4.8527 s 8.2428 MegaEdges/s
+N=10000000 t=4.8478 s 8.2512 MegaEdges/s
+N=10000000 t=4.8545 s 8.2398 MegaEdges/s
+N=10000000 t=4.8495 s 8.2482 MegaEdges/s
+N=10000000 t=4.8437 s 8.2581 MegaEdges/s
+N=10000000 t=4.8410 s 8.2628 MegaEdges/s
+Completed iterations for N=10000000
+altair% java -d64  -Xms16G -Xmx16G -cp ~/xws.jar SpanFTROLev 1 K 10000000 4 false false false
+Number of procs=1
+graphType=K
+N=10000000
+D=4
+verification=false
+generating graph done
+
+Creation time:37.9638 s
+N=10000000 t=10.9258 s 3.6611 MegaEdges/s
+N=10000000 t=8.9464 s 4.4711 MegaEdges/s
+N=10000000 t=8.9481 s 4.4702 MegaEdges/s
+N=10000000 t=8.9286 s 4.4800 MegaEdges/s
+N=10000000 t=8.9190 s 4.4848 MegaEdges/s
+N=10000000 t=8.9050 s 4.4919 MegaEdges/s
+N=10000000 t=8.8912 s 4.4988 MegaEdges/s
+N=10000000 t=8.8754 s 4.5069 MegaEdges/s
+N=10000000 t=8.8888 s 4.5001 MegaEdges/s
+N=10000000 t=8.8917 s 4.4986 MegaEdges/s
+N=10000000 t=8.8924 s 4.4982 MegaEdges/s
+N=10000000 t=8.8954 s 4.4967 MegaEdges/s
+N=10000000 t=8.8871 s 4.5009 MegaEdges/s
+N=10000000 t=8.9018 s 4.4935 MegaEdges/s
+N=10000000 t=8.9046 s 4.4921 MegaEdges/s
+N=10000000 t=8.8920 s 4.4984 MegaEdges/s
+N=10000000 t=8.9637 s 4.4625 MegaEdges/s
+N=10000000 t=9.0588 s 4.4156 MegaEdges/s
+N=10000000 t=9.1753 s 4.3596 MegaEdges/s
+Completed iterations for N=10000000
+altair% 

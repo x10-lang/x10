@@ -1,0 +1,11 @@
+#Need to define the following symbols
+
+ARMCI    y if using armci
+X10BASE  path to x10lib installation -- base directory
+GA_BASE  path to ga installation -- base directory
+
+#All symbols needed to make GA/ARMCI
+
+#As of now, some of the paths are hard-coded in the makefile.h files
+# (e.g., boost). Change them as required.
+

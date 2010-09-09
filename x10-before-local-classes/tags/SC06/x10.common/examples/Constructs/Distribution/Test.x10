@@ -1,0 +1,1 @@
+public class Test(int i) extends x10.lang.Object { public Test(int ii) { i=ii;}}

@@ -1,0 +1,29 @@
+@using=jpf-symbc
+
+target=Main
+
+classpath=bin
+
+sourcepath=src
+
+symbolic.method=Main.swapNodeShouldSucceed(sym),Node.swapByNext()
+
+listener=gov.nasa.jpf.symbc.SymbolicListener
+
+#using this instruction factory ensures you use the uberlazy algorithm
+#vm.insn_factory.class=gov.nasa.jpf.symbc.uberlazy.UberLazyInstructionFactory
+
+vm.insn_factory.class=gov.nasa.jpf.symbc.SymbolicInstructionFactory
+
+#for now it is incompatible with Strings
+symbolic.lazy=on
+
+#Check whether the subtypes from polymorphism need to added
+#when instantiating "new" objects during lazy-initialization.
+#the configuration allows to consider all subtypes during the 
+#instantiation. In aliasing all subtypes are considered by default. 
+#symbolic.lazy.subtypes = true
+
+#listener=gov.nasa.jpf.symbc.heap.HeapSymbolicListener
+
+#report.console.property_violation=error,trace

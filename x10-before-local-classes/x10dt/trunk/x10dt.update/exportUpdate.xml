@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="x10dt.update" default="build.update.zip" basedir=".">
+    <property file="./update.properties"/>
+
+    <import file="./buildCommon.xml"/>
+    <import file="./exportUpdateCustom.xml"/>
+
+	<target name="init" depends="init.custom">
+		<tstamp>
+			<format property="build.time" pattern="yyyyMMddHHmm"/> 
+		</tstamp>
+		<property name="build.qualifier" value="v${build.time}"/>
+		<echo message="Build qualifier is ${build.qualifier}"/>
+
+	    <xmlproperty file="../x10dt.feature/feature.xml" prefix="x10dt"/>
+
+		<property name="update.name"        value="x10dt.update"/>
+<!--    <property name="update.version"     value="${x10dt.feature(version)}"/> -->
+		<propertyRegexp name="update.version" input="${x10dt.feature(version)}" regexp="(.*).qualifier" value="\1.${build.qualifier}"/>
+		<property name="update.temp.folder" value="${basedir}/update.temp.folder"/>
+	    <property name="update.destination" value="${basedir}"/>
+	    <property name="zip.file"           value="${update.destination}/${update.name}_${update.version}.${build.qualifier}.zip"/>
+	</target>
+
+	<target name="publish.zip" depends="init" description="Copies the update archive to the update server.">
+        <echo message="Copying update zip file to update server ${update.server}"/>
+        <scp file="${zip.file}" keyfile="${user.home}/.ssh/id_dsa" passphrase="" todir="${user.name}@${update.server}:${update.server.dir}"></scp>
+    </target>
+
+	<target name="build.update.zip" description="Do it all: build subprojects, collect info for update site, and zip it up">
+		<antcall target="collect.update"/>
+    	<antcall target="build.site.xml"/>
+		<antcall target="zip.update"/>
+	</target>
+
+	<target name="collect.update" depends="init" description="Builds and collects all the feature and plugin components for the update site.">
+        <delete dir="${update.temp.folder}"/>
+        <mkdir dir="${update.temp.folder}"/>
+
+        <antcall target="collect.extra.artifacts"/>
+
+	    <antcall target="build.features"/>
+        <for param="feature" values="${feature.list}">
+            <antcall target="copy.feature">
+                <param name="feature.name"    value="${feature}"/>
+                <param name="feature.version" value="${update.version}"/>
+                <param name="feature.dir"     value="../${feature}.feature"/>
+            </antcall>
+        </for>
+
+        <copy file="site.xml" todir="${update.temp.folder}" failonerror="true" overwrite="false"/>
+        <copy file="index.html" todir="${update.temp.folder}" failonerror="true" overwrite="false"/>
+
+        <mkdir dir="${update.temp.folder}/web"/>
+        <copy todir="${update.temp.folder}/web" failonerror="true" overwrite="false">
+            <fileset dir="${basedir}/web" includes="site.css"/>
+            <fileset dir="${basedir}/web" includes="site.xsl"/>
+        </copy>
+    </target>
+
+    <target name="build.site.xml" depends="init">
+    	<property name="site" value="${update.temp.folder}/site.xml"/>
+
+    	<echo file="${site}" append="false">&lt;?xml version="1.0" encoding="UTF-8"?>
+&lt;site>
+    &lt;description url="${update.site.url}">
+        ${update.site.description}
+    &lt;/description>
+    	</echo>
+
+        <antcall target="add.site.categories"/>
+        <antcall target="add.all.features"/>
+
+    	<echo file="${site}" append="true" message="&lt;/site>${line.separator}"/>
+    </target>
+
+    <target name="add.site.categories">
+        <for param="category" values="${update.site.categories}" separator=",">
+            <echo file="${site}" append="true" message="&lt;category-def name=&quot;${category}&quot; label=&quot;${category}&quot;/>${line.separator}"/>
+        </for>
+    </target>
+
+    <target name="add.qualified.bin.src.features">
+        <xmlproperty file="../${feature.id}.feature/feature.xml"/>
+        <echo message="feature id = ${feature.id}"/>
+        <propertyRegexp name="feature.version" input="${feature(version)}" regexp="(.*).qualifier" value="\1.${build.qualifier}"/>
+        <echo message="feature version = ${feature(version)}"/>
+        <antcall target="add.bin.src.features">
+            <param name="feature.id"      value="${feature.id}"/>
+            <param name="feature.version" value="${feature.version}"/>
+            <param name="bin.category"    value="${feature.category}"/>
+            <param name="src.category"    value="${feature.src.category}"/>
+        </antcall>
+    </target>
+
+    <target name="add.bin.src.features">
+        <antcall target="add.feature">
+            <param name="feature.id"      value="${feature.id}"/>
+            <param name="feature.version" value="${feature.version}"/>
+            <param name="category"        value="${bin.category}"/>
+        </antcall>
+        <antcall target="add.feature">
+            <param name="feature.id"      value="${feature.id}.source"/>
+            <param name="feature.version" value="${feature.version}"/>
+            <param name="category"        value="${src.category}"/>
+        </antcall>
+    </target>
+
+    <target name="add.feature">
+        <echo file="${site}" append="true">
+    &lt;feature url="features/${feature.id}_${feature.version}.jar"
+        id="${feature.id}"
+        version="${feature.version}">
+        &lt;category name="${category}"/>
+    &lt;/feature>
+        </echo>
+    </target>
+
+    <target name="zip.update" depends="init" description="Creates the update site archive from the components collected by collect.update">
+        <property name="zip.file.name" value="${update.destination}/${update.name}_${update.version}.zip"/>
+
+        <zip destfile="${zip.file.name}" basedir="${update.temp.folder}" filesonly="false" whenempty="skip" update="false"/>
+      <!--  <delete dir="${update.temp.folder}"/>   -->
+    </target>
+
+    <target name="copy.feature">
+        <xmlproperty file="${feature.dir}/feature.xml" prefix="f"/>
+
+		<echo message="  ** Copying contents of feature ${feature.name} version ${f.feature(version)} from directory ${feature.dir}"/>
+
+		<propertyRegexp name="feature.version" input="${f.feature(version)}" regexp="(.*).qualifier" value="\1.${build.qualifier}"/>
+
+		<mkdir dir="${update.temp.folder}/features"/>
+		<copy todir="${update.temp.folder}/features" failonerror="true" overwrite="false">
+			<fileset dir="${feature.dir}" includes="${feature.name}_${feature.version}.jar,${feature.name}.source_${feature.version}.jar"/>
+		</copy>
+
+		<mkdir dir="${update.temp.folder}/plugins"/>
+		<copy todir="${update.temp.folder}/plugins" failonerror="true" overwrite="false">
+			<fileset dir="${feature.dir}/plugins" includes="*.jar"/>
+		</copy>
+	</target>
+
+    <target name="build.features">
+		<echo message="Building feature jars for ${feature.list}..."/>
+		<for param="feature.id" values="${feature.list}">
+		    <echo message="*** Building feature ${feature.id} ***"/>
+	        <available file="../${feature.id}.feature/exportFeature.xml" property="feature.script" value="./exportFeature.xml"/>
+	        <condition property="feature.script" value="${default.feature.script}">
+	            <not>
+	                <isset property="feature.script"/>
+	            </not>
+	        </condition>
+	        <echo message="Using feature build script ${feature.script} for ${feature.id}"/>
+			<ant antfile="${feature.script}" target="build.feature" dir="../${feature.id}.feature">
+                <property name="build.qualifier" value="${build.qualifier}"/>
+			</ant>
+		</for>
+		<echo message="Done building feature jars."/>
+	</target>
+</project>

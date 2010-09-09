@@ -1,0 +1,160 @@
+//@author:  Pradeep Varma
+// loop structure is lost -- e.g. no attributes 
+//====================== IR Representation for HWFor.x10 =================================
+
+
+// Namespace is an IR construct, to represent X10 classes and interfaces
+NAMESPACE HWFor EXTENDS x10$$$lang$$$Object
+
+// Field signatures
+
+       String HWFor$$HW ;  //@ static @ final
+
+       region HWFor$$R ;   // @ static @ final
+
+       []@ char INT HWFor$$chars ;  // @static @final
+
+// Method signature
+
+        @ static NULLABLE Exception NULLABLE VOID HWFor$$main ( []String );
+
+// Namespaces end above.  Now Function Declarations:
+
+@ static NULLABLE Exception NULLABLE VOID HWFor$$main []String a
+
+            // static fields initialization
+            L# 0 @ FUNCSTART NULLABLE Exception TEMP0 NULLABLE VOID TEMP1 := CALL $$initialization NULLABLE VOID NULL
+            L# 1 BOOLEAN TEMP2 := BOOLEAN NULLCHECKPASS NULLABLE Exception TEMP0
+            L# 2 IF BOOLEAN TEMP2 GOTO L# 4
+            L# 3 GOTO L# 10
+            L# 4 PRETURN NULLABLE Exception TEMP0 NULLABLE VOID NULL           // exception return
+
+
+            // Loop initialization 
+            L# 10 region TEMP5 := region OBJECTDEREF []@ char INT HWFor$$chars region region
+            L# 20 Iterator TEMP10 := CALL region$$iterator region TEMP5     // call mechanism for non-excepting calls
+
+            // Loop condition
+            L# 30 BOOLEAN TEMP20 := CALL Iterator$$hasNext Iterator TEMP10  
+            L# 40 IF BOOLEAN TEMP20 GOTO L# 100
+            L# 50 GOTO L# 500   // Loop exit
+
+            // Loop Body
+            L# 100 String TEMP30 := String ""
+            L# 110 point p := CALL Iterator$$next Iterator TEMP10  
+ 
+            // Convert chars[p] to String
+           // Bad place check  
+            L# 112 Distribution TEMP32 := Distribution OBJECTDEREF []@ char INT HWFor$$chars Distribution distribution
+            L# 113 Place TEMP33 := Place ARRAYDISTDEREF []Place TEMP32 point p
+            L# 114 BOOLEAN TEMP34 := BOOLEAN BADPLACECHECKPASS Place HERE Place TEMP33
+            L# 115 IF BOOLEAN TEMP34 GOTO L# 120             // If badplacepass, goto L 120
+            L# 116 PRETURN NULLABLE Exception $badPlaceException NULLABLE VOID NULL
+                                           // using global exception value for simplicity
+            L# 120 @ char INT TEMP40 := @ char INT ARRAYDISTDEREF []@ char INT HWFor$$chars point p
+            L# 130 String TEMP50 := CALL Character$$toString @ char INT TEMP40  
+  
+            // Append "" and chars[p]
+            L# 160 String TEMP60 := CALL String$$concat String TEMP30, String TEMP50  
+
+             // System.out.println
+            L# 200 NULLABLE Exception TEMP100 NULLABLE VOID TEMP105 := 
+                        CALL PrintStream$$println PrintStream x10$$$lang$$$System$$out, String TEMP60   
+                        // overloaded function names? Need to flatten out?
+                        
+            L# 210 BOOLEAN TEMP110 := BOOLEAN NULLCHECKPASS NULLABLE Exception TEMP100
+            L# 220 IF BOOLEAN TEMP110 GOTO L# 230             // If exception, goto L 230
+            L# 225 GOTO L# 250
+            L# 230 PRETURN NULLABLE Exception TEMP100 NULLABLE VOID NULL
+ 
+            // Loop back
+            L# 250 GOTO L# 30
+
+            // System.out.println()
+            L# 500 NULLABLE Exception TEMP200 NULLABLE VOID TEMP205 := 
+                        CALL PrintStream$$println PrintStream x10$$$lang$$$System$$out, String ""   
+                        // overloaded function names? Need to flatten out?
+                        
+            L# 510 BOOLEAN TEMP210 := BOOLEAN NULLCHECKPASS NULLABLE Exception TEMP200
+            L# 520 IF BOOLEAN TEMP210 GOTO L# 530             // If exception, goto L 530
+            L# 525 GOTO L# 1000
+            L# 530 PRETURN NULLABLE Exception TEMP200 NULLABLE VOID NULL
+
+ 
+            L# 1000 @ FUNCEND PRETURN NULLABLE Exception NULL NULLABLE VOID NULL  
+                                 
+
+
+
+// Initialization Code
+NULLABLE Exception NULLABLE [] @ char INT $$initializer1 NULLABLE VOID dummy
+            // Loop initialization 
+            L# 0 @ FUNCSTART @ int INT TEMP0 := CALL region$$size region HWFor$$R            
+            L# 1 NULLABLE []@ char INT TEMP1 := []@ char INT NEW @ short INT TEMP0 @ char INT        
+            // check if memory got allocated
+            L# 2 BOOLEAN TEMP2 := BOOLEAN NULLCHECKPASS NULLABLE []@ char INT TEMP1
+            L# 3 IF BOOLEAN TEMP2 GOTO L# 5             // If allocated fine, goto L 5
+            L# 4 PRETURN NULLABLE Exception $mallocFailureException NULLABLE []@ char INT NULL
+                             // using global exception values for now to aVOID dealing with
+                             // exceptions in creating exceptions
+            // Who will initialize loc etc. in array? – MEMALLOC
+            // Ought to revisit MEMALLOC’s exception mechanism 
+            // (return explicit exception than NULL)
+            L# 5 @ verified []@ char INT TEMP5 := []@ char INT TYPECAST NULLABLE []@ char INT TEMP1 []@ char INT
+
+
+            L# 10 Iterator TEMP10 := CALL region$$iterator region HWFor$$R     
+
+            // Loop condition
+            L# 30 BOOLEAN TEMP20 := CALL Iterator$$hasNext Iterator TEMP10  
+            L# 40 IF BOOLEAN TEMP20 GOTO L# 100
+            L# 50 GOTO L# 500   // Loop exit
+
+            L# 100 point p := CALL Iterator$$next Iterator TEMP10  
+            L# 110 @ int INT i := CALL point$$get point p, @ int INT 0 
+ 
+            // value of ..charAt[i]
+            L# 120 NULLABLE Exception TEMP30 NULLABLE @ char INT TEMP40 := CALL String$$charAt String HWFor$$HW, @ int INT i  
+            L# 130 BOOLEAN TEMP50 := BOOLEAN NULLCHECKPASS NULLABLE Exception TEMP30
+            L# 140 IF BOOLEAN TEMP50 GOTO L# 150
+            L# 145 GOTO L# 160
+            L# 150 PRETURN NULLABLE Exception TEMP30 NULLABLE []@ char INT NULL
+            L# 160 @ verified @ char INT TEMP100 := @ char INT  TYPECAST NULLABLE @ char INT TEMP40 @ char INT
+
+            // Bad place check  
+            L# 165 Distribution TEMP105 := Distribution OBJECTDEREF []@ char INT TEMP5 Distribution distribution
+            L# 170 Place TEMP110 := Place ARRAYDISTDEREF []Place TEMP105 point p
+            L# 175 BOOLEAN TEMP115 := BOOLEAN BADPLACECHECKPASS Place HERE Place TEMP110
+            L# 180 IF BOOLEAN TEMP115 GOTO L# 190             // If badplacepass, goto L 190
+            L# 185 PRETURN NULLABLE Exception $badPlaceException NULLABLE []@ char INT NULL 
+                                           // using global exception value for simplicity
+
+
+            L# 190 []@ char INT TEMP5 [ point p ] := @ char INT TEMP100
+            L# 200 GOTO L# 30
+
+            L# 500 @ FUNCEND PRETURN NULLABLE Exception NULL NULLABLE []@ char INT TEMP5
+
+
+            
+
+
+NULLABLE Exception NULLABLE VOID $$initialization NULLABLE VOID dummy
+            L# 10 @ FUNCSTART String HWFor$$HW := String "Hello, World!"
+            L# 20 region HWFor$$R := region @ int INT 0 : @ int INT 12
+
+            L# 30 NULLABLE Exception TEMP10 NULLABLE []@ char INT TEMP20 := CALL $$initializer1 NULLABLE VOID NULL
+            L# 35 BOOLEAN TEMP50 := BOOLEAN NULLCHECKPASS NULLABLE Exception TEMP10
+            L# 40 IF BOOLEAN TEMP50 GOTO L# 50
+            L# 45 GOTO L# 60
+            L# 50 PRETURN NULLABLE Exception TEMP10 NULLABLE VOID NULL
+            L# 60 @ verified []@ char INT TEMP60 := [] @ char INT  TYPECAST NULLABLE []@ char INT TEMP20 []@ char INT
+            L# 70 []@ char INT HWFor$$chars := []@ char INT []@ char INT TEMP60
+
+            L# 100 @ FUNCEND PRETURN NULLABLE Exception NULL NULLABLE VOID NULL
+
+
+
+
+
+

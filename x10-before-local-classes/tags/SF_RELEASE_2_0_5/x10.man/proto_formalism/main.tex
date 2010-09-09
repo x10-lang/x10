@@ -1,0 +1,232 @@
+\documentclass[10pt,a4paper]{article}
+
+%% For typesetting theorems and some math symbols.
+\usepackage{amssymb}
+\usepackage{amsthm}
+
+\usepackage{fullpage}
+
+\title{Featherweight X10}
+
+\author{}
+
+\date{}
+
+
+
+
+\input{commands}
+
+
+\begin{document}
+
+
+\maketitle
+
+
+\lstset{language=java,basicstyle=\ttfamily\small}
+
+%\chapter{Featherweight Ownership and Immutability Generic Java}
+\section{Introduction}
+
+
+Main lemma:
+(i)~Progress and Preservation.
+(ii)~After a location is cooked, val fields are never assigned;
+    Before a location is cooked, val (and var) fields are never read.
+
+Conclusion:
+val fields have a single unique value that is read by all threads.
+Like in Java, we will need a barrier whenever the constructor of some cooker is finished.
+However, Java has the problem that if this escapes, then even this barrier does not guarantee immutability.
+In contrast, in X10, we do make such guarantee.
+We could also have a different implementation technique, where we flush only the newly created objects (no need to flush the entire memory).
+
+
+
+We begin with some definitions.
+
+FX10 program consists of class declarations followed by the program's expression.
+
+An expression~$\he$ is called \emph{closed} (denoted $\closed{\he}$) if $\he$ does not contain \proto nor
+    free variables (but it may contain \cooked or other locations).
+For example, the expression~$\code{new Foo<l>()}$ is closed, but $\code{new Foo<proto>()}$ is not closed.
+Similarly, we define a closed type.
+
+Given a field $\code{A}~\code{C'}~\hf$ and a method $\code{U m(}\ol{\hV}~\ol{\hx}\code{) K \lb~return e;~\rb}$ in class~\code{C"},
+    then for any subclass \code{C} of \code{C"}
+    we define:
+\beqst
+%    \code{\mtype{}(m,C)} &\Fdef \ol{\hV}\rightarrow\hU \\
+    \code{\mtype{}(m,C<K>)} &\Fdef  [\hK/\proto](\ol{\hV}\rightarrow\hU)\\
+    \code{\mbody{}(m,C)} &\Fdef  \he\\
+    \code{\mcooker{}(m,C)} &\Fdef  \hK\\
+    \code{\fclass{}(f,C)} &\Fdef  \code{C'}\\
+    \code{\isVar{}(f,C)} &\Fdef  (\code{A}=\code{var})\\
+\eeq
+Function~$\fields{}$ returns the fields of a class, i.e.,~$\fields{}(\hC)=\ol{\hf}$.
+
+Function~$\cooker{\hK}$ receives a proto set~$P$ and a cooker~$\hK ::= \proto ~|~ \cooked ~|~ {\hl}$,
+    and return whether it is cooked or proto:
+\beqst
+\cooker{\hK} \Fdef
+\begin{cases}
+\code{cooked} & \hK=\code{cooked} \\
+\code{proto} & \hK=\code{proto} \\
+\code{cooked} & \hK=\code{l}\text{~~and~~}\hl \not \in P \\
+\code{proto} & \hK=\code{l}\text{~~and~~}\hl \in P \\
+\end{cases}
+\eeq
+
+Given an expression~\he, we define~$R(\he)$ to be the set
+    of all ongoing constructors in~\he, i.e., all locations in subexpressions~\code{e;return l}.
+Formally,  $R(\he) \Fdef  \{ \hl ~|~ \code{return l} \in \he \}$.
+%Formally,
+%\[
+%R(\he) =
+%\begin{cases}
+%    R(\code{e'}) \cup \{ l \} & \text{if~}\he=(\code{e';return l}) \\
+%    R(\code{e'}) & \text{if~}\he=(\code{e'.f}) \\
+%    R(\code{e'}) \cup R(\code{e"}) & \text{if~}\he=(\code{e'.f=e"}) \\
+%    \bigcup_{\code{e'}\in\ol{\he'}} R(\code{e'}) & \text{if~}\he=(\code{new T}\hparen{\ol{\code{e'}}}) \\
+%    R(\code{e"}) \cup (\bigcup_{\code{e'}\in\ol{\code{e'}}} R(\ol{\code{e'}})) & \text{if~}\he=(\code{e".m}\hparen{\ol{\code{e'}}}) \\
+%    \end{cases}
+%\]
+
+Function~$\NPE(\he)$ returns whether an expression will throw a \code{null}-pointer exception:
+\beqs{NPE}
+\NPE(\he) & \Fdef \NPE(\he,\code{false}) \\
+\NPE(\he,\code{b})& \Fdef
+\begin{cases}
+    \NPE(\code{e'},\code{false}) & \text{if~}\he=(\code{e';return l}) \\
+    \NPE(\code{e'},\code{true}) & \text{if~}\he=(\code{e'.f}) \\
+    \NPE(\code{e"},\code{true}) \vee \NPE(\code{e'},\code{false}) & \text{if~}\he=(\code{e".f=e'}) \\
+    \vee \NPE(\ol{\code{e'}},\code{false}) & \text{if~}\he=(\code{new T}\hparen{\ol{\code{e'}}}) \\
+    \NPE(\code{e'},\code{true}) \vee \NPE(\ol{\code{e"}},\code{false}) & \text{if~}\he=(\code{e'.m}\hparen{\ol{\code{e"}}}) \\
+    \code{b} & \text{if~}\he=(\code{null}) \\
+    \code{false} & \text{if~}\he=(\code{l}) \\
+    \end{cases}\\
+&\text{An alternative definition (though longer) that takes into account the order of evaluation: (which one is better?)}\\
+\NPE(\he) & \Fdef
+\begin{cases}
+    \NPE(\code{e'}) & \text{if~}\he=(\code{e';return l}) \\
+    \code{true} & \text{if~}\he=(\code{null.f}) \\
+    \NPE(\code{e`}) & \text{if~}\he=(\code{e`.f}) \\
+    \code{true} & \text{if~}\he=(\code{null.f=e'}) \\
+    \NPE(\code{e'}) & \text{if~}\he=(\code{l.f=e'}) \\
+    \NPE(\code{e"}) & \text{if~}\he=(\code{e".f=e'}) \\
+    \NPE(\code{e'}) & \text{if~}\he=(\code{new T}\hparen{\ol{v},\code{e"},\ol{\code{e'}}}) \\
+    \code{true} & \text{if~}\he=(\code{null.m}\hparen{\ol{\code{e'}}}) \\
+    \NPE(\code{e"}) & \text{if~}\he=(\code{l.m}\hparen{\ol{v},\code{e"},\ol{\code{e'}}}) \\
+    \NPE(\code{e"}) & \text{if~}\he=(\code{e".m}\hparen{\ol{\code{e'}}}) \\
+    \code{false} & \text{if~}\he=(\code{v}) \\
+    \end{cases}
+    \gap \code{e"}\neq\hv
+    \gap \code{e`}\neq\code{null}\\
+\eeq
+
+Summary of syntax used:
+The comma operator ($,$) represents disjoint union.
+Environment $\Gamma$ maps variables to types, i.e., $\Gamma(\hx)=\hT$.
+
+A \emph{location}~\hl is a pointer to an object on the heap.
+An \emph{object} has the form~$\code{C<l>}\hparen{\ol{\hv}}$, where~\hC is a class,~$\hl$ is the object's cooker, and~$\ol{\hv}$ are the values of the object's fields.
+A \emph{heap}~$H$ maps locations to objects, i.e., $H(\hl)=\code{C<l'>}\hparen{\ol{\hv}}$.
+The proto-set $P \in \dom(H)$ is a set of locations whose constructor has not finished yet.
+
+We define two relations over cookers:
+    (i)~$\Pequals{\hK}{\code{K'}}$ meaning that the two cookers are equivalent, and
+    (ii)~$\Ppoints{\hK}{\code{K'}}$ meaning that an object with cooker~$\hK$ can point to an object with cooker~$\code{K'}$.
+\beqst
+\Pequals{\hK}{\code{K'}} & \Fdef \hK=\code{K'} \text{~~or~~} \cooker{\hK}=\cooker{\code{K'}}=\code{cooked}\\
+\Ppoints{\hK}{\code{K'}} & \Fdef \hK=\code{K'} \text{~~or~~} \cooker{\code{K'}}=\code{cooked}\\
+\eeq
+
+A heap~$H$ is well-typed for~$P$, written~$P \vdash H$, if it satisfies:
+    (i)~there is a linear order~$\Tprec$ over~$\dom{}(H)$ such that for every location~\hl, $H(\hl)=\code{C<l'>}\hparen{\ol{\hv}}$,
+        we have~$\hl' \Tprec \hl$,
+        and
+    (ii)~for each object~$\code{C<l>}\hparen{\ol{\hv}}$ with fields~$\fields{}(\hC)=\ol{\hf}$, and for each non-null field~$\hv_i\neq\code{null}$,
+        we have that~$H(\hv_i) = \code{C'<l'>}\hparen{\ldots}$, $\code{C'} \st \fclass(\hf_i,\hC)$, and~$\Ppoints{\hl}{\code{l'}}$.
+
+Summary of judgements:
+\beqst
+\cooker{\hK} & \quad \text{Returns either \code{cooked} or \code{proto}}\\
+\closed{\he} & \quad \text{Expression \he is closed}\\
+\NPE(\he) & \quad \text{Expression \he is about to throw a \code{null}-pointer exception}\\
+\hC \st \code{C'} & \quad \text{Class \hC is a subclass of \code{C'}}\\
+P \vdash \hT \st \code{T'} & \quad \text{Type \hT is a subtype of \code{T'}} \\
+\Ppoints{\hK}{\code{K'}} & \quad \text{An object with cooker \hK can point to another with cooker \code{K'}}\\
+\Pequals{\hK}{\code{K'}} & \quad \text{Cooker \hK is equivalent to \code{K'}}\\
+\Gamma,H,P \vdash \he : \hT & \quad \text{Expression \he has type \code{T}}\\
+P \vdash H,\he \rightsquigarrow H',\code{e'} & \quad \text{Expression \he reduces (in one step) to \code{e'}, and heap~$H$ reduces to~$H'$}\\
+P \vdash H & \quad \text{Heap $H$ is well-typed for~$P$}\\
+\eeq
+
+\begin{smaller}
+\input{formal-syntax}
+\input{formal-subtyping}
+\input{formal-typing}
+\input{formal-reduction}
+\end{smaller}
+
+
+Next we describe the syntax (\Ref{Figure}{syntax}),
+    subtyping rules (\Ref{Figure}{subtyping}),
+    expression typing rules (\Ref{Figure}{expressions}),
+    and reduction rules (\Ref{Figure}{reduction}).
+
+\section{Syntax}
+Obviously, class declarations cannot contain locations.
+
+\section{Subtyping}
+
+
+\section{Typing}
+\paragraph{Method typing}
+If \proto appears in $\mtype{}(\hm,\hC)$ then $\mcooker{}(\hm,\hC)=\proto$.
+
+An overriding method must keep the same $\mtype$ and $\mcooker$.
+
+In class~\hC, when typing a method:
+        $\code{U} ~ \hm\hparen{\ol{\code{V}} ~ \ol{\hx}} ~ \hK~ \lb\ \hreturn ~ \he\texttt{;} \rb$\\
+        we use an environment~$\Gamma=\{\ol{\hx}:\ol{\code{T}}, \this:\code{C<K>}\}$,
+        and we must prove that~$\Gamma,\emptyset,\emptyset \vdash \he:\code{S}$
+        and~$\emptyset \vdash \code{S} \st \code{U}$.
+
+\paragraph{Expression typing}
+See \Ref{Figure}{expressions}.
+
+
+\section{Reduction}
+See \Ref{Figure}{reduction}.
+
+\begin{Theorem}[preservation]
+  \textbf{(Progress and Preservation)}
+    For every expression~$\he$, heap~$H$, and proto-set~$P$,
+        there exists~$H'$ and~$\he'$
+        such that
+        \[
+        \begin{cases}
+        & \he \neq \hv\\
+        & \NPE(\he)=\code{false}\\
+        & \closed{\he}\\
+        & P \cup R(\he) \vdash H\\
+        & \emptyset,H,P \vdash \he : \hT\\
+        \end{cases}
+        \Longrightarrow
+        \begin{cases}
+        & P \vdash H,\he \rightarrow H',\he'\\
+        &\closed{\he'}\\
+        &P \cup R(\he') \vdash H'\\
+        &\emptyset,H',P \vdash \he':\hT\\
+        \end{cases}
+        \]
+\end{Theorem}
+
+
+(ii)~After a location is cooked, val fields are never assigned;
+    Before a location is cooked, val (and var) fields are never read.
+
+
+\end{document}

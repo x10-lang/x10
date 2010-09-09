@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<psf version="2.0">
+<provider id="org.tigris.subversion.subclipse.core.svnnature">
+<project reference="0.9.3,https://x10.svn.sourceforge.net/svnroot/x10/trunk/x10.common,x10.common"/>
+<project reference="0.9.3,https://x10.svn.sourceforge.net/svnroot/x10/trunk/x10.compiler,x10.compiler"/>
+<project reference="0.9.3,https://x10.svn.sourceforge.net/svnroot/x10/trunk/x10.constraints,x10.constraints"/>
+<project reference="0.9.3,https://x10.svn.sourceforge.net/svnroot/x10/trunk/x10.runtime,x10.runtime"/>
+</provider>
+<provider id="org.eclipse.team.cvs.core.cvsnature">
+<project reference="1.0,:extssh:eclipse-imp.cvs.sourceforge.net:/cvsroot/eclipse-imp,org.eclipse.imp.analysis,org.eclipse.imp.analysis,polyglot3"/>
+<project reference="1.0,:extssh:eclipse-imp.cvs.sourceforge.net:/cvsroot/eclipse-imp,org.eclipse.imp.x10dt,org.eclipse.imp.x10dt"/>
+<project reference="1.0,:extssh:eclipse-imp.cvs.sourceforge.net:/cvsroot/eclipse-imp,org.eclipse.imp.x10dt.core,org.eclipse.imp.x10dt.core"/>
+<project reference="1.0,:extssh:eclipse-imp.cvs.sourceforge.net:/cvsroot/eclipse-imp,org.eclipse.imp.x10dt.debug,org.eclipse.imp.x10dt.debug"/>
+<project reference="1.0,:extssh:eclipse-imp.cvs.sourceforge.net:/cvsroot/eclipse-imp,org.eclipse.imp.x10dt.formatter,org.eclipse.imp.x10dt.formatter"/>
+<project reference="1.0,:extssh:eclipse-imp.cvs.sourceforge.net:/cvsroot/eclipse-imp,org.eclipse.imp.x10dt.help,org.eclipse.imp.x10dt.help"/>
+<project reference="1.0,:extssh:eclipse-imp.cvs.sourceforge.net:/cvsroot/eclipse-imp,org.eclipse.imp.x10dt.ui,org.eclipse.imp.x10dt.ui"/>
+</provider>
+</psf>

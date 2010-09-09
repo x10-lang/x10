@@ -1,0 +1,66 @@
+//
+// This preferences-specification template declares some example
+// preference fields and some conditional controls for enabling
+// one field based on another.  These are only examples.
+// 
+// When the Preferences Specification wizard is run, this template
+// can be selected as the basis for generating a skeleton preferences
+// specification.  You can run the prefspecs builder on that
+// specification to generate the corresponding implementation
+// classes for a preference page that will let you view and manage
+// the specified preferences.  That preference page should be
+// available automatically in any workspace in which the plugin
+// that defines the page is installed.
+//
+// (The prefspecs builder will run automatically on any project for
+// which it has been enabled.  You can enable the builder on any
+// project in a workspace where Eclipse IMP is installed by right-
+// clicking on the project and selecting "Enable prefspecs Builder"
+// in the context menu.)
+//
+// This template can be used as-is to generate a compilable, buildable
+// preferences specification that you can experiment with to gain
+// familiarity with the prefspecs language and the characteristics
+// and operation of prefspecs-based preference pages.
+//
+// You can also edit the generated preferences specification to specify
+// preferences for an application that you are developing.
+//
+
+	
+page X10Preferences {
+
+    // START HERE
+    // Set tabs "in" or "out" as desired; fill in tab-level attributes
+    // for field properties, if desired:  iseditable, isremovable
+    tabs {
+    	default in { iseditable false; isremovable false; }
+    	configuration in { iseditable true; isremovable false; }
+    	instance in {  }
+    	project in { }
+    }
+    
+    // TODO
+    // Declare in preference fields and assign their attributes
+    fields {
+    	int TabSize { range 0..20; hasspecial 8; defvalue 4; }
+    	int NumPlaces { range 0..50; hasspecial 8; defvalue 4; }
+    	// boolean UseDefaultPreferencesTemplate { hasspecial true; defvalue true; }
+    	// file  PreferencesTemplateToUse { defvalue "/Eclipses/Workspaces/IMP-3.3a/org.eclipse.imp.preferences/templates/standard.pfsp"; }
+    	// boolean UseDefaultIncludePath { defvalue true; }
+    	// dirlist  IncludePathToUse { hasspecial "."; defvalue ".;..;/Eclipses/Workspaces/IMP-3.3a/org.eclipse.imp.preferences/templates"; }
+    	// boolean GenerateLog { hasspecial true; defvalue false; }
+    	// int MaxLogEntries { range 0..1000; hasspecial 1; defvalue 100; }
+    	// string HelloWorldMessage { hasspecial ";Hola!"; defvalue "Hello!"; }	
+    }
+
+    // TODO
+    // Specify fields that are enabled or disabled according to
+    // the value of designated boolean field
+    // conditionals {
+    	// PreferencesTemplateToUse against UseDefaultPreferencesTemplate;
+    	// IncludePathToUse against UseDefaultIncludePath;
+    	// MaxLogEntries with GenerateLog;	
+    // }
+
+}

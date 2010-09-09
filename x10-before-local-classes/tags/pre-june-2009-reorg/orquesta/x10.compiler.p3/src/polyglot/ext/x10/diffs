@@ -1,0 +1,257 @@
+? diffs
+Index: ast/AssignPropertyBody_c.java
+===================================================================
+RCS file: /cvsroot/x10/x10.compiler/src/polyglot/ext/x10/ast/AssignPropertyBody_c.java,v
+retrieving revision 1.7
+diff -r1.7 AssignPropertyBody_c.java
+67a68,71
+> 		{
+> 			known.addIn(ci.whereClause());
+> 		}
+> 
+Index: ast/X10ConstructorCall_c.java
+===================================================================
+RCS file: /cvsroot/x10/x10.compiler/src/polyglot/ext/x10/ast/X10ConstructorCall_c.java,v
+retrieving revision 1.1
+diff -r1.1 X10ConstructorCall_c.java
+5a6
+> import java.util.Iterator;
+15a17
+> import polyglot.ext.x10.types.constr.TypeTranslator;
+55c57
+< 			// Now construct from this generic return type the instance obtained by subtituting 
+---
+> 			// Now construct from this generic return type the instance obtained by substituting 
+Index: ast/X10ConstructorDecl.java
+===================================================================
+RCS file: /cvsroot/x10/x10.compiler/src/polyglot/ext/x10/ast/X10ConstructorDecl.java,v
+retrieving revision 1.4
+diff -r1.4 X10ConstructorDecl.java
+25a26
+> 	X10ConstructorDecl argWhereClause(Expr e);
+Index: ast/X10ConstructorDecl_c.java
+===================================================================
+RCS file: /cvsroot/x10/x10.compiler/src/polyglot/ext/x10/ast/X10ConstructorDecl_c.java,v
+retrieving revision 1.11
+diff -r1.11 X10ConstructorDecl_c.java
+22a23
+> import polyglot.ext.x10.types.X10MethodInstance;
+23a25
+> import polyglot.ext.x10.types.X10TypeSystem;
+25a28
+> import polyglot.ext.x10.types.constr.TypeTranslator;
+63a67,71
+>     public X10ConstructorDecl argWhereClause(Expr e) {
+>     	X10ConstructorDecl_c n = (X10ConstructorDecl_c) copy();
+>     	n.argWhereClause = e;
+>     	return n;
+>     }
+98a107,109
+>     	Expr argWhereClause = (Expr) visitChild(result.argWhereClause, v);
+>     	if (argWhereClause != result.argWhereClause)
+>     		result = (X10ConstructorDecl_c) result.argWhereClause(argWhereClause);
+136a148,161
+>         
+>         
+>         // Check the where clause.
+>         if (argWhereClause != null) {
+>         	TypeChecker childtc3 = (TypeChecker) tc.enter(parent, nn);
+>         	Expr w = (Expr) nn.visitChild(argWhereClause, childtc3);
+>         	if (childtc3.hasErrors()) throw new SemanticException();
+>         	nn = nn.argWhereClause(w);
+>         	if (w.isTypeChecked() && ((X10ConstructorInstance) nn.constructorInstance()).whereClause() == null) {
+>         		X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
+>         		Constraint c = new TypeTranslator(xts).constraint(w);
+>         		((X10ConstructorInstance) nn.constructorInstance()).setWhereClause(c);
+>         	}
+>         }
+Index: ast/X10MethodDecl.java
+===================================================================
+RCS file: /cvsroot/x10/x10.compiler/src/polyglot/ext/x10/ast/X10MethodDecl.java,v
+retrieving revision 1.1
+diff -r1.1 X10MethodDecl.java
+10a11
+>     X10MethodDecl whereClause(Expr e);
+Index: ast/X10MethodDecl_c.java
+===================================================================
+RCS file: /cvsroot/x10/x10.compiler/src/polyglot/ext/x10/ast/X10MethodDecl_c.java,v
+retrieving revision 1.20
+diff -r1.20 X10MethodDecl_c.java
+23a24
+> import polyglot.ext.x10.types.X10ConstructorInstance;
+27a29,30
+> import polyglot.ext.x10.types.constr.Constraint;
+> import polyglot.ext.x10.types.constr.TypeTranslator;
+53c56
+<     // The reprsentation of the : Constraint in the parameter list.
+---
+>     // The representation of the : Constraint in the parameter list.
+69a73,77
+>         public X10MethodDecl whereClause(Expr e) {
+>         	X10MethodDecl_c n = (X10MethodDecl_c) copy();
+>         	n.whereClause = e;
+>         	return n;
+>         }
+168,169c176,177
+<         	MethodDecl nn = this;
+<             MethodDecl old = nn;
+---
+>         	X10MethodDecl nn = this;
+>             X10MethodDecl old = nn;
+178c186
+<             nn = nn.formals(processedFormals);
+---
+>             nn = (X10MethodDecl) nn.formals(processedFormals);
+195c203,216
+<  
+---
+>             
+>             // Check the where clause.
+>             if (whereClause != null) {
+>             	TypeChecker childtc3 = (TypeChecker) tc.enter(parent, nn);
+>             	Expr w = (Expr) nn.visitChild(whereClause, childtc3);
+>             	if (childtc3.hasErrors()) throw new SemanticException();
+>             	nn = nn.whereClause(w);
+>             	if (w.isTypeChecked() && ((X10MethodInstance) nn.methodInstance()).whereClause() == null) {
+>             		X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
+>             		Constraint c = new TypeTranslator(xts).constraint(w);
+>             		((X10MethodInstance) nn.methodInstance()).setWhereClause(c);
+>             	}
+>             }
+>             
+208c229
+<             nn = nn.returnType(r);
+---
+>             nn = (X10MethodDecl) nn.returnType(r);
+226c247
+<             nn = (MethodDecl) nn.body((Block) nn.visitChild(nn.body(), childtc2));
+---
+>             nn = (X10MethodDecl) nn.body((Block) nn.visitChild(nn.body(), childtc2));
+228c249
+<             nn = (MethodDecl) childtc2.leave(parent, old, nn, childtc2);
+---
+>             nn = (X10MethodDecl) childtc2.leave(parent, old, nn, childtc2);
+Index: types/X10ConstructorInstance_c.java
+===================================================================
+RCS file: /cvsroot/x10/x10.compiler/src/polyglot/ext/x10/types/X10ConstructorInstance_c.java,v
+retrieving revision 1.4
+diff -r1.4 X10ConstructorInstance_c.java
+114a115,116
+> 	
+> 	/** Constraint on superclass constructor call return type. */
+119a122,127
+> 	/** Constraint on formal parameters. */
+> 	protected Constraint whereClause;
+> 	public Constraint whereClause() { return whereClause; }
+> 	public void setWhereClause(Constraint s) { 
+> 		this.whereClause = s; 
+> 	}
+Index: types/X10MethodInstance_c.java
+===================================================================
+RCS file: /cvsroot/x10/x10.compiler/src/polyglot/ext/x10/types/X10MethodInstance_c.java,v
+retrieving revision 1.14
+diff -r1.14 X10MethodInstance_c.java
+124a125,131
+> 	/** Constraint on formal parameters. */
+> 	protected Constraint whereClause;
+> 	public Constraint whereClause() { return whereClause; }
+> 	public void setWhereClause(Constraint s) { 
+> 		this.whereClause = s; 
+> 	}
+> 
+Index: types/X10ParsedClassType_c.java
+===================================================================
+RCS file: /cvsroot/x10/x10.compiler/src/polyglot/ext/x10/types/X10ParsedClassType_c.java,v
+retrieving revision 1.58
+diff -r1.58 X10ParsedClassType_c.java
+421c421
+< 		realClause = new Constraint_c((X10TypeSystem) ts);
+---
+> 		Constraint realClause = new Constraint_c((X10TypeSystem) ts);
+433c433,434
+< 					realClauseInvalid = 
+---
+> 					 this.realClause = realClause;
+> 					 this.realClauseInvalid = 
+443c444,445
+< 		realClauseSet = true;
+---
+> 		this.realClause = realClause;
+> 		this.realClauseSet = true;
+Index: types/X10ProcedureInstance.java
+===================================================================
+RCS file: /cvsroot/x10/x10.compiler/src/polyglot/ext/x10/types/X10ProcedureInstance.java,v
+retrieving revision 1.2
+diff -r1.2 X10ProcedureInstance.java
+7a8
+> import polyglot.ext.x10.types.constr.Constraint;
+20a22,30
+> 	/** Return the constraint on the formal parameters, if any.
+> 	 * @return
+> 	 */
+> 	Constraint whereClause();
+> 	
+> 	/** Set the constraint on the formal parameters.
+> 	 * @param c
+> 	 */
+> 	void setWhereClause(Constraint c);
+Index: types/X10TypeSystem_c.java
+===================================================================
+RCS file: /cvsroot/x10/x10.compiler/src/polyglot/ext/x10/types/X10TypeSystem_c.java,v
+retrieving revision 1.80
+diff -r1.80 X10TypeSystem_c.java
+27a28
+> import polyglot.ext.x10.types.constr.Failure;
+1249,1251c1250,1259
+< 		Constraint c1 = me.realClause(), c2=other.depClause();
+< 		return entailsClause(c1,c2);
+< 		
+---
+> 		try {
+> 			Constraint c1 = me.realClause(), c2=other.depClause();
+> 			return entailsClause(c1,c2);
+> 		}
+> 		catch (InternalCompilerError e) {
+> 			if (e.getCause() instanceof Failure) {
+> 				return false;
+> 			}
+> 			throw e;
+> 		}
+Index: types/constr/C_Special_c.java
+===================================================================
+RCS file: /cvsroot/x10/x10.compiler/src/polyglot/ext/x10/types/constr/C_Special_c.java,v
+retrieving revision 1.13
+diff -r1.13 C_Special_c.java
+22c22
+< 		super(t.type(), t.kind().equals(Special.THIS), t.kind().equals(Special.SUPER));
+---
+> 		super(t.type(), t.kind().equals(Special.THIS), t.kind().equals(X10Special.SELF));
+35c35
+< 		super(t, kind == THIS, kind == SUPER);
+---
+> 		super(t, kind == THIS, kind == SELF);
+Index: types/constr/Constraint_c.java
+===================================================================
+RCS file: /cvsroot/x10/x10.compiler/src/polyglot/ext/x10/types/constr/Constraint_c.java,v
+retrieving revision 1.25
+diff -r1.25 Constraint_c.java
+11a12
+> import java.util.HashSet;
+24a26
+> import polyglot.ext.x10.ast.SemanticError;
+329a332,334
+> 			if (true) {
+> 				return this;
+> 			}
+331c336
+< 					+ " has made it inconsistent.");
+---
+> 					+ " has made it inconsistent.", z);
+839a845,851
+> 		
+> 		// This constraint is a copy of a class dep clause, with stuff added in.
+> 		// y.type is the root type and has class dep clause.
+> 		// So, yTypeRC is the class dep clause; which is not necessarily smaller than
+> 		// this constraint ==> infinite loop.
+>         // Example: this == self{i=self.i, j=self.j->self.i}
+> 		// where self : ValueProp1(:self.i=self.j)

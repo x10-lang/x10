@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: X10 compiler
+Bundle-SymbolicName: x10.compiler.p3
+Bundle-Version: 1.7.5.0
+Bundle-Localization: plugin
+Require-Bundle: x10.common.17,
+ x10.constraints,
+ lpg.runtime,
+ polyglot3
+Export-Package: polyglot.ext.x10,
+ polyglot.ext.x10.ast,
+ polyglot.ext.x10.extension,
+ polyglot.ext.x10.types,
+ polyglot.ext.x10.visit,
+ x10.parser
+Bundle-Vendor: rfuhrer@watson.ibm.com

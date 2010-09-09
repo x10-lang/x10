@@ -1,0 +1,50 @@
+\begin{tightcode}
+\quad\num{1}class Owned(Object o) \{ \}
+\quad\num{2}
+\quad\num{3}class Map(Owned ko, Owned vo) extends Owned \{
+\quad\num{4}  final Vec(:self.o == this && self.vo == this) nodes;
+\quad\num{5}
+\quad\num{6}  void put(final Owned(ko) key,
+\quad\num{7}           final Owned(vo) value) \{
+\quad\num{8}    final Node(this) n = new Node(this, key, value);
+\quad\num{9}    nodes.add(n);
+\quad\num{10}  \}
+\quad\num{11}
+\quad\num{12}  Owned(vo) get(Owned(ko) key) \{
+\quad\num{13}    final Iter(o, vo) i = nodes.iterator();
+\quad\num{14}    while (i.hasNext()) \{
+\quad\num{15}      Node(this, this) n = (Node(this, this)) i.next();
+\quad\num{16}      
+\quad\num{17}      Owned(ko) k = n.key;
+\quad\num{18}      Owned(vo) v = n.value;
+\quad\num{19}
+\quad\num{20}      if (k.equals(key)) \{
+\quad\num{21}          return v;
+\quad\num{22}      \}
+\quad\num{23}    \}
+\quad\num{24}    return null;
+\quad\num{25}  \}
+\quad\num{26}\}
+\quad\num{27}
+\quad\num{28}class Node(Map map) extends Owned \{
+\quad\num{29}  final Owned(map.ko) key;
+\quad\num{30}  final Owned(map.vo) value;
+\quad\num{31}
+\quad\num{32}  public Node(m, m)(Map m, final Owned(m.ko) key, final Owned(m.vo) value) \{
+\quad\num{33}    this.key = key;
+\quad\num{34}    this.value = value;
+\quad\num{35}  \}
+\quad\num{36}\}
+\quad\num{37}
+\quad\num{38}class Vec(Object vo) extends Owned \{
+\quad\num{39}  void add(final Owned(vo) x) \{ \}
+\quad\num{40}  Iter(this.o, this.vo) iterator() \{ return new Iter(o, vo); \}
+\quad\num{41}\}
+\quad\num{42}
+\quad\num{43}
+\quad\num{44}class Iter(Object vo) extends Owned \{
+\quad\num{45}  Iter(this.o, this.vo)(Object o, Object vo) \{ \}
+\quad\num{46}  boolean hasNext() \{ return false; \}
+\quad\num{47}  Owned(vo) next() \{ return next(); \}
+\quad\num{48}\}
+\end{tightcode}

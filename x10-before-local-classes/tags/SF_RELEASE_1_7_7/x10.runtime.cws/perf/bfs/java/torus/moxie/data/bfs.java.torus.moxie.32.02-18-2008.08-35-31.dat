@@ -1,0 +1,2038 @@
+############################################################
+# Benchmark Host: moxie
+# Number Of Processors: 32
+#
+# Number Of Scheduled Runs: 1
+# Start Time: 02/18/2008 - 08:35:32
+############################################################
+#
+# Run: 1
+#
+
+## Size: 500
+
+### nproc: 1
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G graph.AdaptiveBFS 1 T 500 4 false false true 1 4
+Number of procs=1
+graphType=T
+N=500
+D=4
+reporting=false
+graphOnly=false
+verification=true
+BATCH_SIZE=1
+MULTIPLIER=4.0
+Generating graph...
+Graph generated.
+Creation time:1.5405 s
+M=1000000 t=0.2852 s  3.51 MegaEdges/s sc=0 sa=0
+ (verification  0.14 s)
+M=1000000 t=0.1597 s  6.26 MegaEdges/s sc=0 sa=0
+ (verification  0.12 s)
+M=1000000 t=0.1587 s  6.30 MegaEdges/s sc=0 sa=0
+ (verification  0.06 s)
+M=1000000 t=0.1583 s  6.32 MegaEdges/s sc=0 sa=0
+ (verification  0.06 s)
+M=1000000 t=0.1447 s  6.91 MegaEdges/s sc=0 sa=0
+ (verification  0.06 s)
+M=1000000 t=1.3712 s  0.73 MegaEdges/s sc=0 sa=0
+ (verification  0.06 s)
+M=1000000 t=0.1442 s  6.94 MegaEdges/s sc=0 sa=0
+ (verification  0.06 s)
+M=1000000 t=0.1375 s  7.27 MegaEdges/s sc=0 sa=0
+ (verification  0.06 s)
+M=1000000 t=0.1394 s  7.17 MegaEdges/s sc=0 sa=0
+ (verification  0.06 s)
+M=1000000 t=0.1386 s  7.21 MegaEdges/s sc=0 sa=0
+ (verification  0.06 s)
+M=1000000 t=0.1336 s  7.48 MegaEdges/s sc=0 sa=0
+ (verification  0.06 s)
+M=1000000 t=0.1373 s  7.28 MegaEdges/s sc=0 sa=0
+ (verification  0.06 s)
+M=1000000 t=0.1365 s  7.33 MegaEdges/s sc=0 sa=0
+ (verification  0.06 s)
+M=1000000 t=0.2726 s  3.67 MegaEdges/s sc=0 sa=0
+ (verification  0.06 s)
+M=1000000 t=0.1299 s  7.70 MegaEdges/s sc=0 sa=0
+ (verification  0.06 s)
+M=1000000 t=0.1335 s  7.49 MegaEdges/s sc=0 sa=0
+ (verification  0.06 s)
+M=1000000 t=0.1270 s  7.87 MegaEdges/s sc=0 sa=0
+ (verification  0.06 s)
+M=1000000 t=0.1262 s  7.92 MegaEdges/s sc=0 sa=0
+ (verification  0.06 s)
+M=1000000 t=0.1270 s  7.87 MegaEdges/s sc=0 sa=0
+ (verification  0.06 s)
+M=1000000 t=0.1296 s  7.71 MegaEdges/s sc=0 sa=0
+ (verification  0.06 s)
+Completed iterations for N=250000
+
+### nproc: 2
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G graph.AdaptiveBFS 2 T 500 4 false false true 1 4
+Number of procs=2
+graphType=T
+N=500
+D=4
+reporting=false
+graphOnly=false
+verification=true
+BATCH_SIZE=1
+MULTIPLIER=4.0
+Generating graph...
+Graph generated.
+Creation time:1.9142 s
+M=1000000 t=1.9116 s  0.52 MegaEdges/s sc=349 sa=4052
+ (verification  0.19 s)
+M=1000000 t=2.1014 s  0.48 MegaEdges/s sc=312 sa=4682
+ (verification  0.12 s)
+M=1000000 t=5.2708 s  0.19 MegaEdges/s sc=481 sa=6908
+ (verification  0.06 s)
+M=1000000 t=4.0955 s  0.24 MegaEdges/s sc=682 sa=8154
+ (verification  0.06 s)
+M=1000000 t=3.6868 s  0.27 MegaEdges/s sc=815 sa=7806
+ (verification  0.06 s)
+M=1000000 t=3.7661 s  0.27 MegaEdges/s sc=767 sa=7794
+ (verification  0.06 s)
+M=1000000 t=3.3662 s  0.30 MegaEdges/s sc=744 sa=7092
+ (verification  0.06 s)
+M=1000000 t=3.9569 s  0.25 MegaEdges/s sc=903 sa=8448
+ (verification  0.06 s)
+M=1000000 t=3.2749 s  0.31 MegaEdges/s sc=899 sa=7672
+ (verification  0.06 s)
+M=1000000 t=3.7967 s  0.26 MegaEdges/s sc=983 sa=8422
+ (verification  0.06 s)
+M=1000000 t=3.4868 s  0.29 MegaEdges/s sc=739 sa=7206
+ (verification  0.06 s)
+M=1000000 t=3.9466 s  0.25 MegaEdges/s sc=948 sa=8508
+ (verification  0.06 s)
+M=1000000 t=4.0063 s  0.25 MegaEdges/s sc=1087 sa=8880
+ (verification  0.06 s)
+M=1000000 t=3.7468 s  0.27 MegaEdges/s sc=1598 sa=9442
+ (verification  0.06 s)
+M=1000000 t=4.0867 s  0.24 MegaEdges/s sc=1100 sa=8630
+ (verification  0.06 s)
+M=1000000 t=3.9666 s  0.25 MegaEdges/s sc=976 sa=8574
+ (verification  0.06 s)
+M=1000000 t=3.9461 s  0.25 MegaEdges/s sc=1184 sa=9048
+ (verification  0.06 s)
+M=1000000 t=3.3566 s  0.30 MegaEdges/s sc=1157 sa=8084
+ (verification  0.06 s)
+M=1000000 t=3.9566 s  0.25 MegaEdges/s sc=1009 sa=8654
+ (verification  0.06 s)
+M=1000000 t=3.9166 s  0.26 MegaEdges/s sc=1084 sa=8702
+ (verification  0.06 s)
+Completed iterations for N=250000
+
+### nproc: 4
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G graph.AdaptiveBFS 4 T 500 4 false false true 1 4
+Number of procs=4
+graphType=T
+N=500
+D=4
+reporting=false
+graphOnly=false
+verification=true
+BATCH_SIZE=1
+MULTIPLIER=4.0
+Generating graph...
+Graph generated.
+Creation time:1.8621 s
+M=1000000 t=1.2224 s  0.82 MegaEdges/s sc=757 sa=23313
+ (verification  0.10 s)
+M=1000000 t=3.2192 s  0.31 MegaEdges/s sc=2036 sa=50932
+ (verification  0.09 s)
+M=1000000 t=2.3021 s  0.43 MegaEdges/s sc=3134 sa=50966
+ (verification  0.06 s)
+M=1000000 t=1.7134 s  0.58 MegaEdges/s sc=3683 sa=47555
+ (verification  0.06 s)
+M=1000000 t=1.7652 s  0.57 MegaEdges/s sc=5814 sa=53419
+ (verification  0.06 s)
+M=1000000 t=1.6945 s  0.59 MegaEdges/s sc=7327 sa=57262
+ (verification  0.06 s)
+M=1000000 t=1.4458 s  0.69 MegaEdges/s sc=7210 sa=54779
+ (verification  0.04 s)
+M=1000000 t=3.7299 s  0.27 MegaEdges/s sc=5490 sa=50087
+ (verification  0.04 s)
+M=1000000 t=1.2801 s  0.78 MegaEdges/s sc=6587 sa=58522
+ (verification  0.06 s)
+M=1000000 t=0.9952 s  1.00 MegaEdges/s sc=4039 sa=39562
+ (verification  0.04 s)
+M=1000000 t=1.4803 s  0.68 MegaEdges/s sc=6320 sa=54435
+ (verification  0.06 s)
+M=1000000 t=1.1346 s  0.88 MegaEdges/s sc=4771 sa=44965
+ (verification  0.04 s)
+M=1000000 t=1.9499 s  0.51 MegaEdges/s sc=7350 sa=71042
+ (verification  0.06 s)
+M=1000000 t=1.6051 s  0.62 MegaEdges/s sc=7024 sa=64112
+ (verification  0.06 s)
+M=1000000 t=1.9159 s  0.52 MegaEdges/s sc=6830 sa=59930
+ (verification  0.06 s)
+M=1000000 t=2.0759 s  0.48 MegaEdges/s sc=6532 sa=60656
+ (verification  0.06 s)
+M=1000000 t=1.5054 s  0.66 MegaEdges/s sc=6980 sa=52788
+ (verification  0.06 s)
+M=1000000 t=1.4555 s  0.69 MegaEdges/s sc=6969 sa=60692
+ (verification  0.04 s)
+M=1000000 t=1.5306 s  0.65 MegaEdges/s sc=6517 sa=59972
+ (verification  0.06 s)
+M=1000000 t=1.9453 s  0.51 MegaEdges/s sc=7148 sa=68918
+ (verification  0.06 s)
+Completed iterations for N=250000
+
+### nproc: 8
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G graph.AdaptiveBFS 8 T 500 4 false false true 1 4
+Number of procs=8
+graphType=T
+N=500
+D=4
+reporting=false
+graphOnly=false
+verification=true
+BATCH_SIZE=1
+MULTIPLIER=4.0
+Generating graph...
+Graph generated.
+Creation time:4.2865 s
+M=1000000 t=1.6452 s  0.61 MegaEdges/s sc=3137 sa=162321
+ (verification  0.08 s)
+M=1000000 t=1.9066 s  0.52 MegaEdges/s sc=6922 sa=237861
+ (verification  0.09 s)
+M=1000000 t=1.1637 s  0.86 MegaEdges/s sc=13383 sa=240790
+ (verification  0.06 s)
+M=1000000 t=0.0780 s 12.83 MegaEdges/s sc=53 sa=23866
+ (verification  0.03 s)
+M=1000000 t=0.9823 s  1.02 MegaEdges/s sc=13310 sa=237162
+ (verification  0.03 s)
+M=1000000 t=1.0864 s  0.92 MegaEdges/s sc=14379 sa=263135
+ (verification  0.98 s)
+M=1000000 t=1.0471 s  0.96 MegaEdges/s sc=13491 sa=247590
+ (verification  0.01 s)
+M=1000000 t=1.0908 s  0.92 MegaEdges/s sc=13677 sa=238319
+ (verification  0.06 s)
+M=1000000 t=2.0785 s  0.48 MegaEdges/s sc=13754 sa=259131
+ (verification  0.06 s)
+M=1000000 t=1.1491 s  0.87 MegaEdges/s sc=13954 sa=247123
+ (verification  0.03 s)
+M=1000000 t=1.2368 s  0.81 MegaEdges/s sc=13964 sa=250550
+ (verification  0.06 s)
+M=1000000 t=1.0893 s  0.92 MegaEdges/s sc=14084 sa=239663
+ (verification  0.04 s)
+M=1000000 t=2.1098 s  0.47 MegaEdges/s sc=13831 sa=247077
+ (verification  0.03 s)
+M=1000000 t=1.1768 s  0.85 MegaEdges/s sc=13994 sa=250651
+ (verification  0.06 s)
+M=1000000 t=1.2766 s  0.78 MegaEdges/s sc=13907 sa=260110
+ (verification  0.06 s)
+M=1000000 t=2.2367 s  0.45 MegaEdges/s sc=13164 sa=255337
+ (verification  0.03 s)
+M=1000000 t=0.7171 s  1.39 MegaEdges/s sc=11922 sa=191687
+ (verification  0.06 s)
+M=1000000 t=0.9775 s  1.02 MegaEdges/s sc=13606 sa=244475
+ (verification  0.06 s)
+M=1000000 t=1.0750 s  0.93 MegaEdges/s sc=13609 sa=256791
+ (verification  0.03 s)
+M=1000000 t=2.0768 s  0.48 MegaEdges/s sc=13637 sa=243744
+ (verification  0.03 s)
+Completed iterations for N=250000
+
+### nproc: 16
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G graph.AdaptiveBFS 16 T 500 4 false false true 1 4
+Number of procs=16
+graphType=T
+N=500
+D=4
+reporting=false
+graphOnly=false
+verification=true
+BATCH_SIZE=1
+MULTIPLIER=4.0
+Generating graph...
+Graph generated.
+Creation time:6.7986 s
+M=1000000 t=14.6407 s  0.07 MegaEdges/s sc=8678 sa=853122
+ (verification  0.08 s)
+M=1000000 t=5.0995 s  0.20 MegaEdges/s sc=12448 sa=912527
+ (verification  0.07 s)
+M=1000000 t=3.1205 s  0.32 MegaEdges/s sc=11799 sa=845143
+ (verification  0.06 s)
+M=1000000 t=3.1343 s  0.32 MegaEdges/s sc=12557 sa=900962
+ (verification  0.02 s)
+M=1000000 t=2.9758 s  0.34 MegaEdges/s sc=13005 sa=830360
+ (verification  0.01 s)
+M=1000000 t=3.1412 s  0.32 MegaEdges/s sc=12583 sa=843821
+ (verification  0.03 s)
+M=1000000 t=1.2021 s  0.83 MegaEdges/s sc=12574 sa=872255
+ (verification  0.01 s)
+M=1000000 t=0.2037 s  4.91 MegaEdges/s sc=2196 sa=116808
+ (verification  0.02 s)
+M=1000000 t=3.0370 s  0.33 MegaEdges/s sc=12679 sa=853045
+ (verification  0.02 s)
+M=1000000 t=1.1912 s  0.84 MegaEdges/s sc=12289 sa=848456
+ (verification  0.01 s)
+M=1000000 t=1.2906 s  0.77 MegaEdges/s sc=12376 sa=872211
+ (verification  0.03 s)
+M=1000000 t=0.3090 s  3.24 MegaEdges/s sc=1767 sa=152641
+ (verification  0.03 s)
+M=1000000 t=1.1269 s  0.89 MegaEdges/s sc=12346 sa=833422
+ (verification  0.03 s)
+M=1000000 t=3.1201 s  0.32 MegaEdges/s sc=11777 sa=863424
+ (verification  0.02 s)
+M=1000000 t=1.2597 s  0.79 MegaEdges/s sc=12163 sa=872167
+ (verification  0.06 s)
+M=1000000 t=1.2553 s  0.80 MegaEdges/s sc=13377 sa=894900
+ (verification  0.03 s)
+M=1000000 t=1.2673 s  0.79 MegaEdges/s sc=12355 sa=879778
+ (verification  0.03 s)
+M=1000000 t=3.1570 s  0.32 MegaEdges/s sc=13245 sa=872600
+ (verification  0.02 s)
+M=1000000 t=1.0568 s  0.95 MegaEdges/s sc=12798 sa=844901
+ (verification  0.02 s)
+M=1000000 t=1.2145 s  0.82 MegaEdges/s sc=12964 sa=876949
+ (verification  0.06 s)
+Completed iterations for N=250000
+
+### nproc: 20
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G graph.AdaptiveBFS 20 T 500 4 false false true 1 4
+Number of procs=20
+graphType=T
+N=500
+D=4
+reporting=false
+graphOnly=false
+verification=true
+BATCH_SIZE=1
+MULTIPLIER=4.0
+Generating graph...
+Graph generated.
+Creation time:8.1611 s
+M=1000000 t=8.2959 s  0.12 MegaEdges/s sc=7817 sa=1917243
+ (verification  0.07 s)
+M=1000000 t=4.5992 s  0.22 MegaEdges/s sc=10865 sa=1632563
+ (verification  0.07 s)
+M=1000000 t=3.7939 s  0.26 MegaEdges/s sc=10401 sa=1264079
+ (verification  0.02 s)
+M=1000000 t=3.7821 s  0.26 MegaEdges/s sc=10600 sa=1321197
+ (verification  0.02 s)
+M=1000000 t=3.6464 s  0.27 MegaEdges/s sc=11501 sa=1307599
+ (verification  0.02 s)
+M=1000000 t=3.8156 s  0.26 MegaEdges/s sc=11793 sa=1335069
+ (verification  0.02 s)
+M=1000000 t=1.4852 s  0.67 MegaEdges/s sc=11194 sa=1326880
+ (verification  0.02 s)
+M=1000000 t=3.8302 s  0.26 MegaEdges/s sc=11099 sa=1312425
+ (verification  0.02 s)
+M=1000000 t=1.2533 s  0.80 MegaEdges/s sc=11349 sa=1237412
+ (verification  0.01 s)
+M=1000000 t=3.8212 s  0.26 MegaEdges/s sc=10760 sa=1309550
+ (verification  0.02 s)
+M=1000000 t=1.3241 s  0.76 MegaEdges/s sc=10796 sa=1287220
+ (verification  0.01 s)
+M=1000000 t=1.3329 s  0.75 MegaEdges/s sc=11025 sa=1245948
+ (verification  0.02 s)
+M=1000000 t=3.7477 s  0.27 MegaEdges/s sc=11377 sa=1309142
+ (verification  0.01 s)
+M=1000000 t=1.4781 s  0.68 MegaEdges/s sc=10972 sa=1304638
+ (verification  0.01 s)
+M=1000000 t=1.3219 s  0.76 MegaEdges/s sc=11388 sa=1266705
+ (verification  0.02 s)
+M=1000000 t=3.7669 s  0.27 MegaEdges/s sc=10677 sa=1268958
+ (verification  0.02 s)
+M=1000000 t=1.3284 s  0.75 MegaEdges/s sc=11540 sa=1301149
+ (verification  0.01 s)
+M=1000000 t=1.3305 s  0.75 MegaEdges/s sc=10602 sa=1255448
+ (verification  0.01 s)
+M=1000000 t=3.7418 s  0.27 MegaEdges/s sc=11246 sa=1310632
+ (verification  0.02 s)
+M=1000000 t=1.4037 s  0.71 MegaEdges/s sc=11045 sa=1314943
+ (verification  0.01 s)
+Completed iterations for N=250000
+
+### nproc: 24
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G graph.AdaptiveBFS 24 T 500 4 false false true 1 4
+Number of procs=24
+graphType=T
+N=500
+D=4
+reporting=false
+graphOnly=false
+verification=true
+BATCH_SIZE=1
+MULTIPLIER=4.0
+Generating graph...
+Graph generated.
+Creation time:5.4298 s
+M=1000000 t=3.6262 s  0.28 MegaEdges/s sc=8546 sa=2789682
+ (verification  0.09 s)
+M=1000000 t=1.8871 s  0.53 MegaEdges/s sc=9918 sa=1922460
+ (verification  0.07 s)
+M=1000000 t=1.6510 s  0.61 MegaEdges/s sc=10964 sa=1956262
+ (verification  0.01 s)
+M=1000000 t=4.3801 s  0.23 MegaEdges/s sc=9515 sa=1735953
+ (verification  0.01 s)
+M=1000000 t=1.5052 s  0.66 MegaEdges/s sc=10308 sa=1789002
+ (verification  0.02 s)
+M=1000000 t=4.3411 s  0.23 MegaEdges/s sc=10122 sa=1842264
+ (verification  0.02 s)
+M=1000000 t=1.5971 s  0.63 MegaEdges/s sc=9914 sa=1755981
+ (verification  0.02 s)
+M=1000000 t=1.4187 s  0.70 MegaEdges/s sc=9905 sa=1739495
+ (verification  0.01 s)
+M=1000000 t=4.3493 s  0.23 MegaEdges/s sc=10597 sa=1849083
+ (verification  0.02 s)
+M=1000000 t=1.5047 s  0.66 MegaEdges/s sc=10577 sa=1870914
+ (verification  0.01 s)
+M=1000000 t=1.5806 s  0.63 MegaEdges/s sc=9932 sa=1797154
+ (verification  0.02 s)
+M=1000000 t=1.5246 s  0.66 MegaEdges/s sc=9859 sa=1734819
+ (verification  2.90 s)
+M=1000000 t=1.5302 s  0.65 MegaEdges/s sc=9964 sa=1770392
+ (verification  0.01 s)
+M=1000000 t=1.6022 s  0.62 MegaEdges/s sc=10320 sa=1845967
+ (verification  0.06 s)
+M=1000000 t=1.5459 s  0.65 MegaEdges/s sc=10254 sa=1843197
+ (verification  0.01 s)
+M=1000000 t=1.5524 s  0.64 MegaEdges/s sc=10654 sa=1861714
+ (verification  0.01 s)
+M=1000000 t=4.6386 s  0.22 MegaEdges/s sc=10949 sa=1981746
+ (verification  0.02 s)
+M=1000000 t=1.4439 s  0.69 MegaEdges/s sc=9949 sa=1746775
+ (verification  0.01 s)
+M=1000000 t=1.6503 s  0.61 MegaEdges/s sc=10158 sa=1919969
+ (verification  0.01 s)
+M=1000000 t=1.4718 s  0.68 MegaEdges/s sc=10657 sa=1812553
+ (verification  0.01 s)
+Completed iterations for N=250000
+
+### nproc: 30
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G graph.AdaptiveBFS 30 T 500 4 false false true 1 4
+Number of procs=30
+graphType=T
+N=500
+D=4
+reporting=false
+graphOnly=false
+verification=true
+BATCH_SIZE=1
+MULTIPLIER=4.0
+Generating graph...
+Graph generated.
+Creation time:11.8204 s
+M=1000000 t=14.9558 s  0.07 MegaEdges/s sc=9625 sa=4401658
+ (verification  0.08 s)
+M=1000000 t=5.3541 s  0.19 MegaEdges/s sc=11216 sa=2912224
+ (verification  0.07 s)
+M=1000000 t=5.4429 s  0.18 MegaEdges/s sc=9889 sa=2778772
+ (verification  0.01 s)
+M=1000000 t=5.5185 s  0.18 MegaEdges/s sc=10209 sa=2901814
+ (verification  0.03 s)
+M=1000000 t=5.5660 s  0.18 MegaEdges/s sc=10657 sa=2985715
+ (verification  0.01 s)
+M=1000000 t=1.8222 s  0.55 MegaEdges/s sc=10310 sa=2832648
+ (verification  0.01 s)
+M=1000000 t=5.3435 s  0.19 MegaEdges/s sc=9893 sa=2790115
+ (verification  0.01 s)
+M=1000000 t=1.8516 s  0.54 MegaEdges/s sc=9667 sa=2821534
+ (verification  3.64 s)
+M=1000000 t=1.9189 s  0.52 MegaEdges/s sc=11080 sa=3046400
+ (verification  0.02 s)
+M=1000000 t=1.8096 s  0.55 MegaEdges/s sc=9434 sa=2792794
+ (verification  0.02 s)
+M=1000000 t=5.4835 s  0.18 MegaEdges/s sc=10239 sa=2956309
+ (verification  0.01 s)
+M=1000000 t=1.8721 s  0.53 MegaEdges/s sc=10108 sa=2846716
+ (verification  0.01 s)
+M=1000000 t=1.8222 s  0.55 MegaEdges/s sc=11081 sa=3017576
+ (verification  0.01 s)
+M=1000000 t=1.8682 s  0.54 MegaEdges/s sc=10250 sa=2902104
+ (verification  0.03 s)
+M=1000000 t=1.7558 s  0.57 MegaEdges/s sc=10697 sa=2922159
+ (verification  0.01 s)
+M=1000000 t=1.8286 s  0.55 MegaEdges/s sc=9772 sa=2860185
+ (verification  0.01 s)
+M=1000000 t=5.3141 s  0.19 MegaEdges/s sc=9924 sa=2703035
+ (verification  0.02 s)
+M=1000000 t=1.9374 s  0.52 MegaEdges/s sc=9957 sa=2923598
+ (verification  0.01 s)
+M=1000000 t=1.8589 s  0.54 MegaEdges/s sc=10303 sa=2932049
+ (verification  0.01 s)
+M=1000000 t=1.8669 s  0.54 MegaEdges/s sc=10606 sa=2850140
+ (verification  0.01 s)
+Completed iterations for N=250000
+
+### nproc: 32
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G graph.AdaptiveBFS 32 T 500 4 false false true 1 4
+Number of procs=32
+graphType=T
+N=500
+D=4
+reporting=false
+graphOnly=false
+verification=true
+BATCH_SIZE=1
+MULTIPLIER=4.0
+Generating graph...
+Graph generated.
+Creation time:12.8639 s
+M=1000000 t=24.2190 s  0.04 MegaEdges/s sc=12924 sa=3259011
+ (verification  0.09 s)
+M=1000000 t=9.0824 s  0.11 MegaEdges/s sc=12526 sa=3303400
+ (verification  0.06 s)
+M=1000000 t=5.6525 s  0.18 MegaEdges/s sc=10596 sa=3306741
+ (verification  0.03 s)
+M=1000000 t=5.5836 s  0.18 MegaEdges/s sc=10204 sa=3265491
+ (verification  0.01 s)
+M=1000000 t=5.5694 s  0.18 MegaEdges/s sc=9777 sa=3301110
+ (verification  0.01 s)
+M=1000000 t=5.6257 s  0.18 MegaEdges/s sc=9701 sa=3188768
+ (verification  0.01 s)
+M=1000000 t=1.8918 s  0.53 MegaEdges/s sc=10768 sa=3354502
+ (verification  0.01 s)
+M=1000000 t=5.5889 s  0.18 MegaEdges/s sc=10008 sa=3187464
+ (verification  0.01 s)
+M=1000000 t=1.8838 s  0.53 MegaEdges/s sc=10889 sa=3377788
+ (verification  0.02 s)
+M=1000000 t=5.5771 s  0.18 MegaEdges/s sc=9774 sa=3230055
+ (verification  0.01 s)
+M=1000000 t=2.0278 s  0.49 MegaEdges/s sc=10439 sa=3486056
+ (verification  0.01 s)
+M=1000000 t=1.8817 s  0.53 MegaEdges/s sc=10393 sa=3255391
+ (verification  0.01 s)
+M=1000000 t=5.8012 s  0.17 MegaEdges/s sc=9881 sa=3255764
+ (verification  0.01 s)
+M=1000000 t=2.0333 s  0.49 MegaEdges/s sc=10738 sa=3439787
+ (verification  0.01 s)
+M=1000000 t=5.6034 s  0.18 MegaEdges/s sc=10616 sa=3266143
+ (verification  0.02 s)
+M=1000000 t=1.8424 s  0.54 MegaEdges/s sc=10224 sa=3211698
+ (verification  0.01 s)
+M=1000000 t=1.9408 s  0.52 MegaEdges/s sc=10209 sa=3357251
+ (verification  0.01 s)
+M=1000000 t=5.5948 s  0.18 MegaEdges/s sc=9827 sa=3127916
+ (verification  0.01 s)
+M=1000000 t=1.9304 s  0.52 MegaEdges/s sc=9674 sa=3283344
+ (verification  0.01 s)
+M=1000000 t=1.7812 s  0.56 MegaEdges/s sc=9161 sa=3029484
+ (verification  0.01 s)
+Completed iterations for N=250000
+
+## Size: 1000
+
+### nproc: 1
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G graph.AdaptiveBFS 1 T 1000 4 false false true 1 4
+Number of procs=1
+graphType=T
+N=1000
+D=4
+reporting=false
+graphOnly=false
+verification=true
+BATCH_SIZE=1
+MULTIPLIER=4.0
+Generating graph...
+Graph generated.
+Creation time:6.8705 s
+M=4000000 t=0.6480 s  6.17 MegaEdges/s sc=0 sa=0
+ (verification  0.31 s)
+M=4000000 t=0.5335 s  7.50 MegaEdges/s sc=0 sa=0
+ (verification  0.33 s)
+M=4000000 t=0.5011 s  7.98 MegaEdges/s sc=0 sa=0
+ (verification  0.23 s)
+M=4000000 t=0.5111 s  7.83 MegaEdges/s sc=0 sa=0
+ (verification  0.23 s)
+M=4000000 t=0.4906 s  8.15 MegaEdges/s sc=0 sa=0
+ (verification  0.22 s)
+M=4000000 t=0.4687 s  8.53 MegaEdges/s sc=0 sa=0
+ (verification  0.22 s)
+M=4000000 t=0.4656 s  8.59 MegaEdges/s sc=0 sa=0
+ (verification  0.22 s)
+M=4000000 t=0.4595 s  8.70 MegaEdges/s sc=0 sa=0
+ (verification  0.22 s)
+M=4000000 t=0.4639 s  8.62 MegaEdges/s sc=0 sa=0
+ (verification  0.22 s)
+M=4000000 t=0.4660 s  8.58 MegaEdges/s sc=0 sa=0
+ (verification  0.22 s)
+M=4000000 t=0.4376 s  9.14 MegaEdges/s sc=0 sa=0
+ (verification  0.22 s)
+M=4000000 t=0.4323 s  9.25 MegaEdges/s sc=0 sa=0
+ (verification  0.22 s)
+M=4000000 t=0.4567 s  8.76 MegaEdges/s sc=0 sa=0
+ (verification  0.22 s)
+M=4000000 t=0.4376 s  9.14 MegaEdges/s sc=0 sa=0
+ (verification  0.22 s)
+M=4000000 t=0.4320 s  9.26 MegaEdges/s sc=0 sa=0
+ (verification  0.22 s)
+M=4000000 t=3.2152 s  1.24 MegaEdges/s sc=0 sa=0
+ (verification  0.22 s)
+M=4000000 t=0.4437 s  9.01 MegaEdges/s sc=0 sa=0
+ (verification  0.23 s)
+M=4000000 t=0.4545 s  8.80 MegaEdges/s sc=0 sa=0
+ (verification  0.22 s)
+M=4000000 t=0.4530 s  8.83 MegaEdges/s sc=0 sa=0
+ (verification  0.22 s)
+M=4000000 t=0.4464 s  8.96 MegaEdges/s sc=0 sa=0
+ (verification  0.22 s)
+Completed iterations for N=1000000
+
+### nproc: 2
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G graph.AdaptiveBFS 2 T 1000 4 false false true 1 4
+Number of procs=2
+graphType=T
+N=1000
+D=4
+reporting=false
+graphOnly=false
+verification=true
+BATCH_SIZE=1
+MULTIPLIER=4.0
+Generating graph...
+Graph generated.
+Creation time:7.8395 s
+M=4000000 t=5.1262 s  0.78 MegaEdges/s sc=1213 sa=11574
+ (verification  0.36 s)
+M=4000000 t=8.1568 s  0.49 MegaEdges/s sc=1830 sa=17352
+ (verification  0.32 s)
+M=4000000 t=8.2383 s  0.49 MegaEdges/s sc=1926 sa=17498
+ (verification  0.22 s)
+M=4000000 t=8.6812 s  0.46 MegaEdges/s sc=2652 sa=19924
+ (verification  0.23 s)
+M=4000000 t=8.9315 s  0.45 MegaEdges/s sc=2371 sa=19148
+ (verification  0.24 s)
+M=4000000 t=8.5204 s  0.47 MegaEdges/s sc=2838 sa=19910
+ (verification  0.23 s)
+M=4000000 t=8.6193 s  0.46 MegaEdges/s sc=3371 sa=21042
+ (verification  0.22 s)
+M=4000000 t=8.5822 s  0.47 MegaEdges/s sc=2812 sa=20104
+ (verification  0.22 s)
+M=4000000 t=8.4623 s  0.47 MegaEdges/s sc=2772 sa=19834
+ (verification  0.23 s)
+M=4000000 t=8.4029 s  0.48 MegaEdges/s sc=2821 sa=20004
+ (verification  0.23 s)
+M=4000000 t=8.5884 s  0.47 MegaEdges/s sc=2940 sa=20182
+ (verification  0.22 s)
+M=4000000 t=8.3922 s  0.48 MegaEdges/s sc=2969 sa=20186
+ (verification  0.22 s)
+M=4000000 t=8.5326 s  0.47 MegaEdges/s sc=3299 sa=21166
+ (verification  0.22 s)
+M=4000000 t=7.6019 s  0.53 MegaEdges/s sc=2694 sa=18282
+ (verification  0.22 s)
+M=4000000 t=8.5420 s  0.47 MegaEdges/s sc=2739 sa=19796
+ (verification  0.22 s)
+M=4000000 t=8.4223 s  0.47 MegaEdges/s sc=3056 sa=20440
+ (verification  0.23 s)
+M=4000000 t=7.6920 s  0.52 MegaEdges/s sc=2454 sa=17874
+ (verification  0.22 s)
+M=4000000 t=8.5623 s  0.47 MegaEdges/s sc=2849 sa=20232
+ (verification  0.22 s)
+M=4000000 t=8.4318 s  0.47 MegaEdges/s sc=2757 sa=19514
+ (verification  0.22 s)
+M=4000000 t=8.4915 s  0.47 MegaEdges/s sc=2982 sa=20256
+ (verification  0.23 s)
+Completed iterations for N=1000000
+
+### nproc: 4
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G graph.AdaptiveBFS 4 T 1000 4 false false true 1 4
+Number of procs=4
+graphType=T
+N=1000
+D=4
+reporting=false
+graphOnly=false
+verification=true
+BATCH_SIZE=1
+MULTIPLIER=4.0
+Generating graph...
+Graph generated.
+Creation time:9.5425 s
+M=4000000 t=5.2765 s  0.76 MegaEdges/s sc=5651 sa=91759
+ (verification  0.18 s)
+M=4000000 t=3.3744 s  1.19 MegaEdges/s sc=13094 sa=112708
+ (verification  0.21 s)
+M=4000000 t=3.8229 s  1.05 MegaEdges/s sc=22044 sa=142215
+ (verification  0.23 s)
+M=4000000 t=4.2630 s  0.94 MegaEdges/s sc=20631 sa=134367
+ (verification  4.87 s)
+M=4000000 t=4.6481 s  0.86 MegaEdges/s sc=22086 sa=151021
+ (verification  0.24 s)
+M=4000000 t=3.7613 s  1.06 MegaEdges/s sc=19880 sa=165244
+ (verification  0.23 s)
+M=4000000 t=0.2361 s 16.94 MegaEdges/s sc=101 sa=6389
+ (verification  0.11 s)
+M=4000000 t=4.1396 s  0.97 MegaEdges/s sc=19680 sa=131364
+ (verification  0.23 s)
+M=4000000 t=4.7538 s  0.84 MegaEdges/s sc=22059 sa=172234
+ (verification  0.23 s)
+M=4000000 t=4.7686 s  0.84 MegaEdges/s sc=21585 sa=146385
+ (verification  1.16 s)
+M=4000000 t=3.8510 s  1.04 MegaEdges/s sc=19824 sa=159118
+ (verification  0.24 s)
+M=4000000 t=3.9968 s  1.00 MegaEdges/s sc=20555 sa=132945
+ (verification  0.24 s)
+M=4000000 t=4.4444 s  0.90 MegaEdges/s sc=21543 sa=142689
+ (verification  0.23 s)
+M=4000000 t=4.0356 s  0.99 MegaEdges/s sc=22193 sa=141826
+ (verification  0.11 s)
+M=4000000 t=4.7985 s  0.83 MegaEdges/s sc=20795 sa=141612
+ (verification  1.19 s)
+M=4000000 t=3.7990 s  1.05 MegaEdges/s sc=23105 sa=184940
+ (verification  0.24 s)
+M=4000000 t=4.3167 s  0.93 MegaEdges/s sc=20521 sa=159091
+ (verification  0.11 s)
+M=4000000 t=3.8088 s  1.05 MegaEdges/s sc=21830 sa=136480
+ (verification  0.23 s)
+M=4000000 t=3.9811 s  1.00 MegaEdges/s sc=20049 sa=155852
+ (verification  0.11 s)
+M=4000000 t=4.4085 s  0.91 MegaEdges/s sc=21589 sa=142142
+ (verification  0.23 s)
+Completed iterations for N=1000000
+
+### nproc: 8
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G graph.AdaptiveBFS 8 T 1000 4 false false true 1 4
+Number of procs=8
+graphType=T
+N=1000
+D=4
+reporting=false
+graphOnly=false
+verification=true
+BATCH_SIZE=1
+MULTIPLIER=4.0
+Generating graph...
+Graph generated.
+Creation time:12.3980 s
+M=4000000 t=2.3381 s  1.71 MegaEdges/s sc=27353 sa=421159
+ (verification  0.13 s)
+M=4000000 t=3.6473 s  1.10 MegaEdges/s sc=45565 sa=509370
+ (verification  0.16 s)
+M=4000000 t=1.5913 s  2.51 MegaEdges/s sc=44715 sa=501484
+ (verification  0.06 s)
+M=4000000 t=1.6578 s  2.41 MegaEdges/s sc=43540 sa=502843
+ (verification  1.89 s)
+M=4000000 t=1.8096 s  2.21 MegaEdges/s sc=45761 sa=528841
+ (verification  0.09 s)
+M=4000000 t=1.8433 s  2.17 MegaEdges/s sc=43562 sa=515427
+ (verification  0.07 s)
+M=4000000 t=3.5151 s  1.14 MegaEdges/s sc=45026 sa=500593
+ (verification  0.24 s)
+M=4000000 t=3.5616 s  1.12 MegaEdges/s sc=44737 sa=583414
+ (verification  0.09 s)
+M=4000000 t=1.6345 s  2.45 MegaEdges/s sc=45307 sa=507278
+ (verification  0.06 s)
+M=4000000 t=1.5403 s  2.60 MegaEdges/s sc=45249 sa=493315
+ (verification  0.23 s)
+M=4000000 t=3.3807 s  1.18 MegaEdges/s sc=45487 sa=507093
+ (verification  0.14 s)
+M=4000000 t=1.6298 s  2.45 MegaEdges/s sc=44574 sa=497232
+ (verification  0.06 s)
+M=4000000 t=1.6512 s  2.42 MegaEdges/s sc=44320 sa=500827
+ (verification  0.09 s)
+M=4000000 t=3.0481 s  1.31 MegaEdges/s sc=43192 sa=471984
+ (verification  0.06 s)
+M=4000000 t=1.5373 s  2.60 MegaEdges/s sc=45558 sa=501843
+ (verification  0.14 s)
+M=4000000 t=1.7577 s  2.28 MegaEdges/s sc=44506 sa=533383
+ (verification  0.23 s)
+M=4000000 t=3.6501 s  1.10 MegaEdges/s sc=44918 sa=517608
+ (verification  0.06 s)
+M=4000000 t=1.5910 s  2.51 MegaEdges/s sc=43836 sa=491010
+ (verification  0.06 s)
+M=4000000 t=1.6090 s  2.49 MegaEdges/s sc=42985 sa=489106
+ (verification  0.06 s)
+M=4000000 t=1.6311 s  2.45 MegaEdges/s sc=44678 sa=495624
+ (verification  2.08 s)
+Completed iterations for N=1000000
+
+### nproc: 16
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G graph.AdaptiveBFS 16 T 1000 4 false false true 1 4
+Number of procs=16
+graphType=T
+N=1000
+D=4
+reporting=false
+graphOnly=false
+verification=true
+BATCH_SIZE=1
+MULTIPLIER=4.0
+Generating graph...
+Graph generated.
+Creation time:20.0887 s
+M=4000000 t=2.9470 s  1.36 MegaEdges/s sc=36083 sa=1836722
+ (verification  0.10 s)
+M=4000000 t=3.4849 s  1.15 MegaEdges/s sc=52332 sa=1733303
+ (verification  0.13 s)
+M=4000000 t=1.6954 s  2.36 MegaEdges/s sc=53870 sa=1751715
+ (verification  0.05 s)
+M=4000000 t=3.4763 s  1.15 MegaEdges/s sc=52303 sa=1726235
+ (verification  0.24 s)
+M=4000000 t=1.6403 s  2.44 MegaEdges/s sc=52856 sa=1761770
+ (verification  0.05 s)
+M=4000000 t=1.5216 s  2.63 MegaEdges/s sc=52417 sa=1718934
+ (verification  2.02 s)
+M=4000000 t=1.3747 s  2.91 MegaEdges/s sc=52535 sa=1696468
+ (verification  0.07 s)
+M=4000000 t=1.5454 s  2.59 MegaEdges/s sc=53678 sa=1791768
+ (verification  0.09 s)
+M=4000000 t=3.3915 s  1.18 MegaEdges/s sc=51885 sa=1691623
+ (verification  0.03 s)
+M=4000000 t=1.6044 s  2.49 MegaEdges/s sc=52689 sa=1678593
+ (verification  0.05 s)
+M=4000000 t=1.5316 s  2.61 MegaEdges/s sc=53114 sa=1686822
+ (verification  2.03 s)
+M=4000000 t=1.1387 s  3.51 MegaEdges/s sc=52426 sa=1609202
+ (verification  0.23 s)
+M=4000000 t=1.5431 s  2.59 MegaEdges/s sc=53192 sa=1822379
+ (verification  0.06 s)
+M=4000000 t=1.4857 s  2.69 MegaEdges/s sc=52493 sa=1726949
+ (verification  2.03 s)
+M=4000000 t=1.5703 s  2.55 MegaEdges/s sc=52528 sa=1748626
+ (verification  0.05 s)
+M=4000000 t=1.5495 s  2.58 MegaEdges/s sc=52371 sa=1708309
+ (verification  0.13 s)
+M=4000000 t=3.4184 s  1.17 MegaEdges/s sc=51910 sa=1725194
+ (verification  0.06 s)
+M=4000000 t=1.6060 s  2.49 MegaEdges/s sc=51893 sa=1705647
+ (verification  0.06 s)
+M=4000000 t=1.5746 s  2.54 MegaEdges/s sc=52379 sa=1714293
+ (verification  0.06 s)
+M=4000000 t=1.4051 s  2.85 MegaEdges/s sc=52981 sa=1691964
+ (verification  0.05 s)
+Completed iterations for N=1000000
+
+### nproc: 20
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G graph.AdaptiveBFS 20 T 1000 4 false false true 1 4
+Number of procs=20
+graphType=T
+N=1000
+D=4
+reporting=false
+graphOnly=false
+verification=true
+BATCH_SIZE=1
+MULTIPLIER=4.0
+Generating graph...
+Graph generated.
+Creation time:29.9825 s
+M=4000000 t=3.4102 s  1.17 MegaEdges/s sc=38899 sa=3022638
+ (verification  0.11 s)
+M=4000000 t=6.2577 s  0.64 MegaEdges/s sc=45451 sa=2402724
+ (verification  0.13 s)
+M=4000000 t=6.5433 s  0.61 MegaEdges/s sc=45561 sa=2532954
+ (verification  0.05 s)
+M=4000000 t=6.4997 s  0.62 MegaEdges/s sc=45546 sa=2483850
+ (verification  0.06 s)
+M=4000000 t=1.8224 s  2.19 MegaEdges/s sc=46193 sa=2507133
+ (verification  0.07 s)
+M=4000000 t=6.5125 s  0.61 MegaEdges/s sc=45595 sa=2523450
+ (verification  0.04 s)
+M=4000000 t=1.7247 s  2.32 MegaEdges/s sc=44951 sa=2478882
+ (verification  0.07 s)
+M=4000000 t=0.1581 s 25.30 MegaEdges/s sc=1063 sa=82189
+ (verification  0.12 s)
+M=4000000 t=1.7533 s  2.28 MegaEdges/s sc=47708 sa=2569377
+ (verification  0.09 s)
+M=4000000 t=6.4917 s  0.62 MegaEdges/s sc=46334 sa=2499092
+ (verification  0.03 s)
+M=4000000 t=1.7436 s  2.29 MegaEdges/s sc=45061 sa=2459248
+ (verification  0.04 s)
+M=4000000 t=6.6248 s  0.60 MegaEdges/s sc=47138 sa=2513986
+ (verification  0.04 s)
+M=4000000 t=1.7354 s  2.30 MegaEdges/s sc=44907 sa=2447016
+ (verification  0.03 s)
+M=4000000 t=1.6966 s  2.36 MegaEdges/s sc=45683 sa=2417538
+ (verification  0.05 s)
+M=4000000 t=6.5133 s  0.61 MegaEdges/s sc=47028 sa=2529799
+ (verification  0.04 s)
+M=4000000 t=1.6259 s  2.46 MegaEdges/s sc=46997 sa=2448548
+ (verification  0.03 s)
+M=4000000 t=1.6682 s  2.40 MegaEdges/s sc=45867 sa=2483968
+ (verification  4.80 s)
+M=4000000 t=1.6953 s  2.36 MegaEdges/s sc=46951 sa=2504679
+ (verification  0.23 s)
+M=4000000 t=1.6392 s  2.44 MegaEdges/s sc=45432 sa=2526388
+ (verification  0.03 s)
+M=4000000 t=6.4541 s  0.62 MegaEdges/s sc=47205 sa=2506982
+ (verification  0.03 s)
+Completed iterations for N=1000000
+
+### nproc: 24
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G graph.AdaptiveBFS 24 T 1000 4 false false true 1 4
+Number of procs=24
+graphType=T
+N=1000
+D=4
+reporting=false
+graphOnly=false
+verification=true
+BATCH_SIZE=1
+MULTIPLIER=4.0
+Generating graph...
+Graph generated.
+Creation time:26.0634 s
+M=4000000 t=18.5238 s  0.22 MegaEdges/s sc=37837 sa=4335863
+ (verification  0.10 s)
+M=4000000 t=1.7321 s  2.31 MegaEdges/s sc=41865 sa=3369025
+ (verification  0.12 s)
+M=4000000 t=5.0209 s  0.80 MegaEdges/s sc=38977 sa=3428148
+ (verification  0.04 s)
+M=4000000 t=1.9613 s  2.04 MegaEdges/s sc=38794 sa=3332645
+ (verification  0.03 s)
+M=4000000 t=4.8022 s  0.83 MegaEdges/s sc=38027 sa=3251328
+ (verification  0.04 s)
+M=4000000 t=1.9932 s  2.01 MegaEdges/s sc=39795 sa=3368500
+ (verification  0.05 s)
+M=4000000 t=4.8918 s  0.82 MegaEdges/s sc=40394 sa=3380018
+ (verification  0.04 s)
+M=4000000 t=2.0189 s  1.98 MegaEdges/s sc=41449 sa=3428911
+ (verification  0.09 s)
+M=4000000 t=4.8646 s  0.82 MegaEdges/s sc=39057 sa=3379016
+ (verification  0.04 s)
+M=4000000 t=2.1036 s  1.90 MegaEdges/s sc=40561 sa=3441388
+ (verification  0.04 s)
+M=4000000 t=4.9519 s  0.81 MegaEdges/s sc=38705 sa=3381268
+ (verification  0.02 s)
+M=4000000 t=2.0352 s  1.97 MegaEdges/s sc=39141 sa=3417785
+ (verification  0.06 s)
+M=4000000 t=1.9397 s  2.06 MegaEdges/s sc=41575 sa=3424611
+ (verification  0.03 s)
+M=4000000 t=5.0230 s  0.80 MegaEdges/s sc=38100 sa=3354870
+ (verification  0.04 s)
+M=4000000 t=2.0838 s  1.92 MegaEdges/s sc=37821 sa=3366417
+ (verification  0.03 s)
+M=4000000 t=1.9728 s  2.03 MegaEdges/s sc=41181 sa=3426153
+ (verification  0.03 s)
+M=4000000 t=2.0451 s  1.96 MegaEdges/s sc=40102 sa=3384846
+ (verification  0.23 s)
+M=4000000 t=5.0061 s  0.80 MegaEdges/s sc=39247 sa=3466388
+ (verification  0.06 s)
+M=4000000 t=1.9772 s  2.02 MegaEdges/s sc=36933 sa=3272451
+ (verification  0.02 s)
+M=4000000 t=2.0343 s  1.97 MegaEdges/s sc=37133 sa=3312724
+ (verification  0.03 s)
+Completed iterations for N=1000000
+
+### nproc: 30
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G graph.AdaptiveBFS 30 T 1000 4 false false true 1 4
+Number of procs=30
+graphType=T
+N=1000
+D=4
+reporting=false
+graphOnly=false
+verification=true
+BATCH_SIZE=1
+MULTIPLIER=4.0
+Generating graph...
+Graph generated.
+Creation time:41.7402 s
+M=4000000 t=11.4199 s  0.35 MegaEdges/s sc=37924 sa=6619440
+ (verification  0.17 s)
+M=4000000 t=9.5076 s  0.42 MegaEdges/s sc=42497 sa=5180926
+ (verification  0.12 s)
+M=4000000 t=16.7018 s  0.24 MegaEdges/s sc=39348 sa=5221459
+ (verification  0.03 s)
+M=4000000 t=9.7301 s  0.41 MegaEdges/s sc=41143 sa=5422641
+ (verification  0.04 s)
+M=4000000 t=22.7799 s  0.18 MegaEdges/s sc=39242 sa=5061493
+ (verification  0.10 s)
+M=4000000 t=9.5038 s  0.42 MegaEdges/s sc=39645 sa=5102605
+ (verification  0.04 s)
+M=4000000 t=9.8502 s  0.41 MegaEdges/s sc=40303 sa=5156947
+ (verification  0.05 s)
+M=4000000 t=9.7187 s  0.41 MegaEdges/s sc=40077 sa=5227131
+ (verification  0.03 s)
+M=4000000 t=2.3708 s  1.69 MegaEdges/s sc=41561 sa=5148781
+ (verification  0.04 s)
+M=4000000 t=9.6128 s  0.42 MegaEdges/s sc=40408 sa=4980948
+ (verification  0.02 s)
+M=4000000 t=2.4760 s  1.62 MegaEdges/s sc=39916 sa=5119747
+ (verification  0.03 s)
+M=4000000 t=9.6593 s  0.41 MegaEdges/s sc=40650 sa=5068385
+ (verification  0.03 s)
+M=4000000 t=2.3576 s  1.70 MegaEdges/s sc=38540 sa=4942608
+ (verification  0.03 s)
+M=4000000 t=9.6392 s  0.41 MegaEdges/s sc=37677 sa=4949642
+ (verification  0.05 s)
+M=4000000 t=2.4526 s  1.63 MegaEdges/s sc=38835 sa=5042619
+ (verification  0.04 s)
+M=4000000 t=9.4263 s  0.42 MegaEdges/s sc=36372 sa=4892752
+ (verification  0.03 s)
+M=4000000 t=2.4374 s  1.64 MegaEdges/s sc=35341 sa=4887075
+ (verification  0.04 s)
+M=4000000 t=9.4755 s  0.42 MegaEdges/s sc=36531 sa=4967458
+ (verification  0.05 s)
+M=4000000 t=2.3575 s  1.70 MegaEdges/s sc=35487 sa=4888361
+ (verification  0.03 s)
+M=4000000 t=2.4514 s  1.63 MegaEdges/s sc=35615 sa=4956344
+ (verification  7.15 s)
+Completed iterations for N=1000000
+
+### nproc: 32
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G graph.AdaptiveBFS 32 T 1000 4 false false true 1 4
+Number of procs=32
+graphType=T
+N=1000
+D=4
+reporting=false
+graphOnly=false
+verification=true
+BATCH_SIZE=1
+MULTIPLIER=4.0
+Generating graph...
+Graph generated.
+Creation time:38.1158 s
+M=4000000 t=7.5775 s  0.53 MegaEdges/s sc=36253 sa=6849289
+ (verification  0.10 s)
+M=4000000 t=10.0583 s  0.40 MegaEdges/s sc=40859 sa=5656453
+ (verification  0.12 s)
+M=4000000 t=6.3524 s  0.63 MegaEdges/s sc=37485 sa=5659526
+ (verification  0.03 s)
+M=4000000 t=6.4761 s  0.62 MegaEdges/s sc=36434 sa=5690379
+ (verification  0.03 s)
+M=4000000 t=6.3683 s  0.63 MegaEdges/s sc=35833 sa=5383360
+ (verification  0.05 s)
+M=4000000 t=6.2714 s  0.64 MegaEdges/s sc=38094 sa=5670135
+ (verification  0.02 s)
+M=4000000 t=2.4750 s  1.62 MegaEdges/s sc=36234 sa=5459387
+ (verification  0.04 s)
+M=4000000 t=6.3202 s  0.63 MegaEdges/s sc=38656 sa=5514495
+ (verification  0.02 s)
+M=4000000 t=6.2728 s  0.64 MegaEdges/s sc=38345 sa=5512609
+ (verification  0.13 s)
+M=4000000 t=2.3241 s  1.72 MegaEdges/s sc=37096 sa=5452956
+ (verification  0.04 s)
+M=4000000 t=6.2801 s  0.64 MegaEdges/s sc=37107 sa=5358686
+ (verification  0.03 s)
+M=4000000 t=2.3973 s  1.67 MegaEdges/s sc=37260 sa=5422528
+ (verification  0.04 s)
+M=4000000 t=6.2097 s  0.64 MegaEdges/s sc=37265 sa=5366004
+ (verification  0.04 s)
+M=4000000 t=2.3370 s  1.71 MegaEdges/s sc=36980 sa=5337703
+ (verification  0.06 s)
+M=4000000 t=19.6232 s  0.20 MegaEdges/s sc=36366 sa=5327713
+ (verification  0.03 s)
+M=4000000 t=6.2213 s  0.64 MegaEdges/s sc=36278 sa=5391358
+ (verification  0.03 s)
+M=4000000 t=2.5029 s  1.60 MegaEdges/s sc=35358 sa=5511310
+ (verification  0.03 s)
+M=4000000 t=2.4718 s  1.62 MegaEdges/s sc=37908 sa=5500034
+ (verification  3.94 s)
+M=4000000 t=2.3101 s  1.73 MegaEdges/s sc=36908 sa=5415809
+ (verification  0.03 s)
+M=4000000 t=2.3668 s  1.69 MegaEdges/s sc=36994 sa=5451311
+ (verification  0.03 s)
+Completed iterations for N=1000000
+
+## Size: 2000
+
+### nproc: 1
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G graph.AdaptiveBFS 1 T 2000 4 false false true 1 4
+Number of procs=1
+graphType=T
+N=2000
+D=4
+reporting=false
+graphOnly=false
+verification=true
+BATCH_SIZE=1
+MULTIPLIER=4.0
+Generating graph...
+Graph generated.
+Creation time:40.5657 s
+M=16000000 t=2.0733 s  7.72 MegaEdges/s sc=0 sa=0
+ (verification  0.99 s)
+M=16000000 t=1.9502 s  8.20 MegaEdges/s sc=0 sa=0
+ (verification  1.03 s)
+M=16000000 t=1.8840 s  8.49 MegaEdges/s sc=0 sa=0
+ (verification  0.88 s)
+M=16000000 t=1.9084 s  8.38 MegaEdges/s sc=0 sa=0
+ (verification  0.88 s)
+M=16000000 t=1.8998 s  8.42 MegaEdges/s sc=0 sa=0
+ (verification  0.90 s)
+M=16000000 t=1.9208 s  8.33 MegaEdges/s sc=0 sa=0
+ (verification  0.90 s)
+M=16000000 t=1.8419 s  8.69 MegaEdges/s sc=0 sa=0
+ (verification  0.90 s)
+M=16000000 t=1.8328 s  8.73 MegaEdges/s sc=0 sa=0
+ (verification  0.88 s)
+M=16000000 t=1.8721 s  8.55 MegaEdges/s sc=0 sa=0
+ (verification  0.91 s)
+M=16000000 t=1.8455 s  8.67 MegaEdges/s sc=0 sa=0
+ (verification  0.89 s)
+M=16000000 t=1.9721 s  8.11 MegaEdges/s sc=0 sa=0
+ (verification  0.90 s)
+M=16000000 t=1.8869 s  8.48 MegaEdges/s sc=0 sa=0
+ (verification  0.89 s)
+M=16000000 t=2.0938 s  7.64 MegaEdges/s sc=0 sa=0
+ (verification  0.92 s)
+M=16000000 t=2.0194 s  7.92 MegaEdges/s sc=0 sa=0
+ (verification  0.89 s)
+M=16000000 t=1.9572 s  8.17 MegaEdges/s sc=0 sa=0
+ (verification  0.89 s)
+M=16000000 t=1.8016 s  8.88 MegaEdges/s sc=0 sa=0
+ (verification  0.90 s)
+M=16000000 t=1.8393 s  8.70 MegaEdges/s sc=0 sa=0
+ (verification  0.90 s)
+M=16000000 t=1.8013 s  8.88 MegaEdges/s sc=0 sa=0
+ (verification  0.88 s)
+M=16000000 t=1.8232 s  8.78 MegaEdges/s sc=0 sa=0
+ (verification  0.89 s)
+M=16000000 t=1.8709 s  8.55 MegaEdges/s sc=0 sa=0
+ (verification  0.89 s)
+Completed iterations for N=4000000
+
+### nproc: 2
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G graph.AdaptiveBFS 2 T 2000 4 false false true 1 4
+Number of procs=2
+graphType=T
+N=2000
+D=4
+reporting=false
+graphOnly=false
+verification=true
+BATCH_SIZE=1
+MULTIPLIER=4.0
+Generating graph...
+Graph generated.
+Creation time:41.9232 s
+M=16000000 t=16.7218 s  0.96 MegaEdges/s sc=6036 sa=39700
+ (verification  1.05 s)
+M=16000000 t=17.6805 s  0.90 MegaEdges/s sc=6554 sa=42580
+ (verification  1.03 s)
+M=16000000 t=18.4928 s  0.87 MegaEdges/s sc=7371 sa=45400
+ (verification  0.94 s)
+M=16000000 t=16.7440 s  0.96 MegaEdges/s sc=7102 sa=41900
+ (verification  0.92 s)
+M=16000000 t=18.2655 s  0.88 MegaEdges/s sc=8082 sa=46538
+ (verification  0.94 s)
+M=16000000 t=17.7178 s  0.90 MegaEdges/s sc=7771 sa=44922
+ (verification  0.91 s)
+M=16000000 t=18.4787 s  0.87 MegaEdges/s sc=7805 sa=45618
+ (verification  0.91 s)
+M=16000000 t=18.1775 s  0.88 MegaEdges/s sc=8356 sa=46820
+ (verification  0.90 s)
+M=16000000 t=17.9370 s  0.89 MegaEdges/s sc=8360 sa=46444
+ (verification  0.91 s)
+M=16000000 t=17.9573 s  0.89 MegaEdges/s sc=8733 sa=47116
+ (verification  0.94 s)
+M=16000000 t=18.2675 s  0.88 MegaEdges/s sc=8692 sa=47530
+ (verification  0.91 s)
+M=16000000 t=18.0761 s  0.89 MegaEdges/s sc=7929 sa=45834
+ (verification  0.91 s)
+M=16000000 t=18.3433 s  0.87 MegaEdges/s sc=9333 sa=48956
+ (verification  0.45 s)
+M=16000000 t=18.3005 s  0.87 MegaEdges/s sc=8421 sa=46476
+ (verification  0.95 s)
+M=16000000 t=17.9395 s  0.89 MegaEdges/s sc=7939 sa=45588
+ (verification  0.91 s)
+M=16000000 t=18.2350 s  0.88 MegaEdges/s sc=9048 sa=48206
+ (verification  0.93 s)
+M=16000000 t=17.7185 s  0.90 MegaEdges/s sc=8650 sa=46754
+ (verification  0.90 s)
+M=16000000 t=18.2840 s  0.88 MegaEdges/s sc=8357 sa=46906
+ (verification  1.03 s)
+M=16000000 t=18.2692 s  0.88 MegaEdges/s sc=8768 sa=47696
+ (verification  1.05 s)
+M=16000000 t=18.2512 s  0.88 MegaEdges/s sc=8656 sa=47444
+ (verification  1.09 s)
+Completed iterations for N=4000000
+
+### nproc: 4
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G graph.AdaptiveBFS 4 T 2000 4 false false true 1 4
+Number of procs=4
+graphType=T
+N=2000
+D=4
+reporting=false
+graphOnly=false
+verification=true
+BATCH_SIZE=1
+MULTIPLIER=4.0
+Generating graph...
+Graph generated.
+Creation time:51.3489 s
+M=16000000 t=10.8701 s  1.47 MegaEdges/s sc=42339 sa=280684
+ (verification  0.58 s)
+M=16000000 t=10.9595 s  1.46 MegaEdges/s sc=70759 sa=368678
+ (verification  0.58 s)
+M=16000000 t=11.3069 s  1.42 MegaEdges/s sc=75949 sa=383178
+ (verification  0.54 s)
+M=16000000 t=23.7092 s  0.67 MegaEdges/s sc=71144 sa=376698
+ (verification  0.46 s)
+M=16000000 t=11.5112 s  1.39 MegaEdges/s sc=69601 sa=368757
+ (verification  0.48 s)
+M=16000000 t=11.7742 s  1.36 MegaEdges/s sc=72809 sa=388102
+ (verification  0.52 s)
+M=16000000 t=10.8907 s  1.47 MegaEdges/s sc=74234 sa=377817
+ (verification  0.50 s)
+M=16000000 t=12.4618 s  1.28 MegaEdges/s sc=67029 sa=371524
+ (verification  0.47 s)
+M=16000000 t=11.8965 s  1.34 MegaEdges/s sc=67536 sa=364658
+ (verification  0.53 s)
+M=16000000 t=11.3985 s  1.40 MegaEdges/s sc=69766 sa=367603
+ (verification  0.51 s)
+M=16000000 t=11.5864 s  1.38 MegaEdges/s sc=71582 sa=378055
+ (verification  0.45 s)
+M=16000000 t=11.7207 s  1.37 MegaEdges/s sc=72331 sa=378694
+ (verification  0.45 s)
+M=16000000 t=12.8135 s  1.25 MegaEdges/s sc=73794 sa=383731
+ (verification  0.48 s)
+M=16000000 t=11.5512 s  1.39 MegaEdges/s sc=74294 sa=386981
+ (verification  0.47 s)
+M=16000000 t=11.2850 s  1.42 MegaEdges/s sc=70861 sa=365969
+ (verification  0.47 s)
+M=16000000 t=11.4774 s  1.39 MegaEdges/s sc=73498 sa=381544
+ (verification  0.50 s)
+M=16000000 t=11.4431 s  1.40 MegaEdges/s sc=71562 sa=370963
+ (verification  0.51 s)
+M=16000000 t=11.9221 s  1.34 MegaEdges/s sc=65305 sa=366523
+ (verification  0.46 s)
+M=16000000 t=11.7094 s  1.37 MegaEdges/s sc=71704 sa=379510
+ (verification  0.52 s)
+M=16000000 t=11.3533 s  1.41 MegaEdges/s sc=70223 sa=367168
+ (verification  0.48 s)
+Completed iterations for N=4000000
+
+### nproc: 8
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G graph.AdaptiveBFS 8 T 2000 4 false false true 1 4
+Number of procs=8
+graphType=T
+N=2000
+D=4
+reporting=false
+graphOnly=false
+verification=true
+BATCH_SIZE=1
+MULTIPLIER=4.0
+Generating graph...
+Graph generated.
+Creation time:45.5014 s
+M=16000000 t=3.6165 s  4.42 MegaEdges/s sc=124077 sa=1045684
+ (verification  0.32 s)
+M=16000000 t=15.9595 s  1.00 MegaEdges/s sc=137282 sa=1139893
+ (verification  0.38 s)
+M=16000000 t=3.8761 s  4.13 MegaEdges/s sc=138589 sa=1108653
+ (verification  0.24 s)
+M=16000000 t=2.9990 s  5.34 MegaEdges/s sc=138338 sa=1139685
+ (verification  0.25 s)
+M=16000000 t=3.9444 s  4.06 MegaEdges/s sc=138668 sa=1120214
+ (verification  0.24 s)
+M=16000000 t=3.0937 s  5.17 MegaEdges/s sc=138556 sa=1131206
+ (verification  0.25 s)
+M=16000000 t=4.3139 s  3.71 MegaEdges/s sc=134555 sa=1124311
+ (verification  0.29 s)
+M=16000000 t=3.1185 s  5.13 MegaEdges/s sc=137317 sa=1129715
+ (verification  0.23 s)
+M=16000000 t=4.1958 s  3.81 MegaEdges/s sc=137230 sa=1122087
+ (verification  0.25 s)
+M=16000000 t=2.9416 s  5.44 MegaEdges/s sc=137783 sa=1108352
+ (verification  0.24 s)
+M=16000000 t=4.2972 s  3.72 MegaEdges/s sc=137402 sa=1129418
+ (verification  0.26 s)
+M=16000000 t=3.1206 s  5.13 MegaEdges/s sc=137971 sa=1131434
+ (verification  0.24 s)
+M=16000000 t=4.3237 s  3.70 MegaEdges/s sc=137723 sa=1133837
+ (verification  0.24 s)
+M=16000000 t=3.1971 s  5.00 MegaEdges/s sc=138503 sa=1122871
+ (verification  0.24 s)
+M=16000000 t=4.0579 s  3.94 MegaEdges/s sc=137308 sa=1120508
+ (verification  0.24 s)
+M=16000000 t=3.1576 s  5.07 MegaEdges/s sc=138085 sa=1123703
+ (verification  0.26 s)
+M=16000000 t=4.2448 s  3.77 MegaEdges/s sc=136691 sa=1129977
+ (verification  0.26 s)
+M=16000000 t=2.9755 s  5.38 MegaEdges/s sc=139197 sa=1133602
+ (verification  0.25 s)
+M=16000000 t=3.0070 s  5.32 MegaEdges/s sc=136905 sa=1128512
+ (verification  0.25 s)
+M=16000000 t=4.2036 s  3.81 MegaEdges/s sc=138807 sa=1135429
+ (verification  0.24 s)
+Completed iterations for N=4000000
+
+### nproc: 16
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G graph.AdaptiveBFS 16 T 2000 4 false false true 1 4
+Number of procs=16
+graphType=T
+N=2000
+D=4
+reporting=false
+graphOnly=false
+verification=true
+BATCH_SIZE=1
+MULTIPLIER=4.0
+Generating graph...
+Graph generated.
+Creation time:66.4453 s
+M=16000000 t=3.8292 s  4.18 MegaEdges/s sc=177264 sa=3766570
+ (verification  0.21 s)
+M=16000000 t=18.8903 s  0.85 MegaEdges/s sc=194550 sa=3616415
+ (verification  0.23 s)
+M=16000000 t=4.4789 s  3.57 MegaEdges/s sc=191603 sa=3580409
+ (verification  0.13 s)
+M=16000000 t=2.5656 s  6.24 MegaEdges/s sc=191347 sa=3650514
+ (verification  0.13 s)
+M=16000000 t=4.5583 s  3.51 MegaEdges/s sc=192352 sa=3601208
+ (verification  0.13 s)
+M=16000000 t=4.7299 s  3.38 MegaEdges/s sc=192912 sa=3663136
+ (verification  0.13 s)
+M=16000000 t=2.5247 s  6.34 MegaEdges/s sc=190465 sa=3584684
+ (verification  0.13 s)
+M=16000000 t=4.6466 s  3.44 MegaEdges/s sc=190384 sa=3565323
+ (verification  0.13 s)
+M=16000000 t=2.7417 s  5.84 MegaEdges/s sc=192707 sa=3655743
+ (verification  0.14 s)
+M=16000000 t=4.6741 s  3.42 MegaEdges/s sc=192895 sa=3649387
+ (verification  0.13 s)
+M=16000000 t=2.6057 s  6.14 MegaEdges/s sc=191355 sa=3611169
+ (verification  0.13 s)
+M=16000000 t=4.8618 s  3.29 MegaEdges/s sc=192643 sa=3612361
+ (verification  0.14 s)
+M=16000000 t=2.6673 s  6.00 MegaEdges/s sc=192061 sa=3638029
+ (verification  0.13 s)
+M=16000000 t=4.7650 s  3.36 MegaEdges/s sc=195065 sa=3661761
+ (verification  0.15 s)
+M=16000000 t=2.5556 s  6.26 MegaEdges/s sc=191911 sa=3595454
+ (verification  0.13 s)
+M=16000000 t=4.6593 s  3.43 MegaEdges/s sc=190666 sa=3591619
+ (verification  0.14 s)
+M=16000000 t=2.6045 s  6.14 MegaEdges/s sc=192664 sa=3627891
+ (verification  0.13 s)
+M=16000000 t=2.5620 s  6.25 MegaEdges/s sc=189794 sa=3569481
+ (verification  0.13 s)
+M=16000000 t=4.8981 s  3.27 MegaEdges/s sc=191541 sa=3634887
+ (verification  0.14 s)
+M=16000000 t=2.7012 s  5.92 MegaEdges/s sc=191541 sa=3606498
+ (verification  0.14 s)
+Completed iterations for N=4000000
+
+### nproc: 20
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G graph.AdaptiveBFS 20 T 2000 4 false false true 1 4
+Number of procs=20
+graphType=T
+N=2000
+D=4
+reporting=false
+graphOnly=false
+verification=true
+BATCH_SIZE=1
+MULTIPLIER=4.0
+Generating graph...
+Graph generated.
+Creation time:91.4799 s
+M=16000000 t=52.8028 s  0.30 MegaEdges/s sc=203368 sa=5156445
+ (verification  0.20 s)
+M=16000000 t=2.3993 s  6.67 MegaEdges/s sc=209947 sa=5215059
+ (verification  0.23 s)
+M=16000000 t=5.1901 s  3.08 MegaEdges/s sc=214899 sa=5368679
+ (verification  0.11 s)
+M=16000000 t=2.4624 s  6.50 MegaEdges/s sc=214433 sa=5283750
+ (verification  0.11 s)
+M=16000000 t=2.5083 s  6.38 MegaEdges/s sc=206947 sa=5210926
+ (verification  0.11 s)
+M=16000000 t=2.5957 s  6.16 MegaEdges/s sc=211754 sa=5285151
+ (verification  0.11 s)
+M=16000000 t=5.2791 s  3.03 MegaEdges/s sc=216038 sa=5227209
+ (verification  0.12 s)
+M=16000000 t=2.6031 s  6.15 MegaEdges/s sc=212032 sa=5252997
+ (verification  0.11 s)
+M=16000000 t=2.6885 s  5.95 MegaEdges/s sc=205194 sa=5209814
+ (verification  0.12 s)
+M=16000000 t=2.6746 s  5.98 MegaEdges/s sc=208863 sa=5264575
+ (verification  0.11 s)
+M=16000000 t=5.1678 s  3.10 MegaEdges/s sc=209846 sa=5260446
+ (verification  0.11 s)
+M=16000000 t=2.5843 s  6.19 MegaEdges/s sc=207255 sa=5275226
+ (verification  0.11 s)
+M=16000000 t=2.5063 s  6.38 MegaEdges/s sc=208703 sa=5237267
+ (verification  0.11 s)
+M=16000000 t=2.6426 s  6.05 MegaEdges/s sc=213354 sa=5295724
+ (verification  0.11 s)
+M=16000000 t=5.3005 s  3.02 MegaEdges/s sc=213045 sa=5346208
+ (verification  0.11 s)
+M=16000000 t=2.6678 s  6.00 MegaEdges/s sc=207313 sa=5208106
+ (verification  0.11 s)
+M=16000000 t=2.6436 s  6.05 MegaEdges/s sc=210644 sa=5291860
+ (verification  0.12 s)
+M=16000000 t=2.5101 s  6.37 MegaEdges/s sc=211097 sa=5197847
+ (verification  0.11 s)
+M=16000000 t=5.0072 s  3.20 MegaEdges/s sc=212478 sa=5225322
+ (verification  0.11 s)
+M=16000000 t=2.5992 s  6.16 MegaEdges/s sc=210745 sa=5278687
+ (verification  0.11 s)
+Completed iterations for N=4000000
+
+### nproc: 24
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G graph.AdaptiveBFS 24 T 2000 4 false false true 1 4
+Number of procs=24
+graphType=T
+N=2000
+D=4
+reporting=false
+graphOnly=false
+verification=true
+BATCH_SIZE=1
+MULTIPLIER=4.0
+Generating graph...
+Graph generated.
+Creation time:107.5096 s
+M=16000000 t=81.8248 s  0.20 MegaEdges/s sc=203594 sa=7169651
+ (verification  0.22 s)
+M=16000000 t=2.7491 s  5.82 MegaEdges/s sc=209956 sa=7257129
+ (verification  0.22 s)
+M=16000000 t=2.8972 s  5.52 MegaEdges/s sc=203469 sa=7138201
+ (verification  0.10 s)
+M=16000000 t=6.2901 s  2.54 MegaEdges/s sc=202702 sa=7190738
+ (verification  0.10 s)
+M=16000000 t=2.9044 s  5.51 MegaEdges/s sc=198949 sa=7075874
+ (verification  0.10 s)
+M=16000000 t=2.9492 s  5.43 MegaEdges/s sc=201801 sa=7044847
+ (verification  0.10 s)
+M=16000000 t=5.9312 s  2.70 MegaEdges/s sc=205501 sa=7146466
+ (verification  0.09 s)
+M=16000000 t=2.7670 s  5.78 MegaEdges/s sc=203191 sa=7062413
+ (verification  0.10 s)
+M=16000000 t=2.8678 s  5.58 MegaEdges/s sc=203889 sa=7026724
+ (verification  0.11 s)
+M=16000000 t=2.7535 s  5.81 MegaEdges/s sc=202728 sa=7009843
+ (verification  0.10 s)
+M=16000000 t=5.9694 s  2.68 MegaEdges/s sc=202635 sa=7054830
+ (verification  0.10 s)
+M=16000000 t=2.8982 s  5.52 MegaEdges/s sc=201920 sa=7048154
+ (verification  0.10 s)
+M=16000000 t=2.8107 s  5.69 MegaEdges/s sc=199148 sa=7037482
+ (verification  0.10 s)
+M=16000000 t=2.9507 s  5.42 MegaEdges/s sc=207348 sa=7042874
+ (verification  0.10 s)
+M=16000000 t=6.2691 s  2.55 MegaEdges/s sc=208236 sa=7065105
+ (verification  0.10 s)
+M=16000000 t=2.8472 s  5.62 MegaEdges/s sc=202668 sa=6977001
+ (verification  0.10 s)
+M=16000000 t=2.8823 s  5.55 MegaEdges/s sc=199414 sa=7017294
+ (verification  0.10 s)
+M=16000000 t=2.8629 s  5.59 MegaEdges/s sc=199603 sa=7100180
+ (verification  0.10 s)
+M=16000000 t=6.1724 s  2.59 MegaEdges/s sc=211390 sa=7218672
+ (verification  0.10 s)
+M=16000000 t=3.0604 s  5.23 MegaEdges/s sc=215751 sa=7132171
+ (verification  0.10 s)
+Completed iterations for N=4000000
+
+### nproc: 30
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G graph.AdaptiveBFS 30 T 2000 4 false false true 1 4
+Number of procs=30
+graphType=T
+N=2000
+D=4
+reporting=false
+graphOnly=false
+verification=true
+BATCH_SIZE=1
+MULTIPLIER=4.0
+Generating graph...
+Graph generated.
+Creation time:111.5049 s
+M=16000000 t=30.0574 s  0.53 MegaEdges/s sc=201909 sa=12090427
+ (verification  0.19 s)
+M=16000000 t=7.5969 s  2.11 MegaEdges/s sc=217353 sa=10984147
+ (verification  0.21 s)
+M=16000000 t=7.7795 s  2.06 MegaEdges/s sc=207983 sa=10906053
+ (verification  0.09 s)
+M=16000000 t=7.9412 s  2.01 MegaEdges/s sc=214137 sa=11073195
+ (verification  0.09 s)
+M=16000000 t=7.9016 s  2.02 MegaEdges/s sc=212637 sa=11125989
+ (verification  0.09 s)
+M=16000000 t=7.6218 s  2.10 MegaEdges/s sc=205939 sa=10701033
+ (verification  0.09 s)
+M=16000000 t=8.0410 s  1.99 MegaEdges/s sc=208323 sa=10894049
+ (verification  0.10 s)
+M=16000000 t=3.8663 s  4.14 MegaEdges/s sc=203219 sa=10768163
+ (verification  0.10 s)
+M=16000000 t=7.8220 s  2.05 MegaEdges/s sc=203626 sa=10656455
+ (verification  0.08 s)
+M=16000000 t=7.7425 s  2.07 MegaEdges/s sc=203942 sa=10683735
+ (verification  0.08 s)
+M=16000000 t=3.5736 s  4.48 MegaEdges/s sc=198154 sa=10587449
+ (verification  0.08 s)
+M=16000000 t=7.2313 s  2.21 MegaEdges/s sc=192861 sa=10495813
+ (verification  0.08 s)
+M=16000000 t=3.8125 s  4.20 MegaEdges/s sc=196736 sa=10788017
+ (verification  0.09 s)
+M=16000000 t=7.9202 s  2.02 MegaEdges/s sc=199796 sa=10730123
+ (verification  0.09 s)
+M=16000000 t=7.6430 s  2.09 MegaEdges/s sc=199517 sa=10778171
+ (verification  0.08 s)
+M=16000000 t=3.8657 s  4.14 MegaEdges/s sc=201857 sa=10743807
+ (verification  0.09 s)
+M=16000000 t=8.1202 s  1.97 MegaEdges/s sc=204409 sa=10773170
+ (verification  0.09 s)
+M=16000000 t=3.7763 s  4.24 MegaEdges/s sc=201148 sa=10469952
+ (verification  0.09 s)
+M=16000000 t=7.9838 s  2.00 MegaEdges/s sc=202739 sa=10686406
+ (verification  0.10 s)
+M=16000000 t=3.9846 s  4.02 MegaEdges/s sc=202140 sa=10768648
+ (verification  0.09 s)
+Completed iterations for N=4000000
+
+### nproc: 32
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G graph.AdaptiveBFS 32 T 2000 4 false false true 1 4
+Number of procs=32
+graphType=T
+N=2000
+D=4
+reporting=false
+graphOnly=false
+verification=true
+BATCH_SIZE=1
+MULTIPLIER=4.0
+Generating graph...
+Graph generated.
+Creation time:132.6238 s
+M=16000000 t=34.9042 s  0.46 MegaEdges/s sc=209017 sa=13638562
+ (verification  0.20 s)
+M=16000000 t=4.1404 s  3.86 MegaEdges/s sc=208999 sa=12219808
+ (verification  0.22 s)
+M=16000000 t=13.4952 s  1.19 MegaEdges/s sc=217835 sa=12533379
+ (verification  0.09 s)
+M=16000000 t=13.6785 s  1.17 MegaEdges/s sc=216729 sa=12381248
+ (verification  0.12 s)
+M=16000000 t=14.1298 s  1.13 MegaEdges/s sc=222310 sa=13076179
+ (verification  0.09 s)
+M=16000000 t=4.5985 s  3.48 MegaEdges/s sc=209334 sa=12317748
+ (verification  0.09 s)
+M=16000000 t=13.1243 s  1.22 MegaEdges/s sc=210452 sa=12184440
+ (verification  0.09 s)
+M=16000000 t=4.4704 s  3.58 MegaEdges/s sc=205010 sa=11946728
+ (verification  0.09 s)
+M=16000000 t=12.3875 s  1.29 MegaEdges/s sc=200010 sa=11995194
+ (verification  0.08 s)
+M=16000000 t=3.8931 s  4.11 MegaEdges/s sc=193436 sa=11609752
+ (verification  0.08 s)
+M=16000000 t=11.8093 s  1.35 MegaEdges/s sc=198713 sa=11829938
+ (verification  0.08 s)
+M=16000000 t=4.0599 s  3.94 MegaEdges/s sc=187969 sa=11485828
+ (verification  0.08 s)
+M=16000000 t=11.8760 s  1.35 MegaEdges/s sc=192223 sa=11569683
+ (verification  0.08 s)
+M=16000000 t=4.0291 s  3.97 MegaEdges/s sc=187814 sa=11630320
+ (verification  0.08 s)
+M=16000000 t=12.5688 s  1.27 MegaEdges/s sc=200639 sa=11947016
+ (verification  0.08 s)
+M=16000000 t=4.0094 s  3.99 MegaEdges/s sc=194373 sa=11708969
+ (verification  0.08 s)
+M=16000000 t=4.1955 s  3.81 MegaEdges/s sc=193891 sa=11520483
+ (verification  0.09 s)
+M=16000000 t=12.3154 s  1.30 MegaEdges/s sc=201353 sa=11800032
+ (verification  0.09 s)
+M=16000000 t=4.4466 s  3.60 MegaEdges/s sc=203857 sa=11996678
+ (verification  0.08 s)
+M=16000000 t=4.3588 s  3.67 MegaEdges/s sc=204290 sa=11897269
+ (verification  0.10 s)
+Completed iterations for N=4000000
+
+## Size: 3000
+
+### nproc: 1
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G graph.AdaptiveBFS 1 T 3000 4 false false true 1 4
+Number of procs=1
+graphType=T
+N=3000
+D=4
+reporting=false
+graphOnly=false
+verification=true
+BATCH_SIZE=1
+MULTIPLIER=4.0
+Generating graph...
+Graph generated.
+Creation time:100.2972 s
+M=36000000 t=6.8233 s  5.28 MegaEdges/s sc=0 sa=0
+ (verification  2.39 s)
+M=36000000 t=6.7651 s  5.32 MegaEdges/s sc=0 sa=0
+ (verification  2.36 s)
+M=36000000 t=6.5759 s  5.47 MegaEdges/s sc=0 sa=0
+ (verification  2.29 s)
+M=36000000 t=6.3439 s  5.67 MegaEdges/s sc=0 sa=0
+ (verification  2.25 s)
+M=36000000 t=5.7537 s  6.26 MegaEdges/s sc=0 sa=0
+ (verification  2.08 s)
+M=36000000 t=5.1242 s  7.03 MegaEdges/s sc=0 sa=0
+ (verification  2.11 s)
+M=36000000 t=5.4427 s  6.61 MegaEdges/s sc=0 sa=0
+ (verification  2.05 s)
+M=36000000 t=5.5092 s  6.53 MegaEdges/s sc=0 sa=0
+ (verification  2.12 s)
+M=36000000 t=6.3452 s  5.67 MegaEdges/s sc=0 sa=0
+ (verification  2.34 s)
+M=36000000 t=5.7621 s  6.25 MegaEdges/s sc=0 sa=0
+ (verification  2.13 s)
+M=36000000 t=6.0831 s  5.92 MegaEdges/s sc=0 sa=0
+ (verification  2.24 s)
+M=36000000 t=5.7647 s  6.24 MegaEdges/s sc=0 sa=0
+ (verification  2.36 s)
+M=36000000 t=6.0384 s  5.96 MegaEdges/s sc=0 sa=0
+ (verification  2.14 s)
+M=36000000 t=5.8974 s  6.10 MegaEdges/s sc=0 sa=0
+ (verification  2.23 s)
+M=36000000 t=5.6714 s  6.35 MegaEdges/s sc=0 sa=0
+ (verification  2.21 s)
+M=36000000 t=5.6976 s  6.32 MegaEdges/s sc=0 sa=0
+ (verification  2.19 s)
+M=36000000 t=5.4132 s  6.65 MegaEdges/s sc=0 sa=0
+ (verification  2.13 s)
+M=36000000 t=5.1268 s  7.02 MegaEdges/s sc=0 sa=0
+ (verification  2.16 s)
+M=36000000 t=5.0239 s  7.17 MegaEdges/s sc=0 sa=0
+ (verification  2.12 s)
+M=36000000 t=4.9398 s  7.29 MegaEdges/s sc=0 sa=0
+ (verification  2.04 s)
+Completed iterations for N=9000000
+
+### nproc: 2
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G graph.AdaptiveBFS 2 T 3000 4 false false true 1 4
+Number of procs=2
+graphType=T
+N=3000
+D=4
+reporting=false
+graphOnly=false
+verification=true
+BATCH_SIZE=1
+MULTIPLIER=4.0
+Generating graph...
+Graph generated.
+Creation time:116.8100 s
+M=36000000 t=26.2489 s  1.37 MegaEdges/s sc=8762 sa=60358
+ (verification  2.28 s)
+M=36000000 t=26.5007 s  1.36 MegaEdges/s sc=8631 sa=60966
+ (verification  2.17 s)
+M=36000000 t=27.9636 s  1.29 MegaEdges/s sc=10958 sa=67974
+ (verification  2.10 s)
+M=36000000 t=27.8757 s  1.29 MegaEdges/s sc=10107 sa=66138
+ (verification  2.09 s)
+M=36000000 t=27.8691 s  1.29 MegaEdges/s sc=11625 sa=69148
+ (verification  2.07 s)
+M=36000000 t=27.8293 s  1.29 MegaEdges/s sc=9239 sa=64592
+ (verification  2.04 s)
+M=36000000 t=27.8827 s  1.29 MegaEdges/s sc=10991 sa=68142
+ (verification  2.08 s)
+M=36000000 t=49.6672 s  0.72 MegaEdges/s sc=11733 sa=69206
+ (verification  2.09 s)
+M=36000000 t=27.6189 s  1.30 MegaEdges/s sc=10767 sa=67212
+ (verification  2.08 s)
+M=36000000 t=27.3305 s  1.32 MegaEdges/s sc=13164 sa=71448
+ (verification  2.04 s)
+M=36000000 t=27.9091 s  1.29 MegaEdges/s sc=10605 sa=67490
+ (verification  2.02 s)
+M=36000000 t=28.0395 s  1.28 MegaEdges/s sc=10618 sa=67892
+ (verification  2.02 s)
+M=36000000 t=28.3199 s  1.27 MegaEdges/s sc=10056 sa=66550
+ (verification  2.02 s)
+M=36000000 t=27.8593 s  1.29 MegaEdges/s sc=10541 sa=67598
+ (verification  2.02 s)
+M=36000000 t=27.6582 s  1.30 MegaEdges/s sc=10205 sa=66412
+ (verification  2.03 s)
+M=36000000 t=27.6661 s  1.30 MegaEdges/s sc=12328 sa=70612
+ (verification  2.03 s)
+M=36000000 t=27.6579 s  1.30 MegaEdges/s sc=12629 sa=71140
+ (verification  2.04 s)
+M=36000000 t=27.5760 s  1.31 MegaEdges/s sc=14289 sa=74148
+ (verification  2.03 s)
+M=36000000 t=26.7213 s  1.35 MegaEdges/s sc=10251 sa=65038
+ (verification  2.02 s)
+M=36000000 t=26.9655 s  1.34 MegaEdges/s sc=10192 sa=65322
+ (verification  2.02 s)
+Completed iterations for N=9000000
+
+### nproc: 4
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G graph.AdaptiveBFS 4 T 3000 4 false false true 1 4
+Number of procs=4
+graphType=T
+N=3000
+D=4
+reporting=false
+graphOnly=false
+verification=true
+BATCH_SIZE=1
+MULTIPLIER=4.0
+Generating graph...
+Graph generated.
+Creation time:129.8284 s
+M=36000000 t=21.8834 s  1.65 MegaEdges/s sc=68737 sa=457570
+ (verification  1.12 s)
+M=36000000 t=20.8323 s  1.73 MegaEdges/s sc=100889 sa=550387
+ (verification  1.10 s)
+M=36000000 t=21.2755 s  1.69 MegaEdges/s sc=109349 sa=579706
+ (verification  1.00 s)
+M=36000000 t=21.0362 s  1.71 MegaEdges/s sc=105309 sa=565450
+ (verification  1.01 s)
+M=36000000 t=20.6855 s  1.74 MegaEdges/s sc=112026 sa=591375
+ (verification  1.01 s)
+M=36000000 t=20.9253 s  1.72 MegaEdges/s sc=100245 sa=553768
+ (verification  1.01 s)
+M=36000000 t=21.7568 s  1.65 MegaEdges/s sc=107876 sa=589159
+ (verification  1.01 s)
+M=36000000 t=20.2759 s  1.78 MegaEdges/s sc=106329 sa=569253
+ (verification  1.00 s)
+M=36000000 t=20.8783 s  1.72 MegaEdges/s sc=113235 sa=589447
+ (verification  1.00 s)
+M=36000000 t=20.9592 s  1.72 MegaEdges/s sc=99662 sa=553314
+ (verification  1.00 s)
+M=36000000 t=19.9707 s  1.80 MegaEdges/s sc=100015 sa=552811
+ (verification  1.01 s)
+M=36000000 t=20.9160 s  1.72 MegaEdges/s sc=100522 sa=565213
+ (verification  1.01 s)
+M=36000000 t=21.3677 s  1.68 MegaEdges/s sc=98424 sa=558531
+ (verification  1.00 s)
+M=36000000 t=20.2676 s  1.78 MegaEdges/s sc=100456 sa=553510
+ (verification  1.02 s)
+M=36000000 t=20.4415 s  1.76 MegaEdges/s sc=102736 sa=568309
+ (verification  1.01 s)
+M=36000000 t=21.6198 s  1.67 MegaEdges/s sc=100004 sa=562987
+ (verification  1.01 s)
+M=36000000 t=20.4945 s  1.76 MegaEdges/s sc=101939 sa=565651
+ (verification  1.00 s)
+M=36000000 t=20.3963 s  1.77 MegaEdges/s sc=108775 sa=573985
+ (verification  1.00 s)
+M=36000000 t=20.1782 s  1.78 MegaEdges/s sc=113207 sa=590531
+ (verification  1.01 s)
+M=36000000 t=21.3998 s  1.68 MegaEdges/s sc=103001 sa=564596
+ (verification  1.01 s)
+Completed iterations for N=9000000
+
+### nproc: 8
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G graph.AdaptiveBFS 8 T 3000 4 false false true 1 4
+Number of procs=8
+graphType=T
+N=3000
+D=4
+reporting=false
+graphOnly=false
+verification=true
+BATCH_SIZE=1
+MULTIPLIER=4.0
+Generating graph...
+Graph generated.
+Creation time:128.5547 s
+M=36000000 t=4.6985 s  7.66 MegaEdges/s sc=262239 sa=1816029
+ (verification  0.65 s)
+M=36000000 t=28.3732 s  1.27 MegaEdges/s sc=278045 sa=1928711
+ (verification  0.61 s)
+M=36000000 t=5.5791 s  6.45 MegaEdges/s sc=273320 sa=1923125
+ (verification  0.52 s)
+M=36000000 t=4.2957 s  8.38 MegaEdges/s sc=277029 sa=1904596
+ (verification  0.54 s)
+M=36000000 t=5.6133 s  6.41 MegaEdges/s sc=275878 sa=1914853
+ (verification  0.53 s)
+M=36000000 t=4.6834 s  7.69 MegaEdges/s sc=270934 sa=1898660
+ (verification  0.53 s)
+M=36000000 t=5.4652 s  6.59 MegaEdges/s sc=273537 sa=1909390
+ (verification  0.55 s)
+M=36000000 t=4.4206 s  8.14 MegaEdges/s sc=276512 sa=1925111
+ (verification  0.52 s)
+M=36000000 t=5.2031 s  6.92 MegaEdges/s sc=276189 sa=1905470
+ (verification  0.53 s)
+M=36000000 t=4.3064 s  8.36 MegaEdges/s sc=272861 sa=1897426
+ (verification  0.52 s)
+M=36000000 t=4.1563 s  8.66 MegaEdges/s sc=272802 sa=1899513
+ (verification  0.54 s)
+M=36000000 t=5.4322 s  6.63 MegaEdges/s sc=270081 sa=1914222
+ (verification  0.53 s)
+M=36000000 t=4.0822 s  8.82 MegaEdges/s sc=274637 sa=1903738
+ (verification  0.53 s)
+M=36000000 t=5.4649 s  6.59 MegaEdges/s sc=268505 sa=1900703
+ (verification  0.55 s)
+M=36000000 t=4.0949 s  8.79 MegaEdges/s sc=272212 sa=1870500
+ (verification  0.54 s)
+M=36000000 t=4.3466 s  8.28 MegaEdges/s sc=271436 sa=1902273
+ (verification  0.55 s)
+M=36000000 t=5.2925 s  6.80 MegaEdges/s sc=278303 sa=1929665
+ (verification  0.53 s)
+M=36000000 t=4.2164 s  8.54 MegaEdges/s sc=271171 sa=1889709
+ (verification  0.52 s)
+M=36000000 t=5.0793 s  7.09 MegaEdges/s sc=273761 sa=1893591
+ (verification  0.52 s)
+M=36000000 t=4.0170 s  8.96 MegaEdges/s sc=270421 sa=1877539
+ (verification  0.53 s)
+Completed iterations for N=9000000
+
+### nproc: 16
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G graph.AdaptiveBFS 16 T 3000 4 false false true 1 4
+Number of procs=16
+graphType=T
+N=3000
+D=4
+reporting=false
+graphOnly=false
+verification=true
+BATCH_SIZE=1
+MULTIPLIER=4.0
+Generating graph...
+Graph generated.
+Creation time:137.8610 s
+M=36000000 t=35.9516 s  1.00 MegaEdges/s sc=386674 sa=5320872
+ (verification  2.33 s)
+M=36000000 t=32.4973 s  1.11 MegaEdges/s sc=390244 sa=5468526
+ (verification  0.40 s)
+M=36000000 t=5.2256 s  6.89 MegaEdges/s sc=389784 sa=5494623
+ (verification  0.29 s)
+M=36000000 t=5.4198 s  6.64 MegaEdges/s sc=389446 sa=5495067
+ (verification  0.29 s)
+M=36000000 t=7.3023 s  4.93 MegaEdges/s sc=387940 sa=5464801
+ (verification  0.29 s)
+M=36000000 t=5.3496 s  6.73 MegaEdges/s sc=391903 sa=5450598
+ (verification  0.28 s)
+M=36000000 t=5.4699 s  6.58 MegaEdges/s sc=388951 sa=5534390
+ (verification  0.29 s)
+M=36000000 t=5.4010 s  6.67 MegaEdges/s sc=390745 sa=5465119
+ (verification  0.28 s)
+M=36000000 t=5.5169 s  6.53 MegaEdges/s sc=388406 sa=5469219
+ (verification  0.28 s)
+M=36000000 t=5.3186 s  6.77 MegaEdges/s sc=390759 sa=5437996
+ (verification  0.28 s)
+M=36000000 t=5.4167 s  6.65 MegaEdges/s sc=389157 sa=5525839
+ (verification  0.28 s)
+M=36000000 t=3.4408 s 10.46 MegaEdges/s sc=391005 sa=5477589
+ (verification  0.29 s)
+M=36000000 t=5.1792 s  6.95 MegaEdges/s sc=390374 sa=5445507
+ (verification  0.28 s)
+M=36000000 t=5.3536 s  6.72 MegaEdges/s sc=386973 sa=5416775
+ (verification  0.29 s)
+M=36000000 t=3.3114 s 10.87 MegaEdges/s sc=389567 sa=5500338
+ (verification  0.29 s)
+M=36000000 t=5.4650 s  6.59 MegaEdges/s sc=387326 sa=5422243
+ (verification  0.30 s)
+M=36000000 t=5.4163 s  6.65 MegaEdges/s sc=386861 sa=5473937
+ (verification  0.29 s)
+M=36000000 t=3.4044 s 10.57 MegaEdges/s sc=387333 sa=5435301
+ (verification  0.30 s)
+M=36000000 t=5.3329 s  6.75 MegaEdges/s sc=388321 sa=5462810
+ (verification  0.28 s)
+M=36000000 t=3.2787 s 10.98 MegaEdges/s sc=390664 sa=5448758
+ (verification  0.28 s)
+Completed iterations for N=9000000
+
+### nproc: 20
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G graph.AdaptiveBFS 20 T 3000 4 false false true 1 4
+Number of procs=20
+graphType=T
+N=3000
+D=4
+reporting=false
+graphOnly=false
+verification=true
+BATCH_SIZE=1
+MULTIPLIER=4.0
+Generating graph...
+Graph generated.
+Creation time:155.0459 s
+M=36000000 t=62.1936 s  0.58 MegaEdges/s sc=442995 sa=8043906
+ (verification  0.31 s)
+M=36000000 t=10.9394 s  3.29 MegaEdges/s sc=450611 sa=8141961
+ (verification  0.35 s)
+M=36000000 t=8.5946 s  4.19 MegaEdges/s sc=453630 sa=8212357
+ (verification  0.23 s)
+M=36000000 t=8.3228 s  4.33 MegaEdges/s sc=445529 sa=7965882
+ (verification  0.23 s)
+M=36000000 t=8.4893 s  4.24 MegaEdges/s sc=456219 sa=8098994
+ (verification  0.24 s)
+M=36000000 t=5.9912 s  6.01 MegaEdges/s sc=452139 sa=8160176
+ (verification  0.24 s)
+M=36000000 t=8.2812 s  4.35 MegaEdges/s sc=454761 sa=8146815
+ (verification  0.24 s)
+M=36000000 t=5.8174 s  6.19 MegaEdges/s sc=450868 sa=8103266
+ (verification  0.25 s)
+M=36000000 t=5.8345 s  6.17 MegaEdges/s sc=448054 sa=8094369
+ (verification  0.23 s)
+M=36000000 t=35.5585 s  1.01 MegaEdges/s sc=453244 sa=8161562
+ (verification  0.24 s)
+M=36000000 t=5.9058 s  6.10 MegaEdges/s sc=456222 sa=8265427
+ (verification  0.24 s)
+M=36000000 t=8.2155 s  4.38 MegaEdges/s sc=452406 sa=8115595
+ (verification  0.24 s)
+M=36000000 t=5.9239 s  6.08 MegaEdges/s sc=450275 sa=8196869
+ (verification  0.24 s)
+M=36000000 t=5.8370 s  6.17 MegaEdges/s sc=454243 sa=8190754
+ (verification  0.24 s)
+M=36000000 t=5.8558 s  6.15 MegaEdges/s sc=454603 sa=8197040
+ (verification  0.23 s)
+M=36000000 t=5.7943 s  6.21 MegaEdges/s sc=453530 sa=8168823
+ (verification  0.24 s)
+M=36000000 t=5.9882 s  6.01 MegaEdges/s sc=450390 sa=8109233
+ (verification  0.24 s)
+M=36000000 t=5.8511 s  6.15 MegaEdges/s sc=460230 sa=8169947
+ (verification  0.25 s)
+M=36000000 t=5.8131 s  6.19 MegaEdges/s sc=454873 sa=8184881
+ (verification  0.24 s)
+M=36000000 t=5.8175 s  6.19 MegaEdges/s sc=456359 sa=8127769
+ (verification  0.24 s)
+Completed iterations for N=9000000
+
+### nproc: 24
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G graph.AdaptiveBFS 24 T 3000 4 false false true 1 4
+Number of procs=24
+graphType=T
+N=3000
+D=4
+reporting=false
+graphOnly=false
+verification=true
+BATCH_SIZE=1
+MULTIPLIER=4.0
+Generating graph...
+Graph generated.
+Creation time:147.1436 s
+M=36000000 t=83.7450 s  0.43 MegaEdges/s sc=442992 sa=11824413
+ (verification  0.30 s)
+M=36000000 t=33.5630 s  1.07 MegaEdges/s sc=445304 sa=10714754
+ (verification  0.31 s)
+M=36000000 t=6.5697 s  5.48 MegaEdges/s sc=448951 sa=11049939
+ (verification  0.22 s)
+M=36000000 t=3.7551 s  9.59 MegaEdges/s sc=452634 sa=10892773
+ (verification  0.21 s)
+M=36000000 t=6.5098 s  5.53 MegaEdges/s sc=448796 sa=10906651
+ (verification  0.21 s)
+M=36000000 t=3.4570 s 10.41 MegaEdges/s sc=444829 sa=10781209
+ (verification  0.22 s)
+M=36000000 t=6.4594 s  5.57 MegaEdges/s sc=441169 sa=10833349
+ (verification  0.20 s)
+M=36000000 t=3.5607 s 10.11 MegaEdges/s sc=447148 sa=10800278
+ (verification  0.21 s)
+M=36000000 t=6.5441 s  5.50 MegaEdges/s sc=444135 sa=10957170
+ (verification  0.21 s)
+M=36000000 t=3.6692 s  9.81 MegaEdges/s sc=444935 sa=10931699
+ (verification  0.21 s)
+M=36000000 t=3.6108 s  9.97 MegaEdges/s sc=443917 sa=10845183
+ (verification  0.21 s)
+M=36000000 t=6.5378 s  5.51 MegaEdges/s sc=442910 sa=10765984
+ (verification  0.20 s)
+M=36000000 t=3.6290 s  9.92 MegaEdges/s sc=445875 sa=10854091
+ (verification  0.22 s)
+M=36000000 t=6.5170 s  5.52 MegaEdges/s sc=445710 sa=10766418
+ (verification  0.22 s)
+M=36000000 t=3.5557 s 10.12 MegaEdges/s sc=445362 sa=10859271
+ (verification  0.21 s)
+M=36000000 t=6.4877 s  5.55 MegaEdges/s sc=439646 sa=10698577
+ (verification  0.22 s)
+M=36000000 t=3.5291 s 10.20 MegaEdges/s sc=443762 sa=10857750
+ (verification  0.21 s)
+M=36000000 t=3.4565 s 10.42 MegaEdges/s sc=446882 sa=10841910
+ (verification  0.21 s)
+M=36000000 t=6.4055 s  5.62 MegaEdges/s sc=442892 sa=10782899
+ (verification  0.21 s)
+M=36000000 t=3.6385 s  9.89 MegaEdges/s sc=443745 sa=10847847
+ (verification  0.21 s)
+Completed iterations for N=9000000
+
+### nproc: 30
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G graph.AdaptiveBFS 30 T 3000 4 false false true 1 4
+Number of procs=30
+graphType=T
+N=3000
+D=4
+reporting=false
+graphOnly=false
+verification=true
+BATCH_SIZE=1
+MULTIPLIER=4.0
+Generating graph...
+Graph generated.
+Creation time:177.3410 s
+M=36000000 t=66.8886 s  0.54 MegaEdges/s sc=434793 sa=15436726
+ (verification  0.27 s)
+M=36000000 t=11.2895 s  3.19 MegaEdges/s sc=446750 sa=15744219
+ (verification  0.28 s)
+M=36000000 t=11.6009 s  3.10 MegaEdges/s sc=443076 sa=15675027
+ (verification  0.18 s)
+M=36000000 t=11.5393 s  3.12 MegaEdges/s sc=436026 sa=15522954
+ (verification  0.18 s)
+M=36000000 t=7.8809 s  4.57 MegaEdges/s sc=442876 sa=15591964
+ (verification  0.18 s)
+M=36000000 t=7.7674 s  4.63 MegaEdges/s sc=442368 sa=15420392
+ (verification  0.18 s)
+M=36000000 t=11.6458 s  3.09 MegaEdges/s sc=438228 sa=15481360
+ (verification  0.18 s)
+M=36000000 t=7.9636 s  4.52 MegaEdges/s sc=431178 sa=15413131
+ (verification  0.18 s)
+M=36000000 t=7.9260 s  4.54 MegaEdges/s sc=428121 sa=15261851
+ (verification  0.18 s)
+M=36000000 t=8.0199 s  4.49 MegaEdges/s sc=435672 sa=15375026
+ (verification  0.18 s)
+M=36000000 t=8.0967 s  4.45 MegaEdges/s sc=432843 sa=15501076
+ (verification  0.18 s)
+M=36000000 t=8.0120 s  4.49 MegaEdges/s sc=442445 sa=15663161
+ (verification  0.18 s)
+M=36000000 t=7.9373 s  4.54 MegaEdges/s sc=443307 sa=15636933
+ (verification  0.18 s)
+M=36000000 t=8.1443 s  4.42 MegaEdges/s sc=442690 sa=15700404
+ (verification  0.18 s)
+M=36000000 t=7.9483 s  4.53 MegaEdges/s sc=439094 sa=15478812
+ (verification  0.18 s)
+M=36000000 t=7.9665 s  4.52 MegaEdges/s sc=441623 sa=15448041
+ (verification  0.18 s)
+M=36000000 t=7.9584 s  4.52 MegaEdges/s sc=434421 sa=15502777
+ (verification  0.18 s)
+M=36000000 t=7.9332 s  4.54 MegaEdges/s sc=445181 sa=15497645
+ (verification  0.18 s)
+M=36000000 t=7.9605 s  4.52 MegaEdges/s sc=444906 sa=15646354
+ (verification  0.18 s)
+M=36000000 t=4.2532 s  8.46 MegaEdges/s sc=441650 sa=15298706
+ (verification  0.18 s)
+Completed iterations for N=9000000
+
+### nproc: 32
+/home/dl/1.7.0/j2se/martin/promoted/solaris-sparcv9/bin/java -server -Xbootclasspath/p:/home/dl/jsr166/build/lib/jsr166.jar -cp ../../../../../xwsn.jar -Xmx3G graph.AdaptiveBFS 32 T 3000 4 false false true 1 4
+Number of procs=32
+graphType=T
+N=3000
+D=4
+reporting=false
+graphOnly=false
+verification=true
+BATCH_SIZE=1
+MULTIPLIER=4.0
+Generating graph...
+Graph generated.
+Creation time:189.8850 s
+M=36000000 t=49.0323 s  0.73 MegaEdges/s sc=456484 sa=19319939
+ (verification  0.30 s)
+M=36000000 t=11.8693 s  3.03 MegaEdges/s sc=454666 sa=17587607
+ (verification  0.27 s)
+M=36000000 t=12.1493 s  2.96 MegaEdges/s sc=453985 sa=17954821
+ (verification  0.17 s)
+M=36000000 t=8.3396 s  4.32 MegaEdges/s sc=446406 sa=17415685
+ (verification  0.17 s)
+M=36000000 t=8.4193 s  4.28 MegaEdges/s sc=454361 sa=17891098
+ (verification  0.17 s)
+M=36000000 t=12.3264 s  2.92 MegaEdges/s sc=448144 sa=17756124
+ (verification  0.17 s)
+M=36000000 t=8.5069 s  4.23 MegaEdges/s sc=448603 sa=17714133
+ (verification  0.17 s)
+M=36000000 t=8.4805 s  4.25 MegaEdges/s sc=444791 sa=17576965
+ (verification  0.17 s)
+M=36000000 t=4.6640 s  7.72 MegaEdges/s sc=444351 sa=17515332
+ (verification  0.17 s)
+M=36000000 t=8.4333 s  4.27 MegaEdges/s sc=447432 sa=17426089
+ (verification  0.17 s)
+M=36000000 t=8.2957 s  4.34 MegaEdges/s sc=448241 sa=17377564
+ (verification  0.17 s)
+M=36000000 t=8.5085 s  4.23 MegaEdges/s sc=452790 sa=17743913
+ (verification  0.17 s)
+M=36000000 t=8.3874 s  4.29 MegaEdges/s sc=442668 sa=17368266
+ (verification  0.17 s)
+M=36000000 t=4.5526 s  7.91 MegaEdges/s sc=453122 sa=17567768
+ (verification  0.18 s)
+M=36000000 t=8.3347 s  4.32 MegaEdges/s sc=445790 sa=17024013
+ (verification  0.17 s)
+M=36000000 t=8.4020 s  4.28 MegaEdges/s sc=444670 sa=17361399
+ (verification  0.17 s)
+M=36000000 t=4.5023 s  8.00 MegaEdges/s sc=445668 sa=17344517
+ (verification  0.17 s)
+M=36000000 t=8.4361 s  4.27 MegaEdges/s sc=443680 sa=17396542
+ (verification  0.17 s)
+M=36000000 t=8.4720 s  4.25 MegaEdges/s sc=443796 sa=17452290
+ (verification  0.17 s)
+M=36000000 t=4.5419 s  7.93 MegaEdges/s sc=448671 sa=17734559
+ (verification  0.17 s)
+Completed iterations for N=9000000
+
+############################################################
+# End Time: 02/18/2008 - 10:47:22
+############################################################

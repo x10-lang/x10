@@ -1,0 +1,110 @@
+method invocation with program counter
+
+Baolin here again --- Call Graph
+x10.lang.Future.run()V.finish.69.20: 
+	One-x10.lang.Future.result()Lx10/util/GrowableRail;@2
+	One-x10.lang.Fun_0_0.apply()Lx10/lang/Object;@4
+	One-x10.util.GrowableRail.add(Lx10/lang/Object;)V@5
+
+x10.lang.Future.result()Lx10/util/GrowableRail;: 
+
+x10.lang.Runtime$Monitor.release()V: 
+	One-x10.util.ArrayList.size()Lx10/lang/Int;@2
+	One-x10.lang.Runtime$Lock.unlock()V@17
+	ZerOrOne-x10.lang.Runtime.decreaseParallelism(Lx10/lang/Int;)V@5
+	Unbounded-x10.util.Stack.pop()Lx10/lang/Runtime$Thread;@10
+	Unbounded-x10.lang.Runtime.unpark(Lx10/lang/Runtime$Thread;)V@11
+
+x10.lang.Runtime.decreaseParallelism(Lx10/lang/Int;)V: 
+	ZerOrOne-x10.lang.PlaceLocalHandle.apply()Lx10/lang/Runtime;@4
+	ZerOrOne-x10.lang.Runtime$Pool.decrease(Lx10/lang/Int;)V@6
+
+x10.util.ArrayList.size()Lx10/lang/Int;: 
+	One-x10.util.GrowableRail.length()Lx10/lang/Int;@2
+
+x10.lang.Runtime$Latch.release()V: 
+	One-x10.lang.Runtime$Lock.lock()V@1
+	One-x10.lang.Runtime$Monitor.release()V@3
+
+x10.lang.Runtime.unpark(Lx10/lang/Runtime$Thread;)V: 
+	ZerOrOne-x10.lang.Runtime$Thread.unpark()V@3
+
+x10.lang.Future.run()V: 
+	One-x10.lang.Runtime$Latch.release()V@8
+
+x10.lang.RuntimeTest.foo()V: 
+	One-x10.lang.Future.<init>(Lx10/lang/Fun_0_0;)V@3
+	One-x10.lang.Future.run()V@4
+
+new table
+
+x10.lang.Future.run()V.finish.69.20: 
+	One-x10.lang.Future.result()Lx10/util/GrowableRail;@2
+	One-x10.lang.Fun_0_0.apply()Lx10/lang/Object;@4
+	One-x10.util.GrowableRail.add(Lx10/lang/Object;)V@5
+
+x10.lang.Future.result()Lx10/util/GrowableRail;: 
+
+x10.lang.Runtime$Monitor.release()V: 
+	One-x10.util.ArrayList.size()Lx10/lang/Int;@2
+	One-x10.lang.Runtime$Lock.unlock()V@17
+	ZerOrOne-x10.lang.Runtime.decreaseParallelism(Lx10/lang/Int;)V@5
+	Unbounded-x10.util.Stack.pop()Lx10/lang/Runtime$Thread;@10
+	Unbounded-x10.lang.Runtime.unpark(Lx10/lang/Runtime$Thread;)V@11
+	One-x10.util.GrowableRail.length()Lx10/lang/Int;@2
+	ZerOrOne-x10.lang.PlaceLocalHandle.apply()Lx10/lang/Runtime;@4
+	ZerOrOne-x10.lang.Runtime$Pool.decrease(Lx10/lang/Int;)V@6
+	Unbounded-x10.lang.Runtime$Thread.unpark()V@3
+
+x10.lang.Runtime.decreaseParallelism(Lx10/lang/Int;)V: 
+	ZerOrOne-x10.lang.PlaceLocalHandle.apply()Lx10/lang/Runtime;@4
+	ZerOrOne-x10.lang.Runtime$Pool.decrease(Lx10/lang/Int;)V@6
+
+x10.util.ArrayList.size()Lx10/lang/Int;: 
+	One-x10.util.GrowableRail.length()Lx10/lang/Int;@2
+
+x10.lang.Runtime$Latch.release()V: 
+	One-x10.lang.Runtime$Lock.lock()V@1
+	One-x10.lang.Runtime$Monitor.release()V@3
+	One-x10.util.ArrayList.size()Lx10/lang/Int;@2
+	One-x10.lang.Runtime$Lock.unlock()V@17
+	ZerOrOne-x10.lang.Runtime.decreaseParallelism(Lx10/lang/Int;)V@5
+	Unbounded-x10.util.Stack.pop()Lx10/lang/Runtime$Thread;@10
+	Unbounded-x10.lang.Runtime.unpark(Lx10/lang/Runtime$Thread;)V@11
+	One-x10.util.GrowableRail.length()Lx10/lang/Int;@2
+	ZerOrOne-x10.lang.PlaceLocalHandle.apply()Lx10/lang/Runtime;@4
+	ZerOrOne-x10.lang.Runtime$Pool.decrease(Lx10/lang/Int;)V@6
+	Unbounded-x10.lang.Runtime$Thread.unpark()V@3
+
+x10.lang.Runtime.unpark(Lx10/lang/Runtime$Thread;)V: 
+	ZerOrOne-x10.lang.Runtime$Thread.unpark()V@3
+
+x10.lang.Future.run()V: 
+	One-x10.lang.Runtime$Latch.release()V@8
+	One-x10.lang.Runtime$Lock.lock()V@1
+	One-x10.lang.Runtime$Monitor.release()V@3
+	One-x10.util.ArrayList.size()Lx10/lang/Int;@2
+	One-x10.lang.Runtime$Lock.unlock()V@17
+	ZerOrOne-x10.lang.Runtime.decreaseParallelism(Lx10/lang/Int;)V@5
+	Unbounded-x10.util.Stack.pop()Lx10/lang/Runtime$Thread;@10
+	Unbounded-x10.lang.Runtime.unpark(Lx10/lang/Runtime$Thread;)V@11
+	One-x10.util.GrowableRail.length()Lx10/lang/Int;@2
+	ZerOrOne-x10.lang.PlaceLocalHandle.apply()Lx10/lang/Runtime;@4
+	ZerOrOne-x10.lang.Runtime$Pool.decrease(Lx10/lang/Int;)V@6
+	Unbounded-x10.lang.Runtime$Thread.unpark()V@3
+
+x10.lang.RuntimeTest.foo()V: 
+	One-x10.lang.Future.<init>(Lx10/lang/Fun_0_0;)V@3
+	One-x10.lang.Future.run()V@4
+	One-x10.lang.Runtime$Latch.release()V@8
+	One-x10.lang.Runtime$Lock.lock()V@1
+	One-x10.lang.Runtime$Monitor.release()V@3
+	One-x10.util.ArrayList.size()Lx10/lang/Int;@2
+	One-x10.lang.Runtime$Lock.unlock()V@17
+	ZerOrOne-x10.lang.Runtime.decreaseParallelism(Lx10/lang/Int;)V@5
+	Unbounded-x10.util.Stack.pop()Lx10/lang/Runtime$Thread;@10
+	Unbounded-x10.lang.Runtime.unpark(Lx10/lang/Runtime$Thread;)V@11
+	One-x10.util.GrowableRail.length()Lx10/lang/Int;@2
+	ZerOrOne-x10.lang.PlaceLocalHandle.apply()Lx10/lang/Runtime;@4
+	ZerOrOne-x10.lang.Runtime$Pool.decrease(Lx10/lang/Int;)V@6
+	Unbounded-x10.lang.Runtime$Thread.unpark()V@3

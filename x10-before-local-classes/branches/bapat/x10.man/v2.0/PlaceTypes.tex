@@ -1,0 +1,56 @@
+\subsection{Place constraints}\label{PlaceTypes}\index{place types}
+\label{DepType:PlaceType}\index{placetype}
+
+Recall that an \Xten{} computation spans multiple places
+(\Sref{XtenPlaces}). Each place constains data and activities that
+operate on that data.  \XtenCurrVer{} does not permit the dynamic
+creation of a place. Each \Xten{} computation is initiated with a
+fixed number of places, as determined by a configuration parameter.
+In this section we discuss how the programmer may supply place type
+information, thereby allowing the compiler to check data locality,
+i.e., that data items being accessed in an atomic section are local.
+
+\begin{grammar}
+PlaceConstraint     \: \xcd"!" Place\opt \\
+Place              \:  \xcd"current" \\
+                        % \| \xcd"any" \\
+                        \| Expression \\
+\end{grammar}
+
+Because of the importance of places in the \Xten{} design, special
+syntactic support is provided for constrained types involving places.
+
+All \Xten{} reference classes extend the class
+\xcd"x10.lang.Ref", which defines a property
+\xcd"location" of type
+\xcd"Place".
+
+\begin{xten}
+package x10.lang;
+public class Ref(location: place) { ... }  
+\end{xten}
+
+If a constrained reference type \xcd"T" has an \xcd"!p" suffix,
+the constraint for \xcd"T" is implicitly assumed to contain the clause
+\xcd"self.location==p"; that is,
+\xcd"C{c}!p" is equivalent to \xcd"C{self.location==p && c}".
+
+If the place \xcd"p" is ommitted, \xcd"here" is assumed; that is,
+\xcd"C{c}!" is equivalent to \xcd"C{self.location==here && c}".
+
+% The place specifier \xcd"any" specifies that the object can be
+% located anywhere.  Thus, the location is unconstrained; that is,
+% \xcd"C{c}!any" is equivalent to \xcd"C{c}".
+
+% XXX ARRAY
+The place specifier \xcd"current" on an array base type
+specifies that an object with that type at point \xcd"p"
+in the array 
+is located at \xcd"dist(p)".  The \xcd"current" specifier can be
+used only with array types.
+
+\begin{staticrule*}
+  It is a compile time error for the \xcd"!"-annotation to
+  be used for value types.
+\end{staticrule*}
+

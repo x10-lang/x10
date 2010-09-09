@@ -1,0 +1,74 @@
+Sun Jul 22 20:16:33 2007
+
+Dirichlet Boundary conditions
+
+Elliptic (type of linear PDE)
+Hyperbolic
+Parabolic
+    An equation of the form Au_xx + 2Bu_xy + Cu_yy = F(x,y,u,u_x,u_y)
+    is said to be
+         elliptic if AC-BB > 0
+         parabolic if AC-BB = 0
+         hyperbolic if AC-BB < 0
+
+Implicit methods See http://en.wikipedia.org/wiki/Explicit_and_implicit_methods
+
+  Explicit and implicit methods are numerical methods for solving
+  time-varying ODEs and PDEs. In an explicit method, Y(t+delta t) is
+  presented explicitly as function of Y(t): Y(t+delta t) = F(Y(t)). In
+  an implicit method, one solves an equation
+      G(Y(t), Y(t+delta t)) = 0
+
+  Explicit methods
+  Semi-implicit methods
+
+Jacobian 
+
+   The Jacobian matrix is the matrix of all first-order partial
+   derivatives of a vector-valued function. Let F: R^n -> R^m be a
+   function from Euclidean n-space to Euclidean m-space. Such a
+   function is given by m real-valued component functions y_1(bar x),
+   ..., y_m(bar x). The partial derivatives of these functions, if
+   they exist can be organized in an m x n matrix, the Jacobian matrix
+   of F thus:
+
+  J_ij = do y_i/do x_j  for i in 1:m and j in 1:n
+
+  The importance of the Jacobian is that it represents the best linear
+  approximation of a differentiable function at a given point.
+
+Laplace's Equation u_xx + u_yy + u_zz = 0 (in 3d), i.e. nabla^2 u = 0
+
+Level 0 BiCGStab --- what is this??
+
+Gradient function: 
+
+  The gradient is a way to obtain a vector function from a scalar
+  function. Let f(x,y,z) be a scalar function in 3d. grad f is the
+  vector function grad f = u_x i + u_y j + u_z k.
+
+Laplacian 
+
+  In 3d, a scalar operator yielding for u(x,y,z) the value u_xx + u_yy
+  + u_zz. It is sometimes written as nabla^2(u). Note that Laplacian u
+  = (grad u) . (grad u), where . is inner product.
+
+
+Poisson's Equation
+     nabla^2 u = f(x,y,z) over a region R.
+
+Parabolic, see Elliptic
+
+Stiff problems
+  http://en.wikipedia.org/wiki/Stiff_problem
+
+  Differential equations for which some numeric methods are
+  numerically unstable.
+
+V-curve
+
+Relationship between CG, MG and AMR.
+
+
+
+

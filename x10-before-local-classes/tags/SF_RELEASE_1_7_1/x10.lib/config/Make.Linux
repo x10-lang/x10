@@ -1,0 +1,25 @@
+#
+# (c) IBM Coporation 2007
+#
+# $Id: Make.Linux,v 1.1 2008-06-05 04:52:09 ipeshansky Exp $
+# This file is part of X10 Runtime System.
+#
+
+# Platform independent common definitions.
+include $(TOP)/config/Make.defs
+
+# Platform specific makefile definitions.
+
+X10LANG ?= $(TOP)/../x10.backend/x10lang
+CC = gcc -I$(X10LANG)
+CFLAGS = -g -O3
+CXX = g++ -I$(X10LANG)
+CXXFLAGS = -g
+
+LINKFLAGS = -r
+
+ARFLAGS = -r
+RANLIB = ranlib
+
+# build rules
+include $(TOP)/config/Make.rules

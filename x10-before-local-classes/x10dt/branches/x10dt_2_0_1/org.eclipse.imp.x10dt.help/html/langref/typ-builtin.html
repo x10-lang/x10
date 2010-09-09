@@ -1,0 +1,251 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Built-in types</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc10">
+10</a>&nbsp;&nbsp;Built-in types</h2>
+
+<div class="p"><!----></div>
+The package "x10.lang" provides a number of built-in class and
+interface declarations that can be used to construct types.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc10.1">
+10.1</a>&nbsp;&nbsp;The class &#214;bject"</h3>
+<a name="Object">
+</a>
+
+
+
+<div class="p"><!----></div>
+The class "x10.lang.Object" is the supertype of all classes.
+A variable of this type can hold a reference to any object.
+The code for this class (with annotations removed) is:
+<pre>
+public class Object (home: Place) 
+     implements Any
+{
+    public native def this();
+    public property def home() = home;
+    public property def at(p:Place) = home==p;
+    public property def at(r:Object) = home==r.home;
+    public native def toString() : String;
+    public global native def typeName() : String;
+    public def equals(x:Object) = this==x;
+    public native def hashCode() : Int;
+}
+</pre>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc10.2">
+10.2</a>&nbsp;&nbsp;The class "String"</h3>
+<a name="String">
+</a>
+
+<div class="p"><!----></div>
+All strings in X10 are instances of the value class
+"x10.lang.String".
+A string object is immutable,
+and has a concatenation operator ("+") available on it.
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+  
+
+<div class="p"><!----></div>
+    
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+
+`\`=13
+
+
+<div class="p"><!----></div>
+`^^M=13 
+
+<div class="p"><!----></div>
+`^^I=13 
+
+<div class="p"><!----></div>
+}}
+
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+  
+
+
+
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+  
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc10.3">
+10.3</a>&nbsp;&nbsp;Array types</h3>
+<a name="ArrayTypeConstructors">
+</a>
+
+
+
+
+<div class="p"><!----></div>
+Arrays in X10 are instances of the class
+"x10.lang.Array".
+Because of the importance of arrays in X10, the language
+supports more concise syntax for accessing array elements and
+performing operations on arrays.
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+The array type &#196;rray[T]" is the type of all
+reference arrays of base type "T". Such an array can take on any
+distribution, over any region. 
+
+<div class="p"><!----></div>
+Both array classes implement the function type
+"(Point) =&#62; T"; the element of array &#196;" at point
+"p" may be accessed using the 
+syntax &#196;(p)".  The &#196;rray" class 
+also implements the "Settable[Point,T]" interface 
+permitting assignment to an array element using the syntax
+&#196;(p) = v".
+
+<div class="p"><!----></div>
+X10 also supports dependent types for arrays,
+e.g.,
+&#196;rray[Double]{rank==3}" is the type of all arrays of 
+"Double" of rank "3".
+The &#196;rray" class has distribution, region, and rank
+properties. 
+X10 v2.0 defines type definitions that
+allows a distribution, region, or rank to be specified 
+with on the array type.
+
+<div class="p"><!----></div>
+<pre>
+package x10.lang;
+type Array[T](n: Int) = Array[T]{rank==n};
+type Array[T](d: Dist) = Array[T]{dist==d};
+type Array[T](r: Region) = Array[T]{region==r};
+</pre>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc10.4">
+10.4</a>&nbsp;&nbsp;Rails</h3>
+
+<div class="p"><!----></div>
+A <em>rail</em> is a one-dimensional, zero-based, local array. 
+It is more primitive than the &#196;rray" class.
+Rails are indexed by integers rather than multi-dimensional
+points.  Rails have a single "length" property of type
+&#207;nt".  Rails can be mutable or immutable and are defined
+by the following class definitions:
+
+<div class="p"><!----></div>
+<pre>
+package x10.lang;
+public class ValRail[T](length: Int) extends (Int)=&#62;T { }
+public class Rail[T](length: Int) extends (Int)=&#62;T, Settable[Int,T] { }
+</pre>
+
+<div class="p"><!----></div>
+X10 supports shorthand syntax for rail construction
+(&#167;).
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+  
+
+<div class="p"><!----></div>
+    
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+
+`\`=13
+
+
+<div class="p"><!----></div>
+`^^M=13 
+
+<div class="p"><!----></div>
+`^^I=13 
+
+<div class="p"><!----></div>
+}}
+
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+  
+
+
+
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+  
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc10.5">
+10.5</a>&nbsp;&nbsp;Future types</h3>
+
+<div class="p"><!----></div>
+The interface "x10.lang.Future[T]"
+is the type of all "future" expressions.
+The type represents a value which when forced will return a value of type
+"T". The interface makes available the following methods:
+
+<div class="p"><!----></div>
+<pre>
+package x10.lang;
+public interface Future[T] implements () =&#62; T {
+  public def apply(): T;
+  public def force(): T;
+  public def forced(): Boolean;
+}
+</pre>
+
+<div class="p"><!----></div>
+
+</body>
+</html>

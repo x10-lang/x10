@@ -1,0 +1,22 @@
+// SYNOPSIS: await (#0) #1=unique_id
+
+{
+
+	synchronized (x10.runtime.Runtime.here()) {
+		try {
+			((x10.runtime.ActivityRunner) Thread.currentThread()).getActivity().getPlace().threadBlockedNotification(); // Add a thread for current activity if needed
+			while (!(#0)) {
+				x10.runtime.Runtime.here().wait();
+			}
+		} catch (java.lang.Throwable tmp#1) {
+			tmp#1.printStackTrace();
+			x10.runtime.Runtime.runtime.java.log(java.util.logging.Level.SEVERE,
+					"Unexpected exception during conditional atomic.", tmp#1);
+			throw new RuntimeException(tmp#1);
+		} finally {
+			((x10.runtime.ActivityRunner) Thread.currentThread()).getActivity().getPlace().threadUnblockedNotification(); // Allow current thread to be used for other activities if needed
+			x10.runtime.Runtime.here().notifyAll();
+		}
+	}
+}
+

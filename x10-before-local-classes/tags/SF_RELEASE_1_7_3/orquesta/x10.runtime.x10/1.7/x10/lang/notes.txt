@@ -1,0 +1,26 @@
+Thu Jun 12 08:38:47 2008
+
+Introduced the unimplemented modifier to methods. Can be used when
+writing code. You should be able to compile and link and run. But if
+an unimplemented method is invoked, you should get an
+UnsupportedOperationException. (Compiler should warn if a class
+contains unimplemented methods.)
+
+The "Arithmetic" interface is very undercooked. It prolly makes sense
+to separate out the functions into smaller collections. Also have to
+look at all the other operators and add them. e.g. bitwise operations,
+shifts etc.
+
+Started an x10.runtime package. My plan is to move all the
+functionality in the current X10 runtime (which is written into Java)
+into X10 classes written in this package (or auxliary packages).
+
+Wed Jun 11 15:27:58 2008
+
+Besides int all other basic types are to be defined here as well:
+
+int, long, float, double, char, byte, short etc
+
+TODO: 
+  dist
+  Array

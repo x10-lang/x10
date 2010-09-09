@@ -1,0 +1,33 @@
+Sat Aug 18 18:45:39 2007
+
+06/04/2007
+Vijay Saraswat wrote:
+
+> Did you see my earlier message that SpanT does not scale?  There definitely
+> is parallel work, and 1 second is a long time. So the current scan/sleep
+> setup needs to be looked at. It may be causing workers to sleep too much on
+> the job. Wonder whether it is really necessary to make them sleep at all...
+>
+
+Oh. notice that I don't ever sleep if there are active jobs
+and not yet quiescent. Sleeping in that case has very poor
+performance because:
+
+(1) usually in that case, you are not seeing
+work because of GC or dynamic complication, which is better
+to spin out -- usually it means that you too will stall
+dues to stop-the-world GC or dynamic code patching.
+Explicilty sleeping does no good (and some harm -- see (2)).
+If priorities or yields worked portably nicely,
+either would be good heuristically, but they don't so I stripped
+them out for the time being. At some point I will re-insert.
+
+(2) In this case, task producer's don't know enough to wake you
+up, and adding something to do so in each push or whatever is not
+worthwhile. So the timeouts time out.
+
+I think that at one point a few weeks ago I had mis-diagnosed one
+aspect of this and probably wrote you some mis-guidance about it.
+
+-Doug
+

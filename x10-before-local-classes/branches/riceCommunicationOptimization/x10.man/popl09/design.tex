@@ -1,0 +1,572 @@
+\Xten{} is a class-based object-oriented language
+that provides both dependent and generic types.
+The language has a sequential core similar to Java or Scala, but
+also
+constructs for concurrency and distribution.
+
+A key feature that interacts with generics is that the type
+system provides both reference types and value types.
+An instance of a reference type is an object on the
+heap.  All reference types are subclasses of \xcd"Object".
+Variables of reference type may be \xcd"null".
+In contrast, an instance of a value type might be represented in
+unboxed form on the call stack
+and can never be \xcd"null".
+Ideally, the design should support instantiation of generics on both 
+reference and value types.
+
+This section describes the design of generics for \Xten,
+including several alternative designs.  These alternatives
+demonstrate the expressiveness of constrained kinds.
+
+%\footnote{We plan
+%to support traits in a future version of the language.}
+\todo{emph interactions with data constraints}
+
+\subsection{Type constraints}
+
+To permit genericity, variables \Xcd{X} must be admitted over types.
+The choice of type variables is discussed below.  We assume here
+that classes have a means of introducing new type variables
+either as type parameters or as type members.
+For instance,
+the class \xcd"List" introduces a type variable \xcd"X"
+representing the list's element type.
+
+\Xten already supports constraints over values, so it is natural
+to extend these to constraints over types.
+Here, we ask: how should type variables be constrained?
+
+Constraints occur in several places in the \Xten syntax.  They
+are of course permitted in constrained types \xcd"C{c}".
+Constraints may also be used as \emph{class invariants}, 
+which are constraints on the class's properties and other
+final variables in scope.
+The class invariant must be established by the class's
+constructor and subsequently holds for all instances of the
+class.
+
+Methods and constructors
+may also have constraints, or \emph{guards}, on their parameters.
+A guard must be satisfied by the caller of the method and
+will hold throughout its body.  Type constraints used in the
+method guard restrict the types of the arguments or of the method
+receiver.  
+
+\subsubsection{Nominal subtyping and equality constraints}
+
+In class-based OO languages such as Java,
+types are equipped with a partial
+order (the \emph{subtyping} order) generated from the user program
+through the ``\Xcd{extends}'' relationship.  
+This motivates a very natural constraint system on types.  For a type
+variable \Xcd{X} we should be able to assert the constraint
+\Xcd{X}~$\extends$~\Xcd{T}: a valuation (mapping from variables to types) realizes
+this constraint if it maps \Xcd{X} to a type that extends \Xcd{T}.
+Constraints on types can specify either subtype (\xcd"<="),
+supertype (\xcd">="), or equality bounds (\xcd"==").
+
+Using subtyping constraints in the class invariant provides a
+means to bound the type variables introduced by the class
+declaration.  Constraints in constrained types
+\xcd"C{c}", can bound
+type-valued members of the base type \xcd"C".
+
+These constraints also can be used in method guards.
+This feature is similar to optional methods in CLU~\cite{clu} and to generalized type constraints in C$\sharp$~\cite{emir06}.
+For instance, given a list of \xcd"T", one could define a
+method \xcd"print" with a guard that requires that \xcd"T" be a
+subtype of \xcd"Printable":
+\begin{xtenmathnoindent}
+  def print(){T <= Printable} {
+    head.print();
+    tail.print();
+  }
+\end{xtenmathnoindent}
+This constraint ensures that the \xcd"head" field of type
+\xcd"T" has a \xcd"print()" method.
+
+\subsubsection{Structural constraints}
+
+One should also
+be able to require that a type have a
+particular member---a field with a given name and type, or a method
+with a given name and signature.
+We introduce the constraints 
+\Xcd{T} \Xcd{has} \Xcd{f:T} and \Xcd{T} \Xcd{has}
+\Xcdmath{m($\tbar{x}\ty\tbar{S}$):T} to express this.
+These
+constraints allow one to define an alternative version of the
+\xcd"print" methods above  as:
+\begin{xtenmathnoindent}
+  def print(){T has print(): void} {
+    head.print();
+    tail.print();
+  }
+\end{xtenmathnoindent}
+Rather than restricting the actual receiver to lists whose
+element type implements \xcd"Printable", with structural
+constraints, any list whose element type has a \xcd"print"
+method may be used.
+\eat{
+This feature makes it easier to integrate
+third-party libraries, where interface names might not be
+compatible.
+}
+
+Structural constraints on types are found in many languages.
+For instance,
+Haskell supports type
+classes~\cite{haskell,haskell-type-classes}.
+%
+%ML's module system allows modules to be constrained by
+%structural signatures~\cite{ml}.
+In Modula-3, type equivalence is structural
+rather than nominal as in object-oriented languages of the C
+family (e.g., C++, Java, and \Xten{}).
+Unity~\cite{malayeriIntegrating08}
+is a Java-like language with both nominal and structural subtyping.
+
+In the class invariant, a structural constraint can bound the
+class's type variables, similarly to 
+the language PolyJ~\cite{java-popl97}, which allows type
+parameters to be
+bounded using
+structural \emph{where clauses}~\cite{where-clauses}.
+For example, a sorted list class
+could be written as follows in PolyJ:
+{
+\begin{xtennoindent}
+class SortedList[T] where T {int compareTo(T)} {
+  void add(T x) {... x.compareTo(y) ...}
+  ...
+}
+\end{xtennoindent}}
+The \xcd"where" clause states that the type parameter
+\xcd"T" must have a
+method \xcd"compareTo" with the given signature.
+\xcd"SortedList" can be instantiated on any type
+that provides the method.
+With nominal bounds, \xcd"SortedList" could only require that
+its parameters implement an interface such as \xcd"Comparable".
+
+\subsubsection{Default values}
+
+Recall that \Xten's type system provides both reference types and value
+types.
+In languages like Java with
+primitive types, every type has a default value---\xcd"null" for
+reference types, \xcd"false" or \xcd"0" for primitive
+types---used to initialize arrays of that type.
+In \Xten, some types do not have an obvious default value.  For example,
+\xcd"int{self>0}" does not contain the value \xcd"0".
+Consequently, a useful constraint is \xcd"T has default", which
+holds if the type \xcd"T" has a default value.
+
+\subsubsection{{\tt instanceof} constraints}
+
+Lastly, we consider constraints of the form \xcd"x" \xcd"instanceof" \xcd"T".
+By relating types and values in a single constraint, 
+these constraints provide considerable expressive power.
+For instance, 
+consider the class declaration:
+\begin{xtennoindent}
+class C {
+  def equals[T](x:T) {this instanceof T} = (this==x);
+}
+\end{xtennoindent}
+The \xcd"equals" method can be called with any object
+that is a supertype of \xcd"C".
+
+\xcd"instanceof" constraints can be used to build intersection
+types, e.g., \xcd"Object{self instanceof A,self instanceof B}"
+should be a subtype of \xcd"A" and \xcd"B"..
+
+\subsection{Type variables}
+\label{sec:type-properties}
+\label{sec:variance}
+
+Languages such as Java~\cite{Java3} and
+Scala~\cite{scala} introduce \emph{type parameters} on classes
+and methods.
+An alternative approach, used by BETA~\cite{beta}, 
+Scala~\cite{scala}, and other languages is, to use type members.
+In \Xten, one can
+generalize properties to include type-valued properties:
+A \emph{type property}
+is a final object member initialized at construction time with a
+concrete type.  
+
+\subsubsection{Type properties}
+
+\label{sec:usability}
+\label{sec:parameters-vs-fields}
+
+Like normal value properties, type properties
+can be used in constrained types through the variable \xcd"self".
+%
+This immediately suggests use-site variance
+constraints~\cite{unifying-genericity,variant-parametric-types}
+on type properties.
+The type of a list of integers, say, can be written as
+\xcd"List{self.T==int}".  
+Nominal subtyping constraints, then, may be used to
+provide use-site variance constraints.
+%
+Consider the following subtypes of \xcd"List" with type property
+\xcd"T":
+\begin{itemize}
+\item \xcd"List".  This type has no constraints on the type
+property \xcd"T".
+Any type that constrains \xcd"T"
+is a subtype of \xcd"List".
+\eat{
+The type \xcd"List" is equivalent to \xcd"List{true}".
+%
+For a \xcd"List" \xcd"v", the return type of the \xcd"get" method
+is \xcd"v.T".
+Since the property \xcd"T" is unconstrained,
+the caller can only assign the return value of \xcd"get"
+to a variable of type \xcd"v.T".
+}
+
+\item \xcd"List{T==float}".
+The type property \xcd"T" is bound to \xcd"float".
+For a final expression \xcd"v" of this type,
+\xcd"v.T" and \xcd"float" are equivalent types and can be used
+interchangeably.
+
+\item \xcdmath"List{T$\extends$Collection}".
+This type constrains \xcd"T" to be a subtype of \xcd"Collection".
+All instances of this type must bind \xcd"T" to a subtype of
+\xcd"Collection"; for example \xcd"List[Set]" (i.e.,
+\xcd"List{T==Set}") is a subtype of
+\xcdmath"List{T$\extends$Collection}" because \xcd"T==Set" entails
+\xcdmath"T$\extends$Collection".
+
+\item \xcdmath"List{T$\super$String}".  This type bounds the type property
+\xcd"T"
+from below. 
+\end{itemize}
+
+While expressive,
+type properties have a number of usability issues.
+The key difference between type parameters and type properties
+is that type properties are
+instance \emph{members} bound during object construction.  Type
+properties are thus accessible through expressions---\xcd"e.T" is
+a legal type (if \xcd"e" is final)---and are inherited by subclasses.
+These features give type properties more expressive power than
+type parameters, as we shall describe below; however, because they 
+provide similar functionality with often subtle distinctions,
+type properties can be difficult to use, especially for novices,
+and require more care in the design.
+For instance,
+since type properties are inherited,
+the language design needs
+to account for ambiguities introduced when the same name is
+used for different type properties declared in or inherited into a class.
+
+\eat{
+Inheriting type properties may also lead to confusion
+As an example, in the following hypothetical code extended with
+type properties (declared as normal properties with the ``type''
+\xcd"*"),
+\xcd"HashMap"  inherits the properties \xcd"K" and \xcd"V" from
+\xcd"AbstractMap".
+\begin{xten}
+class AbstractMap(K:*, V:*) {
+  abstract def get(K): V;
+  abstract def put(K, V): V;
+}
+
+class HashMap implements Map {
+  def get(k: K): V = ...;
+  def put(k: K, v: V): V = ...;
+}
+\end{xten}
+A user more familiar with type parameters might declare
+\xcd"HashMap" as follows:
+\begin{xten}
+class HashMap(K:*,V:*) implements Map(K,V) {
+  def get(k: K): V = ...;
+  def put(k: K, v: V): V = ...;
+}
+\end{xten}
+This declaration would introduce a new pair of type properties
+named \xcd"K" and
+\xcd"V" that shadow the inherited properties.
+A na{\"\i}ve implementation of type properties would store run-time
+type information for all four properties in each instance
+of \xcd"HashMap".
+}
+
+\paragraph{\normalfont\bf\em Virtual types.}
+
+Type properties provide expressive power much like 
+\emph{virtual
+types}~\cite{beta,mp89-virtual-classes,ernst06-virtual};
+moreover, they can also
+be constrained at the use-site,
+can be refined on a per-object basis without explicit subclassing,
+and can be refined contravariantly as well as covariantly.
+
+Thorup~\cite{thorup97}
+proposed adding genericity to Java using virtual types.  For example,
+a generic \xcd"List" class can be written as follows:
+{
+\begin{xten}
+abstract class List {
+  abstract typedef T;
+  T get(int i) { ... }
+}
+\end{xten}}
+\noindent
+The virtual type \xcd"T" is unbound in \xcd"List", but 
+can be refined by binding \xcd"T" in a subclass:
+{
+\begin{xten}
+abstract class NumberList extends List {
+  abstract typedef T as Number;
+}
+class IntList extends NumberList {
+  final typedef T as Integer;
+}
+\end{xten}}
+\noindent
+Only classes where \xcd"T" is final bound, such as \xcd"IntList",
+can be non-abstract.  Scala~\cite{scala} supports abstract types
+and virtual types in a similar way.
+%
+The analogous definition of 
+\xcd"List" in \Xten{} using type properties is as follows:
+{
+\begin{xten}
+class List(T:*) {
+  def get(i: int): T { ... }
+}
+\end{xten}}
+
+\noindent
+Unlike the virtual-type version,
+the \Xten{} version of \xcd"List" is not abstract;
+\xcd"T" need not be instantiated by a subclass because it can be
+instantiated (constrained) on a per-object basis.
+Rather than declaring subclasses of \xcd"List",
+one uses the constrained subtypes
+\xcdmath"List{T$\extends$Number}" and \xcd"List{T==Integer}".
+
+Type properties can also be refined contravariantly.
+For instance, one can write the type \xcdmath"List{T$\super$Integer}".
+
+\paragraph{Self types.}
+
+Type properties can also be used to support a form of self
+type~\cite{bruce-binary,bsg95}.
+%
+Self types can be implemented by introducing a
+type property \Xcd{type} to the root of the class hierarchy,
+\Xcd{Object}:
+\begin{xtenmath}
+class Object(type:*){type <= Object} { $\dots$ }
+\end{xtenmath}
+
+\noindent
+For any final path expression \Xcd{p}, the type
+$\Xcd{p}.\Xcd{type}$ represents all instances of the fixed,
+but statically unknown, run-time class referred to by \Xcd{p}.
+Scala's path-dependent types~\cite{scala} and J\&'s
+dependent classes~\cite{nqm06}
+take a similar approach.
+
+Self types are achieved by
+constraining types so that if a path expression \Xcd{p}
+has type \Xcd{C}, then
+$\Xcd{p}.\Xcd{type} \subtype \Xcd{C}$.
+In particular, one can add the class invariant
+$\Xcd{this}.\Xcd{type} \subtype \Xcd{C}$ to every class \Xcd{C}.
+This invariant ensures that
+$\Xcd{this}.\Xcd{type}$ is a subtype
+of the lexically enclosing class.
+
+The property must be initialized to the given class, so, without
+further language support, one must create an instance of
+\xcd"Object" with \xcd"new" \xcd"Object(Object)" to initialize
+the \xcd"type" property.
+
+\subsubsection{Type parameters}
+
+Most OO languages provide genericity through type parameters on
+classes and methods.  The development of a nominal OO type
+system with type parameters is now standard (cf.  FGJ~\cite{FJ}).
+
+Scala~\cite{scala} supports definition-site variance
+annotations:
+a parameter may be declared in-, co-, or
+contravariant.
+If the parameter \xcd"X" of a class \xcd"C" is covariant,
+then \xcd"S" a subtype of
+\xcd"T" implies  \xcd"C[S]" is a subtype of \xcd"C[T]".
+Similarly, if \xcd"X" is contravariant,
+\xcd"C[T]" is a subtype of \xcd"C[S]".
+Invariant parameters are the default; a covariant parameter is
+declared by prepending ``\xcd"+"'' to the parameter name in the
+class header; a contravariant parameter is declared by
+prepending ``\xcd"-"''.  The usage of variant parameter types in
+the body of their class must be
+restricted to ensure the subtyping relation holds.
+
+Java, by contrast, supports use-site variance through wildcards.
+This has a number of usability problems~\cite{wildcards-are-evil},
+which also occur with constrained type properties, above.
+
+\subsection{Overloading and dispatch}
+
+The next question to address is the overloading semantics for
+methods with constraints on formal parameters and with method
+guards.  This issue was considered in non-generic \Xten but was
+revisited in light of type constraints.
+
+One option is to ignore constraints when checking for
+overloading.  This means that \xcd"m(int{self==0})" and
+\xcd"m(int{self==1})", for instance, are considered to have the
+same signature; if both occur within the same class, a
+compile-time error occurs.
+
+Another option is to allow the
+overloading: methods are resolved at compile-time, based on the
+constraints.  It is an error if a call could resolve to more
+than one method.  One question is whether to rule out overlapping
+methods (e.g., \xcd"m(int{self>=0})" and \xcd"m(int{self==1})"),
+or to permit them and have the caller resolve any
+ambiguities.
+
+\todo{Use type constraints, not value constraints}
+
+Allowing the overloading on constraints can also complicate method
+overriding by introducing partial overrides.
+Consider:
+\begin{xtennoindent}
+  class A {
+    def m(x:int{self<=0}) = ...; // 1
+    def m(x:int{self>=0}) = ...; // 2
+  }
+  class B {
+    def m(x:int{self==0}) = ...; // 3
+  }
+\end{xtennoindent}
+\noindent
+\xcd"B.m"'s constraint on \xcd"x" partially overrides the
+constraint on both \xcd"m" methods of \xcd"A".  Given a variable
+\xcd"b" of type \xcd"B": \xcd"b.m(-1)" invokes \xcd"A.m" (method 1),
+\xcd"b.m(0)" invokes \xcd"B.m" (method 3), and \xcd"b.m(1)"
+invokes \xcd"A.m" (method 2).  Clients of \xcd"B" could get
+confused about which method gets invoked.  One option is to
+require that when a method with a given name is overridden, all
+other methods with that name should be overridden as well.
+
+Finally, one could support a form of predicate
+dispatch~\cite{jpred}, selecting the method to invoke by
+\emph{dynamically} evaluating the method guard. 
+With type constraints and predicate dispatch, multi-method
+dispatch can be implemented.  \todo{example}
+
+\subsection{Implementation}
+
+Finally, we turn to the implementation of generics.
+To implement a generic class \xcd"C[X]" one can either generate a single 
+class for \xcd"C" in the target language (homogeneous translation)
+or generate one class per instantiation
+\xcdmath"C[T$_1$]", \dots,
+\xcdmath"C[T$_k$]" (heterogeneous translation).
+The former approach reduces the amount of generated code; the
+latter enables specialization based on the type arguments to
+\xcd"C".  Hybrid approaches are possible as well.
+
+Java's approach is to erase type parameters and to use the homogeneous
+translation.  Erasure admits more dynamic errors because
+it permits, for instance, a \xcd"C<A>" to be cast to \xcd"C<B>".
+Retrieving a field of static type \xcd"B" could cause a run-time
+type error when an \xcd"A" is returned instead.
+The homogeneous translation is aided by a restriction that type
+parameters cannot be instantiated on primitive types and by
+using nominal subtyping bounds on types.
+These restrictions ensure type parameters can be represented
+with their type bound, or \xcd"Object" if unbounded.
+Since, in \Xten, it should be possible to instantiate a generic
+type on both value types and reference types, a homogeneous translation
+must box value types so that both kinds of types have the same
+representation.
+
+PolyJ~\cite{java-popl97} supports structural bounds and uses a
+homogeneous translation with adapter objects to allow generic
+code to invoke methods on values of its type parameters.
+
+Other languages, such as C++, use a heterogeneous
+translation, specializing the generic class for each
+instantiation.
+C$\sharp$,
+NextGen~\cite{nextgen}, and
+Fortress~\cite{fortress} takes this approach as well, reducing
+(static) code bloat by instantiating generic classes at run time.
+
+A compromise approach is to specialize for only a few parameter
+types, for example the primitive types, but to use a homogeneous
+translation otherwise.
+
+Representing type variables at run-time allows the language
+to support run-time casts to generic types,
+including possibly types instantiated on constrained types.
+
+With
+non-generic types, a cast such as
+\xcd"r"~\xcd"as"~\xcd"Region{rank==k}" can be implemented by
+checking the run-time class of the value being
+cast---\xcd"r"~\xcd"instanceof"~\xcd"Region"---and then
+evaluating the constraint---\xcd"r.rank==k".
+%
+However, the issue is more subtle with generic casts.
+For instance, to do
+\xcd"A"~\xcd"as"~\xcd"Array[int{self>=0}]"
+one must check at run time that the concrete type used to instantiate
+the \xcd"Array"'s type parameter is equivalent to
+\xcd"int{self>=0}".  This check could involve a run-time
+entailment check, 
+breaking the phase distinction between
+compile time and run time for constraint solving.
+
+One approach is to restrict the language 
+to rule out casts to type parameters 
+and to generic types with subtyping constraints, ensuring that
+entailment checks are not needed at run time.
+Alternatively, 
+the constraint solver could be embedded into the runtime system.
+However, this
+solution can result in inefficient run-time casts
+if entailment checking for the given constraint system is expensive.
+Finally, one can simply erase the constraints from the run-time
+type information, preserving the base type.  As with Java's
+erasure semantics, this approach is prone to run-time type
+errors.
+
+\subsection{X10 design decisions}
+
+Given these considerations, the \Xten makes the following choices:
+\begin{itemize}
+\item \Xten supports subtyping and equality constraints on types
+\item \Xten does not support structural bounds, but may do so in
+the future.  \Xten has closures with structural subtyping, which
+can be used in many of the cases structural type bounds would be
+used.
+\item Classes have type parameters with definition-site variance
+rather than type properties with use-site variance annotations.
+Properties are just too unfamiliar.
+Usability outweighs expressive power. 
+\item Run-time type information is preserved, but constraints
+are not.  
+\end{itemize}
+
+
+\subsection{Related work}
+\label{sec:related}
+\input{related}

@@ -1,0 +1,20 @@
+{
+	/* only one condition is currently supported */
+	Object _lock = x10.lang.Runtime.here();
+	synchronized (_lock) {
+  		try {
+  			while (true) {
+    			if (#0) {
+    				#1; break;
+    			} else {
+    				lock.wait();
+    			}
+    		}
+    		_lock.notifyAll();
+  		} catch (InterruptedException e) {
+  			e.printStackTrace();
+  			x10.lang.JavaRuntime.log(0, "Unexpected exception during conditional atomoic.", e);
+  			throw e;
+  		}
+	}
+}

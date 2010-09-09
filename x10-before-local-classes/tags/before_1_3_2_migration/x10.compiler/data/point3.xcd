@@ -1,0 +1,2 @@
+#TODO Fix with point syntax.
+(new int[]{#0, #1, #2})

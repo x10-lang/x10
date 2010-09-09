@@ -1,0 +1,213 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+/** Tests many syntactic features of dep types.
+ *@author pvarma
+ *
+ */
+
+import harness.x10Test;;
+
+public class DepType1(public val i: int, public val j: int, ) extends x10Test /*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+/** Tests many syntactic features of dep types.
+ *@author pvarma
+ *
+ */
+
+import harness.x10Test;
+
+public class DepType1(int i, int j) extends x10Test { 
+
+	var v: int{v == 0};
+	var b: boolean{b == true});
+    
+     //  property declaration for an inner class.
+    class Test(public val k: int, ) extends DepType1 /*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+/** Tests many syntactic features of dep types.
+ *@author pvarma
+ *
+ */
+
+import harness.x10Test;
+
+public class DepType1(int i, int j) extends x10Test { 
+
+	int (:v == 0) v;
+	boolean (:b == true) b;
+    
+     //  property declaration for an inner class.
+    class Test(int k) extends DepType1 { 
+        def this(var kk: int): Test = {
+            super(kk,kk);
+	    property(kk);
+        }/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+/** Tests many syntactic features of dep types.
+ *@author pvarma
+ *
+ */
+
+import harness.x10Test;
+
+public class DepType1(int i, int j) extends x10Test { 
+
+	int (:v == 0) v;
+	boolean (:b == true) b;
+    
+     //  property declaration for an inner class.
+    class Test(int kint*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+/** Tests many syntactic features of dep types.
+ *@author pvarma
+ *
+ */
+
+import harness.x10Test;
+
+public class DepType1(int i, int j) extends x10Test { 
+
+	int (:v == 0) v;
+	boolean (:b == true) b;
+    
+     //  property declaration for an inner class.
+    class Test(int k) extends DepType1 { 
+        Test(int kk) {
+            super(kk,kk);
+	    property(kk);
+        }
+    }
+    
+    var t: Test{k == 3}; 
+    var n: nullable < Test> ({self == null});
+    
+    
+    public def this(var i: int, var j: int): DepType1 = {
+      this.i = i;
+      this.j = j;
+    }
+    
+ 
+    public def run(): boolean = {
+	var d: DepType1{i==3} = (DepType1{i==3})) new DepType1(3,6); 
+	return true;
+    }
+	
+    public static def main(var args: Rail[String]): void = {
+        new DepType1(3,9).execute();
+    }/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+/** Tests many syntactic features of dep types.
+ *@author pvarma
+ *
+ */
+
+import harness.x10Test;
+
+public class DepType1(int iint*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+/** Tests many syntactic features of dep types.
+ *@author pvarma
+ *
+ */
+
+import harness.x10Test;
+
+public class DepType1(int i/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+/** Tests many syntactic features of dep types.
+ *@author pvarma
+ *
+ */
+
+import harness.x10Test;
+
+public class DepType1(int i, int jint*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+/** Tests many syntactic features of dep types.
+ *@author pvarma
+ *
+ */
+
+import harness.x10Test;
+
+public class DepType1(int i, int j) extends x10Test { 
+
+	int (:v == 0) v;
+	boolean (:b == true) b;
+    
+     //  property declaration for an inner class.
+    class Test(int k) extends DepType1 { 
+        Test(int kk) {
+            super(kk,kk);
+	    property(kk);
+        }
+    }
+    
+    Test (:k == 3) t; 
+    nullable < Test> (:self == null) n;
+    
+    
+    public DepType1(int i, int j) {
+      this.i = i;
+      this.j = j;
+    }
+    
+ 
+    public  boolean run() {
+	DepType1(:i==3) d = (DepType1(:i==3)) new DepType1(3,6); 
+	return true;
+    }
+	
+    public static void main(String[] args) {
+        new DepType1(3,9).execute();
+    }
+   
+
+		
+}

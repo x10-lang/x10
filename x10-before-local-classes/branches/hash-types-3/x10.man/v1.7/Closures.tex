@@ -1,0 +1,318 @@
+\section{Closures}
+\label{Closures}
+\index{Closures}
+
+\Xten{} provides first-class, typed functions, including
+\emph{closures},
+\emph{operator functions},
+and \emph{method selectors}.
+
+\begin{grammar}
+ClosureExpression \:
+        TypeParameters\opt
+        \xcd"("
+        Formals\opt
+        \xcd")"
+\\ &&
+        Guard\opt
+        ReturnType\opt
+        Throws\opt
+        \xcd"=>" ClosureBody \\
+ClosureBody \:
+        Expression \\
+        \| \xcd"{" Statement\star \xcd"}" \\
+        \| \xcd"{" Statement\star Expression \xcd"}" \\
+\end{grammar}
+
+Closure expressions have zero or more type parameters, zero or more
+formal parameters, an optional return type and optional set of
+exceptions throws by the closure body.  The closure body has the same
+syntax as a method body; it may be either an expression, a block of
+statements, or a block terminated by an expression to return. In
+particular, a value may be returned from the body of the closure using
+a return statement (\Sref{ReturnStatement}). The type of a closure is a
+function type (\Sref{FunctionType}).
+
+\label{ClosureGuard}
+
+As with methods, a closure may declare a guard to
+constrain the actual parameters with which it may be invoked.
+The guard may refer to the type parameters, formal parameters,
+and any final variables in scope at the closure expression.
+
+The body of the closure is evaluated when the closure is
+invoked by a call expression (\Sref{Call}), not at the closure's
+place in the program text.
+
+As with methods, a closure with return type \xcd"Void" cannot
+have a terminating expression. 
+If the return type is omitted, it is inferred, as described in
+\Sref{TypeInference}.
+It is a static error if the return type cannot be inferred. 
+
+
+\begin{example}
+The following method takes a function parameter and uses it to
+test each element of the list, returning the first matching
+element.
+\begin{xten}
+def find[T](f: (T) => Boolean, xs: List[T]): T = {
+  for (x: T in xs)
+    if (f(x)) return x;
+  null
+}
+\end{xten}
+
+The method may be invoked thus:
+\begin{xten}
+xs: List[Int] = ...;
+x: Int = find((x: Int) => x>0, xs);
+\end{xten}
+\end{example}
+
+As with a normal method, the closure may have a \xcd"throws"
+clause. It is a static error if the body of the closure throws a
+checked exception that is not declared in the closure's \xcd"throws"
+clause.
+
+\subsection{Closures are objects}
+
+Closures, like all first-class functions in \Xten{} are
+objects (\Sref{FunctionsAreObjects}).
+As objects, the closure body may refer to
+\xcd"this", which is a reference to the current function,
+and use it to invoke the closure recursively.
+
+\begin{example}
+The following method uses a closure to compute the $n$th
+Fibonacci number.
+\begin{xten}
+def fib(n: Int): Int = {
+    val f = (n: Int) : Point => {
+        if (n < 1) return [1,0];
+        val (r,r1): Point = this(n-1);
+        [r+r1,r]
+    };
+    val (r,r1): Point = f(n);
+    r
+}
+\end{xten}
+\end{example}
+
+\subsection{Outer variable access}
+
+In a closure
+\xcdmath"(x$_1$: T$_1$, $\dots$, x$_n$: T$_n$){c} => { s }"
+the types \xcdmath"T$_i$", the guard \xcd"c" and the body \xcd"s"
+may access fields of enclosing classes and local variables and type
+parameters declared in an outer scope.
+
+Recall that languages such as \java{} require that methods may
+access only those local variables declared in an enclosing scope
+(``outer variables'') which are final. This is valuable in
+preventing accidental races between multiple closures reading
+and writing the same outer variable. At the same time, it is
+desirable to support the following common idiom of expression:
+
+\begin{xten}
+def allPositive(c: Collection): Boolean {
+  shared var result: Boolean = true;
+  c.applyToAll((x: Int) => { if (x < 0) atomic {result=false;}});
+  return result;
+}
+\end{xten}
+
+This motivates the following rule:
+
+\begin{staticrule*}
+In an expression
+\xcdmath"(x$_1$: T$_1$, $\dots$, x$_n$: T$_n$) => e",
+any outer local variable accessed by \xcd"e" must be final or
+must be declared
+as \xcd"shared" (\Sref{Shared}).
+\end{staticrule*}
+
+The closure body may refer to instances of enclosing classes using
+the syntax \xcd"C.this", where \xcd"C" is the name of the
+enclosing class.
+
+\begin{note}
+The main activity may run in parallel with any
+closures it creates. Hence even the read of an outer variable by the
+body of a closure may result in a race condition. Since closures are
+first-class, the analysis of whether a closure may execute in parallel
+with the activity that created it may be difficult.
+\end{note}
+
+%% vj: This should be verified.
+%\begin{note}
+%The rule for accessing outer variables from closure bodies
+%should be the same as the rule for accessing outer variables from local
+%or anonymous classes.
+%\end{note}
+
+\section{Methods selectors}
+\label{MethodSelectors}
+
+A method selector expression allows a method to be used as a
+first-class function.
+\eat{
+We can think of a method definition:
+
+\begin{xtenmath}
+def m[X$_1$, $\dots$, X$_2$](x$_1$: T$_1$, $\dots$, x$_n$: T$_n$): U = e
+\end{xtenmath}
+
+as binding the closure
+
+\begin{xtenmath}
+[X$_1$, $\dots$, X$_2$](x$_1$: T$_1$, $\dots$, x$_n$: T$_n$): U => e
+\end{xtenmath}
+
+to the method-name--argument-list tuple (\xcd"m", \xcd"X",
+\xcd"x: T").  That is, underlying every method is a function.
+
+This motivates us to introduce the \emph{method selector}
+expression.
+}
+
+\begin{grammar}
+MethodSelector \:
+        Primary \xcd"."
+        MethodName \xcd"."
+                TypeParameters\opt \xcd"(" Formals\opt \xcd")" \\
+      \|
+        TypeName \xcd"."
+        MethodName \xcd"."
+                TypeParameters\opt \xcd"(" Formals\opt \xcd")" \\
+\end{grammar}
+
+For a
+type \xcd"T", a list of types
+(\xcdmath"T$_1$", \dots, \xcdmath"T$_n$"), 
+a method name
+\xcd"m" and an expression \xcd"e" of type \xcd"T",
+\xcdmath"e.m.(T$_1$, $\dots$, T$_n$)" denotes the function,
+if any, bound to the instance method named \xcd"m" at type
+\xcd"T" whose argument
+type is
+\xcdmath"(T$_1$, $\dots$, T$_n$), with \xcd"this" in the method
+body bound to the value obtained
+by evaluating \xcd"e". The
+return type of the function is specified in the method declaration.
+
+Thus, the method selector
+
+\begin{xtenmath}
+e.m.[X$_1$, $\dots$, X$_m$](T$_1$, $\dots$, T$_n$)
+\end{xtenmath}
+
+behaves as if it were the closure
+
+\begin{xtenmath}
+(X$_1$, $\dots$, X$_m$](x$_1$: T$_1$, $\dots$, x$_n$: T$_n$) => e.m[X$_1$, $\dots$, X$_m$](x$_1$, $\dots$, x$_n$)
+\end{xtenmath}
+
+\begin{note}
+Because of overloading, a method name is not sufficient to
+uniquely identify a function for a given class (in Java-like languages).
+One needs the argument type information as well.
+The selector syntax (dot) is used to distinguish \xcd"e.m()" (a
+method invocation on \xcd"e" of method named \xcd"m" with no arguments)
+from \xcd"e.m.()"
+(the function bound to the method). 
+\end{note}
+
+A static method provides a binding from a name to a function that is
+independent of any instance of a class; rather it is associated with the
+class itself. The static function selector
+\xcdmath"T.m.(T$_1$, $\dots$, T$_n$)" denotes the
+function bound to the static method named \xcd"m", with argument types
+\xcdmath"(T$_1$, $\dots$, T$_n$) for the type \xcd"T". The return type
+of the function is specified by the declaration of \xcd"T.m".
+
+Users of a function type do not care whether a function was defined
+directly (using the closure syntax), or obtained via (static or
+instance) function selectors.
+
+\begin{note}
+Design note: The function selector syntax is consistent with the
+reinterpretation of the usual method invocation syntax
+\xcdmath"e.m(e$_1$,..., e$_n$)"
+into a function specifier, \xcd"e.m", applied to a tuple of arguments
+\xcdmath"(e$_1$,..., e$_n$)". Note that the receiver is not
+treated as ``an extra argument'' to the
+function. That would break the above approach.
+\end{note}
+
+
+\section{Operator functions}
+
+Every operator (e.g.,
+\xcd"+",
+\xcd"-",
+\xcd"*",
+\xcd"/",
+\dots) has a family of functions, one for
+each type on which the operator is defined. The function can be
+selected using the "." syntax:
+
+\begin{grammar}
+OperatorFunction
+        \: TypeName \xcd"." Operator \xcd"(" Formals\opt \xcd")" \\
+        \| TypeName \xcd"." Operator \\
+\end{grammar}
+
+If an operator has more than one arity (e.g., unary and binary
+\xcd"-"), the appropriate version may be selected by giving the
+formal parameter types.  The binary version is selected by
+default.
+For example, the following equivalences hold:
+
+\begin{xtenmath}
+String.+             $\equiv$ (x: String, y: String): String => x + y
+Long.-               $\equiv$ (x: Long, y: Long): Int => x - y
+Float.-(Float,Float) $\equiv$ (x: Float, y: Float): Int => x - y
+Int.-(Int)           $\equiv$ (x: Int): Int => -x
+Boolean.&            $\equiv$ (x: Boolean, y: Boolean): Boolean => x & y
+Boolean.!            $\equiv$ (x: Boolean): Boolean => !x
+Int.<(Int,Int)       $\equiv$ (x: Int, y: Int): Boolean => x < y
+Dist.|(Place)        $\equiv$ (d: Dist, p: Place): Dist => d | p
+\end{xtenmath}
+
+Unary and binary promotion (\Sref{XtenPromotions}) is not performed
+when invoking these
+operations; instead, the operands are coerced individually via implicit
+coercions (\Sref{XtenConversions}), as appropriate.
+
+Additionally, for every expression \xcd"e" of a type \xcd"T" at which a binary
+operator \xcd"OP" is defined, the expression \xcd"e.OP" or
+\xcd"e.OP(T)" represents the function
+defined by:
+
+\begin{xten}
+(x: T): T => { e OP x }
+\end{xten}
+
+\begin{grammar}
+Primary \: Expr \xcd"." Operator \xcd"(" Formals\opt \xcd")" \\
+        \| Expr \xcd"." Operator \\
+\end{grammar}
+
+For every expression \xcd"e" of a type \xcd"T" at which a unary
+operator \xcd"OP" is defined, the expression \xcd"e.OP()"
+represents the function defined by:
+
+\begin{xten}
+(): T => { OP e }
+\end{xten}
+
+For example,
+one may write an expression that adds one to each member of a
+list \xcd"xs" by:
+
+\begin{xten}
+xs.map(1.+)
+\end{xten}
+
+

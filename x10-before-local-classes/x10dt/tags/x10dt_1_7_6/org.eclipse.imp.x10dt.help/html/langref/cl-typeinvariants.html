@@ -1,0 +1,127 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Type invariants</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc3">
+3</a>&nbsp;&nbsp;Type invariants</h2><a name="DepType:Guard">
+</a>
+
+
+
+<div class="p"><!----></div>
+There is a general recipe for constructing a list of parameters or
+properties "x<sub>1</sub>: T<sub>1</sub>{c<sub>1</sub>}, ..., x<sub>k</sub>: T<sub>k</sub>{c<sub>k</sub>}" that must satisfy a given
+(satisfiable) constraint "c". 
+
+<div class="p"><!----></div>
+<pre>
+class Foo(x<sub>1</sub>: T1{x<sub>2</sub>: T<sub>2</sub>; ...; x<sub>k</sub>: T<sub>k</sub>; c},
+          x<sub>2</sub>: T2{x<sub>3</sub>: T<sub>3</sub>; ...; x<sub>k</sub>: T<sub>k</sub>; c},
+          ...
+          x<sub>k</sub>: T<sub>k</sub>{c}) {
+  ...
+}
+</pre>
+
+
+<div class="p"><!----></div>
+The first type "x<sub>1</sub>: T<sub>1</sub>{x<sub>2</sub>: T<sub>2</sub>; ...; x<sub>k</sub>: T<sub>k</sub>; c}" is consistent iff
+"<font face="symbol">$</font
+>x<sub>1</sub>: T<sub>1</sub>, x<sub>2</sub>: T<sub>2</sub>, ..., x<sub>k</sub>: T<sub>k</sub>. c" is consistent. The second is
+consistent iff
+<pre>
+<font face="symbol">"</font
+>x<sub>1</sub>: T<sub>1</sub>{x<sub>2</sub>: T<sub>2</sub>; ...; x<sub>k</sub>: T<sub>k</sub>; c}
+<font face="symbol">$</font
+>x<sub>2</sub>: T<sub>2</sub>. <font face="symbol">$</font
+>x<sub>3</sub>: T<sub>3</sub>, ..., x<sub>k</sub>: T<sub>k</sub>. c
+</pre>
+ But this is always true. Similarly for the conditions for the other
+properties.
+
+<div class="p"><!----></div>
+Thus logically every satisfiable constraint "c" on a list of parameters
+"x<sub>1</sub>", ..., "x<sub>k</sub>"
+can be expressed using the dependent types of 
+"x<sub>i</sub>", provided
+that the constraint language is rich enough to permit existential
+quantifiers.
+
+<div class="p"><!----></div>
+Nevertheless we will find it convenient to permit the programmer to
+explicitly specify a depclause after the list of properties, thus:
+<pre>
+class Point(i: Int, j: Int) { ... } 
+class Line(start: Point, end: Point){end != start}
+  = { ... }
+class Triangle (a: Line, b: Line, c: Line)
+        {a.end == b.start && b.end == c.start && 
+         c.end == a.start} = { ... }
+class SolvableQuad(a: Int, b: Int, c: Int)
+                   {a*x*x+b*x+c==0} = { ... }
+class Circle (r: Int, x: Int, y: Int)
+              {r &#62; 0 </td><td width="150"> && r*r==x*x+y*y} = { ... }
+class NonEmptyList extends List{n &#62; 0} { ... }
+</pre>
+
+<div class="p"><!----></div>
+Consider the definition of the class "Line". This may be thought of as
+saying: the class "Line" has two fields, &#223;tart: Point" and
+&#235;nd: Point".
+Further, every instance of "Line" must satisfy the constraint that
+&#235;nd != start". Similarly for the other class definitions. 
+
+<div class="p"><!----></div>
+In the general case, the production for 
+specifies that the list of properties may be followed by a
+.
+
+<div class="p"><!----></div>
+<em>  
+<table>
+<tr><td align="right">NormalClassDeclaration &nbsp;::=&nbsp; 
+      ClassModifiers<sup>?</sup>&nbsp;"class" Identifier  </td></tr>
+<tr><td align="right"></td><td align="center"></td><td>TypeParameterList<sup>?</sup>&nbsp;PropertyList<sup>?</sup>&nbsp;Guard<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right"></td><td align="center"></td><td>Extends<sup>?</sup>&nbsp;Interfaces<sup>?</sup>&nbsp;ClassBody </td></tr>
+<tr><td align="right"></td></tr>
+<tr><td align="right">NormalInterfaceDeclaration  &nbsp;::=&nbsp; 
+      InterfaceModifiers<sup>?</sup>&nbsp;&#239;nterface" Identifier  </td></tr>
+<tr><td align="right"></td><td align="center"></td><td>TypeParameterList<sup>?</sup>&nbsp;PropertyList<sup>?</sup>&nbsp;Guard<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right"></td><td align="center"></td><td>ExtendsInterfaces<sup>?</sup>&nbsp;InterfaceBody </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+
+<div class="p"><!----></div>
+All the properties in the list, together with inherited properties,
+may appear in the . A guard "c" with
+
+value property list "x<sub>1</sub>: T<sub>1</sub>, ..., x<sub>n</sub>: T<sub>n</sub>"
+for a class "C" is said to be consistent if each of the "T<sub>i</sub>" are
+consistent and the constraint
+
+<pre>
+<font face="symbol">$</font
+>x<sub>1</sub>: T<sub>1</sub>, ..., x<sub>n</sub>: T<sub>n</sub>, self: C. c
+</pre>
+
+ is valid (always true).
+
+<div class="p"><!----></div>
+</body>
+</html>

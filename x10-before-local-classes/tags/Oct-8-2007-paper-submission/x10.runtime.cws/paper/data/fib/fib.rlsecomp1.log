@@ -1,0 +1,147 @@
+Following are cilk numbers[rlsecomp1:/u/x10/SRIRAMKR/code/x10.lib/src/sched] for p in 1 2 4 6 8; do for n in 20 25 30 35; do ./fib -nproc $p 5 $n; done; done
+n=20     Result: 6765    Time=10266.000 us
+n=25     Result: 75025   Time=113788.000 us
+n=30     Result: 832040  Time=1273792.000 us
+n=35     Result: 9227465         Time=13949324.000 us
+n=20     Result: 6765    Time=5226.000 us
+n=25     Result: 75025   Time=56733.000 us
+n=30     Result: 832040  Time=628798.000 us
+n=35     Result: 9227465         Time=6964266.000 us
+n=20     Result: 6765    Time=2770.000 us
+n=25     Result: 75025   Time=28755.000 us
+n=30     Result: 832040  Time=314901.000 us
+n=35     Result: 9227465         Time=3522516.000 us
+n=20     Result: 6765    Time=2340.000 us
+n=25     Result: 75025   Time=19368.000 us
+n=30     Result: 832040  Time=210743.000 us
+n=35     Result: 9227465         Time=2341316.000 us
+n=20     Result: 6765    Time=2683.000 us
+n=25     Result: 75025   Time=14621.000 us
+n=30     Result: 832040  Time=158226.000 us
+n=35     Result: 9227465         Time=1763342.000 us
+[rlsecomp1:/u/x10/SRIRAMKR/code/x10.lib/src/sched]
+[rlsecomp1:/u/x10/SRIRAMKR/code/x10.lib/src/sched] date
+Sat Aug 18 18:42:14 EDT 2007
+
+
+[rlsecomp1:/u/x10/SRIRAMKR/code/x10.lib/src/sched] for n in 20 25 30 35 40
+> do
+> ./fib -nproc 6 5 $n
+> done
+n=20     Result: 6765    Time=2030.000 us
+n=25     Result: 75025   Time=19337.000 us
+n=30     Result: 832040  Time=210253.000 us
+n=35     Result: 9227465         Time=2340459.000 us
+n=40     Result: 102334155       Time=26092124.000 us
+
+________________________________________________________
+
+Following are C++ cws numbers
+
+STAMP: rlsecomp1.watson.ibm.com Sat Aug 18 18:44:08 EDT 2007
+Best time of 5 runs
+Results with xlC_r
+exe=FibStack.x procs=1 2 4 8 nums=20 25 30 35 nreps=5
+nprocs=1 FibStack(20)	1350 us	ok	 steals=0	stealAttemps=0
+nprocs=1 FibStack(25)	15176 us	ok	 steals=0	stealAttemps=0
+nprocs=1 FibStack(30)	171335 us	ok	 steals=0	stealAttemps=0
+nprocs=1 FibStack(35)	1866338 us	ok	 steals=0	stealAttemps=0
+nprocs=2 FibStack(20)	785 us		ok	 steals=7	stealAttemps=39
+nprocs=2 FibStack(25)	7650 us		ok	 steals=11	stealAttemps=15
+nprocs=2 FibStack(30)	84318 us	ok	 steals=15	stealAttemps=93
+nprocs=2 FibStack(35)	929378 us	ok	 steals=16	stealAttemps=107
+nprocs=4 FibStack(20)	589 us		ok	 steals=15	stealAttemps=162
+nprocs=4 FibStack(25)	4124 us		ok	 steals=37	stealAttemps=178
+nprocs=4 FibStack(30)	42473 us	ok	 steals=48	stealAttemps=266
+nprocs=4 FibStack(35)	614747 us	ok	 steals=88	stealAttemps=514
+nprocs=8 FibStack(20)	739 us		ok	 steals=22	stealAttemps=677
+nprocs=8 FibStack(25)	3139 us		ok	 steals=60	stealAttemps=778
+nprocs=8 FibStack(30)	31378 us	ok	 steals=114	stealAttemps=1226
+nprocs=8 FibStack(35)	334547 us	ok	 steals=153	stealAttemps=956
+exe=Fib.x procs=1 2 4 8 nums=20 25 30 35 nreps=5
+nprocs=1 Fib(20) 	6430 us	ok	 steals=0	stealAttemps=0
+nprocs=1 Fib(25) 	71382 us	ok	 steals=0	stealAttemps=0
+nprocs=1 Fib(30) 	763337 us	ok	 steals=0	stealAttemps=0
+nprocs=1 Fib(35) 	8638291 us	ok	 steals=0	stealAttemps=0
+nprocs=2 Fib(20) 	10831 us	ok	 steals=10	stealAttemps=63
+nprocs=2 Fib(25) 	123032 us	ok	 steals=15	stealAttemps=97
+nprocs=2 Fib(30) 	1335473 us	ok	 steals=12	stealAttemps=78
+nprocs=2 Fib(35) 	15008730 us	ok	 steals=23	stealAttemps=139
+nprocs=4 Fib(20) 	13141 us	ok	 steals=31	stealAttemps=212
+nprocs=4 Fib(25) 	133577 us	ok	 steals=55	stealAttemps=383
+nprocs=4 Fib(30) 	1494782 us	ok	 steals=62	stealAttemps=343
+nprocs=4 Fib(35) 	16126510 us	ok	 steals=78	stealAttemps=466
+nprocs=8 Fib(20) 	12906 us	ok	 steals=36	stealAttemps=1515
+nprocs=8 Fib(25) 	182038 us	ok	 steals=97	stealAttemps=1394
+nprocs=8 Fib(30) 	1899935 us	ok	 steals=124	stealAttemps=1343
+nprocs=8 Fib(35) 	22002634 us	ok	 steals=193	stealAttemps=1711
+Results with g++
+exe=FibStack.x procs=1 2 4 8 nums=20 25 30 35 nreps=5
+nprocs=1 FibStack(20)	1819 us	ok	 steals=0	stealAttemps=0
+nprocs=1 FibStack(25)	19861 us	ok	 steals=0	stealAttemps=0
+nprocs=1 FibStack(30)	220617 us	ok	 steals=0	stealAttemps=0
+nprocs=1 FibStack(35)	2469467 us	ok	 steals=0	stealAttemps=0
+nprocs=2 FibStack(20)	1070 us		ok	 steals=10	stealAttemps=39
+nprocs=2 FibStack(25)	10227 us	ok	 steals=11	stealAttemps=52
+nprocs=2 FibStack(30)	110583 us	ok	 steals=15	stealAttemps=68
+nprocs=2 FibStack(35)	1233568 us	ok	 steals=19	stealAttemps=86
+nprocs=4 FibStack(20)	742 us		ok	 steals=16	stealAttemps=173
+nprocs=4 FibStack(25)	5342 us		ok	 steals=35	stealAttemps=194
+nprocs=4 FibStack(30)	55878 us	ok	 steals=62	stealAttemps=293
+nprocs=4 FibStack(35)	612047 us	ok	 steals=66	stealAttemps=501
+nprocs=8 FibStack(20)	703 us		ok	 steals=28	stealAttemps=476
+nprocs=8 FibStack(25)	3873 us		ok	 steals=50	stealAttemps=896
+nprocs=8 FibStack(30)	31527 us	ok	 steals=137	stealAttemps=1239
+nprocs=8 FibStack(35)	327580 us	ok	 steals=170	stealAttemps=1330
+exe=Fib.x procs=1 2 4 8 nums=20 25 30 35 nreps=5
+nprocs=1 Fib(20) 	6187 us	ok	 steals=0	stealAttemps=0
+nprocs=1 Fib(25) 	67659 us	ok	 steals=0	stealAttemps=0
+nprocs=1 Fib(30) 	797115 us	ok	 steals=0	stealAttemps=0
+nprocs=1 Fib(35) 	8984673 us	ok	 steals=0	stealAttemps=0
+nprocs=2 Fib(20) 	10130 us	ok	 steals=12	stealAttemps=54
+nprocs=2 Fib(25) 	109641 us	ok	 steals=18	stealAttemps=71
+nprocs=2 Fib(30) 	1232416 us	ok	 steals=16	stealAttemps=77
+nprocs=2 Fib(35) 	13352362 us	ok	 steals=23	stealAttemps=97
+nprocs=4 Fib(20) 	11104 us	ok	 steals=16	stealAttemps=139
+nprocs=4 Fib(25) 	125932 us	ok	 steals=38	stealAttemps=249
+nprocs=4 Fib(30) 	1448041 us	ok	 steals=69	stealAttemps=351
+nprocs=4 Fib(35) 	15882761 us	ok	 steals=98	stealAttemps=511
+nprocs=8 Fib(20) 	11782 us	ok	 steals=31	stealAttemps=564
+nprocs=8 Fib(25) 	159162 us	ok	 steals=122	stealAttemps=713
+nprocs=8 Fib(30) 	1902359 us	ok	 steals=161	stealAttemps=1663
+nprocs=8 Fib(35) 	20494741 us	ok	 steals=212	stealAttemps=1462
+
+Results with g++
+
+[rlsecomp1:/u/x10/SRIRAMKR/code/x10.lib/src/sched] for p in 8 4 2 1
+> do
+> ./FibStack.x $p 5 40
+> done
+nprocs=8 FibStack(40)   3648230 us      ok       steals=284     stealAttemps=1911
+nprocs=4 FibStack(40)   6854063 us      ok       steals=63      stealAttemps=403
+nprocs=2 FibStack(40)   13740863 us     ok       steals=22      stealAttemps=98
+nprocs=1 FibStack(40)   27451013 us     ok       steals=0       stealAttemps=0
+
+[rlsecomp1:/u/x10/SRIRAMKR/code/x10.lib/src/sched] for n in 20 25 30 35 40; do ./FibStack.x  6 5 $n; done
+nprocs=6 FibStack(20)   855 us  ok       steals=32      stealAttemps=437
+nprocs=6 FibStack(25)   4329 us ok       steals=60      stealAttemps=736
+nprocs=6 FibStack(30)   37603 us        ok       steals=88      stealAttemps=425
+nprocs=6 FibStack(35)   410362 us       ok       steals=123     stealAttemps=369
+nprocs=6 FibStack(40)   4558632 us      ok       steals=175     stealAttemps=1408
+
+
+Results with xlc
+
+[rlsecomp1:/u/x10/SRIRAMKR/code/x10.lib/src/sched] for p in 8 4 2 1 ; do ./FibStack.x $p 5 40; done
+nprocs=8 FibStack(40)   3731130 us      ok       steals=190     stealAttemps=2429
+nprocs=4 FibStack(40)   5075038 us      ok       steals=104     stealAttemps=521
+nprocs=2 FibStack(40)   10190809 us     ok       steals=26      stealAttemps=147
+nprocs=1 FibStack(40)   20440583 us     ok       steals=0       stealAttemps=0
+
+[rlsecomp1:/u/x10/SRIRAMKR/code/x10.lib/src/sched] for n in 20 25 30 35 40; do ./FibStack.x  6 5 $n; done
+nprocs=6 FibStack(20)   737 us  ok       steals=31      stealAttemps=201
+nprocs=6 FibStack(25)   3727 us ok       steals=48      stealAttemps=509
+nprocs=6 FibStack(30)   34519 us        ok       steals=83      stealAttemps=725
+nprocs=6 FibStack(35)   372399 us       ok       steals=134     stealAttemps=526
+nprocs=6 FibStack(40)   5718717 us      ok       steals=122     stealAttemps=1195
+

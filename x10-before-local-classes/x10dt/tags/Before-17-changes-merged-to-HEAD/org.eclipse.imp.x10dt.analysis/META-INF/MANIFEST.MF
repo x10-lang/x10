@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: X10 Analysis
+Bundle-SymbolicName: org.eclipse.imp.x10dt.analysis;singleton:=true
+Bundle-Version: 0.1.1
+Bundle-Activator: org.eclipse.imp.x10dt.analysis.X10AnalysisPlugin
+Bundle-Vendor: rfuhrer@watson.ibm.com
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.core.resources,
+ org.eclipse.imp.pdb,
+ polyglot,
+ org.eclipse.imp.runtime,
+ org.eclipse.imp.x10dt.core,
+ com.ibm.wala.shrike,
+ org.eclipse.compare
+Eclipse-LazyStart: true

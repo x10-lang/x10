@@ -1,0 +1,608 @@
+############################################################
+# Benchmark Host: moxie
+# Number Of Processors: 32
+#
+# Number Of Scheduled Runs: 3
+# Start Time: 02/25/2008 - 05:21:04
+############################################################
+#
+# Run: 1
+#
+
+## Size: 250000
+
+### nproc: 1
+../../../../ST.sparcv9 --nproc 1 --stack 1000000 --pthread-stacksize 256000000 2 250000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.488154 s
+
+### nproc: 2
+../../../../ST.sparcv9 --nproc 2 --stack 1000000 --pthread-stacksize 128000000 2 250000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.250445 s
+
+### nproc: 4
+../../../../ST.sparcv9 --nproc 4 --stack 1000000 --pthread-stacksize 64000000 2 250000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.147539 s
+
+### nproc: 8
+../../../../ST.sparcv9 --nproc 8 --stack 1000000 --pthread-stacksize 32000000 2 250000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.110892 s
+
+### nproc: 16
+../../../../ST.sparcv9 --nproc 16 --stack 1000000 --pthread-stacksize 16000000 2 250000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.078071 s
+
+### nproc: 20
+../../../../ST.sparcv9 --nproc 20 --stack 1000000 --pthread-stacksize 12800000 2 250000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.128269 s
+
+### nproc: 24
+../../../../ST.sparcv9 --nproc 24 --stack 1000000 --pthread-stacksize 10666666 2 250000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.108369 s
+
+### nproc: 30
+../../../../ST.sparcv9 --nproc 30 --stack 1000000 --pthread-stacksize 8533333 2 250000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.135540 s
+
+### nproc: 32
+../../../../ST.sparcv9 --nproc 32 --stack 1000000 --pthread-stacksize 8000000 2 250000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.106392 s
+
+## Size: 1000000
+
+### nproc: 1
+../../../../ST.sparcv9 --nproc 1 --stack 4000000 --pthread-stacksize 256000000 2 1000000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 2.510796 s
+
+### nproc: 2
+../../../../ST.sparcv9 --nproc 2 --stack 4000000 --pthread-stacksize 128000000 2 1000000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 1.276158 s
+
+### nproc: 4
+../../../../ST.sparcv9 --nproc 4 --stack 4000000 --pthread-stacksize 64000000 2 1000000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.680638 s
+
+### nproc: 8
+../../../../ST.sparcv9 --nproc 8 --stack 4000000 --pthread-stacksize 32000000 2 1000000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.438881 s
+
+### nproc: 16
+../../../../ST.sparcv9 --nproc 16 --stack 4000000 --pthread-stacksize 16000000 2 1000000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.299084 s
+
+### nproc: 20
+../../../../ST.sparcv9 --nproc 20 --stack 4000000 --pthread-stacksize 12800000 2 1000000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.315955 s
+
+### nproc: 24
+../../../../ST.sparcv9 --nproc 24 --stack 4000000 --pthread-stacksize 10666666 2 1000000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.334706 s
+
+### nproc: 30
+../../../../ST.sparcv9 --nproc 30 --stack 4000000 --pthread-stacksize 8533333 2 1000000 4
+
+### nproc: 32
+../../../../ST.sparcv9 --nproc 32 --stack 4000000 --pthread-stacksize 8000000 2 1000000 4
+#
+# Run: 2
+#
+
+## Size: 250000
+
+### nproc: 1
+../../../../ST.sparcv9 --nproc 1 --stack 1000000 --pthread-stacksize 256000000 2 250000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.488199 s
+
+### nproc: 2
+../../../../ST.sparcv9 --nproc 2 --stack 1000000 --pthread-stacksize 128000000 2 250000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.253744 s
+
+### nproc: 4
+../../../../ST.sparcv9 --nproc 4 --stack 1000000 --pthread-stacksize 64000000 2 250000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.173472 s
+
+### nproc: 8
+../../../../ST.sparcv9 --nproc 8 --stack 1000000 --pthread-stacksize 32000000 2 250000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.129717 s
+
+### nproc: 16
+../../../../ST.sparcv9 --nproc 16 --stack 1000000 --pthread-stacksize 16000000 2 250000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.113131 s
+
+### nproc: 20
+../../../../ST.sparcv9 --nproc 20 --stack 1000000 --pthread-stacksize 12800000 2 250000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.091651 s
+
+### nproc: 24
+../../../../ST.sparcv9 --nproc 24 --stack 1000000 --pthread-stacksize 10666666 2 250000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.112209 s
+
+### nproc: 30
+../../../../ST.sparcv9 --nproc 30 --stack 1000000 --pthread-stacksize 8533333 2 250000 4
+
+### nproc: 32
+../../../../ST.sparcv9 --nproc 32 --stack 1000000 --pthread-stacksize 8000000 2 250000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.106071 s
+
+## Size: 1000000
+
+### nproc: 1
+../../../../ST.sparcv9 --nproc 1 --stack 4000000 --pthread-stacksize 256000000 2 1000000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 2.510123 s
+
+### nproc: 2
+../../../../ST.sparcv9 --nproc 2 --stack 4000000 --pthread-stacksize 128000000 2 1000000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 1.268207 s
+
+### nproc: 4
+../../../../ST.sparcv9 --nproc 4 --stack 4000000 --pthread-stacksize 64000000 2 1000000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.678968 s
+
+### nproc: 8
+../../../../ST.sparcv9 --nproc 8 --stack 4000000 --pthread-stacksize 32000000 2 1000000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.428617 s
+
+### nproc: 16
+../../../../ST.sparcv9 --nproc 16 --stack 4000000 --pthread-stacksize 16000000 2 1000000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.310027 s
+
+### nproc: 20
+../../../../ST.sparcv9 --nproc 20 --stack 4000000 --pthread-stacksize 12800000 2 1000000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.319318 s
+
+### nproc: 24
+../../../../ST.sparcv9 --nproc 24 --stack 4000000 --pthread-stacksize 10666666 2 1000000 4
+
+### nproc: 30
+../../../../ST.sparcv9 --nproc 30 --stack 4000000 --pthread-stacksize 8533333 2 1000000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.324876 s
+
+### nproc: 32
+../../../../ST.sparcv9 --nproc 32 --stack 4000000 --pthread-stacksize 8000000 2 1000000 4
+#
+# Run: 3
+#
+
+## Size: 250000
+
+### nproc: 1
+../../../../ST.sparcv9 --nproc 1 --stack 1000000 --pthread-stacksize 256000000 2 250000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.488302 s
+
+### nproc: 2
+../../../../ST.sparcv9 --nproc 2 --stack 1000000 --pthread-stacksize 128000000 2 250000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.255199 s
+
+### nproc: 4
+../../../../ST.sparcv9 --nproc 4 --stack 1000000 --pthread-stacksize 64000000 2 250000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.153291 s
+
+### nproc: 8
+../../../../ST.sparcv9 --nproc 8 --stack 1000000 --pthread-stacksize 32000000 2 250000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.123938 s
+
+### nproc: 16
+../../../../ST.sparcv9 --nproc 16 --stack 1000000 --pthread-stacksize 16000000 2 250000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.102919 s
+
+### nproc: 20
+../../../../ST.sparcv9 --nproc 20 --stack 1000000 --pthread-stacksize 12800000 2 250000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.118587 s
+
+### nproc: 24
+../../../../ST.sparcv9 --nproc 24 --stack 1000000 --pthread-stacksize 10666666 2 250000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.110755 s
+
+### nproc: 30
+../../../../ST.sparcv9 --nproc 30 --stack 1000000 --pthread-stacksize 8533333 2 250000 4
+
+### nproc: 32
+../../../../ST.sparcv9 --nproc 32 --stack 1000000 --pthread-stacksize 8000000 2 250000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.100346 s
+
+## Size: 1000000
+
+### nproc: 1
+../../../../ST.sparcv9 --nproc 1 --stack 4000000 --pthread-stacksize 256000000 2 1000000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 2.510373 s
+
+### nproc: 2
+../../../../ST.sparcv9 --nproc 2 --stack 4000000 --pthread-stacksize 128000000 2 1000000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 1.267691 s
+
+### nproc: 4
+../../../../ST.sparcv9 --nproc 4 --stack 4000000 --pthread-stacksize 64000000 2 1000000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.671934 s
+
+### nproc: 8
+../../../../ST.sparcv9 --nproc 8 --stack 4000000 --pthread-stacksize 32000000 2 1000000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.427471 s
+
+### nproc: 16
+../../../../ST.sparcv9 --nproc 16 --stack 4000000 --pthread-stacksize 16000000 2 1000000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.301288 s
+
+### nproc: 20
+../../../../ST.sparcv9 --nproc 20 --stack 4000000 --pthread-stacksize 12800000 2 1000000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.303945 s
+
+### nproc: 24
+../../../../ST.sparcv9 --nproc 24 --stack 4000000 --pthread-stacksize 10666666 2 1000000 4
+
+### nproc: 30
+../../../../ST.sparcv9 --nproc 30 --stack 4000000 --pthread-stacksize 8533333 2 1000000 4
+opt = 2 
+check if it is connected
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.312551 s
+
+### nproc: 32
+../../../../ST.sparcv9 --nproc 32 --stack 4000000 --pthread-stacksize 8000000 2 1000000 4
+
+############################################################
+# End Time: 02/25/2008 - 05:28:14
+############################################################

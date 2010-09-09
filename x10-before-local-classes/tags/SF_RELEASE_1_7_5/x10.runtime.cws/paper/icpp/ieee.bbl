@@ -1,0 +1,10 @@
+\begin{thebibliography}{2}
+
+\bibitem{ex1}I.M. Author. 
+\newblock Some related article I worte.
+\newblock {\em Some Fine Journal}, 99(7):1-100, January 1999.
+
+\bibitem{ex2}A.N. Expert.   
+\newblock {\em A Book He Wrote}.
+\newblock His Publisher, Ereehon, NC, 1999.
+\end{thebibliography}

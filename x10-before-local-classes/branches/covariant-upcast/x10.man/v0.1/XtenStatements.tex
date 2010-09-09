@@ -1,0 +1,107 @@
+\chapter{Statements and Expressions}\label{XtenStatements}\index{statements}
+
+\Xten{} inherits all the standard statements of \Java{}, with the expected semantics:
+
+\begin{x10}
+\em\tt EmptyStatement      LabeledStatement  
+\em\tt ExpressionStatement IfStatement
+\em\tt SwitchStatement     WhileDo
+\em\tt DoWhile             ForLoop           
+\em\tt BreakStatement      ContinueStatement  
+\em\tt ReturnStatement   ThrowStatement
+\em\tt TryStatement
+\end{x10}
+
+We focus on the new statements in \Xten. 
+
+
+\section{Assignment}\index{assignment}\label{AssignmentStatement}
+
+%It is often the case that an \Xten{} variable is assigned to only
+%once. The user may declare such variables as {\cf final}. However,
+%this is sometimes syntactically cumbersome.
+%
+%{}\Xten{} supports the syntax {\cf l := r} for assignment to mutable
+%variables.  The user is strongly enouraged to use this syntax to
+%assign variables that are intended to be assigned to more than
+%once. The \Xten{} compiler may issue a warning if it detects code 
+%that uses {\cf =} assignment statements on {\cf mutable} variables.
+
+{}\Xten{} supports assignment {\tt l = r} to array variables. In this
+case {\tt r} must have the same distribution {\tt D} as {\tt l}. This
+statement involves control communication between the sites hosting
+{\tt D}. Each site performs the assignment(s) of array components
+locally. The assignment terminates when assignment has terminated at
+all sites hosting {\tt D}.
+
+%% TODO: Sectional assignment??
+
+\section{Remote Method Invocation}\index{remote method invocation}
+We introduce shorthand for asynchronous remote method invocation:
+
+\begin{x10}
+   o -> m(a1,...,ak)
+\end{x10}
+\noindent is taken as shorthand for one of
+
+\begin{x10}
+ async (o) \{o.m(a1,...,ak);\}
+ future (o)\{o.m(a1, ..., ak);\}
+\end{x10}
+\noindent based on whether the return type of methodname is {\cf void}.
+
+\section{Iteration}\index{foreach@{\tt foreach}}\label{ForLoop}
+\index{for@{\tt for}}\label{ForAllLoop}
+
+We introduce  $k$-dimensional versions of iteration operations {\cf for} and 
+{\cf foreach}:
+
+\begin{x10}
+   foreach(ind1, ..., indk : R) \{S\}
+\end{x10}
+
+Here {\cf R} is a region.\footnote{We also permit {\cf R} to be a
+distribution (array); in this case {\tt R} is taken to stand for {\tt
+R.region} ({\tt R.distribution.region}).}  Let {\cf [T1,..., Tk]} be
+the convex closure of the region.  Then the execution of this
+statement results in the parallel execution of an activity
+
+\begin{x10}
+   \{ final T1 Ind1 = i1; 
+     ...
+     final Tk Indk = ik;
+     S
+   \}
+\end{x10}
+\noindent for each value {\cf [i1,\ldots, ik]} in the region. Note that
+the number of activities is equal to the cardinality of the region,
+not its convex closure. 
+
+The syntax for the sequential iterator {\tt for} is the same as for
+{\tt forall}. However each statement is executed in the same activity,
+one after the other in canonical order.
+
+In a similar fashion we introduce the syntax:\index{ateach@{\tt ateach}}
+
+\begin{x10}
+   ateach( Ind1, ..., Indk : A) \{S\}
+\end{x10}
+
+\noindent to stand for
+\begin{x10}
+   foreach (ind1, ..., indk : A) 
+    async (A[ind1,...,indk]) \{S\}
+\end{x10}
+
+In method definitions, for a region {\tt R} we allow the syntax 
+\begin{x10}
+     R i1,...,ik; 
+\end{x10} 
+
+\noindent to introduce {\cf k} new parameters which range over the
+component enumerations of the convex closure of {\cf R}.
+
+\input{XtenExpressions} \par  % empty
+
+
+

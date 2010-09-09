@@ -1,0 +1,222 @@
+Following are cilk nqueens numbers
+
+[rlsecomp1:/u/x10/SRIRAMKR/code/x10.runtime.cws/paper/data/nqueens] for p in 1 2 4 6 8
+> do
+> for n in 8 10 12 14
+> do
+> ./nqueens-no-inlet -nproc $p 5 $n
+> done
+> done
+nqueens(8)=92    ok time=4081.000 us
+nqueens(10)=724  ok time=92355.000 us
+nqueens(12)=14200        ok time=2831116.000 us
+nqueens(14)=365596       ok time=112559141.000 us
+nqueens(8)=92    ok time=2145.000 us
+nqueens(10)=724  ok time=46487.000 us
+nqueens(12)=14200        ok time=1418609.000 us
+nqueens(14)=365596       ok time=56556831.000 us
+nqueens(8)=92    ok time=1097.000 us
+nqueens(10)=724  ok time=23681.000 us
+nqueens(12)=14200        ok time=711725.000 us
+nqueens(14)=365596       ok time=28374617.000 us
+nqueens(8)=92    ok time=1001.000 us
+nqueens(10)=724  ok time=15762.000 us
+nqueens(12)=14200        ok time=474985.000 us
+nqueens(14)=365596       ok time=18896443.000 us
+nqueens(8)=92    ok time=977.000 us
+nqueens(10)=724  ok time=16039.000 us
+nqueens(12)=14200        ok time=360972.000 us
+nqueens(14)=365596       ok time=14179533.000 us
+[rlsecomp1:/u/x10/SRIRAMKR/code/x10.runtime.cws/paper/data/nqueens] for p in 1 2 4 6 8 ; do for n in 8 10 12 14; do ./nqueens-inlet-counter -nproc $p 5 $n; done; done
+nqueens(8)=92    ok time=4270.000 us
+nqueens(10)=724  ok time=101212.000 us
+nqueens(12)=14200        ok time=3204362.000 us
+nqueens(14)=365596       ok time=131282913.000 us
+nqueens(8)=92    ok time=2240.000 us
+nqueens(10)=724  ok time=50870.000 us
+nqueens(12)=14200        ok time=1607879.000 us
+nqueens(14)=365596       ok time=65816537.000 us
+nqueens(8)=92    ok time=1185.000 us
+nqueens(10)=724  ok time=25819.000 us
+nqueens(12)=14200        ok time=803397.000 us
+nqueens(14)=365596       ok time=32992716.000 us
+nqueens(8)=92    ok time=1036.000 us
+nqueens(10)=724  ok time=17352.000 us
+nqueens(12)=14200        ok time=536134.000 us
+nqueens(14)=365596       ok time=21993776.000 us
+nqueens(8)=92    ok time=980.000 us
+nqueens(10)=724  ok time=14882.000 us
+nqueens(12)=14200        ok time=404532.000 us
+nqueens(14)=365596       ok time=16506495.000 us
+[rlsecomp1:/u/x10/SRIRAMKR/code/x10.runtime.cws/paper/data/nqueens]
+[rlsecomp1:/u/x10/SRIRAMKR/code/x10.runtime.cws/paper/data/nqueens] for p in 1 2 4 6 8 ; do for n in 8 10 12 14; do ./nqueens-atomic -nproc $p 5 $n; done; done
+nqueens(8)=92    ok time=3768.000 us
+nqueens(10)=724  ok time=85562.000 us
+nqueens(12)=14200        ok time=2626512.000 us
+nqueens(14)=365596       ok time=106286605.000 us
+nqueens(8)=92    ok time=1985.000 us
+nqueens(10)=724  ok time=43049.000 us
+nqueens(12)=14200        ok time=1324090.000 us
+nqueens(14)=365596       ok time=53224586.000 us
+nqueens(8)=92    ok time=1115.000 us
+nqueens(10)=724  ok time=21707.000 us
+nqueens(12)=14200        ok time=663161.000 us
+nqueens(14)=365596       ok time=26665643.000 us
+nqueens(8)=92    ok time=924.000 us
+nqueens(10)=724  ok time=17679.000 us
+nqueens(12)=14200        ok time=443215.000 us
+nqueens(14)=365596       ok time=17841037.000 us
+nqueens(8)=92    ok time=920.000 us
+nqueens(10)=724  ok time=12721.000 us
+nqueens(12)=14200        ok time=336943.000 us
+nqueens(14)=365596       ok time=13362984.000 us
+[rlsecomp1:/u/x10/SRIRAMKR/code/cilk-5.5-matteo] date
+Sun Aug 19 01:44:39 EDT 2007
+
+
+/************************************************************
+obsolete numbers
+[rlsecomp1:/u/x10/SRIRAMKR/code/x10.lib/src/sched] for p in 1 2 4 6 8
+> do
+> for n in 8 10 12 14
+> do
+> ./nqueens -nproc $p 5 $n
+> done
+> done
+nqueens(8)=92    ok time=5176.000 us
+nqueens(10)=724  ok time=119426.000 us
+nqueens(12)=14200        ok time=3710666.000 us
+nqueens(14)=365596       ok time=148445126.000 us
+nqueens(8)=92    ok time=2640.000 us
+nqueens(10)=724  ok time=59779.000 us
+nqueens(12)=14200        ok time=1853147.000 us
+nqueens(14)=365596       ok time=74286514.000 us
+nqueens(8)=92    ok time=1492.000 us
+nqueens(10)=724  ok time=30278.000 us
+nqueens(12)=14200        ok time=927595.000 us
+nqueens(14)=365596       ok time=37213267.000 us
+nqueens(8)=92    ok time=1164.000 us
+nqueens(10)=724  ok time=20423.000 us
+nqueens(12)=14200        ok time=619611.000 us
+nqueens(14)=365596       ok time=24809530.000 us
+nqueens(8)=92    ok time=1170.000 us
+nqueens(10)=724  ok time=20325.000 us
+nqueens(12)=14200        ok time=468671.000 us
+nqueens(14)=365596       ok time=18615479.000 us
+[rlsecomp1:/u/x10/SRIRAMKR/code/x10.lib/src/sched] date
+Sat Aug 18 19:41:48 EDT 2007
+********************************************************************/
+
+___________________________________________________________________
+
+Folliwing numbers are for the C++ cws versions 
+
+STAMP: rlsecomp1.watson.ibm.com Sat Aug 18 20:20:34 EDT 2007
+Best time of 5 runs
+Results with xlC_r
+exe=NQueensGStack.x procs=1 2 4 8 nums=8 10 12 14 nreps=5
+nprocs=1 NQueensGStack(8)	824 us ok	 steals=0	stealAttempts=0
+nprocs=1 NQueensGStack(10)	17580 us ok	 steals=0	stealAttempts=0
+nprocs=1 NQueensGStack(12)	514570 us ok	 steals=0	stealAttempts=0
+nprocs=1 NQueensGStack(14)	19881463 us ok	 steals=0	stealAttempts=0
+nprocs=2 NQueensGStack(8)	441 us ok	 steals=8	stealAttempts=13
+nprocs=2 NQueensGStack(10)	8846 us ok	 steals=15	stealAttempts=18
+nprocs=2 NQueensGStack(12)	257878 us ok	 steals=20	stealAttempts=24
+nprocs=2 NQueensGStack(14)	9936133 us ok	 steals=27	stealAttempts=33
+nprocs=4 NQueensGStack(8)	347 us ok	 steals=29	stealAttempts=61
+nprocs=4 NQueensGStack(10)	4513 us ok	 steals=45	stealAttempts=70
+nprocs=4 NQueensGStack(12)	128930 us ok	 steals=77	stealAttempts=120
+nprocs=4 NQueensGStack(14)	4969623 us ok	 steals=121	stealAttempts=164
+nprocs=8 NQueensGStack(8)	394 us ok	 steals=36	stealAttempts=333
+nprocs=8 NQueensGStack(10)	3697 us ok	 steals=47	stealAttempts=243
+nprocs=8 NQueensGStack(12)	73779 us ok	 steals=134	stealAttempts=286
+nprocs=8 NQueensGStack(14)	2825283 us ok	 steals=271	stealAttempts=484
+exe=NQueensCStack_a.x procs=1 2 4 8 nums=8 10 12 14 nreps=5
+nprocs=1 NQueensCStack_a(8)	854 us	ok	 steals=0	stealAttempts=0
+nprocs=1 NQueensCStack_a(10)	18509 us	ok	 steals=0	stealAttempts=0
+nprocs=1 NQueensCStack_a(12)	540402 us	ok	 steals=0	stealAttempts=0
+nprocs=1 NQueensCStack_a(14)	20706652 us	ok	 steals=0	stealAttempts=0
+nprocs=2 NQueensCStack_a(8)	545 us	ok	 steals=8	stealAttempts=28
+nprocs=2 NQueensCStack_a(10)	9425 us	ok	 steals=13	stealAttempts=45
+nprocs=2 NQueensCStack_a(12)	270796 us	ok	 steals=23	stealAttempts=69
+nprocs=2 NQueensCStack_a(14)	10366877 us	ok	 steals=38	stealAttempts=83
+nprocs=4 NQueensCStack_a(8)	524 us	ok	 steals=24	stealAttempts=147
+nprocs=4 NQueensCStack_a(10)	5344 us	ok	 steals=51	stealAttempts=124
+nprocs=4 NQueensCStack_a(12)	143509 us	ok	 steals=89	stealAttempts=234
+nprocs=4 NQueensCStack_a(14)	5423963 us	ok	 steals=135	stealAttempts=301
+nprocs=8 NQueensCStack_a(8)	619 us	ok	 steals=25	stealAttempts=462
+nprocs=8 NQueensCStack_a(10)	3754 us	ok	 steals=65	stealAttempts=617
+nprocs=8 NQueensCStack_a(12)	80269 us	ok	 steals=188	stealAttempts=761
+nprocs=8 NQueensCStack_a(14)	2850479 us	ok	 steals=278	stealAttempts=997
+
+[rlsecomp1:/u/x10/SRIRAMKR/code/x10.lib/src/sched] for n in 8 10 12 14
+> do
+> ./NQueensGStack.x 6 5 $n
+> done
+nprocs=6 NQueensGStack(8)       310 us ok        steals=35      stealAttempts=120
+nprocs=6 NQueensGStack(10)      2913 us ok       steals=87      stealAttempts=165
+nprocs=6 NQueensGStack(12)      86082 us ok      steals=161     stealAttempts=221
+nprocs=6 NQueensGStack(14)      3312317 us ok    steals=221     stealAttempts=296
+[rlsecomp1:/u/x10/SRIRAMKR/code/x10.lib/src/sched] for n in 8 10 12 14; do ./NQueensCStack_a.x 6 5 $n; done
+nprocs=6 NQueensCStack_a(8)     662 us  ok       steals=24      stealAttempts=174
+nprocs=6 NQueensCStack_a(10)    4133 us ok       steals=92      stealAttempts=485
+nprocs=6 NQueensCStack_a(12)    93708 us        ok       steals=125     stealAttempts=286
+nprocs=6 NQueensCStack_a(14)    3660723 us      ok       steals=162     stealAttempts=716
+
+
+
+Results with g++
+exe=NQueensGStack.x procs=1 2 4 8 nums=8 10 12 14 nreps=5
+nprocs=1 NQueensGStack(8)	980 us ok	 steals=0	stealAttempts=0
+nprocs=1 NQueensGStack(10)	21263 us ok	 steals=0	stealAttempts=0
+nprocs=1 NQueensGStack(12)	627368 us ok	 steals=0	stealAttempts=0
+nprocs=1 NQueensGStack(14)	24341646 us ok	 steals=0	stealAttempts=0
+nprocs=2 NQueensGStack(8)	514 us ok	 steals=7	stealAttempts=11
+nprocs=2 NQueensGStack(10)	10681 us ok	 steals=12	stealAttempts=16
+nprocs=2 NQueensGStack(12)	313712 us ok	 steals=22	stealAttempts=28
+nprocs=2 NQueensGStack(14)	12153082 us ok	 steals=23	stealAttempts=281
+nprocs=4 NQueensGStack(8)	372 us ok	 steals=39	stealAttempts=66
+nprocs=4 NQueensGStack(10)	5472 us ok	 steals=64	stealAttempts=99
+nprocs=4 NQueensGStack(12)	156947 us ok	 steals=74	stealAttempts=107
+nprocs=4 NQueensGStack(14)	6076916 us ok	 steals=135	stealAttempts=156
+nprocs=8 NQueensGStack(8)	392 us ok	 steals=19	stealAttempts=233
+nprocs=8 NQueensGStack(10)	3779 us ok	 steals=91	stealAttempts=361
+nprocs=8 NQueensGStack(12)	84268 us ok	 steals=228	stealAttempts=453
+nprocs=8 NQueensGStack(14)	3455532 us ok	 steals=392	stealAttempts=615
+exe=NQueensCStack_a.x procs=1 2 4 8 nums=8 10 12 14 nreps=5
+nprocs=1 NQueensCStack_a(8)	826 us	ok	 steals=0	stealAttempts=0
+nprocs=1 NQueensCStack_a(10)	17876 us	ok	 steals=0	stealAttempts=0
+nprocs=1 NQueensCStack_a(12)	528865 us	ok	 steals=0	stealAttempts=0
+nprocs=1 NQueensCStack_a(14)	20376214 us	ok	 steals=0	stealAttempts=0
+nprocs=2 NQueensCStack_a(8)	511 us	ok	 steals=8	stealAttempts=24
+nprocs=2 NQueensCStack_a(10)	9105 us	ok	 steals=14	stealAttempts=43
+nprocs=2 NQueensCStack_a(12)	264094 us	ok	 steals=12	stealAttempts=25
+nprocs=2 NQueensCStack_a(14)	10178836 us	ok	 steals=27	stealAttempts=61
+nprocs=4 NQueensCStack_a(8)	536 us	ok	 steals=22	stealAttempts=128
+nprocs=4 NQueensCStack_a(10)	4938 us	ok	 steals=54	stealAttempts=182
+nprocs=4 NQueensCStack_a(12)	132483 us	ok	 steals=69	stealAttempts=203
+nprocs=4 NQueensCStack_a(14)	5095919 us	ok	 steals=107	stealAttempts=268
+nprocs=8 NQueensCStack_a(8)	569 us	ok	 steals=31	stealAttempts=422
+nprocs=8 NQueensCStack_a(10)	3551 us	ok	 steals=61	stealAttempts=625
+nprocs=8 NQueensCStack_a(12)	75605 us	ok	 steals=176	stealAttempts=985
+nprocs=8 NQueensCStack_a(14)	2733841 us	ok	 steals=247	stealAttempts=27602
+
+
+[rlsecomp1:/u/x10/SRIRAMKR/code/x10.lib/src/sched] for n in 8 10 12 14; do ./NQueensGStack.x 6 5 $n; done
+nprocs=6 NQueensGStack(8)       301 us ok        steals=35      stealAttempts=74
+Illegal instruction (core dumped)
+nprocs=6 NQueensGStack(12)      104736 us ok     steals=117     stealAttempts=185
+nprocs=6 NQueensGStack(14)      4052113 us ok    steals=216     stealAttempts=289
+[rlsecomp1:/u/x10/SRIRAMKR/code/x10.lib/src/sched] for n in 8 10 12 14; do ./NQueensCStack_a.x 6 5 $n; done
+nprocs=6 NQueensCStack_a(8)     695 us  ok       steals=34      stealAttempts=247
+nprocs=6 NQueensCStack_a(10)    3742 us ok       steals=107     stealAttempts=394
+nprocs=6 NQueensCStack_a(12)    89026 us        ok       steals=130     stealAttempts=721
+nprocs=6 NQueensCStack_a(14)    3396322 us      ok       steals=230     stealAttempts=904
+[rlsecomp1:/u/x10/SRIRAMKR/code/x10.lib/src/sched] ./NQueensGStack.x 6 5 10
+nprocs=6 NQueensGStack(10)      3704 us ok       steals=88      stealAttempts=149
+
+
+
+
+---------------------------------------------------------------------
+

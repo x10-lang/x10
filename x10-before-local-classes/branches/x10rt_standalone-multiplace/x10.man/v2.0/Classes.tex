@@ -1,0 +1,1069 @@
+\chapter{Classes}
+\label{XtenClasses}\index{class}
+
+The {\em class declaration} has
+a list of type \params,
+value properties, 
+a constraint (the {\em class invariant}, a single superclass,
+one or more interfaces, and a class body containing the
+the definition of
+fields, methods, and member types.
+Each such declaration introduces a class
+type (\Sref{ReferenceTypes}).
+
+\iftypeparams
+
+\begin{grammar}
+NormalClassDeclaration \:
+      ClassModifiers\opt \xcd"class" Identifier  \\
+   && TypeParameterList\opt PropertyList\opt Guard\opt \\
+   && Super\opt Interfaces\opt ClassBody \\
+\\
+TypeParameterList     \:  \xcd"[" TypeParameters \xcd"]" \\
+TypeParameters        \:  TypeParameter ( \xcd"," Typearameter )\star \\
+TypeParameter         \:  Variance\opt Annotation\star Identifier     \\
+Variance \: \xcd"+" \\
+         && \xcd"-" \\
+\\
+PropertyList     \:  \xcd"(" Properties \xcd")" \\
+Properties       \:  Property ( \xcd"," Property )\star \\
+Property         \:  Annotation\star \xcd"val"\opt Identifier \xcd":" Type \\
+\\
+Super \: \xcd"extends" ClassType \\
+Interfaces \: \xcd"implements" InterfaceType ( \xcd"," InterfaceType)\star \\
+\\
+ClassBody \: ClassMember\star \\
+ClassMember \: ClassDeclaration \\
+            \| InterfaceDeclaration \\
+            \| FieldDeclaration \\
+            \| MethodDeclaration \\
+            \| ConstructorDeclaration \\
+\end{grammar}
+
+A type parameter declaration is given by an optional variance
+tag and an identifier.
+A type parameter must be
+bound to a concrete type when an instance of the class is created.
+
+\else
+
+\begin{grammar}
+NormalClassDeclaration \:
+      ClassModifiers\opt \xcd"class" Identifier  \\
+   && TypePropertyList\opt PropertyList\opt Guard\opt \\
+   && Super\opt Interfaces\opt ClassBody \\
+\\
+TypePropertyList     \:  \xcd"[" TypeProperties \xcd"]" \\
+TypeProperties       \:  TypeProperty ( \xcd"," TypeProperty )\star \\
+TypeProperty         \:  Annotation\star Identifier     \\
+\\
+PropertyList     \:  \xcd"(" Properties \xcd")" \\
+Properties       \:  Property ( \xcd"," Property )\star \\
+Property         \:  Annotation\star \xcd"val"\opt Identifier \xcd":" Type \\
+\\
+Super \: \xcd"extends" ClassType \\
+Interfaces \: \xcd"implements" InterfaceType ( \xcd"," InterfaceType)\star \\
+\\
+ClassBody \: ClassMember\star \\
+ClassMember \: ClassDeclaration \\
+            \| InterfaceDeclaration \\
+            \| FieldDeclaration \\
+            \| MethodDeclaration \\
+            \| ConstructorDeclaration \\
+\end{grammar}
+
+A type property declaration is given simply by an identifier.
+The type property is an instance member of the class; given
+an instance \xcd"e" of the class, \xcd"e.T" is a type.
+A type property must be
+bound to a concrete type when the instance is created.
+
+\fi
+
+
+A value property has a name and a type.   Value properties
+are accessible in the same way as \xcd"public" \xcd"final"
+fields.
+
+\begin{staticrule*}
+It is a compile-time error for a class
+defining a value property \xcd"x: T" to have an ancestor class that defines
+a value property with the name \xcd"x".  
+\iftypeparams\else
+It is a compile-time error for a class
+defining a type property \xcd"X" to have an ancestor class that defines
+a type property with the name \xcd"X".   
+\fi
+\end{staticrule*}
+
+Each class \xcd"C" defining a property \xcd"x: T" implicitly has a field
+
+\begin{xten}
+public val x : T;
+\end{xten} 
+
+\noindent and a getter method
+
+\begin{xten}
+public final def x()=x;
+\end{xten}
+
+\noindent Each interface \xcd"I" defining a property \xcd"x: T"
+implicitly has a getter method
+
+\begin{xten}
+public def x(): T;
+\end{xten}
+
+\begin{staticrule*}
+It is a compile-time error for a class or
+interface defining a property \xcd"x :T" to have an existing method with
+the signature \xcd"x(): T".
+\end{staticrule*}
+
+Properties are used to build dependent types from classes, as
+described in \Sref{DepType:DepType}.
+
+\label{ClassGuard}
+
+The \grammarrule{Guard} in a class or interface declaration specifies an
+explicit condition on the properties of the type, and is discussed further
+in \Sref{DepType:Guard}.
+
+\begin{staticrule*}
+     Every constructor for a class defining
+   properties \xcdmath"x$_1$: T$_1$, $\ldots$, x$_n$: T$_n$" must ensure that each of the fields
+   corresponding to the properties is definitely initialized
+   (cf. requirement on initialization of final fields in Java) before the
+   constructor returns.
+\end{staticrule*}
+
+Type \params{}
+are used to define generic classes and
+interfaces, as described in \Sref{Generics}.
+
+Classes are structured in a single-inheritance code
+hierarchy, may implement multiple interfaces, may have static and
+instance fields, may have static and instance methods, may have
+constructors, may have static and instance initializers, may have
+static and instance inner classes and interfaces. \Xten{} does not
+permit mutable static state, so the role of static methods and
+initializers is quite limited. Instead programmers should use
+singleton classes to carry mutable static state.
+
+Method signatures may specify checked exceptions. Method definitions
+may be overridden by subclasses; the overriding definition may have a
+declared return type that is a subclass of the return type of the
+definition being overridden. Multiple methods with the same name but
+different signatures may be provided on a class (ad hoc
+polymorphism). The public/private/protected/package-protected access
+modification framework may be used.
+
+\oldtodo{Add the new rule for preventing leakage of this from a constructor.}
+
+Because of its different concurrency model, \Xten{} does not support
+\xcd"transient" and \xcd"volatile" field modifiers.
+
+\oldtodo{Figure out class modifiers. Figure out which new ones need to be added to support IEEE FP.}
+
+\section{Classes}\index{class!reference class}\label{ReferenceClasses}
+
+Class declarations may
+be used to construct class types (\Sref{ReferenceTypes}). Classes may
+have mutable fields. Instances of a class are always created in a
+fixed place and in \XtenCurrVer{} stay there for the lifetime of the
+object.  Variables declared at a class type always store a reference
+to the object, regardless of whether the object is local or remote.
+
+
+\section{Type invariants}\label{DepType:Guard}
+\index{type invariants}
+\index{guards}
+
+There is a general recipe for constructing a list of parameters or
+properties \xcdmath"x$_1$: T$_1${c$_1$}, $\dots$, x$_k$: T$_k${c$_k$}" that must satisfy a given
+(satisfiable) constraint \xcd"c". 
+
+\begin{xtenmath}
+class Foo(x$_1$: T1{x$_2$: T$_2$; $\dots$; x$_k$: T$_k$; c},
+          x$_2$: T2{x$_3$: T$_3$; $\dots$; x$_k$: T$_k$; c},
+          $\dots$
+          x$_k$: T$_k${c}) {
+  $\dots$
+}
+\end{xtenmath}
+
+The first type \xcdmath"x$_1$: T$_1${x$_2$: T$_2$; $\dots$; x$_k$: T$_k$; c}" is consistent iff
+\xcdmath"$\exists$x$_1$: T$_1$, x$_2$: T$_2$, $\dots$, x$_k$: T$_k$. c" is consistent. The second is
+consistent iff
+\begin{xtenmath}
+$\forall$x$_1$: T$_1${x$_2$: T$_2$; $\dots$; x$_k$: T$_k$; c}
+$\exists$x$_2$: T$_2$. $\exists$x$_3$: T$_3$, $\dots$, x$_k$: T$_k$. c
+\end{xtenmath}
+\noindent But this is always true. Similarly for the conditions for the other
+properties.
+
+Thus logically every satisfiable constraint \xcd"c" on a list of parameters
+\xcdmath"x$_1$", \dots, \xcdmath"x$_k$"
+can be expressed using the dependent types of 
+\xcdmath"x$_i$", provided
+that the constraint language is rich enough to permit existential
+quantifiers.
+
+Nevertheless we will find it convenient to permit the programmer to
+explicitly specify a depclause after the list of properties, thus:
+\begin{xten}
+class Point(i: Int, j: Int) { ... }
+class Line(start: Point, end: Point){end != start}
+  = { ... }
+class Triangle (a: Line, b: Line, c: Line)
+        {a.end == b.start && b.end == c.start &&
+         c.end == a.start} = { ... }
+class SolvableQuad(a: Int, b: Int, c: Int)
+                   {a*x*x+b*x+c==0} = { ... }
+class Circle (r: Int, x: Int, y: Int)
+              {r > 0 && r*r==x*x+y*y} = { ... }
+class NonEmptyList extends List{n > 0} {...}
+\end{xten}
+
+Consider the definition of the class \xcd"Line". This may be thought of as
+saying: the class \xcd"Line" has two fields, \xcd"start: Point" and
+\xcd"end: Point".
+Further, every instance of \xcd"Line" must satisfy the constraint that
+\xcd"end != start". Similarly for the other class definitions. 
+
+In the general case, the production for \grammarrule{NormalClassDeclaration}
+specifies that the list of properties may be followed by a
+\grammarrule{Guard}.
+
+\iftypeparams
+
+\begin{grammar}
+NormalClassDeclaration \:
+      ClassModifiers\opt \xcd"class" Identifier  \\
+   && TypeParameterList\opt PropertyList\opt Guard\opt \\
+   && Extends\opt Interfaces\opt ClassBody \\
+\\
+NormalInterfaceDeclaration \:
+      InterfaceModifiers\opt \xcd"interface" Identifier  \\
+   && TypeParameterList\opt PropertyList\opt Guard\opt \\
+   && ExtendsInterfaces\opt InterfaceBody \\
+\end{grammar}
+
+\else
+
+\begin{grammar}
+NormalClassDeclaration \:
+      ClassModifiers\opt \xcd"class" Identifier  \\
+   && TypePropertyList\opt PropertyList\opt Guard\opt \\
+   && Extends\opt Interfaces\opt ClassBody \\
+\\
+NormalInterfaceDeclaration \:
+      InterfaceModifiers\opt \xcd"interface" Identifier  \\
+   && TypePropertyList\opt PropertyList\opt Guard\opt \\
+   && ExtendsInterfaces\opt InterfaceBody \\
+\end{grammar}
+
+\fi
+
+All the properties in the list, together with inherited properties,
+may appear in the \grammarrule{Guard}. A guard \xcd"c" with
+\iftypeparams\else
+type property list \xcdmath"X$_1$, $\dots$, X$_k$" and
+\fi
+value property list \xcdmath"x$_1$: T$_1$, $\dots$, x$_n$: T$_n$"
+for a class \xcd"C" is said to be consistent if each of the \xcdmath"T$_i$" are
+consistent and the constraint
+\iftypeparams
+\begin{xtenmath}
+$\exists$x$_1$: T$_1$, $\dots$, x$_n$: T$_n$, self: C. c
+\end{xtenmath}
+\else
+\begin{xtenmath}
+$\exists$X$_1$, $\dots$, X$_k$, x$_1$: T$_1$, $\dots$, x$_n$: T$_n$, self: C. c
+\end{xtenmath}
+\fi
+\noindent is valid (always true).
+
+\section{Class definitions}
+
+Consider a class definition
+\begin{xtenmath}
+$\mbox{\emph{ClassModifiers}}^{\mbox{?}}$
+class C(x$_1$: P$_1$, $\dots$, x$_n$: P$_n$) extends D{d}
+   implements I$_1$(:c$_1$), $\dots$, I$_k${c$_k$}
+$\mbox{\emph{ClassBody}}$
+\end{xtenmath}
+
+Each of the following static semantics rules must be satisfied:
+
+\begin{staticrule}{Int-implements}
+The type invariant \xcdmath"$\mathit{inv}$(C)" of \xcd"C" must entail
+\xcdmath"c$_i$[this/self]" for each $i$ in $\{1, \dots, k\}$
+\end{staticrule}
+
+\begin{staticrule}{Super-extends}
+The return type \xcd"c" of each constructor in \grammarrule{ClassBody}
+must entail \xcd"d".
+\end{staticrule}
+
+\section{Constructor definitions}
+
+A constructor for a class \xcd"C" is guaranteed to return an object of the
+class on successful termination. This object must satisfy  \xcdmath"$\mathit{inv}$(C)", the
+class invariant associated with \xcd"C" (\Sref{DepType:TypeInvariant}).
+However,
+often the objects returned by a constructor may satisfy {\em stronger}
+properties than the class invariant. \Xten{}'s dependent type system
+permits these extra properties to be asserted with the constructor in
+the form of a constrained type (the ``return type'' of the constructor):
+
+\begin{grammar}
+ConstructorDeclarator \:
+  \xcd"def" \xcd"this" TypeParameterList\opt \xcd"(" FormalParameterList\opt \xcd")" \\
+  && ReturnType\opt Guard\opt Throws\opt \\
+ReturnType    \: \xcd":" Type \\
+Guard   \: "{" DepExpression "}" \\
+Throws    \: \xcd"throws" ExceptionType  ( \xcd"," ExceptionType )\star \\
+ExceptionType \: ClassBaseType Annotation\star \\
+\end{grammar}
+
+\label{ConstructorGuard}
+
+The parameter list for the constructor
+may specify a \emph{guard} that is to be satisfied by the parameters
+to the list.
+
+\begin{example}
+Here is another example.
+\begin{xten}
+public class List[T](n: Int{n >= 0}) {
+    protected head: Box[T];
+    protected tail: List[T](n-1);
+    public def this(o: T, t: List[T]) : List[T](t.n+1) = {
+        n = t.n+1;
+        tail = t;
+        head = o;
+    }
+    public def this() : List[T](0) = {
+        n = 0;
+        head = null;
+        tail = null;
+    }
+    ...
+}
+\end{xten}
+The second constructor returns a \xcd"List" that is guaranteed to have
+\xcd"n==0";
+the first constructor is guaranteed to return a List with \xcd"n>0"
+(in fact, \xcd"n==t.n+1", where the argument to the constructor is \xcd"t"). 
+This is recorded by the programmer in the constrained type associated with the
+constructor.
+\end{example}
+
+\begin{staticrule}{Super-invoke}
+   Let \xcd"C" be a class with properties
+   \xcdmath"p$_1$: P$_1$, $\dots$, p$_n$: P$_n$", invariant \xcd"c"
+   extending the constrained type \xcd"D{d}" (where \xcd"D" is the name of a class).
+
+   For every constructor in \xcd"C" the compiler checks that the call to
+   super invokes a constructor for \xcd"D" whose return type is strong enough
+   to entail \xcd"d". Specifically, if the call to super is of the form 
+     \xcdmath"super(e$_1$, $\dots$, e$_k$)"
+   and the static type of each expression \xcdmath"e$_i$" is
+   \xcdmath"S$_i$", and the invocation
+   is statically resolved to a constructor
+\xcdmath"def this(x$_1$: T$_1$, $\dots$, x$_k$: T$_k$){c}: D{d$_1$}"
+   then it must be the case that 
+\begin{xtenmath}
+x$_1$: S$_1$, $\dots$, x$_i$: S$_i$ $\vdash$ x$_i$: T$_i$  (for $i \in \{1, \dots, k\}$)
+x$_1$: S$_1$, $\dots$, x$_k$: S$_k$ $\vdash$ c  
+d$_1$[a/self] && x$_1$: S$_1$ ... && x$_k$: S$_k$ $\vdash$ d[a/self]      
+\end{xtenmath}
+\noindent where \xcd"a" is a constant that does not appear in 
+\xcdmath"x$_1$: S$_1$ $\wedge$ ... $\wedge$ x$_k$: S$_k$".
+  
+\end{staticrule}
+
+\begin{staticrule}{Constructor return}
+   The compiler checks that every constructor for \xcd"C" ensures that
+   the properties \xcdmath"p$_1$,..., p$_n$" are initialized with values which satisfy
+   \xcdmath"t(C)", and its own return type \xcd"c'" as follows.  In each constructor, the
+   compiler checks that the static types \xcdmath"T$_i$" of the expressions \xcdmath"e$_i$"
+   assigned to \xcdmath"p$_i$" are such that the following is
+   true:
+\begin{xtenmath}
+p$_1$: T$_1$, $\dots$, p$_n$: T$_n$ $\vdash$ t(C) $\wedge$ c'     
+\end{xtenmath}
+\end{staticrule}
+(Note that for the assignment of \xcdmath"e$_i$" to \xcdmath"p$_i$"
+to be type-correct it must be the
+    case that \xcdmath"p$_i$: T$_i$ $\wedge$ p$_i$: P$_i$".) 
+
+
+\begin{staticrule}{Constructor invocation}
+The compiler must check that every invocation \xcdmath"C(e$_1$, $\dots$, e$_n$)" to a
+constructor is type correct: each argument \xcdmath"e$_i$" must have a static type
+that is a subtype of the declared type \xcdmath"T$_i$" for the $i$th
+argument of the
+constructor, and the conjunction of static types of the argument must
+entail the \grammarrule{Guard} in the parameter list of the constructor.
+\end{staticrule}
+
+\subsection{\Xcd{ proto} qualifier on types}
+\label{Prototypes}
+\index{proto}
+  Java and \Xten{} v1.7 permit \Xcd{this} to escape from a constructor before an
+  object is fully initialized. This means that fields can be read
+  before they are written into. This is a problem for the \Xten{} language
+  design since fields may have constrained types, and the default
+  value \Xcd{null} may not be a legal value for the type.
+  
+\subsubsection{Design goals}
+
+ \begin{itemize}
+\item  The design should guarantee that fields are read only after they are initialized. 
+\item  It should be possible to create immutable cyclic object graphs. 
+\begin{itemize}
+\item These typically require a constructor to be invoked with an
+  object under construction as an argument. Mutable cyclic graphs are
+  not a problem because the backpointer can always be initialized to
+  null and then changed later.
+\end{itemize}
+ 
+\item  It should be possible to call user-defined methods during object creation (so that the transformation between the values supplied as parameters to a constructor and the values actually placed in fields is arbitrary). 
+\item  The design should be minimally invasive. Most programmers should not have to be concerned about this problem. 
+\item  The design should not entail any runtime overhead.
+\end{itemize}
+ 
+\subsection{Qualifier definition}
+
+For every type \Xcd{T} (where \Xcd{T} is not a type variable), we introduce the
+  type \Xcd{proto T}. This is the set of all values \Xcd{v} of type \Xcd{T} that are
+  still being formed in that the constructor for the value has not yet
+  exited or the value points through its fields (transitively) to an
+  object that is still being formed. We say that such a \Xcd{v} is
+  \emph{incomplete}. Below, a `` proto type'' is a type \Xcd{proto T} for
+  some \Xcd{T}, and a `` proto value'' is a value \Xcd{v} whose static type is a
+  \Xcd{proto} type. \Xcd{proto} types are permitted to occur only as types of
+  method parameters or local variables or as return types for methods
+  and constructors; they may not occur in cast statements, extends or
+  implements clauses, or catch clauses.
+
+  Within a constructor for class \Xcd{C} the type of this is \Xcd{proto C}. 
+
+
+  We also permit instance methods of a class \Xcd{C} to be qualified with
+  \Xcd{proto}; the type of \Xcd{this} in such methods is \Xcd{proto C}.
+
+
+Below we say that an expression has a \Xcd{proto} type if its type is \Xcd{proto T} for some type \Xcd{T}. 
+
+
+  We list the rules for using a value \Xcd{v} of type \Xcd{proto T} (for some \Xcd{T}). 
+
+\begin{enumerate}
+\item \Xcd{proto} is covariant, i.e. \Xcd{S <: T} implies \Xcd{proto S <: proto T}. However, there is no connection between the types \Xcd{proto T} and \Xcd{T}; neither is a subtype of the other. 
+\item  The fields of \Xcd{v} cannot be read (that is \Xcd{v.f} is not a permissible r-value, even if the type of \Xcd{v} has a field named f). \begin{itemize}
+\item  This is the defining property of proto types.
+\end{itemize}
+ 
+\item \Xcd{v}'s (accessible) instance fields can be assigned. 
+\item \Xcd{v} can be assigned to instance fields of type \Xcd{S} (for \Xcd{T <: S}) provided that the receiver of the field assignment has a \Xcd{proto} type. 
+\item  If \Xcd{v} is the receiver of a method invocation, the method must be an instance method marked \Xcd{proto}. 
+\item \Xcd{v} can be passed as argument into a constructor or method call, or returned from a method. \begin{itemize}
+\item  The return type of a method taking an argument at a \Xcd{proto} type must be \Xcd{void} or a \Xcd{proto} type. The return type of a constructor taking an argument at a \Xcd{proto} type must be a \Xcd{proto} type.
+\end{itemize}
+ 
+\item A generic class (method) type parameter \Xcd{T} can be
+  instantiated with the type \Xcd{proto S} (where \Xcd{S} is not a type
+  parameter itself), provided that the class (method) body satisfies
+  the conditions above for \Xcd{proto S}.
+\end{enumerate}
+
+These conditions are checked statically by the compiler. 
+
+During code generation, the type \Xcd{proto T} is treated as if it were
+\Xcd{T}. That is, there is no run-time cost to proto types.
+
+
+\section{Field definitions}
+
+Not every instance of a class needs to have every field defined on the
+class. In Java-like languages this is ensured by conditionally setting
+fields to a default value, such as \xcd"null", in those instances where the
+fields are not needed.  
+
+Consider the class \xcd"List" used earlier.  Here all instances of \xcd"List"
+returned by the second constructor do not need the fields \xcd"value" and
+\xcd"tail"; their value is set to null.
+
+\label{FieldGuard}
+
+\Xten{} permits a much cleaner solution that does not require default
+values such as null to be stored in such fields. \Xten{} permits fields to
+be {\em guarded} with a constraint.  The field is accessible
+only if the \emph{guard} constraint is satisfied.
+
+\begin{grammar}
+FieldDeclaration  \:
+   FieldModifiers\opt \xcd"val" VariableDeclarators \xcd";" \\
+   \|
+   FieldModifiers\opt \xcd"var" VariableDeclarators \xcd";" \\
+VariableDeclarators \:
+        VariableDeclarator ( \xcd"," VariableDeclarator )\star \\
+VariableDeclarator \:
+   Identifier ( Constraint )\opt ( \xcd":" Type )\opt ( \xcd"=" Expression )\opt \\
+\end{grammar}
+
+It is illegal for code to access a guarded field through a reference
+whose static type does not satisfy the associated guard, even
+implicitly (i.e., through an implicit \xcd"this"). Rather the source
+program should contain an explicit cast, e.g., \xcd"me: C{c} = this as C{c}".
+
+\begin{staticrule*}
+Let \xcd"f" be a field defined in class
+\xcd"C" with guard \xcd"c".  The compiler declares an error if
+field \xcd"f" is accessed through a reference \xcd"o" whose static
+type is not a subtype of \xcd"C{c}".
+\end{staticrule*}
+
+\begin{example}
+
+We may now rewrite the List example:
+\begin{xten}
+public class List(n: Int{n>=0}) {
+  protected val head{n>0}: Object;
+  protected val tail{n>0}: List(n-1);
+  public def this(o: Object, t: List): List(t.n+1) {
+     property(t.n+1);
+     head=o;
+     tail=t;
+  }
+  public def this(): List(0) {
+     property(0);
+  }
+  ...
+}
+\end{xten}
+
+The fields \xcd"value" and \xcd"tail" do not exist for instances of the class
+\xcd"List(0)".
+\end{example}
+
+It is a compile-time error for a class to have two fields of the same
+name, even if their guards are different. A class \xcd"C" with a field
+named \xcd"f" is said to {\em hide} a field in a superclass named \xcd"f".
+
+\begin{staticrule*}
+     A class may not declare two fields with the same name.
+\end{staticrule*}
+
+To avoid an ambiguity, it is a static error for a class to
+declare a field with a function type (\Sref{FunctionTypes}) with
+the same name and signature  as a method of the same class.
+
+\subsection{Field hiding}
+
+A subclass that defines a field \xcd"f" hides any field \xcd"f"
+declared in a superclass, regardless of their types.  The
+superclass field \xcd"f" may be accessed within the body of
+the subclass via the reference \xcd"super.f".
+
+\eat{
+The definition of field hiding does not take
+\grammar{Guard} into
+account. Suppose a class \xcd"C" has a field
+
+\begin{xten}
+var f{c}: Foo;
+\end{xten}
+\noindent and a subclass \xcd"D" of \xcd"C" has a field
+\begin{xten}
+var f{d}: Fum;
+\end{xten}
+
+We will say that \xcd"D.f" hides \xcd"C.f", {\em regardless} of the
+constraints \xcd"c" and \xcd"d". This is in keeping with \Java, and
+permits a naive implementation which always allocates space for a
+conditional field.
+
+\begin{rationale}
+It might seem attractive to require that \xcd"D.f"
+hides \xcd"C.f" only if \xcd"d" entails \xcd"c". This would seem
+to necessitate a rather complex implementation structure for classes,
+requiring some kind of a heterogeneous translation for
+constrained types of \xcd"C"
+and \xcd"D". This bears further investigation.
+\end{rationale}
+}
+
+
+\subsection{Field qualifiers}
+\label{FieldQualifier}
+\index{Qualifier!field}
+
+\subsubsection{\Xcd{global} qualifier}
+\index{global!field}
+\label{GlobalField}
+
+A field may be declared \xcd"global".
+
+\begin{grammar}
+  FieldModifier \: \xcd"global"  
+\end{grammar}
+
+A \Xcd{global} field must be immutable. It may be read from any place.
+Properties and static fields are implicitly marked \Xcd{global}.
+Fields not marked \Xcd{global} cannot be overridden by fields marked
+\Xcd{global}.
+
+\section{Method definitions}
+
+\Xten{} permits guarded method definitions, similar to guarded
+field definitions. Additionally, the parameter list for a method may
+contain a \grammarrule{Guard}.
+
+\begin{grammar}
+MethodDeclaration \: MethodHeader \xcd";" \\
+                  \| MethodHeader \xcd"=" ClosureBody \\
+MethodHeader \:  
+  MethodModifiers\opt \xcd"def" Identifier TypeParameters\opt \\
+&& \xcd"(" 
+  FormalParameterList\opt \xcd")" Guard\opt \\
+  && ReturnType\opt Throws\opt \\
+\end{grammar}
+
+A formal parameter may optionally have a \xcd"val" or \xcd"var"
+modifier (default: \xcd"val").  
+The body of the method is executed in an environment in which 
+each formal parameter corresponds to a local variable
+and is initialized with the value of the actual parameter.
+The local variable  is mutable if and only if the
+parameter is a \xcd"var" parameter.
+
+\label{MethodGuard}
+
+The guard (specified by \grammarrule{Guard})
+specifies a constraint \xcd"c" on the
+properties of the class \xcd"C" on which the method is being defined. The
+method exists only for those instances of \xcd"C" which satisfy \xcd"c".  It is
+illegal for code to invoke the method on objects whose static type is
+not a subtype of \xcd"C{c}".
+
+\begin{staticrule*}
+    The compiler checks that every method invocation
+    \xcdmath"o.m(e$_1$, $\dots$, e$_n$)"
+    for a method is type correct. Each each argument
+    \xcdmath"e$_i$" must have a
+    static type \xcdmath"S$_i$" that is a subtype of the declared type
+    \xcdmath"T$_i$" for the $i$th
+    argument of the method, and the conjunction of static types
+    of the arguments must entail the guard in the parameter list
+    of the method.
+
+    The compiler checks that in every method invocation
+    \xcdmath"o.m(e$_1$, $\dots$, e$_n$)"
+    the static type of \xcd"o", \xcd"S", is a subtype of \xcd"C{c}", where the method
+    is defined in class \xcd"C" and the guard for \xcd"m" is equivalent to
+    \xcd"c".
+
+    Finally, if the declared return type of the method is
+    \xcd"D{d}", the
+    return type computed for the call is
+    \xcdmath"D{a: S; x$_1$: S$_1$; $\dots$; x$_n$: S$_n$; d[a/this]}",
+    where \xcd"a" is a new
+    variable that does not occur in
+    \xcdmath"d, S, S$_1$, $\dots$, S$_n$", and
+    \xcdmath"x$_1$, $\dots$, x$_n$" are the formal
+    parameters of the method.
+\end{staticrule*}
+
+\begin{example}
+Consider the program:
+\begin{xten}
+public class List(n: Int{n>=0}) {
+  protected val head{n>0}: Object;
+  protected val tail{n>0}: List(n-1);
+  public def this(o: Object, t: List): List(t.n+1) = {
+     property(t.n+1);
+     head=o;
+     tail=t;
+  }
+  public def this(): List(0) = {
+     property(0);
+  }
+  public def append(l: List): List{self.n==this.n+l.n} = {
+      return (n==0)? l
+         : new List(head, tail.append(l)); 
+  }
+  public def nth(k: Int{1 <= k && k <= n}){n > 0}: Object = {
+      return k==1 ? head : tail.nth(k-1);
+  }
+}
+\end{xten}
+
+The following code fragment
+\begin{xten}
+u: List{self.n==3} = ...
+t: List{self.n==x} = ...;
+s: List{self.n==x+3} = t.append(u);
+\end{xten}
+\noindent will typecheck. The type of the expression \xcd"t.append(u)" is 
+\begin{xten}
+List{a: List{self.n==x}; 
+     l: List{self.n==3}; self.n==a.n+l.n}  
+\end{xten}
+\noindent which is equivalent to:
+\begin{xten}
+List{self.n==x+3}
+\end{xten}
+\end{example}
+
+The method body is either an expression, a block of statements,
+or a block ending with an expression.
+
+\subsection{Property methods}
+
+A method declared with the modifier \xcd"property" may be used
+in constraints.  A property method declared in a class must have
+a body and must not be \xcd"void".  The body of the method must
+consist of only a single \xcd"return" statement or a single
+expression.  It is a static error of the expression cannot be
+represented in the constraint system.
+
+Property methods in classes are implicitly \xcd"final"; they cannot be
+overridden.
+
+A property method definition may omit the formal parameters and
+the \xcd"def" keyword.  That is, the following are equivalent:
+
+\begin{xten}
+property def rail(): boolean = rect && onePlace == here && zeroBased;
+property rail: boolean = rect && onePlace == here && zeroBased;
+\end{xten}
+
+\subsection{Method overloading, overriding, hiding, shadowing and obscuring}
+\label{MethodOverload}
+
+The definitions of method overloading, overriding, hiding, shadowing
+and obscuring in \Xten{} are the same as in \Java, modulo the following
+considerations motivated by type parameters and dependent types.
+
+Two or more methods of a class or interface may have the same
+name if they have a different number of type parameters, or
+they have value parameters of different types.
+
+The definition of a method declaration \xcdmath"m$_1$" ``having the same signature
+as'' a method declaration \xcdmath"m$_2$" involves identity of types. Two \Xten{} types
+are defined to be identical iff they are equivalent (\Sref{DepType:Equivalence}).
+Two methods are said to have {\em the same signature} if (a)
+they have the same number of type parameters, (b) they have the
+same number of formal (value) parameters, and (c) for each formal parameter
+their types are equivalent. It is a compile-time error for there
+to be two methods with the same name and same signature in a class
+(either defined in that class or in a superclass).
+
+\begin{staticrule*}
+  A class \xcd"C" may not have two declarations for a method named \xcd"m"---either
+  defined at \xcd"C" or inherited:
+\begin{xtenmath}
+def m[X$_1$, $\dots$, X$_m$](v$_1$: T$_1${t$_1$}, $\dots$, v$_n$: T$_n${t$_n$}){tc}: T {...}
+def m[X$_1$, $\dots$, X$_m$](v$_1$: S$_1${s$_1$}, $\dots$, v$_n$: S$_n${s$_n$}){sc}: S {...}
+\end{xtenmath}
+\noindent
+if it is the case that the types \xcd"C{tc}", \xcdmath"T$_1${t$_1$}",
+\dots, \xcdmath"T$_n${t$_n$}" are
+equivalent to the types \xcdmath"C{sc}, S$_1${t$_1$}, $\dots$, T$_n${t$_n$}"
+respectively.
+\end{staticrule*}
+
+In addition, the guard of a overriding method must be 
+no stronger than the guard of the overridden method.   This
+ensures that any virtual call to the method
+satisfies the guard of the callee.
+
+\begin{staticrule*}
+  If a class \xcd"C" overrides a method of a class or interface
+  \xcd"B", the guard of the method in \xcd"B" must entail
+  the guard of the method in \xcd"C".
+\end{staticrule*}
+
+A class \xcd"C" inherits from its direct superclass and superinterfaces all
+their methods visible according to the access restriction modifiers
+public/private/protected/(package) of the superclass/superinterfaces
+that are not hidden or overridden. A method \xcdmath"M$_1$" in a class
+\xcd"C" overrides
+a method \xcdmath"M$_2$" in a superclass \xcd"D" if
+\xcdmath"M$_1$" and \xcdmath"M$_2$" have the same signature.
+Methods are overriden on a signature-by-signature basis.
+
+A method invocation \xcdmath"o.m(e$_1$, $\dots$, e$_n$)"
+is said to have the {\em static signature}
+\xcdmath"<T, T$_1$, $\dots$, T$_n$>" where \xcd"T" is the static type of
+\xcd"o", and
+\xcdmath"T$_1$",
+\dots,
+\xcdmath"T$_n$"
+are the static types of \xcdmath"e$_1$", \dots, \xcdmath"e$_n$",
+respectively.  As in
+\Java, it must be the case that the compiler can determine a single
+method defined on \xcd"T" with argument type
+\xcdmath"T$_1$", \dots \xcdmath"T$_n$"; otherwise, a
+compile-time error is declared. However, unlike \Java, the \Xten{} type \xcd"T"
+may be a dependent type \xcd"C{c}". Therefore, given a class definition for
+\xcd"C" we must determine which methods of \xcd"C" are available at a type
+\xcd"C{c}". But the answer to this question is clear: exactly those methods
+defined on \xcd"C" are available at the type \xcd"C{c}"
+whose guard \xcd"d" is implied by \xcd"c".
+
+
+\begin{example}
+  Consider the definitions:
+\begin{xten}
+class Point(i: Int, j: Int) {...}
+class Line(s: Point, e: Point{self != i}) {
+  // m1: Both points lie in the right half of the plane
+  def draw(){s.i>= 0 && e.i >= 0} = {...}
+  // m2: Both points lie on the y-axis
+  def draw(){s.i== 0 && e.i == 0} = {...}
+  // m3: Both points lie in the top half of the plane
+  def draw(){s.j>= 0 && e.j >= 0} = {...}
+  // m4: The general method
+  def draw() = {...}
+} 
+\end{xten} 
+\noindent  Three different implementations are given for the
+\xcd"draw" method, one
+  for the case in which the line lies in the right half of the plane,
+  one for the case that the line lies on the y-axis and the third for
+  the case that the line lies in the top half of the plane.
+
+
+\noindent  Consider the invocation
+\begin{xten}
+m: Line{s.i < 0} = ...
+m.draw();
+\end{xten}
+
+\noindent  This generates a compile time error because there is no applicable
+  method definition.
+
+\noindent  Consider the invocation
+
+\begin{xten}
+m: Line{s.i>=0 && s.j>=0 && e.i>=0 && e.j>=0} = ...
+m.draw();
+\end{xten}
+
+\noindent  This generates a compile time error because both
+\xcd"m1" and \xcd"m3" are applicable.
+
+\noindent  Consider the invocation
+\begin{xten}
+m: Line{s.i>=0 && s.j>=0 && e.i>=0} = ...
+m.draw();
+\end{xten}
+  This does not generate any compile-time error since only m1 is
+  applicable. 
+\end{example}
+
+
+In the last example, notice that at runtime \xcd"m1" will be invoked
+(assuming \xcd"m" contains an instance of the \xcd"Line" class, and not some
+subclass of \xcd"Line" that overrides this method). This will be the case
+even if \xcd"m" satisfies at runtime the stronger conditions for \xcd"m2" (i.e.,
+\xcd"s.i==0 && e.i==0"). That is, dynamic method lookup will not take into
+account the  ``strongest'' constraint that the receiver may
+satisfy, i.e.,
+its ``strongest constrained type''. 
+
+\begin{rationale}
+  The design decision that dynamic method lookup should ignore
+  dependent type information was made to keep the design and the
+  implementation simple and to ensure that serious errors such as
+  method invocation errors are captured at compile-time.
+ 
+  Consider the above example and the invocation
+\begin{xten}
+m: Line = ...
+m.draw();    
+\end{xten}
+
+
+   Statically the compiler will not report an error because m4 is the
+   only method that is applicable. However, if dynamic method lookup
+   were to use constrained types then we would face the problem that if m is a
+   line that lives in the upper right quadrant then both \xcd"m2"
+   and \xcd"m3"
+   are applicable and one does not override the other. Hence we must
+   report an error dynamically.
+
+   As discussed above, the programmer can write code with \xcd"instanceof"
+   and class casts that perform any application-appropriate
+   discrimination.  
+\end{rationale}
+
+\subsection{Method qualifiers}
+\label{MethodQualifier}
+\index{Qualifier!method}
+
+\subsubsection{\Xcd{atomic} qualifier}
+\label{AtomicAnnotation}
+\index{atomic}
+
+A method may be declared \xcd"atomic".
+
+\begin{grammar}
+  MethodModifier \: \xcd"atomic"  
+\end{grammar}
+
+Such a method is treated as if the statement in its body is wrapped 
+implicitly in an \xcd"atomic" statement.
+
+\subsubsection{\Xcd{global} qualifier}
+\label{LocalAnnotation}
+\label{GlobalMethod}
+\index{global!method}
+
+A method may be declared \xcd"global".
+
+\begin{grammar}
+  MethodModifier \: \xcd"local"  
+\end{grammar}
+
+A global method can be invoked on an object \Xcd{o} in any place. The
+body of such a method is type-checked without assuming that
+\Xcd{here==this.loc}. This permits \Xcd{global} fields of \Xcd{o} to
+be accessed, but not local fields. The programmer must insert an explicit
+\Xcd{at(this)...} to get to the place where the object lives and access
+the field.
+
+\Xcd{global} methods can be overridden only by methods also marked \Xcd{global}.
+
+\subsubsection{\Xcd{pinned} qualifier}
+\label{PinnedAnnotation}
+\label{PinnedMethod}
+\index{pinned!method}
+
+A method may be declared \xcd"pinned".
+
+\begin{grammar}
+  MethodModifier \: \xcd"pinned"  
+\end{grammar}
+
+A \Xcd{pinned} method may not
+contain any \Xcd{at} statement or expression whose place argument
+is not statically equivalent to \Xcd{here}. It must call only
+\Xcd{pinned} methods. That is, a \Xcd{pinned} method does not cause
+any communication.
+
+\Xcd{pinned} methods can be overridden only by methods marked \Xcd{pinned}.
+
+\subsubsection{\Xcd{nonblocking} qualifier}
+\label{NonblockingAnnotation}
+\label{NonblockingMethod}
+\index{nonblocking!method}
+
+A method may be declared \xcd"nonblocking".
+
+\begin{grammar}
+  MethodModifier \: \xcd"nonblocking"  
+\end{grammar}
+
+A \Xcd{nonblocking} method may not
+contain any \Xcd{when} statement whose condition
+is not statically equivalent to \Xcd{true}. It must call only
+\Xcd{nonblocking} methods. That is, a \Xcd{nonblocking} method does not block.
+
+\Xcd{nonblocking} methods can be overridden only by methods marked \Xcd{nonblocking}.
+
+\subsubsection{\Xcd{sequential} qualifier}
+\label{SequentialAnnotation}
+\label{SequentialMethod}
+\index{sequential!method}
+
+A method may be declared \xcd"sequential".
+
+\begin{grammar}
+  MethodModifier \: \xcd"sequential"  
+\end{grammar}
+
+A \Xcd{sequential} method may not contain any \Xcd{async}
+statement. It must call only \Xcd{sequential} methods. That is, a
+\Xcd{sequential} method does not spawn any activity.
+
+\Xcd{sequential} methods can be overridden only by methods marked \Xcd{sequential}.
+
+\subsubsection{\Xcd{safe} qualifier}
+\label{SafeAnnotation}
+\label{SafeMethod}
+\index{safe!method}
+
+A method may be declared \xcd"safe".
+
+\begin{grammar}
+  MethodModifier \: \xcd"safe"  
+\end{grammar}
+
+The \Xcd{safe} annotation is considered shorthand for \Xcd{pinned
+  nonblocking sequential}.
+
+
+\section{Static initialization}
+\label{StaticInitialization}
+\index{initialization!static}
+The \Xten{} runtime implements the following procedure to ensure
+reliable initialization of the static state of classes.
+
+
+Execution commences with a single thread executing the
+\emph{initialization} phase of an \Xten{} computation at place \Xcd{0}. This
+phase must complete successfully before the body of the \Xcd{main} method is
+executed.
+
+The initialization phase must be thought of as if it is implemented in
+the following fashion: (The implementation may do something more
+efficient as long as it is faithful to this semantics.)
+
+\begin{verbatim}
+Within the scope of a new finish
+for every static field f of every class C (with type T and initializer e):
+async {
+  val l = e; 
+  ateach (Dist.makeUnique()) {
+     assign l to the static f field of the local C class object;
+     mark the f field of the local C class object as initialized;
+  }
+}
+\end{verbatim}
+
+During this phase, any read of a static field \Xcd{C.f} (declared at type \Xcd{T})
+is replaced by a call to the method \Xcd{C.read\_f():T} defined on class \Xcd{C}
+as follows
+
+\begin{xten}
+def read_f():T {
+   await (initialized(C.f));
+   return C.f;
+}
+\end{xten}
+ 
+
+If all these activities terminate normally, all static field have a
+legal value (per their type), and the finish terminates normally. If
+any activity throws an exception, the finish throws an
+exception. Since no user code is executing which can catch exceptions
+thrown by the finish, the exceptions are printed on the console, and
+computation aborts.
+
+
+If the activities deadlock, the implementation deadlocks.
+
+In all cases, the main method is executed only once all static fields
+have been initialized correctly.
+
+Since static state is immutable, it can be accessed from any
+place.
+
+

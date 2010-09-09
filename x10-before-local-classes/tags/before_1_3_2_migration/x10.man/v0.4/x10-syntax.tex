@@ -1,0 +1,550 @@
+\onecolumn
+\extrapart{\Xten{} syntax}\label{X10 syntax}\index{X10 productions}
+
+This section contains the complete grammar for \Xten{}. This includes
+all the new constructs in \Xten{} discussed in the main body of this
+reference manual, as well as constructs obtained from \java{} which
+behave essentially identically to the corresponding {\tt java} constructs.
+
+Note that in this version of the grammar productions for the same
+non-terminal may occur non-contiguously. For instance 
+{\tt MethodModifier} is defined on lines {\tt 111--119} and
+{\tt 445-446}. This will be corrected in future versions of the grammar.
+
+{\footnotesize
+\begin{verbatim}
+0     $accept ::= CompilationUnit
+1     identifier ::= IDENTIFIER
+2     PrimitiveType ::= NumericType
+3      | boolean
+4     NumericType ::= IntegralType
+5      | FloatingPointType
+6     IntegralType ::= byte
+7      | char
+8      | short
+9      | int
+10     | long
+11    FloatingPointType ::= float
+12     | double
+13    ClassType ::= TypeName
+14    InterfaceType ::= TypeName
+15    TypeName ::= identifier
+16     | TypeName . identifier
+17    ClassName ::= TypeName
+18    ArrayType ::= Type [ ]
+19    PackageName ::= identifier
+20      | PackageName . identifier
+21    ExpressionName ::= identifier
+22      | here
+23      | AmbiguousName . identifier
+24    MethodName ::= identifier
+25      | AmbiguousName . identifier
+26    PackageOrTypeName ::= identifier
+27      | PackageOrTypeName . identifier
+28    AmbiguousName ::= identifier
+29      | AmbiguousName . identifier
+30    CompilationUnit ::= PackageDeclarationopt ImportDeclarationsopt TypeDeclarationsopt
+31    ImportDeclarations ::= ImportDeclaration
+32      | ImportDeclarations ImportDeclaration
+33    TypeDeclarations ::= TypeDeclaration
+34      | TypeDeclarations TypeDeclaration
+35    PackageDeclaration ::= package PackageName ;
+36    ImportDeclaration ::= SingleTypeImportDeclaration
+37      | TypeImportOnDemandDeclaration
+38      | SingleStaticImportDeclaration
+39      | StaticImportOnDemandDeclaration
+40    SingleTypeImportDeclaration ::= import TypeName ;
+41    TypeImportOnDemandDeclaration ::= import PackageOrTypeName . * ;
+42    SingleStaticImportDeclaration ::= import static TypeName . identifier ;
+43    StaticImportOnDemandDeclaration ::= import static TypeName . * ;
+44    TypeDeclaration ::= ClassDeclaration
+45      | InterfaceDeclaration
+46      | ;
+47    ClassDeclaration ::= NormalClassDeclaration
+48    NormalClassDeclaration ::= ClassModifiersopt class identifier Superopt Interfacesopt ClassBody
+49    ClassModifiers ::= ClassModifier
+50      | ClassModifiers ClassModifier
+51    ClassModifier ::= public
+52      | protected
+53      | private
+54      | abstract
+55      | static
+56      | final
+57      | strictfp
+58    Super ::= extends ClassType
+59    Interfaces ::= implements InterfaceTypeList
+60    InterfaceTypeList ::= InterfaceType
+61      | InterfaceTypeList , InterfaceType
+62    ClassBody ::= { ClassBodyDeclarationsopt }
+63    ClassBodyDeclarations ::= ClassBodyDeclaration
+64      | ClassBodyDeclarations ClassBodyDeclaration
+65    ClassBodyDeclaration ::= ClassMemberDeclaration
+66      | InstanceInitializer
+67      | StaticInitializer
+68      | ConstructorDeclaration
+69    ClassMemberDeclaration ::= FieldDeclaration
+70      | MethodDeclaration
+71      | ClassDeclaration
+72      | InterfaceDeclaration
+73      | ;
+74    FieldDeclaration ::= FieldModifiersopt Type VariableDeclarators ;
+75    VariableDeclarators ::= VariableDeclarator
+76      | VariableDeclarators , VariableDeclarator
+77    VariableDeclarator ::= VariableDeclaratorId
+78      | VariableDeclaratorId = VariableInitializer
+79    VariableDeclaratorId ::= identifier
+80      | VariableDeclaratorId [ ]
+81      | identifier [ IdentifierList ]
+82      | [ IdentifierList ]
+83    VariableInitializer ::= Expression
+84      | ArrayInitializer
+85    FieldModifiers ::= FieldModifier
+86      | FieldModifiers FieldModifier
+87    FieldModifier ::= public
+88      | protected
+89      | private
+90      | static
+91      | final
+92      | transient
+93      | volatile
+94    MethodDeclaration ::= MethodHeader MethodBody
+95    MethodHeader ::= MethodModifiersopt ResultType MethodDeclarator Throwsopt
+96    ResultType ::= Type
+97      | void
+98    MethodDeclarator ::= identifier ( FormalParameterListopt )
+99      | MethodDeclarator [ ]
+100   FormalParameterList ::= LastFormalParameter
+101     | FormalParameters , LastFormalParameter
+102   FormalParameters ::= FormalParameter
+103     | FormalParameters , FormalParameter
+104   FormalParameter ::= VariableModifiersopt Type VariableDeclaratorId
+105   VariableModifiers ::= VariableModifier
+106     | VariableModifiers VariableModifier
+107   VariableModifier ::= final
+108   LastFormalParameter ::= VariableModifiersopt Type ...opt VariableDeclaratorId
+109   MethodModifiers ::= MethodModifier
+110     | MethodModifiers MethodModifier
+111   MethodModifier ::= public
+112     | protected
+113     | private
+114     | abstract
+115     | static
+116     | final
+117     | synchronized
+118     | native
+119     | strictfp
+120   Throws ::= throws ExceptionTypeList
+121   ExceptionTypeList ::= ExceptionType
+122     | ExceptionTypeList , ExceptionType
+123   ExceptionType ::= ClassType
+124   MethodBody ::= Block
+125     | ;
+126   InstanceInitializer ::= Block
+127   StaticInitializer ::= static Block
+128   ConstructorDeclaration ::= ConstructorModifiersopt ConstructorDeclarator Throwsopt ConstructorBody
+129   ConstructorDeclarator ::= SimpleTypeName ( FormalParameterListopt )
+130   SimpleTypeName ::= identifier
+131   ConstructorModifiers ::= ConstructorModifier
+132     | ConstructorModifiers ConstructorModifier
+133   ConstructorModifier ::= public
+134     | protected
+135     | private
+136   ConstructorBody ::= { ExplicitConstructorInvocationopt BlockStatementsopt }
+137   ExplicitConstructorInvocation ::= this ( ArgumentListopt ) ;
+138     | super ( ArgumentListopt ) ;
+139     | Primary . this ( ArgumentListopt ) ;
+140     | Primary . super ( ArgumentListopt ) ;
+141   Arguments ::= ( ArgumentListopt )
+142   InterfaceDeclaration ::= NormalInterfaceDeclaration
+143   NormalInterfaceDeclaration ::= InterfaceModifiersopt interface identifier ExtendsInterfacesopt InterfaceBody
+144   InterfaceModifiers ::= InterfaceModifier
+145     | InterfaceModifiers InterfaceModifier
+146   InterfaceModifier ::= public
+147     | protected
+148     | private
+149     | abstract
+150     | static
+151     | strictfp
+152   ExtendsInterfaces ::= extends InterfaceType
+153     | ExtendsInterfaces , InterfaceType
+154   InterfaceBody ::= { InterfaceMemberDeclarationsopt }
+155   InterfaceMemberDeclarations ::= InterfaceMemberDeclaration
+156     | InterfaceMemberDeclarations InterfaceMemberDeclaration
+157   InterfaceMemberDeclaration ::= ConstantDeclaration
+158     | AbstractMethodDeclaration
+159     | ClassDeclaration
+160     | InterfaceDeclaration
+161     | ;
+162   ConstantDeclaration ::= ConstantModifiersopt Type VariableDeclarators
+163   ConstantModifiers ::= ConstantModifier
+164     | ConstantModifiers ConstantModifier
+165   ConstantModifier ::= public
+166     | static
+167     | final
+168   AbstractMethodDeclaration ::= AbstractMethodModifiersopt ResultType MethodDeclarator Throwsopt ;
+169   AbstractMethodModifiers ::= AbstractMethodModifier
+170     | AbstractMethodModifiers AbstractMethodModifier
+171   AbstractMethodModifier ::= public
+172     | abstract
+173   ArrayInitializer ::= { VariableInitializersopt ,opt }
+174   VariableInitializers ::= VariableInitializer
+175     | VariableInitializers , VariableInitializer
+176   Block ::= { BlockStatementsopt }
+177   BlockStatements ::= BlockStatement
+178     | BlockStatements BlockStatement
+179   BlockStatement ::= LocalVariableDeclarationStatement
+180     | ClassDeclaration
+181     | Statement
+182   LocalVariableDeclarationStatement ::= LocalVariableDeclaration ;
+183   LocalVariableDeclaration ::= VariableModifiersopt Type VariableDeclarators
+184   Statement ::= StatementWithoutTrailingSubstatement
+185     | LabeledStatement
+186     | IfThenStatement
+187     | IfThenElseStatement
+188     | WhileStatement
+189     | ForStatement
+190   StatementWithoutTrailingSubstatement ::= Block
+191     | EmptyStatement
+192     | ExpressionStatement
+193     | AssertStatement
+194     | SwitchStatement
+195     | DoStatement
+196     | BreakStatement
+197     | ContinueStatement
+198     | ReturnStatement
+199     | SynchronizedStatement
+200     | ThrowStatement
+201     | TryStatement
+202   StatementNoShortIf ::= StatementWithoutTrailingSubstatement
+203     | LabeledStatementNoShortIf
+204     | IfThenElseStatementNoShortIf
+205     | WhileStatementNoShortIf
+206     | ForStatementNoShortIf
+207   IfThenStatement ::= if ( Expression ) Statement
+208   IfThenElseStatement ::= if ( Expression ) StatementNoShortIf else Statement
+209   IfThenElseStatementNoShortIf ::= if ( Expression ) StatementNoShortIf else StatementNoShortIf
+210   EmptyStatement ::= ;
+211   LabeledStatement ::= identifier : Statement
+212   LabeledStatementNoShortIf ::= identifier : StatementNoShortIf
+213   ExpressionStatement ::= StatementExpression ;
+214   StatementExpression ::= Assignment
+215     | PreIncrementExpression
+216     | PreDecrementExpression
+217     | PostIncrementExpression
+218     | PostDecrementExpression
+219     | MethodInvocation
+220     | ClassInstanceCreationExpression
+221   AssertStatement ::= assert Expression ;
+222     | assert Expression : Expression ;
+223   SwitchStatement ::= switch ( Expression ) SwitchBlock
+224   SwitchBlock ::= { SwitchBlockStatementGroupsopt SwitchLabelsopt }
+225   SwitchBlockStatementGroups ::= SwitchBlockStatementGroup
+226     | SwitchBlockStatementGroups SwitchBlockStatementGroup
+227   SwitchBlockStatementGroup ::= SwitchLabels BlockStatements
+228   SwitchLabels ::= SwitchLabel
+229     | SwitchLabels SwitchLabel
+230   SwitchLabel ::= case ConstantExpression :
+231     | default :
+232   WhileStatement ::= while ( Expression ) Statement
+233   WhileStatementNoShortIf ::= while ( Expression ) StatementNoShortIf
+234   DoStatement ::= do Statement while ( Expression ) ;
+235   ForStatement ::= BasicForStatement
+236     | EnhancedForStatement
+237   BasicForStatement ::= for ( ForInitopt ; Expressionopt ; ForUpdateopt ) Statement
+238   ForStatementNoShortIf ::= for ( ForInitopt ; Expressionopt ; ForUpdateopt ) StatementNoShortIf
+239     | EnhancedForStatementNoShortIf
+240   ForInit ::= StatementExpressionList
+241     | LocalVariableDeclaration
+242   ForUpdate ::= StatementExpressionList
+243   StatementExpressionList ::= StatementExpression
+244     | StatementExpressionList , StatementExpression
+245   BreakStatement ::= break identifieropt ;
+246   ContinueStatement ::= continue identifieropt ;
+247   ReturnStatement ::= return Expressionopt ;
+248   ThrowStatement ::= throw Expression ;
+249   SynchronizedStatement ::= synchronized ( Expression ) Block
+250   TryStatement ::= try Block Catches
+251     | try Block Catchesopt Finally
+252   Catches ::= CatchClause
+253     | Catches CatchClause
+254   CatchClause ::= catch ( FormalParameter ) Block
+255   Finally ::= finally Block
+256   Primary ::= PrimaryNoNewArray
+257     | ArrayCreationExpression
+258   PrimaryNoNewArray ::= Literal
+259     | Type . class
+260     | void . class
+261     | this
+262     | ClassName . this
+263     | ( Expression )
+264     | ClassInstanceCreationExpression
+265     | FieldAccess
+266     | MethodInvocation
+267     | ArrayAccess
+268   Literal ::= IntegerLiteral
+269     | LongLiteral
+270     | FloatingPointLiteral
+271     | DoubleLiteral
+272     | BooleanLiteral
+273     | CharacterLiteral
+274     | StringLiteral
+275     | null
+276   BooleanLiteral ::= true
+277     | false
+278   ClassInstanceCreationExpression ::= new ClassOrInterfaceType ( ArgumentListopt ) ClassBodyopt
+279     | Primary . new identifier ( ArgumentListopt ) ClassBodyopt
+280     | AmbiguousName . new identifier ( ArgumentListopt ) ClassBodyopt
+281   ArgumentList ::= Expression
+282     | ArgumentList , Expression
+283   FieldAccess ::= Primary . identifier
+284     | super . identifier
+285     | ClassName . super . identifier
+286   MethodInvocation ::= MethodName ( ArgumentListopt )
+287     | Primary . identifier ( ArgumentListopt )
+288     | super . identifier ( ArgumentListopt )
+289     | ClassName . super . identifier ( ArgumentListopt )
+290   PostfixExpression ::= Primary
+291     | ExpressionName
+292     | PostIncrementExpression
+293     | PostDecrementExpression
+294   PostIncrementExpression ::= PostfixExpression ++
+295   PostDecrementExpression ::= PostfixExpression --
+296   UnaryExpression ::= PreIncrementExpression
+297     | PreDecrementExpression
+298     | + UnaryExpression
+299     | - UnaryExpression
+300     | UnaryExpressionNotPlusMinus
+301   PreIncrementExpression ::= ++ UnaryExpression
+302   PreDecrementExpression ::= -- UnaryExpression
+303   UnaryExpressionNotPlusMinus ::= PostfixExpression
+304     | ~ UnaryExpression
+305     | ! UnaryExpression
+306     | CastExpression
+307   MultiplicativeExpression ::= UnaryExpression
+308     | MultiplicativeExpression * UnaryExpression
+309     | MultiplicativeExpression / UnaryExpression
+310     | MultiplicativeExpression % UnaryExpression
+311   AdditiveExpression ::= MultiplicativeExpression
+312     | AdditiveExpression + MultiplicativeExpression
+313     | AdditiveExpression - MultiplicativeExpression
+314   ShiftExpression ::= AdditiveExpression
+315     | ShiftExpression << AdditiveExpression
+316     | ShiftExpression >> AdditiveExpression
+317     | ShiftExpression >>> AdditiveExpression
+318   RelationalExpression ::= ShiftExpression
+319     | RelationalExpression < ShiftExpression
+320     | RelationalExpression GREATER ShiftExpression
+321     | RelationalExpression <_= ShiftExpression
+322     | RelationalExpression GREATER = ShiftExpression
+323   EqualityExpression ::= RelationalExpression
+324     | EqualityExpression == RelationalExpression
+325     | EqualityExpression != RelationalExpression
+326   AndExpression ::= EqualityExpression
+327     | AndExpression AND EqualityExpression
+328   ExclusiveOrExpression ::= AndExpression
+329     | ExclusiveOrExpression XOR AndExpression
+330   InclusiveOrExpression ::= ExclusiveOrExpression
+331     | InclusiveOrExpression OR ExclusiveOrExpression
+332   ConditionalAndExpression ::= InclusiveOrExpression
+333     | ConditionalAndExpression AND_AND InclusiveOrExpression
+334   ConditionalOrExpression ::= ConditionalAndExpression
+335     | ConditionalOrExpression OR_OR ConditionalAndExpression
+336   ConditionalExpression ::= ConditionalOrExpression
+337     | ConditionalOrExpression QUESTION Expression : ConditionalExpression
+338   AssignmentExpression ::= ConditionalExpression
+339     | Assignment
+340   Assignment ::= LeftHandSide AssignmentOperator AssignmentExpression
+341   LeftHandSide ::= ExpressionName
+342     | FieldAccess
+343     | ArrayAccess
+344   AssignmentOperator ::= =
+345     | *=
+346     | /=
+347     | %=
+348     | +=
+349     | -=
+350     | <<=
+351     | >>=
+352     | >>>=
+353     | &=
+354     | ^=
+355     | |=
+356   Expression ::= AssignmentExpression
+357   ConstantExpression ::= Expression
+358   Catchesopt ::=
+359     | Catches
+360   identifieropt ::=
+361     | identifier
+362   ForUpdateopt ::=
+363     | ForUpdate
+364   Expressionopt ::=
+365     | Expression
+366   ForInitopt ::=
+367     | ForInit
+368   SwitchLabelsopt ::=
+369     | SwitchLabels
+370   SwitchBlockStatementGroupsopt ::=
+371     | SwitchBlockStatementGroups
+372   VariableModifiersopt ::=
+373     | VariableModifiers
+374   VariableInitializersopt ::=
+375     | VariableInitializers
+376   AbstractMethodModifiersopt ::=
+377     | AbstractMethodModifiers
+378   ConstantModifiersopt ::=
+379     | ConstantModifiers
+380   InterfaceMemberDeclarationsopt ::=
+381     | InterfaceMemberDeclarations
+382   ExtendsInterfacesopt ::=
+383     | ExtendsInterfaces
+384   InterfaceModifiersopt ::=
+385     | InterfaceModifiers
+386   ClassBodyopt ::=
+387     | ClassBody
+388   ,opt ::=
+389     | ,
+390   ArgumentListopt ::=
+391     | ArgumentList
+392   BlockStatementsopt ::=
+393     | BlockStatements
+394   ExplicitConstructorInvocationopt ::=
+395     | ExplicitConstructorInvocation
+396   ConstructorModifiersopt ::=
+397     | ConstructorModifiers
+398   ...opt ::=
+399     | ...
+400   FormalParameterListopt ::=
+401     | FormalParameterList
+402   Throwsopt ::=
+403     | Throws
+404   MethodModifiersopt ::=
+405     | MethodModifiers
+406   FieldModifiersopt ::=
+407     | FieldModifiers
+408   ClassBodyDeclarationsopt ::=
+409     | ClassBodyDeclarations
+410   Interfacesopt ::=
+411     | Interfaces
+412   Superopt ::=
+413     | Super
+414   ClassModifiersopt ::=
+415     | ClassModifiers
+416   TypeDeclarationsopt ::=
+417     | TypeDeclarations
+418   ImportDeclarationsopt ::=
+419     | ImportDeclarations
+420   PackageDeclarationopt ::=
+421     | PackageDeclaration
+422   Type ::= DataType PlaceTypeSpecifieropt
+423     | nullable Type
+424     | future < Type GREATER
+425   DataType ::= PrimitiveType
+426   DataType ::= ClassOrInterfaceType
+427     | ArrayType
+428   PlaceTypeSpecifier ::= AT PlaceType
+429   PlaceType ::= placelocal
+430     | activitylocal
+431     | current
+432     | PlaceExpression
+433   ClassOrInterfaceType ::= TypeName DepParametersopt
+434   DepParameters ::= ( DepParameterExpr )
+435   DepParameterExpr ::= ArgumentList WhereClauseopt
+436     | WhereClause
+437   WhereClause ::= : Expression
+438   ArrayType ::= X10ArrayType
+439   X10ArrayType ::= Type [ . ]
+440     | Type reference [ . ]
+441     | Type value [ . ]
+442     | Type [ DepParameterExpr ]
+443     | Type reference [ DepParameterExpr ]
+444     | Type value [ DepParameterExpr ]
+445   MethodModifier ::= atomic
+446     | extern
+447   ClassDeclaration ::= ValueClassDeclaration
+448   ValueClassDeclaration ::= ClassModifiersopt value identifier Superopt Interfacesopt ClassBody
+449     | ClassModifiersopt value class identifier Superopt Interfacesopt ClassBody
+450   ArrayCreationExpression ::= new ArrayBaseType Unsafeopt [ ] ArrayInitializer
+451     | new ArrayBaseType Unsafeopt [ Expression ]
+452     | new ArrayBaseType Unsafeopt [ Expression ] Expression
+453     | new ArrayBaseType Unsafeopt [ Expression ] ( FormalParameter ) MethodBody
+454     | new ArrayBaseType value Unsafeopt [ Expression ]
+455     | new ArrayBaseType value Unsafeopt [ Expression ] Expression
+456     | new ArrayBaseType value Unsafeopt [ Expression ] ( FormalParameter ) MethodBody
+457   ArrayBaseType ::= PrimitiveType
+458     | ClassOrInterfaceType
+459   ArrayAccess ::= ExpressionName [ ArgumentList ]
+460     | PrimaryNoNewArray [ ArgumentList ]
+461   Statement ::= NowStatement
+462     | ClockedStatement
+463     | AsyncStatement
+464     | AtomicStatement
+465     | WhenStatement
+466     | ForEachStatement
+467     | AtEachStatement
+468     | FinishStatement
+469   StatementWithoutTrailingSubstatement ::= NextStatement
+470     | AwaitStatement
+471   StatementNoShortIf ::= NowStatementNoShortIf
+472     | ClockedStatementNoShortIf
+473     | AsyncStatementNoShortIf
+474     | AtomicStatementNoShortIf
+475     | WhenStatementNoShortIf
+476     | ForEachStatementNoShortIf
+477     | AtEachStatementNoShortIf
+478     | FinishStatementNoShortIf
+479   NowStatement ::= now ( Clock ) Statement
+480   ClockedStatement ::= clocked ( ClockList ) Statement
+481   AsyncStatement ::= async PlaceExpressionSingleListopt Statement
+482   AtomicStatement ::= atomic PlaceExpressionSingleListopt Statement
+483   WhenStatement ::= when ( Expression ) Statement
+484     | WhenStatement or ( Expression ) Statement
+485   ForEachStatement ::= foreach ( FormalParameter : Expression ) Statement
+486   AtEachStatement ::= ateach ( FormalParameter : Expression ) Statement
+487   EnhancedForStatement ::= for ( FormalParameter : Expression ) Statement
+488   FinishStatement ::= finish Statement
+489   NowStatementNoShortIf ::= now ( Clock ) StatementNoShortIf
+490   ClockedStatementNoShortIf ::= clocked ( ClockList ) StatementNoShortIf
+491   AsyncStatementNoShortIf ::= async PlaceExpressionSingleListopt StatementNoShortIf
+492   AtomicStatementNoShortIf ::= atomic StatementNoShortIf
+493   WhenStatementNoShortIf ::= when ( Expression ) StatementNoShortIf
+494     | WhenStatement or ( Expression ) StatementNoShortIf
+495   ForEachStatementNoShortIf ::= foreach ( FormalParameter : Expression ) StatementNoShortIf
+496   AtEachStatementNoShortIf ::= ateach ( FormalParameter : Expression ) StatementNoShortIf
+497   EnhancedForStatementNoShortIf ::= for ( FormalParameter : Expression ) StatementNoShortIf
+498   FinishStatementNoShortIf ::= finish StatementNoShortIf
+499   PlaceExpressionSingleList ::= ( PlaceExpression )
+500   PlaceExpression ::= Expression
+501   NextStatement ::= next ;
+502   AwaitStatement ::= await Expression ;
+503   ClockList ::= Clock
+504     | ClockList , Clock
+505   Clock ::= identifier
+506   CastExpression ::= ( Type ) UnaryExpressionNotPlusMinus
+507   MethodInvocation ::= Primary ARROW identifier ( ArgumentListopt )
+508   RelationalExpression ::= RelationalExpression instanceof Type
+509   IdentifierList ::= IdentifierList , identifier
+510     | identifier
+511   Primary ::= FutureExpression
+512   Primary ::= [ ArgumentList ]
+513   AssignmentExpression ::= Expression ARROW Expression
+514   Primary ::= Expression : Expression
+515   FutureExpression ::= future PlaceExpressionSingleListopt { Expression }
+516   FieldModifier ::= mutable
+517     | const
+518   PlaceTypeSpecifieropt ::=
+519     | PlaceTypeSpecifier
+520   DepParametersopt ::=
+521     | DepParameters
+522   WhereClauseopt ::=
+523     | WhereClause
+524   PlaceExpressionSingleListopt ::=
+525     | PlaceExpressionSingleList
+526   ArgumentListopt ::=
+527     | ArgumentList
+528   DepParametersopt ::=
+529     | DepParameters
+530   Unsafeopt ::=
+531     | unsafe
+\end{verbatim}
+}
+\twocolumn

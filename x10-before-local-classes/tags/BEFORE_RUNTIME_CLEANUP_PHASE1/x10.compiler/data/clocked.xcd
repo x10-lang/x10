@@ -1,0 +1,9 @@
+// SYNOPSIS: clocked(#0) #1=unique_id
+new x10.runtime.List() {
+	public java.util.List run() {
+		final java.util.LinkedList clocks#1 = new java.util.LinkedList();
+		x10.runtime.Activity current#1 = x10.lang.Runtime.getCurrentActivity();
+		#0
+		return clocks#1;
+	}
+}.run()

@@ -1,0 +1,72 @@
+<html>
+<title>X10 Frequently Asked Questions (FAQs)</title>
+<br>
+
+<body>
+<h1>X10 Frequently Asked Questions (FAQs)</h1>
+
+<a href="#faq1">How to show compiler options...</a><br>
+<a href="#faq2">How to show where dynamic checks are...</a><br>
+<a href="#faq3">How to show compile time errors...</a><br>
+<a href="#faq4">How use ! ...</a><br>
+<a href="#faq5">Struct initialization...</a><br>
+
+<h2><a name="faq1">How to show compiler options...<a></h2>
+<p>
+<pre>
+$ x10c -- -help
+</pre>
+will print details of the various compiler options.
+</p>
+
+<h2><a name="faq2">How to show where dynamic checks are...<a></h2>
+<p>
+the compilers shows me how many dynamic checks it inserted:
+<pre>
+$ x10c DataFlowExample.x10 
+x10c: 7 dynamically checked calls or field accesses.
+</pre>
+Is there a way to tell, where exactly those dynamic checks are?
+<br>
+You should compile with 
+<pre>
+-VERBOSE_CALLS=true
+</pre>
+This will print details of all inserted dynamic casts.
+
+</p>
+
+<h2><a name="faq3">How to show compile time errors...<a></h2>
+<p>
+As it is, the compiler inserts a dynamic check for you, 
+which then fails at runtime.
+If you run the compiler with the -STATIC_CALLS flag,
+you will get a compile-time error.  
+</p>
+
+<h2><a name="faq4">How to use ! ...<a></h2>
+<p>
+Every object has a place, that's the point of the PGAS paradigm. You
+can access fields and methods of the object only in it's home place. 
+Only "global" methods and fields can be accessed everywhere.
+</p>
+<p>
+You should use "!" to make sure you don't have ClassCastException for home
+constraints. When you compile your program, you may see the warning: 
+ZZZ dynamic checks added. If you compile with the parameter -STATIC_CALLS then 
+the compiler will give you errors instead of warnings, and 
+you will know what to mark as "!".
+</p>
+
+<h2><a name="faq5">Struct initialization...<a></h2>
+<p>
+For structs you do not need to use "new". Simply write:
+<pre>
+val x = Pair[Int,Int](3,4);
+</pre>
+We have a proposal that would allow also using "new" for creating a struct
+(which will be more comfortable for Java users).
+</p>
+
+</body>
+</html>

@@ -1,0 +1,133 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Expressions</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc4">
+4</a>&nbsp;&nbsp;Expressions</h2><a name="XtenExpressions">
+</a>
+
+<div class="p"><!----></div>
+X10 inherits all the standard expressions of Java
+[6,&#167;&nbsp;15] - as modified to permit generics [5] -
+with the expected semantics, unless otherwise mentioned below:
+
+<div class="p"><!----></div>
+<pre>
+Assignment MethodInvocation 
+Cast Class
+ClassInstanceCreationExpression FieldAccessExpression   
+ArrayCreationExpression ArrayAccessExpression
+PostfixExpression PrefixExpression 
+InfixExpression UnaryOperators
+MultiplicativeOperators AdditiveOperators 
+ShiftOperators RelationalOperators  
+EqualityOperators BitwiseOperators
+ConditionalOperators AssignmentOperators
+</pre>
+
+<div class="p"><!----></div>
+Expressions are evaluated in the same order as they would in Java
+(primarily
+left-to-right).<a name="FieldAccess">
+</a><a name="ClassCreation">
+</a><a name="MethodInvocation">
+</a>
+
+<div class="p"><!----></div>
+We focus on the expressions in X10 which have a different
+semantics.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc4.1">
+4.1</a>&nbsp;&nbsp;The classcast operator</h3><a name="ClassCast">
+</a>
+The classcast operation may be used to cast an expression to a given type:
+<pre>
+306 UnaryExpressionNotPlusMinus ::= 
+      CastExpression
+506 CastExpression ::= 
+      ( Type ) UnaryExpressionNotPlusMinus
+</pre>
+
+<div class="p"><!----></div>
+The result of this operation is a value of the given type if the cast
+is permissible at runtime. Both the data type and place type of the
+value are checked. Data type conversion is checked according to the
+rules of the Java language (e.g.[6,&#167; 5.5]). If the
+value cannot be cast to the appropriate data type, a <tt>ClassCast</tt>
+exception is thrown. Otherwise, if the value cannot be cast to the
+appropriate place type a <tt>BadPlaceException</tt> is thrown. 
+
+<div class="p"><!----></div>
+Any attempt to cast an expression of a reference type to a value type
+(or vice versa) results in a compile-time error. Some casts - such as
+those that seek to cast a value of a subtype to a supertype - are
+known to succeed at compile-time. Such casts should not cause extra
+computational overhead at runtime.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc4.2">
+4.2</a>&nbsp;&nbsp;<tt>instanceof</tt> operator</h3><a name="instanceOf">
+</a>
+
+<div class="p"><!----></div>
+This operator takes two arguments; the first should be a <tt>
+RelationalExpression</tt> and the second a <tt>Type</tt>. At run time, the
+result of this operator is <tt>true</tt> if the <tt>
+RelationalExpression</tt> can be cast to <tt>Type</tt> without a <tt>
+ClassCastException</tt> being thrown. Otherwise the result is <tt>false</tt>.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc4.3">
+4.3</a>&nbsp;&nbsp;Stable equality.</h3><a name="StableEquality">
+</a>
+
+<div class="p"><!----></div>
+Reference equality (==, <tt>!=</tt>) is replaced in X10 by the
+notion of <em>stable equality</em> so that it can apply uniformly to value and
+reference types.
+
+<div class="p"><!----></div>
+Two values may be compared with the infix predicate . The call
+returns the value <tt>true</tt> if and only if no action taken by any
+user program can distinguish between the two values.  In more detail
+the rules are as follows.
+
+<div class="p"><!----></div>
+If the values have a reference type, then both must be references to
+the same object (even if the object has no mutable fields). 
+
+<div class="p"><!----></div>
+If the values have a value type then they must be structurally equal,
+that is, they must be instances of the same value class or value array
+data type and all their fields or components must be ==. 
+
+<div class="p"><!----></div>
+If one of the values is <tt>null</tt> then the predicate succeeds iff the
+other value is also <tt>null</tt>.
+
+<div class="p"><!----></div>
+The predicate <tt>!=</tt> returns <tt>true</tt> (<tt>false</tt>) on two
+arguments if and only if the predicate == returns <tt>false</tt>
+(<tt>true</tt>) on the same arguments.
+
+<div class="p"><!----></div>
+The predicates == and <tt>!=</tt> may not be overridden by the
+programmer.
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Array Types</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc12">
+12</a>&nbsp;&nbsp;Array types</h2>
+
+<div class="p"><!----></div>
+<pre>
+    ArrayType ::= Type [  ] 
+      |  Type value  [  ]
+      |  Type [ DepParameterExpr ]
+      |  Type  value [ DepParameterExpr ]  
+</pre>
+
+<div class="p"><!----></div>
+ X10 has the following built in types:
+
+<div class="p"><!----></div>
+<pre>
+class point(int(:rank&#62;=0) rank)  ...
+class region
+  (int(:rank&#62;=0) rank,
+   // region is a product of rank-1 convex regions.
+   boolean rect,  
+   // on each dim, the low bound is 0. 
+   boolean lowZero
+  )  ...
+class dist
+  (int (:rank&#62;=0) rank, 
+   boolean rect,
+   boolean lowZero,
+   region(: self.rank==rank&amp;&amp;self.rect==rect
+           &amp;&amp;self.lowZero==lowZero) region, 
+   place onePlace 
+   )   ...
+class Array&lt;T&#62;
+  (int (:rank&#62;=0) rank,  
+   boolean rect,
+   boolean lowZero,
+   place onePlace,
+   region region,
+   dist(:self.rank==rank &amp;&amp;self.rect=rect
+         &amp;&amp;self.lowZero==lowZero
+        &amp;&amp;self.region==region
+        &amp;&amp;self.onePlace==onePlace) dist
+    ) {...}
+class ValueArray&lt;T&#62;
+ (int (:rank&#62;=0) rank,  
+   boolean rect,
+   boolean lowZero,
+   place onePlace,
+   region region,
+   dist(:self.rank==rank &amp;&amp;self.rect=rect
+        &amp;&amp;self.lowZero==lowZero
+       &amp;&amp;self.region==region
+       &amp;&amp;self.onePlace==onePlace) dist
+) {...}
+</pre>
+
+<div class="p"><!----></div>
+The array types on the left are shorthand for the deptypes on the right:
+<pre>
+Type []  =&#62; Array&lt;Type&#62;
+Type value [] =&#62; ValueArray&lt;Type&#62;
+Type  [ DepParameterExpr ] 
+   =&#62; Array&lt;Type&#62;( DepParameterExpr )
+Type Value [ DepParameterExpr ] 
+   =&#62; ValueArray&lt;Type&#62;( DepParameterExpr )
+</pre>
+
+<div class="p"><!----></div>
+For <tt>R</tt> is a reference type, the type <tt>R(:c)!current[]</tt> is interpreted as the
+type of all arrays which are such that the value at a point <tt>p</tt> in its
+region has the type <tt>R(:c)!self.dist[p]</tt>. (Recall that in  X10 a
+distribution is itself a value array that maps a point to a place.)
+
+<div class="p"><!----></div>
+<b>Example 12.1</b>   The type <tt>double[:rail]</tt> is the Java type <tt>double[]</tt>.
+  The type <tt>double[:rail][:rail]</tt> is the Java type <tt>double[][]</tt>.
+
+<div class="p"><!----></div>
+  The type <tt>double[:rank==N]</tt> is the type of all N-dimensional arrays of
+  doubles.
+
+<div class="p"><!----></div>
+  The type <tt>double[:rank==N&amp;&amp;onePlace==here]</tt> is the type of all N-dimensional
+  arrays of doubles that are local (mapped to one place).  
+</body>
+</html>

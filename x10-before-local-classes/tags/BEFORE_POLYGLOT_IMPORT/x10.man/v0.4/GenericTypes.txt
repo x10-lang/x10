@@ -1,0 +1,24 @@
+
+
+'''Examples'''
+
+The uniform treatment of value and reference types results in some simple programs. Consider for instance the code for a memoization program, such as a frequency count. This may be written in X10 as:
+
+----
+ public class Freq {   
+  public static void main(String[] args) {      
+    Map<String, int> m = new TreeMap<String, int>();      
+      for (String word : args) {          
+         m.put(word, m.get(word)+1);
+      }      
+    System.out.println(m);   
+  }
+ }
+----
+
+----
+ public class Map<Dom, Range> {
+ 
+
+ }
+The code for '''Map.get(word)''' returns the value returned by invoking the nullary constructor on its second type argument (in this case, '''int''') when 

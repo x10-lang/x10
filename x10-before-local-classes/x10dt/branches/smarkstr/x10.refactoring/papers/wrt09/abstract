@@ -1,0 +1,20 @@
+The industry's shift to multicore processors has sparked a trend toward pushing 
+parallel programming into the mainstream. This trend poses a significant 
+challenge, since creating and maintaining parallel programs is notoriously 
+difficult. We believe that specialized refactoring support will be a critical 
+tool to help programmers improve the quality of parallel code. Such refactoring 
+could be used to improve efficiency while preserving program behavior and key 
+concurrency invariants. In this poster, we present our vision of refactoring 
+support for languages with the partitioned global address space (PGAS) memory model as 
+embodied in the X10 programming language.
+
+The PGAS model in X10 provides refactoring support with opportunities, like 
+simplified code transformations, and challenges, such as properly handling
+asynchronous executions. We examine a novel refactoring, extract concurrent, as
+a first refactoring developed specifically for PGAS languages. The extract 
+concurrent refactoring introduces additional concurrency within a loop by
+arranging for some user-selected code in the loop body to run in parallel
+with other iterations of the loop. We discuss the mechanisms and challenges 
+necessary for implementing this
+refactoring and how development of this refactoring provides insight for
+designing future refactorings.

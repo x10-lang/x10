@@ -1,0 +1,73 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;;
+
+/**
+ * Purpose: Checks variable name shadowing works correctly.
+ * @author vcave
+ **/
+public class X10DepTypeClassOne(public val p: int, ) implements X10InterfaceOne /*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * Purpose: Checks variable name shadowing works correctly.
+ * @author vcave
+ **/
+public class X10DepTypeClassOne(int p) implements X10InterfaceOne {
+
+	
+	public def this(var p: int): X10DepTypeClassOne = {
+	    this.p=p;
+	}
+
+	public def interfaceMethod(): void = {
+
+	}/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * Purpose: Checks variable name shadowing works correctly.
+ * @author vcave
+ **/
+public class X10DepTypeClassOne(int pint*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * Purpose: Checks variable name shadowing works correctly.
+ * @author vcave
+ **/
+public class X10DepTypeClassOne(int p) implements X10InterfaceOne {
+
+	
+	public X10DepTypeClassOne(int p) {
+	    this.p=p;
+	}
+
+	public void interfaceMethod() {
+
+	}
+
+}

@@ -1,0 +1,98 @@
+// @author: Pradeep Varma
+// Is the source X10 or Java?  Since this is Java code, the treatment of arrays (dereferencing using ints instead of points) and array.length are 
+// improper.  Translating to IR making the jump that integer indices are used as points.
+//========  IR Representation for HelloWorld.x10 ==============
+
+// Namespace is an IR construct, to represent X10 classes and interfaces
+NAMESPACE HelloWorld EXTENDS x10$$$lang$$$Object
+
+// Method signature
+
+        @ static NULLABLE Exception NULLABLE VOID HelloWorld$$main ([]String);
+
+// Namespace ends above.  Now Function Declarations:
+
+@ static NULLABLE Exception NULLABLE VOID HelloWorld$$main []String args
+             
+            L# 10 @ FUNCSTART String TEMP10 := String "Hello World!"
+            
+            // call to System.out.println
+            L# 20 NULLABLE Exception TEMP20 NULLABLE VOID TEMP25 := 
+                        CALL PrintStream$$println PrintStream x10$$$lang$$$System$$out, String TEMP10   
+                        // overloaded function names? Need to flatten out?
+                        
+            L# 30 BOOLEAN TEMP30 := BOOLEAN NULLCHECKPASS NULLABLE Exception TEMP20
+            L# 40 IF BOOLEAN TEMP30 GOTO L# 50             // If exception, GOTO L# 50
+            L# 45 GOTO L# 60
+            L# 50 PRETURN NULLABLE Exception TEMP20 NULLABLE VOID NULL
+                                 
+
+            // Loop code
+
+            // initialization
+            L# 60 @ int INT i := @ int INT 0
+    
+            // Condition
+            L# 70 @ int INT TEMP40 := @ ArrayLength @ int INT OBJECTDEREF []String args @ int INT length
+            L# 80 BOOLEAN TEMP50 := BOOLEAN @ int INT i >= @ int INT TEMP40   // deliberately choosing !< i.e. >=
+            L# 90 IF BOOLEAN TEMP50 GOTO L# 1000  // exit loop
+
+            // Loop body
+            L# 100 String TEMP60 := String "Arg "
+
+            // Convert i to String
+            L# 110 NULLABLE Exception TEMP70 NULLABLE String TEMP80 := CALL Integer$$toString @ int INT i  
+            L# 120 BOOLEAN TEMP90 := BOOLEAN NULLCHECKPASS NULLABLE Exception TEMP70
+            L# 130 IF BOOLEAN TEMP90 GOTO L# 140
+            L# 135 GOTO L# 150
+            L# 140 PRETURN NULLABLE Exception TEMP70 NULLABLE VOID NULL
+            // NOTE: the whole packaging as a 2-tuple return of Integer$$toString is excessive, since it does not throw an exception. Also such packaging
+            // will force changed APIs for all library functions
+            L# 150 @ verified String TEMP100 := String TYPECAST NULLABLE String TEMP80 String
+
+            // Append "Arg " and i
+            L# 160 NULLABLE Exception TEMP110 NULLABLE String TEMP120 := CALL String$$concat String TEMP60, String TEMP100  
+            L# 170 BOOLEAN TEMP130 := BOOLEAN NULLCHECKPASS NULLABLE Exception TEMP110
+            L# 180 IF BOOLEAN TEMP130 GOTO L# 190
+            L# 185 GOTO L# 200
+            L# 190 PRETURN NULLABLE Exception TEMP110 NULLABLE VOID NULL
+            // NOTE: the whole packaging as a 2-tuple return of Integer$$toString is excessive, since it does not throw an exception. Also such packaging
+            // will force changed APIs for all library functions
+            L# 200 @ verified String TEMP140 := String TYPECAST NULLABLE String TEMP120 String
+
+            // args[i]
+            L# 210 @ int INT TEMP140 := @ int INT OBJECTDEREF []String args @ int INT length    // note common code HERE and in iteration condition (CSE) with slight differences
+            L# 220 BOOLEAN TEMP150 := BOOLEAN @ int INT i < @ int INT TEMP140   
+            L# 230 IF BOOLEAN TEMP150 GOTO L# 250
+            L# 240 PRETURN NULLABLE Exception $arrayBoundsException NULLABLE VOID NULL       // using pre-existing exception constants to for simplicity
+            L# 250 String TEMP160 := String ARRAYDISTDEREF []String args @ int INT i
+            
+            // Append args[i] to earlier string
+            L# 260 NULLABLE Exception TEMP170 NULLABLE String TEMP180 := CALL String$$concat String TEMP140, String TEMP160  
+            L# 270 BOOLEAN TEMP190 := BOOLEAN NULLCHECKPASS NULLABLE Exception TEMP170
+            L# 280 IF BOOLEAN TEMP190 GOTO L# 290
+            L# 285 GOTO L# 300
+            L# 290 PRETURN NULLABLE Exception TEMP170 NULLABLE VOID NULL
+            // NOTE: the whole packaging as a 2-tuple return of Integer$$toString is excessive, since it does not throw an exception. Also such packaging
+            // will force changed APIs for all library functions
+            L# 300 @ verified String TEMP200 := String TYPECAST NULLABLE String TEMP180 String
+
+            // System.out.println
+            L# 310 NULLABLE Exception TEMP210 NULLABLE VOID TEMP215 := 
+                        CALL PrintStream$$println PrintStream x10$$$lang$$$System$$out, String TEMP200   
+                        // overloaded function names? Need to flatten out?
+                        
+            L# 320 BOOLEAN TEMP220 := BOOLEAN NULLCHECKPASS NULLABLE Exception TEMP210
+            L# 330 IF BOOLEAN TEMP220 GOTO L# 340
+            L# 335 GOTO L# 350             // If not exception, GOTO L# 350
+            L# 340 PRETURN NULLABLE Exception TEMP210 NULLABLE VOID NULL
+ 
+            // Loop update statement
+            L# 350 @ int INT i := @ int INT @ int INT i + @ int INT 1
+
+            // Loop back
+            L# 400 GOTO L# 70
+ 
+            L# 1000 @ FUNCEND PRETURN NULLABLE Exception NULL NULLABLE VOID NULL  
+                                 
+

@@ -1,0 +1,286 @@
+\documentclass[twocolumn]{article}
+\usepackage{fullpage}
+\usepackage{fancyhdr}
+%\pagestyle{fancy}
+
+%Set the height of the header
+\setlength{\headheight}{12pt}
+
+%Header information LE stands for Left Even page, Ro for Right Odd
+%page, LO stands for Left Odd page and RE stands for Right Even page
+%\fancyhead{}
+%\fancyhead[LO,RE]{\includegraphics[scale=0.7]{phase3logo}}
+%\fancyhead[LE,RO]{\includegraphics[scale=0.7]{IBMLogo}}
+
+%footer is put in center
+%\fancyfoot{}
+%\fancyfoot[C]{Use, reproduction, or disclosure is subject to the restrictions as stated in Agreement \#HR0011-07-9-0002 between the Government and IBM.  May not be disclosed except in accordance with 5 CFR 552, 18 USC 1905, 18 USC 1831-2, 18 USC 1838, 41 USC 423, FAR Part 9.505-4 and other applicable federal law and regulation. {\sc Data Marking:} Other Data}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+%for include graphics package
+\ifx\pdftexversion\undefined
+\usepackage[dvips]{graphicx}
+\else
+\usepackage[pdftex]{graphicx}
+\fi
+
+%get nice PDF bookmarks
+\usepackage[
+  bookmarks,
+  bookmarksopen=true,
+  bookmarksnumbered=true,
+  pdfpagemode=UseOutlines,
+  colorlinks=true,
+  linkcolor=blue,
+  citecolor=blue,
+  pagecolor=blue,
+  urlcolor=blue]{hyperref}
+
+% Use this for commenting out multiple lines in latex
+\newcommand{\REM}[1]{}
+\setlength{\topmargin}{-0.8in}
+\setlength{\leftmargin}{0.0in}
+\setlength{\evensidemargin}{0.0in}
+\setlength{\oddsidemargin}{0.0in}
+\def\Xten{{\sf X10}}
+\def\Xtenlib{{\sf X10lib}}
+\def\places{\mbox{\em places}}
+\def\defeq{\stackrel{\mbox{\em def}}{=}}
+\def\hot{\mbox{\em hot}}
+\def\alt{\;|\;}
+\begin{document}
+\title{Simple atomic blocks}
+\author{Vijay Saraswat \\ 
+IBM TJ Watson Research Center}
+
+\maketitle
+
+%Make fancy headers effective from page 1, otherwise use plain style
+%\thispagestyle{fancy}
+
+
+\section{Language Design}
+Simple atomic blocks are based on the following design philosophy:
+\begin{itemize}
+  \item New language design should attempt to increase
+     productivity of concurrent programmers through higher level
+     abstractions, without sacrificing performance.
+  \item Common concurrency idioms (producer/consumer, dataflow,
+     master/slave, barrier-style communication) should be expressible
+     in new language designs in a way that the compiler can statically
+     reason about them. (cf{} the design of {\em clocks} in \Xten{}
+     \cite{concur05}, {\tt clocked final} types for determinate
+     parallelism etc).
+  \item Atomic blocks are a powerful hammer -- they should be used
+     only when other patterns are not adequate for the task at hand,
+     e.g.{} when synchronization is time-dependent (work-queue
+     management) or data-dependent (transfering money between bank
+     accounts, B-tree updates). (Though, other constructs may be
+     thought of as being built {\em semantically} on atomic blocks.)
+
+ \item Atomicity and Ordering are orthogonal concepts and should be reflected with orthogonal language features.
+  \item Atomic Blocks should express atomicity and isolation -- the
+     packaging of multiple read/writes into a single bundle
+     communicated to the memory subsystem -- without forcing the
+     programmer to work with a particular solution (locks).
+  \item Separate control constructs (e.g. {\tt finish}) should be used
+  for ordering.
+  \item Atomic Blocks should be kept separate from heavier transactional notions  (e.g. aborts, rollbacks). 
+  \item Correctness should be separated from efficiency. There should
+  be a simple correct (though possibly inefficient) implementation
+  scheme for atomic blocks.  But the performance-focused programmer
+  should be able to add extra information (via {\em annotations}
+  \cite{x10-annotations}) which may improve performance, without
+  compromising correctness.
+  \item Aliasing and concurrency do not mix well. Design language
+     mechanisms to permit the programmer to express locality/aliasing
+     information (via types and annotations). 
+\end{itemize}
+
+{\em Simple Atomic Blocks} are an extremely simple concurrent
+construct for atomicity, based on the above ideas, and implemented in
+\Xten{} \cite{concur05,X10OOPSLA}. A block {\tt atomic S} is executed
+in a given store in one step, isolated from its environment. The
+resulting store reflects the write operations performed by {\tt S} --
+even if {\tt S} terminated abruptly.  Each block is decorated with a
+set of {\em places}: the compiler guarantees that the block accesses
+only data items located in these places. {\tt S} may recursively
+contain atomic blocks; their execution is considered part of the
+single step of the execution of the outer atomic block (closed
+nesting). I/O operations are {\em not} permitted inside atomic blocks.
+
+{\em Conditional} atomic blocks are supported ({\tt when(c)
+S}). However, the condition on which execution may suspend must be
+specified at the beginning of the block. Only top-level blocking is
+permitted ({\tt when} may not occur nested inside an {\tt atomic}). A
+conditional atomic block that is waiting for its condition to be
+satisfied is considered to be {\em blocking} in the programming
+model. If all activities are executing a conditional atomic block, and
+none of the conditions are satisfied, the computation is
+deadlocked. The implementation must report such a condition and cease
+any activity. That is, it is not permissible for the implementation to
+convert deadlock into livelock.
+
+\paragraph{Fairness}
+An implementation should deadlock only if the
+programming model says that it should deadlock. That is, any
+implementation level notions (e.g.{} locks) should not introduce a
+deadlock into a computation in which according to the programming
+model semantics there is no deadlock. (For instance if the
+implementation acquires locks to implement atomics, it must ensure
+that locks are acquired in a specific order so that no spurious
+deadlocks are introduced.)
+
+Beyond this there is no guarantee of fairness. An activity wishing to
+exeute an atomic block may be prevented from doing so indefinitely if
+the available computational resources are being utilized to permit
+other activities to progress. 
+
+\paragraph{Atomicity}
+An implementation may choose to bring in reads/writes from
+before or after an atomic block into the atomic block, and to combine
+atomic blocks. Atomic blocks may not be split \cite{rao}.
+
+\paragraph{Ordering.} 
+We are investigating a weak memory model for atomic blocks. In such a
+model it is not the case that there must be one global total order of
+execution for all atomic blocks. Instead, we expect to use a CCCC
+model \cite{cccc-mm}.
+
+\paragraph{Simple atomic blocks vs Transactional Memory}
+Simple atomic blocks are designed to focus the application programmer's
+attention on the application's needs for {\em atomicity} and {\em
+isolation} rather than whether this need should be realized using
+locks, and if so, which kinds of locks and how many. 
+
+Atomic blocks share the goal of high-level specification of atomicity
+with transactional memory. They differ in that they are focused on an
+efficient solution for a limited portion of the design space. There is
+no notion of rollback or optimistic execution or explicit abort.
+Unrestricted compositionality is {\em not} a goal for simple atomic
+blocks.  An implementation may optimize for ``small'' atomic blocks.
+Atomic blocks are intended to be used fairly infrequently. Other
+schemes, such as producer consumer schemes, or clocked final schemes,
+or master/slave (finish / at each) schemes are useful in most contexts
+to divide work in parallel in such a way that there is no conflicting
+access to shared data. Atomic blocks are to be used in cases where
+these schemes do not work, e.g. in unstructured concurrent access to a
+shared data structure (e.g. a work queue) or on data-dependent mutual
+exclusion (e.g.{} transfering money from one bank account to another).
+
+However, high performance programmers may add extra annotations to
+atomic blocks to guide the implementation towards using a more
+efficient scheme to implement atomics (see below).
+
+\section{Implementation}
+In the current single-node multiprocessor implementation of \Xten{},
+atomic blocks are implemented by associating a lock per place, and
+acquiring the lock. Thus a place defines the granularity of locking.
+(It is the programmers' responsibility to partition the program's data
+into places.)
+
+We discuss some speculative ideas for a more refined implementation of
+simple atomic blocks.
+
+Atomic blocks in the source program may be translated into two kinds of
+atomic blocks -- {\em immediate} blocks and {\em locked} blocks. An immediate
+block can be executed immediately using hardware read/modify/write
+operations, e.g. CAS. 
+
+\subsection{Locked Blocks}
+The semantics of a program may be understood as a partially ordered
+multiset of steps or blocks, with some steps marked as {\tt atomic} \cite{rao}.
+
+After Lamport \cite{lamport-order} say that two blocks are ordered if
+one must complete before the other. For instance, in {\tt finish {A};
+B}, $A$ is ordered before $B$. We write $A \# B$ for the
+relation ``$A$ and $B$ are unordered.''
+
+Two blocks $A$ and $B$ are said to {\em conflict} on a place $p$ if $A
+\# B$ and $p \in \places(A) \cap \places(B)$. A place $p$ is said to
+be {\em hot} for $A$ if there is some block $B$ such that $A$ and $B$ are in
+conflict on $p$. The set of places hot for $A$ is $\hot(A)$.
+
+The basic idea behind the implementation of an atomic block is to
+define a partial mapping which associates each place $p$ with at most
+one lock $X(p)$.\footnote{Below, for a set of places $Q$, we shall use
+the notation $X(Q)$ to signify the set $\{X(q) \alt q \in Q\}$.
+We extend $X$ to a map from blocks to locks by $X(A)\defeq X(\places(A))$.
+}
+Places are considered to be totally ordered.  An atomic block $A$ is
+implementing by acquiring $X(p)$ for each place $p \in \places(A)$ (in
+the order specified by places), executing the body of the block and
+releasing the locks.
+
+{}\paragraph{Idea 1:} Acquire $X(p)$ when executing $A$ only if 
+$p\in \hot(A)$.
+
+This requires examining the ordering relation at
+compile-time/runtime. In fact it is possible that this could result in
+no lock being acquired at runtime.
+
+Even with this idea, a block may acquire many locks at runtime. It is
+desirable to minimize the number of locks acquired. Acquiring fewer
+locks may mean less concurrency (e.g.{} acquiring a single global lock
+common to all places will work but will sharply reduce concurrency),
+but better serial execution.
+
+It seems reasonable, therefore, to consider constraints on $X$ of the
+form $X(p)=X(q)$ or $X(p)\not=X(q)$, i.e.{} constraints that force
+multiple places to share (or not share) locks. Note that {\em any} set of
+(satisfiable) constraints guarantees {\em correctness}; but different
+sets may affect performance. Therefore we will permit the programmer
+to manually add assertions $X(p)=X(q)$ and $X(p)\not=X(q)$ as a way of
+managing performance.
+
+Therefore the design problem for the implementation of \Xten{} atomics is
+to devise ways in which these constraints can be generated and
+evaluated.
+
+{}\paragraph{Idea 2:} Assign the same lock to two places $p$ and $q$ if
+there is some block for which they are both hot. i.e.{} $p, q \in
+\hot(B)$ implies $X(p)=X(q)$.
+
+This ensures that each block requires the acquisition of at most one
+lock at runtime. However, this may forces {\em false sharing}. Two
+blocks $A$ and $B$ are said to be falsely sharing if $A \# B$,
+$\places(A)$ and $\places(B)$ are disjoint, but $X(A)$ and
+$X(B)$ are not.  For instance, consider unordered blocks $A$,
+$B$ and $C$ with $\places(A)=\{p,q\}$, $\places(B)=\{p\}$ and
+$\places(C)=\{q\}$, and $X(p)=X(q)$. Now there is false sharing
+between $B$ and $C$. They are forced to contend for the same lock even
+though they work on disjoint places.
+
+\paragraph{Idea 3:} Assign the same lock to two places only if it does not 
+induce false sharing:
+$X(p)=X(q)$ implies    for all $A, B$: 
+($A \# B$ and $\places(A)$ and $\places(B)$ are disjoint)
+     implies $X(A)$ and $X(B)$ are disjoint.
+
+In the above example, this would force $X(p)$ and $X(q)$ to be distinct.
+
+We are considering several such schemes and evaluating them for
+implementation. 
+
+A drawback of the simple mapping approach described above is that the
+equality relation is transitive. Therefore if a block $A$ forces
+$X(p)=X(q)$ and block $B$ forces $X(q)=X(r)$, block $C$ will see $X(p)=X(r)$,
+thereby inducing false sharing.
+
+A richer setting is one in which locks are associated with {\em
+subsets} of places. Sets of place are ordered by inclusion. This
+induces an order on the set of locks: $k < l$ if $\places(k)$ is
+contained in $\places(l)$. We are developing a framework for {\em
+partially ordered locks} which ensures that while a lock $l$ is being
+held, no lock $k < l$ can be held.
+
+\paragraph{Acknowledgements.} 
+The ideas discussed here are being developed in collaboration with
+Radha Jagadeesan, Christoph von Praun, Maged Michael and Nate Nystrom. 
+Thanks to Doug Lea and Paul McKenney for feedback.
+
+\bibliographystyle{plain} 
+\bibliography{x10,ref,master}
+
+\end{document}

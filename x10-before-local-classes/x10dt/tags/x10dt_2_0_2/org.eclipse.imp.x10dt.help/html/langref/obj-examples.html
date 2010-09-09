@@ -1,0 +1,87 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Examples</title>
+</head>
+
+<body>
+   <h2><a name="tth_sEc2">
+2</a>&nbsp;&nbsp;Examples</h2>
+Assume the class declarations. 
+
+<div class="p"><!----></div>
+<pre>
+class C { ...} 
+class D {
+   var f:C=null;
+}
+</pre>
+
+<div class="p"><!----></div>
+Now the code below must behave as described.
+<pre>
+val x = new C(..); 
+// C object o created, reference stored in x. 
+at (P) { 
+      // In the body x contains a remote reference to o
+      val f = new D();
+      f.x1  = x; // remote reference stored in f.x1
+      Console.OUT.println((f.x1 == x);       // must print true
+      Console.OUT.println((x == x);          // must print true
+      at (Q) { 
+         // x continues to be a remote reference to o1.
+         at (P) {  
+             Console.OUT.println(f.x1 == x);   // must print true
+             Console.OUT.println((x == x);   // must print true
+         }
+      }
+}
+</pre>
+
+<div class="p"><!----></div>
+Here is another example.
+<pre>
+val x = new C(..); 
+// C object o created, reference stored in x. 
+// type of x is rooted C{c} if the return type 
+// of the constructor is C{c}. 
+at (P) { 
+    val x1 = x; 
+    // type of x is C{c} because of the place shift 
+    // introduced by at(P)
+  at (x.home()) {
+        // x is now bound to o through a local reference. So is x1.
+    Console.out.println(x1==x); // Must print true.
+      // rooted methods can be invoked on x or x1 and will 
+      // execute locally on o
+      // type of both x and x1 is rooted C{c}.
+  }
+}
+</pre>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc2.1">
+2.1</a>&nbsp;&nbsp;Programming Methodology</h3>
+
+<div class="p"><!----></div>
+A programmer wishing to ensure that a "val" field is not serialized when
+the containing object is serialized (e.g. because it contains a large
+cache which makes sense only in the current place) must ensure the
+field is <em>not</em> marked global.
+
+<div class="p"><!----></div>
+
+</body>
+</html>

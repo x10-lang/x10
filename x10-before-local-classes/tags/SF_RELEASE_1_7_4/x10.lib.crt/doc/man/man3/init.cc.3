@@ -1,0 +1,79 @@
+.TH "init.cc" 3 "20 May 2008" "Version 1.0" "X10LIB" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+init.cc \- 
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <assert.h>\fP
+.br
+\fC#include 'rts_messaging.h'\fP
+.br
+\fC#include 'x10.h'\fP
+.br
+
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "void \fB__x10_finish_init\fP ()"
+.br
+.ti -1c
+.RI "void \fB__x10_async_init\fP ()"
+.br
+.ti -1c
+.RI "__xlupc_local_addr_t \fB__x10_termination_handler\fP (const __upcrt_AMHeader_t *header, __upcrt_AMComplHandler_t **comp_h, void **arg)"
+.br
+.ti -1c
+.RI "\fBx10_err_t\fP \fBx10_init\fP ()"
+.br
+.RI "\fIinit/finalize \fP"
+.ti -1c
+.RI "\fBx10_err_t\fP \fBx10_finalize\fP ()"
+.br
+.ti -1c
+.RI "\fBx10_err_t\fP \fBx10_infinite_poll\fP ()"
+.br
+.in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "\fBx10_place_t\fP \fB__x10_here\fP"
+.br
+.ti -1c
+.RI "unsigned int \fB__x10_numplaces\fP"
+.br
+.ti -1c
+.RI "int \fB__x10_terminate_program\fP = 0"
+.br
+.in -1c
+.SH "Function Documentation"
+.PP 
+.SS "void __x10_async_init ()"
+.PP
+.SS "void __x10_finish_init ()"
+.PP
+.SS "__xlupc_local_addr_t __x10_termination_handler (const __upcrt_AMHeader_t * header, __upcrt_AMComplHandler_t ** comp_h, void ** arg)\fC [static]\fP"
+.PP
+.SS "\fBx10_err_t\fP x10_finalize ()"
+.PP
+.SS "\fBx10_err_t\fP x10_infinite_poll ()"
+.PP
+Performs x10_probe infinitely, until a termination message is received (BLOCKING) 
+.SS "\fBx10_err_t\fP x10_init ()"
+.PP
+init/finalize 
+.PP
+.SH "Variable Documentation"
+.PP 
+.SS "\fBx10_place_t\fP \fB__x10_here\fP"
+.PP
+.SS "unsigned int \fB__x10_numplaces\fP"
+.PP
+.SS "int \fB__x10_terminate_program\fP = 0"
+.PP
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for X10LIB from the source code.

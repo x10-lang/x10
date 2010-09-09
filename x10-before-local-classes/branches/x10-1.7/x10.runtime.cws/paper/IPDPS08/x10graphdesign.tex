@@ -1,0 +1,144 @@
+
+\section{Designing Parallel Graph Algorithms in \Xten{}}
+\label{s:design}
+
+% Invariably algorithms are designed, although sometimes implicitly, with an abstract algorithmic model. 
+%%Programming languages play an important role in the translation of an algorithm to an executable program on the target system. 
+%When there is a large gap between model and architecture, programming languages and efficient runtime support can be immensely helpful in achieving high performance with relatively ease of programming. 
+
+ Large scale graph problems with irregular instances are challenging to solve on current and emerging parallel systems \cite{BC07}. Despite the large existing body of theoretically-fast PRAM algorithms and communication-optimal BSP algorithms, there are few implementations that achieve good parallel performance.
+%% With the PRAM model, synchronous processors are available in an unlimited amount, and accesses to memory locations are of uniform distance. 
+PRAM is highly idealistic and conducive to exploring the inherent parallelism of a problem. For practical purposes, PRAM does not reflect features of main-stream architectures that are critical to performance. Significant effort is necessary to produce efficient implementations on even shared-memory systems, for example, SMPs. Few PRAM algorithms have been adapted to the distributed-memory environment with significant overhaul of major algorithm steps. More practical models such as BSP and LogP, on the other hand, parameterize communication, synchronization, and even memory access costs. As a result, algorithms may be mapped onto real machines with reasonable ease and performance, yet design choices are severely limited as the dimension of fine-grained parallelism is virtually excluded. After decades of effort, designing and implementing parallel graph algorithms for large, irregular inputs on either class of models remains challenging. 
+
+ One of the biggest challenges of efficiently simulating a PRAM algorithm on modern architectures is load balancing. Load-balancing is not an issue with PRAM as there are always enough processors. Consider a graph algorithm for sparse, irregular instances with adjacency list as the input. A PRAM algorithm may assign for each edge (in this case each neighbor $v$ in the adjacency list of vertex $u$) a processor, and takes $O(n)$ processors. When simulating on $p$ ($p\ll n$) processors, $\frac{n}{p}$ vertices are usually assigned to one processor. As the graph is irregular with potentially huge difference among the number of neighbors for each processor, load-imbalance constitutes a serious performance problem. Keeping track of workload distribution becomes even more cumbersome when the algorithms compact the input graphs. The load-balancing challenge with popular distributed-memory models such as BSP and LogP is that no known practical technique exists that partitions a graph evenly.
+
+% \Xten{} provides a programming model that allows for expression of data and task parallelism,  and at the same time good efficiency guarantee. With expressive programming constructs and efficient runtime support, \Xten{} greatly reduces for a programmer the gap between algorithm and target systems.
+The programming model of \Xten{} enables an algorithm designer to focus on expressing the appropriate parallelism, and leaves to the runtime system mapping and scheduling activities on to the processors in a load-balanced fashion. \Xten{} makes a big step in terms of productivity and performance in solving large-scale, irregular graph problems on current supercomputers.
+
+%%  \Xten{} is designed for applications that run on a cluster of SMPs. First note that similar to PGAS languages, a global virtual space is provided and this is critical in solving sparse, irregular graph instances as no graph partitioning techniques are available. Also \Xten{} provides a notion of affinity that helps. \Xten{} also provides various task constructs that is critical in expressing various kinds of parallelism. 
+
+ We present algorithms that are programmed in \Xten{}, and showcase its expressiveness in designing graph algorithms. Among the many productivity-improving features, we here choose to show those that are related to activity scheduling as this is the foundation of high performance guarantee from \Xten{}. 
+We take the spanning tree problem as our example. Finding a spanning tree of a graph is an important building
+block for many graph algorithms, for example, biconnected components
+and ear decomposition \cite{MR86}, and can be used in graph planarity testing \cite{KR88}.
+Spanning tree represents a wide range of graph problems that have fast
+theoretic parallel algorithms but no known efficient
+parallel implementations that achieve speedup without serious restricting assumptions about the inputs. 
+Section~\ref{s:trav} describes a new algorithm on SMPs implemented through \Xten{}. The algorithm is surprisingly simple, yet it relies heavily on the \Xten{} programming model. Section~\ref{s:other-algs} discusses \Xten{} support for popular graph algorithms based on PRAM and other models using the spanning tree problem as an example.
+
+ 
+%% The Shiloach-Vishkin algorithm, representative of the ``graft-and-shortcut'' parallel approach,
+%%  runs in \bigO{\log n} & \bigO{(m+n) \log n} on priority CRCW PRAM.
+
+\subsection{A Parallel Spanning Tree Algorithm based on graph traversal in \Xten{}}
+\label{s:trav}
+
+Many fast PRAM algorithms have been proposed for the spanning tree problem, and they 
+are drastically different from the sequential depth-first search (DFS) or breadth-first search (BFS) approaches.
+DFS and BFS are efficient with very low overhead, and for quite a long time no parallel implementations beat the
+best sequential implementation for irregular inputs \cite{BC04a}. 
+
+Bader and Cong \cite{BC04a} presented the first fast parallel spanning tree algorithm that achieved good 
+speedups on SMPs. Their algorithm is based on a graph traversal approach, and is similar to DFS or BFS. 
+There are two steps to the algorithm. First a small stub tree of size $O(p)$ is generated by having one processor randomly walking the graph, and the vertices are evenly distributed to each processor.
+The processors then traverse the graph in a manner similar to sequential DFS or BFS. 
+To achieve good load-balancing, a processor checks for non-empty stack/queue on some other processor when it runs out of work, and takes a portion of the stack/queue as its own.
+
+\Xten{} allows the expression of essential parallelism in the
+algorithm in a very concise and elegant way. The first program in
+Table~\ref{alg:st-x10} is a recursive algorithm that traverses the
+graph and computes a spanning tree. It is identical to the recursive
+sequential DFS, except that commands for creating logical
+parallel activities ({\emph{async}) and atomic operations
+(\emph{compareAndSet}) are used.
+
+\begin{table}
+\centering
+\scriptsize
+\begin{tabular}{cc}
+\begin{minipage}[t]{0.5\textwidth}
+\begin{verbatim} 
+  void traverse(int u) {
+    finish for(int k=0;k<G[u].degree;k++) {
+      final int v=G[u].neighbors[k];
+      if(G[v].color.compareAndSet(0,1)) {
+        G[v].parent=u;
+        async traverse(v);
+      }
+    }
+  }
+\end{verbatim}
+Single-place code
+\end{minipage} &
+\begin{minipage}[t]{0.5\textwidth}
+\begin{verbatim} 
+  void traverse(int u) {
+    finish for(int k=0;k<G[u].degree;k++) {
+      final int v=G[u].neighbors[k];
+      async (G.distribution[v]) {
+        if(G[v].color.compareAndSet(0,1)) {
+          G[V].parent=U;
+          traverse(v);
+        }
+      }
+    }
+  }
+\end{verbatim}
+Multi-place code
+\end{minipage}
+\end{tabular}
+\caption{Single- and Multi-place spanning tree algorithm core}
+\label{alg:st-x10}
+\end{table}
+
+While visiting each neighbor $v$ of vertex $u$, the algorithm spawns a
+new traversal activity. Since the algorithm is recursive, for a graph
+with millions of vertices, massive amount of parallelism is
+available. It puts great pressure on the runtime system for task
+management, scheduling, and load-balancing. 
+
+The second program shows the change required to the traversal code when the graph is distributed across multiple places (as would be necessary when running the program on a cluster of SMPs). The \emph{async} command takes an extra argument specifying the place at which it is to run. 
+
+In both cases, computation is initiated by executing {\tt finish traverse(0);}. The {\tt finish} construct ensures that computation terminates only when all activities spawned during the graph search have terminated.
+
+%A similar algorithm can also be expressed using Cilk. However, the \Xten{} runtime support is very different from that of Cilk, and is much more friendly to graph algorithms. We leave the discussion of the \Xten{} runtime to Section~\ref{s:runtime}. 
+
+Note that Bader and Cong's spanning tree algorithm contains over 300 lines of C code.
+
+\subsection{Expressing Prior Graph Algorithms in \Xten{}}
+
+PRAM algorithms and algorithms with coarse-grain parallelism can be easily expressed in \Xten{}. Here we consider two other variants of the spanning tree algorithm, that is, parallel BFS and the Shiloach-Vishkin algorithm (SV).  Parallel BFS is similar to the sequential version except that the expansion of the frontiers is executed by coordinating processors in parallel. SV is representative of several connectivity algorithms in that it adapts the widely-used
+graft-and-shortcut approach. Through carefully designed grafting
+schemes, the algorithm achieves complexities of $O(\log n)$ time and
+$O((m+n)\log n)$ work under the arbitrary CRCW PRAM model. SV starts with $n$ isolated vertices. In each round, it inspects the edge $(u,v)$, and grafts vertex $u$ to $v$ under the condition that $u<v$. The edge that causes the grafting is labeled as a tree edge. At the end of each round, vertices that are connected by tree edges are compacted into supervertices. The process is iterated until only one vertex is left. Both parallel DFS and SV utilize fine-grained parallelism, and they can be easily expressed in \Xten{}. The appropriate aggregation and scheduling of activities are left to its runtime support. \Xten{} provides more epxressive ways to sepcify the parallelism of an algorithm, compared with other parallel languages, for example CILK and UPC.
+
+%\label{s:trav-dist}
+
+% When the target system is of NUMA architecture, or even a cluster of SMPs, \Xten{} provides constructs that can easily transform Alg.~\ref{alg:st-x10} to take advantage of memory affinity . Alg.~\ref{alg:st-dist-x10} computes a spanning tree for a graph distributed on multiple nodes. In Alg.~\ref{alg:st-dist-x10}, again \emph{async} creates parallel activities. Compared with Alg.~\ref{alg:st-x10}, here \emph{async} takes the parameter of the distribution of a vertex $v$, and creates a traversal activity on a node that owns vertex $v$ so that the activity accesses data mostly on that node. Note that the activity can be created on a remote node. Obviously complex scheduling and synchronization support are necessary for fast execution of Alg.~\ref{alg:st-dist-x10}.
+
+%\begin{algorithm}
+%\centering
+%\scriptsize
+%\begin{minipage}{0.5\textwidth}
+%\begin{verbatim} 
+%  void traverse(int u) {
+%    finish for(int k=0;k<G[u].degree;k++) {
+%      int v=G[u].neighbors[k];
+%      if(color[v]==0) {
+%        color[v]=1;
+%        final int U=u, V=v;
+%        async (G.distribution[v]){
+%          G[V].parent=U;
+%          traverse(V);
+%        }
+%      }
+%    }
+%  }
+%\end{verbatim}
+%\end{minipage}
+%\caption{A spanning tree algorithm on a cluster of SMPs in \Xten{}}
+%\label{alg:st-dist-x10}
+%\end{algorithm}
+
+
+

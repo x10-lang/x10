@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="x10.dist.host" default="update" basedir=".">
+    <property file="../x10.dist.host/x10.dist.properties"/>
+	<!-- /tmp is location that cache will be downloaded to and expanded -->
+    <property name="tmp" location="${basedir}/tmp"/>
+    <property name="incdir" location="${basedir}/include"/>
+    <property name="lib" location="${basedir}/lib"/>
+
+    <property name="x10.dist.location" location="${tmp}"/>
+	<property name="x10.tarball" value="x10-${x10.timestamp}_${x10.platform}.tgz"/> 
+	<property name="x10.tarball.url" value="${x10.tarball.url.base}/${x10.tarball}${x10.tarball.url.suffix}"/>
+	
+    <property name="x10.transport" value="sockets"/>
+    <!-- get the environment variables -->
+    <property environment="env"/>
+
+    <target name="init">
+        <tstamp/>
+        <mkdir dir="${tmp}"/>
+        <mkdir dir="${incdir}"/>
+        <mkdir dir="${lib}"/>
+        <condition property="x10.already.expanded" value="true">
+            <not>
+                <equals arg1="${x10.dist.location}" arg2="${tmp}"/>
+            </not>
+        </condition>
+        <condition property="local.x10.tarball" value="${env.LOCAL_X10_TARBALL}">
+            <or>
+                <isset property="env.LOCAL_X10_TARBALL"/>
+                <isset property="x10.already.expanded"/>
+            </or>
+        </condition>
+    </target>
+
+    <target name="clean">	
+    	<!-- note: starting with 2.0.5, just use/delete everything from platform tarballs, not specific files or patterns  -->
+        <delete dir="${incdir}"/>
+        <delete dir="${lib}"/>
+    	<echo message="Delete the stuff expanded from the tarball but not the tarball itself"/>
+    	<delete dir="${tmp}" includeEmptyDirs="true">
+    		<include name="**/*"/>
+    	    <exclude name="*.tgz"/>
+    	</delete> 
+    </target>
+
+    <target name="distclean" depends="clean">
+        <delete dir="${tmp}"/>
+    </target>
+
+    <target name="x10-tarball-download" depends="init" unless="local.x10.tarball">
+        <mkdir dir="${tmp}"/>
+        <get usetimestamp="true" ignoreerrors="true" src="${x10.tarball.url}" dest="${tmp}/${x10.tarball}"/>
+        <property name="local.x10.tarball" location="${tmp}/${x10.tarball}"/>
+    </target>
+
+    <target name="x10-tarball-test-values" depends="init" >
+        <echo message="x10.tarball.url=${x10.tarball.url}; dest=${tmp}/${x10.tarball}"/>
+	</target>
+
+    <target name="expand-x10-tarball" depends="init,x10-tarball-download" unless="x10.already.expanded">
+    	<!-- note: starting with 2.0.5, just use/delete everything from platform tarballs, not specific files or patterns  -->
+        <untar src="${local.x10.tarball}" dest="${tmp}" compression="gzip"/>
+    </target>
+
+    <target name="download" depends="init,x10-tarball-download"/>
+
+    <target name="expand" depends="init,expand-x10-tarball"/>
+
+    <target name="update" depends="init,clean,expand">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <copy todir="${incdir}">
+            <fileset dir="${x10.dist.location}/include" includes="**"/>
+        </copy>
+        <copy todir="${lib}"> 
+        	<!-- note: starting with 2.0.5, just use/delete everything from platform tarballs, not specific files or patterns  -->
+            <fileset dir="${x10.dist.location}/lib" />
+        </copy>
+    </target>
+
+    <target name="dist" depends="init,update"/>
+</project>
+<!-- vim:tabstop=4:shiftwidth=4:expandtab
+-->

@@ -1,0 +1,157 @@
+\chapter{The Nullable Type Constructor}
+\label{NullableTypeConstructor}\index{nullable@{\tt nullable}}
+
+\Xten{} supports the prefix type constructor {\cf ?}, read as {\cf nullable}. 
+For any type {\cf T}, the type {\tt ?T} (read: ``{\cf nullable T}'')
+contains all the values of type {\cf T}, and a special {\cf null} value,
+unless {\cf T} already contains {\cf null}. This value is designated by
+the literal {\cf null}, which is special in that it has the type
+{\cf ?T} for all types {\cf T}.\index{null@{\tt null}}
+
+This type constructor can be used in any type expression used to
+declare variables (e.g.{} local variable{s}, method parameter{s},
+class field{s}, iterator parameter{s}, try/catch parameter{s} etc), or in
+a new expression (e.g. {\cf new ?T()}. It may be applied to
+value types, reference types, aggregate types or
+type parameters. It may not be used in an {\cf extends} clause or an
+{\cf implements} clause in a class or interface declaration. If
+{\tt T}  is a value (reference) type, then {\cf ?T} is defined to be a
+value (reference) type.
+
+An immediate consequence of the definition of {\cf nullable} is that
+for any type {\cf T}, the type {\cf ??T} is equal to the type {\cf
+?T}. (The type {\cf ??T} can arise when the body of a generic class
+contains a type {\cf ?X} where {\cf X} is a type parameter, and the
+generic class is instantiated with a type {\cf ?T}.)
+
+Any attempt to access a field or invoke a method on the value {\cf
+null} results in a {\cf NullPointerException} being thrown.
+
+An expression {\cf e} of type {\cf ?T} may be checked for nullity using the expression {\cf e==null}. (It is a compile time error for the static type of 
+{\cf e} to not be {\cf ?T}, for some {\cf T}.)
+
+\paragraph{Conversions}
+{\cf null} can be passed as an argument to a method call whose
+corresponding formal parameter is of type {\cf ?T} for some type
+{\cf T}. (This is a widening reference conversion, per \cite[Sec
+5.1.4]{jls2}.) Similarly it may be returned from a method call of
+return type {\cf ?T} for some type {\cf T}.
+
+For any value {\cf v} of type {\cf T}, the class cast expression {\cf
+(?T) v} succeeds and specifies a value of type {\cf ?T} that may be
+seen as the ``boxed'' version of {\cf v}.
+
+\Xten{} permits the widening reference conversion from any type {\cf T}
+to the type {\cf ?T1} if {\cf T} can be widened to the type {\cf
+T1}. Thus, the type {\cf T} is a subtype of the type {\cf ?T}.
+%in accordance with the LiskovSubstitutionPrinciple.
+
+Correspondingly, a value {\cf e} of type {\cf ?T} can be cast to the
+type {\cf T}, resulting in a {\cf NullPointerException} if {\cf e} is
+{\cf null} and {\cf ?T} is not equal to {\cf T}, and in the
+corresponding value of type {\cf T} otherwise.  If {\cf T} is a value
+type this may be seen as the ``unboxing'' operator.
+
+The expression {\cf (T)null} throws a {\cf ClassCastException} if {\cf
+T} is not equal to {\cf ?T}; otherwise it returns {\cf null} at type
+{\cf T}. Thus it may be used to check whether {\cf T=?T}.
+
+\paragraph{Arrays of nullary type}
+The nullary type constructor may also be used in (aggregate) instance
+creation expressions (e.g.{} {\cf new ?T[R]}). In such a case {\cf T}
+must designate a (possibly generic) class. Each member of the array is
+initialized to {\cf null}. (See \S~\ref{XtenClasses} for a discussion of how
+type parameters may be specified to have constructors.)
+
+\paragraph{Implementation notes}
+
+A value of type {\cf ?T} may be implemented by boxing a value of
+type {\cf T} unless the value is already boxed. The literal {\cf null}
+may be represented as the unique null reference.
+
+\paragraph{\Java{} compatibility}
+
+\java{} 
+provides a somewhat different treatment of {\cf null}.  A class
+definition extends a nullable type to produce a nullable type, whereas
+primitive types such as {\tt int} are not nullable --- the programmer
+has to explicitly use a boxed version of {\cf int}, {\cf Integer}, to
+get the effect of {\cf ?int}. Wherever \Java{} uses a variable at
+reference type {\cf S}, and at runtime the variable may carry the
+value {\cf null}, the \Xten{} programmer should declare the variable at
+type {\cf ?S}. However, there are many situations in \java{} in which
+a variable at reference type {\cf S} can be statically determined to
+not carry null as a value. Such variables should be declared at type {\cf S}
+in \Xten{}
+
+\paragraph{Design rationale}
+
+The need for nullable arose because \Xten{} has value types and
+reference types, and arguably the ability to add a {\cf null} value to a
+type is orthogonal to whether the type is a value type or a 
+reference type. This argues for the notion of nullability as a type
+constructor.
+
+The key question that remains is whether it should be possible to
+define ``towers'', that is, define the type constructor in such a way
+that {\cf ??T} is distinct from {\cf ?T}. Here one would think of
+nullable as a disjoint sum type constructor that adds a value {\cf
+null} to the interpretation of its argument type even if it already
+has that value. Thus {\cf ??T} is distinct from {\cf ?T} because it
+has one more {\cf null} value. Explicit injection/projection functions
+(of signature {\cf T -> ?T} to {\cf ?T ->T}) would need to be
+provided.
+
+The designers of \Xten{} felt that while such a definition might be
+mathematically tenable, and programmatically interesting, it was
+likely to be too confusing for programmers. More importantly, it would
+be a deviation from current practice that is not forced by the core
+focus of \Xten{} (concurrency and distribution). Hence the decision to
+collapse the tower by requiring that {\cf ??T} be equal to {\tt
+?T}. As discussed below, towers can be obtained through explicit
+programming.
+
+\paragraph{Examples}
+
+Consider the following class:
+
+\begin{x10}
+ final value Box<T> \{ 
+   public T datum; 
+   public Box(T v) \{ this.datum = v; \}
+  \}
+\end{x10}
+
+Now one may use a variable {\cf x} at type {\cf ?Box<V>} to
+distinguish between the {\cf null} at type {\cf ?Box<V>} and at type
+{\cf V} (if {\cf V} is a nullable type). In the first case the value
+of {\cf x} will be {\cf null}, in the second case {\cf x.datum} will
+be {\cf null}.
+
+Such a type may be used to define efficient generic code for memoization:
+
+\begin{x10}
+ abstract class Memo <V> \{
+   ?Box<V>[]  values; 
+   Memo(int n) \{
+     // initialized to all nulls
+     values = new ?Box<V>[n]; 
+   \}
+   V compute(int key); 
+   V lookup(int key) \{ 
+    if (values[key] != null) 
+      return values[key].datum;
+    V val = compute(key);
+    values[key] = new Box<V>(val);
+    return val;
+   \}
+ \}
+\end{x10}
+
+
+% C#: http://blogs.msdn.com/ericgu/archive/2004/05/27/143221.aspx
+% Nice: http://nice.sourceforge.net/cgi-bin/twiki/view/Doc/OptionTypes
+
+ 
+
+

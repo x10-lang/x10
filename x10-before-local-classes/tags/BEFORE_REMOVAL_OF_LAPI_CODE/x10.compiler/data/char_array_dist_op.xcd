@@ -1,0 +1,2 @@
+// SYNOPSIS: new char[#0] {#1} #2=is_safe #3=is_value
+x10.cluster.array.DistArrayManager.createCharArray(#0,#1,#2, (! #3))

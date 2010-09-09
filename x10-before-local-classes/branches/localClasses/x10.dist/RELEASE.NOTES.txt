@@ -1,0 +1,112 @@
+Release 2.0.6
+
+This release includes both the C++ and Java code generation backends.
+
+No significant language changes were made since the 2.0.5 release.
+For details on any minor language changes, please consult the
+language specification for this release available at 
+http://dist.codehaus.org/x10/documentation/languagespec/x10-206.pdf
+
+The following features described in the 2.0 language manual do not
+currently work and will be fixed in the subsequent releases:
+
+- Non-static type definitions as class or interface members
+  (static type defs do work)
+- Type definitions as package members (i.e., in the outermost scope of
+  a compilation unit)
+- Shared local variables
+
+Additionally, the following features described in the language
+manual do not currently work with the C++ backend and will be fixed in
+the subsequent releases:
+
+- Garbage collection on AIX and BG/P
+- Generic virtual methods
+- Exception stack traces on Cygwin and AIX
+
+The generated C++ code requires g++ 4.2 or better to be compiled; 
+we do almost all of our testing against g++ 4.3.2.  On AIX, you
+may either use g++ 4.2 or better or xlC 10.01.0000.0004 or better.
+
+Below is a summary of JIRA issues addressed for the X10 2.0.6
+
+** New Features and Improvements
+    * [XTENLANG-3] - Overloading classes
+    * [XTENLANG-350] - Casts should have higher precedence than mathematical operators
+    * [XTENLANG-558] - Make functions aware of place constrains
+    * [XTENLANG-1038] - X10DT source editor should provide "Correct Indentation" command
+    * [XTENLANG-1050] - General 'reduce' operation on Arrays needed.
+    * [XTENLANG-1151] -  <:-declarations should try type conversions, too.
+    * [XTENLANG-1228] - Default struct toString() could be friendlier
+    * [XTENLANG-1361] - Need AST validation framework
+    * [XTENLANG-1372] - Support for X10 on FreeBSD
+    * [XTENLANG-1561] - Associate some usable location information for typecheck errors associated with compiler generated elements
+
+** Bugs
+    * [XTENLANG-500] - Cannot infer value constaint for Int constant
+    * [XTENLANG-620] - Error message could be less opaque (for struct ctor)
+    * [XTENLANG-681] - Types can be empty, contra spec.
+    * [XTENLANG-691] - Spec seems to need to be updated for properties in section 4.5.3
+    * [XTENLANG-842] - I think the discussion of clocks not leading to deadlock is overstated
+    * [XTENLANG-843] - Revision of start of Chapter 17 "Arrays" needed
+    * [XTENLANG-847] - Native code - extern compile errors
+    * [XTENLANG-957] - Attempting to use a static field of a type parameter causes a compiler exception
+    * [XTENLANG-1051] - Type checker misses some property equalities
+    * [XTENLANG-1165] - Cannot parse operator selector
+    * [XTENLANG-1167] - Certain char constants blow up the parser
+    * [XTENLANG-1169] - Launch shortcut keys for X10-specific run/debug use the wrong modifier specs
+    * [XTENLANG-1181] - Cannot call a non-global method on a newly created object in a loop header inside an "at".
+    * [XTENLANG-1184] - Place type checking hole in enhanced for loops
+    * [XTENLANG-1188] - Bad code generated when const fields are assigned a closure literal
+    * [XTENLANG-1206] - EntailsPositive_MustFailCompile compiles successfully
+    * [XTENLANG-1260] - NPE & ClassCastException from type-checker/parser in unsaved editor
+    * [XTENLANG-1267] - 'this' not usable in properties in class header
+    * [XTENLANG-1278] - Dist.|(Place) seems to be looking for Dist.|(Dist)
+    * [XTENLANG-1295] - Evil conversions to and from UInt are possible in Java back end
+    * [XTENLANG-1309] - Clock spec needs to be modernized
+    * [XTENLANG-1312] - x10doc comment for myMethod  crashes if myMethod does not exists
+    * [XTENLANG-1323] - var x1<:Hello = this;   crashes
+    * [XTENLANG-1405] - Setting of compiler options in X10DT
+    * [XTENLANG-1413] - Cannot overload m(int) and m(uint) in java backend
+    * [XTENLANG-1436] - masterBuildRelease and masterBuildToolIntegration scripts don't work on cygwin
+    * [XTENLANG-1455] - Compiler traps on null-pointer exception on source "var name = something;"
+    * [XTENLANG-1493] - Section 12.4 contains an undefined grammar element and a misleading description of the main element defined.
+    * [XTENLANG-1510] - Syntax error results in incorrect position information
+    * [XTENLANG-1516] - Compilation error with AtomicReference
+    * [XTENLANG-1546] - Collecting finish expressed in a functional form doesn't compile.
+    * [XTENLANG-1575] - Class cast exception with collecting finish
+    * [XTENLANG-1577] - Collecting-finish is not doing the proper type-checking
+    * [XTENLANG-1583] - collecting finish makes exactly 1000 extraneous calls to zero()
+    * [XTENLANG-1585] - packageCPPRelease.sh still broken on cygwin
+    * [XTENLANG-1586] - Java back end creates illegal code for collecting-finish
+    * [XTENLANG-1590] - New X10 project with sample "HelloWorld" doesn't build cleanly
+    * [XTENLANG-1612] - Using generics in throws clause is not handled correctly
+    * [XTENLANG-1613] - ERRORs in generated java for trivial class 
+    * [XTENLANG-1617] - C++ ArrayIndexOutOfBounds stack trace problem
+    * [XTENLANG-1623] - val variable in nested finish, report not initialized
+    * [XTENLANG-1631] - Closures defined in static methods of generic classes cause codegen problems for C++ backend
+    * [XTENLANG-1632] - Typechecking of at expressions broken
+    * [XTENLANG-1640] - syntax errors in generated java code
+    * [XTENLANG-1646] - Function type is printed incorrectly
+    * [XTENLANG-1651] - Auto-generated Struct's methods (such as home, at, typeName) do not have @Native 
+    * [XTENLANG-1664] - @Native annotation on interface methods in a Struct causes a C++ backend error
+    * [XTENLANG-1666] - The rules of X10 definite-assignment are not identical to those in Java
+    * [XTENLANG-1673] - Position of synthetic X10Special for field ref with implicit 'this.' is non-empty and not COMPILER_GENERATED
+    * [XTENLANG-1674] - Textual extent of synthetic X10CanonicalTypeNode for implicit base type "x10.lang.Object" spans entire class
+    * [XTENLANG-1689] - InternalCompilerError: Unexpected error while computing receiver
+    * [XTENLANG-1693] - Abstract methods overloading error in C++ backend
+    * [XTENLANG-1696] - static constraints on Array.copyTo/copyFrom are too restrictive (Regions should be allowed to be equal, not ==) 
+    * [XTENLANG-1704] - Java generics compilation error
+    * [XTENLANG-1709] - Presamably compiler bug in X10 2.0.5
+    * [XTENLANG-1718] - NPE in PlaceChecker.ReplaceTermByHere
+    * [XTENLANG-1727] - Public class must have its own java file
+    * [XTENLANG-1730] - Bug when creating the same fake class twice (in createFakeClass)
+    * [XTENLANG-1737] - misspelled word in compile command usage method
+
+For the details of JIRA issues fixed in this release, see
+http://jira.codehaus.org/browse/XTENLANG/fixforversion/16715
+
+Please use the X10 JIRA to report bugs, after ensuring the problem is
+not already reported:
+http://jira.codehaus.org/secure/IssueNavigator.jspa?reset=true&&pid=11812&resolution=-1
+

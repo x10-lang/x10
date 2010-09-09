@@ -1,0 +1,224 @@
+\subsection {Array} 
+
+\begin{verbatim}
+
+template<int N>
+class Point
+{
+ private:
+ const int values_[N]; 
+};
+
+class point<1>
+{
+   const int i_;
+};
+
+class point<2>
+{
+   const int i_;
+   const int j_;
+};
+
+class point<3>
+{
+   const int i_;
+   const int j_;
+   const int k_;
+};
+
+
+template<int RANK>
+class Region
+{
+  public:
+ 
+  int linearIndex (const Point<RANK>& x) const;
+
+  bool isEqual (const Region<RANK>& r) const;
+
+}; 
+
+
+template<int RANK>
+class ConvexRegion : private Region<RANK>
+{
+  public:
+ 
+  Region (int size[RANK], int stride[RANK], const Point<RANK>& origin);
+
+  int linearIndex (const Point<RANK>& x) const;
+
+  bool isEqual (const Region<RANK>& r) const;
+
+  private:
+  
+  int size_[RANK];
+
+  Point<RANK> origin; 	
+
+  int stride_ [RANK];
+
+  int linearStep_ [RANK];
+ 
+
+  //for regions that are formed by restriction operation
+  int globalLinearStep_ [RANK]; 	
+
+}; 
+
+template<int RANK>
+class ArbitRegion : private Region<RANK>
+{
+  public:
+ 
+  int linearIndex (const Point<RANK>& x) const;
+
+  bool isEqual (const Region<RANK>& r) const;
+
+  private:
+  
+  Region<Rank>* regions_;
+  int numRegions_; 
+
+}; 
+
+
+template<int RANK>
+Region<RANK> intersect (const Region<RANK>& r1, const Region<RANK>& r2);
+
+template<int RANK>
+Region<RANK> union (const Region<RANK>& r1, const Region<RANK>& r2);
+
+template<int RANK>
+Region<RANK> difference (const Region<RANK>& r1, const Region<RANK>& r2);
+
+
+template <int RANK>
+class Distribution
+{
+public:
+
+protected
+
+   Region<RANK> region;
+  
+};
+
+template <int RANK>
+class ConstDistribution : private Distribution<RANK>
+{
+
+public:
+
+  
+};
+
+template <int RANK>
+class BlockCyclicDistribution : private Distribution<RANK>
+{
+public:
+  
+};
+
+template <int RANK>
+class UniqueDistribution : private Distribution<RANK>
+{
+public:
+  
+};
+
+
+template <typename T, int RANK>
+class Array 
+{
+	Array (Distribution<RANK> dist);
+	
+	Array (Array<T, RANK>& A, Region<Rank>& R);
+
+	Array<T, RANK>* clone();
+
+	Distribution<RANK> dist() const;
+		
+        T getScalarAt (const Point<RANK>& P) const;
+	
+	T getScalarAt (int n) const;
+
+        void putScalarAt (const Point<RANK>& P, T val);
+	
+	void putScalarAt (int n, T val);
+	
+	~Array(); 
+ 				
+	private:
+
+	T* data_;
+
+	protected:
+	
+        Distribution <RANK> dist_;	
+}; 
+
+// Useful for casting a scalar to array
+
+template <typename T, int RANK>
+class UnitArray : public Array <T, RANK>
+{
+   UnitArray (int value) : Array();
+	
+   T& operator[] (const Point<RANK>& P);
+   
+   Array<T, RANK>& operator[] (const Region<RANK>& R);
+
+   private:
+ 
+   T value_; //the same value is replicated in the array
+	     //upon a write, create a new data_ for this array
+};
+
+//initialization routines
+template <typename T, int RANK, typename CONST_INIT>
+void initialize (Array<T, RANK>& arr, CONST_INIT op);
+
+template <typename T, int RANK, typename POINT_INIT> (check if this is valid)
+void initialize (Array<T, RANK>& arr, POINT_INIT<RANK> op);
+
+//pointwise routines for standard operators
+template <typename T, int RANK>
+void iterate (Array<T, RANK>& arr, order_t order, op_t op);
+
+template <typename T, int RANK, int N>
+void iterate (Array<T, RANK> (&args) [N], order_t order, op_t (&op)[N]);
+
+//pointwise routines for "lift"ed operators
+template <typename T, int RANK, typename SCALAR_OP>
+void iterate (Array<T, RANK>& arr, order_t order, SCALAR_OP op);
+
+template <typename T, int RANK, int N, typename SCALAR_OP>
+void iterate (Array<T, RANK> (&args) [N], order_t order,  SCALAR_OP op);
+
+//reduce
+template <typename T, int RANK-1>
+void reduce (Array<T, RANK> &arg, int dim, op_t op);
+
+//scan
+template <typename T, int RANK-1>
+void scan (Array<T, RANK> &arg, int dim, op_t op);
+
+
+//restriction
+Array<T, RANK>& restriction (const Distribution<RANK>& R);	
+
+
+//assembling
+
+Array<T, RANK>& assemble (const Array<T, RANK>& a1, const Array<T, RANK>& a2);	
+
+Array<T, RANK>& overlay (const Array<T, RANK>& a1, const Array<T, RANK>& a2);	
+
+Array<T, RANK>& update (const Array<T, RANK>& a1, const Array<T, RANK>& a2);	
+
+// How are value arrays and reference arrays reflected in the design?
+//     o In the library it is always reference; the compiler should create copies for value arrays.
+
+\end{verbatim}

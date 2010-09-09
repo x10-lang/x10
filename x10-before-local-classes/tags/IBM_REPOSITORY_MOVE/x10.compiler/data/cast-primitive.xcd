@@ -1,0 +1,4 @@
+// SYNOPSIS: #0: target type #1 constraints tab #2 java.lang.Object exprToCast
+ 
+ (#0) x10.lang.RuntimeCastChecker.checkPrimitiveType(#1, #2)
+ 

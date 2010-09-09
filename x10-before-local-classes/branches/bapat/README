@@ -1,0 +1,52 @@
+x10 BAPAT branch
+Originally written by Joel Galenson
+-----------------------------------
+
+The goal of this file is to give an overview of the code I wrote and any issues in it so that it is easy for someone else to pick up this branch.  Most of it should be in comments in the code, but this should draw attention to them and explain them in more detail.
+
+x10.compiler: XTypeTranslator
+-----------------------------
+The majority of my changes to x10.compiler are in this file.  It contains the following changes:
+- Special case transformation of equality constraints to handle calls.  For instance, given the constraint {self == 1..10}, I turn 1..10 into a XRectRegion1 node, but the code here ensures that it is translated into something like {self.min == 1, self.max == 10, self.rank == 1} (see the method transCall).
+- Translate +, *, Region.translate into XPlus, XMul, XTranslate nodes, respectively (see the trans method I modified)..
+
+x10.constraint: XConstraint_c
+-----------------------------
+The most interesting of my changes to existing files in x10.constraint.  I only added a few lines to ensure that it if a term has a solver it uses it.  I changed the handling of XEquals so that if one term has a solver it does not use the normal solver but instead uses the specific once, since having a + term crashes the existing solver.
+
+Note that I do not believe the existing code does Nelson-Oppen completely (although I could be wrong if it's hidden through some layers of exceptions), and I did not fix that.  It still only calls one solver: I just changed it to call the specific one if it exists.  We may need to write a full NO (although for the current stuff I'm not sure we need it).
+
+x10.constraint: bapat package
+-----------------------------
+This package contains my constraint solver.  The majority of the logic is in BAPATSolver.java.  The rest are mostly just my AST nodes (I parse XTerms into my nodes (Constraints and Vars).
+
+BAPATSolver first parses XTerms into my nodes.  It then propagates integer values through constraints, which in BAPAT terms is propagating ranks.  This is not quite sound (if we have x.rank == 1, we essentially set x's rank to 1), but since we don't have type information in XTerms I'm not sure of a better way to do this at the moment.  It then uses STP to assert what is known and queries for the result.
+
+The solver, and the whole package, are probably pretty crufty and ugly.  I first wrote them weeks (?) ago when we had a very different idea of what subset of BAPAT we wanted to solve and when I had less knowledge of the existing constraint system.  For instance, the idea of associating an integer with each variable is somewhat hacked on (IntInformationVar in the code), since I came up with it after I started this and we only recently decided that it looks like it will work.  However, it does work for some stuff now, and even if we scrap most of the code it should show the idea of what we want to do, including how to use the STP Java bindings (for more of that, see the x10.types project on orquesta's CVS: it has the equations for handling strides in STP, for example).
+
+TODOs in the code:
+- BAPATSolver.addDerivedInequalities: This is part of the Solver interface designed for handling Nelson-Oppen (I believe).  There is some code that shows how I think we want to use it, but it's commented out because it doesn't work.  We have to create new XConstraints, but the way I do it there does not work.  I can create the proper terms, but the existing constraint solver does not recognize them.  For example, I will create a term {self.rank==foo.rank}, but the existing solver will not prove that {self.rank==foo.rank}=>{self.rank==foo.rank}, where one of the two is the one I just created.  This is because the two are not ==, just .equal.  See the changes I made to XTypeTranslator (specifically the new transCall method) to see the proper way to do this.  You apparently need to make the constraints with actual AST nodes, which we don't have at this stage.  I could of course be missing something, but this is how I understand it.  I've mentioned this to Vijay before.
+- BAPATSolver.addExtraAssertions: This is where I added the code that should handle arithmetic as we discussed.  That is, it should handle the rule that (a <= b && c <= d => a+b <= c+d).  It has not been tested at all, though, since it is blocked by some existing bugs that I will try to mention later in the file and that I have told Vijay about.  But who knows, maybe it works.
+- BAPATSolver.isConsistent/isValid: I'm not sure if these are right, but it doesn't make a difference so I never spent much time to think about it.
+- InConstraint: The existing translation to BAPAT is incomplete (even given our current plan)
+
+x10.runtime
+-----------
+I've made a fair number of changes to XRX.  They mainly consist of
+- Changing the type of Region and Array to be Iterable[Point{self in region}], and the Array set/get methods (the simple ones, not all of them) to require that the Point argument is contained in the region.  This allows me to easily test my code, and is presumably what we eventually want to do.  I also changed some method calls (e.g. Region.intersection's return value is a Point contained in the two Region arguments).
+- To get this to work, I had to make the same changes in a number of places of subclasses.
+- I added two new classes, RectRegion1 and Point1, that are one-dimensional versions of their parents.  This is because we need to get min/max and Point's variables as properties, while the existing classes have them as ivars and so they cannot be used in constraints.  These will likely need to be cleaned up (if not merged with their parents), but they're needed as a start.
+
+TODOs:
+- I added a translate(Region/Point) method to Region since we want to handle constraints involving it.  However, I did not know the correct way to write its code, so I wrote a very inefficient version in BaseRegion.   It should really be implemented in PolyRegion and UnionRegion instead.
+- I had to comment out some type information in all the translate methods due to an existing bug in the current type system.
+
+x10.tests test.Constraints
+--------------------------
+My tests.  Simple.java has things that currently pass.  MustFail* has things that should and do fail.  Bugs has things that shouldn't fail but do (mostly Nelson-Oppen related now, I believe).  Current.java has the tests I am currently working on.
+
+Specifically, the first two methods in Current.java illustrate the Points bugs.  Currently, the return type of Point.operator+ is Point(rank).  If you go to Point.x10 and uncomment the {self == this + that} aprt (which we will want to do), the first method in Current.java is a simple testcase that will fail.  In the second method, we would like to have the type of p2 be p2: Point(p1.rank){self + p1 in r}, but that fails since it doesn't realize that p1 and p2 have the same rank.  These are the two existing bugs I mentioned earlier.
+
+I have to run now, but that should be about it.  If you have any questions about this stuff, contact me.
+
+Have fun!
