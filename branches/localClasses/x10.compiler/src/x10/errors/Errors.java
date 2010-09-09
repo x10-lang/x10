@@ -126,8 +126,8 @@ public class Errors {
 		private static final long serialVersionUID = -6220163900080278288L;
 
 		public IncompatibleReturnType(MethodInstance mi, MethodInstance mj) {
-			super("Attempting to use incompatible return type."
-					+ "\n\t Method: " + mi
+			super(mi.signature() + " in " + mi.container() + " cannot override " + mj.signature() + " in " + mj.container()
+			        + "; attempting to use incompatible return type."
 					+ "\n\t Expected Type: " + mj.returnType()
 					+ "\n\t Found Type: " + mi.returnType(), mi.position());
 		}
