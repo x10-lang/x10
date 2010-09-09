@@ -75,8 +75,9 @@ class FRASimpleDist {
                 var ran:long = HPCC_starts(valp*(num_updates/Place.MAX_PLACES));
                 for (var i:long=0; i<num_updates/Place.MAX_PLACES; i++) {
                     val placeId = ((ran>>logLocalTableSize) & (Place.MAX_PLACES-1)) as int;
+                    val ran2=ran;
                     async (Place.places(placeId)) {
-                        tables().update(ran);
+                        tables().update(ran2);
                     }
                     ran = (ran << 1) ^ (ran<0L ? POLY : 0L);
                 }
