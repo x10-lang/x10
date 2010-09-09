@@ -16,8 +16,12 @@ LIBS += $(SOCKET_DYNLIB)
 
 PROPERTIES += etc/x10rt_socket.properties
 
+ifeq ($(X10RT_PLATFORM), sunos)
+  SOLARIS_LDLIBS += -lresolv -lnsl -lsocket -lrt
+endif
+
 %.socket: %.cc $(SOCKET_DYNLIB)
-	$(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS) -lx10rt_socket $(X10RT_TEST_LDFLAGS)
+	$(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS) -lx10rt_socket $(SOLARIS_LDLIBS) $(X10RT_TEST_LDFLAGS)
 
 ifdef X10_STATIC_LIB
 $(SOCKET_DYNLIB): socket/x10rt_socket.o $(COMMON_OBJS)
@@ -35,7 +39,7 @@ etc/x10rt_socket.properties:
 	@echo "CXX=$(CXX)" > $@
 	@echo "CXXFLAGS=" >> $@
 	@echo "LDFLAGS=$(CUDA_LDFLAGS)" >> $@
-	@echo "LDLIBS=-lx10rt_socket $(CUDA_LDLIBS)" >> $@
+	@echo "LDLIBS=-lx10rt_socket $(SOLARIS_LDLIBS) $(CUDA_LDLIBS)" >> $@
 
 .PRECIOUS: etc/x10rt_socket.properties
 
