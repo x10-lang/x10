@@ -24,7 +24,7 @@ public class Stencil1D extends x10Test {
 
     def this(n: int, p: int) { this.N=n; this.P=p;}
 
-    def step(A:Rail[Double]!, R: Region(1)) {
+    def step(A:Rail[Double], R: Region(1)) {
        var diff: Double = 0;
        for ((q) in R) {
            val newVal = (A(q-1)+ A(q+1))/2.0 ; 
@@ -58,7 +58,7 @@ public class Stencil1D extends x10Test {
           })
     }
 
-    public static def main(args: Rail[String]!) {
+    public static def main(args: Rail[String]) {
        var n: int = args.length > 0 ? Int.parse(args(0)) : 100;
        var p: int = args.length > 1 ? Int.parse(args(1)) : 2;
        // x10.io.Console.ERR.println("Starting: N=" + n + " P=" + p);
