@@ -3,12 +3,11 @@ import java.io.Serializable;
 
 
 
-public abstract class CallTableVal  implements Serializable {
+public abstract class CallTableVal extends CallTableObj  {
 	/**
 	 * automatically added for serialization
 	 */
 	private static final long serialVersionUID = 1L;
-	
 	/**
 	 * An object of CallTableVal represents an instance of method invocation in an x10 program, and 
 	 * the arity of an invocation means whether this invocation is in any loops or if-else 
@@ -19,10 +18,6 @@ public abstract class CallTableVal  implements Serializable {
 	 *
 	 */
 	public enum Arity {One, ZerOrOne, Unbounded}
-	public final String scope;
-	public final String name;
-	public final int line;
-	public final int column;
 	public Arity a;
 	public int blk;
 	public final CallTableKey parent;
@@ -34,19 +29,13 @@ public abstract class CallTableVal  implements Serializable {
 	}
 	
 	public CallTableVal(String s, String n, int l, int c, int b, CallTableKey p){
-	    scope = s;
-	    name = n;
-	    line = l;
-	    column = c;
+		super(s,n,l,c);
 	    blk = b;
 	    parent = p;
 	    a = Arity.One;
 	}
 	public CallTableVal(String s,String n, int l, int c, int b, CallTableKey p,Arity a){
-	    scope = s;
-	    name = n;
-	    line = l;
-	    column = c;
+		super(s,n,l,c);
 	    blk = b;
 	    parent = p;
 	    this.a = a;
