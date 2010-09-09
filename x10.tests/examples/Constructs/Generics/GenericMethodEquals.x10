@@ -20,7 +20,7 @@ public class GenericMethodEquals extends x10Test {
 
     static class A {
 
-        public global safe def equals(Any) {
+        public safe def equals(Any) {
             return true;
         }
 

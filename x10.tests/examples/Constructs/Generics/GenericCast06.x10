@@ -18,19 +18,19 @@ import harness.x10Test;
 public class GenericCast06 extends GenericTest {
 
     interface I[T] {
-        global def m(T):int;
-        global def n(T):int;
+        def m(T):int;
+        def n(T):int;
     }
 
     interface J[T] {
-        global def m(T):int;
-        global def o(T):int;
+        def m(T):int;
+        def o(T):int;
     }
 
     class A[T] implements I[T], J[T] {
-        public global def m(T) = 0;
-        public global def n(T) = 1;
-        public global def o(T) = 2;
+        public def m(T) = 0;
+        public def n(T) = 1;
+        public def o(T) = 2;
     }
 
     public def run() = {
