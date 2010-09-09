@@ -90,7 +90,7 @@ public class ClockTest16a extends x10Test {
 				}
 			};
 
-			val fooArray  = [f0,f1];  // FIXME: should be Rail[foo!]!
+			val fooArray  = [f0 as foo, f1 as foo];
 
 			// Compiler: MAYBE, actual: NO
 			// must have a compiler error
