@@ -46,7 +46,7 @@ public class DistStream1 extends Benchmark {
     public def once() {
         finish for (var p:int=0; p<PARALLELISM; p++) {
             val pl = Place.place(p);
-            val a = as_(p) as Rail[double]!pl;
+            val a = as_(p) as Rail[double];
             val b = bs(p);
             val c = cs(p);
             async (pl) {
@@ -56,7 +56,7 @@ public class DistStream1 extends Benchmark {
             }
         }
         val p1 = Place.place(1);
-        val a = as_(1) as Rail[double]!p1;
+        val a = as_(1);
         return at (p1) a(1);
     }
 
