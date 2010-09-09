@@ -32,7 +32,7 @@ public class ForLoop2 extends x10Test {
 
 		//Ensure iterator works in lexicographic order
 		var n: int = 0;
-		var prev: Box[Point]! = null;
+		var prev: Box[Point] = null;
 		for (val p: Point in d3) {
 			if (!successor(prev, p)) return false;
 			prev = p;
@@ -49,7 +49,7 @@ public class ForLoop2 extends x10Test {
 	 * i.e. we expect the order (0,0,0), (0,0,1),(0,0,2)
 	 *  (0,1,0) ... (2,2,2) (row-major order)
 	 */
-	static def successor(var prev: Box[Point]!, var p: Point): boolean = {
+	static def successor(var prev: Box[Point], var p: Point): boolean = {
 		if (prev == null) return true;
 		val pt = prev();
 		var i: int = pt(0);
