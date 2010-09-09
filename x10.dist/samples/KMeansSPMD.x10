@@ -75,7 +75,7 @@ public class KMeansSPMD {
 
                     for (h in Place.places) async (h) {
 
-                        val role = (here.id * num_slices + slice) as UInt;
+                        val role = here.id * num_slices + slice;
 
                         // carve out local portion of points (point-major)
                         val offset = (here.id*num_slices*num_slice_points) + slice*num_slice_points;
@@ -104,7 +104,7 @@ public class KMeansSPMD {
 
                         main_loop: for (var iter:Int=0 ; iter<iterations ; iter++) {
 
-                            Console.OUT.println("Iteration: "+iter);
+                            //if (offset==0) Console.OUT.println("Iteration: "+iter);
 
                             val old_clusters = ValRail.make[Float](host_clusters);
 
@@ -134,8 +134,8 @@ public class KMeansSPMD {
                             compute_time += System.nanoTime() - compute_start;
 
                             val comm_start = System.nanoTime();
-                            team.allreduce(role, host_clusters, 0u, host_clusters, 0u, host_clusters.length as UInt, Team.ADD);
-                            team.allreduce(role, host_cluster_counts, 0u, host_cluster_counts, 0u, host_cluster_counts.length as UInt, Team.ADD);
+                            team.allreduce(role, host_clusters, 0, host_clusters, 0, host_clusters.length, Team.ADD);
+                            team.allreduce(role, host_cluster_counts, 0, host_cluster_counts, 0, host_cluster_counts.length, Team.ADD);
                             comm_time += System.nanoTime() - comm_start;
 
                             for (var k:Int=0 ; k<num_clusters ; ++k) {
@@ -161,9 +161,14 @@ public class KMeansSPMD {
                             if (!quiet) Console.OUT.print(num_global_points+" "+num_clusters+" "+dim+" ");
                             Console.OUT.println((stop_time-start_time)/1E3);
                         }
-                        Console.OUT.println("Computation time: "+compute_time/1E9);
-                        Console.OUT.println("barrier time: "+barrier_time/1E9);
-                        Console.OUT.println("Communication time: "+comm_time/1E9);
+                        for (var i:Int=0 ; i<team.size() ; ++i) {
+                            if (role == i) {                            
+                                Console.OUT.println(role+": Computation time: "+compute_time/1E9);
+                                Console.OUT.println(role+": barrier time: "+barrier_time/1E9);
+                                Console.OUT.println(role+": Communication time: "+comm_time/1E9);
+                            }
+                            team.barrier(role);
+                        }
 
                         team.del(role);    
 
