@@ -18,8 +18,8 @@ import harness.x10Test;
 public class CF5_MustFailCompile extends x10Test {
 
     static struct Reducer implements Reducible[Int] {
-    	safe public global def zero()=0;
-    	safe public global def apply(a:Int,b:Int)=a+b;
+    	safe public  def zero()=0;
+    	safe public  def apply(a:Int,b:Int)=a+b;
     }
     def m(a:Any):Void offers Int(6) {
     	offer a;
