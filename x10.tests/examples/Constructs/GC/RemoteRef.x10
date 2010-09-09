@@ -32,7 +32,7 @@ public class RemoteRef extends x10Test {
     public def run(): boolean = {
 	val iterCount = 20;
 	val c = Clock.make();
-	val res = new ResultHolder();
+	val res = GlobalRef[ResultHolder](new ResultHolder());
 	spawnRemoteTask(c, iterCount, res);
 	for (var i:int=0; i<iterCount; i++) {
 	    // TODO: Try to force GC to happen here by doing lots of allocation
@@ -43,20 +43,20 @@ public class RemoteRef extends x10Test {
 	if (Debug) Console.OUT.println("Local: before last next");
 	next;
 	if (Debug) Console.OUT.println("Local: after last next");
-	return res.success;
+	return res().success;
     }
 
-    public def spawnRemoteTask(c:Clock, iterCount:Int, res:ResultHolder) {
-	val v = new AnObject();
+    public def spawnRemoteTask(c:Clock, iterCount:Int, res:GlobalRef[ResultHolder]) {
+	val v = GlobalRef[AnObject](new AnObject());
 	async (here.next()) clocked(c) {
 	    for (var i:int = 0; i<iterCount; i++) {
 		if (Debug) Console.OUT.println("Remote before next: "+i);
 	        next;
 		if (Debug) Console.OUT.println("Remote after next: "+i);
-	        at (v) v.f++; 
+	        at (v) v().f++; 
             }
 	    if (Debug) Console.OUT.println("Remote: before last next");
-	    at (res) { res.success = (at (v) v.f == iterCount); }
+	    at (res) { res().success = (at (v) v().f == iterCount); }
 	    next;
 	    if (Debug) Console.OUT.println("Remote: after last next next");
 	}
