@@ -1,5 +1,5 @@
 
-public class TrivialTest3 {
+public class TempTest {
         public static def f1(var i:int){f2(i);}
         public static def f2(var i:int){}
 

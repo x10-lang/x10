@@ -41,20 +41,34 @@ class CommunicationNode{
 class CommunicationLabel {
 	public final CallTableVal.Arity arity;
 	public final CallSite cs;
-	public CommunicationLabel(CallTableVal.Arity a, CallSite c){
+	public final boolean isLocal;
+	public CommunicationLabel(CallTableVal.Arity a, CallSite c, boolean l){
 		arity = a;
 		cs = c;
+		isLocal = l;
 	}
 	public CommunicationLabel(CallTableVal.Arity a){
 		arity = a;
 		cs = new CallSite("","",0,0);//dummy cs
+		isLocal = false;
 	}
 	@Deprecated
 	public CommunicationLabel(){
 		arity = CallTableVal.Arity.One;
 		cs = new CallSite("","",0,0);//dummy cs
+		isLocal = false;
+	}
+	public boolean equals(Object o){
+		boolean result = false;
+		if (o instanceof CommunicationLabel){
+			CommunicationLabel cn = (CommunicationLabel)o;
+			String sig1 = arity.toString()+"-"+cs.toString()+"-"+(isLocal==true?"local":"remote");
+			String sig2 = cn.arity.toString()+"-"+cn.cs.toString()+"-"+(cn.isLocal==true?"local":"remote");
+			result = sig1.equals(sig2);
+		}
+		return result;
 	}
 	public String toString(){
-		return arity.toString()+"-"+cs.toString();
+		return arity.toString()+"-"+(isLocal==true?"local":"remote");
 	}
 }
