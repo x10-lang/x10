@@ -18,6 +18,7 @@ public class FileWriter extends OutputStreamWriter {
     @NativeRep("java", "java.io.FileOutputStream", null, null)
     @NativeRep("c++", "x10aux::ref<x10::io::FileWriter__FileOutputStream>", "x10::io::FileWriter__FileOutputStream", null)
     protected final static class FileOutputStream extends OutputStream {
+        @Native("java", "new Object() { java.io.BufferedOutputStream eval(String s) { try { return new java.io.BufferedOutputStream(new java.io.FileOutputStream(s)); } catch (java.io.FileNotFoundException e) { throw new x10.io.FileNotFoundException(e.getMessage()); } } }.eval(#1)")
         public native def this(String) throws IOException;
     }
 
@@ -25,7 +26,7 @@ public class FileWriter extends OutputStreamWriter {
     //       What does it mean to send a File to another node?
     val file: File;
     
-    @Native("java", "new java.io.BufferedOutputStream(new java.io.FileOutputStream(#1))")
+    // @Native("java", "new java.io.BufferedOutputStream(new java.io.FileOutputStream(#1))")
     private static def make(path: String):OutputStream throws IOException {
         return new FileOutputStream(path);       
     }

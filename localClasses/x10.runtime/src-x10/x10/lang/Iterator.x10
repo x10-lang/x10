@@ -14,7 +14,7 @@ package x10.lang;
 import x10.compiler.NativeRep;
 import x10.compiler.Native;
 
-@NativeRep("java", "x10.core.Iterator<#1>", null, null)
+@NativeRep("java", "x10.core.Iterator<#1>", null, "new x10.rtt.ParameterizedType(x10.core.Iterator._RTT, #2)")
 public interface Iterator[+T] {
     @Native("java", "#0.hasNext()")
     public def hasNext(): boolean;

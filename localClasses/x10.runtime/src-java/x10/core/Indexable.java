@@ -12,6 +12,25 @@
 package x10.core;
 
 import x10.core.fun.Fun_0_1;
+import x10.rtt.ParameterizedType;
+import x10.rtt.RuntimeType;
+import x10.rtt.Type;
+import x10.rtt.UnresolvedType;
+import x10.rtt.RuntimeType.Variance;
 
 public interface Indexable<D,R> extends Fun_0_1<D,R> {
+    
+    public static final RuntimeType<Indexable<?,?>> _RTT = new RuntimeType<Indexable<?,?>>(
+        Indexable.class, 
+        new Variance[] {Variance.CONTRAVARIANT, Variance.COVARIANT},
+        new Type<?>[] {
+            new ParameterizedType(Fun_0_1._RTT, new UnresolvedType(0), new UnresolvedType(1))
+        }
+    ) {
+        @Override
+        public String typeName() {
+            return "x10.lang.Indexable";
+        }
+    };
+
 }

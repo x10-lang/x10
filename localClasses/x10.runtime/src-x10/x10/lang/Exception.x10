@@ -18,7 +18,7 @@ import x10.compiler.NativeRep;
  * The class Exception and its subclasses are a form of Throwable that indicates conditions that
  * a reasonable application might want to catch.
  */
-@NativeRep("java", "java.lang.Exception", null, null)
+// @NativeRep("java", "java.lang.Exception", null, null)
 public class Exception extends Throwable {
 
     /**

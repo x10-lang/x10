@@ -395,7 +395,7 @@ public class InitChecker extends DataFlow
      */
     protected FlowGraph initGraph(CodeNode code, Term root) {
         currCBI.currCodeDecl = code;
-        return new FlowGraph(root, forward);
+        return super.initGraph(code,root);
     }
 
     /**

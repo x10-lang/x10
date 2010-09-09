@@ -51,19 +51,19 @@ public class ClockTest18 extends x10Test {
 			         }
 		         };
 
-		         val fooArray  = Rail.make([f0,f1]);
-		         x10.io.Console.OUT.println("#A0 before resume");
-		         c0.resume();
-		         x10.io.Console.OUT.println("#A0 before spawning A3");
-		         Y.test(fooArray(x.zero()));
-		         x10.io.Console.OUT.println("#A0 before spawning A2");
-		         Y.test(fooArray(x.one()));
-		         x10.io.Console.OUT.println("#A0 before spawning A1");
-		         async clocked(c0) { x10.io.Console.OUT.println("#A1: hello from A1"); }
-		         x10.io.Console.OUT.println("#A0 before next");
-		         next;
-		         x10.io.Console.OUT.println("#A0 after next");
-		     }
+		var fooArray: Rail[foo] = Rail.make([f0,f1]);
+		x10.io.Console.OUT.println("#A0 before resume");
+		c0.resume();
+		x10.io.Console.OUT.println("#A0 before spawning A3");
+		Y.test(fooArray(x.zero()));
+		x10.io.Console.OUT.println("#A0 before spawning A2");
+		Y.test(fooArray(x.one()));
+		x10.io.Console.OUT.println("#A0 before spawning A1");
+		async clocked(c0) { x10.io.Console.OUT.println("#A1: hello from A1"); }
+		x10.io.Console.OUT.println("#A0 before next");
+		next;
+		x10.io.Console.OUT.println("#A0 after next");
+		}
 		} catch (e: ClockUseException) {
 			x10.io.Console.OUT.println("ClockUseException");
 			return true;

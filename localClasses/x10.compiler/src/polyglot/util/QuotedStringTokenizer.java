@@ -35,10 +35,27 @@ public class QuotedStringTokenizer extends StringTokenizer {
 
     /**
      * Constructs a string tokenizer for the specified string.
+     * The default delimiters for StringTokenizer are used.
+     * "\"\'" are used as quotes, and escape is used as the escape character.
+     */
+    public QuotedStringTokenizer(String str, char escape) {
+        this(str, " \t\n\r\f", "\"\'", escape, false);
+    }
+
+    /**
+     * Constructs a string tokenizer for the specified string.
      * "\"\'" are used as quotes, and '\\' is used as the escape character.
      */
     public QuotedStringTokenizer(String str, String delim) {
         this(str, delim, "\"\'", '\\', false);
+    }
+
+    /**
+     * Constructs a string tokenizer for the specified string.
+     * "\"\'" are used as quotes, and escape is used as the escape character.
+     */
+    public QuotedStringTokenizer(String str, String delim, char escape) {
+        this(str, delim, "\"\'", escape, false);
     }
 
     /**

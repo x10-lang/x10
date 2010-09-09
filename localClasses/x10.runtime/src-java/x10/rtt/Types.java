@@ -53,8 +53,7 @@ public class Types {
     public static Type<String> STR = new StringType();          // only with base class (used by code gen)
     protected static Type<String> STR0 = new StringType(        // with based class and parents
         new ParameterizedType(Types.COMPARABLE, Types.STR),
-        new ParameterizedType(Fun_0_1._RTT, Types.INT, Types.CHAR),
-        x10.rtt.Types.runtimeType(x10.core.Any.class)
+        new ParameterizedType(Fun_0_1._RTT, Types.INT, Types.CHAR)
     );
 
     public static Type<?> UBYTE;    // instance created and set in UByte static initializer

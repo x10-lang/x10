@@ -70,6 +70,6 @@ public class Ref implements Any {
     }
     
     public static RuntimeType<Ref> _RTT = new RuntimeType<Ref>(Ref.class);
-    public RuntimeType getRTT() {return _RTT;}
+    public RuntimeType<?> getRTT() {return _RTT;}
     public Type<?> getParam(int i) {return null;}
 }

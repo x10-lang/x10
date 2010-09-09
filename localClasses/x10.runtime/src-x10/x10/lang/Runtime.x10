@@ -631,10 +631,10 @@ import x10.util.Box;
     	  this.sr=new StatefulReducer[T](r);
         }
     
-        /**
-         * An activity created under this finish has terminated.
-         */
-        public def notifyActivityTermination(r:RootFinish):void {
+    /**
+     * An activity created under this finish has terminated.
+     */
+    public def notifyActivityTermination(r:FinishState):Void {
         lock.lock();
         counts(here.id)--;
         if (count.decrementAndGet() > 0) {

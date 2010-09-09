@@ -354,14 +354,16 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
     /**
      * @deprecated use {@link #parse(String,Int)} instead
      */
-    @Native("java", "java.lang.Integer.parseInt(#1, #2)")
+    // @Native("java", "java.lang.Integer.parseInt(#1, #2)")
+    @Native("java", "new Object() { int eval(String s, int radix) { try { return java.lang.Integer.parseInt(s, radix); } catch (java.lang.NumberFormatException e) { throw new x10.lang.NumberFormatException(e.getMessage()); } } }.eval(#1, #2)")
     @Native("c++", "x10aux::int_utils::parseInt(#1, #2)")
     public native static def parseInt(String, radix:Int): Int throws NumberFormatException;
 
     /**
      * @deprecated use {@link #parse(String)} instead
      */
-    @Native("java", "java.lang.Integer.parseInt(#1)")
+    // @Native("java", "java.lang.Integer.parseInt(#1)")
+    @Native("java", "new Object() { int eval(String s) { try { return java.lang.Integer.parseInt(s); } catch (java.lang.NumberFormatException e) { throw new x10.lang.NumberFormatException(e.getMessage()); } } }.eval(#1)")
     @Native("c++", "x10aux::int_utils::parseInt(#1)")
     public native static def parseInt(String): Int throws NumberFormatException;
 
@@ -372,7 +374,8 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
      * @return the Int represented by the String argument in the specified radix.
      * @throws NumberFormatException if the String does not contain a parsable Int.
      */
-    @Native("java", "java.lang.Integer.parseInt(#1, #2)")
+    // @Native("java", "java.lang.Integer.parseInt(#1, #2)")
+    @Native("java", "new Object() { int eval(String s, int radix) { try { return java.lang.Integer.parseInt(s, radix); } catch (java.lang.NumberFormatException e) { throw new x10.lang.NumberFormatException(e.getMessage()); } } }.eval(#1, #2)")
     @Native("c++", "x10aux::int_utils::parseInt(#1, #2)")
     public native static def parse(s:String, radix:Int): Int throws NumberFormatException;
 
@@ -382,7 +385,8 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
      * @return the Int represented by the String argument.
      * @throws NumberFormatException if the String does not contain a parsable Int.
      */
-    @Native("java", "java.lang.Integer.parseInt(#1)")
+    // @Native("java", "java.lang.Integer.parseInt(#1)")
+    @Native("java", "new Object() { int eval(String s) { try { return java.lang.Integer.parseInt(s); } catch (java.lang.NumberFormatException e) { throw new x10.lang.NumberFormatException(e.getMessage()); } } }.eval(#1)")
     @Native("c++", "x10aux::int_utils::parseInt(#1)")
     public native static def parse(s:String): Int throws NumberFormatException;
 
