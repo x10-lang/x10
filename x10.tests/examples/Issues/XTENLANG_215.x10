@@ -19,7 +19,7 @@ class XTENLANG_215 extends x10Test {
 
     static class Foo {
     
-        global val foo = 0;
+        val foo = 0;
         
         class Bar {
             val bar = foo;

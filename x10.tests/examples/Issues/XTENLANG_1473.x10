@@ -45,8 +45,8 @@ public class XTENLANG_1473 extends x10Test {
 			val y = x; 
 			val z = super.x;
 			val w = this.x;
-			val i1 = at (Bar.this) Bar.super.i;
-			val i2 = at (Bar.this) Bar.this.i;
+			val i1 = Bar.super.i;
+			val i2 = Bar.this.i;
 		}
 	}
 }

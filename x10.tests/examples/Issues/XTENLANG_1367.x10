@@ -29,5 +29,5 @@ interface I3 extends I1 {}
 interface I4 extends I2,I3 {}
 class Example implements I4 {
 	def example() = a;
-	def m(arg:Example{self.home.home.home==here}) = 1;
+	def m(arg:Example) = 1;
 }

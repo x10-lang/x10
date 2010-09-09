@@ -15,7 +15,7 @@ import harness.x10Test;
  * @author hhorii 02/2010
  */
 public class XTENLANG_655 extends x10Test {
-    public def thispop[X](x:X){X <: Vossol} : Int = at(x)(x.x());
+    public def thispop[X](x:X){X <: Vossol} : Int = x.x();
     public def thisint[X](x:X){X <: Int} {x.toOctalString();}
     
     public def run(): boolean {
