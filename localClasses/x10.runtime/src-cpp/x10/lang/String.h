@@ -61,7 +61,7 @@ namespace x10 {
                 return this;
             }
             static x10aux::ref<String> _make(x10aux::ref<String> s);
-            static x10aux::ref<String> _make(x10aux::ref<Rail<x10_char> > rail,
+            static x10aux::ref<String> _make(x10aux::ref<ValRail<x10_char> > rail,
                                              x10_int start, x10_int length);
 
             // This is for string literals, brought out here so we have easier control
