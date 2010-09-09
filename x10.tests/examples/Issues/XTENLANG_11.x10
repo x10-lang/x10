@@ -21,10 +21,10 @@ class XTENLANG_11 extends x10Test {
     
     class A[T] {
         incomplete public def add(v: T): void;
-        incomplete public def iterator(): Iterator[T]!;
+        incomplete public def iterator(): Iterator[T];
     }
     
-    public def foo(hl: A[H]!) {
+    public def foo(hl: A[H]) {
         val it  = hl.iterator();
         hl.add(it.next());
     }

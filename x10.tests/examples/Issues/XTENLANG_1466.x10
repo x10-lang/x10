@@ -18,7 +18,7 @@ import harness.x10Test;
 public class XTENLANG_1466 extends x10Test {
 
     public def run(): boolean {
-        val f:XTENLANG_1466! = true ? null : new XTENLANG_1466();
+        val f:XTENLANG_1466 = true ? null : new XTENLANG_1466();
         return f == null;
     }
 
