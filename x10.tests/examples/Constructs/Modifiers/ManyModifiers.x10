@@ -17,7 +17,7 @@ import harness.x10Test;
  */
 public class ManyModifiers extends x10Test {
 
-    public global nonblocking safe sequential def m(): void = { }
+    public nonblocking safe sequential def m(): void = { }
 
 	public def run(): boolean = {
 		m();
