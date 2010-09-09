@@ -53,7 +53,7 @@ public class GraphUtil {
 	    		cg.addNode(dst);
 	    		CommunicationLabel l = null;
 	    		if(callee instanceof CallTableMethodVal){
-	    			l = new CommunicationLabel(callee.a,((CallTableMethodVal) callee).cs);
+	    			l = new CommunicationLabel(callee.a,((CallTableMethodVal) callee).cs, ((CallTableMethodVal) callee).isLocal);
 	    		}else{
 	    			l = new CommunicationLabel(callee.a);
 	    		}
