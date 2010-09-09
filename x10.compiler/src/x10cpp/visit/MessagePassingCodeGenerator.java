@@ -219,7 +219,6 @@ import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.types.X10TypeSystem_c.BaseTypeEquals;
 import x10.types.checker.Converter;
-import x10.types.checker.PlaceChecker;
 
 import x10.visit.StaticNestedClassRemover;
 import x10.visit.X10DelegatingVisitor;
@@ -2164,7 +2163,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    if (!globalInit) {
 	        sw.pushCurrentStream(h);
 	        // declare the deserializer method
-	        h.write("static "+Emitter.translateType(xts.Object(), true));
+	        h.write("static x10aux::ref<x10::lang::Reference>");
 	        h.allowBreak(2, 2, " ", 1);
 	        h.write(deserializer + "(" + DESERIALIZATION_BUFFER + " &buf);");
 	        h.newline();
@@ -2180,7 +2179,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        sw.newline();
 	        // define the deserializer method
 	        sw.write("// extract value from a buffer"); sw.newline();
-	        sw.write(Emitter.translateType(xts.Object(), true));
+	        sw.write("x10aux::ref<x10::lang::Reference>");
 	        sw.allowBreak(2, 2, " ", 1);
 	        sw.write(container + "::" + deserializer + "(" + DESERIALIZATION_BUFFER + " &buf) {");
 	        sw.newline(4); sw.begin(0);
@@ -2919,7 +2918,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    String targetMethodName = mangled_method_name(n.name().id().toString());
 		    boolean isInterfaceInvoke = false;
 		    X10Flags xf = X10Flags.toX10Flags(mi.flags());
-		    boolean needsPlaceCheck = !xf.isGlobal() && PlaceChecker.needsPlaceCheck(target, context);
 		    boolean needsNullCheck = needsNullCheck(target);
 		    if (!n.isTargetImplicit()) {
 		        // explicit target.
@@ -2940,7 +2938,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		                if (t.isClass()) {
 		                    X10ClassType clsType = (X10ClassType)t.toClass();
 		                    if (clsType.flags().isInterface()) {
-		                        invokeInterface(n, (Expr) target, args, make_ref(REFERENCE_TYPE), clsType, mi, needsPlaceCheck, needsNullCheck);
+		                        invokeInterface(n, (Expr) target, args, make_ref(REFERENCE_TYPE), clsType, mi, needsNullCheck);
 		                        sw.end();
 		                        if (needsCast) {
 		                            sw.write(")");
@@ -2949,7 +2947,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		                    }
 		                } else if (xts.isParameterType(t)) {
 		                    if (mi.container().isClass() && mi.container().toClass().flags().isInterface()) {
-		                        invokeInterface(n, (Expr) target, args, Emitter.translateType(t), mi.container(), mi, true, true);
+		                        invokeInterface(n, (Expr) target, args, Emitter.translateType(t), mi.container(), mi, true);
 		                        sw.end();
 		                        if (needsCast) {
 		                            sw.write(")");
@@ -2960,11 +2958,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		                boolean assoc = !(target instanceof New_c || target instanceof Binary_c);
 		                if (!isInterfaceInvoke) {
-		                    if (needsPlaceCheck) sw.write("x10aux::placeCheck(");
 		                    if (needsNullCheck) sw.write("x10aux::nullCheck(");
 		                    n.printSubExpr((Expr) target, assoc, sw, tr);
                             if (needsNullCheck) sw.write(")");
-                            if (needsPlaceCheck) sw.write(")");
 		                    sw.write("->");
 		                }
 
@@ -3029,7 +3025,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	private static final boolean GCC_41_HACK = false;
 
 	private void invokeInterface(Node_c n, Expr target, List<Expr> args, String dispType, Type contType,
-	                             X10MethodInstance mi, boolean needsPlaceCheck, boolean needsNullCheck)
+	                             X10MethodInstance mi, boolean needsNullCheck)
 	{
 	    boolean replicate = query.isIdempotent(target);
 	    X10CPPContext_c context = (X10CPPContext_c) tr.context();
@@ -3077,11 +3073,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    if (!replicate) {
 	        if (GCC_41_HACK && isRef(rt)) sw.write(Emitter.translateType(rt, true)); // FIXME: HACK for gcc 4.1
 	        sw.write("(__extension__ ({ "+dispType+" _ = ");
-	        if (needsPlaceCheck) sw.write("x10aux::placeCheck(");
 	        if (needsNullCheck) sw.write("x10aux::nullCheck(");
 	        n.print(target, sw, tr);
 	        if (needsNullCheck) sw.write(")");
-	        if (needsPlaceCheck) sw.write(")");
 	        sw.write(";");
 	        sw.allowBreak(0, " ");
 	    }
@@ -3091,7 +3085,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        sw.write("_");
 	    } else {
 	        if (needsCast) sw.write("((" + dispType + ")");
-	        if (needsPlaceCheck) sw.write("x10aux::placeCheck(");
 	        if (needsNullCheck) sw.write("x10aux::nullCheck(");
 	        boolean assoc = !(target instanceof New_c || target instanceof Binary_c);
 	        if (!needsCast && (! assoc && Precedence.LITERAL.equals(target.precedence()) ||
@@ -3104,7 +3097,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	            n.print(target, sw, tr);
 	        }
 	        if (needsNullCheck) sw.write(")");
-	        if (needsPlaceCheck) sw.write(")");
 	        if (needsCast) sw.write(")");
 	    }
 	    sw.write(".operator->()))->*(x10aux::findITable"+chevrons(Emitter.translateType(clsType, false))+"(");
@@ -3218,13 +3210,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			} else {
 			    X10Flags xf = X10Flags.toX10Flags(fi.flags());
 			    boolean needsNullCheck = !X10TypeMixin.isX10Struct(t) && needsNullCheck(target);
-			    boolean needsPlaceCheck = !X10TypeMixin.isX10Struct(t) && !xf.isGlobal() && PlaceChecker.needsPlaceCheck(target, context);
 				boolean assoc = !(target instanceof New_c || target instanceof Binary_c);
-				if (needsPlaceCheck) sw.write("x10aux::placeCheck(");
 				if (needsNullCheck) sw.write("x10aux::nullCheck(");
 				n.printSubExpr((Expr) target, assoc, sw, tr);
 				if (needsNullCheck) sw.write(")");
-				if (needsPlaceCheck) sw.write(")");
 			}
 		}
 		else if (target instanceof TypeNode || target instanceof AmbReceiver) {
@@ -3809,18 +3798,15 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		boolean doubleTemplate = ((X10ClassType)context.currentClass()).typeArguments().size() > 0;
 
 		X10Flags xf = X10Flags.toX10Flags(mi.flags());
-		boolean needsPlaceCheck = !xf.isGlobal() && PlaceChecker.needsPlaceCheck(domain, context);
 		boolean needsNullCheck = needsNullCheck(domain);
 		if (mi.container().toClass().flags().isInterface()) {
 		    sw.write(make_ref(REFERENCE_TYPE) + " " + name + " = "+iteratorTypeRef+"(");
-		    invokeInterface(n, domain, Collections.EMPTY_LIST, make_ref(REFERENCE_TYPE), xts.Iterable(form.type().type()), mi, needsPlaceCheck, needsNullCheck);
+		    invokeInterface(n, domain, Collections.EMPTY_LIST, make_ref(REFERENCE_TYPE), xts.Iterable(form.type().type()), mi, needsNullCheck);
 		    sw.write(");"); sw.newline();
 		} else {
 		    sw.write(make_ref(REFERENCE_TYPE) + " " + name + " = (");
-		    if (needsPlaceCheck) sw.write("x10aux::placeCheck(");
 		    if (needsNullCheck) sw.write("x10aux::nullCheck(");
 		    n.print(domain, sw, tr);
-		    if (needsPlaceCheck) sw.write(")");
 		    if (needsNullCheck) sw.write(")");
 		    sw.writeln(")->iterator();");
 		}
@@ -4158,8 +4144,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         // (an overridden member function will not be called from the itable, which is very non-intuitive).
         // As soon as XTENLANG-467 is fixed, take out the explicit qualifications and let C++ member lookup do its job...
         defn_s.write((in_template_closure ? "typename ": "")+superType+(in_template_closure ? "::template itable ": "::itable")+chevrons(cnamet)+
-        			cnamet+"::_itable(&"+cnamet+"::apply, &"+REFERENCE_TYPE+"::at, &"+REFERENCE_TYPE+"::at, "+
-        			"&"+REFERENCE_TYPE+"::equals, &"+CLOSURE_TYPE+"::hashCode, &"+REFERENCE_TYPE+"::home, &"
+        			cnamet+"::_itable(&"+cnamet+"::apply, "+
+        			"&"+REFERENCE_TYPE+"::equals, &"+CLOSURE_TYPE+"::hashCode, &"
         			+cnamet+"::toString, &"+CLOSURE_TYPE+"::typeName);");
 
         if (in_template_closure)
@@ -4282,7 +4268,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         String template = in_template_closure ? "template " : "";
         defn_s.write("x10aux::DeserializationDispatcher::addDeserializer("+
                   cnamet+"::"+template+DESERIALIZE_METHOD+
-                  chevrons(Emitter.translateType(xts.Object()))+");");
+                  chevrons("x10::lang::Reference")+");");
         defn_s.newline(); defn_s.forceNewline();
     }
 
@@ -4496,7 +4482,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		Type t = target.type();
 		X10Flags xf = X10Flags.toX10Flags(mi.flags());
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		boolean needsPlaceCheck = !xf.isGlobal() && PlaceChecker.needsPlaceCheck(target, context);
 		boolean needsNullCheck = needsNullCheck(target);
 		if (lit != null) {
 		    // Optimize to stack-allocated closure and non-virtual dispatch
@@ -4517,13 +4502,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		        e.printStackTrace();
 		        assert (false);
 		    }
-		    invokeInterface(c, target, args, make_ref(REFERENCE_TYPE), t.toClass(), ami, needsPlaceCheck, needsNullCheck);
+		    invokeInterface(c, target, args, make_ref(REFERENCE_TYPE), t.toClass(), ami, needsNullCheck);
 		    return;
 		} else {
-            if (needsPlaceCheck) sw.write("x10aux::placeCheck(");
             if (needsNullCheck) sw.write("x10aux::nullCheck(");
 			c.printSubExpr(target, sw, tr);
-            if (needsPlaceCheck) sw.write(")");
             if (needsNullCheck) sw.write(")");
 			sw.write("->apply(");
 		}

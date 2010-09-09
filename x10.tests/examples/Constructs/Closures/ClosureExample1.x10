@@ -33,7 +33,7 @@ public class ClosureExample1 extends x10Test {
         return null;
     }
 
-    val xs: List[Int]! = new ArrayList[Int]();
+    val xs  = new ArrayList[Int]();
     
     // val x: Int = find((x: Int) => (x>0), xs);
     val x: Box[Int] = find((x: Int) => (x>0), xs);

@@ -20,15 +20,13 @@ import harness.x10Test;
 
 public class FlattenCast extends x10Test {
 
-    var a: Array[int](2)!;
+    var a: Array[int](2);
 
     public def this(): FlattenCast = {
         a = new Array[int]([1..10, 1..10], (p(i,j): Point) => i+j);
     }
 
-    def m(var x: int): int = {
-        return x;
-    }
+    def m(x: int)=x;
 
     public def run(): boolean = {
         val x =  m(a(1, 1)) as Double; // being called in a method to force flattening.

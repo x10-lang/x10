@@ -661,7 +661,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
             String template = in_template_closure ? "template " : "";
             inc.write("x10aux::DeserializationDispatcher::addDeserializer("+
                       cnamet+"::"+template+SharedVarsMethods.DESERIALIZE_METHOD+
-                      chevrons(Emitter.translateType(xts.Object()))+", true, "+
+                      chevrons("x10::lang::Reference")+", true, "+
                       cnamet+"::"+template+SharedVarsMethods.DESERIALIZE_CUDA_METHOD+", "+
                       "\""+hostClassName+".cubin\", \""+cnamet+"\");");
             inc.newline(); inc.forceNewline();

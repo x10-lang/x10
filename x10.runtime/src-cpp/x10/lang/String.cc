@@ -328,7 +328,7 @@ ref<String> String::format(ref<String> format, ref<ValRail<ref<Any> > > parms) {
 ref<String> String::format(ref<String> format, ref<Rail<ref<Any> > > parms) {
     std::ostringstream ss;
     nullCheck(format);
-    placeCheck(nullCheck(parms));
+    nullCheck(parms);
     //size_t len = format->FMGL(content_length);
     char* orig = const_cast<char*>(format->c_str());
     char* fmt = orig;
@@ -454,7 +454,7 @@ x10_boolean String::endsWith(ref<String> s) {
 }
 
 const serialization_id_t String::_serialization_id =
-    DeserializationDispatcher::addDeserializer(String::_deserializer<Object>);
+    DeserializationDispatcher::addDeserializer(String::_deserializer<Reference>);
 
 // Specialized serialization
 void String::_serialize(x10aux::ref<String> this_, x10aux::serialization_buffer &buf) {
@@ -492,12 +492,12 @@ void String::_deserialize_body(x10aux::deserialization_buffer &buf) {
     _S_("Deserialized string was: \""<<this<<"\"");
 }
 
-Fun_0_1<x10_int, x10_char>::itable<String> String::_itable_Fun_0_1(&String::apply, &String::at, &String::at,
+Fun_0_1<x10_int, x10_char>::itable<String> String::_itable_Fun_0_1(&String::apply, 
                                                                    &String::equals, &String::hashCode,
-                                                                   &String::home, &String::toString, &String::typeName);
-Comparable<ref<String> >::itable<String> String::_itable_Comparable(&String::at, &String::at, &String::compareTo,
+                                                                   &String::toString, &String::typeName);
+Comparable<ref<String> >::itable<String> String::_itable_Comparable(&String::compareTo,
                                                                    &String::equals, &String::hashCode,
-                                                                   &String::home, &String::toString, &String::typeName);
+                                                                   &String::toString, &String::typeName);
 
 x10aux::itable_entry String::_itables[3] = {
     x10aux::itable_entry(&x10aux::getRTT<Fun_0_1<x10_int, x10_char> >, &String::_itable_Fun_0_1),

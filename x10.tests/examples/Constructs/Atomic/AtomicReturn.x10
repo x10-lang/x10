@@ -16,7 +16,7 @@ import harness.x10Test;
  */
 public class AtomicReturn extends x10Test {
 	var a: int = 0;
-	const N: int = 100;
+	static N: int = 100;
 
 	def update1(): int = {
 		atomic {
@@ -34,11 +34,11 @@ public class AtomicReturn extends x10Test {
 	public def run(): boolean = {
 		update1();
 		update3();
-		x10.io.Console.OUT.println(a);
+		//x10.io.Console.OUT.println(a);
 		return a == 2;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(Rail[String]) {
 		new AtomicReturn().execute();
 	}
 }

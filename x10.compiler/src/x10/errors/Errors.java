@@ -855,4 +855,29 @@ public class Errors {
 			return((OfferTypeMismatch)o).position().equals(position());
 		}
 	}
+	public static class StructMayNotBeGlobal extends SemanticException {
+		private static final long serialVersionUID = 6179492565190231102L;
+		public StructMayNotBeGlobal(Position position, X10ClassDecl cd) {
+			super("global modifier cannot be used for structs."
+					+ "\n\t Struct declaration: " + cd.name(), 
+					position);
+		}
+		public boolean equals(Object o) {
+			if (o==null || ! (o instanceof OfferTypeMismatch) )
+				return false;
+			return((OfferTypeMismatch)o).position().equals(position());
+		}
+	}
+	public static class GlobalClassMustHaveGlobalClassSupertype extends SemanticException {
+		private static final long serialVersionUID = 2237512073167205925L;
+		public GlobalClassMustHaveGlobalClassSupertype(Ref<? extends Type> superType, ClassDef type, Position pos) {
+	        super(superType + " cannot be the superclass for " + type +
+	              "; a global class must subclass a global class.", pos);
+	    }
+	    public boolean equals(Object o) {
+	        if (o==null || ! (o instanceof GlobalClassMustHaveGlobalClassSupertype) )
+	            return false;
+	        return((GlobalClassMustHaveGlobalClassSupertype)o).position().equals(position());
+	    }
+	}
 }

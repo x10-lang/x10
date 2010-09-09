@@ -20,10 +20,10 @@ public class IntArrayIndexing extends x10Test {
 
 	const verbose: boolean = false;
 
-	var _intArray1D: Array[int](1)!;
-	var _intArray2D: Array[int](2)!;
-	var _intArray3D: Array[int](3)!;
-	var _intArray4D: Array[int](4)!;
+	var _intArray1D: Array[int](1);
+	var _intArray2D: Array[int](2);
+	var _intArray3D: Array[int](3);
+	var _intArray4D: Array[int](4);
 
 	public def this(): IntArrayIndexing {
 		val kArraySize: int = 30;
@@ -48,7 +48,7 @@ public class IntArrayIndexing extends x10Test {
 		x10.io.Console.OUT.println("int arrays allocated in "+(((stop-start) as double)/1000)+ "seconds");
 	}
 
-	def verify3D(var array: Array[int](3)!): boolean {
+	def verify3D(var array: Array[int](3)): boolean {
 
 		var h1: int = array.region.max(0);
 		var h2: int = array.region.max(1);
@@ -73,7 +73,7 @@ public class IntArrayIndexing extends x10Test {
 				}
 		return true;
 	}
-	def verify4D(var array: Array[int](4)!): boolean {
+	def verify4D(var array: Array[int](4)): boolean {
 		var h1: int = array.region.max(0);
 		var h2: int = array.region.max(1);
 		var h3: int = array.region.max(2);
@@ -98,7 +98,7 @@ public class IntArrayIndexing extends x10Test {
 		return true;
 	}
 
-	def initialize(val array: Array[int]!): void {
+	def initialize(val array: Array[int]): void {
 		var count: int = 0;
 		for (val p: Point(array.rank) in array.region) {
 			array(p) = count++;

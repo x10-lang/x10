@@ -189,8 +189,8 @@ namespace x10 {
         #endif
 
         template<class T> x10aux::ref<T> String::_deserializer(x10aux::deserialization_buffer& buf) {
-            x10aux::ref<String> this_ = new (x10aux::alloc_remote<String>()) String();
-            buf.record_reference(this_); // TODO: avoid; no global refs; final class
+            x10aux::ref<String> this_ = new (x10aux::alloc<String>()) String();
+            buf.record_reference(this_);
             this_->_deserialize_body(buf);
             return this_;
         }
@@ -198,11 +198,13 @@ namespace x10 {
         // Specialized deserialization
         template<class T> x10aux::ref<T> String::_deserialize(x10aux::deserialization_buffer &buf) {
             Object::_reference_state rr = Object::_deserialize_reference_state(buf);
-            x10aux::ref<String> this_;
-            if (rr.ref != 0) {
-                this_ = String::_deserializer<String>(buf);
+            if (0 == rr.ref) {
+                return x10aux::null;
+            } else {
+                x10aux::ref<String> res = String::_deserializer<String>(buf);
+                _S_("Deserialized a "<<ANSI_SER<<ANSI_BOLD<<"class"<<ANSI_RESET<<" x10::lang::String");
+                return res;
             }
-            return Object::_finalize_reference<T>(this_, rr, buf);
         }
 
     } // namespace x10::lang

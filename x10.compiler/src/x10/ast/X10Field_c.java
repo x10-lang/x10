@@ -120,7 +120,8 @@ public class X10Field_c extends Field_c {
             // located in the current place. "this" is going to get quantified out by the FieldMatcher.
             // therefore we temporarily replace this.home with a new UQV, currentPlace, and then on
             // return from the matcher, substitute it back in.
-            XTerm placeTerm = c.currentPlaceTerm()==null ? null: c.currentPlaceTerm().term();
+        
+        	XTerm placeTerm = c.currentPlaceTerm()==null ? null: c.currentPlaceTerm().term();
             XVar currentPlace = XTerms.makeUQV("place");
             Type tType2 = placeTerm==null ? targetType : Subst.subst(targetType, currentPlace, (XVar) placeTerm);
             fi = (X10FieldInstance) ts.findField(targetType, ts.FieldMatcher(tType2, receiverInContext, name, c));
@@ -179,7 +180,8 @@ public class X10Field_c extends Field_c {
 	        e = new SemanticException(); // null message
 	    fi = xts.createFakeField(targetType.toClass(), flags, name, e);
 	    if (rt == null) rt = fi.type();
-	    rt = PlaceChecker.AddIsHereClause(rt, context);
+	    // vj: Added by Igor, not sure why. Removed.
+	    // rt = PlaceChecker.AddIsHereClause(rt, context);
 	    fi = fi.type(rt);
 	    return fi;
 	}
@@ -304,7 +306,8 @@ public class X10Field_c extends Field_c {
 		result.checkConsistency(c);
 
 		checkFieldAccessesInDepClausesAreFinal(result, tc);
-		result = PlaceChecker.makeFieldAccessLocalIfNecessary(result, tc);
+		// Not needed in the orthogonal locality proposal.
+		// result = PlaceChecker.makeFieldAccessLocalIfNecessary(result, tc);
 
 		//System.err.println("X10Field_c: typeCheck " + result+ " has type " + result.type());
 		return result;

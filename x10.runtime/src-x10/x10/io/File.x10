@@ -113,7 +113,9 @@ FileSystem operations
     public const SEPARATOR: Char = '/';
     public const PATH_SEPARATOR: Char = ':';
 
-    val parent: File!;
+    // TODO: This is questionable.
+    //       What does it mean to send a File to another node?
+    val parent: File;
     val name: String;
     val absolute: Boolean;
 
@@ -136,7 +138,7 @@ FileSystem operations
         }
     }
 
-    public def this(p: File!, n: String) {
+    public def this(p: File, n: String) {
         assert p != null;
         parent = p;
         name = n;
@@ -145,22 +147,22 @@ FileSystem operations
 
     // incomplete def this(u: URI);
 
-    public def lines(): ReaderIterator[String]! throws IOException = openRead().lines();
-    public def chars(): ReaderIterator[Char]! throws IOException = openRead().chars();
-    public def bytes(): ReaderIterator[Byte]! throws IOException = openRead().bytes();
+    public def lines(): ReaderIterator[String] throws IOException = openRead().lines();
+    public def chars(): ReaderIterator[Char] throws IOException = openRead().chars();
+    public def bytes(): ReaderIterator[Byte] throws IOException = openRead().bytes();
     public def openRead() throws IOException = new FileReader(this);
     public def openWrite() throws IOException = new FileWriter(this);
     public def printer() throws IOException = new Printer(openWrite());
 
     public def getName(): String = name;
-    public def getParentFile(): File! = parent;
+    public def getParentFile(): File = parent;
     public def getPath(): String = parent == null ? name : (parent.getPath() + SEPARATOR + name);
     public def isAbsolute(): Boolean = absolute;
 
     protected def nativeFile()  = new NativeFile(getPath());
 
-    public def getAbsoluteFile(): File! = new File(nativeFile().getAbsolutePath());
-    public def getCanonicalFile(): File!  throws IOException = new File(nativeFile().getCanonicalPath());
+    public def getAbsoluteFile(): File = new File(nativeFile().getAbsolutePath());
+    public def getCanonicalFile(): File  throws IOException = new File(nativeFile().getCanonicalPath());
 
     // incomplete def toURL(): URL;
     // incomplete def toURI(): URI;

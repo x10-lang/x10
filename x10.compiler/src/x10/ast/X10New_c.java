@@ -582,6 +582,10 @@ public class X10New_c extends New_c implements X10New {
         // Add self.home == here to the return type.
         if (! ts.isStructType(type)) {
 
+        	// Add this even in 2.1 -- the place where this object is created
+        	// is tracked in the type through a fake field "here".
+        	// This field does not exist at runtime in the object -- but that does not
+        	// prevent the compiler from imagining that it exists.
         	type = PlaceChecker.AddIsHereClause(type, tc.context());
         	// Add self != null
         	type = X10TypeMixin.addDisBinding(type, X10TypeMixin.selfVar(type), XTerms.NULL);

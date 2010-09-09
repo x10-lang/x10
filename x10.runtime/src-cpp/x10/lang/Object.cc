@@ -22,33 +22,8 @@ x10aux::ref<Object> Object::_make() {
     return (new (x10aux::alloc<Object>()) Object())->_constructor();
 }
 
-x10_int x10::lang::Object::hashCode() {
-    // STEP 1: Figure out the address to use as for the object.
-    void *v;
-    if (this->location == x10aux::here) {
-        v = (void*)this;
-    } else {
-        v = (void*)x10aux::get_remote_ref(this);
-    }
-
-    // STEP 2: Combine the bits of the pointer into a 32 bit integer.
-    //         Note: intentionally not doing some type-punning pointer thing here as
-    //         the behavior of that is somewhat underdefined and tends to expose
-    //         "interesting" behavior in C++ compilers (especially at high optimization level).
-    uint64_t v2 = (uint64_t)v;
-    x10_int lower = (x10_int)(v2 & 0xffffffff);
-    x10_int upper = (x10_int)(v2 >> 32);
-    x10_int hc = lower ^ upper;
-    return hc;
-}
-
 x10aux::ref<x10::lang::String> x10::lang::Object::toString() {
-    void *v;
-    if (this->location == x10aux::here) {
-        v = (void*)this; 
-    } else {
-        v = (void*)x10aux::get_remote_ref(this);
-    }                              
+    void *v = (void*)this; 
     return String::Lit(alloc_printf("%s@%p",this->_type()->name(),v));
 }
 
@@ -57,7 +32,7 @@ x10aux::ref<x10::lang::String> x10::lang::Object::typeName() {
 }
 
 const serialization_id_t Object::_serialization_id =
-    DeserializationDispatcher::addDeserializer(Object::_deserializer<Object>);
+    DeserializationDispatcher::addDeserializer(Object::_deserializer<Reference>);
 
 void Object::_serialize(ref<Object> this_, serialization_buffer &buf)
 {
@@ -73,7 +48,7 @@ void Object::_serialize(ref<Object> this_, serialization_buffer &buf)
 }
 
 const serialization_id_t Object::_interface_serialization_id =
-    DeserializationDispatcher::addDeserializer(Object::_deserialize<Object>);
+    DeserializationDispatcher::addDeserializer(Object::_deserialize<Reference>);
 
 void Object::_serialize_interface(serialization_buffer &buf)
 {
@@ -83,35 +58,20 @@ void Object::_serialize_interface(serialization_buffer &buf)
 void Object::_serialize_reference(ref<Object> this_, serialization_buffer &buf)
 {
     bool isNull = this_.isNull();
-    x10_int loc = isNull ? 0 : this_->location;
-    buf.write(loc);
     if (isNull) {
         _S_("Serializing a "<<ANSI_SER<<ANSI_BOLD<<"null reference"<<ANSI_RESET<<" to buf: "<<&buf);
         buf.write((x10_addr_t)0);
-    } else if (loc == x10aux::here) {
-        _S_("Serialising a "<<ANSI_SER<<ANSI_BOLD<<"local Object"<<ANSI_RESET<<
+    } else {
+        _S_("Serializing an "<<ANSI_SER<<ANSI_BOLD<<" Object"<<ANSI_RESET<<
                 " object of type "<<this_->_type()->name());
         buf.write((x10_addr_t)(size_t)this_.operator->()); 
-        #if defined(X10_USE_BDWGC) || defined(X10_DEBUG_REFERENCE_LOGGER)
-        if (!this_->_isMortal()) {
-            ReferenceLogger::log(this_.operator->());
-        }
-        #endif
-    } else {
-        _S_("Serialising a "<<ANSI_SER<<ANSI_BOLD<<"remote Object"<<ANSI_RESET<<
-                " object of type "<<this_->_type()->name()<<" (loc="<<loc<<")");
-        x10_addr_t tmp = get_remote_ref(this_.operator->());
-        buf.write(tmp);
     }
 }
 
 void Object::dealloc_object(Object* obj) {
-    _M_("Attempting to dealloc object "<<(void*)obj<<", location="<<obj->location);
+    _M_("Attempting to dealloc object "<<(void*)obj);
     obj->_destructor();
-    if (obj->location == x10aux::here)
-        dealloc(obj);
-    else
-        dealloc_remote(obj);
+    dealloc(obj);
 }
 
 x10aux::RuntimeType x10::lang::Object::rtt;

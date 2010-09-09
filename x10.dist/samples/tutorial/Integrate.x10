@@ -48,7 +48,7 @@ public class Integrate {
     return resHolder.value + expr2;
   }
  
-  public static def main(args:Rail[String]!) {
+  public static def main(args:Rail[String]) {
     val obj = new Integrate((x:double)=>(x*x + 1.0) * x);
     val xMax = args.length > 0 ? Int.parse(args(0)) : 10;
     val area = obj.computeArea(0, xMax);

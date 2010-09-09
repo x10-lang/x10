@@ -966,7 +966,7 @@ public class Emitter {
             w.write("const x10aux::serialization_id_t "+klass+"::"+SERIALIZATION_ID_FIELD+" = ");
             w.newline(4);
             w.write("x10aux::DeserializationDispatcher::addDeserializer(");
-            w.write(klass+"::"+template+DESERIALIZER_METHOD+chevrons(translateType(ts.Object()))+");");
+            w.write(klass+"::"+template+DESERIALIZER_METHOD+chevrons("x10::lang::Reference")+");");
             w.newline(); w.forceNewline();
         }
 
@@ -1022,12 +1022,21 @@ public class Emitter {
             if (i != 0)
                 w.newline();
             FieldInstance f = (FieldInstance) type.fields().get(i);
+            
             if (f.flags().isStatic() || query.isSyntheticField(f.name().toString()))
                 continue;
-            if (!X10Flags.toX10Flags(f.flags()).isGlobal()) // only serialize global fields of classes
+            if (f.flags().isTransient()) // don't serialize transient fields
                 continue;
             String fieldName = mangled_field_name(f.name().toString());
             w.write("buf.write(this->"+fieldName+");"); w.newline();
+        }
+        // Special case x10.lang.Array to serialize the contents of rawChunk too
+        if (ts.isX10Array(type)) {
+            w.write("for (x10_int i = 0; i<this->FMGL(rawLength); i++) {");
+            w.newline(4); w.begin(0);
+            w.write("buf.write(this->FMGL(raw)->apply(i));");
+            w.end(); w.newline();
+            w.write("}");
         }
         w.end(); w.newline();
         w.write("}");
@@ -1044,7 +1053,7 @@ public class Emitter {
             sw.write(make_ref("__T")+" "+klass+"::"+DESERIALIZER_METHOD+"("+DESERIALIZATION_BUFFER+"& buf) {");
             sw.newline(4); sw.begin(0);
             sw.writeln(make_ref(klass)+" this_ = "+
-                       "new (x10aux::alloc_remote"+chevrons(klass)+"()) "+klass+"();");
+                       "new (x10aux::alloc"+chevrons(klass)+"()) "+klass+"();");
             sw.writeln("buf.record_reference(this_);");
             sw.writeln("this_->"+DESERIALIZE_BODY_METHOD+"(buf);");
             sw.write("return this_;");
@@ -1063,15 +1072,19 @@ public class Emitter {
             sw.write("template<class __T> ");
             sw.write(make_ref("__T")+" "+klass+"::"+DESERIALIZE_METHOD+"("+DESERIALIZATION_BUFFER+"& buf) {");
             sw.newline(4); sw.begin(0);
-            sw.writeln("x10::lang::Object::_reference_state rr = " +
-                    "x10::lang::Object::_deserialize_reference_state(buf);");
-            sw.writeln(make_ref(klass)+" this_;");
-            sw.write("if (rr.ref != 0) {");
+            sw.writeln("x10::lang::Object::_reference_state rr = x10::lang::Object::_deserialize_reference_state(buf);");
+            sw.write("if (0 == rr.ref) {");                
             sw.newline(4); sw.begin(0);
-            sw.write("this_ = "+klass+"::"+template+DESERIALIZER_METHOD+chevrons(klass)+"(buf);");
+            sw.write("return x10aux::null;");
+            sw.end(); sw.newline();
+            sw.write("} else {");
+            sw.newline(4); sw.begin(0);
+            sw.writeln(make_ref(klass)+" res;");
+            sw.writeln("res = "+klass+"::"+template+DESERIALIZER_METHOD+chevrons(klass)+"(buf);");
+            sw.writeln("_S_(\"Deserialized a \"<<ANSI_SER<<ANSI_BOLD<<\"class\"<<ANSI_RESET<<\""+klass+"\");");
+            sw.write("return res;");
             sw.end(); sw.newline();
             sw.writeln("}");
-            sw.write("return x10::lang::Object::_finalize_reference"+chevrons("__T")+"(this_, rr, buf);");
             sw.end(); sw.newline();
             sw.writeln("}"); sw.forceNewline();
             sw.popCurrentStream();
@@ -1093,10 +1106,21 @@ public class Emitter {
             FieldInstance f = (FieldInstance) type.fields().get(i);
             if (f.flags().isStatic() || query.isSyntheticField(f.name().toString()))
                 continue;
-            if (!X10Flags.toX10Flags(f.flags()).isGlobal()) // only serialize global fields of classes
+            if (f.flags().isTransient()) // don't serialize transient fields of classes
                 continue;
             String fieldName = mangled_field_name(f.name().toString());
             w.write(fieldName+" = buf.read"+chevrons(translateType(f.type(),true))+"();");
+        }
+        // Special case x10.lang.Array to deserialize the contents of rawChunk too
+        if (ts.isX10Array(type)) {
+            String elemType = translateType(ct.typeArguments().get(0),true);
+            w.newline();
+            w.writeln("FMGL(raw) = x10::util::IndexedMemoryChunk<void>::allocate"+chevrons(elemType)+"(FMGL(rawLength),8,false,false);");
+            w.write("for (x10_int i = 0; i<this->FMGL(rawLength); i++) {");
+            w.newline(4); w.begin(0);
+            w.write("this->FMGL(raw)->set(buf.read"+chevrons(elemType)+"(), i);");
+            w.end(); w.newline();
+            w.write("}");
         }
         w.end(); w.newline();
         w.write("}");
@@ -1132,6 +1156,8 @@ public class Emitter {
             FieldInstance f = (FieldInstance) type.fields().get(i);
             if (f.flags().isStatic() || query.isSyntheticField(f.name().toString()))
                 continue;
+            if (f.flags().isTransient()) // don't serialize transient fields
+                continue;
             String fieldName = mangled_field_name(f.name().toString());
             w.write("buf.write(this_->"+fieldName+");"); w.newline();
         }
@@ -1162,6 +1188,8 @@ public class Emitter {
                 w.newline();
             FieldInstance f = (FieldInstance) type.fields().get(i);
             if (f.flags().isStatic() || query.isSyntheticField(f.name().toString()))
+                continue;
+            if (f.flags().isTransient()) // don't serialize transient fields
                 continue;
             String fieldName = mangled_field_name(f.name().toString());
             w.write(fieldName+" = buf.read"+chevrons(translateType(f.type(),true))+"();");

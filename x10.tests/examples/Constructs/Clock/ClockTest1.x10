@@ -27,8 +27,8 @@ public class ClockTest1 extends x10Test {
 		
 	    // the fact of spawning this clocked activity increases 
 	    // the number of registered activities to two.
-	    async(here) clocked(c)  // activity A1
-	    finish async(here) { // activity A2
+	    async clocked(c)  // activity A1
+	    finish async  { // activity A2
 		atomic { flag = true; }  
 	    } // A1 drops all registered clocks
 		

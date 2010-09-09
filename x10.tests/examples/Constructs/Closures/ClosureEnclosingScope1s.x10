@@ -22,7 +22,7 @@ import harness.x10Test;
 
 public class ClosureEnclosingScope1s extends ClosureTest {
 
-   global  val a = 1;
+   val a = 1;
 
     public def run(): boolean = {
         

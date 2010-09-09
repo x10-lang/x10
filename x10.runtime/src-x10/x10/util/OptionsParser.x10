@@ -20,16 +20,16 @@ import x10.util.GrowableRail;
 public final class OptionsParser {
 
     public static final class Err extends Exception {
-        global private val msg:String;
+        private val msg:String;
         public def this (m:String) { this.msg = m; }
-        global safe public def toString() = "Commandline error: "+msg;
+        safe public def toString() = "Commandline error: "+msg;
     }
 
-    private val map : HashMap[String,String]!;
-    private val set : HashMap[String,Boolean]!;
-    private val filteredArgs : GrowableRail[String]!;
+    private val map : HashMap[String,String];
+    private val set : HashMap[String,Boolean];
+    private val filteredArgs : GrowableRail[String];
 
-    public def this (args:Rail[String]!, flags:ValRail[Option], specs:ValRail[Option]) throws Err {
+    public def this (args:Rail[String], flags:ValRail[Option], specs:ValRail[Option]) throws Err {
         val map = new HashMap[String,String]();
         val set = new HashMap[String,Boolean]();
         val filteredArgs = new GrowableRail[String]();

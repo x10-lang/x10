@@ -37,7 +37,7 @@ void AtomicInteger::_deserialize_body(x10aux::deserialization_buffer& buf) {
 }
 
 const x10aux::serialization_id_t AtomicInteger::_serialization_id =
-    x10aux::DeserializationDispatcher::addDeserializer(AtomicInteger::_deserializer<Object>);
+    x10aux::DeserializationDispatcher::addDeserializer(AtomicInteger::_deserializer<Reference>);
 
 RTT_CC_DECLS1(AtomicInteger, "x10.util.concurrent.atomic.AtomicInteger", Object)
 

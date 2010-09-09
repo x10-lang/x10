@@ -250,7 +250,7 @@ namespace x10 {
         }
 
         template<class T> template<class U> x10aux::ref<U> GrowableRail<T>::_deserializer(x10aux::deserialization_buffer &buf) {
-            x10aux::ref<GrowableRail> this_ = new (x10aux::alloc_remote<GrowableRail>()) GrowableRail();
+            x10aux::ref<GrowableRail> this_ = new (x10aux::alloc<GrowableRail>()) GrowableRail();
             buf.record_reference(this_); // TODO: avoid; no global refs; final class
             this_->_deserialize_body(buf);
             return this_;
@@ -261,7 +261,7 @@ namespace x10 {
         }
 
         template<class T> const x10aux::serialization_id_t GrowableRail<T>::_serialization_id =
-            x10aux::DeserializationDispatcher::addDeserializer(GrowableRail<T>::template _deserializer<Object>);
+            x10aux::DeserializationDispatcher::addDeserializer(GrowableRail<T>::template _deserializer<Reference>);
 
         template<> class GrowableRail<void> {
         public:

@@ -12,7 +12,7 @@
 package x10.util;
 
 public class RailBuilder[T] implements Builder[T,Rail[T]] {
-    val buf: GrowableRail[T]!;
+    val buf: GrowableRail[T];
 
     public def this() {
         buf = new GrowableRail[T]();

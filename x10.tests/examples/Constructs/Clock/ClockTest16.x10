@@ -39,12 +39,12 @@ import harness.x10Test;
 public class ClockTest16 extends x10Test {
 
 	public def run(): boolean = {
-		val x: X! = new X();
+		val x = new X();
 		try {
 			finish async {
 				val c0 = Clock.make();
 				val c1 = Clock.make();
-				val ca: Rail[Clock]! = Rail.make([c0,c1]);
+				val ca: Rail[Clock] = Rail.make([c0,c1]);
 
 				// Question:
 				// Can an activity ever pass a clock it is not
@@ -78,7 +78,7 @@ public class ClockTest16 extends x10Test {
 					next;
 				}
 
-				val f0: foo! = new foo() {
+				val f0 = new foo() {
 					public def apply(): void = {
 						val cx = ca(x.zero()); // DYNAMIC_CHECK
 						async clocked(cx) { // clock use error
@@ -87,7 +87,7 @@ public class ClockTest16 extends x10Test {
 					}
 				};
 
-				val f1: foo! = new foo() {
+				val f1= new foo() {
 					public def apply(): void = {
 						val cx = ca(x.one()); // DYNAMIC_CHECK
 						async clocked(cx) { // no clock use error
@@ -96,13 +96,13 @@ public class ClockTest16 extends x10Test {
 					}
 				};
 
-				val fooArray: Rail[foo!]! = Rail.make([f0,f1]);
+				val fooArray: Rail[foo] = Rail.make([f0,f1]);
 
 				// Compiler: MAYBE, Actual: NO
-				Y.test(fooArray(x.one()) as foo!, c1);
+				Y.test(fooArray(x.one()) as foo, c1);
 
 				// Compiler: MAYBE, Actual: YES
-				Y.test(fooArray(x.zero()) as foo!, c1);
+				Y.test(fooArray(x.zero()) as foo, c1);
 
 				// Compiler: YES, actual: YES
 				async clocked(c1) {
@@ -116,9 +116,9 @@ public class ClockTest16 extends x10Test {
 				next;
 			}
 			return false;
-		} catch (var e: ClockUseException) {
-		} catch (var e: MultipleExceptions) {
-		    for (val ex:Throwable in e.exceptions())
+		} catch (e: ClockUseException) {
+		} catch ( e: MultipleExceptions) {
+		    for (ex:Throwable in e.exceptions())
 		       if (! (ex instanceof ClockUseException))
 		          return false;
 		}
@@ -126,7 +126,7 @@ public class ClockTest16 extends x10Test {
 		return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(Rail[String]) {
 		new ClockTest16().execute();
 	}
 
@@ -134,7 +134,7 @@ public class ClockTest16 extends x10Test {
 	 * A class to invoke a 'function pointer' inside of async
 	 */
 	static class Y {
-		static def test(val f: foo!, val c: Clock): void = {
+		static def test(f: foo, c: Clock): void = {
 			// Compiler analysis may not be possible here
 			async clocked(c) {
 				f.apply(); // it is hard to determine f does an async clocked(c2) S, where c2 != c
@@ -163,7 +163,7 @@ public class ClockTest16 extends x10Test {
 	 * for a typical compiler
 	 */
 	static class X {
-		public val z: Rail[int]! = Rail.make([1,0]);
+		public val z: Rail[int] = Rail.make([1,0]);
 		def zero() = z(z(1)); 
 		def one() = z(z(z(0)));
 		def modify(): void = { z(0) += 1; }

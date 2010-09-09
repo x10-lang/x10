@@ -14,6 +14,7 @@
 import harness.x10Test;
 
 /**
+ * In 2.1 the variable access will succeed, so this is an INVALID test.
  * @author bdlucas
  */
 

@@ -64,14 +64,20 @@ public class PlaceChecker {
 	public static XLocal here() {
 		return HERE;
 	}
+	
+	// static XTerm arbitraryPlace;
 	/**
 	 * 
 	 * @return a newly constructed UQV representing a fixed but unknown place.
 	 */
 	public static XTerm makePlace() {
+	/*	if (arbitraryPlace == null) {
+			arbitraryPlace = XTerms.makeUQV("_place");
+		}
+		*/
 		XTerm place = XTerms.makeUQV("_place");
 		
-		return place;
+		return place; //  arbitraryPlace;
 	}
 
 	public static boolean isGlobalPlace(XTerm term) {
@@ -90,17 +96,45 @@ public class PlaceChecker {
 	static XTerm thisHomeVar(Context xc) {
 		return homeVar(((X10Context) xc).thisVar(), (X10TypeSystem) xc.typeSystem());
 	}
-	static FieldInstance AnyHome(X10TypeSystem xts) {
-		return ((StructType) xts.Any()).fieldNamed(xts.homeName());
+	static FieldInstance GlobalRefHome(X10TypeSystem xts) {
+		return ((StructType) xts.GlobalRef()).fieldNamed(xts.homeName());
 	}
+	/**
+	 * The key  move in adapting the 2.0 place checking system to 2.1 is to continue
+	 * to pretend that for each object (other than instances of GlobalRef -- 
+	 * for that we have globalRefHomeVar(..)) we track the place where it was created in a fake
+	 * field called "here". This field does not exist in the object, but it serves as a way
+	 * to record the place at which an object was created so that fields that may be initialized 
+	 * with the indexical constant "here" can still be tracked through the fake field "this.here".
+	 * For instance this lets us infer that the following is place safe
+	 * class C {
+	 *   val root = GlobalRef[C](this); 
+	 *   // this records the type of root as GlobalRef[C]{self.home == C#this.here} .. note C#this.here is a fake field.
+	 *   }
+	 *   val x = (new C()).root; 
+	 *   // this computes the type of new C() as C{this.here == _place269}, where _place269 is a constant standing for "here"
+	 *   // so it computes the type of (new C()).root as GlobalRef[C]{self.home == _place269}.
+	 *   x(); // now this is legal because _place269 is the current place, hence the guard x.home == here is satisfied.
+	 *   
+	 *   Note that the user cannot specify any constraint in the X10 source program to refer to this fake field.
+	 *   This field is purely an internal contrivance of the type system to enable us to reuse the machinery 
+	 *   we had developed for 2.0 to track where an object is created.
+	 *   
+	 * @param target
+	 * @param xts
+	 * @return
+	 */
 	static XTerm homeVar(XTerm target, X10TypeSystem xts)  {
-		return xts.xtypeTranslator().trans(new CConstraint(), target, AnyHome(xts));
+		return xts.xtypeTranslator().transFakeField(new CConstraint(), target, "here");
+	}
+	static XTerm globalRefHomeVar(XTerm target, X10TypeSystem xts)  {
+		return xts.xtypeTranslator().trans(new CConstraint(), target, GlobalRefHome(xts));
 	}
 	
 	public static XTerm placeTerm(Type t) {
     	X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
     	CConstraint cc = X10TypeMixin.xclause(t);
-    	return cc==null ? null : cc.bindingForSelfField(AnyHome(xts));
+    	return cc==null ? null : cc.bindingForSelfField(GlobalRefHome(xts));
     }
 	/**
 	 * Return {thisVar.home==here}
@@ -300,20 +334,20 @@ public class PlaceChecker {
 		X10Context xc = (X10Context) c;
 		ClassDef cd = c.currentClassDef();
 		
-		// bypass Any to avoid infinite recursion (pushPlace will again look for Any.home..)
-		// This means that the types in Any cannot reference here.
+		// bypass GlobalRef to avoid infinite recursion (pushPlace will again look for GlobalRef.home..)
+		// This means that the types in GlobalRef cannot reference here.
 		if (cd != null)
-		if ( ! xts.isAny(cd.asType())) {
-			XTerm h =  homeVar(xc.thisVar(),xts);
-			if (h != null)  // null for structs.
-				return((X10Context) c).pushPlace(XConstrainedTerm.make(h)); 	
-		}
+			if ( ! xts.hasSameClassDef(X10TypeMixin.baseType(cd.asType()), xts.GlobalRef())) {
+				XTerm h =  homeVar(xc.thisVar(),xts);
+				 if (h != null)  // null for structs.
+					return((X10Context) c).pushPlace(XConstrainedTerm.make(h)); // XConstrainedTerm.make(makePlace())); // ); 	
+			}
 		return c;
 	}
 	
 	public static XTerm methodPT(Flags flags, ClassDef ct) {
 		X10Flags xflags = X10Flags.toX10Flags(flags);
-    	boolean isGlobal = xflags.isGlobal() || xflags.isStatic() || X10TypeMixin.isX10Struct(ct.asType());
+    	boolean isGlobal = xflags.isStatic() || X10TypeMixin.isX10Struct(ct.asType());
     	return (isGlobal) ? 
     			makePlace() :
     				homeVar(((X10ClassDef) ct).thisVar(), (X10TypeSystem) ct.typeSystem());
@@ -350,7 +384,7 @@ public class PlaceChecker {
      * @param context
      * @return
      */
-	private static boolean isHere(Receiver r, X10Context xc) {
+  private static boolean isHere(Receiver r, X10Context xc) {
 		   XConstrainedTerm h = xc.currentPlaceTerm();
 		  // assert h != null;
 		   return isAtPlace(r, h==null ? null : h.term(), xc);
@@ -375,6 +409,7 @@ public class PlaceChecker {
     	return isAtPlace(r, placeTerm, xc);
     }
     
+    
 	
 	  /**
      * Returns true if the receiver r is known statically to be at placeTerm.
@@ -387,7 +422,7 @@ public class PlaceChecker {
 
     // placeTerm may be null. Nothing is known about the current place.
     // In such a case check if r.home == here, otherwise check r.home==placeTerm
-    static boolean isAtPlace(Receiver r, XTerm placeTerm, X10Context xc) {
+   static boolean isAtPlace(Receiver r, XTerm placeTerm, X10Context xc) {
     	X10TypeSystem xts = (X10TypeSystem) xc.typeSystem();
     	// If the code is executing in a global context then
     	// no receiver can be local.
@@ -451,9 +486,9 @@ public class PlaceChecker {
  	   return false;
 
     }
-
+    
     public static Receiver makeReceiverLocalIfNecessary(ContextVisitor tc, Receiver target, X10Flags flags) throws SemanticException {
-        if (isTargetPlaceSafe(tc, target, flags)) return target;  // nothing to do
+        /*if (isTargetPlaceSafe(tc, target, flags)) return target;  // nothing to do
         if (Configuration.STATIC_CALLS) return null;              // nothing we can do
         if (((X10Context) tc.context()).currentPlaceTerm() == null)
             return null;                                          // cannot compensate
@@ -463,6 +498,7 @@ public class PlaceChecker {
             type = PlaceChecker.ReplacePlaceTermByHere(type, tc.context());
             target = Converter.attemptCoercion(true, tc, (Expr) target, type);
         }
+        */
         return target;
     }
 
@@ -502,7 +538,7 @@ public class PlaceChecker {
         }
     }
 
-    private static boolean isTargetPlaceSafe(ContextVisitor tc, Receiver target, X10Flags xFlags) {
+ /*   private static boolean isTargetPlaceSafe(ContextVisitor tc, Receiver target, X10Flags xFlags) {
         // A type can be accessed from anywhere.
         if (!(target instanceof Expr))
             return true;
@@ -527,19 +563,20 @@ public class PlaceChecker {
 
         return false;
     }
-
+*/
     /**
      * Returns true if the placeChecker cannot establish that e is here.
      * @param e
      * @param context
      * @return
      */
-	public static boolean needsPlaceCheck(Receiver e, X10Context context) {
+/*	public static boolean needsPlaceCheck(Receiver e, X10Context context) {
 	    if (e instanceof X10CanonicalTypeNode_c)
 	        return false;
-	    Type t = e.type();
+	    //Type t = e.type();
 	    return !isHere(e, context);
 	}
+	*/
 	/*  @Override
 	    public NodeVisitor typeCheckEnter(TypeChecker v) throws SemanticException {
 	    	if (placeTerm != null) {
@@ -549,21 +586,22 @@ public class PlaceChecker {
 	    	
 	}
 	*/
-	    //XTerm placeTerm;
+	    XTerm placeTerm;
 	    /**
 	     * The type of the place term. May be Ref or Place. May contain a newly generated
 	     * var, equated to self. The associated constraint must be considered to be in scope
 	     * when examining the body of this PlacedClosure.
 	     */
-	   // Type placeType;
+	    Type placeType;
 	    
 	    public static XConstrainedTerm computePlaceTerm( Expr place, X10Context xc, 
 	    		X10TypeSystem  ts
 	    		) throws SemanticException {
+	    	// if place is g.home (g a GlobalRef), set it to g.
 	    	if (place instanceof Field) {
 				Field fp = (Field) place;
 				FieldInstance fi = fp.fieldInstance();
-				if ((ts.typeEquals(fi.container(), ts.Any(), xc) || ts.typeEquals(fi.container(), ts.Object(), xc)) &&
+				if ((ts.hasSameClassDef(X10TypeMixin.baseType(fi.container()), ts.GlobalRef())) &&
 						fi.name().equals(ts.homeName())) {
 					place = (Expr) fp.target();
 				}
@@ -588,7 +626,8 @@ public class PlaceChecker {
 							term + " and constraint " + d + ".");
 				}
 	    	} else {
-	    		boolean placeIsRef = true; // ts.isImplicitCastValid(placeType, ts.Object(), xc);
+	    		boolean placeIsRef = ts.hasSameClassDef(X10TypeMixin.baseType(placeType), ts.GlobalRef());
+	    	
 	    		if (placeIsRef) {
 	    			XTerm src = ts.xtypeTranslator().trans(pc, place, xc);
 	    			if (src == null) {
@@ -596,7 +635,7 @@ public class PlaceChecker {
 	    			}
 	    			try {
 	    				d= d.substitute(src, d.self());
-	    				pt = XConstrainedTerm.make(homeVar(src,ts), d);
+	    				pt = XConstrainedTerm.make(globalRefHomeVar(src,ts), d);
 	    			} catch (XFailure z) {
 	    				assert false;
 	    				throw new InternalCompilerError("Cannot construct placeTerm from " + 
@@ -605,13 +644,13 @@ public class PlaceChecker {
 	    		} else 
 	    			throw new SemanticException(
 	    					"Place expression |" + place + "| must be of type \"" +
-	    					ts.Place() + "\", or " + ts.Object() + ", not \"" + place.type() + "\".",
+	    					ts.Place() + "\", or " + ts.GlobalRef() + ", not \"" + place.type() + "\".",
 	    					place.position());
 	    	}
 	    
 	    	return pt;
 	    }
-
+/*
 	    public static XTerm rewriteAtClause(CConstraint c, X10MethodInstance xmi, Call t, XTerm r, X10Context xc) throws SemanticException {
 	    	X10TypeSystem  ts = (X10TypeSystem) xc.typeSystem();
 	    	XTypeTranslator tr = ts.xtypeTranslator();
@@ -637,6 +676,6 @@ public class PlaceChecker {
 	    	return xmi.body();
 	    }
 	    
-	    
+	 */   
     
 }

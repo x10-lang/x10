@@ -30,14 +30,15 @@ namespace x10 {
 
         class String;
         class Any;
-
+        class Object;
+        
         /**
          * This is a class that exists only at the C++ implementation level,
          * not at the X10 language level.  Therefore it does not have an
          * associated RTT.
          * 
          * The purpose of this class is to provide a common C++ level superclass
-         * for Object (X10 objects), Closure (function objects created from X10 closure literals),
+         * for Object (X10 local objects), Closure (function objects created from X10 closure literals),
          * and IBox<T> (X10 structs of type T that have been boxed because they were upcast to an interface type).
          * The single common superclass is needed because pointers to instances of any of its subclasses could
          * appear in variables of interface type and we need a common C++ level
@@ -49,11 +50,9 @@ namespace x10 {
          */
         class Reference {
         public:
-            x10aux::place location;
-
             Reference(){ }
             virtual ~Reference() { }
-
+            
             /*********************************************************************************
              * Implementation-level object model functions assumed to be defined for all types
              *********************************************************************************/
@@ -65,12 +64,6 @@ namespace x10 {
             /*********************************************************************************
              * X10-level functions assumed to be defined for all types
              *********************************************************************************/
-            virtual x10_boolean at(x10::lang::Place p) {
-                return location == p->FMGL(id);
-            }
-            
-            virtual x10_boolean at(x10aux::ref<x10::lang::Object> o);
-            
             virtual x10_boolean equals(x10aux::ref<Any> other) {
                 return this->_struct_equals(x10aux::ref<Reference>(other));
             }
@@ -80,8 +73,6 @@ namespace x10 {
             }
             
             virtual x10_int hashCode() = 0;
-
-            virtual x10::lang::Place home();
 
             virtual x10aux::ref<String> toString() = 0;
             

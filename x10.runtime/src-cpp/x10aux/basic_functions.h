@@ -38,20 +38,6 @@ namespace x10aux {
         return string_utils::lit(getRTT<T>()->name());
     }
 
-    /******* get_location ********/
-
-    template<class T> inline place get_location(ref<T> x) {
-        if (x.isNull()) {
-            return x10aux::here;
-        } else {
-            return (ref<x10::lang::Reference>(x))->location;
-        }
-    }
-
-    template<typename T> inline place get_location(T x) {
-        return x10aux::here;
-    }
-
     /******* equals ********/
 
     // covers all heap-allocated values (Objects, Functions, Structs boxes to interface types)

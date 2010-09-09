@@ -19,9 +19,13 @@ import x10.util.OptionsParser;
 import x10.util.Option;
 import x10.util.DistributedRail;
 
+/**
+ * An SPMD formulation of KMeans.
+ * Converted to 2.1 on 9/1/2010.
+ */
 public class KMeansSPMD {
 
-    public static def printClusters (clusters:Rail[Float]!, dims:Int) {
+    public static def printClusters (clusters:Rail[Float], dims:Int) {
         for (var d:Int=0 ; d<dims ; ++d) { 
             for (var k:Int=0 ; k<clusters.length/dims ; ++k) { 
                 if (k>0)
@@ -32,7 +36,7 @@ public class KMeansSPMD {
         }
     }
 
-    public static def main (args : Rail[String]!) {
+    public static def main (args : Rail[String]) {
 
         try {
 
@@ -60,7 +64,7 @@ public class KMeansSPMD {
             val num_file_points = (file.size() / dim / 4) as Int;
             val file_points = ValRail.make(num_file_points*dim, init_points);
 
-            var results : Rail[Float]!;
+            var results : Rail[Float];
 
             // clusters are dimension-major
             val clusters       = new DistributedRail[Float](num_clusters*dim, file_points);
@@ -91,8 +95,8 @@ public class KMeansSPMD {
                         val host_points = Rail.make(num_slice_points_stride*dim, init);
                         val host_nearest = Rail.make(num_slice_points, 0);
 
-                        val host_clusters : Rail[Float]! = clusters();
-                        val host_cluster_counts : Rail[Int]! = cluster_counts();
+                        val host_clusters : Rail[Float] = clusters();
+                        val host_cluster_counts : Rail[Int] = cluster_counts();
 
                         val start_time = System.currentTimeMillis();
 
@@ -150,7 +154,7 @@ public class KMeansSPMD {
 
                             if (offset==0 && verbose) {
                                 Console.OUT.println("Iteration: "+iter);
-                                printClusters(clusters() as Rail[Float]!,dim);
+                                printClusters(clusters() as Rail[Float],dim);
                             }
 
                             // TEST FOR CONVERGENCE

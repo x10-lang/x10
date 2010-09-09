@@ -43,11 +43,11 @@ public class ClockTest16a extends x10Test {
 
 	public def run(): boolean = {
 		try {
-		val x: X! = new X();
+		val x = new X();
 		finish async {
 			val c0 = Clock.make();
 			val c1 = Clock.make();
-			val ca: Rail[Clock]! = Rail.make([c0,c1]);
+			val ca: Rail[Clock] = Rail.make([c0,c1]);
 			(ca(0)).drop();
 
 			// Question:
@@ -72,7 +72,7 @@ public class ClockTest16a extends x10Test {
 				}
 			}
 
-			var f0: foo! = new foo() {
+			val f0 = new foo() {
 				public def apply(): void = {
 					val cx: Clock = ca(x.zero());// DYNAMIC_CHECK
 					async clocked(cx) { //clock use error
@@ -81,7 +81,7 @@ public class ClockTest16a extends x10Test {
 				}
 			};
 
-			var f1: foo! = new foo() {
+			val f1  = new foo() {
 				public def apply(): void = {
 					val cx: Clock = ca(x.one());// DYNAMIC_CHECK
 					async clocked(cx) { // no clock use error
@@ -90,16 +90,16 @@ public class ClockTest16a extends x10Test {
 				}
 			};
 
-			val fooArray: Rail[foo!]! = Rail.make([f0,f1]);
+			val fooArray: Rail[foo] = Rail.make([f0,f1]);
 
 			// Compiler: MAYBE, actual: NO
 			// must have a compiler error
-			Y.test(fooArray(x.one()) as foo!);
+			Y.test(fooArray(x.one()));
 
 			x10.io.Console.OUT.println("point #1");
 			// Compiler: MAYBE, actual: YES
 			// must have a compiler error
-			Y.test(fooArray(x.zero()) as foo!);
+			Y.test(fooArray(x.zero()));
 
 			x10.io.Console.OUT.println("point #2");
 			// Compiler: MAYBE, actual: YES
@@ -135,7 +135,7 @@ public class ClockTest16a extends x10Test {
 	 * A class to invoke a 'function pointer' that may do an async
 	 */
 	static class Y {
-		static def test(val f: foo!): void = {
+		static def test(val f: foo): void = {
 			{
 				f.apply(); // it is hard to determine f does an async clocked(c) S,
 				//where the current activity is not registered on c
@@ -164,7 +164,7 @@ public class ClockTest16a extends x10Test {
 	 * for a typical compiler
 	 */
 	static class X {
-		public val z: Rail[int]! = Rail.make([1,0]);
+		public val z = Rail.make[int]([1,0]);
 		def zero(): int = { return z(z(z(1))); }
 		def one(): int = { return z(z(z(0))); }
 		def modify(): void = { z(0) += 1; }

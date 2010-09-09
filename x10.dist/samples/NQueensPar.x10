@@ -11,6 +11,11 @@
 
 import x10.io.Console;
 
+/**
+ * Compute the number of solutions to the N queens problem.
+ * 
+ * Converted to 2.1 on 9/1/2010.
+ */
 public class NQueensPar {
 
     var nSolutions:int = 0;
@@ -41,13 +46,13 @@ public class NQueensPar {
 
     class Board {
 
-        val q: Array[Int](1){self.at(this)};
+        val q: Array[Int](1);
 
         def this() {
             q = new Array[Int](0, 0);
         }
 
-        def this(old: Array[Int](1)!, newItem:Int) {
+        def this(old: Array[Int](1), newItem:Int) {
             val n = old.size();
             q = new Array[Int](n+1, (p:Point(1))=> (p(0) < n? old(p(0)) : newItem));
         }
@@ -83,7 +88,7 @@ public class NQueensPar {
         }
     }
 
-    public static def main(args: Rail[String]!)  {
+    public static def main(args: Rail[String])  {
         val n = args.length > 0 ? Int.parse(args(0)) : 8;
         println("N=" + n);
         //warmup

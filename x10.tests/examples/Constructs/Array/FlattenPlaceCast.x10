@@ -27,7 +27,9 @@ public class FlattenPlaceCast extends x10Test {
         d = DistArray.make[Place](1..10 -> here, (Point)=>here);
     }
    
-    static class Test {};
+    static class Test {
+    	val root = GlobalRef[Test](this);
+    };
 
     public def run():boolean  = {
         val d1next = d(1).next();
@@ -41,10 +43,8 @@ public class FlattenPlaceCast extends x10Test {
           so this cast should fail, shouldn't it?
         */
         val d1 = d(1);
-        val x = a(1,1) as Test{self.home == d1};
-        val y = a(1,1) as Test{self.home == here};
-        val z = a(1,1) as Test!;
-        return true;
+        val x = a(1,1);
+        return !(x instanceof Test{x.root.home == d1}) && (x instanceof Test{x.root.home == here});
     }
 
     public static def main(Rail[String]) {

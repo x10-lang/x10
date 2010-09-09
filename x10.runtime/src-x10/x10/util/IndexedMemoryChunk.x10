@@ -114,7 +114,7 @@ public struct IndexedMemoryChunk[T] {
      * to a destination IndexedMemoryChunk at the specified place.
      * If the destination place is not the same as the current place, then
      * the copy happens asynchronously and the created remote activity is registered 
-     * with the dynamically enclosing finish of the activity that invoked copyTo.</p>
+     * with the dynamically enclosing finish of the activity that invoked asyncCopyTo.</p>
      *
      * Note: No checking is performed to verify that this operation is safe;
      * it is the responsibility of higher-level abstractions built on top of 
@@ -128,10 +128,10 @@ public struct IndexedMemoryChunk[T] {
      */
     @Native("java", "x10.util.IndexedMemoryChunk__NativeRep.copyTo(#9, #0,#1,#2,#3,#4,#5,#6)")
     @Native("c++", "(#0)->copyTo(#1,#2,#3,#4,#5,#6)")
-    public native def copyTo (srcIndex:int, 
-                              dstPlace:Place, dst:IndexedMemoryChunk[T], dstIndex:int, 
-                              numElems:int, 
-                              uncounted:boolean):void;
+    public native def asyncCopyTo (srcIndex:int, 
+                                   dstPlace:Place, dst:IndexedMemoryChunk[T], dstIndex:int, 
+                                   numElems:int, 
+                                   uncounted:boolean):void;
 
 
     /**
@@ -139,7 +139,7 @@ public struct IndexedMemoryChunk[T] {
      * at the specified place into this IndexedMemoryChunk.
      * If the source place is not the same as the current place, then
      * the copy happens asynchronously and the created remote activity is registered 
-     * with the dynamically enclosing finish of the activity that invoked copyFrom.</p>
+     * with the dynamically enclosing finish of the activity that invoked asyncCopyFrom.</p>
      *
      * Note: No checking is performed to verify that this operation is safe;
      * it is the responsibility of higher-level abstractions built on top of 
@@ -153,10 +153,10 @@ public struct IndexedMemoryChunk[T] {
      */
     @Native("java", "x10.util.IndexedMemoryChunk__NativeRep.copyFrom(#9, #0,#1,#2,#3,#4,#5,#6)")
     @Native("c++", "(#0)->copyFrom(#1,#2,#3,#4,#5,#6)")
-    public native def copyFrom(dstIndex:int,
-                               srcPlace:Place, src:IndexedMemoryChunk[T], srcIndex:int,
-                               numElems:int,
-                               uncounted:boolean):void;
+    public native def asyncCopyFrom(dstIndex:int,
+                                    srcPlace:Place, src:IndexedMemoryChunk[T], srcIndex:int,
+                                    numElems:int,
+                                    uncounted:boolean):void;
 
 
    /*
@@ -166,15 +166,15 @@ public struct IndexedMemoryChunk[T] {
 
     @Native("java", "((Object)#0).toString()")
     @Native("c++", "(#0)->toString()")
-    public global safe native def  toString():String;
+    public safe native def  toString():String;
 
     @Native("java", "((Object)#0).equals(#1)")
     @Native("c++", "(#0)->equals(#1)")
-    public global safe native def equals(that:Any):Boolean;
+    public safe native def equals(that:Any):Boolean;
 
     @Native("java", "((Object)#0).hashCode()")
     @Native("c++", "(#0)->hash_code()")
-    public global safe native def  hashCode():Int;
+    public safe native def  hashCode():Int;
 }
 
 // vim:shiftwidth=4:tabstop=4:expandtab

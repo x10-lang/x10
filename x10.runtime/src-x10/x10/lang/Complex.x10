@@ -223,7 +223,7 @@ public struct Complex /*TODO implements Arithmetic[Complex]*/ {
     /**
      * @return the string representation of this complex number.
      */
-    public global safe def toString():String {
+    public safe def toString():String {
         return (re + " + " + im + "i");
     }
 }

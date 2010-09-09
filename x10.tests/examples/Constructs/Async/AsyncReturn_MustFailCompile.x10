@@ -27,7 +27,7 @@ public class AsyncReturn_MustFailCompile extends x10Test {
 		return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(Rail[String]) {
 		new AsyncReturn_MustFailCompile().execute();
 	}
 }

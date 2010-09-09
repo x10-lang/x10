@@ -317,7 +317,7 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
      */
     @Native("java", "java.lang.Integer.toString(#0, #1)")
     @Native("c++", "x10aux::int_utils::toString(#0, #1)")
-    public global safe native def toString(radix:Int): String;
+    public safe native def toString(radix:Int): String;
 
     /**
      * Returns a String representation of this Int as a hexadecimal number.
@@ -325,7 +325,7 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
      */
     @Native("java", "java.lang.Integer.toHexString(#0)")
     @Native("c++", "x10aux::int_utils::toHexString(#0)")
-    public global safe native def toHexString(): String;
+    public safe native def toHexString(): String;
 
     /**
      * Returns a String representation of this Int as an octal number.
@@ -333,7 +333,7 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
      */
     @Native("java", "java.lang.Integer.toOctalString(#0)")
     @Native("c++", "x10aux::int_utils::toOctalString(#0)")
-    public global safe native def toOctalString(): String;
+    public safe native def toOctalString(): String;
 
     /**
      * Returns a String representation of this Int as a binary number.
@@ -341,7 +341,7 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
      */
     @Native("java", "java.lang.Integer.toBinaryString(#0)")
     @Native("c++", "x10aux::int_utils::toBinaryString(#0)")
-    public global safe native def toBinaryString(): String;
+    public safe native def toBinaryString(): String;
 
     /**
      * Returns a String representation of this Int as a decimal number.
@@ -349,7 +349,7 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
      */
     @Native("java", "java.lang.Integer.toString(#0)")
     @Native("c++", "x10aux::to_string(#0)")
-    public global safe native def toString(): String;
+    public safe native def toString(): String;
 
     /**
      * @deprecated use {@link #parse(String,Int)} instead
@@ -522,7 +522,7 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
      */
     @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public global safe native def equals(x:Any):Boolean;
+    public safe native def equals(x:Any):Boolean;
 
     /**
      * Returns true if this Int is equal to the given Int.
@@ -531,5 +531,5 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
      */
     @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public global safe native def equals(x:Int):Boolean;
+    public safe native def equals(x:Int):Boolean;
 }

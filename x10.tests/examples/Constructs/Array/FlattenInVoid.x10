@@ -21,22 +21,20 @@ import harness.x10Test;
 
 public class FlattenInVoid extends x10Test {
 
-    var a: Array[int](2)!;
+    var a: Array[int](2);
 
     public def this(): FlattenInVoid = {
         a = new Array[int]([1..10, 1..10], (var p(i,j): Point): int => { return i+j;});
     }
 
-    def m(var x: int): boolean = {
-      return true;
-    }
+    def m(x: int): boolean =  true;
     
     public def run(): boolean = {
         m(a(1, 1));
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(Rail[String]) {
         new FlattenInVoid().execute();
     }
 }

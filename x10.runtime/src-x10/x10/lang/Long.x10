@@ -315,7 +315,7 @@ public final struct Long /*TODO implements Arithmetic[Long], Bitwise[Long], Orde
      */
     @Native("java", "java.lang.Long.toString(#0, #1)")
     @Native("c++", "x10aux::long_utils::toString(#0, #1)")
-    public global safe native def toString(radix:Int): String;
+    public safe native def toString(radix:Int): String;
 
     /**
      * Returns a String representation of this Long as a hexadecimal number.
@@ -323,7 +323,7 @@ public final struct Long /*TODO implements Arithmetic[Long], Bitwise[Long], Orde
      */
     @Native("java", "java.lang.Long.toHexString(#0)")
     @Native("c++", "x10aux::long_utils::toHexString(#0)")
-    public global safe native def toHexString(): String;
+    public safe native def toHexString(): String;
 
     /**
      * Returns a String representation of this Long as an octal number.
@@ -331,7 +331,7 @@ public final struct Long /*TODO implements Arithmetic[Long], Bitwise[Long], Orde
      */
     @Native("java", "java.lang.Long.toOctalString(#0)")
     @Native("c++", "x10aux::long_utils::toOctalString(#0)")
-    public global safe native def toOctalString(): String;
+    public safe native def toOctalString(): String;
 
     /**
      * Returns a String representation of this Long as a binary number.
@@ -339,7 +339,7 @@ public final struct Long /*TODO implements Arithmetic[Long], Bitwise[Long], Orde
      */
     @Native("java", "java.lang.Long.toBinaryString(#0)")
     @Native("c++", "x10aux::long_utils::toBinaryString(#0)")
-    public global safe native def toBinaryString(): String;
+    public safe native def toBinaryString(): String;
 
     /**
      * Returns a String representation of this Long as a decimal number.
@@ -347,7 +347,7 @@ public final struct Long /*TODO implements Arithmetic[Long], Bitwise[Long], Orde
      */
     @Native("java", "java.lang.Long.toString(#0)")
     @Native("c++", "x10aux::to_string(#0)")
-    public global safe native def toString(): String;
+    public safe native def toString(): String;
 
     /**
      * @deprecated use {@link #parse(String,Int)} instead
@@ -520,7 +520,7 @@ public final struct Long /*TODO implements Arithmetic[Long], Bitwise[Long], Orde
      */
     @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public global safe native def equals(x:Any):Boolean;
+    public safe native def equals(x:Any):Boolean;
 
     /**
      * Returns true if this Long is equal to the given Long.
@@ -529,5 +529,5 @@ public final struct Long /*TODO implements Arithmetic[Long], Bitwise[Long], Orde
      */
     @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public global safe native def equals(x:Long):Boolean;
+    public safe native def equals(x:Long):Boolean;
 }

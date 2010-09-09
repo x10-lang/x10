@@ -20,7 +20,7 @@ public class Future0 extends x10Test {
 	  x() == 47
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(Rail[String])  {
 		new Future0().execute();
 	}
 }

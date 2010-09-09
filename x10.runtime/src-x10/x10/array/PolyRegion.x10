@@ -35,18 +35,18 @@ public class PolyRegion extends Region {
     // value
     //
 
-    public global val mat: PolyMat{self.rank==this.rank};
+    public val mat: PolyMat{self.rank==this.rank};
 
 
     //
     // basic info
     //
 
-    public global def isConvex(): boolean {
+    public def isConvex(): boolean {
         return true;
     }
 
-    incomplete public global def size():int;
+    incomplete public def size():int;
 
 
     //
@@ -74,29 +74,29 @@ public class PolyRegion extends Region {
         }
     }
 
-    public global def scanners()=new Scanners();
+    public def scanners()=new Scanners();
 
-    protected global def scanner(): Region.Scanner {
+    protected def scanner(): Region.Scanner {
 	val scanner = PolyScanner.make(mat);
         return scanner;
     }
 
 
-   /* public global def iterator(): Iterator[Point(rank)]! {
+   /* public def iterator(): Iterator[Point(rank)] {
         //return new PointIt();
         //return scanner().iterator();
 	val scanner = PolyScanner.make(mat).iterator();
         return scanner;
     }*/
-    public global def iterator():Iterator[Point(rank)]!
-          = PolyScanner.make(mat).iterator() as Iterator[Point(rank)]!;
+    public def iterator():Iterator[Point(rank)]
+          = PolyScanner.make(mat).iterator() as Iterator[Point(rank)];
   
 
     //
     // Region methods
     //
 
-    public global def intersection(t: Region(rank)): Region(rank) {
+    public def intersection(t: Region(rank)): Region(rank) {
 
         if (t instanceof PolyRegion) {
 
@@ -126,7 +126,7 @@ public class PolyRegion extends Region {
     }
                           
                           
-    public global def contains(that: Region(rank)): boolean = 
+    public def contains(that: Region(rank)): boolean = 
     	computeBoundingBox().contains(that.computeBoundingBox());
      
     /**
@@ -134,7 +134,7 @@ public class PolyRegion extends Region {
      * all but the axis of interest.
      */
 
-    public global def projection(axis: int): Region(1) {
+    public def projection(axis: int): Region(1) {
         var pm: PolyMat{self.rank==this.rank} = mat;
         for (var k: int = 0; k<rank; k++)
             if (k!=axis)
@@ -148,7 +148,7 @@ public class PolyRegion extends Region {
 
     // XXX add a test case for this; also for projection!
   
-    public global def eliminate(axis: int): Region/*(rank1)*/ {
+    public def eliminate(axis: int): Region/*(rank1)*/ {
         val pm = mat.eliminate(axis, true); 
         val result = PolyRegion.make(pm);
         return result /*as Region(rank1)*/;
@@ -159,7 +159,7 @@ public class PolyRegion extends Region {
      * the result blockwise
      */
 
-    public global def product(r: Region): Region {
+    public def product(r: Region): Region {
         if (!(r instanceof PolyRegion))
             throw new UnsupportedOperationException("product(" + r/*.getClass().getName()*/ + ")");
         val that = r as PolyRegion;
@@ -170,7 +170,7 @@ public class PolyRegion extends Region {
         return PolyRegion.make(pm);
     }
 
-    private static def copy(tt: PolyMatBuilder!, ff: PolyMat, offset: int): void {
+    private static def copy(tt: PolyMatBuilder, ff: PolyMat, offset: int): void {
         for (r:PolyRow in ff) {
             val f = r;
             val t = Rail.make[int](tt.rank+1);
@@ -182,14 +182,14 @@ public class PolyRegion extends Region {
     }
 
 
-    public global def translate(v: Point(rank)): Region(rank) {
+    public def translate(v: Point(rank)): Region(rank) {
         val pmb = new PolyMatBuilder(this.rank);
         translate(pmb, this.mat, v);
         val pm = pmb.toSortedPolyMat(false);
         return PolyRegion.make(pm);
     }
 
-    private static def translate(tt: PolyMatBuilder!, ff: PolyMat, v: Point(ff.rank)): void {
+    private static def translate(tt: PolyMatBuilder, ff: PolyMat, v: Point(ff.rank)): void {
         for (r:PolyRow in ff) {
             val f = r;
             val t = Rail.make[int](ff.rank+1);
@@ -208,7 +208,7 @@ public class PolyRegion extends Region {
      * -H0 || -H1 && H0 || -H2 && H1 && H0 || ...
      */
 
-   /* public global def complement(): Region(rank) {
+   /* public def complement(): Region(rank) {
         val prlb = new PolyRegionListBuilder(rank);
 
         for (r:PolyRow in mat) {
@@ -225,15 +225,15 @@ public class PolyRegion extends Region {
             prlb.add(region as Region(rank)); // XXXX
         }
 
-        return new UnionRegion(prlb as PolyRegionListBuilder!{self.rank == this.rank}); // HACK: place type inference really should be able to figure this out
+        return new UnionRegion(prlb as PolyRegionListBuilder{self.rank == this.rank}); 
     }
 */
-    public global def isEmpty(): boolean {
+    public def isEmpty(): boolean {
         val tmp = mat.isEmpty();
         return tmp;
     }
 
-    protected global def computeBoundingBox(): Region(rank){self.rect} {
+    protected def computeBoundingBox(): Region(rank){self.rect} {
         val min = Rail.make[int](rank);
         val max = Rail.make[int](rank);
         var pm: PolyMat{self.rank==this.rank} = mat;
@@ -253,7 +253,7 @@ public class PolyRegion extends Region {
      * point
      */
 
-    public global def contains(p: Point): boolean {
+    public def contains(p: Point): boolean {
 
         for (r:PolyRow in mat) {
             if (!r.contains(p))
@@ -320,7 +320,7 @@ public class PolyRegion extends Region {
      * special-case subclasses, such as RectRegion, for efficiency
      */
 
-    public static def make(pm: PolyMat): Region(pm.rank)! {
+    public static def make(pm: PolyMat): Region(pm.rank) {
         if (pm.isEmpty()) {
             return new EmptyRegion(pm.rank);
         } else {
@@ -342,11 +342,11 @@ public class PolyRegion extends Region {
 	//        cache = new Cache(this, hack198);
     }
 
-    public global def min(): ValRail[int] {
+    public def min(): ValRail[int] {
         return boundingBox().min();
     }
 
-    public global def max(): ValRail[int] {
+    public def max(): ValRail[int] {
         return boundingBox().max();
     }
 
@@ -355,11 +355,11 @@ public class PolyRegion extends Region {
     // debugging
     //
 
-    public global def printInfo(out: Printer): void {
+    public def printInfo(out: Printer): void {
         mat.printInfo(out, /*this.getClass().getName()*/this.toString());
     }
 
-    public global safe def toString(): String {
+    public safe def toString(): String {
         return mat.toString();
     }
 

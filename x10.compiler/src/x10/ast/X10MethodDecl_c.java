@@ -332,7 +332,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		if (child == body || child == returnType || child == hasType || child == throwTypes || child == offerType || (formals != null && formals.contains(child))) {
 			if (placeTerm != null)
 				c = ((X10Context) c).pushPlace( XConstrainedTerm.make(placeTerm));
-			// 	PlaceChecker.pushHereTerm(methodDef(), (X10Context) c);
+			 	PlaceChecker.pushHereTerm(methodDef(), (X10Context) c);
 		}
 
 		// Add the method guard into the environment.
