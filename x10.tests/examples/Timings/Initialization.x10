@@ -20,7 +20,7 @@ public class Initialization extends x10Test {
 	const kArraySize: int = 500;
 	var x_doubleArray1D: DistArray[double];
 	var x_doubleArray2D: DistArray[double];
-	var x_javaArray: Rail[double]!;
+	var x_javaArray: Rail[double];
 	var x_intArray1D: DistArray[int];
 
 	public def run(): boolean = {
