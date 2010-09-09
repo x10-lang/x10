@@ -19,10 +19,10 @@ import harness.x10Test;
  */
 public class NullableComparison extends x10Test {
 
-	public const N: int = 6;
+	public static N: int = 6;
 
 	public def run(): boolean = {
-		val objList = Rail.make[Object!](N);
+		val objList = Rail.make[Object](N);
 		val obj: Object = new Object();
 		var i: int = N - 1;
 		while (i > 0 && (obj != objList(i))) {
@@ -33,7 +33,7 @@ public class NullableComparison extends x10Test {
 		return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(Rail[String]) {
 		new NullableComparison().execute();
 	}
 }
