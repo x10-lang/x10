@@ -1,4 +1,0 @@
-// SYNOPSIS: [#0]
-// SYNOPSIS: UNUSED
-// TODO: fix with point syntax.
-(new int[]{#0})

@@ -1,7 +1,0 @@
-// SYNOPSIS: async(#0) clocked(#1) #2    #3=position
-x10.runtime.Runtime.runAsync(#0, #1,
-	new x10.core.fun.VoidFun_0_0() {
-		public void apply() {
-			#2
-		}
-	}, "async-#3");

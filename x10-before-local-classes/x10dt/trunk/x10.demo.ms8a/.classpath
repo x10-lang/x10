@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<classpath>
-	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="/Users/rmfuhrer/x10/X10DT/eclipse-3.4.2-X10DT-1.7.3.4/plugins/x10.common.17_1.7.3.3.jar"/>
-	<classpathentry kind="lib" path="/Users/rmfuhrer/x10/X10DT/eclipse-3.4.2-X10DT-1.7.3.4/plugins/x10.constraints_1.7.3.3.jar"/>
-	<classpathentry kind="lib" path="/Users/rmfuhrer/x10/X10DT/eclipse-3.4.2-X10DT-1.7.3.4/plugins/x10.runtime.17_1.7.3.3.jar"/>
-	<classpathentry kind="output" path="bin"/>
-</classpath>

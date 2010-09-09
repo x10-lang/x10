@@ -1,4 +1,0 @@
-// SYNOPSIS: #0: target type #1 constraints tab #2 boolean exprMustBeNotNull #3 boolean targetIsNullable #4 java.lang.Object objToCast
- 
- (#0) x10.lang.RuntimeCastChecker.checkCast(#1, #2, #3, #4, #0.class)
- 

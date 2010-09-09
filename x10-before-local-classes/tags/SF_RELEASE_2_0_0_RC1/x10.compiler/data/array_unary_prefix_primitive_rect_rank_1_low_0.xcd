@@ -1,2 +1,0 @@
-// SYNOPSIS: op #0[#1] #2=arrayClass #3=operator
-#3(((#2)(#0)).arr_)[#1]

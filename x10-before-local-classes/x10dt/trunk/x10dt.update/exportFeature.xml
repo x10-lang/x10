@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project name="x10dt.feature" default="build.feature" basedir=".">
-	<import file="./buildCommon.xml"/>
-	<import file="./buildFeatureCommon.xml"/>
-</project>

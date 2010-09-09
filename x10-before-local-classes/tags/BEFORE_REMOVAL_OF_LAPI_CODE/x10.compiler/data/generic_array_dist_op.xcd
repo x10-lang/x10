@@ -1,2 +1,0 @@
-// SYNOPSIS: new Type[#0] {#1} #2=is_safe #3=is_value #4=value_elements
-x10.cluster.array.DistArrayManager.createGenericArray(#0,#1, #2, (! #3), #4)

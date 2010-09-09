@@ -1,1 +1,0 @@
-(Runtime.getRuntime().newRegion(new Range[]{#0}))
