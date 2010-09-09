@@ -162,7 +162,7 @@ X10RT_C void x10rt_lgl_register_put_receiver_cuda (x10rt_msg_type msg_type,
  * #x10rt_registration_complete.  It calls #x10rt_net_probe internally. \bug This should be
  * non-blocking instead of calling #x10rt_net_probe.
  */
-X10RT_C void x10rt_lgl_internal_barrier (void);
+X10RT_C void x10rt_lgl_registration_complete (void);
 
 /** \see #x10rt_nplaces */
 x10rt_place x10rt_lgl_nplaces (void);
@@ -291,6 +291,11 @@ X10RT_C void x10rt_lgl_bcast (x10rt_team team, x10rt_place role,
                               x10rt_place root, const void *sbuf, void *dbuf,
                               size_t el, size_t count,
                               x10rt_completion_handler *ch, void *arg);
+
+X10RT_C void x10rt_lgl_scatter (x10rt_team team, x10rt_place role,
+                                x10rt_place root, const void *sbuf, void *dbuf,
+                                size_t el, size_t count,
+                                x10rt_completion_handler *ch, void *arg);
 
 X10RT_C void x10rt_lgl_alltoall (x10rt_team team, x10rt_place role,
                                  const void *sbuf, void *dbuf,

@@ -11,7 +11,6 @@
 
 package x10.core;
 
-import x10.core.fun.Fun_0_1;
 import x10.rtt.ParameterizedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
@@ -56,7 +55,7 @@ public final class ValRail<T> implements AnyRail<T> {
             ValRail<?> that = (ValRail<?>)o;
             if (length != that.length) return false;
             for (int i=0; i<length; i++) {
-                if (!this.get(i).equals(that.get(i))) return false;
+                if (!this.apply$G(i).equals(that.apply$G(i))) return false;
             }
             return true;
         }
@@ -136,10 +135,6 @@ public final class ValRail<T> implements AnyRail<T> {
     	return length;
     }
     
-    public T get(int i) {
-    	return apply$G(i);
-    }
-    
     public T apply$G(Integer i) {
     	return apply$G((int)i);
     }
@@ -155,13 +150,13 @@ public final class ValRail<T> implements AnyRail<T> {
         return type.setArray(value, i, v);
     }
     
-    public boolean isZero() {
-    	boolean zero = true;
-		for (int i = 0; i < length && zero; ++i) {
-			zero &= get(i) == type.zeroValue();
-		}
-		return zero;
-    }
+//    public boolean isZero() {
+//    	boolean zero = true;
+//		for (int i = 0; i < length && zero; ++i) {
+//			zero &= apply$G(i) == type.zeroValue();
+//		}
+//		return zero;
+//    }
     
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -182,7 +177,10 @@ public final class ValRail<T> implements AnyRail<T> {
     public static final RuntimeType<ValRail<?>> _RTT = new RuntimeType<ValRail<?>>(
         ValRail.class,
         new Variance[] {Variance.COVARIANT},
-        new Type<?>[] {new ParameterizedType(Fun_0_1._RTT, Types.INT, new UnresolvedType(0))}
+        new Type<?>[] {
+            new ParameterizedType(Indexable._RTT, Types.INT, new UnresolvedType(0)),
+            new ParameterizedType(Iterable._RTT, new UnresolvedType(0))
+        }
     ) {
         @Override
         public String typeName() {

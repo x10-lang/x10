@@ -246,7 +246,7 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
             }
         }
 
-        return this;
+        return n;
     }
 
 	    @Override

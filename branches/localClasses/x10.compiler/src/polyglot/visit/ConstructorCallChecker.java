@@ -22,8 +22,8 @@ public class ConstructorCallChecker extends ContextVisitor
 	super(job, ts, nf);
     }
 
-    protected Map constructorInvocations = new HashMap();
-    
+    protected Map<ConstructorDef,ConstructorDef> constructorInvocations = new HashMap<ConstructorDef,ConstructorDef>();
+
     protected NodeVisitor enterCall(Node n) throws SemanticException {
         if (n instanceof ConstructorCall) {
             ConstructorCall cc = (ConstructorCall)n;
@@ -32,19 +32,17 @@ public class ConstructorCallChecker extends ContextVisitor
                 Context ctxt = context();
 
                 if (!(ctxt.currentCode() instanceof ConstructorDef)) {
-                    throw new InternalCompilerError("Constructor call " +
-                        "occurring in a non-constructor.", cc.position());
+                    throw new InternalCompilerError("Constructor call occurring in a non-constructor.", cc.position());
                 }
                 ConstructorDef srcCI = (ConstructorDef)ctxt.currentCode();
                 ConstructorDef destCI = cc.constructorInstance().def();
                 
                 constructorInvocations.put(srcCI, destCI);
                 while (destCI != null) {
-                    destCI = (ConstructorDef)constructorInvocations.get(destCI);
+                    destCI = constructorInvocations.get(destCI);
                     if (destCI != null && srcCI.equals(destCI)) {
                         // loop in the constructor invocations!
-                        throw new SemanticException("Recursive constructor " +
-                            "invocation.", cc.position());
+                        throw new SemanticException("Recursive constructor invocation.", cc.position());
                     }
                 }
             }

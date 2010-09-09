@@ -25,6 +25,7 @@ import polyglot.ast.Receiver;
 import polyglot.ast.Special;
 import polyglot.ast.TypeNode;
 import polyglot.types.ClassType;
+import polyglot.types.Context;
 import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
 import polyglot.types.LocalInstance;
@@ -43,6 +44,7 @@ import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import x10.extension.X10Del;
+import x10.types.ClosureDef;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
 import x10.types.X10FieldInstance;
@@ -121,25 +123,24 @@ public class X10Disamb_c extends Disamb_c {
 	    		}
 
 	    		if (vi != null) {
-                            Node n = disambiguateVarInstance(vi);
-                            if (n != null)
-                                return n;
-                        }
+	    		    Node n = disambiguateVarInstance(vi);
+	    		    if (n != null)
+	    		        return n;
+	    		}
 
-
-                        // Now try 0-ary property methods.
-                        try {
-                            X10MethodInstance mi = ts.findMethod(t, ts.MethodMatcher(t, this.name.id(), Collections.EMPTY_LIST, c));
-                            if (X10Flags.toX10Flags(mi.flags()).isProperty()) {
-                                Call call = nf.Call(pos, makeMissingPropertyTarget(mi, t), this.name);
-                                call = call.methodInstance(mi);
-                                Type ftype = X10Field_c.rightType(mi.rightType(), mi.x10Def(), call.target(), c);
-                                call = (Call) call.type(ftype);
-                                return call;
-                            }
-                        }
-                        catch (SemanticException e) {
-                        }
+	    		// Now try 0-ary property methods.
+	    		try {
+	    		    X10MethodInstance mi = ts.findMethod(t, ts.MethodMatcher(t, this.name.id(), Collections.EMPTY_LIST, c));
+	    		    if (X10Flags.toX10Flags(mi.flags()).isProperty()) {
+	    		        Call call = nf.Call(pos, makeMissingPropertyTarget(mi, t), this.name);
+	    		        call = call.methodInstance(mi);
+	    		        Type ftype = X10Field_c.rightType(mi.rightType(), mi.x10Def(), call.target(), c);
+	    		        call = (Call) call.type(ftype);
+	    		        return call;
+	    		    }
+	    		}
+	    		catch (SemanticException e) {
+	    		}
 	    	}
 	    	
 	        if (typeOK()) {
@@ -153,14 +154,24 @@ public class X10Disamb_c extends Disamb_c {
 	    }
 
 	    if (exprOK()) {
-		// First try local variables and fields.
-		VarInstance vi = c.findVariableSilent(name.id());
+	        // First try local variables and fields.
+	        VarInstance vi = c.findVariableSilent(name.id());
 
-		if (vi != null) {
-		    Node n = disambiguateVarInstance(vi);
-		    if (n != null) return n;
-		}
-		
+	        if (vi instanceof FieldInstance) {
+	            FieldInstance fi = (FieldInstance) vi;
+	            X10TypeSystem xts = (X10TypeSystem) v.typeSystem();
+	            Context p = c;
+	            // Pop back to the right context before proceeding
+	            while (p.pop() != null && ((p.currentClass() != null && !xts.typeEquals(p.currentClass(), fi.container(), p)) || p.currentCode() instanceof ClosureDef))
+	                p = p.pop();
+	            if (p.inStaticContext() && !fi.flags().isStatic())
+	                throw new SemanticException("Cannot access a non-static field "+this.name+" from a static context.", pos);
+	        }
+
+	        if (vi != null) {
+	            Node n = disambiguateVarInstance(vi);
+	            if (n != null) return n;
+	        }
     		
     		// Now try 0-ary property methods.
     		try {

@@ -47,7 +47,7 @@ public class ClockTest16a extends x10Test {
 		finish async {
 			val c0 = Clock.make();
 			val c1 = Clock.make();
-			val ca  = [c0,c1];
+			val ca: Rail[Clock] = Rail.make([c0,c1]);
 			(ca(0)).drop();
 
 			// Question:
@@ -84,13 +84,13 @@ public class ClockTest16a extends x10Test {
 			val f1  = new foo() {
 				public def apply(): void = {
 					val cx: Clock = ca(x.one());// DYNAMIC_CHECK
-					async clocked(cx) { //no clock use error
+					async clocked(cx) { // no clock use error
 						next;
 					}
 				}
 			};
 
-			val fooArray  = [f0 as foo, f1 as foo];
+			val fooArray: Rail[foo] = Rail.make([f0,f1]);
 
 			// Compiler: MAYBE, actual: NO
 			// must have a compiler error

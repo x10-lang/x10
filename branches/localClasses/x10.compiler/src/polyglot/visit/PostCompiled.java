@@ -68,7 +68,7 @@ public class PostCompiled extends AllBarrierGoal
                                       ErrorQueue eq) {
         if (options.post_compiler != null && !options.output_stdout) {
             Runtime runtime = Runtime.getRuntime();
-            QuotedStringTokenizer st = new QuotedStringTokenizer(options.post_compiler);
+            QuotedStringTokenizer st = new QuotedStringTokenizer(options.post_compiler, '?');
             int pc_size = st.countTokens();
             String[] javacCmd = new String[pc_size+2+compiler.outputFiles().size()];
             int j = 0;

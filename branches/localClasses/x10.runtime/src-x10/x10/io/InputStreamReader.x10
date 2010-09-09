@@ -15,37 +15,43 @@ import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
 /** Note: package scope */
-class InputStreamReader extends Reader {
+public class InputStreamReader extends Reader {
     val stream: InputStream;
 
     @NativeRep("java", "java.io.InputStream", null, null)
     @NativeRep("c++", "x10aux::ref<x10::io::InputStreamReader__InputStream>", "x10::io::InputStreamReader__InputStream", null)
     protected abstract static class InputStream {
-        @Native("java", "#0.close()")
+        // @Native("java", "#0.close()")
+        @Native("java", "try { #0.close(); } catch (java.io.IOException e) { throw new x10.io.IOException(e.getMessage()); }")
         @Native("c++", "(#0)->close()")
         public native def close(): Void throws IOException;
 
-        @Native("java", "#0.read()")
+        // @Native("java", "#0.read()")
+        @Native("java", "new Object() { int eval(java.io.InputStream f) { try { return f.read(); } catch (java.io.IOException e) { throw new x10.io.IOException(e.getMessage()); } } }.eval(#0)")
         @Native("c++", "(#0)->read()")
         public native def read(): Int throws IOException;
 
-        @Native("java", "#0.read((#1).getByteArray(), #2, #3)")
+        // @Native("java", "#0.read((#1).getByteArray(), #2, #3)")
+        @Native("java", "new Object() { void eval(java.io.InputStream f, byte[] b, int off, int len) { try {  return f.read(b, off, len); } catch (java.io.IOException e) { throw new x10.io.IOException(e.getMessage()); } } }.eval(#0, (#1).getByteArray(), #2, #3)")
         @Native("c++", "(#0)->read(#1,#2,#3)")
         public native def read(r:Rail[Byte], off: Int, len: Int): Void throws IOException;
 
-        @Native("java", "#0.available()")
+        // @Native("java", "#0.available()")
+        @Native("java", "new Object() { int eval(java.io.InputStream f) { try { return f.available(); } catch (java.io.IOException e) { throw new x10.io.IOException(e.getMessage()); } } }.eval(#0)")
         @Native("c++", "(#0)->available()")
         public native def available(): Int throws IOException;
 
-        @Native("java", "#0.skip(#1)")
+        // @Native("java", "#0.skip(#1)")
+        @Native("java", "try { #0.skip(#1); } catch (java.io.IOException e) { throw new x10.io.IOException(e.getMessage()); }")
         @Native("c++", "(#0)->skip(#1)")
         public native def skip(Int): Void throws IOException;
 
         @Native("java", "#0.mark(#1)")
         @Native("c++", "(#0)->mark(#1)")
-        public native def mark(Int): Void throws IOException;
+        public native def mark(Int): Void;
 
-        @Native("java", "#0.reset()")
+        // @Native("java", "#0.reset()")
+        @Native("java", "try { #0.reset(); } catch (java.io.IOException e) { throw new x10.io.IOException(e.getMessage()); }")
         @Native("c++", "(#0)->reset()")
         public native def reset(): Void throws IOException;
 

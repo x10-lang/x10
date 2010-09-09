@@ -125,6 +125,28 @@ tibURL="http://x10.svn.sourceforge.net/svnroot/x10/branches/${branchName}/"
 tarballDest=/var/www/localhost/htdocs/x10dt/x10-builds
 remoteTmpDir=/tmp/x10-tib-$userID
 
+#############################################################################
+# Make sure we can get to all the remote hosts without a password challenge #
+#############################################################################
+echo "Testing prompt-free host access via ssh..."
+hostsWithErrors=""
+for host in $hosts orquesta
+do
+    echo -n "  Testing $host... "
+    ssh -o 'BatchMode=yes' ${userID}@${host} "echo ok"
+    if [[ $? != 0 ]]; then
+        hostsWithErrors="$hostsWithErrors $host"
+    fi
+done
+
+if [[ ! -z "$hostsWithErrors" ]]; then
+    echo "Errors when attempting to log onto$hostsWithErrors; aborting."
+    exit 1
+fi
+
+###########################################
+# Determine the right SVN revision to use #
+###########################################
 echo "Determining current revision of ${branchName}..."
 
 rev=$(svn info $tibURL | grep 'Last Changed Rev' | sed -E 's/Last Changed Rev: ([0-9]+)/\1/')
@@ -137,6 +159,10 @@ fi
 echo "Using revision $rev"
 echo "Building on hosts: $hosts"
 echo "Using user ID $userID"
+
+########################
+# Now do the real work #
+########################
 
 ssh ${userID}@orquesta.watson.ibm.com "mkdir -p $tarballDest/$rev; chmod go+rx $tarballDest/$rev"
 

@@ -352,14 +352,16 @@ public final struct Short /*TODO implements Arithmetic[Short], Bitwise[Short], O
     /**
      * @deprecated use {@link #parse(String,Int)} instead
      */
-    @Native("java", "java.lang.Short.parseShort(#1, #2)")
+    // @Native("java", "java.lang.Short.parseShort(#1, #2)")
+    @Native("java", "new Object() { short eval(String s, int radix) { try { return java.lang.Short.parseShort(s, radix); } catch (java.lang.NumberFormatException e) { throw new x10.lang.NumberFormatException(e.getMessage()); } } }.eval(#1, #2)")
     @Native("c++", "x10aux::short_utils::parseShort(#1, #2)")
     public native static def parseShort(String, radix:Int): Short throws NumberFormatException;
 
     /**
      * @deprecated use {@link #parse(String)} instead
      */
-    @Native("java", "java.lang.Short.parseShort(#1)")
+    // @Native("java", "java.lang.Short.parseShort(#1)")
+    @Native("java", "new Object() { short eval(String s) { try { return java.lang.Short.parseShort(s); } catch (java.lang.NumberFormatException e) { throw new x10.lang.NumberFormatException(e.getMessage()); } } }.eval(#1)")
     @Native("c++", "x10aux::short_utils::parseShort(#1)")
     public native static def parseShort(String): Short throws NumberFormatException;
 
@@ -370,7 +372,8 @@ public final struct Short /*TODO implements Arithmetic[Short], Bitwise[Short], O
      * @return the Short represented by the String argument in the specified radix.
      * @throws NumberFormatException if the String does not contain a parsable Short.
      */
-    @Native("java", "java.lang.Short.parseShort(#1, #2)")
+    // @Native("java", "java.lang.Short.parseShort(#1, #2)")
+    @Native("java", "new Object() { short eval(String s, int radix) { try { return java.lang.Short.parseShort(s, radix); } catch (java.lang.NumberFormatException e) { throw new x10.lang.NumberFormatException(e.getMessage()); } } }.eval(#1, #2)")
     @Native("c++", "x10aux::short_utils::parseShort(#1, #2)")
     public native static def parse(s:String, radix:Int): Short throws NumberFormatException;
 
@@ -380,7 +383,8 @@ public final struct Short /*TODO implements Arithmetic[Short], Bitwise[Short], O
      * @return the Short represented by the String argument.
      * @throws NumberFormatException if the String does not contain a parsable Short.
      */
-    @Native("java", "java.lang.Short.parseShort(#1)")
+    // @Native("java", "java.lang.Short.parseShort(#1)")
+    @Native("java", "new Object() { short eval(String s) { try { return java.lang.Short.parseShort(s); } catch (java.lang.NumberFormatException e) { throw new x10.lang.NumberFormatException(e.getMessage()); } } }.eval(#1)")
     @Native("c++", "x10aux::short_utils::parseShort(#1)")
     public native static def parse(s:String): Short throws NumberFormatException;
 
