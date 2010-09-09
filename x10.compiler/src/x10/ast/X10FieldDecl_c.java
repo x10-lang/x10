@@ -378,16 +378,20 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	    }
 
 	    @Override
-	    public Node typeCheck(ContextVisitor tc) throws SemanticException {
-            final TypeNode typeNode = this.type();
-            Type type =  typeNode.type();
+	    public Node typeCheck(ContextVisitor tc) {
+	    	final TypeNode typeNode = this.type();
+	    	Type type =  typeNode.type();
 	    	Type oldType = (Type)type.copy();
 	    	X10Context xc = (X10Context) enterChildScope(type(), tc.context());
 	    	X10Flags f = X10Flags.toX10Flags(flags.flags());
 	    	if (f.isGlobal() && ! f.isFinal()) {
-	    		throw new Errors.GlobalFieldIsVar(this);
+	    		Errors.issue(tc.job(), new Errors.GlobalFieldIsVar(this));
 	    	}
-	    	X10TypeMixin.checkMissingParameters(typeNode);
+	    	try {
+                X10TypeMixin.checkMissingParameters(typeNode);
+	    	} catch (SemanticException e) {
+	    	    Errors.issue(tc.job(), e, this);
+	    	}
 	    	
 	    	// Need to replace here by current placeTerm in type, 
 	    	// since the field of this type can be referenced across
@@ -395,21 +399,21 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	    	
 	    	type = PlaceChecker.ReplaceHereByPlaceTerm(type, xc);
 
-	    	if (type.isVoid())
-	    		throw new SemanticException("Field cannot have type " + typeNode.type() + ".", position());
+	    	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+	    	if (type.isVoid()) {
+	    		Errors.issue(tc.job(), new SemanticException("Field cannot have type " + typeNode.type() + ".", position()));
+	    		type = ts.unknownType(position()); 
+	    	}
 
 	    	if (X10TypeMixin.isProto(type)) {
-	    		throw new SemanticException("Field cannot have type " 
-	    				+ type + " (a proto type).", position());
-
+	    		Errors.issue(tc.job(), new SemanticException("Field cannot have type " + type + " (a proto type).", position()));
 	    	}
-	    	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 
 	    	if (X10TypeMixin.isX10Struct(fieldDef().container().get()) &&
 	    			!isMutable(ts, fieldDef().container().get()) &&
-	    			! X10Flags.toX10Flags(fieldDef().flags()).isFinal()) {
-	    		throw new SemanticException("A struct may not have var fields.",
-	    				position());
+	    			! X10Flags.toX10Flags(fieldDef().flags()).isFinal())
+	    	{
+	    		Errors.issue(tc.job(), new SemanticException("A struct may not have var fields.", position()));
 	    	}
 
 	    	X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
@@ -418,50 +422,24 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	    	X10FieldDecl_c n = (X10FieldDecl_c) this.type(nf.CanonicalTypeNode(type().position(), type));
 
 	    	// Add an initializer to uninitialized var field unless field is annotated @Uninitialized.
-	        Type at = (Type) ts.systemResolver().find(QName.make("x10.compiler.Uninitialized"));
-
-	    	if (! n.flags().flags().isFinal() && n.init() == null && ((X10FieldDef) n.fieldDef()).annotationsMatching(at).isEmpty()) {
+	        if (!n.flags().flags().isFinal() && n.init() == null && !X10TypeMixin.isUninitializedField(((X10FieldDef) n.fieldDef()),ts)) {
                 // creating an init.
-	    		Type t = n.type().type();
-	    		Expr e = null;
-	    		if (t.isBoolean()) {
-	    			e = (Expr) nf.BooleanLit(position(), false).del().typeCheck(tc).checkConstants(tc);
-	    		} else
-	    		if (t.isIntOrLess()) {
-	    			e = (Expr) nf.IntLit(position(), IntLit.INT, 0L).del().typeCheck(tc).checkConstants(tc);
-	    		} else
-	    		if (t.isLong()) {
-	    			e = (Expr) nf.IntLit(position(), IntLit.LONG, 0L).del().typeCheck(tc).checkConstants(tc);
-	    		} else
-	    		if (t.isFloat()) {
-	    			e = (Expr) nf.FloatLit(position(), FloatLit.FLOAT, 0.0).del().typeCheck(tc).checkConstants(tc);
-	    		} else
-	    		if (t.isDouble()) {
-	    			e = (Expr) nf.FloatLit(position(), FloatLit.DOUBLE, 0.0).del().typeCheck(tc).checkConstants(tc);
-	    		} else
-	    		if (ts.isSubtype(t, ts.String(), tc.context())) {
-	    			e = (Expr) nf.StringLit(position(), "").del().typeCheck(tc).checkConstants(tc);
-	    		} else
-	    		if (ts.isReferenceType(t, context)) {
-	    			e = (Expr) nf.NullLit(position()).del().typeCheck(tc).checkConstants(tc);
-	    		}
-                // todo: we should handle user-defined structs, as well as generic type parameters with hasDefault. see hasZero
-
-	    		if (e != null &&
-                        ts.isSubtype(e.type(),type,context)) { // suppose the field is "var i:Int{self!=0}", then you cannot create an initializer which is 0!
+	    		Expr e = X10TypeMixin.getZeroVal(type,position().markCompilerGenerated(),tc);
+	    		if (e != null) {
 	    			n = (X10FieldDecl_c) n.init(e);
 	    		}
 	    	}
 
 	    	if (n.init != null) {
 	    		try {
-	    			 xc = (X10Context) n.enterChildScope(n.init, tc.context());
-	    	    	ContextVisitor childtc = tc.context(xc);
+	    			xc = (X10Context) n.enterChildScope(n.init, tc.context());
+	    			ContextVisitor childtc = tc.context(xc);
 	    			Expr newInit = Converter.attemptCoercion(childtc, n.init, oldType); // use the oldType. The type of n.init may have "here".
 	    			return n.init(newInit);
 	    		}
 	    		catch (SemanticException e) {
-	    			throw new Errors.FieldInitTypeWrong(n.init, type, n.init.position());
+	    			Errors.issue(tc.job(),
+	    			        new Errors.FieldInitTypeWrong(n.init, type, n.init.position()), this);
 	    		}
 	    	}
 

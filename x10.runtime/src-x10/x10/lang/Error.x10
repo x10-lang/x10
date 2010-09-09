@@ -23,7 +23,7 @@ import x10.compiler.NativeRep;
  * might be thrown during the execution of the method but not caught, since these errors
  * are abnormal conditions that should never occur.
  */
-@NativeRep("java", "java.lang.Error", null, null)
+// @NativeRep("java", "java.lang.Error", null, null)
 public class Error extends Throwable {
 
     /**

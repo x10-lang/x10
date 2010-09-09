@@ -34,6 +34,9 @@ namespace {
     x10rt_lgl_ctx g;
 }
 
+static void one_setter (void *arg)
+{ *((int*)arg) = 1; }
+
 x10rt_place x10rt_lgl_nplaces (void)
 {
     return g.nplaces;
@@ -177,6 +180,7 @@ namespace {
     {
         x10rt_emu_init(counter);
         x10rt_emu_coll_init(counter);
+        sleep(1);
         has_remote_op = getenv("X10RT_EMULATE_REMOTE_OP")==NULL && 0!=x10rt_net_supports(X10RT_OPT_REMOTE_OP);
         has_collectives = getenv("X10RT_EMULATE_COLLECTIVES")==NULL && 0!=x10rt_net_supports(X10RT_OPT_COLLECTIVES);
         g.nhosts = x10rt_net_nhosts();
@@ -249,7 +253,11 @@ namespace {
         x10rt_net_register_msg_receiver(send_cat_id, recv_cat);
         x10rt_net_register_msg_receiver(send_finish_id, recv_finish);
 
-        x10rt_net_internal_barrier();
+        {
+            int finished = 0;
+            x10rt_lgl_barrier(0, x10rt_lgl_here(), one_setter, &finished);
+            while (!finished) { x10rt_emu_coll_probe(); x10rt_net_probe(); }
+        }
 
         // Spread the knowledge of accelerators around
         
@@ -262,7 +270,11 @@ namespace {
         }
         while (finish_counter!=0) x10rt_net_probe();
 
-        x10rt_net_internal_barrier();
+        {
+            int finished = 0;
+            x10rt_lgl_barrier(0, x10rt_lgl_here(), one_setter, &finished);
+            while (!finished) { x10rt_emu_coll_probe(); x10rt_net_probe(); }
+        }
 
         // Now we can calculate the total number of places
         g.nplaces = x10rt_lgl_nhosts();
@@ -308,7 +320,11 @@ namespace {
             g.type[g.child[x10rt_lgl_here()][j]] = cfgv[j].cat;
         }
 
-        x10rt_net_internal_barrier();
+        {
+            int finished = 0;
+            x10rt_lgl_barrier(0, x10rt_lgl_here(), one_setter, &finished);
+            while (!finished) { x10rt_emu_coll_probe(); x10rt_net_probe(); }
+        }
 
         for (x10rt_place i=0 ; i<x10rt_lgl_nhosts() ; ++i) {
             if (i==x10rt_lgl_here()) continue;
@@ -319,7 +335,11 @@ namespace {
 
         while (finish_counter!=0) x10rt_net_probe();
 
-        x10rt_net_internal_barrier();
+        {
+            int finished = 0;
+            x10rt_lgl_barrier(0, x10rt_lgl_here(), one_setter, &finished);
+            while (!finished) { x10rt_emu_coll_probe(); x10rt_net_probe(); }
+        }
 
     }
 
@@ -481,9 +501,13 @@ void x10rt_lgl_register_put_receiver_cuda (x10rt_msg_type msg_type,
     }
 }
 
-void x10rt_lgl_internal_barrier (void)
+void x10rt_lgl_registration_complete (void)
 {
-    x10rt_net_internal_barrier();
+    {
+        int finished = 0;
+        x10rt_lgl_barrier(0, x10rt_lgl_here(), one_setter, &finished);
+        while (!finished) x10rt_lgl_probe();
+    }
 
     // accelerators
     for (x10rt_place i=0 ; i<g.naccels[x10rt_lgl_here()] ; ++i) {
@@ -831,6 +855,18 @@ void x10rt_lgl_bcast (x10rt_team team, x10rt_place role,
         x10rt_net_bcast(team, role, root, sbuf, dbuf, el, count, ch, arg);
     } else {
         x10rt_emu_bcast(team, role, root, sbuf, dbuf, el, count, ch, arg);
+    }
+}
+
+void x10rt_lgl_scatter (x10rt_team team, x10rt_place role,
+                        x10rt_place root, const void *sbuf, void *dbuf,
+                        size_t el, size_t count,
+                        x10rt_completion_handler *ch, void *arg)
+{
+    if (has_collectives) {
+        //x10rt_net_scatter(team, role, root, sbuf, dbuf, el, count, ch, arg);
+    } else {
+        x10rt_emu_scatter(team, role, root, sbuf, dbuf, el, count, ch, arg);
     }
 }
 

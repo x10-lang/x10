@@ -166,6 +166,7 @@ import x10.emitter.TryCatchExpander;
 import x10.emitter.TypeExpander;
 import x10.types.FunctionType;
 import x10.types.ParameterType;
+import x10.types.ParameterType.Variance;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorDef;
@@ -561,7 +562,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			                        "} catch (java.lang.Error e) {\n" +
 			                            "throw e;\n" +
 			                        "} catch (java.lang.Throwable t) {\n" +
-			                            "throw new x10.lang.MultipleExceptions(t);\n" +
+			                            "throw new x10.runtime.impl.java.X10WrappedThrowable(t);\n" +
 			                        "}\n" +
 			                    "}\n" +
                                 "public x10.rtt.RuntimeType<?> getRTT() {\n" +
@@ -950,7 +951,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             X10CanonicalTypeNode xtn = (X10CanonicalTypeNode) tn;
 
                             Type t = X10TypeMixin.baseType(xtn.type());
-                            Expander ex = new TypeExpander(er, t, reduce_generic_cast ? 0 : PRINT_TYPE_PARAMS);
+                            Expander ex = new TypeExpander(er, t, PRINT_TYPE_PARAMS);
 
                             Expander rt = new RuntimeTypeExpander(er, t);
 
@@ -1006,6 +1007,28 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                                 w.write("(");
                                 ex.expand(tr);
                                 w.write(")");
+                                
+                                if (t instanceof X10ClassType) {
+                                    X10ClassType ct = (X10ClassType) t;
+                                    if (ct.hasParams()) {
+                                        boolean castToRawType = false;
+                                        for (Variance variance : ct.x10Def().variances()) {
+                                            if (variance != Variance.INVARIANT) {
+                                                castToRawType = true;
+                                                break;
+                                            }
+                                        }
+                                        if (castToRawType) {
+                                            // cast to raw type
+                                            // e.g. for covariant class C[+T]{} and C[Object] v = new C[String](),
+                                            // it generates class C<T>{} and C<Object> v = (C<Object>) (C) (new C<String>()).
+                                            w.write("(");
+                                            (new TypeExpander(er, t, 0)).expand(tr);
+                                            w.write(")");
+                                        }
+                                    }
+                                }
+                                
                                 w.allowBreak(2, " ");
                                 X10TypeSystem xts = ((X10TypeSystem)tr.typeSystem());
                                 if (expr instanceof Unary || expr instanceof Lit || (expr instanceof X10Call && !(X10TypeMixin.baseType(expr.type()) instanceof ParameterType) && xts.isRail(((X10Call) expr).target().type())))
@@ -1025,7 +1048,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                                             "x10.rtt.Type rtt = #2;" +
                                             "#0 dep = (#0) x10.rtt.Types.conversion(rtt,self);" +
                                             "if (self==null) return null;" +
-                                            "if (rtt != null && ! rtt.instanceof$(dep)) throw new java.lang.ClassCastException();" +
+                                            "if (rtt != null && ! rtt.instanceof$(dep)) throw new x10.lang.ClassCastException();" +
                                             "return dep;" +
                                         "}" +
                                     "}.cast(#1))";
@@ -1039,7 +1062,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                                         "final #0 cast(final #0 self) {" +
                                             "if (self==null) return null;" +
                                             "x10.rtt.Type rtt = #2;" +
-                                            "if (rtt != null && ! rtt.instanceof$(self)) throw new java.lang.ClassCastException();" +
+                                            "if (rtt != null && ! rtt.instanceof$(self)) throw new x10.lang.ClassCastException();" +
                                             "return self;" +
                                         "}" +
                                     "}.cast((#0) #1))";
@@ -1449,10 +1472,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		        Position pos = Position.COMPILER_GENERATED;
 		        X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
 		        Type re = xts.RuntimeException();
-		        New new1 = xnf.New(Position.COMPILER_GENERATED, xnf.CanonicalTypeNode(Position.COMPILER_GENERATED, re), Collections.EMPTY_LIST);
+		        New new1 = xnf.New(Position.COMPILER_GENERATED, xnf.CanonicalTypeNode(Position.COMPILER_GENERATED, re), Collections.<Expr>emptyList());
 		        X10ConstructorInstance ci;
 		        try {
-		            ci = xts.findConstructor(re, xts.ConstructorMatcher(re, Collections.EMPTY_LIST, tr.context()));
+		            ci = xts.findConstructor(re, xts.ConstructorMatcher(re, Collections.<Type>emptyList(), tr.context()));
 		        } catch (SemanticException e) {
 		            e.printStackTrace();
 		            throw new InternalCompilerError("");
@@ -1465,14 +1488,30 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		}
 		TryCatchExpander expander = new TryCatchExpander(w, er, c.tryBlock(), c.finallyBlock());
 		final List<Catch> catchBlocks = c.catchBlocks();
-		if (!catchBlocks.isEmpty()) {
+
+		boolean isJavaCheckedExceptionCaught = false;
+        for (int i = 0; i < catchBlocks.size(); ++i) {
+            Type type = catchBlocks.get(i).catchType();
+            if (type.toString().startsWith("java") && !type.isUncheckedException()) {
+                // found Java checked exceptions caught here!!
+                isJavaCheckedExceptionCaught = true;
+            }
+        }
+		if (isJavaCheckedExceptionCaught) {
 		    final String temp = "__$generated_wrappedex$__";
-		    expander.addCatchBlock("x10.runtime.impl.java.WrappedRuntimeException", temp, new Expander(er) {
+		    expander.addCatchBlock("x10.runtime.impl.java.X10WrappedThrowable", temp, new Expander(er) {
 		        public void expand(Translator tr) {
                     w.newline();
 
                     for (int i = 0; i < catchBlocks.size(); ++i) {
 		                Catch cb = catchBlocks.get(i);
+		                Type type = cb.catchType();
+		                if (!type.toString().startsWith("java") || type.isUncheckedException())
+//		                if (type.isSubtype(tr.typeSystem().Error(), tr.context()) || 
+//		                    type.isSubtype(tr.typeSystem().RuntimeException(), tr.context()))
+		                    // nothing to do, since X10WrappedThrowable wrap only Java checked exceptions
+		                    continue;
+
 		                if (i > 0) {
 		                    w.write("else ");
 		                }
@@ -1501,12 +1540,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     w.newline();
 		        }
 		    });
+        }
 		    
-		    for (int i = 0; i < catchBlocks.size(); ++i) {
-		        expander.addCatchBlock(catchBlocks.get(i));
-		    }
+		for (int i = 0; i < catchBlocks.size(); ++i) {
+		    expander.addCatchBlock(catchBlocks.get(i));
 		}
-		
+
 		expander.expand(tr);
 	}
 
@@ -2038,9 +2077,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 
                 TryCatchExpander tryCatchExpander = new TryCatchExpander(w, er, n.body(), null);
                 if (runAsync) {
-                    tryCatchExpander.addCatchBlock("x10.runtime.impl.java.WrappedRuntimeException", "ex", new Expander(er) {
+                    tryCatchExpander.addCatchBlock("x10.runtime.impl.java.X10WrappedThrowable", "ex", new Expander(er) {
                         public void expand(Translator tr) {
-                            w.write("x10.lang.Runtime.pushException(ex.getCause());");
+                            w.write("x10.lang.Runtime.pushException(ex);");
                         }
                     });
                 }
@@ -2058,13 +2097,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     if (runAsync) {
                         tryCatchExpander.addCatchBlock("java.lang.Throwable", "t", new Expander(er) {
                             public void expand(Translator tr) {
-                                w.write("x10.lang.Runtime.pushException(t);");
+                                w.write("x10.lang.Runtime.pushException(new x10.runtime.impl.java.X10WrappedThrowable(t));");
                             }
                         });
                     } else {
                         tryCatchExpander.addCatchBlock("java.lang.Throwable", "t", new Expander(er) {
                             public void expand(Translator tr) {
-                                w.write("throw new x10.runtime.impl.java.WrappedRuntimeException(t);");
+                                w.write("throw new x10.runtime.impl.java.X10WrappedThrowable(t);");
                             }
                         });
                     }
@@ -2080,13 +2119,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     if (runAsync) {
                         tryCatchExpander.addCatchBlock("java.lang.Exception", "ex", new Expander(er) {
                             public void expand(Translator tr) {
-                                w.write("x10.lang.Runtime.pushException(ex);");
+                                w.write("x10.lang.Runtime.pushException(new x10.runtime.impl.java.X10WrappedThrowable(ex));");
                             }
                         });
                     } else {
                         tryCatchExpander.addCatchBlock("java.lang.Exception", "ex", new Expander(er) {
                             public void expand(Translator tr) {
-                                w.write("throw new x10.runtime.impl.java.WrappedRuntimeException(ex);");
+                                w.write("throw new x10.runtime.impl.java.X10WrappedThrowable(ex);");
                             }
                         });
                     }
@@ -2706,7 +2745,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 				ClosureCall e = (ClosureCall) expr;
 				target = e.target();
 				args = e.arguments();
-				typeArgs = Collections.EMPTY_LIST; // e.typeArgs();
+				typeArgs = Collections.<TypeNode>emptyList(); // e.typeArgs();
 				mi = e.closureInstance();
 			}
 			else if (expr instanceof X10Call) {

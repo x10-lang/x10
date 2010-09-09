@@ -98,4 +98,22 @@ public class Thread extends java.lang.Thread {
     public static long getTid() {
         return Thread.currentThread().getId();
     }
+
+    public static void sleep(long time) {
+        Thread.sleep(time, 0);
+    }
+
+    public static void sleep(long time, int nanos) {
+        try {
+            java.lang.Thread.sleep(time, nanos);
+        } catch (InterruptedException e) {
+            X10Throwable e1 = null;
+            try {
+                e1 = (X10Throwable)Class.forName("x10.lang.InterruptedException").newInstance();
+            } catch (Exception e2) {
+                e2.printStackTrace();
+            }
+            throw e1;
+        }
+    }
 }

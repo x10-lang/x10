@@ -27,6 +27,8 @@ import polyglot.ast.Special;
 import polyglot.ast.Unary;
 import polyglot.ast.Unary_c;
 import polyglot.ast.Variable;
+import polyglot.ast.IntLit;
+import polyglot.ast.FloatLit;
 import polyglot.ast.Binary.Operator;
 import polyglot.frontend.Globals;
 import polyglot.types.ClassDef;
@@ -46,12 +48,16 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.types.UnknownType;
+import polyglot.types.QName;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import polyglot.visit.ContextVisitor;
 import x10.ast.Here;
 import x10.ast.ParExpr;
 import x10.ast.SemanticError;
 import x10.ast.SubtypeTest;
+import x10.ast.X10NodeFactory;
+import x10.ast.X10IntLit_c;
 import x10.constraint.XFailure;
 import x10.constraint.XNameWrapper;
 import x10.constraint.XVar;
@@ -1007,21 +1013,76 @@ public class X10TypeMixin {
                 res = copy;
         }
         return res;
-    }
-    public static boolean hasZero(Type t) { // see X10FieldDecl_c.typeCheck 
-        // does the type include 0/false/null value? (hasDeafult)
-        // todo: this is an under-approximation (it is always safe to return 'false', i.e., the user will just get more errors). In the future we will improve the precision so more types might have zero.
-        if (X10TypeMixin.disEntailsSelf(t, XTerms.NULL))
-			return false; // Any{self!=null}
-		X10TypeSystem ts = ((X10TypeSystem) t.typeSystem());
-        if (ts.isParameterType(t)) {
-			return false; // a parameter type might be instantiated with a type that doesn't have a default/zero. todo: In the future we'll add the "hasDefault" constraint
-		}
-        if (isX10Struct(t)) {
+    }     
+    public static boolean isUninitializedField(X10FieldDef def,X10TypeSystem ts) {
+        try {
+            Type at = (Type) ts.systemResolver().find(QName.make("x10.compiler.Uninitialized"));
+            return !def.annotationsMatching(at).isEmpty();
+        } catch (SemanticException e) {
             return false;
-        } else {
-            // todo: how do I know if a type is a closure? (cause closures do not have zero/default)
-            return true;
+        }
+    }
+    // this is an under-approximation (it is always safe to return 'null', i.e., the user will just get more errors). In the future we will improve the precision so more types might have zero.
+    public static Expr getZeroVal(Type t, Position p, ContextVisitor tc) { // see X10FieldDecl_c.typeCheck
+        try {
+            X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+            X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
+	    	X10Context context = (X10Context) tc.context();
+            Expr e = null;
+            if (t.isBoolean()) {
+                e = nf.BooleanLit(p, false);
+
+            // todo: add literals for short, byte, and their unsigned versions
+            } else if (ts.isShort(t)) {
+                e = nf.IntLit(p, X10IntLit_c.INT, 0L);
+            } else if (ts.isUShort(t)) {
+                e = nf.IntLit(p, X10IntLit_c.UINT, 0L);
+            } else if (ts.isByte(t)) {
+                e = nf.IntLit(p, X10IntLit_c.INT, 0L);
+            } else if (ts.isUByte(t)) {
+                e = nf.IntLit(p, X10IntLit_c.UINT, 0L);
+                
+            } else if (ts.isChar(t)) {
+                e = nf.CharLit(p, '\0');
+            } else if (ts.isInt(t)) {
+                e = nf.IntLit(p, X10IntLit_c.INT, 0L);
+            } else if (ts.isUInt(t)) {
+                e = nf.IntLit(p, X10IntLit_c.UINT, 0L);
+            } else if (ts.isLong(t)) {
+                e = nf.IntLit(p, X10IntLit_c.LONG, 0L);
+            } else if (ts.isULong(t)) {
+                e = nf.IntLit(p, X10IntLit_c.ULONG, 0L);
+            } else if (ts.isFloat(t)) {
+                e = nf.FloatLit(p, FloatLit.FLOAT, 0.0);
+            } else if (ts.isDouble(t)) {
+                e = nf.FloatLit(p, FloatLit.DOUBLE, 0.0);
+            } else if (ts.isReferenceType(t, context)) {
+                e = nf.NullLit(p);
+            }
+            // todo: we should handle user-defined structs, as well as generic type parameters with hasDefault. see hasZero
+//            if (isX10Struct(t)) {
+            /*
+            My plan for user-defined structs is as follows:
+1) recursively verify that all generic parameters have zero/default (this might be stricter then necessary because a parameter might not be used in any field, but is easier to implement)
+2) We maintain a set of constraints C, and make sure all of them evaluate to true.
+We gather the constraints from:
+* the constraints on all the non-static fields and properties
+* the class invariant
+then we substitute 0/false/null in all the constraints in C and if they all evaluate to true, then we have a default value.
+             */
+
+//            // a parameter type might be instantiated with a type that doesn't have a default/zero. todo: In the future we'll add the "hasDefault" constraint
+//            if (ts.isParameterType(t)) {
+
+            if (e != null) {
+                e = (Expr) e.del().typeCheck(tc).checkConstants(tc);
+                if (!ts.isSubtype(e.type(), t, context)) { // suppose the field is "var i:Int{self!=0}", then you cannot create an initializer which is 0!
+                    return e;
+                }
+            }
+            return null;
+        } catch (SemanticException e1) {
+            throw new InternalCompilerError(e1);
         }
     }
     

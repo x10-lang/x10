@@ -813,7 +813,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            public boolean runTask() {
                Node ast = job().ast();
                if (ast != null && !((X10Ext)ast.ext()).subtreeValid()) {
-                   Warnings.issue(job(), "Invalid Visitor Goal: " +this.name()+ ", visitor: " +this.visitor(), Position.COMPILER_GENERATED);
+                   //Warnings.issue(job(), "Invalid Visitor Goal: " +this.name()+ ", visitor: " +this.visitor(), Position.COMPILER_GENERATED);
                    return true;
                }
                return super.runTask();

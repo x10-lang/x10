@@ -55,8 +55,8 @@ public class File {
         @Native("c++", "(#0)->getAbsolutePath()")
         native def getAbsolutePath(): String;
         // here's what we must do if we make IOException non-native
-        //@Native("java", "new Object() { String eval(java.io.File f) { try { return f.getCanonicalPath(); } catch (java.io.IOException e) { throw new x10.io.IOException(e.getMessage()); } } }.eval(#0)")
-        @Native("java", "#0.getCanonicalPath()")
+        @Native("java", "new Object() { String eval(java.io.File f) { try { return f.getCanonicalPath(); } catch (java.io.IOException e) { throw new x10.io.IOException(e.getMessage()); } } }.eval(#0)")
+        // @Native("java", "#0.getCanonicalPath()")
         @Native("c++", "(#0)->getCanonicalPath()")
         native def getCanonicalPath(): String throws IOException;
 

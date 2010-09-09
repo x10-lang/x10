@@ -45,6 +45,7 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.constraint.XConstraint;
 import x10.extension.X10Del;
+import x10.types.ClosureDef;
 import x10.types.ClosureType_c;
 import x10.types.ConstrainedType;
 import x10.types.ConstrainedType_c;
@@ -104,8 +105,12 @@ AddFlags {
 	    ParameterType pt = (ParameterType) t;
 	    Def def = Types.get(pt.def());
 	    boolean inConstructor = false;
-	    if (c.currentCode() instanceof ConstructorDef) {
-	        ConstructorDef td = (ConstructorDef) c.currentCode();
+	    Context p = c;
+	    // Pop back to the right context before proceeding
+	    while (p.pop() != null && (p.currentClassDef() != def || p.currentCode() instanceof ClosureDef))
+	        p = p.pop();
+	    if (p.currentCode() instanceof ConstructorDef) {
+	        ConstructorDef td = (ConstructorDef) p.currentCode();
 	        Type container = Types.get(td.container());
 	        if (container instanceof X10ClassType) {
 	            X10ClassType ct = (X10ClassType) container;
@@ -114,7 +119,7 @@ AddFlags {
 	            }
 	        }
 	    }
-	    if (c.inStaticContext() && def instanceof ClassDef && ! inConstructor) {
+	    if (p.inStaticContext() && def instanceof ClassDef && ! inConstructor) {
 	        throw new SemanticException("Cannot refer to type parameter " 
 	        		+ pt.fullName() + " of " + def + " from a static context.", position());
 	    }
