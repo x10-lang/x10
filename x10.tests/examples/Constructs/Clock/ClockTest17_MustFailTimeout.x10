@@ -69,7 +69,7 @@ public class ClockTest17_MustFailTimeout extends x10Test {
 			}
 		};
 
-		val fooArray: Rail[foo] = Rail.make([f0,f1]);
+		val fooArray: Rail[foo] = Rail.make([f0 as foo ,f1 as foo]);
 
 		// This is invoking Y.test(f0) but not clear to a compiler
 		Y.test(fooArray(x.zero()));

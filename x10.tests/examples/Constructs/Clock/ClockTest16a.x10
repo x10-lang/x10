@@ -90,7 +90,7 @@ public class ClockTest16a extends x10Test {
 				}
 			};
 
-			val fooArray: Rail[foo] = Rail.make([f0,f1]);
+			val fooArray = Rail.make([f0 as foo,f1 as foo]);
 
 			// Compiler: MAYBE, actual: NO
 			// must have a compiler error

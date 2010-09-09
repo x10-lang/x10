@@ -96,7 +96,7 @@ public class ClockTest16 extends x10Test {
 					}
 				};
 
-				val fooArray: Rail[foo] = Rail.make([f0,f1]);
+				val fooArray = Rail.make([f0,f1]);
 
 				// Compiler: MAYBE, Actual: NO
 				Y.test(fooArray(x.one()) as foo, c1);
