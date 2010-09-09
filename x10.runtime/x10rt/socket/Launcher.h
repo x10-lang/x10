@@ -3,6 +3,14 @@
 #include <stdlib.h>
 #include <sys/select.h>
 
+/* ************************************************************************ */
+/*            some explicit declarations for strict ANSI mode               */
+/* ************************************************************************ */
+#ifdef __CYGWIN__
+extern "C" int vsnprintf(char *, size_t, const char *, va_list); 
+extern "C" char *realpath (const char *, char *);
+#endif
+
 #ifndef __sock_launcher_h__
 #define __sock_launcher_h__
 
