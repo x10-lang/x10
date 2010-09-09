@@ -19,18 +19,18 @@ import x10.io.Console;
  */
 public class FSSimpleDist {
 
-    const MEG = 1024*1024;
-    const alpha = 3.0D;
+    static MEG = 1024*1024;
+    static alpha = 3.0D;
 
-    const NUM_TIMES = 10;
+    static NUM_TIMES = 10;
 
-    const DEFAULT_SIZE = MEG / 8;
+    static DEFAULT_SIZE = MEG / 8;
 
-    const NUM_PLACES = Place.MAX_PLACES;
+    static NUM_PLACES = Place.MAX_PLACES;
 
     public static def main(args:Rail[String]) {
         val verified = new Cell[Boolean](true);
-        val times = Rail.make[double](NUM_TIMES);
+        val times = GlobalRef[Rail[double]](Rail.make[double](NUM_TIMES));
         val N0 = args.length > 0 ? int.parse(args(0)) : DEFAULT_SIZE;
         val N = N0 * NUM_PLACES;
         val localSize =  N0;
@@ -43,7 +43,7 @@ public class FSSimpleDist {
 
                 val p = pp;
                 
-                async(Place.places(p)) {
+                async at(Place.places(p)) {
                     
                     val a = Rail.make[double](localSize);
                     val b = Rail.make[double](localSize);
@@ -55,10 +55,16 @@ public class FSSimpleDist {
                     }
                     
                     for (var j:int=0; j<NUM_TIMES; j++) {
-                        if (p==0) (times as Rail[double]!)(j) = -now(); 
+                        if (p==0) {
+                        	val t = times as GlobalRef[Rail[double]]{self.home==here};
+                        	t()(j) = -now(); 
+                        }
                         for (var i:int=0; i<localSize; i++)
                             a(i) = b(i) + alpha*c(i);
-                        if (p==0) (times as Rail[double]!)(j) = (times as Rail[double]!)(j) + now();
+                        if (p==0) {
+                        	val t = times as GlobalRef[Rail[double]]{self.home==here};
+                        	t()(j) += now();
+                        }
                     }
                     
                     // verification
@@ -71,8 +77,8 @@ public class FSSimpleDist {
 
         var min:double = 1000000;
         for (var j:int=0; j<NUM_TIMES; j++)
-            if (times(j) < min)
-                min = times(j);
+            if (times()(j) < min)
+                min = times()(j);
         printStats(N, min, verified());
     }
 
