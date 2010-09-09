@@ -553,8 +553,8 @@ public class X10FinishAsyncAnalysis {
 
 
 				if (DEBUG_CFG) {
-					GraphUtil.printCFG(epcfg,md.getMethod().getName().toString()+"_removed");
-					GraphUtil.printCFG(cfg,md.getMethod().getName().toString());
+					GraphUtil.printNumberedGraph(epcfg,md.getMethod().getName().toString()+"_removed");
+					GraphUtil.printNumberedGraph(cfg,md.getMethod().getName().toString());
 				}
 
 				// traverse cfg
