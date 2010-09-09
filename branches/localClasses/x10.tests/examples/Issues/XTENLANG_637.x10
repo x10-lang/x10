@@ -20,8 +20,8 @@ class XTENLANG_637 extends x10Test {
     public def run(): boolean {
         val sub = new Sub();
         val csub = new Get[Sub](sub);
-        val csup1 : Get[Super]! = csub as Get[Super]!;
-        val csup2 : Get[Super]! = csub;
+        val csup1 : Get[Super] = csub;
+        val csup2 : Get[Super] = csub;
         return true;
     }
 
