@@ -22,13 +22,13 @@ import harness.x10Test;
 public class CF9 extends x10Test{
 
     public static class TotalsReducer1 implements Reducible[Totals2] {
-        public global safe def zero() = new Totals2(0,0);
-        public global safe def apply(a:Totals2 ,other:Totals2 ) = new Totals2(a.left+other.left,a.right+other.right); 
+        public  safe def zero() = new Totals2(0,0);
+        public  safe def apply(a:Totals2 ,other:Totals2 ) = new Totals2(a.left+other.left,a.right+other.right); 
         public def this() {super();};
     }
     public static class Totals2 {
-        public global val left :Int;
-        public global val right : Int;
+        public  val left :Int;
+        public  val right : Int;
         public def this (l:Int, r:Int)  {left = l; right = r;}
         public def this (){left =0; right =0;}
     }
