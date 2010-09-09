@@ -17,7 +17,7 @@ import harness.x10Test;
  *
  */
 public class FieldDepType extends x10Test {
-    var f: Array[double](0..10)!
+    var f: Array[double](0..10)
 	= new Array[double](0..10, (i: Point)=> (10-i(0)) as double);
 	
 	def m(a: Array[double]{rank==1&&rect&&zeroBased}): void = {
