@@ -104,7 +104,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
      */
     public void checkClassConformance(ClassType ct) throws SemanticException {
         if (ct.flags().isAbstract()) {
-            // don't need to check interfaces or abstract classes           
+            // don't need to check interfaces of abstract classes
             return;
         }
 
@@ -113,8 +113,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         // ct must define.
         List<Type> superInterfaces = ts.abstractSuperInterfaces(ct);
 
-        // check each abstract method of the classes and interfaces in
-        // superInterfaces
+        // check each abstract method of the classes and interfaces in superInterfaces
         for (Iterator<Type> i = superInterfaces.iterator(); i.hasNext(); ) {
             Type it = i.next();
             if (it instanceof StructType) {
@@ -122,8 +121,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                 for (Iterator<MethodInstance> j = rt.methods().iterator(); j.hasNext(); ) {
                     MethodInstance mi = j.next();
                     if (!mi.flags().isAbstract()) {
-                        // the method isn't abstract, so ct doesn't have to
-                        // implement it.
+                        // the method isn't abstract, so ct doesn't have to implement it.
                         continue;
                     }
 
@@ -146,54 +144,53 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                     		}
                     	}
                         if (!ct.flags().isAbstract()) {
-                        	SemanticException e = new SemanticException(ct
-                        			.fullName()
-						+ " should be "
-						+ "declared abstract; it does not define "
-						+ mi.signature()
-						+ ", which is declared in "
-						+ rt.toClass().fullName(), ct.position());
-				Map<String, Object> map = new HashMap<String, Object>();
-				map.put("ERROR_CODE", 1004);
-				map.put("CLASS", ct.name().toString());
-				map.put("METHOD", mi.name().toString());
-				map.put("SUPER_CLASS", rt.toClass().name().toString());
-				e.setAttributes(map);
-				throw e;
+                            SemanticException e = new SemanticException(ct.fullName()
+                                    + " should be "
+                                    + "declared abstract; it does not define "
+                                    + mi.signature()
+                                    + ", which is declared in "
+                                    + rt.toClass().fullName(), ct.position());
+                            Map<String, Object> map = new HashMap<String, Object>();
+                            map.put("ERROR_CODE", 1004);
+                            map.put("CLASS", ct.name().toString());
+                            map.put("METHOD", mi.name().toString());
+                            map.put("SUPER_CLASS", rt.toClass().name().toString());
+                            e.setAttributes(map);
+                            throw e;
                         }
                         else { 
                             // no implementation, but that's ok, the class is abstract.
                         }
                     }
+                    // the checks below will be done by the MethodDecl's conformance check
+                    /*
                     else if (!typeEquals(ct, mj.container()) && !typeEquals(ct, mi.container())) {
                         try {
                             // check that mj can override mi, which
                             // includes access protection checks.
-                            checkOverride((MethodInstance) mj.container(ct), 
-                                          (MethodInstance) mi.container(ct));
-                            //	                                     checkOverride(ct, mj, mi);
+                            checkOverride((MethodInstance) mj.container(ct), (MethodInstance) mi.container(ct));
+                            //checkOverride(ct, mj, mi);
                         }
                         catch (SemanticException e) {
                             // change the position of the semantic
                             // exception to be the class that we
                             // are checking.
-                            throw new SemanticException(e.getMessage(),
-                                                        ct.position());
+                            throw new SemanticException(e.getMessage(), ct.position());
                         }
                     }
                     else {
                         // the method implementation mj or mi was
                         // declared in ct. So other checks will take
                         // care of access issues
-                	  checkOverride(ct, mj, mi);
+                        checkOverride(ct, mj, mi);
                     }
+                    */
                 }
             }
         }
     }
 
-    public void
-    checkOverride(ClassType ct, MethodInstance mi0, MethodInstance mj0) throws SemanticException {
+    public void checkOverride(ClassType ct, MethodInstance mi0, MethodInstance mj0) throws SemanticException {
         X10MethodInstance mi = (X10MethodInstance) mi0;
         X10MethodInstance mj = (X10MethodInstance) mj0;
 
@@ -216,25 +213,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         // Force evaluation to help debugging.
         mi.returnType();
         mj.returnType();
-        
-      
+
         newEnv.checkOverride(mi, mj, true);
-
-        X10Flags miF = X10Flags.toX10Flags(mi.flags());
-        X10Flags mjF = X10Flags.toX10Flags(mj.flags());
-
-        // Report.report(1, "X10MethodInstance_c: " + this + " canOVerrideImpl " + mj);
-        if (! miF.hasAllAnnotationsOf(mjF)) {
-            if (Report.should_report(Report.types, 3))
-                Report.report(3, mi.flags() + " is more liberal than " +
-                              mj.flags());
-            throw new SemanticException(mi.flags() + " " + mi.signature() + " in " + mi.container() +
-                                        " cannot override " + 
-                                        mj.flags() + " " + mj.signature() + " in " + mj.container() + 
-                                        "; attempting to assign weaker " + 
-                                        "behavioral annotations", 
-                                        mi.position());
-        }
     }
 
     /* (non-Javadoc)
@@ -1746,35 +1726,31 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     	return result;
     }
 
-    private void superCheckOverride(X10MethodInstance mi, X10MethodInstance mj) throws SemanticException {
-        boolean allowCovariantReturn = true;
-
+    private void superCheckOverride(X10MethodInstance mi, X10MethodInstance mj, boolean allowCovariantReturn) throws SemanticException {
         if (mi == mj)
             return;
 
-        X10TypeSystem xts = (X10TypeSystem) mi.typeSystem();
-        if (! mi.name().equals(mj.name()))
+        if (!mi.name().equals(mj.name())) {
             throw new SemanticException(mi.signature() + " in " + mi.container() +
                                         " cannot override " + 
                                         mj.signature() + " in " + mj.container() + 
                                         "; method names are not equal",
                                         mi.position());
-
-        if ( mi.formalNames().size() != mj.formalNames().size()) {
-        	  throw new SemanticException(mi.signature() + " in " + mi.container() +
-                      " cannot override " + 
-                      mj.signature() + " in " + mj.container() + 
-                      "; different number of arguments",
-                      mi.position());
         }
-      
-
+        if (mi.formalNames().size() != mj.formalNames().size()) {
+            throw new SemanticException(mi.signature() + " in " + mi.container() +
+                                        " cannot override " + 
+                                        mj.signature() + " in " + mj.container() + 
+                                        "; different number of arguments",
+                                        mi.position());
+        }
 
         List<LocalInstance> miFormals = mi.formalNames();
         assert miFormals.size() ==  mj.formalNames().size();
         
         boolean allEqual = false;
         XVar[] newSymbols = genSymbolicVars(mj.formalNames().size());
+        X10TypeSystem xts = (X10TypeSystem) mi.typeSystem();
         XVar[] miSymbols = Matcher.getSymbolicNames(mi.formalTypes(), mi.formalNames(),xts);
         XVar[] mjSymbols = Matcher.getSymbolicNames(mj.formalTypes(), mj.formalNames(),xts);
         
@@ -1796,19 +1772,19 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         }
 
         if (!allEqual) {
-            throw new SemanticException(mi.signature() + " in " + mi.container() 
-            		+ " cannot override " + mj.signature() + " in " + mj.container()
-            		+ "; incompatible parameter types", mi.position());
+            throw new SemanticException(mi.signature() + " in " + mi.container() +
+                                        " cannot override " +
+                                        mj.signature() + " in " + mj.container() +
+                                        "; incompatible parameter types",
+                                        mi.position());
         }
 
         Type miRet = Subst.subst(mi.returnType(), newSymbols, miSymbols);
         Type mjRet = Subst.subst(mj.returnType(), newSymbols, mjSymbols);
         if (! isSubtype(miRet, mjRet)) {
             if (Report.should_report(Report.types, 3))
-                Report.report(3, "return type " + mi.returnType() +
-                              " != " + mj.returnType());
-            throw new Errors.IncompatibleReturnType(mi,mj);
-           
+                Report.report(3, "return type " + mi.returnType() + " != " + mj.returnType());
+            throw new Errors.IncompatibleReturnType(mi, mj);
         } 
 
         if (! ts.throwsSubset(mi, mj)) {
@@ -1863,13 +1839,17 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     }
 
     public void checkOverride(MethodInstance r, MethodInstance other) throws SemanticException {
+        checkOverride(r, other, true);
+    }
+
+    public void checkOverride(MethodInstance r, MethodInstance other, boolean allowCovariantReturn) throws SemanticException {
         X10MethodInstance mi = (X10MethodInstance) r;
         X10MethodInstance mj = (X10MethodInstance) other;
 
         String fullNameWithThis = mi.x10Def().thisVar().toString();
         XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
         XVar thisVar = XTerms.makeLocal(thisName);
-        thisVar = mi.x10Def().thisVar();
+        thisVar = mi.x10Def().thisVar(); // FIXME: should the above value be used?
 
         List<XVar> ys = new ArrayList<XVar>(2);
         List<XVar> xs = new ArrayList<XVar>(2);
@@ -1886,7 +1866,30 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         mi.returnType();
         mj.returnType();
 
-        superCheckOverride(mi, mj);
+        superCheckOverride(mi, mj, allowCovariantReturn);
+
+        // FIXME: is this the same as entails(CConstraint, CConstraint)?
+        boolean entails = true;
+        if (mj.guard() == null) {
+            entails = mi.guard() == null || mi.guard().valid();
+        }
+        else {
+            try {
+                entails = mi.guard() == null || mj.guard().entails(mi.guard(), 
+                        ((X10Context) context).constraintProjection(mj.guard(), mi.guard()));
+            }
+            catch (XFailure e) {
+                entails = false;
+            }
+        }
+
+        if (! entails) {
+            throw new SemanticException(mi.signature() + " in " + mi.container() +
+                    " cannot override " + 
+                    mj.signature() + " in " + mj.container() + 
+                    "; method guard is not entailed.",
+                    mi.position());
+        }
 
         X10Flags miF = X10Flags.toX10Flags(mi.flags());
         X10Flags mjF = X10Flags.toX10Flags(mj.flags());
@@ -1894,8 +1897,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         // Report.report(1, "X10MethodInstance_c: " + this + " canOverrideImpl " + mj);
         if (! miF.hasAllAnnotationsOf(mjF)) {
             if (Report.should_report(Report.types, 3))
-                Report.report(3, mi.flags() + " is more liberal than " +
-                              mj.flags());
+                Report.report(3, mi.flags() + " is more liberal than " + mj.flags());
             throw new SemanticException(mi.flags() + " " + mi.signature() + " in " + mi.container() +
                                         " cannot override " + 
                                         mj.flags() + " " + mj.signature() + " in " + mj.container() + 
@@ -1903,93 +1905,6 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                                         "behavioral annotations", 
                                         mi.position());
         }
-    }
-
-
-    public void checkOverride(MethodInstance mi, MethodInstance mj, boolean allowCovariantReturn) throws SemanticException {
-    	//Context cxt = PlaceChecker.pushHereTerm(mi.def(), (X10Context) context);
-    	//X10TypeEnv_c env = cxt == context ? this : new X10TypeEnv_c(cxt);
-    	//env.
-    	checkOverrideInProperContext(mi, mj, allowCovariantReturn);
-    	return;
-
-    }
-    public void superCheckOverride(MethodInstance mi, MethodInstance mj, boolean allowCovariantReturn) throws SemanticException {
-    	if (mi == mj)
-    	    return;
-
-    	if (!(mi.name().equals(mj.name()) && mi.hasFormals(mj.formalTypes(), context))) {
-    	    throw new SemanticException(mi.signature() + " in " + mi.container() + " cannot override " + mj.signature() + " in " + mj.container()
-    		    + "; incompatible " + "parameter types", mi.position());
-    	}
-
-    	if (allowCovariantReturn ? !isSubtype(mi.returnType(), mj.returnType()) : !typeEquals(mi.returnType(), mj.returnType())) {
-    	    if (Report.should_report(Report.types, 3))
-    		Report.report(3, "return type " + mi.returnType() + " != " + mj.returnType());
-    	    throw new SemanticException(mi.signature() + " in " + mi.container() + " cannot override " + mj.signature() + " in " + mj.container()
-    		    + "; attempting to use incompatible " + "return type\n" + "found: " + mi.returnType() + "\n" + "required: " + mj.returnType(),
-    					mi.position());
-    	}
-
-    	if (!ts.throwsSubset(mi, mj)) {
-    	    if (Report.should_report(Report.types, 3))
-    		Report.report(3, mi.throwTypes() + " not subset of " + mj.throwTypes());
-    	    throw new SemanticException(mi.signature() + " in " + mi.container() + " cannot override " + mj.signature() + " in " + mj.container()
-    		    + "; the throw set " + mi.throwTypes() + " is not a subset of the " + "overridden method's throw set " + mj.throwTypes() + ".",
-    					mi.position());
-    	}
-
-    	if (mi.flags().moreRestrictiveThan(mj.flags())) {
-    	    if (Report.should_report(Report.types, 3))
-    		Report.report(3, mi.flags() + " more restrictive than " + mj.flags());
-    	    throw new SemanticException(mi.signature() + " in " + mi.container() + " cannot override " + mj.signature() + " in " + mj.container()
-    		    + "; attempting to assign weaker " + "access privileges", mi.position());
-    	}
-
-    	if (mi.flags().isStatic() != mj.flags().isStatic()) {
-    	    if (Report.should_report(Report.types, 3))
-    		Report.report(3, mi.signature() + " is " + (mi.flags().isStatic() ? "" : "not") + " static but " + mj.signature() + " is "
-    			+ (mj.flags().isStatic() ? "" : "not") + " static");
-    	    throw new SemanticException(mi.signature() + " in " + mi.container() + " cannot override " + mj.signature() + " in " + mj.container()
-    		    + "; overridden method is " + (mj.flags().isStatic() ? "" : "not") + "static", mi.position());
-    	}
-
-    	if (!mi.def().equals(mj.def()) && mj.flags().isFinal()) {
-    	    // mi can "override" a final method mj if mi and mj are the same
-    	    // method instance.
-    	    if (Report.should_report(Report.types, 3))
-    		Report.report(3, mj.flags() + " final");
-    	    throw new SemanticException(mi.signature() + " in " + mi.container() + " cannot override " + mj.signature() + " in " + mj.container()
-    		    + "; overridden method is final", mi.position());
-    	}
-        }
-
-    private void checkOverrideInProperContext(MethodInstance mi, MethodInstance mj, boolean allowCovariantReturn) throws SemanticException {
-    	superCheckOverride(mi, mj, allowCovariantReturn);
-
-    	X10MethodInstance xmi = (X10MethodInstance) mi;
-    	X10MethodInstance xmj = (X10MethodInstance) mj;
-    	boolean entails = true;
-    	if (xmj.guard() == null) {
-    		entails = xmi.guard() == null || xmi.guard().valid();
-    	}
-    	else {
-    		try {
-    			entails = xmi.guard() == null || xmj.guard().entails(xmi.guard(), 
-    					((X10Context) context).constraintProjection(xmj.guard(), xmi.guard()));
-    		}
-    		catch (XFailure e) {
-    			entails = false;
-    		}
-    	}
-
-    	if (! entails) {
-    		throw new SemanticException(xmi.signature() + " in " + xmi.container() +
-    				" cannot override " + 
-    				xmj.signature() + " in " + xmj.container() + 
-    				"; method guard is not entailed.",
-    				xmi.position());
-    	}
     }
 
     /**
