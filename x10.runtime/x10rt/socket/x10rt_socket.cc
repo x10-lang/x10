@@ -29,7 +29,7 @@ typedef void (*handlerCallback)(const x10rt_msg_params *);
 typedef void *(*finderCallback)(const x10rt_msg_params *, x10rt_copy_sz);
 typedef void (*notifierCallback)(const x10rt_msg_params *, x10rt_copy_sz);
 
-enum MSGTYPE {CONTROL, STANDARD, PUT, GET, GET_COMPLETED};
+enum MSGTYPE {STANDARD, PUT, GET, GET_COMPLETED};
 
 struct x10SocketCallback
 {
@@ -202,10 +202,9 @@ void x10rt_net_send_msg (x10rt_msg_params *parameters)
 	pthread_mutex_lock(&state.writeLocks[parameters->dest_place]);
 
 	// write out the x10SocketMessage data
-	// Format: type, source, p.type, p.len, p.msg
+	// Format: type, p.type, p.len, p.msg
 	enum MSGTYPE m = STANDARD;
 	TCP::write(state.socketLinks[parameters->dest_place].fd, &m, sizeof(enum MSGTYPE));
-	TCP::write(state.socketLinks[parameters->dest_place].fd, &state.myPlaceId, sizeof(x10rt_place));
 	TCP::write(state.socketLinks[parameters->dest_place].fd, &parameters->type, sizeof(x10rt_msg_type));
 	TCP::write(state.socketLinks[parameters->dest_place].fd, &parameters->len, sizeof(uint32_t));
 	if (parameters->len > 0)
@@ -221,16 +220,16 @@ void x10rt_net_send_get (x10rt_msg_params *parameters, void *buffer, x10rt_copy_
 	pthread_mutex_lock(&state.writeLocks[parameters->dest_place]);
 
 	// write out the x10SocketMessage data
-	// Format: type, source, p.type, p.len, p.msg, bufferlen, bufferADDRESS
+	// Format: type, p.type, p.len, p.msg, bufferlen, bufferADDRESS
 	enum MSGTYPE m = GET;
 	TCP::write(state.socketLinks[parameters->dest_place].fd, &m, sizeof(enum MSGTYPE));
-	TCP::write(state.socketLinks[parameters->dest_place].fd, &state.myPlaceId, sizeof(x10rt_place));
 	TCP::write(state.socketLinks[parameters->dest_place].fd, &parameters->type, sizeof(x10rt_msg_type));
 	TCP::write(state.socketLinks[parameters->dest_place].fd, &parameters->len, sizeof(uint32_t));
 	if (parameters->len > 0)
 		TCP::write(state.socketLinks[parameters->dest_place].fd, parameters->msg, parameters->len);
 	TCP::write(state.socketLinks[parameters->dest_place].fd, &bufferLen, sizeof(x10rt_copy_sz));
-	TCP::write(state.socketLinks[parameters->dest_place].fd, buffer, sizeof(void*));
+	if (bufferLen > 0)
+		TCP::write(state.socketLinks[parameters->dest_place].fd, buffer, sizeof(void*));
 	pthread_mutex_unlock(&state.writeLocks[parameters->dest_place]);
 }
 
@@ -242,10 +241,9 @@ void x10rt_net_send_put (x10rt_msg_params *parameters, void *buffer, x10rt_copy_
 	pthread_mutex_lock(&state.writeLocks[parameters->dest_place]);
 
 	// write out the x10SocketMessage data
-	// Format: type, source, p.type, p.len, p.msg, bufferlen, buffer contents
+	// Format: type, p.type, p.len, p.msg, bufferlen, buffer contents
 	enum MSGTYPE m = PUT;
 	TCP::write(state.socketLinks[parameters->dest_place].fd, &m, sizeof(enum MSGTYPE));
-	TCP::write(state.socketLinks[parameters->dest_place].fd, &state.myPlaceId, sizeof(x10rt_place));
 	TCP::write(state.socketLinks[parameters->dest_place].fd, &parameters->type, sizeof(x10rt_msg_type));
 	TCP::write(state.socketLinks[parameters->dest_place].fd, &parameters->len, sizeof(uint32_t));
 	if (parameters->len > 0)
@@ -263,15 +261,119 @@ void x10rt_net_probe ()
 	{
 		/* An event on one of the fds has occurred. */
 		// POLLHUP | POLLERR | POLLIN | POLLPRI;
-	    for (int i=0; i<state.numPlaces; i++)
+	    for (unsigned int i=0; i<state.numPlaces; i++)
 	    {
 	    	if ((state.socketLinks[i].revents & POLLHUP) || (state.socketLinks[i].revents & POLLERR))
 	    	{
-	    		// TODO connection broken
+	    		// link is broken.  Close it down.
+	    		close(state.socketLinks[i].fd);
+	    		state.socketLinks[i].fd = 0;
+
+	    		// TODO - notify the runtime of this?
 	    	}
 	    	if ((state.socketLinks[i].revents & POLLIN) || (state.socketLinks[i].revents & POLLPRI))
 	    	{
-	    		// TODO data to read
+	    		// lock the socket, so we don't get other worker threads reading from it
+	    		if (pthread_mutex_trylock(&state.readLocks[i]) != 0)
+	    			continue; // this socket is already getting handled by another worker.  Skip.
+
+	    		enum MSGTYPE t;
+	    		TCP::read(state.socketLinks[i].fd, &t, sizeof(enum MSGTYPE));
+
+	    		// Format: type, p.type, p.len, p.msg
+	    		x10rt_msg_params mp;
+	    		mp.dest_place = state.myPlaceId;
+	    		TCP::read(state.socketLinks[i].fd, &mp.type, sizeof(x10rt_msg_type));
+	    		TCP::read(state.socketLinks[i].fd, &mp.len, sizeof(uint32_t));
+	    		bool heapAllocated = false;
+	    		if (mp.len > 0)
+	    		{
+	    			mp.msg = alloca(mp.len);
+	    			if (mp.msg == NULL) // stack allocation failed... try heap allocation
+	    			{
+	    				if ((mp.msg = malloc(mp.len)) == NULL)
+	    					error("unable to allocate memory for an incoming message");
+	    				heapAllocated = true;
+	    			}
+	    			TCP::read(state.socketLinks[i].fd, mp.msg, mp.len);
+	    		}
+	    		else
+	    			mp.msg = NULL;
+
+				switch (t)
+				{
+					case STANDARD:
+					{
+						handlerCallback hcb = state.callBackTable[mp.type].handler;
+						hcb(&mp);
+					}
+					break;
+					case PUT:
+					{
+						x10rt_copy_sz dataLen;
+						TCP::read(state.socketLinks[i].fd, &dataLen, sizeof(x10rt_copy_sz));
+
+						finderCallback fcb = state.callBackTable[mp.type].finder;
+						void* dest = fcb(&mp, dataLen); // get the pointer to the destination location
+						if (dest == NULL)
+							error("invalid buffer provided for a PUT");
+						TCP::read(state.socketLinks[i].fd, dest, dataLen);
+						notifierCallback ncb = state.callBackTable[mp.type].notifier;
+						ncb(&mp, dataLen);
+					}
+					break;
+					case GET:
+					{
+						// this is the request for data.
+						x10rt_copy_sz dataLen;
+						void* remotePtr;
+						TCP::read(state.socketLinks[i].fd, &dataLen, sizeof(x10rt_copy_sz));
+						if (dataLen > 0)
+							TCP::read(state.socketLinks[i].fd, &remotePtr, sizeof(void*));
+
+						finderCallback fcb = state.callBackTable[mp.type].finder;
+						void* src = fcb(&mp, dataLen);
+
+						// send the data to the other side (the link is good, because we just read from it)
+						pthread_mutex_lock(&state.writeLocks[i]);
+						// Format: type, p.type, p.len, p.msg, bufferlen, bufferADDRESS, buffer
+						enum MSGTYPE m = GET_COMPLETED;
+						TCP::write(state.socketLinks[i].fd, &m, sizeof(enum MSGTYPE));
+						TCP::write(state.socketLinks[i].fd, &mp.type, sizeof(x10rt_msg_type));
+						TCP::write(state.socketLinks[i].fd, &mp.len, sizeof(uint32_t));
+						if (mp.len > 0)
+							TCP::write(state.socketLinks[i].fd, mp.msg, mp.len);
+						TCP::write(state.socketLinks[i].fd, &dataLen, sizeof(x10rt_copy_sz));
+						if (dataLen > 0)
+						{
+							TCP::write(state.socketLinks[i].fd, &remotePtr, sizeof(void*));
+							TCP::write(state.socketLinks[i].fd, src, dataLen);
+						}
+						pthread_mutex_unlock(&state.writeLocks[i]);
+					}
+					break;
+					case GET_COMPLETED:
+					{
+						x10rt_copy_sz dataLen;
+						void* buffer;
+						TCP::read(state.socketLinks[i].fd, &dataLen, sizeof(x10rt_copy_sz));
+						if (dataLen > 0)
+						{
+							TCP::read(state.socketLinks[i].fd, &buffer, sizeof(void*));
+							TCP::read(state.socketLinks[i].fd, buffer, dataLen);
+						}
+
+						notifierCallback ncb = state.callBackTable[mp.type].notifier;
+						ncb(&mp, dataLen);
+					}
+					break;
+					default: // this should never happen
+						error("Unknown message type found");
+					break;
+				}
+				if (heapAllocated)
+					free(mp.msg);
+	    		pthread_mutex_unlock(&state.readLocks[i]);
 	    	}
 	    }
 	}
