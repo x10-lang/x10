@@ -5,71 +5,32 @@ class Foo{
 }
 public class TrivialTest{
 
-   /* non-static method */
-  public def foo(){
-  
-  }
-  public static def f1(x:int):void{
-	finish{
-		async{
-			
-			var y:int = 0;
-			y = x +1 ;
-		}
-	}
-  }
-  
-  public static def f2():int{
-	  return 2;
-  }
-  
-  public static def f3():void{
-	  f2();
-	  f3();
-	  f1(3);
-  }
-  
-  public static def f4():void{
-	  var f:boolean = false;
-          if(f){
-        	  async{}
-        	  return;
-          }
-          async{}
-          async{f4();}
-          async{};
-  }
-  
-  
-  public static def f5():void{
-	  async{f5();}
-  }
-  public static def f6():void{
-	  f5();
-  }
-  public static def f7(body:()=>void):void{
-	  body();
-  }
-  
-  
-  
-  public static def f8():void{
-	  f9();
-  }
-  public static def f9():void{
-	  f10();
-  }
-  public static def f10():void{
-	  
-  }
 
-  public static def f11(var x:int){
-  	if(x>0){
-		return true;
-	}
-	else{
-		throw new ClockUseException();	  
-	}
+  
+  public static def main(args: Rail[String]) {
+  	//t1();
+  	//t2();
+  	//t3();
+  	//t4();
+  	//t5();
+  	//t6();
+  	//t7();
+  	//t8();
+  	//t9();
+  	//t10();
+  	//t11();
+  	//t12();
+  	//t13();
+  	//t14();
+  	//t15();
+  	// fail!t16();
+  	// fail!t17();
+  	// fail!t18();
+  	// fail!t19();
+  	//t20();
+  	//t21();
+  	//t22();
+        t23();
   }
   
   public static def t1(){
@@ -365,31 +326,88 @@ public class TrivialTest{
   		f5();
   	}
   }
-  
-  public static def main(args: Rail[String]) {
-  	t1();
-  	t2();
-  	t3();
-  	t4();
-  	t5();
-  	t6();
-  	t7();
-  	t8();
-  	t9();
-  	t10();
-  	t11();
-  	t12();
-  	t13();
-  	t14();
-  	t15();
-  	t16();
-  	t17();
-  	t18();
-  	t19();
-  	t20();
-  	t21();
-  	t22();
+  public static def t23(){
+  	f12();
   }
+  /* non-static method */
+  public def foo(){
+  
+  }
+  public static def f1(x:int):void{
+	finish{
+		async{
+			
+			var y:int = 0;
+			y = x +1 ;
+		}
+	}
+  }
+  
+  public static def f2():int{
+	  return 2;
+  }
+  
+  public static def f3():void{
+	  f2();
+	  f3();
+	  f1(3);
+  }
+  
+  public static def f4():void{
+	  var f:boolean = false;
+          if(f){
+        	  async{}
+        	  return;
+          }
+          async{}
+          async{f4();}
+          async{};
+  }
+  
+  
+  public static def f5():void{
+	  async{f5();}
+  }
+  public static def f6():void{
+	  f5();
+  }
+  public static def f7(body:()=>void):void{
+	  body();
+  }
+  
+  
+  
+  public static def f8():void{
+	  f9();
+  }
+  public static def f9():void{
+	  f10();
+  }
+  public static def f10():void{
+	  
+  }
+
+  public static def f11(var x:int){
+  	if(x>0){
+		return true;
+	}
+	else{
+		throw new ClockUseException();	  
+	}
+  }
+  public static def f12(){
+  	finish{
+        	async{
+                	f13();
+        	}
+  	}
+  }
+  public static def f13(){
+     	async{
+     		f12();
+       	}
+  }
+  
 }
 
 
