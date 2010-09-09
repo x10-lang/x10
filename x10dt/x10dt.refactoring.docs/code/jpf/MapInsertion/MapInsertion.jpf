@@ -1,9 +1,0 @@
-target=Main
-
-classpath=/home/mvakili/eclipse-workspaces/reducibility/MapInsertion/bin
-
-sourcepath=/home/mvakili/eclipse-workspaces/reducibility/MapInsertion/src
-
-symbolic.method=Main.freqAccumShouldBeCommutative3(sym#sym#sym#sym)
-
-listener = gov.nasa.jpf.symbc.SymbolicListener

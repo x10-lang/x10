@@ -1,9 +1,0 @@
-HPC Challenge Benchmark: RandomAccess
-
-Usage:
-
-   1) x10c RandomAccess.x10 (Add appropriate x10c options if needed such as -BAD_PLACE_RUNTIME_CHECK=false)
-   2) x10  -J-mx200m -J-ms200m -classpath . -NUMBER_OF_LOCAL_PLACES=mmm -INIT_THREADS_PER_PLACE=1 
-  	-PRELOAD_CLASSES=true ra.RandomAccess -m logLocalTableSize
-	* mmm is the number of places to use 
-	* log2(local_table_size) = logLocalTableSize 

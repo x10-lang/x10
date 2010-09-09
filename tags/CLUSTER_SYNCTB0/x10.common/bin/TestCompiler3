@@ -1,8 +1,0 @@
-
-    public static void main(String args[]) {
-        TestX10_Compiler.Main(TestCompiler.class);
-    }
-    public static TestSuite suite() {
-        return TestX10_Compiler.suite(TestCompiler.class);
-    }
-}

@@ -1,9 +1,0 @@
-count=1
-numVMs=4
-numVMs=6
-numVMs=12
-
-  while [[ $count -lt $numVMs ]]; do
-    runtrans $count > $count.x10out &
-    count=$(( count + 1 ))
-  done

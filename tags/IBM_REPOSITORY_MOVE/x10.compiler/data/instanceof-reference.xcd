@@ -1,3 +1,0 @@
-// SYNOPSIS: #0: target type #1 constraints tab #2 boolean exprMustBeNotNull #3 boolean targetIsNullable #4 java.lang.Object objToCast
- 
-x10.lang.RuntimeCastChecker.isInstanceOf(#1, #2, #3, #4, #0.class)

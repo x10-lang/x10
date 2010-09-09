@@ -1,3 +1,0 @@
-// SYNOPSIS: #0:#1[:#2]
-// SYNOPSIS: [IP] I don't think this is used
-(x10.array.Region.region(#0,#1,#2))

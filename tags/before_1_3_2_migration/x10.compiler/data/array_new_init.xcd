@@ -1,5 +1,0 @@
-Runtime.getRuntime().new#0Array(#2, ArrayFactory.newIntArray(d, new Operator.Pointwise() {
-                public #1 apply(#int[] p, int i) {
-                    #3
-                }
-            });

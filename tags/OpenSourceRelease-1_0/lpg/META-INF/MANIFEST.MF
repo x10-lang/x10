@@ -1,8 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: JikesPG Parser Generator
-Bundle-SymbolicName: lpg
-Bundle-Version: 1.0.41
-Bundle-Localization: plugin
-Export-Package: lpg.lpgjavaruntime
-Bundle-Vendor: pcharles@us.ibm.com

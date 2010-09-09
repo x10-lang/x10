@@ -1,2 +1,0 @@
-#!/bin/bash
-javap -verbose -c -private -classpath cache "$@"

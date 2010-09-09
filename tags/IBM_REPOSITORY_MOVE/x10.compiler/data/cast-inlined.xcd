@@ -1,3 +1,0 @@
-// SYNOPSIS: #0: Type #1 exprToCast tab #2 nullable checking (if needed) #3 instanceof checking (if needed) #4 constraint checking (if needed)
-
-(#2 #3 #4 ? ((#0) #1) : (#0) RuntimeCastChecker.throwClassCastException(#1))

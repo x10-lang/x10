@@ -1,9 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: Faqs Plug-in
-Bundle-SymbolicName: org.eclipse.imp.x10dt.faqs; singleton:=true
-Bundle-Version: 1.0.0
-Bundle-Activator: org.eclipse.imp.x10dt.faqs.Activator
-Require-Bundle: org.eclipse.ui,
- org.eclipse.core.runtime
-Eclipse-LazyStart: true

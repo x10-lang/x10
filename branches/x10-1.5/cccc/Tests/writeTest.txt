@@ -1,9 +1,0 @@
-# This test must fail because Writes are not serialized.
-
-0 0 W x 1
-0 1 W l 0
-1 0 R l 0 
-1 1 W l 1
-1 2 R x 0
-
-1.2 -> 0.0

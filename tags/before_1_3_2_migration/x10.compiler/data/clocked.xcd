@@ -1,5 +1,0 @@
-{// clocked
-final java.util.LinkedList clocked_clocks = new java.util.LinkedList();
-#0
-#1
-}// end clocked
