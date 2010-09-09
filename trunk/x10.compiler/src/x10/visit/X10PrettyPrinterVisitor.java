@@ -166,6 +166,7 @@ import x10.emitter.TryCatchExpander;
 import x10.emitter.TypeExpander;
 import x10.types.FunctionType;
 import x10.types.ParameterType;
+import x10.types.ParameterType.Variance;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorDef;
@@ -950,8 +951,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             X10CanonicalTypeNode xtn = (X10CanonicalTypeNode) tn;
 
                             Type t = X10TypeMixin.baseType(xtn.type());
-                            //TODO need fix for XTENLANG-1787
-                            Expander ex = new TypeExpander(er, t, reduce_generic_cast ? 0 : PRINT_TYPE_PARAMS);
+                            Expander ex = new TypeExpander(er, t, PRINT_TYPE_PARAMS);
 
                             Expander rt = new RuntimeTypeExpander(er, t);
 
@@ -1007,6 +1007,28 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                                 w.write("(");
                                 ex.expand(tr);
                                 w.write(")");
+                                
+                                if (t instanceof X10ClassType) {
+                                    X10ClassType ct = (X10ClassType) t;
+                                    if (ct.hasParams()) {
+                                        boolean castToRawType = false;
+                                        for (Variance variance : ct.x10Def().variances()) {
+                                            if (variance != Variance.INVARIANT) {
+                                                castToRawType = true;
+                                                break;
+                                            }
+                                        }
+                                        if (castToRawType) {
+                                            // cast to raw type
+                                            // e.g. for covariant class C[+T]{} and C[Object] v = new C[String](),
+                                            // it generates class C<T>{} and C<Object> v = (C<Object>) (C) (new C<String>()).
+                                            w.write("(");
+                                            (new TypeExpander(er, t, 0)).expand(tr);
+                                            w.write(")");
+                                        }
+                                    }
+                                }
+                                
                                 w.allowBreak(2, " ");
                                 X10TypeSystem xts = ((X10TypeSystem)tr.typeSystem());
                                 if (expr instanceof Unary || expr instanceof Lit || (expr instanceof X10Call && !(X10TypeMixin.baseType(expr.type()) instanceof ParameterType) && xts.isRail(((X10Call) expr).target().type())))
@@ -1450,10 +1472,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		        Position pos = Position.COMPILER_GENERATED;
 		        X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
 		        Type re = xts.RuntimeException();
-		        New new1 = xnf.New(Position.COMPILER_GENERATED, xnf.CanonicalTypeNode(Position.COMPILER_GENERATED, re), Collections.EMPTY_LIST);
+		        New new1 = xnf.New(Position.COMPILER_GENERATED, xnf.CanonicalTypeNode(Position.COMPILER_GENERATED, re), Collections.<Expr>emptyList());
 		        X10ConstructorInstance ci;
 		        try {
-		            ci = xts.findConstructor(re, xts.ConstructorMatcher(re, Collections.EMPTY_LIST, tr.context()));
+		            ci = xts.findConstructor(re, xts.ConstructorMatcher(re, Collections.<Type>emptyList(), tr.context()));
 		        } catch (SemanticException e) {
 		            e.printStackTrace();
 		            throw new InternalCompilerError("");
@@ -2723,7 +2745,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 				ClosureCall e = (ClosureCall) expr;
 				target = e.target();
 				args = e.arguments();
-				typeArgs = Collections.EMPTY_LIST; // e.typeArgs();
+				typeArgs = Collections.<TypeNode>emptyList(); // e.typeArgs();
 				mi = e.closureInstance();
 			}
 			else if (expr instanceof X10Call) {
