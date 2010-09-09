@@ -11,8 +11,6 @@
 
 #include <x10rt_front.h>
 #include <x10rt_ser.h>
-#include <x10rt_net.h>
-#include <x10rt_logical.h>
 
 
 // {{{ nano_time
@@ -59,12 +57,12 @@ static void recv_print(const x10rt_msg_params *p)
     x10rt_serbuf b2;
     x10rt_serbuf_init(&b2, home, FINISH_ID);
     x10rt_serbuf_write(&b2, &finish_counter_);
-    x10rt_net_send_msg(&b2.p);
+    x10rt_send_msg(&b2.p);
     x10rt_serbuf_free(&b2);
 }   
 
 
-static void coll_test (x10rt_team team, x10rt_place role)
+static void coll_test (x10rt_team team, x10rt_place role, x10rt_place per_place)
 {
     int finished;
     const int tests = 10000;
@@ -75,7 +73,7 @@ static void coll_test (x10rt_team team, x10rt_place role)
             std::cout << team << ": barrier sync test (shape should be \\):  " << std::endl;
         for (x10rt_place i=0 ; i<x10rt_team_sz(team) ; ++i) {
             if (i==role) {
-                if (i==0) {
+                if (i<per_place) {
                     std::cout << team << ": " << std::string(i,' ') << '\\' << std::endl;
                 } else {
                     x10rt_place home = x10rt_here();
@@ -87,7 +85,7 @@ static void coll_test (x10rt_team team, x10rt_place role)
                     x10rt_serbuf_write(&b, &team);
                     x10rt_serbuf_write(&b, &home);
                     x10rt_serbuf_write(&b, &finish_counter_);
-                    x10rt_net_send_msg(&b.p);
+                    x10rt_send_msg(&b.p);
                     x10rt_serbuf_free(&b);
                     while (finish_counter) { x10rt_probe(); }
                 }
@@ -280,7 +278,7 @@ static void coll_test (x10rt_team team, x10rt_place role)
 
 }
 
-static void spmd_test (x10rt_team team, x10rt_place role)
+static void spmd_test (x10rt_team team, x10rt_place role, x10rt_place per_place)
 {
 
     if (0==role) {
@@ -289,7 +287,7 @@ static void spmd_test (x10rt_team team, x10rt_place role)
         std::cout << "----------------" << std::endl;
     }
 
-    coll_test(team, role);
+    coll_test(team, role, per_place);
 
     if (0==role) std::cout << std::endl;
 
@@ -304,7 +302,7 @@ static void spmd_test (x10rt_team team, x10rt_place role)
 
     x10rt_barrier_b(team,role); // wait for everyone to print
 
-    coll_test(odds_n_evens, new_role);
+    coll_test(odds_n_evens, new_role, per_place);
 
     x10rt_barrier_b(team,role); // wait for everyone to finish
 
@@ -326,6 +324,24 @@ static void spmd_test (x10rt_team team, x10rt_place role)
 
 }
 
+struct thread_state {
+    x10rt_team team;
+    x10rt_place role;
+};
+
+static void *thread_routine (void *arg)
+{
+    thread_state state = *static_cast<thread_state*>(arg);
+
+    spmd_test(state.team, state.role, 2);
+
+    int finished = 0;
+    x10rt_team_del(state.team, state.role, x10rt_one_setter, &finished);
+    while (!finished) x10rt_probe();
+
+    return NULL;
+}
+
 static void recv_test(const x10rt_msg_params *p)
 {
     x10rt_deserbuf b;
@@ -333,11 +349,17 @@ static void recv_test(const x10rt_msg_params *p)
     x10rt_team team; x10rt_deserbuf_read(&b, &team);
     x10rt_place role; x10rt_deserbuf_read(&b, &role);
 
-    spmd_test(team, role);
+    pthread_t thread;
+    thread_state state = {team, role+1};
+    pthread_create(&thread, NULL, thread_routine, &state);
+
+    spmd_test(team, role, 2);
 
     int finished = 0;
     x10rt_team_del(team, role, x10rt_one_setter, &finished);
     while (!finished) x10rt_probe();
+
+    pthread_join(thread, NULL);
 
     time_to_quit--;
 }
@@ -349,30 +371,37 @@ static void apgas_test (void)
     std::cout << "Explicit Team creation" << std::endl;
     std::cout << "----------------------" << std::endl;
     std::cout << "Creating team...  " << std::endl;
-    x10rt_place *memberv = new x10rt_place [x10rt_net_nhosts()];
-    for (x10rt_place i=0 ; i<x10rt_nplaces() ; ++i) {
-        memberv[i] = i;
+    x10rt_place *memberv = new x10rt_place [2*x10rt_nplaces()];
+    for (x10rt_place i=0 ; i<2*x10rt_nplaces() ; ++i) {
+        memberv[i] = i/2;
     }
     x10rt_team nu_team = 0;
-    x10rt_team_new(x10rt_nplaces(), memberv, x10rt_team_setter, &nu_team);
+    x10rt_team_new(2*x10rt_nplaces(), memberv, x10rt_team_setter, &nu_team);
     while (nu_team == 0) x10rt_probe();
     delete [] memberv;
     std::cout << "New team is:  " << nu_team << std::endl;
 
-    for (x10rt_place i=1 ; i<x10rt_nplaces() ; ++i) {
+    for (x10rt_place i=2 ; i<2*x10rt_nplaces() ; i+=2) {
         x10rt_serbuf b;
-        x10rt_serbuf_init(&b, i, TEST_ID);
+        x10rt_serbuf_init(&b, i/2, TEST_ID);
         x10rt_serbuf_write(&b, &nu_team);
         x10rt_serbuf_write(&b, &i);
-        x10rt_net_send_msg(&b.p);
+        x10rt_send_msg(&b.p);
         x10rt_serbuf_free(&b);
     }
-    spmd_test(nu_team, 0);
+
+    pthread_t thread;
+    thread_state state = {nu_team, 1};
+    pthread_create(&thread, NULL, thread_routine, &state);
+
+    spmd_test(nu_team, 0, 2);
     std::cout << nu_team << ": Destroying team...  " << std::endl;
     int finished = 0;
     x10rt_team_del(nu_team, 0, x10rt_one_setter, &finished);
     while (!finished) x10rt_probe();
     std::cout << nu_team << ": Destroyed team.  " << std::endl;
+
+    pthread_join(thread, NULL);
 }
 
 int main (int argc, char **argv)
@@ -393,9 +422,9 @@ int main (int argc, char **argv)
         std::cout << std::endl;
     }
 
-    spmd_test(0, x10rt_here());
+    spmd_test(0, x10rt_here(), 1);
     
-    spmd_test(0, x10rt_here());
+    spmd_test(0, x10rt_here(), 1);
     
     if (0==x10rt_here()) {
         apgas_test();

@@ -118,6 +118,7 @@ namespace {
 
     // each team that gets created has local state represented with one of these
     struct TeamObj {
+        x10rt_place localUsers;
         x10rt_place memberc;
         MemberObj **memberv;
         x10rt_place *placev; // INVARIANT: memberv[i]!=null <==> placev[i]==here
@@ -130,6 +131,7 @@ namespace {
                 placev[i] = placev_[i];
                 if (placev[i] == x10rt_net_here()) {
                     memberv[i] = new (safe_malloc<MemberObj>()) MemberObj(id, i);
+                    localUsers++;
                 } else {
                     memberv[i] = NULL;
                 }
@@ -159,12 +161,6 @@ namespace {
     // global team database: stores the teams currently in use
     struct TeamDB {
 
-        x10rt_team teamc; // size of teamv buffer
-        x10rt_team team_next; // the next new team gets this id
-        TeamObj **teamv;
-
-        Fifo<CollOp> fifo; // where we record incomplete collectives
-
         TeamDB (void) : teamc(0), team_next(0), teamv(NULL) { }
 
         ~TeamDB (void) { free(teamv); }
@@ -187,13 +183,15 @@ namespace {
             return t;
         }
 
-        void freeTeam (x10rt_team team)
+        void releaseTeam (x10rt_team team)
         {
             SYNCHRONIZED(global_lock);
-            TeamObj *t = NULL;
-            std::swap(this->teamv[team], t);
-            t->~TeamObj();
-            safe_free(t);
+            TeamObj *&t = teamv[team];
+            if (--t->localUsers) return;
+            TeamObj *tmp = NULL;
+            std::swap(t, tmp);
+            tmp->~TeamObj();
+            safe_free(tmp);
         }
 
         void fifo_push_back (CollOp *o)
@@ -215,6 +213,12 @@ namespace {
         }
     
         private:
+
+        Fifo<CollOp> fifo; // where we record incomplete collectives
+
+        x10rt_team teamc; // size of teamv buffer
+        x10rt_team team_next; // the next new team gets this id
+        TeamObj **teamv;
 
         void ensureIndex (x10rt_team i)
         {
@@ -385,7 +389,7 @@ x10rt_place x10rt_emu_team_sz (x10rt_team t)
 void x10rt_emu_team_del (x10rt_team team, x10rt_place role, x10rt_completion_handler *ch, void *arg)
 {
     assert(gtdb[team]->placev[role] == x10rt_net_here());
-    gtdb.freeTeam(team);
+    gtdb.releaseTeam(team);
     ch(arg);
 }
 
@@ -400,6 +404,7 @@ static void barrier_update_recv (const x10rt_msg_params *p)
     MemberObj &m = *t[role];
     
     //fprintf(stderr, "%d: Decrementing from %d to %d\n", x10rt_net_here(), (int) m.barrier.wait, (int) m.barrier.wait-1);
+    SYNCHRONIZED (global_lock);
     m.barrier.wait--;
 }
 
@@ -408,7 +413,10 @@ void x10rt_emu_barrier (x10rt_team team, x10rt_place role, x10rt_completion_hand
     TeamObj &t = *gtdb[team];
     MemberObj &m = *t[role];
     //fprintf(stderr, "%d: Incrementing from %d to %d\n", (int)x10rt_net_here(), m.barrier.wait, m.barrier.wait+t.memberc);
-    m.barrier.wait += t.memberc;
+    {
+        SYNCHRONIZED (global_lock);
+        m.barrier.wait += t.memberc;
+    }
     m.barrier.ch = ch;
     m.barrier.arg = arg;
     for (x10rt_place i=0 ; i<t.memberc ; ++i) {
@@ -418,7 +426,10 @@ void x10rt_emu_barrier (x10rt_team team, x10rt_place role, x10rt_completion_hand
             MemberObj *m2 = t.memberv[i];
             assert(m2!=NULL);
             //fprintf(stderr, "%d: Locally decrementing from %d to %d\n", (int)x10rt_net_here(), (int) m.barrier.wait, (int) m.barrier.wait-1);
-            m2->barrier.wait--;
+            {
+                SYNCHRONIZED (global_lock);
+                m2->barrier.wait--;
+            }
         } else {
             //send a message there to decrement the counter
             x10rt_serbuf b;
@@ -432,7 +443,7 @@ void x10rt_emu_barrier (x10rt_team team, x10rt_place role, x10rt_completion_hand
     }
     if (ch!=NULL) {
         //if (x10rt_net_here()==0) fprintf(stderr,"before pushd\n");
-        gtdb.fifo.push_back(new (safe_malloc<CollOp>()) CollOp(team, role));
+        gtdb.fifo_push_back(new (safe_malloc<CollOp>()) CollOp(team, role));
     }
 }
 
@@ -446,8 +457,10 @@ static void scatter_copy_recv (const x10rt_msg_params *p)
     MemberObj &m = *t[role];
     x10rt_deserbuf_read_ex(&b, m.scatter.dbuf, m.scatter.el, m.scatter.count);
 
+    SYNCHRONIZED (global_lock);
     m.scatter.data_done = true;
     if (m.scatter.barrier_done && m.scatter.ch != NULL) {
+        PREEMPT (global_lock);
         m.scatter.ch(m.scatter.arg);
     }
 }
@@ -475,6 +488,12 @@ static void scatter_after_barrier (void *arg)
                 MemberObj *m2 = t.memberv[i];
                 assert(m2!=NULL);
                 memcpy(m2->scatter.dbuf, sbuf, m.scatter.count * m.scatter.el);
+                SYNCHRONIZED (global_lock);
+                m2->scatter.data_done = true;
+                if (m2->scatter.barrier_done && m2->scatter.ch != NULL) {
+                    PREEMPT (global_lock);
+                    m2->scatter.ch(m2->scatter.arg);
+                }
             } else {
                 // serialise all the data
                 // TODO: hoist some of this serialisation out of the loop (reuse buffer)
@@ -497,8 +516,10 @@ static void scatter_after_barrier (void *arg)
     } else {
 
         // if we have already received the data (rare) then signal completion to non-root role
+        SYNCHRONIZED (global_lock);
         m.scatter.barrier_done = true;
         if (m.scatter.data_done && m.scatter.ch != NULL) {
+            PREEMPT (global_lock);
             m.scatter.ch(m.scatter.arg);
         }
     }
@@ -548,8 +569,10 @@ static void bcast_copy_recv (const x10rt_msg_params *p)
     MemberObj &m = *t[role];
     x10rt_deserbuf_read_ex(&b, m.bcast.dbuf, m.bcast.el, m.bcast.count);
 
+    SYNCHRONIZED (global_lock);
     m.bcast.data_done = true;
     if (m.bcast.barrier_done && m.bcast.ch != NULL) {
+        PREEMPT (global_lock);
         m.bcast.ch(m.bcast.arg);
     }
 }
@@ -568,6 +591,14 @@ static void bcast_after_barrier (void *arg)
                 MemberObj *m2 = t.memberv[i];
                 assert(m2!=NULL);
                 memcpy(m2->bcast.dbuf, m.bcast.sbuf, m.bcast.count * m.bcast.el);
+                if (i != m.role) {
+                    SYNCHRONIZED (global_lock);
+                    m2->bcast.data_done = true;
+                    if (m2->bcast.barrier_done && m2->bcast.ch != NULL) {
+                        PREEMPT (global_lock);
+                        m2->bcast.ch(m2->bcast.arg);
+                    }
+                }
             } else {
                 // serialise all the data
                 // TODO: hoist some of this serialisation out of the loop (reuse buffer)
@@ -590,8 +621,10 @@ static void bcast_after_barrier (void *arg)
     } else {
 
         // if we have already received the data (rare) then signal completion to non-root role
+        SYNCHRONIZED (global_lock);
         m.bcast.barrier_done = true;
         if (m.bcast.data_done && m.bcast.ch != NULL) {
+            PREEMPT (global_lock);
             m.bcast.ch(m.bcast.arg);
         }
     }
@@ -1029,7 +1062,7 @@ void x10rt_emu_coll_init (x10rt_msg_type *counter)
 
 void x10rt_emu_coll_finalize (void)
 {
-    gtdb.freeTeam(0);
+    gtdb.releaseTeam(0);
 }
 
 void x10rt_emu_coll_probe (void)
@@ -1040,9 +1073,12 @@ void x10rt_emu_coll_probe (void)
         if (op == NULL) break; // can happen if the queue shrinks while we're in the loop
         TeamObj &t = *gtdb[op->team];
         MemberObj &m = *t[op->role];
+        SYNCHRONIZED (global_lock);
         if (m.barrier.wait > 0) {
+            PREEMPT (global_lock);
             gtdb.fifo_push_back(op);
         } else {
+            PREEMPT (global_lock);
             safe_free(op);
             //if (x10rt_net_here()==0) fprintf(stderr,"before callback\n");
             m.barrier.ch(m.barrier.arg);
