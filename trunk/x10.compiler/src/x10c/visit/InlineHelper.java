@@ -312,7 +312,7 @@ public class InlineHelper extends ContextVisitor {
                         if (mi instanceof X10MethodInstance) {
                             typeArgs = ((X10MethodInstance) mi).typeParameters();
                         } else {
-                            typeArgs = Collections.EMPTY_LIST;
+                            typeArgs = Collections.<Type>emptyList();
                         }
                         List<Expr> arguments = new ArrayList<Expr>(call.arguments());
                         List<Type> formals = new ArrayList<Type>(mi.formalTypes());
