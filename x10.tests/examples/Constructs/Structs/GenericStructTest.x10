@@ -19,7 +19,7 @@ struct Pair[X,Y] {
 
   public def this(a:X, b:Y) { x = a; y = b; }
 
-  public global safe def toString() = "<"+x+", "+y+">";
+  public safe def toString() = "<"+x+", "+y+">";
 
   public def first() = x;
   public def second() = y;
