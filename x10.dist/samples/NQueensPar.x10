@@ -46,7 +46,7 @@ public class NQueensPar {
 
     class Board {
 
-        val q: Array[Int](1){self.at(this)};
+        val q: Array[Int](1);
 
         def this() {
             q = new Array[Int](0, 0);
