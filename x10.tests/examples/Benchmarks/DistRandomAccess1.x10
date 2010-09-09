@@ -37,7 +37,7 @@ class DistRandomAccess1 extends Benchmark {
 
     final class LocalTable {
     
-        val a:Rail[long]!;
+        val a:Rail[long];
         val mask: int;
         
         def this(size:int) {
@@ -90,7 +90,7 @@ class DistRandomAccess1 extends Benchmark {
                     val valran = ran;
                     val table = tables(placeId);
                     async (Place.places(placeId)) 
-                        (table as LocalTable!).update(valran);
+                        table.update(valran);
                     ran = (ran << 1) ^ (ran<0L ? POLY : 0L);
                 }
             }
@@ -112,7 +112,7 @@ class DistRandomAccess1 extends Benchmark {
             for (var p:int=0; p<PARALLELISM; p++) {
                 val table = tables(p);
                 finish async(Place.places(p)) {
-                    val lt = table as LocalTable!;
+                    val lt = table;
                     for (var j:int=0; j<lt.a.length; j++)
                         if (lt.a(j) != j)
                             finish async (errors)

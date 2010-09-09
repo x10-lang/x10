@@ -37,7 +37,7 @@ class SeqRandomAccess1 extends Benchmark {
 
     final class LocalTable {
     
-        val a: Rail[long]!;
+        val a: Rail[long];
         val mask: int;
         
         def this(size:int) {
@@ -85,7 +85,7 @@ class SeqRandomAccess1 extends Benchmark {
             var ran:long = HPCCStarts(p* (numUpdates/PARALLELISM));
             for (var i:long=0; i<numUpdates/PARALLELISM; i++) {
                 val placeId = ((ran>>logLocalTableSize) & placeMask) as int;
-                (tables(placeId) as LocalTable!).update(ran);
+                tables(placeId).update(ran);
                 ran = (ran << 1) ^ (ran<0L ? POLY : 0L);
             }
         }
@@ -104,7 +104,7 @@ class SeqRandomAccess1 extends Benchmark {
             randomAccessUpdate(tables);
             var errors:int = 0;
             for (var p:int=0; p<PARALLELISM; p++) {
-                val table = tables(p) as LocalTable!;
+                val table = tables(p);
                 for (var j:int=0; j<table.a.length; j++)
                     if (table.a(j) != j)
                         errors++;
