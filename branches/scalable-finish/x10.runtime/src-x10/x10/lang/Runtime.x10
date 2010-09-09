@@ -806,7 +806,6 @@ public final class Runtime {
             lock();
             counts--;
             if (counts!= 0) {
-            	debug("\tcounts="+counts);  
             	unlock();
                 return;
             } 
@@ -910,7 +909,6 @@ public final class Runtime {
             lock.lock();
             spawnedActCounts--;
             if (liveActCounts.decrementAndGet() > 0) {
-            	debug("\tspawnedActCounts--="+spawnedActCounts+"\n\tliveActCounts--="+liveActCounts);
                 lock.unlock();
                 return;
             }
@@ -1650,7 +1648,6 @@ public final class Runtime {
     }
 
     public static def startLocalFinish():Void {
-        debug("startLocalFinish");
         val a = activity();
         if (null == a.finishStack)
             a.finishStack = new Stack[FinishState!]();
@@ -1659,7 +1656,6 @@ public final class Runtime {
     }
 
     public static def startSimpleFinish():Void {
-        debug("startSimpleFinish");
         val a = activity();
         if (null == a.finishStack)
             a.finishStack = new Stack[FinishState!]();
