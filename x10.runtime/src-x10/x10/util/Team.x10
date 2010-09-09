@@ -164,6 +164,13 @@ public struct Team {
         return Team(id);
     }
     
+    public def del (role:UInt) : void {
+        @Native("c++",
+                "int finished = 0;" +
+                "x10rt_team_del(this_.FMGL(id), role, x10rt_one_setter, &finished);" +
+                "while (!finished) x10rt_probe();") { }
+    }
+    
 }
 
 // vim: shiftwidth=4:tabstop=4:expandtab
