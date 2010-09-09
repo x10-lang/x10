@@ -17,7 +17,7 @@ import x10.io.IOException;
 import x10.util.Random;
 import x10.util.OptionsParser;
 import x10.util.Option;
-import x10.util.DistributedRail;
+import x10.util.Team;
 
 /**
  * An SPMD formulation of KMeans.
@@ -64,22 +64,18 @@ public class KMeansSPMD {
             val num_file_points = (file.size() / dim / 4) as Int;
             val file_points = ValRail.make(num_file_points*dim, init_points);
 
-            var results : Rail[Float];
+            //val team = Team.WORLD;
+            val team = Team(Rail.make[Place](num_slices * Place.MAX_PLACES, (i:Int) => Place.places(i/num_slices)));
 
-            // clusters are dimension-major
-            val clusters       = new DistributedRail[Float](num_clusters*dim, file_points);
-            val cluster_counts = new DistributedRail[Int](num_clusters, (Int)=>0);
+            val num_slice_points = num_global_points / num_slices / Place.MAX_PLACES;
 
-
-            finish async {
-
-                val clk = Clock.make();
-
-                val num_slice_points = num_global_points / num_slices / Place.MAX_PLACES;
+            finish {
 
                 for ((slice) in 0..num_slices-1) {
 
-                    for (h in Place.places) async (h) clocked(clk) {
+                    for (h in Place.places) async (h) {
+
+                        val role = (here.id * num_slices + slice) as UInt;
 
                         // carve out local portion of points (point-major)
                         val offset = (here.id*num_slices*num_slice_points) + slice*num_slice_points;
@@ -95,22 +91,22 @@ public class KMeansSPMD {
                         val host_points = Rail.make(num_slice_points_stride*dim, init);
                         val host_nearest = Rail.make(num_slice_points, 0);
 
-                        val host_clusters : Rail[Float] = clusters();
-                        val host_cluster_counts : Rail[Int] = cluster_counts();
+                        val host_clusters  = Rail.make[Float](num_clusters*dim, file_points);
+                        val host_cluster_counts = Rail.make[Int](num_clusters, (Int)=>0);
 
                         val start_time = System.currentTimeMillis();
 
                         var compute_time:ULong = 0;
                         var comm_time:ULong = 0;
-                        var next_time:ULong = 0;
+                        var barrier_time:ULong = 0;
 
-                        next; // ensure everyone is ready before we start timing
+                        team.barrier(role);
 
                         main_loop: for (var iter:Int=0 ; iter<iterations ; iter++) {
 
                             Console.OUT.println("Iteration: "+iter);
 
-                            val old_clusters = ValRail.make[Float](clusters());
+                            val old_clusters = ValRail.make[Float](host_clusters);
 
                             host_clusters.reset(0);
                             host_cluster_counts.reset(0);
@@ -137,15 +133,9 @@ public class KMeansSPMD {
                             }
                             compute_time += System.nanoTime() - compute_start;
 
-/*
-                            val next_start = System.nanoTime();
-                            next;
-                            next_time += System.nanoTime() - next_start;
-*/
-
                             val comm_start = System.nanoTime();
-                            clusters.collectiveReduce(Float.+);
-                            cluster_counts.collectiveReduce(Int.+);
+                            team.allreduce(role, host_clusters, 0u, host_clusters, 0u, host_clusters.length as UInt, Team.ADD);
+                            team.allreduce(role, host_cluster_counts, 0u, host_cluster_counts, 0u, host_cluster_counts.length as UInt, Team.ADD);
                             comm_time += System.nanoTime() - comm_start;
 
                             for (var k:Int=0 ; k<num_clusters ; ++k) {
@@ -154,12 +144,12 @@ public class KMeansSPMD {
 
                             if (offset==0 && verbose) {
                                 Console.OUT.println("Iteration: "+iter);
-                                printClusters(clusters() as Rail[Float],dim);
+                                printClusters(host_clusters,dim);
                             }
 
                             // TEST FOR CONVERGENCE
                             for (var j:Int=0 ; j<num_clusters*dim ; ++j) {
-                                if (true/*||Math.abs(clusters_old(j)-clusters(j))>0.0001*/) continue main_loop;
+                                if (true/*||Math.abs(clusters_old(j)-host_clusters(j))>0.0001*/) continue main_loop;
                             }
 
                             break;
@@ -172,10 +162,10 @@ public class KMeansSPMD {
                             Console.OUT.println((stop_time-start_time)/1E3);
                         }
                         Console.OUT.println("Computation time: "+compute_time/1E9);
-                        Console.OUT.println("'next' time: "+next_time/1E9);
+                        Console.OUT.println("barrier time: "+barrier_time/1E9);
                         Console.OUT.println("Communication time: "+comm_time/1E9);
 
-                        
+                        team.del(role);    
 
                     } // async
 
