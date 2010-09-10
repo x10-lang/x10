@@ -47,7 +47,7 @@ String::_make(x10aux::ref<String> s) {
 }
 
 x10aux::ref<String>
-String::_make(x10aux::ref<ValRail<x10_char> > rail, x10_int start, x10_int length) {
+String::_make(x10aux::ref<Rail<x10_char> > rail, x10_int start, x10_int length) {
     x10aux::ref<String> this_ = new (x10aux::alloc<String>()) String();
     nullCheck(rail);
     x10_int i = 0;
