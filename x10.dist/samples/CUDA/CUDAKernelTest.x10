@@ -14,7 +14,7 @@ import x10.compiler.CUDA;
 
 public class CUDAKernelTest {
 
-    static def doWork (init:Rail[Float]!, recv:Rail[Float]!, p:Place, len:Int) {
+    static def doWork (init:Rail[Float], recv:Rail[Float], p:Place, len:Int) {
         val remote = Rail.makeRemote(p,len,(Int)=>0.0 as Float); // allocate 
 
         //finish init.copyTo(0, remote, 0, len); // dma there
@@ -46,7 +46,7 @@ public class CUDAKernelTest {
         Console.OUT.println((success?"SUCCESS":"FAIL")+" at "+p);
     }
 
-    public static def main (args : Rail[String]!) {
+    public static def main (args : Rail[String]) {
         val len = args.length==1 ? Int.parse(args(0)) : 1000;
 
         for (host in Place.places) at (host) {
