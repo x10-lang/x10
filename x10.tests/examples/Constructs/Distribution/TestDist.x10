@@ -20,8 +20,8 @@ import harness.x10Test;
 
 abstract public class TestDist extends x10Test {
     
-    global val os: StringWriter;
-    global val out: Printer;
+    val os: StringWriter;
+    val out: Printer;
     val testName = typeName();
 
     def this() {
@@ -73,7 +73,7 @@ abstract public class TestDist extends x10Test {
             
     class Grid {
 
-        var os: Rail[Object]! = Rail.make[Object](10);
+        var os: Rail[Object] = Rail.make[Object](10);
 
         def set(i0: int, vue: double): void = {
             os(i0) = vue as Box[double];
@@ -81,13 +81,13 @@ abstract public class TestDist extends x10Test {
 
         def set(i0: int, i1: int, vue: double): void = {
             if (os(i0)==null) os(i0) = new Grid();
-            val grid = os(i0) as Grid!;
+            val grid = os(i0) as Grid;
             grid.set(i1, vue);
         }
 
         def set(i0: int, i1: int, i2: int, vue: double): void = {
             if (os(i0)==null) os(i0) = new Grid();
-            val grid = os(i0) as Grid!;
+            val grid = os(i0) as Grid;
             grid.set(i1, i2, vue);
         }
 
@@ -118,7 +118,7 @@ abstract public class TestDist extends x10Test {
                             out.print("-");
                         out.print(" " + i + "\n");
                     }
-                    (o as Grid!).pr(rank-1);
+                    (o as Grid).pr(rank-1);
                 } else {
                     val d = (o as Box[double]).value;
                     out.print((d as int)+"");
@@ -132,11 +132,11 @@ abstract public class TestDist extends x10Test {
         }
     }
 
-    def prArray(test: String, r: Region): Array[double]{rank==r.rank,self.home==here} = {
+    def prArray(test: String, r: Region): Array[double]{rank==r.rank} = {
         return prArray(test, r, false);
     }
 
-    def prArray(test: String, r: Region, bump: boolean): Array[double]{rank==r.rank,self.home==here} = {
+    def prArray(test: String, r: Region, bump: boolean): Array[double]{rank==r.rank} = {
 
         val init1 = (pt: Point) => {
             var v: int = 1;
@@ -150,7 +150,7 @@ abstract public class TestDist extends x10Test {
         val a = new Array[double](r, bump? init0 : init1);
         prArray(test, a, bump);
 
-        return a as Array[double]{rank==r.rank,self.home==here};
+        return a as Array[double]{rank==r.rank};
     }
 
     def prRegion(test: String, r: Region): void = {
@@ -168,26 +168,26 @@ abstract public class TestDist extends x10Test {
         pr("region: " + r);
     }
 
-    def prArray(test: String, a: Array[double]!): void = {
+    def prArray(test: String, a: Array[double]): void = {
         prArray(test, a, false);
     }
 
-    def prArray(test: String, a: Array[double]!, bump: boolean): void = {
+    def prArray(test: String, a: Array[double], bump: boolean): void = {
 
         val r: Region = a.region;
 
         prRegion(test, r);
 
         // scanner api
-        var grid:Grid! = new Grid();
-        val it = r.scanners() as Iterator[Region.Scanner]!;
+        var grid:Grid = new Grid();
+        val it = r.scanners() as Iterator[Region.Scanner];
         while (it.hasNext()) {
-            var s: Region.Scanner! = it.next() as Region.Scanner!; // XTENLANG-55
+            var s: Region.Scanner = it.next();
             pr("  poly");
             if (r.rank==0) {
                 pr("ERROR rank==0");
             } else if (r.rank==1) {
-                val a2 = a as Array[double](1)!;
+                val a2 = a as Array[double](1);
                 var min0: int = s.min(0);
                 var max0: int = s.max(0);
                 for (var i0: int = min0; i0<=max0; i0++) {
@@ -195,7 +195,7 @@ abstract public class TestDist extends x10Test {
                     grid.set(i0, a2(i0));
                 }
             } else if (r.rank==2) {
-                val a2 = a as Array[double](2)!;
+                val a2 = a as Array[double](2);
                 var min0: int = s.min(0);
                 var max0: int = s.max(0);
                 for (var i0: int = min0; i0<=max0; i0++) {
@@ -208,7 +208,7 @@ abstract public class TestDist extends x10Test {
                     }
                 }
             } else if (r.rank==3) {
-                val a2 = a as Array[double](3)!;
+                val a2 = a as Array[double](3);
                 var min0: int = s.min(0);
                 var max0: int = s.max(0);
                 for (var i0: int = min0; i0<=max0; i0++) {
@@ -233,20 +233,20 @@ abstract public class TestDist extends x10Test {
         prArray1(a, /*bump*/ false); // XXX use bump, update tests
     }
 
-    def prArray1(a: Array[double]!, bump: boolean): void = {
+    def prArray1(a: Array[double], bump: boolean): void = {
         // iterator api
-        var grid: Grid! = new Grid();
+        var grid: Grid = new Grid();
         for (p:Point in a.region) {
             if (p.rank==1) {
-                val a2 = a as Array[double](1)!;
+                val a2 = a as Array[double](1);
                 if (bump) a2(p(0)) = a2(p(0)) + 1;
                 grid.set(p(0), a2(p(0)));
             } else if (p.rank==2) {
-                val a2 = a as Array[double](2)!;
+                val a2 = a as Array[double](2);
                 if (bump) a2(p(0), p(1)) = a2(p(0), p(1)) + 1;
                 grid.set(p(0), p(1), a2(p(0),p(1)));
             } else if (p.rank==3) {
-                val a2 = a as Array[double](3)!;
+                val a2 = a as Array[double](3);
                 if (bump) a2(p(0), p(1), p(2)) = a2(p(0), p(1), p(2)) + 1;
                 grid.set(p(0), p(1), p(2), a2(p(0),p(1),p(2)));
             }
@@ -274,8 +274,8 @@ abstract public class TestDist extends x10Test {
     }
         
 
-    global def pr(s: String): void = {
-        at (this) out.println(s);
+    def pr(s: String): void = {
+        out.println(s);
     }
 
     static def xxx(s: String): void {
