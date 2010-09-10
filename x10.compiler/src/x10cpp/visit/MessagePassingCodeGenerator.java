@@ -2163,7 +2163,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    if (!globalInit) {
 	        sw.pushCurrentStream(h);
 	        // declare the deserializer method
-	        h.write("static x10aux::ref<x10::lang::Reference>");
+	        h.write("static "+make_ref("x10::lang::Reference"));
 	        h.allowBreak(2, 2, " ", 1);
 	        h.write(deserializer + "(" + DESERIALIZATION_BUFFER + " &buf);");
 	        h.newline();
@@ -2179,7 +2179,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        sw.newline();
 	        // define the deserializer method
 	        sw.write("// extract value from a buffer"); sw.newline();
-	        sw.write("x10aux::ref<x10::lang::Reference>");
+	        sw.write(make_ref("x10::lang::Reference"));
 	        sw.allowBreak(2, 2, " ", 1);
 	        sw.write(container + "::" + deserializer + "(" + DESERIALIZATION_BUFFER + " &buf) {");
 	        sw.newline(4); sw.begin(0);
