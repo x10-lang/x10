@@ -19,6 +19,7 @@
 #include <sys/socket.h> // for sockets
 #include <pthread.h> // for locks on the sockets
 #include <poll.h> // for poll()
+#include <alloca.h> // for alloca()
 
 #include <x10rt_net.h>
 #include "Launcher.h"
