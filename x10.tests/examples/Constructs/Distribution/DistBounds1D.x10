@@ -95,11 +95,11 @@ public class DistBounds1D extends x10Test {
 
         // Java has poor support for enum
         const BLOCK: int = 0;
-        //const CYCLIC: int = 1;
-        const CONSTANT: int = 2;
+        const CONSTANT: int = 1;
+        //const CYCLIC: int = 2;
         //const RANDOM: int = 3;
         //const ARBITRARY: int = 4;
-        const N_DIST_TYPES: int = 3; // 5;
+        const N_DIST_TYPES: int = 2; // 5;
 
         /**
          * Return a dist with region r, of type disttype
