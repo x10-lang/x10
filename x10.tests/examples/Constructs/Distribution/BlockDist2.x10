@@ -4,7 +4,7 @@ import harness.x10Test;
 
 public class BlockDist2 extends x10Test.BardTest {
   public static def main(Rail[String]){
-     val p:x10Test! = new BlockDist2();
+     val p:x10Test = new BlockDist2();
      p.execute();
   }
   static def str(d:Dist):String {

@@ -35,13 +35,13 @@ public class ArrayToDist extends x10Test {
             chk(f(i, j) == A1(i, j), "3");
 
         for (val p(i,j): Point(2) in A2.region) 
-            chk(f(i, j) == (at(A2.dist(i, j)) { (A2(i, j) as foo!).val }), "4");
+            chk(f(i, j) == (at(A2.dist(i, j)) { A2(i, j).val }), "4");
 
         finish foreach (val p(i,j): Point(2) in A2.region) 
-           chk(f(i, j) == (at(A2.dist(i, j)) { (A2(i, j) as foo!).val }), "5");
+           chk(f(i, j) == (at(A2.dist(i, j)) { A2(i, j).val }), "5");
 
         finish ateach (val p(i,j): Point(2)  in A2.dist) 
-            chk(f(i, j) == (A2(i, j)as foo!).val, "6");
+            chk(f(i, j) == A2(i, j).val, "6");
 
         return true;
     }
