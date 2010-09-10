@@ -626,6 +626,7 @@ import x10.util.Box;
 
     @Pinned static class RemoteCollectingFinish[T] extends RemoteFinish {
     	val sr:StatefulReducer[T];
+        var step : Int = 0;
         def this(r:Reducible[T]) {
     	  super();
     	  this.sr=new StatefulReducer[T](r);
@@ -643,12 +644,14 @@ import x10.util.Box;
         }
         val e = exceptions;
         exceptions = null;
+        lock.unlock();
         if (2*length > Place.MAX_PLACES) {
-            val m = ValRail.make(counts);
-            for (var i:Int=0; i<Place.MAX_PLACES; i++) counts(i) = 0;
-            length = 1;
-            lock.unlock();
             if (null != e) {
+                lock.lock();
+                val m = ValRail.make(counts);
+                for (var i:Int=0; i<Place.MAX_PLACES; i++) counts(i) = 0;
+                length = 1;
+                lock.unlock();
                 val t:Throwable;
                 if (e.size() == 1) {
                     t = e.peek();
@@ -662,25 +665,47 @@ import x10.util.Box;
                 };
                 runAtNative(r.home().id, closure);
                 dealloc(closure);
+                deallocObject(m);
             } else {
             	sr.placeMerge();
+                val path = pathCompute(r);
+                while(step  < path.first) {Console.OUT.println("step is "+step+ " home is"+r.home().id);}
+                lock.lock();
+                val m = ValRail.make(counts);
+                for (var i:Int=0; i<Place.MAX_PLACES; i++) counts(i) = 0;
+                length = 1;
+                lock.unlock();
                 val x = sr.result();
 		        sr.reset();
-                val closure = () => { 
-                    val rrcf = (r as RootCollectingFinish[T]).root as GlobalRef[RootCollectingFinish[T]]{self.home==here};
-                    rrcf().notify(m, x); 
-                    deallocObject(m); 
-                };
-                runAtNative(r.home().id, closure);
-                dealloc(closure);
+                if(path.second != r.home().id) {
+                     val closure = () => {
+                     (Runtime.proxy(r) as RemoteCollectingFinish[T]).notify(m, x);
+                     deallocObject(m);
+                     };
+                    runAtNative( path.second, closure);
+                    dealloc(closure);
+                    }
+                else {
+                     val closure = () => {
+                     val rrcf = (r as RootCollectingFinish[T]).root as GlobalRef[RootCollectingFinish[T]]{self.home==here};
+                     rrcf().notify(m, x);
+                     deallocObject(m);
+                     };
+                     runAtNative( path.second, closure);
+                     dealloc(closure);
+                    }
+
+                deallocObject(m);
             }
-            deallocObject(m);
+            
         } else {
-            val m = ValRail.make[Pair[Int,Int]](length, (i:Int)=>Pair[Int,Int](message(i), counts(message(i))));
-            for (var i:Int=0; i<Place.MAX_PLACES; i++) counts(i) = 0;
-            length = 1;
-            lock.unlock();
             if (null != e) {
+                lock.lock();
+                val m = ValRail.make[Pair[Int,Int]](length, (i:Int)=>Pair[Int,Int](message(i), counts(message(i))));
+                for (var i:Int=0; i<Place.MAX_PLACES; i++) counts(i) = 0;
+                length = 1;
+                lock.unlock();
+
                 val t:Throwable;
                 if (e.size() == 1) {
                     t = e.peek();
@@ -694,19 +719,41 @@ import x10.util.Box;
                 };
                 runAtNative(r.home().id, closure);
                 dealloc(closure);
+                deallocObject(m);
             } else {
             	sr.placeMerge();
+                val path = pathCompute(r);
+                while(step  < path.first) {
+                    //Console.OUT.println("step is "+step+ " home is"+r.home().id);
+                }
+                lock.lock();
+                val m = ValRail.make[Pair[Int,Int]](length, (i:Int)=>Pair[Int,Int](message(i), counts(message(i))));
+                for (var i:Int=0; i<Place.MAX_PLACES; i++) counts(i) = 0;
+                length = 1;
+                lock.unlock();
                 val x = sr.result();
 		        sr.reset();
-                val closure = () => {
+                if(path.second != r.home().id) {
+                     val closure = () => {
+                     (Runtime.proxy(r) as RemoteCollectingFinish[T]).notify2(m, x);
+                     deallocObject(m);
+                     };
+                    runAtNative( path.second, closure);
+                    dealloc(closure);
+                    }
+                else {
+                     val closure = () => {
                      val rrcf = (r as RootCollectingFinish[T]).root as GlobalRef[RootCollectingFinish[T]]{self.home==here};
-                     rrcf().notify2(m, x); 
-                     deallocObject(m); 
-                };
-                runAtNative(r.home().id, closure);
-                dealloc(closure);
+                     rrcf().notify2(m, x);
+                     deallocObject(m);
+                     };
+                     runAtNative( path.second, closure);
+                     dealloc(closure);
+                    }
+
+                deallocObject(m);
             }
-            deallocObject(m);
+            
         }
         }
         def accept(t:T) {
@@ -716,6 +763,82 @@ import x10.util.Box;
         }
         def accept(t:T, id:Int) {
             sr.accept(t,id);
+        }
+        def notify(rail:ValRail[Int], v:T):Void {
+            var b:Boolean = true;
+            lock.lock();
+            step ++;
+            for(var i:Int=0; i<Place.MAX_PLACES; i++) {
+                counts(i) += rail(i);
+            if (counts(i) != 0) b = false;
+            }
+            sr.accept(v);
+            if (b) release();
+            lock.unlock();
+        }
+
+        def notify2(rail:ValRail[Pair[Int,Int]], v:T):Void {
+            lock.lock();
+            step ++;
+            for(var i:Int=0; i<rail.length; i++) {
+                counts(rail(i).first) += rail(i).second;
+                message(length++) = rail(i).first;
+            }
+
+            for(var i:Int=0; i<Place.MAX_PLACES; i++) {
+                if (counts(i) != 0) {
+                    sr.accept(v);
+                    lock.unlock();
+                    return;
+                }
+            }
+            sr.accept(v);
+            release();
+            lock.unlock();
+         }
+
+        def pathCompute(r:FinishState):Pair[Int,Int] {
+            val max = Place.MAX_PLACES;
+            val id  = here.id;
+            val step = Math.log2(max);
+            var stage : Int = 0;
+            var target : Int = 0;
+            var interval : Int = 2;
+            if(id!=r.home().id){
+                for (var i:Int =0; i < step; i++) {
+                    if(id%interval != 0) {
+                        val distance = id%interval;
+                        stage = i;
+                        target = here.id - distance;
+                        if((id < r.home().id)&&(r.home().id < id+Math.pow2(stage)))
+                            stage --;
+                        if(here.id < Math.pow2(step))
+                            return Pair[Int,Int](stage,target);
+                        else {
+                            if(stage > 0) {
+                                for(var j:Int = stage; j>0;j--) {
+                                    if((id + Math.pow2(j-1)) > (max-1))
+                                        stage--;
+                                }
+                            }
+                            return Pair[Int,Int](stage,target);
+                        }
+                    }
+                interval = interval*2;
+               }
+               if(here.id == Math.pow2(step)) {
+               val delta = max - here.id -1;
+               if (delta == 0) return Pair[Int,Int](0,r.home().id);
+               else  {
+                   val subStep = Math.log2(delta);
+                   return Pair[Int,Int](subStep+1,r.home().id);
+                    }
+                 }
+             }
+            assert (max>1);
+            val subStep = Math.log2(max-1);
+            if(Math.powerOf2(r.home().id))   return Pair[Int,Int](subStep,r.home().id);
+            return Pair[Int,Int](subStep+1,r.home().id);
         }
     
     }
