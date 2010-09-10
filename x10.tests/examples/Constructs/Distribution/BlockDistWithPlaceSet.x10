@@ -77,9 +77,9 @@ public class BlockDistWithPlaceSet extends x10Test {
 	 */
 	static class randPlaceSet {
 		val np: int;
-		val placeSet: Set[Place]!;
-		val placeNums: Rail[Int]!;
-		def this(n: int, a: Rail[Int]!, s: Set[Place]!): randPlaceSet = {
+		val placeSet: Set[Place];
+		val placeNums: Rail[Int];
+		def this(n: int, a: Rail[Int], s: Set[Place]): randPlaceSet = {
 			np = n;
 			placeNums = a;
 			placeSet = s;
@@ -89,8 +89,8 @@ public class BlockDistWithPlaceSet extends x10Test {
 	/**
 	 * Create a random, non-empty subset of the places
 	 */
-	def createRandPlaceSet(): randPlaceSet! = {
-		val placeSet: Set[Place]! = new HashSet[Place]();
+	def createRandPlaceSet(): randPlaceSet = {
+		val placeSet: Set[Place] = new HashSet[Place]();
 		var np: int;
 		val placeNums = Rail.make[int](Place.MAX_PLACES);
 		do {
