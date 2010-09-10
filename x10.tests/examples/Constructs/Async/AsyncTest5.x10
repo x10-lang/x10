@@ -31,7 +31,7 @@ public class AsyncTest5 extends x10Test {
 		finish ateach (val (i): Point in A) {
 			async { atomic A(i) += i;
 				chk(A.dist(i) == here);
-				async(this) async chk(A.dist(0) == here);
+				async(Place.FIRST_PLACE) async chk(A.dist(0) == here);
 			}
 		}
 		finish ateach (val (i): Point in A) {
