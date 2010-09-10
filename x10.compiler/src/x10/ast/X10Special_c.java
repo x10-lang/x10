@@ -151,7 +151,7 @@ public class X10Special_c extends Special_c implements X10Special {
             	XVar var = (XVar) xts.xtypeTranslator().trans(cc, this, c);
                 cc.addSelfBinding(var);
             	cc.setThisVar(var);
-            	// PlaceChecker.AddThisHomeEqualsPlaceTerm(cc, var, c);
+            	//PlaceChecker.AddThisHomeEqualsPlaceTerm(cc, var, c);
             }
             catch (XFailure e) {
                 throw new SemanticException("Constraint on this is inconsistent; " + e.getMessage(), position());
@@ -168,7 +168,7 @@ public class X10Special_c extends Special_c implements X10Special {
             try {
             	XVar var = (XVar) xts.xtypeTranslator().trans(cc, this, c);
                 cc.addSelfBinding(var);
-            	// PlaceChecker.AddThisHomeEqualsPlaceTerm(cc, var, c);
+            	//PlaceChecker.AddThisHomeEqualsPlaceTerm(cc, var, c);
             }
             catch (XFailure e) {
                 throw new SemanticException("Constraint on super is inconsistent; " + e.getMessage(), position());

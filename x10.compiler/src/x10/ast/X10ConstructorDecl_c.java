@@ -253,7 +253,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         
         X10TypeSystem xts = (X10TypeSystem) c.typeSystem();
         if (child == body || child == returnType || child == hasType || child == throwTypes || child == offerType || (formals != null && formals.contains(child))) {
-        	 c = PlaceChecker.pushHereIsThisHome(xc);
+        	c = PlaceChecker.pushHereIsThisHome(xc);
         }
         
 
@@ -489,17 +489,10 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         }
         thisC.clearError();
 
-        if (false) { // todo: remove this after fixing XTENLANG-1770
-            if (returnType != null) {
-                visitChild(returnType, thisC);
-                if (thisC.error()) {
-                    throw new Errors.ThisNotPermittedInConstructorReturnType(returnType, position());
-                }
-            }
-        }
-        
         if (returnType != null) {
-           // visitChild(returnType, thisC);
+            if (false) { // todo: remove this after fixing XTENLANG-1770
+                visitChild(returnType, thisC);
+            }
             if (thisC.error()) {
                 throw new Errors.ThisNotPermittedInConstructorReturnType(returnType, position());
             }

@@ -268,7 +268,7 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 	        error = new SemanticException(); // null message
 	    mi = xts.createFakeMethod(targetType.toClass(), Flags.PUBLIC, name, typeArgs, actualTypes, error);
 	    if (rt == null) rt = mi.returnType();
-	    // rt = PlaceChecker.AddIsHereClause(rt, context);
+	    rt = PlaceChecker.AddIsHereClause(rt, context);
 	    mi = mi.returnType(rt);
 	    return mi;
 	}

@@ -65,19 +65,14 @@ public class PlaceChecker {
 		return HERE;
 	}
 	
-	// static XTerm arbitraryPlace;
 	/**
 	 * 
 	 * @return a newly constructed UQV representing a fixed but unknown place.
 	 */
 	public static XTerm makePlace() {
-	/*	if (arbitraryPlace == null) {
-			arbitraryPlace = XTerms.makeUQV("_place");
-		}
-		*/
 		XTerm place = XTerms.makeUQV("_place");
 		
-		return place; //  arbitraryPlace;
+		return place;
 	}
 
 	public static boolean isGlobalPlace(XTerm term) {
@@ -340,18 +335,19 @@ public class PlaceChecker {
 			if ( ! xts.hasSameClassDef(X10TypeMixin.baseType(cd.asType()), xts.GlobalRef())) {
 				XTerm h =  homeVar(xc.thisVar(),xts);
 				 if (h != null)  // null for structs.
-					return((X10Context) c).pushPlace(XConstrainedTerm.make(h)); // XConstrainedTerm.make(makePlace())); // ); 	
+					return((X10Context) c).pushPlace(XConstrainedTerm.make(h));
 			}
 		return c;
 	}
 	
 	public static XTerm methodPT(Flags flags, ClassDef ct) {
 		X10Flags xflags = X10Flags.toX10Flags(flags);
-    	boolean isGlobal = xflags.isStatic() || X10TypeMixin.isX10Struct(ct.asType());
-    	return (isGlobal) ? 
-    			makePlace() :
-    				homeVar(((X10ClassDef) ct).thisVar(), (X10TypeSystem) ct.typeSystem());
+		boolean isGlobal = xflags.isStatic() || X10TypeMixin.isX10Struct(ct.asType());
+		return (isGlobal) ? 
+				makePlace() :
+					homeVar(((X10ClassDef) ct).thisVar(), (X10TypeSystem) ct.typeSystem());
 	}
+
 	/**
 	 * The method is global if it declared with a global flag or if it is a static method, or
 	 * if it a method of a struct
@@ -359,9 +355,9 @@ public class PlaceChecker {
 	 * @return
 	 */
 	static boolean isGlobalCode(MethodDef md) {
-    	X10Flags flags = X10Flags.toX10Flags(md.flags());
-    	boolean isGlobal = flags.isGlobal() || flags.isStatic() || X10TypeMixin.isX10Struct(md.container().get());
-    	return isGlobal;
+		X10Flags flags = X10Flags.toX10Flags(md.flags());
+		boolean isGlobal = flags.isGlobal() || flags.isStatic() || X10TypeMixin.isX10Struct(md.container().get());
+		return isGlobal;
 	}
 	
 	/**
@@ -378,115 +374,111 @@ public class PlaceChecker {
 	}
 	
 
-	 /**
-     * Check that the type system asserts r.home==here.
-     * @param r
-     * @param context
-     * @return
-     */
-  private static boolean isHere(Receiver r, X10Context xc) {
-		   XConstrainedTerm h = xc.currentPlaceTerm();
-		  // assert h != null;
-		   return isAtPlace(r, h==null ? null : h.term(), xc);
-	   }
-    
-    /**
-     * Returns true if the receiver r is known statically to be at place.
-     * Will always return false if place is global.
-     * @param r
-     * @param place
-     * @param context
-     * @return
-     */
+	/**
+	 * Check that the type system asserts r.home==here.
+	 * @param r
+	 * @param context
+	 * @return
+	 */
+	private static boolean isHere(Receiver r, X10Context xc) {
+		XConstrainedTerm h = xc.currentPlaceTerm();
+		//assert h != null;
+		return isAtPlace(r, h==null ? null : h.term(), xc);
+	}
+
+	/**
+	 * Returns true if the receiver r is known statically to be at place.
+	 * Will always return false if place is global.
+	 * @param r
+	 * @param place
+	 * @param context
+	 * @return
+	 */
 	public static boolean isAtPlace(Receiver r, Expr place, X10Context xc) {
-    	assert place != null;
-    	CConstraint c = new CConstraint();
-    	XTerm placeTerm = ((X10TypeSystem) xc.typeSystem()).xtypeTranslator().trans(c, place, xc);
-    	if (placeTerm == null) {
-    		assert false;  // Maybe should create a UQV? place might be a method call...?
-    		return false;
-    	}
-    	return isAtPlace(r, placeTerm, xc);
-    }
-    
-    
-	
-	  /**
-     * Returns true if the receiver r is known statically to be at placeTerm.
-     * Will always return false if placeTerm is globalPlace().
-     * @param r
-     * @param placeTerm
-     * @param context
-     * @return
-     */
+		assert place != null;
+		CConstraint c = new CConstraint();
+		XTerm placeTerm = ((X10TypeSystem) xc.typeSystem()).xtypeTranslator().trans(c, place, xc);
+		if (placeTerm == null) {
+			assert false;  // Maybe should create a UQV? place might be a method call...?
+			return false;
+		}
+		return isAtPlace(r, placeTerm, xc);
+	}
 
-    // placeTerm may be null. Nothing is known about the current place.
-    // In such a case check if r.home == here, otherwise check r.home==placeTerm
-   static boolean isAtPlace(Receiver r, XTerm placeTerm, X10Context xc) {
-    	X10TypeSystem xts = (X10TypeSystem) xc.typeSystem();
-    	// If the code is executing in a global context then
-    	// no receiver can be local.
- 	  // if (placeTerm != null && isGlobalPlace(placeTerm))
- 		//   return false;
+	/**
+	 * Returns true if the receiver r is known statically to be at placeTerm.
+	 * Will always return false if placeTerm is globalPlace().
+	 * @param r
+	 * @param placeTerm
+	 * @param context
+	 * @return
+	 */
+	// placeTerm may be null. Nothing is known about the current place.
+	// In such a case check if r.home == here, otherwise check r.home==placeTerm
+	static boolean isAtPlace(Receiver r, XTerm placeTerm, X10Context xc) {
+		X10TypeSystem xts = (X10TypeSystem) xc.typeSystem();
+		// If the code is executing in a global context then
+		// no receiver can be local.
+ 		//if (placeTerm != null && isGlobalPlace(placeTerm))
+ 		//	return false;
  	   
- 		   try {
- 			   XConstrainedTerm h = xc.currentPlaceTerm();
- 			   CConstraint pc = h == null ? new CConstraint() : xc.currentPlaceTerm().xconstraint().copy();
+		try {
+ 			XConstrainedTerm h = xc.currentPlaceTerm();
+			CConstraint pc = h == null ? new CConstraint() : xc.currentPlaceTerm().xconstraint().copy();
  			   
- 			   Type rType = r.type();
- 			   XTerm target = X10TypeMixin.selfVarBinding(rType); 
- 			   if (target != null && target.toString().contains("$dummyAsync#this")) {
- 				  XVar thisVar = xc.thisVar();
- 				  for (X10Context outer = (X10Context) xc.pop();
-				   outer != null && target != null && target.toString().contains("$dummyAsync#this");
-				   outer = (X10Context) outer.pop())
-				   {
-					   target = outer.thisVar();
-				   }
- 			   }
- 			   if (target == null) {
- 				   target = xts.xtypeTranslator().trans(pc, r, xc);
- 				   if (target == null)
- 					   // The receiver is not named. So make up a new name.
- 					   // The only thing we know about the name is that it is of rType,
- 					   target = XTerms.makeUQV("_target");
- 			   } 
- 			   rType = X10TypeMixin.instantiateSelf(target, rType); 
- 			  
- 			   assert PlaceChecker.homeVar(target, xts) != null;
- 			   
- 			   pc.addBinding(PlaceChecker.homeVar(target,xts), placeTerm == null ? HERE : placeTerm);
- 			   
- 			   CConstraint targetConstraint = X10TypeMixin.realX(rType).copy();
- 			   CConstraint sigma =  xc.constraintProjection(targetConstraint, pc);
- 			   if (h != null) {
- 				   sigma.addBinding(HERE, h);
- 			   }
- 			   // Add this.here = currentThisPlace.
- 			   XConstrainedTerm th = xc.currentThisPlace();
- 			   if (th != null) {
- 				   XVar thisVar = xc.thisVar();
- 				   for (X10Context outer = (X10Context) xc.pop();
- 				   outer != null && thisVar == null;
- 				   outer = (X10Context) outer.pop())
- 				   {
- 					   thisVar = outer.thisVar();
- 				   }
- 				   sigma.addBinding(th, PlaceChecker.homeVar(thisVar,xts));
- 			   }
- 			   // Now check the constraint.
- 			   if (targetConstraint.entails(pc,sigma)) {
- 				   // Gamma|- here==r.home
- 				   return true;
- 			   }	   
- 		   } catch (XFailure z) {
- 			   // fall through
- 		   }
- 	   
- 	   return false;
+			Type rType = r.type();
+			XTerm target = X10TypeMixin.selfVarBinding(rType); 
+			if (target != null && target.toString().contains("$dummyAsync#this")) {
+				XVar thisVar = xc.thisVar();
+				for (X10Context outer = (X10Context) xc.pop();
+				     outer != null && target != null && target.toString().contains("$dummyAsync#this");
+				     outer = (X10Context) outer.pop())
+				{
+					target = outer.thisVar();
+				}
+			}
+			if (target == null) {
+				target = xts.xtypeTranslator().trans(pc, r, xc);
+				if (target == null)
+					// The receiver is not named. So make up a new name.
+					// The only thing we know about the name is that it is of rType,
+					target = XTerms.makeUQV("_target");
+			} 
+			rType = X10TypeMixin.instantiateSelf(target, rType); 
 
-    }
-    
+			assert PlaceChecker.homeVar(target, xts) != null;
+
+			pc.addBinding(PlaceChecker.homeVar(target,xts), placeTerm == null ? HERE : placeTerm);
+
+			CConstraint targetConstraint = X10TypeMixin.realX(rType).copy();
+			CConstraint sigma =  xc.constraintProjection(targetConstraint, pc);
+			if (h != null) {
+ 				sigma.addBinding(HERE, h);
+			}
+			// Add this.here = currentThisPlace.
+			XConstrainedTerm th = xc.currentThisPlace();
+			if (th != null) {
+ 				XVar thisVar = xc.thisVar();
+ 				for (X10Context outer = (X10Context) xc.pop();
+				     outer != null && thisVar == null;
+				     outer = (X10Context) outer.pop())
+ 				{
+ 					thisVar = outer.thisVar();
+ 				}
+ 				sigma.addBinding(th, PlaceChecker.homeVar(thisVar,xts));
+			}
+			// Now check the constraint.
+			if (targetConstraint.entails(pc,sigma)) {
+ 				// Gamma|- here==r.home
+ 				return true;
+			}
+		} catch (XFailure z) {
+ 			// fall through
+		}
+ 	   
+		return false;
+	}
+
     public static Receiver makeReceiverLocalIfNecessary(ContextVisitor tc, Receiver target, X10Flags flags) throws SemanticException {
         /*if (isTargetPlaceSafe(tc, target, flags)) return target;  // nothing to do
         if (Configuration.STATIC_CALLS) return null;              // nothing we can do
@@ -538,7 +530,8 @@ public class PlaceChecker {
         }
     }
 
- /*   private static boolean isTargetPlaceSafe(ContextVisitor tc, Receiver target, X10Flags xFlags) {
+    /*
+    private static boolean isTargetPlaceSafe(ContextVisitor tc, Receiver target, X10Flags xFlags) {
         // A type can be accessed from anywhere.
         if (!(target instanceof Expr))
             return true;
@@ -563,27 +556,29 @@ public class PlaceChecker {
 
         return false;
     }
-*/
-    /**
-     * Returns true if the placeChecker cannot establish that e is here.
-     * @param e
-     * @param context
-     * @return
-     */
-/*	public static boolean needsPlaceCheck(Receiver e, X10Context context) {
+    */
+
+	/**
+	 * Returns true if the placeChecker cannot establish that e is here.
+	 * @param e
+	 * @param context
+	 * @return
+	 */
+	/*
+	public static boolean needsPlaceCheck(Receiver e, X10Context context) {
 	    if (e instanceof X10CanonicalTypeNode_c)
 	        return false;
 	    //Type t = e.type();
 	    return !isHere(e, context);
 	}
 	*/
-	/*  @Override
-	    public NodeVisitor typeCheckEnter(TypeChecker v) throws SemanticException {
-	    	if (placeTerm != null) {
-	    		v = (TypeChecker) v.context(pushPlaceTerm((X10Context) v.context()));
-	    	}
-	    	return v;
-	    	
+	/*
+	@Override
+	public NodeVisitor typeCheckEnter(TypeChecker v) throws SemanticException {
+		if (placeTerm != null) {
+			v = (TypeChecker) v.context(pushPlaceTerm((X10Context) v.context()));
+		}
+		return v;
 	}
 	*/
 	    XTerm placeTerm;
@@ -594,9 +589,7 @@ public class PlaceChecker {
 	     */
 	    Type placeType;
 	    
-	    public static XConstrainedTerm computePlaceTerm( Expr place, X10Context xc, 
-	    		X10TypeSystem  ts
-	    		) throws SemanticException {
+	    public static XConstrainedTerm computePlaceTerm(Expr place, X10Context xc, X10TypeSystem ts) throws SemanticException {
 	    	// if place is g.home (g a GlobalRef), set it to g.
 	    	if (place instanceof Field) {
 				Field fp = (Field) place;
@@ -627,7 +620,6 @@ public class PlaceChecker {
 				}
 	    	} else {
 	    		boolean placeIsRef = ts.hasSameClassDef(X10TypeMixin.baseType(placeType), ts.GlobalRef());
-	    	
 	    		if (placeIsRef) {
 	    			XTerm src = ts.xtypeTranslator().trans(pc, place, xc);
 	    			if (src == null) {
@@ -650,7 +642,7 @@ public class PlaceChecker {
 	    
 	    	return pt;
 	    }
-/*
+	 /*
 	    public static XTerm rewriteAtClause(CConstraint c, X10MethodInstance xmi, Call t, XTerm r, X10Context xc) throws SemanticException {
 	    	X10TypeSystem  ts = (X10TypeSystem) xc.typeSystem();
 	    	XTypeTranslator tr = ts.xtypeTranslator();
@@ -676,6 +668,5 @@ public class PlaceChecker {
 	    	return xmi.body();
 	    }
 	    
-	 */   
-    
+	 */
 }

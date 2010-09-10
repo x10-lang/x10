@@ -384,7 +384,6 @@ public class X10TypeMixin {
     		return false;
     	return ((X10Struct) t).isX10Struct();
     }
-   
 
     public static boolean isClass(Type t) {
 	    return ! isX10Struct(t);

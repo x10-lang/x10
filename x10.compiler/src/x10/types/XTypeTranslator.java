@@ -141,18 +141,13 @@ public class XTypeTranslator {
 	Object fakeKey = new Object();
 	public XTerm transFakeField(CConstraint c, XTerm target, String name)  {
 		//XName field = XTerms.makeName(fi.def(), Types.get(fi.def().container()) + "#" + fi.name().toString());
-		
-			XName field = XTerms.makeName(fakeKey,  name);
-			XTerm 
-			v = XTerms.makeField((XVar) target, field);
-		return v;
-		
-		
+		XName field = XTerms.makeName(fakeKey,  name);
+		return XTerms.makeField((XVar) target, field);
 	}
 	public XTerm trans(CConstraint c, XTerm target, FieldInstance fi, Type t) throws SemanticException {
 		XTerm v;
 		//XName field = XTerms.makeName(fi.def(), Types.get(fi.def().container()) + "#" + fi.name().toString());
-		XName field = XTerms.makeName(fi.def(),  fi.name().toString());
+		XName field = XTerms.makeName(fi.def(), fi.name().toString());
 		if (fi.flags().isStatic()) {
 		    Type container = Types.get(fi.def().container());
 		    container = X10TypeMixin.baseType(container);
@@ -520,7 +515,7 @@ public class XTypeTranslator {
 				// hardwire s.at(t) for an interface
 				// return s.home = t is Place ? t : t.home
 				// stub out for orthogonal locality
-				// body  = PlaceChecker.rewriteAtClause(c, xmi, t, r, xc);
+				//body  = PlaceChecker.rewriteAtClause(c, xmi, t, r, xc);
 			}
 			if (body != null) {
 				if (xmi.x10Def().thisVar() != null && t.target() instanceof Expr) {

@@ -100,18 +100,17 @@ public class X10FieldAssign_c extends FieldAssign_c {
     	    }
     	}
 
-    	
     	X10Field_c target = (X10Field_c) n.left();
-    	/*try {
-    	    target = PlaceChecker.makeFieldAccessLocalIfNecessary(target, tc);
-    	} catch (SemanticException e) {
-    	    Errors.issue(tc.job(), e, this);
-    	}
-    	*/
+    	// Not needed in the orthogonal locality proposal.
+    	//try {
+    	//    target = PlaceChecker.makeFieldAccessLocalIfNecessary(target, tc);
+    	//} catch (SemanticException e) {
+    	//    Errors.issue(tc.job(), e, this);
+    	//}
     	n = (X10FieldAssign_c) n.reconstruct(target.target(), n.name());
     	t = n.leftType();
     	n = (X10FieldAssign_c) n.type(t);
     	return Checker.typeCheckAssign(n, tc);
     }
-    
+
 }

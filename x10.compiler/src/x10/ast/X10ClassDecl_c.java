@@ -706,7 +706,6 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     		n.checkStructMethods(parent, tc);
     	}
 
-       
     	return n;
     }
     
@@ -1049,5 +1048,4 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         
     }
 
-   
 } 

@@ -73,7 +73,7 @@ import x10.types.X10TypeSystem_c;
 import x10.types.XTypeTranslator;
 import x10.types.checker.Checker;
 import x10.types.checker.Converter;
-// import x10.types.checker.PlaceChecker;
+import x10.types.checker.PlaceChecker;
 import x10.types.matcher.DumbMethodMatcher;
 import x10.visit.X10TypeChecker;
 

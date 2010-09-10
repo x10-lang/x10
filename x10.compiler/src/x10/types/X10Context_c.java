@@ -339,7 +339,7 @@ public class X10Context_c extends Context_c implements X10Context {
     	return currentPlaceTerm;
     }
     public Context pushPlace(XConstrainedTerm t) {
-    	// assert t!= null;
+    	//assert t!= null;
     	X10Context_c cxt = (X10Context_c) super.pushBlock();
 		cxt.currentPlaceTerm = t;
 		return cxt;
