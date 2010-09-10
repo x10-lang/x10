@@ -28,24 +28,24 @@ public class ArrayCopyTo extends x10Test {
        var fail:boolean = false;
        
        finish {
-         localA.asyncCopyTo(20, remoteA, 20, 81);
-         localB.asyncCopyTo(remoteB);
+         Array.asyncCopy(localA, 0, remoteA, 0, 81);
+         Array.asyncCopy(localB, remoteB);
        }
        finish {
-         finalA.asyncCopyFrom(20, remoteA, 20, 81);
-         finalB.asyncCopyFrom(remoteB);
+         Array.asyncCopy(remoteA, 0, finalA, 0, 81);
+         Array.asyncCopy(remoteB, finalB);
        }
         
        for (p in localA) {
          if (localA(p) != finalA(p)) {
-             Console.OUT.println("Expected to find "+localA(p)+"at "+p+" but found "+finalA(p));
+             Console.OUT.println("Expected to find "+localA(p)+" at "+p+" but found "+finalA(p));
              fail = true;
          }
        }
 
        for (p in localB) {
          if (localB(p) != finalB(p)) {
-             Console.OUT.println("Expected to find "+localB(p)+"at "+p+" but found "+finalB(p));
+             Console.OUT.println("Expected to find "+localB(p)+" at "+p+" but found "+finalB(p));
              fail = true;
          }
        }

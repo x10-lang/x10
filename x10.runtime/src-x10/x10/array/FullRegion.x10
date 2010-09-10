@@ -26,6 +26,9 @@ final class FullRegion extends Region{rect} {
     public def size():int {
         throw new IllegalOperationException("Full Region is infinite; size not supported");
     }
+    public def indexOf(Point):int {
+        throw new IllegalOperationException("Full Region is infinite; indexOf not supported");
+    }
     public def min() = ValRail.make(rank, (Int)=>Int.MIN_VALUE);
     public def max() = ValRail.make(rank, (Int)=>Int.MAX_VALUE);
     public def intersection(that: Region(rank)): Region(rank) = that;

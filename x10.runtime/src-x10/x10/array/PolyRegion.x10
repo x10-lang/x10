@@ -48,6 +48,8 @@ public class PolyRegion extends Region {
 
     incomplete public def size():int;
 
+    incomplete public def indexOf(Point):int;
+
 
     //
     // scanners

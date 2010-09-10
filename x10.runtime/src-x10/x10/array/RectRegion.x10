@@ -95,6 +95,16 @@ public final class RectRegion extends Region{rect} {
 
     public def isEmpty() = size == 0;
 
+    public def indexOf(pt:Point) {
+	if (pt.rank != rank) return -1;
+        var offset: int = pt(0) - min(0);
+        for (var i:int=1; i<rank; i++) {
+            val delta_i = max(i) - min(i) + 1;
+            offset = offset*delta_i + pt(i) - min(i);
+        }
+        return offset;
+    }
+
 
     //
     // region operations

@@ -156,21 +156,32 @@ public abstract class Region(
     /**
      * Returns the number of points in this region.
      */
-
     public abstract def size(): int;
 
     /**
      * Returns true iff this region is convex.
      */
-
     public abstract def isConvex(): boolean;
 
     /**
      * Returns true iff this region is empty.
      */
-
     public abstract def isEmpty(): boolean;
 
+
+    /**
+     * Returns the index of the argument point in the lexograpically ordered
+     * enumeration of all Points in thie region.  Will return -1 to indicate 
+     * that the argument point is not included in this region.  If the argument
+     * point is contained in this region, then a value between 0 and size-1
+     * will be returned.  The primary usage of indexOf is in the context of 
+     * Arrays, where it enables the conversion from "logical" indicies 
+     * specified in Points into lower level indices specified by Ints that
+     * can be used in primitive operations such as copyTo and in interfacing
+     * to native code.  Often indexOf will be used in conjuntion with the 
+     * raw() method of Array or DistArray.
+     */
+    public abstract def indexOf(Point):Int;
 
 
     //
@@ -190,28 +201,24 @@ public abstract class Region(
      * Returns the lower bounds of the bounding box of the region as a
      * Rail[int].
      */
-
     abstract public def min(): ValRail[int];
 
     /**
      * Returns the upper bounds of the bounding box of the region as a
      * Rail[int].
      */
-
     abstract public def max(): ValRail[int];
     
     /**
      * Returns the lower bound of the bounding box of the region along
      * the ith axis.
      */
-
     public def min(i:Int) = min()(i);
 
     /**
      * Returns the upper bound of the bounding box of the region along
      * the ith axis.
      */
-
     public def max(i:Int) = max()(i);    
 
 

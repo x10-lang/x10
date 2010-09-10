@@ -653,11 +653,14 @@ public final class Array[T](
 
 
     /**
-     * Asynchronously copy all of the values from this Array to the 
-     * backing storage of the Array referenced by the RemoteArray.
+     * Asynchronously copy all of the values from the source Array to the 
+     * Array referenced by the destination RemoteArray.
      * The two arrays must be defined over Regions with equal size 
      * bounding boxes; if the backing storage for the two arrays is 
-     * not of equal size, then an IllegalArgumentExeption will be raised.
+     * not of equal size, then an IllegalArgumentExeption will be raised.<p>
+     *
+     * The activity created to do the copying will be registered with the
+     * dynamically enclosing finish.<p>
      *
      * Warning: This method is only intended to be used on Arrays containing
      *   non-Object data elements.  The elements are actually copied via an
@@ -665,20 +668,22 @@ public final class Array[T](
      *   not be properly transferred. Ideally, future versions of the X10 type
      *   system would enable this restriction to be checked statically.</p>
      *
-     * @param dst the destination array.  May actually be local or remote
+     * @param src the source array.
+     * @param dst the destination array.
      * @throws IllegalArgumentException if mismatch in size of backing storage
-     *   of the two arrays.
+     *         of the two arrays.
      */
-    public def asyncCopyTo(dst:RemoteArray[T]) {
-	asyncCopyTo(dst, false);
+    public static def asyncCopy[T](src:Array[T], dst:RemoteArray[T]) {
+	asyncCopy(src, dst, false);
     }
 
+
     /**
-     * Asynchronously copy all of the values from this Array to the 
-     * backing storage of the Array referenced by the RemoteArray.
+     * Asynchronously copy all of the values from the source Array to the 
+     * Array referenced by the destination RemoteArray.
      * The two arrays must be defined over Regions with equal size 
      * bounding boxes; if the backing storage for the two arrays is 
-     * not of equal size, then an IllegalArgumentExeption will be raised.
+     * not of equal size, then an IllegalArgumentExeption will be raised.<p>
      *
      * Depending on the value of the uncounted parameter, the activity performing
      * the copy will either be registered with the dynamically enclosing finish or
@@ -690,23 +695,27 @@ public final class Array[T](
      *   not be properly transferred. Ideally, future versions of the X10 type
      *   system would enable this restriction to be checked statically.</p>
      *
+     * @param src the source array.
      * @param dst the destination array.  May actually be local or remote
      * @param uncounted Should the spawned activity be treated as if it were annotated @Uncounted
      * @throws IllegalArgumentException if mismatch in size of backing storage
      *   of the two arrays.
      */
-    public def asyncCopyTo(dst:RemoteArray[T], uncounted:boolean) {
-	if (rawLength != dst.rawLength) throw new IllegalArgumentException("source and destination do not have equal size");
-        raw.asyncCopyTo(0, dst.home, dst.rawData, 0, rawLength, uncounted);
+    public static def asyncCopy[T](src:Array[T], dst:RemoteArray[T], uncounted:boolean) {
+	if (src.rawLength != dst.rawLength) throw new IllegalArgumentException("source and destination do not have equal size");
+        src.raw.asyncCopyTo(0, dst.home, dst.rawData, 0, src.rawLength, uncounted);
     }
 
 
     /**
-     * Asynchronously copy all of the values from the backing storage of the
-     * Array referenced by the source RemoteArray to  this array. 
-     * The two arrays must be defined over Regions with equal size 
-     * bounding boxes; if the backing storage for the two arrays is 
-     * not of equal size, then an IllegalArgumentExeption will be raised.
+     * Asynchronously copy the specified values from the source Array to the 
+     * specified portion of the Array referenced by the destination RemoteArray.
+     * If accessing any point in either the specified source or the 
+     * specified destination range would in an ArrayIndexOutOfBoundsError
+     * being raised, then this method will throw an IllegalArgumentException.<p>
+     *
+     * The activity created to do the copying will be registered with the
+     * dynamically enclosing finish.<p>
      *
      * Warning: This method is only intended to be used on Arrays containing
      *   non-Object data elements.  The elements are actually copied via an
@@ -714,20 +723,29 @@ public final class Array[T](
      *   not be properly transferred. Ideally, future versions of the X10 type
      *   system would enable this restriction to be checked statically.</p>
      *
-     * @param src the source array.  May be local or remote
-     * @throws IllegalArgumentException if mismatch in size of backing storage
-     *   of the two arrays.
+     * @param src the source array.
+     * @param srcPoint the first element in this array to be copied.  
+     * @param dst the destination array.  May actually be local or remote
+     * @param dstPoint the first element in the destination
+     *                 array where copied data elements will be stored.
+     * @param numElems the number of elements to be copied.
+     *
+     * @throws IllegalArgumentException if the specified copy regions would 
+     *         result in an ArrayIndexOutOfBoundsException.
      */
-    public def asyncCopyFrom(src:RemoteArray[T]) {
-        asyncCopyFrom(src, false);
+    public static def asyncCopy[T](src:Array[T], srcPoint:Point, 
+                                   dst:RemoteArray[T], dstPoint:Point, 
+	                           numElems:int) {
+	asyncCopy(src, srcPoint, dst, dstPoint, numElems, false);
     }
+	
 
     /**
-     * Asynchronously copy all of the values from the backing storage of the
-     * Array referenced by the source RemoteArray to  this array. 
-     * The two arrays must be defined over Regions with equal size 
-     * bounding boxes; if the backing storage for the two arrays is 
-     * not of equal size, then an IllegalArgumentExeption will be raised.
+     * Asynchronously copy the specified values from the source Array to the 
+     * specified portion of the Array referenced by the destination RemoteArray.
+     * If accessing any point in either the specified source or the 
+     * specified destination range would in an ArrayIndexOutOfBoundsError
+     * being raised, then this method will throw an IllegalArgumentException.<p>
      *
      * Depending on the value of the uncounted parameter, the activity performing
      * the copy will either be registered with the dynamically enclosing finish or
@@ -739,14 +757,414 @@ public final class Array[T](
      *   not be properly transferred. Ideally, future versions of the X10 type
      *   system would enable this restriction to be checked statically.</p>
      *
-     * @param src the source array.  May be local or remote
+     * @param src the source array.
+     * @param srcPoint the first element in this array to be copied.  
+     * @param dst the destination array.  May actually be local or remote
+     * @param dstPoint the first element in the destination
+     *                 array where copied data elements will be stored.
+     * @param numElems the number of elements to be copied.
      * @param uncounted Should the spawned activity be treated as if it were annotated @Uncounted
-     * @throws IllegalArgumentException if !region.equals(dst.region)
+     *
+     * @throws IllegalArgumentException if the specified copy regions would 
+     *         result in an ArrayIndexOutOfBoundsException.
      */
-    public def asyncCopyFrom(src:RemoteArray[T], uncounted:boolean) {
-	if (rawLength != src.rawLength) throw new IllegalArgumentException("source and destination do not have equal size");
-	raw.asyncCopyFrom(0, src.home, src.rawData, 0, rawLength, uncounted);
+    public static def asyncCopy[T](src:Array[T], srcPoint:Point, 
+                                   dst:RemoteArray[T], dstPoint:Point, 
+	                           numElems:int, uncounted:boolean) {
+        val gra = dst.array;
+	val dstIndex = at (gra) gra().region.indexOf(dstPoint);
+	asyncCopy(src, src.region.indexOf(srcPoint), dst, dstIndex, numElems, uncounted);
     }
+	
+
+    /**
+     * Asynchronously copy the specified values from the source Array to the 
+     * specified portion of the Array referenced by the destination RemoteArray.
+     * The index arguments that are used to specify the start of the source
+     * and destination regions are interpreted as of they were the result
+     * of calling @link{Region@indexOf} on the Point that specifies the
+     * start of the copy region.  Note that for Arrays that have the 
+     * <code>rail</code> property, this exactly corresponds to the index
+     * that would be used to access the element via apply or set.
+     * If accessing any point in either the specified source or the 
+     * specified destination range would in an ArrayIndexOutOfBoundsError
+     * being raised, then this method will throw an IllegalArgumentException.<p>
+     *
+     * The activity created to do the copying will be registered with the
+     * dynamically enclosing finish.<p>
+     *
+     * Warning: This method is only intended to be used on Arrays containing
+     *   non-Object data elements.  The elements are actually copied via an
+     *   optimized DMA operation if available.  Therefore object-references will
+     *   not be properly transferred. Ideally, future versions of the X10 type
+     *   system would enable this restriction to be checked statically.</p>
+     *
+     * @param src the source array.
+     * @param srcIndex the index of the first element in this array
+     *        to be copied.  
+     * @param dst the destination array.  May actually be local or remote
+     * @param dstIndex the index of the first element in the destination
+     *        array where copied data elements will be stored.
+     * @param numElems the number of elements to be copied.
+     *
+     * @see Region#indexOf
+     *
+     * @throws IllegalArgumentException if the specified copy regions would 
+     *         result in an ArrayIndexOutOfBoundsException.
+     */
+    public static def asyncCopy[T](src:Array[T], srcIndex:int, 
+                                   dst:RemoteArray[T], dstIndex:int, 
+                                   numElems:int) {
+	asyncCopy(src, srcIndex, dst, dstIndex, numElems, false);
+    }
+
+
+    /**
+     * Asynchronously copy the specified values from the source Array to the 
+     * specified portion of the Array referenced by the destination RemoteArray.
+     * The index arguments that are used to specify the start of the source
+     * and destination regions are interpreted as of they were the result
+     * of calling @link{Region@indexOf} on the Point that specifies the
+     * start of the copy region.  Note that for Arrays that have the 
+     * <code>rail</code> property, this exactly corresponds to the index
+     * that would be used to access the element via apply or set.
+     * If accessing any point in either the specified source or the 
+     * specified destination range would in an ArrayIndexOutOfBoundsError
+     * being raised, then this method will throw an IllegalArgumentException.<p>
+     *
+     * Depending on the value of the uncounted parameter, the activity performing
+     * the copy will either be registered with the dynamically enclosing finish or
+     * treated as if it was annotated with @Uncounted (not registered with any finish).</p>
+     *
+     * Warning: This method is only intended to be used on Arrays containing
+     *   non-Object data elements.  The elements are actually copied via an
+     *   optimized DMA operation if available.  Therefore object-references will
+     *   not be properly transferred. Ideally, future versions of the X10 type
+     *   system would enable this restriction to be checked statically.</p>
+     *
+     * @param src the source array.
+     * @param srcIndex the index of the first element in this array
+     *        to be copied.  
+     * @param dst the destination array.  May actually be local or remote
+     * @param dstIndex the index of the first element in the destination
+     *        array where copied data elements will be stored.
+     * @param numElems the number of elements to be copied.
+     * @param uncounted Should the spawned activity be treated as if it were annotated @Uncounted
+     *
+     * @see Region#indexOf
+     *
+     * @throws IllegalArgumentException if the specified copy regions would 
+     *         result in an ArrayIndexOutOfBoundsException.
+     */
+    public static def asyncCopy[T](src:Array[T], srcIndex:int, 
+                                   dst:RemoteArray[T], dstIndex:int, 
+                                   numElems:int, uncounted:boolean) {
+	if (srcIndex < 0 || ((srcIndex+numElems) > src.rawLength)) {
+	    throw new IllegalArgumentException("Specified range is beyond bounds of source array");
+        }
+	if (dstIndex < 0 || ((dstIndex+numElems) > dst.rawLength)) {
+	    throw new IllegalArgumentException("Specified range is beyond bounds of destination array");
+        }
+        src.raw.asyncCopyTo(srcIndex, dst.home, dst.rawData, dstIndex, numElems, uncounted);
+    }
+
+
+    /**
+     * Asynchronously copy all of the values from the source Array 
+     * referenced by the RemoteArray to the destination Array.
+     * The two arrays must be defined over Regions with equal size 
+     * bounding boxes; if the backing storage for the two arrays is 
+     * not of equal size, then an IllegalArgumentExeption will be raised.<p>
+     *
+     * The activity created to do the copying will be registered with the
+     * dynamically enclosing finish.<p>
+     *
+     * Warning: This method is only intended to be used on Arrays containing
+     *   non-Object data elements.  The elements are actually copied via an
+     *   optimized DMA operation if available.  Therefore object-references will
+     *   not be properly transferred. Ideally, future versions of the X10 type
+     *   system would enable this restriction to be checked statically.</p>
+     *
+     * @param src the source array.
+     * @param dst the destination array.
+     * @throws IllegalArgumentException if mismatch in size of backing storage
+     *         of the two arrays.
+     */
+    public static def asyncCopy[T](src:RemoteArray[T], dst:Array[T]) {
+	asyncCopy(src, dst, false);
+    }
+
+
+    /**
+     * Asynchronously copy all of the values from the source Array 
+     * referenced by the RemoteArray to the destination Array.
+     * The two arrays must be defined over Regions with equal size 
+     * bounding boxes; if the backing storage for the two arrays is 
+     * not of equal size, then an IllegalArgumentExeption will be raised.<p>
+     *
+     * Depending on the value of the uncounted parameter, the activity performing
+     * the copy will either be registered with the dynamically enclosing finish or
+     * treated as if it was annotated with @Uncounted (not registered with any finish).</p>
+     *
+     * Warning: This method is only intended to be used on Arrays containing
+     *   non-Object data elements.  The elements are actually copied via an
+     *   optimized DMA operation if available.  Therefore object-references will
+     *   not be properly transferred. Ideally, future versions of the X10 type
+     *   system would enable this restriction to be checked statically.</p>
+     *
+     * @param src the source array.
+     * @param dst the destination array.  May actually be local or remote
+     * @param uncounted Should the spawned activity be treated as if it were annotated @Uncounted
+     * @throws IllegalArgumentException if mismatch in size of backing storage
+     *   of the two arrays.
+     */
+    public static def asyncCopy[T](src:RemoteArray[T], dst:Array[T], uncounted:boolean) {
+	if (src.rawLength != dst.rawLength) throw new IllegalArgumentException("source and destination do not have equal size");
+        dst.raw.asyncCopyFrom(0, src.home, src.rawData, 0, dst.rawLength, uncounted);
+    }
+
+
+    /**
+     * Asynchronously copy the specified values from the Array referenced by
+     * the source RemoteArray to the specified portion of the destination Array.
+     * If accessing any point in either the specified source or the 
+     * specified destination range would in an ArrayIndexOutOfBoundsError
+     * being raised, then this method will throw an IllegalArgumentException.<p>
+     *
+     * The activity created to do the copying will be registered with the
+     * dynamically enclosing finish.<p>
+     *
+     * Warning: This method is only intended to be used on Arrays containing
+     *   non-Object data elements.  The elements are actually copied via an
+     *   optimized DMA operation if available.  Therefore object-references will
+     *   not be properly transferred. Ideally, future versions of the X10 type
+     *   system would enable this restriction to be checked statically.</p>
+     *
+     * @param src the source array.
+     * @param srcPoint the first element in this array to be copied.  
+     * @param dst the destination array.  May actually be local or remote
+     * @param dstPoint the first element in the destination
+     *                 array where copied data elements will be stored.
+     * @param numElems the number of elements to be copied.
+     *
+     * @throws IllegalArgumentException if the specified copy regions would 
+     *         result in an ArrayIndexOutOfBoundsException.
+     */
+    public static def asyncCopy[T](src:RemoteArray[T], srcPoint:Point, 
+                                   dst:Array[T], dstPoint:Point, 
+	                           numElems:int) {
+	asyncCopy(src, srcPoint, dst, dstPoint, numElems, false);
+    }
+	
+
+    /**
+     * Asynchronously copy the specified values from the Array referenced by
+     * the source RemoteArray to the specified portion of the destination Array.
+     * If accessing any point in either the specified source or the 
+     * specified destination range would in an ArrayIndexOutOfBoundsError
+     * being raised, then this method will throw an IllegalArgumentException.<p>
+     *
+     * Depending on the value of the uncounted parameter, the activity performing
+     * the copy will either be registered with the dynamically enclosing finish or
+     * treated as if it was annotated with @Uncounted (not registered with any finish).</p>
+     *
+     * Warning: This method is only intended to be used on Arrays containing
+     *   non-Object data elements.  The elements are actually copied via an
+     *   optimized DMA operation if available.  Therefore object-references will
+     *   not be properly transferred. Ideally, future versions of the X10 type
+     *   system would enable this restriction to be checked statically.</p>
+     *
+     * @param src the source array.
+     * @param srcPoint the first element in this array to be copied.  
+     * @param dst the destination array.  May actually be local or remote
+     * @param dstPoint the first element in the destination
+     *                 array where copied data elements will be stored.
+     * @param numElems the number of elements to be copied.
+     * @param uncounted Should the spawned activity be treated as if it were annotated @Uncounted
+     *
+     * @throws IllegalArgumentException if the specified copy regions would 
+     *         result in an ArrayIndexOutOfBoundsException.
+     */
+    public static def asyncCopy[T](src:RemoteArray[T], srcPoint:Point, 
+                                   dst:Array[T], dstPoint:Point, 
+	                           numElems:int, uncounted:boolean) {
+        val gra = src.array;
+	val srcIndex = at (gra) gra().region.indexOf(srcPoint);
+	asyncCopy(src, srcIndex, dst, dst.region.indexOf(dstPoint), numElems, uncounted);
+    }
+	
+
+    /**
+     * Asynchronously copy the specified values from the Array referenced by
+     * the source RemoteArray to the specified portion of the destination Array.
+     * The index arguments that are used to specify the start of the source
+     * and destination regions are interpreted as of they were the result
+     * of calling @link{Region@indexOf} on the Point that specifies the
+     * start of the copy region.  Note that for Arrays that have the 
+     * <code>rail</code> property, this exactly corresponds to the index
+     * that would be used to access the element via apply or set.
+     * If accessing any point in either the specified source or the 
+     * specified destination range would in an ArrayIndexOutOfBoundsError
+     * being raised, then this method will throw an IllegalArgumentException.<p>
+     *
+     * The activity created to do the copying will be registered with the
+     * dynamically enclosing finish.<p>
+     *
+     * Warning: This method is only intended to be used on Arrays containing
+     *   non-Object data elements.  The elements are actually copied via an
+     *   optimized DMA operation if available.  Therefore object-references will
+     *   not be properly transferred. Ideally, future versions of the X10 type
+     *   system would enable this restriction to be checked statically.</p>
+     *
+     * @param src the source array.
+     * @param srcIndex the index of the first element in this array
+     *        to be copied.  
+     * @param dst the destination array.  May actually be local or remote
+     * @param dstIndex the index of the first element in the destination
+     *        array where copied data elements will be stored.
+     * @param numElems the number of elements to be copied.
+     *
+     * @see Region#indexOf
+     *
+     * @throws IllegalArgumentException if the specified copy regions would 
+     *         result in an ArrayIndexOutOfBoundsException.
+     */
+    public static def asyncCopy[T](src:RemoteArray[T], srcIndex:int, 
+                                   dst:Array[T], dstIndex:int, 
+                                   numElems:int) {
+	asyncCopy(src, srcIndex, dst, dstIndex, numElems, false);
+    }
+
+
+    /**
+     * Asynchronously copy the specified values from the Array referenced by
+     * the source RemoteArray to the specified portion of the destination Array.
+     * The index arguments that are used to specify the start of the source
+     * and destination regions are interpreted as of they were the result
+     * of calling @link{Region@indexOf} on the Point that specifies the
+     * start of the copy region.  Note that for Arrays that have the 
+     * <code>rail</code> property, this exactly corresponds to the index
+     * that would be used to access the element via apply or set.
+     * If accessing any point in either the specified source or the 
+     * specified destination range would in an ArrayIndexOutOfBoundsError
+     * being raised, then this method will throw an IllegalArgumentException.<p>
+     *
+     * Depending on the value of the uncounted parameter, the activity performing
+     * the copy will either be registered with the dynamically enclosing finish or
+     * treated as if it was annotated with @Uncounted (not registered with any finish).</p>
+     *
+     * Warning: This method is only intended to be used on Arrays containing
+     *   non-Object data elements.  The elements are actually copied via an
+     *   optimized DMA operation if available.  Therefore object-references will
+     *   not be properly transferred. Ideally, future versions of the X10 type
+     *   system would enable this restriction to be checked statically.</p>
+     *
+     * @param src the source array.
+     * @param srcIndex the index of the first element in this array
+     *        to be copied.  
+     * @param dst the destination array.  May actually be local or remote
+     * @param dstIndex the index of the first element in the destination
+     *        array where copied data elements will be stored.
+     * @param numElems the number of elements to be copied.
+     * @param uncounted Should the spawned activity be treated as if it were annotated @Uncounted
+     *
+     * @see Region#indexOf
+     *
+     * @throws IllegalArgumentException if the specified copy regions would 
+     *         result in an ArrayIndexOutOfBoundsException.
+     */
+    public static def asyncCopy[T](src:RemoteArray[T], srcIndex:int, 
+                                   dst:Array[T], dstIndex:int, 
+                                   numElems:int, uncounted:boolean) {
+	if (srcIndex < 0 || ((srcIndex+numElems) > src.rawLength)) {
+	    throw new IllegalArgumentException("Specified range is beyond bounds of source array");
+        }
+	if (dstIndex < 0 || ((dstIndex+numElems) > dst.rawLength)) {
+	    throw new IllegalArgumentException("Specified range is beyond bounds of destination array");
+        }
+        dst.raw.asyncCopyFrom(dstIndex, src.home, src.rawData, srcIndex, numElems, uncounted);
+    }
+
+
+    /**
+     * Copy all of the values from the source Array to the destination Array.
+     * The two arrays must be defined over Regions with equal size 
+     * bounding boxes; if the backing storage for the two arrays is 
+     * not of equal size, then an IllegalArgumentExeption will be raised.<p>
+     *
+     * @param src the source array.
+     * @param dst the destination array.
+     * @throws IllegalArgumentException if mismatch in size of backing storage
+     *         of the two arrays.
+     */
+    public static def copy[T](src:Array[T], dst:Array[T]) {
+	if (src.rawLength != dst.rawLength) throw new IllegalArgumentException("source and destination do not have equal size");
+        src.raw.asyncCopyTo(0, here, dst.raw, 0, src.rawLength, false);
+    }
+
+
+    /**
+     * Copy the specified values from the source Array to the 
+     * specified portion of the destination Array.
+     * If accessing any point in either the specified source or the 
+     * specified destination range would in an ArrayIndexOutOfBoundsError
+     * being raised, then this method will throw an IllegalArgumentException.<p>
+     *
+     * @param src the source array.
+     * @param srcPoint the first element in this array to be copied.  
+     * @param dst the destination array.  May actually be local or remote
+     * @param dstPoint the first element in the destination
+     *                 array where copied data elements will be stored.
+     * @param numElems the number of elements to be copied.
+     *
+     * @throws IllegalArgumentException if the specified copy regions would 
+     *         result in an ArrayIndexOutOfBoundsException.
+     */
+    public static def copy[T](src:Array[T], srcPoint:Point, 
+                              dst:Array[T], dstPoint:Point, 
+                              numElems:int) {
+	copy(src, src.region.indexOf(srcPoint), dst, dst.region.indexOf(dstPoint), numElems);
+    }
+	
+
+    /**
+     * Copy the specified values from the source Array to the 
+     * specified portion of the destination Array.
+     * The index arguments that are used to specify the start of the source
+     * and destination regions are interpreted as of they were the result
+     * of calling @link{Region@indexOf} on the Point that specifies the
+     * start of the copy region.  Note that for Arrays that have the 
+     * <code>rail</code> property, this exactly corresponds to the index
+     * that would be used to access the element via apply or set.
+     * If accessing any point in either the specified source or the 
+     * specified destination range would in an ArrayIndexOutOfBoundsError
+     * being raised, then this method will throw an IllegalArgumentException.<p>
+     *
+     * @param src the source array.
+     * @param srcIndex the index of the first element in this array
+     *        to be copied.  
+     * @param dst the destination array.  May actually be local or remote
+     * @param dstIndex the index of the first element in the destination
+     *        array where copied data elements will be stored.
+     * @param numElems the number of elements to be copied.
+     *
+     * @see Region#indexOf
+     *
+     * @throws IllegalArgumentException if the specified copy regions would 
+     *         result in an ArrayIndexOutOfBoundsException.
+     */
+    public static def copy[T](src:Array[T], srcIndex:int, 
+                              dst:Array[T], dstIndex:int, 
+                              numElems:int) {
+	if (srcIndex < 0 || ((srcIndex+numElems) > src.rawLength)) {
+	    throw new IllegalArgumentException("Specified range is beyond bounds of source array");
+        }
+	if (dstIndex < 0 || ((dstIndex+numElems) > dst.rawLength)) {
+	    throw new IllegalArgumentException("Specified range is beyond bounds of destination array");
+        }
+        src.raw.asyncCopyTo(srcIndex, here, dst.raw, dstIndex, numElems, false);
+    }
+
 
     private static @NoInline @NoReturn def raiseBoundsError(i0:int) {
         throw new ArrayIndexOutOfBoundsException("point (" + i0 + ") not contained in array");
