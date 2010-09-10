@@ -9,13 +9,10 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-//LIMITATION:
-//This test case will not meet expectations. It is a limitation of the current release.
-
 import harness.x10Test;
 
 /**
- * In an earlier implementation this would give a t0 not reachable error.
+ * 
  */
 public class FlattenPlaceCast extends x10Test {
 
@@ -32,19 +29,10 @@ public class FlattenPlaceCast extends x10Test {
     };
 
     public def run():boolean  = {
+	chk(Place.MAX_PLACES >= 2, "This test must be run with at least two places");
         val d1next = d(1).next();
-        /*
-        Original code: 
-        val x =  (a(1,1) as Test{self.home == d1next}) ;
-        return true;
-        Bard's reaction: 
-        WTF? a(1,1) is defined to be here, 
-          so it's probably not going to be at here.next(), 
-          so this cast should fail, shouldn't it?
-        */
-        val d1 = d(1);
         val x = a(1,1);
-        return !(x instanceof Test{x.root.home == d1}) && (x instanceof Test{x.root.home == here});
+        return !(x instanceof Test{x.root.home == d1next}) && (x instanceof Test{x.root.home == here});
     }
 
     public static def main(Rail[String]) {
