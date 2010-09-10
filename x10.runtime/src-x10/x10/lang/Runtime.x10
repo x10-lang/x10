@@ -669,7 +669,8 @@ import x10.util.Box;
             } else {
             	sr.placeMerge();
                 val path = pathCompute(r);
-                while(step  < path.first) {Console.OUT.println("step is "+step+ " home is"+r.home().id);}
+                //Fixme : Here should use await().
+                while (step <path.first) {};
                 lock.lock();
                 val m = ValRail.make(counts);
                 for (var i:Int=0; i<Place.MAX_PLACES; i++) counts(i) = 0;
@@ -723,9 +724,8 @@ import x10.util.Box;
             } else {
             	sr.placeMerge();
                 val path = pathCompute(r);
-                while(step  < path.first) {
-                    //Console.OUT.println("step is "+step+ " home is"+r.home().id);
-                }
+                //FIXME here should use await(). 
+                while(step < path.first){};
                 lock.lock();
                 val m = ValRail.make[Pair[Int,Int]](length, (i:Int)=>Pair[Int,Int](message(i), counts(message(i))));
                 for (var i:Int=0; i<Place.MAX_PLACES; i++) counts(i) = 0;
@@ -796,7 +796,8 @@ import x10.util.Box;
             release();
             lock.unlock();
          }
-
+        // Pair[Int,Int] the first one is how many steps need to wait
+        // the second one is where to run this notify
         def pathCompute(r:FinishState):Pair[Int,Int] {
             val max = Place.MAX_PLACES;
             val id  = here.id;
