@@ -682,7 +682,7 @@ public class ArrayIndexing extends x10Test {
 	}
 
 	static class Generic {
-		public global val value: int;
+		public val value: int;
                 def this(x:int) { value = x; }
 	}
 }
