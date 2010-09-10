@@ -35,6 +35,8 @@ public class KMeansDist {
             return at (points_dist(p)) points(p);
         });
 
+	val old_central_clusters = Rail.make[Float](CLUSTERS*DIM);
+
         val central_cluster_counts = Rail.make[Int](CLUSTERS, (i:Int) => 0);
 
         for (i in 1..ITERATIONS) {
@@ -85,6 +87,7 @@ public class KMeansDist {
             }
 
             for (var j:Int=0 ; j<DIM*CLUSTERS ; ++j) {
+	        old_central_clusters(j) = central_clusters(j);
                 central_clusters(j) = 0;
             }
 
@@ -95,7 +98,7 @@ public class KMeansDist {
             finish {
                 for (d in points_dist.places()) async(d) {
                
-                    at (central_clusters) atomic {
+                    at (Place.FIRST_PLACE) atomic {
                         for (var j:Int=0 ; j<DIM*CLUSTERS ; ++j) {
                             central_clusters(j) += local_new_clusters()(j);
                         }
@@ -115,7 +118,7 @@ public class KMeansDist {
             // TEST FOR CONVERGENCE
             var b:Boolean = true;
             for (var j:Int=0 ; j<CLUSTERS*DIM ; ++j) { 
-                if (Math.abs(central_clusters_copy(j)-central_clusters(j))>0.0001) {
+                if (Math.abs(old_central_clusters(j)-central_clusters(j))>0.0001) {
                     b = false;
                     break;
                 }
