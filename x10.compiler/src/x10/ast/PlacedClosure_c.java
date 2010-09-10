@@ -23,6 +23,7 @@ import polyglot.ast.TypeNode;
 import polyglot.types.Context;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.AscriptionVisitor;
 import polyglot.visit.CFGBuilder;
@@ -31,10 +32,14 @@ import polyglot.visit.NodeVisitor;
 import polyglot.visit.PruningVisitor;
 import polyglot.visit.TypeChecker;
 
+import x10.constraint.XFailure;
+import x10.constraint.XTerm;
+import x10.errors.Errors;
 import x10.types.ClosureDef;
 import x10.types.X10Context;
 import x10.types.X10TypeSystem;
 import x10.types.checker.PlaceChecker;
+import x10.types.constraints.CConstraint;
 import x10.types.constraints.XConstrainedTerm;
 
 /**
@@ -84,7 +89,7 @@ public class PlacedClosure_c extends Closure_c implements PlacedClosure {
     }
     
   @Override
-    public Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException {
+    public Node typeCheckOverride(Node parent, ContextVisitor tc) {
     	
     	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
     	NodeVisitor v = tc.enter(parent, this);
@@ -95,7 +100,19 @@ public class PlacedClosure_c extends Closure_c implements PlacedClosure {
     	ClosureDef def = (ClosureDef) this.codeDef();
     	if (def.placeTerm() == null) {
     		Expr e = (Expr) visitChild(place, v);
-        	def.setPlaceTerm(PlaceChecker.computePlaceTerm(e, (X10Context) tc.context(), ts));
+    		XConstrainedTerm placeTerm = null;
+    		try {
+    		    placeTerm = PlaceChecker.computePlaceTerm(e, (X10Context) tc.context(), ts);
+    		} catch (SemanticException se) {
+    		    CConstraint d = new CConstraint();
+    		    XTerm term = PlaceChecker.makePlace();
+    		    try {
+    		        placeTerm = XConstrainedTerm.instantiate(d, term);
+    		    } catch (XFailure z) {
+    		        throw new InternalCompilerError("Cannot construct placeTerm from term  and constraint.");
+    		    }
+    		}
+    		def.setPlaceTerm(placeTerm);
     	}
     	// now that placeTerm is set in this node, continue visiting children
     	// enterScope will ensure that placeTerm is installed in the context.
@@ -104,10 +121,11 @@ public class PlacedClosure_c extends Closure_c implements PlacedClosure {
     }
     
 
-    public Node typeCheck(ContextVisitor tc) throws SemanticException {
+    public Node typeCheck(ContextVisitor tc) {
     	X10Context xc = (X10Context) tc.context();
     	if (xc.inSequentialCode())
-			throw new SemanticException("at may not be invoked in sequential code.", position());
+			Errors.issue(tc.job(),
+			        new SemanticException("at may not be invoked in sequential code.", position()));
     	Node n = super.typeCheck(tc);
     	return n;
     }

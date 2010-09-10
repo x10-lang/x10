@@ -399,7 +399,7 @@ public class Closure_c extends Expr_c implements Closure {
 	}
 
 	@Override
-	public Node typeCheck(ContextVisitor tc) throws SemanticException {
+	public Node typeCheck(ContextVisitor tc) {
 		X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
 
 		Context c = tc.context();
@@ -408,10 +408,10 @@ public class Closure_c extends Expr_c implements Closure {
 		for (Iterator<TypeNode> i = throwTypes().iterator(); i.hasNext(); ) {
 			TypeNode tn = (TypeNode) i.next();
 			Type t = tn.type();
-			if (! t.isThrowable()) {
-				throw new SemanticException("Type \"" + t +
-						"\" is not a subclass of \"" + xts.Throwable() + "\".",
-						tn.position());
+			if (!t.isThrowable()) {
+				Errors.issue(tc.job(),
+				        new SemanticException("Type \"" + t + "\" is not a subclass of \"" +
+				                xts.Throwable() + "\".", tn.position()));
 			}
 		}
 		if (guard != null) {
@@ -419,7 +419,7 @@ public class Closure_c extends Expr_c implements Closure {
 			ac = (VarChecker) ac.context(tc.context());
 			guard.visit(ac);
 			if (ac.error != null) {
-				throw ac.error;
+				Errors.issue(tc.job(), ac.error, this);
 			}
 		}
 
@@ -445,8 +445,8 @@ public class Closure_c extends Expr_c implements Closure {
 			final TypeNode h = (TypeNode) n.visitChild(n.hasType, tc);
 			Type hasType = PlaceChecker.ReplaceHereByPlaceTerm(h.type(), ( X10Context ) tc.context());
 			n =  n.hasType(h);
-			if (! xts.isSubtype(n.returnType().type(), hasType, tc.context())) {
-				throw new Errors.TypeIsNotASubtypeOfTypeBound(type, hasType, position());
+			if (!xts.isSubtype(n.returnType().type(), hasType, tc.context())) {
+				Errors.issue(tc.job(), new Errors.TypeIsNotASubtypeOfTypeBound(type, hasType, position()));
 			}
 		}
 		return n;

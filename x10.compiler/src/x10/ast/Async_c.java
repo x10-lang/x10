@@ -32,6 +32,7 @@ import polyglot.types.VarDef_c;
 import polyglot.types.VarDef;
 import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.AscriptionVisitor;
 import polyglot.visit.CFGBuilder;
@@ -44,10 +45,12 @@ import x10.constraint.XConstraint;
 import x10.constraint.XFailure;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
+import x10.errors.Errors;
 import x10.types.X10Context;
 import x10.types.X10MethodDef;
 import x10.types.X10TypeSystem;
 import x10.types.checker.PlaceChecker;
+import x10.types.constraints.CConstraint;
 import x10.types.constraints.XConstrainedTerm;
 
 /**
@@ -149,25 +152,36 @@ public class Async_c extends Stmt_c implements Async {
 
 	XConstrainedTerm placeTerm;
 	
-	 @Override
-	    public Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException {
-	    	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-	    	NodeVisitor v = tc.enter(parent, this);
-	    	
-	    	if (v instanceof PruningVisitor) {
-	    		return this;
-	    	}
+	@Override
+	public Node typeCheckOverride(Node parent, ContextVisitor tc) {
+	    X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+	    NodeVisitor v = tc.enter(parent, this);
 
-	    	if (placeTerm == null) {
-	    		placeTerm = PlaceChecker.computePlaceTerm((Expr) visitChild(this.place, v),
-	    				 (X10Context) tc.context(),ts);
-	    	}
-	    	
-	    	// now that placeTerm is set in this node, continue visiting children
-	    	// enterScope will ensure that placeTerm is installed in the context.
-	    	
-	    	return null;
+	    if (v instanceof PruningVisitor) {
+	        return this;
 	    }
+
+	    if (placeTerm == null) {
+	        try {
+	            placeTerm = PlaceChecker.computePlaceTerm((Expr) visitChild(this.place, v),
+	                    (X10Context) tc.context(), ts);
+	        } catch (SemanticException e) {
+	            CConstraint d = new CConstraint();
+	            XTerm term = PlaceChecker.makePlace();
+	            try {
+	                placeTerm = XConstrainedTerm.instantiate(d, term);
+	            } catch (XFailure z) {
+	                throw new InternalCompilerError("Cannot construct placeTerm from term  and constraint.");
+	            }
+	        }
+	    }
+
+	    // now that placeTerm is set in this node, continue visiting children
+	    // enterScope will ensure that placeTerm is installed in the context.
+
+	    return null;
+	}
+
 	/**
 	 * The evaluation of place and list of clocks is not in the scope of the async.
 	 */
@@ -195,7 +209,7 @@ public class Async_c extends Stmt_c implements Async {
 	    return xc;
 	}
 
-	public Node typeCheck(ContextVisitor tc) throws SemanticException {
+	public Node typeCheck(ContextVisitor tc) {
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 		X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
 
@@ -215,14 +229,15 @@ public class Async_c extends Stmt_c implements Async {
 		*/
 		X10Context c = (X10Context) tc.context();
 		if (c.inSequentialCode())
-			throw new SemanticException("async may not be invoked in sequential code.", position());
+			Errors.issue(tc.job(),
+			        new SemanticException("async may not be invoked in sequential code.", position()));
 			
         for (Iterator i = clocks().iterator(); i.hasNext(); ) {
             Expr tn = (Expr) i.next();
             Type t = tn.type();
             if (! t.isSubtype(ts.Clock(), tc.context())) {
-                throw new SemanticException("Type \"" + t + "\" must be x10.lang.clock.",
-                    tn.position());
+                Errors.issue(tc.job(),
+                        new SemanticException("Type \"" + t + "\" must be x10.lang.clock.", tn.position()));
             }
         }
 

@@ -45,12 +45,14 @@ import x10.constraint.XConstraint;
 import x10.constraint.XFailure;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
+import x10.errors.Errors;
 import x10.types.ClosureDef;
 import x10.types.X10Context;
 import x10.types.X10MethodDef;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.checker.PlaceChecker;
+import x10.types.constraints.CConstraint;
 import x10.types.constraints.XConstrainedTerm;
 
 /**
@@ -123,7 +125,7 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
     XConstrainedTerm placeTerm;
   
     @Override
-    public Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException {
+    public Node typeCheckOverride(Node parent, ContextVisitor tc) {
     	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
     	NodeVisitor v = tc.enter(parent, this);
     	
@@ -131,10 +133,20 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
     		return this;
     	}
 
-    	if (placeTerm == null) {
-    		placeTerm = PlaceChecker.computePlaceTerm((Expr) visitChild(this.place, v),
-    				 (X10Context) tc.context(),ts);
-    	}
+        if (placeTerm == null) {
+            try {
+                placeTerm = PlaceChecker.computePlaceTerm((Expr) visitChild(this.place, v),
+                        (X10Context) tc.context(), ts);
+            } catch (SemanticException e) {
+                CConstraint d = new CConstraint();
+                XTerm term = PlaceChecker.makePlace();
+                try {
+                    placeTerm = XConstrainedTerm.instantiate(d, term);
+                } catch (XFailure z) {
+                    throw new InternalCompilerError("Cannot construct placeTerm from term  and constraint.");
+                }
+            }
+        }
     	
     	// now that placeTerm is set in this node, continue visiting children
     	// enterScope will ensure that placeTerm is installed in the context.
@@ -184,14 +196,15 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
 		return c;
 	}
 
-	public Node typeCheck(ContextVisitor tc) throws SemanticException {
+	public Node typeCheck(ContextVisitor tc) {
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 		X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
 		X10Context c = (X10Context) tc.context();
 		if (c.inSequentialCode())
-			throw new SemanticException("at may not be invoked in sequential code.", position());
+			Errors.issue(tc.job(),
+			        new SemanticException("at may not be invoked in sequential code.", position()));
 
-		return  super.typeCheck(tc);
+		return this;
 	}
 
 
