@@ -9,8 +9,6 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-//LIMITATION:
-//This test case will not meet expectations. It is a limitation of the current release.
 /*
  *
  * (C) Copyright IBM Corporation 2006
@@ -40,9 +38,7 @@ public class AtomicNonLocal_MustFailCompile extends x10Test {
 		A(0) += 1;
 
 		finish async  { A(1) += 1; }
-		// this should ideally give a compile-time error.
-		// wont until the compiler performs place checks on array accesses.
-		atomic { A(1) += 1; } 
+		atomic { at(A(1)) { A(1) += 1; }; } 
 		return true;
 	}
 
