@@ -23,14 +23,14 @@ public class TrivialTest{
   	//t13();
   	//t14();
   	//t15();
-  	// fail!t16();
-  	// fail!t17();
-  	// fail!t18();
-  	// fail!t19();
+    //t16();
+  	//t17();
+  	//t18();
+  	//t19();
   	//t20();
   	//t21();
   	//t22();
-        t23();
+    //t23();
   }
   
   public static def t1(){
@@ -47,14 +47,14 @@ public class TrivialTest{
   	f2();
   	at(here){
   		finish{
-        		at(here){
+        	at(here){
   				async{}
   			}
-        	}
+        }
   		async{}
-        	at(here){
-        		async{}
-        	}
+        at(here){
+        	async{}
+        }
   	}	
   }
   
@@ -222,8 +222,9 @@ public class TrivialTest{
   			at(here){
   				async{}
   			}
+            at(here){}
   			async{}
-  			at(here){}
+  			
   		}
   	}
   }
