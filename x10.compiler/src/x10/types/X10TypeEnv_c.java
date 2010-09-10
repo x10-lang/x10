@@ -673,7 +673,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     boolean isSubtype(XVar x, Type t1, Type t2) {
     	assert t1 != null;
     	assert t2 != null;
-    	if (ts.isUnknown(t1) || ts.isUnknown(t2)) return true;
+    	if (ts.hasUnknown(t1) || ts.hasUnknown(t2)) return true;
         
     	t1 = ts.expandMacros(t1);
     	t2 = ts.expandMacros(t2);
@@ -1152,6 +1152,9 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             return false;
 
         if (ts.isParameterType(baseType1) || ts.isParameterType(baseType2))
+            return true;
+
+        if (ts.hasUnknown(baseType1) || ts.hasUnknown(baseType2))
             return true;
 
         return super.isCastValid(baseType1, baseType2);

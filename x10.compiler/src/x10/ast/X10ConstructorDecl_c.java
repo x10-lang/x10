@@ -234,9 +234,6 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
                 }
             }
 
-            if (isParam)
-                c = c.pushStatic(); // the formal parameters are in a static context.
-
             for (TypeParamNode f : typeParameters) {
                 f.addDecls(c);
             }

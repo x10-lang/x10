@@ -81,14 +81,19 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.TypeBuilder;
 import x10.ast.X10NodeFactory;
 import x10.ast.X10NodeFactory_c;
+import x10.constraint.XEQV;
 import x10.constraint.XFailure;
+import x10.constraint.XField;
+import x10.constraint.XFormula;
 import x10.constraint.XLit;
+import x10.constraint.XLocal;
 import x10.constraint.XName;
 import x10.constraint.XNameWrapper;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.parser.X10ParsedName;
+import x10.types.XTypeTranslator.XTypeLit_c;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
@@ -667,6 +672,48 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
             for (Type a : ann) {
                 if (hasUnknown(a))
                     return true;
+            }
+        }
+        if (t instanceof ConstrainedType) {
+            ConstrainedType ct = (ConstrainedType) t;
+            for (XTerm x : X10TypeMixin.xclause(ct).constraints()) {
+                if (hasUnknown(x))
+                    return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean hasUnknown(XTerm x) {
+        if (x instanceof XFormula) {
+            for (XTerm a : ((XFormula) x).arguments()) {
+                if (hasUnknown(a))
+                    return true;
+            }
+        } else if (x instanceof XField) {
+            XField f = (XField) x;
+            if (hasUnknown(f.receiver()))
+                return true;
+            return hasUnknown(f.field());
+        } else if (x instanceof XTypeLit_c) {
+            return hasUnknown(((XTypeLit_c) x).type());
+        } else if (x instanceof XEQV) {
+            return false;
+        } else if (x instanceof XLocal) {
+            return hasUnknown(((XLocal) x).name());
+        }
+        return false;
+    }
+
+    private boolean hasUnknown(XName n) {
+        if (n instanceof XNameWrapper<?>) {
+            Object v = ((XNameWrapper<?>) n).val();
+            if (v instanceof LocalDef) {
+                LocalDef ld = (LocalDef) v;
+                return hasUnknown(Types.get(ld.type()));
+            } else if (v instanceof FieldDef) {
+                FieldDef fd = (FieldDef) v;
+                return hasUnknown(Types.get(fd.type())) || hasUnknown(Types.get(fd.container()));
             }
         }
         return false;
