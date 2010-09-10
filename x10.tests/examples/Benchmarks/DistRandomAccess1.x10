@@ -108,20 +108,19 @@ class DistRandomAccess1 extends Benchmark {
         // runs without synchronization and is allowed .01*tableSize errors
         if (first) {
             randomAccessUpdate(tables);
-            val errors = Rail.make[int](1);
+            val errors = GlobalRef[Cell[Int]](new Cell[Int](0));
             for (var p:int=0; p<PARALLELISM; p++) {
                 val table = tables(p);
                 finish async(Place.places(p)) {
                     val lt = table;
                     for (var j:int=0; j<lt.a.length; j++)
                         if (lt.a(j) != j)
-                            finish async (errors)
-                                errors(0)++;
+                            at (errors) errors()()++;
                 }
             }
             first = false;
-            x10.io.Console.OUT.printf("%d error(s); allowed %d\n", errors(0), tableSize/100);
-            return (errors(0) * 100 / tableSize) as double; // <.01*tableSize counts as 0
+            x10.io.Console.OUT.printf("%d error(s); allowed %d\n", errors()(), tableSize/100);
+            return (errors()() * 100 / tableSize) as double; // <.01*tableSize counts as 0
         } else
             return 0.0;
 
