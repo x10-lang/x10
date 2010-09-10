@@ -19,8 +19,9 @@ class MultiRefRoundtrip extends x10Test {
 
     public def run(): boolean {
         chk(Place.places.length > 1, "This test must be run with multiple places");
-        val local_ = new MultiRefRoundtrip();
-        val second = local_;
+	val obj = new Object();
+        val local_ = GlobalRef[Object](obj);
+        val second = GlobalRef[Object](obj);
         at (here.next()) {
             at (local_) {
                 Console.OUT.println(local_ == second);
