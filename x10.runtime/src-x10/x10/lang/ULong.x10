@@ -544,7 +544,27 @@ public final struct ULong /*TODO implements Arithmetic[ULong], Bitwise[ULong], O
      */
     // @Native("java", "java.lang.Long.toString(#0 & 0xffffffffffffffffL)")
     @Native("c++", "x10aux::to_string(#0)")
-    public safe def toString(): String = (this.longVal & 0xFFFFFFFFFFFFFFFFL).toString();
+    public safe def toString(): String {
+        if (this.longVal >= 0)
+            return (this.longVal & 0xFFFFFFFFFFFFFFFFL).toString();
+
+        // array representation of long.MAX_VALUE + 1
+        var offs : ValRail[Int] = [0,9,2,2,3,3,7,2,0,3,6,8,5,4,7,7,5,8,0,8];
+        // result buffer
+        val buf : Rail[Char] = Rail.make[Char](20, (i:Int)=>'0');
+        // drop sign bit
+        var a : Long = this.longVal & 0x7FFFFFFFFFFFFFFFL;
+        var pos : Int = offs.length();
+        var carry : Int = 0;
+        while (pos > 0) {
+            var digit : Int = ((a % 10) as Int) + offs(--pos) + carry;
+            buf(pos) = '0' + digit % 10;
+            carry = (digit >= 10) ? 1 : 0;
+            a /= 10;
+        }
+        pos = (buf(0) == '0') ? 1 : 0;
+        return new String(buf, pos, 20-pos);
+    }
 
     /**
      * @deprecated use {@link #parse(String,Int)} instead
