@@ -10,7 +10,6 @@ public class CommunicationGraph extends SlowSparseNumberedLabeledGraph<Communica
 		super(defaultLabel);
 		// TODO Auto-generated constructor stub
 	}
-	
 }
 class CommunicationNode{
 	public CallTableObj node;
@@ -42,13 +41,17 @@ class CommunicationLabel {
 	public final CallTableVal.Arity arity;
 	public final CallSite cs;
 	public final boolean isLocal;
-	public CommunicationLabel(CallTableVal.Arity a, CallSite c, boolean l){
+	public final boolean isLast;
+	public CommunicationLabel(CallTableVal.Arity a, CallSite c, boolean local, boolean last){
 		arity = a;
 		cs = c;
-		isLocal = l;
+		isLocal = local;
+		isLast = last;
 	}
-	public CommunicationLabel(CallTableVal.Arity a){
+	public CommunicationLabel(CallTableVal.Arity a,boolean last){
 		arity = a;
+		isLast = last;
+		// only method has a callsite
 		cs = new CallSite("","",0,0);//dummy cs
 		isLocal = false;
 	}
@@ -57,18 +60,22 @@ class CommunicationLabel {
 		arity = CallTableVal.Arity.One;
 		cs = new CallSite("","",0,0);//dummy cs
 		isLocal = false;
+		isLast = false;
 	}
-	public boolean equals(Object o){
+
+/*	public boolean equals(Object o) {
 		boolean result = false;
-		if (o instanceof CommunicationLabel){
-			CommunicationLabel cn = (CommunicationLabel)o;
-			String sig1 = arity.toString()+"-"+cs.toString()+"-"+(isLocal==true?"local":"remote");
-			String sig2 = cn.arity.toString()+"-"+cn.cs.toString()+"-"+(cn.isLocal==true?"local":"remote");
+		if (o instanceof CommunicationLabel) {
+			CommunicationLabel cn = (CommunicationLabel) o;
+			String sig1 = arity.toString() + "-" + cs.toString() + "-"
+					+ (isLocal == true ? "local" : "remote");
+			String sig2 = cn.arity.toString() + "-" + cn.cs.toString() + "-"
+					+ (cn.isLocal == true ? "local" : "remote");
 			result = sig1.equals(sig2);
 		}
 		return result;
-	}
+	}*/
 	public String toString(){
-		return arity.toString()+"-"+(isLocal==true?"local":"remote");
+		return arity.toString()+"-"+(isLocal==true?"local":"remote")+(isLast==true?"-last":"");
 	}
 }
