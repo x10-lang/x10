@@ -22,10 +22,10 @@ public class AtNext extends x10Test {
 	public def run(): boolean = {
 		val Other  = here.next();
 		val t = (new T()).root;
-		/*at (Other) {
+		at (Other) {
 			val t1 = new T();
 			at (t) t().val_ = t1;
-		}*/
+		}
 		return (t().val_ as T).root.home == Other;
 	}
 
