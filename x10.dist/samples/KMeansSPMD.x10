@@ -36,7 +36,7 @@ public class KMeansSPMD {
         }
     }
 
-    public static def main (args : Array[String](1)) {
+    public static def main (args:Array[String](1)) {
 
         try {
 

@@ -12,7 +12,7 @@
 import x10.io.Console;
 
 public class CUDATopology {
-    public static def main (args : Array[String](1)) {
+    public static def main (Array[String]) {
         for (p in Place.places) {
             at (p) {
                 Console.OUT.println("Dumping places at place: "+p);

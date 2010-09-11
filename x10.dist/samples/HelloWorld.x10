@@ -16,8 +16,8 @@ import x10.io.Console;
  * Converted to 2.1 9/1/2010
  */
 class HelloWorld {
-  public static def main(args:Array[String](1)) {
-   	Console.OUT.println("Hello World!" );
+  public static def main(Array[String]) {
+      Console.OUT.println("Hello World!" );
   }
 }
 

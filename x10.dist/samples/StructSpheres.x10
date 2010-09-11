@@ -58,7 +58,7 @@ class StructSpheres {
     }
 
 
-    public static def main (Array[String](1)) {
+    public static def main (Array[String]) {
 
         val reps = 7500;
 

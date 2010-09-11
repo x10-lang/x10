@@ -19,13 +19,13 @@ import x10.io.Console;
  * Converted to 2.1 9/1/2010.
  */
 public class MontyPi {
-    public static def main(s: Array[String](1)) {
-        if (s.size != 1) {
+    public static def main(args:Array[String](1)) {
+        if (args.size != 1) {
             Console.OUT.println("Usage: MontyPi <number of points>");
             at (Place.FIRST_PLACE) System.setExitCode(-1);
             return;
         }
-        val N = int.parse(s(0));
+        val N = int.parse(args(0));
         val initializer = (i:Point) => {
             val r = new Random();
             var result:double=0.0D;

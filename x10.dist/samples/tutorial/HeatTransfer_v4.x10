@@ -85,7 +85,7 @@ public class HeatTransfer_v4 {
         }
     }
 
-    public static def main(Array[String](1)) {
+    public static def main(Array[String]) {
         Console.OUT.println("HeatTransfer Tutorial example with n="+n+" and epsilon="+epsilon);
         Console.OUT.println("Initializing data structures");
         val s = new HeatTransfer_v4();

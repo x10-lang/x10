@@ -91,7 +91,7 @@ public class NQueensDist {
         }
     }
 
-    public static def main(args: Array[String](1))  {
+    public static def main(args:Array[String](1))  {
         val n = args.size > 0 ? Int.parse(args(0)) : 8;
         println("N=" + n);
         //warmup
