@@ -42,7 +42,7 @@ class PolyHalfspace2 extends TestRegion {
         "region: (x0+x1>=3 && x0-x1>=-1 && x0+x1<=7)\n"+
         "x10.array.UnboundedRegionException: axis 0 has no maximum\n";
     
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new PolyHalfspace2().execute();
     }
 

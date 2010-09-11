@@ -32,7 +32,7 @@ public class CF3_MustFailCompile extends x10Test {
 		return 6==x;
 	}
 
-	public static def main(Rail[String]) {
+	public static def main(Array[String](1)) {
 		new CF3_MustFailCompile().execute();
 	}
 }

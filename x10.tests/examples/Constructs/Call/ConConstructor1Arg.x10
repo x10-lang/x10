@@ -33,7 +33,7 @@ public class ConConstructor1Arg extends x10Test {
 		}
 	}
 
-	public static def main(Rail[String]) {
+	public static def main(Array[String](1)) {
 		new ConConstructor1Arg().execute();
 	}
 

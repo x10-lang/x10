@@ -48,7 +48,7 @@ public class AtThisIntoAtHere extends x10Test {
 
     public def run() = true;
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
 	  new AtThisIntoAtHere().execute();
     }
 

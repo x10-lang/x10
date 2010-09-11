@@ -39,7 +39,7 @@ public class NotInstanceof1_Inline extends x10Test {
 		return new OtherClass(1);
 	}
 	
-	public static def main(args: Rail[String]) = {
+	public static def main(args: Array[String](1)) = {
 		new NotInstanceof1_Inline().execute();
 	}
 		 

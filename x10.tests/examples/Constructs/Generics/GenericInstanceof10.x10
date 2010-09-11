@@ -42,7 +42,7 @@ public class GenericInstanceof10 extends GenericTest {
         return !(a instanceof I[String]) && !(a instanceof J[String]);
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new GenericInstanceof10().execute();
     }
 }

@@ -32,7 +32,7 @@ public class X10DepTypeClassOne(p:int) extends x10Test implements X10InterfaceOn
 
    }
    
-   public static def main(var args: Rail[String]): void = {
+   public static def main(var args: Array[String](1)): void = {
       new X10DepTypeClassOne(0).execute();
    }
    }

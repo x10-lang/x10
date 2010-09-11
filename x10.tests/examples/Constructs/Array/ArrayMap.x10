@@ -42,7 +42,7 @@ public class ArrayMap extends TestArray {
         return status();
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new ArrayMap().execute();
     }
 

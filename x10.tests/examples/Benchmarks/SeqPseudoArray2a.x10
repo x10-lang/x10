@@ -73,7 +73,7 @@ public class SeqPseudoArray2a extends Benchmark {
     // boilerplate
     //
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new SeqPseudoArray2a().execute();
     }
 }

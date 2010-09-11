@@ -42,7 +42,7 @@ public class PlaceCast2 extends x10Test {
 		return nplaces == Place.places.length();
 	}
 
-	public static def main(Rail[String]) {
+	public static def main(Array[String](1)) {
 		new PlaceCast2().execute();
 	}
 

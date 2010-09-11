@@ -26,7 +26,7 @@ public class ExplodingLocalVar1Test extends x10Test {
 		return x+y==4 && p(0)+p(1)==4;
 		}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new ExplodingLocalVar1Test().execute();
 	}
 }

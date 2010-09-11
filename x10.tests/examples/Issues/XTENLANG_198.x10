@@ -34,7 +34,7 @@ class XTENLANG_198 extends x10Test {
         return new B().x.equals("B");
     }
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new XTENLANG_198().execute();
     }
 }

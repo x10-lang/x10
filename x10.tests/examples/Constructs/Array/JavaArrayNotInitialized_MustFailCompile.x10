@@ -24,7 +24,7 @@ public class JavaArrayNotInitialized_MustFailCompile extends x10Test {
         return array(0) != null;
     }
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new JavaArrayNotInitialized_MustFailCompile().execute();
     }
 

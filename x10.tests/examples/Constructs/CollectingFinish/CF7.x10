@@ -52,7 +52,7 @@ public class CF7 extends x10Test{
             return ret;
  
     }
-        public static def main(args: Rail[String]) {
+        public static def main(args: Array[String](1)) {
                 new CF7().execute();
         }
 

@@ -244,7 +244,7 @@ class PolyHalfspace4 extends TestRegion {
         "region: empty(2)\n"+
         "  iterator\n";
     
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new PolyHalfspace4().execute();
     }
 

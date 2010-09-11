@@ -37,7 +37,7 @@ public class AtomicContainingWhen_MustFailCompile extends x10Test {
 	// just to confuse a compiler
 	public def modifyFoo(var x: X): void = { fooArray(x.two()+1) = new f2(); }
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new AtomicContainingWhen_MustFailCompile().execute();
 	}
 

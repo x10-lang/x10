@@ -75,7 +75,7 @@ public class ListTest extends x10Test {
 			return b==2;
 		}
 	
-		public static def main(var args: Rail[String]): void = {
+		public static def main(var args: Array[String](1)): void = {
 			new ListTest().execute();
 		}
 }

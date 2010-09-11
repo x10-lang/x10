@@ -49,7 +49,7 @@ public class StructTest1 extends x10Test {
     return a.sum() + b.sum() + a.x;
   }
 
-  public static def main(Rail[String]) {
+  public static def main(Array[String](1)) {
     new StructTest1().execute();
   }
 

@@ -27,7 +27,7 @@ public class ArrayPointBinding_MustFailCompile extends x10Test {
         return (i == 1 && j == 2);
     }
 
-    public static def main(args: Rail[String]): void = {
+    public static def main(args: Array[String](1)): void = {
         new ArrayPointBinding_MustFailCompile().execute();
     }
 }

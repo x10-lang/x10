@@ -57,7 +57,7 @@ public class FinalInitializationTest extends x10Test {
 		return (x.eq(y));
 	}
 
-	public static def main(Rail[String])  {
+	public static def main(Array[String](1))  {
 		new FinalInitializationTest().execute();
 	}
 }

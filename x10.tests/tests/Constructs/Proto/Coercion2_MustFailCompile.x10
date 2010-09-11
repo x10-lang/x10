@@ -28,7 +28,7 @@ public class Coercion2_MustFailCompile extends x10Test {
     
     public def run()=true;
 
-    public static def main(Rail[String])  {
+    public static def main(Array[String](1))  {
 	new Coercion2_MustFailCompile().execute();
     }
 }

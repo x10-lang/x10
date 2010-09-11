@@ -121,7 +121,7 @@ class SeqRandomAccess1 extends Benchmark {
     //
     //
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new SeqRandomAccess1().execute();
     }
 

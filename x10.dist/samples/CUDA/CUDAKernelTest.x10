@@ -46,7 +46,7 @@ public class CUDAKernelTest {
         Console.OUT.println((success?"SUCCESS":"FAIL")+" at "+p);
     }
 
-    public static def main (args : Rail[String]) {
+    public static def main (args : Array[String](1)) {
         val len = args.length==1 ? Int.parse(args(0)) : 1000;
 
         for (host in Place.places) at (host) {

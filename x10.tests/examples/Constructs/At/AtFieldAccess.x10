@@ -30,7 +30,7 @@ public class AtFieldAccess extends x10Test {
 		return 3 == (at(ttroot) ttroot().i);
 	}
 
-	public static def main(Rail[String]) {
+	public static def main(Array[String](1)) {
 		new AtFieldAccess().execute();
 	}
 

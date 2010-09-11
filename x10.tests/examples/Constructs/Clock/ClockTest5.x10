@@ -82,7 +82,7 @@ public class ClockTest5 extends x10Test {
 		x10.io.Console.OUT.println("Actitivity "+a+" in phase "+phase+" of clocks "+clocks);
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new ClockTest5().executeAsync();
 	}
 }

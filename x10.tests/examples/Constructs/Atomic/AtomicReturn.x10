@@ -38,7 +38,7 @@ public class AtomicReturn extends x10Test {
 		return a == 2;
 	}
 
-	public static def main(Rail[String]) {
+	public static def main(Array[String](1)) {
 		new AtomicReturn().execute();
 	}
 }

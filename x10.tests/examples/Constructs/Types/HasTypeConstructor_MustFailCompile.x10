@@ -24,7 +24,7 @@ public class HasTypeConstructor_MustFailCompile(n:int) extends x10Test {
 		property(x);
 	}
 	public def run() =true;
-	public static def main(Rail[String])  {
+	public static def main(Array[String](1))  {
 		new HasTypeConstructor_MustFailCompile().execute();
 	}
 }

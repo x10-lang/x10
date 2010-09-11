@@ -27,7 +27,7 @@ struct MyComplex(r:Int,i:Int) implements MyTypeName {
 }
 
 public class XTENLANG_1651 extends x10Test {
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new XTENLANG_1651().execute();
     }
 

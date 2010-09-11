@@ -27,7 +27,7 @@ public class ImplicitCastFromValRail extends x10Test {
         return m(p).equals(Point.make(p));
     }
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new  ImplicitCastFromValRail().execute();
     }
 }

@@ -24,7 +24,7 @@ public class Bounds2 extends x10Test {
 
 	public def run()=new C[String]("").x.equals("");
 
-	public static def main(Rail[String]) {
+	public static def main(Array[String](1)) {
 		new Bounds2().execute();
 	}
 }

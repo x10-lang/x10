@@ -66,7 +66,7 @@ public class FutureDeadlock_MustFailTimeout extends x10Test {
 		return (tmpf1 as Future[Int])() == 42;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new FutureDeadlock_MustFailTimeout().execute();
 	}
 }

@@ -34,7 +34,7 @@ public class ConstructorInvocation_MustFailCompile extends x10Test {
 	}
 	public def run()=true;
 	
-    public static def main(a: Rail[String]) = {
+    public static def main(a: Array[String](1)) = {
         new ConstructorInvocation_MustFailCompile().execute();
     }
    

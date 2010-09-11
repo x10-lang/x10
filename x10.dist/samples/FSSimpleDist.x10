@@ -28,10 +28,10 @@ public class FSSimpleDist {
 
     static NUM_PLACES = Place.MAX_PLACES;
 
-    public static def main(args:Rail[String]) {
+    public static def main(args:Array[String](1)) {
         val verified = new Cell[Boolean](true);
         val times = GlobalRef[Rail[double]](Rail.make[double](NUM_TIMES));
-        val N0 = args.length > 0 ? int.parse(args(0)) : DEFAULT_SIZE;
+        val N0 = args.size > 0 ? int.parse(args(0)) : DEFAULT_SIZE;
         val N = N0 * NUM_PLACES;
         val localSize =  N0;
 

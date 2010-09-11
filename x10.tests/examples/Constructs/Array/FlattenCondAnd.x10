@@ -43,7 +43,7 @@ public class FlattenCondAnd extends x10Test {
         return !x;
     }
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new FlattenCondAnd().execute();
     }
 }

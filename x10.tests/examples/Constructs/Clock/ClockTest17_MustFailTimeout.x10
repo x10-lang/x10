@@ -91,7 +91,7 @@ public class ClockTest17_MustFailTimeout extends x10Test {
 		return true;
 	}
 
-	public static def main(Rail[String]) {
+	public static def main(Array[String](1)) {
 		new ClockTest17_MustFailTimeout().execute();
 	}
 

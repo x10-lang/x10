@@ -40,7 +40,7 @@ public class GenericOverloading06 extends GenericTest {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new GenericOverloading06().execute();
     }
 }

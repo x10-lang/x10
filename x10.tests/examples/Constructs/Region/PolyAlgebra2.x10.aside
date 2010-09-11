@@ -277,7 +277,7 @@ class PolyAlgebra2 extends TestRegion {
         "(r1 || r2).contains(r6) checks true\n"+
         "r6.disjoint(r3) checks true\n";
     
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new PolyAlgebra2().execute();
     }
 }

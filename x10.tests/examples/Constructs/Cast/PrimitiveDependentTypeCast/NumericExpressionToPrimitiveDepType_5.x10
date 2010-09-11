@@ -25,7 +25,7 @@ public class NumericExpressionToPrimitiveDepType_5 extends x10Test {
 		return ((j == 0) && (i==0));
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new NumericExpressionToPrimitiveDepType_5().execute();
 	}
 

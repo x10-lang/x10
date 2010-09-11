@@ -25,7 +25,7 @@ public class NullableObjectToBoxConstrainedType extends x10Test {
 		return nullableVarNotNull instanceof Box[ValueClass{p==1}];
 	}
 	
-	public static def main(Rail[String]) {
+	public static def main(Array[String](1)) {
 		new NullableObjectToBoxConstrainedType().execute();
 	}
 }

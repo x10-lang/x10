@@ -30,7 +30,7 @@ class MultiRefRoundtrip extends x10Test {
         return at (here.next()) at (local_) second == local_;
     }
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new MultiRefRoundtrip().execute();
     }
 }

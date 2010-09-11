@@ -42,7 +42,7 @@ public class GenericOverriding12 extends GenericTest {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new GenericOverriding12().execute();
     }
 }

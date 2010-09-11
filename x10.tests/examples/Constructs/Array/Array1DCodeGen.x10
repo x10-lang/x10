@@ -69,7 +69,7 @@ public class Array1DCodeGen extends x10Test {
         return diff < 0 ? diff > -0.001 : diff < 0.001;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new Array1DCodeGen().execute();
     }
 }

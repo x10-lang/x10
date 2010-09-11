@@ -32,7 +32,7 @@ class XTENLANG_455 extends x10Test {
         return z.equals("Correct");
     }
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new XTENLANG_455().execute();
     }
 }

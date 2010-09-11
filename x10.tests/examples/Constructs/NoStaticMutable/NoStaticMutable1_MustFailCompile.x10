@@ -38,7 +38,7 @@ public class NoStaticMutable1_MustFailCompile extends x10Test {
 		return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new NoStaticMutable1_MustFailCompile().execute();
 	}
 

@@ -33,7 +33,7 @@ class PolyFull1 extends TestRegion {
         "region: full(3)\n"+
         "x10.array.UnboundedRegionException: axis 2 has no minimum\n";
     
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new PolyFull1().execute();
     }
 }

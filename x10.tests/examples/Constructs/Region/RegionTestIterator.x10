@@ -30,7 +30,7 @@ public class RegionTestIterator extends x10Test {
         return sum == 0;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new RegionTestIterator().execute();
     }
 }

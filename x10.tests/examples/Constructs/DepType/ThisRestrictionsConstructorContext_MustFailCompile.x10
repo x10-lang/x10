@@ -37,7 +37,7 @@ public class ThisRestrictionsConstructorContext_MustFailCompile extends x10Test 
 	public def run(): boolean = { 
 	   return true;
 	}
-	public static def main(Rail[String]): void = {
+	public static def main(Array[String](1)): void = {
 		new ThisRestrictionsConstructorContext_MustFailCompile().execute();
 	}
 }

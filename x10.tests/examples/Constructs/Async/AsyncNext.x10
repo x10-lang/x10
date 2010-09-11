@@ -30,7 +30,7 @@ public class AsyncNext extends x10Test {
 		return (t.val_ as T).root.home == Other;
 	}
 
-	public static def main(Rail[String]) {
+	public static def main(Array[String](1)) {
 		new AsyncNext().execute();
 	}
 

@@ -95,7 +95,7 @@ class PolyRestriction1 extends TestArray {
         "    4  0 4 8 2 6 0 . . . . \n"+
         "    5  0 5 0 5 0 5 . . . . \n";
     
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new PolyRestriction1().execute();
     }
 }

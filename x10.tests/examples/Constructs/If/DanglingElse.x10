@@ -18,7 +18,7 @@ is interpreted as
 */
 
 public class DanglingElse extends x10Test.BardTest {
-  public static def main(Rail[String]){
+  public static def main(Array[String](1)){
      val p:x10Test! = new DanglingElse();
      p.run();
   }

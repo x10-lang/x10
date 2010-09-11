@@ -39,7 +39,7 @@ public class SeqMatMultAdd1b extends Benchmark {
     //
     //
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new SeqMatMultAdd1b().execute();
     }
 }

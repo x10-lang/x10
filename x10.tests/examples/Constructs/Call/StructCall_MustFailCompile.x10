@@ -40,7 +40,7 @@ public class StructCall extends x10Test  {
 		  val a:S1 = S1(1);
           return true;
 	}
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new StructCall().execute();
 	}
 }

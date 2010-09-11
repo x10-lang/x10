@@ -26,7 +26,7 @@ public class FlattenValForce extends x10Test {
    
     public def run(): boolean = true;
 
-    public static def main(Rail[String]){
+    public static def main(Array[String](1)){
         new FlattenValForce().execute();
     }
 }

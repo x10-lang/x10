@@ -36,7 +36,7 @@ public class Foreach1 extends x10Test {
 		return !hasbug.reduce(boolean.|, false) &&
 			nActivities == N;
 	}
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new Foreach1().execute();
 	}
 }

@@ -33,7 +33,7 @@ class XTENLANG_367 extends x10Test {
         return count == 3;
     }
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new XTENLANG_367().execute();
     }
 }

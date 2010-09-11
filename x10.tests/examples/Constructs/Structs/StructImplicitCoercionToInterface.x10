@@ -33,7 +33,7 @@ class StructImplicitCoercionToInterface extends x10Test {
         q(S(5));
         return true;
     }
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
        new StructImplicitCoercionToInterface().execute();
        
     }

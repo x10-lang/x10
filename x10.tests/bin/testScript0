@@ -65,7 +65,7 @@ implementation of x10rt (single place).
 
 An X10 test case file *.x10 contains a single public class, which
 has a \"public boolean run()\" instance method, and a \"public
-static def main(args: Rail[String])\" method.  The run method must
+static def main(args: Array[String](1))\" method.  The run method must
 contain the actual test and must return true if the test passed.
 run() must throw an exception or return false to indicate failure.
 The main method must create the class with an empty constructor,

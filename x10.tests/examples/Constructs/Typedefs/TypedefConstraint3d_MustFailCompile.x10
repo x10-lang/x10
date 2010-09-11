@@ -25,7 +25,7 @@ class TypedefConstraint3d_MustFailCompile extends TypedefTest {
 
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new TypedefConstraint3d_MustFailCompile().execute();
     }
 }

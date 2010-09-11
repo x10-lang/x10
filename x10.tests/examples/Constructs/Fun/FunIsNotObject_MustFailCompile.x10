@@ -24,7 +24,7 @@ public class FunIsNotObject_MustFailCompile extends x10Test {
 		val f = (x1:int, x2:int)=> x1+x2;
 		val x:Object = f;
 	}
-	public static def main(Rail[String]) {
+	public static def main(Array[String](1)) {
 		new FunIsNotObject_MustFailCompile().execute();
 	}
 }

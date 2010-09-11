@@ -48,8 +48,14 @@ public abstract class Runtime implements Runnable {
 	public void run() {
 		try { Class.forName("x10.lang.Place"); } catch (ClassNotFoundException e) { }
 
+		// build up Array[String] for args
+		x10.array.Array<String> aargs = new x10.array.Array<String>(x10.rtt.Types.STR, args.length);
+		for (int i=0; i<args.length; i++) {
+		    aargs.set$G(args[i], i);
+		}
+		
 		// execute root x10 activity
-		main(x10.core.RailFactory.<java.lang.String>makeRailFromJavaArray(new x10.rtt.RuntimeType<java.lang.String>(java.lang.String.class),args));
+		main(aargs);
 	}
 
 	/**
@@ -57,7 +63,7 @@ public abstract class Runtime implements Runnable {
 	 * - start xrx runtime
 	 * - run main activity
 	 */
-	public abstract void main(x10.core.Rail<java.lang.String> args);
+	public abstract void main(x10.array.Array<java.lang.String> args);
 
 	/**
 	 * Application exit code

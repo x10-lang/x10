@@ -135,7 +135,7 @@ public class KMeans(myDim:Int) {
         return redCluster;  
     }
   
-    public static def main (args : Rail[String]) {
+    public static def main (args : Array[String](1)) {
         val rnd = new Random(0);
         val points = ValRail.make[ValVector](POINTS, 
                         (Int)=>ValRail.make[Float](DIM, (Int)=>rnd.nextFloat()));

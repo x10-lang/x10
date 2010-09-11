@@ -30,7 +30,7 @@ public class ReferenceConsistencyCheck(R: Region{rank==2, zeroBased, rect},
 
 	public def run()=true; 
 
-	public static def main(Rail[String]) = {
+	public static def main(Array[String](1)) = {
 //		set up a test problem
 		val size=10;
 		val R:Region{rank==2&&zeroBased&&rect} = [0..size-1,0..size-1] as Region{rank==2&&zeroBased&&rect};

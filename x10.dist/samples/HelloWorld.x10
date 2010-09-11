@@ -16,7 +16,7 @@ import x10.io.Console;
  * Converted to 2.1 9/1/2010
  */
 class HelloWorld {
-  public static def main(args:Rail[String]) {
+  public static def main(args:Array[String](1)) {
    	Console.OUT.println("Hello World!" );
   }
 }

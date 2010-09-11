@@ -52,7 +52,7 @@ public class FutureMethodInvokeStatic_MustFailCompile extends x10Test {
     	return run02();
 	}
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new FutureMethodInvokeStatic_MustFailCompile().execute();
     }
 }

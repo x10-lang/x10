@@ -30,7 +30,7 @@ import harness.x10Test;
    
    public def mth() = 5 as Any;
    
-   public static def main(Rail[String]) {
+   public static def main(Array[String](1)) {
       new CastInt5ToAnyAndInt3_MustFailCompile().execute();
    }
 }

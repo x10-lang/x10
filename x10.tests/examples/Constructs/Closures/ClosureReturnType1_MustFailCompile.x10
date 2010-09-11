@@ -28,7 +28,7 @@ public class ClosureReturnType1_MustFailCompile extends ClosureTest {
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new ClosureReturnType1_MustFailCompile().execute();
     }
 }

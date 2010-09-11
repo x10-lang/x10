@@ -54,7 +54,7 @@ public class FutureVarFieldAccessRev_MustFailCompile extends x10Test {
     	return run02();
 	}
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new FutureVarFieldAccessRev_MustFailCompile().execute();
     }
 }

@@ -28,7 +28,7 @@ public class ArrayInitializer1b extends x10Test {
         return true;
     }
 
-    public static def main(Rail[String]): Void = {
+    public static def main(Array[String](1)): Void = {
         new ArrayInitializer1b().execute();
     }
 }

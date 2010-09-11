@@ -53,7 +53,7 @@ class PolyProduct1 extends TestRegion {
         "    1  0 2 . . . . . . . . \n"+
         "    2  0 4 8 . . . . . . . \n";
     
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new PolyProduct1().execute();
     }
 }

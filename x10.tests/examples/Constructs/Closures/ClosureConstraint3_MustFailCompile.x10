@@ -32,7 +32,7 @@ public class ClosureConstraint3_MustFailCompile extends ClosureTest {
     }
 
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new ClosureConstraint3_MustFailCompile().execute();
     }
 }

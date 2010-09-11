@@ -46,7 +46,7 @@ public class SamePropertyAncestor_MustFailCompile extends x10Test {
 		val a = new Test2(1);
 	   return true;
 	}
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new SamePropertyAncestor_MustFailCompile().execute();
 	}
 }

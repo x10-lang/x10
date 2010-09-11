@@ -24,7 +24,7 @@ public class ObjectToPrimitive2 extends x10Test {
 		return !(var_ instanceof X10DepTypeClassOneB);
 	}
 	
-	public static def main(Rail[String])  {
+	public static def main(Array[String](1))  {
 		new ObjectToPrimitive2().execute();
 	}
 }

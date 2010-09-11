@@ -17,28 +17,21 @@
 
 #include <x10/lang/String.h>
 #include <x10/lang/Rail.h>
+#include <x10/array/Array.h>
 
+using namespace x10::array;
 using namespace x10::lang;
 using namespace x10aux;
 
-Rail<ref<String> > *x10aux::convert_args(int ac, char **av) {
+ref<Array<ref<String> > >x10aux::convert_args(int ac, char **av) {
     assert(ac>=1);
     x10_int x10_argc = ac  - 1;
-    Rail<ref<String> > *arr = alloc_rail<ref<String>, Rail<ref<String> > > (x10_argc);
+    ref<Array<ref<String> > > arr(Array<ref<String> >::_make(x10_argc));
     for (int i = 1; i < ac; i++) {
         ref<String> val = String::Lit(av[i]);
-        (*arr)[i-1] = val;
+        arr->set(val, i-1);
     }
     return arr;
-}
-
-void x10aux::free_args(ref<Rail<ref<String> > > arr) {
-    if (arr==x10aux::null) return;
-    //std::cerr << "free_args: freeing " << arr->FMGL(length) << " elements" << std::endl;
-    //x10_int length = arr->length;
-    //std::cerr << "free_args: freeing array " << arr.get() << std::endl;
-    free_rail<ref<String>, Rail<ref<String> > >(arr);
-    //std::cerr << "free_args: freed array " << arr.get() << std::endl;
 }
 
 ref<String> x10aux::vrc_to_string(ref<ValRail<x10_char> > v) {

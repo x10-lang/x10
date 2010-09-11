@@ -35,7 +35,7 @@ import x10.util.Box;
 	}
 	
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new UnboxPrimitiveConstrained2_MustFailCompile().execute();
 	}
 }

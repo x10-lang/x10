@@ -37,7 +37,7 @@ class Test(i: int) {
 	   var a: Test{i==ii} = new Test(52);
 	    return true;
 	}
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new NonFinalVariable_MustFailCompile().execute();
 	}
 }

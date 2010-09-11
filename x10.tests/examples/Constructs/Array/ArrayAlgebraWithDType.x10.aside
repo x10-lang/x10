@@ -74,7 +74,7 @@ public class ArrayAlgebraWithDType extends x10Test {
         finish ateach (val p: Point in x) chk(x(p) == y(p));
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new ArrayAlgebraWithDType().execute();
     }
 }

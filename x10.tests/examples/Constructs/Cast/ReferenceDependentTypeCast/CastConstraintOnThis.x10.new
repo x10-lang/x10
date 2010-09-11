@@ -19,7 +19,7 @@ public class CastConstraintOnThis extends x10Test {
 		return one.p() == 2;
 	}
 	
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new CastConstraintOnThis(2).execute();
 	}
 }

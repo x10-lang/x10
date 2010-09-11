@@ -32,7 +32,7 @@ public class AsyncFieldAccess extends x10Test {
 		return 3 == (at (tt) tt().i);
 	}
 
-	public static def main(Rail[String]){
+	public static def main(Array[String](1)){
 		new AsyncFieldAccess().execute();
 	}
 

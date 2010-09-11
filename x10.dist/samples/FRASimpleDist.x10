@@ -86,14 +86,14 @@ class FRASimpleDist {
     }
 
 
-    public static def main(args:Rail[String]) {
+    public static def main(args:Array[String](1)) {
         if ((Place.MAX_PLACES & (Place.MAX_PLACES-1)) > 0) {
             println("The number of places must be a power of 2.");
             return;
         }
 
         // calculate the size of update array (must be a power of 2)
-        val logLocalTableSize = args.length > 1 && args(0).equals("-m") ? int.parse(args(1)) : 12;
+        val logLocalTableSize = args.size > 1 && args(0).equals("-m") ? int.parse(args(1)) : 12;
         val localTableSize = 1<<logLocalTableSize;
         val tableSize = localTableSize*Place.MAX_PLACES;
         val num_updates = 4*tableSize;

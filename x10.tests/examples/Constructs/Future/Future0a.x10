@@ -17,7 +17,7 @@ import harness.x10Test;
 public class Future0a extends x10Test {
 	public def run() = (future 47)() == 47;
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new Future0a().execute();
 	}
 }

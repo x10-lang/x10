@@ -36,7 +36,7 @@ class PolyFromRail1 extends TestRegion {
         "  iterator\n"+
         "5 4 3 2 1 . . . . . \n";
     
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new PolyFromRail1().execute();
     }
 }

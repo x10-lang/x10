@@ -46,7 +46,7 @@ public class RailAlignment extends x10Test {
         return failures == 0;
     }
 
-    public static def main(Rail[String])  {
+    public static def main(Array[String](1))  {
         new RailAlignment().execute();
     }
 

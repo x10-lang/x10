@@ -51,7 +51,7 @@ public class DimTest3_MustFailCompile extends harness.x10Test {
         return -0.001 <= diff && diff <= 0.001;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new DimTest3_MustFailCompile().execute();
     }
 }

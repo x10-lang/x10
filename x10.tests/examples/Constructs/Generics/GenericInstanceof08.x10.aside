@@ -38,7 +38,7 @@ public class GenericInstanceof08 extends GenericTest {
         return !(a instanceof I[float]);
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new GenericInstanceof08().execute();
     }
 }

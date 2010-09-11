@@ -51,7 +51,7 @@ public class FutureFieldAccessStruct extends x10Test {
     	return run02();
 	}
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new FutureFieldAccessStruct().execute();
     }
 }

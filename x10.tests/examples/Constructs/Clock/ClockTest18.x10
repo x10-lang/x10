@@ -71,7 +71,7 @@ public class ClockTest18 extends x10Test {
 		return false;
 	}
 
-	public static def main(Rail[String]){
+	public static def main(Array[String](1)){
 		new ClockTest18().execute();
 	}
 

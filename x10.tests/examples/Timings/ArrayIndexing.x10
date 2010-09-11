@@ -677,7 +677,7 @@ public class ArrayIndexing extends x10Test {
 		if (verbose)x10.io.Console.OUT.println("testDouble1d("+iterations+") elapsed time:"+(((stop-start) as double)/1000));
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new ArrayIndexing().execute();
 	}
 

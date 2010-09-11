@@ -26,7 +26,7 @@ public class GenericInstanceof16 extends GenericTest {
         return new B[Int, Double]() instanceof A[Double, Int] && !((new B[Int, Double]() as Any) instanceof A[Int, Double]);
     }
     
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new GenericInstanceof16().execute();
     }
 }

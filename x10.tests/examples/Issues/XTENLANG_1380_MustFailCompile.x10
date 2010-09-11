@@ -9,7 +9,7 @@ public class XTENLANG_1380_MustFailCompile extends x10Test {
 		a4 = new XTENLANG_1380_MustFailCompile();
 	}
 	
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new XTENLANG_1380_MustFailCompile().execute();
     }
 }

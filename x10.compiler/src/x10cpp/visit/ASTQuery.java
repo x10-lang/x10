@@ -111,7 +111,7 @@ public class ASTQuery {
             dec.returnType().type().isVoid() &&
             (dec.formals().size() == 1) &&
             ts.isSubtype(((Formal)dec.formals().get(0)).type().type(),
-                         ts.Rail(ts.String()),
+                         ts.Array(ts.String()),
                          context);
         if (result) {
             boolean dash_c = tr.job().extensionInfo().getOptions().post_compiler == null;

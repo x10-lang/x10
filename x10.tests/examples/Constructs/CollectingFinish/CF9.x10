@@ -56,7 +56,7 @@ public class CF9 extends x10Test{
             return ret;
  
     }
-        public static def main(args: Rail[String]) {
+        public static def main(args: Array[String](1)) {
                 new CF9().execute();
         }
 

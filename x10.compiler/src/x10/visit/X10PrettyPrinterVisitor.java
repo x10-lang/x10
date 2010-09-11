@@ -511,7 +511,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 				flags.isStatic() &&
 				n.returnType().type().isVoid() &&
 				n.formals().size() == 1 &&
-				n.formals().get(0).declType().isSubtype(ts.Rail(ts.String()), tr.context()))
+				n.formals().get(0).declType().isSubtype(ts.Array(ts.String()), tr.context()))
 		{
 			Expander throwsClause = new Inline(er, "");
 			if (n.throwTypes().size() > 0) {
@@ -530,7 +530,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			    "}\n" +
 			    "\n" +
 			    "// called by native runtime inside main x10 thread\n" +
-			    "public void main(final x10.core.Rail<java.lang.String> args) {\n" +
+			    "public void main(final x10.array.Array<java.lang.String> args) {\n" +
 			        "try {\n" +
 			            "// start xrx\n" +
 			            "x10.lang.Runtime.start(\n" +

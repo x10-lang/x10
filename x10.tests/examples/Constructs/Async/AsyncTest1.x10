@@ -30,7 +30,7 @@ public class AsyncTest1 extends x10Test {
 		return b;
 	}
 
-	public static def main(Rail[String]) {
+	public static def main(Array[String](1)) {
 		new AsyncTest1().execute();
 	}
 }

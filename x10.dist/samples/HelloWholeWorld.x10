@@ -16,7 +16,7 @@ import x10.io.Console;
  * Converted to 2.1 9/1/2010
  */
 class HelloWholeWorld {
-  public static def main(args:Rail[String]):void {
+  public static def main(args:Array[String](1)):void {
      ateach (p in Dist.makeUnique()) {
      	Console.OUT.println("Hello World from place "+here.id);
      }

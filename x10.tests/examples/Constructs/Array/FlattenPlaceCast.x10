@@ -35,7 +35,7 @@ public class FlattenPlaceCast extends x10Test {
         return !(x instanceof Test{x.root.home == d1next}) && (x instanceof Test{x.root.home == here});
     }
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new FlattenPlaceCast().execute();
     }
     

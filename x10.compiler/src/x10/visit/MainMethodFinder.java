@@ -89,7 +89,7 @@ public class MainMethodFinder extends ContextVisitor {
                 flags.isStatic() &&
                 m.returnType().type().isVoid() &&
                 m.formals().size() == 1 &&
-                m.formals().get(0).declType().isSubtype(ts.Rail(ts.String()), context)) {
+                m.formals().get(0).declType().isSubtype(ts.Array(ts.String()), context)) {
             try {
                 hasMain.invoke(null, context.currentClass().name().toString());
             } catch (Throwable t) { t.printStackTrace(); }

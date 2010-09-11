@@ -30,7 +30,7 @@ class XTENLANG_106 extends x10Test {
         return true;
     }
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new XTENLANG_106().execute();
     }
 }

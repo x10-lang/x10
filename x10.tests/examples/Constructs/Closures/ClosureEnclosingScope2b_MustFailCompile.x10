@@ -33,7 +33,7 @@ public class ClosureEnclosingScope2b_MustFailCompile extends ClosureTest {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new ClosureEnclosingScope2b_MustFailCompile().execute();
     }
 }

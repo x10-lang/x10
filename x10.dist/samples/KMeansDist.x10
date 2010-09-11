@@ -18,7 +18,7 @@ public class KMeansDist {
 
     static val points_region = [0,0]..[POINTS-1,DIM-1];
 
-    public static def main (args : Rail[String]) {
+    public static def main (args : Array[String](1)) {
         val rnd = PlaceLocalHandle.make[Random](Dist.makeUnique(), () => new Random(0));
         val local_curr_clusters = PlaceLocalHandle.make[Rail[Float]](Dist.makeUnique(), 
                                                                      () => Rail.make[Float](CLUSTERS*DIM, (i:Int) => 0 as Float));

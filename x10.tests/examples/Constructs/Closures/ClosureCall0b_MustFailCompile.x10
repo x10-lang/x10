@@ -35,7 +35,7 @@ public class ClosureCall0b_MustFailCompile extends ClosureTest {
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new ClosureCall0b_MustFailCompile().execute();
     }
 }

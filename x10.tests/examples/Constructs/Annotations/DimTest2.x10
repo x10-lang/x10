@@ -31,7 +31,7 @@ public class DimTest2 extends harness.x10Test {
 	return a && b && c && d;
     }
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new DimTest2().execute();
     }
 }

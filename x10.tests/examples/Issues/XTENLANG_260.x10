@@ -41,7 +41,7 @@ class XTENLANG_260 extends x10Test {
         return c==(a/b) && f==(d*e) && i==(g+h) && l==(k-j);
     }
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new XTENLANG_260().execute();
     }
 }

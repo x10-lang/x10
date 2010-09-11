@@ -1756,6 +1756,17 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return ta.get(0).typeEquals(p, createContext());
     }
 
+    public boolean isArray(Type t) {
+        return hasSameClassDef(t, Array());
+    }
+
+    public boolean isArrayOf(Type t, Type p) {
+        if (!isArray(t)) return false;
+        List<Type> ta = ((X10ClassType)X10TypeMixin.baseType(t)).typeArguments();
+        assert (ta.size() == 1);
+        return ta.get(0).typeEquals(p, createContext());
+    }
+
     public boolean hasSameClassDef(Type t1, Type t2) {
         Type b1 = X10TypeMixin.baseType(t1);
         Type b2 = X10TypeMixin.baseType(t2);
@@ -1773,6 +1784,10 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
     public Type ValRail(Type arg) {
         return X10TypeMixin.instantiate(ValRail(), arg);
+    }
+
+    public Type Array(Type arg) {
+        return X10TypeMixin.instantiate(Array(), arg);
     }
 
     public Type Settable(Type domain, Type range) {

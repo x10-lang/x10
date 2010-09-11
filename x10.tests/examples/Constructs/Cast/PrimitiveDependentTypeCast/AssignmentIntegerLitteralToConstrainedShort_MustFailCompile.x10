@@ -24,7 +24,7 @@ public class AssignmentIntegerLitteralToConstrainedShort_MustFailCompile extends
 		return false;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new AssignmentIntegerLitteralToConstrainedShort_MustFailCompile().execute();
 	}
 

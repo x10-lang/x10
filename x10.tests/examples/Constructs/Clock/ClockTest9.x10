@@ -72,7 +72,7 @@ public class ClockTest9 extends x10Test {
 		// val[i] should be 0 by now
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new ClockTest9().executeAsync();
 	}
 }

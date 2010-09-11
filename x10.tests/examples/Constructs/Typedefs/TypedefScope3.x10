@@ -35,7 +35,7 @@ public class TypedefScope3 extends TypedefTest {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new TypedefScope3().execute();
     }
 }

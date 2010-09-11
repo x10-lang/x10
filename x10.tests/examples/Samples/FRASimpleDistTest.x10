@@ -18,7 +18,7 @@ public class FRASimpleDistTest extends x10Test {
          return true;
     }
 
-    public static def main(args:Rail[String]) {
+    public static def main(args:Array[String](1)) {
 	new FRASimpleDistTest().execute();
     }
 }

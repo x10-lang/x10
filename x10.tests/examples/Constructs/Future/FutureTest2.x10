@@ -23,7 +23,7 @@ public class FutureTest2 extends x10Test {
 
 	def m() = true;
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new FutureTest2().execute();
 	}
 }

@@ -462,7 +462,7 @@ class PolyBox1 extends TestRegion {
         "  iterator\n"+
         "r1a2.isEmpty() checks true\n";
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new PolyBox1().execute();
     }
 }

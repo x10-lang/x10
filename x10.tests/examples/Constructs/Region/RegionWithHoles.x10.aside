@@ -175,7 +175,7 @@ public class RegionWithHoles extends x10Test {
         return test1D() && test2D() && test3D() && test4D() && testPoint();
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new RegionWithHoles().execute();
     }
 }
