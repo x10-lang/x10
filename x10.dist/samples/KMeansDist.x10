@@ -20,24 +20,24 @@ public class KMeansDist {
 
     public static def main (Array[String]) {
         val rnd = PlaceLocalHandle.make[Random](Dist.makeUnique(), () => new Random(0));
-        val local_curr_clusters = PlaceLocalHandle.make[Rail[Float]](Dist.makeUnique(), 
-                                                                     () => Rail.make[Float](CLUSTERS*DIM, (i:Int) => 0 as Float));
-        val local_new_clusters = PlaceLocalHandle.make[Rail[Float]](Dist.makeUnique(),
-							            () =>  Rail.make[Float](CLUSTERS*DIM, (i:Int) => 0 as Float));
-        val local_cluster_counts = PlaceLocalHandle.make[Rail[Int]](Dist.makeUnique(), 
-                                                                    ()=> Rail.make[Int](CLUSTERS, (i:Int) => 0));
+        val local_curr_clusters = PlaceLocalHandle.make[Array[Float](1)](Dist.makeUnique(), 
+                                                                            () => new Array[Float](CLUSTERS*DIM));
+        val local_new_clusters = PlaceLocalHandle.make[Array[Float](1)](Dist.makeUnique(),
+							                   () =>  new Array[Float](CLUSTERS*DIM));
+        val local_cluster_counts = PlaceLocalHandle.make[Array[Int](1)](Dist.makeUnique(), 
+                                                                           ()=> new Array[Int](CLUSTERS));
 
         val points_dist = Dist.makeBlock(points_region, 0);
         val points = DistArray.make[Float](points_dist, (p:Point)=>rnd().nextFloat());
 
-        val central_clusters = Rail.make[Float](CLUSTERS*DIM, (i:Int) => {
-            val p = Point.make([i/DIM, i%DIM]);
+        val central_clusters = new Array[Float](CLUSTERS*DIM, (pt:Point(1)) => {
+            val p = Point.make([pt(0)/DIM, pt(0)%DIM]);
             return at (points_dist(p)) points(p);
         });
 
-	val old_central_clusters = Rail.make[Float](CLUSTERS*DIM);
+	val old_central_clusters = new Array[Float](CLUSTERS*DIM);
 
-        val central_cluster_counts = Rail.make[Int](CLUSTERS, (i:Int) => 0);
+        val central_cluster_counts = new Array[Int](CLUSTERS);
 
         for (i in 1..ITERATIONS) {
 
