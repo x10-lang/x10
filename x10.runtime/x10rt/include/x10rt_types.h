@@ -2,8 +2,10 @@
 #define X10RT_TYPES_H
 
 #ifdef __cplusplus
+/** Used to expose c-compatible symbol names */
 #define X10RT_C extern "C"
 #else
+/** Used to expose c-compatible symbol names */
 #define X10RT_C
 #endif
 
@@ -106,6 +108,9 @@ typedef enum {
     X10RT_OP_XOR = 3
 } x10rt_op_type;
 
+/** The list of operations supported when doing a reduction. 
+ * \see x10rt_allreduce
+ */
 typedef enum {
     X10RT_RED_OP_ADD = 0,
     X10RT_RED_OP_MUL = 1,
@@ -117,24 +122,33 @@ typedef enum {
     X10RT_RED_OP_MIN = 7
 } x10rt_red_op_type;
 
+/** The struct that must be used when using #X10RT_RED_TYPE_DBL_S32.
+ * \see #x10rt_allreduce #x10rt_red_type
+ */
 struct x10rt_dbl_s32 {
+    /** The floating point value that will be compared in the operation*/
     double val;
+    /** The index identifying the value that will be preserved over the operation*/
     int32_t idx;
 };
 
+/** The list of types supported when doing a reduction operation.  \see x10rt_allreduce.
+ * Signed/unsigned integer types are available.  Floating point types are supported but may not be
+ * used when doing bitwise arithmetic.  Only MIN/MAX can be used when using #X10RT_RED_TYPE_DBL_S32.
+ */
 typedef enum
   {
-    X10RT_RED_TYPE_U8  = 0,
-    X10RT_RED_TYPE_S8  = 1,
-    X10RT_RED_TYPE_S16 = 2,
-    X10RT_RED_TYPE_U16 = 3,
-    X10RT_RED_TYPE_S32 = 4,
-    X10RT_RED_TYPE_U32 = 5,
-    X10RT_RED_TYPE_S64 = 6,
-    X10RT_RED_TYPE_U64 = 7,
-    X10RT_RED_TYPE_DBL = 8,
-    X10RT_RED_TYPE_FLT = 9,
-    X10RT_RED_TYPE_DBL_S32 = 10
+    /** Unsigned byte*/ X10RT_RED_TYPE_U8  = 0,
+    /** Signed byte*/ X10RT_RED_TYPE_S8  = 1,
+    /** Unsigned word*/ X10RT_RED_TYPE_S16 = 2,
+    /** Signed word*/ X10RT_RED_TYPE_U16 = 3,
+    /** Unsigned dword*/ X10RT_RED_TYPE_S32 = 4,
+    /** Signed dword*/ X10RT_RED_TYPE_U32 = 5,
+    /** Signed qword*/ X10RT_RED_TYPE_S64 = 6,
+    /** Unsigned qword*/ X10RT_RED_TYPE_U64 = 7,
+    /** Double precision IEEE float*/ X10RT_RED_TYPE_DBL = 8,
+    /** Single precision IEEE float*/ X10RT_RED_TYPE_FLT = 9,
+    /** A pair of double and signed dword*/ X10RT_RED_TYPE_DBL_S32 = 10
 } x10rt_red_type;
 
 /** The list of optional x10rt_net features.
