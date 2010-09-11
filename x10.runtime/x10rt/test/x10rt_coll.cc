@@ -7,6 +7,7 @@
 
 #include <stdint.h>
 
+#include <pthread.h>
 #include <sched.h>
 
 #include <x10rt_front.h>
