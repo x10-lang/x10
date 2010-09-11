@@ -13,7 +13,7 @@ import harness.x10Test;
 
 public class HelloWorldTest extends x10Test {
     public def run():boolean {
-         val args = Rail.make[String](0);
+         val args = new Array[String](0);
          HelloWorld.main(args);
          return true;
     }

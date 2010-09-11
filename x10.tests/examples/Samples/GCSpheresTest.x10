@@ -13,7 +13,7 @@ import harness.x10Test;
 
 public class GCSpheresTest extends x10Test {
     public def run():boolean {
-         val args = Rail.make[String](0);
+         val args = new Array[String](0);
          GCSpheres.main(args);
          return true;
     }

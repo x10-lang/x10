@@ -13,7 +13,8 @@ import harness.x10Test;
 
 public class MontyPiTest extends x10Test {
     public def run():boolean {
-         val args = Rail.make[String](["10000"]);
+         val args = new Array[String](1);
+         args(0) = "10000";
          MontyPi.main(args);
          return true;
     }
