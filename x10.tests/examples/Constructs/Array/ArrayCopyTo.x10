@@ -15,8 +15,8 @@ import harness.x10Test;
  * Simple tests for copyTo/copyFrom functionality
  */
 public class ArrayCopyTo extends x10Test {
-    const R1 = 20..100;
-    const R2:Region(2) = [0..9,0..9];
+    static R1 = 20..100;
+    static R2:Region(2) = [0..9,0..9];
 
     public def run() {
        val localA = new Array[int](R1,(p:Point)=>p(0));

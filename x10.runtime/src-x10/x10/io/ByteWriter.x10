@@ -14,6 +14,7 @@ package x10.io;
 import x10.util.Builder;
 import x10.compiler.Pinned;
 import x10.compiler.Global;
+import x10.compiler.Incomplete;
 
 public class ByteWriter[T] /*extends Writer*/ {
 	val root = GlobalRef[ByteWriter[T]](this);
@@ -32,7 +33,9 @@ public class ByteWriter[T] /*extends Writer*/ {
     	   me.b.add(x); 
     	}
     }
-    @Global public incomplete def size() : Long;
+    @Global @Incomplete public  def size() : Long {
+        throw new UnsupportedOperationException();
+    }
     @Global public safe def toString():String { 
       if (here == root.home) { 
           val me = (root as GlobalRef[ByteWriter[T]]{self.home==here})();

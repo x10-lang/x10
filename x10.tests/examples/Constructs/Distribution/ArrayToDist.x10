@@ -19,7 +19,7 @@ import harness.x10Test;
 
 public class ArrayToDist extends x10Test {
 
-    const N = 4;
+    static N = 4;
 
     public def run(): boolean = {
 

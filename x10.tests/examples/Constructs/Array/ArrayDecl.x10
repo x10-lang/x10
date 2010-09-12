@@ -19,7 +19,7 @@ import harness.x10Test;
 
 public class ArrayDecl extends x10Test {
 
-    public const N: int = 24;
+    public static N: int = 24;
 
     public def run(): boolean = {
 

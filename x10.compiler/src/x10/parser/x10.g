@@ -285,6 +285,7 @@
 --    private
 --    property
 --    protected
+--    proto
 --    public
 --    return
     safe
@@ -459,7 +460,7 @@ public static class MessageHandler implements IMessageHandler {
             public static int PUBLIC      = 11;
             public static int SAFE        = 12;
             public static int SEQUENTIAL  = 13;
-            public static int SHARED      = 14;
+            public static int CLOCKED     = 14;
             public static int STATIC      = 15;
             public static int TRANSIENT   = 16;
             public static int NUM_FLAGS   = TRANSIENT + 1;
@@ -484,7 +485,7 @@ public static class MessageHandler implements IMessageHandler {
                 if (flag == PUBLIC)       return Flags.PUBLIC;
                 if (flag == SAFE)         return X10Flags.SAFE;
                 if (flag == SEQUENTIAL)   return X10Flags.SEQUENTIAL;
-                if (flag == SHARED)       return X10Flags.SHARED;
+                if (flag == CLOCKED)       return X10Flags.CLOCKED;
                 if (flag == TRANSIENT)    return X10Flags.TRANSIENT;
                 if (flag == STATIC)       return Flags.STATIC;
                 assert(false);
@@ -506,7 +507,7 @@ public static class MessageHandler implements IMessageHandler {
                 if (flag == PUBLIC)       return "public";
                 if (flag == SAFE)         return "safe";
                 if (flag == SEQUENTIAL)   return "sequential";
-                if (flag == SHARED)       return "shared";
+                if (flag == CLOCKED)       return "clocked";
                 if (flag == STATIC)       return "static";
                 if (flag == TRANSIENT)    return "transient";
                 assert(false);
@@ -523,6 +524,7 @@ public static class MessageHandler implements IMessageHandler {
                 classModifiers[PUBLIC] = true;
                 classModifiers[SAFE] = true;
                 classModifiers[STATIC] = true;
+                classModifiers[CLOCKED] = true;
                 // classModifiers[GLOBAL] = true;
             }
             public boolean isClassModifier(int flag) {
@@ -546,6 +548,7 @@ public static class MessageHandler implements IMessageHandler {
             static {
                 fieldModifiers[TRANSIENT] = true;
                 // fieldModifiers[GLOBAL] = true;
+                fieldModifiers[CLOCKED] = true;
                 fieldModifiers[PRIVATE] = true;
                 fieldModifiers[PROTECTED] = true;
                 fieldModifiers[PROPERTY] = true;
@@ -558,7 +561,7 @@ public static class MessageHandler implements IMessageHandler {
 
             public static boolean variableModifiers[] = new boolean[NUM_FLAGS];
             static {
-                variableModifiers[SHARED] = true;
+                variableModifiers[CLOCKED] = true;
             }
             public boolean isVariableModifier(int flag) {
                 return variableModifiers[flag];
@@ -581,6 +584,7 @@ public static class MessageHandler implements IMessageHandler {
                 methodModifiers[SAFE] = true;
                 methodModifiers[SEQUENTIAL] = true;
                 methodModifiers[STATIC] = true;
+                methodModifiers[CLOCKED] = true;
             }
             public boolean isMethodModifier(int flag) {
                 return methodModifiers[flag];
@@ -604,6 +608,8 @@ public static class MessageHandler implements IMessageHandler {
                 interfaceModifiers[PROTECTED] = true;
                 interfaceModifiers[PUBLIC] = true;
                 interfaceModifiers[STATIC] = true;
+                interfaceModifiers[CLOCKED] = true;
+
             }
             public boolean isInterfaceModifier(int flag) {
                 return interfaceModifiers[flag];
@@ -1259,11 +1265,6 @@ public static class MessageHandler implements IMessageHandler {
                     setResult(new FlagModifier(pos(), FlagModifier.SEQUENTIAL));
           $EndJava
         ./
-                   | shared
-        /.$BeginJava
-                    setResult(new FlagModifier(pos(), FlagModifier.SHARED));
-          $EndJava
-        ./
                    | static
         /.$BeginJava
                     setResult(new FlagModifier(pos(), FlagModifier.STATIC));
@@ -1272,6 +1273,11 @@ public static class MessageHandler implements IMessageHandler {
                           | transient
         /.$BeginJava
                     setResult(new FlagModifier(pos(), FlagModifier.TRANSIENT));
+          $EndJava
+        ./
+                          | clocked
+        /.$BeginJava
+                    setResult(new FlagModifier(pos(), FlagModifier.CLOCKED));
           $EndJava
         ./
 
@@ -1998,11 +2004,6 @@ public static class MessageHandler implements IMessageHandler {
                     setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.NONE)));
           $EndJava
         ./
-                   | const
-        /.$BeginJava
-                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL.Static())));
-          $EndJava
-        ./
                    
                    
                    
@@ -2335,20 +2336,19 @@ public static class MessageHandler implements IMessageHandler {
           $EndJava
         ./
 
-    ClockedClause ::= clocked ( ClockList )
+   ClockedClause ::= clocked ( ClockList )
         /.$BeginJava
                     setResult(ClockList);
           $EndJava
         ./
+        
 
-    AsyncStatement ::= async PlaceExpressionSingleListopt ClockedClauseopt Statement
+    AsyncStatement ::= async ClockedClauseopt Statement
         /.$BeginJava
-                  setResult(nf.Async(pos(), (PlaceExpressionSingleListopt == null
-                                                                            ? nf.Here(pos(getLeftSpan()))
-                                                                            : PlaceExpressionSingleListopt),
-                                             ClockedClauseopt, Statement));
+                  setResult(nf.Async(pos(), ClockedClauseopt, Statement));
           $EndJava
         ./
+
 
     AtStatement ::= at PlaceExpressionSingleList Statement
         /.$BeginJava
@@ -2441,13 +2441,7 @@ public static class MessageHandler implements IMessageHandler {
           $EndJava
         ./
 
-    AwaitStatement ::= await Expression ;
-        /.$BeginJava
-                    setResult(nf.Await(pos(), Expression));
-          $EndJava
-        ./
-
-    ClockList ::= Clock
+ ClockList ::= Clock
         /.$BeginJava
                     List l = new TypedList(new LinkedList(), Expr.class, false);
                     l.add(Clock);
@@ -2473,7 +2467,6 @@ public static class MessageHandler implements IMessageHandler {
 --                    setResult(new X10ParsedName(nf, ts, pos(), Identifier).toExpr());
 --          $EndJava
 --        ./
-
 
     CastExpression ::= Primary
                      | ExpressionName
@@ -2611,22 +2604,6 @@ public static class MessageHandler implements IMessageHandler {
                     setResult(nf.Call(pos(), nf.Future(pos(), nf.Here(pos(getLeftSpan())), nf.UnknownTypeNode(pos()), ClosureBody), nf.Id(pos(), "force")));
           $EndJava
         ./
-                       | async PlaceExpressionSingleList ClosureBody
-        /.$BeginJava
-                    setResult(nf.Call(pos(), nf.Future(pos(), PlaceExpressionSingleList, nf.UnknownTypeNode(pos()), ClosureBody), nf.Id(pos(), "force")));
-          $EndJava
-        ./
-                       | async '[' Type ']' ClosureBody
-        /.$BeginJava
-                    setResult(nf.Call(pos(), nf.Future(pos(), nf.Here(pos(getLeftSpan())), Type, ClosureBody), nf.Id(pos(), "force")));
-          $EndJava
-        ./
-                       | async '[' Type ']' PlaceExpressionSingleList ClosureBody
-        /.$BeginJava
-                    setResult(nf.Call(pos(), nf.Future(pos(), PlaceExpressionSingleList, Type, ClosureBody), nf.Id(pos(), "force")));
-          $EndJava
-        ./
-
 
     FinishExpression ::= finish ( Expression ) Block
         /.$BeginJava
@@ -2634,27 +2611,6 @@ public static class MessageHandler implements IMessageHandler {
           $EndJava
         ./
         
-    FutureExpression ::= future ClosureBody
-        /.$BeginJava
-                    setResult(nf.Future(pos(), nf.Here(pos(getLeftSpan())), nf.UnknownTypeNode(pos()), ClosureBody));
-          $EndJava
-        ./
-                       | future PlaceExpressionSingleList ClosureBody
-        /.$BeginJava
-                    setResult(nf.Future(pos(), PlaceExpressionSingleList, nf.UnknownTypeNode(pos()), ClosureBody));
-          $EndJava
-        ./
-                       | future '[' Type ']' ClosureBody
-        /.$BeginJava
-                    setResult(nf.Future(pos(), nf.Here(pos(getLeftSpan())), Type, ClosureBody));
-          $EndJava
-        ./
-                       | future '[' Type ']' PlaceExpressionSingleList ClosureBody
-        /.$BeginJava
-                    setResult(nf.Future(pos(), PlaceExpressionSingleList, Type, ClosureBody));
-          $EndJava
-        ./
-
     ---------------------------------------- All the opts...
 
 --
@@ -3532,6 +3488,11 @@ public static class MessageHandler implements IMessageHandler {
 --                     | global
 --        /.$BeginJava
 --                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.GLOBAL)));
+--          $EndJava
+--        ./
+--                     | proto
+--        /.$BeginJava
+--                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.PROTO)));
 --          $EndJava
 --        ./
 

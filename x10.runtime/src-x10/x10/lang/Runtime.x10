@@ -1281,7 +1281,7 @@ import x10.util.Box;
         // release the latch to stop the worker
 
         // bound on loop iterations to help j9 jit
-        const BOUND = 100;
+        static BOUND = 100;
 
         // activity (about to be) executed by this worker
         private var activity:Activity = null;
@@ -1402,7 +1402,7 @@ import x10.util.Box;
         private val semaphore = new Semaphore(0);
 
         // an upper bound on the number of workers
-        private const MAX = 1000;
+        private static MAX = 1000;
 
         // the workers in the pool
         private val workers:Rail[Worker];
@@ -1521,7 +1521,7 @@ import x10.util.Box;
 
 
     // for debugging
-    const PRINT_STATS = false;
+    static PRINT_STATS = false;
 
     static public def dump() {
         runtime().pool.dump();
@@ -1545,7 +1545,7 @@ import x10.util.Box;
     /**
      * The runtime instance associated with each place
      */
-    private const runtime = PlaceLocalHandle[Runtime]();
+    private static runtime = PlaceLocalHandle[Runtime]();
 
     static def proxy(rootFinish:FinishState) = runtime().finishStates(rootFinish);
 
@@ -1705,15 +1705,15 @@ import x10.util.Box;
     public static def runAt(place:Place, body:()=>void):void {
     	
         val box = (new RemoteControl()).root;
-        async(place) {
+        async at(place) {
             try {
                 body();
-                async(box.home) {
+                async at(box.home) {
                 	val me = box();
                 	me.latch.release();
                 }
             } catch (e:Throwable) {
-                async(box.home) {
+                async at(box.home) {
                 	val me = box();
                     me.e = new Box[Throwable](e);
                     me.latch.release();
@@ -1748,16 +1748,16 @@ import x10.util.Box;
 
     public static def evalAt[T](place:Place, eval:()=>T):T {
         val box = (new Remote[T]()).root;
-        async(place) {
+        async at(place) {
             try {
                 val result = eval();
-                async(box.home) {
+                async at(box.home) {
                 	val me = box();
                     me.t = result;
                     me.latch.release();
                 }
             } catch (e:Throwable) {
-                async(box.home) {
+                async at(box.home) {
                 	val me = box();
                 	me.e = e;
                     me.latch.release();

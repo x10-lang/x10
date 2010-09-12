@@ -223,8 +223,8 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	}
 
 	// Wrap the body of the async in a Block so as to ease further code transforamtions.
-	public Async Async(Position pos, Expr place, List<Expr> clocks, Stmt body) {
-		Async a = new Async_c(pos, place, clocks, asBlock(body));
+	public Async Async(Position pos,  List<Expr> clocks, Stmt body) {
+		Async a = new Async_c(pos,  clocks, asBlock(body));
 		X10ExtFactory_c ext_fac = (X10ExtFactory_c) extFactory();
 		a = (Async) a.ext(ext_fac.extAsyncImpl());
 		X10DelFactory_c del_fac = (X10DelFactory_c) delFactory();

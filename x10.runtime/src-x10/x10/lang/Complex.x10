@@ -23,15 +23,15 @@ public struct Complex /*TODO implements Arithmetic[Complex]*/ {
     public val im:Double;
 
     /** The complex number that corresponds to 0.0 */
-    public const ZERO = Complex(0.0, 0.0);
+    public static ZERO = Complex(0.0, 0.0);
     /** The complex number that corresponds to 1.0 */
-    public const ONE = Complex(1.0, 0.0);
+    public static ONE = Complex(1.0, 0.0);
     /** The complex number that corresponds to 1.0i */
-    public const I = Complex(0.0, 1.0);
+    public static I = Complex(0.0, 1.0);
     /** The complex number that corresponds to +Inf + +Inf*i */
-    public const INF = Complex(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
+    public static INF = Complex(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
     /** The complex number that corresponds to NaN + NaN*i */
-    public const NaN = Complex(Double.NaN, Double.NaN);
+    public static NaN = Complex(Double.NaN, Double.NaN);
 
     /**
      * Construct a complex number with the specified real and imaginary components.

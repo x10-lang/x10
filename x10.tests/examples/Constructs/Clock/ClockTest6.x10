@@ -62,9 +62,9 @@ import harness.x10Test;
  */
 public class ClockTest6 extends x10Test {
 
-	public const N_INSTANCES: int = 8; //number of instances of each async activity kind
-	public const N_NEXTS: int = 4; //number of next pairs in each async activity
-	public const N_KINDS: int = 4; // number of kinds of async activities
+	public static N_INSTANCES: int = 8; //number of instances of each async activity kind
+	public static N_NEXTS: int = 4; //number of next pairs in each async activity
+	public static N_KINDS: int = 4; // number of kinds of async activities
 	var globalCounter: int = 0;
 
 	public def run(): boolean = {

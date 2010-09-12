@@ -13,6 +13,7 @@ package x10.io;
 
 import x10.compiler.NativeRep;
 import x10.compiler.Native;
+import x10.compiler.Incomplete;
 
 /**
  * Represents a file path.
@@ -110,8 +111,8 @@ FileSystem operations
     public static java.io.File createTempFile(java.lang.String, java.lang.String)       throws java.io.IOException;
 */
 
-    public const SEPARATOR: Char = '/';
-    public const PATH_SEPARATOR: Char = ':';
+    public static SEPARATOR: Char = '/';
+    public static PATH_SEPARATOR: Char = ':';
 
     // TODO: This is questionable.
     //       What does it mean to send a File to another node?
@@ -145,7 +146,7 @@ FileSystem operations
         absolute = p != null && p.absolute;
     }
 
-    // incomplete def this(u: URI);
+    // @Incomplete def this(u: URI);
 
     public def lines(): ReaderIterator[String] throws IOException = openRead().lines();
     public def chars(): ReaderIterator[Char] throws IOException = openRead().chars();
@@ -170,12 +171,13 @@ FileSystem operations
     public def exists(): Boolean = nativeFile().exists();
 
     // OS-specific
-    incomplete def isSymbolicLink(): Boolean;
-    incomplete def isAlias(): Boolean;
-    incomplete def hardLinkCount(): Boolean;
-    incomplete def inodeNumber(): Long;
-    incomplete def permissions(): Int; // FilePermission;
-
+    @Incomplete def isSymbolicLink(): Boolean {         throw new UnsupportedOperationException();}
+    @Incomplete def isAlias(): Boolean  {         throw new UnsupportedOperationException(); }
+    @Incomplete def hardLinkCount(): Boolean {         throw new UnsupportedOperationException(); }
+    @Incomplete def inodeNumber(): Long {         throw new UnsupportedOperationException(); }
+    @Incomplete def permissions(): Int {         throw new UnsupportedOperationException();} 
+    // FilePermission;
+    
     public def isDirectory(): Boolean = nativeFile().isDirectory();
     public def isFile(): Boolean = nativeFile().isFile();
     public def isHidden(): Boolean = nativeFile().isHidden();
@@ -184,7 +186,7 @@ FileSystem operations
     public def setLastModified(t:Long): Boolean = nativeFile().setLastModified(t);
     public def size(): Long = nativeFile().length();
 
-    incomplete public def compareTo(File): Int;
+    @Incomplete public def compareTo(File): Int {         throw new UnsupportedOperationException();}
 
     public def canRead(): Boolean = nativeFile().canRead();
     public def canWrite(): Boolean = nativeFile().canWrite();

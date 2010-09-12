@@ -19,7 +19,7 @@ import harness.x10Test;
  */
 public class ForLoop4 extends x10Test {
 
-	public const N: int = 3;
+	public static N: int = 3;
 
 	public def run(): boolean = {
 		//Ensure iterator works in lexicographic order

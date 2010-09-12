@@ -15,8 +15,8 @@ package x10.lang;
 import x10.compiler.Native;
 
 public final class Math {
-   public const E = 2.718281828459045D;
-   public const PI = 3.141592653589793D;
+   public static E = 2.718281828459045D;
+   public static PI = 3.141592653589793D;
 
    public static safe def abs(a:Double):Double = a<=0.0 ? 0.0-a : a;
    public static safe def abs(a:Int):Int = a<0 ? -a : a;

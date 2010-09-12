@@ -19,7 +19,7 @@ import harness.x10Test;
 
 public class PointArithmetic extends x10Test {
 
-    public const DIM: int = 5;
+    public static DIM: int = 5;
 
     public def run(): boolean = {
 

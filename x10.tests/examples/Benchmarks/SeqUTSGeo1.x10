@@ -42,10 +42,10 @@ class SeqUTSGeo1 extends Benchmark {
     // parameters
     //
 
-    const r0 = 0;                      // seed for root
+    static r0 = 0;                      // seed for root
 
-    const b0 = 4;                      // average branching factor
-    const d = 10;                      // max depth
+    static b0 = 4;                      // average branching factor
+    static d = 10;                      // max depth
     def expected() = 906930.0;         // expected size given above params 
 
     def operations() = size as double; // work is proportional to size

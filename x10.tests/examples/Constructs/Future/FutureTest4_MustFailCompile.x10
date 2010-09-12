@@ -21,7 +21,7 @@ import harness.x10Test;
  */
 public class FutureTest4_MustFailCompile extends x10Test {
 
-	public const N: int = 8;
+	public static N: int = 8;
 
 	/**
 	 * testing free variables in future expression

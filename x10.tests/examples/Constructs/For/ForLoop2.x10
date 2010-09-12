@@ -20,7 +20,7 @@ import harness.x10Test;
  */
 public class ForLoop2 extends x10Test {
 
-	public const N: int = 3;
+	public static N: int = 3;
 
 	public def run(): boolean = {
 		var r:Region(1){rect}  = 0..N-1;

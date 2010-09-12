@@ -30,7 +30,7 @@ import x10.compiler.Native;
 public class Printer extends FilterWriter {
     public def this(w: Writer) { super(w); }
 
-    private const NEWLINE:Char = '\n'; // System.getProperty("line.separator");
+    private static NEWLINE:Char = '\n'; // System.getProperty("line.separator");
 
     public def println(): Void = print(NEWLINE);
     

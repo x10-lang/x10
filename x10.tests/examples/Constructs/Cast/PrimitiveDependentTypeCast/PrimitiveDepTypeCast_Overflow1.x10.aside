@@ -18,7 +18,7 @@ import harness.x10Test;
  * @author vcave
  **/
 public class PrimitiveDepTypeCast_Overflow1 extends x10Test {
-	 private const aboveShort: int = (Short.MAX_VALUE as int) + 10;
+	 private static aboveShort: int = (Short.MAX_VALUE as int) + 10;
 	 
 	public def run(): boolean = {
 		// 32777 stored in a short is overflowed to -32759

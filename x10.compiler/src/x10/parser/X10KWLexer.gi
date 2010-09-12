@@ -87,7 +87,6 @@
     catch
     class
     clocked
-    const
     continue
     def
     default
@@ -101,7 +100,6 @@
     finish
     for
     foreach
-    future
     global
     goto
     here
@@ -109,10 +107,8 @@
     implements
     import
     in
-    incomplete
     instanceof
     interface
-    local
     native
     new
     next
@@ -121,18 +117,15 @@
     offer
     offers
     operator
-    or
     package
     private
     property
     protected
-    proto
     public
     return
     safe
     self
     sequential
-    shared
     static
     struct
     super
@@ -217,11 +210,6 @@
                 $setResult($_clocked);
           $EndAction
         ./
-              | c o n s t
-        /.$BeginAction
-                $setResult($_const);
-          $EndAction
-        ./
               | c o n t i n u e
         /.$BeginAction
                 $setResult($_continue);
@@ -287,11 +275,6 @@
                 $setResult($_foreach);
           $EndAction
         ./
-              | f u t u r e
-        /.$BeginAction
-                $setResult($_future);
-          $EndAction
-        ./
               | g l o b a l
         /.$BeginAction
                 $setResult($_global);
@@ -327,11 +310,6 @@
                 $setResult($_in);
           $EndAction
         ./
-              | i n c o m p l e t e
-        /.$BeginAction
-                $setResult($_incomplete);
-          $EndAction
-        ./
               | i n s t a n c e o f
         /.$BeginAction
                 $setResult($_instanceof);
@@ -340,11 +318,6 @@
               | i n t e r f a c e
         /.$BeginAction
                 $setResult($_interface);
-          $EndAction
-        ./
-              | l o c a l
-        /.$BeginAction
-                $setResult($_local);
           $EndAction
         ./
               | n a t i v e
@@ -387,11 +360,6 @@
                 $setResult($_operator);
           $EndAction
         ./
-              | o r
-        /.$BeginAction
-                $setResult($_or);
-          $EndAction
-        ./
               | p a c k a g e
         /.$BeginAction
                 $setResult($_package);
@@ -410,11 +378,6 @@
               | p r o t e c t e d
         /.$BeginAction
                 $setResult($_protected);
-          $EndAction
-        ./
-              | p r o t o
-        /.$BeginAction
-                $setResult($_proto);
           $EndAction
         ./
               | p u b l i c
@@ -440,11 +403,6 @@
               | s e q u e n t i a l
         /.$BeginAction
                 $setResult($_sequential);
-          $EndAction
-        ./
-              | s h a r e d
-        /.$BeginAction
-                $setResult($_shared);
           $EndAction
         ./
               | s t a t i c

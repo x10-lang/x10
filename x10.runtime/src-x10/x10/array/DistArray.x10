@@ -16,6 +16,7 @@ import x10.compiler.Inline;
 import x10.compiler.Native;
 import x10.compiler.NoInline;
 import x10.compiler.NoReturn;
+import x10.compiler.Incomplete;
 
 import x10.util.IndexedMemoryChunk;
 
@@ -379,7 +380,9 @@ public class DistArray[T] (
     }            
 */
 
-    incomplete public def scan(op:(T,T)=>T, unit:T): DistArray[T](dist);
+    @Incomplete public def scan(op:(T,T)=>T, unit:T): DistArray[T](dist) {
+                throw new UnsupportedOperationException();
+    }
 
 
     //
@@ -400,6 +403,7 @@ public class DistArray[T] (
      */
 
     // safe to call from witin a constructor, does not read fields.
+    //protected proto def layout(r: Region): RectLayout {
     protected static def layout(r: Region): RectLayout {
         if (r.isEmpty()) {
             // XXX EmptyLayout class?

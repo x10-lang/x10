@@ -21,9 +21,9 @@ import harness.x10Test;
 
 public class AtomicOrdered extends x10Test {
 
-	public const CACHESIZE: int = 32*1024/4;
-	public const LINESIZE: int = 128/4;
-	public const MAX_ASSOC: int = 8;
+	public static CACHESIZE: int = 32*1024/4;
+	public static LINESIZE: int = 128/4;
+	public static MAX_ASSOC: int = 8;
 
 	val A = new Array[int](0..CACHESIZE*(MAX_ASSOC+2)-1);
 

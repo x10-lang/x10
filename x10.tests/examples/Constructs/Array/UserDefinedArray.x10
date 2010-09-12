@@ -20,8 +20,8 @@ import harness.x10Test;
 
 public class UserDefinedArray extends x10Test {
 
-    const R = 0..1;
-    const D = Dist.makeBlock(R, 0);
+    static R = 0..1;
+    static D = Dist.makeBlock(R, 0);
 
     public def run(): boolean = {
 

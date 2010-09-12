@@ -105,7 +105,7 @@ public class ArrayCopy2 extends x10Test {
         finish ateach (i:Point(E.rank) in E) chk(accessed_b(i) == 1);
     }
 
-    public const N: int = 3;
+    public static N: int = 3;
 
     /**
      * For all combinations of dists of arrays B and A,
@@ -148,8 +148,8 @@ public class ArrayCopy2 extends x10Test {
      */
     static class dist2 {
 
-        const BLOCK: int = 0;
-        const CONSTANT: int = 1;
+        static BLOCK: int = 0;
+        static CONSTANT: int = 1;
         //const BLOCKCYCLIC: int = 1;
 	const N_DIST_TYPES=2;
         /**

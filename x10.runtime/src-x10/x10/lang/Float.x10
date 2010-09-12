@@ -248,7 +248,7 @@ public final struct Float /*TODO implements Arithmetic[Float], Ordered[Float]*/ 
     @Native("java", "java.lang.Float.MIN_VALUE")
     @Native("c++", "x10aux::float_utils::fromIntBits(0x00000001)")
     @Native("cuda", "1.401298464E-45")
-    public const MIN_VALUE: Float = Float.fromIntBits(0x00000001);
+    public static MIN_VALUE: Float = Float.fromIntBits(0x00000001);
 
     /**
      * A constant holding the smallest positive normal value of type Float,
@@ -259,7 +259,7 @@ public final struct Float /*TODO implements Arithmetic[Float], Ordered[Float]*/ 
     @Native("java", "java.lang.Float.intBitsToFloat(0x00800000)")
     @Native("c++", "x10aux::float_utils::fromIntBits(0x00800000)")
     @Native("cuda", "FLT_MIN")
-    public const MIN_NORMAL: Float = Float.fromIntBits(0x00800000);
+    public static MIN_NORMAL: Float = Float.fromIntBits(0x00800000);
 
     /**
      * A constant holding the largest positive finite value of type Float,
@@ -270,7 +270,7 @@ public final struct Float /*TODO implements Arithmetic[Float], Ordered[Float]*/ 
     @Native("java", "java.lang.Float.MAX_VALUE")
     @Native("c++", "x10aux::float_utils::fromIntBits(0x7f7fffff)")
     @Native("cuda", "FLT_MAX")
-    public const MAX_VALUE: Float = Float.fromIntBits(0x7f7fffff);
+    public static MAX_VALUE: Float = Float.fromIntBits(0x7f7fffff);
 
     /**
      * A constant holding the positive infinity of type Float.
@@ -278,7 +278,7 @@ public final struct Float /*TODO implements Arithmetic[Float], Ordered[Float]*/ 
      */
     @Native("java", "java.lang.Float.POSITIVE_INFINITY")
     @Native("c++", "x10aux::float_utils::fromIntBits(0x7f800000)")
-    public const POSITIVE_INFINITY: Float = Float.fromIntBits(0x7f800000);
+    public static POSITIVE_INFINITY: Float = Float.fromIntBits(0x7f800000);
 
     /**
      * A constant holding the negative infinity of type Float.
@@ -286,7 +286,7 @@ public final struct Float /*TODO implements Arithmetic[Float], Ordered[Float]*/ 
      */
     @Native("java", "java.lang.Float.NEGATIVE_INFINITY")
     @Native("c++", "x10aux::float_utils::fromIntBits(0xff800000)")
-    public const NEGATIVE_INFINITY: Float = Float.fromIntBits(0xff800000);
+    public static NEGATIVE_INFINITY: Float = Float.fromIntBits(0xff800000);
 
     /**
      * A constant holding a Not-a-Number (NaN) value of type Float.
@@ -294,7 +294,7 @@ public final struct Float /*TODO implements Arithmetic[Float], Ordered[Float]*/ 
      */
     @Native("java", "java.lang.Float.NaN")
     @Native("c++", "x10aux::float_utils::fromIntBits(0x7fc00000)")
-    public const NaN: Float = Float.fromIntBits(0x7fc00000);
+    public static NaN: Float = Float.fromIntBits(0x7fc00000);
 
 
     /**

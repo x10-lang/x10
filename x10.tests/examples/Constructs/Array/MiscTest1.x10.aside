@@ -24,9 +24,9 @@ import harness.x10Test;
 
 public class MiscTest1 extends x10Test {
 
-    public const N: int = 50;
+    public static N: int = 50;
 
-    public const NP: int = Place.MAX_PLACES;
+    public static NP: int = Place.MAX_PLACES;
 
     public def run(): boolean = {
 

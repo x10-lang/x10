@@ -472,14 +472,14 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "0")
     @Native("c++", "((x10_uint)0U)")
-    public const MIN_VALUE = 0 as UInt;
+    public static MIN_VALUE = 0 as UInt;
 
     /**
      * A constant holding the maximum value a UInt can have, 2<sup>32</sup>-1.
      */
     // @Native("java", "0xffffffff")
     @Native("c++", "((x10_uint)0xffffffffU)")
-    public const MAX_VALUE = 0xffffffff as UInt;
+    public static MAX_VALUE = 0xffffffff as UInt;
 
 
     /**

@@ -280,9 +280,9 @@ abstract public class TestRegion extends x10Test {
     // XXX coefficients must be -1,0,+1; can allow larger coefficients
     // by increasing # bits per coeff
 
-    const ZERO = 0xAAAAAAA;
-    const GE = 0;
-    const LE = 1;
+    static ZERO = 0xAAAAAAA;
+    static GE = 0;
+    static LE = 1;
     def X(axis: int) = 0x1<<2*axis;
 
     public def reg(rank: int, var coeff: int, op: int, k: int): Region(rank) {

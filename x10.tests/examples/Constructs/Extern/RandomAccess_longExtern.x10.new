@@ -25,19 +25,19 @@ public class RandomAccess_longExtern extends x10Test {
 	// Set places.MAX_PLACES to 128 to match original
 	// Set LOG2_TABLE_SIZE to 25 to match original
 
-	public const MAX_PLACES: int = x10.lang.place.MAX_PLACES;
-	public const LOG2_TABLE_SIZE: int = 5;
-	public const LOG2_S_TABLE_SIZE: int = 4;
-	public const TABLE_SIZE: int = (1<<LOG2_TABLE_SIZE);
-	public const S_TABLE_SIZE: int = (1<<LOG2_S_TABLE_SIZE);
-	public const N_UPDATES: int = (4*TABLE_SIZE);
-	public const N_UPDATES_PER_PLACE: int = (N_UPDATES/MAX_PLACES);
-	public const WORD_SIZE: int = 64;
-	public const POLY: long = 7;
-	public const S_TABLE_INIT: long = 0x0123456789abcdefL;
+	public static MAX_PLACES: int = x10.lang.place.MAX_PLACES;
+	public static LOG2_TABLE_SIZE: int = 5;
+	public static LOG2_S_TABLE_SIZE: int = 4;
+	public static TABLE_SIZE: int = (1<<LOG2_TABLE_SIZE);
+	public static S_TABLE_SIZE: int = (1<<LOG2_S_TABLE_SIZE);
+	public static N_UPDATES: int = (4*TABLE_SIZE);
+	public static N_UPDATES_PER_PLACE: int = (N_UPDATES/MAX_PLACES);
+	public static WORD_SIZE: int = 64;
+	public static POLY: long = 7;
+	public static S_TABLE_INIT: long = 0x0123456789abcdefL;
 	// expected result with LOG2_S_TABLE_SIZE = 5,
 	// LOG2_S_TABLE_SIZE = 4
-	public const EXPECTED_RESULT: long = 1973902911463121104L;
+	public static EXPECTED_RESULT: long = 1973902911463121104L;
 
 	/** Get the value as a table index.
 	 */

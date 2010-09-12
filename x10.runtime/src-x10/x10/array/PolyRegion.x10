@@ -12,6 +12,7 @@
 package x10.array;
 
 import x10.io.Printer;
+import x10.compiler.Incomplete;
 
 /**
  * A PolyRegion represents a polyhedral region represented as the
@@ -46,9 +47,13 @@ public class PolyRegion extends Region {
         return true;
     }
 
-    incomplete public def size():int;
+    @Incomplete public def size():int {
+        throw new UnsupportedOperationException();
+    }
 
-    incomplete public def indexOf(Point):int;
+    @Incomplete public def indexOf(Point):int {
+        throw new UnsupportedOperationException();
+    }
 
 
     //
@@ -278,8 +283,8 @@ public class PolyRegion extends Region {
      * col-row <= colMin-rowMin + (upper-1)
      */
 
-    private const ROW: int = PolyMatBuilder.X(0);
-    private const COL: int = PolyMatBuilder.X(1);
+    private static ROW: int = PolyMatBuilder.X(0);
+    private static COL: int = PolyMatBuilder.X(1);
 
     public static def makeBanded(rowMin: int, colMin: int, rowMax: int, colMax: int, upper: int, lower: int): Region(2) {
         val pmb = new PolyMatBuilder(2);

@@ -49,8 +49,8 @@ import x10.compiler.Pinned;
     
     var shouldRehash: Boolean;
 
-    const MAX_PROBES = 3;
-    const MIN_SIZE = 4;
+    static MAX_PROBES = 3;
+    static MIN_SIZE = 4;
     
     public def this() {
         init(MIN_SIZE);
@@ -63,7 +63,7 @@ import x10.compiler.Pinned;
         init(pow2);
     }
     
-    protected final def init(sz: int): void {
+    final def init(sz: int): void {
         // check that sz is a power of 2
         assert (sz & -sz) == sz;
         assert sz >= MIN_SIZE;

@@ -44,9 +44,9 @@ void init() {
 
 double once() {
     for (int p=0; p<PARALLELISM; p++) {
-        double * const a = as[p];
-        double * const b = bs[p];
-        double * const c = cs[p];
+        double * static a = as[p];
+        double * static b = bs[p];
+        double * static c = cs[p];
         for (int t=0; t<NUM_TIMES; t++)
             for (int i=0; i<localSize; i++)
                 a[i] = b[i] + gamma*c[i];

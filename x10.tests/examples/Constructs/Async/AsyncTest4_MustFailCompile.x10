@@ -18,7 +18,7 @@ import harness.x10Test;
  */
 public class AsyncTest4_MustFailCompile extends x10Test {
 
-	public const N: int = 20;
+	public static N: int = 20;
 
 	public def run(): boolean = {
 		var s: int = 0;

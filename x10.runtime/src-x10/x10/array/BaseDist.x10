@@ -14,6 +14,7 @@ package x10.array;
 import x10.util.ArrayList;
 import x10.util.GrowableRail;
 import x10.util.Set;
+import x10.compiler.Incomplete;
 
 /**
  * The BaseDist class is the base of the hierarchy of classes that
@@ -109,19 +110,23 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
     // factories - place is a parameter
     //
 
-    incomplete public static def makeUnique1(ps: Set[Place]): Dist(1); // XTENLANG-4
+    @Incomplete public static def makeUnique1(ps: Set[Place]): Dist(1) { // XTENLANG-4
+        throw new UnsupportedOperationException();
+    }
 
     public static def makeConstant1(r: Region, p: Place): Dist(r) { // XTENLANG-4
         return new BaseDist(r, [p], [r]);
     }
 
-    incomplete public static def makeCyclic1(r: Region, axis: int, ps: Set[Place]): Dist(r); // XTENLANG-4
-
-    incomplete public static def makeBlock1(r: Region, axis: int, ps: Set[Place]): Dist(r); // XTENLANG-4
-
-    incomplete public static def makeBlockCyclic1(r: Region, axis: int, blockSize: int, ps: Set[Place]): Dist(r); // XTENLANG-4
-
-
+    @Incomplete public static def makeCyclic1(r: Region, axis: int, ps: Set[Place]): Dist(r) { // XTENLANG-4
+                throw new UnsupportedOperationException();
+    }
+    @Incomplete public static def makeBlock1(r: Region, axis: int, ps: Set[Place]): Dist(r) { // XTENLANG-4
+        throw new UnsupportedOperationException();
+    }
+    @Incomplete public static def makeBlockCyclic1(r: Region, axis: int, blockSize: int, ps: Set[Place]): Dist(r) { // XTENLANG-4
+        throw new UnsupportedOperationException();
+    }
     //
     // mapping places to region
     //

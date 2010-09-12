@@ -15,8 +15,8 @@ class DistRandomAccess1 extends Benchmark {
     // parameters
     //
 
-    const PARALLELISM = Math.min(2, Place.MAX_PLACES);
-    const logLocalTableSize = 12; // XXX much smaller than others - Dist very inefficient...
+    static PARALLELISM = Math.min(2, Place.MAX_PLACES);
+    static logLocalTableSize = 12; // XXX much smaller than others - Dist very inefficient...
     
     def expected() = 0.0;
     def operations() = 1.0 * numUpdates;
@@ -25,13 +25,13 @@ class DistRandomAccess1 extends Benchmark {
     // the benchmark
     //
 
-    const localTableSize = 1 << logLocalTableSize;
-    const tableSize = PARALLELISM * localTableSize;
-    const numUpdates = 4 * tableSize;
-    const placeMask = PARALLELISM - 1;
+    static localTableSize = 1 << logLocalTableSize;
+    static tableSize = PARALLELISM * localTableSize;
+    static numUpdates = 4 * tableSize;
+    static placeMask = PARALLELISM - 1;
 
-    const POLY = 0x0000000000000007L;
-    const PERIOD = 1317624576693539401L;
+    static POLY = 0x0000000000000007L;
+    static PERIOD = 1317624576693539401L;
 
     //val places = ValRail.make[Place](PARALLELISM, (p:int)=>Place.places(p));
 

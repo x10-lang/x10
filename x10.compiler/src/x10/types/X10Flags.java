@@ -45,6 +45,7 @@ public class X10Flags extends Flags {
     public static final X10Flags STRUCT = createFlag("struct", null);
     public static final X10Flags PINNED = createFlag("pinned", null);
     public static final X10Flags HASTYPE = createFlag("hastype", null); // can only be created through a <: Type declaration.
+    public static final X10Flags CLOCKED = createFlag("clocked", null);  
 
     /**
      * Return a new Flags object with a new name. Should be called only once per

@@ -22,7 +22,7 @@ import harness.x10Test;
  */
 public class BreakInForTest extends x10Test {
 
-	public const N: int = 100;
+	public static N: int = 100;
 	var R: Region = [0..N];
 	var D: Dist = Dist.make(R);
 	var n1: int = 91;

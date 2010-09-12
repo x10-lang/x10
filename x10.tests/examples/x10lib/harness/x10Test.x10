@@ -47,7 +47,7 @@ abstract public class x10Test {
         reportResult(b);
     }
 
-    public const PREFIX: String = "++++++ ";
+    public static PREFIX: String = "++++++ ";
 
     public static def success(): void = {
         println(PREFIX+"Test succeeded.");

@@ -101,12 +101,12 @@ public class DistBounds3D extends x10Test {
     static class dist2 {
 
         // Java has poor support for enum
-        const BLOCK: int = 0;
-        const CONSTANT: int = 1;
+        static BLOCK: int = 0;
+        static CONSTANT: int = 1;
         //const CYCLIC: int = 2;
         //const RANDOM: int = 3;
         //const ARBITRARY: int = 4;
-        const N_DIST_TYPES: int = 2; //5;
+        static N_DIST_TYPES: int = 2; //5;
 
         /**
          * Return a dist with region r, of type disttype

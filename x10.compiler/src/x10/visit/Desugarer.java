@@ -171,7 +171,37 @@ public class Desugarer extends ContextVisitor {
     //added for scalable finish
     private static final Name START_LOCAL_FINISH = Name.make("startLocalFinish");
     private static final Name START_SIMPLE_FINISH = Name.make("startSimpleFinish");
-    public Node override(Node parent, Node n) {    
+    public Node override(Node parent, Node n) {  
+    	// handle async at(p) S and treat it as the old async(p) S.
+    	if (n instanceof Async) {
+    		Async async = (Async) n;
+    		Stmt body = async.body();
+    		AtStmt atStm = toAtStmt(body);
+    		if (atStm==null)
+    			return null;
+    		Expr place = atStm.place(); 
+    		if (xts.hasSameClassDef(X10TypeMixin.baseType(place.type()), xts.GlobalRef())) {
+    			try {
+    				place = synth.makeFieldAccess(async.position(),place, xts.homeName(), xContext());
+    			} catch (SemanticException e) {
+    			}
+    		}
+    		List<Expr> clocks = async.clocks();
+    		place = (Expr) visitEdgeNoOverride(atStm, place);
+    		body = (Stmt) visitEdgeNoOverride(atStm, atStm.body());
+    		if (clocks != null && ! clocks.isEmpty()) {
+    			List<Expr> nclocks = new ArrayList<Expr>();
+    			for (Expr c : clocks) {
+    				nclocks.add((Expr) visitEdgeNoOverride(async, c));
+    			}
+    			clocks =nclocks;
+    		}
+    		try {
+    			return visitAsyncPlace(async, place, body);
+    		} catch (SemanticException z) {
+    			return null;
+    		}
+    	}
         if (n instanceof Eval) {
             try {
                 Stmt s = visitEval((Eval) n);
@@ -317,22 +347,51 @@ public class Desugarer extends ContextVisitor {
         return atStmt(pos, a.body(), a.place());
     }
 
+    private AtStmt toAtStmt(Stmt body) {
+    	if ((body instanceof AtStmt)) {
+    		return (AtStmt) body;
+    	}
+    	if (body instanceof Block) {
+    		Block block = (Block) body;
+    		if (block.statements().size()==1) {
+    			body = block.statements().get(0);
+    			if ((body instanceof AtStmt)) {
+    				return 	(AtStmt) body;
+    			}
+    		}
+    	}
+    	return null;
+    }
+    
     // Begin asyncs
+    // rewrite @Uncounted async S, with special translation for @Uncounted async at (p) S.
     private Stmt visitAsync(Node old, Async a) throws SemanticException {
         Position pos = a.position();
         X10Ext ext = (X10Ext) a.ext();
         List<X10ClassType> refs = Emitter.annotationsNamed(xts, a, REF);
         if (Emitter.hasAnnotation(xts, a, UNCOUNTED)) {
-            if (old instanceof Async && ((Async) old).place() instanceof Here)
-                return uncountedAsync(pos, a.body());
-            return uncountedAsync(pos, a.body(), a.place());
+        	if (old instanceof Async)
+            	 return uncountedAsync(pos, a.body());
         }
-        if (old instanceof Async && ((Async) old).place() instanceof Here)
+        if (old instanceof Async)
             return async(pos, a.body(), a.clocks(), refs);
-        Stmt specializedAsync = specializeAsync(old, a);
+        Stmt specializedAsync = specializeAsync(a, null, a.body());
         if (specializedAsync != null)
             return specializedAsync;
-        return async(pos, a.body(), a.clocks(), a.place(), refs);
+        return async(pos, a.body(), a.clocks(),  refs);
+    }
+    // Begin asyncs
+    // rewrite @Uncounted async S, with special translation for @Uncounted async at (p) S.
+    private Stmt visitAsyncPlace(Async a, Expr place, Stmt body) throws SemanticException {
+        Position pos = a.position();
+        List<X10ClassType> refs = Emitter.annotationsNamed(xts, a, REF);
+        if (Emitter.hasAnnotation(xts, a, UNCOUNTED)) {
+            return uncountedAsync(pos, body, place);
+        }
+        Stmt specializedAsync = specializeAsync(a, place, body);
+        if (specializedAsync != null)
+            return specializedAsync;
+        return async(pos, body, a.clocks(),   place, refs);
     }
 
     // TODO: add more rules from SPMDcppCodeGenerator
@@ -353,7 +412,7 @@ public class Desugarer extends ContextVisitor {
     /**
      * Recognize the following pattern:
      * <pre>
-     * @Immediate async (p) {
+     * @Immediate async at(p) {
      *     r(i) ^= v;
      * }
      * </pre>
@@ -364,15 +423,12 @@ public class Desugarer extends ContextVisitor {
      * @throws SemanticException
      * TODO: move into a separate pass!
      */
-    private Stmt specializeAsync(Node old, Async a) throws SemanticException {
+    private Stmt specializeAsync(Async a, Expr p, Stmt body) throws SemanticException {
         if (!Emitter.hasAnnotation(xts, a, IMMEDIATE))
             return null;
         if (a.clocks().size() != 0)
             return null;
-        if (!(old instanceof Async))
-            return null;
-        Async o = (Async) old;
-        Stmt body = o.body();
+        
         if (body instanceof Block) {
             List<Stmt> stmts = ((Block) body).statements();
             if (stmts.size() != 1)
@@ -390,7 +446,6 @@ public class Desugarer extends ContextVisitor {
         if (is.size() != 1)
             return null;
         Expr i = is.get(0);
-        Expr p = a.place();
         if (p instanceof X10New) {
             // TODO: make sure we calling the place constructor
             // TODO: decide between rail and place-local handle
@@ -445,9 +500,9 @@ public class Desugarer extends ContextVisitor {
     }
 
     private Stmt async(Position pos, Stmt body, List<Expr> clocks, Expr place, List<X10ClassType> annotations) throws SemanticException {
-        if (xts.isImplicitCastValid(place.type(), xts.Object(), context)) {
-            place = synth.makeFieldAccess(pos,place, xts.homeName(), xContext());
-        }
+    	   if (xts.isImplicitCastValid(place.type(), xts.GlobalRef(), context)) {
+               place = synth.makeFieldAccess(pos,place, xts.homeName(), xContext());
+           }
         if (clocks.size() == 0)
         	return async(pos, body, place, annotations);
         Type clockRailType = xts.ValRail(xts.Clock());

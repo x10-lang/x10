@@ -125,8 +125,8 @@ public class Random {
  * Modeling and Computer Simulation, 8(1), January, pp. 3--30 (1998)
  */
 
-    private const N: int = 624;
-    private const M: int = 397;
+    private static N: int = 624;
+    private static M: int = 397;
 
     private var index: int;
     private var MT: Rail[int];

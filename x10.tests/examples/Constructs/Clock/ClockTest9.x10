@@ -23,8 +23,8 @@ import harness.x10Test;
  */
 public class ClockTest9 extends x10Test {
 
-	public const N: int = 8;
-	public const M: int = 8;
+	public static N: int = 8;
+	public static M: int = 8;
 	val v  = Rail.make[int](N, 0);
 
 	public def run(): boolean = {

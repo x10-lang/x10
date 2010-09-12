@@ -21,19 +21,19 @@ import harness.x10Test;
  */
 public class ClockAsyncTest extends x10Test {
 
-    public def run(): boolean = {
-	try {
+    public def run(): boolean {
+	  try {
 	    val clocks = new Array[Clock](0..5, (Point)=>Clock.make());
 	    finish async clocked (clocks(0)){
-		next;
+		    next;
 	    }
-	} catch (x:ClockUseException) {
+	  } catch (x:ClockUseException) {
 	    return true;
-	}
-	return false;
+	  }
+	  return false;
     }
 
     public static def main(Array[String](1)) {
-	new ClockAsyncTest().execute();
+	   new ClockAsyncTest().execute();
     }
 }

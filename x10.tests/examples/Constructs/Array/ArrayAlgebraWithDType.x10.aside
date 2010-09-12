@@ -24,7 +24,7 @@ import harness.x10Test;
 
 public class ArrayAlgebraWithDType extends x10Test {
 
-    public const N: int = 24;
+    public static N: int = 24;
 
     def makeArray(val D: Dist, val k: int): Array[int](D) = {
         return DistArray.make[int](D, (Point) => k);

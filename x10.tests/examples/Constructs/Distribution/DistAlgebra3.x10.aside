@@ -20,7 +20,7 @@ import harness.x10Test;
 
 public class DistAlgebra3 extends x10Test {
 
-    const N = 24;
+    static N = 24;
 
     public def run(): boolean = {
         val D  = Dist.makeCyclic(0..N-1);

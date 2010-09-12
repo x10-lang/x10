@@ -15,8 +15,8 @@ class ParRandomAccess1 extends Benchmark {
     // parameters
     //
 
-    const PARALLELISM = 2;
-    const logLocalTableSize = 16;
+    static PARALLELISM = 2;
+    static logLocalTableSize = 16;
     
     def expected() = 0.0;
     def operations() = 1.0 * numUpdates;
@@ -25,13 +25,13 @@ class ParRandomAccess1 extends Benchmark {
     // the benchmark
     //
 
-    const localTableSize = 1 << logLocalTableSize;
-    const tableSize = PARALLELISM * localTableSize;
-    const numUpdates = 4 * tableSize;
-    const placeMask = PARALLELISM - 1;
+    static localTableSize = 1 << logLocalTableSize;
+    static tableSize = PARALLELISM * localTableSize;
+    static numUpdates = 4 * tableSize;
+    static placeMask = PARALLELISM - 1;
 
-    const POLY = 0x0000000000000007L;
-    const PERIOD = 1317624576693539401L;
+    static POLY = 0x0000000000000007L;
+    static PERIOD = 1317624576693539401L;
 
     final class LocalTable {
     

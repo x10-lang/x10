@@ -132,7 +132,7 @@ public class ConditionalAtomicQueue extends x10Test {
 	 */
 	static class T {
 
-		public const N: int = 2;
+		public static N: int = 2;
 
 		var val_: int; // the id of the item
 

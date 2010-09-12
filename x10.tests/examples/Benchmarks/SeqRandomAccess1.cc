@@ -41,8 +41,8 @@ class LocalTable {
     
 public:
 
-    long long * const a;
-    const int mask;
+    long long * static a;
+    static int mask;
 
     LocalTable(int size) : mask(size-1), a(new long long[size]) {
         for (int i=0; i<size; i++)
@@ -56,7 +56,7 @@ public:
     }
 };
 
-LocalTable ** const tables = new LocalTable*[PARALLELISM];
+LocalTable ** static tables = new LocalTable*[PARALLELISM];
 
 void init() {
     for (int i=0; i<PARALLELISM; i++)
@@ -65,7 +65,7 @@ void init() {
 
 long long HPCCStarts(long long n) {
     int i, j;
-    long long * const m2 = new long long[64];
+    long long * static m2 = new long long[64];
     while (n < 0) n += PERIOD;
     while (n > PERIOD) n -= PERIOD;
     if (n == 0) return 0x1LL;

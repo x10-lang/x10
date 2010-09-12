@@ -89,7 +89,7 @@ public interface X10NodeFactory extends NodeFactory {
     Call X10Call(Position pos, Receiver target, Id name, List<TypeNode> typeArgs, List<Expr> args);
     
     Instanceof Instanceof(Position pos, Expr expr, TypeNode type);
-	Async Async(Position pos, Expr place, List<Expr> clocks, Stmt body);
+	Async Async(Position pos, List<Expr> clocks, Stmt body);
 	Atomic Atomic(Position pos, Expr place, Stmt body);
 	Future Future(Position pos, Expr place, TypeNode returnType, Block body);
 	Here Here(Position pos);

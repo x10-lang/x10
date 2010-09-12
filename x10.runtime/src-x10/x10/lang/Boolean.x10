@@ -75,14 +75,14 @@ public final struct Boolean {
      */
     @Native("java", "true")
     @Native("c++", "true")
-    public const TRUE = true;
+    public static TRUE = true;
 
     /**
      * A constant holding the Boolean value 'false'.
      */
     @Native("java", "false")
     @Native("c++", "false")
-    public const FALSE = false;
+    public static FALSE = false;
 
 
     /**

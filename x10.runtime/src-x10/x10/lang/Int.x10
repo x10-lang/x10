@@ -300,14 +300,14 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
      */
     @Native("java", "java.lang.Integer.MIN_VALUE")
     @Native("c++", "((x10_int)0x80000000)")
-    public const MIN_VALUE = 0x80000000;
+    public static MIN_VALUE = 0x80000000;
 
     /**
      * A constant holding the maximum value an Int can have, 2<sup>31</sup>-1.
      */
     @Native("java", "java.lang.Integer.MAX_VALUE")
     @Native("c++", "((x10_int)0x7fffffff)")
-    public const MAX_VALUE = 0x7fffffff;
+    public static MAX_VALUE = 0x7fffffff;
 
 
     /**

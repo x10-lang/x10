@@ -20,7 +20,7 @@ import harness.x10Test;
 public class AsyncTest extends x10Test {
 
 	var flag: boolean = false;
-	const N: long = 1000000000;
+	static N: long = 1000000000;
 
 	public def run(): boolean = {
 		var b: boolean = false;

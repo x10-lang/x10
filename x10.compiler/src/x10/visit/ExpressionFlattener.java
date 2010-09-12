@@ -937,7 +937,7 @@ public final class ExpressionFlattener extends ContextVisitor {
      */
     private StmtSeq flattenAsync(Async stmt) {
         List<Stmt> stmts = new ArrayList<Stmt>();
-        stmts.add((Async) flattenRemoteActivityInvocation(stmt, stmts));
+        stmts.add((Async) stmt);
         return syn.toStmtSeq(stmt.position(), stmts);
     }
 

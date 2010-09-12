@@ -33,9 +33,9 @@ import x10.util.HashSet;
  */
 public class BlockDistWithPlaceSet extends x10Test {
 
-	public const P = Dist.makeUnique();
-	public const COUNT = 200;
-	public const L = 5;
+	public static P = Dist.makeUnique();
+	public static COUNT = 200;
+	public static L = 5;
 
 	public def run(): boolean = {
 		for (val (tries): Point in 1..COUNT) {

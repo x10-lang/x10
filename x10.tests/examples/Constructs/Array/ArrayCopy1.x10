@@ -70,7 +70,7 @@ public class ArrayCopy1 extends x10Test {
             }
     }
 
-    const N = 3;
+    static N = 3;
 
     /**
      * For all combinations of dists of arrays B and A,
@@ -117,13 +117,13 @@ public class ArrayCopy1 extends x10Test {
      */
     static class dist2 {
 
-        const BLOCK: int = 0;
+        static BLOCK: int = 0;
         //const CYCLIC: int = 1;
         //const BLOCKCYCLIC: int = 2;
-        const CONSTANT: int = 1;
+        static CONSTANT: int = 1;
         //const RANDOM: int = 4;
         //const ARBITRARY: int = 5;
-        const N_DIST_TYPES: int = 2; //6;
+        static N_DIST_TYPES: int = 2; //6;
 
         /**
          * Return a dist with region r, of type disttype

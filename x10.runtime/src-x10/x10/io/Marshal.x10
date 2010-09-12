@@ -31,15 +31,15 @@ public interface Marshal[T] {
     public def read(r: Reader): T throws IOException;
     public def write(w: Writer, T): Void throws IOException;
     
-    public const BOOLEAN = new BooleanMarshal();
-    public const BYTE = new ByteMarshal();
-    public const CHAR = new CharMarshal();
-    public const SHORT = new ShortMarshal();
-    public const INT = new IntMarshal();
-    public const LONG = new LongMarshal();
-    public const FLOAT = new FloatMarshal();
-    public const DOUBLE = new DoubleMarshal();
-    public const LINE = new LineMarshal();
+    public static BOOLEAN = new BooleanMarshal();
+    public static BYTE = new ByteMarshal();
+    public static CHAR = new CharMarshal();
+    public static SHORT = new ShortMarshal();
+    public static INT = new IntMarshal();
+    public static LONG = new LongMarshal();
+    public static FLOAT = new FloatMarshal();
+    public static DOUBLE = new DoubleMarshal();
+    public static LINE = new LineMarshal();
     
     public static class LineMarshal implements Marshal[String] {
         public def read(r: Reader): String throws IOException {

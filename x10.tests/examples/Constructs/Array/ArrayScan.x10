@@ -17,7 +17,7 @@ import harness.x10Test;
 
 public class ArrayScan extends TestArray {
 
-    public const N: int = 9;
+    public static N: int = 9;
 
     public def run(): boolean {
 

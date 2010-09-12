@@ -20,7 +20,7 @@ import harness.x10Test;
 
 public class MultiDimensionalJavaArray extends x10Test {
 
-    const PI = Math.PI;
+    static PI = Math.PI;
 
     public def run(): boolean = {
         val MIN = 0..99;

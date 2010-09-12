@@ -475,14 +475,14 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "((short)0)")
     @Native("c++", "((x10_ushort)0U)")
-    public const MIN_VALUE = 0 as UShort;
+    public static MIN_VALUE = 0 as UShort;
 
     /**
      * A constant holding the maximum value a UShort can have, 2<sup>16</sup>-1.
      */
     // @Native("java", "((short)0xffff)")
     @Native("c++", "((x10_ushort)0xffffU)")
-    public const MAX_VALUE = 0xffff as UShort;
+    public static MAX_VALUE = 0xffff as UShort;
 
 
     /**

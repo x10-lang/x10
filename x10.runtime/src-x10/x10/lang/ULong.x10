@@ -495,14 +495,14 @@ public final struct ULong /*TODO implements Arithmetic[ULong], Bitwise[ULong], O
      */
     // @Native("java", "0L")
     @Native("c++", "((x10_ulong)0UL)")
-    public const MIN_VALUE = 0L as ULong;
+    public static MIN_VALUE = 0L as ULong;
 
     /**
      * A constant holding the maximum value a ULong can have, 2<sup>64</sup>-1.
      */
     // @Native("java", "0xffffffffffffffffL")
     @Native("c++", "0xffffffffffffffffLU")
-    public const MAX_VALUE = 0xffffffffffffffffL as ULong;
+    public static MAX_VALUE = 0xffffffffffffffffL as ULong;
 
 
     /**

@@ -70,13 +70,12 @@ public class Async_c extends Stmt_c implements Async {
      */
     public Set<VarDef> asyncInitVal = null; // used by the backend to know whether to pass a var to an async closure by ref or by value
 
-	public Expr place;
+	
 	public Stmt body;
 	protected List<Expr> clocks;
 
-	public Async_c(Position pos, Expr place, List<Expr> clocks, Stmt body) {
+	public Async_c(Position pos, List<Expr> clocks, Stmt body) {
 		super(pos);
-		this.place = place;
 		this.clocks = clocks;
 		this.body = body;
 	}
@@ -112,28 +111,13 @@ public class Async_c extends Stmt_c implements Async {
 		n.body = body;
 		return n;
 	}
+	
 
-	/** Get the RemoteActivity's place. */
-	public Expr place() {
-		return place;
-	}
-
-	/** Set the RemoteActivity's place. */
-	public RemoteActivityInvocation place(Expr place) {
-        if (place != this.place) {
-            Async_c n = (Async_c) copy();
-            n.place = place;
-           return n;
-        }
-		
-		return this;
-	}
 
 	/** Reconstruct the statement. */
-	protected Async reconstruct(Expr place, List clocks, Stmt body) {
-		if (place != this.place || body != this.body || clocks != this.clocks) {
+	protected Async reconstruct(List clocks, Stmt body) {
+		if ( body != this.body || clocks != this.clocks) {
 			Async_c n = (Async_c) copy();
-			n.place = place;
 			n.clocks = clocks;
 			n.body = body;
 			return n;
@@ -144,13 +128,12 @@ public class Async_c extends Stmt_c implements Async {
 
 	/** Visit the children of the statement. */
 	public Node visitChildren(NodeVisitor v) {
-		Expr place = (Expr) visitChild(this.place, v);
 		List clocks = (List) visitList(this.clocks, v);
 		Stmt body = (Stmt) visitChild(this.body, v);
-		return reconstruct(place, clocks, body);
+		return reconstruct(clocks, body);
 	}
 
-	XConstrainedTerm placeTerm;
+	
 	
 	@Override
 	public Node typeCheckOverride(Node parent, ContextVisitor tc) {
@@ -161,20 +144,6 @@ public class Async_c extends Stmt_c implements Async {
 	        return this;
 	    }
 
-	    if (placeTerm == null) {
-	        try {
-	            placeTerm = PlaceChecker.computePlaceTerm((Expr) visitChild(this.place, v),
-	                    (X10Context) tc.context(), ts);
-	        } catch (SemanticException e) {
-	            CConstraint d = new CConstraint();
-	            XTerm term = PlaceChecker.makePlace();
-	            try {
-	                placeTerm = XConstrainedTerm.instantiate(d, term);
-	            } catch (XFailure z) {
-	                throw new InternalCompilerError("Cannot construct placeTerm from term  and constraint.");
-	            }
-	        }
-	    }
 
 	    // now that placeTerm is set in this node, continue visiting children
 	    // enterScope will ensure that placeTerm is installed in the context.
@@ -201,10 +170,6 @@ public class Async_c extends Stmt_c implements Async {
 	            }
 	        }
 	        xc = (X10Context) xc.pushCode(asyncInstance);
-
-
-	        if (placeTerm != null)
-	        	xc = (X10Context) xc.pushPlace(placeTerm);
 	    }
 	    return xc;
 	}
@@ -213,20 +178,6 @@ public class Async_c extends Stmt_c implements Async {
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 		X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
 
-		Expr newPlace = place;
-		// vj: No need to check this. This will be checked when computing
-		// the placeTerm, as part of place type checking.
-		/* 
-		Type placeType = place.type();
-	
-		boolean placeIsPlace = ts.isImplicitCastValid(placeType, ts.Place(), tc.context());
-		if (! placeIsPlace) {
-                        throw new SemanticException(
-                            "Place expression of async must be of type \"" +
-                            ts.Place() + "\", not \"" + place.type() + "\".",
-                            place.position());
-		}
-		*/
 		X10Context c = (X10Context) tc.context();
 		if (c.inSequentialCode())
 			Errors.issue(tc.job(),
@@ -241,27 +192,22 @@ public class Async_c extends Stmt_c implements Async {
             }
         }
 
-		return (Node) place(newPlace);
+		return this;
 	}
 
 	
 	public Type childExpectedType(Expr child, AscriptionVisitor av) {
 		X10TypeSystem ts = (X10TypeSystem) av.typeSystem();
-		if (child == place) {
-			return ts.Place();
-		}
 		return child.type();
 	}
 
 	public String toString() {
-		return "async (" + place + ") { ... }";
+		return "async  { ... }";
 	}
 
 	/** Write the statement to an output file. */
 	public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
-		w.write("async (");
-		printBlock(place, w, tr);
-		w.write(") ");
+		w.write("async ");
 		if (clocks != null && ! clocks.isEmpty()) {
 			w.write("clocked (");
 			w.begin(0);
@@ -288,9 +234,6 @@ public class Async_c extends Stmt_c implements Async {
 	 * term.
 	 */
 	public Term firstChild() {
-                if (place != null) {
-                        return place;
-                }
 		
 		if (clocks() == null || clocks().isEmpty()) {
                         return body;
@@ -309,12 +252,6 @@ public class Async_c extends Stmt_c implements Async {
 	 * and disallow uses of "continue", "break", etc. in asyncs.
 	 */
 	public List acceptCFG(CFGBuilder v, List succs) {
-		
-                if (place != null) {
-                    v.visitCFG(place, FlowGraph.EDGE_KEY_TRUE, body,
-                                      ENTRY, FlowGraph.EDGE_KEY_FALSE, this, EXIT);
-                }
-		
 		if (clocks() == null || clocks().isEmpty()) {
 			v.visitCFG(body, this, EXIT);
 		} else {

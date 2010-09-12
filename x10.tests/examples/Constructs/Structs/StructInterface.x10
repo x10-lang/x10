@@ -18,7 +18,7 @@ interface StructInterface_Sum {
 struct StructInterface_S1 implements StructInterface_Sum {
   val x:int;
   val y:int;
-  const FF:int = StructInterface_S1(100,200).sum();
+  static FF:int = StructInterface_S1(100,200).sum();
 
   public def this(a:int, b:int) { x = a; y = b; }
 

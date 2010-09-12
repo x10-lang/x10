@@ -298,14 +298,14 @@ public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Orde
      */
     @Native("java", "java.lang.Byte.MIN_VALUE")
     @Native("c++", "((x10_byte)0x80)")
-    public const MIN_VALUE = 0x80 as Byte;
+    public static MIN_VALUE = 0x80 as Byte;
 
     /**
      * A constant holding the maximum value a Byte can have, 2<sup>7</sup>-1.
      */
     @Native("java", "java.lang.Byte.MAX_VALUE")
     @Native("c++", "((x10_byte)0x7f)")
-    public const MAX_VALUE = 0x7f as Byte;
+    public static MAX_VALUE = 0x7f as Byte;
 
     /**
      * Returns a String representation of this Byte in the specified radix.

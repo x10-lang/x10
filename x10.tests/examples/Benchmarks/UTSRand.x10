@@ -38,7 +38,7 @@ final class UTSRand {
         return ((l0 as long) << 32) + l1;
     }
 
-    const scale = (long.MAX_VALUE as double) - (long.MIN_VALUE as double);
+    static scale = (long.MAX_VALUE as double) - (long.MIN_VALUE as double);
 
     final static def number(r:descriptor) = (r / scale) - (long.MIN_VALUE / scale);
 

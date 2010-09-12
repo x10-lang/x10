@@ -21,8 +21,8 @@ import x10.array.Array;
  */
 public class Exceptions2 extends x10Test {
 
-	public const MAXINT: int = 2147483647;
-	public const N: int = 1000000;
+	public static MAXINT: int = 2147483647;
+	public static N: int = 1000000;
 	val a: java.util.Set = new java.util.HashSet();
 	def memoryHog(): void = { var a: Array[byte] = new Array[byte](MAXINT); X.use(a); }
 	public def run(): boolean = {

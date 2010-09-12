@@ -19,7 +19,7 @@ import harness.x10Test;
 
 public class JavaArrayWithInitializer extends x10Test {
 
-    const N: int = 25;
+    static N: int = 25;
 
     public def run(): boolean = {
 

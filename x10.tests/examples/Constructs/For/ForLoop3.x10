@@ -18,7 +18,7 @@ import harness.x10Test;
  */
 public class ForLoop3 extends x10Test {
 
-	public const N: int = 100;
+	public static N: int = 100;
 
 	public def run(): boolean = {
 		//Ensure iterator works in lexicographic order

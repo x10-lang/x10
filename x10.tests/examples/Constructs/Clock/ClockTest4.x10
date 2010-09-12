@@ -20,7 +20,7 @@ import harness.x10Test;
 public class ClockTest4 extends x10Test {
 
 	var val: int = 0;
-	public const N: int = 32;
+	public static N: int = 32;
 
 	public def run(): boolean = {
 		val c: Clock = Clock.make();

@@ -73,10 +73,10 @@ clocks.
  */
 public class ClockPascal extends x10Test {
 
-	public const N: int = 5;
-	public const EXPECTED_CHECKSUM: int = prod(N+1, 2*N) / prod(1, N) - 1;
+	public static N: int = 5;
+	public static EXPECTED_CHECKSUM: int = prod(N+1, 2*N) / prod(1, N) - 1;
 	//const int EXPECTED_CHECKSUM = 251; // (for N = 5)
-	public const DELAY: int = 2000;
+	public static DELAY: int = 2000;
 	public def run(): boolean = {
 		val D = Dist.makeConstant([0..N-1, 0..N-1], here);
 		val Dinner = D|([1..N-1, 1..N-1] as Region);
@@ -118,7 +118,7 @@ public class ClockPascal extends x10Test {
                 return aSum == EXPECTED_CHECKSUM;
 	}
 
-	public const rand: x10.util.Random! = new x10.util.Random(1L);
+	public static rand: x10.util.Random! = new x10.util.Random(1L);
 
 	static def randDelay(var millis: int): void = {
 		var n: int;
@@ -126,7 +126,7 @@ public class ClockPascal extends x10Test {
 		Activity.sleep(n);
 	}
 
-	public const startTime: long = System.currentTimeMillis();
+	public static startTime: long = System.currentTimeMillis();
 
 	static def tim(): double = {
 		var x: long = System.currentTimeMillis();

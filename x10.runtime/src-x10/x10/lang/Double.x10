@@ -247,7 +247,7 @@ public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]
     // TODO: hexadecimal floating-point literal 0x0.0000000000001P-1022
     @Native("java", "java.lang.Double.MIN_VALUE")
     @Native("c++", "x10aux::double_utils::fromLongBits(0x1LL)")
-    public const MIN_VALUE: Double = Double.fromLongBits(0x1L);
+    public static MIN_VALUE: Double = Double.fromLongBits(0x1L);
 
     /**
      * A constant holding the smallest positive normal value of type Double,
@@ -257,7 +257,7 @@ public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]
     // TODO: hexadecimal floating-point literal 0x1.0P-1022
     @Native("java", "java.lang.Double.fromLongBits(0x0010000000000000L)")
     @Native("c++", "x10aux::double_utils::fromLongBits(0x0010000000000000LL)")
-    public const MIN_NORMAL: Double = Double.fromLongBits(0x0010000000000000L);
+    public static MIN_NORMAL: Double = Double.fromLongBits(0x0010000000000000L);
 
     /**
      * A constant holding the largest positive finite value of type Double,
@@ -267,7 +267,7 @@ public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]
     // TODO: hexadecimal floating-point literal 0x1.fffffffffffffP+1023
     @Native("java", "java.lang.Double.MAX_VALUE")
     @Native("c++", "x10aux::double_utils::fromLongBits(0x7fefffffffffffffLL)")
-    public const MAX_VALUE: Double = Double.fromLongBits(0x7fefffffffffffffL);
+    public static MAX_VALUE: Double = Double.fromLongBits(0x7fefffffffffffffL);
 
     /**
      * A constant holding the positive infinity of type Double.
@@ -275,7 +275,7 @@ public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]
      */
     @Native("java", "java.lang.Double.POSITIVE_INFINITY")
     @Native("c++", "x10aux::double_utils::fromLongBits(0x7ff0000000000000LL)")
-    public const POSITIVE_INFINITY: Double = Double.fromLongBits(0x7ff0000000000000L);
+    public static POSITIVE_INFINITY: Double = Double.fromLongBits(0x7ff0000000000000L);
 
     /**
      * A constant holding the negative infinity of type Double.
@@ -283,7 +283,7 @@ public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]
      */
     @Native("java", "java.lang.Double.NEGATIVE_INFINITY")
     @Native("c++", "x10aux::double_utils::fromLongBits(0xfff0000000000000LL)")
-    public const NEGATIVE_INFINITY: Double = Double.fromLongBits(0xfff0000000000000L);
+    public static NEGATIVE_INFINITY: Double = Double.fromLongBits(0xfff0000000000000L);
 
     /**
      * A constant holding a Not-a-Number (NaN) value of type Double.
@@ -291,7 +291,7 @@ public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]
      */
     @Native("java", "java.lang.Double.NaN")
     @Native("c++", "x10aux::double_utils::fromLongBits(0x7ff8000000000000LL)")
-    public const NaN: Double = Double.fromLongBits(0x7ff8000000000000L);
+    public static NaN: Double = Double.fromLongBits(0x7ff8000000000000L);
 
 
     /**

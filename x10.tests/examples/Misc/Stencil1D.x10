@@ -17,7 +17,7 @@ import harness.x10Test;
  * //done
  */
 public class Stencil1D extends x10Test {
-    const epsilon  = 1E-4D;
+    static epsilon  = 1E-4D;
     val N: int, P: int;
     var iters: int;
     var delta: double = epsilon+1;

@@ -11,6 +11,7 @@
 
 package x10.io;
 
+import x10.compiler.Incomplete;
 /**
  * Usage:
  *
@@ -26,19 +27,26 @@ package x10.io;
  * catch (IOException e) { }
  */    
 public abstract class FileSystem {
-    const SEPARATOR_CHAR: Char = '/'; // System.getProperty("x10.io.fileSeparator")(0);
-    const SEPARATOR: String = "/"; // System.getProperty("x10.io.fileSeparator");
-    const PATH_SEPARATOR_CHAR: Char = ':'; // System.getProperty("x10.io.pathSeparator")(0);
-    const PATH_SEPARATOR: String = ":"; // System.getProperty("x10.io.pathSeparator");
+    static SEPARATOR_CHAR: Char = '/'; // System.getProperty("x10.io.fileSeparator")(0);
+    static SEPARATOR: String = "/"; // System.getProperty("x10.io.fileSeparator");
+    static PATH_SEPARATOR_CHAR: Char = ':'; // System.getProperty("x10.io.pathSeparator")(0);
+    static PATH_SEPARATOR: String = ":"; // System.getProperty("x10.io.pathSeparator");
 
-    incomplete def delete(File) : Void throws IOException;
-    incomplete def deleteOnExit(File) : Void throws IOException;
-    incomplete def rename(f: File, t: File) : Void throws IOException;
-    incomplete def mkdir(File) : Void throws IOException;
-    incomplete def mkdirs(File) : Void throws IOException;
-    incomplete def exists(File) : Boolean;
-    incomplete def size(File) : Long throws IOException;
-
-    incomplete def listFiles(File): ValRail[File] throws IOException;
-    incomplete def listFiles(File, (File) => Boolean): ValRail[File] throws IOException;
+    @Incomplete def delete(File) : Void throws IOException { throw new UnsupportedOperationException();}
+    @Incomplete def deleteOnExit(File) : Void throws IOException
+    {         throw new UnsupportedOperationException(); }
+    @Incomplete def rename(f: File, t: File) : Void throws IOException
+        {         throw new UnsupportedOperationException(); }
+    @Incomplete def mkdir(File) : Void throws IOException
+    {         throw new UnsupportedOperationException(); }                                              
+    @Incomplete def mkdirs(File) : Void throws IOException
+    {         throw new UnsupportedOperationException(); }
+    @Incomplete def exists(File) : Boolean
+            {         throw new UnsupportedOperationException(); }
+    @Incomplete def size(File) : Long throws IOException
+    {         throw new UnsupportedOperationException(); }
+    @Incomplete def listFiles(File): ValRail[File] throws IOException
+    {         throw new UnsupportedOperationException(); }
+    @Incomplete def listFiles(File, (File) => Boolean): ValRail[File] throws IOException
+    {         throw new UnsupportedOperationException(); }
 }

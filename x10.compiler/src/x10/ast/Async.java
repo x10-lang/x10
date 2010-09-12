@@ -20,7 +20,7 @@ import polyglot.ast.Stmt;
 /** The node constructed for the X10 construct async (P) {S}.
  * @author Christian Grothoff
  */
-public interface Async extends CompoundStmt, RemoteActivityInvocation, Clocked {
+public interface Async extends CompoundStmt,  Clocked {
     
     /** Set the Async's body */
     Async body(Stmt body);

@@ -15,7 +15,7 @@ struct Pair[X,Y] {
   val x:X;
   val y:Y;
 
-  const dummy:int = 100;
+  static dummy:int = 100;
 
   public def this(a:X, b:Y) { x = a; y = b; }
 

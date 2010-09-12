@@ -97,7 +97,7 @@ public class Clock(name:String) {
         at (root) {
         	val me = root();
             if (ph > 0) me.resumeLocal();
-            await (abs < me.phase);
+            when (abs < me.phase);
         }
         put(abs + 1);
     }
@@ -110,7 +110,7 @@ public class Clock(name:String) {
     }
     @Global def dropInternal() {
         val ph = get();
-        async (root.home) {
+        async at(root.home) {
 	    val rcl:Clock = root();
             rcl.dropLocal(ph);
         }

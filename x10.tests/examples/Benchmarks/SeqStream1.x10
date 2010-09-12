@@ -16,13 +16,13 @@
 
 public class SeqStream1 extends Benchmark {
 
-    const alpha = 1.5;
-    const beta = 2.5;
-    const gamma = 3.0;
+    static alpha = 1.5;
+    static beta = 2.5;
+    static gamma = 3.0;
 
-    const NUM_TIMES = 10;
-    const PARALLELISM = 2;
-    const localSize = 512*1024;
+    static NUM_TIMES = 10;
+    static PARALLELISM = 2;
+    static localSize = 512*1024;
 
     public def operations() = 1.0 * localSize * PARALLELISM * NUM_TIMES;
     public def expected() = (localSize+1)*(alpha+gamma*beta);

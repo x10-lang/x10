@@ -35,8 +35,8 @@ public class ClockTest10 extends x10Test {
     val varC = Rail.make[int](2,(x:int)=>0);
     val varD = Rail.make[int](2,(x:int)=>0);
     val varE = Rail.make[int](2,(x:int)=>0);
-    public const N: int = 10;
-    public const pipeDepth: int = 2;
+    public static N: int = 10;
+    public static pipeDepth: int = 2;
 
     static def ph(var x: int): int = { return x % 2; }
 

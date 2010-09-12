@@ -78,9 +78,9 @@ import harness.x10Test;
  */
 public class ClockTest13 extends x10Test {
 
-	public const N: int = 20; // total clock periods per activity
-	public const M: int = N/2; // when to change from forward to reverse
-	public const chainLength: int = 3;
+	public static N: int = 20; // total clock periods per activity
+	public static M: int = N/2; // when to change from forward to reverse
+	public static chainLength: int = 3;
 	var phaseA: int = 0;
 	var phaseB: int = 0;
 	var phaseC: int = 0;

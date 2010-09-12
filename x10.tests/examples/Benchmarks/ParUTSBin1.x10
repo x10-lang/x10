@@ -46,11 +46,11 @@ class ParUTSBin1 extends Benchmark {
     //const m = 4;
     //def expected() = 4993764.0;
 
-    const r0 = 0;                      // seed for root
+    static r0 = 0;                      // seed for root
 
-    const b0 = 50000;                  // branching factor of root node
-    const q = 0.12;                    // prob of non-zero branching factor
-    const m = 8;                       // branching factor is m with prob q
+    static b0 = 50000;                  // branching factor of root node
+    static q = 0.12;                    // prob of non-zero branching factor
+    static m = 8;                       // branching factor is m with prob q
     def expected() = 1234872.0;        // expected size given above params 
 
     def operations() = asize.intValue() as double;

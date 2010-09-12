@@ -25,8 +25,8 @@ import x10.util.HashMap;
 import x10.io.Console;
 public class JGFInstrumentor {
 
-  private const timers = new HashMap[String, JGFTimer]();
-  private const data  =  new HashMap[String, Object](); 
+  private static timers = new HashMap[String, JGFTimer]();
+  private static data  =  new HashMap[String, Object](); 
 
     public atomic static def addTimer(name: String) {
 

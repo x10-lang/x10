@@ -17,7 +17,7 @@ import harness.x10Test;
 
 public class ArrayReduce extends TestArray {
 
-    public const N: int = 9;
+    public static N: int = 9;
 
     public def run(): boolean {
 	chk(Place.places.length == 4, "This test must be run with 4 places");

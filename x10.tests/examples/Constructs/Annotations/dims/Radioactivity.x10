@@ -12,5 +12,5 @@
 package dims;
 
 public interface Radioactivity extends Measure { 
-    @DerivedUnit(SI.becquerel) const becquerel: double = _, Bq: double = _;
+    @DerivedUnit(SI.becquerel) static becquerel: double = _, Bq: double = _;
 }

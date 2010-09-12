@@ -298,14 +298,14 @@ public final struct Short /*TODO implements Arithmetic[Short], Bitwise[Short], O
      */
     @Native("java", "java.lang.Short.MIN_VALUE")
     @Native("c++", "((x10_short)0x8000)")
-    public const MIN_VALUE = 0x8000 as Short;
+    public static MIN_VALUE = 0x8000 as Short;
 
     /**
      * A constant holding the maximum value a Short can have, 2<sup>15</sup>-1.
      */
     @Native("java", "java.lang.Short.MAX_VALUE")
     @Native("c++", "((x10_short)0x7fff)")
-    public const MAX_VALUE = 0x7fff as Short;
+    public static MAX_VALUE = 0x7fff as Short;
 
 
     /**

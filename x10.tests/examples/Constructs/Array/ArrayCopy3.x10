@@ -123,7 +123,7 @@ public class ArrayCopy3 extends x10Test {
         finish ateach (val i: Point(A.rank) in E) chk(accessed_b(i) == 1);
     }
 
-    public const N: int = 3;
+    public static N: int = 3;
 
     /**
      * For all combinations of dists of arrays B and A,
@@ -157,11 +157,11 @@ public class ArrayCopy3 extends x10Test {
      */
     static class dist2 {
 
-        const BLOCK: int = 0;
+        static BLOCK: int = 0;
         //const CYCLIC: int = 1;
         //const BLOCKCYCLIC: int = 2;
-        const CONSTANT: int = 1;
-        const N_DIST_TYPES: int = 2;
+        static CONSTANT: int = 1;
+        static N_DIST_TYPES: int = 2;
 
         /**
          * Return a dist with region r, of type disttype

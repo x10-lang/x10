@@ -23,7 +23,7 @@ public class AsyncNext extends x10Test {
 		val Other: Place = here.next();
 		val t = new T();
 		val troot = t.root;
-		finish async (Other) {
+		finish async at(Other) {
 			val t1: T = new T();
 			async at (troot) troot().val_ = t1;
 		}

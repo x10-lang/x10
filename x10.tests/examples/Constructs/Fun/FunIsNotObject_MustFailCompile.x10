@@ -17,7 +17,7 @@ import harness.x10Test;
  */
 public class FunIsNotObject_MustFailCompile extends x10Test {
 
-	public const N: int = 100;
+	public static N: int = 100;
 	var nActivities: int = 0;
 
 	public def run() {
