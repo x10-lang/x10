@@ -398,8 +398,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(ReachabilityChecked(job));
            goals.add(ExceptionsChecked(job));
            goals.add(ExitPathsChecked(job));
-           if (x10.Configuration.CHECK_INITIALIZATIONS)
-               goals.add(InitializationsChecked(job));
+           goals.add(InitializationsChecked(job));
            goals.add(ConstructorCallsChecked(job));
            goals.add(ForwardReferencesChecked(job));
            goals.add(PropertyAssignmentsChecked(job));

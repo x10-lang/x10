@@ -507,7 +507,7 @@ public class InitChecker extends DataFlow
             ClassMember cm = (ClassMember)classMembers.next();
             if (cm instanceof FieldDecl) {
                 FieldDecl fd = (FieldDecl)cm;
-                if (fd.flags().flags().isFinal()) { //todo
+                if (fd.flags().flags().isFinal()) {
                     MinMaxInitCount initCount;
                     if (fd.init() != null) {
                         // the field has an initializer

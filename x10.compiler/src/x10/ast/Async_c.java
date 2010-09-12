@@ -258,6 +258,7 @@ public class Async_c extends Stmt_c implements Async {
 			v.visitCFGList(clocks, body, ENTRY);
 			v.visitCFG(body, this, EXIT);
 		}
+        v.edge(v,this,ENTRY,this,EXIT,FlowGraph.EDGE_KEY_FALSE); // a trick to make sure we treat Async like a conditional for the purpose of initialization. see InitChecker.
 		
 		return succs;
 	}
