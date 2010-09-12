@@ -434,9 +434,6 @@ public class X10New_c extends New_c implements X10New {
         Type tp = ci.returnType();
         tp = PlaceChecker.ReplaceHereByPlaceTerm(tp, (X10Context) tc.context());
         Type tp1 = (Type) tp.copy();
-        if (X10TypeMixin.isProto(tp1)) {
-        	tp1 = X10TypeMixin.baseOfProto(tp1);
-        }
         
         if (!ts.isSubtype(tp1, t, tc.context())) {
             throw new SemanticException("Constructor return type " + tp + " is not a subtype of " + t + ".", position());

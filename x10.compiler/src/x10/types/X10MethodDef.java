@@ -28,13 +28,7 @@ public interface X10MethodDef extends MethodDef, X10ProcedureDef {
     
     Ref<XTerm> body();
     void body(Ref<XTerm> body);
-    
-    /**
-     * Is this method a proto method?
-     * @return
-     */
-    boolean isProto();
-    
+
     Ref<? extends Type> offerType();
     void setOfferType(Ref<? extends Type> s);
     

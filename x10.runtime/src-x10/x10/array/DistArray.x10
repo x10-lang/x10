@@ -400,7 +400,6 @@ public class DistArray[T] (
      */
 
     // safe to call from witin a constructor, does not read fields.
-    //protected proto def layout(r: Region): RectLayout {
     protected static def layout(r: Region): RectLayout {
         if (r.isEmpty()) {
             // XXX EmptyLayout class?

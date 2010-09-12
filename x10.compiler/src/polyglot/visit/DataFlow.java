@@ -408,14 +408,14 @@ public abstract class DataFlow extends ErrorHandlingVisitor
      * the <code>FlowGraph</code> onto the stack of <code>FlowGraph</code>s if
      * dataflow analysis is performed on entry to <code>CodeNode</code> nodes.
      */
-    protected void dataflow(CodeDecl cd) {
+    public void dataflow(CodeDecl cd) {
         this.dataflow((CodeNode) cd);
     }
 
     public void reportError(String msg, Position p) {
         errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR,msg,p);
     }
-    protected void dataflow(CodeNode cd) {
+    public void dataflow(CodeNode cd) {
         // only bother to do the flow analysis if the body is not null...
         if (cd.codeBody() != null) {
             // Compute the successor of each child node.

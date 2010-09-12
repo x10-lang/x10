@@ -20,17 +20,14 @@ import polyglot.ast.Binary;
 import polyglot.ast.Cast;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
-import polyglot.ast.Formal;
 import polyglot.ast.Lit;
 import polyglot.ast.Receiver;
 import polyglot.ast.Special;
 import polyglot.ast.Unary;
 import polyglot.ast.Unary_c;
 import polyglot.ast.Variable;
-import polyglot.ast.IntLit;
 import polyglot.ast.FloatLit;
 import polyglot.ast.Binary.Operator;
-import polyglot.frontend.Globals;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorInstance;
@@ -45,7 +42,6 @@ import polyglot.types.ProcedureInstance;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
-import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.types.UnknownType;
 import polyglot.types.QName;
@@ -63,9 +59,7 @@ import x10.constraint.XNameWrapper;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
-import x10.constraint.XVar;
 import x10.errors.Errors;
-import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
@@ -221,8 +215,6 @@ public class X10TypeMixin {
 	    if (f==null || !(f instanceof X10Flags))
 	        return x;
 	    X10Flags xf = (X10Flags) f;
-	    if (xf.isProto()) 
-	        x =  ((Proto) x).makeProto();
 	    if (xf.isStruct()) {
 	        x = ((X10Struct) x).makeX10Struct();
 	    }
@@ -388,30 +380,13 @@ public class X10TypeMixin {
     public static boolean isClass(Type t) {
 	    return ! isX10Struct(t);
     }
-    
-    public static boolean isProto(Type t) {
-    	return (t instanceof Proto) && ((Proto) t).isProto();
-    }
-    public static Type baseOfProto(Type t) {
-    	if (! (t instanceof Proto))
-    		return t;
-    	Proto type = (Proto) t; 
-    	return type.baseOfProto();
-    	
-    }
+
     public static Type superClass(Type t) {
     	t = baseType(t);
     	assert t instanceof ClassType;
     	return ((ClassType) t).superClass();
     }
 
-    public static Type makeProto(Type t) {
-    	if (! (t instanceof Proto)) 
-    		return t;
-    	Proto type = (Proto) t; 
-    	return type.makeProto();
-    	
-    }
     public static Type addBinding(Type t, XTerm t1, XTerm t2) throws XFailure {
     	//assert (! (t instanceof UnknownType));
        
@@ -705,20 +680,6 @@ public class X10TypeMixin {
 	}
 	
 	  
-	  public static void protoTypeCheck(List<Formal> formals, Type retType, Position pos,
-			  boolean isMethod) throws SemanticException {
-	    	for (Formal f : formals) {
-	    		if ( X10TypeMixin.isProto(f.type().type())) {
-	    			if (! retType.isVoid() && ! X10TypeMixin.isProto(retType)) {
-	    				throw new SemanticException("The argument " + f 
-	    						+ " has a proto type; hence the return type must be "
-	    						+ (isMethod ? "void or proto" : "proto")+", not "
-	    						+ retType+".", pos);
-	    						
-	    			}
-	    		}
-	    	}
-	    }
 	  
 	  public static boolean entails(Type t, XTerm t1, XTerm t2) {
 		 CConstraint c = realX(t);
@@ -1075,7 +1036,7 @@ then we substitute 0/false/null in all the constraints in C and if they all eval
 
             if (e != null) {
                 e = (Expr) e.del().typeCheck(tc).checkConstants(tc);
-                if (!ts.isSubtype(e.type(), t, context)) { // suppose the field is "var i:Int{self!=0}", then you cannot create an initializer which is 0!
+                if (ts.isSubtype(e.type(), t, context)) { // suppose the field is "var i:Int{self!=0}", then you cannot create an initializer which is 0!
                     return e;
                 }
             }

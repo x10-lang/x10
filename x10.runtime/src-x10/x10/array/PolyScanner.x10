@@ -226,9 +226,8 @@ final public class PolyScanner(rank:Int)/*(C:PolyMat)*/ implements Region.Scanne
 
 
     final private class RailIt implements Iterator[Rail[int]] {
-        proto def outerThis() = PolyScanner.this as PolyScanner;
-        private val rank: int = outerThis().rank;
-        private val s = outerThis();
+        private val rank: int = PolyScanner.this.rank;
+        private val s = PolyScanner.this;
 
         private val x = Rail.make[int](rank);
         private val myMin = Rail.make[int](rank);

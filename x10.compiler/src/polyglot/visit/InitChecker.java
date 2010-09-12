@@ -431,10 +431,9 @@ public class InitChecker extends DataFlow
                 throw new InternalCompilerError("ClassBody found but cannot find the class.", n.position());
             }
             setupClassBody(ct, cb);
-            //n = cb; //todo?
         }
       
-        return super.enterCall(n); // todo: we changed "cb", why not pass it here?
+        return super.enterCall(n);
     }
 
     /**
@@ -508,7 +507,7 @@ public class InitChecker extends DataFlow
             ClassMember cm = (ClassMember)classMembers.next();
             if (cm instanceof FieldDecl) {
                 FieldDecl fd = (FieldDecl)cm;
-                if (fd.flags().flags().isFinal()) {
+                if (fd.flags().flags().isFinal()) { //todo
                     MinMaxInitCount initCount;
                     if (fd.init() != null) {
                         // the field has an initializer
@@ -1155,8 +1154,26 @@ public class InitChecker extends DataFlow
 	    Field f, 
 	    DataFlowItem dfIn, 
 	    DataFlowItem dfOut) {
-	if (isFieldsTargetAppropriate(f) && f.flags().isFinal() && (currCBI.currCodeDecl instanceof ConstructorDecl || currCBI.currCodeDecl instanceof FieldDecl)) {
-	    MinMaxInitCount initCount = dfIn.initStatus.get(f.fieldInstance().def());         
+        boolean isFinal = f.flags().isFinal();
+        boolean isCtor = currCBI.currCodeDecl instanceof ConstructorDecl;
+        boolean isFieldInit = currCBI.currCodeDecl instanceof FieldDecl;
+        /*
+        This is a legal pattern (so we should only check VAR in field-initializers, not in ctors.
+        class Bar {
+          var i:Int{self!=0};
+          def this() {
+            foo();
+            i++;
+          }
+          def foo() { i=2; }
+       }
+         */
+	    if (isFieldsTargetAppropriate(f) &&
+             isFinal && // I want to check that field initialization does not have illegal forward references for VAL only (VAR is checked by CheckEscapingThis).
+            (isCtor || isFieldInit)) {
+        final FieldDef fieldDef = f.fieldInstance().def();
+        MinMaxInitCount initCount =
+                dfIn.initStatus.get(fieldDef);
 	    if (initCount != null && initCount.getMin().isZero()) {
 		// the field may not have been initialized. 
 		// However, we only want to complain if the field is reachable

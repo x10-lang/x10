@@ -681,20 +681,6 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     		return true;
     	X10Context xcontext = (X10Context) context;
 
-    	{ 
-    		boolean isProto1 = X10TypeMixin.isProto(t1);
-    		boolean isProto2 = X10TypeMixin.isProto(t2);
-
-    		if (isProto1 || isProto2) {
-    			if (isProto1 != isProto2)
-    				return false;
-    			// they are both proto
-
-    			t1 = X10TypeMixin.baseOfProto(t1);
-    			t2 = X10TypeMixin.baseOfProto(t2);
-    		
-    		}
-    	}
     	{
     		boolean isStruct1 = X10TypeMixin.isX10Struct(t1);
     		boolean isStruct2 = X10TypeMixin.isX10Struct(t2);
@@ -988,9 +974,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         if (t1.isVoid() || t2.isVoid())
             return false;
        
-        if (X10TypeMixin.isProto(t1) != X10TypeMixin.isProto(t2)) 
-        	return false;
-        if (X10TypeMixin.isX10Struct(t1) != X10TypeMixin.isX10Struct(t2)) 
+        if (X10TypeMixin.isX10Struct(t1) != X10TypeMixin.isX10Struct(t2))
         	return false;
      
         X10Context xc = (X10Context) context;

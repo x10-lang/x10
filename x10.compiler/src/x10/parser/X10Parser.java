@@ -454,7 +454,6 @@ public static class MessageHandler implements IMessageHandler {
             if (flag == PRIVATE)      return Flags.PRIVATE;
             if (flag == PROPERTY)     return X10Flags.PROPERTY;
             if (flag == PROTECTED)    return Flags.PROTECTED;
-            if (flag == PROTO)        return X10Flags.PROTO;
             if (flag == PUBLIC)       return Flags.PUBLIC;
             if (flag == SAFE)         return X10Flags.SAFE;
             if (flag == SEQUENTIAL)   return X10Flags.SEQUENTIAL;
@@ -2471,21 +2470,7 @@ public static class MessageHandler implements IMessageHandler {
                 setResult(nf.AssignPropertyCall(pos(), TypeArgumentsopt, ArgumentListopt));
                       break;
             }
-    
-            //
-            // Rule 68:  Type ::= proto ConstrainedType
-            //
-            case 68: {
-               //#line 1706 "C:/eclipsews/localClasses/lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 1704 "C:/eclipsews/localClasses/x10.compiler/src/x10/parser/x10.g"
-                TypeNode ConstrainedType = (TypeNode) getRhsSym(2);
-                //#line 1706 "C:/eclipsews/localClasses/lpg.generator/templates/java/btParserTemplateF.gi"
-        AddFlags tn = (AddFlags) ConstrainedType;
-        tn.addFlags(X10Flags.PROTO);
-        setResult(ConstrainedType.position(pos()));
-                      break;
-            }
-    
+        
             //
             // Rule 69:  FunctionType ::= TypeParametersopt ( FormalParameterListopt ) WhereClauseopt Throwsopt Offersopt => Type
             //

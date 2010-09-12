@@ -94,25 +94,7 @@ public class X10Special_c extends Special_c implements X10Special {
         			X10ConstructorDef cd = (X10ConstructorDef) c.currentCode();
         			Type returnType =  cd.returnType().get();
         			returnType =  ts.expandMacros(returnType);
-        			// Set the type of this to be proto T, where T is the return
-        			// type of the constructor.
-        			returnType = X10TypeMixin.makeProto(returnType);
-        			/*
-            		if (returnType.isClass()) {
-            			t = (ClassType) X10TypeMixin.makeProto(returnType);
-            		}
-            		else {
-            			throw new SemanticException("Constructor return type is not a class type.", cd.position());
-            		}*/
-        		} else 
-        			// Check if this is a proto method, then the type of this needs 
-        			// to be set to proto C
-        			if (c.currentCode() instanceof X10MethodDef) {
-        				X10MethodDef cd = (X10MethodDef) c.currentCode();
-        				if (cd.isProto()) {
-        					t =  X10TypeMixin.makeProto(t);
-        				}
-        			}
+        		}
         }
         else {
             if (qualifier.type().isClass()) {
@@ -125,9 +107,6 @@ public class X10Special_c extends Special_c implements X10Special {
                                                 c.currentClass() + "\" does not have an enclosing instance of type \"" +
                                                 ct + "\".", qualifier.position());
                 }
-                if (cd instanceof X10ConstructorDef
-                		|| (cd instanceof X10MethodDef && ((X10MethodDef) cd).isProto()))
-                	t = X10TypeMixin.makeProto(ct);
                 
             }
             else {

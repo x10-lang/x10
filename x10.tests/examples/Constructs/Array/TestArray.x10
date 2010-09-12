@@ -24,7 +24,7 @@ abstract public class TestArray extends x10Test {
     
     /*global*/ val os: StringWriter;
     /* global*/ val out: Printer;
-    transient val testName = typeName();
+    transient val testName = "TestArray";
 
     def this() {
         System.setProperty("line.separator", "\n");
@@ -51,9 +51,9 @@ abstract public class TestArray extends x10Test {
     //
     //
 
-    abstract class R {
+    class R {
 
-        def this(o:Printer, test: String): R = {
+        def this(o:Printer, test: String, run: ()=>String ): R = {
             var r: String;
             try {
                 r = run();
@@ -62,9 +62,6 @@ abstract public class TestArray extends x10Test {
             }
             o.println(test + " " + r);
         }
-
-        abstract proto def run(): String;
-
     }
             
     class Grid {
@@ -182,13 +179,13 @@ abstract public class TestArray extends x10Test {
 
         pr("--- " + testName + ": " + test);
 
-        new R(out, "rank")		{def run(): String = {return "" + r.rank;}};
-        new R(out, "rect")		{def run(): String = {return "" + r.rect;}};
-        new R(out, "zeroBased")	{def run(): String = {return "" + r.zeroBased;}};
-        new R(out, "rail")		{def run(): String = {return "" + r.rail;}};
+        new R(out, "rank", () => ("" + r.rank) );
+        new R(out, "rect", () => ("" + r.rect) );
+        new R(out, "zeroBased", () => ("" + r.zeroBased) );
+        new R(out, "rail", () => ("" + r.rail) );
 
-        new R(out, "isConvex()")	{def run(): String = {return "" + r.isConvex();}};
-        new R(out, "size()")		{def run(): String = {return "" + r.size();}};
+        new R(out, "isConvex()", () => ("" + r.isConvex()) );
+        new R(out, "size()", () => ("" + r.size()) );
 
         pr("region: " + r);
 

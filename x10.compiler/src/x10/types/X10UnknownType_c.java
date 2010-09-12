@@ -37,7 +37,6 @@ public class X10UnknownType_c extends UnknownType_c  {
 	public boolean isX10Struct() { return false; }
 	public Flags flags() { return Flags.NONE; }
 	public Type setFlags(Flags f) { return this; }
-	public boolean isProto() { return false;}
 	public Type clearFlags(Flags f) { return this; }
 	public String toString() { return  super.toString(); }
 	public boolean equalsNoFlag(Type t2) { return this == t2;}

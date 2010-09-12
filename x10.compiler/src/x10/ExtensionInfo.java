@@ -407,8 +407,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(CheckASTForErrors(job));
 //           goals.add(TypeCheckBarrier());
 
-           if (Configuration.NO_PROTO)
-            goals.add(new VisitorGoal("CheckEscapingThis", job, new CheckEscapingThis.Main(job)));
+           goals.add(new VisitorGoal("CheckEscapingThis", job, new CheckEscapingThis.Main(job)));
 
            goals.add(End(job));
        }

@@ -90,7 +90,6 @@ public class Errors {
 	}
 
 	public static interface DepTypeException {}
-	public static interface ProtoTypeException {}
 	public static interface ConversionException {}
 
 	public static class CannotAssign extends SemanticException {
@@ -283,48 +282,6 @@ public class Errors {
 		}
 	}
 
-	public static class CannotReadFieldOfProtoValue extends SemanticException implements ProtoTypeException {
-		private static final long serialVersionUID = -512760271069318563L;
-		public CannotReadFieldOfProtoValue(Field f,Position pos) {
-			super("Cannot read field of a proto value."
-					+ "\n\t Field: " + f
-					+ "\n\t Proto value:" + f.target(), pos);
-		}
-		public boolean equals(Object o) {
-			if (o==null || ! (o instanceof CannotReadFieldOfProtoValue) )
-				return false;
-			return((CannotReadFieldOfProtoValue)o).position().equals(position());
-		}
-	}
-	public static class ProtoValuesAssignableOnlyToProtoReceivers extends SemanticException implements ProtoTypeException {
-		private static final long serialVersionUID = -6741587508354666830L;
-		public ProtoValuesAssignableOnlyToProtoReceivers(Expr e, FieldAssign f, Position pos) {
-			super("A proto value can be assigned to a field only if receiver type is proto."
-					+ "\n\t Value: " + e
-					+ "\n\t Field: " + f.name()
-					+ "\n\t Target: "  + f.target()
-					+ "\n\t Target type: " + f.target().type(),
-					pos);
-		}
-		public boolean equals(Object o) {
-			if (o==null || ! (o instanceof ProtoValuesAssignableOnlyToProtoReceivers) )
-				return false;
-			return((ProtoValuesAssignableOnlyToProtoReceivers)o).position().equals(position());
-		}
-	}
-	public static class ProtoValuesAssignableOnlyUsingEquals extends SemanticException implements ProtoTypeException {
-		private static final long serialVersionUID = -7997300104807372345L;
-		public ProtoValuesAssignableOnlyUsingEquals(Expr e,  Position pos) {
-			super("A proto value assignment to a field must use \"=\" assignment operator."
-					+ "\n\t Value: " + e,
-					pos);
-		}
-		public boolean equals(Object o) {
-			if (o==null || ! (o instanceof ProtoValuesAssignableOnlyUsingEquals) )
-				return false;
-			return((ProtoValuesAssignableOnlyUsingEquals)o).position().equals(position());
-		}
-	}
 	public static class CannotConvertToType extends SemanticException implements ConversionException {
 		private static final long serialVersionUID = 5580836853775144578L;
 

@@ -367,9 +367,6 @@ implements X10ParsedClassType
 		StringBuffer sb = new StringBuffer();
 		if (flags() != null) {
 			X10Flags f = X10Flags.toX10Flags(flags());
-			if (f.isProto()) {
-				sb.append("proto ");
-			}
 
 		}
 		//	sb.append(flags().toString()).append(" ");
@@ -389,23 +386,8 @@ implements X10ParsedClassType
 		return sb.toString();
 	}
 	    
-	public boolean isProto() { return X10Flags.toX10Flags(flags()).isProto(); }
 	public boolean isX10Struct() { 	return X10Flags.toX10Flags(flags()).isStruct(); }
-    public Proto makeProto() {
-    	if (isProto())
-    		return this;
-    	X10ParsedClassType_c c = (X10ParsedClassType_c) copy();
-    	c.setFlags(X10Flags.toX10Flags(flags()).Proto());
-    	return c;
-    	
-    }
-    public Proto baseOfProto() {
-    	if (! isProto())
-    		return this;
-    	X10ParsedClassType_c c = (X10ParsedClassType_c) copy();
-    	c.setFlags(X10Flags.toX10Flags(flags()).clearProto());
-    	return c;
-    }
+
     public X10Struct makeX10Struct() {
     	if (isX10Struct())
     		return this;

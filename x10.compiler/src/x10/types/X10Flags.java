@@ -43,7 +43,6 @@ public class X10Flags extends Flags {
     public static final X10Flags GLOBAL = createFlag("global", null);
    // public static final X10Flags ROOTED = createFlag("rooted", null);
     public static final X10Flags STRUCT = createFlag("struct", null);
-    public static final X10Flags PROTO = createFlag("proto", null);
     public static final X10Flags PINNED = createFlag("pinned", null);
     public static final X10Flags HASTYPE = createFlag("hastype", null); // can only be created through a <: Type declaration.
 
@@ -548,39 +547,6 @@ public class X10Flags extends Flags {
      */
     public boolean isSequential() {
         return contains(SEQUENTIAL) || contains(SAFE);
-    }
-    
-    /**
-     * Return a copy of this <code>this</code> with the <code>sequential</code>
-     * flag set.
-     * 
-     * @param flags
-     *            TODO
-     */
-    public X10Flags Proto() {
-        return setX(PROTO);
-    }
-
-    /**
-     * Return a copy of this <code>this</code> with the <code>sequential</code>
-     * flag clear.
-     * 
-     * @param flags
-     *            TODO
-     */
-    public X10Flags clearProto() {
-        return clearX(PROTO);
-    }
-
-    /**
-     * Return true if <code>this</code> has the <code>sequential</code> flag
-     * set.
-     * 
-     * @param flags
-     *            TODO
-     */
-    public boolean isProto() {
-        return contains(PROTO);
     }
 
     /**

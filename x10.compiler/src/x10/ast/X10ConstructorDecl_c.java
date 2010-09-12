@@ -429,16 +429,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         
         
        // Report.report(1, "X10MethodDecl_c: typeoverride mi= " + nn.methodInstance());
-        
-       /* Type retTypeBase =  X10TypeMixin.baseOfProto(r.type());
-        //Type clazz = ((X10Type) X10TypeMixin.baseType(Types.get(nnci.container()))).addFlags(X10Flags.ROOTED);
-        Type clazz =   X10TypeMixin.baseOfProto(Types.get(nnci.container())); 
-        if (! xts.typeEquals(retTypeBase, clazz, tc.context())) {
-        	throw new SemanticException("The return type of the constructor (" + retTypeBase 
-        			+ ") must be derived from"
-        			+ " the type of the class (" + clazz + ") on which the constructor is defined.",
-        			position());
-        }*/
+
     
        	// Step III. Check the body. 
        	// We must do it with the correct mi -- the return type will be
@@ -502,10 +493,6 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         }
 
         n = (X10ConstructorDecl_c) (super.typeCheck(tc));
-        final Type returnT = n.returnType().type();
-        X10TypeMixin.protoTypeCheck(n.formals(), returnT,
-        		n.position(), false);
-
         return n;
     }
 
@@ -513,9 +500,8 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         X10ConstructorDecl_c n = (X10ConstructorDecl_c) super.conformanceCheck(tc);
         X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
         
-        Type retTypeBase =  X10TypeMixin.baseOfProto(n.returnType().type());
+        Type retTypeBase =  n.returnType().type();
         retTypeBase = X10TypeMixin.baseType(retTypeBase);
-        CConstraint c =         X10TypeMixin.xclause(n.returnType().type());
         
         X10ConstructorDef nnci = (X10ConstructorDef) n.constructorDef();
         // Type clazz = ((X10Type) nnci.asInstance().container()).setFlags(X10Flags.ROOTED);

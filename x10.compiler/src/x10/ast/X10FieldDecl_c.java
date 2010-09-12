@@ -405,9 +405,6 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	    		type = ts.unknownType(position()); 
 	    	}
 
-	    	if (X10TypeMixin.isProto(type)) {
-	    		Errors.issue(tc.job(), new SemanticException("Field cannot have type " + type + " (a proto type).", position()));
-	    	}
 
 	    	if (X10TypeMixin.isX10Struct(fieldDef().container().get()) &&
 	    			!isMutable(ts, fieldDef().container().get()) &&

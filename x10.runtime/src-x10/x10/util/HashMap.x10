@@ -63,7 +63,7 @@ import x10.compiler.Pinned;
         init(pow2);
     }
     
-    protected proto def init(sz: int): void {
+    protected final def init(sz: int): void {
         // check that sz is a power of 2
         assert (sz & -sz) == sz;
         assert sz >= MIN_SIZE;

@@ -87,19 +87,7 @@ public class X10Field_c extends Field_c {
 	public Node typeCheck(ContextVisitor tc) {
 		Node n;
 		try {
-		    n = typeCheck1(tc);
-		    // Keep this at the very end. This is caught by 
-		    // handle proto.
-		    X10TypeMixin.checkMissingParameters(this);
-		    if (! ((X10Context) tc.context()).inAssignment()) {
-		        if (n instanceof X10Field_c) {
-		            Field nf = (Field) n;
-		            Type xtType = nf.target().type();
-		            if (X10TypeMixin.isProto(xtType)) {
-		                throw new Errors.CannotReadFieldOfProtoValue(nf, nf.position());
-		            }
-		        }
-		    }
+		    n = typeCheck1(tc);		    
 		} catch (SemanticException e) {
 		    Errors.issue(tc.job(), e, this);
 		    Type tType = target != null ? target.type() : tc.context().currentClass();

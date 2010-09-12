@@ -1044,7 +1044,6 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         X10Flags x = X10Flags.toX10Flags(legalAccessFlags().Abstract().Static().Final().Native().Synchronized().StrictFP());
         x = x.Safe().NonBlocking().Sequential().Incomplete().Property().Pure().Extern().Atomic();//.Global();
         x = x.Global();
-        x = x.Proto();
         return x;
 
     }
@@ -1053,7 +1052,6 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         X10Flags x = X10Flags.toX10Flags(legalAccessFlags().clear(Private()).Abstract());
         x = x.Safe().NonBlocking().Sequential().Property().Pure().Atomic(); //.Global();
         x = x.Global();
-        x = x.Proto();
         return x;
     }
 

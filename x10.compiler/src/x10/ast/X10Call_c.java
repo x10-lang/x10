@@ -428,18 +428,9 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		X10Call_c call = (X10Call_c) this.targetImplicit(true).target(r).arguments(args);
 		Type rt = X10Field_c.rightType(mi.rightType(), mi.x10Def(), r, (X10Context) tc.context());
 		call = (X10Call_c)call.methodInstance(mi).type(rt);
-		call.checkProtoMethod();
 		return call;
 	}
 
-	void checkProtoMethod() throws SemanticException {
-		if (X10TypeMixin.isProto(target().type())
-				&& ! X10Flags.toX10Flags(methodInstance().flags()).isProto()
-			)
-			throw new SemanticException(methodInstance()
-					+ " must be declared as a proto method since it is called on a receiver " +
-					target() + " with a proto type.");
-	}
 	XVar getThis(Type t) {
 	    t = X10TypeMixin.baseType(t);
 	    if (t instanceof X10ClassType) {
@@ -691,7 +682,6 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		methodCall = (X10Call_c) methodCall.arguments(args);
 		if (this.target() == null)
 		    methodCall = (X10Call_c) methodCall.targetImplicit(true).target(target);
-		methodCall.checkProtoMethod();
 		// Eliminate for orthogonal locality.
 		// methodCall = (X10Call_c) PlaceChecker.makeReceiverLocalIfNecessary(methodCall, tc);
 		//methodCall.checkConsistency(c); // [IP] Removed -- this is dead code at this point

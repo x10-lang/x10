@@ -2,27 +2,25 @@ package x10.visit;
 
 import polyglot.ast.*;
 import polyglot.util.ErrorInfo;
-import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.DataFlow;
 import polyglot.visit.FlowGraph;
 import polyglot.frontend.Job;
 import polyglot.types.Type;
-import polyglot.types.TypeSystem;
 import polyglot.types.FieldDef;
 import polyglot.types.Flags;
 import polyglot.types.MethodInstance;
-import polyglot.types.VarDef;
 import polyglot.types.MethodDef;
 import polyglot.types.FieldInstance;
 import polyglot.types.ProcedureDef;
+import polyglot.types.QName;
 import x10.ast.*;
 import x10.types.X10TypeMixin;
 import x10.types.X10Flags;
-import x10.types.X10FieldDef_c;
 import x10.types.X10TypeSystem;
 import x10.types.X10FieldDef;
+import x10.types.X10ParsedClassType_c;
 
 import java.util.HashMap;
 import java.util.Set;
@@ -49,6 +47,7 @@ public class CheckEscapingThis extends NodeVisitor
     private static int afterSeqBlock(int bBefore, int bAfter) { return build(isRead(bBefore) || (!isSeqWrite(bBefore) && isRead(bAfter)), isWrite(bBefore) || isWrite(bAfter),isSeqWrite(bBefore) || isSeqWrite(bAfter)); }
     private static int afterAsync(int i1, int i2) { return build(isRead(i1)||isRead(i2),isWrite(i1)||isWrite(i2),isSeqWrite(i1)&&isSeqWrite(i2)); }
     private static int afterIf(int i1, int i2) { return build(isRead(i1)||isRead(i2),isWrite(i1)&&isWrite(i2),isSeqWrite(i1)&&isSeqWrite(i2)); }
+    private static String flagsToString(int i) { return i==0? "none," : (isRead(i)?"read," : "")+(isWrite(i)?"write," : "")+(isSeqWrite(i)?"seqWrite," : ""); }
 
 
     private class DataFlowItem extends DataFlow.Item {
@@ -66,6 +65,15 @@ public class CheckEscapingThis extends NodeVisitor
         }
         public int hashCode() {
             return (initStatus.hashCode());
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder res = new StringBuilder();
+            for (Map.Entry<X10FieldDecl_c, Integer> pair : initStatus.entrySet()) {
+                res.append(pair.getKey().name()).append(":").append(flagsToString(pair.getValue())).append(" ");
+            }
+            return res.toString();
         }
     }
     class FieldChecker extends DataFlow {
@@ -104,8 +112,10 @@ public class CheckEscapingThis extends NodeVisitor
 
             boolean isAsync = !entry && node instanceof Async;
             DataFlowItem res = new DataFlowItem();
-            for (Object itemObj : items) {
-                DataFlowItem item = (DataFlowItem) itemObj;
+            res.initStatus.putAll(((DataFlowItem) items.get(0)).initStatus);
+
+            for (int i=1; i<items.size(); i++) {
+                DataFlowItem item = (DataFlowItem) items.get(i);
                 for (Map.Entry<X10FieldDecl_c, Integer> pair : item.initStatus.entrySet()) {
                     final X10FieldDecl_c key = pair.getKey();
                     int i1 = res.initStatus.get(key);
@@ -121,7 +131,7 @@ public class CheckEscapingThis extends NodeVisitor
             return res;
         }
         protected FlowGraph initGraph(CodeNode code, Term root) {
-            currDecl = (ProcedureDecl)code;
+            currDecl = (ProcedureDecl)code; // we do not analyze closures (Closure_c) since we require that "this" does not escape there
             return super.initGraph(code,root);
         }
 
@@ -174,7 +184,8 @@ public class CheckEscapingThis extends NodeVisitor
                 }
             } else if (n instanceof Expr && ((Expr)n).type().isBoolean() &&
                     (n instanceof Binary || n instanceof Unary)) {
-                return flowBooleanConditions(trueItem, falseItem, inItem, graph, (Expr)n, succEdgeKeys);
+                final Map map = flowBooleanConditions(trueItem, falseItem, inItem, graph, (Expr) n, succEdgeKeys);
+                if (map!=null) return map;
             } else if (n instanceof ParExpr && ((ParExpr)n).type().isBoolean()) {
                 return itemsToMap(trueItem, falseItem, inItem, succEdgeKeys);
             } else if (n instanceof Finish) {
@@ -206,7 +217,8 @@ public class CheckEscapingThis extends NodeVisitor
                 // finish method/ctor
                 ProcedureDecl decl = (ProcedureDecl)n;
                 assert decl!=null;
-                MethodInfo oldInfo = allMethods.get(decl.procedureInstance());
+                final ProcedureDef procDef = decl.procedureInstance();
+                MethodInfo oldInfo = allMethods.get(procDef);
                 MethodInfo newInfo = new MethodInfo();
                 for (Map.Entry<X10FieldDecl_c, Integer> pair : dfIn.initStatus.entrySet()) {
                     int val = pair.getValue();
@@ -215,13 +227,22 @@ public class CheckEscapingThis extends NodeVisitor
                     if (isWrite(val)) newInfo.write.add(f);
                     if (isSeqWrite(val)) newInfo.seqWrite.add(f);
                 }
+                // proof that the fix-point terminates: write set decreases while the read set increases
+                assert oldInfo.write.containsAll(newInfo.write);
+                assert oldInfo.seqWrite.containsAll(newInfo.seqWrite);
+                assert newInfo.read.containsAll(oldInfo.read);
+
+                // fixed-point reached?
                 if (newInfo.read.equals(oldInfo.read) &&
                     newInfo.write.equals(oldInfo.write) &&
                     newInfo.seqWrite.equals(oldInfo.seqWrite)) {
                     // no change!
                 } else {
                     wasChange = true;
+                    allMethods.put(procDef,newInfo);
                 }
+
+                // everything must be assigned in a ctor (and nothing read)
                 if (isCtor()) {
                     int size = fields.size();
                     if (!newInfo.read.isEmpty()) assert wasError;
@@ -254,6 +275,44 @@ public class CheckEscapingThis extends NodeVisitor
         }
     }
 
+    // Checks for illegal forward references in field initializers and "this" escaping
+    private class FieldInitVisitor extends NodeVisitor {
+        @Override public Node visitEdgeNoOverride(Node parent, Node n) {
+            checkGlobalRef(n); // check globalRef usage in field initializers
+
+            final Position p = n.position();
+            // this can escape in field acess and assignment (but not in method calls or any other way)
+            if (n instanceof Field) {
+                Field f = (Field) n;
+                if (isThis(f.target())) {
+                    checkField(f.fieldInstance().def(),p);
+                    return n;
+                }
+            }
+            if (n instanceof FieldAssign) {
+                FieldAssign f = (FieldAssign) n;
+                if (isThis(f.target())) {
+                    checkField(f.fieldInstance().def(),p);
+                    f.right().visit(this);
+                    return n;
+                }
+            }
+
+            // check that "this" cannot escape in any other way
+            if (isThis(n))
+                reportError("'this' and 'super' cannot escape in field initializers.",p);
+
+            n.del().visitChildren(this);
+            return n;
+        }
+
+    }
+    private void checkField(FieldDef def, Position p) {
+        if (!def.flags().isStatic() && !initFields.contains(def)) {
+            reportError("Illegal forward reference for field '"+def.name()+"'.",p);
+        }
+    }
+
 
     // we gather info on every private/final method
     private static class MethodInfo {
@@ -275,7 +334,21 @@ public class CheckEscapingThis extends NodeVisitor
     // Therefore we can now treat both VAL and VAR identically.
     private final HashSet<X10FieldDecl_c> fields = new HashSet<X10FieldDecl_c>();
     private boolean wasChange = true, wasError = false; // for fixed point alg
+    private FieldDef globalRef = null;// There is one exception to the "this cannot escape" rule:  val root = GlobalRef[...](this)
+    private Set<FieldDef> initFields = new HashSet<FieldDef>(); // fields that have been initialized already (to prevent forward references)
 
+    private void checkGlobalRef(Node n) {
+        boolean err = false;
+        if (n instanceof Field) {
+            Field f = (Field) n;
+            err = (f.fieldInstance().def()==globalRef && isThis(f.target()));
+        }
+        if (n instanceof FieldAssign) {
+            FieldAssign assign = (FieldAssign) n;
+            err = (assign.fieldInstance().def()==globalRef && isThis(assign.target()));
+        }
+        if (err) reportError("Cannot use '"+globalRef.name()+"' in a field initializer, constructor, or methods called from a constructor.",n.position());
+    }
     public CheckEscapingThis(X10ClassDecl_c xlass, Job job, X10TypeSystem ts) {
         this.job = job;
         this.ts = ts;
@@ -285,8 +358,44 @@ public class CheckEscapingThis extends NodeVisitor
         typeCheck();
     }
     private void typeCheck() {
-        // visit every ctor, and every method called from a ctor, and check that this and super do not escape
         final X10ClassBody_c body = (X10ClassBody_c)xlass.body();
+        // visit all field initializers and check that they do not have forward references nor that "this" escapes
+        FieldInitVisitor fieldInitVisitor = new FieldInitVisitor();
+        for (ClassMember classMember : body.members()) {
+            if (classMember instanceof X10FieldDecl_c) {
+                X10FieldDecl_c field = (X10FieldDecl_c) classMember;
+                final Flags flags = field.flags().flags();
+                final Expr init = field.init();
+                if (init==null) continue;
+                // check for the pattern: GlobalRef[...](this)
+                if (init instanceof X10New_c) {
+                    X10New_c new_c = (X10New_c) init;
+                    final TypeNode typeNode = new_c.objectType();
+                    final List<Expr> args = new_c.arguments();
+                    if (args.size()==1 && isThis(args.get(0)) && // the first and only argument is "this"
+                        typeNode instanceof X10CanonicalTypeNode_c) { // now checking the ctor is of GlobalRef
+                        X10CanonicalTypeNode_c tn = (X10CanonicalTypeNode_c) typeNode;
+                        final Type type = tn.type();
+                        if (type instanceof X10ParsedClassType_c) {
+                            X10ParsedClassType_c classType_c = (X10ParsedClassType_c) type;
+                            final QName qName = classType_c.def().fullName();
+                            if (qName.equals(QName.make("x10.lang","GlobalRef"))) {
+                                // found the pattern!
+                                if (globalRef!=null) {
+                                    reportError("You can use the pattern 'val root = GlobalRef[...](this);' only once in a class.",field.position());
+                                    continue;
+                                }
+                                globalRef = field.fieldDef();
+                                continue;
+                            }
+                        }
+                    }
+                }
+                init.visit(fieldInitVisitor);
+                initFields.add(field.fieldDef());
+            }
+        }
+        // visit every ctor, and every method called from a ctor, and check that this and super do not escape
         for (ClassMember classMember : body.members()) {
             if (classMember instanceof X10ConstructorDecl_c) {
                 final X10ConstructorDecl_c ctor = (X10ConstructorDecl_c) classMember;
@@ -301,7 +410,6 @@ public class CheckEscapingThis extends NodeVisitor
                 final Flags flags = field.flags().flags();
                 if (flags.isStatic()) continue;
                 // if the field has an init, then we do not need to track it (it is always assigned before read)
-                if (field.init()!=null) continue;
                 if (field.init()!=null) continue;
                 if (X10TypeMixin.isUninitializedField((X10FieldDef)field.fieldDef(),ts)) continue;
                 // if a VAR has a default value, then we already created an init() expr in X10FieldDecl_c.typeCheck
@@ -340,7 +448,7 @@ public class CheckEscapingThis extends NodeVisitor
             wasChange = false;
             // do a DFS: starting from private/final methods, and then the ctors (this will reach a fixed-point fastest)
             for (ProcedureDecl p : dfsMethods)
-                p.visit(fieldChecker);
+                fieldChecker.dataflow(p);
         }
     }
     private X10FieldDecl_c findField(FieldDef def) {
@@ -361,20 +469,29 @@ public class CheckEscapingThis extends NodeVisitor
         return null;
     }
 
-    @Override
-    public Node visitEdgeNoOverride(Node parent, Node n) {
-        // You can access "this" for field access and field assignment.
+    private int closureCount = 0;
+    private boolean isInClosure() { return closureCount>0; }
+    @Override public Node visitEdgeNoOverride(Node parent, Node n) {
+        checkGlobalRef(n); // check globalRef usage in ctors and methods called from ctors
+
+        boolean isClosure = n instanceof Closure;
+        if (isClosure) closureCount++;
+
+        if (!isInClosure()) {
+
+        // You can access "this" for field access and field assignment (if not in a closure).
         // field assignment:
         if (n instanceof FieldAssign) {
-            FieldAssign assign = (FieldAssign) n;
-            if (assign.target() instanceof Special) {
-                assign.right().visit(this);
+            FieldAssign f = (FieldAssign) n;
+            if (isThis(f.target())) {
+                f.right().visit(this);
                 return n;
             }
         }
         // field access:
-        if (n instanceof Field && ((Field)n).target() instanceof Special) {
-            return n;
+        if (n instanceof Field) {
+            final Field f = (Field) n;
+            if (isThis(f.target())) return n;
         }
         // You can also access "this" as the receiver of property calls (because they are MACROS that are expanded to field access)
         // and as the receiver of private/final calls
@@ -394,7 +511,7 @@ public class CheckEscapingThis extends NodeVisitor
                         allMethods.put(pd,new MethodInfo()); // prevent infinite recursion
                         // verify the method is indeed private/final
                         if (!flags.isFinal() && !flags.isPrivate())  {
-                            report("The call "+call+" is illegal because you can only call private or final methods from a constructor or from methods called from a constructor",call.position());
+                            reportError("The call "+call+" is illegal because you can only call private or final methods from a constructor or from methods called from a constructor",call.position());
                         }
                         method.body().visit(this);
                         dfsMethods.add(method);
@@ -408,14 +525,17 @@ public class CheckEscapingThis extends NodeVisitor
                 return n;
             }                        
         }
+            
+        }
         // You cannot use "this" for anything else!
         if (isThis(n)) {
-            report("'this' and 'super' cannot escape from a constructor or from methods called from a constructor",n.position());
+            reportError("'this' and 'super' cannot escape from a constructor or from methods called from a constructor",n.position());
         }
         n.del().visitChildren(this);
+        if (isClosure) closureCount--;
         return n;
     }
-    private void report(String s, Position p) {
+    private void reportError(String s, Position p) {
         job.compiler().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR,s,p);
     }
     private boolean isThis(Node n) {

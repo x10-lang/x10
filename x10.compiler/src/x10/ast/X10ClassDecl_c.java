@@ -730,10 +730,6 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
                         t + "; not a class.",
                         superClass != null ? superClass.position() : position());
             }
-            if (X10TypeMixin.isProto(t)) {
-            	throw new SemanticException("proto supertypes are not permitted.", 
-            			superClass().position());
-            }
             ts.checkCycles((ReferenceType) t);
         }
 
@@ -747,9 +743,6 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
                 throw new SemanticException("Cannot " + s + " type " + t + "; not an interface.",
                         position());
             }
-            if (X10TypeMixin.isProto(t))
-            	throw new SemanticException("Cannot implement " + t + "; proto interfaces are illegal.",
-            			position());
             
             ts.checkCycles((ReferenceType) t);
         }

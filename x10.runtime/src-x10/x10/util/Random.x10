@@ -21,7 +21,7 @@ public class Random {
         setSeed(seed);
     }
     
-    public proto def setSeed(seed: Long): void {
+    public final def setSeed(seed: Long): void {
         init(seed);
     }
      
@@ -131,7 +131,7 @@ public class Random {
     private var index: int;
     private var MT: Rail[int];
 
-    public proto def init(seed: long): Void {
+    public final def init(seed: long): Void {
         val mt = Rail.make[int](N);
         MT=mt;
         // Ensure the seed is nonzero.

@@ -377,8 +377,9 @@ import x10.util.Box;
         var workerFlag : Rail[Boolean] = Rail.make[Boolean](MAX,(Int) => false);
         def this(r:Reducible[T]) {
     	    this.reducer=r;
-    	    this.result=reducer.zero();
-    	    this.resultRail = Rail.make[T](MAX, (Int) => this.result);
+    	    val zero = reducer.zero();
+    	    this.result=zero;
+    	    this.resultRail = Rail.make[T](MAX, (Int) => zero);
         }
         def accept(t:T) {
     	    this.result=reducer(result,t);

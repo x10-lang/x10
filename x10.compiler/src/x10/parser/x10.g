@@ -285,7 +285,6 @@
 --    private
 --    property
 --    protected
---    proto
 --    public
 --    return
     safe
@@ -457,13 +456,12 @@ public static class MessageHandler implements IMessageHandler {
             public static int PRIVATE     = 8;
             public static int PROPERTY    = 9;
             public static int PROTECTED   = 10;
-            public static int PROTO       = 11;
-            public static int PUBLIC      = 12;
-            public static int SAFE        = 13;
-            public static int SEQUENTIAL  = 14;
-            public static int SHARED      = 15;
-            public static int STATIC      = 16;
-            public static int TRANSIENT   = 17;
+            public static int PUBLIC      = 11;
+            public static int SAFE        = 12;
+            public static int SEQUENTIAL  = 13;
+            public static int SHARED      = 14;
+            public static int STATIC      = 15;
+            public static int TRANSIENT   = 16;
             public static int NUM_FLAGS   = TRANSIENT + 1;
 
             private JPGPosition pos;
@@ -483,7 +481,6 @@ public static class MessageHandler implements IMessageHandler {
                 if (flag == PRIVATE)      return Flags.PRIVATE;
                 if (flag == PROPERTY)     return X10Flags.PROPERTY;
                 if (flag == PROTECTED)    return Flags.PROTECTED;
-                if (flag == PROTO)        return X10Flags.PROTO;
                 if (flag == PUBLIC)       return Flags.PUBLIC;
                 if (flag == SAFE)         return X10Flags.SAFE;
                 if (flag == SEQUENTIAL)   return X10Flags.SEQUENTIAL;
@@ -506,7 +503,6 @@ public static class MessageHandler implements IMessageHandler {
                 if (flag == PRIVATE)      return "private";
                 if (flag == PROPERTY)     return "property";
                 if (flag == PROTECTED)    return "protected";
-                if (flag == PROTO)        return "proto";
                 if (flag == PUBLIC)       return "public";
                 if (flag == SAFE)         return "safe";
                 if (flag == SEQUENTIAL)   return "sequential";
@@ -581,7 +577,6 @@ public static class MessageHandler implements IMessageHandler {
                 methodModifiers[PRIVATE] = true;
                 methodModifiers[PROPERTY] = true;
                 methodModifiers[PROTECTED] = true;
-                methodModifiers[PROTO] = true;
                 methodModifiers[PUBLIC] = true;
                 methodModifiers[SAFE] = true;
                 methodModifiers[SEQUENTIAL] = true;
@@ -1249,11 +1244,6 @@ public static class MessageHandler implements IMessageHandler {
                     setResult(new FlagModifier(pos(), FlagModifier.PROTECTED));
           $EndJava
         ./
-                   | proto
-        /.$BeginJava
-                    setResult(new FlagModifier(pos(), FlagModifier.PROTO));
-          $EndJava
-        ./
                    | public
         /.$BeginJava
                     setResult(new FlagModifier(pos(), FlagModifier.PUBLIC));
@@ -1701,13 +1691,6 @@ public static class MessageHandler implements IMessageHandler {
     -------------------------------------- Section:::Types
     Type ::= FunctionType
            |  ConstrainedType
-           |  proto ConstrainedType
-        /.$BeginJava
-            AddFlags tn = (AddFlags) ConstrainedType;
-            tn.addFlags(X10Flags.PROTO);
-            setResult(ConstrainedType.position(pos()));
-          $EndJava
-        ./
 
     FunctionType ::= TypeParametersopt ( FormalParameterListopt ) WhereClauseopt Throwsopt Offersopt => Type
         /.$BeginJava
@@ -3549,11 +3532,6 @@ public static class MessageHandler implements IMessageHandler {
 --                     | global
 --        /.$BeginJava
 --                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.GLOBAL)));
---          $EndJava
---        ./
---                     | proto
---        /.$BeginJava
---                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.PROTO)));
 --          $EndJava
 --        ./
 

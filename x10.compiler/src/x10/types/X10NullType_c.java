@@ -31,7 +31,6 @@ public class X10NullType_c extends NullType_c implements X10NullType {
     
     public boolean isSafe() { return true;}
     public boolean isRooted() { return false; }
-    public boolean isProto() { return false; }
     public boolean isX10Struct() { return false; }
     public boolean equalsNoFlag(Type t2) { return this == t2; }
     public boolean permitsNull() { return true;}
