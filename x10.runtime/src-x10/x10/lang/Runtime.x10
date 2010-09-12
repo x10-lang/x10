@@ -150,135 +150,10 @@ import x10.util.Box;
     }
 
 
-    @NativeClass("java", "java.util.concurrent.locks", "ReentrantLock")
-    @NativeClass("c++", "x10.lang", "Lock__ReentrantLock")
-    @Pinned public static class Lock {
-        public native def this();
+  
+  
 
-        public native def lock():void;
-
-        public native def tryLock():Boolean;
-
-        public native def unlock():void;
-
-        native def getHoldCount():Int;
-    }
-
-
-    @Pinned static class Monitor extends Lock {
-        /**
-         * Parked threads
-         */
-        private val threads = new Stack[Thread]();
-
-        /**
-         * Park calling thread
-         * Increment blocked thread count
-         * Must be called while holding the lock
-         * Must not be called while holding the lock more than once
-         */
-        def await():void {
-            Runtime.increaseParallelism();
-            val thread = Thread.currentThread();
-            threads.push(thread);
-            while (threads.contains(thread)) {
-                unlock();
-                Runtime.park();
-                lock();
-            }
-        }
-
-        /**
-         * Unpark every thread
-         * Decrement blocked thread count
-         * Release the lock
-         * Must be called while holding the lock
-         */
-        def release():void {
-            val size = threads.size();
-            if (size > 0) {
-                Runtime.decreaseParallelism(size);
-                for (var i:Int = 0; i<size; i++) Runtime.unpark(threads.pop());
-            }
-            unlock();
-        }
-    }
-
-
-    @Pinned static class Latch extends Monitor implements ()=>Boolean {
-        private var state:Boolean = false;
-
-        public def release():void {
-            lock();
-            state = true;
-            super.release();
-        }
-
-        public def await():void {
-            // avoid locking if state == true
-            if (!state) {
-                lock();
-                while (!state) super.await();
-                unlock();
-            }
-        }
-
-        public def apply():Boolean = state; // memory model?
-    }
-
-
-    @Pinned static class Semaphore {
-        private val lock = new Lock();
-
-        private val threads = new Stack[Thread]();
-
-        private var permits:Int;
-
-        def this(n:Int) {
-            permits = n;
-        }
-
-        private static def min(i:Int, j:Int):Int = i<j ? i : j;
-
-        def release(n:Int):void {
-            lock.lock();
-            permits += n;
-            val m = min(permits, min(n, threads.size()));
-            for (var i:Int = 0; i<m; i++) {
-                threads.pop().unpark();
-            }
-            lock.unlock();
-        }
-
-        def release():void {
-            release(1);
-        }
-
-        def reduce(n:Int):void {
-            lock.lock();
-            permits -= n;
-            lock.unlock();
-        }
-
-        def acquire():void {
-            lock.lock();
-            val thread = Thread.currentThread();
-            while (permits <= 0) {
-                threads.push(thread);
-                while (threads.contains(thread)) {
-                    lock.unlock();
-                    Thread.park();
-                    lock.lock();
-                }
-            }
-            --permits;
-            lock.unlock();
-        }
-
-        def available():Int = permits;
-    }
-
-
+  
     static class ClockPhases extends HashMap[Clock,Int] {
         static def make(clocks:ValRail[Clock], phases:ValRail[Int]):ClockPhases {
             val clockPhases = new ClockPhases();
@@ -1779,7 +1654,7 @@ import x10.util.Box;
 
     /**
      * Eval future expression
-     */
+  
     public static def evalFuture[T](place:Place, eval:()=>T):Future[T] {
         val f = at (place) {
                    val f1 = new Future[T](eval);
@@ -1788,7 +1663,7 @@ import x10.util.Box;
                 };
         return f;
     }
-
+   */
 
     // atomic, await, when
 
