@@ -775,13 +775,6 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		n= (AssignPropertyCall) n.del(delFactory().delExpr());
 		return n;
 	}
-	public AssignPropertyBody AssignPropertyBody(Position pos, List<Stmt> statements, 
-			X10ConstructorDef ci, List<FieldInstance> fi) {
-		AssignPropertyBody  n = new AssignPropertyBody_c(pos, statements, ci, fi);
-		n = (AssignPropertyBody) n.ext(extFactory().extStmt());
-		n= (AssignPropertyBody) n.del(delFactory().delStmt());
-		return n;
-	}
 	public Conditional Conditional(Position pos, Expr cond, Expr consequent, Expr alternative) {
 		Conditional n = new X10Conditional_c(pos, cond, consequent, alternative);
 		n = (Conditional)n.ext(extFactory().extConditional());

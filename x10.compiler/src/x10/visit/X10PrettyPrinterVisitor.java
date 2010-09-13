@@ -102,7 +102,7 @@ import polyglot.visit.InnerClassRemover;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.Translator;
 import x10.Configuration;
-import x10.ast.AssignPropertyBody_c;
+import x10.ast.AssignPropertyCall_c;
 import x10.ast.Async_c;
 import x10.ast.AtEach_c;
 import x10.ast.AtExpr_c;
@@ -313,9 +313,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	public void visit(Branch_c n) {
 	    n.translate(w, tr);
 	}
-	public void visit(AssignPropertyBody_c n) {
-	    n.translate(w, tr);
-	}
 	public void visit(Throw_c n) {
             n.translate(w, tr);
 	}
@@ -339,6 +336,26 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	}
 	public void visit(LocalTypeDef_c n) {
 	    n.translate(w, tr);
+	}
+
+	public void visit(AssignPropertyCall_c n) {
+	    // TODO: initialize properties in the Java constructor
+	    Context ctx = tr.context();
+	    List<X10FieldInstance> definedProperties = n.properties();
+	    List<Expr> arguments = n.arguments();
+	    int aSize = arguments.size();
+	    assert (definedProperties.size() == aSize);
+
+	    for (int i = 0; i < aSize; i++) {
+	        Expr arg = arguments.get(i);
+	        X10FieldInstance fi = definedProperties.get(i);
+	        w.write("this.");
+	        w.write(Emitter.mangleToJava(fi.name()));
+	        w.write(" = ");
+	        er.coerce(n, arg, fi.type());
+	        w.write(";");
+	        w.newline();
+	    }
 	}
 
 	public void visit(Block_c n) {

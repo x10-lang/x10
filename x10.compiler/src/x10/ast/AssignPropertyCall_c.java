@@ -46,22 +46,24 @@ import x10.constraint.XVar;
 import x10.errors.Errors;
 import x10.types.X10ConstructorDef;
 import x10.types.X10Context;
+import x10.types.X10FieldInstance;
 import x10.types.X10ParsedClassType;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.XTypeTranslator;
+import x10.types.checker.ThisChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
 
 /**
  * @author vj
- *
+ * @author igor
  */
 public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 
 	List<Expr> arguments;
+	List<X10FieldInstance> properties;
 
-	
 	/**
 	 * @param pos
 	 * @param arguments
@@ -71,35 +73,42 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 	public AssignPropertyCall_c(Position pos, List<Expr> arguments) {
 		super(pos);
 		this.arguments = TypedList.copyAndCheck(arguments, Expr.class, true);
-		
 	}
-	  public Term firstChild() {
-		  return  listChild(arguments, null);
-	    }
+
+	public Term firstChild() {
+		return listChild(arguments, null);
+	}
 
 	/* (non-Javadoc)
 	 * @see polyglot.ast.Term#acceptCFG(polyglot.visit.CFGBuilder, java.util.List)
 	 */
-	  public List acceptCFG(CFGBuilder v, List succs) {
-		  v.visitCFGList(arguments, this, EXIT);
-		  return succs;
-	    }
+	public List acceptCFG(CFGBuilder v, List succs) {
+		v.visitCFGList(arguments, this, EXIT);
+		return succs;
+	}
 
-	  
-	  /** Return a copy of this node with this.expr equal to the given expr.
-	   * @see x10.ast.Await#expr(polyglot.ast.Expr)
-	   */
-	  public AssignPropertyCall args( List<Expr> args ) {
-		  if (args == arguments) return this;
-		  AssignPropertyCall_c n = (AssignPropertyCall_c) copy();
-		  n.arguments = TypedList.copyAndCheck(args, Expr.class, true);
-		  return n;
-	  }
-	  
-	  public List<Expr> args() {
-		  return arguments;
-	  }
-	
+	public AssignPropertyCall arguments(List<Expr> args) {
+	    if (args == arguments) return this;
+	    AssignPropertyCall_c n = (AssignPropertyCall_c) copy();
+	    n.arguments = TypedList.copyAndCheck(args, Expr.class, true);
+	    return n;
+	}
+
+	public List<Expr> arguments() {
+	    return arguments;
+	}
+
+	public AssignPropertyCall properties(List<X10FieldInstance> properties) {
+	    if (properties == this.properties) return this;
+	    AssignPropertyCall_c n = (AssignPropertyCall_c) copy();
+	    n.properties = TypedList.copyAndCheck(properties, FieldInstance.class, true);
+	    return n;
+	}
+
+	public List<X10FieldInstance> properties() {
+	    return properties;
+	}
+
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		sb.append("property");
@@ -117,18 +126,19 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 		sb.append(");");
 		return sb.toString();
 	}
-	
-	public Node typeCheck(ContextVisitor tc) throws SemanticException {
+
+	public Node typeCheck(ContextVisitor tc) {
 		TypeSystem ts = tc.typeSystem();
 		Context ctx = tc.context();
 		X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
 		Position pos = position();
 		Job job = tc.job();
-		if (! (ctx.inCode()) || ! (ctx.currentCode() instanceof X10ConstructorDef))
-			throw new SemanticException("A property statement may only occur in the body of a constructor.",
-					position());
-		X10ConstructorDef thisConstructor = null;
-		thisConstructor = (X10ConstructorDef) ctx.currentCode();
+		if (!(ctx.inCode()) || !(ctx.currentCode() instanceof X10ConstructorDef)) {
+			Errors.issue(job,
+			        new SemanticException("A property statement may only occur in the body of a constructor.",
+			                position()));
+		}
+		X10ConstructorDef thisConstructor = (X10ConstructorDef) ctx.currentCode();
 		// Now check that the types of each actual argument are subtypes of the corresponding
 		// property for the class reachable through the constructor.
 		List<FieldInstance> definedProperties = 
@@ -136,61 +146,53 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 		int pSize = definedProperties.size();
 		int aSize = arguments.size();
 		if (aSize != pSize) {
-		    throw new SemanticException("The property initializer must have the same number of arguments as properties for the class.",
-		                                position());
+		    Errors.issue(job,
+		            new SemanticException("The property initializer must have the same number of arguments as properties for the class.",
+		                    position()));
 		}
-		
-		checkAssignments(tc, pos, thisConstructor, definedProperties, args());
-		 checkReturnType(tc, pos, thisConstructor, definedProperties);
-		 
-		 List<Stmt> s = new ArrayList<Stmt>(pSize);
 
-		 for (int i=0; i < aSize; i++) {
-		     //	We fudge type checking of the generating code as follows.
-		     // X10 Typechecking of the assignment statement is problematic since 	
-		     // the type of the field may have references to other fields, hence may use this,
-		     // But this doesn't exist yet. We will check all the properties simultaneously
-		     // in AssignPropertyBody. So we do not need to check it here. 
-		     Expr arg = arguments.get(i);
-		     
-		     Expr this_ = (Expr) nf.This(pos).del().disambiguate(tc).del().typeCheck(tc).del().checkConstants(tc);
-		     FieldInstance fi = definedProperties.get(i);
-		     FieldAssign as = nf.FieldAssign(pos, this_, nf.Id(pos, fi.name()), Assign.ASSIGN, arg);
-		     // Do not type check the assignment!
-		     as = (FieldAssign) as.type(arg.type());
-		     as = as.fieldInstance(fi);
-//		     as = (FieldAssign) this.visitChild(as, tc);
-		     Stmt a = (Stmt) nf.Eval(pos, as);
-		     s.add(a);
-		 }
+		checkAssignments(tc, pos, thisConstructor, definedProperties, arguments);
+		checkReturnType(tc, pos, thisConstructor, definedProperties);
 
-		 return nf.AssignPropertyBody(pos, s, thisConstructor, definedProperties).del().typeCheck(tc);
+		ThisChecker thisC = (ThisChecker) new ThisChecker(tc.job()).context(tc.context());
+		for (int i=0; i < aSize; i++) {
+		    Expr arg = arguments.get(i);
+		    thisC.clearError();
+		    visitChild(arg, thisC);
+		    if (thisC.error()) {
+		        Errors.issue(job, new Errors.ThisNotPermittedInPropertyInitializer(arg, position()));
+		    }
+		}
+
+		List<X10FieldInstance> properties = new ArrayList<X10FieldInstance>();
+		for (FieldInstance fi : definedProperties) {
+		    properties.add((X10FieldInstance) fi);
+		}
+		return this.properties(properties);
 	}
 
-	protected void checkAssignments(ContextVisitor tc, Position pos, X10ConstructorDef thisConstructor, 
-			List<FieldInstance> props, List<Expr> args)
-	throws SemanticException {
+	protected void checkAssignments(ContextVisitor tc, Position pos,
+	        X10ConstructorDef thisConstructor, List<FieldInstance> props, List<Expr> args)
+	{
 		X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
 		// First check that the base types are correct.
 		for (int i=0; i < args.size(); ++i) {
-			if (! xts.isSubtype(X10TypeMixin.baseType(args.get(i).type()), X10TypeMixin.baseType(props.get(i).type()))) {
-				throw new SemanticException("The type " + args.get(i).type() + " of the initializer for property " + props.get(i) 
-						+ " is not a subtype of the property type " + props.get(i).type(), position());
+			if (!xts.isSubtype(X10TypeMixin.baseType(args.get(i).type()), X10TypeMixin.baseType(props.get(i).type()))) {
+				Errors.issue(tc.job(),
+				        new SemanticException("The type " + args.get(i).type() + " of the initializer for property " + props.get(i) 
+				                + " is not a subtype of the property type " + props.get(i).type(), position()));
 			}
 		}
 		// Now we check that the constraints are correct.
-		
-		
 	}
 	
-	protected void checkReturnType(ContextVisitor tc, Position pos, X10ConstructorDef thisConstructor, List<FieldInstance> definedProperties)
-	throws SemanticException {
+	protected void checkReturnType(ContextVisitor tc, Position pos,
+	        X10ConstructorDef thisConstructor, List<FieldInstance> definedProperties)
+	{
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 		X10Context ctx = (X10Context) tc.context();
-		if (ts.isUnknown(Types.get(thisConstructor.returnType()))) {
-		    if (Configuration.CHECK_INVARIANTS)
-		        Errors.issue(tc.job(), new SemanticException("Complaining about UnknownType", pos));
-		    throw new SemanticException();
+		if (ts.hasUnknown(Types.get(thisConstructor.returnType()))) {
+		    return;
 		}
 
 		Type returnType = Types.get(thisConstructor.returnType());
@@ -198,9 +200,9 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 		CConstraint result = X10TypeMixin.xclause(returnType);
 
 		if (result.valid())
-			result = null;   // todo: the code below that infers the return type of a ctor is buggy, since it infers "this". see XTENLANG-1770
+			result = null;   // FIXME: the code below that infers the return type of a ctor is buggy, since it infers "this". see XTENLANG-1770
 
-		 {
+		{
 			CConstraint known = Types.get(thisConstructor.supClause());
 			known = (known==null ? new CConstraint() : known.copy());
 			try {
@@ -219,48 +221,39 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 					if (c != null)
 						known.addIn(c.substitute(prop, c.self()));
 
-
 					XTerm initVar = ts.xtypeTranslator().trans(known, initializer, (X10Context) ctx);
 					if (initVar != null)
 						known.addBinding(prop, initVar);
-
-
 				}
 
-				// Set the returntype of the enclosing constructor to be this inferred type.
+				// Set the return type of the enclosing constructor to be this inferred type.
 				Type inferredResultType = X10TypeMixin.addConstraint(X10TypeMixin.baseType(returnType), known);
 				Ref <? extends Type> r = thisConstructor.returnType();
 				((Ref<Type>) r).update(inferredResultType);
 				// bind this==self; sup clause may constrain this.
 				if (thisVar != null) {
-					known =known.instantiateSelf(thisVar);
+					known = known.instantiateSelf(thisVar);
 					
 					// known.addSelfBinding(thisVar);
 					// known.setThisVar(thisVar);
 				}
 				if (result != null) {
 					result =  result.instantiateSelf(thisVar);
-					if (! known.entails(result, ctx.constraintProjection(known, result))) {
-						throw new Errors.ConstructorReturnTypeNotEntailed(known, result, position());
+					if (!known.entails(result, ctx.constraintProjection(known, result))) {
+						Errors.issue(tc.job(),
+						        new Errors.ConstructorReturnTypeNotEntailed(known, result, position()));
 					}
 				}
 			}
 			catch (XFailure e) {
-				throw new SemanticException(e.getMessage());
-			} 
+			    Errors.issue(tc.job(), new SemanticException(e.getMessage(), e), this);
+			}
 		}
 	}
-	
+
 	/** Visit the children of the statement. */
-	
-	    public Node visitChildren(NodeVisitor v) {
-	        List<Expr> args = visitList(this.arguments, v);
-		return args(args);
-	    }
-	    
-	    Expr expr;
-	    
-	   
+	public Node visitChildren(NodeVisitor v) {
+	    List<Expr> args = visitList(this.arguments, v);
+	    return arguments(args);
+	}
 }
-
-

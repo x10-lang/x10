@@ -90,7 +90,7 @@ import polyglot.ast.TypeNode;
 import polyglot.ast.Unary_c;
 import polyglot.ast.While_c;
 import polyglot.frontend.Compiler;
-import x10.ast.AssignPropertyBody_c;
+import x10.ast.AssignPropertyCall_c;
 import x10.ast.Await_c;
 import x10.ast.Closure;
 import x10.ast.ClosureCall_c;
@@ -779,7 +779,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
     }
 
     @Override
-    public void visit(AssignPropertyBody_c n) {
+    public void visit(AssignPropertyCall_c n) {
         // TODO Auto-generated method stub
         super.visit(n);
     }

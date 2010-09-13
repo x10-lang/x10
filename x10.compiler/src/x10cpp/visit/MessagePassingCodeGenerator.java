@@ -153,7 +153,7 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.Translator;
 import x10.Configuration;
-import x10.ast.AssignPropertyBody_c;
+import x10.ast.AssignPropertyCall_c;
 import x10.ast.Async_c;
 import x10.ast.AtEach_c;
 import x10.ast.AtExpr_c;
@@ -1892,7 +1892,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	                sw.allowBreak(2, 2, "", 0); // miser mode
 	                sw.begin(0);
 	                boolean first = true;
-	                for(Expr e : (List<Expr>) call.arguments() ) {
+	                for (Expr e : (List<Expr>) call.arguments() ) {
 	                    if (!first) {
 	                        sw.write(",");
 	                        sw.allowBreak(0, " ");
@@ -2225,8 +2225,35 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 
-    public void visit(AssignPropertyBody_c n) {
-        n.translate(sw, tr);
+    public void visit(AssignPropertyCall_c n) {
+        // TODO: initialize properties in the C++ constructor (at least for classes)
+        X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+        Context ctx = tr.context();
+        List<X10FieldInstance> definedProperties = n.properties();
+        List<Expr> arguments = n.arguments();
+        int aSize = arguments.size();
+        assert (definedProperties.size() == aSize);
+
+        for (int i = 0; i < aSize; i++) {
+            Expr arg = arguments.get(i);
+            FieldInstance fi = definedProperties.get(i);
+            if (X10TypeMixin.isX10Struct(ctx.currentClass())) {
+                sw.write("this_->");
+            }
+            sw.write(mangled_field_name(fi.name().toString()));
+            sw.write(" = ");
+            Type aType = fi.type();
+            boolean rhsNeedsCast = !xts.typeDeepBaseEquals(aType, arg.type(), ctx);
+            if (rhsNeedsCast) {
+                // FIXME: this cast would not be needed if not for a frontend bug
+                sw.write("x10aux::class_cast" + chevrons(Emitter.translateType(aType, true)) + "(");
+            }
+            n.print(arg, sw, tr);
+            if (rhsNeedsCast)
+                sw.write(")");
+            sw.write(";");
+            sw.newline();
+        }
     }
 
 

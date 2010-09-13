@@ -15,18 +15,14 @@ import java.util.List;
 
 import polyglot.ast.Expr;
 import polyglot.ast.Stmt;
-import polyglot.ast.TypeNode;
-import polyglot.util.TypedList;
+import x10.types.X10FieldInstance;
 
 /**
- * An immutable representation of a prop(e1,..., en) statement in the body of a constructor.
- * @author vj
- *
+ * An immutable representation of a property(e1,..., en) statement in the body of a constructor.
  */
 public interface AssignPropertyCall extends Stmt {
-	/** Return a copy of this node with this.expr equal to the given expr.
-	   * @see x10.ast.Await#expr(polyglot.ast.Expr)
-	   */
-	public AssignPropertyCall args(List<Expr> args);
-	public List<Expr> args();
+	public List<Expr> arguments();
+	public AssignPropertyCall arguments(List<Expr> args);
+	public List<X10FieldInstance> properties();
+	public AssignPropertyCall properties(List<X10FieldInstance> fi);
 }

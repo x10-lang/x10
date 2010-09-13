@@ -999,11 +999,11 @@ public final class ExpressionFlattener extends ContextVisitor {
         if (JAVA_CONSTRUCTOR_RULES) return syn.toStmtSeq(stmt);
         List<Stmt> stmts = new ArrayList<Stmt>();
         List<Expr> args  = new ArrayList<Expr>();
-        for (Expr arg : stmt.args()) {
+        for (Expr arg : stmt.arguments()) {
             Expr primary = getPrimaryAndStatements(arg, stmts);
             args.add(primary);
         }
-        stmts.add(stmt.args(args));
+        stmts.add(stmt.arguments(args));
         return syn.toStmtSeq(syn.createBlock(stmt.position(), stmts));
     }
 

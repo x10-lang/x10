@@ -20,10 +20,10 @@ import polyglot.frontend.Job;
 import polyglot.main.Report;
 import polyglot.types.SemanticException;
 import x10.ast.AnnotationNode_c;
+import x10.ast.AssignPropertyCall;
 import x10.ast.DepParameterExpr;
 import x10.ast.X10Formal_c;
 import x10.ast.Closure;
-import x10.ast.AssignPropertyBody;
 import x10.ast.SettableAssign;
 import x10.errors.X10ErrorInfo;
 
@@ -92,13 +92,13 @@ public class InstanceInvariantChecker extends NodeVisitor
             if (((Closure)n).closureDef()==null)
                 return "Closure missing closureDef";
         }
-        if (n instanceof AssignPropertyBody) {
-            if (((AssignPropertyBody)n).constructorInstance()==null)
-                return "AssignPropertyBody missing constructorInstance";
-        }
         if (n instanceof SettableAssign) {
             if (((SettableAssign)n).methodInstance()==null)
                 return "SettableAssign missing methodInstance";
+        }
+        if (n instanceof AssignPropertyCall) {
+            if (((AssignPropertyCall)n).properties()==null)
+                return "AssignPropertyCall missing properties";
         }
         return null;
     }

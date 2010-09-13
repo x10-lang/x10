@@ -578,10 +578,10 @@ public class Errors {
 	}
 	public static class ThisNotPermittedInConstructorFormals extends SemanticException {
 	    private static final long serialVersionUID = -7998660806293584830L;
-	    public ThisNotPermittedInConstructorFormals(List<Formal> formals,  Position pos) {
+	    public ThisNotPermittedInConstructorFormals(List<Formal> formals, Position pos) {
 	        super("This or super cannot be used (implicitly or explicitly) in a constructor formal type."
 	              + "\n\t Formals: "  + formals,
-	                pos);
+	              pos);
 	    }
 	    public boolean equals(Object o) {
 	        if (o==null || ! (o instanceof ThisNotPermittedInConstructorFormals ) )
@@ -590,16 +590,29 @@ public class Errors {
 	    }
 	}
 	public static class ThisNotPermittedInConstructorReturnType extends SemanticException {
-		private static final long serialVersionUID = 751592738631688909L;
-		public ThisNotPermittedInConstructorReturnType(TypeNode type,  Position pos) {
+	    private static final long serialVersionUID = 751592738631688909L;
+	    public ThisNotPermittedInConstructorReturnType(TypeNode type, Position pos) {
 	        super("This or super cannot be used (implicitly or explicitly) in a constructor return type."
 	              + "\n\t Type: "  + type,
-	                pos);
+	              pos);
 	    }
 	    public boolean equals(Object o) {
 	        if (o==null || ! (o instanceof ThisNotPermittedInConstructorReturnType ) )
 	            return false;
 	        return((ThisNotPermittedInConstructorReturnType )o).position().equals(position());
+	    }
+	}
+	public static class ThisNotPermittedInPropertyInitializer extends SemanticException {
+	    private static final long serialVersionUID = -7457369484612652452L;
+	    public ThisNotPermittedInPropertyInitializer(Expr init, Position pos) {
+	        super("This or super cannot be used (implicitly or explicitly) in a property initializer."
+	              + "\n\t Expr: "  + init,
+	              pos);
+	    }
+	    public boolean equals(Object o) {
+	        if (o==null || ! (o instanceof ThisNotPermittedInPropertyInitializer ) )
+	            return false;
+	        return((ThisNotPermittedInPropertyInitializer )o).position().equals(position());
 	    }
 	}
 	public static class MethodOrStaticConstructorNotFound extends SemanticException {

@@ -33,7 +33,6 @@ import polyglot.types.TypeSystem;
 import polyglot.visit.DataFlow;
 import polyglot.visit.FlowGraph;
 import polyglot.visit.DataFlow.Item;
-import x10.ast.AssignPropertyBody;
 import x10.ast.AssignPropertyCall;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorDef;
@@ -175,7 +174,7 @@ public class AssignPropertyChecker extends DataFlow {
 			}
 		}
 		
-		if (n instanceof AssignPropertyBody) {
+		if (n instanceof AssignPropertyCall) {
 			return itemToMap(increment(inItem), succEdgeKeys);
 		}
 
@@ -222,7 +221,7 @@ public class AssignPropertyChecker extends DataFlow {
 			if (max == DataFlowItem.DONT_CARE || (dfi.max != DataFlowItem.DONT_CARE && dfi.max > max))
 				max = dfi.max;
 		}
-		return createItem(min, max); 
+		return createItem(min, max);
 	}
 	
 	public void check(FlowGraph graph, Term n, boolean entry, Item inItem, Map outItems) {

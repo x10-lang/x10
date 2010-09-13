@@ -170,8 +170,6 @@ public interface X10NodeFactory extends NodeFactory {
     TypeNode AmbDepTypeNode(Position pos, Prefix prefix, Id name, List<TypeNode> typeArgs, List<Expr> args, DepParameterExpr dep);
     TypeNode AmbDepTypeNode(Position pos, Prefix prefix, Id name, DepParameterExpr dep);
 
-	AssignPropertyBody AssignPropertyBody(Position position, List<Stmt> statements, X10ConstructorDef ci, List<FieldInstance> fi);
-
 	X10MLSourceFile X10MLSourceFile(Position position, PackageNode packageName, List<Import> imports, List<TopLevelDecl> decls);
 
 	X10New X10New(Position pos, boolean newOmitted, Expr qualifier, TypeNode objectType, List<TypeNode> typeArguments, List<Expr> arguments, ClassBody body);

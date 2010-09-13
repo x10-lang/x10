@@ -77,7 +77,7 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.ErrorHandlingVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.AnnotationNode;
-import x10.ast.AssignPropertyBody;
+import x10.ast.AssignPropertyCall;
 import x10.ast.Closure;
 import x10.ast.ClosureCall;
 import x10.ast.DepParameterExpr;
@@ -908,11 +908,6 @@ private int getCost(X10MethodDecl decl, Job job) {
                         // return f;
                         f = (X10FieldAssign_c) f.type(typeMap.reinstantiateType(f.type()));
                         return f.fieldInstance(typeMap.reinstantiateFI((X10FieldInstance) f.fieldInstance()));
-                    } else if (e instanceof AssignPropertyBody) {
-                        AssignPropertyBody b = (AssignPropertyBody) n;
-                        assert (false) : "Not yet implemented, can't instantiate " +e;
-                        // TODO: ASK IGOR: how to handle AssignPropertyBody
-                        return b;
                     } else if (e instanceof Special) {
                         if (((Special) e).kind().equals(Special.SUPER)) {
                             assert (false) : "Not yet implemented, can't instantiate " +e;
@@ -920,6 +915,18 @@ private int getCost(X10MethodDecl decl, Job job) {
                         return e;
                     }
                     return e;
+                }
+                if (n instanceof AssignPropertyCall) {
+                    AssignPropertyCall p = (AssignPropertyCall) n;
+                    List<X10FieldInstance> ps = new ArrayList<X10FieldInstance>();
+                    boolean changed = false;
+                    for (X10FieldInstance fi : p.properties()) {
+                        X10FieldInstance ifi = typeMap.reinstantiateFI(fi);
+                        changed |= (ifi != fi);
+                        ps.add(ifi);
+                    };
+                    if (!changed) ps = p.properties();
+                    return p.properties(ps);
                 }
                 if (n instanceof LocalDecl) {
                     LocalDecl d = (LocalDecl) n;
