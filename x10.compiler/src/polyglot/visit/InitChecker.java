@@ -16,6 +16,7 @@ import polyglot.frontend.Job;
 import polyglot.types.*;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import x10.ast.AssignPropertyCall;
 import x10.ast.Finish;
 import x10.ast.ParExpr;
 import x10.ast.X10ClassDecl;
@@ -764,6 +765,10 @@ public class InitChecker extends DataFlow
             // call to another constructor.
             ret = flowConstructorCall(inDFItem, graph, (ConstructorCall)n, succEdgeKeys);
         }
+        else if (n instanceof AssignPropertyCall) {
+            // assignment to multiple properties
+            ret = flowAssignPropertyCall(inDFItem, graph, (AssignPropertyCall)n, succEdgeKeys);
+        }
         else if (n instanceof Expr && ((Expr)n).type().isBoolean() && 
                     (n instanceof Binary || n instanceof Unary)) {
             if (trueItem == null) trueItem = inDFItem;
@@ -912,6 +917,25 @@ public class InitChecker extends DataFlow
     }
     
     /**
+     * Perform the appropriate flow operations for assignment to a field
+     */
+    protected Map flowAssignPropertyCall(DataFlowItem inItem, 
+                                         FlowGraph graph, 
+                                         AssignPropertyCall a, 
+                                         Set succEdgeKeys) {
+        Map<VarDef, MinMaxInitCount> m = new LinkedHashMap<VarDef, MinMaxInitCount>(inItem.initStatus);
+        for (FieldInstance p : a.properties()) {
+            FieldDef fi = p.def();
+            assert (fi.flags().isFinal());
+            MinMaxInitCount initCount = m.get(fi);
+            assert (initCount != null);
+            initCount = initCount.increment();
+            m.put(fi, initCount);
+        }
+        return itemToMap(new DataFlowItem(m), succEdgeKeys);
+    }
+                                  
+    /**
      * Allow subclasses to override if necessary.
      */
     protected Map flowOther(DataFlowItem inItem, FlowGraph graph, Node n, Set succEdgeKeys) {
@@ -1024,6 +1048,9 @@ public class InitChecker extends DataFlow
             }
             else if (n instanceof FieldAssign) {
                 checkFieldAssign(graph, (FieldAssign)n, dfIn, dfOut);
+            }
+            else if (n instanceof AssignPropertyCall) {
+                checkAssignPropertyCall(graph, (AssignPropertyCall)n, dfIn, dfOut);
             }
             else if (n instanceof ClassBody) {
                 checkClassBody(graph, (ClassBody)n, dfIn, dfOut);
@@ -1300,6 +1327,34 @@ public class InitChecker extends DataFlow
                            fi.container() + "\".",
                            a.position());
             }
+        }                        
+    }
+    /**
+     * Check that the assignment to a field is correct.
+     */
+    protected void checkAssignPropertyCall(FlowGraph graph, 
+                                           AssignPropertyCall a, 
+                                           DataFlowItem dfIn, 
+                                           DataFlowItem dfOut) {
+
+        for (FieldInstance p : a.properties()) {
+            FieldDef fi = p.def();
+            assert (fi.flags().isFinal());
+            assert (currCBI.currCodeDecl instanceof ConstructorDecl);
+            // The property can be assigned to at most once.                    
+            MinMaxInitCount initCount = dfOut.initStatus.get(fi);
+            if (initCount == null) {
+                // This should not happen.
+                throw new InternalCompilerError(
+                        "Dataflow information not found for field \"" +
+                        fi.name() + "\".",
+                        a.position());
+            }
+            if (initCount.isIllegalVal()) {
+                reportError("Property \"" + fi.name() +
+                        "\" might already have been initialized",
+                        a.position());
+            }                                    
         }                        
     }
     /**
