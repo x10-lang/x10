@@ -165,7 +165,7 @@ public class Struct {
                 fields.add(field);
            }
 
-        final Flags flags = X10Flags.GLOBAL.Safe().Public().Final();
+        final Flags flags = X10Flags.SAFE.Public().Final();
         final X10NodeFactory nf = (X10NodeFactory)tb.nodeFactory();
         final TypeNode intTypeNode = nf.TypeNodeFromQualifiedName(pos,QName.make("x10.lang","Int"));
         final TypeNode boolTypeNode = nf.TypeNodeFromQualifiedName(pos,QName.make("x10.lang","Boolean"));
@@ -199,7 +199,7 @@ public class Struct {
         */
 
         {
-            X10Flags nativeFlags = X10Flags.toX10Flags(Flags.PUBLIC.Native().Final()).Global().Safe();
+            X10Flags nativeFlags = X10Flags.toX10Flags(Flags.PUBLIC.Native().Final()).Safe();
             ArrayList<AnnotationNode> natives;
             Formal formal;
            // In the Java backend, some structs (like Int) are mapped to primitives (like int)

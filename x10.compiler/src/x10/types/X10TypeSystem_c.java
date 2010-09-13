@@ -1041,58 +1041,56 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
     /** All flags allowed for a method. */
     public Flags legalMethodFlags() {
-        X10Flags x = X10Flags.toX10Flags(legalAccessFlags().Abstract().Static().Final().Native().Synchronized().StrictFP());
-        x = x.Safe().NonBlocking().Sequential().Incomplete().Property().Pure().Extern().Atomic();//.Global();
-        x = x.Global();
+        X10Flags x = X10Flags.toX10Flags(legalAccessFlags().Abstract().Static().Final().Native().StrictFP());
+        x = x.Clocked().Safe().NonBlocking().Sequential().Property().Pure().Extern().Atomic(); 
         return x;
 
     }
 
     public Flags legalAbstractMethodFlags() {
         X10Flags x = X10Flags.toX10Flags(legalAccessFlags().clear(Private()).Abstract());
-        x = x.Safe().NonBlocking().Sequential().Property().Pure().Atomic(); //.Global();
-        x = x.Global();
+        x = x.Clocked().Safe().NonBlocking().Sequential().Property().Pure().Atomic(); 
         return x;
     }
 
     /** All flags allowed for a top-level class. */
     public Flags legalTopLevelClassFlags() {
-        return X10Flags.toX10Flags(super.legalTopLevelClassFlags()).Safe().Global().Struct();
+        return X10Flags.toX10Flags(super.legalTopLevelClassFlags()).Clocked().Safe().Struct();
     }
 
     protected final X10Flags X10_TOP_LEVEL_CLASS_FLAGS = (X10Flags) legalTopLevelClassFlags();
 
     /** All flags allowed for an interface. */
     public Flags legalInterfaceFlags() {
-        return X10Flags.toX10Flags(super.legalInterfaceFlags()).Safe().Value();
+        return X10Flags.toX10Flags(super.legalInterfaceFlags()).Clocked().Safe().Value();
     }
 
     protected final X10Flags X10_INTERFACE_FLAGS = (X10Flags) legalInterfaceFlags();
 
     /** All flags allowed for a member class. */
     public Flags legalMemberClassFlags() {
-        return X10Flags.toX10Flags(super.legalMemberClassFlags()).Safe().Value().Struct();
+        return X10Flags.toX10Flags(super.legalMemberClassFlags()).Clocked().Safe().Struct();
     }
 
     protected final Flags X10_MEMBER_CLASS_FLAGS = (X10Flags) legalMemberClassFlags();
 
     /** All flags allowed for a local class. */
     public Flags legalLocalClassFlags() {
-        return X10Flags.toX10Flags(super.legalLocalClassFlags()).Safe().Value().Struct();
+        return X10Flags.toX10Flags(super.legalLocalClassFlags()).Safe().Struct();
     }
 
     protected final X10Flags X10_LOCAL_CLASS_FLAGS = (X10Flags) legalLocalClassFlags();
 
     @Override
     public Flags legalLocalFlags() {
-        return X10Flags.toX10Flags(super.legalLocalFlags()).Shared();
+        return X10Flags.toX10Flags(super.legalLocalFlags()).Clocked();
     }
 
     protected final X10Flags X10_LOCAL_VARIABLE_FLAGS = (X10Flags) legalLocalFlags();
 
     @Override
     public Flags legalFieldFlags() {
-        return X10Flags.toX10Flags(super.legalFieldFlags()).Property().Global();
+        return X10Flags.toX10Flags(super.legalFieldFlags()).Property().Clocked();
     }
 
     protected final X10Flags X10_FIELD_VARIABLE_FLAGS = (X10Flags) legalFieldFlags();

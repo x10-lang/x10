@@ -231,6 +231,14 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		a = (Async) a.del(del_fac.delAsyncImpl());
 		return a;
 	}
+	public Async Async(Position pos,  Stmt body, boolean clocked) {
+		Async a = new Async_c(pos,  asBlock(body), clocked);
+		X10ExtFactory_c ext_fac = (X10ExtFactory_c) extFactory();
+		a = (Async) a.ext(ext_fac.extAsyncImpl());
+		X10DelFactory_c del_fac = (X10DelFactory_c) delFactory();
+		a = (Async) a.del(del_fac.delAsyncImpl());
+		return a;
+	}
 	// Wrap the body of the async in a Block so as to ease further code transforamtions.
 	public AtStmt AtStmt(Position pos, Expr place, Stmt body) {
 		AtStmt a = new AtStmt_c(pos, place, asBlock(body));
@@ -414,6 +422,16 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		n = (AtEach) n.del(del_fac.delAtEachImpl());
 		return n;
 	}
+	public AtEach AtEach(Position pos, Formal formal, Expr domain,
+			 Stmt body)
+	{
+		AtEach n = new AtEach_c(pos, formal, domain, asBlock(body));
+		X10ExtFactory_c ext_fac = (X10ExtFactory_c) extFactory();
+		n = (AtEach) n.ext(ext_fac.extAtEachImpl());
+		X10DelFactory_c del_fac = (X10DelFactory_c) delFactory();
+		n = (AtEach) n.del(del_fac.delAtEachImpl());
+		return n;
+	}
 
 	public For For(Position pos, List<ForInit> inits, Expr cond, List<ForUpdate> iters, Stmt body) {
 		For n = new For_c(pos, inits, cond, iters, asBlock(body));
@@ -444,10 +462,20 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		n = (ForEach) n.del(del_fac.delForEachImpl());
 		return n;
 	}
+	public ForEach ForEach(Position pos, Formal formal, Expr domain,
+			Stmt body)
+	{
+		ForEach n = new ForEach_c(pos, formal, domain, asBlock(body));
+		X10ExtFactory_c ext_fac = (X10ExtFactory_c) extFactory();
+		n = (ForEach) n.ext(ext_fac.extForEachImpl());
+		X10DelFactory_c del_fac = (X10DelFactory_c) delFactory();
+		n = (ForEach) n.del(del_fac.delForEachImpl());
+		return n;
+	}
 
 	// Wrap the body in a block to facilitate code transformations
-	public Finish Finish(Position pos, Stmt body) {
-		Finish n = new Finish_c(pos, asBlock(body));
+	public Finish Finish(Position pos, Stmt body, boolean clocked) {
+		Finish n = new Finish_c(pos, asBlock(body), clocked);
 		X10ExtFactory_c ext_fac = (X10ExtFactory_c) extFactory();
 		n = (Finish) n.ext(ext_fac.extFinishImpl());
 		X10DelFactory_c del_fac = (X10DelFactory_c) delFactory();

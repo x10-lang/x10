@@ -131,7 +131,7 @@ public final class RectRegion extends Region{rect} {
 
     public def contains(p:Point):boolean {
         if (p.rank != rank) return false;
-        for ((r) in 0..p.rank-1) {
+        for ([r] in 0..p.rank-1) {
             if (p(r)<mins(r) || p(r)>maxs(r)) return false;
         }
         return true;
@@ -188,7 +188,7 @@ public final class RectRegion extends Region{rect} {
             val thatMax = (that as RectRegion).max();
 	    val newMin = ValRail.make[int](rank, (i:int)=>Math.max(min(i), thatMin(i)));
 	    val newMax = ValRail.make[int](rank, (i:int)=>Math.min(max(i), thatMax(i)));
-	    for ((i) in 0..newMin.length-1) {
+	    for ([i] in 0..newMin.length-1) {
                 if (newMax(i)<newMin(i)) return Region.makeEmpty(rank);
             }
             return new RectRegion(newMin, newMax);

@@ -35,8 +35,8 @@ class LocalTable {
 
 class FRASimpleDist {
 
-    const POLY = 0x0000000000000007L;
-    const PERIOD = 1317624576693539401L;
+    static POLY = 0x0000000000000007L;
+    static PERIOD = 1317624576693539401L;
 
     // Utility routine to start random number generator at Nth step
     static def HPCC_starts(var n:long): long {
@@ -71,12 +71,12 @@ class FRASimpleDist {
     ) {
         finish for (var p:int=0; p<Place.MAX_PLACES; p++) {
             val valp = p;
-            async (Place.places(p)) {
+            at(Place.places(p)) async {
                 var ran:long = HPCC_starts(valp*(num_updates/Place.MAX_PLACES));
                 for (var i:long=0; i<num_updates/Place.MAX_PLACES; i++) {
                     val placeId = ((ran>>logLocalTableSize) & (Place.MAX_PLACES-1)) as int;
                     val ran2=ran;
-                    async (Place.places(placeId)) {
+                    async at(Place.places(placeId)) {
                         tables().update(ran2);
                     }
                     ran = (ran << 1) ^ (ran<0L ? POLY : 0L);
@@ -86,7 +86,7 @@ class FRASimpleDist {
     }
 
 
-    public static def main(args:Array[String](1)) {
+    public static def main(args: Array[String](1)) {
         if ((Place.MAX_PLACES & (Place.MAX_PLACES-1)) > 0) {
             println("The number of places must be a power of 2.");
             return;
@@ -119,10 +119,10 @@ class FRASimpleDist {
         // repeat for testing.
         randomAccessUpdate(num_updates, logLocalTableSize, tables);
         for (var i:int=0; i<Place.MAX_PLACES; i++) {
-            async (Place.places(i)) {
-	        val table = tables();
+            at(Place.places(i)) async {
+	            val table = tables();
                 var err:int = 0;
-                for ((j) in table.a) // DYNAMIC_CHECK  (because it is inside "async (Place.places(i)) {")
+                for ([j] in table.a) // DYNAMIC_CHECK  (because it is inside "async (Place.places(i)) {")
                     if (table.a(j) != j) err++;
                 println("Found " + err + " errors.");
             }

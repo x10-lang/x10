@@ -1258,7 +1258,6 @@ public class Emitter {
 
 	    w.begin(0);
 	    w.write(flags.clearAbstract()
-	        .clear(X10Flags.GLOBAL)
 	        .clear(X10Flags.SAFE)
 	        .clear(X10Flags.NATIVE)
 	        .translate()
@@ -1388,7 +1387,6 @@ public class Emitter {
 
 	    w.begin(0);
 	    w.write(flags.clearAbstract()
-	        .clear(X10Flags.GLOBAL)
 	        .clear(X10Flags.SAFE)
 	        .clear(X10Flags.NATIVE)
 	        .translate()

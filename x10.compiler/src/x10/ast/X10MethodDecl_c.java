@@ -329,10 +329,11 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		// entering the body of the method, the return type and the throw type.
 
 
-		if (child == body || child == returnType || child == hasType || child == throwTypes || child == offerType || (formals != null && formals.contains(child))) {
+		if (child == body || child == returnType || child == hasType || child == throwTypes || child == offerType 
+				|| (formals != null && formals.contains(child))) {
 			if (placeTerm != null)
 				c = ((X10Context) c).pushPlace( XConstrainedTerm.make(placeTerm));
-			 	PlaceChecker.pushHereTerm(methodDef(), (X10Context) c);
+			PlaceChecker.pushHereTerm(methodDef(), (X10Context) c);
 		}
 
 		// Add the method guard into the environment.
@@ -429,7 +430,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		NodeFactory nf = tc.nodeFactory();
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 		if (((X10TypeSystem) tc.typeSystem()).isStructType(mi.container().get())) {
-			Flags xf = X10Flags.toX10Flags(mi.flags()).Global().Final();
+			Flags xf = X10Flags.toX10Flags(mi.flags()).Final();
 			mi.setFlags(xf);
 			n = (X10MethodDecl_c) n.flags(n.flags().flags(xf));
 		}

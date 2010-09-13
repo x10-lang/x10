@@ -837,4 +837,15 @@ public class Errors {
 	        return((GlobalClassMustHaveGlobalClassSupertype)o).position().equals(position());
 	    }
 	}
+	public static class IllegalClockedAccess extends SemanticException {
+		private static final long serialVersionUID = -5824261892277076305L;
+		public IllegalClockedAccess(Field field,  Position pos) {
+	        super(field + " must be accessed in a clocked context.", pos);
+	    }
+	    public boolean equals(Object o) {
+	        if (o==null || ! (o instanceof IllegalClockedAccess) )
+	            return false;
+	        return((IllegalClockedAccess)o).position().equals(position());
+	    }
+	}
 }

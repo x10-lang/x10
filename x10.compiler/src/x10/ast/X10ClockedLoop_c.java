@@ -11,6 +11,7 @@
 
 package x10.ast;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -59,6 +60,13 @@ public abstract class X10ClockedLoop_c extends X10Loop_c implements Clocked {
 	{
 		super(pos, formal, domain, body);
 		this.clocks = TypedList.copyAndCheck(clocks, Expr.class, true);
+	}
+	public X10ClockedLoop_c(Position pos, Formal formal, Expr domain,
+			Stmt body)
+	{
+		super(pos, formal, domain, body);
+		// TODO: The clock had to be obtained from the environment in the desugarer and added here.
+		this.clocks = new ArrayList<Expr>();
 	}
 
 	/** Clocks */

@@ -20,11 +20,11 @@ import harness.x10Test;
 public class PointBinding extends x10Test {
 
     public def run(): boolean = {
-        val p(i,j): Point = Point.make(1, 2);
+        val p[i,j]: Point = Point.make(1, 2);
         return (i == 1 && j == 2);
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(Array[String](1)) {
         new PointBinding().execute();
     }
 }

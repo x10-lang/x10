@@ -65,6 +65,7 @@ import polyglot.types.ImportTable;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
 import polyglot.types.Matcher;
+import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
 import polyglot.types.Named;
@@ -345,6 +346,7 @@ public class X10Context_c extends Context_c implements X10Context {
 		return cxt;
     }
     
+    
     Type currentCollectingFinishType=null;
     public Context pushCollectingFinishScope(Type t) {
     	assert t!=null;
@@ -433,7 +435,22 @@ public class X10Context_c extends Context_c implements X10Context {
 	protected boolean inAnnotation;
 	protected boolean inAnonObjectScope;
 	protected boolean inAssignment;
-
+	boolean isClocked=false;
+    public Context pushClockedContext() {
+    	X10Context_c cxt = (X10Context_c) super.pushBlock();
+		cxt.isClocked = true;
+		return cxt;
+    }
+    public boolean isClocked() {
+    	if (isClocked)
+    		return true;
+    	CodeDef cd = currentCode();
+    	if (cd instanceof MethodDef) {
+    		MethodDef md = (MethodDef) cd;
+    		return X10Flags.toX10Flags(md.flags()).isClocked();
+    	}
+    	return false;
+    }
 	public boolean inSafeCode() { return inSafeCode; }
 	public boolean inSequentialCode() { return inSequentialCode; }
 	public boolean inNonBlockingCode() { return inNonBlockingCode; }

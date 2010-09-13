@@ -31,7 +31,7 @@ import polyglot.visit.PrettyPrinter;
 public class Finish_c extends Stmt_c implements Finish {
 
     protected Stmt body;
-    
+    protected boolean clocked;
     /**
      * @param pos
      */
@@ -39,9 +39,10 @@ public class Finish_c extends Stmt_c implements Finish {
 	super(pos);
     }
 
-    public Finish_c(Position pos, Stmt body) {
+    public Finish_c(Position pos, Stmt body, boolean clocked) {
 	super(pos);
 	this.body = body;
+	this.clocked = clocked; 
     }
 
 

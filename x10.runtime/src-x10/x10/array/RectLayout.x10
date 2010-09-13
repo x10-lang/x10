@@ -67,7 +67,7 @@ struct RectLayout(rank:int) {
     //
     // Layout
     //
-    @Header @Inline def size(): int {
+    /*@Header @Inline*/ def size(): int {
         return size;
     }
 

@@ -90,6 +90,7 @@ public interface X10NodeFactory extends NodeFactory {
     
     Instanceof Instanceof(Position pos, Expr expr, TypeNode type);
 	Async Async(Position pos, List<Expr> clocks, Stmt body);
+	Async Async(Position pos, Stmt body, boolean clocked);
 	Atomic Atomic(Position pos, Expr place, Stmt body);
 	Future Future(Position pos, Expr place, TypeNode returnType, Block body);
 	Here Here(Position pos);
@@ -118,9 +119,11 @@ public interface X10NodeFactory extends NodeFactory {
 	X10Loop ForLoop(Position pos, Formal formal, Expr domain, Stmt body);
 	X10Loop ForEach(Position pos, Formal formal, Expr domain, List<Expr> clocks,
 					Stmt body);
+	X10Loop ForEach(Position pos, Formal formal, Expr domain, Stmt body);
 	X10Loop AtEach(Position pos, Formal formal, Expr domain, List<Expr> clocks,
 				   Stmt body);
-	Finish Finish(Position pos, Stmt body);
+	X10Loop AtEach(Position pos, Formal formal, Expr domain, Stmt body);
+	Finish Finish(Position pos, Stmt body, boolean clocked);
 
 	DepParameterExpr DepParameterExpr(Position pos, List<Expr> cond);
 	DepParameterExpr DepParameterExpr(Position pos, List<Formal> formals, List<Expr> cond);

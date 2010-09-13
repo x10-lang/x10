@@ -28,7 +28,7 @@ import x10.types.X10Context;
 import x10.types.X10TypeSystem;
 
 /**
- * An immutable representation of the X10 statement: foreach (i : D) S
+ * An immutable representation of the X10 statement: [clocked] foreach (i : D) S
  * @author vj Dec 9, 2004
  * @author Christian Grothoff
  */
@@ -51,6 +51,10 @@ public class ForEach_c extends X10ClockedLoop_c implements ForEach, Clocked {
 	 */
 	public ForEach_c(Position pos, Formal formal, Expr domain, List clocks, Stmt body) {
 		super(pos, formal, domain, clocks, body);
+		loopKind=LoopKind.FOREACH;
+	}
+	public ForEach_c(Position pos, Formal formal, Expr domain, Stmt body) {
+		super(pos, formal, domain,  body);
 		loopKind=LoopKind.FOREACH;
 	}
 

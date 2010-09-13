@@ -187,5 +187,11 @@ public interface X10Context extends Context {
 
     CConstraint constraintProjection(CConstraint... cs) throws XFailure;
     
+    /** 
+     * Is the current code context clocked?
+     * @return
+     */
+    boolean isClocked();
+    
   
 }

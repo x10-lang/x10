@@ -356,7 +356,7 @@ public class PlaceChecker {
 	 */
 	static boolean isGlobalCode(MethodDef md) {
 		X10Flags flags = X10Flags.toX10Flags(md.flags());
-		boolean isGlobal = flags.isGlobal() || flags.isStatic() || X10TypeMixin.isX10Struct(md.container().get());
+		boolean isGlobal =  flags.isStatic() || X10TypeMixin.isX10Struct(md.container().get());
 		return isGlobal;
 	}
 	

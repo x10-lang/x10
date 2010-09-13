@@ -49,7 +49,7 @@ public class KMeansDist {
 
             finish {
                 // reset state
-                for (d in points_dist.places()) async(d) {
+                for (d in points_dist.places()) async at(d) {
                     for (var j:Int=0 ; j<DIM*CLUSTERS ; ++j) {
                         local_curr_clusters()(j) = central_clusters(j);
                         local_new_clusters()(j) = 0;
@@ -64,7 +64,7 @@ public class KMeansDist {
                 // compute new clusters and counters
                 for (var p_:Int=0 ; p_<POINTS ; ++p_) {
                     val p = p_;
-                    async (points_dist(p,0)) {
+                    async at(points_dist(p,0)) {
                         var closest:Int = -1;
                         var closest_dist:Float = Float.MAX_VALUE;
                         for (var k:Int=0 ; k<CLUSTERS ; ++k) { 
@@ -96,7 +96,7 @@ public class KMeansDist {
             }
 
             finish {
-                for (d in points_dist.places()) async(d) {
+                for (d in points_dist.places()) async {
                
                     at (Place.FIRST_PLACE) atomic {
                         for (var j:Int=0 ; j<DIM*CLUSTERS ; ++j) {

@@ -71,9 +71,9 @@ public class KMeansSPMD {
 
             finish {
 
-                for ((slice) in 0..num_slices-1) {
+                for ([slice] in 0..num_slices-1) {
 
-                    for (h in Place.places) async (h) {
+                    for (h in Place.places) async at(h) {
 
                         val role = here.id * num_slices + slice;
 

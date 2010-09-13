@@ -251,7 +251,7 @@ public class NativeClassVisitor extends ContextVisitor {
 
                 // reuse x10 method instance for delegate method but make it global to avoid place check
                 MethodInstance minst = mdef.asInstance();
-                minst = (MethodInstance) minst.flags(((X10Flags) minst.flags()).Global());
+                minst = (MethodInstance) minst.flags(((X10Flags) minst.flags()));
                 minst = (MethodInstance) minst.container(ftype);
 
                 // call delegate

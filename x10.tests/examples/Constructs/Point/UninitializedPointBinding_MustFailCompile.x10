@@ -21,7 +21,7 @@ public class UninitializedPointBinding_MustFailCompile extends x10Test {
 
     public def run(): boolean = {
 
-        var p(i,j): Point;
+        var p[i,j]: Point;
         p = [1,2];
 
         return (i == 1 && j == 2);

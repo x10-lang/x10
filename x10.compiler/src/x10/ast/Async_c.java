@@ -73,11 +73,19 @@ public class Async_c extends Stmt_c implements Async {
 	
 	public Stmt body;
 	protected List<Expr> clocks;
+	protected boolean clocked; // should be equal to (clocks != null && clocks.size() > 0)
 
 	public Async_c(Position pos, List<Expr> clocks, Stmt body) {
 		super(pos);
 		this.clocks = clocks;
 		this.body = body;
+	}
+	public Async_c(Position pos, Stmt body, boolean clocked) {
+		super(pos);
+		this.clocked = true;
+		this.body = body;
+		// temporary. Needs to be initialized with clock from environment.
+		this.clocks = new ArrayList<Expr>();
 	}
 
 	public Async_c(Position p) {

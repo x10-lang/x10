@@ -86,7 +86,7 @@ class GCSpheres {
         var counter : Long = 0;
 
         // HOT LOOP BEGINS
-        for ((frame):Point in 1..reps) {
+        for ([frame]:Point in 1..reps) {
 
             val x = (ran.nextDouble()*world_size) as Real;
             val y = (ran.nextDouble()*world_size) as Real;
@@ -94,7 +94,7 @@ class GCSpheres {
 
             val pos = new Vector3(x,y,z);
 
-            for ((i):Point in 0..spheres.length-1) {
+            for ([i]:Point in 0..spheres.length-1) {
                 if (spheres(i).intersects(pos)) {
                     counter++;
                 }

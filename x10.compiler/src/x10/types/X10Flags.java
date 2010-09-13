@@ -557,6 +557,38 @@ public class X10Flags extends Flags {
      * @param flags
      *            TODO
      */
+    public X10Flags Clocked() {
+        return setX(CLOCKED);
+    }
+
+    /**
+     * Return a copy of this <code>this</code> with the <code>pinned</code>
+     * flag clear.
+     * 
+     * @param flags
+     *            TODO
+     */
+    public X10Flags clearClocked() {
+        return clearX(CLOCKED);
+    }
+
+    /**
+     * Return true if <code>this</code> has the <code>pinned</code> flag
+     * set.
+     * 
+     * @param flags
+     *            TODO
+     */
+    public boolean isClocked() {
+        return contains(CLOCKED);
+    }
+    /**
+     * Return a copy of this <code>this</code> with the <code>pinned</code>
+     * flag set.
+     * 
+     * @param flags
+     *            TODO
+     */
     public X10Flags Pinned() {
         return setX(PINNED);
     }
@@ -638,7 +670,6 @@ public class X10Flags extends Flags {
 
     public boolean hasAllAnnotationsOf(X10Flags f) {
         boolean result = ((!f.isSequential()) || isSequential() || isSafe()) 
-        && ((!f.isGlobal()) || isGlobal() )
         && ((!f.isNonBlocking()) || isNonBlocking() || isSafe()) && ((!f.isSafe()) || isSafe());
         // Report.report(1, "X10Flags: " + this + ".hasAllAnnotationsOf(" + f +
         // ")? " + result);

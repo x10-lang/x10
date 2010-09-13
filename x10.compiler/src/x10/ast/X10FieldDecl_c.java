@@ -229,9 +229,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 
     protected FieldDef createFieldDef(TypeSystem ts, ClassDef ct, Flags flags) {
     	X10Flags xFlags = X10Flags.toX10Flags(flags);
-    	if (xFlags.isProperty())
-    		xFlags = xFlags.Global();
-
+    	
     	X10FieldDef fi = (X10FieldDef) ts.fieldDef(position(), Types.ref(ct.asType()), flags, type.typeRef(), name.id());
     	fi.setThisVar(((X10ClassDef) ct).thisVar());
 
@@ -384,9 +382,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	    	Type oldType = (Type)type.copy();
 	    	X10Context xc = (X10Context) enterChildScope(type(), tc.context());
 	    	X10Flags f = X10Flags.toX10Flags(flags.flags());
-	    	if (f.isGlobal() && ! f.isFinal()) {
-	    		Errors.issue(tc.job(), new Errors.GlobalFieldIsVar(this));
-	    	}
+	    	
 	    	try {
                 X10TypeMixin.checkMissingParameters(typeNode);
 	    	} catch (SemanticException e) {

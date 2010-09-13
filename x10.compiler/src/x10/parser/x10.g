@@ -245,7 +245,7 @@
 --    case
 --    catch
 --    class
---    clocked
+      clocked
 --    const
 --    continue
 --    def
@@ -1270,12 +1270,12 @@ public static class MessageHandler implements IMessageHandler {
                     setResult(new FlagModifier(pos(), FlagModifier.STATIC));
           $EndJava
         ./
-                          | transient
+                    | transient
         /.$BeginJava
                     setResult(new FlagModifier(pos(), FlagModifier.TRANSIENT));
           $EndJava
         ./
-                          | clocked
+                     | clocked
         /.$BeginJava
                     setResult(new FlagModifier(pos(), FlagModifier.CLOCKED));
           $EndJava
@@ -2348,6 +2348,11 @@ public static class MessageHandler implements IMessageHandler {
                   setResult(nf.Async(pos(), ClockedClauseopt, Statement));
           $EndJava
         ./
+         | clocked async Statement
+        /.$BeginJava
+                  setResult(nf.Async(pos(), Statement, true));
+          $EndJava
+        ./
 
 
     AtStatement ::= at PlaceExpressionSingleList Statement
@@ -2381,7 +2386,7 @@ public static class MessageHandler implements IMessageHandler {
                     Flags f = fn.flags();
                     fn = fn.flags(f);
                     if (! f.isFinal()) {
-                          syntaxError("Enhanced for loop may not have var loop index" + LoopIndex, LoopIndex.position());
+                          syntaxError("Enhanced foreach loop may not have var loop index" + LoopIndex, LoopIndex.position());
                     }
                     setResult(nf.ForEach(pos(),
                                   LoopIndex.flags(fn),
@@ -2389,7 +2394,42 @@ public static class MessageHandler implements IMessageHandler {
                                   ClockedClauseopt,
                                   Statement));
           $EndJava
-        ./
+        ./ 
+        |  clocked foreach ( LoopIndex in Expression ) Statement
+        /.$BeginJava
+                    FlagsNode fn = LoopIndex.flags();
+                    Flags f = fn.flags();
+                    fn = fn.flags(f);
+                    if (! f.isFinal()) {
+                          syntaxError("Enhanced foreach loop cannot have var loop index" + LoopIndex, LoopIndex.position());
+                    }
+                    setResult(nf.ForEach(pos(),
+                                  LoopIndex.flags(fn),
+                                  Expression,
+                                  Statement));
+          $EndJava
+        ./ 
+         | foreach ( Expression ) Statement
+        /.$BeginJava
+                Id name = nf.Id(pos(), Name.makeFresh());
+                TypeNode type = nf.UnknownTypeNode(pos());
+                    setResult(nf.ForEach(pos(),
+                            nf.X10Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), type, name, null, true),
+                            Expression,
+                            new TypedList(new LinkedList(), Expr.class, false),
+                            Statement));
+          $EndJava
+        ./ 
+         | clocked foreach ( Expression ) Statement
+        /.$BeginJava
+                Id name = nf.Id(pos(), Name.makeFresh());
+                TypeNode type = nf.UnknownTypeNode(pos());
+                    setResult(nf.ForEach(pos(),
+                            nf.X10Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), type, name, null, true),
+                            Expression,
+                            Statement));
+          $EndJava
+        ./ 
 
     AtEachStatement ::= ateach ( LoopIndex in Expression ) ClockedClauseopt Statement
         /.$BeginJava
@@ -2397,7 +2437,7 @@ public static class MessageHandler implements IMessageHandler {
                     Flags f = fn.flags();
                     fn = fn.flags(f);
                     if (! f.isFinal()) {
-                          syntaxError("Enhanced for loop may not have var loop index" + LoopIndex, LoopIndex.position());
+                          syntaxError("Enhanced ateach loop may not have var loop index" + LoopIndex, LoopIndex.position());
                     }
                     setResult(nf.AtEach(pos(),
                                  LoopIndex.flags(fn),
@@ -2405,8 +2445,42 @@ public static class MessageHandler implements IMessageHandler {
                                  ClockedClauseopt,
                                  Statement));
           $EndJava
+        ./   
+         | clocked ateach ( LoopIndex in Expression ) Statement
+        /.$BeginJava
+                    FlagsNode fn = LoopIndex.flags();
+                    Flags f = fn.flags();
+                    fn = fn.flags(f);
+                    if (! f.isFinal()) {
+                          syntaxError("Enhanced ateach loop may not have var loop index" + LoopIndex, LoopIndex.position());
+                    }
+                    setResult(nf.AtEach(pos(),
+                                 LoopIndex.flags(fn),
+                                 Expression,
+                                 Statement));
+          $EndJava
         ./
-
+     | ateach ( Expression ) Statement
+        /.$BeginJava
+                Id name = nf.Id(pos(), Name.makeFresh());
+                TypeNode type = nf.UnknownTypeNode(pos());
+                    setResult(nf.AtEach(pos(),
+                            nf.X10Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), type, name, null, true),
+                            Expression,
+                            new TypedList(new LinkedList(), Expr.class, false),
+                            Statement));
+          $EndJava
+        ./ 
+         | clocked ateach ( Expression ) Statement
+        /.$BeginJava
+                Id name = nf.Id(pos(), Name.makeFresh());
+                TypeNode type = nf.UnknownTypeNode(pos());
+                    setResult(nf.AtEach(pos(),
+                            nf.X10Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), type, name, null, true),
+                            Expression,
+                            Statement));
+          $EndJava
+        ./ 
     EnhancedForStatement ::= for ( LoopIndex in Expression ) Statement
         /.$BeginJava
                     FlagsNode fn = LoopIndex.flags();
@@ -2419,14 +2493,29 @@ public static class MessageHandler implements IMessageHandler {
                             Expression,
                             Statement));
           $EndJava
-        ./
+        ./ 
+       | for ( Expression ) Statement
+        /.$BeginJava
+                Id name = nf.Id(pos(), Name.makeFresh());
+                TypeNode type = nf.UnknownTypeNode(pos());
+                    setResult(nf.ForLoop(pos(),
+                            nf.X10Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), type, name, null, true),
+                            Expression,
+                            Statement));
+          $EndJava
+        ./ 
+        
 
     FinishStatement ::= finish Statement
         /.$BeginJava
-                    setResult(nf.Finish(pos(),  Statement));
+                    setResult(nf.Finish(pos(),  Statement, false));
           $EndJava
         ./
-
+                | clocked finish Statement
+        /.$BeginJava
+                    setResult(nf.Finish(pos(),  Statement, true));
+          $EndJava
+        ./
     PlaceExpressionSingleList ::= ( PlaceExpression )
         /.$BeginJava
                   setResult(PlaceExpression);
@@ -2596,12 +2685,6 @@ public static class MessageHandler implements IMessageHandler {
     AtExpression ::= at PlaceExpressionSingleList ClosureBody
         /.$BeginJava
                     setResult(nf.AtExpr(pos(), PlaceExpressionSingleList, nf.UnknownTypeNode(pos()), ClosureBody));
-          $EndJava
-        ./
-
-    AsyncExpression ::= async ClosureBody
-        /.$BeginJava
-                    setResult(nf.Call(pos(), nf.Future(pos(), nf.Here(pos(getLeftSpan())), nf.UnknownTypeNode(pos()), ClosureBody), nf.Id(pos(), "force")));
           $EndJava
         ./
 
@@ -3246,12 +3329,12 @@ public static class MessageHandler implements IMessageHandler {
                     setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, null, HasResultTypeopt, null });
           $EndJava
         ./
-                         | ( IdentifierList ) HasResultTypeopt
+                         | [ IdentifierList ] HasResultTypeopt
         /.$BeginJava
                     setResult(new Object[] { pos(), null, IdentifierList, null, HasResultTypeopt, null });
           $EndJava
         ./
-                         | Identifier ( IdentifierList ) HasResultTypeopt
+                         | Identifier [ IdentifierList ] HasResultTypeopt
         /.$BeginJava
                     setResult(new Object[] { pos(), Identifier, IdentifierList, null, HasResultTypeopt, null });
           $EndJava
@@ -3914,12 +3997,12 @@ public static class MessageHandler implements IMessageHandler {
                     setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, null, ResultType, null });
           $EndJava
         ./
-                         | ( IdentifierList ) ResultType
+                         | [ IdentifierList ] ResultType
         /.$BeginJava
                     setResult(new Object[] { pos(), null, IdentifierList, null, ResultType, null });
           $EndJava
         ./
-                         | Identifier ( IdentifierList ) ResultType
+                         | Identifier [ IdentifierList ] ResultType
         /.$BeginJava
                     setResult(new Object[] { pos(), Identifier, IdentifierList, null, ResultType, null });
           $EndJava
@@ -3941,12 +4024,12 @@ public static class MessageHandler implements IMessageHandler {
                     setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, null, HasResultTypeopt, VariableInitializer });
           $EndJava
         ./
-                         | ( IdentifierList ) HasResultTypeopt = VariableInitializer
+                         | [ IdentifierList ] HasResultTypeopt = VariableInitializer
         /.$BeginJava
                     setResult(new Object[] { pos(), null, IdentifierList, null, HasResultTypeopt, VariableInitializer });
           $EndJava
         ./
-                         | Identifier ( IdentifierList ) HasResultTypeopt = VariableInitializer
+                         | Identifier [ IdentifierList ] HasResultTypeopt = VariableInitializer
         /.$BeginJava
                     setResult(new Object[] { pos(), Identifier, IdentifierList, null, HasResultTypeopt, VariableInitializer });
           $EndJava
@@ -3957,12 +4040,12 @@ public static class MessageHandler implements IMessageHandler {
                     setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, null, HasResultType, VariableInitializer });
           $EndJava
         ./
-                         | ( IdentifierList ) HasResultType = VariableInitializer
+                         | [ IdentifierList ] HasResultType = VariableInitializer
         /.$BeginJava
                     setResult(new Object[] { pos(), null, IdentifierList, null, HasResultType, VariableInitializer });
           $EndJava
         ./
-                         | Identifier ( IdentifierList ) HasResultType = VariableInitializer
+                         | Identifier [ IdentifierList ] HasResultType = VariableInitializer
         /.$BeginJava
                     setResult(new Object[] { pos(), Identifier, IdentifierList, null, HasResultType, VariableInitializer });
           $EndJava
@@ -4725,8 +4808,6 @@ public static class MessageHandler implements IMessageHandler {
     
     ConditionalExpression ::= ConditionalOrExpression
                             | ClosureExpression
-                            | FutureExpression
-                            | AsyncExpression
                             | AtExpression
                             | FinishExpression
                             | ConditionalOrExpression ? Expression : ConditionalExpression
@@ -5430,8 +5511,6 @@ public static class MessageHandler implements IMessageHandler {
     Expr ::= PlaceExpressionSingleListopt
            | PlaceExpressionSingleList
     Stmt ::= AssignPropertyCall
-    Future ::= FutureExpression
-    Expr ::= AsyncExpression
     DepParameterExpr ::= DepParameters
 --
 -- This is a useless nonterminal that is not used anywhere else in the grammar.

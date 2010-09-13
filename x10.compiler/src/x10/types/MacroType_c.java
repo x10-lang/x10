@@ -90,10 +90,7 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	public MacroType flags(Flags flags) {
 		return (MacroType) super.flags(flags);
 	}
-	
-	public boolean isGlobal() {
-		return flags() == null ? false : X10Flags.toX10Flags(flags()).isGlobal();
-	}
+
 	public boolean isX10Struct() {
 		return ((X10TypeSystem) typeSystem()).isStructType(this);
 	}
@@ -103,9 +100,7 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 		MacroType_c c = (MacroType_c) this.copy();
 		if (c.flags == null)
 			c.flags = X10Flags.toX10Flags(Flags.NONE);
-		c.flags = xf.isGlobal() 
-				? (xf.isStruct() ? X10Flags.toX10Flags(c.flags).Global().Struct() : X10Flags.toX10Flags(c.flags).Global())
-						: ((xf.isStruct()) ? X10Flags.toX10Flags(c.flags).Struct() : c.flags);
+		c.flags = (xf.isStruct()) ? X10Flags.toX10Flags(c.flags).Struct() : c.flags;
 		return c;
 	}
 	public Type clearFlags(Flags f) {

@@ -19,7 +19,7 @@ public class Histogram {
     */
     public static def run(a:Array[int](1), b:Array[int](1)) {
 	finish 
-	    foreach((i) in a) {
+	    foreach([i] in a) {
 	       val bin = a(i)% b.size();
 	       atomic b(bin)++;
 	    }
@@ -33,12 +33,12 @@ public class Histogram {
         }
 	val N = int.parse(args(0));
 	val S = int.parse(args(1));
-	val a = new Array[int](0..N-1, ((i):Point)=> i);
+	val a = new Array[int](0..N-1, ([i]:Point)=> i);
 	val b = new Array[int](S);
 	run(a, b);
 	val v = b(0);
         var ok:boolean = true;
-	for ((x) in b) ok &= (b(x)==v);
+	for ([x] in b) ok &= (b(x)==v);
 	if (ok) {
 	    Console.OUT.println("Test ok.");
 	} else {

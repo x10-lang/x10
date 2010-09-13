@@ -292,6 +292,7 @@ public class X10Field_c extends Field_c {
 		result.checkConsistency(c);
 
 		checkFieldAccessesInDepClausesAreFinal(result, tc);
+		checkClockedFieldAccessesAreInClockedMethods(result,tc);
 		// Not needed in the orthogonal locality proposal.
 		// result = PlaceChecker.makeFieldAccessLocalIfNecessary(result, tc);
 
@@ -357,6 +358,22 @@ public class X10Field_c extends Field_c {
 		}
 		//System.err.println("X10Field_c: fieldRightType returns " + t);
 		return t;
+	}
+
+	/**
+	 * Check thst if this field is a clocked field, it is being accessed from within a clocked method.
+	 * @param result
+	 * @param tc
+	 * @throws SemanticException
+	 */
+	protected void checkClockedFieldAccessesAreInClockedMethods(X10Field_c result, ContextVisitor tc) 
+	throws SemanticException {
+		//		 Check that field accesses in dep clauses refer to final fields.
+		X10Context xtc = (X10Context) tc.context();
+		if (X10Flags.toX10Flags(result.flags()).isClocked() 
+				&& ! ((X10Context) tc.context()).isClocked()) {
+			throw new Errors.IllegalClockedAccess(this, position());
+		}
 	}
 
 	private static final boolean ENABLE_PLACE_TYPES = true;

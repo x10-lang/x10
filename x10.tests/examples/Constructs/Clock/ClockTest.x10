@@ -18,11 +18,10 @@ import harness.x10Test;
  */
 public class ClockTest extends x10Test {
     public def run(): boolean = {
-	c: Clock = Clock.make();
-	next;
-	c.resume();
-	c.drop();
-	return true;
+    		clocked finish {
+    			next;
+    		}
+	        return true;
     }
 
     public static def main(var args: Array[String](1)): void = {
