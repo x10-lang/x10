@@ -272,12 +272,6 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 			    this.rootClause = Types.ref(result);
 			    this.rootClauseInvalid = new SemanticException(e.getMessage(), position());
 		    }
-		    catch (SemanticException e) {
-		    	CConstraint result = new CConstraint();
-			    result.setInconsistent();
-			    this.rootClause = Types.ref(result);
-			    this.rootClauseInvalid = e;
-		    }
 		    finally {
 			    computing = false;
 		    }

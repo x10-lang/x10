@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 
 import polyglot.types.LazyRef;
-import polyglot.types.LocalInstance;
 import polyglot.types.Ref;
 import polyglot.types.Type;
 import polyglot.types.Types;
@@ -43,20 +42,20 @@ import x10.types.constraints.TypeConstraint;
  *
  */
 public class TypeParamSubst {
-	List<Type> typeArguments;
+	List<? extends Type> typeArguments;
 	List<ParameterType> typeParameters;
 	X10TypeSystem ts;
 
 	final boolean missingArgs;
-	public TypeParamSubst(X10TypeSystem ts, List<Type> typeArguments2, 
+	public TypeParamSubst(X10TypeSystem ts, List<? extends Type> typeArguments2, 
 			List<ParameterType> typeParameters2) {
 		missingArgs = typeParameters2 != null && typeParameters2.size() > 0 && typeArguments2 == null;
-		typeArguments2 = typeArguments2 == null ? (List) typeParameters2 : (List) typeArguments2; 
+		typeArguments2 = typeArguments2 == null ? typeParameters2 : typeArguments2; 
 		assert (typeParameters2 == null ? typeArguments2 == null 
 				: typeArguments2.size() == typeParameters2.size());
 		this.ts = ts;
-		this.typeArguments = typeArguments2 == null ? Collections.EMPTY_LIST : typeArguments2;
-		this.typeParameters = typeParameters2 == null ? Collections.EMPTY_LIST : typeParameters2;
+		this.typeArguments = typeArguments2 == null ? Collections.<Type>emptyList() : typeArguments2;
+		this.typeParameters = typeParameters2 == null ? Collections.<ParameterType>emptyList() : typeParameters2;
 	}
 
 	public static boolean isSameParameter(ParameterType pt1, ParameterType pt2) {
@@ -165,7 +164,7 @@ public class TypeParamSubst {
 		if (isIdentityInstantiation()) {
 			return t;
 		}
-		if (t instanceof Ref) return (T) reinstantiateRef((Ref) t);
+		if (t instanceof Ref<?>) return (T) reinstantiateRef((Ref<?>) t);
 		if (t instanceof Type) return (T) reinstantiateType((Type) t);
 		if (t instanceof X10FieldInstance) return (T) reinstantiateFI((X10FieldInstance) t);
 		if (t instanceof X10MethodInstance) return (T) reinstantiateMI((X10MethodInstance) t);
@@ -174,8 +173,8 @@ public class TypeParamSubst {
 		if (t instanceof CConstraint) return (T) reinstantiateConstraint((CConstraint) t);
 		if (t instanceof XTerm) return (T) reinstantiateTerm((XTerm) t);
 		if (t instanceof TypeConstraint) return (T) reinstantiateTypeConstraint((TypeConstraint) t);
-		if (t instanceof LocalInstance) return (T) reinstantiateLI((X10LocalInstance) t);
-	//	if (t instanceof LocalInstance) return (T) reinstantiateLI((X10LocalDef) t);
+		if (t instanceof X10LocalInstance) return (T) reinstantiateLI((X10LocalInstance) t);
+		//if (t instanceof X10LocalDef) return (T) reinstantiateLD((X10LocalDef) t);
 		return t;
 	}
 
@@ -200,11 +199,11 @@ public class TypeParamSubst {
 		return new ReinstantiatedClosureInstance_c(this, fi.typeSystem(), fi.position(), Types.ref(fi.def()), fi);
 	}
 
-	public Ref reinstantiateRef(final Ref t) {
+	public <T> Ref<T> reinstantiateRef(final Ref<T> t) {
 		if (t.known()) {
 			return Types.ref(reinstantiate(t.get()));
 		}
-		final LazyRef r = Types.lazyRef(null);
+		final LazyRef<T> r = Types.lazyRef(null);
 		r.setResolver(new Runnable() {
 			public void run() {
 				r.update(reinstantiate(t.get()));

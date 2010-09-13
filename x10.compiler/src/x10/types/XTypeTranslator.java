@@ -99,7 +99,7 @@ public class XTypeTranslator {
 		throw new SemanticException("Cannot translate " + t + " to constraint term.");
 	}
 	
-	public XVar trans(CConstraint c, XVar target, FieldInstance fi) throws SemanticException {
+	public XVar trans(CConstraint c, XVar target, FieldInstance fi) {
 		XName field = XTerms.makeName(fi.def(),  fi.name().toString());
 	   // String string = Types.get(fi.def().container()) + "#" + fi.name().toString();
 	    XVar v = XTerms.makeField(target,field);

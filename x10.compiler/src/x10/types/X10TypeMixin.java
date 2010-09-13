@@ -718,9 +718,6 @@ public class X10TypeMixin {
 		    catch (XFailure f) {
 			    return false;
 		    }
-		    catch (SemanticException f) {
-			    return false;
-		    }
 	    }
 	    else {
 	        // try self.p()
