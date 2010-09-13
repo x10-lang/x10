@@ -17,7 +17,7 @@ import x10.compiler.Pinned;
  */
 public class AsyncFieldAccess extends x10Test {
     val root = GlobalRef[AsyncFieldAccess](this);
-	transient var t: GlobalRef[T];
+	transient var t: GlobalRef[T] = GlobalRef[T](null);
 	public def run(): boolean = {
 		var Second: Place = Place.FIRST_PLACE.next();
 		var r: Region = [0..0];

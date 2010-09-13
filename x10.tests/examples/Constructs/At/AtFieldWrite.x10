@@ -15,7 +15,7 @@ import harness.x10Test;
  * Testing that a value created remotely has the right type so it can be accessed safely within a subsequent remote at.
  */
 public class AtFieldWrite extends x10Test {
-	var t: GlobalRef[T];
+	var t: GlobalRef[T] = GlobalRef[T](null);
     public def run() {
        val Second = Place.FIRST_PLACE.next();
        val newT = (at (Second) new T()).root;

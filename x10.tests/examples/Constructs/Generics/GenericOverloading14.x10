@@ -19,12 +19,12 @@ import harness.x10Test;
 
 public class GenericOverloading14 extends GenericTest {
 
-    class A[T] {
+    static class A[T] {
         def m() = 0;
         def m(T) = 1;
     }
 
-    class B[S] extends A[S] {
+    static class B[S] extends A[S] {
         def m(int,S) = 2;
     }
 

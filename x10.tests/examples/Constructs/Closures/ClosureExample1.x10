@@ -26,7 +26,7 @@ import x10.util.ArrayList;
 public class ClosureExample1 extends x10Test {
 
     // def find[T](f:(T)=>Boolean, xs: List[T]):T {
-    def find[T](f:(T)=>Boolean, xs: List[T]): Box[T] {
+    static def find[T](f:(T)=>Boolean, xs: List[T]): Box[T] {
         for (x in xs)
             // if (f(x)) return x;
             if (f(x)) return x as Box[T];

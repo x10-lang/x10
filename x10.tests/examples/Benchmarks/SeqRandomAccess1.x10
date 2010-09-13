@@ -35,7 +35,7 @@ class SeqRandomAccess1 extends Benchmark {
     static POLY = 0x0000000000000007L;
     static PERIOD = 1317624576693539401L;
 
-    final class LocalTable {
+    static final class LocalTable {
     
         val a: Rail[long];
         val mask: int;

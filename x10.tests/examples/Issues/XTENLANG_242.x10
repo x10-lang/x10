@@ -13,19 +13,13 @@ import harness.x10Test;
 
 /**
  * @author bdlucas 12/2008
+ Yoav: typename() should be removed!
  */
 
-class XTENLANG_242_A {
-    val name1 = typeName();
-    def name2() = typeName();
-}
-    
-class XTENLANG_242_B extends XTENLANG_242_A {}
-    
 class XTENLANG_242 extends x10Test {
 
     public def run():boolean {
-        return new XTENLANG_242_B().name1.equals("XTENLANG_242_B") && new XTENLANG_242_B().name2().equals("XTENLANG_242_B");
+        return true;
     }
 
     public static def main(Array[String](1)) {

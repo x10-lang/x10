@@ -91,7 +91,7 @@ public class CheckEscapingThis extends NodeVisitor
         }
         protected Item confluence(List items, List itemKeys,
             Term node, boolean entry, FlowGraph graph) {
-            if (node instanceof ConstructorDecl) {
+            if (node instanceof ProcedureDecl) {
                 List filtered = filterItemsNonException(items, itemKeys);
                 if (filtered.isEmpty()) {
                     return INIT;
@@ -252,7 +252,7 @@ public class CheckEscapingThis extends NodeVisitor
                         // report the field that wasn't written to
                         for (X10FieldDecl_c f : fields)
                             if (!newInfo.seqWrite.contains(f)) {
-                                reportError("Field '"+f.name()+"' was not definitely assigned in this constructor.",decl.position());
+                                reportError("Field '"+f.name()+"' was not definitely assigned.",f.position());
                             }
                     }
                 }
@@ -308,7 +308,8 @@ public class CheckEscapingThis extends NodeVisitor
 
     }
     private void checkField(FieldDef def, Position p) {
-        if (!def.flags().isStatic() && !initFields.contains(def)) {
+        if (allFields.contains(def) && // to make sure it is declared in this class (and not in a super or outer class) 
+            !initFields.contains(def)) {
             reportError("Illegal forward reference for field '"+def.name()+"'.",p);
         }
     }
@@ -335,6 +336,7 @@ public class CheckEscapingThis extends NodeVisitor
     private final HashSet<X10FieldDecl_c> fields = new HashSet<X10FieldDecl_c>();
     private boolean wasChange = true, wasError = false; // for fixed point alg
     private FieldDef globalRef = null;// There is one exception to the "this cannot escape" rule:  val root = GlobalRef[...](this)
+    private Set<FieldDef> allFields = new HashSet<FieldDef>(); // all non-static fields in this class (excluding fields in the superclass because those have already been initialized by the super ctor call)
     private Set<FieldDef> initFields = new HashSet<FieldDef>(); // fields that have been initialized already (to prevent forward references)
 
     private void checkGlobalRef(Node n) {
@@ -359,41 +361,47 @@ public class CheckEscapingThis extends NodeVisitor
     }
     private void typeCheck() {
         final X10ClassBody_c body = (X10ClassBody_c)xlass.body();
-        // visit all field initializers and check that they do not have forward references nor that "this" escapes
+        // visit all (non-static) field initializers and check that they do not have forward references nor that "this" escapes
         FieldInitVisitor fieldInitVisitor = new FieldInitVisitor();
+        ArrayList<X10FieldDecl_c> nonStaticFields = new ArrayList<X10FieldDecl_c>();
         for (ClassMember classMember : body.members()) {
             if (classMember instanceof X10FieldDecl_c) {
                 X10FieldDecl_c field = (X10FieldDecl_c) classMember;
-                final Flags flags = field.flags().flags();
-                final Expr init = field.init();
-                if (init==null) continue;
-                // check for the pattern: GlobalRef[...](this)
-                if (init instanceof X10New_c) {
-                    X10New_c new_c = (X10New_c) init;
-                    final TypeNode typeNode = new_c.objectType();
-                    final List<Expr> args = new_c.arguments();
-                    if (args.size()==1 && isThis(args.get(0)) && // the first and only argument is "this"
-                        typeNode instanceof X10CanonicalTypeNode_c) { // now checking the ctor is of GlobalRef
-                        X10CanonicalTypeNode_c tn = (X10CanonicalTypeNode_c) typeNode;
-                        final Type type = tn.type();
-                        if (type instanceof X10ParsedClassType_c) {
-                            X10ParsedClassType_c classType_c = (X10ParsedClassType_c) type;
-                            final QName qName = classType_c.def().fullName();
-                            if (qName.equals(QName.make("x10.lang","GlobalRef"))) {
-                                // found the pattern!
-                                if (globalRef!=null) {
-                                    reportError("You can use the pattern 'val root = GlobalRef[...](this);' only once in a class.",field.position());
-                                    continue;
-                                }
-                                globalRef = field.fieldDef();
+                if (field.flags().flags().isStatic()) continue;
+                nonStaticFields.add(field);
+                allFields.add(field.fieldDef());
+            }
+        }
+        // checking "this" doesn't escape from field init
+        for (X10FieldDecl_c field : nonStaticFields) {
+            final Expr init = field.init();
+            if (init==null) continue;
+            // check for the pattern: GlobalRef[...](this)
+            if (init instanceof X10New_c) {
+                X10New_c new_c = (X10New_c) init;
+                final TypeNode typeNode = new_c.objectType();
+                final List<Expr> args = new_c.arguments();
+                if (args.size()==1 && isThis(args.get(0)) && // the first and only argument is "this"
+                    typeNode instanceof X10CanonicalTypeNode_c) { // now checking the ctor is of GlobalRef
+                    X10CanonicalTypeNode_c tn = (X10CanonicalTypeNode_c) typeNode;
+                    final Type type = tn.type();
+                    if (type instanceof X10ParsedClassType_c) {
+                        X10ParsedClassType_c classType_c = (X10ParsedClassType_c) type;
+                        final QName qName = classType_c.def().fullName();
+                        if (qName.equals(QName.make("x10.lang","GlobalRef"))) {
+                            // found the pattern!
+                            if (globalRef!=null) {
+                                reportError("You can use the pattern 'val root = GlobalRef[...](this);' only once in a class.",field.position());
                                 continue;
                             }
+                            globalRef = field.fieldDef();
+                            continue;
                         }
                     }
                 }
-                init.visit(fieldInitVisitor);
-                initFields.add(field.fieldDef());
             }
+            init.visit(fieldInitVisitor);
+            initFields.add(field.fieldDef());
         }
         // visit every ctor, and every method called from a ctor, and check that this and super do not escape
         for (ClassMember classMember : body.members()) {
@@ -504,19 +512,22 @@ public class CheckEscapingThis extends NodeVisitor
                 } else {
                     // the method must be final or private
                     X10MethodDecl_c method = findMethod(call);
-                    ProcedureDef pd = method.procedureInstance();
-                    if (method==null || allMethods.containsKey(pd)) {
-                        // we already analyzed this method (or it is an error method)
+                    if (method==null) {
+                        reportError("The call "+call+" is illegal because you cannot call methods defined in a superclass from a constructor or from methods called from a constructor",call.position());
                     } else {
-                        allMethods.put(pd,new MethodInfo()); // prevent infinite recursion
-                        // verify the method is indeed private/final
-                        if (!flags.isFinal() && !flags.isPrivate())  {
-                            reportError("The call "+call+" is illegal because you can only call private or final methods from a constructor or from methods called from a constructor",call.position());
+                        ProcedureDef pd = method.procedureInstance();
+                        if (allMethods.containsKey(pd)) {
+                            // we already analyzed this method (or it is an error method)
+                        } else {
+                            allMethods.put(pd,new MethodInfo()); // prevent infinite recursion
+                            // verify the method is indeed private/final
+                            if (!flags.isFinal() && !flags.isPrivate())  {
+                                reportError("The call "+call+" is illegal because you can only call private or final methods from a constructor or from methods called from a constructor",call.position());
+                            }
+                            method.body().visit(this);
+                            dfsMethods.add(method);
                         }
-                        method.body().visit(this);
-                        dfsMethods.add(method);
                     }
-
                 }
 
                 // it is enough to just recurse into the arguments (because the receiver is either this or super)

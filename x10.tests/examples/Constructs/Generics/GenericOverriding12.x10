@@ -23,11 +23,11 @@ import harness.x10Test;
 
 public class GenericOverriding12 extends GenericTest {
 
-    class A[T] {
+    static class A[T] {
         def m[U](): int = 0;
     }
 
-    class B[T] extends A[T] {
+    static class B[T] extends A[T] {
         def m[U](): int = 1;
     }
 

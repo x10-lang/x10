@@ -23,25 +23,14 @@ import harness.x10Test;
  */
 public class AtThisIntoAtHere extends x10Test {
 	  class Test {
-	    	val x:GlobalRef[Test];
-	        val y:GlobalRef[Test]{self.home==x.home};
-
-	        def this() {
-	        	x  = GlobalRef[Test](this);
-	        	y = GlobalRef[Test](this);
-	        }
 	     def n() { 
+	    	val x:GlobalRef[Test]  = GlobalRef[Test](this);
+	        val y:GlobalRef[Test]{self.home==x.home} = x;
 	    	 
 	    	 at (x) {
 	    		 // it is ok to invoke this.y() at the place of this.x.
 	    		 y();
 	    	 }
-	    	 // Repeat with fields stashed in variables.
-		     val xx = this.x;
-		     val yy = this.y;
-		     at (x) {
-		    	 y();
-		     }
 		     
 	     }
 	    }

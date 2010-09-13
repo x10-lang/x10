@@ -4,7 +4,7 @@
     &buildfile;
     <property name="x10.home" value="${basedir}/.."/>
     <property name="x10.dist.location" location="${x10.home}/x10.dist"/>
-    <property name="lpg.location" location="${x10.home}/lpg.generator"/>
+    <property name="lpg.location" location="${x10.home}/../../lpg_parser"/>
     <property name="x10.constraints.location" location="${x10.home}/x10.constraints"/>
     <property name="x10.common.location" location="${x10.home}/x10.common"/>
     <property name="build" location="${basedir}/classes"/>
@@ -94,8 +94,8 @@
         <condition property="platform" value="macosx"><os name="Mac OS X"/></condition>
         <!-- Work around Mac OS's Java reporting x86 as i386 -->
         <condition property="arch" value="x86" else="${os.arch}"><equals arg1="${os.arch}" arg2="i386"/></condition>
-        <property name="lpg.executable.location" location="${x10.home}/lpg.generator.${platform}_${arch}"/>
-        <property name="lpg.executable" location="${lpg.executable.location}/lpgexe/lpg-${platform}_${arch}"/>
+        <property name="lpg.executable.location" location="${x10.home}/../../lpg_parser/lpg.generator.win32_x86"/>
+        <property name="lpg.executable" location="${lpg.executable.location}/lpgexe/lpg-win32_x86"/>
         <!--
         <echo message="OS: ${os.name} ${os.arch}"/>
         <echo message="Platform: ${platform}"/>

@@ -71,7 +71,7 @@ public class JGFTimer {
     opcount += count;
   } 
 
-  public def reset(): void = {
+  final public def reset(): void = {
     time = 0.0; 
     calls = 0; 
     opcount = 0; 
