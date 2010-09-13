@@ -2878,19 +2878,40 @@ public static class MessageHandler implements IMessageHandler {
 
     -- Chapter 7
 
-    CompilationUnit ::= PackageDeclarationopt ImportDeclarationsopt TypeDeclarationsopt
+    CompilationUnit ::= PackageDeclarationopt TypeDeclarationsopt
         /.$BeginJava
                     // Add import x10.lang.* by default.
-                    int token_pos = (ImportDeclarationsopt.size() == 0
-                                         ? TypeDeclarationsopt.size() == 0
-                                               ? prsStream.getSize() - 1
-                                               : prsStream.getPrevious(getRhsFirstTokenIndex($TypeDeclarationsopt))
-                                     : getRhsLastTokenIndex($ImportDeclarationsopt)
-                                );
+//                    int token_pos = (ImportDeclarationsopt.size() == 0
+//                                       ? TypeDeclarationsopt.size() == 0
+//                                               ? prsStream.getSize() - 1
+//                                               : prsStream.getPrevious(getRhsFirstTokenIndex($TypeDeclarationsopt))
+//                                     : getRhsLastTokenIndex($ImportDeclarationsopt)
+//                                );
 //                    Import x10LangImport = 
 //                    nf.Import(pos(token_pos), Import.PACKAGE, QName.make("x10.lang"));
 //                    ImportDeclarationsopt.add(x10LangImport);
-                    setResult(nf.SourceFile(pos(getLeftSpan(), getRightSpan()), PackageDeclarationopt, ImportDeclarationsopt, TypeDeclarationsopt));
+                    setResult(nf.SourceFile(pos(getLeftSpan(), getRightSpan()),
+                                            PackageDeclarationopt,
+                                            new TypedList(new LinkedList(), Import.class, false),
+                                            TypeDeclarationsopt));
+          $EndJava
+        ./
+                      | PackageDeclarationopt ImportDeclarations TypeDeclarationsopt
+        /.$BeginJava
+                    setResult(nf.SourceFile(pos(getLeftSpan(), getRightSpan()),
+                                            PackageDeclarationopt,
+                                            ImportDeclarations,
+                                            TypeDeclarationsopt));
+          $EndJava
+        ./
+                      | PackageDeclarationopt ImportDeclarations PackageDeclaration$misplacedPackageDeclaration ImportDeclarationsopt$misplacedImportDeclarations TypeDeclarationsopt  -- Extend grammar to accept this illegal construct so that we can fail gracefully
+        /.$BeginJava
+                    syntaxError("Misplaced package declaration", misplacedPackageDeclaration.position());
+                    ImportDeclarations.addAll(misplacedImportDeclarations); // merge the two import lists
+                    setResult(nf.SourceFile(pos(getLeftSpan(), getRightSpan()),
+                                            PackageDeclarationopt,
+                                            ImportDeclarations,
+                                            TypeDeclarationsopt));
           $EndJava
         ./
 
