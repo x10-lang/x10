@@ -8,7 +8,7 @@ public class TrivialTest{
 
   
   public static def main(args: Rail[String]) {
-  	//t1();
+  	t1();
   	//t2();
   	//t3();
   	//t4();
@@ -23,14 +23,14 @@ public class TrivialTest{
   	//t13();
   	//t14();
   	//t15();
-    //t16();
+        //t16();
   	//t17();
   	//t18();
   	//t19();
   	//t20();
   	//t21();
   	//t22();
-    //t23();
+        //t23();
   }
   
   public static def t1(){
