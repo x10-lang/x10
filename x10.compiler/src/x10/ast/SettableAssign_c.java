@@ -190,7 +190,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 	    return n;
 	}
 	public MethodInstance applyMethodInstance() {
-	    return mi;
+	    return ami;
 	}
 	public SettableAssign applyMethodInstance(MethodInstance ami) {
 	    SettableAssign_c n = (SettableAssign_c) copy();
