@@ -27,7 +27,7 @@ public class ArrayCopy1 extends x10Test {
      * whose regions are equal.
      */
 
-    public def arrayEqual(val A: DistArray[int], val B: DistArray[int]): void = {
+    public def arrayEqual(A: DistArray[int], B: DistArray[int]) {
 
         val D = A.dist;
         val E = B.dist;
@@ -39,11 +39,11 @@ public class ArrayCopy1 extends x10Test {
             ateach (p:Point in D) {
                 val pa = p as Point(A.dist.region.rank);
                 val pb = p as Point(B.dist.region.rank);
-                val fp:Int = (future (E(p)) B(pb)).force();
+                val fp:Int = at (E(p)) B(pb);
                 if (A(pa) != fp)
                     throw new Error("****Error: A(" + p + ")= " + A(pa) + ", B(" + p + ")=" + B(pb) + " fp= " + fp);
                 chk(A(pa)==fp); 
-                chk(A(pa)==(future (E(p)) B(pb)).force());
+                chk(A(pa)==(at (E(p)) B(pb)));
             }
     }
 
@@ -65,8 +65,8 @@ public class ArrayCopy1 extends x10Test {
                 val pa = p as Point(A.dist.region.rank);
                 val pb = p as Point(B.dist.region.rank);
                 chk(D(p) == here);
-                async(E(p)) chk(E(p) == here);
-                A(pa) = (future(E(p)) B(pb)).force();
+                async at(E(p)) chk(E(p) == here);
+                A(pa) = at(E(p)) B(pb);
             }
     }
 
@@ -83,13 +83,13 @@ public class ArrayCopy1 extends x10Test {
             val R: Region = [0..N-1, 0..N-1, 0..N-1, 0..N-1];
             val TestDists: Region = [0..dist2.N_DIST_TYPES-1, 0..dist2.N_DIST_TYPES-1];
 
-            for (val distP(dX,dY): Point in TestDists) {
+            for (distP[dX,dY]: Point in TestDists) {
                 val D = dist2.getDist(dX, R);
                 val E = dist2.getDist(dY, R);
                 chk(D.region.equals(E.region) && D.region.equals(R));
                 val A = DistArray.make[int](D, (Point)=>0);
                 val B = DistArray.make[int](E,
-                    (p(i,j,k,l): Point): int => { 
+                    (p[i,j,k,l]: Point): int => { 
                         var x: int = ((i*N+j)*N+k)*N+l; 
                         return x*x+1; 
                     }
@@ -107,7 +107,7 @@ public class ArrayCopy1 extends x10Test {
         }
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(Array[String](1)) {
         new ArrayCopy1().execute();
     }
 
