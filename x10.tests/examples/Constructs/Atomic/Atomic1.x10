@@ -11,6 +11,7 @@
 
 import harness.x10Test;
 
+import x10.util.Future;
 /**
  * Some updates of cnt_broken may be lost,
  * since the read and write are not
@@ -32,23 +33,23 @@ public class Atomic1 extends x10Test {
 	}
 
 	public def run(): boolean = {
-			val root = this.root;
-		val a = future root().threadRun();
-		val b = future  root().threadRun();
-		val c = future root().threadRun();
-		val d = future root().threadRun();
-		val e = future root().threadRun();
-		val f = future root().threadRun();
-		val g = future  root().threadRun();
-		val h = future  root().threadRun();
-		val i = a.force();
-		val j = b.force();
-		val k = c.force();
-		val l = d.force();
-		val m = e.force();
-		val n = f.force();
-		val o = g.force();
-		val p = h.force();
+		val root = this.root;
+		val a = new Future[int](()=> root().threadRun());
+		/*val b = new Future[int](()=>  root().threadRun());
+		val c = new Future[int](()=> root().threadRun());
+		val d = new Future[int](()=> root().threadRun());
+		val e = new Future[int](()=> root().threadRun());
+		val f = new Future[int](()=> root().threadRun());
+		val g = new Future[int](()=>  root().threadRun());
+		val h = new Future[int](()=>  root().threadRun());*/
+		val i = a();
+	/*	val j = b();
+		val k = c();
+		val l = d();
+		val m = e();
+		val n = f();
+		val o = g();
+		val p = h();*/
 		var t1: int;
 		var t2: int;
 		atomic t1 = cnt;
