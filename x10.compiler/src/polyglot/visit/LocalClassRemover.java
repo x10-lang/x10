@@ -198,8 +198,7 @@ public class LocalClassRemover extends ContextVisitor {
 	return c.isLocal(name);
     }
 
-    protected Node leaveCall(Node old, Node n, NodeVisitor v)
-    throws SemanticException {
+    protected Node leaveCall(Node old, Node n, NodeVisitor v) {
 
 	Context c = this.context();
 
@@ -269,7 +268,7 @@ public class LocalClassRemover extends ContextVisitor {
 		cd = cd.body(b);
 	    }
 
-	    neu = neu.constructorInstance(td.constructorDef().asInstance());
+	    neu = neu.constructorInstance(computeConstructorInstance(td.constructorDef()));
 	    neu = neu.anonType(null);
 
 	    if (! flags.isStatic()) {
@@ -278,7 +277,7 @@ public class LocalClassRemover extends ContextVisitor {
 
 	    cd = rewriteLocalClass(cd, (List<FieldDef>) hashGet(newFields, cd.classDef(), Collections.<FieldDef>emptyList()));
 	    hashAdd(orphans, context.currentClassDef(), cd);
-	    neu = neu.objectType(nf.CanonicalTypeNode(pos, type.asType())).body(null);
+	    neu = neu.objectType(nf.CanonicalTypeNode(pos, computeConstructedType(type))).body(null);
 	    neu = (New) rewriteConstructorCalls(neu, cd.classDef(), (List<FieldDef>) hashGet(newFields, cd.classDef(), Collections.<FieldDef>emptyList()));
 	    return neu;
 	}
@@ -300,6 +299,14 @@ public class LocalClassRemover extends ContextVisitor {
 	return n;
     }
 
+    protected ConstructorInstance computeConstructorInstance(ConstructorDef cd) {
+        return cd.asInstance();
+    }
+
+    protected ClassType computeConstructedType(ClassDef type) {
+        return type.asType();
+    }
+
     /**
      * The type to be extended when translating an anonymous class that
      * implements an interface.
@@ -309,6 +316,7 @@ public class LocalClassRemover extends ContextVisitor {
     }
 
     protected ClassDecl rewriteLocalClass(ClassDecl cd, List<FieldDef> newFields) {
+	cd = cd.body((ClassBody) rewriteConstructorCalls(cd.body(), cd.classDef(), newFields));
 	return InnerClassRemover.addFieldsToClass(cd, newFields, ts, nf, false);
     }
 
@@ -436,7 +444,7 @@ public class LocalClassRemover extends ContextVisitor {
 
 	Position pos = li.position();
 
-	fi = ts.fieldDef(pos, Types.ref(curr.asType()), li.flags().Private(), li.type(), li.name());
+	fi = ts.fieldDef(pos, Types.ref(computeConstructedType(curr)), li.flags().Private(), li.type(), li.name());
 	fi.setNotConstant();
 
 	curr.addField(fi);
