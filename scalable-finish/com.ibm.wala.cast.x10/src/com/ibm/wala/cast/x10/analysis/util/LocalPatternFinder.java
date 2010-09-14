@@ -11,40 +11,40 @@ public class LocalPatternFinder extends PatternFinder{
 	public boolean isLabelSpecial(CommunicationLabel l){
 		return l.isLocal;
 	}
-	public boolean hasPattern(CommunicationNode n){
+	public int hasPattern(CommunicationNode n){
 		if(results.containsKey(n)){
 			if(results.get(n).intValue()==1)
-				return true;
-			return false;
+				return 1;
+			return 0;
+		}
+		
+		if(g.getSuccNodeCount(n)==0){
+			results.put(n, new Integer(1));
+			return 1;
 		}
 		
 		boolean flag = true;
-		if(g.getSuccNodeCount(n)==0){
-			results.put(n, new Integer(1));
-			return flag;
-		}
-		
 		Iterator<CommunicationLabel> sucLabels = (Iterator<CommunicationLabel>) g.getSuccLabels(n);
 		while(sucLabels.hasNext()){
 			CommunicationLabel sl = sucLabels.next();
 			flag = flag && isLabelSpecial(sl);
 			if(flag == false){
 				results.put(n, new Integer(0));
-				return false;
+				return 0;
 			}
 		}
 		results.put(n, new Integer(1));
 		Iterator<CommunicationNode> it = g.getSuccNodes(n);
 		while(it.hasNext()){
 			CommunicationNode suc = it.next();
-			flag = flag && hasPattern(suc);
+			flag = flag && (hasPattern(suc)==1);
 			if(flag == false){
 				results.remove(n);
 				results.put(n, new Integer(0));
-				return false;
+				return 0;
 			}
 		}
-		return true;
+		return 1;
 	}
 }
 
