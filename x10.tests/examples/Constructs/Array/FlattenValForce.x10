@@ -11,7 +11,7 @@
 
 import harness.x10Test;
 
-
+import x10.util.Future;
 /**
  * Test for array reference flattening. Check that flattening works inside a Future.
  */
@@ -19,9 +19,9 @@ import harness.x10Test;
 public class FlattenValForce extends x10Test {
    
     static def rd(val e: Array[Future[Int]](1), val i: int)  = {
-        val fd = future { 3.0 };
+        val fd = new Future[Double]( ()=> 3.0);
         val x  = fd();
-        return future { e(i).force() };
+        return new Future[Int](()=> e(i)());
     }
    
     public def run(): boolean = true;
