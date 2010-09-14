@@ -18,7 +18,7 @@ import harness.x10Test;
 public class ClockTest2 extends x10Test {
 
 	var val: int = 0;
-	const N: int = 10;
+	static  N: int = 10;
 
 	public def run(): boolean = {
 		clocked finish {

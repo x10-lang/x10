@@ -12,7 +12,7 @@
 import harness.x10Test;
 
 /**
- * Minimal test for await.
+ * Minimal test for when.
  */
 public class AwaitTest extends x10Test {
 
@@ -21,20 +21,20 @@ public class AwaitTest extends x10Test {
 	public def run(): boolean = {
 		val c: Clock = Clock.make();
 		async clocked(c) {
-			await (val_ > 43);
+			when(val_ > 43);
 			atomic val_ = 42;
-			await (val_ == 0);
+			when(val_ == 0);
 			atomic val_ = 42;
 		}
 		atomic val_ = 44;
-		await (val_ == 42);
+		when (val_ == 42);
 		var temp: int;
 		atomic temp = val_;
 		//x10.io.Console.OUT.println("temp = " + temp);
 		if (temp != 42)
 			return false;
 		atomic val_ = 0;
-		await (val_ == 42);
+		when (val_ == 42);
 		next;
 		var temp2: int;
 		atomic temp2 = val_;

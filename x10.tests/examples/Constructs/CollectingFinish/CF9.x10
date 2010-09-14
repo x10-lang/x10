@@ -22,8 +22,8 @@ import harness.x10Test;
 public class CF9 extends x10Test{
 
     public static class TotalsReducer1 implements Reducible[Totals2] {
-        public  safe def zero() = new Totals2(0,0);
-        public  safe def apply(a:Totals2 ,other:Totals2 ) = new Totals2(a.left+other.left,a.right+other.right); 
+        public safe def zero() = new Totals2(0,0);
+        public safe def apply(a:Totals2 ,other:Totals2 ) = new Totals2(a.left+other.left,a.right+other.right); 
         public def this() {super();};
     }
     public static class Totals2 {
@@ -39,8 +39,8 @@ public class CF9 extends x10Test{
             val result : Totals2;
             val finalResult : Totals2;
             finalResult = finish (b) {
-            result = finish(b) {
-            ateach(p in Dist.makeUnique()){
+               result = finish(b) {
+                 ateach(Dist.makeUnique()){
                       var case_ :Totals2 =new  Totals2(1,2);
                       for (var i:Int = 0; i < iteration; i++)
                       offer case_;
@@ -56,7 +56,7 @@ public class CF9 extends x10Test{
             return ret;
  
     }
-        public static def main(args: Array[String](1)) {
+        public static def main(Array[String](1)) {
                 new CF9().execute();
         }
 

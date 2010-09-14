@@ -54,11 +54,11 @@ public class DistBounds1D extends x10Test {
         try {
             chk(a.dist(i).id< Place.MAX_PLACES &&
                     a.dist(i).id >= 0);
-            finish async(a.dist(i)) {
+            finish async at(a.dist(i)) {
                 a(i) = (0xabcdef07L as Int);
                 chk(a(i) == (0xabcdef07L as Int));
             }
-        } catch (var e: ArrayIndexOutOfBoundsException) {
+        } catch (e: ArrayIndexOutOfBoundsException) {
             withinBounds = false;
         }
 
@@ -83,7 +83,7 @@ public class DistBounds1D extends x10Test {
         return x == y;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(args: Array[String](1)) {
         new DistBounds1D().execute();
     }
 
