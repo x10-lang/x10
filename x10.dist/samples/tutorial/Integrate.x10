@@ -18,7 +18,7 @@
  * It also can serve as an example of using a closure.
  */
 public class Integrate { 
-  const epsilon = 1.0e-12;
+  static epsilon = 1.0e-12;
 
   val fun:(double)=>double;
 
