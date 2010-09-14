@@ -9,26 +9,26 @@
 #  (C) Copyright IBM Corporation 2006-2010.
 #
 
-TESTS += $(patsubst test/%,test/%.socket,$(BASE_TESTS))
+TESTS += $(patsubst test/%,test/%.sockets,$(BASE_TESTS))
 
-SOCKET_DYNLIB = lib/$(LIBPREFIX)x10rt_socket$(LIBSUFFIX)
-LIBS += $(SOCKET_DYNLIB)
+SOCKETS_DYNLIB = lib/$(LIBPREFIX)x10rt_sockets$(LIBSUFFIX)
+LIBS += $(SOCKETS_DYNLIB)
 
-PROPERTIES += etc/x10rt_socket.properties
-LAUNCHER_OBJS = socket/Launcher_IF.o socket/Launcher_Init.o socket/Launcher_SSH.o socket/Launcher.o socket/tcp.o
+PROPERTIES += etc/x10rt_sockets.properties
+LAUNCHER_OBJS = sockets/Launcher_Init.o sockets/Launcher.o sockets/tcp.o
 
 ifeq ($(X10RT_PLATFORM), sunos)
   SOLARIS_LDLIBS += -lresolv -lnsl -lsocket -lrt
 endif
 
-%.socket: %.cc $(SOCKET_DYNLIB)
-	$(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS) -lx10rt_socket $(SOLARIS_LDLIBS) $(X10RT_TEST_LDFLAGS)
+%.sockets: %.cc $(SOCKETS_DYNLIB)
+	$(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS) -lx10rt_sockets $(SOLARIS_LDLIBS) $(X10RT_TEST_LDFLAGS)
 
 ifdef X10_STATIC_LIB
-$(SOCKET_DYNLIB): socket/x10rt_socket.o $(LAUNCHER_OBJS) $(COMMON_OBJS)
+$(SOCKETS_DYNLIB): sockets/x10rt_sockets.o $(LAUNCHER_OBJS) $(COMMON_OBJS)
 	$(AR) $(ARFLAGS) $@ $^
 else
-$(SOCKET_DYNLIB): socket/x10rt_socket.o $(LAUNCHER_OBJS) $(COMMON_OBJS) 
+$(SOCKETS_DYNLIB): sockets/x10rt_sockets.o $(LAUNCHER_OBJS) $(COMMON_OBJS) 
 ifeq ($(X10RT_PLATFORM),aix_xlc)
 	$(SHLINK) $(CXXFLAGS) $(CXXFLAGS_SHARED) $(LDFLAGS_SHARED) -o $@ $^
 else
@@ -36,12 +36,12 @@ else
 endif
 endif
 
-etc/x10rt_socket.properties:
+etc/x10rt_sockets.properties:
 	@echo "CXX=$(CXX)" > $@
 	@echo "CXXFLAGS=" >> $@
 	@echo "LDFLAGS=$(CUDA_LDFLAGS)" >> $@
-	@echo "LDLIBS=-lx10rt_socket $(SOLARIS_LDLIBS) $(CUDA_LDLIBS)" >> $@
+	@echo "LDLIBS=-lx10rt_sockets $(SOLARIS_LDLIBS) $(CUDA_LDLIBS)" >> $@
 
-.PRECIOUS: etc/x10rt_socket.properties
+.PRECIOUS: etc/x10rt_sockets.properties
 
 # vim: ts=8:sw=8:noet

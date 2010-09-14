@@ -55,7 +55,7 @@ endif
 
 ifndef ENABLE_CROSS_COMPILE_BGP
    include standalone/standalone.mk
-   include socket/socket.mk
+   include sockets/sockets.mk
 endif
 
 install: $(LIBS) $(PROPERTIES)
@@ -81,7 +81,7 @@ debug::
 	@echo TESTS = $(TESTS)
 
 clean:
-	-$(RM) -r */*.o lib/* bin/* etc/*.properties test/*.mpi test/*.standalone test/*.socket test/*.pgas_* */*~ *~ core* vgcore* include/pgasrt*.h include/xlupc*.h
+	-$(RM) -r */*.o lib/* bin/* etc/*.properties test/*.mpi test/*.standalone test/*.sockets test/*.pgas_* */*~ *~ core* vgcore* include/pgasrt*.h include/xlupc*.h
 
 depend:
 	makedepend -I include -I common -Y */*.cc
@@ -110,7 +110,7 @@ jni/jni_x10rt.o: include/x10_x10rt_X10RT.h include/x10rt_front.h
 jni/jni_x10rt.o: include/x10rt_types.h
 mpi/x10rt_mpi.o: include/x10rt_net.h include/x10rt_types.h
 standalone/x10rt_standalone.o: include/x10rt_net.h include/x10rt_types.h
-socket/x10rt_socket.o: include/x10rt_net.h include/x10rt_types.h
+sockets/x10rt_sockets.o: include/x10rt_net.h include/x10rt_types.h
 test/x10rt_basic.o: include/x10rt_front.h include/x10rt_types.h
 test/x10rt_coll.o: include/x10rt_front.h include/x10rt_types.h
 test/x10rt_coll.o: include/x10rt_ser.h include/x10rt_net.h

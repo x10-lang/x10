@@ -9,7 +9,6 @@
 #include <signal.h>
 #include <stdio.h>
 #include <assert.h>
-#include <fcntl.h>
 #include <stdarg.h>
 #include <arpa/inet.h>
 #include <errno.h>
@@ -20,13 +19,34 @@
 /* *********************************************************************** */
 /* *********************************************************************** */
 
-Sock::Launcher * Sock::Launcher::_instance = NULL;
+Launcher * Launcher::_singleton = NULL;
+int Launcher::_parentLauncherControlLink = -1;
+
+/* *********************************************************************** */
+/*          Initialize the singleton. Fails if called twice.               */
+/* *********************************************************************** */
+
+void Launcher::Setup(int argc, char ** argv)
+{
+	assert (_singleton == NULL);
+
+	// check to see if we need to launch stuff, or if we need to run stuff.  This combination distinguishes the two.
+	if (!getenv(X10LAUNCHER_HOSTFILE) && getenv(X10LAUNCHER_NPROCS) && getenv(X10LAUNCHER_MYID) && getenv(X10LAUNCHER_PARENT) && !getenv(X10LAUNCHER_SSH))
+		return;
+
+	_singleton = (Launcher *) malloc(sizeof(Launcher));
+	if (!_singleton) DIE("memory allocation failure in Initializer");
+	new (_singleton) Launcher();
+	_singleton->initialize(argc, argv);
+	_singleton->startChildren();
+}
+
 
 /* *********************************************************************** */
 /*           private constructor. Initialize everything to zeroes          */
 /* *********************************************************************** */
 
-Sock::Launcher::Launcher()
+Launcher::Launcher()
 {
 	_argc = 0;
 	_argv = NULL;
@@ -35,38 +55,15 @@ Sock::Launcher::Launcher()
 	strcpy(_ssh_command, "/usr/bin/ssh");
 	memset(_hostfname, 0, sizeof(_hostfname));
 	strcpy(_hostfname, "");
-	_nprocs = 1;
-
+	_nplaces = 1;
 	_hostlist = NULL;
-//	_execlist = NULL;
+	_runtimePort = NULL;
 	_myproc = -1;
 	_firstchildproc = 0;
 	_numchildren = 0;
-
 	_pidlst = NULL;
-
-	_listenFD = -1;
-	_ctrlfdp = -1;
-	_ctrlfd = NULL;
-}
-
-/* *********************************************************************** */
-/*          Initialize the singleton. Fails if called twice.               */
-/* *********************************************************************** */
-
-void Sock::Launcher::Setup(int argc, char ** argv)
-{
-	assert (_instance == NULL);
-
-	// check to see if we need to launch stuff, or if we need to run stuff.  This combination distinguishes the two.
-	if (!getenv(X10LAUNCHER_HOSTFILE) && getenv(X10LAUNCHER_NPROCS) && getenv(X10LAUNCHER_MYID) && !getenv(X10LAUNCHER_SSH) && !getenv(X10LAUNCHER_PARENT))
-		return;
-
-	_instance = (Launcher *) malloc(sizeof(Launcher));
-	if (!_instance) DIE("memory allocation failure in Initializer");
-	new (_instance) Launcher();
-	_instance->initialize(argc, argv);
-	_instance->startChildren();
+	_listenSocket = -1;
+	_childControlLinks = NULL;
 }
 
 /* *********************************************************************** */
@@ -75,7 +72,7 @@ void Sock::Launcher::Setup(int argc, char ** argv)
 /* - read and populate the host file                                       */
 /* *********************************************************************** */
 
-void Sock::Launcher::initialize(int argc, char ** argv)
+void Launcher::initialize(int argc, char ** argv)
 {
 	/* ------------------------------------------------ */
 	/*  copy argc and argv, determine myproc and nprocs */
@@ -84,7 +81,7 @@ void Sock::Launcher::initialize(int argc, char ** argv)
 	_argc = argc;
 	_argv = argv;
 	realpath(argv[0], _realpath);
-	_nprocs = getenv(X10LAUNCHER_NPROCS) ? atoi(getenv(X10LAUNCHER_NPROCS)) : 1;
+	_nplaces = getenv(X10LAUNCHER_NPROCS) ? atoi(getenv(X10LAUNCHER_NPROCS)) : 1;
 	_myproc = getenv(X10LAUNCHER_MYID) ? atoi(getenv(X10LAUNCHER_MYID)) : -1;
 
 	/* -------------------------------------------- */
@@ -98,9 +95,9 @@ void Sock::Launcher::initialize(int argc, char ** argv)
 			maxValueInLevel = maxValueInLevel*2 + 2;
 		_firstchildproc = (_myproc - ((maxValueInLevel-2)/2))*2 + maxValueInLevel - 1;
 
-		if (_firstchildproc >= _nprocs)
+		if (_firstchildproc >= _nplaces)
 			_numchildren = 0;
-		else if (_firstchildproc+2 <= _nprocs)
+		else if (_firstchildproc+2 <= _nplaces)
 			_numchildren = 2;
 		else
 			_numchildren = 1;
@@ -133,10 +130,10 @@ void Sock::Launcher::initialize(int argc, char ** argv)
 		if (strlen(hostfname) > sizeof(_hostfname) - 10)
 			DIE("%d: host file name is too long", _myproc);
 		strncpy(_hostfname, hostfname, sizeof(_hostfname) - 1);
-		init_readHostFile();
+		readHostFile();
 	}
 
-	pm_connect();
+	connectToParentLauncher();
 
 	/* -------------------------------------------- */
 	/*  set up notification from dying processes    */
@@ -148,7 +145,7 @@ void Sock::Launcher::initialize(int argc, char ** argv)
 /*                read and interpret the host file                         */
 /* *********************************************************************** */
 
-void Sock::Launcher::init_readHostFile()
+void Launcher::readHostFile()
 {
 	FILE * fd = fopen(_hostfname, "r");
 	if (!fd)
@@ -156,7 +153,8 @@ void Sock::Launcher::init_readHostFile()
 
 	_hostlist = (char **) malloc(sizeof(char *) * _numchildren);
 	if (!_hostlist)
-		DIE("%d: memory allocation failure", _myproc);
+		DIE("%d: hostname memory allocation failure", _myproc);
+
 /*	_execlist = (char **) malloc(sizeof(char *) * _numchildren);
 	if (!_execlist)
 		DIE("%d: memory allocation failure", _myproc);
@@ -209,7 +207,7 @@ void Sock::Launcher::init_readHostFile()
 /*                    internal error in process manager                    */
 /* *********************************************************************** */
 
-void Sock::Launcher::DIE(const char * msg, ...)
+void Launcher::DIE(const char * msg, ...)
 {
 	char buffer[1200];
 	va_list ap;

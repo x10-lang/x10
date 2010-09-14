@@ -64,8 +64,11 @@ int initLink(int remotePlace)
 {
 	if (state.socketLinks[remotePlace].fd <= 0)
 	{
-		// TODO: change to use remote hosts
-		if ((state.socketLinks[remotePlace].fd = TCP::connect("localhost", 7000+remotePlace, 0)) > 0)
+		char link[1024];
+		if (Launcher::lookupPlace(state.myPlaceId, remotePlace, link, sizeof(link)) <= 0)
+			return -1;
+
+		if ((state.socketLinks[remotePlace].fd = TCP::connect(link, 10)) > 0)
 		{
 			state.socketLinks[remotePlace].events = POLLHUP | POLLERR | POLLIN | POLLPRI;
 			pthread_mutex_init(&state.readLocks[remotePlace], NULL);
@@ -81,7 +84,7 @@ int initLink(int remotePlace)
 void x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 {
 	// If this is to be a launcher process, this method will not return.
-	Launcher_Init(*argc, *argv);
+	Launcher::Setup(*argc, *argv);
 
 	// determine the number of places
 	char* NPROCS = getenv(X10LAUNCHER_NPROCS);
@@ -108,15 +111,15 @@ void x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 
 	// open local listen port.
 	// TODO: for now, use a well-known fixed port number.  This will be changed to dynamic before it's released.
-	unsigned listenPort = 7000+state.myPlaceId;
-	//unsigned listenPort = 0;
+	unsigned listenPort = 0;
 	state.socketLinks[state.myPlaceId].fd = TCP::listen(&listenPort, 10);
 	if (state.socketLinks[state.myPlaceId].fd < 0)
 		error("cannot create listener port");
 
-	// TODO establish a link to the local launcher, and tell it our port.
-	// TODO wait for the launcher to give us our link information.
-	// TODO if not using lazy connections, establish links to other places.
+	// Tell our launcher our communication port number
+	char portname[1024];
+	TCP::getname(state.socketLinks[state.myPlaceId].fd, portname, sizeof(portname));
+	Launcher::setPort(state.myPlaceId, portname);
 }
 
 void x10rt_net_register_msg_receiver (x10rt_msg_type msg_type, x10rt_handler *callback)
