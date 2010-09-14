@@ -18,7 +18,7 @@ import harness.x10Test;
 public class AtomicTest extends x10Test {
 
 	var val_: long = 0;
-	const N: long = 1000;
+	static N: long = 1000;
 	var startCount: long = 0;
 	var endCount: long = N;
 
