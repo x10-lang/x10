@@ -30,7 +30,7 @@ public class FSSimpleDist {
 
     public static def main(args:Array[String](1)) {
         val verified = new Cell[Boolean](true);
-        val times = GlobalRef[Rail[double]](Rail.make[double](NUM_TIMES));
+        val times = GlobalRef[Array[double](1)](new Array[double](NUM_TIMES));
         val N0 = args.size > 0 ? int.parse(args(0)) : DEFAULT_SIZE;
         val N = N0 * NUM_PLACES;
         val localSize =  N0;
@@ -45,9 +45,9 @@ public class FSSimpleDist {
                 
                 async at(Place.places(p)) {
                     
-                    val a = Rail.make[double](localSize);
-                    val b = Rail.make[double](localSize);
-                    val c = Rail.make[double](localSize);
+                    val a = new Array[double](localSize);
+                    val b = new Array[double](localSize);
+                    val c = new Array[double](localSize);
                     
                     for (var i:int=0; i<localSize; i++) {
                         b(i) = 1.5 * (p*localSize+i);
@@ -56,13 +56,13 @@ public class FSSimpleDist {
                     
                     for (var j:int=0; j<NUM_TIMES; j++) {
                         if (p==0) {
-                        	val t = times as GlobalRef[Rail[double]]{self.home==here};
+                        	val t = times as GlobalRef[Array[double](1)]{self.home==here};
                         	t()(j) = -now(); 
                         }
                         for (var i:int=0; i<localSize; i++)
                             a(i) = b(i) + alpha*c(i);
                         if (p==0) {
-                        	val t = times as GlobalRef[Rail[double]]{self.home==here};
+                        	val t = times as GlobalRef[Array[double](1)]{self.home==here};
                         	t()(j) += now();
                         }
                     }
