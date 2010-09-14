@@ -22,7 +22,7 @@ public class TrivialTest{
   	//t12();
   	//t13();
   	//t14();
-  	t15();
+  	//t15();
         //t16();
   	//t17();
   	//t18();
@@ -30,7 +30,7 @@ public class TrivialTest{
   	//t20();
   	//t21();
   	//t22();
-        //t23();
+        t23();
   }
   
   public static def t1(){
@@ -45,16 +45,16 @@ public class TrivialTest{
   public static def t2(){
   	/* test last statement */ 
   	f2();
-  	at(here){
+  	finish{
   		finish{
-        	at(here){
+        		at(here){
   				async{}
   			}
-        }
+        	}
   		async{}
-        at(here){
-        	async{}
-        }
+        	at(here){
+        		async{}
+        	}
   	}	
   }
   
@@ -104,14 +104,14 @@ public class TrivialTest{
   		// non-static member function
   		new TrivialTest().foo();
   		// static member function
-  		async(here){f2();}
+  		async(here.next()){f2();}
   		// non-static non-member function
   		f.foo3();
   		//static non-member function
   		Foo.foo4();
   	};
   	finish{
-  		async(here.next()){
+  		async(here){
   			body();
   		}
   	}
@@ -152,21 +152,21 @@ public class TrivialTest{
   	finish{
   		if(i>0){
   			if(i<3){
-  				async{var k:int = 1;}
+  				async(here.next()){var k:int = 1;}
   				i = 3;
   			}else{
   				while(i>3){
-  					async{var k:int = 1;}
+  					async(here.next()){var k:int = 1;}
   				}
   				i = 8;
   			}
-  			async{var k:int = 1;}
+  			async(here.next()){var k:int = 1;}
   		}else{
   			var j:int = 0;
-  			async{var k:int = 1;}
+  			async(here.next()){var k:int = 1;}
           		for(;j<10;j++){
         	  		async{
-        		  		async{var k:int = 1;}
+        		  		async(here.next()){var k:int = 1;}
         			}
          	 		j = j + 1;
           		}
@@ -174,7 +174,7 @@ public class TrivialTest{
   		async{var k:int = 1;}
   	}
   	i = i + 1;
-  	async{var k:int = 1;}
+  	async(here.next()){var k:int = 1;}
   }
   
   public static def t13(){
@@ -226,7 +226,7 @@ public class TrivialTest{
   			at(here){
   				async{}
   			}
-            at(here){}
+            		at(here){}
   			async{}
   			
   		}
@@ -402,13 +402,13 @@ public class TrivialTest{
   }
   public static def f12(){
   	finish{
-        	async{
+        	async(here.next()){
                 	f13();
         	}
   	}
   }
   public static def f13(){
-     	async{
+     	async(here.next()){
      		f12();
        	}
   }
