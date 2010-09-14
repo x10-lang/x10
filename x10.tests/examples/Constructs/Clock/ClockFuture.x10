@@ -11,6 +11,7 @@
 
 import harness.x10Test;
 
+import x10.util.Future;
 /**
  * Test for the interaction of clocks and future.
  * clock.doNext should not wait for futures to
@@ -31,14 +32,14 @@ public class ClockFuture extends x10Test {
 
     public def run(): boolean = {
 	   c: Clock = Clock.make();
-       var f: Future[int] = future  { m() };
+       var f: Future[int] = new Future[int] (()=> m());
       // x10.io.Console.OUT.print("1 ... ");
        // this next should not wait on the future
        next;
        // x10.io.Console.OUT.print("2 ... ");
        atomic { clock_has_advanced = true; }
        // x10.io.Console.OUT.print("3 ...");
-       var result: int = f.force();
+       var result: int = f();
        chk(result == 42);
        x10.io.Console.OUT.println("4");
        return true;
