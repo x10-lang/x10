@@ -83,13 +83,13 @@ class DistRandomAccess1 extends Benchmark {
     final def randomAccessUpdate(tables: ValRail[LocalTable]) {
         finish for (var p:int=0; p<PARALLELISM; p++) {
             val valp = p;
-            async (Place.places(p)) {
+             at(Place.places(p)) async {
                 var ran:long = HPCCStarts(valp * (numUpdates/PARALLELISM));
                 for (var i:long=0; i<numUpdates/PARALLELISM; i++) {
                     val placeId = ((ran>>logLocalTableSize) & placeMask) as int;
                     val valran = ran;
                     val table = tables(placeId);
-                    async (Place.places(placeId)) 
+                    async at(Place.places(placeId)) 
                         table.update(valran);
                     ran = (ran << 1) ^ (ran<0L ? POLY : 0L);
                 }
@@ -111,7 +111,7 @@ class DistRandomAccess1 extends Benchmark {
             val errors = GlobalRef[Cell[Int]](new Cell[Int](0));
             for (var p:int=0; p<PARALLELISM; p++) {
                 val table = tables(p);
-                finish async(Place.places(p)) {
+                finish at(Place.places(p)) async {
                     val lt = table;
                     for (var j:int=0; j<lt.a.length; j++)
                         if (lt.a(j) != j)
