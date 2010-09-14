@@ -34,11 +34,11 @@ public class NQueensPar {
     /**
      * Return an array of P regions, which together block divide the 1-D region R.
      */
-    public static def block(R: Region(1), P: Int): ValRail[Region(1)](P) = {
+    public static def block(R: Region(1), P: Int): Array[Region(1)](1) = {
         assert P >= 0;
         val low = R.min()(0), high = R.max()(0), count = high-low+1;
         val baseSize = count/P, extra = count - baseSize*P;
-        ValRail.make[Region(1)](P, (i:int):Region(1) => {
+        new Array[Region(1)](P, ([i]:Point):Region(1) => {
             val start = low+i*baseSize+ (i < extra? i:extra);
             start..start+baseSize+(i < extra?0:-1)
         })
@@ -59,7 +59,7 @@ public class NQueensPar {
 
         def safe(j: int) {
             val n = q.size();
-            for ((k) in 0..n-1) {
+            for ([k] in 0..n-1) {
                 if (j == q(k) || Math.abs(n-k) == Math.abs(j-q(k)))
                     return false;
             }
@@ -70,7 +70,7 @@ public class NQueensPar {
          * a solution update nSolutions.
          */
         def search(R: Region(1)) {
-            for ((k) in R)
+            for ([k] in R)
                 if (safe(k))
                     new Board(q, k).search();
         }
@@ -82,7 +82,7 @@ public class NQueensPar {
             }
             if (q.size() == 0) {
                 val R = block(0..N-1, P);
-                foreach ((q) in 0..P-1)
+                foreach ([q] in 0..P-1)
                   search(R(q));
             } else search(0..N-1);
         }
