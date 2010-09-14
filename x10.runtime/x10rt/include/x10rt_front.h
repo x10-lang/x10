@@ -394,15 +394,15 @@ X10RT_C void x10rt_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len);
  */
 X10RT_C void x10rt_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len);
 
-/** Allocate memory at a remote place.
- *
- * \bug This is a blocking API.
+/** Asynchronously allocate memory at a remote place.
  *
  * \param place The location where memory will be allocated.
  * \param sz The amount of memory to allocate.
- * \returns A pointer that is valid on the remote place only.
+ * \param ch Called to indicate the memory has been allocated.
+ * \param arg A user pointer that is also passed to ch.
  */
-X10RT_C x10rt_remote_ptr x10rt_remote_alloc (x10rt_place place, x10rt_remote_ptr sz);
+X10RT_C void x10rt_remote_alloc (x10rt_place place, x10rt_remote_ptr sz,
+                                 x10rt_completion_handler3 *ch, void *arg);
 
 /** Free memory at a remote place.
  *
@@ -724,6 +724,12 @@ X10RT_C void x10rt_one_setter (void *arg);
  * \param arg Assumed to be an x10rt_team*
  */
 X10RT_C void x10rt_team_setter (x10rt_team v, void *arg);
+
+/** Sets arg to the given remote pointer.
+ * \param v The new pointer is passed in here
+ * \param arg Assumed to be an x10rt_remote_ptr*
+ */
+X10RT_C void x10rt_remote_ptr_setter (x10rt_remote_ptr v, void *arg);
 
 /** \} */
 

@@ -77,10 +77,11 @@ void x10rt_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 void x10rt_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 { return x10rt_lgl_send_put(p, buf, len); }
 
-x10rt_remote_ptr x10rt_remote_alloc (x10rt_place place, x10rt_remote_ptr sz)
-{ return x10rt_lgl_remote_alloc(place, sz); }
+void x10rt_remote_alloc (x10rt_place place, x10rt_remote_ptr sz,
+                         x10rt_completion_handler3 *ch, void *arg)
+{ x10rt_lgl_remote_alloc(place, sz, ch, arg); }
 void x10rt_remote_free (x10rt_place place, x10rt_remote_ptr ptr)
-{ return x10rt_lgl_remote_free(place, ptr); }
+{ x10rt_lgl_remote_free(place, ptr); }
 
 
 void x10rt_remote_op (x10rt_place place, x10rt_remote_ptr remote_addr,
@@ -173,5 +174,9 @@ void x10rt_one_setter (void *arg)
 
 void x10rt_team_setter (x10rt_team v, void *arg)
 { *((x10rt_team*)arg) = v; }
+
+
+void x10rt_remote_ptr_setter (x10rt_remote_ptr v, void *arg)
+{ *((x10rt_remote_ptr*)arg) = v; }
 
 

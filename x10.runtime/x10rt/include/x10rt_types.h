@@ -42,6 +42,10 @@ typedef uint16_t x10rt_msg_type;
  */
 typedef uint64_t x10rt_remote_ptr;
 
+/** User callback to signal that non-blocking memory allocation operation has completed.
+ */
+typedef void x10rt_completion_handler3 (x10rt_remote_ptr ptr, void *arg);
+
 /** An integer type capable of representing the maximum size (in bytes) of an inter-place data copy.
  * This applies to both get and put transfers.
  */

@@ -616,7 +616,8 @@ void x10rt_lgl_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
     }
 }
 
-x10rt_remote_ptr x10rt_lgl_remote_alloc (x10rt_place d, x10rt_remote_ptr sz)
+void x10rt_lgl_remote_alloc (x10rt_place d, x10rt_remote_ptr sz,
+                             x10rt_completion_handler3 *ch, void *arg)
 {
     assert(d < x10rt_lgl_nplaces());
 
@@ -628,7 +629,7 @@ x10rt_remote_ptr x10rt_lgl_remote_alloc (x10rt_place d, x10rt_remote_ptr sz)
         switch (x10rt_lgl_type(d)) {
             case X10RT_LGL_CUDA: {
                 x10rt_cuda_ctx *cctx = static_cast<x10rt_cuda_ctx*>(g.accel_ctxs[g.index[d]]);
-                return (x10rt_remote_ptr)(size_t) x10rt_cuda_device_alloc(cctx, sz);
+                ch((x10rt_remote_ptr)(size_t) x10rt_cuda_device_alloc(cctx, sz),arg);
             }
             case X10RT_LGL_SPE: {
                 fprintf(stderr,"SPE remote_alloc still unsupported.\n");
@@ -644,7 +645,6 @@ x10rt_remote_ptr x10rt_lgl_remote_alloc (x10rt_place d, x10rt_remote_ptr sz)
         fprintf(stderr,"Routing of remote_alloc still unsupported.\n");
         abort();
     }
-    return 0;
 }
 void x10rt_lgl_remote_free (x10rt_place d, x10rt_remote_ptr ptr)
 {

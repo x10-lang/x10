@@ -226,9 +226,11 @@ X10RT_C void x10rt_lgl_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz l
 /** \see #x10rt_remote_alloc
  * \param place As in x10rt_remote_alloc.
  * \param sz As in x10rt_remote_alloc.
- * \returns As in x10rt_remote_alloc.
+ * \param ch As in x10rt_remote_alloc.
+ * \param arg As in x10rt_remote_alloc.
  */
-X10RT_C x10rt_remote_ptr x10rt_lgl_remote_alloc (x10rt_place place, x10rt_remote_ptr sz);
+X10RT_C void x10rt_lgl_remote_alloc (x10rt_place place, x10rt_remote_ptr sz,
+                                     x10rt_completion_handler3 *ch, void *arg);
 
 /** \see #x10rt_remote_free
  * \param place As in x10rt_remote_free.
