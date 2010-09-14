@@ -848,11 +848,12 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	}
     
     public CAstNode visit(final AtStmt atStmt, final WalkContext context) {
+      CAstNode place = walkNodes(atStmt.place(), context);
       return makeNode(context, atStmt, CAstNode.UNWIND,
                       makeNode(context, atStmt, CAstNode.BLOCK_STMT, 
-                               makeNode(context, X10CastNode.AT_STMT_ENTER, atStmt.position().startOf()),
+                               makeNode(context,atStmt.position().startOf(),X10CastNode.AT_STMT_ENTER,place),
                                walkNodes(atStmt.body(), context)),
-                               makeNode(context, X10CastNode.AT_STMT_EXIT, atStmt.position().endOf()));
+                               makeNode(context, atStmt.position().endOf(),X10CastNode.AT_STMT_EXIT,place));
     }
     
     }

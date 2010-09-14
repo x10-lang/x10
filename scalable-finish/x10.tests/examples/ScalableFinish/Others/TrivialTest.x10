@@ -8,8 +8,8 @@ public class TrivialTest{
 
   
   public static def main(args: Rail[String]) {
-  	//t1();
-  //	t2();
+        //t1();
+  	//t2();
   	//t3();
   	//t4();
   	//t5();
@@ -22,7 +22,7 @@ public class TrivialTest{
   	//t12();
   	//t13();
   	//t14();
-  	//t15();
+  	t15();
         //t16();
   	//t17();
   	//t18();
@@ -104,20 +104,24 @@ public class TrivialTest{
   		// non-static member function
   		new TrivialTest().foo();
   		// static member function
-  		f2();
+  		async(here){f2();}
   		// non-static non-member function
   		f.foo3();
   		//static non-member function
   		Foo.foo4();
   	};
-  	body();
+  	finish{
+  		async(here.next()){
+  			body();
+  		}
+  	}
   }
   
   public static def t9(){
   	/* test ateach */
   	val R: Region = 1..100;
   	val d:Dist = R -> here;
-  	ateach(p in d){
+  	finish ateach(p in d){
   		async(p){}
   	}
   }
@@ -125,7 +129,7 @@ public class TrivialTest{
   public static def t10(){
   	/* test foreach */
   	val r = 0..10;
-  	foreach (p:Point(1)  in r){
+  	finish foreach (p:Point(1)  in r){
   		var i:int = 0;
   		i = i + 1; 
   	}
@@ -367,7 +371,7 @@ public class TrivialTest{
   
   
   public static def f5():void{
-	  async{f5();}
+	  async(here){f5();}
   }
   public static def f6():void{
 	  f5();

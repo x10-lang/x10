@@ -221,8 +221,8 @@ public class X10Language extends LanguageImpl implements BytecodeLanguage {
       return new NewTupleInstruction(retValue, slotValues);
     }
     
-    public SSAAtStmtInstruction AtStmt(final boolean isEnter) {
-      return new SSAAtStmtInstruction(isEnter);
+    public SSAAtStmtInstruction AtStmt(final boolean isEnter,final boolean isHere) {
+      return new SSAAtStmtInstruction(isEnter,isHere);
     }
     
   }

@@ -175,7 +175,6 @@ public class X10CAst2IRTranslator extends X10CAstVisitor implements ArrayOpHandl
         int rcvrValue = translator.getValue(n.getChild(n.getChildCount()-1));
         int placeValue = translator.getValue(placeExpr);
         boolean isHere = placeExpr.getKind()==X10CastNode.HERE?true:false;
-        //System.out.println(placeValue);
         int clockValues[] = new int[ n.getChildCount() - 2];
         for(int i = 0; i < clockValues.length; i++) {
             clockValues[i] = translator.getValue(n.getChild(i+1));
@@ -304,13 +303,18 @@ public class X10CAst2IRTranslator extends X10CAstVisitor implements ArrayOpHandl
     }
     
     protected boolean visitAtStmtEnter(final CAstNode node, final Context context, final CAstVisitor visitor) {
-      ((WalkContext) context).cfg().addInstruction(insts.AtStmt(true));
+      
+      CAstNode placeExpr = node.getChild(0);
+      boolean isHere = placeExpr.getKind()==X10CastNode.HERE?true:false;
+      ((WalkContext) context).cfg().addInstruction(insts.AtStmt(true,isHere));
       return true;
     }
     
     protected boolean visitAtStmtExit(final CAstNode node, final Context context, final CAstVisitor visitor) {
-      ((WalkContext) context).cfg().addInstruction(insts.AtStmt(false));
-      return true;
+    	CAstNode placeExpr = node.getChild(0);
+        boolean isHere = placeExpr.getKind()==X10CastNode.HERE?true:false;
+        ((WalkContext) context).cfg().addInstruction(insts.AtStmt(false,isHere));
+        return true;
     }
     
     protected boolean visitTypeEntity(final CAstEntity node, final Context context, final Context typeContext, 

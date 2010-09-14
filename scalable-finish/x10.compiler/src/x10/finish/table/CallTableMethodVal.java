@@ -15,7 +15,6 @@ public class CallTableMethodVal extends CallTableVal {
     private static final long serialVersionUID = 1L;
     //distinguish "async" with "method"
     public final boolean isAsync;
-    public final boolean isLocal;
     // where this method is called, not a call stack
     public final CallSite cs;
     
