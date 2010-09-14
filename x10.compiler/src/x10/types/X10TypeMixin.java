@@ -45,6 +45,7 @@ import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.types.UnknownType;
 import polyglot.types.QName;
+import polyglot.types.MethodDef;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
@@ -970,10 +971,16 @@ public class X10TypeMixin {
                 res = copy;
         }
         return res;
-    }     
+    }
     public static boolean isUninitializedField(X10FieldDef def,X10TypeSystem ts) {
+        return isDefAnnotated(def,ts,"x10.compiler.Uninitialized");
+    }
+    public static boolean isNonEscapingMethod(X10ProcedureDef def,X10TypeSystem ts) {
+        return isDefAnnotated(def,ts,"x10.compiler.NonEscaping");
+    }
+    public static boolean isDefAnnotated(X10Def def,X10TypeSystem ts, String name) {
         try {
-            Type at = (Type) ts.systemResolver().find(QName.make("x10.compiler.Uninitialized"));
+            Type at = (Type) ts.systemResolver().find(QName.make(name));
             return !def.annotationsMatching(at).isEmpty();
         } catch (SemanticException e) {
             return false;

@@ -21,6 +21,7 @@ import x10.types.X10Flags;
 import x10.types.X10TypeSystem;
 import x10.types.X10FieldDef;
 import x10.types.X10ParsedClassType_c;
+import x10.types.X10ProcedureDef;
 
 import java.util.HashMap;
 import java.util.Set;
@@ -275,45 +276,6 @@ public class CheckEscapingThis extends NodeVisitor
         }
     }
 
-    // Checks for illegal forward references in field initializers and "this" escaping
-    private class FieldInitVisitor extends NodeVisitor {
-        @Override public Node visitEdgeNoOverride(Node parent, Node n) {
-            checkGlobalRef(n); // check globalRef usage in field initializers
-
-            final Position p = n.position();
-            // this can escape in field acess and assignment (but not in method calls or any other way)
-            if (n instanceof Field) {
-                Field f = (Field) n;
-                if (isThis(f.target())) {
-                    checkField(f.fieldInstance().def(),p);
-                    return n;
-                }
-            }
-            if (n instanceof FieldAssign) {
-                FieldAssign f = (FieldAssign) n;
-                if (isThis(f.target())) {
-                    checkField(f.fieldInstance().def(),p);
-                    f.right().visit(this);
-                    return n;
-                }
-            }
-
-            // check that "this" cannot escape in any other way
-            if (isThis(n))
-                reportError("'this' and 'super' cannot escape in field initializers.",p);
-
-            n.del().visitChildren(this);
-            return n;
-        }
-
-    }
-    private void checkField(FieldDef def, Position p) {
-        if (allFields.contains(def) && // to make sure it is declared in this class (and not in a super or outer class) 
-            !initFields.contains(def)) {
-            reportError("Illegal forward reference for field '"+def.name()+"'.",p);
-        }
-    }
-
 
     // we gather info on every private/final method
     private static class MethodInfo {
@@ -335,21 +297,22 @@ public class CheckEscapingThis extends NodeVisitor
     // Therefore we can now treat both VAL and VAR identically.
     private final HashSet<X10FieldDecl_c> fields = new HashSet<X10FieldDecl_c>();
     private boolean wasChange = true, wasError = false; // for fixed point alg
-    private FieldDef globalRef = null;// There is one exception to the "this cannot escape" rule:  val root = GlobalRef[...](this)
-    private Set<FieldDef> allFields = new HashSet<FieldDef>(); // all non-static fields in this class (excluding fields in the superclass because those have already been initialized by the super ctor call)
-    private Set<FieldDef> initFields = new HashSet<FieldDef>(); // fields that have been initialized already (to prevent forward references)
+    private HashSet<FieldDef> globalRef = new HashSet<FieldDef>();// There is one exception to the "this cannot escape" rule:  val root = GlobalRef[...](this)
 
     private void checkGlobalRef(Node n) {
         boolean err = false;
+        FieldDef def = null;
         if (n instanceof Field) {
             Field f = (Field) n;
-            err = (f.fieldInstance().def()==globalRef && isThis(f.target()));
+            def = f.fieldInstance().def();
+            err = (isThis(f.target()));
         }
         if (n instanceof FieldAssign) {
             FieldAssign assign = (FieldAssign) n;
-            err = (assign.fieldInstance().def()==globalRef && isThis(assign.target()));
+            def = assign.fieldInstance().def();
+            err = (isThis(assign.target()));
         }
-        if (err) reportError("Cannot use '"+globalRef.name()+"' in a field initializer, constructor, or methods called from a constructor.",n.position());
+        if (err && globalRef.contains(def)) reportError("Cannot use '"+def.name()+"' because a GlobalRef[...](this) cannot be used in a field initializer, constructor, or methods called from a constructor.",n.position());
     }
     public CheckEscapingThis(X10ClassDecl_c xlass, Job job, X10TypeSystem ts) {
         this.job = job;
@@ -362,21 +325,18 @@ public class CheckEscapingThis extends NodeVisitor
     private void typeCheck() {
         final X10ClassBody_c body = (X10ClassBody_c)xlass.body();
         // visit all (non-static) field initializers and check that they do not have forward references nor that "this" escapes
-        FieldInitVisitor fieldInitVisitor = new FieldInitVisitor();
         ArrayList<X10FieldDecl_c> nonStaticFields = new ArrayList<X10FieldDecl_c>();
         for (ClassMember classMember : body.members()) {
             if (classMember instanceof X10FieldDecl_c) {
                 X10FieldDecl_c field = (X10FieldDecl_c) classMember;
                 if (field.flags().flags().isStatic()) continue;
                 nonStaticFields.add(field);
-                allFields.add(field.fieldDef());
             }
         }
-        // checking "this" doesn't escape from field init
+        // Find globalRef
         for (X10FieldDecl_c field : nonStaticFields) {
             final Expr init = field.init();
-            if (init==null) continue;
-            // check for the pattern: GlobalRef[...](this)
+            // check for the pattern: val/var someField = GlobalRef[...](this)
             if (init instanceof X10New_c) {
                 X10New_c new_c = (X10New_c) init;
                 final TypeNode typeNode = new_c.objectType();
@@ -390,46 +350,57 @@ public class CheckEscapingThis extends NodeVisitor
                         final QName qName = classType_c.def().fullName();
                         if (qName.equals(QName.make("x10.lang","GlobalRef"))) {
                             // found the pattern!
-                            if (globalRef!=null) {
-                                reportError("You can use the pattern 'val root = GlobalRef[...](this);' only once in a class.",field.position());
-                                continue;
-                            }
-                            globalRef = field.fieldDef();
-                            continue;
+                            globalRef.add(field.fieldDef());
                         }
                     }
                 }
             }
-            init.visit(fieldInitVisitor);
-            initFields.add(field.fieldDef());
         }
-        // visit every ctor, and every method called from a ctor, and check that this and super do not escape
-        for (ClassMember classMember : body.members()) {
-            if (classMember instanceof X10ConstructorDecl_c) {
-                final X10ConstructorDecl_c ctor = (X10ConstructorDecl_c) classMember;
-                final Block ctorBody = ctor.body();
-                // for native ctors, we don't have a body
-                if (ctorBody!=null) {
-                    allCtors.add(ctor);
-                    ctorBody.visit(this);
-                }
-            } else if (classMember instanceof X10FieldDecl_c) {
-                X10FieldDecl_c field = (X10FieldDecl_c) classMember;
-                final Flags flags = field.flags().flags();
-                if (flags.isStatic()) continue;
-                // if the field has an init, then we do not need to track it (it is always assigned before read)
-                if (field.init()!=null) continue;
-                if (X10TypeMixin.isUninitializedField((X10FieldDef)field.fieldDef(),ts)) continue;
+        // checking "this" doesn't escape from field init
+        ArrayList<Stmt> fieldInits = new ArrayList<Stmt>();
+        final Position pos = Position.COMPILER_GENERATED;
+        for (X10FieldDecl_c field : nonStaticFields) {
+            final Expr init = field.init();
+            final X10FieldDef def = (X10FieldDef) field.fieldDef();
+            // even if the field has an init, we still need to track it (because field-init are inlined in all ctors)
+            if (!X10TypeMixin.isUninitializedField(def,ts)) {
                 // if a VAR has a default value, then we already created an init() expr in X10FieldDecl_c.typeCheck
                 fields.add(field);
+            }
+            if (init==null) continue;
+            final Special This = (Special) nf.Special(pos, Special_c.THIS).type(def.container().get().toType());
+            final FieldAssign fieldAssign = (FieldAssign) nf.FieldAssign(pos, This, field.name(), Assign_c.ASSIGN, init).
+                    fieldInstance(def.asInstance()).
+                    type(init.type());
+            fieldInits.add(nf.Eval(pos, fieldAssign));
+            if (!globalRef.contains(def)) init.visit(this); // field init are implicitly NonEscaping
+        }
+        // visit every ctor, every @NonEscaping method, and every method recursively called from them, and check that this and super do not escape
+        for (ClassMember classMember : body.members()) {
+            if (classMember instanceof ProcedureDecl) {
+                final ProcedureDecl proc = (ProcedureDecl) classMember;
+                final X10ProcedureDef def = (X10ProcedureDef)proc.procedureInstance();
+                boolean shouldVisit = X10TypeMixin.isNonEscapingMethod(def,ts);
+
+                final Block ctorBody = proc.body();
+                // for native methods/ctors, we don't have a body
+                if (ctorBody!=null) {
+                    if (proc instanceof X10ConstructorDecl_c) { // ctors are implicitly NonEscaping
+                        allCtors.add((X10ConstructorDecl_c)proc);
+                        shouldVisit = true;
+                    }
+                    if (shouldVisit) ctorBody.visit(this);
+                }
             }
         }
         if (fields.size()==0) return; // done! all fields have an init, thus all reads are legal.
 
         // ignore ctors that call other ctors (using "this(...)"). We can reuse ConstructorCallChecker, but for better efficiency, we just check it directly
+        Block newInit = nf.Block(pos,fieldInits);
         for (X10ConstructorDecl_c ctor: allCtors) {
             boolean callThis = false;
             final Block ctorBody = ctor.body();
+            assert ctorBody!=null;
             final List<Stmt> stmts = ctorBody.statements();
             for (Stmt s : stmts) {
                 if (s instanceof ConstructorCall) {
@@ -441,8 +412,10 @@ public class CheckEscapingThis extends NodeVisitor
                 }
             }
             if (!callThis) {
-                allMethods.put(ctor.procedureInstance(), new MethodInfo());
-                dfsMethods.add(ctor);
+                // add field init to all ctors
+                X10ConstructorDecl_c newCtor = (X10ConstructorDecl_c) ctor.body( nf.Block(pos,newInit,ctorBody) );
+                allMethods.put(newCtor.procedureInstance(), new MethodInfo());
+                dfsMethods.add(newCtor);
             }
         }
         // do init for the fixed point alg
@@ -505,27 +478,31 @@ public class CheckEscapingThis extends NodeVisitor
         // and as the receiver of private/final calls
         if (n instanceof X10Call) {
             final X10Call call = (X10Call) n;
-            final Flags flags = call.methodInstance().flags();
+            final MethodInstance methodInstance = call.methodInstance();
+            final X10Flags flags = X10Flags.toX10Flags(methodInstance.flags());
             if (isThis(call.target())) {
-                if (flags.contains(X10Flags.PROPERTY)) {
+                if (flags.isProperty()) {
                     // property-method calls are ok
                 } else {
                     // the method must be final or private
+                    if (!flags.isFinal() && !flags.isPrivate())  {
+                        reportError("The call "+call+" is illegal because you can only call private or final methods from a constructor or from methods called from a constructor",call.position());
+                    }
                     X10MethodDecl_c method = findMethod(call);
                     if (method==null) {
-                        reportError("The call "+call+" is illegal because you cannot call methods defined in a superclass from a constructor or from methods called from a constructor",call.position());
+                        if (!X10TypeMixin.isNonEscapingMethod((X10ProcedureDef)methodInstance.def(),ts))
+                            reportError("The call "+call+" is illegal because you can only call @NonEscaping methods of a superclass from a constructor or from methods called from a constructor",call.position());
                     } else {
                         ProcedureDef pd = method.procedureInstance();
                         if (allMethods.containsKey(pd)) {
                             // we already analyzed this method (or it is an error method)
                         } else {
-                            allMethods.put(pd,new MethodInfo()); // prevent infinite recursion
-                            // verify the method is indeed private/final
-                            if (!flags.isFinal() && !flags.isPrivate())  {
-                                reportError("The call "+call+" is illegal because you can only call private or final methods from a constructor or from methods called from a constructor",call.position());
+                            final Block body = method.body();
+                            if (body!=null) {
+                                allMethods.put(pd,new MethodInfo()); // prevent infinite recursion
+                                body.visit(this);
+                                dfsMethods.add(method);
                             }
-                            method.body().visit(this);
-                            dfsMethods.add(method);
                         }
                     }
                 }
