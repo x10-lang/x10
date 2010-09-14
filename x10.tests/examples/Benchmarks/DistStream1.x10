@@ -49,7 +49,7 @@ public class DistStream1 extends Benchmark {
             val a = as_(p) as Rail[double];
             val b = bs(p);
             val c = cs(p);
-            async (pl) {
+            async at(pl) {
                 for (var tt:int=0; tt<NUM_TIMES; tt++) // XTENLANG-311
                     for (var i:int=0; i<localSize; i++)
                         a(i) = b(i) + gamma*c(i);

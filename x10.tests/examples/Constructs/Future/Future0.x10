@@ -11,12 +11,13 @@
 
 import harness.x10Test;
 
+import x10.util.Future;
 /**
  * Future test.
  */
 public class Future0 extends x10Test {
 	public def run() = {
-	  val x = future 47;
+	  val x = new Future[int](()=> 47);
 	  x() == 47
 	}
 

@@ -18,7 +18,7 @@ public class IntArrayIndexing extends x10Test {
 
 	var _tests: ValRail[String] = [ "testDouble" ];
 
-	const verbose: boolean = false;
+	static verbose: boolean = false;
 
 	var _intArray1D: Array[int](1);
 	var _intArray2D: Array[int](2);

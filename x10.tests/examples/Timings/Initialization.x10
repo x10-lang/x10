@@ -17,7 +17,7 @@ import harness.x10Test;
 public class Initialization extends x10Test {
 
 	var _tests: ValRail[String] = [ "testDouble" ];
-	const kArraySize: int = 500;
+	static kArraySize: int = 500;
 	var x_doubleArray1D: DistArray[double];
 	var x_doubleArray2D: DistArray[double];
 	var x_javaArray: Rail[double];
