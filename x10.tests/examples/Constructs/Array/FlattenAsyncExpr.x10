@@ -25,20 +25,20 @@ public class FlattenAsyncExpr extends x10Test {
     var a: DistArray[int](1);
 
     public def this(): FlattenAsyncExpr = {
-        a = DistArray.make[int](1..10 -> here, ((j): Point): int => { return j;});
+        a = DistArray.make[int](1..10 -> here, ([j]: Point): int => { return j;});
     }
 
     static def m(x: int)=x;
     
     public def run(): boolean = {
-        async(a.dist(1)) {
+        async at(a.dist(1)) {
             m(50000);
             //atomic { a[1] = a[1]^2;
         }
         return true;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(Array[String](1)) {
         new FlattenAsyncExpr().execute();
     }
     
