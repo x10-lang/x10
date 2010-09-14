@@ -48,7 +48,7 @@ public class RemoteRef extends x10Test {
 
     public def spawnRemoteTask(c:Clock, iterCount:Int, res:GlobalRef[ResultHolder]) {
 	val v = GlobalRef[AnObject](new AnObject());
-	async (here.next()) clocked(c) {
+	async clocked(c) at(here.next()) {
 	    for (var i:int = 0; i<iterCount; i++) {
 		if (Debug) Console.OUT.println("Remote before next: "+i);
 	        next;
