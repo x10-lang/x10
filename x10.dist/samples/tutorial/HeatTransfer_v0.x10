@@ -24,33 +24,33 @@
  * from which the other codes can be derived.<p>
  */
 public class HeatTransfer_v0 {
-    static type Real=Double;
-    const n = 3, epsilon = 1.0e-5;
+    static val n = 3;
+    static val epsilon = 1.0e-5;
 
     val BigD = [0..n+1, 0..n+1] as Region(2);
     val D = [1..n, 1..n] as Region(2);
     val LastRow = [0..0, 1..n] as Region(2);
-    val A = new Array[Real](BigD,(p:Point)=>{ LastRow.contains(p) ? 1.0 : 0.0 });
-    val Temp = new Array[Real](BigD,(p:Point(BigD.rank))=>{ A(p) });
+    val A = new Array[Double](BigD,(p:Point)=>{ LastRow.contains(p) ? 1.0 : 0.0 });
+    val Temp = new Array[Double](BigD,(p:Point(BigD.rank))=>{ A(p) });
 
-    def stencil_1((x,y):Point(2)): Real {
+    def stencil_1([x,y]:Point(2)): Double {
         return (A(x-1,y) + A(x+1,y) + A(x,y-1) + A(x,y+1)) / 4;
     }
 
     def run() {
-        var delta:Real = 1.0;
+        var delta:Double = 1.0;
         do {
             for (p in D) Temp(p) = stencil_1(p);
 
-            delta = A.map[Real,Real](Temp, (x:Real,y:Real)=>Math.abs(x-y)).reduce(Math.max.(Double,Double), 0.0);
+            delta = A.map[Double,Double](Temp, (x:Double,y:Double)=>Math.abs(x-y)).reduce(Math.max.(Double,Double), 0.0);
 
             for (p in D) A(p) = Temp(p);
         } while (delta > epsilon);
     }
  
    def prettyPrintResult() {
-       for ((i) in A.region.projection(0)) {
-           for ((j) in A.region.projection(1)) {
+       for ([i] in A.region.projection(0)) {
+           for ([j] in A.region.projection(1)) {
                 val pt = Point.make(i,j);
 	        val tmp = A(pt);
                 Console.OUT.printf("%1.4f ",tmp);

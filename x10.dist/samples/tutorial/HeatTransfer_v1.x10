@@ -25,16 +25,16 @@
  * fine-grained computation on global arrays.<p>
  */
 public class HeatTransfer_v1 {
-    static type Real=Double;
-    const n = 3, epsilon = 1.0e-5;
+    static val n = 3;
+    static val epsilon = 1.0e-5;
 
-    const BigD = Dist.makeBlock([0..n+1, 0..n+1], 0);
-    const D = BigD | ([1..n, 1..n] as Region);
-    const LastRow = [0..0, 1..n] as Region;
-    const A = DistArray.make[Real](BigD,(p:Point)=>{ LastRow.contains(p) ? 1.0 : 0.0 });
-    const Temp = DistArray.make[Real](BigD);
+    static val BigD = Dist.makeBlock([0..n+1, 0..n+1], 0);
+    static val D = BigD | ([1..n, 1..n] as Region);
+    static val LastRow = [0..0, 1..n] as Region;
+    static val A = DistArray.make[Double](BigD,(p:Point)=>{ LastRow.contains(p) ? 1.0 : 0.0 });
+    static val Temp = DistArray.make[Double](BigD);
 
-    static def stencil_1((x,y):Point(2)): Real {
+    static def stencil_1([x,y]:Point(2)): Double {
         return ((at(A.dist(x-1,y)) A(x-1,y)) + 
                 (at(A.dist(x+1,y)) A(x+1,y)) + 
                 (at(A.dist(x,y-1)) A(x,y-1)) + 
@@ -42,19 +42,19 @@ public class HeatTransfer_v1 {
     }
 
     def run() {
-        var delta:Real = 1.0;
+        var delta:Double = 1.0;
         do {
             finish ateach (p in D) Temp(p) = stencil_1(p);
 
-            delta = A.map(Temp, D.region, (x:Real,y:Real)=>Math.abs(x-y)).reduce(Math.max.(Double,Double), 0.0);
+            delta = A.map(Temp, D.region, (x:Double,y:Double)=>Math.abs(x-y)).reduce(Math.max.(Double,Double), 0.0);
 
             finish ateach (p in D) A(p) = Temp(p);
         } while (delta > epsilon);
     }
  
    def prettyPrintResult() {
-       for ((i) in A.region.projection(0)) {
-           for ((j) in A.region.projection(1)) {
+       for ([i] in A.region.projection(0)) {
+           for ([j] in A.region.projection(1)) {
                 val pt = Point.make(i,j);
                 at (BigD(pt)) {
 		    val tmp = A(pt);
