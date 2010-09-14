@@ -15,12 +15,13 @@ import harness.x10Test;
 /**
  * Test for array reference flattening. 
  */
+import x10.util.Future;
 
 public class Force extends x10Test {
    
     static def rd(val e: Future[Int], val i: int, val j: int): int = {
         val x: int = e();
-        return (future { x }).force();
+        return new Future[int](()=> x)();
     }
    
     public def run(): boolean = true;
