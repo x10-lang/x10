@@ -10,6 +10,7 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.Position;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.TypeConstraint;
 
 final class ReinstantiatedClosureInstance_c extends
 		ClosureInstance_c {
@@ -59,5 +60,12 @@ final class ReinstantiatedClosureInstance_c extends
 		if (guard == null)
 			return this.typeParamSubst.reinstantiate(fi.guard());
 		return guard;
+	}
+
+	@Override
+	public TypeConstraint typeGuard() {
+	    if (typeGuard == null)
+	        return this.typeParamSubst.reinstantiate(fi.typeGuard());
+	    return typeGuard;
 	}
 }

@@ -98,7 +98,16 @@ public class TypeParamSubst {
 			if (! hasParams(ct))
 				return t;
 			ct = (X10ClassType) ct.copy();
-			ct = ct.typeArguments(reinstantiate(ct.typeArguments()));
+			List<Type> typeArgs = ct.typeArguments();
+			List<ParameterType> tParams = ct.x10Def().typeParameters();
+			if (typeArgs.size() < tParams.size()) {
+			    typeArgs = new ArrayList<Type>(typeArgs);
+			    // The def changed since the type was created; params were added
+			    for (int i = typeArgs.size(); i < tParams.size(); i++) {
+			        typeArgs.add(tParams.get(i));
+			    }
+			}
+			ct = ct.typeArguments(reinstantiate(typeArgs));
 			if (ct.isMember()) {
 				ct = (X10ParsedClassType) ct.container(reinstantiate(ct.container()));
 			}

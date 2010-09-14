@@ -173,6 +173,7 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
     }
 
     public String toString() {
+	Type type = type();
 	String typeString = type != null ? type.toString() : def().type().toString();
 	String s = "field " + X10Flags.toX10Flags(flags()).prettyPrint() + containerString() + "." + name() + ": " + typeString;
 	return s;

@@ -11,9 +11,9 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.Position;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.TypeConstraint;
 
-public final class ReinstantiatedConstructorInstance extends
-		X10ConstructorInstance_c {
+public final class ReinstantiatedConstructorInstance extends X10ConstructorInstance_c {
 	/**
 	 * 
 	 */
@@ -60,6 +60,13 @@ public final class ReinstantiatedConstructorInstance extends
 		if (guard == null)
 			return this.typeParamSubst.reinstantiate(fi.guard());
 		return guard;
+	}
+
+	@Override
+	public TypeConstraint typeGuard() {
+	    if (typeGuard == null)
+	        return this.typeParamSubst.reinstantiate(fi.typeGuard());
+	    return typeGuard;
 	}
 
 	@Override

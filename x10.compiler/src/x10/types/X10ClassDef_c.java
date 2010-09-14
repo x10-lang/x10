@@ -337,7 +337,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     	return false;
     }
     private String typeParameterString() {
-    	return ""; // ((typeParameters == null || typeParameters.isEmpty())? "" : typeParameters.toString());
+    	return ""; //(typeParameters.isEmpty() ? "" : typeParameters.toString());
     }
     public String toString() {
         Name name = name();

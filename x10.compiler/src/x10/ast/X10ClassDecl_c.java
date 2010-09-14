@@ -1041,4 +1041,39 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         
     }
 
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        Flags flags = this.flags.flags();
+        sb.append(flags.clearInterface().translate());
+        sb.append(flags.isInterface() ? "interface " : "class ");
+        sb.append(name);
+        if (!typeParameters.isEmpty()) {
+            sb.append("[");
+            boolean first = true;
+            for (TypeParamNode p : typeParameters) {
+                if (!first) sb.append(",");
+                first = false;
+                sb.append(p);
+            }
+            sb.append("]");
+        }
+        if (!properties.isEmpty()) {
+            sb.append("(");
+            boolean first = true;
+            for (PropertyDecl p : properties) {
+                if (!first) sb.append(",");
+                first = false;
+                sb.append(p);
+            }
+            sb.append(")");
+        }
+        if (classInvariant != null) {
+            sb.append("{");
+            sb.append(classInvariant);
+            sb.append("}");
+        }
+        sb.append(" ");
+        sb.append(body);
+        return sb.toString();
+    }
 } 
