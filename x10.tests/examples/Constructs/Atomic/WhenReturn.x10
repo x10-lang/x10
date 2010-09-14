@@ -23,9 +23,7 @@ public class WhenReturn extends x10Test {
 		var ret: int = 0;
 		when (X.t()) {
 			return 1;
-		} or (X.t()) {
-			ret = 2;
-		}
+		} 
 		return ret;
 	}
 
