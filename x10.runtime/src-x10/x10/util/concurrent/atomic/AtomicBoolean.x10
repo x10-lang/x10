@@ -14,7 +14,7 @@ package x10.util.concurrent.atomic;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-@NativeRep("java", "java.util.concurrent.atomic.AtomicBoolean", null, null)
+@NativeRep("java", "java.util.concurrent.atomic.AtomicBoolean", null, "x10.rtt.Types.ATOMIC_BOOLEAN")
 @NativeRep("c++", "x10aux::ref<x10::util::concurrent::atomic::AtomicBoolean>", "x10::util::concurrent::atomic::AtomicBoolean", null)
 public final class AtomicBoolean {
 	

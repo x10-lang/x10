@@ -14,7 +14,7 @@ package x10.util.concurrent.atomic;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-@NativeRep("java", "java.util.concurrent.atomic.AtomicInteger", null, null)
+@NativeRep("java", "java.util.concurrent.atomic.AtomicInteger", null, "x10.rtt.Types.ATOMIC_INTEGER")
 @NativeRep("c++", "x10aux::ref<x10::util::concurrent::atomic::AtomicInteger>", "x10::util::concurrent::atomic::AtomicInteger", null)
 public final class AtomicInteger {
 	

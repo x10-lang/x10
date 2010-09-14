@@ -11,7 +11,13 @@
 
 package x10.rtt;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
+
 import x10.core.fun.Fun_0_1;
+import x10.rtt.RuntimeType.Variance;
 
 
 public class Types {
@@ -42,6 +48,33 @@ public class Types {
     public static Type<Long> LONG = new LongType();
     public static Type<Float> FLOAT = new FloatType();
     public static Type<Double> DOUBLE = new DoubleType();
+    public static Type<AtomicBoolean> ATOMIC_BOOLEAN = new RuntimeType<AtomicBoolean>(AtomicBoolean.class) {
+        @Override
+        public String typeName() {
+            return "x10.util.concurrent.atomic.AtomicBoolean";
+        }
+    };
+    public static Type<AtomicInteger> ATOMIC_INTEGER = new RuntimeType<AtomicInteger>(AtomicInteger.class) {
+        @Override
+        public String typeName() {
+            return "x10.util.concurrent.atomic.AtomicInteger";
+        }
+    };
+    public static Type<AtomicLong> ATOMIC_LONG = new RuntimeType<AtomicLong>(AtomicLong.class) {
+        @Override
+        public String typeName() {
+            return "x10.util.concurrent.atomic.AtomicLong";
+        }
+    };
+    public static RuntimeType<AtomicReference<?>> ATOMIC_REFERENCE = new RuntimeType<AtomicReference<?>>(
+        AtomicReference.class
+//        , new Variance[] {Variance.INVARIANT}/*TODO pass type params*/
+    ) {
+        @Override
+        public String typeName() {
+            return "x10.util.concurrent.atomic.AtomicReference";
+        }
+    };
 
     public static RuntimeType<Comparable<?>> COMPARABLE;
     static {
@@ -70,7 +103,11 @@ public class Types {
         if (o instanceof Float) return FLOAT;
         if (o instanceof Double) return DOUBLE;
         if (o instanceof String) return STRING;
-        throw new RuntimeException("RTT not found for "+o.getClass());
+        if (o instanceof AtomicBoolean) return ATOMIC_BOOLEAN;
+        if (o instanceof AtomicInteger) return ATOMIC_INTEGER;
+        if (o instanceof AtomicLong) return ATOMIC_LONG;
+        if (o instanceof AtomicReference) return ATOMIC_REFERENCE;
+        return null;
     }
 
     private static boolean isStruct(Type<?> rtt) {
