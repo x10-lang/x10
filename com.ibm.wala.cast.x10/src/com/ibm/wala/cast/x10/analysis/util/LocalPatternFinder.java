@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 public class LocalPatternFinder extends PatternFinder{
-	
 	public LocalPatternFinder(CommunicationGraph g, HashMap<CommunicationNode, Integer> r){
 		this.results = r;
 		this.g = g;
@@ -18,31 +17,33 @@ public class LocalPatternFinder extends PatternFinder{
 				return true;
 			return false;
 		}
+		
+		boolean flag = true;
 		if(g.getSuccNodeCount(n)==0){
 			results.put(n, new Integer(1));
-			return true;
+			return flag;
 		}
-		boolean flag = true;
-		Iterator<CommunicationNode> it = g.getSuccNodes(n);
-		while(it.hasNext()){
-			CommunicationNode suc = it.next();
-			Iterator<CommunicationLabel> sucLabels = (Iterator<CommunicationLabel>) g.getSuccLabels(suc);
-			while(sucLabels.hasNext()){
-				CommunicationLabel sl = sucLabels.next();
-				flag = flag && isLabelSpecial(sl);
-				if(flag == false){
-					results.put(n, new Integer(0));
-					return false;
-				}
-			}
-			flag = flag && hasPattern(suc);
+		
+		Iterator<CommunicationLabel> sucLabels = (Iterator<CommunicationLabel>) g.getSuccLabels(n);
+		while(sucLabels.hasNext()){
+			CommunicationLabel sl = sucLabels.next();
+			flag = flag && isLabelSpecial(sl);
 			if(flag == false){
 				results.put(n, new Integer(0));
 				return false;
 			}
 		}
-		assert(flag==true);
 		results.put(n, new Integer(1));
+		Iterator<CommunicationNode> it = g.getSuccNodes(n);
+		while(it.hasNext()){
+			CommunicationNode suc = it.next();
+			flag = flag && hasPattern(suc);
+			if(flag == false){
+				results.remove(n);
+				results.put(n, new Integer(0));
+				return false;
+			}
+		}
 		return true;
 	}
 }

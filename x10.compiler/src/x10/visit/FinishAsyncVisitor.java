@@ -148,9 +148,14 @@ public class FinishAsyncVisitor extends ContextVisitor {
 	private Node visitExitAt(AtStmt n) {
 		int line = n.position().line();
 		int column = n.position().column();
+		Expr p = n.place();
+		boolean isHere = false;
+		if(p instanceof Here){
+			isHere = true;
+		}
 		CallTableScopeKey at;
 		at = new CallTableScopeKey(src_package, src_method, line, column, -1,
-				false);
+				false,isHere);
 		// FIXME: if "at" is in a normal method, wala gives the package
 		// this method belongs to as an "id"; However, if "at" is in an
 		// async, which is treated as a wala-generated method, the "id"
@@ -162,7 +167,7 @@ public class FinishAsyncVisitor extends ContextVisitor {
 			System.out.println("find at:" + n.toString());
 		} else {
 			at = new CallTableScopeKey(src_path, src_method, line, column, -1,
-					false);
+					false,isHere);
 			f = callTable.keySet().contains(at);
 			if (f) {
 				System.out.println("find at:" + n.toString());
@@ -195,8 +200,8 @@ public class FinishAsyncVisitor extends ContextVisitor {
 		//System.out.println("annotating "+job.source().name());
 		int line = n.body().position().line();
 		int column = n.body().position().column();
-		CallTableScopeKey fs1 = new CallTableScopeKey(src_package, src_method,line, column, -1, true);
-		CallTableScopeKey fs2 = new CallTableScopeKey(src_path, src_method,line, column, -1, true);
+		CallTableScopeKey fs1 = new CallTableScopeKey(src_package, src_method,line, column, -1, true,false);
+		CallTableScopeKey fs2 = new CallTableScopeKey(src_path, src_method,line, column, -1, true,false);
 		boolean f1 = finishTable.containsKey(fs1);
 		boolean f2 = finishTable.containsKey(fs2);
 		if(f1){

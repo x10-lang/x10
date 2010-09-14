@@ -197,7 +197,7 @@ public class X10FinishAsyncAnalysis {
 			String name = env.cur_scope.name;
 			// use package +line + column to distinguish finish
 			env.cur_scope = new CallTableScopeKey(scope, name, line, column,
-					env.cur_block, true);
+					env.cur_block, true,false);
 			calltable.put(env.cur_scope, new LinkedList<CallTableVal>());
 		} else {
 			// finish exit
@@ -239,7 +239,7 @@ public class X10FinishAsyncAnalysis {
 				arity = checkAsync(root, curblk);
 			}
 			CallTableAtVal atval = new CallTableAtVal(env.cur_scope.scope, "",
-					arity, line, column, env.cur_block, env.cur_scope);
+					arity, line, column, env.cur_block, env.cur_scope,atinst.fIsHere);
 			updateLastInst(env.cur_scope, atval);
 			replaceTable(tmpkey, atval);
 
@@ -251,7 +251,7 @@ public class X10FinishAsyncAnalysis {
 			String scope = getPackage(caller.getMethod().getDeclaringClass()
 					.getName().toString());
 			env.cur_scope = new CallTableScopeKey(scope, name, line, column,
-					env.cur_block, false);
+					env.cur_block, false,atinst.fIsHere);
 			calltable.put(env.cur_scope, new LinkedList<CallTableVal>());
 		} else {
 			// at exit
@@ -276,7 +276,7 @@ public class X10FinishAsyncAnalysis {
 			// fetch
 			// that one in the table
 			CallTableAtVal tmpatval = new CallTableAtVal(curkey.scope, "",
-					curkey.line, curkey.column, env.cur_block, env.cur_scope);
+					curkey.line, curkey.column, env.cur_block, env.cur_scope,atinst.fIsHere);
 			int index = calltable.get(prekey).indexOf(tmpatval);
 			last_inst = calltable.get(prekey).get(index);
 		}

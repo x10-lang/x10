@@ -12,14 +12,15 @@ import com.ibm.wala.ssa.SymbolTable;
 
 public class SSAAtStmtInstruction extends SSAInstruction {
   
-  public SSAAtStmtInstruction(final boolean isEnter) {
+  public SSAAtStmtInstruction(final boolean isEnter, final boolean isHere) {
     this.fIsEnter = isEnter;
+    this.fIsHere = isHere;
   }
     
   // --- SSAInstruction's abstract methods implementation
 
   public SSAInstruction copyForSSA(final SSAInstructionFactory instrFactory, final int[] defs, final int[] uses) {
-    return ((X10InstructionFactory) instrFactory).AtStmt(this.fIsEnter);
+    return ((X10InstructionFactory) instrFactory).AtStmt(this.fIsEnter, this.fIsHere);
   }
   
   public int hashCode() {
@@ -58,7 +59,7 @@ public class SSAAtStmtInstruction extends SSAInstruction {
   }
   
   // --- Fields
-  
+  public final boolean fIsHere;
   private final boolean fIsEnter;
   
 }

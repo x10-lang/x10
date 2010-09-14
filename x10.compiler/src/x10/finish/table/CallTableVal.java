@@ -22,6 +22,7 @@ public abstract class CallTableVal extends CallTableObj  {
 	public int blk;
 	public final CallTableKey parent;
 	public boolean isLast = false;
+	public boolean isLocal = false;
 	//default pattern
 	public int pattern=0;
 	public Arity getArity(){

@@ -42,5 +42,5 @@ public interface X10InstructionFactory extends AstJavaInstructionFactory {
 
 	NewTupleInstruction NewTuple(int retValue, int[] slotValues);
 	
-	SSAAtStmtInstruction AtStmt(boolean isEnter);
+	SSAAtStmtInstruction AtStmt(boolean isEnter, boolean isHere);
 }

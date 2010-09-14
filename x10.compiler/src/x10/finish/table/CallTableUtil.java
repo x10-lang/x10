@@ -351,7 +351,7 @@ public class CallTableUtil {
 	    tmpkey = new CallTableScopeKey(callee.scope, callee.name,
 		    ((CallTableAtVal) callee).line,
 		    ((CallTableAtVal) callee).column,
-		    ((CallTableAtVal) callee).blk, isFinish);
+		    ((CallTableAtVal) callee).blk, isFinish,false);
 	} else {
 	    tmpkey = new CallTableMethodKey(callee.scope, callee.name,
 		    callee.line, callee.column);

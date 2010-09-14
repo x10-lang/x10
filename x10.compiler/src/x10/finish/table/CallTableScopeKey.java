@@ -10,19 +10,22 @@ public class CallTableScopeKey extends CallTableKey {
 	 * true if this object represents a "finish" contruct in the program
 	 * otherwise it represents an "at"
 	 */
-	public boolean is_finish;
-
+	public boolean isFinish;
+	//only for "at"
+	public boolean isHere=false;
 	/**
 	 * to calculate the arity of a method call from this block
 	 */
 	public int blk;
 	
 	public CallTableScopeKey(String s,String n, int line, int column, 
-		int b, boolean f) {
+		int b, boolean f, boolean here) {
 		// finish = f;
 		super(s,n,line,column);
 		blk = b;
-		is_finish = f;
+		isFinish = f;
+		//finish's isHere is always true
+		isHere = (isFinish) || here;
 	}
 	
 	/**
@@ -30,7 +33,7 @@ public class CallTableScopeKey extends CallTableKey {
 	 */
 	public String genSignature(){
 	    String tmp;
-	    if(is_finish == true){
+	    if(isFinish == true){
 	    	    tmp = ".finish.";
 	    }
 	    else{
@@ -40,7 +43,7 @@ public class CallTableScopeKey extends CallTableKey {
 	}
 	
 	public String toString() {
-	    return genSignature()+"."+pattern;
+	    return genSignature()+"."+pattern+"."+isHere;
 	}
 
 	public boolean equals(Object o) {
