@@ -7415,38 +7415,38 @@ public static class MessageHandler implements IMessageHandler {
             }
     
             //
-            // Rule 491:  Assignment ::= ExpressionName$e1 ( ArgumentList ) AssignmentOperator AssignmentExpression
+            // Rule 491:  Assignment ::= ExpressionName$e1 ( ArgumentListopt ) AssignmentOperator AssignmentExpression
             //
             case 491: {
                //#line 4850 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4848 "x10/parser/x10.g"
                 ParsedName e1 = (ParsedName) getRhsSym(1);
                 //#line 4848 "x10/parser/x10.g"
-                List ArgumentList = (List) getRhsSym(3);
+                List ArgumentListopt = (List) getRhsSym(3);
                 //#line 4848 "x10/parser/x10.g"
                 Assign.Operator AssignmentOperator = (Assign.Operator) getRhsSym(5);
                 //#line 4848 "x10/parser/x10.g"
                 Expr AssignmentExpression = (Expr) getRhsSym(6);
                 //#line 4850 "lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(nf.SettableAssign(pos(), e1.toExpr(), ArgumentList, AssignmentOperator, AssignmentExpression));
+                setResult(nf.SettableAssign(pos(), e1.toExpr(), ArgumentListopt, AssignmentOperator, AssignmentExpression));
                       break;
             }
     
             //
-            // Rule 492:  Assignment ::= Primary$e1 ( ArgumentList ) AssignmentOperator AssignmentExpression
+            // Rule 492:  Assignment ::= Primary$e1 ( ArgumentListopt ) AssignmentOperator AssignmentExpression
             //
             case 492: {
                //#line 4855 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4853 "x10/parser/x10.g"
                 Expr e1 = (Expr) getRhsSym(1);
                 //#line 4853 "x10/parser/x10.g"
-                List ArgumentList = (List) getRhsSym(3);
+                List ArgumentListopt = (List) getRhsSym(3);
                 //#line 4853 "x10/parser/x10.g"
                 Assign.Operator AssignmentOperator = (Assign.Operator) getRhsSym(5);
                 //#line 4853 "x10/parser/x10.g"
                 Expr AssignmentExpression = (Expr) getRhsSym(6);
                 //#line 4855 "lpg.generator/templates/java/btParserTemplateF.gi"
-                setResult(nf.SettableAssign(pos(), e1, ArgumentList, AssignmentOperator, AssignmentExpression));
+                setResult(nf.SettableAssign(pos(), e1, ArgumentListopt, AssignmentOperator, AssignmentExpression));
                       break;
             }
     
