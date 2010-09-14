@@ -311,7 +311,7 @@ import x10.util.Box;
                 seen(i) |= counts(i) != 0;
                 if (counts(i) != 0) b = false;
             }
-            sr.accept(v);
+            accept(v);
             if (b) release();
             unlock();
          }
@@ -323,12 +323,12 @@ import x10.util.Box;
             }
             for(var i:Int=0; i<Place.MAX_PLACES; i++) {
                 if (counts(i) != 0) {
-                    sr.accept(v);
+                    accept(v);
                     unlock();
                     return;
                 }
             }
-            sr.accept(v);
+            accept(v);
             release();
             unlock();
         }
@@ -502,7 +502,7 @@ import x10.util.Box;
 
     @Pinned static class RemoteCollectingFinish[T] extends RemoteFinish {
     	val sr:StatefulReducer[T];
-        var step : Int = 0;
+        val stepAtomic :AtomicInteger = new AtomicInteger(0);
         def this(r:Reducible[T]) {
     	  super();
     	  this.sr=new StatefulReducer[T](r);
@@ -543,17 +543,18 @@ import x10.util.Box;
                 dealloc(closure);
                 deallocObject(m);
             } else {
-            	sr.placeMerge();
                 val path = pathCompute(r);
                 //Fixme : Here should use await().
-                while (step <path.first) {};
+                while (stepAtomic.get() <path.first) {};
                 lock.lock();
                 val m = ValRail.make(counts);
                 for (var i:Int=0; i<Place.MAX_PLACES; i++) counts(i) = 0;
                 length = 1;
                 lock.unlock();
+                sr.placeMerge();              
                 val x = sr.result();
 		        sr.reset();
+                stepAtomic.set(0);
                 if(path.second != r.home().id) {
                      val closure = () => {
                      (Runtime.proxy(r) as RemoteCollectingFinish[T]).notify(m, x);
@@ -598,17 +599,18 @@ import x10.util.Box;
                 dealloc(closure);
                 deallocObject(m);
             } else {
-            	sr.placeMerge();
                 val path = pathCompute(r);
                 //FIXME here should use await(). 
-                while(step < path.first){};
+                while(stepAtomic.get() < path.first){};
                 lock.lock();
                 val m = ValRail.make[Pair[Int,Int]](length, (i:Int)=>Pair[Int,Int](message(i), counts(message(i))));
                 for (var i:Int=0; i<Place.MAX_PLACES; i++) counts(i) = 0;
                 length = 1;
                 lock.unlock();
+                sr.placeMerge();
                 val x = sr.result();
 		        sr.reset();
+                stepAtomic.set(0);
                 if(path.second != r.home().id) {
                      val closure = () => {
                      (Runtime.proxy(r) as RemoteCollectingFinish[T]).notify2(m, x);
@@ -643,19 +645,19 @@ import x10.util.Box;
         def notify(rail:ValRail[Int], v:T):Void {
             var b:Boolean = true;
             lock.lock();
-            step ++;
             for(var i:Int=0; i<Place.MAX_PLACES; i++) {
                 counts(i) += rail(i);
             if (counts(i) != 0) b = false;
             }
-            sr.accept(v);
+            accept(v);
+            stepAtomic.getAndIncrement();
             if (b) release();
             lock.unlock();
         }
 
         def notify2(rail:ValRail[Pair[Int,Int]], v:T):Void {
             lock.lock();
-            step ++;
+            
             for(var i:Int=0; i<rail.length; i++) {
                 counts(rail(i).first) += rail(i).second;
                 message(length++) = rail(i).first;
@@ -663,12 +665,14 @@ import x10.util.Box;
 
             for(var i:Int=0; i<Place.MAX_PLACES; i++) {
                 if (counts(i) != 0) {
-                    sr.accept(v);
+                    accept(v);
+                    stepAtomic.getAndIncrement();
                     lock.unlock();
                     return;
                 }
             }
-            sr.accept(v);
+            accept(v);
+            stepAtomic.getAndIncrement();
             release();
             lock.unlock();
          }
