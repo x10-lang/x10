@@ -37,6 +37,16 @@ public struct Team {
         this.id = id;
     }
 
+    public def this (places:Array[Place]) {
+        var id:Int = 0;
+        @Native("c++",
+                "x10rt_team nu_team = 0;" +
+                "x10rt_team_new(places->FMGL(rawLength), (x10rt_place*)places->raw()->data, x10rt_team_setter, &nu_team);" +
+                "while (nu_team==0) x10rt_probe();" +
+                "id = nu_team;") { }
+        this.id = id;
+    }
+
     /** Returns the number of elements in the team.
      */
     public def size () : Int {
@@ -83,6 +93,12 @@ public struct Team {
                 "x10rt_scatter(this_.FMGL(id), role, root, &src->raw()[src_off], &dst->raw()[dst_off], sizeof(FMGL(T)), count, x10rt_one_setter, &finished);" +
                 "while (!finished) x10rt_probe();") {}
     }
+    public def scatter[T] (role:Int, root:Int, src:Array[T], src_off:Int, dst:Array[T], dst_off:Int, count:Int) : void {
+        @Native("c++",
+                "int finished = 0;" +
+                "x10rt_scatter(this_.FMGL(id), role, root, &src->raw()->data[src_off], &dst->raw()->data[dst_off], sizeof(FMGL(T)), count, x10rt_one_setter, &finished);" +
+                "while (!finished) x10rt_probe();") {}
+    }
     
     /** Blocks until all members have received root's array.
      *
@@ -104,6 +120,12 @@ public struct Team {
         @Native("c++",
                 "int finished = 0;" +
                 "x10rt_bcast(this_.FMGL(id), role, root, &src->raw()[src_off], &dst->raw()[dst_off], sizeof(FMGL(T)), count, x10rt_one_setter, &finished);" +
+                "while (!finished) x10rt_probe();") {}
+    }
+    public def bcast[T] (role:Int, root:Int, src:Array[T], src_off:Int, dst:Array[T], dst_off:Int, count:Int) : void {
+        @Native("c++",
+                "int finished = 0;" +
+                "x10rt_bcast(this_.FMGL(id), role, root, &src->raw()->data[src_off], &dst->raw()->data[dst_off], sizeof(FMGL(T)), count, x10rt_one_setter, &finished);" +
                 "while (!finished) x10rt_probe();") {}
     }
     
@@ -132,6 +154,12 @@ public struct Team {
                 "x10rt_alltoall(this_.FMGL(id), role, &src->raw()[src_off], &dst->raw()[dst_off], sizeof(FMGL(T)), count, x10rt_one_setter, &finished);" +
                 "while (!finished) x10rt_probe();") {}
     }
+    public def alltoall[T] (role:Int, src:Array[T], src_off:Int, dst:Array[T], dst_off:Int, count:Int) : void {
+        @Native("c++",
+                "int finished = 0;" +
+                "x10rt_alltoall(this_.FMGL(id), role, &src->raw()->data[src_off], &dst->raw()->data[dst_off], sizeof(FMGL(T)), count, x10rt_one_setter, &finished);" +
+                "while (!finished) x10rt_probe();") {}
+    }
 
     /** Indicates the operation to perform when reducing. */
     public static val ADD = 0;
@@ -155,6 +183,13 @@ public struct Team {
                 "int finished = 0;" +
                 "x10rt_red_type type = x10rt_get_red_type<FMGL(T)>();" +
                 "x10rt_allreduce(this_.FMGL(id), role, &src->raw()[src_off], &dst->raw()[dst_off], (x10rt_red_op_type)op, type, count, x10rt_one_setter, &finished);" +
+                "while (!finished) x10rt_probe();") {}
+    }
+    private def allreduce_[T] (role:Int, src:Array[T], src_off:Int, dst:Array[T], dst_off:Int, count:Int, op:Int) : void {
+        @Native("c++",
+                "int finished = 0;" +
+                "x10rt_red_type type = x10rt_get_red_type<FMGL(T)>();" +
+                "x10rt_allreduce(this_.FMGL(id), role, &src->raw()->data[src_off], &dst->raw()->data[dst_off], (x10rt_red_op_type)op, type, count, x10rt_one_setter, &finished);" +
                 "while (!finished) x10rt_probe();") {}
     }
 
@@ -223,6 +258,10 @@ public struct Team {
      * @param op The operation to perform
      */
     public def allreduce[T] (role:Int, src:Rail[T], src_off:Int, dst:Rail[T], dst_off:Int, count:Int, op:Int) : void {
+        allreduce_(role, src, src_off, dst, dst_off, count, op);
+    }
+
+    public def allreduce[T] (role:Int, src:Array[T], src_off:Int, dst:Array[T], dst_off:Int, count:Int, op:Int) : void {
         allreduce_(role, src, src_off, dst, dst_off, count, op);
     }
 
