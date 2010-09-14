@@ -41,28 +41,28 @@ public class NQueensDist {
     /**
      * Return an array of P regions, which together block divide the 1-D region R.
      */
-    public static def block(R: Region(1){rect}, P: Int): ValRail[Region(1){rect}](P) = {
+    public static def block(R: Region(1){rect}, P: Int): Array[Region(1){rect}](1) = {
         assert P >= 0;
         val low = R.min()(0), high = R.max()(0), count = high-low+1;
         val baseSize = count/P, extra = count - baseSize*P;
-        ValRail.make[Region(1){rect}](P, (i:int):Region(1){rect} => {
+        new Array[Region(1){rect}](P, ([i]:Point):Region(1){rect} => {
             val start = low+i*baseSize+ (i < extra? i:extra);
             start..start+baseSize+(i < extra?0:-1)
         })
     }
 
     class Board {
-        val q: Rail[Int];
+        val q: Array[Int](1);
         def this() {
-            q = Rail.make[Int](0, (int)=>0);
+            q = new Array[Int](0);
         }
-        def this(old: Rail[Int], newItem:Int) {
-            val n = old.length;
-            q = Rail.make[Int](n+1, (i:int)=> (i < n? old(i) : newItem));
+        def this(old:Array[Int](1), newItem:Int) {
+            val n = old.size;
+            q = new Array[Int](n+1, ([i]:Point)=> (i < n? old(i) : newItem));
         }
         def safe(j: int) {
-            val n = q.length;
-            for ((k) in 0..n-1) {
+            val n = q.size;
+            for ([k] in 0..n-1) {
                 if (j == q(k) || Math.abs(n-k) == Math.abs(j-q(k)))
                     return false;
             }
@@ -72,19 +72,19 @@ public class NQueensDist {
          * a solution update nSolutions.
          */
         def search(R: Region(1){rect}) {
-            for ((k) in R)
+            for ([k] in R)
                 if (safe(k))
                     new Board(q, k).search();
         }
 
         def search()  {
-            if (q.length == N) {
+            if (q.size == N) {
                 atomic NQueensDist.this.results(here.id)++;
                 return;
             }
-            if (q.length == 0) {
+            if (q.size == 0) {
                 val R = block(0..N-1, P);
-                ateach ((q) in Dist.makeUnique())
+                ateach ([q] in Dist.makeUnique())
                    // copy of this made across the at divide
                   search(R(q));
             } else search(0..N-1);
