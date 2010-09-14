@@ -38,7 +38,7 @@ public class Future[+T] implements ()=>T {
     transient private val result = new GrowableRail[T]();
     transient private val eval:()=>T;
 
-    def this(eval:()=>T) {
+    public def this(eval:()=>T) {
         this.eval = eval;
     }
 
