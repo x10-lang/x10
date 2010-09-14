@@ -18,12 +18,15 @@ import harness.x10Test;
  */
 public class WhenReturnAll extends x10Test {
 
+	def a():boolean = false;
 	def test(): int = {
 		var ret: int = 0;
 		when (X.t()) {
-			return 1;
-		} or (X.t()) {
-			return 2;
+			if (a()) {
+			  return 1;
+			} else {
+				return 2;
+			}
 		}
 	}
 

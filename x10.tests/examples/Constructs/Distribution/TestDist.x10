@@ -22,7 +22,7 @@ abstract public class TestDist extends x10Test {
     
     val os: StringWriter;
     val out: Printer;
-    val testName = "TestDist";
+    val testName = typeName();
 
     def this() {
         System.setProperty("line.separator", "\n");

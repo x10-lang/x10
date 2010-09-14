@@ -84,7 +84,7 @@ public class ClockTest15WithResume extends x10Test {
 		finish /* A0 */ async {
 			val a = Clock.make();
 			val b = Clock.make();
-			/* A1 */ async (here) clocked (a) {
+			/* A1 */ async clocked (a)  {
 				atomic x++;
 				next;
 				var tmp: int;
@@ -94,7 +94,7 @@ public class ClockTest15WithResume extends x10Test {
 				chk (tmp == 2);
 				next;
 			}
-			/* A2 */ async (here) clocked (a, b) {
+			/* A2 */ async  clocked (a, b) {
 				atomic x++;
 				next;
 				var tmp: int;
@@ -103,8 +103,8 @@ public class ClockTest15WithResume extends x10Test {
 				chk (tmp == 3);
 				next;
 			}
-			/* A3 */ async (here) clocked (b) {
-				await(advanced_A1);
+			/* A3 */ async  clocked (b) {
+				when (advanced_A1);
 				atomic x++;
 				next;
 				var tmp: int;

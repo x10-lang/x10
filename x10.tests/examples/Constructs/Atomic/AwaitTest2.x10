@@ -19,7 +19,7 @@ public class AwaitTest2 extends x10Test {
 	var val_: int = 42;
 
 	public def run(): boolean = {
-		await(val_ == 42);
+		when (val_ == 42);
 		return true;
 	}
 

@@ -24,7 +24,7 @@ public class WhenReturn extends x10Test {
 		when (X.t()) {
 			return 1;
 		} 
-		return ret;
+		
 	}
 
 	public def run(): boolean = {

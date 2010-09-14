@@ -18,7 +18,7 @@ abstract public class TestPoint extends x10Test {
     
     var os: StringWriter;
     var out: Printer;
-    val testName = "TestPo";
+    val testName = typeName().substring(6,typeName().length());
 
     def this() {
         System.setProperty("line.separator", "\n");
