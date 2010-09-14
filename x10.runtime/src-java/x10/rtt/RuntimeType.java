@@ -50,7 +50,7 @@ public class RuntimeType<T> implements Type<T> {
     }
     
     public String toString() {
-    	return base.getName();
+        return typeName();
     }
     
     public boolean equals(Object o) {
@@ -144,8 +144,8 @@ public class RuntimeType<T> implements Type<T> {
         }
         else if (o instanceof String) {
             // @NativeRep'ed String type (the one with parents info)
-            RuntimeType<String> rtt = (RuntimeType<String>)Types.STR0;
-            return instantiateCheck(params, rtt, (String)o);
+            RuntimeType<?> rtt = (RuntimeType<?>) Types.getNativeRepRTT(o);
+            return instantiateCheck(params, rtt, o);
         }
         else if (o instanceof Number) {
             // @NativeRep'ed numeric type
@@ -155,13 +155,24 @@ public class RuntimeType<T> implements Type<T> {
     }
 
     // e.g. C[T1,T2]:Super[Int, T1] -> C[Int,Double]:Super[Int,Int] 
-    private final boolean instantiateCheck(Type<?>[] params, RuntimeType<String> rtt, String o) {
+    private final boolean instantiateCheck(Type<?>[] params, RuntimeType<?> rtt, Object o) {
         for (Type<?> t : rtt.parents) {
             if (base.isAssignableFrom(t.getJavaClass())) {
                 if (t instanceof ParameterizedType<?>) {
                     ParameterizedType<?> pt = (ParameterizedType<?>) t;
                     Type<?>[] paramsT = pt.getParams();
-                    if (subtypeof(params, pt.getRuntimeType(), paramsT)) {
+                    Type<?>[] newParamsT = new Type<?>[paramsT.length];
+                    for (int i = 0; i < paramsT.length; i ++ ) {
+                        if (paramsT[i] != null && paramsT[i] instanceof UnresolvedType) {
+                            int index = ((UnresolvedType) paramsT[i]).index;
+                            assert(index == -1);
+                            newParamsT[i] = rtt;
+                        }
+                        else {
+                            newParamsT[i] = paramsT[i];
+                        }
+                    }
+                    if (subtypeof(params, pt.getRuntimeType(), newParamsT)) {
                         return true;
                     }
                 }

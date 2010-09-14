@@ -14,7 +14,6 @@ package x10.core;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 import x10.rtt.Types;
-import x10.runtime.impl.java.Thread;
 
 
 // Base class of all X10 ref objects -- should be generated, but we need this class to get Box to compile.
@@ -41,26 +40,25 @@ public class Ref implements Any {
             s = Types.getNativeRepRTT(obj).typeName();
         } else if (obj instanceof String) {
             // @NativeRep'ed String type
-            s = Types.STR.typeName();
+            s = Types.getNativeRepRTT(obj).typeName();
         } else {
             s = obj.getClass().toString().substring("class ".length());
             // TODO: create mapping table of @NativeRep'ed type to X10 type and use it.
-            // TODO: unsigned types
             if (s.startsWith("java.")) {
                 if (s.startsWith("java.io.")) {
                     if (s.equals("java.io.FileInputStream")) {
                         s = "x10.io.FileReader";
                     } else if (s.equals("java.io.FileOutputStream")) {
                         s = "x10.io.FileWriter";
-                    } else if (s.equals("java.io.InputStream")) {
-                        s = "x10.io.InputStreamReader";
-                    } else if (s.equals("java.io.OutputStream")) {
-                        s = "x10.io.OutputStreamWriter";
+//                    } else if (s.equals("java.io.InputStream")) {
+//                        s = "x10.io.InputStreamReader";
+//                    } else if (s.equals("java.io.OutputStream")) {
+//                        s = "x10.io.OutputStreamWriter";
                     } else {
                         s = "x10." + s.substring("java.".length());
                     }
-                } else if (s.startsWith("java.lang.Integer")) {
-                    s = "x10.lang.Int";
+//                } else if (s.startsWith("java.lang.Integer")) {
+//                    s = "x10.lang.Int";
                 } else {
                     s = "x10." + s.substring("java.".length());
                 }

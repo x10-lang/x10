@@ -15,7 +15,7 @@ import x10.compiler.NativeRep;
 import x10.compiler.Native;
 
 public class OutputStreamWriter extends Writer {
-    @NativeRep("java", "java.io.OutputStream", null, null)
+    @NativeRep("java", "java.io.OutputStream", null, null)/*TODO RTT*/
     @NativeRep("c++", "x10aux::ref<x10::io::OutputStreamWriter__OutputStream>", "x10::io::OutputStreamWriter__OutputStream", null)
     protected abstract static class OutputStream {
         // @Native("java", "#0.close()")

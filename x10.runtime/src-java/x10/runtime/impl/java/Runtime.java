@@ -49,7 +49,7 @@ public abstract class Runtime implements Runnable {
 		try { Class.forName("x10.lang.Place"); } catch (ClassNotFoundException e) { }
 
 		// build up Array[String] for args
-		x10.array.Array<String> aargs = new x10.array.Array<String>(x10.rtt.Types.STR, args.length);
+		x10.array.Array<String> aargs = new x10.array.Array<String>(x10.rtt.Types.STRING, args.length);
 		for (int i=0; i<args.length; i++) {
 		    aargs.set$G(args[i], i);
 		}

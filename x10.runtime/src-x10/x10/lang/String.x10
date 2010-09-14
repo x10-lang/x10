@@ -28,7 +28,7 @@ import x10.util.Ordered;
  * with all characters translated to uppercase or to lowercase.  Case mapping
  * is defined in {@link x10.lang.Char}.
  */
-@NativeRep("java", "java.lang.String", null, "x10.rtt.Types.STR")
+@NativeRep("java", "java.lang.String", null, "x10.rtt.Types.STRING")
 @NativeRep("c++", "x10aux::ref<x10::lang::String>", "x10::lang::String", null)
 public final class String implements (Int) => Char/*TODO, (Range) => String*//*TODO, Ordered[String]*/, Comparable[String] {
     /**

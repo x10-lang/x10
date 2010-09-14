@@ -50,9 +50,8 @@ public class Types {
         } catch (ClassNotFoundException e) {}
     }
 
-    public static Type<String> STR = new StringType();          // only with base class (used by code gen)
-    protected static Type<String> STR0 = new StringType(        // with based class and parents
-        new ParameterizedType(Types.COMPARABLE, Types.STR),
+    public static Type<String> STRING = new StringType(
+        new ParameterizedType(Types.COMPARABLE, new UnresolvedType(-1)),
         new ParameterizedType(Fun_0_1._RTT, Types.INT, Types.CHAR)
     );
 
@@ -62,8 +61,6 @@ public class Types {
     public static Type<?> ULONG;    // instance created and set in ULong static initializer
 
     public static Type<?> getNativeRepRTT(Object o) {
-        assert(o instanceof Number);
-
         if (o instanceof Boolean) return BOOLEAN;
         if (o instanceof Byte) return BYTE;
         if (o instanceof Character) return CHAR;
@@ -72,6 +69,7 @@ public class Types {
         if (o instanceof Long) return LONG;
         if (o instanceof Float) return FLOAT;
         if (o instanceof Double) return DOUBLE;
+        if (o instanceof String) return STRING;
         throw new RuntimeException("RTT not found for "+o.getClass());
     }
 
