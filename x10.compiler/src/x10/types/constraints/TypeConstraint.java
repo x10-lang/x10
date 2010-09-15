@@ -37,7 +37,6 @@ import x10.types.ParameterType_c;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
-import x10.types.X10Context_c;
 import x10.types.X10ProcedureDef;
 import x10.types.X10ProcedureInstance;
 import x10.types.X10TypeMixin;
@@ -157,7 +156,7 @@ public class TypeConstraint implements Copy, Serializable {
      */
     public TypeConstraint unify(Type t1, Type t2, X10TypeSystem xts) {
     	TypeConstraint result = this;
-       final X10Context emptyContext = new X10Context_c(xts);
+    	final X10Context emptyContext = (X10Context) t1.typeSystem().emptyContext();
     	t1 = X10TypeMixin.stripConstraints(t1);
     	t2 = X10TypeMixin.stripConstraints(t2);   	
     	if (xts.typeEquals(t1, t2, emptyContext /*dummy*/))
