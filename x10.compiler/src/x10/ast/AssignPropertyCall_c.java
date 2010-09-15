@@ -133,16 +133,19 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 		X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
 		Position pos = position();
 		Job job = tc.job();
+		X10ConstructorDef thisConstructor = null;
+		X10ParsedClassType container = (X10ParsedClassType) ctx.currentClass();
 		if (!(ctx.inCode()) || !(ctx.currentCode() instanceof X10ConstructorDef)) {
 			Errors.issue(job,
 			        new SemanticException("A property statement may only occur in the body of a constructor.",
 			                position()));
+		} else {
+		    thisConstructor = (X10ConstructorDef) ctx.currentCode();
+		    container = (X10ParsedClassType) thisConstructor.asInstance().container();
 		}
-		X10ConstructorDef thisConstructor = (X10ConstructorDef) ctx.currentCode();
 		// Now check that the types of each actual argument are subtypes of the corresponding
 		// property for the class reachable through the constructor.
-		List<FieldInstance> definedProperties = 
-			((X10ParsedClassType) thisConstructor.asInstance().container()).definedProperties();
+		List<FieldInstance> definedProperties = container.definedProperties();
 		int pSize = definedProperties.size();
 		int aSize = arguments.size();
 		if (aSize != pSize) {
@@ -151,8 +154,10 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 		                    position()));
 		}
 
-		checkAssignments(tc, pos, thisConstructor, definedProperties, arguments);
-		checkReturnType(tc, pos, thisConstructor, definedProperties);
+		checkAssignments(tc, pos, definedProperties, arguments);
+		if (thisConstructor != null) {
+		    checkReturnType(tc, pos, thisConstructor, definedProperties);
+		}
 
 		ThisChecker thisC = (ThisChecker) new ThisChecker(tc.job()).context(tc.context());
 		for (int i=0; i < aSize; i++) {
@@ -172,7 +177,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 	}
 
 	protected void checkAssignments(ContextVisitor tc, Position pos,
-	        X10ConstructorDef thisConstructor, List<FieldInstance> props, List<Expr> args)
+	        List<FieldInstance> props, List<Expr> args)
 	{
 		X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
 		// First check that the base types are correct.
