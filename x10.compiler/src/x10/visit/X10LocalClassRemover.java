@@ -66,6 +66,7 @@ import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10Context_c;
+import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 
 public class X10LocalClassRemover extends LocalClassRemover {
@@ -168,7 +169,7 @@ public class X10LocalClassRemover extends LocalClassRemover {
                 X10ClassType container = (X10ClassType) Types.get(nci.container());
                 
                 if (container.def() == theLocalClass) {
-                    X10ClassType type = (X10ClassType) neu.objectType().type();
+                    X10ClassType type = (X10ClassType) X10TypeMixin.baseType(neu.objectType().type());
                     List<Type> ta = new ArrayList<Type>(type.typeArguments());
                     List<ParameterType> params = type.x10Def().typeParameters();
                     if (ta.equals(params)) {
