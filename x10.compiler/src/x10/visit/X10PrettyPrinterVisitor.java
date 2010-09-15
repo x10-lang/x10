@@ -181,6 +181,7 @@ import x10.types.X10TypeSystem;
 import x10c.ast.X10CBackingArrayAccessAssign_c;
 import x10c.ast.X10CBackingArrayAccess_c;
 import x10c.ast.X10CBackingArray_c;
+import x10c.types.X10CContext_c;
 
 
 /**
@@ -213,7 +214,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	public final Type imcType;
 	
         private static final String X10_RTT_TYPES = "x10.rtt.Types";
-        private static final List<ClassDef> generatedClasses = new ArrayList<ClassDef>(); 
 
 	private static int nextId_;
 	/* to provide a unique name for local variables introduce in the templates */
@@ -718,8 +718,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 	public void visit(X10ClassDecl_c n) {
 	        String className = n.classDef().name().toString();
-	        if (n.classDef().isTopLevel() && !n.classDef().sourceFile().name().equals(className + ".x10") && !generatedClasses.contains(n.classDef())) {
-	            generatedClasses.add(n.classDef());
+	        X10CContext_c context = (X10CContext_c) tr.context();
+	        if (n.classDef().isTopLevel() && !n.classDef().sourceFile().name().equals(className + ".x10") && !context.isContainsGeneratedClasses(n.classDef())) {
+	            context.addGeneratedClasses(n.classDef());
 	            // not include import
 	            SourceFile sf = tr.nodeFactory().SourceFile(n.position(), (List) Collections.singletonList(n));
 	            if (n.classDef().package_() != null) {
@@ -730,7 +731,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	            return;
 	        }
 		X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
-		X10Context context = (X10Context) tr.context();
 
 		X10ClassDef def = (X10ClassDef) n.classDef();
 
