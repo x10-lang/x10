@@ -134,45 +134,10 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 		protected X10CPPScheduler(ExtensionInfo extInfo) {
 			super(extInfo);
 		}
-		@Override
-		public Goal CheckNativeAnnotations(Job job) {
-			TypeSystem ts = extInfo.typeSystem();
-			NodeFactory nf = extInfo.nodeFactory();
-			return new VisitorGoal("CheckNativeAnnotations", job, new CheckNativeAnnotationsVisitor(job, ts, nf, "c++")).intern(this);
-		}
-		public Goal NativeClassVisitor(Job job) {
-		    TypeSystem ts = extInfo.typeSystem();
-		    NodeFactory nf = extInfo.nodeFactory();
-		    return new VisitorGoal("NativeClassVisitor", job, new NativeClassVisitor(job, ts, nf, "c++")).intern(this);
-		}
-        @Override
-	       public Goal WSCodeGenerator(Job job) {
-	           TypeSystem ts = extInfo.typeSystem();
-	           NodeFactory nf = extInfo.nodeFactory();
 
-	           Goal result = null;          
-	                      
-	           try{
-	               //Use reflect to load the class from
-	               ClassLoader cl = Thread.currentThread().getContextClassLoader();
-	               Class<?> c = cl
-	               .loadClass("x10.compiler.ws.WSCodeGenerator");
-	               Constructor<?> con = c.getConstructor(Job.class,
-	                                                     TypeSystem.class,
-	                                                     NodeFactory.class,
-	                                                     String.class);
-	               ContextVisitor wsvisitor = (ContextVisitor) con.newInstance(job, ts, nf, "c++");
-	               result = new ValidatingVisitorGoal("WSCodeGenerator", job, wsvisitor).intern(this);
-	           }
-	           catch (ClassNotFoundException e) {
-	               System.err.println("[X10_WS_ERR]Cannot load Work-Stealing code gen class. Ignore Work-Stealing transform.");
-	           } catch (Throwable e) {
-	               System.err.println("[X10_WS_ERR]Error in load Work-Stealing code gen class. Ignore Work-Stealing transform.");
-	               e.printStackTrace();
-	           }
-	           return result;
-	       }
-	       
+		@Override
+		public String nativeAnnotationLanguage() { return "c++"; }
+
 		@Override
 		public Goal CodeGenerated(Job job) {
 			TypeSystem ts = extInfo.typeSystem();

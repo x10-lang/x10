@@ -798,10 +798,12 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            return new ForgivingVisitorGoal("PropertyAssignmentsChecked", job, new AssignPropertyChecker(job, ts, nf)).intern(this);
        }
 
+       public String nativeAnnotationLanguage() { return "java"; }
+
        public Goal CheckNativeAnnotations(Job job) {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
-           return new VisitorGoal("CheckNativeAnnotations", job, new CheckNativeAnnotationsVisitor(job, ts, nf, "java")).intern(this);
+           return new VisitorGoal("CheckNativeAnnotations", job, new CheckNativeAnnotationsVisitor(job, ts, nf, nativeAnnotationLanguage())).intern(this);
        }
 
        public static class ValidatingVisitorGoal extends VisitorGoal {
@@ -857,7 +859,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        public Goal NativeClassVisitor(Job job) {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
-           return new ValidatingVisitorGoal("NativeClassVisitor", job, new NativeClassVisitor(job, ts, nf, "java")).intern(this);
+           return new ValidatingVisitorGoal("NativeClassVisitor", job, new NativeClassVisitor(job, ts, nf, nativeAnnotationLanguage())).intern(this);
        }
        
        public Goal MainMethodFinder(Job job, Method hasMain) {
@@ -872,7 +874,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
            Goal result = null;          
                       
-           try{
+           try {
                //Use reflect to load the class from
                ClassLoader cl = Thread.currentThread().getContextClassLoader();
                Class<?> c = cl
@@ -881,7 +883,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                                                      TypeSystem.class,
                                                      NodeFactory.class,
                                                      String.class);
-               ContextVisitor wsvisitor = (ContextVisitor) con.newInstance(job, ts, nf, "java");
+               ContextVisitor wsvisitor = (ContextVisitor) con.newInstance(job, ts, nf, nativeAnnotationLanguage());
                result = new ValidatingVisitorGoal("WSCodeGenerator", job, wsvisitor).intern(this);
            }
            catch (ClassNotFoundException e) {
@@ -945,13 +947,11 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                }
                public boolean runTask() {
                    try {
-                	   
-                	   TypeSystem ts = extInfo.typeSystem();
+                       TypeSystem ts = extInfo.typeSystem();
                        NodeFactory nf = extInfo.nodeFactory();
-                       FinishAsyncVisitor favisitor = new FinishAsyncVisitor(job, ts, nf, "java", calltable);
-                       Goal finish = new VisitorGoal("FinishAsyncs",job,favisitor).intern(s);
+                       FinishAsyncVisitor favisitor = new FinishAsyncVisitor(job, ts, nf, nativeAnnotationLanguage(), calltable);
+                       Goal finish = new ValidatingVisitorGoal("FinishAsyncs", job, favisitor).intern(s);
                        finish.runTask();
-                       
                    } catch (Throwable t) {}
                    return true;
                }
