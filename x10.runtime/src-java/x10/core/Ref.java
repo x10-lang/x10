@@ -33,37 +33,12 @@ public class Ref implements Any {
     public static String typeName(Object obj) {
         String s;
         if (obj instanceof Any) {
-            // unsigned numbers come here
             s = ((Any) obj).getRTT().typeName(obj);
+        } else if (Types.getNativeRepRTT(obj) != null) {
+            s = Types.getNativeRepRTT(obj).typeName();
         } else {
-            Type<?> type = Types.getNativeRepRTT(obj);
-            if (type != null) {
-                s = Types.getNativeRepRTT(obj).typeName();
-            } else {
-                s = obj.getClass().toString().substring("class ".length());
-                // TODO: create mapping table of @NativeRep'ed type to X10 type and use it.
-                if (s.startsWith("java.")) {
-                    if (s.startsWith("java.io.")) {
-                        if (s.equals("java.io.FileInputStream")) {
-                            s = "x10.io.FileReader";
-                        } else if (s.equals("java.io.FileOutputStream")) {
-                            s = "x10.io.FileWriter";
-                        } else if (s.equals("java.io.File")) {
-                            s = "x10.io.NativeFile";
-//                        } else if (s.equals("java.io.InputStream")) {
-//                            s = "x10.io.InputStreamReader";
-//                        } else if (s.equals("java.io.OutputStream")) {
-//                            s = "x10.io.OutputStreamWriter";
-                        } else {
-                            s = "x10." + s.substring("java.".length());
-                        }
-//                    } else if (s.startsWith("java.lang.Integer")) {
-//                        s = "x10.lang.Int";
-                    } else {
-                        s = "x10." + s.substring("java.".length());
-                    }
-                }
-            }
+            // Note: this is for java classes that don't have RTTs
+            s = obj.getClass().toString().substring("class ".length());
         }
         return s;
     }

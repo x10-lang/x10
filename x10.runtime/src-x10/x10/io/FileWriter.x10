@@ -15,7 +15,7 @@ import x10.compiler.NativeRep;
 import x10.compiler.Native;
 
 public class FileWriter extends OutputStreamWriter {
-    @NativeRep("java", "java.io.FileOutputStream", null, null)/*TODO RTT*/
+    @NativeRep("java", "java.io.FileOutputStream", null, "x10.rtt.Types.FILE_OUTPUT_STREAM")
     @NativeRep("c++", "x10aux::ref<x10::io::FileWriter__FileOutputStream>", "x10::io::FileWriter__FileOutputStream", null)
     protected final static class FileOutputStream extends OutputStream {
         @Native("java", "new Object() { java.io.BufferedOutputStream eval(String s) { try { return new java.io.BufferedOutputStream(new java.io.FileOutputStream(s)); } catch (java.io.FileNotFoundException e) { throw new x10.io.FileNotFoundException(e.getMessage()); } } }.eval(#1)")

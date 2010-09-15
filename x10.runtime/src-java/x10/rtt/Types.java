@@ -11,6 +11,11 @@
 
 package x10.rtt;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -75,6 +80,46 @@ public class Types {
             return "x10.util.concurrent.atomic.AtomicReference";
         }
     };
+    public static Type<InputStream> INPUT_STREAM = new RuntimeType<InputStream>(InputStream.class) {
+        @Override
+        public String typeName() {
+            return "x10.io.InputStreamReader.InputStream";
+        }
+    };
+    public static Type<OutputStream> OUTPUT_STREAM = new RuntimeType<OutputStream>(OutputStream.class) {
+        @Override
+        public String typeName() {
+            return "x10.io.OutputStreamWriter.OutputStream";
+        }
+    };
+    public static Type<FileInputStream> FILE_INPUT_STREAM = new RuntimeType<FileInputStream>(
+        FileInputStream.class,
+        new Type[] {
+            Types.INPUT_STREAM
+        }
+    ) {
+        @Override
+        public String typeName() {
+            return "x10.io.FileReader.FileInputStream";
+        }
+    };
+    public static Type<FileOutputStream> FILE_OUTPUT_STREAM = new RuntimeType<FileOutputStream>(
+        FileOutputStream.class,
+        new Type[] {
+            Types.OUTPUT_STREAM
+        }
+    ) {
+        @Override
+        public String typeName() {
+            return "x10.io.FileWriter.FileOutputStream";
+        }
+    };
+    public static Type<File> NATIVE_FILE = new RuntimeType<File>(File.class) {
+        @Override
+        public String typeName() {
+            return "x10.io.File.NativeFile";
+        }
+    };
 
     public static RuntimeType<Comparable<?>> COMPARABLE;
     static {
@@ -83,10 +128,18 @@ public class Types {
         } catch (ClassNotFoundException e) {}
     }
 
-    public static Type<String> STRING = new StringType(
-        new ParameterizedType(Types.COMPARABLE, new UnresolvedType(-1)),
-        new ParameterizedType(Fun_0_1._RTT, Types.INT, Types.CHAR)
-    );
+    public static Type<String> STRING = new RuntimeType<String>(
+        String.class,
+        new Type[] {
+            new ParameterizedType(Fun_0_1._RTT, Types.INT, Types.CHAR),
+            new ParameterizedType(Types.COMPARABLE, new UnresolvedType(-1))
+        }
+    ) {
+        @Override
+        public String typeName() {
+            return "x10.lang.String";
+        }
+    };
 
     public static Type<?> UBYTE;    // instance created and set in UByte static initializer
     public static Type<?> USHORT;   // instance created and set in UShort static initializer
@@ -107,6 +160,11 @@ public class Types {
         if (o instanceof AtomicInteger) return ATOMIC_INTEGER;
         if (o instanceof AtomicLong) return ATOMIC_LONG;
         if (o instanceof AtomicReference) return ATOMIC_REFERENCE;
+        if (o instanceof InputStream) return INPUT_STREAM;
+        if (o instanceof OutputStream) return OUTPUT_STREAM;
+        if (o instanceof FileInputStream) return FILE_INPUT_STREAM;
+        if (o instanceof FileOutputStream) return FILE_OUTPUT_STREAM;
+        if (o instanceof File) return NATIVE_FILE;
         return null;
     }
 
