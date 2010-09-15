@@ -83,7 +83,6 @@ import x10.types.FunctionType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
-import x10.types.X10Context_c;
 import x10.types.X10Def;
 import x10.types.X10FieldInstance;
 import x10.types.X10Flags;
@@ -737,7 +736,7 @@ public class Synthesizer {
 			c.addBinding(id, XTerms.makeLit(0));
 			Type type = X10TypeMixin.xclause(xts.Place(), c);
 			return makeStaticField(Position.COMPILER_GENERATED, xts.Place(),
-					Name.make("FIRST_PLACE"), type, new X10Context_c(xts));
+					Name.make("FIRST_PLACE"), type, (X10Context) xts.emptyContext());
 		} catch (XFailure z) {
 			// wont happen
 		} catch (SemanticException z) {
