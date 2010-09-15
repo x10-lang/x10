@@ -37,8 +37,12 @@ public class Ref implements Any {
         } else if (Types.getNativeRepRTT(obj) != null) {
             s = Types.getNativeRepRTT(obj).typeName();
         } else {
-            // Note: this is for java classes that don't have RTTs
+            // Note: for java classes that don't have RTTs
             s = obj.getClass().toString().substring("class ".length());
+            if ("java.lang.Object".equals(s)) {
+                // x10.lang.Object is @NativeRep'ed to java.lang.Object and does not have RTT
+                s = "x10.lang.Object";
+            }
         }
         return s;
     }
