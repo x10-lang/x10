@@ -70,6 +70,7 @@ class Launcher
 		void handleChildCout(int childno); /* console from child */
 		void handleChildCerror(int childno); /* stderr from child */
 		int handleControlMessage(int fd); /* incoming ctrl msg */
+		int forwardMessage(struct ctrl_msg* message, char* data); /* move data around */
 		static void DIE(const char * message, ...);
 		void * operator new(size_t, void * addr){return addr;}
 

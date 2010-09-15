@@ -62,15 +62,17 @@ int Launcher::setPort(int place, char* port)
 
 int Launcher::lookupPlace(int myPlace, int destPlace, char* response, int responseLen)
 {
+	struct ctrl_msg m;
+	m.type = PORT_REQUEST;
+	m.from = myPlace;
+	m.to = destPlace;
+	m.datalen = 0;
+
 	if (_singleton == NULL)
 	{
+		// inside this if, we're running within the runtime process, and talking to a launcher
 		// send this out to our local launcher
-		struct ctrl_msg m;
-		m.type = PORT_REQUEST;
-		m.from = myPlace;
-		m.to = destPlace;
-		m.datalen = 0;
-		// parent link was established earlier
+		// parent link was established earlier, at HELLO
 		TCP::write(_parentLauncherControlLink, &m, sizeof(struct ctrl_msg));
 
 		// this should block, until the data is available
@@ -83,51 +85,14 @@ int Launcher::lookupPlace(int myPlace, int destPlace, char* response, int respon
 
 		ret = TCP::read(_parentLauncherControlLink, response, m.datalen);
 		if (ret <= 0)
-			DIE("Unlable to read port response data");
+			DIE("Unable to read port response data");
 
 		return 1;
 	}
 
-	// check to see if this place is us
-	if (destPlace == _singleton->_myproc)
-	{
-		strncpy(response, _singleton->_runtimePort, responseLen);
-		return 1;
-	}
-	else
-	{
-		// this request needs to be forwarded either to the parent launcher, or a child launcher
-		// figure out where to send it, by determining if we are on the chain leading to it
-		int parentId=destPlace, previousParentId, maxValueInLevel = 0;
-
-		// go out to the level of the tree that contains the requested place
-		while (maxValueInLevel < destPlace)
-			maxValueInLevel = maxValueInLevel*2 + 2;
-		// figure out the process that's in the tree at our level
-		do
-		{
-			previousParentId = parentId;
-			parentId = (previousParentId-(maxValueInLevel/2))/2 + maxValueInLevel/4;
-		}
-		while (parentId >= _singleton->_myproc);
-
-		if (parentId == _singleton->_myproc)
-		{	//This is one of my children
-			if (previousParentId == _singleton->_firstchildproc)
-			{	// send request to first child
-				// TODO
-			}
-			else
-			{	// send request to second child
-				// TODO
-			}
-		}
-		else
-		{	// not my child - send the request up to my parent
-			// TODO
-		}
-		return 0;
-	}
+	// if we're here, then this is executing in the launcher process, not in a runtime.
+	// we can't handle this request.  Forward it to some launcher that can.
+	return _singleton->forwardMessage(&m, NULL);
 }
 
 /* *********************************************************************** */
@@ -529,9 +494,9 @@ int Launcher::handleControlMessage(int fd)
 {
 	struct ctrl_msg m;
 	assert (fd >= 0);
-	int n = TCP::read(fd, &m, sizeof(struct ctrl_msg));
-	if (n <= 0)
-		return n;
+	int ret = TCP::read(fd, &m, sizeof(struct ctrl_msg));
+	if (ret <= 0)
+		return ret;
 	char* data = NULL;
 	if (m.datalen > 0)
 		data = (char*)alloca(m.datalen);
@@ -550,7 +515,9 @@ int Launcher::handleControlMessage(int fd)
 				m.to = m.from;
 				m.from = _myproc;
 				m.type = PORT_RESPONSE;
-				// TODO fill in data
+				m.datalen = strlen(_runtimePort);
+				TCP::write(fd, &m, sizeof(struct ctrl_msg));
+				TCP::write(fd, _runtimePort, m.datalen);
 			}
 			break;
 			case PORT_RESPONSE:
@@ -566,39 +533,8 @@ int Launcher::handleControlMessage(int fd)
 		}
 	}
 	else
-	{
-		// this request needs to be forwarded either to the parent launcher, or a child launcher
-		// figure out where to send it, by determining if we are on the chain leading to it
-		int parentId=m.to, previousParentId, maxValueInLevel = 0;
-
-		// go out to the level of the tree that contains the requested place
-		while (maxValueInLevel < m.to)
-			maxValueInLevel = maxValueInLevel*2 + 2;
-		// figure out the process that's in the tree at our level
-		do
-		{
-			previousParentId = parentId;
-			parentId = (previousParentId-(maxValueInLevel/2))/2 + maxValueInLevel/4;
-		}
-		while (parentId >= _singleton->_myproc);
-
-		if (parentId == _singleton->_myproc)
-		{	//This is one of my children
-			if (previousParentId == _singleton->_firstchildproc)
-			{	// send request to first child
-				// TODO
-			}
-			else
-			{	// send request to second child
-				// TODO
-			}
-		}
-		else
-		{	// not my child - send the request up to my parent
-			// TODO
-		}
-	}
-	return n;
+		ret = forwardMessage(&m, data);
+	return ret;
 }
 
 
@@ -620,6 +556,40 @@ void Launcher::handleChildCerror(int childNo)
 		handleDeadChild(childNo);
 	else
 		write(2, buf, n);
+}
+
+int Launcher::forwardMessage(struct ctrl_msg* message, char* data)
+{
+	// this request needs to be forwarded either to the parent launcher, or a child launcher
+	// figure out where to send it, by determining if we are on the chain between place 0 and the dest
+	int parentId=message->to, previousParentId, maxValueInLevel = 0;
+
+	// go out to the level of the tree that contains the requested place
+	while (maxValueInLevel < message->to)
+		maxValueInLevel = maxValueInLevel*2 + 2;
+	// figure out the process that's in the tree at our level
+	do
+	{
+		previousParentId = parentId;
+		parentId = (previousParentId-(maxValueInLevel/2))/2 + maxValueInLevel/4;
+	}
+	while (parentId >= _singleton->_myproc);
+
+	int destFD;
+	if (parentId == _singleton->_myproc)
+	{	//This is intended for one of my children
+		if (previousParentId == _singleton->_firstchildproc)
+			destFD = _childControlLinks[1];
+		else
+			destFD = _childControlLinks[2];
+	}
+	else // not my child - send the request up to my parent
+		destFD = _parentLauncherControlLink;
+
+	int ret = TCP::write(destFD, message, sizeof(struct ctrl_msg));
+	if (message->datalen > 0)
+		ret = TCP::write(destFD, data, message->datalen);
+	return ret;
 }
 
 /* *********************************************************************** */
