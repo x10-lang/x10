@@ -24,14 +24,20 @@ import polyglot.util.*;
  **/
 public abstract class TypeSystem_c implements TypeSystem
 {
+    private static volatile int counter = 0;
+
     protected SystemResolver systemResolver;
     protected TopLevelResolver loadedResolver;
     protected Map<String, Flags> flagsForName;
     protected ExtensionInfo extInfo;
 
     private Throwable creator;
+    private int creationTime;
     public TypeSystem_c() {
         creator = new Throwable().fillInStackTrace();
+        creationTime = counter++;
+        if (Report.should_report("TypeSystem", 1))
+            Report.report(1, "Creating " + getClass() + " at " + creationTime);
     }
 
     /**
@@ -160,8 +166,13 @@ public abstract class TypeSystem_c implements TypeSystem
 
     protected void assert_(TypeObject o) {
 	if (o != null && o.typeSystem() != this) {
-	    throw new InternalCompilerError("we are " + this + " but " + o + " ("+o.getClass()+")" +
-	                                    " is from " + o.typeSystem());
+            TypeSystem_c ots = (TypeSystem_c) o.typeSystem();
+            System.err.print("we are " + this + "(" + creationTime + "): ");
+            this.creator.printStackTrace(System.err);
+            System.err.print(" but " + o + " ("+o.getClass()+")" + " is from " + ots + "(" + ots.creationTime + "): ");
+            ots.creator.printStackTrace(System.err);
+            throw new InternalCompilerError("we are " + this + " but " + o + " ("+o.getClass()+")" +
+                                            " is from " + ots);
 	}
     }
 
@@ -2273,15 +2284,16 @@ public abstract class TypeSystem_c implements TypeSystem
 
     protected String getCreatorStack(int limit) {
         StackTraceElement[] trace = creator.getStackTrace();
-        int size = trace.length < limit ? trace.length : limit;
+        // The first 3 elements will be the factory methods and the constructor
+        int size = trace.length-3 < limit ? trace.length-3 : limit;
         StackTraceElement[] res = new StackTraceElement[size];
         for (int i = 0; i < res.length; i++)
-            res[i] = trace[i];
+            res[i] = trace[i+3];
         return Arrays.toString(res);
     }
 
     public String toString() {
-	return StringUtil.getShortNameComponent(getClass().getName()) + " created at " + getCreatorStack(10);
+	return StringUtil.getShortNameComponent(getClass().getName()) + " created at " + creationTime;
     }
 
 }
