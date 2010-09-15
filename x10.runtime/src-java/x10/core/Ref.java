@@ -23,11 +23,7 @@ public class Ref implements Any {
     }
      
     public boolean equals(Object o) {
-	return this == o;
-    }
-    
-    public Ref box$() {
-        return this;
+        return this == o;
     }
     
     public static String typeName(Object obj) {
