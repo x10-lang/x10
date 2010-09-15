@@ -17,8 +17,8 @@ import x10.io.Console;
  */
 class HelloWholeWorld {
   public static def main(Array[String]):void {
-     ateach (p in Dist.makeUnique()) {
-     	Console.OUT.println("Hello World from place "+here.id);
+     finish for (p in Place.places) {
+     	async at (p) Console.OUT.println("Hello World from place "+p.id);
      }
   }
 }
