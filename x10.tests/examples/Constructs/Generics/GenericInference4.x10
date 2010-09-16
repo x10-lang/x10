@@ -23,11 +23,11 @@ import harness.x10Test;
 
 public class GenericInference4 extends GenericTest {
 
-    class V           {const name = "V";};
-    class W extends V {const name = "W";};
-    class X extends V {const name = "X";};
-    class Y extends X {const name = "Y";};
-    class Z extends X {const name = "Z";};
+    class V           {static name = "V";};
+    class W extends V {static name = "W";};
+    class X extends V {static name = "X";};
+    class Y extends X {static name = "Y";};
+    class Z extends X {static name = "Z";};
 
     def m[T,U](t:T,u:U){T<:X && U<:X} = X.name + X.name;
 
