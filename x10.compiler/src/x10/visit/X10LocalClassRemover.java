@@ -325,7 +325,7 @@ public class X10LocalClassRemover extends LocalClassRemover {
                     }
                     if (n instanceof Local) {
                         Local l = (Local) n;
-                        return l.localInstance(subst.reinstantiate(vars.get(l.localInstance().def()).asInstance()));
+                        return l.localInstance(subst.reinstantiate(getLocal(l.localInstance().def()).asInstance()));
                     }
                     if (n instanceof FieldAssign) {
                         FieldAssign f = (FieldAssign) n;
@@ -378,6 +378,10 @@ public class X10LocalClassRemover extends LocalClassRemover {
                     return e;
                 }
                 return n;
+            }
+            private LocalDef getLocal(LocalDef def) {
+                LocalDef remappedDef = vars.get(def);
+                return remappedDef != null ? remappedDef : def;
             }
         });
     }
