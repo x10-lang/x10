@@ -29,12 +29,15 @@ namespace {
             reg(arrc, v);
             return arrc-1;
         }
-        void reg (unsigned id, const T &v) {
+        void ensureSize (unsigned id) {
             if (id >= arrc) {
                 arrv = (T*) ::realloc(arrv, sizeof(T)*(id+1));
                 ::memset(&arrv[arrc], 0, ((id+1)-arrc)*sizeof(T));
                 arrc = id+1;
             }
+        }
+        void reg (unsigned id, const T &v) {
+            ensureSize(id);
             arrv[id] = v;
         }
         const T &operator [] (unsigned id) { return arrv[id]; }
@@ -66,7 +69,7 @@ namespace {
                 fifo_e = op; 
             }   
             size++;
-        }   
+        }
         
         // pop from front
         T *pop (void)

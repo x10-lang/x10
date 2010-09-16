@@ -180,6 +180,22 @@ X10RT_C void x10rt_net_bcast (x10rt_team team, x10rt_place role,
                               size_t el, size_t count,
                               x10rt_completion_handler *ch, void *arg);
 
+/** \see #x10rt_lgl_scatter
+ * \param team As in #x10rt_lgl_scatter
+ * \param role As in #x10rt_lgl_scatter
+ * \param root As in #x10rt_lgl_scatter
+ * \param sbuf As in #x10rt_lgl_scatter
+ * \param dbuf As in #x10rt_lgl_scatter
+ * \param el As in #x10rt_lgl_scatter
+ * \param count As in #x10rt_lgl_scatter
+ * \param ch As in #x10rt_lgl_scatter
+ * \param arg As in #x10rt_lgl_scatter
+ */
+X10RT_C void x10rt_net_scatter (x10rt_team team, x10rt_place role,
+                                x10rt_place root, const void *sbuf, void *dbuf,
+                                size_t el, size_t count,
+                                x10rt_completion_handler *ch, void *arg);
+
 /** \see #x10rt_lgl_alltoall
  * \param team As in #x10rt_lgl_alltoall
  * \param role As in #x10rt_lgl_alltoall

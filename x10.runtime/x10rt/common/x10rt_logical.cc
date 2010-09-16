@@ -864,7 +864,7 @@ void x10rt_lgl_scatter (x10rt_team team, x10rt_place role,
                         x10rt_completion_handler *ch, void *arg)
 {
     if (has_collectives) {
-        //x10rt_net_scatter(team, role, root, sbuf, dbuf, el, count, ch, arg);
+        x10rt_net_scatter(team, role, root, sbuf, dbuf, el, count, ch, arg);
     } else {
         x10rt_emu_scatter(team, role, root, sbuf, dbuf, el, count, ch, arg);
     }

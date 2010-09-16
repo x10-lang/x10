@@ -69,7 +69,7 @@ static void coll_test (x10rt_team team, x10rt_place role, x10rt_place per_place)
     const int tests = 10000;
     unsigned long long taken;
 
-    {
+    if (getenv("NO_BARRIER")==NULL) {
         if (0==role)
             std::cout << team << ": barrier sync test (shape should be \\):  " << std::endl;
         for (x10rt_place i=0 ; i<x10rt_team_sz(team) ; ++i) {
@@ -107,7 +107,7 @@ static void coll_test (x10rt_team team, x10rt_place role, x10rt_place per_place)
                                << ((double)taken)/tests/1000 << " μs" << std::endl;
     }
 
-    {
+    if (getenv("NO_BCAST")==NULL) {
         x10rt_place root = 43 % x10rt_team_sz(team);
         float sbuf[113];
         float dbuf[113];
@@ -146,7 +146,7 @@ static void coll_test (x10rt_team team, x10rt_place role, x10rt_place per_place)
                                << ((double)taken)/tests/1000 << " μs" << std::endl;
     }
 
-    {
+    if (getenv("NO_SCATTER")==NULL) {
         x10rt_place root = 43 % x10rt_team_sz(team);
         size_t count = 123;
         typedef double test_t;
@@ -190,7 +190,7 @@ static void coll_test (x10rt_team team, x10rt_place role, x10rt_place per_place)
                                << ((double)taken)/tests/1000 << " μs" << std::endl;
     }
 
-    {
+    if (getenv("NO_ALLTOALL")==NULL) {
         size_t count = 123;
         typedef double test_t;
         test_t *sbuf = new test_t[count*x10rt_team_sz(team)];
@@ -238,7 +238,7 @@ static void coll_test (x10rt_team team, x10rt_place role, x10rt_place per_place)
         delete [] dbuf;
     }
 
-    {
+    if (getenv("NO_ALLREDUCE")==NULL) {
         float sbuf[113];
         float dbuf[113];
         size_t count = sizeof(sbuf)/sizeof(*sbuf);
