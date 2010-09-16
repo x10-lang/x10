@@ -25,7 +25,7 @@ public class ReferenceConsistencyCheck(R: Region{rank==2, zeroBased, rect},
 	
 	/** Update the submatrix A[k:m-1, k:n-1]*/
 	def update(k:int):void {
-		finish ateach (val (i,j) in D) A(i,j)++;
+		finish ateach (val [i,j] in D) A(i,j)++;
 	}
 
 	public def run()=true; 
@@ -36,7 +36,7 @@ public class ReferenceConsistencyCheck(R: Region{rank==2, zeroBased, rect},
 		val R:Region{rank==2&&zeroBased&&rect} = [0..size-1,0..size-1] as Region{rank==2&&zeroBased&&rect};
 		val D:Dist{region==R} = Dist.makeBlock(R);
 		val A:DistArray[double]{dist==D} = 
-			   DistArray.make[double](D, ((i,j):Point) => 
+			   DistArray.make[double](D, ([i,j]:Point) => 
 			      { var res: int=i%2;
 			        if (i-1==j) res=i*(res==0?-1:1);
 			        res as double
