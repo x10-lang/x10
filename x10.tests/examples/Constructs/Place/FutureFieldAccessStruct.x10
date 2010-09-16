@@ -16,7 +16,7 @@ import harness.x10Test;
  * @author vj
  * @author bdlucas
  */
-
+import x10.util.Future;
 public class FutureFieldAccessStruct extends x10Test {
 
    static struct C[S] {
@@ -35,11 +35,11 @@ public class FutureFieldAccessStruct extends x10Test {
     public def run02(): boolean = {
     		val p = Place.places(1);
     		val cc = this.c;
-            val f = future (p) {
+            val f = Future.make[boolean](() => at(p) {
             	// cannot access a field that is not global
                 val a = cc.x;
             return true;
-        };
+        });
         return f.force();
     }
 

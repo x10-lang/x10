@@ -22,7 +22,7 @@ public class PlaceCheckArray extends x10Test {
 
     public def run01(): boolean {
         try {
-            (future (Place.places(1)) a(0)).force();
+            at (Place.places(1)) a(0);
         } catch (BadPlaceException) {
             return true;
         }
@@ -42,11 +42,11 @@ public class PlaceCheckArray extends x10Test {
 
     public def run(): boolean {
         a(0);
-        (future (Place.places(1)) a(1)).force();
+        at (Place.places(1)) a(1);
         return run01() && run02();
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(Array[String](1)) {
         new PlaceCheckArray().execute();
     }
 }
