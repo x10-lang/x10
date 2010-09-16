@@ -19,7 +19,7 @@ import harness.x10Test;
 public class ImportTest extends x10Test {
 
 	public def run(): boolean = {
-		return (future(here) { _T2.m2(49) }).force();
+		return _T2.m2(49);
 	}
 
 	public static def main(var args: Array[String](1)): void = {
