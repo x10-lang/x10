@@ -76,7 +76,6 @@ public class X10MethodDoc extends X10Doc implements MethodDoc {
 	
 	void initTypeParameters() {
 		List<ParameterType> params = methodDef.typeParameters();
-		// typeParams = new LinkedHashMap<String, X10TypeVariable>(params.size());
 		typeParams = new X10TypeVariable[params.size()];
 		int i = 0;
 		for (ParameterType p: params) {

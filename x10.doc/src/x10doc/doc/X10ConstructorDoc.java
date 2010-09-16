@@ -72,15 +72,16 @@ public class X10ConstructorDoc extends X10Doc implements ConstructorDoc {
 	}
 	
 	void initTypeParameters() {
-		List<ParameterType> params = constrDef.typeParameters();
-		// typeParams = new LinkedHashMap<String, X10TypeVariable>(params.size());
-		typeParams = new X10TypeVariable[params.size()];
-		int i = 0;
-		for (ParameterType p: params) {
-			X10TypeVariable v = new X10TypeVariable(p, this);
-			// typeParams.put(typeParameterKey(p), v);
-			typeParams[i++] = v;
-		}
+		// [IP] Constructors don't have type parameters, they inherit them from the container.
+		//List<ParameterType> params = constrDef.typeParameters();
+		//typeParams = new X10TypeVariable[params.size()];
+		//int i = 0;
+		//for (ParameterType p: params) {
+		//	X10TypeVariable v = new X10TypeVariable(p, this);
+		//	// typeParams.put(typeParameterKey(p), v);
+		//	typeParams[i++] = v;
+		//}
+		typeParams = new X10TypeVariable[0];
 	}
 	
 	public X10ConstructorDef getConstructorDef() {

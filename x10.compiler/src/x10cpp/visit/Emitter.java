@@ -821,8 +821,9 @@ public class Emitter {
 			printTemplateSignature((container).typeArguments(), h);
 		}
 
-		X10ConstructorDef def = (X10ConstructorDef) n.constructorDef();
-		printTemplateSignature(toTypeList(def.typeParameters()), h);
+		// [IP] Constructors don't have type parameters, they inherit them from the container. 
+		//X10ConstructorDef def = (X10ConstructorDef) n.constructorDef();
+		//printTemplateSignature(toTypeList(def.typeParameters()), h);
 
 		h.begin(0);
 		if (!define && container.isX10Struct()) h.write("static ");

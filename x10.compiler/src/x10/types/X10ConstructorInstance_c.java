@@ -146,8 +146,6 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
     	return true;
     }
     
-    public List<Type> typeParameters;
-
     public List<Type> typeParameters() {
         return Collections.emptyList();
     }
@@ -203,23 +201,19 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
     public String signature() {
         StringBuilder sb = new StringBuilder();
         sb.append("this");
-        List<String> params = new ArrayList<String>();
-        List<Type> typeParameters = typeParameters();
-        if (typeParameters != null) {
-            for (int i = 0; i < typeParameters.size(); i++) {
-                params.add(typeParameters.get(i).toString());
-            }
-        }
-        else {
-            for (int i = 0; i < x10Def().typeParameters().size(); i++) {
-                params.add(x10Def().typeParameters().get(i).toString());
-            }
-        }
-        if (params.size() > 0) {
-            sb.append("[");
-            sb.append(CollectionUtil.listToString(params));
-            sb.append("]");
-        }
+        // [IP] Constructors don't have type parameters, they inherit them from the container.
+        //List<String> params = new ArrayList<String>();
+        //List<Type> typeParameters = typeParameters();
+        //if (typeParameters != null) {
+        //    for (int i = 0; i < typeParameters.size(); i++) {
+        //        params.add(typeParameters.get(i).toString());
+        //    }
+        //}
+        //if (params.size() > 0) {
+        //    sb.append("[");
+        //    sb.append(CollectionUtil.listToString(params));
+        //    sb.append("]");
+        //}
         List<String> formals = new ArrayList<String>();
         List<Type> formalTypes = formalTypes();
         if (formalTypes != null) {
