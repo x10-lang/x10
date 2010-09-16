@@ -24,7 +24,7 @@ class XTENLANG_12 extends x10Test {
     static class AL[T] {
 
         private static class It[T] implements I[T] {
-            incomplete public def next(): T;
+            public def next(): T { throw new RuntimeException(); }
             def this(al:AL[T]) {}
         }
 

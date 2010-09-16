@@ -24,7 +24,7 @@ class XTENLANG_18 extends x10Test {
     class P {}
     
     class I implements (P)=>int {
-        incomplete public def apply(P): int;
+        public def apply(P): int { throw new RuntimeException(); }
     }
 
     public def run(): boolean {

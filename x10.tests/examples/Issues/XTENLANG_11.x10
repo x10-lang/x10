@@ -20,8 +20,8 @@ class XTENLANG_11 extends x10Test {
     class H {}
     
     class A[T] {
-        incomplete public def add(v: T): void;
-        incomplete public def iterator(): Iterator[T];
+        public def add(v: T): void { throw new RuntimeException(); }
+        public def iterator(): Iterator[T] { throw new RuntimeException(); }
     }
     
     public def foo(hl: A[H]) {

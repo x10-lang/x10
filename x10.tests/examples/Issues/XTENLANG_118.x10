@@ -23,7 +23,7 @@ class XTENLANG_118 extends x10Test {
 
         public static type R(rank:int) = R{self.rank==rank};
 
-        class AL[T] { incomplete def toArray(): Rail[T]; }
+        class AL[T] { def toArray(): Rail[T] { throw new RuntimeException(); } }
         
         class PRL(rank:int) extends AL[R(rank)] {
             def this(rank:int) { super(); property(rank); }

@@ -21,7 +21,7 @@ class XTENLANG_109 extends x10Test {
     
         def this(zb:boolean) = property(zb);
     
-        incomplete static def m(min:int, max:int): R{self.zb==(min==0)};
+        static def m(min:int, max:int): R{self.zb==(min==0)} { throw new RuntimeException(); }
     
         static def make(min:int, max:int): R{self.zb==(min==0)} {
             return m(min, max);

@@ -25,7 +25,7 @@ class XTENLANG_1565 extends x10Test {
 			async { z = 0; }
 		}
 		
-		shared var i:Int, j:Int, k:Int;
+		var i:Int, j:Int, k:Int;
 
 		i=1;
 		// i:[1,1,1,1]
