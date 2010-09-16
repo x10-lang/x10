@@ -49,9 +49,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import polyglot.main.Report;
 import polyglot.types.ClassDef;
@@ -86,6 +88,7 @@ import x10.constraint.XLit;
 import x10.constraint.XLocal;
 import x10.constraint.XName;
 import x10.constraint.XNameWrapper;
+import x10.constraint.XPromise;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
@@ -156,7 +159,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	 void addSigma(CConstraint r, CConstraint c, HashMap<XTerm, CConstraint> m) throws XFailure {
 		 if (c != null && ! c.valid()) {
 			 r.addIn(c);
-			 r.addIn(constraintProjection(c, m));
+			 r.addIn(constraintProjection(c, m, new HashSet<XTerm>()));
 		 }
 	 }
 	 void addSigma(CConstraint r, XConstrainedTerm ct, HashMap<XTerm, CConstraint> m) throws XFailure {
@@ -169,9 +172,9 @@ public class X10Context_c extends Context_c implements X10Context {
 
 		 // add in the real clause of the type of any var mentioned in the constraint list cs
 		 CConstraint r = null;
-
+		 Set<XTerm> old = new HashSet<XTerm>();
 		 for (CConstraint ci : cs) {
-			 CConstraint ri = constraintProjection(ci, m);
+			 CConstraint ri = constraintProjection(ci, m, old);
 			 if (r == null)
 				 r = ri;
 			 else
@@ -201,18 +204,28 @@ public class X10Context_c extends Context_c implements X10Context {
 	 }
 
 	 /* sigma(Gamma) restricted to the variables mentioned in c */
-	 private CConstraint constraintProjection(CConstraint c, Map<XTerm,CConstraint> m) throws XFailure {
+	 private CConstraint constraintProjection(CConstraint c, Map<XTerm,CConstraint> m, Set<XTerm> old) throws XFailure {
 		 CConstraint r = new CConstraint();
 		 if (c != null)
 			 for (XTerm t : c.constraints()) {
-				 CConstraint tc = constraintProjection(t, m);
+				 CConstraint tc = constraintProjection(t, m, old);
 				 if (tc != null)
 					 r.addIn(tc);
 			 }
 		 return r;
 	 }
 
-	 private CConstraint constraintProjection(XTerm t, Map<XTerm,CConstraint> m) throws XFailure {
+	 boolean contains(Set<XTerm> s, CConstraint c) {
+		 if (c==null || c.roots()==null)
+			 return false;
+		 Set<XTerm> s1 = c.roots().keySet();
+		 for (XTerm t: s1) {
+			 if (s.contains(t))
+				 return true;
+		 }
+		 return false;
+	 }
+	 private CConstraint constraintProjection(XTerm t, Map<XTerm,CConstraint> m, Set<XTerm> ancestors) throws XFailure {
 		 X10TypeSystem xts = (X10TypeSystem) this.ts;
 
 		 CConstraint r = m.get(t);
@@ -232,7 +245,10 @@ public class X10Context_c extends Context_c implements X10Context {
 				 ci = ci.substitute(v, ci.self());
 				 r = new CConstraint();
 				 r.addIn(ci);
-				 r.addIn(constraintProjection(ci, m));
+				 // Recursively perform a constraintProjection on the new constraint ci
+				 // only if one of the ancestor terms does not occur in it.
+				 if (! contains(ancestors, ci))
+				    r.addIn(constraintProjection(ci, m, ancestors));
 			 }
 		 }
 		 else if (t instanceof XLit) {
@@ -240,8 +256,9 @@ public class X10Context_c extends Context_c implements X10Context {
 		 else if (t instanceof XField) {
 			 XField f = (XField) t;
 			 XTerm target = f.receiver();
-
-			 CConstraint rt = constraintProjection(target, m);
+			 ancestors.add(target);
+			 ancestors.add(t);
+			 CConstraint rt = constraintProjection(target, m, ancestors);
 
 			 X10FieldDef fi = getField(f);
 			 CConstraint ci = null;
@@ -254,7 +271,10 @@ public class X10Context_c extends Context_c implements X10Context {
 				 ci = ci.substitute(target, v); // xts.xtypeTranslator().transThisWithoutTypeConstraint());
 				 r = new CConstraint();
 				 r.addIn(ci);
-				 r.addIn(constraintProjection(ci, m));
+				 // Recursively perform a constraintProjection on the new constraint ci
+				 // only if one of the ancestor terms does not occur in it.
+				 if ( ! contains(ancestors, ci))
+					 r.addIn(constraintProjection(ci, m, ancestors));
 				 if (rt != null) {
 					 r.addIn(rt);
 				 }
@@ -266,7 +286,8 @@ public class X10Context_c extends Context_c implements X10Context {
 		 else if (t instanceof XFormula) {
 			 XFormula f = (XFormula) t;
 			 for (XTerm a : f.arguments()) {
-				 CConstraint ca = constraintProjection(a, m);
+				 CConstraint ca = constraintProjection(a, m, ancestors);
+				 ancestors.add(a);
 				 if (ca != null) {
 					 if (r == null) {
 						 r = new CConstraint();
