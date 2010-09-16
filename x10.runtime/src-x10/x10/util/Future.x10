@@ -33,12 +33,20 @@ public class Future[+T] implements ()=>T {
     /**
      * Set if the activity terminated with an exception.
      * Can only be of type Error or RuntimeException
+     *
      */
+    // This cant be Cell because I need to create it before I know the value
+    // that will go in.
     transient private val exception = new GrowableRail[Throwable]();
     transient private val result = new GrowableRail[T]();
     transient private val eval:()=>T;
 
-    public def this(eval:()=>T) {
+    public static def make[T](eval:()=> T) {
+    	val f = new Future[T](eval);
+    	async f.run();
+    	return f;
+    }
+    def this(eval:()=>T) {
         this.eval = eval;
     }
 
@@ -66,7 +74,7 @@ public class Future[+T] implements ()=>T {
          }
          return result(0);
     }
-    @Pinned def run():Void {
+    @Pinned def run():void {
         try {
             finish result.add(eval());
             latch.release();
