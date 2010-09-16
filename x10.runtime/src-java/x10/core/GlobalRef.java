@@ -10,17 +10,19 @@
  */
 package x10.core;
 
-public class GlobalRef<T> extends x10.core.Struct {
-    public static final x10.rtt.RuntimeType<GlobalRef> _RTT = 
-        new x10.rtt.RuntimeType<GlobalRef>(GlobalRef.class,
-                new x10.rtt.RuntimeType.Variance[] { x10.rtt.RuntimeType.Variance.INVARIANT },
-                 new x10.rtt.Type[] {
-                     x10.rtt.Types
-                     .runtimeType(java.lang.Object.class),
-                     x10.rtt.Types
-                     .runtimeType(java.lang.Object.class) });
+public final class GlobalRef<T> extends x10.core.Struct {
 
-    public x10.rtt.RuntimeType<?> getRTT() {
+    public static final x10.rtt.RuntimeType<GlobalRef<?>> _RTT = new x10.rtt.RuntimeType<GlobalRef<?>>(
+        GlobalRef.class,
+        new x10.rtt.RuntimeType.Variance[] { x10.rtt.RuntimeType.Variance.INVARIANT }
+    ) {
+        @Override
+        public String typeName() {
+            return "x10.lang.GlobalRef";
+        } 
+    };
+
+    public x10.rtt.RuntimeType<GlobalRef<?>> getRTT() {
         return _RTT;
     }
 
@@ -29,16 +31,16 @@ public class GlobalRef<T> extends x10.core.Struct {
         return null;
     }
 
-    private final x10.rtt.Type T;
+    private final x10.rtt.Type<?> T;
 
     final public x10.lang.Place home;
 
-    final public T value;
+    final private T value;
 
-    public GlobalRef(final x10.rtt.Type T, final T t) {
+    public GlobalRef(final x10.rtt.Type<?> T, final T t) {
         this.T = T;
         this.home = x10.lang.Runtime.here();
-        this.value = ((T) (t));
+        this.value = (T) t;
     }
 
     final public T apply$G() {
@@ -49,54 +51,40 @@ public class GlobalRef<T> extends x10.core.Struct {
         return this.home;
     }
 
-    final native public java.lang.String typeName();
-
     final public java.lang.String toString() {
-        return (((((((("struct x10.core.GlobalRef:") + (" home="))) + (this.home))) + (" it="))) + (this.value));
+        return "struct x10.core.GlobalRef:" + " home=" + this.home + " it=" + this.value;
     }
 
     final public int hashCode() {
-        return (31 * this.home.hashCode()) + System.identityHashCode(this.value); // this.value.hashCode();
+        return 31 * this.home.hashCode() + System.identityHashCode(this.value); // this.value.hashCode();
     }
 
     final public boolean equals(java.lang.Object other) {
-        if ((!(((boolean) (x10.core.GlobalRef._RTT.instanceof$(other, T)))))) {
-            return false;
-        }
-
-        return this.equals(((x10.core.GlobalRef) ((new java.lang.Object() {
-            final x10.core.GlobalRef cast(final x10.core.GlobalRef self) {
-                if (self == null) return null;
-                x10.rtt.Type rtt = new x10.rtt.ParameterizedType(x10.core.GlobalRef._RTT, T);
-                if (rtt != null && !rtt.instanceof$(self)) throw new java.lang.ClassCastException();
-                return self;
-            }
-        }.cast((x10.core.GlobalRef) other)))));
+        return this._struct_equals(other);
     }
 
     final public boolean equals(x10.core.GlobalRef<T> other) {
-        return x10.rtt.Equality.equalsequals(this.home, other.home)
-                && x10.rtt.Equality.equalsequals(this.value, ((T) (other.value)));
+        return this._struct_equals(other);
     }
 
     final public boolean _struct_equals(java.lang.Object other) {
-        if ((!(((boolean) (x10.core.GlobalRef._RTT.instanceof$(other, T)))))) {
+        if (!x10.core.GlobalRef._RTT.instanceof$(other, T)) {
             return false;
         }
 
-        return this._struct_equals(((x10.core.GlobalRef) ((new java.lang.Object() {
-            final x10.core.GlobalRef cast(final x10.core.GlobalRef self) {
+        return this._struct_equals(new java.lang.Object() {
+            final x10.core.GlobalRef<T> cast(final x10.core.GlobalRef<T> self) {
                 if (self == null) return null;
-                x10.rtt.Type rtt = new x10.rtt.ParameterizedType(x10.core.GlobalRef._RTT, T);
+                x10.rtt.Type<GlobalRef<?>> rtt = new x10.rtt.ParameterizedType<GlobalRef<?>>(x10.core.GlobalRef._RTT, T);
                 if (rtt != null && !rtt.instanceof$(self)) throw new java.lang.ClassCastException();
                 return self;
             }
-        }.cast((x10.core.GlobalRef) other)))));
+        }.cast((x10.core.GlobalRef<T>) other));
     }
 
     final public boolean _struct_equals(x10.core.GlobalRef<T> other) {
         return x10.rtt.Equality.equalsequals(this.home, other.home)
-                && x10.rtt.Equality.equalsequals(this.value, ((T) (other.value)));
+                && x10.rtt.Equality.equalsequals(this.value, other.value);
     }
 
 }
