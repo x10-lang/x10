@@ -17,7 +17,7 @@ import harness.x10Test;
 public class ArrayIndexing extends x10Test {
 	var _tests: ValRail[String] = [ "testDouble" ];
 
-	const verbose: boolean = false;
+	static verbose: boolean = false;
 
 	var _doubleArray1D: Array[double](1);
 	var _doubleArray2D: Array[double](2);
