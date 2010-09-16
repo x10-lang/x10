@@ -90,8 +90,8 @@ public class ConditionalAtomicQueue extends x10Test {
 		finish {
 			// spawn producer activities on each place
 			async 
-				ateach (val (i): Point in MyDist.unique()) {
-					for (val (j): Point in [0..N-1]) {
+				ateach (val [i]: Point in MyDist.unique()) {
+					for (val [j]: Point in [0..N-1]) {
 						val t = new T(i, j); // produce a T
 						async at(root) {
 							val me = root();

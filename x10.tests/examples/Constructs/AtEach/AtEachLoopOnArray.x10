@@ -22,9 +22,9 @@ public class AtEachLoopOnArray extends x10Test {
 
     public def run(): boolean = {
 	   val A: DistArray[double](1) =
-	       DistArray.make[double]([0..10]->here, ((i): Point): double => i as double);
+	       DistArray.make[double]([0..10]->here, ([i]: Point): double => i as double);
 	
-	   finish ateach ((i): Point(1) in A)
+	   finish ateach ([i]: Point(1) in A)
 	       if (A(i) != i)
 	          async at(root) atomic { root().success = false; }
 	   return success;
