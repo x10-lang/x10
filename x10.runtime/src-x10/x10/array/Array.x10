@@ -61,13 +61,7 @@ public final class Array[T](
      * The number of points/data values in the array.
      * Will always be equal to region.size(), but cached here to make it available as a property.
      */
-     size:Int,
-
-    /**
-     * Is this array's region a "rail" (one-dimensional, rect, and zero-based)?
-     * Cached in the Array for efficient acccess at runtime in optimize apply/set methods
-     */
-    rail:Boolean
+     size:Int
 )  implements (Point(region.rank))=>T,
               Iterable[Point(region.rank)] {
 
@@ -89,6 +83,18 @@ public final class Array[T](
      * Is this array's region zero-based?
      */
     public property zeroBased: boolean = region.zeroBased;
+
+    /**
+     * Is this array's region a "rail" (one-dimensional, rect, and zero-based)?
+     */
+    public property rail: boolean = region.rail;
+
+    /**
+     * Cache the value of the rail property as a field so that if we need
+     * it at runtime we can get it in a single load.
+     */
+    private val cachedRail:boolean;
+
 
     private transient val raw:IndexedMemoryChunk[T];
     /* package */ val rawLength:int; // Made accessible to RemoteArray
@@ -125,12 +131,13 @@ public final class Array[T](
      * @param reg The region over which to construct the array.
      */
     public def this(reg:Region):Array[T]{self.region==reg} {
-	property(reg, reg.size(), reg.rail);
+	property(reg, reg.size());
 
         layout = RectLayout(reg.min(), reg.max());
         val n = layout.size();
         raw = IndexedMemoryChunk.allocate[T](n, true);
         rawLength = n;
+        cachedRail = reg.rail;
     }
 
 
@@ -142,7 +149,7 @@ public final class Array[T](
      * @param init The function to use to initialize the array.
      */    
     public def this(reg:Region, init:(Point(reg.rank))=>T):Array[T]{self.region==reg} {
-        property(reg, reg.size(), reg.rail);
+        property(reg, reg.size());
 
         layout = RectLayout(reg.min(), reg.max());
         val n = layout.size();
@@ -152,6 +159,7 @@ public final class Array[T](
         }
         raw = r;
         rawLength = n;
+        cachedRail = reg.rail;
     }
 
 
@@ -163,7 +171,7 @@ public final class Array[T](
      * @param init The function to use to initialize the array.
      */    
     public def this(reg:Region, init:T):Array[T]{self.region==reg} {
-        property(reg, reg.size(), reg.rail);
+        property(reg, reg.size());
 
         layout = RectLayout(reg.min(), reg.max());
         val n = layout.size();
@@ -181,6 +189,7 @@ public final class Array[T](
         }
         raw = r;
         rawLength = n;
+	cachedRail = reg.rail;
     }
 
 
@@ -263,7 +272,7 @@ public final class Array[T](
      * @see #set(T, Int)
      */
     public safe @Header @Inline def apply(i0:int){rank==1}:T {
-	if (rail) {
+	if (cachedRail) {
             if (checkBounds() && !((i0 as UInt) < (size as UInt))) {
                 raiseBoundsError(i0);
             }
@@ -363,7 +372,7 @@ public final class Array[T](
      * @see #set(T, Point)
      */
     public safe @Header @Inline def set(v:T, i0:int){rank==1}:T {
-	if (rail) {
+	if (cachedRail) {
             if (checkBounds() && !((i0 as UInt) < (size as UInt))) {
                 raiseBoundsError(i0);
             }
