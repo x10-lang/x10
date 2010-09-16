@@ -35,7 +35,7 @@ class DistRandomAccess1 extends Benchmark {
 
     //val places = ValRail.make[Place](PARALLELISM, (p:int)=>Place.places(p));
 
-    final class LocalTable {
+    final static class LocalTable {
     
         val a:Rail[long];
         val mask: int;
