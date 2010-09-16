@@ -84,21 +84,22 @@ public class XTypeTranslator {
 		ts = xts;
 	}
 
-	
-	
 	// TODO: vj 08/11/09 -- why does this do nothing? 
-	public void addTypeToEnv(XTerm self, final Type t) /*throws SemanticException*/ {
+	public void addTypeToEnv(XTerm self, final Type t) {
 	}
 
 	private XTerm trans(CConstraint c, Unary t, X10Context xc) throws SemanticException {
-		if (t.operator() == Unary.NOT)
-			return XTerms.makeNot(trans(c, t.expr(), xc));
-		XTerm v = XTerms.makeAtom(XTerms.makeName(t.operator()), trans(c, t.expr(), xc));
+		XTerm v = null;
+		if (t.operator() == Unary.NOT) {
+		    v = XTerms.makeNot(trans(c, t.expr(), xc));
+		} else {
+		    v = XTerms.makeAtom(XTerms.makeName(t.operator()), trans(c, t.expr(), xc));
+		    throw new SemanticException("Cannot translate " + t + " to constraint term.");
+		}		    
 		addTypeToEnv(v, t.type());
-		//return v;
-		throw new SemanticException("Cannot translate " + t + " to constraint term.");
+		return v;
 	}
-	
+
 	public XVar trans(CConstraint c, XVar target, FieldInstance fi) {
 		XName field = XTerms.makeName(fi.def(),  fi.name().toString());
 	   // String string = Types.get(fi.def().container()) + "#" + fi.name().toString();
@@ -413,41 +414,41 @@ public class XTypeTranslator {
 	}
 	
 
-        private void transType(TypeConstraint c, SubtypeTest t, X10Context xc) throws SemanticException {
-                TypeNode left = t.subtype();
-                TypeNode right = t.supertype();
-                c.addTerm(new SubtypeConstraint(left.type(), right.type(), t.equals()));
-        }
+	private void transType(TypeConstraint c, SubtypeTest t, X10Context xc) throws SemanticException {
+	    TypeNode left = t.subtype();
+	    TypeNode right = t.supertype();
+	    c.addTerm(new SubtypeConstraint(left.type(), right.type(), t.equals()));
+	}
 
-        private XTerm simplify(Binary rb, XTerm v) {
-        	XTerm result = v;
-        	Expr r1 = rb.left();
-        	Expr r2  = rb.right();
+	private XTerm simplify(Binary rb, XTerm v) {
+	    XTerm result = v;
+	    Expr r1 = rb.left();
+	    Expr r2  = rb.right();
 
-        	// Determine if their types force them to be equal or disequal.
-        	
-        	CConstraint c1 = X10TypeMixin.xclause(r1.type()).copy();
-        	XVar x = XTerms.makeUQV();
-        	try {
-        		c1.addSelfBinding(x);
-        	} catch (XFailure z) {
-        		// cant happen
-        	}
-        	CConstraint c2 = X10TypeMixin.xclause(x, r2.type()).copy();
-        	if (rb.operator()== Binary.EQ) {
-        		try {
-        			if (! c1.addIn(c2).consistent())
-        				result = XTerms.FALSE;
-        				if (c1.entails(c2) && c2.entails(c1)) {
-        					result = XTerms.TRUE;
-        				}
-        		} catch (XFailure z) {
-        			result = XTerms.FALSE;
-        		}
-        	}
-    	return result;
-        }
-	
+	    // Determine if their types force them to be equal or disequal.
+
+	    CConstraint c1 = X10TypeMixin.xclause(r1.type()).copy();
+	    XVar x = XTerms.makeUQV();
+	    try {
+	        c1.addSelfBinding(x);
+	    } catch (XFailure z) {
+	        throw new InternalCompilerError("Unexpected failure", z); // can't happen
+	    }
+	    CConstraint c2 = X10TypeMixin.xclause(x, r2.type()).copy();
+	    if (rb.operator()== Binary.EQ) {
+	        try {
+	            if (! c1.addIn(c2).consistent())
+	                result = XTerms.FALSE;
+	            if (c1.entails(c2) && c2.entails(c1)) {
+	                result = XTerms.TRUE;
+	            }
+	        } catch (XFailure z) {
+	            result = XTerms.FALSE;
+	        }
+	    }
+	    return result;
+	}
+
 	private XTerm trans(CConstraint c, Binary t, X10Context xc) throws SemanticException {
 	    Expr left = t.left();
 	    Expr right = t.right();
@@ -481,8 +482,8 @@ public class XTypeTranslator {
 	    addTypeToEnv(v, t.type());
 	    return v;
 	}
-	
-	private XTerm trans(CConstraint c, Tuple t, X10Context xc) throws SemanticException {
+
+	private XTerm trans(CConstraint c, Tuple t, X10Context xc) {
 	    List<XTerm> terms = new ArrayList<XTerm>();
 	    for (Expr e : t.arguments()) {
 		terms.add(trans(c, e, xc));
@@ -490,7 +491,7 @@ public class XTypeTranslator {
 	    return XTerms.makeAtom(XTerms.makeName("tuple"), terms);
 	}
 	
-	private XTerm trans(CConstraint c, Contains t, X10Context xc) throws SemanticException {
+	private XTerm trans(CConstraint c, Contains t, X10Context xc) {
 	    Expr left = t.item();
 	    Expr right = t.collection();
 	    boolean containsAll = t.isSubsetTest();
@@ -500,7 +501,7 @@ public class XTypeTranslator {
 		return XTerms.makeAtom(XTerms.makeName("in"), trans(c, left, xc), trans(c, right, xc));
 	}
 	
-	private XTerm trans(CConstraint c, Call t, X10Context xc) throws SemanticException {
+	private XTerm trans(CConstraint c, Call t, X10Context xc) {
 		X10MethodInstance xmi = (X10MethodInstance) t.methodInstance();
 		Flags f = xmi.flags();
 		if (X10Flags.toX10Flags(f).isProperty()) {
