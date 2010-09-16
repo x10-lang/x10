@@ -43,6 +43,12 @@
         <condition property="local.ecj.jar" value="${env.LOCAL_ECJ_JAR}">
             <isset property="env.LOCAL_ECJ_JAR"/>
         </condition>
+        <condition property="local.wala.jar" value="${env.LOCAL_WALA_JAR}">
+            <isset property="env.LOCAL_WALA_JAR"/>
+        </condition>
+        <condition property="local.equinox.jar" value="${env.LOCAL_EQUINOX_JAR}">
+            <isset property="env.LOCAL_EQUINOX_JAR"/>
+        </condition>
     </target>
 
     <target name="clean">
@@ -160,18 +166,30 @@
         <fail message="Unable to find ${ecj.jar} at ${local.ecj.jar}" unless="ecj.jar.present"/>
     </target>
 
-    <target name="wala-jar" depends="init">
+    <target name="wala-jar" depends="init,wala-local-jar" unless="local.wala.jar">
         <mkdir dir="${lib}"/>
         <get usetimestamp="true" src="${wala.jar.url}" dest="${lib}/${wala.jar}"/>
         <available property="wala.jar.present" file="${lib}/${wala.jar}"/>
         <fail message="Unable to get ${wala.jar} from ${wala.jar.url}" unless="wala.jar.present"/>
     </target>
+    <target name="wala-local-jar" depends="init" if="local.wala.jar">
+        <mkdir dir="${lib}"/>
+        <copy file="${local.wala.jar}" tofile="${lib}/${wala.jar}"/>
+        <available property="wala.jar.present" file="${lib}/${wala.jar}"/>
+        <fail message="Unable to find ${wala.jar} at ${local.wala.jar}" unless="wala.jar.present"/>
+    </target>
 
-    <target name="equinox-jar" depends="init">
+    <target name="equinox-jar" depends="init,equinox-local-jar" unless="local.equinox.jar">
         <mkdir dir="${lib}"/>
         <get usetimestamp="true" src="${equinox.jar.url}" dest="${lib}/${equinox.jar}"/>
         <available property="equinox.jar.present" file="${lib}/${equinox.jar}"/>
         <fail message="Unable to get ${equinox.jar} from ${equinox.jar.url}" unless="equinox.jar.present"/>
+    </target>
+    <target name="equinox-local-jar" depends="init" if="local.equinox.jar">
+        <mkdir dir="${lib}"/>
+        <copy file="${local.equinox.jar}" tofile="${lib}/${equinox.jar}"/>
+        <available property="equinox.jar.present" file="${lib}/${equinox.jar}"/>
+        <fail message="Unable to find ${equinox.jar} at ${local.equinox.jar}" unless="equinox.jar.present"/>
     </target>
 
     <target name="update-jar-cache" depends="init,lpg-jar,ecj-jar,wala-jar,equinox-jar"/>
