@@ -37,6 +37,7 @@ import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.types.UpcastTransform;
 import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
@@ -151,9 +152,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 
     public List<Type> typeParameters() {
         if (this.typeParameters == null) {
-            return new TransformingList<ParameterType, Type>(x10Def().typeParameters(), new Transformation<ParameterType, Type>() {
-                public Type transform(ParameterType o) { return o; }
-            });
+            return new TransformingList<ParameterType, Type>(x10Def().typeParameters(), new UpcastTransform<Type, ParameterType>());
         }
 
         return typeParameters;

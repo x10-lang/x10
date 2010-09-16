@@ -37,6 +37,7 @@ import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.types.UnknownType;
+import polyglot.types.UpcastTransform;
 import polyglot.types.TypeSystem_c.TypeEquals;
 import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
@@ -135,9 +136,7 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 
 	public List<Type> typeParameters() {
 		if (typeParams == null) {
-			return new TransformingList<ParameterType, Type>(def().typeParameters(), new Transformation<ParameterType, Type>() {
-			    public Type transform(ParameterType o) { return o; }
-			});
+			return new TransformingList<ParameterType, Type>(def().typeParameters(), new UpcastTransform<Type, ParameterType>());
 		}
 		return typeParams;
 	}
