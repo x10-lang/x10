@@ -19,15 +19,15 @@ import harness.x10Test;
 
 public class ClosureTypeParameters2a_MustFailCompile extends ClosureTest {
 
-    class V           {const name = "V";}
-    class W extends V {const name = "W";}
-    class X extends V {const name = "X";}
-    class Y extends X {const name = "Y";}
-    class Z extends X {const name = "Z";}
+    class V           {static name = "V";}
+    class W extends V {static name = "W";}
+    class X extends V {static name = "X";}
+    class Y extends X {static name = "Y";}
+    class Z extends X {static name = "Z";}
 
     public def run(): boolean = {
         
-        class C[T] {val f = (){T==Y} => "hi";}
+        class C[T]{T==Y} {val f = ()=> "hi";}
         check("new C[Z]().f()", new C[Z]().f(), "hi");
 
         return result;
