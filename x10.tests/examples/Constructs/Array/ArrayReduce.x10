@@ -28,7 +28,7 @@ public class ArrayReduce extends TestArray {
         pr("--- original");
         val a = DistArray.make[double](dist, (p:Point)=>p(0) as double);
         for (pt:Point(1) in a) {
-            val x = (future(a.dist(pt)) a(pt)).force();
+            val x = (at (a.dist(pt)) Future.make[double](()=>a(pt)))();
             out.print(x + " ");
         }
         out.println();
