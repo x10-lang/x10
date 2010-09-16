@@ -247,17 +247,29 @@ namespace x10 {
 
         template<class T> void GrowableRail<T>::_serialize_body(x10aux::serialization_buffer &buf) {
             this->x10::lang::Object::_serialize_body(buf);
+            buf.write(this->_len);
+            buf.write(this->_array->FMGL(length));
+            // Only serialize the part of the backing Rail that actually contains data.
+            for (int i=0; i<_len; i++) {
+                buf.write(this->_array->apply(i)); 
+            }                
         }
 
         template<class T> template<class U> x10aux::ref<U> GrowableRail<T>::_deserializer(x10aux::deserialization_buffer &buf) {
             x10aux::ref<GrowableRail> this_ = new (x10aux::alloc<GrowableRail>()) GrowableRail();
-            buf.record_reference(this_); // TODO: avoid; no global refs; final class
+            buf.record_reference(this_); 
             this_->_deserialize_body(buf);
             return this_;
         }
 
         template<class T> void GrowableRail<T>::_deserialize_body(x10aux::deserialization_buffer& buf) {
             this->x10::lang::Object::_deserialize_body(buf);
+            this->_len = buf.read<x10_int>();
+            x10_int railLen = buf.read<x10_int>();
+            this->_array = x10::lang::Rail<void>::make<T>(railLen);
+            for (int i=0; i<_len; i++) {
+                _array->set(buf.read<T>(), i);
+            }
         }
 
         template<class T> const x10aux::serialization_id_t GrowableRail<T>::_serialization_id =
