@@ -131,7 +131,8 @@ public class DistArray[T] (
 
     @Native("java", "(!`NO_CHECKS`)")
     @Native("c++", "BOUNDS_CHECK_BOOL")
-    private safe native def checkBounds():boolean;
+//  private safe native def checkBounds():boolean;
+    private var checkBounds : boolean = true;
 
     @Native("java", "(!`NO_CHECKS`)")
     @Native("c++", "PLACE_CHECK_BOOL")
@@ -139,7 +140,7 @@ public class DistArray[T] (
 
 
     public final safe def apply(pt: Point(rank)): T {
-        if (checkBounds() && !region.contains(pt)) {
+        if (checkBounds && !region.contains(pt)) {
             raiseBoundsError(pt);
         }
         if (checkPlace() && dist(pt) != here) {
@@ -154,7 +155,7 @@ public class DistArray[T] (
     public final safe def get(pt: Point(rank)): T = apply(pt);
 
     final public safe def apply(i0: int){rank==1}: T {
-        if (checkBounds() && !region.contains(i0)) {
+        if (checkBounds && !region.contains(i0)) {
             raiseBoundsError(i0);
         }
         if (checkPlace() && dist(i0) != here) {
@@ -164,7 +165,7 @@ public class DistArray[T] (
     }
 
     final public safe def apply(i0: int, i1: int){rank==2}: T {
-        if (checkBounds() && !region.contains(i0, i1)) {
+        if (checkBounds && !region.contains(i0, i1)) {
             raiseBoundsError(i0, i1);
         }
         if (checkPlace() && dist(i0, i1) != here) {
@@ -174,7 +175,7 @@ public class DistArray[T] (
     }
 
     final public safe def apply(i0: int, i1: int, i2: int){rank==3}: T {
-        if (checkBounds() && !region.contains(i0, i1, i2)) {
+        if (checkBounds && !region.contains(i0, i1, i2)) {
             raiseBoundsError(i0, i1, i2);
         }
         if (checkPlace() && dist(i0,i1,i2) != here) {
@@ -184,7 +185,7 @@ public class DistArray[T] (
     }
 
     final public safe def apply(i0: int, i1: int, i2: int, i3: int){rank==4}: T {
-        if (checkBounds() && !region.contains(i0, i1, i2, i3)) {
+        if (checkBounds && !region.contains(i0, i1, i2, i3)) {
             raiseBoundsError(i0, i1, i2, i3);
         }
         if (checkPlace() && dist(i0,i1,i2,i3) != here) {
@@ -196,7 +197,7 @@ public class DistArray[T] (
 
     // XXXX settable order
     public final safe def set(v: T, pt: Point(rank)): T {
-        if (checkBounds() && !region.contains(pt)) {
+        if (checkBounds && !region.contains(pt)) {
             raiseBoundsError(pt);
         }
         if (checkPlace() && dist(pt) != here) {
@@ -208,7 +209,7 @@ public class DistArray[T] (
     }
 
     final public safe def set(v: T, i0: int){rank==1}: T {
-        if (checkBounds() && !region.contains(i0)) {
+        if (checkBounds && !region.contains(i0)) {
             raiseBoundsError(i0);
         }
         if (checkPlace() && dist(i0) != here) {
@@ -219,7 +220,7 @@ public class DistArray[T] (
     }
 
     final public safe def set(v: T, i0: int, i1: int){rank==2}: T {
-        if (checkBounds() && !region.contains(i0, i1)) {
+        if (checkBounds && !region.contains(i0, i1)) {
             raiseBoundsError(i0, i1);
         }
         if (checkPlace() && dist(i0,i1) != here) {
@@ -230,7 +231,7 @@ public class DistArray[T] (
     }
 
     final public safe def set(v: T, i0: int, i1: int, i2: int){rank==3}: T {
-        if (checkBounds() && !region.contains(i0, i1, i2)) {
+        if (checkBounds && !region.contains(i0, i1, i2)) {
             raiseBoundsError(i0, i1, i2);
         }
         if (checkPlace() && dist(i0,i1,i2) != here) {
@@ -241,7 +242,7 @@ public class DistArray[T] (
     }
 
     final public safe def set(v: T, i0: int, i1: int, i2: int, i3: int){rank==4}: T {
-        if (checkBounds() && !region.contains(i0, i1, i2, i3)) {
+        if (checkBounds && !region.contains(i0, i1, i2, i3)) {
             raiseBoundsError(i0, i1, i2, i3);
         }
         if (checkPlace() && dist(i0,i1,i2,i3) != here) {
