@@ -17,7 +17,7 @@ import x10.compiler.NativeRep;
 /**
  * The base class for all reference classes.
  */
-@NativeRep("java", "java.lang.Object", null, null)
+@NativeRep("java", "java.lang.Object", null, "x10.rtt.Types.OBJECT")
 @NativeRep("c++", "x10aux::ref<x10::lang::Object>", "x10::lang::Object", null)
 public class Object 
         implements Any 

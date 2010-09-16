@@ -22,7 +22,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
 import x10.core.fun.Fun_0_1;
-import x10.rtt.RuntimeType.Variance;
 
 
 public class Types {
@@ -73,7 +72,7 @@ public class Types {
     };
     public static RuntimeType<AtomicReference<?>> ATOMIC_REFERENCE = new RuntimeType<AtomicReference<?>>(
         AtomicReference.class
-//        , new Variance[] {Variance.INVARIANT}/*TODO pass type params*/
+//        , new RuntimeType.Variance[] {RuntimeType.Variance.INVARIANT}/*TODO pass type params*/
     ) {
         @Override
         public String typeName() {
@@ -140,6 +139,12 @@ public class Types {
             return "x10.lang.String";
         }
     };
+    public static Type<Object> OBJECT = new RuntimeType<Object>(Object.class) {
+        @Override
+        public String typeName() {
+            return "x10.lang.Object";
+        }
+    };
 
     public static Type<?> UBYTE;    // instance created and set in UByte static initializer
     public static Type<?> USHORT;   // instance created and set in UShort static initializer
@@ -165,6 +170,7 @@ public class Types {
         if (o instanceof FileInputStream) return FILE_INPUT_STREAM;
         if (o instanceof FileOutputStream) return FILE_OUTPUT_STREAM;
         if (o instanceof File) return NATIVE_FILE;
+        if (Object.class.equals(o.getClass())) return OBJECT;
         return null;
     }
 
