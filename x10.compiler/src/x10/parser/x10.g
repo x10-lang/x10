@@ -3350,12 +3350,12 @@ public static class MessageHandler implements IMessageHandler {
                     setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, null, HasResultTypeopt, null });
           $EndJava
         ./
-                         | [ IdentifierList ] HasResultTypeopt
+                         | '[' IdentifierList ']' HasResultTypeopt
         /.$BeginJava
                     setResult(new Object[] { pos(), null, IdentifierList, null, HasResultTypeopt, null });
           $EndJava
         ./
-                         | Identifier [ IdentifierList ] HasResultTypeopt
+                         | Identifier '[' IdentifierList ']' HasResultTypeopt
         /.$BeginJava
                     setResult(new Object[] { pos(), Identifier, IdentifierList, null, HasResultTypeopt, null });
           $EndJava
@@ -4018,12 +4018,12 @@ public static class MessageHandler implements IMessageHandler {
                     setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, null, ResultType, null });
           $EndJava
         ./
-                         | [ IdentifierList ] ResultType
+                         | '[' IdentifierList ']' ResultType
         /.$BeginJava
                     setResult(new Object[] { pos(), null, IdentifierList, null, ResultType, null });
           $EndJava
         ./
-                         | Identifier [ IdentifierList ] ResultType
+                         | Identifier '[' IdentifierList ']' ResultType
         /.$BeginJava
                     setResult(new Object[] { pos(), Identifier, IdentifierList, null, ResultType, null });
           $EndJava
@@ -4045,12 +4045,12 @@ public static class MessageHandler implements IMessageHandler {
                     setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, null, HasResultTypeopt, VariableInitializer });
           $EndJava
         ./
-                         | [ IdentifierList ] HasResultTypeopt = VariableInitializer
+                         | '[' IdentifierList ']' HasResultTypeopt = VariableInitializer
         /.$BeginJava
                     setResult(new Object[] { pos(), null, IdentifierList, null, HasResultTypeopt, VariableInitializer });
           $EndJava
         ./
-                         | Identifier [ IdentifierList ] HasResultTypeopt = VariableInitializer
+                         | Identifier '[' IdentifierList ']' HasResultTypeopt = VariableInitializer
         /.$BeginJava
                     setResult(new Object[] { pos(), Identifier, IdentifierList, null, HasResultTypeopt, VariableInitializer });
           $EndJava
@@ -4061,12 +4061,12 @@ public static class MessageHandler implements IMessageHandler {
                     setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, null, HasResultType, VariableInitializer });
           $EndJava
         ./
-                         | [ IdentifierList ] HasResultType = VariableInitializer
+                         | '[' IdentifierList ']' HasResultType = VariableInitializer
         /.$BeginJava
                     setResult(new Object[] { pos(), null, IdentifierList, null, HasResultType, VariableInitializer });
           $EndJava
         ./
-                         | Identifier [ IdentifierList ] HasResultType = VariableInitializer
+                         | Identifier '[' IdentifierList ']' HasResultType = VariableInitializer
         /.$BeginJava
                     setResult(new Object[] { pos(), Identifier, IdentifierList, null, HasResultType, VariableInitializer });
           $EndJava
