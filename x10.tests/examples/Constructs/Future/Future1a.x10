@@ -16,7 +16,7 @@ import x10.util.Future;
  * Future test.
  */
 public class Future1a extends x10Test {
-	public def run() = (new Future[int](()=>41))()+1 == 42;
+	public def run() = (Future.make[int](()=>41))()+1 == 42;
 	public static def main(var args: Array[String](1)): void = {
 		new Future1a().execute();
 	}
