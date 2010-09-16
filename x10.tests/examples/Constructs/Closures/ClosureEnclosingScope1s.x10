@@ -26,13 +26,13 @@ public class ClosureEnclosingScope1s extends ClosureTest {
 
     public def run(): boolean = {
         
-        shared var b:int = 1;
+        var b:int = 1;
 
         class C {
             val c = 1;
             def foo() = {
                 val fun = () => {
-                    shared var d:int = 1;
+                    var d:int = 1;
                     (() => a+b+c+d)()
                 };
                 fun()
