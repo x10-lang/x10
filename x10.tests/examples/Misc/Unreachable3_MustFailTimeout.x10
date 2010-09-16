@@ -20,7 +20,7 @@ import harness.x10Test;
 public class Unreachable3_MustFailTimeout extends x10Test {
 
 	public def run(): boolean = {
-		async (here) {
+		async {
 			while (true) { }
 		}
 		return true;

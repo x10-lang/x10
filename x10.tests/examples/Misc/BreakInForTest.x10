@@ -33,7 +33,7 @@ public class BreakInForTest extends x10Test {
 			if ((i+1) % n1 == 0) continue;
 			if ((i+1) % n2 == 0) break;
 		}
-		for (val (i): Point in D) {
+		for (val [i]: Point in D) {
 			if ((i+1) % n1 == 0) continue;
 			if ((i+1) % n2 == 0) break;
 		}

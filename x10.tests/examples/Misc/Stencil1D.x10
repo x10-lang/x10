@@ -26,7 +26,7 @@ public class Stencil1D extends x10Test {
 
     def step(A:Rail[Double], R: Region(1)) {
        var diff: Double = 0;
-       for ((q) in R) {
+       for ([q] in R) {
            val newVal = (A(q-1)+ A(q+1))/2.0 ; 
            diff = Math.max(diff, Math.abs(newVal - A(q)));
            A(q) = newVal;
@@ -40,7 +40,7 @@ public class Stencil1D extends x10Test {
        val blocks = block(1..N, P);
        for (; delta > epsilon; iters++) {
           delta = 0;
-          finish foreach ((p):Point(1) in 0..P-1) {
+          finish foreach ([p]:Point(1) in 0..P-1) {
              val myDelta  = step(A, blocks(p));
              atomic  delta= Math.max(delta, myDelta);
           }
