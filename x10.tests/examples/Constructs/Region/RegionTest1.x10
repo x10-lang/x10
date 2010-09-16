@@ -23,7 +23,7 @@ public class RegionTest1 extends x10Test {
         var reg: Region(2){rect} = [r,r];
 
         var sum: int = 0;
-        for (p(i,j) in reg) sum += i-j;
+        for (p[i,j] in reg) sum += i-j;
 
         return sum == 0;
     }

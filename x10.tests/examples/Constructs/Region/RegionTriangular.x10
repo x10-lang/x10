@@ -24,10 +24,10 @@ public class RegionTriangular extends x10Test {
 		val Universe: Region = [0..7, 0..7];
 		var upperT: Region = Region.makeUpperTriangular(8);
 		pr("upperT", upperT);
-		for (val (i,j): Point in Universe) chk(iff(i <= j, upperT.contains([i, j])));
+		for (val [i,j]: Point in Universe) chk(iff(i <= j, upperT.contains([i, j])));
 		var lowerT: Region = Region.makeLowerTriangular(8);
 		pr("lowerT", lowerT);
-		for (val (i,j): Point in Universe) chk(iff(i >= j, lowerT.contains([i, j])));
+		for (val [i,j]: Point in Universe) chk(iff(i >= j, lowerT.contains([i, j])));
 		return true;
 	}
 
@@ -40,7 +40,7 @@ public class RegionTriangular extends x10Test {
 		x10.io.Console.OUT.println("printing region "+s);
 		var k: int = 0;
 		val N: int = 8;
-		for (val (i,j): Point in [0..N-1, 0..N-1]) {
+		for (val [i,j]: Point in [0..N-1, 0..N-1]) {
 			x10.io.Console.OUT.print(" "+(r.contains([i, j]) ? "+" : "."));
 			if ((++k) % N == 0) x10.io.Console.OUT.println();
 		}

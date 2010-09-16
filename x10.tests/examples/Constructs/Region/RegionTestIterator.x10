@@ -24,7 +24,7 @@ public class RegionTestIterator extends x10Test {
         val reg = Region.make(r2);
 
         var sum:int = 0;
-        for ((i,j):Point in reg)
+        for ([i,j]:Point in reg)
             sum += i - j;
 
         return sum == 0;
