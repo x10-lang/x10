@@ -26,14 +26,14 @@ public class Array1 extends x10Test {
         val r = [e,e] as Region;
         val ia = new Array[int](r, (Point)=>0);
 
-        for (p(i) in e) {
-            for (q(j) in e) {
+        for (p[i] in e) {
+            for (q[j] in e) {
                 chk(ia(i,j) == 0);
                 ia(i,j) = i+j;
             }
         }
 
-        for (val p(i,j): Point(2) in r) {
+        for (val p[i,j]: Point(2) in r) {
             val q1:Point(2) = [i,j];
             chk(i == q1(0));
             chk(j == q1(1));

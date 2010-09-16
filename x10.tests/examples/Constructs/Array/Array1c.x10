@@ -34,14 +34,14 @@ public class Array1c extends x10Test {
 
         val ia = DistArray.make[int](d, (Point)=>0);
 
-        for (val p(i) in e) for (val q(j)  in e) {
+        for (val p[i] in e) for (val q[j]  in e) {
             chk(ia(i, j) == 0);
             ia(i, j) = i+j;
         }
 
 /*
-        for (val p(i,j):Point(2) in ia) {
-            var q1(m,n)  = [i, j] as Point;
+        for (val p[i,j]:Point(2) in ia) {
+            var q1[m,n]  = [i, j] as Point;
             chk(i == m);
             chk(j == n);
             chk(ia(i, j) == i+j);

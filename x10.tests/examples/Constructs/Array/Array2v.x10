@@ -26,12 +26,12 @@ public class Array2v extends x10Test {
 
         val ia = new Array[int](r, (Point)=>0);
 
-        for (val (i,j,k): Point in r) {
+        for (val [i,j,k]: Point in r) {
             chk(ia(i, j, k) == 0);
             ia(i, j, k) = 100*i + 10*j + k;
         }
 
-        for (val (i,j,k): Point in r) {
+        for (val [i,j,k]: Point in r) {
             chk(ia(i, j, k) == 100*i + 10*j + k);
         }
 

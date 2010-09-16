@@ -17,20 +17,20 @@ import harness.x10Test;
 
 public class Array1Exploded extends x10Test {
 
-    public def select(p(i,j): Point, (k,l): Point)=i+k;
+    public def select(p[i,j]: Point, [k,l]: Point)=i+k;
 
     public def run(): boolean = {
 
         val r = [1..10, 1..10] as Region;
         val ia = new Array[int](r);
 
-        for (val p(i,j): Point(2) in [1..10, 1..10] as Region) {
+        for (val p[i,j]: Point(2) in [1..10, 1..10] as Region) {
             chk(ia(p) == 0);
             ia(p) = i+j;
         }
 
-        for (val p(i,j): Point(2) in r) {
-            val q1(m,n)  = [i, j] as Point;
+        for (val p[i,j]: Point(2) in r) {
+            val q1[m,n]  = [i, j] as Point;
             chk(i == m);
             chk(j == n);
             chk(ia(i, j) == i+j);
