@@ -38,7 +38,7 @@ class PolyHalfspace1 extends TestRegion {
         "zeroBased false\n"+
         "rail false\n"+
         "isConvex() true\n"+
-        "size() Incomplete method.\n"+
+        "size() unsupported operation exception\n"+
         "region: (x0+x1>=3 && x0-x1>=-1 && x0-x1<=1 && x0+x1<=7)\n"+
         "  poly\n"+
         "    1  . . 2 . . . . . . . \n"+

@@ -29,7 +29,7 @@ class PolyUpperTriangular1 extends TestRegion {
         "zeroBased false\n"+
         "rail false\n"+
         "isConvex() true\n"+
-        "size() Incomplete method.\n"+
+        "size() unsupported operation exception\n"+
         "region: (x0>=0 && x1<=4 && x0-x1<=0)\n"+
         "  poly\n"+
         "    0  0 0 0 0 0 . . . . . \n"+

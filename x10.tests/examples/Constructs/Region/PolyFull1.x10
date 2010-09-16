@@ -29,7 +29,7 @@ class PolyFull1 extends TestRegion {
         "zeroBased false\n"+
         "rail false\n"+
         "isConvex() true\n"+
-        "size() Incomplete method.\n"+
+        "size() unsupported operation exception\n"+
         "region: full(3)\n"+
         "x10.array.UnboundedRegionException: axis 2 has no minimum\n";
     
