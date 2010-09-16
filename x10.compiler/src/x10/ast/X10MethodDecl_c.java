@@ -212,9 +212,9 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 			mi.setTypeGuard(n.guard().typeConstraint());
 		}
 
-		List<Ref<? extends Type>> typeParameters = new ArrayList<Ref<? extends Type>>(n.typeParameters().size());
+		List<ParameterType> typeParameters = new ArrayList<ParameterType>(n.typeParameters().size());
 		for (TypeParamNode tpn : n.typeParameters()) {
-			typeParameters.add(Types.ref(tpn.type()));
+			typeParameters.add(tpn.type());
 		}
 		mi.setTypeParameters(typeParameters);
 

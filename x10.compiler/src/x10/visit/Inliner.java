@@ -683,7 +683,7 @@ private int getCost(X10MethodDecl decl, Job job) {
                 return type;
             return type;
         }
-        Type concreteType = instantiate(getGenericTypes(mi.x10Def().typeParameters()), mi.typeParameters(), genericType);
+        Type concreteType = instantiate(mi.x10Def().typeParameters(), mi.typeParameters(), genericType);
         if (null != concreteType)
             return concreteType;
         X10ClassType container = (X10ClassType) mi.container();
@@ -691,18 +691,6 @@ private int getCost(X10MethodDecl decl, Job job) {
         if (null != concreteType)
             return concreteType;
         throw new InternalCompilerError("Type parameter " +genericType+ " not instantiated at call to method " +mi);
-    }
-
-    /**
-     * @param methodGenerics
-     * @return
-     */
-    private List<ParameterType> getGenericTypes( List<Ref<? extends Type>> methodGenerics) {
-        List<ParameterType> params = new ArrayList<ParameterType>();
-        for (Ref<? extends Type> t : methodGenerics){
-            params.add((ParameterType) t.get());
-        }
-        return params;
     }
 
     /**
@@ -1031,7 +1019,7 @@ private int getCost(X10MethodDecl decl, Job job) {
         List<ParameterType> typeParms = new ArrayList<ParameterType>();
         typeArgs.addAll(method.typeParameters());
         typeArgs.addAll(((X10ClassType) method.container()).typeArguments());
-        typeParms.addAll(getGenericTypes(method.x10Def().typeParameters()));
+        typeParms.addAll(method.x10Def().typeParameters());
         typeParms.addAll(((X10ClassType) method.container()).x10Def().typeParameters());
         return new TypeParamSubst(xts, typeArgs, typeParms);
     }

@@ -151,7 +151,9 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 
     public List<Type> typeParameters() {
         if (this.typeParameters == null) {
-            return new TransformingList<Ref<? extends Type>, Type>(x10Def().typeParameters(), new DerefTransform<Type>());
+            return new TransformingList<ParameterType, Type>(x10Def().typeParameters(), new Transformation<ParameterType, Type>() {
+                public Type transform(ParameterType o) { return o; }
+            });
         }
 
         return typeParameters;

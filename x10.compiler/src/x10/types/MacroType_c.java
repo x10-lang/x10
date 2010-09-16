@@ -135,7 +135,9 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 
 	public List<Type> typeParameters() {
 		if (typeParams == null) {
-			return new TransformingList<Ref<? extends Type>, Type>(def().typeParameters(), new DerefTransform<Type>());
+			return new TransformingList<ParameterType, Type>(def().typeParameters(), new Transformation<ParameterType, Type>() {
+			    public Type transform(ParameterType o) { return o; }
+			});
 		}
 		return typeParams;
 	}

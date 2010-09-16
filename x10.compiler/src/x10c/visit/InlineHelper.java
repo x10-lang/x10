@@ -231,7 +231,7 @@ public class InlineHelper extends ContextVisitor {
                         X10MethodDef nmd = (X10MethodDef) xts.methodDef(pos, Types.ref(cd.asType()), nmdcl.flags().flags(), Types.ref(nmdcl.returnType().type()), nmdcl.name().id(), argTypes, excTypes);
 
                         // check
-                        List<Ref<? extends Type>> rts = new ArrayList<Ref<? extends Type>>();
+                        List<ParameterType> rts = new ArrayList<ParameterType>();
                         List<TypeParamNode> ts = new ArrayList<TypeParamNode>(mdcl.typeParameters());
                         if (md instanceof X10MethodDef) {
                             rts.addAll(((X10MethodDef) md).typeParameters());
@@ -244,7 +244,7 @@ public class InlineHelper extends ContextVisitor {
                                         if (t3 instanceof ParameterType) {
                                             ParameterType pt = (ParameterType) t3;
                                             ts.add(xnf.TypeParamNode(pos, xnf.Id(pos, pt.name())).type(pt));
-                                            rts.add(Types.ref(pt));
+                                            rts.add(pt);
                                         }
                                     }
                                 }
@@ -323,7 +323,7 @@ public class InlineHelper extends ContextVisitor {
                         
                         StructType container = mi.container();
                         X10MethodDef md = (X10MethodDef) xts.methodDef(pos, Types.ref(container), mi.flags().clearNative().clearPrivate().Static(), Types.ref(mi.returnType()), id.id(), getRefList(formals), getRefList(mi.throwTypes()));
-                        List<Ref<? extends Type>> rts = new ArrayList<Ref<? extends Type>>();
+                        List<ParameterType> rts = new ArrayList<ParameterType>();
                         if (md instanceof X10MethodDef) {
                             rts.addAll(((X10MethodDef) mi.def()).typeParameters());
                         }
@@ -334,7 +334,7 @@ public class InlineHelper extends ContextVisitor {
                                     for (Type t3 : t2.typeArguments()) {
                                         if (t3 instanceof ParameterType) {
                                             ParameterType pt = (ParameterType) t3;
-                                            rts.add(Types.ref(pt));
+                                            rts.add(pt);
                                         }
                                     }
                                 }

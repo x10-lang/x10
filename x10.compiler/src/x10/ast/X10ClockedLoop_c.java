@@ -29,6 +29,7 @@ import polyglot.util.Position;
 import polyglot.util.TypedList;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
+import x10.types.ParameterType;
 import x10.types.X10Context;
 import x10.types.X10MethodDef;
 import x10.types.X10TypeSystem;
@@ -96,7 +97,7 @@ public abstract class X10ClockedLoop_c extends X10Loop_c implements Clocked {
 	        X10MethodDef asyncInstance = (X10MethodDef) ts.asyncCodeInstance(c.inStaticContext());
 	        if (xc.currentCode() instanceof X10MethodDef) {
 	            X10MethodDef outer = (X10MethodDef) c.currentCode();
-	            List<Ref<? extends Type>> capturedTypes = outer.typeParameters();
+	            List<ParameterType> capturedTypes = outer.typeParameters();
 	            if (!capturedTypes.isEmpty()) {
 	                asyncInstance = ((X10MethodDef) asyncInstance.copy());
 	                asyncInstance.setTypeParameters(capturedTypes);

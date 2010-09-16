@@ -773,10 +773,10 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         X10MethodDef md = (X10MethodDef) methodDef(pos, Types.ref(container), flags,
                                                    Types.ref(returnType), name, Collections.EMPTY_LIST,
                                                    args, thisVar, formalNames, null, null, excTypes, null, null);
-        List<Ref<? extends Type>> typeParams = new ArrayList<Ref<? extends Type>>();
+        List<ParameterType> typeParams = new ArrayList<ParameterType>();
         i = 0;
-        for (Ref<? extends Type> r : typeParams) {
-            typeParams.add(Types.ref(new ParameterType_c(this, pos, Name.make("T"+(++i)), Types.ref(md))));
+        for (Type r : typeArgs) {
+            typeParams.add(new ParameterType_c(this, pos, Name.make("T"+(++i)), Types.ref(md)));
         }
         md.setTypeParameters(typeParams);
         return ((X10MethodInstance) md.asInstance()).error(error);
@@ -801,7 +801,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
                 thisVar, formalNames, null, null, excTypes, null);
 //        List<Ref<? extends Type>> typeParams = new ArrayList<Ref<? extends Type>>();
 //        i = 0;
-//        for (Ref<? extends Type> r : typeParams) {
+//        for (Type r : typeArgs) {
 //            typeParams.add(Types.ref(new ParameterType_c(this, pos, Name.make("T"+(++i)), Types.ref(cd))));
 //        }
 //        cd.setTypeParameters(typeParams);
@@ -1119,7 +1119,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     
     public X10MethodDef methodDef(Position pos, Ref<? extends StructType> container, 
     		Flags flags, Ref<? extends Type> returnType, Name name,
-            List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes, 
+            List<ParameterType> typeParams, List<Ref<? extends Type>> argTypes, 
             XVar thisVar, List<LocalDef> formalNames, 
             Ref<CConstraint> guard,
             Ref<TypeConstraint> typeGuard, 

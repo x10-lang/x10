@@ -209,7 +209,7 @@ public interface X10TypeSystem extends TypeSystem {
             List<Ref<? extends Type>> argTypes, List<Ref<? extends Type>>  excTypes, Ref<? extends Type> offerType);
     
     X10MethodDef methodDef(Position pos, Ref<? extends StructType> container, Flags flags, Ref<? extends Type> returnType, Name name,
-	    List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes, XVar thisVar, List<LocalDef> formalNames,
+	    List<ParameterType> typeParams, List<Ref<? extends Type>> argTypes, XVar thisVar, List<LocalDef> formalNames,
 	    Ref<CConstraint> guard, Ref<TypeConstraint> typeGuard, List<Ref<? extends Type>> excTypes, Ref<? extends Type> offerType, Ref<XTerm> body);
 
     /**

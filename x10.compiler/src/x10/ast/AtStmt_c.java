@@ -47,6 +47,7 @@ import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.errors.Errors;
 import x10.types.ClosureDef;
+import x10.types.ParameterType;
 import x10.types.X10Context;
 import x10.types.X10MethodDef;
 import x10.types.X10TypeMixin;
@@ -169,7 +170,7 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
             X10MethodDef outer = (X10MethodDef) c.currentCode();
             XVar thisVar = outer.thisVar();
             asyncInstance.setThisVar(thisVar);
-            List<Ref<? extends Type>> capturedTypes = outer.typeParameters();
+            List<ParameterType> capturedTypes = outer.typeParameters();
             if (!capturedTypes.isEmpty()) {
                 asyncInstance = ((X10MethodDef) asyncInstance.copy());
                 asyncInstance.setTypeParameters(capturedTypes);

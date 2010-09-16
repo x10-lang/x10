@@ -147,11 +147,11 @@ public class X10ConstructorDef_c extends ConstructorDef_c implements X10Construc
         this.typeGuard = s;
     }
     
-    public List<Ref<? extends Type>> typeParameters() {
-        return Collections.<Ref<? extends Type>>emptyList();
+    public List<ParameterType> typeParameters() {
+        return Collections.<ParameterType>emptyList();
     }
 
-    public void setTypeParameters(List<Ref<? extends Type>> typeParameters) {
+    public void setTypeParameters(List<ParameterType> typeParameters) {
         throw new InternalCompilerError("Attempt to set type parameters on a constructor def: "+this, position());
     }
     

@@ -32,8 +32,8 @@ public interface TypeDef extends X10Def, MemberDef, X10ProcedureDef {
 	public Name name();
 	public void setName(Name name);
 
-	public List<Ref<? extends Type>> typeParameters();
-	public void setTypeParameters(List<Ref<? extends Type>> typeParameters);
+	public List<ParameterType> typeParameters();
+	public void setTypeParameters(List<ParameterType> typeParameters);
 	
 	public List<Ref<? extends Type>> formalTypes();
 	public void setFormalTypes(List<Ref<? extends Type>> formalTypes);

@@ -46,6 +46,7 @@ import x10.constraint.XFailure;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.errors.Errors;
+import x10.types.ParameterType;
 import x10.types.X10Context;
 import x10.types.X10MethodDef;
 import x10.types.X10TypeSystem;
@@ -171,7 +172,7 @@ public class Async_c extends Stmt_c implements Async {
 	        X10MethodDef asyncInstance = (X10MethodDef) ts.asyncCodeInstance(c.inStaticContext());
 	        if (xc.currentCode() instanceof X10MethodDef) {
 	            X10MethodDef outer = (X10MethodDef) c.currentCode();
-	            List<Ref<? extends Type>> capturedTypes = outer.typeParameters();
+	            List<ParameterType> capturedTypes = outer.typeParameters();
 	            if (!capturedTypes.isEmpty()) {
 	                asyncInstance = ((X10MethodDef) asyncInstance.copy());
 	                asyncInstance.setTypeParameters(capturedTypes);

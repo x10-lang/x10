@@ -268,12 +268,12 @@ public class ClosureSynthesizer {
         cd.setInterfaces(Collections.<Ref<? extends Type>> singletonList(Types.ref(xts.Any())));
         cd.flags(X10Flags.toX10Flags(Flags.PUBLIC.Abstract().Interface()));
 
-        final List<Ref<? extends Type>> typeParams = new ArrayList<Ref<? extends Type>>();
+        final List<ParameterType> typeParams = new ArrayList<ParameterType>();
         final List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
 
         for (int i = 0; i < numTypeParams; i++) {
-            Type t = new ParameterType_c(xts, pos, Name.make("X" + i), Types.ref(cd));
-            typeParams.add(Types.ref(t));
+            ParameterType t = new ParameterType_c(xts, pos, Name.make("X" + i), Types.ref(cd));
+            typeParams.add(t);
         }
 
         for (int i = 0; i < numValueParams; i++) {

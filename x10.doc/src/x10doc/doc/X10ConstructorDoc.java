@@ -72,12 +72,11 @@ public class X10ConstructorDoc extends X10Doc implements ConstructorDoc {
 	}
 	
 	void initTypeParameters() {
-		List<Ref<? extends polyglot.types.Type>> params = constrDef.typeParameters();
+		List<ParameterType> params = constrDef.typeParameters();
 		// typeParams = new LinkedHashMap<String, X10TypeVariable>(params.size());
 		typeParams = new X10TypeVariable[params.size()];
 		int i = 0;
-		for (Ref<? extends polyglot.types.Type> ref: params) {
-			ParameterType p = (ParameterType) ref.get();
+		for (ParameterType p: params) {
 			X10TypeVariable v = new X10TypeVariable(p, this);
 			// typeParams.put(typeParameterKey(p), v);
 			typeParams[i++] = v;

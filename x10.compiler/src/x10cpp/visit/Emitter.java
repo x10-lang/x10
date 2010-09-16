@@ -399,10 +399,8 @@ public class Emitter {
 		}
 	}
 
-	static List<Type> toTypeList(List<Ref<? extends Type>> list) {
-		ArrayList<Type> res = new ArrayList<Type>();
-		for (Ref<? extends Type> r : list)
-			res.add(r.get());
+	static List<Type> toTypeList(List<ParameterType> list) {
+		ArrayList<Type> res = new ArrayList<Type>(list);
 		return res;
 	}
 

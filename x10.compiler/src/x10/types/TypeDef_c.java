@@ -39,7 +39,7 @@ public class TypeDef_c extends Def_c implements TypeDef {
 	protected Flags flags;
 	protected Name name;
 	protected Ref<? extends Package> package_;
-	protected List<Ref<? extends Type>> typeParameters;
+	protected List<ParameterType> typeParameters;
 	protected List<LocalDef> formalNames;
 	protected List<Ref<? extends Type>> formalTypes;
 	protected Ref<CConstraint> guard;
@@ -47,14 +47,14 @@ public class TypeDef_c extends Def_c implements TypeDef {
 	protected Ref<? extends Type> type;
 	protected MacroType asType;
 	
-	public TypeDef_c(TypeSystem ts, Position pos, Flags flags, Name name, Ref<? extends StructType> container, List<Ref<? extends Type>> typeParams,
+	public TypeDef_c(TypeSystem ts, Position pos, Flags flags, Name name, Ref<? extends StructType> container, List<ParameterType> typeParams,
 	        XVar thisVar, List<LocalDef> formalNames, List<Ref<? extends Type>> formalTypes, Ref<CConstraint> guard, Ref<TypeConstraint> typeGuard, Ref<? extends Type> type) {
 
 		super(ts, pos);
 		this.container = container;
 		this.name = name;
 		this.flags = flags;
-		this.typeParameters = TypedList.copyAndCheck(typeParams, Ref.class, true);
+		this.typeParameters = TypedList.copyAndCheck(typeParams, ParameterType.class, true);
 		this.thisVar = thisVar;
 		this.formalNames = TypedList.copyAndCheck(formalNames, LocalDef.class, true);
 		this.formalTypes = TypedList.copyAndCheck(formalTypes, Ref.class, true);
@@ -121,15 +121,15 @@ public class TypeDef_c extends Def_c implements TypeDef {
 	/* (non-Javadoc)
 	 * @see x10.types.TypeDef#typeParameters()
 	 */
-	public List<Ref<? extends Type>> typeParameters() {
+	public List<ParameterType> typeParameters() {
 		return Collections.unmodifiableList(typeParameters);
 	}
 
 	/* (non-Javadoc)
 	 * @see x10.types.TypeDef#setTypeParameters(java.util.List)
 	 */
-	public void setTypeParameters(List<Ref<? extends Type>> typeParameters) {
-		this.typeParameters = TypedList.copyAndCheck(typeParameters, Ref.class, true);
+	public void setTypeParameters(List<ParameterType> typeParameters) {
+		this.typeParameters = TypedList.copyAndCheck(typeParameters, ParameterType.class, true);
 	}
 
 	public Ref<CConstraint> guard() {
