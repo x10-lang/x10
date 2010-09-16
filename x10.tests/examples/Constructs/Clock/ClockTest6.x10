@@ -68,17 +68,17 @@ public class ClockTest6 extends x10Test {
 	var globalCounter: int = 0;
 
 	public def run(): boolean = {
-		finish async(here) {
+		finish async {
 			// create and register with multiple clocks
 			val c: Clock = Clock.make();
 			val d: Clock = Clock.make();
 			val e: Clock = Clock.make();
 			// Spawn subactivities using different subset of the clocks
 			// The subactivities will perform N_NEXTS next pairs each
-			for (val (i): Point in 1..N_INSTANCES) {
+			for ([i] in 1..N_INSTANCES) {
 				/*Activity kind: 1 clocks = (c)*/
-				async(here) clocked(c)
-					for (val (tick): Point in 0..(N_NEXTS-1)) {
+				async clocked(c)
+					for ([tick] in 0..(N_NEXTS-1)) {
 						// do work
 						doWork("1_", i, "(c)", tick);
 						next; //barrier
@@ -87,8 +87,8 @@ public class ClockTest6 extends x10Test {
 						next; //barrier
 					}
 				/*Activity kind: 2 clocks = (c, d)*/
-				async(here) clocked(c, d)
-					for (val (tick): Point in 0..(N_NEXTS-1)) {
+				async clocked(c, d)
+					for ([tick] in 0..(N_NEXTS-1)) {
 						// do work
 						doWork("2_", i, "(c, d)", tick);
 						next; //barrier
@@ -97,8 +97,8 @@ public class ClockTest6 extends x10Test {
 						next; //barrier
 					}
 				/*Activity kind: 3 clocks = (c, e)*/
-				async(here) clocked(c, e)
-					for (val (tick): Point in 0..(N_NEXTS-1)) {
+				async  clocked(c, e)
+					for ([tick] in 0..(N_NEXTS-1)) {
 						// do work
 						doWork("3_", i, "(c, e)", tick);
 						next; //barrier
@@ -107,8 +107,8 @@ public class ClockTest6 extends x10Test {
 						next; //barrier
 					}
 				/*Activity kind: 4 clocks = (c, d, e)*/
-				async(here) clocked(c, d, e)
-					for (val (tick): Point in 0..(N_NEXTS-1)) {
+				async clocked(c, d, e)
+					for ([tick] in 0..(N_NEXTS-1)) {
 						// do work
 						doWork("4_", i, "(c, d, e)", tick);
 						next; //barrier

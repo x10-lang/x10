@@ -32,47 +32,47 @@ public class ClockTest9 extends x10Test {
 			val c: Clock = Clock.make();
 
 			// outer barrier loop
-			foreach ((i):Point(1) in 0..N-1) clocked(c) {
+			foreach ([i] in 0..N-1) clocked(c) {
 				foreachBody(i, c);
 			}
 		}
 		return true;
 	}
 
-	def foreachBody(val i: int, val c: Clock): void = {
-		async(here) clocked(c) finish async(here) {
+	def foreachBody(i: int, c: Clock): void = {
+		async clocked(c) finish async  {
 			val d: Clock = Clock.make();
 
 			// inner barrier loop
-			foreach ((j):Point(1) in 0..M-1) clocked(d) {
+			foreach ([j] in 0..M-1) clocked(d) {
 				foreachBodyInner(i, j, d);
 			}
 		}
 		x10.io.Console.OUT.println("#0a i = "+i);
 		next;
 		// at this point each val[k] must be 0
-		async(here) clocked(c) finish async(here) for ((k):Point(1) in 0..N-1) chk(v(k) == 0);
+		async clocked(c) finish async for ([k] in 0..N-1) chk(v(k) == 0);
 		x10.io.Console.OUT.println("#0b i = "+i);
 		next;
 	}
 
-	def foreachBodyInner(val i: int, val j: int, val d: Clock): void = {
+	def foreachBodyInner(i: int, j: int, d: Clock): void = {
 		// activity i, j increments val[i] by j
-		async(here) clocked(d) finish async(here) { atomic v(i) += j; }
+		async clocked(d) finish async { atomic v(i) += j; }
 		x10.io.Console.OUT.println("#1 i = "+i+" j = "+j);
 		next;
 		// val[i] must now be SUM(j = 0 to M-1)(j)
-		async(here) clocked(d) finish async(here) { var tmp: int; atomic tmp = v(i); chk(tmp == M*(M-1)/2); }
+		async clocked(d) finish async  { var tmp: int; atomic tmp = v(i); chk(tmp == M*(M-1)/2); }
 		x10.io.Console.OUT.println("#2 i = "+i+" j = "+j);
 		next;
 		// decrement val[i] by the same amount
-		async(here) clocked(d) finish async(here) { atomic v(i) -= j; }
+		async clocked(d) finish async  { atomic v(i) -= j; }
 		x10.io.Console.OUT.println("#3 i = "+i+" j = "+j);
 		next;
 		// val[i] should be 0 by now
 	}
 
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(Array[String])  {
 		new ClockTest9().executeAsync();
 	}
 }

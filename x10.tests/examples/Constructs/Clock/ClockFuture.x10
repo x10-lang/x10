@@ -32,7 +32,7 @@ public class ClockFuture extends x10Test {
 
     public def run(): boolean = {
 	   c: Clock = Clock.make();
-       var f: Future[int] = new Future[int] (()=> m());
+       val f  = Future.make[int] (()=> m());
       // x10.io.Console.OUT.print("1 ... ");
        // this next should not wait on the future
        next;
