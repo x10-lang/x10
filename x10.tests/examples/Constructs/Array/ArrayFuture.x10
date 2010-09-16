@@ -10,9 +10,10 @@
  */
 
 import harness.x10Test;
+import x10.util.Future;
 
 /**
- * Testing arrays of future<T>.
+ * Testing arrays of Future<T>.
  *
  * @author kemal, 5/2005
  */
@@ -21,7 +22,7 @@ public class ArrayFuture extends x10Test {
 
     public def run(): boolean = {
         val d = Dist.makeConstant([1..10, 1..10], here);
-        val ia  = DistArray.make[Future[Int]](d, ([i,j]: Point) => future(here){i+j});
+        val ia  = DistArray.make[Future[Int]](d, ([i,j]: Point) => Future.make[Int](()=>{i+j}));
         for ([i,j]: Point in ia.region) chk(ia(i, j)() == i+j);
         return true;
     }

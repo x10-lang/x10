@@ -13,7 +13,7 @@ import harness.x10Test;
 import x10.util.Future;
 
 /**
- * Testing arrays of future<T>.
+ * Testing arrays of Future<T>.
  *
  * @author kemal, 5/2005
  */
