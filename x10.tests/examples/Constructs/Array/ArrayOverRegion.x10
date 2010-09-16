@@ -20,11 +20,11 @@ public class ArrayOverRegion extends x10Test {
     public def run(): boolean = {
 
         val r = [1..10, 1..10] as Region;
-        val ia = new Array[double](r, (var (i,j): Point)=> i+j as Double);
+        val ia = new Array[double](r, (var [i,j]: Point)=> i+j as Double);
 
         chk(ia.region.equals(r));
 
-        for (val p(i,j): Point(2) in r) chk(ia(p) == i+j);
+        for (val p[i,j]: Point(2) in r) chk(ia(p) == i+j);
 
         return true;
     }

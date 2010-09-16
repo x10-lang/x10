@@ -22,8 +22,8 @@ public class ArrayInitializer extends x10Test {
         val e = 0..9;
         val r = [e, e, e];
 
-        val ia = new Array[Int](r, (val (i,j,k): Point)=> i);
-        for (val (i,j,k): Point in ia.region) chk(ia(i, j, k) == i);
+        val ia = new Array[Int](r, (val [i,j,k]: Point)=> i);
+        for (val [i,j,k]: Point in ia.region) chk(ia(i, j, k) == i);
 
         return true;
     }
