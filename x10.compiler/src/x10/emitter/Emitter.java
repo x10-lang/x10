@@ -2077,8 +2077,11 @@ public class Emitter {
             w.write("}");
         }
         w.newline();
-        
-        w.write(");");
+        w.write(") {");
+        w.write("public String typeName() {");
+        w.write("return \"" + def.asType() + "\";");
+        w.write("}");
+        w.write("};");
         w.newline();
         
         if (isUnsignedClassType(def.asType())) {
