@@ -16,13 +16,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
-
-
 
 
 /**
@@ -73,7 +70,7 @@ import java.util.Set;
  * @author vj
  *
  */
-public class XConstraint implements  Cloneable {
+public class XConstraint implements Cloneable {
 
     private static final boolean DEBUG = false;
     protected HashMap<XTerm, XPromise> roots;

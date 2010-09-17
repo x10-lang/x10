@@ -13,7 +13,6 @@ package x10.constraint;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Constraints constrain XTerms. Thus XTerms are the basic building blocks of constraints.
@@ -23,7 +22,7 @@ import java.util.Set;
  * @author vj
  *
  */
-public abstract class XTerm implements  Serializable, Cloneable {
+public abstract class XTerm implements Serializable, Cloneable {
 
 	
 	public XTerm() {

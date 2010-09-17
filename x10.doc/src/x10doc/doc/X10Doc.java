@@ -486,13 +486,13 @@ public class X10Doc implements Doc {
 		//flagsToHex.put(Flags.STRICTFP.toString(), 0x0800);
 	}
 
-	public static int flagsToModifierSpecifier(Set<Object> flags) {
+	public static int flagsToModifierSpecifier(Set<String> flags) {
 		int r = 0;
-		for (Object flag : flags) {
+		for (String flag : flags) {
 			// flag could be "property" which is not in flagsToHex (and not recognized by 
 			// the standard doclet)
-			if (flagsToHex.containsKey((String)flag)) {
-				r |= flagsToHex.get((String)flag);
+			if (flagsToHex.containsKey(flag)) {
+				r |= flagsToHex.get(flag);
 			}
 		}
 		return r;

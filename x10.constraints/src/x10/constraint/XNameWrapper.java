@@ -51,6 +51,6 @@ public class XNameWrapper<T> implements XName {
 	}
 
 	public boolean equals(Object o) {
-		return o instanceof XNameWrapper && v.equals(((XNameWrapper<?>) o).v);
+		return o instanceof XNameWrapper<?> && v.equals(((XNameWrapper<?>) o).v);
 	}
 }

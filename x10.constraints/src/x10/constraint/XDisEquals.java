@@ -18,8 +18,6 @@ package x10.constraint;
  */
 
 
-import java.util.List;
-
 public class XDisEquals extends XFormula {
 
 

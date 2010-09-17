@@ -12,7 +12,7 @@
 package x10.constraint;
 
 import java.util.List;
-import java.util.Set;
+
 /**
  * A representation of a Field.
  * @author vj

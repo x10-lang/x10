@@ -6,8 +6,6 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.StringTokenizer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import polyglot.types.ClassType;
 import polyglot.types.Ref;
@@ -163,7 +161,7 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 	void initTypeParameters() {
 		List<ParameterType> params = classDef.typeParameters();
 		typeParams = new LinkedHashMap<String, X10TypeVariable>(params.size());
-		Ref inv = classDef.classInvariant();
+		Ref<CConstraint> inv = classDef.classInvariant();
 		// System.out.println("classInvariant: " + ((inv == null) ? "" : inv.get()));
 		TypeConstraint c = classDef.typeGuard().get();
 		for (ParameterType p: params) {
