@@ -27,11 +27,11 @@ public class HeatTransfer_v0 {
     static val n = 3;
     static val epsilon = 1.0e-5;
 
-    val BigD = [0..n+1, 0..n+1] as Region(2);
-    val D = [1..n, 1..n] as Region(2);
-    val LastRow = [0..0, 1..n] as Region(2);
-    val A = new Array[Double](BigD,(p:Point)=>{ LastRow.contains(p) ? 1.0 : 0.0 });
-    val Temp = new Array[Double](BigD,(p:Point(BigD.rank))=>{ A(p) });
+    static val BigD = [0..n+1, 0..n+1] as Region(2);
+    static val D = [1..n, 1..n] as Region(2);
+    static val LastRow = [0..0, 1..n] as Region(2);
+    static val A = new Array[Double](BigD,(p:Point)=>{ LastRow.contains(p) ? 1.0 : 0.0 });
+    static val Temp = new Array[Double](BigD,(p:Point(BigD.rank))=>{ A(p) });
 
     def stencil_1([x,y]:Point(2)): Double {
         return (A(x-1,y) + A(x+1,y) + A(x,y-1) + A(x,y+1)) / 4;
