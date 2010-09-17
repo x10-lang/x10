@@ -90,14 +90,15 @@ public final class Array[T](
     public property rail: boolean = region.rail;
 
     /**
-     * Cache the value of the zeroBased property as a field so that if we need
+     * Cache the value of the region.rail property as a field so that if we need
      * it at runtime we can get it in a single load.<p>
-     * Attempt to not lose the corelation between the value of this field and
-     * the static type of the Array by adding a constraint. The goal of this is
-     * to enable compile-time elimination of tests of the value of this field
-     * based on the static type information.
+     * 
+     * TODO: 
+     *   We need to not lose the corelation between the value of this field and
+     * the static type of the Array by adding a constraint. However, I can't figure out
+     * how to express this in a way that is (a) correct and (b) supported by the constraint system.
      */
-    private val cachedZeroBased:boolean{self==this.zeroBased};
+    private val cachedRail:boolean/*FIXME: not supported by constraint system {self==this.rail}*/;
 
 
     private transient val raw:IndexedMemoryChunk[T];
@@ -141,7 +142,7 @@ public final class Array[T](
         val n = layout.size();
         raw = IndexedMemoryChunk.allocate[T](n, true);
         rawLength = n;
-        cachedZeroBased = region.zeroBased;
+        cachedRail = region.rail;
     }
 
 
@@ -163,7 +164,7 @@ public final class Array[T](
         }
         raw = r;
         rawLength = n;
-        cachedZeroBased = region.zeroBased;
+        cachedRail = region.rail;
     }
 
 
@@ -193,7 +194,7 @@ public final class Array[T](
         }
         raw = r;
         rawLength = n;
-	cachedZeroBased = region.zeroBased;
+	cachedRail = region.rail;
     }
 
 
@@ -234,7 +235,7 @@ public final class Array[T](
         val n = layout.size();
         raw = IndexedMemoryChunk.allocate[T](n, true);
         rawLength = n;
-        cachedZeroBased = region.zeroBased;
+        cachedRail = region.rail;
     }
 
 
@@ -256,7 +257,7 @@ public final class Array[T](
         }
         raw = r;
         rawLength = n;
-        cachedZeroBased = region.zeroBased;
+        cachedRail = region.rail;
     }
 
 
@@ -278,7 +279,7 @@ public final class Array[T](
         }
         raw = r;
         rawLength = n;
-        cachedZeroBased = region.zeroBased;
+        cachedRail = region.rail;
     }
 
 
@@ -302,7 +303,7 @@ public final class Array[T](
      * @see #set(T, Int)
      */
     public safe @Header @Inline def apply(i0:int){rank==1}:T {
-	if (cachedZeroBased) {
+	if (cachedRail) {
             if (checkBounds() && !((i0 as UInt) < (size as UInt))) {
                 raiseBoundsError(i0);
             }
@@ -402,7 +403,7 @@ public final class Array[T](
      * @see #set(T, Point)
      */
     public safe @Header @Inline def set(v:T, i0:int){rank==1}:T {
-	if (cachedZeroBased) {
+	if (cachedRail) {
             if (checkBounds() && !((i0 as UInt) < (size as UInt))) {
                 raiseBoundsError(i0);
             }
