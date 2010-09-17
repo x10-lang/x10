@@ -39,7 +39,6 @@ import polyglot.visit.NodeVisitor;
 
 import x10.Configuration;
 import x10.constraint.XFailure;
-import x10.constraint.XRef;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;

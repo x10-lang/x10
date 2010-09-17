@@ -46,7 +46,6 @@ import polyglot.util.Transformation;
 import polyglot.util.TransformingList;
 import polyglot.util.TypedList;
 import x10.constraint.XNameWrapper;
-import x10.constraint.XRef;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.types.constraints.CConstraint;

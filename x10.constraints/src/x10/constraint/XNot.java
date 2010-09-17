@@ -11,6 +11,12 @@
 
 package x10.constraint;
 
+/**
+ * A representation of !c. Place holder for propagation rules for !.
+ * 
+ * @author vijay
+ *
+ */
 public class XNot extends XFormula  {
 	
 	public XNot(XTerm arg) {

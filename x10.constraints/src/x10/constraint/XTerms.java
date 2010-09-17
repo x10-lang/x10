@@ -151,12 +151,12 @@ public class XTerms {
     with function name op and arguments terms. Uses varargs.
 	 */
 	public static XTerm makeTerm(XName op, XTerm... terms) {
-		if (op.equals(plusName)) {
+		/*if (op.equals(plusName)) {
 			return new XPlus(terms);
 		}
 		if (op.equals(minusName)) {
 			return new XMinus(terms);
-		}
+		}*/
 		
 		return makeAtom(op, false, Arrays.asList(terms));
 	}

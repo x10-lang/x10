@@ -13,6 +13,7 @@ package x10.constraint;
 
 
 /**
+ * A representation of failure. Thrown when the constraint becomes inconsistent.
  * @author vj
  *
  */

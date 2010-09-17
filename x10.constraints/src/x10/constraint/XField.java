@@ -41,16 +41,6 @@ public class XField extends XVar {
 				result.receiver = newReceiver;
 			}
 			return result;
-			
-			/*
-			XVar newReceiver = (XVar) receiver.subst(y, x);
-			XField_c n = (XField_c) super.subst(y, x, propagate);
-			if (newReceiver == receiver)
-			    return n;
-			if (n == this) n = clone();
-			n.receiver = newReceiver;
-			return n;
-			*/
 		}
 		
 		public List<XEQV> eqvs() {

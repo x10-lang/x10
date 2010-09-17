@@ -55,7 +55,6 @@ import x10.constraint.XLit;
 import x10.constraint.XLocal;
 import x10.constraint.XName;
 import x10.constraint.XNameWrapper;
-import x10.constraint.XRef;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
@@ -91,7 +90,7 @@ public class XTypeTranslator {
 	private XTerm trans(CConstraint c, Unary t, X10Context xc) throws SemanticException {
 		XTerm v = null;
 		if (t.operator() == Unary.NOT) {
-		    v = XTerms.makeNot(trans(c, t.expr(), xc));
+		   // v = XTerms.makeNot(trans(c, t.expr(), xc));
 		} else {
 		    v = XTerms.makeAtom(XTerms.makeName(t.operator()), trans(c, t.expr(), xc));
 		    throw new SemanticException("Cannot translate " + t + " to constraint term.");
