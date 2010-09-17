@@ -39,7 +39,7 @@ static class Tree(home:Place) {
 		property(here);
 	}
 	
-	static def bottomUpTree(item:int, depth:int): Tree = 
+	static def bottomUpTree(item:int, depth:int): Tree{self.home==here} = 
     	 (depth>0)?
     		 new Tree(
     				 bottomUpTree(2*item-1, depth-1)
