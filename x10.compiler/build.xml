@@ -108,6 +108,7 @@
         -->
         <exec dir="${src}/x10/parser" executable="${lpg.executable}" failonerror="true">
             <arg value="-include-directory=${templates.dir};${include.dir};"/>
+            <arg value="-directory-prefix=${src}/"/>
             <arg value="${grammar.file}"/>
         </exec>
     </target>
