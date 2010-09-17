@@ -21,8 +21,9 @@ public class NullableObjectEqualsPrimitive extends x10Test {
 
 	public def run(): boolean = {
 		val x:Any = null;
+	        val y:Any = 3;
 		val res1 = (3).equals(x);
-	        val res2 = x.equals(3);
+		val res2 =  y.equals(x);
 		return !(res1 || res2);
 	}
 
