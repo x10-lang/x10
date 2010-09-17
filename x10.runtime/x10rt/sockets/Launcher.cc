@@ -23,7 +23,7 @@
 /* *********************************************************************** */
 const char* CTRL_MSG_TYPE_STRINGS[] = {"HELLO", "PORT_REQUEST", "PORT_RESPONSE"};
 
-int Launcher::setPort(int place, char* port)
+int Launcher::setPort(uint32_t place, char* port)
 {
 	if (port == NULL)
 		return -1;
@@ -62,7 +62,7 @@ int Launcher::setPort(int place, char* port)
 	}
 }
 
-int Launcher::lookupPlace(int myPlace, int destPlace, char* response, int responseLen)
+int Launcher::lookupPlace(uint32_t myPlace, uint32_t destPlace, char* response, int responseLen)
 {
 	// TODO - this isn't reentrant.  Need to fix that.
 	struct ctrl_msg m;
@@ -109,7 +109,7 @@ int Launcher::lookupPlace(int myPlace, int destPlace, char* response, int respon
 void Launcher::startChildren()
 {
 	#ifdef DEBUG
-		fprintf(stderr, "Launcher %d: starting %d child %s\n", _myproc, _numchildren, _numchildren==1?"":"ren");
+		fprintf(stderr, "Launcher %u: starting %d child %s\n", _myproc, _numchildren, _numchildren==1?"":"ren");
 	#endif
 
 	/* -------------------------------------------- */
@@ -119,9 +119,9 @@ void Launcher::startChildren()
 	unsigned listenPort = 0;
 	_listenSocket = TCP::listen(&listenPort, 10);
 	if (_listenSocket < 0)
-		DIE("%d: cannot create listener port", _myproc);
+		DIE("Launcher %u: cannot create listener port", _myproc);
 	#ifdef DEBUG
-		fprintf(stderr, "Launcher %d: opened listen socket at port %d\n", _myproc, listenPort);
+		fprintf(stderr, "Launcher %u: opened listen socket at port %d\n", _myproc, listenPort);
 	#endif
 
 	// allocate space to hold all the links to the child launchers and the runtime
@@ -132,14 +132,14 @@ void Launcher::startChildren()
 	_childControlLinks = (int *) malloc(sizeof(int) * (_numchildren+1));
 
 	if (!_pidlst || !_childControlLinks || !_childCoutLinks || !_childCerrorLinks)
-		DIE("%d: failed in alloca()", _myproc);
+		DIE("%u: failed in alloca()", _myproc);
 
-	for (int id=0; id <= _numchildren; id++)
+	for (uint32_t id=0; id <= _numchildren; id++)
 	{
 		int pid, outpipe[2], errpipe[2];
-		if (pipe(outpipe) < 0) DIE("Launcher %d: failed in outpipe()", _myproc);
-		if (pipe(errpipe) < 0) DIE("Launcher %d: failed in errpipe()", _myproc);
-		if ((pid = fork()) < 0) DIE("Launcher %d: failed in fork()", _myproc);
+		if (pipe(outpipe) < 0) DIE("Launcher %u: failed in outpipe()", _myproc);
+		if (pipe(errpipe) < 0) DIE("Launcher %u: failed in errpipe()", _myproc);
+		if ((pid = fork()) < 0) DIE("Launcher %u: failed in fork()", _myproc);
 		else if (pid > 0)
 		{
 			// parent process
@@ -166,18 +166,18 @@ void Launcher::startChildren()
 			char masterPort[1024];
 			TCP::getname(_listenSocket, masterPort, sizeof(masterPort));
 
-			if (id == _numchildren && _myproc != -1)
+			if (id == _numchildren && _myproc != 0xFFFFFFFF)
 			{ // start up the local x10 runtime
 				unsetenv(X10LAUNCHER_HOSTFILE);
 				unsetenv(X10LAUNCHER_SSH);
 				setenv(X10LAUNCHER_PARENT, masterPort, 1);
 				setenv(X10LAUNCHER_RUNTIME, "1", 1);
 				#ifdef DEBUG
-					fprintf(stderr, "Runtime %d forked.  Running exec.\n", _myproc);
+					fprintf(stderr, "Runtime %u forked.  Running exec.\n", _myproc);
 				#endif
 				if (execvp(_argv[0], _argv))
 					// can't get here, if the exec succeeded
-					DIE("Launcher %d: runtime exec failed", _myproc);
+					DIE("Launcher %u: runtime exec failed", _myproc);
 			}
 			else
 			{
@@ -191,10 +191,10 @@ void Launcher::startChildren()
 					sprintf(idString, "%d", _firstchildproc+id);
 					setenv(X10LAUNCHER_MYID, idString, 1);
 					#ifdef DEBUG
-						fprintf(stderr, "Launcher %d forked launcher %s on localhost.  Running exec.\n", _myproc, idString);
+						fprintf(stderr, "Launcher %u forked launcher %s on localhost.  Running exec.\n", _myproc, idString);
 					#endif
 					if (execvp(_argv[0], _argv))
-						DIE("Launcher %d: local child launcher exec failed", _myproc);
+						DIE("Launcher %u: local child launcher exec failed", _myproc);
 				}
 			}
 		}
@@ -212,7 +212,7 @@ void Launcher::startChildren()
 void Launcher::handleIncomingRequests()
 {
 	#ifdef DEBUG
-		fprintf(stderr, "Launcher %d: main loop start\n", _myproc);
+		fprintf(stderr, "Launcher %u: main loop start\n", _myproc);
 	#endif
 //	time_t startTime = time (NULL);
 //	bool inStartup = true;
@@ -246,7 +246,7 @@ void Launcher::handleIncomingRequests()
 					handleDeadParent();
 		}
 		/* runtime and children output, stdout and stderr */
-		for (int i = 0; i <= _numchildren; i++)
+		for (uint32_t i = 0; i <= _numchildren; i++)
 		{
 			if (_childControlLinks[i] >= 0)
 			{
@@ -313,14 +313,14 @@ void Launcher::handleIncomingRequests()
 	//cleanup:
 
 	#ifdef DEBUG
-		fprintf(stderr, "Launcher %d: killing sub-processes\n", _myproc);
+		fprintf(stderr, "Launcher %u: killing sub-processes\n", _myproc);
 	#endif
 
 	int status = 0;
-	for (int i = 0; i < _numchildren; i++)
+	for (uint32_t i = 0; i < _numchildren; i++)
 	{
 		#ifdef DEBUG
-			fprintf(stderr, "Launcher %d: killing pid=%d\n", _myproc, _pidlst[i]);
+			fprintf(stderr, "Launcher %u: killing pid=%d\n", _myproc, _pidlst[i]);
 		#endif
 		int status1;
 		kill(_pidlst[i], SIGTERM);
@@ -329,7 +329,7 @@ void Launcher::handleIncomingRequests()
 			status = status1;
 	}
 	#ifdef DEBUG
-		fprintf(stderr, "Launcher %d: cleanup complete\n", _myproc);
+		fprintf(stderr, "Launcher %u: cleanup complete\n", _myproc);
 	#endif
 	exit(status);
 }
@@ -363,7 +363,7 @@ int Launcher::makeFDSets(fd_set * infds, fd_set * outfds, fd_set * efds)
 	}
 
 	/* control sockets to children */
-	for (int i = 0; i <= _numchildren; i++)
+	for (uint32_t i = 0; i <= _numchildren; i++)
 	{
 		if (_childControlLinks[i] >= 0)
 		{
@@ -400,7 +400,7 @@ void Launcher::connectToParentLauncher(void)
 		char masterport[1024];
 		TCP::getname(_listenSocket, masterport, sizeof(masterport));
 		#ifdef DEBUG
-			fprintf(stderr, "Launcher %d: connecting to parent via inherited port: %s\n", _myproc, masterport);
+			fprintf(stderr, "Launcher %u: connecting to parent via inherited port: %s\n", _myproc, masterport);
 		#endif
 		_parentLauncherControlLink = TCP::connect(masterport, 10);
 	}
@@ -409,7 +409,7 @@ void Launcher::connectToParentLauncher(void)
 	else if (getenv(X10LAUNCHER_PARENT) != NULL)
 	{
 		#ifdef DEBUG
-			fprintf(stderr, "Launcher %d: connecting to parent via: %s\n", _myproc, getenv(X10LAUNCHER_PARENT));
+			fprintf(stderr, "Launcher %u: connecting to parent via: %s\n", _myproc, getenv(X10LAUNCHER_PARENT));
 		#endif
 		_parentLauncherControlLink = TCP::connect((const char *) getenv(X10LAUNCHER_PARENT), 10);
 	}
@@ -418,7 +418,7 @@ void Launcher::connectToParentLauncher(void)
 	else
 	{
 		#ifdef DEBUG
-			fprintf(stderr, "Launcher %d: has no parent.\n", _myproc);
+			fprintf(stderr, "Launcher %u: has no parent.\n", _myproc);
 		#endif
 		_parentLauncherControlLink = -1;
 		return;
@@ -426,7 +426,7 @@ void Launcher::connectToParentLauncher(void)
 
 	/* we are hopefully connected. So we announce ourselves */
 	if (_parentLauncherControlLink < 0)
-		DIE("Launcher %d: failed to connect to parent", _myproc);
+		DIE("Launcher %u: failed to connect to parent", _myproc);
 
 	struct ctrl_msg helloMsg;
 	helloMsg.type = HELLO;
@@ -439,10 +439,10 @@ void Launcher::connectToParentLauncher(void)
 void Launcher::disconnectFromLauncher(void)
 {
 	#ifdef DEBUG
-		fprintf(stderr, "Launcher %d: closing child connections\n", _myproc);
+		fprintf(stderr, "Launcher %u: closing child connections\n", _myproc);
 	#endif
 
-	for (int i = 0; i <= _numchildren; i++)
+	for (uint32_t i = 0; i <= _numchildren; i++)
 	{
 		if (_childControlLinks[i] >= 0)
 			close(_childControlLinks[i]);
@@ -480,27 +480,26 @@ void Launcher::handleNewChildConnection(void)
 				TCP::read(fd, _runtimePort, m.datalen);
 			}
 			#ifdef DEBUG
-				fprintf(stderr, "Launcher %d: new ctrl conn %d from local runtime, with runtime port=\"%s\"\n", _myproc, fd, _runtimePort);
+				fprintf(stderr, "Launcher %u: new ctrl conn %d from local runtime, with runtime port=\"%s\"\n", _myproc, fd, _runtimePort);
 			#endif
 			return;
 		}
 
-		for (int i = 0; i < _numchildren; i++)
+		for (uint32_t i = 0; i <= _numchildren; i++)
 		{
 			if (m.from == _firstchildproc + i)
 			{
 				_childControlLinks[i] = fd;
 				#ifdef DEBUG
-					fprintf(stderr, "Launcher %d: new ctrl conn from child=%d\n", _myproc, m.from);
+					fprintf(stderr, "Launcher %u: new ctrl conn from child=%d\n", _myproc, m.from);
 				#endif
 				if (m.datalen > 0)
 				{
 					char* data = (char*)alloca(m.datalen+1);
 					data[m.datalen] = '\0';
 					TCP::read(fd, data, m.datalen);
-					DIE("Launcher %d: Control message from child launcher came in with datalen of \"%s\"\n", _myproc, data);
+					DIE("Launcher %u: Control message from child launcher came in with datalen of \"%s\"\n", _myproc, data);
 				}
-
 				return;
 			}
 		}
@@ -509,7 +508,7 @@ void Launcher::handleNewChildConnection(void)
 	// something bad came in.  Maybe some other program trying to connect to our port.  Disconnect it.
 	close(fd);
 	#ifdef DEBUG
-		fprintf(stderr, "Launcher %d: Invalid %d byte message came into listen socket.  Closing it down.", _myproc, size);
+		fprintf(stderr, "Launcher %d: Invalid %d byte message came into listen socket.  Closing it down.\n", _myproc, size);
 	#endif
 }
 
@@ -526,7 +525,7 @@ void Launcher::handleDeadChild(int childNo)
 		_childControlLinks[childNo] = -1;
 
 		#ifdef DEBUG
-			fprintf(stderr, "Launcher %d: child=%d disconnected\n", _myproc, _firstchildproc+childNo);
+			fprintf(stderr, "Launcher %u: child=%d disconnected\n", _myproc, _firstchildproc+childNo);
 		#endif
 		disconnectFromLauncher();
 	}
@@ -539,7 +538,7 @@ void Launcher::handleDeadChild(int childNo)
 void Launcher::handleDeadParent()
 {
 	#ifdef DEBUG
-		fprintf(stderr, "Launcher %d: parent disconnected\n", _myproc);
+		fprintf(stderr, "Launcher %u: parent disconnected\n", _myproc);
 	#endif
 	disconnectFromLauncher();
 	if (_parentLauncherControlLink != -1)
@@ -559,7 +558,7 @@ int Launcher::handleControlMessage(int fd)
 		return ret;
 
 	#ifdef DEBUG
-		fprintf(stderr, "Launcher %d: Incoming %d byte %s message from %d for %d, with datalen=%d\n",
+		fprintf(stderr, "Launcher %u: Incoming %d byte %s message from %u for %u, with datalen=%d\n",
 				_myproc, ret, CTRL_MSG_TYPE_STRINGS[m.type], m.from, m.to, m.datalen);
 	#endif
 
@@ -568,11 +567,11 @@ int Launcher::handleControlMessage(int fd)
 	{
 		data = (char*)alloca(m.datalen);
 		if (data == NULL)
-			DIE("Launcher %d: cannot allocate %d bytes for a control message", _myproc, m.datalen);
+			DIE("Launcher %u: cannot allocate %d bytes for a control message", _myproc, m.datalen);
 	}
 
 	if (TCP::read(fd, data, m.datalen) < 0)
-		DIE("Launcher %d: cannot read %d bytes of control message data", _myproc, m.datalen);
+		DIE("Launcher %u: cannot read %d bytes of control message data", _myproc, m.datalen);
 
 	if (m.to == _myproc)
 	{
@@ -636,7 +635,7 @@ int Launcher::forwardMessage(struct ctrl_msg* message, char* data)
 {
 	// this request needs to be forwarded either to the parent launcher, or a child launcher
 	// figure out where to send it, by determining if we are on the chain between place 0 and the dest
-	int parentId=message->to, previousParentId, maxValueInLevel = 0;
+	uint32_t parentId=message->to, previousParentId, maxValueInLevel = 0;
 
 	// go out to the level of the tree that contains the requested place
 	while (maxValueInLevel < message->to)
@@ -701,7 +700,7 @@ void Launcher::cb_sighandler_cld(int signo)
 /*          start a new child                                              */
 /* *********************************************************************** */
 
-void Launcher::startSSHclient(int id, char* masterPort, char* remotehost)
+void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
 {
 	char * cmd = (char *) _realpath;
 	char ** argv = (char **) alloca (sizeof(char *) * (_argc+8));
@@ -725,7 +724,7 @@ void Launcher::startSSHclient(int id, char* masterPort, char* remotehost)
 	argv[z + _argc] = NULL;
 
 	#ifdef DEBUG
-		fprintf(stderr, "Launcher %d exec-ing SSH process to start up launcher %d on %s.\n", _myproc, id, remotehost);
+		fprintf(stderr, "Launcher %u exec-ing SSH process to start up launcher %u on %s.\n", _myproc, id, remotehost);
 		//for (int i=0; i<z+_argc; i++)
 		//	fprintf (stderr, " %s ", argv[i]);
 		//fprintf (stderr, "\n");
@@ -734,6 +733,6 @@ void Launcher::startSSHclient(int id, char* masterPort, char* remotehost)
 	z = execvp(argv[0], argv);
 
 	if (z)
-		DIE("Launcher %d: ssh exec failed", _myproc);
+		DIE("Launcher %u: ssh exec failed", _myproc);
 	abort();
 }

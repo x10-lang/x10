@@ -37,8 +37,8 @@ enum CTRL_MSG_TYPE {HELLO, PORT_REQUEST, PORT_RESPONSE};
 struct ctrl_msg
 {
 	CTRL_MSG_TYPE type;
-	int to;
-	int from;
+	uint32_t to;
+	uint32_t from;
 	int datalen;
 	// followed by the data
 };
@@ -52,15 +52,15 @@ class Launcher
 	public:
 		static void Setup(int argc, char ** argv);
 		static void cb_sighandler_cld(int signo);
-		static int lookupPlace(int myPlace, int destPlace, char* response, int responseLen);
-		static int setPort(int place, char* port);
+		static int lookupPlace(uint32_t myPlace, uint32_t destPlace, char* response, int responseLen);
+		static int setPort(uint32_t place, char* port);
 
 	protected:
 		/* SockProcManager_Init.cc */
 		Launcher();
 		void initialize(int argc, char ** argv);
 		void readHostFile(void);
-		void startSSHclient(int childrank, char* masterPort, char* remotehost);
+		void startSSHclient(uint32_t childrank, char* masterPort, char* remotehost);
 
 		/* SockProcManager.cc */
 		void startChildren(void);
@@ -89,14 +89,14 @@ class Launcher
 		char _realpath[512]; /* real path of executable */
 		char _ssh_command[64]; /* the SSH command. */
 		char _hostfname[256]; /* host file name */
-		int _nplaces; /* number of processors in job */
-		int _myproc; /* my processor ID */
+		uint32_t _nplaces; /* number of processors in job */
+		uint32_t _myproc; /* my processor ID */
 
 		/* parent child structure */
 		char ** _hostlist; /* child host list */
 		char* _runtimePort; /* the host:port number of the associated x10 runtime's listen port */
-		int _firstchildproc; /* the ID of the first child launcher */
-		int _numchildren; /* number of launcher children in this node */
+		uint32_t _firstchildproc; /* the ID of the first child launcher */
+		uint32_t _numchildren; /* number of launcher children in this node */
 		int * _pidlst; /* list of all spawned pids */
 		int _listenSocket; /* listener - for children */
 		int * _childControlLinks; /* children's control connections */

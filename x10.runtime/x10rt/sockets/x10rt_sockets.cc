@@ -48,6 +48,8 @@ struct x10SocketState
 	struct pollfd* socketLinks; // the file descriptors for each socket to other places
 	pthread_mutex_t* writeLocks; // a lock to prevent overlapping writes on each socket
 	pthread_mutex_t* readLocks; // a lock to prevent overlapping reads on each socket
+	// special case for index=myPlaceId on the above three.  The socket link is the local listen socket,
+	// the read lock is used for listen socket handling and write lock for launcher communication
 } state;
 
 /*********************************************
@@ -60,7 +62,7 @@ void error(const char* message)
 	abort();
 }
 
-int initLink(int remotePlace)
+int initLink(uint32_t remotePlace)
 {
 	if (remotePlace > state.numPlaces)
 		return -1;
@@ -68,7 +70,10 @@ int initLink(int remotePlace)
 	if (state.socketLinks[remotePlace].fd <= 0)
 	{
 		char link[1024];
-		if (Launcher::lookupPlace(state.myPlaceId, remotePlace, link, sizeof(link)) <= 0)
+		pthread_mutex_lock(&state.writeLocks[state.myPlaceId]); // because the lookup isn't currently thread-safe
+		int r = Launcher::lookupPlace(state.myPlaceId, remotePlace, link, sizeof(link));
+		pthread_mutex_unlock(&state.writeLocks[state.myPlaceId]);
+		if (r <= 0)
 			return -1;
 
 		if ((state.socketLinks[remotePlace].fd = TCP::connect(link, 10)) > 0)
@@ -76,7 +81,18 @@ int initLink(int remotePlace)
 			state.socketLinks[remotePlace].events = POLLHUP | POLLERR | POLLIN | POLLPRI;
 			pthread_mutex_init(&state.readLocks[remotePlace], NULL);
 			pthread_mutex_init(&state.writeLocks[remotePlace], NULL);
+			#ifdef DEBUG
+				printf("X10rt.Sockets: Place %u established a link to place %u\n", state.myPlaceId, remotePlace);
+			#endif
+			struct ctrl_msg m;
+			m.type = HELLO;
+			m.to = remotePlace;
+			m.from = state.myPlaceId;
+			m.datalen = 0;
+			TCP::write(state.socketLinks[remotePlace].fd, &m, sizeof(m));
 		}
+		else
+			return -1;
 	}
 	return state.socketLinks[remotePlace].fd;
 }
@@ -111,13 +127,15 @@ void x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 	state.writeLocks = new pthread_mutex_t[state.numPlaces];
 	state.readLocks = new pthread_mutex_t[state.numPlaces];
 	for (unsigned int i=0; i<state.numPlaces; i++)
-		state.socketLinks[i].fd = 0;
+		state.socketLinks[i].fd = -1;
 
 	// open local listen port.
 	unsigned listenPort = 0;
 	state.socketLinks[state.myPlaceId].fd = TCP::listen(&listenPort, 10);
 	if (state.socketLinks[state.myPlaceId].fd < 0)
 		error("cannot create listener port");
+	pthread_mutex_init(&state.readLocks[state.myPlaceId], NULL);
+	pthread_mutex_init(&state.writeLocks[state.myPlaceId], NULL);
 
 	// Tell our launcher our communication port number
 	char portname[1024];
@@ -143,7 +161,7 @@ void x10rt_net_register_msg_receiver (x10rt_msg_type msg_type, x10rt_handler *ca
 	state.callBackTable[msg_type].notifier = NULL;
 
 	#ifdef DEBUG
-		printf("X10rt.Socket: place %lu registered standard message %u\n", state.myPlaceId, msg_type);
+		printf("X10rt.Sockets: place %u registered standard message %u\n", state.myPlaceId, msg_type);
 	#endif
 }
 
@@ -164,7 +182,7 @@ void x10rt_net_register_put_receiver (x10rt_msg_type msg_type, x10rt_finder *fin
 	state.callBackTable[msg_type].notifier = notifierCallback;
 
 	#ifdef DEBUG
-		printf("X10rt.Socket: place %lu registered put message %u\n", state.myPlaceId, msg_type);
+		printf("X10rt.Sockets: place %u registered put message %u\n", state.myPlaceId, msg_type);
 	#endif
 }
 
@@ -185,7 +203,7 @@ void x10rt_net_register_get_receiver (x10rt_msg_type msg_type, x10rt_finder *fin
 	state.callBackTable[msg_type].notifier = notifierCallback;
 
 	#ifdef DEBUG
-		printf("X10rt.Socket: place %lu registered get message %u\n", state.myPlaceId, msg_type);
+		printf("X10rt.Sockets: place %u registered get message %u\n", state.myPlaceId, msg_type);
 	#endif
 }
 
@@ -203,6 +221,9 @@ x10rt_place x10rt_net_here (void)
 
 void x10rt_net_send_msg (x10rt_msg_params *parameters)
 {
+	#ifdef DEBUG
+		printf("X10rt.Sockets: place %u sending a %d byte message to place %u\n", state.myPlaceId, parameters->len, parameters->dest_place);
+	#endif
 	if (initLink(parameters->dest_place) <= 0)
 		error("establishing a connection");
 	pthread_mutex_lock(&state.writeLocks[parameters->dest_place]);
@@ -220,6 +241,9 @@ void x10rt_net_send_msg (x10rt_msg_params *parameters)
 
 void x10rt_net_send_get (x10rt_msg_params *parameters, void *buffer, x10rt_copy_sz bufferLen)
 {
+	#ifdef DEBUG
+		printf("X10rt.Sockets: place %u sending a %d byte GET message with %d byte payload to place %u\n", state.myPlaceId, parameters->len, bufferLen, parameters->dest_place);
+	#endif
 	if (initLink(parameters->dest_place) <= 0)
 		error("establishing a connection");
 	pthread_mutex_lock(&state.writeLocks[parameters->dest_place]);
@@ -240,6 +264,10 @@ void x10rt_net_send_get (x10rt_msg_params *parameters, void *buffer, x10rt_copy_
 
 void x10rt_net_send_put (x10rt_msg_params *parameters, void *buffer, x10rt_copy_sz bufferLen)
 {
+	#ifdef DEBUG
+		printf("X10rt.Sockets: place %u sending a %d byte PUT message with %d byte payload to place %u\n", state.myPlaceId, parameters->len, bufferLen, parameters->dest_place);
+	#endif
+
 	if (initLink(parameters->dest_place) <= 0)
 		error("establishing a connection");
 	pthread_mutex_lock(&state.writeLocks[parameters->dest_place]);
@@ -270,8 +298,16 @@ void x10rt_net_probe ()
 		// POLLHUP | POLLERR | POLLIN | POLLPRI;
 	    for (unsigned int i=0; i<state.numPlaces; i++)
 	    {
+	    	// skip unused links quickly
+	    	if (state.socketLinks[i].fd == -1)
+	    		continue;
+
 	    	if ((state.socketLinks[i].revents & POLLHUP) || (state.socketLinks[i].revents & POLLERR))
 	    	{
+				#ifdef DEBUG
+					printf("X10rt.Sockets: place %u detected a broken link to place %u!\n", state.myPlaceId, i);
+				#endif
+
 	    		// link is broken.  Close it down.
 	    		close(state.socketLinks[i].fd);
 	    		state.socketLinks[i].fd = 0;
@@ -283,6 +319,38 @@ void x10rt_net_probe ()
 	    		// lock the socket, so we don't get other worker threads reading from it
 	    		if (pthread_mutex_trylock(&state.readLocks[i]) != 0)
 	    			continue; // this socket is already getting handled by another worker.  Skip.
+
+	    		if (i == state.myPlaceId)
+	    		{
+	    			// special case.  This is an incoming connection request.
+	    			int newFD = TCP::accept(state.socketLinks[i].fd);
+	    			if (newFD > 0)
+	    			{
+	    				struct ctrl_msg m;
+	    				int r = TCP::read(newFD, &m, sizeof(m));
+	    				if (r == sizeof(m))
+	    				{
+	    					state.socketLinks[m.from].fd = newFD;
+	    					state.socketLinks[m.from].events = POLLHUP | POLLERR | POLLIN | POLLPRI;
+	    					pthread_mutex_init(&state.readLocks[m.from], NULL);
+	    					pthread_mutex_init(&state.writeLocks[m.from], NULL);
+							#ifdef DEBUG
+								printf("X10rt.Sockets: place %u got a new connection from place %u\n", state.myPlaceId, m.from);
+							#endif
+							pthread_mutex_unlock(&state.readLocks[i]);
+							continue;
+	    				}
+	    			}
+					#ifdef DEBUG
+						printf("X10rt.Sockets: place %u got a bad connection request\n", state.myPlaceId);
+					#endif
+					pthread_mutex_unlock(&state.readLocks[i]);
+	    			continue;
+	    		}
+
+				#ifdef DEBUG
+					printf("X10rt.Sockets: place %u picked up a message from place %u\n", state.myPlaceId, i);
+				#endif
 
 	    		enum MSGTYPE t;
 	    		TCP::read(state.socketLinks[i].fd, &t, sizeof(enum MSGTYPE));
@@ -392,12 +460,12 @@ void x10rt_net_finalize (void)
 		return;
 
 	#ifdef DEBUG
-		printf("X10rt.Socket: shutting down place %lu\n", state.myPlaceId);
+		printf("X10rt.Sockets: shutting down place %u\n", state.myPlaceId);
 	#endif
 
 	for (unsigned int i=0; i<state.numPlaces; i++)
 	{
-		if (state.socketLinks[i].fd != 0)
+		if (state.socketLinks[i].fd != -1)
 		{
 			close(state.socketLinks[i].fd);
 			pthread_mutex_destroy(&state.readLocks[i]);

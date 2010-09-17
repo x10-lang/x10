@@ -59,7 +59,7 @@ Launcher::Launcher()
 	_nplaces = 1;
 	_hostlist = NULL;
 	_runtimePort = NULL;
-	_myproc = -1;
+	_myproc = 0xFFFFFFFF;
 	_firstchildproc = 0;
 	_numchildren = 0;
 	_pidlst = NULL;
@@ -89,11 +89,8 @@ void Launcher::initialize(int argc, char ** argv)
 	}
 	else
 		_nplaces = atoi(getenv(X10LAUNCHER_NPROCS));
-	if (!getenv(X10LAUNCHER_MYID))
-	{
-		_myproc = -1;
-		setenv(X10LAUNCHER_MYID, "-1", 0);
-	}
+	if (!getenv(X10LAUNCHER_MYID)) // TODO - need to set?
+		_myproc = 0xFFFFFFFF;
 	else
 		_myproc = atoi(getenv(X10LAUNCHER_MYID));
 
@@ -101,9 +98,9 @@ void Launcher::initialize(int argc, char ** argv)
 	/*  decide who my children are                  */
 	/* current algorithm implements a binomial tree */
 	/* -------------------------------------------- */
-	if (_myproc >= 0)
+	if (_myproc != 0xFFFFFFFF)
 	{
-		int maxValueInLevel = 0;
+		uint32_t maxValueInLevel = 0;
 		while (maxValueInLevel < _myproc)
 			maxValueInLevel = maxValueInLevel*2 + 2;
 		_firstchildproc = (_myproc - ((maxValueInLevel-2)/2))*2 + maxValueInLevel - 1;
@@ -115,7 +112,7 @@ void Launcher::initialize(int argc, char ** argv)
 		else
 			_numchildren = 1;
 		#ifdef DEBUG
-			fprintf(stderr, "Launcher %i has %i child%s\n", _myproc, _numchildren, _numchildren==1?"":"ren");
+			fprintf(stderr, "Launcher %u has %i child%s\n", _myproc, _numchildren, _numchildren==1?"":"ren");
 		#endif
 	}
 	else
@@ -131,7 +128,7 @@ void Launcher::initialize(int argc, char ** argv)
 	if (ssh_command && strlen(ssh_command) > 0)
 	{
 		if (strlen(ssh_command) > sizeof(_ssh_command) - 10)
-			DIE("Launcher %d: SSH command is too long", _myproc);
+			DIE("Launcher %u: SSH command is too long", _myproc);
 		strncpy(_ssh_command, ssh_command, sizeof(_ssh_command) - 1);
 	}
 
@@ -142,7 +139,7 @@ void Launcher::initialize(int argc, char ** argv)
 	if (hostfname && strlen(hostfname) > 0)
 	{
 		if (strlen(hostfname) > sizeof(_hostfname) - 10)
-			DIE("Launcher %d: host file name is too long", _myproc);
+			DIE("Launcher %u: host file name is too long", _myproc);
 		strncpy(_hostfname, hostfname, sizeof(_hostfname) - 1);
 		readHostFile();
 	}
@@ -164,21 +161,21 @@ void Launcher::initialize(int argc, char ** argv)
 void Launcher::readHostFile()
 {
 	#ifdef DEBUG
-		fprintf(stderr, "Launcher %d: Processing hostfile \"%s\"\n", _myproc, _hostfname);
+		fprintf(stderr, "Launcher %u: Processing hostfile \"%s\"\n", _myproc, _hostfname);
 	#endif
 	FILE * fd = fopen(_hostfname, "r");
 	if (!fd)
-		DIE("Launcher %d: cannot open hostfile '%s': exiting", _myproc, _hostfname);
+		DIE("Launcher %u: cannot open hostfile '%s': exiting", _myproc, _hostfname);
 
 	_hostlist = (char **) malloc(sizeof(char *) * _numchildren);
 	if (!_hostlist)
-		DIE("Launcher %d: hostname memory allocation failure", _myproc);
+		DIE("Launcher %u: hostname memory allocation failure", _myproc);
 
 /*	_execlist = (char **) malloc(sizeof(char *) * _numchildren);
 	if (!_execlist)
 		DIE("%d: memory allocation failure", _myproc);
 */
-	int lineNumber = 0;
+	uint32_t lineNumber = 0;
 	while (lineNumber < _firstchildproc+_numchildren)
 	{
 		char buffer[5120];
@@ -198,7 +195,7 @@ void Launcher::readHostFile()
 
 		char * host = (char *) malloc(plen + 10);
 		if (!host)
-			DIE("Launcher %d: memory allocation failure", _myproc);
+			DIE("Launcher %u: memory allocation failure", _myproc);
 		strcpy(host, p);
 		_hostlist[lineNumber-_firstchildproc] = host;
 
