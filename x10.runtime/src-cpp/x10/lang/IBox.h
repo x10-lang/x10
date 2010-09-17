@@ -51,7 +51,7 @@ namespace x10 {
         template<class T> x10_int IBox<T>::hashCode() { return x10aux::hash_code(value); }
 
         template <class T> x10_boolean IBox<T>::_struct_equals(x10aux::ref<Reference> other) {
-            if (_type()->equals(other->_type())) {
+            if (!other.isNull() && _type()->equals(other->_type())) {
                 // implies that other is also an IBox<T>
                 x10aux::ref<IBox<T> > otherAsIBox(other);
                 return x10aux::struct_equals(value, otherAsIBox->value);

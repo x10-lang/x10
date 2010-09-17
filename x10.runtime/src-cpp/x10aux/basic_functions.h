@@ -31,7 +31,7 @@ namespace x10aux {
     /******* type_name ********/
 
     template<class T> inline ref<x10::lang::String> type_name(ref<T> x) {
-        return string_utils::lit((ref<x10::lang::Reference>(x))->_type()->name());
+        return string_utils::lit((ref<x10::lang::Reference>(nullCheck(x)))->_type()->name());
     }
 
     template<typename T> inline ref<x10::lang::String> type_name(T x) {
@@ -43,7 +43,7 @@ namespace x10aux {
     // covers all heap-allocated values (Objects, Functions, Structs boxes to interface types)
     template<class T> inline x10_boolean equals(ref<T> x, ref<x10::lang::Any> y) {
         ref<x10::lang::Reference> xAsRef(x);
-        return xAsRef->equals(y);
+        return nullCheck(xAsRef)->equals(y);
     }
 
     // covers all X10 Structs that are not built-in C++ types and NativeRep'ed
