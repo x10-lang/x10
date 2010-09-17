@@ -22,8 +22,8 @@ import x10.compiler.Global;
 abstract public class TestArray extends x10Test {
     val root = GlobalRef[TestArray](this);
     
-    /*global*/ val os: StringWriter;
-    /* global*/ val out: Printer;
+    val os: StringWriter;
+    val out: Printer;
     transient val testName = "TestArray";
 
     def this() {

@@ -2,7 +2,7 @@
 class Test(p:Test) {
 	var tt:Test;
 	val w:Int;
-	global val v1:Int = 1;
+	val v1:Int = 1;
 	var x1:Int;
 	static def foo(t:Test)=2;	
 	static def bar(t:Inner)=2;	
@@ -44,13 +44,13 @@ class Test(p:Test) {
 	}
 	operator this+(that:Test):Test = null;
 	def m() {}
-	global def g() {}
-	global def z(q:Test) {}
+	def g() {}
+	def z(q:Test) {}
 
 	// inner class - this of the inner class cannot escape, but the outer can escape (because you access it's fields via methods, e.g., Outer.this.getHeader())
 	class Inner {
 		val f:Int;
-		global val v2:Int = 4;
+		val v2:Int = 4;
 		var x2:Int;
 		def this() {
 			f = 3;
