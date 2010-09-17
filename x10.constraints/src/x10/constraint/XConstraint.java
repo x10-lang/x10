@@ -11,6 +11,7 @@
 
 package x10.constraint;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
@@ -23,9 +24,10 @@ import java.util.Set;
 
 
 
+
 /**
  * 
- *  A constraint solver for the following constraint system:
+ *  A constraint solver for the following constraint system. Note terms in this constraint system are untyped.
  * <verbatim>
  * t ::= x                  -- variable
  *       | t.f              -- field access
@@ -37,19 +39,21 @@ import java.util.Set;
  *       | p(t1,..., tn)    -- atomic formula
  * </verbatim>  
  * 
- * The constraint system implements the usual congruence rules for equality. 
+ * The constraint system implements the usual congruence rules for equality. That is, if <code>s1,...,sn</code> and 
+ * <code>t1,...,tn</code> are terms, and <code> s1 == t1,..., sn == tn</code>, then 
+ * <code>g(s1,..., sn) == g(s1,...,sn)</code>, and 
+ * <code>p(t1,..., tn) == p(t1,...,tn)</code>. Further, 
+ * <uline>
+ *   <li> <code>s equals t</code> implies <code>t equals s</code>
+ *   <li> <code>s equals t</code> and <code>t equals u</code> implies <code> s equals u</code>
+ *   <li> it is always the case that <code>s equals s</code>
+ * </uline>
+ * Terms are created using the static API in XTerms. The <code>==</code> relation on terms at the level of the 
+ * constraint system is translated into the <code>equals</code> relation on the Java representation of the terms.
  * 
  * <p>A constraint is implemented as a graph whose nodes are XPromises. Two different constraints will 
- * not share XPromises.
- * <p>
- * A promise contains fields: 
- * <olist>
- * <li>XPromise value  -- if non-null, points to a promise this one has been equated to
- * <li>Collection<XPromise> disequals -- contains set of other nodes this has been disequated with
- * <li>XTerm var  -- externally visible term labeling this promise
- * <li>Map<XName, XPromise> fields -- hashmap of fields of this promise. 
- * </olist>
- * It maintains the invariant <tt> value != null implies (disequals==null && fields == null)</tt>
+ * not share @link{XPromise}. See the description of @link{XPromise} for more information about the 
+ * internal representation of a constraint.
  * 
  * <p>This representation is a bit different from the Nelson-Oppen and Shostak congruence closure 
  * algorithms described, e.g. in Cyrluk, Lincoln and Shankar "On Shostak's Decision Procedure
@@ -60,6 +64,12 @@ import java.util.Set;
  * Use Shostak's congruence procedure. Treat <tt>t.f</tt> as the term <tt>f(t)</tt>, 
  * i.e. each field is regarded as a unary function symbol. This will be helpful in implementing
  * Nelson-Oppen integration of decision procedures.
+ * 
+ * <p> Additional Notes.
+ * This constraint system and its implementation knows nothing about X10 or internal compiler structures. Specifically
+ * it knows nothing about X10 types. The package x10.types.constraints contains an extension of this type system that is aware 
+ * of a this variable, a self variable and other compiler-related data-structures.
+ * 
  * @author vj
  *
  */
@@ -90,6 +100,13 @@ public class XConstraint implements  Cloneable {
     	return xvars;
     }
 
+    /**
+     * Return the set of terms occuring in this constraint.
+     * @return
+     */
+    public Set<XTerm> terms() {
+    	return roots == null ? Collections.<XTerm> emptySet() : roots.keySet();
+    }
     /**
      * Copy this constraint logically; that is, create a new constraint
      * that contains the same equalities (if any) as the current one.
@@ -142,6 +159,16 @@ public class XConstraint implements  Cloneable {
     		return (XVar) p.term();
     	}
     	return null;
+    }
+    
+    public XTerm bindingForRootField(XVar root, XName name) {
+    	 if (!consistent || roots == null)
+             return null;
+         XPromise self = (XPromise) roots.get(root);
+         if (self == null)
+             return null;
+         XPromise result = self.lookup(name);
+         return result == null ? null : result.term();
     }
 
 	/**
@@ -587,7 +614,7 @@ public class XConstraint implements  Cloneable {
     public XConstraint substitute(XTerm y, XVar x) throws XFailure {
         return substitute(new XTerm[] { y }, new XVar[] { x });
     }
-     XConstraint substitute(XTerm[] ys, XVar[] xs, boolean propagate) throws XFailure {
+     public XConstraint substitute(XTerm[] ys, XVar[] xs, boolean propagate) throws XFailure {
     	return substitute(ys, xs);
     }
     
@@ -680,13 +707,13 @@ public class XConstraint implements  Cloneable {
         else if (term instanceof XVar) {
             addBinding(term, XTerms.TRUE);
         }
-        else if (term instanceof XNot) {
+        /*else if (term instanceof XNot) {
             XNot t = (XNot) term;
             if (t.unaryArg() instanceof XVar)
                 addBinding(t.unaryArg(), XTerms.FALSE);
             if (t.unaryArg() instanceof XNot)
                 addTerm(((XNot) t.unaryArg()).unaryArg());
-        }
+        }*/
         else if (term instanceof XAnd) {
             XAnd t = (XAnd) term;
             addTerm(t.left());
