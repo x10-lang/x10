@@ -34,22 +34,22 @@ public class Atomic1 extends x10Test {
 
 	public def run(): boolean = {
 		val root = this.root;
-		val a = new Future[int](()=> root().threadRun());
-		/*val b = new Future[int](()=>  root().threadRun());
-		val c = new Future[int](()=> root().threadRun());
-		val d = new Future[int](()=> root().threadRun());
-		val e = new Future[int](()=> root().threadRun());
-		val f = new Future[int](()=> root().threadRun());
-		val g = new Future[int](()=>  root().threadRun());
-		val h = new Future[int](()=>  root().threadRun());*/
+		val a = Future.make[int](()=> root().threadRun());
+		val b = Future.make[int](()=>  root().threadRun());
+		val c = Future.make[int](()=> root().threadRun());
+		val d = Future.make[int](()=> root().threadRun());
+		val e = Future.make[int](()=> root().threadRun());
+		val f = Future.make[int](()=> root().threadRun());
+		val g = Future.make[int](()=>  root().threadRun());
+		val h = Future.make[int](()=>  root().threadRun());
 		val i = a();
-	/*	val j = b();
+		val j = b();
 		val k = c();
 		val l = d();
 		val m = e();
 		val n = f();
 		val o = g();
-		val p = h();*/
+		val p = h();
 		var t1: int;
 		var t2: int;
 		atomic t1 = cnt;
