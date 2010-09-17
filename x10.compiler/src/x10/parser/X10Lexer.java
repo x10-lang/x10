@@ -128,7 +128,7 @@ public class X10Lexer implements RuleAction
      * simply report a lexical error. Otherwise, we produce a bad token.
      */
     public void reportLexicalError(int startLoc, int endLoc) {
-        IPrsStream prs_stream = lexStream.getPrsStream();
+        IPrsStream prs_stream = lexStream.getIPrsStream();
         if (prs_stream == null)
             lexStream.reportLexicalError(startLoc, endLoc);
         else {
@@ -429,7 +429,7 @@ public class X10Lexer implements RuleAction
 
     public X10Lexer(java.io.Reader reader, String filename, int tab) throws java.io.IOException
     {
-        ArrayList buffers = new ArrayList();
+        ArrayList<char[]> buffers = new ArrayList<char[]>();
         int size = 0;
         while (true)
         {
@@ -438,13 +438,13 @@ public class X10Lexer implements RuleAction
             if (n < 0)
                 break;
             size += n;
-            buffers.add((Object) block);
+            buffers.add(block);
         }
 
         char buffer[] = new char[size];
         for (int i = 0; i < buffers.size(); i++)
         {
-            char block[] = (char []) buffers.get(i);
+            char block[] = buffers.get(i);
             int blocksize = (size / block.length > 0 ? block.length : size);
             size -= blocksize;
             System.arraycopy(block, 0, buffer, i * block.length, blocksize);
