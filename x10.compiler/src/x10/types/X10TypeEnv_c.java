@@ -218,10 +218,17 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     }
 
     /* (non-Javadoc)
-     * @see x10.types.X10TypeEnv#consistent(x10.constraint.CConstraint)
+     * @see x10.types.X10TypeEnv#consistent(x10.types.constraints.CConstraint)
      */
     public boolean consistent(CConstraint c) {
         return c.consistent();
+    }
+
+    /* (non-Javadoc)
+     * @see x10.types.X10TypeEnv#consistent(x10.types.constraints.TypeConstraint)
+     */
+    public boolean consistent(TypeConstraint c) {
+        return c.consistent((X10Context) context);
     }
 
     /* (non-Javadoc)
@@ -252,12 +259,25 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                 if (!consistent(ti))
                     return false;
             }
+            TypeConstraint c = Types.get(ct.x10Def().typeBounds());
+            if (c != null) {
+                TypeConstraint equals = new TypeConstraint();
+                for (int i = 0; i < ct.typeArguments().size(); i++) {
+                    Type Y = ct.typeArguments().get(i);
+                    ParameterType X = ct.x10Def().typeParameters().get(i);
+                    equals.addTerm(new SubtypeConstraint(X, Y, true));
+                }
+                X10Context xc = (X10Context) context.pushBlock();
+                equals.addIn(xc.currentTypeConstraint());
+                xc.setCurrentTypeConstraint(Types.ref(equals));
+                if (!new X10TypeEnv_c(xc).consistent(c))
+                    return false;
+            }
         }
-        //	    if (!consistent(X10TypeMixin.realX(t)))
-        //	        return false;
+        //if (!consistent(X10TypeMixin.realX(t)))
+        //    return false;
         return true;
     }
-    
    
     
     /* (non-Javadoc)
@@ -1976,6 +1996,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 	    }
 	    catch (SemanticException e) {
 	    	// Treat any instantiation errors as call invalid errors.
+	        int i = 1; // for debug breakpoints
 	    }
 
 	    if (error == null) {
@@ -2068,6 +2089,5 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 	
 	    return mj;
 	}
-
   
 }

@@ -112,7 +112,7 @@ public class Matcher {
 		final  boolean[] hasSymbol = new boolean[actuals.size()+1];
 	        final X10TypeSystem xts = (X10TypeSystem) me.typeSystem();
 	        
-	        final List<Type> formals = new ArrayList<Type>();
+	        List<Type> formals = new ArrayList<Type>();
 	        for (Type formal : me.formalTypes()) {
 	        	//formal = PlaceChecker.ReplaceHereByPlaceTerm((Type) formal.copy(), context);
 	        	formals.add(formal);
@@ -126,10 +126,9 @@ public class Matcher {
 	        if (typeActuals.size() != typeFormals.size())
 	            throw new SemanticException("Call not valid; incorrect number of actual type arguments.", me.position());
 	        
-	        X10TypeMixin.expandTypes(formals, xts);
+	        formals = X10TypeMixin.expandTypes(formals, xts);
 	        
-	        actuals = new ArrayList<Type>(actuals); // copy
-	        X10TypeMixin.expandTypes(actuals, xts);
+	        actuals = X10TypeMixin.expandTypes(actuals, xts);
 	        
 	        Type thisType = thisTypeArray[0];
 	     

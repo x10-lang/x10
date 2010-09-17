@@ -1071,10 +1071,12 @@ then we substitute 0/false/null in all the constraints in C and if they all eval
 	    return xthis;
 	}
 
-	public static void expandTypes(List<Type> formals, X10TypeSystem xts) {
-		 for (int i = 0; i < formals.size(); ++i) {
-	         formals.set(i, xts.expandMacros(formals.get(i)));
-		 }
+	public static List<Type> expandTypes(List<Type> formals, X10TypeSystem xts) {
+		List<Type> result = new ArrayList<Type>();
+		for (Type f : formals) {
+		    result.add(xts.expandMacros(f));
+		}
+		return result;
 	}
 
 	public static <PI extends X10ProcedureInstance<?>>  boolean isStatic(PI me) {

@@ -267,58 +267,17 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
     /** Return true if the constraint is consistent. */
     public boolean consistent(CConstraint c) {
-        return c.consistent();
+        return env(null).consistent(c);
     }
 
     /** Return true if the constraint is consistent. */
     public boolean consistent(TypeConstraint c, X10Context context) {
-        return c.consistent(context);
+        return env(context).consistent(c);
     }
 
     /** Return true if constraints in the type are all consistent. */
     public boolean consistent(Type t, X10Context context) {
-        if (t instanceof ConstrainedType) {
-            ConstrainedType ct = (ConstrainedType) t;
-            if (!consistent(Types.get(ct.baseType()), context))
-                return false;
-            if (!consistent(Types.get(ct.constraint())))
-                return false;
-        }
-        if (t instanceof MacroType) {
-            MacroType mt = (MacroType) t;
-            for (Type ti : mt.typeParameters()) {
-                if (!consistent(ti, context))
-                    return false;
-            }
-            for (Type ti : mt.formalTypes()) {
-                if (!consistent(ti, context))
-                    return false;
-            }
-        }
-        if (t instanceof X10ClassType) {
-            X10ClassType ct = (X10ClassType) t;
-            for (Type ti : ct.typeArguments()) {
-                if (!consistent(ti, context))
-                    return false;
-            }
-            TypeConstraint c = Types.get(ct.x10Def().typeBounds());
-            if (c != null) {
-                TypeConstraint equals = new TypeConstraint();
-                for (int i = 0; i < ct.typeArguments().size(); i++) {
-                    Type Y = ct.typeArguments().get(i);
-                    ParameterType X = ct.x10Def().typeParameters().get(i);
-                    equals.addTerm(new SubtypeConstraint(X, Y, true));
-                }
-                X10Context xc = (X10Context) context.pushBlock();
-                equals.addIn(xc.currentTypeConstraint());
-                xc.setCurrentTypeConstraint(Types.ref(equals));
-                if (! consistent(c, xc))
-                    return false;
-            }
-        }
-        // if (!consistent(X10TypeMixin.realX(t)))
-        // return false;
-        return true;
+        return env(context).consistent(t);
     }
 
     enum Bound {
