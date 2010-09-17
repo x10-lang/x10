@@ -90,10 +90,14 @@ public final class Array[T](
     public property rail: boolean = region.rail;
 
     /**
-     * Cache the value of the rail property as a field so that if we need
-     * it at runtime we can get it in a single load.
+     * Cache the value of the zeroBased property as a field so that if we need
+     * it at runtime we can get it in a single load.<p>
+     * Attempt to not lose the corelation between the value of this field and
+     * the static type of the Array by adding a constraint. The goal of this is
+     * to enable compile-time elimination of tests of the value of this field
+     * based on the static type information.
      */
-    private val cachedRail:boolean;
+    private val cachedZeroBased:boolean{self==this.zeroBased};
 
 
     private transient val raw:IndexedMemoryChunk[T];
@@ -137,7 +141,7 @@ public final class Array[T](
         val n = layout.size();
         raw = IndexedMemoryChunk.allocate[T](n, true);
         rawLength = n;
-        cachedRail = reg.rail;
+        cachedZeroBased = region.zeroBased;
     }
 
 
@@ -159,7 +163,7 @@ public final class Array[T](
         }
         raw = r;
         rawLength = n;
-        cachedRail = reg.rail;
+        cachedZeroBased = region.zeroBased;
     }
 
 
@@ -189,7 +193,7 @@ public final class Array[T](
         }
         raw = r;
         rawLength = n;
-	cachedRail = reg.rail;
+	cachedZeroBased = region.zeroBased;
     }
 
 
@@ -230,7 +234,7 @@ public final class Array[T](
         val n = layout.size();
         raw = IndexedMemoryChunk.allocate[T](n, true);
         rawLength = n;
-        cachedRail = region.rail;
+        cachedZeroBased = region.zeroBased;
     }
 
 
@@ -252,7 +256,7 @@ public final class Array[T](
         }
         raw = r;
         rawLength = n;
-        cachedRail = region.rail;
+        cachedZeroBased = region.zeroBased;
     }
 
 
@@ -274,7 +278,7 @@ public final class Array[T](
         }
         raw = r;
         rawLength = n;
-        cachedRail = region.rail;
+        cachedZeroBased = region.zeroBased;
     }
 
 
@@ -298,7 +302,7 @@ public final class Array[T](
      * @see #set(T, Int)
      */
     public safe @Header @Inline def apply(i0:int){rank==1}:T {
-	if (cachedRail) {
+	if (cachedZeroBased) {
             if (checkBounds() && !((i0 as UInt) < (size as UInt))) {
                 raiseBoundsError(i0);
             }
@@ -398,7 +402,7 @@ public final class Array[T](
      * @see #set(T, Point)
      */
     public safe @Header @Inline def set(v:T, i0:int){rank==1}:T {
-	if (cachedRail) {
+	if (cachedZeroBased) {
             if (checkBounds() && !((i0 as UInt) < (size as UInt))) {
                 raiseBoundsError(i0);
             }
