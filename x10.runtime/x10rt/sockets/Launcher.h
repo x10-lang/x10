@@ -12,6 +12,7 @@ extern "C" int vsnprintf(char *, size_t, const char *, va_list);
 extern "C" char *realpath (const char *, char *);
 extern "C" int setenv (const char *, const char *, int);
 extern "C" int unsetenv (const char *);
+extern "C" int fileno (FILE *__stream);
 #endif
 
 #ifndef __sock_launcher_h__
