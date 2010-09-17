@@ -19,7 +19,7 @@ is interpreted as
 
 public class DanglingElse extends x10Test.BardTest {
   public static def main(Array[String](1)){
-     val p:x10Test! = new DanglingElse();
+     val p:x10Test = new DanglingElse();
      p.run();
   }
   public def test() : Void {
