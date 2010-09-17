@@ -74,7 +74,7 @@ public class Matcher {
 	    }
 	    
 	    // Instantiate the proposed PI.
-	    Type[] thisTypeArray = new Type[] { thisType};
+	    Type[] thisTypeArray = new Type[] { thisType };
 	    PI newMe = instantiate2(context, me, thisTypeArray, typeActuals, actuals,  true);
 
 	    return newMe;
@@ -120,10 +120,10 @@ public class Matcher {
 	        final List<LocalInstance> formalNames = me.formalNames();
 	        final List<Type> typeFormals = me.typeParameters();
 	        final boolean isStatic = X10TypeMixin.isStatic(me);
-	    	if (actuals.size() != formals.size()) 
+	    	if (actuals.size() != formals.size())
 	            throw new SemanticException("Call not valid; incorrect number of actual arguments.", me.position());
 	  
-	        if (typeActuals.size() != typeFormals.size()) 
+	        if (typeActuals.size() != typeFormals.size())
 	            throw new SemanticException("Call not valid; incorrect number of actual type arguments.", me.position());
 	        
 	        X10TypeMixin.expandTypes(formals, xts);

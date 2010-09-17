@@ -398,7 +398,7 @@ public class TypeConstraint implements Copy, Serializable {
 	    // Create a big query for inferring type parameters.
 	    // LIMITATION: can only infer types when actuals are subtypes of formals.
 	    // This updates Y with new actual type arguments.
-	    inferTypeArguments(context, me, tenv, X, Y, x, y, ythis, xthis);
+	    inferTypeArguments(context, me, tenv, X, Y, Z, x, y, ythis, xthis);
 	
 	    for (int i = 0; i < Z.length; i++) {
 	        if (Y[i] == Z[i])
@@ -409,7 +409,7 @@ public class TypeConstraint implements Copy, Serializable {
 	}
 
 	public static <PI extends X10ProcedureInstance<?>> void inferTypeArguments(X10Context context, PI me, TypeConstraint tenv,
-	        ParameterType[] X, Type[] Y, XVar[] x, XVar[] y, XVar ythis, XVar xthis)
+	        ParameterType[] X, Type[] Y, Type[] Z, XVar[] x, XVar[] y, XVar ythis, XVar xthis)
 	throws SemanticException {
 	
 	    X10TypeSystem xts = (X10TypeSystem) me.typeSystem();
@@ -466,9 +466,9 @@ public class TypeConstraint implements Copy, Serializable {
 	            upper.remove(Xi);
 	            lower.remove(Xi);
 	        }
-	        for (Type Xi : Y) {
-	            upper.remove(Xi);
-	            lower.remove(Xi);
+	        for (Type Zi : Z) {
+	            upper.remove(Zi);
+	            lower.remove(Zi);
 	        }
 	
 	        Type upperBound = null;
