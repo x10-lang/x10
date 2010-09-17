@@ -1364,7 +1364,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		            args.add(new CastExpander(w, er, arguments.get(i)));                                    
 		        }
 		    }
-		    er.emitNativeAnnotation(pat, null, mi.typeParameters(), args, typeArguments);
+		    er.emitNativeAnnotation(pat, null, Collections.<Type>emptyList(), args, typeArguments);
 		    return;
 		}
 		
