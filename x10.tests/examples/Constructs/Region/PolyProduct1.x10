@@ -32,7 +32,7 @@ class PolyProduct1 extends TestRegion {
         "zeroBased false\n"+
         "rail false\n"+
         "isConvex() true\n"+
-        "size() unsupported operation exception\n"+
+        "size() size not supported\n"+
         "region: (x0>=1 && x1-x2>=0 && x2>=0 && x1<=2 && x0<=2)\n"+
         "  poly\n"+
         "    --- 1\n"+

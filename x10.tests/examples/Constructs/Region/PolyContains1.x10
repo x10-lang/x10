@@ -50,7 +50,7 @@ class PolyContains1 extends TestRegion {
         "zeroBased false\n"+
         "rail false\n"+
         "isConvex() true\n"+
-        "size() unsupported operation exception\n"+
+        "size() size not supported\n"+
         "region: (x0-x1>=0 && x1>=0 && x0-x1<=0 && x0<=4)\n"+
         "  poly\n"+
         "    0  0 . . . . . . . . . \n"+
@@ -72,7 +72,7 @@ class PolyContains1 extends TestRegion {
         "zeroBased false\n"+
         "rail false\n"+
         "isConvex() true\n"+
-        "size() unsupported operation exception\n"+
+        "size() size not supported\n"+
         "region: (x0-x1>=0 && x1>=0 && x0-x1<=1 && x0<=4)\n"+
         "  poly\n"+
         "    0  0 . . . . . . . . . \n"+
@@ -92,7 +92,7 @@ class PolyContains1 extends TestRegion {
         "zeroBased false\n"+
         "rail false\n"+
         "isConvex() true\n"+
-        "size() unsupported operation exception\n"+
+        "size() size not supported\n"+
         "region: (x0>=0 && x0-x1>=-1 && x1<=4 && x0-x1<=0)\n"+
         "  poly\n"+
         "    0  0 0 . . . . . . . . \n"+
