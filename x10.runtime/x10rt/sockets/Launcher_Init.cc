@@ -100,10 +100,7 @@ void Launcher::initialize(int argc, char ** argv)
 	/* -------------------------------------------- */
 	if (_myproc != 0xFFFFFFFF)
 	{
-		uint32_t maxValueInLevel = 0;
-		while (maxValueInLevel < _myproc)
-			maxValueInLevel = maxValueInLevel*2 + 2;
-		_firstchildproc = (_myproc - ((maxValueInLevel-2)/2))*2 + maxValueInLevel - 1;
+		_firstchildproc = (_myproc*2) + 1;
 
 		if (_firstchildproc >= _nplaces)
 			_numchildren = 0;

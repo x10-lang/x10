@@ -635,29 +635,38 @@ int Launcher::forwardMessage(struct ctrl_msg* message, char* data)
 {
 	// this request needs to be forwarded either to the parent launcher, or a child launcher
 	// figure out where to send it, by determining if we are on the chain between place 0 and the dest
-	uint32_t parentId=message->to, previousParentId, maxValueInLevel = 0;
+	uint32_t child=message->to, parent;
 
-	// go out to the level of the tree that contains the requested place
-	while (maxValueInLevel < message->to)
-		maxValueInLevel = maxValueInLevel*2 + 2;
-	// figure out the process that's in the tree at our level
-	do
+	int destFD = -1;
+	if (child > _singleton->_myproc)
 	{
-		previousParentId = parentId;
-		parentId = (previousParentId-(maxValueInLevel/2))/2 + maxValueInLevel/4;
+		do
+		{
+			parent = (child-1)/2;
+			if (parent == _singleton->_myproc)
+			{
+				if (child == _singleton->_firstchildproc)
+					destFD = _childControlLinks[0];
+				else
+					destFD = _childControlLinks[1];
+				#ifdef DEBUG
+					fprintf(stderr, "Launcher %u forwarding message to child launcher %u.\n", _myproc, child);
+				#endif
+				break;
+			}
+			else
+				child = parent;
+		}
+		while (parent > _singleton->_myproc);
 	}
-	while (parentId >= _singleton->_myproc);
 
-	int destFD;
-	if (parentId == _singleton->_myproc)
-	{	//This is intended for one of my children
-		if (previousParentId == _singleton->_firstchildproc)
-			destFD = _childControlLinks[0];
-		else
-			destFD = _childControlLinks[1];
-	}
-	else // not my child - send the request up to my parent
+	if (destFD == -1)
+	{
 		destFD = _parentLauncherControlLink;
+		#ifdef DEBUG
+			fprintf(stderr, "Launcher %u forwarding message to parent launcher.\n", _myproc);
+		#endif
+	}
 
 	int ret = TCP::write(destFD, message, sizeof(struct ctrl_msg));
 	if (message->datalen > 0)

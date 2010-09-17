@@ -69,6 +69,9 @@ int initLink(uint32_t remotePlace)
 
 	if (state.socketLinks[remotePlace].fd <= 0)
 	{
+		#ifdef DEBUG
+			printf("X10rt.Sockets: Place %u looking up place %u for a new connection\n", state.myPlaceId, remotePlace);
+		#endif
 		char link[1024];
 		pthread_mutex_lock(&state.writeLocks[state.myPlaceId]); // because the lookup isn't currently thread-safe
 		int r = Launcher::lookupPlace(state.myPlaceId, remotePlace, link, sizeof(link));
@@ -81,15 +84,15 @@ int initLink(uint32_t remotePlace)
 			state.socketLinks[remotePlace].events = POLLHUP | POLLERR | POLLIN | POLLPRI;
 			pthread_mutex_init(&state.readLocks[remotePlace], NULL);
 			pthread_mutex_init(&state.writeLocks[remotePlace], NULL);
-			#ifdef DEBUG
-				printf("X10rt.Sockets: Place %u established a link to place %u\n", state.myPlaceId, remotePlace);
-			#endif
 			struct ctrl_msg m;
 			m.type = HELLO;
 			m.to = remotePlace;
 			m.from = state.myPlaceId;
 			m.datalen = 0;
-			TCP::write(state.socketLinks[remotePlace].fd, &m, sizeof(m));
+			#ifdef DEBUG
+				printf("X10rt.Sockets: Place %u established a link to place %u\n", state.myPlaceId, remotePlace);
+			#endif
+			return TCP::write(state.socketLinks[remotePlace].fd, &m, sizeof(m));
 		}
 		else
 			return -1;
@@ -294,6 +297,10 @@ void x10rt_net_probe ()
 	int ret = poll(state.socketLinks, state.numPlaces, 0);
 	if (ret > 0)
 	{
+		#ifdef DEBUG
+			printf("X10rt.Sockets: place %u probe has %d pending messages\n", state.myPlaceId, ret);
+		#endif
+
 		/* An event on one of the fds has occurred. */
 		// POLLHUP | POLLERR | POLLIN | POLLPRI;
 	    for (unsigned int i=0; i<state.numPlaces; i++)
