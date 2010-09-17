@@ -19,9 +19,9 @@ import x10.util.Future;
 public class FlattenValForce extends x10Test {
    
     static def rd(val e: Array[Future[Int]](1), val i: int)  = {
-        val fd = new Future[Double]( ()=> 3.0);
+        val fd = Future.make[Double]( ()=> 3.0);
         val x  = fd();
-        return new Future[Int](()=> e(i)());
+        return Future.make[Int](()=> e(i)());
     }
    
     public def run(): boolean = true;
