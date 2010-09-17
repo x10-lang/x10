@@ -273,7 +273,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	public void visit(TypeParamNode_c n) {
 	    n.translate(w, tr);
 	}
-
 	public void visit(X10ClassBody_c n) {
 	    n.translate(w, tr);
 	}
@@ -281,13 +280,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    n.translate(w, tr);
 	}
 	public void visit(Loop_c n) {
-            n.translate(w, tr);
-        }
+	    n.translate(w, tr);
+	}
 	public void visit(Return_c n) {
 	    n.translate(w, tr);
 	}
 	public void visit(Eval_c n) {
-            n.translate(w, tr);
+	    n.translate(w, tr);
 	}
 	public void visit(Local_c n) {
 	    n.translate(w, tr);
@@ -299,9 +298,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    n.translate(w, tr);
 	}
 	public void visit(Conditional_c n) {
-        w.write("(");
         n.translate(w, tr);
-        w.write(")");
 	}
 	public void visit(ParExpr_c n) {
 	    n.translate(w, tr);
@@ -316,7 +313,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    n.translate(w, tr);
 	}
 	public void visit(Throw_c n) {
-            n.translate(w, tr);
+	    n.translate(w, tr);
 	}
 	public void visit(Catch_c n) {
 	    n.translate(w, tr);
@@ -1012,10 +1009,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                                     //       doesn't parse correctly, but
                                     //       (java.lang.Integer) (-1)
                                     //       does
-                                    if (expr instanceof Unary || expr instanceof Lit)
+                                    boolean needParan = expr instanceof Unary || expr instanceof Lit || expr instanceof Conditional_c;
+                                    if (needParan)
                                             w.write("(");
                                     c.printSubExpr(expr, w, tr);
-                                    if (expr instanceof Unary || expr instanceof Lit)
+                                    if (needParan)
                                             w.write(")");
                                     w.write(")");
                                     w.end();
@@ -1050,10 +1048,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                                 
                                 w.allowBreak(2, " ");
                                 X10TypeSystem xts = ((X10TypeSystem)tr.typeSystem());
-                                if (expr instanceof Unary || expr instanceof Lit || (expr instanceof X10Call && !(X10TypeMixin.baseType(expr.type()) instanceof ParameterType) && xts.isRail(((X10Call) expr).target().type())))
+                                boolean needParen = expr instanceof Unary || expr instanceof Lit || expr instanceof Conditional_c || (expr instanceof X10Call && !(X10TypeMixin.baseType(expr.type()) instanceof ParameterType) && xts.isRail(((X10Call) expr).target().type()));
+                                if (needParen)
                                     w.write("(");
                                 c.printSubExpr(expr, w, tr);
-                                if (expr instanceof Unary || expr instanceof Lit || (expr instanceof X10Call && !(X10TypeMixin.baseType(expr.type()) instanceof ParameterType) && xts.isRail(((X10Call) expr).target().type())))
+                                if (needParen)
                                     w.write(")");
                                 w.write(")");
                                 w.end();
