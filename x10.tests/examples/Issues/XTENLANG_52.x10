@@ -25,7 +25,7 @@ class XTENLANG_52 extends x10Test {
     
         static type R(rank:int) = R{self.rank==rank};
     
-        public def get(): R(rank) { throw new RuntimeException(); }
+        public final def get(): R(rank) { throw new RuntimeException(); }
     
         val rs: ValRail[R] = [get()];
         //workaround: val rs:Rail[R] = ValRail.make[R](1, (int)=&gt;get());
