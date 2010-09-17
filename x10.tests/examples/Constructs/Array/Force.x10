@@ -21,7 +21,7 @@ public class Force extends x10Test {
    
     static def rd(val e: Future[Int], val i: int, val j: int): int = {
         val x: int = e();
-        return new Future[int](()=> x)();
+        return Future.make[int](()=> x)();
     }
    
     public def run(): boolean = true;
