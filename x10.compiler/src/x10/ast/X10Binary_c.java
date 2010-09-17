@@ -317,7 +317,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         Type lbase = X10TypeMixin.baseType(left.type());
         Type rbase = X10TypeMixin.baseType(right.type());
 
-        if (op == EQ || op == NE) {
+      /*  if (op == EQ || op == NE) {
             if (xts.isExactlyFunctionType(lbase)) {
                 Errors.issue(tc.job(),
                         new SemanticException("The " + op +
@@ -331,7 +331,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
                                 position()));
             }
         }
-
+*/
         if (op == EQ || op == NE || op == LT || op == GT || op == LE || op == GE) {
             Object lv = left.isConstant() ? left.constantValue() : null;
             Object rv = right.isConstant() ? right.constantValue() : null;
