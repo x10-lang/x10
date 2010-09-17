@@ -93,11 +93,13 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 	List<TypeNode> typeArguments;
 	public List<TypeNode> typeArguments() { return typeArguments; }
 	public X10Call typeArguments(List<TypeNode> args) {
+		if (args == this.typeArguments) return this;
 		X10Call_c n = (X10Call_c) copy();
 		n.typeArguments = new ArrayList<TypeNode>(args);
 		return n;
 	}
 	public X10Call arguments(List<Expr> args) {
+		if (args == this.arguments) return this;
 		X10Call_c n = (X10Call_c) copy();
 		n.arguments = new ArrayList<Expr>(args);
 		return n;
