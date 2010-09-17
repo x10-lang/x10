@@ -30,8 +30,9 @@ void Launcher::Setup(int argc, char ** argv)
 {
 	assert (_singleton == NULL);
 
-	// check to see if we need to launch stuff, or if we need to run stuff.  This combination distinguishes the two.
-	if (!getenv(X10LAUNCHER_HOSTFILE) && getenv(X10LAUNCHER_NPROCS) && getenv(X10LAUNCHER_MYID) && getenv(X10LAUNCHER_PARENT) && !getenv(X10LAUNCHER_SSH))
+	// check to see if we need to launch stuff, or if we need to execute the runtime.
+	// we just skip the launcher and run the program if the user hasn't set X10LAUNCHER_NPROCS
+	if (!getenv(X10LAUNCHER_NPROCS) || getenv(X10LAUNCHER_RUNTIME))
 		return;
 
 	_singleton = (Launcher *) malloc(sizeof(Launcher));
@@ -54,7 +55,7 @@ Launcher::Launcher()
 	memset(_ssh_command, 0, sizeof(_ssh_command));
 	strcpy(_ssh_command, "/usr/bin/ssh");
 	memset(_hostfname, 0, sizeof(_hostfname));
-	strcpy(_hostfname, "");
+	strcpy(_hostfname, "hostfile"); // default host file name
 	_nplaces = 1;
 	_hostlist = NULL;
 	_runtimePort = NULL;
@@ -81,8 +82,20 @@ void Launcher::initialize(int argc, char ** argv)
 	_argc = argc;
 	_argv = argv;
 	realpath(argv[0], _realpath);
-	_nplaces = getenv(X10LAUNCHER_NPROCS) ? atoi(getenv(X10LAUNCHER_NPROCS)) : 1;
-	_myproc = getenv(X10LAUNCHER_MYID) ? atoi(getenv(X10LAUNCHER_MYID)) : -1;
+	if (!getenv(X10LAUNCHER_NPROCS))
+	{
+		_nplaces = 1;
+		setenv(X10LAUNCHER_NPROCS, "1", 0);
+	}
+	else
+		_nplaces = atoi(getenv(X10LAUNCHER_NPROCS));
+	if (!getenv(X10LAUNCHER_MYID))
+	{
+		_myproc = -1;
+		setenv(X10LAUNCHER_MYID, "-1", 0);
+	}
+	else
+		_myproc = atoi(getenv(X10LAUNCHER_MYID));
 
 	/* -------------------------------------------- */
 	/*  decide who my children are                  */
@@ -101,14 +114,15 @@ void Launcher::initialize(int argc, char ** argv)
 			_numchildren = 2;
 		else
 			_numchildren = 1;
+		#ifdef DEBUG
+			fprintf(stderr, "Launcher %i has %i child%s\n", _myproc, _numchildren, _numchildren==1?"":"ren");
+		#endif
 	}
 	else
 	{
 		_firstchildproc = 0;
-		_numchildren = 1;
+		_numchildren = 0;
 	}
-
-	fprintf(stderr, "Place %i has %i children\n", _myproc, _numchildren);
 
 	/* --------------------------------- */
 	/* copy SSH command from environment */
@@ -117,7 +131,7 @@ void Launcher::initialize(int argc, char ** argv)
 	if (ssh_command && strlen(ssh_command) > 0)
 	{
 		if (strlen(ssh_command) > sizeof(_ssh_command) - 10)
-			DIE("%d: SSH command is too long", _myproc);
+			DIE("Launcher %d: SSH command is too long", _myproc);
 		strncpy(_ssh_command, ssh_command, sizeof(_ssh_command) - 1);
 	}
 
@@ -128,10 +142,12 @@ void Launcher::initialize(int argc, char ** argv)
 	if (hostfname && strlen(hostfname) > 0)
 	{
 		if (strlen(hostfname) > sizeof(_hostfname) - 10)
-			DIE("%d: host file name is too long", _myproc);
+			DIE("Launcher %d: host file name is too long", _myproc);
 		strncpy(_hostfname, hostfname, sizeof(_hostfname) - 1);
 		readHostFile();
 	}
+	else
+		fprintf(stderr, "Warning: %s not defined.  Running %d places on localhost\n", X10LAUNCHER_HOSTFILE, _nplaces);
 
 	connectToParentLauncher();
 
@@ -147,20 +163,23 @@ void Launcher::initialize(int argc, char ** argv)
 
 void Launcher::readHostFile()
 {
+	#ifdef DEBUG
+		fprintf(stderr, "Launcher %d: Processing hostfile \"%s\"\n", _myproc, _hostfname);
+	#endif
 	FILE * fd = fopen(_hostfname, "r");
 	if (!fd)
-		DIE("%d: cannot open hostfile '%s': exiting", _myproc, _hostfname);
+		DIE("Launcher %d: cannot open hostfile '%s': exiting", _myproc, _hostfname);
 
 	_hostlist = (char **) malloc(sizeof(char *) * _numchildren);
 	if (!_hostlist)
-		DIE("%d: hostname memory allocation failure", _myproc);
+		DIE("Launcher %d: hostname memory allocation failure", _myproc);
 
 /*	_execlist = (char **) malloc(sizeof(char *) * _numchildren);
 	if (!_execlist)
 		DIE("%d: memory allocation failure", _myproc);
 */
-	int lineNumber = -1;
-	while (lineNumber < _firstchildproc+_numchildren-1)
+	int lineNumber = 0;
+	while (lineNumber < _firstchildproc+_numchildren)
 	{
 		char buffer[5120];
 		fgets(buffer, sizeof(buffer), fd);
@@ -179,11 +198,13 @@ void Launcher::readHostFile()
 
 		char * host = (char *) malloc(plen + 10);
 		if (!host)
-			DIE("%d: memory allocation failure", _myproc);
+			DIE("Launcher %d: memory allocation failure", _myproc);
 		strcpy(host, p);
 		_hostlist[lineNumber-_firstchildproc] = host;
 
-		fprintf(stderr, "child %i (place %i) is on %s\n", lineNumber-_firstchildproc, lineNumber, host);
+		#ifdef DEBUG
+			fprintf(stderr, "Child launcher %i (place %i) is on %s\n", lineNumber-_firstchildproc, lineNumber, host);
+		#endif
 
 		/*
 		p = strtok(NULL, " \t\n\r");
@@ -214,7 +235,7 @@ void Launcher::DIE(const char * msg, ...)
 	va_start(ap, msg);
 	vsnprintf(buffer, 119, msg, ap);
 	va_end(ap);
-	fprintf(stderr, "PM: %s\n", buffer);
+	fprintf(stderr, "%s\n", buffer);
 	if (errno != 0)
 		fprintf(stderr, strerror(errno));
 	exit(1);

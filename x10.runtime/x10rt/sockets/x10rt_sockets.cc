@@ -62,6 +62,9 @@ void error(const char* message)
 
 int initLink(int remotePlace)
 {
+	if (remotePlace > state.numPlaces)
+		return -1;
+
 	if (state.socketLinks[remotePlace].fd <= 0)
 	{
 		char link[1024];
@@ -90,12 +93,13 @@ void x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 	char* NPROCS = getenv(X10LAUNCHER_NPROCS);
 	if (NPROCS == NULL)
 	{
-		fprintf(stderr, "%s not set.  Assuming 1 place\n", X10LAUNCHER_NPROCS);
+		fprintf(stderr, "%s not set.  Assuming 1 place, running locally\n", X10LAUNCHER_NPROCS);
 		state.numPlaces = 1;
+		state.myPlaceId = 0;
+		return; // nothing to set up in the network layer, since we're all alone.
 	}
-	else
-		state.numPlaces = atol(NPROCS);
 
+	state.numPlaces = atol(NPROCS);
 	// determine my place ID
 	char* ID = getenv(X10LAUNCHER_MYID);
 	if (ID == NULL)
@@ -110,7 +114,6 @@ void x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 		state.socketLinks[i].fd = 0;
 
 	// open local listen port.
-	// TODO: for now, use a well-known fixed port number.  This will be changed to dynamic before it's released.
 	unsigned listenPort = 0;
 	state.socketLinks[state.myPlaceId].fd = TCP::listen(&listenPort, 10);
 	if (state.socketLinks[state.myPlaceId].fd < 0)
@@ -200,7 +203,6 @@ x10rt_place x10rt_net_here (void)
 
 void x10rt_net_send_msg (x10rt_msg_params *parameters)
 {
-	// TODO: if we're not using lazy initialization, remove this line
 	if (initLink(parameters->dest_place) <= 0)
 		error("establishing a connection");
 	pthread_mutex_lock(&state.writeLocks[parameters->dest_place]);
@@ -218,7 +220,6 @@ void x10rt_net_send_msg (x10rt_msg_params *parameters)
 
 void x10rt_net_send_get (x10rt_msg_params *parameters, void *buffer, x10rt_copy_sz bufferLen)
 {
-	// TODO: if we're not using lazy initialization, remove this line
 	if (initLink(parameters->dest_place) <= 0)
 		error("establishing a connection");
 	pthread_mutex_lock(&state.writeLocks[parameters->dest_place]);
@@ -239,7 +240,6 @@ void x10rt_net_send_get (x10rt_msg_params *parameters, void *buffer, x10rt_copy_
 
 void x10rt_net_send_put (x10rt_msg_params *parameters, void *buffer, x10rt_copy_sz bufferLen)
 {
-	// TODO: if we're not using lazy initialization, remove this line
 	if (initLink(parameters->dest_place) <= 0)
 		error("establishing a connection");
 	pthread_mutex_lock(&state.writeLocks[parameters->dest_place]);
@@ -260,6 +260,9 @@ void x10rt_net_send_put (x10rt_msg_params *parameters, void *buffer, x10rt_copy_
 
 void x10rt_net_probe ()
 {
+	if (state.numPlaces == 1)
+		return;
+
 	int ret = poll(state.socketLinks, state.numPlaces, 0);
 	if (ret > 0)
 	{
@@ -385,6 +388,9 @@ void x10rt_net_probe ()
 
 void x10rt_net_finalize (void)
 {
+	if (state.numPlaces == 1)
+		return;
+
 	#ifdef DEBUG
 		printf("X10rt.Socket: shutting down place %lu\n", state.myPlaceId);
 	#endif

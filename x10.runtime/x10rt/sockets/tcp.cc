@@ -3,15 +3,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/types.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <arpa/inet.h>
 #include <netdb.h>
-#include <unistd.h>
 #include <errno.h>
 #include <assert.h>
+#include <unistd.h>
 
 #ifdef __CYGWIN__
 extern "C" int snprintf(char *, size_t, const char *, ...);
@@ -34,9 +34,7 @@ int TCP::read(int fd, void * p, unsigned cnt)
 			return -1;
 		}
 		if (rc == 0)
-		{
 			return -1; /* connection closed */
-		}
 
 		dst += rc;
 		bytesleft -= rc;
@@ -91,28 +89,27 @@ int TCP::listen(unsigned * localPort, unsigned backlog)
 	la.sin_port = htons((unsigned short) (*localPort));
 	if (::bind(fd, (sockaddr *) &la, sizeof(la)) == -1)
 	{
-		close(fd);
+		//close(fd);
 		FATAL("Bind failed");
 	}
 
 	/* listen */
-
 	if (::listen(fd, backlog) == -1)
 	{
-		close(fd);
+		//close(fd);
 		FATAL("Listen failed");
 	}
 
 	sockaddr_in lb;
-	socklen_t sl;
-	if (::getsockname(fd, (sockaddr *) &lb, &sl) == -1)
+	socklen_t sl = sizeof(struct sockaddr_in);
+	if (::getsockname(fd, (struct sockaddr *) &lb, &sl) == -1)
 	{
-		close(fd);
+		//close(fd);
+		//fprintf(stderr, "file descriptor = %d\n", fd);
+		//fprintf(stderr, "socklen = %d\n", sl);
 		FATAL("getsockname failed");
 	}
-
 	// fprintf (stderr, "localport=%d\n", ntohs(lb.sin_port));
-
 	*localPort = (unsigned) (ntohs(lb.sin_port));
 
 	return fd;
@@ -156,8 +153,6 @@ int TCP::connect(const char *host, unsigned port, unsigned retries)
 
 	assert(remoteInfo->h_addrtype == AF_INET);
 	assert(remoteInfo->h_length == sizeof(unsigned));
-
-	fprintf(stderr, "host = %s, port = %i\n", host, port);
 
 	sockaddr_in ra;
 	memset(&ra, 0, sizeof(ra));
@@ -205,7 +200,7 @@ int TCP::connect(const char * hostport, unsigned retries)
 
 void TCP::FATAL(const char * msg)
 {
-	fprintf(stderr, "FATAL Error: ");
+	fprintf(stderr, "FATAL Error %d : ", errno);
 	perror(msg);
 	exit(-1);
 }
