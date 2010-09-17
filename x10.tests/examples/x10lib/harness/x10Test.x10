@@ -91,7 +91,7 @@ abstract public class x10Test {
     }
 
     protected var result: boolean;
-    protected def check[T](test:String, actual:T, expected:T) = {
+    protected final def check[T](test:String, actual:T, expected:T) = {
 	result = actual == expected;
 	println(test + (result ? " succeeds: got "
 			: " fails: exepected " + expected + ", got " )
