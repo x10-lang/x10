@@ -20,17 +20,16 @@ import harness.x10Test;
 public class ClockTest3b extends x10Test {
 
 	var val: int = 0;
-	const N: int = 32;
+	static val N: int = 32;
 
 	public def run(): boolean = {
-		finish async {
-			val c: Clock = Clock.make();
-			foreach (val [i]: Point in 0..(N-1)) clocked(c) {
-				async at(here) clocked(c) finish at async(here) { atomic val++; }
+		clocked finish async {
+			clocked foreach (val [i]: Point in 0..(N-1)) {
+				clocked async at(here) finish async at(here) { atomic val++; }
 				next;
 				chk(val == N);
 				next;
-				async at(here) clocked(c) finish at async(here) { atomic val++; }
+				clocked async at(here) finish async at(here) { atomic val++; }
 				next;
 			}
 		}
