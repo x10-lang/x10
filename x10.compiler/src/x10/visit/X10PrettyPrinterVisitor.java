@@ -299,7 +299,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    n.translate(w, tr);
 	}
 	public void visit(Conditional_c n) {
-            n.translate(w, tr);
+        w.write("(");
+        n.translate(w, tr);
+        w.write(")");
 	}
 	public void visit(ParExpr_c n) {
 	    n.translate(w, tr);
