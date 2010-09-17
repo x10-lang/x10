@@ -24,10 +24,10 @@ final class FullRegion extends Region{rect} {
     public def isConvex() = true;
     public def isEmpty() = false;
     public def size():int {
-        throw new IllegalOperationException("Full Region is infinite; size not supported");
+        throw new UnboundedRegionException("size not supported");
     }
     public def indexOf(Point):int {
-        throw new IllegalOperationException("Full Region is infinite; indexOf not supported");
+        throw new UnboundedRegionException("indexOf not supported");
     }
     public def min() = ValRail.make(rank, (Int)=>Int.MIN_VALUE);
     public def max() = ValRail.make(rank, (Int)=>Int.MAX_VALUE);
@@ -58,10 +58,10 @@ final class FullRegion extends Region{rect} {
 
 
     public def scanners():Iterator[Region.Scanner] {
-        throw new IllegalOperationException("Full Region is infinite: scanning is not supported");
+        throw new UnboundedRegionException("scanners not supported");
     }
 
     public def iterator():Iterator[Point(rank)] {
-        throw new IllegalOperationException("Full Region is infinite: iteration is not supported");
+        throw new UnboundedRegionException("iterator not supported");
     }
 }
