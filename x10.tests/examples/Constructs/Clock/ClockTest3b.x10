@@ -25,11 +25,11 @@ public class ClockTest3b extends x10Test {
 	public def run(): boolean = {
 		clocked finish async {
 			clocked foreach (val [i]: Point in 0..(N-1)) {
-				clocked async at(here) finish async at(here) { atomic val++; }
+				clocked async at finish async at { atomic val++; }
 				next;
 				chk(val == N);
 				next;
-				clocked async at(here) finish async at(here) { atomic val++; }
+				clocked async at finish async at { atomic val++; }
 				next;
 			}
 		}
@@ -37,7 +37,7 @@ public class ClockTest3b extends x10Test {
 		return true;
 	}
 
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(Array[String]) {
 		new ClockTest3b().executeAsync();
 	}
 }

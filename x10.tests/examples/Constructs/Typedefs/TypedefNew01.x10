@@ -48,7 +48,7 @@ public class TypedefNew01 extends TypedefTest {
         return result;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(Array[String](1)) {
         new TypedefNew01().execute();
     }
 }
