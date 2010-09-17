@@ -22,7 +22,7 @@ public class BlockDist2 extends x10Test.BardTest {
 
 
   public def test() {
-     for( (n) in 10 .. 100 ) {
+     for( [n] in 10 .. 100 ) {
         val R = 1 .. n;
         val D = Dist.makeBlock(R);
         val M = Place.MAX_PLACES;

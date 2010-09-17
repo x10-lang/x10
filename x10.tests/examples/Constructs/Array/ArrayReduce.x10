@@ -11,6 +11,8 @@
 
 import harness.x10Test;
 
+import x10.util.Future;
+
 /**
  * @author bdlucas
  */
@@ -28,7 +30,7 @@ public class ArrayReduce extends TestArray {
         pr("--- original");
         val a = DistArray.make[double](dist, (p:Point)=>p(0) as double);
         for (pt:Point(1) in a) {
-            val x = (at (a.dist(pt)) Future.make[double](()=>a(pt)))();
+            val x = (at (a.dist(pt)) new Future[double](()=>a(pt)))();
             out.print(x + " ");
         }
         out.println();
