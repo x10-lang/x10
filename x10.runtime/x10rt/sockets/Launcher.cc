@@ -21,6 +21,7 @@
 /* *********************************************************************** */
 /*     utility methods, called outside of the launcher					   */
 /* *********************************************************************** */
+const char* CTRL_MSG_TYPE_STRINGS[] = {"HELLO", "PORT_REQUEST", "PORT_RESPONSE"};
 
 int Launcher::setPort(int place, char* port)
 {

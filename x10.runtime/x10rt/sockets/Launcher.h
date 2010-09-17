@@ -34,7 +34,6 @@ extern "C" int fileno (FILE *__stream);
 #define DEBUG 1
 
 enum CTRL_MSG_TYPE {HELLO, PORT_REQUEST, PORT_RESPONSE};
-char* CTRL_MSG_TYPE_STRINGS[] = {"HELLO", "PORT_REQUEST", "PORT_RESPONSE"};
 struct ctrl_msg
 {
 	CTRL_MSG_TYPE type;
