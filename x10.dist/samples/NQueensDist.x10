@@ -45,7 +45,7 @@ public class NQueensDist {
         assert P >= 0;
         val low = R.min()(0), high = R.max()(0), count = high-low+1;
         val baseSize = count/P, extra = count - baseSize*P;
-        new Array[Region(1){rect}](P, ([i]:Point):Region(1){rect} => {
+        new Array[Region(1){rect}](P, (i:int):Region(1){rect} => {
             val start = low+i*baseSize+ (i < extra? i:extra);
             start..start+baseSize+(i < extra?0:-1)
         })
@@ -58,7 +58,7 @@ public class NQueensDist {
         }
         def this(old:Array[Int](1), newItem:Int) {
             val n = old.size;
-            q = new Array[Int](n+1, ([i]:Point)=> (i < n? old(i) : newItem));
+            q = new Array[Int](n+1, (i:int)=> (i < n? old(i) : newItem));
         }
         def safe(j: int) {
             val n = q.size;

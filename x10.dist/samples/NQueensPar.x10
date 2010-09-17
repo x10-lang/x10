@@ -38,7 +38,7 @@ public class NQueensPar {
         assert P >= 0;
         val low = R.min()(0), high = R.max()(0), count = high-low+1;
         val baseSize = count/P, extra = count - baseSize*P;
-        new Array[Region(1)](P, ([i]:Point):Region(1) => {
+        new Array[Region(1)](P, (i:int):Region(1) => {
             val start = low+i*baseSize+ (i < extra? i:extra);
             start..start+baseSize+(i < extra?0:-1)
         })
@@ -54,7 +54,7 @@ public class NQueensPar {
 
         def this(old: Array[Int](1), newItem:Int) {
             val n = old.size();
-            q = new Array[Int](n+1, (p:Point(1))=> (p(0) < n? old(p(0)) : newItem));
+            q = new Array[Int](n+1, (i:int)=> (i < n? old(i) : newItem));
         }
 
         def safe(j: int) {

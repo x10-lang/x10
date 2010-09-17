@@ -223,8 +223,14 @@ public final class Array[T](
      * in future releases of X10, this method will only be callable if sizeof(T) bytes 
      * of zeros is a valid value of type T. 
      */    
-    public def this(size:int):Array[T]{rank==1,rect,zeroBased,self.rail} {
-	this(Region.makeRectangular(0, size-1));
+    public def this(size:int):Array[T]{self.region.rank==1,self.region.rect,self.region.zeroBased} {
+        property(0..size-1, size);
+
+        layout = RectLayout(region.min(), region.max());
+        val n = layout.size();
+        raw = IndexedMemoryChunk.allocate[T](n, true);
+        rawLength = n;
+        cachedRail = region.rail;
     }
 
 
@@ -235,8 +241,18 @@ public final class Array[T](
      * @param reg The region over which to construct the array.
      * @param init The function to use to initialize the array.
      */    
-    public def this(size:int, init:(Point(1))=>T):Array[T]{rank==1,rect,zeroBased,self.rail} {
-	this(Region.makeRectangular(0, size-1), init);
+    public def this(size:int, init:(int)=>T):Array[T]{rank==1,rect,zeroBased} {
+        property(0..size-1, size);
+
+        layout = RectLayout(region.min(), region.max());
+        val n = layout.size();
+        val r  = IndexedMemoryChunk.allocate[T](n);
+	for ([i] in 0..size-1) {
+            r(i)= init(i);
+        }
+        raw = r;
+        rawLength = n;
+        cachedRail = region.rail;
     }
 
 
@@ -248,7 +264,17 @@ public final class Array[T](
      * @param init The function to use to initialize the array.
      */    
     public def this(size:int, init:T):Array[T]{rank==1,rect,zeroBased,self.rail} {
-	this(Region.makeRectangular(0, size-1), init);
+        property(0..size-1, size);
+
+        layout = RectLayout(region.min(), region.max());
+        val n = layout.size();
+        val r  = IndexedMemoryChunk.allocate[T](n);
+	for ([i] in 0..size-1) {
+            r(i)= init;
+        }
+        raw = r;
+        rawLength = n;
+        cachedRail = region.rail;
     }
 
 

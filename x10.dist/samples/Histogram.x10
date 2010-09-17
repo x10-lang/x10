@@ -33,7 +33,7 @@ public class Histogram {
         }
 	val N = int.parse(args(0));
 	val S = int.parse(args(1));
-	val a = new Array[int](0..N-1, ([i]:Point)=> i);
+	val a = new Array[int](N, (i:int)=> i);
 	val b = new Array[int](S);
 	run(a, b);
 	val v = b(0);

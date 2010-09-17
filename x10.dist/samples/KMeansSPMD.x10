@@ -60,12 +60,12 @@ public class KMeansSPMD {
 
             // file is dimension-major
             val file = new File(fname), fr = file.openRead();
-            val init_points = (Point(1)) => Float.fromIntBits(Marshal.INT.read(fr).reverseBytes());
+            val init_points = (int) => Float.fromIntBits(Marshal.INT.read(fr).reverseBytes());
             val num_file_points = (file.size() / dim / 4) as Int;
             val file_points = new Array[Float](num_file_points*dim, init_points);
 
             //val team = Team.WORLD;
-            val team = Team(new Array[Place](num_slices * Place.MAX_PLACES, ([i]:Point) => Place.places(i/num_slices)));
+            val team = Team(new Array[Place](num_slices * Place.MAX_PLACES, (i:int) => Place.places(i/num_slices)));
 
             val num_slice_points = num_global_points / num_slices / Place.MAX_PLACES;
 
@@ -82,7 +82,7 @@ public class KMeansSPMD {
                         if (!quiet)
                             Console.OUT.println(h+" gets "+offset+" len "+num_slice_points);
                         val num_slice_points_stride = num_slice_points;
-                        val init = ([i]:Point) => {
+                        val init = (i:int) => {
                             val d=i/num_slice_points_stride, p=i%num_slice_points_stride;
                             return p<num_slice_points ? file_points(((p+offset)%num_file_points)*dim + d) : 0;
                         };
@@ -91,7 +91,7 @@ public class KMeansSPMD {
                         val host_points = new Array[Float](num_slice_points_stride*dim, init);
                         val host_nearest = new Array[Float](num_slice_points);
 
-                        val host_clusters  = new Array[Float](num_clusters*dim, file_points);
+                        val host_clusters  = new Array[Float](0..num_clusters*dim-1, file_points);
                         val host_cluster_counts = new Array[Int](num_clusters);
 
                         val start_time = System.currentTimeMillis();

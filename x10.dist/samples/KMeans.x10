@@ -40,7 +40,7 @@ public class KMeans(myDim:Int) {
     static class V(dim:Int) implements (Int)=>Float {
         var vec: Vector(dim);
         var count:Int;
-        def this(dim:Int, init:(Point(1))=>Float): SumVector(dim) {
+        def this(dim:Int, init:(int)=>Float): SumVector(dim) {
            property(dim);
            vec = new Array[Float](this.dim, init);
            count = 0;
@@ -97,9 +97,9 @@ public class KMeans(myDim:Int) {
 
     def computeMeans(myK:Int, points: Array[ValVector(myDim)](1)): KMeansData(myK, myDim) {
         var redCluster : KMeansData(myK, myDim) =
-            new Array[SumVector(myDim)](myK, ([i]:Point)=> new V(myDim, ([j]:Point)=>points(i)(j)));
+            new Array[SumVector(myDim)](myK, (i:int)=> new V(myDim, (j:int)=>points(i)(j)));
         var blackCluster: KMeansData(myK, myDim) =
-            new Array[SumVector(myDim)](myK, ([i]:Point)=> new V(myDim, ([j]:Point)=>0.0F));
+            new Array[SumVector(myDim)](myK, (i:int)=> new V(myDim, (j:int)=>0.0F));
         for ([i] in 1..ITERATIONS) {
             val tmp = redCluster;
             redCluster = blackCluster;
@@ -138,7 +138,7 @@ public class KMeans(myDim:Int) {
     public static def main (Array[String]) {
         val rnd = new Random(0);
         val points = new Array[ValVector](POINTS, 
-                        (Point(1))=>new Array[Float](DIM, (Point(1))=>rnd.nextFloat()) as ValVector);
+                        (int)=>new Array[Float](DIM, (int)=>rnd.nextFloat()) as ValVector);
         val result = new KMeans(DIM).computeMeans(K, points);
         for ([k] in 0..K-1) result(k).print();
     }

@@ -22,7 +22,7 @@ class LocalTable {
 
     def this(size:int) {
         mask = size-1;
-        a = new Array[long](size, (p:Point(1))=>p(0) as long);
+        a = new Array[long](size, (i:int)=>i as long);
     }
 
     public def update(ran:long) {

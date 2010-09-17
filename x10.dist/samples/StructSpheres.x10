@@ -72,7 +72,7 @@ class StructSpheres {
         // the array can go on the heap
         // but the elements ought to be /*inlined*/ in the array
         val spheres =
-            new Array[WorldObject](num_objects, ([i]:Point) => {
+            new Array[WorldObject](num_objects, (i:int) => {
                 val x = (ran.nextDouble()*world_size) as Real;
                 val y = (ran.nextDouble()*world_size) as Real;
                 val z = (ran.nextDouble()*world_size) as Real;
