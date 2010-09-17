@@ -22,6 +22,7 @@ import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.Types;
 import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
@@ -74,7 +75,7 @@ public class X10ConstructorDef_c extends ConstructorDef_c implements X10Construc
     List<Ref<? extends Type>> annotations;
 
     public List<Ref<? extends Type>> defAnnotations() {
-	if (annotations == null) return Collections.EMPTY_LIST;
+        if (annotations == null) return Collections.emptyList();
         return Collections.unmodifiableList(annotations);
     }
     
@@ -148,7 +149,7 @@ public class X10ConstructorDef_c extends ConstructorDef_c implements X10Construc
     }
     
     public List<ParameterType> typeParameters() {
-        return Collections.<ParameterType>emptyList();
+        return ((X10ParsedClassType) Types.get(container)).x10Def().typeParameters();
     }
 
     public void setTypeParameters(List<ParameterType> typeParameters) {

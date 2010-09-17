@@ -59,6 +59,7 @@ import x10.types.X10ClassType;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10Context;
 import x10.types.X10Flags;
+import x10.types.X10ParsedClassType;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
@@ -119,6 +120,7 @@ public class X10New_c extends New_c implements X10New {
     }
 
     public X10New typeArguments(List<TypeNode> args) {
+        if (args == this.typeArguments) return this;
         X10New_c n = (X10New_c) copy();
         n.typeArguments = new ArrayList<TypeNode>(args);
         return n;
@@ -127,11 +129,11 @@ public class X10New_c extends New_c implements X10New {
     @Override
     protected New_c typeCheckHeader(TypeChecker childtc) throws SemanticException {
         X10New_c n = (X10New_c) super.typeCheckHeader(childtc);
-        List<TypeNode> typeArguments = (List<TypeNode>) visitList(n.typeArguments, childtc);
+        List<TypeNode> typeArguments = (List<TypeNode>) visitList(n.typeArguments(), childtc);
         n = (X10New_c) n.typeArguments(typeArguments);
 
-        if (n.body != null) {
-            Ref<? extends Type> ct = n.tn.typeRef();
+        if (n.body() != null) {
+            Ref<? extends Type> ct = n.objectType().typeRef();
             ClassDef anonType = n.anonType();
 
             assert anonType != null;
@@ -253,7 +255,7 @@ public class X10New_c extends New_c implements X10New {
         ClassBody body = n.body;
         List<TypeNode> typeArguments = n.typeArguments;
 
-        typeArguments = visitList(typeArguments, childtc);
+        typeArguments = n.visitList(typeArguments, childtc);
 
         if (qualifier == null) {
             if (typeArguments.size() > 0) {
@@ -263,7 +265,7 @@ public class X10New_c extends New_c implements X10New {
                     tn = tn.typeRef(atn.typeRef());
                 }
                 else {
-                    throw new InternalCompilerError("Unexpected type node " + tn + " + with type arguments " + typeArguments, position());
+                    throw new InternalCompilerError("Unexpected type node " + tn + " + with type arguments " + typeArguments, n.position());
                 }
             }
 
@@ -294,10 +296,10 @@ public class X10New_c extends New_c implements X10New {
             ((Ref<Type>) tn.typeRef()).update(t);
         }
         else {
-            qualifier = (Expr) n.visitChild(n.qualifier(), childtc);
+            qualifier = (Expr) n.visitChild(qualifier, childtc);
 
             if (!(tn instanceof AmbTypeNode) || ((AmbTypeNode) tn).prefix() != null) {
-                throw new SemanticException("Only simply-named member classes may be instantiated by a qualified new expression.", n.objectType().position());
+                throw new SemanticException("Only simply-named member classes may be instantiated by a qualified new expression.", tn.position());
             }
 
             // We have to disambiguate the type node as if it were a member of
@@ -330,13 +332,13 @@ public class X10New_c extends New_c implements X10New {
             X10ClassType ct = (X10ClassType) t;
 
             if (typeArguments.size() > 0) {
-                List<Type> typeArgs = new ArrayList<Type>(this.typeArguments.size());
+                List<Type> typeArgs = new ArrayList<Type>(typeArguments.size());
 
-                for (TypeNode tan : this.typeArguments) {
+                for (TypeNode tan : typeArguments) {
                     typeArgs.add(tan.type());
                 }
 
-                if (typeArguments.size() != ct.x10Def().typeParameters().size()) {
+                if (typeArgs.size() != ct.x10Def().typeParameters().size()) {
                     throw new SemanticException("Cannot instantiate type " + ct + "; incorrect number of type arguments.", n.position());
                 }
 
@@ -346,11 +348,12 @@ public class X10New_c extends New_c implements X10New {
             t = X10TypeMixin.xclause(ct, xc);
 
             ((Ref<Type>) tn.typeRef()).update(t);
-            tn = nf.CanonicalTypeNode(n.objectType().position(), tn.typeRef());
+            tn = nf.CanonicalTypeNode(tn.position(), tn.typeRef());
         }
 
         n = (X10New_c) n.reconstruct(qualifier, tn, arguments, body);
-        n = (X10New_c) n.typeArguments(Collections.EMPTY_LIST);
+        // [IP] Should retain the type argument nodes, even if the type is resolved.
+        //n = (X10New_c) n.typeArguments(Collections.EMPTY_LIST);
 
         return n;
     }
@@ -405,7 +408,8 @@ public class X10New_c extends New_c implements X10New {
         // Inline the super call here and handle type arguments.
         // ///////////////////////////////////////////////////////////////////
 
-        assert (this.typeArguments().size() == 0) : position().toString();
+        // [IP] The type arguments are retained for later use.
+        //assert (this.typeArguments().size() == 0) : position().toString();
 
         List<Type> argTypes = new ArrayList<Type>(this.arguments.size());
         for (Expr e : this.arguments) {
@@ -417,17 +421,25 @@ public class X10New_c extends New_c implements X10New {
         typeCheckFlags(tc);
         typeCheckNested(tc);
 
-        Type t = tn.type();
+        X10New_c result = this;
+
+        Type t = result.objectType().type();
         X10ClassType ct = (X10ClassType) X10TypeMixin.baseType(t);
 
         X10ConstructorInstance ci;
         List<Expr> args;
 
-        Pair<ConstructorInstance, List<Expr>> p = findConstructor(tc, this, ct, argTypes, anonType);
+        Pair<ConstructorInstance, List<Expr>> p = findConstructor(tc, result, ct, argTypes, result.anonType());
         ci = (X10ConstructorInstance) p.fst();
         args = p.snd();
         if (ci.error() != null) {
             throw ci.error();
+        }
+
+        X10ParsedClassType container = (X10ParsedClassType) ci.container();
+        if (((X10ParsedClassType) t).typeArguments().equals(container.x10Def().typeParameters())) {
+            t = ((X10ParsedClassType) t).typeArguments(container.typeArguments());
+            result = (X10New_c) result.objectType(result.objectType().typeRef(Types.ref(t)));
         }
 
         X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
@@ -436,14 +448,14 @@ public class X10New_c extends New_c implements X10New {
         Type tp1 = (Type) tp.copy();
         
         if (!ts.isSubtype(tp1, t, tc.context())) {
-            throw new SemanticException("Constructor return type " + tp + " is not a subtype of " + t + ".", position());
+            throw new SemanticException("Constructor return type " + tp + " is not a subtype of " + t + ".", result.position());
         }
 
         // Copy the method instance so we can modify it.
         //tp = ((X10Type) tp).setFlags(X10Flags.ROOTED);
         ci = (X10ConstructorInstance) ci.returnType(tp);
-        ci = adjustCI(ci, tc);
-        X10New_c result = (X10New_c) this.constructorInstance(ci);
+        ci = result.adjustCI(ci, tc);
+        result = (X10New_c) result.constructorInstance(ci);
         result = (X10New_c) result.arguments(args);
 
         result.checkWhereClause();

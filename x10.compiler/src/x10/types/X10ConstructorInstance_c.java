@@ -148,12 +148,19 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
     
     public List<Type> typeParameters() {
         return Collections.emptyList();
+// [IP] TODO
+//        return ((X10ParsedClassType) this.container()).typeArguments();
     }
 
     public X10ConstructorInstance typeParameters(List<Type> typeParameters) {
         if (typeParameters.size() != 0)
             throw new InternalCompilerError("Attempt to set type parameters of a constructor instance: "+this, this.position());
         return this;
+// [IP] TODO
+//        if (typeParameters.size() != x10Def().typeParameters().size())
+//            throw new InternalCompilerError("Attempt to set incorrect number of type parameters of a constructor instance: "+this+" params: "+typeParameters, this.position());
+//        // Set the container's type parameters instead
+//        return (X10ConstructorInstance) this.container(((X10ParsedClassType) this.container()).typeArguments(typeParameters));
     }
 
     public List<LocalInstance> formalNames;
