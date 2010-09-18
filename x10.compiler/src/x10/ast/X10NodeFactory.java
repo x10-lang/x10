@@ -107,7 +107,6 @@ public interface X10NodeFactory extends NodeFactory {
 	When When(Position pos, Expr expr, Stmt statement);
 
 	Next Next(Position pos);
-	Now Now(Position pos, Expr expr, Stmt stmt);
 
     X10ClassDecl X10ClassDecl(Position pos, FlagsNode flags, Id name,
 	    List<TypeParamNode> typeParameters,

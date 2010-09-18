@@ -108,7 +108,6 @@ import x10.ast.Future_c;
 import x10.ast.Here_c;
 import x10.ast.LocalTypeDef_c;
 import x10.ast.Next_c;
-import x10.ast.Now_c;
 import x10.ast.ParExpr_c;
 import x10.ast.PlaceCast_c;
 import x10.ast.PropertyDecl_c;
@@ -237,7 +236,6 @@ public class X10DelegatingVisitor {
 		if (n instanceof Range_c) { visit((Range_c)n); return; }
 		if (n instanceof PlaceCast_c) { visit((PlaceCast_c)n); return; }
 		if (n instanceof ParExpr_c) { visit((ParExpr_c)n); return; }
-		if (n instanceof Now_c) { visit((Now_c)n); return; }
 		if (n instanceof NewArray_c) { visit((NewArray_c)n); return; }
 		if (n instanceof X10New_c) { visit((X10New_c)n); return; }
 		if (n instanceof New_c) { visit((New_c)n); return; }
@@ -374,7 +372,6 @@ public class X10DelegatingVisitor {
 				public void visit(New_c n) { visit((Expr_c)n); }
 					public void visit(X10New_c n) { visit((New_c)n); }
 				public void visit(NewArray_c n) { visit((Expr_c)n); }
-				public void visit(Now_c n) { visit((Expr_c)n); }
 				public void visit(ParExpr_c n) { visit((Expr_c)n); }
 				public void visit(PlaceCast_c n) { visit((Expr_c)n); }
 				public void visit(Range_c n) { visit((Expr_c)n); }
