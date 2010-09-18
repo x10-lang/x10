@@ -22,7 +22,7 @@ public class XDisEquals extends XFormula {
 
 
 	public XDisEquals(XTerm left, XTerm right) {
-		super(XTerms.disEqualsName, left, right);
+		super(XTerms.disEqualsName, XTerms.asExprDisEqualsName, left, right);
 	}
 	public XPromise internIntoConstraint(XConstraint c, XPromise last) throws XFailure {
 //	    XTerm left = left();

@@ -18,7 +18,7 @@ package x10.constraint;
 public class XEquals extends XFormula   {
 	
 	public XEquals(XTerm left, XTerm right) {
-		super(XTerms.equalsName, left, right);
+		super(XTerms.equalsName, XTerms.asExprEqualsName, left, right);
 	}
 	
 	public XPromise internIntoConstraint(XConstraint c, XPromise last) throws XFailure {

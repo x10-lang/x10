@@ -22,7 +22,7 @@ import java.util.List;
  * @author vj
  *
  */
-public abstract class XTerm implements Serializable, Cloneable {
+public abstract class XTerm implements  Serializable, Cloneable {
 
 	
 	public XTerm() {

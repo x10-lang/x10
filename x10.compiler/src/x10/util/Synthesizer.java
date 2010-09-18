@@ -1525,14 +1525,27 @@ public class Synthesizer {
 		for (XTerm a : t.arguments()) {
 			args.add(makeExpr(a, pos));
 		}
-		Name n = Name.make(t.operator().toString());
-		// FIXME: [IP] Hack to handle the "at" atom added by XTypeTranslator for structs
-		if (n.toString().equals("at")) {
-			Receiver r = args.remove(0);
-			return xnf.Call(pos, r, xnf.Id(pos, n), args);
-		} else {
-			return xnf.Call(pos, xnf.Id(pos, n), args);
+		String op = t.asExprOperator().toString();
+		if (op.equals(XTerms.asExprAndName.toString())) {
+			return xnf.Binary(pos, args.get(0), Binary.COND_AND, args.get(1));
 		}
+		if (op.equals(XTerms.asExprEqualsName.toString())) {
+			return xnf.Binary(pos, args.get(0), Binary.EQ, args.get(1));
+		}
+		if (op.equals(XTerms.asExprDisEqualsName.toString())) {
+			return xnf.Binary(pos, args.get(0), Binary.NE, args.get(1));
+		}
+		if (op.equals(XTerms.asExprNotName.toString())) {
+			return xnf.Unary(pos, Unary.NOT, args.get(0));
+		}
+		
+		// FIXME: [IP] Hack to handle the "at" atom added by XTypeTranslator for structs
+		//if (n.toString().equals("at")) {
+		//	Receiver r = args.remove(0);
+		//	return xnf.Call(pos, r, xnf.Id(pos, n), args);
+		//} else {
+			return xnf.Call(pos, xnf.Id(pos, Name.make(op)), args);
+		//}
 	}	
 	
 	

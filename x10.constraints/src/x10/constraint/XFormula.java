@@ -21,8 +21,10 @@ import java.util.List;
  * @author vijay
  *
  */
+@SuppressWarnings("serial")
 public class XFormula extends XTerm {
-	   public XName op;
+	    public final XName op;
+	    public final XName asExprOp;
 	    public List<XTerm> arguments;
 
 	    /**
@@ -30,12 +32,15 @@ public class XFormula extends XTerm {
 	     * @param op
 	     * @param args
 	     */
-	    public XFormula(XName op, List<XTerm> args) {
-	        this.op = op;
+	    public XFormula(XName op, XName opAsExpr, List<XTerm> args) {
+
+	    	  this.op = op;
+	    	  this.asExprOp = opAsExpr;
 	        this.arguments = args;
 	    }
-	    public XFormula(XName op, XTerm... args) {
+	    public XFormula(XName op, XName opAsExpr, XTerm... args) {
 	        this.op = op;
+	        this.asExprOp = opAsExpr;
 	        this.arguments = new ArrayList<XTerm>(args.length);
 	        for (XTerm arg : args) {
 	            this.arguments.add(arg);
@@ -72,6 +77,10 @@ public class XFormula extends XTerm {
 
 	    public XName operator() {
 	        return op;
+	    }
+	    
+	    public XName asExprOperator() {
+	        return asExprOp;
 	    }
 
 	    public boolean isUnary() {

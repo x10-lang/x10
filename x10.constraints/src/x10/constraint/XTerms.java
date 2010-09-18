@@ -33,14 +33,15 @@ public class XTerms {
 		public String toString() { return "o"; } 
 	};
 
-	static final XName equalsName = new XNameWrapper<String>("===");
-	static final XName disEqualsName = new XNameWrapper<String>("!==");
-	static final XName andName = new XNameWrapper<String>("&&&");
-	static final XName notName = new XNameWrapper<String>("!!!");
-	static final XName arrayAccessName = new XNameWrapper<String>("(.)");
-	static final XName plusName = new XNameWrapper<String>("+");
-	static final XName minusName = new XNameWrapper<String>("-");
-	static final XName modName = new XNameWrapper<String>("%");
+	public static final XName equalsName = new XNameWrapper<String>("===");
+	public static final XName disEqualsName = new XNameWrapper<String>("!==");
+	public static final XName andName = new XNameWrapper<String>("&&&");
+	public static final XName notName = new XNameWrapper<String>("!!!");
+
+	public static final XName asExprEqualsName = new XNameWrapper<String>("==");
+	public static final XName asExprDisEqualsName = new XNameWrapper<String>("!=");
+	public static final XName asExprAndName = new XNameWrapper<String>("&&");
+	public static final XName asExprNotName = new XNameWrapper<String>("!");
 
     // used in generating a new name.
 	static int nextId = 0;
@@ -275,7 +276,7 @@ public class XTerms {
 	static XTerm makeAtom(XName op, boolean atomicFormula, List<XTerm> terms) {
 		assert op != null;
 		assert terms != null;
-		XFormula f = new XFormula(op, terms);
+		XFormula f = new XFormula(op, op, terms);
 		if (atomicFormula) {
 			f.markAsAtomicFormula();
 		}

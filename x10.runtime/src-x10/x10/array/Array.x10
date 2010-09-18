@@ -98,7 +98,7 @@ public final class Array[T](
      * the static type of the Array by adding a constraint. However, I can't figure out
      * how to express this in a way that is (a) correct and (b) supported by the constraint system.
      */
-    private val cachedRail:boolean/*FIXME: not supported by constraint system {self==this.rail}*/;
+    private val cachedRail:boolean(rail);
 
 
     private transient val raw:IndexedMemoryChunk[T];
@@ -142,7 +142,7 @@ public final class Array[T](
         val n = layout.size();
         raw = IndexedMemoryChunk.allocate[T](n, true);
         rawLength = n;
-        cachedRail = region.rail;
+        cachedRail = rail;
     }
 
 
@@ -164,7 +164,7 @@ public final class Array[T](
         }
         raw = r;
         rawLength = n;
-        cachedRail = region.rail;
+        cachedRail = rail;
     }
 
 
@@ -194,7 +194,7 @@ public final class Array[T](
         }
         raw = r;
         rawLength = n;
-	cachedRail = region.rail;
+	    cachedRail = rail;
     }
 
 
@@ -235,7 +235,7 @@ public final class Array[T](
         val n = layout.size();
         raw = IndexedMemoryChunk.allocate[T](n, true);
         rawLength = n;
-        cachedRail = region.rail;
+        cachedRail = rail;
     }
 
 
@@ -257,7 +257,7 @@ public final class Array[T](
         }
         raw = r;
         rawLength = n;
-        cachedRail = region.rail;
+        cachedRail = rail;
     }
 
 
@@ -279,7 +279,7 @@ public final class Array[T](
         }
         raw = r;
         rawLength = n;
-        cachedRail = region.rail;
+        cachedRail = rail;
     }
 
 
