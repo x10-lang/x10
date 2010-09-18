@@ -15,10 +15,8 @@ import java.lang.reflect.Array;
 import java.util.List;
 
 import x10.core.Any;
-import x10.core.fun.Fun;
 import x10.core.fun.Fun_0_1;
 import x10.core.fun.Fun_0_2;
-import x10.core.fun.VoidFun;
 
 public class RuntimeType<T> implements Type<T> {
 
@@ -31,7 +29,6 @@ public class RuntimeType<T> implements Type<T> {
     public RuntimeType(Class<?> c) {
         this.base = c;
     }
-    
     
     public RuntimeType(Class<?> c, Variance... variances) {
         this.base = c;
@@ -380,29 +377,29 @@ public class RuntimeType<T> implements Type<T> {
         return name;
     }
 
-    public final String typeName(Object o) {
-        if (o instanceof Fun) {
-            String str = "(";
-            int i;
-            for (i = 0; i < variances.length - 1; i++) {
+    protected final String typeNameForFun(Object o) {
+        String str = "(";
+        int i;
+        for (i = 0; i < variances.length - 1; i++) {
+            if (i != 0) str += ",";
+            str += ((Any) o).getParam(i).typeName();
+        }
+        str += ")=>";
+        str += ((Any) o).getParam(i).typeName();
+        return str;
+    }
+    protected final String typeNameForVoidFun(Object o) {
+        String str = "(";
+        if (variances != null && variances.length > 0) {
+            for (int i = 0; i < variances.length; i++) {
                 if (i != 0) str += ",";
                 str += ((Any) o).getParam(i).typeName();
             }
-            str += ")=>";
-            str += ((Any) o).getParam(i).typeName();
-            return str;
         }
-        if (o instanceof VoidFun) {
-            String str = "(";
-            if (variances != null && variances.length > 0) {
-                for (int i = 0; i < variances.length; i++) {
-                    if (i != 0) str += ",";
-                    str += ((Any) o).getParam(i).typeName();
-                }
-            }
-            str += ")=>Void";
-            return str;
-        }
+        str += ")=>Void";
+        return str;
+    }
+    protected final String typeNameForOthers(Object o) {
         String str = typeName();
         if (variances != null && variances.length > 0) {
             if (o instanceof Any) {
@@ -415,6 +412,10 @@ public class RuntimeType<T> implements Type<T> {
             }
         }
         return str;
+    }
+    // should be overridden by RTT of all function types
+    public String typeName(Object o) {
+        return typeNameForOthers(o);
     }
     
     // for shortcut

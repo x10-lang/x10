@@ -29,5 +29,10 @@ public interface Fun_0_9<T1,T2,T3,T4,T5,T6,T7,T8,T9,U> extends Fun {
         Variance.CONTRAVARIANT,
         Variance.CONTRAVARIANT,
         Variance.COVARIANT
-    );
+    ) {
+        @Override
+        public String typeName(Object o) {
+            return typeNameForFun(o);
+        }
+    };
 }

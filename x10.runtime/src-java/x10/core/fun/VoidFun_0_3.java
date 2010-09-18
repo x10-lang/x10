@@ -22,5 +22,10 @@ public interface VoidFun_0_3<T1,T2,T3> extends VoidFun {
         Variance.CONTRAVARIANT,
         Variance.CONTRAVARIANT,
         Variance.CONTRAVARIANT
-    );
+    ) {
+        @Override
+        public String typeName(Object o) {
+            return typeNameForVoidFun(o);
+        }
+    };
 }

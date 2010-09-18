@@ -16,10 +16,15 @@ import x10.rtt.RuntimeType.Variance;
 
 public interface Fun_0_1<T1,U> extends Fun {
     U apply$G(T1 o);
-    
+
     public static final RuntimeType<Fun_0_1<?,?>> _RTT = new RuntimeType<Fun_0_1<?,?>>(
         Fun_0_1.class,
         Variance.CONTRAVARIANT,
         Variance.COVARIANT
-    );
+    ) {
+        @Override
+        public String typeName(Object o) {
+            return typeNameForFun(o);
+        }
+    };
 }

@@ -22,5 +22,10 @@ public interface Fun_0_2<T1,T2,U> extends Fun {
         Variance.CONTRAVARIANT,
         Variance.CONTRAVARIANT,
         Variance.COVARIANT
-    );
+    ) {
+        @Override
+        public String typeName(Object o) {
+            return typeNameForFun(o);
+        }
+    };
 }
