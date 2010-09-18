@@ -176,7 +176,7 @@ public class NewArray_c extends Expr_c implements NewArray
         return baseType;
     }
 
-    public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
+    public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
         if (init != null) {
             v.visitCFG(baseType, listChild(dims, init), ENTRY);
             v.visitCFGList(dims, init, ENTRY);

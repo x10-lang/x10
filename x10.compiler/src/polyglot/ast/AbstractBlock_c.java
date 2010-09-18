@@ -98,7 +98,7 @@ public abstract class AbstractBlock_c extends Stmt_c implements Block
         return listChild(statements, null);
     }
 
-    public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
+    public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
         v.visitCFGList(statements, this, EXIT);
         return succs;
     }

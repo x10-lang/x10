@@ -154,7 +154,7 @@ public class When_c extends Stmt_c implements CompoundStmt, When {
 	 * next expression if false.  The last expression wraps around to the
 	 * first.  Each statement goes to this "when".
 	 */
-	public List acceptCFG(CFGBuilder v, List succs) {
+	public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
 		Expr e = expr;
 		Stmt s = stmt;
 		Expr ne = null;

@@ -155,7 +155,7 @@ public class If_c extends Stmt_c implements If
         return cond;
     }
 
-    public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
+    public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
         if (alternative == null) {
             v.visitCFG(cond, FlowGraph.EDGE_KEY_TRUE, consequent, 
                              ENTRY, FlowGraph.EDGE_KEY_FALSE, this, EXIT);

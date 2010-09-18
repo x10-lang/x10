@@ -211,7 +211,7 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 	/* (non-Javadoc)
 	 * @see polyglot.ast.Term#acceptCFG(polyglot.visit.CFGBuilder, java.util.List)
 	 */
-	public List acceptCFG(CFGBuilder v, List succs) {
+	public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
 		v.visitCFG(formal, domain, ENTRY);
 		v.visitCFG(domain, body, ENTRY);
 		v.visitCFG(body, this, EXIT);

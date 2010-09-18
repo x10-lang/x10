@@ -362,7 +362,7 @@ public class ConstructorDecl_c extends Term_c implements ConstructorDecl
         return listChild(formals(), body() != null ? body() : null);
     }
 
-    public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
+    public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
         if (body() != null) {
             v.visitCFGList(formals(), body(), ENTRY);
             v.visitCFG(body(), this, EXIT);

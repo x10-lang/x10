@@ -363,7 +363,7 @@ public class Call_c extends Expr_c implements Call
       return listChild(arguments, null);
   }
 
-  public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
+  public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
       if (target instanceof Term) {
           Term t = (Term) target;
           

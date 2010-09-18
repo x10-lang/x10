@@ -130,7 +130,7 @@ public class ArrayAccess_c extends Expr_c implements ArrayAccess
         return array;
     }
 
-    public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
+    public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
         v.visitCFG(array, index, ENTRY);
         v.visitCFG(index, this, EXIT);
         return succs;

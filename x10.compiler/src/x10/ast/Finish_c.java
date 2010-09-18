@@ -81,7 +81,7 @@ public class Finish_c extends Stmt_c implements Finish {
     /**
      * Visit this term in evaluation order.
      */
-    public List acceptCFG(CFGBuilder v, List succs) {
+    public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
 	v.visitCFG(body, this, EXIT);
 	return succs;
     }

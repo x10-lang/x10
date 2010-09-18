@@ -61,7 +61,7 @@ public class Region_c extends Expr_c implements Region {
 	/* (non-Javadoc)
 	 * @see polyglot.ast.Term#acceptCFG(polyglot.visit.CFGBuilder, java.util.List)
 	 */
-	public List acceptCFG(CFGBuilder v, List succs) {
+	public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
 		// TODO Auto-generated method stub
 		return succs;
 	}

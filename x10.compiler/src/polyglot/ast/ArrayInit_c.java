@@ -170,7 +170,7 @@ public class ArrayInit_c extends Expr_c implements ArrayInit
         return listChild(elements, null);
     }
 
-    public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
+    public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
         v.visitCFGList(elements, this, EXIT);
         return succs;
     }

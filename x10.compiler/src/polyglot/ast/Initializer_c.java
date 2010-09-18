@@ -119,7 +119,7 @@ public class Initializer_c extends Term_c implements Initializer
         return body();
     }
 
-    public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
+    public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
         v.visitCFG(body(), this, EXIT);
         return succs;
     }

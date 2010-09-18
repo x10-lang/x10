@@ -476,7 +476,7 @@ public class Closure_c extends Expr_c implements Closure {
 	 * and disallow uses of "continue", "break", etc. in closures.
 	 */
 	@Override
-	public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
+	public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
 		/*  if (formals().isEmpty()) {
 		    v.visitCFGList(typeParameters(), returnType, ENTRY);
 	    }

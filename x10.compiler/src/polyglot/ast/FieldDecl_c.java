@@ -383,7 +383,7 @@ public class FieldDecl_c extends Term_c implements FieldDecl {
         return type;
     }
 
-    public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
+    public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
         if (init != null) {
             v.visitCFG(type, init, ENTRY);
             v.visitCFG(init, this, EXIT);

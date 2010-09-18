@@ -131,7 +131,7 @@ public class Special_c extends Expr_c implements Special
         return null;
     }
 
-    public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
+    public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
         if (qualifier != null) {
             v.visitCFG(qualifier, this, EXIT);
         }

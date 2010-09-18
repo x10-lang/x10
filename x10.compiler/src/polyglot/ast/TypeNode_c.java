@@ -79,7 +79,7 @@ public abstract class TypeNode_c extends Term_c implements TypeNode
         return null;
     }
 
-    public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
+    public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
         return succs;
     }
 

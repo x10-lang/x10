@@ -295,7 +295,7 @@ public class ConstructorCall_c extends Stmt_c implements ConstructorCall
         }
     }
 
-    public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
+    public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
         if (qualifier != null) {
             if (!arguments.isEmpty()) {
                 v.visitCFG(qualifier, listChild(arguments, null), ENTRY);

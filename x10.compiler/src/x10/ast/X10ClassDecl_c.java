@@ -968,7 +968,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     /**
      * Visit this term in evaluation order.
      */
-    public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
+    public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
 	v.visitCFGList(this.properties(), this.body(), ENTRY);
         v.visitCFG(this.body(), this, EXIT);
         return succs;

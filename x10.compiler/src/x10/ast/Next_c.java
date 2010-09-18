@@ -38,7 +38,7 @@ public class Next_c extends Stmt_c implements Next {
         return null;
     }
 
-    public List acceptCFG(CFGBuilder v, List succs) {
+    public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
         // TODO:
         return succs;
     }

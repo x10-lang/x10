@@ -160,7 +160,7 @@ public class PlacedClosure_c extends Closure_c implements PlacedClosure {
     /**
      * Visit this term in evaluation order.
      */
-    public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
+    public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
     	v.visitCFG(returnType, place, ENTRY);
 
     	// If building the CFG for the enclosing code, don't thread

@@ -421,7 +421,7 @@ public class MethodDecl_c extends Term_c implements MethodDecl
         return listChild(formals(), returnType());
     }
 
-    public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
+    public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
         v.visitCFGList(formals(), returnType(), ENTRY);
         
         if (body() == null) {

@@ -363,7 +363,7 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 		return listChild(typeParameters(), listChild(formals(), type));
 	}
 
-	public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
+	public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
 		List<Term> children = new ArrayList<Term>();
 		children.addAll(typeParams);
 		children.addAll(formals);

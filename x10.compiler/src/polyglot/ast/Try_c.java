@@ -244,7 +244,7 @@ public class Try_c extends Stmt_c implements Try
         return tryBlock;
     }
 
-    public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
+    public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
         // Add edges from the try entry to any catch blocks for Error and
         // RuntimeException.
         TypeSystem ts = v.typeSystem();

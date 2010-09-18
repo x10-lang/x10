@@ -248,7 +248,7 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
 	 * FIXME: We should really build our own CFG, push a new context,
 	 * and disallow uses of "continue", "break", etc. in asyncs.
 	 */
-	public List acceptCFG(CFGBuilder v, List succs) {
+	public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
 
 		if (place != null) {
 			v.visitCFG(place, FlowGraph.EDGE_KEY_TRUE, body,

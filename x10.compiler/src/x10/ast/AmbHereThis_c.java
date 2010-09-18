@@ -32,7 +32,7 @@ public class AmbHereThis_c extends Expr_c {
      * Visit this term in evaluation order.
      */
 	@Override
-    public List acceptCFG(CFGBuilder v, List succs) {
+    public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
         return succs;
     }
    

@@ -147,7 +147,7 @@ public class Tuple_c extends Expr_c implements Tuple {
         return listChild(elements, null);
     }
 
-    public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
+    public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
         v.visitCFGList(elements, this, EXIT);
         return succs;
     }

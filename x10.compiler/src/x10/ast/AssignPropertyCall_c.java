@@ -81,7 +81,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 	/* (non-Javadoc)
 	 * @see polyglot.ast.Term#acceptCFG(polyglot.visit.CFGBuilder, java.util.List)
 	 */
-	public List acceptCFG(CFGBuilder v, List succs) {
+	public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
 		v.visitCFGList(arguments, this, EXIT);
 		return succs;
 	}

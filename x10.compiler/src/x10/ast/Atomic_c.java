@@ -120,7 +120,7 @@ implements Atomic {
 	/**
 	 * Visit this term in evaluation order.
 	 */
-	public List acceptCFG(CFGBuilder v, List succs) {
+	public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
 		v.push(this).visitCFG(body, this, EXIT);
 		return succs;
 	}

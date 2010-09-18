@@ -539,7 +539,7 @@ public class Binary_c extends Expr_c implements Binary
     return left;
   }
 
-  public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
+  public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
     if (op == COND_AND || op == COND_OR) {
       // short-circuit
       if (left instanceof BooleanLit) {

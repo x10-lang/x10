@@ -96,7 +96,7 @@ public class ParExpr_c extends Expr_c implements ParExpr {
 	 * @see polyglot.ast.Term#acceptCFG(polyglot.visit.CFGBuilder, java.util.List)
 	 * todo Yoav: I just copied it from Unary_c. I think that ParExpr_c should inherit from Unary_c, and we should define Unary.Operator.IDEMPOTENT.
 	 */
-    public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
+    public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
         if (expr.type().isBoolean()) {
             v.visitCFG(expr, FlowGraph.EDGE_KEY_TRUE, this,
                              EXIT, FlowGraph.EDGE_KEY_FALSE, this, EXIT);

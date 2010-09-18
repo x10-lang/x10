@@ -260,7 +260,7 @@ public class Async_c extends Stmt_c implements Async {
 	 * FIXME: We should really build our own CFG, push a new context,
 	 * and disallow uses of "continue", "break", etc. in asyncs.
 	 */
-	public List acceptCFG(CFGBuilder v, List succs) {
+	public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
 		if (clocks() == null || clocks().isEmpty()) {
 			v.visitCFG(body, this, EXIT);
 		} else {
