@@ -114,15 +114,8 @@ public class CConstraint extends XConstraint  implements ThisVar {
 	 */
 	public CConstraint copy() {
 		CConstraint c = new CConstraint();
-		try {
-			c.thisVar = thisVar();
-			c.self = self();
-			return (CConstraint) copyInto(c);
-		}
-		catch (XFailure f) {
-			c.setInconsistent();
-			return c;
-		}
+		c.init(this);
+		return c;
 	}
 
 	/**
@@ -488,6 +481,12 @@ public class CConstraint extends XConstraint  implements ThisVar {
 	protected boolean entails(XTerm  term, XVar self) throws XFailure {
 		XTerm subst = term.subst(self(), self);
 		return entails(subst);
+	}
+	
+	protected void init(CConstraint from) {
+		thisVar = from.thisVar();
+		self = from.self();
+		super.init(from);
 	}
 	/**
 	 * Return the result of copying this into c. Assume that c will be 

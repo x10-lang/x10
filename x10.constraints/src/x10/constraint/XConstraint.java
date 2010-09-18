@@ -15,7 +15,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -45,12 +44,12 @@ import java.util.Set;
  *   <li> <code>s equals t</code> and <code>t equals u</code> implies <code> s equals u</code>
  *   <li> it is always the case that <code>s equals s</code>
  * </uline>
- * Terms are created using the static API in XTerms. The <code>==</code> relation on terms at the level of the 
+ * <p>Terms are created using the static API in XTerms. The <code>==</code> relation on terms at the level of the 
  * constraint system is translated into the <code>equals</code> relation on the Java representation of the terms.
  * 
  * <p>A constraint is implemented as a graph whose nodes are XPromises. Two different constraints will 
  * not share @link{XPromise}. See the description of @link{XPromise} for more information about the 
- * internal representation of a constraint.
+ * structure of a promise.
  * 
  * <p>This representation is a bit different from the Nelson-Oppen and Shostak congruence closure 
  * algorithms described, e.g. in Cyrluk, Lincoln and Shankar "On Shostak's Decision Procedure
@@ -71,11 +70,9 @@ import java.util.Set;
  *
  */
 public class XConstraint implements Cloneable {
-
-    private static final boolean DEBUG = false;
     protected HashMap<XTerm, XPromise> roots;
     protected boolean consistent = true;
-    boolean valid = true;
+    protected boolean valid = true;
 
     public XConstraint() {}
     
@@ -111,16 +108,8 @@ public class XConstraint implements Cloneable {
      */
     public XConstraint copy() {
         XConstraint c = new XConstraint();
-        try {
-        
-        	c.consistent = consistent;
-        	c.valid = valid;
-            return copyInto(c);
-        }
-        catch (XFailure f) {
-            c.setInconsistent();
-            return c;
-        }
+        c.init(this);
+        return c;
     }
     
     /**
@@ -928,7 +917,8 @@ public class XConstraint implements Cloneable {
         }
     }
     
-    protected void applySubstitution(XTerm y, XVar x) throws XFailure {
+    @SuppressWarnings({ "unchecked"})
+	protected void applySubstitution(XTerm y, XVar x) throws XFailure {
         if (roots == null) {
             // nothing to substitute
             return;
@@ -967,7 +957,7 @@ public class XConstraint implements Cloneable {
 
         // Substitute y for x in the promise terms.
         {
-            Collection<XPromise> rootPs = roots.values();
+            // Collection<XPromise> rootPs = roots.values();
             for (Map.Entry<XTerm, XPromise> e : ((Map<XTerm,XPromise>) roots.clone()).entrySet()) {
                 if (!e.getKey().equals(p.term())) {
                     XPromise px = e.getValue();
@@ -993,7 +983,7 @@ public class XConstraint implements Cloneable {
             renaming.put(q, new XPromise_c(v));
 
             for (Map.Entry<XTerm, XPromise> m : roots.entrySet()) {
-                XTerm var = m.getKey();
+               //  XTerm var = m.getKey();
                 XPromise p2 = m.getValue();
                 XPromise q2 = p2.cloneRecursively(renaming);
                 m.setValue(q2);
@@ -1081,7 +1071,7 @@ public class XConstraint implements Cloneable {
         //			m.setValue(q2);
         //		}
 
-        Collection<XPromise> rootPs = roots.values();
+      //  Collection<XPromise> rootPs = roots.values();
         for (Map.Entry<XTerm, XPromise> e : roots.entrySet()) {
             if (!e.getKey().equals(x.term())) {
                 XPromise p = e.getValue();
@@ -1089,7 +1079,20 @@ public class XConstraint implements Cloneable {
             }
         }
     }
-
+    /**
+     * Initialize this constraint from the given constraint
+     * @param from -- the constraint whose state is used to initialize this.
+     */
+    protected void init(XConstraint from) {
+   	 try {
+           consistent = from.consistent;
+           valid = from.valid;
+           from.copyInto(this);
+        }
+        catch (XFailure f) {
+            setInconsistent();
+        }
+   }
 	
 
   
