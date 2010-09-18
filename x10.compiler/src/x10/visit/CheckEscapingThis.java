@@ -175,6 +175,7 @@ public class CheckEscapingThis extends NodeVisitor
                         res = new DataFlowItem();
                         res.initStatus.putAll(inItem.initStatus);
                         MethodInfo info = allMethods.get(methodDecl.procedureInstance());
+                        if (info !=null)
                         for (X10FieldDecl_c field : fields) {
                             boolean isRead = info.read.contains(field);
                             boolean isWrite = info.write.contains(field);
