@@ -21,6 +21,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
+import x10.core.Any;
 import x10.core.fun.Fun_0_1;
 
 
@@ -38,6 +39,19 @@ public class Types {
     // Hack to get around parsing problems for generated Java casts.
     public static <T> T javacast(Object o) {
         return (T) o;
+    }
+    
+    public static String typeName(Object obj) {
+        String s;
+        if (obj instanceof Any) {
+            s = ((Any) obj).getRTT().typeName(obj);
+        } else if (Types.getNativeRepRTT(obj) != null) {
+            s = Types.getNativeRepRTT(obj).typeName();
+        } else {
+            // Note: for java classes that don't have RTTs
+            s = obj.getClass().toString().substring("class ".length());
+        }
+        return s;
     }
 
     public static Type runtimeType(Class<?> c) {

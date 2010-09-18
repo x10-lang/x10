@@ -49,7 +49,7 @@ public interface Any {
      *
      * @return a string representation of the run-time type of this entity.
      */
-    @Native("java", "x10.core.Ref.typeName(#0)")
+    @Native("java", "x10.rtt.Types.typeName(#0)")
     @Native("c++", "x10aux::type_name(#0)")
     safe def typeName():String;
 

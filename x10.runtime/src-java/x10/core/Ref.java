@@ -13,32 +13,13 @@ package x10.core;
 
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
-import x10.rtt.Types;
 
 
 // Base class of all X10 ref objects -- should be generated, but we need this class to get Box to compile.
 public class Ref implements Any {
     
-    public Ref() {
-    }
+    public Ref() {}
      
-    public boolean equals(Object o) {
-        return this == o;
-    }
-    
-    public static String typeName(Object obj) {
-        String s;
-        if (obj instanceof Any) {
-            s = ((Any) obj).getRTT().typeName(obj);
-        } else if (Types.getNativeRepRTT(obj) != null) {
-            s = Types.getNativeRepRTT(obj).typeName();
-        } else {
-            // Note: for java classes that don't have RTTs
-            s = obj.getClass().toString().substring("class ".length());
-        }
-        return s;
-    }
-    
     public static RuntimeType<Ref> _RTT = new RuntimeType<Ref>(Ref.class);
     public RuntimeType<?> getRTT() {return _RTT;}
     public Type<?> getParam(int i) {return null;}

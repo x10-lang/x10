@@ -205,10 +205,10 @@ public class Struct {
            // In the Java backend, some structs (like Int) are mapped to primitives (like int)
            // So I must add a native annotation on this method.
 
-            //@Native("java", "x10.core.Ref.typeName(#0)")
+            //@Native("java", "x10.rtt.Types.typeName(#0)")
             //@Native("c++", "x10aux::type_name(#0)")
             //global safe def typeName():String;
-            natives = createNative(nf, pos, "x10.core.Ref.typeName(#0)", "x10aux::type_name(#0)");
+            natives = createNative(nf, pos, "x10.rtt.Types.typeName(#0)", "x10aux::type_name(#0)");
             methodName = "typeName";
             md = nf.MethodDecl(pos,nf.FlagsNode(pos,nativeFlags),stringTypeNode,nf.Id(pos,Name.make(methodName)),Collections.EMPTY_LIST,Collections.EMPTY_LIST,null);
             md = (X10MethodDecl) ((X10Ext) md.ext()).annotations(natives);
