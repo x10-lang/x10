@@ -1133,6 +1133,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     w.write(")");
 
                     w.write(" || ");
+                    w.write("x10.rtt.Types.isNativeStruct(");
+                    tr.print(c, c.expr(), w);
+                    w.write(")");
+                    /*
+                    w.write(" || ");
                     new RuntimeTypeExpander(er, xts.Byte()).expand(tr);
                     w.write(".");
                     w.write("instanceof$(");
@@ -1187,6 +1192,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     w.write("instanceof$(");
                     tr.print(c, c.expr(), w);
                     w.write(")");
+                    */
 
                     // Java representation of unsigned types are same as signed ones.
                     /*

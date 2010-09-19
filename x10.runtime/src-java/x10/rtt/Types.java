@@ -200,6 +200,11 @@ public class Types {
         return false;
     }
 
+    public static boolean isNativeStruct(Object o) {
+        return BYTE.instanceof$(o) || SHORT.instanceof$(o) || INT.instanceof$(o) || LONG.instanceof$(o)
+        || FLOAT.instanceof$(o) || DOUBLE.instanceof$(o) || CHAR.instanceof$(o) || BOOLEAN.instanceof$(o);
+    }
+
     public static boolean asboolean(Object typeParamOrAny) {
         if (typeParamOrAny == null) {nullIsCastedToStruct();}
         if (typeParamOrAny instanceof java.lang.Boolean) {return (java.lang.Boolean) typeParamOrAny;}
