@@ -20,7 +20,12 @@ public class Ref implements Any {
     
     public Ref() {}
      
-    public static RuntimeType<Ref> _RTT = new RuntimeType<Ref>(Ref.class);
+    public static RuntimeType<Ref> _RTT = new RuntimeType<Ref>(Ref.class) {
+        @Override
+        public String typeName() {
+            return "x10.lang.Object";
+        }
+    };
     public RuntimeType<?> getRTT() {return _RTT;}
     public Type<?> getParam(int i) {return null;}
 }

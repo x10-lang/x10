@@ -184,7 +184,8 @@ public class Types {
         if (o instanceof FileInputStream) return FILE_INPUT_STREAM;
         if (o instanceof FileOutputStream) return FILE_OUTPUT_STREAM;
         if (o instanceof File) return NATIVE_FILE;
-        if (Object.class.equals(o.getClass())) return OBJECT;
+        // Note: new x10.lang.Object() returns x10.core.Ref instead of java.lang.Object  
+//        if (Object.class.equals(o.getClass())) return OBJECT;
         return null;
     }
 

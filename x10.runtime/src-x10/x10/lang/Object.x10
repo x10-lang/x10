@@ -25,6 +25,8 @@ public class Object
     /**
      * Default constructor.
      */
+    // (for java) Note: new x10.lang.Object() returns x10.core.Ref instead of java.lang.Object  
+    @Native("java", "new x10.core.Ref()")
     public native def this();
 
     /**
