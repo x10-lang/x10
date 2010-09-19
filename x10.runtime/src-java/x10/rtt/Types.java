@@ -159,6 +159,7 @@ public class Types {
             return "x10.lang.Object";
         }
     };
+    public static Type<Object> ANY = new RuntimeType<Object>(Object.class);
 
     public static Type<?> UBYTE;    // instance created and set in UByte static initializer
     public static Type<?> USHORT;   // instance created and set in UShort static initializer
@@ -189,7 +190,7 @@ public class Types {
         return null;
     }
 
-    private static boolean isStruct(Type<?> rtt) {
+    private static boolean isStructType(Type<?> rtt) {
         if (
             rtt == BOOLEAN
             || rtt == BYTE  || rtt == SHORT  || rtt == CHAR || rtt == INT   || rtt == LONG
@@ -201,9 +202,10 @@ public class Types {
         return false;
     }
 
-    public static boolean isNativeStruct(Object o) {
-        return BYTE.instanceof$(o) || SHORT.instanceof$(o) || INT.instanceof$(o) || LONG.instanceof$(o)
-        || FLOAT.instanceof$(o) || DOUBLE.instanceof$(o) || CHAR.instanceof$(o) || BOOLEAN.instanceof$(o);
+    public static boolean isStruct(Object o) {
+        return x10.core.Struct._RTT.instanceof$(o) ||
+        BYTE.instanceof$(o) || SHORT.instanceof$(o) || INT.instanceof$(o) || LONG.instanceof$(o) ||
+        FLOAT.instanceof$(o) || DOUBLE.instanceof$(o) || CHAR.instanceof$(o) || BOOLEAN.instanceof$(o);
     }
 
     public static boolean asboolean(Object typeParamOrAny) {
@@ -256,7 +258,7 @@ public class Types {
     
     
     public static Object conversion(Type<?> rtt, Object primOrTypeParam) {
-        if (primOrTypeParam == null && isStruct(rtt)) {nullIsCastedToStruct();}
+        if (primOrTypeParam == null && isStructType(rtt)) {nullIsCastedToStruct();}
         
         if (rtt == BYTE) {
             if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).byteValue();

@@ -24,7 +24,7 @@ import x10.compiler.NativeRep;
  *
  * @author vj 12/14/09
  */
-@NativeRep("java", "java.lang.Object", null, null)
+@NativeRep("java", "java.lang.Object", null, "x10.rtt.Types.ANY")
 @NativeRep("c++", "x10aux::ref<x10::lang::Any>", "x10::lang::Any", null)
 public interface Any {
 

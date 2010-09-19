@@ -1126,17 +1126,17 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     w.write(")");
                     
                     w.write(" || ");
+                    w.write("x10.rtt.Types.isStruct(");
+                    tr.print(c, c.expr(), w);
+                    w.write(")");
+                    /*
+                    w.write(" || ");
                     w.write("x10.rtt.Types.runtimeType(x10.core.Struct.class)"); // new RuntimeTypeExpander(er, xts.Struct()).expand(tr);
                     w.write(".");
                     w.write("instanceof$(");
                     tr.print(c, c.expr(), w);
                     w.write(")");
 
-                    w.write(" || ");
-                    w.write("x10.rtt.Types.isNativeStruct(");
-                    tr.print(c, c.expr(), w);
-                    w.write(")");
-                    /*
                     w.write(" || ");
                     new RuntimeTypeExpander(er, xts.Byte()).expand(tr);
                     w.write(".");
