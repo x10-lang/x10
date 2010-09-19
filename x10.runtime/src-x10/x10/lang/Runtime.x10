@@ -75,7 +75,7 @@ import x10.util.Box;
      * Java: run body synchronously at place(id) in the same node as the current place.
      * C++: run body. (no need for a native implementation)
      */
-    @Native("java", "x10.runtime.impl.java.Runtime.runAt(#1, #2)")
+    @Native("java", "x10.runtime.impl.java.Runtime.runAtLocal(#1, #2)")
     public static def runAtLocal(id:Int, body:()=>void):void { body(); }
 
     /**

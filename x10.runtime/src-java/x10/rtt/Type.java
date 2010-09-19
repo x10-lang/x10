@@ -14,7 +14,7 @@ package x10.rtt;
 import x10.core.fun.Fun_0_1;
 import x10.core.fun.Fun_0_2;
 
-public interface Type<T> {
+public interface Type<T> extends java.io.Serializable {
     boolean instanceof$(Object o);
     
     boolean equals(Object o);

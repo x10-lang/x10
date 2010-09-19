@@ -15,8 +15,32 @@ package x10.runtime.impl.java;
 /**
  * Implementation of PlaceLocalHandle service for Java-based runtime.
  */
-public final class PlaceLocalHandle<T>{
-  private final Object[] objects;
+public final class PlaceLocalHandle<T> implements java.io.Serializable {
+//  private final Object[] objects;
+    transient private final Object[] objects;
+    
+    // single process implementation
+    private static final java.util.ArrayList<PlaceLocalHandle<?>> handles = new java.util.ArrayList<PlaceLocalHandle<?>>(); // all place local handles in this process
+    private int id; // unique id of this place local handle
+    private Object writeReplace() {
+        if (this.id == 0) { 
+            synchronized (handles) {
+                if (this.id == 0) { // guard for multi thread
+                    handles.add(this);
+                    this.id = handles.size();
+                }
+            }
+        }
+        return this;
+    }
+    private Object readResolve() {
+        synchronized (handles) {
+            assert this.id != 0;
+            PlaceLocalHandle<?> orig = handles.get(this.id - 1);
+            assert orig != null && orig.id == this.id;
+            return orig;
+        }
+    }
 
   public PlaceLocalHandle(Object t) {
     objects = new Object[Runtime.MAX_PLACES];

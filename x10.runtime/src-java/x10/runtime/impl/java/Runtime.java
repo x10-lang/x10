@@ -103,9 +103,9 @@ public abstract class Runtime implements Runnable {
 	public static final boolean STATIC_THREADS = Boolean.getBoolean("x10.STATIC_THREADS");
 
 	/**
-	 * Synchronously executes body at place(id)
+	 * Synchronously executes body at place(id) without copy
 	 */
-	public static void runAt(int id, x10.core.fun.VoidFun_0_0 body) {
+	public static void runAtLocal(int id, x10.core.fun.VoidFun_0_0 body) {
 		final Thread thread = Thread.currentThread();
 		final int ret = thread.home().id;
 		thread.home(id); // update thread place
@@ -115,6 +115,25 @@ public abstract class Runtime implements Runnable {
 			thread.home(ret); // restore thread place
 		}
 	}
+
+    /**
+     * Synchronously executes body at place(id)
+     */
+    public static void runAt(int id, x10.core.fun.VoidFun_0_0 body) {
+        try {
+            // copy body
+            java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+            new java.io.ObjectOutputStream(baos).writeObject(body);
+            body = (x10.core.fun.VoidFun_0_0) new java.io.ObjectInputStream(new java.io.ByteArrayInputStream(baos.toByteArray())).readObject();
+        } catch (java.io.IOException e) {
+            e.printStackTrace();
+            throw new WrappedRuntimeException(e);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            throw new WrappedRuntimeException(e);
+        }
+        runAtLocal(id, body);
+    }
 
 	/**
 	 * Return true if place(id) is local to this node
