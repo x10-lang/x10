@@ -4,7 +4,7 @@ import x10.core.Any;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 
-public class X10Throwable extends RuntimeException implements Any {
+public class X10Throwable extends java.lang.RuntimeException implements Any {
 
     public X10Throwable() {
         super();
@@ -14,15 +14,15 @@ public class X10Throwable extends RuntimeException implements Any {
         super(message);
     }
 
-    public X10Throwable(Throwable cause) {
+    public X10Throwable(java.lang.Throwable cause) {
         super(cause);
     }
 
-    public X10Throwable(String message, Throwable cause) {
+    public X10Throwable(String message, java.lang.Throwable cause) {
         super(message, cause);
     }
 
-    static public X10Throwable getCorrespondingX10Exception(RuntimeException e) {
+    static public X10Throwable getCorrespondingX10Exception(java.lang.RuntimeException e) {
         String newExcName = "x10.lang.RuntimeException";
         if (e instanceof java.lang.ArithmeticException) {
             newExcName = "x10.lang.ArithmeticException";
@@ -44,14 +44,14 @@ public class X10Throwable extends RuntimeException implements Any {
 
         try {
             return (X10Throwable)(Class.forName(newExcName).newInstance());
-        } catch (ClassNotFoundException e1) {
-        } catch (InstantiationException e2) {
-        } catch (IllegalAccessException e3) {
+        } catch (java.lang.ClassNotFoundException e1) {
+        } catch (java.lang.InstantiationException e2) {
+        } catch (java.lang.IllegalAccessException e3) {
         }
-        throw new Error();
+        throw new java.lang.Error();
     }
 
-    static public X10Throwable getCorrespondingX10Error(Error e) {
+    static public X10Throwable getCorrespondingX10Error(java.lang.Error e) {
         String newExcName = "x10.lang.Error";
         if (e instanceof java.lang.OutOfMemoryError) {
             newExcName = "x10.lang.OutOfMemoryError";
@@ -61,11 +61,11 @@ public class X10Throwable extends RuntimeException implements Any {
 
         try {
             return (X10Throwable)(Class.forName(newExcName).newInstance());
-        } catch (ClassNotFoundException e1) {
-        } catch (InstantiationException e2) {
-        } catch (IllegalAccessException e3) {
+        } catch (java.lang.ClassNotFoundException e1) {
+        } catch (java.lang.InstantiationException e2) {
+        } catch (java.lang.IllegalAccessException e3) {
         }
-        throw new Error();
+        throw new java.lang.Error();
     }
 
     public static final RuntimeType<X10Throwable> _RTT = new RuntimeType<X10Throwable>(
