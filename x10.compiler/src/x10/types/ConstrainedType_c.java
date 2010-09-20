@@ -51,6 +51,8 @@ import x10.types.constraints.CConstraint;
  *
  */
 public class ConstrainedType_c extends ReferenceType_c implements ConstrainedType {
+	private static final long serialVersionUID = -3797674072640450629L;
+
 	private Ref<CConstraint> constraint;
 	private Ref<? extends Type> baseType;
 

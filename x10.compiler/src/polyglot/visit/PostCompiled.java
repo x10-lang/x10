@@ -78,7 +78,7 @@ public class PostCompiled extends AllBarrierGoal
             javacCmd[j++] = "-classpath";
             javacCmd[j++] = options.constructPostCompilerClasspath();
 
-            Iterator iter = compiler.outputFiles().iterator();
+            Iterator<String> iter = compiler.outputFiles().iterator();
             for (; iter.hasNext(); j++) {
                 javacCmd[j] = (String) iter.next();
             }

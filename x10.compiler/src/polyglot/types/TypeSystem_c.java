@@ -156,7 +156,7 @@ public abstract class TypeSystem_c implements TypeSystem
 	    if (o instanceof TypeObject) {
 		assert_((TypeObject) o);
 	    }
-	    else if (o instanceof Ref) {
+	    else if (o instanceof Ref<?>) {
 		assert_((Ref<?>) o);
 	    }
 	}
@@ -463,7 +463,7 @@ public abstract class TypeSystem_c implements TypeSystem
     /**
      * Checks whether the member mi can be accessed from Context "context".
      */
-    public boolean isAccessible(MemberInstance<? extends MemberDef> mi, Context context) {
+    public boolean isAccessible(MemberInstance<?> mi, Context context) {
 	assert_(mi);
 	return env(context).isAccessible(mi);
     }
@@ -725,7 +725,7 @@ public abstract class TypeSystem_c implements TypeSystem
 		}
 		catch (SemanticException e) {
 		}
-		return Collections.EMPTY_SET;
+		return Collections.<FieldInstance>emptySet();
 	    }
 	}
 
@@ -1126,7 +1126,8 @@ public abstract class TypeSystem_c implements TypeSystem
 	return ci;
     }
 
-    public <S extends ProcedureDef, T extends ProcedureInstance<S>> Collection<T> findMostSpecificProcedures(List<T> acceptable, Matcher<T> matcher, Context context)
+    public <S extends ProcedureDef, T extends ProcedureInstance<S>> Collection<T>
+    findMostSpecificProcedures(List<T> acceptable, Matcher<T> matcher, Context context)
     throws SemanticException {
 	
 	// now, use JLS 15.11.2.2
@@ -1156,7 +1157,7 @@ public abstract class TypeSystem_c implements TypeSystem
 	    List<T> notAbstract = new ArrayList<T>(maximal.size());
 	    for (Iterator<T> j = maximal.iterator(); j.hasNext(); ) {
 		T p = j.next();
-		if (! (p instanceof MemberInstance) || ! ((MemberInstance) p).flags().isAbstract()) {
+		if (! (p instanceof MemberInstance<?>) || ! ((MemberInstance<?>) p).flags().isAbstract()) {
 		    notAbstract.add(p);
 		}
 	    }
@@ -1419,7 +1420,7 @@ public abstract class TypeSystem_c implements TypeSystem
 	assert_(type);
 	if (type instanceof ObjectType)
 	    return ((ObjectType) type).interfaces();
-	return Collections.EMPTY_LIST;
+	return Collections.<Type>emptyList();
     }
 
     /**
@@ -1595,13 +1596,13 @@ public abstract class TypeSystem_c implements TypeSystem
     protected final PrimitiveType DOUBLE_  = createPrimitive(Name.make("double"));
 
     public Object placeHolder(TypeObject o) {
-	return placeHolder(o, Collections.EMPTY_SET);
+	return placeHolder(o, Collections.<TypeObject>emptySet());
     }
 
-    public Object placeHolder(TypeObject o, Set roots) {
+    public Object placeHolder(TypeObject o, Set<TypeObject> roots) {
 	assert_(o);
 
-	if (o instanceof Ref_c) {
+	if (o instanceof Ref_c<?>) {
 	    Ref_c<?> ref = (Ref_c<?>) o;
 
 	    if (ref.get() instanceof ClassDef) {
@@ -1793,7 +1794,7 @@ public abstract class TypeSystem_c implements TypeSystem
      * and the usual class resolvers can't otherwise find them) they
      * should be returned in the set in addition to clazz.
      */
-    public Set getTypeEncoderRootSet(TypeObject t) {
+    public Set<TypeObject> getTypeEncoderRootSet(TypeObject t) {
 	return Collections.singleton(t);
     }
 
@@ -2159,7 +2160,7 @@ public abstract class TypeSystem_c implements TypeSystem
 	    
 	    return superInterfaces;
 	}
-	return Collections.EMPTY_LIST;
+	return Collections.<Type>emptyList();
     }
 
     /**
@@ -2220,7 +2221,7 @@ public abstract class TypeSystem_c implements TypeSystem
     }
 
     protected void initFlags() {
-	flagsForName = new HashMap();
+	flagsForName = new HashMap<String, Flags>();
 	flagsForName.put("public", Flags.PUBLIC);
 	flagsForName.put("private", Flags.PRIVATE);
 	flagsForName.put("protected", Flags.PROTECTED);

@@ -352,9 +352,9 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     
     public Node visitSignature(NodeVisitor v) {
         X10ClassDecl_c n = (X10ClassDecl_c) super.visitSignature(v);
-//        List<TypeParamNode> tps = (List<TypeParamNode>) visitList(this.typeParameters, v);
+//        List<TypeParamNode> tps = visitList(this.typeParameters, v);
 //        n = (X10ClassDecl_c) n.typeParameters(tps);
-        List<PropertyDecl> ps = (List<PropertyDecl>) visitList(this.properties, v);
+        List<PropertyDecl> ps = visitList(this.properties, v);
         n = (X10ClassDecl_c) n.properties(ps);
         DepParameterExpr ci = (DepParameterExpr) visitChild(this.classInvariant, v);
         return ci == this.classInvariant ? n : n.classInvariant(ci);
@@ -368,7 +368,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         
         TypeBuilder childTb = tb.pushClass(def);
         
-        List<TypeParamNode> pas = (List<TypeParamNode>) n.visitList(n.typeParameters, childTb);
+        List<TypeParamNode> pas = n.visitList(n.typeParameters, childTb);
         pas = new LinkedList<TypeParamNode>(pas);
         
         if (def.isMember() && ! def.flags().isStatic()) {
@@ -421,7 +421,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
             ((X10ClassDef) n.type).setDefAnnotations(ats);
         }
         
-        List<PropertyDecl> ps = (List<PropertyDecl>) visitList(n.properties, childTb);
+        List<PropertyDecl> ps = visitList(n.properties, childTb);
         n = (X10ClassDecl_c) n.properties(ps);
 
         final DepParameterExpr ci = (DepParameterExpr) n.visitChild(n.classInvariant, childTb);
@@ -588,9 +588,9 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     
     public Node typeCheckProperties(Node parent, ContextVisitor tc, TypeChecker childtc) throws SemanticException {
         X10ClassDecl_c n = this;
-        List<TypeParamNode> typeParameters = (List<TypeParamNode>) n.visitList(n.typeParameters, childtc);
+        List<TypeParamNode> typeParameters = n.visitList(n.typeParameters, childtc);
         n = (X10ClassDecl_c) n.typeParameters(typeParameters);
-        List<PropertyDecl> properties = (List<PropertyDecl>) n.visitList(n.properties, childtc);
+        List<PropertyDecl> properties = n.visitList(n.properties, childtc);
         n = (X10ClassDecl_c) n.properties(properties);
         return n;
     }
@@ -769,7 +769,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
 	Type t2 = followDefs(tn.type());
 	if (t2 != t) {
 	    Ref<? extends Type> r = tn.typeRef();
-	    if (r instanceof LazyRef) {
+	    if (r instanceof LazyRef<?>) {
 		((LazyRef<Type>) r).update(t2);
 		return tn;
 	    }
@@ -985,12 +985,12 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
           Ref<? extends Type> superType = thisType.superType();
           Stmt s1 = null;
           if (superType != null) {
-              s1 = nf.SuperCall(pos, Collections.EMPTY_LIST);
+              s1 = nf.SuperCall(pos, Collections.<Expr>emptyList());
           }
           
-          Stmt s2=null; 
-          List<TypeParamNode> typeFormals = Collections.EMPTY_LIST;
-          List<Formal> formals = Collections.EMPTY_LIST;
+          Stmt s2 = null; 
+          List<TypeParamNode> typeFormals = Collections.<TypeParamNode>emptyList();
+          List<Formal> formals = Collections.<Formal>emptyList();
           DepParameterExpr guard = null;
 
           if (! properties.isEmpty()) {
@@ -1015,7 +1015,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         	  }
         	 
         	  guard = classInvariant();
-        	  s2 =  xnf.AssignPropertyCall(pos, Collections.EMPTY_LIST, actuals);
+        	  s2 = xnf.AssignPropertyCall(pos, Collections.<TypeNode>emptyList(), actuals);
         	  // TODO: add constraint on the return type
           }
           block = s2 == null ? (s1 == null ? nf.Block(pos) : nf.Block(pos, s1))
@@ -1034,7 +1034,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
                   typeFormals,
                   formals,
                   guard, 
-                  Collections.EMPTY_LIST, // throwTypes
+                  Collections.<TypeNode>emptyList(), // throwTypes
                   null, // offerType
                   block);
         return cd;

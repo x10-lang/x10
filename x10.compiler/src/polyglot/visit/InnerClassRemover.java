@@ -478,7 +478,7 @@ public class InnerClassRemover extends ContextVisitor {
         return fi;
     }
 
-    public static Object hashGet(Map map, Object k, Object v) {
-        return LocalClassRemover.hashGet(map, k, v);
+    public static <K,V> V hashGet(Map<K,V> map, K k, V v) {
+        return LocalClassRemover.<K,V>hashGet(map, k, v);
     }
 }

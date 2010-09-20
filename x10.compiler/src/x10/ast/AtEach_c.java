@@ -59,7 +59,7 @@ public class AtEach_c extends X10ClockedLoop_c implements AtEach, Clocked {
 	 * @param clocks
 	 * @param body
 	 */
-	public AtEach_c(Position pos, Formal formal, Expr domain, List clocks, Stmt body) {
+	public AtEach_c(Position pos, Formal formal, Expr domain, List<Expr> clocks, Stmt body) {
 		super(pos, formal, domain, clocks, body);
 		loopKind=LoopKind.ATEACH;
 	}
@@ -113,7 +113,7 @@ public class AtEach_c extends X10ClockedLoop_c implements AtEach, Clocked {
 		w.write(") ");
 		if (clocks != null) {
 			w.write("clocked(");
-			for (Iterator c = clocks.iterator(); c.hasNext(); ) {
+			for (Iterator<Expr> c = clocks.iterator(); c.hasNext(); ) {
 				print((Expr)c.next(), w, tr);
 				if (c.hasNext()) w.write(", ");
 			}

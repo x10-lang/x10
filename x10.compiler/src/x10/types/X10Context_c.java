@@ -114,13 +114,13 @@ public class X10Context_c extends Context_c implements X10Context {
 	            lis.removeAll(c.allLocals());
 	        return lis;
 	    }
-	    return Collections.EMPTY_LIST;
+	    return Collections.<LocalDef>emptyList();
 	}
 
 	public List<LocalDef> allLocals() {
 	    if (vars != null) {
 	        List<LocalDef> lis = new ArrayList<LocalDef>(vars.values().size());
-	        for (VarInstance vi : vars.values()) {
+	        for (VarInstance<?> vi : vars.values()) {
 	            if (vi instanceof LocalInstance)
 	                lis.add(((LocalInstance) vi).def());
 	        }
@@ -134,7 +134,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	        if (c != null)
 	            return c.allLocals();
 	    }
-	    return Collections.EMPTY_LIST;
+	    return Collections.<LocalDef>emptyList();
 	}
 
 	public XVar thisVar() {
@@ -698,7 +698,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	/**
 	 * Adds a symbol to the current scoping level.
 	 */
-	public void addVariable(VarInstance vi) {
+	public void addVariable(VarInstance<?> vi) {
 //		assert (depType == null);
 		super.addVariable(vi);
 	}
@@ -759,7 +759,7 @@ public class X10Context_c extends Context_c implements X10Context {
 		catch (SemanticException e) {
 		}
 		try {
-		    return ts.findTypeDef(container, ts.TypeDefMatcher(container, name, Collections.EMPTY_LIST, Collections.EMPTY_LIST, this), this);
+		    return ts.findTypeDef(container, ts.TypeDefMatcher(container, name, Collections.<Type>emptyList(), Collections.<Type>emptyList(), this), this);
 		}
 		catch (SemanticException e) {
 		}

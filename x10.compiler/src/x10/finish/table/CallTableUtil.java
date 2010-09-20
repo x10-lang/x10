@@ -176,11 +176,10 @@ public class CallTableUtil {
      * marked as "unbounded". 
      * @param calltable
      */
-    @SuppressWarnings("unchecked")
     public static void updateAllArity(
 	    HashMap<CallTableKey, LinkedList<CallTableVal>> calltable) {
 	HashMap<CallTableKey, LinkedList<CallTableVal>> new_table = 
-	    (HashMap<CallTableKey, LinkedList<CallTableVal>>) OutputUtil.copy(calltable);
+	    OutputUtil.deepCopy(calltable);
 	Iterator<CallTableKey> it = new_table.keySet().iterator();
 	while (it.hasNext()) {
 	    CallTableKey v = it.next();
@@ -198,7 +197,6 @@ public class CallTableUtil {
      * use and a program might have recursive calls, we need to "saturate" this
      * table to get a complete list of method invocation.
      */
-    @SuppressWarnings("unchecked")
     public static HashMap<CallTableKey, LinkedList<CallTableVal>> expandCallTable(
 	    HashMap<CallTableKey, LinkedList<CallTableVal>> calltable,
 	    boolean[] mask) {
@@ -224,7 +222,7 @@ public class CallTableUtil {
 	    while (keyit.hasNext()) {
 		CallTableKey key = keyit.next();
 		LinkedList<CallTableVal> vals = calltable.get(key);
-		LinkedList<CallTableVal> new_vals = (LinkedList<CallTableVal>) OutputUtil.copy(vals);
+		LinkedList<CallTableVal> new_vals = OutputUtil.deepCopy(vals);
 		// check each object in vals
 		for (int i = 0; i < vals.size(); i++) {
 		    CallTableVal callee = vals.get(i);
@@ -253,7 +251,7 @@ public class CallTableUtil {
 			     * original callee which is in another caller's list
 			     * is changed too
 			     */
-			    CallTableVal copiedcallee = (CallTableVal) OutputUtil.copy(tmpcallee);
+			    CallTableVal copiedcallee = OutputUtil.deepCopy(tmpcallee);
 			    if (!new_vals.contains(copiedcallee)) {
 				copiedcallee.setArity(tmparity);
 				copiedcallee.blk = callee.blk;
@@ -318,7 +316,8 @@ public class CallTableUtil {
 	try {
 	    fis = new FileInputStream(filename);
 	    in = new ObjectInputStream(fis);
-	    calltable = (HashMap<CallTableKey, LinkedList<CallTableVal>>) in.readObject();
+	    calltable =
+	        OutputUtil.<HashMap<CallTableKey, LinkedList<CallTableVal>>>readObjectGeneric(in);
 	} catch (IOException ex) {
 	    ex.printStackTrace();
 	} catch (ClassNotFoundException ex) {

@@ -16,9 +16,10 @@ import polyglot.util.TypedList;
  * A <code>ProcedureInstance_c</code> contains the type information for a Java
  * procedure (either a method or a constructor).
  */
-public abstract class ProcedureDef_c extends Def_c
-                                       implements ProcedureDef
+public abstract class ProcedureDef_c extends Def_c implements ProcedureDef
 {
+    private static final long serialVersionUID = 7146402627770404357L;
+
     protected Ref<? extends StructType> container;
     protected Flags flags;
     protected List<Ref<? extends Type>> formalTypes;

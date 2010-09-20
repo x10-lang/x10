@@ -57,6 +57,8 @@ import x10.types.matcher.Subst;
 public class X10ParsedClassType_c extends ParsedClassType_c
 implements X10ParsedClassType
 {
+    private static final long serialVersionUID = -647880315275370901L;
+
     TypeParamSubst cacheSubst; // "subst" is just an auxiliary structure (cached to improve performance). It represents the typeArguments (thus it is nullified when assigning to typeArguments).
 
     public int hashCode() {
@@ -137,7 +139,7 @@ implements X10ParsedClassType
     List<Expr> propertyInitializers;
     public List<Expr> propertyInitializers() {
         if (propertyInitializers == null)
-            return Collections.EMPTY_LIST;
+            return Collections.<Expr>emptyList();
         return Collections.unmodifiableList(propertyInitializers);
     }
     public Expr propertyInitializer(int i) {
@@ -311,7 +313,7 @@ implements X10ParsedClassType
 	
 	public List<Type> typeArguments() {
 	    if (typeArguments == null) {
-		return TypedList.copyAndCheck((List) x10Def().typeParameters(), Type.class, true);
+		return TypedList.<Type>copyAndCheck(x10Def().typeParameters(), Type.class, true);
 	    }
 	    return typeArguments;
 	}

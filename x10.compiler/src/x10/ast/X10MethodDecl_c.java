@@ -262,18 +262,18 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 	}
 	public void setResolver(Node parent, final TypeCheckPreparer v) {
 		X10MethodDef mi = (X10MethodDef) this.mi;
-		if (mi.body() instanceof LazyRef) {
+		if (mi.body() instanceof LazyRef<?>) {
 			LazyRef<XTerm> r = (LazyRef<XTerm>) mi.body();
 			TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
 			tc = (TypeChecker) tc.context(v.context().freeze());
-			r.setResolver(new TypeCheckFragmentGoal(parent, this, tc, r, false));
+			r.setResolver(new TypeCheckFragmentGoal<XTerm>(parent, this, tc, r, false));
 		}
 	}
 
 	/** Visit the children of the method. */
 	public Node visitSignature(NodeVisitor v) {
 		X10MethodDecl_c result = (X10MethodDecl_c) super.visitSignature(v);
-		List<TypeParamNode> typeParams = (List<TypeParamNode>) visitList(result.typeParameters, v);
+		List<TypeParamNode> typeParams = visitList(result.typeParameters, v);
 		if (! CollectionUtil.allEqual(typeParams, result.typeParameters))
 			result = (X10MethodDecl_c) result.typeParameters(typeParams);
 		DepParameterExpr guard = (DepParameterExpr) visitChild(result.guard, v);
@@ -479,7 +479,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 						XTerm v = ts.xtypeTranslator().trans((CConstraint) null, r.expr(), (X10Context) tc.context());
 						ok = true;
 						X10MethodDef mi = (X10MethodDef) this.mi;
-						if (mi.body() instanceof LazyRef) {
+						if (mi.body() instanceof LazyRef<?>) {
 							LazyRef<XTerm> bodyRef = (LazyRef<XTerm>) mi.body();
 							bodyRef.update(v);
 						}
@@ -977,8 +977,8 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 			X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 			// Body had no return statement.  Set to void.
 			Type t;
-			if (! ts.isUnknown(((Ref<Type>) nn.returnType().typeRef()).getCached())) {
-				t = ((Ref<Type>) nn.returnType().typeRef()).getCached();
+			if (!ts.isUnknown(nn.returnType().typeRef().getCached())) {
+				t = nn.returnType().typeRef().getCached();
 			}
 			else {
 				t = ts.Void();
@@ -1036,14 +1036,14 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
             w.allowBreak(6);
             w.write("throws ");
     
-            for (Iterator i = throwTypes().iterator(); i.hasNext(); ) {
-                TypeNode tn = (TypeNode) i.next();
-            print(tn, w, tr);
-    
-            if (i.hasNext()) {
-                w.write(",");
-                w.allowBreak(4, " ");
-            }
+            for (Iterator<TypeNode> i = throwTypes().iterator(); i.hasNext(); ) {
+                TypeNode tn = i.next();
+                print(tn, w, tr);
+
+                if (i.hasNext()) {
+                    w.write(",");
+                    w.allowBreak(4, " ");
+                }
             }
         }
     

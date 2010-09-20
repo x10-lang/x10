@@ -91,7 +91,7 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 	public Node visitChildren(NodeVisitor v) {
 		Expr qualifier = (Expr) visitChild(this.qualifier, v);
 		List<TypeNode> typeArguments = visitList(this.typeArguments, v);
-		List arguments = visitList(this.arguments, v);
+		List<Expr> arguments = visitList(this.arguments, v);
 		X10ConstructorCall_c n = (X10ConstructorCall_c) typeArguments(typeArguments);
 		return n.reconstruct(qualifier, arguments);
 	}

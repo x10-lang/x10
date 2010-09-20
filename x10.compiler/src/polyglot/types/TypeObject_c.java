@@ -17,6 +17,8 @@ import polyglot.util.*;
  */  
 public abstract class TypeObject_c implements TypeObject
 {
+    private static final long serialVersionUID = -8428041030408667923L;
+
     protected transient TypeSystem ts;
     protected Position position;
 
@@ -41,6 +43,11 @@ public abstract class TypeObject_c implements TypeObject
         catch (CloneNotSupportedException e) {
             throw new InternalCompilerError("Java clone() weirdness.");
         }
+    }
+
+    @SuppressWarnings("unchecked") // Casting to a generic type parameter
+    public <T> T copyGeneric() {
+        return (T) copy();
     }
 
     public TypeSystem typeSystem() {

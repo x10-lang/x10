@@ -15,6 +15,8 @@ import polyglot.util.Enum;
  * values denote higher precedence (i.e., tighter binding).
  */
 public class Precedence extends Enum {
+    private static final long serialVersionUID = 2930131912223765591L;
+
     private int value;
 
     public Precedence(String name, int value) {

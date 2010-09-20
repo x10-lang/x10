@@ -5,6 +5,8 @@ import java.util.List;
 import polyglot.util.Position;
 
 public class FunctionInstance_c<T extends FunctionDef> extends ProcedureInstance_c<T> implements FunctionInstance<T> {
+    private static final long serialVersionUID = 7771092895217853763L;
+
     public FunctionInstance_c(TypeSystem ts, Position pos, Ref<? extends T> def) {
         super(ts, pos, def);
     }
@@ -16,7 +18,7 @@ public class FunctionInstance_c<T extends FunctionDef> extends ProcedureInstance
     }
 
     public FunctionInstance<T> returnTypeRef(Ref<? extends Type> returnType) {
-	FunctionInstance_c<T> p = (FunctionInstance_c<T>) copy();
+	FunctionInstance_c<T> p = this.<FunctionInstance_c<T>>copyGeneric();
 	p.returnType = returnType;
 	return p;
     }

@@ -8,8 +8,8 @@ import polyglot.types.Ref;
 import polyglot.types.TypeObject;
 import polyglot.util.TypeInputStream;
 
-public class TypeObjectGoal_c<T extends TypeObject> extends AbstractGoal_c implements
-        TypeObjectGoal<T> {
+public class TypeObjectGoal_c<T extends TypeObject> extends AbstractGoal_c implements TypeObjectGoal<T> {
+    private static final long serialVersionUID = -1495559169113722008L;
 
     Ref<T> v;
     
@@ -38,7 +38,7 @@ public class TypeObjectGoal_c<T extends TypeObject> extends AbstractGoal_c imple
    
    @Override
    public boolean equals(Object o) {
-       if (o instanceof TypeObjectGoal) {
+       if (o instanceof TypeObjectGoal<?>) {
            TypeObjectGoal<?> g = (TypeObjectGoal<?>) o;
            return v.equals(g.typeRef());
        }

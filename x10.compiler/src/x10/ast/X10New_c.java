@@ -107,7 +107,7 @@ public class X10New_c extends New_c implements X10New {
     @Override
     public Node buildTypesOverride(TypeBuilder tb) throws SemanticException {
         X10New_c n = (X10New_c) super.buildTypesOverride(tb);
-        List<TypeNode> typeArgs = (List<TypeNode>) n.visitList(n.typeArguments(), tb);
+        List<TypeNode> typeArgs = n.visitList(n.typeArguments(), tb);
         n = (X10New_c) n.typeArguments(typeArgs);
         n = (X10New_c) X10Del_c.visitAnnotations(n, tb);
         return n;
@@ -129,7 +129,7 @@ public class X10New_c extends New_c implements X10New {
     @Override
     protected New_c typeCheckHeader(TypeChecker childtc) throws SemanticException {
         X10New_c n = (X10New_c) super.typeCheckHeader(childtc);
-        List<TypeNode> typeArguments = (List<TypeNode>) visitList(n.typeArguments(), childtc);
+        List<TypeNode> typeArguments = visitList(n.typeArguments(), childtc);
         n = (X10New_c) n.typeArguments(typeArguments);
 
         if (n.body() != null) {

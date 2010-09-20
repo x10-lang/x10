@@ -154,7 +154,7 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode, A
     
           if (typeDefContainer != null) {
               Context context = tc.context();
-            MacroType mt = ts.findTypeDef(typeDefContainer, ts.TypeDefMatcher(typeDefContainer, name.id(), Collections.EMPTY_LIST, Collections.EMPTY_LIST, context), context);
+              MacroType mt = ts.findTypeDef(typeDefContainer, ts.TypeDefMatcher(typeDefContainer, name.id(), Collections.<Type>emptyList(), Collections.<Type>emptyList(), context), context);
               
               LazyRef<Type> sym = (LazyRef<Type>) type;
               sym.update(mt);
@@ -213,7 +213,7 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode, A
   
   @Override
   public void setResolver(Node parent, final TypeCheckPreparer v) {
-  	if (typeRef() instanceof LazyRef) {
+  	if (typeRef() instanceof LazyRef<?>) {
   		LazyRef<Type> r = (LazyRef<Type>) typeRef();
   		TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
   		tc = (TypeChecker) tc.context(v.context().freeze());

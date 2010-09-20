@@ -93,7 +93,7 @@ public class AmbQualifierNode_c extends Node_c implements AmbQualifierNode
 		final LazyRef<Qualifier> r = (LazyRef<Qualifier>) qualifierRef();
 		TypeChecker tc = new TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
 		tc = (TypeChecker) tc.context(v.context().freeze());
-		r.setResolver(new TypeCheckTypeGoal(parent, this, tc, r, false));
+		r.setResolver(new TypeCheckFragmentGoal<Qualifier>(parent, this, tc, r, false));
 	}
 
 	public Node disambiguate(ContextVisitor ar) throws SemanticException {

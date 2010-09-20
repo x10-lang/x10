@@ -237,7 +237,7 @@ public interface TypeSystem {
     /**
      * Checks whether a class member can be accessed from <code>context</code>.
      */
-    boolean isAccessible(MemberInstance<? extends MemberDef> mi, Context context);
+    boolean isAccessible(MemberInstance<?> mi, Context context);
 
     /**
      * Checks whether a class can be accessed from Context context.
@@ -615,7 +615,7 @@ public interface TypeSystem {
      * and the usual class resolvers can't otherwise find them) they
      * should be returned in the set in addition to object.
      */
-    Set<Object> getTypeEncoderRootSet(TypeObject o);
+    Set<TypeObject> getTypeEncoderRootSet(TypeObject o);
 
     /**
      * Get the transformed class name of a class.
@@ -632,7 +632,7 @@ public interface TypeSystem {
      * @param roots The root objects for the serialization.  Place holders
      * are not created for these.
      */
-    Object placeHolder(TypeObject o, Set roots);
+    Object placeHolder(TypeObject o, Set<TypeObject> roots);
 
     /** Get a place-holder for serializing a type object.
      * @param o The object to get the place-holder for.

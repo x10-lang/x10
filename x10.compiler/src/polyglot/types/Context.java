@@ -29,7 +29,7 @@ public interface Context extends Resolver, Copy
     TypeSystem typeSystem();
 
     /** Add a variable to the current scope. */
-    void addVariable(VarInstance vi);
+    void addVariable(VarInstance<?> vi);
 
     /** Add a named type object to the current scope. */
     void addNamed(Named t);

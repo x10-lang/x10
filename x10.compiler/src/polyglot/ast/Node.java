@@ -110,7 +110,7 @@ public interface Node extends JL, Copy
      *         <code>l</code>.  If <code>l</code> is <code>null</code>,
      *         <code>null</code> is returned.
      */
-    public List visitList(List l, NodeVisitor v);
+    public List visitList(List<? extends Node> l, NodeVisitor v);
 
     /**
      * Get the expected type of a child expression of <code>this</code>.

@@ -57,6 +57,8 @@ import x10.types.constraints.TypeConstraint;
  * @author njnystrom
  */
 public class MacroType_c extends ParametrizedType_c implements MacroType {
+	private static final long serialVersionUID = 2467878434635627679L;
+	
 	Ref<TypeDef> def;
 	
 	List<Type> typeParams;
@@ -154,10 +156,11 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	    
 	    public List<LocalInstance> formalNames() {
 		if (this.formalNames == null) {
-		    return new TransformingList(def().formalNames(), new Transformation<LocalDef,LocalInstance>() {
-			public LocalInstance transform(LocalDef o) {
-			    return o.asInstance();
-			}
+		    return new TransformingList<LocalDef, LocalInstance>(def().formalNames(),
+		        new Transformation<LocalDef,LocalInstance>() {
+		            public LocalInstance transform(LocalDef o) {
+		                return o.asInstance();
+		            }
 		    });
 		}
 		
@@ -382,7 +385,7 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	}
 	
 	public List<Type> throwTypes() {
-	    return Collections.EMPTY_LIST;
+	    return Collections.<Type>emptyList();
 	}
 
 	public boolean callValid(Type thisType, List<Type> actualTypes, Context context) {

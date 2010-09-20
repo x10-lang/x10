@@ -68,12 +68,12 @@ public class X10Del_c extends JL_c implements X10Del {
 	 * @see x10.extension.X10Ext#annotations()
 	 */
 	public List<AnnotationNode> annotations() {
-		if (node().ext() == null) return Collections.EMPTY_LIST;
+		if (node().ext() == null) return Collections.<AnnotationNode>emptyList();
 		return ((X10Ext) node().ext()).annotations();
 	}
 	
 	public List<X10ClassType> annotationTypes() {
-		if (node().ext() == null) return Collections.EMPTY_LIST;
+		if (node().ext() == null) return Collections.<X10ClassType>emptyList();
 		return ((X10Ext) node().ext()).annotationTypes();
 	}
 	

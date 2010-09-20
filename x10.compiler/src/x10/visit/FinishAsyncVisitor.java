@@ -265,7 +265,7 @@ public class FinishAsyncVisitor extends ContextVisitor {
 		initproperties.add(x10islast);
 		initproperties.add(x10pattern);
 		// patch this annotation with parameters
-		Ref r = an.annotationType().typeRef();
+		Ref<Type> r = (Ref<Type>) an.annotationType().typeRef();
 		X10ParsedClassType_c xpct = (X10ParsedClassType_c) r.getCached();
 		xpct = (X10ParsedClassType_c) xpct.propertyInitializers(initproperties);
 		r.update(xpct);

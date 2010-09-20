@@ -32,7 +32,7 @@ public class X10CPPCompilerOptions extends x10.X10CompilerOptions {
         super(extension);
     }
 
-    protected int parseCommand(String args[], int index, Set source) 
+    protected int parseCommand(String args[], int index, Set<String> source) 
         throws UsageError, Main.TerminationException
     {
         int i = super.parseCommand(args, index, source);

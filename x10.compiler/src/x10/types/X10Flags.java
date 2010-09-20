@@ -26,7 +26,9 @@ import polyglot.types.Flags;
  * 
  */
 public class X10Flags extends Flags {
-    public static final Set X10_FLAGS = new TreeSet();
+    private static final long serialVersionUID = 9052097680529482894L;
+
+    public static final Set<String> X10_FLAGS = new TreeSet<String>();
     public static final X10Flags EXTERN = createFlag("extern", null);
     public static final X10Flags VALUE = createFlag("value", null);
     public static final X10Flags REFERENCE = createFlag("reference", null);
@@ -652,8 +654,7 @@ public class X10Flags extends Flags {
     public String translate() {
         StringBuffer sb = new StringBuffer();
 
-        for (Iterator i = this.flags.iterator(); i.hasNext();) {
-            String s = (String) i.next();
+        for (String s : this.flags) {
             if (X10_FLAGS.contains(s))
                 continue;
 
@@ -680,8 +681,8 @@ public class X10Flags extends Flags {
     public String toString() {
         StringBuffer sb = new StringBuffer();
 
-        for (Iterator i = this.flags.iterator(); i.hasNext();) {
-            String s = (String) i.next();
+        for (Iterator<String> i = this.flags.iterator(); i.hasNext();) {
+            String s = i.next();
 
             sb.append(s);
             if (i.hasNext())

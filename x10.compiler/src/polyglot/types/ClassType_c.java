@@ -19,8 +19,10 @@ import polyglot.util.*;
  */
 public abstract class ClassType_c extends ReferenceType_c implements ClassType
 {
+    private static final long serialVersionUID = 3894454742809763539L;
+
     protected Ref<? extends ClassDef> def;
-    
+
     /** Used for deserializing types. */
     protected ClassType_c() { }
 

@@ -112,10 +112,10 @@ public class ExprFlattener extends ContextVisitor  {
 	 *
 	 */
 	public static class Flattener extends ContextVisitor {
-		List stmtList = new LinkedList();
+		List<Stmt> stmtList = new LinkedList<Stmt>();
 		PruningVisitor done = new PruningVisitor();
 		protected Node root;
-		public List stmtList() {
+		public List<Stmt> stmtList() {
 			return stmtList;
 		}
 		public void add(Stmt m) {
@@ -212,7 +212,7 @@ public class ExprFlattener extends ContextVisitor  {
 			Flattener newVisitor = (Flattener) new Flattener(job,ts,nf,n).context(xc);
 			// revisit the same statement.
 			Node nn = n.visit(newVisitor);
-			List/*<Stmt>*/ l = newVisitor.stmtList();
+			List<Stmt> l = newVisitor.stmtList();
 			
 			// Add the statement returned by newVisitor -- this will be the current
 			// node with its arguments replaced by a local variable references.

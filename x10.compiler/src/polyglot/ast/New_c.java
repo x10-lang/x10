@@ -83,12 +83,16 @@ public class New_c extends Expr_c implements New
 	return n;
     }
 
-    public ProcedureInstance procedureInstance() {
+    public ConstructorInstance procedureInstance() {
 	return constructorInstance();
     }
 
     public ConstructorInstance constructorInstance() {
 	return this.ci;
+    }
+
+    public New procedureInstance(ProcedureInstance<? extends ProcedureDef> pi) {
+        return constructorInstance((ConstructorInstance) pi);
     }
 
     public New constructorInstance(ConstructorInstance ci) {
@@ -160,7 +164,7 @@ public class New_c extends Expr_c implements New
         
         Expr qual = (Expr) n.visitChild(n.qualifier(), tb);
         TypeNode objectType = (TypeNode) n.visitChild(n.objectType(), tb);
-        List<Expr> arguments = (List<Expr>) n.visitList(n.arguments(), tb);
+        List<Expr> arguments = n.visitList(n.arguments(), tb);
         
         ClassBody body = null;
         
@@ -503,8 +507,7 @@ public class New_c extends Expr_c implements New
 		"Null constructor instance after type check.");
 	}
 
-	for (Iterator i = ci.throwTypes().iterator(); i.hasNext(); ) {
-	    Type t = (Type) i.next();
+	for (Type t : ci.throwTypes()) {
 	    ec.throwsException(t, position());
 	}
 

@@ -57,7 +57,7 @@ public class X10CUDAContext_c extends X10CPPContext_c {
     private Name threadsVar; public Name threadsVar() { return threadsVar; }
     private SharedMem shm; public SharedMem shm() { return shm; }
     private boolean directParams; public boolean directParams() { return directParams; }
-    private ArrayList<VarInstance> kernelParams; public ArrayList<VarInstance> kernelParams() { return kernelParams; }
+    private ArrayList<VarInstance<?>> kernelParams; public ArrayList<VarInstance<?>> kernelParams() { return kernelParams; }
     public void setCUDAKernelCFG(Expr blocks, Name blocksVar, Expr threads, Name threadsVar, SharedMem shm, boolean directParams) {
         this.blocks = blocks;
         this.blocksVar = blocksVar;
@@ -72,7 +72,7 @@ public class X10CUDAContext_c extends X10CPPContext_c {
             this.kernelParams.add(autoThreads.localDef().asInstance());
     }
     public boolean isKernelParam(Name n) {
-        for (VarInstance i : kernelParams) {
+        for (VarInstance<?> i : kernelParams) {
             if (i.name()==n) return true;
         }
         return false;

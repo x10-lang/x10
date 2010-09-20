@@ -3,6 +3,8 @@ package polyglot.types;
 import polyglot.util.Position;
 
 public class LocalInstance_c extends VarInstance_c<LocalDef> implements LocalInstance {
+    private static final long serialVersionUID = -5115232710707624648L;
+
     public LocalInstance_c(TypeSystem ts, Position pos, Ref<? extends LocalDef> def) {
         super(ts, pos, def);
     }

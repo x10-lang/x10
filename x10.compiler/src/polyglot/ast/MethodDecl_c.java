@@ -376,7 +376,7 @@ public class MethodDecl_c extends Term_c implements MethodDecl
 	    w.allowBreak(6);
 	    w.write("throws ");
 
-	    for (Iterator i = throwTypes().iterator(); i.hasNext(); ) {
+	    for (Iterator<TypeNode> i = throwTypes().iterator(); i.hasNext(); ) {
 	        TypeNode tn = (TypeNode) i.next();
 		print(tn, w, tr);
 
@@ -435,6 +435,6 @@ public class MethodDecl_c extends Term_c implements MethodDecl
         return succs;
     }
 
-    private static final Collection TOPICS = 
+    private static final Collection<String> TOPICS = 
             CollectionUtil.list(Report.types, Report.context);
 }

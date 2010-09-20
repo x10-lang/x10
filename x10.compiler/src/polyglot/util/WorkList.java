@@ -10,7 +10,6 @@ package polyglot.util;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.Map;
@@ -29,8 +28,8 @@ public class WorkList {
    * Creates a new, empty worklist.
    **/
   public WorkList() {
-    pending = new LinkedList();
-    results = new HashMap();
+    pending = new LinkedList<Object>();
+    results = new HashMap<Object, Object>();
     size = 0;
   }
 
@@ -50,9 +49,9 @@ public class WorkList {
    * Adds every member of the collection <c> to the worklist, if it
    * has not already been calculted.
    **/
-  public void addWork(Collection c) {
-    for (Iterator i = c.iterator(); i.hasNext(); )
-      addWork(i.next());
+  public void addWork(Collection<Object> c) {
+    for (Object o : c)
+        addWork(o);
   }
 
   /**
@@ -80,7 +79,7 @@ public class WorkList {
    **/
   public void finishWork(Object work, Object result) {
     if (results.get(work) == NOT_CALCULATED) {
-      for (ListIterator i = pending.listIterator(); i.hasNext(); ) {
+      for (ListIterator<Object> i = pending.listIterator(); i.hasNext(); ) {
 	if (i.next().equals(work))
 	  i.remove();
       }
@@ -106,16 +105,16 @@ public class WorkList {
    * Returns an immutable view of a map from calculation objects to
    * their results.  Non-computed values map to NOT_CALCULATED
    **/
-  public Map getMap() {
+  public Map<Object, Object> getMap() {
     return Collections.unmodifiableMap(results);
   }
 
   // The list of objects to be calculated on.  The oldest element is first.
   // RI: Every member of <pending> is a key in <results>.
-  protected LinkedList pending;
+  protected LinkedList<Object> pending;
   // A map from all objects to their results.  Any object with no result
   // maps to NOT_CALCULATED.
-  protected HashMap results;
+  protected HashMap<Object, Object> results;
   // The number of elements in pending.
   protected int size;
 

@@ -228,7 +228,7 @@ public class LocalClassRemover extends ContextVisitor {
 
 	    // Check if extending a class or an interface.
 	    TypeNode superClass = neu.objectType();
-	    List<TypeNode> interfaces = Collections.EMPTY_LIST;
+	    List<TypeNode> interfaces = Collections.<TypeNode>emptyList();
 
 	    Type supertype = neu.objectType().type();
 	    if (supertype instanceof ClassType) {

@@ -31,6 +31,8 @@ import polyglot.util.Position;
  */
 public class ParserGoal extends SourceGoal_c
 {
+    private static final long serialVersionUID = -2901265337615479927L;
+
     protected Compiler compiler;
 
     public ParserGoal(Compiler compiler, Job job) {

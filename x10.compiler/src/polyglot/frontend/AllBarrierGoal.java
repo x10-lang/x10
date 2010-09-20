@@ -3,6 +3,8 @@ package polyglot.frontend;
 import java.util.*;
 
 public abstract class AllBarrierGoal extends AbstractGoal_c {
+    private static final long serialVersionUID = 7313267162257728279L;
+
     protected Scheduler scheduler;
     
     public AllBarrierGoal(Scheduler scheduler) {

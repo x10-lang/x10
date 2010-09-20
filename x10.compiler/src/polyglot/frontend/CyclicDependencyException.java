@@ -13,8 +13,10 @@ package polyglot.frontend;
  * already running.
  */
 public class CyclicDependencyException extends Exception {
+    private static final long serialVersionUID = 6892580409561143970L;
+
     protected Goal goal;
-	
+
     public CyclicDependencyException() {
         super();
     }

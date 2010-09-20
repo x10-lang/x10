@@ -124,7 +124,7 @@ public class Async_c extends Stmt_c implements Async {
 
 
 	/** Reconstruct the statement. */
-	protected Async reconstruct(List clocks, Stmt body) {
+	protected Async reconstruct(List<Expr> clocks, Stmt body) {
 		if ( body != this.body || clocks != this.clocks) {
 			Async_c n = (Async_c) copy();
 			n.clocks = clocks;
@@ -137,7 +137,7 @@ public class Async_c extends Stmt_c implements Async {
 
 	/** Visit the children of the statement. */
 	public Node visitChildren(NodeVisitor v) {
-		List clocks = (List) visitList(this.clocks, v);
+		List<Expr> clocks = visitList(this.clocks, v);
 		Stmt body = (Stmt) visitChild(this.body, v);
 		return reconstruct(clocks, body);
 	}
@@ -192,12 +192,11 @@ public class Async_c extends Stmt_c implements Async {
 			Errors.issue(tc.job(),
 			        new SemanticException("async may not be invoked in sequential code.", position()));
 			
-        for (Iterator i = clocks().iterator(); i.hasNext(); ) {
-            Expr tn = (Expr) i.next();
-            Type t = tn.type();
-            if (! t.isSubtype(ts.Clock(), tc.context())) {
+        for (Expr e : clocks()) {
+            Type t = e.type();
+            if (!t.isSubtype(ts.Clock(), tc.context())) {
                 Errors.issue(tc.job(),
-                        new SemanticException("Type \"" + t + "\" must be x10.lang.clock.", tn.position()));
+                        new SemanticException("Type \"" + t + "\" must be x10.lang.clock.", e.position()));
             }
         }
 
@@ -221,9 +220,9 @@ public class Async_c extends Stmt_c implements Async {
 			w.write("clocked (");
 			w.begin(0);
 
-			for (Iterator i = clocks.iterator(); i.hasNext(); ) {
-			    Formal f = (Formal) i.next();
-			    print(f, w, tr);
+			for (Iterator<Expr> i = clocks.iterator(); i.hasNext(); ) {
+			    Expr e = i.next();
+			    print(e, w, tr);
 
 			    if (i.hasNext()) {
 				w.write(",");

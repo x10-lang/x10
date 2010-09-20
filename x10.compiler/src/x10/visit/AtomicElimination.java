@@ -76,7 +76,7 @@ public class AtomicElimination extends NodeVisitor {
         Stmt the_one_stmt = null;
         if (s instanceof Block) {
             Block b = (Block) s;
-            List l = b.statements();
+            List<Stmt> l = b.statements();
             if (l.size() == 1) 
                 the_one_stmt = (Stmt) l.get(0);
         } else {

@@ -640,10 +640,11 @@ public class X10Binary_c extends Binary_c implements X10Binary {
             }
             if (ct == null) ct = l.toClass();  // arbitrarily pick the left operand
             SemanticException error = new Errors.AmbiguousOperator(op, bestmis, pos);
-            X10MethodInstance mi = xts.createFakeMethod(ct, Flags.PUBLIC.Static(), methodName, Collections.EMPTY_LIST, CollectionUtil.list(l, r), error);
+            X10MethodInstance mi = xts.createFakeMethod(ct, Flags.PUBLIC.Static(), methodName,
+                    Collections.<Type>emptyList(), CollectionUtil.list(l, r), error);
             if (rt != null) mi = mi.returnType(rt);
             result = (X10Call_c) nf.X10Call(pos, nf.CanonicalTypeNode(pos, Types.ref(ct)),
-                    nf.Id(pos, methodName), Collections.EMPTY_LIST,
+                    nf.Id(pos, methodName), Collections.<TypeNode>emptyList(),
                     CollectionUtil.list(left, right)).methodInstance(mi).type(mi.returnType());
         }
         try {
@@ -699,8 +700,8 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         if (!e.type().isSubtype(ts.String(), tc.context())) {
             X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
             e = nf.X10Call(e.position(), nf.CanonicalTypeNode(e.position(), ts.String()),
-                           nf.Id(e.position(), Name.make("valueOf")), Collections.EMPTY_LIST,
-                           Collections.singletonList(e));
+                           nf.Id(e.position(), Name.make("valueOf")),
+                           Collections.<TypeNode>emptyList(), Collections.singletonList(e));
             return (Expr) e.del().disambiguate(tc).typeCheck(tc).checkConstants(tc);
         }
 
@@ -748,7 +749,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         final Local ldRef = (Local) nf.Local(pos,resultVarName).localInstance(li.asInstance()).type(type);
         Flattener newVisitor = (Flattener) new ExprFlattener.Flattener(fc.job(), ts, nf, this).context(xc);
         Expr nRight = (Expr) right.visit(newVisitor);
-        List condBody = newVisitor.stmtList(); 
+        List<Stmt> condBody = newVisitor.stmtList(); 
         Expr assign = nf.Assign(pos, ldRef, Assign.ASSIGN, nRight ).type(type);
         Stmt eval = nf.Eval(pos, assign);
         condBody.add(eval);

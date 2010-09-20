@@ -149,7 +149,7 @@ public class FunctionTypeNode_c extends TypeNode_c implements FunctionTypeNode {
 
 	@Override
 	  public void setResolver(Node parent, final TypeCheckPreparer v) {
-	    	if (typeRef() instanceof LazyRef) {
+	    	if (typeRef() instanceof LazyRef<?>) {
 	    		LazyRef<Type> r = (LazyRef<Type>) typeRef();
 	    		TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
 	    		tc = (TypeChecker) tc.context(v.context().freeze());
@@ -311,8 +311,8 @@ public class FunctionTypeNode_c extends TypeNode_c implements FunctionTypeNode {
 			w.allowBreak(6);
 			w.write("throws ");
 
-			for (Iterator i = throwTypes().iterator(); i.hasNext();) {
-				TypeNode tn = (TypeNode) i.next();
+			for (Iterator<TypeNode> i = throwTypes().iterator(); i.hasNext();) {
+				TypeNode tn = i.next();
 				print(tn, w, tr);
 
 				if (i.hasNext()) {

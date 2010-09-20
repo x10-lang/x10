@@ -71,6 +71,7 @@ import polyglot.ast.SwitchBlock_c;
 import polyglot.ast.Switch_c;
 import polyglot.ast.Throw;
 import polyglot.ast.Throw_c;
+import polyglot.ast.TopLevelDecl;
 import polyglot.ast.Try;
 import polyglot.ast.Try_c;
 import polyglot.ast.TypeNode;
@@ -720,7 +721,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	        if (n.classDef().isTopLevel() && !n.classDef().sourceFile().name().equals(className + ".x10") && !context.isContainsGeneratedClasses(n.classDef())) {
 	            context.addGeneratedClasses(n.classDef());
 	            // not include import
-	            SourceFile sf = tr.nodeFactory().SourceFile(n.position(), (List) Collections.singletonList(n));
+	            SourceFile sf = tr.nodeFactory().SourceFile(n.position(), Collections.<TopLevelDecl>singletonList(n));
 	            if (n.classDef().package_() != null) {
 	                sf = sf.package_(tr.nodeFactory().PackageNode(n.position(), n.classDef().package_()));
 	            }
@@ -795,24 +796,24 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 				List<Type> sups = new LinkedList<Type>(tp.upperBounds());
 								
 				Type supClassType = null;
-				for (Iterator it = sups.iterator(); it.hasNext();) {
-                                    Type type = X10TypeMixin.baseType((Type) it.next());
-                                    if (type instanceof ParameterType) {
-                                        it.remove();
-                                    }
-                                    if (type instanceof X10ClassType) {
-                                        if (!((X10ClassType) type).flags().isInterface()) {
-                                            if (supClassType != null ) {
-                                                if (type.isSubtype(supClassType, context)) {
-                                                    supClassType = type;
-                                                }
-                                            } else {
-                                                supClassType = type;
-                                            }
-                                            it.remove();
-                                        }
-                                    }
-                                }
+				for (Iterator<Type> it = sups.iterator(); it.hasNext();) {
+				    Type type = X10TypeMixin.baseType(it.next());
+				    if (type instanceof ParameterType) {
+				        it.remove();
+				    }
+				    if (type instanceof X10ClassType) {
+				        if (!((X10ClassType) type).flags().isInterface()) {
+				            if (supClassType != null ) {
+				                if (type.isSubtype(supClassType, context)) {
+				                    supClassType = type;
+				                }
+				            } else {
+				                supClassType = type;
+				            }
+				            it.remove();
+				        }
+				    }
+				}
 				if (supClassType != null) {
 				    sups.add(0, supClassType);
 				}

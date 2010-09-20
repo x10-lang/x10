@@ -226,15 +226,15 @@ public abstract class Node_c implements Node
      *         <code>l</code>.  If <code>l</code> is <code>null</code>,
      *         <code>null</code> is returned.
      */
-    public List visitList(List l, NodeVisitor v) {
+    public List visitList(List<? extends Node> l, NodeVisitor v) {
 	if (l == null) {
 	    return null;
 	}
 
-	List result = l;
-	List vl = new ArrayList(l.size());
+	List<? extends Node> result = l;
+	List<Node> vl = new ArrayList<Node>(l.size());
 	
-	for (Iterator i = l.iterator(); i.hasNext(); ) {
+	for (Iterator<? extends Node> i = l.iterator(); i.hasNext(); ) {
 	    Node n = (Node) i.next();
 	    Node m = visitChild(n, v);
 	    if (n != m) {
@@ -331,15 +331,15 @@ public abstract class Node_c implements Node
     }
 
     public Node exceptionCheck(ExceptionChecker ec) throws SemanticException { 
-        List l = this.del().throwTypes(ec.typeSystem());
-        for (Iterator i = l.iterator(); i.hasNext(); ) {
-            ec.throwsException((Type)i.next(), position());
+        List<Type> l = this.del().throwTypes(ec.typeSystem());
+        for (Type t : l) {
+            ec.throwsException(t, position());
         }
     	return this;
     }
 
     public List<Type> throwTypes(TypeSystem ts) {
-       return Collections.EMPTY_LIST;
+       return Collections.<Type>emptyList();
     }
     
     /** Dump the AST for debugging. */

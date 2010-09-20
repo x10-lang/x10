@@ -16,11 +16,13 @@ import java.util.*;
 /** An enumerated type.  Enums are interned and can be compared with ==. */
 public class Enum implements Internable, Serializable
 {
+    private static final long serialVersionUID = -1767166539548815903L;
+
     /** The name of the enum.  Used for debugging and interning. */
     private String name;
 
     /** The intern cache. */
-    private static Map cache = new HashMap();
+    private static Map<EnumKey, Enum> cache = new HashMap<EnumKey, Enum>();
 
     protected Enum(String name) {
 	this.name = name;
@@ -81,7 +83,7 @@ public class Enum implements Internable, Serializable
     public Enum internEnum() {
         EnumKey k = new EnumKey(this);
 
-	Enum e = (Enum) cache.get(k);
+	Enum e = cache.get(k);
 
 	if (e == null) {
 	    cache.put(k, this);

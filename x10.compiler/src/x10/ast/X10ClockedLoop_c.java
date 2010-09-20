@@ -40,7 +40,7 @@ import x10.types.X10TypeSystem;
  */
 public abstract class X10ClockedLoop_c extends X10Loop_c implements Clocked {
 
-	protected List clocks;
+	protected List<Expr> clocks;
 
 	/**
 	 * @param pos
@@ -57,7 +57,7 @@ public abstract class X10ClockedLoop_c extends X10Loop_c implements Clocked {
 	 * @param body
 	 */
 	public X10ClockedLoop_c(Position pos, Formal formal, Expr domain,
-							List clocks, Stmt body)
+							List<Expr> clocks, Stmt body)
 	{
 		super(pos, formal, domain, body);
 		this.clocks = TypedList.copyAndCheck(clocks, Expr.class, true);
@@ -71,12 +71,12 @@ public abstract class X10ClockedLoop_c extends X10Loop_c implements Clocked {
 	}
 
 	/** Clocks */
-	public List clocks() {
+	public List<Expr> clocks() {
 		return Collections.unmodifiableList(this.clocks);
 	}
 
 	/** Set clocks */
-	public Clocked clocks(List clocks) {
+	public Clocked clocks(List<Expr> clocks) {
 		X10ClockedLoop_c n = (X10ClockedLoop_c) copy();
 		n.clocks = TypedList.copyAndCheck(clocks, Expr.class, true);
 		return n;
@@ -85,7 +85,7 @@ public abstract class X10ClockedLoop_c extends X10Loop_c implements Clocked {
 	public Node visitChildren(NodeVisitor v) {
 		Formal formal = (Formal) visitChild(this.formal, v);
 		Expr domain = (Expr) visitChild(this.domain, v);
-		List clocks = visitList(this.clocks, v);
+		List<Expr> clocks = visitList(this.clocks, v);
 		Stmt body = (Stmt) visitChild(this.body, v);
 		return ((Clocked) reconstruct(formal, domain, body)).clocks(clocks);
 	}

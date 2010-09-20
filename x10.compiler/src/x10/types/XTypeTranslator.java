@@ -32,6 +32,7 @@ import polyglot.types.CodeDef;
 import polyglot.types.Context;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
+import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
@@ -329,6 +330,8 @@ public class XTypeTranslator {
 	}
 	
 	public static class XTypeLit_c extends XLit {
+	    private static final long serialVersionUID = -1222245257474719757L;
+
 	    private XTypeLit_c(Type l) {
 		super(l);
 	    }
@@ -526,7 +529,7 @@ public class XTypeTranslator {
 				for (int i = 0; i < t.arguments().size(); i++) {
 					//XVar x = (XVar) X10TypeMixin.selfVarBinding(xmi.formalTypes().get(i));
 					//XVar x = (XVar) xmi.formalTypes().get(i);
-					XVar x = (XVar) XTerms.makeLocal(new XNameWrapper(xmi.formalNames().get(i).def()));
+					XVar x = (XVar) XTerms.makeLocal(new XNameWrapper<LocalDef>(xmi.formalNames().get(i).def()));
 					XTerm y = trans(c, t.arguments().get(i), xc);
 					if (y == null)
 						assert y != null : "XTypeTranslator: translation of arg " + i + " of " + t + " yields null (pos=" 

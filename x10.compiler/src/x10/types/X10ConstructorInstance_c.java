@@ -53,6 +53,7 @@ import x10.types.constraints.TypeConstraint;
  *
  */
 public class X10ConstructorInstance_c extends ConstructorInstance_c implements X10ConstructorInstance {
+    private static final long serialVersionUID = 65438556574848648L;
 
     public X10ConstructorInstance_c(TypeSystem ts, Position pos, 
     		Ref<? extends X10ConstructorDef> def) {
@@ -167,10 +168,11 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
     
     public List<LocalInstance> formalNames() {
 	if (this.formalNames == null) {
-	    return new TransformingList(x10Def().formalNames(), new Transformation<LocalDef,LocalInstance>() {
-		public LocalInstance transform(LocalDef o) {
-		    return o.asInstance();
-		}
+	    return new TransformingList<LocalDef, LocalInstance>(x10Def().formalNames(),
+	        new Transformation<LocalDef,LocalInstance>() {
+	            public LocalInstance transform(LocalDef o) {
+	                return o.asInstance();
+	            }
 	    });
 	}
 	

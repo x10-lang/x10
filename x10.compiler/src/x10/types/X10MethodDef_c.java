@@ -50,6 +50,8 @@ import x10.types.constraints.TypeConstraint;
  *
  */
 public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
+    private static final long serialVersionUID = -9049001281152283179L;
+
     Ref<CConstraint> guard;
     Ref<TypeConstraint> typeGuard;
     List<ParameterType> typeParameters;
@@ -118,7 +120,7 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
     List<Ref<? extends Type>> annotations;
 
     public List<Ref<? extends Type>> defAnnotations() {
-	if (annotations == null) return Collections.EMPTY_LIST;
+	if (annotations == null) return Collections.<Ref<? extends Type>>emptyList();
         return Collections.unmodifiableList(annotations);
     }
     

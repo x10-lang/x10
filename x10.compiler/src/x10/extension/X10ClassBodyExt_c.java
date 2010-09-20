@@ -20,17 +20,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 
-import polyglot.ast.Block_c;
+import polyglot.ast.Block;
 import polyglot.ast.Call;
-import polyglot.ast.Call_c;
 import polyglot.ast.ClassBody_c;
 import polyglot.ast.ClassMember;
 import polyglot.ast.Expr;
 import polyglot.ast.Formal;
-import polyglot.ast.Formal_c;
 import polyglot.ast.Local;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.MethodDecl_c;
@@ -218,8 +215,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 		MethodDef mi = method.methodDef();
 		String signature = "";// "("
 
-		for (ListIterator<Formal> i = method.formals().listIterator(); i.hasNext();) {
-			Formal parameter = i.next(); 
+		for (Formal parameter : method.formals()) {
 			X10TypeSystem ts = typeSystem;
 
 			if(parameter.declType().isPrimitive() || 	
@@ -386,8 +382,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
                  * determine type of backing array as pass it as well
                  * as the descriptor array (an array of ints)
 		 */
-		for (ListIterator i = nativeMethod.formals().listIterator(); i.hasNext();) {
-			Formal_c parameter = (Formal_c) i.next();
+		for (Formal parameter : nativeMethod.formals()) {
 			if (parameter.declType().isPrimitive())
 				newFormals.add(parameter);
 			else {
@@ -397,7 +392,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 			  if(null == backingMethod) throw new InternalCompilerError("Could not find "+KgetBackingArrayMethod+" in class "+ct);
 			  TypeNode theReturnType = nf.CanonicalTypeNode(nativeMethod.position(),backingMethod.returnType());
 			  newFormals.add(parameter.type(theReturnType));
-			  Formal_c paramDescriptor = (Formal_c)parameter.name(parameter.name().id(Name.make(parameter.name().id() + KdescriptorNameSuffix)));
+			  Formal paramDescriptor = parameter.name(parameter.name().id(Name.make(parameter.name().id() + KdescriptorNameSuffix)));
 			  newFormals.add(paramDescriptor.type(arrayOfIntType)); // another for descriptor
 			}
 		}
@@ -411,14 +406,13 @@ public class X10ClassBodyExt_c extends X10Ext_c {
  * but it may be in an interface--if initial search fails, start looking in the interfaces
  */
         private  MethodInstance findMethod(ClassType ct,Name targetName){
-		MethodInstance targetMI=null,memberMI=null;
+		MethodInstance targetMI=null;
 		final boolean trace=false;
                 ClassType currentClass=ct;
                 while(currentClass!=null) {
                    if(trace) System.out.println("Searching class "+currentClass);
-   		   List methods = currentClass.methods();
-                   for(ListIterator j = methods.listIterator();j.hasNext();){
-                   memberMI = (MethodInstance)j.next();
+                   List<MethodInstance> methods = currentClass.methods();
+                   for (MethodInstance memberMI : methods) {
                    if(trace) System.out.println("inspecting member:"+memberMI.name());
                    if (memberMI.name().equals(targetName))
                       return memberMI;
@@ -429,15 +423,14 @@ public class X10ClassBodyExt_c extends X10Ext_c {
                 if(trace) System.out.println("Search the interfaces....");
                 currentClass = ct;
                 while(currentClass!=null) {
-                   List interfaceMethods = currentClass.interfaces();
+                   List<Type> interfaceMethods = currentClass.interfaces();
 
-                   for (ListIterator j = interfaceMethods.listIterator(); j.hasNext();) {
-                      ClassType implementationClass = (ClassType)j.next();
+                   for (Type type : interfaceMethods) {
+                      ClassType implementationClass = (ClassType)type;
                       if(trace)System.out.println("looking at interface "+implementationClass);
-                      List methods = implementationClass.methods();
+                      List<MethodInstance> methods = implementationClass.methods();
 
-                      for(ListIterator k = methods.listIterator();k.hasNext();){
-                         memberMI = (MethodInstance)k.next();
+                      for (MethodInstance memberMI : methods) {
                          if(trace) System.out.println("inspecting member:"+memberMI.name());
                          if (memberMI.name().equals(targetName))
                             return memberMI;
@@ -469,15 +462,13 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 		TypeNode receiver = nf.CanonicalTypeNode(pos, mi.container());
 
 		Call jniCall = nf.Call(pos, receiver, nf.Id(pos, jniName), newArgs);
-		jniCall = (Call_c)jniCall.targetImplicit(true);
-		jniCall = (Call_c)jniCall.methodInstance(mi.asInstance());
+		jniCall = jniCall.targetImplicit(true);
+		jniCall = jniCall.methodInstance(mi.asInstance());
 
                 Name descriptorName = KgetDescriptorMethod;
 	
 		ArrayList<Expr> args = new ArrayList<Expr>();
-		for (ListIterator i = nativeMethod.formals().listIterator(); i.hasNext();) {
-			Formal_c parameter = (Formal_c) i.next();
-
+		for (Formal parameter : nativeMethod.formals()) {
 			if (parameter.declType().isPrimitive()) {
 				Local arg= nf.Local(pos, parameter.name());
 				// RMF 11/2/2005 - Set the type of the Local. This would normally
@@ -498,35 +489,32 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 				 * Look for the implementation of the getbackingarray method interface.  Start in this method
 				 * and keep looking up inheritance tree.
 				 */
-				MethodInstance memberMI = null;
 				MethodInstance  arrayDescriptorMI = null, backingArrayMI=null;
 				ClassType currentClass = ct;
 				boolean doneSearch = false;
                                
 				while (currentClass != null && !doneSearch) {
-					List interfaceMethods = currentClass.interfaces();
-                               
-					for (ListIterator j = interfaceMethods.listIterator(); j.hasNext();) {
-						ClassType implementationClass = (ClassType)j.next();
+					List<Type> interfaceMethods = currentClass.interfaces();
+					for (Type type : interfaceMethods) {
+						ClassType implementationClass = (ClassType)type;
                                                 if(trace)System.out.println("looking at interface "+implementationClass);
-						List methods = implementationClass.methods();
-						for (ListIterator k = methods.listIterator(); k.hasNext();) {
-							memberMI = (MethodInstance) k.next();
+						List<MethodInstance> methods = implementationClass.methods();
+						for (MethodInstance memberMI : methods) {
 							if (trace) System.out.println("inspecting interface member:"+ memberMI.name());
 							if (memberMI.name().equals(descriptorName))
 								arrayDescriptorMI = memberMI;
-                                                        if(memberMI.name().equals(KgetBackingArrayMethod))
-                                                           backingArrayMI = memberMI;
-                                                         
-                                                        if(arrayDescriptorMI!=null)
+							if(memberMI.name().equals(KgetBackingArrayMethod))
+							    backingArrayMI = memberMI;
+
+							if(arrayDescriptorMI!=null)
 								break;
 							
 						}
 					}
 
-                                        /* look for getBackingArray method.  Note that it is not an interface */
+					/* look for getBackingArray method.  Note that it is not an interface */
 					if(backingArrayMI == null){
-                                           backingArrayMI = findMethod(currentClass,KgetBackingArrayMethod);
+					    backingArrayMI = findMethod(currentClass,KgetBackingArrayMethod);
 					}
 
 					if (arrayDescriptorMI != null && (backingArrayMI !=null)){
@@ -552,7 +540,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
                                                                                                             getAddrTarget.name().id()).asInstance());
 				
                                 Call getAddr = nf.Call(pos, getAddrTarget, nf.Id(pos, KgetBackingArrayMethod));
-                                getAddr = (Call_c)getAddr.methodInstance(backingArrayMI);
+                                getAddr = getAddr.methodInstance(backingArrayMI);
                                 // RMF 11/3/2005 - Set the type of getAddr call. This would
                                 // normally be handled by type-checking, but we're past that
                                 // point now...
@@ -561,7 +549,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 
 
 				Call getDescriptor = nf.Call(pos, getAddrTarget, nf.Id(pos, descriptorName));
-				getDescriptor = (Call_c)getDescriptor.methodInstance(arrayDescriptorMI);
+				getDescriptor = getDescriptor.methodInstance(arrayDescriptorMI);
 				// RMF 11/3/2005 - Set the type of getDescriptor call. This
 				// would normally be handled by type-checking, but we're past
 				// that point now...
@@ -571,7 +559,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 			}
 		}
 
-		jniCall = (Call_c)jniCall.arguments(args);
+		jniCall = jniCall.arguments(args);
 
 		// RMF 11/2/2005 - Set type of jniCall to that of method's return type.
 		// This would ordinarily be taken care of by type-checking, but we're
@@ -584,7 +572,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 		else
 			newStmts.add(nf.Return(pos, (Expr)jniCall));
 
-		Block_c newBlock = (Block_c)nf.Block(pos, newStmts);
+		Block newBlock = nf.Block(pos, newStmts);
 
 		nativeWrapper = (MethodDecl_c)nativeWrapper.body(newBlock);
 		return nativeWrapper;
@@ -662,12 +650,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
                 String releaseStmts="";
                 String acquireStmts="";
 
-		for (ListIterator i = nativeMethod.formals().listIterator();
-				i.hasNext();)
-		{
-			Formal_c parameter = (Formal_c) i.next();
-
-
+		for (Formal parameter : nativeMethod.formals()) {
 			if (parameter.declType().isPrimitive()) { 
 			   jniCall += ", " + typeToJNIString(parameter.declType())
 					   + " " + parameter.name().id();
@@ -825,8 +808,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 		List<ClassMember> members = cb.members();
 		Map<Name,MethodDecl> methodHash = null;
 		ArrayList<ClassMember> newListOfMembers = new ArrayList<ClassMember>();
-		for (ListIterator<ClassMember> i = members.listIterator(); i.hasNext();) {
-			ClassMember o = i.next();
+		for (ClassMember o : members) {
 			if (o instanceof MethodDecl) {
 				MethodDecl_c md = (MethodDecl_c) o;
 				MethodDef mi = md.methodDef();
@@ -869,13 +851,12 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 		return cb;
 	}
 
-	private Map<Name,MethodDecl> buildNativeMethodHash(List members) {
+	private Map<Name,MethodDecl> buildNativeMethodHash(List<ClassMember> members) {
 		Map<Name,MethodDecl> methodHash = new HashMap<Name, MethodDecl>();
-		for (ListIterator j = members.listIterator(); j.hasNext();) {
-			Object theObj = j.next();
-			if (!(theObj instanceof MethodDecl))
+		for (ClassMember member : members) {
+			if (!(member instanceof MethodDecl))
 				continue;
-			MethodDecl_c methodDecl = (MethodDecl_c) theObj;
+			MethodDecl_c methodDecl = (MethodDecl_c) member;
 			if (!X10Flags.toX10Flags(methodDecl.methodDef().flags()).isExtern())
 				continue;
 

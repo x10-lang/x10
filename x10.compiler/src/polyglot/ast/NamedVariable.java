@@ -8,6 +8,7 @@
 package polyglot.ast;
 
 import polyglot.types.Flags;
+import polyglot.types.VarDef;
 import polyglot.types.VarInstance;
 
 /** 
@@ -20,7 +21,7 @@ public interface NamedVariable extends Variable
     public Flags flags();
 
     /** Return the type object for the variable. */
-    public VarInstance varInstance();
+    public VarInstance<? extends VarDef> varInstance();
 
     /** Return the name of the variable. */
     public Id name();

@@ -49,14 +49,14 @@ public class X10Ext_c extends Ext_c implements X10Ext {
     
     public List<AnnotationNode> annotations() {
     	if (this.annotations == null) {
-    		return Collections.EMPTY_LIST;
+    		return Collections.<AnnotationNode>emptyList();
     	}
     	return Collections.unmodifiableList(this.annotations);
     }
     
     public List<X10ClassType> annotationTypes() {
     	if (this.annotations == null) {
-    		return Collections.EMPTY_LIST;
+    		return Collections.<X10ClassType>emptyList();
     	}
     	List<X10ClassType> l = new ArrayList<X10ClassType>(this.annotations.size());
     	for (Iterator<AnnotationNode> i = this.annotations.iterator(); i.hasNext(); ) {

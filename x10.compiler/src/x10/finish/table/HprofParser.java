@@ -202,40 +202,40 @@ public class HprofParser {
 	return new ExprStat(perc, live, allocated, obj, name);
     }
 
-    class PercentageComparer implements Comparator {
-	public int compare(Object obj1, Object obj2) {
-	    double i1 = ((ExprStat) obj1).percentage;
-	    double i2 = ((ExprStat) obj2).percentage;
+    class PercentageComparer implements Comparator<ExprStat> {
+	public int compare(ExprStat es1, ExprStat es2) {
+	    double i1 = es1.percentage;
+	    double i2 = es2.percentage;
 	    return (int) (i1 - i2);
 	}
     }
 
-    class LiveBytesComparer implements Comparator {
-	public int compare(Object obj1, Object obj2) {
-	    long i1 = ((ExprStat) obj1).liveBytes;
-	    long i2 = ((ExprStat) obj2).liveBytes;
+    class LiveBytesComparer implements Comparator<ExprStat> {
+	public int compare(ExprStat es1, ExprStat es2) {
+	    long i1 = es1.liveBytes;
+	    long i2 = es2.liveBytes;
 	    return (int) (i1 - i2);
 	}
     }
 
-    class AllocatedBytesComparer implements Comparator {
-	public int compare(Object obj1, Object obj2) {
-	    long i1 = ((ExprStat) obj1).allocatedBytes;
-	    long i2 = ((ExprStat) obj2).allocatedBytes;
+    class AllocatedBytesComparer implements Comparator<ExprStat> {
+	public int compare(ExprStat es1, ExprStat es2) {
+	    long i1 = es1.allocatedBytes;
+	    long i2 = es2.allocatedBytes;
 	    return (int) (i1 - i2);
 	}
     }
 
-    class AllocatedObjsComparer implements Comparator {
-	public int compare(Object obj1, Object obj2) {
-	    long i1 = ((ExprStat) obj1).allocatedObj;
-	    long i2 = ((ExprStat) obj2).allocatedObj;
+    class AllocatedObjsComparer implements Comparator<ExprStat> {
+	public int compare(ExprStat es1, ExprStat es2) {
+	    long i1 = es1.allocatedObj;
+	    long i2 = es2.allocatedObj;
 	    return (int) (i1 - i2);
 	}
     }
 
     public void dump(int sel) {
-	Comparator c;
+	Comparator<ExprStat> c;
 	switch (sel) {
 	case 1:
 	    c = new PercentageComparer();

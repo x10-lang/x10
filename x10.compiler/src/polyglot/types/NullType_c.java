@@ -15,6 +15,8 @@ import polyglot.util.InternalCompilerError;
  */
 public class NullType_c extends Type_c implements NullType
 {
+    private static final long serialVersionUID = 7144927187351231117L;
+
     /** Used for deserializing types. */
     protected NullType_c() { }
 

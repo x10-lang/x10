@@ -157,7 +157,7 @@ AddFlags {
     
     @Override
     public void setResolver(Node parent, final TypeCheckPreparer v) {
-    	if (typeRef() instanceof LazyRef) {
+    	if (typeRef() instanceof LazyRef<?>) {
     		LazyRef<Type> r = (LazyRef<Type>) typeRef();
     		TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
     		tc = (TypeChecker) tc.context(v.context().freeze());

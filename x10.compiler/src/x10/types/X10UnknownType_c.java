@@ -27,6 +27,8 @@ import polyglot.util.InternalCompilerError;
  *
  */
 public class X10UnknownType_c extends UnknownType_c  {
+	private static final long serialVersionUID = 3589624600892810259L;
+
 	protected X10UnknownType_c() {}
 
 	public X10UnknownType_c(TypeSystem ts) { super(ts); }

@@ -608,7 +608,7 @@ public class X10TypeMixin {
 	        X10ClassType ct = (X10ClassType) t;
 	        return ct.properties();
 	    }
-	    return Collections.EMPTY_LIST;
+	    return Collections.<FieldInstance>emptyList();
 	}
 	
 	/**
@@ -724,7 +724,7 @@ public class X10TypeMixin {
 	    else {
 	        // try self.p()
 	            try {
-	                X10MethodInstance mi = xts.findMethod(t, xts.MethodMatcher(t, propName, Collections.EMPTY_LIST, xts.emptyContext()));
+	                X10MethodInstance mi = xts.findMethod(t, xts.MethodMatcher(t, propName, Collections.<Type>emptyList(), xts.emptyContext()));
 	                XTerm body = mi.body();
 	                CConstraint c = new CConstraint();
 	                body = body.subst(c.self(), mi.x10Def().thisVar());
@@ -1115,8 +1115,8 @@ then we substitute 0/false/null in all the constraints in C and if they all eval
 	public static boolean moreSpecificImpl(ProcedureInstance<?> p1, ProcedureInstance<?> p2, Context context) {
 	    X10TypeSystem ts = (X10TypeSystem) p1.typeSystem();
 	
-	    Type t1 = p1 instanceof MemberInstance ? ((MemberInstance) p1).container() : null;
-	    Type t2 = p2 instanceof MemberInstance ? ((MemberInstance) p2).container() : null;
+	    Type t1 = p1 instanceof MemberInstance<?> ? ((MemberInstance<?>) p1).container() : null;
+	    Type t2 = p2 instanceof MemberInstance<?> ? ((MemberInstance<?>) p2).container() : null;
 	
 	    if (t1 != null && t2 != null) {
 	        t1 = baseType(t1);
@@ -1125,8 +1125,8 @@ then we substitute 0/false/null in all the constraints in C and if they all eval
 	
 	    boolean descends = t1 != null && t2 != null && ts.descendsFrom(ts.classDefOf(t1), ts.classDefOf(t2));
 	
-	    Flags flags1 = p1 instanceof MemberInstance ? ((MemberInstance) p1).flags() : Flags.NONE;
-	    Flags flags2 = p2 instanceof MemberInstance ? ((MemberInstance) p2).flags() : Flags.NONE;
+	    Flags flags1 = p1 instanceof MemberInstance<?> ? ((MemberInstance<?>) p1).flags() : Flags.NONE;
+	    Flags flags2 = p2 instanceof MemberInstance<?> ? ((MemberInstance<?>) p2).flags() : Flags.NONE;
 	
 	    // A static method in a subclass is always more specific.
 	    // Note: this rule differs from Java but avoids an anomaly with conversion methods.

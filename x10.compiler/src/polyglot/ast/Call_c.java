@@ -67,13 +67,17 @@ public class Call_c extends Expr_c implements Call
       return n;
   }
 
-  public ProcedureInstance procedureInstance() {
+  public MethodInstance procedureInstance() {
       return methodInstance();
   }
 
   /** Get the method instance of the call. */
   public MethodInstance methodInstance() {
     return this.mi;
+  }
+
+  public Call procedureInstance(ProcedureInstance<? extends ProcedureDef> pi) {
+      return methodInstance((MethodInstance) pi);
   }
 
   /** Set the method instance of the call. */
@@ -104,7 +108,7 @@ public class Call_c extends Expr_c implements Call
   }
 
   /** Set the actual arguments of the call. */
-  public ProcedureCall arguments(List<Expr> arguments) {
+  public Call arguments(List<Expr> arguments) {
     Call_c n = (Call_c) copy();
     n.arguments = TypedList.copyAndCheck(arguments, Expr.class, true);
     return n;
@@ -253,8 +257,8 @@ public class Call_c extends Expr_c implements Call
           return mi.container();
       }
 
-      Iterator i = this.arguments.iterator();
-      Iterator j = mi.formalTypes().iterator();
+      Iterator<Expr> i = this.arguments.iterator();
+      Iterator<Type> j = mi.formalTypes().iterator();
 
       while (i.hasNext() && j.hasNext()) {
           Expr e = (Expr) i.next();
@@ -276,7 +280,7 @@ public class Call_c extends Expr_c implements Call
 
     int count = 0;
 
-    for (Iterator i = arguments.iterator(); i.hasNext(); ) {
+    for (Iterator<Expr> i = arguments.iterator(); i.hasNext(); ) {
         if (count++ > 2) {
             sb.append("...");
             break;

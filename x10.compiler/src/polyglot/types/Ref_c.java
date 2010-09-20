@@ -4,6 +4,8 @@ package polyglot.types;
 
 /** Reference to a type object. */
 public class Ref_c<T extends TypeObject> extends TypeObject_c implements Ref<T> {
+    private static final long serialVersionUID = -794358517607166940L;
+
     T v;
     
     public Ref_c(T v) {

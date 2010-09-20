@@ -18,18 +18,16 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.ArrayList;
 
-
-
 /**
  * This class is from the internet to deep-copy a serializable object
  */
 public class OutputUtil {
+    public static int PLACE_NUMBER=16;
     /**
      * Returns a copy of the object, or null if the object cannot be serialized.
      */
-    public static int PLACE_NUMBER=16;
-    public static Object copy(Object orig) {
-	Object obj = null;
+    public static <T> T deepCopy(T orig) {
+	T obj = null;
 	try {
 	    // Write the object out to a byte array
 	    ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -42,7 +40,7 @@ public class OutputUtil {
 	    // a copy of the object back in.
 	    ObjectInputStream in = new ObjectInputStream(
 		    new ByteArrayInputStream(bos.toByteArray()));
-	    obj = in.readObject();
+	    obj = OutputUtil.<T>readObjectGeneric(in);
 	} catch (IOException e) {
 	    e.printStackTrace();
 	} catch (ClassNotFoundException cnfe) {
@@ -51,8 +49,12 @@ public class OutputUtil {
 	return obj;
     }
 
+    @SuppressWarnings("unchecked") // Casting to a generic type parameter
+    public static <T> T readObjectGeneric(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        return (T) in.readObject();
+    }
 
-    
+
     private static class PlotRecord{
 	long root;
 	long remote;

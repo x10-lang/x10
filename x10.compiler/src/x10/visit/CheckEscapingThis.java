@@ -6,6 +6,8 @@ import polyglot.util.Position;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.DataFlow;
 import polyglot.visit.FlowGraph;
+import polyglot.visit.DataFlow.Item;
+import polyglot.visit.FlowGraph.EdgeKey;
 import polyglot.frontend.Job;
 import polyglot.types.Type;
 import polyglot.types.FieldDef;
@@ -100,10 +102,10 @@ public class CheckEscapingThis extends NodeVisitor
         protected Item createInitialItem(FlowGraph graph, Term node, boolean entry) {
             return isCtor() ? CTOR_INIT : INIT;
         }
-        protected Item confluence(List items, List itemKeys,
+        protected Item confluence(List<Item> items, List<EdgeKey> itemKeys,
             Term node, boolean entry, FlowGraph graph) {
             if (node instanceof ProcedureDecl) {
-                List filtered = filterItemsNonException(items, itemKeys);
+                List<Item> filtered = filterItemsNonException(items, itemKeys);
                 if (filtered.isEmpty()) {
                     return INIT;
                 }
@@ -116,7 +118,7 @@ public class CheckEscapingThis extends NodeVisitor
             }
             return confluence(items, node, entry, graph);
         }
-        protected Item confluence(List items, Term node, boolean entry, FlowGraph graph) {
+        protected Item confluence(List<Item> items, Term node, boolean entry, FlowGraph graph) {
             //if (items.size()==0) return INIT;
             //if (items.size()==1) return (DataFlowItem)items.get(0);
             assert items.size()>=2;
@@ -146,12 +148,12 @@ public class CheckEscapingThis extends NodeVisitor
             return super.initGraph(code,root);
         }
 
-        protected Map flow(List inItems, List inItemKeys, FlowGraph graph,
-                Term n, boolean entry, Set edgeKeys) {
+        protected Map<EdgeKey, Item> flow(List<Item> inItems, List<EdgeKey> inItemKeys, FlowGraph graph,
+                Term n, boolean entry, Set<EdgeKey> edgeKeys) {
             return this.flowToBooleanFlow(inItems, inItemKeys, graph, n, entry, edgeKeys);
         }
-        public Map flow(Item trueItem, Item falseItem, Item otherItem,
-                    FlowGraph graph, Term n, boolean entry, Set succEdgeKeys) {
+        public Map<EdgeKey, Item> flow(Item trueItem, Item falseItem, Item otherItem,
+                    FlowGraph graph, Term n, boolean entry, Set<EdgeKey> succEdgeKeys) {
             final DataFlowItem inItem = (DataFlowItem) safeConfluence(trueItem, FlowGraph.EDGE_KEY_TRUE,
                                          falseItem, FlowGraph.EDGE_KEY_FALSE,
                                          otherItem, FlowGraph.EDGE_KEY_OTHER,
@@ -206,7 +208,7 @@ public class CheckEscapingThis extends NodeVisitor
                 }
             } else if (n instanceof Expr && ((Expr)n).type().isBoolean() &&
                     (n instanceof Binary || n instanceof Unary)) {
-                final Map map = flowBooleanConditions(trueItem, falseItem, inItem, graph, (Expr) n, succEdgeKeys);
+                final Map<EdgeKey, Item> map = flowBooleanConditions(trueItem, falseItem, inItem, graph, (Expr) n, succEdgeKeys);
                 if (map!=null) return map;
             } else if (n instanceof ParExpr && ((ParExpr)n).type().isBoolean()) {
                 return itemsToMap(trueItem, falseItem, inItem, succEdgeKeys);
@@ -241,7 +243,7 @@ public class CheckEscapingThis extends NodeVisitor
         private boolean isCtor() { return currDecl instanceof ConstructorDecl; }
 
         @Override
-        protected void check(FlowGraph graph, Term n, boolean entry, Item inItem, Map outItems) {
+        protected void check(FlowGraph graph, Term n, boolean entry, Item inItem, Map<EdgeKey, Item> outItems) {
             DataFlowItem dfIn = (DataFlowItem)inItem;
             if (dfIn == null) dfIn = INIT;
             if (n == graph.root() && !entry) {

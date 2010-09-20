@@ -21,6 +21,8 @@ import polyglot.util.*;
  **/
 public class ParsedClassType_c extends ClassType_c implements ParsedClassType
 {
+    private static final long serialVersionUID = 8011708450784948917L;
+
     protected ParsedClassType_c() {
 	super();
     }

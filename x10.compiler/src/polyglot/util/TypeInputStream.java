@@ -18,12 +18,12 @@ import java.io.*;
 /** Input stream for reading type objects. */
 public class TypeInputStream extends ObjectInputStream {
     protected TypeSystem ts;
-    protected Map cache;
+    protected Map<Object, Object> cache;
     protected boolean failed;
     protected boolean enableReplace;
-    protected Set placeHoldersUsed;
+    protected Set<Object> placeHoldersUsed;
     
-    public TypeInputStream(InputStream in, TypeSystem ts, Map cache)
+    public TypeInputStream(InputStream in, TypeSystem ts, Map<Object, Object> cache)
         throws IOException
     {
         super(in);
@@ -34,10 +34,10 @@ public class TypeInputStream extends ObjectInputStream {
         this.cache = cache;
         this.failed = false;
         this.enableReplace = true;
-        this.placeHoldersUsed = new HashSet();
+        this.placeHoldersUsed = new HashSet<Object>();
     }
     
-    public Set placeHoldersUsed() {
+    public Set<Object> placeHoldersUsed() {
         return placeHoldersUsed;
     }
 

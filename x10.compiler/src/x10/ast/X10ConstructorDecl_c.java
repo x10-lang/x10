@@ -279,7 +279,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
     /** Visit the children of the method. */
     public Node visitSignature(NodeVisitor v) {
     	X10ConstructorDecl_c result = (X10ConstructorDecl_c) super.visitSignature(v);
-        List<TypeParamNode> typeParams = (List<TypeParamNode>) visitList(result.typeParameters, v);
+        List<TypeParamNode> typeParams = visitList(result.typeParameters, v);
         if (! CollectionUtil.allEqual(typeParams, result.typeParameters))
             result = (X10ConstructorDecl_c) result.typeParameters(typeParams);
     	TypeNode returnType = (TypeNode) visitChild(result.returnType, v);
@@ -540,8 +540,8 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
 
         w.begin(0);
 
-        for (Iterator i = formals.iterator(); i.hasNext(); ) {
-            Formal f = (Formal) i.next();
+        for (Iterator<Formal> i = formals.iterator(); i.hasNext(); ) {
+            Formal f = i.next();
             print(f, w, tr);
 
             if (i.hasNext()) {
@@ -557,8 +557,8 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
             w.allowBreak(6);
             w.write("throws ");
 
-            for (Iterator i = throwTypes().iterator(); i.hasNext(); ) {
-                TypeNode tn = (TypeNode) i.next();
+            for (Iterator<TypeNode> i = throwTypes().iterator(); i.hasNext(); ) {
+                TypeNode tn = i.next();
                 print(tn, w, tr);
 
                 if (i.hasNext()) {

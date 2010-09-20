@@ -393,8 +393,8 @@ public class Options {
                           "topic at specified verbosity");
 
         StringBuffer allowedTopics = new StringBuffer("Allowed topics: ");
-        for (Iterator iter = Report.topics.iterator(); iter.hasNext(); ) {
-            allowedTopics.append(iter.next().toString());
+        for (Iterator<String> iter = Report.topics.iterator(); iter.hasNext(); ) {
+            allowedTopics.append(iter.next());
             if (iter.hasNext()) {
                 allowedTopics.append(", ");
             }

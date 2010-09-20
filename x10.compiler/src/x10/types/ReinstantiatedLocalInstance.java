@@ -15,7 +15,7 @@ import x10.types.constraints.CConstraint;
  *
  */
 public class ReinstantiatedLocalInstance extends X10LocalInstance_c {
-
+	private static final long serialVersionUID = -4455351212229501992L;
 
 	private final TypeParamSubst typeParamSubst;
 	private final X10LocalInstance li;

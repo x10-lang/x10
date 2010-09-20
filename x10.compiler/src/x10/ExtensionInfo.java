@@ -18,6 +18,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -522,38 +523,50 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        }
 
        static class PrintWeakCallsCount extends AllBarrierGoal {
-    	   ExtensionInfo ext;
-    	   public PrintWeakCallsCount(ExtensionInfo extInfo) {
-    		   super("PrintWeakCallsCount",extInfo.scheduler());
-    		   this.ext = extInfo;
-    	   }
-    	   public Goal prereqForJob(Job job) {
-    			if (scheduler.shouldCompile(job)) {
-    			    return scheduler.End(job);
-    			}
-    			else {
-    			    return new SourceGoal_c("WCCDummyEnd", job) {
-    				public boolean runTask() { return true; }
-    			    }.intern(scheduler);
-    			}
-    	   }
-    	   public boolean runTask() {
-    			Compiler compiler = ext.compiler();
+           private static final long serialVersionUID = 6978580691962888126L;
 
-    			if ((! Configuration.VERBOSE_CALLS) && (! Configuration.STATIC_CALLS)) {
-    				int count = ext.weakCallsCount();
-    				if (count > 0) {
-    					compiler.errorQueue().enqueue(ErrorInfo.WARNING, count + " dynamically checked calls or field accesses, run with -VERBOSE_CALLS for more details.");
-    				}
-    			}
-    			return true;
+           ExtensionInfo ext;
+           public PrintWeakCallsCount(ExtensionInfo extInfo) {
+               super("PrintWeakCallsCount",extInfo.scheduler());
+               this.ext = extInfo;
+           }
+           public Goal prereqForJob(Job job) {
+               if (scheduler.shouldCompile(job)) {
+                   return scheduler.End(job);
+               }
+               else {
+                   return new SourceGoal_c("WCCDummyEnd", job) {
+                       private static final long serialVersionUID = 1L;
+                       public boolean runTask() { return true; }
+                   }.intern(scheduler);
+               }
+           }
+           public boolean runTask() {
+               Compiler compiler = ext.compiler();
 
-    	   }
-
+               if ((! Configuration.VERBOSE_CALLS) && (! Configuration.STATIC_CALLS)) {
+                   int count = ext.weakCallsCount();
+                   if (count > 0) {
+                       compiler.errorQueue().enqueue(ErrorInfo.WARNING, count + " dynamically checked calls or field accesses, run with -VERBOSE_CALLS for more details.");
+                   }
+               }
+               return true;
+           }
        }
-       
+
+       @SuppressWarnings("unchecked")
+       public static <T> T invokeGeneric(Method method) {
+           try {
+               return (T) method.invoke(null);
+           } catch (IllegalArgumentException e) {
+           } catch (IllegalAccessException e) {
+           } catch (InvocationTargetException e) {
+           }
+           return null;
+       }
        public Goal IRBarrier(final Goal goal, final Method method, final boolean finishAsync) {
            return new AllBarrierGoal("IRBarrier", this) {
+               private static final long serialVersionUID = -3692329571101709400L;
                @Override
                public Goal prereqForJob(Job job) {
                    if (!scheduler.commandLineJobs().contains(job) &&
@@ -563,9 +576,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                    return goal;
                }
                public boolean runTask() {
-                   try {
-                	   calltable = (HashMap<CallTableKey, LinkedList<CallTableVal>>) method.invoke(null);
-                   } catch (Throwable t) {}
+                   calltable = X10Scheduler.<HashMap<CallTableKey, LinkedList<CallTableVal>>>invokeGeneric(method);
                    return true;
                }
            }.intern(this);
@@ -575,23 +586,25 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            String name = "TypeCheckBarrier";
     	   if (Globals.Options().compile_command_line_only) {
                return new BarrierGoal(name, commandLineJobs()) {
-    			   @Override
-    			   public Goal prereqForJob(Job job) {
+                   private static final long serialVersionUID = -1495893515710977644L;
+                   @Override
+                   public Goal prereqForJob(Job job) {
                        return CheckASTForErrors(job);
-    			   }
+                   }
                }.intern(this);
     	   }
     	   else {
                return new AllBarrierGoal(name, this) {
-    		    	@Override
-    		    	public Goal prereqForJob(Job job) {
-    		    	    if (!scheduler.commandLineJobs().contains(job) &&
-    		    	            ((ExtensionInfo) extInfo).manifestContains(job.source().path()))
-    		    	    {
-    		    	        return null;
-    		    	    }
+                   private static final long serialVersionUID = 6757229496093951388L;
+                   @Override
+                   public Goal prereqForJob(Job job) {
+                       if (!scheduler.commandLineJobs().contains(job) &&
+                               ((ExtensionInfo) extInfo).manifestContains(job.source().path()))
+                       {
+                           return null;
+                       }
                        return CheckASTForErrors(job);
-    		    	}
+                   }
                }.intern(this);
     	    }
        }
@@ -604,6 +617,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            String name = "CodeGenBarrier";
            if (Globals.Options().compile_command_line_only) {
                return new BarrierGoal(name, commandLineJobs()) {
+                   private static final long serialVersionUID = 2258041064037983928L;
                    @Override
                    public Goal prereqForJob(Job job) {
                        return codegenPrereq(job);
@@ -612,6 +626,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            }
            else {
                return new AllBarrierGoal(name, this) {
+                   private static final long serialVersionUID = 4089824072381830523L;
                    @Override
                    public Goal prereqForJob(Job job) {
                        if (!scheduler.commandLineJobs().contains(job) &&
@@ -627,6 +642,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
        public Goal CheckASTForErrors(Job job) {
            return new SourceGoal_c("CheckASTForErrors", job) {
+               private static final long serialVersionUID = 565345690079406384L;
                public boolean runTask() {
                    if (job.reportedErrors()) {
                        Node ast = job.ast();
@@ -643,9 +659,10 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            NodeFactory nf = job.extensionInfo().nodeFactory();
            TargetFactory tf = job.extensionInfo().targetFactory();
            return new SourceGoal_c("Serialized", job) {
-                public boolean runTask() {
+               private static final long serialVersionUID = 4813624372034550114L;
+               public boolean runTask() {
                    return true;
-                }
+               }
            }.intern(this);
        }
 
@@ -692,6 +709,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        }
 
        public static class ValidatingOutputGoal extends OutputGoal {
+           private static final long serialVersionUID = -7021152686342225925L;
            public ValidatingOutputGoal(Job job, Translator translator) {
                super(job, translator);
            }
@@ -720,6 +738,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        }
 
        static class X10ParserGoal extends ParserGoal {
+           private static final long serialVersionUID = 6811976416160592748L;
            public X10ParserGoal(Compiler compiler, Job job) {
                super(compiler, job);
            }
@@ -807,6 +826,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        }
 
        public static class ValidatingVisitorGoal extends VisitorGoal {
+           private static final long serialVersionUID = 5119557747721488612L;
            public ValidatingVisitorGoal(String name, Job job, NodeVisitor v) {
                super(name, job, v);
            }
@@ -933,13 +953,14 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            NodeFactory nf = extInfo.nodeFactory();
            return new ValidatingVisitorGoal("StaticNestedClassRemover", job, new StaticNestedClassRemover(job, ts, nf)).intern(this);
        }
-       public Goal FinishAsyncBarrier(final Goal goal, final Job job, final Scheduler s){
-    	   
-    	   return new AllBarrierGoal("FinishAsyncBarrier", this) {
+       
+       public Goal FinishAsyncBarrier(final Goal goal, final Job job, final Scheduler s) {
+           return new AllBarrierGoal("FinishAsyncBarrier", this) {
+               private static final long serialVersionUID = -4172220184246138069L;
                @Override
                public Goal prereqForJob(Job job) {
                    //TODO: probably need to also annotation code in "runtime"
-            	   if (!scheduler.commandLineJobs().contains(job) &&
+                   if (!scheduler.commandLineJobs().contains(job) &&
                            ((ExtensionInfo) extInfo).manifestContains(job.source().path())) {
                        return null;
                    }
@@ -956,7 +977,6 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                    return true;
                }
            }.intern(this);
-           
        }
        
        public static class X10Job extends Job {

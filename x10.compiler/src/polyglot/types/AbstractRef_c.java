@@ -5,6 +5,8 @@ import java.io.Serializable;
 import polyglot.frontend.Goal;
 
 public abstract class AbstractRef_c<T> implements Ref<T>, Serializable {
+	private static final long serialVersionUID = -669174456653180408L;
+
 	T value;
 	boolean known;
         

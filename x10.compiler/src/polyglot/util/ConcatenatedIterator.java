@@ -27,6 +27,7 @@ public final class ConcatenatedIterator<T> implements Iterator<T> {
    * Constructs a new ConcatenatedIterator which yields all of the
    * elements of <iter1>, followed by all the elements of <iter2>.
    **/
+  @SuppressWarnings("unchecked") // Generics and arrays don't mix well
   public ConcatenatedIterator(Iterator<? extends T> iter1, Iterator<? extends T> iter2) {
     this(new Iterator[]{iter1, iter2});
   }
@@ -35,8 +36,8 @@ public final class ConcatenatedIterator<T> implements Iterator<T> {
    * Constructs a new ConcatenatedIterator which yields every element, in
    *  order, of every element of the array iters, in order.
    **/
-  public ConcatenatedIterator(Iterator[] iters) {
-    this.backing_iterators = (Iterator[]) iters.clone();
+  public ConcatenatedIterator(Iterator<? extends T>[] iters) {
+    this.backing_iterators = (Iterator<? extends T>[]) iters.clone();
     findNextItem();
   }
 
@@ -44,8 +45,9 @@ public final class ConcatenatedIterator<T> implements Iterator<T> {
    * Constructs a new ConcatenatedIterator which yields every element, in
    * order, of every element of the collection iters, in order.
    **/
+  @SuppressWarnings("unchecked") // Generics and arrays don't mix well
   public ConcatenatedIterator(java.util.Collection<Iterator<? extends T>> iters) {
-    this.backing_iterators = (Iterator[])iters.toArray(new Iterator[0]);
+    this.backing_iterators = (Iterator<? extends T>[])iters.toArray(new Iterator[0]);
     findNextItem();
   }
 
@@ -84,7 +86,7 @@ public final class ConcatenatedIterator<T> implements Iterator<T> {
   //      remaining elements of backing_iterators[index], followed by the
   //      elements of backing_iterators[index+1]...
   protected T next_item;
-  protected Iterator[] backing_iterators;
+  protected Iterator<? extends T>[] backing_iterators;
   protected int index;
 }
 

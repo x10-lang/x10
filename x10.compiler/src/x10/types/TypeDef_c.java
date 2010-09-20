@@ -35,6 +35,8 @@ import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 
 public class TypeDef_c extends Def_c implements TypeDef {
+	private static final long serialVersionUID = -5353460234705168368L;
+
 	protected Ref<? extends StructType> container;
 	protected Flags flags;
 	protected Name name;
@@ -70,7 +72,7 @@ public class TypeDef_c extends Def_c implements TypeDef {
 	List<Ref<? extends Type>> annotations;
 
 	public List<Ref<? extends Type>> defAnnotations() {
-		if (annotations == null) return Collections.EMPTY_LIST;
+		if (annotations == null) return Collections.<Ref<? extends Type>>emptyList();
 		return Collections.unmodifiableList(annotations);
 	}
 
@@ -241,7 +243,7 @@ public class TypeDef_c extends Def_c implements TypeDef {
 	}
 
 	public List<Ref<? extends Type>> throwTypes() {
-	    return Collections.EMPTY_LIST;
+	    return Collections.<Ref<? extends Type>>emptyList();
 	}
 
 	public CodeInstance<?> asInstance() {

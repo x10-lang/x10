@@ -52,7 +52,7 @@ public class Local_c extends Expr_c implements Local
   }
 
   /** Get the local instance of the local. */
-  public VarInstance varInstance() {
+  public LocalInstance varInstance() {
     return li;
   }
 

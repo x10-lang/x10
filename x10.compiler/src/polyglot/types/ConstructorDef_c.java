@@ -17,9 +17,10 @@ import polyglot.util.Position;
  * A <code>ConstructorInstance</code> contains type information for a
  * constructor.
  */
-public class ConstructorDef_c extends ProcedureDef_c
-                                implements ConstructorDef
+public class ConstructorDef_c extends ProcedureDef_c implements ConstructorDef
 {
+    private static final long serialVersionUID = -6672601102313722506L;
+
     /** Used for deserializing types. */
     protected ConstructorDef_c() { }
 

@@ -10,6 +10,8 @@ package polyglot.util;
 /** Exception thrown when the compiler is confused. */
 public class InternalCompilerError extends RuntimeException
 {
+    private static final long serialVersionUID = -5026712857378351230L;
+
     protected Position pos;
 
     public InternalCompilerError(String msg) {

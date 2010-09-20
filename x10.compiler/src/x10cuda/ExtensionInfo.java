@@ -53,6 +53,7 @@ public class ExtensionInfo extends x10cpp.ExtensionInfo {
         }
         protected Goal PostCompiled() {
             return new PostCompiled(extInfo) {
+                private static final long serialVersionUID = -2238021480659240967L;
                 protected boolean invokePostCompiler(Options options, Compiler compiler, ErrorQueue eq) {
                     if (System.getProperty("x10.postcompile", "TRUE").equals("FALSE"))
                         return true;

@@ -19,6 +19,8 @@ import polyglot.util.Position;
  * file, and recompile it from the source.
  */
 public class BadSerializationException extends SemanticException {
+    private static final long serialVersionUID = -1947303584600782082L;
+
     private String className;
     
     private static String message(String className) {

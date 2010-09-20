@@ -32,7 +32,7 @@ public class ClassDecl_c extends Term_c implements ClassDecl
     protected ClassDef type;
 
     public ClassDecl_c(Position pos, FlagsNode flags, Id name,
-            TypeNode superClass, List interfaces, ClassBody body) {
+            TypeNode superClass, List<TypeNode> interfaces, ClassBody body) {
         super(pos);
         // superClass may be null, interfaces may be empty
         assert(flags != null && name != null && interfaces != null && body != null); 
@@ -343,7 +343,7 @@ public class ClassDecl_c extends Term_c implements ClassDecl
         Ref<? extends Type> superType = thisType.superType();
 
         if (superType != null) {
-            ConstructorCall cc = nf.SuperCall(pos, Collections.EMPTY_LIST);
+            ConstructorCall cc = nf.SuperCall(pos, Collections.<Expr>emptyList());
             block = nf.Block(pos, cc);
         }
         else {
@@ -352,8 +352,8 @@ public class ClassDecl_c extends Term_c implements ClassDecl
 
         ConstructorDecl cd = nf.ConstructorDecl(pos,
                 nf.FlagsNode(pos, Flags.PUBLIC),
-                name, Collections.EMPTY_LIST,
-                Collections.EMPTY_LIST,
+                name, Collections.<Formal>emptyList(),
+                Collections.<TypeNode>emptyList(),
                 block);
         return cd;
     }

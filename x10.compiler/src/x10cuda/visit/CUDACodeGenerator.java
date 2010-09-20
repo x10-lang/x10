@@ -274,7 +274,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
         out.begin(0);
         
         if (ptr) {
-	        for (VarInstance var : context().kernelParams()) {
+	        for (VarInstance<?> var : context().kernelParams()) {
 	            String name = var.name().toString();
 	            if (name.equals(THIS)) {
 	                name = SAVED_THIS;
@@ -284,7 +284,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 	            out.write("__shared__ "+prependCUDAType(var.type(),name) + ";"); out.newline();
 	        }
 	        out.write("if (threadIdx.x==0) {"); out.newline(4); out.begin(0);
-	        for (VarInstance var : context().kernelParams()) {
+	        for (VarInstance<?> var : context().kernelParams()) {
 	            String name = var.name().toString();
 	            if (name.equals(THIS)) {
 	                name = SAVED_THIS;
@@ -317,13 +317,13 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
         out.forceNewline();
     }
 
-    private void generateStruct(String kernel_name, SimpleCodeWriter out, ArrayList<VarInstance> vars) {
+    private void generateStruct(String kernel_name, SimpleCodeWriter out, ArrayList<VarInstance<?>> vars) {
         out.write("struct " + kernel_name + "_env {");
         out.newline(4);
         out.begin(0);
         // emitter.printDeclarationList(out, context(),
         // context().kernelParams());
-        for (VarInstance var : vars) {
+        for (VarInstance<?> var : vars) {
             String name = var.name().toString();
             if (name.equals(THIS)) {
                 name = SAVED_THIS;
@@ -681,9 +681,9 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
             inc.write(make_ref(cnamet)+" __this = "+cnamet+"::"+DESERIALIZE_METHOD+"<"+cnamet+">(__buf);");
             inc.newline();
             
-            ArrayList<VarInstance> env = context().kernelParams();
+            ArrayList<VarInstance<?>> env = context().kernelParams();
 
-            for (VarInstance var : env) {
+            for (VarInstance<?> var : env) {
                 Type t = var.type();
                 String name = var.name().toString();
                 inc.write(Emitter.translateType(t, true)+" "+name);
@@ -718,7 +718,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
             generateStruct("__", inc, context().kernelParams());
             inc.write("___env __env;"); inc.newline();
                         
-            for (VarInstance var : env) {
+            for (VarInstance<?> var : env) {
                 Type t = var.type();
                 String name = var.name().toString();
                 inc.write("__env."+name+" = ");

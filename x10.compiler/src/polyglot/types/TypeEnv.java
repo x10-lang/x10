@@ -66,7 +66,7 @@ public interface TypeEnv extends Copy {
     /**
      * Checks whether the member mi can be accessed from Context "context".
      */
-    public boolean isAccessible(MemberInstance<? extends MemberDef> mi);
+    public boolean isAccessible(MemberInstance<?> mi);
 
     /** True if the class targetClass accessible from the context. */
     public boolean classAccessible(ClassDef targetClass);

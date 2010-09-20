@@ -305,8 +305,8 @@ public class ConstructorDecl_c extends Term_c implements ConstructorDecl
 
         w.begin(0);
 
-        for (Iterator i = formals.iterator(); i.hasNext(); ) {
-            Formal f = (Formal) i.next();
+        for (Iterator<Formal> i = formals.iterator(); i.hasNext(); ) {
+            Formal f = i.next();
             print(f, w, tr);
 
             if (i.hasNext()) {
@@ -322,8 +322,8 @@ public class ConstructorDecl_c extends Term_c implements ConstructorDecl
             w.allowBreak(6);
             w.write("throws ");
 
-            for (Iterator i = throwTypes().iterator(); i.hasNext(); ) {
-                TypeNode tn = (TypeNode) i.next();
+            for (Iterator<TypeNode> i = throwTypes().iterator(); i.hasNext(); ) {
+                TypeNode tn = i.next();
                 print(tn, w, tr);
 
                 if (i.hasNext()) {

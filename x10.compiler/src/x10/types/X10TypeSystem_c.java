@@ -312,7 +312,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
             catch (SemanticException e) {
             }
             try {
-                return this.findTypeDef(t, this.TypeDefMatcher(t, name, Collections.EMPTY_LIST, Collections.EMPTY_LIST, context), context);
+                return this.findTypeDef(t, this.TypeDefMatcher(t, name, Collections.<Type>emptyList(), Collections.<Type>emptyList(), context), context);
             }
             catch (SemanticException e) {
             }
@@ -344,122 +344,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
     public List<MacroType> findAcceptableTypeDefs(Type container, TypeDefMatcher matcher, Context context) throws SemanticException {
         assert_(container);
-
-        SemanticException error = null;
-
-        // The list of acceptable methods. These methods are accessible from
-        // currClass, the method call is valid, and they are not overridden
-        // by an unacceptable method (which can occur with protected methods
-        // only).
-        List<MacroType> acceptable = new ArrayList<MacroType>();
-
-        // A list of unacceptable methods, where the method call is valid, but
-        // the method is not accessible. This list is needed to make sure that
-        // the acceptable methods are not overridden by an unacceptable method.
-        List<MacroType> unacceptable = new ArrayList<MacroType>();
-
-        Set<Type> visitedTypes = new HashSet<Type>();
-
-        LinkedList<Type> typeQueue = new LinkedList<Type>();
-
-        // Get the upper bound of the container.
-        typeQueue.addAll(env(context).upperBounds(container, true));
-
-        while (!typeQueue.isEmpty()) {
-            Type t = typeQueue.removeFirst();
-
-            if (t instanceof X10ParsedClassType) {
-                X10ParsedClassType type = (X10ParsedClassType) t;
-
-                if (visitedTypes.contains(type)) {
-                    continue;
-                }
-
-                visitedTypes.add(type);
-
-                if (Report.should_report(Report.types, 2))
-                    Report.report(2, "Searching type " + type + " for method " + matcher.signature());
-
-                for (Iterator<Type> i = type.typeMembers().iterator(); i.hasNext();) {
-                    Type ti = i.next();
-
-                    if (!(ti instanceof MacroType)) {
-                        continue;
-                    }
-
-                    MacroType mi = (MacroType) ti;
-
-                    if (Report.should_report(Report.types, 3))
-                        Report.report(3, "Trying " + mi);
-
-                    try {
-                        mi = matcher.instantiate(mi);
-
-                        if (mi == null) {
-                            continue;
-                        }
-
-                        if (isAccessible(mi, context)) {
-                            if (Report.should_report(Report.types, 3)) {
-                                Report.report(3, "->acceptable: " + mi + " in " + mi.container());
-                            }
-
-                            acceptable.add(mi);
-                        }
-                        else {
-                            // method call is valid, but the method is
-                            // unacceptable.
-                            unacceptable.add(mi);
-                            if (error == null) {
-                                error = new NoMemberException(NoMemberException.METHOD, "Method " + mi.signature() + " in " + container + " is inaccessible.");
-                            }
-                        }
-
-                        continue;
-                    }
-                    catch (SemanticException e) {
-                    }
-
-                    if (error == null) {
-                        error = new SemanticException("Type definition " + mi.name() + " in " + container + " cannot be instantiated with arguments "
-                                + matcher.argumentString() + ".");
-                    }
-                }
-            }
-
-            if (t instanceof ObjectType) {
-                ObjectType ot = (ObjectType) t;
-
-                if (ot.superClass() != null) {
-                    typeQueue.addLast(ot.superClass());
-                }
-
-                typeQueue.addAll(ot.interfaces());
-            }
-        }
-
-        if (error == null) {
-            error = new SemanticException("No type defintion found in " + container + " for " + matcher.signature() + ".");
-        }
-
-        if (acceptable.size() == 0) {
-            throw error;
-        }
-
-        // remove any types in acceptable that are overridden by an
-        // unacceptable
-        // type.
-        // TODO
-        // for (Iterator<MacroType> i = unacceptable.iterator(); i.hasNext();) {
-        // MacroType mi = i.next();
-        // acceptable.removeAll(mi.overrides());
-        // }
-
-        if (acceptable.size() == 0) {
-            throw error;
-        }
-
-        return acceptable;
+        return env(context).findAcceptableTypeDefs(container, matcher);
     }
 
     protected static class X10MostSpecificComparator<S extends ProcedureDef, T extends ProcedureInstance<S>> extends MostSpecificComparator<S, T> {
@@ -490,6 +375,28 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     	}
     	return false;
     }
+
+    public static class FilteringMatcher<T, U extends T> implements Matcher<U> {
+        private Matcher<T> matcher;
+        private Class<U> filter;
+        public FilteringMatcher(Matcher<T> matcher, Class<U> filter) {
+            this.matcher = matcher;
+            this.filter = filter;
+        }
+        @SuppressWarnings("unchecked") // Casting to a generic type argument
+        public U instantiate(U matched) throws SemanticException {
+            if (filter.isInstance(matched)) {
+                T result = matcher.instantiate(matched);
+                if (filter.isInstance(result)) {
+                    return (U) result;
+                }
+            }
+            return null;
+        }
+        public java.lang.Object key() { return matcher.key(); }
+        public Name name() { return matcher.name(); }
+        public java.lang.String signature() { return matcher.signature(); }
+    }
     public MacroType findTypeDef(Type container, TypeDefMatcher matcher, Context context) throws SemanticException {
         List<MacroType> acceptable = findAcceptableTypeDefs(container, matcher, context);
 
@@ -497,11 +404,13 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
             throw new SemanticException("No valid type definition found for " + matcher.signature() + " in " + container + ".");
         }
 
-        Collection<MacroType> maximal = findMostSpecificProcedures(acceptable, (Matcher) matcher, context);
+        Collection<MacroType> maximal = findMostSpecificProcedures(acceptable,
+                new FilteringMatcher<Named, MacroType>(matcher, MacroType.class),
+                context);
 
         if (maximal.size() > 1) { // remove references that resolve to the same type.
-        	Collection<Type> reduced = Collections.EMPTY_LIST;
-        	Collection<MacroType> max2 = Collections.EMPTY_LIST;
+        	Collection<Type> reduced = Collections.<Type>emptyList();
+        	Collection<MacroType> max2 = Collections.<MacroType>emptyList();
         	for (MacroType mt : maximal) {
         		Type expanded = X10TypeMixin.baseType(mt);
         		if (! reduced.contains(expanded)) {
@@ -728,9 +637,9 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
             formalNames.add(localDef(pos, Flags.FINAL, Types.ref(t), Name.make("p"+(++i))));
         }
         XVar thisVar = XTerms.makeEQV();
-        List<Ref<? extends Type>> excTypes = Collections.emptyList();
+        List<Ref<? extends Type>> excTypes = Collections.<Ref<? extends Type>>emptyList();
         X10MethodDef md = (X10MethodDef) methodDef(pos, Types.ref(container), flags,
-                                                   Types.ref(returnType), name, Collections.EMPTY_LIST,
+                                                   Types.ref(returnType), name, Collections.<ParameterType>emptyList(),
                                                    args, thisVar, formalNames, null, null, excTypes, null, null);
         List<ParameterType> typeParams = new ArrayList<ParameterType>();
         i = 0;
@@ -806,7 +715,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
     public List<FunctionType> getFunctionSupertypes(Type t, X10Context context) {
         if (t == null)
-            return Collections.EMPTY_LIST;
+            return Collections.<FunctionType>emptyList();
 
         List<FunctionType> l = new ArrayList<FunctionType>();
 
@@ -1070,7 +979,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     
 
     // set up null thisVar for method def's, so the outer contexts are searched for thisVar.
-    return methodDef(pos, container, flags, returnType, name, Collections.EMPTY_LIST, argTypes, 
+    return methodDef(pos, container, flags, returnType, name, Collections.<ParameterType>emptyList(), argTypes, 
     		name.toString().contains(DUMMY_ASYNC) ? null : thisVar, dummyLocalDefs(argTypes), null, null, excTypes, offerType,
                      null);
     	
@@ -1121,7 +1030,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     	// Need to create a new one on each call. Portions of this methodDef, such as thisVar may be destructively modified later.
                 return methodDef(Position.COMPILER_GENERATED, Types.ref((StructType) Runtime()), isStatic ? Public().Static() : Public(),
                 		Types.ref(VOID_),
-                		Name.make(DUMMY_ASYNC), Collections.EMPTY_LIST, Collections.EMPTY_LIST);
+                		Name.make(DUMMY_ASYNC), Collections.<Ref<? extends Type>>emptyList(), Collections.<Ref<? extends Type>>emptyList());
     }
 
     public ClosureDef closureDef(Position p, Ref<? extends ClassType> typeContainer, Ref<? extends CodeInstance<?>> methodContainer,
@@ -1174,6 +1083,8 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     // public Type ULong() { return ULONG_; }
 
     static class Void extends X10PrimitiveType_c {
+        private static final long serialVersionUID = -1026975473924276266L;
+
         public Void(X10TypeSystem ts) {
             super(ts, Name.make("Void"));
         }

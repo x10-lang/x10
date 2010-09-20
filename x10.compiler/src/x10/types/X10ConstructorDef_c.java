@@ -43,6 +43,8 @@ import x10.types.constraints.TypeConstraint;
  *
  */
 public class X10ConstructorDef_c extends ConstructorDef_c implements X10ConstructorDef {
+    private static final long serialVersionUID = -8014698525564801656L;
+
     Ref<? extends ClassType> returnType;
     protected Ref<CConstraint> supClause;
     protected Ref<CConstraint> guard;

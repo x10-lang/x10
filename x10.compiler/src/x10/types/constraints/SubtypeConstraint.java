@@ -24,6 +24,7 @@ import x10.constraint.XTerm;
 import x10.types.matcher.Subst;
 
 public class SubtypeConstraint implements Copy, Serializable {
+	private static final long serialVersionUID = 4026637095619421750L;
 
 	public static int SUBTYPE_KIND=0; // <:
 	public static int EQUAL_KIND =1;  // ==

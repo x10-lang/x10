@@ -17,6 +17,8 @@ import polyglot.util.Position;
  * error may be detected.
  */
 public class SemanticException extends Exception {
+    private static final long serialVersionUID = -7523638195883713606L;
+
     protected Position position;
     Map<String, Object> attributes;
 

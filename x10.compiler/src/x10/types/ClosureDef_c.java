@@ -34,6 +34,7 @@ import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
 
 public class ClosureDef_c extends Def_c implements ClosureDef {
+    private static final long serialVersionUID = -9082180217851254169L;
 
     protected Ref<? extends CodeInstance<?>> methodContainer;
     protected Ref<? extends ClassType> typeContainer;

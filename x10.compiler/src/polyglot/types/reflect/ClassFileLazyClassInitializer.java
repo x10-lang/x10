@@ -37,7 +37,7 @@ public class ClassFileLazyClassInitializer {
     protected boolean methodsInitialized;
     protected boolean superclassInitialized;
 
-    protected static Collection verbose = ClassFileLoader.verbose;
+    protected static Collection<String> verbose = ClassFileLoader.verbose;
 
     public ClassFileLazyClassInitializer(ClassFile file, TypeSystem ts) {
         this.clazz = file;

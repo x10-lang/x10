@@ -3,9 +3,11 @@ package polyglot.types;
 import polyglot.util.Position;
 
 public class Use_c<T extends Def> extends TypeObject_c implements Use<T> {
-   protected Ref<? extends T> def;
+    private static final long serialVersionUID = -6571291950402711547L;
 
-   public Use_c(TypeSystem ts, Position pos, Ref<? extends T> def) {
+    protected Ref<? extends T> def;
+
+    public Use_c(TypeSystem ts, Position pos, Ref<? extends T> def) {
         super(ts, pos);
         this.def = def;
     }

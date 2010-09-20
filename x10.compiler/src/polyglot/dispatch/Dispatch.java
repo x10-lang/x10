@@ -10,24 +10,21 @@ public class Dispatch {
      * Create a dynamic multiple dispatch proxy object. T must be an interface
      * type.
      */
+    @SuppressWarnings("unchecked") // Casting to generic type parameter
     public static <T> T proxy(Class<? super T> c, T target) {
 	return (T) java.lang.reflect.Proxy.newProxyInstance(c.getClassLoader(), new Class[] { c }, new DispatchProxy(target));
     }
 
+    @SuppressWarnings("unchecked") // Casting to generic type parameter
     public static <T> T proxy(T target) {
-	Object p = null;
-	// cache.get(target);
-	if (p == null) {
-	    Class<?> c = target.getClass();
-	    ArrayList<Class<?>> interfaces = new ArrayList<Class<?>>();
-	    for (Class<?> s = c; s != null; s = s.getSuperclass()) {
-		for (Class<?> ci : s.getInterfaces()) {
-		    interfaces.add(ci);
-		}
+	Class<?> c = target.getClass();
+	ArrayList<Class<?>> interfaces = new ArrayList<Class<?>>();
+	for (Class<?> s = c; s != null; s = s.getSuperclass()) {
+	    for (Class<?> ci : s.getInterfaces()) {
+		interfaces.add(ci);
 	    }
-	    p = java.lang.reflect.Proxy.newProxyInstance(c.getClassLoader(), interfaces.toArray(new Class[0]), new DispatchProxy(target));
-	    // cache.put(p, target);
 	}
+	Object p = java.lang.reflect.Proxy.newProxyInstance(c.getClassLoader(), interfaces.toArray(new Class[0]), new DispatchProxy<T>(target));
 	return (T) p;
     }
 
@@ -38,7 +35,7 @@ public class Dispatch {
 	    this.target = target;
 	}
 
-	static private boolean compatible(Class[] actuals, Class[] formals) {
+	static private boolean compatible(Class<?>[] actuals, Class<?>[] formals) {
 	    if (actuals.length != formals.length)
 		return false;
 	    for (int i = 0; i < actuals.length; i++) {
@@ -52,7 +49,7 @@ public class Dispatch {
 	    return true;
 	}
 
-	static private void findMethods(Class<?> c, String name, Class retType, Class[] argTypes, List<Method> matched) throws NoSuchMethodException {
+	static private void findMethods(Class<?> c, String name, Class<?> retType, Class<?>[] argTypes, List<Method> matched) throws NoSuchMethodException {
 	    if (c == null)
 		return;
 
@@ -84,8 +81,8 @@ public class Dispatch {
 	    if (0 < m1.getParameterTypes().length) {
 		{
 		    int i = 0;
-		    Class t1 = m1.getParameterTypes()[i];
-		    Class t2 = m2.getParameterTypes()[i];
+		    Class<?> t1 = m1.getParameterTypes()[i];
+		    Class<?> t2 = m2.getParameterTypes()[i];
 		    if (t1.equals(t2))
 			r = Result.EQUAL;
 		    else if (t2.isAssignableFrom(t1))
@@ -97,8 +94,8 @@ public class Dispatch {
 		}
 
 		for (int i = 1; i < m1.getParameterTypes().length && r != Result.INCOMPARABLE; i++) {
-		    Class t1 = m1.getParameterTypes()[i];
-		    Class t2 = m2.getParameterTypes()[i];
+		    Class<?> t1 = m1.getParameterTypes()[i];
+		    Class<?> t2 = m2.getParameterTypes()[i];
 		    if (t1.equals(t2))
 			; // no change
 		    else if (t2.isAssignableFrom(t1))
@@ -124,7 +121,7 @@ public class Dispatch {
 	    return Result.EQUAL;
 	}
 
-	private static Method findMethod(Class<?> c, String name, Class<?> retType, Class[] argTypes) throws NoSuchMethodException {
+	private static Method findMethod(Class<?> c, String name, Class<?> retType, Class<?>[] argTypes) throws NoSuchMethodException {
 	    List<Method> matched = new ArrayList<Method>(1);
 	    findMethods(c, name, retType, argTypes, matched);
 	    if (matched.isEmpty())
@@ -155,7 +152,7 @@ public class Dispatch {
 
 	    args = flatten(args);
 
-	    Class[] argTypes = new Class[args.length];
+	    Class<?>[] argTypes = new Class<?>[args.length];
 	    for (int i = 0; i < args.length; i++) {
 		argTypes[i] = args[i] != null ? args[i].getClass() : null;
 	    }

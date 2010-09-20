@@ -14,9 +14,8 @@ import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 
 public final class ReinstantiatedConstructorInstance extends X10ConstructorInstance_c {
-	/**
-	 * 
-	 */
+	private static final long serialVersionUID = -8401371385252808432L;
+
 	private final TypeParamSubst typeParamSubst;
 	private final X10ConstructorInstance fi;
 

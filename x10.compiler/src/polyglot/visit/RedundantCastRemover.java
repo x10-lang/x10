@@ -35,7 +35,7 @@ public class RedundantCastRemover extends NodeVisitor {
             Type castType = c.castType().type();
             Type exprType = c.expr().type();
             Context context = castType.typeSystem().emptyContext();
-	    if (exprType.isImplicitCastValid(castType, context)) {
+            if (exprType.isImplicitCastValid(castType, context)) {
                 // Redundant cast.
                 return c.expr();
             }
@@ -47,13 +47,13 @@ public class RedundantCastRemover extends NodeVisitor {
         if (n instanceof ProcedureCall) {
             ProcedureCall newCall = (ProcedureCall) n;
             ProcedureCall oldCall = (ProcedureCall) old;
-            List newArgs = new ArrayList(newCall.arguments().size());
+            List<Expr> newArgs = new ArrayList<Expr>(newCall.arguments().size());
             boolean changed = false;
-            Iterator i = newCall.arguments().iterator();
-            Iterator j = oldCall.arguments().iterator();
+            Iterator<Expr> i = newCall.arguments().iterator();
+            Iterator<Expr> j = oldCall.arguments().iterator();
             while (i.hasNext() && j.hasNext()) {
-                Expr newE = (Expr) i.next();
-                Expr oldE = (Expr) j.next();
+                Expr newE = i.next();
+                Expr oldE = j.next();
                 if (oldE instanceof Cast) {
                     newArgs.add(oldE);
                     changed = true;

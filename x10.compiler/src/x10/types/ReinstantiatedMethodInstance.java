@@ -11,9 +11,8 @@ import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 
 final class ReinstantiatedMethodInstance extends X10MethodInstance_c {
-	/**
-	 * 
-	 */
+	private static final long serialVersionUID = -1235025903277125182L;
+
 	private final TypeParamSubst typeParamSubst;
 	private final X10MethodInstance fi;
 

@@ -21,7 +21,6 @@ import java.util.List;
  * @author vijay
  *
  */
-@SuppressWarnings("serial")
 public class XFormula extends XTerm {
 	    public final XName op;
 	    public final XName asExprOp;

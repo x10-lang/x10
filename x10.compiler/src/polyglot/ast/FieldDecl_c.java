@@ -236,32 +236,33 @@ public class FieldDecl_c extends Term_c implements FieldDecl {
     public void setResolver(final Node parent, TypeCheckPreparer v) {
     	final FieldDef def = fieldDef();
     	Ref<ConstantValue> rx = def.constantValueRef();
-    	if (rx instanceof LazyRef) {
+    	if (rx instanceof LazyRef<?>) {
     		LazyRef<ConstantValue> r = (LazyRef<ConstantValue>) rx;
     		  TypeChecker tc0 = new TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
     		  final TypeChecker tc = (TypeChecker) tc0.context(v.context().freeze());
     		  final Node n = this;
     		  r.setResolver(new AbstractGoal_c("ConstantValue") {
-    			  public boolean runTask() {
-    				  if (state() == Goal.Status.RUNNING_RECURSIVE || state() == Goal.Status.RUNNING_WILL_FAIL) {
-    					  // The field is not constant if the initializer is recursive.
-    					  //
-    					  // But, we could be checking if the field is constant for another
-    					  // reference in the same file:
-    					  //
-    					  // m() { use x; }
-    					  // final int x = 1;
-    					  //
-    					  // So this is incorrect.  The goal below needs to be refined to only visit the initializer.
-    					  def.setNotConstant();
-    				  }
-    				  else {
-    					  Node m = parent.visitChild(n, tc);
-    					  tc.job().nodeMemo().put(n, m);
-    					  tc.job().nodeMemo().put(m, m);
-    				  }
-    				  return true;
-    			  }
+    		      private static final long serialVersionUID = 3729582427435523873L;
+    		      public boolean runTask() {
+    		          if (state() == Goal.Status.RUNNING_RECURSIVE || state() == Goal.Status.RUNNING_WILL_FAIL) {
+    		              // The field is not constant if the initializer is recursive.
+    		              //
+    		              // But, we could be checking if the field is constant for another
+    		              // reference in the same file:
+    		              //
+    		              // m() { use x; }
+    		              // final int x = 1;
+    		              //
+    		              // So this is incorrect.  The goal below needs to be refined to only visit the initializer.
+    		              def.setNotConstant();
+    		          }
+    		          else {
+    		              Node m = parent.visitChild(n, tc);
+    		              tc.job().nodeMemo().put(n, m);
+    		              tc.job().nodeMemo().put(m, m);
+    		          }
+    		          return true;
+    		      }
     		  });
     	}
     }

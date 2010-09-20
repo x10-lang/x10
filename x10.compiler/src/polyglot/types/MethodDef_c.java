@@ -17,9 +17,10 @@ import polyglot.util.Position;
  * A <code>MethodInstance</code> represents the type information for a Java
  * method.
  */
-public class MethodDef_c extends ProcedureDef_c
-                                implements MethodDef
+public class MethodDef_c extends ProcedureDef_c implements MethodDef
 {
+    private static final long serialVersionUID = -4600875186109814395L;
+
     protected Name name;
     protected Ref<? extends Type> returnType;
 

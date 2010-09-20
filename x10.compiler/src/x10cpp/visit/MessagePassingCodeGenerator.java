@@ -539,7 +539,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	            X10CPPContext_c context = (X10CPPContext_c) tr.context();
 	            ((X10CPPTranslator)tr).setContext(dec.enterScope(context)); // FIXME
 	            X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
-	            VarInstance ti = xts.localDef(Position.COMPILER_GENERATED, Flags.FINAL,
+	            VarInstance<?> ti = xts.localDef(Position.COMPILER_GENERATED, Flags.FINAL,
 	                    Types.ref(currentClass), Name.make(THIS)).asInstance();
 	            context.addVariable(ti);
 	            Expr init = (Expr) dec.init();
@@ -1745,7 +1745,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		if (dec.body() != null) {
 			if (!flags.isStatic()) {
-				VarInstance ti = xts.localDef(Position.COMPILER_GENERATED, Flags.FINAL,
+				VarInstance<?> ti = xts.localDef(Position.COMPILER_GENERATED, Flags.FINAL,
 						Types.ref(container), Name.make(THIS)).asInstance();
 				context.addVariable(ti);
 			}
@@ -1843,7 +1843,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	    TypeSystem ts = tr.typeSystem();
 
-	    VarInstance ti = ts.localDef(Position.COMPILER_GENERATED, Flags.FINAL,
+	    VarInstance<?> ti = ts.localDef(Position.COMPILER_GENERATED, Flags.FINAL,
 	                                 Types.ref(container), Name.make(THIS)).asInstance();
 	    context.addVariable(ti);
 
@@ -3805,7 +3805,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		try {
 		    mi = xts.findMethod(domainType,
 		                        xts.MethodMatcher(domainType, Name.make("iterator"),
-		                                          Collections.EMPTY_LIST, context));
+		                                          Collections.<Type>emptyList(), context));
 		    assert (mi != null);
 		    assert (mi.returnType().isClass());
 		    List<Type> typeArgs = ((X10ClassType)X10TypeMixin.baseType(mi.returnType())).typeArguments();
@@ -3828,7 +3828,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		boolean needsNullCheck = needsNullCheck(domain);
 		if (mi.container().toClass().flags().isInterface()) {
 		    sw.write(make_ref(REFERENCE_TYPE) + " " + name + " = "+iteratorTypeRef+"(");
-		    invokeInterface(n, domain, Collections.EMPTY_LIST, make_ref(REFERENCE_TYPE), xts.Iterable(form.type().type()), mi, needsNullCheck);
+		    invokeInterface(n, domain, Collections.<Expr>emptyList(), make_ref(REFERENCE_TYPE), xts.Iterable(form.type().type()), mi, needsNullCheck);
 		    sw.write(");"); sw.newline();
 		} else {
 		    sw.write(make_ref(REFERENCE_TYPE) + " " + name + " = (");
@@ -3856,8 +3856,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		sw.write(mangled_non_method_name(form.name().id().toString()));
 		sw.write(" = ((("+REFERENCE_TYPE+"*)("+name+".operator->()))->*("+itableName+"->next))();");
 		sw.newline();
-		for (Iterator li = n.locals().iterator(); li.hasNext(); ) {
-		    Stmt l = (Stmt) li.next();
+		for (Stmt l : n.locals()) {
 		    n.print(l, sw, tr);
 		}
 
@@ -4088,7 +4087,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         inc.write("// captured environment"); inc.newline();
         List<Type> ats = closureDef.annotationsNamed(QName.make("x10.compiler.Ref"));
-        List<VarInstance> refs = new ArrayList<VarInstance>();
+        List<VarInstance<?>> refs = new ArrayList<VarInstance<?>>();
         for (Type at : ats) {
             Expr exp = ((X10ParsedClassType_c) at).propertyInitializer(0);
             if (exp instanceof X10Local_c) {
@@ -4112,7 +4111,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         inc.write(cname+"(");
         for (int i = 0; i < c.variables.size(); i++) {
             if (i > 0) inc.write(", ");
-            VarInstance var = (VarInstance) c.variables.get(i);
+            VarInstance<?> var = (VarInstance<?>) c.variables.get(i);
             String name = var.name().toString();
             if (name.equals(THIS))
                 name = SAVED_THIS;
@@ -4127,7 +4126,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         inc.begin(0);
         // FIXME: factor out this loop
         for (int i = 0 ; i < c.variables.size() ; i++) {
-            VarInstance var = (VarInstance) c.variables.get(i);
+            VarInstance<?> var = (VarInstance<?>) c.variables.get(i);
             String name = var.name().toString();
             if (name.equals(THIS))
                 name = SAVED_THIS;
@@ -4213,7 +4212,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         sw.write(cname+templateArgs+"(");
         for (int i = 0; i < c.variables.size(); i++) {
             if (i > 0) sw.write(", ");
-            VarInstance var = (VarInstance) c.variables.get(i);
+            VarInstance<?> var = (VarInstance<?>) c.variables.get(i);
             String name = var.name().toString();
             if (!name.equals(THIS))
                 name = mangled_non_method_name(name);
@@ -4240,7 +4239,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         // FIXME: factor out this loop
         for (int i = 0; i < c.variables.size(); i++) {
             if (i > 0) inc.newline();
-            VarInstance var = (VarInstance) c.variables.get(i);
+            VarInstance<?> var = (VarInstance<?>) c.variables.get(i);
             String name = var.name().toString();
             if (name.equals(THIS))
                 name = SAVED_THIS;
@@ -4254,7 +4253,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         inc.newline(4); inc.begin(0);
         // FIXME: factor out this loop
         for (int i = 0; i < c.variables.size(); i++) {
-            VarInstance var = (VarInstance) c.variables.get(i);
+            VarInstance<?> var = (VarInstance<?>) c.variables.get(i);
             Type t = var.type();
             String type = Emitter.translateType(t, true);
             String name = var.name().toString();
@@ -4268,7 +4267,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                   cnamet+"(");
         // FIXME: factor out this loop
         for (int i = 0; i < c.variables.size(); i++) {
-            VarInstance var = (VarInstance) c.variables.get(i);
+            VarInstance<?> var = (VarInstance<?>) c.variables.get(i);
             String name = var.name().toString();
             if (name.equals(THIS))
                 name = SAVED_THIS;

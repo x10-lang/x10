@@ -37,8 +37,8 @@ public class TypeEncoder
     protected final boolean zip = true;
     protected final boolean base64 = true;
     protected final boolean test = false;
-    protected Map placeHolderCache;
-    protected Map dependencies;
+    protected Map<Object, Object> placeHolderCache;
+    protected Map<Object, Object> dependencies;
     protected int depth;
     
     public TypeEncoder(TypeSystem ts) {
@@ -139,15 +139,15 @@ public class TypeEncoder
                 b[i] = (byte) source[i];
         }
         
-        Map oldCache = placeHolderCache;
-        placeHolderCache = new HashMap();
+        Map<Object, Object> oldCache = placeHolderCache;
+        placeHolderCache = new HashMap<Object, Object>();
         if (oldCache != null) {
             placeHolderCache.putAll(oldCache);
         }
 
-        Map oldDeps = dependencies;
+        Map<Object, Object> oldDeps = dependencies;
         if (oldDeps == null) {
-            dependencies = new HashMap(); 
+            dependencies = new HashMap<Object, Object>(); 
         }
 
         if (Report.should_report(Report.serialize, 1))

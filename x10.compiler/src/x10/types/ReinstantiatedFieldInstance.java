@@ -11,9 +11,8 @@ import polyglot.util.Position;
 import x10.types.constraints.CConstraint;
 
 final class ReinstantiatedFieldInstance extends X10FieldInstance_c {
-	/**
-	 * 
-	 */
+	private static final long serialVersionUID = 8234625319808346804L;
+
 	private final TypeParamSubst typeParamSubst;
 	private final X10FieldInstance fi;
 

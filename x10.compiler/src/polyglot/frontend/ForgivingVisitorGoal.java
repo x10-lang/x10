@@ -10,6 +10,8 @@ import polyglot.visit.NodeVisitor;
  * @author igor
  */
 public class ForgivingVisitorGoal extends VisitorGoal {
+    private static final long serialVersionUID = -4239390029748390935L;
+
     public ForgivingVisitorGoal(String name, Job job, NodeVisitor v) {
         super(name, job, v);
     }

@@ -13,7 +13,7 @@ import java.util.*;
 public class CollectionUtil
 {
         public static List<String> dummyStringList(int length) {
-            if (length == 0) return Collections.EMPTY_LIST;
+            if (length == 0) return Collections.<String>emptyList();
             if (length == 1) return Collections.singletonList("a1");
             List<String> list = new ArrayList<String>(length);
             for (int i = 0; i < length; i++) {

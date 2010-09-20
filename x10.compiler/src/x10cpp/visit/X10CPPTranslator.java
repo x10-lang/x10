@@ -190,7 +190,7 @@ public class X10CPPTranslator extends Translator {
 		    String key = w.getStreamName(StreamWrapper.CC);
 		    X10CPPContext_c c = (X10CPPContext_c) context;
 		    HashMap<String, LineNumberMap> fileToLineNumberMap =
-		        (HashMap<String, LineNumberMap>) c.findData(FILE_TO_LINE_NUMBER_MAP);
+		        c.<HashMap<String, LineNumberMap>>findData(FILE_TO_LINE_NUMBER_MAP);
 		    if (fileToLineNumberMap != null) {
 		        final LineNumberMap lineNumberMap = fileToLineNumberMap.get(key);
 		        // [DC] avoid NPE when writing to .cu files
@@ -275,8 +275,7 @@ public class X10CPPTranslator extends Translator {
 				c.addData(FILE_TO_LINE_NUMBER_MAP, new HashMap<String, LineNumberMap>());
 
 			// Use the class name to derive a default output file name.
-			for (Iterator i = sfn.decls().iterator(); i.hasNext(); ) {
-				TopLevelDecl decl = (TopLevelDecl) i.next();
+			for (TopLevelDecl decl : sfn.decls()) {
 				if (!(decl instanceof X10ClassDecl))
 					continue;
 				X10ClassDecl cd = (X10ClassDecl) decl;
@@ -337,7 +336,8 @@ public class X10CPPTranslator extends Translator {
 				opts.compilationUnits().add(cc);
 				
 				if (x10.Configuration.DEBUG) {
-					HashMap<String, LineNumberMap> fileToLineNumberMap = (HashMap<String, LineNumberMap>)c.getData(FILE_TO_LINE_NUMBER_MAP);
+					HashMap<String, LineNumberMap> fileToLineNumberMap =
+					    c.<HashMap<String, LineNumberMap>>getData(FILE_TO_LINE_NUMBER_MAP);
 					fileToLineNumberMap.put(closures, new LineNumberMap());
 					fileToLineNumberMap.put(cc, new LineNumberMap());
 					fileToLineNumberMap.put(header, new LineNumberMap());
@@ -346,7 +346,8 @@ public class X10CPPTranslator extends Translator {
 				translateTopLevelDecl(sw, sfn, decl);
 				
 				if (x10.Configuration.DEBUG) {
-					HashMap<String, LineNumberMap> fileToLineNumberMap = (HashMap<String, LineNumberMap>)c.getData(FILE_TO_LINE_NUMBER_MAP);
+					HashMap<String, LineNumberMap> fileToLineNumberMap =
+					    c.<HashMap<String, LineNumberMap>>getData(FILE_TO_LINE_NUMBER_MAP);
 //					sw.pushCurrentStream(sw.getNewStream(StreamWrapper.Closures, false));
 //					printLineNumberMap(sw, pkg, className, StreamWrapper.Closures, fileToLineNumberMap);
 //					sw.popCurrentStream();
@@ -522,8 +523,7 @@ public class X10CPPTranslator extends Translator {
 	private boolean translateSourceCollection(SourceCollection sc) {
 		boolean okay = true;
 
-		for (Iterator i = sc.sources().iterator(); i.hasNext(); ) {
-			SourceFile sfn = (SourceFile) i.next();
+		for (SourceFile sfn : sc.sources()) {
 			okay &= translateSource(sfn);
 		}
 

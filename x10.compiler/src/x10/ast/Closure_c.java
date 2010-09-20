@@ -237,7 +237,6 @@ public class Closure_c extends Expr_c implements Closure {
 	}
 
 	/** Visit the children of the expression. */
-	@SuppressWarnings("unchecked")
 	public Node visitChildren(NodeVisitor v) {
 		//List<TypeParamNode> typeParams = visitList(this.typeParameters, v);
 		List<Formal> formals = visitList(this.formals, v);
@@ -427,7 +426,7 @@ public class Closure_c extends Expr_c implements Closure {
 			NodeFactory nf = tc.nodeFactory();
 			X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 			// Body had no return statement.  Set to void.
-			Ref<Type> tr=((Ref<Type>) n.returnType().typeRef());
+			Ref<Type> tr = ((Ref<Type>) n.returnType().typeRef());
 			Type t = tr.getCached();
 			if (ts.isUnknown(t)) {
 				t = ts.Void();
@@ -540,8 +539,8 @@ public class Closure_c extends Expr_c implements Closure {
 		sb.append("]");
 	}*/
 		sb.append(" (");
-		for(Iterator iter= formals.iterator(); iter.hasNext(); ) {
-			Formal formal= (Formal) iter.next();
+		for(Iterator<Formal> iter = formals.iterator(); iter.hasNext(); ) {
+			Formal formal = iter.next();
 			sb.append(formal.toString());
 			if (iter.hasNext()) sb.append(", ");
 		}
@@ -564,8 +563,8 @@ public class Closure_c extends Expr_c implements Closure {
 		w.write("(");
 		w.allowBreak(2, 2, "", 0);
 		w.begin(0);
-		for (Iterator i = formals.iterator(); i.hasNext(); ) {
-			Formal f = (Formal) i.next();
+		for (Iterator<Formal> i = formals.iterator(); i.hasNext(); ) {
+			Formal f = i.next();
 			print(f, w, tr);
 			if (i.hasNext()) {
 				w.write(",");
@@ -578,8 +577,8 @@ public class Closure_c extends Expr_c implements Closure {
 		if (! throwTypes().isEmpty()) {
 			w.allowBreak(6);
 			w.write("throws ");
-			for (Iterator i = throwTypes().iterator(); i.hasNext(); ) {
-				TypeNode tn = (TypeNode) i.next();
+			for (Iterator<TypeNode> i = throwTypes().iterator(); i.hasNext(); ) {
+				TypeNode tn = i.next();
 				print(tn, w, tr);
 
 				if (i.hasNext()) {

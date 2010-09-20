@@ -121,14 +121,15 @@ public abstract class Scheduler {
     Goal EndAll;
     
     public Goal End(Job job) {
-	    return new SourceGoal_c("End", job) {
-		    public boolean runTask() {
-			    // The job has finished.  Let's remove it from the job map
-			    // so it can be garbage collected, and free up the AST.
-			    completeJob(job);
-			    return true;
-		    }
-	    }.intern(this);
+        return new SourceGoal_c("End", job) {
+            private static final long serialVersionUID = 8093041848879587834L;
+            public boolean runTask() {
+                // The job has finished.  Let's remove it from the job map
+                // so it can be garbage collected, and free up the AST.
+                completeJob(job);
+                return true;
+            }
+        }.intern(this);
     }
     
     Collection<Job> shouldCompile = new LinkedHashSet<Job>();
@@ -270,6 +271,8 @@ public abstract class Scheduler {
     }
     
     protected static class Complete extends RuntimeException {
+        private static final long serialVersionUID = 868126407122946251L;
+
         protected Goal goal;
 
         Complete(Goal goal) {

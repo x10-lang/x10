@@ -185,10 +185,11 @@ public class ClosureInstance_c extends FunctionInstance_c<ClosureDef> implements
     
     public List<LocalInstance> formalNames() {
 	if (this.formalNames == null) {
-	    return new TransformingList(x10Def().formalNames(), new Transformation<LocalDef,LocalInstance>() {
-		public LocalInstance transform(LocalDef o) {
-		    return o.asInstance();
-		}
+	    return new TransformingList<LocalDef, LocalInstance>(x10Def().formalNames(),
+	        new Transformation<LocalDef,LocalInstance>() {
+	            public LocalInstance transform(LocalDef o) {
+	                return o.asInstance();
+	            }
 	    });
 	}
 	

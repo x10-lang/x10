@@ -3,6 +3,7 @@ package polyglot.types;
 import polyglot.util.Position;
 
 public class Def_c extends TypeObject_c {
+    private static final long serialVersionUID = -3949064860322648267L;
 
     public Def_c() { }
     

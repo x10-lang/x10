@@ -158,7 +158,8 @@ public class TypeParamSubst {
 
 	Map<Object,Object> cache = new HashMap<Object, Object>();
 
-	public <T> T reinstantiate(T t) {
+	@SuppressWarnings("unchecked") // Casting to a generic type parameter
+    public <T> T reinstantiate(T t) {
 		if (t == null)
 			return null;
 		Object o = cache.get(t);
@@ -169,7 +170,8 @@ public class TypeParamSubst {
 		return x;
 	}
 
-	private <T> T reinstantiateUncached(T t) {
+	@SuppressWarnings("unchecked") // Casting to a generic type parameter
+    private <T> T reinstantiateUncached(T t) {
 		if (isIdentityInstantiation()) {
 			return t;
 		}

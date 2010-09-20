@@ -41,9 +41,9 @@ public class ClassFile {
     protected File classFileSource;
     protected ExtensionInfo extensionInfo;
     
-    protected Map jlcInfoCache = new HashMap();
+    protected Map<String, JLCInfo> jlcInfoCache = new HashMap<String, JLCInfo>();
    
-    protected static Collection verbose = ClassFileLoader.verbose;
+    protected static Collection<String> verbose = ClassFileLoader.verbose;
   
     /**
      * Constructor.  This constructor parses the class file from the byte array

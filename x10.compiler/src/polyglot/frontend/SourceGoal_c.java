@@ -3,6 +3,8 @@ package polyglot.frontend;
 
 
 public abstract class SourceGoal_c extends AbstractGoal_c implements SourceGoal {
+    private static final long serialVersionUID = -2494790171806247993L;
+
     protected Job job;
 
     public SourceGoal_c(String name, Job job) {

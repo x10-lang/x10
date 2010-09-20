@@ -6,6 +6,7 @@ import polyglot.main.Report;
 import polyglot.util.Position;
 
 public class MethodInstance_c extends FunctionInstance_c<MethodDef> implements MethodInstance {
+    private static final long serialVersionUID = 3883485772306553465L;
 
     public MethodInstance_c(TypeSystem ts, Position pos, Ref<? extends MethodDef> def) {
         super(ts, pos, def);

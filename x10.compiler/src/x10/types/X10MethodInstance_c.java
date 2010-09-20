@@ -61,6 +61,7 @@ import x10.types.matcher.Matcher;
  *
  */
 public class X10MethodInstance_c extends MethodInstance_c implements X10MethodInstance {
+    private static final long serialVersionUID = -2510860168293880632L;
 
     public X10MethodInstance_c(TypeSystem ts, Position pos, Ref<? extends X10MethodDef> def) {
         super(ts, pos, def);
@@ -250,20 +251,6 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
         result = f.isSafe();
         return result;
     }*/
-    protected static String myListToString(List l) {
-        StringBuffer sb = new StringBuffer();
-
-        for (Iterator i = l.iterator(); i.hasNext(); ) {
-            Object o = i.next();
-            sb.append(o.toString());
-
-            if (i.hasNext()) {
-                sb.append(", ");
-            }
-        }
-
-        return sb.toString();
-    }
 
 
     public X10MethodDef x10Def() {

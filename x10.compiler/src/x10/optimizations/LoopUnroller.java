@@ -708,9 +708,9 @@ public class LoopUnroller extends ContextVisitor {
 
         for(int i= 0; i < fUnrollFactor; i++) {
             if (loopVar.vars().size() > 0) {
-                final Map<VarInstance<VarDef>, Expr> subs= new HashMap<VarInstance<VarDef>, Expr>(1);
+                final Map<VarInstance<? extends VarDef>, Expr> subs= new HashMap<VarInstance<? extends VarDef>, Expr>(1);
                 Expr varValue= intLit(i);
-                subs.put((VarInstance) firstDimVar.localDef().asInstance(), plus(local(newLoopVarInit.localDef()), varValue));
+                subs.put((VarInstance<? extends VarDef>) firstDimVar.localDef().asInstance(), plus(local(newLoopVarInit.localDef()), varValue));
                 final Context outer = context();
                 Desugarer.Substitution<Expr> subPerformer= new Desugarer.Substitution<Expr>(Expr.class, null) {
                     protected Expr subst(Expr n) {
@@ -724,7 +724,7 @@ public class LoopUnroller extends ContextVisitor {
                                     throw new IllegalStateException("Inlining failed: unintended name capture for " + l.name().id());
                                 }
                             }
-                            VarInstance li = l.localInstance();
+                            LocalInstance li = l.localInstance();
                             if (subs.containsKey(li)) {
                                 return subs.get(li);
                             }

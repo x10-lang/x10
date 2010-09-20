@@ -14,7 +14,6 @@ package x10.visit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -33,6 +32,7 @@ import polyglot.types.TypeSystem;
 import polyglot.visit.DataFlow;
 import polyglot.visit.FlowGraph;
 import polyglot.visit.DataFlow.Item;
+import polyglot.visit.FlowGraph.EdgeKey;
 import x10.ast.AssignPropertyCall;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorDef;
@@ -135,17 +135,16 @@ public class AssignPropertyChecker extends DataFlow {
 		return i;
 	}
 	
-	public Map flow(Item in, FlowGraph graph, Term n, boolean entry, Set succEdgeKeys) {
+	public Map<EdgeKey, Item> flow(Item in, FlowGraph graph, Term n, boolean entry, Set<EdgeKey> succEdgeKeys) {
 		// If every path from the exit node to the entry goes through a property
 		// assign, we're okay. So make the propAssign bit false at exit and true
 		// at every property assignment; the confluence operation is &&.
 		// We deal with exceptions specially, and assume that any exception
 		// edge to the exit node is OK.
 
-
-                // Only flow from exit.
-                if (entry)
-                    return itemToMap(in, succEdgeKeys);
+	    // Only flow from exit.
+	    if (entry)
+	        return itemToMap(in, succEdgeKeys);
 		
 		DataFlowItem inItem = (DataFlowItem) in;
 		
@@ -156,7 +155,7 @@ public class AssignPropertyChecker extends DataFlow {
 		if (graph.exitPeers().contains(n)) {
 			// Exception edges are assumed to be safe
 			if (needsProperty()) {
-				Map m = itemToMap(createItem(DataFlowItem.DONT_CARE, DataFlowItem.DONT_CARE), succEdgeKeys);
+				Map<EdgeKey, Item> m = itemToMap(createItem(DataFlowItem.DONT_CARE, DataFlowItem.DONT_CARE), succEdgeKeys);
 				if (succEdgeKeys.contains(FlowGraph.EDGE_KEY_OTHER)) {
 					m.put(FlowGraph.EDGE_KEY_OTHER, createItem(DataFlowItem.ZERO, DataFlowItem.ZERO));
 				}
@@ -209,13 +208,12 @@ public class AssignPropertyChecker extends DataFlow {
 //		 return super.confluence(l1, l2, node, graph);
 //	 }
 	 
-	 protected Item confluence(List items, Term node, boolean entry, FlowGraph graph) {
+	 protected Item confluence(List<Item> items, Term node, boolean entry, FlowGraph graph) {
 		// intersect the items
 		int min = DataFlowItem.DONT_CARE;
 		int max = DataFlowItem.DONT_CARE;
-		Iterator i = items.iterator();
-		while (i.hasNext()) {
-			DataFlowItem dfi = (DataFlowItem) i.next();
+		for (Item item : items) {
+			DataFlowItem dfi = (DataFlowItem) item;
 			if (min == DataFlowItem.DONT_CARE || (dfi.min != DataFlowItem.DONT_CARE && dfi.min < min))
 				min = dfi.min;
 			if (max == DataFlowItem.DONT_CARE || (dfi.max != DataFlowItem.DONT_CARE && dfi.max > max))
@@ -224,9 +222,9 @@ public class AssignPropertyChecker extends DataFlow {
 		return createItem(min, max);
 	}
 	
-	public void check(FlowGraph graph, Term n, boolean entry, Item inItem, Map outItems) {
-                if (entry)
-                    return;
+	public void check(FlowGraph graph, Term n, boolean entry, Item inItem, Map<EdgeKey, Item> outItems) {
+	    if (entry)
+	        return;
 
 		// Check that all paths to exit have exactly one property() statement.
 		if (graph.entryPeers().contains(n)) {

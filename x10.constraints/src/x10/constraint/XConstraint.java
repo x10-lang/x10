@@ -917,7 +917,6 @@ public class XConstraint implements Cloneable {
         }
     }
     
-    @SuppressWarnings({ "unchecked"})
 	protected void applySubstitution(XTerm y, XVar x) throws XFailure {
         if (roots == null) {
             // nothing to substitute
@@ -958,7 +957,7 @@ public class XConstraint implements Cloneable {
         // Substitute y for x in the promise terms.
         {
             // Collection<XPromise> rootPs = roots.values();
-            for (Map.Entry<XTerm, XPromise> e : ((Map<XTerm,XPromise>) roots.clone()).entrySet()) {
+            for (Map.Entry<XTerm, XPromise> e : cloneRoots().entrySet()) {
                 if (!e.getKey().equals(p.term())) {
                     XPromise px = e.getValue();
                     XTerm t = px.term();
@@ -1041,6 +1040,11 @@ public class XConstraint implements Cloneable {
             //			}
             //		    }
         }
+    }
+
+    @SuppressWarnings("unchecked") // Casting to a generic type
+    private Map<XTerm, XPromise> cloneRoots() {
+        return ((Map<XTerm,XPromise>) roots.clone());
     }
 
     static XTerm makeField(XTerm target, XName field) {

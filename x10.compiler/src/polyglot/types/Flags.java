@@ -17,6 +17,8 @@ import java.util.*;
  */
 public class Flags implements Serializable
 {
+    private static final long serialVersionUID = -539580723506705467L;
+
     protected Set<String> flags;
 
     protected static class FlagComparator implements Comparator<String> {
@@ -487,9 +489,7 @@ public class Flags implements Serializable
     public String translate() {
         StringBuffer sb = new StringBuffer();
 
-        for (Iterator i = this.flags.iterator(); i.hasNext(); ) {
-            String s = (String) i.next();
-
+        for (String s : this.flags) {
             sb.append(s);
             sb.append(" ");
         }

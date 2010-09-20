@@ -12,11 +12,9 @@ import polyglot.util.Position;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 
-final class ReinstantiatedClosureInstance_c extends
-		ClosureInstance_c {
-	/**
-	 * 
-	 */
+final class ReinstantiatedClosureInstance_c extends ClosureInstance_c {
+	private static final long serialVersionUID = 5526029137687309137L;
+
 	private final TypeParamSubst typeParamSubst;
 	private final ClosureInstance fi;
 

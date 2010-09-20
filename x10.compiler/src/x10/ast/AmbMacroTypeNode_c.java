@@ -129,7 +129,7 @@ public class AmbMacroTypeNode_c extends AmbTypeNode_c implements AmbMacroTypeNod
     
     @Override
     public void setResolver(Node parent, final TypeCheckPreparer v) {
-    	if (typeRef() instanceof LazyRef) {
+    	if (typeRef() instanceof LazyRef<?>) {
     		LazyRef<Type> r = (LazyRef<Type>) typeRef();
     		TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
     		tc = (TypeChecker) tc.context(v.context().freeze());
@@ -139,7 +139,7 @@ public class AmbMacroTypeNode_c extends AmbTypeNode_c implements AmbMacroTypeNod
     public Node visitChildren(NodeVisitor v) {
         Prefix prefix = (Prefix) visitChild(this.prefix, v);
         Id name = (Id) visitChild(this.name, v);
-	List<TypeNode> typeArgs = visitList(this.typeArgs, v);
+        List<TypeNode> typeArgs = visitList(this.typeArgs, v);
         List<Expr> args = visitList(this.args, v);
         return reconstruct(prefix, name, typeArgs, args);
     }
@@ -343,12 +343,12 @@ public class AmbMacroTypeNode_c extends AmbTypeNode_c implements AmbMacroTypeNod
         
         if (t instanceof MacroType) {
             // FIXME: [IP] We are losing the arguments here!
-            n = (AmbMacroTypeNode_c) n.typeArgs(Collections.EMPTY_LIST);
-            n = (AmbMacroTypeNode_c) n.args(Collections.EMPTY_LIST);
+            n = (AmbMacroTypeNode_c) n.typeArgs(Collections.<TypeNode>emptyList());
+            n = (AmbMacroTypeNode_c) n.args(Collections.<Expr>emptyList());
         }
         
-        if (t instanceof X10Use && ((X10Use<? extends X10Def>) t).error() != null) {
-            Errors.issue(tc.job(), ((X10Use<? extends X10Def>) t).error(), n);
+        if (t instanceof X10Use<?> && ((X10Use<?>) t).error() != null) {
+            Errors.issue(tc.job(), ((X10Use<?>) t).error(), n);
         }
 
         if (! typeArgs.isEmpty()) {
@@ -362,8 +362,8 @@ public class AmbMacroTypeNode_c extends AmbTypeNode_c implements AmbMacroTypeNod
         		    typeArgsTypes.add(tni.type());
         		}
         		t = ct.typeArguments(typeArgsTypes);
-        	        n = (AmbMacroTypeNode_c) n.typeArgs(Collections.EMPTY_LIST);
-        	        typeArgs = Collections.EMPTY_LIST;
+        		n = (AmbMacroTypeNode_c) n.typeArgs(Collections.<TypeNode>emptyList());
+        		typeArgs = Collections.<TypeNode>emptyList();
         	    }
         	    else {
         	        throw new SemanticException("Number of type arguments (" + typeArgs.size() + ") for " + ct.fullName() + " is not the same as number of type parameters (" + numParams + ").", n.position());

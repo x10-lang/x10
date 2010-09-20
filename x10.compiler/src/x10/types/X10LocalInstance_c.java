@@ -36,6 +36,7 @@ import x10.types.constraints.CConstraint;
  *
  */
 public class X10LocalInstance_c extends LocalInstance_c implements X10LocalInstance {
+    private static final long serialVersionUID = -2728180556244846992L;
 
     public X10LocalInstance_c(TypeSystem ts, Position pos, Ref<? extends X10LocalDef> def) {
         super(ts, pos, def);

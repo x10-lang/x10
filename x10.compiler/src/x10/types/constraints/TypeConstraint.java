@@ -57,6 +57,7 @@ import polyglot.types.Types;
  *
  */
 public class TypeConstraint implements Copy, Serializable {
+    private static final long serialVersionUID = -6305620393028945867L;
 
     List<SubtypeConstraint> terms;
     boolean consistent;

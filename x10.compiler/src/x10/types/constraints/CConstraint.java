@@ -451,7 +451,7 @@ public class CConstraint extends XConstraint  implements ThisVar {
 	 */
 	public static X10FieldDef getField(XField f) {
 		XName n = f.field();
-		if (n instanceof XNameWrapper) {
+		if (n instanceof XNameWrapper<?>) {
 			XNameWrapper<?> w = (XNameWrapper<?>) n;
 			if (w.val() instanceof X10FieldDef) {
 				return (X10FieldDef) w.val();
@@ -467,7 +467,7 @@ public class CConstraint extends XConstraint  implements ThisVar {
 	 */
 	public static X10LocalDef getLocal(XLocal f) {
 		XName n = f.name();
-		if (n instanceof XNameWrapper) {
+		if (n instanceof XNameWrapper<?>) {
 			XNameWrapper<?> w = (XNameWrapper<?>) n;
 			if (w.val() instanceof X10LocalDef) {
 				return (X10LocalDef) w.val();

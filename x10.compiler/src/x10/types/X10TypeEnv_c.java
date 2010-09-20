@@ -314,7 +314,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
     List<Type> getBoundsFromConstraint(Type pt, TypeConstraint c, Bound dir) {
         if (c == null)
-            return Collections.EMPTY_LIST;
+            return Collections.<Type>emptyList();
         
         List<Type> upper = new ArrayList<Type>();
         List<Type> lower = new ArrayList<Type>();
@@ -354,7 +354,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             return new ArrayList<Type>(equals);
         }
         
-        return Collections.EMPTY_LIST;
+        return Collections.<Type>emptyList();
     }
     
     
@@ -548,7 +548,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             catch (SemanticException e) {
             }
             try {
-                return ts.findTypeDef(t, ts.TypeDefMatcher(t, name, Collections.EMPTY_LIST, Collections.EMPTY_LIST, context), context);
+                return ts.findTypeDef(t, ts.TypeDefMatcher(t, name, Collections.<Type>emptyList(), Collections.<Type>emptyList(), context), context);
             }
             catch (SemanticException e) {
             }
@@ -1008,7 +1008,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             if (0 <= i-1 && i-1 < env.size()) newEnv.addAll(env.subList(0, i-1));
             if (0 <= i+1 && i+1 < env.size()) newEnv.addAll(env.subList(i+1, env.size()));
             //                    newEnv = env;
-            newEnv = Collections.EMPTY_LIST;
+            newEnv = Collections.<SubtypeConstraint>emptyList();
 
             X10Context xc2 = (X10Context) xc.pushBlock();
             TypeConstraint ec = new TypeConstraint();
@@ -1636,7 +1636,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
     /** Return true if t overrides mi */
     public boolean hasFormals(ProcedureInstance<? extends ProcedureDef> pi, List<Type> formalTypes) {
-        return ((ProcedureInstance_c) pi).hasFormals(formalTypes, context);
+        return ((ProcedureInstance_c<?>) pi).hasFormals(formalTypes, context);
     }
 
     public List<MethodInstance> overrides(MethodInstance jmi) {
@@ -1966,7 +1966,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 	    Report.report(2, "Searching type " + container + " for constructor " + matcher.signature());
 
 	if (!(container instanceof ClassType)) {
-	    return Collections.EMPTY_LIST;
+	    return Collections.<ConstructorInstance>emptyList();
 	}
 
 	List<ConstructorInstance> list = ((ClassType) container).constructors();

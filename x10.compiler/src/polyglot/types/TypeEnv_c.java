@@ -316,7 +316,7 @@ public class TypeEnv_c implements TypeEnv {
     /**
      * Checks whether the member mi can be accessed from Context "context".
      */
-    public boolean isAccessible(MemberInstance<? extends MemberDef> mi) {
+    public boolean isAccessible(MemberInstance<?> mi) {
 	ClassDef contextClass = context.currentClassDef();
 	Type target = mi.container();
 	Flags flags = mi.flags();
@@ -591,7 +591,7 @@ public class TypeEnv_c implements TypeEnv {
 
     /** Return true if t overrides mi */
     public boolean hasFormals(ProcedureInstance<? extends ProcedureDef> pi, List<Type> formalTypes) {
-	return ((ProcedureInstance_c) pi).hasFormals(formalTypes, context);
+	return ((ProcedureInstance_c<?>) pi).hasFormals(formalTypes, context);
     }
 
     public List<MethodInstance> overrides(MethodInstance mi) {
@@ -832,7 +832,7 @@ public class TypeEnv_c implements TypeEnv {
 	    Report.report(2, "Searching type " + container + " for constructor " + matcher.signature());
 
 	if (!(container instanceof ClassType)) {
-	    return Collections.EMPTY_LIST;
+	    return Collections.<ConstructorInstance>emptyList();
 	}
 
 	for (ConstructorInstance ci : ((ClassType) container).constructors()) {

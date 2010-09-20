@@ -17,6 +17,8 @@ import polyglot.util.Position;
  */
 public abstract class Type_c extends TypeObject_c implements Type
 {
+    private static final long serialVersionUID = -876728129439491724L;
+
     /** Used for deserializing types. */
     protected Type_c() { }
     

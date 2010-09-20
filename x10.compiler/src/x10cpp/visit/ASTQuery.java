@@ -268,7 +268,7 @@ public class ASTQuery {
 //				knownArrayCopyMethods.add(ts.findMethod(x_l_Runtime, "arrayCopy", Arrays.asList(A_R_A_R), context.currentClass()));
 			} catch (SemanticException e) { assert (false); }
 		}
-		List clocks = n.clocks();
+		List<Expr> clocks = n.clocks();
 		if (clocks != null && clocks.size() > 1)
 			return false;
 		Stmt body = n.body();

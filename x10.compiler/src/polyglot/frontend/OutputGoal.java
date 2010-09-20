@@ -14,6 +14,8 @@ import polyglot.visit.Translator;
 /** An output pass generates output code from the processed AST. */
 public class OutputGoal extends SourceGoal_c
 {
+    private static final long serialVersionUID = 6861293948942017627L;
+
     protected Translator translator;
 
     /**
