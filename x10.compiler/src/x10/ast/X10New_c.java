@@ -55,6 +55,7 @@ import x10.errors.Errors;
 import x10.extension.X10Del;
 import x10.extension.X10Del_c;
 import x10.extension.X10Ext;
+import x10.types.TypeParamSubst;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10Context;
@@ -443,9 +444,8 @@ public class X10New_c extends New_c implements X10New {
         }
 
         X10ParsedClassType container = (X10ParsedClassType) ci.container();
-        // todo: "t" might be a ConstrainedType_c (C:\cygwin\home\Yoav\intellij\sourceforge\x10.tests\examples\Constructs\Typedefs\TypedefNew01.x10:44,31-38)
-        if (((X10ParsedClassType) t).typeArguments().equals(container.x10Def().typeParameters())) {
-            t = ((X10ParsedClassType) t).typeArguments(container.typeArguments());
+        if (!ct.typeArguments().isEmpty() && ct.typeArguments().equals(container.x10Def().typeParameters())) {
+            t = new TypeParamSubst(xts, container.typeArguments(), container.x10Def().typeParameters()).reinstantiateType(t);
             result = (X10New_c) result.objectType(result.objectType().typeRef(Types.ref(t)));
         }
 
