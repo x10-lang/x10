@@ -302,6 +302,7 @@ public final class Array[T](
      * @see #apply(Point)
      * @see #set(T, Int)
      */
+    @Native("cuda", "(#0)[#1]")
     public safe @Header @Inline def apply(i0:int){rank==1}:T {
 	if (cachedRail) {
             if (checkBounds() && !((i0 as UInt) < (size as UInt))) {
@@ -402,6 +403,7 @@ public final class Array[T](
      * @see #apply(Int)
      * @see #set(T, Point)
      */
+    @Native("cuda", "(#0)[#2] = #1")
     public safe @Header @Inline def set(v:T, i0:int){rank==1}:T {
 	if (cachedRail) {
             if (checkBounds() && !((i0 as UInt) < (size as UInt))) {

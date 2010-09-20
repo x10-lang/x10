@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-package x10.compiler;
+package x10.util;
 
 /** A collection of independent functions useful in/around CUDA kernels.
  * @author Dave Cunningham
@@ -21,7 +21,7 @@ public class CUDAUtilities {
      * it returns a fixed number of blocks.  Intended to be used with autoThreads().
      * <p>
      * <code>
-     * async (gpu) {
+     * async at (gpu) {
      *     val threads = CUDAUtilities.autoThreads(), blocks = CUDAUtilities.autoBlocks();
      *     for ((block) in 0..blocks-1) {
      *         ...
@@ -37,6 +37,25 @@ public class CUDAUtilities {
       * @see autoBlocks
       */
     public static def autoThreads() : UInt = 1;
+
+
+    public static def makeRemoteArray[T] (place:Place, numElements:Int, init: Array[T]{rail})
+        : RemoteArray[T]{self.rank==1, self.home==place}
+    {
+            return at (place) new RemoteArray[T](new Array[T](numElements, (p:Int)=>init(p)));
+    }
+
+    public static def makeRemoteArray[T] (place:Place, numElements:Int, init: T)
+        : RemoteArray[T]{self.rank==1, self.home==place}
+    {
+            return at (place) new RemoteArray[T](new Array[T](numElements, init));
+    }
+
+    public static def makeRemoteArray[T] (place:Place, numElements:Int, init: (Int)=>T)
+        : RemoteArray[T]{self.rank==1, self.home==place}
+    {
+            return at (place) new RemoteArray[T](new Array[T](numElements, (p:Int)=>init(p)));
+    }
 }
 
 // vim: shiftwidth=4:tabstop=4:expandtab

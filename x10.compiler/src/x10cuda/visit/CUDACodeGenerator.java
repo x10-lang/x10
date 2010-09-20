@@ -218,33 +218,42 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 
     private String env = "__env";
 
-    private Type railCargo(Type typ) {
-        if (!xts().isRail(typ) && !xts().isValRail(typ)) {
-            //System.out.println("type: "+typ+"  is not a rail");
-            return null;
+    private Type arrayCargo(Type typ) {
+        if (xts().isArray(typ)) {
+            typ = typ.toClass();
+            X10ClassType ctyp = (X10ClassType) typ;
+            assert ctyp.typeArguments().size() == 1;
+            return ctyp.typeArguments().get(0);
         }
-        typ = typ.toClass();
-        X10ClassType ctyp = (X10ClassType) typ;
-        assert ctyp.typeArguments().size() == 1;
-        return ctyp.typeArguments().get(0);
+        if (xts().isRemoteArray(typ)) {
+            typ = typ.toClass();
+            X10ClassType ctyp = (X10ClassType) typ;
+            assert ctyp.typeArguments().size() == 1;
+            Type type2 = ctyp.typeArguments().get(0);
+            X10ClassType ctyp2 = (X10ClassType) typ;
+            assert ctyp2.typeArguments().size() == 1;
+            return ctyp2.typeArguments().get(0);
+        }
+        return null;
+        
     }
 
-    private boolean isFloatRail(Type typ) {
-        Type cargo = railCargo(typ);
+    private boolean isFloatArray(Type typ) {
+        Type cargo = arrayCargo(typ);
         return cargo != null && cargo.isFloat();
     }
 
-    private boolean isIntRail(Type typ) {
-        Type cargo = railCargo(typ);
+    private boolean isIntArray(Type typ) {
+        Type cargo = arrayCargo(typ);
         return cargo != null && cargo.isInt();
     }
     
     String prependCUDAType(Type t, String rest) {
         String type = Emitter.translateType(t, true);
 
-        if (isIntRail(t)) {
+        if (isIntArray(t)) {
             type = "x10_int *";
-        } else if (isFloatRail(t)) {
+        } else if (isFloatArray(t)) {
             type = "x10_float *";
         } else {
             type = type + " ";
@@ -723,14 +732,14 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
                 String name = var.name().toString();
                 inc.write("__env."+name+" = ");
                 
-                if (isIntRail(t)) {
+                if (isIntArray(t)) {
                     if (xts().isRail(t)) {
                         inc.write("(x10_int*)(size_t)x10aux::get_remote_ref_maybe_null("+name+".operator->())");
                     } else {
                         inc.write("(x10_int*)(size_t)x10aux::remote_alloc(__gpu, sizeof(x10_int)*"+name+"->FMGL(length));"); inc.newline();
                         inc.write("x10aux::cuda_put(__gpu, (x10_ulong) __env."+name+", &(*"+name+")[0], sizeof(x10_int)*"+name+"->FMGL(length))");
                     }
-                } else if (isFloatRail(t)) {
+                } else if (isFloatArray(t)) {
                     if (xts().isRail(t)) {
                         inc.write("(x10_float*)(size_t)x10aux::get_remote_ref_maybe_null("+name+".operator->())");
                     } else {

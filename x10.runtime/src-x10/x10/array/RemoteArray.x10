@@ -12,6 +12,7 @@
 package x10.array;
 
 import x10.compiler.Global;
+import x10.compiler.Native;
 import x10.util.IndexedMemoryChunk;
 
 /**
@@ -25,25 +26,73 @@ import x10.util.IndexedMemoryChunk;
  * If the Region is actually needed, it can be retreived by using the array GlobalRef
  * to return to the referenced array's home location and access its region.
  */
-public class RemoteArray[T] {
-  val array:GlobalRef[Array[T]];
-  val rawData:IndexedMemoryChunk[T];
-  val rawLength:int;
+public class RemoteArray[T](home:Place, region:Region, size:Int) {} {
+    val array:GlobalRef[Array[T]{self.region==this.region, self.size==this.size}]{self.home==this.home};
+    val rawData:IndexedMemoryChunk[T];
+    val rawLength:int;
 
-  public property home:Place = array.home;
+    public property rank:Int = region.rank;
 
-  public def this(a:Array[T]) {
-    array = GlobalRef[Array[T]](a);
-    rawData = a.raw();
-    rawLength = a.rawLength;  
-  }
+    public def this(a:Array[T]) : RemoteArray[T]{self.home==here, self.region==a.region, self.size==this.size} {
+        property(here, a.region, a.size);
+        // cast needed as type of 'this' does not include {a.region==this.region, a.size==this.size} even though this is established by property statement
+        val arr = a as Array[T]{self.region==this.region, self.size == this.size};
+        // cast needed as type of 'this' does not include {here==this.home} even though this is established by property statement
+        array = GlobalRef[Array[T]{self.region==this.region, self.size==this.size}](arr) as GlobalRef[Array[T]{self.region==this.region, self.size==this.size}]{self.home==this.home};
+        rawData = a.raw();
+        rawLength = a.rawLength;  
+    }
 
-  public safe def equals(other:Any) {
-    if (!(other instanceof RemoteArray[T])) return false;
-    val oRA = other as RemoteArray[T];
-    return oRA.array.equals(array);
-  }
+    public safe def equals(other:Any) {
+        if (!(other instanceof RemoteArray[T])) return false;
+        val oRA = other as RemoteArray[T];
+        return oRA.array.equals(array);
+    }
 
-  public safe def hashCode() = array.hashCode();
+    @Native("cuda", "(#0)[#2] = #1")
+    public safe def set(v:T, i:Int) {here==home, rank==1} = array().set(v,i);
+
+    public safe def set(v:T, p:Point{self.rank==this.rank}) {here==home} = array().set(v,p);
+
+    @Native("cuda", "(#0)[#1]")
+    public safe def apply(i:Int) {here==home, rank==1} = array()(i);
+
+    public safe def apply(p:Point{self.rank==this.rank}) {here==home} = array()(p);
+
+    public safe def hashCode() = array.hashCode();
 }
+
+/* This version is preferable, as it does not duplicate state from the global ref, but it does not work:
+x10/array/RemoteArray.x10:72: This or super cannot be used (implicitly or explicitly) in a property initializer.    
+Expr: new x10.lang.GlobalRef[x10.array.Array[T]{self.region==x10.array.RemoteArray#this.region, self.size==x10.array.RemoteArray#this.size}](...)
+
+public class RemoteArray[T](region:Region, size:Int, array:GlobalRef[Array[T]{self.region==this.region, self.size==this.size}]) {
+    val rawData:IndexedMemoryChunk[T];
+    val rawLength:int;
+
+    public property rank:Int = region.rank;
+
+    public def this(a:Array[T]) : RemoteArray[T]{self.region==a.region, self.size==this.size, self.array.home == here} {
+        property(a.region, a.size, GlobalRef[Array[T]{self.region==this.region, self.size==this.size}](a as Array[T]{self.region==this.region, self.size == this.size}));
+        rawData = a.raw();
+        rawLength = a.rawLength;  
+    }
+
+    public safe def equals(other:Any) {
+        if (!(other instanceof RemoteArray[T])) return false;
+        val oRA = other as RemoteArray[T];
+        return oRA.array.equals(array);
+    }
+
+    public safe def set(v:T, i:Int) {here==array.home, rank==1} = array().set(v,i);
+
+    public safe def set(v:T, p:Point{self.rank==this.rank}) {here==array.home} = array().set(v,p);
+
+    public safe def apply(i:Int) {here==array.home, rank==1} = array()(i);
+
+    public safe def apply(p:Point{self.rank==this.rank}) {here==array.home} = array()(p);
+
+    public safe def hashCode() = array.hashCode();
+}
+*/
 

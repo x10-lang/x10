@@ -16,8 +16,6 @@
 #include <x10aux/RTT.h>
 #include <x10aux/basic_functions.h>
 
-#include <x10aux/cuda/cuda_utils.h>
-
 #include <x10aux/serialization.h>
 #include <x10aux/deserialization_dispatcher.h>
 

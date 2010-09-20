@@ -1450,6 +1450,14 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return arrayType_;
     }
 
+    protected ClassType remoteArrayType_ = null;
+
+    public Type RemoteArray() {
+        if (remoteArrayType_ == null)
+            remoteArrayType_ = load("x10.array.RemoteArray");
+        return remoteArrayType_;
+    }
+
     protected ClassType distArrayType_ = null;
 
     public Type DistArray() {
@@ -1631,6 +1639,20 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         List<Type> ta = ((X10ClassType)X10TypeMixin.baseType(t)).typeArguments();
         assert (ta.size() == 1);
         return ta.get(0).typeEquals(p, createContext());
+    }
+
+    public boolean isRemoteArray(Type t) {
+        return hasSameClassDef(t, RemoteArray());
+    }
+
+    public boolean isRemoteArrayOf(Type t, Type p) {
+        if (!isRemoteArray(t)) return false;
+        List<Type> ta = ((X10ClassType)X10TypeMixin.baseType(t)).typeArguments();
+        assert (ta.size() == 1);
+        Type array_type = ta.get(0);
+        List<Type> ta2 = ((X10ClassType)X10TypeMixin.baseType(array_type)).typeArguments();
+        assert (ta2.size() == 1);
+        return ta2.get(0).typeEquals(p, createContext());
     }
 
     public boolean hasSameClassDef(Type t1, Type t2) {

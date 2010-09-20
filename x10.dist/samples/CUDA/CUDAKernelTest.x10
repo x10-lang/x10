@@ -10,34 +10,33 @@
  */
 
 import x10.io.Console;
+import x10.util.CUDAUtilities;
 import x10.compiler.CUDA;
 
 public class CUDAKernelTest {
 
-    static def doWork (init:Rail[Float], recv:Rail[Float], p:Place, len:Int) {
-        val remote = Rail.makeRemote(p,len,(Int)=>0.0 as Float); // allocate 
+    static def doWork (init:Array[Float]{rail}, recv:Array[Float]{rail}, p:Place, len:Int) {
 
-        //finish init.copyTo(0, remote, 0, len); // dma there
-        val init_ = ValRail.make[Float](init);
 
-        finish async (p) @CUDA {
-            for ((block):Point in 0..7) {
-                for ((thread):Point in 0..63) async {
+        val remote = CUDAUtilities.makeRemoteArray[Float](p,len,(Int)=>0.0 as Float); // allocate 
+
+        finish async at (p) @CUDA {
+            for ([block] in 0..7) {
+                for ([thread] in 0..63) async {
                     val tid = block*64 + thread;
                     val tids = 8*64;
                     for (var i:Int=tid ; i<len ; i+=tids) {
-                        //remote(i) = Math.sqrt(remote(i));
-                        remote(i) = Math.sqrt(init_(i));
+                        remote(i) = Math.sqrt(init(i));
                     }
                 }
             }
         }
 
-        finish recv.copyFrom(0, remote, 0, len); // dma back
+        finish Array.asyncCopy(remote, 0, recv, 0, len); // dma back
 
         // validate
         var success:Boolean = true;
-        for ((i) in 0..remote.length-1) {
+        for ([i] in remote.region) {
             if (Math.abs(1 - (recv(i)*recv(i))/(i as Float)) > 1E-6f) {
                 Console.ERR.println("recv("+i+"): "+recv(i)+" * "+recv(i)+" = "+(recv(i)*recv(i)));
                 success = false;
@@ -51,8 +50,8 @@ public class CUDAKernelTest {
 
         for (host in Place.places) at (host) {
 
-            val init = Rail.make[Float](len,(i:Int)=>i as Float);
-            val recv = Rail.make[Float](len,(i:Int)=>0.0 as Float);
+            val init = new Array[Float](len,(i:Int)=>i as Float);
+            val recv = new Array[Float](len,(i:Int)=>0.0 as Float);
 
             var done_work:Boolean = false;
 
