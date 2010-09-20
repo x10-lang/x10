@@ -2017,18 +2017,22 @@ public class Emitter {
 
 	public void generateRTTInstance(X10ClassDef def) {
 
-	    String unsignedClassName = null;
+	    boolean isUnsignedType = isUnsignedClassType(def.asType());
+        String unsignedClassName = null;
 
-        if (isUnsignedClassType(def.asType())) {
+	    if (isUnsignedType) {
             unsignedClassName = def.asType().name().toString();
-            w.write("public static final x10.rtt."+unsignedClassName+"Type");
-        } else {
+	    }
+	    
+//        if (isUnsignedType) {
+//            w.write("public static final x10.rtt."+unsignedClassName+"Type");
+//        } else {
             w.write("public static final x10.rtt.RuntimeType");
-        }
+//        }
         w.write("<");
         printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
         w.write(">");
-        if (isUnsignedClassType(def.asType())) {
+        if (isUnsignedType) {
             w.write(" _RTT = new x10.rtt."+unsignedClassName+"Type");
         } else {
             w.write(" _RTT = new x10.rtt.RuntimeType");            
@@ -2084,19 +2088,12 @@ public class Emitter {
         w.write("};");
         w.newline();
         
-        if (isUnsignedClassType(def.asType())) {
-            w.write("static {");
-            w.write("x10.rtt.Types."+unsignedClassName.toUpperCase()+" = _RTT;");
-            w.write("}");
-            w.newline();
-        }
-
         if (!def.flags().isInterface()) {
-            if (isUnsignedClassType(def.asType())) {
-                w.write("public x10.rtt."+unsignedClassName+"Type<"+unsignedClassName+"> getRTT() {");
-            } else {
+//            if (isUnsignedType) {
+//                w.write("public x10.rtt."+unsignedClassName+"Type<"+unsignedClassName+"> getRTT() {");
+//            } else {
                 w.write("public x10.rtt.RuntimeType<?> getRTT() {");
-            }
+//            }
             w.write("return _RTT;");
             w.write("}");
             w.newline();

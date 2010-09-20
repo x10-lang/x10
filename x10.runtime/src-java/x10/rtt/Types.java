@@ -161,10 +161,28 @@ public class Types {
     };
     public static Type<Object> ANY = new RuntimeType<Object>(Object.class);
 
-    public static Type<?> UBYTE;    // instance created and set in UByte static initializer
-    public static Type<?> USHORT;   // instance created and set in UShort static initializer
-    public static Type<?> UINT;     // instance created and set in UInt static initializer
-    public static Type<?> ULONG;    // instance created and set in ULong static initializer
+    public static Type<?> UBYTE;
+    public static Type<?> USHORT;
+    public static Type<?> UINT;
+    public static Type<?> ULONG;
+    static {
+        try {
+            Class<?> c;
+            java.lang.reflect.Field f;
+            c = Class.forName("x10.lang.UByte");
+            f = c.getDeclaredField("_RTT");
+            UBYTE = (RuntimeType<?>) f.get(null);
+            c = Class.forName("x10.lang.UShort");
+            f = c.getDeclaredField("_RTT");
+            USHORT = (RuntimeType<?>) f.get(null);
+            c = Class.forName("x10.lang.UInt");
+            f = c.getDeclaredField("_RTT");
+            UINT = (RuntimeType<?>) f.get(null);
+            c = Class.forName("x10.lang.ULong");
+            f = c.getDeclaredField("_RTT");
+            ULONG = (RuntimeType<?>) f.get(null);
+        } catch (Exception e) {}
+    }
 
     public static Type<?> getNativeRepRTT(Object o) {
         if (o instanceof Boolean) return BOOLEAN;
