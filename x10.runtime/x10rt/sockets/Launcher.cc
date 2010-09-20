@@ -21,7 +21,7 @@
 /* *********************************************************************** */
 /*     utility methods, called outside of the launcher					   */
 /* *********************************************************************** */
-const char* CTRL_MSG_TYPE_STRINGS[] = {"HELLO", "PORT_REQUEST", "PORT_RESPONSE"};
+const char* CTRL_MSG_TYPE_STRINGS[] = {"HELLO", "GOODBYE", "PORT_REQUEST", "PORT_RESPONSE"};
 
 int Launcher::setPort(uint32_t place, char* port)
 {
@@ -48,7 +48,7 @@ int Launcher::setPort(uint32_t place, char* port)
 		struct ctrl_msg m;
 		m.type = HELLO;
 		m.from = place;
-		m.to = -1;
+		m.to = place;
 		m.datalen = strlen(port);
 		int r = TCP::write(_parentLauncherControlLink, &m, sizeof(struct ctrl_msg));
 		if (r <= 0) return r;
@@ -76,19 +76,22 @@ int Launcher::lookupPlace(uint32_t myPlace, uint32_t destPlace, char* response, 
 		// inside this if, we're running within the runtime process, and talking to a launcher
 		// send this out to our local launcher
 		// parent link was established earlier, at HELLO
-		TCP::write(_parentLauncherControlLink, &m, sizeof(struct ctrl_msg));
+		int ret = TCP::write(_parentLauncherControlLink, &m, sizeof(struct ctrl_msg));
+		if (ret <= 0)
+			DIE("Runtime %d: Unable to write port request", myPlace);
 
 		// this should block, until the data is available
-		int ret = TCP::read(_parentLauncherControlLink, &m, sizeof(struct ctrl_msg));
+		ret = TCP::read(_parentLauncherControlLink, &m, sizeof(struct ctrl_msg));
 		if (ret <= 0 || m.type != PORT_RESPONSE || m.datalen <= 0)
 			DIE("Runtime %d: Invalid port request reply (len=%d, type=%s, datalen=%d)", myPlace, ret, CTRL_MSG_TYPE_STRINGS[m.type], m.datalen);
 
-		if (responseLen < m.datalen)
+		if (responseLen < m.datalen+1)
 			DIE("Runtime %d: The buffer is too small for the place lookup (data=%d bytes, buffer=%d bytes)", myPlace, m.datalen, responseLen);
 
 		ret = TCP::read(_parentLauncherControlLink, response, m.datalen);
 		if (ret <= 0)
 			DIE("Runtime %d: Unable to read port response data", myPlace);
+		response[m.datalen] = '\0';
 
 		#ifdef DEBUG
 			fprintf(stderr, "Runtime %d: determined place %d is at \"%s\"\n", myPlace, destPlace, response);
@@ -485,7 +488,7 @@ void Launcher::handleNewChildConnection(void)
 			return;
 		}
 
-		for (uint32_t i = 0; i <= _numchildren; i++)
+		for (uint32_t i = 0; i < _numchildren; i++)
 		{
 			if (m.from == _firstchildproc + i)
 			{
