@@ -55,6 +55,7 @@ import x10.ast.SemanticError;
 import x10.ast.SubtypeTest;
 import x10.ast.X10NodeFactory;
 import x10.ast.X10IntLit_c;
+import x10.ast.X10StringLit_c;
 import x10.constraint.XFailure;
 import x10.constraint.XNameWrapper;
 import x10.constraint.XVar;
@@ -975,8 +976,22 @@ public class X10TypeMixin {
     public static boolean isUninitializedField(X10FieldDef def,X10TypeSystem ts) {
         return isDefAnnotated(def,ts,"x10.compiler.Uninitialized");
     }
-    public static boolean isNonEscapingMethod(X10ProcedureDef def,X10TypeSystem ts) {
-        return isDefAnnotated(def,ts,"x10.compiler.NonEscaping");
+    public static String getNonEscapingReadsFrom(X10ProcedureDef def,X10TypeSystem ts) {
+        try {
+            Type at = (Type) ts.systemResolver().find(QName.make("x10.compiler.NonEscaping"));
+            final List<Type> annotations = def.annotationsMatching(at);
+            if (annotations.isEmpty()) return null;
+            Type first = annotations.get(0);
+            if (!(first instanceof X10ParsedClassType_c)) return null;
+            X10ParsedClassType_c nonEscaping = (X10ParsedClassType_c) first;
+            final List<Expr> list = nonEscaping.propertyInitializers();
+            if (list.size()!=1) return ""; // @NonEscaping is like @NonEscaping("")
+            Expr arg = list.get(0);
+            if (arg==null || !(arg instanceof X10StringLit_c)) return ""; // @NonEscaping(null) is like @NonEscaping("")
+            return ((X10StringLit_c) arg).stringValue();
+        } catch (SemanticException e) {
+            return null;
+        }
     }
     public static boolean isDefAnnotated(X10Def def,X10TypeSystem ts, String name) {
         try {

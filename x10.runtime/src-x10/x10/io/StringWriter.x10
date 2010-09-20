@@ -16,7 +16,7 @@ import x10.compiler.Global;
 import x10.compiler.Pinned;
 
 public class StringWriter extends Writer {
-	val root = GlobalRef[StringWriter](this);
+	private val root = GlobalRef[StringWriter](this);
     transient val b:StringBuilder;
     public def this() { 
     	this.b = new StringBuilder(); 

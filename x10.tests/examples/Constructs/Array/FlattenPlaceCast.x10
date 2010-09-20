@@ -25,7 +25,7 @@ public class FlattenPlaceCast extends x10Test {
     }
    
     static class Test {
-    	val root = GlobalRef[Test](this);
+    	private val root = GlobalRef[Test](this);
     };
 
     public def run():boolean  = {

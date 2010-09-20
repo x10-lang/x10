@@ -25,7 +25,7 @@ import x10.compiler.Pinned;
  */
 public class Clock(name:String) {
 	
-	protected val root = GlobalRef[Clock](this);
+	private val root = GlobalRef[Clock](this);
 	public safe def equals(a:Any) {
 		if (a == null || ! (a instanceof Clock))
 			return false;

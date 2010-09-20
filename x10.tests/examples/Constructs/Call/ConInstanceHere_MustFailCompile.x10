@@ -17,7 +17,7 @@ import harness.x10Test;
  * @author vj
  */
 public class ConInstanceHere_MustFailCompile extends x10Test {
-	val root = GlobalRef[ConInstanceHere_MustFailCompile](this);
+	private val root = GlobalRef[ConInstanceHere_MustFailCompile](this);
 	def m() {}
 	def n() {
 		at (here.next()) {

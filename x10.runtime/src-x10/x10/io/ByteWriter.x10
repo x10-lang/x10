@@ -17,7 +17,7 @@ import x10.compiler.Global;
 import x10.compiler.Incomplete;
 
 public class ByteWriter[T] /*extends Writer*/ {
-	val root = GlobalRef[ByteWriter[T]](this);
+	private val root = GlobalRef[ByteWriter[T]](this);
     transient val b:Builder[Byte,T];
 
     public def this(b: Builder[Byte,T]) { this.b = b; }

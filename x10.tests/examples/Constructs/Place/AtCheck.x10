@@ -17,7 +17,7 @@ import harness.x10Test;
  */
 
 public class AtCheck extends x10Test {
-	val root = GlobalRef[AtCheck](this);
+	private val root = GlobalRef[AtCheck](this);
 	var x:AtCheck =null;
     def m(b: GlobalRef[AtCheck]) = at (b) {
 	     b().x

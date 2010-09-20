@@ -13,7 +13,7 @@ import harness.x10Test;
 import x10.io.Console;
 public class PlaceCast extends x10Test {
     var nplaces: int = 0;
-    val root=GlobalRef[PlaceCast](this);
+    private val root=GlobalRef[PlaceCast](this);
     public def run()  {
 	  val d: Dist = Dist.makeUnique();
 	  Console.OUT.println("num places = " + Place.MAX_PLACES);
@@ -40,7 +40,7 @@ public class PlaceCast extends x10Test {
     }
 
 	static class BoxedBoolean {
-		val root=GlobalRef[BoxedBoolean](this);
+		private val root=GlobalRef[BoxedBoolean](this);
 	   var v: boolean = false;
 	}
 }

@@ -9,12 +9,17 @@ import polyglot.visit.FlowGraph;
 import polyglot.frontend.Job;
 import polyglot.types.Type;
 import polyglot.types.FieldDef;
-import polyglot.types.Flags;
 import polyglot.types.MethodInstance;
 import polyglot.types.MethodDef;
 import polyglot.types.FieldInstance;
 import polyglot.types.ProcedureDef;
 import polyglot.types.QName;
+import polyglot.types.ClassDef;
+import polyglot.types.Ref;
+import polyglot.types.SemanticException;
+import polyglot.types.Name;
+import polyglot.types.Context;
+import polyglot.types.ProcedureDef_c;
 import x10.ast.*;
 import x10.types.X10TypeMixin;
 import x10.types.X10Flags;
@@ -22,6 +27,7 @@ import x10.types.X10TypeSystem;
 import x10.types.X10FieldDef;
 import x10.types.X10ParsedClassType_c;
 import x10.types.X10ProcedureDef;
+import x10.types.X10MethodDef;
 
 import java.util.HashMap;
 import java.util.Set;
@@ -30,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.LinkedHashMap;
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class CheckEscapingThis extends NodeVisitor
 {
@@ -52,10 +59,10 @@ public class CheckEscapingThis extends NodeVisitor
 
 
     private class DataFlowItem extends DataFlow.Item {
-        private final Map<X10FieldDecl_c, Integer> initStatus = new HashMap<X10FieldDecl_c, Integer>(); // immutable map of fields to 3flags
+        private final Map<FieldDef, Integer> initStatus = new HashMap<FieldDef, Integer>(); // immutable map of fields to 3flags
 
         private DataFlowItem() {
-            for (X10FieldDecl_c f : fields)
+            for (FieldDef f : fields)
                 initStatus.put(f,0);
         }
         public boolean equals(Object o) {
@@ -71,7 +78,7 @@ public class CheckEscapingThis extends NodeVisitor
         @Override
         public String toString() {
             StringBuilder res = new StringBuilder();
-            for (Map.Entry<X10FieldDecl_c, Integer> pair : initStatus.entrySet()) {
+            for (Map.Entry<FieldDef, Integer> pair : initStatus.entrySet()) {
                 res.append(pair.getKey().name()).append(":").append(flagsToString(pair.getValue())).append(" ");
             }
             return res.toString();
@@ -79,16 +86,19 @@ public class CheckEscapingThis extends NodeVisitor
     }
     class FieldChecker extends DataFlow {
         private final DataFlowItem INIT = new DataFlowItem();
+        private final DataFlowItem CTOR_INIT = new DataFlowItem();
         private ProcedureDecl currDecl;
         public FieldChecker() {
             super(CheckEscapingThis.this.job, CheckEscapingThis.this.ts, CheckEscapingThis.this.nf,
                   true /* forward analysis */,
                   false /* perform dataflow when leaving CodeDecls, not when entering */);
-            for (X10FieldDecl_c f : fields)
-                INIT.initStatus.put(f,0);
+
+            for (FieldDef field : superFields) {
+                CTOR_INIT.initStatus.put(field, build(false, true,true));
+            }
         }
         protected Item createInitialItem(FlowGraph graph, Term node, boolean entry) {
-            return INIT;
+            return isCtor() ? CTOR_INIT : INIT;
         }
         protected Item confluence(List items, List itemKeys,
             Term node, boolean entry, FlowGraph graph) {
@@ -117,8 +127,8 @@ public class CheckEscapingThis extends NodeVisitor
 
             for (int i=1; i<items.size(); i++) {
                 DataFlowItem item = (DataFlowItem) items.get(i);
-                for (Map.Entry<X10FieldDecl_c, Integer> pair : item.initStatus.entrySet()) {
-                    final X10FieldDecl_c key = pair.getKey();
+                for (Map.Entry<FieldDef, Integer> pair : item.initStatus.entrySet()) {
+                    final FieldDef key = pair.getKey();
                     int i1 = res.initStatus.get(key);
                     int i2 = pair.getValue();
                     // Async must be handled here, because DataFlow first calls safeConfluence, and only then it calls flow:
@@ -154,10 +164,11 @@ public class CheckEscapingThis extends NodeVisitor
             }
 
             boolean isAssign = n instanceof FieldAssign;
+            // todo: closure call: check that all field access are legal
             if (isAssign || n instanceof Field) {
                 final Receiver target = isAssign ? ((FieldAssign) n).target() : ((Field) n).target();
                 final FieldInstance fi = isAssign ? ((FieldAssign) n).fieldInstance() : ((Field) n).fieldInstance();
-                X10FieldDecl_c field = findField(fi.def());
+                FieldDef field = findField(fi.def());
                 if (field!=null && isThis(target)) {
                     res = new DataFlowItem();
                     res.initStatus.putAll(inItem.initStatus);
@@ -166,21 +177,30 @@ public class CheckEscapingThis extends NodeVisitor
                     res.initStatus.put(field,valueAfter);
                 }
 
+            } else if (n instanceof ConstructorCall) {
+                ConstructorCall ctorCall = (ConstructorCall) n;
+                assert (ctorCall.kind()==ConstructorCall.SUPER) : "We do not analyze ctors with 'this()' calls, because they're always correct - everything must be initialized after the 'this()' call";
+                //assert res==INIT : "It must be the first statement in the ctor";
+                // Note that the super call should be the first statement, but I inline the field-inits before it.
+
             } else if (n instanceof X10Call) {
                 X10Call call = (X10Call) n;
                 Receiver receiver = call.target();
                 if (isThis(receiver)) {
                     X10MethodDecl_c methodDecl = findMethod(call);
                     if (methodDecl!=null) {
-                        res = new DataFlowItem();
-                        res.initStatus.putAll(inItem.initStatus);
-                        MethodInfo info = allMethods.get(methodDecl.procedureInstance());
-                        if (info !=null)
-                        for (X10FieldDecl_c field : fields) {
-                            boolean isRead = info.read.contains(field);
-                            boolean isWrite = info.write.contains(field);
-                            boolean isWriteSeq = info.seqWrite.contains(field);
-                            res.initStatus.put(field, afterSeqBlock(res.initStatus.get(field),build(isRead,isWrite, isWriteSeq)));
+                        final ProcedureDef procDef = methodDecl.procedureInstance();
+                        if (!isProperty(procDef)) {
+                            res = new DataFlowItem();
+                            res.initStatus.putAll(inItem.initStatus);
+                            MethodInfo info = allMethods.get(procDef);
+                            assert info !=null : methodDecl;
+                            for (FieldDef field : fields) {
+                                boolean isRead = info.read.contains(field);
+                                boolean isWrite = info.write.contains(field);
+                                boolean isWriteSeq = info.seqWrite.contains(field);
+                                res.initStatus.put(field, afterSeqBlock(res.initStatus.get(field),build(isRead,isWrite, isWriteSeq)));
+                            }
                         }
                     }
                 }
@@ -192,18 +212,27 @@ public class CheckEscapingThis extends NodeVisitor
                 return itemsToMap(trueItem, falseItem, inItem, succEdgeKeys);
             } else if (n instanceof Finish) {
                 res = new DataFlowItem();
-                for (Map.Entry<X10FieldDecl_c, Integer> pair : inItem.initStatus.entrySet()) {
+                for (Map.Entry<FieldDef, Integer> pair : inItem.initStatus.entrySet()) {
                     res.initStatus.put(pair.getKey(),afterFinish(pair.getValue()));
                 }
             }
-            if (res!=inItem && isCtor()) {
+            if (res!=inItem) {
+                MethodInfo info = allMethods.get(currDecl.procedureInstance());                  
+                final boolean ctor = isCtor();
+                if (!ctor) assert info!=null : currDecl;
+                final Set<FieldDef> canReadFrom = ctor ? Collections.EMPTY_SET : info.canReadFrom;
                 // can't read from an un-init var in the ctors (I want to catch it here, so I can give the exact position info)
-                for (X10FieldDecl_c f : fields) {
-                    boolean readBefore = isRead(inItem.initStatus.get(f));
-                    if (!readBefore && isRead(res.initStatus.get(f))) {
-                        // wasn't read before, and we read it now (either because of Field access, or X10Call)
-                        reportError("Cannot read from field '"+f.name()+"' before it is definitely assigned.",n.position());
-                        wasError = true;
+                // can't read from any var not in @NonEscaping(...)
+                if (canReadFrom!=null) {
+                    for (FieldDef f : fields) {
+                        boolean readBefore = isRead(inItem.initStatus.get(f));
+                        if (!readBefore && isRead(res.initStatus.get(f))) {
+                            if (!canReadFrom.contains(f)) {
+                                // wasn't read before, and we read it now (either because of Field access, or X10Call)
+                                reportError("Cannot read from field '"+f.name()+"' before it is definitely assigned.",n.position());
+                                wasError = true;
+                            }
+                        }
                     }
                 }
             }
@@ -220,28 +249,13 @@ public class CheckEscapingThis extends NodeVisitor
                 ProcedureDecl decl = (ProcedureDecl)n;
                 assert decl!=null;
                 final ProcedureDef procDef = decl.procedureInstance();
-                MethodInfo oldInfo = allMethods.get(procDef);
                 MethodInfo newInfo = new MethodInfo();
-                for (Map.Entry<X10FieldDecl_c, Integer> pair : dfIn.initStatus.entrySet()) {
+                for (Map.Entry<FieldDef, Integer> pair : dfIn.initStatus.entrySet()) {
                     int val = pair.getValue();
-                    final X10FieldDecl_c f = pair.getKey();
+                    final FieldDef f = pair.getKey();
                     if (isRead(val)) newInfo.read.add(f);
                     if (isWrite(val)) newInfo.write.add(f);
                     if (isSeqWrite(val)) newInfo.seqWrite.add(f);
-                }
-                // proof that the fix-point terminates: write set decreases while the read set increases
-                assert oldInfo.write.containsAll(newInfo.write);
-                assert oldInfo.seqWrite.containsAll(newInfo.seqWrite);
-                assert newInfo.read.containsAll(oldInfo.read);
-
-                // fixed-point reached?
-                if (newInfo.read.equals(oldInfo.read) &&
-                    newInfo.write.equals(oldInfo.write) &&
-                    newInfo.seqWrite.equals(oldInfo.seqWrite)) {
-                    // no change!
-                } else {
-                    wasChange = true;
-                    allMethods.put(procDef,newInfo);
                 }
 
                 // everything must be assigned in a ctor (and nothing read)
@@ -252,15 +266,60 @@ public class CheckEscapingThis extends NodeVisitor
                     if (newInfo.seqWrite.size()!=size) {
                         wasError = true;
                         // report the field that wasn't written to
-                        for (X10FieldDecl_c f : fields)
+                        for (FieldDef f : fields)
                             if (!newInfo.seqWrite.contains(f)) {
                                 reportError("Field '"+f.name()+"' was not definitely assigned.",f.position());
                             }
+                    }
+                } else {
+                    MethodInfo oldInfo = allMethods.get(procDef);
+                    assert oldInfo!=null : n;                    
+                    if (hasNonEscapingAnnot(procDef)) {
+                        // the read-set should not change (we already reported an error if it did change)
+                        newInfo.read.clear();
+                        newInfo.read.addAll(oldInfo.read);
+                    }
+                    if (noWrites(procDef)) {
+                        newInfo.write.clear();
+                        newInfo.seqWrite.clear();
+                    }
+                    // proof that the fix-point terminates: write set decreases while the read set increases
+                    assert oldInfo.write.containsAll(newInfo.write);
+                    assert oldInfo.seqWrite.containsAll(newInfo.seqWrite);
+                    assert newInfo.read.containsAll(oldInfo.read);
+
+
+                    // fixed-point reached?
+                    if (newInfo.read.equals(oldInfo.read) &&
+                        newInfo.write.equals(oldInfo.write) &&
+                        newInfo.seqWrite.equals(oldInfo.seqWrite)) {
+                        // no change!
+                    } else {
+                        wasChange = true;
+                        newInfo.canReadFrom = oldInfo.canReadFrom;
+                        allMethods.put(procDef,newInfo);
                     }
                 }
             }
 
         }
+    }
+    private boolean hasNonEscapingAnnot(ProcedureDef def) {
+        return X10TypeMixin.getNonEscapingReadsFrom((X10ProcedureDef) def, ts) != null;
+    }
+    private boolean noWrites(ProcedureDef def) {
+        // if it is not a final/private method (which can be the case for @NonEscaping),
+        // then the write-set must be empty (because it might be overriden and then the write doesn't happen)
+        final boolean hasNonEscapingAnnot = hasNonEscapingAnnot(def);
+        return hasNonEscapingAnnot && !isPrivateOrFinal(def);
+    }
+    private boolean isProperty(ProcedureDef def) {
+        final X10Flags flags = X10Flags.toX10Flags(((ProcedureDef_c)def).flags());
+        return flags.isProperty();
+    }
+    private boolean isPrivateOrFinal(ProcedureDef def) {
+        final X10Flags flags = X10Flags.toX10Flags(((ProcedureDef_c)def).flags());
+        return flags.isPrivate() || flags.isFinal();
     }
     
     // Main visits all the classes, and type-checks them (verify that "this" doesn't escape, etc)
@@ -278,11 +337,12 @@ public class CheckEscapingThis extends NodeVisitor
     }
 
 
-    // we gather info on every private/final method
+    // we gather info on every private/final/@NonEscaping method
     private static class MethodInfo {
-        private final Set<X10FieldDecl_c> read = new HashSet<X10FieldDecl_c>();
-        private final Set<X10FieldDecl_c> write = new HashSet<X10FieldDecl_c>();
-        private final Set<X10FieldDecl_c> seqWrite = new HashSet<X10FieldDecl_c>();
+        private Set<FieldDef> canReadFrom = null;
+        private final Set<FieldDef> read = new HashSet<FieldDef>();
+        private final Set<FieldDef> write = new HashSet<FieldDef>();
+        private final Set<FieldDef> seqWrite = new HashSet<FieldDef>();
     }
     private final Job job;
     private final X10NodeFactory nf;
@@ -292,28 +352,22 @@ public class CheckEscapingThis extends NodeVisitor
     // the keys are either X10ConstructorDecl_c or X10MethodDecl_c
     private final HashMap<ProcedureDef,MethodInfo> allMethods = new LinkedHashMap<ProcedureDef, MethodInfo>(); // all ctors and methods recursively called from allMethods on receiver "this"
     private final ArrayList<ProcedureDecl> dfsMethods = new ArrayList<ProcedureDecl>(); // to accelerate the fix-point alg
-    private final HashSet<X10ConstructorDecl_c> allCtors = new HashSet<X10ConstructorDecl_c>();
-    // the set of VAR and VAL without initializers (we need to check that VAL are read properly, and that VAR are written and read properly.)
+    // the set of all VAR and VAL fields, including those in the superclass due to @NonEscaping (we need to check that VAL are read properly, and that VAR are written and read properly.)
     // InitChecker already checks that VAL are assigned in every ctor exactly once (and never assigned in other methods)
     // Therefore we can now treat both VAL and VAR identically.
-    private final HashSet<X10FieldDecl_c> fields = new HashSet<X10FieldDecl_c>();
+    private final HashSet<FieldDef> fields = new HashSet<FieldDef>();
+    private final HashSet<FieldDef> superFields = new HashSet<FieldDef>(); // after the "super()" call, these fields are initialized
     private boolean wasChange = true, wasError = false; // for fixed point alg
     private HashSet<FieldDef> globalRef = new HashSet<FieldDef>();// There is one exception to the "this cannot escape" rule:  val root = GlobalRef[...](this)
 
     private void checkGlobalRef(Node n) {
-        boolean err = false;
-        FieldDef def = null;
+        // you cannot access a globalRef field via this  (but you can assign to them)
         if (n instanceof Field) {
             Field f = (Field) n;
-            def = f.fieldInstance().def();
-            err = (isThis(f.target()));
-        }
-        if (n instanceof FieldAssign) {
-            FieldAssign assign = (FieldAssign) n;
-            def = assign.fieldInstance().def();
-            err = (isThis(assign.target()));
-        }
-        if (err && globalRef.contains(def)) reportError("Cannot use '"+def.name()+"' because a GlobalRef[...](this) cannot be used in a field initializer, constructor, or methods called from a constructor.",n.position());
+            FieldDef def = f.fieldInstance().def();
+            if (isThis(f.target()) && globalRef.contains(def))
+                reportError("Cannot use '"+def.name()+"' because a GlobalRef[...](this) cannot be used in a field initializer, constructor, or methods called from a constructor.",n.position());
+        }          
     }
     public CheckEscapingThis(X10ClassDecl_c xlass, Job job, X10TypeSystem ts) {
         this.job = job;
@@ -323,18 +377,28 @@ public class CheckEscapingThis extends NodeVisitor
         this.xlassType = X10TypeMixin.baseType(xlass.classDef().asType());
         typeCheck();
     }
-    private void typeCheck() {
-        final X10ClassBody_c body = (X10ClassBody_c)xlass.body();
-        // visit all (non-static) field initializers and check that they do not have forward references nor that "this" escapes
-        ArrayList<X10FieldDecl_c> nonStaticFields = new ArrayList<X10FieldDecl_c>();
-        for (ClassMember classMember : body.members()) {
-            if (classMember instanceof X10FieldDecl_c) {
-                X10FieldDecl_c field = (X10FieldDecl_c) classMember;
-                if (field.flags().flags().isStatic()) continue;
-                nonStaticFields.add(field);
+    private void calcFields() {
+        final ClassDef myClassDef = xlass.classDef();
+        ClassDef currClass = myClassDef;
+        while (currClass!=null) {
+            List<FieldDef> list = currClass.fields();
+            // a VAR marked with @Uninitialized is not tracked
+            List<FieldDef> init = new ArrayList<FieldDef>(list.size());
+            for (FieldDef f : list) {
+                if (!X10TypeMixin.isUninitializedField((X10FieldDef)f,ts) &&
+                    !((X10FieldDef)f).isProperty() && // not tracking property fields (checking property() call was done elsewhere)
+                    !f.flags().isStatic()) { // static fields are checked in FwdReferenceChecker
+                    init.add(f);
+                }
             }
+            fields.addAll(init);
+            if (myClassDef!=currClass) superFields.addAll(init);
+            final Ref<? extends Type> superType = currClass.superType();
+            if (superType==null) break;
+            currClass = superType.get().toClass().def();
         }
-        // Find globalRef
+    }
+    private void calcGlobalRefs(ArrayList<X10FieldDecl_c> nonStaticFields) {
         for (X10FieldDecl_c field : nonStaticFields) {
             final Expr init = field.init();
             // check for the pattern: val/var someField = GlobalRef[...](this)
@@ -351,23 +415,39 @@ public class CheckEscapingThis extends NodeVisitor
                         final QName qName = classType_c.def().fullName();
                         if (qName.equals(QName.make("x10.lang","GlobalRef"))) {
                             // found the pattern!
+                            // must be private
+                            if (!field.flags().flags().isPrivate())
+                                reportError("In order to use the pattern GlobalRef[...](this) the field must be private.",field.position());
                             globalRef.add(field.fieldDef());
                         }
                     }
                 }
             }
         }
-        // checking "this" doesn't escape from field init
+    }
+    private void typeCheck() {
+        final X10ClassBody_c body = (X10ClassBody_c)xlass.body();
+        // visit all (non-static) field initializers and check that they do not have forward references nor that "this" escapes
+        ArrayList<X10FieldDecl_c> nonStaticFields = new ArrayList<X10FieldDecl_c>();
+        for (ClassMember classMember : body.members()) {
+            if (classMember instanceof X10FieldDecl_c) {
+                X10FieldDecl_c field = (X10FieldDecl_c) classMember;
+                if (field.flags().flags().isStatic()) continue;
+                nonStaticFields.add(field);
+            }
+        }
+        // Find globalRefs
+        calcGlobalRefs(nonStaticFields);
+
+        // calculate the set of all fields (including inherited fields)
+        calcFields();
+
+        // inline the field-initializers in every ctor
         ArrayList<Stmt> fieldInits = new ArrayList<Stmt>();
         final Position pos = Position.COMPILER_GENERATED;
         for (X10FieldDecl_c field : nonStaticFields) {
             final Expr init = field.init();
             final X10FieldDef def = (X10FieldDef) field.fieldDef();
-            // even if the field has an init, we still need to track it (because field-init are inlined in all ctors)
-            if (!X10TypeMixin.isUninitializedField(def,ts)) {
-                // if a VAR has a default value, then we already created an init() expr in X10FieldDecl_c.typeCheck
-                fields.add(field);
-            }
             if (init==null) continue;
             final Special This = (Special) nf.Special(pos, Special_c.THIS).type(def.container().get().toType());
             final FieldAssign fieldAssign = (FieldAssign) nf.FieldAssign(pos, This, field.name(), Assign_c.ASSIGN, init).
@@ -376,66 +456,121 @@ public class CheckEscapingThis extends NodeVisitor
             fieldInits.add(nf.Eval(pos, fieldAssign));
             if (!globalRef.contains(def)) init.visit(this); // field init are implicitly NonEscaping
         }
+        Block newInit = nf.Block(pos,fieldInits);
+
+
         // visit every ctor, every @NonEscaping method, and every method recursively called from them, and check that this and super do not escape
+        ArrayList<X10ConstructorDecl_c> ctorsForDataFlow = new ArrayList<X10ConstructorDecl_c>();
         for (ClassMember classMember : body.members()) {
             if (classMember instanceof ProcedureDecl) {
                 final ProcedureDecl proc = (ProcedureDecl) classMember;
                 final X10ProcedureDef def = (X10ProcedureDef)proc.procedureInstance();
-                boolean shouldVisit = X10TypeMixin.isNonEscapingMethod(def,ts);
+                final Block procBody = proc.body();
 
-                final Block ctorBody = proc.body();
-                // for native methods/ctors, we don't have a body
-                if (ctorBody!=null) {
-                    if (proc instanceof X10ConstructorDecl_c) { // ctors are implicitly NonEscaping
-                        allCtors.add((X10ConstructorDecl_c)proc);
-                        shouldVisit = true;
+                if (def instanceof X10MethodDef) {
+                    String readsFrom = X10TypeMixin.getNonEscapingReadsFrom(def,ts);
+
+                    // check that overriding perserves the exact @NonEscaping annotation
+                    X10MethodDef x10def = (X10MethodDef) def;
+                    final MethodInstance instance = x10def.asInstance();
+                    final Context emptyContext = ts.emptyContext();
+                    final List<MethodInstance> overriddenMethods = ts.overrides(instance, emptyContext);
+                    for (MethodInstance overriddenMI : overriddenMethods) {
+                        MethodDef overriddenDef = overriddenMI.def();
+                        if (overriddenDef==def) continue; // me
+                        String overriddenReadsFrom = X10TypeMixin.getNonEscapingReadsFrom((X10MethodDef)overriddenDef,ts);
+                        if (overriddenReadsFrom!=null) {
+                            if (readsFrom==null || !overriddenReadsFrom.equals(readsFrom)) {
+                                reportError("You must annotate "+proc+" with @NonEscaping(\""+overriddenReadsFrom+"\") because it overrides a method annotated with that.", proc.position());
+                                break; // one such error msg is enough
+                            }
+                        }
                     }
-                    if (shouldVisit) ctorBody.visit(this);
+                    
+                    if (readsFrom==null) continue;
+
+                    // check all the fields in the annotation are found
+                    final MethodInfo info = new MethodInfo();
+                    info.canReadFrom = new HashSet<FieldDef>();
+                    String[] fieldNames = readsFrom.split(",");
+                    for (String fieldName : fieldNames) {
+                        String trimmed = fieldName.trim();
+                        if (trimmed.equals("")) continue;
+                        FieldDef field = findField(trimmed);
+                        if (field==null) reportError("Could not find field '"+trimmed+"' used in the annotation @NonEscaping.", proc.position());
+                        info.canReadFrom.add(field);
+                        info.read.add(field);
+                    }
+                    if (procBody==null) continue; // for native methods/ctors, we don't have a body
+
+                    allMethods.put(proc.procedureInstance(), info);
+                    dfsMethods.add(proc);
+
+                } else {
+                    if (procBody==null) continue;
+                    assert proc instanceof X10ConstructorDecl_c : proc;
+                    final X10ConstructorDecl_c ctor = (X10ConstructorDecl_c) proc;
+                    // ctors are implicitly NonEscaping
+                    if (isCallingOtherCtor(ctor)) {
+                        // ignore in dataflow ctors that call other ctors (using "this(...)"). We can reuse ConstructorCallChecker, but for better efficiency, we just check it directly
+                    } else {
+                        // add field initializers to all ctors
+                        ctorsForDataFlow.add(ctor);
+                    }
                 }
+                procBody.visit(this);
+
             }
         }
-        if (fields.size()==0) return; // done! all fields have an init, thus all reads are legal.
+        if (fields.size()==0) return; // done! all fields have an init, thus all reads are legal (and no writes must be done).
 
-        // ignore ctors that call other ctors (using "this(...)"). We can reuse ConstructorCallChecker, but for better efficiency, we just check it directly
-        Block newInit = nf.Block(pos,fieldInits);
-        for (X10ConstructorDecl_c ctor: allCtors) {
-            boolean callThis = false;
-            final Block ctorBody = ctor.body();
-            assert ctorBody!=null;
-            final List<Stmt> stmts = ctorBody.statements();
-            for (Stmt s : stmts) {
-                if (s instanceof ConstructorCall) {
-                    ConstructorCall cc = (ConstructorCall) s;
-                    if (cc.kind() == ConstructorCall.THIS) {
-                        callThis = true;
-                        break;
-                    }
-                }
-            }
-            if (!callThis) {
-                // add field init to all ctors
-                X10ConstructorDecl_c newCtor = (X10ConstructorDecl_c) ctor.body( nf.Block(pos,newInit,ctorBody) );
-                allMethods.put(newCtor.procedureInstance(), new MethodInfo());
-                dfsMethods.add(newCtor);
-            }
-        }
         // do init for the fixed point alg
-        for (MethodInfo info : allMethods.values()) {
-            info.write.addAll(fields);
-            info.seqWrite.addAll(fields);
+        for (Map.Entry<ProcedureDef, MethodInfo> entry : allMethods.entrySet()) {
+            MethodInfo info = entry.getValue();
+            if (!noWrites(entry.getKey())) {
+                info.write.addAll(fields);
+                info.seqWrite.addAll(fields);
+            }
         }
-        // run fix point alg
+        // run fix point alg: ctors do not need to be in the fixed point alg because nobody can call them directly
         final FieldChecker fieldChecker = new FieldChecker();
         while (wasChange && !wasError) {
-            wasChange = false;
+            wasChange =false;
             // do a DFS: starting from private/final methods, and then the ctors (this will reach a fixed-point fastest)
             for (ProcedureDecl p : dfsMethods)
                 fieldChecker.dataflow(p);
         }
+        // handle ctors and field initializers        
+        //fieldChecker.dataflow(newInit); // todo: make a new method for field-init, and the ctors will call it at the begining
+        for (X10ConstructorDecl_c ctor : ctorsForDataFlow) {
+            X10ConstructorDecl_c newCtor = (X10ConstructorDecl_c) ctor.body( nf.Block(pos,newInit,ctor.body()) );
+            fieldChecker.dataflow(newCtor);
+        }
     }
-    private X10FieldDecl_c findField(FieldDef def) {
-        for (X10FieldDecl_c f : fields)
-            if (f.fieldDef().equalsImpl(def)) return f;
+    private FieldDef findField(String name) {
+        for (FieldDef fieldDef : fields)
+            if (fieldDef.name().toString().equals(name)) {
+                return fieldDef;
+            }
+        return null;
+    }
+    private static boolean isCallingOtherCtor(X10ConstructorDecl_c ctor) {
+        final Block ctorBody = ctor.body();
+        assert ctorBody!=null;
+        final List<Stmt> stmts = ctorBody.statements();
+        for (Stmt s : stmts) {
+            if (s instanceof ConstructorCall) {
+                ConstructorCall cc = (ConstructorCall) s;
+                if (cc.kind() == ConstructorCall.THIS) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    private FieldDef findField(FieldDef def) {
+        for (FieldDef f : fields)
+            if (f.equalsImpl(def)) return f;
         return null;
     }
     private X10MethodDecl_c findMethod(X10Call call) {
@@ -444,6 +579,7 @@ public class CheckEscapingThis extends NodeVisitor
         for (ClassMember classMember : body.members()) {
             if (classMember instanceof X10MethodDecl_c) {
                 X10MethodDecl_c mdecl = (X10MethodDecl_c) classMember;
+                if (mdecl.body()==null) continue; // for native methods (like typeName in structs)
                 final MethodDef md = mdecl.methodDef();
                 if (mi2.def().equals(md)) return mdecl;
             }
@@ -451,17 +587,10 @@ public class CheckEscapingThis extends NodeVisitor
         return null;
     }
 
-    private int closureCount = 0;
-    private boolean isInClosure() { return closureCount>0; }
     @Override public Node visitEdgeNoOverride(Node parent, Node n) {
         checkGlobalRef(n); // check globalRef usage in ctors and methods called from ctors
 
-        boolean isClosure = n instanceof Closure;
-        if (isClosure) closureCount++;
-
-        if (!isInClosure()) {
-
-        // You can access "this" for field access and field assignment (if not in a closure).
+        // You can access "this" for field access and field assignment.
         // field assignment:
         if (n instanceof FieldAssign) {
             FieldAssign f = (FieldAssign) n;
@@ -480,18 +609,18 @@ public class CheckEscapingThis extends NodeVisitor
         if (n instanceof X10Call) {
             final X10Call call = (X10Call) n;
             final MethodInstance methodInstance = call.methodInstance();
-            final X10Flags flags = X10Flags.toX10Flags(methodInstance.flags());
+            final X10ProcedureDef procDef = (X10ProcedureDef) methodInstance.def();
             if (isThis(call.target())) {
-                if (flags.isProperty()) {
+                if (isProperty(procDef)) {
                     // property-method calls are ok
                 } else {
-                    // the method must be final or private
-                    if (!flags.isFinal() && !flags.isPrivate())  {
-                        reportError("The call "+call+" is illegal because you can only call private or final methods from a constructor or from methods called from a constructor",call.position());
-                    }
+                    // the method must be final or private or NonEscaping
+                    String readsFrom = X10TypeMixin.getNonEscapingReadsFrom(procDef,ts);
+                    if (readsFrom==null && !isPrivateOrFinal(procDef))
+                        reportError("The call "+call+" is illegal because you can only call private/final/@NonEscaping methods from a NonEscaping method (such as a constructor, a field initializer, or a @NonEscaping method)", call.position());
                     X10MethodDecl_c method = findMethod(call);
                     if (method==null) {
-                        if (!X10TypeMixin.isNonEscapingMethod((X10ProcedureDef)methodInstance.def(),ts))
+                        if (readsFrom==null)
                             reportError("The call "+call+" is illegal because you can only call @NonEscaping methods of a superclass from a constructor or from methods called from a constructor",call.position());
                     } else {
                         ProcedureDef pd = method.procedureInstance();
@@ -514,14 +643,12 @@ public class CheckEscapingThis extends NodeVisitor
                 return n;
             }                        
         }
-            
-        }
+
         // You cannot use "this" for anything else!
         if (isThis(n)) {
             reportError("'this' and 'super' cannot escape from a constructor or from methods called from a constructor",n.position());
         }
         n.del().visitChildren(this);
-        if (isClosure) closureCount--;
         return n;
     }
     private void reportError(String s, Position p) {

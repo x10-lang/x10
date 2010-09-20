@@ -20,7 +20,7 @@ public class AsyncReturn extends x10Test {
 
 	public def run(): boolean = {
 		class T {
-			val root = GlobalRef[T](this);
+			private val root = GlobalRef[T](this);
 			transient var t: int;
 		}
 		val f = new T();

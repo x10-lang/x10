@@ -17,7 +17,7 @@ import harness.x10Test;
  * @author vj
  */
 public class AtEachLoopOnArray extends x10Test {
-	val root = GlobalRef[AtEachLoopOnArray](this);
+	private val root = GlobalRef[AtEachLoopOnArray](this);
     var success: boolean = true;
 
     public def run(): boolean = {

@@ -20,7 +20,7 @@ import x10.compiler.Pinned;
 import x10.compiler.Global;
 
 abstract public class TestArray extends x10Test {
-    val root = GlobalRef[TestArray](this);
+    private val root = GlobalRef[TestArray](this);
     
     val os: StringWriter;
     val out: Printer;
@@ -65,7 +65,7 @@ abstract public class TestArray extends x10Test {
     }
             
     class Grid {
-    	val root = GlobalRef[Grid](this);
+    	private val root = GlobalRef[Grid](this);
         transient var os: Rail[Object] = Rail.make[Object](10);
 
         @Pinned def set(i0: int, vue: double): void = {

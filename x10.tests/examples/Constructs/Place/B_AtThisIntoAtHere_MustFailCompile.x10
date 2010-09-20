@@ -22,13 +22,9 @@ import harness.x10Test;
  */
 public class B_AtThisIntoAtHere_MustFailCompile extends x10Test {
 	   class Test {
-	    	val x:GlobalRef[Test];
-	        val y:GlobalRef[Test]{self.home==x.home};
+	    	private val x:GlobalRef[Test]= GlobalRef[Test](this);
+	        private val y:GlobalRef[Test]{self.home==x.home}= GlobalRef[Test](this);
 
-	        def this() {
-	        	x  = GlobalRef[Test](this);
-	        	y = GlobalRef[Test](this);
-	        }
 	     def n() { 
 	    	 val p = Place.places(1);
 	    	 at (x) {

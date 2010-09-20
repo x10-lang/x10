@@ -13,6 +13,7 @@ package x10.lang;
 
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
+import x10.compiler.NonEscaping;
 
 /**
  * The base class for all reference classes.
@@ -88,5 +89,6 @@ public class Object
      */
 	@Native("java", "x10.rtt.Types.typeName(#0)")
     @Native("c++", "x10aux::type_name(#0)")
+    @NonEscaping("")
     public safe native final def typeName():String;
 }

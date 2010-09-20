@@ -15,7 +15,7 @@ import harness.x10Test;
  * Testing that an at spawned at some other place cannot access a remote field.
  */
 public class AtFieldWrite_MustFailCompile extends x10Test {
-	val root = GlobalRef[AtFieldWrite_MustFailCompile](this);
+	private val root = GlobalRef[AtFieldWrite_MustFailCompile](this);
 	transient var t: T;
     public def run() {
 	    val Second = Place.FIRST_PLACE.next();
@@ -40,7 +40,7 @@ public class AtFieldWrite_MustFailCompile extends x10Test {
     }
 
     static class T {
-    	val root = GlobalRef[T](this);
+    	private val root = GlobalRef[T](this);
 	    transient public var i: int;
     }
 }

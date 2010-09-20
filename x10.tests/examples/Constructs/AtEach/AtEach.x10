@@ -17,7 +17,7 @@ import harness.x10Test;
  * @author kemal, 12/2004
  */
 public class AtEach extends x10Test {
-	val root = GlobalRef[AtEach](this);
+	private val root = GlobalRef[AtEach](this);
     transient var nplaces: int = 0;
 
     public def run(): boolean = {

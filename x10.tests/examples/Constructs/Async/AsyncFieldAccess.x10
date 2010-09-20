@@ -16,7 +16,7 @@ import x10.compiler.Pinned;
  * Testing an async spawned to a field access.
  */
 public class AsyncFieldAccess extends x10Test {
-    val root = GlobalRef[AsyncFieldAccess](this);
+    private val root = GlobalRef[AsyncFieldAccess](this);
 	transient var t: GlobalRef[T] = GlobalRef[T](null);
 	public def run(): boolean = {
 		var Second: Place = Place.FIRST_PLACE.next();
@@ -37,7 +37,7 @@ public class AsyncFieldAccess extends x10Test {
 	}
 
 	static class T {
-		val root = GlobalRef[T](this);
+		private val root = GlobalRef[T](this);
 		transient public var i: int;
 	}
 }

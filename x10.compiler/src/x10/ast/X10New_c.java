@@ -198,6 +198,10 @@ public class X10New_c extends New_c implements X10New {
         if (t == anonType) {
             t = t.outer();
         }
+        if (anonType!=null) {
+            outer = t;
+            t = null;
+        }
         
         // Search all enclosing classes for the type.
         while (t != null) {
@@ -286,8 +290,10 @@ public class X10New_c extends New_c implements X10New {
 
             X10ClassType ct = (X10ClassType) t;
 
-            if (ct.isMember() && !ct.flags().isStatic()) {
-                New k = ((X10New_c) n.objectType(tn)).findQualifier(childtc, ct);
+            if ((ct.isMember()&& !ct.flags().isStatic())
+                   || (anonType!=null && !childtc.context().inStaticContext())) { // the receiver/target of X10New_c for anonymous classes should be "this" (for CheckEscapingThis)
+                final X10New_c newC = (X10New_c) n.objectType(tn);
+                New k = newC.findQualifier(childtc, ct);
                 tn = k.objectType();
                 qualifier = (Expr) k.visitChild(k.qualifier(), childtc);
             }
@@ -437,6 +443,7 @@ public class X10New_c extends New_c implements X10New {
         }
 
         X10ParsedClassType container = (X10ParsedClassType) ci.container();
+        // todo: "t" might be a ConstrainedType_c (C:\cygwin\home\Yoav\intellij\sourceforge\x10.tests\examples\Constructs\Typedefs\TypedefNew01.x10:44,31-38)
         if (((X10ParsedClassType) t).typeArguments().equals(container.x10Def().typeParameters())) {
             t = ((X10ParsedClassType) t).typeArguments(container.typeArguments());
             result = (X10New_c) result.objectType(result.objectType().typeRef(Types.ref(t)));

@@ -35,7 +35,7 @@ public class AtFieldAccess extends x10Test {
 	}
 
 	static class T {
-		val root = GlobalRef[T](this);
+		private val root = GlobalRef[T](this);
 		transient public var i: int;
 	}
 }

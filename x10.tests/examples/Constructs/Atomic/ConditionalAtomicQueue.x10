@@ -22,7 +22,7 @@ import x10.compiler.Global;
  * @author kemal, 12/2004
  */
 public class ConditionalAtomicQueue extends x10Test {
-    val root = GlobalRef[ConditionalAtomicQueue](this);
+    private val root = GlobalRef[ConditionalAtomicQueue](this);
 	transient private val siz: int;
 	transient private val Q: Rail[T]; // The circular buffer
 	transient private var nelems: int; // number of items in buffer Q

@@ -68,7 +68,7 @@ public class UserDefinedArray extends x10Test {
     }
 
     static class E {
-    	val root = GlobalRef[E](this);
+    	private val root = GlobalRef[E](this);
     	def home() = root.home;
         var v: int;
         def this(var i: int): E = { v = i; }

@@ -24,7 +24,7 @@ import x10.compiler.Global;
  *
  */
 public class Future[+T] implements ()=>T {
-	val root = GlobalRef[Future[T]](this);
+	private val root = GlobalRef[Future[T]](this);
     /**
      * Latch for signaling and wait
      */

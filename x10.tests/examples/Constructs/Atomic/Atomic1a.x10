@@ -18,7 +18,7 @@ import x10.util.Future;
  * inside the same atomic section.
  */
 public class Atomic1a extends x10Test {
-    val root = GlobalRef[Atomic1a](this);
+    private val root = GlobalRef[Atomic1a](this);
 	transient var cnt: int = 0;
 	transient var cnt_broken: int = 0;
 	public static N: int = 100;

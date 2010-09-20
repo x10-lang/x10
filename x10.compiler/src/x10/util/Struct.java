@@ -209,6 +209,8 @@ public class Struct {
             //@Native("c++", "x10aux::type_name(#0)")
             //global safe def typeName():String;
             natives = createNative(nf, pos, "x10.rtt.Types.typeName(#0)", "x10aux::type_name(#0)");
+            AnnotationNode nonEscaping = nf.AnnotationNode(pos, nf.AmbMacroTypeNode(pos, nf.PrefixFromQualifiedName(pos,QName.make("x10.compiler")), nf.Id(pos, "NonEscaping"), Collections.EMPTY_LIST, Collections.<Expr>singletonList(nf.StringLit(pos,""))));
+            natives.add(nonEscaping);
             methodName = "typeName";
             md = nf.MethodDecl(pos,nf.FlagsNode(pos,nativeFlags),stringTypeNode,nf.Id(pos,Name.make(methodName)),Collections.EMPTY_LIST,Collections.EMPTY_LIST,null);
             md = (X10MethodDecl) ((X10Ext) md.ext()).annotations(natives);

@@ -141,7 +141,6 @@ public class RunTestSuite {
         // Now checking the errors reported are correct and match ERR markers
         // 1. find all ERR markers that don't have a corresponding error
         for (File file : files) {
-            if (!file.getName().endsWith("_MustFailCompile.x10")) continue;
             if (Report.should_report("TestSuite", 3))
                 Report.report(3, "Looking for ERR markers in file "+ file);
             BufferedReader in = new BufferedReader(new FileReader(file));
@@ -150,7 +149,8 @@ public class RunTestSuite {
             String line;
             while ((line=in.readLine())!=null) {
                 lineNum++;
-                if (line.contains("ERR")) {
+                if (line.contains("ERR") &&
+                    !file.getName().contains("Console.x10")) { // Console defines "static ERR:Printer"
                     foundErr = true;
                     // try to find the matching error
                     boolean foundMatch = false;
@@ -169,7 +169,7 @@ public class RunTestSuite {
                         System.err.println("File "+file+" has an ERR marker on line "+lineNum+", but the compiler didn't report an error on that line!");
                 }
             }
-            if (!foundErr) {
+            if (!foundErr && file.getName().endsWith("_MustFailCompile.x10")) {
                 System.err.println("File "+file+" ends in _MustFailCompile.x10 but it doesn't contain any 'ERR' markers!");
             }
         }

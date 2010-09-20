@@ -20,7 +20,7 @@ import harness.x10Test;
 
 public class AtCheck3a_MustFailCompile { // extends x10Test {
 	class T {
-		val root = GlobalRef[T](this);
+		private val root = GlobalRef[T](this);
 	    var x:int=0;
         def m(b: T, d:T) {
 	       at ( b.root) {

@@ -282,7 +282,7 @@ import x10.util.Box;
 
     // Single class translation of an X10 2.0 class
     static class RootCollectingFinish[T] extends RootFinish {
-    	protected val root = GlobalRef[RootCollectingFinish[T]](this);
+    	private val root = GlobalRef[RootCollectingFinish[T]](this);
     	transient val sr:StatefulReducer[T];
     	val reducer:Reducible[T];
         def this(r:Reducible[T]) {
@@ -344,7 +344,7 @@ import x10.util.Box;
     }
     	
     static class RootFinish implements FinishState, Mortal {
-        protected val root = GlobalRef[RootFinish](this);
+        private val root = GlobalRef[RootFinish](this);
         transient protected val counts:Rail[Int];
         transient protected val seen:Rail[Boolean];
         transient protected var exceptions:Stack[Throwable];
@@ -1008,7 +1008,7 @@ import x10.util.Box;
 
     
      static class SimpleRootFinish extends Latch implements FinishState, Mortal {
-    	 protected val root = GlobalRef[SimpleRootFinish](this);
+    	 private val root = GlobalRef[SimpleRootFinish](this);
     	 transient protected var counts:int;
          transient protected var exceptions:Stack[Throwable];
 	 transient protected val latch = new Latch();
@@ -1572,7 +1572,7 @@ import x10.util.Box;
      * Run at statement
      */
     static class RemoteControl {
-    	val root = GlobalRef[RemoteControl](this);
+    	private val root = GlobalRef[RemoteControl](this);
         transient var e:Box[Throwable] = null;
         transient val latch = new Latch();
         @Global public safe def equals(a:Any) =
@@ -1618,7 +1618,7 @@ import x10.util.Box;
         transient var t:Box[T] = null;
         transient var e:Box[Throwable] = null;
         transient val latch = new Latch();
-        val root = GlobalRef[Remote](this);
+        private val root = GlobalRef[Remote](this);
         @Global public safe def equals(a:Any)=
         	(a instanceof Remote[T]) && this.root.equals((a as Remote[T]).root);
         @Global public safe def hashCode()=root.hashCode();

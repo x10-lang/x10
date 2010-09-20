@@ -418,6 +418,7 @@ public class New_c extends Expr_c implements New
             // According to JLS2 15.9.1, the class type being
             // instantiated must be inner.
 	    if (! ct.isInnerClass()) {
+            if (!(qualifier instanceof Special)) // Yoav added "this" qualifier for non-static anonymous classes
                 throw new SemanticException(
                     "Cannot provide a containing instance for non-inner class " +
 		    ct.fullName() + ".", qualifier.position());
