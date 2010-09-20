@@ -140,7 +140,7 @@ void Launcher::initialize(int argc, char ** argv)
 		strncpy(_hostfname, hostfname, sizeof(_hostfname) - 1);
 		readHostFile();
 	}
-	else
+	else if (_myproc == 0xFFFFFFFF)
 		fprintf(stderr, "Warning: %s not defined.  Running %d places on localhost\n", X10LAUNCHER_HOSTFILE, _nplaces);
 
 	connectToParentLauncher();
