@@ -14,6 +14,7 @@ package x10.visit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 
@@ -530,8 +531,8 @@ public class Desugarer extends ContextVisitor {
     }
 
     private Stmt async(Position pos, Stmt body, List<X10ClassType> annotations) throws SemanticException {
-        return makeAsyncBody(pos, Collections.<Expr>emptyList(),
-                Collections.<Type>emptyList(), body, annotations);
+        return makeAsyncBody(pos, new LinkedList<Expr>(),
+                new LinkedList<Type>(), body, annotations);
     }
 
     private Stmt makeAsyncBody(Position pos, List<Expr> exprs, List<Type> types, Stmt body, List<X10ClassType> annotations) throws SemanticException {
@@ -554,8 +555,8 @@ public class Desugarer extends ContextVisitor {
     }
 
     private Stmt uncountedAsync(Position pos, Stmt body) throws SemanticException {
-        return makeUncountedAsyncBody(pos, Collections.<Expr>emptyList(),
-                Collections.<Type>emptyList(), body);
+        return makeUncountedAsyncBody(pos, new LinkedList<Expr>(),
+                new LinkedList<Type>(), body);
     }
 
     private Stmt makeUncountedAsyncBody(Position pos, List<Expr> exprs, List<Type> types, Stmt body) throws SemanticException {
