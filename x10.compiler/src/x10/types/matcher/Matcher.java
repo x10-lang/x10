@@ -241,7 +241,7 @@ public class Matcher {
 	        		} 
 	        	});
 
-	        	newMe = newMe.returnTypeRef(newReturnTypeRef);
+	        	newMe = (X10ProcedureInstance<?>) newMe.returnTypeRef(newReturnTypeRef);
 		}
 
 		{ // set up the new formal types.  These are obtained from the real formal types
@@ -275,7 +275,7 @@ public class Matcher {
 
 	        			newFormals.add(t);
 	        		}
-	        		newMe = newMe.formalTypes(newFormals);
+	        		newMe = (X10ProcedureInstance<?>) newMe.formalTypes(newFormals);
 
 	        	} else {
 	        		List<Type> newFormals = new ArrayList<Type>();
@@ -283,8 +283,8 @@ public class Matcher {
 	        			t = Subst.subst(t, y2eqv, x2, Y, X); 
 	        			newFormals.add(t);
 	        		}
-	        		newMe = newMe.formalTypes(newFormals);
-	        	} 
+	        		newMe = (X10ProcedureInstance<?>) newMe.formalTypes(newFormals);
+	        	}
 		}
 
 		{ // set up the guard.
