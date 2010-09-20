@@ -16,7 +16,8 @@ import polyglot.frontend.SourceGoal_c;
 import x10.ExtensionInfo;
 
 public class RegisterPlugins extends SourceGoal_c {
-
+	private static final long serialVersionUID = 4451557762303738052L;
+	
 	protected ExtensionInfo extInfo;
 	
 	public RegisterPlugins(Job job) {

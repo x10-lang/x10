@@ -383,7 +383,7 @@ public class Emitter {
 	}
 
 
-	public void printTemplateSignature(List<Type> list, CodeWriter h) {
+	public void printTemplateSignature(List<? extends Type> list, CodeWriter h) {
 		int size = list.size();
 		if (size != 0) {
 			h.write("template<class ");
@@ -397,11 +397,6 @@ public class Emitter {
 			h.write(">");
 			h.allowBreak(0, " ");
 		}
-	}
-
-	static List<Type> toTypeList(List<ParameterType> list) {
-		ArrayList<Type> res = new ArrayList<Type>(list);
-		return res;
 	}
 
 	void printTemplateInstantiation(X10MethodInstance mi, CodeWriter w) {
@@ -540,7 +535,7 @@ public class Emitter {
 		    h.write("inline ");
 		}
 
-		printTemplateSignature(toTypeList(def.typeParameters()), h);
+		printTemplateSignature(def.typeParameters(), h);
 
 		if (!qualify) {
 			if (flags.isStatic())

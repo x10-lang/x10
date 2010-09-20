@@ -473,7 +473,9 @@ public class LoopUnroller extends ContextVisitor {
 
     private String getFQN(XName name) {
         if (name instanceof XNameWrapper<?>) {
-            FieldDef fd = ((XNameWrapper<FieldDef>) name).val();
+            Object val = ((XNameWrapper<?>) name).val();
+            assert (val instanceof FieldDef);
+            FieldDef fd = (FieldDef) val;
             return Types.get(fd.container()) + "#" + fd.name().toString();
         }
         return name.toString();

@@ -186,6 +186,10 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
         return n;
     }
 
+    public X10MethodInstance formalTypes(List<Type> formalTypes) {
+        return (X10MethodInstance) super.formalTypes(formalTypes);
+    }
+
     private SemanticException error;
 
     public SemanticException error() {

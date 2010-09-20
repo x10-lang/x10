@@ -11,6 +11,8 @@
 
 package x10.types;
 
+import java.util.List;
+
 import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.Ref;
@@ -29,8 +31,9 @@ public interface X10MethodInstance extends MethodInstance, X10ProcedureInstance<
      */
     boolean isSafe();
 
-    // Use X10MethodInstance as the return type rather than X10MethodInstance
     X10MethodInstance returnType(Type returnType);
+    X10MethodInstance returnTypeRef(Ref<? extends Type> returnType);
+    X10MethodInstance formalTypes(List<Type> formalTypes);
 
     /** Type to use in a RHS context rather than the return type. */
     Type rightType();

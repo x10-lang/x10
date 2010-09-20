@@ -33,14 +33,16 @@ public interface X10ProcedureInstance<T extends ProcedureDef> extends TypeObject
     Type returnType();
     ProcedureInstance<T> returnType(Type t);
     Ref<? extends Type> returnTypeRef();
-    ProcedureInstance<T> returnTypeRef(Ref<? extends Type> t);
+    X10ProcedureInstance<T> returnTypeRef(Ref<? extends Type> t);
     
     List<Type> typeParameters();
     X10ProcedureInstance<T> typeParameters(List<Type> typeParameters);
     
     List<LocalInstance> formalNames();
     X10ProcedureInstance<T> formalNames(List<LocalInstance> formalNames);
-    
+
+    X10ProcedureInstance<T> formalTypes(List<Type> formalTypes);
+
     /**
      * Return the constraint on the formal parameters, if any.
      * @return

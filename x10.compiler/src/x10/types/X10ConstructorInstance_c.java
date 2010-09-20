@@ -180,9 +180,13 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
     }
     
     public X10ConstructorInstance formalNames(List<LocalInstance> formalNames) {
-	X10ConstructorInstance_c n = (X10ConstructorInstance_c) copy();
-	n.formalNames = formalNames;
-	return n;
+        X10ConstructorInstance_c n = (X10ConstructorInstance_c) copy();
+        n.formalNames = formalNames;
+        return n;
+    }
+
+    public X10ConstructorInstance formalTypes(List<Type> formalTypes) {
+        return (X10ConstructorInstance) super.formalTypes(formalTypes);
     }
 
     private SemanticException error;

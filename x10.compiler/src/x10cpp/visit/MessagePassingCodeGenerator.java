@@ -18,7 +18,6 @@ import static x10cpp.visit.ASTQuery.getStringPropertyInit;
 import static x10cpp.visit.Emitter.mangled_field_name;
 import static x10cpp.visit.Emitter.mangled_method_name;
 import static x10cpp.visit.Emitter.mangled_non_method_name;
-import static x10cpp.visit.Emitter.toTypeList;
 import static x10cpp.visit.Emitter.translateFQN;
 import static x10cpp.visit.Emitter.translate_mangled_FQN;
 import static x10cpp.visit.Emitter.voidTemplateInstantiation;
@@ -459,7 +458,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     	            ((X10CPPTranslator)tr).setContext(md.enterScope(context)); // FIXME
     	            if (query.isMainMethod(md))
     	                processMain((X10ClassType) cd.asType());
-    	            emitter.printTemplateSignature(toTypeList(def.typeParameters()), sw);
+    	            emitter.printTemplateSignature(def.typeParameters(), sw);
     	            emitter.printType(md.returnType().type(), sw);
     	            sw.allowBreak(2, " ");
     	            sw.write(container+"::");
@@ -608,7 +607,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             Emitter.openNamespaces(h, pkg);
             h.newline(0);
         }
-        emitter.printTemplateSignature((List<Type>)(List)cd.typeParameters(), h);
+        emitter.printTemplateSignature(cd.typeParameters(), h);
         String name = StaticNestedClassRemover.mangleName(cd).toString();
         h.write("class "+Emitter.mangled_non_method_name(name)+";");
         h.newline();
@@ -964,7 +963,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             Emitter.openNamespaces(h, qn);
             h.newline(0);
         }
-        emitter.printTemplateSignature((List<Type>)(List)def.typeParameters(), h);
+        emitter.printTemplateSignature(def.typeParameters(), h);
         h.write("class "+Emitter.mangled_non_method_name(n.name().toString())+";");
         h.newline(0);
         if (context.package_() != null) {

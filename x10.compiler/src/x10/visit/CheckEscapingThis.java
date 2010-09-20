@@ -222,7 +222,7 @@ public class CheckEscapingThis extends NodeVisitor
                 MethodInfo info = allMethods.get(currDecl.procedureInstance());                  
                 final boolean ctor = isCtor();
                 if (!ctor) assert info!=null : currDecl;
-                final Set<FieldDef> canReadFrom = ctor ? Collections.EMPTY_SET : info.canReadFrom;
+                final Set<FieldDef> canReadFrom = ctor ? Collections.<FieldDef>emptySet() : info.canReadFrom;
                 // can't read from an un-init var in the ctors (I want to catch it here, so I can give the exact position info)
                 // can't read from any var not in @NonEscaping(...)
                 if (canReadFrom!=null) {

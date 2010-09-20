@@ -20,6 +20,8 @@ import polyglot.util.*;
 /** The post compiler pass runs after all jobs complete.  It invokes the post-compiler on the output files stored in compiler.outputFiles(). */
 public class PostCompiled extends AllBarrierGoal
 {
+    private static final long serialVersionUID = -1965473009038288138L;
+
     ExtensionInfo ext;
 
     /**
@@ -37,7 +39,8 @@ public class PostCompiled extends AllBarrierGoal
 	}
 	else {
 	    return new SourceGoal_c("DummyEnd", job) {
-		public boolean runTask() { return true; }
+	        private static final long serialVersionUID = 3275850403775521984L;
+	        public boolean runTask() { return true; }
 	    }.intern(scheduler);
 	}
     }
