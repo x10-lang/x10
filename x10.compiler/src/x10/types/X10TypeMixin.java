@@ -45,7 +45,6 @@ import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.types.UnknownType;
 import polyglot.types.QName;
-import polyglot.types.MethodDef;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
@@ -997,6 +996,9 @@ public class X10TypeMixin {
     public static boolean isUninitializedField(X10FieldDef def,X10TypeSystem ts) {
         return isDefAnnotated(def,ts,"x10.compiler.Uninitialized");
     }
+    public static boolean isTransientField(X10FieldDef def,X10TypeSystem ts) {
+        return isDefAnnotated(def,ts,"x10.compiler.Transient");
+    }
     public static String getNonEscapingReadsFrom(X10ProcedureDef def,X10TypeSystem ts) {
         try {
             Type at = (Type) ts.systemResolver().find(QName.make("x10.compiler.NonEscaping"));
@@ -1056,7 +1058,7 @@ public class X10TypeMixin {
                 e = nf.FloatLit(p, FloatLit.FLOAT, 0.0);
             } else if (ts.isDouble(t)) {
                 e = nf.FloatLit(p, FloatLit.DOUBLE, 0.0);
-            } else if (ts.isReferenceType(t, context)) {
+            } else if (ts.isObjectOrInterfaceType(t, context)) {
                 e = nf.NullLit(p);
             }
             // todo: we should handle user-defined structs, as well as generic type parameters with hasDefault. see hasZero

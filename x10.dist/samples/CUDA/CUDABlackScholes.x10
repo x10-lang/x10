@@ -36,7 +36,7 @@ public class CUDABlackScholes {
             V:Float) {
         val blocks = 480;
         val threads = 128;
-        finish async (p) @CUDA @CUDADirectParams {
+        finish async at (p) @CUDA @CUDADirectParams {
             //val blocks = CUDAUtilities.autoBlocks(),
             //    threads = CUDAUtilities.autoThreads();
             for ((block) in 0..blocks-1) {

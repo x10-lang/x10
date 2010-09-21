@@ -282,7 +282,7 @@ public interface X10TypeSystem extends TypeSystem {
     
     boolean isStructType(Type me);
 
-    boolean isReferenceType(Type me, X10Context context);
+    boolean isObjectType(Type me, X10Context context);
 
     boolean isUByte(Type t);
     boolean isUShort(Type t);
@@ -393,7 +393,7 @@ public interface X10TypeSystem extends TypeSystem {
      * @param context TODO*/
     boolean consistent(Type t, X10Context context);
 
-    boolean isReferenceOrInterfaceType(Type t, X10Context context);
+    boolean isObjectOrInterfaceType(Type t, X10Context context);
 
     boolean isParameterType(Type toType);
 

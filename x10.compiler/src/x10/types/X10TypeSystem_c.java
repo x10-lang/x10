@@ -18,7 +18,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -30,7 +29,6 @@ import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Source;
-import polyglot.main.Report;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.CodeDef;
@@ -776,7 +774,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     }
 
     static enum Kind {
-        NEITHER, EITHER, REFERENCE, STRUCT, INTERFACE
+        NEITHER, EITHER, OBJECT, STRUCT, INTERFACE
     }
 
     public Kind kind(Type t, X10Context c) {
@@ -788,34 +786,13 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         return t instanceof ParameterType;
     }
 
-    public boolean isReferenceOrInterfaceType(Type t, X10Context c) {
+    public boolean isObjectOrInterfaceType(Type t, X10Context c) {
         Kind kind = kind(t, c);
-        return kind == Kind.REFERENCE  || kind == Kind.INTERFACE;
-        // t = X10TypeMixin.baseType(t);
-        // if (t instanceof ClosureType)
-        // return false;
-        // return isReferenceType(t) || isInterfaceType(t);
+        return kind == Kind.OBJECT || kind == Kind.INTERFACE;
     }
 
-    public boolean isReferenceType(Type t, X10Context c) {
-        return kind(t, c) == Kind.REFERENCE;
-        // t = X10TypeMixin.baseType(t);
-        // if (t instanceof ClosureType)
-        // return false;
-        // if (t instanceof ClassType) {
-        // ClassType ct = (ClassType) t;
-        // if (ct.isAnonymous()) {
-        // if (ct.superClass() != null)
-        // return isReferenceType(ct.superClass());
-        // else if (ct.interfaces().size() > 0)
-        // return isReferenceType(ct.interfaces().get(0));
-        // else
-        // return false;
-        // }
-        // return !X10Flags.toX10Flags(ct.flags()).isValue();
-        // }
-        // return false;
-        // return isX10BaseSubtype(t, Ref());
+    public boolean isObjectType(Type t, X10Context c) {
+        return kind(t, c) == Kind.OBJECT;
     }
 
     

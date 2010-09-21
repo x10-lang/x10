@@ -418,12 +418,22 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	    	X10FieldDecl_c n = (X10FieldDecl_c) this.type(nf.CanonicalTypeNode(type().position(), type));
 
 	    	// Add an initializer to uninitialized var field unless field is annotated @Uninitialized.
-	        if (!n.flags().flags().isFinal() && n.init() == null && !X10TypeMixin.isUninitializedField(((X10FieldDef) n.fieldDef()),ts)) {
+            final X10FieldDef fieldDef = (X10FieldDef) n.fieldDef();
+            final boolean needsInit = !n.flags().flags().isFinal() && n.init() == null && !X10TypeMixin.isUninitializedField(fieldDef, ts);
+            final boolean isTransient = X10TypeMixin.isTransientField(fieldDef, ts);
+            if (needsInit || isTransient) {
                 // creating an init.
 	    		Expr e = X10TypeMixin.getZeroVal(type,position().markCompilerGenerated(),tc);
-	    		if (e != null) {
-	    			n = (X10FieldDecl_c) n.init(e);
-	    		}
+                if (needsInit) {
+                    if (e != null) {
+                        n = (X10FieldDecl_c) n.init(e);
+                    }
+                }
+                if (isTransient) {
+                    // Transient fields must have a default value
+                    if (e==null)
+                        Errors.issue(tc.job(), new SemanticException("The @Transient field '"+n.name()+"' must have a type with a default value.",position()));
+                }
 	    	}
 
 	    	if (n.init != null) {
@@ -444,7 +454,6 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 
 	    public Type childExpectedType(Expr child, AscriptionVisitor av) {
 	        if (child == init) {
-	            TypeSystem ts = av.typeSystem();
 	            return type.type();
 	        }
 

@@ -31,7 +31,7 @@ public class UserDefinedArray extends x10Test {
         // and a[1] is in D[1] but points to an object in D[0]
         val v1: E = at(D(1)) new E(1);
         val v2: E = at(D(0))new E(2);
-        val a  = DistArray.make[E](D, ([i]: Point)=> (i==0) ? v1 : v2);
+        val a:DistArray[E](1)  = DistArray.make[E](D, ([i]: Point(1))=> (i==0) ? v1 : v2);
 
         chk(a.dist(0) == D(0));
         chk(at(a.dist(0))a(0) == v1);

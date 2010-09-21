@@ -7,21 +7,21 @@ public class SimpleFinish5 {
 	   finish{ 
 	   for(i=0;i<1000;i++){
 		val p1 = Place.place(i % Place.MAX_PLACES);
-	    	async(p1){    
+	    	async at (p1){    
 		    @FinishAsync(1,1,false,2)
                     finish {
 			for(var j:int = 0; j< 500; j++){
                         	async{}
 			}
                         for(var p:int = 0; p<Place.MAX_PLACES; p++){
-                            async(Place.places(p)){
+                            async at (Place.places(p)){
                                 for(var pp:int = 0; pp<50; pp++){
                                      async{}
                                 }
                             }
                         }
                         for(var p3:int = Place.MAX_PLACES-1; p3>=0;p3--){
-                            async(Place.places(p3)){}
+                            async at (Place.places(p3)){}
                         }
                     }
 		}

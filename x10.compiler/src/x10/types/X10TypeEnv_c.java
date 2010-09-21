@@ -25,7 +25,6 @@ import polyglot.main.Report;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.Context;
-import polyglot.types.Def;
 import polyglot.types.DerefTransform;
 import polyglot.types.LazyRef;
 import polyglot.types.LazyRef_c;
@@ -36,7 +35,6 @@ import polyglot.types.NoClassException;
 import polyglot.types.NoMemberException;
 import polyglot.types.NullType;
 import polyglot.types.ObjectType;
-import polyglot.types.PrimitiveType;
 import polyglot.types.ProcedureDef;
 import polyglot.types.ProcedureInstance;
 import polyglot.types.ProcedureInstance_c;
@@ -52,27 +50,21 @@ import polyglot.types.TypeSystem_c.TypeEquals;
 import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.TransformingList;
-import x10.ast.X10Special;
 import x10.constraint.XEQV;
 import x10.constraint.XFailure;
 import x10.constraint.XLit;
 import x10.constraint.XName;
 import x10.constraint.XNameWrapper;
 import x10.constraint.XVar;
-import x10.constraint.XTerm;
 import x10.constraint.XTerms;
-import x10.constraint.XVar;
 import x10.errors.Errors;
 import x10.types.ParameterType.Variance;
 import x10.types.X10TypeSystem_c.Bound;
 import x10.types.X10TypeSystem_c.Kind;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CConstraint;
-import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
-import x10.types.constraints.XConstrainedTerm;
 import x10.types.matcher.Matcher;
 import x10.types.matcher.Subst;
 
@@ -379,7 +371,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             if (X10Flags.toX10Flags(ct.flags()).isStruct())
                 return Kind.STRUCT;
             else
-                return Kind.REFERENCE;
+                return Kind.OBJECT;
         }
         if (t instanceof ParameterType) {
             Kind k = Kind.EITHER;
@@ -393,8 +385,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                     ;
                 else if (k == Kind.EITHER && k2 == Kind.STRUCT)
                     k = Kind.STRUCT;
-                else if (k == Kind.EITHER && k2 == Kind.REFERENCE)
-                    k = Kind.REFERENCE;
+                else if (k == Kind.EITHER && k2 == Kind.OBJECT)
+                    k = Kind.OBJECT;
                 else
                     k = Kind.NEITHER;
             }
@@ -1149,10 +1141,10 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         if (baseType1 != fromType || baseType2 != toType)
             return isCastValid(baseType1, baseType2);
 
-        if (ts.isStructType(baseType1) && ts.isReferenceType(baseType2, (X10Context) context))
+        if (ts.isStructType(baseType1) && ts.isObjectType(baseType2, (X10Context) context))
             return false;
 
-        if (ts.isReferenceType(baseType1, (X10Context) context) && ts.isStructType(baseType2))
+        if (ts.isObjectType(baseType1, (X10Context) context) && ts.isStructType(baseType2))
             return false;
 
         if (ts.isParameterType(baseType1) || ts.isParameterType(baseType2))

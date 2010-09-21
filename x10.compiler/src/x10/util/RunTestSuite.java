@@ -23,7 +23,7 @@ public class RunTestSuite {
     // todo: add support for various options, like testing with STATIC_CALLS/DYNAMIC_CALLS
 
     //_MustFailCompile means the compilation should fail.
-    // Inside those files we should have "ERR" markers that we use to test the position of the errors is correct.
+    // Inside those files we should have "//.*ERR" markers that we use to test the position of the errors is correct.
     //_MustFailTimeout means that when running the file it will have an infinite loop
     private static final String[] EXCLUDE_FILES_WITH_SUFFIX = {
             "_DYNAMIC_CALLS.x10","_MustFailCompile.x10",
@@ -149,7 +149,7 @@ public class RunTestSuite {
             String line;
             while ((line=in.readLine())!=null) {
                 lineNum++;
-                if (line.contains("ERR") &&
+                if (line.contains("ERR") && line.contains("//") &&
                     !file.getName().contains("Console.x10")) { // Console defines "static ERR:Printer"
                     foundErr = true;
                     // try to find the matching error

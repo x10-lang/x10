@@ -60,13 +60,9 @@ public class CheckEscapingThis extends NodeVisitor
     private static String flagsToString(int i) { return i==0? "none," : (isRead(i)?"read," : "")+(isWrite(i)?"write," : "")+(isSeqWrite(i)?"seqWrite," : ""); }
 
 
-    private class DataFlowItem extends DataFlow.Item {
+    private static class DataFlowItem extends DataFlow.Item {
         private final Map<FieldDef, Integer> initStatus = new HashMap<FieldDef, Integer>(); // immutable map of fields to 3flags
 
-        private DataFlowItem() {
-            for (FieldDef f : fields)
-                initStatus.put(f,0);
-        }
         public boolean equals(Object o) {
             if (o instanceof DataFlowItem) {
                 return this.initStatus.equals(((DataFlowItem)o).initStatus);
@@ -87,27 +83,24 @@ public class CheckEscapingThis extends NodeVisitor
         }
     }
     class FieldChecker extends DataFlow {
-        private final DataFlowItem INIT = new DataFlowItem();
-        private final DataFlowItem CTOR_INIT = new DataFlowItem();
         private ProcedureDecl currDecl;
-        public FieldChecker() {
+        private DataFlowItem init;
+        private DataFlowItem finalResult;
+        public FieldChecker(DataFlowItem init) {
             super(CheckEscapingThis.this.job, CheckEscapingThis.this.ts, CheckEscapingThis.this.nf,
                   true /* forward analysis */,
                   false /* perform dataflow when leaving CodeDecls, not when entering */);
-
-            for (FieldDef field : superFields) {
-                CTOR_INIT.initStatus.put(field, build(false, true,true));
-            }
+            this.init = init;
         }
         protected Item createInitialItem(FlowGraph graph, Term node, boolean entry) {
-            return isCtor() ? CTOR_INIT : INIT;
+            return init;
         }
         protected Item confluence(List<Item> items, List<EdgeKey> itemKeys,
             Term node, boolean entry, FlowGraph graph) {
             if (node instanceof ProcedureDecl) {
                 List<Item> filtered = filterItemsNonException(items, itemKeys);
                 if (filtered.isEmpty()) {
-                    return INIT;
+                    return init;
                 }
                 else if (filtered.size() == 1) {
                     return (Item)filtered.get(0);
@@ -166,7 +159,6 @@ public class CheckEscapingThis extends NodeVisitor
             }
 
             boolean isAssign = n instanceof FieldAssign;
-            // todo: closure call: check that all field access are legal
             if (isAssign || n instanceof Field) {
                 final Receiver target = isAssign ? ((FieldAssign) n).target() : ((Field) n).target();
                 final FieldInstance fi = isAssign ? ((FieldAssign) n).fieldInstance() : ((Field) n).fieldInstance();
@@ -179,6 +171,36 @@ public class CheckEscapingThis extends NodeVisitor
                     res.initStatus.put(field,valueAfter);
                 }
 
+            } else if (n instanceof Closure) {
+                // the closure can write to whatever it wants and it won't affect the write-set (because it wasn't invoked yet)
+                // we only check that it can read what was written to, and call methods whose read-set was written to.
+                Closure closure = (Closure) n;
+                closure.body().visit(
+                    new NodeVisitor() {
+                        @Override public NodeVisitor enter(Node n) {
+                            if (n instanceof Field) {
+                                final Field f = (Field) n;
+                                if (isThis(f.target()) && !isWrite( inItem.initStatus.get(f.fieldInstance().def()))) {
+                                    reportError("Cannot read from field '"+ f.name()+"' before it is definitely assigned.",n.position());
+                                    wasError = true;
+                                }
+                            }
+                            if (n instanceof X10Call) {
+                                MethodInfo info = getInfo((X10Call) n);
+                                if (info!=null) {
+                                    for (FieldDef def : info.read) {
+                                        if (!isWrite( inItem.initStatus.get(def))) {
+                                            reportError("The method call reads from field '"+ def.name()+"' before it is definitely assigned.",n.position());
+                                            wasError = true;
+                                        }
+                                    }
+                                }
+                            }
+                            return this;
+                        }
+                    }
+                );
+
             } else if (n instanceof ConstructorCall) {
                 ConstructorCall ctorCall = (ConstructorCall) n;
                 assert (ctorCall.kind()==ConstructorCall.SUPER) : "We do not analyze ctors with 'this()' calls, because they're always correct - everything must be initialized after the 'this()' call";
@@ -186,24 +208,15 @@ public class CheckEscapingThis extends NodeVisitor
                 // Note that the super call should be the first statement, but I inline the field-inits before it.
 
             } else if (n instanceof X10Call) {
-                X10Call call = (X10Call) n;
-                Receiver receiver = call.target();
-                if (isThis(receiver)) {
-                    X10MethodDecl_c methodDecl = findMethod(call);
-                    if (methodDecl!=null) {
-                        final ProcedureDef procDef = methodDecl.procedureInstance();
-                        if (!isProperty(procDef)) {
-                            res = new DataFlowItem();
-                            res.initStatus.putAll(inItem.initStatus);
-                            MethodInfo info = allMethods.get(procDef);
-                            assert info !=null : methodDecl;
-                            for (FieldDef field : fields) {
-                                boolean isRead = info.read.contains(field);
-                                boolean isWrite = info.write.contains(field);
-                                boolean isWriteSeq = info.seqWrite.contains(field);
-                                res.initStatus.put(field, afterSeqBlock(res.initStatus.get(field),build(isRead,isWrite, isWriteSeq)));
-                            }
-                        }
+                MethodInfo info = getInfo((X10Call) n);
+                if (info!=null) {
+                    res = new DataFlowItem();
+                    res.initStatus.putAll(inItem.initStatus);
+                    for (FieldDef field : fields) {
+                        boolean isRead = info.read.contains(field);
+                        boolean isWrite = info.write.contains(field);
+                        boolean isWriteSeq = info.seqWrite.contains(field);
+                        res.initStatus.put(field, afterSeqBlock(res.initStatus.get(field),build(isRead,isWrite, isWriteSeq)));
                     }
                 }
             } else if (n instanceof Expr && ((Expr)n).type().isBoolean() &&
@@ -245,66 +258,83 @@ public class CheckEscapingThis extends NodeVisitor
         @Override
         protected void check(FlowGraph graph, Term n, boolean entry, Item inItem, Map<EdgeKey, Item> outItems) {
             DataFlowItem dfIn = (DataFlowItem)inItem;
-            if (dfIn == null) dfIn = INIT;
+            if (dfIn == null) dfIn = init;
             if (n == graph.root() && !entry) {
-                // finish method/ctor
-                ProcedureDecl decl = (ProcedureDecl)n;
-                assert decl!=null;
-                final ProcedureDef procDef = decl.procedureInstance();
-                MethodInfo newInfo = new MethodInfo();
-                for (Map.Entry<FieldDef, Integer> pair : dfIn.initStatus.entrySet()) {
-                    int val = pair.getValue();
-                    final FieldDef f = pair.getKey();
-                    if (isRead(val)) newInfo.read.add(f);
-                    if (isWrite(val)) newInfo.write.add(f);
-                    if (isSeqWrite(val)) newInfo.seqWrite.add(f);
-                }
-
-                // everything must be assigned in a ctor (and nothing read)
-                if (isCtor()) {
-                    int size = fields.size();
-                    if (!newInfo.read.isEmpty()) assert wasError;
-                    assert newInfo.write.containsAll(newInfo.seqWrite);
-                    if (newInfo.seqWrite.size()!=size) {
-                        wasError = true;
-                        // report the field that wasn't written to
-                        for (FieldDef f : fields)
-                            if (!newInfo.seqWrite.contains(f)) {
-                                reportError("Field '"+f.name()+"' was not definitely assigned.",f.position());
-                            }
-                    }
-                } else {
-                    MethodInfo oldInfo = allMethods.get(procDef);
-                    assert oldInfo!=null : n;                    
-                    if (hasNonEscapingAnnot(procDef)) {
-                        // the read-set should not change (we already reported an error if it did change)
-                        newInfo.read.clear();
-                        newInfo.read.addAll(oldInfo.read);
-                    }
-                    if (noWrites(procDef)) {
-                        newInfo.write.clear();
-                        newInfo.seqWrite.clear();
-                    }
-                    // proof that the fix-point terminates: write set decreases while the read set increases
-                    assert oldInfo.write.containsAll(newInfo.write);
-                    assert oldInfo.seqWrite.containsAll(newInfo.seqWrite);
-                    assert newInfo.read.containsAll(oldInfo.read);
-
-
-                    // fixed-point reached?
-                    if (newInfo.read.equals(oldInfo.read) &&
-                        newInfo.write.equals(oldInfo.write) &&
-                        newInfo.seqWrite.equals(oldInfo.seqWrite)) {
-                        // no change!
-                    } else {
-                        wasChange = true;
-                        newInfo.canReadFrom = oldInfo.canReadFrom;
-                        allMethods.put(procDef,newInfo);
-                    }
-                }
+                assert n==currDecl : n;
+                finalResult = dfIn;
+            }
+        }
+        public void checkResult() {
+            // finish method/ctor
+            ProcedureDecl decl = currDecl;
+            assert decl!=null;
+            final ProcedureDef procDef = decl.procedureInstance();
+            MethodInfo newInfo = new MethodInfo();
+            for (Map.Entry<FieldDef, Integer> pair : finalResult.initStatus.entrySet()) {
+                int val = pair.getValue();
+                final FieldDef f = pair.getKey();
+                if (isRead(val)) newInfo.read.add(f);
+                if (isWrite(val)) newInfo.write.add(f);
+                if (isSeqWrite(val)) newInfo.seqWrite.add(f);
             }
 
+            // everything must be assigned in a ctor (and nothing read)
+            if (isCtor()) {
+                int size = fields.size();
+                if (!newInfo.read.isEmpty()) assert wasError;
+                assert newInfo.write.containsAll(newInfo.seqWrite);
+                if (newInfo.seqWrite.size()!=size) {
+                    wasError = true;
+                    // report the field that wasn't written to
+                    for (FieldDef f : fields)
+                        if (!newInfo.seqWrite.contains(f)) {
+                            final Position pos = currDecl.position();
+                            if (pos.isCompilerGenerated()) // auto-generated ctor
+                                reportError("Field '"+f.name()+"' was not definitely assigned.", f.position());
+                            else
+                                reportError("Field '"+f.name()+"' was not definitely assigned in this constructor.", pos);
+                        }
+                }
+            } else {
+                MethodInfo oldInfo = allMethods.get(procDef);
+                assert oldInfo!=null : currDecl;
+                if (hasNonEscapingAnnot(procDef)) {
+                    // the read-set should not change (we already reported an error if it did change)
+                    newInfo.read.clear();
+                    newInfo.read.addAll(oldInfo.read);
+                }
+                if (noWrites(procDef)) {
+                    newInfo.write.clear();
+                    newInfo.seqWrite.clear();
+                }
+                // proof that the fix-point terminates: write set decreases while the read set increases
+                assert oldInfo.write.containsAll(newInfo.write);
+                assert oldInfo.seqWrite.containsAll(newInfo.seqWrite);
+                assert newInfo.read.containsAll(oldInfo.read);
+
+
+                // fixed-point reached?
+                if (newInfo.read.equals(oldInfo.read) &&
+                    newInfo.write.equals(oldInfo.write) &&
+                    newInfo.seqWrite.equals(oldInfo.seqWrite)) {
+                    // no change!
+                } else {
+                    wasChange = true;
+                    newInfo.canReadFrom = oldInfo.canReadFrom;
+                    allMethods.put(procDef,newInfo);
+                }
+            }
         }
+    }
+    private MethodInfo getInfo(X10Call call) {
+        final MethodInstance methodInstance = call.methodInstance();
+        final X10ProcedureDef procDef = (X10ProcedureDef) methodInstance.def();
+        if (isThis(call.target()) && !isProperty(procDef) && findMethod(call)!=null) {
+            final MethodInfo info = allMethods.get(procDef);
+            assert info!=null;
+            return info;
+        }
+        return null;
     }
     private boolean hasNonEscapingAnnot(ProcedureDef def) {
         return X10TypeMixin.getNonEscapingReadsFrom((X10ProcedureDef) def, ts) != null;
@@ -320,6 +350,7 @@ public class CheckEscapingThis extends NodeVisitor
         return flags.isProperty();
     }
     private boolean isPrivateOrFinal(ProcedureDef def) {
+        if (isXlassFinal) return true;
         final X10Flags flags = X10Flags.toX10Flags(((ProcedureDef_c)def).flags());
         return flags.isPrivate() || flags.isFinal();
     }
@@ -331,9 +362,12 @@ public class CheckEscapingThis extends NodeVisitor
             this.job = job;
         }
         @Override public NodeVisitor enter(Node n) {
-            if (n instanceof X10ClassDecl_c)
-                new CheckEscapingThis((X10ClassDecl_c)n,job,
+            if (n instanceof X10ClassDecl_c) {
+                final X10ClassDecl_c classDecl_c = (X10ClassDecl_c) n;
+                if (!classDecl_c.flags().flags().isInterface()) // I have nothing to analyze in an interface 
+                    new CheckEscapingThis(classDecl_c,job,
                         (X10TypeSystem)job.extensionInfo().typeSystem());
+            }
             return this;
         }
     }
@@ -350,6 +384,7 @@ public class CheckEscapingThis extends NodeVisitor
     private final X10NodeFactory nf;
     private final X10TypeSystem ts;
     private final X10ClassDecl_c xlass;
+    private final boolean isXlassFinal;
     private final Type xlassType;
     // the keys are either X10ConstructorDecl_c or X10MethodDecl_c
     private final HashMap<ProcedureDef,MethodInfo> allMethods = new LinkedHashMap<ProcedureDef, MethodInfo>(); // all ctors and methods recursively called from allMethods on receiver "this"
@@ -359,6 +394,9 @@ public class CheckEscapingThis extends NodeVisitor
     // Therefore we can now treat both VAL and VAR identically.
     private final HashSet<FieldDef> fields = new HashSet<FieldDef>();
     private final HashSet<FieldDef> superFields = new HashSet<FieldDef>(); // after the "super()" call, these fields are initialized
+    private final DataFlowItem INIT = new DataFlowItem();
+    private final DataFlowItem CTOR_INIT = new DataFlowItem();
+
     private boolean wasChange = true, wasError = false; // for fixed point alg
     private HashSet<FieldDef> globalRef = new HashSet<FieldDef>();// There is one exception to the "this cannot escape" rule:  val root = GlobalRef[...](this)
 
@@ -376,7 +414,19 @@ public class CheckEscapingThis extends NodeVisitor
         this.ts = ts;
         nf = (X10NodeFactory)ts.extensionInfo().nodeFactory();
         this.xlass = xlass;
+        isXlassFinal = xlass.flags().flags().isFinal();
         this.xlassType = X10TypeMixin.baseType(xlass.classDef().asType());
+        // calculate the set of all fields (including inherited fields)
+        calcFields();
+        int notInited = build(false, false,false);
+        int inited = build(false, true,true);
+        for (FieldDef f : fields) {
+            INIT.initStatus.put(f,notInited);
+            CTOR_INIT.initStatus.put(f,notInited);
+        }
+        for (FieldDef field : superFields) {
+            CTOR_INIT.initStatus.put(field, inited);
+        }
         typeCheck();
     }
     private void calcFields() {
@@ -418,7 +468,7 @@ public class CheckEscapingThis extends NodeVisitor
                         if (qName.equals(QName.make("x10.lang","GlobalRef"))) {
                             // found the pattern!
                             // must be private
-                            if (!field.flags().flags().isPrivate())
+                            if (!isXlassFinal && !field.flags().flags().isPrivate())
                                 reportError("In order to use the pattern GlobalRef[...](this) the field must be private.",field.position());
                             globalRef.add(field.fieldDef());
                         }
@@ -441,8 +491,7 @@ public class CheckEscapingThis extends NodeVisitor
         // Find globalRefs
         calcGlobalRefs(nonStaticFields);
 
-        // calculate the set of all fields (including inherited fields)
-        calcFields();
+
 
         // inline the field-initializers in every ctor
         ArrayList<Stmt> fieldInits = new ArrayList<Stmt>();
@@ -535,18 +584,27 @@ public class CheckEscapingThis extends NodeVisitor
             }
         }
         // run fix point alg: ctors do not need to be in the fixed point alg because nobody can call them directly
-        final FieldChecker fieldChecker = new FieldChecker();
+        final FieldChecker fieldChecker = new FieldChecker(INIT);
         while (wasChange && !wasError) {
             wasChange =false;
             // do a DFS: starting from private/final methods, and then the ctors (this will reach a fixed-point fastest)
-            for (ProcedureDecl p : dfsMethods)
+            for (ProcedureDecl p : dfsMethods) {
                 fieldChecker.dataflow(p);
+                fieldChecker.checkResult();
+            }
         }
         // handle ctors and field initializers        
-        //fieldChecker.dataflow(newInit); // todo: make a new method for field-init, and the ctors will call it at the begining
-        for (X10ConstructorDecl_c ctor : ctorsForDataFlow) {
-            X10ConstructorDecl_c newCtor = (X10ConstructorDecl_c) ctor.body( nf.Block(pos,newInit,ctor.body()) );
-            fieldChecker.dataflow(newCtor);
+        // make a new special ctor for field-init, and the ctors will use its data-flow for their INIT
+        if (ctorsForDataFlow.size()>0) {
+            fieldChecker.init = CTOR_INIT;
+            X10ConstructorDecl_c fieldInitCtor = (X10ConstructorDecl_c) ctorsForDataFlow.get(0).body(newInit);
+            fieldChecker.dataflow(fieldInitCtor);
+            fieldChecker.init = fieldChecker.finalResult;
+            for (X10ConstructorDecl_c ctor : ctorsForDataFlow) {
+                // X10ConstructorDecl_c newCtor = (X10ConstructorDecl_c) ctor.body( nf.Block(pos,newInit,ctor.body()) ); //reports errors in the field-inits multiple times (if we have multiple ctors)
+                fieldChecker.dataflow(ctor);
+                fieldChecker.checkResult();
+            }
         }
     }
     private FieldDef findField(String name) {

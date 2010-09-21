@@ -34,8 +34,9 @@ public class FwdReferenceChecker extends ContextVisitor
         if (n instanceof FieldDecl) {
             FieldDecl fd = (FieldDecl)n;
             if (fd.flags().flags().isStatic()) {
-            declaredFields.add(fd.fieldDef());
             FwdReferenceChecker frc = (FwdReferenceChecker)this.copy();
+            frc.declaredFields = new HashSet<FieldDef>(declaredFields);
+            declaredFields.add(fd.fieldDef());
             frc.inInitialization = true;
             return frc;
             }

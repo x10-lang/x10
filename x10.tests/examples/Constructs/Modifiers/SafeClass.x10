@@ -19,7 +19,7 @@ import harness.x10Test;
  */
 public safe class SafeClass extends x10Test {
    
-    public def m(): void = {
+    public nonblocking def m(): void = {
     
     }
 	public def run(): boolean = {

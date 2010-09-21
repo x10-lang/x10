@@ -68,7 +68,7 @@ public class FutureTest3 extends x10Test {
 		// side effect in expression
 
 		// (need atomic here if there is sharing. x10 should support atomic { expression } )
-		var r1: int = (future {A(K) += 1}).force();
+		var r1: int = Future.make( () => { return A(K) += 1;} ).force();
 		x10.io.Console.OUT.println("1");
 		atomic chk(A(K) == 1);
 		chk(r1 == 1);
@@ -77,7 +77,7 @@ public class FutureTest3 extends x10Test {
 		var r2: int = -1;
 		gotException = false;
 		try {
-			r2 = (future {A(OUTOFRANGE) += 1}) .force();
+			r2 = Future.make( () => { return A(OUTOFRANGE) += 1; } ) .force();
 		} catch (var e: ArrayIndexOutOfBoundsException) {
 			gotException = true;
 		}
@@ -89,7 +89,7 @@ public class FutureTest3 extends x10Test {
 		var r3: int = -1;
 		gotException = false;
 		try {
-			r3 = (future  m1(A, K)) .force();
+			r3 = Future.make( () =>  m1(A, K)) .force();
 		} catch (var e: Throwable) {
 			gotException = true;
 		}
@@ -105,7 +105,7 @@ public class FutureTest3 extends x10Test {
 		var r4: int = -1;
 		gotException = false;
 		try {
-			r4 = (future  m2(A, K)) .force();
+			r4 = Future.make( () => m2(A, K)) .force();
 		} catch (var e: Throwable) {
 			gotException = true;
 		}
@@ -118,7 +118,7 @@ public class FutureTest3 extends x10Test {
 
 		//Only force() throws the exception,
 		//a plain future call just spawns the expression
-		val fr5  = future  { m2(A, K) };
+		val fr5  = Future.make( () => m2(A, K) );
 		x10.io.Console.OUT.println("5");
 		// must read old values of A here
 		//atomic chk(A(K) == 3);

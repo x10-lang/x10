@@ -29,7 +29,6 @@ import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
-import polyglot.ast.Precedence;
 import polyglot.ast.Prefix;
 import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
@@ -64,7 +63,6 @@ import x10.types.checker.Checker;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
 import x10.visit.ExprFlattener;
-import x10.visit.X10TypeChecker;
 import x10.visit.ExprFlattener.Flattener;
 
 /**
@@ -99,19 +97,6 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 		X10TypeSystem xts = (X10TypeSystem) lt.typeSystem();
 		if (lt == null || rt == null)
 			return false;
-	/*	In X10 2.0, nothing can be of Value type.
-	 * if (operator() == Binary.EQ || operator() == Binary.NE) {
-		    X10Context context = (X10Context) xts.emptyContext();
-		    if (xts.isValueType(lt, context) && xts.isReferenceOrInterfaceType(rt, context))
-			return true;
-		    if (xts.isReferenceOrInterfaceType(lt, context) && xts.isValueType(rt, context))
-			return true;
-		    if (xts.isValueType(lt, context) && rt.isNull())
-			return true;
-		    if (xts.isValueType(rt, context) && lt.isNull())
-			return true;
-		}
-		*/
 		return false;
 	}
 
@@ -131,9 +116,9 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 		// [IP] An optimization: an value and null can never be equal
 	
 	 if (op == EQ) {
-		    if (xts.isStructType(lt) && xts.isReferenceOrInterfaceType(rt, context))
+		    if (xts.isStructType(lt) && xts.isObjectOrInterfaceType(rt, context))
 			return Boolean.FALSE;
-		    if (xts.isReferenceOrInterfaceType(lt, context) && xts.isStructType(rt))
+		    if (xts.isObjectOrInterfaceType(lt, context) && xts.isStructType(rt))
 			return Boolean.FALSE;
 		    if ( xts.isStructType(lt) && rt.isNull())
 			return Boolean.FALSE;
@@ -141,9 +126,9 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 			return Boolean.FALSE;
 		}
 		if (op == NE) {
-		    if (xts.isStructType(lt) && xts.isReferenceOrInterfaceType(rt, context))
+		    if (xts.isStructType(lt) && xts.isObjectOrInterfaceType(rt, context))
 			return Boolean.TRUE;
-		    if (xts.isReferenceOrInterfaceType(lt, context) && xts.isStructType(rt))
+		    if (xts.isObjectOrInterfaceType(lt, context) && xts.isStructType(rt))
 			return Boolean.TRUE;
 		    if (xts.isStructType(lt) && rt.isNull())
 			return Boolean.TRUE;

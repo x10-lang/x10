@@ -17,7 +17,7 @@ import harness.x10Test;
 public class FutureTest2 extends x10Test {
 
 	public def run(): boolean = {
-		val ret = future (here) { this.m() };
+		val ret = Future.make( () => at (here) { return this.m(); } );
 		return ret();
 	}
 

@@ -16,7 +16,7 @@ import harness.x10Test;
  */
 public class Future1 extends x10Test {
 	public def run(): boolean = {
-		val x  = future  41 ;
+		val x  = Future.make( () =>  41 );
 		return x()+1 == 42;
 	}
 
