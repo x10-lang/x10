@@ -26,6 +26,7 @@ import polyglot.ast.Assign.Operator;
 import polyglot.ast.Receiver;
 import polyglot.types.Context;
 import polyglot.types.Flags;
+import polyglot.types.LocalDef;
 import polyglot.types.Name;
 import polyglot.types.ProcedureDef;
 import polyglot.types.SemanticException;
@@ -260,7 +261,7 @@ public class Checker {
 				for (int i = 0; i < t.arguments().size(); i++) {
 					//XVar x = (XVar) X10TypeMixin.selfVarBinding(xmi.formalTypes().get(i));
 					//XVar x = (XVar) xmi.formalTypes().get(i);
-					XVar x = (XVar) XTerms.makeLocal(new XNameWrapper(xmi.formalNames().get(i).def()));
+					XVar x = (XVar) XTerms.makeLocal(new XNameWrapper<LocalDef>(xmi.formalNames().get(i).def()));
 					XTerm y = xt.trans(cs, t.arguments().get(i), xc);
 					if (y == null)
 						assert y != null : "XTypeTranslator: translation of arg " + i + " of " + t + " yields null (pos=" 
