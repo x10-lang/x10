@@ -211,6 +211,7 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 	/* (non-Javadoc)
 	 * @see polyglot.ast.Term#acceptCFG(polyglot.visit.CFGBuilder, java.util.List)
 	 */
+	@Override
 	public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
 		v.visitCFG(formal, domain, ENTRY);
 		v.visitCFG(domain, body, ENTRY);
@@ -218,11 +219,13 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 		return succs;
 	}
 
+	@Override
 	public Context enterScope(Context c) {
 		return c.pushBlock();
 	}
 
 	/** Visit the children of the expression. */
+	@Override
 	public Node visitChildren(NodeVisitor v) {
 		Formal formal = (Formal) visitChild(this.formal, v);
 		Expr domain = (Expr) visitChild(this.domain, v);
