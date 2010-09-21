@@ -12,21 +12,11 @@
 package x10.types.constraints;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import polyglot.util.Copy;
 import x10.constraint.XFailure;
-import x10.constraint.XVar;
-import x10.constraint.XTerm;
-import x10.types.X10Context;
-import x10.types.X10TypeSystem;
-import polyglot.types.SemanticException;
-import polyglot.types.Type;
-import java.util.ArrayList;
-import java.util.List;
-
-import x10.constraint.XFailure;
-import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
@@ -41,6 +31,7 @@ import x10.types.X10ProcedureDef;
 import x10.types.X10ProcedureInstance;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
+import x10.types.ParameterType.Variance;
 import polyglot.types.Name;
 import polyglot.types.PrimitiveType;
 import polyglot.types.SemanticException;
@@ -66,8 +57,8 @@ public class TypeConstraint implements Copy, Serializable {
         terms = new ArrayList<SubtypeConstraint>();
         consistent = true;
     }
-  
-    private  void addTypeParameterBindings(X10ClassDef xcd, X10ClassType xct, Type ytype) throws XFailure {
+
+    private void addTypeParameterBindings(X10ClassDef xcd, X10ClassType xct, Type ytype) throws XFailure {
         if (ytype == null)
             return;
 
@@ -396,6 +387,12 @@ public class TypeConstraint implements Copy, Serializable {
 	    if (xthis == null)
 	        xthis = XTerms.makeLocal(XTerms.makeFreshName("this"));
 	
+	    try {
+	        expandTypeConstraints(tenv, context);
+	    }
+	    catch (XFailure f) {
+	    }
+
 	    // Create a big query for inferring type parameters.
 	    // LIMITATION: can only infer types when actuals are subtypes of formals.
 	    // This updates Y with new actual type arguments.
@@ -409,60 +406,142 @@ public class TypeConstraint implements Copy, Serializable {
 	    return Y;
 	}
 
+	private static void expandTypeConstraints(TypeConstraint tenv, X10Context context) throws XFailure {
+	    List<SubtypeConstraint> originalTerms = new ArrayList<SubtypeConstraint>(tenv.terms());
+	    for (SubtypeConstraint term : originalTerms) {
+	        expandTypeConstraints(tenv, term, context);
+	    }
+	}
+
+	/**
+	 * Expand generic constraints in the type environment.
+	 * If we have a constraint on two generic types, <code>A[X]</code> and <code>B[Y]</code>,
+	 * also add the appropriate constraint on the parameter types <code>X</code> and <code>Y</code>.
+	 * Here are the possibilities:
+	 * <table border="1"><tr><td valign="top">
+	 * 1. A[X] == A[Y] </td><td colspan="2"> X==Y                                                                      </td></tr><tr><td valign="top">
+	 * 2. A[X] == B[Y] </td><td colspan="2"> not consistent                                                            </td></tr><tr><td rowspan="3" valign="top">
+	 * 3. A[X] <: A[Y] </td><td>             A[ T] (invariant)?     </td><td> X==Y                                     </td></tr><tr><td>
+	 *                                       A[+T] (covariant)?     </td><td> X<:Y                                     </td></tr><tr><td>
+	 *                                       A[-T] (contravariant)? </td><td> X:>Y                                     </td></tr><tr><td rowspan="10" valign="top">
+	 * 4. A[X] <: B[Y] </td><td>             A[ T] <: B[ T]         </td><td> X==Y                                     </td></tr><tr><td>
+	 *                                       A[+T] <: B[ T]         </td><td> X<:Y                                     </td></tr><tr><td>
+	 *                                       A[-T] <: B[ T]         </td><td> X:>Y                                     </td></tr><tr><td>
+	 *                                       A[ T] <: B[+T]         </td><td> X<:Y                                     </td></tr><tr><td>
+	 *                                       A[+T] <: B[+T]         </td><td> X<:Y                                     </td></tr><tr><td>
+	 *                                       A[-T] <: B[+T]         </td><td> no constraint on X and Y                 </td></tr><tr><td>
+	 *                                       A[ T] <: B[-T]         </td><td> X:>Y                                     </td></tr><tr><td>
+	 *                                       A[+T] <: B[-T]         </td><td> no constraint on X and Y                 </td></tr><tr><td>
+	 *                                       A[-T] <: B[-T]         </td><td> X:>Y                                     </td></tr><tr><td>
+	 *                                       A[T] <: B[S] && T??S   </td><td> X??Y (instantiate constraint on T and S) </td></tr><tr><td>
+	 * 5. exists Q s.t. A <: Q[X] <: B[Y] </td><td colspan="2"> ??? </td>
+	 * </tr></table>
+	 * FIXME: Only the equality case (1) and the same type case (3) are handled for now.
+	 */
+	private static void expandTypeConstraints(TypeConstraint tenv, SubtypeConstraint term, X10Context context) throws XFailure {
+	    X10TypeSystem xts = (X10TypeSystem) context.typeSystem();
+	    Type b = xts.expandMacros(term.subtype());
+	    Type p = xts.expandMacros(term.supertype());
+	    if (!b.isClass() || !p.isClass()) return;
+	    X10ClassType sub = (X10ClassType) b.toClass();
+	    X10ClassType sup = (X10ClassType) p.toClass();
+	    List<Type> subTypeArgs = sub.typeArguments();
+	    List<Type> supTypeArgs = sup.typeArguments();
+	    if (term.isEqualityConstraint()) {
+	        X10ClassDef def = sub.x10Def();
+	        if (def != sup.x10Def()) return; // skip case 2
+	        if (subTypeArgs.isEmpty() || subTypeArgs.size() != supTypeArgs.size()) return;
+	        for (int i = 0; i < subTypeArgs.size(); i++) {
+	            Type ba = subTypeArgs.get(i);
+	            Type pa = supTypeArgs.get(i);
+	            if (xts.typeEquals(ba, pa, context)) continue;
+	            SubtypeConstraint eq = new SubtypeConstraint(ba, pa, true);
+                tenv.addTerm(eq);
+                expandTypeConstraints(tenv, eq, context);
+	        }
+	    }
+	    else {
+	        X10ClassDef def = sub.x10Def();
+	        if (def != sup.x10Def()) return; // FIXME: skip cases 4 and 5
+	        if (subTypeArgs.isEmpty() || subTypeArgs.size() != supTypeArgs.size()) return;
+	        List<Variance> variances = def.variances();
+	        for (int i = 0; i < subTypeArgs.size(); i++) {
+	            Type ba = subTypeArgs.get(i);
+	            Type pa = supTypeArgs.get(i);
+	            if (xts.typeEquals(ba, pa, context)) continue;
+	            SubtypeConstraint eq = null;
+	            switch (variances.get(i)) {
+	            case INVARIANT:
+	                eq = new SubtypeConstraint(ba, pa, true);
+	                break;
+	            case COVARIANT:
+	                eq = new SubtypeConstraint(ba, pa, false);
+	                break;
+	            case CONTRAVARIANT:
+	                eq = new SubtypeConstraint(pa, ba, false);
+	                break;
+	            }
+	            tenv.addTerm(eq);
+                expandTypeConstraints(tenv, eq, context);
+	        }
+	    }
+	}
+
 	public static <PI extends X10ProcedureInstance<?>> void inferTypeArguments(X10Context context, PI me, TypeConstraint tenv,
-	        ParameterType[] X, Type[] Y, Type[] Z, XVar[] x, XVar[] y, XVar ythis, XVar xthis)
-	throws SemanticException {
-	
+	        ParameterType[] X, Type[] Y, Type[] Z, XVar[] x, XVar[] y, XVar ythis, XVar xthis) throws SemanticException
+	{
 	    X10TypeSystem xts = (X10TypeSystem) me.typeSystem();
-	
+
 	    for (int i = 0; i < Y.length; i++) {
 	        Type Yi = Y[i];
-	
+
 	        List<Type> upper = new ArrayList<Type>();
 	        List<Type> lower = new ArrayList<Type>();
-	
+
 	        List<Type> worklist = new ArrayList<Type>();
 	        worklist.add(Yi);
-	
+
 	        for (int j = 0; j < worklist.size(); j++) {
 	            Type m = worklist.get(j);
 	            for (SubtypeConstraint term : tenv.terms()) {
 	                SubtypeConstraint eq = term;
+	                Type sub = eq.subtype();
+	                Type sup = eq.supertype();
 	                if (term.isEqualityConstraint()) {
-	                    if (m.typeEquals(eq.subtype(), context)) {
-	                        if (! upper.contains(eq.supertype()))
-	                            upper.add(eq.supertype());
-	                        if (! lower.contains(eq.supertype()))
-	                            lower.add(eq.supertype());
-	                        if (! worklist.contains(eq.supertype()))
-	                            worklist.add(eq.supertype());
+	                    if (m.typeEquals(sub, context)) {
+	                        if (!upper.contains(sup))
+	                            upper.add(sup);
+	                        if (!lower.contains(sup))
+	                            lower.add(sup);
+	                        if (!worklist.contains(sup))
+	                            worklist.add(sup);
 	                    }
-	                    if (m.typeEquals(eq.supertype(), context)) {
-	                        if (! upper.contains(eq.subtype()))
-	                            upper.add(eq.subtype());
-	                        if (! lower.contains(eq.subtype()))
-	                            lower.add(eq.subtype());
-	                        if (! worklist.contains(eq.subtype()))
-	                            worklist.add(eq.subtype());
+	                    if (m.typeEquals(sup, context)) {
+	                        if (!upper.contains(sub))
+	                            upper.add(sub);
+	                        if (!lower.contains(sub))
+	                            lower.add(sub);
+	                        if (!worklist.contains(sub))
+	                            worklist.add(sub);
 	                    }
 	                }
 	                else {
-	                    if (m.typeEquals(eq.subtype(), context)) {
-	                        if (! upper.contains(eq.supertype()))
-	                            upper.add(eq.supertype());
-	                        if (! worklist.contains(eq.supertype()))
-	                            worklist.add(eq.supertype());
+	                    if (m.typeEquals(sub, context)) {
+	                        if (!upper.contains(sup))
+	                            upper.add(sup);
+	                        if (!worklist.contains(sup))
+	                            worklist.add(sup);
 	                    }
-	                    if (m.typeEquals(eq.supertype(), context)) {
-	                        if (! lower.contains(eq.subtype()))
-	                            lower.add(eq.subtype());
-	                        if (! worklist.contains(eq.subtype()))
-	                            worklist.add(eq.subtype());
+	                    if (m.typeEquals(sup, context)) {
+	                        if (!lower.contains(sub))
+	                            lower.add(sub);
+	                        if (!worklist.contains(sub))
+	                            worklist.add(sub);
 	                    }
 	                }
 	            }
 	        }
-	
+
 	        for (Type Xi : X) {
 	            upper.remove(Xi);
 	            lower.remove(Xi);
@@ -471,10 +550,10 @@ public class TypeConstraint implements Copy, Serializable {
 	            upper.remove(Zi);
 	            lower.remove(Zi);
 	        }
-	
+
 	        Type upperBound = null;
 	        Type lowerBound = null;
-	
+
 	        for (Type t : upper) {
 	            if (t != null) {
 	                if (upperBound == null)
@@ -483,7 +562,7 @@ public class TypeConstraint implements Copy, Serializable {
 	                    upperBound = X10TypeMixin.meetTypes(xts, upperBound, t, context);
 	            }
 	        }
-	
+
 	        for (Type t : lower) {
 	            if (t != null) {
 	                if (lowerBound == null)
@@ -492,7 +571,7 @@ public class TypeConstraint implements Copy, Serializable {
 	                    lowerBound = xts.leastCommonAncestor(lowerBound, t, context);
 	            }
 	        }
-	
+
 	        if (upperBound != null)
 	            Y[i] = upperBound;
 	        else if (lowerBound != null)
@@ -501,6 +580,4 @@ public class TypeConstraint implements Copy, Serializable {
 	            throw new SemanticException("Could not infer type for type parameter " + X[i] + ".", me.position());
 	    }
 	}
-
-    
 }
