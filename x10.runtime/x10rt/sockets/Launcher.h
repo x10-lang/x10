@@ -68,7 +68,7 @@ class Launcher
 		int makeFDSets(fd_set *, fd_set *, fd_set *);
 		void connectToParentLauncher(void); /* connect to parent */
 		void handleNewChildConnection(void); /* new child */
-		bool handleDeadChild(uint32_t childno); /* child disconnected */
+		bool handleDeadChild(uint32_t childno, int type); /* child disconnected */
 		bool handleDeadParent(void); /* parent disconnected */
 		bool handleChildCout(int childno); /* console from child */
 		bool handleChildCerror(int childno); /* stderr from child */

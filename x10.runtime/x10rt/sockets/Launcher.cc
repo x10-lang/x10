@@ -175,13 +175,13 @@ void Launcher::startChildren()
 		{
 			// child process
 			// redirect stderr and stdout over to our pipes
-/*			int z1 = dup2(outpipe[1], fileno(stdout));
+			int z1 = dup2(outpipe[1], fileno(stdout));
 			close(outpipe[0]);
 			int z2 = dup2(errpipe[1], fileno(stderr));
 			close(errpipe[0]);
 			if (z1 != 1 || z2 != 2)
 				DIE("Launcher %d: DUP failed", _myproc);
-*/
+
 			char masterPort[1024];
 			TCP::getname(_listenSocket, masterPort, sizeof(masterPort));
 
@@ -272,16 +272,16 @@ void Launcher::handleRequestsLoop()
 			if (_childControlLinks[i] >= 0)
 			{
 				if (FD_ISSET(_childControlLinks[i], &efds))
-					running = handleDeadChild(i);
+					running = handleDeadChild(i, 0);
 				else if (FD_ISSET(_childControlLinks[i], &infds))
 					if (handleControlMessage(_childControlLinks[i]) < 0)
-						running = handleDeadChild(i);
+						running = handleDeadChild(i, 0);
 			}
 
 			if (_childCoutLinks[i] >= 0)
 			{
 				if (FD_ISSET(_childCoutLinks[i], &efds))
-					running = handleDeadChild(i);
+					running = handleDeadChild(i, 1);
 				else if (FD_ISSET(_childCoutLinks[i], &infds))
 					running = handleChildCout(i);
 			}
@@ -289,7 +289,7 @@ void Launcher::handleRequestsLoop()
 			if (_childCerrorLinks[i] >= 0)
 			{
 				if (FD_ISSET(_childCerrorLinks[i], &efds))
-					running = handleDeadChild(i);
+					running = handleDeadChild(i, 2);
 				else if (FD_ISSET(_childCerrorLinks[i], &infds))
 					running = handleChildCerror(i);
 			}
@@ -504,10 +504,10 @@ void Launcher::handleNewChildConnection(void)
 /*    A child connection has closed                                        */
 /* *********************************************************************** */
 // returns false if everything should die
-bool Launcher::handleDeadChild(uint32_t childNo)
+bool Launcher::handleDeadChild(uint32_t childNo, int type)
 {
 	// this is usually called multiple times, for stdin, stderr, etc
-	if (_childControlLinks[childNo] >= 0)
+	if (type == 0 && _childControlLinks[childNo] >= 0)
 	{
 		close(_childControlLinks[childNo]);
 		_childControlLinks[childNo] = -1;
@@ -519,19 +519,7 @@ bool Launcher::handleDeadChild(uint32_t childNo)
 			fprintf(stderr, "Launcher %u: child=%d control disconnected\n", _myproc, _firstchildproc+childNo);
 		#endif
 	}
-	if (_childCerrorLinks[childNo] >= 0)
-	{
-		close(_childCerrorLinks[childNo]);
-		_childCerrorLinks[childNo] = -1;
-
-		#ifdef DEBUG
-		if (childNo == _numchildren && _myproc != 0xFFFFFFFF)
-			fprintf(stderr, "Launcher %u: local runtime cerror disconnected\n", _myproc);
-		else
-			fprintf(stderr, "Launcher %u: child=%d cerror disconnected\n", _myproc, _firstchildproc+childNo);
-		#endif
-	}
-	if (_childCoutLinks[childNo] >= 0)
+	else if (type == 1 && _childCoutLinks[childNo] >= 0)
 	{
 		close(_childCoutLinks[childNo]);
 		_childCoutLinks[childNo] = -1;
@@ -543,15 +531,27 @@ bool Launcher::handleDeadChild(uint32_t childNo)
 			fprintf(stderr, "Launcher %u: child=%d cout disconnected\n", _myproc, _firstchildproc+childNo);
 		#endif
 	}
+	else if (type == 2 && _childCerrorLinks[childNo] >= 0)
+	{
+		close(_childCerrorLinks[childNo]);
+		_childCerrorLinks[childNo] = -1;
+
+		#ifdef DEBUG
+		if (childNo == _numchildren && _myproc != 0xFFFFFFFF)
+			fprintf(stderr, "Launcher %u: local runtime cerror disconnected\n", _myproc);
+		else
+			fprintf(stderr, "Launcher %u: child=%d cerror disconnected\n", _myproc, _firstchildproc+childNo);
+		#endif
+	}
 
 	// check to see if *all* child links are down
 	for (uint32_t i=0; i<=_numchildren; i++)
 	{
-		if (_childControlLinks[i] >= 0) return false;
-		if (_childCoutLinks[i] >= 0) return false;
-		if (_childCerrorLinks[i] >= 0) return false;
+		if (_childControlLinks[i] >= 0) return true;
+		if (_childCoutLinks[i] >= 0) return true;
+		if (_childCerrorLinks[i] >= 0) return true;
 	}
-	return true;
+	return false;
 }
 
 /* *********************************************************************** */
@@ -566,8 +566,11 @@ bool Launcher::handleDeadParent()
 	if (_parentLauncherControlLink != -1)
 		close(_parentLauncherControlLink);
 	_parentLauncherControlLink = -1;
-	for (uint32_t i = 0; i <= _numchildren; i++)
-		handleDeadChild(i);
+
+	// take down all the children
+	for (uint32_t i=0; i<=_numchildren; i++)
+		for (int j=0; j<=2; j++)
+			handleDeadChild(i, j);
 	return false;
 }
 
@@ -647,7 +650,7 @@ bool Launcher::handleChildCout(int childNo)
 	char buf[1024];
 	int n = read(_childCoutLinks[childNo], buf, sizeof(buf));
 	if (n <= 0)
-		return handleDeadChild(childNo);
+		return handleDeadChild(childNo, 1);
 	else
 	{
 		write(fileno(stdout), buf, n);
@@ -664,7 +667,7 @@ bool Launcher::handleChildCerror(int childNo)
 	char buf[1024];
 	int n = read(_childCerrorLinks[childNo], buf, sizeof(buf));
 	if (n <= 0)
-		return handleDeadChild(childNo);
+		return handleDeadChild(childNo, 2);
 	else
 	{
 		write(fileno(stderr), buf, n);
