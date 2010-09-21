@@ -1,10 +1,6 @@
 Inspect all @NativeRep classes for c++ backend and 
 update serialization routines for 2.1 object model.
 
-x10.compiler.RemoteOperation.
-  Kill this code.  Won't work anymore.  
-  Recode RA to use IndexedMemoryChunk directly.
-
 x10.io.GlobalStringWriter
   Do we really want this class?  See todo in the class header.
   In general, normalize APIs for Global vs.Local operations,
