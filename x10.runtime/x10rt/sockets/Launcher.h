@@ -31,7 +31,7 @@ extern "C" int fileno (FILE *__stream);
 #define X10LAUNCHER_RUNTIME "X10LAUNCHER_RUNTIME"
 
 // Enable/disable debug information
-#define DEBUG 1
+//#define DEBUG 1
 
 enum CTRL_MSG_TYPE {HELLO, GOODBYE, PORT_REQUEST, PORT_RESPONSE};
 struct ctrl_msg
@@ -64,16 +64,14 @@ class Launcher
 
 		/* SockProcManager.cc */
 		void startChildren(void);
-		void handleIncomingRequests();
+		void handleRequestsLoop();
 		int makeFDSets(fd_set *, fd_set *, fd_set *);
 		void connectToParentLauncher(void); /* connect to parent */
-		void disconnectFromLauncher(void); /* disconnect children */
-
 		void handleNewChildConnection(void); /* new child */
-		void handleDeadChild(int childno); /* child disconnected */
-		void handleDeadParent(void); /* parent disconnected */
-		void handleChildCout(int childno); /* console from child */
-		void handleChildCerror(int childno); /* stderr from child */
+		bool handleDeadChild(uint32_t childno); /* child disconnected */
+		bool handleDeadParent(void); /* parent disconnected */
+		bool handleChildCout(int childno); /* console from child */
+		bool handleChildCerror(int childno); /* stderr from child */
 		int handleControlMessage(int fd); /* incoming ctrl msg */
 		int forwardMessage(struct ctrl_msg* message, char* data); /* move data around */
 		static void DIE(const char * message, ...);

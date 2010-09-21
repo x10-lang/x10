@@ -31,6 +31,7 @@ typedef void *(*finderCallback)(const x10rt_msg_params *, x10rt_copy_sz);
 typedef void (*notifierCallback)(const x10rt_msg_params *, x10rt_copy_sz);
 
 enum MSGTYPE {STANDARD, PUT, GET, GET_COMPLETED};
+//#define DEBUG_MESSAGING 1
 
 struct x10SocketCallback
 {
@@ -61,7 +62,58 @@ void probe (bool onlyProcessAccept);
 void error(const char* message)
 {
 	fprintf(stderr, "Fatal Error: %s: %s\n", message, strerror(errno));
+	fflush(stderr);
 	abort();
+}
+
+void handleConnectionRequest()
+{
+	int newFD = TCP::accept(state.socketLinks[state.myPlaceId].fd);
+	if (newFD > 0)
+	{
+		struct ctrl_msg m;
+		int r = TCP::read(newFD, &m, sizeof(struct ctrl_msg));
+		if (r == sizeof(struct ctrl_msg))
+		{
+			int from = m.from;
+			// the higher-numbered place always decides if this connection goes or stays
+			if (from < state.myPlaceId)
+			{
+				if (state.socketLinks[from].fd > 0) // already connected.
+				{
+					m.type = GOODBYE;
+					m.to = from;
+					m.from = state.myPlaceId;
+					m.datalen = 0;
+					r = TCP::write(newFD, &m, sizeof(struct ctrl_msg));
+					close(newFD);
+					#ifdef DEBUG
+						printf("X10rt.Sockets: place %u got a redundant connection from place %u\n", state.myPlaceId, from);
+					#endif
+					return;
+				}
+				else
+				{
+					m.type = HELLO;
+					m.to = from;
+					m.from = state.myPlaceId;
+					m.datalen = 0;
+					r = TCP::write(newFD, &m, sizeof(struct ctrl_msg));
+				}
+			}
+			#ifdef DEBUG
+				printf("X10rt.Sockets: place %u got a new connection from place %u\n", state.myPlaceId, from);
+			#endif
+	    	state.socketLinks[from].fd = newFD;
+			state.socketLinks[from].events = POLLHUP | POLLERR | POLLIN | POLLPRI;
+			pthread_mutex_init(&state.readLocks[from], NULL);
+			pthread_mutex_init(&state.writeLocks[from], NULL);
+			return;
+		}
+	}
+	#ifdef DEBUG
+		printf("X10rt.Sockets: place %u got a bad connection request\n", state.myPlaceId);
+	#endif
 }
 
 int initLink(uint32_t remotePlace)
@@ -107,13 +159,17 @@ int initLink(uint32_t remotePlace)
 				pthread_mutex_unlock(&state.readLocks[state.myPlaceId]);
 				return -1;
 			}
-
-			m.type = GOODBYE;
-			r = TCP::read(newFD, &m, sizeof(m));
-			if (r != sizeof(m))
+			// both ends may reach this same point at the same time, so we can't always block on a read.
+			// if we are connecting to a *higher* number place, we block, waiting to hear if this is
+			// redundant or not.  Otherwise, we set the FD and continue on, assuming that the connection is good.
+			if (m.to > state.myPlaceId)
 			{
-				pthread_mutex_unlock(&state.readLocks[state.myPlaceId]);
-				return -1;
+				r = TCP::read(newFD, &m, sizeof(m));
+				if (r != sizeof(m))
+				{
+					pthread_mutex_unlock(&state.readLocks[state.myPlaceId]);
+					return -1;
+				}
 			}
 
 			if (m.type == HELLO)
@@ -125,12 +181,18 @@ int initLink(uint32_t remotePlace)
 				#ifdef DEBUG
 					printf("X10rt.Sockets: Place %u established a link to place %u\n", state.myPlaceId, remotePlace);
 				#endif
+				pthread_mutex_unlock(&state.readLocks[state.myPlaceId]);
 			}
-			#ifdef DEBUG
 			else
-				printf("X10rt.Sockets: Place %u did NOT establish a link to place %u\n", state.myPlaceId, remotePlace);
-			#endif
-			return r;
+			{
+				pthread_mutex_unlock(&state.readLocks[state.myPlaceId]);
+				#ifdef DEBUG
+					printf("X10rt.Sockets: Place %u did NOT establish a link to place %u\n", state.myPlaceId, remotePlace);
+				#endif
+				while (state.socketLinks[remotePlace].fd < 0) // there is a pending connection coming in.
+					probe(true);
+			}
+
 		}
 		else
 		{ // failed to connect to the other end.
@@ -188,8 +250,10 @@ void x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 	// Tell our launcher our communication port number
 	char portname[1024];
 	TCP::getname(state.socketLinks[state.myPlaceId].fd, portname, sizeof(portname));
+	pthread_mutex_lock(&state.writeLocks[state.myPlaceId]);
 	if (Launcher::setPort(state.myPlaceId, portname) < 0)
-		error("Error linking to launcher");
+		error("failed to connect to the local runtime");
+	pthread_mutex_unlock(&state.writeLocks[state.myPlaceId]);
 }
 
 void x10rt_net_register_msg_receiver (x10rt_msg_type msg_type, x10rt_handler *callback)
@@ -209,7 +273,7 @@ void x10rt_net_register_msg_receiver (x10rt_msg_type msg_type, x10rt_handler *ca
 	state.callBackTable[msg_type].finder = NULL;
 	state.callBackTable[msg_type].notifier = NULL;
 
-	#ifdef DEBUG
+	#ifdef DEBUG_MESSAGING
 		printf("X10rt.Sockets: place %u registered standard message %u\n", state.myPlaceId, msg_type);
 	#endif
 }
@@ -230,7 +294,7 @@ void x10rt_net_register_put_receiver (x10rt_msg_type msg_type, x10rt_finder *fin
 	state.callBackTable[msg_type].finder = finderCallback;
 	state.callBackTable[msg_type].notifier = notifierCallback;
 
-	#ifdef DEBUG
+	#ifdef DEBUG_MESSAGING
 		printf("X10rt.Sockets: place %u registered put message %u\n", state.myPlaceId, msg_type);
 	#endif
 }
@@ -251,7 +315,7 @@ void x10rt_net_register_get_receiver (x10rt_msg_type msg_type, x10rt_finder *fin
 	state.callBackTable[msg_type].finder = finderCallback;
 	state.callBackTable[msg_type].notifier = notifierCallback;
 
-	#ifdef DEBUG
+	#ifdef DEBUG_MESSAGING
 		printf("X10rt.Sockets: place %u registered get message %u\n", state.myPlaceId, msg_type);
 	#endif
 }
@@ -270,9 +334,9 @@ x10rt_place x10rt_net_here (void)
 
 void x10rt_net_send_msg (x10rt_msg_params *parameters)
 {
-	if (initLink(parameters->dest_place) <= 0)
+	if (initLink(parameters->dest_place) < 0)
 		error("establishing a connection");
-	#ifdef DEBUG
+	#ifdef DEBUG_MESSAGING
 		printf("X10rt.Sockets: place %u sending a %d byte message to place %u\n", state.myPlaceId, parameters->len, parameters->dest_place);
 	#endif
 	pthread_mutex_lock(&state.writeLocks[parameters->dest_place]);
@@ -290,9 +354,9 @@ void x10rt_net_send_msg (x10rt_msg_params *parameters)
 
 void x10rt_net_send_get (x10rt_msg_params *parameters, void *buffer, x10rt_copy_sz bufferLen)
 {
-	if (initLink(parameters->dest_place) <= 0)
+	if (initLink(parameters->dest_place) < 0)
 		error("establishing a connection");
-	#ifdef DEBUG
+	#ifdef DEBUG_MESSAGING
 		printf("X10rt.Sockets: place %u sending a %d byte GET message with %d byte payload to place %u\n", state.myPlaceId, parameters->len, bufferLen, parameters->dest_place);
 	#endif
 	pthread_mutex_lock(&state.writeLocks[parameters->dest_place]);
@@ -313,11 +377,11 @@ void x10rt_net_send_get (x10rt_msg_params *parameters, void *buffer, x10rt_copy_
 
 void x10rt_net_send_put (x10rt_msg_params *parameters, void *buffer, x10rt_copy_sz bufferLen)
 {
-	if (initLink(parameters->dest_place) <= 0)
+	if (initLink(parameters->dest_place) < 0)
 		error("establishing a connection");
 	pthread_mutex_lock(&state.writeLocks[parameters->dest_place]);
 
-	#ifdef DEBUG
+	#ifdef DEBUG_MESSAGING
 		printf("X10rt.Sockets: place %u sending a %d byte PUT message with %d byte payload to place %u\n", state.myPlaceId, parameters->len, bufferLen, parameters->dest_place);
 	#endif
 	// write out the x10SocketMessage data
@@ -347,13 +411,13 @@ void probe (bool onlyProcessAccept)
 	int ret = poll(state.socketLinks, state.numPlaces, 0);
 	if (ret > 0)
 	{
-		#ifdef DEBUG
+		#ifdef DEBUG_MESSAGING
 			printf("X10rt.Sockets: place %u probe has %d pending messages\n", state.myPlaceId, ret);
 		#endif
 
 		/* An event on one of the fds has occurred. */
 		// POLLHUP | POLLERR | POLLIN | POLLPRI;
-	    for (unsigned int i=onlyProcessAccept?state.myPlaceId:0; i<(onlyProcessAccept?(state.myPlaceId+1):state.numPlaces); i++)
+	    for (unsigned int i=(onlyProcessAccept?state.myPlaceId:0); i<(onlyProcessAccept?(state.myPlaceId+1):state.numPlaces); i++)
 	    {
 	    	// skip unused links quickly
 	    	if (state.socketLinks[i].fd == -1)
@@ -374,59 +438,18 @@ void probe (bool onlyProcessAccept)
 	    	if ((state.socketLinks[i].revents & POLLIN) || (state.socketLinks[i].revents & POLLPRI))
 	    	{
 	    		if (i == state.myPlaceId)
-	    		{
-	    			// special case.  This is an incoming connection request.
+	    		{   // special case.  This is an incoming connection request.
 	    			pthread_mutex_lock(&state.readLocks[state.myPlaceId]);
-	    			int newFD = TCP::accept(state.socketLinks[i].fd);
-	    			if (newFD > 0)
-	    			{
-	    				struct ctrl_msg m;
-	    				int r = TCP::read(newFD, &m, sizeof(m));
-	    				if (r == sizeof(m))
-	    				{
-	    					if (state.socketLinks[m.from].fd > 0)
-	    					{
-	    						// already connected.
-	    						m.type = GOODBYE;
-	    						m.to = m.from;
-	    						m.from = state.myPlaceId;
-	    						m.datalen = 0;
-	    						r = TCP::write(newFD, &m, sizeof(m));
-	    						close(newFD);
-								#ifdef DEBUG
-									printf("X10rt.Sockets: place %u got a redundant connection from place %u\n", state.myPlaceId, m.from);
-								#endif
-								pthread_mutex_unlock(&state.readLocks[state.myPlaceId]);
-								continue;
-	    					}
-	    					state.socketLinks[m.from].fd = newFD;
-	    					state.socketLinks[m.from].events = POLLHUP | POLLERR | POLLIN | POLLPRI;
-	    					pthread_mutex_init(&state.readLocks[m.from], NULL);
-	    					pthread_mutex_init(&state.writeLocks[m.from], NULL);
-	    					m.type = HELLO;
-	    					m.to = m.from;
-	    					m.from = state.myPlaceId;
-	    					m.datalen = 0;
-	    					r = TCP::write(newFD, &m, sizeof(m));
-							#ifdef DEBUG
-								printf("X10rt.Sockets: place %u got a new connection from place %u\n", state.myPlaceId, m.from);
-							#endif
-							pthread_mutex_unlock(&state.readLocks[state.myPlaceId]);
-							continue;
-	    				}
-	    			}
-					#ifdef DEBUG
-						printf("X10rt.Sockets: place %u got a bad connection request\n", state.myPlaceId);
-					#endif
-					pthread_mutex_unlock(&state.readLocks[state.myPlaceId]);
-	    			continue;
+	    			handleConnectionRequest();
+	    			pthread_mutex_unlock(&state.readLocks[state.myPlaceId]);
+					continue;
 	    		}
 
 	    		// lock the socket, so we don't get other worker threads reading from it
 	    		if (pthread_mutex_trylock(&state.readLocks[i]) != 0)
 	    			continue; // this socket is already getting handled by another worker.  Skip.
 
-				#ifdef DEBUG
+				#ifdef DEBUG_MESSAGING
 					printf("X10rt.Sockets: place %u picked up a message from place %u\n", state.myPlaceId, i);
 				#endif
 
@@ -562,7 +585,12 @@ void x10rt_net_finalize (void)
  *************************************************/
 
 
-void x10rt_net_internal_barrier (void){}
+void x10rt_net_internal_barrier (void)
+{
+	#ifdef DEBUG
+		printf("X10rt.Sockets internal barrier called at place %u\n", state.myPlaceId);
+	#endif
+}
 
 int x10rt_net_supports (x10rt_opt o)
 {

@@ -27,7 +27,7 @@ int TCP::read(int fd, void * p, unsigned cnt)
 
 	while (bytesleft > 0)
 	{
-		int rc = ::read(fd, dst, bytesleft);
+		int rc = ::recv(fd, dst, bytesleft, MSG_WAITALL);
 		if (rc == -1) /* !!!! read interrupted */
 		{
 			if (errno == EINTR) continue;
