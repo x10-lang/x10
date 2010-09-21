@@ -22,8 +22,10 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.Translator;
+import x10.errors.Errors;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
+import x10.types.X10TypeSystem;
 
 /**
  * A node representing an annotation.  Every X10 Node has an associated list of AnnotationNodes.
@@ -82,10 +84,11 @@ public class AnnotationNode_c extends Node_c implements AnnotationNode {
 //	}
 	
 	@Override
-	public Node typeCheck(ContextVisitor tc) throws SemanticException {
+	public Node typeCheck(ContextVisitor tc) {
 //		System.out.println("Type checking " + this);
-		if (! tn.type().isClass() || ! tn.type().toClass().flags().isInterface()) {
-			throw new SemanticException("Annotation must be an interface type.", position());
+		X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
+		if (!xts.hasUnknown(tn.type()) && !(tn.type().isClass() && tn.type().toClass().flags().isInterface())) {
+			Errors.issue(tc.job(), new SemanticException("Annotation must be an interface type.", position()));
 		}
 		
 		return this;

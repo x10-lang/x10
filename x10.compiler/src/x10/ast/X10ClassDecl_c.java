@@ -571,7 +571,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	return n;
     }
  
-    public Node typeCheckClassInvariant(Node parent, ContextVisitor tc, TypeChecker childtc) throws SemanticException {
+    public Node typeCheckClassInvariant(Node parent, ContextVisitor tc, TypeChecker childtc) {
 	X10ClassDecl_c n = this;
 	DepParameterExpr classInvariant = (DepParameterExpr) n.visitChild(n.classInvariant, childtc);
 	n = (X10ClassDecl_c) n.classInvariant(classInvariant);
@@ -586,7 +586,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
 	return n;
     }
     
-    public Node typeCheckProperties(Node parent, ContextVisitor tc, TypeChecker childtc) throws SemanticException {
+    public Node typeCheckProperties(Node parent, ContextVisitor tc, TypeChecker childtc) {
         X10ClassDecl_c n = this;
         List<TypeParamNode> typeParameters = n.visitList(n.typeParameters, childtc);
         n = (X10ClassDecl_c) n.typeParameters(typeParameters);
@@ -611,14 +611,10 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	TypeChecker oldchildtc = (TypeChecker) childtc.copy();
     	ContextVisitor oldtc = (ContextVisitor) tc.copy();
     	
-    	try {
-    	    n = (X10ClassDecl_c) n.typeCheckSupers(tc, childtc);
-    	    n = (X10ClassDecl_c) n.typeCheckProperties(parent, tc, childtc);
-    	    n = (X10ClassDecl_c) n.typeCheckClassInvariant(parent, tc, childtc);
-    	    n = (X10ClassDecl_c) n.typeCheckBody(parent, tc, childtc);
-    	} catch (SemanticException e) {
-    	    Errors.issue(tc.job(), e, this);
-        }
+    	n = (X10ClassDecl_c) n.typeCheckSupers(tc, childtc);
+    	n = (X10ClassDecl_c) n.typeCheckProperties(parent, tc, childtc);
+    	n = (X10ClassDecl_c) n.typeCheckClassInvariant(parent, tc, childtc);
+    	n = (X10ClassDecl_c) n.typeCheckBody(parent, tc, childtc);
     	
     	n = (X10ClassDecl_c) X10Del_c.visitAnnotations(n, childtc);
 
@@ -723,11 +719,10 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         if (stref != null) {
             Type t = stref.get();
             t = followDefs(t);
-            if (xts.isUnknown(t))
+            if (xts.hasUnknown(t))
                 return;
             if (! t.isClass() || t.toClass().flags().isInterface()) {
-                throw new SemanticException("Cannot extend type " +
-                        t + "; not a class.",
+                throw new SemanticException("Cannot extend type " + t + "; not a class.",
                         superClass != null ? superClass.position() : position());
             }
             ts.checkCycles((ReferenceType) t);
@@ -736,7 +731,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         for (Ref<? extends Type> tref : type.interfaces()) {
             Type t = tref.get();
             t = followDefs(t);
-            if (xts.isUnknown(t))
+            if (xts.hasUnknown(t))
                 throw new SemanticException(); // already reported
             if (! t.isClass() || ! t.toClass().flags().isInterface()) {
                 String s = type.flags().isInterface() ? "extend" : "implement";

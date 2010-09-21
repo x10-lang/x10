@@ -375,7 +375,7 @@ public class ClassDecl_c extends Term_c implements ClassDecl
     	return n;
     }
     
-    public Node typeCheckSupers(ContextVisitor tc, TypeChecker childtc) throws SemanticException {
+    public Node typeCheckSupers(ContextVisitor tc, TypeChecker childtc) {
         ClassDecl_c n = this;
 
         // ### This should be done somewhere else, but before entering the body.
@@ -397,12 +397,16 @@ public class ClassDecl_c extends Term_c implements ClassDecl
             assert type.superType() == n.superClass().typeRef();
         
         n = n.reconstruct(flags, name, superClass, interfaces, body);
-        n.checkSupertypeCycles(tc.typeSystem());
+        try {
+            n.checkSupertypeCycles(tc.typeSystem());
+        } catch (SemanticException e) {
+            Errors.issue(tc.job(), e, this);
+        }
 
         return n;
     }
     
-    public Node typeCheckBody(Node parent, ContextVisitor tc, TypeChecker childtc) throws SemanticException {
+    public Node typeCheckBody(Node parent, ContextVisitor tc, TypeChecker childtc) {
         ClassDecl_c old = this;
 
         ClassDecl_c n = this;
