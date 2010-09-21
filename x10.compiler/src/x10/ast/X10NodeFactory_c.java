@@ -204,7 +204,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return n;
 	}
 	public TypeNode AmbDepTypeNode(Position pos, Prefix prefix, Id name, DepParameterExpr dep) {
-		return AmbDepTypeNode(pos, prefix, name, Collections.EMPTY_LIST, Collections.EMPTY_LIST, dep);
+		return AmbDepTypeNode(pos, prefix, name, Collections.<TypeNode>emptyList(), Collections.<Expr>emptyList(), dep);
 	}
 
 	public Instanceof Instanceof(Position pos, Expr expr, TypeNode type) {
@@ -322,7 +322,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	
 	@Override
 	public ClassDecl ClassDecl(Position pos, FlagsNode flags, Id name, TypeNode superClass, List<TypeNode> interfaces, ClassBody body) {
-		return X10ClassDecl(pos, flags, name, Collections.EMPTY_LIST, Collections.EMPTY_LIST, null, superClass, interfaces, body);
+		return X10ClassDecl(pos, flags, name, Collections.<TypeParamNode>emptyList(), Collections.<PropertyDecl>emptyList(), null, superClass, interfaces, body);
 	}
 
 	public X10ClassDecl X10ClassDecl(Position pos, FlagsNode flags, Id name, List<TypeParamNode> typeParameters, List<PropertyDecl> properties, DepParameterExpr ci,
@@ -346,7 +346,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return n;
 	}
 	public X10ClassDecl X10ClassDecl(Position pos, FlagsNode flags, Id name, TypeNode superClass, List<TypeNode> interfaces, ClassBody body, DepParameterExpr tci) {
-		return (X10ClassDecl) ClassDecl(pos, flags, name, Collections.EMPTY_LIST, Collections.EMPTY_LIST, superClass, interfaces, body, tci);
+		return (X10ClassDecl) ClassDecl(pos, flags, name, Collections.<TypeParamNode>emptyList(), Collections.<PropertyDecl>emptyList(), superClass, interfaces, body, tci);
 	}
 
 	public Await Await(Position pos, Expr expr) {
@@ -362,7 +362,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	}
 	
 	public Call Call(Position pos, Receiver target, Id name, List<Expr> args) {
-		return X10Call(pos, target, name, Collections.EMPTY_LIST, args);
+		return X10Call(pos, target, name, Collections.<TypeNode>emptyList(), args);
 	}
 	
 	public Expr ConstantDistMaker(Position pos, Expr e1, Expr e2) {
@@ -403,7 +403,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	}
 
 	public New New(Position pos, Expr qualifier, TypeNode objectType, List<Expr> arguments, ClassBody body) {
-		return X10New(pos, qualifier, objectType, Collections.EMPTY_LIST, arguments, body);
+		return X10New(pos, qualifier, objectType, Collections.<TypeNode>emptyList(), arguments, body);
 	}
 
 //	 Wrap the body in a block to facilitate code transformations
@@ -617,7 +617,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 			Id name,
 			List<Formal> formals, List<TypeNode> throwTypes, Block body)
 	{
-		return X10MethodDecl(pos, flags, returnType, name, Collections.EMPTY_LIST, formals, null, throwTypes, null, body);
+		return X10MethodDecl(pos, flags, returnType, name, Collections.<TypeParamNode>emptyList(), formals, null, throwTypes, null, body);
 	}
 
 	public X10MethodDecl X10MethodDecl(Position pos, FlagsNode flags, TypeNode returnType, Id name, List<TypeParamNode> typeParams, List<Formal> formals,
@@ -642,7 +642,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	public ConstructorDecl ConstructorDecl(Position pos, FlagsNode flags, Id name,
 			List<Formal> formals, List<TypeNode> throwTypes, 
 			Block body) {
-		return X10ConstructorDecl(pos, flags, name, null, Collections.EMPTY_LIST, formals, null, throwTypes, null, body);
+		return X10ConstructorDecl(pos, flags, name, null, Collections.<TypeParamNode>emptyList(), formals, null, throwTypes, null, body);
 	}
 
 	public ConstructorDecl X10ConstructorDecl(Position pos, FlagsNode flags,
@@ -801,7 +801,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	}
 	
 	public ConstructorCall ConstructorCall(Position pos, ConstructorCall.Kind kind, Expr outer, List<Expr> args) {
-		return X10ConstructorCall(pos, kind, outer, Collections.EMPTY_LIST, args);
+		return X10ConstructorCall(pos, kind, outer, Collections.<TypeNode>emptyList(), args);
 	}
 
 	public Closure Closure(Position pos, List<Formal> formals, 

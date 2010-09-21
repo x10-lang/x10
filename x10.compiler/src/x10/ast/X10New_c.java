@@ -266,7 +266,7 @@ public class X10New_c extends New_c implements X10New {
             if (typeArguments.size() > 0) {
                 if (tn instanceof AmbTypeNode) {
                     AmbTypeNode atn = (AmbTypeNode) tn;
-                    tn = nf.AmbDepTypeNode(atn.position(), atn.prefix(), atn.name(), typeArguments, Collections.EMPTY_LIST, null);
+                    tn = nf.AmbDepTypeNode(atn.position(), atn.prefix(), atn.name(), typeArguments, Collections.<Expr>emptyList(), null);
                     tn = tn.typeRef(atn.typeRef());
                 }
                 else {

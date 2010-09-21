@@ -246,7 +246,7 @@ public class X10Field_c extends Field_c {
 
                 // Now try 0-ary property methods.
                 try {
-                    X10MethodInstance mi = ts.findMethod(target.type(), ts.MethodMatcher(target.type(), name.id(), Collections.EMPTY_LIST, c));
+                    X10MethodInstance mi = ts.findMethod(target.type(), ts.MethodMatcher(target.type(), name.id(), Collections.<Type>emptyList(), c));
                     if (X10Flags.toX10Flags(mi.flags()).isProperty()) {
                         Call call = nf.Call(pos, target, this.name);
                         call = call.methodInstance(mi);

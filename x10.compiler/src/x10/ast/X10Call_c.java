@@ -369,7 +369,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
         if (t == null)
             return null;
         if (X10TypeMixin.isX10Struct(t)) {
-            X10New_c neu = (X10New_c) nf.X10New(position(), nf.CanonicalTypeNode(position(), t), Collections.EMPTY_LIST, args);
+            X10New_c neu = (X10New_c) nf.X10New(position(), nf.CanonicalTypeNode(position(), t), Collections.<TypeNode>emptyList(), args);
             neu = (X10New_c) neu.newOmitted(true);
             Pair<ConstructorInstance, List<Expr>> p = X10New_c.findConstructor(tc, neu, t, argTypes);
             X10ConstructorInstance ci = (X10ConstructorInstance) p.fst();

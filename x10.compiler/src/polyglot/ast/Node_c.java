@@ -226,24 +226,24 @@ public abstract class Node_c implements Node
      *         <code>l</code>.  If <code>l</code> is <code>null</code>,
      *         <code>null</code> is returned.
      */
-    public List visitList(List<? extends Node> l, NodeVisitor v) {
+    public <T extends Node> List<T> visitList(List<T> l, NodeVisitor v) {
 	if (l == null) {
 	    return null;
 	}
 
-	List<? extends Node> result = l;
-	List<Node> vl = new ArrayList<Node>(l.size());
+	List<T> result = l;
+	List<T> vl = new ArrayList<T>(l.size());
 	
-	for (Iterator<? extends Node> i = l.iterator(); i.hasNext(); ) {
-	    Node n = (Node) i.next();
+	for (Iterator<T> i = l.iterator(); i.hasNext(); ) {
+	    T n = i.next();
 	    Node m = visitChild(n, v);
 	    if (n != m) {
 	        result = vl;
 	    }
             if (m instanceof NodeList) {
-                vl.addAll(((NodeList) m).nodes());
+                vl.addAll((List<T>)((NodeList) m).nodes());
             } else if (m != null) {
-	        vl.add(m);
+	        vl.add((T)m);
 	    }
 	}
 

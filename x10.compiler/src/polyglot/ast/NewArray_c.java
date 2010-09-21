@@ -198,7 +198,7 @@ public class NewArray_c extends Expr_c implements NewArray
                 throw new InternalCompilerError("Cannot find class java.lang.NegativeArraySizeException", e);
             }
         }
-        return Collections.EMPTY_LIST;
+        return Collections.<Type>emptyList();
     }
     
 

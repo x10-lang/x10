@@ -590,7 +590,7 @@ public class Binary_c extends Expr_c implements Binary
       return Collections.<Type>singletonList(ts.ArithmeticException());
     }
 
-    return Collections.EMPTY_LIST;
+    return Collections.<Type>emptyList();
   }
   
 }

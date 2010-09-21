@@ -93,8 +93,8 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
         X10TypeSystem ts = (X10TypeSystem) nf.extensionInfo().typeSystem();
         Position pos = getCompilerGenPos();
         Flags flags = X10Flags.PROPERTY.Public().Final();
-        List<Formal> formals = Collections.EMPTY_LIST;
-        List<TypeNode> throwTypes = Collections.EMPTY_LIST;
+        List<Formal> formals = Collections.<Formal>emptyList();
+        List<TypeNode> throwTypes = Collections.<TypeNode>emptyList();
         Expr e = nf.Field(pos, nf.This(pos), name);
         //Report.report(1, "PropertyDecl_c: GOLDEN e=|" + e + " " + e.getClass());
         
@@ -113,7 +113,7 @@ public class PropertyDecl_c extends X10FieldDecl_c  implements PropertyDecl {
      */
     protected MethodDecl abstractGetter(X10NodeFactory nf) {
       MethodDecl abstractGetter = nf.MethodDecl(getCompilerGenPos(), nf.FlagsNode(getCompilerGenPos(), X10Flags.PROPERTY.Public().Abstract()), type, name, 
-                              Collections.EMPTY_LIST, Collections.EMPTY_LIST, null);
+                              Collections.<Formal>emptyList(), Collections.<TypeNode>emptyList(), null);
       return abstractGetter;
     }
 }

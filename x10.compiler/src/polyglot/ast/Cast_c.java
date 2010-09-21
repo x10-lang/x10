@@ -145,7 +145,7 @@ public class Cast_c extends Expr_c implements Cast
             return Collections.<Type>singletonList(ts.ClassCastException());
         }
 
-        return Collections.EMPTY_LIST;
+        return Collections.<Type>emptyList();
     }
     
     public boolean isConstant() {

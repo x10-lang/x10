@@ -1149,6 +1149,7 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
     }
 
 
+    @SuppressWarnings("unchecked") // Casting Object to various generic types
     public void ruleAction(int ruleNumber)
     {
         switch (ruleNumber)

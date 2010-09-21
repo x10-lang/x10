@@ -567,8 +567,8 @@ public class Synthesizer {
 			Name name,
 			Type returnType,
 			X10Context xc) throws SemanticException {
-		return makeStaticCall(pos, receiver, name, Collections.EMPTY_LIST, 
-				Collections.EMPTY_LIST, returnType, xc);
+		return makeStaticCall(pos, receiver, name, Collections.<TypeNode>emptyList(), 
+				Collections.<Expr>emptyList(), returnType, xc);
 	}
 	
 	public Call makeStaticCall(Position pos, 
@@ -577,7 +577,7 @@ public class Synthesizer {
 			List<Expr> args,
 			Type returnType,
 			X10Context xc) throws SemanticException {
-		return makeStaticCall(pos, receiver, name, Collections.EMPTY_LIST, args, returnType, xc);
+		return makeStaticCall(pos, receiver, name, Collections.<TypeNode>emptyList(), args, returnType, xc);
 	}
 
 	public Call makeStaticCall(Position pos, 
@@ -587,7 +587,7 @@ public class Synthesizer {
 			Type returnType,
 			List<Type> argTypes,
 			X10Context xc) throws SemanticException {
-		return makeStaticCall(pos, receiver, name, Collections.EMPTY_LIST, args, 
+		return makeStaticCall(pos, receiver, name, Collections.<TypeNode>emptyList(), args, 
 				returnType, argTypes, xc);
 	}
 	public Call makeStaticCall(Position pos, Type receiver, Name name,
@@ -718,11 +718,11 @@ public class Synthesizer {
 	 */
 	
 	public Closure makeClosure(Position pos, Type retType, Block body, X10Context context, List<X10ClassType> annotations) {
-		return makeClosure(pos, retType, Collections.EMPTY_LIST, body, context, annotations);
+		return makeClosure(pos, retType, Collections.<Formal>emptyList(), body, context, annotations);
 	}
 	 
     public Closure makeClosure(Position pos, Type retType, Block body, X10Context context) {
-        return makeClosure(pos, retType, Collections.EMPTY_LIST, body, context);
+        return makeClosure(pos, retType, Collections.<Formal>emptyList(), body, context);
     }
 	 
 	public Block toBlock(Stmt body) {
@@ -1367,8 +1367,8 @@ public class Synthesizer {
 			return nf.X10CanonicalTypeNode(pos, type);
 		Type base = X10TypeMixin.baseType(type);
 		String typeName = base.toString();
-		List<Type> types = Collections.EMPTY_LIST;
-		List<TypeNode> typeArgs = Collections.EMPTY_LIST;
+		List<Type> types = Collections.<Type>emptyList();
+		List<TypeNode> typeArgs = Collections.<TypeNode>emptyList();
 		if (base instanceof X10ClassType) {
 			X10ClassType xc = (X10ClassType) base;
 			types = xc.typeArguments();
@@ -1388,7 +1388,7 @@ public class Synthesizer {
 		QName qName = QName.make(typeName);
 		QName qual = qName.qualifier();
 		TypeNode tn =  nf.AmbDepTypeNode(pos, qual==null ? null : nf.PrefixFromQualifiedName(pos, qual), 
-				nf.Id(pos, qName.name()), typeArgs, Collections.EMPTY_LIST, dep);
+				nf.Id(pos, qName.name()), typeArgs, Collections.<Expr>emptyList(), dep);
 		TypeBuilder tb = new TypeBuilder(tc.job(),  tc.typeSystem(), nf);
 		tn = (TypeNode) tn.visit(tb);
 		TypeChecker typeChecker = (TypeChecker) new X10TypeChecker(tc.job(), ts, nf,tc.job().nodeMemo()).context(tc.context());
@@ -1613,10 +1613,10 @@ public class Synthesizer {
      */
     public FunctionType simpleFunctionType(Type type, Position pos){        
         return xts.closureType(pos, Types.ref(type),
-                       Collections.EMPTY_LIST,
-                       Collections.EMPTY_LIST,
+                       Collections.<Ref<? extends Type>>emptyList(),
+                       Collections.<LocalDef>emptyList(),
                        null, 
-                       Collections.EMPTY_LIST);
+                       Collections.<Ref<? extends Type>>emptyList());
     }
     
 }

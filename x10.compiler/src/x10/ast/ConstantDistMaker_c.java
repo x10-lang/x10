@@ -18,6 +18,7 @@ import polyglot.ast.Expr;
 import polyglot.ast.Id;
 import polyglot.ast.Node;
 import polyglot.ast.Receiver;
+import polyglot.ast.TypeNode;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.util.Position;
@@ -39,7 +40,7 @@ public class ConstantDistMaker_c extends X10Call_c implements ConstantDistMaker 
 	 */
 	public ConstantDistMaker_c(Position pos, Receiver target, Id name,
 			List<Expr> arguments) {
-		super(pos, target, name, Collections.EMPTY_LIST, arguments);
+		super(pos, target, name, Collections.<TypeNode>emptyList(), arguments);
 	}
 	 
 //    public Node typeCheck(TypeChecker tc) throws SemanticException {

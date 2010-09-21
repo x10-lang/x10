@@ -99,7 +99,7 @@ public class Throw_c extends Stmt_c implements Throw
         v.visitCFG(expr, this, EXIT);
 
         // Throw edges will be handled by visitor.
-        return Collections.EMPTY_LIST;
+        return Collections.<S>emptyList();
     }
 
     public List<Type> throwTypes(TypeSystem ts) {

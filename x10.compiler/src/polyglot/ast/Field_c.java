@@ -228,7 +228,7 @@ e = new Exception();
           return Collections.<Type>singletonList(ts.NullPointerException());
       }
 
-      return Collections.EMPTY_LIST;
+      return Collections.<Type>emptyList();
   }
 
   public boolean isConstant() {

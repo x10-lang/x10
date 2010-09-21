@@ -171,7 +171,7 @@ public class Return_c extends Stmt_c implements Return
         }
 
         v.visitReturn(this);
-        return Collections.EMPTY_LIST;
+        return Collections.<S>emptyList();
     }
     
 
