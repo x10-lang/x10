@@ -732,19 +732,26 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
                 String name = var.name().toString();
                 inc.write("__env."+name+" = ");
                 
+                //String addr = "&(*"+name+")[0]"; // old way for rails
+                String addr = "&"+name+"->FMGL(raw).data[0]";
+                //String rr = "x10aux::get_remote_ref_maybe_null("+name+".operator->())"; // old object model
+                String rr = "&"+name+"->FMGL(rawData).data[0]";
+                
                 if (isIntArray(t)) {
-                    if (xts().isRail(t)) {
-                        inc.write("(x10_int*)(size_t)x10aux::get_remote_ref_maybe_null("+name+".operator->())");
+                    if (xts().isRemoteArray(t)) {
+                        inc.write("(x10_int*)(size_t)"+rr);
                     } else {
-                        inc.write("(x10_int*)(size_t)x10aux::remote_alloc(__gpu, sizeof(x10_int)*"+name+"->FMGL(length));"); inc.newline();
-                        inc.write("x10aux::cuda_put(__gpu, (x10_ulong) __env."+name+", &(*"+name+")[0], sizeof(x10_int)*"+name+"->FMGL(length))");
+                    	String sz = "sizeof(x10_int)*"+name+"->FMGL(rawLength)";
+                        inc.write("(x10_int*)(size_t)x10aux::remote_alloc(__gpu, "+sz+");"); inc.newline();
+                        inc.write("x10aux::cuda_put(__gpu, (x10_ulong) __env."+name+", "+addr+", "+sz+")");
                     }
                 } else if (isFloatArray(t)) {
-                    if (xts().isRail(t)) {
-                        inc.write("(x10_float*)(size_t)x10aux::get_remote_ref_maybe_null("+name+".operator->())");
+                    if (xts().isRemoteArray(t)) {
+                        inc.write("(x10_float*)(size_t)"+rr);
                     } else {
-                        inc.write("(x10_float*)(size_t)x10aux::remote_alloc(__gpu, sizeof(x10_float)*"+name+"->FMGL(length));"); inc.newline();
-                        inc.write("x10aux::cuda_put(__gpu, (x10_ulong) __env."+name+", &(*"+name+")[0], sizeof(x10_float)*"+name+"->FMGL(length))");
+                    	String sz = "sizeof(x10_float)*"+name+"->FMGL(rawLength)";
+                        inc.write("(x10_float*)(size_t)x10aux::remote_alloc(__gpu, "+sz+");"); inc.newline();
+                        inc.write("x10aux::cuda_put(__gpu, (x10_ulong) __env."+name+", "+addr+", "+sz+")");
                     }
                 } else {
                     inc.write(name);
