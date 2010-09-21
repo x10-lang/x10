@@ -535,6 +535,8 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
             }
         }
         if (t instanceof AnnotatedType) {
+            if (hasUnknown(X10TypeMixin.baseType(t)))
+                return true;
             AnnotatedType at = (AnnotatedType) t;
             List<Type> ann = at.annotations();
             for (Type a : ann) {
@@ -543,6 +545,8 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
             }
         }
         if (t instanceof ConstrainedType) {
+            if (hasUnknown(X10TypeMixin.baseType(t)))
+                return true;
             ConstrainedType ct = (ConstrainedType) t;
             for (XTerm x : X10TypeMixin.xclause(ct).constraints()) {
                 if (hasUnknown(x))
