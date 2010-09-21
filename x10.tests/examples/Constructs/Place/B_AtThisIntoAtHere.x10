@@ -25,8 +25,8 @@ public class B_AtThisIntoAtHere extends x10Test {
     class Test {
 
      def n() { 
-    	private val x:GlobalRef[Test]  = GlobalRef[Test](this);
-        private val y:GlobalRef[Test]{self.home==x.home} = GlobalRef[Test](this);
+    	val x  = GlobalRef[Test](this);
+        val y:GlobalRef[Test]{self.home==x.home} = GlobalRef[Test](this);
     	 
     	 at (x) {
     		 // it is ok to invoke this.y() at the place of this.x.
