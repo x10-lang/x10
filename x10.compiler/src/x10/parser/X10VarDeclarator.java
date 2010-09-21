@@ -31,6 +31,7 @@ import x10.parser.X10Parser.JPGPosition;
 /**
  * @author vj Jan 23, 2005
  * @author igor Jan 13, 2006
+ * TODO: actually use this class instead of the Object[] in the parser
  */
 public class X10VarDeclarator extends VarDeclarator {
 	private final List<Formal> vars;
@@ -40,18 +41,17 @@ public class X10VarDeclarator extends VarDeclarator {
 		this(pos, name, null);
 	}
 
-	public X10VarDeclarator(JPGPosition pos, List/*<Name>*/ paramList) {
+	public X10VarDeclarator(JPGPosition pos, List<ParsedName> paramList) {
 		//this(pos, x10.visit.X10PrettyPrinterVisitor.getId(), paramList);
 		// TODO: use the below instead
 		this(pos, null, paramList);
 	}
 
-	public X10VarDeclarator(JPGPosition pos, Id name, List/*<Name>*/ paramList) {
+	public X10VarDeclarator(JPGPosition pos, Id name, List<ParsedName> paramList) {
 		super(pos, name);
 		if (paramList != null) {
 			this.vars = new ArrayList<Formal>(paramList.size());
-			for (int i = 0; i < paramList.size(); i++) {
-				ParsedName ni = (ParsedName) paramList.get(i);
+			for (ParsedName ni : paramList) {
 				TypeSystem ts = ni.ts;
 				NodeFactory nf = ni.nf;
 				this.vars.add(nf.Formal(ni.pos, flags == null ? nf.FlagsNode(ni.pos, Flags.NONE) : flags, nf.CanonicalTypeNode(ni.pos, ts.Int()), ni.name));
