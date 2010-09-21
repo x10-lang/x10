@@ -155,7 +155,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 
 		checkAssignments(tc, pos, definedProperties, arguments);
 		if (thisConstructor != null) {
-		    checkReturnType(tc, pos, thisConstructor, definedProperties);
+		    checkReturnType(tc, pos, thisConstructor, definedProperties, arguments);
 		}
 
 		ThisChecker thisC = (ThisChecker) new ThisChecker(tc.job()).context(tc.context());
@@ -175,24 +175,24 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 		return this.properties(properties);
 	}
 
-	protected void checkAssignments(ContextVisitor tc, Position pos,
+	protected static void checkAssignments(ContextVisitor tc, Position pos,
 	        List<FieldInstance> props, List<Expr> args)
 	{
 		X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
 		// First check that the base types are correct.
-		for (int i=0; i < args.size(); ++i) {
-			if (i < props.size())
+		for (int i=0; i < args.size() && i < props.size(); ++i) {
 			if (!xts.isSubtype(X10TypeMixin.baseType(args.get(i).type()), X10TypeMixin.baseType(props.get(i).type()))) {
 				Errors.issue(tc.job(),
 				        new SemanticException("The type " + args.get(i).type() + " of the initializer for property " + props.get(i) 
-				                + " is not a subtype of the property type " + props.get(i).type(), position()));
+				                + " is not a subtype of the property type " + props.get(i).type(), pos));
 			}
 		}
 		// Now we check that the constraints are correct.
 	}
 	
 	protected void checkReturnType(ContextVisitor tc, Position pos,
-	        X10ConstructorDef thisConstructor, List<FieldInstance> definedProperties)
+	        X10ConstructorDef thisConstructor, List<FieldInstance> definedProperties,
+	        List<Expr> args)
 	{
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 		X10Context ctx = (X10Context) tc.context();
@@ -215,8 +215,8 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 
 				XVar thisVar = thisConstructor.thisVar();
 
-				for (int i = 0; i < arguments.size() && i < definedProperties.size(); i++) {
-					Expr initializer = arguments.get(i);
+				for (int i = 0; i < args.size() && i < definedProperties.size(); i++) {
+					Expr initializer = args.get(i);
 					Type initType = initializer.type();
 					final FieldInstance fii = definedProperties.get(i);
 					XVar prop = (XVar) ts.xtypeTranslator().trans(known, known.self(), fii);
@@ -246,7 +246,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 					result =  result.instantiateSelf(thisVar);
 					if (!known.entails(result, ctx.constraintProjection(known, result))) {
 						Errors.issue(tc.job(),
-						        new Errors.ConstructorReturnTypeNotEntailed(known, result, position()));
+						        new Errors.ConstructorReturnTypeNotEntailed(known, result, pos));
 					}
 				}
 			}
