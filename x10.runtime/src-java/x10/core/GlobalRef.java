@@ -90,15 +90,7 @@ public final class GlobalRef<T> extends x10.core.Struct {
         if (!x10.core.GlobalRef._RTT.instanceof$(other, T)) {
             return false;
         }
-
-        return this._struct_equals(new java.lang.Object() {
-            final x10.core.GlobalRef<T> cast(final x10.core.GlobalRef<T> self) {
-                if (self == null) return null;
-                x10.rtt.Type<GlobalRef<?>> rtt = new x10.rtt.ParameterizedType<GlobalRef<?>>(x10.core.GlobalRef._RTT, T);
-                if (rtt != null && !rtt.instanceof$(self)) throw new java.lang.ClassCastException();
-                return self;
-            }
-        }.cast((x10.core.GlobalRef<T>) other));
+        return this._struct_equals((x10.core.GlobalRef<T>) other);
     }
 
     final public boolean _struct_equals(x10.core.GlobalRef<T> other) {
