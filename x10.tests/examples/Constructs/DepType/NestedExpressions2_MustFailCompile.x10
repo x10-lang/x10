@@ -10,17 +10,21 @@
  */
 
 import harness.x10Test;
+//OPTIONS: -STATIC_CALLS
 /**
 
-- STATIC_CALLS
+Check that and(x,y) of type C(x.a&&y.a) cannot be assigned to
+a variable of type C(y.a&&x.a), under static calls.
+
+(This may change later.)
  */
 
 	
 public class NestedExpressions2_MustFailCompile extends x10Test {
 	class C(a:boolean) {
 		static type C(b:boolean) = C{self.a==b};
-		def this(b:boolean):C{self.a==b}{property(b);}
-		def and(x:C, y:C): C{self.a== (x.a && y.a)} = new C(x.a&&y.a);
+		def this(u:boolean):C(u) { property(u);}
+		def and(x:C, y:C): C(x.a && y.a) = new C(x.a&&y.a);
 		def n() {
 			val x = new C(true);
 			val y = new C(true);
