@@ -21,10 +21,11 @@ public class ClockTest2 extends x10Test {
 	static  N: int = 10;
 
 	public def run(): boolean = {
-		clocked finish {
+		/*clocked*/ finish {
+			val clock = Clock.make();
 		   for (var i: int = 0; i < N; i++) {
-			  clocked 
-			    async  
+			 /*clocked */
+			    async  clocked(clock)
 					atomic 
 						val++;
 			  next;
@@ -32,6 +33,7 @@ public class ClockTest2 extends x10Test {
 			  atomic { temp = val; }
 			  if (temp != i+1) return false;
 		    }
+		   clock.drop();
 		}
 		return true;
 	}
