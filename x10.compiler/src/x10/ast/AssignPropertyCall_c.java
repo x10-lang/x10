@@ -181,6 +181,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 		X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
 		// First check that the base types are correct.
 		for (int i=0; i < args.size(); ++i) {
+			if (i < props.size())
 			if (!xts.isSubtype(X10TypeMixin.baseType(args.get(i).type()), X10TypeMixin.baseType(props.get(i).type()))) {
 				Errors.issue(tc.job(),
 				        new SemanticException("The type " + args.get(i).type() + " of the initializer for property " + props.get(i) 
@@ -214,7 +215,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 
 				XVar thisVar = thisConstructor.thisVar();
 
-				for (int i = 0; i < arguments.size(); i++) {
+				for (int i = 0; i < arguments.size() && i < definedProperties.size(); i++) {
 					Expr initializer = arguments.get(i);
 					Type initType = initializer.type();
 					final FieldInstance fii = definedProperties.get(i);
