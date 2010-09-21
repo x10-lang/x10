@@ -231,7 +231,7 @@ public final class Array[T](
     public def this(size:int):Array[T]{self.region.rank==1,self.region.rect,self.region.zeroBased} {
         property(0..size-1, size);
 
-        layout = RectLayout(region.min(), region.max());
+        layout = RectLayout(0, size-1);
         val n = layout.size();
         raw = IndexedMemoryChunk.allocate[T](n, true);
         rawLength = n;
@@ -249,7 +249,7 @@ public final class Array[T](
     public def this(size:int, init:(int)=>T):Array[T]{rank==1,rect,zeroBased} {
         property(0..size-1, size);
 
-        layout = RectLayout(region.min(), region.max());
+        layout = RectLayout(0, size-1);
         val n = layout.size();
         val r  = IndexedMemoryChunk.allocate[T](n);
 	for ([i] in 0..size-1) {
@@ -271,7 +271,7 @@ public final class Array[T](
     public def this(size:int, init:T):Array[T]{rank==1,rect,zeroBased,self.rail} {
         property(0..size-1, size);
 
-        layout = RectLayout(region.min(), region.max());
+        layout = RectLayout(0, size-1);
         val n = layout.size();
         val r  = IndexedMemoryChunk.allocate[T](n);
 	for ([i] in 0..size-1) {
