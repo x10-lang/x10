@@ -153,16 +153,7 @@ void Launcher::startChildren()
 	if (!_pidlst || !_childControlLinks || !_childCoutLinks || !_childCerrorLinks)
 		DIE("%u: failed in alloca()", _myproc);
 
-	uint32_t id=0;
-/*	if (_myproc == 0xFFFFFFFF)
-	{
-		_pidlst[0] = -1;
-		_childCoutLinks[0] = -1;
-		_childCerrorLinks[0] = -1;
-		_childControlLinks[0] = -1;
-		id = 1;
-	}
-*/	for (id; id <= _numchildren; id++)
+	for (uint32_t id=0; id <= _numchildren; id++)
 	{
 		int pid, outpipe[2], errpipe[2];
 		if (pipe(outpipe) < 0) DIE("Launcher %u: failed in outpipe()", _myproc);
@@ -315,7 +306,7 @@ void Launcher::handleRequestsLoop()
 	#endif
 
 	int status = 0;
-	for (uint32_t i = 0; i < _numchildren; i++)
+	for (uint32_t i = 0; i <= _numchildren; i++)
 	{
 		#ifdef DEBUG
 			fprintf(stderr, "Launcher %u: killing pid=%d\n", _myproc, _pidlst[i]);
@@ -482,7 +473,7 @@ void Launcher::handleNewChildConnection(void)
 			return;
 		}
 
-		for (uint32_t i = 0; i < _numchildren; i++)
+		for (uint32_t i = 0; i < _numchildren; i++) // the runtime is not in this loop
 		{
 			if (m.from == _firstchildproc + i)
 			{
@@ -522,7 +513,7 @@ bool Launcher::handleDeadChild(uint32_t childNo)
 		_childControlLinks[childNo] = -1;
 
 		#ifdef DEBUG
-		if (childNo == _numchildren)
+		if (childNo == _numchildren && _myproc != 0xFFFFFFFF)
 			fprintf(stderr, "Launcher %u: local runtime control disconnected\n", _myproc);
 		else
 			fprintf(stderr, "Launcher %u: child=%d control disconnected\n", _myproc, _firstchildproc+childNo);
@@ -534,7 +525,7 @@ bool Launcher::handleDeadChild(uint32_t childNo)
 		_childCerrorLinks[childNo] = -1;
 
 		#ifdef DEBUG
-		if (childNo == _numchildren)
+		if (childNo == _numchildren && _myproc != 0xFFFFFFFF)
 			fprintf(stderr, "Launcher %u: local runtime cerror disconnected\n", _myproc);
 		else
 			fprintf(stderr, "Launcher %u: child=%d cerror disconnected\n", _myproc, _firstchildproc+childNo);
@@ -546,7 +537,7 @@ bool Launcher::handleDeadChild(uint32_t childNo)
 		_childCoutLinks[childNo] = -1;
 
 		#ifdef DEBUG
-		if (childNo == _numchildren)
+		if (childNo == _numchildren && _myproc != 0xFFFFFFFF)
 			fprintf(stderr, "Launcher %u: local runtime cout disconnected\n", _myproc);
 		else
 			fprintf(stderr, "Launcher %u: child=%d cout disconnected\n", _myproc, _firstchildproc+childNo);
