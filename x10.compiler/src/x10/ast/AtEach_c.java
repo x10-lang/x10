@@ -114,7 +114,7 @@ public class AtEach_c extends X10ClockedLoop_c implements AtEach, Clocked {
 		if (clocks != null) {
 			w.write("clocked(");
 			for (Iterator<Expr> c = clocks.iterator(); c.hasNext(); ) {
-				print((Expr)c.next(), w, tr);
+				print(c.next(), w, tr);
 				if (c.hasNext()) w.write(", ");
 			}
 			w.write(")");
