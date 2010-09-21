@@ -340,7 +340,7 @@ public final class String implements (Int) => Char/*TODO, (Range) => String*//*T
      * @param regex the delimiting regular expression.
      * @return the ValRail of Strings computed by splitting this String around matches of the given regular expression.
      */
-    @Native("java", "x10.core.RailFactory.<java.lang.String>makeValRailFromJavaArray(new x10.rtt.RuntimeType<java.lang.String>(java.lang.String.class), (#0).split(#1))")
+    @Native("java", "x10.core.RailFactory.<java.lang.String>makeValRailFromJavaArray(x10.rtt.Types.STRING, (#0).split(#1))")
 //    @Native("java", "x10.core.StringAux.split((#0), (#1))")
     @Native("c++", "(#0)->split(#1)")
     public native def split(regex: String): ValRail[String];
