@@ -401,11 +401,12 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 	}
 
 	@Override
-	protected void checkFlags(ContextVisitor tc, Flags flags) throws SemanticException {
+	protected void checkFlags(ContextVisitor tc, Flags flags) {
 		X10Flags xf = X10Flags.toX10Flags(flags);
 
 		if (xf.isExtern() && body != null) {
-			throw new SemanticException("An extern method cannot have a body.", position());
+			Errors.issue(tc.job(),
+			        new SemanticException("An extern method cannot have a body.", position()));
 		}
 
 
@@ -416,10 +417,12 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 			super.checkFlags(tc, xf);
 
 		if (xf.isProperty() && ! xf.isAbstract() && ! xf.isFinal()) {
-			throw new SemanticException("A non-abstract property method must be final.", position());
+			Errors.issue(tc.job(),
+			        new SemanticException("A non-abstract property method must be final.", position()));
 		}
 		if (xf.isProperty() && xf.isStatic()) {
-			throw new SemanticException("A property method cannot be static.", position());
+			Errors.issue(tc.job(),
+			        new SemanticException("A property method cannot be static.", position()));
 		}
 	}
 
@@ -536,7 +539,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 	}
 
 	@Override
-	public Node conformanceCheck(ContextVisitor tc) throws SemanticException {
+	public Node conformanceCheck(ContextVisitor tc) {
 		checkVariance(tc);
 
 		MethodDef mi = this.methodDef();
@@ -545,18 +548,21 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		for (TypeNode type : throwTypes()) {
 			CConstraint rc = X10TypeMixin.xclause(type.type());
 			if (rc != null && ! rc.valid())
-				throw new SemanticException("Cannot throw a dependent type.", type.position());
+				Errors.issue(tc.job(),
+				        new SemanticException("Cannot throw a dependent type.", type.position()));
 		}
 
 		if (X10Flags.toX10Flags(mi.flags()).isProperty()) {
 			X10MethodInstance xmi = (X10MethodInstance) mi.asInstance();
 			if (xmi.guard() != null && ! xmi.guard().valid())
-				throw new SemanticException("A property method cannot have a guard.", guard != null ? guard.position() : position());
+				Errors.issue(tc.job(),
+				        new SemanticException("A property method cannot have a guard.", guard != null ? guard.position() : position()));
 		}
 
 		if (X10Flags.toX10Flags(mi.flags()).isExtern()) {
 			if (!mi.returnType().get().isPrimitive())
-				throw new SemanticException("Return type " + mi.returnType() + " of extern method must be a primitive type.", this.position());
+				Errors.issue(tc.job(),
+				        new SemanticException("Return type " + mi.returnType() + " of extern method must be a primitive type.", position()));
 
 			for (Formal parameter : this.formals()) {
 				Type declType = parameter.declType();
@@ -571,27 +577,23 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 					isOk = xts.isRail(declType) || xts.isValRail(declType);
 				}
 				if (!isOk)
-					throw new SemanticException("Parameters to extern calls must be either X10 arrays or primitives.", parameter.position());
+					Errors.issue(tc.job(),
+					        new SemanticException("Parameters to extern calls must be either X10 arrays or primitives.", parameter.position()));
 			}
 		}
 
-		checkVisibility(tc.typeSystem(), tc.context(), this);
+		checkVisibility(tc, this);
 
 		// Need to ensure that method overriding is checked in a context in which here=this.home
 		// has been asserted.
 		Context childtc = enterChildScope(returnType(), tc.context());
 		ContextVisitor childVisitor = tc.context(childtc);
-		try {
-		    return super.conformanceCheck(childVisitor);
-		} catch (SemanticException e) {
-		    Errors.issue(tc.job(), e, this);
-		    return this;
-		}
+		return super.conformanceCheck(childVisitor);
 	}
 
 	final static boolean CHECK_VISIBILITY = false;
 
-	protected static void checkVisibility(final TypeSystem ts, Context c, final ClassMember mem) throws SemanticException {
+	protected static void checkVisibility(ContextVisitor tc, final ClassMember mem) {
 		// This doesn't work since we've already translated away expressions into constraints.
 		if (! CHECK_VISIBILITY)
 			return;
@@ -777,11 +779,11 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		});
 
 		if (ex[0] != null)
-			throw ex[0];
+			Errors.issue(tc.job(), ex[0], mem);
 	}
 
 
-	protected void checkVariance(ContextVisitor tc) throws SemanticException {
+	protected void checkVariance(ContextVisitor tc) {
 		if (methodDef().flags().isStatic())
 			return;
 
@@ -793,9 +795,17 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 			vars.put(pt.name(), v);
 		}
 
-		Checker.checkVariancesOfType(returnType.position(), returnType.type(), ParameterType.Variance.COVARIANT, "as a method return type", vars, tc);
+		try {
+		    Checker.checkVariancesOfType(returnType.position(), returnType.type(), ParameterType.Variance.COVARIANT, "as a method return type", vars, tc);
+		} catch (SemanticException e) {
+		    Errors.issue(tc.job(), e, this);
+		}
 		for (Formal f : formals) {
-			Checker.checkVariancesOfType(f.type().position(), f.declType(), ParameterType.Variance.CONTRAVARIANT, "as a method parameter type", vars, tc);
+			try {
+			    Checker.checkVariancesOfType(f.type().position(), f.declType(), ParameterType.Variance.CONTRAVARIANT, "as a method parameter type", vars, tc);
+			} catch (SemanticException e) {
+			    Errors.issue(tc.job(), e, this);
+			}
 		}
 	}
 

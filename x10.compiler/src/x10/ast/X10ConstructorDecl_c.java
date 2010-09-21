@@ -495,7 +495,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         return n;
     }
 
-    public Node conformanceCheck(ContextVisitor tc) throws SemanticException {
+    public Node conformanceCheck(ContextVisitor tc) {
         X10ConstructorDecl_c n = (X10ConstructorDecl_c) super.conformanceCheck(tc);
         X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
         
@@ -506,13 +506,14 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         // Type clazz = ((X10Type) nnci.asInstance().container()).setFlags(X10Flags.ROOTED);
         Type clazz = nnci.asInstance().container();
         if (! ts.typeEquals(retTypeBase, clazz, tc.context())) {
-            throw new SemanticException("The return type of the constructor (" + retTypeBase 
+            Errors.issue(tc.job(),
+                    new SemanticException("The return type of the constructor (" + retTypeBase 
                                         + ") must be derived from"
                                         + " the type of the class (" + clazz + ") on which the constructor is defined.",
-                                        n.position());
+                                        n.position()));
         }
         
-        X10MethodDecl_c.checkVisibility(tc.typeSystem(), tc.context(), this);
+        X10MethodDecl_c.checkVisibility(tc, this);
 
         return n;
     }

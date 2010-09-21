@@ -15,6 +15,7 @@ import polyglot.main.Report;
 import polyglot.types.*;
 import polyglot.util.*;
 import polyglot.visit.*;
+import x10.errors.Errors;
 
 /**
  * A <code>ClassDecl</code> is the definition of a class, abstract class,
@@ -420,7 +421,7 @@ public class ClassDecl_c extends Term_c implements ClassDecl
         return n;
     }
     
-    public Node conformanceCheck(ContextVisitor tc) throws SemanticException {
+    public Node conformanceCheck(ContextVisitor tc) {
         TypeSystem ts = tc.typeSystem();
 
         ClassType type = this.type.asType();
@@ -435,10 +436,10 @@ public class ClassDecl_c extends Term_c implements ClassDecl
                     Name cname = container.name();
 
                     if (cname.equals(name)) {
-                        throw new SemanticException("Cannot declare member " +
+                        Errors.issue(tc.job(), new SemanticException("Cannot declare member " +
                                 "class \"" + type.fullName() +
                                 "\" inside class with the " +
-                                "same name.", position());
+                                "same name.", position()));
                     }
                 }
                 if (container.isNested()) {
@@ -457,51 +458,54 @@ public class ClassDecl_c extends Term_c implements ClassDecl
 
             if (ctxt.isLocal(name)) {
                 // Something with the same name was declared locally.
-                // (but not in an enclosing class)                                    
-                Named nm = ctxt.find(ts.TypeMatcher(name));
-                if (nm instanceof Type) {
-                    Type another = (Type) nm;
-                    if (another.isClass() && another.toClass().isLocal()) {
-                        throw new SemanticException("Cannot declare local " +
-                                "class \"" + this.type + "\" within the same " +
-                                "method, constructor or initializer as another " +
-                                "local class of the same name.", position());
+                // (but not in an enclosing class)
+                try {
+                    Named nm = ctxt.find(ts.TypeMatcher(name));
+                    if (nm instanceof Type) {
+                        Type another = (Type) nm;
+                        if (another.isClass() && another.toClass().isLocal()) {
+                            Errors.issue(tc.job(), new SemanticException("Cannot declare local " +
+                                    "class \"" + this.type + "\" within the same " +
+                                    "method, constructor or initializer as another " +
+                                    "local class of the same name.", position()));
+                        }
                     }
+                } catch (SemanticException e) {
+                    Errors.issue(tc.job(), e, this);
                 }
             }                
         }
 
         // check that inner classes do not declare member interfaces
-        if (type.isMember() && type.flags().isInterface() &&
-                type.outer().isInnerClass()) {
+        if (type.isMember() && type.flags().isInterface() && type.outer().isInnerClass()) {
             // it's a member interface in an inner class.
-            throw new SemanticException("Inner classes cannot declare " + 
-                    "member interfaces.", this.position());             
+            Errors.issue(tc.job(),
+                    new SemanticException("Inner classes cannot declare member interfaces.", position()));             
         }
 
         // Make sure that static members are not declared inside inner classes
-        if (type.isMember() && type.flags().isStatic() 
-                && type.outer().isInnerClass()) {
-            throw new SemanticException("Inner classes cannot declare static " 
-                    + "member classes.", position());
+        if (type.isMember() && type.flags().isStatic() && type.outer().isInnerClass()) {
+            Errors.issue(tc.job(),
+                    new SemanticException("Inner classes cannot declare static member classes.", position()));
         }
 
-        if (type.superClass() != null) {
+        if (type.superClass() != null && isValidType(type.superClass())) {
             if (! type.superClass().isClass() || type.superClass().toClass().flags().isInterface()) {
-                throw new SemanticException("Cannot extend non-class \"" +
-                        type.superClass() + "\".",
-                        position());
+                Errors.issue(tc.job(),
+                        new SemanticException("Cannot extend non-class \"" + type.superClass() + "\".",
+                                position()));
             }
 
             if (type.superClass().toClass().flags().isFinal()) {
-                throw new SemanticException("Cannot extend final class \"" +
-                        type.superClass() + "\".",
-                        position());
+                Errors.issue(tc.job(),
+                        new SemanticException("Cannot extend final class \"" + type.superClass() + "\".",
+                                position()));
             }
 
-            if (type.typeEquals(ts.Object(), tc.context())) {
-                throw new SemanticException("Class \"" + this.type + "\" cannot have a superclass.",
-                        superClass.position());
+            if (objectIsRoot() && type.typeEquals(ts.Object(), tc.context())) {
+                Errors.issue(tc.job(),
+                        new SemanticException("Class \"" + this.type + "\" cannot have a superclass.",
+                                superClass.position()));
             }
         }
 
@@ -509,14 +513,16 @@ public class ClassDecl_c extends Term_c implements ClassDecl
             TypeNode tn = (TypeNode) i.next();
             Type t = tn.type();
 
-            if (! t.isClass() || ! t.toClass().flags().isInterface()) {
-                throw new SemanticException("Superinterface " + t + " of " +
-                        type + " is not an interface.", tn.position());
+            if (isValidType(t) && ! (t.isClass() && t.toClass().flags().isInterface())) {
+                Errors.issue(tc.job(),
+                        new SemanticException("Superinterface " + t + " of " + type + " is not an interface.",
+                                tn.position()));
             }
 
-            if (type.typeEquals(ts.Object(), tc.context())) {
-                throw new SemanticException("Class " + this.type + " cannot have a superinterface.",
-                        tn.position());
+            if (objectIsRoot() && type.typeEquals(ts.Object(), tc.context())) {
+                Errors.issue(tc.job(),
+                        new SemanticException("Class " + this.type + " cannot have a superinterface.",
+                                tn.position()));
             }
         }
 
@@ -532,13 +538,31 @@ public class ClassDecl_c extends Term_c implements ClassDecl
             }
         }
         catch (SemanticException e) {
-            throw new SemanticException(e.getMessage(), position());
+            Errors.issue(tc.job(), e, this);
         }
 
         // Check the class implements all abstract methods that it needs to.
-        ts.checkClassConformance(type, enterChildScope(body, tc.context()));
+        try {
+            ts.checkClassConformance(type, enterChildScope(body, tc.context()));
+        } catch (SemanticException e) {
+            Errors.issue(tc.job(), e, this);
+        }
 
         return this;
+    }
+
+    /**
+     * Returns true if the given type is valid and we should report errors on it.
+     */
+    protected boolean isValidType(Type type) {
+        return true;
+    }
+
+    /**
+     * Returns true if Object is the root of the hierarchy.  Otherwise it can implement interfaces.
+     */
+    protected boolean objectIsRoot() {
+        return true;
     }
 
     public String toString() {

@@ -163,14 +163,15 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	}
 
 
-    public Node conformanceCheck(ContextVisitor tc) throws SemanticException {
+    public Node conformanceCheck(ContextVisitor tc) {
         Node result = super.conformanceCheck(tc);
 
         // Any occurrence of a non-final static field in X10
         // should be reported as an error.
         if (flags().flags().isStatic() && (!flags().flags().isFinal())) {
-            throw new SemanticException("Cannot declare static non-final field.",
-                                        this.position());
+            Errors.issue(tc.job(),
+                    new SemanticException("Cannot declare static non-final field.",
+                                        position()));
         }
         
         FieldDef fi = fieldDef();
@@ -178,20 +179,17 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 
         X10TypeSystem xts = (X10TypeSystem) ref.typeSystem();
         X10Context context = (X10Context) tc.context();
-   /*     if (xts.isValueType(ref, context) && !fi.flags().isFinal()) {
-            throw new SemanticException("Cannot declare a non-final field in a value class.", position());
+        if (X10TypeMixin.isX10Struct(ref) && !isMutable(xts, ref)) {
+            X10Flags x10flags = X10Flags.toX10Flags(fi.flags());
+            if (! x10flags.isFinal()) 
+                Errors.issue(tc.job(),
+                        new SemanticException("Illegal " + fi +  "; structs cannot have var fields.",
+                                position()));
         }
-*/
-        	if (X10TypeMixin.isX10Struct(ref) && !isMutable(xts, ref)) {
-        		X10Flags x10flags = X10Flags.toX10Flags(fi.flags());
-        		if (! x10flags.isFinal()) 
-        			throw new SemanticException("Illegal " + fi
-        					+  "; structs cannot have var fields.", position());
-        	}
         
         checkVariance(tc);
         
-        X10MethodDecl_c.checkVisibility(tc.typeSystem(), context, this);
+        X10MethodDecl_c.checkVisibility(tc, this);
         
         return result;
     }
@@ -207,7 +205,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
         }
     }
     
-    protected void checkVariance(ContextVisitor tc) throws SemanticException {
+    protected void checkVariance(ContextVisitor tc) {
 	X10Context c = (X10Context) tc.context();
 	X10ClassDef cd;
 	if (c.inSuperTypeDeclaration())
@@ -220,11 +218,15 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
     	ParameterType.Variance v = cd.variances().get(i);
     	vars.put(pt.name(), v);
         }
+        try {
         if (flags().flags().isFinal()) {
             Checker.checkVariancesOfType(type.position(), type.type(), ParameterType.Variance.COVARIANT, "as the type of a final field", vars, tc);
         }
         else {
         	Checker.checkVariancesOfType(type.position(), type.type(), ParameterType.Variance.INVARIANT, "as the type of a non-final field", vars, tc);
+        }
+        } catch (SemanticException e) {
+            Errors.issue(tc.job(), e, this);
         }
     }
 

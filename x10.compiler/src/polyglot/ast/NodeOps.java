@@ -164,7 +164,7 @@ public interface NodeOps
      * @param tc The type checking visitor.
      */
     Node typeCheck(ContextVisitor tc) throws SemanticException;
-    Node conformanceCheck(ContextVisitor tc) throws SemanticException;
+    Node conformanceCheck(ContextVisitor tc);
 
     /**
      * Check if the node is a compile-time constant.

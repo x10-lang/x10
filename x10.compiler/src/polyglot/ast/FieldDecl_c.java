@@ -15,6 +15,7 @@ import polyglot.types.*;
 import polyglot.types.VarDef_c.ConstantValue;
 import polyglot.util.*;
 import polyglot.visit.*;
+import x10.errors.Errors;
 
 /**
  * A <code>FieldDecl</code> is an immutable representation of the declaration
@@ -317,7 +318,7 @@ public class FieldDecl_c extends Term_c implements FieldDecl {
 	return this;
     }
 
-    public Node conformanceCheck(ContextVisitor tc) throws SemanticException {
+    public Node conformanceCheck(ContextVisitor tc) {
         TypeSystem ts = tc.typeSystem();
 
         // Get the fi flags, not the node flags since the fi flags
@@ -328,7 +329,7 @@ public class FieldDecl_c extends Term_c implements FieldDecl {
             ts.checkFieldFlags(flags);
         }
         catch (SemanticException e) {
-            throw new SemanticException(e.getMessage(), position());
+            Errors.issue(tc.job(), e, this);
         }
 
         Type fcontainer = Types.get(fieldDef().container());
@@ -338,8 +339,8 @@ public class FieldDecl_c extends Term_c implements FieldDecl {
 
             if (container.flags().isInterface()) {
         	if (flags.isProtected() || flags.isPrivate()) {
-        	    throw new SemanticException("Interface members must be public.",
-        	                                position());
+        	    Errors.issue(tc.job(),
+        	            new SemanticException("Interface members must be public.", position()));
         	}
             }
 
@@ -349,9 +350,9 @@ public class FieldDecl_c extends Term_c implements FieldDecl {
         	    container.isInnerClass()) {
         	// it's a static field in an inner class.
         	if (!flags.isFinal() || init == null || !init.isConstant()) {
-        	    throw new SemanticException("Inner classes cannot declare " +
+        	    Errors.issue(tc.job(), new SemanticException("Inner classes cannot declare " +
         	                                "static fields, unless they are compile-time " +
-        	                                "constant fields.", this.position());
+        	                                "constant fields.", position()));
         	}
             }
         }

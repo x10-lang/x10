@@ -13,6 +13,7 @@ import java.util.*;
 import polyglot.types.*;
 import polyglot.util.*;
 import polyglot.visit.*;
+import x10.errors.Errors;
 
 /**
  * A <code>ConstructorDecl</code> is an immutable representation of a
@@ -242,28 +243,30 @@ public class ConstructorDecl_c extends Term_c implements ConstructorDecl
         return this;
     }
     
-    public Node conformanceCheck(ContextVisitor tc) throws SemanticException {
+    public Node conformanceCheck(ContextVisitor tc) {
 	Context c = tc.context();
 	TypeSystem ts = tc.typeSystem();
 	
 	ClassType ct = c.currentClass();
 	
 	if (ct.flags().isInterface()) {
-	    throw new SemanticException("Cannot declare a constructor inside an interface.",
-	                                position());
+	    Errors.issue(tc.job(),
+	            new SemanticException("Cannot declare a constructor inside an interface.",
+	                                position()));
 	}
 	
 	if (ct.isAnonymous()) {
-	    throw new SemanticException("Cannot declare a constructor inside an anonymous class.",
-	                                position());
+	    Errors.issue(tc.job(),
+	            new SemanticException("Cannot declare a constructor inside an anonymous class.",
+	                                position()));
 	}
 	
 	Name ctName = ct.name();
 	
 	if (! ctName.equals(name.id())) {
-	    throw new SemanticException("Constructor name \"" + name +
+	    Errors.issue(tc.job(),new SemanticException("Constructor name \"" + name +
 	                                "\" does not match name of containing class \"" +
-	                                ctName + "\".", position());
+	                                ctName + "\".", position()));
 	}
 	
 	Flags flags = flags().flags();
@@ -272,16 +275,15 @@ public class ConstructorDecl_c extends Term_c implements ConstructorDecl
 	    ts.checkConstructorFlags(flags);
 	}
 	catch (SemanticException e) {
-	    throw new SemanticException(e.getMessage(), position());
+	    Errors.issue(tc.job(), e, this);
 	}
 	
 	if (body == null && ! flags.isNative()) {
-	    throw new SemanticException("Missing constructor body.",
-	                                position());
+	    Errors.issue(tc.job(), new SemanticException("Missing constructor body.", position()));
 	}
 	
 	if (body != null && flags.isNative()) {
-	    throw new SemanticException("A native constructor cannot have a body.", position());
+	    Errors.issue(tc.job(), new SemanticException("A native constructor cannot have a body.", position()));
 	}
 	
 	return this;

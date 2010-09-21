@@ -778,134 +778,14 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
 	return tn;
     }
 
-    public Node superConformanceCheck(ContextVisitor tc) throws SemanticException {
-        X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-
-        ClassType type = this.type.asType();
-        Name name = this.name.id();
-
-        // The class cannot have the same simple name as any enclosing class.
-        if (type.isNested()) {
-            ClassType container = type.outer();
-
-            while (container != null) {
-                if (!container.isAnonymous()) {
-                    Name cname = container.name();
-
-                    if (cname.equals(name)) {
-                        throw new SemanticException("Cannot declare member " +
-                                "class \"" + type.fullName() +
-                                "\" inside class with the " +
-                                "same name.", position());
-                    }
-                }
-                if (container.isNested()) {
-                    container = container.outer();
-                }
-                else {
-                    break;
-                }
-            }
-        }
-
-        // A local class name cannot be redeclared within the same
-        // method, constructor or initializer, and within its scope                
-        if (type.isLocal()) {
-            Context ctxt = tc.context();
-
-            if (ctxt.isLocal(name)) {
-                // Something with the same name was declared locally.
-                // (but not in an enclosing class)                                    
-                Named nm = ctxt.find(ts.TypeMatcher(name));
-                if (nm instanceof Type) {
-                    Type another = (Type) nm;
-                    if (another.isClass() && another.toClass().isLocal()) {
-                        throw new SemanticException("Cannot declare local " +
-                                "class \"" + this.type + "\" within the same " +
-                                "method, constructor or initializer as another " +
-                                "local class of the same name.", position());
-                    }
-                }
-            }                
-        }
-
-        // check that inner classes do not declare member interfaces
-        if (type.isMember() && type.flags().isInterface() &&
-                type.outer().isInnerClass()) {
-            // it's a member interface in an inner class.
-            throw new SemanticException("Inner classes cannot declare " + 
-                    "member interfaces.", this.position());             
-        }
-
-        // Make sure that static members are not declared inside inner classes
-        if (type.isMember() && type.flags().isStatic() 
-                && type.outer().isInnerClass()) {
-            throw new SemanticException("Inner classes cannot declare static " 
-                    + "member classes.", position());
-        }
-
-        if (type.superClass() != null && !ts.isUnknown(type.superClass())) {
-            if (! type.superClass().isClass() || type.superClass().toClass().flags().isInterface()) {
-                throw new SemanticException("Cannot extend non-class \"" +
-                        type.superClass() + "\".",
-                        position());
-            }
-
-            if (type.superClass().toClass().flags().isFinal()) {
-                throw new SemanticException("Cannot extend final class \"" +
-                        type.superClass() + "\".",
-                        position());
-            }
-
-            if (type.typeEquals(ts.Object(), tc.context())) {
-                throw new SemanticException("Class \"" + this.type + "\" cannot have a superclass.",
-                        superClass.position());
-            }
-        }
-
-        for (Iterator<TypeNode> i = interfaces.iterator(); i.hasNext(); ) {
-            TypeNode tn = (TypeNode) i.next();
-            Type t = tn.type();
-
-            if (! t.isClass() || ! t.toClass().flags().isInterface()) {
-                throw new SemanticException("Superinterface " + t + " of " +
-                        type + " is not an interface.", tn.position());
-            }
-
-           /* if (type.typeEquals(ts.Object(), tc.context())) {
-                throw new SemanticException("Class " + this.type + " cannot have a superinterface.",
-                        tn.position());
-            }*/
-        }
-
-        try {
-            if (type.isTopLevel()) {
-                ts.checkTopLevelClassFlags(type.flags());
-            }
-            if (type.isMember()) {
-                ts.checkMemberClassFlags(type.flags());
-            }
-            if (type.isLocal()) {
-                ts.checkLocalClassFlags(type.flags());
-            }
-        }
-        catch (SemanticException e) {
-            throw new SemanticException(e.getMessage(), position());
-        }
-
-        // Check the class implements all abstract methods that it needs to.
-        ts.checkClassConformance(type, enterChildScope(body, tc.context()));
-
-        return this;
-    }
-    public Node conformanceCheck(ContextVisitor tc) throws SemanticException {
-    	X10ClassDecl_c result = (X10ClassDecl_c) superConformanceCheck(tc);
+    public Node conformanceCheck(ContextVisitor tc) {
+    	X10ClassDecl_c result = (X10ClassDecl_c) super.conformanceCheck(tc);
     	X10Context context = (X10Context) tc.context();
     	
     	X10ClassDef cd = (X10ClassDef) classDef();
         CConstraint c = cd.classInvariant().get();
         if (c != null && ! c.consistent()) {
-            throw new Errors.InconsistentInvariant(cd, this.position());
+            Errors.issue(tc.job(), new Errors.InconsistentInvariant(cd, position()));
         }
     
     	// Check that we're in the right file.
@@ -917,8 +797,9 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	                s.name().endsWith(File.separator + type.name() + ".x10") ||
     	                s.name().endsWith("/" + type.name() + ".x10")))
     	        {
-    	            throw new SemanticException("Public type " + type.fullName() 
-    	            		+ " must be declared in " + type.name() + ".x10.", result.position());
+    	            Errors.issue(tc.job(),
+    	                    new SemanticException("Public type " + type.fullName()
+    	                            + " must be declared in " + type.name() + ".x10.", result.position()));
     	        }
     	    }
     	}
@@ -929,8 +810,9 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
 
 
     	if (flags.flags().isInterface() && superClass != null) {
-    		throw new SemanticException("Interface " + this.type + " cannot have a superclass.",
-    				superClass.position());
+    		Errors.issue(tc.job(),
+    		        new SemanticException("Interface " + this.type + " cannot have a superclass.",
+    		                superClass.position()));
     	}
 
 
@@ -951,15 +833,28 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	            continue;
     	        }
     	        
-    	        throw ex;
+    	        Errors.issue(tc.job(), ex, this);
     	    }
     	}
 
-    	((X10ClassDef) type).checkRealClause();
+    	try {
+    	    ((X10ClassDef) type).checkRealClause();
+    	} catch (SemanticException e) {
+    	    Errors.issue(tc.job(), e, this);
+    	}
 	    
     	return result;
     }
-    
+
+    protected boolean isValidType(Type type) {
+        X10TypeSystem xts = (X10TypeSystem) type.typeSystem();
+        return !xts.hasUnknown(type);
+    }
+
+    protected boolean objectIsRoot() {
+        return false;
+    }
+
     @Override
     public Term firstChild() {
         return listChild(properties, this.body);

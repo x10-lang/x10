@@ -44,6 +44,7 @@ import polyglot.visit.TypeChecker;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.constraint.XConstraint;
+import x10.errors.Errors;
 import x10.extension.X10Del;
 import x10.types.ClosureDef;
 import x10.types.ClosureType_c;
@@ -165,19 +166,20 @@ AddFlags {
     	}
     }
     @Override
-    public Node conformanceCheck(ContextVisitor tc) throws SemanticException {
+    public Node conformanceCheck(ContextVisitor tc) {
         Type t = type();
         
         XConstraint c = X10TypeMixin.realX(t);
         
         if (! c.consistent()) {
-            throw new SemanticException("Invalid type; the real clause of " + t + " is inconsistent.", position());
+            Errors.issue(tc.job(),
+                    new SemanticException("Invalid type; the real clause of " + t + " is inconsistent.", position()));
         }
         
         X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
         
         if (! ts.consistent(t, (X10Context) tc.context())) {
-            throw new SemanticException("Type " + t + " is inconsistent.", position());
+            Errors.issue(tc.job(), new SemanticException("Type " + t + " is inconsistent.", position()));
         }
         
         return this;

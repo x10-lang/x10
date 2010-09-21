@@ -184,7 +184,7 @@ public class JL_c extends Ext_c implements JL {
         return jl().checkConstants(tc);
     }
     
-    public Node conformanceCheck(ContextVisitor tc) throws SemanticException {
+    public Node conformanceCheck(ContextVisitor tc) {
 	return jl().conformanceCheck(tc);
     }
     

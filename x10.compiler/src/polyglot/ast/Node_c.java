@@ -318,7 +318,7 @@ public abstract class Node_c implements Node
         return this;
     }
 
-    public Node conformanceCheck(ContextVisitor tc) throws SemanticException {
+    public Node conformanceCheck(ContextVisitor tc) {
 	return this;
     }
 

@@ -14,6 +14,7 @@ import polyglot.main.Report;
 import polyglot.types.*;
 import polyglot.util.*;
 import polyglot.visit.*;
+import x10.errors.Errors;
 
 /**
  * A method declaration.
@@ -263,7 +264,7 @@ public class MethodDecl_c extends Term_c implements MethodDecl
     }
     
     @Override
-    public Node conformanceCheck(ContextVisitor tc) throws SemanticException {
+    public Node conformanceCheck(ContextVisitor tc) {
 	// Get the mi flags, not the node flags since the mi flags
 	// account for being nested within an interface.
 	Flags flags = mi.flags();
@@ -274,16 +275,16 @@ public class MethodDecl_c extends Term_c implements MethodDecl
 	return this;
     }
 
-    protected void checkFlags(ContextVisitor tc, Flags flags) throws SemanticException {
+    protected void checkFlags(ContextVisitor tc, Flags flags) {
 	TypeSystem ts = tc.typeSystem();
 
 	if (tc.context().currentClass().flags().isInterface()) {
             if (flags.isProtected() || flags.isPrivate()) {
-                throw new SemanticException("Interface methods must be public.", position());
+                Errors.issue(tc.job(), new SemanticException("Interface methods must be public.", position()));
             }
             
             if (flags.isStatic()) {
-        	throw new SemanticException("Interface methods cannot be static.", position());
+        	Errors.issue(tc.job(), new SemanticException("Interface methods cannot be static.", position()));
             }
         }
 
@@ -291,40 +292,37 @@ public class MethodDecl_c extends Term_c implements MethodDecl
             ts.checkMethodFlags(flags);
         }
         catch (SemanticException e) {
-            throw new SemanticException(e.getMessage(), position());
+            Errors.issue(tc.job(), e, this);
         }
 
         Type container = Types.get(methodDef().container());
         ClassType ct = container.toClass();
 
 	if (body == null && ! (flags.isAbstract() || flags.isNative())) {
-	    throw new SemanticException("Missing method body.", position());
+	    Errors.issue(tc.job(), new SemanticException("Missing method body.", position()));
 	}
 
         if (body != null && ct.flags().isInterface()) {
-	    throw new SemanticException(
-		"Interface methods cannot have a body.", position());
+	    Errors.issue(tc.job(), new SemanticException("Interface methods cannot have a body.", position()));
         }
 
 	if (body != null && flags.isAbstract()) {
-	    throw new SemanticException(
-		"An abstract method cannot have a body.", position());
+	    Errors.issue(tc.job(), new SemanticException("An abstract method cannot have a body.", position()));
 	}
 
 	if (body != null && flags.isNative()) {
-	    throw new SemanticException(
-		"A native method cannot have a body.", position());
+	    Errors.issue(tc.job(), new SemanticException("A native method cannot have a body.", position()));
 	}
 
         // check that inner classes do not declare static methods
         if (ct != null && flags.isStatic() && ct.isInnerClass()) {
             // it's a static method in an inner class.
-            throw new SemanticException("Inner classes cannot declare " + 
-                    "static methods.", this.position());             
+            Errors.issue(tc.job(),
+                    new SemanticException("Inner classes cannot declare static methods.", position()));             
         }
     }
 
-    protected void overrideMethodCheck(ContextVisitor tc) throws SemanticException {
+    protected void overrideMethodCheck(ContextVisitor tc) {
         TypeSystem ts = tc.typeSystem();
 
         MethodInstance mi = this.mi.asInstance();
@@ -335,7 +333,11 @@ public class MethodDecl_c extends Term_c implements MethodDecl
                 continue;
             }
 
-            ts.checkOverride(mi, mj, tc.context());
+            try {
+                ts.checkOverride(mi, mj, tc.context());
+            } catch (SemanticException e) {
+                Errors.issue(tc.job(), e, this);
+            }
         }
     }
 

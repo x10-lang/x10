@@ -452,14 +452,17 @@ public class Closure_c extends Expr_c implements Closure {
 	}
 
 	@Override
-	public Node conformanceCheck(ContextVisitor tc) throws SemanticException {
+	public Node conformanceCheck(ContextVisitor tc) {
 		for (TypeNode type : throwTypes()) {
 			XConstraint rc = X10TypeMixin.xclause(type.type());
-			if (rc != null && ! rc.valid())
-				throw new SemanticException("Cannot throw a dependent type.", type.position());
+			if (rc != null && ! rc.valid()) {
+				Errors.issue(tc.job(),
+				        new SemanticException("Cannot throw a dependent type.", type.position()),
+				        this);
+			}
 		}
 
-		return super.conformanceCheck(tc);
+		return this;
 	}
 
 	public Term firstChild() {
