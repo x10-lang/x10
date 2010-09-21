@@ -40,11 +40,18 @@ public class ConditionalAtomicTest extends x10Test {
 				var temp: int;
 				atomic temp = value2;
 				if (temp >= 42) break;
-				when (value1 == value2 + 2)
-				{ value2 = value1; }
-				or (value1 != value2+2 &&
-						value1 != value2) //something went wrong
-				{ value1 = value2 = 43; /* error */ };
+				when (value1 == value2 + 2 || (value1 != value2+2 && value1 != value2)) {
+					if (value1 == value2+2) {
+						value2 = value1;
+					} else {
+						value1 = value2 = 43; /* error */
+					}
+				}
+				//when (value1 == value2 + 2)
+				//{ value2 = value1; }
+				//or (value1 != value2+2 &&
+				//		value1 != value2) //something went wrong
+				//{ value1 = value2 = 43; /* error */ };
 			}
 		}
 		next; // wait until both activities end
