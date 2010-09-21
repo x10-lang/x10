@@ -17,7 +17,7 @@ import x10.util.Future;
  */
 public class Future0 extends x10Test {
 	public def run() = {
-	  val x = new Future[int](()=> 47);
+	  val x = Future.make[int](()=> 47);
 	  x() == 47
 	}
 
