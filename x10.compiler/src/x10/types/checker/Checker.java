@@ -11,6 +11,8 @@
 
 package x10.types.checker;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import polyglot.ast.Assign;
@@ -21,6 +23,9 @@ import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Assign.Operator;
+import polyglot.ast.Receiver;
+import polyglot.types.Context;
+import polyglot.types.Flags;
 import polyglot.types.Name;
 import polyglot.types.ProcedureDef;
 import polyglot.types.SemanticException;
@@ -32,6 +37,12 @@ import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import x10.ast.X10Binary_c;
 import x10.ast.X10New_c;
+import x10.constraint.XFailure;
+import x10.constraint.XName;
+import x10.constraint.XNameWrapper;
+import x10.constraint.XTerm;
+import x10.constraint.XTerms;
+import x10.constraint.XVar;
 import x10.errors.Errors;
 import x10.errors.Errors.CannotAssign;
 import x10.types.ConstrainedType;
@@ -40,9 +51,15 @@ import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
+import x10.types.X10Flags;
+import x10.types.X10MemberDef;
 import x10.types.X10MethodInstance;
 import x10.types.X10ProcedureInstance;
 import x10.types.X10TypeMixin;
+import x10.types.X10TypeSystem;
+import x10.types.XTypeTranslator;
+import x10.types.constraints.CConstraint;
+import x10.types.matcher.Subst;
 import x10.visit.X10TypeChecker;
 import static polyglot.ast.Assign.*;
 
@@ -195,5 +212,140 @@ public class Checker {
 	        Type at = Types.get(ct.baseType());
 	        checkVariancesOfType(pos, at, requiredVariance, desc, vars, tc);
 	    }
+	}
+
+	public static Type rightType(Type t, X10MemberDef fi, Receiver target, Context c) {
+		CConstraint x = X10TypeMixin.xclause(t);
+		if (x==null || fi.thisVar()==null || (! (target instanceof Expr)))
+			return t;
+		XVar receiver = null;
+
+		X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
+		XTerm r = ts.xtypeTranslator().trans(new CConstraint(), target, (X10Context) c);
+		if (r instanceof XVar) {
+			receiver = (XVar) r;
+		}
+
+		if (receiver == null)
+			receiver = XTerms.makeEQV();
+		try {
+			t = Subst.subst(t, (new XVar[] { receiver }), (new XVar[] { fi.thisVar() }), new Type[] { }, new ParameterType[] { });
+		} catch (SemanticException e) {
+			throw new InternalCompilerError("Unexpected error while computing field type", e);
+		}
+
+		return t;
+	}
+
+	public static Type expandCall(Type type, Call t,  Context c) throws SemanticException {
+		X10Context xc = (X10Context) c;
+		X10MethodInstance xmi = (X10MethodInstance) t.methodInstance();
+		XTypeTranslator xt = ((X10TypeSystem) type.typeSystem()).xtypeTranslator();
+		Flags f = xmi.flags();
+		XTerm body = null;
+		if (X10Flags.toX10Flags(f).isProperty()) {
+			CConstraint cs = new CConstraint();
+			XTerm r = xt.trans( cs,t.target(), xc);
+			if (r == null)
+				return null;
+			// FIXME: should just return the atom, and add atom==body to the real clause of the class
+			// FIXME: fold in class's real clause constraints on parameters into real clause of type parameters
+			body = xmi.body();
+			if (body != null) {
+				if (xmi.x10Def().thisVar() != null && t.target() instanceof Expr) {
+					//XName This = XTerms.makeName(new Object(), Types.get(xmi.def().container()) + "#this");
+					//body = body.subst(r, XTerms.makeLocal(This));
+					body = body.subst(r, xmi.x10Def().thisVar());
+				}
+				for (int i = 0; i < t.arguments().size(); i++) {
+					//XVar x = (XVar) X10TypeMixin.selfVarBinding(xmi.formalTypes().get(i));
+					//XVar x = (XVar) xmi.formalTypes().get(i);
+					XVar x = (XVar) XTerms.makeLocal(new XNameWrapper(xmi.formalNames().get(i).def()));
+					XTerm y = xt.trans(cs, t.arguments().get(i), xc);
+					if (y == null)
+						assert y != null : "XTypeTranslator: translation of arg " + i + " of " + t + " yields null (pos=" 
+						+ t.position() + ")";
+					body = body.subst(y, x);
+				}
+			} else 
+
+			if (t.arguments().size() == 0) {
+				XName field = XTerms.makeName(xmi.def(), Types.get(xmi.def().container()) + "#" + xmi.name() + "()");
+				if (r instanceof XVar) {
+					body = XTerms.makeField((XVar) r, field);
+				}
+				else {
+					body = XTerms.makeAtom(field, r);
+				}
+			} else {
+			List<XTerm> terms = new ArrayList<XTerm>();
+			terms.add(r);
+			for (Expr e : t.arguments()) {
+				terms.add(xt.trans(cs, e, xc));
+			}
+			body = XTerms.makeAtom(XTerms.makeName(xmi, xmi.name().toString()), terms);
+			}
+		} 
+		CConstraint x = X10TypeMixin.xclause(type);
+		X10MemberDef fi = (X10MemberDef) t.methodInstance().def();
+		Receiver target = t.target();
+		if (x == null || fi.thisVar() == null || !(target instanceof Expr))
+			return type;
+	
+		x = x.copy();
+		try {
+			XVar receiver = X10TypeMixin.selfVarBinding(target.type());
+			XVar root = null;
+			if (receiver == null) {
+				receiver = root = XTerms.makeUQV();
+			}
+			// Need to add the target's constraints in here because the target may not
+			// be a variable. hence the type information wont be in the context.
+			CConstraint ttc = X10TypeMixin.xclause(target.type());
+			ttc = ttc == null ? new CConstraint() : ttc.copy();
+			ttc = ttc.substitute(receiver, ttc.self());
+			if (! X10TypeMixin.contextKnowsType(target))
+				x.addIn(ttc);
+			if (body != null)
+				x.addSelfBinding(body);
+			x=x.substitute(receiver, fi.thisVar());
+			if (root != null) {
+				x = x.project(root);
+			}
+			type = X10TypeMixin.addConstraint(X10TypeMixin.baseType(type), x);
+		} catch (XFailure z) {
+			X10TypeMixin.setInconsistent(type);
+		}
+		return type;
+	}
+	public static Type fieldRightType(Type type, X10MemberDef fi, Receiver target, Context c) throws SemanticException {
+		CConstraint x = X10TypeMixin.xclause(type);
+		if (x == null || fi.thisVar() == null || !(target instanceof Expr))
+			return type;
+		// Need to add the target's constraints in here because the target may not
+		// be a variable. hence the type information wont be in the context.
+		CConstraint xc = X10TypeMixin.xclause(target.type());
+		if (xc == null || xc.valid())
+			return type;
+		xc = xc.copy();
+		x = x.copy();
+		try {
+			XVar receiver = X10TypeMixin.selfVarBinding(target.type());
+			XVar root = null;
+			if (receiver == null) {
+				receiver = root = XTerms.makeUQV();
+			}
+			xc = xc.substitute(receiver, xc.self());
+			if (! X10TypeMixin.contextKnowsType(target))
+				x.addIn(xc);
+			x=x.substitute(receiver, fi.thisVar());
+			if (root != null) {
+				x = x.project(root);
+			}
+			type = X10TypeMixin.addConstraint(X10TypeMixin.baseType(type), x);
+		} catch (XFailure z) {
+			X10TypeMixin.setInconsistent(type);
+		}
+		return type;
 	}
 }

@@ -53,6 +53,7 @@ import x10.types.X10MethodInstance;
 import x10.types.X10NamedType;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
+import x10.types.checker.Checker;
 
 public class X10Disamb_c extends Disamb_c {
 
@@ -107,7 +108,7 @@ public class X10Disamb_c extends Disamb_c {
 	    		    if (xfi.isProperty()) {
 	    		        Field f = nf.Field(pos, makeMissingPropertyTarget(xfi, t), this.name);
 	    		        f = f.fieldInstance(xfi);
-	    		        Type ftype = X10Field_c.rightType(xfi.rightType(), xfi.x10Def(), f.target(), c);
+	    		        Type ftype = Checker.rightType(xfi.rightType(), xfi.x10Def(), f.target(), c);
 	    		        f = (Field) f.type(ftype);
 	    		        return f;
 	    		    }
@@ -134,7 +135,7 @@ public class X10Disamb_c extends Disamb_c {
 	    		    if (X10Flags.toX10Flags(mi.flags()).isProperty()) {
 	    		        Call call = nf.Call(pos, makeMissingPropertyTarget(mi, t), this.name);
 	    		        call = call.methodInstance(mi);
-	    		        Type ftype = X10Field_c.rightType(mi.rightType(), mi.x10Def(), call.target(), c);
+	    		        Type ftype = Checker.rightType(mi.rightType(), mi.x10Def(), call.target(), c);
 	    		        call = (Call) call.type(ftype);
 	    		        return call;
 	    		    }
@@ -179,7 +180,7 @@ public class X10Disamb_c extends Disamb_c {
     		    if (X10Flags.toX10Flags(mi.flags()).isProperty()) {
     			Call call = nf.Call(pos, makeMissingMethodTarget(mi), this.name);
     			call = call.methodInstance(mi);
-                        Type ftype = X10Field_c.rightType(mi.rightType(), mi.x10Def(), call.target(), c);
+                        Type ftype = Checker.rightType(mi.rightType(), mi.x10Def(), call.target(), c);
                         call = (Call) call.type(ftype);
     			return call;
     		    }
@@ -284,7 +285,7 @@ public class X10Disamb_c extends Disamb_c {
 			if (X10Flags.toX10Flags(mi.flags()).isProperty()) {
 			    Call call = nf.Call(pos, e, this.name);
 			    call = call.methodInstance(mi);
-			    Type ftype = X10Field_c.rightType(mi.rightType(), mi.x10Def(), call.target(), c);
+			    Type ftype = Checker.rightType(mi.rightType(), mi.x10Def(), call.target(), c);
 			    call = (Call) call.type(ftype);
 			    return call;
 			}

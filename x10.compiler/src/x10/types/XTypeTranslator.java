@@ -539,31 +539,27 @@ public class XTypeTranslator {
 				addTypeToEnv(body, xmi.returnType());
 				return body;
 			}
-			else {
-				if (t.arguments().size() == 0) {
-					XName field = XTerms.makeName(xmi.def(), Types.get(xmi.def().container()) + "#" + xmi.name() + "()");
-					XTerm v;
-					if (r instanceof XVar) {
-						v = XTerms.makeField((XVar) r, field);
-					}
-					else {
-						v = XTerms.makeAtom(field, r);
-					}
-					addTypeToEnv(v, xmi.returnType());
-					return v;
+
+			if (t.arguments().size() == 0) {
+				XName field = XTerms.makeName(xmi.def(), Types.get(xmi.def().container()) + "#" + xmi.name() + "()");
+				XTerm v;
+				if (r instanceof XVar) {
+					v = XTerms.makeField((XVar) r, field);
 				}
 				else {
-
-					List<XTerm> terms = new ArrayList<XTerm>();
-					terms.add(r);
-					for (Expr e : t.arguments()) {
-						terms.add(trans(c, e, xc));
-					}
-					XTerm v = XTerms.makeAtom(XTerms.makeName(xmi, xmi.name().toString()), terms);
-					addTypeToEnv(v, xmi.returnType());
-					return v;
+					v = XTerms.makeAtom(field, r);
 				}
+				addTypeToEnv(v, xmi.returnType());
+				return v;
 			}
+			List<XTerm> terms = new ArrayList<XTerm>();
+			terms.add(r);
+			for (Expr e : t.arguments()) {
+				terms.add(trans(c, e, xc));
+			}
+			XTerm v = XTerms.makeAtom(XTerms.makeName(xmi, xmi.name().toString()), terms);
+			addTypeToEnv(v, xmi.returnType());
+			return v;
 		}
 		Type type =   t.type();
 		return X10TypeMixin.selfVarBinding(type); // maybe null.

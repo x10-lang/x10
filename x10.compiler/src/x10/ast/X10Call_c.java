@@ -428,7 +428,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
     protected X10Call typeCheckNullTargetForMethod(ContextVisitor tc, List<Type> typeArgs, List<Type> argTypes, X10MethodInstance mi, List<Expr> args) throws SemanticException {
 		Receiver r = computeReceiver(tc, mi);
 		X10Call_c call = (X10Call_c) this.targetImplicit(true).target(r).arguments(args);
-		Type rt = X10Field_c.rightType(mi.rightType(), mi.x10Def(), r, (X10Context) tc.context());
+		Type rt = Checker.rightType(mi.rightType(), mi.x10Def(), r, (X10Context) tc.context());
 		call = (X10Call_c)call.methodInstance(mi).type(rt);
 		return call;
 	}
@@ -679,7 +679,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		    }
 		}
 
-		Type rt = X10Field_c.rightType(mi.rightType(), mi.x10Def(), target, c);
+		Type rt = Checker.rightType(mi.rightType(), mi.x10Def(), target, c);
 		X10Call_c methodCall = (X10Call_c) this.methodInstance(mi).type(rt);
 		methodCall = (X10Call_c) methodCall.arguments(args);
 		if (this.target() == null)

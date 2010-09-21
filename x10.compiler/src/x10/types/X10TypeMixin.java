@@ -179,6 +179,11 @@ public class X10TypeMixin {
     		return c1;
     	}
     }
+    /**
+     * Returns a copy of t's constraint, if it has one, null otherwise.
+     * @param t
+     * @return
+     */
 	public static CConstraint xclause(Type t) {
 	        if (t instanceof AnnotatedType) {
 	            AnnotatedType at = (AnnotatedType) t;
@@ -474,6 +479,22 @@ public class X10TypeMixin {
 	    CConstraint c = xclause(t);
         if (c == null) return true;
         return c.consistent();
+    }
+    public static void setInconsistent(Type t) {
+    	if (t instanceof AnnotatedType) {
+    		AnnotatedType at = (AnnotatedType) t;
+    		setInconsistent(at.baseType());
+    	}
+    	if (t instanceof MacroType) {
+    		MacroType mt = (MacroType) t;
+    		setInconsistent(mt.definedType());
+    	}
+    	if (t instanceof ConstrainedType) {
+    		ConstrainedType ct = (ConstrainedType) t;
+    		CConstraint c = Types.get(ct.constraint());
+    		c.setInconsistent();
+    		return;
+    	}
     }
 
     public static XVar selfVar(Type thisType) {

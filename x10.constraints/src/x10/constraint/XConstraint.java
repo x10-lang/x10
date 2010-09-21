@@ -821,6 +821,8 @@ public class XConstraint implements Cloneable {
             int index = resultC.lookupReturnValue();
             return (index == vars.length) ? result : null;
         }
+        if (term instanceof XFormula)
+        	return result;
         return null;
     }
     
@@ -917,6 +919,7 @@ public class XConstraint implements Cloneable {
         }
     }
     
+    @SuppressWarnings({ "unchecked"})
 	protected void applySubstitution(XTerm y, XVar x) throws XFailure {
         if (roots == null) {
             // nothing to substitute

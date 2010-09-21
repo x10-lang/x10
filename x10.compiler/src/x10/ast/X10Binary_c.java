@@ -51,12 +51,16 @@ import polyglot.util.CollectionUtil;
 import polyglot.util.Pair;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
+import x10.constraint.XFailure;
+import x10.constraint.XTerm;
+import x10.constraint.XTerms;
 import x10.errors.Errors;
 import x10.types.X10Context;
 import x10.types.X10MethodInstance;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
+import x10.types.checker.Checker;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
 import x10.visit.ExprFlattener;
@@ -316,22 +320,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 
         Type lbase = X10TypeMixin.baseType(left.type());
         Type rbase = X10TypeMixin.baseType(right.type());
-
-      /*  if (op == EQ || op == NE) {
-            if (xts.isExactlyFunctionType(lbase)) {
-                Errors.issue(tc.job(),
-                        new SemanticException("The " + op +
-                                " operator cannot be applied to the function " + left,
-                                position()));
-            }
-            if (xts.isExactlyFunctionType(rbase)) {
-                Errors.issue(tc.job(),
-                        new SemanticException("The " + op +
-                                " operator cannot be applied to the function " + right,
-                                position()));
-            }
-        }
-*/
+        
         if (op == EQ || op == NE || op == LT || op == GT || op == LE || op == GE) {
             Object lv = left.isConstant() ? left.constantValue() : null;
             Object rv = right.isConstant() ? right.constantValue() : null;
@@ -424,8 +413,28 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 
         if (!xts.hasUnknown(l) && !xts.hasUnknown(r)) {
             if (op == COND_OR || op == COND_AND) {
+            	Type result = xts.Boolean();
+            	if (op == COND_OR)
+            		return type(result);
+            	// Support conjunction of boolean terms.
+            	// Once we shift to Shostak we will have more comprehensive
+            	// support for all operators.
                 if (l.isBoolean() && r.isBoolean()) {
-                    return type(xts.Boolean());
+                	XTerm xt = X10TypeMixin.selfBinding(l);
+                	if (xt != null) {
+                		XTerm yt = X10TypeMixin.selfBinding(r);
+                		if (yt != null) {
+                			
+                			try {
+                			result = X10TypeMixin.addSelfBinding(result, 
+                					XTerms.makeAnd(xt, yt));
+                			} catch (XFailure z) {
+                				X10TypeMixin.setInconsistent(result);
+                			}
+                		}
+                	}
+                		
+                    return type(result);
                 }
             }
 
@@ -462,7 +471,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
                 args = p.snd();
             } catch (SemanticException e) { }
         }
-        Type rt = X10Field_c.rightType(mi.rightType(), mi.x10Def(), call.target(), tc.context());
+        Type rt = Checker.rightType(mi.rightType(), mi.x10Def(), call.target(), tc.context());
         call = (X10Call_c) call.methodInstance(mi).type(rt);
         call = (X10Call_c) call.arguments(args);
         return call;
