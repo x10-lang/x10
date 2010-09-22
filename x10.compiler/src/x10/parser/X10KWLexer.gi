@@ -122,6 +122,7 @@
     property
     protected
     public
+    resume
     return
     safe
     self
@@ -383,6 +384,11 @@
               | p u b l i c
         /.$BeginAction
                 $setResult($_public);
+          $EndAction
+        ./
+              | r e s u m e
+        /.$BeginAction
+                $setResult($_resume);
           $EndAction
         ./
               | r e t u r n

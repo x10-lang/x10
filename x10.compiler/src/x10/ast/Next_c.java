@@ -25,21 +25,15 @@ import x10.types.X10Context;
 
 public class Next_c extends Stmt_c implements Next {
 
-
     public Next_c(Position p) {
         super(p);
     }
 
-    
-
-
     public Term firstChild() {
-        // TODO:
         return null;
     }
 
     public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
-        // TODO:
         return succs;
     }
     public Node typeCheck(ContextVisitor tc) throws SemanticException {    	

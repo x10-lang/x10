@@ -170,6 +170,9 @@ import x10.util.Box;
             for(clock:Clock in keySet()) clock.resumeUnsafe();
             for(clock:Clock in keySet()) clock.nextUnsafe();
         }
+        def resume() {
+            for(clock:Clock in keySet()) clock.resume();
+        }
 
         def drop() {
             for(clock:Clock in keySet()) clock.dropInternal();
@@ -1712,6 +1715,11 @@ import x10.util.Box;
      * Next statement = next on all clocks in parallel.
      */
     public static def next():void = clockPhases().next();
+    
+    /**
+     * Resume statement = resume on all clocks in parallel.
+     */
+    public static def resume():void = clockPhases().resume();
 
 
     // finish

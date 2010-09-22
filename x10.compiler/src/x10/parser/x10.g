@@ -287,6 +287,7 @@
 --    protected
 --    proto
 --    public
+      resume
 --    return
     safe
 --    self
@@ -2143,6 +2144,7 @@
                 | AtEachStatement
                 | FinishStatement
                 | NextStatement
+                | ResumeStatement
                 | AwaitStatement
                 | AssignPropertyCall
                 | OfferStatement
@@ -2561,6 +2563,12 @@
     NextStatement ::= next ;
         /.$BeginJava
                     setResult(nf.Next(pos()));
+          $EndJava
+        ./
+        
+        ResumeStatement ::= resume ;
+        /.$BeginJava
+                    setResult(nf.Resume(pos()));
           $EndJava
         ./
 
@@ -5545,6 +5553,7 @@
     AtEach ::= AtEachStatement
     Finish ::= FinishStatement
     Next ::= NextStatement
+    Resume ::= ResumeStatement
     Await ::= AwaitStatement
     Expr ::= Clock
     List<Expr> ::= ClockList

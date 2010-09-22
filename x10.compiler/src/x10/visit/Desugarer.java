@@ -31,6 +31,7 @@ import polyglot.ast.FieldAssign;
 import polyglot.ast.FieldAssign_c;
 import polyglot.ast.FloatLit;
 import polyglot.ast.Formal;
+import polyglot.ast.Id;
 import polyglot.ast.IntLit;
 import polyglot.ast.IntLit_c;
 import polyglot.ast.Local;
@@ -38,6 +39,7 @@ import polyglot.ast.LocalAssign_c;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.Receiver;
 import polyglot.ast.Return;
 import polyglot.ast.Stmt;
 import polyglot.ast.StringLit;
@@ -86,6 +88,7 @@ import x10.ast.Here;
 import x10.ast.Next;
 import x10.ast.Offer;
 import x10.ast.ParExpr;
+import x10.ast.Resume;
 import x10.ast.SettableAssign;
 import x10.ast.SettableAssign_c;
 import x10.ast.Tuple;
@@ -124,6 +127,7 @@ import x10.types.constraints.CConstraint;
 import x10.types.constraints.XConstrainedTerm;
 import x10.util.ClosureSynthesizer;
 import x10.util.Synthesizer;
+import x10.util.synthesizer.InstanceCallSynth;
 import x10.extension.X10Ext;
 /**
  * Visitor to desugar the AST before code gen.
@@ -142,6 +146,7 @@ public class Desugarer extends ContextVisitor {
     private static int count;
     //Collecting Finish Use: store reducer
     private static Stack<FinishExpr> reducerS = new Stack<FinishExpr>();
+    private static Stack<Local> clockStack = new Stack<Local>();
     private static int flag = 0;
 
     private static Name getTmp() {
@@ -157,6 +162,7 @@ public class Desugarer extends ContextVisitor {
     private static final Name HERE = Name.make("here");
     private static final Name HERE_INT = Name.make("hereInt");
     private static final Name NEXT = Name.make("next");
+    private static final Name RESUME = Name.make("resume");
     private static final Name LOCK = Name.make("lock");
     private static final Name AWAIT = Name.make("await");
     private static final Name RELEASE = Name.make("release");
@@ -171,7 +177,62 @@ public class Desugarer extends ContextVisitor {
     //added for scalable finish
     private static final Name START_LOCAL_FINISH = Name.make("startLocalFinish");
     private static final Name START_SIMPLE_FINISH = Name.make("startSimpleFinish");
-    public Node override(Node parent, Node n) {  
+    public Node override(Node parent, Node n) { 
+    	if (n instanceof Finish) {
+    		Finish finish = (Finish) n;
+    		if (! finish.clocked())
+    			// Follow normal procedure
+    			return null;
+    		// Translate clocked finish S ==> 
+    		// var clock_??1:Clock=null; 
+    		// finish 
+    		// try { 
+    		//   val clock_??2 = Clock.make(); 
+    		//   clock_??1=clock_??2; 
+    		//   S; //--> nested clocked async T ==> async clocked(clock_??2) T
+    		//  } finally {
+    		//    clock_???.drop();
+    		//  }
+    		// TODO: Simplify this to finish { val clock?? = Clock.make(); try { S} finally{ clock??.drop();}}
+    		X10Context xc = (X10Context) context;
+    		X10TypeSystem xts = (X10TypeSystem) ts;
+    		Position pos = finish.position();
+    		Name name = ((X10Context) context).makeFreshName("clock");
+    		Flags flags = Flags.FINAL;
+    		Type type = xts.Clock();
+    		
+    		final Name varName = xc.getNewVarName();
+			final LocalDef li = xts.localDef(pos, flags, Types.ref(type), varName);
+			final Id varId = xnf.Id(pos, varName);
+			final Local ldRef = (Local) xnf.Local(pos, varId).localInstance(li.asInstance()).type(type);
+			clockStack.push(ldRef);
+			
+			final Name outerVarName = xc.getNewVarName();
+			final LocalDef outerLi = xts.localDef(pos, flags, Types.ref(type), outerVarName);
+			final Id outerVarId = xnf.Id(pos, outerVarName);
+			final Local outerLdRef = (Local) xnf.Local(pos, outerVarId).localInstance(li.asInstance()).type(type);
+
+			try {
+				Expr clock = synth.makeStaticCall(pos, type, Name.make("make"), type, xc);
+				final TypeNode tn = xnf.CanonicalTypeNode(pos,type);
+				Expr nullLit = xnf.NullLit(pos).type(type);
+				final LocalDecl outerLd = xnf.LocalDecl(pos, xnf.FlagsNode(pos, Flags.NONE), tn, outerVarId, nullLit).localDef(outerLi);
+				
+				Block block = synth.toBlock(finish.body());
+				final LocalDecl ld = xnf.LocalDecl(pos, xnf.FlagsNode(pos, flags), tn, varId, clock).localDef(li);
+				Stmt assign = xnf.Eval(pos, xnf.Assign(pos, outerLdRef, Assign.ASSIGN, ldRef));
+				block = block.prepend(assign);
+				block = block.prepend(ld);
+				Block drop = xnf.Block(pos,xnf.Eval(pos, new InstanceCallSynth(xnf, (X10Context) context, pos, outerLdRef, "drop").genExpr()));
+				Stmt stm1 = nf.Try(pos, block, Collections.<Catch>emptyList(), drop);
+				Node result = visitEdgeNoOverride(parent, nf.Block(pos, outerLd, xnf.Finish(pos, stm1, false)));
+				return result;
+			} catch (SemanticException z) {
+				return null;
+			}
+    		
+    	 
+    	}
     	// handle async at(p) S and treat it as the old async(p) S.
     	if (n instanceof Async) {
     		Async async = (Async) n;
@@ -288,6 +349,8 @@ public class Desugarer extends ContextVisitor {
             return visitInstanceof((X10Instanceof_c) n);
         if (n instanceof LocalDecl)
             return visitLocalDecl((LocalDecl) n);
+        if (n instanceof Resume)
+            return visitResume((Resume) n);
         return n;
     }
 
@@ -363,9 +426,18 @@ public class Desugarer extends ContextVisitor {
     	return null;
     }
     
+    private List<Expr> clocks(boolean clocked, List<Expr> clocks) {
+    	if (! clocked)
+    		return clocks;
+    	if (clocks == null)
+    		clocks = new ArrayList<Expr>();
+    	clocks.add(clockStack.peek());
+    	return clocks;
+    }
     // Begin asyncs
     // rewrite @Uncounted async S, with special translation for @Uncounted async at (p) S.
     private Stmt visitAsync(Node old, Async a) throws SemanticException {
+    	List<Expr> clocks = clocks(a.clocked(), a.clocks());
         Position pos = a.position();
         X10Ext ext = (X10Ext) a.ext();
         List<X10ClassType> refs = Emitter.annotationsNamed(xts, a, REF);
@@ -374,15 +446,16 @@ public class Desugarer extends ContextVisitor {
             	 return uncountedAsync(pos, a.body());
         }
         if (old instanceof Async)
-            return async(pos, a.body(), a.clocks(), refs);
+            return async(pos, a.body(), clocks, refs);
         Stmt specializedAsync = specializeAsync(a, null, a.body());
         if (specializedAsync != null)
             return specializedAsync;
-        return async(pos, a.body(), a.clocks(),  refs);
+        return async(pos, a.body(), clocks,  refs);
     }
     // Begin asyncs
     // rewrite @Uncounted async S, with special translation for @Uncounted async at (p) S.
     private Stmt visitAsyncPlace(Async a, Expr place, Stmt body) throws SemanticException {
+    	List<Expr> clocks = clocks(a.clocked(), a.clocks());
         Position pos = a.position();
         List<X10ClassType> refs = Emitter.annotationsNamed(xts, a, REF);
         if (Emitter.hasAnnotation(xts, a, UNCOUNTED)) {
@@ -391,7 +464,7 @@ public class Desugarer extends ContextVisitor {
         Stmt specializedAsync = specializeAsync(a, place, body);
         if (specializedAsync != null)
             return specializedAsync;
-        return async(pos, body, a.clocks(),   place, refs);
+        return async(pos, body, clocks,   place, refs);
     }
 
     // TODO: add more rules from SPMDcppCodeGenerator
@@ -582,6 +655,12 @@ public class Desugarer extends ContextVisitor {
     private Stmt visitNext(Next n) throws SemanticException {
         Position pos = n.position();
         return xnf.Eval(pos, call(pos, NEXT, xts.Void()));
+    }
+    
+    // next; -> Runtime.next();
+    private Stmt visitResume(Resume n) throws SemanticException {
+        Position pos = n.position();
+        return xnf.Eval(pos, call(pos, RESUME, xts.Void()));
     }
 
     // atomic S; -> try { Runtime.lock(); S } finally { Runtime.release(); }

@@ -45,7 +45,9 @@ public class Finish_c extends Stmt_c implements Finish {
 	this.clocked = clocked; 
     }
 
-
+    public boolean clocked() {
+    	return clocked;
+    }
     /* (non-Javadoc)
      * @see x10.ast.Finish#body()
      */
@@ -66,7 +68,7 @@ public class Finish_c extends Stmt_c implements Finish {
 
     /** Write the statement to an output file. */
     public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
-	w.write("finish ");
+	w.write((clocked ? "clocked " : "") + "finish ");
 	printSubStmt(body, w, tr);
     }
 

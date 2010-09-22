@@ -27,4 +27,6 @@ public interface Async extends CompoundStmt,  Clocked {
 
     /** Get the body of the Async. */
     Stmt body();
+    
+    boolean clocked();
 }

@@ -127,6 +127,9 @@ public interface X10Context extends Context {
     boolean inAssignment();
     void setInAssignment();
     X10Context pushAssignment();
+    
+    X10Context pushClockedFinishScope();
+    boolean inClockedFinishScope();
     /**
      * Push a new block, and sets its currentConstraint to old currentConstraint + env.
      * 

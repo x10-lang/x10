@@ -231,7 +231,19 @@ public class X10Context_c extends Context_c implements X10Context {
 		return cxt;
     }
     
-    
+    boolean inClockedFinishScope=false;
+    public X10Context pushClockedFinishScope() {
+    	X10Context_c cxt = (X10Context_c) super.pushBlock();
+		cxt.inClockedFinishScope = true;
+		return cxt;
+    }
+    public boolean inClockedFinishScope() {
+    	if (inClockedFinishScope)
+    		return true;
+    	if (outer != null) 
+    		return ((X10Context) outer).inClockedFinishScope();
+    	return false;
+    }
     Type currentCollectingFinishType=null;
     public Context pushCollectingFinishScope(Type t) {
     	assert t!=null;

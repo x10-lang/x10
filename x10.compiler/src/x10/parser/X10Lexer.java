@@ -128,7 +128,7 @@ public class X10Lexer implements RuleAction
      * simply report a lexical error. Otherwise, we produce a bad token.
      */
     public void reportLexicalError(int startLoc, int endLoc) {
-        IPrsStream prs_stream = lexStream.getIPrsStream();
+        IPrsStream prs_stream = lexStream.getPrsStream();
         if (prs_stream == null)
             lexStream.reportLexicalError(startLoc, endLoc);
         else {

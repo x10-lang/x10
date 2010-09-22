@@ -89,6 +89,7 @@ public class Async_c extends Stmt_c implements Async {
 		this.clocks = new ArrayList<Expr>();
 	}
 
+	public boolean clocked() { return clocked;}
 	public Async_c(Position p) {
 		super(p);
 	}
@@ -191,6 +192,9 @@ public class Async_c extends Stmt_c implements Async {
 		if (c.inSequentialCode())
 			Errors.issue(tc.job(),
 			        new SemanticException("async may not be invoked in sequential code.", position()));
+		if (clocked() && ! c.inClockedFinishScope())
+			Errors.issue(tc.job(),
+			        new SemanticException("clocked async must be invoked inside a statically enclosing clocked finish.", position()));
 			
         for (Expr e : clocks()) {
             Type t = e.type();
