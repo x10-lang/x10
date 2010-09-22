@@ -2216,7 +2216,7 @@ public class Emitter {
 	    String fieldName = "__serialized__";
 	    w.write("// custom serializer");
 	    w.newline();
-	    w.write("private Object " + fieldName + ";");
+	    w.write("private transient Object " + fieldName + ";");
         w.newline();
         w.write("private Object writeReplace() { " + fieldName + " = serialize(); return this; }");
         w.newline();
