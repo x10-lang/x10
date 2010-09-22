@@ -719,6 +719,15 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	}
 
 
+	private boolean hasCustomSerializer(X10ClassDecl_c n) {
+        boolean hasCustomSerializer = false;
+        for (TypeNode tn: n.interfaces()) {
+            if ("x10.io.CustomSerialization".equals(tn.type().toString())) {
+                hasCustomSerializer = true;
+            }
+        }
+        return hasCustomSerializer;
+	}
 
 	public void visit(X10ClassDecl_c n) {
 	        String className = n.classDef().name().toString();
@@ -911,6 +920,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		// XTENLANG-1102
 		er.generateRTTInstance(def);
 		
+		if (hasCustomSerializer(n)) {
+            er.generateCustomSerializer(def);
+        }
+
 		// Generate dispatcher methods.
 //		er.generateDispatchers(def);
 

@@ -2212,6 +2212,24 @@ public class Emitter {
         }
 	}
 
+	public void generateCustomSerializer(X10ClassDef def) {
+	    String fieldName = "__serialized__";
+	    w.write("// custom serializer");
+	    w.newline();
+	    w.write("private Object " + fieldName + ";");
+        w.newline();
+        w.write("private Object writeReplace() { " + fieldName + " = serialize(); return this; }");
+        w.newline();
+	    w.write("private Object readResolve() { return new ");
+        printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
+        w.write("(" + fieldName + "); }");
+        w.newline();
+        w.write("private void writeObject(java.io.ObjectOutputStream oos) throws java.io.IOException { oos.writeObject(" + fieldName + "); }");
+        w.newline();
+        w.write("private void readObject(java.io.ObjectInputStream ois) throws java.io.IOException, java.lang.ClassNotFoundException { " + fieldName + " = ois.readObject(); }");
+        w.newline();
+	}
+
     private void printParents(X10ClassDef def, Type type) {
         if (type instanceof ConstrainedType_c) {
             type = ((ConstrainedType_c) type).baseType().get();
