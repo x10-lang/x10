@@ -415,6 +415,7 @@ void insertNewMessage(MSGTYPE mt, x10rt_msg_params *p, void *dataPtr, x10rt_copy
 		abort();
 	}
 
+	int detectDeadlock = 0;
 	// find a free slot to put the message into
 	while (entry == NULL)
 	{
@@ -445,11 +446,22 @@ void insertNewMessage(MSGTYPE mt, x10rt_msg_params *p, void *dataPtr, x10rt_copy
 			// unlock the buffer, do a yield (to give the other place some CPU), and try again.
 			// TODO: grow the buffer instead of blocking
 			//#ifdef DEBUG
+			if (detectDeadlock == 100) // warning limit
+			{
 				printf("X10rt.Standalone: place %lu's buffer is full!  Head=%u, Tail=%u\n", (unsigned long)p->dest_place, dest->messageQueueHead, dest->messageQueueTail);
 				fflush(stdout);
+			}
+			detectDeadlock++;
 			//#endif
 			if (pthread_mutex_unlock(&dest->messageQueueLock) != 0) error("Unable to unlock the message queue after inserting a message");
-			sched_yield();
+			if (detectDeadlock < 1000) // failure limit
+				sched_yield();
+			else
+			{
+				if (state.myPlaceId == 0)
+					fprintf(stderr, "The buffers appear to be stuck in a deadlock state.  Your program is sending too much data at once.  Try the sockets backend instead of standalone.\n");
+				abort();
+			}
 		}
 	}
 
@@ -691,6 +703,7 @@ void x10rt_net_probe (void)
 		if (myPlace->messageQueueHead == X10RT_DATABUFFERSIZE) // empty queue
 		{
 			if (pthread_mutex_unlock(&myPlace->messageQueueLock) != 0) error("Unable to unlock the message queue after finding it empty");
+			sched_yield(); // to help prevent the constant probes from preventing anything else from getting done.
 			return;
 		}
 
