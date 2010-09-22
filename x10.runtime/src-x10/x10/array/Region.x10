@@ -198,16 +198,16 @@ public abstract class Region(
     abstract protected  def computeBoundingBox(): Region(rank);
 
     /**
-     * Returns the lower bounds of the bounding box of the region as a
-     * Rail[int].
+     * Returns a function that can be used to access the lower bounds 
+     * of the bounding box of the region. 
      */
-    abstract public def min(): ValRail[int];
+    abstract public def min():(int)=>int;
 
     /**
-     * Returns the upper bounds of the bounding box of the region as a
-     * Rail[int].
+     * Returns a function that can be used to access the lower bounds 
+     * of the bounding box of the region. 
      */
-    abstract public def max(): ValRail[int];
+    abstract public def max():(int)=>int;
     
     /**
      * Returns the lower bound of the bounding box of the region along

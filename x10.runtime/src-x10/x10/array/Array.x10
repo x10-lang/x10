@@ -138,7 +138,7 @@ public final class Array[T](
     public def this(reg:Region):Array[T]{self.region==reg} {
 	property(reg, reg.size());
 
-        layout = RectLayout(reg.min(), reg.max());
+        layout = RectLayout(reg);
         val n = layout.size();
         raw = IndexedMemoryChunk.allocate[T](n, true);
         rawLength = n;
@@ -156,7 +156,7 @@ public final class Array[T](
     public def this(reg:Region, init:(Point(reg.rank))=>T):Array[T]{self.region==reg} {
         property(reg, reg.size());
 
-        layout = RectLayout(reg.min(), reg.max());
+        layout = RectLayout(reg);
         val n = layout.size();
         val r  = IndexedMemoryChunk.allocate[T](n);
 	for (p:Point(reg.rank) in reg) {
@@ -178,7 +178,7 @@ public final class Array[T](
     public def this(reg:Region, init:T):Array[T]{self.region==reg} {
         property(reg, reg.size());
 
-        layout = RectLayout(reg.min(), reg.max());
+        layout = RectLayout(reg);
         val n = layout.size();
         val r  = IndexedMemoryChunk.allocate[T](n);
         if (reg.rect) {

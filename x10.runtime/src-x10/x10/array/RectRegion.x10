@@ -18,13 +18,9 @@ package x10.array;
 public final class RectRegion extends Region{rect} {
 
     private val size:int;
-    private val mins:ValRail[int];
-    private val maxs:ValRail[int];
+    private val mins:ValRail[int]; /* will be null if rank<5 */
+    private val maxs:ValRail[int]; /* will be null if rank<5 */
 
-    // Cached contents of the min/max ValRails
-    // to avoid loads & bounds checks when accessing
-    // Critical for performance because this is on the fastpath
-    // of most RectRegion operations.
     private val min0:int;
     private val min1:int;
     private val min2:int;
@@ -53,9 +49,6 @@ public final class RectRegion extends Region{rect} {
         }
         size = s;
 
-	mins = minArg;
-	maxs = maxArg;
-
         if (minArg.length>0) {
             min0 = minArg(0);
             max0 = maxArg(0);
@@ -82,6 +75,14 @@ public final class RectRegion extends Region{rect} {
             max3 = maxArg(3);
         } else {
             min3 = max3 = 0;
+        }
+	
+	if (minArg.length>4) {
+	  mins = minArg;
+	  maxs = maxArg;
+        } else {
+	  mins = null;
+          maxs = null;
         }
     }
 
@@ -112,16 +113,37 @@ public final class RectRegion extends Region{rect} {
 
     protected def computeBoundingBox(): Region(rank){self.rect}=this; 
 
-    public def min() = mins;
-    public def max() = maxs;
+    public def min():(int)=>int  {
+        return (i:int) => {
+            switch(i) {
+                case 0: return min0;
+                case 1: return min1;
+                case 2: return min2;
+                case 3: return min3;
+                default: return mins(i);
+            }
+        };
+    }
+
+    public def max():(int)=>int  {
+        return (i:int) => {
+            switch(i) {
+                case 0: return max0;
+                case 1: return max1;
+                case 2: return max2;
+                case 3: return max3;
+                default: return maxs(i);
+            }
+        };
+    }
 
     public def contains(that:Region(rank)): boolean {
        if (that instanceof RectRegion) {
-            val thatMin = (that as RectRegion).min();
-            val thatMax = (that as RectRegion).max();
+           val thatMin = (that as RectRegion).min();
+           val thatMax = (that as RectRegion).max();
            for (var i:int =0; i<rank; i++) {
-               if (mins(i) > thatMin(i)) return false;
-               if (maxs(i) < thatMax(i)) return false;
+               if (min(i) > thatMin(i)) return false;
+               if (max(i) < thatMax(i)) return false;
            }
            return true;
        } else {
@@ -131,10 +153,18 @@ public final class RectRegion extends Region{rect} {
 
     public def contains(p:Point):boolean {
         if (p.rank != rank) return false;
-        for ([r] in 0..p.rank-1) {
-            if (p(r)<mins(r) || p(r)>maxs(r)) return false;
+	// NOTE: intentional fall through of cases!
+        switch(p.rank-1) {
+           default:
+               for ([r] in p.rank-1..4) {
+                   if (p(r)<mins(r) || p(r)>maxs(r)) return false;
+               }
+           case 3: { val tmp = p(3); if (tmp<min3 || tmp>max3) return false; }
+           case 2: { val tmp = p(2); if (tmp<min2 || tmp>max2) return false; }
+           case 1: { val tmp = p(1); if (tmp<min1 || tmp>max1) return false; }
+           case 0: { val tmp = p(0); if (tmp<min0 || tmp>max0) return false; }
         }
-        return true;
+	return true;
     }
 
     public def contains(i0:int){rank==1}:boolean {
@@ -237,17 +267,17 @@ public final class RectRegion extends Region{rect} {
 
 
     private static class RRIterator(myRank:int) implements Iterator[Point(myRank)]() {
-        val min:ValRail[int](myRank);
-        val max:ValRail[int](myRank);
+        val min:(int)=>int;
+        val max:(int)=>int;
         var done:boolean;
         val cur:Rail[int](myRank);
 
         def this(rr:RectRegion):RRIterator{self.myRank==rr.rank} {
             property(rr.rank);
-            min = rr.mins as ValRail[int](myRank);
-            max = rr.maxs as ValRail[int](myRank);
+            min = rr.min();
+            max = rr.max();
             done = rr.size == 0;
-            cur = Rail.make(rr.mins) as Rail[int](myRank);
+            cur = Rail.make[int](myRank, min);
         }        
 
         public def hasNext() = !done;

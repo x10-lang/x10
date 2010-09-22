@@ -256,7 +256,7 @@ public class DistArray[T] (
 
         val plsInit:()=>LocalState[T] = () => {
             val region = dist.get(here);
-            val localLayout = layout(region);
+            val localLayout = RectLayout(region);
             val localRaw = IndexedMemoryChunk.allocate[T](localLayout.size());
 
             for (pt  in region) {
@@ -273,7 +273,7 @@ public class DistArray[T] (
 
         val plsInit:()=>LocalState[T] = () => {
             val region = dist.get(here);
-            val localLayout = layout(region);
+            val localLayout = RectLayout(region);
             val localRaw = IndexedMemoryChunk.allocate[T](localLayout.size());
 
 	    return new LocalState[T](localLayout, localRaw);
@@ -392,27 +392,6 @@ public class DistArray[T] (
     public safe operator this | (r: Region(rank)) = restriction(r);
     public safe operator this | (p: Place) = restriction(p);
 
-
-
-    /**
-     * for now since we only have RectLayouts we hard-code that here
-     * for efficiency, since RectLayout is a final class.
-     *
-     * if/when we have other layouts, this might need to be a generic
-     * type parameter, i.e. BaseArray[T,L] where L is a layout class
-     */
-
-    // safe to call from witin a constructor, does not read fields.
-    protected static def layout(r: Region): RectLayout {
-        if (r.isEmpty()) {
-            // XXX EmptyLayout class?
-            val min = ValRail.make[int](r.rank, (Int)=>0);
-            val max = ValRail.make[int](r.rank, (Int)=>-1);
-            return RectLayout(min, max);
-        } else {
-            return RectLayout(r.min(), r.max());
-        }
-    }
 
     public safe def toString(): String {
         return "Array(" + dist + ")";

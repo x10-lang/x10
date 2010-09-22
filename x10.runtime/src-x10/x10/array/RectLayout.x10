@@ -35,101 +35,63 @@ struct RectLayout(rank:int) {
     val delta2:int;
     val delta3:int;
 
-    def this(min:ValRail[int], max:ValRail[int]):RectLayout{this.rank==min.length} {
-        if (max.length!=min.length)
-            throw new IllegalArgumentException("min and max must have same length");
+    def this(reg:Region):RectLayout{this.rank==reg.rank} {
+        property(reg.rank);
 
-        val r = min.length;
-        property(r);
-
-        val d0 = ValRail.make[int](r, (i:Int) => max(i) - min(i) + 1);
-
-        var size: int = 1;
-        for (d:int in d0)
-            size *= d;
-        this.size = size;
-
-        min0 = r>=1? min(0) : 0;
-        min1 = r>=2? min(1) : 0;
-        min2 = r>=3? min(2) : 0;
-        min3 = r>=4? min(3) : 0;
-
-        delta0 = r>=1? d0(0) : 0;
-        delta1 = r>=2? d0(1) : 0;
-        delta2 = r>=3? d0(2) : 0;
-        delta3 = r>=4? d0(3) : 0;
-
-        if (r>4) {
-            this.min = min;
-            delta = d0;
+        var sz:int = 1;
+        if (rank>4) {
+            min = ValRail.make[int](rank, (i:int) => reg.min(i));
+            delta = ValRail.make[int](rank, (i:int) => reg.max(i) - min(i) +1);
+            for ([r] in 4..rank-1) {
+                sz *= delta(r);
+            }
         } else {
-	    this.min = null;
-	    delta = null;
+            min = null;
+            delta = null;
         }
+
+	min0 = reg.min(0);
+	delta0 = reg.max(0) - min0 + 1;
+	sz *= delta0;
+
+        if (rank > 1) {
+	    min1 = reg.min(1);
+	    delta1 = reg.max(1) - min1 + 1;
+	    sz *= delta1;
+         } else {
+            min1 = delta1 = 0;
+         }
+
+        if (rank > 2) {
+	    min2 = reg.min(2);
+	    delta2 = reg.max(2) - min2 + 1;
+	    sz *= delta2;
+         } else {
+            min2 = delta2 = 0;
+         }
+
+        if (rank > 3) {
+	    min3 = reg.min(3);
+	    delta3 = reg.max(3) - min3 + 1;
+	    sz *= delta3;
+         } else {
+            min3 = delta3 = 0;
+         }
+
+	size = sz;
     }
 
 
     def this(_min0:int, _max0:int):RectLayout{this.rank==1} {
         property(1);
-	min0 = _min0;
-	delta0 = _max0-_min0+1;
-	size = delta0;	
+        min0 = _min0;
+        delta0 = _max0-_min0+1;
+        size = delta0;  
 
-	min1 = 0; delta1 = 0; 
-	min2 = 0; delta2 = 0;
-	min3 = 0; delta3 = 0;
-	min = null; delta = null;
-    }
-
-
-    def this(_min0:int, _max0:int, 
-             _min1:int, _max1:int):RectLayout{this.rank==2} {
-        property(2);
-	min0 = _min0;
-	min1 = _min1;
-	delta0 = _max0-_min0+1;
-	delta1 = _max1-_min1+1;
-	size = delta0*delta1;
-
-	min2 = 0; delta2 = 0;
-	min3 = 0; delta3 = 0;
-	min = null; delta = null;
-    }
-
-
-    def this(_min0:int, _max0:int, 
-             _min1:int, _max1:int,
-             _min2:int, _max2:int):RectLayout{this.rank==3} {
-        property(3);
-	min0 = _min0;
-	min1 = _min1;
-	min2 = _min2;
-	delta0 = _max0-_min0+1;
-	delta1 = _max1-_min1+1;
-	delta2 = _max2-_min2+1;
-	size = delta0*delta1*delta2;
-
-	min3 = 0; delta3 = 0;
-	min = null; delta = null;
-    }
-
-
-    def this(_min0:int, _max0:int, 
-             _min1:int, _max1:int,
-             _min2:int, _max2:int,
-             _min3:int, _max3:int):RectLayout{this.rank==3} {
-        property(3);
-	min0 = _min0;
-	min1 = _min1;
-	min2 = _min2;
-	min3 = _min3;
-	delta0 = _max0-_min0+1;
-	delta1 = _max1-_min1+1;
-	delta2 = _max2-_min2+1;
-	delta3 = _max3-_min3+1;
-	size = delta0*delta1*delta2*delta3;
-
-	min = null; delta = null;
+        min1 = 0; delta1 = 0; 
+        min2 = 0; delta2 = 0;
+        min3 = 0; delta3 = 0;
+        min = null; delta = null;
     }
 
 
@@ -138,10 +100,10 @@ struct RectLayout(rank:int) {
     }
 
     def offset(pt: Point): int {
-	switch(pt.rank) {
+        switch(pt.rank) {
             case 1: return offset(pt(0));
-	    case 2: return offset(pt(0), pt(1));
-	    case 3: return offset(pt(0), pt(1), pt(2));
+            case 2: return offset(pt(0), pt(1));
+            case 3: return offset(pt(0), pt(1), pt(2));
             case 4: return offset(pt(0), pt(1), pt(2), pt(3));
             default: {
                 var offset: int = pt(0) - min(0);
@@ -182,14 +144,14 @@ struct RectLayout(rank:int) {
         var s:String = "RectLayout[";
         s += "size=" + size;
         for (var i:int=0; i<min.length; i++) {
-	    val m:int;
+            val m:int;
             val d:int;
-	    switch (i) {
-	        case 0: m = min0; d = delta0; break;
-	        case 1: m = min1; d = delta1; break;
-	        case 2: m = min2; d = delta2; break;
-	        case 3: m = min3; d = delta3; break;
-	        default: m = min(i); d = delta(i);
+            switch (i) {
+                case 0: m = min0; d = delta0; break;
+                case 1: m = min1; d = delta1; break;
+                case 2: m = min2; d = delta2; break;
+                case 3: m = min3; d = delta3; break;
+                default: m = min(i); d = delta(i);
             }
             s += "," + m + "/" + d;
         }

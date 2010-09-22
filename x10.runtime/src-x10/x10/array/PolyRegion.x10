@@ -349,12 +349,14 @@ public class PolyRegion extends Region {
 	//        cache = new Cache(this, hack198);
     }
 
-    public def min(): ValRail[int] {
-        return boundingBox().min();
+    public def min(): (int)=>int {
+        val t = boundingBox().min();
+        return (i:int)=>t(i);
     }
 
-    public def max(): ValRail[int] {
-        return boundingBox().max();
+    public def max(): (int)=>int {
+        val t = boundingBox().max();
+        return (i:int)=>t(i);
     }
 
 
