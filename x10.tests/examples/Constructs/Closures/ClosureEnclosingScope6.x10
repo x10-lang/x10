@@ -24,14 +24,14 @@ public class ClosureEnclosingScope6 extends ClosureTest {
     val a = 1;
 
     class C {
-        val a = 2;
+        def a() = 2;
         class D {
-            val a = 4;
+            def a() = 4;
             val sum = (()=>(
 				ClosureEnclosingScope6.this.a // DYNAMIC_CHECK
 				+
-					C.this.a+  // DYNAMIC_CHECK
-					D.this.a+a))();
+					C.this.a()+  // DYNAMIC_CHECK
+					D.this.a()+a()))();
         }
     }
 
