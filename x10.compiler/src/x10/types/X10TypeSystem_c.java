@@ -1914,7 +1914,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     /** All flags allowed for a constructor. */
     @Override
     public Flags legalConstructorFlags() {
-        return legalAccessFlags().Synchronized().Native(); // allow native (but
+        return X10Flags.toX10Flags(legalAccessFlags().Synchronized().Native()).Safe(); // allow native (but
                                                            // not extern)
     }
 

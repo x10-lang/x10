@@ -242,7 +242,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 
 		// property implies public, final
 		if (xf.isProperty()) {
-			if (xf.isAbstract())
+			if (xf.isAbstract())  //todo: Yoav thinks we should not have abstract property methods (all property methods, even in interfaces, should have a body so they can be expanded)
 				xf = X10Flags.toX10Flags(xf.Public());
 			else
 				xf = X10Flags.toX10Flags(xf.Public().Final());

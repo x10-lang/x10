@@ -61,10 +61,6 @@ public class Stencil1D extends x10Test {
     public static def main(args: Array[String](1)) {
        var n: int = args.size > 0 ? Int.parse(args(0)) : 100;
        var p: int = args.size > 1 ? Int.parse(args(1)) : 2;
-       // x10.io.Console.ERR.println("Starting: N=" + n + " P=" + p);
-       // var time: Long = -System.nanoTime();
        val s = new Stencil1D(n, p); s.execute();
-       // time += System.nanoTime();
-       // x10.io.Console.ERR.println("N=" + n + " P=" + p + " Iters=" + s.iters + " time=" + time/(1000*1000) + " ms");
     }
 }

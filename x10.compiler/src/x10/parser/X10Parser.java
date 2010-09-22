@@ -566,6 +566,7 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             constructorModifiers[PRIVATE] = true;
             constructorModifiers[PROTECTED] = true;
             constructorModifiers[PUBLIC] = true;
+            constructorModifiers[SAFE] = true;
         }
         public boolean isConstructorModifier(int flag) {
             return constructorModifiers[flag];

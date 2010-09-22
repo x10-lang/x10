@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.util.Future;
 
 /**
  * Checks force for grand-children.
@@ -29,13 +30,13 @@ public class FutureForce extends x10Test {
 	}
 
 	public def foo(): Int = {
-		var r2: Future[Int] = Future.make( () => at (here) bar() );
+		var r2: Future[Int] = Future.make( () => bar() );
 		return 42;
 	}
 
 	public def run(): Boolean = {
 		atomic flag = false;
-		var r1: Future[Int] = Future.make( () => at (here) foo() );
+		var r1: Future[Int] = Future.make( () => foo() );
 		r1();
 		var b: Boolean;
 		atomic b = flag;

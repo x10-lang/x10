@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.util.Future;
 
 import x10.util.Future;
 /**
@@ -33,7 +34,7 @@ public class FutureTest3 extends x10Test {
 	 * Spawns subactivities that cause delayed side-effects.
 	 */
 	def m1(val A: Array[int](1), val K: int): int = {
-		foreach (val (i): Point in A) {
+		foreach (val [i]: Point in A) {
 			Activity.sleep(3000);
 			atomic A(i) += 1;
 		}
@@ -47,7 +48,7 @@ public class FutureTest3 extends x10Test {
 	 * and exceptions.
 	 */
 	def m2(val A: Array[int](1), val K: int): int = {
-		foreach (val p(i): Point in A) {
+		foreach (val p[i]: Point in A) {
 			Activity.sleep(3000);
 			atomic A(i) += 1;
 			atomic A(OUTOFRANGE) = -1;
@@ -97,9 +98,9 @@ public class FutureTest3 extends x10Test {
 		x10.io.Console.OUT.println("3");
 		chk(r3 == 1 && !gotException);
 		// must read new values of A here
-		for (val (i): Point in A) x10.io.Console.OUT.println("A["+i+"] = "+A(i));
+		for (val [i]: Point in A) x10.io.Console.OUT.println("A["+i+"] = "+A(i));
 		chk(A(K) == 2);
-		for (val (i): Point in A) atomic chk(imp(i != K, A(i) == 1));
+		for (val [i]: Point in A) atomic chk(imp(i != K, A(i) == 1));
 
 		//future { e }.force() must throw
 		//exceptions from subactivities of e
@@ -113,9 +114,9 @@ public class FutureTest3 extends x10Test {
 		x10.io.Console.OUT.println("4" + gotException + " r4 = " + r4);
 		chk(r4 ==-1 && gotException);
 		// must read new values of A here
-		for (val (i): Point in A) x10.io.Console.OUT.println("A["+i+"] = "+A(i));
+		for (val [i]: Point in A) x10.io.Console.OUT.println("A["+i+"] = "+A(i));
 		atomic chk(A(K) == 3);
-		for (val (i): Point in A) atomic chk(imp(i != K, A(i) == 2));
+		for (val [i]: Point in A) atomic chk(imp(i != K, A(i) == 2));
 
 		//Only force() throws the exception,
 		//a plain future call just spawns the expression
@@ -133,9 +134,9 @@ public class FutureTest3 extends x10Test {
 		}
 		chk(r5 ==-1 && gotException);
 		// must read new values of A here
-		for (val (i): Point in A) x10.io.Console.OUT.println("A["+i+"] = "+A(i));
+		for (val [i]: Point in A) x10.io.Console.OUT.println("A["+i+"] = "+A(i));
 		atomic chk(A(K) == 4);
-		for (val (i): Point in A) atomic chk(imp(i != K, A(i) == 3));
+		for (val [i]: Point in A) atomic chk(imp(i != K, A(i) == 3));
 
 		return true;
 	}
@@ -143,7 +144,7 @@ public class FutureTest3 extends x10Test {
 	/**
 	 * True iff x logically implies y
 	 */
-	static def imp(x: boolean, y: boolean): boolean = {
+	static safe def imp(x: boolean, y: boolean): boolean = {
 		return (!x||y);
 	}
 

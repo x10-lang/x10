@@ -1048,7 +1048,7 @@ public class InitChecker extends DataFlow
                 checkLocal(graph, (Local)n, dfIn, dfOut);
             }
             else if (n instanceof Field) {
-        	checkField(graph, (Field)n, dfIn, dfOut);
+        	    // checkField(graph, (Field)n, dfIn, dfOut); - field access is checked by CheckEscapingThis
             }
             else if (n instanceof LocalAssign) {
                 checkLocalAssign(graph, (LocalAssign)n, dfIn, dfOut);

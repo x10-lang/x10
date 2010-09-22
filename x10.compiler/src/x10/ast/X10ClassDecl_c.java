@@ -238,29 +238,6 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	super.setInterfaces(ts, thisType);
     }
 
-
-    public Node disambiguate(ContextVisitor ar) throws SemanticException {
-    	ClassDecl n = (ClassDecl) super.disambiguate(ar);
-
-    	// If the class is safe, mark all the methods safe.
-    	X10Flags xf = X10Flags.toX10Flags(n.flags().flags());
-    	if (xf.isSafe()) {
-    	    ClassBody b = n.body();
-    	    List<ClassMember> m = b.members();
-    	    List<ClassMember> newM = new ArrayList<ClassMember>(m.size());
-    	    for (ClassMember mem : m) {
-    	        if (mem instanceof MethodDecl) {
-    	            MethodDecl decl = (MethodDecl) mem;
-    	            X10Flags mxf = X10Flags.toX10Flags(decl.flags().flags()).Safe();
-    	            mem = decl.flags(decl.flags().flags(mxf));
-    	        } 
-    	        newM.add(mem);
-    	    }
-    	    n = n.body(b.members(newM));
-    	}
-
-    	return n;
-    }
     @Override
     public Context enterScope(Context c) {
     	return c.pushBlock();

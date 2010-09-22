@@ -2275,14 +2275,6 @@ public abstract class TypeSystem_c implements TypeSystem
 	return f;
     }
 
-    public Flags flagsForName(String name) {
-	Flags f = (Flags) flagsForName.get(name);
-	if (f == null) {
-	    throw new InternalCompilerError("No flag named \"" + name + "\".");
-	}
-	return f;
-    }
-
     protected String getCreatorStack(int limit) {
         StackTraceElement[] trace = creator.getStackTrace();
         // The first 3 elements will be the factory methods and the constructor

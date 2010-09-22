@@ -270,13 +270,6 @@ implements X10ParsedClassType
 	    return subst.reinstantiate(super.memberClasses());
 	}
 
-	/**
-	 * A parsed class is safe iff it explicitly has a flag saying so.
-	 */
-	public boolean isSafe() {
-		return X10Flags.toX10Flags(flags()).isSafe();
-	}
-
 	public static class X10FieldAsTypeTransform implements Transformation<X10FieldDef, FieldInstance> {
 	    public FieldInstance transform(X10FieldDef def) {
 		return def.asInstance();

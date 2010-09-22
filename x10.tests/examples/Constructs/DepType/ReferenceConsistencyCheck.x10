@@ -13,7 +13,7 @@ import harness.x10Test;
 
 public class ReferenceConsistencyCheck(R: Region{rank==2, zeroBased, rect}, 
 		D:Dist{region==this.R},
-		A: DistArray[double]{dist==this.D}) extends x10Test {
+		A: DistArray[double]{dist==this.D, dist.rank==2}) extends x10Test {
 	
 	public def this(R: Region{rank==2&&zeroBased&&rect}, 
 			D: Dist{region==R}, 

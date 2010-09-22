@@ -1906,8 +1906,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             throw new SemanticException(mi.flags() + " " + mi.signature() + " in " + mi.container() +
                                         " cannot override " + 
                                         mj.flags() + " " + mj.signature() + " in " + mj.container() + 
-                                        "; attempting to assign weaker " + 
-                                        "behavioral annotations", 
+                                        "; attempting to assign weaker behavioral annotations", 
                                         mi.position());
         }
     }

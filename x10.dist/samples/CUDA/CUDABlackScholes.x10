@@ -1,3 +1,4 @@
+// Yoav added: IGNORE_FILE
 /*
  *  This file is part of the X10 project (http://x10-lang.org).
  *
@@ -39,8 +40,8 @@ public class CUDABlackScholes {
         finish async at (p) @CUDA @CUDADirectParams {
             //val blocks = CUDAUtilities.autoBlocks(),
             //    threads = CUDAUtilities.autoThreads();
-            for ((block) in 0..blocks-1) {
-                for ((thread) in 0..threads-1) async {
+            for ([block] in 0..blocks-1) {
+                for ([thread] in 0..threads-1) async {
                     val tid = block * threads + thread;
                     val tids = blocks * threads;
                     for (var opt:Int=tid; opt < opt_N; opt+=tids) {

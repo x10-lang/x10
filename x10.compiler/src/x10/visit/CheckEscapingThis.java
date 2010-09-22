@@ -241,10 +241,13 @@ public class CheckEscapingThis extends NodeVisitor
                 if (canReadFrom!=null) {
                     for (FieldDef f : fields) {
                         boolean readBefore = isRead(inItem.initStatus.get(f));
-                        if (!readBefore && isRead(res.initStatus.get(f))) {
+                        final int fRes = res.initStatus.get(f);
+                        if (!readBefore && isRead(fRes)) {
                             if (!canReadFrom.contains(f)) {
                                 // wasn't read before, and we read it now (either because of Field access, or X10Call)
                                 reportError("Cannot read from field '"+f.name()+"' before it is definitely assigned.",n.position());
+                                // I want to report more errors with this field, so I remove the read status
+                                res.initStatus.put(f,build(false, isWrite(fRes),isSeqWrite(fRes)));
                                 wasError = true;
                             }
                         }

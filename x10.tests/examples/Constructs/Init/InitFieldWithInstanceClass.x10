@@ -15,12 +15,16 @@ import harness.x10Test;
 
 /**
  * Check that it is ok to initialize a field with an instance of an instance inner class
+ * Yoav: it's not ok under the new initialization rules. "this" cannot escape.
+ This is equivalent to the prohibited pattern:
+    static class A(outer:InitFieldWithInstanceClass) {}
+    val a = new A(this); // "this" cannot escape!
+We can't allow either pattern.
  */
 
 public class InitFieldWithInstanceClass extends x10Test {
 
-    class A {
-    }
+    static class A {}
     val a = new A();
   
     public def run() =true;

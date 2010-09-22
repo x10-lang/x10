@@ -42,7 +42,7 @@ class XTENLANG_1565 extends x10Test {
 				k=8;
 				// k:[1,1,2,2]
 				f(k);
-				//f(n); // ERR
+				f(n); // ERR
 			} else {
 				// n:[0,0,0,0] i:[1,1,1,1] j:[0,0,0,0] k:[0,0,0,0]
 				n=9; q = 999;
@@ -50,9 +50,9 @@ class XTENLANG_1565 extends x10Test {
 				// n:[1,1,1,1]
 			}
 			// k:[0,1,0,2] n:[0,1,1,1] i:[1,1,1,2] j:[0,0,0,1] q:[0,0,0,1]
-			//f(k); // ERR
-			//f(n); // ERR
-			//f(j); // ERR
+			f(k); // ERR
+			f(n); // ERR
+			f(j); // ERR
 			f(m); f(i); 
 			k=11;
 			// k:[1,2,1,3]
@@ -60,13 +60,13 @@ class XTENLANG_1565 extends x10Test {
 		}
 		// k:[1,3,1,3] n:[1,1,1,1] i:[1,2,1,2] j:[0,1,0,1] q:[0,1,0,1]
 		f(k); f(n); f(m); f(i); 
-		//f(j); // ERR
+		f(j); // ERR
 		f(q);
 		j=12;
 		// j:[1,2,1,2]
 		f(j);
 	}
-	def f(i:Int):Int=i+1;
+	final def f(i:Int):Int=i+1;
 
     public def run(): boolean {
         return true;

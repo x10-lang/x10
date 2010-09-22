@@ -24,7 +24,7 @@ public class RootedCall extends x10Test {
     }
 
     public def run(): boolean = {
-	var a:A! = new A();
+	var a:A = new A();
 	a.m(); // ok
 	return true;
     }

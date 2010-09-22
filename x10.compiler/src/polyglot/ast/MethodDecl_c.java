@@ -15,6 +15,7 @@ import polyglot.types.*;
 import polyglot.util.*;
 import polyglot.visit.*;
 import x10.errors.Errors;
+import x10.types.X10Flags;
 
 /**
  * A method declaration.
@@ -180,7 +181,28 @@ public class MethodDecl_c extends Term_c implements MethodDecl
 	if (ct.flags().isInterface()) {
 	    flags = flags.Public().Abstract();
 	}
-	
+
+    // If the class is safe, mark all the methods safe. (what about ctors? this code should also be in ctors) 
+    // The method inherits the flags of the enclosing containers (only for safe. The other modifiers will be removed: pinned, nonblocking, sequential)
+    boolean shouldAddSafe = false;
+    if (!X10Flags.toX10Flags(flags).isSafe()) {
+        ClassDef container = ct;
+        while (container!=null) {
+            if (X10Flags.toX10Flags(container.flags()).isSafe())
+                shouldAddSafe = true;
+            Ref<? extends ClassDef> ref = container.outer();
+            if (ref==null) break;
+            container = ref.get();
+        }
+    }
+    MethodDecl_c n = this;
+    if (shouldAddSafe) {
+        // we need to change both the def and the decl
+        flags = X10Flags.toX10Flags(flags).Safe(); // these flags are for the def
+        n = (MethodDecl_c) n.flags(n.flags().flags(flags)); // changing the decl
+    }
+
+
 	MethodDef mi = createMethodDef(ts, ct, flags);
         ct.addMethod(mi);
 	
@@ -189,7 +211,7 @@ public class MethodDecl_c extends Term_c implements MethodDecl
 	final TypeBuilder tbx = tb;
 	final MethodDef mix = mi;
 	
-	MethodDecl_c n = (MethodDecl_c) this.visitSignature(new NodeVisitor() {
+	n = (MethodDecl_c) n.visitSignature(new NodeVisitor() {
             public Node override(Node n) {
                 return MethodDecl_c.this.visitChild(n, tbx.pushCode(mix));
             }

@@ -11,6 +11,7 @@
 
 import x10.util.Box;
 import harness.x10Test;
+import x10.util.Future;
 
 /**
  * Checks if creation and force of Future in different activities work.
@@ -39,8 +40,8 @@ public class FutureTest5 extends x10Test {
 	 */
 	private def testUp_(val del: boolean): boolean = {
 		atomic fut = null;
-		async (here) {
-			val t1 = Future.make( () => 42);
+		async {
+			val t1 = Future.make( () => 42 );
 			atomic fut = t1 as Box[Future[Int]];
 			if (del)
 				Activity.sleep(500);
@@ -57,7 +58,7 @@ public class FutureTest5 extends x10Test {
 	 */
 	private def testDown_(): boolean = {
 		val fut_l = Future.make( () => 42 );
-		finish async (here) {
+		finish async {
 			var fortytwo: int = fut_l.force();
 			x10.io.Console.OUT.println("down done");
 		};
@@ -69,13 +70,13 @@ public class FutureTest5 extends x10Test {
 	 */
 	private def testSibling_(val del: boolean): boolean = {
 		atomic fut = null;
-		async (here) {
+		async {
 			val t1= Future.make( () => 42 );
 			atomic fut = t1 as Box[Future[Int]];
 			if (del)
 				Activity.sleep(500);
 		}
-		finish async (here) {
+		finish async {
 			var t2: Future[Int];
 			when (fut != null) { t2 = fut(); }
 			var fortytwo: int = t2.force();

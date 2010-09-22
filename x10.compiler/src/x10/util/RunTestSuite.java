@@ -105,8 +105,14 @@ public class RunTestSuite {
     private static void compileFiles(List<File> files, List<String> args) throws IOException {
         // replace \ with /
         ArrayList<String> fileNames = new ArrayList<String>(files.size());
-        for (File f : files)
+        for (File f : files) {
+            final BufferedReader in = new BufferedReader(new FileReader(f));
+            String firstLine = in.readLine();
+            in.close();
+            if (firstLine.contains("IGNORE_FILE"))
+                continue;
             fileNames.add(f.getAbsolutePath().replace('\\','/'));
+        }
         // adding the directories of the files to -sourcepath (in case they refer to other files that are not compiled, e.g., if we decide to compile the files one by one)
         HashSet<String> directories = new HashSet<String>();
         for (String f : fileNames) {
@@ -169,10 +175,12 @@ public class RunTestSuite {
                         System.err.println("File "+file+" has an ERR marker on line "+lineNum+", but the compiler didn't report an error on that line!");
                 }
             }
+            in.close();
             if (!foundErr && file.getName().endsWith("_MustFailCompile.x10")) {
                 System.err.println("File "+file+" ends in _MustFailCompile.x10 but it doesn't contain any 'ERR' markers!");
             }
         }
+
         // 2. report all the remaining errors that didn't have a matching ERR marker
         // first report warnings
         int warningCount = 0;
