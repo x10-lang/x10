@@ -1725,6 +1725,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     	return result;
     }
 
+    // FIXME: unify with TypeEnv_c.checkOverride()
     private void superCheckOverride(X10MethodInstance mi, X10MethodInstance mj, boolean allowCovariantReturn) throws SemanticException {
         if (mi == mj)
             return;
@@ -1743,31 +1744,36 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                                         "; different number of arguments",
                                         mi.position());
         }
+        if (mi.typeParameters().size() != mj.typeParameters().size()) {
+            throw new SemanticException(mi.signature() + " in " + mi.container() +
+                                        " cannot override " + 
+                                        mj.signature() + " in " + mj.container() + 
+                                        "; different number of type parameters",
+                                        mi.position());
+        }
 
         List<LocalInstance> miFormals = mi.formalNames();
         assert miFormals.size() ==  mj.formalNames().size();
         
-        boolean allEqual = false;
         XVar[] newSymbols = genSymbolicVars(mj.formalNames().size());
         X10TypeSystem xts = (X10TypeSystem) mi.typeSystem();
         XVar[] miSymbols = Matcher.getSymbolicNames(mi.formalTypes(), mi.formalNames(),xts);
         XVar[] mjSymbols = Matcher.getSymbolicNames(mj.formalTypes(), mj.formalNames(),xts);
         
-        if (mi.typeParameters().size() == mj.typeParameters().size() 
-        		&& mi.formalTypes().size() == mj.formalTypes().size()) {
-            allEqual = true;
-//            List<SubtypeConstraint> env = new ArrayList<SubtypeConstraint>();
-//            for (int j = 0; j < mi.typeParameters().size(); j++) {
-//                Type p1 = mi.typeParameters().get(j);
-//                Type p2 = mj.typeParameters().get(j);
-//                env.add(new SubtypeConstraint(p1, p2, true));
-//            }
-            TypeParamSubst tps = new TypeParamSubst(xts, mi.typeParameters(), mj.x10Def().typeParameters());
-            List<Type> miTypes = Subst.subst(mi.formalTypes(), newSymbols, miSymbols);
-            List<Type> mjTypes = Subst.subst(mj.formalTypes(), newSymbols, mjSymbols);
-            if (!CollectionUtil.allElementwise(miTypes, tps.reinstantiate(mjTypes), new TypeEquals(context))) {
-                allEqual = false;
-            }
+        TypeParamSubst tps = new TypeParamSubst(xts, mi.typeParameters(), mj.x10Def().typeParameters());
+        assert (mi.typeParameters().size() == mj.typeParameters().size() &&
+                mi.formalTypes().size() == mj.formalTypes().size());
+        boolean allEqual = true;
+//        List<SubtypeConstraint> env = new ArrayList<SubtypeConstraint>();
+//        for (int j = 0; j < mi.typeParameters().size(); j++) {
+//            Type p1 = mi.typeParameters().get(j);
+//            Type p2 = mj.typeParameters().get(j);
+//            env.add(new SubtypeConstraint(p1, p2, true));
+//        }
+        List<Type> miTypes = Subst.subst(mi.formalTypes(), newSymbols, miSymbols);
+        List<Type> mjTypes = Subst.subst(mj.formalTypes(), newSymbols, mjSymbols);
+        if (!CollectionUtil.allElementwise(miTypes, tps.reinstantiate(mjTypes), new TypeEquals(context))) {
+            allEqual = false;
         }
 
         if (!allEqual) {
@@ -1780,7 +1786,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
         Type miRet = Subst.subst(mi.returnType(), newSymbols, miSymbols);
         Type mjRet = Subst.subst(mj.returnType(), newSymbols, mjSymbols);
-        if (! isSubtype(miRet, mjRet)) {
+        if (! isSubtype(miRet, tps.reinstantiate(mjRet))) {
             if (Report.should_report(Report.types, 3))
                 Report.report(3, "return type " + mi.returnType() + " != " + mj.returnType());
             throw new Errors.IncompatibleReturnType(mi, mj);
