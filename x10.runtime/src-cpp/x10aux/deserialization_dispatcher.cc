@@ -64,7 +64,7 @@ serialization_id_t DeserializationDispatcher::addDeserializer_ (Deserializer des
     // up RAM unnecessarily
     ensure_data_size(data_v, next_id+1, data_c);
     serialization_id_t r = next_id++;
-    _S_("DeserializationDispatcher registered the following handler for id: "
+    _S_("DeserializationDispatcher "<<this<<" "<<(this==it?"(the system one) ":"")<<"registered the following handler for id: "
         <<r<<": "<<std::hex<<(size_t)deser<<std::dec);
     data_v[r].deser = deser;
     data_v[r].has_mt = is_async;
