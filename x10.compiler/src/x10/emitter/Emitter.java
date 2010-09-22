@@ -2311,10 +2311,6 @@ public class Emitter {
                         isContainsTypeParams = true;
                         break;
                     }
-//                    if (type instanceof ParameterType) {
-//                        isContainsTypeParams = true;
-//                        break;
-//                    }
                 }
                 if (!isContainsTypeParams) continue;
                 
@@ -2334,58 +2330,77 @@ public class Emitter {
                     targets.add(implemented);
                 }
             }
-            
-            for (MethodInstance target : targets) {
-                boolean isContainsSameSignature = false;
-                Set<Entry<MethodInstance, List<MethodInstance>>> entrySet = dispatcherToMyMethods.entrySet();
-                for (Entry<MethodInstance, List<MethodInstance>> entry : entrySet) {
-                    
-                    MethodDef md = entry.getKey().def();
-                    MethodDef td = target.def();
-                    if (md.name().equals(td.name()) && md.formalTypes().size() == td.formalTypes().size()) {
-                        List<Ref<? extends Type>> formalTypes = md.formalTypes();
-                        isContainsSameSignature = true;
-                        for (int i = 0; i < formalTypes.size(); ++i) {
-                            Type ft = formalTypes.get(i).get();
-                            Type tt = td.formalTypes().get(i).get();
-                            if ((ft instanceof ParameterType && td.formalTypes().get(i).get() instanceof ParameterType)) {}
-                            else if (ft instanceof X10ClassType && tt instanceof X10ClassType && ((X10ClassType) ft).name().toString().equals(((X10ClassType) tt).name().toString())) {}
-                            else {
-                                isContainsSameSignature = false;
-                                break;
-                            }
-                        }
-                        if (isContainsSameSignature) {
-                            entry.getValue().add(myMethod);
-                        }
-                    }
-                }
-                if (isContainsSameSignature) break;
-                
-                ArrayList<MethodInstance> mis = new ArrayList<MethodInstance>();
-                mis.add(myMethod);
-                dispatcherToMyMethods.put(target, mis);
-            }
+            add(dispatcherToMyMethods, myMethod, targets);
+        }
+        
+        List<MethodInstance> inheriteds = new ArrayList<MethodInstance>();
+        getInheritedMethods(ct, inheriteds);
+        for (MethodInstance mi : inheriteds) {
+            List<MethodInstance> implMethods = new ArrayList<MethodInstance>();
+            List<Type> interfaces = ct.interfaces();
+            getImplMethodsForDispatch(mi, implMethods, interfaces);
+            add(dispatcherToMyMethods, mi, implMethods);
         }
 
         Set<Entry<MethodInstance, List<MethodInstance>>> entrySet = dispatcherToMyMethods.entrySet();
         for (Entry<MethodInstance, List<MethodInstance>> entry : entrySet) {
             printDispatchMethod(entry.getKey(), entry.getValue());
         }
-        
-//        List<MethodInstance> inheriteds = new ArrayList<MethodInstance>();
-//        getInheritedMethods(ct, inheriteds); // not implement
-//        for (MethodInstance mi : inheriteds) {
-//            StructType st = mi.def().container().get();
-//            System.out.println(mi);
-//            if (st instanceof X10ParsedClassType) {
-//                if (((X10ParsedClassType) st).flags().isInterface()) {
-//                    ArrayList<MethodInstance> mis = new ArrayList<MethodInstance>();
-//                    mis.add(mi);
-//                    printDispatchMethod(mi, mis);
-//                }
-//            }
-//        }
+    }
+
+    private void add(Map<MethodInstance, List<MethodInstance>> dispatcherToMyMethods, MethodInstance myMethod,
+                      List<MethodInstance> targets) {
+        for (MethodInstance target : targets) {
+            boolean isContainsSameSignature = false;
+            Set<Entry<MethodInstance, List<MethodInstance>>> entrySet = dispatcherToMyMethods.entrySet();
+            for (Entry<MethodInstance, List<MethodInstance>> entry : entrySet) {
+                
+                MethodDef md = entry.getKey().def();
+                MethodDef td = target.def();
+                if (md.name().equals(td.name()) && md.formalTypes().size() == td.formalTypes().size()) {
+                    List<Ref<? extends Type>> formalTypes = md.formalTypes();
+                    isContainsSameSignature = true;
+                    for (int i = 0; i < formalTypes.size(); ++i) {
+                        Type ft = formalTypes.get(i).get();
+                        Type tt = td.formalTypes().get(i).get();
+                        if ((ft instanceof ParameterType && td.formalTypes().get(i).get() instanceof ParameterType)) {}
+                        else if (ft instanceof X10ClassType && tt instanceof X10ClassType && ((X10ClassType) ft).name().toString().equals(((X10ClassType) tt).name().toString())) {}
+                        else {
+                            isContainsSameSignature = false;
+                            break;
+                        }
+                    }
+                    if (isContainsSameSignature) {
+                        entry.getValue().add(myMethod);
+                    }
+                }
+            }
+            if (isContainsSameSignature) break;
+            
+            ArrayList<MethodInstance> mis = new ArrayList<MethodInstance>();
+            mis.add(myMethod);
+            dispatcherToMyMethods.put(target, mis);
+        }
+    }
+
+    private void getImplMethodsForDispatch(MethodInstance mi, List<MethodInstance> implMethods, List<Type> interfaces) {
+        for (Type type : interfaces) {
+            if (type instanceof X10ClassType) {
+                List<MethodInstance> imis = ((X10ClassType) type).methods();
+                for (MethodInstance imi : imis) {
+                    if (!(imi.name().equals(mi.name()) && imi.formalTypes().size() == mi.formalTypes().size())) continue;
+                    if (isContainSameSignature(implMethods, imi)) continue;
+                    List<Ref<? extends Type>> types = imi.def().formalTypes();
+                    for (int i = 0;i < types.size(); ++i) {
+                        if (containsTypeParam(types.get(i).get()) ) {
+                            implMethods.add(imi);
+                            break;
+                        }
+                    }
+                }
+                getImplMethodsForDispatch(mi, implMethods, ((X10ClassType) type).interfaces());
+            }
+        }
     }
     
     private void getAllInterfaces(List<Type> interfaces, List<Type> allInterfaces) {
@@ -2435,25 +2450,11 @@ public class Emitter {
         
         // e.g int m() overrides or implements T m()
         boolean instantiateReturnType = X10TypeMixin.baseType(def.returnType().get()) instanceof ParameterType;
-//        if (instantiateReturnType) {
-//            printType(dispatch.returnType(), X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
-//        }
-//        else {
-//            if (containsTypeParam(def.returnType().get())) {
-//                
-//            }
-//            printType(dispatch.returnType(), X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
-//        }
         w.write(X10PrettyPrinterVisitor.JAVA_LANG_OBJECT);
         
         w.allowBreak(2, 2, " ", 1);
         w.write(mangleToJava(dispatch.name()));
         
-        
-//        if (instantiateReturnType) {
-//            w.write(X10PrettyPrinterVisitor.RETURN_PARAMETER_TYPE_SUFFIX);
-//        }
-
         w.write("(");
         Name[] names = new Name[def.formalTypes().size()];
         for (int i = 0; i < def.formalTypes().size(); i++) {
@@ -2464,7 +2465,6 @@ public class Emitter {
             }
             Type type = def.formalTypes().get(i).get();
             if (containsTypeParam(type)) {
-//                if (X10TypeMixin.baseType(type) instanceof ParameterType) {
                 if (type instanceof ParameterType) {
                     w.write(X10PrettyPrinterVisitor.JAVA_LANG_OBJECT);
                 } else {
