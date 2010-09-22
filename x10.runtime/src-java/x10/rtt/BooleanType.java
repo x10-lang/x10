@@ -72,7 +72,7 @@ public class BooleanType extends RuntimeType<Boolean> {
     @Override
     public Fun_0_2<Boolean, Boolean, Boolean> andOperator() {
         return new Fun_0_2<Boolean, Boolean, Boolean>() {
-            public Boolean apply$G(Boolean x, Boolean y) {
+            public Boolean apply(Boolean x, Type t1, Boolean y, Type t2) {
                 return x & y;
             }
             public RuntimeType<?> getRTT() { return _RTT; }
@@ -83,7 +83,7 @@ public class BooleanType extends RuntimeType<Boolean> {
     @Override
     public Fun_0_2<Boolean, Boolean, Boolean> orOperator() {
         return new Fun_0_2<Boolean, Boolean, Boolean>() {
-            public Boolean apply$G(Boolean x, Boolean y) {
+            public Boolean apply(Boolean x, Type t1, Boolean y, Type t2) {
                 return x | y;
             }
             public RuntimeType<?> getRTT() { return _RTT; }
@@ -94,7 +94,7 @@ public class BooleanType extends RuntimeType<Boolean> {
     @Override
     public Fun_0_1<Boolean, Boolean> notOperator() {
         return new Fun_0_1<Boolean, Boolean>() {
-            public Boolean apply$G(Boolean x) {
+            public Boolean apply(Boolean x, Type t) {
                 return !x;
             }
             public RuntimeType<?> getRTT() { return _RTT; }

@@ -679,19 +679,20 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         }
       
         
-        Map<X10ClassDef,X10ClassType> map = new HashMap<X10ClassDef, X10ClassType>();
-        for (X10ClassType ct : supers) {
-            X10ClassType t = map.get(ct.x10Def());
-            if (t != null) {
-                if (!t.typeEquals(ct, tc.context())) {
-                    String kind = ct.flags().isInterface() ? "interface" : "class";
-                    Errors.issue(tc.job(),
-                                 new Errors.CannotExtendTwoInstancesSameInterfaceLimitation(t, ct,
-                                                                                            position()));
-                }
-            }
-            map.put(ct.x10Def(), ct);
-        }
+        // fix for XTENLANG-978
+//        Map<X10ClassDef,X10ClassType> map = new HashMap<X10ClassDef, X10ClassType>();
+//        for (X10ClassType ct : supers) {
+//            X10ClassType t = map.get(ct.x10Def());
+//            if (t != null) {
+//                if (!t.typeEquals(ct, tc.context())) {
+//                    String kind = ct.flags().isInterface() ? "interface" : "class";
+//                    Errors.issue(tc.job(),
+//                                 new Errors.CannotExtendTwoInstancesSameInterfaceLimitation(t, ct,
+//                                                                                            position()));
+//                }
+//            }
+//            map.put(ct.x10Def(), ct);
+//        }
         
     	n = (X10ClassDecl_c) n.adjustAbstractMethods(oldtc);
     	

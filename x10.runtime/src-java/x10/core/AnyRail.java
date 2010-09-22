@@ -11,7 +11,7 @@
 
 package x10.core;
 
-public interface AnyRail<T> extends Indexable<Integer,T>, Iterable<T> {
+public interface AnyRail<T> extends x10.lang.Indexable<Integer,T>, x10.lang.Iterable<T> {
 
     // Methods to get the backing array.   May be called by generated code.
     public Object getBackingArray();

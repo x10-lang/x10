@@ -21,7 +21,7 @@ import x10.rtt.Types;
 import x10.rtt.UnresolvedType;
 import x10.rtt.RuntimeType.Variance;
 
-public final class Rail<T> extends Ref implements AnyRail<T>, Settable<Integer,T> {
+public final class Rail<T> extends Ref implements AnyRail<T>, x10.lang.Settable<Integer,T> {
     public final int length;
     
     public final Object value;
@@ -49,11 +49,11 @@ public final class Rail<T> extends Ref implements AnyRail<T>, Settable<Integer,T
         System.arraycopy(src.value, src_off, value, dst_off, len);
     }
 
-    public Iterator<T> iterator() {
+    public x10.lang.Iterator<T> iterator() {
 		return new RailIterator();
 	}
 
-	protected class RailIterator implements Iterator<T> {
+	protected class RailIterator implements x10.lang.Iterator<T> {
 		int i = 0;
 
 		public boolean hasNext() {
@@ -126,8 +126,8 @@ public final class Rail<T> extends Ref implements AnyRail<T>, Settable<Integer,T
         return length;
     }
     
-    public T apply$G(Integer i) {
-    	return apply$G((int)i);
+    public T apply(Object i, Type t) {
+    	return apply$G((int)(Integer)i);
     }
 
     public T apply$G(int i) {
@@ -158,7 +158,7 @@ public final class Rail<T> extends Ref implements AnyRail<T>, Settable<Integer,T
         return sb.toString();
     }
 
-    public T set$G(T v, Integer i) {
+    public T set(T v, Type t1, Integer i, Type t2) {
         return set$G(v, (int)i);
     }
 
@@ -172,7 +172,7 @@ public final class Rail<T> extends Ref implements AnyRail<T>, Settable<Integer,T
 
     public void reset(Fun_0_1<Integer,T> v) {
         for (int i=0; i<length; i++) {
-            set$G(v.apply$G(i), i);
+            set$G(v.apply(i, Types.INT), i);
         }
     }
 
@@ -210,9 +210,9 @@ public final class Rail<T> extends Ref implements AnyRail<T>, Settable<Integer,T
         Rail.class, 
         new Variance[] {Variance.INVARIANT},
         new Type<?>[] {
-            new ParameterizedType(Indexable._RTT, Types.INT, new UnresolvedType(0)),
-            new ParameterizedType(Iterable._RTT, new UnresolvedType(0)),
-            new ParameterizedType(Settable._RTT, Types.INT, new UnresolvedType(0))
+            new ParameterizedType(x10.lang.Indexable._RTT, Types.INT, new UnresolvedType(0)),
+            new ParameterizedType(x10.lang.Iterable._RTT, new UnresolvedType(0)),
+            new ParameterizedType(x10.lang.Settable._RTT, Types.INT, new UnresolvedType(0))
         }
     ) {
         @Override

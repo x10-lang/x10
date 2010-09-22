@@ -14,7 +14,6 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-@NativeRep("java", "x10.core.Indexable<#1, #2>", null, "new x10.rtt.ParameterizedType(x10.core.Indexable._RTT, #2, #4)")
 public interface Indexable[-I,+V] extends (I)=>V {
 }
 

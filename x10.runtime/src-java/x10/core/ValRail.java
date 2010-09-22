@@ -45,7 +45,7 @@ public final class ValRail<T> implements AnyRail<T> {
         System.arraycopy(value, src_off, dst.value, dst_off, len);
     }
 
-	public Iterator<T> iterator() {
+	public x10.lang.Iterator<T> iterator() {
 		return new RailIterator();
 	}
 
@@ -62,7 +62,7 @@ public final class ValRail<T> implements AnyRail<T> {
         return false;
     }
 
-    protected class RailIterator implements Iterator<T> {
+    protected class RailIterator implements x10.lang.Iterator<T> {
 		int i = 0;
 
 		public boolean hasNext() {
@@ -135,14 +135,14 @@ public final class ValRail<T> implements AnyRail<T> {
     	return length;
     }
     
-    public T apply$G(Integer i) {
-    	return apply$G((int)i);
+    public T apply(Object i, Type t) {
+    	return apply$G((int)(Integer)i);
     }
     public T apply$G(int i) {
         return type.getArray(value, i);
     }
     
-    protected T set$G(T v, Integer i) {
+    protected T set(T v, Type t1, Integer i, Type t2) {
     	return set$G(v, (int)i);
     }
 
@@ -178,8 +178,8 @@ public final class ValRail<T> implements AnyRail<T> {
         ValRail.class,
         new Variance[] {Variance.COVARIANT},
         new Type<?>[] {
-            new ParameterizedType(Indexable._RTT, Types.INT, new UnresolvedType(0)),
-            new ParameterizedType(Iterable._RTT, new UnresolvedType(0))
+            new ParameterizedType(x10.lang.Indexable._RTT, Types.INT, new UnresolvedType(0)),
+            new ParameterizedType(x10.lang.Iterable._RTT, new UnresolvedType(0))
         }
     ) {
         @Override

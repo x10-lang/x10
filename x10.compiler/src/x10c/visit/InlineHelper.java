@@ -219,7 +219,13 @@ public class InlineHelper extends ContextVisitor {
                             excTypes.add(tn.typeRef());
                         }
                         
-                        Expr call = xnf.Call(pos, xnf.Local(pos, xnf.Id(pos, cd.name())).type(cd.asType()), mdcl.name(), args).methodInstance(mdcl.methodDef().asInstance()).type(mdcl.returnType().type());
+                        Expr call;
+                        if (mdcl.flags().flags().isStatic()) {
+                            call = xnf.Call(pos, xnf.CanonicalTypeNode(pos, cd.asType()), mdcl.name(), args).methodInstance(mdcl.methodDef().asInstance()).type(mdcl.returnType().type());
+                        } else {
+                            call = xnf.Call(pos, xnf.Local(pos, xnf.Id(pos, cd.name())).type(cd.asType()), mdcl.name(), args).methodInstance(mdcl.methodDef().asInstance()).type(mdcl.returnType().type());
+                        }
+                        
                         Block body;
                         if (mdcl.returnType().type().isVoid()) {
                             body = xnf.Block(pos, xnf.Eval(pos, call));
