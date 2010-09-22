@@ -125,6 +125,19 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 		return lis;
 	}
 
+	public X10Formal flags(FlagsNode fn) {
+	    return (X10Formal) super.flags(fn);
+	}
+	public X10Formal type(TypeNode type) {
+	    return (X10Formal) super.type(type);
+	}
+	public X10Formal name(Id name) {
+	    return (X10Formal) super.name(name);
+	}
+	public X10Formal localDef(LocalDef li) {
+	    return (X10Formal) super.localDef(li);
+	}
+
 	/* (non-Javadoc)
 	 * @see polyglot.ext.jl.ast.Formal#addDecls()
 	 */

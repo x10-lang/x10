@@ -13,9 +13,12 @@ package x10.ast;
 
 import java.util.List;
 
+import polyglot.ast.FlagsNode;
 import polyglot.ast.Formal;
+import polyglot.ast.Id;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Stmt;
+import polyglot.ast.TypeNode;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
 import polyglot.types.SemanticException;
@@ -34,6 +37,11 @@ public interface X10Formal extends Formal, X10VarDecl {
 
    /** Get the local instances of the bound variables. */
    public LocalDef[] localInstances();
+
+   public X10Formal flags(FlagsNode fn);
+   public X10Formal type(TypeNode type);
+   public X10Formal name(Id name);
+   public X10Formal localDef(LocalDef li);
 
    /**
     * Return a list of statements containing the initializations for the exploded vars,

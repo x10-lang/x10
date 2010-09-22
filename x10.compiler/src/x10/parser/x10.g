@@ -650,7 +650,7 @@
                     }
                     else {
                         syntaxError("Duplicate specification of modifier: " + modifier.name(), modifier.position());
-                     }
+                    }
 
                     if (! legal_flags[modifier.flag()]) {
                         syntaxError("\"" + modifier.name() + "\" is not a valid " + kind + " modifier", modifier.position());
@@ -757,12 +757,15 @@
                 return new String(prsStream.getInputChars(), offset(), endOffset() - offset() + 1);
             }
         }
-        
+
         public void syntaxError(String msg, Position pos) {
-                    unrecoverableSyntaxError = true;
-                    eq.enqueue(ErrorInfo.SYNTAX_ERROR, msg, pos);
-                }   
-        
+            syntaxError(msg, pos, false);
+        }
+
+        public void syntaxError(String msg, Position pos, boolean unrecoverable) {
+            unrecoverableSyntaxError = unrecoverable;
+            eq.enqueue(ErrorInfo.SYNTAX_ERROR, msg, pos);
+        }
 
         public $ast_class parse() {
             try
@@ -1295,10 +1298,16 @@
                     List<Node> modifiers = checkTypeDefModifiers(Modifiersopt);
                     FlagsNode f = extractFlags(modifiers);
                     List<AnnotationNode> annotations = extractAnnotations(modifiers);
-                    for (Formal v : (List<Formal>) FormalParametersopt) {
-                        if (!v.flags().flags().isFinal()) syntaxError("Type definition parameters must be final.", v.position());
+                    List<Formal> formals = new ArrayList<Formal>();
+                    for (Formal v : FormalParametersopt) {
+                        FlagsNode flags = v.flags();
+                        if (!flags.flags().isFinal()) {
+                            syntaxError("Type definition parameters must be final.", v.position());
+                            v = v.flags(flags.flags(flags.flags().Final()));
+                        }
+                        formals.add(v);
                     }
-                    TypeDecl cd = nf.TypeDecl(pos(), f, Identifier, TypeParametersopt, FormalParametersopt, WhereClauseopt, Type);
+                    TypeDecl cd = nf.TypeDecl(pos(), f, Identifier, TypeParametersopt, formals, WhereClauseopt, Type);
                     cd = (TypeDecl) ((X10Ext) cd.ext()).annotations(annotations);
                     setResult(cd);
           $EndJava
@@ -1306,7 +1315,7 @@
         
     Properties ::= ( PropertyList )
       /.$BeginJava
-       setResult(PropertyList);
+                    setResult(PropertyList);
      $EndJava ./
 
        PropertyList ::= Property
@@ -1334,287 +1343,315 @@
 
     MethodDeclaration ::= MethodModifiersopt def Identifier TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
         /.$BeginJava
-           List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
-           ProcedureDecl pd;
-           if (Identifier.id().toString().equals("this")) {
-                       pd = nf.X10ConstructorDecl(pos(),
-                                                 extractFlags(modifiers),
-                                                 Identifier,
-                                                 HasResultTypeopt,
-                                                 TypeParametersopt,
-                                                 FormalParameters,
-                                                 WhereClauseopt,
-                                                 Throwsopt,
-                                                 Offersopt,
-                                                 MethodBody);
+                    List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
+                    ProcedureDecl pd;
+                    if (Identifier.id().toString().equals("this")) {
+                        pd = nf.X10ConstructorDecl(pos(),
+                                                   extractFlags(modifiers),
+                                                   Identifier,
+                                                   HasResultTypeopt,
+                                                   TypeParametersopt,
+                                                   FormalParameters,
+                                                   WhereClauseopt,
+                                                   Throwsopt,
+                                                   Offersopt,
+                                                   MethodBody);
 
-              }
-              else {
-           pd = nf.X10MethodDecl(pos(),
-              extractFlags(modifiers),
-              HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
-              Identifier,
-              TypeParametersopt,
-              FormalParameters,
-              WhereClauseopt,
-              Throwsopt,
-              Offersopt,
-              MethodBody);
-          }
-          pd = (ProcedureDecl) ((X10Ext) pd.ext()).annotations(extractAnnotations(modifiers));
-          setResult(pd);
+                    }
+                    else {
+                        pd = nf.X10MethodDecl(pos(),
+                                              extractFlags(modifiers),
+                                              HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
+                                              Identifier,
+                                              TypeParametersopt,
+                                              FormalParameters,
+                                              WhereClauseopt,
+                                              Throwsopt,
+                                              Offersopt,
+                                              MethodBody);
+                    }
+                    pd = (ProcedureDecl) ((X10Ext) pd.ext()).annotations(extractAnnotations(modifiers));
+                    setResult(pd);
           $EndJava
         ./
       | MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) BinOp ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
         /.$BeginJava
-           List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
-           Name opName = X10Binary_c.binaryMethodName(BinOp);
-           if (opName == null) {
-               syntaxError("Cannot override binary operator '"+BinOp+"'.", pos());
-               opName = Name.make("invalid operator");
-           }
-           MethodDecl md = nf.X10MethodDecl(pos(),
-              extractFlags(modifiers),
-              HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
-              nf.Id(pos(getRhsFirstTokenIndex($BinOp)), opName),
-              TypeParametersopt,
-              Arrays.<Formal>asList(fp1, fp2),
-              WhereClauseopt,
-              Throwsopt,
-              Offersopt,
-              MethodBody);
-          if (! md.flags().flags().isStatic())
-              syntaxError("Binary operator with two parameters must be static.", md.position());
-          md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(modifiers));
-          setResult(md);
+                    List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
+                    Name opName = X10Binary_c.binaryMethodName(BinOp);
+                    if (opName == null) {
+                        syntaxError("Cannot override binary operator '"+BinOp+"'.", pos());
+                        opName = Name.make("invalid operator");
+                    }
+                    MethodDecl md = nf.X10MethodDecl(pos(),
+                                                     extractFlags(modifiers),
+                                                     HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
+                                                     nf.Id(pos(getRhsFirstTokenIndex($BinOp)), opName),
+                                                     TypeParametersopt,
+                                                     Arrays.<Formal>asList(fp1, fp2),
+                                                     WhereClauseopt,
+                                                     Throwsopt,
+                                                     Offersopt,
+                                                     MethodBody);
+                    FlagsNode flags = md.flags();
+                    if (! flags.flags().isStatic()) {
+                        syntaxError("Binary operator with two parameters must be static.", md.position());
+                        md = md.flags(flags.flags(flags.flags().Static()));
+                    }
+                    md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(modifiers));
+                    setResult(md);
           $EndJava
         ./
       | MethodModifiersopt operator TypeParametersopt PrefixOp ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
         /.$BeginJava
-           List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
-           Name opName = X10Unary_c.unaryMethodName(PrefixOp);
-           if (opName == null) {
-               syntaxError("Cannot override unary operator '"+PrefixOp+"'.", pos());
-               opName = Name.make("invalid operator");
-           }
-           MethodDecl md = nf.X10MethodDecl(pos(),
-              extractFlags(modifiers),
-              HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
-              nf.Id(pos(getRhsFirstTokenIndex($PrefixOp)), opName),
-              TypeParametersopt,
-              Collections.<Formal>singletonList(fp2),
-              WhereClauseopt,
-              Throwsopt,
-              Offersopt,
-              MethodBody);
-          if (! md.flags().flags().isStatic())
-              syntaxError("Unary operator with one parameter must be static.", md.position());
-          md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(modifiers));
-          setResult(md);
+                    List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
+                    Name opName = X10Unary_c.unaryMethodName(PrefixOp);
+                    if (opName == null) {
+                        syntaxError("Cannot override unary operator '"+PrefixOp+"'.", pos());
+                        opName = Name.make("invalid operator");
+                    }
+                    MethodDecl md = nf.X10MethodDecl(pos(),
+                                                     extractFlags(modifiers),
+                                                     HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
+                                                     nf.Id(pos(getRhsFirstTokenIndex($PrefixOp)), opName),
+                                                     TypeParametersopt,
+                                                     Collections.<Formal>singletonList(fp2),
+                                                     WhereClauseopt,
+                                                     Throwsopt,
+                                                     Offersopt,
+                                                     MethodBody);
+                    FlagsNode flags = md.flags();
+                    if (! flags.flags().isStatic()) {
+                        syntaxError("Unary operator with one parameter must be static.", md.position());
+                        md = md.flags(flags.flags(flags.flags().Static()));
+                    }
+                    md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(modifiers));
+                    setResult(md);
           $EndJava
         ./
       | MethodModifiersopt operator TypeParametersopt this BinOp ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
         /.$BeginJava
-           List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
-           Name opName = X10Binary_c.binaryMethodName(BinOp);
-           if (opName == null) {
-               syntaxError("Cannot override binary operator '"+BinOp+"'.", pos());
-               opName = Name.make("invalid operator");
-           }
-           MethodDecl md = nf.X10MethodDecl(pos(),
-              extractFlags(modifiers),
-              HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
-              nf.Id(pos(getRhsFirstTokenIndex($BinOp)), opName),
-              TypeParametersopt,
-              Collections.<Formal>singletonList(fp2),
-              WhereClauseopt,
-              Throwsopt,
-              Offersopt,
-              MethodBody);
-          if (md.flags().flags().isStatic())
-              syntaxError("Binary operator with this parameter cannot be static.", md.position());
-              
-          md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(modifiers));
-          setResult(md);
+                    List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
+                    Name opName = X10Binary_c.binaryMethodName(BinOp);
+                    if (opName == null) {
+                        syntaxError("Cannot override binary operator '"+BinOp+"'.", pos());
+                        opName = Name.make("invalid operator");
+                    }
+                    MethodDecl md = nf.X10MethodDecl(pos(),
+                                                     extractFlags(modifiers),
+                                                     HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
+                                                     nf.Id(pos(getRhsFirstTokenIndex($BinOp)), opName),
+                                                     TypeParametersopt,
+                                                     Collections.<Formal>singletonList(fp2),
+                                                     WhereClauseopt,
+                                                     Throwsopt,
+                                                     Offersopt,
+                                                     MethodBody);
+                    FlagsNode flags = md.flags();
+                    if (flags.flags().isStatic()) {
+                        syntaxError("Binary operator with this parameter cannot be static.", md.position());
+                        md = md.flags(flags.flags(flags.flags().clearStatic()));
+                    }
+                    md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(modifiers));
+                    setResult(md);
           $EndJava
         ./
       | MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) BinOp this WhereClauseopt HasResultTypeopt  Throwsopt Offersopt MethodBody
         /.$BeginJava
-           List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
-           Name opName = X10Binary_c.invBinaryMethodName(BinOp);
-           if (opName == null) {
-               syntaxError("Cannot override binary operator '"+BinOp+"'.", pos());
-               opName = Name.make("invalid operator");
-           }
-           MethodDecl md = nf.X10MethodDecl(pos(),
-              extractFlags(modifiers),
-              HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
-              nf.Id(pos(getRhsFirstTokenIndex($BinOp)), opName),
-              TypeParametersopt,
-              Collections.<Formal>singletonList(fp1),
-              WhereClauseopt,
-              Throwsopt,
-              Offersopt,
-              MethodBody);
-          if (md.flags().flags().isStatic())
-              syntaxError("Binary operator with this parameter cannot be static.", md.position());
-              
-          md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(modifiers));
-          setResult(md);
+                    List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
+                    Name opName = X10Binary_c.invBinaryMethodName(BinOp);
+                    if (opName == null) {
+                        syntaxError("Cannot override binary operator '"+BinOp+"'.", pos());
+                        opName = Name.make("invalid operator");
+                    }
+                    MethodDecl md = nf.X10MethodDecl(pos(),
+                                                     extractFlags(modifiers),
+                                                     HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
+                                                     nf.Id(pos(getRhsFirstTokenIndex($BinOp)), opName),
+                                                     TypeParametersopt,
+                                                     Collections.<Formal>singletonList(fp1),
+                                                     WhereClauseopt,
+                                                     Throwsopt,
+                                                     Offersopt,
+                                                     MethodBody);
+                    FlagsNode flags = md.flags();
+                    if (flags.flags().isStatic()) {
+                        syntaxError("Binary operator with this parameter cannot be static.", md.position());
+                        md = md.flags(flags.flags(flags.flags().clearStatic()));
+                    }
+                    md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(modifiers));
+                    setResult(md);
           $EndJava
         ./
       | MethodModifiersopt operator TypeParametersopt PrefixOp this WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
         /.$BeginJava
-           List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
-           Name opName = X10Unary_c.unaryMethodName(PrefixOp);
-           if (opName == null) {
-               syntaxError("Cannot override unary operator '"+PrefixOp+"'.", pos());
-               opName = Name.make("invalid operator");
-           }
-           MethodDecl md = nf.X10MethodDecl(pos(),
-              extractFlags(modifiers),
-              HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
-              nf.Id(pos(getRhsFirstTokenIndex($PrefixOp)), opName),
-              TypeParametersopt,
-              Collections.<Formal>emptyList(),
-              WhereClauseopt,
-              Throwsopt,
-              Offersopt,
-              MethodBody);
-          if (md.flags().flags().isStatic())
-              syntaxError("Unary operator with this parameter cannot be static.", md.position());
-          md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(modifiers));
-          setResult(md);
+                    List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
+                    Name opName = X10Unary_c.unaryMethodName(PrefixOp);
+                    if (opName == null) {
+                        syntaxError("Cannot override unary operator '"+PrefixOp+"'.", pos());
+                        opName = Name.make("invalid operator");
+                    }
+                    MethodDecl md = nf.X10MethodDecl(pos(),
+                                                     extractFlags(modifiers),
+                                                     HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
+                                                     nf.Id(pos(getRhsFirstTokenIndex($PrefixOp)), opName),
+                                                     TypeParametersopt,
+                                                     Collections.<Formal>emptyList(),
+                                                     WhereClauseopt,
+                                                     Throwsopt,
+                                                     Offersopt,
+                                                     MethodBody);
+                    FlagsNode flags = md.flags();
+                    if (flags.flags().isStatic()) {
+                        syntaxError("Unary operator with this parameter cannot be static.", md.position());
+                        md = md.flags(flags.flags(flags.flags().clearStatic()));
+                    }
+                    md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(modifiers));
+                    setResult(md);
           $EndJava
         ./
       | MethodModifiersopt operator this TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
         /.$BeginJava
-           List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
-           MethodDecl md = nf.X10MethodDecl(pos(),
-              extractFlags(modifiers),
-              HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
-              nf.Id(pos(), ClosureCall.APPLY),
-              TypeParametersopt,
-              FormalParameters,
-              WhereClauseopt,
-              Throwsopt,
-              Offersopt,
-              MethodBody);
-          if (md.flags().flags().isStatic())
-              syntaxError("Apply operator cannot be static.", md.position());
-          md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(modifiers));
-          setResult(md);
+                    List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
+                    MethodDecl md = nf.X10MethodDecl(pos(),
+                                                     extractFlags(modifiers),
+                                                     HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
+                                                     nf.Id(pos(), ClosureCall.APPLY),
+                                                     TypeParametersopt,
+                                                     FormalParameters,
+                                                     WhereClauseopt,
+                                                     Throwsopt,
+                                                     Offersopt,
+                                                     MethodBody);
+                    FlagsNode flags = md.flags();
+                    if (flags.flags().isStatic()) {
+                        syntaxError("Apply operator cannot be static.", md.position());
+                        md = md.flags(flags.flags(flags.flags().clearStatic()));
+                    }
+                    md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(modifiers));
+                    setResult(md);
           $EndJava
         ./
       | MethodModifiersopt operator this TypeParametersopt FormalParameters = ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
         /.$BeginJava
-           List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
-           MethodDecl md = nf.X10MethodDecl(pos(),
-              extractFlags(modifiers),
-              HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
-              nf.Id(pos(), SettableAssign.SET),
-              TypeParametersopt,
-              CollectionUtil.append(Collections.singletonList(fp2), FormalParameters),
-              WhereClauseopt,
-              Throwsopt,
-              Offersopt,
-              MethodBody);
-          if (md.flags().flags().isStatic())
-              syntaxError("Set operator cannot be static.", md.position());
-          md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(modifiers));
-          setResult(md);
+                    List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
+                    MethodDecl md = nf.X10MethodDecl(pos(),
+                                                     extractFlags(modifiers),
+                                                     HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
+                                                     nf.Id(pos(), SettableAssign.SET),
+                                                     TypeParametersopt,
+                                                     CollectionUtil.append(Collections.singletonList(fp2), FormalParameters),
+                                                     WhereClauseopt,
+                                                     Throwsopt,
+                                                     Offersopt,
+                                                     MethodBody);
+                    FlagsNode flags = md.flags();
+                    if (flags.flags().isStatic()) {
+                        syntaxError("Set operator cannot be static.", md.position());
+                        md = md.flags(flags.flags(flags.flags().clearStatic()));
+                    }
+                    md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(modifiers));
+                    setResult(md);
           $EndJava
         ./
       | MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) as Type WhereClauseopt Throwsopt Offersopt MethodBody
         /.$BeginJava
-           List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
-           MethodDecl md = nf.X10MethodDecl(pos(),
-              extractFlags(modifiers),
-              Type,
-              nf.Id(pos(), Converter.operator_as),
-              TypeParametersopt,
-              Collections.<Formal>singletonList(fp1),
-              WhereClauseopt,
-              Throwsopt,
-              Offersopt, 
-              MethodBody);
-          if (! md.flags().flags().isStatic())
-              syntaxError("Conversion operator must be static.", md.position());
-          md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(modifiers));
-          setResult(md);
+                    List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
+                    MethodDecl md = nf.X10MethodDecl(pos(),
+                                                     extractFlags(modifiers),
+                                                     Type,
+                                                     nf.Id(pos(), Converter.operator_as),
+                                                     TypeParametersopt,
+                                                     Collections.<Formal>singletonList(fp1),
+                                                     WhereClauseopt,
+                                                     Throwsopt,
+                                                     Offersopt, 
+                                                     MethodBody);
+                    FlagsNode flags = md.flags();
+                    if (! flags.flags().isStatic()) {
+                        syntaxError("Conversion operator must be static.", md.position());
+                        md = md.flags(flags.flags(flags.flags().Static()));
+                    }
+                    md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(modifiers));
+                    setResult(md);
           $EndJava
         ./
       | MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) as ? WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
         /.$BeginJava
-           List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
-           MethodDecl md = nf.X10MethodDecl(pos(),
-              extractFlags(modifiers),
-              HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
-              nf.Id(pos(), Converter.operator_as),
-              TypeParametersopt,
-              Collections.<Formal>singletonList(fp1),
-              WhereClauseopt,
-              Throwsopt,
-              Offersopt, 
-              MethodBody);
-          if (! md.flags().flags().isStatic())
-              syntaxError("Conversion operator must be static.", md.position());
-          md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(modifiers));
-          setResult(md);
+                    List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
+                    MethodDecl md = nf.X10MethodDecl(pos(),
+                                                     extractFlags(modifiers),
+                                                     HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
+                                                     nf.Id(pos(), Converter.operator_as),
+                                                     TypeParametersopt,
+                                                     Collections.<Formal>singletonList(fp1),
+                                                     WhereClauseopt,
+                                                     Throwsopt,
+                                                     Offersopt, 
+                                                     MethodBody);
+                    FlagsNode flags = md.flags();
+                    if (! flags.flags().isStatic()) {
+                        syntaxError("Conversion operator must be static.", md.position());
+                        md = md.flags(flags.flags(flags.flags().Static()));
+                    }
+                    md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(modifiers));
+                    setResult(md);
           $EndJava
         ./
       | MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
         /.$BeginJava
-           List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
-           MethodDecl md = nf.X10MethodDecl(pos(),
-              extractFlags(modifiers),
-              HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
-              nf.Id(pos(), Converter.implicit_operator_as),
-              TypeParametersopt,
-              Collections.<Formal>singletonList(fp1),
-              WhereClauseopt,
-              Throwsopt,
-              Offersopt,
-              MethodBody);
-          if (! md.flags().flags().isStatic())
-              syntaxError("Conversion operator must be static.", md.position());
-          md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(modifiers));
-          setResult(md);
+                    List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
+                    MethodDecl md = nf.X10MethodDecl(pos(),
+                                                     extractFlags(modifiers),
+                                                     HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
+                                                     nf.Id(pos(), Converter.implicit_operator_as),
+                                                     TypeParametersopt,
+                                                     Collections.<Formal>singletonList(fp1),
+                                                     WhereClauseopt,
+                                                     Throwsopt,
+                                                     Offersopt,
+                                                     MethodBody);
+                    FlagsNode flags = md.flags();
+                    if (! flags.flags().isStatic()) {
+                        syntaxError("Conversion operator must be static.", md.position());
+                        md = md.flags(flags.flags(flags.flags().Static()));
+                    }
+                    md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(modifiers));
+                    setResult(md);
           $EndJava
         ./
 
     PropertyMethodDeclaration ::= MethodModifiersopt Identifier TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt MethodBody
         /.$BeginJava
-           List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
-           MethodDecl md = nf.X10MethodDecl(pos(),
-              extractFlags(modifiers, X10Flags.PROPERTY),
-              HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
-              Identifier,
-              TypeParametersopt,
-              FormalParameters,
-              WhereClauseopt,
-              Collections.<TypeNode>emptyList(),
-              null, // offersOpt
-              MethodBody);
-          md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(modifiers));
-          setResult(md);
+                    List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
+                    MethodDecl md = nf.X10MethodDecl(pos(),
+                                                     extractFlags(modifiers, X10Flags.PROPERTY),
+                                                     HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
+                                                     Identifier,
+                                                     TypeParametersopt,
+                                                     FormalParameters,
+                                                     WhereClauseopt,
+                                                     Collections.<TypeNode>emptyList(),
+                                                     null, // offersOpt
+                                                     MethodBody);
+                    md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(modifiers));
+                    setResult(md);
           $EndJava
         ./
                                 | MethodModifiersopt Identifier WhereClauseopt HasResultTypeopt MethodBody
         /.$BeginJava
-           List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
-           MethodDecl md = nf.X10MethodDecl(pos(),
-              extractFlags(modifiers, X10Flags.PROPERTY),
-              HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
-              Identifier,
-              Collections.<TypeParamNode>emptyList(),
-              Collections.<Formal>emptyList(),
-              WhereClauseopt,
-              Collections.<TypeNode>emptyList(),
-              null, // offersOpt
-              MethodBody);
-          md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(modifiers));
-          setResult(md);
+                    List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
+                    MethodDecl md = nf.X10MethodDecl(pos(),
+                                                     extractFlags(modifiers, X10Flags.PROPERTY),
+                                                     HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
+                                                     Identifier,
+                                                     Collections.<TypeParamNode>emptyList(),
+                                                     Collections.<Formal>emptyList(),
+                                                     WhereClauseopt,
+                                                     Collections.<TypeNode>emptyList(),
+                                                     null, // offersOpt
+                                                     MethodBody);
+                    md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(modifiers));
+                    setResult(md);
           $EndJava
         ./
 
@@ -1641,23 +1678,23 @@
 
     NormalInterfaceDeclaration ::= Modifiersopt interface Identifier TypeParamsWithVarianceopt Propertiesopt WhereClauseopt ExtendsInterfacesopt InterfaceBody
         /.$BeginJava
-          List<Node> modifiers = checkInterfaceModifiers(Modifiersopt);
-          checkTypeName(Identifier);
-          List<TypeParamNode> TypeParametersopt = TypeParamsWithVarianceopt;
-          List<PropertyDecl> props = Propertiesopt;
-          DepParameterExpr ci = WhereClauseopt;
-          FlagsNode fn = extractFlags(modifiers, Flags.INTERFACE);
-          ClassDecl cd = nf.X10ClassDecl(pos(),
-                       fn,
-                       Identifier,
-                       TypeParametersopt,
-                       props,
-                       ci,
-                       null,
-                       ExtendsInterfacesopt,
-                       InterfaceBody);
-          cd = (ClassDecl) ((X10Ext) cd.ext()).annotations(extractAnnotations(modifiers));
-          setResult(cd);
+                    List<Node> modifiers = checkInterfaceModifiers(Modifiersopt);
+                    checkTypeName(Identifier);
+                    List<TypeParamNode> TypeParametersopt = TypeParamsWithVarianceopt;
+                    List<PropertyDecl> props = Propertiesopt;
+                    DepParameterExpr ci = WhereClauseopt;
+                    FlagsNode fn = extractFlags(modifiers, Flags.INTERFACE);
+                    ClassDecl cd = nf.X10ClassDecl(pos(),
+                                                   fn,
+                                                   Identifier,
+                                                   TypeParametersopt,
+                                                   props,
+                                                   ci,
+                                                   null,
+                                                   ExtendsInterfacesopt,
+                                                   InterfaceBody);
+                    cd = (ClassDecl) ((X10Ext) cd.ext()).annotations(extractAnnotations(modifiers));
+                    setResult(cd);
           $EndJava
         ./
 
@@ -1937,53 +1974,54 @@
         
     NormalClassDeclaration ::= Modifiersopt class Identifier TypeParamsWithVarianceopt Propertiesopt WhereClauseopt Superopt Interfacesopt ClassBody
         /.$BeginJava
-          List<Node> modifiers = checkClassModifiers(Modifiersopt);
-          checkTypeName(Identifier);
-          List<TypeParamNode> TypeParametersopt = TypeParamsWithVarianceopt;
-          List<PropertyDecl> props = Propertiesopt;
-          DepParameterExpr ci = WhereClauseopt;
-          FlagsNode f = extractFlags(modifiers);
-          List<AnnotationNode> annotations = extractAnnotations(modifiers);
-          ClassDecl cd = nf.X10ClassDecl(pos(),
-                  f, Identifier, TypeParametersopt, props, ci, Superopt, Interfacesopt, ClassBody);
-          cd = (ClassDecl) ((X10Ext) cd.ext()).annotations(annotations);
-          setResult(cd);
+                    List<Node> modifiers = checkClassModifiers(Modifiersopt);
+                    checkTypeName(Identifier);
+                    List<TypeParamNode> TypeParametersopt = TypeParamsWithVarianceopt;
+                    List<PropertyDecl> props = Propertiesopt;
+                    DepParameterExpr ci = WhereClauseopt;
+                    FlagsNode f = extractFlags(modifiers);
+                    List<AnnotationNode> annotations = extractAnnotations(modifiers);
+                    ClassDecl cd = nf.X10ClassDecl(pos(),
+                                                   f, Identifier, TypeParametersopt, props, ci,
+                                                   Superopt, Interfacesopt, ClassBody);
+                    cd = (ClassDecl) ((X10Ext) cd.ext()).annotations(annotations);
+                    setResult(cd);
           $EndJava
         ./
 
 
     StructDeclaration ::= Modifiersopt struct Identifier TypeParamsWithVarianceopt Propertiesopt WhereClauseopt Interfacesopt ClassBody
         /.$BeginJava
-        List<Node> modifiers = checkClassModifiers(Modifiersopt);
-        checkTypeName(Identifier);
-        List<TypeParamNode> TypeParametersopt = TypeParamsWithVarianceopt;
-        List<PropertyDecl> props = Propertiesopt;
-        DepParameterExpr ci = WhereClauseopt;
-        ClassDecl cd = (nf.X10ClassDecl(pos(getLeftSpan(), getRightSpan()),
-                extractFlags(modifiers, X10Flags.STRUCT), Identifier,  TypeParametersopt,
-                props, ci, null, Interfacesopt, ClassBody));
-        cd = (ClassDecl) ((X10Ext) cd.ext()).annotations(extractAnnotations(modifiers));
-        setResult(cd);
+                    List<Node> modifiers = checkClassModifiers(Modifiersopt);
+                    checkTypeName(Identifier);
+                    List<TypeParamNode> TypeParametersopt = TypeParamsWithVarianceopt;
+                    List<PropertyDecl> props = Propertiesopt;
+                    DepParameterExpr ci = WhereClauseopt;
+                    ClassDecl cd = nf.X10ClassDecl(pos(getLeftSpan(), getRightSpan()),
+                                                   extractFlags(modifiers, X10Flags.STRUCT), Identifier,
+                                                   TypeParametersopt, props, ci, null, Interfacesopt, ClassBody);
+                    cd = (ClassDecl) ((X10Ext) cd.ext()).annotations(extractAnnotations(modifiers));
+                    setResult(cd);
           $EndJava
         ./
 
     ConstructorDeclaration ::= Modifiersopt def this TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt Throwsopt Offersopt ConstructorBody
-       /.$BeginJava
-         List<Node> modifiers = checkConstructorModifiers(Modifiersopt);
-         ConstructorDecl cd = nf.X10ConstructorDecl(pos(),
-                                                 extractFlags(modifiers),
-                                                 nf.Id(pos(getRhsFirstTokenIndex(3)), "this"),
-                                                 HasResultTypeopt,
-                                                 TypeParametersopt,
-                                                 FormalParameters,
-                                                 WhereClauseopt,
-                                                 Throwsopt,
-                                                 Offersopt,
-                                                 ConstructorBody);
-         cd = (ConstructorDecl) ((X10Ext) cd.ext()).annotations(extractAnnotations(modifiers));
-         setResult(cd);
+        /.$BeginJava
+                    List<Node> modifiers = checkConstructorModifiers(Modifiersopt);
+                    ConstructorDecl cd = nf.X10ConstructorDecl(pos(),
+                                                               extractFlags(modifiers),
+                                                               nf.Id(pos(getRhsFirstTokenIndex(3)), "this"),
+                                                               HasResultTypeopt,
+                                                               TypeParametersopt,
+                                                               FormalParameters,
+                                                               WhereClauseopt,
+                                                               Throwsopt,
+                                                               Offersopt,
+                                                               ConstructorBody);
+                    cd = (ConstructorDecl) ((X10Ext) cd.ext()).annotations(extractAnnotations(modifiers));
+                    setResult(cd);
          $EndJava
-       ./
+        ./
        
      Super ::= extends ClassType
         /.$BeginJava
@@ -2378,36 +2416,36 @@
     ForEachStatement ::= foreach ( LoopIndex in Expression ) ClockedClauseopt Statement
         /.$BeginJava
                     FlagsNode fn = LoopIndex.flags();
-                    Flags f = fn.flags();
-                    fn = fn.flags(f);
-                    if (! f.isFinal()) {
-                          syntaxError("Enhanced foreach loop may not have var loop index" + LoopIndex, LoopIndex.position());
+                    if (! fn.flags().isFinal()) {
+                        syntaxError("Enhanced foreach loop may not have var loop index" + LoopIndex, LoopIndex.position());
+                        fn = fn.flags(fn.flags().Final());
+                        LoopIndex = LoopIndex.flags(fn);
                     }
                     setResult(nf.ForEach(pos(),
-                                  LoopIndex.flags(fn),
+                                  LoopIndex,
                                   Expression,
                                   ClockedClauseopt,
                                   Statement));
           $EndJava
         ./ 
-        |  clocked foreach ( LoopIndex in Expression ) Statement
+         | clocked foreach ( LoopIndex in Expression ) Statement
         /.$BeginJava
                     FlagsNode fn = LoopIndex.flags();
-                    Flags f = fn.flags();
-                    fn = fn.flags(f);
-                    if (! f.isFinal()) {
-                          syntaxError("Enhanced foreach loop cannot have var loop index" + LoopIndex, LoopIndex.position());
+                    if (! fn.flags().isFinal()) {
+                        syntaxError("Enhanced foreach loop cannot have var loop index" + LoopIndex, LoopIndex.position());
+                        fn = fn.flags(fn.flags().Final());
+                        LoopIndex = LoopIndex.flags(fn);
                     }
                     setResult(nf.ForEach(pos(),
-                                  LoopIndex.flags(fn),
+                                  LoopIndex,
                                   Expression,
                                   Statement));
           $EndJava
         ./ 
          | foreach ( Expression ) Statement
         /.$BeginJava
-                Id name = nf.Id(pos(), Name.makeFresh());
-                TypeNode type = nf.UnknownTypeNode(pos());
+                    Id name = nf.Id(pos(), Name.makeFresh());
+                    TypeNode type = nf.UnknownTypeNode(pos());
                     setResult(nf.ForEach(pos(),
                             nf.X10Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), type, name, null, true),
                             Expression,
@@ -2417,8 +2455,8 @@
         ./ 
          | clocked foreach ( Expression ) Statement
         /.$BeginJava
-                Id name = nf.Id(pos(), Name.makeFresh());
-                TypeNode type = nf.UnknownTypeNode(pos());
+                    Id name = nf.Id(pos(), Name.makeFresh());
+                    TypeNode type = nf.UnknownTypeNode(pos());
                     setResult(nf.ForEach(pos(),
                             nf.X10Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), type, name, null, true),
                             Expression,
@@ -2429,13 +2467,13 @@
     AtEachStatement ::= ateach ( LoopIndex in Expression ) ClockedClauseopt Statement
         /.$BeginJava
                     FlagsNode fn = LoopIndex.flags();
-                    Flags f = fn.flags();
-                    fn = fn.flags(f);
-                    if (! f.isFinal()) {
-                          syntaxError("Enhanced ateach loop may not have var loop index" + LoopIndex, LoopIndex.position());
+                    if (! fn.flags().isFinal()) {
+                        syntaxError("Enhanced ateach loop may not have var loop index" + LoopIndex, LoopIndex.position());
+                        fn = fn.flags(fn.flags().Final());
+                        LoopIndex = LoopIndex.flags(fn);
                     }
                     setResult(nf.AtEach(pos(),
-                                 LoopIndex.flags(fn),
+                                 LoopIndex,
                                  Expression,
                                  ClockedClauseopt,
                                  Statement));
@@ -2444,21 +2482,21 @@
          | clocked ateach ( LoopIndex in Expression ) Statement
         /.$BeginJava
                     FlagsNode fn = LoopIndex.flags();
-                    Flags f = fn.flags();
-                    fn = fn.flags(f);
-                    if (! f.isFinal()) {
-                          syntaxError("Enhanced ateach loop may not have var loop index" + LoopIndex, LoopIndex.position());
+                    if (! fn.flags().isFinal()) {
+                        syntaxError("Enhanced ateach loop may not have var loop index" + LoopIndex, LoopIndex.position());
+                        fn = fn.flags(fn.flags().Final());
+                        LoopIndex = LoopIndex.flags(fn);
                     }
                     setResult(nf.AtEach(pos(),
-                                 LoopIndex.flags(fn),
+                                 LoopIndex,
                                  Expression,
                                  Statement));
           $EndJava
         ./
      | ateach ( Expression ) Statement
         /.$BeginJava
-                Id name = nf.Id(pos(), Name.makeFresh());
-                TypeNode type = nf.UnknownTypeNode(pos());
+                    Id name = nf.Id(pos(), Name.makeFresh());
+                    TypeNode type = nf.UnknownTypeNode(pos());
                     setResult(nf.AtEach(pos(),
                             nf.X10Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), type, name, null, true),
                             Expression,
@@ -2468,8 +2506,8 @@
         ./ 
          | clocked ateach ( Expression ) Statement
         /.$BeginJava
-                Id name = nf.Id(pos(), Name.makeFresh());
-                TypeNode type = nf.UnknownTypeNode(pos());
+                    Id name = nf.Id(pos(), Name.makeFresh());
+                    TypeNode type = nf.UnknownTypeNode(pos());
                     setResult(nf.AtEach(pos(),
                             nf.X10Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), type, name, null, true),
                             Expression,
@@ -2479,20 +2517,21 @@
     EnhancedForStatement ::= for ( LoopIndex in Expression ) Statement
         /.$BeginJava
                     FlagsNode fn = LoopIndex.flags();
-                    Flags f = fn.flags();
-                    if (! f.isFinal()) {
-                          syntaxError("Enhanced for loop may not have var loop index" + LoopIndex, LoopIndex.position());
+                    if (! fn.flags().isFinal()) {
+                        syntaxError("Enhanced for loop may not have var loop index" + LoopIndex, LoopIndex.position());
+                        fn = fn.flags(fn.flags().Final());
+                        LoopIndex = LoopIndex.flags(fn);
                     }
                     setResult(nf.ForLoop(pos(),
-                            LoopIndex.flags(fn),
+                            LoopIndex,
                             Expression,
                             Statement));
           $EndJava
         ./ 
        | for ( Expression ) Statement
         /.$BeginJava
-                Id name = nf.Id(pos(), Name.makeFresh());
-                TypeNode type = nf.UnknownTypeNode(pos());
+                    Id name = nf.Id(pos(), Name.makeFresh());
+                    TypeNode type = nf.UnknownTypeNode(pos());
                     setResult(nf.ForLoop(pos(),
                             nf.X10Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), type, name, null, true),
                             Expression,
@@ -2541,8 +2580,8 @@
 
     -- The type-checker will ensure that the identifier names a variable declared as a clock.
     Clock ::= Expression
-                /.$BeginJava
-        setResult(Expression);
+        /.$BeginJava
+                    setResult(Expression);
           $EndJava
         ./
 --
@@ -2899,12 +2938,22 @@
                                             TypeDeclarationsopt));
           $EndJava
         ./
-                      | PackageDeclarationopt ImportDeclarations PackageDeclaration$misplacedPackageDeclaration ImportDeclarationsopt$misplacedImportDeclarations TypeDeclarationsopt  -- Extend grammar to accept this illegal construct so that we can fail gracefully
+                      | ImportDeclarations PackageDeclaration$misplacedPackageDeclaration ImportDeclarationsopt$misplacedImportDeclarations TypeDeclarationsopt  -- Extend grammar to accept this illegal construct so that we can fail gracefully
         /.$BeginJava
                     syntaxError("Misplaced package declaration", misplacedPackageDeclaration.position());
                     ImportDeclarations.addAll(misplacedImportDeclarations); // merge the two import lists
                     setResult(nf.SourceFile(pos(getLeftSpan(), getRightSpan()),
-                                            PackageDeclarationopt,
+                                            misplacedPackageDeclaration,
+                                            ImportDeclarations,
+                                            TypeDeclarationsopt));
+          $EndJava
+        ./
+                      | PackageDeclaration ImportDeclarations PackageDeclaration$misplacedPackageDeclaration ImportDeclarationsopt$misplacedImportDeclarations TypeDeclarationsopt  -- Extend grammar to accept this illegal construct so that we can fail gracefully
+        /.$BeginJava
+                    syntaxError("Misplaced package declaration, ignoring", misplacedPackageDeclaration.position());
+                    ImportDeclarations.addAll(misplacedImportDeclarations); // merge the two import lists
+                    setResult(nf.SourceFile(pos(getLeftSpan(), getRightSpan()),
+                                            PackageDeclaration,
                                             ImportDeclarations,
                                             TypeDeclarationsopt));
           $EndJava
