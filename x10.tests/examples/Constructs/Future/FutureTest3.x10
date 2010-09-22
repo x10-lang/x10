@@ -11,6 +11,7 @@
 
 import harness.x10Test;
 
+import x10.util.Future;
 /**
  * Tests exceptions and side effects
  * within activities spawned by a future expression.

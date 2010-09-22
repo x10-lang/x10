@@ -11,6 +11,7 @@
 
 import harness.x10Test;
 
+import x10.util.Future;
 /**
  * Tests that free variables used in e in future { e }
  * are declared final.
@@ -28,25 +29,23 @@ public class FutureTest4_MustFailCompile extends x10Test {
 	 */
 	public def run(): boolean = {
 		val A = DistArray.make[int](Dist.makeBlock([0..N-1, 0..N-1]), 
-		  (var (i,j): Point): int =>  N*i+j);
-		var x: int;
-		var s: int;
-		x = 0;
-		s = 0;
-		for (val (i): Point in 0..N-1) {
+		  ([i,j]: Point): int =>  N*i+j);
+		var x: int=0;
+		var s: int=0;
+		for ([i] in 0..N-1) {
 			s += i;
 			//=== >compiler error: i, s not final
-			x += (future(A.dist([i, s%N] as Point)) { A(i, s%N) }).force();
+			x += Future.make[int](() => at(A.dist([i, s%N] as Point))  A(i, s%N) ).force();
 		}
 		x10.io.Console.OUT.println("x = "+x);
 		if (x != 252) return false;
 		x = 0;
 		s = 0;
-		for (val (i) :Point in 0..N-1) {
+		for ([i]  in 0..N-1) {
 			s += i;
 			val I: int = i; val S: int = s;
 				// no compiler error
-				x += (future(A.dist([I, S%N] as Point)) A(I, S%N) ).force();
+				x += Future.make[int](() => at(A.dist([I, S%N] as Point)) A(I, S%N) ).force();
 			
 		}
 		x10.io.Console.OUT.println("x = "+x);

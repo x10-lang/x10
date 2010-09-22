@@ -29,13 +29,13 @@ public class FutureForce extends x10Test {
 	}
 
 	public def foo(): Int = {
-		var r2: Future[Int] = Future.make( () => at (here) { return bar(); } );
+		var r2: Future[Int] = Future.make( () => at (here) bar() );
 		return 42;
 	}
 
 	public def run(): Boolean = {
 		atomic flag = false;
-		var r1: Future[Int] = Future.make( () => (here) { return foo(); } );
+		var r1: Future[Int] = Future.make( () => at (here) foo() );
 		r1();
 		var b: Boolean;
 		atomic b = flag;
