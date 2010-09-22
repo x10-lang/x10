@@ -159,7 +159,12 @@ public class Types {
             return "x10.lang.Object";
         }
     };
-    public static Type<Object> ANY = new RuntimeType<Object>(Object.class);
+    public static Type<Object> ANY = new RuntimeType<Object>(Object.class) {
+        @Override
+        public String typeName() {
+            return "x10.lang.Any";
+        }
+    };
 
     public static Type<?> UBYTE;
     public static Type<?> USHORT;
