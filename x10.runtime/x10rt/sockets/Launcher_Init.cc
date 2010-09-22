@@ -168,22 +168,28 @@ void Launcher::readHostFile()
 	if (!_hostlist)
 		DIE("Launcher %u: hostname memory allocation failure", _myproc);
 
-/*	_execlist = (char **) malloc(sizeof(char *) * _numchildren);
-	if (!_execlist)
-		DIE("%d: memory allocation failure", _myproc);
-*/
 	uint32_t lineNumber = 0;
+	char buffer[5120];
 	while (lineNumber < _firstchildproc+_numchildren)
 	{
-		char buffer[5120];
-		fgets(buffer, sizeof(buffer), fd);
-		if (feof(fd))
-			break;
+		char* s = fgets(buffer, sizeof(buffer), fd);
+		if (s == NULL)
+		{
+			if (lineNumber == 0)
+				DIE("file \"%s\" can not be empty", _hostfname);
+			// hit the end of the file, so there are more places than lines
+			// I'm told we should wrap around when this happens
+			lineNumber = (_firstchildproc / lineNumber) * lineNumber;
+			rewind(fd);
+			continue;
+		}
 
 		// skip lines that aren't our children
-		lineNumber++;
 		if (lineNumber < _firstchildproc)
+		{
+			lineNumber++;
 			continue;
+		}
 
 		char * p = strtok(buffer, " \t\n\r");
 		int plen = p ? strlen(p) : 0;
@@ -199,20 +205,7 @@ void Launcher::readHostFile()
 		#ifdef DEBUG
 			fprintf(stderr, "Child launcher %i (place %i) is on %s\n", lineNumber-_firstchildproc, lineNumber, host);
 		#endif
-
-		/*
-		p = strtok(NULL, " \t\n\r");
-		plen = p ? strlen(p) : 0;
-		char * exec = NULL;
-		if (plen > 0)
-		{
-			exec = (char *) malloc(plen + 10);
-			if (!exec)
-				DIE("%d: memory allocation failure", _myproc);
-			strcpy(exec, p);
-		}
-		_execlist[lineNumber-_firstchildproc] = exec;
-		*/
+		lineNumber++;
 	}
 	fclose(fd);
 }
