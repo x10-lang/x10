@@ -128,7 +128,7 @@ int Launcher::lookupPlace(uint32_t myPlace, uint32_t destPlace, char* response, 
 void Launcher::startChildren()
 {
 	#ifdef DEBUG
-		fprintf(stderr, "Launcher %u: starting %d child%s\n", _myproc, _numchildren, _numchildren==1?"":"ren");
+		fprintf(stderr, "Launcher %u: starting %d child%s\n", _myproc, _myproc==0xFFFFFFFF?1:_numchildren, (_numchildren==1 || _myproc==0xFFFFFFFF)?"":"ren");
 	#endif
 
 	/* -------------------------------------------- */
@@ -201,8 +201,8 @@ void Launcher::startChildren()
 			else
 			{
 				/* SSH children: call startSSH client */
-				if (_hostlist && strncmp(_hostlist[_firstchildproc+id], "localhost", 9) != 0)
-					startSSHclient(_firstchildproc+id, masterPort, _hostlist[_firstchildproc+id]);
+				if (_hostlist && strncmp(_hostlist[id], "localhost", 9) != 0)
+					startSSHclient(_firstchildproc+id, masterPort, _hostlist[id]);
 				else
 				{ // if the child is on the localhost, just exec it.  No need for ssh.
 					setenv(X10LAUNCHER_PARENT, masterPort, 1);

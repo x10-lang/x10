@@ -164,13 +164,19 @@ void Launcher::readHostFile()
 	if (!fd)
 		DIE("Launcher %u: cannot open hostfile '%s': exiting", _myproc, _hostfname);
 
-	_hostlist = (char **) malloc(sizeof(char *) * _numchildren);
+	int childLaunchers;
+	if (_myproc == 0xFFFFFFFF)
+		childLaunchers = 1;
+	else
+		childLaunchers = _numchildren;
+
+	_hostlist = (char **) malloc(sizeof(char *) * childLaunchers);
 	if (!_hostlist)
 		DIE("Launcher %u: hostname memory allocation failure", _myproc);
 
 	uint32_t lineNumber = 0;
 	char buffer[5120];
-	while (lineNumber < _firstchildproc+_numchildren)
+	while (lineNumber < _firstchildproc+childLaunchers)
 	{
 		char* s = fgets(buffer, sizeof(buffer), fd);
 		if (s == NULL)
@@ -203,7 +209,7 @@ void Launcher::readHostFile()
 		_hostlist[lineNumber-_firstchildproc] = host;
 
 		#ifdef DEBUG
-			fprintf(stderr, "Child launcher %i (place %i) is on %s\n", lineNumber-_firstchildproc, lineNumber, host);
+			fprintf(stderr, "Launcher %u: launcher for place %i is on %s\n", _myproc, lineNumber, host);
 		#endif
 		lineNumber++;
 	}
