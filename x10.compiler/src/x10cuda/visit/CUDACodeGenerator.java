@@ -658,24 +658,24 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
     }
 
     
-    protected void generateClosureDeserializationIdDef(StreamWrapper inc, String cnamet, List<Type> freeTypeParams, String hostClassName, Block block) {
-        if (blockIsKernel(block)) {
+    protected void generateClosureDeserializationIdDef(ClassifiedStream defn_s, String cnamet, List<Type> freeTypeParams, String hostClassName, Block block) {
+    	if (blockIsKernel(block)) {
     
             X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
             boolean in_template_closure = freeTypeParams.size()>0;
             if (in_template_closure)
-                emitter.printTemplateSignature(freeTypeParams, inc);
-            inc.write("const x10aux::serialization_id_t "+cnamet+"::"+SharedVarsMethods.SERIALIZATION_ID_FIELD+" = ");
-            inc.newline(4);
+                emitter.printTemplateSignature(freeTypeParams, defn_s);
+            defn_s.write("const x10aux::serialization_id_t "+cnamet+"::"+SharedVarsMethods.SERIALIZATION_ID_FIELD+" = ");
+            defn_s.newline(4);
             String template = in_template_closure ? "template " : "";
-            inc.write("x10aux::DeserializationDispatcher::addDeserializer("+
+            defn_s.write("x10aux::DeserializationDispatcher::addDeserializer("+
                       cnamet+"::"+template+SharedVarsMethods.DESERIALIZE_METHOD+
                       chevrons("x10::lang::Reference")+", true, "+
                       cnamet+"::"+template+SharedVarsMethods.DESERIALIZE_CUDA_METHOD+", "+
                       "\""+hostClassName+".cubin\", \""+cnamet+"\");");
-            inc.newline(); inc.forceNewline();
+            defn_s.newline(); defn_s.forceNewline();
         } else {
-            super.generateClosureDeserializationIdDef(inc.currentStream(), cnamet, freeTypeParams, hostClassName, block);
+            super.generateClosureDeserializationIdDef(defn_s, cnamet, freeTypeParams, hostClassName, block);
         }
     }    
     

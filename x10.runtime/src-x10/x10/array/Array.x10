@@ -283,6 +283,23 @@ public final class Array[T](
     }
 
 
+    /**
+     * Construct a copy of the given Array.
+     *
+     * @param init The array to copy.
+     */    
+    public def this(init:Array[T]):Array[T]{self.region==init.region, self.size==init.size} {
+        property(init.region, init.size);
+        layout = RectLayout(region);
+        val n = layout.size();
+        val r  = IndexedMemoryChunk.allocate[T](n);
+        init.raw.asyncCopyTo(0, here, r, 0, n, false);
+        raw = r;
+        rawLength = n;
+        cachedRail = rail;
+    }
+
+
 
     /**
      * Return an iterator over the points in the region of this array.

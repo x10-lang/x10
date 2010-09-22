@@ -183,7 +183,7 @@ void DeserializationDispatcher::registerHandlers () {
 }
 
 void DeserializationDispatcher::registerHandlers_ () {
-    for (size_t i=0 ; i<next_id ; ++i) { // FIXME: 0-based?!
+    for (size_t i=0 ; i<next_id ; ++i) {
         Data &d = data_v[i];
         if (d.has_mt) {
             msg_type id;
