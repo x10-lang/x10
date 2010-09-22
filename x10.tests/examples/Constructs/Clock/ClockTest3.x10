@@ -21,10 +21,9 @@ public class ClockTest3 extends x10Test {
 	static N: int = 32;
 
 	public def run(): boolean = {
-		val c: Clock = Clock.make();
-
-		foreach ([i] in 0..(N-1)) clocked(c) {
-			async clocked(c) 
+	 clocked finish
+		for ([i] in 0..(N-1)) clocked async {
+			clocked async   
 			   finish async { 
 			       async { 
 			          atomic val++; 
@@ -37,7 +36,7 @@ public class ClockTest3 extends x10Test {
 				throw new Error();
 			}
 			next;
-			async  clocked(c) finish async { async { atomic val++; } }
+			clocked async finish async { async { atomic val++; } }
 			next;
 		}
 		next; next; next;

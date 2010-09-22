@@ -23,17 +23,15 @@ public class ClockTest3b extends x10Test {
 	static val N: int = 32;
 
 	public def run(): boolean = {
-		/*clocked*/ finish async {
-			val clock = Clock.make();
-			/*clocked*/ foreach (val [i]: Point in 0..(N-1)) clocked (clock){
-				/*clocked*/ async clocked (clock) finish async  { atomic val++; }
+		clocked finish  {
+			for (val [i]: Point in 0..(N-1)) clocked async {
+				clocked async  finish async  { atomic val++; }
 				next;
 				chk(val == N);
 				next;
-				/*clocked*/ async clocked(clock)  finish async  { atomic val++; }
+				clocked async  finish async  { atomic val++; }
 				next;
 			}
-			clock.drop();
 		}
 		chk(val == 2*N);
 		return true;

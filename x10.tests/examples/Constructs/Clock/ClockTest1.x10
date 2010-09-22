@@ -32,11 +32,11 @@ public class ClockTest1 extends x10Test {
 			    //   number of activities registered with clock c is decremented, which release A0
 			    //   that becomes the only activity to wait on the clock "barrier"
 				next;
-				
 				var b: boolean;
 			    atomic { b = flag; }
-			    return b;
+				return b;
 			}
+			
 	}
 
 	public static def main(Array[String](1))  {

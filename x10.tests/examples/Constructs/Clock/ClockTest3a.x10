@@ -18,29 +18,30 @@ import harness.x10Test;
 public class ClockTest3a extends x10Test {
 
 	var val: int = 0;
-	static N: int = 32;
+static N: int = 32;
 
-	public def run(): boolean = {
-		val c: Clock = Clock.make();
+public def run(): boolean = {
+		clocked finish {
 
-		foreach ([i] in 0..(N-1)) clocked(c) {
-			async clocked(c) finish async { atomic val++; }
-			next;
-			if (val != N) {
+			for  ([i] in 0..(N-1)) clocked async {
+				clocked async  finish async { atomic val++; }
+				next;
+				if (val != N) {
+					throw new Error();
+				}
+				next;
+				clocked async  finish async { atomic val++; }
+				next;
+			}
+			next; next; next;
+			if (val != 2*N) {
 				throw new Error();
 			}
-			next;
-			async clocked(c) finish async { atomic val++; }
-			next;
+			return true;
 		}
-		next; next; next;
-		if (val != 2*N) {
-			throw new Error();
-		}
-		return true;
-	}
+}
 
-	public static def main(Array[String](1)) {
-		new ClockTest3a().executeAsync();
-	}
+public static def main(Array[String](1)) {
+	new ClockTest3a().executeAsync();
+}
 }

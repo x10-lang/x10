@@ -29,7 +29,7 @@ public class ClockTest18 extends x10Test {
 		        val c0: Clock = Clock.make();
 		        val  x = new X();
 		        // f0 does not transmit clocks to subactivity
-		        val  f0 = new foo() {
+		        val  f0:foo = new foo() {
 			        public def apply(): void = {
 				        /* Activity A3 */
 				        async {
@@ -38,7 +38,7 @@ public class ClockTest18 extends x10Test {
 			        }
 		         };
 		        // f1 transmits clock c0 to subactivity
-		        val f1  = new foo() {
+		        val f1:foo  = new foo() {
 			        public def apply(): void = {
 				         /*Activity A2*/
 				         async clocked(c0) {
