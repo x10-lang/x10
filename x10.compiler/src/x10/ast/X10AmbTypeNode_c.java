@@ -124,6 +124,7 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode, A
           X10ClassType ut = ts.createFakeClass(QName.make(null, name().id()), e);
           ut.def().position(pos);
           ((Ref<Type>) type).update(ut);
+          // FIXME: should never return an ambiguous node
           return this;
       }
 

@@ -1756,16 +1756,16 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         if (mi.typeParameters().size() == mj.typeParameters().size() 
         		&& mi.formalTypes().size() == mj.formalTypes().size()) {
             allEqual = true;
-            List<SubtypeConstraint> env = new ArrayList<SubtypeConstraint>();
-            for (int j = 0; j < mi.typeParameters().size(); j++) {
-                Type p1 = mi.typeParameters().get(j);
-                Type p2 = mj.typeParameters().get(j);
-                env.add(new SubtypeConstraint(p1, p2, true));
-            }
+//            List<SubtypeConstraint> env = new ArrayList<SubtypeConstraint>();
+//            for (int j = 0; j < mi.typeParameters().size(); j++) {
+//                Type p1 = mi.typeParameters().get(j);
+//                Type p2 = mj.typeParameters().get(j);
+//                env.add(new SubtypeConstraint(p1, p2, true));
+//            }
+            TypeParamSubst tps = new TypeParamSubst(xts, mi.typeParameters(), mj.x10Def().typeParameters());
             List<Type> miTypes = Subst.subst(mi.formalTypes(), newSymbols, miSymbols);
             List<Type> mjTypes = Subst.subst(mj.formalTypes(), newSymbols, mjSymbols);
-            if (!CollectionUtil.allElementwise(miTypes, mjTypes, 
-            		new TypeEquals(context))) {
+            if (!CollectionUtil.allElementwise(miTypes, tps.reinstantiate(mjTypes), new TypeEquals(context))) {
                 allEqual = false;
             }
         }

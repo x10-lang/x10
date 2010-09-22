@@ -157,19 +157,41 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
                 continue;
             }
 
-            List<SubtypeConstraint> env = new ArrayList<SubtypeConstraint>();
-            for (int j = 0; j < mi.typeParameters().size(); j++) {
-                Type p1 = mi.typeParameters().get(j);
-                Type p2 = typeParams.get(j);
-                env.add(new SubtypeConstraint(p1, p2, true));
-            }
+//            TypeConstraint env = new TypeConstraint();
+//            for (int j = 0; j < mi.typeParameters().size(); j++) {
+//                Type p1 = mi.typeParameters().get(j);
+//                Type p2 = typeParams.get(j);
+//                env.addTerm(new SubtypeConstraint(p1, p2, true));
+//            }
+//
+//            if (CollectionUtil.allElementwise(argTypes, mi.formalTypes(),
+//                    new TypeEqualsInEnvironment((X10Context)context, env)))
+//            {
+//                l.add(mi);
+//            }
 
-            if (CollectionUtil.allElementwise(mi.formalTypes(), argTypes, new TypeEquals(context))) {
+            TypeParamSubst tps = new TypeParamSubst(this, typeParams, mi.x10Def().typeParameters());
+            if (CollectionUtil.allElementwise(argTypes, tps.reinstantiate(mi.formalTypes()), new TypeEquals(context))) {
                 l.add(mi);
             }
         }
 
         return l;
+    }
+
+    public static class TypeEqualsInEnvironment implements Predicate2<Type> {
+        X10Context context;
+        TypeConstraint env;
+        public TypeEqualsInEnvironment(X10Context context, TypeConstraint env) {
+            this.context = context;
+            this.env = env;
+        }
+        public boolean isTrue(Type o, Type p) {
+            TypeConstraint newEnv = new TypeConstraint();
+            newEnv.addTerm(new SubtypeConstraint(o, p, true));
+            // FIXME: Vijay, why doesn't this work?
+            return env.entails(newEnv, context);
+        }
     }
 
     public static class BaseTypeEquals implements Predicate2<Type> {
