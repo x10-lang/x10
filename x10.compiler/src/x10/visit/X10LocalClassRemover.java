@@ -172,7 +172,7 @@ public class X10LocalClassRemover extends LocalClassRemover {
                     X10ClassType type = (X10ClassType) X10TypeMixin.baseType(neu.objectType().type());
                     List<Type> ta = new ArrayList<Type>(type.typeArguments());
                     List<ParameterType> params = type.x10Def().typeParameters();
-                    if (ta.equals(params)) {
+                    if (ta.equals(params) || (ta.isEmpty() && !params.isEmpty())) {
                         ta.clear();
                         ta.addAll(typeArgs);
                     }
