@@ -46,6 +46,8 @@ struct x10SocketState
 	x10rt_place myPlaceId; // which place we're at.  Also used as the index to the array below. Local per-place memory is used.
 	x10SocketCallback* callBackTable; // I'm told message ID's run from 0 to n, so a simple array using message indexes is the best solution for this table.  Local per-place memory is used.
 	x10rt_msg_type callBackTableSize; // length of the above array
+	char* myhost; // my own hostname, so I can detect places that are on the same machine and use localhost instead.
+	bool everythingOnLocalhost; // a little flag that adds sched_yield() to empty probes, for better performance when there are several places on one host.
 	struct pollfd* socketLinks; // the file descriptors for each socket to other places
 	pthread_mutex_t* writeLocks; // a lock to prevent overlapping writes on each socket
 	pthread_mutex_t* readLocks; // a lock to prevent overlapping reads on each socket
@@ -75,7 +77,7 @@ void handleConnectionRequest()
 		int r = TCP::read(newFD, &m, sizeof(struct ctrl_msg));
 		if (r == sizeof(struct ctrl_msg))
 		{
-			int from = m.from;
+			uint32_t from = m.from;
 			// the higher-numbered place always decides if this connection goes or stays
 			if (from < state.myPlaceId)
 			{
@@ -145,8 +147,25 @@ int initLink(uint32_t remotePlace)
 			return state.socketLinks[remotePlace].fd;
 		}
 
+		// break apart the link into host and port
+		char * c = strchr(link, ':');
+		if (c == NULL)
+			error("Malformed host:port");
+		c[0] = '\0';
+		int port = atoi(c + 1);
+
+		// check to see if the host is our host, and if so, change it to "localhost"
+		// to take advantage of any localhost OS efficiencies
+		if (strcmp(state.myhost, link) == 0)
+		{
+			strcpy(link, "localhost\0");
+			#ifdef DEBUG
+				printf("X10rt.Sockets: Place %u changed hostname for place %u to %s\n", state.myPlaceId, remotePlace, link);
+			#endif
+		}
+
 		int newFD;
-		if ((newFD = TCP::connect(link, 10)) > 0)
+		if ((newFD = TCP::connect(link, port, 10)) > 0)
 		{
 			struct ctrl_msg m;
 			m.type = HELLO;
@@ -192,13 +211,15 @@ int initLink(uint32_t remotePlace)
 				while (state.socketLinks[remotePlace].fd < 0) // there is a pending connection coming in.
 					probe(true);
 			}
-
 		}
 		else
 		{ // failed to connect to the other end.
 			pthread_mutex_unlock(&state.readLocks[state.myPlaceId]);
 			return -1;
 		}
+
+		if (state.everythingOnLocalhost && (strncmp("localhost", link, 9) != 0))
+			state.everythingOnLocalhost = false;
 	}
 	return state.socketLinks[remotePlace].fd;
 }
@@ -229,6 +250,7 @@ void x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 	else
 		state.myPlaceId = atol(ID);
 
+	state.everythingOnLocalhost = true;
 	state.socketLinks = new struct pollfd[state.numPlaces];
 	state.writeLocks = new pthread_mutex_t[state.numPlaces];
 	state.readLocks = new pthread_mutex_t[state.numPlaces];
@@ -254,6 +276,15 @@ void x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 	if (Launcher::setPort(state.myPlaceId, portname) < 0)
 		error("failed to connect to the local runtime");
 	pthread_mutex_unlock(&state.writeLocks[state.myPlaceId]);
+
+	// save our hostname for later
+	char * c = strchr(portname, ':');
+	c[0] = '\0';
+	state.myhost = (char*)malloc(strlen(portname)+1);
+	strcpy(state.myhost, portname);
+	#ifdef DEBUG
+		printf("X10rt.Sockets: place %u running on %s\n", state.myPlaceId, state.myhost);
+	#endif
 }
 
 void x10rt_net_register_msg_receiver (x10rt_msg_type msg_type, x10rt_handler *callback)
@@ -405,9 +436,6 @@ void x10rt_net_probe ()
 
 void probe (bool onlyProcessAccept)
 {
-	if (state.numPlaces == 1) // no messages - just return
-		return;
-
 	int ret = poll(state.socketLinks, state.numPlaces, 0);
 	if (ret > 0)
 	{
@@ -553,6 +581,8 @@ void probe (bool onlyProcessAccept)
 	    	}
 	    }
 	}
+	else if (state.everythingOnLocalhost) // nothing to do.  This would be a good time for a yield in some systems.
+		sched_yield();
 }
 
 void x10rt_net_finalize (void)
@@ -573,6 +603,7 @@ void x10rt_net_finalize (void)
 			pthread_mutex_destroy(&state.writeLocks[i]);
 		}
 	}
+	free(state.myhost);
 	free(state.socketLinks);
 	free(state.readLocks);
 	free(state.writeLocks);
