@@ -18,19 +18,26 @@ import harness.x10Test;
 	    for ((i) in 0..5) clocks(i) = Clock.make();
 
  * @author Tong Wen 7/2006
+ * 9/23/2010
+ * vj: Rewrote this test. The above idiom will work. However, the activity
+ * executing the test is registered on all the clocks. So for the finish to terminate
+ * the main activity has to drop the clock. Standard finish/clock interaction.
  */
 public class ClockAsyncTest extends x10Test {
 
     public def run(): boolean {
 	  try {
 	    val clocks = new Array[Clock](0..5, (Point)=>Clock.make());
-	    finish async clocked (clocks(0)){
-		    next;
+	    finish {
+	    	async clocked (clocks(0)){
+	    		next;
+	        }
+	    	clocks(0).drop();
 	    }
 	  } catch (x:ClockUseException) {
-	    return true;
+	    return false;
 	  }
-	  return false;
+	  return true;
     }
 
     public static def main(Array[String](1)) {
