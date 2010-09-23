@@ -84,10 +84,10 @@ struct _X10methodName
     uint32_t _x10class;          // Index of the X10 containing class name in _X10strings
     uint32_t _x10method;         // Index of the X10 method name in _X10strings
     uint32_t _x10returnType;     // Index of the X10 return type in _X10strings
+    uint32_t _cppClass;          // Index of the C++ class name in _X10strings
     uint64_t _x10args;           // A pointer to a string that contains binary encodings of the
                                  // argument indices.  Each group of 4 bytes represents the index
                                  // of the corresponding argument in _X10strings
-    uint32_t _cppClass;          // Index of the C++ class name in _X10strings
     uint16_t _x10argCount;       // The number of X10 arguments
     uint16_t _lineIndex;         // Index into _CPPtoX10xrefList of the first line of the method
 };
@@ -95,10 +95,12 @@ struct _X10methodName
 struct _X10LocalVarMap
 {
 	uint32_t _x10name;			// Index of the X10 variable name in _X10strings
-	uint32_t _x10type;     		// Index of the X10 type in _X10strings
+	uint32_t _x10type;          // Classification of this type
+	uint32_t _x10typeIndex; 	// Index of the X10 type into appropriate _X10ClassMap, _X10ClosureMap  (if applicable)
 	uint32_t _cppName;			// Index of the C++ variable name in _X10strings
-	uint32_t _startLineIndex;   // Index into _CPPtoX10xrefList of the line where the variable is created
-	uint32_t _endLineIndex;     // Index into _CPPtoX10xrefList of the last line where the variable is still in scope
+    uint32_t _x10index;         // Index of X10 file name in _X10sourceList
+	uint32_t _x10startLine;     // First line number of X10 line range
+	uint32_t _x10endLine;       // Last line number of X10 line range
 };
 
 // The _X10TypeMap and extenders of it are used in the member variable mappings
@@ -108,24 +110,40 @@ struct _X10TypeMap
   // The details of the type follow..
 };
 
-struct _X10TypeMember : public _X10TypeMap
+struct _X10TypeMember
 {
-  uint32_t _x10MemberName; // Index of the X10 member name in _X10strings
-  uint32_t _x10MemberOffset; // Offset of the member within the X10 class
+	uint32_t _x10Type;       // Classification of this type
+	uint32_t _x10typeIndex;  // Index of the X10 type into appropriate _X10typeMap
+	uint32_t _x10memberName; // Index of the X10 member name in _X10strings
+	uint32_t _cppMemberName; // Index of the C++ member name in _X10strings
+	uint32_t _cppClass; // Index of the C++ containing struct/class name in _X10strings
 };
 
-struct _X10ClassMap : public _X10TypeMap
+struct _X10ClassMap
 {
+  uint32_t _x10type; // Classification of this type
   uint32_t _x10name; // Index of the X10 class type name in _X10 strings
-  uint32_t _x10ClassSize; // number of bytes in the class
-  uint32_t _x10ClassMemberCount; // number of members in the class
-  _X10TypeMember* _x10members; // pointer to an array of individual member types
+  uint32_t _x10size; // number of bytes in the class
+  uint32_t _x10memberCount; // number of members in the class
+  const struct _X10TypeMember* _x10members; // pointer to an array of individual member types
 };
 
-struct _X10ClosureMap : public _X10ClassMap
+struct _X10ClosureMap
 {
-  uint32_t _x10StartLine; // the start line of the closure definition in the X10 source
-  uint32_t _x10EndLine; // the end line of the closure definition in the X10 source
+  uint32_t _x10type; // Classification of this type
+  uint32_t _x10name; // Index of the X10 class type name in _X10 strings
+  uint32_t _x10size; // number of bytes in the closure class
+  uint32_t _x10memberCount; // number of members in the class
+  uint32_t _x10index;         // Index of X10 file name in _X10sourceList
+  uint32_t _x10startLine; // the start line of the closure definition in the X10 source
+  uint32_t _x10endLine; // the end line of the closure definition in the X10 source
+  const struct _X10TypeMember* const _x10members; // pointer to an array of individual member types
+};
+
+struct _X10ArrayMap
+{
+	uint32_t _x10type; // Classification of this type
+	uint32_t _x10typeIndex;  // Index of the X10 type into appropriate _X10typeMap (if applicable)
 };
 
 struct _X10RefMap : public _X10TypeMap
@@ -137,13 +155,6 @@ struct _X10TypedefMap : public _X10RefMap
 {
   uint32_t _x10Name; // Offset to the name of the typedef in _X10strings
 };
-
-struct _X10ArrayMap : public _X10TypeMap
-{
-  uint32_t _x10ElementCount; // Number of elements in the array
-  uint32_t _x10ElementType;  // type number of the array elements
-};
-
 
 
 enum _MetaLanguage {
@@ -165,18 +176,20 @@ struct _MetaDebugInfo_t {
   unsigned x10toCPPlistSize;      // the size in bytes of the X10->C++ cross reference
   unsigned cPPtoX10xrefListSize;  // the size in bytes of the C++->X10 cross reference
   unsigned x10methodNameListSize; // the size in bytes of the X10 method name mapping list
-// TODO - uncomment these two lines once the compiler starts generating them.
-//  unsigned x10localVarListSize;   // the size in bytes of the X10 local variable name mapping list
-//  unsigned x10typeListSize;       // the size in bytes of the X10 type mapping list
+  unsigned x10localVarListSize;   // the size in bytes of the X10 local variable name mapping list
+  unsigned x10classMapListSize;   // the size in bytes of the X10 class mapping list
+  unsigned x10closureMapListSize; // the size in bytes of the X10 async closure mapping list
+  unsigned x10arrayMapListSize;   // the size in bytes of the X10 array mapping list
 
-  const char*                  x10strings;        // The string table
-  const struct _X10sourceFile* x10sourceList;     // The list of X10 source files
-  const struct _X10toCPPxref*  x10toCPPlist;      // The X10->C++ cross reference
-  const struct _CPPtoX10xref*  cPPtoX10xrefList;  // The C++->X10 cross reference
-  const struct _X10methodName* x10methodNameList; // The method name mapping list
-// TODO - uncomment these two lines once the compiler starts generating them.
-//  const struct _X10LocalVarMap* x10localVarList;  // The local variable name mapping list
-//  const struct _X10TypeMap*    x10typeList;		  // The type mapping list
+  const char*                   x10strings;        // The string table
+  const struct _X10sourceFile*  x10sourceList;     // The list of X10 source files
+  const struct _X10toCPPxref*   x10toCPPlist;      // The X10->C++ cross reference
+  const struct _CPPtoX10xref*   cPPtoX10xrefList;  // The C++->X10 cross reference
+  const struct _X10methodName*  x10methodNameList; // The method name mapping list
+  const struct _X10LocalVarMap* x10localVarList;   // The local variable name mapping list
+  const struct _X10ClassMap*    x10classMapList;   // The class mapping list
+  const struct _X10ClosureMap*  x10closureMapList; // The async closure mapping list
+  const struct _X10ArrayMap*    x10arrayMapList;   // The array mapping list
 };
 
 //extern void _X10_Entry_Hook();     // A hook at the start of every X10 method.

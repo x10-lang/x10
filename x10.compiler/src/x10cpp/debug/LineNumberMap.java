@@ -676,8 +676,8 @@ public class LineNumberMap extends StringTable {
             w.write(""+offsets[cppMethodInfo.x10class]+", ");                  // _x10class
             w.write(""+offsets[cppMethodInfo.x10method]+", ");                 // _x10method
             w.write(""+offsets[cppMethodInfo.x10rettype]+", ");                // _x10returnType
-            w.write("(uint64_t) 0, "); // TODO - this needs to be re-designed, with the debugger team
             w.write(""+offsets[cppMethodInfo.cppclass]+", ");                  // _cppClass
+            w.write("(uint64_t) 0, "); // TODO - this needs to be re-designed, with the debugger team            
             w.write(""+cppMethodInfo.x10args.length+", ");                     // _x10argCount
             w.write(""+cppMethodInfo.cpplineindex);                            // _lineIndex
             w.writeln(" },");
@@ -688,13 +688,13 @@ public class LineNumberMap extends StringTable {
             w.write(""+offsets[cppMethodInfo.x10class]+", ");                  // _x10class
             w.write(""+offsets[cppMethodInfo.x10method]+", ");                 // _x10method
             w.write(""+offsets[cppMethodInfo.x10rettype]+", ");                // _x10returnType
+            w.write(""+offsets[cppMethodInfo.cppclass]+", ");                  // _cppClass
             w.write("(uint64_t) ");
             for (i = 0; i < cppMethodInfo.x10args.length; i++) {
                 int a = cppMethodInfo.x10args[i];
                 w.write("\""+encodeIntAsChars(offsets[a])+"\" ");              // _x10args
             }
             w.write("\"\", ");
-            w.write(""+offsets[cppMethodInfo.cppclass]+", ");                  // _cppClass
             w.write(""+cppMethodInfo.x10args.length+", ");                     // _x10argCount
             w.write(""+cppMethodInfo.cpplineindex);                            // _lineIndex
             w.writeln(" },");
@@ -725,6 +725,12 @@ public class LineNumberMap extends StringTable {
         } else {
             w.writeln("0,");
         }
+        // TODO - replace these 4 with real values
+        w.writeln("0,");
+        w.writeln("0,");
+        w.writeln("0,");
+        w.writeln("0,");
+        
         w.writeln("_X10strings,");
         if (!m.isEmpty()) {
             w.writeln("_X10sourceList,");
@@ -740,6 +746,13 @@ public class LineNumberMap extends StringTable {
         } else {
             w.write("NULL,");
         }
+        
+        // TODO - replace these 4 with real values        
+        w.writeln("NULL,");
+        w.writeln("NULL,");
+        w.writeln("NULL,");
+        w.writeln("NULL,");
+        
         w.end(); w.newline();
         w.writeln("};");
 	}
