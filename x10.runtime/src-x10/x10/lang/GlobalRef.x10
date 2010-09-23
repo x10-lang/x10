@@ -52,13 +52,13 @@ public struct GlobalRef[T](
 
     @Native("java", "((Object)#0).toString()")
     @Native("c++", "(#0)->toString()")
-    public safe native def  toString():String;
+    public native def  toString():String;
 
     @Native("java", "((Object)#0).equals(#1)")
     @Native("c++", "(#0)->equals(#1)")
-    public safe native def equals(that:Any):Boolean;
+    public native def equals(that:Any):Boolean;
 
     @Native("java", "((Object)#0).hashCode()")
     @Native("c++", "(#0)->hashCode()")
-    public safe native def  hashCode():Int;
+    public native def  hashCode():Int;
 }

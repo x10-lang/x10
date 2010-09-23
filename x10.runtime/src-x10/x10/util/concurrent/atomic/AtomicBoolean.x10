@@ -43,6 +43,6 @@ public final class AtomicBoolean {
 
 	@Native("java", "#0.toString()")
 	@Native("c++", "(#0)->toString()")
-	public safe native def toString():String;
+	public native def toString():String;
 }
  

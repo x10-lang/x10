@@ -448,7 +448,7 @@ public abstract class Dist(
      * @param that the given distribution
      * @return true if that is equal to this distribution.
      */
-    abstract public safe def equals(that:Any):boolean;
+    abstract public def equals(that:Any):boolean;
 
     //
     // other geometric ops

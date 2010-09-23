@@ -56,7 +56,7 @@ public final class String implements (Int) => Char/*TODO, (Range) => String*//*T
      */
     @Native("java", "(#0).equals(#1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public native safe def equals(Any): boolean;
+    public native def equals(Any): boolean;
 
     // FIXME: Locale sensitivity
     /**
@@ -81,7 +81,7 @@ public final class String implements (Int) => Char/*TODO, (Range) => String*//*T
      */
     @Native("java", "(#0).hashCode()")
     @Native("c++", "x10aux::hash_code(#0)")
-    public native safe def hashCode(): int;
+    public native def hashCode(): int;
 
 
     /**
@@ -90,7 +90,7 @@ public final class String implements (Int) => Char/*TODO, (Range) => String*//*T
      */
     @Native("java", "(#0).toString()")
     @Native("c++", "x10aux::to_string(#0)")
-    public native safe def toString(): String;
+    public native def toString(): String;
 
 
     /**
@@ -465,7 +465,7 @@ public final class String implements (Int) => Char/*TODO, (Range) => String*//*T
      */
     @Native("java", "((#0).compareTo(#1) < 0)")
     @Native("c++",  "((#0)->compareTo(#1) < 0)")
-    public native safe operator this < (x:String): Boolean;
+    public native operator this < (x:String): Boolean;
 
     // FIXME: Locale sensitivity
     /**
@@ -477,7 +477,7 @@ public final class String implements (Int) => Char/*TODO, (Range) => String*//*T
      */
     @Native("java", "((#0).compareTo(#1) > 0)")
     @Native("c++",  "((#0)->compareTo(#1) > 0)")
-    public native safe operator this > (x:String): Boolean;
+    public native operator this > (x:String): Boolean;
 
     // FIXME: Locale sensitivity
     /**
@@ -489,7 +489,7 @@ public final class String implements (Int) => Char/*TODO, (Range) => String*//*T
      */
     @Native("java", "((#0).compareTo(#1) <= 0)")
     @Native("c++",  "((#0)->compareTo(#1) <= 0)")
-    public native safe operator this <= (x:String): Boolean;
+    public native operator this <= (x:String): Boolean;
 
     // FIXME: Locale sensitivity
     /**
@@ -501,7 +501,7 @@ public final class String implements (Int) => Char/*TODO, (Range) => String*//*T
      */
     @Native("java", "((#0).compareTo(#1) >= 0)")
     @Native("c++",  "((#0)->compareTo(#1) >= 0)")
-    public native safe operator this >= (x:String): Boolean;
+    public native operator this >= (x:String): Boolean;
 
     /**
      * A string concatenation operator.
@@ -513,7 +513,7 @@ public final class String implements (Int) => Char/*TODO, (Range) => String*//*T
      */
     @Native("java", "((#4) + (#5))")
     @Native("c++",  "((#4) + (#5))")
-    public native static safe operator[T] (x:String) + (y:T): String;
+    public native static operator[T] (x:String) + (y:T): String;
 
     /**
      * A string concatenation operator.
@@ -525,5 +525,5 @@ public final class String implements (Int) => Char/*TODO, (Range) => String*//*T
      */
     @Native("java", "((#4) + (#5))")
     @Native("c++",  "((#4) + (#5))")
-    public native static safe operator[T] (x:T) + (y:String): String;
+    public native static operator[T] (x:T) + (y:String): String;
 }

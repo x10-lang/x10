@@ -43,23 +43,23 @@ public class RemoteArray[T](home:Place, region:Region, size:Int) {} {
         rawLength = a.rawLength;  
     }
 
-    public safe def equals(other:Any) {
+    public def equals(other:Any) {
         if (!(other instanceof RemoteArray[T])) return false;
         val oRA = other as RemoteArray[T];
         return oRA.array.equals(array);
     }
 
     @Native("cuda", "(#0)[#2] = #1")
-    public safe def set(v:T, i:Int) {here==home, rank==1} = array().set(v,i);
+    public def set(v:T, i:Int) {here==home, rank==1} = array().set(v,i);
 
-    public safe def set(v:T, p:Point{self.rank==this.rank}) {here==home} = array().set(v,p);
+    public def set(v:T, p:Point{self.rank==this.rank}) {here==home} = array().set(v,p);
 
     @Native("cuda", "(#0)[#1]")
-    public safe def apply(i:Int) {here==home, rank==1} = array()(i);
+    public def apply(i:Int) {here==home, rank==1} = array()(i);
 
-    public safe def apply(p:Point{self.rank==this.rank}) {here==home} = array()(p);
+    public def apply(p:Point{self.rank==this.rank}) {here==home} = array()(p);
 
-    public safe def hashCode() = array.hashCode();
+    public def hashCode() = array.hashCode();
 }
 
 /* This version is preferable, as it does not duplicate state from the global ref, but it does not work:
@@ -78,21 +78,21 @@ public class RemoteArray[T](region:Region, size:Int, array:GlobalRef[Array[T]{se
         rawLength = a.rawLength;  
     }
 
-    public safe def equals(other:Any) {
+    public def equals(other:Any) {
         if (!(other instanceof RemoteArray[T])) return false;
         val oRA = other as RemoteArray[T];
         return oRA.array.equals(array);
     }
 
-    public safe def set(v:T, i:Int) {here==array.home, rank==1} = array().set(v,i);
+    public def set(v:T, i:Int) {here==array.home, rank==1} = array().set(v,i);
 
-    public safe def set(v:T, p:Point{self.rank==this.rank}) {here==array.home} = array().set(v,p);
+    public def set(v:T, p:Point{self.rank==this.rank}) {here==array.home} = array().set(v,p);
 
-    public safe def apply(i:Int) {here==array.home, rank==1} = array()(i);
+    public def apply(i:Int) {here==array.home, rank==1} = array()(i);
 
-    public safe def apply(p:Point{self.rank==this.rank}) {here==array.home} = array()(p);
+    public def apply(p:Point{self.rank==this.rank}) {here==array.home} = array()(p);
 
-    public safe def hashCode() = array.hashCode();
+    public def hashCode() = array.hashCode();
 }
 */
 

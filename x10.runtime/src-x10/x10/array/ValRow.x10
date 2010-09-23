@@ -29,9 +29,9 @@ public class ValRow extends Row {
         row = ValRail.make[int](cols, init);
     }
     
-    public safe def apply(i:Int) = row(i);
+    public def apply(i:Int) = row(i);
     
-    public safe def set(v:int, i:Int):int {
+    public def set(v:int, i:Int):int {
         throw new IllegalOperationException("ValRow.set");
     }
 }

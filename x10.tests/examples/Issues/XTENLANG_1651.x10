@@ -17,13 +17,13 @@ import harness.x10Test;
 import x10.compiler.Native;
 
 interface MyTypeName {
-	safe def myTypeName():String;
+ 	def myTypeName():String;
 }
 
 struct MyComplex(r:Int,i:Int) implements MyTypeName {
     @Native("c++", "x10aux::type_name(#0)")
     @Native("java", "x10.core.Ref.typeName(#0)")
-    public native safe def myTypeName():String;
+    public native def myTypeName():String;
 }
 
 public class XTENLANG_1651 extends x10Test {

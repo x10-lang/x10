@@ -12,15 +12,15 @@
 package x10.util;
 
 public interface ValMap[K,V] {
-	public safe def containsKey(k: K): boolean;
-	public safe def get(k: K): Box[V];
-    public safe def getOrElse(k: K, orelse: V): V;
-    public safe def getOrThrow(k: K): V; //throws NoSuchElementException
-	public safe def keySet(): Set[K];
-	public safe def entries(): Set[Entry[K,V]];
+	public def containsKey(k: K): boolean;
+	public def get(k: K): Box[V];
+    public def getOrElse(k: K, orelse: V): V;
+    public def getOrThrow(k: K): V; //throws NoSuchElementException
+	public def keySet(): Set[K];
+	public def entries(): Set[Entry[K,V]];
 
 	public static interface Entry[Key,Val] {
-	    public safe def getKey(): Key;
-	    public safe def getValue(): Val;
+	    public def getKey(): Key;
+	    public def getValue(): Val;
 	}
 }

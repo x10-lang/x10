@@ -13,8 +13,8 @@ public interface Reducible[T]  {
 	 * The identity for this reducer operation. It must be the case
 	 * that apply(zero(),f)=f.
 	 */
-	safe def zero():T;
+ 	def zero():T;
 	
-	safe def apply(T,T):T;
+ 	def apply(T,T):T;
 	
 }

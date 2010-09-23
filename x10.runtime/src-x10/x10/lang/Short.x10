@@ -36,7 +36,7 @@ public final struct Short /*TODO implements Arithmetic[Short], Bitwise[Short], O
      */
     @Native("java", "((#1) < (#2))")
     @Native("c++",  "((#1) < (#2))")
-    public native static safe operator (x:Short) < (y:Short): Boolean;
+    public native static operator (x:Short) < (y:Short): Boolean;
 
     /**
      * A greater-than operator.
@@ -48,7 +48,7 @@ public final struct Short /*TODO implements Arithmetic[Short], Bitwise[Short], O
      */
     @Native("java", "((#1) > (#2))")
     @Native("c++",  "((#1) > (#2))")
-    public native static safe operator (x:Short) > (y:Short): Boolean;
+    public native static operator (x:Short) > (y:Short): Boolean;
 
     /**
      * A less-than-or-equal-to operator.
@@ -60,7 +60,7 @@ public final struct Short /*TODO implements Arithmetic[Short], Bitwise[Short], O
      */
     @Native("java", "((#1) <= (#2))")
     @Native("c++",  "((#1) <= (#2))")
-    public native static safe operator (x:Short) <= (y:Short): Boolean;
+    public native static operator (x:Short) <= (y:Short): Boolean;
 
     /**
      * A greater-than-or-equal-to operator.
@@ -72,7 +72,7 @@ public final struct Short /*TODO implements Arithmetic[Short], Bitwise[Short], O
      */
     @Native("java", "((#1) >= (#2))")
     @Native("c++",  "((#1) >= (#2))")
-    public native static safe operator (x:Short) >= (y:Short): Boolean;
+    public native static operator (x:Short) >= (y:Short): Boolean;
 
 
     /**
@@ -85,7 +85,7 @@ public final struct Short /*TODO implements Arithmetic[Short], Bitwise[Short], O
      */
     @Native("java", "((short) ((#1) + (#2)))")
     @Native("c++",  "((x10_short) ((#1) + (#2)))")
-    public native static safe operator (x:Short) + (y:Short): Short;
+    public native static operator (x:Short) + (y:Short): Short;
 
     /**
      * A binary minus operator.
@@ -97,7 +97,7 @@ public final struct Short /*TODO implements Arithmetic[Short], Bitwise[Short], O
      */
     @Native("java", "((short) ((#1) - (#2)))")
     @Native("c++",  "((x10_short) ((#1) - (#2)))")
-    public native static safe operator (x:Short) - (y:Short): Short;
+    public native static operator (x:Short) - (y:Short): Short;
 
     /**
      * A binary multiply operator.
@@ -109,7 +109,7 @@ public final struct Short /*TODO implements Arithmetic[Short], Bitwise[Short], O
      */
     @Native("java", "((short) ((#1) * (#2)))")
     @Native("c++",  "((x10_short) ((#1) * (#2)))")
-    public native static safe operator (x:Short) * (y:Short): Short;
+    public native static operator (x:Short) * (y:Short): Short;
 
     /**
      * A binary divide operator.
@@ -120,7 +120,7 @@ public final struct Short /*TODO implements Arithmetic[Short], Bitwise[Short], O
      */
     @Native("java", "((short) ((#1) / (#2)))")
     @Native("c++",  "((x10_short) ((#1) / (#2)))")
-    public native static safe operator (x:Short) / (y:Short): Short;
+    public native static operator (x:Short) / (y:Short): Short;
 
     /**
      * A binary remainder operator.
@@ -131,7 +131,7 @@ public final struct Short /*TODO implements Arithmetic[Short], Bitwise[Short], O
      */
     @Native("java", "((short) ((#1) % (#2)))")
     @Native("c++",  "((x10_short) ((#1) % (#2)))")
-    public native static safe operator (x:Short) % (y:Short): Short;
+    public native static operator (x:Short) % (y:Short): Short;
 
     /**
      * A unary plus operator.
@@ -141,7 +141,7 @@ public final struct Short /*TODO implements Arithmetic[Short], Bitwise[Short], O
      */
     @Native("java", "((short) +(#1))")
     @Native("c++",  "((x10_short) +(#1))")
-    public native static safe operator + (x:Short): Short;
+    public native static operator + (x:Short): Short;
 
     /**
      * A unary minus operator.
@@ -152,7 +152,7 @@ public final struct Short /*TODO implements Arithmetic[Short], Bitwise[Short], O
      */
     @Native("java", "((short) -(#1))")
     @Native("c++",  "((x10_short) -(#1))")
-    public native static safe operator - (x:Short): Short;
+    public native static operator - (x:Short): Short;
 
 
     /**
@@ -164,7 +164,7 @@ public final struct Short /*TODO implements Arithmetic[Short], Bitwise[Short], O
      */
     @Native("java", "((short) ((#1) & (#2)))")
     @Native("c++",  "((x10_short) ((#1) & (#2)))")
-    public native static safe operator (x:Short) & (y:Short): Short;
+    public native static operator (x:Short) & (y:Short): Short;
 
     /**
      * A bitwise or operator.
@@ -175,7 +175,7 @@ public final struct Short /*TODO implements Arithmetic[Short], Bitwise[Short], O
      */
     @Native("java", "((short) ((#1) | (#2)))")
     @Native("c++",  "((x10_short) ((#1) | (#2)))")
-    public native static safe operator (x:Short) | (y:Short): Short;
+    public native static operator (x:Short) | (y:Short): Short;
 
     /**
      * A bitwise xor operator.
@@ -186,7 +186,7 @@ public final struct Short /*TODO implements Arithmetic[Short], Bitwise[Short], O
      */
     @Native("java", "((short) ((#1) ^ (#2)))")
     @Native("c++",  "((x10_short) ((#1) ^ (#2)))")
-    public native static safe operator (x:Short) ^ (y:Short): Short;
+    public native static operator (x:Short) ^ (y:Short): Short;
 
     /**
      * A bitwise left shift operator.
@@ -198,7 +198,7 @@ public final struct Short /*TODO implements Arithmetic[Short], Bitwise[Short], O
      */
     @Native("java", "((short) ((#1) << (#2)))")
     @Native("c++",  "((x10_short) ((#1) << (#2)))")
-    public native static safe operator (x:Short) << (count:Int): Short;
+    public native static operator (x:Short) << (count:Int): Short;
 
     /**
      * A bitwise right shift operator.
@@ -211,7 +211,7 @@ public final struct Short /*TODO implements Arithmetic[Short], Bitwise[Short], O
      */
     @Native("java", "((short) ((#1) >> (#2)))")
     @Native("c++",  "((x10_short) ((#1) >> (#2)))")
-    public native static safe operator (x:Short) >> (count:Int): Short;
+    public native static operator (x:Short) >> (count:Int): Short;
 
     /**
      * A bitwise logical right shift operator (zero-fill).
@@ -225,7 +225,7 @@ public final struct Short /*TODO implements Arithmetic[Short], Bitwise[Short], O
      */
     @Native("java", "((short) ((#1) >>> (#2)))")
     @Native("c++",  "((x10_short) ((x10_uint) (#1) >> (#2)))")
-    public native static safe operator (x:Short) >>> (count:Int): Short;
+    public native static operator (x:Short) >>> (count:Int): Short;
 
     /**
      * A bitwise complement operator.
@@ -235,7 +235,7 @@ public final struct Short /*TODO implements Arithmetic[Short], Bitwise[Short], O
      */
     @Native("java", "((short) ~(#1))")
     @Native("c++",  "((x10_short) ~(#1))")
-    public native static safe operator ~ (x:Short): Short;
+    public native static operator ~ (x:Short): Short;
 
 
     /**
@@ -245,7 +245,7 @@ public final struct Short /*TODO implements Arithmetic[Short], Bitwise[Short], O
      */
     @Native("java", "((short) (#1))")
     @Native("c++",  "((x10_short) (#1))")
-    public native static safe operator (x:Byte): Short;
+    public native static operator (x:Byte): Short;
 
     /**
      * Convert a given Int to a Short.
@@ -254,7 +254,7 @@ public final struct Short /*TODO implements Arithmetic[Short], Bitwise[Short], O
      */
     @Native("java", "((short)(int)(#1))")
     @Native("c++",  "((x10_short) (#1))")
-    public native static safe operator (x:Int) as Short;
+    public native static operator (x:Int) as Short;
 
     /**
      * Convert a given Long to a Short.
@@ -263,7 +263,7 @@ public final struct Short /*TODO implements Arithmetic[Short], Bitwise[Short], O
      */
     @Native("java", "((short)(long)(#1))")
     @Native("c++",  "((x10_short) (#1))")
-    public native static safe operator (x:Long) as Short;
+    public native static operator (x:Long) as Short;
 
     /**
      * Convert a given Float to a Short.
@@ -272,7 +272,7 @@ public final struct Short /*TODO implements Arithmetic[Short], Bitwise[Short], O
      */
     @Native("java", "x10.core.Floats.toShort(#1)")
     @Native("c++",  "((x10_short) (#1))")
-    public native static safe operator (x:Float) as Short;
+    public native static operator (x:Float) as Short;
 
     /**
      * Convert a given Double to a Short.
@@ -281,7 +281,7 @@ public final struct Short /*TODO implements Arithmetic[Short], Bitwise[Short], O
      */
     @Native("java", "x10.core.Floats.toShort(#1)")
     @Native("c++",  "((x10_short) (#1))")
-    public native static safe operator (x:Double) as Short;
+    public native static operator (x:Double) as Short;
 
     /**
      * Coerce a given UShort to a Short.
@@ -290,7 +290,7 @@ public final struct Short /*TODO implements Arithmetic[Short], Bitwise[Short], O
      */
     @Native("java", "((short)(#1.shortVal))")
     @Native("c++",  "((x10_short) (#1))")
-    public native static safe operator (x:UShort): Short;
+    public native static operator (x:UShort): Short;
 
 
     /**
@@ -315,7 +315,7 @@ public final struct Short /*TODO implements Arithmetic[Short], Bitwise[Short], O
      */
     @Native("java", "java.lang.Integer.toString(#0, #1)")
     @Native("c++", "x10aux::short_utils::toString(#0, #1)")
-    public safe native def toString(radix:Int): String;
+    public native def toString(radix:Int): String;
 
     /**
      * Returns a String representation of this Short as a hexadecimal number.
@@ -323,7 +323,7 @@ public final struct Short /*TODO implements Arithmetic[Short], Bitwise[Short], O
      */
     @Native("java", "java.lang.Integer.toHexString(#0)")
     @Native("c++", "x10aux::short_utils::toHexString(#0)")
-    public safe native def toHexString(): String;
+    public native def toHexString(): String;
 
     /**
      * Returns a String representation of this Short as an octal number.
@@ -331,7 +331,7 @@ public final struct Short /*TODO implements Arithmetic[Short], Bitwise[Short], O
      */
     @Native("java", "java.lang.Integer.toOctalString(#0)")
     @Native("c++", "x10aux::short_utils::toOctalString(#0)")
-    public safe native def toOctalString(): String;
+    public native def toOctalString(): String;
 
     /**
      * Returns a String representation of this Short as a binary number.
@@ -339,7 +339,7 @@ public final struct Short /*TODO implements Arithmetic[Short], Bitwise[Short], O
      */
     @Native("java", "java.lang.Integer.toBinaryString(#0)")
     @Native("c++", "x10aux::short_utils::toBinaryString(#0)")
-    public safe native def toBinaryString(): String;
+    public native def toBinaryString(): String;
 
     /**
      * Returns a String representation of this Short as a decimal number.
@@ -347,7 +347,7 @@ public final struct Short /*TODO implements Arithmetic[Short], Bitwise[Short], O
      */
     @Native("java", "java.lang.Short.toString(#0)")
     @Native("c++", "x10aux::to_string(#0)")
-    public safe native def toString(): String;
+    public native def toString(): String;
 
     /**
      * @deprecated use {@link #parse(String,Int)} instead
@@ -426,7 +426,7 @@ public final struct Short /*TODO implements Arithmetic[Short], Bitwise[Short], O
      */
     @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public safe native def equals(x:Any):Boolean;
+    public native def equals(x:Any):Boolean;
 
     /**
      * Returns true if this Short is equal to the given Short.
@@ -435,5 +435,5 @@ public final struct Short /*TODO implements Arithmetic[Short], Bitwise[Short], O
      */
     @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public safe native def equals(x:Short):Boolean;
+    public native def equals(x:Short):Boolean;
 }

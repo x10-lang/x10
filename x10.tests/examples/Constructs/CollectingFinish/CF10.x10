@@ -22,10 +22,10 @@ import harness.x10Test;
 public class CF10 extends x10Test{
 
     static class Blig implements Reducible[Object] {
-        public safe def zero() : Object {
+        public def zero() : Object {
            return "";
         }
-        public safe def apply(a:Object, b:Object):Object {
+        public def apply(a:Object, b:Object):Object {
            return "[" + a + "," + b + "]";
         }
     }

@@ -321,7 +321,7 @@ public final class Array[T](
      * @see #set(T, Int)
      */
     @Native("cuda", "(#0)[#1]")
-    public safe @Header @Inline def apply(i0:int){rank==1}:T {
+    public @Header @Inline def apply(i0:int){rank==1}:T {
 	if (cachedRail) {
             if (checkBounds() && !((i0 as UInt) < (size as UInt))) {
                 raiseBoundsError(i0);
@@ -346,7 +346,7 @@ public final class Array[T](
      * @see #apply(Point)
      * @see #set(T, Int, Int)
      */
-    public safe @Header @Inline def apply(i0:int, i1:int){rank==2}:T {
+    public @Header @Inline def apply(i0:int, i1:int){rank==2}:T {
         if (checkBounds() && !region.contains(i0, i1)) {
             raiseBoundsError(i0, i1);
         }
@@ -365,7 +365,7 @@ public final class Array[T](
      * @see #apply(Point)
      * @see #set(T, Int, Int, Int)
      */
-    public safe @Header @Inline def apply(i0:int, i1:int, i2:int){rank==3}:T {
+    public @Header @Inline def apply(i0:int, i1:int, i2:int){rank==3}:T {
         if (checkBounds() && !region.contains(i0, i1, i2)) {
             raiseBoundsError(i0, i1, i2);
         }
@@ -385,7 +385,7 @@ public final class Array[T](
      * @see #apply(Point)
      * @see #set(T, Int, Int, Int, Int)
      */
-    public safe @Header @Inline def apply(i0:int, i1:int, i2:int, i3:int){rank==4}:T {
+    public @Header @Inline def apply(i0:int, i1:int, i2:int, i3:int){rank==4}:T {
         if (checkBounds() && !region.contains(i0, i1, i2, i3)) {
             raiseBoundsError(i0, i1, i2, i3);
         }
@@ -401,7 +401,7 @@ public final class Array[T](
      * @see #apply(Int)
      * @see #set(T, Point)
      */
-    public safe @Header @Inline def apply(pt:Point{self.rank==this.rank}):T {
+    public @Header @Inline def apply(pt:Point{self.rank==this.rank}):T {
         if (checkBounds() && !region.contains(pt)) {
             raiseBoundsError(pt);
         }
@@ -422,7 +422,7 @@ public final class Array[T](
      * @see #set(T, Point)
      */
     @Native("cuda", "(#0)[#2] = #1")
-    public safe @Header @Inline def set(v:T, i0:int){rank==1}:T {
+    public @Header @Inline def set(v:T, i0:int){rank==1}:T {
 	if (cachedRail) {
             if (checkBounds() && !((i0 as UInt) < (size as UInt))) {
                 raiseBoundsError(i0);
@@ -450,7 +450,7 @@ public final class Array[T](
      * @see #apply(Int, Int)
      * @see #set(T, Point)
      */
-    public safe @Header @Inline def set(v:T, i0:int, i1:int){rank==2}:T {
+    public @Header @Inline def set(v:T, i0:int, i1:int){rank==2}:T {
         if (checkBounds() && !region.contains(i0, i1)) {
             raiseBoundsError(i0, i1);
         }
@@ -472,7 +472,7 @@ public final class Array[T](
      * @see #apply(Int, Int, Int)
      * @see #set(T, Point)
      */
-    public safe @Header @Inline def set(v:T, i0:int, i1:int, i2:int){rank==3}:T {
+    public @Header @Inline def set(v:T, i0:int, i1:int, i2:int){rank==3}:T {
         if (checkBounds() && !region.contains(i0, i1, i2)) {
             raiseBoundsError(i0, i1, i2);
         }
@@ -495,7 +495,7 @@ public final class Array[T](
      * @see #apply(Int, Int, Int, Int)
      * @see #set(T, Point)
      */
-    public safe @Header @Inline def set(v:T, i0:int, i1:int, i2:int, i3:int){rank==4}:T {
+    public @Header @Inline def set(v:T, i0:int, i1:int, i2:int, i3:int){rank==4}:T {
         if (checkBounds() && !region.contains(i0, i1, i2, i3)) {
             raiseBoundsError(i0, i1, i2, i3);
         }
@@ -514,7 +514,7 @@ public final class Array[T](
      * @see #apply(Point)
      * @see #set(T, Int)
      */
-    public safe @Header @Inline def set(v:T, p:Point{self.rank==this.rank}):T {
+    public @Header @Inline def set(v:T, p:Point{self.rank==this.rank}):T {
         if (checkBounds() && !region.contains(p)) {
             raiseBoundsError(p);
         }

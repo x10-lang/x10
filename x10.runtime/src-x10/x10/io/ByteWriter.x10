@@ -36,7 +36,7 @@ public class ByteWriter[T] /*extends Writer*/ {
     @Global @Incomplete public  def size() : Long {
         throw new UnsupportedOperationException();
     }
-    @Global public safe def toString():String { 
+    @Global public def toString():String {
       if (here == root.home) { 
           val me = (root as GlobalRef[ByteWriter[T]]{self.home==here})();
           return me.toString();

@@ -378,7 +378,7 @@ public abstract class Region(
     // comparison
     //
 
-    public safe def equals(that:Any):boolean {
+    public def equals(that:Any):boolean {
 	if (this == that) return true; // short-circuit
 	if (!(that instanceof Region)) return false;
 	val t1 = that as Region;

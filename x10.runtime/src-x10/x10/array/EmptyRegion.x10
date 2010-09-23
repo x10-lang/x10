@@ -58,6 +58,6 @@ final class EmptyRegion extends Region {
         throw new UnsupportedOperationException("scanners not defined for empty region");
     }
 
-    public safe def toString() = "empty(" + rank + ")";
+    public def toString() = "empty(" + rank + ")";
 
 }

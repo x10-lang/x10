@@ -40,14 +40,14 @@ public final struct PlaceLocalHandle[T]{T <: Object} {
     /**
      * @return the object mapped to the handle at the current place
      */
-    public safe native def apply():T;
+    public native def apply():T;
 
     // Only to be used by make method and Runtime class
     native def set(newVal:T):Void;
 
-    public safe native def hashCode():Int;
+    public native def hashCode():Int;
 
-    public safe native def toString():String;
+    public native def toString():String;
 
     /**
      * Create a distributed object with local state of type T

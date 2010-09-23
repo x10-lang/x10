@@ -62,7 +62,7 @@ abstract class Row(cols:Int) implements (Int)=>int {
         if (c!=0||first) ps.print((c>=0&&!first?"+":"") + c);
     }
 
-    public safe def toString(): String {
+    public def toString(): String {
         val os = new StringWriter();
         val ps = new Printer(os);
         printEqn(ps, "", 0);

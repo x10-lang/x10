@@ -54,7 +54,7 @@ final class FullRegion extends Region{rect} {
     protected def computeBoundingBox(): Region(rank) = this;
     public def contains(that: Region(rank)):Boolean = true;
     public def contains(p:Point):Boolean = true;
-    public safe def toString() = "full(" + rank + ")";
+    public def toString() = "full(" + rank + ")";
 
 
     public def scanners():Iterator[Region.Scanner] {

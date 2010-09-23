@@ -68,7 +68,7 @@ abstract public class x10Test {
     /**
      * Check if a given condition is true, and throw an error if not.
      */
-    public static safe def chk(b: boolean): void = {
+    public static def chk(b: boolean): void = {
         if (!b) throw new Error();
     }
 
@@ -76,7 +76,7 @@ abstract public class x10Test {
      * Check if a given condition is true, and throw an error with a given
      * message if not.
      */
-    public static safe def chk(b: boolean, s: String): void = {
+    public static def chk(b: boolean, s: String): void = {
         if (!b) throw new Error(s);
     }
 

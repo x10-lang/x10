@@ -48,7 +48,7 @@ public class Object
      */
     @Native("java", "((Object)#0).equals(#1)")
     @Native("c++", "(#0)->equals(#1)")
-    public safe native def equals(that:Any): boolean;
+    public native def equals(that:Any): boolean;
 
     /**
      * Return the implementation-defined hash code of this object.
@@ -65,7 +65,7 @@ public class Object
      */
     @Native("java", "((Object)#0).hashCode()")
     @Native("c++", "(#0)->hashCode()")
-    public safe native def hashCode() : Int;
+    public native def hashCode() : Int;
 
     /**
      * Return the string representation of this object.
@@ -80,7 +80,7 @@ public class Object
      */
     @Native("java", "((Object)#0).toString()")
     @Native("c++", "(#0)->toString()")
-    public safe native def toString() : String;
+    public native def toString() : String;
 
     /**
      * Return a string representation of the run-time type of this object.
@@ -90,5 +90,5 @@ public class Object
 	@Native("java", "x10.rtt.Types.typeName(#0)")
     @Native("c++", "x10aux::type_name(#0)")
     @NonEscaping("")
-    public safe native final def typeName():String;
+    public native final def typeName():String;
 }

@@ -26,8 +26,8 @@ public class ValHashMap[K,V] implements ValMap[K,V] {
 	}
 
     static class HashEntry[Key,Value] implements ValMap.Entry[Key,Value] {
-        public safe def getKey() = key;
-        public safe def getValue() = value;
+        public def getKey() = key;
+        public def getValue() = value;
         
         val key: Key;
         val value: Value;
@@ -52,23 +52,23 @@ public class ValHashMap[K,V] implements ValMap[K,V] {
 		});
     }    
     
-    protected static safe def hash[T](k:T): Int {
+    protected static def hash[T](k:T): Int {
         return k.hashCode() * 17;
     }    
-    public safe def apply(k: K): Box[V] = get(k);    
-    public safe def get(k: K): Box[V] {
+    public def apply(k: K): Box[V] = get(k);
+    public def get(k: K): Box[V] {
         val e = getEntry(k);
         if (e == null) return null;
         return e.value as Box[V];
     }
     
-    public safe def getOrElse(k: K, orelse: V): V {
+    public def getOrElse(k: K, orelse: V): V {
         val e = getEntry(k);
         if (e == null) return orelse;
         return e.value;
     }
     
-    public safe def findMax(var index:K, var max:V, cmp:(V,V)=>Boolean):K {
+    public def findMax(var index:K, var max:V, cmp:(V,V)=>Boolean):K {
 	   for (key in keySet()) {
 	     val count = this(key).apply();
          if (cmp(count, max))  { max = count ; index = key ;}
@@ -76,13 +76,13 @@ public class ValHashMap[K,V] implements ValMap[K,V] {
 	   return index;
     }
     
-    public safe def getOrThrow(k: K): V //throws NoSuchElementException 
+    public def getOrThrow(k: K): V //throws NoSuchElementException
     {
         val e = getEntry(k);
         if (e == null) throw new NoSuchElementException("Not found");
         return e.value;
     }    
-    protected safe def getEntry(k: K): HashEntry[K,V] {
+    protected def getEntry(k: K): HashEntry[K,V] {
 		val size = table.length;
 		val mask = size - 1;
 
@@ -113,16 +113,16 @@ public class ValHashMap[K,V] implements ValMap[K,V] {
         }
     }
     
-    public safe def containsKey(k: K): boolean {
+    public def containsKey(k: K): boolean {
         val e = getEntry(k);
         return e != null;
     }
     
-    public safe def keySet(): Set[K] = new KeySet[K,V](this);
-    public safe def entries(): Set[ValMap.Entry[K,V]] = new EntrySet[K,V](this);
-    public safe def size() = table.length;
+    public def keySet(): Set[K] = new KeySet[K,V](this);
+    public def entries(): Set[ValMap.Entry[K,V]] = new EntrySet[K,V](this);
+    public def size() = table.length;
     
-    protected safe def entriesIterator(): Iterator[HashEntry[K,V]] {
+    protected def entriesIterator(): Iterator[HashEntry[K,V]] {
     val iterator = new EntriesIterator[K,V](this);
     iterator.advance();
     return iterator;

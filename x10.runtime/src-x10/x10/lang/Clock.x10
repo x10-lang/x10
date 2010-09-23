@@ -26,12 +26,12 @@ import x10.compiler.Pinned;
 public class Clock(name:String) {
 	
 	private val root = GlobalRef[Clock](this);
-	public safe def equals(a:Any) {
+	public def equals(a:Any) {
 		if (a == null || ! (a instanceof Clock))
 			return false;
 		return (a as Clock).root == this.root;
 	}
-	public safe def hashCode() = root.hashCode();
+	public def hashCode() = root.hashCode();
 	
     public static def make(): Clock = make("");
     public static def make(name:String):Clock {

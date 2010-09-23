@@ -144,7 +144,7 @@ public class FutureTest3 extends x10Test {
 	/**
 	 * True iff x logically implies y
 	 */
-	static safe def imp(x: boolean, y: boolean): boolean = {
+	static def imp(x: boolean, y: boolean): boolean = {
 		return (!x||y);
 	}
 

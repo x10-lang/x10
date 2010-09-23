@@ -39,7 +39,7 @@ public final class Cell[T] {
      *
      * @return the String object being constructed by the StringBuilder
      */
-    public safe def toString() {
+    public def toString() {
         return "Cell(" + this.value.toString() + ")";
     }
 

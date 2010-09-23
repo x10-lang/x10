@@ -131,14 +131,14 @@ public class DistArray[T] (
 
     @Native("java", "(!`NO_CHECKS`)")
     @Native("c++", "BOUNDS_CHECK_BOOL")
-    private safe native def checkBounds():boolean;
+    private native def checkBounds():boolean;
 
     @Native("java", "(!`NO_CHECKS`)")
     @Native("c++", "PLACE_CHECK_BOOL")
-    private safe native def checkPlace():boolean;
+    private native def checkPlace():boolean;
 
 
-    public final safe def apply(pt: Point(rank)): T {
+    public final def apply(pt: Point(rank)): T {
         if (checkBounds() && !region.contains(pt)) {
             raiseBoundsError(pt);
         }
@@ -151,9 +151,9 @@ public class DistArray[T] (
     /**
      * @deprecated
      */
-    public final safe def get(pt: Point(rank)): T = apply(pt);
+    public final def get(pt: Point(rank)): T = apply(pt);
 
-    final public safe def apply(i0: int){rank==1}: T {
+    final public def apply(i0: int){rank==1}: T {
         if (checkBounds() && !region.contains(i0)) {
             raiseBoundsError(i0);
         }
@@ -163,7 +163,7 @@ public class DistArray[T] (
         return raw()(layout().offset(i0));
     }
 
-    final public safe def apply(i0: int, i1: int){rank==2}: T {
+    final public def apply(i0: int, i1: int){rank==2}: T {
         if (checkBounds() && !region.contains(i0, i1)) {
             raiseBoundsError(i0, i1);
         }
@@ -173,7 +173,7 @@ public class DistArray[T] (
         return raw()(layout().offset(i0,i1));
     }
 
-    final public safe def apply(i0: int, i1: int, i2: int){rank==3}: T {
+    final public def apply(i0: int, i1: int, i2: int){rank==3}: T {
         if (checkBounds() && !region.contains(i0, i1, i2)) {
             raiseBoundsError(i0, i1, i2);
         }
@@ -183,7 +183,7 @@ public class DistArray[T] (
         return raw()(layout().offset(i0,i1,i2));
     }
 
-    final public safe def apply(i0: int, i1: int, i2: int, i3: int){rank==4}: T {
+    final public def apply(i0: int, i1: int, i2: int, i3: int){rank==4}: T {
         if (checkBounds() && !region.contains(i0, i1, i2, i3)) {
             raiseBoundsError(i0, i1, i2, i3);
         }
@@ -195,7 +195,7 @@ public class DistArray[T] (
 
 
     // XXXX settable order
-    public final safe def set(v: T, pt: Point(rank)): T {
+    public final def set(v: T, pt: Point(rank)): T {
         if (checkBounds() && !region.contains(pt)) {
             raiseBoundsError(pt);
         }
@@ -207,7 +207,7 @@ public class DistArray[T] (
         return v;
     }
 
-    final public safe def set(v: T, i0: int){rank==1}: T {
+    final public def set(v: T, i0: int){rank==1}: T {
         if (checkBounds() && !region.contains(i0)) {
             raiseBoundsError(i0);
         }
@@ -218,7 +218,7 @@ public class DistArray[T] (
         return v;
     }
 
-    final public safe def set(v: T, i0: int, i1: int){rank==2}: T {
+    final public def set(v: T, i0: int, i1: int){rank==2}: T {
         if (checkBounds() && !region.contains(i0, i1)) {
             raiseBoundsError(i0, i1);
         }
@@ -229,7 +229,7 @@ public class DistArray[T] (
         return v;
     }
 
-    final public safe def set(v: T, i0: int, i1: int, i2: int){rank==3}: T {
+    final public def set(v: T, i0: int, i1: int, i2: int){rank==3}: T {
         if (checkBounds() && !region.contains(i0, i1, i2)) {
             raiseBoundsError(i0, i1, i2);
         }
@@ -240,7 +240,7 @@ public class DistArray[T] (
         return v;
     }
 
-    final public safe def set(v: T, i0: int, i1: int, i2: int, i3: int){rank==4}: T {
+    final public def set(v: T, i0: int, i1: int, i2: int, i3: int){rank==4}: T {
         if (checkBounds() && !region.contains(i0, i1, i2, i3)) {
             raiseBoundsError(i0, i1, i2, i3);
         }
@@ -287,7 +287,7 @@ public class DistArray[T] (
      * restriction view
      */
 
-    public safe def restriction(d: Dist(rank)) {
+    public def restriction(d: Dist(rank)) {
         return new DistArray[T](this, d) as DistArray[T](rank);
     }
 
@@ -304,11 +304,11 @@ public class DistArray[T] (
     // views
     //
 
-    public safe def restriction(r: Region(rank)): DistArray[T](rank) {
+    public def restriction(r: Region(rank)): DistArray[T](rank) {
         return restriction(dist.restriction(r) as Dist(rank));
     }
 
-    public safe def restriction(p: Place): DistArray[T](rank) {
+    public def restriction(p: Place): DistArray[T](rank) {
         return restriction(dist.restriction(p) as Dist(rank));
     }
 
@@ -389,11 +389,11 @@ public class DistArray[T] (
     // ops
     //
 
-    public safe operator this | (r: Region(rank)) = restriction(r);
-    public safe operator this | (p: Place) = restriction(p);
+    public operator this | (r: Region(rank)) = restriction(r);
+    public operator this | (p: Place) = restriction(p);
 
 
-    public safe def toString(): String {
+    public def toString(): String {
         return "Array(" + dist + ")";
     }
 
@@ -407,36 +407,36 @@ public class DistArray[T] (
     public def iterator(): Iterator[Point(rank)] = region.iterator() as Iterator[Point(rank)];
 
 
-    private safe @NoInline @NoReturn def raiseBoundsError(i0:int) {
+    private @NoInline @NoReturn def raiseBoundsError(i0:int) {
         throw new ArrayIndexOutOfBoundsException("point (" + i0 + ") not contained in array");
     }    
-    private safe @NoInline @NoReturn def raiseBoundsError(i0:int, i1:int) {
+    private @NoInline @NoReturn def raiseBoundsError(i0:int, i1:int) {
         throw new ArrayIndexOutOfBoundsException("point (" + i0 + ", "+i1+") not contained in array");
     }    
-    private safe @NoInline @NoReturn def raiseBoundsError(i0:int, i1:int, i2:int) {
+    private @NoInline @NoReturn def raiseBoundsError(i0:int, i1:int, i2:int) {
         throw new ArrayIndexOutOfBoundsException("point (" + i0 + ", "+i1+", "+i2+") not contained in array");
     }    
-    private safe @NoInline @NoReturn def raiseBoundsError(i0:int, i1:int, i2:int, i3:int) {
+    private @NoInline @NoReturn def raiseBoundsError(i0:int, i1:int, i2:int, i3:int) {
         throw new ArrayIndexOutOfBoundsException("point (" + i0 + ", "+i1+", "+i2+", "+i3+") not contained in array");
     }    
-    private safe @NoInline @NoReturn def raiseBoundsError(pt:Point(rank)) {
+    private @NoInline @NoReturn def raiseBoundsError(pt:Point(rank)) {
         throw new ArrayIndexOutOfBoundsException("point " + pt + " not contained in array");
     }    
 
 
-    private safe @NoInline @NoReturn def raisePlaceError(i0:int) {
+    private @NoInline @NoReturn def raisePlaceError(i0:int) {
         throw new BadPlaceException("point (" + i0 + ") not defined at " + here);
     }    
-    private safe @NoInline @NoReturn def raisePlaceError(i0:int, i1:int) {
+    private @NoInline @NoReturn def raisePlaceError(i0:int, i1:int) {
         throw new BadPlaceException("point (" + i0 + ", "+i1+") not defined at " + here);
     }    
-    private safe @NoInline @NoReturn def raisePlaceError(i0:int, i1:int, i2:int) {
+    private @NoInline @NoReturn def raisePlaceError(i0:int, i1:int, i2:int) {
         throw new BadPlaceException("point (" + i0 + ", "+i1+", "+i2+") not defined at " + here);
     }    
-    private safe @NoInline @NoReturn def raisePlaceError(i0:int, i1:int, i2:int, i3:int) {
+    private @NoInline @NoReturn def raisePlaceError(i0:int, i1:int, i2:int, i3:int) {
         throw new BadPlaceException("point (" + i0 + ", "+i1+", "+i2+", "+i3+") not defined at " + here);
     }    
-    private safe @NoInline @NoReturn def raisePlaceError(pt:Point(rank)) {
+    private @NoInline @NoReturn def raisePlaceError(pt:Point(rank)) {
         throw new BadPlaceException("point " + pt + " not defined at " + here);
     }    
 }

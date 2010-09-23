@@ -312,7 +312,7 @@ public final class RectRegion extends Region{rect} {
     }
 
 
-    public safe def equals(thatObj:Any): boolean {
+    public def equals(thatObj:Any): boolean {
 	if (this == thatObj) return true;
         if (!(thatObj instanceof Region)) return false; 
         val that:Region = thatObj as Region;
@@ -344,7 +344,7 @@ public final class RectRegion extends Region{rect} {
     //
     //
 
-    public safe def toString(): String {
+    public def toString(): String {
         val thisMin = this.min();
         val thisMax = this.max();
         var s: String = "[";

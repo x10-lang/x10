@@ -23,14 +23,14 @@ import harness.x10Test;
 public class CF6 extends x10Test{
 
     public static class TotalsReducer1 implements Reducible[Totals2] {
-        public  safe def zero() = Totals2(0,0);
-        public  safe def apply(a:Totals2, other:Totals2 ) = Totals2(a.left+other.left,a.right+other.right); 
+        public  def zero() = Totals2(0,0);
+        public  def apply(a:Totals2, other:Totals2 ) = Totals2(a.left+other.left,a.right+other.right);
         public def this() {super();};
     }
     public static struct Totals2(left:int, right:int) {
         public def this (l:int, r:int)  {property(l,r);}
         public def this (){this(0,0);}
-        public safe def toString() = "(" + left  + "," + right + ")";
+        public def toString() = "(" + left  + "," + right + ")";
     }
 
     public def run():Boolean {

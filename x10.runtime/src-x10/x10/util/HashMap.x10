@@ -84,21 +84,21 @@ import x10.compiler.Pinned;
         return k.hashCode() * 17;
     }
     
-    public safe def apply(k: K): Box[V] = get(k);
+    public def apply(k: K): Box[V] = get(k);
     
-    public safe def get(k: K): Box[V] {
+    public def get(k: K): Box[V] {
         val e = getEntry(k);
         if (e == null || e.removed) return null;
         return e.value as Box[V];
     }
     
-    public safe def getOrElse(k: K, orelse: V): V {
+    public def getOrElse(k: K, orelse: V): V {
         val e = getEntry(k);
         if (e == null || e.removed) return orelse;
         return e.value;
     }
     
-    public safe def getOrThrow(k: K): V //throws NoSuchElementException 
+    public def getOrThrow(k: K): V //throws NoSuchElementException
     {
         val e = getEntry(k);
         if (e == null || e.removed) throw new NoSuchElementException("Not found");
@@ -142,7 +142,7 @@ import x10.compiler.Pinned;
         }
     }
     
-    public safe def put(k: K, v: V): Box[V] {
+    public def put(k: K, v: V): Box[V] {
         if (occupation == table.length || (shouldRehash && occupation >= table.length / 2))
             rehash();
 
@@ -197,7 +197,7 @@ import x10.compiler.Pinned;
         size = oldSize;
     }
     
-    public safe def containsKey(k: K): boolean {
+    public def containsKey(k: K): boolean {
         val e = getEntry(k);
         return e != null && ! e.removed;
     }

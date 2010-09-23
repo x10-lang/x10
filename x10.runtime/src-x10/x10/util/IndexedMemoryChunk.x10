@@ -71,7 +71,7 @@ public struct IndexedMemoryChunk[T] {
      */
     @Native("java", "(#0).apply$G(#1)")
     @Native("c++", "(#0)->apply(#1)")
-    public native safe def apply(index:int):T;
+    public native def apply(index:int):T;
 
 
     /**
@@ -82,7 +82,7 @@ public struct IndexedMemoryChunk[T] {
      */
     @Native("java", "(#0).apply$G((int)(#1))")
     @Native("c++", "(#0)->apply(#1)")
-    public native safe def apply(index:long):T;
+    public native def apply(index:long):T;
 
 
     /**
@@ -94,7 +94,7 @@ public struct IndexedMemoryChunk[T] {
      */
     @Native("java", "(#0).set(#1, #2)")
     @Native("c++", "(#0)->set(#1, #2)")
-    public native safe def set(value:T, index:int):void;
+    public native def set(value:T, index:int):void;
 
 
     /**
@@ -106,7 +106,7 @@ public struct IndexedMemoryChunk[T] {
      */
     @Native("java", "(#0).set(#1, (int)(#2))")
     @Native("c++", "(#0)->set(#1, #2)")
-    public native safe def set(value:T, index:long):void;
+    public native def set(value:T, index:long):void;
 
 
     /**
@@ -172,15 +172,15 @@ public struct IndexedMemoryChunk[T] {
 
     @Native("java", "((Object)#0).toString()")
     @Native("c++", "(#0)->toString()")
-    public safe native def  toString():String;
+    public native def  toString():String;
 
     @Native("java", "((Object)#0).equals(#1)")
     @Native("c++", "(#0)->equals(#1)")
-    public safe native def equals(that:Any):Boolean;
+    public native def equals(that:Any):Boolean;
 
     @Native("java", "((Object)#0).hashCode()")
     @Native("c++", "(#0)->hash_code()")
-    public safe native def  hashCode():Int;
+    public native def  hashCode():Int;
 }
 
 // vim:shiftwidth=4:tabstop=4:expandtab

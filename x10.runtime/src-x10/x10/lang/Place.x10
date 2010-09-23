@@ -124,8 +124,8 @@ public final struct Place(id: Int)  {
         return childIndex(id);
     }
 
-    public safe def toString() = "(Place " + this.id + ")";
-    public safe def equals(p:Place) = p.id==this.id; 
-    public safe def equals(p:Any) = p instanceof Place && (p as Place).id==this.id;
-    public safe def hashCode()=id;
+    public def toString() = "(Place " + this.id + ")";
+    public def equals(p:Place) = p.id==this.id;
+    public def equals(p:Any) = p instanceof Place && (p as Place).id==this.id;
+    public def hashCode()=id;
 }

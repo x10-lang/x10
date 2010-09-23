@@ -22,7 +22,7 @@ public final class OptionsParser {
     public static final class Err extends Exception {
         private val msg:String;
         public def this (m:String) { this.msg = m; }
-        safe public def toString() = "Commandline error: "+msg;
+        public def toString() = "Commandline error: "+msg;
     }
 
     private val map : HashMap[String,String];

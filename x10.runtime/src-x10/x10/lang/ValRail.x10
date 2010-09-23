@@ -67,7 +67,7 @@ public final class ValRail[+T](length: Int) implements (Int) => T, Iterable[T] {
     @Native("java", "(#0).apply$G(#1)")
     @Native("c++", "(#0)->apply(#1)")
     @Native("cuda", "(#0)[#1]")
-    public native safe def apply(i: Int): T;
+    public native def apply(i: Int): T;
     
     /**
      * Get an iterator over this ValRail.
@@ -89,7 +89,7 @@ public final class ValRail[+T](length: Int) implements (Int) => T, Iterable[T] {
      */
     @Native("java", "(#0).equals(#1)")
     @Native("c++", "(#0)->equals(#1)")
-    public safe native def equals(other:Any):boolean;
+    public native def equals(other:Any):boolean;
 
     private static class RailIterator[S] implements Iterator[S] {
         private var curIndex:int = 0;

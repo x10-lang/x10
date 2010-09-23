@@ -45,7 +45,7 @@ public class Throwable {
     
     @Native("java", "#0.getMessage()")
     @Native("c++", "(#0)->getMessage()")
-    public safe def getMessage() = message;
+    public def getMessage() = message;
     
     @Native("java", "#0.getCause()")
     @Native("c++", "(#0)->getCause()")
@@ -53,7 +53,7 @@ public class Throwable {
     
     @Native("java", "#0.toString()")
     @Native("c++", "x10aux::to_string(#0)")
-    public safe def toString() = typeName() + ": " + getMessage();
+    public def toString() = typeName() + ": " + getMessage();
    
     @Native("java", "x10.core.ThrowableUtilities.getStackTrace(#0)")
     @Native("c++", "(#0)->getStackTrace()")

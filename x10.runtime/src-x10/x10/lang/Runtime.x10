@@ -295,10 +295,10 @@ import x10.util.Box;
     	   this.sr=new StatefulReducer[T](r);
         }
         @Global public def makeRemote() = new RemoteCollectingFinish[T](reducer);
-        @Global public safe def equals(a:Any) =
+        @Global public def equals(a:Any) =
         	(a instanceof RootCollectingFinish[T]) && this.root.equals((a as RootCollectingFinish[T]).root);
-        @Global public safe def hashCode():Int = root.hashCode();
-        @Global public safe def home():Place = root.home;
+        @Global public def hashCode():Int = root.hashCode();
+        @Global public def home():Place = root.home;
         @Pinned def accept(t:T) {
     	   lock();
     	   sr.accept(t);
@@ -360,7 +360,7 @@ import x10.util.Box;
             c(here.id) = 1;
             counts = c;
         }
-        @Global public safe def hashCode() = root.hashCode();
+        @Global public def hashCode() = root.hashCode();
         /**
            Two RootFinish's are equal if they have == root's. Thus if a
            RootFinish makes a round-trip through other places it will
@@ -368,9 +368,9 @@ import x10.util.Box;
            get the effect of 2.0 interning for global object references
            in their home place.
          */
-        @Global public safe def equals(a:Any) =
+        @Global public def equals(a:Any) =
         	(a instanceof RootFinish) && (a as RootFinish).root.equals(this.root);
-        @Global public safe def home():Place = root.home;
+        @Global public def home():Place = root.home;
 
         @Pinned public def lock() = root().latch.lock();
         @Pinned public def unlock() = root().latch.unlock();
@@ -1020,10 +1020,10 @@ import x10.util.Box;
          public def this() {
              counts = 1;
          }
-         @Global public safe def equals(a:Any) =
+         @Global public def equals(a:Any) =
         	 (a instanceof SimpleRootFinish) && this.root.equals((a as SimpleRootFinish).root);
-        @Global public safe def hashCode() = root.hashCode();
-        @Global public safe def home()=root.home;
+        @Global public def hashCode() = root.hashCode();
+        @Global public def home()=root.home;
 
         @Pinned public def lock() = latch.lock();
         @Pinned public def unlock() = latch.unlock();
@@ -1579,10 +1579,10 @@ import x10.util.Box;
     	private val root = GlobalRef[RemoteControl](this);
         transient var e:Box[Throwable] = null;
         @SuppressTransientError transient val latch = new Latch();
-        @Global public safe def equals(a:Any) =
+        @Global public def equals(a:Any) =
         	(a instanceof RemoteControl) && this.root.equals((a as RemoteControl).root);
-        @Global public safe def hashCode()=root.hashCode();
-        @Global public safe def home() = root.home();
+        @Global public def hashCode()=root.hashCode();
+        @Global public def home() = root.home();
     }
 
     public static def runAt(place:Place, body:()=>void):void {
@@ -1623,10 +1623,10 @@ import x10.util.Box;
         transient var e:Box[Throwable] = null;
         @SuppressTransientError transient val latch = new Latch();
         private val root = GlobalRef[Remote](this);
-        @Global public safe def equals(a:Any)=
+        @Global public def equals(a:Any)=
         	(a instanceof Remote[T]) && this.root.equals((a as Remote[T]).root);
-        @Global public safe def hashCode()=root.hashCode();
-        @Global public safe def home() = root.home();
+        @Global public def hashCode()=root.hashCode();
+        @Global public def home() = root.home();
     }
 
     public static def evalAt[T](place:Place, eval:()=>T):T {

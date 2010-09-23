@@ -48,45 +48,45 @@ public struct Complex /*TODO implements Arithmetic[Complex]*/ {
     /**
      * @return the sum of this complex number and the given complex number.
      */
-    public safe operator this + (that:Complex):Complex {
+    public operator this + (that:Complex):Complex {
         return Complex(re + that.re, im + that.im);
     }
 
     /**
      * @return the sum of the given double and the given complex number.
      */
-    public static safe operator (x:Double) + (y:Complex): Complex = y + x;
+    public static operator (x:Double) + (y:Complex): Complex = y + x;
 
     /**
      * @return the sum of this complex number and the given double.
      */
-    public safe operator this + (that:Double):Complex {
+    public operator this + (that:Double):Complex {
         return Complex(re + that, im);
     }
 
     /**
      * @return the difference between this complex number and the given complex number.
      */
-    public safe operator this - (that:Complex):Complex {
+    public operator this - (that:Complex):Complex {
         return Complex(re - that.re, im - that.im);
     }
 
     /**
      * @return the difference between the given double and this complex number.
      */
-    public static safe operator (x:Double) - (y:Complex): Complex = Complex(x - y.re, -y.im);
+    public static operator (x:Double) - (y:Complex): Complex = Complex(x - y.re, -y.im);
 
     /**
      * @return the difference between this complex number and the given double.
      */
-    public safe operator this - (that:Double):Complex {
+    public operator this - (that:Double):Complex {
         return Complex(re - that, im);
     }
 
     /**
      * @return the product of this complex number and the given complex number.
      */
-    public safe operator this * (that:Complex):Complex {
+    public operator this * (that:Complex):Complex {
         return Complex(re * that.re - im * that.im,
                        re * that.im + im * that.re);
     }
@@ -94,12 +94,12 @@ public struct Complex /*TODO implements Arithmetic[Complex]*/ {
     /**
      * @return the product of the given double and this complex number.
      */
-    public static safe operator (x:Double) * (y:Complex): Complex = y * x;
+    public static operator (x:Double) * (y:Complex): Complex = y * x;
 
     /**
      * @return the product of this complex number and the given double.
      */
-    public safe operator this * (that:Double):Complex {
+    public operator this * (that:Double):Complex {
         return Complex(re * that, im * that);
     }
 
@@ -109,7 +109,7 @@ public struct Complex /*TODO implements Arithmetic[Complex]*/ {
      * TODO: consider using Priest's algorithm {@link http://doi.acm.org/10.1145/1039813.1039814}.
      * @return the quotient of this complex number and the given complex number.
      */
-    public safe operator this / (that:Complex):Complex {
+    public operator this / (that:Complex):Complex {
         if (isNaN() || that.isNaN()) {
             return Complex.NaN;
         }
@@ -146,19 +146,19 @@ public struct Complex /*TODO implements Arithmetic[Complex]*/ {
     /**
      * @return the quotient of the given double and this complex number.
      */
-    public static safe operator (x:Double) / (y:Complex): Complex = Complex(x, 0.0) / y;
+    public static operator (x:Double) / (y:Complex): Complex = Complex(x, 0.0) / y;
 
     /**
      * @return the quotient of this complex number and the given double.
      */
-    public safe operator this / (that:Double):Complex {
+    public operator this / (that:Double):Complex {
         return Complex(re / that, im / that);
     }
 
     /**
      * @return the conjugate of this complex number.
      */
-    public safe def conjugate():Complex {
+    public def conjugate():Complex {
         if (isNaN()) {
             return Complex.NaN;
         }
@@ -168,12 +168,12 @@ public struct Complex /*TODO implements Arithmetic[Complex]*/ {
     /**
      * @return this complex number.
      */
-    public safe operator + this:Complex  = this;
+    public operator + this:Complex  = this;
 
     /**
      * @return the negation of this complex number.
      */
-    public safe operator - this:Complex  = isNaN() ? Complex.NaN : Complex(-re, -im);
+    public operator - this:Complex  = isNaN() ? Complex.NaN : Complex(-re, -im);
 
     /**
      * Return the absolute value of this complex number.
@@ -185,7 +185,7 @@ public struct Complex /*TODO implements Arithmetic[Complex]*/ {
      *
      * @return the absolute value of this complex number.
      */
-    public safe def abs():Double {
+    public def abs():Double {
         if (isNaN()) {
             return Double.NaN;
         }
@@ -207,7 +207,7 @@ public struct Complex /*TODO implements Arithmetic[Complex]*/ {
     /**
      * @return true if either part of this complex number is <code>NaN</code>.
      */
-    public safe def isNaN():boolean {
+    public def isNaN():boolean {
         return re.isNaN() || im.isNaN();
     }
 
@@ -215,7 +215,7 @@ public struct Complex /*TODO implements Arithmetic[Complex]*/ {
      * @return true if either part of this complex number is infinite
      * and neither part is <code>NaN</code>.
      */
-    public safe def isInfinite():boolean {
+    public def isInfinite():boolean {
         return !isNaN() &&
         (re.isInfinite() || im.isInfinite());
     }
@@ -223,7 +223,7 @@ public struct Complex /*TODO implements Arithmetic[Complex]*/ {
     /**
      * @return the string representation of this complex number.
      */
-    public safe def toString():String {
+    public def toString():String {
         return (re + " + " + im + "i");
     }
 }

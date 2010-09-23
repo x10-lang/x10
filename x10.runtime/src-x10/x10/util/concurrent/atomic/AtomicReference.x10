@@ -26,35 +26,35 @@ public final class AtomicReference[T]{T<:Object} {
 	// Hack around XTENLANG-127.  Delete as soon as it is fixed.
 	@Native("java", "(new java.util.concurrent.atomic.AtomicReference<#1>())")
 	@Native("c++", "x10::util::concurrent::atomic::AtomicReference<#1 >::_make()")
-	public static safe native def newAtomicReference[T]():AtomicReference[T];
+	public static native def newAtomicReference[T]():AtomicReference[T];
 
 	// Hack around XTENLANG-127.  Delete as soon as it is fixed.
 	@Native("java", "(new java.util.concurrent.atomic.AtomicReference<#1>(#4))")
 	@Native("c++", "x10::util::concurrent::atomic::AtomicReference<#1 >::_make(#4)")
-	public static safe  native def newAtomicReference[T](v:T):AtomicReference[T];
+	public static  native def newAtomicReference[T](v:T):AtomicReference[T];
 
 	@Native("java", "#0.get()")
 	@Native("c++", "(#0)->get()")
-	public native safe def get():T;
+	public native def get():T;
 
 	@Native("java", "#0.set(#1)")
 	@Native("c++", "(#0)->set(#1)")
-	public native safe def set(v:T):void;
+	public native def set(v:T):void;
 
 	@Native("java", "#0.compareAndSet(#1,#2)")
 	@Native("c++", "(#0)->compareAndSet(#1,#2)")
-	public native safe def compareAndSet(expect:T, update:T):boolean;
+	public native def compareAndSet(expect:T, update:T):boolean;
 
 	@Native("java", "#0.weakCompareAndSet(#1,#2)")
 	@Native("c++", "(#0)->weakCompareAndSet(#1,#2)")
-	public native safe def weakCompareAndSet(expect:T, update:T):boolean;
+	public native def weakCompareAndSet(expect:T, update:T):boolean;
 	
 	@Native("java", "#0.getAndSet(#1)")
 	@Native("c++", "(#0)->getAndSet(#1)")
-	public native safe def getAndSet(v:T):T;
+	public native def getAndSet(v:T):T;
 
 	@Native("java", "#0.toString()")
 	@Native("c++", "(#0)->toString()")
-	public safe native def toString():String;
+	public native def toString():String;
 }
  

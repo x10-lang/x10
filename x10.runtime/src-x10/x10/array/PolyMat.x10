@@ -263,7 +263,7 @@ public class PolyMat(rank: int) extends Mat[PolyRow] {
     }
 
 
-    public safe def toString(): String {
+    public def toString(): String {
 
         var s: String = "(";
         var first: boolean = true;

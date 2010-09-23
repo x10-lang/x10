@@ -28,7 +28,7 @@ public class StringBuilder implements Builder[Object,String] {
      *
      * @return the String object being constructed by the StringBuilder
      */
-    public safe def toString() {
+    public def toString() {
       return result();
     }
 
@@ -105,7 +105,7 @@ public class StringBuilder implements Builder[Object,String] {
 
     @Native("java", "new String(#1.getCharArray())")
     @Native("c++", "x10aux::vrc_to_string(#1)")
-    private static safe native def makeString(ValRail[Char]): String;
+    private static native def makeString(ValRail[Char]): String;
 
     public def result() = makeString(buf.result());
 }

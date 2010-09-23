@@ -23,7 +23,7 @@ public class GlobalCell[T] {
      * Return a string representation of the GlobalCell.
      * 
      */
-    public safe def toString()  = root.toString();
+    public def toString()  = root.toString();
 
 
     /**

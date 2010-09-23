@@ -42,7 +42,7 @@ public interface Any {
      */
     @Native("java", "((java.lang.Object)(#0)).toString()")
     @Native("c++", "x10aux::to_string(#0)")
-    safe def toString():String;
+    def toString():String;
 
     /**
      * Return a string representation of the run-time type of this entity.
@@ -53,7 +53,7 @@ public interface Any {
     @Native("java", "x10.rtt.Types.typeName(#0)")
     @Native("c++", "x10aux::type_name(#0)")
     @NonEscaping("")
-    safe def typeName():String;
+    def typeName():String;
 
     /**
      * Return true if this entity is equal to the given entity in an
@@ -74,7 +74,7 @@ public interface Any {
      */
     @Native("java", "((java.lang.Object)(#0)).equals(#1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    safe def equals(that:Any):Boolean;
+    def equals(that:Any):Boolean;
 
     /**
      * Return the implementation-defined hash code of this entity.
@@ -92,7 +92,7 @@ public interface Any {
      */
     @Native("java", "((Object)(#0)).hashCode()")
     @Native("c++", "x10aux::hash_code(#0)")
-    safe def hashCode():Int;
+    def hashCode():Int;
 }
 
 // vim:shiftwidth=4:tabstop=4:expandtab

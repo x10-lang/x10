@@ -36,7 +36,7 @@ public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Orde
      */
     @Native("java", "((#1) < (#2))")
     @Native("c++",  "((#1) < (#2))")
-    public native static safe operator (x:Byte) < (y:Byte): Boolean;
+    public native static operator (x:Byte) < (y:Byte): Boolean;
 
     /**
      * A greater-than operator.
@@ -48,7 +48,7 @@ public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Orde
      */
     @Native("java", "((#1) > (#2))")
     @Native("c++",  "((#1) > (#2))")
-    public native static safe operator (x:Byte) > (y:Byte): Boolean;
+    public native static operator (x:Byte) > (y:Byte): Boolean;
 
     /**
      * A less-than-or-equal-to operator.
@@ -60,7 +60,7 @@ public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Orde
      */
     @Native("java", "((#1) <= (#2))")
     @Native("c++",  "((#1) <= (#2))")
-    public native static safe operator (x:Byte) <= (y:Byte): Boolean;
+    public native static operator (x:Byte) <= (y:Byte): Boolean;
 
     /**
      * A greater-than-or-equal-to operator.
@@ -72,7 +72,7 @@ public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Orde
      */
     @Native("java", "((#1) >= (#2))")
     @Native("c++",  "((#1) >= (#2))")
-    public native static safe operator (x:Byte) >= (y:Byte): Boolean;
+    public native static operator (x:Byte) >= (y:Byte): Boolean;
 
 
     /**
@@ -85,7 +85,7 @@ public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Orde
      */
     @Native("java", "((byte) ((#1) + (#2)))")
     @Native("c++",  "((x10_byte) ((#1) + (#2)))")
-    public native static safe operator (x:Byte) + (y:Byte): Byte;
+    public native static operator (x:Byte) + (y:Byte): Byte;
 
     /**
      * A binary minus operator.
@@ -97,7 +97,7 @@ public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Orde
      */
     @Native("java", "((byte) ((#1) - (#2)))")
     @Native("c++",  "((x10_byte) ((#1) - (#2)))")
-    public native static safe operator (x:Byte) - (y:Byte): Byte;
+    public native static operator (x:Byte) - (y:Byte): Byte;
 
     /**
      * A binary multiply operator.
@@ -109,7 +109,7 @@ public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Orde
      */
     @Native("java", "((byte) ((#1) * (#2)))")
     @Native("c++",  "((x10_byte) ((#1) * (#2)))")
-    public native static safe operator (x:Byte) * (y:Byte): Byte;
+    public native static operator (x:Byte) * (y:Byte): Byte;
 
     /**
      * A binary divide operator.
@@ -120,7 +120,7 @@ public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Orde
      */
     @Native("java", "((byte) ((#1) / (#2)))")
     @Native("c++",  "((x10_byte) ((#1) / (#2)))")
-    public native static safe operator (x:Byte) / (y:Byte): Byte;
+    public native static operator (x:Byte) / (y:Byte): Byte;
 
     /**
      * A binary remainder operator.
@@ -131,7 +131,7 @@ public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Orde
      */
     @Native("java", "((byte) ((#1) % (#2)))")
     @Native("c++",  "((x10_byte) ((#1) % (#2)))")
-    public native static safe operator (x:Byte) % (y:Byte): Byte;
+    public native static operator (x:Byte) % (y:Byte): Byte;
 
     /**
      * A unary plus operator.
@@ -141,7 +141,7 @@ public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Orde
      */
     @Native("java", "((byte) +(#1))")
     @Native("c++",  "((x10_byte) +(#1))")
-    public native static safe operator + (x:Byte): Byte;
+    public native static operator + (x:Byte): Byte;
 
     /**
      * A unary minus operator.
@@ -152,7 +152,7 @@ public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Orde
      */
     @Native("java", "((byte) -(#1))")
     @Native("c++",  "((x10_byte) -(#1))")
-    public native static safe operator - (x:Byte): Byte;
+    public native static operator - (x:Byte): Byte;
 
 
     /**
@@ -164,7 +164,7 @@ public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Orde
      */
     @Native("java", "((byte) ((#1) & (#2)))")
     @Native("c++",  "((x10_byte) ((#1) & (#2)))")
-    public native static safe operator (x:Byte) & (y:Byte): Byte;
+    public native static operator (x:Byte) & (y:Byte): Byte;
 
     /**
      * A bitwise or operator.
@@ -175,7 +175,7 @@ public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Orde
      */
     @Native("java", "((byte) ((#1) | (#2)))")
     @Native("c++",  "((x10_byte) ((#1) | (#2)))")
-    public native static safe operator (x:Byte) | (y:Byte): Byte;
+    public native static operator (x:Byte) | (y:Byte): Byte;
 
     /**
      * A bitwise xor operator.
@@ -186,7 +186,7 @@ public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Orde
      */
     @Native("java", "((byte) ((#1) ^ (#2)))")
     @Native("c++",  "((x10_byte) ((#1) ^ (#2)))")
-    public native static safe operator (x:Byte) ^ (y:Byte): Byte;
+    public native static operator (x:Byte) ^ (y:Byte): Byte;
 
     /**
      * A bitwise left shift operator.
@@ -198,7 +198,7 @@ public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Orde
      */
     @Native("java", "((byte) ((#1) << (#2)))")
     @Native("c++",  "((x10_byte) ((#1) << (#2)))")
-    public native static safe operator (x:Byte) << (count:Int): Byte;
+    public native static operator (x:Byte) << (count:Int): Byte;
 
     /**
      * A bitwise right shift operator.
@@ -211,7 +211,7 @@ public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Orde
      */
     @Native("java", "((byte) ((#1) >> (#2)))")
     @Native("c++",  "((x10_byte) ((#1) >> (#2)))")
-    public native static safe operator (x:Byte) >> (count:Int): Byte;
+    public native static operator (x:Byte) >> (count:Int): Byte;
 
     /**
      * A bitwise logical right shift operator (zero-fill).
@@ -225,7 +225,7 @@ public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Orde
      */
     @Native("java", "((byte) ((#1) >>> (#2)))")
     @Native("c++",  "((x10_byte) ((x10_uint) (#1) >> (#2)))")
-    public native static safe operator (x:Byte) >>> (count:Int): Byte;
+    public native static operator (x:Byte) >>> (count:Int): Byte;
 
     /**
      * A bitwise complement operator.
@@ -235,7 +235,7 @@ public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Orde
      */
     @Native("java", "((byte) ~(#1))")
     @Native("c++",  "((x10_byte) ~(#1))")
-    public native static safe operator ~ (x:Byte): Byte;
+    public native static operator ~ (x:Byte): Byte;
 
 
     /**
@@ -245,7 +245,7 @@ public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Orde
      */
     @Native("java", "((byte)(short)(#1))")
     @Native("c++",  "((x10_byte) (#1))")
-    public native static safe operator (x:Short) as Byte;
+    public native static operator (x:Short) as Byte;
 
     /**
      * Convert a given Int to a Byte.
@@ -254,7 +254,7 @@ public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Orde
      */
     @Native("java", "((byte)(int)(#1))")
     @Native("c++",  "((x10_byte) (#1))")
-    public native static safe operator (x:Int) as Byte;
+    public native static operator (x:Int) as Byte;
 
     /**
      * Convert a given Long to a Byte.
@@ -263,7 +263,7 @@ public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Orde
      */
     @Native("java", "((byte)(long)(#1))")
     @Native("c++",  "((x10_byte) (#1))")
-    public native static safe operator (x:Long) as Byte;
+    public native static operator (x:Long) as Byte;
 
     /**
      * Convert a given Float to a Byte.
@@ -272,7 +272,7 @@ public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Orde
      */
     @Native("java", "x10.core.Floats.toByte(#1)")
     @Native("c++",  "((x10_byte) (#1))")
-    public native static safe operator (x:Float) as Byte;
+    public native static operator (x:Float) as Byte;
 
     /**
      * Convert a given Double to a Byte.
@@ -281,7 +281,7 @@ public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Orde
      */
     @Native("java", "x10.core.Floats.toByte(#1)")
     @Native("c++",  "((x10_byte) (#1))")
-    public native static safe operator (x:Double) as Byte;
+    public native static operator (x:Double) as Byte;
 
     /**
      * Coerce a given UByte to a Byte.
@@ -290,7 +290,7 @@ public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Orde
      */
     @Native("java", "((byte)(#1.byteVal))")
     @Native("c++",  "((x10_byte) (#1))")
-    public native static safe operator (x:UByte): Byte;
+    public native static operator (x:UByte): Byte;
 
 
     /**
@@ -314,7 +314,7 @@ public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Orde
      */
     @Native("java", "x10.core.Bytes.toString(#0, #1)")
     @Native("c++", "x10aux::byte_utils::toString(#0, #1)")
-    public safe native def toString(radix:Int): String;
+    public native def toString(radix:Int): String;
 
     /**
      * Returns a String representation of this Byte as a hexadecimal number.
@@ -322,7 +322,7 @@ public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Orde
      */
     @Native("java", "x10.core.Bytes.toString(#0, 16)")
     @Native("c++", "x10aux::byte_utils::toHexString(#0)")
-    public safe native def toHexString(): String;
+    public native def toHexString(): String;
 
     /**
      * Returns a String representation of this Byte as an octal number.
@@ -330,7 +330,7 @@ public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Orde
      */
     @Native("java", "x10.core.Bytes.toString(#0, 8)")
     @Native("c++", "x10aux::byte_utils::toOctalString(#0)")
-    public safe native def toOctalString(): String;
+    public native def toOctalString(): String;
 
     /**
      * Returns a String representation of this Byte as a binary number.
@@ -338,7 +338,7 @@ public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Orde
      */
     @Native("java", "x10.core.Bytes.toString(#0, 2)")
     @Native("c++", "x10aux::byte_utils::toBinaryString(#0)")
-    public safe native def toBinaryString(): String;
+    public native def toBinaryString(): String;
 
     /**
      * Returns a String representation of this Byte as a decimal number.
@@ -346,7 +346,7 @@ public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Orde
      */
     @Native("java", "java.lang.Byte.toString(#0)")
     @Native("c++", "x10aux::to_string(#0)")
-    public safe native def toString(): String;
+    public native def toString(): String;
 
     /**
      * @deprecated use {@link #parse(String,Int)} instead
@@ -416,7 +416,7 @@ public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Orde
      */
     @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public safe native def equals(x:Any):Boolean;
+    public native def equals(x:Any):Boolean;
 
     /**
      * Returns true if this Byte is equal to the given Byte.
@@ -425,5 +425,5 @@ public final struct Byte /*TODO implements Arithmetic[Byte], Bitwise[Byte], Orde
      */
     @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public safe native def equals(x:Byte):Boolean;
+    public native def equals(x:Byte):Boolean;
 }

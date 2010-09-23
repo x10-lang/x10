@@ -45,7 +45,7 @@ public class PlaceCheck1 extends x10Test {
 
 	public static def getNotHere() = here.next();
 	public var foo: int;
-	public safe def foo_method() = 42;
+	public def foo_method() = 42;
 
 	public static def checkFieldAccess() {
 		var ret: boolean = false;
