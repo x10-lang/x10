@@ -11,7 +11,13 @@ public class SimplePatternFinder extends PatternFinder{
 		this.g = g;
 		this.visited = new HashSet<CommunicationNode>();
 	}
-
+	public SimplePatternFinder(CommunicationGraph g, HashMap<CommunicationNode, Integer> r,
+			HashSet<PatternFinder.Filter> mask){
+		this.results = r;
+		this.g = g;
+		this.visited = new HashSet<CommunicationNode>();
+		this.mask = mask;
+	}
 	public boolean areLabelsSpecial(Iterator<? extends CommunicationLabel> il) {
 		boolean hasRemote = false;
 		while(il.hasNext()){
@@ -37,6 +43,10 @@ public class SimplePatternFinder extends PatternFinder{
 		Iterator<CommunicationNode> it = g.getSuccNodes(n);
 		while(it.hasNext()){
 			CommunicationNode suc = it.next();
+			if(isFiltered(suc)){
+				results.put(suc,new Integer(0));
+				break;
+			}
 			if(!visited.contains(suc)){
 				p = hasPattern(suc);
 			}else{

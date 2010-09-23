@@ -1,12 +1,19 @@
 package com.ibm.wala.cast.x10.analysis.util;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 
 public class LocalPatternFinder extends PatternFinder{
 	public LocalPatternFinder(CommunicationGraph g, HashMap<CommunicationNode, Integer> r){
 		this.results = r;
 		this.g = g;
+	}
+	public LocalPatternFinder(CommunicationGraph g, HashMap<CommunicationNode, Integer> r,
+			HashSet<PatternFinder.Filter> mask){
+		this.results = r;
+		this.g = g;
+		this.mask = mask;
 	}
 	public boolean isLabelSpecial(CommunicationLabel l){
 		return l.isLocal;
@@ -37,6 +44,10 @@ public class LocalPatternFinder extends PatternFinder{
 		Iterator<CommunicationNode> it = g.getSuccNodes(n);
 		while(it.hasNext()){
 			CommunicationNode suc = it.next();
+			if(isFiltered(suc)){
+				results.put(suc, new Integer(0));
+				break;
+			}
 			flag = flag && (hasPattern(suc)==1);
 			if(flag == false){
 				results.remove(n);
