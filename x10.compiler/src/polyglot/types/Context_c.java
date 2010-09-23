@@ -384,7 +384,7 @@ public class Context_c implements Context
      */
     public Context pushCode(CodeDef ci) {
         if (Report.should_report(TOPICS, 4))
-          Report.report(4, "push code " + ci + " " + ci.position());
+          Report.report(4, "push code " + ci.position());
         Context_c v = push();
         v.kind = CODE;
         v.code = ci;
@@ -441,7 +441,7 @@ public class Context_c implements Context
      */
     public void addVariable(VarInstance<?> vi) {
         if (Report.should_report(TOPICS, 3))
-          Report.report(3, "Adding " + vi + " to context.");
+          Report.report(3, "Adding " + vi.name() + " to context.");
         addVariableToThisScope(vi);
     }
 
@@ -450,7 +450,7 @@ public class Context_c implements Context
      */
     public void addNamed(Named t) {
         if (Report.should_report(TOPICS, 3))
-          Report.report(3, "Adding type " + t + " to context.");
+          Report.report(3, "Adding type " + t.name() + " to context.");
         addNamedToThisScope(t);
     }
 

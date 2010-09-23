@@ -1341,10 +1341,10 @@ public class InitChecker extends DataFlow
                                            DataFlowItem dfIn,
                                            DataFlowItem dfOut) {
 
+        if (!(currCBI.currCodeDecl instanceof ConstructorDecl)) return; // if we property(...) in some method
         for (FieldInstance p : a.properties()) {
             FieldDef fi = p.def();
             assert (fi.flags().isFinal());
-            assert (currCBI.currCodeDecl instanceof ConstructorDecl);
             // The property can be assigned to at most once.
             MinMaxInitCount initCount = dfOut.initStatus.get(fi);
             if (initCount == null) {

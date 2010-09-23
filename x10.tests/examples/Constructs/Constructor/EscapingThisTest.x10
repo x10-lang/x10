@@ -646,7 +646,12 @@ class EscapingCtorTest(p:EscapingCtorTest) {
 		val alias = this; // ERR
 		val callToString = ""+this; // ERR
 		val callOp1 = q+this; // ERR
-		val callOp2 = this+q; // ERR
+		val callOp2 = this+q; 
+		val callOp3 = q*this; 
+		val callOp4 = this*q; // ERR
+		val callApply1 = this(null);
+		val callApply2 = this(this); // ERR
+		this(null);
 		q.tt = this; // ERR
 		this.tt = q;
 		q.tt = this.tt;
@@ -657,7 +662,10 @@ class EscapingCtorTest(p:EscapingCtorTest) {
 		this.m(); 
 
 	}
-	operator this+(that:EscapingCtorTest):EscapingCtorTest = null;
+	final operator this+(that:EscapingCtorTest):EscapingCtorTest = null;
+	final operator (that:EscapingCtorTest)*this:EscapingCtorTest = null;
+	final def apply(that:EscapingCtorTest):EscapingCtorTest = null;
+
 	final def m() {
 		g();
 	}

@@ -127,8 +127,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 	}
 
     /**
-     * An explicit property call is a static context. We need to record
-     * this.
+     * ConstructorCall and AssignPropertyCall are a static context.
      */
     public Context enterScope(Context c) {
         return c.pushStatic();

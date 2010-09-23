@@ -99,7 +99,6 @@ import x10.plugin.RegisterPlugins;
 import x10.types.X10SourceClassResolver;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
-import x10.visit.AssignPropertyChecker;
 import x10.visit.CheckNativeAnnotationsVisitor;
 import x10.visit.Desugarer;
 import x10.visit.ExprFlattener;
@@ -402,7 +401,6 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(InitializationsChecked(job));
            goals.add(ConstructorCallsChecked(job));
            goals.add(ForwardReferencesChecked(job));
-           goals.add(PropertyAssignmentsChecked(job));
 //           goals.add(CheckNativeAnnotations(job));
            goals.add(CheckASTForErrors(job));
 //           goals.add(TypeCheckBarrier());
@@ -811,11 +809,6 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            return new ForgivingVisitorGoal("ForwardRefsChecked", job, new FwdReferenceChecker(job, ts, nf)).intern(this);
        }
 
-       public Goal PropertyAssignmentsChecked(Job job) {
-           TypeSystem ts = extInfo.typeSystem();
-           NodeFactory nf = extInfo.nodeFactory();
-           return new ForgivingVisitorGoal("PropertyAssignmentsChecked", job, new AssignPropertyChecker(job, ts, nf)).intern(this);
-       }
 
        public String nativeAnnotationLanguage() { return "java"; }
 
