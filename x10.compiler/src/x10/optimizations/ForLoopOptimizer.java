@@ -433,7 +433,7 @@ public class ForLoopOptimizer extends ContextVisitor {
      * TODO: move into Synthesizer
      */
     public LocalDecl createLocalDecl(Position pos, LocalDef def, Expr init) {
-        return xnf.LocalDecl( pos, 
+        return xnf.LocalDecl( pos.markCompilerGenerated(), 
                               xnf.FlagsNode(pos, def.flags()),
                               xnf.CanonicalTypeNode(pos, def.type().get()), 
                               xnf.Id(pos, def.name()),
