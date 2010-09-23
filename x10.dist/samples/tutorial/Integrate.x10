@@ -18,7 +18,7 @@
  * It also can serve as an example of using a closure.
  */
 public class Integrate { 
-  static epsilon = 1.0e-12;
+  static val epsilon = 1.0e-9;
 
   val fun:(double)=>double;
 
@@ -31,6 +31,7 @@ public class Integrate {
   }
 
   private def recEval(l:double, fl:double, r:double, fr:double, a:double) {
+	  Console.OUT.println("receval:" + l + " " + r);
     val h = (r - l) / 2;
     val hh = h / 2;
     val c = l + h;
