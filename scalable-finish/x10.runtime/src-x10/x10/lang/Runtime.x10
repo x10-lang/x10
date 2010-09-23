@@ -566,6 +566,7 @@ public final class Runtime {
             if (here.equals(home)) {
                 (this as RootFinish!).notifySubActivitySpawnLocal(place);
             } else {
+                Console.OUT.println("remote spwan ");
                 (Runtime.proxy(this) as RemoteFinish!).notifySubActivitySpawn(place);
             }
         }
