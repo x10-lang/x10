@@ -98,7 +98,8 @@ import x10.compiler.Pinned;
         return e.value;
     }
     
-    public safe def getOrThrow(k: K): V throws NoSuchElementException {
+    public safe def getOrThrow(k: K): V //throws NoSuchElementException 
+    {
         val e = getEntry(k);
         if (e == null || e.removed) throw new NoSuchElementException("Not found");
         return e.value;

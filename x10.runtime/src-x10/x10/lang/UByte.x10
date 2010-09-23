@@ -534,7 +534,8 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "((byte) (java.lang.Integer.parseInt(#1, #2) & 0xff))")
     @Native("c++", "((x10_ubyte) x10aux::int_utils::parseInt(#1, #2))")
-    public static def parseUByte(s:String, radix:Int): UByte throws NumberFormatException {
+    public static def parseUByte(s:String, radix:Int): UByte //throws NumberFormatException 
+    {
         return UByte(Byte.parse(s, radix));
     }
 
@@ -543,7 +544,8 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "java.lang.Integer.parseInt(#1)")
     @Native("c++", "x10aux::int_utils::parseInt(#1)")
-    public static def parseUByte(s:String): UByte throws NumberFormatException {
+    public static def parseUByte(s:String): UByte //throws NumberFormatException 
+    {
         return UByte(Byte.parse(s));
     }
 
@@ -556,7 +558,8 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "((byte) (java.lang.Integer.parseInt(#1, #2) & 0xff))")
     @Native("c++", "((x10_ubyte) x10aux::int_utils::parseInt(#1, #2))")
-    public static def parse(s:String, radix:Int): UByte throws NumberFormatException {
+    public static def parse(s:String, radix:Int): UByte //throws NumberFormatException 
+    {
         return UByte(Byte.parse(s, radix));
     }
 
@@ -568,7 +571,8 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "java.lang.Integer.parseInt(#1)")
     @Native("c++", "x10aux::int_utils::parseInt(#1)")
-    public static def parse(s:String): UByte throws NumberFormatException {
+    public static def parse(s:String): UByte //throws NumberFormatException 
+    {
         return UByte(Byte.parse(s));
     }
 

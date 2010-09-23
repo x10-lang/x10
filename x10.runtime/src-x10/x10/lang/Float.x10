@@ -321,7 +321,7 @@ public final struct Float /*TODO implements Arithmetic[Float], Ordered[Float]*/ 
      */
     @Native("java", "java.lang.Float.parseFloat(#1)")
     @Native("c++", "x10aux::float_utils::parseFloat(#1)")
-    public native static def parseFloat(String): Float throws NumberFormatException;
+    public native static def parseFloat(String): Float; //throwsNumberFormatException;
 
     /**
      * Parses the String argument as a Float value.
@@ -331,7 +331,7 @@ public final struct Float /*TODO implements Arithmetic[Float], Ordered[Float]*/ 
      */
     @Native("java", "java.lang.Float.parseFloat(#1)")
     @Native("c++", "x10aux::float_utils::parseFloat(#1)")
-    public native static def parse(s:String): Float throws NumberFormatException;
+    public native static def parse(s:String): Float; //throwsNumberFormatException;
 
 
     /**

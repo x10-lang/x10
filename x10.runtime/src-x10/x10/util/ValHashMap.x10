@@ -76,7 +76,8 @@ public class ValHashMap[K,V] implements ValMap[K,V] {
 	   return index;
     }
     
-    public safe def getOrThrow(k: K): V throws NoSuchElementException {
+    public safe def getOrThrow(k: K): V //throws NoSuchElementException 
+    {
         val e = getEntry(k);
         if (e == null) throw new NoSuchElementException("Not found");
         return e.value;

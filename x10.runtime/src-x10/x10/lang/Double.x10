@@ -318,7 +318,7 @@ public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]
      */
     @Native("java", "java.lang.Double.parseDouble(#1)")
     @Native("c++", "x10aux::double_utils::parseDouble(#1)")
-    public native static def parseDouble(String): Double throws NumberFormatException;
+    public native static def parseDouble(String): Double ; //throwsNumberFormatException;
 
     /**
      * Parses the String argument as a Double value.
@@ -328,7 +328,7 @@ public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]
      */
     @Native("java", "java.lang.Double.parseDouble(#1)")
     @Native("c++", "x10aux::double_utils::parseDouble(#1)")
-    public native static def parse(s:String): Double throws NumberFormatException;
+    public native static def parse(s:String): Double ; //throwsNumberFormatException;
 
 
     /**

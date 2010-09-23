@@ -23,10 +23,11 @@ public class FileReader extends InputStreamReader {
     @NativeRep("c++", "x10aux::ref<x10::io::FileReader__FileInputStream>", "x10::io::FileReader__FileInputStream", null)
     protected final static class FileInputStream extends InputStream {
         @Native("java", "new Object() { java.io.FileInputStream eval(String s) { try { return new java.io.FileInputStream(s); } catch (java.io.FileNotFoundException e) { throw new x10.io.FileNotFoundException(e.getMessage()); } } }.eval(#1)")
-        public native def this(String) throws FileNotFoundException;
+        public native def this(String); //throws FileNotFoundException;
     }
 
-    public def this(file: File) throws IOException {
+    public def this(file: File) //throws IOException 
+    {
         super(new FileInputStream(file.getPath()));
         this.file = file;
     }

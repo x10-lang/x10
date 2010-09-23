@@ -59,7 +59,7 @@ public class File {
         @Native("java", "new Object() { String eval(java.io.File f) { try { return f.getCanonicalPath(); } catch (java.io.IOException e) { throw new x10.io.IOException(e.getMessage()); } } }.eval(#0)")
         // @Native("java", "#0.getCanonicalPath()")
         @Native("c++", "(#0)->getCanonicalPath()")
-        native def getCanonicalPath(): String throws IOException;
+        native def getCanonicalPath(): String; //throws IOException;
 
         @Native("java", "#0.canRead()")
         @Native("c++", "(#0)->canRead()")
@@ -148,12 +148,18 @@ FileSystem operations
 
     // @Incomplete def this(u: URI);
 
-    public def lines(): ReaderIterator[String] throws IOException = openRead().lines();
-    public def chars(): ReaderIterator[Char] throws IOException = openRead().chars();
-    public def bytes(): ReaderIterator[Byte] throws IOException = openRead().bytes();
-    public def openRead() throws IOException = new FileReader(this);
-    public def openWrite() throws IOException = new FileWriter(this);
-    public def printer() throws IOException = new Printer(openWrite());
+    public def lines(): ReaderIterator[String] //throws IOException 
+     = openRead().lines();
+    public def chars(): ReaderIterator[Char] //throws IOException
+     = openRead().chars();
+    public def bytes(): ReaderIterator[Byte] //throws IOException 
+    = openRead().bytes();
+    public def openRead() //throws IOException 
+    = new FileReader(this);
+    public def openWrite() //throws IOException 
+    = new FileWriter(this);
+    public def printer() //throws IOException 
+    = new Printer(openWrite());
 
     public def getName(): String = name;
     public def getParentFile(): File = parent;
@@ -163,7 +169,8 @@ FileSystem operations
     protected def nativeFile()  = new NativeFile(getPath());
 
     public def getAbsoluteFile(): File = new File(nativeFile().getAbsolutePath());
-    public def getCanonicalFile(): File  throws IOException = new File(nativeFile().getCanonicalPath());
+    public def getCanonicalFile(): File  // throws IOException 
+    = new File(nativeFile().getCanonicalPath());
 
     // incomplete def toURL(): URL;
     // incomplete def toURI(): URI;

@@ -18,7 +18,7 @@ public interface Map[K,V]   {
 
     public safe def getOrElse(k: K, orelse: V): V;
 
-    public safe def getOrThrow(k: K): V throws NoSuchElementException;
+    public safe def getOrThrow(k: K): V; //throws NoSuchElementException;
 
 	public def put(k: K, v: V): Box[V];
 

@@ -531,7 +531,8 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "((short) (java.lang.Integer.parseInt(#1, #2) & 0xffff))")
     @Native("c++", "((x10_ushort) x10aux::int_utils::parseInt(#1, #2))")
-    public static def parseUShort(s:String, radix:Int): UShort throws NumberFormatException {
+    public static def parseUShort(s:String, radix:Int): UShort //throwsNumberFormatException 
+    {
         return UShort(Short.parse(s, radix));
     }
 
@@ -540,7 +541,8 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "java.lang.Integer.parseInt(#1)")
     @Native("c++", "x10aux::int_utils::parseInt(#1)")
-    public static def parseUShort(s:String): UShort throws NumberFormatException {
+    public static def parseUShort(s:String): UShort //throwsNumberFormatException 
+    {
         return UShort(Short.parse(s));
     }
 
@@ -553,7 +555,8 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "((short) (java.lang.Integer.parseInt(#1, #2) & 0xffff))")
     @Native("c++", "((x10_ushort) x10aux::int_utils::parseInt(#1, #2))")
-    public static def parse(s:String, radix:Int): UShort throws NumberFormatException {
+    public static def parse(s:String, radix:Int): UShort //throwsNumberFormatException 
+    {
          return UShort(Short.parse(s, radix));
      }
 
@@ -565,7 +568,8 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "((short) (java.lang.Integer.parseInt(#1) & 0xffff)")
     @Native("c++", "((x10_ushort) x10aux::int_utils::parseInt(#1))")
-    public static def parse(s:String): UShort throws NumberFormatException {
+    public static def parse(s:String): UShort //throwsNumberFormatException 
+    {
         return UShort(Short.parse(s));
     }
 

@@ -355,7 +355,7 @@ public final struct Long /*TODO implements Arithmetic[Long], Bitwise[Long], Orde
     // @Native("java", "java.lang.Long.parseLong(#1, #2)")
     @Native("java", "new Object() { long eval(String s, int radix) { try { return java.lang.Long.parseLong(s, radix); } catch (java.lang.NumberFormatException e) { throw new x10.lang.NumberFormatException(e.getMessage()); } } }.eval(#1, #2)")
     @Native("c++", "x10aux::long_utils::parseLong(#1, #2)")
-    public native static def parseLong(String, radix:Int): Long throws NumberFormatException;
+    public native static def parseLong(String, radix:Int): Long; //throwsNumberFormatException;
 
     /**
      * @deprecated use {@link #parse(String)} instead
@@ -363,7 +363,7 @@ public final struct Long /*TODO implements Arithmetic[Long], Bitwise[Long], Orde
     // @Native("java", "java.lang.Long.parseLong(#1)")
     @Native("java", "new Object() { long eval(String s) { try { return java.lang.Long.parseLong(s); } catch (java.lang.NumberFormatException e) { throw new x10.lang.NumberFormatException(e.getMessage()); } } }.eval(#1)")
     @Native("c++", "x10aux::long_utils::parseLong(#1)")
-    public native static def parseLong(String): Long throws NumberFormatException;
+    public native static def parseLong(String): Long; //throwsNumberFormatException;
 
     /**
      * Parses the String argument as a Long in the radix specified by the second argument.
@@ -375,7 +375,7 @@ public final struct Long /*TODO implements Arithmetic[Long], Bitwise[Long], Orde
     // @Native("java", "java.lang.Long.parseLong(#1, #2)")
     @Native("java", "new Object() { long eval(String s, int radix) { try { return java.lang.Long.parseLong(s, radix); } catch (java.lang.NumberFormatException e) { throw new x10.lang.NumberFormatException(e.getMessage()); } } }.eval(#1, #2)")
     @Native("c++", "x10aux::long_utils::parseLong(#1, #2)")
-    public native static def parse(s:String, radix:Int): Long throws NumberFormatException;
+    public native static def parse(s:String, radix:Int): Long; //throwsNumberFormatException;
 
     /**
      * Parses the String argument as a decimal Long.
@@ -386,7 +386,7 @@ public final struct Long /*TODO implements Arithmetic[Long], Bitwise[Long], Orde
     // @Native("java", "java.lang.Long.parseLong(#1)")
     @Native("java", "new Object() { long eval(String s) { try { return java.lang.Long.parseLong(s); } catch (java.lang.NumberFormatException e) { throw new x10.lang.NumberFormatException(e.getMessage()); } } }.eval(#1)")
     @Native("c++", "x10aux::long_utils::parseLong(#1)")
-    public native static def parse(s:String): Long throws NumberFormatException;
+    public native static def parse(s:String): Long; //throwsNumberFormatException;
 
 
     /**

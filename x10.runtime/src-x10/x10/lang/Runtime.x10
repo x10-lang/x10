@@ -1132,9 +1132,9 @@ import x10.util.Box;
 
         public native def start():void;
 
-        public native static def sleep(millis:Long):void throws InterruptedException;
+        public native static def sleep(millis:Long):void; //throwsInterruptedException;
 
-        public native static def sleep(millis:Long, nanos:Int):void throws InterruptedException;
+        public native static def sleep(millis:Long, nanos:Int):void; //throwsInterruptedException;
 
         public native static def park():void;
 

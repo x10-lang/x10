@@ -15,7 +15,7 @@ public interface ValMap[K,V] {
 	public safe def containsKey(k: K): boolean;
 	public safe def get(k: K): Box[V];
     public safe def getOrElse(k: K, orelse: V): V;
-    public safe def getOrThrow(k: K): V throws NoSuchElementException;
+    public safe def getOrThrow(k: K): V; //throws NoSuchElementException
 	public safe def keySet(): Set[K];
 	public safe def entries(): Set[Entry[K,V]];
 

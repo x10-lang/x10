@@ -528,7 +528,8 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "java.lang.Integer.parseInt(#1, #2)")
     @Native("c++", "((x10_uint) x10aux::int_utils::parseInt(#1, #2))")
-    public static def parseUInt(s:String, radix:Int): UInt throws NumberFormatException {
+    public static def parseUInt(s:String, radix:Int): UInt //throwsNumberFormatException 
+    {
         return UInt(Int.parse(s, radix));
     }
 
@@ -537,7 +538,8 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "java.lang.Integer.parseInt(#1)")
     @Native("c++", "((x10_uint) x10aux::int_utils::parseInt(#1))")
-    public static def parseUInt(s:String): UInt throws NumberFormatException {
+    public static def parseUInt(s:String): UInt //throwsNumberFormatException 
+    {
         return UInt(Int.parse(s));
     }
 
@@ -550,7 +552,8 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "java.lang.Integer.parseInt(#1, #2)")
     @Native("c++", "((x10_uint) x10aux::int_utils::parseInt(#1, #2))")
-    public static def parse(s:String, radix:Int): UInt throws NumberFormatException {
+    public static def parse(s:String, radix:Int): UInt //throwsNumberFormatException 
+    {
         return UInt(Int.parse(s, radix));
     }
 
@@ -562,7 +565,8 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "java.lang.Integer.parseInt(#1)")
     @Native("c++", "((x10_uint) x10aux::int_utils::parseInt(#1))")
-    public static def parse(s:String): UInt throws NumberFormatException {
+    public static def parse(s:String): UInt //throwsNumberFormatException 
+    {
         return UInt(Int.parse(s));
     }
 

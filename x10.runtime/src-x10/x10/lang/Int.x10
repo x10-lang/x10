@@ -357,7 +357,7 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
     // @Native("java", "java.lang.Integer.parseInt(#1, #2)")
     @Native("java", "new Object() { int eval(String s, int radix) { try { return java.lang.Integer.parseInt(s, radix); } catch (java.lang.NumberFormatException e) { throw new x10.lang.NumberFormatException(e.getMessage()); } } }.eval(#1, #2)")
     @Native("c++", "x10aux::int_utils::parseInt(#1, #2)")
-    public native static def parseInt(String, radix:Int): Int throws NumberFormatException;
+    public native static def parseInt(String, radix:Int): Int; //throwsNumberFormatException;
 
     /**
      * @deprecated use {@link #parse(String)} instead
@@ -365,7 +365,7 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
     // @Native("java", "java.lang.Integer.parseInt(#1)")
     @Native("java", "new Object() { int eval(String s) { try { return java.lang.Integer.parseInt(s); } catch (java.lang.NumberFormatException e) { throw new x10.lang.NumberFormatException(e.getMessage()); } } }.eval(#1)")
     @Native("c++", "x10aux::int_utils::parseInt(#1)")
-    public native static def parseInt(String): Int throws NumberFormatException;
+    public native static def parseInt(String): Int; //throwsNumberFormatException;
 
     /**
      * Parses the String argument as an Int in the radix specified by the second argument.
@@ -377,7 +377,7 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
     // @Native("java", "java.lang.Integer.parseInt(#1, #2)")
     @Native("java", "new Object() { int eval(String s, int radix) { try { return java.lang.Integer.parseInt(s, radix); } catch (java.lang.NumberFormatException e) { throw new x10.lang.NumberFormatException(e.getMessage()); } } }.eval(#1, #2)")
     @Native("c++", "x10aux::int_utils::parseInt(#1, #2)")
-    public native static def parse(s:String, radix:Int): Int throws NumberFormatException;
+    public native static def parse(s:String, radix:Int): Int; //throwsNumberFormatException;
 
     /**
      * Parses the String argument as a decimal Int.
@@ -388,7 +388,7 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
     // @Native("java", "java.lang.Integer.parseInt(#1)")
     @Native("java", "new Object() { int eval(String s) { try { return java.lang.Integer.parseInt(s); } catch (java.lang.NumberFormatException e) { throw new x10.lang.NumberFormatException(e.getMessage()); } } }.eval(#1)")
     @Native("c++", "x10aux::int_utils::parseInt(#1)")
-    public native static def parse(s:String): Int throws NumberFormatException;
+    public native static def parse(s:String): Int; //throwsNumberFormatException;
 
 
     /**

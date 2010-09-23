@@ -571,7 +571,8 @@ public final struct ULong /*TODO implements Arithmetic[ULong], Bitwise[ULong], O
      */
     // @Native("java", "java.lang.Long.parseLong(#1, #2)")
     @Native("c++", "((x10_ulong) x10aux::long_utils::parseLong(#1, #2))")
-    public static def parseULong(s:String, radix:Int): ULong throws NumberFormatException {
+    public static def parseULong(s:String, radix:Int): ULong //throwsNumberFormatException 
+    {
         return ULong(Long.parse(s, radix));
     }
 
@@ -580,7 +581,8 @@ public final struct ULong /*TODO implements Arithmetic[ULong], Bitwise[ULong], O
      */
     // @Native("java", "java.lang.Long.parseLong(#1)")
     @Native("c++", "((x10_ulong) x10aux::long_utils::parseLong(#1))")
-    public static def parseULong(s:String): ULong throws NumberFormatException {
+    public static def parseULong(s:String): ULong //throwsNumberFormatException 
+    {
         return ULong(Long.parse(s));
     }
 
@@ -593,7 +595,8 @@ public final struct ULong /*TODO implements Arithmetic[ULong], Bitwise[ULong], O
      */
     // @Native("java", "java.lang.Long.parseLong(#1, #2)")
     @Native("c++", "((x10_ulong) x10aux::long_utils::parseLong(#1, #2))")
-    public static def parse(s:String, radix:Int): ULong throws NumberFormatException {
+    public static def parse(s:String, radix:Int): ULong //throwsNumberFormatException 
+    {
         return ULong(Long.parse(s, radix));
     }
 
@@ -605,7 +608,8 @@ public final struct ULong /*TODO implements Arithmetic[ULong], Bitwise[ULong], O
      */
     // @Native("java", "java.lang.Long.parseLong(#1)")
     @Native("c++", "((x10_ulong) x10aux::long_utils::parseLong(#1))")
-    public static def parse(s:String): ULong throws NumberFormatException {
+    public static def parse(s:String): ULong //throwsNumberFormatException 
+    {
         return ULong(Long.parse(s));
     }
 
