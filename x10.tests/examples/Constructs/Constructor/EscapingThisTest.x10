@@ -646,8 +646,8 @@ class EscapingCtorTest(p:EscapingCtorTest) {
 		val alias = this; // ERR
 		val callToString = ""+this; // ERR
 		val callOp1 = q+this; // ERR
-		val callOp2 = this+q; 
-		val callOp3 = q*this; 
+		val callOp2 = this+q; // ERR
+		val callOp3 = q*this; // ERR
 		val callOp4 = this*q; // ERR
 		val callApply1 = this(null);
 		val callApply2 = this(this); // ERR

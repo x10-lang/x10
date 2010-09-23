@@ -11,13 +11,14 @@
 
 import harness.x10Test;
 import x10.compiler.Pinned;
+import x10.compiler.SuppressTransientError;
 
 /**
  * Testing an async spawned to a field access.
  */
 public class AsyncFieldAccess extends x10Test {
     private val root = GlobalRef[AsyncFieldAccess](this);
-	transient var t: GlobalRef[T] = GlobalRef[T](null);
+	@SuppressTransientError transient var t: GlobalRef[T] = GlobalRef[T](null);
 	public def run(): boolean = {
 		var Second: Place = Place.FIRST_PLACE.next();
 		var r: Region = [0..0];

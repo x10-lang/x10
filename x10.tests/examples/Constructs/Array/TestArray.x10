@@ -24,7 +24,7 @@ abstract public class TestArray extends x10Test {
     
     val os: StringWriter;
     val out: Printer;
-    transient val testName = "TestArray";
+    transient val testName:String = "TestArray";
 
     def this() {
         System.setProperty("line.separator", "\n");
