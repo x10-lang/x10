@@ -17,11 +17,13 @@ import polyglot.ast.Node;
 import polyglot.ast.Stmt;
 import polyglot.ast.Term;
 import polyglot.ast.Stmt_c;
+import polyglot.types.Context;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
+import x10.types.X10Context;
 
 /** An immutable class representing the X10 finish S construct.
  *  No special type-checking rules. 
@@ -62,6 +64,14 @@ public class Finish_c extends Stmt_c implements Finish {
 	return n;
     }
 
+    @Override
+	public Context enterChildScope(Node child, Context c) {
+    	c = super.enterChildScope(child,c);
+    	if (clocked)
+    		c=((X10Context) c).pushClockedFinishScope();
+    	addDecls(c);
+    	return c;
+	}
     public String toString() {
 	return "finish  { ... }";
     }
