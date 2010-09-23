@@ -23,15 +23,15 @@ extern "C" int fileno (FILE *__stream);
 /* ************************************************************************ */
 
 // Environment variable names
-#define X10LAUNCHER_MYID "X10LAUNCHER_MYID"
-#define X10LAUNCHER_NPROCS "X10LAUNCHER_NPROCS"
-#define X10LAUNCHER_HOSTFILE "X10LAUNCHER_HOSTFILE"
-#define X10LAUNCHER_SSH "X10LAUNCHER_SSH"
-#define X10LAUNCHER_PARENT "X10LAUNCHER_PARENT"
-#define X10LAUNCHER_RUNTIME "X10LAUNCHER_RUNTIME"
+#define X10LAUNCHER_MYID "X10LAUNCHER_MYID" // a number for the "place" of this process.  Set by the launcher.
+#define X10LAUNCHER_NPROCS "X10LAUNCHER_NPROCS" // the number of places in this process
+#define X10LAUNCHER_HOSTFILE "X10LAUNCHER_HOSTFILE" // full path name of a file containing a list of hostnames
+#define X10LAUNCHER_SSH "X10LAUNCHER_SSH" // the ssh command.  This doesn't normally need to be set.
+#define X10LAUNCHER_PARENT "X10LAUNCHER_PARENT" // the hostname:port of the parent launcher.  This is set by the launcher.
+#define X10LAUNCHER_RUNTIME "X10LAUNCHER_RUNTIME" // this is a flag to run as a runtime or a launcher.  Set by the launcher.
 
 // Enable/disable debug information
-//#define DEBUG 1
+#define DEBUG 1
 
 enum CTRL_MSG_TYPE {HELLO, GOODBYE, PORT_REQUEST, PORT_RESPONSE};
 struct ctrl_msg
