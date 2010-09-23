@@ -203,10 +203,7 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
 
     public String toString() {
 	    String s = designator() + " " + X10Flags.toX10Flags(flags()).prettyPrint() + container() + "." + signature();
-	
-	    if (! throwTypes().isEmpty()) {
-		    s += " throws " + CollectionUtil.listToString(throwTypes());
-	    }
+
 	
 	    return s;
     }

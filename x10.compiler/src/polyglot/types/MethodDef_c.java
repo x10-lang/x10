@@ -30,8 +30,8 @@ public class MethodDef_c extends ProcedureDef_c implements MethodDef
     public MethodDef_c(TypeSystem ts, Position pos,
 	 		    Ref<? extends StructType> container,
 	                    Flags flags, Ref<? extends Type> returnType, Name name,
-			    List<Ref<? extends Type>> formalTypes, List<Ref<? extends Type>> throwTypes) {
-        super(ts, pos, container, flags, formalTypes, throwTypes);
+			    List<Ref<? extends Type>> formalTypes) {
+        super(ts, pos, container, flags, formalTypes);
 	this.returnType = returnType;
 	this.name = name;
     }
@@ -72,10 +72,6 @@ public class MethodDef_c extends ProcedureDef_c implements MethodDef
     public String toString() {
 	String s = designator() + " " + flags.translate() + returnType + " " +
                    container() + "." + signature();
-
-	if (! throwTypes.isEmpty()) {
-	    s += " throws " + CollectionUtil.listToString(throwTypes);
-	}
 
 	return s;
     }

@@ -360,19 +360,9 @@ public class LocalClassRemover extends ContextVisitor {
 	List<Stmt> statements = new ArrayList<Stmt>();
 	statements.add(cc);
 
-	// Build the list of throw types, copied from the new expression's constructor (now the superclass constructor).
-	List<TypeNode> throwTypeNodes = new ArrayList<TypeNode>();
-	List<Ref<? extends Type>> throwTypes = new ArrayList<Ref<? extends Type>>();
-	for (Iterator<Type> j = neu.constructorInstance().throwTypes().iterator(); j.hasNext(); ) {
-	    Type t = (Type) j.next();
-	    Ref<Type> tref = Types.ref(t);
-	    throwTypes.add(tref);
-	    throwTypeNodes.add(nf.CanonicalTypeNode(pos, tref));
-	}
-
 	// Create the constructor declaration node and the CI.
-	ConstructorDecl td = nf.ConstructorDecl(pos, nf.FlagsNode(pos, Flags.PRIVATE), cd.name(), formals, throwTypeNodes, nf.Block(pos, statements));
-	ConstructorDef ci = ts.constructorDef(pos, Types.ref(cd.classDef().asType()), Flags.PRIVATE, argTypes, throwTypes);
+	ConstructorDecl td = nf.ConstructorDecl(pos, nf.FlagsNode(pos, Flags.PRIVATE), cd.name(), formals,  nf.Block(pos, statements));
+	ConstructorDef ci = ts.constructorDef(pos, Types.ref(cd.classDef().asType()), Flags.PRIVATE, argTypes);
 	td = td.constructorDef(ci);
 
 	return td;

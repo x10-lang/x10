@@ -50,12 +50,6 @@ final class ReinstantiatedMethodInstance extends X10MethodInstance_c {
 		return formalTypes;
 	}
 
-	@Override
-	public List<Type> throwTypes() {
-		if (throwTypes == null)
-			return this.typeParamSubst.reinstantiate(fi.throwTypes());
-		return throwTypes;
-	}
 
 	@Override
 	public Ref<? extends Type> offerType() {

@@ -34,12 +34,6 @@ public class ProcedureInstance_c<T extends ProcedureDef> extends Use_c<T> implem
         return this.formalTypes;
     }
 
-    public List<Type> throwTypes() {
-        if (this.throwTypes == null) {
-            return new TransformingList<Ref<? extends Type>, Type>(def().throwTypes(), new DerefTransform<Type>());
-        }
-        return this.throwTypes;
-    }
 
     /**
      * Returns whether <code>this</code> is <i>more specific</i> than
@@ -89,24 +83,6 @@ public class ProcedureInstance_c<T extends ProcedureDef> extends Use_c<T> implem
         return CollectionUtil.allElementwise(this.formalTypes(), formalTypes, new TypeEquals(context));
     }
 
-    /** Returns true iff <code>this</code> throws fewer exceptions than
-     * <code>p</code>. */
-    public boolean throwsSubset(ProcedureInstance<T> p) {
-        SubtypeSet s1 = new SubtypeSet(ts.Throwable());
-        SubtypeSet s2 = new SubtypeSet(ts.Throwable());
-
-        s1.addAll(this.throwTypes());
-        s2.addAll(p.throwTypes());
-
-        for (Iterator<Type> i = s1.iterator(); i.hasNext(); ) {
-            Type t = (Type) i.next();
-            if (! ts.isUncheckedException(t) && ! s2.contains(t)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
 
     /** Returns true if a call can be made with the given argument types. */
     public boolean callValid(Type thisType, List<Type> argTypes, Context context) {

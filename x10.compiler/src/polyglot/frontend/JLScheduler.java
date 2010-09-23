@@ -51,7 +51,7 @@ public class JLScheduler extends Scheduler {
         
         goals.add(ConformanceChecked(job));
         goals.add(ReachabilityChecked(job));
-        goals.add(ExceptionsChecked(job));
+       // goals.add(ExceptionsChecked(job));
         goals.add(ExitPathsChecked(job));
         goals.add(InitializationsChecked(job));
         goals.add(ConstructorCallsChecked(job));

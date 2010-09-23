@@ -130,7 +130,7 @@ public class ClosuresToStaticMethods extends ContextVisitor {
                                 Flags flags = Flags.STATIC.Final().Private();
                                 
                                 Name name = Name.makeFresh(STATIC_METHOD_BASE_NAME);
-                                X10MethodDecl mdcl = xnf.MethodDecl(cg, xnf.FlagsNode(cg, flags), closure.returnType(), xnf.Id(cg, name), closure.formals(), closure.throwTypes(), body);
+                                X10MethodDecl mdcl = xnf.MethodDecl(cg, xnf.FlagsNode(cg, flags), closure.returnType(), xnf.Id(cg, name), closure.formals(),  body);
                                 
                                 List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>(closure.formals().size());
                                 for (Formal f : closure.formals()) {
@@ -165,12 +165,8 @@ public class ClosuresToStaticMethods extends ContextVisitor {
                                     }
                                 }
                                 
-                                List<Ref<? extends Type>> excTypes = new ArrayList<Ref<? extends Type>>();
-                                for (TypeNode t :closure.throwTypes()) {
-                                    excTypes.add(t.typeRef());
-                                }
                                 
-                                X10MethodDef md = (X10MethodDef) xts.methodDef(cg, Types.ref(ct), flags, closure.returnType().typeRef(), name, argTypes, excTypes);
+                                X10MethodDef md = (X10MethodDef) xts.methodDef(cg, Types.ref(ct), flags, closure.returnType().typeRef(), name, argTypes);
                                 mdcl = mdcl.typeParameters(tps);
                                 nmembers.add(mdcl.methodDef(md));
                                 md.setTypeParameters(rts);

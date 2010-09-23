@@ -596,7 +596,6 @@
                 constructorModifiers[PRIVATE] = true;
                 constructorModifiers[PROTECTED] = true;
                 constructorModifiers[PUBLIC] = true;
-                constructorModifiers[SAFE] = true;
             }
             public boolean isConstructorModifier(int flag) {
                 return constructorModifiers[flag];
@@ -1343,7 +1342,7 @@
           $EndJava
         ./
 
-    MethodDeclaration ::= MethodModifiersopt def Identifier TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
+    MethodDeclaration ::= MethodModifiersopt def Identifier TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt  Offersopt MethodBody
         /.$BeginJava
                     List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
                     ProcedureDecl pd;
@@ -1355,7 +1354,7 @@
                                                    TypeParametersopt,
                                                    FormalParameters,
                                                    WhereClauseopt,
-                                                   Throwsopt,
+                                                
                                                    Offersopt,
                                                    MethodBody);
 
@@ -1368,7 +1367,7 @@
                                               TypeParametersopt,
                                               FormalParameters,
                                               WhereClauseopt,
-                                              Throwsopt,
+                                            
                                               Offersopt,
                                               MethodBody);
                     }
@@ -1376,7 +1375,7 @@
                     setResult(pd);
           $EndJava
         ./
-      | MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) BinOp ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
+      | MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) BinOp ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt  Offersopt MethodBody
         /.$BeginJava
                     List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
                     Name opName = X10Binary_c.binaryMethodName(BinOp);
@@ -1391,7 +1390,7 @@
                                                      TypeParametersopt,
                                                      Arrays.<Formal>asList(fp1, fp2),
                                                      WhereClauseopt,
-                                                     Throwsopt,
+                                                    
                                                      Offersopt,
                                                      MethodBody);
                     FlagsNode flags = md.flags();
@@ -1403,7 +1402,7 @@
                     setResult(md);
           $EndJava
         ./
-      | MethodModifiersopt operator TypeParametersopt PrefixOp ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
+      | MethodModifiersopt operator TypeParametersopt PrefixOp ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt  Offersopt MethodBody
         /.$BeginJava
                     List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
                     Name opName = X10Unary_c.unaryMethodName(PrefixOp);
@@ -1418,7 +1417,7 @@
                                                      TypeParametersopt,
                                                      Collections.<Formal>singletonList(fp2),
                                                      WhereClauseopt,
-                                                     Throwsopt,
+                                                    
                                                      Offersopt,
                                                      MethodBody);
                     FlagsNode flags = md.flags();
@@ -1430,7 +1429,7 @@
                     setResult(md);
           $EndJava
         ./
-      | MethodModifiersopt operator TypeParametersopt this BinOp ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
+      | MethodModifiersopt operator TypeParametersopt this BinOp ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt  Offersopt MethodBody
         /.$BeginJava
                     List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
                     Name opName = X10Binary_c.binaryMethodName(BinOp);
@@ -1445,7 +1444,7 @@
                                                      TypeParametersopt,
                                                      Collections.<Formal>singletonList(fp2),
                                                      WhereClauseopt,
-                                                     Throwsopt,
+                                                   
                                                      Offersopt,
                                                      MethodBody);
                     FlagsNode flags = md.flags();
@@ -1457,7 +1456,7 @@
                     setResult(md);
           $EndJava
         ./
-      | MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) BinOp this WhereClauseopt HasResultTypeopt  Throwsopt Offersopt MethodBody
+      | MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) BinOp this WhereClauseopt HasResultTypeopt   Offersopt MethodBody
         /.$BeginJava
                     List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
                     Name opName = X10Binary_c.invBinaryMethodName(BinOp);
@@ -1472,7 +1471,7 @@
                                                      TypeParametersopt,
                                                      Collections.<Formal>singletonList(fp1),
                                                      WhereClauseopt,
-                                                     Throwsopt,
+                                                 
                                                      Offersopt,
                                                      MethodBody);
                     FlagsNode flags = md.flags();
@@ -1484,7 +1483,7 @@
                     setResult(md);
           $EndJava
         ./
-      | MethodModifiersopt operator TypeParametersopt PrefixOp this WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
+      | MethodModifiersopt operator TypeParametersopt PrefixOp this WhereClauseopt HasResultTypeopt  Offersopt MethodBody
         /.$BeginJava
                     List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
                     Name opName = X10Unary_c.unaryMethodName(PrefixOp);
@@ -1499,7 +1498,7 @@
                                                      TypeParametersopt,
                                                      Collections.<Formal>emptyList(),
                                                      WhereClauseopt,
-                                                     Throwsopt,
+                                                
                                                      Offersopt,
                                                      MethodBody);
                     FlagsNode flags = md.flags();
@@ -1511,7 +1510,7 @@
                     setResult(md);
           $EndJava
         ./
-      | MethodModifiersopt operator this TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
+      | MethodModifiersopt operator this TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt   Offersopt MethodBody
         /.$BeginJava
                     List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
                     MethodDecl md = nf.X10MethodDecl(pos(),
@@ -1521,7 +1520,7 @@
                                                      TypeParametersopt,
                                                      FormalParameters,
                                                      WhereClauseopt,
-                                                     Throwsopt,
+                                                  
                                                      Offersopt,
                                                      MethodBody);
                     FlagsNode flags = md.flags();
@@ -1533,7 +1532,7 @@
                     setResult(md);
           $EndJava
         ./
-      | MethodModifiersopt operator this TypeParametersopt FormalParameters = ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
+      | MethodModifiersopt operator this TypeParametersopt FormalParameters = ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt  Offersopt MethodBody
         /.$BeginJava
                     List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
                     MethodDecl md = nf.X10MethodDecl(pos(),
@@ -1543,7 +1542,7 @@
                                                      TypeParametersopt,
                                                      CollectionUtil.append(Collections.singletonList(fp2), FormalParameters),
                                                      WhereClauseopt,
-                                                     Throwsopt,
+                                                     
                                                      Offersopt,
                                                      MethodBody);
                     FlagsNode flags = md.flags();
@@ -1555,7 +1554,7 @@
                     setResult(md);
           $EndJava
         ./
-      | MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) as Type WhereClauseopt Throwsopt Offersopt MethodBody
+      | MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) as Type WhereClauseopt  Offersopt MethodBody
         /.$BeginJava
                     List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
                     MethodDecl md = nf.X10MethodDecl(pos(),
@@ -1565,7 +1564,7 @@
                                                      TypeParametersopt,
                                                      Collections.<Formal>singletonList(fp1),
                                                      WhereClauseopt,
-                                                     Throwsopt,
+                                                     
                                                      Offersopt, 
                                                      MethodBody);
                     FlagsNode flags = md.flags();
@@ -1577,7 +1576,7 @@
                     setResult(md);
           $EndJava
         ./
-      | MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) as ? WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
+      | MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) as ? WhereClauseopt HasResultTypeopt   Offersopt MethodBody
         /.$BeginJava
                     List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
                     MethodDecl md = nf.X10MethodDecl(pos(),
@@ -1587,7 +1586,7 @@
                                                      TypeParametersopt,
                                                      Collections.<Formal>singletonList(fp1),
                                                      WhereClauseopt,
-                                                     Throwsopt,
+                                                     
                                                      Offersopt, 
                                                      MethodBody);
                     FlagsNode flags = md.flags();
@@ -1599,7 +1598,7 @@
                     setResult(md);
           $EndJava
         ./
-      | MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) WhereClauseopt HasResultTypeopt Throwsopt Offersopt MethodBody
+      | MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) WhereClauseopt HasResultTypeopt  Offersopt MethodBody
         /.$BeginJava
                     List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
                     MethodDecl md = nf.X10MethodDecl(pos(),
@@ -1609,7 +1608,7 @@
                                                      TypeParametersopt,
                                                      Collections.<Formal>singletonList(fp1),
                                                      WhereClauseopt,
-                                                     Throwsopt,
+                                                     
                                                      Offersopt,
                                                      MethodBody);
                     FlagsNode flags = md.flags();
@@ -1632,7 +1631,7 @@
                                                      TypeParametersopt,
                                                      FormalParameters,
                                                      WhereClauseopt,
-                                                     Collections.<TypeNode>emptyList(),
+                                                  
                                                      null, // offersOpt
                                                      MethodBody);
                     md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(modifiers));
@@ -1649,7 +1648,7 @@
                                                      Collections.<TypeParamNode>emptyList(),
                                                      Collections.<Formal>emptyList(),
                                                      WhereClauseopt,
-                                                     Collections.<TypeNode>emptyList(),
+                                                 
                                                      null, // offersOpt
                                                      MethodBody);
                     md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(modifiers));
@@ -1734,9 +1733,9 @@
     Type ::= FunctionType
            |  ConstrainedType
 
-    FunctionType ::= TypeParametersopt ( FormalParameterListopt ) WhereClauseopt Throwsopt Offersopt => Type
+    FunctionType ::= TypeParametersopt ( FormalParameterListopt ) WhereClauseopt  Offersopt => Type
         /.$BeginJava
-                    setResult(nf.FunctionTypeNode(pos(), TypeParametersopt, FormalParameterListopt, WhereClauseopt, Type, Throwsopt, Offersopt));
+                    setResult(nf.FunctionTypeNode(pos(), TypeParametersopt, FormalParameterListopt, WhereClauseopt, Type,  Offersopt));
           $EndJava
         ./
 
@@ -2007,7 +2006,7 @@
           $EndJava
         ./
 
-    ConstructorDeclaration ::= Modifiersopt def this TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt Throwsopt Offersopt ConstructorBody
+    ConstructorDeclaration ::= Modifiersopt def this TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt  Offersopt ConstructorBody
         /.$BeginJava
                     List<Node> modifiers = checkConstructorModifiers(Modifiersopt);
                     ConstructorDecl cd = nf.X10ConstructorDecl(pos(),
@@ -2017,7 +2016,7 @@
                                                                TypeParametersopt,
                                                                FormalParameters,
                                                                WhereClauseopt,
-                                                               Throwsopt,
+                                                               
                                                                Offersopt,
                                                                ConstructorBody);
                     cd = (ConstructorDecl) ((X10Ext) cd.ext()).annotations(extractAnnotations(modifiers));
@@ -2688,10 +2687,10 @@
                     setResult(call);
           $EndJava
         ./
-    ClosureExpression ::= FormalParameters WhereClauseopt HasResultTypeopt Throwsopt Offersopt => ClosureBody
+    ClosureExpression ::= FormalParameters WhereClauseopt HasResultTypeopt  Offersopt => ClosureBody
         /.$BeginJava
                     setResult(nf.Closure(pos(), FormalParameters, WhereClauseopt, 
-              HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt, Throwsopt, ClosureBody));
+              HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,  ClosureBody));
           $EndJava
         ./
 
@@ -3650,11 +3649,11 @@
 --        ./
 
     
-    Throws ::= throws ExceptionTypeList
-        /.$BeginJava
-                    setResult(ExceptionTypeList);
-          $EndJava
-        ./
+--    Throws ::= throws ExceptionTypeList
+--        /.$BeginJava
+--                    setResult(ExceptionTypeList);
+--          $EndJava
+--       ./
      Offers ::= offers Type
         /.$BeginJava
                     setResult(Type);
@@ -4265,7 +4264,7 @@
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
                     TypeNode tn = nf.UnknownTypeNode(pos());
-                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, Collections.<TypeNode>emptyList(), nf.Block(pos(),
+                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn,  nf.Block(pos(),
                                          nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
                                                                Binary.ADD, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
           $EndJava
@@ -4276,7 +4275,7 @@
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
                     TypeNode tn = nf.UnknownTypeNode(pos());
-                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, Collections.<TypeNode>emptyList(), nf.Block(pos(),
+                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, nf.Block(pos(),
                                          nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
                                                                Binary.SUB, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
           $EndJava
@@ -4287,7 +4286,7 @@
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
                     TypeNode tn = nf.UnknownTypeNode(pos());
-                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, Collections.<TypeNode>emptyList(), nf.Block(pos(),
+                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn,   nf.Block(pos(),
                                          nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
                                                                Binary.MUL, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
           $EndJava
@@ -4298,7 +4297,7 @@
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
                     TypeNode tn = nf.UnknownTypeNode(pos());
-                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, Collections.<TypeNode>emptyList(), nf.Block(pos(),
+                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn,   nf.Block(pos(),
                                          nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
                                                                Binary.DIV, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
           $EndJava
@@ -4309,7 +4308,7 @@
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
                     TypeNode tn = nf.UnknownTypeNode(pos());
-                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, Collections.<TypeNode>emptyList(), nf.Block(pos(),
+                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn,   nf.Block(pos(),
                                          nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
                                                                Binary.MOD, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
           $EndJava
@@ -4320,7 +4319,7 @@
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
                     TypeNode tn = nf.UnknownTypeNode(pos());
-                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, Collections.<TypeNode>emptyList(), nf.Block(pos(),
+                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn,   nf.Block(pos(),
                                          nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
                                                                Binary.BIT_AND, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
           $EndJava
@@ -4331,7 +4330,7 @@
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
                     TypeNode tn = nf.UnknownTypeNode(pos());
-                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, Collections.<TypeNode>emptyList(), nf.Block(pos(),
+                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn,   nf.Block(pos(),
                                          nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
                                                                Binary.BIT_OR, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
           $EndJava
@@ -4342,7 +4341,7 @@
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
                     TypeNode tn = nf.UnknownTypeNode(pos());
-                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, Collections.<TypeNode>emptyList(), nf.Block(pos(),
+                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, nf.Block(pos(),
                                          nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
                                                                Binary.BIT_XOR, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
           $EndJava
@@ -4353,7 +4352,7 @@
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
                     TypeNode tn = nf.UnknownTypeNode(pos());
-                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, Collections.<TypeNode>emptyList(), nf.Block(pos(),
+                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn,  nf.Block(pos(),
                                          nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
                                                                Binary.SHL, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
           $EndJava
@@ -4364,7 +4363,7 @@
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
                     TypeNode tn = nf.UnknownTypeNode(pos());
-                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, Collections.<TypeNode>emptyList(), nf.Block(pos(),
+                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn,  nf.Block(pos(),
                                          nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
                                                                Binary.SHR, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
           $EndJava
@@ -4375,7 +4374,7 @@
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
                     TypeNode tn = nf.UnknownTypeNode(pos());
-                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, Collections.<TypeNode>emptyList(),  nf.Block(pos(),
+                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn,   nf.Block(pos(),
                                          nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
                                                                Binary.USHR, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
           $EndJava
@@ -4386,7 +4385,7 @@
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
                     TypeNode tn = nf.CanonicalTypeNode(pos(), ts.Boolean());
-                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, Collections.<TypeNode>emptyList(), nf.Block(pos(),
+                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn,  nf.Block(pos(),
                                          nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
                                                                Binary.LT, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
           $EndJava
@@ -4397,7 +4396,7 @@
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
                     TypeNode tn = nf.CanonicalTypeNode(pos(), ts.Boolean());
-                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, Collections.<TypeNode>emptyList(), nf.Block(pos(),
+                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn,  nf.Block(pos(),
                                          nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
                                                                Binary.LE, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
           $EndJava
@@ -4408,7 +4407,7 @@
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
                     TypeNode tn = nf.CanonicalTypeNode(pos(), ts.Boolean());
-                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, Collections.<TypeNode>emptyList(), nf.Block(pos(),
+                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, nf.Block(pos(),
                                          nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
                                                                Binary.GE, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
           $EndJava
@@ -4419,7 +4418,7 @@
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
                     TypeNode tn = nf.CanonicalTypeNode(pos(), ts.Boolean());
-                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, Collections.<TypeNode>emptyList(), nf.Block(pos(),
+                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn,  nf.Block(pos(),
                                          nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
                                                                Binary.GT, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
           $EndJava
@@ -4430,7 +4429,7 @@
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
                     TypeNode tn = nf.CanonicalTypeNode(pos(), ts.Boolean());
-                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, Collections.<TypeNode>emptyList(), nf.Block(pos(),
+                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn,  nf.Block(pos(),
                                          nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
                                                                Binary.EQ, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
           $EndJava
@@ -4441,7 +4440,7 @@
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
                     TypeNode tn = nf.CanonicalTypeNode(pos(), ts.Boolean());
-                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, Collections.<TypeNode>emptyList(), nf.Block(pos(),
+                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn,  nf.Block(pos(),
                                          nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
                                                                Binary.NE, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
           $EndJava
@@ -4614,7 +4613,7 @@
                     List<Formal> formals = toFormals(FormalParameterListopt);
                     List<Expr> actuals = toActuals(FormalParameterListopt);
                     TypeNode tn = nf.UnknownTypeNode(pos());
-                    setResult(nf.Closure(pos(), formals, (DepParameterExpr) null, tn, Collections.<TypeNode>emptyList(), nf.Block(pos(),
+                    setResult(nf.Closure(pos(), formals, (DepParameterExpr) null, tn,  nf.Block(pos(),
                                          nf.X10Return(pos(), nf.X10Call(pos(),
                                                                  MethodName.prefix == null ? null : MethodName.prefix.toReceiver(),
                                                                  MethodName.name, Collections.<TypeNode>emptyList(), actuals), true))));
@@ -4627,7 +4626,7 @@
                     List<Formal> formals = toFormals(FormalParameterListopt);
                     List<Expr> actuals = toActuals(FormalParameterListopt);
                     TypeNode tn = nf.UnknownTypeNode(pos());
-                    setResult(nf.Closure(pos(), formals, (DepParameterExpr) null, tn, Collections.<TypeNode>emptyList(), nf.Block(pos(),
+                    setResult(nf.Closure(pos(), formals, (DepParameterExpr) null, tn,  nf.Block(pos(),
                                          nf.X10Return(pos(),
                                                    nf.X10Call(pos(), Primary, Identifier, Collections.<TypeNode>emptyList(), actuals), true))));
           $EndJava
@@ -4639,10 +4638,10 @@
                     List<Formal> formals = toFormals(FormalParameterListopt);
                     List<Expr> actuals = toActuals(FormalParameterListopt);
                     TypeNode tn = nf.UnknownTypeNode(pos());
-                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, Collections.<TypeNode>emptyList(), nf.Block(pos(),
+                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn,  nf.Block(pos(),
                                          nf.X10Return(pos(),
                                                    nf.X10Call(pos(), nf.Super(pos(getLeftSpan())), Identifier,
-                                                              Collections.<TypeNode>emptyList(), actuals), true))));
+                                                         Collections.<TypeNode>emptyList(),    actuals), true))));
           $EndJava
         ./
                        | ClassName . super$sup . Identifier .  ( FormalParameterListopt )
@@ -4652,7 +4651,7 @@
                     List<Formal> formals = toFormals(FormalParameterListopt);
                     List<Expr> actuals = toActuals(FormalParameterListopt);
                     TypeNode tn = nf.UnknownTypeNode(pos());
-                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn, Collections.<TypeNode>emptyList(), nf.Block(pos(),
+                    setResult(nf.Closure(pos(),  formals, (DepParameterExpr) null, tn,  nf.Block(pos(),
                                          nf.X10Return(pos(),
                                                    nf.X10Call(pos(), nf.Super(pos(getRhsFirstTokenIndex($sup)), ClassName.toType()), Identifier, 
                                                               Collections.<TypeNode>emptyList(), actuals), true))));
@@ -5224,12 +5223,12 @@
         ./
                              | FormalParameterList
 
-    Throwsopt ::= %Empty
-        /.$BeginJava
-                    setResult(new TypedList<TypeNode>(new LinkedList<TypeNode>(), TypeNode.class, false));
-          $EndJava
-        ./
-                | Throws
+--    Throwsopt ::= %Empty
+--        /.$BeginJava
+--                    setResult(new TypedList<TypeNode>(new LinkedList<TypeNode>(), TypeNode.class, false));
+--          $EndJava
+--        ./
+--                | Throws
      Offersopt ::= %Empty
         /.$BeginJava
                     setResult(null);
@@ -5434,7 +5433,7 @@
     X10Formal ::= FormalParameter
     X10Formal ::= LoopIndex
     Stmt ::= LoopStatement
-    List<TypeNode> ::= Throwsopt | Throws
+--    List<TypeNode> ::= Throwsopt | Throws
     TypeNode ::= Offersopt | Offers
     Block ::= MethodBody
 --    Initializer ::= StaticInitializer

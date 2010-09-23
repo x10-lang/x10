@@ -43,16 +43,6 @@ public interface ConstructorDecl extends ProcedureDecl
      */
     ConstructorDecl formals(List<Formal> formals);
 
-    /** The constructor's exception throw types.
-     * @return A list of {@link polyglot.ast.TypeNode TypeNode}.
-     */
-    List<TypeNode> throwTypes();
-
-    /** Set the constructor's exception throw types.
-     * @param throwTypes A list of {@link polyglot.ast.TypeNode TypeNode}.
-     */
-    ConstructorDecl throwTypes(List<TypeNode> throwTypes);
-
     /**
      * The constructor type object.  This field may not be valid until
      * after signature disambiguation.

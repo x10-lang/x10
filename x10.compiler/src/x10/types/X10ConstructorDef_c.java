@@ -59,9 +59,9 @@ public class X10ConstructorDef_c extends ConstructorDef_c implements X10Construc
             List<Ref<? extends Type>> formalTypes,
             XVar thisVar,
             List<LocalDef> formalNames, Ref<CConstraint> guard,
-            Ref<TypeConstraint> typeGuard, List<Ref<? extends Type>> throwTypes,
+            Ref<TypeConstraint> typeGuard, 
             Ref<? extends Type> offerType) {
-        super(ts, pos, container, flags, formalTypes, throwTypes);
+        super(ts, pos, container, flags, formalTypes);
         this.returnType = returnType;
         this.thisVar = thisVar;
         this.formalNames = TypedList.copyAndCheck(formalNames, LocalDef.class, true);
@@ -160,10 +160,6 @@ public class X10ConstructorDef_c extends ConstructorDef_c implements X10Construc
     
     public String toString() {
 	    String s = designator() + " " + flags().translate() + container() + "." + signature() + (guard() != null ? guard() : "") + ": " + returnType();
-
-	    if (!throwTypes().isEmpty()) {
-		    s += " throws " + CollectionUtil.listToString(throwTypes());
-	    }
 
 	    return s;
     }

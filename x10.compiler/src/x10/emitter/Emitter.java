@@ -777,7 +777,7 @@ public class Emitter {
 
 		w.end();
 		w.write(")");
-
+/* Remove throw types support
 		if (!md.throwTypes().isEmpty()) {
 			w.allowBreak(6);
 			w.write("throws ");
@@ -791,7 +791,7 @@ public class Emitter {
 				}
 			}
 		}
-
+*/
 		w.end();
 
 		if (isAbstract(md)) {
@@ -1135,7 +1135,8 @@ public class Emitter {
 		w.end();
 		w.write(")");
 
-		if (!n.throwTypes().isEmpty()) {
+		/* Removed throw types.
+		 * if (!n.throwTypes().isEmpty()) {
 			w.allowBreak(6);
 			w.write("throws ");
 
@@ -1153,7 +1154,7 @@ public class Emitter {
 				}
 			}
 		}
-
+*/
 		w.end();
 
 		if (n.body() != null) {
@@ -1396,6 +1397,7 @@ public class Emitter {
 	    w.end();
 	    w.write(")");
 
+	    /* Remove throw types support
 	    if (!impl.throwTypes().isEmpty()) {
 	        w.allowBreak(6);
 	        w.write("throws ");
@@ -1408,7 +1410,7 @@ public class Emitter {
 	            }
 	        }
 	    }
-
+*/
 	    w.write("{");
 	    if (!impl.returnType().isVoid()) {
 	        w.write("return ");
@@ -1515,6 +1517,7 @@ public class Emitter {
 	    w.end();
 	    w.write(")");
 
+	    /** Remove throw types support.
 	    if (!mi.throwTypes().isEmpty()) {
 	        w.allowBreak(6);
 	        w.write("throws ");
@@ -1527,7 +1530,7 @@ public class Emitter {
 	            }
 	        }
 	    }
-
+*/
 	    w.write("{");
 	    if (!mi.returnType().isVoid()) {
 	        w.write("return ");
@@ -2513,7 +2516,7 @@ public class Emitter {
 
         w.end();
         w.write(")");
-
+/* Remove throw types support
         if (!dispatch.throwTypes().isEmpty()) {
             w.allowBreak(6);
             w.write("throws ");
@@ -2526,7 +2529,7 @@ public class Emitter {
                 }
             }
         }
-
+*/
         w.write("{");
         
         for (MethodInstance mi : mis) {

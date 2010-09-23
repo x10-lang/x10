@@ -513,18 +513,9 @@ public class ClassFileLazyClassInitializer {
     
         List<Ref<? extends Type>> excTypes = new ArrayList<Ref<? extends Type>>();
     
-        Exceptions exceptions = method.getExceptions();
-        if (exceptions != null) {
-            int[] throwTypes = exceptions.getThrowTypes();
-            for (int i = 0; i < throwTypes.length; i++) {
-                String s = clazz.classNameCP(throwTypes[i]);
-                excTypes.add(typeForName(s));
-            }
-        }
-    
         return ts.methodDef(ct.position(), Types.ref(ct.asType()),
                                  ts.flagsForBits(method.getModifiers()),
-                                 returnType, Name.make(name), argTypes, excTypes);
+                                 returnType, Name.make(name), argTypes);
       }
 
     /**
@@ -561,7 +552,7 @@ public class ClassFileLazyClassInitializer {
         }
         
         return ts.constructorDef(mi.position(), Types.ref(ct.asType()), mi.flags(),
-                                      formals, mi.throwTypes());
+                                      formals);
     }
 
     /**

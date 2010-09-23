@@ -199,7 +199,7 @@ public class Initializer_c extends Term_c implements Initializer
     }
 
     public NodeVisitor exceptionCheckEnter(ExceptionChecker ec) throws SemanticException {
-        if (initializerDef().flags().isStatic()) {
+     /*   if (initializerDef().flags().isStatic()) {
             return ec.push(new ExceptionChecker.CodeTypeReporter("A static initializer block"));
         }
         
@@ -246,7 +246,7 @@ public class Initializer_c extends Term_c implements Initializer
             
             
             return ec;
-        }
+        }*/
 
         return ec.push();
     }

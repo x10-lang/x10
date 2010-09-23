@@ -62,10 +62,6 @@ public interface FunctionType extends X10ParsedClassType {
      */
     XConstraint guard();
 
-    /**
-     * @return the list of exception types that this closure may throw from an invocation. may be empty.
-     */
-    List<Type> throwTypes();
     
 //    public ClosureType returnType(Type l);
 //

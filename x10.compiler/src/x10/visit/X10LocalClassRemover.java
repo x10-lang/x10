@@ -346,14 +346,7 @@ public class X10LocalClassRemover extends LocalClassRemover {
                         }
                         sigChanged |= d.guard() != ((Closure) old).guard();
                         List<Ref <? extends Type>> excTypes = new ArrayList<Ref<? extends Type>>();
-                        SubtypeSet excs = d.exceptions() == null ? new SubtypeSet(typeSystem()) : d.exceptions();
-                        SubtypeSet oldExcs = ((Closure) old).exceptions();
-                        if (null != excs) {
-                            for (Type et : excs) {
-                                sigChanged |= !oldExcs.contains(et);
-                                excTypes.add(Types.ref(et));
-                            }
-                        }
+                      
                         if (sigChanged) {
                             ClosureDef cd = (ClosureDef) d.closureDef();
                             DepParameterExpr g = d.guard();
@@ -361,7 +354,7 @@ public class X10LocalClassRemover extends LocalClassRemover {
                                                          d.returnType().typeRef(),
                                                          argTypes, cd.thisVar(), formalNames,
                                                          g == null ? null : g.valueConstraint(),
-                                                         excTypes, null);
+                                                          null);
                             return d.closureDef(icd);
                         }
                         return d;

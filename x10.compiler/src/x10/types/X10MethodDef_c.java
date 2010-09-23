@@ -70,10 +70,9 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
             List<LocalDef> formalNames,
             Ref<CConstraint> guard,
             Ref<TypeConstraint> typeGuard,
-            List<Ref<? extends Type>> excTypes, 
             Ref< ? extends Type> offerType,
             Ref<XTerm> body) {
-        super(ts, pos, container, flags, returnType, name, formalTypes, excTypes);
+        super(ts, pos, container, flags, returnType, name, formalTypes);
         this.typeParameters = TypedList.copyAndCheck(typeParams, ParameterType.class, true);
         this.thisVar = thisVar;
         this.formalNames = TypedList.copyAndCheck(formalNames, LocalDef.class, true);
@@ -236,10 +235,6 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
 		signature() + (guard() != null ? guard() : "") 
 		+ ": " + returnType();
 
-		if (!throwTypes().isEmpty()) {
-			s += " throws " + CollectionUtil.listToString(throwTypes());
-		}
-		
 		if (body != null && body.getCached() != null)
 		    s += " = " + body;
 

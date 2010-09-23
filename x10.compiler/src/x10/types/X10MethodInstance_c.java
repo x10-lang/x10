@@ -277,10 +277,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
     public String toString() {
         String s = designator() + " " + X10Flags.toX10Flags(flags()).prettyPrint() + containerString() + "." + signature();
 
-        if (! throwTypes().isEmpty()) {
-            s += " throws " + CollectionUtil.listToString(throwTypes());
-        }
-
+       
         if (body != null)
             s += " = " + body;
 

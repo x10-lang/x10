@@ -109,8 +109,7 @@ public interface TypeSystem {
      * @param excTypes The constructor's exception throw types.
      */
     ConstructorDef constructorDef(Position pos, Ref<? extends ClassType> container,
-                                            Flags flags, List<Ref<? extends Type>> argTypes,
-                                            List<Ref<? extends Type>> excTypes);
+                                            Flags flags, List<Ref<? extends Type>> argTypes);
 
     /** Create a method instance.
      * @param pos Position of the method.
@@ -123,7 +122,7 @@ public interface TypeSystem {
      */
     MethodDef methodDef(Position pos, Ref<? extends StructType> container,
                                   Flags flags, Ref<? extends Type> returnType, Name name,
-                                  List<Ref<? extends Type>> argTypes, List<Ref<? extends Type>> excTypes);
+                                  List<Ref<? extends Type>> argTypes); 
 
     /** Create a field instance.
      * @param pos Position of the field.
@@ -366,12 +365,7 @@ public interface TypeSystem {
     // Functions for method testing.
     ////
 
-    /**
-     * Returns true iff <code>m1</code> throws fewer exceptions than
-     * <code>m2</code>.
-     */
-    <T extends ProcedureDef> boolean throwsSubset(ProcedureInstance<T> p1, ProcedureInstance<T> p2);
-
+  
     /**
      * Returns true iff <code>t</code> has the method <code>mi</code>.
      */

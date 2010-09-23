@@ -26,8 +26,8 @@ public class ConstructorDef_c extends ProcedureDef_c implements ConstructorDef
 
     public ConstructorDef_c(TypeSystem ts, Position pos,
 	                         Ref<? extends ClassType> container,
-				 Flags flags, List<Ref<? extends Type>> formalTypes, List<Ref<? extends Type>> excTypes) {
-        super(ts, pos, container, flags, formalTypes, excTypes);
+				 Flags flags, List<Ref<? extends Type>> formalTypes) {
+        super(ts, pos, container, flags, formalTypes);
     }
     
     protected transient ConstructorInstance asInstance;

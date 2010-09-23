@@ -393,21 +393,6 @@ public class Call_c extends Expr_c implements Call
     return super.exceptionCheck(ec);
   }
 
-
-  public List<Type> throwTypes(TypeSystem ts) {
-    List<Type> l = new ArrayList<Type>();
-
-    assert mi != null : "null mi for " + this;
-    
-    l.addAll(mi.throwTypes());
-    l.addAll(ts.uncheckedExceptions());
-
-    if (target instanceof Expr && ! (target instanceof Special)) {
-      l.add(ts.NullPointerException());
-    }
-
-    return l;
-  }
   
   // check that the implicit target setting is correct.
   protected void checkConsistency(Context c) throws SemanticException {

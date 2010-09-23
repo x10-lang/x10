@@ -47,13 +47,6 @@ final class ReinstantiatedClosureInstance_c extends ClosureInstance_c {
 	}
 
 	@Override
-	public List<Type> throwTypes() {
-		if (throwTypes == null)
-			return this.typeParamSubst.reinstantiate(fi.throwTypes());
-		return throwTypes;
-	}
-
-	@Override
 	public CConstraint guard() {
 		if (guard == null)
 			return this.typeParamSubst.reinstantiate(fi.guard());

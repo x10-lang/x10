@@ -40,10 +40,5 @@ public interface FunctionTypeNode extends TypeNode {
 
 	public abstract FunctionTypeNode guard(DepParameterExpr guard);
 
-	/** Get the exception types of the method. */
-	public abstract List<TypeNode> throwTypes();
-
-	/** Set the exception types of the method. */
-	public abstract FunctionTypeNode throwTypes(List<TypeNode> throwTypes);
 
 }

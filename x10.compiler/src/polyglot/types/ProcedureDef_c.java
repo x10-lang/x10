@@ -23,19 +23,17 @@ public abstract class ProcedureDef_c extends Def_c implements ProcedureDef
     protected Ref<? extends StructType> container;
     protected Flags flags;
     protected List<Ref<? extends Type>> formalTypes;
-    protected List<Ref<? extends Type>> throwTypes;
 
     /** Used for deserializing types. */
     protected ProcedureDef_c() { }
 
     public ProcedureDef_c(TypeSystem ts, Position pos,
             Ref<? extends StructType> container,
-			       Flags flags, List<Ref<? extends Type>> formalTypes, List<Ref<? extends Type>> throwTypes) {
+			       Flags flags, List<Ref<? extends Type>> formalTypes) {
         super(ts, pos);
 	this.container = container;
 	this.flags = flags;
 	this.formalTypes = TypedList.copyAndCheck(formalTypes, Ref.class, true);
-	this.throwTypes = TypedList.copyAndCheck(throwTypes, Ref.class, true);
     }
     
     public Ref<? extends StructType> container() {
@@ -50,9 +48,6 @@ public abstract class ProcedureDef_c extends Def_c implements ProcedureDef
         return Collections.unmodifiableList(formalTypes);
     }
 
-    public List<Ref<? extends Type>> throwTypes() {
-        return Collections.unmodifiableList(throwTypes);
-    }
 
     /**
      * @param container The container to set.
@@ -75,10 +70,5 @@ public abstract class ProcedureDef_c extends Def_c implements ProcedureDef
         this.formalTypes = TypedList.copyAndCheck(formalTypes, Ref.class, true);
     }
     
-    /**
-     * @param throwTypes The throwTypes to set.
-     */
-    public void setThrowTypes(List<Ref<? extends Type>> throwTypes) {
-        this.throwTypes = TypedList.copyAndCheck(throwTypes, Ref.class, true);
-    }
+  
 }

@@ -749,12 +749,7 @@ private int getCost(X10MethodDecl decl, Job job) {
             formalTypes.add(type);
         }
         resultInstance = (X10MethodInstance) resultInstance.formalTypes(formalTypes);
-        List<Type> throwTypes = new ArrayList<Type>();
-        for (Type t :  methodInstance.throwTypes()) {
-            Type type = instantiate(mi, t);
-            throwTypes.add(type);
-        }
-        resultInstance = (X10MethodInstance) resultInstance.throwTypes(throwTypes);
+   
         // TODO: handle offer type(s)
         return resultInstance;
     }
@@ -771,11 +766,7 @@ private int getCost(X10MethodDecl decl, Job job) {
         }
         resultInstance = (X10ConstructorInstance) resultInstance.formalTypes(formalTypes);
         List<Type> throwTypes = new ArrayList<Type>();
-        for (Type t :  constructorInstance.throwTypes()) {
-            Type type = instantiate(mi, t);
-            throwTypes.add(type);
-        }
-        resultInstance = (X10ConstructorInstance) resultInstance.throwTypes(throwTypes);
+       
         // TODO: handle offer type(s)
         return resultInstance;
     }
@@ -797,12 +788,7 @@ private int getCost(X10MethodDecl decl, Job job) {
             formalTypes.add(type);
         }
         resultInstance = (X10ConstructorInstance) resultInstance.formalTypes(formalTypes);
-        List<Type> throwTypes = new ArrayList<Type>();
-        for (Type t :  constructorInstance.throwTypes()) {
-            Type type = instantiate(mi, t);
-            throwTypes.add(type);
-        }
-        resultInstance = (X10ConstructorInstance) resultInstance.throwTypes(throwTypes);
+  
         // TODO: handle offer type(s)???
         return resultInstance;
     }
@@ -999,7 +985,7 @@ private int getCost(X10MethodDecl decl, Job job) {
                         X10MethodDef imd = xts.methodDef(md.position(), md.container(), md.flags(), d.returnType().typeRef(),
                                                      md.name(), md.typeParameters(), argTypes, md.thisVar(), formalNames,
                                                      g == null ? null : g.valueConstraint(),
-                                                     g == null ? null : g.typeConstraint(), excTypes,
+                                                     g == null ? null : g.typeConstraint(), 
                                                      ot == null ? null : ot.typeRef(), null /* the body will never be used */);
                         return d.methodDef(imd);
                     }

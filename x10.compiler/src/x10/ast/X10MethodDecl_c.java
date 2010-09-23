@@ -143,9 +143,9 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 	TypeNode hasType;
 	public X10MethodDecl_c(X10NodeFactory nf, Position pos, FlagsNode flags, 
 			TypeNode returnType, Id name,
-			List<TypeParamNode> typeParams, List<Formal> formals, DepParameterExpr guard, List<TypeNode> throwTypes, TypeNode offerType, Block body) {
+			List<TypeParamNode> typeParams, List<Formal> formals, DepParameterExpr guard,  TypeNode offerType, Block body) {
 		super(pos, flags, returnType instanceof HasTypeNode_c ? nf.UnknownTypeNode(returnType.position()) : returnType, 
-				name, formals, throwTypes, body);
+				name, formals,  body);
 		this.guard = guard;
 		this.typeParameters = TypedList.copyAndCheck(typeParams, TypeParamNode.class, true);
 		if (returnType instanceof HasTypeNode_c) 
@@ -176,7 +176,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 
 	protected MethodDef createMethodDef(TypeSystem ts, ClassDef ct, Flags flags) {
 		X10MethodDef mi = (X10MethodDef) ((X10TypeSystem) ts).methodDef(position(), Types.ref(ct.asType()), flags, returnType.typeRef(), name.id(),
-				Collections.<Ref<? extends Type>>emptyList(), Collections.<Ref<? extends Type>>emptyList(), 
+				Collections.<Ref<? extends Type>>emptyList(), 
 				offerType == null ? null : offerType.typeRef());
 
 		mi.setThisVar(((X10ClassDef) ct).thisVar());
@@ -328,7 +328,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		// entering the body of the method, the return type and the throw type.
 
 
-		if (child == body || child == returnType || child == hasType || child == throwTypes || child == offerType 
+		if (child == body || child == returnType || child == hasType  || child == offerType 
 				|| (formals != null && formals.contains(child))) {
 			if (placeTerm != null)
 				c = ((X10Context) c).pushPlace( XConstrainedTerm.make(placeTerm));
@@ -437,12 +437,6 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 			n = (X10MethodDecl_c) n.flags(n.flags().flags(xf));
 		}
 
-		for (TypeNode type : n.throwTypes()) {
-			CConstraint rc = X10TypeMixin.xclause(type.type());
-			if (rc != null && ! rc.valid())
-				throw new SemanticException("Cannot throw a dependent type.", type.position());
-		}
-
 		X10Flags xf = X10Flags.toX10Flags(mi.flags());
 
 		// Check these flags here rather than in checkFlags since we need the body.
@@ -544,13 +538,6 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 
 		MethodDef mi = this.methodDef();
 		X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
-
-		for (TypeNode type : throwTypes()) {
-			CConstraint rc = X10TypeMixin.xclause(type.type());
-			if (rc != null && ! rc.valid())
-				Errors.issue(tc.job(),
-				        new SemanticException("Cannot throw a dependent type.", type.position()));
-		}
 
 		if (X10Flags.toX10Flags(mi.flags()).isProperty()) {
 			X10MethodInstance xmi = (X10MethodInstance) mi.asInstance();
@@ -926,10 +913,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 			}
 		}
 
-		// Step I.c. Check the throw types
-		List<TypeNode> processedThrowTypes = nn.visitList(nn.throwTypes(), childtc);
-		nn = (X10MethodDecl) nn.throwTypes(processedThrowTypes);
-
+	
 		// Step II. Check the return type. 
 		// Now visit the returntype to ensure that its depclause, if any is processed.
 		// Visit the formals so that they get added to the scope .. the return type
@@ -1041,21 +1025,6 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
         w.write("):");
         w.allowBreak(2, 2, "", 1);
         print(returnType, w, tr);
-    
-        if (! throwTypes().isEmpty()) {
-            w.allowBreak(6);
-            w.write("throws ");
-    
-            for (Iterator<TypeNode> i = throwTypes().iterator(); i.hasNext(); ) {
-                TypeNode tn = i.next();
-                print(tn, w, tr);
-
-                if (i.hasNext()) {
-                    w.write(",");
-                    w.allowBreak(4, " ");
-                }
-            }
-        }
     
         w.end();
     }

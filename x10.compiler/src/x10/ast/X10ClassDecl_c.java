@@ -542,7 +542,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	            mi.name(),
     	            ((X10MethodDef) mi.def()).formalNames(),
     	            mi.returnType(),
-    	            mi.throwTypes(),
+    	        
     	            null);
     	}
     	return n;
@@ -902,7 +902,6 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
                   typeFormals,
                   formals,
                   guard, 
-                  Collections.<TypeNode>emptyList(), // throwTypes
                   null, // offerType
                   block);
         return cd;

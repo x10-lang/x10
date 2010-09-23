@@ -1044,8 +1044,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                     extractAllClassTypes(mi.returnType(), types, dupes);
                     for (Type t : mi.formalTypes())
                         extractAllClassTypes(t, types, dupes);
-                    for (Type t : mi.throwTypes())
-                        extractAllClassTypes(t, types, dupes);
+                 //   for (Type t : mi.throwTypes())
+                 //       extractAllClassTypes(t, types, dupes);
                 }
             }
         }

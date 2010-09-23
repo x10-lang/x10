@@ -316,10 +316,4 @@ public class ConstructorCall_c extends Stmt_c implements ConstructorCall
         return succs;
     }
 
-    public List<Type> throwTypes(TypeSystem ts) {
-        List<Type> l = new ArrayList<Type>();
-        l.addAll(ci.throwTypes());
-        l.addAll(ts.uncheckedExceptions());
-        return l;
-    }
 }

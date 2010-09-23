@@ -199,18 +199,18 @@ public interface X10TypeSystem extends TypeSystem {
     				List<Ref<? extends Type>> argTypes, 
     				XVar thisVar, 
     				List<LocalDef> formalNames,
-    				Ref<CConstraint> guard, 
-    				List<Ref<? extends Type>> throwTypes,
+    				Ref<CConstraint> guard,
+    			
     				Ref<? extends Type> offerType);
 
   
     MethodDef methodDef(Position pos, Ref<? extends StructType> container,
             Flags flags, Ref<? extends Type> returnType, Name name,
-            List<Ref<? extends Type>> argTypes, List<Ref<? extends Type>>  excTypes, Ref<? extends Type> offerType);
+            List<Ref<? extends Type>> argTypes,  Ref<? extends Type> offerType);
     
     X10MethodDef methodDef(Position pos, Ref<? extends StructType> container, Flags flags, Ref<? extends Type> returnType, Name name,
 	    List<ParameterType> typeParams, List<Ref<? extends Type>> argTypes, XVar thisVar, List<LocalDef> formalNames,
-	    Ref<CConstraint> guard, Ref<TypeConstraint> typeGuard, List<Ref<? extends Type>> excTypes, Ref<? extends Type> offerType, Ref<XTerm> body);
+	    Ref<CConstraint> guard, Ref<TypeConstraint> typeGuard, Ref<? extends Type> offerType, Ref<XTerm> body);
 
     /**
      * Return the ClassType object for the x10.array.Array class.
@@ -331,11 +331,11 @@ public interface X10TypeSystem extends TypeSystem {
 
     ConstructorDef constructorDef(Position pos, Ref<? extends ClassType> container,
             Flags flags, List<Ref<? extends Type>> argTypes,
-            List<Ref<? extends Type>> excTypes, Ref<? extends Type> offerType);
+            Ref<? extends Type> offerType);
     
     X10ConstructorDef constructorDef(Position pos, Ref<? extends ClassType> container, Flags flags, Ref<? extends ClassType> returnType,
 	    List<Ref<? extends Type>> argTypes, XVar thisVar, List<LocalDef> formalNames, Ref<CConstraint> guard,
-	    Ref<TypeConstraint> typeGuard, List<Ref<? extends Type>> excTypes, Ref<? extends Type> offerType);
+	    Ref<TypeConstraint> typeGuard, Ref<? extends Type> offerType);
 
     Type performBinaryOperation(Type t, Type l, Type r, Binary.Operator op);
 
@@ -373,9 +373,9 @@ public interface X10TypeSystem extends TypeSystem {
     FunctionType closureType(Position position, Ref<? extends Type> typeRef, 
     	//	List<Ref<? extends Type>> typeParams, 
     		List<Ref<? extends Type>> formalTypes,
-            List<LocalDef> formalNames, Ref<CConstraint> guard, 
+            List<LocalDef> formalNames, Ref<CConstraint> guard
            // Ref<TypeConstraint> typeGuard, 
-            List<Ref<? extends Type>> throwTypes);
+            );
 
 
     Type expandMacros(Type arg);

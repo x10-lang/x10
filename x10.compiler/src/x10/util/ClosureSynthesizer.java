@@ -90,7 +90,7 @@ public class ClosureSynthesizer {
 	                (XVar) null, 
 	                fNames, 
 	                null, 
-	                Collections.<Ref<? extends Type>>emptyList(), 
+	               // Collections.<Ref<? extends Type>>emptyList(), 
 	                null);
 	        if (null != annotations && !annotations.isEmpty()) {
 	            List<Ref<? extends Type>> ats = new ArrayList<Ref<? extends Type>>();
@@ -103,7 +103,7 @@ public class ClosureSynthesizer {
 	                parms, 
 	                null, 
 	                xnf.CanonicalTypeNode(pos, retType),
-	                Collections.<TypeNode>emptyList(), body)
+	                 body)
 	                .closureDef(cDef)
 	                .type(closureAnonymousClassDef((X10TypeSystem_c) xts, cDef).asType());
 	        return closure;
@@ -315,7 +315,7 @@ public class ClosureSynthesizer {
         		formalNames, 
         		null,//todo: it was guard1
         		null, 
-        		Collections.<Ref<? extends Type>>emptyList(), 
+        	
         		null, // offerType
         		null);
         cd.addMethod(mi);

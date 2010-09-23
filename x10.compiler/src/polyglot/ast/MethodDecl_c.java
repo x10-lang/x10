@@ -26,18 +26,17 @@ public class MethodDecl_c extends Term_c implements MethodDecl
     protected TypeNode returnType;
     protected Id name;
     protected List<Formal> formals;
-    protected List<TypeNode> throwTypes;
+   // protected List<TypeNode> throwTypes;
     protected Block body;
     protected MethodDef mi;
 
-    public MethodDecl_c(Position pos, FlagsNode flags, TypeNode returnType, Id name, List<Formal> formals, List<TypeNode> throwTypes, Block body) {
+    public MethodDecl_c(Position pos, FlagsNode flags, TypeNode returnType, Id name, List<Formal> formals, Block body) {
 	super(pos);
-	assert(flags != null && returnType != null && name != null && formals != null && throwTypes != null); // body may be null
+	assert(flags != null && returnType != null && name != null && formals != null); // body may be null
 	this.flags = flags;
 	this.returnType = returnType;
 	this.name = name;
 	this.formals = TypedList.copyAndCheck(formals, Formal.class, true);
-	this.throwTypes = TypedList.copyAndCheck(throwTypes, TypeNode.class, true);
 	this.body = body;
     }
 
@@ -97,18 +96,6 @@ public class MethodDecl_c extends Term_c implements MethodDecl
 	return n;
     }
 
-    /** Get the exception types of the method. */
-    public List<TypeNode> throwTypes() {
-	return Collections.<TypeNode>unmodifiableList(this.throwTypes);
-    }
-
-    /** Set the exception types of the method. */
-    public MethodDecl throwTypes(List<TypeNode> throwTypes) {
-	MethodDecl_c n = (MethodDecl_c) copy();
-	n.throwTypes = TypedList.copyAndCheck(throwTypes, TypeNode.class, true);
-	return n;
-    }
-
     public Term codeBody() {
         return this.body;
     }
@@ -148,14 +135,13 @@ public class MethodDecl_c extends Term_c implements MethodDecl
     }
 
     /** Reconstruct the method. */
-    protected MethodDecl_c reconstruct(FlagsNode flags, TypeNode returnType, Id name, List<Formal> formals, List<TypeNode> throwTypes, Block body) {
-	if (flags != this.flags || returnType != this.returnType || name != this.name || ! CollectionUtil.<Formal>allEqual(formals, this.formals) || ! CollectionUtil.<TypeNode>allEqual(throwTypes, this.throwTypes) || body != this.body) {
+    protected MethodDecl_c reconstruct(FlagsNode flags, TypeNode returnType, Id name, List<Formal> formals, Block body) {
+	if (flags != this.flags || returnType != this.returnType || name != this.name || ! CollectionUtil.<Formal>allEqual(formals, this.formals)  || body != this.body) {
 	    MethodDecl_c n = (MethodDecl_c) copy();
 	    n.flags = flags;
 	    n.returnType = returnType;
             n.name = name;
 	    n.formals = TypedList.copyAndCheck(formals, Formal.class, true);
-	    n.throwTypes = TypedList.copyAndCheck(throwTypes, TypeNode.class, true);
 	    n.body = body;
 	    return n;
 	}
@@ -222,15 +208,10 @@ public class MethodDecl_c extends Term_c implements MethodDecl
              formalTypes.add(f.type().typeRef());
         }
 
-        List<Ref<? extends Type>> throwTypes = new ArrayList<Ref<? extends Type>>(n.throwTypes().size());
-        for (TypeNode tn : n.throwTypes()) {
-            throwTypes.add(tn.typeRef());
-        }
 
         mi.setReturnType(n.returnType().typeRef());
         mi.setFormalTypes(formalTypes);
-        mi.setThrowTypes(throwTypes);
-
+    
         Block body = (Block) n.visitChild(n.body, tbChk);
         
         n = (MethodDecl_c) n.body(body);
@@ -239,7 +220,7 @@ public class MethodDecl_c extends Term_c implements MethodDecl
 
     protected MethodDef createMethodDef(TypeSystem ts, ClassDef ct, Flags flags) {
 	MethodDef mi = ts.methodDef(position(), Types.ref(ct.asType()), flags, returnType.typeRef(), name.id(),
-	                                 Collections.<Ref<? extends Type>>emptyList(), Collections.<Ref<? extends Type>>emptyList());
+	                                 Collections.<Ref<? extends Type>>emptyList());
 	return mi;
     }
 
@@ -255,8 +236,7 @@ public class MethodDecl_c extends Term_c implements MethodDecl
         FlagsNode flags = (FlagsNode) this.visitChild(this.flags, v);
         Id name = (Id) this.visitChild(this.name, v);
         List<Formal> formals = this.visitList(this.formals, v);
-        List<TypeNode> throwTypes = this.visitList(this.throwTypes, v);
-        return reconstruct(flags, returnType, name, formals, throwTypes, this.body);
+        return reconstruct(flags, returnType, name, formals,  this.body);
     }
     
     /** Type check the declaration. */
@@ -270,7 +250,7 @@ public class MethodDecl_c extends Term_c implements MethodDecl
     /** Type check the method. */
     public Node typeCheck(ContextVisitor tc) throws SemanticException {
         TypeSystem ts = tc.typeSystem();
-
+/*
         for (Iterator<TypeNode> i = throwTypes().iterator(); i.hasNext(); ) {
             TypeNode tn = (TypeNode) i.next();
             Type t = tn.type();
@@ -280,7 +260,7 @@ public class MethodDecl_c extends Term_c implements MethodDecl
                     tn.position());
             }
         }
-
+*/
 
 	return this;
     }
@@ -363,10 +343,10 @@ public class MethodDecl_c extends Term_c implements MethodDecl
         }
     }
 
-    public NodeVisitor exceptionCheckEnter(ExceptionChecker ec) throws SemanticException {
+  /*  public NodeVisitor exceptionCheckEnter(ExceptionChecker ec) throws SemanticException {
         return ec.push(new ExceptionChecker.CodeTypeReporter("Method " + mi.signature())).push(methodDef().asInstance().throwTypes());
     }
-
+*/
     public String toString() {
 	return flags.flags().translate() + returnType + " " + name + "(...)";
     }
@@ -395,7 +375,7 @@ public class MethodDecl_c extends Term_c implements MethodDecl
 
 	w.end();
 	w.write(")");
-
+/*
 	if (! throwTypes().isEmpty()) {
 	    w.allowBreak(6);
 	    w.write("throws ");
@@ -410,7 +390,7 @@ public class MethodDecl_c extends Term_c implements MethodDecl
 		}
 	    }
 	}
-
+*/
 	w.end();
     }
 

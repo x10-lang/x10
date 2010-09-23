@@ -212,7 +212,7 @@ public class Struct {
             AnnotationNode nonEscaping = nf.AnnotationNode(pos, nf.AmbMacroTypeNode(pos, nf.PrefixFromQualifiedName(pos,QName.make("x10.compiler")), nf.Id(pos, "NonEscaping"), Collections.<TypeNode>emptyList(), Collections.<Expr>singletonList(nf.StringLit(pos,""))));
             natives.add(nonEscaping);
             methodName = "typeName";
-            md = nf.MethodDecl(pos,nf.FlagsNode(pos,nativeFlags),stringTypeNode,nf.Id(pos,Name.make(methodName)),Collections.<Formal>emptyList(),Collections.<TypeNode>emptyList(),null);
+            md = nf.MethodDecl(pos,nf.FlagsNode(pos,nativeFlags),stringTypeNode,nf.Id(pos,Name.make(methodName)),Collections.<Formal>emptyList(),null);
             md = (X10MethodDecl) ((X10Ext) md.ext()).annotations(natives);
             n = (X10ClassDecl_c) n.body(n.body().addMember(md));
         }
@@ -233,7 +233,7 @@ public class Struct {
             bodyStmts.add(nf.Return(pos, expr));
             block = nf.Block(pos).statements(bodyStmts);
             methodName = "toString";
-            md = nf.MethodDecl(pos,nf.FlagsNode(pos,flags),stringTypeNode,nf.Id(pos,Name.make(methodName)),Collections.<Formal>emptyList(),Collections.<TypeNode>emptyList(),block);
+            md = nf.MethodDecl(pos,nf.FlagsNode(pos,flags),stringTypeNode,nf.Id(pos,Name.make(methodName)),Collections.<Formal>emptyList(),block);
             n = (X10ClassDecl_c) n.body(n.body().addMember(md));
         }
         if (!seenHashCode) {
@@ -257,7 +257,7 @@ public class Struct {
             bodyStmts.add(nf.Return(pos, target));
             block = nf.Block(pos).statements(bodyStmts);
             methodName = "hashCode";
-            md = nf.MethodDecl(pos,nf.FlagsNode(pos,flags),intTypeNode,nf.Id(pos,Name.make(methodName)),Collections.<Formal>emptyList(),Collections.<TypeNode>emptyList(),block);
+            md = nf.MethodDecl(pos,nf.FlagsNode(pos,flags),intTypeNode,nf.Id(pos,Name.make(methodName)),Collections.<Formal>emptyList(),block);
             n = (X10ClassDecl_c) n.body(n.body().addMember(md));
         }
         // _struct_equals is used for == even when the user defined equals
@@ -278,7 +278,7 @@ public class Struct {
             bodyStmts.add(nf.Return(pos,nf.Call(pos,nf.Id(pos,methodName),nf.Cast(pos,structTypeNode,other))));
             block = nf.Block(pos).statements(bodyStmts);
             Formal formal = nf.Formal(pos,nf.FlagsNode(pos,Flags.NONE),anyTypeNode,nf.Id(pos,"other"));
-            md = nf.MethodDecl(pos,nf.FlagsNode(pos,flags),boolTypeNode,nf.Id(pos,Name.make(methodName)), Collections.singletonList(formal),Collections.<TypeNode>emptyList(),block);
+            md = nf.MethodDecl(pos,nf.FlagsNode(pos,flags),boolTypeNode,nf.Id(pos,Name.make(methodName)), Collections.singletonList(formal),block);
             n = (X10ClassDecl_c) n.body(n.body().addMember(md));
 
             // final public global safe def equals(other:NAME):Boolean {
@@ -298,7 +298,7 @@ public class Struct {
             bodyStmts.add(nf.Return(pos, res));
             block = nf.Block(pos).statements(bodyStmts);
             formal = nf.Formal(pos,nf.FlagsNode(pos,Flags.NONE),structTypeNode,nf.Id(pos,"other"));
-            md = nf.MethodDecl(pos,nf.FlagsNode(pos,flags),boolTypeNode,nf.Id(pos,Name.make(methodName)),Collections.singletonList(formal),Collections.<TypeNode>emptyList(),block);
+            md = nf.MethodDecl(pos,nf.FlagsNode(pos,flags),boolTypeNode,nf.Id(pos,Name.make(methodName)),Collections.singletonList(formal),block);
             n = (X10ClassDecl_c) n.body(n.body().addMember(md));
         }
 

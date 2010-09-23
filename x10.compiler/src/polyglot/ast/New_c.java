@@ -500,19 +500,7 @@ public class New_c extends Expr_c implements New
         return child.type();
     }
 
-    public Node exceptionCheck(ExceptionChecker ec) throws SemanticException {
-	// something didn't work in the type check phase, so just ignore it.
-	if (ci == null) {
-	    throw new InternalCompilerError(position(),
-		"Null constructor instance after type check.");
-	}
-
-	for (Type t : ci.throwTypes()) {
-	    ec.throwsException(t, position());
-	}
-
-	return super.exceptionCheck(ec);
-    }
+    
 
     /** Get the precedence of the expression. */
     public Precedence precedence() {
@@ -602,14 +590,6 @@ public class New_c extends Expr_c implements New
         }
 
         return succs;
-    }
-
-    public List<Type> throwTypes(TypeSystem ts) {
-      List<Type> l = new ArrayList<Type>();
-      assert ci != null : "null ci for " + this;
-      l.addAll(ci.throwTypes());
-      l.addAll(ts.uncheckedExceptions());
-      return l;
     }
 
 }

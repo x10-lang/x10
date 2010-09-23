@@ -534,16 +534,16 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 				n.formals().size() == 1 &&
 				n.formals().get(0).declType().isSubtype(ts.Array(ts.String()), tr.context()))
 		{
-			Expander throwsClause = new Inline(er, "");
+			/*Expander throwsClause = new Inline(er, "");
 			if (n.throwTypes().size() > 0) {
 				List<Expander> l = new ArrayList<Expander>();
 				for (TypeNode tn : n.throwTypes()) {
 					l.add(new TypeExpander(er, tn.type(), PRINT_TYPE_PARAMS));
 				}
 				throwsClause = new Join(er, "", "throws ", new Join(er, ", ", l));
-			}
+			}*/
 
-			// SYNOPSIS: main(#0) #3 #1    #0=args #1=body #2=class name #3=throws clause
+			// SYNOPSIS: main(#0) #3 #1    #0=args #1=body #2=class name 
 			String regex = "public static class Main extends x10.runtime.impl.java.Runtime {\n" +
 			    "public static void main(java.lang.String[] args) {\n" +
 			        "// start native runtime\n" +
@@ -600,8 +600,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			"}\n" +
             "\n" +
 			"// the original app-main method\n" +
-			"public static void main(#0) #3 #1";
-			er.dumpRegex("Main", new Object[] { n.formals().get(0), n.body(), tr.context().currentClass().name(), throwsClause }, tr, regex);
+			"public static void main(#0)  #1";
+			er.dumpRegex("Main", new Object[] { n.formals().get(0), n.body(), tr.context().currentClass().name() }, tr, regex);
 
 			return;
 		}
@@ -657,7 +657,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 		w.end();
 		w.write(")");
-
+/*
 		if (! n.throwTypes().isEmpty()) {
 			w.allowBreak(6);
 			w.write("throws ");
@@ -672,7 +672,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 				}
 			}
 		}
-
+*/
 		w.end();
 
 		if (n.body() != null) {
@@ -2386,7 +2386,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 new NodeVisitor() {
                     @Override
                     public Node leave(Node old, Node n, NodeVisitor v) {
-                        if (n instanceof X10Call_c) {
+                     /*   if (n instanceof X10Call_c) {
                             List<Type> throwTypes = ((X10Call_c) n).methodInstance().throwTypes();
                             if (throwTypes != null) throwables.addAll(throwTypes);
                         }
@@ -2397,6 +2397,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             List<Type> throwTypes = ((X10New_c) n).procedureInstance().throwTypes();
                             if (throwTypes != null) throwables.addAll(throwTypes);
                         }
+                        */
                         return n;
                     }
             });

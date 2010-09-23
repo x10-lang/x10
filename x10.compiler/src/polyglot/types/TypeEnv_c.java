@@ -760,14 +760,14 @@ public class TypeEnv_c implements TypeEnv {
 					mi.position());
 	}
 
-	if (!ts.throwsSubset(mi, mj)) {
+/*	if (!ts.throwsSubset(mi, mj)) {
 	    if (Report.should_report(Report.types, 3))
 		Report.report(3, mi.throwTypes() + " not subset of " + mj.throwTypes());
 	    throw new SemanticException(mi.signature() + " in " + mi.container() + " cannot override " + mj.signature() + " in " + mj.container()
 		    + "; the throw set " + mi.throwTypes() + " is not a subset of the " + "overridden method's throw set " + mj.throwTypes() + ".",
 					mi.position());
 	}
-
+*/
 	if (mi.flags().moreRestrictiveThan(mj.flags())) {
 	    if (Report.should_report(Report.types, 3))
 		Report.report(3, mi.flags() + " more restrictive than " + mj.flags());

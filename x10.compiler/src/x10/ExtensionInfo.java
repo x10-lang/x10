@@ -397,7 +397,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
            // Data-flow analyses
            goals.add(ReachabilityChecked(job));
-           goals.add(ExceptionsChecked(job));
+       //    goals.add(ExceptionsChecked(job));
            goals.add(ExitPathsChecked(job));
            goals.add(InitializationsChecked(job));
            goals.add(ConstructorCallsChecked(job));

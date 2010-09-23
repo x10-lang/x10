@@ -73,10 +73,9 @@ public class ConstructorSynth extends AbstractStateSynth implements IClassMember
             throwTypeRefs.add(Types.ref(t));
         }
 
-        conDef = (X10ConstructorDef) xts.constructorDef(pos, Types.ref(classType), flags, formalTypeRefs, // formal
+        conDef = (X10ConstructorDef) xts.constructorDef(pos, Types.ref(classType), flags, formalTypeRefs); // formal
                                                                                                           // types
-                                                        throwTypeRefs); // throw
-                                                                        // types
+                                                                       
         classDef.addConstructor(conDef);
 
     }
@@ -193,10 +192,7 @@ public class ConstructorSynth extends AbstractStateSynth implements IClassMember
         closed = true;
         
         // Method Decl
-        List<TypeNode> throwTypeNodes = new ArrayList<TypeNode>();
-        for (Ref<? extends Type> t : conDef.throwTypes()) {
-            throwTypeNodes.add(xnf.CanonicalTypeNode(pos, t.get()));
-        }
+      
         FlagsNode flagNode = xnf.FlagsNode(pos, conDef.flags());
 
         Block block;
@@ -209,7 +205,7 @@ public class ConstructorSynth extends AbstractStateSynth implements IClassMember
         // constructor
         conDecl = (X10ConstructorDecl) xnf.ConstructorDecl(pos, flagNode, xnf.Id(pos, classDef.name()), formals, // formal
                                                                                                                  // types
-                                                           throwTypeNodes, block);
+                                                           block);
         // FIXME: need set the constructor's type parameters
         // conDecl.typeParameters(cDecl.typeParameters());
         conDecl = conDecl.returnType(xnf.CanonicalTypeNode(pos, conDef.returnType()));

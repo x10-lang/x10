@@ -287,19 +287,19 @@ public abstract class TypeSystem_c implements TypeSystem
 	    access = access.Public();            
 	}
 	return constructorDef(pos, container,
-	                      access, Collections.<Ref<? extends Type>>emptyList(),
-	                      Collections.<Ref<? extends Type>>emptyList());
+	                      access, Collections.<Ref<? extends Type>>emptyList()
+	                      );
     }
 
     public ConstructorDef constructorDef(Position pos,
 	    Ref<? extends ClassType> container,
-	    Flags flags, List<Ref<? extends Type>> argTypes,
-	    List<Ref<? extends Type>> excTypes) {
+	    Flags flags, List<Ref<? extends Type>> argTypes
+	    ) {
 	assert_(container);
 	assert_(argTypes);
-	assert_(excTypes);
+
 	return new ConstructorDef_c(this, pos, container, flags,
-	                            argTypes, excTypes);
+	                            argTypes);
     }
 
     public InitializerDef initializerDef(Position pos,
@@ -312,14 +312,13 @@ public abstract class TypeSystem_c implements TypeSystem
     public MethodDef methodDef(Position pos,
 	    Ref<? extends StructType> container, Flags flags,
 	    Ref<? extends Type> returnType, Name name,
-	    List<Ref<? extends Type>> argTypes, List<Ref<? extends Type>> excTypes) {
+	    List<Ref<? extends Type>> argTypes) {
 
 	assert_(container);
 	assert_(returnType);
 	assert_(argTypes);
-	assert_(excTypes);
 	return new MethodDef_c(this, pos, container, flags,
-	                       returnType, name, argTypes, excTypes);
+	                       returnType, name, argTypes);
     }
     
     public ClassDef classDefOf(Type t) {
@@ -1446,14 +1445,7 @@ public abstract class TypeSystem_c implements TypeSystem
 	return env(context).hasMethod(t, mi);
     }
 
-    /**
-     * Returns true iff <p1> throws fewer exceptions than <p2>.
-     */
-    public <T extends ProcedureDef> boolean throwsSubset(ProcedureInstance<T> p1, ProcedureInstance<T> p2) {
-	assert_(p1);
-	assert_(p2);
-	return ((ProcedureInstance_c<T>) p1).throwsSubset(p2);
-    }
+    
 
     /** Return true if t overrides mi */
     public boolean hasFormals(ProcedureInstance<? extends ProcedureDef> pi, List<Type> formalTypes, Context context) {

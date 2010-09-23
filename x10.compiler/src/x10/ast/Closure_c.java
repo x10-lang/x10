@@ -84,7 +84,6 @@ public class Closure_c extends Expr_c implements Closure {
 	//  List<TypeParamNode> typeParameters;
 	List<Formal> formals;
 	TypeNode returnType;
-	List<TypeNode> throwTypes;
 	Block body;
 	MethodInstance container;
 	ClosureDef closureDef;
@@ -101,13 +100,13 @@ public class Closure_c extends Expr_c implements Closure {
 	TypeNode hasType;
 	TypeNode offerType;
 	public Closure_c(X10NodeFactory nf, Position pos,  List<Formal> formals, 
-			TypeNode returnType, DepParameterExpr guard, List<TypeNode> throwTypes, TypeNode offerType, Block body) {
+			TypeNode returnType, DepParameterExpr guard,  TypeNode offerType, Block body) {
 		super(pos);
 		//	this.typeParameters = TypedList.copyAndCheck(typeParams, TypeParamNode.class, true);
 		this.formals = TypedList.copyAndCheck(formals, Formal.class, true);
 		this.returnType = returnType instanceof HasTypeNode_c ? nf.UnknownTypeNode(returnType.position()) : returnType;
 		this.guard = guard;
-		this.throwTypes = TypedList.copyAndCheck(throwTypes, TypeNode.class, true);
+		//this.throwTypes = TypedList.copyAndCheck(throwTypes, TypeNode.class, true);
 		this.body = body;
 		if (returnType instanceof HasTypeNode_c) 
 			hasType = ((HasTypeNode_c) returnType).typeNode();
@@ -168,16 +167,6 @@ public class Closure_c extends Expr_c implements Closure {
 		return n;
 	}
 
-	public List<TypeNode> throwTypes() {
-		return throwTypes;
-	}
-
-	public Closure throwTypes(List<TypeNode> throwTypes) {
-		Closure_c c= (Closure_c) copy();
-		c.throwTypes= throwTypes;
-		return c;
-	}
-
 	public Block body() {
 		return body;
 	}
@@ -218,18 +207,17 @@ public class Closure_c extends Expr_c implements Closure {
 	}
 
 	/** Reconstruct the closure. */
-	protected Closure_c reconstruct(/*List<TypeParamNode> typeParams,*/ List<Formal> formals, DepParameterExpr guard, TypeNode returnType, List<TypeNode> throwTypes, Block body) {
+	protected Closure_c reconstruct(/*List<TypeParamNode> typeParams,*/ List<Formal> formals, DepParameterExpr guard, TypeNode returnType,  Block body) {
 		if (/*! CollectionUtil.allEqual(typeParams, this.typeParameters) ||*/
 				!CollectionUtil.allEqual(formals, this.formals) 
 				|| returnType != this.returnType 
 				|| guard != this.guard 
-				|| ! CollectionUtil.allEqual(throwTypes, this.throwTypes) || body != this.body) {
+			 || body != this.body) {
 			Closure_c n = (Closure_c) copy();
 			//    n.typeParameters = TypedList.copyAndCheck(typeParams, TypeParamNode.class, true);
 			n.formals = TypedList.copyAndCheck(formals, Formal.class, true);
 			n.guard = guard;
 			n.returnType = returnType;
-			n.throwTypes = TypedList.copyAndCheck(throwTypes, TypeNode.class, true);
 			n.body = body;
 			return n;
 		}
@@ -243,11 +231,10 @@ public class Closure_c extends Expr_c implements Closure {
 		DepParameterExpr guard = (DepParameterExpr) visitChild(this.guard, v);
 
 		TypeNode returnType = (TypeNode) visitChild(this.returnType, v);
-		List<TypeNode> throwTypes = visitList(this.throwTypes, v);
 		Block body = (Block) visitChild(this.body, v);
 		TypeNode htn = (TypeNode) visitChild(this.hasType, v);
 
-		return reconstruct(/*typeParams,*/ formals, guard, returnType, throwTypes, body).hasType(htn);
+		return reconstruct(/*typeParams,*/ formals, guard, returnType, body).hasType(htn);
 	}
 
 	public Node buildTypesOverride(TypeBuilder tb) {
@@ -291,7 +278,7 @@ public class Closure_c extends Expr_c implements Closure {
 				Collections.<LocalDef>emptyList(), 
 				null, 
 				//null, 
-				Collections.<Ref<? extends Type>>emptyList(),
+				
 				offerType == null ? null : offerType.typeRef());
 		if (returnType() instanceof UnknownTypeNode) {
 			mi.inferReturnType(true);
@@ -324,16 +311,10 @@ public class Closure_c extends Expr_c implements Closure {
 			formalNames.add(f.localDef());
 		}
 
-		List<Ref<? extends Type>> throwTypes = new ArrayList<Ref<? extends Type>>(n.throwTypes().size());
-		for (TypeNode tn : n.throwTypes()) {
-			throwTypes.add(tn.typeRef());
-		}
-
 		mi.setFormalNames(formalNames);
 		mi.setReturnType(n.returnType().typeRef());
 		// mi.setTypeParameters(Collections.EMPTY_LIST);
 		mi.setFormalTypes(formalTypes);
-		mi.setThrowTypes(throwTypes);
 
 		if (code instanceof X10MemberDef)
 			assert mi.thisVar() == ((X10MemberDef) code).thisVar();
@@ -404,15 +385,6 @@ public class Closure_c extends Expr_c implements Closure {
 		Context c = tc.context();
 		Closure_c n = this;
 
-		for (Iterator<TypeNode> i = throwTypes().iterator(); i.hasNext(); ) {
-			TypeNode tn = (TypeNode) i.next();
-			Type t = tn.type();
-			if (!t.isThrowable()) {
-				Errors.issue(tc.job(),
-				        new SemanticException("Type \"" + t + "\" is not a subclass of \"" +
-				                xts.Throwable() + "\".", tn.position()));
-			}
-		}
 		if (guard != null) {
 			VarChecker ac = new VarChecker(tc.job());
 			ac = (VarChecker) ac.context(tc.context());
@@ -453,14 +425,6 @@ public class Closure_c extends Expr_c implements Closure {
 
 	@Override
 	public Node conformanceCheck(ContextVisitor tc) {
-		for (TypeNode type : throwTypes()) {
-			XConstraint rc = X10TypeMixin.xclause(type.type());
-			if (rc != null && ! rc.valid()) {
-				Errors.issue(tc.job(),
-				        new SemanticException("Cannot throw a dependent type.", type.position()),
-				        this);
-			}
-		}
 
 		return this;
 	}
@@ -551,10 +515,6 @@ public class Closure_c extends Expr_c implements Closure {
 		sb.append(guard==null?"{}":guard);
 		sb.append(": ");
 		sb.append(returnType.toString());
-		if (throwTypes.size() > 0) {
-			sb.append("throws ");
-			sb.append(CollectionUtil.listToString(throwTypes));
-		}
 		sb.append(" => ");
 		sb.append(body);
 		return sb.toString();
@@ -576,20 +536,6 @@ public class Closure_c extends Expr_c implements Closure {
 		}
 		w.end();
 		w.write(") ");
-
-		if (! throwTypes().isEmpty()) {
-			w.allowBreak(6);
-			w.write("throws ");
-			for (Iterator<TypeNode> i = throwTypes().iterator(); i.hasNext(); ) {
-				TypeNode tn = i.next();
-				print(tn, w, tr);
-
-				if (i.hasNext()) {
-					w.write(",");
-					w.allowBreak(4, " ");
-				}
-			}
-		}
 		w.end();
 		printSubStmt(body, w, tr);
 	}
