@@ -1,7 +1,8 @@
 import x10.compiler.FinishAsync;
 import x10.util.Timer;
 public class SimpleFinish2 {
-    public static def main(args: Array[String](1)) throws Exception{
+    public static def main(args: Array[String](1)) //throws Exception
+    {
 
             val start = Timer.milliTime();
 	    finish{
