@@ -4,13 +4,13 @@ import x10.compiler.*;
 
 //public class EscapingThisTest {
 
-class TransientTest { // The @Transient field '...' must have a type with a default value.
-	@Transient val x1 = 2; // ERR (because the type is infered to be Int{self==2}
-	@Transient val x2:Int = 2;
-	@Transient var y:Int;
-	@Transient var y2:Int{self==3} = 3; // ERR
-	@Transient var y3:Int{self!=0}; // ERR
-	@Transient var y4:Int{self==0}; 
+class TransientTest { // The transient field '...' must have a type with a default value.
+	transient val x1 = 2; // ERR (because the type is infered to be Int{self==2}
+	transient val x2:Int = 2;
+	transient var y:Int;
+	transient var y2:Int{self==3} = 3; // ERR
+	transient var y3:Int{self!=0}; // ERR
+	transient var y4:Int{self==0}; 
 	def this() {
 		y3 = 4;
 	}

@@ -407,7 +407,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 
 	    	if (X10TypeMixin.isX10Struct(fieldDef().container().get()) &&
 	    			!isMutable(ts, fieldDef().container().get()) &&
-	    			! X10Flags.toX10Flags(fieldDef().flags()).isFinal())
+	    			! f.isFinal())
 	    	{
 	    		Errors.issue(tc.job(), new SemanticException("A struct may not have var fields.", position()));
 	    	}
@@ -419,8 +419,8 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 
 	    	// Add an initializer to uninitialized var field unless field is annotated @Uninitialized.
             final X10FieldDef fieldDef = (X10FieldDef) n.fieldDef();
-            final boolean needsInit = !n.flags().flags().isFinal() && n.init() == null && !X10TypeMixin.isUninitializedField(fieldDef, ts);
-            final boolean isTransient = X10TypeMixin.isTransientField(fieldDef, ts);
+            final boolean needsInit = !f.isFinal() && n.init() == null && !X10TypeMixin.isUninitializedField(fieldDef, ts);
+            final boolean isTransient = f.isTransient();
             if (needsInit || isTransient) {
                 // creating an init.
 	    		Expr e = X10TypeMixin.getZeroVal(type,position().markCompilerGenerated(),tc);
@@ -432,7 +432,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
                 if (isTransient) {
                     // Transient fields must have a default value
                     if (e==null)
-                        Errors.issue(tc.job(), new SemanticException("The @Transient field '"+n.name()+"' must have a type with a default value.",position()));
+                        Errors.issue(tc.job(), new SemanticException("The transient field '"+n.name()+"' must have a type with a default value.",position()));
                 }
 	    	}
 
