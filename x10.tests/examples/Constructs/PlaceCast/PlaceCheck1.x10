@@ -30,9 +30,13 @@ public class PlaceCheck1 extends x10Test {
 			x10.io.Console.OUT.println("This test requires at least 2 places.");
 			ret = false;
 		} else {
-			ret = checkFieldAccess();
-			ret = checkFieldAssign() & ret;
-			ret = checkMethodCall() & ret;
+			ret = true;
+			// In the 2.1 model, objects are copied. Hence checkFieldAccess, checkFieldAssign and checkMethodCall
+			// will always "fail", i.e. they will operate on the local copy of the object.
+			// These are not valid tests anymore.
+			//ret = checkFieldAccess();
+			//ret = checkFieldAssign() & ret;
+			//ret = checkMethodCall() & ret;
 			ret = checkArrayAccess() & ret;
 			ret = checkArrayAssign() & ret;
 		}
