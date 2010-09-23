@@ -239,6 +239,7 @@ public class X10CPPTranslator extends Translator {
     	assert src_path.isDirectory() : src_path_+" is not a directory";
     	assert dest_path.isDirectory() : dest_path_+" is not a directory";
     	try {
+    		dest_path.mkdirs();
 			FileInputStream src = new FileInputStream(new File(src_path_+file));
 	    	FileOutputStream dest = new FileOutputStream(new File(dest_path_+file));
 	    	int b;
