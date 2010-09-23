@@ -51,8 +51,7 @@ public class ClockTest18 extends x10Test {
 			         }
 		         };
 
-		val valRail:ValRail[foo] = [f0,f1];
-		var fooArray: Rail[ClockTest18.foo] = Rail.make(valRail);
+		var fooArray: Rail[foo] = Rail.make([f0,f1]);
 		x10.io.Console.OUT.println("#A0 before resume");
 		c0.resume();
 		x10.io.Console.OUT.println("#A0 before spawning A3");

@@ -24,8 +24,9 @@ We can't allow either pattern.
 
 public class InitFieldWithInstanceClass extends x10Test {
 
-    static class A {}
-    val a = new A();
+    class A { 
+    }
+    val a = new A(); // if you are going to do this, then you have to mark A as static.
   
     public def run() =true;
 
