@@ -17,7 +17,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
@@ -75,19 +74,14 @@ import x10.types.MacroType;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
-import x10.types.X10Context;
 import x10.types.X10Def;
 import x10.types.X10Flags;
+import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
-import x10.types.X10ParsedClassType;
 import x10.types.X10ParsedClassType_c;
-import x10.types.X10TypeEnv;
-import x10.types.X10TypeEnv_c;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
-import x10.types.X10TypeSystem_c;
 import x10.types.checker.Converter;
-import x10.types.matcher.X10TypeMatcher;
 import x10.visit.X10PrettyPrinterVisitor;
 import x10c.types.BackingArrayType;
 
@@ -2477,15 +2471,34 @@ public class Emitter {
         w.write(mangleToJava(dispatch.name()));
         
         w.write("(");
+        
+        boolean first = true;
+        if (def instanceof X10MethodDef) {
+            X10MethodDef x10def = (X10MethodDef) def;
+            for (ParameterType p : x10def.typeParameters()) {
+                if (!first) {
+                    w.write(",");
+                    w.allowBreak(0, " ");
+                }
+                first = false;
+                
+                w.write("final ");
+                w.write(X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS);
+                w.write(" ");
+                w.write(Emitter.mangleToJava(p.name()));
+            }
+        }
+        
         Name[] names = new Name[def.formalTypes().size()];
         for (int i = 0; i < def.formalTypes().size(); i++) {
             Type f = dispatch.formalTypes().get(i);
-            if (i != 0) {
+            if (!first || i != 0) {
                 w.write(",");
                 w.allowBreak(0, " ");
             }
             Type type = def.formalTypes().get(i).get();
             if (containsTypeParam(type)) {
+                w.write("final ");
                 if (type instanceof ParameterType) {
                     w.write(X10PrettyPrinterVisitor.JAVA_LANG_OBJECT);
                 } else {
@@ -2498,6 +2511,7 @@ public class Emitter {
                 w.write(name.toString());
                 
                 w.write(",");
+                w.write("final ");
                 w.write(X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS);
                 w.write(" ");
                 Name name1 = Name.make("t" + (i + 1));
@@ -2505,6 +2519,7 @@ public class Emitter {
                 
                 names[i] = name1;
             } else {
+                w.write("final ");
                 printType(f, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
                 
                 w.write(" ");
@@ -2557,9 +2572,23 @@ public class Emitter {
             }
             
             w.write("(");
+
+            boolean first2 = true;
+            if (mi instanceof X10MethodInstance) {
+                X10MethodInstance x10mi = (X10MethodInstance) mi;
+                for (Type t : x10mi.typeParameters()) {
+                    if (!first2) {
+                        w.write(",");
+                        w.allowBreak(0, " ");
+                    }
+                    first2 = false;
+                    new RuntimeTypeExpander(this, t).expand(tr);
+                }
+            }
+
             for (int i = 0; i < mi.formalTypes().size(); i++) {
                 Type f = mi.formalTypes().get(i);
-                if (i != 0) {
+                if (!first2 || i != 0) {
                     w.write(",");
                     w.allowBreak(0, " ");
                 }
