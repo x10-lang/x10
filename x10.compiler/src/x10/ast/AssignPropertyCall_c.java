@@ -126,6 +126,14 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 		return sb.toString();
 	}
 
+    /**
+     * An explicit property call is a static context. We need to record
+     * this.
+     */
+    public Context enterScope(Context c) {
+        return c.pushStatic();
+    }
+
 	public Node typeCheck(ContextVisitor tc) {
 		TypeSystem ts = tc.typeSystem();
 		Context ctx = tc.context();
