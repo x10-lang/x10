@@ -420,7 +420,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	    	// Add an initializer to uninitialized var field unless field is annotated @Uninitialized.
             final X10FieldDef fieldDef = (X10FieldDef) n.fieldDef();
             final boolean needsInit = !f.isFinal() && n.init() == null && !X10TypeMixin.isUninitializedField(fieldDef, ts);
-            final boolean isTransient = f.isTransient();
+            final boolean isTransient = f.isTransient() && !X10TypeMixin.isSuppressTransientErrorField(fieldDef,ts);
             if (needsInit || isTransient) {
                 // creating an init.
 	    		Expr e = X10TypeMixin.getZeroVal(type,position().markCompilerGenerated(),tc);
@@ -430,7 +430,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
                     }
                 }
                 if (isTransient) {
-                    // Transient fields must have a default value
+                    // transient fields (not annotated with @SuppressTransientError) must have a default value
                     if (e==null)
                         Errors.issue(tc.job(), new SemanticException("The transient field '"+n.name()+"' must have a type with a default value.",position()));
                 }

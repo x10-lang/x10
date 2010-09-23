@@ -11,6 +11,7 @@
 
 package x10.util;
 
+import x10.compiler.SuppressTransientError;
 import x10.util.GrowableRail;
 import x10.compiler.Pinned;
 import x10.compiler.Global;
@@ -28,7 +29,7 @@ public class Future[+T] implements ()=>T {
     /**
      * Latch for signaling and wait
      */
-    transient private val latch = new Latch();
+    @SuppressTransientError transient private val latch = new Latch();
 
     /**
      * Set if the activity terminated with an exception.
@@ -37,8 +38,8 @@ public class Future[+T] implements ()=>T {
      */
     // This cant be Cell because I need to create it before I know the value
     // that will go in.
-    transient private val exception = new GrowableRail[Throwable]();
-    transient private val result = new GrowableRail[T]();
+    @SuppressTransientError transient private val exception = new GrowableRail[Throwable]();
+    @SuppressTransientError transient private val result = new GrowableRail[T]();
     transient private val eval:()=>T;
 
     public static def make[T](eval:()=> T) {

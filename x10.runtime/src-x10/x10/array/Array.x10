@@ -11,6 +11,7 @@
 
 package x10.array;
 
+import x10.compiler.SuppressTransientError;
 import x10.compiler.Header;
 import x10.compiler.Inline;
 import x10.compiler.Native;
@@ -101,7 +102,7 @@ public final class Array[T](
     private val cachedRail:boolean(rail);
 
 
-    private transient val raw:IndexedMemoryChunk[T];
+    @SuppressTransientError private transient val raw:IndexedMemoryChunk[T];
     /* package */ val rawLength:int; // Made accessible to RemoteArray
     private val layout:RectLayout;
 

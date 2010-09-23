@@ -996,6 +996,9 @@ public class X10TypeMixin {
     public static boolean isUninitializedField(X10FieldDef def,X10TypeSystem ts) {
         return isDefAnnotated(def,ts,"x10.compiler.Uninitialized");
     }
+    public static boolean isSuppressTransientErrorField(X10FieldDef def,X10TypeSystem ts) {
+        return isDefAnnotated(def,ts,"x10.compiler.SuppressTransientError");
+    }
     public static String getNonEscapingReadsFrom(X10ProcedureDef def,X10TypeSystem ts) {
         try {
             Type at = (Type) ts.systemResolver().find(QName.make("x10.compiler.NonEscaping"));

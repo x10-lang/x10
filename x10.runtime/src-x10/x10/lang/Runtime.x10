@@ -17,6 +17,7 @@ import x10.compiler.NativeDef;
 import x10.compiler.NativeString;
 import x10.compiler.Pinned;
 import x10.compiler.Global;
+import x10.compiler.SuppressTransientError;
 
 import x10.util.HashMap;
 import x10.util.GrowableRail;
@@ -1014,7 +1015,7 @@ import x10.util.Box;
     	 private val root = GlobalRef[SimpleRootFinish](this);
     	 transient protected var counts:int;
          transient protected var exceptions:Stack[Throwable];
-	 transient protected val latch = new Latch();
+	 @SuppressTransientError transient protected val latch = new Latch();
                                         
          public def this() {
              counts = 1;
@@ -1415,8 +1416,8 @@ import x10.util.Box;
     private transient val pool:Pool;
 
     // per place members
-    private transient val monitor = new Monitor();
-    private transient val finishStates = new FinishStates();
+    @SuppressTransientError private transient val monitor = new Monitor();
+    @SuppressTransientError private transient val finishStates = new FinishStates();
 
     // constructor
 
@@ -1577,7 +1578,7 @@ import x10.util.Box;
     static class RemoteControl {
     	private val root = GlobalRef[RemoteControl](this);
         transient var e:Box[Throwable] = null;
-        transient val latch = new Latch();
+        @SuppressTransientError transient val latch = new Latch();
         @Global public safe def equals(a:Any) =
         	(a instanceof RemoteControl) && this.root.equals((a as RemoteControl).root);
         @Global public safe def hashCode()=root.hashCode();
@@ -1620,7 +1621,7 @@ import x10.util.Box;
     static class Remote[T] {
         transient var t:Box[T] = null;
         transient var e:Box[Throwable] = null;
-        transient val latch = new Latch();
+        @SuppressTransientError transient val latch = new Latch();
         private val root = GlobalRef[Remote](this);
         @Global public safe def equals(a:Any)=
         	(a instanceof Remote[T]) && this.root.equals((a as Remote[T]).root);
