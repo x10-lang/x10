@@ -179,7 +179,8 @@ public class PlaceChecker {
 		}
 		XTerm locVar = homeVar(selfVar, (X10TypeSystem) cxt.typeSystem());
 		try {
-			type = X10TypeMixin.addBinding(type, locVar, here());// here, not pt); // pt, not PlaceChecker.here()
+			if (locVar != null)
+			    type = X10TypeMixin.addBinding(type, locVar, here());// here, not pt); // pt, not PlaceChecker.here()
 		} catch (XFailure z) {
 			// caller responsibility to ensure that this could be consistently added.
 		}
@@ -244,7 +245,7 @@ public class PlaceChecker {
 	public static void AddThisHomeEqualsPlaceTerm(CConstraint c, XTerm thisVar, X10Context xc) throws XFailure {
 		 XTerm locVar = homeVar(thisVar, (X10TypeSystem) xc.typeSystem());
          XConstrainedTerm thisPlace = xc.currentThisPlace();
-         if (thisPlace != null) {
+         if (locVar != null && thisPlace != null) {
         	 assert locVar != null;
         	 c.addBinding(locVar, thisPlace);
          }
@@ -446,7 +447,8 @@ public class PlaceChecker {
 			} 
 			rType = X10TypeMixin.instantiateSelf(target, rType); 
 
-			assert PlaceChecker.homeVar(target, xts) != null;
+			if (PlaceChecker.homeVar(target, xts) == null)
+			    throw new XFailure();
 
 			pc.addBinding(PlaceChecker.homeVar(target,xts), placeTerm == null ? HERE : placeTerm);
 

@@ -374,8 +374,8 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        }
        private void addValidateOnlyGoals(Job job, List<Goal> goals) {
            goals.add(Parsed(job));
-           goals.add(TypesInitialized(job));
            goals.add(ImportTableInitialized(job));
+           goals.add(TypesInitialized(job));
 
            if (job.source() != null && job.source().path().endsWith(XML_FILE_DOT_EXTENSION)) {
                goals.add(X10MLTypeChecked(job));
