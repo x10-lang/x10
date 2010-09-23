@@ -544,165 +544,189 @@ public class LineNumberMap extends StringTable {
 	    w.forceNewline();
 
         if (!m.isEmpty()) {
-	    String[] files = m.allFiles();
-	    // A list of X10 source files that contributed to the generation of the current C++ file.
-	    w.writeln("static const struct _X10sourceFile _X10sourceList[] __attribute__((used)) "+debugDataSectionAttr+" = {");
-	    for (int i = 0; i < files.length; i++) {
-	        w.write("    { ");
-	        w.write(""+0+", ");                                                // FIXME: _numLines
-	        w.write(""+offsets[m.stringId(files[i])]);                         // _stringIndex
-	        w.writeln(" },");
-	    }
-	    w.writeln("};");
-	    w.forceNewline();
-
-//	    // A cross reference of X10 statements to the first C++ statement.
-//	    // Sorted by X10 file index and X10 source file line.
-	    ArrayList<CPPLineInfo> x10toCPPlist = new ArrayList<CPPLineInfo>(m.map.size());
-	    for (Key p : m.map.keySet()) {
-	        Entry e = m.map.get(p);
-	        x10toCPPlist.add(
-	                new CPPLineInfo(findFile(m.lookupString(e.fileId), files), // _X10index
-	                                0,                                         // FIXME: _X10method
-	                                offsets[p.fileId],                         // _CPPindex
-	                                e.line,                                    // _X10line
-	                                p.start_line,                              // _CPPline
-	                                p.end_line,
-	                                p.fileId,
-	                                e.column));                                  // _X10column	                                
-	    }
-	    Collections.sort(x10toCPPlist, CPPLineInfo.byX10info());
-	    
-	    // remove itens that have duplicate lines, leaving only the one with the earlier column
-	    int previousLine=-1, previousColumn=-1;
-	    for (int i=0; i<x10toCPPlist.size();)
-	    {
-	    	CPPLineInfo cppDebugInfo = x10toCPPlist.get(i);
-	    	if (cppDebugInfo.x10line == previousLine)
-	    	{
-	    		if (cppDebugInfo.x10column >= previousColumn)
-		    		x10toCPPlist.remove(i); // keep the previous one, delete this one
-	    		else
-	    		{
-	    			// keep this one, delete the previous one
-	    			x10toCPPlist.remove(i-1);
-	    			previousLine = 	cppDebugInfo.x10line;
+		    String[] files = m.allFiles();
+		    // A list of X10 source files that contributed to the generation of the current C++ file.
+		    w.writeln("static const struct _X10sourceFile _X10sourceList[] __attribute__((used)) "+debugDataSectionAttr+" = {");
+		    for (int i = 0; i < files.length; i++) {
+		        w.write("    { ");
+		        w.write(""+0+", ");                                                // FIXME: _numLines
+		        w.write(""+offsets[m.stringId(files[i])]);                         // _stringIndex
+		        w.writeln(" },");
+		    }
+		    w.writeln("};");
+		    w.forceNewline();
+	
+	//	    // A cross reference of X10 statements to the first C++ statement.
+	//	    // Sorted by X10 file index and X10 source file line.
+		    ArrayList<CPPLineInfo> x10toCPPlist = new ArrayList<CPPLineInfo>(m.map.size());
+		    for (Key p : m.map.keySet()) {
+		        Entry e = m.map.get(p);
+		        x10toCPPlist.add(
+		                new CPPLineInfo(findFile(m.lookupString(e.fileId), files), // _X10index
+		                                0,                                         // FIXME: _X10method
+		                                offsets[p.fileId],                         // _CPPindex
+		                                e.line,                                    // _X10line
+		                                p.start_line,                              // _CPPline
+		                                p.end_line,
+		                                p.fileId,
+		                                e.column));                                  // _X10column	                                
+		    }
+		    Collections.sort(x10toCPPlist, CPPLineInfo.byX10info());
+		    
+		    // remove itens that have duplicate lines, leaving only the one with the earlier column
+		    int previousLine=-1, previousColumn=-1;
+		    for (int i=0; i<x10toCPPlist.size();)
+		    {
+		    	CPPLineInfo cppDebugInfo = x10toCPPlist.get(i);
+		    	if (cppDebugInfo.x10line == previousLine)
+		    	{
+		    		if (cppDebugInfo.x10column >= previousColumn)
+			    		x10toCPPlist.remove(i); // keep the previous one, delete this one
+		    		else
+		    		{
+		    			// keep this one, delete the previous one
+		    			x10toCPPlist.remove(i-1);
+		    			previousLine = 	cppDebugInfo.x10line;
+				    	previousColumn = cppDebugInfo.x10column;
+		    		}
+		    	}
+		    	else
+		    	{
+			    	previousLine = cppDebugInfo.x10line;
 			    	previousColumn = cppDebugInfo.x10column;
-	    		}
-	    	}
-	    	else
-	    	{
-		    	previousLine = cppDebugInfo.x10line;
-		    	previousColumn = cppDebugInfo.x10column;
-		    	i++;
-	    	}
-	    }	
-	    
-	    w.writeln("static const struct _X10toCPPxref _X10toCPPlist[] __attribute__((used)) "+debugDataSectionAttr+" = {");
-	    for (CPPLineInfo cppDebugInfo : x10toCPPlist) {
-	        w.write("    { ");
-	        w.write(""+cppDebugInfo.x10index+", ");                            // _X10index
-	        w.write(""+cppDebugInfo.x10method+", ");                           // _X10method
-	        w.write(""+cppDebugInfo.cppindex+", ");                            // _CPPindex
-	        w.write(""+cppDebugInfo.x10line+", ");                             // _X10line
-	        w.write(""+cppDebugInfo.cppfromline+", ");                         // _CPPFromLine
-	        w.write(""+cppDebugInfo.cpptoline);                                // _CPPtoLine
-	        w.writeln(" },");
-	    }
-	    w.writeln("};");
-	    w.forceNewline();
-
-	    // A list of the X10 method names.
-	    // Sorted by X10 method name.
-	    ArrayList<CPPMethodInfo> x10MethodList = new ArrayList<CPPMethodInfo>(m.methods.size());
-	    HashMap<Key, CPPMethodInfo> keyToMethod = new HashMap<Key, CPPMethodInfo>();
-	    for (MethodDescriptor md : m.methods.keySet()) {
-	        MethodDescriptor sm = m.methods.get(md);
-	        final CPPMethodInfo cmi = m.new CPPMethodInfo(sm.container,        // _x10class
-	                                                      sm.name,             // _x10method
-	                                                      sm.returnType,       // _x10returnType
-	                                                      sm.args,             // _x10args
-	                                                      md.container);       // _cppClass
-	        x10MethodList.add(cmi);
-	        keyToMethod.put(md.lines, cmi);
-	    }
-
-	    // A cross reference of C++ statements to X10 statements.
-	    // Sorted by C++ file index and C++ source file line. 
-	    // A line range is used to minimize the storage required.
-	    ArrayList<CPPLineInfo> cpptoX10xrefList = new ArrayList<CPPLineInfo>(m.map.size());
-	    for (Key p : m.map.keySet()) {
-	        Entry e = m.map.get(p);
-	        cpptoX10xrefList.add(
-	                new CPPLineInfo(findFile(m.lookupString(e.fileId), files), // _X10index
-	                                0,                                         // FIXME: _X10method
-	                                offsets[p.fileId],                         // _CPPindex
-	                                e.line,                                    // _X10line
-	                                p.start_line,                              // _CPPfromline
-	                                p.end_line,                                // _CPPtoline
-	                                p.fileId,
-	                                e.column));
-	    }
-	    Collections.sort(cpptoX10xrefList, CPPLineInfo.byCPPinfo());
-	    w.writeln("static const struct _CPPtoX10xref _CPPtoX10xrefList[] __attribute__((used)) "+debugDataSectionAttr+" = {");
-	    int i = 0;
-	    for (CPPLineInfo cppDebugInfo : cpptoX10xrefList) {
-	        w.write("    { ");
-	        w.write(""+cppDebugInfo.x10index+", ");                            // _X10index
-	        w.write(""+cppDebugInfo.x10method+", ");                           // _X10method
-	        w.write(""+cppDebugInfo.cppindex+", ");                            // _CPPindex
-	        w.write(""+cppDebugInfo.x10line+", ");                             // _X10line
-	        w.write(""+cppDebugInfo.cppfromline+", ");                         // _CPPfromline
-	        w.write(""+cppDebugInfo.cpptoline);                                // _CPPtoline
-	        w.writeln(" },");
-	        Key k = new Key(cppDebugInfo.fileId, cppDebugInfo.cppfromline, cppDebugInfo.cpptoline);
-	        CPPMethodInfo methodInfo = keyToMethod.get(k);
-	        if (methodInfo != null) {
-	            methodInfo.cpplineindex = i;                                   // _lineIndex
+			    	i++;
+		    	}
+		    }	
+		    
+		    w.writeln("static const struct _X10toCPPxref _X10toCPPlist[] __attribute__((used)) "+debugDataSectionAttr+" = {");
+		    for (CPPLineInfo cppDebugInfo : x10toCPPlist) {
+		        w.write("    { ");
+		        w.write(""+cppDebugInfo.x10index+", ");                            // _X10index
+		        w.write(""+cppDebugInfo.x10method+", ");                           // _X10method
+		        w.write(""+cppDebugInfo.cppindex+", ");                            // _CPPindex
+		        w.write(""+cppDebugInfo.x10line+", ");                             // _X10line
+		        w.write(""+cppDebugInfo.cppfromline+", ");                         // _CPPFromLine
+		        w.write(""+cppDebugInfo.cpptoline);                                // _CPPtoLine
+		        w.writeln(" },");
+		    }
+		    w.writeln("};");
+		    w.forceNewline();
+	
+		    // A list of the X10 method names.
+		    // Sorted by X10 method name.
+		    ArrayList<CPPMethodInfo> x10MethodList = new ArrayList<CPPMethodInfo>(m.methods.size());
+		    HashMap<Key, CPPMethodInfo> keyToMethod = new HashMap<Key, CPPMethodInfo>();
+		    for (MethodDescriptor md : m.methods.keySet()) {
+		        MethodDescriptor sm = m.methods.get(md);
+		        final CPPMethodInfo cmi = m.new CPPMethodInfo(sm.container,        // _x10class
+		                                                      sm.name,             // _x10method
+		                                                      sm.returnType,       // _x10returnType
+		                                                      sm.args,             // _x10args
+		                                                      md.container);       // _cppClass
+		        x10MethodList.add(cmi);
+		        keyToMethod.put(md.lines, cmi);
+		    }
+	
+		    // A cross reference of C++ statements to X10 statements.
+		    // Sorted by C++ file index and C++ source file line. 
+		    // A line range is used to minimize the storage required.
+		    ArrayList<CPPLineInfo> cpptoX10xrefList = new ArrayList<CPPLineInfo>(m.map.size());
+		    for (Key p : m.map.keySet()) {
+		        Entry e = m.map.get(p);
+		        cpptoX10xrefList.add(
+		                new CPPLineInfo(findFile(m.lookupString(e.fileId), files), // _X10index
+		                                0,                                         // FIXME: _X10method
+		                                offsets[p.fileId],                         // _CPPindex
+		                                e.line,                                    // _X10line
+		                                p.start_line,                              // _CPPfromline
+		                                p.end_line,                                // _CPPtoline
+		                                p.fileId,
+		                                e.column));
+		    }
+		    Collections.sort(cpptoX10xrefList, CPPLineInfo.byCPPinfo());
+		    w.writeln("static const struct _CPPtoX10xref _CPPtoX10xrefList[] __attribute__((used)) "+debugDataSectionAttr+" = {");
+		    int i = 0;
+		    for (CPPLineInfo cppDebugInfo : cpptoX10xrefList) {
+		        w.write("    { ");
+		        w.write(""+cppDebugInfo.x10index+", ");                            // _X10index
+		        w.write(""+cppDebugInfo.x10method+", ");                           // _X10method
+		        w.write(""+cppDebugInfo.cppindex+", ");                            // _CPPindex
+		        w.write(""+cppDebugInfo.x10line+", ");                             // _X10line
+		        w.write(""+cppDebugInfo.cppfromline+", ");                         // _CPPfromline
+		        w.write(""+cppDebugInfo.cpptoline);                                // _CPPtoline
+		        w.writeln(" },");
+		        Key k = new Key(cppDebugInfo.fileId, cppDebugInfo.cppfromline, cppDebugInfo.cpptoline);
+		        CPPMethodInfo methodInfo = keyToMethod.get(k);
+		        if (methodInfo != null) {
+		            methodInfo.cpplineindex = i;                                   // _lineIndex
+		        }
+		        i++;
+		    }
+		    w.writeln("};");
+		    w.forceNewline();
+	
+	        if (!m.methods.isEmpty()) {
+		        Collections.sort(x10MethodList);
+		        // FIXME: Cannot put _X10methodNameList in debugDataSectionAttr, because it's not constant
+		        // (the strings cause static initialization for some reason)
+		        w.writeln("static const struct _X10methodName _X10methodNameList[] __attribute__((used)) = {");
+		        w.writeln("#if defined(__xlC__)");
+		        for (CPPMethodInfo cppMethodInfo : x10MethodList) {        	
+		            w.write("    { ");
+		            w.write(""+offsets[cppMethodInfo.x10class]+", ");                  // _x10class
+		            w.write(""+offsets[cppMethodInfo.x10method]+", ");                 // _x10method
+		            w.write(""+offsets[cppMethodInfo.x10rettype]+", ");                // _x10returnType
+		            w.write(""+offsets[cppMethodInfo.cppclass]+", ");                  // _cppClass
+		            w.write("(uint64_t) 0, "); // TODO - this needs to be re-designed, with the debugger team            
+		            w.write(""+cppMethodInfo.x10args.length+", ");                     // _x10argCount
+		            w.write(""+cppMethodInfo.cpplineindex);                            // _lineIndex
+		            w.writeln(" },");
+		        }
+		        w.writeln("#else");
+		        for (CPPMethodInfo cppMethodInfo : x10MethodList) {        	
+		            w.write("    { ");
+		            w.write(""+offsets[cppMethodInfo.x10class]+", ");                  // _x10class
+		            w.write(""+offsets[cppMethodInfo.x10method]+", ");                 // _x10method
+		            w.write(""+offsets[cppMethodInfo.x10rettype]+", ");                // _x10returnType
+		            w.write(""+offsets[cppMethodInfo.cppclass]+", ");                  // _cppClass
+		            w.write("(uint64_t) ");
+		            for (i = 0; i < cppMethodInfo.x10args.length; i++) {
+		                int a = cppMethodInfo.x10args[i];
+		                w.write("\""+encodeIntAsChars(offsets[a])+"\" ");              // _x10args
+		            }
+		            w.write("\"\", ");
+		            w.write(""+cppMethodInfo.x10args.length+", ");                     // _x10argCount
+		            w.write(""+cppMethodInfo.cpplineindex);                            // _lineIndex
+		            w.writeln(" },");
+		        }
+		        w.writeln("#endif");
+		        w.writeln("};");
+		        w.forceNewline();
 	        }
-	        i++;
-	    }
-	    w.writeln("};");
-	    w.forceNewline();
+	        
+	        // variable map stuff        
+	        // TODO - check to see if they exist before printing them
+	        
+	        w.writeln("static const struct _X10LocalVarMap _X10variableNameList[] __attribute__((used)) "+debugDataSectionAttr+" = {");
+	        // TODO
+	        w.writeln("};");
+	        w.forceNewline();
+	        
+	        w.writeln("static const struct _X10ClassMap _X10ClassMapList[] __attribute__((used)) "+debugDataSectionAttr+" = {");
+		    // TODO
+		    w.writeln("};");
+		    w.forceNewline();
+		    
+		    w.writeln("static const struct _X10ClosureMap _X10ClosureMapList[] __attribute__((used)) "+debugDataSectionAttr+" = {");
+		    // TODO
+		    w.writeln("};");
+		    w.forceNewline();
 
-        if (!m.methods.isEmpty()) {
-        Collections.sort(x10MethodList);
-        // FIXME: Cannot put _X10methodNameList in debugDataSectionAttr, because it's not constant
-        // (the strings cause static initialization for some reason)
-        w.writeln("static const struct _X10methodName _X10methodNameList[] __attribute__((used)) = {");
-        w.writeln("#if defined(__xlC__)");
-        for (CPPMethodInfo cppMethodInfo : x10MethodList) {        	
-            w.write("    { ");
-            w.write(""+offsets[cppMethodInfo.x10class]+", ");                  // _x10class
-            w.write(""+offsets[cppMethodInfo.x10method]+", ");                 // _x10method
-            w.write(""+offsets[cppMethodInfo.x10rettype]+", ");                // _x10returnType
-            w.write(""+offsets[cppMethodInfo.cppclass]+", ");                  // _cppClass
-            w.write("(uint64_t) 0, "); // TODO - this needs to be re-designed, with the debugger team            
-            w.write(""+cppMethodInfo.x10args.length+", ");                     // _x10argCount
-            w.write(""+cppMethodInfo.cpplineindex);                            // _lineIndex
-            w.writeln(" },");
-        }
-        w.writeln("#else");
-        for (CPPMethodInfo cppMethodInfo : x10MethodList) {        	
-            w.write("    { ");
-            w.write(""+offsets[cppMethodInfo.x10class]+", ");                  // _x10class
-            w.write(""+offsets[cppMethodInfo.x10method]+", ");                 // _x10method
-            w.write(""+offsets[cppMethodInfo.x10rettype]+", ");                // _x10returnType
-            w.write(""+offsets[cppMethodInfo.cppclass]+", ");                  // _cppClass
-            w.write("(uint64_t) ");
-            for (i = 0; i < cppMethodInfo.x10args.length; i++) {
-                int a = cppMethodInfo.x10args[i];
-                w.write("\""+encodeIntAsChars(offsets[a])+"\" ");              // _x10args
-            }
-            w.write("\"\", ");
-            w.write(""+cppMethodInfo.x10args.length+", ");                     // _x10argCount
-            w.write(""+cppMethodInfo.cpplineindex);                            // _lineIndex
-            w.writeln(" },");
-        }
-        w.writeln("#endif");
-        w.writeln("};");
-        }
-        }
+		    w.writeln("static const struct _X10ArrayMap _X10ArrayMapList[] __attribute__((used)) "+debugDataSectionAttr+" = {");
+		    // TODO
+		    w.writeln("};");
+		    w.forceNewline();
+	    }
 
         // A meta-structure that refers to all of the above
         w.write("static const struct _MetaDebugInfo_t _MetaDebugInfo __attribute__((used)) "+debugSectionAttr+" = {");
@@ -725,11 +749,11 @@ public class LineNumberMap extends StringTable {
         } else {
             w.writeln("0,");
         }
-        // TODO - replace these 4 with real values
-        w.writeln("0,");
-        w.writeln("0,");
-        w.writeln("0,");
-        w.writeln("0,");
+        // TODO - check to see if they exist before printing them
+        w.writeln("sizeof(_X10variableNameList),");
+        w.writeln("sizeof(_X10ClassMapList),");
+        w.writeln("sizeof(_X10ClosureMapList),");
+        w.writeln("sizeof(_X10ArrayMapList),");
         
         w.writeln("_X10strings,");
         if (!m.isEmpty()) {
@@ -742,16 +766,16 @@ public class LineNumberMap extends StringTable {
             w.writeln("NULL,");
         }
         if (!m.methods.isEmpty()) {
-            w.write("_X10methodNameList,");
+            w.writeln("_X10methodNameList,");
         } else {
-            w.write("NULL,");
+            w.writeln("NULL,");
         }
         
-        // TODO - replace these 4 with real values        
-        w.writeln("NULL,");
-        w.writeln("NULL,");
-        w.writeln("NULL,");
-        w.writeln("NULL,");
+        // TODO - check to see if they exist before printing them        
+        w.writeln("_X10variableNameList,");
+        w.writeln("_X10ClassMapList,");
+        w.writeln("_X10ClosureMapList,");
+        w.write("_X10ArrayMapList");
         
         w.end(); w.newline();
         w.writeln("};");
