@@ -268,14 +268,90 @@ public class LineNumberMap extends StringTable {
 		methods.put(tgt, src);
 	}
 	
+	
+	static int determineTypeId(String type)
+	{
+		if (type.equals("x10.lang.Int"))
+			return 5;
+		if (type.equals("x10.lang.Byte"))
+			return 1;
+		if (type.equals("x10.lang.UByte"))
+			return 2;
+		if (type.equals("x10.lang.Short"))
+			return 3;
+		if (type.equals("x10.lang.UShort"))
+			return 4;
+		if (type.equals("x10.lang.UInt"))
+			return 6;
+		if (type.equals("x10.lang.Long"))
+			return 7;
+		if (type.equals("x10.lang.ULong"))
+			return 8;
+		if (type.equals("x10.lang.Float"))
+			return 9;
+		if (type.equals("x10.lang.Double"))
+			return 10;
+		if (type.equals("x10.lang.Char"))
+			return 11;
+		if (type.equals("x10.array.Array"))
+			return 17;
+		// TODO 12-16
+		return 12;
+	}
+	
+	
+	private class LocalVariableMapInfo
+	{
+		int _x10name;			// Index of the X10 variable name in _X10strings
+		int _x10type;          // Classification of this type
+		int _x10typeIndex; 	// Index of the X10 type into appropriate _X10ClassMap, _X10ClosureMap  (if applicable)
+		int _cppName;			// Index of the C++ variable name in _X10strings
+	    int _x10index;         // Index of X10 file name in _X10sourceList
+		int _x10startLine;     // First line number of X10 line range
+		int _x10endLine;       // Last line number of X10 line range
+	}
+	
+	private static ArrayList<LocalVariableMapInfo> localVariables;
+	
 	public void addLocalVariableMapping(String name, String type, int startline)
 	{
-		//System.out.println("Found local variable at line "+startline+": "+type+" "+name);
+		if (localVariables == null)
+			localVariables = new ArrayList<LineNumberMap.LocalVariableMapInfo>();
+		
+		LocalVariableMapInfo v = new LocalVariableMapInfo();
+		v._x10name = stringId(name);
+		v._x10type = determineTypeId(type);
+		v._x10typeIndex = stringId(type);
+		v._cppName = stringId(Emitter.mangled_non_method_name(name)); 
+		// TODO v._x10index =
+		v._x10startLine = startline;
+		// TODO v._x10endLine =
+		localVariables.add(v);
 	}
+	
+	private class MemberVariableMapInfo
+	{
+		int _x10Type;       // Classification of this type
+		int _x10typeIndex;  // Index of the X10 type into appropriate _X10typeMap
+		int _x10memberName; // Index of the X10 member name in _X10strings
+		int _cppMemberName; // Index of the C++ member name in _X10strings
+		int _cppClass; // Index of the C++ containing struct/class name in _X10strings
+	}
+	
+	private static ArrayList<MemberVariableMapInfo> memberVariables;
 	
 	public void addClassMemberVariable(String name, String type)
 	{
-		//System.out.println("Found member variable: "+type+" "+name);
+		if (memberVariables == null)
+			memberVariables = new ArrayList<LineNumberMap.MemberVariableMapInfo>();
+		
+		MemberVariableMapInfo v = new MemberVariableMapInfo();
+		v._x10Type = determineTypeId(type);
+		v._x10typeIndex = stringId(type);
+		v._x10memberName = stringId(name);
+		v._cppMemberName = stringId(Emitter.mangled_non_method_name(name)); 
+		// TODO v._cppClass =
+		memberVariables.add(v);
 	}
 
 	/**
@@ -718,12 +794,14 @@ public class LineNumberMap extends StringTable {
 	        // TODO - check to see if they exist before printing them
 	        
 	        w.writeln("static const struct _X10LocalVarMap _X10variableNameList[] __attribute__((used)) "+debugDataSectionAttr+" = {");
-	        // TODO
+	        for (LocalVariableMapInfo v : localVariables)
+	        	w.writeln("    { "+v._x10name+", "+v._x10type+", "+v._x10typeIndex+", "+v._cppName+", "+v._x10index+", "+v._x10startLine+", "+v._x10endLine+" },");
 	        w.writeln("};");
 	        w.forceNewline();
 	        
 	        w.writeln("static const struct _X10ClassMap _X10ClassMapList[] __attribute__((used)) "+debugDataSectionAttr+" = {");
-		    // TODO
+	        for (MemberVariableMapInfo v : memberVariables)
+	        	w.writeln("    { "+v._x10Type+", "+v._x10typeIndex+", "+v._x10memberName+", "+v._cppMemberName+", "+v._cppClass+" },");
 		    w.writeln("};");
 		    w.forceNewline();
 		    
