@@ -85,6 +85,7 @@ import x10.ast.StmtSeq;
 import x10.ast.SubtypeTest;
 import x10.ast.Tuple;
 import x10.ast.When;
+import x10.ast.X10ClassDecl;
 import x10.ast.X10NodeFactory;
 import x10.optimizations.ForLoopOptimizer;
 import x10.types.X10TypeSystem;
@@ -120,36 +121,55 @@ public final class ExpressionFlattener extends ContextVisitor {
 
     /* (non-Javadoc)
      * @see polyglot.visit.NodeVisitor#override(polyglot.ast.Node)
+     */
+    /**
+     * Don't visit nodes that cannot be flattened.
      * 
-     * AST Nodes that aren't flattened.
-     *     Assert, Await, and When require the Java back-end handle StmtExpr's to achieve the right semantics.
+     * @param n the node to be visited (or not)
+     * @return n if the node is NOT to be visited, otherwise null
+     */
+    public Node override(Node n) {
+        if (n instanceof X10ClassDecl) {
+            if (DEBUG) System.out.println("DEBUG: flattening: " +((X10ClassDecl) n).classDef()+ " (@" +((X10ClassDecl) n).position()+ ")");
+            return null;
+        }
+        if (cannotFlatten(n)) return n;
+        return null;
+    }
+
+    /**
+     * Is this Node unflattenable?
+     * 
+     * Nodes that cannot be flattened:
+     *     Assert requires the Java back-end handle StmtExpr's to achieve the right semantics.
+     *     When requires its tests to be evaluated atomically.
      *     Constructors and class initializers cannot be flattened because of Java's initialization rules (X10 proto would fix
      *         this but the Java back-end must be able to handle the new code).
      *     Case Expr's are constant expressions that will eventually get evaluated at compile time.
+     *     
+     * @param n an AST node that might be flattened
+     * @return true if the node cannot be flattened, false otherwise
      */
-    public Node override(Node n) {
+    public static boolean cannotFlatten(Node n) {
         if (n instanceof ConstructorDecl) { // can't flatten constructors until local assignments can precede super() and this()
-            return n;
+            return true;
         }
         if (n instanceof AssignPropertyCall) { // can't flatten constructors until local assignments can precede property assignments
-            return n;
+            return true;
         }
         if (n instanceof FieldDecl) { // can't flatten class initializes until assignments can precede field declarations
-            return n;
+            return true;
         }
         if (n instanceof Assert) { // can't flatten assert's until Java can handle StmtExpr's
-            return n;
+            return true;
         }
-        if (n instanceof Await) { // can't flatten await's until Java can handle StmtExpr's
-            return n;
-        }
-        if (n instanceof When) { // can't flatten when's until Java can handle StmtExpr's
-            return n;
+        if (n instanceof When) { // can't flatten when's because tests need to be evaluated atomically
+            return true;
         }
         if (n instanceof Case) { // case Expr's will become constants, don't screw with them.
-            return n;
+            return true;
         }
-        return null;
+        return false;
     }
     
     
