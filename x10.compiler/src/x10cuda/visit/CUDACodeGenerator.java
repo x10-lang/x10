@@ -733,9 +733,9 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
                 inc.write("__env."+name+" = ");
                 
                 //String addr = "&(*"+name+")[0]"; // old way for rails
-                String addr = "&"+name+"->FMGL(raw).data[0]";
+                String addr = "&"+name+"->FMGL(raw).raw()[0]";
                 //String rr = "x10aux::get_remote_ref_maybe_null("+name+".operator->())"; // old object model
-                String rr = "&"+name+"->FMGL(rawData).data[0]";
+                String rr = "&"+name+"->FMGL(rawData).raw()[0]";
                 
                 if (isIntArray(t)) {
                     if (xts().isRemoteArray(t)) {

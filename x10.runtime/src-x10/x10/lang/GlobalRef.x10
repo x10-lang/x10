@@ -42,7 +42,7 @@ public struct GlobalRef[T](
     * created. Returns the object encapsulated in the value.
     */
    @Native("java", "(#0).apply$G()")
-   @Native("c++", "((#1)((#0)->value))")
+   @Native("c++", "(#0)->apply()")
    public native def apply(){here == this.home}:T; 
 
    /*

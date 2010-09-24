@@ -23,12 +23,14 @@ namespace x10 {
             x10aux::itable_entry* _getITables() { return _itables; }
             x10aux::itable_entry* _getIBoxITables() { return _iboxitables; }
     
-            x10aux::ref<T> value; 
+            x10_ulong value; 
             x10aux::place location;	
 
-            GlobalRef(x10aux::ref<T> obj = NULL) : value(obj), location(x10aux::here) { }
+            GlobalRef(T obj = NULL) : value((size_t)(obj.operator->())), location(x10aux::here) { }
+            GlobalRef(x10aux::place p, x10_ulong obj = 0) : value(obj), location(p) { }
 	
-            inline x10aux::ref<T> apply() { return value; }
+            // we are assuming T is always of the form x10aux::ref<U> and use T::Type to get U
+            inline T apply() { return (typename T::Type*)(size_t)value; }
 
             GlobalRef<T>* operator->() { return this; }
         

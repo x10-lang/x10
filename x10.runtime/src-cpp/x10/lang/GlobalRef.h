@@ -29,7 +29,7 @@ namespace x10 {
 
         template<class T> class GlobalRef_methods  {
         public:
-            static inline GlobalRef<T> _make(x10aux::ref<T> obj) {
+            static inline GlobalRef<T> _make(T obj) {
                 return GlobalRef<T>(obj);
             }
         };
@@ -75,17 +75,17 @@ namespace x10 {
 template<class T> void x10::lang::GlobalRef<T>::_serialize(x10::lang::GlobalRef<T> this_,
                                                            x10aux::serialization_buffer& buf) {
     buf.write(this_->location);
-    buf.write((x10_long)(size_t)(this_->value.operator->()));
+    buf.write(this_->value);
     #if defined(X10_USE_BDWGC) || defined(X10_DEBUG_REFERENCE_LOGGER)
     if (this_->location == x10aux::here) {
-        if (!this_->value.isNull()) logGlobalReference(this_->value);
+        if (!this_->apply().isNull()) logGlobalReference(this_->apply());
     }
     #endif
 }
 
 template<class T> void x10::lang::GlobalRef<T>::_deserialize_body(x10aux::deserialization_buffer& buf) {
     location = buf.read<x10aux::place>();
-    value = (T*)(size_t)buf.read<x10_long>();
+    value = buf.read<x10_ulong>();
 }
 
 
@@ -102,7 +102,7 @@ template<class T> x10aux::ref<x10::lang::String> x10::lang::GlobalRef<T>::toStri
 }
 
 template<class T> x10_int x10::lang::GlobalRef<T>::hashCode() {
-    return x10::lang::Object::identityHashCode(value);
+    return (x10_int)value;
 }
 
 template<class T> x10aux::ref<x10::lang::String> x10::lang::GlobalRef<T>::typeName() {

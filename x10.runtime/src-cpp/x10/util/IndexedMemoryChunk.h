@@ -86,8 +86,8 @@ template<class T> void x10::util::IndexedMemoryChunk<T>::copyTo(x10_int srcIndex
                                                                 x10::util::IndexedMemoryChunk<T> dst,
                                                                 x10_int dstIndex,
                                                                 x10_int numElems, x10_boolean uncounted) {
-    void* srcAddr = (void*)(&data[srcIndex]);
-    void* dstAddr = (void*)(&dst->data[dstIndex]);
+    void* srcAddr = (void*)(&raw()[srcIndex]);
+    void* dstAddr = (void*)(&dst->raw()[dstIndex]);
     size_t numBytes = numElems * sizeof(T);
     IMC_copyToBody(srcAddr, dstAddr, numBytes, dstPlace, data == dst->data, uncounted);
 }
@@ -96,8 +96,8 @@ template<class T> void x10::util::IndexedMemoryChunk<T>::copyTo(x10_int srcIndex
 template<class T> void x10::util::IndexedMemoryChunk<T>::copyFrom(x10_int dstIndex, x10::lang::Place srcPlace,
                                                                   x10::util::IndexedMemoryChunk<T> src,
                                                                   x10_int srcIndex, x10_int numElems, x10_boolean uncounted) {
-    void* srcAddr = (void*)(&src->data[srcIndex]);
-    void* dstAddr = (void*)(&data[dstIndex]);
+    void* srcAddr = (void*)(&src->raw()[srcIndex]);
+    void* dstAddr = (void*)(&raw()[dstIndex]);
     size_t numBytes = numElems * sizeof(T);
     IMC_copyFromBody(srcAddr, dstAddr, numBytes, srcPlace, data == src->data, uncounted);
 }
@@ -106,11 +106,11 @@ template<class T> void x10::util::IndexedMemoryChunk<T>::copyFrom(x10_int dstInd
 
 template<class T> void x10::util::IndexedMemoryChunk<T>::_serialize(x10::util::IndexedMemoryChunk<T> this_,
                                                                     x10aux::serialization_buffer& buf) {
-    buf.write((x10_long)(size_t)(this_->data));
+    buf.write((this_->data));
 }
 
 template<class T> void x10::util::IndexedMemoryChunk<T>::_deserialize_body(x10aux::deserialization_buffer& buf) {
-    data = (T*)(size_t)buf.read<x10_long>();
+    data = buf.read<x10_ulong>();
 }
 
 
@@ -122,7 +122,7 @@ template<class T> x10_boolean x10::util::IndexedMemoryChunk<T>::_struct_equals(x
 }
 
 template<class T> x10aux::ref<x10::lang::String> x10::util::IndexedMemoryChunk<T>::toString() {
-    char* tmp = x10aux::alloc_printf("x10.util.IndexedMemoryChunk<%s>(%p)", x10aux::getRTT<T>()->name(), data);
+    char* tmp = x10aux::alloc_printf("x10.util.IndexedMemoryChunk<%s>(%llx)", x10aux::getRTT<T>()->name(), data);
     return x10::lang::String::Steal(tmp);
 }
 

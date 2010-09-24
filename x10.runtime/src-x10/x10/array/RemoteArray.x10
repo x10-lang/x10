@@ -34,7 +34,8 @@ public class RemoteArray[T](home:Place, region:Region, size:Int) {} {
 
     public property rank:Int = region.rank;
 
-    public def this(a:Array[T]) : RemoteArray[T]{self.home==here, self.region==a.region, self.size==this.size} {
+    public def this(a:Array[T])
+      : RemoteArray[T]{self.home==here, self.region==a.region, self.size==this.size} {
         property(here, a.region, a.size);
         // cast needed as type of 'this' does not include {a.region==this.region, a.size==this.size} even though this is established by property statement
         val arr = a as Array[T]{self.region==this.region, self.size == this.size};
@@ -42,6 +43,16 @@ public class RemoteArray[T](home:Place, region:Region, size:Int) {} {
         array = GlobalRef[Array[T]{self.region==this.region, self.size==this.size}](arr) as GlobalRef[Array[T]{self.region==this.region, self.size==this.size}]{self.home==this.home};
         rawData = a.raw();
         rawLength = a.rawLength;  
+    }
+
+    public def this (gpu:Place, reg:Region, raw:IndexedMemoryChunk[T], raw_len:Int)
+      : RemoteArray[T]{self.home==gpu, self.region==reg, self.size==reg.size()} {
+        property(gpu, reg, reg.size());
+        rawData = raw;
+        rawLength = raw_len;
+        @Native("c++", "") {
+            array = (at (gpu) GlobalRef[Array[T]{self.region==this.region, self.size==this.size}](null)) as GlobalRef[Array[T]{self.region==this.region, self.size==this.size}]{self.home==this.home};
+        }
     }
 
     public def equals(other:Any) {

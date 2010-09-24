@@ -29,16 +29,18 @@ namespace x10 {
             x10aux::itable_entry* _getITables() { return _itables; }
             x10aux::itable_entry* _getIBoxITables() { return _iboxitables; }
     
-            T* data; /* TODO: We would like this to be T* const data */
+            x10_ulong data; /* TODO: We would like this to be const */
+            T *raw (void) const { return (T*)(size_t)data; }
 
-            IndexedMemoryChunk(): data(NULL) {}
-            IndexedMemoryChunk(T* _data): data(_data) {}
+            IndexedMemoryChunk(): data(0) {}
+            IndexedMemoryChunk(T* _data): data((size_t)_data) {}
+            IndexedMemoryChunk(x10_ulong _data): data(_data) {}
 
-            inline T apply(x10_int index) { return data[index]; }
-            inline T apply(x10_long index) { return data[index]; }
+            inline T apply(x10_int index) { return raw()[index]; }
+            inline T apply(x10_long index) { return raw()[index]; }
             
-            inline void set(T val, x10_int index) { data[index] = val; }
-            inline void set(T val, x10_long index) { data[index] = val; }
+            inline void set(T val, x10_int index) { raw()[index] = val; }
+            inline void set(T val, x10_long index) { raw()[index] = val; }
     
 
     	    void copyTo(x10_int srcIndex, x10::lang::Place dstPlace,
@@ -68,12 +70,12 @@ namespace x10 {
             x10_boolean _struct_equals(x10aux::ref<x10::lang::Any>);
     
             x10_boolean _struct_equals(x10::util::IndexedMemoryChunk<T> that) { 
-                return x10aux::struct_equals((size_t)data, (size_t)(that->data));
+                return x10aux::struct_equals(data, that->data);
             }
     
             x10aux::ref<x10::lang::String> toString();
     
-            x10_int hashCode() { return (x10_int)(data); }
+            x10_int hashCode() { return (x10_int)data; }
 
 	    x10_boolean at(x10aux::ref<x10::lang::Object> obj) { return true; }
             x10_boolean at(x10::lang::Place place) { return true; }

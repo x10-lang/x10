@@ -11,7 +11,9 @@
 
 package x10.util;
 
-/** A collection of independent functions useful in/around CUDA kernels.
+import x10.compiler.Native;
+
+/** A collection of functions useful in/around CUDA kernels.
  * @author Dave Cunningham
  */
 public class CUDAUtilities {
@@ -38,23 +40,50 @@ public class CUDAUtilities {
       */
     public static def autoThreads() : UInt = 1;
 
+    private static def makeCUDAArray[T] (gpu:Place, numElements:Int, init:IndexedMemoryChunk[T])
+       : RemoteArray[T]{self.home==gpu, self.rank()==1} {
+        val reg = 0 .. numElements-1;
+        @Native("c++",
+            "x10_ulong addr = x10aux::remote_alloc(gpu.FMGL(id), ((size_t)numElements)*sizeof(FMGL(T)));"+
+            "IndexedMemoryChunk<FMGL(T)> imc(addr);"+
+            // TODO: initialise
+            "return x10::array::RemoteArray<FMGL(T)>::_make(gpu, reg, imc, numElements) ;"
+        ) { }
+        throw new UnsupportedOperationException();
+    }
 
     public static def makeRemoteArray[T] (place:Place, numElements:Int, init: Array[T]{rail})
         : RemoteArray[T]{self.rank==1, self.home==place}
     {
-            return at (place) new RemoteArray[T](new Array[T](numElements, (p:Int)=>init(p)));
+        if (place.isCUDA()) {
+            return makeCUDAArray(place, numElements, init.raw());
+        } else {
+            return at (place) new RemoteArray(new Array[T](numElements, (p:Int)=>init(p)));
+        }
     }
 
     public static def makeRemoteArray[T] (place:Place, numElements:Int, init: T)
         : RemoteArray[T]{self.rank==1, self.home==place}
     {
-            return at (place) new RemoteArray[T](new Array[T](numElements, init));
+        if (place.isCUDA()) {
+            val chunk = IndexedMemoryChunk.allocate[T](numElements);
+            for ([i] in 0..numElements-1) chunk(i) = init;
+            return makeCUDAArray(place, numElements, chunk);
+        } else {
+            return at (place) new RemoteArray(new Array[T](numElements, init));
+        }
     }
 
     public static def makeRemoteArray[T] (place:Place, numElements:Int, init: (Int)=>T)
         : RemoteArray[T]{self.rank==1, self.home==place}
     {
-            return at (place) new RemoteArray[T](new Array[T](numElements, (p:Int)=>init(p)));
+        if (place.isCUDA()) {
+            val chunk = IndexedMemoryChunk.allocate[T](numElements);
+            for ([i] in 0..numElements-1) chunk(i) = init(i);
+            return makeCUDAArray(place, numElements, chunk);
+        } else {
+            return at (place) new RemoteArray(new Array[T](numElements, (p:Int)=>init(p)));
+        }
     }
 }
 

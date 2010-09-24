@@ -49,6 +49,7 @@ namespace x10aux {
 
     template<class T> class ref : public __ref {
         public:
+        typedef T Type;
         static const x10aux::RuntimeType* getRTT() { return T::getRTT(); }
 
         // Work around for an xlC ICE

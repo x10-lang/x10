@@ -566,7 +566,11 @@ void x10rt_cuda_send_msg (x10rt_cuda_ctx *ctx, x10rt_msg_params *p)
         abort();
     }
 
-    BaseOpKernel *op = new (safe_malloc<BaseOpKernel>()) BaseOpKernel(*p);
+    x10rt_msg_params p_ = *p;
+    p_.msg = safe_malloc<unsigned char>(p->len);
+    memcpy(p_.msg, p->msg, p->len);
+
+    BaseOpKernel *op = new (safe_malloc<BaseOpKernel>()) BaseOpKernel(p_);
 
     x10rt_cuda_pre *pre = ctx->cbs[p->type].kernel_cbs.pre;
     DEBUG(2,"x10rt_cuda_send_msg: pre callback begins\n");
@@ -693,6 +697,7 @@ void x10rt_cuda_probe (x10rt_cuda_ctx *ctx)
             pthread_mutex_lock(&big_lock_of_doom);
             CU_SAFE(cuCtxPushCurrent(ctx->ctx));
             DEBUG(2,"probe: post callback ends\n");
+            safe_free(kop->p.msg);
             kop->~BaseOpKernel();
             free(kop);
         }
