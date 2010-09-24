@@ -289,7 +289,7 @@
 --    public
       resume
 --    return
-    safe
+--    safe
 --    self
 --    sequential
 --    shared
@@ -451,15 +451,15 @@
             public static int EXTERN      = 2;
             public static int FINAL       = 3;
             public static int GLOBAL      = 4;
-            public static int INCOMPLETE  = 5;
+            //public static int INCOMPLETE  = 5;
             public static int NATIVE      = 6;
-            public static int NON_BLOCKING = 7;
+            //public static int NON_BLOCKING = 7;
             public static int PRIVATE     = 8;
             public static int PROPERTY    = 9;
             public static int PROTECTED   = 10;
             public static int PUBLIC      = 11;
-            public static int SAFE        = 12;
-            public static int SEQUENTIAL  = 13;
+            //public static int SAFE        = 12;
+            //public static int SEQUENTIAL  = 13;
             public static int CLOCKED     = 14;
             public static int STATIC      = 15;
             public static int TRANSIENT   = 16;
@@ -476,15 +476,15 @@
                 if (flag == EXTERN)       return X10Flags.EXTERN;
                 if (flag == FINAL)        return Flags.FINAL;
                 if (flag == GLOBAL)       return X10Flags.GLOBAL;
-                if (flag == INCOMPLETE)   return X10Flags.INCOMPLETE;
+                //if (flag == INCOMPLETE)   return X10Flags.INCOMPLETE;
                 if (flag == NATIVE)       return Flags.NATIVE;
-                if (flag == NON_BLOCKING) return X10Flags.NON_BLOCKING;
+                //if (flag == NON_BLOCKING) return X10Flags.NON_BLOCKING;
                 if (flag == PRIVATE)      return Flags.PRIVATE;
                 if (flag == PROPERTY)     return X10Flags.PROPERTY;
                 if (flag == PROTECTED)    return Flags.PROTECTED;
                 if (flag == PUBLIC)       return Flags.PUBLIC;
-                if (flag == SAFE)         return X10Flags.SAFE;
-                if (flag == SEQUENTIAL)   return X10Flags.SEQUENTIAL;
+                //if (flag == SAFE)         return X10Flags.SAFE;
+                //if (flag == SEQUENTIAL)   return X10Flags.SEQUENTIAL;
                 if (flag == CLOCKED)       return X10Flags.CLOCKED;
                 if (flag == TRANSIENT)    return X10Flags.TRANSIENT;
                 if (flag == STATIC)       return Flags.STATIC;
@@ -498,15 +498,15 @@
                 if (flag == EXTERN)       return "extern";
                 if (flag == FINAL)        return "final";
                 if (flag == GLOBAL)       return "global";
-                if (flag == INCOMPLETE)   return "incomplete";
+                //if (flag == INCOMPLETE)   return "incomplete";
                 if (flag == NATIVE)       return "native";
-                if (flag == NON_BLOCKING) return "nonblocking";
+                //if (flag == NON_BLOCKING) return "nonblocking";
                 if (flag == PRIVATE)      return "private";
                 if (flag == PROPERTY)     return "property";
                 if (flag == PROTECTED)    return "protected";
                 if (flag == PUBLIC)       return "public";
-                if (flag == SAFE)         return "safe";
-                if (flag == SEQUENTIAL)   return "sequential";
+                //if (flag == SAFE)         return "safe";
+                //if (flag == SEQUENTIAL)   return "sequential";
                 if (flag == CLOCKED)       return "clocked";
                 if (flag == STATIC)       return "static";
                 if (flag == TRANSIENT)    return "transient";
@@ -522,7 +522,7 @@
                 classModifiers[PRIVATE] = true;
                 classModifiers[PROTECTED] = true;
                 classModifiers[PUBLIC] = true;
-                classModifiers[SAFE] = true;
+                //classModifiers[SAFE] = true;
                 classModifiers[STATIC] = true;
                 classModifiers[CLOCKED] = true;
                 // classModifiers[GLOBAL] = true;
@@ -574,17 +574,17 @@
                 methodModifiers[EXTERN] = true;
                 methodModifiers[FINAL] = true;
                 // methodModifiers[GLOBAL] = true;
-                methodModifiers[INCOMPLETE] = true;
+                //methodModifiers[INCOMPLETE] = true;
                 methodModifiers[NATIVE] = true;
-                methodModifiers[NON_BLOCKING] = true;
+                //methodModifiers[NON_BLOCKING] = true;
                 methodModifiers[PRIVATE] = true;
                 methodModifiers[PROPERTY] = true;
                 methodModifiers[PROTECTED] = true;
                 methodModifiers[PUBLIC] = true;
-                methodModifiers[SAFE] = true;
-                methodModifiers[SEQUENTIAL] = true;
+                //methodModifiers[SAFE] = true;
+                //methodModifiers[SEQUENTIAL] = true;
                 methodModifiers[STATIC] = true;
-                methodModifiers[CLOCKED] = true;
+                //methodModifiers[CLOCKED] = true;
             }
             public boolean isMethodModifier(int flag) {
                 return methodModifiers[flag];
@@ -1226,19 +1226,9 @@
                     setResult(new FlagModifier(pos(), FlagModifier.GLOBAL));
           $EndJava
         ./
-                   | incomplete
-        /.$BeginJava
-                    setResult(new FlagModifier(pos(), FlagModifier.INCOMPLETE));
-          $EndJava
-        ./
                    | native
         /.$BeginJava
                     setResult(new FlagModifier(pos(), FlagModifier.NATIVE));
-          $EndJava
-        ./
-                   | nonblocking
-        /.$BeginJava
-                    setResult(new FlagModifier(pos(), FlagModifier.NON_BLOCKING));
           $EndJava
         ./
                    | private
@@ -1254,16 +1244,6 @@
                    | public
         /.$BeginJava
                     setResult(new FlagModifier(pos(), FlagModifier.PUBLIC));
-          $EndJava
-        ./
-                   | safe
-        /.$BeginJava
-                    setResult(new FlagModifier(pos(), FlagModifier.SAFE));
-          $EndJava
-        ./
-                   | sequential
-        /.$BeginJava
-                    setResult(new FlagModifier(pos(), FlagModifier.SEQUENTIAL));
           $EndJava
         ./
                    | static

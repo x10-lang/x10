@@ -112,7 +112,6 @@
     native
     new
     next
-    nonblocking
     null
     offer
     offers
@@ -124,16 +123,13 @@
     public
     resume
     return
-    safe
     self
-    sequential
     static
     struct
     super
     switch
     this
     throw
-    throws
     transient
     true
     try
@@ -336,11 +332,6 @@
                 $setResult($_next);
           $EndAction
         ./
-              | n o n b l o c k i n g
-        /.$BeginAction
-                $setResult($_nonblocking);
-          $EndAction
-        ./
               | n u l l
         /.$BeginAction
                 $setResult($_null);
@@ -396,19 +387,9 @@
                 $setResult($_return);
           $EndAction
         ./
-              | s a f e 
-        /.$BeginAction
-                $setResult($_safe);
-          $EndAction
-        ./
-              | s e l f
+               | s e l f
         /.$BeginAction
                 $setResult($_self);
-          $EndAction
-        ./
-              | s e q u e n t i a l
-        /.$BeginAction
-                $setResult($_sequential);
           $EndAction
         ./
               | s t a t i c
@@ -439,11 +420,6 @@
               | t h r o w
         /.$BeginAction
                 $setResult($_throw);
-          $EndAction
-        ./
-              | t h r o w s
-        /.$BeginAction
-                $setResult($_throws);
           $EndAction
         ./
               | t r a n s i e n t
