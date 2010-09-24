@@ -12,6 +12,7 @@
 package x10.util;
 
 import x10.compiler.Pinned;
+import x10.compiler.TempNoInline;
 
 @Pinned 
   public class HashMap[K,V] implements Map[K,V] {
@@ -63,7 +64,7 @@ import x10.compiler.Pinned;
         init(pow2);
     }
     
-    final def init(sz: int): void {
+    final @TempNoInline def init(sz: int): void {
         // check that sz is a power of 2
         assert (sz & -sz) == sz;
         assert sz >= MIN_SIZE;

@@ -15,6 +15,7 @@ import x10.compiler.Header;
 import x10.compiler.Inline;
 import x10.compiler.Native;
 import x10.compiler.NoInline;
+import x10.compiler.TempNoInline;
 import x10.compiler.NoReturn;
 import x10.compiler.Incomplete;
 
@@ -338,7 +339,7 @@ public class DistArray[T] (
         val r = 0..(ps.length-1);
         
         
-	finish foreach (p:Point(1)  in r) {
+        @TempNoInline finish foreach (p:Point(1)  in r) {
         	results(p(0)) = at (ps(p(0))) {
         	    var result: T = unit;
                 val a = (this | here) as DistArray[T](rank);

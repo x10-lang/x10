@@ -12,6 +12,7 @@
 package x10.array;
 
 import x10.io.*;
+import x10.compiler.TempNoInline;
 
 
 /**
@@ -289,7 +290,7 @@ final public class PolyScanner(rank:Int)/*(C:PolyMat)*/ implements Region.Scanne
         }
 
         public final def hasNext() = it.hasNext();
-        public final def next(): Point(rank) = it.next() as Point(rank);
+        public final def next(): Point(rank) = @TempNoInline it.next() as Point(rank);
         public final def remove() = it.remove();
     }
 

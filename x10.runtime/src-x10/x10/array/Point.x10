@@ -12,6 +12,7 @@
 package x10.array;
 
 import x10.util.Ordered;
+import x10.compiler.TempNoInline;
 
 /**
  * The type <code>Point(rank)</code> represents a point in a
@@ -50,7 +51,7 @@ final public class Point(rank: Int) implements (Int) => Int, Ordered[Point(rank)
     /**
      * Returns a <code>Point p</code> of rank <code>rank</code> with <code>p(i)=init(i)</code>.
      */
-    public static def make(rank:Int, init:(i:Int)=>int):Point(rank) {
+    public static @TempNoInline def make(rank:Int, init:(i:Int)=>int):Point(rank) {
         val a = ValRail.make[int](rank, init);
         return make(a);
     }
@@ -79,68 +80,68 @@ final public class Point(rank: Int) implements (Int) => Int, Ordered[Point(rank)
 
     /**  The point <code>-p</code> is the same as <code>p</code> with each index negated.
      */
-    public operator - this: Point(rank)
+    public operator - this: Point(rank) 
        = Point.make(rank, (i:Int)=>-this.coords(i));
 
     /**  The ith coordinate of point <code>p+q</code> is <code>p(i)+q(i)</code>.
      */
-    public operator this + (that: Point(rank)): Point(rank)
+    public operator this + (that: Point(rank)): Point(rank) 
        = Point.make(rank, (i:Int)=> this.coords(i) + that.coords(i));
 
 
     /**  The ith coordinate of point <code>p-q</code> is <code>p(i)-q(i)</code>.
      */
-    public operator this - (that: Point(rank)): Point(rank)
+    public operator this - (that: Point(rank)): Point(rank) 
        = Point.make(rank, (i:Int)=> this.coords(i) - that.coords(i));
 
     /**  The ith coordinate of point <code>p*q</code> is <code>p(i)*q(i)</code>.
      */
-    public operator this * (that: Point(rank)): Point(rank)
+    public operator this * (that: Point(rank)): Point(rank) 
        = Point.make(rank, (i:Int)=> this.coords(i) * that.coords(i));
 
     /**  The ith coordinate of point <code>p/q</code> is <code>p(i)/q(i)</code>.
      */
-    public operator this / (that: Point(rank)): Point(rank)
+    public operator this / (that: Point(rank)): Point(rank) 
        = Point.make(rank, (i:Int)=> this.coords(i) / that.coords(i));
 
     /**  The ith coordinate of point <code>p+c</code> is <code>p(i)+c</code>.
      */
-    public operator this + (c: int): Point(rank)
+    public operator this + (c: int): Point(rank) 
        = Point.make(rank, (i:Int) => this.coords(i) + c);
 
     /**  The ith coordinate of point <code>p-c</code> is <code>p(i)-c</code>.
      */
-    public operator this - (c: int): Point(rank)
+    public operator this - (c: int): Point(rank) 
        = Point.make(rank, (i:Int) => this.coords(i) - c);
 
     /**  The ith coordinate of point <code>p*c</code> is <code>p(i)*c</code>.
      */
-    public operator this * (c: int): Point(rank)
+    public operator this * (c: int): Point(rank) 
        = Point.make(rank, (i:Int) => this.coords(i) * c);
 
     /**  The ith coordinate of point <code>p/c</code> is <code>p(i)/c</code>.
      */
-    public operator this / (c: int): Point(rank)
+    public operator this / (c: int): Point(rank) 
        = Point.make(rank, (i:Int) => this.coords(i) / c);
 
     /**  The ith coordinate of point <code>c+p</code> is <code>c+p(i)</code>.
      */
-    public operator (c: int) + this: Point(rank)
+    public operator (c: int) + this: Point(rank) 
        = Point.make(rank, (i:Int) => c + this.coords(i));
 
     /**  The ith coordinate of point <code>c-p</code> is <code>c-p(i)</code>.
      */
-    public operator (c: int) - this: Point(rank)
+    public operator (c: int) - this: Point(rank) 
        = Point.make(rank, (i:Int) => c - this.coords(i));
 
     /**  The ith coordinate of point <code>c*p</code> is <code>c*p(i)</code>.
      */
-    public operator (c: int) * this: Point(rank)
+    public operator (c: int) * this: Point(rank) 
        = Point.make(rank, (i:Int) => c * this.coords(i));
 
     /**  The ith coordinate of point <code>c/p</code> is <code>c/p(i)</code>.
      */
-    public operator (c: int) / this: Point(rank)
+    public operator (c: int) / this: Point(rank) 
        = Point.make(rank, (i:Int) => c / this.coords(i));
 
     /**

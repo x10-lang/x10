@@ -12,6 +12,7 @@
 package x10.lang;
 
 import x10.compiler.Native;
+import x10.compiler.TempNoInline;
 
 /**
  * @author Christian Grothoff
@@ -70,14 +71,14 @@ public final struct Place(id: Int)  {
      * Throws BadPlaceException if i invalid.
      */
     @Native("c++", "x10aux::child(#1,#2)")
-    public static def child(p:Int, i:Int):Int { throw new BadPlaceException(); }
+    public static @TempNoInline def child(p:Int, i:Int):Int { throw new BadPlaceException(); }
 
     /**
      * Return the index of a given child, within a place.
      * Throws BadPlaceException if given place is not a child.
      */
     @Native("c++", "x10aux::child_index(#1)")
-    public static def childIndex(id:Int):Int { throw new BadPlaceException(); }
+    public static @TempNoInline def childIndex(id:Int):Int { throw new BadPlaceException(); }
 
     public static places = ValRail.make[Place](MAX_PLACES, ((id: Int) => Place(id)));
     public static children = ValRail.make[ValRail[Place]](

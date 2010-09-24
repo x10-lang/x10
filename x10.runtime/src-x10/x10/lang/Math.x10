@@ -13,6 +13,7 @@
 package x10.lang;
 
 import x10.compiler.Native;
+import x10.compiler.TempNoInline;
 
 public final class Math {
    public static E = 2.718281828459045D;
@@ -263,7 +264,7 @@ public final class Math {
         } else if (z == Complex.ZERO) {
             return Complex.ZERO;
         } else {
-            val t = Math.sqrt((Math.abs(z.re) + z.abs()) / 2.0);
+            val t = Math.sqrt((Math.abs(z.re) + (@TempNoInline z.abs())) / 2.0);
             if (z.re >= 0.0) {
                 return Complex(t, z.im / (2.0 * t));
             } else {
@@ -316,7 +317,7 @@ public final class Math {
         if (a.isNaN()) {
             return Complex.NaN;
         }
-        return Complex(Math.log(a.abs()), Math.atan2(a.im, a.re));
+        return Complex(Math.log(@TempNoInline a.abs()), Math.atan2(a.im, a.re));
     }
 
    @Native("java", "java.lang.Math.log10(#1)")

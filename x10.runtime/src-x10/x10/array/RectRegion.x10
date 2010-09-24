@@ -11,6 +11,7 @@
 
 package x10.array;
 
+import x10.compiler.TempNoInline;
 
 /**
  * A RectRegion is a finite, rank-dimensional, dense rectangular region.
@@ -113,7 +114,7 @@ public final class RectRegion extends Region{rect} {
 
     protected def computeBoundingBox(): Region(rank){self.rect}=this; 
 
-    public def min():(int)=>int  {
+    public @TempNoInline def min():(int)=>int  {
         return (i:int) => {
             switch(i) {
                 case 0: return min0;
@@ -125,7 +126,7 @@ public final class RectRegion extends Region{rect} {
         };
     }
 
-    public def max():(int)=>int  {
+    public @TempNoInline def max():(int)=>int  {
         return (i:int) => {
             switch(i) {
                 case 0: return max0;

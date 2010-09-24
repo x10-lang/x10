@@ -11,6 +11,8 @@
 
 package x10.array;
 
+import x10.compiler.TempNoInline;
+
 /**
  * A Region(rank) represents a set of points of class Point(rank). The
  * Region class defines a set of static factory methods for
@@ -38,8 +40,8 @@ public abstract class Region(
      * Construct an empty region of the specified rank.
      */
 
-    public static def makeEmpty(rank: int): Region(rank) = new EmptyRegion(rank);
-    
+    public static @TempNoInline def makeEmpty(rank: int): Region(rank) = new EmptyRegion(rank);
+     
     /**
      * Construct an unbounded region of a given rank that contains all
      * points of that rank.
@@ -76,9 +78,9 @@ public abstract class Region(
      * rails of ints.
      */
 
-    public static def makeRectangular(minArg: Rail[int], maxArg: Rail[int](minArg.length)):Region(minArg.length){self.rect}
+    public static @TempNoInline def makeRectangular(minArg: Rail[int], maxArg: Rail[int](minArg.length)):Region(minArg.length){self.rect}
         = makeRectangular(ValRail.make(minArg), ValRail.make(maxArg));  
-    public static def makeRectangular(minArg: ValRail[int], maxArg: ValRail[int](minArg.length)):Region(minArg.length){self.rect}
+    public static @TempNoInline def makeRectangular(minArg: ValRail[int], maxArg: ValRail[int](minArg.length)):Region(minArg.length){self.rect}
         = new RectRegion(minArg, maxArg);
 
     /**
@@ -115,13 +117,13 @@ public abstract class Region(
      * (inclusive of the main diagonal).
      */
     public static def makeBanded(size: int, upper: int, lower: int):Region(2)
-        = PolyRegion.makeBanded(size, upper, lower);
+        = @TempNoInline PolyRegion.makeBanded(size, upper, lower);
 
     /**
      * Construct a banded region of the given size that includes only
      * the main diagonal.
      */
-    public static def makeBanded(size: int):Region(2) = PolyRegion.makeBanded(size, 1, 1);
+    public static def makeBanded(size: int):Region(2) = @TempNoInline PolyRegion.makeBanded(size, 1, 1);
     
     /**
      * Construct an upper triangular region of the given size.
@@ -134,7 +136,7 @@ public abstract class Region(
      * given lower bounds.
      */
     public static def makeUpperTriangular(rowMin: int, colMin: int, size: int): Region(2)
-        = PolyRegion.makeUpperTriangular2(rowMin, colMin, size);
+        = @TempNoInline PolyRegion.makeUpperTriangular2(rowMin, colMin, size);
     
     /**
      * Construct a lower triangular region of the given size.
@@ -146,7 +148,7 @@ public abstract class Region(
      * given lower bounds.
      */
     public static def makeLowerTriangular(rowMin: int, colMin: int, size: int):Region(2)
-        = PolyRegion.makeLowerTriangular2(rowMin, colMin, size);
+        = @TempNoInline PolyRegion.makeLowerTriangular2(rowMin, colMin, size);
 
 
     //
@@ -392,13 +394,13 @@ public abstract class Region(
 
     abstract public def contains(p:Point):boolean;
     
-    public def contains(i:int){rank==1} = contains(Point.make(i));
+    public def contains(i:int){rank==1} = contains(@TempNoInline Point.make(i));
 
-    public def contains(i0:int, i1:int){rank==2} = contains(Point.make(i0,i1));
+    public def contains(i0:int, i1:int){rank==2} = contains(@TempNoInline Point.make(i0,i1));
 
-    public def contains(i0:int, i1:int, i2:int){rank==3} = contains(Point.make(i0,i1,i2));
+    public def contains(i0:int, i1:int, i2:int){rank==3} = contains(@TempNoInline Point.make(i0,i1,i2));
 
-    public def contains(i0:int, i1:int, i2:int, i3:int){rank==4} = contains(Point.make(i0,i1,i2,i3));
+    public def contains(i0:int, i1:int, i2:int, i3:int){rank==4} = contains(@TempNoInline Point.make(i0,i1,i2,i3));
 
 
 
