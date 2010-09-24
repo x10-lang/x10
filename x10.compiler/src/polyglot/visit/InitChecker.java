@@ -23,6 +23,7 @@ import x10.ast.Finish;
 import x10.ast.ParExpr;
 import x10.ast.X10ClassDecl;
 import x10.ast.Async_c;
+import x10.ast.Finish_c;
 
 /**
  * Visitor which checks that all local variables must be defined before use,
@@ -777,10 +778,19 @@ public class InitChecker extends DataFlow
             if (trueItem == null) trueItem = inDFItem;
             if (falseItem == null) falseItem = inDFItem;
             return itemsToMap(trueItem, falseItem, inDFItem, succEdgeKeys);
-        } else if (n instanceof Finish) {
+        } else if (n instanceof Finish_c) {
+            Finish_c finish = (Finish_c) n;
             Map<VarDef, MinMaxInitCount> m = new LinkedHashMap<VarDef, MinMaxInitCount>();
             for (Map.Entry<VarDef, MinMaxInitCount> e : inDFItem.initStatus.entrySet()) {
-                m.put(e.getKey(),e.getValue().finish());
+                final MinMaxInitCount before = e.getValue();
+                final MinMaxInitCount after = before.finish();
+                final VarDef v = e.getKey();
+                m.put(v, after);
+                // for the backend
+                if (!before.equals(after) && v.flags().isFinal()) {
+                    if (finish.asyncInitVal ==null) finish.asyncInitVal = new HashSet<VarDef>();
+                    finish.asyncInitVal.add(v);
+                }
             }
             return itemToMap(new DataFlowItem(m), succEdgeKeys);
         }

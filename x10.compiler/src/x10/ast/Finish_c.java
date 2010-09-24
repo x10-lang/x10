@@ -12,12 +12,14 @@
 package x10.ast;
 
 import java.util.List;
+import java.util.Set;
 
 import polyglot.ast.Node;
 import polyglot.ast.Stmt;
 import polyglot.ast.Term;
 import polyglot.ast.Stmt_c;
 import polyglot.types.Context;
+import polyglot.types.VarDef;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.CFGBuilder;
@@ -31,6 +33,13 @@ import x10.types.X10Context;
  * 
  */
 public class Finish_c extends Stmt_c implements Finish {
+    /*
+    asyncInitVal is used by the backend to handle async initialization.
+    For example:
+    val x:Int;
+    finish async { finish async { x = 42; } }
+     */
+    public Set<VarDef> asyncInitVal = null;
 
     protected Stmt body;
     protected boolean clocked;
