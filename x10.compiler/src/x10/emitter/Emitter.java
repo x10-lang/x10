@@ -2549,16 +2549,24 @@ public class Emitter {
         
         for (MethodInstance mi : mis) {
             if (mis.size() != 1) {
+                boolean first3 = true;
                 for (int i = 0; i < names.length; i++) {
                     Name name = names[i];
                     if (name == null) continue;
-                    w.write("if (");
+                    if (first3) {
+                        w.write("if (");
+                        first3 = false;
+                    }
+                    else {
+                        w.write(" && ");
+                    }
+
                     w.write(name.toString());
                     w.write(".equals(");
                     new RuntimeTypeExpander(this, mi.formalTypes().get(i)).expand();
                     w.write(")");
-                    w.write(") {");
                 }
+                w.write(") {");
             }
             
             if (!mi.returnType().isVoid()) {
@@ -2614,9 +2622,7 @@ public class Emitter {
                 w.write("return null;");
             }
             if (mis.size() != 1) {
-                for (int i = 0; i < names.length; i++) {
-                    w.write("}");
-                }
+                w.write("}");
             }
         }
 
