@@ -11,6 +11,7 @@
 
 import harness.x10Test;
 //OPTIONS: -STATIC_CALLS
+
 /**
 
 Check that and(x,y) of type C(x.a&&y.a) cannot be assigned to

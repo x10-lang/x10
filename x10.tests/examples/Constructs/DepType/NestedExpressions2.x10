@@ -11,6 +11,7 @@
  */
 
 import harness.x10Test;
+
 //OPTIONS: -STATIC_CALLS
 
 /**
