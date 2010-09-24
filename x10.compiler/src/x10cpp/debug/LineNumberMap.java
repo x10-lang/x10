@@ -267,6 +267,16 @@ public class LineNumberMap extends StringTable {
 		assert (methods.get(tgt) == null);
 		methods.put(tgt, src);
 	}
+	
+	public void addLocalVariableMapping(String name, String type, int startline)
+	{
+		//System.out.println("Found local variable at line "+startline+": "+type+" "+name);
+	}
+	
+	public void addClassMemberVariable(String name, String type)
+	{
+		//System.out.println("Found member variable: "+type+" "+name);
+	}
 
 	/**
 	 * @param method target method signature

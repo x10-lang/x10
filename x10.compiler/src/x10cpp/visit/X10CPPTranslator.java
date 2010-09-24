@@ -42,6 +42,7 @@ import polyglot.ast.Eval;
 import polyglot.ast.FieldDecl;
 import polyglot.ast.For;
 import polyglot.ast.If;
+import polyglot.ast.LocalDecl;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
@@ -216,6 +217,15 @@ public class X10CPPTranslator extends Translator {
 		                        }
 		                    }
 		                });
+		            }
+		            if (n instanceof FieldDecl)
+		            {
+		            	lineNumberMap.addClassMemberVariable(((FieldDecl)n).name().toString(), ((FieldDecl)n).type().toString());
+		            }
+		            else if (n instanceof LocalDecl)
+		            {
+		            	if (!((LocalDecl)n).position().isCompilerGenerated())
+		            		lineNumberMap.addLocalVariableMapping(((LocalDecl)n).name().toString(), ((LocalDecl)n).type().toString(), line);
 		            }
 		        }
 		    }
