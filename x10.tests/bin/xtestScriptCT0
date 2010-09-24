@@ -305,7 +305,7 @@ extractOptions() {
 
     chkArgs 1 "$@"
     local f="$1"
-    RESULT="`sed -ne 's|^\s*//\s*OPTIONS*\:\s*\(.*\)|\1|p' "$f"`"
+    RESULT="`sed -ne 's|^\s*//\s*OPTIONS*\:\s*\(.*\)|\1|p' "$f" | sed -e 's|\r||'`"
 }
 
 extractClassPath() {
