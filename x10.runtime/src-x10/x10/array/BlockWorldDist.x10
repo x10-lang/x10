@@ -29,17 +29,17 @@ package x10.array;
  * are frequently serialized and usually the restriction operation is 
  * applied to get the Region for here, not for other places.
  */
-class BlockWorldDist extends Dist {
+final class BlockWorldDist extends Dist {
    
     /**
      * The axis along which the region is being distributed
      */
-     val axis:int;
+    private val axis:int;
 
     /**
      * Cached restricted region for the current place.
      */
-    transient var regionForHere:Region(this.rank);
+    private transient var regionForHere:Region(this.rank);
 
 
     def this(r:Region, axis:int):BlockWorldDist{this.region==r} {
@@ -114,9 +114,6 @@ class BlockWorldDist extends Dist {
             return blockRegionForPlace(p);
         }
     }
-
-    public def apply(p:Place):Region(rank) = get(p);
-
 
     // unchecked assumption that ranks match.  Will add rank constraint shortly
     public def apply(pt:Point):Place {

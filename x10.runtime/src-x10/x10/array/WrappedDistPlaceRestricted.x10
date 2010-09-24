@@ -15,7 +15,7 @@ package x10.array;
  * This class wraps another distribution to restrict the region
  * to a subset of the original dist's region.
  */
-class WrappedDistPlaceRestricted extends Dist {
+final class WrappedDistPlaceRestricted extends Dist {
     val base:Dist{self.rank==this.rank};
     val filter:Place;
 
@@ -40,8 +40,6 @@ class WrappedDistPlaceRestricted extends Dist {
             return Region.makeEmpty(rank);
         }
     }
-
-    public def apply(p:Place):Region(rank) = get(p);
 
     public def apply(pt:Point):Place {
 	val bp = base.apply(pt);

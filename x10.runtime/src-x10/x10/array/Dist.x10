@@ -83,8 +83,10 @@ public abstract class Dist(
      *
      * @return a "unique" distribution over all places.
      */
-    // TODO: [IP] return Dist(1){rect&&unique}
-    public static def makeUnique():Dist(1){rect} = @TempNoInline BaseDist.makeUnique1();
+    public static def makeUnique():Dist(1){rect,unique} {
+        return new UniqueDist();        
+    }
+
 
     /**
      * Create a distribution over the specified region that maps
@@ -271,9 +273,18 @@ public abstract class Dist(
      * maps to the specified place.
      *
      * @param p the given place
-     * @return the points that this distribution maps to p.
+     * @return the region that this distribution maps to p.
      */
     abstract public def get(p:Place):Region(rank);
+
+    /**
+     * Return the region consisting of points which this distribution
+     * maps to the specified place.  This is a shorthave for get(p).
+     *
+     * @param p the given place
+     * @return the region that this distribution maps to p.
+     */
+   public def apply(p:Place):Region(rank) = get(p);
 
 
 

@@ -124,8 +124,6 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
         return regionMap(p.id) as Region(rank); // XXXX
     }
 
-    public def apply(p: Place): Region(rank) = get(p);
-
 
     //
     // mapping points to places
