@@ -4250,6 +4250,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         inc.write("template<class __T> static "+make_ref("__T")+" "+DESERIALIZE_METHOD+"("+DESERIALIZATION_BUFFER+" &buf) {");
         inc.newline(4); inc.begin(0);
+        inc.writeln(cnamet+"* storage = x10aux::alloc"+chevrons(cnamet)+"();");
+        inc.writeln("buf.record_reference("+make_ref(cnamet)+"(storage));");
+        
         // FIXME: factor out this loop
         for (int i = 0; i < c.variables.size(); i++) {
             VarInstance<?> var = (VarInstance<?>) c.variables.get(i);
@@ -4262,8 +4265,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             inc.write(type + " that_"+name+" = buf.read"+chevrons(Emitter.translateType(var.type(), true))+"();");
             inc.newline();
         }
-        inc.write(make_ref(cnamet)+" this_ = new (x10aux::alloc"+chevrons(cnamet)+"()) "+
-                  cnamet+"(");
+        inc.write(make_ref(cnamet)+" this_ = new (storage) "+cnamet+"(");
         // FIXME: factor out this loop
         for (int i = 0; i < c.variables.size(); i++) {
             VarInstance<?> var = (VarInstance<?>) c.variables.get(i);
@@ -4275,8 +4277,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             inc.write("that_"+name);
         }
         inc.write(");");
-        inc.newline();
-        inc.write("buf.record_reference(this_); // TODO: avoid; closure");
         inc.newline();
         inc.write("return this_;"); inc.end(); inc.newline();
         inc.write("}"); inc.newline(); inc.forceNewline();
