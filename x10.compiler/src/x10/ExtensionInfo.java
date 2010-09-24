@@ -466,11 +466,11 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            // NodeFactory nf = job.extensionInfo().nodeFactory();
            // goals.add( new ForgivingVisitorGoal("TypeChecked", job, new X10TypeChecker(job, ts, nf, job.nodeMemo())));
           
-           goals.addAll(Optimizer.goals(this, job));
-           goals.add(Desugarer(job));
+           goals.addAll(Optimizer.goals(this, job, ExpressionFlattener(job)));
            if (x10.Configuration.FLATTEN_EXPRESSIONS) {
                goals.add(ExpressionFlattener(job));
            }
+           goals.add(Desugarer(job));
            goals.add(InnerClassRemover(job));
            goals.add(CodeGenerated(job));
            
@@ -481,7 +481,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            CodeGenerated(job).addPrereq(CodeGenBarrier());
            Desugarer(job).addPrereq(TypeCheckBarrier());
            CodeGenerated(job).addPrereq(Desugarer(job));
-           List<Goal> optimizations = Optimizer.goals(this, job);
+           List<Goal> optimizations = Optimizer.goals(this, job, ExpressionFlattener(job));
            for (Goal goal : optimizations) {
                goal.addPrereq(TypeCheckBarrier());
                CodeGenerated(job).addPrereq(goal);
@@ -931,7 +931,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            VisitorGoal ef = new ValidatingVisitorGoal("ExpressionFlattener", job, new ExpressionFlattener(job, ts, nf));
            Goal ef2 = ef.intern(this);
            if (ef == ef2) {
-               ef.addPrereq(Desugarer(job));
+              // ef.addPrereq(Desugarer(job));
            }
            return ef2;
        }
