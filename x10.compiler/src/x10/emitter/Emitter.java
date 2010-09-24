@@ -2614,7 +2614,9 @@ public class Emitter {
                 w.write("return null;");
             }
             if (mis.size() != 1) {
-                w.write("}");
+                for (int i = 0; i < names.length; i++) {
+                    w.write("}");
+                }
             }
         }
 
