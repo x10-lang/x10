@@ -179,18 +179,19 @@ public class X10ConstructorDoc extends X10Doc implements ConstructorDoc {
 	}
 
 	public ClassDoc[] thrownExceptions() {
-		List<Ref<? extends polyglot.types.Type>> throwTypes = constrDef.throwTypes();
-		if(throwTypes != null && throwTypes.size() > 0)
-		{
-			ClassDoc[] types = new ClassDoc[throwTypes.size()];
-			int i = 0;
-			for(Ref<? extends polyglot.types.Type> type : throwTypes)
-			{
-				types[i++] = (ClassDoc)rootDoc.getType(type.get());
-			}
-			
-			return types;
-		}
+	    // TODO: look at the @Throws annotation when we have one
+//		List<Ref<? extends polyglot.types.Type>> throwTypes = constrDef.throwTypes();
+//		if(throwTypes != null && throwTypes.size() > 0)
+//		{
+//			ClassDoc[] types = new ClassDoc[throwTypes.size()];
+//			int i = 0;
+//			for(Ref<? extends polyglot.types.Type> type : throwTypes)
+//			{
+//				types[i++] = (ClassDoc)rootDoc.getType(type.get());
+//			}
+//			
+//			return types;
+//		}
 		
 		return new ClassDoc[0];
 	}

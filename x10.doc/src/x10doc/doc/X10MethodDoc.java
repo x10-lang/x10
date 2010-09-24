@@ -280,18 +280,19 @@ public class X10MethodDoc extends X10Doc implements MethodDoc {
 		if (X10RootDoc.printSwitch)
 			System.out.println(name() + ".thrownExceptions() called.");
 		
-		List<Ref<? extends polyglot.types.Type>> throwTypes = methodDef.throwTypes();
-		if(throwTypes != null && throwTypes.size() > 0)
-		{
-			ClassDoc[] types = new ClassDoc[throwTypes.size()];
-			int i = 0;
-			for(Ref<? extends polyglot.types.Type> type : throwTypes)
-			{
-				types[i++] = (ClassDoc)rootDoc.getType(type.get());
-			}
-			
-			return types;
-		}
+        // TODO: look at the @Throws annotation when we have one
+//		List<Ref<? extends polyglot.types.Type>> throwTypes = methodDef.throwTypes();
+//		if(throwTypes != null && throwTypes.size() > 0)
+//		{
+//			ClassDoc[] types = new ClassDoc[throwTypes.size()];
+//			int i = 0;
+//			for(Ref<? extends polyglot.types.Type> type : throwTypes)
+//			{
+//				types[i++] = (ClassDoc)rootDoc.getType(type.get());
+//			}
+//			
+//			return types;
+//		}
 		
 		return new ClassDoc[0];
 	}
