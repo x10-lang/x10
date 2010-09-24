@@ -12,6 +12,7 @@
 import harness.x10Test;
 
 //OPTIONS: -STATIC_CALLS
+
 /**
 * Checking that the type-checker can correctly handle boolean expressions as the values
 * boolean properties. Check that an expression of type C(x.a&&y.a) can
