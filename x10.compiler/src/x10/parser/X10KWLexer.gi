@@ -302,7 +302,7 @@
                 $setResult($_import);
           $EndAction
         ./
-                | i n
+              | i n
         /.$BeginAction
                 $setResult($_in);
           $EndAction
@@ -387,7 +387,7 @@
                 $setResult($_return);
           $EndAction
         ./
-               | s e l f
+              | s e l f
         /.$BeginAction
                 $setResult($_self);
           $EndAction
