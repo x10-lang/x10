@@ -54,25 +54,6 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
         return new BaseDist(overall, ps, regions);
     }
     
-    public static def makeBlock1(r: Region, axis: int): Dist(r) { // XTENLANG-4
-        val b = r.boundingBox();
-        val min = b.min()(axis);
-        val max = b.max()(axis);
-        val P = Place.MAX_PLACES;
-        val numElems = max - min + 1;
-        val blockSize = numElems/P;
-        val leftOver = numElems - P*blockSize;
-        val regions = Rail.make[Region(r.rank)](P, 
-        		(i:Int) => {
-        			val r1 = Region.makeFull(axis);
-        			val low = min + blockSize*i + (i< leftOver ? i : leftOver);
-        			val hi = low + blockSize + (i < leftOver ? 0 : -1);
-                    val r2 = low..hi;
-                    val r3 = Region.makeFull(r.rank-axis-1);
-                    (r1.product(r2).product(r3) as Region(r.rank)).intersection(r)
-        		});	
-        return new BaseDist(r, Place.places, ValRail.make(regions));
-    }
 /*
 
     public static def makeBlockCyclic1(r: Region, axis: int, blockSize: int): Dist(r) { // XTENLANG-4
@@ -183,7 +164,7 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
         return new BaseDist(r, ps, rs);
     }
 
-    public def restriction(p: Place): Dist(rank) {
+    public def restriction(p: Place):Dist(rank) {
         val ps = [p];
         val rs = ValRail.make[Region(rank)](1, (Int)=>get(p));
         return new BaseDist(region.intersection(rs(0)) as Region(rank), ps, rs);
@@ -279,13 +260,6 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
         return new BaseDist(overall, ps, rs) as Dist(rank);
     }
 */
-    public def isSubdistribution(that: Dist(rank)): boolean {
-        for (p:Place in Place.places)
-            if (!that.get(p).contains(this.get(p)))
-                return false;
-        return true;
-    }
-
 
     //
     // basic info
@@ -321,9 +295,6 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
                 return false;
         return true;
     }
-
-
-    public def contains(p:Point) = region.contains(p);
 
 
     //
@@ -364,23 +335,5 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
             regionMap(this.places(i).id) = this.regions(i);
         this.regionMap = ValRail.make[Region](regionMap.length, (i:Int) => regionMap(i));
     }
-
-
-    //
-    //
-    //
-
-    public def toString(): String {
-        var s: String = "Dist(";
-        var first: boolean = true;
-        for (p:Place in places) {
-            if (!first) s += ",";
-            s +=  get(p) + "->" + p.id;
-            first = false;
-        }
-        s += ")";
-        return s;
-    }
-
 }
 
