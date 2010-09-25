@@ -221,14 +221,14 @@ final public class Point(rank: Int) implements (Int) => Int, Ordered[Point(rank)
         return this.coords(rank-1) >= that.coords(rank-1);
     }
 
-    /** A point with coordinates <code>i1,..., ik</code> is printed as <code>(i1,.., ik)</code>.
+    /** A point with coordinates <code>i1,..., ik</code> is printed as <code>[i1,.., ik]</code>.
      */
     public def toString() {
-        var s:String = "(";
+        var s:String = "[";
         if (coords.length>0) s += coords(0); 
         for (var i:int=1; i<coords.length; i++)
             s += "," + coords(i); 
-        s += ")";
+        s += "]";
         return s;
     }
 
