@@ -38,55 +38,66 @@ struct RectLayout(rank:int) {
     def this(reg:Region):RectLayout{this.rank==reg.rank} {
         property(reg.rank);
 
-        var sz:int = 1;
-        if (rank>4) {
-            min = ValRail.make[int](rank, (i:int) => reg.min(i));
-            delta = ValRail.make[int](rank, (i:int) => reg.max(i) - min(i) +1);
-            for ([r] in 4..rank-1) {
-                sz *= delta(r);
+	if (reg.isEmpty()) {
+	    min0 = min1 = min2 = min3 = 0;
+            delta0 = delta1 = delta2 = delta3 = 0;
+            size = 0;
+            if (rank>4) {
+                min = ValRail.make[int](rank, (int)=>0);
+                delta = ValRail.make[int](rank, (int)=>0);
+            } else {
+                min = delta = null;
             }
         } else {
-            min = null;
-            delta = null;
+            var sz:int = 1;
+            if (rank>4) {
+                min = ValRail.make[int](rank, (i:int) => reg.min(i));
+                delta = ValRail.make[int](rank, (i:int) => reg.max(i) - min(i) +1);
+                for ([r] in 4..rank-1) {
+                    sz *= delta(r);
+                }
+            } else {
+                min = null;
+                delta = null;
+            }
+
+	    min0 = reg.min(0);
+	    delta0 = reg.max(0) - min0 + 1;
+	    sz *= delta0;
+
+            if (rank > 1) {
+	        min1 = reg.min(1);
+	        delta1 = reg.max(1) - min1 + 1;
+	        sz *= delta1;
+            } else {
+                min1 = delta1 = 0;
+            }
+
+            if (rank > 2) {
+	        min2 = reg.min(2);
+	        delta2 = reg.max(2) - min2 + 1;
+	        sz *= delta2;
+            } else {
+                min2 = delta2 = 0;
+            }
+
+            if (rank > 3) {
+	        min3 = reg.min(3);
+	        delta3 = reg.max(3) - min3 + 1;
+	        sz *= delta3;
+            } else {
+                min3 = delta3 = 0;
+             }
+
+	    size = sz;
         }
-
-	min0 = reg.min(0);
-	delta0 = reg.max(0) - min0 + 1;
-	sz *= delta0;
-
-        if (rank > 1) {
-	    min1 = reg.min(1);
-	    delta1 = reg.max(1) - min1 + 1;
-	    sz *= delta1;
-         } else {
-            min1 = delta1 = 0;
-         }
-
-        if (rank > 2) {
-	    min2 = reg.min(2);
-	    delta2 = reg.max(2) - min2 + 1;
-	    sz *= delta2;
-         } else {
-            min2 = delta2 = 0;
-         }
-
-        if (rank > 3) {
-	    min3 = reg.min(3);
-	    delta3 = reg.max(3) - min3 + 1;
-	    sz *= delta3;
-         } else {
-            min3 = delta3 = 0;
-         }
-
-	size = sz;
     }
-
 
     def this(_min0:int, _max0:int):RectLayout{this.rank==1} {
         property(1);
         min0 = _min0;
         delta0 = _max0-_min0+1;
-        size = delta0;  
+        size = delta0 > 0 ? delta0 : 0;  
 
         min1 = 0; delta1 = 0; 
         min2 = 0; delta2 = 0;
