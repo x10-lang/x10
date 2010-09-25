@@ -197,17 +197,6 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
 		return c;
 	}
 
-	public Node typeCheck(ContextVisitor tc) {
-		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-		X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
-		X10Context c = (X10Context) tc.context();
-		if (c.inSequentialCode())
-			Errors.issue(tc.job(),
-			        new SemanticException("at may not be invoked in sequential code.", position()));
-
-		return this;
-	}
-
 
 	public Type childExpectedType(Expr child, AscriptionVisitor av) {
 		X10TypeSystem ts = (X10TypeSystem) av.typeSystem();

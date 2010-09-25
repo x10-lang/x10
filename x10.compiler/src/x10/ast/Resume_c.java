@@ -36,10 +36,4 @@ public class Resume_c extends Stmt_c implements Resume {
     public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
         return succs;
     }
-    public Node typeCheck(ContextVisitor tc) throws SemanticException {    	
-    	X10Context c = (X10Context) tc.context();
-    	if (c.inNonBlockingCode())
-    		throw new SemanticException("The resume statement cannot be used in nonblocking code.", position());
-    	return super.typeCheck(tc);
-    }
 }

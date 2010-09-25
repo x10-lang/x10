@@ -348,20 +348,12 @@ public class X10Context_c extends Context_c implements X10Context {
     	}
     	return false;
     }
-	public boolean inSafeCode() { return inSafeCode; }
-	public boolean inSequentialCode() { return inSequentialCode; }
-	public boolean inNonBlockingCode() { return inNonBlockingCode; }
-	public boolean inLocalCode() { return inLocalCode; }
 	public boolean inLoopHeader() { return inLoopHeader; }
 	public boolean inAnnotation() { return inAnnotation; }
 	public boolean inAnonObjectScope() { return inAnonObjectScope;}
 	public void restoreAnonObjectScope(boolean s) { inAnonObjectScope=s;}
 
 	public void setInAssignment() { inAssignment = true;}
-	public void setSafeCode() { inSafeCode = true; }
-	public void setSequentialCode() { inSequentialCode = true; }
-	public void setNonBlockingCode() { inNonBlockingCode = true; }
-	public void setLocalCode() { inLocalCode = true; }
 	public void setLoopHeader() { inLoopHeader = true; }
 	public void setAnnotation() { inAnnotation = true; }
 	public void setAnonObjectScope() { inAnonObjectScope = true;}
@@ -635,9 +627,6 @@ public class X10Context_c extends Context_c implements X10Context {
 	public X10Context pushAtomicBlock() {
 		assert (depType == null);
 		X10Context c = (X10Context) super.pushBlock();
-		c.setLocalCode();
-		c.setNonBlockingCode();
-		c.setSequentialCode();
 		return c;
 	}
 

@@ -16,6 +16,7 @@ import polyglot.frontend.Job;
 import polyglot.types.*;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import polyglot.util.IdentityKey;
 import polyglot.visit.DataFlow.Item;
 import polyglot.visit.FlowGraph.EdgeKey;
 import x10.ast.AssignPropertyCall;
@@ -24,6 +25,7 @@ import x10.ast.ParExpr;
 import x10.ast.X10ClassDecl;
 import x10.ast.Async_c;
 import x10.ast.Finish_c;
+import x10.extension.X10Ext_c;
 
 /**
  * Visitor which checks that all local variables must be defined before use,
@@ -341,13 +343,6 @@ public class InitChecker extends DataFlow
                         small.maxSeq.count<=big.maxSeq.count &&
                         small.minAsync.count<=big.minAsync.count &&
                         small.maxAsync.count<=big.maxAsync.count;
-
-                // We also need to mark the variable as "initialized in async" to allow
-                // the backend to implement such initializations.
-                if (!small.equals(big) && v.flags().isFinal()) {
-                    if (async.asyncInitVal ==null) async.asyncInitVal = new HashSet<VarDef>();
-                    async.asyncInitVal.add(v);
-                }
 
                 return new MinMaxInitCount(small.minSeq, small.maxSeq, big.minAsync, big.maxAsync); // [a',b', c, d]
             }
@@ -731,6 +726,37 @@ public class InitChecker extends DataFlow
      */
     public Map<EdgeKey, Item> flow(Item trueItem, Item falseItem, Item otherItem,
             FlowGraph graph, Term n, boolean entry, Set<EdgeKey> succEdgeKeys) {
+
+        Map<EdgeKey, Item> res = flow_(trueItem,falseItem,otherItem,graph,n,entry, succEdgeKeys);
+        if (entry) return res;
+
+        // We also need to mark the variable as "initialized in async" to allow
+        // the backend to implement such initializations.
+        final FlowGraph.Peer peer = graph.peer(n, Term.ENTRY);
+        final Item inItem = peer.inItem();
+        if (inItem==null || inItem==BOTTOM) return res;
+        final DataFlowItem in = (DataFlowItem) inItem;
+        final X10Ext_c ext = (X10Ext_c) n.ext();
+        for (Map.Entry<VarDef, MinMaxInitCount> e : in.initStatus.entrySet()) {
+            final MinMaxInitCount before = e.getValue();
+            final VarDef v = e.getKey();
+            for (Item outItem : res.values()) {
+                if (outItem==null || outItem==BOTTOM) continue;
+                final DataFlowItem out = (DataFlowItem) outItem;
+                final MinMaxInitCount after = out.initStatus.get(v);
+                if (after==null) continue;
+                final Flags flags = v.flags();
+                if (!before.equals(after) && after.equals(MinMaxInitCount.ONE) && flags !=null && flags.isFinal()) {
+                    if (ext.asyncInitVal ==null) ext.asyncInitVal = new HashSet<VarDef>();
+                    ext.asyncInitVal.add(v);
+                    return res;
+                }
+            }
+        }
+        return res;
+    }
+    public Map<EdgeKey, Item> flow_(Item trueItem, Item falseItem, Item otherItem,
+            FlowGraph graph, Term n, boolean entry, Set<EdgeKey> succEdgeKeys) {
         Item inItem = safeConfluence(trueItem, FlowGraph.EDGE_KEY_TRUE,
                                      falseItem, FlowGraph.EDGE_KEY_FALSE,
                                      otherItem, FlowGraph.EDGE_KEY_OTHER,
@@ -779,18 +805,12 @@ public class InitChecker extends DataFlow
             if (falseItem == null) falseItem = inDFItem;
             return itemsToMap(trueItem, falseItem, inDFItem, succEdgeKeys);
         } else if (n instanceof Finish_c) {
-            Finish_c finish = (Finish_c) n;
             Map<VarDef, MinMaxInitCount> m = new LinkedHashMap<VarDef, MinMaxInitCount>();
             for (Map.Entry<VarDef, MinMaxInitCount> e : inDFItem.initStatus.entrySet()) {
                 final MinMaxInitCount before = e.getValue();
                 final MinMaxInitCount after = before.finish();
                 final VarDef v = e.getKey();
                 m.put(v, after);
-                // for the backend
-                if (!before.equals(after) && v.flags().isFinal()) {
-                    if (finish.asyncInitVal ==null) finish.asyncInitVal = new HashSet<VarDef>();
-                    finish.asyncInitVal.add(v);
-                }
             }
             return itemToMap(new DataFlowItem(m), succEdgeKeys);
         }

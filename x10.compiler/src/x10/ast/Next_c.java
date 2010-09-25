@@ -36,10 +36,4 @@ public class Next_c extends Stmt_c implements Next {
     public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
         return succs;
     }
-    public Node typeCheck(ContextVisitor tc) throws SemanticException {    	
-    	X10Context c = (X10Context) tc.context();
-    	if (c.inNonBlockingCode())
-    		throw new SemanticException("The next statement cannot be used in nonblocking code.", position());
-    	return super.typeCheck(tc);
-    }
 }

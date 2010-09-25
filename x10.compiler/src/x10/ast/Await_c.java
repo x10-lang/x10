@@ -87,8 +87,6 @@ public class Await_c extends Stmt_c implements Await {
     	if (! ts.isSubtype(expr_.type(), ts.Boolean(), tc.context()) )
     		throw new SemanticException("The argument to await, " + expr_ +", must be of type boolean.", position());
     	X10Context c = (X10Context) tc.context();
-    	if (c.inNonBlockingCode())
-    		throw new SemanticException("The await statement cannot be used in nonblocking code.", position());
     	return super.typeCheck(tc);
     }
 

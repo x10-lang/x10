@@ -105,17 +105,6 @@ public class When_c extends Stmt_c implements CompoundStmt, When {
 		return reconstruct(e, s, es, ss);
 	}
 
-	/** Type check the statement. */
-	// TODO: cvp -> vj implement this
-	public Node typeCheck(ContextVisitor tc) throws SemanticException {
-
-    	X10Context c = (X10Context) tc.context();
-    	if (c.inNonBlockingCode())
-    		throw new SemanticException("The when statement cannot be used in nonblocking code.", position());
-    	return super.typeCheck(tc);
-		
-	}
-
 	public String toString() {
 		return "when (" + expr + ")" + stmt + (exprs.size() > 0 ? "..." : "");
 	}

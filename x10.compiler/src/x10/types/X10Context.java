@@ -156,15 +156,6 @@ public interface X10Context extends Context {
      */
     X10Context pushAtomicBlock(); 
     
-    void setSafeCode();
-    void setNonBlockingCode();
-    void setSequentialCode();
-    void setLocalCode();
-    boolean inSafeCode();
-    boolean inLocalCode();
-    boolean inSequentialCode();
-    boolean inNonBlockingCode();
-    
     Name getNewVarName();
     
     void setVarWhoseTypeIsBeingElaborated(VarDef var);

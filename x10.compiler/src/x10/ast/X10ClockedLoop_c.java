@@ -117,11 +117,6 @@ public abstract class X10ClockedLoop_c extends X10Loop_c implements Clocked {
 	            }
 	        }
 	        
-		X10Context c = (X10Context) tc.context();
-		if (c.inSequentialCode()) {
-			throw new SemanticException("foreach/ateach may not be invoked in sequential code.", position());
-		}
-
 		return super.typeCheck(tc);
 	}
 }

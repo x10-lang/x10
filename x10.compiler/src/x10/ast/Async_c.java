@@ -63,15 +63,6 @@ import x10.types.constraints.XConstrainedTerm;
  */
 
 public class Async_c extends Stmt_c implements Async {
-    /*
-    For example:
-    val x:Int;
-    finish async { x = 42; } // "x" can either be boxed or be passed (to the async closure) by ref, because we need to assign to it. It cannot be passed by value.
-    async { val y = x; } // "x" can be passed by value or be be boxed. It cannot be passed by ref because the async outlives the var "x".
-     */
-    public Set<VarDef> asyncInitVal = null; // used by the backend to know whether to pass a var to an async closure by ref or by value
-
-	
 	public Stmt body;
 	protected List<Expr> clocks;
 	protected boolean clocked; // should be equal to (clocks != null && clocks.size() > 0)
@@ -189,9 +180,6 @@ public class Async_c extends Stmt_c implements Async {
 		X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
 
 		X10Context c = (X10Context) tc.context();
-		if (c.inSequentialCode())
-			Errors.issue(tc.job(),
-			        new SemanticException("async may not be invoked in sequential code.", position()));
 		if (clocked() && ! c.inClockedFinishScope())
 			Errors.issue(tc.job(),
 			        new SemanticException("clocked async must be invoked inside a statically enclosing clocked finish.", position()));

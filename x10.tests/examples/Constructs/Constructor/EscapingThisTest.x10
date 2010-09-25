@@ -16,6 +16,11 @@ class TransientTest { // The transient field '...' must have a type with a defau
 	}
 }
 		
+class XTENLANG_1643 {
+  var i:Int{self!=0};
+  def this(j:Int{self!=0}) { i = j; }
+}
+
 
 final class ClosureTest57 {
 	val z = 1;

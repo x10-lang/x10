@@ -120,16 +120,6 @@ public class PlacedClosure_c extends Closure_c implements PlacedClosure {
     	return null;
     }
     
-
-    public Node typeCheck(ContextVisitor tc) {
-    	X10Context xc = (X10Context) tc.context();
-    	if (xc.inSequentialCode())
-			Errors.issue(tc.job(),
-			        new SemanticException("at may not be invoked in sequential code.", position()));
-    	Node n = super.typeCheck(tc);
-    	return n;
-    }
-    
     protected X10Context pushPlaceTerm(X10Context xc) {
     	ClosureDef def = (ClosureDef) codeDef();
     	XConstrainedTerm pt = def.placeTerm();

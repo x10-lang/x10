@@ -33,14 +33,6 @@ import x10.types.X10Context;
  * 
  */
 public class Finish_c extends Stmt_c implements Finish {
-    /*
-    asyncInitVal is used by the backend to handle async initialization.
-    For example:
-    val x:Int;
-    finish async { finish async { x = 42; } }
-     */
-    public Set<VarDef> asyncInitVal = null;
-
     protected Stmt body;
     protected boolean clocked;
     /**

@@ -687,7 +687,6 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		// Eliminate for orthogonal locality.
 		// methodCall = (X10Call_c) PlaceChecker.makeReceiverLocalIfNecessary(methodCall, tc);
 		//methodCall.checkConsistency(c); // [IP] Removed -- this is dead code at this point
-		methodCall.checkAnnotations(tc);
 		X10TypeMixin.checkMissingParameters(methodCall);
 		Checker.checkOfferType(position(), (X10MethodInstance) methodCall.methodInstance(), tc);
 		return methodCall;
@@ -711,31 +710,6 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 	    });
 
 	    return p;
-	}
-
-	private void checkAnnotations(ContextVisitor tc) throws SemanticException {
-		X10Context c = (X10Context) tc.context();
-		X10MethodInstance mi = (X10MethodInstance) methodInstance();
-		try {
-		    if (mi !=null) {
-		        X10Flags flags = X10Flags.toX10Flags(mi.flags());
-		        if (c.inNonBlockingCode()
-		                && ! (mi.isSafe() || flags.isNonBlocking() || flags.isExtern()))
-		            throw new SemanticException(mi + ": Only nonblocking methods can be called from nonblocking code.",
-		                                        position());
-		        if (c.inSequentialCode()
-		                && ! (mi.isSafe() || flags.isSequential() || flags.isExtern()))
-		            throw new SemanticException(mi + ": Only sequential methods can be called from sequential code.",
-		                                        position());
-		        if (c.inLocalCode()
-		                && ! (mi.isSafe() || flags.isPinned() || flags.isExtern()))
-		            throw new SemanticException(mi + ": Only pinned methods can be called from pinned code.",
-		                                        position());
-		    }
-		}
-		catch (SemanticException e) {
-		    Warnings.issue(tc.job(), "WARNING (should be error, but method annotations in XRX are wrong): " + e.getMessage(), position());
-		}
 	}
 
 	private Node superTypeCheck(ContextVisitor tc) throws SemanticException {
