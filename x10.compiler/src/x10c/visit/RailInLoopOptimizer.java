@@ -248,7 +248,7 @@ public class RailInLoopOptimizer extends ContextVisitor {
                             }
 
                             if (!contains) {
-                                id = xnf.Id(pos, Name.makeFresh(target.toString().replace(".", "$").replaceAll("[\\[\\]]", "_") + "$value"));
+                                id = xnf.Id(pos, Name.makeFresh(target.toString().replace(".", "$").replaceAll("[\\[\\]]", "_").replaceAll(", ","_") + "$value"));
                                 BackingArray ba = xnf.BackingArray(pos, id, createArrayType(type), (Expr) target);
                                 backingArrayToId.put(ba, id);
                                 targetAndIsFinals.add(new Pair<BackingArray, Boolean>(ba, true));
