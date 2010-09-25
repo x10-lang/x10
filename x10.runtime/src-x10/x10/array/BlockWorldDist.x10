@@ -75,6 +75,8 @@ final class BlockWorldDist extends Dist {
     /**
      * Given an index into the "axis dimension" determine which place it 
      * is mapped to.
+     * Assumption: Caller has done error checking to ensure that index is 
+     *   actually within the bounds of the axis dimension.
      */
     private def mapIndexToPlace(index:int) {
         val bb = region.boundingBox();
@@ -115,18 +117,18 @@ final class BlockWorldDist extends Dist {
         }
     }
 
-    // unchecked assumption that ranks match.  Will add rank constraint shortly
-    public def apply(pt:Point):Place {
+    public def apply(pt:Point(rank)):Place {
+	if (!region.contains(pt)) raiseBoundsError(pt);
         return mapIndexToPlace(pt(axis));
     }
 
-    // unchecked assumption that ranks match.  Will add rank constraint shortly
-    public def apply(i0:int) {
+    public def apply(i0:int){rank==1} {
+	if (!region.contains(i0)) raiseBoundsError(i0);
 	return mapIndexToPlace(i0);
     }
 
-    // unchecked assumption that ranks match.  Will add rank constraint shortly
-    public def apply(i0:int, i1:int) {
+    public def apply(i0:int, i1:int){rank==2} {
+	if (!region.contains(i0, i1)) raiseBoundsError(i0,i1);
 	switch(axis) {
 	    case 0: return mapIndexToPlace(i0);
 	    case 1: return mapIndexToPlace(i1);
@@ -134,8 +136,8 @@ final class BlockWorldDist extends Dist {
         }
     }
 
-    // unchecked assumption that ranks match.  Will add rank constraint shortly
-    public def apply(i0:int, i1:int, i2:int) {
+    public def apply(i0:int, i1:int, i2:int){rank==3} {
+	if (!region.contains(i0, i1, i2)) raiseBoundsError(i0,i1,i2);
 	switch(axis) {
 	    case 0: return mapIndexToPlace(i0);
 	    case 1: return mapIndexToPlace(i1);
@@ -144,8 +146,8 @@ final class BlockWorldDist extends Dist {
         }
     }
 
-    // unchecked assumption that ranks match.  Will add rank constraint shortly
-    public def apply(i0:int, i1:int, i2:int, i3:int) {
+    public def apply(i0:int, i1:int, i2:int, i3:int){rank==4} {
+	if (!region.contains(i0, i1, i2, i3)) raiseBoundsError(i0,i1,i2,i3);
 	switch(axis) {
 	    case 0: return mapIndexToPlace(i0);
 	    case 1: return mapIndexToPlace(i1);

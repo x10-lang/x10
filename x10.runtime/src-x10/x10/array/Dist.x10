@@ -12,6 +12,8 @@
 package x10.array;
 
 import x10.util.Set;
+import x10.compiler.NoInline;
+import x10.compiler.NoReturn;
 
 /**
  * A distributution supports distributed arrays by providing a mapping
@@ -42,7 +44,7 @@ public abstract class Dist(
      */
     onePlace:Place
 ) implements
-    (Point/*(region.rank)*/)=>Place
+    (Point(region.rank))=>Place
     // (Place)=>Region XTENLANG-60
     , Iterable[Point(region.rank)]
 {
@@ -298,9 +300,8 @@ public abstract class Dist(
      * @param pt the given point
      * @return the place that this distribution maps pt to.
      */
-    abstract public def apply(pt:Point/*(rank)*/):Place;
+    abstract public def apply(pt:Point(rank)):Place;
 
-	// TODO: add rank constraint
     /**
      * Return the place which this distribution maps the specified index to.
      * Only applies to one-dimensional distributions.
@@ -310,9 +311,8 @@ public abstract class Dist(
      * @return the place that this distribution maps the given index to.
      * @see #apply(Point)
      */
-    public def apply(i0:int):Place = apply(Point.make(i0));
+    public def apply(i0:int){rank==1}:Place = apply(Point.make(i0));
 
-	// TODO: add rank constraint
     /**
      * Return the place which this distribution maps the specified pair of indices to.
      * Only applies to two-dimensional distributions.
@@ -323,9 +323,8 @@ public abstract class Dist(
      * @return the place that this distribution maps the given pair of indices to.
      * @see #apply(Point)
      */
-    public def apply(i0:int, i1:int):Place = apply(Point.make(i0, i1));
+    public def apply(i0:int, i1:int){rank==2}:Place = apply(Point.make(i0, i1));
 
-	// TODO: add rank constraint
     /**
      * Return the place which this distribution maps the specified triple of indices to.
      * Only applies to three-dimensional distributions.
@@ -337,9 +336,8 @@ public abstract class Dist(
      * @return the place that this distribution maps the given triple of indices to.
      * @see #apply(Point)
      */
-    public def apply(i0:int, i1:int, i2:int):Place = apply(Point.make(i0, i1, i2));
+    public def apply(i0:int, i1:int, i2:int){rank==3}:Place = apply(Point.make(i0, i1, i2));
 
-	// TODO: add rank constraint
     /**
      * Return the place which this distribution maps the specified quartet of indices to.
      * Only applies to four-dimensional distributions.
@@ -352,7 +350,7 @@ public abstract class Dist(
      * @return the place that this distribution maps the given quartet of indices to.
      * @see #apply(Point)
      */
-    public def apply(i0:int, i1:int, i2:int, i3:int):Place = apply(Point.make(i0,i1,i2,i3));
+    public def apply(i0:int, i1:int, i2:int, i3:int){rank==4}:Place = apply(Point.make(i0,i1,i2,i3));
 
 
     //
@@ -587,6 +585,24 @@ public abstract class Dist(
     protected def this(region:Region, unique:boolean, constant:boolean, onePlace:Place) {
         property(region, unique, constant, onePlace);
     }
+
+    protected static @NoInline @NoReturn def raiseBoundsError(i0:int) {
+        throw new ArrayIndexOutOfBoundsException("point (" + i0 + ") not contained in distribution");
+    }    
+    protected static @NoInline @NoReturn def raiseBoundsError(i0:int, i1:int) {
+        throw new ArrayIndexOutOfBoundsException("point (" + i0 + ", "+i1+") not contained in distribution");
+    }    
+    protected static @NoInline @NoReturn def raiseBoundsError(i0:int, i1:int, i2:int) {
+        throw new ArrayIndexOutOfBoundsException("point (" + i0 + ", "+i1+", "+i2+") not contained in distribution");
+    }    
+    protected static @NoInline @NoReturn def raiseBoundsError(i0:int, i1:int, i2:int, i3:int) {
+        throw new ArrayIndexOutOfBoundsException("point (" + i0 + ", "+i1+", "+i2+", "+i3+") not contained in distribution");
+    }    
+    protected static @NoInline @NoReturn def raiseBoundsError(pt:Point) {
+        throw new ArrayIndexOutOfBoundsException("point " + pt + " not contained in distribution");
+    }    
+
+
 }
 
 // vim:shiftwidth=4:tabstop=4:expandtab

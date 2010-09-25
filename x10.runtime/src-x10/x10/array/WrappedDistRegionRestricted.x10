@@ -42,7 +42,7 @@ final class WrappedDistRegionRestricted extends Dist {
         return get(p);
     }
 
-    public def apply(pt:Point):Place {
+    public def apply(pt:Point(rank)):Place {
         if (filter.contains(pt)) {
             return base.apply(pt);
         } else {

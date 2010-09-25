@@ -94,7 +94,7 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
     }
 
     @Incomplete public static def makeCyclic1(r: Region, axis: int, ps: Set[Place]): Dist(r) { // XTENLANG-4
-                throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException();
     }
     @Incomplete public static def makeBlock1(r: Region, axis: int, ps: Set[Place]): Dist(r) { // XTENLANG-4
         throw new UnsupportedOperationException();
@@ -123,18 +123,15 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
     // mapping points to places
     //
 
-    public def apply(pt: Point/*(rank)*/): Place {
-        for (var i:int=0; i<regionMap.length; i++)
-            if (regionMap(i).contains(pt as Point(rank)))
+    public def apply(pt:Point(rank)):Place {
+        for (var i:int=0; i<regionMap.length; i++) {
+            if (regionMap(i).contains(pt as Point(rank))) {
                 return Place.places(i);
-        throw new ArrayIndexOutOfBoundsException("point " + pt + " not contained in distribution");
+            }
+        }
+	raiseBoundsError(pt);
+	return here; // UNREACHABLE, but front-end doesn't understand @NoReturn
     }
-
-    public def apply(i0: int) = apply([i0] as Point(rank));
-    public def apply(i0: int, i1: int) = apply([i0,i1] as Point(rank));
-    public def apply(i0: int, i1: int, i2: int) = apply([i0,i1,i2] as Point(rank));
-    public def apply(i0: int, i1: int, i2: int, i3: int) = apply([i0,i1,i2,i3] as Point(rank));
-
 
     //
     // Dist op Region

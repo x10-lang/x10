@@ -50,14 +50,11 @@ class UniqueDist extends Dist(1){rect} {
 
     public def apply(p:Place):Region(rank) = get(p);
 
-
-    // unchecked assumption that ranks match.  Will add rank constraint shortly
-    public def apply(pt:Point):Place {
+    public def apply(pt:Point(rank)):Place {
 	return Place.places(pt(0));
     }
 
-    // unchecked assumption that ranks match.  Will add rank constraint shortly
-    public def apply(i0:int) {
+    public def apply(i0:int){rank==1} {
 	return Place.places(i0);
     }
 
