@@ -20,18 +20,24 @@ import polyglot.ast.Expr;
 import polyglot.ast.Id;
 import polyglot.ast.Receiver;
 import polyglot.ast.Unary;
+import polyglot.frontend.Source;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.CodeDef;
 import polyglot.types.CodeInstance;
 import polyglot.types.ConstructorDef;
+import polyglot.types.ConstructorInstance;
 import polyglot.types.Context;
+import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.LazyRef;
 import polyglot.types.LocalDef;
+import polyglot.types.LocalInstance;
 import polyglot.types.MethodDef;
+import polyglot.types.MethodInstance;
 import polyglot.types.Name;
+import polyglot.types.ParsedClassType;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.StructType;
@@ -125,6 +131,14 @@ public interface X10TypeSystem extends TypeSystem {
      */
     Collection<X10ConstructorInstance> findConstructors(Type container, ConstructorMatcher matcher) throws SemanticException;
 
+    X10ClassDef createClassDef(Source fromSource);
+
+    X10ParsedClassType createClassType(Position pos, Ref<? extends ClassDef> def);
+    X10ConstructorInstance createConstructorInstance(Position pos, Ref<? extends ConstructorDef> def);
+    X10MethodInstance createMethodInstance(Position pos, Ref<? extends MethodDef> def);
+    X10FieldInstance createFieldInstance(Position pos, Ref<? extends FieldDef> def);
+    X10LocalInstance createLocalInstance(Position pos, Ref<? extends LocalDef> def);
+
     /**
      * Create a <code>ClosureType</code> with the given signature.
      */
@@ -204,7 +218,7 @@ public interface X10TypeSystem extends TypeSystem {
     				Ref<? extends Type> offerType);
 
   
-    MethodDef methodDef(Position pos, Ref<? extends StructType> container,
+    X10MethodDef methodDef(Position pos, Ref<? extends StructType> container,
             Flags flags, Ref<? extends Type> returnType, Name name,
             List<Ref<? extends Type>> argTypes,  Ref<? extends Type> offerType);
     
@@ -329,7 +343,7 @@ public interface X10TypeSystem extends TypeSystem {
 
     boolean equalTypeParameters(List<Type> a, List<Type> b, Context context);
 
-    ConstructorDef constructorDef(Position pos, Ref<? extends ClassType> container,
+    X10ConstructorDef constructorDef(Position pos, Ref<? extends ClassType> container,
             Flags flags, List<Ref<? extends Type>> argTypes,
             Ref<? extends Type> offerType);
     
