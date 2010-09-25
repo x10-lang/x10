@@ -41,7 +41,7 @@ public struct Team {
         var id:Int = 0;
         @Native("c++",
                 "x10rt_team nu_team = 0;" +
-                "x10rt_team_new(places->FMGL(rawLength), (x10rt_place*)places->raw()->data, x10rt_team_setter, &nu_team);" +
+                "x10rt_team_new(places->FMGL(rawLength), (x10rt_place*)places->raw()->raw(), x10rt_team_setter, &nu_team);" +
                 "while (nu_team==0) x10rt_probe();" +
                 "id = nu_team;") { }
         this.id = id;
@@ -96,7 +96,7 @@ public struct Team {
     public def scatter[T] (role:Int, root:Int, src:Array[T], src_off:Int, dst:Array[T], dst_off:Int, count:Int) : void {
         @Native("c++",
                 "int finished = 0;" +
-                "x10rt_scatter(this_.FMGL(id), role, root, &src->raw()->data[src_off], &dst->raw()->data[dst_off], sizeof(FMGL(T)), count, x10rt_one_setter, &finished);" +
+                "x10rt_scatter(this_.FMGL(id), role, root, &src->raw()->raw()[src_off], &dst->raw()->raw()[dst_off], sizeof(FMGL(T)), count, x10rt_one_setter, &finished);" +
                 "while (!finished) x10rt_probe();") {}
     }
     
@@ -125,7 +125,7 @@ public struct Team {
     public def bcast[T] (role:Int, root:Int, src:Array[T], src_off:Int, dst:Array[T], dst_off:Int, count:Int) : void {
         @Native("c++",
                 "int finished = 0;" +
-                "x10rt_bcast(this_.FMGL(id), role, root, &src->raw()->data[src_off], &dst->raw()->data[dst_off], sizeof(FMGL(T)), count, x10rt_one_setter, &finished);" +
+                "x10rt_bcast(this_.FMGL(id), role, root, &src->raw()->raw()[src_off], &dst->raw()->raw()[dst_off], sizeof(FMGL(T)), count, x10rt_one_setter, &finished);" +
                 "while (!finished) x10rt_probe();") {}
     }
     
@@ -157,7 +157,7 @@ public struct Team {
     public def alltoall[T] (role:Int, src:Array[T], src_off:Int, dst:Array[T], dst_off:Int, count:Int) : void {
         @Native("c++",
                 "int finished = 0;" +
-                "x10rt_alltoall(this_.FMGL(id), role, &src->raw()->data[src_off], &dst->raw()->data[dst_off], sizeof(FMGL(T)), count, x10rt_one_setter, &finished);" +
+                "x10rt_alltoall(this_.FMGL(id), role, &src->raw()->raw()[src_off], &dst->raw()->raw()[dst_off], sizeof(FMGL(T)), count, x10rt_one_setter, &finished);" +
                 "while (!finished) x10rt_probe();") {}
     }
 
@@ -189,7 +189,7 @@ public struct Team {
         @Native("c++",
                 "int finished = 0;" +
                 "x10rt_red_type type = x10rt_get_red_type<FMGL(T)>();" +
-                "x10rt_allreduce(this_.FMGL(id), role, &src->raw()->data[src_off], &dst->raw()->data[dst_off], (x10rt_red_op_type)op, type, count, x10rt_one_setter, &finished);" +
+                "x10rt_allreduce(this_.FMGL(id), role, &src->raw()->raw()[src_off], &dst->raw()->raw()[dst_off], (x10rt_red_op_type)op, type, count, x10rt_one_setter, &finished);" +
                 "while (!finished) x10rt_probe();") {}
     }
 
