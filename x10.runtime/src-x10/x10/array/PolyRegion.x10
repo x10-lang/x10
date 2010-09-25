@@ -13,7 +13,7 @@ package x10.array;
 
 import x10.io.Printer;
 import x10.compiler.Incomplete;
-import x10.compiler.TempNoInline;
+import x10.compiler.TempNoInline_3;
 
 /**
  * A PolyRegion represents a polyhedral region represented as the
@@ -93,7 +93,7 @@ public class PolyRegion extends Region {
     public def scanners()=new Scanners();
 
     protected def scanner(): Region.Scanner {
-	val scanner = @TempNoInline PolyScanner.make(mat);
+	val scanner = PolyScanner.make(mat);
         return scanner;
     }
 
@@ -105,7 +105,7 @@ public class PolyRegion extends Region {
         return scanner;
     }*/
     public def iterator():Iterator[Point(rank)]
-          = @TempNoInline PolyScanner.make(mat).iterator() as Iterator[Point(rank)];
+          = PolyScanner.make(mat).iterator() as Iterator[Point(rank)];
   
 
     //
@@ -295,8 +295,8 @@ public class PolyRegion extends Region {
      * col-row <= colMin-rowMin + (upper-1)
      */
 
-    private static ROW: int = @TempNoInline PolyMatBuilder.X(0);
-    private static COL: int = @TempNoInline PolyMatBuilder.X(1);
+    private static ROW: int = PolyMatBuilder.X(0);
+    private static COL: int = PolyMatBuilder.X(1);
 
     public static def makeBanded(rowMin: int, colMin: int, rowMax: int, colMax: int, upper: int, lower: int): Region(2) {
         val pmb = new PolyMatBuilder(2);
@@ -339,7 +339,7 @@ public class PolyRegion extends Region {
      * special-case subclasses, such as RectRegion, for efficiency
      */
 
-    public static def make(pm: PolyMat): Region(pm.rank) {
+    public static @TempNoInline_3 def make(pm: PolyMat): Region(pm.rank) {
         if (pm.isEmpty()) {
             return new EmptyRegion(pm.rank);
         } else {

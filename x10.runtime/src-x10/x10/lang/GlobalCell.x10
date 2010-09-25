@@ -10,9 +10,8 @@
  */
 
 package x10.lang;
-import x10.compiler.TempNoInline;
 
-public @TempNoInline class GlobalCell[T] {
+public class GlobalCell[T] {
 	
 	protected val root : GlobalRef[Cell[T]];
     def this(v:T) {
@@ -64,7 +63,7 @@ public @TempNoInline class GlobalCell[T] {
      * @param x the given value
      * @return a new Cell with the given value stored in it.
      */
-    public static @TempNoInline def make[T](x:T)= (@TempNoInline new GlobalCell[T](@TempNoInline new Cell[T](x)));
+    public static def make[T](x:T)= (new GlobalCell[T](new Cell[T](x)));
 
 
     /**

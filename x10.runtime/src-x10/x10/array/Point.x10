@@ -12,7 +12,8 @@
 package x10.array;
 
 import x10.util.Ordered;
-import x10.compiler.TempNoInline;
+import x10.compiler.TempNoInline_2;
+import x10.compiler.TempNoInline_3;
 
 /**
  * The type <code>Point(rank)</code> represents a point in a
@@ -43,7 +44,7 @@ final public class Point(rank: Int) implements (Int) => Int, Ordered[Point(rank)
     /**
      * Constructs a Point from a Rail[int]
      */
-    public static def make(cs: Rail[int]): Point(cs.length) {
+    public static @TempNoInline_3 def make(cs: Rail[int]): Point(cs.length) {
 	val a = ValRail.make[int](cs.length, (i:Int)=>cs(i));
         return make(a);
     }
@@ -51,7 +52,7 @@ final public class Point(rank: Int) implements (Int) => Int, Ordered[Point(rank)
     /**
      * Returns a <code>Point p</code> of rank <code>rank</code> with <code>p(i)=init(i)</code>.
      */
-    public static @TempNoInline def make(rank:Int, init:(i:Int)=>int):Point(rank) {
+    public static @TempNoInline_2 def make(rank:Int, init:(i:Int)=>int):Point(rank) {
         val a = ValRail.make[int](rank, init);
         return make(a);
     }

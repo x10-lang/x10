@@ -12,7 +12,6 @@
 package x10.array;
 
 import x10.util.Set;
-import x10.compiler.TempNoInline;
 
 /**
  * A distributution supports distributed arrays by providing a mapping
@@ -97,7 +96,7 @@ public abstract class Dist(
      * @return a "constant" distribution over r.
      */
     // TODO: [IP] return Dist(r){constant&&onePlace==here}
-    public static def makeConstant(r:Region):Dist(r) = @TempNoInline BaseDist.makeConstant1(r);
+    public static def makeConstant(r:Region):Dist(r) = BaseDist.makeConstant1(r);
 
     /**
      * Create a distribution over the specified region that maps
@@ -186,7 +185,7 @@ public abstract class Dist(
      * @return a "unique" distribution over the places in ps
      */
     public static def makeUnique(ps:ValRail[Place]):Dist(1)
-        = @TempNoInline BaseDist.makeUnique1(ps);
+        = BaseDist.makeUnique1(ps);
 
     /**
      * Create a distribution over a rank-1 region that maps every
@@ -197,7 +196,7 @@ public abstract class Dist(
      * @return a "unique" distribution over the places in ps
      */
     public static def makeUnique(ps:Set[Place]):Dist(1)
-        = @TempNoInline BaseDist.makeUnique1(ps);
+        = BaseDist.makeUnique1(ps);
 
     /**
      * Create a distribution over the specified region that maps
@@ -208,7 +207,7 @@ public abstract class Dist(
      * @return a "constant" distribution over r that maps to p.
      */
     public static def makeConstant(r:Region, p:Place):Dist(r)
-        = @TempNoInline BaseDist.makeConstant1(r, p);
+        = BaseDist.makeConstant1(r, p);
 
     /**
      * Create a distribution over the specified region that varies in
@@ -235,7 +234,7 @@ public abstract class Dist(
      * @return a "block" distribution over r, blocking over the places in ps.
      */
     public static def makeBlock(r:Region, axis:int, ps:Set[Place]):Dist(r)
-        = @TempNoInline BaseDist.makeBlock1(r, axis, ps);
+        = BaseDist.makeBlock1(r, axis, ps);
 
     /**
      * Create a distribution over the specified region that varies in

@@ -14,7 +14,6 @@ package x10.array;
 import x10.compiler.Global;
 import x10.compiler.Native;
 import x10.util.IndexedMemoryChunk;
-import x10.compiler.TempNoInline;
 
 /**
  * A class that encapsulates sufficient information about a remote
@@ -86,7 +85,7 @@ public class RemoteArray[T](region:Region, size:Int, array:GlobalRef[Array[T]{se
 
     public def this(a:Array[T]) : RemoteArray[T]{self.region==a.region, self.size==this.size, self.array.home == here} {
         property(a.region, a.size, GlobalRef[Array[T]{self.region==this.region, self.size==this.size}](a as Array[T]{self.region==this.region, self.size == this.size}));
-        rawData = @TempNoInline a.raw();
+        rawData = a.raw();
         rawLength = a.rawLength;  
     }
 

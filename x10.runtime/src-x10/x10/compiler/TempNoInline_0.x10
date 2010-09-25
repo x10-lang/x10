@@ -17,12 +17,14 @@ package x10.compiler;
  * This annotation is used to allow the programmer
  * to direct the compiler to never inline
  * the annotated method</p>
-* 
-* This version indicates that the decision not to inline is a temporary expediency 
-* to be revisited when inlining is more or less working.
+ * 
+ * This version indicates that the decision not to inline is a temporary expediency 
+ * to be revisited when inlining is more or less working.
  *
- * This annotation is processed by the X10 compiler's
- * common optimizer.
+ * 
+ * This annotation is processed by the X10 compiler's common optimizer.
+ * It is required to get a build implicitly inlining methods of size 0;
  */
-public interface TempNoInline extends NoInline {
-}
+ 
+ public interface TempNoInline_0 extends NoInline {
+ }

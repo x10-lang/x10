@@ -11,7 +11,8 @@
 
 package x10.array;
 
-import x10.compiler.TempNoInline;
+import x10.compiler.TempNoInline_0;
+import x10.compiler.TempNoInline_3;
 
 /**
  * A Region(rank) represents a set of points of class Point(rank). The
@@ -40,7 +41,7 @@ public abstract class Region(
      * Construct an empty region of the specified rank.
      */
 
-    public static @TempNoInline def makeEmpty(rank: int): Region(rank) = new EmptyRegion(rank);
+    public static @TempNoInline_0 def makeEmpty(rank: int): Region(rank) = new EmptyRegion(rank);
      
     /**
      * Construct an unbounded region of a given rank that contains all
@@ -104,9 +105,9 @@ public abstract class Region(
      * rails of ints.
      */
 
-    public static @TempNoInline def makeRectangular(minArg: Rail[int], maxArg: Rail[int](minArg.length)):Region(minArg.length){self.rect}
+    public static @TempNoInline_3 def makeRectangular(minArg: Rail[int], maxArg: Rail[int](minArg.length)):Region(minArg.length){self.rect}
         = makeRectangular(ValRail.make(minArg), ValRail.make(maxArg));  
-    public static @TempNoInline def makeRectangular(minArg: ValRail[int], maxArg: ValRail[int](minArg.length)):Region(minArg.length){self.rect}
+    public static @TempNoInline_3 def makeRectangular(minArg: ValRail[int], maxArg: ValRail[int](minArg.length)):Region(minArg.length){self.rect}
         = new RectRegion(minArg, maxArg);
 
     /**
@@ -126,7 +127,7 @@ public abstract class Region(
      * Construct a rank-n rectangular region that is the Cartesian
      * product of the specified rank-1 rectangular regions.
      */
-    public static def make(regions:ValRail[Region(1){self.rect}]):Region(regions.length){self.rect} {
+    public static @TempNoInline_3 def make(regions:ValRail[Region(1){self.rect}]):Region(regions.length){self.rect} {
         var r:Region = regions(0);
         for (var i: int = 1; i<regions.length; i++)
             r = r.product(regions(i));
@@ -146,13 +147,13 @@ public abstract class Region(
      * @param lower -- the number of diagonals in the band, below the main diagonal
      */
     public static def makeBanded(size: int, upper: int, lower: int):Region(2)
-        = @TempNoInline PolyRegion.makeBanded(size, upper, lower);
+        = PolyRegion.makeBanded(size, upper, lower);
 
     /**
      * Construct a banded region of the given size that includes only
      * the main diagonal.
      */
-    public static def makeBanded(size: int):Region(2) = @TempNoInline PolyRegion.makeBanded(size, 1, 1);
+    public static def makeBanded(size: int):Region(2) = PolyRegion.makeBanded(size, 1, 1);
     
     /**
      * Construct an upper triangular region of the given size.
@@ -165,7 +166,7 @@ public abstract class Region(
      * given lower bounds.
      */
     public static def makeUpperTriangular(rowMin: int, colMin: int, size: int): Region(2)
-        = @TempNoInline PolyRegion.makeUpperTriangular2(rowMin, colMin, size);
+        = PolyRegion.makeUpperTriangular2(rowMin, colMin, size);
     
     /**
      * Construct a lower triangular region of the given size.
@@ -177,7 +178,7 @@ public abstract class Region(
      * given lower bounds.
      */
     public static def makeLowerTriangular(rowMin: int, colMin: int, size: int):Region(2)
-        = @TempNoInline PolyRegion.makeLowerTriangular2(rowMin, colMin, size);
+        = PolyRegion.makeLowerTriangular2(rowMin, colMin, size);
 
 
     //
@@ -420,13 +421,13 @@ public abstract class Region(
 
     abstract public def contains(p:Point):boolean;
     
-    public def contains(i:int){rank==1} = contains(@TempNoInline Point.make(i));
+    public def contains(i:int){rank==1} = contains(Point.make(i));
 
-    public def contains(i0:int, i1:int){rank==2} = contains(@TempNoInline Point.make(i0,i1));
+    public def contains(i0:int, i1:int){rank==2} = contains(Point.make(i0,i1));
 
-    public def contains(i0:int, i1:int, i2:int){rank==3} = contains(@TempNoInline Point.make(i0,i1,i2));
+    public def contains(i0:int, i1:int, i2:int){rank==3} = contains(Point.make(i0,i1,i2));
 
-    public def contains(i0:int, i1:int, i2:int, i3:int){rank==4} = contains(@TempNoInline Point.make(i0,i1,i2,i3));
+    public def contains(i0:int, i1:int, i2:int, i3:int){rank==4} = contains(Point.make(i0,i1,i2,i3));
 
     protected def this(r: int, t: boolean, z: boolean)
         :Region{self.rank==r, self.rect==t, self.zeroBased==z} {

@@ -11,7 +11,6 @@
  */
 
 package x10.lang;
-import x10.compiler.TempNoInline;
 
 /**
  * Complex is a struct representing a complex number (a + b*i).
@@ -125,7 +124,7 @@ public struct Complex /*TODO implements Arithmetic[Complex]*/ {
             return Complex.ZERO;
         }
 
-        if (@TempNoInline (Math.abs(d) <= Math.abs(c))) {
+        if ((Math.abs(d) <= Math.abs(c))) {
             if (c == 0.0) {
                 return Complex(im/d, -re/c);
             }

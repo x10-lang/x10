@@ -13,7 +13,6 @@ package x10.util;
 
 import x10.util.HashMap;
 import x10.util.GrowableRail;
-import x10.compiler.TempNoInline;
 
 /**
  * @author Dave Cunningham
@@ -37,7 +36,7 @@ public final class OptionsParser {
         var offset:Int = 0;
         var ended:Boolean = false;
         for (var i:Int=0 ; i<args.size; ++i) {
-            val s = (@TempNoInline args.apply(i));
+            val s = (args.apply(i));
             var recognised: Boolean = false;
             if (s.equals("--")) {
                 ended = true;
@@ -58,7 +57,7 @@ public final class OptionsParser {
                         recognised = true;
                         ++i;
                         if (i>=args.size) throw new Err("Expected another arg after: \""+s+"\"");
-                        val s2 = (@TempNoInline args.apply(i));
+                        val s2 = (args.apply(i));
                         if (spec.short_!=null) map.put(spec.short_, s2);
                         if (spec.long_!=null) map.put(spec.long_, s2);
                     }

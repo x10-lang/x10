@@ -15,7 +15,6 @@ import x10.compiler.Native;
 import x10.compiler.NativeClass;
 import x10.compiler.NativeDef;
 import x10.compiler.NativeString;
-import x10.compiler.TempNoInline;
 import x10.compiler.Pinned;
 import x10.compiler.Global;
 import x10.compiler.SuppressTransientError;
@@ -382,7 +381,7 @@ import x10.util.Box;
 	    
         @Pinned private def notifySubActivitySpawnLocal(place:Place):void {
             lock();
-            counts(@TempNoInline place.parent().id)++;
+            counts(place.parent().id)++;
             unlock();
         }
 
@@ -472,7 +471,7 @@ import x10.util.Box;
         @Global public def makeRemote() = new RemoteFinish();
         
         @Global public def notifySubActivitySpawn(place:Place):void {
-            if (@TempNoInline here.equals(root.home)) {
+            if (here.equals(root.home)) {
                 val rf:RootFinish = (root as GlobalRef[RootFinish]{here==root.home})();
 	            rf.notifySubActivitySpawnLocal(place);
             } else {
@@ -481,12 +480,12 @@ import x10.util.Box;
         }
 
         @Global public def notifyActivityCreation():void {
-            if (! @TempNoInline here.equals(root.home))
+            if (! here.equals(root.home))
                 (Runtime.proxy(this) as RemoteFinish).notifyActivityCreation();
         }
 
         @Global public def notifyActivityTermination():void {
-            if (@TempNoInline here.equals(root.home)) {
+            if (here.equals(root.home)) {
             	val rf:RootFinish = (root as GlobalRef[RootFinish]{here==root.home})();
             	rf.notifyActivityTerminationLocal();
             } else {
@@ -495,7 +494,7 @@ import x10.util.Box;
         }
 
         @Global public def pushException(t:Throwable):void {
-            if (@TempNoInline here.equals(root.home)) {
+            if (here.equals(root.home)) {
             	val rf:RootFinish = (root as GlobalRef[RootFinish]{here==root.home})();
             	rf.pushExceptionLocal(t);
             } else {
@@ -686,7 +685,7 @@ import x10.util.Box;
         def pathCompute(r:FinishState):Pair[Int,Int] {
             val max = Place.MAX_PLACES;
             val id  = here.id;
-            val step = @TempNoInline Math.log2(max);
+            val step = Math.log2(max);
             var stage : Int = 0;
             var target : Int = 0;
             var interval : Int = 2;
@@ -696,14 +695,14 @@ import x10.util.Box;
                         val distance = id%interval;
                         stage = i;
                         target = here.id - distance;
-                        if((id < r.home().id)&&(r.home().id < id+ @TempNoInline Math.pow2(stage)))
+                        if((id < r.home().id)&&(r.home().id < id+Math.pow2(stage)))
                             stage --;
-                        if(here.id < @TempNoInline Math.pow2(step))
+                        if(here.id < Math.pow2(step))
                             return Pair[Int,Int](stage,target);
                         else {
                             if(stage > 0) {
                                 for(var j:Int = stage; j>0;j--) {
-                                    if((id + @TempNoInline Math.pow2(j-1)) > (max-1))
+                                    if((id + Math.pow2(j-1)) > (max-1))
                                         stage--;
                                 }
                             }
@@ -712,17 +711,17 @@ import x10.util.Box;
                     }
                 interval = interval*2;
                }
-               if(here.id == @TempNoInline Math.pow2(step)) {
+               if(here.id == Math.pow2(step)) {
                val delta = max - here.id -1;
                if (delta == 0) return Pair[Int,Int](0,r.home().id);
                else  {
-                   val subStep = @TempNoInline Math.log2(delta);
+                   val subStep = Math.log2(delta);
                    return Pair[Int,Int](subStep+1,r.home().id);
                     }
                  }
              }
             assert (max>1);
-            val subStep = @TempNoInline Math.log2(max-1);
+            val subStep = Math.log2(max-1);
             if(Math.powerOf2(r.home().id))   return Pair[Int,Int](subStep,r.home().id);
             return Pair[Int,Int](subStep+1,r.home().id);
         }
@@ -1084,7 +1083,7 @@ import x10.util.Box;
          }
 
          @Global public def notifySubActivitySpawn(place:Place):void {
-       	     if (@TempNoInline here.equals(home())) {
+       	     if (here.equals(home())) {
                  val srf:SimpleRootFinish = (root as GlobalRef[SimpleRootFinish]{here==root.home})();
                  srf.notifySubActivitySpawnLocal(place);
              } else {
@@ -1093,13 +1092,13 @@ import x10.util.Box;
          }
          
          @Global public def notifyActivityCreation():void {
-        	 if (!@TempNoInline here.equals(root.home)){
+        	 if (here.equals(root.home)){
         		 (Runtime.proxy(this) as SimpleRemoteFinish).notifyActivityCreation();
         	 } 
          }
          
          @Global public def notifyActivityTermination():void {
-        	 if (@TempNoInline here.equals(root.home)) {
+        	 if (here.equals(root.home)) {
         	     val srf:SimpleRootFinish = (root as GlobalRef[SimpleRootFinish]{here==root.home})();
                      srf.notifyActivityTerminationLocal();
         	 } else {
@@ -1108,7 +1107,7 @@ import x10.util.Box;
          }
          
          @Global public def pushException(t:Throwable):void {
-        	 if (@TempNoInline here.equals(root.home)) {
+        	 if (here.equals(root.home)) {
         	     val srf:SimpleRootFinish = (root as GlobalRef[SimpleRootFinish]{here==root.home})();
                      srf.pushExceptionLocal(t);
         	 } else {
@@ -1183,7 +1182,7 @@ import x10.util.Box;
 
         //Worker Id for CollectingFinish
         private var workerId :Int;
-        public @TempNoInline def setWorkerId(id:Int) {
+        public def setWorkerId(id:Int) {
             workerId = id;
         }
 
@@ -1294,7 +1293,7 @@ import x10.util.Box;
         // the threads in the pool
         private val threads:Rail[Thread];
 
-        @TempNoInline def this(latch:Latch, size:Int) {
+        def this(latch:Latch, size:Int) {
             this.latch = latch;
             this.size = size;
             val workers = Rail.make[Worker](MAX);
@@ -1305,7 +1304,7 @@ import x10.util.Box;
             workers(0) = master;
             threads(0) = Thread.currentThread();
             Thread.currentThread().worker(master);
-            (@TempNoInline workers.apply(0)).setWorkerId(0);
+            workers.apply(0).setWorkerId(0);
 
             // other workers
             for (var i:Int = 1; i<size; i++) {
@@ -1313,7 +1312,7 @@ import x10.util.Box;
                 workers(i) = worker;
                 threads(i) = new Thread(worker.apply.(), "thread-" + i);
                 threads(i).worker(worker);
-                (@TempNoInline workers.apply(i)).setWorkerId(i);
+                (workers.apply(i)).setWorkerId(i);
             }
             this.workers = workers;
             this.threads = threads;
@@ -1847,7 +1846,7 @@ import x10.util.Box;
             val id = thisWorker.workerId;
             val state = currentState();
 	    //	    Console.OUT.println("Place(" + here.id + ") Runtime.offer: received " + t);
-            if (@TempNoInline here.equals(state.home())) {
+            if (here.equals(state.home())) {
                 (state as RootCollectingFinish[T]).accept(t,id);
             } else {
                 (Runtime.proxy(state as RootFinish) as RemoteCollectingFinish[T]).accept(t,id);
@@ -1858,7 +1857,7 @@ import x10.util.Box;
              val id = thisWorker.workerId;
              val state = currentState();
              (state as RootCollectingFinish[T]).notifyActivityTermination();                       
-             //assert @TempNoInline here.equals(home);
+             //assert here.equals(home);
              val result = (state as RootCollectingFinish[T]).waitForFinishExpr(true);
              val a = activity();
              a.finishStack.pop();  
