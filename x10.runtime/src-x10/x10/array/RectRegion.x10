@@ -11,10 +11,10 @@
 
 package x10.array;
 
-import x10.compiler.TempNoInline;
 
 /**
- * A RectRegion is a finite, rank-dimensional, dense rectangular region.
+ * A RectRegion is a finite dense rectangular region with a specified rank.
+ * This class implements a specialization of PolyRegion.
  */
 public final class RectRegion extends Region{rect} {
 
@@ -31,16 +31,19 @@ public final class RectRegion extends Region{rect} {
     private val max2:int;
     private val max3:int;
 
+    private val myMin:(int)=>int;
+    private val myMax:(int)=>int;
+
     private static def allZeros(x:ValRail[int]) {
        for (i in x) if (i != 0) return false;
        return true;
     }
 
+    /**
+     * Create a rectangular region containing all points p such that min <= p and p <= max.
+     */
     def this(minArg:ValRail[int], maxArg:ValRail[int](minArg.length)):RectRegion{self.rank==minArg.length} {
         super(minArg.length, true, allZeros(minArg));
-
-        if (minArg.length!=maxArg.length) 
-            throw new IllegalOperationException("min and max must have same length");
 
         var s:int = 1;
         for (var i:int = 0; i<minArg.length; i++) {
@@ -85,9 +88,31 @@ public final class RectRegion extends Region{rect} {
 	  mins = null;
           maxs = null;
         }
+	 myMin = (i:int) => {
+	        switch(i) {
+	           case 0: return min0;
+	           case 1: return min1;
+	           case 2: return min2;
+	           case 3: return min3;
+	           default: return mins(i);
+	        }
+	    };
+
+	  myMax = (i:int) => {
+	        switch(i) {
+	        case 0: return max0;
+	        case 1: return max1;
+	        case 2: return max2;
+	        case 3: return max3;
+	        default: return maxs(i);
+	        }
+	    };
     }
 
-    def this(min:int, max:int):RectRegion{self.rank==1} {
+    /**
+     * Create a 1-dim region min..max.
+     */
+    def this(min:int, max:int):RectRegion(1){
         this([min],[max]);
     }
 
@@ -114,29 +139,9 @@ public final class RectRegion extends Region{rect} {
 
     protected def computeBoundingBox(): Region(rank){self.rect}=this; 
 
-    public @TempNoInline def min():(int)=>int  {
-        return (i:int) => {
-            switch(i) {
-                case 0: return min0;
-                case 1: return min1;
-                case 2: return min2;
-                case 3: return min3;
-                default: return mins(i);
-            }
-        };
-    }
-
-    public @TempNoInline def max():(int)=>int  {
-        return (i:int) => {
-            switch(i) {
-                case 0: return max0;
-                case 1: return max1;
-                case 2: return max2;
-                case 3: return max3;
-                default: return maxs(i);
-            }
-        };
-    }
+    
+    public def min():(int)=>int = myMin;
+    public def max():(int)=>int = myMax;
 
     public def contains(that:Region(rank)): boolean {
        if (that instanceof RectRegion) {
@@ -209,26 +214,41 @@ public final class RectRegion extends Region{rect} {
     }
 
 
+    transient protected var polyRep:Region(rank)=null;
+    /**
+     * Return a PolyRegion with the same set of points as this region. This permits
+     * general algorithms for intersection, restriction etc to be applied to RectRegion's.
+     */
+    public def toPolyRegion() {
+    	if (polyRep==null) {
+    		polyRep = Region.makeRectangularPoly(ValRail.make[int](rank, min()), ValRail.make[int](rank, max()));
+    	}
+    	return polyRep;
+    }
+    
+    @Override
     public def intersection(that: Region(rank)):Region(rank) {
         if (that.isEmpty()) {
-	    return that;
+	       return that;
         } else if (that instanceof FullRegion) {
             return this;
         } else if (that instanceof RectRegion) {
             val thatMin = (that as RectRegion).min();
             val thatMax = (that as RectRegion).max();
-	    val newMin = ValRail.make[int](rank, (i:int)=>Math.max(min(i), thatMin(i)));
-	    val newMax = ValRail.make[int](rank, (i:int)=>Math.min(max(i), thatMax(i)));
-	    for ([i] in 0..newMin.length-1) {
+	        val newMin = ValRail.make[int](rank, (i:int)=>Math.max(min(i), thatMin(i)));
+	        val newMax = ValRail.make[int](rank, (i:int)=>Math.min(max(i), thatMax(i)));
+	        for ([i] in 0..newMin.length-1) {
                 if (newMax(i)<newMin(i)) return Region.makeEmpty(rank);
             }
             return new RectRegion(newMin, newMax);
         } else {
-	    throw new UnsupportedOperationException("haven't implemented RectRegion intersection with "+that.typeName());
+        	// Use the general representation.
+        	return (toPolyRegion() as Region(rank)).intersection(that);
         }
     }
     
 
+    @Override
     public def product(that:Region):Region /*self.rank==this.rank+that.rank*/{
         if (that.isEmpty()) {
             return Region.makeEmpty(rank + that.rank);
@@ -245,7 +265,7 @@ public final class RectRegion extends Region{rect} {
             val newMax = ValRail.make[int](k, (i:int)=>i<rank?max(i):Int.MAX_VALUE);
 	    return new RectRegion(newMin,newMax);
         } else {
-	    throw new UnsupportedOperationException("haven't implemented RectRegion product with "+that.typeName());
+	   return (toPolyRegion() as Region(rank)).product(that);
         }
     }
 
@@ -340,11 +360,6 @@ public final class RectRegion extends Region{rect} {
         return true;
     }
 
-
-    //
-    //
-    //
-
     public def toString(): String {
         val thisMin = this.min();
         val thisMax = this.max();
@@ -357,10 +372,55 @@ public final class RectRegion extends Region{rect} {
         return s;
     }
 
+    /**
+     * The Scanner class supports efficient scanning. Usage:
+     *
+     *    for (s:Scanner in r.scanners()) {
+     *        int min0 = s.min(0);
+     *        int max0 = s.max(0);
+     *        for (var i0:int=min0; i0<=max0; i0++) {
+     *            s.set(0,i0);
+     *            int min1 = s.min(1);
+     *            int max1 = s.max(1);
+     *            for (var i1:int=min1; i1<=max1; i1++) {
+     *                ...
+     *            }
+     *        }
+     *    }
+     *
+     */
 
-    public def scanners():Iterator[Region.Scanner] {
-        throw new UnsupportedOperationException("TODO: scanners not defined for RectRegion");
+    private class RectRegionScanner implements Region.Scanner {
+    	var axis:Int=0;
+        def this(){}
+        public def set(axis:int, position: int) {
+        	// ???
+        }
+        public def min(axis:int):int = RectRegion.this.min()(axis);
+        public def max(axis:int):int = RectRegion.this.max()(axis);
+    }
+    private class Scanners implements Iterator[Region.Scanner] {
+
+        var hasNext: boolean = true;
+
+        public def hasNext(): boolean {
+            return hasNext;
+        }
+
+        public def next(): Region.Scanner {
+            if (hasNext) {
+                hasNext = false;
+                return new RectRegionScanner();
+            } else
+                throw new x10.util.NoSuchElementException("in scanner");
+        }
+
+        public def remove(): void {
+            throw new UnsupportedOperationException("remove");
+        }
     }
 
+    public def scanners()=new Scanners();
+  
 
 }

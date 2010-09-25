@@ -48,8 +48,16 @@ public class PolyRegion extends Region {
         return true;
     }
 
-    @Incomplete public def size():int {
-        throw new UnsupportedOperationException();
+    var size:Int = -1; // uninitialized
+    public def size():int {
+    	if (size < 0) {
+    	  var s:Int=0;
+          val it= iterator();
+          for (p:Point in this)
+        	 s++;
+          size=s;
+    	}
+        return size;     
     }
 
     @Incomplete public def indexOf(Point):int {
@@ -124,7 +132,10 @@ public class PolyRegion extends Region {
             val pm = pmb.toSortedPolyMat(false);
             return PolyRegion.make(pm) as Region(rank); // XXXX why?
 
-        } /*else if (t instanceof UnionRegion) {
+        } else if (t instanceof RectRegion) {
+        	return intersection((t as RectRegion).toPolyRegion());
+        }
+        /*else if (t instanceof UnionRegion) {
 
             return (t as Region(rank)).intersection(this);
 

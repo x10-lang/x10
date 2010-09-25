@@ -68,11 +68,37 @@ public abstract class Region(
         val pm = pmb.toSortedPolyMat(false);
         return PolyRegion.make(pm) as Region(normal.rank); // XXXX Why is this cast here?
     }
-
     //
     // rectangular factories
     //
 
+    /**
+     * Returns a PolyRegion that represents the rectangular region with smallest point minArg and largest point
+     * maxArg. 
+     * <p> Most users of the Region API should call makeRectangular which will return a 
+     * RectRegion. Methods on RectRegion automatically construct a PolyRegion (by calling makeRectangularPoly) 
+     * if they need to implement operations (such as intersection, product etc) that are difficult to define
+     * on a RectRegion's representation.
+     * @param minArg:ValRail[int] -- specifies the smallest point in the region
+     * @param maxArg:ValRail[int] -- specifies the largest point in the region (must have the same rank as minArg
+     * @return A Region of rank minarg.length 
+     */
+
+    public static def makeRectangularPoly(minArg: ValRail[int], maxArg: ValRail[int](minArg.length)):Region(minArg.length){
+    	   val rank = minArg.length;
+           val pmb = new PolyMatBuilder(rank); 
+           for ([i] in 0..rank-1) {
+        	   // add -1*x(i) + minArg(i) <= 0, i.e. x(i) >= minArg(i)
+        	   val r = new PolyRow(Point.make(rank, (j:Int) => i==j ? -1 : 0), minArg(i));
+        	   pmb.add(r);
+        	   // add 1*x(i) - maxArg(i) <= 0, i.e. x(i) <= maxArg(i)
+        	   val s = new PolyRow(Point.make(rank, (j:Int) => i==j ? 1 : 0), -maxArg(i));
+        	   pmb.add(s);
+           }
+           val pm = pmb.toSortedPolyMat(false);
+           return PolyRegion.make(pm) as Region(minArg.length); 
+    }
+     
     /**
      * Construct a rectangular region whose bounds are specified as
      * rails of ints.
@@ -115,6 +141,9 @@ public abstract class Region(
      * Construct a banded region of the given size, with the specified
      * number of diagonals above and below the main diagonal
      * (inclusive of the main diagonal).
+     * @param size -- number of elements in the banded region
+     * @param upper -- the number of diagonals in the band, above the main diagonal
+     * @param lower -- the number of diagonals in the band, below the main diagonal
      */
     public static def makeBanded(size: int, upper: int, lower: int):Region(2)
         = @TempNoInline PolyRegion.makeBanded(size, upper, lower);
@@ -277,28 +306,27 @@ public abstract class Region(
 
     /**
      * Returns the Cartesian product of two regions. The Cartesian
-     * product has rank this.rank+that.rank. For every point p in the
-     * Cartesian product, the first this.rank coordinates of p are a
-     * point in this region, while the last that.rank coordinates of p
-     * are a point in that.region.
+     * product has rank <code>this.rank+that.rank</code>. For every point <code>p</code> in the
+     * Cartesian product, the first <code>this.rank</code> coordinates of <code>p</code> are a
+     * point in this region, while the last <code>that.rank</code> coordinates of p
+     * are a point in that region.
      */
 
     abstract public def product(that: Region): Region;
 
     /**
      * Returns the region shifted by a Point (vector). The Point has
-     * to have the same rank as the region. For every point p in the
-     * resulting region, each coordinate is that of the corresponding
-     * point q shifted by the same coordinate of the given point.
+     * to have the same rank as the region. A point p+v is in 
+     * <code>translate(v)</code> iff <code>p</code> is in <code>this</code>. 
      */
 
     abstract public def translate(v: Point(rank)): Region(rank);
 
     /**
      * Returns the projection of a region onto the specified axis. The
-     * projection is a rank-1 region such that for every point (i) in
-     * the projection, there is some point p in this region such that
-     * p(axis)==i.
+     * projection is a rank-1 region such that for every point <code>[i]</code> in
+     * the projection, there is some point <code>p</code> in this region such that
+     * <code>p(axis)==i</code>.
      */
 
     abstract public def projection(axis: int): Region(1);
@@ -369,10 +397,8 @@ public abstract class Region(
     //public operator this - (that: Region(rank)): Region(rank) = difference(that);
 
     public operator this * (that: Region) = product(that);
-
     public operator this + (v: Point(rank)) = translate(v);
     public operator (v: Point(rank)) + this = translate(v);
-
     public operator this - (v: Point(rank)) = translate(-v);
 
 
@@ -381,12 +407,12 @@ public abstract class Region(
     //
 
     public def equals(that:Any):boolean {
-	if (this == that) return true; // short-circuit
-	if (!(that instanceof Region)) return false;
-	val t1 = that as Region;
-	if (rank != t1.rank) return false;
-        val t2 = t1 as Region(rank);
-        return this.contains(t2) && t2.contains(this);
+	   if (this == that) return true; // short-circuit
+	   if (!(that instanceof Region)) return false;
+	   val t1 = that as Region;
+	   if (rank != t1.rank) return false;
+       val t2 = t1 as Region(rank);
+       return this.contains(t2) && t2.contains(this);
     }
 
     abstract public def contains(that: Region(rank)): boolean;
@@ -401,8 +427,6 @@ public abstract class Region(
     public def contains(i0:int, i1:int, i2:int){rank==3} = contains(@TempNoInline Point.make(i0,i1,i2));
 
     public def contains(i0:int, i1:int, i2:int, i3:int){rank==4} = contains(@TempNoInline Point.make(i0,i1,i2,i3));
-
-
 
     protected def this(r: int, t: boolean, z: boolean)
         :Region{self.rank==r, self.rect==t, self.zeroBased==z} {

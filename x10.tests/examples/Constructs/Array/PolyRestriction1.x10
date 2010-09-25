@@ -34,7 +34,7 @@ class PolyRestriction1 extends TestArray {
     }
 
     def expected() =
-        "--- PolyRestriction1: whole array\n"+
+        "--- TestArray: whole array\n"+
         "rank 2\n"+
         "rect true\n"+
         "zeroBased true\n"+
@@ -56,7 +56,7 @@ class PolyRestriction1 extends TestArray {
         "    3  0 3 6 9 2 5 . . . . \n"+
         "    4  0 4 8 2 6 0 . . . . \n"+
         "    5  0 5 0 5 0 5 . . . . \n"+
-        "--- PolyRestriction1: restricted array\n"+
+        "--- TestArray: restricted array\n"+
         "rank 2\n"+
         "rect true\n"+
         "zeroBased false\n"+
@@ -72,7 +72,7 @@ class PolyRestriction1 extends TestArray {
         "    1  . . 2 3 4 . . . . . \n"+
         "    2  . . 4 6 8 . . . . . \n"+
         "    3  . . 6 9 2 . . . . . \n"+
-        "--- PolyRestriction1: whole array modified\n"+
+        "--- TestArray: whole array modified\n"+
         "rank 2\n"+
         "rect true\n"+
         "zeroBased true\n"+
