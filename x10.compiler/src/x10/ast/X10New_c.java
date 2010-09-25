@@ -197,7 +197,7 @@ public class X10New_c extends New_c implements X10New {
         
         // We're in one scope too many.
         if (t == anonType) {
-            t = t.outer();
+            t = (ClassType) t.container();
         }
         if (anonType!=null) {
             outer = t;
@@ -445,7 +445,7 @@ public class X10New_c extends New_c implements X10New {
 
         X10ParsedClassType container = (X10ParsedClassType) ci.container();
         if (!ct.typeArguments().isEmpty() && ct.typeArguments().equals(container.x10Def().typeParameters())) {
-            t = new TypeParamSubst(xts, container.typeArguments(), container.x10Def().typeParameters()).reinstantiateType(t);
+            t = new TypeParamSubst(xts, container.typeArguments(), container.x10Def().typeParameters()).reinstantiate(t);
             result = (X10New_c) result.objectType(result.objectType().typeRef(Types.ref(t)));
         }
 

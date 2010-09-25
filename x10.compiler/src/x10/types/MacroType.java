@@ -28,13 +28,16 @@ import x10.types.constraints.CConstraint;
 
 public interface MacroType extends ParametrizedType, MemberInstance<TypeDef>, X10ProcedureInstance<TypeDef>, Named {
 	Type definedType();
+	MacroType definedType(Type t);
 	Ref<? extends Type> definedTypeRef();
 	MacroType definedTypeRef(Ref<? extends Type> t);
 	
 	TypeDef def();
 	
 	MacroType name(Name name);
-	MacroType typeParameters(List<Type> typeParams);
+	MacroType returnType(Type returnType);
+	MacroType returnTypeRef(Ref<? extends Type> returnTypeRef);
+	//MacroType typeParameters(List<Type> typeParams); // Sigh.  Stupid javac
 	MacroType formals(List<XVar> formals);
 	MacroType formalTypes(List<Type> formalTypes);
 	MacroType guard(CConstraint guard);

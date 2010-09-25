@@ -307,6 +307,26 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		return n;
 	}
 
+	@Override
+	public X10MethodDecl flags(FlagsNode flags) {
+	    return (X10MethodDecl) super.flags(flags);
+	}
+	@Override
+	public X10MethodDecl returnType(TypeNode returnType) {
+	    return (X10MethodDecl) super.returnType(returnType);
+	}
+	@Override
+	public X10MethodDecl name(Id name) {
+	    return (X10MethodDecl) super.name(name);
+	}
+	@Override
+	public X10MethodDecl formals(List<Formal> formals) {
+	    return (X10MethodDecl) super.formals(formals);
+	}
+	@Override
+	public X10MethodDecl methodDef(MethodDef mi) {
+	    return (X10MethodDecl) super.methodDef(mi);
+	}
 
 	@Override
 	public Context enterChildScope(Node child, Context c) {

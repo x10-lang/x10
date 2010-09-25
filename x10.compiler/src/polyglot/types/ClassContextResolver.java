@@ -120,13 +120,13 @@ public class ClassContextResolver extends AbstractAccessControlResolver {
         	                            " but was found in " + type + ".");
             }
 
-            if (! mt.outer().equals((Object) type)) {
+            if (mt.outer().def() != type.def()) {
         	throw new SemanticException("Class " + mt +
         	                            " is not a member class " +
         	                            " of " + type + ".");
             }
 
-            return mt;
+            return mt.container(type);
         }
 
         if (m instanceof MemberInstance<?>) {

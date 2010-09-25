@@ -30,6 +30,7 @@ import polyglot.types.ConstructorDef;
 import polyglot.types.Context;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
+import polyglot.types.MethodDef;
 import polyglot.types.Name;
 import polyglot.types.QName;
 import polyglot.types.Ref;
@@ -137,7 +138,23 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
 	    return n;
     }
 
-    /** Reconstruct the constructor. */
+    @Override
+    public X10ConstructorDecl flags(FlagsNode flags) {
+        return (X10ConstructorDecl) super.flags(flags);
+    }
+    @Override
+    public X10ConstructorDecl name(Id name) {
+        return (X10ConstructorDecl) super.name(name);
+    }
+    @Override
+    public X10ConstructorDecl formals(List<Formal> formals) {
+        return (X10ConstructorDecl) super.formals(formals);
+    }
+    @Override
+    public X10ConstructorDecl constructorDef(ConstructorDef ci) {
+        return (X10ConstructorDecl) super.constructorDef(ci);
+    }
+
     public X10ConstructorDecl returnType(TypeNode returnType) {
         if (returnType != this.returnType) {
             X10ConstructorDecl_c n = (X10ConstructorDecl_c) copy();

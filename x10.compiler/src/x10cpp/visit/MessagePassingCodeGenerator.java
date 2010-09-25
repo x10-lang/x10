@@ -595,7 +595,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		for (Type pt : ct.typeArguments())
 			extractAllClassTypes(pt, types, dupes);
 		if (ct.isNested())
-			extractAllClassTypes(ct.outer(), types, dupes);
+			extractAllClassTypes(ct.container(), types, dupes);
 	}
 
     private void declareClass(X10ClassDef cd, ClassifiedStream h) {

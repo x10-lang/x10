@@ -49,7 +49,7 @@ public interface ConstructorCall extends Stmt, ProcedureCall
      * Set the actual arguments.
      * @param arguments A list of {@link polyglot.ast.Expr Expr}.
      */
-    ProcedureCall arguments(List<Expr> arguments);
+    ConstructorCall arguments(List<Expr> arguments);
 
     /**
      * The constructor that is called.  This field may not be valid until

@@ -15,7 +15,11 @@ import java.util.List;
 
 import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Expr;
+import polyglot.ast.FlagsNode;
+import polyglot.ast.Formal;
+import polyglot.ast.Id;
 import polyglot.ast.TypeNode;
+import polyglot.types.ConstructorDef;
 
 public interface X10ConstructorDecl extends ConstructorDecl {
 	/**
@@ -30,4 +34,9 @@ public interface X10ConstructorDecl extends ConstructorDecl {
 	
 	List<TypeParamNode> typeParameters();
 	X10ConstructorDecl typeParameters(List<TypeParamNode> typeParams);
+
+	X10ConstructorDecl flags(FlagsNode flags);
+	X10ConstructorDecl name(Id name);
+	X10ConstructorDecl formals(List<Formal> formals);
+	X10ConstructorDecl constructorDef(ConstructorDef ci);
 }

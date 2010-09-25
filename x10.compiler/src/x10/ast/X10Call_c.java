@@ -98,16 +98,32 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		n.typeArguments = new ArrayList<TypeNode>(args);
 		return n;
 	}
+
+	@Override
+	public X10Call target(Receiver target) {
+	    return (X10Call) super.target(target);
+	}
+	@Override
+	public X10Call name(Id name) {
+	    return (X10Call) super.name(name);
+	}
+	@Override
+	public X10Call targetImplicit(boolean targetImplicit) {
+	    return (X10Call) super.targetImplicit(targetImplicit);
+	}
+	@Override
 	public X10Call arguments(List<Expr> args) {
 		if (args == this.arguments) return this;
-		X10Call_c n = (X10Call_c) copy();
-		n.arguments = new ArrayList<Expr>(args);
-		return n;
+		return (X10Call) super.arguments(args);
 	}
-	public Call_c reconstruct(Receiver target, Id name, List<Expr> arguments) {
-		return super.reconstruct(target, name, arguments);
+	@Override
+	public X10MethodInstance methodInstance() {
+	    return (X10MethodInstance) super.methodInstance();
 	}
-
+	@Override
+	public X10Call methodInstance(MethodInstance mi) {
+	    return (X10Call) super.methodInstance(mi);
+	}
 	@Override
 	public Node visitChildren(NodeVisitor v) {
 		Receiver target = (Receiver) visitChild(this.target, v);

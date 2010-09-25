@@ -1078,11 +1078,11 @@ public class Desugarer extends ContextVisitor {
             X10Call call = (X10Call) e;
             X10Call_c n = (X10Call_c) xnf.X10Call(pos, call.target(), nf.Id(pos, SettableAssign.SET), call.typeArguments(), CollectionUtil.append(Collections.singletonList(val), call.arguments()));
             n = (X10Call_c) n.del().disambiguate(this).typeCheck(this).checkConstants(this);
-            MethodInstance smi = n.methodInstance();
-            MethodInstance ami = call.methodInstance();
+            X10MethodInstance smi = n.methodInstance();
+            X10MethodInstance ami = call.methodInstance();
 //            List<Type> aTypes = new ArrayList<Type>(ami.formalTypes());
 //            aTypes.add(0, ami.returnType()); // rhs goes before index
-//            MethodInstance smi = xts.findMethod(ami.container(),
+//            X10MethodInstance smi = xts.findMethod(ami.container(),
 //                    xts.MethodMatcher(ami.container(), SET, aTypes, context));
             a = ((SettableAssign_c) a).methodInstance(smi);
             a = ((SettableAssign_c) a).applyMethodInstance(ami);

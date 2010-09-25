@@ -63,7 +63,7 @@ public class ConstructorCall_c extends Stmt_c implements ConstructorCall
     }
 
     /** Set the actual arguments of the constructor call. */
-    public ProcedureCall arguments(List<Expr> arguments) {
+    public ConstructorCall arguments(List<Expr> arguments) {
 	ConstructorCall_c n = (ConstructorCall_c) copy();
 	n.arguments = TypedList.copyAndCheck(arguments, Expr.class, true);
 	return n;

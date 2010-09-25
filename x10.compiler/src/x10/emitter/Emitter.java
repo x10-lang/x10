@@ -1272,7 +1272,7 @@ public class Emitter {
 	        if (ti instanceof X10ClassType && !((X10ClassType) ti).flags().isInterface()) {
 	            if (
 	                ti.typeEquals(ct.superClass(), tr.context()) 
-	                || (ct.outer() != null && ti.typeEquals(ct.outer(), tr.context()))
+	                || (ct.isMember() && ti.typeEquals(ct.container(), tr.context()))
 	            ) {
 
 	                Type returnType = mi.returnType();
