@@ -42,7 +42,7 @@ public final class RectRegion extends Region{rect} {
     /**
      * Create a rectangular region containing all points p such that min <= p and p <= max.
      */
-    def this(minArg:ValRail[int], maxArg:ValRail[int](minArg.length)):RectRegion{self.rank==minArg.length} {
+    def this(minArg:ValRail[int], maxArg:ValRail[int](minArg.length)):RectRegion(minArg.length) {
         super(minArg.length, true, allZeros(minArg));
 
         var s:int = 1;
@@ -137,7 +137,7 @@ public final class RectRegion extends Region{rect} {
     // region operations
     //
 
-    protected def computeBoundingBox(): Region(rank){self.rect}=this; 
+    protected def computeBoundingBox(): RectRegion(rank)=this; 
 
     
     public def min():(int)=>int = myMin;
@@ -226,7 +226,7 @@ public final class RectRegion extends Region{rect} {
     	return polyRep;
     }
     
-    @Override
+    
     public def intersection(that: Region(rank)):Region(rank) {
         if (that.isEmpty()) {
 	       return that;
@@ -248,7 +248,7 @@ public final class RectRegion extends Region{rect} {
     }
     
 
-    @Override
+    
     public def product(that:Region):Region /*self.rank==this.rank+that.rank*/{
         if (that.isEmpty()) {
             return Region.makeEmpty(rank + that.rank);
