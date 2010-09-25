@@ -33,13 +33,14 @@ public class XField extends XVar {
 		@Override
 		public XTerm subst(XTerm y, XVar x, boolean propagate) {
 			XTerm r = super.subst(y, x, propagate);
-			if (! equals(r)) 
+			if (! equals(r))
 				return r;
 			XVar newReceiver = (XVar) receiver.subst(y, x);
-			XField result= clone();
-			if (newReceiver != receiver) {
-				result.receiver = newReceiver;
+			if (newReceiver == receiver) {
+			    return this;
 			}
+			XField result = clone();
+			result.receiver = newReceiver;
 			return result;
 		}
 		

@@ -131,6 +131,7 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 	}
 	*/
 	public ConstrainedType baseType(Ref<? extends Type> baseType) {
+		if (baseType == this.baseType) return this;
 		ConstrainedType_c n = (ConstrainedType_c) copy();
 		n.baseType = baseType;
 		return n;
@@ -141,6 +142,7 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 	}
 	
 	public ConstrainedType constraint(Ref<CConstraint> constraint) {
+		if (constraint == this.constraint) return this;
 		ConstrainedType_c n = (ConstrainedType_c) copy();
 		n.constraint = constraint;
 		return n;

@@ -906,6 +906,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		w.unifiedBreak(0);
 		w.end();
 		w.write("{");
+		w.newline(4); w.begin(0);
 
 		// Generate the run-time type.  We have to wrap in a class since n might be an interface
 		// and interfaces can't have static methods.
@@ -939,6 +940,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 				for (TypeParamNode tp : n.typeParameters()) {
 					w.write("private final ");
 					w.write(X10_RUNTIME_TYPE_CLASS);
+//					w.write("<"); n.print(tp, w, tr); w.write(">");  // TODO
 					w.write(" ");
 					n.print(tp.name(), w, tr);
 					w.write(";");
@@ -961,9 +963,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		}
 
 		n.print(n.body(), w, tr);
-		w.newline();
-		
 
+		w.end(); w.newline();
 		w.write("}");
 		w.newline(0);
 
@@ -2097,7 +2098,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			// i.m(a) => i.m(a,t)
 			if (isSelfDispatch && X10TypeMixin.baseType(t) instanceof X10ClassType ) {
 			    X10ClassType ct = (X10ClassType) X10TypeMixin.baseType(t);
-			    if ((ct.flags().isInterface() || (xts.isFunctionType(ct) && ct.isAnonymous())) && er.containsTypeParam(defType)){
+			    if ((ct.flags().isInterface() || (xts.isFunctionType(ct) && ct.isAnonymous())) && Emitter.containsTypeParam(defType)){
 			        w.write(",");
 			        new RuntimeTypeExpander(er, c.methodInstance().formalTypes().get(i)).expand();
 			    }

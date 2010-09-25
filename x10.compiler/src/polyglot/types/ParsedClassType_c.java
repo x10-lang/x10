@@ -166,6 +166,6 @@ public class ParsedClassType_c extends ClassType_c implements ParsedClassType
     }
 
     public String toString() {
-        return def.getCached().toString();
+        return super.toString();
     }
 }

@@ -415,7 +415,7 @@ public class Closure_c extends Expr_c implements Closure {
 		if (hasType != null) {
 			final TypeNode h = (TypeNode) n.visitChild(n.hasType, tc);
 			Type hasType = PlaceChecker.ReplaceHereByPlaceTerm(h.type(), ( X10Context ) tc.context());
-			n =  n.hasType(h);
+			n = n.hasType(h);
 			if (!xts.isSubtype(n.returnType().type(), hasType, tc.context())) {
 				Errors.issue(tc.job(), new Errors.TypeIsNotASubtypeOfTypeBound(type, hasType, position()));
 			}

@@ -346,13 +346,14 @@ public class XTypeTranslator {
 
 	    public XTerm subst(XTerm y, XVar x, boolean propagate) {
 		XTypeLit_c n = (XTypeLit_c) super.subst(y, x, propagate);
-		if (n == this) n = (XTypeLit_c) clone();
+		Type newVal = n.type();
 		try {
-		    n.val = Subst.subst(type(), y, x);
-		}
-		catch (SemanticException e) {
+		    newVal = Subst.subst(type(), y, x);
+		} catch (SemanticException e) { }
+		if (newVal == n.type())
 		    return n;
-		}
+		if (n == this) n = (XTypeLit_c) clone();
+		n.val = newVal;
 		return n;
 	    }
 	}

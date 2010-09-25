@@ -54,14 +54,15 @@ public class X10LocalInstance_c extends LocalInstance_c implements X10LocalInsta
     }
     
     public X10LocalInstance type(Type t) {
+        if (t == this.type) return this;
         X10LocalInstance_c n = (X10LocalInstance_c) super.type(t);
-        assert n != this;
+        if (n == this) n = (X10LocalInstance_c) this.copy();
         // clear right type so it is recomputed from type
         n.rightType = null;
         return n;
     }
     
-    Type rightType;
+    private Type rightType;
 
     public Type rightType() {
         if (rightType != null) 
@@ -105,8 +106,8 @@ public class X10LocalInstance_c extends LocalInstance_c implements X10LocalInsta
         return n;
     }
     public String toString() {
-	String s = "local " + X10Flags.toX10Flags(flags()).prettyPrint() + name() + ": " + type();
-	return s;
+        String s = "local " + X10Flags.toX10Flags(flags()).prettyPrint() + name() + ": " + type();
+        return s;
     }
 
     public boolean isValid() {
