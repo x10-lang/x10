@@ -3396,7 +3396,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             sw.write(StringUtil.escape(n.stringValue()));
             sw.write("\"");
         } else {
-            sw.write(Emitter.translateType(xts.String())+"::Lit(\"");
+            sw.write("x10aux::string_utils::lit(\"");
             sw.write(StringUtil.escape(n.stringValue()));
             sw.write("\")");
         }
@@ -4148,7 +4148,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         inc.write(Emitter.translateType(xts.String(), true)+" toString() {");
         inc.newline(4); inc.begin(0);
-        inc.write("return "+Emitter.translateType(xts.String())+"::Lit(this->toNativeString());");
+        inc.write("return x10aux::string_utils::lit(this->toNativeString());");
         inc.end(); inc.newline();
         inc.write("}");
         inc.newline(); inc.forceNewline();
