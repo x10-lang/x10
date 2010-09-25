@@ -30,18 +30,18 @@ public class UserDefinedArray extends x10Test {
         // a[0] is in D[0] but points to an object in D[1]
         // and a[1] is in D[1] but points to an object in D[0]
         val v1: E = at(D(1)) new E(1);
-        val v2: E = at(D(0))new E(2);
+        val v2: E = at(D(0)) new E(2);
         val a:DistArray[E](1)  = DistArray.make[E](D, ([i]: Point(1))=> (i==0) ? v1 : v2);
 
         chk(a.dist(0) == D(0));
-        chk(at(a.dist(0))a(0) == v1);
+        chk(at(a.dist(0)) a(0).root == v1.root);
         x10.io.Console.OUT.println("v1.home() " + v1.home() + " D(1) " + D(1));
         chk(v1.home() == D(1));
         chk(at(v1.home())v1.v == 1);
 
 
         chk(a.dist(1) == D(1));
-        chk(at(a.dist(1))a(1) == v2);
+        chk(at(a.dist(1)) a(1).root == v2.root);
         chk(v2.home() == D(0));
         chk(at(v2.home())v2.v == 2);
 
