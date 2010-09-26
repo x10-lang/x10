@@ -448,9 +448,9 @@
         private static class FlagModifier extends Modifier {
             public static int ABSTRACT    = 0;
             public static int ATOMIC      = 1;
-            public static int EXTERN      = 2;
+           // public static int EXTERN      = 2;
             public static int FINAL       = 3;
-            public static int GLOBAL      = 4;
+            //public static int GLOBAL      = 4;
             //public static int INCOMPLETE  = 5;
             public static int NATIVE      = 6;
             //public static int NON_BLOCKING = 7;
@@ -473,9 +473,9 @@
             public Flags flags() {
                 if (flag == ABSTRACT)     return Flags.ABSTRACT;
                 if (flag == ATOMIC)       return X10Flags.ATOMIC;
-                if (flag == EXTERN)       return X10Flags.EXTERN;
+              //  if (flag == EXTERN)       return X10Flags.EXTERN;
                 if (flag == FINAL)        return Flags.FINAL;
-                if (flag == GLOBAL)       return X10Flags.GLOBAL;
+               // if (flag == GLOBAL)       return X10Flags.GLOBAL;
                 //if (flag == INCOMPLETE)   return X10Flags.INCOMPLETE;
                 if (flag == NATIVE)       return Flags.NATIVE;
                 //if (flag == NON_BLOCKING) return X10Flags.NON_BLOCKING;
@@ -495,9 +495,9 @@
             public String name() {
                 if (flag == ABSTRACT)     return "abstract";
                 if (flag == ATOMIC)       return "atomic";
-                if (flag == EXTERN)       return "extern";
+                //if (flag == EXTERN)       return "extern";
                 if (flag == FINAL)        return "final";
-                if (flag == GLOBAL)       return "global";
+                //if (flag == GLOBAL)       return "global";
                 //if (flag == INCOMPLETE)   return "incomplete";
                 if (flag == NATIVE)       return "native";
                 //if (flag == NON_BLOCKING) return "nonblocking";
@@ -571,7 +571,7 @@
             static {
                 methodModifiers[ABSTRACT] = true;
                 methodModifiers[ATOMIC] = true;
-                methodModifiers[EXTERN] = true;
+               // methodModifiers[EXTERN] = true;
                 methodModifiers[FINAL] = true;
                 // methodModifiers[GLOBAL] = true;
                 //methodModifiers[INCOMPLETE] = true;
@@ -1211,21 +1211,21 @@
                     setResult(new FlagModifier(pos(), FlagModifier.ATOMIC));
           $EndJava
         ./
-                   | extern
-        /.$BeginJava
-                    setResult(new FlagModifier(pos(), FlagModifier.EXTERN));
-          $EndJava
-        ./
+--                   | extern
+--        /.$BeginJava
+--                    setResult(new FlagModifier(pos(), FlagModifier.EXTERN));
+--          $EndJava
+--        ./
                    | final
         /.$BeginJava
                     setResult(new FlagModifier(pos(), FlagModifier.FINAL));
           $EndJava
         ./
-                   | global
-        /.$BeginJava
-                    setResult(new FlagModifier(pos(), FlagModifier.GLOBAL));
-          $EndJava
-        ./
+--                   | global
+--        /.$BeginJava
+--                    setResult(new FlagModifier(pos(), FlagModifier.GLOBAL));
+--          $EndJava
+--        ./
                    | native
         /.$BeginJava
                     setResult(new FlagModifier(pos(), FlagModifier.NATIVE));
