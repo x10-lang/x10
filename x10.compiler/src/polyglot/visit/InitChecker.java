@@ -749,7 +749,7 @@ public class InitChecker extends DataFlow
                 if (!before.equals(after) && after.equals(MinMaxInitCount.ONE) && flags !=null && flags.isFinal()) {
                     if (ext.asyncInitVal ==null) ext.asyncInitVal = new HashSet<VarDef>();
                     ext.asyncInitVal.add(v);
-                    return res;
+                    break; // optimization, cause we already added "v"
                 }
             }
         }
