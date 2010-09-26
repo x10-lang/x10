@@ -102,7 +102,12 @@ public final class Array[T](
     private val cachedRail:boolean(rail);
 
 
-    @SuppressTransientError private transient val raw:IndexedMemoryChunk[T];
+    // NOTE: For C++ backend, we should optimize serialization to
+    //       note bother sending this IMC, since we are just going 
+    //       to allocate a new one and ignore the old value. 
+    //       Not marking it as transient to avoid special case code
+    //       in Java backend. 
+    private val raw:IndexedMemoryChunk[T];
     /* package */ val rawLength:int; // Made accessible to RemoteArray
     private val layout:RectLayout;
 
