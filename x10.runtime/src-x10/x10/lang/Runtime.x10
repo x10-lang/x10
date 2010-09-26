@@ -1508,6 +1508,9 @@ import x10.util.Box;
      * Run async
      */
     public static def runAsync(place:Place, clocks:ValRail[Clock], body:()=>void):void {
+    	// Do this before anything else
+        activity().ensureNotInAtomic();
+        
         val state = currentState();
         val phases = clockPhases().register(clocks);
         state.notifySubActivitySpawn(place);
@@ -1520,6 +1523,9 @@ import x10.util.Box;
     }
 
     public static def runAsync(place:Place, body:()=>void):void {
+    	// Do this before anything else
+        activity().ensureNotInAtomic();
+        
         val state = currentState();
         state.notifySubActivitySpawn(place);
         val ok = safe();
@@ -1539,6 +1545,9 @@ import x10.util.Box;
     }
 
     public static def runAsync(clocks:ValRail[Clock], body:()=>void):void {
+    	// Do this before anything else
+        activity().ensureNotInAtomic();
+        
         val state = currentState();
         val phases = clockPhases().register(clocks);
         state.notifySubActivitySpawn(here);
@@ -1546,12 +1555,18 @@ import x10.util.Box;
     }
 
     public static def runAsync(body:()=>void):void {
+    	// Do this before anything else
+        activity().ensureNotInAtomic();
+        
         val state = currentState();
         state.notifySubActivitySpawn(here);
         execute(new Activity(body, state, safe()));
     }
 
     public static def runUncountedAsync(place:Place, body:()=>void):void {
+    	// Do this before anything else
+        activity().ensureNotInAtomic();
+        
         val ok = safe();
         if (place.id == hereInt()) {
             execute(new Activity(body, ok));
@@ -1569,6 +1584,9 @@ import x10.util.Box;
     }
 
     public static def runUncountedAsync(body:()=>void):void {
+    	// Do this before anything else
+        activity().ensureNotInAtomic();
+        
         execute(new Activity(body, safe()));
     }
 
@@ -1586,7 +1604,7 @@ import x10.util.Box;
     }
 
     public static def runAt(place:Place, body:()=>void):void {
-    	
+    	Runtime.ensureNotInAtomic();
         val box = (new RemoteControl()).root;
         async at(place) {
             try {
@@ -1682,6 +1700,21 @@ import x10.util.Box;
     public static def lock():void {
         runtime().monitor.lock();
     }
+    
+    public static def enterAtomic() {
+    	lock();
+    	activity().pushAtomic();
+    }
+    public static def inAtomic():boolean = activity().inAtomic();
+    public static def ensureNotInAtomic() {
+    	val act = activity();
+    	if (act != null) // could be null in main thread?
+    	   act.ensureNotInAtomic();
+    }
+    public static def exitAtomic() {
+    	activity().popAtomic();
+    	release();
+    }
 
     /**
      * Wait on current place lock
@@ -1715,7 +1748,10 @@ import x10.util.Box;
     /**
      * Next statement = next on all clocks in parallel.
      */
-    public static def next():void = clockPhases().next();
+    public static def next():void {
+    	ensureNotInAtomic();
+    	clockPhases().next();
+    }
     
     /**
      * Resume statement = resume on all clocks in parallel.

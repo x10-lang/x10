@@ -43,6 +43,7 @@ public class Future[+T] implements ()=>T {
     transient private val eval:()=>T;
 
     public static def make[T](eval:()=> T) {
+    	Runtime.ensureNotInAtomic();
     	val f = new Future[T](eval);
     	async f.run();
     	return f;
@@ -62,7 +63,10 @@ public class Future[+T] implements ()=>T {
     /**
      * Wait for the completion of this activity and return the computed value.
      */
-    @Global public def force():T = at (root) root().forceLocal();
+    @Global public def force():T {
+    	Runtime.ensureNotInAtomic();
+    	return at (root) root().forceLocal();
+    }
     @Pinned private def forceLocal():T {
     	 latch.await();
          if (exception.length() > 0) {

@@ -67,6 +67,8 @@ public class Activity {
      * Lazily created.
      */
     var finishStack:Stack[Runtime.FinishState];
+     
+    var atomicDepth:int = 0;
 
     /**
      * Create activity.
@@ -86,6 +88,17 @@ public class Activity {
         clockPhases = Runtime.ClockPhases.make(clocks, phases);
     }
 
+    def pushAtomic() {
+    	atomicDepth++;
+    }
+    def popAtomic() {
+    	atomicDepth--;
+    }
+    def inAtomic():boolean=atomicDepth > 0;
+    def ensureNotInAtomic() {
+    	if (atomicDepth > 0)
+    		throw new IllegalOperationException();
+    }
     /**
      * Create uncounted activity.
      */

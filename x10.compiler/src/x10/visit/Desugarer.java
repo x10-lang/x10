@@ -163,9 +163,15 @@ public class Desugarer extends ContextVisitor {
     private static final Name HERE_INT = Name.make("hereInt");
     private static final Name NEXT = Name.make("next");
     private static final Name RESUME = Name.make("resume");
+    
     private static final Name LOCK = Name.make("lock");
     private static final Name AWAIT = Name.make("await");
     private static final Name RELEASE = Name.make("release");
+    private static final Name ENTER_ATOMIC = Name.make("enterAtomic");
+    private static final Name ENSURE_NOT_IN_ATOMIC = Name.make("ensureNotInAtomic");
+    private static final Name ENTER_ATOMIC_WHEN = Name.make("enterAtomicWhen");
+    private static final Name EXIT_ATOMIC = Name.make("exitAtomic");
+    
     private static final Name START_FINISH = Name.make("startFinish");
     private static final Name PUSH_EXCEPTION = Name.make("pushException");
     private static final Name STOP_FINISH = Name.make("stopFinish");
@@ -663,27 +669,27 @@ public class Desugarer extends ContextVisitor {
         return xnf.Eval(pos, call(pos, RESUME, xts.Void()));
     }
 
-    // atomic S; -> try { Runtime.lock(); S } finally { Runtime.release(); }
+    // atomic S; -> try { Runtime.enterAtomic(); S } finally { Runtime.exitAtomic(); }
     private Stmt visitAtomic(Atomic a) throws SemanticException {
         Position pos = a.position();
-        Block tryBlock = xnf.Block(pos, xnf.Eval(pos, call(pos, LOCK, xts.Void())), a.body());
-        Block finallyBlock = xnf.Block(pos, xnf.Eval(pos, call(pos, RELEASE, xts.Void())));
+        Block tryBlock = xnf.Block(pos, xnf.Eval(pos, call(pos, ENTER_ATOMIC, xts.Void())), a.body());
+        Block finallyBlock = xnf.Block(pos, xnf.Eval(pos, call(pos, EXIT_ATOMIC, xts.Void())));
         return xnf.Try(pos, tryBlock, Collections.<Catch>emptyList(), finallyBlock);
     }
 
     // await(E); ->
-    //    try { Runtime.lock(); while (!E) Runtime.await(); } finally { Runtime.release(); }
+    //    try { Runtime.enterAtomicWhen(); while (!E) Runtime.await(); } finally { Runtime.exitAtomic(); }
     private Stmt visitAwait(Await a) throws SemanticException {
         Position pos = a.position();
         return xnf.Try(pos,
         		xnf.Block(pos,
-                		xnf.Eval(pos, call(pos, LOCK, xts.Void())),
+                		xnf.Eval(pos, call(pos, ENTER_ATOMIC_WHEN, xts.Void())),
                         xnf.While(pos,
                         		xnf.Unary(pos, a.expr(), Unary.NOT).type(xts.Boolean()),  // TODO: handle constraints (should be done in the synthesizer)
                         		xnf.Eval(pos, call(pos, AWAIT, xts.Void())))),
         		Collections.<Catch>emptyList(),
         		xnf.Block(pos,
-        				xnf.Eval(pos, call(pos, RELEASE, xts.Void()))));
+        				xnf.Eval(pos, call(pos, EXIT_ATOMIC, xts.Void()))));
     }
 
     private Stmt wrap(Position pos, Stmt s) {
@@ -691,9 +697,10 @@ public class Desugarer extends ContextVisitor {
     }
 
     // when(E1) S1 or(E2) S2...; ->
-    //    try { Runtime.lock();
+    //    Runtime.ensureNotInAtomic();
+    //    try { Runtime.enterAtomic();
     //          while (true) { if (E1) { S1; break; } if (E2) { S2; break; } ... Runtime.await(); }
-    //    finally { Runtime.release(); }
+    //    finally { Runtime.exitAtomic(); }
     private Stmt visitWhen(When w) throws SemanticException {
         Position pos = w.position();
         Block body = xnf.Block(pos, xnf.If(pos, w.expr(), wrap(pos, w.stmt())));
@@ -701,10 +708,17 @@ public class Desugarer extends ContextVisitor {
             body = body.append(xnf.If(pos, (Expr) w.exprs().get(i), wrap(pos, (Stmt) w.stmts().get(i))));
         }
         body = body.append(xnf.Eval(pos, call(pos, AWAIT, xts.Void())));
-        Block tryBlock = xnf.Block(pos, xnf.Eval(pos, call(pos, LOCK, xts.Void())),
-                xnf.While(pos, xnf.BooleanLit(pos, true), body));
-        Block finallyBlock = xnf.Block(pos, xnf.Eval(pos, call(pos, RELEASE, xts.Void())));
-        return xnf.Try(pos, tryBlock, Collections.<Catch>emptyList(), finallyBlock);
+        Block tryBlock = xnf.Block(pos, 
+        		xnf.Eval(pos, call(pos, ENTER_ATOMIC, xts.Void())),
+        		xnf.While(pos, 
+        				xnf.BooleanLit(pos, true), 
+        				   body));
+        Block finallyBlock = xnf.Block(pos, xnf.Eval(pos, call(pos, EXIT_ATOMIC, xts.Void())));
+        return xnf.Block(pos, 
+        		xnf.Eval(pos, call(pos, ENSURE_NOT_IN_ATOMIC, xts.Void())),
+        		xnf.Try(pos, 
+        				tryBlock, Collections.<Catch>emptyList(), 
+        				finallyBlock));
     }
 
     private Expr call(Position pos, Name name, Type returnType) throws SemanticException {
@@ -794,6 +808,7 @@ public class Desugarer extends ContextVisitor {
         }
     }
     // finish S; ->
+    //    Runtime.ensureNotInAtomic();
     //    try { Runtime.startFinish(); S; }
     //    catch (t:Throwable) { Runtime.pushException(t); }
     //    finally { Runtime.stopFinish(); }
@@ -816,11 +831,15 @@ public class Desugarer extends ContextVisitor {
                 xnf.Id(pos, PUSH_EXCEPTION), Collections.<TypeNode>emptyList(),
                 Collections.singletonList(local)).methodInstance(mi).type(xts.Void());
 
-        Block tryBlock = xnf.Block(pos, xnf.Eval(pos,specializedFinish2(f)), f.body());
+        Block tryBlock = xnf.Block(pos, 
+        		xnf.Eval(pos,specializedFinish2(f)), 
+        		f.body());
         Catch catchBlock = xnf.Catch(pos, formal, xnf.Block(pos, xnf.Eval(pos, call)));
         Block finallyBlock = xnf.Block(pos, xnf.Eval(pos, call(pos, STOP_FINISH, xts.Void())));
 
-        return xnf.Try(pos, tryBlock, Collections.singletonList(catchBlock), finallyBlock);
+        return xnf.Block(pos, 
+        		xnf.Eval(pos, call(pos, ENSURE_NOT_IN_ATOMIC, xts.Void())),
+        		xnf.Try(pos, tryBlock, Collections.singletonList(catchBlock), finallyBlock));
     }
     
     // x = finish (R) S; ->
@@ -1001,7 +1020,7 @@ public class Desugarer extends ContextVisitor {
     }
 
     // ateach (p in D) S; ->
-    //    { val d = D.dist; for (p in d.places()) async (p) for (pt in d|here) async S; }
+    //    { Runtime.ensureNotInAtomic(); val d = D.dist; for (p in d.places()) async (p) for (pt in d|here) async S; }
     private Stmt visitAtEach(AtEach a) throws SemanticException {
         Position pos = a.position();
         Position bpos = a.body().position();
@@ -1044,7 +1063,10 @@ public class Desugarer extends ContextVisitor {
                 xnf.CanonicalTypeNode(pos, pType), xnf.Id(pos, pTmp)).localDef(pDef);
         Stmt body1 = async(bpos, inner, a.clocks(),
                 xnf.Local(bpos, xnf.Id(bpos, pTmp)).localInstance(pDef.asInstance()).type(pType), null);
-        return xnf.Block(pos, local, xnf.ForLoop(pos, pFormal, places, body1));
+        return xnf.Block(pos, 
+        		xnf.Eval(pos, call(pos, ENSURE_NOT_IN_ATOMIC, xts.Void())),
+        		local, 
+        		xnf.ForLoop(pos, pFormal, places, body1));
     }
 
     // desugar binary operators
@@ -1082,7 +1104,7 @@ public class Desugarer extends ContextVisitor {
             X10MethodInstance ami = call.methodInstance();
 //            List<Type> aTypes = new ArrayList<Type>(ami.formalTypes());
 //            aTypes.add(0, ami.returnType()); // rhs goes before index
-//            X10MethodInstance smi = xts.findMethod(ami.container(),
+//            MethodInstance smi = xts.findMethod(ami.container(),
 //                    xts.MethodMatcher(ami.container(), SET, aTypes, context));
             a = ((SettableAssign_c) a).methodInstance(smi);
             a = ((SettableAssign_c) a).applyMethodInstance(ami);

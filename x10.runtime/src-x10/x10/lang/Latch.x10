@@ -25,6 +25,7 @@ import x10.compiler.Global;
 
         public def await():void {
             // avoid locking if state == true
+           	Runtime.ensureNotInAtomic();
             if (!state) {
                 lock();
                 while (!state) super.await();

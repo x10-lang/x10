@@ -13,7 +13,7 @@ import harness.x10Test;
 
 /**
  * Returns from all branches of a "when" should work.
- *
+ * Converted to single-branched when. vj 9/2010
  * @author igor, 2/2006
  */
 public class WhenReturnAll extends x10Test {

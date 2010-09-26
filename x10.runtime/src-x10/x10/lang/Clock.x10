@@ -83,6 +83,7 @@ public class Clock(name:String) {
         return ph;
      }
      @Global def resumeUnsafe() {
+        Runtime.ensureNotInAtomic();
         val ph = get();
         if (ph < 0) return;
         at (root) {
@@ -92,6 +93,7 @@ public class Clock(name:String) {
         put(-ph);
     }
     @Global def nextUnsafe() {
+    	Runtime.ensureNotInAtomic();
         val ph = get();
         val abs = Math.abs(ph);
         at (root) {
