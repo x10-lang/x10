@@ -37,7 +37,7 @@ public class ArrayToDist extends x10Test {
         for (val p[i,j]: Point(2) in A2.region) 
             chk(f(i, j) == (at(A2.dist(i, j)) { A2(i, j).val }), "4");
 
-        finish foreach (val p[i,j]: Point(2) in A2.region) 
+        finish for (val p[i,j]: Point(2) in A2.region) async
            chk(f(i, j) == (at(A2.dist(i, j)) { A2(i, j).val }), "5");
 
         finish ateach (val p[i,j]: Point(2)  in A2.dist) 

@@ -82,7 +82,7 @@ public class NQueensPar {
             }
             if (q.size() == 0) {
                 val R = block(0..N-1, P);
-                foreach ([q] in 0..P-1)
+                for ([q] in 0..P-1) async
                   search(R(q));
             } else search(0..N-1);
         }

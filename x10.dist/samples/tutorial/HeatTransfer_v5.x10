@@ -64,18 +64,17 @@ public class HeatTransfer_v5 {
     }
 
     def run() {
-        finish async {
-            val c = Clock.make();
+        clocked finish {
             val D_Base = Dist.makeUnique(D.places());
             val diff = DistArray.make[Double](D_Base);
             val scratch = DistArray.make[Double](D_Base);
-            ateach (z in D_Base) clocked(c) {
+            clocked ateach (z in D_Base)  {
                 val blocks:ValRail[Iterable[Point(2)]] = blockIt(D | here, P);
-                foreach ([q] in 0..P-1) clocked(c) {
+                for ([q] in 0..P-1) clocked async {
                     var myDiff:Double;
                     do {
                         if (q == 0) diff(z) = 0;
-	                myDiff = 0;
+	                    myDiff = 0;
                         for (p:Point(2) in blocks(q)) {
                             Temp(p) = stencil_1(p);
                             myDiff = Math.max(myDiff, Math.abs(A(p) - Temp(p)));

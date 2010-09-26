@@ -338,7 +338,7 @@ public class DistArray[T] (
         val r = 0..(ps.length-1);
         
         
-        finish foreach (p:Point(1)  in r) {
+        finish for (p:Point(1)  in r) async {
         	results(p(0)) = at (ps(p(0))) {
         	    var result: T = unit;
                 val a = (this | here) as DistArray[T](rank);
