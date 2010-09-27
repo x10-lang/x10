@@ -717,15 +717,16 @@ public class CheckEscapingThis extends NodeVisitor
 
     private boolean isTargetThis(X10Call call) {
         final MethodInstance methodInstance = call.methodInstance();
-        return !isProperty(methodInstance.def()) && isThis(call.target());
+        final MethodDef def = methodInstance.def();
+        return !isProperty(def) && !def.flags().isStatic() && isThis(call.target());
     }
     private boolean isTargetThis(FieldAssign f) {
         FieldDef def = f.fieldInstance().def();
-        return !isProperty(def) && isThis(f.target());
+        return !isProperty(def) && !def.flags().isStatic() && isThis(f.target());
     }
     private boolean isTargetThis(Field f) {
         FieldDef def = f.fieldInstance().def();
-        return !isProperty(def) && isThis(f.target());
+        return !isProperty(def) && !def.flags().isStatic() && isThis(f.target());
     }
     private boolean isThis(Node n) {
         if (n==null || !(n instanceof Special)) return false;
