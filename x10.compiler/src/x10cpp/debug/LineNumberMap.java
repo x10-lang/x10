@@ -322,7 +322,7 @@ public class LineNumberMap extends StringTable {
 		LocalVariableMapInfo v = new LocalVariableMapInfo();
 		v._x10name = stringId(name);
 		v._x10type = determineTypeId(type);
-		v._x10typeIndex = stringId(type);
+		//v._x10typeIndex = stringId(type);
 		v._cppName = stringId(Emitter.mangled_non_method_name(name)); 
 		v._x10index = findFile(file, allFiles());
 		v._x10startLine = startline;
@@ -803,7 +803,7 @@ public class LineNumberMap extends StringTable {
 	        
 	        w.writeln("static const struct _X10LocalVarMap _X10variableNameList[] __attribute__((used)) "+debugDataSectionAttr+" = {");
 	        for (LocalVariableMapInfo v : localVariables)
-	        	w.writeln("    { "+v._x10name+", "+v._x10type+", "+v._x10typeIndex+", "+v._cppName+", "+v._x10index+", "+v._x10startLine+", "+v._x10endLine+" },");
+	        	w.writeln("    { "+offsets[v._x10name]+", "+v._x10type+", "+v._x10typeIndex+", "+offsets[v._cppName]+", "+v._x10index+", "+v._x10startLine+", "+v._x10endLine+" },");
 	        w.writeln("};");
 	        w.forceNewline();
 	        
@@ -813,7 +813,7 @@ public class LineNumberMap extends StringTable {
 	        	{
 			        w.writeln("static const struct _X10TypeMember _X10"+classname+"Members[] __attribute__((used)) "+debugDataSectionAttr+" = {");
 			        for (MemberVariableMapInfo v : memberVariables.get(classname))
-			        	w.writeln("    { "+v._x10Type+", "+v._x10typeIndex+", "+v._x10memberName+", "+v._cppMemberName+", "+v._cppClass+" },");
+			        	w.writeln("    { "+v._x10Type+", "+v._x10typeIndex+", "+offsets[v._x10memberName]+", "+offsets[v._cppMemberName]+", "+offsets[v._cppClass]+" },");
 				    w.writeln("};");
 				    w.forceNewline();
 	        	}	        		        	
@@ -823,7 +823,7 @@ public class LineNumberMap extends StringTable {
 	        if (memberVariables != null)
 	        {
 		        for (String classname : memberVariables.keySet())
-		        	w.writeln("    { 12, "+memberVariables.get(classname).get(0)._cppClass+", sizeof("+classname+"), "+memberVariables.get(classname).size()+", _X10"+classname+"Members },");
+		        	w.writeln("    { 12, "+offsets[memberVariables.get(classname).get(0)._cppClass]+", sizeof("+classname+"), "+memberVariables.get(classname).size()+", _X10"+classname+"Members },");
 	        }
 		    w.writeln("};");
 		    w.forceNewline();
