@@ -22,7 +22,7 @@
 	<property name="shrike.url" value="${wala.url}/${shrike}"/>
     <property name="shrike.location" location="${basedir}/${shrike}"/>
     <property name="shrike.jar" value="${shrike}.jar"/>
-	<property name="rcp.zip.url" value="http://eclipse.unixheads.org/eclipse/downloads/drops/R-3.6-201006080911/org.eclipse.rcp-3.6.zip"/>
+	<property name="rcp.zip.url" value="http://mirror.cc.columbia.edu/pub/software/eclipse/eclipse/downloads/drops/R-3.6-201006080911/org.eclipse.rcp-3.6.zip"/>
 	<property name="rcp.zip" value="rcp.zip"/>
 
      <target name="check-project">
