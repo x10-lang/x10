@@ -3154,9 +3154,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 143:  OfferStatement ::= offer Expression ;
+            // Rule 141:  OfferStatement ::= offer Expression ;
             //
-            case 143: {
+            case 141: {
                //#line 2134 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2132 "x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(2);
@@ -3166,9 +3166,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 144:  IfThenStatement ::= if ( Expression ) Statement
+            // Rule 142:  IfThenStatement ::= if ( Expression ) Statement
             //
-            case 144: {
+            case 142: {
                //#line 2140 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2138 "x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
@@ -3180,9 +3180,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 145:  IfThenElseStatement ::= if ( Expression ) Statement$s1 else Statement$s2
+            // Rule 143:  IfThenElseStatement ::= if ( Expression ) Statement$s1 else Statement$s2
             //
-            case 145: {
+            case 143: {
                //#line 2146 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2144 "x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
@@ -3196,9 +3196,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 146:  EmptyStatement ::= ;
+            // Rule 144:  EmptyStatement ::= ;
             //
-            case 146: {
+            case 144: {
                //#line 2152 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2152 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -3207,9 +3207,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 147:  LabeledStatement ::= Identifier : LoopStatement
+            // Rule 145:  LabeledStatement ::= Identifier : LoopStatement
             //
-            case 147: {
+            case 145: {
                //#line 2158 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2156 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
@@ -3221,9 +3221,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 153:  ExpressionStatement ::= StatementExpression ;
+            // Rule 150:  ExpressionStatement ::= StatementExpression ;
             //
-            case 153: {
+            case 150: {
                //#line 2170 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2168 "x10/parser/x10.g"
                 Expr StatementExpression = (Expr) getRhsSym(1);
@@ -3233,9 +3233,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 161:  AssertStatement ::= assert Expression ;
+            // Rule 158:  AssertStatement ::= assert Expression ;
             //
-            case 161: {
+            case 158: {
                //#line 2184 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2182 "x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(2);
@@ -3245,9 +3245,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 162:  AssertStatement ::= assert Expression$expr1 : Expression$expr2 ;
+            // Rule 159:  AssertStatement ::= assert Expression$expr1 : Expression$expr2 ;
             //
-            case 162: {
+            case 159: {
                //#line 2189 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2187 "x10/parser/x10.g"
                 Expr expr1 = (Expr) getRhsSym(2);
@@ -3259,9 +3259,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 163:  SwitchStatement ::= switch ( Expression ) SwitchBlock
+            // Rule 160:  SwitchStatement ::= switch ( Expression ) SwitchBlock
             //
-            case 163: {
+            case 160: {
                //#line 2195 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2193 "x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
@@ -3273,9 +3273,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 164:  SwitchBlock ::= { SwitchBlockStatementGroupsopt SwitchLabelsopt }
+            // Rule 161:  SwitchBlock ::= { SwitchBlockStatementGroupsopt SwitchLabelsopt }
             //
-            case 164: {
+            case 161: {
                //#line 2201 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2199 "x10/parser/x10.g"
                 List<Stmt> SwitchBlockStatementGroupsopt = (List<Stmt>) getRhsSym(2);
@@ -3288,9 +3288,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 166:  SwitchBlockStatementGroups ::= SwitchBlockStatementGroups SwitchBlockStatementGroup
+            // Rule 163:  SwitchBlockStatementGroups ::= SwitchBlockStatementGroups SwitchBlockStatementGroup
             //
-            case 166: {
+            case 163: {
                //#line 2209 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2207 "x10/parser/x10.g"
                 List<SwitchElement> SwitchBlockStatementGroups = (List<SwitchElement>) getRhsSym(1);
@@ -3303,9 +3303,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 167:  SwitchBlockStatementGroup ::= SwitchLabels BlockStatements
+            // Rule 164:  SwitchBlockStatementGroup ::= SwitchLabels BlockStatements
             //
-            case 167: {
+            case 164: {
                //#line 2216 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2214 "x10/parser/x10.g"
                 List<SwitchElement> SwitchLabels = (List<SwitchElement>) getRhsSym(1);
@@ -3320,9 +3320,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 168:  SwitchLabels ::= SwitchLabel
+            // Rule 165:  SwitchLabels ::= SwitchLabel
             //
-            case 168: {
+            case 165: {
                //#line 2225 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2223 "x10/parser/x10.g"
                 Case SwitchLabel = (Case) getRhsSym(1);
@@ -3334,9 +3334,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 169:  SwitchLabels ::= SwitchLabels SwitchLabel
+            // Rule 166:  SwitchLabels ::= SwitchLabels SwitchLabel
             //
-            case 169: {
+            case 166: {
                //#line 2232 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2230 "x10/parser/x10.g"
                 List<SwitchElement> SwitchLabels = (List<SwitchElement>) getRhsSym(1);
@@ -3349,9 +3349,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 170:  SwitchLabel ::= case ConstantExpression :
+            // Rule 167:  SwitchLabel ::= case ConstantExpression :
             //
-            case 170: {
+            case 167: {
                //#line 2239 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2237 "x10/parser/x10.g"
                 Expr ConstantExpression = (Expr) getRhsSym(2);
@@ -3361,9 +3361,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 171:  SwitchLabel ::= default :
+            // Rule 168:  SwitchLabel ::= default :
             //
-            case 171: {
+            case 168: {
                //#line 2244 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2244 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -3372,9 +3372,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 172:  WhileStatement ::= while ( Expression ) Statement
+            // Rule 169:  WhileStatement ::= while ( Expression ) Statement
             //
-            case 172: {
+            case 169: {
                //#line 2250 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2248 "x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
@@ -3386,9 +3386,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 173:  DoStatement ::= do Statement while ( Expression ) ;
+            // Rule 170:  DoStatement ::= do Statement while ( Expression ) ;
             //
-            case 173: {
+            case 170: {
                //#line 2256 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2254 "x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(2);
@@ -3400,9 +3400,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 176:  BasicForStatement ::= for ( ForInitopt ; Expressionopt ; ForUpdateopt ) Statement
+            // Rule 173:  BasicForStatement ::= for ( ForInitopt ; Expressionopt ; ForUpdateopt ) Statement
             //
-            case 176: {
+            case 173: {
                //#line 2265 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2263 "x10/parser/x10.g"
                 List<ForInit> ForInitopt = (List<ForInit>) getRhsSym(3);
@@ -3418,9 +3418,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 178:  ForInit ::= LocalVariableDeclaration
+            // Rule 175:  ForInit ::= LocalVariableDeclaration
             //
-            case 178: {
+            case 175: {
                //#line 2272 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2270 "x10/parser/x10.g"
                 List<LocalDecl> LocalVariableDeclaration = (List<LocalDecl>) getRhsSym(1);
@@ -3432,9 +3432,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 180:  StatementExpressionList ::= StatementExpression
+            // Rule 177:  StatementExpressionList ::= StatementExpression
             //
-            case 180: {
+            case 177: {
                //#line 2282 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2280 "x10/parser/x10.g"
                 Expr StatementExpression = (Expr) getRhsSym(1);
@@ -3446,9 +3446,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 181:  StatementExpressionList ::= StatementExpressionList , StatementExpression
+            // Rule 178:  StatementExpressionList ::= StatementExpressionList , StatementExpression
             //
-            case 181: {
+            case 178: {
                //#line 2289 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2287 "x10/parser/x10.g"
                 List<Eval> StatementExpressionList = (List<Eval>) getRhsSym(1);
@@ -3460,9 +3460,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 182:  BreakStatement ::= break Identifieropt ;
+            // Rule 179:  BreakStatement ::= break Identifieropt ;
             //
-            case 182: {
+            case 179: {
                //#line 2295 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2293 "x10/parser/x10.g"
                 Id Identifieropt = (Id) getRhsSym(2);
@@ -3472,9 +3472,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 183:  ContinueStatement ::= continue Identifieropt ;
+            // Rule 180:  ContinueStatement ::= continue Identifieropt ;
             //
-            case 183: {
+            case 180: {
                //#line 2301 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2299 "x10/parser/x10.g"
                 Id Identifieropt = (Id) getRhsSym(2);
@@ -3484,9 +3484,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 184:  ReturnStatement ::= return Expressionopt ;
+            // Rule 181:  ReturnStatement ::= return Expressionopt ;
             //
-            case 184: {
+            case 181: {
                //#line 2307 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2305 "x10/parser/x10.g"
                 Expr Expressionopt = (Expr) getRhsSym(2);
@@ -3496,9 +3496,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 185:  ThrowStatement ::= throw Expression ;
+            // Rule 182:  ThrowStatement ::= throw Expression ;
             //
-            case 185: {
+            case 182: {
                //#line 2313 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2311 "x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(2);
@@ -3508,9 +3508,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 186:  TryStatement ::= try Block Catches
+            // Rule 183:  TryStatement ::= try Block Catches
             //
-            case 186: {
+            case 183: {
                //#line 2319 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2317 "x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(2);
@@ -3522,9 +3522,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 187:  TryStatement ::= try Block Catchesopt Finally
+            // Rule 184:  TryStatement ::= try Block Catchesopt Finally
             //
-            case 187: {
+            case 184: {
                //#line 2324 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2322 "x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(2);
@@ -3538,9 +3538,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 188:  Catches ::= CatchClause
+            // Rule 185:  Catches ::= CatchClause
             //
-            case 188: {
+            case 185: {
                //#line 2330 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2328 "x10/parser/x10.g"
                 Catch CatchClause = (Catch) getRhsSym(1);
@@ -3552,9 +3552,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 189:  Catches ::= Catches CatchClause
+            // Rule 186:  Catches ::= Catches CatchClause
             //
-            case 189: {
+            case 186: {
                //#line 2337 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2335 "x10/parser/x10.g"
                 List<Catch> Catches = (List<Catch>) getRhsSym(1);
@@ -3567,9 +3567,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 190:  CatchClause ::= catch ( FormalParameter ) Block
+            // Rule 187:  CatchClause ::= catch ( FormalParameter ) Block
             //
-            case 190: {
+            case 187: {
                //#line 2344 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2342 "x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
@@ -3581,9 +3581,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 191:  Finally ::= finally Block
+            // Rule 188:  Finally ::= finally Block
             //
-            case 191: {
+            case 188: {
                //#line 2350 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2348 "x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(2);
@@ -3593,9 +3593,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 192:  ClockedClause ::= clocked ( ClockList )
+            // Rule 189:  ClockedClause ::= clocked ( ClockList )
             //
-            case 192: {
+            case 189: {
                //#line 2356 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2354 "x10/parser/x10.g"
                 List<Expr> ClockList = (List<Expr>) getRhsSym(3);
@@ -3605,9 +3605,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 193:  AsyncStatement ::= async ClockedClauseopt Statement
+            // Rule 190:  AsyncStatement ::= async ClockedClauseopt Statement
             //
-            case 193: {
+            case 190: {
                //#line 2363 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2361 "x10/parser/x10.g"
                 List<Expr> ClockedClauseopt = (List<Expr>) getRhsSym(2);
@@ -3619,9 +3619,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 194:  AsyncStatement ::= clocked async Statement
+            // Rule 191:  AsyncStatement ::= clocked async Statement
             //
-            case 194: {
+            case 191: {
                //#line 2368 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2366 "x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(3);
@@ -3631,9 +3631,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 195:  AtStatement ::= at PlaceExpressionSingleList Statement
+            // Rule 192:  AtStatement ::= at PlaceExpressionSingleList Statement
             //
-            case 195: {
+            case 192: {
                //#line 2375 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2373 "x10/parser/x10.g"
                 Expr PlaceExpressionSingleList = (Expr) getRhsSym(2);
@@ -3645,9 +3645,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 196:  AtomicStatement ::= atomic Statement
+            // Rule 193:  AtomicStatement ::= atomic Statement
             //
-            case 196: {
+            case 193: {
                //#line 2381 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2379 "x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(2);
@@ -3657,9 +3657,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 197:  WhenStatement ::= when ( Expression ) Statement
+            // Rule 194:  WhenStatement ::= when ( Expression ) Statement
             //
-            case 197: {
+            case 194: {
                //#line 2388 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2386 "x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
@@ -3671,120 +3671,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 198:  WhenStatement ::= WhenStatement or$or ( Expression ) Statement
+            // Rule 195:  AtEachStatement ::= ateach ( LoopIndex in Expression ) ClockedClauseopt Statement
             //
-            case 198: {
-               //#line 2393 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2391 "x10/parser/x10.g"
-                When WhenStatement = (When) getRhsSym(1);
-                //#line 2391 "x10/parser/x10.g"
-                IToken or = (IToken) getRhsIToken(2);
-                //#line 2391 "x10/parser/x10.g"
-                Expr Expression = (Expr) getRhsSym(4);
-                //#line 2391 "x10/parser/x10.g"
-                Stmt Statement = (Stmt) getRhsSym(6);
-                //#line 2393 "lpg.generator/templates/java/btParserTemplateF.gi"
-              WhenStatement.addBranch(pos(getRhsFirstTokenIndex(2), getRightSpan()), Expression, Statement);
-              setResult(WhenStatement);
-                      break;
-            }
-    
-            //
-            // Rule 199:  ForEachStatement ::= foreach ( LoopIndex in Expression ) ClockedClauseopt Statement
-            //
-            case 199: {
-               //#line 2400 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2398 "x10/parser/x10.g"
-                X10Formal LoopIndex = (X10Formal) getRhsSym(3);
-                //#line 2398 "x10/parser/x10.g"
-                Expr Expression = (Expr) getRhsSym(5);
-                //#line 2398 "x10/parser/x10.g"
-                List<Expr> ClockedClauseopt = (List<Expr>) getRhsSym(7);
-                //#line 2398 "x10/parser/x10.g"
-                Stmt Statement = (Stmt) getRhsSym(8);
-                //#line 2400 "lpg.generator/templates/java/btParserTemplateF.gi"
-                FlagsNode fn = LoopIndex.flags();
-                if (! fn.flags().isFinal()) {
-                    syntaxError("Enhanced foreach loop may not have var loop index" + LoopIndex, LoopIndex.position());
-                    fn = fn.flags(fn.flags().Final());
-                    LoopIndex = LoopIndex.flags(fn);
-                }
-                setResult(nf.ForEach(pos(),
-                              LoopIndex,
-                              Expression,
-                              ClockedClauseopt,
-                              Statement));
-                      break;
-            }
-    
-            //
-            // Rule 200:  ForEachStatement ::= clocked foreach ( LoopIndex in Expression ) Statement
-            //
-            case 200: {
-               //#line 2415 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2413 "x10/parser/x10.g"
-                X10Formal LoopIndex = (X10Formal) getRhsSym(4);
-                //#line 2413 "x10/parser/x10.g"
-                Expr Expression = (Expr) getRhsSym(6);
-                //#line 2413 "x10/parser/x10.g"
-                Stmt Statement = (Stmt) getRhsSym(8);
-                //#line 2415 "lpg.generator/templates/java/btParserTemplateF.gi"
-                FlagsNode fn = LoopIndex.flags();
-                if (! fn.flags().isFinal()) {
-                    syntaxError("Enhanced foreach loop cannot have var loop index" + LoopIndex, LoopIndex.position());
-                    fn = fn.flags(fn.flags().Final());
-                    LoopIndex = LoopIndex.flags(fn);
-                }
-                setResult(nf.ForEach(pos(),
-                              LoopIndex,
-                              Expression,
-                              Statement));
-                      break;
-            }
-    
-            //
-            // Rule 201:  ForEachStatement ::= foreach ( Expression ) Statement
-            //
-            case 201: {
-               //#line 2429 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2427 "x10/parser/x10.g"
-                Expr Expression = (Expr) getRhsSym(3);
-                //#line 2427 "x10/parser/x10.g"
-                Stmt Statement = (Stmt) getRhsSym(5);
-                //#line 2429 "lpg.generator/templates/java/btParserTemplateF.gi"
-                Id name = nf.Id(pos(), Name.makeFresh());
-                TypeNode type = nf.UnknownTypeNode(pos());
-                setResult(nf.ForEach(pos(),
-                        nf.X10Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), type, name, null, true),
-                        Expression,
-                        new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false),
-                        Statement));
-                      break;
-            }
-    
-            //
-            // Rule 202:  ForEachStatement ::= clocked foreach ( Expression ) Statement
-            //
-            case 202: {
-               //#line 2440 "lpg.generator/templates/java/btParserTemplateF.gi"
-                //#line 2438 "x10/parser/x10.g"
-                Expr Expression = (Expr) getRhsSym(4);
-                //#line 2438 "x10/parser/x10.g"
-                Stmt Statement = (Stmt) getRhsSym(6);
-                //#line 2440 "lpg.generator/templates/java/btParserTemplateF.gi"
-                Id name = nf.Id(pos(), Name.makeFresh());
-                TypeNode type = nf.UnknownTypeNode(pos());
-                setResult(nf.ForEach(pos(),
-                        nf.X10Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), type, name, null, true),
-                        Expression,
-                        Statement));
-                      break;
-            }
-    
-            //
-            // Rule 203:  AtEachStatement ::= ateach ( LoopIndex in Expression ) ClockedClauseopt Statement
-            //
-            case 203: {
+            case 195: {
                //#line 2451 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2449 "x10/parser/x10.g"
                 X10Formal LoopIndex = (X10Formal) getRhsSym(3);
@@ -3810,9 +3699,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 204:  AtEachStatement ::= clocked ateach ( LoopIndex in Expression ) Statement
+            // Rule 196:  AtEachStatement ::= clocked ateach ( LoopIndex in Expression ) Statement
             //
-            case 204: {
+            case 196: {
                //#line 2466 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2464 "x10/parser/x10.g"
                 X10Formal LoopIndex = (X10Formal) getRhsSym(4);
@@ -3835,9 +3724,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 205:  AtEachStatement ::= ateach ( Expression ) Statement
+            // Rule 197:  AtEachStatement ::= ateach ( Expression ) Statement
             //
-            case 205: {
+            case 197: {
                //#line 2480 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2478 "x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
@@ -3855,9 +3744,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 206:  AtEachStatement ::= clocked ateach ( Expression ) Statement
+            // Rule 198:  AtEachStatement ::= clocked ateach ( Expression ) Statement
             //
-            case 206: {
+            case 198: {
                //#line 2491 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2489 "x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(4);
@@ -3874,9 +3763,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 207:  EnhancedForStatement ::= for ( LoopIndex in Expression ) Statement
+            // Rule 199:  EnhancedForStatement ::= for ( LoopIndex in Expression ) Statement
             //
-            case 207: {
+            case 199: {
                //#line 2501 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2499 "x10/parser/x10.g"
                 X10Formal LoopIndex = (X10Formal) getRhsSym(3);
@@ -3899,9 +3788,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 208:  EnhancedForStatement ::= for ( Expression ) Statement
+            // Rule 200:  EnhancedForStatement ::= for ( Expression ) Statement
             //
-            case 208: {
+            case 200: {
                //#line 2515 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2513 "x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
@@ -3918,9 +3807,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 209:  FinishStatement ::= finish Statement
+            // Rule 201:  FinishStatement ::= finish Statement
             //
-            case 209: {
+            case 201: {
                //#line 2527 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2525 "x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(2);
@@ -3930,9 +3819,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 210:  FinishStatement ::= clocked finish Statement
+            // Rule 202:  FinishStatement ::= clocked finish Statement
             //
-            case 210: {
+            case 202: {
                //#line 2532 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2530 "x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(3);
@@ -3942,9 +3831,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 211:  PlaceExpressionSingleList ::= ( PlaceExpression )
+            // Rule 203:  PlaceExpressionSingleList ::= ( PlaceExpression )
             //
-            case 211: {
+            case 203: {
                //#line 2537 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2535 "x10/parser/x10.g"
                 Expr PlaceExpression = (Expr) getRhsSym(2);
@@ -3954,9 +3843,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 213:  NextStatement ::= next ;
+            // Rule 205:  NextStatement ::= next ;
             //
-            case 213: {
+            case 205: {
                //#line 2545 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2545 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -3965,9 +3854,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 214:  ResumeStatement ::= resume ;
+            // Rule 206:  ResumeStatement ::= resume ;
             //
-            case 214: {
+            case 206: {
                //#line 2551 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2551 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -3976,9 +3865,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 215:  ClockList ::= Clock
+            // Rule 207:  ClockList ::= Clock
             //
-            case 215: {
+            case 207: {
                //#line 2557 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2555 "x10/parser/x10.g"
                 Expr Clock = (Expr) getRhsSym(1);
@@ -3990,9 +3879,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 216:  ClockList ::= ClockList , Clock
+            // Rule 208:  ClockList ::= ClockList , Clock
             //
-            case 216: {
+            case 208: {
                //#line 2564 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2562 "x10/parser/x10.g"
                 List<Expr> ClockList = (List<Expr>) getRhsSym(1);
@@ -4005,9 +3894,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 217:  Clock ::= Expression
+            // Rule 209:  Clock ::= Expression
             //
-            case 217: {
+            case 209: {
                //#line 2572 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2570 "x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(1);
@@ -4017,9 +3906,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 219:  CastExpression ::= ExpressionName
+            // Rule 211:  CastExpression ::= ExpressionName
             //
-            case 219: {
+            case 211: {
                //#line 2585 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2583 "x10/parser/x10.g"
                 ParsedName ExpressionName = (ParsedName) getRhsSym(1);
@@ -4029,9 +3918,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 220:  CastExpression ::= CastExpression as Type
+            // Rule 212:  CastExpression ::= CastExpression as Type
             //
-            case 220: {
+            case 212: {
                //#line 2590 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2588 "x10/parser/x10.g"
                 Expr CastExpression = (Expr) getRhsSym(1);
@@ -4043,9 +3932,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 221:  TypeParamWithVarianceList ::= TypeParamWithVariance
+            // Rule 213:  TypeParamWithVarianceList ::= TypeParamWithVariance
             //
-            case 221: {
+            case 213: {
                //#line 2597 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2595 "x10/parser/x10.g"
                 TypeParamNode TypeParamWithVariance = (TypeParamNode) getRhsSym(1);
@@ -4057,9 +3946,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 222:  TypeParamWithVarianceList ::= TypeParamWithVarianceList , TypeParamWithVariance
+            // Rule 214:  TypeParamWithVarianceList ::= TypeParamWithVarianceList , TypeParamWithVariance
             //
-            case 222: {
+            case 214: {
                //#line 2604 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2602 "x10/parser/x10.g"
                 List<TypeParamNode> TypeParamWithVarianceList = (List<TypeParamNode>) getRhsSym(1);
@@ -4072,9 +3961,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 223:  TypeParameterList ::= TypeParameter
+            // Rule 215:  TypeParameterList ::= TypeParameter
             //
-            case 223: {
+            case 215: {
                //#line 2611 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2609 "x10/parser/x10.g"
                 TypeParamNode TypeParameter = (TypeParamNode) getRhsSym(1);
@@ -4086,9 +3975,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 224:  TypeParameterList ::= TypeParameterList , TypeParameter
+            // Rule 216:  TypeParameterList ::= TypeParameterList , TypeParameter
             //
-            case 224: {
+            case 216: {
                //#line 2618 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2616 "x10/parser/x10.g"
                 List<TypeParamNode> TypeParameterList = (List<TypeParamNode>) getRhsSym(1);
@@ -4101,9 +3990,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 225:  TypeParamWithVariance ::= Identifier
+            // Rule 217:  TypeParamWithVariance ::= Identifier
             //
-            case 225: {
+            case 217: {
                //#line 2625 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2623 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
@@ -4113,9 +4002,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 226:  TypeParamWithVariance ::= + Identifier
+            // Rule 218:  TypeParamWithVariance ::= + Identifier
             //
-            case 226: {
+            case 218: {
                //#line 2630 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2628 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(2);
@@ -4125,9 +4014,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 227:  TypeParamWithVariance ::= - Identifier
+            // Rule 219:  TypeParamWithVariance ::= - Identifier
             //
-            case 227: {
+            case 219: {
                //#line 2635 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2633 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(2);
@@ -4137,9 +4026,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 228:  TypeParameter ::= Identifier
+            // Rule 220:  TypeParameter ::= Identifier
             //
-            case 228: {
+            case 220: {
                //#line 2641 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2639 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
@@ -4149,9 +4038,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 229:  AssignmentExpression ::= Expression$expr1 -> Expression$expr2
+            // Rule 221:  AssignmentExpression ::= Expression$expr1 -> Expression$expr2
             //
-            case 229: {
+            case 221: {
                //#line 2666 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2664 "x10/parser/x10.g"
                 Expr expr1 = (Expr) getRhsSym(1);
@@ -4164,9 +4053,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 230:  ClosureExpression ::= FormalParameters WhereClauseopt HasResultTypeopt Offersopt => ClosureBody
+            // Rule 222:  ClosureExpression ::= FormalParameters WhereClauseopt HasResultTypeopt Offersopt => ClosureBody
             //
-            case 230: {
+            case 222: {
                //#line 2672 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2670 "x10/parser/x10.g"
                 List<Formal> FormalParameters = (List<Formal>) getRhsSym(1);
@@ -4185,9 +4074,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 231:  LastExpression ::= Expression
+            // Rule 223:  LastExpression ::= Expression
             //
-            case 231: {
+            case 223: {
                //#line 2679 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2677 "x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(1);
@@ -4197,9 +4086,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 232:  ClosureBody ::= ConditionalExpression
+            // Rule 224:  ClosureBody ::= ConditionalExpression
             //
-            case 232: {
+            case 224: {
                //#line 2685 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2683 "x10/parser/x10.g"
                 Expr ConditionalExpression = (Expr) getRhsSym(1);
@@ -4209,9 +4098,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 233:  ClosureBody ::= Annotationsopt { BlockStatementsopt LastExpression }
+            // Rule 225:  ClosureBody ::= Annotationsopt { BlockStatementsopt LastExpression }
             //
-            case 233: {
+            case 225: {
                //#line 2690 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2688 "x10/parser/x10.g"
                 List<AnnotationNode> Annotationsopt = (List<AnnotationNode>) getRhsSym(1);
@@ -4230,9 +4119,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 234:  ClosureBody ::= Annotationsopt Block
+            // Rule 226:  ClosureBody ::= Annotationsopt Block
             //
-            case 234: {
+            case 226: {
                //#line 2700 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2698 "x10/parser/x10.g"
                 List<AnnotationNode> Annotationsopt = (List<AnnotationNode>) getRhsSym(1);
@@ -4246,9 +4135,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 235:  AtExpression ::= at PlaceExpressionSingleList ClosureBody
+            // Rule 227:  AtExpression ::= at PlaceExpressionSingleList ClosureBody
             //
-            case 235: {
+            case 227: {
                //#line 2709 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2707 "x10/parser/x10.g"
                 Expr PlaceExpressionSingleList = (Expr) getRhsSym(2);
@@ -4260,9 +4149,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 236:  FinishExpression ::= finish ( Expression ) Block
+            // Rule 228:  FinishExpression ::= finish ( Expression ) Block
             //
-            case 236: {
+            case 228: {
                //#line 2715 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2713 "x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
@@ -4274,23 +4163,23 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 237:  WhereClauseopt ::= $Empty
+            // Rule 229:  WhereClauseopt ::= $Empty
             //
-            case 237:
+            case 229:
                 setResult(null);
                 break;
 
             //
-            // Rule 239:  PlaceExpressionSingleListopt ::= $Empty
+            // Rule 231:  PlaceExpressionSingleListopt ::= $Empty
             //
-            case 239:
+            case 231:
                 setResult(null);
                 break;
 
             //
-            // Rule 241:  ClockedClauseopt ::= $Empty
+            // Rule 233:  ClockedClauseopt ::= $Empty
             //
-            case 241: {
+            case 233: {
                //#line 2763 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 2763 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -4299,9 +4188,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 243:  identifier ::= IDENTIFIER$ident
+            // Rule 235:  identifier ::= IDENTIFIER$ident
             //
-            case 243: {
+            case 235: {
                //#line 2774 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2772 "x10/parser/x10.g"
                 IToken ident = (IToken) getRhsIToken(1);
@@ -4312,9 +4201,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 244:  TypeName ::= Identifier
+            // Rule 236:  TypeName ::= Identifier
             //
-            case 244: {
+            case 236: {
                //#line 2781 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2779 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
@@ -4324,9 +4213,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 245:  TypeName ::= TypeName . Identifier
+            // Rule 237:  TypeName ::= TypeName . Identifier
             //
-            case 245: {
+            case 237: {
                //#line 2786 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2784 "x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
@@ -4342,9 +4231,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 247:  TypeArguments ::= [ TypeArgumentList ]
+            // Rule 239:  TypeArguments ::= [ TypeArgumentList ]
             //
-            case 247: {
+            case 239: {
                //#line 2798 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2796 "x10/parser/x10.g"
                 List<TypeNode> TypeArgumentList = (List<TypeNode>) getRhsSym(2);
@@ -4354,9 +4243,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 248:  TypeArgumentList ::= Type
+            // Rule 240:  TypeArgumentList ::= Type
             //
-            case 248: {
+            case 240: {
                //#line 2805 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2803 "x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(1);
@@ -4368,9 +4257,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 249:  TypeArgumentList ::= TypeArgumentList , Type
+            // Rule 241:  TypeArgumentList ::= TypeArgumentList , Type
             //
-            case 249: {
+            case 241: {
                //#line 2812 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2810 "x10/parser/x10.g"
                 List<TypeNode> TypeArgumentList = (List<TypeNode>) getRhsSym(1);
@@ -4382,9 +4271,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 250:  PackageName ::= Identifier
+            // Rule 242:  PackageName ::= Identifier
             //
-            case 250: {
+            case 242: {
                //#line 2822 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2820 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
@@ -4394,9 +4283,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 251:  PackageName ::= PackageName . Identifier
+            // Rule 243:  PackageName ::= PackageName . Identifier
             //
-            case 251: {
+            case 243: {
                //#line 2827 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2825 "x10/parser/x10.g"
                 ParsedName PackageName = (ParsedName) getRhsSym(1);
@@ -4412,9 +4301,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 252:  ExpressionName ::= Identifier
+            // Rule 244:  ExpressionName ::= Identifier
             //
-            case 252: {
+            case 244: {
                //#line 2843 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2841 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
@@ -4424,9 +4313,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 253:  ExpressionName ::= AmbiguousName . Identifier
+            // Rule 245:  ExpressionName ::= AmbiguousName . Identifier
             //
-            case 253: {
+            case 245: {
                //#line 2848 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2846 "x10/parser/x10.g"
                 ParsedName AmbiguousName = (ParsedName) getRhsSym(1);
@@ -4442,9 +4331,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 254:  MethodName ::= Identifier
+            // Rule 246:  MethodName ::= Identifier
             //
-            case 254: {
+            case 246: {
                //#line 2858 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2856 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
@@ -4454,9 +4343,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 255:  MethodName ::= AmbiguousName . Identifier
+            // Rule 247:  MethodName ::= AmbiguousName . Identifier
             //
-            case 255: {
+            case 247: {
                //#line 2863 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2861 "x10/parser/x10.g"
                 ParsedName AmbiguousName = (ParsedName) getRhsSym(1);
@@ -4472,9 +4361,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 256:  PackageOrTypeName ::= Identifier
+            // Rule 248:  PackageOrTypeName ::= Identifier
             //
-            case 256: {
+            case 248: {
                //#line 2873 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2871 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
@@ -4484,9 +4373,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 257:  PackageOrTypeName ::= PackageOrTypeName . Identifier
+            // Rule 249:  PackageOrTypeName ::= PackageOrTypeName . Identifier
             //
-            case 257: {
+            case 249: {
                //#line 2878 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2876 "x10/parser/x10.g"
                 ParsedName PackageOrTypeName = (ParsedName) getRhsSym(1);
@@ -4502,9 +4391,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 258:  AmbiguousName ::= Identifier
+            // Rule 250:  AmbiguousName ::= Identifier
             //
-            case 258: {
+            case 250: {
                //#line 2888 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2886 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
@@ -4514,9 +4403,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 259:  AmbiguousName ::= AmbiguousName . Identifier
+            // Rule 251:  AmbiguousName ::= AmbiguousName . Identifier
             //
-            case 259: {
+            case 251: {
                //#line 2893 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2891 "x10/parser/x10.g"
                 ParsedName AmbiguousName = (ParsedName) getRhsSym(1);
@@ -4532,9 +4421,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 260:  CompilationUnit ::= PackageDeclarationopt TypeDeclarationsopt
+            // Rule 252:  CompilationUnit ::= PackageDeclarationopt TypeDeclarationsopt
             //
-            case 260: {
+            case 252: {
                //#line 2905 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2903 "x10/parser/x10.g"
                 PackageNode PackageDeclarationopt = (PackageNode) getRhsSym(1);
@@ -4559,9 +4448,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 261:  CompilationUnit ::= PackageDeclarationopt ImportDeclarations TypeDeclarationsopt
+            // Rule 253:  CompilationUnit ::= PackageDeclarationopt ImportDeclarations TypeDeclarationsopt
             //
-            case 261: {
+            case 253: {
                //#line 2923 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2921 "x10/parser/x10.g"
                 PackageNode PackageDeclarationopt = (PackageNode) getRhsSym(1);
@@ -4578,9 +4467,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 262:  CompilationUnit ::= ImportDeclarations PackageDeclaration$misplacedPackageDeclaration ImportDeclarationsopt$misplacedImportDeclarations TypeDeclarationsopt
+            // Rule 254:  CompilationUnit ::= ImportDeclarations PackageDeclaration$misplacedPackageDeclaration ImportDeclarationsopt$misplacedImportDeclarations TypeDeclarationsopt
             //
-            case 262: {
+            case 254: {
                //#line 2931 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2929 "x10/parser/x10.g"
                 List<Import> ImportDeclarations = (List<Import>) getRhsSym(1);
@@ -4601,9 +4490,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 263:  CompilationUnit ::= PackageDeclaration ImportDeclarations PackageDeclaration$misplacedPackageDeclaration ImportDeclarationsopt$misplacedImportDeclarations TypeDeclarationsopt
+            // Rule 255:  CompilationUnit ::= PackageDeclaration ImportDeclarations PackageDeclaration$misplacedPackageDeclaration ImportDeclarationsopt$misplacedImportDeclarations TypeDeclarationsopt
             //
-            case 263: {
+            case 255: {
                //#line 2941 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2939 "x10/parser/x10.g"
                 PackageNode PackageDeclaration = (PackageNode) getRhsSym(1);
@@ -4626,9 +4515,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 264:  ImportDeclarations ::= ImportDeclaration
+            // Rule 256:  ImportDeclarations ::= ImportDeclaration
             //
-            case 264: {
+            case 256: {
                //#line 2952 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2950 "x10/parser/x10.g"
                 Import ImportDeclaration = (Import) getRhsSym(1);
@@ -4640,9 +4529,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 265:  ImportDeclarations ::= ImportDeclarations ImportDeclaration
+            // Rule 257:  ImportDeclarations ::= ImportDeclarations ImportDeclaration
             //
-            case 265: {
+            case 257: {
                //#line 2959 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2957 "x10/parser/x10.g"
                 List<Import> ImportDeclarations = (List<Import>) getRhsSym(1);
@@ -4656,9 +4545,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 266:  TypeDeclarations ::= TypeDeclaration
+            // Rule 258:  TypeDeclarations ::= TypeDeclaration
             //
-            case 266: {
+            case 258: {
                //#line 2967 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2965 "x10/parser/x10.g"
                 TopLevelDecl TypeDeclaration = (TopLevelDecl) getRhsSym(1);
@@ -4671,9 +4560,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 267:  TypeDeclarations ::= TypeDeclarations TypeDeclaration
+            // Rule 259:  TypeDeclarations ::= TypeDeclarations TypeDeclaration
             //
-            case 267: {
+            case 259: {
                //#line 2975 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2973 "x10/parser/x10.g"
                 List<TopLevelDecl> TypeDeclarations = (List<TopLevelDecl>) getRhsSym(1);
@@ -4687,9 +4576,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 268:  PackageDeclaration ::= Annotationsopt package PackageName ;
+            // Rule 260:  PackageDeclaration ::= Annotationsopt package PackageName ;
             //
-            case 268: {
+            case 260: {
                //#line 2983 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2981 "x10/parser/x10.g"
                 List<AnnotationNode> Annotationsopt = (List<AnnotationNode>) getRhsSym(1);
@@ -4703,9 +4592,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 271:  SingleTypeImportDeclaration ::= import TypeName ;
+            // Rule 263:  SingleTypeImportDeclaration ::= import TypeName ;
             //
-            case 271: {
+            case 263: {
                //#line 2997 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 2995 "x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(2);
@@ -4715,9 +4604,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 272:  TypeImportOnDemandDeclaration ::= import PackageOrTypeName . * ;
+            // Rule 264:  TypeImportOnDemandDeclaration ::= import PackageOrTypeName . * ;
             //
-            case 272: {
+            case 264: {
                //#line 3003 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3001 "x10/parser/x10.g"
                 ParsedName PackageOrTypeName = (ParsedName) getRhsSym(2);
@@ -4727,9 +4616,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 276:  TypeDeclaration ::= ;
+            // Rule 268:  TypeDeclaration ::= ;
             //
-            case 276: {
+            case 268: {
                //#line 3018 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 3018 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -4738,9 +4627,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 277:  Interfaces ::= implements InterfaceTypeList
+            // Rule 269:  Interfaces ::= implements InterfaceTypeList
             //
-            case 277: {
+            case 269: {
                //#line 3135 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3133 "x10/parser/x10.g"
                 List<TypeNode> InterfaceTypeList = (List<TypeNode>) getRhsSym(2);
@@ -4750,9 +4639,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 278:  InterfaceTypeList ::= Type
+            // Rule 270:  InterfaceTypeList ::= Type
             //
-            case 278: {
+            case 270: {
                //#line 3141 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3139 "x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(1);
@@ -4764,9 +4653,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 279:  InterfaceTypeList ::= InterfaceTypeList , Type
+            // Rule 271:  InterfaceTypeList ::= InterfaceTypeList , Type
             //
-            case 279: {
+            case 271: {
                //#line 3148 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3146 "x10/parser/x10.g"
                 List<TypeNode> InterfaceTypeList = (List<TypeNode>) getRhsSym(1);
@@ -4779,9 +4668,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 280:  ClassBody ::= { ClassBodyDeclarationsopt }
+            // Rule 272:  ClassBody ::= { ClassBodyDeclarationsopt }
             //
-            case 280: {
+            case 272: {
                //#line 3158 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3156 "x10/parser/x10.g"
                 List<ClassMember> ClassBodyDeclarationsopt = (List<ClassMember>) getRhsSym(2);
@@ -4791,9 +4680,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 282:  ClassBodyDeclarations ::= ClassBodyDeclarations ClassBodyDeclaration
+            // Rule 274:  ClassBodyDeclarations ::= ClassBodyDeclarations ClassBodyDeclaration
             //
-            case 282: {
+            case 274: {
                //#line 3165 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3163 "x10/parser/x10.g"
                 List<ClassMember> ClassBodyDeclarations = (List<ClassMember>) getRhsSym(1);
@@ -4806,9 +4695,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 284:  ClassBodyDeclaration ::= ConstructorDeclaration
+            // Rule 276:  ClassBodyDeclaration ::= ConstructorDeclaration
             //
-            case 284: {
+            case 276: {
                //#line 3187 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3185 "x10/parser/x10.g"
                 ConstructorDecl ConstructorDeclaration = (ConstructorDecl) getRhsSym(1);
@@ -4820,9 +4709,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 286:  ClassMemberDeclaration ::= MethodDeclaration
+            // Rule 278:  ClassMemberDeclaration ::= MethodDeclaration
             //
-            case 286: {
+            case 278: {
                //#line 3196 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3194 "x10/parser/x10.g"
                 ClassMember MethodDeclaration = (ClassMember) getRhsSym(1);
@@ -4834,9 +4723,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 287:  ClassMemberDeclaration ::= PropertyMethodDeclaration
+            // Rule 279:  ClassMemberDeclaration ::= PropertyMethodDeclaration
             //
-            case 287: {
+            case 279: {
                //#line 3203 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3201 "x10/parser/x10.g"
                 ClassMember PropertyMethodDeclaration = (ClassMember) getRhsSym(1);
@@ -4848,9 +4737,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 288:  ClassMemberDeclaration ::= TypeDefDeclaration
+            // Rule 280:  ClassMemberDeclaration ::= TypeDefDeclaration
             //
-            case 288: {
+            case 280: {
                //#line 3210 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3208 "x10/parser/x10.g"
                 TypeDecl TypeDefDeclaration = (TypeDecl) getRhsSym(1);
@@ -4862,9 +4751,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 289:  ClassMemberDeclaration ::= ClassDeclaration
+            // Rule 281:  ClassMemberDeclaration ::= ClassDeclaration
             //
-            case 289: {
+            case 281: {
                //#line 3217 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3215 "x10/parser/x10.g"
                 ClassDecl ClassDeclaration = (ClassDecl) getRhsSym(1);
@@ -4876,9 +4765,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 290:  ClassMemberDeclaration ::= InterfaceDeclaration
+            // Rule 282:  ClassMemberDeclaration ::= InterfaceDeclaration
             //
-            case 290: {
+            case 282: {
                //#line 3224 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3222 "x10/parser/x10.g"
                 ClassDecl InterfaceDeclaration = (ClassDecl) getRhsSym(1);
@@ -4890,9 +4779,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 291:  ClassMemberDeclaration ::= ;
+            // Rule 283:  ClassMemberDeclaration ::= ;
             //
-            case 291: {
+            case 283: {
                //#line 3231 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 3231 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -4902,9 +4791,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 292:  FormalDeclarators ::= FormalDeclarator
+            // Rule 284:  FormalDeclarators ::= FormalDeclarator
             //
-            case 292: {
+            case 284: {
                //#line 3238 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3236 "x10/parser/x10.g"
                 Object[] FormalDeclarator = (Object[]) getRhsSym(1);
@@ -4916,9 +4805,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 293:  FormalDeclarators ::= FormalDeclarators , FormalDeclarator
+            // Rule 285:  FormalDeclarators ::= FormalDeclarators , FormalDeclarator
             //
-            case 293: {
+            case 285: {
                //#line 3245 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3243 "x10/parser/x10.g"
                 List<Object[]> FormalDeclarators = (List<Object[]>) getRhsSym(1);
@@ -4930,9 +4819,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 294:  FieldDeclarators ::= FieldDeclarator
+            // Rule 286:  FieldDeclarators ::= FieldDeclarator
             //
-            case 294: {
+            case 286: {
                //#line 3252 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3250 "x10/parser/x10.g"
                 Object[] FieldDeclarator = (Object[]) getRhsSym(1);
@@ -4944,9 +4833,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 295:  FieldDeclarators ::= FieldDeclarators , FieldDeclarator
+            // Rule 287:  FieldDeclarators ::= FieldDeclarators , FieldDeclarator
             //
-            case 295: {
+            case 287: {
                //#line 3259 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3257 "x10/parser/x10.g"
                 List<Object[]> FieldDeclarators = (List<Object[]>) getRhsSym(1);
@@ -4959,9 +4848,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 296:  VariableDeclaratorsWithType ::= VariableDeclaratorWithType
+            // Rule 288:  VariableDeclaratorsWithType ::= VariableDeclaratorWithType
             //
-            case 296: {
+            case 288: {
                //#line 3267 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3265 "x10/parser/x10.g"
                 Object[] VariableDeclaratorWithType = (Object[]) getRhsSym(1);
@@ -4973,9 +4862,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 297:  VariableDeclaratorsWithType ::= VariableDeclaratorsWithType , VariableDeclaratorWithType
+            // Rule 289:  VariableDeclaratorsWithType ::= VariableDeclaratorsWithType , VariableDeclaratorWithType
             //
-            case 297: {
+            case 289: {
                //#line 3274 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3272 "x10/parser/x10.g"
                 List<Object[]> VariableDeclaratorsWithType = (List<Object[]>) getRhsSym(1);
@@ -4988,9 +4877,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 298:  VariableDeclarators ::= VariableDeclarator
+            // Rule 290:  VariableDeclarators ::= VariableDeclarator
             //
-            case 298: {
+            case 290: {
                //#line 3281 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3279 "x10/parser/x10.g"
                 Object[] VariableDeclarator = (Object[]) getRhsSym(1);
@@ -5002,9 +4891,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 299:  VariableDeclarators ::= VariableDeclarators , VariableDeclarator
+            // Rule 291:  VariableDeclarators ::= VariableDeclarators , VariableDeclarator
             //
-            case 299: {
+            case 291: {
                //#line 3288 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3286 "x10/parser/x10.g"
                 List<Object[]> VariableDeclarators = (List<Object[]>) getRhsSym(1);
@@ -5017,9 +4906,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 301:  ResultType ::= : Type
+            // Rule 293:  ResultType ::= : Type
             //
-            case 301: {
+            case 293: {
                //#line 3344 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3342 "x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(2);
@@ -5029,9 +4918,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 302:  HasResultType ::= : Type
+            // Rule 294:  HasResultType ::= : Type
             //
-            case 302: {
+            case 294: {
                //#line 3349 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3347 "x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(2);
@@ -5041,9 +4930,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 303:  HasResultType ::= <: Type
+            // Rule 295:  HasResultType ::= <: Type
             //
-            case 303: {
+            case 295: {
                //#line 3354 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3352 "x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(2);
@@ -5053,9 +4942,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 304:  FormalParameterList ::= FormalParameter
+            // Rule 296:  FormalParameterList ::= FormalParameter
             //
-            case 304: {
+            case 296: {
                //#line 3369 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3367 "x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(1);
@@ -5067,9 +4956,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 305:  FormalParameterList ::= FormalParameterList , FormalParameter
+            // Rule 297:  FormalParameterList ::= FormalParameterList , FormalParameter
             //
-            case 305: {
+            case 297: {
                //#line 3376 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3374 "x10/parser/x10.g"
                 List<Formal> FormalParameterList = (List<Formal>) getRhsSym(1);
@@ -5081,9 +4970,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 306:  LoopIndexDeclarator ::= Identifier HasResultTypeopt
+            // Rule 298:  LoopIndexDeclarator ::= Identifier HasResultTypeopt
             //
-            case 306: {
+            case 298: {
                //#line 3382 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3380 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
@@ -5095,9 +4984,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 307:  LoopIndexDeclarator ::= [ IdentifierList ] HasResultTypeopt
+            // Rule 299:  LoopIndexDeclarator ::= [ IdentifierList ] HasResultTypeopt
             //
-            case 307: {
+            case 299: {
                //#line 3387 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3385 "x10/parser/x10.g"
                 List<Id> IdentifierList = (List<Id>) getRhsSym(2);
@@ -5109,9 +4998,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 308:  LoopIndexDeclarator ::= Identifier [ IdentifierList ] HasResultTypeopt
+            // Rule 300:  LoopIndexDeclarator ::= Identifier [ IdentifierList ] HasResultTypeopt
             //
-            case 308: {
+            case 300: {
                //#line 3392 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3390 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
@@ -5125,9 +5014,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 309:  LoopIndex ::= Modifiersopt LoopIndexDeclarator
+            // Rule 301:  LoopIndex ::= Modifiersopt LoopIndexDeclarator
             //
-            case 309: {
+            case 301: {
                //#line 3398 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3396 "x10/parser/x10.g"
                 List<Modifier> Modifiersopt = (List<Modifier>) getRhsSym(1);
@@ -5157,9 +5046,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 310:  LoopIndex ::= Modifiersopt VarKeyword LoopIndexDeclarator
+            // Rule 302:  LoopIndex ::= Modifiersopt VarKeyword LoopIndexDeclarator
             //
-            case 310: {
+            case 302: {
                //#line 3421 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3419 "x10/parser/x10.g"
                 List<Modifier> Modifiersopt = (List<Modifier>) getRhsSym(1);
@@ -5191,9 +5080,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 311:  FormalParameter ::= Modifiersopt FormalDeclarator
+            // Rule 303:  FormalParameter ::= Modifiersopt FormalDeclarator
             //
-            case 311: {
+            case 303: {
                //#line 3445 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3443 "x10/parser/x10.g"
                 List<Modifier> Modifiersopt = (List<Modifier>) getRhsSym(1);
@@ -5224,9 +5113,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 312:  FormalParameter ::= Modifiersopt VarKeyword FormalDeclarator
+            // Rule 304:  FormalParameter ::= Modifiersopt VarKeyword FormalDeclarator
             //
-            case 312: {
+            case 304: {
                //#line 3469 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3467 "x10/parser/x10.g"
                 List<Modifier> Modifiersopt = (List<Modifier>) getRhsSym(1);
@@ -5259,9 +5148,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 313:  FormalParameter ::= Type
+            // Rule 305:  FormalParameter ::= Type
             //
-            case 313: {
+            case 305: {
                //#line 3493 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3491 "x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(1);
@@ -5273,9 +5162,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 314:  Offers ::= offers Type
+            // Rule 306:  Offers ::= offers Type
             //
-            case 314: {
+            case 306: {
                //#line 3639 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3637 "x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(2);
@@ -5285,9 +5174,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 315:  ExceptionTypeList ::= ExceptionType
+            // Rule 307:  ExceptionTypeList ::= ExceptionType
             //
-            case 315: {
+            case 307: {
                //#line 3645 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3643 "x10/parser/x10.g"
                 TypeNode ExceptionType = (TypeNode) getRhsSym(1);
@@ -5299,9 +5188,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 316:  ExceptionTypeList ::= ExceptionTypeList , ExceptionType
+            // Rule 308:  ExceptionTypeList ::= ExceptionTypeList , ExceptionType
             //
-            case 316: {
+            case 308: {
                //#line 3652 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3650 "x10/parser/x10.g"
                 List<TypeNode> ExceptionTypeList = (List<TypeNode>) getRhsSym(1);
@@ -5313,9 +5202,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 318:  MethodBody ::= = LastExpression ;
+            // Rule 310:  MethodBody ::= = LastExpression ;
             //
-            case 318: {
+            case 310: {
                //#line 3660 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3658 "x10/parser/x10.g"
                 Stmt LastExpression = (Stmt) getRhsSym(2);
@@ -5325,9 +5214,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 319:  MethodBody ::= = Annotationsopt { BlockStatementsopt LastExpression }
+            // Rule 311:  MethodBody ::= = Annotationsopt { BlockStatementsopt LastExpression }
             //
-            case 319: {
+            case 311: {
                //#line 3665 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3663 "x10/parser/x10.g"
                 List<AnnotationNode> Annotationsopt = (List<AnnotationNode>) getRhsSym(2);
@@ -5344,9 +5233,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 320:  MethodBody ::= = Annotationsopt Block
+            // Rule 312:  MethodBody ::= = Annotationsopt Block
             //
-            case 320: {
+            case 312: {
                //#line 3673 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3671 "x10/parser/x10.g"
                 List<AnnotationNode> Annotationsopt = (List<AnnotationNode>) getRhsSym(2);
@@ -5358,9 +5247,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 321:  MethodBody ::= Annotationsopt Block
+            // Rule 313:  MethodBody ::= Annotationsopt Block
             //
-            case 321: {
+            case 313: {
                //#line 3678 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3676 "x10/parser/x10.g"
                 List<AnnotationNode> Annotationsopt = (List<AnnotationNode>) getRhsSym(1);
@@ -5372,16 +5261,16 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 322:  MethodBody ::= ;
+            // Rule 314:  MethodBody ::= ;
             //
-            case 322:
+            case 314:
                 setResult(null);
                 break;
 
             //
-            // Rule 323:  ConstructorBody ::= = ConstructorBlock
+            // Rule 315:  ConstructorBody ::= = ConstructorBlock
             //
-            case 323: {
+            case 315: {
                //#line 3749 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3747 "x10/parser/x10.g"
                 Block ConstructorBlock = (Block) getRhsSym(2);
@@ -5391,9 +5280,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 324:  ConstructorBody ::= ConstructorBlock
+            // Rule 316:  ConstructorBody ::= ConstructorBlock
             //
-            case 324: {
+            case 316: {
                //#line 3754 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3752 "x10/parser/x10.g"
                 Block ConstructorBlock = (Block) getRhsSym(1);
@@ -5403,9 +5292,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 325:  ConstructorBody ::= = ExplicitConstructorInvocation
+            // Rule 317:  ConstructorBody ::= = ExplicitConstructorInvocation
             //
-            case 325: {
+            case 317: {
                //#line 3759 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3757 "x10/parser/x10.g"
                 ConstructorCall ExplicitConstructorInvocation = (ConstructorCall) getRhsSym(2);
@@ -5417,9 +5306,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 326:  ConstructorBody ::= = AssignPropertyCall
+            // Rule 318:  ConstructorBody ::= = AssignPropertyCall
             //
-            case 326: {
+            case 318: {
                //#line 3766 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3764 "x10/parser/x10.g"
                 Stmt AssignPropertyCall = (Stmt) getRhsSym(2);
@@ -5431,16 +5320,16 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 327:  ConstructorBody ::= ;
+            // Rule 319:  ConstructorBody ::= ;
             //
-            case 327:
+            case 319:
                 setResult(null);
                 break;
 
             //
-            // Rule 328:  ConstructorBlock ::= { ExplicitConstructorInvocationopt BlockStatementsopt }
+            // Rule 320:  ConstructorBlock ::= { ExplicitConstructorInvocationopt BlockStatementsopt }
             //
-            case 328: {
+            case 320: {
                //#line 3776 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3774 "x10/parser/x10.g"
                 Stmt ExplicitConstructorInvocationopt = (Stmt) getRhsSym(2);
@@ -5458,9 +5347,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 329:  Arguments ::= ( ArgumentListopt )
+            // Rule 321:  Arguments ::= ( ArgumentListopt )
             //
-            case 329: {
+            case 321: {
                //#line 3788 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3786 "x10/parser/x10.g"
                 List<Expr> ArgumentListopt = (List<Expr>) getRhsSym(2);
@@ -5470,9 +5359,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 331:  ExtendsInterfaces ::= extends Type
+            // Rule 323:  ExtendsInterfaces ::= extends Type
             //
-            case 331: {
+            case 323: {
                //#line 3845 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3843 "x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(2);
@@ -5484,9 +5373,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 332:  ExtendsInterfaces ::= ExtendsInterfaces , Type
+            // Rule 324:  ExtendsInterfaces ::= ExtendsInterfaces , Type
             //
-            case 332: {
+            case 324: {
                //#line 3852 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3850 "x10/parser/x10.g"
                 List<TypeNode> ExtendsInterfaces = (List<TypeNode>) getRhsSym(1);
@@ -5498,9 +5387,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 333:  InterfaceBody ::= { InterfaceMemberDeclarationsopt }
+            // Rule 325:  InterfaceBody ::= { InterfaceMemberDeclarationsopt }
             //
-            case 333: {
+            case 325: {
                //#line 3861 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3859 "x10/parser/x10.g"
                 List<ClassMember> InterfaceMemberDeclarationsopt = (List<ClassMember>) getRhsSym(2);
@@ -5510,9 +5399,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 335:  InterfaceMemberDeclarations ::= InterfaceMemberDeclarations InterfaceMemberDeclaration
+            // Rule 327:  InterfaceMemberDeclarations ::= InterfaceMemberDeclarations InterfaceMemberDeclaration
             //
-            case 335: {
+            case 327: {
                //#line 3868 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3866 "x10/parser/x10.g"
                 List<ClassMember> InterfaceMemberDeclarations = (List<ClassMember>) getRhsSym(1);
@@ -5525,9 +5414,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 336:  InterfaceMemberDeclaration ::= MethodDeclaration
+            // Rule 328:  InterfaceMemberDeclaration ::= MethodDeclaration
             //
-            case 336: {
+            case 328: {
                //#line 3875 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3873 "x10/parser/x10.g"
                 ClassMember MethodDeclaration = (ClassMember) getRhsSym(1);
@@ -5539,9 +5428,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 337:  InterfaceMemberDeclaration ::= PropertyMethodDeclaration
+            // Rule 329:  InterfaceMemberDeclaration ::= PropertyMethodDeclaration
             //
-            case 337: {
+            case 329: {
                //#line 3882 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3880 "x10/parser/x10.g"
                 ClassMember PropertyMethodDeclaration = (ClassMember) getRhsSym(1);
@@ -5553,9 +5442,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 338:  InterfaceMemberDeclaration ::= FieldDeclaration
+            // Rule 330:  InterfaceMemberDeclaration ::= FieldDeclaration
             //
-            case 338: {
+            case 330: {
                //#line 3889 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3887 "x10/parser/x10.g"
                 List<ClassMember> FieldDeclaration = (List<ClassMember>) getRhsSym(1);
@@ -5567,9 +5456,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 339:  InterfaceMemberDeclaration ::= ClassDeclaration
+            // Rule 331:  InterfaceMemberDeclaration ::= ClassDeclaration
             //
-            case 339: {
+            case 331: {
                //#line 3896 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3894 "x10/parser/x10.g"
                 ClassDecl ClassDeclaration = (ClassDecl) getRhsSym(1);
@@ -5581,9 +5470,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 340:  InterfaceMemberDeclaration ::= InterfaceDeclaration
+            // Rule 332:  InterfaceMemberDeclaration ::= InterfaceDeclaration
             //
-            case 340: {
+            case 332: {
                //#line 3903 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3901 "x10/parser/x10.g"
                 ClassDecl InterfaceDeclaration = (ClassDecl) getRhsSym(1);
@@ -5595,9 +5484,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 341:  InterfaceMemberDeclaration ::= TypeDefDeclaration
+            // Rule 333:  InterfaceMemberDeclaration ::= TypeDefDeclaration
             //
-            case 341: {
+            case 333: {
                //#line 3910 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3908 "x10/parser/x10.g"
                 TypeDecl TypeDefDeclaration = (TypeDecl) getRhsSym(1);
@@ -5609,9 +5498,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 342:  InterfaceMemberDeclaration ::= ;
+            // Rule 334:  InterfaceMemberDeclaration ::= ;
             //
-            case 342: {
+            case 334: {
                //#line 3917 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 3917 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -5620,9 +5509,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 343:  Annotations ::= Annotation
+            // Rule 335:  Annotations ::= Annotation
             //
-            case 343: {
+            case 335: {
                //#line 3923 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3921 "x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
@@ -5634,9 +5523,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 344:  Annotations ::= Annotations Annotation
+            // Rule 336:  Annotations ::= Annotations Annotation
             //
-            case 344: {
+            case 336: {
                //#line 3930 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3928 "x10/parser/x10.g"
                 List<AnnotationNode> Annotations = (List<AnnotationNode>) getRhsSym(1);
@@ -5648,9 +5537,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 345:  Annotation ::= @ NamedType
+            // Rule 337:  Annotation ::= @ NamedType
             //
-            case 345: {
+            case 337: {
                //#line 3936 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3934 "x10/parser/x10.g"
                 TypeNode NamedType = (TypeNode) getRhsSym(2);
@@ -5660,9 +5549,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 346:  Identifier ::= identifier
+            // Rule 338:  Identifier ::= identifier
             //
-            case 346: {
+            case 338: {
                //#line 3951 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3949 "x10/parser/x10.g"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
@@ -5672,9 +5561,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 347:  Block ::= { BlockStatementsopt }
+            // Rule 339:  Block ::= { BlockStatementsopt }
             //
-            case 347: {
+            case 339: {
                //#line 3987 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3985 "x10/parser/x10.g"
                 List<Stmt> BlockStatementsopt = (List<Stmt>) getRhsSym(2);
@@ -5684,9 +5573,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 348:  BlockStatements ::= BlockStatement
+            // Rule 340:  BlockStatements ::= BlockStatement
             //
-            case 348: {
+            case 340: {
                //#line 3993 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3991 "x10/parser/x10.g"
                 List<Stmt> BlockStatement = (List<Stmt>) getRhsSym(1);
@@ -5698,9 +5587,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 349:  BlockStatements ::= BlockStatements BlockStatement
+            // Rule 341:  BlockStatements ::= BlockStatements BlockStatement
             //
-            case 349: {
+            case 341: {
                //#line 4000 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 3998 "x10/parser/x10.g"
                 List<Stmt> BlockStatements = (List<Stmt>) getRhsSym(1);
@@ -5713,9 +5602,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 351:  BlockStatement ::= ClassDeclaration
+            // Rule 343:  BlockStatement ::= ClassDeclaration
             //
-            case 351: {
+            case 343: {
                //#line 4008 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4006 "x10/parser/x10.g"
                 ClassDecl ClassDeclaration = (ClassDecl) getRhsSym(1);
@@ -5727,9 +5616,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 352:  BlockStatement ::= TypeDefDeclaration
+            // Rule 344:  BlockStatement ::= TypeDefDeclaration
             //
-            case 352: {
+            case 344: {
                //#line 4015 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4013 "x10/parser/x10.g"
                 TypeDecl TypeDefDeclaration = (TypeDecl) getRhsSym(1);
@@ -5741,9 +5630,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 353:  BlockStatement ::= Statement
+            // Rule 345:  BlockStatement ::= Statement
             //
-            case 353: {
+            case 345: {
                //#line 4022 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4020 "x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(1);
@@ -5755,9 +5644,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 354:  IdentifierList ::= Identifier
+            // Rule 346:  IdentifierList ::= Identifier
             //
-            case 354: {
+            case 346: {
                //#line 4030 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4028 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
@@ -5769,9 +5658,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 355:  IdentifierList ::= IdentifierList , Identifier
+            // Rule 347:  IdentifierList ::= IdentifierList , Identifier
             //
-            case 355: {
+            case 347: {
                //#line 4037 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4035 "x10/parser/x10.g"
                 List<Id> IdentifierList = (List<Id>) getRhsSym(1);
@@ -5783,9 +5672,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 356:  FormalDeclarator ::= Identifier ResultType
+            // Rule 348:  FormalDeclarator ::= Identifier ResultType
             //
-            case 356: {
+            case 348: {
                //#line 4043 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4041 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
@@ -5797,9 +5686,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 357:  FormalDeclarator ::= [ IdentifierList ] ResultType
+            // Rule 349:  FormalDeclarator ::= [ IdentifierList ] ResultType
             //
-            case 357: {
+            case 349: {
                //#line 4048 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4046 "x10/parser/x10.g"
                 List<Id> IdentifierList = (List<Id>) getRhsSym(2);
@@ -5811,9 +5700,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 358:  FormalDeclarator ::= Identifier [ IdentifierList ] ResultType
+            // Rule 350:  FormalDeclarator ::= Identifier [ IdentifierList ] ResultType
             //
-            case 358: {
+            case 350: {
                //#line 4053 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4051 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
@@ -5827,9 +5716,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 359:  FieldDeclarator ::= Identifier HasResultType
+            // Rule 351:  FieldDeclarator ::= Identifier HasResultType
             //
-            case 359: {
+            case 351: {
                //#line 4059 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4057 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
@@ -5841,9 +5730,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 360:  FieldDeclarator ::= Identifier HasResultTypeopt = VariableInitializer
+            // Rule 352:  FieldDeclarator ::= Identifier HasResultTypeopt = VariableInitializer
             //
-            case 360: {
+            case 352: {
                //#line 4064 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4062 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
@@ -5857,9 +5746,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 361:  VariableDeclarator ::= Identifier HasResultTypeopt = VariableInitializer
+            // Rule 353:  VariableDeclarator ::= Identifier HasResultTypeopt = VariableInitializer
             //
-            case 361: {
+            case 353: {
                //#line 4070 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4068 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
@@ -5873,9 +5762,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 362:  VariableDeclarator ::= [ IdentifierList ] HasResultTypeopt = VariableInitializer
+            // Rule 354:  VariableDeclarator ::= [ IdentifierList ] HasResultTypeopt = VariableInitializer
             //
-            case 362: {
+            case 354: {
                //#line 4075 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4073 "x10/parser/x10.g"
                 List<Id> IdentifierList = (List<Id>) getRhsSym(2);
@@ -5889,9 +5778,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 363:  VariableDeclarator ::= Identifier [ IdentifierList ] HasResultTypeopt = VariableInitializer
+            // Rule 355:  VariableDeclarator ::= Identifier [ IdentifierList ] HasResultTypeopt = VariableInitializer
             //
-            case 363: {
+            case 355: {
                //#line 4080 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4078 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
@@ -5907,9 +5796,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 364:  VariableDeclaratorWithType ::= Identifier HasResultType = VariableInitializer
+            // Rule 356:  VariableDeclaratorWithType ::= Identifier HasResultType = VariableInitializer
             //
-            case 364: {
+            case 356: {
                //#line 4086 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4084 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
@@ -5923,9 +5812,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 365:  VariableDeclaratorWithType ::= [ IdentifierList ] HasResultType = VariableInitializer
+            // Rule 357:  VariableDeclaratorWithType ::= [ IdentifierList ] HasResultType = VariableInitializer
             //
-            case 365: {
+            case 357: {
                //#line 4091 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4089 "x10/parser/x10.g"
                 List<Id> IdentifierList = (List<Id>) getRhsSym(2);
@@ -5939,9 +5828,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 366:  VariableDeclaratorWithType ::= Identifier [ IdentifierList ] HasResultType = VariableInitializer
+            // Rule 358:  VariableDeclaratorWithType ::= Identifier [ IdentifierList ] HasResultType = VariableInitializer
             //
-            case 366: {
+            case 358: {
                //#line 4096 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4094 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
@@ -5957,9 +5846,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 368:  LocalVariableDeclaration ::= Modifiersopt VarKeyword VariableDeclarators
+            // Rule 360:  LocalVariableDeclaration ::= Modifiersopt VarKeyword VariableDeclarators
             //
-            case 368: {
+            case 360: {
                //#line 4104 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4102 "x10/parser/x10.g"
                 List<Modifier> Modifiersopt = (List<Modifier>) getRhsSym(1);
@@ -5998,9 +5887,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 369:  LocalVariableDeclaration ::= Modifiersopt VariableDeclaratorsWithType
+            // Rule 361:  LocalVariableDeclaration ::= Modifiersopt VariableDeclaratorsWithType
             //
-            case 369: {
+            case 361: {
                //#line 4134 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4132 "x10/parser/x10.g"
                 List<Modifier> Modifiersopt = (List<Modifier>) getRhsSym(1);
@@ -6038,9 +5927,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 370:  LocalVariableDeclaration ::= Modifiersopt VarKeyword FormalDeclarators
+            // Rule 362:  LocalVariableDeclaration ::= Modifiersopt VarKeyword FormalDeclarators
             //
-            case 370: {
+            case 362: {
                //#line 4165 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4163 "x10/parser/x10.g"
                 List<Modifier> Modifiersopt = (List<Modifier>) getRhsSym(1);
@@ -6081,9 +5970,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 371:  Primary ::= here
+            // Rule 363:  Primary ::= here
             //
-            case 371: {
+            case 363: {
                //#line 4203 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4203 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -6092,9 +5981,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 372:  Primary ::= [ ArgumentListopt ]
+            // Rule 364:  Primary ::= [ ArgumentListopt ]
             //
-            case 372: {
+            case 364: {
                //#line 4209 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4207 "x10/parser/x10.g"
                 List<Expr> ArgumentListopt = (List<Expr>) getRhsSym(2);
@@ -6105,9 +5994,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 374:  Primary ::= self
+            // Rule 366:  Primary ::= self
             //
-            case 374: {
+            case 366: {
                //#line 4217 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4217 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -6116,9 +6005,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 375:  Primary ::= this
+            // Rule 367:  Primary ::= this
             //
-            case 375: {
+            case 367: {
                //#line 4222 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4222 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -6127,9 +6016,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 376:  Primary ::= ClassName . this
+            // Rule 368:  Primary ::= ClassName . this
             //
-            case 376: {
+            case 368: {
                //#line 4227 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4225 "x10/parser/x10.g"
                 ParsedName ClassName = (ParsedName) getRhsSym(1);
@@ -6139,9 +6028,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 377:  Primary ::= ( Expression )
+            // Rule 369:  Primary ::= ( Expression )
             //
-            case 377: {
+            case 369: {
                //#line 4232 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4230 "x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(2);
@@ -6151,9 +6040,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 383:  OperatorFunction ::= TypeName . +
+            // Rule 375:  OperatorFunction ::= TypeName . +
             //
-            case 383: {
+            case 375: {
                //#line 4243 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4241 "x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
@@ -6169,9 +6058,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 384:  OperatorFunction ::= TypeName . -
+            // Rule 376:  OperatorFunction ::= TypeName . -
             //
-            case 384: {
+            case 376: {
                //#line 4254 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4252 "x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
@@ -6187,9 +6076,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 385:  OperatorFunction ::= TypeName . *
+            // Rule 377:  OperatorFunction ::= TypeName . *
             //
-            case 385: {
+            case 377: {
                //#line 4265 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4263 "x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
@@ -6205,9 +6094,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 386:  OperatorFunction ::= TypeName . /
+            // Rule 378:  OperatorFunction ::= TypeName . /
             //
-            case 386: {
+            case 378: {
                //#line 4276 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4274 "x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
@@ -6223,9 +6112,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 387:  OperatorFunction ::= TypeName . %
+            // Rule 379:  OperatorFunction ::= TypeName . %
             //
-            case 387: {
+            case 379: {
                //#line 4287 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4285 "x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
@@ -6241,9 +6130,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 388:  OperatorFunction ::= TypeName . &
+            // Rule 380:  OperatorFunction ::= TypeName . &
             //
-            case 388: {
+            case 380: {
                //#line 4298 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4296 "x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
@@ -6259,9 +6148,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 389:  OperatorFunction ::= TypeName . |
+            // Rule 381:  OperatorFunction ::= TypeName . |
             //
-            case 389: {
+            case 381: {
                //#line 4309 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4307 "x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
@@ -6277,9 +6166,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 390:  OperatorFunction ::= TypeName . ^
+            // Rule 382:  OperatorFunction ::= TypeName . ^
             //
-            case 390: {
+            case 382: {
                //#line 4320 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4318 "x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
@@ -6295,9 +6184,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 391:  OperatorFunction ::= TypeName . <<
+            // Rule 383:  OperatorFunction ::= TypeName . <<
             //
-            case 391: {
+            case 383: {
                //#line 4331 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4329 "x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
@@ -6313,9 +6202,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 392:  OperatorFunction ::= TypeName . >>
+            // Rule 384:  OperatorFunction ::= TypeName . >>
             //
-            case 392: {
+            case 384: {
                //#line 4342 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4340 "x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
@@ -6331,9 +6220,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 393:  OperatorFunction ::= TypeName . >>>
+            // Rule 385:  OperatorFunction ::= TypeName . >>>
             //
-            case 393: {
+            case 385: {
                //#line 4353 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4351 "x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
@@ -6349,9 +6238,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 394:  OperatorFunction ::= TypeName . <
+            // Rule 386:  OperatorFunction ::= TypeName . <
             //
-            case 394: {
+            case 386: {
                //#line 4364 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4362 "x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
@@ -6367,9 +6256,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 395:  OperatorFunction ::= TypeName . <=
+            // Rule 387:  OperatorFunction ::= TypeName . <=
             //
-            case 395: {
+            case 387: {
                //#line 4375 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4373 "x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
@@ -6385,9 +6274,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 396:  OperatorFunction ::= TypeName . >=
+            // Rule 388:  OperatorFunction ::= TypeName . >=
             //
-            case 396: {
+            case 388: {
                //#line 4386 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4384 "x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
@@ -6403,9 +6292,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 397:  OperatorFunction ::= TypeName . >
+            // Rule 389:  OperatorFunction ::= TypeName . >
             //
-            case 397: {
+            case 389: {
                //#line 4397 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4395 "x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
@@ -6421,9 +6310,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 398:  OperatorFunction ::= TypeName . ==
+            // Rule 390:  OperatorFunction ::= TypeName . ==
             //
-            case 398: {
+            case 390: {
                //#line 4408 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4406 "x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
@@ -6439,9 +6328,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 399:  OperatorFunction ::= TypeName . !=
+            // Rule 391:  OperatorFunction ::= TypeName . !=
             //
-            case 399: {
+            case 391: {
                //#line 4419 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4417 "x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
@@ -6457,9 +6346,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 400:  Literal ::= IntegerLiteral$lit
+            // Rule 392:  Literal ::= IntegerLiteral$lit
             //
-            case 400: {
+            case 392: {
                //#line 4432 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4430 "x10/parser/x10.g"
                 IToken lit = (IToken) getRhsIToken(1);
@@ -6470,9 +6359,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 401:  Literal ::= LongLiteral$lit
+            // Rule 393:  Literal ::= LongLiteral$lit
             //
-            case 401: {
+            case 393: {
                //#line 4438 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4436 "x10/parser/x10.g"
                 IToken lit = (IToken) getRhsIToken(1);
@@ -6483,9 +6372,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 402:  Literal ::= UnsignedIntegerLiteral$lit
+            // Rule 394:  Literal ::= UnsignedIntegerLiteral$lit
             //
-            case 402: {
+            case 394: {
                //#line 4444 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4442 "x10/parser/x10.g"
                 IToken lit = (IToken) getRhsIToken(1);
@@ -6496,9 +6385,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 403:  Literal ::= UnsignedLongLiteral$lit
+            // Rule 395:  Literal ::= UnsignedLongLiteral$lit
             //
-            case 403: {
+            case 395: {
                //#line 4450 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4448 "x10/parser/x10.g"
                 IToken lit = (IToken) getRhsIToken(1);
@@ -6509,9 +6398,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 404:  Literal ::= FloatingPointLiteral$lit
+            // Rule 396:  Literal ::= FloatingPointLiteral$lit
             //
-            case 404: {
+            case 396: {
                //#line 4456 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4454 "x10/parser/x10.g"
                 IToken lit = (IToken) getRhsIToken(1);
@@ -6522,9 +6411,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 405:  Literal ::= DoubleLiteral$lit
+            // Rule 397:  Literal ::= DoubleLiteral$lit
             //
-            case 405: {
+            case 397: {
                //#line 4462 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4460 "x10/parser/x10.g"
                 IToken lit = (IToken) getRhsIToken(1);
@@ -6535,9 +6424,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 406:  Literal ::= BooleanLiteral
+            // Rule 398:  Literal ::= BooleanLiteral
             //
-            case 406: {
+            case 398: {
                //#line 4468 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4466 "x10/parser/x10.g"
                 polyglot.lex.BooleanLiteral BooleanLiteral = (polyglot.lex.BooleanLiteral) getRhsSym(1);
@@ -6547,9 +6436,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 407:  Literal ::= CharacterLiteral$lit
+            // Rule 399:  Literal ::= CharacterLiteral$lit
             //
-            case 407: {
+            case 399: {
                //#line 4473 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4471 "x10/parser/x10.g"
                 IToken lit = (IToken) getRhsIToken(1);
@@ -6560,9 +6449,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 408:  Literal ::= StringLiteral$str
+            // Rule 400:  Literal ::= StringLiteral$str
             //
-            case 408: {
+            case 400: {
                //#line 4479 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4477 "x10/parser/x10.g"
                 IToken str = (IToken) getRhsIToken(1);
@@ -6573,9 +6462,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 409:  Literal ::= null
+            // Rule 401:  Literal ::= null
             //
-            case 409: {
+            case 401: {
                //#line 4485 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4485 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -6584,9 +6473,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 410:  BooleanLiteral ::= true$trueLiteral
+            // Rule 402:  BooleanLiteral ::= true$trueLiteral
             //
-            case 410: {
+            case 402: {
                //#line 4491 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4489 "x10/parser/x10.g"
                 IToken trueLiteral = (IToken) getRhsIToken(1);
@@ -6596,9 +6485,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 411:  BooleanLiteral ::= false$falseLiteral
+            // Rule 403:  BooleanLiteral ::= false$falseLiteral
             //
-            case 411: {
+            case 403: {
                //#line 4496 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4494 "x10/parser/x10.g"
                 IToken falseLiteral = (IToken) getRhsIToken(1);
@@ -6608,9 +6497,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 412:  ArgumentList ::= Expression
+            // Rule 404:  ArgumentList ::= Expression
             //
-            case 412: {
+            case 404: {
                //#line 4505 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4503 "x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(1);
@@ -6622,9 +6511,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 413:  ArgumentList ::= ArgumentList , Expression
+            // Rule 405:  ArgumentList ::= ArgumentList , Expression
             //
-            case 413: {
+            case 405: {
                //#line 4512 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4510 "x10/parser/x10.g"
                 List<Expr> ArgumentList = (List<Expr>) getRhsSym(1);
@@ -6636,9 +6525,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 414:  FieldAccess ::= Primary . Identifier
+            // Rule 406:  FieldAccess ::= Primary . Identifier
             //
-            case 414: {
+            case 406: {
                //#line 4518 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4516 "x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
@@ -6650,9 +6539,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 415:  FieldAccess ::= super . Identifier
+            // Rule 407:  FieldAccess ::= super . Identifier
             //
-            case 415: {
+            case 407: {
                //#line 4523 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4521 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
@@ -6662,9 +6551,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 416:  FieldAccess ::= ClassName . super$sup . Identifier
+            // Rule 408:  FieldAccess ::= ClassName . super$sup . Identifier
             //
-            case 416: {
+            case 408: {
                //#line 4528 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4526 "x10/parser/x10.g"
                 ParsedName ClassName = (ParsedName) getRhsSym(1);
@@ -6678,9 +6567,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 417:  FieldAccess ::= Primary . class$c
+            // Rule 409:  FieldAccess ::= Primary . class$c
             //
-            case 417: {
+            case 409: {
                //#line 4533 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4531 "x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
@@ -6692,9 +6581,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 418:  FieldAccess ::= super . class$c
+            // Rule 410:  FieldAccess ::= super . class$c
             //
-            case 418: {
+            case 410: {
                //#line 4538 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4536 "x10/parser/x10.g"
                 IToken c = (IToken) getRhsIToken(3);
@@ -6704,9 +6593,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 419:  FieldAccess ::= ClassName . super$sup . class$c
+            // Rule 411:  FieldAccess ::= ClassName . super$sup . class$c
             //
-            case 419: {
+            case 411: {
                //#line 4543 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4541 "x10/parser/x10.g"
                 ParsedName ClassName = (ParsedName) getRhsSym(1);
@@ -6720,9 +6609,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 420:  MethodInvocation ::= MethodName TypeArgumentsopt ( ArgumentListopt )
+            // Rule 412:  MethodInvocation ::= MethodName TypeArgumentsopt ( ArgumentListopt )
             //
-            case 420: {
+            case 412: {
                //#line 4549 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4547 "x10/parser/x10.g"
                 ParsedName MethodName = (ParsedName) getRhsSym(1);
@@ -6738,9 +6627,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 421:  MethodInvocation ::= Primary . Identifier TypeArgumentsopt ( ArgumentListopt )
+            // Rule 413:  MethodInvocation ::= Primary . Identifier TypeArgumentsopt ( ArgumentListopt )
             //
-            case 421: {
+            case 413: {
                //#line 4556 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4554 "x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
@@ -6756,9 +6645,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 422:  MethodInvocation ::= super . Identifier TypeArgumentsopt ( ArgumentListopt )
+            // Rule 414:  MethodInvocation ::= super . Identifier TypeArgumentsopt ( ArgumentListopt )
             //
-            case 422: {
+            case 414: {
                //#line 4561 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4559 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
@@ -6772,9 +6661,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 423:  MethodInvocation ::= ClassName . super$sup . Identifier TypeArgumentsopt ( ArgumentListopt )
+            // Rule 415:  MethodInvocation ::= ClassName . super$sup . Identifier TypeArgumentsopt ( ArgumentListopt )
             //
-            case 423: {
+            case 415: {
                //#line 4566 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4564 "x10/parser/x10.g"
                 ParsedName ClassName = (ParsedName) getRhsSym(1);
@@ -6792,9 +6681,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 424:  MethodInvocation ::= Primary TypeArgumentsopt ( ArgumentListopt )
+            // Rule 416:  MethodInvocation ::= Primary TypeArgumentsopt ( ArgumentListopt )
             //
-            case 424: {
+            case 416: {
                //#line 4571 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4569 "x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
@@ -6822,9 +6711,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 425:  MethodSelection ::= MethodName . ( FormalParameterListopt )
+            // Rule 417:  MethodSelection ::= MethodName . ( FormalParameterListopt )
             //
-            case 425: {
+            case 417: {
                //#line 4591 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4589 "x10/parser/x10.g"
                 ParsedName MethodName = (ParsedName) getRhsSym(1);
@@ -6844,9 +6733,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 426:  MethodSelection ::= Primary . Identifier . ( FormalParameterListopt )
+            // Rule 418:  MethodSelection ::= Primary . Identifier . ( FormalParameterListopt )
             //
-            case 426: {
+            case 418: {
                //#line 4604 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4602 "x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
@@ -6867,9 +6756,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 427:  MethodSelection ::= super . Identifier . ( FormalParameterListopt )
+            // Rule 419:  MethodSelection ::= super . Identifier . ( FormalParameterListopt )
             //
-            case 427: {
+            case 419: {
                //#line 4616 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4614 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
@@ -6889,9 +6778,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 428:  MethodSelection ::= ClassName . super$sup . Identifier . ( FormalParameterListopt )
+            // Rule 420:  MethodSelection ::= ClassName . super$sup . Identifier . ( FormalParameterListopt )
             //
-            case 428: {
+            case 420: {
                //#line 4629 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4627 "x10/parser/x10.g"
                 ParsedName ClassName = (ParsedName) getRhsSym(1);
@@ -6915,9 +6804,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 432:  PostIncrementExpression ::= PostfixExpression ++
+            // Rule 424:  PostIncrementExpression ::= PostfixExpression ++
             //
-            case 432: {
+            case 424: {
                //#line 4647 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4645 "x10/parser/x10.g"
                 Expr PostfixExpression = (Expr) getRhsSym(1);
@@ -6927,9 +6816,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 433:  PostDecrementExpression ::= PostfixExpression --
+            // Rule 425:  PostDecrementExpression ::= PostfixExpression --
             //
-            case 433: {
+            case 425: {
                //#line 4653 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4651 "x10/parser/x10.g"
                 Expr PostfixExpression = (Expr) getRhsSym(1);
@@ -6939,9 +6828,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 436:  UnannotatedUnaryExpression ::= + UnaryExpressionNotPlusMinus
+            // Rule 428:  UnannotatedUnaryExpression ::= + UnaryExpressionNotPlusMinus
             //
-            case 436: {
+            case 428: {
                //#line 4661 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4659 "x10/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(2);
@@ -6951,9 +6840,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 437:  UnannotatedUnaryExpression ::= - UnaryExpressionNotPlusMinus
+            // Rule 429:  UnannotatedUnaryExpression ::= - UnaryExpressionNotPlusMinus
             //
-            case 437: {
+            case 429: {
                //#line 4666 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4664 "x10/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(2);
@@ -6963,9 +6852,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 440:  UnaryExpression ::= Annotations UnannotatedUnaryExpression
+            // Rule 432:  UnaryExpression ::= Annotations UnannotatedUnaryExpression
             //
-            case 440: {
+            case 432: {
                //#line 4674 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4672 "x10/parser/x10.g"
                 List<AnnotationNode> Annotations = (List<AnnotationNode>) getRhsSym(1);
@@ -6979,9 +6868,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 441:  PreIncrementExpression ::= ++ UnaryExpressionNotPlusMinus
+            // Rule 433:  PreIncrementExpression ::= ++ UnaryExpressionNotPlusMinus
             //
-            case 441: {
+            case 433: {
                //#line 4682 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4680 "x10/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(2);
@@ -6991,9 +6880,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 442:  PreDecrementExpression ::= -- UnaryExpressionNotPlusMinus
+            // Rule 434:  PreDecrementExpression ::= -- UnaryExpressionNotPlusMinus
             //
-            case 442: {
+            case 434: {
                //#line 4688 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4686 "x10/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(2);
@@ -7003,9 +6892,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 444:  UnaryExpressionNotPlusMinus ::= ~ UnaryExpression
+            // Rule 436:  UnaryExpressionNotPlusMinus ::= ~ UnaryExpression
             //
-            case 444: {
+            case 436: {
                //#line 4695 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4693 "x10/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(2);
@@ -7015,9 +6904,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 445:  UnaryExpressionNotPlusMinus ::= ! UnaryExpression
+            // Rule 437:  UnaryExpressionNotPlusMinus ::= ! UnaryExpression
             //
-            case 445: {
+            case 437: {
                //#line 4700 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4698 "x10/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(2);
@@ -7027,9 +6916,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 447:  MultiplicativeExpression ::= MultiplicativeExpression * UnaryExpression
+            // Rule 439:  MultiplicativeExpression ::= MultiplicativeExpression * UnaryExpression
             //
-            case 447: {
+            case 439: {
                //#line 4707 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4705 "x10/parser/x10.g"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(1);
@@ -7041,9 +6930,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 448:  MultiplicativeExpression ::= MultiplicativeExpression / UnaryExpression
+            // Rule 440:  MultiplicativeExpression ::= MultiplicativeExpression / UnaryExpression
             //
-            case 448: {
+            case 440: {
                //#line 4712 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4710 "x10/parser/x10.g"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(1);
@@ -7055,9 +6944,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 449:  MultiplicativeExpression ::= MultiplicativeExpression % UnaryExpression
+            // Rule 441:  MultiplicativeExpression ::= MultiplicativeExpression % UnaryExpression
             //
-            case 449: {
+            case 441: {
                //#line 4717 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4715 "x10/parser/x10.g"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(1);
@@ -7069,9 +6958,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 451:  AdditiveExpression ::= AdditiveExpression + MultiplicativeExpression
+            // Rule 443:  AdditiveExpression ::= AdditiveExpression + MultiplicativeExpression
             //
-            case 451: {
+            case 443: {
                //#line 4724 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4722 "x10/parser/x10.g"
                 Expr AdditiveExpression = (Expr) getRhsSym(1);
@@ -7083,9 +6972,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 452:  AdditiveExpression ::= AdditiveExpression - MultiplicativeExpression
+            // Rule 444:  AdditiveExpression ::= AdditiveExpression - MultiplicativeExpression
             //
-            case 452: {
+            case 444: {
                //#line 4729 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4727 "x10/parser/x10.g"
                 Expr AdditiveExpression = (Expr) getRhsSym(1);
@@ -7097,9 +6986,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 454:  ShiftExpression ::= ShiftExpression << AdditiveExpression
+            // Rule 446:  ShiftExpression ::= ShiftExpression << AdditiveExpression
             //
-            case 454: {
+            case 446: {
                //#line 4736 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4734 "x10/parser/x10.g"
                 Expr ShiftExpression = (Expr) getRhsSym(1);
@@ -7111,9 +7000,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 455:  ShiftExpression ::= ShiftExpression >> AdditiveExpression
+            // Rule 447:  ShiftExpression ::= ShiftExpression >> AdditiveExpression
             //
-            case 455: {
+            case 447: {
                //#line 4741 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4739 "x10/parser/x10.g"
                 Expr ShiftExpression = (Expr) getRhsSym(1);
@@ -7125,9 +7014,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 456:  ShiftExpression ::= ShiftExpression >>> AdditiveExpression
+            // Rule 448:  ShiftExpression ::= ShiftExpression >>> AdditiveExpression
             //
-            case 456: {
+            case 448: {
                //#line 4746 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4744 "x10/parser/x10.g"
                 Expr ShiftExpression = (Expr) getRhsSym(1);
@@ -7139,9 +7028,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 458:  RangeExpression ::= ShiftExpression$expr1 .. ShiftExpression$expr2
+            // Rule 450:  RangeExpression ::= ShiftExpression$expr1 .. ShiftExpression$expr2
             //
-            case 458: {
+            case 450: {
                //#line 4753 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4751 "x10/parser/x10.g"
                 Expr expr1 = (Expr) getRhsSym(1);
@@ -7154,9 +7043,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 461:  RelationalExpression ::= RelationalExpression < RangeExpression
+            // Rule 453:  RelationalExpression ::= RelationalExpression < RangeExpression
             //
-            case 461: {
+            case 453: {
                //#line 4762 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4760 "x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
@@ -7168,9 +7057,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 462:  RelationalExpression ::= RelationalExpression > RangeExpression
+            // Rule 454:  RelationalExpression ::= RelationalExpression > RangeExpression
             //
-            case 462: {
+            case 454: {
                //#line 4767 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4765 "x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
@@ -7182,9 +7071,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 463:  RelationalExpression ::= RelationalExpression <= RangeExpression
+            // Rule 455:  RelationalExpression ::= RelationalExpression <= RangeExpression
             //
-            case 463: {
+            case 455: {
                //#line 4772 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4770 "x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
@@ -7196,9 +7085,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 464:  RelationalExpression ::= RelationalExpression >= RangeExpression
+            // Rule 456:  RelationalExpression ::= RelationalExpression >= RangeExpression
             //
-            case 464: {
+            case 456: {
                //#line 4777 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4775 "x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
@@ -7210,9 +7099,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 465:  RelationalExpression ::= RelationalExpression instanceof Type
+            // Rule 457:  RelationalExpression ::= RelationalExpression instanceof Type
             //
-            case 465: {
+            case 457: {
                //#line 4782 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4780 "x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
@@ -7224,9 +7113,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 466:  RelationalExpression ::= RelationalExpression in ShiftExpression
+            // Rule 458:  RelationalExpression ::= RelationalExpression in ShiftExpression
             //
-            case 466: {
+            case 458: {
                //#line 4787 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4785 "x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
@@ -7238,9 +7127,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 468:  EqualityExpression ::= EqualityExpression == RelationalExpression
+            // Rule 460:  EqualityExpression ::= EqualityExpression == RelationalExpression
             //
-            case 468: {
+            case 460: {
                //#line 4794 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4792 "x10/parser/x10.g"
                 Expr EqualityExpression = (Expr) getRhsSym(1);
@@ -7252,9 +7141,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 469:  EqualityExpression ::= EqualityExpression != RelationalExpression
+            // Rule 461:  EqualityExpression ::= EqualityExpression != RelationalExpression
             //
-            case 469: {
+            case 461: {
                //#line 4799 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4797 "x10/parser/x10.g"
                 Expr EqualityExpression = (Expr) getRhsSym(1);
@@ -7266,9 +7155,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 470:  EqualityExpression ::= Type$t1 == Type$t2
+            // Rule 462:  EqualityExpression ::= Type$t1 == Type$t2
             //
-            case 470: {
+            case 462: {
                //#line 4804 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4802 "x10/parser/x10.g"
                 TypeNode t1 = (TypeNode) getRhsSym(1);
@@ -7280,9 +7169,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 472:  AndExpression ::= AndExpression & EqualityExpression
+            // Rule 464:  AndExpression ::= AndExpression & EqualityExpression
             //
-            case 472: {
+            case 464: {
                //#line 4811 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4809 "x10/parser/x10.g"
                 Expr AndExpression = (Expr) getRhsSym(1);
@@ -7294,9 +7183,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 474:  ExclusiveOrExpression ::= ExclusiveOrExpression ^ AndExpression
+            // Rule 466:  ExclusiveOrExpression ::= ExclusiveOrExpression ^ AndExpression
             //
-            case 474: {
+            case 466: {
                //#line 4818 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4816 "x10/parser/x10.g"
                 Expr ExclusiveOrExpression = (Expr) getRhsSym(1);
@@ -7308,9 +7197,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 476:  InclusiveOrExpression ::= InclusiveOrExpression | ExclusiveOrExpression
+            // Rule 468:  InclusiveOrExpression ::= InclusiveOrExpression | ExclusiveOrExpression
             //
-            case 476: {
+            case 468: {
                //#line 4825 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4823 "x10/parser/x10.g"
                 Expr InclusiveOrExpression = (Expr) getRhsSym(1);
@@ -7322,9 +7211,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 478:  ConditionalAndExpression ::= ConditionalAndExpression && InclusiveOrExpression
+            // Rule 470:  ConditionalAndExpression ::= ConditionalAndExpression && InclusiveOrExpression
             //
-            case 478: {
+            case 470: {
                //#line 4832 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4830 "x10/parser/x10.g"
                 Expr ConditionalAndExpression = (Expr) getRhsSym(1);
@@ -7336,9 +7225,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 480:  ConditionalOrExpression ::= ConditionalOrExpression || ConditionalAndExpression
+            // Rule 472:  ConditionalOrExpression ::= ConditionalOrExpression || ConditionalAndExpression
             //
-            case 480: {
+            case 472: {
                //#line 4839 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4837 "x10/parser/x10.g"
                 Expr ConditionalOrExpression = (Expr) getRhsSym(1);
@@ -7350,9 +7239,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 485:  ConditionalExpression ::= ConditionalOrExpression ? Expression : ConditionalExpression
+            // Rule 477:  ConditionalExpression ::= ConditionalOrExpression ? Expression : ConditionalExpression
             //
-            case 485: {
+            case 477: {
                //#line 4850 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4848 "x10/parser/x10.g"
                 Expr ConditionalOrExpression = (Expr) getRhsSym(1);
@@ -7366,9 +7255,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 488:  Assignment ::= LeftHandSide AssignmentOperator AssignmentExpression
+            // Rule 480:  Assignment ::= LeftHandSide AssignmentOperator AssignmentExpression
             //
-            case 488: {
+            case 480: {
                //#line 4859 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4857 "x10/parser/x10.g"
                 Expr LeftHandSide = (Expr) getRhsSym(1);
@@ -7382,9 +7271,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 489:  Assignment ::= ExpressionName$e1 ( ArgumentListopt ) AssignmentOperator AssignmentExpression
+            // Rule 481:  Assignment ::= ExpressionName$e1 ( ArgumentListopt ) AssignmentOperator AssignmentExpression
             //
-            case 489: {
+            case 481: {
                //#line 4864 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4862 "x10/parser/x10.g"
                 ParsedName e1 = (ParsedName) getRhsSym(1);
@@ -7400,9 +7289,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 490:  Assignment ::= Primary$e1 ( ArgumentListopt ) AssignmentOperator AssignmentExpression
+            // Rule 482:  Assignment ::= Primary$e1 ( ArgumentListopt ) AssignmentOperator AssignmentExpression
             //
-            case 490: {
+            case 482: {
                //#line 4869 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4867 "x10/parser/x10.g"
                 Expr e1 = (Expr) getRhsSym(1);
@@ -7418,9 +7307,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 491:  LeftHandSide ::= ExpressionName
+            // Rule 483:  LeftHandSide ::= ExpressionName
             //
-            case 491: {
+            case 483: {
                //#line 4875 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 4873 "x10/parser/x10.g"
                 ParsedName ExpressionName = (ParsedName) getRhsSym(1);
@@ -7430,9 +7319,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 493:  AssignmentOperator ::= =
+            // Rule 485:  AssignmentOperator ::= =
             //
-            case 493: {
+            case 485: {
                //#line 4882 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4882 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7441,9 +7330,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 494:  AssignmentOperator ::= *=
+            // Rule 486:  AssignmentOperator ::= *=
             //
-            case 494: {
+            case 486: {
                //#line 4887 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4887 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7452,9 +7341,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 495:  AssignmentOperator ::= /=
+            // Rule 487:  AssignmentOperator ::= /=
             //
-            case 495: {
+            case 487: {
                //#line 4892 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4892 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7463,9 +7352,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 496:  AssignmentOperator ::= %=
+            // Rule 488:  AssignmentOperator ::= %=
             //
-            case 496: {
+            case 488: {
                //#line 4897 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4897 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7474,9 +7363,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 497:  AssignmentOperator ::= +=
+            // Rule 489:  AssignmentOperator ::= +=
             //
-            case 497: {
+            case 489: {
                //#line 4902 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4902 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7485,9 +7374,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 498:  AssignmentOperator ::= -=
+            // Rule 490:  AssignmentOperator ::= -=
             //
-            case 498: {
+            case 490: {
                //#line 4907 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4907 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7496,9 +7385,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 499:  AssignmentOperator ::= <<=
+            // Rule 491:  AssignmentOperator ::= <<=
             //
-            case 499: {
+            case 491: {
                //#line 4912 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4912 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7507,9 +7396,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 500:  AssignmentOperator ::= >>=
+            // Rule 492:  AssignmentOperator ::= >>=
             //
-            case 500: {
+            case 492: {
                //#line 4917 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4917 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7518,9 +7407,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 501:  AssignmentOperator ::= >>>=
+            // Rule 493:  AssignmentOperator ::= >>>=
             //
-            case 501: {
+            case 493: {
                //#line 4922 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4922 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7529,9 +7418,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 502:  AssignmentOperator ::= &=
+            // Rule 494:  AssignmentOperator ::= &=
             //
-            case 502: {
+            case 494: {
                //#line 4927 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4927 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7540,9 +7429,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 503:  AssignmentOperator ::= ^=
+            // Rule 495:  AssignmentOperator ::= ^=
             //
-            case 503: {
+            case 495: {
                //#line 4932 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4932 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7551,9 +7440,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 504:  AssignmentOperator ::= |=
+            // Rule 496:  AssignmentOperator ::= |=
             //
-            case 504: {
+            case 496: {
                //#line 4937 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4937 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7562,9 +7451,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 507:  PrefixOp ::= +
+            // Rule 499:  PrefixOp ::= +
             //
-            case 507: {
+            case 499: {
                //#line 4948 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4948 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7573,9 +7462,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 508:  PrefixOp ::= -
+            // Rule 500:  PrefixOp ::= -
             //
-            case 508: {
+            case 500: {
                //#line 4953 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4953 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7584,9 +7473,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 509:  PrefixOp ::= !
+            // Rule 501:  PrefixOp ::= !
             //
-            case 509: {
+            case 501: {
                //#line 4958 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4958 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7595,9 +7484,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 510:  PrefixOp ::= ~
+            // Rule 502:  PrefixOp ::= ~
             //
-            case 510: {
+            case 502: {
                //#line 4963 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4963 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7606,9 +7495,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 511:  BinOp ::= +
+            // Rule 503:  BinOp ::= +
             //
-            case 511: {
+            case 503: {
                //#line 4969 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4969 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7617,9 +7506,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 512:  BinOp ::= -
+            // Rule 504:  BinOp ::= -
             //
-            case 512: {
+            case 504: {
                //#line 4974 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4974 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7628,9 +7517,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 513:  BinOp ::= *
+            // Rule 505:  BinOp ::= *
             //
-            case 513: {
+            case 505: {
                //#line 4979 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4979 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7639,9 +7528,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 514:  BinOp ::= /
+            // Rule 506:  BinOp ::= /
             //
-            case 514: {
+            case 506: {
                //#line 4984 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4984 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7650,9 +7539,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 515:  BinOp ::= %
+            // Rule 507:  BinOp ::= %
             //
-            case 515: {
+            case 507: {
                //#line 4989 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4989 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7661,9 +7550,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 516:  BinOp ::= &
+            // Rule 508:  BinOp ::= &
             //
-            case 516: {
+            case 508: {
                //#line 4994 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4994 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7672,9 +7561,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 517:  BinOp ::= |
+            // Rule 509:  BinOp ::= |
             //
-            case 517: {
+            case 509: {
                //#line 4999 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 4999 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7683,9 +7572,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 518:  BinOp ::= ^
+            // Rule 510:  BinOp ::= ^
             //
-            case 518: {
+            case 510: {
                //#line 5004 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 5004 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7694,9 +7583,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 519:  BinOp ::= &&
+            // Rule 511:  BinOp ::= &&
             //
-            case 519: {
+            case 511: {
                //#line 5009 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 5009 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7705,9 +7594,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 520:  BinOp ::= ||
+            // Rule 512:  BinOp ::= ||
             //
-            case 520: {
+            case 512: {
                //#line 5014 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 5014 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7716,9 +7605,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 521:  BinOp ::= <<
+            // Rule 513:  BinOp ::= <<
             //
-            case 521: {
+            case 513: {
                //#line 5019 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 5019 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7727,9 +7616,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 522:  BinOp ::= >>
+            // Rule 514:  BinOp ::= >>
             //
-            case 522: {
+            case 514: {
                //#line 5024 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 5024 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7738,9 +7627,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 523:  BinOp ::= >>>
+            // Rule 515:  BinOp ::= >>>
             //
-            case 523: {
+            case 515: {
                //#line 5029 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 5029 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7749,9 +7638,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 524:  BinOp ::= >=
+            // Rule 516:  BinOp ::= >=
             //
-            case 524: {
+            case 516: {
                //#line 5034 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 5034 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7760,9 +7649,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 525:  BinOp ::= <=
+            // Rule 517:  BinOp ::= <=
             //
-            case 525: {
+            case 517: {
                //#line 5039 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 5039 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7771,9 +7660,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 526:  BinOp ::= >
+            // Rule 518:  BinOp ::= >
             //
-            case 526: {
+            case 518: {
                //#line 5044 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 5044 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7782,9 +7671,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 527:  BinOp ::= <
+            // Rule 519:  BinOp ::= <
             //
-            case 527: {
+            case 519: {
                //#line 5049 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 5049 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7793,9 +7682,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 528:  BinOp ::= ==
+            // Rule 520:  BinOp ::= ==
             //
-            case 528: {
+            case 520: {
                //#line 5057 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 5057 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7804,9 +7693,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 529:  BinOp ::= !=
+            // Rule 521:  BinOp ::= !=
             //
-            case 529: {
+            case 521: {
                //#line 5062 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 5062 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7815,9 +7704,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 530:  Catchesopt ::= $Empty
+            // Rule 522:  Catchesopt ::= $Empty
             //
-            case 530: {
+            case 522: {
                //#line 5071 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 5071 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7826,16 +7715,16 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 532:  Identifieropt ::= $Empty
+            // Rule 524:  Identifieropt ::= $Empty
             //
-            case 532:
+            case 524:
                 setResult(null);
                 break;
 
             //
-            // Rule 533:  Identifieropt ::= Identifier
+            // Rule 525:  Identifieropt ::= Identifier
             //
-            case 533: {
+            case 525: {
                //#line 5080 "lpg.generator/templates/java/btParserTemplateF.gi"
                 //#line 5078 "x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
@@ -7845,9 +7734,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 534:  ForUpdateopt ::= $Empty
+            // Rule 526:  ForUpdateopt ::= $Empty
             //
-            case 534: {
+            case 526: {
                //#line 5086 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 5086 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7856,16 +7745,16 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 536:  Expressionopt ::= $Empty
+            // Rule 528:  Expressionopt ::= $Empty
             //
-            case 536:
+            case 528:
                 setResult(null);
                 break;
 
             //
-            // Rule 538:  ForInitopt ::= $Empty
+            // Rule 530:  ForInitopt ::= $Empty
             //
-            case 538: {
+            case 530: {
                //#line 5097 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 5097 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7874,9 +7763,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 540:  SwitchLabelsopt ::= $Empty
+            // Rule 532:  SwitchLabelsopt ::= $Empty
             //
-            case 540: {
+            case 532: {
                //#line 5104 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 5104 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7885,9 +7774,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 542:  SwitchBlockStatementGroupsopt ::= $Empty
+            // Rule 534:  SwitchBlockStatementGroupsopt ::= $Empty
             //
-            case 542: {
+            case 534: {
                //#line 5111 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 5111 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7896,9 +7785,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 544:  InterfaceMemberDeclarationsopt ::= $Empty
+            // Rule 536:  InterfaceMemberDeclarationsopt ::= $Empty
             //
-            case 544: {
+            case 536: {
                //#line 5135 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 5135 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7907,9 +7796,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 546:  ExtendsInterfacesopt ::= $Empty
+            // Rule 538:  ExtendsInterfacesopt ::= $Empty
             //
-            case 546: {
+            case 538: {
                //#line 5142 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 5142 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7918,16 +7807,16 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 548:  ClassBodyopt ::= $Empty
+            // Rule 540:  ClassBodyopt ::= $Empty
             //
-            case 548:
+            case 540:
                 setResult(null);
                 break;
 
             //
-            // Rule 550:  ArgumentListopt ::= $Empty
+            // Rule 542:  ArgumentListopt ::= $Empty
             //
-            case 550: {
+            case 542: {
                //#line 5173 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 5173 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7936,9 +7825,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 552:  BlockStatementsopt ::= $Empty
+            // Rule 544:  BlockStatementsopt ::= $Empty
             //
-            case 552: {
+            case 544: {
                //#line 5180 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 5180 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7947,16 +7836,16 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 554:  ExplicitConstructorInvocationopt ::= $Empty
+            // Rule 546:  ExplicitConstructorInvocationopt ::= $Empty
             //
-            case 554:
+            case 546:
                 setResult(null);
                 break;
 
             //
-            // Rule 556:  FormalParameterListopt ::= $Empty
+            // Rule 548:  FormalParameterListopt ::= $Empty
             //
-            case 556: {
+            case 548: {
                //#line 5201 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 5201 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7965,9 +7854,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 558:  Offersopt ::= $Empty
+            // Rule 550:  Offersopt ::= $Empty
             //
-            case 558: {
+            case 550: {
                //#line 5214 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 5214 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7976,9 +7865,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 560:  ClassBodyDeclarationsopt ::= $Empty
+            // Rule 552:  ClassBodyDeclarationsopt ::= $Empty
             //
-            case 560: {
+            case 552: {
                //#line 5251 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 5251 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7987,9 +7876,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 562:  Interfacesopt ::= $Empty
+            // Rule 554:  Interfacesopt ::= $Empty
             //
-            case 562: {
+            case 554: {
                //#line 5258 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 5258 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -7998,16 +7887,16 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 564:  Superopt ::= $Empty
+            // Rule 556:  Superopt ::= $Empty
             //
-            case 564:
+            case 556:
                 setResult(null);
                 break;
 
             //
-            // Rule 566:  TypeParametersopt ::= $Empty
+            // Rule 558:  TypeParametersopt ::= $Empty
             //
-            case 566: {
+            case 558: {
                //#line 5269 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 5269 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -8016,9 +7905,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 568:  FormalParametersopt ::= $Empty
+            // Rule 560:  FormalParametersopt ::= $Empty
             //
-            case 568: {
+            case 560: {
                //#line 5276 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 5276 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -8027,9 +7916,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 570:  Annotationsopt ::= $Empty
+            // Rule 562:  Annotationsopt ::= $Empty
             //
-            case 570: {
+            case 562: {
                //#line 5283 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 5283 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -8038,9 +7927,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 572:  TypeDeclarationsopt ::= $Empty
+            // Rule 564:  TypeDeclarationsopt ::= $Empty
             //
-            case 572: {
+            case 564: {
                //#line 5290 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 5290 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -8049,9 +7938,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 574:  ImportDeclarationsopt ::= $Empty
+            // Rule 566:  ImportDeclarationsopt ::= $Empty
             //
-            case 574: {
+            case 566: {
                //#line 5297 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 5297 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -8060,23 +7949,23 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 576:  PackageDeclarationopt ::= $Empty
+            // Rule 568:  PackageDeclarationopt ::= $Empty
             //
-            case 576:
+            case 568:
                 setResult(null);
                 break;
 
             //
-            // Rule 578:  HasResultTypeopt ::= $Empty
+            // Rule 570:  HasResultTypeopt ::= $Empty
             //
-            case 578:
+            case 570:
                 setResult(null);
                 break;
 
             //
-            // Rule 580:  TypeArgumentsopt ::= $Empty
+            // Rule 572:  TypeArgumentsopt ::= $Empty
             //
-            case 580: {
+            case 572: {
                //#line 5318 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 5318 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -8085,9 +7974,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 582:  TypeParamsWithVarianceopt ::= $Empty
+            // Rule 574:  TypeParamsWithVarianceopt ::= $Empty
             //
-            case 582: {
+            case 574: {
                //#line 5325 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 5325 "lpg.generator/templates/java/btParserTemplateF.gi"
@@ -8096,9 +7985,9 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
             }
     
             //
-            // Rule 584:  Propertiesopt ::= $Empty
+            // Rule 576:  Propertiesopt ::= $Empty
             //
-            case 584: {
+            case 576: {
                //#line 5332 "lpg.generator/templates/java/btParserTemplateF.gi"
                 
                 //#line 5332 "lpg.generator/templates/java/btParserTemplateF.gi"

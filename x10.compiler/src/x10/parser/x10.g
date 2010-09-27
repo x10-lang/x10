@@ -2120,12 +2120,12 @@
                 | AtStatement
                 | AtomicStatement
                 | WhenStatement
-                | ForEachStatement
+--                | ForEachStatement
                 | AtEachStatement
                 | FinishStatement
                 | NextStatement
                 | ResumeStatement
-                | AwaitStatement
+--                | AwaitStatement
                 | AssignPropertyCall
                 | OfferStatement
     
@@ -2163,7 +2163,7 @@
                     | WhileStatement
                     | DoStatement
                     | AtEachStatement
-                    | ForEachStatement
+--                    | ForEachStatement
     
     ExpressionStatement ::= StatementExpression ;
         /.$BeginJava
@@ -2388,63 +2388,63 @@
                     setResult(nf.When(pos(), Expression, Statement));
           $EndJava
         ./
-                     | WhenStatement or$or ( Expression ) Statement
-        /.$BeginJava
-                  WhenStatement.addBranch(pos(getRhsFirstTokenIndex($or), getRightSpan()), Expression, Statement);
-                  setResult(WhenStatement);
-          $EndJava
-        ./
+--                     | WhenStatement or$or ( Expression ) Statement
+--        /.$BeginJava
+--                  WhenStatement.addBranch(pos(getRhsFirstTokenIndex($or), getRightSpan()), Expression, Statement);
+--                  setResult(WhenStatement);
+--          $EndJava
+--        ./
 
-    ForEachStatement ::= foreach ( LoopIndex in Expression ) ClockedClauseopt Statement
-        /.$BeginJava
-                    FlagsNode fn = LoopIndex.flags();
-                    if (! fn.flags().isFinal()) {
-                        syntaxError("Enhanced foreach loop may not have var loop index" + LoopIndex, LoopIndex.position());
-                        fn = fn.flags(fn.flags().Final());
-                        LoopIndex = LoopIndex.flags(fn);
-                    }
-                    setResult(nf.ForEach(pos(),
-                                  LoopIndex,
-                                  Expression,
-                                  ClockedClauseopt,
-                                  Statement));
-          $EndJava
-        ./ 
-         | clocked foreach ( LoopIndex in Expression ) Statement
-        /.$BeginJava
-                    FlagsNode fn = LoopIndex.flags();
-                    if (! fn.flags().isFinal()) {
-                        syntaxError("Enhanced foreach loop cannot have var loop index" + LoopIndex, LoopIndex.position());
-                        fn = fn.flags(fn.flags().Final());
-                        LoopIndex = LoopIndex.flags(fn);
-                    }
-                    setResult(nf.ForEach(pos(),
-                                  LoopIndex,
-                                  Expression,
-                                  Statement));
-          $EndJava
-        ./ 
-         | foreach ( Expression ) Statement
-        /.$BeginJava
-                    Id name = nf.Id(pos(), Name.makeFresh());
-                    TypeNode type = nf.UnknownTypeNode(pos());
-                    setResult(nf.ForEach(pos(),
-                            nf.X10Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), type, name, null, true),
-                            Expression,
-                            new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false),
-                            Statement));
-          $EndJava
-        ./ 
-         | clocked foreach ( Expression ) Statement
-        /.$BeginJava
-                    Id name = nf.Id(pos(), Name.makeFresh());
-                    TypeNode type = nf.UnknownTypeNode(pos());
-                    setResult(nf.ForEach(pos(),
-                            nf.X10Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), type, name, null, true),
-                            Expression,
-                            Statement));
-          $EndJava
-        ./ 
+--    ForEachStatement ::= foreach ( LoopIndex in Expression ) ClockedClauseopt Statement
+--        /.$BeginJava
+--                    FlagsNode fn = LoopIndex.flags();
+--                    if (! fn.flags().isFinal()) {
+--                        syntaxError("Enhanced foreach loop may not have var loop index" + LoopIndex, LoopIndex.position());
+--                        fn = fn.flags(fn.flags().Final());
+--                        LoopIndex = LoopIndex.flags(fn);
+--                    }
+--                    setResult(nf.ForEach(pos(),
+--                                 LoopIndex,
+--                                  Expression,
+--                                  ClockedClauseopt,
+--                                  Statement));
+--          $EndJava
+--        ./ 
+--         | clocked foreach ( LoopIndex in Expression ) Statement
+--        /.$BeginJava
+--                    FlagsNode fn = LoopIndex.flags();
+--                    if (! fn.flags().isFinal()) {
+--                        syntaxError("Enhanced foreach loop cannot have var loop index" + LoopIndex, LoopIndex.position());
+--                        fn = fn.flags(fn.flags().Final());
+--                        LoopIndex = LoopIndex.flags(fn);
+--                    }
+--                    setResult(nf.ForEach(pos(),
+--                                  LoopIndex,
+--                                  Expression,
+--                                  Statement));
+--          $EndJava
+--        ./ 
+--         | foreach ( Expression ) Statement
+--        /.$BeginJava
+--                    Id name = nf.Id(pos(), Name.makeFresh());
+--                    TypeNode type = nf.UnknownTypeNode(pos());
+--                    setResult(nf.ForEach(pos(),
+--                            nf.X10Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), type, name, null, true),
+--                            Expression,
+--                            new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false),
+--                            Statement));
+--          $EndJava
+--        ./ 
+--         | clocked foreach ( Expression ) Statement
+--        /.$BeginJava
+--                    Id name = nf.Id(pos(), Name.makeFresh());
+--                    TypeNode type = nf.UnknownTypeNode(pos());
+--                    setResult(nf.ForEach(pos(),
+--                            nf.X10Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), type, name, null, true),
+--                            Expression,
+--                            Statement));
+--          $EndJava
+--        ./ 
 
     AtEachStatement ::= ateach ( LoopIndex in Expression ) ClockedClauseopt Statement
         /.$BeginJava
@@ -5529,12 +5529,12 @@
     AtExpr ::= AtExpression
     Atomic ::= AtomicStatement
     When ::= WhenStatement
-    ForEach ::= ForEachStatement
+--    ForEach ::= ForEachStatement
     AtEach ::= AtEachStatement
     Finish ::= FinishStatement
     Next ::= NextStatement
     Resume ::= ResumeStatement
-    Await ::= AwaitStatement
+--    Await ::= AwaitStatement
     Expr ::= Clock
     List<Expr> ::= ClockList
            | ClockedClause

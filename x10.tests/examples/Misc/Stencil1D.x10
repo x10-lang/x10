@@ -40,7 +40,7 @@ public class Stencil1D extends x10Test {
        val blocks = block(1..N, P);
        for (; delta > epsilon; iters++) {
           delta = 0;
-          finish foreach ([p]:Point(1) in 0..P-1) {
+          finish for ([p]:Point(1) in 0..P-1) async {
              val myDelta  = step(A, blocks(p));
              atomic  delta= Math.max(delta, myDelta);
           }

@@ -12,7 +12,7 @@
 import harness.x10Test;
 
 /**
- * Implementing a 5-point stencil operation using foreach loop
+ * Implementing a 5-point stencil operation using a for..async loop
  * @author Tong  11/29/2006
  * @author vj 09/2008 In 1.7 this version is hte same as StencilForeach2D. 
  * Type inference infers all the relevant properties.
@@ -30,7 +30,7 @@ public class StencilForeach2D_Dep extends x10Test {
         val A  =  new Array[double](R, (Point)=>0.0D); 
         val h: double = 0.1;
         
-        finish foreach (val p: Point(2) in r) 
+        finish for (val p: Point(2) in r) async
             A(p)=(A(p+north)+A(p+south)+A(p+west)+A(p+east)-4*A(p))*h;
             
         return true;

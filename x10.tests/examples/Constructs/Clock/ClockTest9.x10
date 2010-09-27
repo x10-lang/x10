@@ -32,7 +32,7 @@ public class ClockTest9 extends x10Test {
 			val c: Clock = Clock.make();
 
 			// outer barrier loop
-			foreach ([i] in 0..N-1) clocked(c) {
+			for ([i] in 0..N-1) async clocked(c) {
 				foreachBody(i, c);
 			}
 		}
@@ -44,7 +44,7 @@ public class ClockTest9 extends x10Test {
 			val d: Clock = Clock.make();
 
 			// inner barrier loop
-			foreach ([j] in 0..M-1) clocked(d) {
+			for ([j] in 0..M-1) async clocked(d) {
 				foreachBodyInner(i, j, d);
 			}
 		}
