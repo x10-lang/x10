@@ -94,6 +94,7 @@ public class X10Special_c extends Special_c implements X10Special {
         			X10ConstructorDef cd = (X10ConstructorDef) c.currentCode();
         			Type returnType =  cd.returnType().get();
         			returnType =  ts.expandMacros(returnType);
+        			t = returnType;
         		}
         }
         else {

@@ -27,15 +27,12 @@ import polyglot.ast.Block;
 import polyglot.ast.Call;
 import polyglot.ast.Call_c;
 import polyglot.ast.ClassDecl;
-import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
 import polyglot.ast.FieldAssign;
-import polyglot.ast.FieldDecl;
 import polyglot.ast.Formal;
 import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
-import polyglot.ast.MethodDecl;
 import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
@@ -71,7 +68,6 @@ import polyglot.visit.AlphaRenamer;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.ErrorHandlingVisitor;
 import polyglot.visit.NodeVisitor;
-import x10.ast.AssignPropertyCall;
 import x10.ast.Closure;
 import x10.ast.ClosureCall;
 import x10.ast.DepParameterExpr;
@@ -80,11 +76,11 @@ import x10.ast.SettableAssign;
 import x10.ast.StmtExpr;
 import x10.ast.X10Call;
 import x10.ast.X10Call_c;
-import x10.ast.X10ConstructorCall;
-import x10.ast.X10FieldAssign_c;
+import x10.ast.X10ClassDecl;
+import x10.ast.X10ConstructorDecl;
+import x10.ast.X10FieldDecl;
 import x10.ast.X10Formal;
 import x10.ast.X10MethodDecl;
-import x10.ast.X10New;
 import x10.ast.X10NodeFactory;
 import x10.ast.X10Special;
 import x10.constraint.XFailure;
@@ -93,21 +89,12 @@ import x10.errors.Errors;
 import x10.errors.Warnings;
 import x10.extension.X10Ext;
 import x10.optimizations.ForLoopOptimizer;
-import x10.types.AnnotatedType;
-import x10.types.ClosureInstance;
-import x10.types.ConstrainedType;
-import x10.types.FunctionType;
-import x10.types.MacroType;
 import x10.types.ParameterType;
 import x10.types.TypeParamSubst;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
-import x10.types.X10ConstructorInstance;
-import x10.types.X10FieldInstance;
-import x10.types.X10LocalInstance;
 import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
-import x10.types.X10ParsedClassType;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.checker.Converter;
@@ -211,8 +198,6 @@ public class Inliner extends ContextVisitor {
     private static final Set<Job> badJobs                          = new HashSet<Job>();
     private static final Map<String, Node> astMap                  = new HashMap<String, Node>();
 
-    private TypeParamSubst typeMap;
-
     /**
      * 
      */
@@ -280,7 +265,7 @@ public class Inliner extends ContextVisitor {
     }
 
     public Node override(Node node) {
-        if (node instanceof MethodDecl) {
+        if (node instanceof X10MethodDecl) {
             return null;  // @NoInline annotation means something else
         }
         if (node instanceof Call) {
@@ -843,7 +828,8 @@ private int getCost(X10MethodDecl decl, Job job) {
 
     private LocalDecl createThisFormal(X10MethodInstance mi, LocalDecl init) {
         if (mi.flags().isStatic()) return null;
-        Type thisType = instantiate(mi, mi.def().container().get());
+        TypeParamSubst typeMap = makeTypeMap(mi);
+        Type thisType = typeMap.reinstantiate(mi.def().container().get());
         Expr expr = null == init ? null : createCast(init.position(), syn.createLocal(init.position(), init), thisType);
         LocalDecl thisDecl = syn.createLocalDecl(mi.position(), Flags.FINAL, Name.make("this"), expr);
         return thisDecl;
@@ -862,338 +848,102 @@ private int getCost(X10MethodDecl decl, Job job) {
         return (outer.offset() <= inner.offset() && inner.endOffset() <= inner.endOffset());
     }
 
-/*
-    private Type instantiate(X10MethodInstance mi, ParameterType t) {
-        List<Ref<? extends Type>> mParms = mi.x10Def().typeParameters();
-        for (int i=0; i< mParms.size(); i++) {
-            if (t.typeEquals(((Ref<? extends Type>) mParms.get(i)).get(), context))
-                return mi.typeParameters().get(i);
-        }
-        List<ParameterType> cParms = ((X10ClassType) mi.container()).x10Def().typeParameters();
-        for (int i=0; i<cParms.size(); i++) {
-            if (t.typeEquals(cParms.get(i), context))
-                return ((X10ClassType) mi.container()).typeArguments().get(i);
-        }
-        throw new InternalCompilerError("Type parameter " +t+ " not instantiated at call to method " +mi);
-    }
-*/
-
-    public Type instantiate(X10MethodInstance mi, ParameterType genericType) {
-        if (null != typeMap) {
-            Type type = typeMap.reinstantiateType(genericType);
-            TypeParamSubst localTypeMap = typeMap;
-            if (!type.typeEquals(genericType, context()))
-                return type;
-            return type;
-        }
-        Type concreteType = instantiate(mi.x10Def().typeParameters(), mi.typeParameters(), genericType);
-        if (null != concreteType)
-            return concreteType;
-        X10ClassType container = (X10ClassType) mi.container();
-        concreteType = instantiate(container.x10Def().typeParameters(), container.typeArguments(), genericType);
-        if (null != concreteType)
-            return concreteType;
-        throw new InternalCompilerError("Type parameter " +genericType+ " not instantiated at call to method " +mi);
-    }
-
-    /**
-     * @param genericTypes
-     * @param concreteTypes
-     * @param genericType
-     */
-    private Type instantiate(List<ParameterType> genericTypes, List<Type> concreteTypes, ParameterType genericType) {
-        for (int i=0; i<genericTypes.size(); i++) {
-            if (genericType.typeEquals(genericTypes.get(i), context)) {
-                return concreteTypes.get(i);
-            }
-        }
-        return null;
-    }
-
-    private Type instantiate(X10MethodInstance mi, ConstrainedType t) {
-        return X10TypeMixin.constrainedType(instantiate(mi, Types.get(t.baseType())), Types.get(t.constraint()));
-    }
-
-    private Type instantiate(X10MethodInstance mi, X10ParsedClassType t) { // TODO
-        List<Type> initialTypes = t.typeArguments();
-        if (null != initialTypes) {
-            List<Type> finalTypes = new ArrayList<Type>();
-            for (Type type : initialTypes) {
-                finalTypes.add(instantiate(mi, type));
-            }
-            return t.typeArguments(finalTypes);
-        }
-        return (Type) t.copy();
-    }
-
-    private Type instantiate(X10MethodInstance mi, Type t) {
-        if (t instanceof ConstrainedType) {
-            return instantiate(mi, (ConstrainedType) t);
-        } else if (t instanceof ParameterType) {
-            return instantiate(mi, (ParameterType) t);
-        } else if (t instanceof X10ParsedClassType) {
-            return instantiate(mi, (X10ParsedClassType) t); // T
-        }
-        assert (!(t instanceof MacroType)) : "OOPS: Typedef found after typechecking: " +t;
-        assert (!(t instanceof UnknownType)): "OOPS: UnknownType: " +t;
-        assert (!(t instanceof FunctionType)): "OOPS: Closure: " +t; // TODO: handle this case
-        assert (!(t instanceof ConstructorInstance)): "OOPS: Constructor instance " +t; // TODO: handle this case
-        assert (!(t instanceof ClosureInstance)): "OOPS: Closure instance: " +t; // TODO: handle this case
-        assert (!(t instanceof AnnotatedType)): "OOPS: Annotated type : " +t; // TODO: handle this case (instantiate base class)
-        return (Type) t.copy();
-    }
-
-    private X10MethodInstance instantiate(X10MethodInstance mi, X10MethodInstance methodInstance) {
-        X10MethodInstance resultInstance = (X10MethodInstance) methodInstance.copy();
-        resultInstance = methodInstance.returnType(instantiate(mi, resultInstance.returnType()));
-        List<Type> formalTypes = new ArrayList<Type>();
-        for (Type f : methodInstance.formalTypes()) {
-            Type type = instantiate(mi, f);
-            formalTypes.add(type);
-        }
-        resultInstance = (X10MethodInstance) resultInstance.formalTypes(formalTypes);
-        // TODO: handle offer type(s)
-        return resultInstance;
-    }
-
-    private X10ConstructorInstance instantiate(X10MethodInstance mi, X10ConstructorInstance constructorInstance) {
-        X10ConstructorInstance resultInstance = (X10ConstructorInstance) constructorInstance.copy();
-        resultInstance = constructorInstance.returnType(instantiate(mi, resultInstance.returnType()));
-        List<Type> formalTypes = new ArrayList<Type>();
-        List<Ref<? extends Type>> typeParameters = new ArrayList<Ref<? extends Type>>();
-        for (Type f : constructorInstance.formalTypes()) {
-            Type type = instantiate(mi, f);
-            formalTypes.add(type);
-            typeParameters.add(Types.ref(type));
-        }
-        resultInstance = (X10ConstructorInstance) resultInstance.formalTypes(formalTypes);
-        // TODO: handle offer type(s)
-        return resultInstance;
-    }
-
-    private X10FieldInstance instantiate(X10MethodInstance mi, X10FieldInstance fieldInstance) {
-        return fieldInstance.type(instantiate(mi, fieldInstance.type()));
-    }
-
-    /**
-     * @param mi
-     * @param constructorInstance
-     * @return
-     */
-    protected ConstructorInstance instantiate(X10MethodInstance mi, ConstructorInstance constructorInstance) {
-        X10ConstructorInstance resultInstance = (X10ConstructorInstance) constructorInstance.copy();
-        List<Type> formalTypes = new ArrayList<Type>();
-        for (Type f : constructorInstance.formalTypes()) {
-            Type type = instantiate(mi, f);
-            formalTypes.add(type);
-        }
-        resultInstance = (X10ConstructorInstance) resultInstance.formalTypes(formalTypes);
-        // TODO: handle offer type(s)???
-        return resultInstance;
-    }
-
     private X10MethodDecl instantiate(final X10MethodDecl decl, X10Call c) {
         debug("Instantiate " +decl, c);
         final X10MethodInstance mi = (X10MethodInstance) c.methodInstance();
-        typeMap = makeTypeMap(mi);
-        TypeParamSubst localTypeMap = typeMap; // DEBUG
-        final HashMap<Name, LocalDef> vars = new HashMap<Name, LocalDef>();
-        return (X10MethodDecl) decl.visit(new ContextVisitor(job, ts, nf) {
-            protected Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
-                if (n instanceof TypeNode) {
-                    //return ((TypeNode) n).typeRef(Types.ref(instantiate(mi, ((TypeNode) n).type())));
-                    TypeNode node = ((TypeNode) n).typeRef(typeMap.reinstantiateRef(((TypeNode) n).typeRef()));
-                    if (!node.type().typeEquals(((TypeNode) n).type(), context()))
-                        return node;
-                    return node;
-                }
-                if (n instanceof Expr) {
-                    // Expr e = ((Expr) n).type(instantiate(mi, ((Expr) n).type()));
-                    Expr d = (Expr) n;
-                    Expr e = d.type(typeMap.reinstantiateType(d.type()));
-                    if (e instanceof Local) {
-                        Local l = (Local) e;
-                        LocalDef ld = vars.get(l.name().id());
-                        if (ld != null) {
-                            Local reins = l.localInstance(typeMap.reinstantiateLI((X10LocalInstance) l.localInstance()));
-                            Local local = l.localInstance(ld.asInstance());
-                            if (local.type().typeEquals(reins.type(), context())) {
-                                LocalInstance rli = reins.localInstance();
-                                LocalInstance lli = local.localInstance();
-                                if (lli.name().equals(rli.name())) {
-                                    if (lli.def().equals(rli.def())) 
-                                        return reins;
-                                    return local;
-                                }
-                                return local;
-                            }
-                            return local;
-                        }
-                        return l;
-                        // return l.localInstance(typeMap.reinstantiateLI((X10LocalInstance) l.localInstance()));
-                    } else if (e instanceof Field) {
-                        Field f = (Field) e;
-                        f = f.targetImplicit(false);
-                        // f = f.fieldInstance(instantiate(mi, (X10FieldInstance) f.fieldInstance()));
-                        // // f = (Field) f.typeCheck(this); // can we do this ??
-                        // return f;
-                        return f.fieldInstance(typeMap.reinstantiateFI((X10FieldInstance) f.fieldInstance()));
-                    } else if (e instanceof Call) {
-                        X10Call c = (X10Call) e;
-                        c = (X10Call) c.targetImplicit(false);
-                        // c = (X10Call) c.methodInstance(instantiate(mi, (X10MethodInstance) c.methodInstance()));
-                        // // c = (X10Call) c.typeCheck(this); // can't do this since we inline method that refer to private fields
-                        // return c;
-                        return c.methodInstance(typeMap.reinstantiateMI((X10MethodInstance) c.methodInstance()));
-                    } else if (e instanceof New) {
-                        X10New w = (X10New) n;
-                        // w = (X10New) w.type(instantiate(mi, w.type()));
-                        // w = (X10New) w.constructorInstance(instantiate(mi, (X10ConstructorInstance) w.constructorInstance()));
-                        // // w = (X10New) w.typeCheck(this); // can't do this since we inline method that refer to private fields
-                        // return w;
-                        w = (X10New) w.type(typeMap.reinstantiateType(w.type()));
-                        return w.constructorInstance(typeMap.reinstantiateCI((X10ConstructorInstance) w.constructorInstance()));
-                    } else if (e instanceof ClosureCall) {
-                        ClosureCall c = (ClosureCall) e;
-                        // c = c.closureInstance(instantiate(mi, c.closureInstance()));
-                        // assert (false) : "Not yet implemented.";
-                        // // c = (X10ClosureCall) c.typeCheck(this); // can't do this since we inline method that refer to private fields
-                        // return c;
-                        return c.closureInstance(typeMap.reinstantiateMI(c.closureInstance()));
-                    } else if (e instanceof X10ConstructorCall) {
-                        X10ConstructorCall c = (X10ConstructorCall) n;
-                        // c = (X10ConstructorCall) c.constructorInstance(instantiate(mi, c.constructorInstance()));
-                        // assert (false) : "Not yet implemented.";
-                        // // x = (X10ConstructorCall) x.typeCheck(this); // can't do this since we inline method that refer to private fields
-                        // return c;
-                        return c.constructorInstance(typeMap.reinstantiateCI((X10ConstructorInstance) c.constructorInstance()));
-                    } else if (e instanceof SettableAssign) {
-                        SettableAssign a = (SettableAssign) n;
-                        // a = (SettableAssign) a.type(instantiate(mi, a.type()));
-                        // assert (false) : "Not yet implemented, can't instantiate " +e;
-                        // return a;
-                        a = (SettableAssign) a.type(typeMap.reinstantiateType(a.type()));
-                        a = a.methodInstance(typeMap.reinstantiateMI((X10MethodInstance) a.methodInstance()));
-                        return a.applyMethodInstance(typeMap.reinstantiateMI((X10MethodInstance) a.applyMethodInstance()));
-                    } else if (e instanceof FieldAssign) {
-                        X10FieldAssign_c f = (X10FieldAssign_c) n;
-                        // f = (X10FieldAssign_c) f.type(instantiate(mi, f.type()));
-                        // assert (false) : "Not yet implemented, can't instantiate " +e;
-                        // return f;
-                        f = (X10FieldAssign_c) f.type(typeMap.reinstantiateType(f.type()));
-                        return f.fieldInstance(typeMap.reinstantiateFI((X10FieldInstance) f.fieldInstance()));
-                    } else if (e instanceof Special) {
-                        if (((Special) e).kind().equals(Special.SUPER)) {
-                            assert (false) : "Not yet implemented, can't instantiate " +e;
-                        }
-                        return e;
-                    }
-                    return e;
-                }
-                if (n instanceof AssignPropertyCall) {
-                    AssignPropertyCall p = (AssignPropertyCall) n;
-                    List<X10FieldInstance> ps = new ArrayList<X10FieldInstance>();
-                    boolean changed = false;
-                    for (X10FieldInstance fi : p.properties()) {
-                        X10FieldInstance ifi = typeMap.reinstantiateFI(fi);
-                        changed |= (ifi != fi);
-                        ps.add(ifi);
-                    };
-                    if (!changed) ps = p.properties();
-                    return p.properties(ps);
-                }
-                if (n instanceof LocalDecl) {
-                    LocalDecl d = (LocalDecl) n;
-                    boolean sigChanged = d.type() != ((LocalDecl) old).type(); // conservative compare detects changes in substructure
-                    if (sigChanged) {
-                        LocalDef ld = d.localDef();
-                        Name name = ld.name();
-                        LocalDef ild = ts.localDef(ld.position(), ld.flags(), d.type().typeRef(), name);
-                        vars.put(name, ild); // FIXME: scoping // TODO: understand this issue
-                        return d.localDef(ild);
-                    }
-                    return d;
-                }
-                if (n instanceof Formal) {
-                    Formal f = (Formal) n;
-                    boolean sigChanged = f.type() != ((Formal) old).type(); // conservate compare detects changes in substructure
-                    if (sigChanged) {
-                        LocalDef ld = f.localDef();
-                        Name name = ld.name();
-                        LocalDef ild = ts.localDef(ld.position(), ld.flags(), f.type().typeRef(), name);
-                        vars.put(name, ild);
-                        return f.localDef(ild);
-                    }
-                    return f;
-                }
-                if (n instanceof ClassDecl) {
-                    ClassDecl d = (ClassDecl) n;
-                    boolean sigChanged = d.superClass() != ((ClassDecl) old).superClass();
-                    List<TypeNode> interfaces = d.interfaces();
-                    List<TypeNode> oldInterfaces = ((ClassDecl) old).interfaces();
-                    for (int i = 0; i < interfaces.size(); i++) {
-                        sigChanged |= interfaces.get(i) != oldInterfaces.get(i);
-                    }
-                    if (sigChanged) {
-                        throw new InternalCompilerError("Inlining of code with instantiated local classes not supported");
-                    }
-                    return d;
-                }
-                if (n instanceof FieldDecl) {
-                    FieldDecl d = (FieldDecl) n;
-                    assert (false) : "Not yet implemented, can't instantiate " +n;
-                    return d;
-                }
-                if (n instanceof Closure) {
-                    Closure c = (Closure) n;
-                    assert (false) : "Not yet implemented, can't instantiate " +n;
-                    return c;
-                }
-                if (n instanceof ConstructorDecl) {
-                    ConstructorDecl c = (ConstructorDecl) n;
-                    assert (false) : "Not yet implemented, can't instantiate " +n;
-                    return c;
-                }
-                if (n instanceof X10MethodDecl) {
-                    X10MethodDecl d = (X10MethodDecl) n;
-                    boolean sigChanged = d.returnType() != ((X10MethodDecl) old).returnType();
-                    List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
-                    List<LocalDef> formalNames = new ArrayList<LocalDef>();
-                    List<Formal> params = d.formals();
-                    List<Formal> oldParams = ((X10MethodDecl) old).formals();
-                    for (int i = 0; i < params.size(); i++) {
-                        Formal p = params.get(i);
-                        sigChanged |= p != oldParams.get(i);
-                        argTypes.add(p.type().typeRef());
-                        formalNames.add(p.localDef());
-                    }
-                    sigChanged |= d.guard() != ((X10MethodDecl) old).guard();
-                    List<Ref <? extends Type>> excTypes = new ArrayList<Ref<? extends Type>>();
-                    SubtypeSet excs = d.exceptions() == null ? new SubtypeSet(typeSystem()) : d.exceptions();
-                    SubtypeSet oldExcs = ((X10MethodDecl) old).exceptions();
-                    if (null != excs) {
-                        for (Type et : excs) {
-                            sigChanged |= !oldExcs.contains(et);
-                            excTypes.add(Types.ref(et));
-                        }
-                    }
-                    sigChanged |= d.offerType() != ((X10MethodDecl) old).offerType();
-                    if (sigChanged) {
-                        X10MethodDef md = (X10MethodDef) d.methodDef();
-                        DepParameterExpr g = d.guard();
-                        TypeNode ot = d.offerType();
-                        X10MethodDef imd = xts.methodDef(md.position(), md.container(), md.flags(), d.returnType().typeRef(),
-                                                     md.name(), md.typeParameters(), argTypes, md.thisVar(), formalNames,
-                                                     g == null ? null : g.valueConstraint(),
-                                                     g == null ? null : g.typeConstraint(), 
-                                                     ot == null ? null : ot.typeRef(), null /* the body will never be used */);
-                        return d.methodDef(imd);
-                    }
-                    return d;
-                }
-                return n;
+        TypeParamSubst typeMap = makeTypeMap(mi);
+        return (X10MethodDecl) decl.visit(new TransformingTypeVisitor(job, ts, nf, typeMap).context(context()));
+    }
+
+    public static class TransformingTypeVisitor extends X10LocalClassRemover.TypeTransformingVisitor {
+        private TransformingTypeVisitor(Job job, TypeSystem ts, NodeFactory nf, TypeParamSubst subst) {
+            super(job, ts, nf, subst);
+        }
+
+        @Override
+        protected Field transform(Field f, Field old) {
+            f = f.targetImplicit(false);
+            return super.transform(f, old);
+        }
+
+        @Override
+        protected Call transform(Call c, Call old) {
+            c = c.targetImplicit(false);
+            return super.transform(c, old);
+        }
+
+        @Override
+        protected Special transform(Special s, Special old) {
+            if (s.kind().equals(Special.SUPER)) {
+                assert (false) : "Not yet implemented, can't instantiate " +s;
             }
-        }.context(context()));
+            return super.transform(s, old);
+        }
+
+        @Override
+        protected X10ClassDecl transform(X10ClassDecl d, X10ClassDecl old) {
+            boolean sigChanged = d.superClass() != old.superClass();
+            List<TypeNode> interfaces = d.interfaces();
+            List<TypeNode> oldInterfaces = old.interfaces();
+            for (int i = 0; i < interfaces.size(); i++) {
+                sigChanged |= interfaces.get(i) != oldInterfaces.get(i);
+            }
+            if (sigChanged) {
+                throw new InternalCompilerError("Inlining of code with instantiated local classes not supported");
+            }
+            return d;
+        }
+
+        @Override
+        protected X10FieldDecl transform(X10FieldDecl d, X10FieldDecl old) {
+            assert (false) : "Not yet implemented, can't instantiate " +d;
+            return d;
+        }
+
+        @Override
+        protected X10ConstructorDecl transform(X10ConstructorDecl d, X10ConstructorDecl old) {
+            assert (false) : "Not yet implemented, can't instantiate " +d;
+            return d;
+        }
+
+        @Override
+        protected X10MethodDecl transform(X10MethodDecl d, X10MethodDecl old) {
+            boolean sigChanged = d.returnType() != old.returnType();
+            List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
+            List<LocalDef> formalNames = new ArrayList<LocalDef>();
+            List<Formal> params = d.formals();
+            List<Formal> oldParams = old.formals();
+            for (int i = 0; i < params.size(); i++) {
+                Formal p = params.get(i);
+                sigChanged |= p != oldParams.get(i);
+                argTypes.add(p.type().typeRef());
+                formalNames.add(p.localDef());
+            }
+            sigChanged |= d.guard() != old.guard();
+            List<Ref <? extends Type>> excTypes = new ArrayList<Ref<? extends Type>>();
+            SubtypeSet excs = d.exceptions() == null ? new SubtypeSet(typeSystem()) : d.exceptions();
+            SubtypeSet oldExcs = old.exceptions();
+            if (null != excs) {
+                for (Type et : excs) {
+                    sigChanged |= !oldExcs.contains(et);
+                    excTypes.add(Types.ref(et));
+                }
+            }
+            sigChanged |= d.offerType() != old.offerType();
+            if (sigChanged) {
+                X10MethodDef md = (X10MethodDef) d.methodDef();
+                DepParameterExpr g = d.guard();
+                TypeNode ot = d.offerType();
+                X10TypeSystem xts = (X10TypeSystem) ts;
+                X10MethodDef imd = xts.methodDef(md.position(), md.container(), md.flags(), d.returnType().typeRef(),
+                                                 md.name(), md.typeParameters(), argTypes, md.thisVar(), formalNames,
+                                                 g == null ? null : g.valueConstraint(),
+                                                 g == null ? null : g.typeConstraint(), 
+                                                 ot == null ? null : ot.typeRef(), null /* the body will never be used */);
+                return d.methodDef(imd);
+            }
+            return d;
+        }
     }
 
     /**

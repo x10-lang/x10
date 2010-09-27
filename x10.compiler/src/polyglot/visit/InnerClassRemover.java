@@ -35,15 +35,16 @@ public class InnerClassRemover extends ContextVisitor {
     protected Map<ClassDef, FieldDef> outerFieldInstance = new HashMap<ClassDef, FieldDef>();
     
     /** Get a reference to the enclosing instance of the current class that is of type containerClass */
-    Expr getContainer(Position pos, Expr this_, ClassDef currentClass, ClassDef containerClass) {
-        if (containerClass == currentClass)
+    Expr getContainer(Position pos, Expr this_, ClassType currentClass, ClassType containerClass) {
+        if (containerClass.def() == currentClass.def())
             return this_;
-        FieldDef fi = boxThis(currentClass, Types.get(currentClass.outer()));
+        ClassType currentContainer = currentClass.container().toClass();
+        FieldDef fi = boxThis(currentClass, currentContainer);
         Field f = nf.Field(pos, this_, nf.Id(pos, OUTER_FIELD_NAME));
         f = f.fieldInstance(fi.asInstance());
         f = (Field) f.type(fi.asInstance().type());
         f = f.targetImplicit(false);
-        return getContainer(pos, f, Types.get(currentClass.outer()), containerClass);
+        return getContainer(pos, f, currentContainer, containerClass);
     }
     
     protected ContextVisitor localClassRemover() {
@@ -86,99 +87,113 @@ public class InnerClassRemover extends ContextVisitor {
         }
     }
 
-    protected Node leaveCall(Node old, Node n, NodeVisitor v)
-            throws SemanticException {
-        Context context = this.context();
-
-        Position pos = n.position();
-        
+    protected Node leaveCall(Node old, Node n, NodeVisitor v) {
         if (n instanceof Special) {
-            Special s = (Special) n;
-            if (s.qualifier() == null)
-                return s;
-            assert s.qualifier().type().toClass() != null;
-            if (s.qualifier().type().toClass().def() == context.currentClassDef())
-                return s;
-            return getContainer(pos, nf.This(pos).type(context.currentClass()), context.currentClassDef(), s.qualifier().type().toClass().def());
+            return fixSpecial((Special) n);
+        } else if (n instanceof Field) {
+            return fixField((Field) n);
+        } else if (n instanceof FieldAssign) {
+            return fixFieldAssign((FieldAssign) n);
+        } else if (n instanceof Call) {
+            return fixCall((Call) n);
+        } else if (n instanceof New) {
+            return fixNew((New) n);
+        } else if (n instanceof ConstructorCall) {
+            return fixConstructorCall((ConstructorCall) n);
+        } else if (n instanceof ClassDecl) {
+            return fixClassDecl((ClassDecl) n);
+        } else if (n instanceof TypeNode) {
+            return fixTypeNode((TypeNode) n);
         }
-        
-        if (n instanceof Field) {
-            Field f = (Field) n;
-            if (f.isTargetImplicit() && ! (f.target() instanceof Special))
-        	return f.targetImplicit(false);
-        }
-        
-        if (n instanceof FieldAssign) {
-            FieldAssign f = (FieldAssign) n;
-            if (f.targetImplicit() && ! (f.target() instanceof Special))
-        	return f.targetImplicit(false);
-        }
-        
-        if (n instanceof Call) {
-            Call f = (Call) n;
-            if (f.isTargetImplicit() && ! (f.target() instanceof Special))
-        	return f.targetImplicit(false);
-        }
-        
-        // Add the qualifier as an argument to constructor calls.
-        if (n instanceof New) {
-            New neu = (New) n;
+        return n;
+    }
 
-            Expr q = neu.qualifier();
-            
-            if (q != null) {
-                neu = neu.qualifier(null);
-                ConstructorInstance ci = neu.constructorInstance();
-                // Fix the ci.
-                {
-                List<Type> args = new ArrayList<Type>();
-                args.add(q.type());
-                args.addAll(ci.formalTypes());
-                ci = ci.formalTypes(args);
-                neu = neu.constructorInstance(ci);
-                }
-                List<Expr> args = new ArrayList<Expr>();
-                args.add(q);
-                args.addAll(neu.arguments());
-                neu = (New) neu.arguments(args);
-            }
+    protected Expr fixSpecial(Special s) {
+        if (s.qualifier() == null)
+            return s;
+        assert s.qualifier().type().toClass() != null;
+        Context context = this.context();
+        if (s.qualifier().type().toClass().def() == context.currentClassDef())
+            return s;
+        Position pos = s.position();
+        return getContainer(pos, nf.This(pos).type(context.currentClass()), context.currentClass(), s.qualifier().type().toClass());
+    }
 
+    protected Node fixField(Field f) {
+        if (f.isTargetImplicit() && !(f.target() instanceof Special))
+            return f.targetImplicit(false);
+        return f;
+    }
+
+    protected Node fixFieldAssign(FieldAssign f) {
+        if (f.targetImplicit() && !(f.target() instanceof Special))
+            return f.targetImplicit(false);
+        return f;
+    }
+
+    protected Node fixCall(Call c) {
+        if (c.isTargetImplicit() && !(c.target() instanceof Special))
+            return c.targetImplicit(false);
+        return c;
+    }
+
+    public TypeNode fixTypeNode(TypeNode tn) {
+        return tn;
+    }
+
+    public New fixNew(New neu) {
+        Expr q = neu.qualifier();
+        if (q == null)
             return neu;
+        // Add the qualifier as an argument to constructor invocations.
+        neu = neu.qualifier(null);
+        ConstructorInstance ci = neu.constructorInstance();
+        // Fix the ci.
+        List<Type> argTypes = new ArrayList<Type>();
+        argTypes.add(q.type());
+        argTypes.addAll(ci.formalTypes());
+        ci = ci.formalTypes(argTypes);
+        neu = neu.constructorInstance(ci);
+        List<Expr> args = new ArrayList<Expr>();
+        args.add(q);
+        args.addAll(neu.arguments());
+        neu = (New) neu.arguments(args);
+        return neu;
+    }
+
+    protected Node fixConstructorCall(ConstructorCall cc) {
+        // Add the qualifier as an argument to constructor invocations.
+        if (cc.kind() != ConstructorCall.SUPER) {
+            // FIXME: [IP] Why?  What about calls to this()?
+            return cc;
         }
         
-        if (n instanceof ConstructorCall) {
-            ConstructorCall cc = (ConstructorCall) n;
-            
-            if (cc.kind() != ConstructorCall.SUPER) {
-                return cc;
-            }
-            
-            ConstructorInstance ci = cc.constructorInstance();
-            
-            ClassType ct = ci.container().toClass();
-            
-            // NOTE: we require that a constructor call to a non-static member have a qualifier.
-            // We can't check for this now, though, since the type information may already have been
-            // rewritten.
-            
-            
-            
+        ConstructorInstance ci = cc.constructorInstance();
+        
+        ClassType ct = ci.container().toClass();
+        
+        // NOTE: we require that a constructor call to a non-static member have a qualifier.
+        // We can't check for this now, though, since the type information may already have been
+        // rewritten.
+        
+        
+        
 //            // Add a qualifier to non-static member class super() calls if not present.
 //            if (ct.isMember() && ! ct.flags().isStatic()) {
 //                if (cc.qualifier() == null) {
 //                    cc = cc.qualifier(nf.This(pos).type(context.currentClass()));
 //                }
 //            }
-            
-            if (cc.qualifier() == null) {
-                return cc;
-            }
+        
+        if (cc.qualifier() == null) {
+            return cc;
+        }
 
-            Expr q = cc.qualifier();
-            cc = cc.qualifier(null);
-            
-            boolean fixCI = cc.arguments().size()+1 != ci.formalTypes().size();
-            
+        Expr q = cc.qualifier();
+        cc = cc.qualifier(null);
+        
+        boolean fixCI = cc.arguments().size()+1 != ci.formalTypes().size();
+        
 //            if (q == null) {
 //                if (ct.isMember() && ! ct.flags().isStatic()) {
 //                    q = getContainer(pos, nf.Special(pos, Special.THIS).type(context.currentClass()), context.currentClass(), ct);
@@ -191,45 +206,42 @@ public class InnerClassRemover extends ContextVisitor {
 //                }
 //            }
 
-            // Fix the ci if a copy; otherwise, let the ci be modified at the declaration node.
-            if (fixCI) {
-                List<Type> args = new ArrayList<Type>();
-                args.add(q.type());
-                args.addAll(ci.formalTypes());
-                ci = ci.formalTypes(args);
-                cc = cc.constructorInstance(ci);
-            }
-            
-            List<Expr> args = new ArrayList<Expr>();
-            args.add(q);
-            args.addAll(cc.arguments());
-            cc = (ConstructorCall) cc.arguments(args);
-
-            return cc;
-        }
-
-        if (n instanceof ClassDecl) {
-            ClassDecl cd = (ClassDecl) n;
-            
-            if (cd.classDef().isMember() && ! cd.classDef().flags().isStatic()) {
-                cd.classDef().flags(cd.classDef().flags().Static());
-                Flags f = cd.classDef().flags();
-                cd = cd.flags(cd.flags().flags(f));
-
-                // Add a field for the enclosing class.
-                ClassType ct = (ClassType) Types.get(cd.classDef().container());
-                
-                FieldDef fi = boxThis(cd.classDef(), ct.def());
-                cd = addFieldsToClass(cd, Collections.singletonList(fi), ts, nf, true);
-                cd = fixQualifiers(cd);
-            }
-            
-            return cd;
+        // Fix the ci if a copy; otherwise, let the ci be modified at the declaration node.
+        if (fixCI) {
+            List<Type> args = new ArrayList<Type>();
+            args.add(q.type());
+            args.addAll(ci.formalTypes());
+            ci = ci.formalTypes(args);
+            cc = cc.constructorInstance(ci);
         }
         
-        return n;
+        List<Expr> args = new ArrayList<Expr>();
+        args.add(q);
+        args.addAll(cc.arguments());
+        cc = (ConstructorCall) cc.arguments(args);
+
+        return cc;
     }
-    
+
+    protected ClassDecl fixClassDecl(ClassDecl cd) {
+        if (cd.classDef().isMember() && ! cd.classDef().flags().isStatic()) {
+            cd.classDef().flags(cd.classDef().flags().Static());
+            Flags f = cd.classDef().flags();
+            cd = cd.flags(cd.flags().flags(f));
+
+            Context context = this.context();
+
+            assert (Types.get(cd.classDef().container()).toClass().def() == context.currentClass().def());
+            // Add a field for the enclosing class.
+            ClassType ct = context.currentClass();
+            
+            FieldDef fi = boxThis(cd.classDef().asType(), ct);
+            cd = addFieldsToClass(cd, Collections.singletonList(fi), ts, nf, true);
+            cd = fixQualifiers(cd);
+        }
+        return cd;
+    }
+
     public ClassDecl fixQualifiers(ClassDecl cd) {
         return (ClassDecl) cd.visitChildren(new NodeVisitor() {
             LocalDef li;
@@ -342,8 +354,7 @@ public class InnerClassRemover extends ContextVisitor {
                 List<Formal> formals = new ArrayList<Formal>();
                 List<LocalDef> locals = new ArrayList<LocalDef>();
                 
-                for (Iterator<FieldDef> j = newFields.iterator(); j.hasNext(); ) {
-                    FieldDef fi = j.next();
+                for (FieldDef fi : newFields) {
                     Position pos = fi.position();
                     LocalDef li = ts.localDef(pos, Flags.FINAL, fi.type(), fi.name());
                     li.setNotConstant();
@@ -463,18 +474,18 @@ public class InnerClassRemover extends ContextVisitor {
     }
 
     // Create a field instance for a qualified this.
-    protected FieldDef boxThis(ClassDef currClass, ClassDef outerClass) {
-	FieldDef fi = outerFieldInstance.get(currClass);
+    protected FieldDef boxThis(ClassType currClass, ClassType outerClass) {
+        FieldDef fi = outerFieldInstance.get(currClass.def());
         if (fi != null) return fi;
         
         Position pos = outerClass.position();
         
-        fi = ts.fieldDef(pos, Types.ref(currClass.asType()), Flags.FINAL.Private(), Types.ref(outerClass.asType()), OUTER_FIELD_NAME);
+        fi = ts.fieldDef(pos, Types.ref(currClass), Flags.FINAL.Private(), Types.ref(outerClass), OUTER_FIELD_NAME);
         fi.setNotConstant();
         
-        currClass.addField(fi);
+        currClass.def().addField(fi); // FIXME: should boxThis() be idempotent?
         
-        outerFieldInstance.put(currClass, fi);
+        outerFieldInstance.put(currClass.def(), fi);
         return fi;
     }
 

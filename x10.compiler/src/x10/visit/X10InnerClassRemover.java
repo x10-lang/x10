@@ -26,6 +26,7 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.Stmt;
 import polyglot.frontend.Job;
 import polyglot.types.ClassDef;
+import polyglot.types.ClassType;
 import polyglot.types.FieldDef;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -35,12 +36,18 @@ import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.InnerClassRemover;
 import polyglot.visit.NodeVisitor;
-import x10.ast.X10ClassDecl_c;
-import x10.ast.X10FieldDecl_c;
+import x10.ast.X10ClassDecl;
+import x10.ast.X10FieldDecl;
 import x10.types.TypeParamSubst;
 import x10.types.X10ClassType;
 import x10.types.X10Flags;
 
+/**
+ * This class rewrites inner classes to static nested classes.
+ * As part of the rewrite, it first transforms local classes
+ * (including anonymous classes) to inner/nested classes using
+ * an instance of {@link X10LocalClassRemover}.
+ */
 public class X10InnerClassRemover extends InnerClassRemover {
     public X10InnerClassRemover(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
@@ -52,19 +59,20 @@ public class X10InnerClassRemover extends InnerClassRemover {
     }
 
     @Override
-    protected Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
+    protected Node leaveCall(Node old, Node n, NodeVisitor v) {
         // FIX:XTENLANG-215
-        if (n instanceof X10ClassDecl_c) {
-            X10ClassDecl_c cd = (X10ClassDecl_c) n;
-            if (cd.classDef().isMember() && !cd.classDef().flags().isStatic()){
+        if (n instanceof X10ClassDecl) {
+            X10ClassDecl cd = (X10ClassDecl) n;
+            ClassDef def = cd.classDef();
+            if (def.isMember() && !def.flags().isStatic()) {
                 List<ClassMember> newMember = new ArrayList<ClassMember>();
-                List<X10FieldDecl_c> fieldDs = new ArrayList<X10FieldDecl_c>();
+                List<X10FieldDecl> fieldDs = new ArrayList<X10FieldDecl>();
                 List<ClassMember> members = cd.body().members();
                 // remove initializers of final variables;
                 // final int bar = foo(define outer class val) -> final int bar;  
                 for (ClassMember classMember : members) {
-                    if (classMember instanceof X10FieldDecl_c) {
-                        X10FieldDecl_c fieldD = (X10FieldDecl_c) classMember;
+                    if (classMember instanceof X10FieldDecl) {
+                        X10FieldDecl fieldD = (X10FieldDecl) classMember;
                         if (fieldD.fieldDef().flags().isFinal() && !fieldD.fieldDef().flags().isStatic() && fieldD.init() != null) {
                             fieldDs.add(fieldD);
                             newMember.add(fieldD.init(null));
@@ -74,11 +82,11 @@ public class X10InnerClassRemover extends InnerClassRemover {
                     newMember.add(classMember);
                 }
                 // add code to initialize final variables after super()
-                for (int i = 0; i < members.size(); i ++) {
+                for (int i = 0; i < members.size(); i++) {
                     ClassMember classMember = members.get(i);
                     if (classMember instanceof ConstructorDecl) {
                         ArrayList<Stmt> statements = new ArrayList<Stmt>();
-                        for (X10FieldDecl_c fieldD : fieldDs) {
+                        for (X10FieldDecl fieldD : fieldDs) {
                             Position pos = fieldD.position();
                             FieldDef fi = fieldD.fieldDef();
                             FieldAssign a = nf.FieldAssign(pos, nf.This(pos).type(fi.asInstance().container()), nf.Id(pos, fi.name()), Assign.ASSIGN, fieldD.init());
@@ -104,28 +112,18 @@ public class X10InnerClassRemover extends InnerClassRemover {
                 n = cd.body(cd.body().members(newMember));
             }
         }
-        return super.leaveCall(parent, old, n, v);
+        return super.leaveCall(old, n, v);
     }
 
-    // Create a field instance for a qualified this.
-    protected FieldDef boxThis(ClassDef currClass, ClassDef outerClass) {
-        FieldDef fi = outerFieldInstance.get(currClass);
-        if (fi != null) return fi;
-        
-        Position pos = outerClass.position();
-        
-        X10ClassType currType = (X10ClassType) currClass.asType();
+    @Override
+    protected FieldDef boxThis(ClassType currClass, ClassType outerClass) {
+        X10ClassType currType = (X10ClassType) currClass;
         TypeParamSubst subst = X10LocalClassRemover.inverseSubst(currType);
-        Type outerType = outerClass.asType();
         if (subst != null)
-            outerType = subst.reinstantiate(outerType);
-        
-        fi = ts.fieldDef(pos, Types.ref(currClass.asType()), X10Flags.FINAL.Private(), Types.ref(outerType), OUTER_FIELD_NAME);
-        fi.setNotConstant();
-        
-        currClass.addField(fi);
-        
-        outerFieldInstance.put(currClass, fi);
+            outerClass = subst.reinstantiate(outerClass);
+        FieldDef fi = super.boxThis(currClass, outerClass);
+        if (!(fi.flags() instanceof X10Flags))
+            fi.setFlags(X10Flags.toX10Flags(fi.flags()));
         return fi;
     }
 }

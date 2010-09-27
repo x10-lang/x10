@@ -29,6 +29,7 @@ import polyglot.types.Named;
 import polyglot.types.ParsedClassType_c;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
+import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
@@ -171,6 +172,15 @@ implements X10ParsedClassType
         n.error = e;
         return n;
     }
+
+    public X10ClassType container() {
+        return (X10ClassType) super.container();
+    }
+
+    public X10ParsedClassType container(StructType container) {
+        return (X10ParsedClassType) super.container(container);
+    }
+
     public X10ClassDef x10Def() {
         return (X10ClassDef) def();
     }
@@ -317,6 +327,7 @@ implements X10ParsedClassType
 	 * for this type.
 	 */
 	public X10ParsedClassType typeArguments(List<Type> typeArgs) {
+	    if (typeArgs == this.typeArguments) return this;
 	    X10ParsedClassType_c n = (X10ParsedClassType_c) copy();
 	    n.typeArguments = TypedList.copyAndCheck(typeArgs, Type.class, false);
 	    try {
