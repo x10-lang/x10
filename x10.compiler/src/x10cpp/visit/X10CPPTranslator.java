@@ -220,12 +220,12 @@ public class X10CPPTranslator extends Translator {
 		            }
 		            if (n instanceof FieldDecl)
 		            {
-		            	lineNumberMap.addClassMemberVariable(((FieldDecl)n).name().toString(), ((FieldDecl)n).type().toString());
+		            	lineNumberMap.addClassMemberVariable(((FieldDecl)n).name().toString(), ((FieldDecl)n).type().toString(), def, context.currentClass().toString());
 		            }
 		            else if (n instanceof LocalDecl)
 		            {
 		            	if (!((LocalDecl)n).position().isCompilerGenerated())
-		            		lineNumberMap.addLocalVariableMapping(((LocalDecl)n).name().toString(), ((LocalDecl)n).type().toString(), line);
+		            		lineNumberMap.addLocalVariableMapping(((LocalDecl)n).name().toString(), ((LocalDecl)n).type().toString(), line, file);
 		            }
 		        }
 		    }

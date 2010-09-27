@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
@@ -313,7 +314,7 @@ public class LineNumberMap extends StringTable {
 	
 	private static ArrayList<LocalVariableMapInfo> localVariables;
 	
-	public void addLocalVariableMapping(String name, String type, int startline)
+	public void addLocalVariableMapping(String name, String type, int startline, String file)
 	{
 		if (localVariables == null)
 			localVariables = new ArrayList<LineNumberMap.LocalVariableMapInfo>();
@@ -323,7 +324,7 @@ public class LineNumberMap extends StringTable {
 		v._x10type = determineTypeId(type);
 		v._x10typeIndex = stringId(type);
 		v._cppName = stringId(Emitter.mangled_non_method_name(name)); 
-		// TODO v._x10index =
+		v._x10index = findFile(file, allFiles());
 		v._x10startLine = startline;
 		// TODO v._x10endLine =
 		localVariables.add(v);
@@ -338,20 +339,27 @@ public class LineNumberMap extends StringTable {
 		int _cppClass; // Index of the C++ containing struct/class name in _X10strings
 	}
 	
-	private static ArrayList<MemberVariableMapInfo> memberVariables;
+	//private static ArrayList<MemberVariableMapInfo> memberVariables;
+	private static Hashtable<String, ArrayList<MemberVariableMapInfo>> memberVariables;
 	
-	public void addClassMemberVariable(String name, String type)
+	public void addClassMemberVariable(String name, String type, MemberDef def, String containingClass)
 	{
 		if (memberVariables == null)
-			memberVariables = new ArrayList<LineNumberMap.MemberVariableMapInfo>();
+			memberVariables = new Hashtable<String, ArrayList<LineNumberMap.MemberVariableMapInfo>>();
+		ArrayList<MemberVariableMapInfo> members = memberVariables.get(containingClass);
+		if (members == null)
+		{
+			members = new ArrayList<LineNumberMap.MemberVariableMapInfo>();
+			memberVariables.put(containingClass, members);
+		}
 		
 		MemberVariableMapInfo v = new MemberVariableMapInfo();
 		v._x10Type = determineTypeId(type);
 		v._x10typeIndex = stringId(type);
 		v._x10memberName = stringId(name);
-		v._cppMemberName = stringId(Emitter.mangled_non_method_name(name)); 
-		// TODO v._cppClass =
-		memberVariables.add(v);
+		v._cppMemberName = stringId(Emitter.mangled_non_method_name(name));
+		v._cppClass = stringId(containingClass);
+		members.add(v);
 	}
 
 	/**
@@ -799,12 +807,27 @@ public class LineNumberMap extends StringTable {
 	        w.writeln("};");
 	        w.forceNewline();
 	        
+	        if (memberVariables != null)
+	        {
+	        	for (String classname : memberVariables.keySet())
+	        	{
+			        w.writeln("static const struct _X10TypeMember _X10"+classname+"Members[] __attribute__((used)) "+debugDataSectionAttr+" = {");
+			        for (MemberVariableMapInfo v : memberVariables.get(classname))
+			        	w.writeln("    { "+v._x10Type+", "+v._x10typeIndex+", "+v._x10memberName+", "+v._cppMemberName+", "+v._cppClass+" },");
+				    w.writeln("};");
+				    w.forceNewline();
+	        	}	        		        	
+	        }
+	        
 	        w.writeln("static const struct _X10ClassMap _X10ClassMapList[] __attribute__((used)) "+debugDataSectionAttr+" = {");
-	        for (MemberVariableMapInfo v : memberVariables)
-	        	w.writeln("    { "+v._x10Type+", "+v._x10typeIndex+", "+v._x10memberName+", "+v._cppMemberName+", "+v._cppClass+" },");
+	        if (memberVariables != null)
+	        {
+		        for (String classname : memberVariables.keySet())
+		        	w.writeln("    { 12, "+memberVariables.get(classname).get(0)._cppClass+", sizeof("+classname+"), "+memberVariables.get(classname).size()+", _X10"+classname+"Members },");
+	        }
 		    w.writeln("};");
 		    w.forceNewline();
-		    
+	        		    
 		    w.writeln("static const struct _X10ClosureMap _X10ClosureMapList[] __attribute__((used)) "+debugDataSectionAttr+" = {");
 		    // TODO
 		    w.writeln("};");
