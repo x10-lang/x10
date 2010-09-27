@@ -2428,7 +2428,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		
 		// Hack to ensure that X10Flags are not printed out .. javac will
 		// not know what to do with them.
-		Flags flags = X10Flags.toX10Flags(n.flags().flags());
+		Flags flags;
+		if (!n.flags().flags().isStatic()) {
+		    flags = X10Flags.toX10Flags(n.flags().flags().clearFinal());
+		} else {
+            flags = X10Flags.toX10Flags(n.flags().flags());
+		}
 
 		FieldDecl_c javaNode = (FieldDecl_c) n.flags(n.flags().flags(flags));
 
