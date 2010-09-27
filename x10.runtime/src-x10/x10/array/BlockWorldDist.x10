@@ -98,12 +98,14 @@ final class BlockWorldDist extends Dist {
     }
 
 
-    public def places():ValRail[Place] {
+    public def places():Iterable[Place] {
         return Place.places;
     }
 
-    public def regions():ValRail[Region(rank)] {
-	return	ValRail.make[Region(rank)](Place.MAX_PLACES, (i:int)=>blockRegionForPlace(Place.places(i)));
+    public def numPlaces():int = Place.MAX_PLACES;
+
+    public def regions():Iterable[Region(rank)] {
+	return ValRail.make[Region(rank)](Place.MAX_PLACES, (i:int)=>blockRegionForPlace(Place.places(i)));
     }
 
     public def get(p:Place):Region(rank) {

@@ -233,7 +233,7 @@ public final class RectRegion extends Region{rect} {
      */
     public def toPolyRegion() {
     	if (polyRep==null) {
-    		polyRep = Region.makeRectangularPoly(ValRail.make[int](rank, min()), ValRail.make[int](rank, max()));
+            polyRep = Region.makeRectangularPoly(new Array[int](rank, min()), new Array[int](rank, max()));
     	}
     	return polyRep;
     }

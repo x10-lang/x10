@@ -80,13 +80,13 @@ public abstract class Region(
      * RectRegion. Methods on RectRegion automatically construct a PolyRegion (by calling makeRectangularPoly) 
      * if they need to implement operations (such as intersection, product etc) that are difficult to define
      * on a RectRegion's representation.
-     * @param minArg:ValRail[int] -- specifies the smallest point in the region
-     * @param maxArg:ValRail[int] -- specifies the largest point in the region (must have the same rank as minArg
+     * @param minArg:Array[int] -- specifies the smallest point in the region
+     * @param maxArg:Array[int] -- specifies the largest point in the region (must have the same rank as minArg
      * @return A Region of rank minarg.length 
      */
-
-    public static def makeRectangularPoly(minArg: ValRail[int], maxArg: ValRail[int](minArg.length)):Region(minArg.length){
-    	   val rank = minArg.length;
+    public static def makeRectangularPoly(minArg:Array[int](1), maxArg:Array[int](1)):Region(minArg.size){
+	   if (minArg.size != maxArg.size) throw new IllegalArgumentException("min and max not equal size ("+minArg.size+" != "+maxArg.size+")");
+    	   val rank = minArg.size;
            val pmb = new PolyMatBuilder(rank); 
            for ([i] in 0..rank-1) {
         	   // add -1*x(i) + minArg(i) <= 0, i.e. x(i) >= minArg(i)
@@ -97,7 +97,7 @@ public abstract class Region(
         	   pmb.add(s);
            }
            val pm = pmb.toSortedPolyMat(false);
-           return PolyRegion.make(pm) as Region(minArg.length); 
+           return PolyRegion.make(pm) as Region(minArg.size); 
     }
      
     /**
@@ -114,6 +114,10 @@ public abstract class Region(
         val minArray = new Array[int](minArg.length, (i:int)=>minArg(i));
         val maxArray = new Array[int](maxArg.length, (i:int)=>maxArg(i));
         return new RectRegion(minArray, maxArray) as Region(minArg.length){rect};
+    }
+
+    public static def makeRectangular(minArg:Array[int](1), maxArg:Array[int](1)):Region(minArg.size){self.rect} {
+        return new RectRegion(minArg, maxArg);
     }
 
     /**
@@ -139,6 +143,17 @@ public abstract class Region(
             r = r.product(regions(i));
 	return r as Region(regions.length){self.rect};
     }
+    /**
+     * Construct a rank-n rectangular region that is the Cartesian
+     * product of the specified rank-1 rectangular regions.
+     */
+    public static @TempNoInline_3 def make(regions:Array[Region(1){self.rect}](1)):Region(regions.size){self.rect} {
+        var r:Region = regions(0);
+        for (var i:int = 1; i<regions.size; i++)
+            r = r.product(regions(i));
+	return r as Region(regions.size){self.rect};
+    }
+
 
     //
     // non-rectangular factories
@@ -392,6 +407,7 @@ public abstract class Region(
     //
 
     public static operator (rs:ValRail[Region(1){self.rect}]):Region(rs.length){self.rect} = make(rs);
+    public static operator (a:Array[Region(1){self.rect}](1)):Region(a.size){self.rect} = make(a);
 
 
     //

@@ -25,26 +25,28 @@ class UniqueDist extends Dist(1){rect} {
 
 
     def this():UniqueDist{self.rank==1,self.rect,self.unique} {
-	super([0..Place.MAX_PLACES-1], true, false, Place(0));
+	super(0..Place.MAX_PLACES-1, true, false, Place(0));
     }
 
 
-    public def places():ValRail[Place] {
+    public def places():Iterable[Place] {
         return Place.places;
     }
 
-    public def regions():ValRail[Region(rank)] {
+    public def numPlaces():int = Place.MAX_PLACES;
+
+    public def regions():Iterable[Region(rank)] {
 	return	ValRail.make[Region(rank)](Place.MAX_PLACES, (i:int)=>[i..i] as Region(rank));
     }
 
     public def get(p:Place):Region(rank) {
         if (p == here) {
             if (regionForHere == null) {
-                regionForHere = [here.id..here.id];
+                regionForHere = (here.id..here.id) as Region(rank);
             }
 	    return regionForHere;
         } else {
-            return [p.id..p.id];
+            return (p.id..p.id) as Region(rank);
         }
     }
 

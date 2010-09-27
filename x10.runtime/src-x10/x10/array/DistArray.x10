@@ -331,57 +331,35 @@ public class DistArray[T] (
         = make[T]((dist | r) as Dist(rank), ((p:Point)=>op(this(p as Point(rank)), src(p as Point(rank)))));
 
     public def reduce(op:(T,T)=>T, unit:T):T {
-
+        // TODO: recode using Team collective APIs to improve scalability
+        // TODO: optimize scatter inner loop for locally rect regions
         // scatter
-        val ps:ValRail[Place] = dist.places();
-        val results = Rail.make[T](ps.length, (p:Int) => unit);
-        val r = 0..(ps.length-1);
-        
-        
-        finish for (p:Point(1)  in r) async {
-        	results(p(0)) = at (ps(p(0))) {
-        	    var result: T = unit;
-                val a = (this | here) as DistArray[T](rank);
-                for (pt:Point(dist.region.rank)  in a.region)
-                    result = op(result, a(pt));
-                return result;
+        val placeIter = dist.places().iterator();
+        val results = Rail.make[T](dist.numPlaces(), (p:Int) => unit);
+	for ([i] in 0..dist.numPlaces()-1) {
+            val where = placeIter.next();
+            async { 
+                results(i) = at(where) {
+                    var localRes:T = unit;
+                    for (pt in dist(where)) {
+                        localRes = op(localRes, this(pt));
+                    }
+                    localRes
+                };
             };
         }
 
         // gather
         var result: T = unit;
-        for (var i:int = 0; i < results.length; i++) 
+        for (var i:int = 0; i<results.length; i++) {
             result = op(result, results(i));
+        }
 
         return result;
     }            
-
-/*
-    public def reduce(op:(T,T)=>T, unit:T):T {
-
-        // scatter
-        val ps = dist.places();
-        val results = ValRail.make[Future[T]](ps.length, (p:Int) => {
-            future(ps(p)) {
-                var result: T = unit;
-                val a = (this | here) as DistArray[T](rank);
-                for (pt:Point(rank) in a)
-                    result = op(result, a(pt));
-                return result;
-            }
-        });
-
-        // gather
-        var result: T = unit;
-        for (var i:int = 0; i < results.length; i++) 
-            result = op(result, results(i).force());
-
-        return result;
-    }            
-*/
 
     @Incomplete public def scan(op:(T,T)=>T, unit:T): DistArray[T](dist) {
-                throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException();
     }
 
 

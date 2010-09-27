@@ -26,17 +26,10 @@ import x10.compiler.Incomplete;
  */
 public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
 
-    // XTENLANG-49
-    static type PolyRegion(rank:Int) = PolyRegion{self.rank==rank};
-  //  static type PolyRegionListBuilder(rank:Int) = PolyRegionListBuilder{self.rank==rank};
-    static type PolyRow(rank:Int) = PolyRow{self.rank==rank};
-    static type PolyMat(rank:Int) = PolyMat{self.rank==rank};
-
     //
     // factories - place is all applicable places
     //
-
-    public static def makeUnique1(ps: ValRail[Place]): Dist(1) { // XTENLANG-4
+    public static def makeUnique1(ps:ValRail[Place]):Dist(1) { // XTENLANG-4
 
         // regions
         val init = (i:Int) => Region.makeRectangular(i, i);
@@ -102,15 +95,18 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
     @Incomplete public static def makeBlockCyclic1(r: Region, axis: int, blockSize: int, ps: Set[Place]): Dist(r) { // XTENLANG-4
         throw new UnsupportedOperationException();
     }
+
     //
     // mapping places to region
     //
 
-    public def places(): ValRail[Place] {
+    public def places():Iterable[Place] {
         return places;
     }
 
-    public def regions(): ValRail[Region(rank)] {
+    public def numPlaces():int = places.length;
+
+    public def regions():Iterable[Region(rank)] {
         return regions;
     }
 
@@ -295,9 +291,9 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
     // access.
     //
 
-    protected val places: ValRail[Place];
-    protected val regions: ValRail[Region(rank)];
-    private val regionMap: ValRail[Region];
+    protected val places:ValRail[Place];
+    protected val regions:ValRail[Region(rank)];
+    private val regionMap:ValRail[Region];
 
     public def this(r: Region, ps: ValRail[Place], rs: ValRail[Region(r.rank)]): BaseDist{self.region==r} {
 
