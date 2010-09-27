@@ -13,21 +13,20 @@ import harness.x10Test;
 
 public class HeatTransferTest_v4 extends x10Test {
     public def run():boolean {
-        Console.OUT.print("Beginning computation...");
         val s = new HeatTransfer_v4();
-	
-	    val start = System.nanoTime();
+	Console.OUT.print("Beginning computation...");
+	val start = System.nanoTime();
         s.run();
-	    val stop = System.nanoTime();
-	    Console.OUT.printf("...completed in %1.3f seconds.\n", (stop-start as double)/1e9);
-	    s.prettyPrintResult();
+	val stop = System.nanoTime();
+	Console.OUT.printf("...completed in %1.3f seconds.\n", (stop-start as double)/1e9);
+	s.prettyPrintResult();
 
 	// Spot check.  A(2,2) should be close to 0.25.
         // Can't use epsilon as the ckeck because the termination
         // condition is that the rate of change is less than epsilon.
         val pt = Point.make(2,2);
-        at (s.BigD(pt)) {
-            val tmp = s.A(pt);
+        at (HeatTransfer_v4.BigD(pt)) {
+            val tmp = HeatTransfer_v4.A(pt);
             Console.OUT.println("The value of A(2,2) is "+tmp);
             chk(tmp > 0.249);
             chk(tmp < 0.251);
@@ -37,6 +36,6 @@ public class HeatTransferTest_v4 extends x10Test {
     }
 
     public static def main(args:Array[String](1)) {
-	   new HeatTransferTest_v4().execute();
+	new HeatTransferTest_v4().execute();
     }
 }

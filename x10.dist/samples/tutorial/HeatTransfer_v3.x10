@@ -72,7 +72,7 @@ public class HeatTransfer_v3 {
         do {
             finish ateach (z in D_Base) {
                 val blocks = blockIt(D | here, P);
-                for ([q] in 0..P-1) async {
+                foreach ([q] in 0..P-1) {
                     for (p in blocks(q)) {
                         Temp(p) = stencil_1(p);
                     }

@@ -12,7 +12,7 @@
 import harness.x10Test;
 
 /**
- * Test for for ... async.
+ * Test for foreach.
  * @author kemal, 12/2004
  */
 public class Foreach1 extends x10Test {
@@ -25,8 +25,8 @@ public class Foreach1 extends x10Test {
 		val d = [0..N-1]->here;
 		val hasbug  = DistArray.make[boolean](d);
 
-		finish for (p[i]: Point(1) in d.region) async {
-			// Ensure each activity spawned by for... async
+		finish foreach (p[i]: Point(1) in d.region) {
+			// Ensure each activity spawned by foreach
 			// runs at P0
 			// and that the hasbug array was
 			// all false initially

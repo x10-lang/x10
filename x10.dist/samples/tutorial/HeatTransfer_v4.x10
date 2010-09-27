@@ -24,17 +24,16 @@
  * ("MPI-style").</p>
  */
 public class HeatTransfer_v4 {
-     static   val n = 3;
-     static  val epsilon = 1.0e-5;
+    static val n = 3;
+    static val epsilon = 1.0e-5;
 
-     val BigD:Dist(2) = Dist.makeBlock([0..n+1, 0..n+1], 0);
-     val D = BigD | ([1..n, 1..n] as Region);
-     val LastRow = [0..0, 1..n] as Region;
-     val A:DistArray[double](BigD){self.rank==2} 
-      = DistArray.make[double](BigD,(p:Point)=>{ LastRow.contains(p) ? 1.0 : 0.0 });
-     val Temp = DistArray.make[Double](BigD);
+    static val BigD = Dist.makeBlock([0..n+1, 0..n+1], 0);
+    static val D = BigD | ([1..n, 1..n] as Region);
+    static val LastRow = [0..0, 1..n] as Region;
+    static val A = DistArray.make[Double](BigD,(p:Point)=>{ LastRow.contains(p) ? 1.0 : 0.0 });
+    static val Temp = DistArray.make[Double](BigD);
 
-     def stencil_1([x,y]:Point(2)): Double {
+    static def stencil_1([x,y]:Point(2)): Double {
         return ((at(A.dist(x-1,y)) A(x-1,y)) + 
                 (at(A.dist(x+1,y)) A(x+1,y)) + 
                 (at(A.dist(x,y-1)) A(x,y-1)) + 
@@ -44,19 +43,19 @@ public class HeatTransfer_v4 {
     // TODO: The array library really should provide an efficient 
     //       all-to-all collective reduction.
     //       This is a quick and sloppy implementation, which does way too much work.
-     def reduceMax(z:Point{self.rank==diff.rank}, diff:DistArray[Double], scratch:DistArray[Double]) {
+    static def reduceMax(z:Point{self.rank==diff.rank}, diff:DistArray[Double], scratch:DistArray[Double]) {
         val max = diff.reduce(Math.max.(Double,Double), 0.0);
         diff(z) = max;
         next;
     }
 
     def run() {
-        clocked finish async {
-            //val c = Clock.make();
+        finish async {
+            val c = Clock.make();
             val D_Base = Dist.makeUnique(D.places());
             val diff = DistArray.make[Double](D_Base);
             val scratch = DistArray.make[Double](D_Base);
-            clocked ateach (z in D_Base)  {
+            ateach (z in D_Base) clocked(c) {
                 do {
                     diff(z) = 0;
                     for (p:Point(2) in D | here) {

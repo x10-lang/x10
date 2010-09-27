@@ -93,11 +93,14 @@
     do
     else
     extends
+    extern
     false
     final
     finally
     finish
     for
+    foreach
+    global
     goto
     here
     if
@@ -234,6 +237,11 @@
                 $setResult($_extends);
           $EndAction
         ./
+              | e x t e r n
+        /.$BeginAction
+                $setResult($_extern);
+          $EndAction
+        ./
               | f a l s e
         /.$BeginAction
                 $setResult($_false);
@@ -257,6 +265,16 @@
               | f o r
         /.$BeginAction
                 $setResult($_for);
+          $EndAction
+        ./
+              | f o r e a c h
+        /.$BeginAction
+                $setResult($_foreach);
+          $EndAction
+        ./
+              | g l o b a l
+        /.$BeginAction
+                $setResult($_global);
           $EndAction
         ./
               | g o t o

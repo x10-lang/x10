@@ -448,9 +448,9 @@
         private static class FlagModifier extends Modifier {
             public static int ABSTRACT    = 0;
             public static int ATOMIC      = 1;
-           // public static int EXTERN      = 2;
+            public static int EXTERN      = 2;
             public static int FINAL       = 3;
-            //public static int GLOBAL      = 4;
+            public static int GLOBAL      = 4;
             //public static int INCOMPLETE  = 5;
             public static int NATIVE      = 6;
             //public static int NON_BLOCKING = 7;
@@ -473,9 +473,9 @@
             public Flags flags() {
                 if (flag == ABSTRACT)     return Flags.ABSTRACT;
                 if (flag == ATOMIC)       return X10Flags.ATOMIC;
-              //  if (flag == EXTERN)       return X10Flags.EXTERN;
+                if (flag == EXTERN)       return X10Flags.EXTERN;
                 if (flag == FINAL)        return Flags.FINAL;
-               // if (flag == GLOBAL)       return X10Flags.GLOBAL;
+                if (flag == GLOBAL)       return X10Flags.GLOBAL;
                 //if (flag == INCOMPLETE)   return X10Flags.INCOMPLETE;
                 if (flag == NATIVE)       return Flags.NATIVE;
                 //if (flag == NON_BLOCKING) return X10Flags.NON_BLOCKING;
@@ -495,9 +495,9 @@
             public String name() {
                 if (flag == ABSTRACT)     return "abstract";
                 if (flag == ATOMIC)       return "atomic";
-                //if (flag == EXTERN)       return "extern";
+                if (flag == EXTERN)       return "extern";
                 if (flag == FINAL)        return "final";
-                //if (flag == GLOBAL)       return "global";
+                if (flag == GLOBAL)       return "global";
                 //if (flag == INCOMPLETE)   return "incomplete";
                 if (flag == NATIVE)       return "native";
                 //if (flag == NON_BLOCKING) return "nonblocking";
@@ -571,7 +571,7 @@
             static {
                 methodModifiers[ABSTRACT] = true;
                 methodModifiers[ATOMIC] = true;
-               // methodModifiers[EXTERN] = true;
+                methodModifiers[EXTERN] = true;
                 methodModifiers[FINAL] = true;
                 // methodModifiers[GLOBAL] = true;
                 //methodModifiers[INCOMPLETE] = true;
@@ -1211,21 +1211,21 @@
                     setResult(new FlagModifier(pos(), FlagModifier.ATOMIC));
           $EndJava
         ./
---                   | extern
---        /.$BeginJava
---                    setResult(new FlagModifier(pos(), FlagModifier.EXTERN));
---          $EndJava
---        ./
+                   | extern
+        /.$BeginJava
+                    setResult(new FlagModifier(pos(), FlagModifier.EXTERN));
+          $EndJava
+        ./
                    | final
         /.$BeginJava
                     setResult(new FlagModifier(pos(), FlagModifier.FINAL));
           $EndJava
         ./
---                   | global
---        /.$BeginJava
---                    setResult(new FlagModifier(pos(), FlagModifier.GLOBAL));
---          $EndJava
---        ./
+                   | global
+        /.$BeginJava
+                    setResult(new FlagModifier(pos(), FlagModifier.GLOBAL));
+          $EndJava
+        ./
                    | native
         /.$BeginJava
                     setResult(new FlagModifier(pos(), FlagModifier.NATIVE));
@@ -2120,12 +2120,12 @@
                 | AtStatement
                 | AtomicStatement
                 | WhenStatement
---                | ForEachStatement
+                | ForEachStatement
                 | AtEachStatement
                 | FinishStatement
                 | NextStatement
                 | ResumeStatement
---                | AwaitStatement
+                | AwaitStatement
                 | AssignPropertyCall
                 | OfferStatement
     
@@ -2163,7 +2163,7 @@
                     | WhileStatement
                     | DoStatement
                     | AtEachStatement
---                    | ForEachStatement
+                    | ForEachStatement
     
     ExpressionStatement ::= StatementExpression ;
         /.$BeginJava
@@ -2388,63 +2388,63 @@
                     setResult(nf.When(pos(), Expression, Statement));
           $EndJava
         ./
---                     | WhenStatement or$or ( Expression ) Statement
---        /.$BeginJava
---                  WhenStatement.addBranch(pos(getRhsFirstTokenIndex($or), getRightSpan()), Expression, Statement);
---                  setResult(WhenStatement);
---          $EndJava
---        ./
+                     | WhenStatement or$or ( Expression ) Statement
+        /.$BeginJava
+                  WhenStatement.addBranch(pos(getRhsFirstTokenIndex($or), getRightSpan()), Expression, Statement);
+                  setResult(WhenStatement);
+          $EndJava
+        ./
 
---    ForEachStatement ::= foreach ( LoopIndex in Expression ) ClockedClauseopt Statement
---        /.$BeginJava
---                    FlagsNode fn = LoopIndex.flags();
---                    if (! fn.flags().isFinal()) {
---                        syntaxError("Enhanced foreach loop may not have var loop index" + LoopIndex, LoopIndex.position());
---                        fn = fn.flags(fn.flags().Final());
---                        LoopIndex = LoopIndex.flags(fn);
---                    }
---                    setResult(nf.ForEach(pos(),
---                                 LoopIndex,
---                                  Expression,
---                                  ClockedClauseopt,
---                                  Statement));
---          $EndJava
---        ./ 
---         | clocked foreach ( LoopIndex in Expression ) Statement
---        /.$BeginJava
---                    FlagsNode fn = LoopIndex.flags();
---                    if (! fn.flags().isFinal()) {
---                        syntaxError("Enhanced foreach loop cannot have var loop index" + LoopIndex, LoopIndex.position());
---                        fn = fn.flags(fn.flags().Final());
---                        LoopIndex = LoopIndex.flags(fn);
---                    }
---                    setResult(nf.ForEach(pos(),
---                                  LoopIndex,
---                                  Expression,
---                                  Statement));
---          $EndJava
---        ./ 
---         | foreach ( Expression ) Statement
---        /.$BeginJava
---                    Id name = nf.Id(pos(), Name.makeFresh());
---                    TypeNode type = nf.UnknownTypeNode(pos());
---                    setResult(nf.ForEach(pos(),
---                            nf.X10Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), type, name, null, true),
---                            Expression,
---                            new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false),
---                            Statement));
---          $EndJava
---        ./ 
---         | clocked foreach ( Expression ) Statement
---        /.$BeginJava
---                    Id name = nf.Id(pos(), Name.makeFresh());
---                    TypeNode type = nf.UnknownTypeNode(pos());
---                    setResult(nf.ForEach(pos(),
---                            nf.X10Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), type, name, null, true),
---                            Expression,
---                            Statement));
---          $EndJava
---        ./ 
+    ForEachStatement ::= foreach ( LoopIndex in Expression ) ClockedClauseopt Statement
+        /.$BeginJava
+                    FlagsNode fn = LoopIndex.flags();
+                    if (! fn.flags().isFinal()) {
+                        syntaxError("Enhanced foreach loop may not have var loop index" + LoopIndex, LoopIndex.position());
+                        fn = fn.flags(fn.flags().Final());
+                        LoopIndex = LoopIndex.flags(fn);
+                    }
+                    setResult(nf.ForEach(pos(),
+                                  LoopIndex,
+                                  Expression,
+                                  ClockedClauseopt,
+                                  Statement));
+          $EndJava
+        ./ 
+         | clocked foreach ( LoopIndex in Expression ) Statement
+        /.$BeginJava
+                    FlagsNode fn = LoopIndex.flags();
+                    if (! fn.flags().isFinal()) {
+                        syntaxError("Enhanced foreach loop cannot have var loop index" + LoopIndex, LoopIndex.position());
+                        fn = fn.flags(fn.flags().Final());
+                        LoopIndex = LoopIndex.flags(fn);
+                    }
+                    setResult(nf.ForEach(pos(),
+                                  LoopIndex,
+                                  Expression,
+                                  Statement));
+          $EndJava
+        ./ 
+         | foreach ( Expression ) Statement
+        /.$BeginJava
+                    Id name = nf.Id(pos(), Name.makeFresh());
+                    TypeNode type = nf.UnknownTypeNode(pos());
+                    setResult(nf.ForEach(pos(),
+                            nf.X10Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), type, name, null, true),
+                            Expression,
+                            new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false),
+                            Statement));
+          $EndJava
+        ./ 
+         | clocked foreach ( Expression ) Statement
+        /.$BeginJava
+                    Id name = nf.Id(pos(), Name.makeFresh());
+                    TypeNode type = nf.UnknownTypeNode(pos());
+                    setResult(nf.ForEach(pos(),
+                            nf.X10Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), type, name, null, true),
+                            Expression,
+                            Statement));
+          $EndJava
+        ./ 
 
     AtEachStatement ::= ateach ( LoopIndex in Expression ) ClockedClauseopt Statement
         /.$BeginJava
@@ -5529,12 +5529,12 @@
     AtExpr ::= AtExpression
     Atomic ::= AtomicStatement
     When ::= WhenStatement
---    ForEach ::= ForEachStatement
+    ForEach ::= ForEachStatement
     AtEach ::= AtEachStatement
     Finish ::= FinishStatement
     Next ::= NextStatement
     Resume ::= ResumeStatement
---    Await ::= AwaitStatement
+    Await ::= AwaitStatement
     Expr ::= Clock
     List<Expr> ::= ClockList
            | ClockedClause

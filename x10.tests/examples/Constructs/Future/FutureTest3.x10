@@ -34,7 +34,7 @@ public class FutureTest3 extends x10Test {
 	 * Spawns subactivities that cause delayed side-effects.
 	 */
 	def m1(val A: Array[int](1), val K: int): int = {
-		for (val [i]: Point in A) async {
+		foreach (val [i]: Point in A) {
 			Activity.sleep(3000);
 			atomic A(i) += 1;
 		}
@@ -48,7 +48,7 @@ public class FutureTest3 extends x10Test {
 	 * and exceptions.
 	 */
 	def m2(val A: Array[int](1), val K: int): int = {
-		for (val p[i]: Point in A) async {
+		foreach (val p[i]: Point in A) {
 			Activity.sleep(3000);
 			atomic A(i) += 1;
 			atomic A(OUTOFRANGE) = -1;
