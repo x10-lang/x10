@@ -1398,9 +1398,24 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			}
 		}
 
+        // Note: @NativeRep'ed class doesn't capture outer this
+        boolean no_outer = false;
+        X10ClassDef def = (X10ClassDef) ct.def();
+        if (er.getJavaRep(def) != null) {
+            no_outer = true;
+        }
+
 		List<Expr> l = c.arguments();
 		for (Iterator<Expr> i = l.iterator(); i.hasNext(); ) {
 			Expr e = (Expr) i.next();
+			
+			if (no_outer) {
+			    no_outer = false;
+			    if (e instanceof Local_c && InnerClassRemover.OUTER_FIELD_NAME.toString().equals(((Local_c) e).name().toString())) {
+			        continue;
+			    }
+			}
+			
 			c.print(e, w, tr);
 			if (i.hasNext()) {
 				w.write(",");
