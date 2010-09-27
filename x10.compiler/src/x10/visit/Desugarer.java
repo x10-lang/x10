@@ -43,6 +43,7 @@ import polyglot.ast.Receiver;
 import polyglot.ast.Return;
 import polyglot.ast.Stmt;
 import polyglot.ast.StringLit;
+import polyglot.ast.Try;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.frontend.Job;
@@ -110,6 +111,7 @@ import x10.constraint.XFailure;
 import x10.constraint.XVar;
 import x10.emitter.Emitter;
 import x10.extension.X10Ext;
+import x10.extension.X10Ext_c;
 import x10.types.ClosureDef;
 import x10.types.ConstrainedType;
 import x10.types.X10ClassType;
@@ -837,9 +839,17 @@ public class Desugarer extends ContextVisitor {
         Catch catchBlock = xnf.Catch(pos, formal, xnf.Block(pos, xnf.Eval(pos, call)));
         Block finallyBlock = xnf.Block(pos, xnf.Eval(pos, call(pos, STOP_FINISH, xts.Void())));
 
+        Try tcfBlock = xnf.Try(pos, tryBlock, Collections.singletonList(catchBlock), finallyBlock);
+
+        // propagate async initialization info to backend
+        X10Ext_c ext = (X10Ext_c) f.ext();
+        if (ext.asyncInitVal != null) {
+            tcfBlock = (Try)((X10Ext_c)tcfBlock.ext()).asyncInitVal(ext.asyncInitVal);
+        }
+
         return xnf.Block(pos, 
         		xnf.Eval(pos, call(pos, ENSURE_NOT_IN_ATOMIC, xts.Void())),
-        		xnf.Try(pos, tryBlock, Collections.singletonList(catchBlock), finallyBlock));
+        		tcfBlock);
     }
     
     // x = finish (R) S; ->

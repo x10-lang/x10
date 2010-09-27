@@ -22,6 +22,7 @@ import polyglot.types.TypeSystem;
 import x10.visit.SharedBoxer;
 import x10c.ast.X10CNodeFactory_c;
 import x10c.types.X10CTypeSystem_c;
+import x10c.visit.AsyncInitializer;
 import x10c.visit.CastRemover;
 import x10c.visit.ClosuresToStaticMethods;
 import x10c.visit.Desugarer;
@@ -61,8 +62,9 @@ public class ExtensionInfo extends x10.ExtensionInfo {
             CastsRemoved(job).addPrereq(JavaCaster(job));
             RailInLoopOptimizer(job).addPrereq(CastsRemoved(job));
             SharedBoxed(job).addPrereq(RailInLoopOptimizer(job));
+            AsyncInitializer(job).addPrereq(SharedBoxed(job));
             if (PREPARE_FOR_INLINING) {
-                InlineHelped(job).addPrereq(SharedBoxed(job));
+                InlineHelped(job).addPrereq(AsyncInitializer(job));
             }
             CodeGenerated(job).addPrereq(Desugarer(job));
             CodeGenerated(job).addPrereq(ClosuresToStaticMethods(job));
@@ -70,6 +72,7 @@ public class ExtensionInfo extends x10.ExtensionInfo {
             CodeGenerated(job).addPrereq(CastsRemoved(job));
             CodeGenerated(job).addPrereq(RailInLoopOptimizer(job));
             CodeGenerated(job).addPrereq(SharedBoxed(job));
+            CodeGenerated(job).addPrereq(AsyncInitializer(job));
             if (PREPARE_FOR_INLINING) {
                 CodeGenerated(job).addPrereq(InlineHelped(job));
             }
@@ -117,6 +120,12 @@ public class ExtensionInfo extends x10.ExtensionInfo {
             TypeSystem ts = extInfo.typeSystem();
             NodeFactory nf = extInfo.nodeFactory();
             return new ValidatingVisitorGoal("InlineHelped", job, new InlineHelper(job, ts, nf)).intern(this);
+        }
+
+        private Goal AsyncInitializer(Job job) {
+            TypeSystem ts = extInfo.typeSystem();
+            NodeFactory nf = extInfo.nodeFactory();
+            return new ValidatingVisitorGoal("AsyncInitialized", job, new AsyncInitializer(job, ts, nf)).intern(this);
         }
     }
 }

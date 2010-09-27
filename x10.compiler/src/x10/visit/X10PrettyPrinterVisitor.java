@@ -183,6 +183,7 @@ import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10c.ast.X10CBackingArrayAccessAssign_c;
 import x10c.ast.X10CBackingArrayAccess_c;
+import x10c.ast.X10CBackingArrayNewArray_c;
 import x10c.ast.X10CBackingArray_c;
 import x10c.types.X10CContext_c;
 
@@ -247,6 +248,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    if (n instanceof X10CBackingArray_c) {visit((X10CBackingArray_c) n);return;}
 	    if (n instanceof X10CBackingArrayAccess_c) {visit((X10CBackingArrayAccess_c) n); return;} 
 	    if (n instanceof X10CBackingArrayAccessAssign_c) {visit((X10CBackingArrayAccessAssign_c)n); return;}
+        if (n instanceof X10CBackingArrayNewArray_c) {visit((X10CBackingArrayNewArray_c)n); return;}
 	    
 	    if (n instanceof FlagsNode_c) {visit((FlagsNode_c)n); return;}
 	    if (n instanceof TypeParamNode_c) {visit((TypeParamNode_c)n); return;}
@@ -3179,6 +3181,17 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             w.write(n.operator().toString());
             
             er.prettyPrint(n.right(), tr);
+        }
+
+        public void visit(X10CBackingArrayNewArray_c n) {
+            w.write("new ");
+            er.printType(((ArrayType)n.type()).base(), 0);
+            for (Expr dim : n.dims()) {
+                w.write("[");
+                er.prettyPrint(dim, tr);
+                w.write("]");
+            }
+            for (int i = 0; i < n.additionalDims(); i++) w.write("[]");
         }
 
 	/**
