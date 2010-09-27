@@ -104,11 +104,17 @@ public abstract class Region(
      * Construct a rectangular region whose bounds are specified as
      * rails of ints.
      */
+    public static @TempNoInline_3 def makeRectangular(minArg:Rail[int], maxArg:Rail[int](minArg.length)):Region(minArg.length){self.rect} {
+        val minArray = new Array[int](minArg.length, (i:int)=>minArg(i));
+        val maxArray = new Array[int](maxArg.length, (i:int)=>maxArg(i));
+        return new RectRegion(minArray, maxArray) as Region(minArg.length){rect};
+    }
 
-    public static @TempNoInline_3 def makeRectangular(minArg: Rail[int], maxArg: Rail[int](minArg.length)):Region(minArg.length){self.rect}
-        = makeRectangular(ValRail.make(minArg), ValRail.make(maxArg));  
-    public static @TempNoInline_3 def makeRectangular(minArg: ValRail[int], maxArg: ValRail[int](minArg.length)):Region(minArg.length){self.rect}
-        = new RectRegion(minArg, maxArg);
+    public static @TempNoInline_3 def makeRectangular(minArg:ValRail[int], maxArg: ValRail[int](minArg.length)):Region(minArg.length){self.rect} {
+        val minArray = new Array[int](minArg.length, (i:int)=>minArg(i));
+        val maxArray = new Array[int](maxArg.length, (i:int)=>maxArg(i));
+        return new RectRegion(minArray, maxArray) as Region(minArg.length){rect};
+    }
 
     /**
      * Construct a rank-1 rectangular region with the specified bounds.

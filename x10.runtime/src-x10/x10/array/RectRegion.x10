@@ -19,8 +19,8 @@ package x10.array;
 public final class RectRegion extends Region{rect} {
 
     private val size:int;
-    private val mins:ValRail[int]; /* will be null if rank<5 */
-    private val maxs:ValRail[int]; /* will be null if rank<5 */
+    private val mins:Array[int](1); /* will be null if rank<5 */
+    private val maxs:Array[int](1); /* will be null if rank<5 */
 
     private val min0:int;
     private val min1:int;
@@ -31,89 +31,81 @@ public final class RectRegion extends Region{rect} {
     private val max2:int;
     private val max3:int;
 
-    private val myMin:(int)=>int;
-    private val myMax:(int)=>int;
+    // cached polyRep representation; space inefficient, so don't want to serialize it.
+    transient protected var polyRep:Region(rank)=null;
 
-    private static def allZeros(x:ValRail[int]) {
-       for (i in x) if (i != 0) return false;
+    private static def allZeros(a:Array[int](1)) {
+       for ([i] in a) if (a(i) != 0) return false;
        return true;
     }
 
     /**
      * Create a rectangular region containing all points p such that min <= p and p <= max.
      */
-    def this(minArg:ValRail[int], maxArg:ValRail[int](minArg.length)):RectRegion(minArg.length) {
-        super(minArg.length, true, allZeros(minArg));
+    def this(minArg:Array[int](1), maxArg:Array[int](1)):RectRegion(minArg.size) {
+        super(minArg.size, true, allZeros(minArg));
+
+	if (minArg.size != maxArg.size) throw new IllegalArgumentException("size of min and max args are not equal");
 
         var s:int = 1;
-        for (var i:int = 0; i<minArg.length; i++) {
+        for (var i:int = 0; i<minArg.size; i++) {
 	    var rs:int = maxArg(i) - minArg(i) + 1;
 	    if (rs < 0) rs = 0;
             s *= rs;
         }
         size = s;
 
-        if (minArg.length>0) {
+        if (minArg.size>0) {
             min0 = minArg(0);
             max0 = maxArg(0);
         } else {
             min0 = max0 = 0;
         }
 
-        if (minArg.length>1) {
+        if (minArg.size>1) {
             min1 = minArg(1);
             max1 = maxArg(1);
         } else {
             min1 = max1 = 0;
         }
 
-        if (minArg.length>2) {
+        if (minArg.size>2) {
             min2 = minArg(2);
             max2 = maxArg(2);
         } else {
             min2 = max2 = 0;
         }
 
-        if (minArg.length>3) {
+        if (minArg.size>3) {
             min3 = minArg(3);
             max3 = maxArg(3);
         } else {
             min3 = max3 = 0;
         }
 	
-	if (minArg.length>4) {
+	if (minArg.size>4) {
 	  mins = minArg;
 	  maxs = maxArg;
         } else {
 	  mins = null;
           maxs = null;
         }
-	 myMin = (i:int) => {
-	        switch(i) {
-	           case 0: return min0;
-	           case 1: return min1;
-	           case 2: return min2;
-	           case 3: return min3;
-	           default: return mins(i);
-	        }
-	    };
-
-	  myMax = (i:int) => {
-	        switch(i) {
-	        case 0: return max0;
-	        case 1: return max1;
-	        case 2: return max2;
-	        case 3: return max3;
-	        default: return maxs(i);
-	        }
-	    };
     }
 
     /**
      * Create a 1-dim region min..max.
      */
     def this(min:int, max:int):RectRegion(1){
-        this([min],[max]);
+        super(1, true, min==0);
+
+        size = max - min + 1;
+        min0 = min;
+        max0 = max;
+
+        min1 = min2 = min3 = 0;
+        max1 = max2 = max3 = 0;
+        mins = null;
+        maxs = null;
     }
 
     public def size() = size;
@@ -132,16 +124,37 @@ public final class RectRegion extends Region{rect} {
         return offset;
     }
 
+    public def min(i:int):int {
+        if (i<0 || i>=rank) throw new ArrayIndexOutOfBoundsException("getMin: "+i+" is not a valid rank for "+this);
+	switch(i) {
+	    case 0: return min0;
+	    case 1: return min1;
+	    case 2: return min2;
+	    case 3: return min3;
+	    default: return mins(i);
+	}
+    }
+
+    public def max(i:int):int {
+        if (i<0 || i>=rank) throw new ArrayIndexOutOfBoundsException("getMin: "+i+" is not a valid rank for "+this);
+	switch(i) {
+	    case 0: return max0;
+	    case 1: return max1;
+	    case 2: return max2;
+	    case 3: return max3;
+	    default: return maxs(i);
+	}
+    }
+
 
     //
     // region operations
     //
 
-    protected def computeBoundingBox(): RectRegion(rank)=this; 
-
+    protected def computeBoundingBox():RectRegion(rank)=this; 
     
-    public def min():(int)=>int = myMin;
-    public def max():(int)=>int = myMax;
+    public def min():(int)=>int = (i:int)=> min(i);
+    public def max():(int)=>int = (i:int)=> max(i);
 
     public def contains(that:Region(rank)): boolean {
        if (that instanceof RectRegion) {
@@ -214,7 +227,6 @@ public final class RectRegion extends Region{rect} {
     }
 
 
-    transient protected var polyRep:Region(rank)=null;
     /**
      * Return a PolyRegion with the same set of points as this region. This permits
      * general algorithms for intersection, restriction etc to be applied to RectRegion's.
@@ -227,7 +239,7 @@ public final class RectRegion extends Region{rect} {
     }
     
     
-    public def intersection(that: Region(rank)):Region(rank) {
+    public def intersection(that:Region(rank)):Region(rank) {
         if (that.isEmpty()) {
 	       return that;
         } else if (that instanceof FullRegion) {
@@ -235,15 +247,15 @@ public final class RectRegion extends Region{rect} {
         } else if (that instanceof RectRegion) {
             val thatMin = (that as RectRegion).min();
             val thatMax = (that as RectRegion).max();
-	        val newMin = ValRail.make[int](rank, (i:int)=>Math.max(min(i), thatMin(i)));
-	        val newMax = ValRail.make[int](rank, (i:int)=>Math.min(max(i), thatMax(i)));
-	        for ([i] in 0..newMin.length-1) {
+	    val newMin = new Array[int](rank, (i:int)=>Math.max(min(i), thatMin(i)));
+	    val newMax = new Array[int](rank, (i:int)=>Math.min(max(i), thatMax(i)));
+	    for ([i] in 0..newMin.size-1) {
                 if (newMax(i)<newMin(i)) return Region.makeEmpty(rank);
             }
-            return new RectRegion(newMin, newMax);
+            return new RectRegion(newMin, newMax) as Region(rank);
         } else {
-        	// Use the general representation.
-        	return (toPolyRegion() as Region(rank)).intersection(that);
+            // Use the general representation.
+            return (toPolyRegion() as Region(rank)).intersection(that);
         }
     }
     
@@ -256,33 +268,33 @@ public final class RectRegion extends Region{rect} {
             val thatMin = (that as RectRegion).min();
             val thatMax = (that as RectRegion).max();
             val k = rank+that.rank;
-            val newMin = ValRail.make[int](k, (i:int)=>i<rank?min(i):thatMin(i-rank));
-            val newMax = ValRail.make[int](k, (i:int)=>i<rank?max(i):thatMax(i-rank));
+            val newMin = new Array[int](k, (i:int)=>i<rank?min(i):thatMin(i-rank));
+            val newMax = new Array[int](k, (i:int)=>i<rank?max(i):thatMax(i-rank));
             return new RectRegion(newMin, newMax);
         } else if (that instanceof FullRegion) {
-        	val k = rank+that.rank;
-            val newMin = ValRail.make[int](k, (i:int)=>i<rank?min(i):Int.MIN_VALUE);
-            val newMax = ValRail.make[int](k, (i:int)=>i<rank?max(i):Int.MAX_VALUE);
+       	    val k = rank+that.rank;
+            val newMin = new Array[int](k, (i:int)=>i<rank?min(i):Int.MIN_VALUE);
+            val newMax = new Array[int](k, (i:int)=>i<rank?max(i):Int.MAX_VALUE);
 	    return new RectRegion(newMin,newMax);
         } else {
 	   return (toPolyRegion() as Region(rank)).product(that);
         }
     }
 
-    public def translate(v: Point(rank)): Region(rank){self.rect} {
-        val newMin = ValRail.make[int](rank, (i:int)=>min(i)+v(i));
-        val newMax = ValRail.make[int](rank, (i:int)=>max(i)+v(i));
-        return new RectRegion(newMin, newMax);
+    public def translate(v: Point(rank)):Region(rank){self.rect} {
+        val newMin = new Array[int](rank, (i:int)=>min(i)+v(i));
+        val newMax = new Array[int](rank, (i:int)=>max(i)+v(i));
+        return new RectRegion(newMin, newMax) as Region(rank){self.rect};
     }
 
-    public def projection(axis: int):Region(1){self.rect} {
-        return new RectRegion([min(axis)], [max(axis)]);
+    public def projection(axis:int):Region(1){self.rect} {
+        return new RectRegion(min(axis), max(axis));
     }
 
-    public def eliminate(axis: int):Region{self.rect} /*(rank-1)*/ {
+    public def eliminate(axis:int):Region{self.rect} /*(rank-1)*/ {
     	val k = rank-1;
-        val newMin = ValRail.make[int](k, (i:int)=>i<axis?min(i):min(i+i));
-        val newMax = ValRail.make[int](k, (i:int)=>i<axis?max(i):max(i+i));
+        val newMin = new Array[int](k, (i:int)=>i<axis?min(i):min(i+i));
+        val newMax = new Array[int](k, (i:int)=>i<axis?max(i):max(i+i));
         return new RectRegion(newMin, newMax);
     }    
 
@@ -333,7 +345,7 @@ public final class RectRegion extends Region{rect} {
     }
 
 
-    public def equals(thatObj:Any): boolean {
+    public def equals(thatObj:Any):boolean {
 	if (this == thatObj) return true;
         if (!(thatObj instanceof Region)) return false; 
         val that:Region = thatObj as Region;
@@ -360,7 +372,7 @@ public final class RectRegion extends Region{rect} {
         return true;
     }
 
-    public def toString(): String {
+    public def toString():String {
         val thisMin = this.min();
         val thisMax = this.max();
         var s: String = "[";
