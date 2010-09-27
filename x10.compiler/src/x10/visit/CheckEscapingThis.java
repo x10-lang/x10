@@ -160,10 +160,9 @@ public class CheckEscapingThis extends NodeVisitor
 
             boolean isAssign = n instanceof FieldAssign;
             if (isAssign || n instanceof Field) {
-                final Receiver target = isAssign ? ((FieldAssign) n).target() : ((Field) n).target();
                 final FieldInstance fi = isAssign ? ((FieldAssign) n).fieldInstance() : ((Field) n).fieldInstance();
-                FieldDef field = findField(fi.def());
-                if (field!=null && isThis(target)) {
+                FieldDef field = fi.def();
+                if (field!=null && (isAssign ? isTargetThis((FieldAssign) n) : isTargetThis((Field) n))) {
                     res = new DataFlowItem();
                     res.initStatus.putAll(inItem.initStatus);
                     final int valueBefore = inItem.initStatus.get(field);
@@ -180,7 +179,7 @@ public class CheckEscapingThis extends NodeVisitor
                         @Override public NodeVisitor enter(Node n) {
                             if (n instanceof Field) {
                                 final Field f = (Field) n;
-                                if (isThis(f.target()) && !isWrite( inItem.initStatus.get(f.fieldInstance().def()))) {
+                                if (isTargetThis(f) && !isWrite(inItem.initStatus.get(f.fieldInstance().def()))) {
                                     reportError("Cannot read from field '"+ f.name()+"' before it is definitely assigned.",n.position());
                                     wasError = true;
                                 }
@@ -330,10 +329,8 @@ public class CheckEscapingThis extends NodeVisitor
         }
     }
     private MethodInfo getInfo(X10Call call) {
-        final MethodInstance methodInstance = call.methodInstance();
-        final X10ProcedureDef procDef = (X10ProcedureDef) methodInstance.def();
-        if (isThis(call.target()) && !isProperty(procDef) && findMethod(call)!=null) {
-            final MethodInfo info = allMethods.get(procDef);
+        if (isTargetThis(call) && findMethod(call)!=null) {
+            final MethodInfo info = allMethods.get(call.methodInstance().def());
             assert info!=null;
             return info;
         }
@@ -347,6 +344,10 @@ public class CheckEscapingThis extends NodeVisitor
         // then the write-set must be empty (because it might be overriden and then the write doesn't happen)
         final boolean hasNonEscapingAnnot = hasNonEscapingAnnot(def);
         return hasNonEscapingAnnot && !isPrivateOrFinal(def);
+    }
+    private boolean isProperty(FieldDef def) {
+        final X10Flags flags = X10Flags.toX10Flags(def.flags());
+        return flags.isProperty();
     }
     private boolean isProperty(ProcedureDef def) {
         final X10Flags flags = X10Flags.toX10Flags(((ProcedureDef_c)def).flags());
@@ -408,7 +409,7 @@ public class CheckEscapingThis extends NodeVisitor
         if (n instanceof Field) {
             Field f = (Field) n;
             FieldDef def = f.fieldInstance().def();
-            if (isThis(f.target()) && globalRef.contains(def))
+            if (isTargetThis(f) && globalRef.contains(def))
                 reportError("Cannot use '"+def.name()+"' because a GlobalRef[...](this) cannot be used in a field initializer, constructor, or methods called from a constructor.",n.position());
         }          
     }
@@ -441,7 +442,7 @@ public class CheckEscapingThis extends NodeVisitor
             List<FieldDef> init = new ArrayList<FieldDef>(list.size());
             for (FieldDef f : list) {
                 if (!X10TypeMixin.isUninitializedField((X10FieldDef)f,ts) &&
-                    !((X10FieldDef)f).isProperty() && // not tracking property fields (checking property() call was done elsewhere)
+                    !isProperty(f) && // not tracking property fields (checking property() call was done elsewhere)
                     !f.flags().isStatic()) { // static fields are checked in FwdReferenceChecker
                     init.add(f);
                 }
@@ -631,11 +632,6 @@ public class CheckEscapingThis extends NodeVisitor
         }
         return false;
     }
-    private FieldDef findField(FieldDef def) {
-        for (FieldDef f : fields)
-            if (f.equalsImpl(def)) return f;
-        return null;
-    }
     private X10MethodDecl_c findMethod(X10Call call) {
         MethodInstance mi2 = call.methodInstance();
         final X10ClassBody_c body = (X10ClassBody_c)xlass.body();
@@ -716,6 +712,20 @@ public class CheckEscapingThis extends NodeVisitor
     }
     private void reportError(String s, Position p) {
         job.compiler().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR,s,p);
+    }
+
+
+    private boolean isTargetThis(X10Call call) {
+        final MethodInstance methodInstance = call.methodInstance();
+        return !isProperty(methodInstance.def()) && isThis(call.target());
+    }
+    private boolean isTargetThis(FieldAssign f) {
+        FieldDef def = f.fieldInstance().def();
+        return !isProperty(def) && isThis(f.target());
+    }
+    private boolean isTargetThis(Field f) {
+        FieldDef def = f.fieldInstance().def();
+        return !isProperty(def) && isThis(f.target());
     }
     private boolean isThis(Node n) {
         if (n==null || !(n instanceof Special)) return false;
