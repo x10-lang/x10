@@ -40,7 +40,7 @@ public class PolyMat(rank: int) extends Mat[PolyRow] {
      */
 
     public def this(rows: Int, cols: Int, init: (i:Int,j:Int)=>int, isSimplified:boolean) {
-        super(rows, cols, ValRail.make[PolyRow](rows, (i:Int)=>new PolyRow(cols, (j:Int)=>init(i,j))));
+        super(rows, cols, new Array[PolyRow](rows, (i:Int)=>new PolyRow(cols, (j:Int)=>init(i,j))));
         property(cols-1);
         this.isSimplified = isSimplified;
     }
@@ -144,7 +144,7 @@ public class PolyMat(rank: int) extends Mat[PolyRow] {
                         if (as_(l)!=0)
                             degenerate = false;
                     if (!degenerate) {
-                        var r: PolyRow = new PolyRow(ValRail.make(as_));
+                        var r: PolyRow = new PolyRow(new Array[int](as_.length, (i:int)=>as_(i)));
                         pmb.add(r);
                     }
                 }

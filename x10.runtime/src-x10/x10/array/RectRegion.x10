@@ -125,7 +125,7 @@ public final class RectRegion extends Region{rect} {
     }
 
     public def min(i:int):int {
-        if (i<0 || i>=rank) throw new ArrayIndexOutOfBoundsException("getMin: "+i+" is not a valid rank for "+this);
+        if (i<0 || i>=rank) throw new ArrayIndexOutOfBoundsException("min: "+i+" is not a valid rank for "+this);
 	switch(i) {
 	    case 0: return min0;
 	    case 1: return min1;
@@ -136,7 +136,7 @@ public final class RectRegion extends Region{rect} {
     }
 
     public def max(i:int):int {
-        if (i<0 || i>=rank) throw new ArrayIndexOutOfBoundsException("getMin: "+i+" is not a valid rank for "+this);
+        if (i<0 || i>=rank) throw new ArrayIndexOutOfBoundsException("max: "+i+" is not a valid rank for "+this);
 	switch(i) {
 	    case 0: return max0;
 	    case 1: return max1;

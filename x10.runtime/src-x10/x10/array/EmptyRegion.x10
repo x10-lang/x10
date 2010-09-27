@@ -34,10 +34,10 @@ final class EmptyRegion extends Region {
     protected def computeBoundingBox(): Region(rank) {
         throw new IllegalOperationException("bounding box not not defined for empty region");
     }
-    public def min(): ValRail[int] {
+    public def min():(int)=>int {
         throw new IllegalOperationException("min not not defined for empty region");
     }
-    public def max(): ValRail[int] {
+    public def max():(int)=>int {
         throw new IllegalOperationException("max not not defined for empty region");
     }
     public def contains(that: Region(rank)) = that.isEmpty();

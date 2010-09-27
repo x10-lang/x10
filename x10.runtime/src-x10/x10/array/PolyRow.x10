@@ -30,7 +30,6 @@ import x10.io.Printer;
 public class PolyRow(rank:Int) extends ValRow {
 
     static type PolyRegion(rank:Int) = PolyRegion{self.rank==rank};
-    //static type PolyRegionListBuilder(rank:Int) = PolyRegionListBuilder{self.rank==rank};
     static type PolyRow(rank:Int) = PolyRow{self.rank==rank};
     static type PolyMat(rank:Int) = PolyMat{self.rank==rank};
 
@@ -39,9 +38,9 @@ public class PolyRow(rank:Int) extends ValRow {
     //
 
 
-    def this(as_: ValRail[int])= this(as_, as_.length-1);
+    def this(as_:Array[int](1))= this(as_, as_.size-1);
 
-    private def this(as_: ValRail[int], n:int): PolyRow(n) {
+    private def this(as_:Array[int](1), n:int): PolyRow(n) {
         super(as_);
         property(n);
     }
@@ -131,7 +130,7 @@ public class PolyRow(rank:Int) extends ValRow {
 
     def complement(): PolyRow {
         val init = (i:Int) => i<rank? -this(i) : -this(rank)+1;
-        val as_ = ValRail.make[int](rank+1, init);
+        val as_ = new Array[int](rank+1, init);
         return new PolyRow(as_);
     }
 

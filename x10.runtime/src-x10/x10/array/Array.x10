@@ -210,21 +210,10 @@ public final class Array[T](
      * argument Rail.
      *
      */    
+
 // HACKING around typechecking bug:
 // Error message is: Cannot refer to type parameter T of x10.array.Array from a static context
 //    public def this(aRail:Rail[T]):Array[T]{self.rank==1,self.rect,self.zeroBased,self.rail} {
-//	this(Region.makeRectangular(0, aRail.length-1), ((i):Point(1)) => aRail(i));
-//    }
-
-
-    /**
-     * Construct Array over the region 0..rail.length-1 whose
-     * values are initialized to the corresponding values in the 
-     * argument ValRail.
-     */    
-// HACKING around typechecking bug:
-// Error message is: Cannot refer to type parameter T of x10.array.Array from a static context
-//    public def this(aRail:ValRail[T]):Array[T]{self.rank==1,self.rect,self.zeroBased,self.rail} {
 //	this(Region.makeRectangular(0, aRail.length-1), ((i):Point(1)) => aRail(i));
 //    }
 
@@ -314,6 +303,30 @@ public final class Array[T](
      * @see x10.lang.Iterable[T]#iterator()
      */
     public def iterator():Iterator[Point(rank)] = region.iterator() as Iterator[Point(rank)];
+
+    /**
+     * Return an iterator over the data values of this array
+     * @return an iterator over the data values of this array.
+     */
+    public def values():Iterator[T] {
+        return new ValueIterator[T](this);
+    }
+
+    // TODO: Should be annonymous nested class in values, 
+    //       but that's too fragile with the 2.1 implementation of generics.
+    private static class ValueIterator[U](rank:int) implements Iterator[U] {
+        private val regIt:Iterator[Point(rank)];
+        private val array:Array[U](rank);
+
+        def this(a:Array[U]):ValueIterator[U]{self.rank==a.rank} {
+	    property(a.rank);
+            regIt = a.iterator() as Iterator[Point(rank)]; // TODO: cast should not be needed!
+            array = a as Array[U](rank);                   // TODO: cast should not be needed!
+        }
+        public def hasNext() = regIt.hasNext();
+        public def next() = array(regIt.next());
+    }
+
 
     /**
      * Return the element of this array corresponding to the given index.
