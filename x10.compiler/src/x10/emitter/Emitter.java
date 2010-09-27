@@ -66,6 +66,7 @@ import polyglot.visit.Translator;
 import x10.ast.ClosureCall;
 import x10.ast.ParExpr_c;
 import x10.ast.TypeParamNode;
+import x10.ast.X10Call;
 import x10.ast.X10MethodDecl_c;
 import x10.extension.X10Ext;
 import x10.types.ConstrainedType_c;
@@ -1934,7 +1935,11 @@ public class Emitter {
                         expander = expander.castTo(expectedBase, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
                         expander.expand(tr);
 
-                    } else {
+                    } else if (e instanceof X10Call && X10TypeMixin.baseType(((X10Call) e).methodInstance().def().returnType().get()) instanceof ParameterType) {
+                        expander = expander.castTo(expectedBase, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+                        expander.expand(tr);
+                    }
+                    else {
                         prettyPrint(e, tr);
                     }
                 } else {
