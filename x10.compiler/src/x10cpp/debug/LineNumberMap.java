@@ -307,7 +307,7 @@ public class LineNumberMap extends StringTable {
 		int _x10type;          // Classification of this type
 		int _x10typeIndex; 	// Index of the X10 type into appropriate _X10ClassMap, _X10ClosureMap  (if applicable)
 		int _cppName;			// Index of the C++ variable name in _X10strings
-	    int _x10index;         // Index of X10 file name in _X10sourceList
+	    String _x10index;         // Index of X10 file name in _X10sourceList
 		int _x10startLine;     // First line number of X10 line range
 		int _x10endLine;       // Last line number of X10 line range
 	}
@@ -322,11 +322,11 @@ public class LineNumberMap extends StringTable {
 		LocalVariableMapInfo v = new LocalVariableMapInfo();
 		v._x10name = stringId(name);
 		v._x10type = determineTypeId(type);
-		//v._x10typeIndex = stringId(type);
+		v._x10typeIndex = -1; // TODO
 		v._cppName = stringId(Emitter.mangled_non_method_name(name)); 
-		v._x10index = findFile(file, allFiles());
+		v._x10index = file;
 		v._x10startLine = startline;
-		// TODO v._x10endLine =
+		v._x10endLine = -1; // TODO
 		localVariables.add(v);
 	}
 	
@@ -342,7 +342,7 @@ public class LineNumberMap extends StringTable {
 	//private static ArrayList<MemberVariableMapInfo> memberVariables;
 	private static Hashtable<String, ArrayList<MemberVariableMapInfo>> memberVariables;
 	
-	public void addClassMemberVariable(String name, String type, MemberDef def, String containingClass)
+	public void addClassMemberVariable(String name, String type, String containingClass)
 	{
 		if (memberVariables == null)
 			memberVariables = new Hashtable<String, ArrayList<LineNumberMap.MemberVariableMapInfo>>();
@@ -803,7 +803,7 @@ public class LineNumberMap extends StringTable {
 	        
 	        w.writeln("static const struct _X10LocalVarMap _X10variableNameList[] __attribute__((used)) "+debugDataSectionAttr+" = {");
 	        for (LocalVariableMapInfo v : localVariables)
-	        	w.writeln("    { "+offsets[v._x10name]+", "+v._x10type+", "+v._x10typeIndex+", "+offsets[v._cppName]+", "+v._x10index+", "+v._x10startLine+", "+v._x10endLine+" },");
+	        	w.writeln("    { "+offsets[v._x10name]+", "+v._x10type+", "+v._x10typeIndex+", "+offsets[v._cppName]+", "+findFile(v._x10index, files)+", "+v._x10startLine+", "+v._x10endLine+" },");
 	        w.writeln("};");
 	        w.forceNewline();
 	        
