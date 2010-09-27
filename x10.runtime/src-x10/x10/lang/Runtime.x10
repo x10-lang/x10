@@ -351,8 +351,8 @@ public final class Runtime {
                 lock.unlock();
                 return finishState;
             }
-            
             val remoteFinish = rootFinish.makeRemote();
+            mydump("remote finish("+remoteFinish+") is created@"+here);
             map.put(rootFinish, remoteFinish);
             lock.unlock();
             return remoteFinish;
@@ -478,7 +478,7 @@ public final class Runtime {
             counts(place.parent().id)++;
             unlock();
         }
-
+        
         private def notifyActivityTerminationLocal():Void {
             lock();
             counts(here.id)--;
@@ -491,7 +491,6 @@ public final class Runtime {
             release();
             unlock();
         }
-
         private def pushExceptionLocal(t:Throwable):Void {
             lock();
             if (null == exceptions) exceptions = new Stack[Throwable]();
@@ -563,19 +562,18 @@ public final class Runtime {
         }
 
         public global def notifySubActivitySpawn(place:Place):Void {
+            mydump(home+" notify activity spawn@"+here+"@("+this+") to place "+place);
             if (here.equals(home)) {
                 (this as RootFinish!).notifySubActivitySpawnLocal(place);
             } else {
-                Console.OUT.println("remote spwan ");
+                mydump("\t remote notify");
                 (Runtime.proxy(this) as RemoteFinish!).notifySubActivitySpawn(place);
             }
         }
-
         public global def notifyActivityCreation():Void {
-            if (!here.equals(home))
+        if (!here.equals(home))
                 (Runtime.proxy(this) as RemoteFinish!).notifyActivityCreation();
         }
-
         public global def notifyActivityTermination():Void {
             if (here.equals(home)) {
                 (this as RootFinish!).notifyActivityTerminationLocal();
@@ -591,9 +589,44 @@ public final class Runtime {
                 (Runtime.proxy(this) as RemoteFinish!).pushException(t);
             }
         }
-      
-}
-
+        // specialized implementation for tail activities
+        public global def notifyTailActivitySpawn(place:Place):Void {
+        	if (here.equals(home)) {
+            	(this as RootFinish!).notifySubActivitySpawnLocal(place);
+        	} else {
+                //do nothing for child
+        	}
+    	}
+    	
+        public global def notifyTailActivityCreation():Void {
+        	if (here.equals(home)) // for child activity (must be local)
+        		(this as RootFinish!).notifySubActivitySpawnLocal(here);
+            else{
+                //do nothing for parent
+            }
+    	}
+    
+        public global def notifyTailActivityTermination(parentPlace:Int):Void {
+        	if (here.equals(home)) {
+            	(this as RootFinish!).notifyTailActivityTerminationLocal(parentPlace);
+        	} else {
+            	//do nothing for parent
+        	}
+		}
+        private def notifyTailActivityTerminationLocal(parentPlace:Int):Void {
+        	lock();
+        	counts(here.id)--;
+            counts(parentPlace)--;
+        	for(var i:Int=0; i<Place.MAX_PLACES; i++) {
+            	if (counts(i) != 0) {
+                	unlock();
+                	return;
+            	}
+        	}
+        	release();
+        	unlock();
+    	}	
+	}
     static class RemoteCollectingFinish[T] extends RemoteFinish {
     	val sr:StatefulReducer[T]!;
     def this(r:Reducible[T]) {
@@ -1331,11 +1364,9 @@ public final class Runtime {
 
     // for debugging
     const PRINT_STATS = false;
-
     static public def dump() {
         runtime().pool.dump();
     }
-
     // instance fields
 
     // per process members
@@ -1497,7 +1528,33 @@ public final class Runtime {
     public static def runUncountedAsync(body:()=>Void):Void {
         execute(new Activity(body, safe()));
     }
-
+    
+    public static def runTailAsync(place:Place, body:()=>Void, isParent:Boolean):Void {
+    	val state = currentState() as RootFinish;
+        state.notifyTailActivitySpawn(place);
+        val parentPlace:Int;
+        if(!isParent){
+        	parentPlace = hereInt();
+        }else{
+            assert(state.home==here);
+            parentPlace = -1;
+        }
+    	val ok = safe();
+    	if (place.id == hereInt()) {
+        	execute(new TailActivity(body, state, ok, parentPlace));
+    	} else {
+    		var closure:()=>Void;
+        	// Workaround for XTENLANG_614
+        	if (ok) {
+            		closure = ()=>execute(new TailActivity(body, state, true, parentPlace));
+        	} else {
+            		closure = ()=>execute(new TailActivity(body, state, false, parentPlace));
+        	}
+        	runAtNative(place.id, closure);
+        	dealloc(closure);
+    	}
+    }
+    
     /**
      * Run at statement
      */
@@ -1747,7 +1804,7 @@ public final class Runtime {
             val thisWorker = worker();
             val id = thisWorker.workerId;
             val state = currentState();
-	    //	    Console.OUT.println("Place(" + here.id + ") Runtime.offer: received " + t);
+	    //	    mydump("Place(" + here.id + ") Runtime.offer: received " + t);
             if (here.equals(state.home)) {
                 (state as RootCollectingFinish[T]!).accept(t,id);
             } else {

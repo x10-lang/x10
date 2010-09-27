@@ -74,7 +74,11 @@ public class Activity {
         finishState.notifyActivityCreation();
         this.body = body;
     }
-
+    protected def this(body:()=>Void, finishState:Runtime.FinishState, safe:Boolean, parentPlace:Int) {
+    	this.finishState = finishState;
+    	this.safe = safe;
+    	this.body = body;
+    }
     /**
      * Create clocked activity.
      */

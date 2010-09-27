@@ -21,6 +21,8 @@ import java.util.Stack;
 import polyglot.ast.Assign;
 import polyglot.ast.Assign_c;
 import polyglot.ast.Block;
+import polyglot.ast.BooleanLit;
+import polyglot.ast.BooleanLit_c;
 import polyglot.ast.Call;
 import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.Catch;
@@ -154,6 +156,7 @@ public class Desugarer extends ContextVisitor {
     private static final Name EVAL_FUTURE = Name.make("evalFuture");
     private static final Name RUN_ASYNC = Name.make("runAsync");
     private static final Name RUN_UNCOUNTED_ASYNC = Name.make("runUncountedAsync");
+    private static final Name RUN_TAIL_ASYNC = Name.make("runTailAsync");
     private static final Name HERE = Name.make("here");
     private static final Name HERE_INT = Name.make("hereInt");
     private static final Name NEXT = Name.make("next");
@@ -327,6 +330,41 @@ public class Desugarer extends ContextVisitor {
                 return uncountedAsync(pos, a.body());
             return uncountedAsync(pos, a.body(), a.place());
         }
+        
+        
+        boolean p1 = false,p2 = false;
+        Type annotation = (Type) xts.systemResolver().find(QName.make("x10.compiler.TailAsync"));
+        if (!((X10Ext) a.ext()).annotationMatching(annotation).isEmpty()) {
+        	
+        	List<AnnotationNode> allannots = ((X10Ext)(a.ext())).annotations();
+        	AnnotationNode an = null;
+        	if(allannots.size()>0){
+        		if (allannots.size() > 1) {
+        			boolean isConsistent = true;
+    				for(int i=0;i<allannots.size()-1;i++){
+    					p1 = getTailFromAnnotation(allannots.get(i));
+    					p2 = getTailFromAnnotation(allannots.get(i+1));
+    					if(p1 != p2){
+    						isConsistent = false;
+    						break;
+    					}
+    				}
+    				if(!isConsistent){
+    					Report.report(0,"WARNING:compiler inferes different annotations from what the programer sets in "+job.source().name());
+    					if(Report.should_report("verbose", 1)){
+    						Report.report(5,"\tcompiler inferes "+p1);
+    						Report.report(5,"\tprogrammer annotates "+p2);
+    					}
+    				}
+     			}
+     			an = allannots.get(allannots.size()-1);
+     			p1 = getTailFromAnnotation(an);	
+     		}else{
+             	Report.report(0,"annotation is not correct "+ allannots.size());
+            }
+            return tailAsync(pos,a.body(),a.place(),p1);
+        }
+        
         if (old instanceof Async && ((Async) old).place() instanceof Here)
             return async(pos, a.body(), a.clocks(), refs);
         Stmt specializedAsync = specializeAsync(old, a);
@@ -342,12 +380,24 @@ public class Desugarer extends ContextVisitor {
             return true;
         return false;
     }
-
+    private boolean getTailFromAnnotation(AnnotationNode a) {
+    	Ref r = a.annotationType().typeRef();
+		X10ParsedClassType_c xpct = (X10ParsedClassType_c) r.getCached();
+		List<Expr> allProperties = xpct.propertyInitializers();
+		Expr isParent = allProperties.get(0);
+		if (isParent instanceof BooleanLit_c) {
+			return (boolean) ((BooleanLit_c) isParent).value();
+		}
+		//should never be executed
+		assert(false);
+		return false;
+    }
     private static final Name XOR = Name.make("xor");
     private static final Name FENCE = Name.make("fence");
     private static final QName IMMEDIATE = QName.make("x10.compiler.Immediate");
     private static final QName REF = QName.make("x10.compiler.Ref");
     private static final QName UNCOUNTED = QName.make("x10.compiler.Uncounted");
+    private static final QName TAIL_ASYNC = QName.make("x10.compiler.TailAsync");
     private static final QName REMOTE_OPERATION = QName.make("x10.compiler.RemoteOperation");
 
     /**
@@ -457,7 +507,14 @@ public class Desugarer extends ContextVisitor {
                              new ArrayList<Type>(Arrays.asList(new Type[] { xts.Place(), clockRailType})),
                              body, annotations);
     }
-
+    
+    private Stmt tailAsync(Position pos, Stmt body,Expr place, boolean isParent) throws SemanticException {
+    	List<Expr> l = new ArrayList<Expr>(1);
+    	l.add(place);
+    	List<Type> t = new ArrayList<Type>(1);
+    	t.add(xts.Place());
+    	return makeTailAsyncBody(pos, l, t, body,isParent);
+    }
     private Stmt async(Position pos, Stmt body, Expr place, List<X10ClassType> annotations) throws SemanticException {
     	List<Expr> l = new ArrayList<Expr>(1);
     	l.add(place);
@@ -511,6 +568,21 @@ public class Desugarer extends ContextVisitor {
         types.add(closure.closureDef().asType());
         Stmt result = xnf.Eval(pos,
                 synth.makeStaticCall(pos, xts.Runtime(), RUN_UNCOUNTED_ASYNC, exprs,
+                        xts.Void(), types, xContext()));
+        return result;
+    }
+    
+    private Stmt makeTailAsyncBody(Position pos, List<Expr> exprs, List<Type> types, Stmt body, boolean isParent) throws SemanticException {
+        Closure closure = synth.makeClosure(body.position(), xts.Void(),
+                synth.toBlock(body), xContext());
+        BooleanLit b = xnf.BooleanLit(pos, isParent);
+        Expr typedBoolean = b.type(xts.Boolean());
+        exprs.add(closure);
+        exprs.add(typedBoolean);
+        types.add(closure.closureDef().asType());
+        types.add(typedBoolean.type());
+        Stmt result = xnf.Eval(pos,
+                synth.makeStaticCall(pos, xts.Runtime(), RUN_TAIL_ASYNC, exprs,
                         xts.Void(), types, xContext()));
         return result;
     }
