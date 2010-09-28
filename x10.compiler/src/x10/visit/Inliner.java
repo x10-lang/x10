@@ -72,8 +72,8 @@ import x10.ast.Closure;
 import x10.ast.ClosureCall;
 import x10.ast.DepParameterExpr;
 import x10.ast.ParExpr;
-import x10.ast.SettableAssign;
 import x10.ast.StmtExpr;
+import x10.ast.TypeParamNode;
 import x10.ast.X10Call;
 import x10.ast.X10Call_c;
 import x10.ast.X10ClassDecl;
@@ -852,12 +852,17 @@ private int getCost(X10MethodDecl decl, Job job) {
         debug("Instantiate " +decl, c);
         final X10MethodInstance mi = (X10MethodInstance) c.methodInstance();
         TypeParamSubst typeMap = makeTypeMap(mi);
-        return (X10MethodDecl) decl.visit(new TransformingTypeVisitor(job, ts, nf, typeMap).context(context()));
+        return (X10MethodDecl) decl.visit(new TypeTransformingVisitor(job, ts, nf, typeMap).context(context()));
     }
 
-    public static class TransformingTypeVisitor extends X10LocalClassRemover.TypeTransformingVisitor {
-        private TransformingTypeVisitor(Job job, TypeSystem ts, NodeFactory nf, TypeParamSubst subst) {
+    public static class TypeTransformingVisitor extends X10LocalClassRemover.TypeTransformingVisitor {
+        protected TypeTransformingVisitor(Job job, TypeSystem ts, NodeFactory nf, TypeParamSubst subst) {
             super(job, ts, nf, subst);
+        }
+
+        @Override
+        protected TypeParamNode transform(TypeParamNode pn, TypeParamNode old) {
+            return pn;
         }
 
         @Override
