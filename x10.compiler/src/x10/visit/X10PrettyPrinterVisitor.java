@@ -149,6 +149,7 @@ import x10.ast.X10Formal;
 import x10.ast.X10Instanceof_c;
 import x10.ast.X10IntLit_c;
 import x10.ast.X10LocalDecl_c;
+import x10.ast.X10MethodDecl;
 import x10.ast.X10MethodDecl_c;
 import x10.ast.X10New_c;
 import x10.ast.X10NodeFactory;
@@ -216,6 +217,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	public final Type imcType;
     public static final String JAVA_LANG_OBJECT = "java.lang.Object";
     public static final boolean isSelfDispatch = true;
+    public static final boolean isGenericOverloading = true;
 	
     private static final String X10_RTT_TYPES = "x10.rtt.Types";
 
@@ -1984,7 +1986,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			w.write(">");
 		}
 
-		w.write(Emitter.mangleToJava(c.name().id()));
+		if (isGenericOverloading) {
+            w.write(Emitter.mangleMethodName(mi.def()));
+		} else {
+		    w.write(Emitter.mangleToJava(c.name().id()));
+		}
 
 		boolean isInstantiateReturn = false;
 		List<MethodInstance> list = mi.implemented(tr.context());

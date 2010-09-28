@@ -1061,7 +1061,12 @@ public class Emitter {
             );	        
 	    }
 		w.allowBreak(2, 2, " ", 1);
-		tr.print(n, n.name(), w);
+		if (X10PrettyPrinterVisitor.isGenericOverloading) {
+		    w.write(mangleMethodName(n.methodDef()));
+		}
+		else {
+		    tr.print(n, n.name(), w);
+		}
 
 		if (!isDispatch && X10TypeMixin.baseType(n.returnType().type()) instanceof ParameterType) {
 		    w.write(X10PrettyPrinterVisitor.RETURN_PARAMETER_TYPE_SUFFIX);
@@ -1173,6 +1178,50 @@ public class Emitter {
 			w.write(";");
 		}
 	}
+
+    public static String mangleMethodName(MethodDef md) {
+        StringBuilder sb = new StringBuilder(mangleToJava(md.name()));
+        List<Ref<? extends Type>> formalTypes = md.formalTypes();
+        for (int i = 0; i < formalTypes.size(); ++i) {
+            Type t = X10TypeMixin.baseType(formalTypes.get(i).get());
+                if (!containsTypeParam(t) && t instanceof X10ClassType) {
+                    X10ClassType x10t = (X10ClassType) t;
+                    if (x10t.typeArguments().size() > 0) {
+                        sb.append("_");
+                        sb.append(i);
+                        sb.append("_");
+                        List<Type> ts = x10t.typeArguments();
+                        String delim = null;
+                        for (Type t1 : ts) {
+                            if (delim != null) sb.append(delim);
+                            delim = "_";
+                            appendParameterizedType(sb, X10TypeMixin.baseType(t1));
+                        }
+                }
+            }
+        }
+        return sb.toString();
+    }
+
+    private static void appendParameterizedType(StringBuilder sb, Type t) {
+        sb.append("$_");
+        if (t instanceof X10ClassType) {
+            X10ClassType x10t = (X10ClassType) t;
+            if (x10t.typeArguments().size() > 0) {
+                List<Type> ts = x10t.typeArguments();
+                for (Type t1 : ts) {
+                    appendParameterizedType(sb, X10TypeMixin.baseType(t1));
+                }
+            }
+            else {
+                sb.append(x10t.fullName().toString().replace(".", "$"));
+            }
+        }
+        else {
+            sb.append(t.toString().replace(".", "$"));
+        }
+        sb.append("_$");
+    }
 
 	public static boolean containsTypeParam(Type type) {
 	    if (type instanceof ParameterType) {
@@ -1365,7 +1414,11 @@ public class Emitter {
 	    }
 
 	    w.allowBreak(2, 2, " ", 1);
-	    w.write(mangleToJava(impl.name()));
+	    if (X10PrettyPrinterVisitor.isGenericOverloading) {
+	        w.write(mangleMethodName(def));
+	    } else {
+	        w.write(mangleToJava(impl.name()));
+	    }
 
 	    if (instantiateReturnType) {
 	        w.write(X10PrettyPrinterVisitor.RETURN_PARAMETER_TYPE_SUFFIX);
@@ -2473,7 +2526,12 @@ public class Emitter {
         w.write(X10PrettyPrinterVisitor.JAVA_LANG_OBJECT);
         
         w.allowBreak(2, 2, " ", 1);
-        w.write(mangleToJava(dispatch.name()));
+        if (X10PrettyPrinterVisitor.isGenericOverloading) {
+            w.write(mangleMethodName(dispatch.def()));
+        }
+        else {
+            w.write(mangleToJava(dispatch.name()));
+        }
         
         w.write("(");
         
@@ -2525,7 +2583,7 @@ public class Emitter {
                 names[i] = name1;
             } else {
                 w.write("final ");
-                printType(f, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
+                printType(f, 0);
                 
                 w.write(" ");
 
@@ -2578,7 +2636,12 @@ public class Emitter {
                 w.write("return ");
             }
             
-            w.write(mangleToJava(mi.name()));
+            if (X10PrettyPrinterVisitor.isGenericOverloading) {
+                w.write(mangleMethodName(mi.def()));
+            }
+            else {
+                w.write(mangleToJava(mi.name()));
+            }
             
             if (X10TypeMixin.baseType(dispatch.returnType()) instanceof ParameterType) {
                 w.write(X10PrettyPrinterVisitor.RETURN_PARAMETER_TYPE_SUFFIX);

@@ -292,7 +292,14 @@ public class InlineHelper extends ContextVisitor {
                     		xnf.X10CanonicalTypeNode(pos, mi.returnType()), 
                     		xnf.Id(pos, Name.make(d.classDef().asType().fullName().toString().replace(".", "$") + "$" + call.name().toString() + BRIDGE_TO_SUPER_SUFFIX)), 
                     		formals,  body);
-                    mdcl1 = mdcl1.methodDef(mi.def());
+                    
+                    List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>(mdcl1.formals().size() + 1);
+                    for (Formal f : mdcl1.formals()) {
+                        Type t = f.type().type();
+                        argTypes.add(f.type().typeRef());
+                    }
+                    
+                    mdcl1 = mdcl1.methodDef(xts.methodDef(pos, Types.ref(cd.asType()), mdcl1.flags().flags(), Types.ref(mdcl1.returnType().type()), mdcl1.name().id(), argTypes));
                     nmembers.add(mdcl1);
                 }
                 d = d.body(d.body().members(nmembers));
