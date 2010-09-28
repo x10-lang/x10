@@ -261,7 +261,7 @@ public abstract class Dist(
     /**
      * An iterator over the set of Places that this distribution maps some point to.
      */
-    abstract public def places():Iterable[Place];
+    abstract public def places():ValRail[Place];
 
     /**
      * How many places are included in the distribution?
@@ -271,7 +271,7 @@ public abstract class Dist(
     /**
      * Return the set of regions that this distribution maps some place to.
      */
-    abstract public def regions():Iterable[Region(rank)];
+    abstract public def regions():ValRail[Region(rank)];
 
     /**
      * Return the region consisting of points which this distribution

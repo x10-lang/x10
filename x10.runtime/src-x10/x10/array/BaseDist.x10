@@ -100,13 +100,13 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
     // mapping places to region
     //
 
-    public def places():Iterable[Place] {
+    public def places():ValRail[Place] {
         return places;
     }
 
     public def numPlaces():int = places.length;
 
-    public def regions():Iterable[Region(rank)] {
+    public def regions():ValRail[Region(rank)] {
         return regions;
     }
 
