@@ -103,13 +103,6 @@ struct _X10LocalVarMap
 	uint32_t _x10endLine;       // Last line number of X10 line range
 };
 
-// The _X10TypeMap and extenders of it are used in the member variable mappings
-struct _X10TypeMap
-{
-  uint32_t _x10type; // Classification of this type
-  // The details of the type follow..
-};
-
 struct _X10TypeMember
 {
 	uint32_t _x10Type;       // Classification of this type
@@ -146,14 +139,17 @@ struct _X10ArrayMap
 	uint32_t _x10typeIndex;  // Index of the X10 type into appropriate _X10typeMap (if applicable)
 };
 
-struct _X10RefMap : public _X10TypeMap
+struct _X10RefMap
 {
-  uint32_t _x10ReferredType; // type number of the referred type
+	uint32_t _x10type; // Classification of this type
+	uint32_t _x10ReferredType; // type number of the referred type
 };
 
-struct _X10TypedefMap : public _X10RefMap
+struct _X10TypedefMap
 {
-  uint32_t _x10Name; // Offset to the name of the typedef in _X10strings
+	uint32_t _x10type; // Classification of this type
+	uint32_t _x10ReferredType; // type number of the referred type
+	uint32_t _x10Name; // Offset to the name of the typedef in _X10strings
 };
 
 
