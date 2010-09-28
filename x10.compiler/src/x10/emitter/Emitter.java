@@ -1207,14 +1207,12 @@ public class Emitter {
         sb.append("$_");
         if (t instanceof X10ClassType) {
             X10ClassType x10t = (X10ClassType) t;
+            sb.append(x10t.fullName().toString().replace(".", "$"));
             if (x10t.typeArguments().size() > 0) {
                 List<Type> ts = x10t.typeArguments();
                 for (Type t1 : ts) {
                     appendParameterizedType(sb, X10TypeMixin.baseType(t1));
                 }
-            }
-            else {
-                sb.append(x10t.fullName().toString().replace(".", "$"));
             }
         }
         else {
