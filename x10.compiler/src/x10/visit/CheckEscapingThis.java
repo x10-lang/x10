@@ -377,6 +377,84 @@ public class CheckEscapingThis extends NodeVisitor
         }
     }
 
+    static enum CtorState { Start, SawCtor, SawProperty };
+    public class CheckCtor extends NodeVisitor {
+        private CtorState state = CtorState.Start;
+        private boolean wasSuperCall = false;
+        private final X10ConstructorDecl_c ctor;
+
+        private CheckCtor(X10ConstructorDecl_c ctor) {
+            this.ctor = ctor;
+            if (getConstructorCall(ctor)==null) {
+                // There is no 'this(...)' or 'super(...)' calls, so we implicitly start after a 'super()' call
+                state = CtorState.SawCtor;
+                wasSuperCall = true;
+            }
+        }
+        private void postCheck() {
+            switch (state) {
+                case Start:
+                    assert false : "There must be a super call (either explicit or implicit)";
+                case SawCtor:
+                    if (hasProperties && wasSuperCall)
+                        reportError("You must call 'property(...)' at least once",ctor.position());
+                    break;
+            }
+        }
+
+        @Override public Node leave(Node old, Node n, NodeVisitor v) {
+            Position pos = n.position();
+            if (n instanceof ConstructorCall) {
+                ConstructorCall constructorCall = (ConstructorCall) n;
+                switch (state) {
+                case Start:
+                    state = CtorState.SawCtor;
+                    wasSuperCall = constructorCall.kind()==ConstructorCall.SUPER;
+                    break;
+                case SawCtor:
+                    reportError("Can only have a single 'this(...)' or 'super(...)' in a constructor",pos);
+                    break;
+                case SawProperty:
+                    reportError("'this(...)' or 'super(...)' must come before 'property(...)'",pos);
+                    break;
+                }
+            } else if (n instanceof AssignPropertyCall) {
+                switch (state) {
+                case Start:                    
+                    assert false : "implicit super() call is handled at the beginning, see getConstructorCall";
+                case SawCtor:
+                    if (!wasSuperCall)
+                        reportError("You cannot call 'property(...)' after 'this(...)'",pos);
+                    else if (!hasProperties) {
+                        // This error is already reported: "The property initializer must have the same number of arguments as properties for the class."
+                        //reportError("You can call 'property(...)' only if the class defined properties",pos);
+                    } else {
+                        state = CtorState.SawProperty;
+                    }
+                    break;
+                case SawProperty:
+                    reportError("You can call 'property(...)' at most once",pos);
+                    break;
+                }
+
+            } else if (isThis(n)) {
+                Special special = (Special) n;
+                if (special.kind()==Special.SUPER) {
+                    if (state==CtorState.Start)
+                        reportError("You can use 'super' only after 'super(...)'",pos);
+                } else if (!canUseThis())
+                    reportError(hasProperties ? "Can use 'this' only after 'property(...)'" : "Can use 'this' only after 'this(...)' or 'super(...)'", pos);
+            }
+            return n;
+        }
+        private boolean canUseThis() {
+            return state==CtorState.SawProperty || // after call to 'property(...)'
+                (!hasProperties && state==CtorState.SawCtor) || // after call to 'this(...)' or 'super(...)' if there are no properties
+                (state==CtorState.SawCtor && !wasSuperCall); // after call to 'this(...)'
+        }
+
+    }
+
 
     // we gather info on every private/final/@NonEscaping method
     private static class MethodInfo {
@@ -389,6 +467,7 @@ public class CheckEscapingThis extends NodeVisitor
     private final X10NodeFactory nf;
     private final X10TypeSystem ts;
     private final X10ClassDecl_c xlass;
+    private final boolean hasProperties; // this this class defined properties (excluding properties of the sueprclass). if so, there must be exactly one "property(...)"
     private final boolean isXlassFinal;
     private final Type xlassType;
     // the keys are either X10ConstructorDecl_c or X10MethodDecl_c
@@ -419,6 +498,7 @@ public class CheckEscapingThis extends NodeVisitor
         this.ts = ts;
         nf = (X10NodeFactory)ts.extensionInfo().nodeFactory();
         this.xlass = xlass;
+        hasProperties = xlass.properties()!=null && xlass.properties().size()>0;
         isXlassFinal = xlass.flags().flags().isFinal();
         this.xlassType = X10TypeMixin.baseType(xlass.classDef().asType());
         // calculate the set of all fields (including inherited fields)
@@ -564,9 +644,13 @@ public class CheckEscapingThis extends NodeVisitor
                     if (procBody==null) continue;
                     assert proc instanceof X10ConstructorDecl_c : proc;
                     final X10ConstructorDecl_c ctor = (X10ConstructorDecl_c) proc;
+                    final CheckCtor checkCtor = new CheckCtor(ctor);
+                    ctor.visit(checkCtor);
+                    checkCtor.postCheck();
                     // ctors are implicitly NonEscaping
-                    if (isCallingOtherCtor(ctor)) {
-                        // ignore in dataflow ctors that call other ctors (using "this(...)"). We can reuse ConstructorCallChecker, but for better efficiency, we just check it directly
+                    final ConstructorCall cc = getConstructorCall(ctor);
+                    if (cc!=null && cc.kind() == ConstructorCall.THIS) {
+                        // ignore in dataflow ctors that call other ctors (using "this(...)").
                     } else {
                         // add field initializers to all ctors
                         ctorsForDataFlow.add(ctor);
@@ -617,19 +701,17 @@ public class CheckEscapingThis extends NodeVisitor
             }
         return null;
     }
-    private static boolean isCallingOtherCtor(X10ConstructorDecl_c ctor) {
+    private static ConstructorCall getConstructorCall(X10ConstructorDecl_c ctor) {
+        // We can reuse ConstructorCallChecker, but for better efficiency, we just check it directly
         final Block ctorBody = ctor.body();
         assert ctorBody!=null;
         final List<Stmt> stmts = ctorBody.statements();
         for (Stmt s : stmts) {
             if (s instanceof ConstructorCall) {
-                ConstructorCall cc = (ConstructorCall) s;
-                if (cc.kind() == ConstructorCall.THIS) {
-                    return true;
-                }
+                return (ConstructorCall) s;
             }
         }
-        return false;
+        return null;
     }
     private X10MethodDecl_c findMethod(X10Call call) {
         MethodInstance mi2 = call.methodInstance();
@@ -730,7 +812,17 @@ public class CheckEscapingThis extends NodeVisitor
     private boolean isThis(Node n) {
         if (n==null || !(n instanceof Special)) return false;
         final Special special = (Special) n;
-        return //special.kind()==Special.THIS && // both this and super cannot escape
-               ts.typeEquals(X10TypeMixin.baseType(special.type()), xlassType,null);
+        final Type type = X10TypeMixin.baseType(special.type());
+        // both this and super cannot escape
+        // for "super.", it resolves to the superclass, so I need to go up the superclasses
+        Type thisClass = xlassType;
+        while (thisClass!=null) {
+            if (ts.typeEquals(type, thisClass,null)) return true;
+            if (!thisClass.isClass()) return false;
+            final Type superClass = thisClass.toClass().superClass();
+            if (superClass==null) return false;
+            thisClass = X10TypeMixin.baseType(superClass);
+        }
+        return false;
     }
 }

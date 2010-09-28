@@ -26,17 +26,17 @@ static class Tree(home:Place) {
 	private val item: int;
 
 	def this(item:int){
+		property(here);
 		this.left = null;
 		this.right = null;	
 		this.item = item;
-		property(here);
 	}
 	
 	def this(left:Tree{self.home==here},  right:Tree,  item:int){
+		property(here);
 		this.left = left;
 		this.right = right;	
 		this.item = item;
-		property(here);
 	}
 	
 	static def bottomUpTree(item:int, depth:int): Tree{self.home==here} = 

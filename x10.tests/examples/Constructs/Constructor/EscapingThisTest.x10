@@ -772,3 +772,13 @@ struct Test3[U,B] {
 		this.b = b;
 	}
 }
+
+class TestSwitchOnFinalVal {
+    val i=2+1;
+	def this() {
+		switch(3+0) {
+            case i:
+            case 4:
+        }
+    }   
+}

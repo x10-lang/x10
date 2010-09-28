@@ -90,13 +90,6 @@ public class ConstructorCall_c extends Stmt_c implements ConstructorCall
 	return n;
     }
 
-    /**
-     * ConstructorCall and AssignPropertyCall are a static context.
-     */
-    public Context enterScope(Context c) {
-        return c.pushStatic();
-    }
-
     /** Reconstruct the constructor call. */
     protected ConstructorCall_c reconstruct(Expr qualifier, List<Expr> arguments) {
 	if (qualifier != this.qualifier || ! CollectionUtil.allEqual(arguments, this.arguments)) {

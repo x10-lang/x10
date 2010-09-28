@@ -126,12 +126,6 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 		return sb.toString();
 	}
 
-    /**
-     * ConstructorCall and AssignPropertyCall are a static context.
-     */
-    public Context enterScope(Context c) {
-        return c.pushStatic();
-    }
 
 	public Node typeCheck(ContextVisitor tc) {
 		TypeSystem ts = tc.typeSystem();
@@ -165,6 +159,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 		    checkReturnType(tc, pos, thisConstructor, definedProperties, arguments);
 		}
 
+		/* We check that "this" is not allowed in CheckEscapingThis.CheckCtor
 		ThisChecker thisC = (ThisChecker) new ThisChecker(tc.job()).context(tc.context());
 		for (int i=0; i < aSize; i++) {
 		    Expr arg = arguments.get(i);
@@ -173,7 +168,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 		    if (thisC.error()) {
 		        Errors.issue(job, new Errors.ThisNotPermittedInPropertyInitializer(arg, position()));
 		    }
-		}
+		} */
 
 		List<X10FieldInstance> properties = new ArrayList<X10FieldInstance>();
 		for (FieldInstance fi : definedProperties) {
