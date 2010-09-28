@@ -405,7 +405,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(CheckASTForErrors(job));
 //           goals.add(TypeCheckBarrier());
 
-           goals.add(new VisitorGoal("CheckEscapingThis", job, new CheckEscapingThis.Main(job)));
+           goals.add(CheckEscapingThis(job));
 
            goals.add(End(job));
        }
@@ -587,7 +587,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                    private static final long serialVersionUID = -1495893515710977644L;
                    @Override
                    public Goal prereqForJob(Job job) {
-                       return CheckASTForErrors(job);
+                       return CheckEscapingThis(job);
                    }
                }.intern(this);
     	   }
@@ -601,7 +601,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                        {
                            return null;
                        }
-                       return CheckASTForErrors(job);
+                       return CheckEscapingThis(job);
                    }
                }.intern(this);
     	    }
@@ -807,6 +807,10 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            TypeSystem ts = job.extensionInfo().typeSystem();
            NodeFactory nf = job.extensionInfo().nodeFactory();
            return new ForgivingVisitorGoal("ForwardRefsChecked", job, new FwdReferenceChecker(job, ts, nf)).intern(this);
+       }
+
+       public Goal CheckEscapingThis(Job job) {
+           return new VisitorGoal("CheckEscapingThis", job, new CheckEscapingThis.Main(job)).intern(this);
        }
 
 
