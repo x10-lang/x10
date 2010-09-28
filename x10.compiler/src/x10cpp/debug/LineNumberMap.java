@@ -803,7 +803,7 @@ public class LineNumberMap extends StringTable {
 	        
 	        w.writeln("static const struct _X10LocalVarMap _X10variableNameList[] __attribute__((used)) "+debugDataSectionAttr+" = {");
 	        for (LocalVariableMapInfo v : localVariables)
-	        	w.writeln("    { "+offsets[v._x10name]+", "+v._x10type+", "+v._x10typeIndex+", "+offsets[v._cppName]+", "+findFile(v._x10index, files)+", "+v._x10startLine+", "+v._x10endLine+" },");
+	        	w.writeln("    { "+offsets[v._x10name]+", "+v._x10type+", "+v._x10typeIndex+", "+offsets[v._cppName]+", "+findFile(v._x10index, files)+", "+v._x10startLine+", "+v._x10endLine+" }, // "+m.lookupString(v._x10name));
 	        w.writeln("};");
 	        w.forceNewline();
 	        
@@ -813,7 +813,7 @@ public class LineNumberMap extends StringTable {
 	        	{
 			        w.writeln("static const struct _X10TypeMember _X10"+classname+"Members[] __attribute__((used)) "+debugDataSectionAttr+" = {");
 			        for (MemberVariableMapInfo v : memberVariables.get(classname))
-			        	w.writeln("    { "+v._x10Type+", "+v._x10typeIndex+", "+offsets[v._x10memberName]+", "+offsets[v._cppMemberName]+", "+offsets[v._cppClass]+" },");
+			        	w.writeln("    { "+v._x10Type+", "+v._x10typeIndex+", "+offsets[v._x10memberName]+", "+offsets[v._cppMemberName]+", "+offsets[v._cppClass]+" }, // "+m.lookupString(v._x10memberName));
 				    w.writeln("};");
 				    w.forceNewline();
 	        	}	        		        	
