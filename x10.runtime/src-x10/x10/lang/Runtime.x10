@@ -689,6 +689,7 @@ import x10.util.Box;
             var stage : Int = 0;
             var target : Int = 0;
             var interval : Int = 2;
+            if(INIT_THREADS==1) return Pair[Int,Int](0,r.home().id);
             if(id!=r.home().id){
                 for (var i:Int =0; i < step; i++) {
                     if(id%interval != 0) {
