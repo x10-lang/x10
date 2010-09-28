@@ -61,6 +61,7 @@ public class FinishAnnotationVisitor extends ContextVisitor {
 			return visitFinishAnnotation((Finish)n);
 		}
 		if(n instanceof Async){
+			return visitAsyncAnnotation((Async)n);
 			//System.out.println(((Async_c)n).placeTerm.constraint().getClass());
 		}
 		return n;
@@ -75,6 +76,22 @@ public class FinishAnnotationVisitor extends ContextVisitor {
     	        for(int i=0;i<allannots.size();i++){
     	        	AnnotationNode a = allannots.get(i);
     	        	System.out.println(a);
+    	        }
+            }
+        } catch (SemanticException e) { 
+            /* Ignore exception when looking for annotation */  
+        }
+		return n;
+	}
+	private Node visitAsyncAnnotation(Async n){
+        Position pos = n.position();
+        try {
+            Type annotation = (Type) xts.systemResolver().find(QName.make("x10.compiler.TailAsync"));
+            if (!((X10Ext) n.ext()).annotationMatching(annotation).isEmpty()) {
+            	List<AnnotationNode> allannots = ((X10Ext)(n.ext())).annotations();
+    	        for(int i=0;i<allannots.size();i++){
+    	        	AnnotationNode a = allannots.get(i);
+    	        	System.out.println("annot:"+a);
     	        }
             }
         } catch (SemanticException e) { 

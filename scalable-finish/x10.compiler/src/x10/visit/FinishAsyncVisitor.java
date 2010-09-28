@@ -61,6 +61,7 @@ public class FinishAsyncVisitor extends ContextVisitor {
 		this.theLanguage = theLanguage;
 		if(finishTable == null && callTable == null){
 			callTable = ct;
+			//CallTableUtil.dumpCallTable(ct);
 			finishTable = new HashMap<CallTableKey, Integer>();
 			Iterator<CallTableKey> it = ct.keySet().iterator();
 			while(it.hasNext()){
@@ -76,18 +77,6 @@ public class FinishAsyncVisitor extends ContextVisitor {
 		if (n instanceof SourceFile_c) {
 			visitSourceFile((SourceFile_c) n);
 		}
-		if (n instanceof X10MethodDecl_c) {
-			// visitMethodDecl((X10MethodDecl_c)n);
-		}
-		if (n instanceof Async) {
-			// visitEnterAsync((Async) n);
-		}
-		if (n instanceof Finish) {
-			// visitEnterFinish((Finish)n);
-		}
-		if (n instanceof AtStmt) {
-			// visitEnterAt((AtStmt)n);
-		}
 		return this;
 
 	}
@@ -97,6 +86,9 @@ public class FinishAsyncVisitor extends ContextVisitor {
 
 		if (n instanceof Finish) {
 			return visitExitFinish((Finish) n);
+		}
+		if (n instanceof Async) {
+			visitExitAsync((Async) n);
 		}
 		if (n instanceof AtStmt) {
 			// return visitExitAt((AtStmt) n);
@@ -128,22 +120,6 @@ public class FinishAsyncVisitor extends ContextVisitor {
 		src_path = src_path.replace('/', '.');
 	}
 
-	private void visitMethodDecl(X10MethodDecl_c n) {
-		int line = n.position().line();
-		int column = n.position().endColumn();
-		String methodName = n.name().toString();
-		src_method = methodName;
-		CallTableMethodKey mk = new CallTableMethodKey(src_package, methodName,
-				line, column);
-		boolean f = callTable.keySet().contains(mk);
-		if (f) {
-			System.out.println("find method " + n.toString());
-
-		} else {
-			System.out.println("miss method " + n.toString());
-			System.out.println("\tgenerated key:" + mk.toString());
-		}
-	}
 
 	private Node visitExitAt(AtStmt n) {
 		int line = n.position().line();
@@ -205,17 +181,17 @@ public class FinishAsyncVisitor extends ContextVisitor {
 		boolean f1 = finishTable.containsKey(fs1);
 		boolean f2 = finishTable.containsKey(fs2);
 		if(f1){
-			return addAnnotation2Finish(n,fs1);
+			return addFinishAnnotation(n,fs1);
 		}
 		if(f2){
-			return addAnnotation2Finish(n,fs2);
+			return addFinishAnnotation(n,fs2);
 		}
 		System.out.println("finish "+fs1+" not found!");
 		return n;
 		
 	}
 	
-	private Finish addAnnotation2Finish(Finish f, CallTableScopeKey fs) throws SemanticException{
+	private Finish addFinishAnnotation(Finish f, CallTableScopeKey fs) throws SemanticException{
 		int pattern = finishTable.get(fs).intValue();
 		//System.out.println("find finish:" + fs);
 		X10Ext_c xext = (X10Ext_c) f.ext();
@@ -230,19 +206,59 @@ public class FinishAsyncVisitor extends ContextVisitor {
 	}
 	
 	
-	private void visitEnterAsync(Async n) {
+	private Node visitExitAsync(Async n) throws SemanticException {
 		int line = n.position().line();
-		int column = n.position().column();
+		int column = n.position().endColumn();
 		CallTableMethodKey m = new CallTableMethodKey(src_path, "activity",
 				line, column);
 		boolean f = callTable.keySet().contains(m);
 		if (f) {
-			System.out.println("find async:" + n.toString());
-		} else {
-			System.out.println("miss async:" + n.toString());
-			System.out.println("\tgenerated key:" + m.toString());
-		}
+			Async a= (Async) addAsyncAnnotation(n,m);
+			System.out.println(a+":"+a.hashCode()+":"+((X10Ext)a.ext()).annotations());
+			return a;
+		} 
+		System.out.println("async "+m+" not found!");
+		return n;
 
+	}
+
+	private Node addAsyncAnnotation(Async n, CallTableMethodKey m) throws SemanticException {
+		int pattern = 1;
+		boolean isParent;
+		switch(pattern){
+			case 0: return n;
+			case 1: isParent=true; break;
+			case 2: isParent=false; break;
+			default: return n;
+		}
+		X10Ext_c xext = (X10Ext_c) n.ext();
+		// old is unmodifiedlist
+		List<AnnotationNode> old = (List<AnnotationNode>) (xext.annotations());
+		LinkedList<AnnotationNode> newannote = new LinkedList<AnnotationNode>();
+		// retains all existing annotations
+		newannote.addAll(old);
+		// annotations added by compiler always have lower priority than those by programmers
+		newannote.addLast(makeAsyncAnnotation(n,isParent));
+		
+		return (Async)((X10Ext) n.ext()).annotations(newannote);
+	}
+
+	private AnnotationNode makeAsyncAnnotation(Async n, boolean isParent) throws SemanticException {
+		// find the type of this annotation
+		Type t = (Type) xts.systemResolver().find(QName.make("x10.compiler.TailAsync"));
+		// create a node (type node) for this type
+		CanonicalTypeNode tn = xnf.CanonicalTypeNode(n.position(), t);
+		// create a annotation (ast node) based on the type node
+		AnnotationNode an = ((X10NodeFactory_c) nf).AnnotationNode(n.position(), tn);
+		BooleanLit x10islast = nf.BooleanLit(n.position(), isParent);
+		List<Expr> initproperties = new LinkedList<Expr>();
+		initproperties.add(x10islast);
+		// patch this annotation with parameters
+		Ref r = an.annotationType().typeRef();
+		X10ParsedClassType_c xpct = (X10ParsedClassType_c) r.getCached();
+		xpct = (X10ParsedClassType_c) xpct.propertyInitializers(initproperties);
+		r.update(xpct);
+		return an;
 	}
 
 	private Node visitClosure(ClosureCall n) {

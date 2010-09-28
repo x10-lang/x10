@@ -104,6 +104,7 @@ import x10.visit.Desugarer;
 import x10.visit.ExprFlattener;
 import x10.visit.ExpressionFlattener;
 import x10.visit.FieldInitializerMover;
+import x10.visit.FinishAnnotationVisitor;
 import x10.visit.FinishAsyncVisitor;
 import x10.visit.MainMethodFinder;
 import x10.visit.NativeClassVisitor;
@@ -432,7 +433,14 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                    Goal barrier = IRBarrier(ir, buildCallTableMethod,x10.Configuration.FINISH_ASYNCS);
                    goals.add(barrier);
                    if(x10.Configuration.FINISH_ASYNCS){
-                	   goals.add(FinishAsyncBarrier(barrier,job,this));
+                	   Goal g = FinishAsyncBarrier(barrier,job,this);
+                	   goals.add(g);
+                	   FinishAnnotationVisitor favisitor = new FinishAnnotationVisitor(job,
+                			   extInfo.typeSystem(), extInfo.nodeFactory(), "java");
+                       Goal asyncannot = new VisitorGoal("FinishAsyncs",job,favisitor).intern(this);
+                       asyncannot.addPrereq(g);
+                       goals.add(asyncannot);
+                	   Desugarer(job).addPrereq(g);
                    }
                    
                } catch (Throwable e) {

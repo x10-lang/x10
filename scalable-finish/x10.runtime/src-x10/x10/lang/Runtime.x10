@@ -352,7 +352,6 @@ public final class Runtime {
                 return finishState;
             }
             val remoteFinish = rootFinish.makeRemote();
-            mydump("remote finish("+remoteFinish+") is created@"+here);
             map.put(rootFinish, remoteFinish);
             lock.unlock();
             return remoteFinish;
@@ -562,11 +561,9 @@ public final class Runtime {
         }
 
         public global def notifySubActivitySpawn(place:Place):Void {
-            mydump(home+" notify activity spawn@"+here+"@("+this+") to place "+place);
             if (here.equals(home)) {
                 (this as RootFinish!).notifySubActivitySpawnLocal(place);
             } else {
-                mydump("\t remote notify");
                 (Runtime.proxy(this) as RemoteFinish!).notifySubActivitySpawn(place);
             }
         }
@@ -1804,7 +1801,6 @@ public final class Runtime {
             val thisWorker = worker();
             val id = thisWorker.workerId;
             val state = currentState();
-	    //	    mydump("Place(" + here.id + ") Runtime.offer: received " + t);
             if (here.equals(state.home)) {
                 (state as RootCollectingFinish[T]!).accept(t,id);
             } else {
