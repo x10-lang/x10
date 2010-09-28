@@ -105,7 +105,7 @@ struct _X10LocalVarMap
 
 struct _X10TypeMember
 {
-	uint32_t _x10Type;       // Classification of this type
+	uint32_t _x10type;       // Classification of this type
 	uint32_t _x10typeIndex;  // Index of the X10 type into appropriate _X10typeMap
 	uint32_t _x10memberName; // Index of the X10 member name in _X10strings
 	uint32_t _cppMemberName; // Index of the C++ member name in _X10strings
@@ -135,20 +135,20 @@ struct _X10ClosureMap
 
 struct _X10ArrayMap
 {
-	uint32_t _x10type; // Classification of this type
+	uint32_t _x10type; // Classification of the type inside the array
 	uint32_t _x10typeIndex;  // Index of the X10 type into appropriate _X10typeMap (if applicable)
 };
 
 struct _X10RefMap
 {
-	uint32_t _x10type; // Classification of this type
-	uint32_t _x10ReferredType; // type number of the referred type
+	uint32_t _x10type; // Classification of the type inside the reference
+	uint32_t _x10typeIndex; // Index of the X10 type into appropriate _X10typeMap (if applicable)
 };
 
 struct _X10TypedefMap
 {
 	uint32_t _x10type; // Classification of this type
-	uint32_t _x10ReferredType; // type number of the referred type
+	uint32_t _x10typeIndex; // Index of the X10 type into appropriate _X10typeMap (if applicable)
 	uint32_t _x10Name; // Offset to the name of the typedef in _X10strings
 };
 
