@@ -21,7 +21,7 @@ package x10.constraint;
 public class XAnd extends XFormula {
 	
 	public XAnd(XTerm left, XTerm right) {
-		super(XTerms.andName, left, right);
+		super(XTerms.andName, XTerms.asExprAndName, left, right);
 	}
 	
 	public XPromise internIntoConstraint(XConstraint c, XPromise last) throws XFailure {

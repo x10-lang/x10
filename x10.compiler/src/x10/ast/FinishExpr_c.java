@@ -62,7 +62,7 @@ public class FinishExpr_c extends Expr_c implements FinishExpr {
 	 * java.util.List)
 	 */
 	@Override
-	public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
+	public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
 		v.visitCFG(reducer, body, ENTRY);
 		v.visitCFG(body, this, EXIT);
 		return succs;

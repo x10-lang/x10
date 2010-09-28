@@ -3,8 +3,8 @@ import x10.util.*;
 import harness.x10Test;
 
 public class BlockDist2 extends x10Test.BardTest {
-  public static def main(Rail[String]){
-     val p:x10Test! = new BlockDist2();
+  public static def main(Array[String](1)){
+     val p:x10Test = new BlockDist2();
      p.execute();
   }
   static def str(d:Dist):String {
@@ -22,7 +22,7 @@ public class BlockDist2 extends x10Test.BardTest {
 
 
   public def test() {
-     for( (n) in 10 .. 100 ) {
+     for( [n] in 10 .. 100 ) {
         val R = 1 .. n;
         val D = Dist.makeBlock(R);
         val M = Place.MAX_PLACES;

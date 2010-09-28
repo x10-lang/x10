@@ -54,7 +54,7 @@ public class UserArrayBounds3D extends x10Test {
      */
     private static def arrayAccess(lb1: int, ub1: int, lb2: int, ub2: int, lb3: int,ub3: int, i: int, j: int, var k: int): boolean = {
 
-        var a: Array[Int](3)! = new Array[Int]([lb1..ub1, lb2..ub2, lb3..ub3], ((i,j,k): Point)=> 0);
+        var a: Array[Int](3) = new Array[Int]([lb1..ub1, lb2..ub2, lb3..ub3], ([i,j,k]: Point)=> 0);
 
         var withinBounds: boolean = true;
         try {
@@ -80,7 +80,7 @@ public class UserArrayBounds3D extends x10Test {
      */
     private static def iff(x: boolean, y: boolean)= x==y;
 
-    public static def main(Rail[String]){
+    public static def main(Array[String](1)){
         new UserArrayBounds3D().execute();
     }
 }

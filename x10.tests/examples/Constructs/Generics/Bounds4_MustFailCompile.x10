@@ -29,7 +29,7 @@ public class Bounds4_MustFailCompile extends x10Test {
                 return new C[A](a).x == a;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new Bounds4_MustFailCompile().execute();
 	}
 }

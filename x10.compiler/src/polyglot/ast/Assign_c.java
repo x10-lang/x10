@@ -213,7 +213,7 @@ public abstract class Assign_c extends Expr_c implements Assign, Ambiguous
 
   abstract public Term firstChild();
 
-  public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
+  public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
       if (operator() == ASSIGN) {
           acceptCFGAssign(v);          
       }

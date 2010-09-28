@@ -244,7 +244,7 @@ public class ForLoopOptimizer extends ContextVisitor {
             if (named) {
                 // create a rail to contain the value of the formal at each iteration
                 Name       indexName  = Name.makeFresh(prefix);
-                           indexType  = PlaceChecker.AddIsHereClause(xts.Rail(xts.Int()), context);
+                           indexType  = xts.Rail(xts.Int()); // PlaceChecker.AddIsHereClause(xts.Rail(xts.Int()), context);
                 List<Type> railType   = Collections.<Type>singletonList(xts.Int());
                 Expr       indexInit  = createStaticCall(pos, xts.Rail(), MAKE, railType, createIntLit(rank));
                            indexLDecl = createLocalDecl(pos, Flags.FINAL, indexName, indexType, indexInit);
@@ -433,7 +433,7 @@ public class ForLoopOptimizer extends ContextVisitor {
      * TODO: move into Synthesizer
      */
     public LocalDecl createLocalDecl(Position pos, LocalDef def, Expr init) {
-        return xnf.LocalDecl( pos, 
+        return xnf.LocalDecl( pos.markCompilerGenerated(), 
                               xnf.FlagsNode(pos, def.flags()),
                               xnf.CanonicalTypeNode(pos, def.type().get()), 
                               xnf.Id(pos, def.name()),

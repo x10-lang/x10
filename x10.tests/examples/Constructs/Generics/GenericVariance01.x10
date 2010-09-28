@@ -35,7 +35,7 @@ public class GenericVariance01 extends GenericTest {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new GenericVariance01().execute();
     }
 }

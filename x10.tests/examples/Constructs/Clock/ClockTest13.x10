@@ -78,9 +78,9 @@ import harness.x10Test;
  */
 public class ClockTest13 extends x10Test {
 
-	public const N: int = 20; // total clock periods per activity
-	public const M: int = N/2; // when to change from forward to reverse
-	public const chainLength: int = 3;
+	public static N: int = 20; // total clock periods per activity
+	public static M: int = N/2; // when to change from forward to reverse
+	public static chainLength: int = 3;
 	var phaseA: int = 0;
 	var phaseB: int = 0;
 	var phaseC: int = 0;
@@ -100,7 +100,7 @@ public class ClockTest13 extends x10Test {
 	}
 
 	def taskA(val a: Clock): void = {
-		for (val (k): Point in 1..N) {
+		for ([k] in 1..N) {
 			x10.io.Console.OUT.println(k+" A new phase");
 			atomic phaseA++;
 			x10.io.Console.OUT.println(k+" A resuming a");
@@ -118,7 +118,7 @@ public class ClockTest13 extends x10Test {
 		}
 	}
 	def taskB(val a: Clock, val b: Clock): void = {
-		for (val (k): Point in 1..N) {
+		for ([k] in 1..N) {
 			x10.io.Console.OUT.println(k+" B new phase");
 			atomic phaseB++;
 			x10.io.Console.OUT.println(k+" B resuming a");
@@ -130,7 +130,7 @@ public class ClockTest13 extends x10Test {
 		}
 	}
 	def taskC(val b: Clock, val c: Clock): void = {
-		for (val (k): Point in 1..N) {
+		for ([k] in 1..N) {
 			x10.io.Console.OUT.println(k+" C new phase");
 			atomic phaseC++;
 			x10.io.Console.OUT.println(k+" C resuming b");
@@ -142,7 +142,7 @@ public class ClockTest13 extends x10Test {
 		}
 	}
 	def taskD(val c: Clock): void = {
-		for (val (k): Point in 1..N) {
+		for ([k] in 1..N) {
 			x10.io.Console.OUT.println(k+" D new phase");
 			atomic phaseD++;
 			x10.io.Console.OUT.println(k+" D resuming c");
@@ -161,7 +161,7 @@ public class ClockTest13 extends x10Test {
 		}
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(Array[String](1)) {
 		new ClockTest13().execute();
 	}
 }

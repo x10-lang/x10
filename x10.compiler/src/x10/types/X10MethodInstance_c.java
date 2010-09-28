@@ -37,6 +37,7 @@ import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.types.UpcastTransform;
 import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
@@ -60,6 +61,7 @@ import x10.types.matcher.Matcher;
  *
  */
 public class X10MethodInstance_c extends MethodInstance_c implements X10MethodInstance {
+    private static final long serialVersionUID = -2510860168293880632L;
 
     public X10MethodInstance_c(TypeSystem ts, Position pos, Ref<? extends X10MethodDef> def) {
         super(ts, pos, def);
@@ -151,7 +153,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 
     public List<Type> typeParameters() {
         if (this.typeParameters == null) {
-            return new TransformingList<Ref<? extends Type>, Type>(x10Def().typeParameters(), new DerefTransform<Type>());
+            return new TransformingList<ParameterType, Type>(x10Def().typeParameters(), new UpcastTransform<Type, ParameterType>());
         }
 
         return typeParameters;
@@ -182,6 +184,10 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
         X10MethodInstance_c n = (X10MethodInstance_c) copy();
         n.formalNames = formalNames;
         return n;
+    }
+
+    public X10MethodInstance formalTypes(List<Type> formalTypes) {
+        return (X10MethodInstance) super.formalTypes(formalTypes);
     }
 
     private SemanticException error;
@@ -249,20 +255,6 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
         result = f.isSafe();
         return result;
     }*/
-    protected static String myListToString(List l) {
-        StringBuffer sb = new StringBuffer();
-
-        for (Iterator i = l.iterator(); i.hasNext(); ) {
-            Object o = i.next();
-            sb.append(o.toString());
-
-            if (i.hasNext()) {
-                sb.append(", ");
-            }
-        }
-
-        return sb.toString();
-    }
 
 
     public X10MethodDef x10Def() {
@@ -285,10 +277,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
     public String toString() {
         String s = designator() + " " + X10Flags.toX10Flags(flags()).prettyPrint() + containerString() + "." + signature();
 
-        if (! throwTypes().isEmpty()) {
-            s += " throws " + CollectionUtil.listToString(throwTypes());
-        }
-
+       
         if (body != null)
             s += " = " + body;
 

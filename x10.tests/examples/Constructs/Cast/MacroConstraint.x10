@@ -43,7 +43,7 @@ public class MacroConstraint extends x10Test {
 	    return result;
 	}
 
-	public static def main(args: Rail[String]) {
+	public static def main(args: Array[String](1)) {
 		new MacroConstraint().execute();
 	}
 

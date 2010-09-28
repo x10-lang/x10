@@ -37,7 +37,7 @@ public class ClosureTypeParameters1e extends ClosureTest {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new ClosureTypeParameters1e().execute();
     }
 }

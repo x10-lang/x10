@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
@@ -22,12 +23,21 @@ import polyglot.frontend.ExtensionInfo;
 import polyglot.types.ClassType;
 import polyglot.types.QName;
 import polyglot.types.Type;
+import polyglot.types.VarDef;
 import polyglot.ast.Ext_c;
 import x10.ast.AnnotationNode;
 import x10.types.X10ClassType;
 import x10.types.X10TypeSystem;
 
 public class X10Ext_c extends Ext_c implements X10Ext {
+    /*
+    asyncInitVal is used by the backend to handle async initialization.
+    For example:
+    val x:Int;
+    finish async { finish async { x = 42; } }
+     */
+    public Set<VarDef> asyncInitVal = null;
+
     String comment;
     List<AnnotationNode> annotations;
     boolean subtreeValid = true;
@@ -49,14 +59,14 @@ public class X10Ext_c extends Ext_c implements X10Ext {
     
     public List<AnnotationNode> annotations() {
     	if (this.annotations == null) {
-    		return Collections.EMPTY_LIST;
+    		return Collections.<AnnotationNode>emptyList();
     	}
     	return Collections.unmodifiableList(this.annotations);
     }
     
     public List<X10ClassType> annotationTypes() {
     	if (this.annotations == null) {
-    		return Collections.EMPTY_LIST;
+    		return Collections.<X10ClassType>emptyList();
     	}
     	List<X10ClassType> l = new ArrayList<X10ClassType>(this.annotations.size());
     	for (Iterator<AnnotationNode> i = this.annotations.iterator(); i.hasNext(); ) {

@@ -13,12 +13,12 @@ import harness.x10Test;
 
 public class NQueensParTest extends x10Test {
     public def run():boolean {
-         val args = Rail.make[String](0);
+         val args = new Array[String](0);
          NQueensPar.main(args);
          return true;
     }
 
-    public static def main(args:Rail[String]) {
+    public static def main(args:Array[String](1)) {
 	new NQueensParTest().execute();
     }
 }

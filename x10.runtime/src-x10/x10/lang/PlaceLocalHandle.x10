@@ -40,37 +40,14 @@ public final struct PlaceLocalHandle[T]{T <: Object} {
     /**
      * @return the object mapped to the handle at the current place
      */
-    public safe native def apply():T!;
+    public native def apply():T;
 
     // Only to be used by make method and Runtime class
-    native def set(newVal:T!):Void;
+    native def set(newVal:T):Void;
 
-    public safe native def hashCode():Int;
+    public native def hashCode():Int;
 
-    public safe native def toString():String;
-
-    /**
-     * Copies the contents of a Rail stored in the given place-local handle in the
-     * current place to the Rail stored in the same handle at a given place.
-     * Upon completion, invokes the notifier closure.  The enclosing finish is not affected.
-     *
-     * @param handle the place-local handle that references the source and destination Rails.
-     * @param dst_place the location of the destination Rail.
-     * @param len the number of elements to copy.
-     * @param notifier the function to invoke upon completion.
-     */
-    // TODO: fix guard and cast -- should be an existential, i.e. exists U such
-    // that T<:Rail[U] then no need for U as an explicit type param and the
-    // cast should be implicit because of the knowledge that T <: Rail[U]
-    // FURTHERMORE: the constraint on explicit U (commented out) is not used by the code
-    // below, the cast is still required for the code to be accepted by the type system.
-    public def copyTo[U](dst:Place, len:Int, notifier:()=>Void) /*{T<:Rail[U]}*/ :Void {
-        val handle = this as Any as PlaceLocalHandle[Rail[U]];
-        val finder = ()=>Pair[Rail[U],Int](handle(), 0);
-        handle().copyTo(0, dst, finder, len, notifier);
-        Runtime.dealloc(finder);
-        Runtime.dealloc(notifier);
-    }
+    public native def toString():String;
 
     /**
      * Create a distributed object with local state of type T
@@ -83,10 +60,10 @@ public final struct PlaceLocalHandle[T]{T <: Object} {
      * @param init the initialization closure used to create the local object.
      * @return a PlaceLocalHandle that can be used to access the local objects.
      */
-    public static def make[T](dist:Dist, init:()=>T!){T <: Object}:PlaceLocalHandle[T] {
+    public static def make[T](dist:Dist, init:()=>T){T <: Object}:PlaceLocalHandle[T] {
         val handle = at(Place.FIRST_PLACE) PlaceLocalHandle[T]();
         finish for (p in dist.places()) {
-            async (p) handle.set(init());
+            at (p) async handle.set(init());
         }
         return handle;
     }

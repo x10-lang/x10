@@ -11,16 +11,17 @@
 
 import harness.x10Test;
 
+import x10.util.Future;
 /**
  * Some updates of cnt_broken may be lost,
  * since the read and write are not
  * inside the same atomic section.
  */
 public class Atomic1 extends x10Test {
-
-	var cnt: int = 0;
-	var cnt_broken: int = 0;
-	public const N: int = 100;
+    private val root = GlobalRef[Atomic1](this);
+	transient var cnt: int = 0;
+	transient var cnt_broken: int = 0;
+	public static N: int = 100;
 	def threadRun(): int = {
 		for (var i: int = 0; i < N; ++i) {
 			var t: int;
@@ -32,31 +33,32 @@ public class Atomic1 extends x10Test {
 	}
 
 	public def run(): boolean = {
-		val a = future(this) threadRun();
-		val b = future(this) threadRun();
-		val c = future(this) threadRun();
-		val d = future(this) threadRun();
-		val e = future(this) threadRun();
-		val f = future(this) threadRun();
-		val g = future(this) threadRun();
-		val h = future(this) threadRun();
-		val i = a.force();
-		val j = b.force();
-		val k = c.force();
-		val l = d.force();
-		val m = e.force();
-		val n = f.force();
-		val o = g.force();
-		val p = h.force();
+		val root = this.root;
+		val a = Future.make[int](()=> root().threadRun());
+		val b = Future.make[int](()=>  root().threadRun());
+		val c = Future.make[int](()=> root().threadRun());
+		val d = Future.make[int](()=> root().threadRun());
+		val e = Future.make[int](()=> root().threadRun());
+		val f = Future.make[int](()=> root().threadRun());
+		val g = Future.make[int](()=>  root().threadRun());
+		val h = Future.make[int](()=>  root().threadRun());
+		val i = a();
+		val j = b();
+		val k = c();
+		val l = d();
+		val m = e();
+		val n = f();
+		val o = g();
+		val p = h();
 		var t1: int;
 		var t2: int;
 		atomic t1 = cnt;
 		atomic t2 = cnt_broken;
-		x10.io.Console.OUT.println("Atomic1: " + t1 + " =?= " + t2);
+		// x10.io.Console.OUT.println("Atomic1: " + t1 + " =?= " + t2);
 		return t1 == 8*N && t1 >= t2;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(Array[String](1)) {
 		new Atomic1().execute();
 	}
 }

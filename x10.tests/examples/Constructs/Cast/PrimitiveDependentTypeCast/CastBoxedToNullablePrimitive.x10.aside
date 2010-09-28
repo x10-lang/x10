@@ -25,7 +25,7 @@ public class CastBoxedToNullablePrimitive extends x10Test {
 		// boxed as Box[int];
 		return 3;
 	}
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new CastBoxedToNullablePrimitive().execute();
 	}
 }

@@ -14,6 +14,8 @@ import polyglot.util.Position;
  * when a <code>ClassResolver</code> is unable to resolve a given class name.
  */
 public class NoMemberException extends SemanticException {
+    private static final long serialVersionUID = 1085715680905007871L;
+
     private int kind;
     public static final int METHOD = 1;
     public static final int CONSTRUCTOR = 2;

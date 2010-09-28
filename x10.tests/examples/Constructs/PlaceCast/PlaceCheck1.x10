@@ -30,9 +30,13 @@ public class PlaceCheck1 extends x10Test {
 			x10.io.Console.OUT.println("This test requires at least 2 places.");
 			ret = false;
 		} else {
-			ret = checkFieldAccess();
-			ret = checkFieldAssign() & ret;
-			ret = checkMethodCall() & ret;
+			ret = true;
+			// In the 2.1 model, objects are copied. Hence checkFieldAccess, checkFieldAssign and checkMethodCall
+			// will always "fail", i.e. they will operate on the local copy of the object.
+			// These are not valid tests anymore.
+			//ret = checkFieldAccess();
+			//ret = checkFieldAssign() & ret;
+			//ret = checkMethodCall() & ret;
 			ret = checkArrayAccess() & ret;
 			ret = checkArrayAssign() & ret;
 		}
@@ -41,7 +45,7 @@ public class PlaceCheck1 extends x10Test {
 
 	public static def getNotHere() = here.next();
 	public var foo: int;
-	public safe def foo_method() = 42;
+	public def foo_method() = 42;
 
 	public static def checkFieldAccess() {
 		var ret: boolean = false;
@@ -50,8 +54,8 @@ public class PlaceCheck1 extends x10Test {
 			obj.foo = 123;
 			// x10.io.Console.OUT.println("DEBUG - creating object in place p = " + here);
 			val other_place = getNotHere();
-			finish async (other_place) {
-				val o = obj as PlaceCheck1!;
+			finish async at (other_place) {
+				val o = obj as PlaceCheck1;
 				val xxx = o.foo;
 				if (xxx != 123)
 					x10.io.Console.OUT.println(xxx);
@@ -72,9 +76,9 @@ public class PlaceCheck1 extends x10Test {
 		try {
 			val obj_here  = new PlaceCheck1();
 			val other_place  = getNotHere();
-			finish async (other_place) {
+			finish async at (other_place) {
 				atomic { 
-					val o = obj_here as PlaceCheck1!;
+					val o = obj_here as PlaceCheck1;
 					o.foo = 123; 
 					}
 			};
@@ -95,9 +99,9 @@ public class PlaceCheck1 extends x10Test {
 		try {
 			val obj  = new PlaceCheck1();
 			val other_place = getNotHere();
-			finish async (other_place) {
+			finish async at (other_place) {
 				atomic { 	
-					val o = obj as PlaceCheck1 !;
+					val o = obj as PlaceCheck1;
 				o.foo_method(); }
 			};
 			x10.io.Console.OUT.println("WARN - expected exception/error for remote method call in atomic");
@@ -132,7 +136,7 @@ public class PlaceCheck1 extends x10Test {
 	public static def checkArrayAssign(): boolean = {
 		var ret: boolean = false;
 		val d  = Dist.makeUnique();
-		val arr = DistArray.make[int](d, ((p): Point): int => 123);
+		val arr = DistArray.make[int](d, ([p]: Point): int => 123);
 		try {
 			val other_place: Place = getNotHere();
 			var xxx: int;
@@ -150,7 +154,7 @@ public class PlaceCheck1 extends x10Test {
 		return ret;
 	}
 
-	public static def main(Rail[String]): void = {
+	public static def main(Array[String](1)): void = {
 		new PlaceCheck1().execute();
 	}
 }

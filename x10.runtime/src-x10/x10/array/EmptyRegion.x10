@@ -21,26 +21,27 @@ final class EmptyRegion extends Region {
 	if (rank<0) throw new IllegalArgumentException("Rank is negative ("+rank+")");
     }
 
-    public global def isConvex() = true;
-    public global def isEmpty() = true;
-    public global def size() = 0;
-    public global def intersection(that: Region(rank)): Region(rank) = this;
-    public global def product(that: Region): Region/*(this.rank+that.rank)*/ 
+    public def isConvex() = true;
+    public def isEmpty() = true;
+    public def size() = 0;
+    public def indexOf(Point) = -1;
+    public def intersection(that: Region(rank)): Region(rank) = this;
+    public def product(that: Region): Region/*(this.rank+that.rank)*/ 
         = new EmptyRegion(this.rank + that.rank);
-    public global def projection(axis: int): Region(1) = new EmptyRegion(1);
-    public global def translate(p:Point(rank)): Region(rank) = this;
-    public global def eliminate(i:Int)= new EmptyRegion(rank-1);
-    protected global def computeBoundingBox(): Region(rank) {
+    public def projection(axis: int): Region(1) = new EmptyRegion(1);
+    public def translate(p:Point(rank)): Region(rank) = this;
+    public def eliminate(i:Int)= new EmptyRegion(rank-1);
+    protected def computeBoundingBox(): Region(rank) {
         throw new IllegalOperationException("bounding box not not defined for empty region");
     }
-    public global def min(): ValRail[int] {
+    public def min(): ValRail[int] {
         throw new IllegalOperationException("min not not defined for empty region");
     }
-    public global def max(): ValRail[int] {
+    public def max(): ValRail[int] {
         throw new IllegalOperationException("max not not defined for empty region");
     }
-    public global def contains(that: Region(rank)) = that.isEmpty();
-    public global def contains(p:Point):Boolean = false;
+    public def contains(that: Region(rank)) = that.isEmpty();
+    public def contains(p:Point):Boolean = false;
 
     private static class ERIterator(myRank:int) implements Iterator[Point(myRank)]() {
         def this(r:int) { property(r); }
@@ -49,14 +50,14 @@ final class EmptyRegion extends Region {
             throw new x10.util.NoSuchElementException();
         }
     }
-    public global def iterator():Iterator[Point(rank)] {
+    public def iterator():Iterator[Point(rank)] {
         return new ERIterator(rank);
     }
 
-    public global def scanners():Iterator[Region.Scanner]! {
+    public def scanners():Iterator[Region.Scanner] {
         throw new UnsupportedOperationException("scanners not defined for empty region");
     }
 
-    public global safe def toString() = "empty(" + rank + ")";
+    public def toString() = "empty(" + rank + ")";
 
 }

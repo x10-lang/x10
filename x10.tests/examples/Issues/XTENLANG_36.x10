@@ -22,7 +22,8 @@ class XTENLANG_36 extends x10Test {
 
     public class Bug {
     
-        def foo(os:Writer, buf:Rail[Byte]) throws IOException {
+        def foo(os:Writer, buf:Rail[Byte]) // throws IOException 
+        {
             os.write(buf, 0, buf.length);
         }
     }
@@ -31,7 +32,7 @@ class XTENLANG_36 extends x10Test {
         return true;
     }
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new XTENLANG_36().execute();
     }
 }

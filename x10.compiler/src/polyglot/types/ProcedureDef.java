@@ -24,13 +24,6 @@ public interface ProcedureDef extends CodeDef
     List<Ref<? extends Type>> formalTypes();
     void setFormalTypes(List<Ref<? extends Type>> l);
     
-    /**
-     * List of declared exception types thrown.
-     * @return A list of <code>Type</code>.
-     * @see polyglot.types.Type
-     */
-    List<Ref<? extends Type>> throwTypes();
-    void setThrowTypes(List<Ref<? extends Type>> l);
     
     /**
      * Returns a String representing the signature of the procedure.

@@ -15,6 +15,7 @@ import polyglot.types.*;
 import polyglot.types.VarDef_c.ConstantValue;
 import polyglot.util.*;
 import polyglot.visit.*;
+import x10.errors.Errors;
 
 /**
  * A <code>FieldDecl</code> is an immutable representation of the declaration
@@ -236,32 +237,33 @@ public class FieldDecl_c extends Term_c implements FieldDecl {
     public void setResolver(final Node parent, TypeCheckPreparer v) {
     	final FieldDef def = fieldDef();
     	Ref<ConstantValue> rx = def.constantValueRef();
-    	if (rx instanceof LazyRef) {
+    	if (rx instanceof LazyRef<?>) {
     		LazyRef<ConstantValue> r = (LazyRef<ConstantValue>) rx;
     		  TypeChecker tc0 = new TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
     		  final TypeChecker tc = (TypeChecker) tc0.context(v.context().freeze());
     		  final Node n = this;
     		  r.setResolver(new AbstractGoal_c("ConstantValue") {
-    			  public boolean runTask() {
-    				  if (state() == Goal.Status.RUNNING_RECURSIVE || state() == Goal.Status.RUNNING_WILL_FAIL) {
-    					  // The field is not constant if the initializer is recursive.
-    					  //
-    					  // But, we could be checking if the field is constant for another
-    					  // reference in the same file:
-    					  //
-    					  // m() { use x; }
-    					  // final int x = 1;
-    					  //
-    					  // So this is incorrect.  The goal below needs to be refined to only visit the initializer.
-    					  def.setNotConstant();
-    				  }
-    				  else {
-    					  Node m = parent.visitChild(n, tc);
-    					  tc.job().nodeMemo().put(n, m);
-    					  tc.job().nodeMemo().put(m, m);
-    				  }
-    				  return true;
-    			  }
+    		      private static final long serialVersionUID = 3729582427435523873L;
+    		      public boolean runTask() {
+    		          if (state() == Goal.Status.RUNNING_RECURSIVE || state() == Goal.Status.RUNNING_WILL_FAIL) {
+    		              // The field is not constant if the initializer is recursive.
+    		              //
+    		              // But, we could be checking if the field is constant for another
+    		              // reference in the same file:
+    		              //
+    		              // m() { use x; }
+    		              // final int x = 1;
+    		              //
+    		              // So this is incorrect.  The goal below needs to be refined to only visit the initializer.
+    		              def.setNotConstant();
+    		          }
+    		          else {
+    		              Node m = parent.visitChild(n, tc);
+    		              tc.job().nodeMemo().put(n, m);
+    		              tc.job().nodeMemo().put(m, m);
+    		          }
+    		          return true;
+    		      }
     		  });
     	}
     }
@@ -316,7 +318,7 @@ public class FieldDecl_c extends Term_c implements FieldDecl {
 	return this;
     }
 
-    public Node conformanceCheck(ContextVisitor tc) throws SemanticException {
+    public Node conformanceCheck(ContextVisitor tc) {
         TypeSystem ts = tc.typeSystem();
 
         // Get the fi flags, not the node flags since the fi flags
@@ -327,7 +329,7 @@ public class FieldDecl_c extends Term_c implements FieldDecl {
             ts.checkFieldFlags(flags);
         }
         catch (SemanticException e) {
-            throw new SemanticException(e.getMessage(), position());
+            Errors.issue(tc.job(), e, this);
         }
 
         Type fcontainer = Types.get(fieldDef().container());
@@ -337,8 +339,8 @@ public class FieldDecl_c extends Term_c implements FieldDecl {
 
             if (container.flags().isInterface()) {
         	if (flags.isProtected() || flags.isPrivate()) {
-        	    throw new SemanticException("Interface members must be public.",
-        	                                position());
+        	    Errors.issue(tc.job(),
+        	            new SemanticException("Interface members must be public.", position()));
         	}
             }
 
@@ -348,9 +350,9 @@ public class FieldDecl_c extends Term_c implements FieldDecl {
         	    container.isInnerClass()) {
         	// it's a static field in an inner class.
         	if (!flags.isFinal() || init == null || !init.isConstant()) {
-        	    throw new SemanticException("Inner classes cannot declare " +
+        	    Errors.issue(tc.job(), new SemanticException("Inner classes cannot declare " +
         	                                "static fields, unless they are compile-time " +
-        	                                "constant fields.", this.position());
+        	                                "constant fields.", position()));
         	}
             }
         }
@@ -383,7 +385,7 @@ public class FieldDecl_c extends Term_c implements FieldDecl {
         return type;
     }
 
-    public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
+    public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
         if (init != null) {
             v.visitCFG(type, init, ENTRY);
             v.visitCFG(init, this, EXIT);

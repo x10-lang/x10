@@ -17,7 +17,7 @@ import harness.x10Test;
  */
 public class Foreach1 extends x10Test {
 
-	public const N: int = 100;
+	public static N: int = 100;
 	var nActivities: int = 0;
 
 	public def run(): boolean = {
@@ -25,7 +25,7 @@ public class Foreach1 extends x10Test {
 		val d = [0..N-1]->here;
 		val hasbug  = DistArray.make[boolean](d);
 
-		finish foreach (p(i): Point(1) in d.region) {
+		finish foreach (p[i]: Point(1) in d.region) {
 			// Ensure each activity spawned by foreach
 			// runs at P0
 			// and that the hasbug array was
@@ -36,7 +36,7 @@ public class Foreach1 extends x10Test {
 		return !hasbug.reduce(boolean.|, false) &&
 			nActivities == N;
 	}
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new Foreach1().execute();
 	}
 }

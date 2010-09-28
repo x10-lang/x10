@@ -11,6 +11,9 @@
 
 package x10.array;
 
+import x10.compiler.TempNoInline_0;
+import x10.compiler.TempNoInline_3;
+
 /**
  * A Region(rank) represents a set of points of class Point(rank). The
  * Region class defines a set of static factory methods for
@@ -38,8 +41,8 @@ public abstract class Region(
      * Construct an empty region of the specified rank.
      */
 
-    public static def makeEmpty(rank: int): Region(rank) = new EmptyRegion(rank);
-    
+    public static @TempNoInline_0 def makeEmpty(rank: int): Region(rank) = new EmptyRegion(rank);
+     
     /**
      * Construct an unbounded region of a given rank that contains all
      * points of that rank.
@@ -66,19 +69,45 @@ public abstract class Region(
         val pm = pmb.toSortedPolyMat(false);
         return PolyRegion.make(pm) as Region(normal.rank); // XXXX Why is this cast here?
     }
-
     //
     // rectangular factories
     //
 
     /**
+     * Returns a PolyRegion that represents the rectangular region with smallest point minArg and largest point
+     * maxArg. 
+     * <p> Most users of the Region API should call makeRectangular which will return a 
+     * RectRegion. Methods on RectRegion automatically construct a PolyRegion (by calling makeRectangularPoly) 
+     * if they need to implement operations (such as intersection, product etc) that are difficult to define
+     * on a RectRegion's representation.
+     * @param minArg:ValRail[int] -- specifies the smallest point in the region
+     * @param maxArg:ValRail[int] -- specifies the largest point in the region (must have the same rank as minArg
+     * @return A Region of rank minarg.length 
+     */
+
+    public static def makeRectangularPoly(minArg: ValRail[int], maxArg: ValRail[int](minArg.length)):Region(minArg.length){
+    	   val rank = minArg.length;
+           val pmb = new PolyMatBuilder(rank); 
+           for ([i] in 0..rank-1) {
+        	   // add -1*x(i) + minArg(i) <= 0, i.e. x(i) >= minArg(i)
+        	   val r = new PolyRow(Point.make(rank, (j:Int) => i==j ? -1 : 0), minArg(i));
+        	   pmb.add(r);
+        	   // add 1*x(i) - maxArg(i) <= 0, i.e. x(i) <= maxArg(i)
+        	   val s = new PolyRow(Point.make(rank, (j:Int) => i==j ? 1 : 0), -maxArg(i));
+        	   pmb.add(s);
+           }
+           val pm = pmb.toSortedPolyMat(false);
+           return PolyRegion.make(pm) as Region(minArg.length); 
+    }
+     
+    /**
      * Construct a rectangular region whose bounds are specified as
      * rails of ints.
      */
 
-    public static def makeRectangular(minArg: Rail[int]!, maxArg: Rail[int](minArg.length)!):Region(minArg.length){self.rect}
-        = makeRectangular(minArg as ValRail[int], maxArg as ValRail[int](minArg.length));  
-    public static def makeRectangular(minArg: ValRail[int], maxArg: ValRail[int](minArg.length)):Region(minArg.length){self.rect}
+    public static @TempNoInline_3 def makeRectangular(minArg: Rail[int], maxArg: Rail[int](minArg.length)):Region(minArg.length){self.rect}
+        = makeRectangular(ValRail.make(minArg), ValRail.make(maxArg));  
+    public static @TempNoInline_3 def makeRectangular(minArg: ValRail[int], maxArg: ValRail[int](minArg.length)):Region(minArg.length){self.rect}
         = new RectRegion(minArg, maxArg);
 
     /**
@@ -98,7 +127,7 @@ public abstract class Region(
      * Construct a rank-n rectangular region that is the Cartesian
      * product of the specified rank-1 rectangular regions.
      */
-    public static def make(regions:ValRail[Region(1){self.rect}]):Region(regions.length){self.rect} {
+    public static @TempNoInline_3 def make(regions:ValRail[Region(1){self.rect}]):Region(regions.length){self.rect} {
         var r:Region = regions(0);
         for (var i: int = 1; i<regions.length; i++)
             r = r.product(regions(i));
@@ -113,6 +142,9 @@ public abstract class Region(
      * Construct a banded region of the given size, with the specified
      * number of diagonals above and below the main diagonal
      * (inclusive of the main diagonal).
+     * @param size -- number of elements in the banded region
+     * @param upper -- the number of diagonals in the band, above the main diagonal
+     * @param lower -- the number of diagonals in the band, below the main diagonal
      */
     public static def makeBanded(size: int, upper: int, lower: int):Region(2)
         = PolyRegion.makeBanded(size, upper, lower);
@@ -156,21 +188,32 @@ public abstract class Region(
     /**
      * Returns the number of points in this region.
      */
-
-    public abstract global def size(): int;
+    public abstract def size(): int;
 
     /**
      * Returns true iff this region is convex.
      */
-
-    public abstract global def isConvex(): boolean;
+    public abstract def isConvex(): boolean;
 
     /**
      * Returns true iff this region is empty.
      */
+    public abstract def isEmpty(): boolean;
 
-    public abstract global def isEmpty(): boolean;
 
+    /**
+     * Returns the index of the argument point in the lexograpically ordered
+     * enumeration of all Points in thie region.  Will return -1 to indicate 
+     * that the argument point is not included in this region.  If the argument
+     * point is contained in this region, then a value between 0 and size-1
+     * will be returned.  The primary usage of indexOf is in the context of 
+     * Arrays, where it enables the conversion from "logical" indicies 
+     * specified in Points into lower level indices specified by Ints that
+     * can be used in primitive operations such as copyTo and in interfacing
+     * to native code.  Often indexOf will be used in conjuntion with the 
+     * raw() method of Array or DistArray.
+     */
+    public abstract def indexOf(Point):Int;
 
 
     //
@@ -181,38 +224,34 @@ public abstract class Region(
      * The bounding box of a region r is the smallest rectangular region
      * that contains all the points of r.
      */
-    public global def boundingBox(): Region(rank) = computeBoundingBox();
+    public def boundingBox(): Region(rank) = computeBoundingBox();
 
 
-    abstract global protected  def computeBoundingBox(): Region(rank);
-
-    /**
-     * Returns the lower bounds of the bounding box of the region as a
-     * Rail[int].
-     */
-
-    abstract public global def min(): ValRail[int];
+    abstract protected  def computeBoundingBox(): Region(rank);
 
     /**
-     * Returns the upper bounds of the bounding box of the region as a
-     * Rail[int].
+     * Returns a function that can be used to access the lower bounds 
+     * of the bounding box of the region. 
      */
+    abstract public def min():(int)=>int;
 
-    abstract public global def max(): ValRail[int];
+    /**
+     * Returns a function that can be used to access the lower bounds 
+     * of the bounding box of the region. 
+     */
+    abstract public def max():(int)=>int;
     
     /**
      * Returns the lower bound of the bounding box of the region along
      * the ith axis.
      */
-
-    public global def min(i:Int) = min()(i);
+    public def min(i:Int) = min()(i);
 
     /**
      * Returns the upper bound of the bounding box of the region along
      * the ith axis.
      */
-
-    public global def max(i:Int) = max()(i);    
+    public def max(i:Int) = max()(i);    
 
 
     //
@@ -224,7 +263,7 @@ public abstract class Region(
      * region will be unbounded.
    
 
-    abstract public global def complement(): Region(rank);
+    abstract public def complement(): Region(rank);
   */
     
     /**
@@ -232,14 +271,14 @@ public abstract class Region(
      * points that are in either this region or that region.
      
 
-    abstract public global def union(that: Region(rank)): Region(rank);
+    abstract public def union(that: Region(rank)): Region(rank);
 
 */
     
     /**
      * Returns the union of two regions if they are disjoint,
      * otherwise throws an exception.
-     *   abstract public global def disjointUnion(that: Region(rank)): Region(rank);
+     *   abstract public def disjointUnion(that: Region(rank)): Region(rank);
      */
 
   
@@ -249,50 +288,49 @@ public abstract class Region(
      * points that are in both this region and that region.
      * 
      */
-    abstract public global def intersection(that: Region(rank)): Region(rank);
+    abstract public def intersection(that: Region(rank)): Region(rank);
     
 
     /**
      * Returns the difference between two regions: a region that
      * contains all points that are in this region but are not in that
      * region.
-     *  abstract public global def difference(that: Region(rank)): Region(rank);
+     *  abstract public def difference(that: Region(rank)): Region(rank);
      */
 
     /**
      * Returns true iff this region has no points in common with that
      * region.
      */
-     public global def disjoint(that:Region(rank)) = intersection(that).isEmpty();
+     public def disjoint(that:Region(rank)) = intersection(that).isEmpty();
    
 
     /**
      * Returns the Cartesian product of two regions. The Cartesian
-     * product has rank this.rank+that.rank. For every point p in the
-     * Cartesian product, the first this.rank coordinates of p are a
-     * point in this region, while the last that.rank coordinates of p
-     * are a point in that.region.
+     * product has rank <code>this.rank+that.rank</code>. For every point <code>p</code> in the
+     * Cartesian product, the first <code>this.rank</code> coordinates of <code>p</code> are a
+     * point in this region, while the last <code>that.rank</code> coordinates of p
+     * are a point in that region.
      */
 
-    abstract public global def product(that: Region): Region;
+    abstract public def product(that: Region): Region;
 
     /**
      * Returns the region shifted by a Point (vector). The Point has
-     * to have the same rank as the region. For every point p in the
-     * resulting region, each coordinate is that of the corresponding
-     * point q shifted by the same coordinate of the given point.
+     * to have the same rank as the region. A point p+v is in 
+     * <code>translate(v)</code> iff <code>p</code> is in <code>this</code>. 
      */
 
-    abstract public global def translate(v: Point(rank)): Region(rank);
+    abstract public def translate(v: Point(rank)): Region(rank);
 
     /**
      * Returns the projection of a region onto the specified axis. The
-     * projection is a rank-1 region such that for every point (i) in
-     * the projection, there is some point p in this region such that
-     * p(axis)==i.
+     * projection is a rank-1 region such that for every point <code>[i]</code> in
+     * the projection, there is some point <code>p</code> in this region such that
+     * <code>p(axis)==i</code>.
      */
 
-    abstract public global def projection(axis: int): Region(1);
+    abstract public def projection(axis: int): Region(1);
 
     /**
      * Returns the projection of a region onto all axes but the
@@ -300,7 +338,7 @@ public abstract class Region(
      */
 
    
-    abstract public global def eliminate(axis: int): Region /*(rank-1)*/;
+    abstract public def eliminate(axis: int): Region /*(rank-1)*/;
 
 
     /**
@@ -311,7 +349,7 @@ public abstract class Region(
      *        ... p ...
      */
 
-    public abstract global def iterator(): Iterator[Point(rank)];
+    public abstract def iterator(): Iterator[Point(rank)];
 
 
     /**
@@ -338,9 +376,9 @@ public abstract class Region(
         def max(axis: int): int;
     }
 
-    public abstract global def scanners(): Iterator[Scanner]!;
+    public abstract def scanners(): Iterator[Scanner];
 
-    // public global def scan() = new x10.array.PolyScanner(this);
+    // public def scan() = new x10.array.PolyScanner(this);
 
 
     //
@@ -354,46 +392,42 @@ public abstract class Region(
     // ops
     //
 
-   // public global operator ! this: Region(rank) = complement();
-    public global operator this && (that: Region(rank)): Region(rank) = intersection(that);
-    //public global operator this || (that: Region(rank)): Region(rank) = union(that);
-    //public global operator this - (that: Region(rank)): Region(rank) = difference(that);
+   // public operator ! this: Region(rank) = complement();
+    public operator this && (that: Region(rank)): Region(rank) = intersection(that);
+    //public operator this || (that: Region(rank)): Region(rank) = union(that);
+    //public operator this - (that: Region(rank)): Region(rank) = difference(that);
 
-    public global operator this * (that: Region) = product(that);
-
-    public global operator this + (v: Point(rank)) = translate(v);
-    public global operator (v: Point(rank)) + this = translate(v);
-
-    public global operator this - (v: Point(rank)) = translate(-v);
+    public operator this * (that: Region) = product(that);
+    public operator this + (v: Point(rank)) = translate(v);
+    public operator (v: Point(rank)) + this = translate(v);
+    public operator this - (v: Point(rank)) = translate(-v);
 
 
     //
     // comparison
     //
 
-    public global safe def equals(that:Any):boolean {
-	if (this == that) return true; // short-circuit
-	if (!(that instanceof Region)) return false;
-	val t1 = that as Region;
-	if (rank != t1.rank) return false;
-        val t2 = t1 as Region(rank);
-        return this.contains(t2) && t2.contains(this);
+    public def equals(that:Any):boolean {
+	   if (this == that) return true; // short-circuit
+	   if (!(that instanceof Region)) return false;
+	   val t1 = that as Region;
+	   if (rank != t1.rank) return false;
+       val t2 = t1 as Region(rank);
+       return this.contains(t2) && t2.contains(this);
     }
 
-    abstract public global def contains(that: Region(rank)): boolean;
+    abstract public def contains(that: Region(rank)): boolean;
 
 
-    abstract public global def contains(p:Point):boolean;
+    abstract public def contains(p:Point):boolean;
     
-    public global def contains(i:int){rank==1} = contains(Point.make(i));
+    public def contains(i:int){rank==1} = contains(Point.make(i));
 
-    public global def contains(i0:int, i1:int){rank==2} = contains(Point.make(i0,i1));
+    public def contains(i0:int, i1:int){rank==2} = contains(Point.make(i0,i1));
 
-    public global def contains(i0:int, i1:int, i2:int){rank==3} = contains(Point.make(i0,i1,i2));
+    public def contains(i0:int, i1:int, i2:int){rank==3} = contains(Point.make(i0,i1,i2));
 
-    public global def contains(i0:int, i1:int, i2:int, i3:int){rank==4} = contains(Point.make(i0,i1,i2,i3));
-
-
+    public def contains(i0:int, i1:int, i2:int, i3:int){rank==4} = contains(Point.make(i0,i1,i2,i3));
 
     protected def this(r: int, t: boolean, z: boolean)
         :Region{self.rank==r, self.rect==t, self.zeroBased==z} {

@@ -39,7 +39,7 @@ public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]
      */
     @Native("java", "((#1) < (#2))")
     @Native("c++",  "((#1) < (#2))")
-    public native static safe operator (x:Double) < (y:Double): Boolean;
+    public native static operator (x:Double) < (y:Double): Boolean;
 
     /**
      * A greater-than operator.
@@ -52,7 +52,7 @@ public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]
      */
     @Native("java", "((#1) > (#2))")
     @Native("c++",  "((#1) > (#2))")
-    public native static safe operator (x:Double) > (y:Double): Boolean;
+    public native static operator (x:Double) > (y:Double): Boolean;
 
     /**
      * A less-than-or-equal-to operator.
@@ -65,7 +65,7 @@ public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]
      */
     @Native("java", "((#1) <= (#2))")
     @Native("c++",  "((#1) <= (#2))")
-    public native static safe operator (x:Double) <= (y:Double): Boolean;
+    public native static operator (x:Double) <= (y:Double): Boolean;
 
     /**
      * A greater-than-or-equal-to operator.
@@ -78,7 +78,7 @@ public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]
      */
     @Native("java", "((#1) >= (#2))")
     @Native("c++",  "((#1) >= (#2))")
-    public native static safe operator (x:Double) >= (y:Double): Boolean;
+    public native static operator (x:Double) >= (y:Double): Boolean;
 
 
     /**
@@ -90,7 +90,7 @@ public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]
      */
     @Native("java", "((#1) + (#2))")
     @Native("c++",  "((#1) + (#2))")
-    public native static safe operator (x:Double) + (y:Double): Double;
+    public native static operator (x:Double) + (y:Double): Double;
 
     /**
      * A binary minus operator.
@@ -101,7 +101,7 @@ public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]
      */
     @Native("java", "((#1) - (#2))")
     @Native("c++",  "((#1) - (#2))")
-    public native static safe operator (x:Double) - (y:Double): Double;
+    public native static operator (x:Double) - (y:Double): Double;
 
     /**
      * A binary multiply operator.
@@ -112,7 +112,7 @@ public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]
      */
     @Native("java", "((#1) * (#2))")
     @Native("c++",  "((#1) * (#2))")
-    public native static safe operator (x:Double) * (y:Double): Double;
+    public native static operator (x:Double) * (y:Double): Double;
 
     /**
      * A binary divide operator.
@@ -123,7 +123,7 @@ public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]
      */
     @Native("java", "((#1) / (#2))")
     @Native("c++",  "((#1) / (#2))")
-    public native static safe operator (x:Double) / (y:Double): Double;
+    public native static operator (x:Double) / (y:Double): Double;
 
     /**
      * A binary remainder operator.
@@ -134,7 +134,7 @@ public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]
      */
     @Native("java", "((#1) % (#2))")
     @Native("c++",  "x10aux::mod(#1, #2)")
-    public native static safe operator (x:Double) % (y:Double): Double;
+    public native static operator (x:Double) % (y:Double): Double;
 
     /**
      * A unary plus operator.
@@ -144,7 +144,7 @@ public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]
      */
     @Native("java", "(+(#1))")
     @Native("c++",  "(+(#1))")
-    public native static safe operator + (x:Double): Double;
+    public native static operator + (x:Double): Double;
 
     /**
      * A unary minus operator.
@@ -154,7 +154,7 @@ public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]
      */
     @Native("java", "(-(#1))")
     @Native("c++",  "(-(#1))")
-    public native static safe operator - (x:Double): Double;
+    public native static operator - (x:Double): Double;
 
 
     /**
@@ -164,7 +164,7 @@ public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]
      */
     @Native("java", "((double)(byte)(#1))")
     @Native("c++",  "((x10_double) (#1))")
-    public native static safe operator (x:Byte): Double;
+    public native static operator (x:Byte): Double;
 
     /**
      * Coerce a given Short to a Double.
@@ -173,7 +173,7 @@ public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]
      */
     @Native("java", "((double)(short)(#1))")
     @Native("c++",  "((x10_double) (#1))")
-    public native static safe operator (x:Short): Double;
+    public native static operator (x:Short): Double;
 
     /**
      * Coerce a given Int to a Double.
@@ -182,7 +182,7 @@ public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]
      */
     @Native("java", "((double)(int)(#1))")
     @Native("c++",  "((x10_double) (#1))")
-    public native static safe operator (x:Int): Double;
+    public native static operator (x:Int): Double;
 
     /**
      * Coerce a given Long to a Double.
@@ -191,7 +191,7 @@ public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]
      */
     @Native("java", "((double)(long)(#1))")
     @Native("c++",  "((x10_double) (#1))")
-    public native static safe operator (x:Long): Double;
+    public native static operator (x:Long): Double;
 
     /**
      * Coerce a given UByte to a Double.
@@ -200,7 +200,7 @@ public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]
      */
     @Native("java", "((double)(byte)(#1.byteVal))")
     @Native("c++",  "((x10_double) (#1))")
-    public native static safe operator (x:UByte): Double;
+    public native static operator (x:UByte): Double;
 
     /**
      * Coerce a given UShort to a Double.
@@ -209,7 +209,7 @@ public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]
      */
     @Native("java", "((double)(short)(#1.shortVal))")
     @Native("c++",  "((x10_double) (#1))")
-    public native static safe operator (x:UShort): Double;
+    public native static operator (x:UShort): Double;
 
     /**
      * Coerce a given UInt to a Double.
@@ -218,7 +218,7 @@ public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]
      */
     @Native("java", "((double)(int)(#1.intVal))")
     @Native("c++",  "((x10_double) (#1))")
-    public native static safe operator (x:UInt): Double;
+    public native static operator (x:UInt): Double;
 
     /**
      * Coerce a given ULong to a Double.
@@ -227,7 +227,7 @@ public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]
      */
     @Native("java", "((double)(long)(#1.longVal))")
     @Native("c++",  "((x10_double) (#1))")
-    public native static safe operator (x:ULong): Double;
+    public native static operator (x:ULong): Double;
 
     /**
      * Coerce a given Float to a Double.
@@ -236,7 +236,7 @@ public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]
      */
     @Native("java", "((double)(float)(#1))")
     @Native("c++",  "((x10_double) (#1))")
-    public native static safe operator (x:Float): Double;
+    public native static operator (x:Float): Double;
 
 
     /**
@@ -247,7 +247,7 @@ public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]
     // TODO: hexadecimal floating-point literal 0x0.0000000000001P-1022
     @Native("java", "java.lang.Double.MIN_VALUE")
     @Native("c++", "x10aux::double_utils::fromLongBits(0x1LL)")
-    public const MIN_VALUE: Double = Double.fromLongBits(0x1L);
+    public static MIN_VALUE: Double = Double.fromLongBits(0x1L);
 
     /**
      * A constant holding the smallest positive normal value of type Double,
@@ -257,7 +257,7 @@ public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]
     // TODO: hexadecimal floating-point literal 0x1.0P-1022
     @Native("java", "java.lang.Double.fromLongBits(0x0010000000000000L)")
     @Native("c++", "x10aux::double_utils::fromLongBits(0x0010000000000000LL)")
-    public const MIN_NORMAL: Double = Double.fromLongBits(0x0010000000000000L);
+    public static MIN_NORMAL: Double = Double.fromLongBits(0x0010000000000000L);
 
     /**
      * A constant holding the largest positive finite value of type Double,
@@ -267,7 +267,7 @@ public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]
     // TODO: hexadecimal floating-point literal 0x1.fffffffffffffP+1023
     @Native("java", "java.lang.Double.MAX_VALUE")
     @Native("c++", "x10aux::double_utils::fromLongBits(0x7fefffffffffffffLL)")
-    public const MAX_VALUE: Double = Double.fromLongBits(0x7fefffffffffffffL);
+    public static MAX_VALUE: Double = Double.fromLongBits(0x7fefffffffffffffL);
 
     /**
      * A constant holding the positive infinity of type Double.
@@ -275,7 +275,7 @@ public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]
      */
     @Native("java", "java.lang.Double.POSITIVE_INFINITY")
     @Native("c++", "x10aux::double_utils::fromLongBits(0x7ff0000000000000LL)")
-    public const POSITIVE_INFINITY: Double = Double.fromLongBits(0x7ff0000000000000L);
+    public static POSITIVE_INFINITY: Double = Double.fromLongBits(0x7ff0000000000000L);
 
     /**
      * A constant holding the negative infinity of type Double.
@@ -283,7 +283,7 @@ public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]
      */
     @Native("java", "java.lang.Double.NEGATIVE_INFINITY")
     @Native("c++", "x10aux::double_utils::fromLongBits(0xfff0000000000000LL)")
-    public const NEGATIVE_INFINITY: Double = Double.fromLongBits(0xfff0000000000000L);
+    public static NEGATIVE_INFINITY: Double = Double.fromLongBits(0xfff0000000000000L);
 
     /**
      * A constant holding a Not-a-Number (NaN) value of type Double.
@@ -291,7 +291,7 @@ public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]
      */
     @Native("java", "java.lang.Double.NaN")
     @Native("c++", "x10aux::double_utils::fromLongBits(0x7ff8000000000000LL)")
-    public const NaN: Double = Double.fromLongBits(0x7ff8000000000000L);
+    public static NaN: Double = Double.fromLongBits(0x7ff8000000000000L);
 
 
     /**
@@ -310,7 +310,7 @@ public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]
      */
     @Native("java", "java.lang.Double.toString(#0)")
     @Native("c++", "x10aux::to_string(#0)")
-    public global safe native def toString(): String;
+    public native def toString(): String;
 
 
     /**
@@ -318,7 +318,7 @@ public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]
      */
     @Native("java", "java.lang.Double.parseDouble(#1)")
     @Native("c++", "x10aux::double_utils::parseDouble(#1)")
-    public native static def parseDouble(String): Double throws NumberFormatException;
+    public native static def parseDouble(String): Double ; //throwsNumberFormatException;
 
     /**
      * Parses the String argument as a Double value.
@@ -328,7 +328,7 @@ public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]
      */
     @Native("java", "java.lang.Double.parseDouble(#1)")
     @Native("c++", "x10aux::double_utils::parseDouble(#1)")
-    public native static def parse(s:String): Double throws NumberFormatException;
+    public native static def parse(s:String): Double ; //throwsNumberFormatException;
 
 
     /**
@@ -400,7 +400,7 @@ public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]
      */
     @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public global safe native def equals(x:Any):Boolean;
+    public native def equals(x:Any):Boolean;
 
     /**
      * Returns true if this Double is equal to the given Double.
@@ -409,5 +409,5 @@ public final struct Double /*TODO implements Arithmetic[Double], Ordered[Double]
      */
     @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public global safe native def equals(x:Double):Boolean;
+    public native def equals(x:Double):Boolean;
 }

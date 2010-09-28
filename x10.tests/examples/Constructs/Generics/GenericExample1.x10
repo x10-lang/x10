@@ -22,8 +22,8 @@ public class GenericExample1 extends GenericTest {
 
         static class List[T] {
             var head: T;
-            var tail: List[T]!;
-            def this(h: T, t: List[T]!) { head = h; tail = t; }
+            var tail: List[T];
+            def this(h: T, t: List[T]) { head = h; tail = t; }
             def append(x: T) {
                 if (this.tail == null)
                     this.tail = new List[T](x, null);
@@ -37,7 +37,7 @@ public class GenericExample1 extends GenericTest {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new GenericExample1().execute();
     }
 }

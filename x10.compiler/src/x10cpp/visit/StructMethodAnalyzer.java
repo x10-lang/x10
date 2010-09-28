@@ -33,7 +33,7 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
-import x10.ast.AssignPropertyBody;
+import x10.ast.AssignPropertyCall;
 import x10.ast.AssignPropertyCall_c;
 import x10.ast.ParExpr_c;
 import x10.ast.X10Binary_c;
@@ -144,7 +144,7 @@ public class StructMethodAnalyzer extends ContextVisitor {
         }
         
         // Another way to get a field assign to a field of the current container.
-        if (n instanceof AssignPropertyBody) {
+        if (n instanceof AssignPropertyCall) {
             return n;
         }
         

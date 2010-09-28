@@ -29,8 +29,10 @@ public class ClosureEnclosingScope2c_MustFailCompile extends ClosureTest {
         val b = 1;
 
         class C {
-            var c:int = 1;
-            def foo() = (()=>a+b+c)();
+            def foo(): void {
+              var c:int = 1;
+              (()=>a+b+c)();
+            }
         }
 
         check("new C().foo()", new C().foo(), 3);
@@ -39,7 +41,7 @@ public class ClosureEnclosingScope2c_MustFailCompile extends ClosureTest {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new ClosureEnclosingScope2c_MustFailCompile().execute();
     }
 }

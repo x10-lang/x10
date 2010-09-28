@@ -23,7 +23,7 @@ class XTENLANG_240 extends x10Test {
         final public def apply(i0:int) = 0;
     }
         
-    def foo(a:A!) {
+    def foo(a:A) {
         for (var i:int=0; i<0; i++)
             a(i) = 0.0;
     }
@@ -32,7 +32,7 @@ class XTENLANG_240 extends x10Test {
         return true;
     }
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new XTENLANG_240().execute();
     }
 }

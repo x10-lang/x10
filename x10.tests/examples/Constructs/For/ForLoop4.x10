@@ -19,12 +19,12 @@ import harness.x10Test;
  */
 public class ForLoop4 extends x10Test {
 
-	public const N: int = 3;
+	public static N: int = 3;
 
 	public def run(): boolean = {
 		//Ensure iterator works in lexicographic order
 		var n: int = 0;
-		var prev: Box[Point]! = null;
+		var prev: Box[Point] = null;
 		for (val p: Point in [0..N-1,0..N-1,0..N-1]->here) {
 			if (!successor(prev, p)) return false;
 			prev = p;
@@ -40,7 +40,7 @@ public class ForLoop4 extends x10Test {
 	 * i.e. we expect the order (0,0,0), (0,0,1),(0,0,2)
 	 *  (0,1,0) ... (2,2,2) (row-major order)
 	 */
-	static def successor(var prev: Box[Point]!, var p: Point): boolean = {
+	static def successor(var prev: Box[Point], var p: Point): boolean = {
 		if (prev == null) return true;
                 val v = prev();
 		var i: int = v(0);
@@ -64,7 +64,7 @@ public class ForLoop4 extends x10Test {
 		return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(Array[String](1)) {
 		new ForLoop4().execute();
 	}
 }

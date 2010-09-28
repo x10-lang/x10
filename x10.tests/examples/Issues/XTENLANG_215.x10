@@ -19,7 +19,7 @@ class XTENLANG_215 extends x10Test {
 
     static class Foo {
     
-        global val foo = 0;
+        val foo = 0;
         
         class Bar {
             val bar = foo;
@@ -34,7 +34,7 @@ class XTENLANG_215 extends x10Test {
         return true;
     }
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new XTENLANG_215().execute();
     }
 }

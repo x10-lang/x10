@@ -23,14 +23,15 @@ public class PlaceCheckStringBuilder_MustFailCompile extends x10Test {
 
     public def run(): boolean {
         val sb = new StringBuilder();
+        val gsb = GlobalRef[StringBuilder](sb);
             (future (Place.places(1)) {
-                sb.add("foo");
-                return sb.toString();
+                gsb().add("foo");
+                return gsb().toString();
             }).force();
             return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new PlaceCheckStringBuilder_MustFailCompile().execute();
     }
 }

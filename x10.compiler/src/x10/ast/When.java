@@ -43,10 +43,10 @@ public interface When extends Stmt {
 	/**
 	 * Return the expressions on the other branches of the when statement.
 	 */
-	List exprs();
+	List<Expr> exprs();
 
 	/**
 	 * Return the statements on the other branches of the when statement.
 	 */
-	List stmts();
+	List<Stmt> stmts();
 }

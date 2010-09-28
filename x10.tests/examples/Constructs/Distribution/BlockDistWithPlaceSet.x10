@@ -33,12 +33,12 @@ import x10.util.HashSet;
  */
 public class BlockDistWithPlaceSet extends x10Test {
 
-	public const P = Dist.makeUnique();
-	public const COUNT = 200;
-	public const L = 5;
+	public static P = Dist.makeUnique();
+	public static COUNT = 200;
+	public static L = 5;
 
 	public def run(): boolean = {
-		for (val (tries): Point in 1..COUNT) {
+		for (val [tries]: Point in 1..COUNT) {
 			val lb1: int = ranInt(-L, L);
 			val lb2: int = ranInt(-L, L);
 			val ub1: int = ranInt(lb1, L);
@@ -57,7 +57,7 @@ public class BlockDistWithPlaceSet extends x10Test {
 			var pn: int = 0;
 			//x10.io.Console.OUT.println("np = " + np + " lb1 = "+lb1+" ub1 = "+ub1+" lb2 = "+lb2+" ub2 = "+ub2+" totalPoints = "+totalPoints+" p = "+p+" q = "+q);
 
-			for (val (i,j): Point(2) in R) {
+			for (val [i,j]: Point(2) in R) {
 				//x10.io.Console.OUT.println("placeNum = "+placeNums[pn]+" offsWithinPlace = "+offsWithinPlace+" i = "+i+" j = "+j+" DBlock[i,j] = "+DBlock[i,j].id);
 				chk(DBlock(i, j) == P(placeNums(pn)));
 				chk(P(placeNums(pn)).id == placeNums(pn));
@@ -77,9 +77,9 @@ public class BlockDistWithPlaceSet extends x10Test {
 	 */
 	static class randPlaceSet {
 		val np: int;
-		val placeSet: Set[Place]!;
-		val placeNums: Rail[Int]!;
-		def this(n: int, a: Rail[Int]!, s: Set[Place]!): randPlaceSet = {
+		val placeSet: Set[Place];
+		val placeNums: Rail[Int];
+		def this(n: int, a: Rail[Int], s: Set[Place]): randPlaceSet = {
 			np = n;
 			placeNums = a;
 			placeSet = s;
@@ -89,14 +89,14 @@ public class BlockDistWithPlaceSet extends x10Test {
 	/**
 	 * Create a random, non-empty subset of the places
 	 */
-	def createRandPlaceSet(): randPlaceSet! = {
-		val placeSet: Set[Place]! = new HashSet[Place]();
+	def createRandPlaceSet(): randPlaceSet = {
+		val placeSet: Set[Place] = new HashSet[Place]();
 		var np: int;
 		val placeNums = Rail.make[int](Place.MAX_PLACES);
 		do {
 			np = 0;
 			val THRESH: int = ranInt(10, 90);
-			for (val (i): Point(1) in P) {
+			for (val [i]: Point(1) in P) {
 				val x: int = ranInt(0, 99);
 				if (x >= THRESH) {
 					placeSet.add(P(i));
@@ -107,7 +107,7 @@ public class BlockDistWithPlaceSet extends x10Test {
 		return new randPlaceSet(np, placeNums, placeSet);
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new BlockDistWithPlaceSet().execute();
 	}
 }

@@ -72,7 +72,7 @@ class TestComplexMath extends x10Test {
              && (a.im as Float) == (b.im as Float));
     }
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new TestComplexMath().execute();
     }
 

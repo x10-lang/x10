@@ -31,7 +31,7 @@ public class TypedefConstraint1b_MustFailCompile extends TypedefTest {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new TypedefConstraint1b_MustFailCompile().execute();
     }
 }

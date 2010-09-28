@@ -24,34 +24,34 @@ public class ClockTest18 extends x10Test {
 
 	public def run(): boolean = {
 		try {
-		finish{
-		/*A0*/
-		val c0: Clock = Clock.make();
-		var x: X! = new X();
-		// f0 does not transmit clocks to subactivity
-		var f0: foo! = new foo() {
-			public def apply(): void = {
-				/* Activity A3 */
-				async {
-					x10.io.Console.OUT.println("#A3: hello from A3");
-				}
-			}
-		};
-		// f1 transmits clock c0 to subactivity
-		var f1: foo! = new foo() {
-			public def apply(): void = {
-				/*Activity A2*/
-				async clocked(c0) {
-					x10.io.Console.OUT.println("#A2 before resume");
-					c0.resume();
-					x10.io.Console.OUT.println("#A2 before next");
-					next;
-					x10.io.Console.OUT.println("#A2 after next");
-				}
-			}
-		};
+		    finish{
+		         /*A0*/
+		        val c0: Clock = Clock.make();
+		        val  x = new X();
+		        // f0 does not transmit clocks to subactivity
+		        val  f0:foo = new foo() {
+			        public def apply(): void = {
+				        /* Activity A3 */
+				        async {
+					        x10.io.Console.OUT.println("#A3: hello from A3");
+				        }
+			        }
+		         };
+		        // f1 transmits clock c0 to subactivity
+		        val f1:foo  = new foo() {
+			        public def apply(): void = {
+				         /*Activity A2*/
+				         async clocked(c0) {
+					        x10.io.Console.OUT.println("#A2 before resume");
+					        c0.resume();
+					        x10.io.Console.OUT.println("#A2 before next");
+					        next;
+					        x10.io.Console.OUT.println("#A2 after next");
+				         }
+			         }
+		         };
 
-		var fooArray: Rail[foo!]! = [f0,f1];
+		var fooArray: Rail[foo] = Rail.make([f0,f1]);
 		x10.io.Console.OUT.println("#A0 before resume");
 		c0.resume();
 		x10.io.Console.OUT.println("#A0 before spawning A3");
@@ -71,7 +71,7 @@ public class ClockTest18 extends x10Test {
 		return false;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(Array[String](1)){
 		new ClockTest18().execute();
 	}
 
@@ -79,7 +79,7 @@ public class ClockTest18 extends x10Test {
 	 * A class to invoke a 'function pointer'
 	 */
 	static class Y {
-		static def test(var f: foo!): void = {
+		static def test(f: foo): void = {
 			f.apply(); // it is hard to determine what f does at compile time
 		}
 	}
@@ -104,7 +104,7 @@ public class ClockTest18 extends x10Test {
 	 * for a typical compiler
 	 */
 	static class X {
-		public var z: Rail[int]! = [1,0];
+		public val z  = Rail.make[int]([1,0]);
 		def zero(): int = { return z(z(z(1))); /* that is a 0 */ }
 		def one(): int = { return z(z(z(0))); /* that is a 1 */ }
 		def modify(): void = { z(0) += 1; }

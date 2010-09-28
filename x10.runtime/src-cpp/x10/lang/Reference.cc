@@ -20,14 +20,6 @@ using namespace x10::lang;
 using namespace x10aux;
 
 
-x10_boolean Reference::at(x10aux::ref<x10::lang::Object> o) {
-    return location == o->location;
-}
-
-Place Reference::home() {
-    return x10::lang::Place_methods::_make(location);
-}
-
 x10aux::serialization_id_t Reference::_get_interface_serialization_id() {
     _S_("===> Reference's _get_interface_serialization_id() called");
     return _get_serialization_id();

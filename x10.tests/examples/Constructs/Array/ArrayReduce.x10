@@ -11,13 +11,15 @@
 
 import harness.x10Test;
 
+import x10.util.Future;
+
 /**
  * @author bdlucas
  */
 
 public class ArrayReduce extends TestArray {
 
-    public const N: int = 9;
+    public static N: int = 9;
 
     public def run(): boolean {
 	chk(Place.places.length == 4, "This test must be run with 4 places");
@@ -28,7 +30,7 @@ public class ArrayReduce extends TestArray {
         pr("--- original");
         val a = DistArray.make[double](dist, (p:Point)=>p(0) as double);
         for (pt:Point(1) in a) {
-            val x = (future(a.dist(pt)) a(pt)).force();
+            val x = (at (a.dist(pt)) Future.make[double](()=>a(pt)))();
             out.print(x + " ");
         }
         out.println();
@@ -47,7 +49,7 @@ public class ArrayReduce extends TestArray {
         return status();
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new ArrayReduce().execute();
     }
 

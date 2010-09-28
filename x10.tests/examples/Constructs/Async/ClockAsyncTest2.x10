@@ -23,8 +23,8 @@ public class ClockAsyncTest2 extends x10Test {
 
 	public def run(): boolean = {
 	   finish async {
-	      val clocks: Rail[Clock]! = [ Clock.make() ];
-	      async (here) clocked (clocks(0)){
+	      val clocks  = Rail.make[Clock]([ Clock.make() ]);
+	      async clocked (clocks(0)){
 		    next;
 	      }
 	    }
@@ -33,7 +33,7 @@ public class ClockAsyncTest2 extends x10Test {
 
 	
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(Array[String](1)){
 		new ClockAsyncTest2().execute();
 	}
 }

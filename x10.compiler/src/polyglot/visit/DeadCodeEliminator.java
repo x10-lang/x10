@@ -14,7 +14,10 @@ import polyglot.frontend.Job;
 import polyglot.main.Report;
 import polyglot.types.*;
 import polyglot.util.InternalCompilerError;
+import polyglot.util.Pair;
 import polyglot.util.Position;
+import polyglot.visit.DataFlow.Item;
+import polyglot.visit.FlowGraph.EdgeKey;
 
 /**
  * Visitor which performs dead code elimination.  (Note that "dead code" is not
@@ -29,26 +32,26 @@ public class DeadCodeEliminator extends DataFlow {
 
     protected static class DataFlowItem extends Item {
 	// Set of LocalInstances of live variables.
-	private Set liveVars;
+	private Set<LocalDef> liveVars;
 
 	// Set of LocalInstances of live declarations.  A LocalDecl is live if
 	// the declared local is ever live.
-	private Set liveDecls;
+	private Set<LocalDef> liveDecls;
 
 	/**
 	 * Constructor for creating an empty set.
 	 */
 	protected DataFlowItem() {
-	    this.liveVars = new HashSet();
-	    this.liveDecls = new HashSet();
+	    this.liveVars = new HashSet<LocalDef>();
+	    this.liveDecls = new HashSet<LocalDef>();
 	}
 
 	/**
 	 * Deep copy constructor.
 	 */
 	protected DataFlowItem(DataFlowItem dfi) {
-	    liveVars = new HashSet(dfi.liveVars);
-	    liveDecls = new HashSet(dfi.liveDecls);
+	    liveVars = new HashSet<LocalDef>(dfi.liveVars);
+	    liveDecls = new HashSet<LocalDef>(dfi.liveDecls);
 	}
 
 	public void add(LocalDef li) {
@@ -56,7 +59,7 @@ public class DeadCodeEliminator extends DataFlow {
 	    liveDecls.add(li);
 	}
 
-	public void addAll(Set lis) {
+	public void addAll(Set<LocalDef> lis) {
 	    liveVars.addAll(lis);
 	    liveDecls.addAll(lis);
 	}
@@ -65,7 +68,7 @@ public class DeadCodeEliminator extends DataFlow {
 	    liveVars.remove(li);
 	}
 
-	public void removeAll(Set lis) {
+	public void removeAll(Set<LocalDef> lis) {
 	    liveVars.removeAll(lis);
 	}
 
@@ -89,12 +92,12 @@ public class DeadCodeEliminator extends DataFlow {
 
 	public int hashCode() {
 	    int result = 0;
-	    for (Iterator it = liveVars.iterator(); it.hasNext(); ) {
-		result = 31*result + it.next().hashCode();
+	    for (LocalDef ld : liveVars) {
+		result = 31*result + ld.hashCode();
 	    }
 
-	    for (Iterator it = liveDecls.iterator(); it.hasNext(); ) {
-		result = 31*result + it.next().hashCode();
+	    for (LocalDef ld : liveDecls) {
+		result = 31*result + ld.hashCode();
 	    }
 
 	    return result;
@@ -117,10 +120,10 @@ public class DeadCodeEliminator extends DataFlow {
 	return new DataFlowItem();
     }
 
-    public Item confluence(List inItems, Term node, boolean entry, FlowGraph graph) {
+    public Item confluence(List<Item> inItems, Term node, boolean entry, FlowGraph graph) {
 	DataFlowItem result = null;
-	for (Iterator it = inItems.iterator(); it.hasNext(); ) {
-	    DataFlowItem inItem = (DataFlowItem)it.next();
+	for (Item item : inItems) {
+	    DataFlowItem inItem = (DataFlowItem)item;
 	    if (result == null) {
 		result = new DataFlowItem(inItem);
 	    } else {
@@ -131,7 +134,7 @@ public class DeadCodeEliminator extends DataFlow {
 	return result;
     }
 
-    public Map flow(Item in, FlowGraph graph, Term t, boolean entry, Set succEdgeKeys) {
+    public Map<EdgeKey, Item> flow(Item in, FlowGraph graph, Term t, boolean entry, Set<EdgeKey> succEdgeKeys) {
 	return itemToMap(flow(in, graph, t, entry), succEdgeKeys);
     }
 
@@ -142,7 +145,7 @@ public class DeadCodeEliminator extends DataFlow {
         return result;
     }
 
-	Set[] du = null;
+	Pair<Set<LocalDef>, Set<LocalDef>> du = null;
 
 	if (t instanceof LocalDecl) {
 	    LocalDecl n = (LocalDecl)t;
@@ -168,8 +171,8 @@ public class DeadCodeEliminator extends DataFlow {
 	}
 
 	if (du != null) {
-	    result.removeAll(du[0]);
-	    result.addAll(du[1]);
+	    result.removeAll(du.fst());
+	    result.addAll(du.snd());
 	}
 
 	return result;
@@ -182,7 +185,7 @@ public class DeadCodeEliminator extends DataFlow {
 	}
     }
 
-    public void check(FlowGraph graph, Term n, boolean entry, Item inItem, Map outItems) {
+    public void check(FlowGraph graph, Term n, boolean entry, Item inItem, Map<EdgeKey, Item> outItems) {
 
 	throw new InternalCompilerError("DeadCodeEliminator.check should "
 	    + "never be called.");
@@ -192,12 +195,11 @@ public class DeadCodeEliminator extends DataFlow {
 	FlowGraph g = currentFlowGraph();
 	if (g == null) return null;
 
-	Collection peers = g.peers(n, Term.EXIT);
+	Collection<FlowGraph.Peer> peers = g.peers(n, Term.EXIT);
 	if (peers == null || peers.isEmpty()) return null;
 
-	List items = new ArrayList();
-	for (Iterator it = peers.iterator(); it.hasNext(); ) {
-	    FlowGraph.Peer p = (FlowGraph.Peer)it.next();
+	List<Item> items = new ArrayList<Item>();
+	for (FlowGraph.Peer p : peers) {
 	    if (p.inItem() != null) items.add(p.inItem());
 	}
 
@@ -249,8 +251,8 @@ public class DeadCodeEliminator extends DataFlow {
 	if (n instanceof Block) {
 	    // Get rid of empty statements.
 	    Block b = (Block)n;
-	    List stmts = new ArrayList(b.statements());
-	    for (Iterator it = stmts.iterator(); it.hasNext(); ) {
+	    List<Stmt> stmts = new ArrayList<Stmt>(b.statements());
+	    for (Iterator<Stmt> it = stmts.iterator(); it.hasNext(); ) {
 		if (it.next() instanceof Empty) it.remove();
 	    }
 
@@ -265,26 +267,26 @@ public class DeadCodeEliminator extends DataFlow {
      * Element 0 is the set of local instances DEFined by the node.
      * Element 1 is the set of local instances USEd by the node.
      */
-    protected Set[] getDefUse(Node n) {
-	final Set def = new HashSet();
-	final Set use = new HashSet();
+    protected Pair<Set<LocalDef>, Set<LocalDef>> getDefUse(Node n) {
+	final Set<LocalDef> def = new HashSet<LocalDef>();
+	final Set<LocalDef> use = new HashSet<LocalDef>();
 
 	if (n != null) {
 	    n.visit(createDefUseFinder(def, use));
 	}
 
-	return new Set[] {def, use};
+	return new Pair<Set<LocalDef>, Set<LocalDef>>(def, use);
     }
 
-    protected NodeVisitor createDefUseFinder(Set def, Set use) {
+    protected NodeVisitor createDefUseFinder(Set<LocalDef> def, Set<LocalDef> use) {
 	return new DefUseFinder(def, use);
     }
 
     protected static class DefUseFinder extends NodeVisitor {
-	protected Set def;
-	protected Set use;
+	protected Set<LocalDef> def;
+	protected Set<LocalDef> use;
 
-	public DefUseFinder(Set def, Set use) {
+	public DefUseFinder(Set<LocalDef> def, Set<LocalDef> use) {
 	    this.def = def;
 	    this.use = use;
 	}
@@ -322,7 +324,7 @@ public class DeadCodeEliminator extends DataFlow {
 	Stmt empty = nf.Empty(Position.COMPILER_GENERATED);
 	if (expr == null) return empty;
 
-	final List result = new LinkedList();
+	final List<Stmt> result = new LinkedList<Stmt>();
 	final Position pos = Position.COMPILER_GENERATED;
 
 	NodeVisitor v = new NodeVisitor() {
@@ -366,7 +368,7 @@ public class DeadCodeEliminator extends DataFlow {
 	expr.visit(v);
 
 	if (result.isEmpty()) return empty;
-	if (result.size() == 1) return (Stmt)result.get(0);
+	if (result.size() == 1) return result.get(0);
 	return nf.Block(Position.COMPILER_GENERATED, result);
     }
 }

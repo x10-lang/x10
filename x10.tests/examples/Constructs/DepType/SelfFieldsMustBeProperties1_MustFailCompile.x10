@@ -38,7 +38,7 @@ class Test(i:int) {
 	   var a: Test{i==52} = new Test(52) as Test{i==52 && self.bad};
 	    return true;
 	}
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new SelfFieldsMustBeProperties1_MustFailCompile().execute();
 	}
 }

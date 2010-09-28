@@ -38,7 +38,7 @@ import x10.types.constraints.CConstraint;
 import x10.types.constraints.XConstrainedTerm;
 
 /**
- * An immutable representation of the X10 statement: ateach (i : D) S
+ * An immutable representation of the X10 statement: [clocked] ateach (i : D) S
  * @author vj Dec 9, 2004
  * @author Christian Grothoff
  */
@@ -59,8 +59,12 @@ public class AtEach_c extends X10ClockedLoop_c implements AtEach, Clocked {
 	 * @param clocks
 	 * @param body
 	 */
-	public AtEach_c(Position pos, Formal formal, Expr domain, List clocks, Stmt body) {
+	public AtEach_c(Position pos, Formal formal, Expr domain, List<Expr> clocks, Stmt body) {
 		super(pos, formal, domain, clocks, body);
+		loopKind=LoopKind.ATEACH;
+	}
+	public AtEach_c(Position pos, Formal formal, Expr domain, Stmt body) {
+		super(pos, formal, domain, body);
 		loopKind=LoopKind.ATEACH;
 	}
 
@@ -109,8 +113,8 @@ public class AtEach_c extends X10ClockedLoop_c implements AtEach, Clocked {
 		w.write(") ");
 		if (clocks != null) {
 			w.write("clocked(");
-			for (Iterator c = clocks.iterator(); c.hasNext(); ) {
-				print((Expr)c.next(), w, tr);
+			for (Iterator<Expr> c = clocks.iterator(); c.hasNext(); ) {
+				print(c.next(), w, tr);
 				if (c.hasNext()) w.write(", ");
 			}
 			w.write(")");

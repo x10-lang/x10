@@ -12,9 +12,9 @@
 package dims;
 
 public interface Pressure extends Measure { 
-    @DerivedUnit(SI.pascal) const pascal: double = _, Pa: double = _;
-    @DerivedUnit(101.325e3 * Pa) const atm: double = _;
-    @DerivedUnit(1e5 * Pa) const bar: double = _;
-    @DerivedUnit(133 * Pa) const mmHg: double = _;
-    @DerivedUnit(Force.lbf / Area.inch2) const psi: double = _;
+    @DerivedUnit(SI.pascal) static pascal: double = _, Pa: double = _;
+    @DerivedUnit(101.325e3 * Pa) static atm: double = _;
+    @DerivedUnit(1e5 * Pa) static bar: double = _;
+    @DerivedUnit(133 * Pa) static mmHg: double = _;
+    @DerivedUnit(Force.lbf / Area.inch2) static psi: double = _;
 }

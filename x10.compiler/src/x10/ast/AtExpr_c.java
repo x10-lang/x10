@@ -58,7 +58,7 @@ public class AtExpr_c extends PlacedClosure_c
 	    super(nf, p, place, returnType, offerType, body);
     }
 
-    public Node typeCheck( ContextVisitor tc ) throws SemanticException {
+    public Node typeCheck(ContextVisitor tc) {
     	AtExpr_c n = (AtExpr_c) super.typeCheck(tc);
     	Type t = n.returnType().type();
     	Context childC = enterChildScope(body, tc.context());

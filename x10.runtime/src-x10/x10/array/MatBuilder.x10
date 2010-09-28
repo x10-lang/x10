@@ -15,7 +15,7 @@ import x10.util.ArrayList;
 
 public class MatBuilder {
     
-    protected val mat: ArrayList[Row]!;
+    protected val mat: ArrayList[Row];
     protected val cols: int;
 
     public def this(cols: Int) {
@@ -30,41 +30,41 @@ public class MatBuilder {
         need(rows, m, cols);
     }
 
-    public safe def add(row:Row) {
+    public def add(row:Row) {
         mat.add(row);
     }
 
-    public safe def add(a:(Int)=>int) {
+    public def add(a:(Int)=>int) {
         mat.add(new VarRow(cols, a));
     }
 
-    public safe def apply(i:int, j:int) = mat(i)(j);
+    public def apply(i:int, j:int) = mat(i)(j);
 
-    public safe def set(v:int, i:int, j:int) {
+    public def set(v:int, i:int, j:int) {
         need(i+1);
         mat(i)(j) = v;
     }
 
-    public safe def setDiagonal(i:Int, j:Int, n:Int, v:(Int)=>int) {
+    public def setDiagonal(i:Int, j:Int, n:Int, v:(Int)=>int) {
         need(i+n);
         for (var k:int=0; k<n; k++)
             mat(i+k)(j+k) = v(k);
     }
 
-    public safe def setColumn(i:Int, j:Int, n:Int, v:(Int)=>int) {
+    public def setColumn(i:Int, j:Int, n:Int, v:(Int)=>int) {
         need(i+n);
         for (var k:int=0; k<n; k++)
             mat(i+k)(j) = v(k);
     }
 
-    public safe def setRow(i:Int, j:Int, n:Int, v:(Int)=>int) {
+    public def setRow(i:Int, j:Int, n:Int, v:(Int)=>int) {
         need(i+1);
         for (var k:int=0; k<n; k++)
             mat(i)(j+k) = v(k);
     }
 
-    private safe def need(n:int) = need(n, this.mat, this.cols);
-    private static safe def need(n:int, mat:ArrayList[Row]!, cols:int) {
+    private def need(n:int) = need(n, this.mat, this.cols);
+    private static def need(n:int, mat:ArrayList[Row], cols:int) {
         while (mat.size()<n)
             mat.add(new VarRow(cols));
     }

@@ -29,10 +29,10 @@ public class PlaceCheckInRail2_MustFailCompile extends x10Test {
     public def run02(): boolean {
 
         val r = Rail.make[C](3, (int)=>new C());
-
+        val gr = GlobalRef[Rail[C]](r);
        
         // should fail typecheck
-            (future (Place.places(1)) r(0).foo()).force();
+            (future (Place.places(1)) gr()(0).foo()).force();
         
         x10.io.Console.OUT.println("01 fails");
         return false;
@@ -48,7 +48,7 @@ public class PlaceCheckInRail2_MustFailCompile extends x10Test {
     	return run02();
 	}
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new PlaceCheckInRail2_MustFailCompile().execute();
     }
 }

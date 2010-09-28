@@ -162,23 +162,23 @@ public final class ITable {
 		X10MethodInstance mi = (X10MethodInstance) meth;
 		X10MethodDef md = mi.x10Def();
 		Type rootReturnType = emitter.findRootMethodReturnType(md, null, mi);
-		String returnType = emitter.translateType(rootReturnType, true);
+		String returnType = Emitter.translateType(rootReturnType, true);
 		String name = mangledName(meth);
 		cw.write(returnType+" ("+memberPtr+"::*"+(includeName ? name : "")+") (");
 		boolean first = true;
 		for (Type f : meth.formalTypes()) {
 			if (!first) cw.write(", ");
-			cw.write(emitter.translateType(f, true));
+			cw.write(Emitter.translateType(f, true));
 			first = false;
 		}
 		cw.write(")");
 	}
 
 	public void emitITableDecl(X10ClassType cls, int itableNum, Emitter emitter, CodeWriter h) {
-		String interfaceCType = emitter.translateType(interfaceType, false);
+		String interfaceCType = Emitter.translateType(interfaceType, false);
 		boolean doubleTemplate = cls.typeArguments().size() > 0 && interfaceType.typeArguments().size() > 0;
 		h.write("static "+(doubleTemplate ? "typename ":"")+interfaceCType+
-				(doubleTemplate ? "::template itable<":"::itable<")+emitter.translateType(cls, false)+" > _itable_"+itableNum+";");
+				(doubleTemplate ? "::template itable<":"::itable<")+Emitter.translateType(cls, false)+" > _itable_"+itableNum+";");
 		h.newline();
 	}
 

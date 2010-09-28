@@ -15,15 +15,19 @@ import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
 public class FileReader extends InputStreamReader {
-    global val file:File;
+    // TODO: This is questionable.
+    //       What does it mean to send a File to another node?
+    val file:File;
 
-    @NativeRep("java", "java.io.FileInputStream", null, null)
+    @NativeRep("java", "java.io.FileInputStream", null, "x10.rtt.Types.FILE_INPUT_STREAM")
     @NativeRep("c++", "x10aux::ref<x10::io::FileReader__FileInputStream>", "x10::io::FileReader__FileInputStream", null)
     protected final static class FileInputStream extends InputStream {
-        public native def this(String);
+        @Native("java", "new Object() { java.io.FileInputStream eval(String s) { try { return new java.io.FileInputStream(s); } catch (java.io.FileNotFoundException e) { throw new x10.io.FileNotFoundException(e.getMessage()); } } }.eval(#1)")
+        public native def this(String); //throws FileNotFoundException;
     }
 
-    public def this(file: File!) throws IOException {
+    public def this(file: File) //throws IOException 
+    {
         super(new FileInputStream(file.getPath()));
         this.file = file;
     }

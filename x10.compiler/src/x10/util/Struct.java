@@ -165,7 +165,7 @@ public class Struct {
                 fields.add(field);
            }
 
-        final Flags flags = X10Flags.GLOBAL.Safe().Public().Final();
+        final Flags flags = X10Flags.SAFE.Public().Final();
         final X10NodeFactory nf = (X10NodeFactory)tb.nodeFactory();
         final TypeNode intTypeNode = nf.TypeNodeFromQualifiedName(pos,QName.make("x10.lang","Int"));
         final TypeNode boolTypeNode = nf.TypeNodeFromQualifiedName(pos,QName.make("x10.lang","Boolean"));
@@ -179,7 +179,7 @@ public class Struct {
             params.add(nf.TypeNodeFromQualifiedName(pos,QName.make(null,p.name().id())));
         final TypeNode structTypeNode = typeParamNodeList.isEmpty() ? nf.TypeNodeFromQualifiedName(pos,fullName) :
                 nf.AmbDepTypeNode(pos, null,
-                        nf.Id(pos,fullName.name()), params, Collections.EMPTY_LIST, null);
+                        nf.Id(pos,fullName.name()), params, Collections.<Expr>emptyList(), null);
         ArrayList<Stmt> bodyStmts;
         Expr expr;
         Block block;
@@ -199,49 +199,20 @@ public class Struct {
         */
 
         {
-            X10Flags nativeFlags = X10Flags.toX10Flags(Flags.PUBLIC.Native().Final()).Global().Safe();
+            X10Flags nativeFlags = X10Flags.toX10Flags(Flags.PUBLIC.Native().Final()).Safe();
             ArrayList<AnnotationNode> natives;
             Formal formal;
            // In the Java backend, some structs (like Int) are mapped to primitives (like int)
            // So I must add a native annotation on this method.
 
-
-            //@Native("java", "x10.lang.Place.place(x10.core.Ref.home(#0))")
-            //@Native("c++", "x10::lang::Place_methods::place(x10aux::get_location(#0))")
-            //property def home():Place;
-            natives = createNative(nf, pos, "x10.lang.Place.place(x10.core.Ref.home(#0))", "x10::lang::Place_methods::place(x10aux::get_location(#0))");
-            methodName = "home";
-            md = nf.MethodDecl(pos,nf.FlagsNode(pos,nativeFlags.Property()),placeTypeNode,nf.Id(pos,Name.make(methodName)),Collections.EMPTY_LIST,Collections.EMPTY_LIST,null);
-            md = (X10MethodDecl) ((X10Ext) md.ext()).annotations(natives);
-            n = (X10ClassDecl_c) n.body(n.body().addMember(md));
-
-            //@Native("java", "x10.core.Ref.typeName(#0)")
+            //@Native("java", "x10.rtt.Types.typeName(#0)")
             //@Native("c++", "x10aux::type_name(#0)")
             //global safe def typeName():String;
-            natives = createNative(nf, pos, "x10.core.Ref.typeName(#0)", "x10aux::type_name(#0)");
+            natives = createNative(nf, pos, "x10.rtt.Types.typeName(#0)", "x10aux::type_name(#0)");
+            AnnotationNode nonEscaping = nf.AnnotationNode(pos, nf.AmbMacroTypeNode(pos, nf.PrefixFromQualifiedName(pos,QName.make("x10.compiler")), nf.Id(pos, "NonEscaping"), Collections.<TypeNode>emptyList(), Collections.<Expr>singletonList(nf.StringLit(pos,""))));
+            natives.add(nonEscaping);
             methodName = "typeName";
-            md = nf.MethodDecl(pos,nf.FlagsNode(pos,nativeFlags),stringTypeNode,nf.Id(pos,Name.make(methodName)),Collections.EMPTY_LIST,Collections.EMPTY_LIST,null);
-            md = (X10MethodDecl) ((X10Ext) md.ext()).annotations(natives);
-            n = (X10ClassDecl_c) n.body(n.body().addMember(md));
-
-            //@Native("java", "x10.core.Ref.at((java.lang.Object)(#0), #1.id)")
-            //@Native("c++", "(x10aux::get_location(#0) == (#1)->FMGL(id))")
-            // property def at(p:Place):boolean;
-            natives = createNative(nf, pos, "x10.core.Ref.at((java.lang.Object)(#0), #1.id)", "(x10aux::get_location(#0) == (#1)->FMGL(id))");
-            methodName = "at";
-            formal = nf.Formal(pos,nf.FlagsNode(pos,Flags.NONE),placeTypeNode,nf.Id(pos,"p"));
-            md = nf.MethodDecl(pos,nf.FlagsNode(pos,nativeFlags.Property()),boolTypeNode,nf.Id(pos,Name.make(methodName)),Collections.singletonList(formal),Collections.EMPTY_LIST,null);
-            md = (X10MethodDecl) ((X10Ext) md.ext()).annotations(natives);
-            n = (X10ClassDecl_c) n.body(n.body().addMember(md));
-
-
-            //@Native("java", "x10.core.Ref.at((java.lang.Object)(#0), #1)")
-            //@Native("c++", "(x10aux::get_location(#0) == (#1)->location)")
-            //property safe def at(r:Object):Boolean;
-            natives = createNative(nf, pos, "x10.core.Ref.at((java.lang.Object)(#0), #1)", "(x10aux::get_location(#0) == (#1)->location)");
-            methodName = "at";
-            formal = nf.Formal(pos,nf.FlagsNode(pos,Flags.NONE),objectTypeNode,nf.Id(pos,"r"));
-            md = nf.MethodDecl(pos,nf.FlagsNode(pos,nativeFlags.Property()),boolTypeNode,nf.Id(pos,Name.make(methodName)),Collections.singletonList(formal),Collections.EMPTY_LIST,null);
+            md = nf.MethodDecl(pos,nf.FlagsNode(pos,nativeFlags),stringTypeNode,nf.Id(pos,Name.make(methodName)),Collections.<Formal>emptyList(),null);
             md = (X10MethodDecl) ((X10Ext) md.ext()).annotations(natives);
             n = (X10ClassDecl_c) n.body(n.body().addMember(md));
         }
@@ -262,7 +233,7 @@ public class Struct {
             bodyStmts.add(nf.Return(pos, expr));
             block = nf.Block(pos).statements(bodyStmts);
             methodName = "toString";
-            md = nf.MethodDecl(pos,nf.FlagsNode(pos,flags),stringTypeNode,nf.Id(pos,Name.make(methodName)),Collections.EMPTY_LIST,Collections.EMPTY_LIST,block);
+            md = nf.MethodDecl(pos,nf.FlagsNode(pos,flags),stringTypeNode,nf.Id(pos,Name.make(methodName)),Collections.<Formal>emptyList(),block);
             n = (X10ClassDecl_c) n.body(n.body().addMember(md));
         }
         if (!seenHashCode) {
@@ -286,7 +257,7 @@ public class Struct {
             bodyStmts.add(nf.Return(pos, target));
             block = nf.Block(pos).statements(bodyStmts);
             methodName = "hashCode";
-            md = nf.MethodDecl(pos,nf.FlagsNode(pos,flags),intTypeNode,nf.Id(pos,Name.make(methodName)),Collections.EMPTY_LIST,Collections.EMPTY_LIST,block);
+            md = nf.MethodDecl(pos,nf.FlagsNode(pos,flags),intTypeNode,nf.Id(pos,Name.make(methodName)),Collections.<Formal>emptyList(),block);
             n = (X10ClassDecl_c) n.body(n.body().addMember(md));
         }
         // _struct_equals is used for == even when the user defined equals
@@ -307,7 +278,7 @@ public class Struct {
             bodyStmts.add(nf.Return(pos,nf.Call(pos,nf.Id(pos,methodName),nf.Cast(pos,structTypeNode,other))));
             block = nf.Block(pos).statements(bodyStmts);
             Formal formal = nf.Formal(pos,nf.FlagsNode(pos,Flags.NONE),anyTypeNode,nf.Id(pos,"other"));
-            md = nf.MethodDecl(pos,nf.FlagsNode(pos,flags),boolTypeNode,nf.Id(pos,Name.make(methodName)), Collections.singletonList(formal),Collections.EMPTY_LIST,block);
+            md = nf.MethodDecl(pos,nf.FlagsNode(pos,flags),boolTypeNode,nf.Id(pos,Name.make(methodName)), Collections.singletonList(formal),block);
             n = (X10ClassDecl_c) n.body(n.body().addMember(md));
 
             // final public global safe def equals(other:NAME):Boolean {
@@ -327,7 +298,7 @@ public class Struct {
             bodyStmts.add(nf.Return(pos, res));
             block = nf.Block(pos).statements(bodyStmts);
             formal = nf.Formal(pos,nf.FlagsNode(pos,Flags.NONE),structTypeNode,nf.Id(pos,"other"));
-            md = nf.MethodDecl(pos,nf.FlagsNode(pos,flags),boolTypeNode,nf.Id(pos,Name.make(methodName)),Collections.singletonList(formal),Collections.EMPTY_LIST,block);
+            md = nf.MethodDecl(pos,nf.FlagsNode(pos,flags),boolTypeNode,nf.Id(pos,Name.make(methodName)),Collections.singletonList(formal),block);
             n = (X10ClassDecl_c) n.body(n.body().addMember(md));
         }
 
@@ -339,7 +310,7 @@ public class Struct {
             List<Expr> list = new ArrayList<Expr>(2);
             list.add(nf.StringLit(pos, i==0 ? "java" : "c++"));
             list.add(nf.StringLit(pos, i==0 ? java : cpp));
-            res.add( nf.AnnotationNode(pos, nf.AmbMacroTypeNode(pos, nf.PrefixFromQualifiedName(pos,QName.make("x10.compiler")), nf.Id(pos, "Native"), Collections.EMPTY_LIST, list)) );
+            res.add( nf.AnnotationNode(pos, nf.AmbMacroTypeNode(pos, nf.PrefixFromQualifiedName(pos,QName.make("x10.compiler")), nf.Id(pos, "Native"), Collections.<TypeNode>emptyList(), list)) );
         }
         return res;
     }

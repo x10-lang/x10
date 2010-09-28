@@ -37,6 +37,7 @@ import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.types.UnknownType;
+import polyglot.types.UpcastTransform;
 import polyglot.types.TypeSystem_c.TypeEquals;
 import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
@@ -45,7 +46,6 @@ import polyglot.util.Transformation;
 import polyglot.util.TransformingList;
 import polyglot.util.TypedList;
 import x10.constraint.XNameWrapper;
-import x10.constraint.XRef;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.types.constraints.CConstraint;
@@ -57,6 +57,8 @@ import x10.types.constraints.TypeConstraint;
  * @author njnystrom
  */
 public class MacroType_c extends ParametrizedType_c implements MacroType {
+	private static final long serialVersionUID = 2467878434635627679L;
+	
 	Ref<TypeDef> def;
 	
 	List<Type> typeParams;
@@ -90,13 +92,7 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	public MacroType flags(Flags flags) {
 		return (MacroType) super.flags(flags);
 	}
-	
-	public boolean isGlobal() {
-		return flags() == null ? false : X10Flags.toX10Flags(flags()).isGlobal();
-	}
-	public boolean isProto() {
-		return flags() == null ? false : X10Flags.toX10Flags(flags()).isProto();
-	}
+
 	public boolean isX10Struct() {
 		return ((X10TypeSystem) typeSystem()).isStructType(this);
 	}
@@ -106,9 +102,7 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 		MacroType_c c = (MacroType_c) this.copy();
 		if (c.flags == null)
 			c.flags = X10Flags.toX10Flags(Flags.NONE);
-		c.flags = xf.isGlobal() 
-				? (xf.isStruct() ? X10Flags.toX10Flags(c.flags).Global().Struct() : X10Flags.toX10Flags(c.flags).Global())
-						: ((xf.isStruct()) ? X10Flags.toX10Flags(c.flags).Struct() : c.flags);
+		c.flags = (xf.isStruct()) ? X10Flags.toX10Flags(c.flags).Struct() : c.flags;
 		return c;
 	}
 	public Type clearFlags(Flags f) {
@@ -143,7 +137,7 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 
 	public List<Type> typeParameters() {
 		if (typeParams == null) {
-			return new TransformingList<Ref<? extends Type>, Type>(def().typeParameters(), new DerefTransform<Type>());
+			return new TransformingList<ParameterType, Type>(def().typeParameters(), new UpcastTransform<Type, ParameterType>());
 		}
 		return typeParams;
 	}
@@ -162,10 +156,11 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	    
 	    public List<LocalInstance> formalNames() {
 		if (this.formalNames == null) {
-		    return new TransformingList(def().formalNames(), new Transformation<LocalDef,LocalInstance>() {
-			public LocalInstance transform(LocalDef o) {
-			    return o.asInstance();
-			}
+		    return new TransformingList<LocalDef, LocalInstance>(def().formalNames(),
+		        new Transformation<LocalDef,LocalInstance>() {
+		            public LocalInstance transform(LocalDef o) {
+		                return o.asInstance();
+		            }
 		    });
 		}
 		
@@ -247,6 +242,9 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 			return Types.get(def().definedType());
 		Type t = X10TypeMixin.processFlags(flags(), Types.get(definedType));
 		return t;
+	}
+	public MacroType definedType(Type t) {
+	    return definedTypeRef(Types.ref(t));
 	}
 	public Ref<? extends Type> definedTypeRef() {
 	    if (definedType == null)
@@ -390,7 +388,7 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	}
 	
 	public List<Type> throwTypes() {
-	    return Collections.EMPTY_LIST;
+	    return Collections.<Type>emptyList();
 	}
 
 	public boolean callValid(Type thisType, List<Type> actualTypes, Context context) {
@@ -411,7 +409,7 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	}
 	
 	public MacroType returnType(Type t) {
-	    return definedTypeRef(Types.ref(t));
+	    return definedType(t);
 	}
 	
 	public MacroType returnTypeRef(Ref<? extends Type> t) {

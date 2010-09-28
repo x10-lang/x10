@@ -134,7 +134,7 @@ public class Cast_c extends Expr_c implements Cast
         return expr;
     }
 
-    public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
+    public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
         v.visitCFG(expr, castType, ENTRY);
         v.visitCFG(castType, this, EXIT);
         return succs;
@@ -145,7 +145,7 @@ public class Cast_c extends Expr_c implements Cast
             return Collections.<Type>singletonList(ts.ClassCastException());
         }
 
-        return Collections.EMPTY_LIST;
+        return Collections.<Type>emptyList();
     }
     
     public boolean isConstant() {

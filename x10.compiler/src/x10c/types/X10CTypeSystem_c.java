@@ -11,6 +11,7 @@
 
 package x10c.types;
 
+import polyglot.types.Context;
 import polyglot.types.Ref;
 import polyglot.types.Type;
 import polyglot.util.Position;
@@ -18,6 +19,10 @@ import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
 
 public class X10CTypeSystem_c extends X10TypeSystem_c implements X10TypeSystem {
+
+    public Context emptyContext() {
+        return new X10CContext_c(this);
+    }
 
     public BackingArrayType createBackingArray(Position position, Ref<? extends Type> ref) {
         return new BackingArrayType(this, position, ref);

@@ -16,6 +16,6 @@ import ImportTestPackage1.SubPackage.T3;
  */
 public class _T2 {
 	public static def m2(val x: int): boolean = {
-		return (future(here) { T3.m3(x) }).force();
+		return T3.m3(x);
 	}
 }

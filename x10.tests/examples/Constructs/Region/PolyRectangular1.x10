@@ -52,7 +52,7 @@ class PolyRectangular1 extends TestRegion {
         "    3  . . . 8 4 0 6 . . . \n" +
         "    4  . . . 4 2 0 8 . . . \n";
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new PolyRectangular1().execute();
     }
 }

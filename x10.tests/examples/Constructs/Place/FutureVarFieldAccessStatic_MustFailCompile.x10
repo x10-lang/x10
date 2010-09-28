@@ -14,6 +14,7 @@
 import harness.x10Test;
 
 /**
+ * In 2.1 the variable access will succeed, so this is an INVALID test.
  * @author bdlucas
  */
 
@@ -53,7 +54,7 @@ public class FutureVarFieldAccessStatic_MustFailCompile extends x10Test {
     	return run02();
 	}
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new FutureVarFieldAccessStatic_MustFailCompile().execute();
     }
 }

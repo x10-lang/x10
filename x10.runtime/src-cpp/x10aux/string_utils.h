@@ -21,13 +21,14 @@ namespace x10 {
         template<class T> class ValRail;
         class String;
     }
+    namespace array {
+        template<class T> class Array;
+    }        
 }
 
 namespace x10aux {
 
-    x10::lang::Rail<ref<x10::lang::String> > *convert_args(int ac, char **av);
-
-    void free_args(ref<x10::lang::Rail<ref<x10::lang::String> > > arr);
+    ref<x10::array::Array<ref<x10::lang::String> > > convert_args(int ac, char **av);
 
     template<class T> bool is_null(ref<T> v) { return v.isNull(); }
     template<class T> bool is_null(T v) { return false; }

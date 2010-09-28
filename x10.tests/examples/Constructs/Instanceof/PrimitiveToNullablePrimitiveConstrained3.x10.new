@@ -20,7 +20,7 @@ public class PrimitiveToNullablePrimitiveConstrained3 extends x10Test {
 		return (a instanceof nullable<int{self==3})>);
 	}
 	
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new PrimitiveToNullablePrimitiveConstrained3().execute();
 	}
 }

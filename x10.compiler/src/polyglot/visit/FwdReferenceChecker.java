@@ -17,7 +17,9 @@ import polyglot.types.*;
 /** Visitor which ensures that field intializers and initializers do not
  * make illegal forward references to fields.
  *  This is an implementation of the rules of the Java Language Spec, 2nd
- * Edition, Section 8.3.2.3 
+ * Edition, Section 8.3.2.3
+ *
+ * Yoav: It now only checks for illegal forward ref of static fields.
  */
 public class FwdReferenceChecker extends ContextVisitor
 {
@@ -26,27 +28,22 @@ public class FwdReferenceChecker extends ContextVisitor
     }
 
     private boolean inInitialization = false;
-    private boolean inStaticInit = false;
     private Set<FieldDef> declaredFields = new HashSet<FieldDef>();
     
     protected NodeVisitor enterCall(Node n) throws SemanticException {
         if (n instanceof FieldDecl) {
             FieldDecl fd = (FieldDecl)n;
+            if (fd.flags().flags().isStatic()) {
+            FwdReferenceChecker frc = (FwdReferenceChecker)this.copy();
+            frc.declaredFields = new HashSet<FieldDef>(declaredFields);
             declaredFields.add(fd.fieldDef());
-            
+            frc.inInitialization = true;
+            return frc;
+            }
+        }
+        else if (n instanceof Initializer && ((Initializer)n).flags().flags().isStatic()) {
             FwdReferenceChecker frc = (FwdReferenceChecker)this.copy();
             frc.inInitialization = true;
-            frc.inStaticInit = fd.flags().flags().isStatic();
-            return frc;
-        }
-        else if (n instanceof Initializer) {
-            FwdReferenceChecker frc = (FwdReferenceChecker)this.copy();
-            frc.inInitialization = true;
-            frc.inStaticInit = ((Initializer)n).flags().flags().isStatic();
-            return frc;
-        }
-        else if (n instanceof FieldAssign) {
-            FwdReferenceChecker frc = (FwdReferenceChecker)this.copy();
             return frc;
         }
         else if (n instanceof Field) {
@@ -60,16 +57,14 @@ public class FwdReferenceChecker extends ContextVisitor
                 // interface of the usage is the same as the container of
                 // the field, and we have not yet seen the field declaration.
                 //
-                // In addition, if a field is not accessed as a simple name, 
-                // then all is ok
                 
                 ClassType currentClass = context().currentClass();
                 StructType fContainer = f.fieldInstance().container();
 
-                if (inStaticInit == f.fieldInstance().flags().isStatic() &&
+                if (f.fieldInstance().flags().isStatic() &&
                     currentClass.typeEquals(fContainer, context) &&
-                   !declaredFields.contains(f.fieldInstance().def()) &&
-                   f.isTargetImplicit()) {
+                   !declaredFields.contains(f.fieldInstance().def())
+                        ) {
                     throw new SemanticException("Illegal forward reference", 
                                                 f.position());
                 }
@@ -78,4 +73,3 @@ public class FwdReferenceChecker extends ContextVisitor
         return this;        
     }
 }
-

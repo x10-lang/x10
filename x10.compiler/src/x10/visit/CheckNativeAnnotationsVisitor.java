@@ -140,7 +140,7 @@ public class CheckNativeAnnotationsVisitor extends ContextVisitor {
             return n;
 
         Map<String,String> nativeReps = getNativeRep(cd);
-        Map<String,String> nativeImps = Collections.EMPTY_MAP;
+        Map<String,String> nativeImps = Collections.<String,String>emptyMap();
 
         if (! nativeReps.isEmpty())
             classHasNativeRep = true;

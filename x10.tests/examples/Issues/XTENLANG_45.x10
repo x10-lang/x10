@@ -23,7 +23,7 @@ class XTENLANG_45 extends x10Test {
         return true;
     }
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new XTENLANG_45().execute();
     }
 }

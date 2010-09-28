@@ -18,10 +18,10 @@ import harness.x10Test;
 
 public class FlattenConditional3 extends x10Test {
 
-    var a: Array[int](2)!;
+    var a: Array[int](2);
 
     public def this(): FlattenConditional3 = {
-        a = new Array[int]([1..10, 1..10], ((i,j): Point) => { return i+j;});
+        a = new Array[int]([1..10, 1..10], ([i,j]: Point) => { return i+j;});
     }
     
     def m(var a: int): int = {
@@ -35,7 +35,7 @@ public class FlattenConditional3 extends x10Test {
             return b==0;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(Array[String](1))  {
         new FlattenConditional3().execute();
     }
 }

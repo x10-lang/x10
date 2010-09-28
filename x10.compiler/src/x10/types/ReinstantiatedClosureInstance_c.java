@@ -10,12 +10,11 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.Position;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.TypeConstraint;
 
-final class ReinstantiatedClosureInstance_c extends
-		ClosureInstance_c {
-	/**
-	 * 
-	 */
+final class ReinstantiatedClosureInstance_c extends ClosureInstance_c {
+	private static final long serialVersionUID = 5526029137687309137L;
+
 	private final TypeParamSubst typeParamSubst;
 	private final ClosureInstance fi;
 
@@ -48,16 +47,16 @@ final class ReinstantiatedClosureInstance_c extends
 	}
 
 	@Override
-	public List<Type> throwTypes() {
-		if (throwTypes == null)
-			return this.typeParamSubst.reinstantiate(fi.throwTypes());
-		return throwTypes;
-	}
-
-	@Override
 	public CConstraint guard() {
 		if (guard == null)
 			return this.typeParamSubst.reinstantiate(fi.guard());
 		return guard;
+	}
+
+	@Override
+	public TypeConstraint typeGuard() {
+	    if (typeGuard == null)
+	        return this.typeParamSubst.reinstantiate(fi.typeGuard());
+	    return typeGuard;
 	}
 }

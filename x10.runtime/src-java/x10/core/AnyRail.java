@@ -11,10 +11,7 @@
 
 package x10.core;
 
-import x10.core.fun.Fun_0_1;
-
-public interface AnyRail<T> extends Indexable<Integer,T>, Fun_0_1<Integer,T>, Iterable<T> {
-    public Iterator<T> iterator();
+public interface AnyRail<T> extends x10.lang.Indexable<Integer,T>, x10.lang.Iterable<T> {
 
     // Methods to get the backing array.   May be called by generated code.
     public Object getBackingArray();
@@ -33,9 +30,7 @@ public interface AnyRail<T> extends Indexable<Integer,T>, Fun_0_1<Integer,T>, It
 
     public int length();
     
-    public T get(int i);
-
     public T apply$G(int i);
     
-    public boolean isZero();
+//    public boolean isZero();
 }

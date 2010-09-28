@@ -70,7 +70,7 @@ public abstract class AbstractBlock_c extends Stmt_c implements Block
     /** Visit the children of the block. */
     public Node visitChildren(NodeVisitor v) {
         List<Stmt> statements = visitList(this.statements, v);
-	return reconstruct(statements);
+        return reconstruct(statements);
     }
 
     public Context enterScope(Context c) {
@@ -81,9 +81,9 @@ public abstract class AbstractBlock_c extends Stmt_c implements Block
     public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
 	w.begin(0);
 
-	for (Iterator<Stmt> i = statements.iterator(); i.hasNext(); ) {
+	for (Iterator<Stmt> i = statements.iterator(); i.hasNext();) {
 	    Stmt n = i.next();
-	    
+
 	    printBlock(n, w, tr);
 
 	    if (i.hasNext()) {
@@ -98,7 +98,7 @@ public abstract class AbstractBlock_c extends Stmt_c implements Block
         return listChild(statements, null);
     }
 
-    public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
+    public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
         v.visitCFGList(statements, this, EXIT);
         return succs;
     }
@@ -109,13 +109,11 @@ public abstract class AbstractBlock_c extends Stmt_c implements Block
 
         int count = 0;
 
-        for (Iterator<Stmt> i = statements.iterator(); i.hasNext(); ) {
+        for (Stmt n : statements) {
             if (count++ > 2) {
                 sb.append(" ...");
                 break;
             }
-
-            Stmt n = i.next();
             sb.append(" ");
             sb.append(n.toString());
         }

@@ -22,7 +22,7 @@ public class PrimitiveLiteralHasLocation_MustFailCompile extends x10Test {
 	return 3.home==null;
     }
 
-	public static def main(Rail[String]) {
+	public static def main(Array[String](1)) {
 	    new PrimitiveLiteralHasLocation_MustFailCompile().execute();
 	}
 }

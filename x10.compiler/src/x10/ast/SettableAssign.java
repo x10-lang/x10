@@ -16,10 +16,10 @@ import java.util.List;
 import polyglot.ast.Assign;
 import polyglot.ast.Expr;
 import polyglot.types.ClassDef;
-import polyglot.types.MethodInstance;
 import polyglot.types.Name;
 import polyglot.types.Type;
 import polyglot.util.TypedList;
+import x10.types.X10MethodInstance;
 
 public interface SettableAssign extends Assign {
 
@@ -38,10 +38,10 @@ public interface SettableAssign extends Assign {
     /** Set the index of the expression. */
     public SettableAssign index(List<Expr> index) ;
 
-    public MethodInstance methodInstance();
-    SettableAssign methodInstance(MethodInstance mi);
+    public X10MethodInstance methodInstance();
+    SettableAssign methodInstance(X10MethodInstance mi);
 
-    public MethodInstance applyMethodInstance();
+    public X10MethodInstance applyMethodInstance();
 
-    public SettableAssign applyMethodInstance(MethodInstance ami);
+    public SettableAssign applyMethodInstance(X10MethodInstance ami);
 }

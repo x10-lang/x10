@@ -20,6 +20,8 @@ package polyglot.frontend;
  * @author nystrom
  */
 public class SchedulerException extends RuntimeException {
+    private static final long serialVersionUID = -768934941025322321L;
+
     public SchedulerException() {
     }
     

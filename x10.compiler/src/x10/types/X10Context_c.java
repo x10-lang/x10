@@ -49,9 +49,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import polyglot.main.Report;
 import polyglot.types.ClassDef;
@@ -65,6 +67,7 @@ import polyglot.types.ImportTable;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
 import polyglot.types.Matcher;
+import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
 import polyglot.types.Named;
@@ -111,13 +114,13 @@ public class X10Context_c extends Context_c implements X10Context {
 	            lis.removeAll(c.allLocals());
 	        return lis;
 	    }
-	    return Collections.EMPTY_LIST;
+	    return Collections.<LocalDef>emptyList();
 	}
 
 	public List<LocalDef> allLocals() {
 	    if (vars != null) {
 	        List<LocalDef> lis = new ArrayList<LocalDef>(vars.values().size());
-	        for (VarInstance vi : vars.values()) {
+	        for (VarInstance<?> vi : vars.values()) {
 	            if (vi instanceof LocalInstance)
 	                lis.add(((LocalInstance) vi).def());
 	        }
@@ -131,7 +134,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	        if (c != null)
 	            return c.allLocals();
 	    }
-	    return Collections.EMPTY_LIST;
+	    return Collections.<LocalDef>emptyList();
 	}
 
 	public XVar thisVar() {
@@ -151,26 +154,16 @@ public class X10Context_c extends Context_c implements X10Context {
 	}
 	
 
-	/* sigma(Gamma) restricted to the variables mentioned in c1,c2 */
-	 void addSigma(CConstraint r, CConstraint c, HashMap<XTerm, CConstraint> m) throws XFailure {
-		 if (c != null && ! c.valid()) {
-			 r.addIn(c);
-			 r.addIn(constraintProjection(c, m));
-		 }
-	 }
-	 void addSigma(CConstraint r, XConstrainedTerm ct, HashMap<XTerm, CConstraint> m) throws XFailure {
-		 if (ct != null) {
-			 addSigma(r, ct.xconstraint(), m);
-		 }
-	 }
-	 public CConstraint constraintProjection(CConstraint... cs) throws XFailure {
+	public CConstraint constraintProjection(CConstraint... cs) throws XFailure {
 		 HashMap<XTerm, CConstraint> m = new HashMap<XTerm, CConstraint>();
 
 		 // add in the real clause of the type of any var mentioned in the constraint list cs
 		 CConstraint r = null;
-
+		 Set<XTerm> old = new HashSet<XTerm>();
 		 for (CConstraint ci : cs) {
-			 CConstraint ri = constraintProjection(ci, m);
+			 if (ci == null)
+				 continue;
+			 CConstraint ri = ci.constraintProjection(m, old);
 			 if (r == null)
 				 r = ri;
 			 else
@@ -181,11 +174,11 @@ public class X10Context_c extends Context_c implements X10Context {
 			 r = new CConstraint();
 
 		 // fold in the current constraint
-		 addSigma(r, currentConstraint(), m);
-		 addSigma(r, currentPlaceTerm, m);
+		 r.addSigma(currentConstraint(), m);
+		 r.addSigma(currentPlaceTerm, m);
 		 PlaceChecker.AddHereEqualsPlaceTerm(r, this);
 
-		 addSigma(r, thisPlace, m);
+		 r.addSigma(thisPlace, m);
 
 		 // fold in the real clause of the base type
 		 Type selfType = this.currentDepType();
@@ -199,113 +192,6 @@ public class X10Context_c extends Context_c implements X10Context {
 		 return r;
 	 }
 
-	 /* sigma(Gamma) restricted to the variables mentioned in c */
-	 private CConstraint constraintProjection(CConstraint c, Map<XTerm,CConstraint> m) throws XFailure {
-		 CConstraint r = new CConstraint();
-		 if (c != null)
-			 for (XTerm t : c.constraints()) {
-				 CConstraint tc = constraintProjection(t, m);
-				 if (tc != null)
-					 r.addIn(tc);
-			 }
-		 return r;
-	 }
-
-	 private CConstraint constraintProjection(XTerm t, Map<XTerm,CConstraint> m) throws XFailure {
-		 X10TypeSystem xts = (X10TypeSystem) this.ts;
-
-		 CConstraint r = m.get(t);
-		 if (r != null)
-			 return r;
-
-		 // pre-fill the cache to avoid infinite recursion
-		 m.put(t, new CConstraint());
-
-		 if (t instanceof XLocal) {
-			 XLocal v = (XLocal) t;
-			 X10LocalDef ld = getLocal(v);
-			 if (ld != null) {
-				 Type ty = Types.get(ld.type());
-                 ty = PlaceChecker.ReplaceHereByPlaceTerm(ty, ld.placeTerm());
-                 CConstraint ci = X10TypeMixin.realX(ty);
-				 ci = ci.substitute(v, ci.self());
-				 r = new CConstraint();
-				 r.addIn(ci);
-				 r.addIn(constraintProjection(ci, m));
-			 }
-		 }
-		 else if (t instanceof XLit) {
-		 }
-		 else if (t instanceof XField) {
-			 XField f = (XField) t;
-			 XTerm target = f.receiver();
-
-			 CConstraint rt = constraintProjection(target, m);
-
-			 X10FieldDef fi = getField(f);
-			 CConstraint ci = null;
-
-			 if (fi != null) {
-				 Type ty = Types.get(fi.type());
-				 ci = X10TypeMixin.realX(ty);
-				 ci = ci.substitute(f, ci.self());
-				 XVar v = ((X10ClassDef) Types.get(fi.container()).toClass().def()).thisVar();
-				 ci = ci.substitute(target, v); // xts.xtypeTranslator().transThisWithoutTypeConstraint());
-				 r = new CConstraint();
-				 r.addIn(ci);
-				 r.addIn(constraintProjection(ci, m));
-				 if (rt != null) {
-					 r.addIn(rt);
-				 }
-			 }
-			 else {
-				 r = rt;
-			 }
-		 }
-		 else if (t instanceof XFormula) {
-			 XFormula f = (XFormula) t;
-			 for (XTerm a : f.arguments()) {
-				 CConstraint ca = constraintProjection(a, m);
-				 if (ca != null) {
-					 if (r == null) {
-						 r = new CConstraint();
-					 }
-					 r.addIn(ca);
-				 }
-			 }
-		 }
-		 else {
-			 assert false : "unexpected " + t;
-		 }
-
-		 if (r != null)
-			 m.put(t, r);
-		 else
-			 m.put(t, new CConstraint());
-		 return r;
-	 }
-
-    private X10FieldDef getField(XField f) {
-        XName n = f.field();
-        if (n instanceof XNameWrapper) {
-            XNameWrapper w = (XNameWrapper<?>) n;
-            if (w.val() instanceof X10FieldDef) {
-                return (X10FieldDef) w.val();
-            }
-        }
-        return null;
-    }
-
-    private X10LocalDef getLocal(XLocal f) {
-        XName n = f.name();
-        if (n instanceof XNameWrapper) {
-            XNameWrapper w = (XNameWrapper<?>) n;
-            if (w.val() instanceof X10LocalDef) {
-                return (X10LocalDef) w.val();
-            }
-        }
-        return null;
-    }
 
     protected Ref<TypeConstraint> currentTypeConstraint;
     public TypeConstraint currentTypeConstraint() {
@@ -339,12 +225,25 @@ public class X10Context_c extends Context_c implements X10Context {
     	return currentPlaceTerm;
     }
     public Context pushPlace(XConstrainedTerm t) {
-    	assert t!= null;
+    	//assert t!= null;
     	X10Context_c cxt = (X10Context_c) super.pushBlock();
 		cxt.currentPlaceTerm = t;
 		return cxt;
     }
     
+    boolean inClockedFinishScope=false;
+    public X10Context pushClockedFinishScope() {
+    	X10Context_c cxt = (X10Context_c) super.pushBlock();
+		cxt.inClockedFinishScope = true;
+		return cxt;
+    }
+    public boolean inClockedFinishScope() {
+    	if (inClockedFinishScope)
+    		return true;
+    	if (outer != null) 
+    		return ((X10Context) outer).inClockedFinishScope();
+    	return false;
+    }
     Type currentCollectingFinishType=null;
     public Context pushCollectingFinishScope(Type t) {
     	assert t!=null;
@@ -433,21 +332,28 @@ public class X10Context_c extends Context_c implements X10Context {
 	protected boolean inAnnotation;
 	protected boolean inAnonObjectScope;
 	protected boolean inAssignment;
-
-	public boolean inSafeCode() { return inSafeCode; }
-	public boolean inSequentialCode() { return inSequentialCode; }
-	public boolean inNonBlockingCode() { return inNonBlockingCode; }
-	public boolean inLocalCode() { return inLocalCode; }
+	boolean isClocked=false;
+    public Context pushClockedContext() {
+    	X10Context_c cxt = (X10Context_c) super.pushBlock();
+		cxt.isClocked = true;
+		return cxt;
+    }
+    public boolean isClocked() {
+    	if (isClocked)
+    		return true;
+    	CodeDef cd = currentCode();
+    	if (cd instanceof MethodDef) {
+    		MethodDef md = (MethodDef) cd;
+    		return X10Flags.toX10Flags(md.flags()).isClocked();
+    	}
+    	return false;
+    }
 	public boolean inLoopHeader() { return inLoopHeader; }
 	public boolean inAnnotation() { return inAnnotation; }
 	public boolean inAnonObjectScope() { return inAnonObjectScope;}
 	public void restoreAnonObjectScope(boolean s) { inAnonObjectScope=s;}
 
 	public void setInAssignment() { inAssignment = true;}
-	public void setSafeCode() { inSafeCode = true; }
-	public void setSequentialCode() { inSequentialCode = true; }
-	public void setNonBlockingCode() { inNonBlockingCode = true; }
-	public void setLocalCode() { inLocalCode = true; }
 	public void setLoopHeader() { inLoopHeader = true; }
 	public void setAnnotation() { inAnnotation = true; }
 	public void setAnonObjectScope() { inAnonObjectScope = true;}
@@ -654,6 +560,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	}
 
 
+/*
 	private boolean inBootLoads(ClassDef classScope) {
 		QName q = classScope.fullName();
 		return q.equals(QName.make("x10.lang.Place"))
@@ -664,15 +571,26 @@ public class X10Context_c extends Context_c implements X10Context {
 		|| q.equals(QName.make("x10.lang.NativeRuntime"));
 
 	}
+*/
+	private X10Context_c superPushClass(ClassDef classScope, ClassType type) {
+	    return (X10Context_c) super.pushClass(classScope, type);
+	}
 	public Context pushClass(ClassDef classScope, ClassType type) {
 		//System.err.println("Pushing class " + classScope);
 		assert (depType == null);
+/*
 		XConstrainedTerm currentHere = null;
 		if (! (inBootLoads(classScope)) ){
 			currentHere = currentPlaceTerm();
 		}
 		//XConstrainedTerm currentHere = currentPlaceTerm();
-		X10Context_c result = (X10Context_c) super.pushClass(classScope, type);
+*/
+		X10Context_c result = this;
+		// Pushing a nested (non-inner) class should be done in a static context
+		if (classScope.isMember() && classScope.flags().isStatic()) {
+		    result = (X10Context_c) pushStatic();
+		}
+		result = result.superPushClass(classScope, type);
 /*
 		if ( (type.kind() == ClassDef.ANONYMOUS) || ! (
 		        type.toString().startsWith("x10.lang.Boolean") ||
@@ -709,9 +627,6 @@ public class X10Context_c extends Context_c implements X10Context {
 	public X10Context pushAtomicBlock() {
 		assert (depType == null);
 		X10Context c = (X10Context) super.pushBlock();
-		c.setLocalCode();
-		c.setNonBlockingCode();
-		c.setSequentialCode();
 		return c;
 	}
 
@@ -737,7 +652,11 @@ public class X10Context_c extends Context_c implements X10Context {
 	public Context pushCode(CodeDef ci) {
 		//System.err.println("Pushing code " + ci);
 		assert (depType == null);
-		return super.pushCode(ci);
+		X10Context_c result = (X10Context_c) super.pushCode(ci);
+		// For closures, propagate the static context of the outer scope
+		if (ci instanceof ClosureDef)
+		    result.staticContext = staticContext;
+		return result;
 	}
 
 	/**
@@ -780,7 +699,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	/**
 	 * Adds a symbol to the current scoping level.
 	 */
-	public void addVariable(VarInstance vi) {
+	public void addVariable(VarInstance<?> vi) {
 //		assert (depType == null);
 		super.addVariable(vi);
 	}
@@ -841,7 +760,7 @@ public class X10Context_c extends Context_c implements X10Context {
 		catch (SemanticException e) {
 		}
 		try {
-		    return ts.findTypeDef(container, ts.TypeDefMatcher(container, name, Collections.EMPTY_LIST, Collections.EMPTY_LIST, this), this);
+		    return ts.findTypeDef(container, ts.TypeDefMatcher(container, name, Collections.<Type>emptyList(), Collections.<Type>emptyList(), this), this);
 		}
 		catch (SemanticException e) {
 		}

@@ -67,7 +67,7 @@ public class LocalTypeDef_c extends Stmt_c implements LocalTypeDef {
     /**
      * Visit this term in evaluation order.
      */
-    public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
+    public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
         v.visitCFG(typeDef(), this, EXIT);
         return succs;
     }

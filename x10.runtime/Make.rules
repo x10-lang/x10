@@ -19,7 +19,7 @@ ifndef USE_GCC
   ifndef USE_XLC
     ifeq ($(shell uname -s),AIX)
       export USE_XLC=1
-    else 
+    else
       export USE_GCC=1
     endif
   endif
@@ -96,8 +96,8 @@ else
 
   # platform independent compiler flags and commands
   ifdef USE_GCC
-    override CXX = g++
-    override MPICXX = mpicxx 
+    # CXX defaults to g++, so leave it alone (in case user overrides)
+    override MPICXX = mpicxx
     override SHLINK = g++
     ifdef OPTIMIZE
       override CXXFLAGS += -O2 -finline-functions
@@ -105,9 +105,15 @@ else
     override CXXFLAGS += -ansi -pedantic -Wall -Wextra -Wno-long-long -Wno-unused-parameter
   endif
   ifdef USE_XLC
-    override CXX = xlC_r
+    # have to override CXX, but let user specify CUSTOM_XLC if they
+    # need something other than just xlC_r to be used as CXX
+    ifdef CUSTOM_XLC
+      override CXX = $(CUSTOM_XLC)
+    else
+      override CXX = xlC_r
+    endif
     override MPICXX = mpCC_r
-    override SHLINK = xlC_r
+    override SHLINK = $(CXX)
     ifdef OPTIMIZE
       override CXXFLAGS += -O3 -qinline -qarch=auto -qtune=auto -qhot
     endif

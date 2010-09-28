@@ -17,17 +17,18 @@ import harness.x10Test;
  */
 
 public class AtCheck2 extends x10Test {
-	var x:AtCheck =null;
+	private val root = GlobalRef[AtCheck2](this);
+	var x:AtCheck2 =null;
     def m(b: AtCheck2) {
     	val c = b;
-	    at ( b) {
-	     val e = c.x;
+	    at ( b.root) {
+	     val e = c.root().x;
 	    }
     }
     
     public def run()=true;
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new AtCheck2().execute();
     }
 }

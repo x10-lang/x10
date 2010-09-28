@@ -15,11 +15,11 @@ struct Pair[X,Y] {
   val x:X;
   val y:Y;
 
-  const dummy:int = 100;
+  static dummy:int = 100;
 
   public def this(a:X, b:Y) { x = a; y = b; }
 
-  public global safe def toString() = "<"+x+", "+y+">";
+  public def toString() = "<"+x+", "+y+">";
 
   public def first() = x;
   public def second() = y;
@@ -38,7 +38,7 @@ public class GenericStructTest extends x10Test {
     return true;
   }
 
-  public static def main(Rail[String]) {
+  public static def main(Array[String](1)) {
     new GenericStructTest().execute();
   }
 }

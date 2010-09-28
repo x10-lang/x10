@@ -27,13 +27,13 @@ public class GenericOverPrimitives2 extends GenericTest {
             def get() = t;
         }
 
-        a:A[double]! = new A[double](1);
+        a:A[double] = new A[double](1);
         check("a.get()", a.get(), 1.0);
 
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new GenericOverPrimitives2().execute();
     }
 }

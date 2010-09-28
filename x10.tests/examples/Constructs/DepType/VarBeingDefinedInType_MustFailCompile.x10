@@ -23,7 +23,7 @@ public class VarBeingDefinedInType_MustFailCompile extends x10Test {
 		var w: int{w==v} = 1; // cannot reference v in deptype, v is not final.
 	    return v==0;
 	}
-	public static def main(Rail[String]): void = {
+	public static def main(Array[String](1)): void = {
 		new VarBeingDefinedInType_MustFailCompile().execute();
 	}
 }

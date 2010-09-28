@@ -21,7 +21,7 @@ public class Unsigned5 extends x10Test {
         return ! b;
     }
 
-    public static def main(Rail[String]) = {
+    public static def main(Array[String](1)) = {
         new Unsigned5().execute();
     }
 }

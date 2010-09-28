@@ -30,10 +30,10 @@ import harness.x10Test;
  
 public class FlattenCondOr extends x10Test {
 
-    val a: Array[Boolean](2)!;
+    val a: Array[Boolean](2);
 
     public def this(): FlattenCondOr = {
-        a = new Array[Boolean]([1..10, 1..10], ((i,j): Point) => true);
+        a = new Array[Boolean]([1..10, 1..10], ([i,j]: Point) => true);
     }
 
     def m(x: boolean)=x;
@@ -43,7 +43,7 @@ public class FlattenCondOr extends x10Test {
         return x;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(Array[String](1)) {
         new FlattenCondOr().execute();
     }
 }

@@ -71,7 +71,7 @@ public struct IndexedMemoryChunk[T] {
      */
     @Native("java", "(#0).apply$G(#1)")
     @Native("c++", "(#0)->apply(#1)")
-    public native safe def apply(index:int):T;
+    public native def apply(index:int):T;
 
 
     /**
@@ -82,7 +82,7 @@ public struct IndexedMemoryChunk[T] {
      */
     @Native("java", "(#0).apply$G((int)(#1))")
     @Native("c++", "(#0)->apply(#1)")
-    public native safe def apply(index:long):T;
+    public native def apply(index:long):T;
 
 
     /**
@@ -94,7 +94,7 @@ public struct IndexedMemoryChunk[T] {
      */
     @Native("java", "(#0).set(#1, #2)")
     @Native("c++", "(#0)->set(#1, #2)")
-    public native safe def set(value:T, index:int):void;
+    public native def set(value:T, index:int):void;
 
 
     /**
@@ -106,15 +106,17 @@ public struct IndexedMemoryChunk[T] {
      */
     @Native("java", "(#0).set(#1, (int)(#2))")
     @Native("c++", "(#0)->set(#1, #2)")
-    public native safe def set(value:T, index:long):void;
+    public native def set(value:T, index:long):void;
 
 
     /**
      * Copies a contiguous portion of this IndexedMemoryChunk 
      * to a destination IndexedMemoryChunk at the specified place.
+     * If the destination place is the current place, then the copy happens synchronously.
      * If the destination place is not the same as the current place, then
-     * the copy happens asynchronously and the created remote activity is registered 
-     * with the dynamically enclosing finish of the activity that invoked copyTo.</p>
+     * the copy happens asynchronously and the created remote activity is optionally 
+     * registered with the dynamically enclosing finish of the activity that invoked 
+     * asyncCopyTo depending on the value of the uncounted parameter.</p>
      *
      * Note: No checking is performed to verify that this operation is safe;
      * it is the responsibility of higher-level abstractions built on top of 
@@ -125,21 +127,24 @@ public struct IndexedMemoryChunk[T] {
      * @param dst the destination IndexedMemoryChunk.
      * @param dstIndex the index of the first element to store in the destination.
      * @param numElems the number of elements to copy.
+     * @param uncounted Should the spawned activity be treated as if it were annotated @Uncounted
      */
     @Native("java", "x10.util.IndexedMemoryChunk__NativeRep.copyTo(#9, #0,#1,#2,#3,#4,#5,#6)")
     @Native("c++", "(#0)->copyTo(#1,#2,#3,#4,#5,#6)")
-    public native def copyTo (srcIndex:int, 
-                              dstPlace:Place, dst:IndexedMemoryChunk[T], dstIndex:int, 
-                              numElems:int, 
-                              uncounted:boolean):void;
+    public native def asyncCopyTo (srcIndex:int, 
+                                   dstPlace:Place, dst:IndexedMemoryChunk[T], dstIndex:int, 
+                                   numElems:int, 
+                                   uncounted:boolean):void;
 
 
     /**
      * Copies a contiguous portion of the src IndexedMemoryChunk found
      * at the specified place into this IndexedMemoryChunk.
+     * If the source place is the current place, then the copy happens synchronously.
      * If the source place is not the same as the current place, then
-     * the copy happens asynchronously and the created remote activity is registered 
-     * with the dynamically enclosing finish of the activity that invoked copyFrom.</p>
+     * the copy happens asynchronously and the created remote activity is optionally 
+     * registered with the dynamically enclosing finish of the activity that invoked 
+     * asyncCopyFrom depending on the value of the uncounted paramater.</p>
      *
      * Note: No checking is performed to verify that this operation is safe;
      * it is the responsibility of higher-level abstractions built on top of 
@@ -150,13 +155,14 @@ public struct IndexedMemoryChunk[T] {
      * @param src the destination IndexedMemoryChunk.
      * @param srcIndex the index of the first element to copy in the source.
      * @param numElems the number of elements to copy.
+     * @param uncounted Should the spawned activity be treated as if it were annotated @Uncounted
      */
     @Native("java", "x10.util.IndexedMemoryChunk__NativeRep.copyFrom(#9, #0,#1,#2,#3,#4,#5,#6)")
     @Native("c++", "(#0)->copyFrom(#1,#2,#3,#4,#5,#6)")
-    public native def copyFrom(dstIndex:int,
-                               srcPlace:Place, src:IndexedMemoryChunk[T], srcIndex:int,
-                               numElems:int,
-                               uncounted:boolean):void;
+    public native def asyncCopyFrom(dstIndex:int,
+                                    srcPlace:Place, src:IndexedMemoryChunk[T], srcIndex:int,
+                                    numElems:int,
+                                    uncounted:boolean):void;
 
 
    /*
@@ -166,15 +172,15 @@ public struct IndexedMemoryChunk[T] {
 
     @Native("java", "((Object)#0).toString()")
     @Native("c++", "(#0)->toString()")
-    public global safe native def  toString():String;
+    public native def  toString():String;
 
     @Native("java", "((Object)#0).equals(#1)")
     @Native("c++", "(#0)->equals(#1)")
-    public global safe native def equals(that:Any):Boolean;
+    public native def equals(that:Any):Boolean;
 
     @Native("java", "((Object)#0).hashCode()")
     @Native("c++", "(#0)->hash_code()")
-    public global safe native def  hashCode():Int;
+    public native def  hashCode():Int;
 }
 
 // vim:shiftwidth=4:tabstop=4:expandtab

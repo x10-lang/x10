@@ -60,7 +60,7 @@ public class TestByteToString extends x10Test {
         return true;
     }
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new TestByteToString().execute();
     }
 }

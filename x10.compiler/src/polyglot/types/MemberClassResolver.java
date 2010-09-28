@@ -23,8 +23,8 @@ public class MemberClassResolver implements TopLevelResolver
     protected boolean allowRawClasses;
     protected Set<QName> nocache;
 
-  protected final static Collection report_topics = CollectionUtil.list(
-    Report.types, Report.resolver, Report.loader, "mcr");
+  protected final static Collection<String> report_topics =
+      CollectionUtil.list(Report.types, Report.resolver, Report.loader, "mcr");
 
   /**
    * Create a member class resolver.

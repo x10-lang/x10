@@ -17,17 +17,17 @@ import harness.x10Test;
 
 public class IntArrayInitializerShorthand extends x10Test {
 
-    public def run(): boolean = {
+    public def run(): boolean {
         val r = [1..10, 1..10] as Region(2){rect};
-        val ia = new Array[int](r, ((i,j):Point) => i+j);
+        val ia = new Array[int](r, ([i,j]:Point) => i+j);
 
-        for (val p(i,j): Point(2) in r)
+        for (val p[i,j]: Point(2) in r)
             chk(ia(p) == i+j);
 
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(Array[String](1)) {
         new IntArrayInitializerShorthand().execute();
     }
 }

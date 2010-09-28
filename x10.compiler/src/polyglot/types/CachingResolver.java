@@ -160,13 +160,12 @@ public class CachingResolver implements TopLevelResolver, Copy {
 
     public void dump() {
         Report.report(1, "Dumping " + this);
-        for (Iterator i = cache.entrySet().iterator(); i.hasNext(); ) {
-            Map.Entry e = (Map.Entry) i.next();
+        for (Map.Entry<QName, Object> e : cache.entrySet()) {
             Report.report(2, e.toString());
         }
     }
 
-    private static final Collection TOPICS =
+    private static final Collection<String> TOPICS =
                     CollectionUtil.list(Report.types,
                                         Report.resolver);
 }

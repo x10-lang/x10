@@ -17,7 +17,6 @@ import java.util.List;
 import polyglot.types.ArrayType;
 import polyglot.types.ClassType;
 import polyglot.types.FieldInstance;
-import polyglot.types.Flags;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
 import polyglot.types.Named;
@@ -32,9 +31,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.Types;
-import polyglot.types.UnknownType;
 import polyglot.util.CodeWriter;
-import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.Transformation;
 import polyglot.util.TransformingList;
@@ -42,7 +39,6 @@ import x10.constraint.XFailure;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
-import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
 
 /**
@@ -55,6 +51,8 @@ import x10.types.constraints.CConstraint;
  *
  */
 public class ConstrainedType_c extends ReferenceType_c implements ConstrainedType {
+	private static final long serialVersionUID = -3797674072640450629L;
+
 	private Ref<CConstraint> constraint;
 	private Ref<? extends Type> baseType;
 
@@ -110,25 +108,7 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 		return c;
 	}
 	*/
-	public Proto baseOfProto() {
-		Type t = Types.get(baseType);
-		assert t!=null;
-		if (! X10TypeMixin.isProto(t))
-			return this;
-		ConstrainedType_c c = (ConstrainedType_c) this.copy();
-		c.baseType = Types.ref(X10TypeMixin.baseOfProto(t));
-		return c;
-	}
-	public Proto makeProto() {
-		Type t = Types.get(baseType);
-		assert t!=null;
-		if (X10TypeMixin.isProto(t))
-			return this;
-		ConstrainedType_c c = (ConstrainedType_c) this.copy();
-		c.baseType = Types.ref(X10TypeMixin.makeProto(t));
-		return c;
 
-	}
 	
 	public X10Struct makeX10Struct() {
 		Type t = Types.get(baseType);
@@ -151,6 +131,7 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 	}
 	*/
 	public ConstrainedType baseType(Ref<? extends Type> baseType) {
+		if (baseType == this.baseType) return this;
 		ConstrainedType_c n = (ConstrainedType_c) copy();
 		n.baseType = baseType;
 		return n;
@@ -161,6 +142,7 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 	}
 	
 	public ConstrainedType constraint(Ref<CConstraint> constraint) {
+		if (constraint == this.constraint) return this;
 		ConstrainedType_c n = (ConstrainedType_c) copy();
 		n.constraint = constraint;
 		return n;
@@ -405,12 +387,7 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 		return X10TypeMixin.isX10Struct(baseType.get());
 	}
 	
-	
-	public boolean isProto() { 
-		return X10TypeMixin.isProto(baseType.get());
-	}
-	
-	
+
 	@Override
 	public boolean isClass() {
 		Type base = baseType.get();

@@ -19,6 +19,7 @@ public interface Special extends Expr
 {    
     /** Special expression kind: either "super" or "this". */
     public static class Kind extends Enum {
+        private static final long serialVersionUID = 4498760711946203096L;
         public Kind(String name) { super(name); }
     }
 

@@ -39,7 +39,7 @@ public final struct Float /*TODO implements Arithmetic[Float], Ordered[Float]*/ 
      */
     @Native("java", "((#1) < (#2))")
     @Native("c++",  "((#1) < (#2))")
-    public native static safe operator (x:Float) < (y:Float): Boolean;
+    public native static operator (x:Float) < (y:Float): Boolean;
 
     /**
      * A greater-than operator.
@@ -52,7 +52,7 @@ public final struct Float /*TODO implements Arithmetic[Float], Ordered[Float]*/ 
      */
     @Native("java", "((#1) > (#2))")
     @Native("c++",  "((#1) > (#2))")
-    public native static safe operator (x:Float) > (y:Float): Boolean;
+    public native static operator (x:Float) > (y:Float): Boolean;
 
     /**
      * A less-than-or-equal-to operator.
@@ -65,7 +65,7 @@ public final struct Float /*TODO implements Arithmetic[Float], Ordered[Float]*/ 
      */
     @Native("java", "((#1) <= (#2))")
     @Native("c++",  "((#1) <= (#2))")
-    public native static safe operator (x:Float) <= (y:Float): Boolean;
+    public native static operator (x:Float) <= (y:Float): Boolean;
 
     /**
      * A greater-than-or-equal-to operator.
@@ -78,7 +78,7 @@ public final struct Float /*TODO implements Arithmetic[Float], Ordered[Float]*/ 
      */
     @Native("java", "((#1) >= (#2))")
     @Native("c++",  "((#1) >= (#2))")
-    public native static safe operator (x:Float) >= (y:Float): Boolean;
+    public native static operator (x:Float) >= (y:Float): Boolean;
 
 
     /**
@@ -90,7 +90,7 @@ public final struct Float /*TODO implements Arithmetic[Float], Ordered[Float]*/ 
      */
     @Native("java", "((#1) + (#2))")
     @Native("c++",  "((#1) + (#2))")
-    public native static safe operator (x:Float) + (y:Float): Float;
+    public native static operator (x:Float) + (y:Float): Float;
 
     /**
      * A binary minus operator.
@@ -101,7 +101,7 @@ public final struct Float /*TODO implements Arithmetic[Float], Ordered[Float]*/ 
      */
     @Native("java", "((#1) - (#2))")
     @Native("c++",  "((#1) - (#2))")
-    public native static safe operator (x:Float) - (y:Float): Float;
+    public native static operator (x:Float) - (y:Float): Float;
 
     /**
      * A binary multiply operator.
@@ -112,7 +112,7 @@ public final struct Float /*TODO implements Arithmetic[Float], Ordered[Float]*/ 
      */
     @Native("java", "((#1) * (#2))")
     @Native("c++",  "((#1) * (#2))")
-    public native static safe operator (x:Float) * (y:Float): Float;
+    public native static operator (x:Float) * (y:Float): Float;
 
     /**
      * A binary divide operator.
@@ -123,7 +123,7 @@ public final struct Float /*TODO implements Arithmetic[Float], Ordered[Float]*/ 
      */
     @Native("java", "((#1) / (#2))")
     @Native("c++",  "((#1) / (#2))")
-    public native static safe operator (x:Float) / (y:Float): Float;
+    public native static operator (x:Float) / (y:Float): Float;
 
     /**
      * A binary remainder operator.
@@ -134,7 +134,7 @@ public final struct Float /*TODO implements Arithmetic[Float], Ordered[Float]*/ 
      */
     @Native("java", "((#1) % (#2))")
     @Native("c++",  "x10aux::mod(#1, #2)")
-    public native static safe operator (x:Float) % (y:Float): Float;
+    public native static operator (x:Float) % (y:Float): Float;
 
     /**
      * A unary plus operator.
@@ -144,7 +144,7 @@ public final struct Float /*TODO implements Arithmetic[Float], Ordered[Float]*/ 
      */
     @Native("java", "(+(#1))")
     @Native("c++",  "(+(#1))")
-    public native static safe operator + (x:Float): Float;
+    public native static operator + (x:Float): Float;
 
     /**
      * A unary minus operator.
@@ -154,7 +154,7 @@ public final struct Float /*TODO implements Arithmetic[Float], Ordered[Float]*/ 
      */
     @Native("java", "(-(#1))")
     @Native("c++",  "(-(#1))")
-    public native static safe operator - (x:Float): Float;
+    public native static operator - (x:Float): Float;
 
 
     /**
@@ -164,7 +164,7 @@ public final struct Float /*TODO implements Arithmetic[Float], Ordered[Float]*/ 
      */
     @Native("java", "((float)(byte)(#1))")
     @Native("c++",  "((x10_float) (#1))")
-    public native static safe operator (x:Byte): Float;
+    public native static operator (x:Byte): Float;
 
     /**
      * Coerce a given Short to a Float.
@@ -173,7 +173,7 @@ public final struct Float /*TODO implements Arithmetic[Float], Ordered[Float]*/ 
      */
     @Native("java", "((float)(short)(#1))")
     @Native("c++",  "((x10_float) (#1))")
-    public native static safe operator (x:Short): Float;
+    public native static operator (x:Short): Float;
 
     /**
      * Coerce a given Int to a Float.
@@ -182,7 +182,7 @@ public final struct Float /*TODO implements Arithmetic[Float], Ordered[Float]*/ 
      */
     @Native("java", "((float)(int)(#1))")
     @Native("c++",  "((x10_float) (#1))")
-    public native static safe operator (x:Int): Float;
+    public native static operator (x:Int): Float;
 
     /**
      * Coerce a given Long to a Float.
@@ -191,7 +191,7 @@ public final struct Float /*TODO implements Arithmetic[Float], Ordered[Float]*/ 
      */
     @Native("java", "((float)(long)(#1))")
     @Native("c++",  "((x10_float) (#1))")
-    public native static safe operator (x:Long): Float;
+    public native static operator (x:Long): Float;
 
     /**
      * Coerce a given UByte to a Float.
@@ -200,7 +200,7 @@ public final struct Float /*TODO implements Arithmetic[Float], Ordered[Float]*/ 
      */
     @Native("java", "((float)(byte)(#1.byteVal))")
     @Native("c++",  "((x10_float) (#1))")
-    public native static safe operator (x:UByte): Float;
+    public native static operator (x:UByte): Float;
 
     /**
      * Coerce a given UShort to a Float.
@@ -209,7 +209,7 @@ public final struct Float /*TODO implements Arithmetic[Float], Ordered[Float]*/ 
      */
     @Native("java", "((float)(short)(#1.shortVal))")
     @Native("c++",  "((x10_float) (#1))")
-    public native static safe operator (x:UShort): Float;
+    public native static operator (x:UShort): Float;
 
     /**
      * Coerce a given UInt to a Float.
@@ -218,7 +218,7 @@ public final struct Float /*TODO implements Arithmetic[Float], Ordered[Float]*/ 
      */
     @Native("java", "((float)(int)(#1.intVal))")
     @Native("c++",  "((x10_float) (#1))")
-    public native static safe operator (x:UInt): Float;
+    public native static operator (x:UInt): Float;
 
     /**
      * Coerce a given ULong to a Float.
@@ -227,7 +227,7 @@ public final struct Float /*TODO implements Arithmetic[Float], Ordered[Float]*/ 
      */
     @Native("java", "((float)(long)(#1.longVal))")
     @Native("c++",  "((x10_float) (#1))")
-    public native static safe operator (x:ULong): Float;
+    public native static operator (x:ULong): Float;
 
     /**
      * Convert a given Double to a Float.
@@ -236,7 +236,7 @@ public final struct Float /*TODO implements Arithmetic[Float], Ordered[Float]*/ 
      */
     @Native("java", "((float)(double)(#1))")
     @Native("c++",  "((x10_float) (#1))")
-    public native static safe operator (x:Double) as Float;
+    public native static operator (x:Double) as Float;
 
 
     /**
@@ -248,7 +248,7 @@ public final struct Float /*TODO implements Arithmetic[Float], Ordered[Float]*/ 
     @Native("java", "java.lang.Float.MIN_VALUE")
     @Native("c++", "x10aux::float_utils::fromIntBits(0x00000001)")
     @Native("cuda", "1.401298464E-45")
-    public const MIN_VALUE: Float = Float.fromIntBits(0x00000001);
+    public static MIN_VALUE: Float = Float.fromIntBits(0x00000001);
 
     /**
      * A constant holding the smallest positive normal value of type Float,
@@ -259,7 +259,7 @@ public final struct Float /*TODO implements Arithmetic[Float], Ordered[Float]*/ 
     @Native("java", "java.lang.Float.intBitsToFloat(0x00800000)")
     @Native("c++", "x10aux::float_utils::fromIntBits(0x00800000)")
     @Native("cuda", "FLT_MIN")
-    public const MIN_NORMAL: Float = Float.fromIntBits(0x00800000);
+    public static MIN_NORMAL: Float = Float.fromIntBits(0x00800000);
 
     /**
      * A constant holding the largest positive finite value of type Float,
@@ -270,7 +270,7 @@ public final struct Float /*TODO implements Arithmetic[Float], Ordered[Float]*/ 
     @Native("java", "java.lang.Float.MAX_VALUE")
     @Native("c++", "x10aux::float_utils::fromIntBits(0x7f7fffff)")
     @Native("cuda", "FLT_MAX")
-    public const MAX_VALUE: Float = Float.fromIntBits(0x7f7fffff);
+    public static MAX_VALUE: Float = Float.fromIntBits(0x7f7fffff);
 
     /**
      * A constant holding the positive infinity of type Float.
@@ -278,7 +278,7 @@ public final struct Float /*TODO implements Arithmetic[Float], Ordered[Float]*/ 
      */
     @Native("java", "java.lang.Float.POSITIVE_INFINITY")
     @Native("c++", "x10aux::float_utils::fromIntBits(0x7f800000)")
-    public const POSITIVE_INFINITY: Float = Float.fromIntBits(0x7f800000);
+    public static POSITIVE_INFINITY: Float = Float.fromIntBits(0x7f800000);
 
     /**
      * A constant holding the negative infinity of type Float.
@@ -286,7 +286,7 @@ public final struct Float /*TODO implements Arithmetic[Float], Ordered[Float]*/ 
      */
     @Native("java", "java.lang.Float.NEGATIVE_INFINITY")
     @Native("c++", "x10aux::float_utils::fromIntBits(0xff800000)")
-    public const NEGATIVE_INFINITY: Float = Float.fromIntBits(0xff800000);
+    public static NEGATIVE_INFINITY: Float = Float.fromIntBits(0xff800000);
 
     /**
      * A constant holding a Not-a-Number (NaN) value of type Float.
@@ -294,7 +294,7 @@ public final struct Float /*TODO implements Arithmetic[Float], Ordered[Float]*/ 
      */
     @Native("java", "java.lang.Float.NaN")
     @Native("c++", "x10aux::float_utils::fromIntBits(0x7fc00000)")
-    public const NaN: Float = Float.fromIntBits(0x7fc00000);
+    public static NaN: Float = Float.fromIntBits(0x7fc00000);
 
 
     /**
@@ -313,7 +313,7 @@ public final struct Float /*TODO implements Arithmetic[Float], Ordered[Float]*/ 
      */
     @Native("java", "java.lang.Float.toString(#0)")
     @Native("c++", "x10aux::to_string(#0)")
-    public global safe native def toString(): String;
+    public native def toString(): String;
 
 
     /**
@@ -321,7 +321,7 @@ public final struct Float /*TODO implements Arithmetic[Float], Ordered[Float]*/ 
      */
     @Native("java", "java.lang.Float.parseFloat(#1)")
     @Native("c++", "x10aux::float_utils::parseFloat(#1)")
-    public native static def parseFloat(String): Float throws NumberFormatException;
+    public native static def parseFloat(String): Float; //throwsNumberFormatException;
 
     /**
      * Parses the String argument as a Float value.
@@ -331,7 +331,7 @@ public final struct Float /*TODO implements Arithmetic[Float], Ordered[Float]*/ 
      */
     @Native("java", "java.lang.Float.parseFloat(#1)")
     @Native("c++", "x10aux::float_utils::parseFloat(#1)")
-    public native static def parse(s:String): Float throws NumberFormatException;
+    public native static def parse(s:String): Float; //throwsNumberFormatException;
 
 
     /**
@@ -403,7 +403,7 @@ public final struct Float /*TODO implements Arithmetic[Float], Ordered[Float]*/ 
      */
     @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public global safe native def equals(x:Any):Boolean;
+    public native def equals(x:Any):Boolean;
 
     /**
      * Returns true if this Float is equal to the given Float.
@@ -412,5 +412,5 @@ public final struct Float /*TODO implements Arithmetic[Float], Ordered[Float]*/ 
      */
     @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public global safe native def equals(x:Float):Boolean;
+    public native def equals(x:Float):Boolean;
 }

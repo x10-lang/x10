@@ -20,24 +20,24 @@ import harness.x10Test;
 
 public class MultiDimensionalJavaArray extends x10Test {
 
-    const PI = Math.PI;
+    static PI = Math.PI;
 
     public def run(): boolean = {
         val MIN = 0..99;
         val MAJ = 0..9;
-        val a = new Array[Array[Double](1)!](MIN, (Point) => new Array[Double](MAJ));
+        val a = new Array[Array[Double](1)](MIN, (Point) => new Array[Double](MAJ));
 
-        for (val (i,j): Point(2) in ([MIN, MAJ] as Region))
+        for (val [i,j]: Point(2) in ([MIN, MAJ] as Region))
             a(i)(j) = (i * j / PI);
 
         val d = a(MIN.max(0)/2);
-        for (val (j): Point in MAJ) 
+        for (val [j]: Point in MAJ) 
             chk(d(j) == (MIN.max(0)/2 * j / PI));
 
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(Array[String](1))  {
         new MultiDimensionalJavaArray().execute();
     }
 }

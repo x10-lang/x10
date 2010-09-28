@@ -1,3 +1,6 @@
+#ifndef X10RT_FRONT_H
+#define X10RT_FRONT_H
+
 #include <cstdlib>
 
 #include <x10rt_types.h>
@@ -391,15 +394,15 @@ X10RT_C void x10rt_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len);
  */
 X10RT_C void x10rt_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len);
 
-/** Allocate memory at a remote place.
- *
- * \bug This is a blocking API.
+/** Asynchronously allocate memory at a remote place.
  *
  * \param place The location where memory will be allocated.
  * \param sz The amount of memory to allocate.
- * \returns A pointer that is valid on the remote place only.
+ * \param ch Called to indicate the memory has been allocated.
+ * \param arg A user pointer that is also passed to ch.
  */
-X10RT_C x10rt_remote_ptr x10rt_remote_alloc (x10rt_place place, x10rt_remote_ptr sz);
+X10RT_C void x10rt_remote_alloc (x10rt_place place, x10rt_remote_ptr sz,
+                                 x10rt_completion_handler3 *ch, void *arg);
 
 /** Free memory at a remote place.
  *
@@ -425,13 +428,6 @@ X10RT_C void x10rt_remote_op (x10rt_place place, x10rt_remote_ptr remote_addr,
  * offset in the positive direction my a multiple of 8, up to len).
  */
 X10RT_C x10rt_remote_ptr x10rt_register_mem (void *ptr, size_t len);
-
-/** Perform a global SPMD-style barrier. Blocks until every place calls the barrier operation.
- * \bug Should be a non-blocking operation. \bug Should allow a subset of places. \bug Should be
- * distinguishable from other concurrent barriers in the system.
- */
-X10RT_C void x10rt_barrier (void);
-
 
 /** Automatically configure a CUDA kernel.  By studying the characteristics of the hardware upon
  * which the kernel will be executed, and the kernel itself, we can traverse a list of supported
@@ -491,5 +487,252 @@ X10RT_C void x10rt_blocks_threads (x10rt_place d, x10rt_msg_type type, int dyn_s
 X10RT_C void x10rt_probe (void);
 
 /** \} */
+
+
+/** \name Collective Operations
+ *
+ * These functions are designed to be called simultaneously by all members of a team.  The team is
+ * created in advance, and can be globally identified using the value of the x10rt_team type that
+ * was returned when the team was created.  During a collective operation, each participant
+ * identifies itself using the 'role' parameter of the call.  The team itself is given too, as
+ * multiple teams can be active at once.  Each role exists at a particular place, as defined when
+ * the team was created, but there can be more than 1 role at each place.  Teams can be created with
+ * #x10rt_team_new and #x10rt_team_split.  When a team is no-longer needed, each member should call
+ * #x10rt_team_del to free its resources.
+ *
+ * The special team '0' is the 'world' team, i.e. it consists of a single role at each place, in
+ * ascending order.  This team can always be used and should not be deleted.
+ *
+ * All of these calls are non-blocking.  This means that they may only block due to contention for
+ * local resources, and not due to e.g. the tardiness of message receipt / processing at a remote
+ * place.  Each call has 2 parameters indicating a callback that will be called when the operation
+ * is completed, and a user parameter that will be passed to the callback.
+ *
+ * For convenience, there is a function #x10rt_one_setter that assumes its argument is an 'int*' and
+ * will set the integer to 1.  This allows the following idiom:
+ *
+ * \code
+
+int finished = 0;
+x10rt_barrier(0, x10rt_here(), x10rt_one_setter, &finished);
+while (!finished) x10rt_probe();
+
+ * \endcode
+ *
+ * There is a similar function #x10rt_team_setter for team creation operations.  Note that since
+ * team '0' is special, none of the team creation operations will return '0'.  This means '0' can be
+ * used to initialise an #x10rt_team variable, and the completion of the operation can be detected
+ * when the variable becomes non-zero.
+ */
+
+/** \{ */
+
+/** Asynchronously create a new team of the given distribution.  This should be called by a single
+ * place, presumably before it has dispatched messages to the other places that will be playing the
+ * other roles in the team.
+ *
+ * \param placec The number of team members
+ *
+ * \param placev An array of places that specifies where each member will be
+ *
+ * \param ch Will be called when the team has been created, with the new team
+ *
+ * \param arg User pointer that is passed to the completion handler
+ */
+X10RT_C void x10rt_team_new (x10rt_place placec, x10rt_place *placev,
+                             x10rt_completion_handler2 *ch, void *arg);
+
+/** Asynchronously destroy a team that is no-longer needed.  Called simultaneously by each member of
+ * the team.  There should be no operations on the team after this.
+ *
+ * \param team Team to be destroyed
+ *
+ * \param role Our role in this team
+ *
+ * \param ch Will be called when the operation is complete
+ *
+ * \param arg User pointer that is passed to the completion handler
+ */
+X10RT_C void x10rt_team_del (x10rt_team team, x10rt_place role,
+                             x10rt_completion_handler *ch, void *arg);
+
+/** Immediately returns the number of members in the team.  Only valid in places that have members
+ * in the team.
+ *
+ * \param team Team to be destroyed
+ */
+X10RT_C x10rt_place x10rt_team_sz (x10rt_team team);
+
+/** Asynchronously create new teams by subdividing an existing team.  This is called by each member
+ * of an existing team, indicating which of the new teams it will be a member of, and its role
+ * within that team.  The old team is still available after this call.  All the members
+ * of the old team must collectively assign themselves to new teams such that there is exactly 1
+ * member of the original team for each role of each new team.  It is undefined behaviour if two
+ * members of the original team decide to play the same role in one of the new teams, or if one of
+ * the roles of a new team is left unfilled.
+ *
+ * \param parent The old team
+ *
+ * \param parent_role The caller's role within the old team
+ *
+ * \param color The new team, must be a number between 0 and the number of new teams - 1
+ *
+ * \param new_role The caller's role within the new team
+ *
+ * \param ch Will be called when the team has been created, with the new team's id
+ *
+ * \param arg User pointer that is passed to the completion handler
+ */
+X10RT_C void x10rt_team_split (x10rt_team parent, x10rt_place parent_role,
+                               x10rt_place color, x10rt_place new_role,
+                               x10rt_completion_handler2 *ch, void *arg);
+
+/** Asynchronously blocks until all members have reached the barrier.
+ *
+ * \param team Team that identifies the members who are participating in this operation
+ *
+ * \param role Our role in the team
+ *
+ * \param ch Will be called when the operation is complete
+ *
+ * \param arg User pointer that is passed to the completion handler
+ */
+X10RT_C void x10rt_barrier (x10rt_team team, x10rt_place role,
+                            x10rt_completion_handler *ch, void *arg);
+
+/** Asynchronously blocks until all members have received root's array.  Note that sbuf is the same
+ * size as dbuf.
+ *
+ * \param team Team that identifies the members who are participating in this operation
+ *
+ * \param role Our role in the team
+ *
+ * \param root The member who is supplying the data
+ *
+ * \param sbuf The data that will be sent (will only be used by the root member)
+ *
+ * \param dbuf The array into which the data will be received for this member
+ *
+ * \param el The size of each element, in bytes
+ *
+ * \param count The number of elements being transferred
+ *
+ * \param ch Will be called when the operation is complete
+ *
+ * \param arg User pointer that is passed to the completion handler
+ */
+X10RT_C void x10rt_bcast (x10rt_team team, x10rt_place role,
+                          x10rt_place root, const void *sbuf, void *dbuf,
+                          size_t el, size_t count,
+                          x10rt_completion_handler *ch, void *arg);
+
+/** Asynchronously blocks until all members have received their part of root's array.  Note that
+ * sbuf is n times the size of dbuf, where n is the number of members in the team.  Each member
+ * receives a contiguous and distinct portion of the sbuf array.  sbuf should be structured so that
+ * the portions are sorted in ascending order, e.g., the first member gets the portion at offset 0
+ * of sbuf, and the last member gets the portion at the end of sbuf.
+ *
+ * \param team Team that identifies the members who are participating in this operation
+ *
+ * \param role Our role in the team
+ *
+ * \param root The member who is supplying the data
+ *
+ * \param sbuf The data that will be sent (will only be used when root == role)
+ *
+ * \param dbuf The array into which the data will be received for this member
+ *
+ * \param el The size of each element, in bytes
+ *
+ * \param count The number of elements being transferred
+ *
+ * \param ch Will be called when the operation is complete
+ *
+ * \param arg User pointer that is passed to the completion handler
+ */
+X10RT_C void x10rt_scatter (x10rt_team team, x10rt_place role,
+                            x10rt_place root, const void *sbuf, void *dbuf,
+                            size_t el, size_t count,
+                            x10rt_completion_handler *ch, void *arg);
+
+/** Asynchronously blocks until all members have received their portion of data from each 
+ * member.  Note that sbuf and dbuf are the same size, which is n*el*count where n is the
+ * number of members in the team.  The sbuf is supplied by each member, and is divided up and sent
+ * to each member in a manner similar to the sbuf in #x10rt_scatter.
+ *
+ * \param team Team that identifies the members who are participating in this operation
+ *
+ * \param role Our role in the team
+ *
+ * \param sbuf The data that will be sent
+ *
+ * \param dbuf The array into which the data will be received for this member
+ *
+ * \param el The size of each element, in bytes
+ *
+ * \param count The number of elements being transferred
+ *
+ * \param ch Will be called when the operation is complete
+ *
+ * \param arg User pointer that is passed to the completion handler
+ */
+X10RT_C void x10rt_alltoall (x10rt_team team, x10rt_place role,
+                             const void *sbuf, void *dbuf,
+                             size_t el, size_t count,
+                             x10rt_completion_handler *ch, void *arg);
+
+/** Asynchronously blocks until all members have received the computed results.  This call is
+ * similar to #x10rt_alltoall except that instead of each member receiving the data from each other
+ * member, this data is instead reduced to a single array of count elements.  Also, the same data is
+ * sent to all other team members, so all members receive the same computed result.  This allows
+ * less data to be sent around the network, since intermediate results may be computed from a subset
+ * of members, and these results are much smaller than the original data.  Note that sbuf and dbuf
+ * are the same size, that being count elements of the given type.
+ *
+ * \param team Team that identifies the members who are participating in this operation
+ *
+ * \param role Our role in the team
+ *
+ * \param sbuf The data that is offered by each member
+ *
+ * \param dbuf The array into which the computed result will be received for this member
+ *
+ * \param op The operation to perform
+ *
+ * \param dtype The type of data being supplied
+ *
+ * \param count The number of elements in sbuf and dbuf
+ *
+ * \param ch Will be called when the operation is complete
+ *
+ * \param arg User pointer that is passed to the completion handler
+ */
+X10RT_C void x10rt_allreduce (x10rt_team team, x10rt_place role,
+                              const void *sbuf, void *dbuf,
+                              x10rt_red_op_type op,
+                              x10rt_red_type dtype,
+                              size_t count,
+                              x10rt_completion_handler *ch, void *arg);
+
+/** Sets arg to 1.
+ * \param arg Assumed to be an int*
+ */
+X10RT_C void x10rt_one_setter (void *arg);
+
+/** Sets arg to the given team.
+ * \param v The new team is passed in here
+ * \param arg Assumed to be an x10rt_team*
+ */
+X10RT_C void x10rt_team_setter (x10rt_team v, void *arg);
+
+/** Sets arg to the given remote pointer.
+ * \param v The new pointer is passed in here
+ * \param arg Assumed to be an x10rt_remote_ptr*
+ */
+X10RT_C void x10rt_remote_ptr_setter (x10rt_remote_ptr v, void *arg);
+
+/** \} */
+
+#endif
 
 // vim: tabstop=4:shiftwidth=4:expandtab:textwidth=100

@@ -16,7 +16,7 @@ public class RailAlignment extends x10Test {
 
     public def run () : Boolean {
         var failures:Int = 0;
-        for ((i) in 0..999) {
+        for ([i] in 0..999) {
             {
                 val r = Rail.makeAligned[float](555, (i:Int)=>0 as Float,16);
                 if (!alignedTo(r, 16)) {
@@ -46,7 +46,7 @@ public class RailAlignment extends x10Test {
         return failures == 0;
     }
 
-    public static def main(Rail[String])  {
+    public static def main(Array[String](1))  {
         new RailAlignment().execute();
     }
 

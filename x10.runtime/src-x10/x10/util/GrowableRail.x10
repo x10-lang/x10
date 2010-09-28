@@ -15,7 +15,7 @@ import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
 /** We make this a native class for efficiency. */
-@NativeRep("java", "x10.core.GrowableRail<#1>", null, null)
+@NativeRep("java", "x10.core.GrowableRail<#1>", null, "new x10.rtt.ParameterizedType(x10.core.GrowableRail._RTT, #2)")
 @NativeRep("c++", "x10aux::ref<x10::util::GrowableRail<#1 > >", "x10::util::GrowableRail<#1 >", null)
 public final class GrowableRail[T] implements Indexable[Int,T], Settable[Int,T] {
     /** Return a rail of length 0 */
@@ -73,7 +73,7 @@ public final class GrowableRail[T] implements Indexable[Int,T], Settable[Int,T] 
     /** Convert to a mutable rail.  This copies the content of the rail. */
     @Native("java", "(#0).toRail()")
     @Native("c++", "(#0)->toRail()")
-    public native def toRail(): Rail[T]!;
+    public native def toRail(): Rail[T];
 
     /** Convert to an immutable rail.  This copies the content of the rail. */
     @Native("java", "(#0).toValRail()")

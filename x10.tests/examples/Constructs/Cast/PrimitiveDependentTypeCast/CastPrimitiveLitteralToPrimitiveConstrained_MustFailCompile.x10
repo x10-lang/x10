@@ -21,7 +21,7 @@ public class CastPrimitiveLitteralToPrimitiveConstrained_MustFailCompile extends
 	public def run(): boolean {
 		
 		try { 
-                        val j: int{self==0} = 1 as int{self==0};
+           val j: int(0) = 1;
 		}catch(e: Throwable) {
 			return false;
 		}
@@ -29,7 +29,7 @@ public class CastPrimitiveLitteralToPrimitiveConstrained_MustFailCompile extends
 		return true;
 	}
 
-	public static def main(args: Rail[String]): void {
+	public static def main(args: Array[String](1)): void {
 		new CastPrimitiveLitteralToPrimitiveConstrained_MustFailCompile().execute();
 	}
 

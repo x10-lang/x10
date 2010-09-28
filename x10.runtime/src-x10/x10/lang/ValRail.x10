@@ -35,7 +35,7 @@ public final class ValRail[+T](length: Int) implements (Int) => T, Iterable[T] {
      */
     @Native("java", "x10.core.RailFactory.<#2>makeValRail(#3, #4, #5)")
     @Native("c++", "x10::lang::ValRail<#1 >::make(#4, #5)")
-    public native static def make[T](length: Int, init: (Int) => T): ValRail[T](length)!;
+    public native static def make[T](length: Int, init: (Int) => T): ValRail[T](length);
     
     /**
      * Create an appropriately aligned ValRail and initialize it by evaluating the given closure at each index.
@@ -47,16 +47,16 @@ public final class ValRail[+T](length: Int) implements (Int) => T, Iterable[T] {
      */
     @Native("java", "x10.core.RailFactory.<#2>makeValRail(#3, #4, #5)")
     @Native("c++", "x10::lang::ValRail<#1 >::makeAligned(#4, #5, #6)")
-    public native static def makeAligned[T](length: Int, init: (Int) => T, alignment: Int): ValRail[T](length)!;
+    public native static def makeAligned[T](length: Int, init: (Int) => T, alignment: Int): ValRail[T](length);
 
     /**
-     * Cast operator that creates a new ValRail from a Rail.
+     * Create a ValRail from a Rail.
      *
      * @param init The length and elements will be copied from this Rail.
      */
     @Native("java", "x10.core.RailFactory.<#2>makeValRailFromRail(#3, #4)")
     @Native("c++", "x10::lang::ValRail<#1 >::make(#4)")
-    public native static operator[U](r: Rail[U]): ValRail[U]{self.length==r.length};
+    public native static def make[U](r: Rail[U]): ValRail[U]{self.length==r.length};
 
     /**
      * Operator that allows access of ValRail elements by index.
@@ -67,7 +67,7 @@ public final class ValRail[+T](length: Int) implements (Int) => T, Iterable[T] {
     @Native("java", "(#0).apply$G(#1)")
     @Native("c++", "(#0)->apply(#1)")
     @Native("cuda", "(#0)[#1]")
-    public global native safe def apply(i: Int): T;
+    public native def apply(i: Int): T;
     
     /**
      * Get an iterator over this ValRail.
@@ -76,7 +76,7 @@ public final class ValRail[+T](length: Int) implements (Int) => T, Iterable[T] {
      */
     @Native("java", "(#0).iterator()")
     @Native("c++", "(#0)->iterator()")
-    public global native def iterator(): Iterator[T];
+    public native def iterator(): Iterator[T];
 
     /**
      * Equals on ValRail is defined by (1) equal length and
@@ -89,46 +89,13 @@ public final class ValRail[+T](length: Int) implements (Int) => T, Iterable[T] {
      */
     @Native("java", "(#0).equals(#1)")
     @Native("c++", "(#0)->equals(#1)")
-    public global safe native def equals(other:Any):boolean;
-
-
-    /**
-     * Copies a portion of a given ValRail into a given remote Rail.
-     * Upon completion, notifies the enclosing finish.
-     *
-     * @param src the source ValRail.
-     * @param src_off the offset of the first element to copy in the source.
-     * @param dst the destination Rail.
-     * @param dst_off the offset of the first element store in the destination.
-     * @param len the number of elements to copy.
-     */
-    @Native("java", "x10.lang.ValRail__NativeRep.copyTo(#7, #0,#1,#2,#3,#4)")
-    @Native("c++", "x10::lang::ValRail__NativeRep::copyTo(#0,#1,#2,#3,#4)")
-    public global native def copyTo (src_off:Int, dst:Rail[T], dst_off:Int, len:Int) : Void;
-
-    /**
-     * Copies a portion of a given ValRail into a remote Rail indicated by the given closure.
-     * Upon completion, notifies the enclosing finish.
-     *
-     * @param src the source ValRail.
-     * @param src_off the offset of the first element to copy in the source.
-     * @param dst_place the location of the destination Rail.
-     * @param dst_finder a function returning a {@link x10.util.Pair} that consists
-     *                   of the reference to the destination Rail and the offset of
-     *                   the first element to copy to in the destination.
-     * @param len the number of elements to copy.
-     */
-    @Native("java", "x10.lang.ValRail__NativeRep.copyTo(#7, #0,#1,#2,#3,#4)")
-    @Native("c++", "x10::lang::ValRail__NativeRep::copyTo(#0,#1,#2,#3,#4)")
-    public global native def copyTo (src_off:Int,
-                                     dst_place:Place, dst_finder:()=>Pair[Rail[T],Int],
-                                     len:Int) : Void;
+    public native def equals(other:Any):boolean;
 
     private static class RailIterator[S] implements Iterator[S] {
         private var curIndex:int = 0;
-        private val rail:ValRail[S]!;
+        private val rail:ValRail[S];
 	
-        private def this(r:ValRail[S]!) { rail = r; }
+        private def this(r:ValRail[S]) { rail = r; }
         public def hasNext() = curIndex < rail.length;
         public def next() = rail(curIndex++);
     }

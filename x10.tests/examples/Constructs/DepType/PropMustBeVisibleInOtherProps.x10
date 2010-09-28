@@ -27,7 +27,7 @@ public class PropMustBeVisibleInOtherProps extends x10Test {
         new Value2(4);
         return true;
     }
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new PropMustBeVisibleInOtherProps().execute();
     }
 }

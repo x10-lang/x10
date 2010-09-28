@@ -64,7 +64,7 @@ serialization_id_t DeserializationDispatcher::addDeserializer_ (Deserializer des
     // up RAM unnecessarily
     ensure_data_size(data_v, next_id+1, data_c);
     serialization_id_t r = next_id++;
-    _S_("DeserializationDispatcher registered the following handler for id: "
+    _S_("DeserializationDispatcher "<<this<<" "<<(this==it?"(the system one) ":"")<<"registered the following handler for id: "
         <<r<<": "<<std::hex<<(size_t)deser<<std::dec);
     data_v[r].deser = deser;
     data_v[r].has_mt = is_async;
@@ -183,7 +183,7 @@ void DeserializationDispatcher::registerHandlers () {
 }
 
 void DeserializationDispatcher::registerHandlers_ () {
-    for (size_t i=0 ; i<next_id ; ++i) { // FIXME: 0-based?!
+    for (size_t i=0 ; i<next_id ; ++i) {
         Data &d = data_v[i];
         if (d.has_mt) {
             msg_type id;
@@ -214,12 +214,12 @@ void DeserializationDispatcher::registerHandlers_ () {
 }
 
 
-ref<Object> DeserializationDispatcher::create_(deserialization_buffer &buf, serialization_id_t id) {
+ref<Reference> DeserializationDispatcher::create_(deserialization_buffer &buf, serialization_id_t id) {
     _S_("Dispatching deserialisation using id: "<<id);
     return data_v[id].deser(buf);
 }
 
-ref<Object> DeserializationDispatcher::create_(deserialization_buffer &buf) {
+ref<Reference> DeserializationDispatcher::create_(deserialization_buffer &buf) {
     serialization_id_t id = buf.read<serialization_id_t>();
     return create_(buf, id);
 }

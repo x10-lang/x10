@@ -18,7 +18,7 @@ import harness.x10Test;
  */
 public class ForLoop extends x10Test {
 
-	public const N: int = 100;
+	public static N: int = 100;
 	var nActivities: int = 0;
 
 	public def run(): boolean = {
@@ -53,7 +53,7 @@ public class ForLoop extends x10Test {
 		return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(Array[String](1)) {
 		new ForLoop().execute();
 	}
 }

@@ -15,28 +15,28 @@ package x10.lang;
 import x10.compiler.Native;
 
 public final class Math {
-   public const E = 2.718281828459045D;
-   public const PI = 3.141592653589793D;
+   public static E = 2.718281828459045D;
+   public static PI = 3.141592653589793D;
 
-   public static safe def abs(a:Double):Double = a<=0.0 ? 0.0-a : a;
-   public static safe def abs(a:Int):Int = a<0 ? -a : a;
+   public static def abs(a:Double):Double = a<=0.0 ? 0.0-a : a;
+   public static def abs(a:Int):Int = a<0 ? -a : a;
 
    @Native("cuda", "fabsf(#1)")
-   public static safe def abs(a:Float):Float = a<=0.0f ? 0.0f-a : a;
+   public static def abs(a:Float):Float = a<=0.0f ? 0.0f-a : a;
 
-   public static safe def abs(a:Long):Long = a<0l ? -a : a;
+   public static def abs(a:Long):Long = a<0l ? -a : a;
 
    @Native("java", "java.lang.Math.ceil(#1)")
    @Native("c++", "x10aux::math_utils::ceil(#1)")
-   public static native safe def ceil(a:Double):Double;
+   public static native def ceil(a:Double):Double;
 
    @Native("java", "java.lang.Math.floor(#1)")
    @Native("c++", "x10aux::math_utils::floor(#1)")
-   public static native safe def floor(a:Double):Double;
+   public static native def floor(a:Double):Double;
 
    @Native("java", "java.lang.Math.round(#1)")
    @Native("c++", "x10aux::math_utils::round(#1)")
-   public static native safe def round(a:Double):Double;
+   public static native def round(a:Double):Double;
 
    @Native("java", "java.lang.Math.pow(#1, #2)")
    @Native("c++", "x10aux::math_utils::pow(#1,#2)")
@@ -49,7 +49,7 @@ public final class Math {
      * @return a raised to the power <code>b</code>
      * @see http://mathworld.wolfram.com/Power.html
      */
-    public static safe def pow(a:Complex, b:Complex) = Math.exp(Math.log(a) * b);
+    public static def pow(a:Complex, b:Complex) = Math.exp(Math.log(a) * b);
 
    @Native("java", "java.lang.Math.exp(#1)")
    @Native("c++", "x10aux::math_utils::exp(#1)")
@@ -65,7 +65,7 @@ public final class Math {
      * @return the exponential function <code>e^a</code>
      * @see http://mathworld.wolfram.com/ExponentialFunction.html
      */
-    public static safe def exp(a:Complex):Complex {
+    public static def exp(a:Complex):Complex {
        if (a.isNaN()) {
            return Complex.NaN;
        }
@@ -85,7 +85,7 @@ public final class Math {
      * @return the cosine of <code>z</code>
      * @see http://mathworld.wolfram.com/Cosine.html
      */
-    public static safe def cos(z:Complex):Complex {
+    public static def cos(z:Complex):Complex {
         if (z.im == 0.0) {
             return Complex(Math.cos(z.re), 0.0);
         } else {
@@ -101,7 +101,7 @@ public final class Math {
      * @return the sine of <code>z</code>
      * @see http://mathworld.wolfram.com/Sine.html
      */
-    public static safe def sin(z:Complex):Complex {
+    public static def sin(z:Complex):Complex {
         if (z.im == 0.0) {
             return Complex(Math.sin(z.re), 0.0);
         } else {
@@ -117,7 +117,7 @@ public final class Math {
      * @return the tangent of <code>z</code>
      * @see http://mathworld.wolfram.com/Tangent.html
      */
-    public static safe def tan(z:Complex):Complex {
+    public static def tan(z:Complex):Complex {
         if (z.im == 0.0) {
             return Complex(Math.tan(z.re), 0.0);
         } else {
@@ -138,7 +138,7 @@ public final class Math {
      * @return the inverse cosine of <code>z</code>
      * @see http://mathworld.wolfram.com/InverseCosine.html
      */
-    public static safe def acos(z:Complex):Complex {
+    public static def acos(z:Complex):Complex {
         if (z.im == 0.0 && Math.abs(z.re) <= 1.0) {
             return Complex(Math.acos(z.re), 0.0);
         } else {
@@ -158,7 +158,7 @@ public final class Math {
      * @return the inverse sine of <code>z</code>
      * @see http://mathworld.wolfram.com/InverseSine.html
      */
-    public static safe def asin(z:Complex):Complex {
+    public static def asin(z:Complex):Complex {
         if (z.im == 0.0 && Math.abs(z.re) <= 1.0) {
             return Complex(Math.asin(z.re), 0.0);
         } else {
@@ -178,7 +178,7 @@ public final class Math {
      * @return the principal value of the inverse tangent of <code>z</code>
      * @see http://mathworld.wolfram.com/InverseTangent.html
      */
-    public static safe def atan(z:Complex):Complex {
+    public static def atan(z:Complex):Complex {
         if (z.im == 0.0) {
             return Complex(Math.atan(z.re), 0.0);
         } else if (z == Complex.I) {
@@ -203,7 +203,7 @@ public final class Math {
      * @return the hyperbolic cosine of <code>z</code>
      * @see http://mathworld.wolfram.com/HyperbolicCosine.html
      */
-    public static safe def cosh(z:Complex):Complex {
+    public static def cosh(z:Complex):Complex {
         if (z.isNaN()) {
             return Complex.NaN;
         } else if (z.im == 0.0) {
@@ -221,7 +221,7 @@ public final class Math {
      * @return the hyperbolic sine of <code>z</code>
      * @see http://mathworld.wolfram.com/HyperbolicSine.html
      */
-    public static safe def sinh(z:Complex):Complex {
+    public static def sinh(z:Complex):Complex {
         if (z.isNaN()) {
             return Complex.NaN;
         } else if (z.im == 0.0) {
@@ -239,7 +239,7 @@ public final class Math {
      * @return the hyperbolic tangent of <code>z</code>
      * @see http://mathworld.wolfram.com/HyperbolicTangent.html
      */
-    public static safe def tanh(z:Complex):Complex {
+    public static def tanh(z:Complex):Complex {
         if (z.isNaN()) {
             return Complex.NaN;
         }
@@ -257,13 +257,13 @@ public final class Math {
      * @return the principal square root of <code>z</code>
      * @see http://mathworld.wolfram.com/SquareRoot.html
      */
-    public static safe def sqrt(z:Complex):Complex {
+    public static def sqrt(z:Complex):Complex {
         if (z.isNaN()) {
             return Complex.NaN;
         } else if (z == Complex.ZERO) {
             return Complex.ZERO;
         } else {
-            val t = Math.sqrt((Math.abs(z.re) + z.abs()) / 2.0);
+            val t = Math.sqrt((Math.abs(z.re) + (z.abs())) / 2.0);
             if (z.re >= 0.0) {
                 return Complex(t, z.im / (2.0 * t));
             } else {
@@ -312,7 +312,7 @@ public final class Math {
      * @return the natural logarithm of <code>a</code>
      * @see http://mathworld.wolfram.com/NaturalLogarithm.html
      */
-    public static safe def log(a:Complex):Complex {
+    public static def log(a:Complex):Complex {
         if (a.isNaN()) {
             return Complex.NaN;
         }
@@ -327,19 +327,24 @@ public final class Math {
    @Native("c++", "x10aux::math_utils::log1p(#1)")
    public static native def log1p(a:Double):Double;
 
-   /* FIXME: since NativeRep of Int and UInt are the same, can't overload these methods with unsigned. */
-   public static safe def max(a:Int, b:Int)= a<b?b:a;
-   public static safe def min(a:Int, b:Int)= a<b?a:b;
-// public static safe def max(a:UInt, b:UInt)= a<b?b:a;
-// public static safe def min(a:UInt, b:UInt)= a<b?a:b;
-   public static safe def max(a:Long, b:Long)= a<b?b:a;
-   public static safe def min(a:Long, b:Long)= a<b?a:b;
-// public static safe def max(a:ULong, b:ULong)= a<b?b:a;
-// public static safe def min(a:ULong, b:ULong)= a<b?a:b;
-   public static safe def max(a:Float, b:Float)= a<b?b:a;
-   public static safe def min(a:Float, b:Float)= a<b?a:b;
-   public static safe def max(a:Double, b:Double)= a<b?b:a;
-   public static safe def min(a:Double, b:Double)= a<b?a:b;
+    /* FIXME: since NativeRep of Int and UInt are the same, can't overload these methods with unsigned. */
+    public static def max(a:Int, b:Int)= a<b?b:a;
+    public static def min(a:Int, b:Int)= a<b?a:b;
+// public static def max(a:UInt, b:UInt)= a<b?b:a;
+// public static def min(a:UInt, b:UInt)= a<b?a:b;
+    public static def max(a:Long, b:Long)= a<b?b:a;
+    public static def min(a:Long, b:Long)= a<b?a:b;
+//  public static def max(a:ULong, b:ULong)= a<b?b:a;
+//  public static def min(a:ULong, b:ULong)= a<b?a:b;
+    public static def max(a:Float, b:Float)= a<b?b:a;
+    public static def min(a:Float, b:Float)= a<b?a:b;
+    public static def max(a:Double, b:Double)= a<b?b:a;
+    public static def min(a:Double, b:Double)= a<b?a:b;
+
+    public static def signum(a:Int) = (a == 0) ? 0 : ((a>0) ? 1 : -1);
+    public static def signum(a:Long) = (a == 0L) ? 0 : ((a>0L) ? 1 : -1);
+    public static def signum(a:Float) = (a == 0.0f) ? 0 : ((a>0.0f) ? 1 : -1);
+    public static def signum(a:Double) = (a == 0.0d) ? 0 : ((a>0.0d) ? 1 : -1);
 
     /**
      * @return the value of a with the sign of b
@@ -348,25 +353,25 @@ public final class Math {
     @Native("c++", "x10aux::math_utils::copysign(#1,#2)")
     public static native def copySign(a:Double, b:Double):Double;
 
-   public static safe def nextPowerOf2(val p: int): int {
+   public static def nextPowerOf2(val p: int): int {
         if (p==0) return 0;
         var pow2: int = 1;
         while (pow2 < p)
             pow2 <<= 1;
         return pow2;
     }
-    
-    public static safe def powerOf2(p:int) {
+
+    public static def powerOf2(p:int) {
        return (p & -p) == p;
     }
-    public static safe def log2(var p:Int):Int {
+    public static def log2(var p:Int):Int {
         assert powerOf2(p);
         var i:Int = 0;
         while (p > 1) { p = p/2; i++; }
         return i;
     }
     // returns 2^(max(0,i))
-    public static safe def pow2(i:Int) {
+    public static def pow2(i:Int) {
         return 1 << i;
     }
 }

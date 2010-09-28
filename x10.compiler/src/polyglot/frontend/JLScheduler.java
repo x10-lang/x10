@@ -51,7 +51,7 @@ public class JLScheduler extends Scheduler {
         
         goals.add(ConformanceChecked(job));
         goals.add(ReachabilityChecked(job));
-        goals.add(ExceptionsChecked(job));
+       // goals.add(ExceptionsChecked(job));
         goals.add(ExitPathsChecked(job));
         goals.add(InitializationsChecked(job));
         goals.add(ConstructorCallsChecked(job));
@@ -87,6 +87,7 @@ public class JLScheduler extends Scheduler {
         TypeSystem ts = extInfo.typeSystem();
         NodeFactory nf = extInfo.nodeFactory();
         return new BarrierGoal("TypesInitializedForCommandLineBarrier", commandLineJobs()) {
+            private static final long serialVersionUID = 3109663087276641223L;
             public Goal prereqForJob(Job job) {
                 return PreTypeCheck(job);
             }
@@ -176,9 +177,10 @@ public class JLScheduler extends Scheduler {
     	}
     	else {
     		return new SourceGoal_c("Serialized", job) {
-    			public boolean runTask() {
-    				return true;
-    			}
+    		    private static final long serialVersionUID = -8593991322883156651L;
+    		    public boolean runTask() {
+    		        return true;
+    		    }
             }.intern(this);
         }
     }
@@ -212,6 +214,7 @@ public class JLScheduler extends Scheduler {
     
     public Goal EnsureNoErrors(Job job) {
            return new SourceGoal_c("EnsureNoErrors", job) {
+               private static final long serialVersionUID = -4163660223226023837L;
                public boolean runTask() {
                    return !job.reportedErrors();
                }
@@ -219,6 +222,8 @@ public class JLScheduler extends Scheduler {
        }
 
     public static class LookupGlobalType extends TypeObjectGoal_c<Type> {
+        private static final long serialVersionUID = 3031200221165141846L;
+
         public LookupGlobalType(String name, Ref<Type> v) {
             super(name, v);
             ref = Types.lazyRef(null);
@@ -236,6 +241,8 @@ public class JLScheduler extends Scheduler {
     }
 
     protected static class LookupGlobalTypeDefAndSetFlags extends TypeObjectGoal_c<ClassDef> {
+        private static final long serialVersionUID = -1038006362196297872L;
+
         protected QName className;
         protected Flags flags;
 

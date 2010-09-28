@@ -11,24 +11,22 @@
 
 import harness.x10Test;
 
-
+import x10.util.Future;
 /**
  * Test for array reference flattening. Check that flattening works inside a Future.
  */
 
 public class FlattenValForce extends x10Test {
    
-    static def rd(val e: Array[Future[Int]](1)!, val i: int)  = {
-        val fd = future { 3.0 };
+    static def rd(val e: Array[Future[Int]](1), val i: int)  = {
+        val fd = Future.make[Double]( ()=> 3.0);
         val x  = fd();
-        return future { e(i).force() };
+        return Future.make[Int](()=> e(i)());
     }
    
-    public def run(): boolean = {
-        return true;
-    }
+    public def run(): boolean = true;
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(Array[String](1)){
         new FlattenValForce().execute();
     }
 }

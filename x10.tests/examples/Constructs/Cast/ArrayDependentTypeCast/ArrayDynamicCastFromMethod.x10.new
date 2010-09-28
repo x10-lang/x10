@@ -34,7 +34,7 @@ public class ArrayDynamicCastFromMethod extends x10Test {
 		return x10array;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new ArrayDynamicCastFromMethod().execute();
 	}
 

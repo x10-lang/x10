@@ -12,6 +12,7 @@
 package polyglot.util;
 
 import java.util.*;
+
 import polyglot.util.FilteringIterator;
 
 /**
@@ -129,14 +130,15 @@ public class NestedMap<K,V> extends AbstractMap<K,V> implements Map<K,V> {
     public Iterator<Map.Entry<K,V>> iterator() {
       return new ConcatenatedIterator<Map.Entry<K,V>>(
 	  myMap.entrySet().iterator(),
-	  new FilteringIterator(superMap.entrySet(), entryKeyNotInMyMap));
+	  new FilteringIterator<Map.Entry<K, V>>(superMap.entrySet(), entryKeyNotInMyMap));
     }
     public int size() {
       return NestedMap.this.size();
     }
     // No add; it's not meaningful.
+    @SuppressWarnings("unchecked") // Casting to a generic type
     public boolean contains(Object o) {
-      if (! (o instanceof Map.Entry)) return false;
+      if (!(o instanceof Map.Entry<?,?>)) return false;
       Map.Entry<K,V> ent = (Map.Entry<K,V>) o;
       K entKey = ent.getKey();
       V entVal = ent.getValue();

@@ -14,6 +14,8 @@ package polyglot.types;
  */
 public class UnknownQualifier_c extends TypeObject_c implements UnknownQualifier
 {
+    private static final long serialVersionUID = 5900640134201163919L;
+
     public UnknownQualifier_c(TypeSystem ts) {
         super(ts);
     }

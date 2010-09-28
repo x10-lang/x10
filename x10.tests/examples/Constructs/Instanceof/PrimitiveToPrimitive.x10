@@ -19,7 +19,7 @@ public class PrimitiveToPrimitive extends x10Test {
 	 
 	public def run() = 3 instanceof Int;
 	
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new PrimitiveToPrimitive().execute();
 	}
 }

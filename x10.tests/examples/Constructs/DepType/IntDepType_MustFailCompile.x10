@@ -33,7 +33,7 @@ public class IntDepType_MustFailCompile extends x10Test {
 		var i: int{self == 0} = 3;
 	   return true;
 	}
-	public static def main(Rail[String])= {
+	public static def main(Array[String](1))= {
 		new IntDepType_MustFailCompile().execute();
 	}
 }

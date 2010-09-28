@@ -14,6 +14,8 @@ package polyglot.util;
  * When caught, deserialization should fail.
  */
 public class CannotResolvePlaceHolderException extends Exception {
+    private static final long serialVersionUID = -7735565873449475448L;
+
     public CannotResolvePlaceHolderException(Throwable cause) {
         super(cause);
     }

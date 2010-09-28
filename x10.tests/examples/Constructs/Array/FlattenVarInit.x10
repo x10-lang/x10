@@ -22,23 +22,21 @@ import harness.x10Test;
 
 public class FlattenVarInit extends x10Test {
 
-    val a: Array[int](2)!;
+    val a: Array[int](2);
 
-    public def this(): FlattenVarInit = {
-        a = new Array[int]([1..10, 1..10], ((i,j): Point): int => { return i+j;});
+    public def this()  {
+        a = new Array[int]([1..10, 1..10], ([i,j]: Point): int => { return i+j;});
     }
 
-    def m(var x: int): int = {
-        return x;
-    }
+    def m(x: int)=x;
     
     public def run(): boolean = {
-    var t0: int;
+        var t0: int;
         t0 = m(a(1, 1));
         return t0==2;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(Array[String](1)) {
         new FlattenVarInit().execute();
     }
 }

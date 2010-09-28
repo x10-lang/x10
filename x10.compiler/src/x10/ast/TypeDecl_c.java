@@ -50,6 +50,7 @@ import x10.extension.X10Del_c;
 import x10.types.AnnotatedType;
 import x10.types.ConstrainedType;
 import x10.types.MacroType;
+import x10.types.ParameterType;
 import x10.types.TypeDef;
 import x10.types.TypeDef_c;
 import x10.types.X10ClassDef;
@@ -239,7 +240,7 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 		    flags = flags.Static();
 
 		TypeDef typeDef = new TypeDef_c(ts, position(), flags, name.id(), container,
-		                                Collections.<Ref<? extends Type>>emptyList(),
+		                                Collections.<ParameterType>emptyList(),
 		                                thisVar, Collections.<LocalDef>emptyList(),
 		                                Collections.<Ref<? extends Type>>emptyList(), null, null, null);
 		if (!local) {
@@ -259,9 +260,9 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 		
 		n = (TypeDecl_c) X10Del_c.visitAnnotations(n, tb2);
 
-		List<Ref<? extends Type>> typeParameters = new ArrayList<Ref<? extends Type>>();
+		List<ParameterType> typeParameters = new ArrayList<ParameterType>();
 		for (TypeParamNode tpn : n.typeParameters()) {
-			typeParameters.add(Types.ref(tpn.type()));
+			typeParameters.add(tpn.type());
 		}
 		typeDef.setTypeParameters(typeParameters);
 	        
@@ -362,7 +363,7 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 		return listChild(typeParameters(), listChild(formals(), type));
 	}
 
-	public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
+	public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
 		List<Term> children = new ArrayList<Term>();
 		children.addAll(typeParams);
 		children.addAll(formals);

@@ -29,10 +29,10 @@ public abstract class Term_c extends Node_c implements Term
     /**
      * Visit this term in evaluation order.
      */
-    public abstract List<Term> acceptCFG(CFGBuilder v, List<Term> succs);
+    public abstract <S> List<S> acceptCFG(CFGBuilder v, List<S> succs);
 
     /**
-     * Return true if this term is eachable.  This attribute is not
+     * Return true if this term is reachable.  This attribute is not
      * guaranteed correct until after the reachability pass
      *
      * @see polyglot.visit.ReachChecker

@@ -6,6 +6,8 @@ import polyglot.types.TypeSystem_c.TypeEquals;
 import polyglot.util.*;
 
 public class ProcedureInstance_c<T extends ProcedureDef> extends Use_c<T> implements ProcedureInstance<T> {
+    private static final long serialVersionUID = -5028005051545234620L;
+
     protected ProcedureInstance_c(TypeSystem ts, Position pos, Ref<? extends T> def) {
         super(ts, pos, def);
     }
@@ -14,13 +16,13 @@ public class ProcedureInstance_c<T extends ProcedureDef> extends Use_c<T> implem
     protected List<Type> throwTypes;
     
     public ProcedureInstance<T> formalTypes(List<Type> formalTypes) {
-        ProcedureInstance_c<T> p = (ProcedureInstance_c<T>) copy();
+        ProcedureInstance_c<T> p = this.<ProcedureInstance_c<T>>copyGeneric();
         p.formalTypes = formalTypes;
         return p;
     }
     
     public ProcedureInstance<T> throwTypes(List<Type> throwTypes) {
-        ProcedureInstance_c<T> p = (ProcedureInstance_c<T>) copy();
+        ProcedureInstance_c<T> p = this.<ProcedureInstance_c<T>>copyGeneric();
         p.throwTypes = throwTypes;
         return p;
     }
@@ -32,12 +34,6 @@ public class ProcedureInstance_c<T extends ProcedureDef> extends Use_c<T> implem
         return this.formalTypes;
     }
 
-    public List<Type> throwTypes() {
-        if (this.throwTypes == null) {
-            return new TransformingList<Ref<? extends Type>, Type>(def().throwTypes(), new DerefTransform<Type>());
-        }
-        return this.throwTypes;
-    }
 
     /**
      * Returns whether <code>this</code> is <i>more specific</i> than
@@ -56,11 +52,11 @@ public class ProcedureInstance_c<T extends ProcedureDef> extends Use_c<T> implem
         Type t1 = null;
         Type t2 = null;
         
-        if (p1 instanceof MemberInstance) {
-            t1 = ((MemberInstance<T>) p1).container();
+        if (p1 instanceof MemberInstance<?>) {
+            t1 = ((MemberInstance<?>) p1).container();
         }
-        if (p2 instanceof MemberInstance) {
-            t2 = ((MemberInstance<T>) p2).container();
+        if (p2 instanceof MemberInstance<?>) {
+            t2 = ((MemberInstance<?>) p2).container();
         }
         
         if (t1 != null && t2 != null) {
@@ -87,24 +83,6 @@ public class ProcedureInstance_c<T extends ProcedureDef> extends Use_c<T> implem
         return CollectionUtil.allElementwise(this.formalTypes(), formalTypes, new TypeEquals(context));
     }
 
-    /** Returns true iff <code>this</code> throws fewer exceptions than
-     * <code>p</code>. */
-    public boolean throwsSubset(ProcedureInstance<T> p) {
-        SubtypeSet s1 = new SubtypeSet(ts.Throwable());
-        SubtypeSet s2 = new SubtypeSet(ts.Throwable());
-
-        s1.addAll(this.throwTypes());
-        s2.addAll(p.throwTypes());
-
-        for (Iterator<Type> i = s1.iterator(); i.hasNext(); ) {
-            Type t = (Type) i.next();
-            if (! ts.isUncheckedException(t) && ! s2.contains(t)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
 
     /** Returns true if a call can be made with the given argument types. */
     public boolean callValid(Type thisType, List<Type> argTypes, Context context) {

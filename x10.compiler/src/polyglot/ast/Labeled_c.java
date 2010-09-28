@@ -102,7 +102,7 @@ public class Labeled_c extends Stmt_c implements Labeled
         return statement;
     }
 
-    public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
+    public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
         v.push(this).visitCFG(statement, this, EXIT);
         return succs;
     }

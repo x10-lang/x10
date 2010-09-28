@@ -36,7 +36,7 @@ public class Main {
 
         String extClassName =
             "polyglot.ext." + extension + ".ExtensionInfo";
-        Class extClass = null;
+        Class<?> extClass = null;
 
         try {
             extClass = Class.forName(extClassName);

@@ -21,7 +21,7 @@ import harness.x10Test;
 
 public class ClosureExample2 extends ClosureTest {
 
-    def incr(A: Array[Int]!): Array[Int] = {
+    def incr(A: Array[Int]): Array[Int] = {
         val f = (x: Int) => x+1; // e.g., f(1) == 2
         return A.map(f);
     }
@@ -36,7 +36,7 @@ public class ClosureExample2 extends ClosureTest {
 
 
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new ClosureExample2().execute();
     }
 }

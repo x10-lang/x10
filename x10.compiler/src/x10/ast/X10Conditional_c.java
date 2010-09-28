@@ -213,7 +213,7 @@ public class X10Conditional_c extends Conditional_c implements X10Conditional {
                         {       
                             Flattener newVisitor = (Flattener) new ExprFlattener.Flattener(fc.job(), ts, nf, this).context(xc);
                             Expr nThen = (Expr) consequent.visit(newVisitor);
-                            List thenBody = newVisitor.stmtList(); 
+                            List<Stmt> thenBody = newVisitor.stmtList(); 
                             Expr assign = nf.Assign(pos, ldRef, Assign.ASSIGN, nThen ).type(type);
                             Stmt eval = nf.Eval(pos, assign);
                             thenBody.add(eval);
@@ -223,7 +223,7 @@ public class X10Conditional_c extends Conditional_c implements X10Conditional {
                         {
                             Flattener newVisitor = (Flattener) new ExprFlattener.Flattener(fc.job(), ts, nf, this).context(xc);
                             Expr nElse = (Expr) alternative.visit(newVisitor);
-                            List elseBody = newVisitor.stmtList(); 
+                            List<Stmt> elseBody = newVisitor.stmtList(); 
                             Expr assign = nf.Assign(pos, ldRef, Assign.ASSIGN, nElse ).type(type);
                             Stmt eval = nf.Eval(pos, assign);
                             elseBody.add(eval);

@@ -37,12 +37,12 @@ public class GuardedMethodAccess extends x10Test {
 	
 		
 	public def run(): boolean = {
-		var t: Test!{i==j} = new Test(5, 5);
+		var t: Test{i==j} = new Test(5, 5);
 		t.v = t.key() + 1;
 	   return true;
 	}  
 	
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new GuardedMethodAccess().execute();
     }
    

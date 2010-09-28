@@ -12,9 +12,8 @@ import polyglot.util.Position;
 import x10.types.constraints.CConstraint;
 
 public final class ReinstantiatedMacroType extends MacroType_c {
-	/**
-	 * 
-	 */
+	private static final long serialVersionUID = 198078123816586742L;
+
 	private final TypeParamSubst typeParamSubst;
 	private final MacroType fi;
 

@@ -27,12 +27,12 @@ public class NumericExpressionToPrimitiveDepType_1 extends x10Test {
 		return j == 0;
 	}
 	
-	private def incr(): NumericExpressionToPrimitiveDepType_1! = {
+	private def incr(): NumericExpressionToPrimitiveDepType_1 = {
 		j++;
 		return this;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new NumericExpressionToPrimitiveDepType_1().execute();
 	}
 

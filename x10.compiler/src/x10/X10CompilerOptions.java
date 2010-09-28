@@ -27,7 +27,7 @@ public class X10CompilerOptions extends polyglot.main.Options {
 		assertions = true; // turn on assertion generation for X10
 	}
 
-	protected int parseCommand(String args[], int index, Set source) 
+	protected int parseCommand(String args[], int index, Set<String> source) 
 		throws UsageError, Main.TerminationException
 	{
 		int i = super.parseCommand(args, index, source);
@@ -47,7 +47,7 @@ public class X10CompilerOptions extends polyglot.main.Options {
 		return index;
 	}
 
-	public int checkCommand(String args[], int index, Set source)
+	public int checkCommand(String args[], int index, Set<String> source)
 		throws UsageError, Main.TerminationException, OptionError, ConfigurationError
 	{
 		int i = super.parseCommand(args, index, source);

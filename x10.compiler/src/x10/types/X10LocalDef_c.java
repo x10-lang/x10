@@ -36,6 +36,8 @@ import x10.types.constraints.TypeConstraint;
  *
  */
 public class X10LocalDef_c extends LocalDef_c implements X10LocalDef {
+    private static final long serialVersionUID = 1790685273653374213L;
+
     public X10LocalDef_c(TypeSystem ts, Position pos,
             Flags flags, 
             Ref<? extends Type> type,
@@ -95,7 +97,7 @@ public class X10LocalDef_c extends LocalDef_c implements X10LocalDef {
     List<Ref<? extends Type>> annotations;
 
     public List<Ref<? extends Type>> defAnnotations() {
-	if (annotations == null) return Collections.EMPTY_LIST;
+	if (annotations == null) return Collections.<Ref<? extends Type>>emptyList();
         return Collections.unmodifiableList(annotations);
     }
     

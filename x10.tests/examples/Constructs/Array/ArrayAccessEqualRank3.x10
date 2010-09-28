@@ -28,11 +28,11 @@ public class ArrayAccessEqualRank3 extends x10Test {
         val R = Region.make(0,9);
 	val D = Dist.makeConstant(R);
 	val b = DistArray.make[Int](D,(Point)=>0);
-	finish ateach (x(i):Point(1) in D) b(x)=i;
+	finish ateach (x[i]:Point(1) in D) b(x)=i;
         return true;
     }
 
-    public static def main(Rail[String]) = {
+    public static def main(Array[String](1)) = {
         new ArrayAccessEqualRank3().execute();
     }
 }

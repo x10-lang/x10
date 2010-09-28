@@ -17,14 +17,15 @@ import harness.x10Test;
 
 public class FutureMethodInvokeRev_MustFailCompile extends x10Test {
 
-    class C[S] {
+	class C[S](home:Place) {
         property p:int = 0;
         val x:S;
         var y:S;
-        def foo() {}
-        global def foo(x:S) {}
+        def foo(){here == this.home} {}
+        def foo(x:S) {}
         final def foo[T](x:T) {}
         def this(s:S) {
+        	property(here);
             x = s;
             y = s;
         }
@@ -51,7 +52,7 @@ public class FutureMethodInvokeRev_MustFailCompile extends x10Test {
     	return run02();
 	}
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new FutureMethodInvokeRev_MustFailCompile().execute();
     }
 }

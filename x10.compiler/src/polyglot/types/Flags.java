@@ -17,6 +17,8 @@ import java.util.*;
  */
 public class Flags implements Serializable
 {
+    private static final long serialVersionUID = -539580723506705467L;
+
     protected Set<String> flags;
 
     protected static class FlagComparator implements Comparator<String> {
@@ -72,7 +74,7 @@ public class Flags implements Serializable
     }
 
     public static void addToOrder(String name, Flags after) {
-        List order = FlagComparator.order;
+        List<String> order = FlagComparator.order;
         boolean added = false;
 
         if (after == null) {
@@ -82,7 +84,7 @@ public class Flags implements Serializable
             order.add(0, name);
         }
         else {
-            for (ListIterator i = order.listIterator(); i.hasNext(); ) {
+            for (ListIterator<String> i = order.listIterator(); i.hasNext(); ) {
                 String s = (String) i.next();
                 after = after.clear(new Flags(s));
                 if (after.flags.isEmpty()) {
@@ -103,7 +105,7 @@ public class Flags implements Serializable
      * Effects: returns a new accessflags object with no accessflags set.
      */
     protected Flags() {
-        this.flags = new TreeSet();
+        this.flags = new TreeSet<String>();
     }
 
     protected Flags(String name) {
@@ -111,7 +113,7 @@ public class Flags implements Serializable
         flags.add(name);
     }
 
-    public Set flags() {
+    public Set<String> flags() {
         return this.flags;
     }
 
@@ -487,9 +489,7 @@ public class Flags implements Serializable
     public String translate() {
         StringBuffer sb = new StringBuffer();
 
-        for (Iterator i = this.flags.iterator(); i.hasNext(); ) {
-            String s = (String) i.next();
-
+        for (String s : this.flags) {
             sb.append(s);
             sb.append(" ");
         }

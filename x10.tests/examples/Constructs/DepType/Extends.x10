@@ -35,7 +35,7 @@ public class Extends extends x10Test {
         var b: Test{self.i==self.j} = a;
         return true;
     }
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new Extends().execute();
     }
 }

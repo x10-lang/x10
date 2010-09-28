@@ -18,14 +18,14 @@ import harness.x10Test;
 class XTENLANG_92 extends x10Test {
 
     static class C implements Iterable[int] {
-        incomplete public def iterator(): Iterator[int];
+        public def iterator(): Iterator[int] { throw new RuntimeException(); }
     }
 
     public def run(): boolean {
         return true;
     }
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new XTENLANG_92().execute();
     }
 }

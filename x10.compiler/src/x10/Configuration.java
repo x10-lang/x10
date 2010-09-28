@@ -72,18 +72,19 @@ public final class Configuration extends x10.config.Configuration {
     public static String MANIFEST = null;
     private static final String MANIFEST_desc = "The path to the pre-built library manifest file";
 
-    public static boolean CHECK_INITIALIZATIONS = true;
-    private static final String CHECK_INITIALIZATIONS_desc = "Check variables are initialized correctly";
-
     public static boolean WORK_STEALING = false;
     private static final String WORK_STEALING_desc = "Code generation for work-stealing scheduling";
+
+    public static boolean WALA = false;
+    private static final String WALA_desc = "Produce WALA IR from X10 sources";
 
     public static boolean VERBOSE_CALLS = false;
     private static final String VERBOSE_CALLS_desc = "Print details of casts introduced for dynamically-checked calls.";
 
     public static boolean STATIC_CALLS = false;
     private static final String STATIC_CALLS_desc = "Treat dynamically-checked calls as errors.";
-
+    public static boolean FINISH_ASYNCS = false;
+    private static final String FINISH_ASYNCS_desc = "finish-async analysis.";
     /**
      * Parses one argument from the command line.  This allows the user
      * to specify options also on the command line (in addition to the

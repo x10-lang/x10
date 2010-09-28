@@ -22,12 +22,12 @@ public class PointRebinding extends x10Test {
     public def run(): boolean = {
 
         val p: Point = [1, 2] as Point;
-        val (i, j): Point = p;
+        val [i, j]: Point = p;
 
         return (i == 1 && j == 2);
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new PointRebinding().execute();
     }
 }

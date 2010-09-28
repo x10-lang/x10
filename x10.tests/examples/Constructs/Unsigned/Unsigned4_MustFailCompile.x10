@@ -23,7 +23,7 @@ public class Unsigned4_MustFailCompile extends x10Test {
         return c;
     }
 
-    public static def main(Rail[String]) = {
+    public static def main(Array[String](1)) = {
         new Unsigned4_MustFailCompile().execute();
     }
 }

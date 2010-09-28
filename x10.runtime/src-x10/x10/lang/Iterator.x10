@@ -14,11 +14,7 @@ package x10.lang;
 import x10.compiler.NativeRep;
 import x10.compiler.Native;
 
-@NativeRep("java", "x10.core.Iterator<#1>", null, null)
 public interface Iterator[+T] {
-    @Native("java", "#0.hasNext()")
     public def hasNext(): boolean;
-    
-    @Native("java", "#0.next$G()")
     public def next():T;
 }

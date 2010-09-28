@@ -35,7 +35,7 @@ public class DepTypeThisClause(i:int, j:int) extends x10Test {
 */
 
    public def run():boolean{
-      val IAmThree : DepTypeThisClause!{self.i==3} = new DepTypeThisClause(3,171); 
+      val IAmThree : DepTypeThisClause{self.i==3} = new DepTypeThisClause(3,171); 
       val ret : boolean(true) = IAmThree.NotReallyRun();
       return ret;
    }
@@ -46,7 +46,7 @@ public class DepTypeThisClause(i:int, j:int) extends x10Test {
     }
 
 
-    public static def main(Rail[String]) = {
+    public static def main(Array[String](1)) = {
         new DepTypeThisClause(3,9).execute();
     }
 

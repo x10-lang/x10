@@ -39,7 +39,7 @@ public class Overloading extends x10Test {
                     && r4.equals("dist");
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new Overloading().execute();
 	}
 }

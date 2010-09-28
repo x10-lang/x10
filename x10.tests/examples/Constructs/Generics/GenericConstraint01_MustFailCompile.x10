@@ -28,7 +28,7 @@ public class GenericConstraint01_MustFailCompile extends GenericTest {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new GenericConstraint01_MustFailCompile().execute();
     }
 }

@@ -38,11 +38,11 @@ class PolyHalfspace3 extends TestRegion {
         "zeroBased false\n"+
         "rail false\n"+
         "isConvex() true\n"+
-        "size() Incomplete method.\n"+
+        "size() unsupported operation exception\n"+
         "region: (x0>=0 && x1<=1 && x0<=3)\n"+
         "x10.array.UnboundedRegionException: axis 1 has no minimum\n";
     
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new PolyHalfspace3().execute();
     }
 

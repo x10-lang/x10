@@ -173,7 +173,7 @@ public class Disamb_c implements Disamb
     protected Node disambiguateNoPrefix() throws SemanticException {
         if (exprOK()) {
             // First try local variables and fields.
-            VarInstance vi = c.findVariableSilent(name.id());
+            VarInstance<?> vi = c.findVariableSilent(name.id());
             
             if (vi != null) {
                 Node n = disambiguateVarInstance(vi);
@@ -216,7 +216,7 @@ public class Disamb_c implements Disamb
         return null;
     }
 
-    protected Node disambiguateVarInstance(VarInstance vi) throws SemanticException {
+    protected Node disambiguateVarInstance(VarInstance<?> vi) throws SemanticException {
         if (vi instanceof FieldInstance) {
             FieldInstance fi = (FieldInstance) vi;
             Receiver r = makeMissingFieldTarget(fi);
@@ -304,7 +304,7 @@ public class Disamb_c implements Disamb
     protected Node makeTypeNode(Type t) {
 	if (amb instanceof TypeNode) {
 	    TypeNode tn = (TypeNode) amb;
-	    if (tn.typeRef() instanceof LazyRef) {
+	    if (tn.typeRef() instanceof LazyRef<?>) {
 		LazyRef<Type> sym = (LazyRef<Type>) tn.typeRef();
 		sym.update(t);
 

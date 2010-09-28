@@ -22,7 +22,7 @@ import harness.x10Test;
 
 public class ClosureEnclosingScope1d extends ClosureTest {
 
-    global val a = 1;
+    val a = 1;
 
     public def run(): boolean = {
         
@@ -45,7 +45,7 @@ public class ClosureEnclosingScope1d extends ClosureTest {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new ClosureEnclosingScope1d().execute();
     }
 }

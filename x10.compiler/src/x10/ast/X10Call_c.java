@@ -93,19 +93,37 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 	List<TypeNode> typeArguments;
 	public List<TypeNode> typeArguments() { return typeArguments; }
 	public X10Call typeArguments(List<TypeNode> args) {
+		if (args == this.typeArguments) return this;
 		X10Call_c n = (X10Call_c) copy();
 		n.typeArguments = new ArrayList<TypeNode>(args);
 		return n;
 	}
-	public X10Call arguments(List<Expr> args) {
-		X10Call_c n = (X10Call_c) copy();
-		n.arguments = new ArrayList<Expr>(args);
-		return n;
-	}
-	public Call_c reconstruct(Receiver target, Id name, List<Expr> arguments) {
-		return super.reconstruct(target, name, arguments);
-	}
 
+	@Override
+	public X10Call target(Receiver target) {
+	    return (X10Call) super.target(target);
+	}
+	@Override
+	public X10Call name(Id name) {
+	    return (X10Call) super.name(name);
+	}
+	@Override
+	public X10Call targetImplicit(boolean targetImplicit) {
+	    return (X10Call) super.targetImplicit(targetImplicit);
+	}
+	@Override
+	public X10Call arguments(List<Expr> args) {
+		if (args == this.arguments) return this;
+		return (X10Call) super.arguments(args);
+	}
+	@Override
+	public X10MethodInstance methodInstance() {
+	    return (X10MethodInstance) super.methodInstance();
+	}
+	@Override
+	public X10Call methodInstance(MethodInstance mi) {
+	    return (X10Call) super.methodInstance(mi);
+	}
 	@Override
 	public Node visitChildren(NodeVisitor v) {
 		Receiver target = (Receiver) visitChild(this.target, v);
@@ -367,7 +385,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
         if (t == null)
             return null;
         if (X10TypeMixin.isX10Struct(t)) {
-            X10New_c neu = (X10New_c) nf.X10New(position(), nf.CanonicalTypeNode(position(), t), Collections.EMPTY_LIST, args);
+            X10New_c neu = (X10New_c) nf.X10New(position(), nf.CanonicalTypeNode(position(), t), Collections.<TypeNode>emptyList(), args);
             neu = (X10New_c) neu.newOmitted(true);
             Pair<ConstructorInstance, List<Expr>> p = X10New_c.findConstructor(tc, neu, t, argTypes);
             X10ConstructorInstance ci = (X10ConstructorInstance) p.fst();
@@ -426,20 +444,11 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
     protected X10Call typeCheckNullTargetForMethod(ContextVisitor tc, List<Type> typeArgs, List<Type> argTypes, X10MethodInstance mi, List<Expr> args) throws SemanticException {
 		Receiver r = computeReceiver(tc, mi);
 		X10Call_c call = (X10Call_c) this.targetImplicit(true).target(r).arguments(args);
-		Type rt = X10Field_c.rightType(mi.rightType(), mi.x10Def(), r, (X10Context) tc.context());
+		Type rt = Checker.rightType(mi.rightType(), mi.x10Def(), r, (X10Context) tc.context());
 		call = (X10Call_c)call.methodInstance(mi).type(rt);
-		call.checkProtoMethod();
 		return call;
 	}
 
-	void checkProtoMethod() throws SemanticException {
-		if (X10TypeMixin.isProto(target().type())
-				&& ! X10Flags.toX10Flags(methodInstance().flags()).isProto()
-			)
-			throw new SemanticException(methodInstance()
-					+ " must be declared as a proto method since it is called on a receiver " +
-					target() + " with a proto type.");
-	}
 	XVar getThis(Type t) {
 	    t = X10TypeMixin.baseType(t);
 	    if (t instanceof X10ClassType) {
@@ -682,20 +691,18 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		    if (target instanceof Special &&
 		            ((Special) target).kind() == Special.SUPER &&
 		            mi.flags().isAbstract()) {
-		        throw new SemanticException("Cannot call an abstract method " +
-		                "of the super class", this.position());
+		        throw new SemanticException("Cannot call an abstract method of the super class", this.position());
 		    }
 		}
 
-		Type rt = X10Field_c.rightType(mi.rightType(), mi.x10Def(), target, c);
+		Type rt = Checker.rightType(mi.rightType(), mi.x10Def(), target, c);
 		X10Call_c methodCall = (X10Call_c) this.methodInstance(mi).type(rt);
 		methodCall = (X10Call_c) methodCall.arguments(args);
 		if (this.target() == null)
 		    methodCall = (X10Call_c) methodCall.targetImplicit(true).target(target);
-		methodCall.checkProtoMethod();
-		methodCall = (X10Call_c) PlaceChecker.makeReceiverLocalIfNecessary(methodCall, tc);
+		// Eliminate for orthogonal locality.
+		// methodCall = (X10Call_c) PlaceChecker.makeReceiverLocalIfNecessary(methodCall, tc);
 		//methodCall.checkConsistency(c); // [IP] Removed -- this is dead code at this point
-		methodCall.checkAnnotations(tc);
 		X10TypeMixin.checkMissingParameters(methodCall);
 		Checker.checkOfferType(position(), (X10MethodInstance) methodCall.methodInstance(), tc);
 		return methodCall;
@@ -719,31 +726,6 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 	    });
 
 	    return p;
-	}
-
-	private void checkAnnotations(ContextVisitor tc) throws SemanticException {
-		X10Context c = (X10Context) tc.context();
-		X10MethodInstance mi = (X10MethodInstance) methodInstance();
-		try {
-		    if (mi !=null) {
-		        X10Flags flags = X10Flags.toX10Flags(mi.flags());
-		        if (c.inNonBlockingCode()
-		                && ! (mi.isSafe() || flags.isNonBlocking() || flags.isExtern()))
-		            throw new SemanticException(mi + ": Only nonblocking methods can be called from nonblocking code.",
-		                                        position());
-		        if (c.inSequentialCode()
-		                && ! (mi.isSafe() || flags.isSequential() || flags.isExtern()))
-		            throw new SemanticException(mi + ": Only sequential methods can be called from sequential code.",
-		                                        position());
-		        if (c.inLocalCode()
-		                && ! (mi.isSafe() || flags.isPinned() || flags.isExtern()))
-		            throw new SemanticException(mi + ": Only pinned methods can be called from pinned code.",
-		                                        position());
-		    }
-		}
-		catch (SemanticException e) {
-		    Warnings.issue(tc.job(), "WARNING (should be error, but method annotations in XRX are wrong): " + e.getMessage(), position());
-		}
 	}
 
 	private Node superTypeCheck(ContextVisitor tc) throws SemanticException {

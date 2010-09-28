@@ -50,10 +50,9 @@ public class SystemResolver extends CachingResolver implements TopLevelResolver 
 
     /** Check if a package exists in the resolver cache. */
     protected boolean packageExistsInCache(QName name) {
-        for (Iterator i = cachedObjects().iterator(); i.hasNext(); ) {
-            Object o = i.next();
-            if (o instanceof Importable) {
-                Importable im = (Importable) o;
+        for (Named n : cachedObjects()) {
+            if (n instanceof Importable) {
+                Importable im = (Importable) n;
                 if (im.package_() != null &&
                     im.package_().fullName() != null &&
                     (im.package_().fullName().equals(name) ||

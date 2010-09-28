@@ -80,43 +80,43 @@ public class ExtensionInfo extends x10.ExtensionInfo {
         public Goal Desugarer(Job job) {
             TypeSystem ts = extInfo.typeSystem();
             NodeFactory nf = extInfo.nodeFactory();
-            return new VisitorGoal("Desugarer", job, new Desugarer(job, ts, nf)).intern(this);
+            return new ValidatingVisitorGoal("Desugarer", job, new Desugarer(job, ts, nf)).intern(this);
         }
 
         public Goal ClosuresToStaticMethods(Job job) {
             TypeSystem ts = extInfo.typeSystem();
             NodeFactory nf = extInfo.nodeFactory();
-            return new VisitorGoal("ClosuresToStaticMethods", job, new ClosuresToStaticMethods(job, ts, nf)).intern(this);
+            return new ValidatingVisitorGoal("ClosuresToStaticMethods", job, new ClosuresToStaticMethods(job, ts, nf)).intern(this);
         }
 
         private Goal RailInLoopOptimizer(Job job) {
             TypeSystem ts = extInfo.typeSystem();
             NodeFactory nf = extInfo.nodeFactory();
-            return new VisitorGoal("RailInLoopOptimized", job, new RailInLoopOptimizer(job, ts, nf)).intern(this);
+            return new ValidatingVisitorGoal("RailInLoopOptimized", job, new RailInLoopOptimizer(job, ts, nf)).intern(this);
         }
         
         private Goal JavaCaster(Job job) {
             TypeSystem ts = extInfo.typeSystem();
             NodeFactory nf = extInfo.nodeFactory();
-            return new VisitorGoal("JavaCasted", job, new JavaCaster(job, ts, nf)).intern(this);
+            return new ValidatingVisitorGoal("JavaCasted", job, new JavaCaster(job, ts, nf)).intern(this);
         }
 
         private Goal CastsRemoved(Job job) {
             TypeSystem ts = extInfo.typeSystem();
             NodeFactory nf = extInfo.nodeFactory();
-            return new VisitorGoal("CastsRemoved", job, new CastRemover(job, ts, nf)).intern(this);
+            return new ValidatingVisitorGoal("CastsRemoved", job, new CastRemover(job, ts, nf)).intern(this);
         }
         
         private Goal SharedBoxed(Job job) {
             TypeSystem ts = extInfo.typeSystem();
             NodeFactory nf = extInfo.nodeFactory();
-            return new VisitorGoal("SharedBoxed", job, new SharedBoxer(job, ts, nf)).intern(this);
+            return new ValidatingVisitorGoal("SharedBoxed", job, new SharedBoxer(job, ts, nf)).intern(this);
         }
         
         private Goal InlineHelped(Job job) {
             TypeSystem ts = extInfo.typeSystem();
             NodeFactory nf = extInfo.nodeFactory();
-            return new VisitorGoal("InlineHelped", job, new InlineHelper(job, ts, nf)).intern(this);
+            return new ValidatingVisitorGoal("InlineHelped", job, new InlineHelper(job, ts, nf)).intern(this);
         }
     }
 }

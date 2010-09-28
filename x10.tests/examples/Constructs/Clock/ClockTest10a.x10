@@ -32,18 +32,18 @@ import harness.x10Test;
 public class ClockTest10a extends x10Test {
 	// varX[0] and varX[1] serve alternately as
 	// the "new result" and "old result"
-	val varA: Rail[int]! = Rail.make[int](2, (x:int)=>0);
-	val varB: Rail[int]! = Rail.make[int](2, (x:int)=>0);
-	val varC: Rail[int]! = Rail.make[int](2, (x:int)=>0);
-	val varD: Rail[int]! = Rail.make[int](2, (x:int)=>0);
-	val varE: Rail[int]! = Rail.make[int](2, (x:int)=>0);
-	public const N = 10;
-	public const pipeDepth = 2;
+	val varA = Rail.make[int](2, 0);
+	val varB = Rail.make[int](2, 0);
+	val varC  = Rail.make[int](2, 0);
+	val varD  = Rail.make[int](2, 0);
+	val varE  = Rail.make[int](2, 0);
+	public static N = 10;
+	public static pipeDepth = 2;
 
 	static def ph(var x: int): int = { return x % 2; }
 
 	public def run(): boolean = {
-		finish async(here) {
+		finish async at(here) {
 			val a = Clock.make();
 			val b = Clock.make();
 			val c = Clock.make();
@@ -57,28 +57,28 @@ public class ClockTest10a extends x10Test {
 	}
 
 	def taskA(val a: Clock): void = {
-		for ((k):Point(1) in 1..N) {
+		for ([k]:Point(1) in 1..N) {
 			varA(ph(k)) = k;
 			x10.io.Console.OUT.println(k + " A producing " + varA(ph(k)));
 			next;
 		}
 	}
 	def taskB(val a: Clock, val b: Clock): void = {
-		for ((k):Point(1) in 1..N) {
+		for ([k]:Point(1) in 1..N) {
 			varB(ph(k)) = varA(ph(k-1))+varA(ph(k-1));
 			x10.io.Console.OUT.println(k + " B consuming oldA producing " + varB(ph(k)));
 			next;
 		}
 	}
 	def taskC(val a: Clock, val c: Clock): void = {
-		for ((k):Point(1) in 1..N) {
+		for ([k]:Point(1) in 1..N) {
 			varC(ph(k)) = varA(ph(k-1))*varA(ph(k-1));
 			x10.io.Console.OUT.println(k+" C consuming oldA producing "+ varC(ph(k)));
 			next;
 		}
 	}
 	def taskD(val b: Clock, val c: Clock): void = {
-		for ((k):Point(1) in 1..N) {
+		for ([k]:Point(1) in 1..N) {
 			varD(ph(k)) = varB(ph(k-1))+varC(ph(k-1))+10;
 			x10.io.Console.OUT.println(k+" D consuming oldC producing "+varD(ph(k)));
 			var n: int = k-pipeDepth;
@@ -87,7 +87,7 @@ public class ClockTest10a extends x10Test {
 		}
 	}
 	def taskE(val c: Clock): void = {
-		for ((k):Point(1) in 1..N) {
+		for ([k]:Point(1) in 1..N) {
 			varE(ph(k)) = varC(ph(k-1))*7;
 			x10.io.Console.OUT.println(k+" E consuming oldC producing "+varE(ph(k)));
 			var n: int = k-pipeDepth;
@@ -96,7 +96,7 @@ public class ClockTest10a extends x10Test {
 		}
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new ClockTest10a().execute();
 	}
 

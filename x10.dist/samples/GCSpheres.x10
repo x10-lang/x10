@@ -19,36 +19,28 @@ import x10.util.Random;
  *
  * @Author Dave Cunningham
  * @Author Vijay Saraswat
+ * Converted to 2.1 9/1/2010
 */
 class GCSpheres {
 
     static type Real = Float;
 
 
-    static class Vector3 {
+    static class Vector3(x:Real, y:Real, z:Real) {
+        public def getX () = x; 
+        public def getY () = y;
+        public def getZ () = z;
 
-        public def this (x:Real, y:Real, z:Real) {
-            this.x = x;
-            this.y = y;
-            this.z = z;
-        }
-
-        public global def getX () = x; 
-        public global def getY () = y;
-        public global def getZ () = z;
-
-        public global def add (other:Vector3)
+        public def add (other:Vector3)
             = new Vector3(this.x+other.x, this.y+other.y, this.z+other.z);
 
-        public global def neg () = new Vector3(-this.x, -this.y, -this.z);
+        public def neg () = new Vector3(-this.x, -this.y, -this.z);
 
-        public global def sub (other:Vector3) = add(other.neg());
+        public def sub (other:Vector3) = add(other.neg());
 
-        public global def length () = Math.sqrt(length2());
+        public def length () = Math.sqrt(length2());
 
-        public global def length2 () = x*x + y*y + z*z;
-
-        protected global val x:Real, y:Real, z:Real;
+        public def length2 () = x*x + y*y + z*z;
     }
 
 
@@ -59,15 +51,15 @@ class GCSpheres {
             renderingDistance = r;
         }
 
-        public global def intersects (home:Vector3)
+        public def intersects (home:Vector3)
             = home.sub(pos).length2() < renderingDistance*renderingDistance;
 
-        protected global val pos:Vector3;
-        protected global val renderingDistance:Real;
+        protected val pos:Vector3;
+        protected val renderingDistance:Real;
     }
 
 
-    public static def main (Rail[String]) {
+    public static def main (Array[String]) {
 
         val reps = 7500;
 
@@ -81,7 +73,7 @@ class GCSpheres {
         // the array can go on the heap
         // but the elements ought to be /*inlined*/ in the array
         val spheres =
-            ValRail.make[WorldObject](num_objects, (i:Int) => {
+            new Array[WorldObject](num_objects, (i:int) => {
                 val x = (ran.nextDouble()*world_size) as Real;
                 val y = (ran.nextDouble()*world_size) as Real;
                 val z = (ran.nextDouble()*world_size) as Real;
@@ -94,7 +86,7 @@ class GCSpheres {
         var counter : Long = 0;
 
         // HOT LOOP BEGINS
-        for ((frame):Point in [1..reps]) {
+        for ([frame]:Point in 1..reps) {
 
             val x = (ran.nextDouble()*world_size) as Real;
             val y = (ran.nextDouble()*world_size) as Real;
@@ -102,7 +94,7 @@ class GCSpheres {
 
             val pos = new Vector3(x,y,z);
 
-            for ((i):Point in [0..spheres.length-1]) {
+            for ([i]:Point in 0..spheres.size-1) {
                 if (spheres(i).intersects(pos)) {
                     counter++;
                 }

@@ -27,7 +27,7 @@ public class GenericInstanceof15 extends GenericTest {
         return new A() instanceof I[Int, Double];
     }
     
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new GenericInstanceof15().execute();
     }
 }

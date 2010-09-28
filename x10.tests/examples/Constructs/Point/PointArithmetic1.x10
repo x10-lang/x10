@@ -75,7 +75,7 @@ class PointArithmetic1 extends TestPoint {
         "c*p (4,6,8,10,12) sum=40\n"+
         "c/p (1,0,0,0,0) sum=1\n";
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new PointArithmetic1().execute();
     }
 }

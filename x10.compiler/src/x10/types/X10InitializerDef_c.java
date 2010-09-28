@@ -27,6 +27,8 @@ import x10.constraint.XVar;
 import x10.types.constraints.TypeConstraint;
 
 public class X10InitializerDef_c extends InitializerDef_c implements X10InitializerDef {
+    private static final long serialVersionUID = 8967174982510527953L;
+
     XVar thisVar;
 
     public X10InitializerDef_c(TypeSystem ts, Position pos, Ref<? extends ClassType> container, Flags flags, XVar thisVar) {
@@ -47,7 +49,7 @@ public class X10InitializerDef_c extends InitializerDef_c implements X10Initiali
 
     public List<Ref<? extends Type>> defAnnotations() {
         if (annotations == null)
-            return Collections.EMPTY_LIST;
+            return Collections.<Ref<? extends Type>>emptyList();
         return Collections.unmodifiableList(annotations);
     }
 

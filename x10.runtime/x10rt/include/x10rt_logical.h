@@ -1,3 +1,6 @@
+#ifndef X10RT_LOGICAL_H
+#define X10RT_LOGICAL_H
+
 #include <cstdlib>
 
 #include <x10rt_types.h>
@@ -159,7 +162,7 @@ X10RT_C void x10rt_lgl_register_put_receiver_cuda (x10rt_msg_type msg_type,
  * #x10rt_registration_complete.  It calls #x10rt_net_probe internally. \bug This should be
  * non-blocking instead of calling #x10rt_net_probe.
  */
-X10RT_C void x10rt_lgl_internal_barrier (void);
+X10RT_C void x10rt_lgl_registration_complete (void);
 
 /** \see #x10rt_nplaces */
 x10rt_place x10rt_lgl_nplaces (void);
@@ -223,9 +226,11 @@ X10RT_C void x10rt_lgl_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz l
 /** \see #x10rt_remote_alloc
  * \param place As in x10rt_remote_alloc.
  * \param sz As in x10rt_remote_alloc.
- * \returns As in x10rt_remote_alloc.
+ * \param ch As in x10rt_remote_alloc.
+ * \param arg As in x10rt_remote_alloc.
  */
-X10RT_C x10rt_remote_ptr x10rt_lgl_remote_alloc (x10rt_place place, x10rt_remote_ptr sz);
+X10RT_C void x10rt_lgl_remote_alloc (x10rt_place place, x10rt_remote_ptr sz,
+                                     x10rt_completion_handler3 *ch, void *arg);
 
 /** \see #x10rt_remote_free
  * \param place As in x10rt_remote_free.
@@ -268,5 +273,117 @@ X10RT_C void x10rt_lgl_probe (void);
 /** Clean up the logical layer.  Called by #x10rt_finalize.
  */
 X10RT_C void x10rt_lgl_finalize (void); 
+
+/** \see #x10rt_team_new
+ * \param placec As in #x10rt_team_new
+ * \param placev As in #x10rt_team_new
+ * \param ch As in #x10rt_team_new
+ * \param arg As in #x10rt_team_new
+ */
+X10RT_C void x10rt_lgl_team_new (x10rt_place placec, x10rt_place *placev,
+                                 x10rt_completion_handler2 *ch, void *arg);
+
+/** \see #x10rt_team_del
+ * \param team As in #x10rt_team_del
+ * \param role As in #x10rt_team_del
+ * \param ch As in #x10rt_team_del
+ * \param arg As in #x10rt_team_del
+ */
+X10RT_C void x10rt_lgl_team_del (x10rt_team team, x10rt_place role,
+                                 x10rt_completion_handler *ch, void *arg);
+
+/** \see #x10rt_team_sz
+ * \param team As in #x10rt_team_sz
+ * \returns As in #x10rt_team_sz
+ */
+X10RT_C x10rt_place x10rt_lgl_team_sz (x10rt_team team);
+
+/** \see #x10rt_team_split
+ * \param parent As in #x10rt_team_split
+ * \param parent_role As in #x10rt_team_split
+ * \param color As in #x10rt_team_split
+ * \param new_role As in #x10rt_team_split
+ * \param ch As in #x10rt_team_split
+ * \param arg As in #x10rt_team_split
+ */
+X10RT_C void x10rt_lgl_team_split (x10rt_team parent, x10rt_place parent_role,
+                                   x10rt_place color, x10rt_place new_role,
+                                   x10rt_completion_handler2 *ch, void *arg);
+
+/** \see #x10rt_barrier
+ * \param team As in #x10rt_barrier
+ * \param role As in #x10rt_barrier
+ * \param ch As in #x10rt_barrier
+ * \param arg As in #x10rt_barrier
+ */
+X10RT_C void x10rt_lgl_barrier (x10rt_team team, x10rt_place role,
+                                x10rt_completion_handler *ch, void *arg);
+
+/** \see #x10rt_bcast
+ * \param team As in #x10rt_bcast
+ * \param role As in #x10rt_bcast
+ * \param root As in #x10rt_bcast
+ * \param sbuf As in #x10rt_bcast
+ * \param dbuf As in #x10rt_bcast
+ * \param el As in #x10rt_bcast
+ * \param count As in #x10rt_bcast
+ * \param ch As in #x10rt_bcast
+ * \param arg As in #x10rt_bcast
+ */
+X10RT_C void x10rt_lgl_bcast (x10rt_team team, x10rt_place role,
+                              x10rt_place root, const void *sbuf, void *dbuf,
+                              size_t el, size_t count,
+                              x10rt_completion_handler *ch, void *arg);
+
+/** \see #x10rt_scatter
+ * \param team As in #x10rt_scatter
+ * \param role As in #x10rt_scatter
+ * \param root As in #x10rt_scatter
+ * \param sbuf As in #x10rt_scatter
+ * \param dbuf As in #x10rt_scatter
+ * \param el As in #x10rt_scatter
+ * \param count As in #x10rt_scatter
+ * \param ch As in #x10rt_scatter
+ * \param arg As in #x10rt_scatter
+ */
+X10RT_C void x10rt_lgl_scatter (x10rt_team team, x10rt_place role,
+                                x10rt_place root, const void *sbuf, void *dbuf,
+                                size_t el, size_t count,
+                                x10rt_completion_handler *ch, void *arg);
+
+/** \see #x10rt_alltoall
+ * \param team As in #x10rt_alltoall
+ * \param role As in #x10rt_alltoall
+ * \param sbuf As in #x10rt_alltoall
+ * \param dbuf As in #x10rt_alltoall
+ * \param el As in #x10rt_alltoall
+ * \param count As in #x10rt_alltoall
+ * \param ch As in #x10rt_alltoall
+ * \param arg As in #x10rt_alltoall
+ */
+X10RT_C void x10rt_lgl_alltoall (x10rt_team team, x10rt_place role,
+                                 const void *sbuf, void *dbuf,
+                                 size_t el, size_t count,
+                                 x10rt_completion_handler *ch, void *arg);
+
+/** \see #x10rt_allreduce
+ * \param team As in #x10rt_allreduce
+ * \param role As in #x10rt_allreduce
+ * \param sbuf As in #x10rt_allreduce
+ * \param dbuf As in #x10rt_allreduce
+ * \param op As in #x10rt_allreduce
+ * \param dtype As in #x10rt_allreduce
+ * \param count As in #x10rt_allreduce
+ * \param ch As in #x10rt_allreduce
+ * \param arg As in #x10rt_allreduce
+ */
+X10RT_C void x10rt_lgl_allreduce (x10rt_team team, x10rt_place role,
+                                  const void *sbuf, void *dbuf,
+                                  x10rt_red_op_type op,
+                                  x10rt_red_type dtype,
+                                  size_t count,
+                                  x10rt_completion_handler *ch, void *arg);
+
+#endif
 
 // vim: tabstop=4:shiftwidth=4:expandtab:textwidth=100

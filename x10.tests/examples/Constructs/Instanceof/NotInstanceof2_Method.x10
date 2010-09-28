@@ -26,7 +26,7 @@ public class NotInstanceof2_Method extends x10Test {
 	
 	private def getDifferentType():Object =  new OtherClass(1);
 	
-	public static def main(Rail[String]) = {
+	public static def main(Array[String](1)) = {
 		new NotInstanceof2_Method().execute();
 	}
 		 

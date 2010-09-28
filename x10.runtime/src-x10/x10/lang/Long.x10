@@ -36,7 +36,7 @@ public final struct Long /*TODO implements Arithmetic[Long], Bitwise[Long], Orde
      */
     @Native("java", "((#1) < (#2))")
     @Native("c++",  "((#1) < (#2))")
-    public native static safe operator (x:Long) < (y:Long): Boolean;
+    public native static operator (x:Long) < (y:Long): Boolean;
 
     /**
      * A greater-than operator.
@@ -48,7 +48,7 @@ public final struct Long /*TODO implements Arithmetic[Long], Bitwise[Long], Orde
      */
     @Native("java", "((#1) > (#2))")
     @Native("c++",  "((#1) > (#2))")
-    public native static safe operator (x:Long) > (y:Long): Boolean;
+    public native static operator (x:Long) > (y:Long): Boolean;
 
     /**
      * A less-than-or-equal-to operator.
@@ -60,7 +60,7 @@ public final struct Long /*TODO implements Arithmetic[Long], Bitwise[Long], Orde
      */
     @Native("java", "((#1) <= (#2))")
     @Native("c++",  "((#1) <= (#2))")
-    public native static safe operator (x:Long) <= (y:Long): Boolean;
+    public native static operator (x:Long) <= (y:Long): Boolean;
 
     /**
      * A greater-than-or-equal-to operator.
@@ -72,7 +72,7 @@ public final struct Long /*TODO implements Arithmetic[Long], Bitwise[Long], Orde
      */
     @Native("java", "((#1) >= (#2))")
     @Native("c++",  "((#1) >= (#2))")
-    public native static safe operator (x:Long) >= (y:Long): Boolean;
+    public native static operator (x:Long) >= (y:Long): Boolean;
 
 
     /**
@@ -85,7 +85,7 @@ public final struct Long /*TODO implements Arithmetic[Long], Bitwise[Long], Orde
      */
     @Native("java", "((#1) + (#2))")
     @Native("c++",  "((x10_long) ((#1) + (#2)))")
-    public native static safe operator (x:Long) + (y:Long): Long;
+    public native static operator (x:Long) + (y:Long): Long;
 
     /**
      * A binary minus operator.
@@ -97,7 +97,7 @@ public final struct Long /*TODO implements Arithmetic[Long], Bitwise[Long], Orde
      */
     @Native("java", "((#1) - (#2))")
     @Native("c++",  "((x10_long) ((#1) - (#2)))")
-    public native static safe operator (x:Long) - (y:Long): Long;
+    public native static operator (x:Long) - (y:Long): Long;
 
     /**
      * A binary multiply operator.
@@ -109,7 +109,7 @@ public final struct Long /*TODO implements Arithmetic[Long], Bitwise[Long], Orde
      */
     @Native("java", "((#1) * (#2))")
     @Native("c++",  "((x10_long) ((#1) * (#2)))")
-    public native static safe operator (x:Long) * (y:Long): Long;
+    public native static operator (x:Long) * (y:Long): Long;
 
     /**
      * A binary divide operator.
@@ -120,7 +120,7 @@ public final struct Long /*TODO implements Arithmetic[Long], Bitwise[Long], Orde
      */
     @Native("java", "((#1) / (#2))")
     @Native("c++",  "((x10_long) ((#1) / (#2)))")
-    public native static safe operator (x:Long) / (y:Long): Long;
+    public native static operator (x:Long) / (y:Long): Long;
 
     /**
      * A binary remainder operator.
@@ -131,7 +131,7 @@ public final struct Long /*TODO implements Arithmetic[Long], Bitwise[Long], Orde
      */
     @Native("java", "((#1) % (#2))")
     @Native("c++",  "((x10_long) ((#1) % (#2)))")
-    public native static safe operator (x:Long) % (y:Long): Long;
+    public native static operator (x:Long) % (y:Long): Long;
 
     /**
      * A unary plus operator.
@@ -141,7 +141,7 @@ public final struct Long /*TODO implements Arithmetic[Long], Bitwise[Long], Orde
      */
     @Native("java", "(+(#1))")
     @Native("c++",  "((x10_long) +(#1))")
-    public native static safe operator + (x:Long): Long;
+    public native static operator + (x:Long): Long;
 
     /**
      * A unary minus operator.
@@ -152,7 +152,7 @@ public final struct Long /*TODO implements Arithmetic[Long], Bitwise[Long], Orde
      */
     @Native("java", "(-(#1))")
     @Native("c++",  "((x10_long) -(#1))")
-    public native static safe operator - (x:Long): Long;
+    public native static operator - (x:Long): Long;
 
 
     /**
@@ -164,7 +164,7 @@ public final struct Long /*TODO implements Arithmetic[Long], Bitwise[Long], Orde
      */
     @Native("java", "((#1) & (#2))")
     @Native("c++",  "((x10_long) ((#1) & (#2)))")
-    public native static safe operator (x:Long) & (y:Long): Long;
+    public native static operator (x:Long) & (y:Long): Long;
 
     /**
      * A bitwise or operator.
@@ -175,7 +175,7 @@ public final struct Long /*TODO implements Arithmetic[Long], Bitwise[Long], Orde
      */
     @Native("java", "((#1) | (#2))")
     @Native("c++",  "((x10_long) ((#1) | (#2)))")
-    public native static safe operator (x:Long) | (y:Long): Long;
+    public native static operator (x:Long) | (y:Long): Long;
 
     /**
      * A bitwise xor operator.
@@ -186,7 +186,7 @@ public final struct Long /*TODO implements Arithmetic[Long], Bitwise[Long], Orde
      */
     @Native("java", "((#1) ^ (#2))")
     @Native("c++",  "((x10_long) ((#1) ^ (#2)))")
-    public native static safe operator (x:Long) ^ (y:Long): Long;
+    public native static operator (x:Long) ^ (y:Long): Long;
 
     /**
      * A bitwise left shift operator.
@@ -198,7 +198,7 @@ public final struct Long /*TODO implements Arithmetic[Long], Bitwise[Long], Orde
      */
     @Native("java", "((#1) << (#2))")
     @Native("c++",  "((x10_long) ((#1) << (#2)))")
-    public native static safe operator (x:Long) << (count:Int): Long;
+    public native static operator (x:Long) << (count:Int): Long;
 
     /**
      * A bitwise right shift operator.
@@ -211,7 +211,7 @@ public final struct Long /*TODO implements Arithmetic[Long], Bitwise[Long], Orde
      */
     @Native("java", "((#1) >> (#2))")
     @Native("c++",  "((x10_long) ((#1) >> (#2)))")
-    public native static safe operator (x:Long) >> (count:Int): Long;
+    public native static operator (x:Long) >> (count:Int): Long;
 
     /**
      * A bitwise logical right shift operator (zero-fill).
@@ -225,7 +225,7 @@ public final struct Long /*TODO implements Arithmetic[Long], Bitwise[Long], Orde
      */
     @Native("java", "((#1) >>> (#2))")
     @Native("c++",  "((x10_long) ((x10_ulong) (#1) >> (#2)))")
-    public native static safe operator (x:Long) >>> (count:Int): Long;
+    public native static operator (x:Long) >>> (count:Int): Long;
 
     /**
      * A bitwise complement operator.
@@ -235,7 +235,7 @@ public final struct Long /*TODO implements Arithmetic[Long], Bitwise[Long], Orde
      */
     @Native("java", "((long) ~(#1))")
     @Native("c++",  "((x10_long) ~(#1))")
-    public native static safe operator ~ (x:Long): Long;
+    public native static operator ~ (x:Long): Long;
 
 
     /**
@@ -245,7 +245,7 @@ public final struct Long /*TODO implements Arithmetic[Long], Bitwise[Long], Orde
      */
     @Native("java", "((long)(#1))")
     @Native("c++",  "((x10_long) (#1))")
-    public native static safe operator (x:Byte): Long;
+    public native static operator (x:Byte): Long;
 
     /**
      * Coerce a given Short to a Long.
@@ -254,7 +254,7 @@ public final struct Long /*TODO implements Arithmetic[Long], Bitwise[Long], Orde
      */
     @Native("java", "((long)(#1))")
     @Native("c++",  "((x10_long) (#1))")
-    public native static safe operator (x:Short): Long;
+    public native static operator (x:Short): Long;
 
     /**
      * Coerce a given Int to a Long.
@@ -263,7 +263,7 @@ public final struct Long /*TODO implements Arithmetic[Long], Bitwise[Long], Orde
      */
     @Native("java", "((long)(#1))")
     @Native("c++",  "((x10_long) (#1))")
-    public native static safe operator (x:Int): Long;
+    public native static operator (x:Int): Long;
 
     /**
      * Convert a given Float to a Long.
@@ -272,7 +272,7 @@ public final struct Long /*TODO implements Arithmetic[Long], Bitwise[Long], Orde
      */
     @Native("java", "((long)(float)(#1))")
     @Native("c++",  "((x10_long) (#1))")
-    public native static safe operator (x:Float) as Long;
+    public native static operator (x:Float) as Long;
 
     /**
      * Convert a given Double to a Long.
@@ -281,7 +281,7 @@ public final struct Long /*TODO implements Arithmetic[Long], Bitwise[Long], Orde
      */
     @Native("java", "((long)(double)(#1))")
     @Native("c++",  "((x10_long) (#1))")
-    public native static safe operator (x:Double) as Long;
+    public native static operator (x:Double) as Long;
 
     /**
      * Coerce a given ULong to a Long.
@@ -290,7 +290,7 @@ public final struct Long /*TODO implements Arithmetic[Long], Bitwise[Long], Orde
      */
     @Native("java", "((long)(#1.longVal))")
     @Native("c++",  "((x10_long) (#1))")
-    public native static safe operator (x:ULong): Long;
+    public native static operator (x:ULong): Long;
 
 
     /**
@@ -298,14 +298,14 @@ public final struct Long /*TODO implements Arithmetic[Long], Bitwise[Long], Orde
      */
     @Native("java", "java.lang.Long.MIN_VALUE")
     @Native("c++", "(x10_long)0x8000000000000000LL")
-    public const MIN_VALUE = 0x8000000000000000L;
+    public static MIN_VALUE = 0x8000000000000000L;
 
     /**
      * A constant holding the maximum value a Long can have, 2<sup>63</sup>-1.
      */
     @Native("java", "java.lang.Long.MAX_VALUE")
     @Native("c++", "(x10_long)0x7fffffffffffffffLL")
-    public const MAX_VALUE = 0x7fffffffffffffffL;
+    public static MAX_VALUE = 0x7fffffffffffffffL;
 
 
     /**
@@ -315,7 +315,7 @@ public final struct Long /*TODO implements Arithmetic[Long], Bitwise[Long], Orde
      */
     @Native("java", "java.lang.Long.toString(#0, #1)")
     @Native("c++", "x10aux::long_utils::toString(#0, #1)")
-    public global safe native def toString(radix:Int): String;
+    public native def toString(radix:Int): String;
 
     /**
      * Returns a String representation of this Long as a hexadecimal number.
@@ -323,7 +323,7 @@ public final struct Long /*TODO implements Arithmetic[Long], Bitwise[Long], Orde
      */
     @Native("java", "java.lang.Long.toHexString(#0)")
     @Native("c++", "x10aux::long_utils::toHexString(#0)")
-    public global safe native def toHexString(): String;
+    public native def toHexString(): String;
 
     /**
      * Returns a String representation of this Long as an octal number.
@@ -331,7 +331,7 @@ public final struct Long /*TODO implements Arithmetic[Long], Bitwise[Long], Orde
      */
     @Native("java", "java.lang.Long.toOctalString(#0)")
     @Native("c++", "x10aux::long_utils::toOctalString(#0)")
-    public global safe native def toOctalString(): String;
+    public native def toOctalString(): String;
 
     /**
      * Returns a String representation of this Long as a binary number.
@@ -339,7 +339,7 @@ public final struct Long /*TODO implements Arithmetic[Long], Bitwise[Long], Orde
      */
     @Native("java", "java.lang.Long.toBinaryString(#0)")
     @Native("c++", "x10aux::long_utils::toBinaryString(#0)")
-    public global safe native def toBinaryString(): String;
+    public native def toBinaryString(): String;
 
     /**
      * Returns a String representation of this Long as a decimal number.
@@ -347,21 +347,23 @@ public final struct Long /*TODO implements Arithmetic[Long], Bitwise[Long], Orde
      */
     @Native("java", "java.lang.Long.toString(#0)")
     @Native("c++", "x10aux::to_string(#0)")
-    public global safe native def toString(): String;
+    public native def toString(): String;
 
     /**
      * @deprecated use {@link #parse(String,Int)} instead
      */
-    @Native("java", "java.lang.Long.parseLong(#1, #2)")
+    // @Native("java", "java.lang.Long.parseLong(#1, #2)")
+    @Native("java", "new Object() { long eval(String s, int radix) { try { return java.lang.Long.parseLong(s, radix); } catch (java.lang.NumberFormatException e) { throw new x10.lang.NumberFormatException(e.getMessage()); } } }.eval(#1, #2)")
     @Native("c++", "x10aux::long_utils::parseLong(#1, #2)")
-    public native static def parseLong(String, radix:Int): Long throws NumberFormatException;
+    public native static def parseLong(String, radix:Int): Long; //throwsNumberFormatException;
 
     /**
      * @deprecated use {@link #parse(String)} instead
      */
-    @Native("java", "java.lang.Long.parseLong(#1)")
+    // @Native("java", "java.lang.Long.parseLong(#1)")
+    @Native("java", "new Object() { long eval(String s) { try { return java.lang.Long.parseLong(s); } catch (java.lang.NumberFormatException e) { throw new x10.lang.NumberFormatException(e.getMessage()); } } }.eval(#1)")
     @Native("c++", "x10aux::long_utils::parseLong(#1)")
-    public native static def parseLong(String): Long throws NumberFormatException;
+    public native static def parseLong(String): Long; //throwsNumberFormatException;
 
     /**
      * Parses the String argument as a Long in the radix specified by the second argument.
@@ -370,9 +372,10 @@ public final struct Long /*TODO implements Arithmetic[Long], Bitwise[Long], Orde
      * @return the Long represented by the String argument in the specified radix.
      * @throws NumberFormatException if the String does not contain a parsable Long.
      */
-    @Native("java", "java.lang.Long.parseLong(#1, #2)")
+    // @Native("java", "java.lang.Long.parseLong(#1, #2)")
+    @Native("java", "new Object() { long eval(String s, int radix) { try { return java.lang.Long.parseLong(s, radix); } catch (java.lang.NumberFormatException e) { throw new x10.lang.NumberFormatException(e.getMessage()); } } }.eval(#1, #2)")
     @Native("c++", "x10aux::long_utils::parseLong(#1, #2)")
-    public native static def parse(s:String, radix:Int): Long throws NumberFormatException;
+    public native static def parse(s:String, radix:Int): Long; //throwsNumberFormatException;
 
     /**
      * Parses the String argument as a decimal Long.
@@ -380,9 +383,10 @@ public final struct Long /*TODO implements Arithmetic[Long], Bitwise[Long], Orde
      * @return the Long represented by the String argument.
      * @throws NumberFormatException if the String does not contain a parsable Long.
      */
-    @Native("java", "java.lang.Long.parseLong(#1)")
+    // @Native("java", "java.lang.Long.parseLong(#1)")
+    @Native("java", "new Object() { long eval(String s) { try { return java.lang.Long.parseLong(s); } catch (java.lang.NumberFormatException e) { throw new x10.lang.NumberFormatException(e.getMessage()); } } }.eval(#1)")
     @Native("c++", "x10aux::long_utils::parseLong(#1)")
-    public native static def parse(s:String): Long throws NumberFormatException;
+    public native static def parse(s:String): Long; //throwsNumberFormatException;
 
 
     /**
@@ -516,7 +520,7 @@ public final struct Long /*TODO implements Arithmetic[Long], Bitwise[Long], Orde
      */
     @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public global safe native def equals(x:Any):Boolean;
+    public native def equals(x:Any):Boolean;
 
     /**
      * Returns true if this Long is equal to the given Long.
@@ -525,5 +529,5 @@ public final struct Long /*TODO implements Arithmetic[Long], Bitwise[Long], Orde
      */
     @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public global safe native def equals(x:Long):Boolean;
+    public native def equals(x:Long):Boolean;
 }

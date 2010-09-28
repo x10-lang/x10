@@ -11,6 +11,8 @@
 
 package x10.types;
 
+import java.util.List;
+
 import polyglot.types.ConstructorDef;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.Ref;
@@ -28,7 +30,8 @@ public interface X10ConstructorInstance extends ConstructorInstance, X10Procedur
 	Type returnType();
 	X10ConstructorInstance returnType(Type retType);
 	Ref<? extends Type> returnTypeRef();
-	ConstructorInstance returnTypeRef(Ref<? extends Type> returnType);
+	X10ConstructorInstance returnTypeRef(Ref<? extends Type> returnType);
+	X10ConstructorInstance formalTypes(List<Type> formalTypes);
 	
 	/** Return the constraint on properties, if any,
 	 * obtained from the return type of the call

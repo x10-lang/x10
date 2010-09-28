@@ -11,7 +11,6 @@
 
 package x10.core;
 
-import x10.core.fun.Fun_0_1;
 import x10.rtt.ParameterizedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
@@ -46,7 +45,7 @@ public final class ValRail<T> implements AnyRail<T> {
         System.arraycopy(value, src_off, dst.value, dst_off, len);
     }
 
-	public Iterator<T> iterator() {
+	public x10.lang.Iterator<T> iterator() {
 		return new RailIterator();
 	}
 
@@ -56,14 +55,14 @@ public final class ValRail<T> implements AnyRail<T> {
             ValRail<?> that = (ValRail<?>)o;
             if (length != that.length) return false;
             for (int i=0; i<length; i++) {
-                if (!this.get(i).equals(that.get(i))) return false;
+                if (!this.apply$G(i).equals(that.apply$G(i))) return false;
             }
             return true;
         }
         return false;
     }
 
-    protected class RailIterator implements Iterator<T> {
+    protected class RailIterator implements x10.lang.Iterator<T> {
 		int i = 0;
 
 		public boolean hasNext() {
@@ -136,18 +135,14 @@ public final class ValRail<T> implements AnyRail<T> {
     	return length;
     }
     
-    public T get(int i) {
-    	return apply$G(i);
-    }
-    
-    public T apply$G(Integer i) {
-    	return apply$G((int)i);
+    public T apply(Object i, Type t) {
+    	return apply$G((int)(Integer)i);
     }
     public T apply$G(int i) {
         return type.getArray(value, i);
     }
     
-    protected T set$G(T v, Integer i) {
+    protected T set(T v, Type t1, Integer i, Type t2) {
     	return set$G(v, (int)i);
     }
 
@@ -155,13 +150,13 @@ public final class ValRail<T> implements AnyRail<T> {
         return type.setArray(value, i, v);
     }
     
-    public boolean isZero() {
-    	boolean zero = true;
-		for (int i = 0; i < length && zero; ++i) {
-			zero &= get(i) == type.zeroValue();
-		}
-		return zero;
-    }
+//    public boolean isZero() {
+//    	boolean zero = true;
+//		for (int i = 0; i < length && zero; ++i) {
+//			zero &= apply$G(i) == type.zeroValue();
+//		}
+//		return zero;
+//    }
     
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -182,7 +177,10 @@ public final class ValRail<T> implements AnyRail<T> {
     public static final RuntimeType<ValRail<?>> _RTT = new RuntimeType<ValRail<?>>(
         ValRail.class,
         new Variance[] {Variance.COVARIANT},
-        new Type<?>[] {new ParameterizedType(Fun_0_1._RTT, Types.INT, new UnresolvedType(0))}
+        new Type<?>[] {
+            new ParameterizedType(x10.lang.Indexable._RTT, Types.INT, new UnresolvedType(0)),
+            new ParameterizedType(x10.lang.Iterable._RTT, new UnresolvedType(0))
+        }
     ) {
         @Override
         public String typeName() {

@@ -50,9 +50,11 @@ import x10.types.constraints.TypeConstraint;
  *
  */
 public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
+    private static final long serialVersionUID = -9049001281152283179L;
+
     Ref<CConstraint> guard;
     Ref<TypeConstraint> typeGuard;
-    List<Ref<? extends Type>> typeParameters;
+    List<ParameterType> typeParameters;
     List<LocalDef> formalNames;
     Ref<XTerm> body;
     Ref<? extends Type> offerType;
@@ -62,17 +64,16 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
             Flags flags, 
             Ref<? extends Type> returnType,
             Name name,
-            List<Ref<? extends Type>> typeParams,
+            List<ParameterType> typeParams,
             List<Ref<? extends Type>> formalTypes,
             XVar thisVar,
             List<LocalDef> formalNames,
             Ref<CConstraint> guard,
             Ref<TypeConstraint> typeGuard,
-            List<Ref<? extends Type>> excTypes, 
             Ref< ? extends Type> offerType,
             Ref<XTerm> body) {
-        super(ts, pos, container, flags, returnType, name, formalTypes, excTypes);
-        this.typeParameters = TypedList.copyAndCheck(typeParams, Ref.class, true);
+        super(ts, pos, container, flags, returnType, name, formalTypes);
+        this.typeParameters = TypedList.copyAndCheck(typeParams, ParameterType.class, true);
         this.thisVar = thisVar;
         this.formalNames = TypedList.copyAndCheck(formalNames, LocalDef.class, true);
         this.guard = guard;
@@ -118,7 +119,7 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
     List<Ref<? extends Type>> annotations;
 
     public List<Ref<? extends Type>> defAnnotations() {
-	if (annotations == null) return Collections.EMPTY_LIST;
+	if (annotations == null) return Collections.<Ref<? extends Type>>emptyList();
         return Collections.unmodifiableList(annotations);
     }
     
@@ -161,12 +162,12 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
         this.offerType = s;
     }
     
-    public List<Ref<? extends Type>> typeParameters() {
+    public List<ParameterType> typeParameters() {
 	        return Collections.unmodifiableList(typeParameters);
     }
 
-    public void setTypeParameters(List<Ref<? extends Type>> typeParameters) {
-	    this.typeParameters = TypedList.copyAndCheck(typeParameters, Ref.class, true);
+    public void setTypeParameters(List<ParameterType> typeParameters) {
+	    this.typeParameters = TypedList.copyAndCheck(typeParameters, ParameterType.class, true);
     }
 
     public String signature() {
@@ -174,7 +175,7 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
         if (! typeParameters.isEmpty()) {
             sb.append("[");
             boolean first = true;
-            for (Ref<? extends Type> p : typeParameters) {
+            for (ParameterType p : typeParameters) {
                 if (!first) {
                     sb.append(",");
                 }
@@ -234,19 +235,12 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
 		signature() + (guard() != null ? guard() : "") 
 		+ ": " + returnType();
 
-		if (!throwTypes().isEmpty()) {
-			s += " throws " + CollectionUtil.listToString(throwTypes());
-		}
-		
 		if (body != null && body.getCached() != null)
 		    s += " = " + body;
 
 		return s;
 	}
 
-	public boolean isProto() {
-		return X10Flags.toX10Flags(flags()).isProto();
-	}
 
     public Object copy() {
         X10MethodDef_c copy = (X10MethodDef_c) super.copy();

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="com.ibm.wala.cast.x10" default="jar" basedir=".">
+    <property name="x10.home" value="${basedir}/.."/>
+    <property name="x10.dist.location" location="${x10.home}/x10.dist"/>
+    <property name="x10.compiler.location" location="${x10.home}/x10.compiler"/>
+    <property name="build" location="${basedir}/bin"/>
+    <property name="src" location="${basedir}/src"/>
+    <property name="lib" location="${x10.dist.location}/lib"/>
+    <property name="jar" value="com.ibm.wala.cast.x10.jar"/>
+    <property name="wala.jar.url" value="http://dist.codehaus.org/x10/dependencies/wala.jar"/>
+    <property name="equinox.jar.url" value="http://dist.codehaus.org/x10/dependencies/org.eclipse.equinox.common_3.6.0.v20100503.jar"/>
+    <property name="wala.jar" value="wala.jar"/>
+    <property name="equinox.jar" value="org.eclipse.equinox.common_3.6.0.v20100503.jar"/>
+    <path id="project.classpath">
+        <path refid="mainproject.classpath"/>
+        <path refid="compiler.classpath"/>
+        <path refid="lib.classpath"/>
+    </path>
+    <path id="mainproject.classpath">
+        <pathelement location="${build}"/>
+    </path>
+    <path id="compiler.classpath">
+        <pathelement location="${x10.compiler.location}/classes"/>
+    </path>
+    <path id="lib.classpath">
+        <fileset dir="${lib}" includes="wala.jar,org.eclipse.equinox.common_3.6.0.v20100503.jar"/>
+    </path>
+    <!-- get the environment variables -->
+    <property environment="env"/>
+    <target name="init">
+        <tstamp/>
+        <mkdir dir="${build}"/>
+        <mkdir dir="${lib}"/>
+    </target>
+    <target name="clean">
+        <delete dir="${build}" failonerror="false"/>
+    </target>
+    <target name="check-jar" depends="init">
+        <fileset id="classes" dir="${build}" includes="com/**" excludes="${jar}"/>
+    </target>
+    <target name="jar" depends="build,check-jar">
+        <jar jarfile="${build}/${jar}">
+            <fileset refid="classes"/>
+            <fileset dir="${build}/data" >
+                <include name="**/*.xml"/>
+            </fileset>
+        </jar>
+    </target>
+    <target name="check-jar-cache" depends="init">
+        <available property="wala.jar.present" file="${lib}/${wala.jar}"/>
+        <available property="equinox.jar.present" file="${lib}/${equinox.jar}"/>
+        <condition property="cache.up-to-date">
+            <and>
+                <isset property="wala.jar.present"/>
+                <isset property="equinox.jar.present"/>
+            </and>
+        </condition>
+    </target>
+    <target name="wala-jar" depends="init,check-jar-cache" unless="wala.jar.present" >
+        <mkdir dir="${lib}"/>
+        <get usetimestamp="true" src="${wala.jar.url}" dest="${lib}/${wala.jar}"/>
+        <available property="wala.jar.present" file="${lib}/${wala.jar}"/>
+        <fail message="Unable to get ${wala.jar} from ${wala.jar.url}" unless="wala.jar.present"/>
+    </target>
+    <target name="equinox-jar" depends="init,check-jar-cache" unless="equinox.jar.present">
+        <mkdir dir="${lib}"/>
+        <get usetimestamp="true" src="${equinox.jar.url}" dest="${lib}/${equinox.jar}"/>
+        <available property="equinox.jar.present" file="${lib}/${equinox.jar}"/>
+        <fail message="Unable to get ${equinox.jar} from ${equinox.jar.url}" unless="equinox.jar.present"/>
+    </target>
+    <target name="update-jar-cache" depends="init,wala-jar,equinox-jar"/>
+    <target name="prereq-jars" depends="init,check-jar-cache" unless="cache.up-to-date">
+        <antcall target="update-jar-cache"/>
+    </target>
+    <target name="build" depends="init,prereq-jars">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac destdir="${build}" source="1.5" target="1.5" debug="on" includes="com/**">
+            <src path="${src}"/>
+            <classpath refid="project.classpath"/>
+        </javac>
+        <copy todir="${build}">
+            <fileset dir="." includes="data/**"/>
+        </copy>
+    </target>
+</project>

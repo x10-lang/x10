@@ -28,7 +28,7 @@ public class X10MethodMatcher extends TypeSystem_c.MethodMatcher {
     protected List<Type> typeArgs;
 
     public X10MethodMatcher(Type container, Name name, List<Type> argTypes, Context context) {
-        this(container, name, Collections.EMPTY_LIST, argTypes, context);
+        this(container, name, Collections.<Type>emptyList(), argTypes, context);
     }
 
     public X10MethodMatcher(Type container, Name name, List<Type> typeArgs, List<Type> argTypes, Context context) {

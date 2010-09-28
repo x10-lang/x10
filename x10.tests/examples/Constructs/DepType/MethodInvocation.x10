@@ -25,13 +25,13 @@ public class MethodInvocation extends x10Test {
     }
 
     public def run(): boolean = {
-        var t: Test! = new Test(1, 2);
+        var t: Test = new Test(1, 2);
         // the following call types correctly
         t.tester(3, 3);
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new MethodInvocation().execute();
     }
 }

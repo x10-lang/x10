@@ -33,9 +33,9 @@ public class TypedefBasic2 extends TypedefTest {
         type T1 = A[String];
         type T2 = A[String];
 
-        var t0:A[String]! = new A[String]("0");
-        var t1:T1! = new T1("1");
-        var t2:T2! = new T2("2");
+        var t0:A[String] = new A[String]("0");
+        var t1:T1 = new T1("1");
+        var t2:T2 = new T2("2");
 
         t0 = t1;
         t1 = t2;
@@ -48,7 +48,7 @@ public class TypedefBasic2 extends TypedefTest {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new TypedefBasic2().execute();
     }
 }

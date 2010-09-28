@@ -23,7 +23,7 @@ public class ObjectToPrimitiveConstrained2 extends x10Test {
 		return !(primitive instanceof Int(4));
 	}
 	
-	public static def main(Rail[String]) {
+	public static def main(Array[String](1)) {
 		new ObjectToPrimitiveConstrained2().execute();
 	}
 }

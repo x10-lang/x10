@@ -16,11 +16,11 @@ import harness.x10Test;
  */
 public class Array5 extends x10Test {
 
-    var ia: Array[int](1)!;
+    var ia: Array[int](1);
 
     public def this(): Array5 = {}
 
-    public def this(var ia: Array[int](1)!): Array5 = {
+    public def this(var ia: Array[int](1)): Array5 = {
         this.ia = ia;
     }
 
@@ -30,12 +30,12 @@ public class Array5 extends x10Test {
     }
 
     public def run(): boolean = {
-        val temp = new Array[int](1, (Point)=>0);
+        val temp = new Array[int](1, (int)=>0);
         temp(0) = 43;
         return (new Array5(temp)).runtest();
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new Array5().execute();
     }
 }

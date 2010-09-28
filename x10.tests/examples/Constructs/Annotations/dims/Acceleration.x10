@@ -12,5 +12,5 @@
 package dims;
 
 public interface Acceleration extends Measure {
-    const g: double@Unit(Length.m/(Time.s*Time.s)) = 9.8;
+    static g: double@Unit(Length.m/(Time.s*Time.s)) = 9.8;
 }

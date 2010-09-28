@@ -31,25 +31,11 @@ namespace x10aux {
     /******* type_name ********/
 
     template<class T> inline ref<x10::lang::String> type_name(ref<T> x) {
-        return string_utils::lit((ref<x10::lang::Reference>(x))->_type()->name());
+        return string_utils::lit((ref<x10::lang::Reference>(nullCheck(x)))->_type()->name());
     }
 
     template<typename T> inline ref<x10::lang::String> type_name(T x) {
         return string_utils::lit(getRTT<T>()->name());
-    }
-
-    /******* get_location ********/
-
-    template<class T> inline place get_location(ref<T> x) {
-        if (x.isNull()) {
-            return x10aux::here;
-        } else {
-            return (ref<x10::lang::Reference>(x))->location;
-        }
-    }
-
-    template<typename T> inline place get_location(T x) {
-        return x10aux::here;
     }
 
     /******* equals ********/
@@ -57,7 +43,7 @@ namespace x10aux {
     // covers all heap-allocated values (Objects, Functions, Structs boxes to interface types)
     template<class T> inline x10_boolean equals(ref<T> x, ref<x10::lang::Any> y) {
         ref<x10::lang::Reference> xAsRef(x);
-        return xAsRef->equals(y);
+        return nullCheck(xAsRef)->equals(y);
     }
 
     // covers all X10 Structs that are not built-in C++ types and NativeRep'ed
@@ -66,7 +52,7 @@ namespace x10aux {
     // Cover all X10 Structs that are built-in C++ types
     inline x10_boolean equals(x10_boolean x, ref<x10::lang::Any> y) {
         ref<x10::lang::Reference> yAsRef(y);
-        if (yAsRef->_type()->equals(getRTT<x10_boolean>())) {
+        if (!y.isNull() && yAsRef->_type()->equals(getRTT<x10_boolean>())) {
             ref<x10::lang::IBox<x10_boolean> > yAsIBox(y);
             return x == yAsIBox->value;
         } else {
@@ -76,7 +62,7 @@ namespace x10aux {
 
     inline x10_boolean equals(x10_byte x, ref<x10::lang::Any> y) {
         ref<x10::lang::Reference> yAsRef(y);
-        if (yAsRef->_type()->equals(getRTT<x10_byte>())) {
+        if (!y.isNull() && yAsRef->_type()->equals(getRTT<x10_byte>())) {
             ref<x10::lang::IBox<x10_byte> > yAsIBox(y);
             return x == yAsIBox->value;
         } else {
@@ -86,7 +72,7 @@ namespace x10aux {
 
     inline x10_boolean equals(x10_ubyte x, ref<x10::lang::Any> y) {
         ref<x10::lang::Reference> yAsRef(y);
-        if (yAsRef->_type()->equals(getRTT<x10_ubyte>())) {
+        if (!y.isNull() && yAsRef->_type()->equals(getRTT<x10_ubyte>())) {
             ref<x10::lang::IBox<x10_ubyte> > yAsIBox(y);
             return x == yAsIBox->value;
         } else {
@@ -96,7 +82,7 @@ namespace x10aux {
 
     inline x10_boolean equals(x10_char x, ref<x10::lang::Any> y) {
         ref<x10::lang::Reference> yAsRef(y);
-        if (yAsRef->_type()->equals(getRTT<x10_char>())) {
+        if (!y.isNull() && yAsRef->_type()->equals(getRTT<x10_char>())) {
             ref<x10::lang::IBox<x10_char> > yAsIBox(y);
             return x.v == yAsIBox->value.v;
         } else {
@@ -106,7 +92,7 @@ namespace x10aux {
 
     inline x10_boolean equals(x10_short x, ref<x10::lang::Any> y) {
         ref<x10::lang::Reference> yAsRef(y);
-        if (yAsRef->_type()->equals(getRTT<x10_short>())) {
+        if (!y.isNull() && yAsRef->_type()->equals(getRTT<x10_short>())) {
             ref<x10::lang::IBox<x10_short> > yAsIBox(y);
             return x == yAsIBox->value;
         } else {
@@ -116,7 +102,7 @@ namespace x10aux {
 
     inline x10_boolean equals(x10_ushort x, ref<x10::lang::Any> y) {
         ref<x10::lang::Reference> yAsRef(y);
-        if (yAsRef->_type()->equals(getRTT<x10_ushort>())) {
+        if (!y.isNull() && yAsRef->_type()->equals(getRTT<x10_ushort>())) {
             ref<x10::lang::IBox<x10_ushort> > yAsIBox(y);
             return x == yAsIBox->value;
         } else {
@@ -126,7 +112,7 @@ namespace x10aux {
 
     inline x10_boolean equals(x10_int x, ref<x10::lang::Any> y) {
         ref<x10::lang::Reference> yAsRef(y);
-        if (yAsRef->_type()->equals(getRTT<x10_int>())) {
+        if (!y.isNull() && yAsRef->_type()->equals(getRTT<x10_int>())) {
             ref<x10::lang::IBox<x10_int> > yAsIBox(y);
             return x == yAsIBox->value;
         } else {
@@ -136,7 +122,7 @@ namespace x10aux {
 
     inline x10_boolean equals(x10_uint x, ref<x10::lang::Any> y) {
         ref<x10::lang::Reference> yAsRef(y);
-        if (yAsRef->_type()->equals(getRTT<x10_uint>())) {
+        if (!y.isNull() && yAsRef->_type()->equals(getRTT<x10_uint>())) {
             ref<x10::lang::IBox<x10_uint> > yAsIBox(y);
             return x == yAsIBox->value;
         } else {
@@ -146,7 +132,7 @@ namespace x10aux {
 
     inline x10_boolean equals(x10_long x, ref<x10::lang::Any> y) {
         ref<x10::lang::Reference> yAsRef(y);
-        if (yAsRef->_type()->equals(getRTT<x10_long>())) {
+        if (!y.isNull() && yAsRef->_type()->equals(getRTT<x10_long>())) {
             ref<x10::lang::IBox<x10_long> > yAsIBox(y);
             return x == yAsIBox->value;
         } else {
@@ -156,7 +142,7 @@ namespace x10aux {
 
     inline x10_boolean equals(x10_ulong x, ref<x10::lang::Any> y) {
         ref<x10::lang::Reference> yAsRef(y);
-        if (yAsRef->_type()->equals(getRTT<x10_ulong>())) {
+        if (!y.isNull() && yAsRef->_type()->equals(getRTT<x10_ulong>())) {
             ref<x10::lang::IBox<x10_ulong> > yAsIBox(y);
             return x == yAsIBox->value;
         } else {
@@ -166,7 +152,7 @@ namespace x10aux {
 
     inline x10_boolean equals(x10_float x, ref<x10::lang::Any> y) {
         ref<x10::lang::Reference> yAsRef(y);
-        if (yAsRef->_type()->equals(getRTT<x10_float>())) {
+        if (!y.isNull() && yAsRef->_type()->equals(getRTT<x10_float>())) {
             ref<x10::lang::IBox<x10_float> > yAsIBox(y);
             return x == yAsIBox->value;
         } else {
@@ -176,7 +162,7 @@ namespace x10aux {
 
     inline x10_boolean equals(x10_double x, ref<x10::lang::Any> y) {
         ref<x10::lang::Reference> yAsRef(y);
-        if (yAsRef->_type()->equals(getRTT<x10_double>())) {
+        if (!y.isNull() && yAsRef->_type()->equals(getRTT<x10_double>())) {
             ref<x10::lang::IBox<x10_double> > yAsIBox(y);
             return x == yAsIBox->value;
         } else {

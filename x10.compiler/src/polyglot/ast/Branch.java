@@ -17,6 +17,7 @@ public interface Branch extends Stmt
 {
     /** Branch kind: either break or continue. */
     public static class Kind extends Enum {
+        private static final long serialVersionUID = 7666190675942868358L;
         public Kind(String name) { super(name); }
     }
 

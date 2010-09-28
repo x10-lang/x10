@@ -25,9 +25,9 @@ public class NodeScrambler extends NodeVisitor
 {
   public FirstPass fp;
 
-  protected HashMap pairs;
-  protected LinkedList nodes;
-  protected LinkedList currentParents;
+  protected HashMap<Node, LinkedList<Node>> pairs;
+  protected LinkedList<Node> nodes;
+  protected LinkedList<Node> currentParents;
   protected long seed;
   protected Random ran;
   protected boolean scrambled = false;
@@ -46,9 +46,9 @@ public class NodeScrambler extends NodeVisitor
   {
     this.fp = new FirstPass();
     
-    this.pairs = new HashMap();
-    this.nodes = new LinkedList();
-    this.currentParents = new LinkedList();
+    this.pairs = new HashMap<Node, LinkedList<Node>>();
+    this.nodes = new LinkedList<Node>();
+    this.currentParents = new LinkedList<Node>();
     this.cw = Compiler.createCodeWriter(System.err, 72);
     this.seed = seed;
     
@@ -62,9 +62,10 @@ public class NodeScrambler extends NodeVisitor
    */
   public class FirstPass extends NodeVisitor 
   {
+    @SuppressWarnings("unchecked") // Casting to a generic type
     public NodeVisitor enter( Node n)
     {
-      pairs.put( n, currentParents.clone());
+      pairs.put( n, (LinkedList<Node>) currentParents.clone());
       nodes.add( n);
       
       currentParents.add( n);
@@ -130,7 +131,7 @@ public class NodeScrambler extends NodeVisitor
 
   protected Node potentialScramble( Node n)
   {
-    Class required = Node.class;
+    Class<?> required = Node.class;
 
     if( n instanceof SourceFile) {
       return null;
@@ -166,18 +167,15 @@ public class NodeScrambler extends NodeVisitor
       required = Stmt.class;
     }
 
-    LinkedList parents = (LinkedList)pairs.get( n);
-    Iterator iter1 = nodes.iterator(), iter2;
+    LinkedList<Node> parents = (LinkedList<Node>)pairs.get( n);
     boolean isParent;
 
-    while( iter1.hasNext()) {
-      Node m = (Node)iter1.next();
+    for (Node m : nodes) {
       if( required.isAssignableFrom( m.getClass())) {
 
         isParent = false;
-        iter2 = parents.iterator();
-        while( iter2.hasNext()) {
-          if( m == iter2.next()) {
+        for (Node p : parents) {
+          if( m == p) {
             isParent = true;
           }
         }

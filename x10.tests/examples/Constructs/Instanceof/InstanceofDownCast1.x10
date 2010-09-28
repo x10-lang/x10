@@ -24,7 +24,7 @@ public class InstanceofDownCast1 extends x10Test {
 		return !(upcast instanceof X10DepTypeSubClassOneB{p==2&&a==2});
 	}
 	
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new InstanceofDownCast1().execute();
 	}
 }

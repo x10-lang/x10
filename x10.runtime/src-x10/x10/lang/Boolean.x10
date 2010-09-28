@@ -32,7 +32,7 @@ public final struct Boolean {
      */
     @Native("java", "(!(#1))")
     @Native("c++",  "(!(#1))")
-    public native static safe operator ! (x:Boolean): Boolean;
+    public native static operator ! (x:Boolean): Boolean;
 
     /**
      * A logical and operator (not short-circuiting).
@@ -44,7 +44,7 @@ public final struct Boolean {
      */
     @Native("java", "((#1) & (#2))")
     @Native("c++",  "((x10_boolean) (((#1) ? 1 : 0) & ((#2) ? 1 : 0)))")
-    public native static safe operator (x:Boolean) & (y:Boolean): Boolean;
+    public native static operator (x:Boolean) & (y:Boolean): Boolean;
 
     /**
      * A logical or operator (not short-circuiting).
@@ -56,7 +56,7 @@ public final struct Boolean {
      */
     @Native("java", "((#1) | (#2))")
     @Native("c++",  "((x10_boolean) (((#1) ? 1 : 0) | ((#2) ? 1 : 0)))")
-    public native static safe operator (x:Boolean) | (y:Boolean): Boolean;
+    public native static operator (x:Boolean) | (y:Boolean): Boolean;
 
     /**
      * A logical xor operator.
@@ -67,7 +67,7 @@ public final struct Boolean {
      */
     @Native("java", "((#1) ^ (#2))")
     @Native("c++",  "((x10_boolean) (((#1) ? 1 : 0) ^ ((#2) ? 1 : 0)))")
-    public native static safe operator (x:Boolean) ^ (y:Boolean): Boolean;
+    public native static operator (x:Boolean) ^ (y:Boolean): Boolean;
 
 
     /**
@@ -75,14 +75,14 @@ public final struct Boolean {
      */
     @Native("java", "true")
     @Native("c++", "true")
-    public const TRUE = true;
+    public static TRUE = true;
 
     /**
      * A constant holding the Boolean value 'false'.
      */
     @Native("java", "false")
     @Native("c++", "false")
-    public const FALSE = false;
+    public static FALSE = false;
 
 
     /**
@@ -91,7 +91,7 @@ public final struct Boolean {
      */
     @Native("java", "java.lang.Boolean.toString(#0)")
     @Native("c++", "x10aux::to_string(#0)")
-    public global safe native def toString(): String;
+    public native def toString(): String;
 
     /**
      * @deprecated use {@link #parse(String)} instead
@@ -121,7 +121,7 @@ public final struct Boolean {
     //FIXME Java: use equalsequals()?
     @Native("java", "((((#2) instanceof boolean) && #1 == ((boolean)#2)) || (((#2) instanceof Boolean) && #1 == ((Boolean) #2).booleanValue()))")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public global safe native def equals(x:Any):Boolean;
+    public native def equals(x:Any):Boolean;
 
     /**
      * Returns true if this Boolean is equal to the given Boolean.
@@ -130,16 +130,16 @@ public final struct Boolean {
      */
     @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public global safe native def equals(x:Boolean):Boolean;
+    public native def equals(x:Boolean):Boolean;
 
     // These operations are built-in.  Declaring them will prevent the
     // short-circuiting behavior.
 
 //    @Native("java", "((#0) && (#1))")
 //    @Native("c++",  "((x10_boolean) (((#1) ? 1 : 0) && ((#2) ? 1 : 0)))")
-//    public native static safe operator (x:Boolean) && (y:Boolean): Boolean;
+//    public native static operator (x:Boolean) && (y:Boolean): Boolean;
 //
 //    @Native("java", "((#0) || (#1))")
 //    @Native("c++",  "((x10_boolean) (((#1) ? 1 : 0) || ((#2) ? 1 : 0)))")
-//    public native static safe operator (x:Boolean) || (y:Boolean): Boolean;
+//    public native static operator (x:Boolean) || (y:Boolean): Boolean;
 }

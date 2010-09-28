@@ -19,19 +19,19 @@ class XTENLANG_4 extends x10Test {
 
     class R(rank:int) {
         def this(r:int) { property(r); }
-        incomplete def m(val r: int): R{self.rank==r};
+        def m(val r: int): R{self.rank==r} { throw new RuntimeException(); }
     }
     
     class B extends R {
         def this(r:int) { super(r); }
-        incomplete def m(val r: int): R{self.rank==r};
+        def m(val r: int): R{self.rank==r} { throw new RuntimeException(); }
     }
 
     public def run(): boolean {
         return true;
     }
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new XTENLANG_4().execute();
     }
 }

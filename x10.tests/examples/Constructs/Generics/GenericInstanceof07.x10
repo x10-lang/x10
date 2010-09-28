@@ -34,7 +34,7 @@ public class GenericInstanceof07 extends GenericTest {
         return !(a instanceof I[String]);
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new GenericInstanceof07().execute();
     }
 }

@@ -25,6 +25,8 @@ import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 
 public class ParameterType_c extends Type_c implements ParameterType {
+    private static final long serialVersionUID = 995307749745291345L;
+
     Name name;
 	Ref<? extends Def> def;
 	

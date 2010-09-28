@@ -53,11 +53,10 @@ public class X10TypeDefDoc extends X10Doc implements MethodDoc {
 	}
 
 	void initTypeParameters() {
-		List<Ref<? extends polyglot.types.Type>> params = typeDef.typeParameters();
+		List<ParameterType> params = typeDef.typeParameters();
 		typeParams = new X10TypeVariable[params.size()];
 		int i = 0;
-		for (Ref<? extends polyglot.types.Type> ref: params) {
-			ParameterType p = (ParameterType) ref.get();
+		for (ParameterType p: params) {
 			X10TypeVariable v = new X10TypeVariable(p, this);
 			typeParams[i++] = v;
 		}

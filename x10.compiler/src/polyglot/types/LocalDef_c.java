@@ -16,6 +16,8 @@ import polyglot.util.Position;
  */
 public class LocalDef_c extends VarDef_c implements LocalDef
 {
+    private static final long serialVersionUID = -7608661445145740056L;
+
     /** Used for deserializing types. */
     protected LocalDef_c() { }
 

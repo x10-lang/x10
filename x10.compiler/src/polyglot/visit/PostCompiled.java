@@ -20,6 +20,8 @@ import polyglot.util.*;
 /** The post compiler pass runs after all jobs complete.  It invokes the post-compiler on the output files stored in compiler.outputFiles(). */
 public class PostCompiled extends AllBarrierGoal
 {
+    private static final long serialVersionUID = -1965473009038288138L;
+
     ExtensionInfo ext;
 
     /**
@@ -37,7 +39,8 @@ public class PostCompiled extends AllBarrierGoal
 	}
 	else {
 	    return new SourceGoal_c("DummyEnd", job) {
-		public boolean runTask() { return true; }
+	        private static final long serialVersionUID = 3275850403775521984L;
+	        public boolean runTask() { return true; }
 	    }.intern(scheduler);
 	}
     }
@@ -68,7 +71,7 @@ public class PostCompiled extends AllBarrierGoal
                                       ErrorQueue eq) {
         if (options.post_compiler != null && !options.output_stdout) {
             Runtime runtime = Runtime.getRuntime();
-            QuotedStringTokenizer st = new QuotedStringTokenizer(options.post_compiler);
+            QuotedStringTokenizer st = new QuotedStringTokenizer(options.post_compiler, '?');
             int pc_size = st.countTokens();
             String[] javacCmd = new String[pc_size+2+compiler.outputFiles().size()];
             int j = 0;
@@ -78,7 +81,7 @@ public class PostCompiled extends AllBarrierGoal
             javacCmd[j++] = "-classpath";
             javacCmd[j++] = options.constructPostCompilerClasspath();
 
-            Iterator iter = compiler.outputFiles().iterator();
+            Iterator<String> iter = compiler.outputFiles().iterator();
             for (; iter.hasNext(); j++) {
                 javacCmd[j] = (String) iter.next();
             }

@@ -24,6 +24,8 @@ import polyglot.util.Position;
  **/
 public class ClassDef_c extends Def_c implements ClassDef
 {
+    private static final long serialVersionUID = 7318265379331064055L;
+
     protected transient Source fromSource;
 
     protected Ref<? extends Type> superType;

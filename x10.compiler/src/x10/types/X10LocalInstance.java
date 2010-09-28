@@ -25,4 +25,6 @@ public interface X10LocalInstance extends LocalInstance, TypeObject, X10Use<X10L
     Type rightType();
 
     public X10LocalInstance error(SemanticException e);
+
+    public X10LocalInstance type(Type t);
 }

@@ -18,27 +18,15 @@ package x10.constraint;
 public class XEquals extends XFormula   {
 	
 	public XEquals(XTerm left, XTerm right) {
-		super(XTerms.equalsName, left, right);
+		super(XTerms.equalsName, XTerms.asExprEqualsName, left, right);
 	}
 	
 	public XPromise internIntoConstraint(XConstraint c, XPromise last) throws XFailure {
-//	    XTerm left = left();
-//	    XTerm right = right();
-//	    if (left instanceof XLit && right instanceof XLit) {
-//	        if (left.equals(right))
-//	            return XTerms.TRUE.internIntoConstraint(c, last);
-//	        else
-//	            return XTerms.FALSE.internIntoConstraint(c, last);
-//	    }
-
 	    XPromise p = c.intern(left());
 	    XPromise q = c.intern(right());
 
 	    if (p instanceof XLit && q instanceof XLit) {
-	        if (p.equals(q))
-	            return c.intern(XTerms.TRUE);
-	        else
-	            return c.intern(XTerms.FALSE);
+	            return c.intern(p.equals(q) ? XTerms.TRUE : XTerms.FALSE);
 	    }
 	    else {
 	        if (p == q || p.term().equals(q.term()))

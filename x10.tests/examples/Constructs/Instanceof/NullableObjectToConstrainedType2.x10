@@ -22,7 +22,7 @@ public class NullableObjectToConstrainedType2 extends x10Test {
 		return (nullableVarNotNull instanceof X10DepTypeClassOneB{p==1});
 	}
 	
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new NullableObjectToConstrainedType2().execute();
 	}
 }

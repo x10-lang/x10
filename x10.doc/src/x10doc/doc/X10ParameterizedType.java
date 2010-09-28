@@ -6,7 +6,6 @@ import java.util.List;
 
 import polyglot.types.ClassType;
 import polyglot.types.FieldDef;
-import polyglot.types.Ref;
 
 import x10.constraint.XConstraint;
 import x10.constraint.XEQV;
@@ -17,15 +16,10 @@ import x10.constraint.XLocal;
 import x10.constraint.XName;
 import x10.constraint.XNameWrapper;
 import x10.constraint.XTerm;
-import x10.constraint.XTermKind;
 import x10.constraint.XVar;
 import x10.types.ConstrainedType;
 import x10.types.FunctionType;
-import x10.types.ParameterType;
-import x10.types.ParametrizedType;
-import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
-import x10.types.X10Def;
 import x10.types.X10TypeMixin;
 
 import com.sun.javadoc.ClassDoc;

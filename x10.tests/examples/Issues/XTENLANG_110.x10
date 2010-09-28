@@ -21,12 +21,12 @@ class XTENLANG_110 extends x10Test {
     
     class D extends C {}
     
-    class CS implements Iterable[C] {
-        incomplete public def iterator(): Iterator[C];
+    static class CS implements Iterable[C] {
+        public def iterator(): Iterator[C] { throw new RuntimeException(); }
     }
     
-    class DS implements Iterable[D] {
-        incomplete public def iterator(): Iterator[D];
+    static class DS implements Iterable[D] {
+        public def iterator(): Iterator[D] { throw new RuntimeException(); }
     }
     
     val cs = new CS();
@@ -41,7 +41,7 @@ class XTENLANG_110 extends x10Test {
         return true;
     }
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new XTENLANG_110().execute();
     }
 }

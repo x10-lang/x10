@@ -20,18 +20,18 @@ class XTENLANG_11 extends x10Test {
     class H {}
     
     class A[T] {
-        incomplete public def add(v: T): void;
-        incomplete public def iterator(): Iterator[T]!;
+        public def add(v: T): void { throw new RuntimeException(); }
+        public def iterator(): Iterator[T] { throw new RuntimeException(); }
     }
     
-    public def foo(hl: A[H]!) {
+    public def foo(hl: A[H]) {
         val it  = hl.iterator();
         hl.add(it.next());
     }
 
     public def run()=true;
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new XTENLANG_11().execute();
     }
 }

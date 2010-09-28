@@ -17,6 +17,8 @@ import polyglot.util.Position;
  */
 public class CFGBuildError extends InternalCompilerError
 {
+    private static final long serialVersionUID = -1748858695130055618L;
+
     public CFGBuildError(String msg) {
         super(msg);
     }

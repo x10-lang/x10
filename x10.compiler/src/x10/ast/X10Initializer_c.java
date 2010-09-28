@@ -42,8 +42,8 @@ public class X10Initializer_c extends Initializer_c {
     }
     @Override
     public Context enterChildScope(Node child, Context c) {
-        if (child == body ) {
-        	c = PlaceChecker.pushHereTerm(initializerDef(), (X10Context) c);
+        if (child == body) {
+        	//c = PlaceChecker.pushHereTerm(initializerDef(), (X10Context) c);
         }
         return c;
     }

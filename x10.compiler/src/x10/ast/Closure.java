@@ -36,11 +36,6 @@ public interface Closure extends Expr, CodeBlock {
      */
     List<Formal> formals();
 
-    /** The closure's exception throw types.
-     * @return A list of {@link polyglot.ast.TypeNode TypeNode}
-     */
-    List<TypeNode> throwTypes();
-
     /**
      * @return the closure's return type
      */

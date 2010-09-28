@@ -26,7 +26,7 @@ public class SimpleCodeWriter extends CodeWriter {
     protected int rmargin;
     protected int lmargin;
     protected boolean breakAll;
-    protected Stack lmargins;
+    protected Stack<State> lmargins;
     protected int pos;
 
     public SimpleCodeWriter(OutputStream o, int width_) {
@@ -47,7 +47,7 @@ public class SimpleCodeWriter extends CodeWriter {
 	adjustRmargin();
 	breakAll = false;
 	pos = 0;
-	lmargins = new Stack();
+	lmargins = new Stack<State>();
     }
 
     public SimpleCodeWriter(Writer o, int width_) {

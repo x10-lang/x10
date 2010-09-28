@@ -69,24 +69,24 @@ final public class PolyScanner(rank:Int)/*(C:PolyMat)*/ implements Region.Scanne
 
      public val C: PolyMat;
 
-  //  global public val rank: int;
+  //  public val rank: int;
 
-    private val myMin: Rail[VarMat]!;
-    private val myMax: Rail[VarMat]!;
-    private val minSum: Rail[VarMat]!;
-    private val maxSum: Rail[VarMat]!;
+    private val myMin: Rail[VarMat];
+    private val myMax: Rail[VarMat];
+    private val minSum: Rail[VarMat];
+    private val maxSum: Rail[VarMat];
 
-    private val parFlags: Rail[boolean]!;
-    private val min2: Rail[Rail[PolyRow]!]!;
-    private val max2: Rail[Rail[PolyRow]!]!;
+    private val parFlags: Rail[boolean];
+    private val min2: Rail[Rail[PolyRow]];
+    private val max2: Rail[Rail[PolyRow]];
 
-    public static def make(pm:PolyMat):PolyScanner!{self.rank==pm.rank} {
+    public static def make(pm:PolyMat):PolyScanner{self.rank==pm.rank} {
 	val x = new PolyScanner(pm);
         x.init();
 	return x;
     }
 
-    private def this(pm: PolyMat):PolyScanner!{self.rank==pm.rank} {
+    private def this(pm: PolyMat):PolyScanner{self.rank==pm.rank} {
 	property(pm.rank);
         var pm0:PolyMat = pm.simplifyAll();
        
@@ -100,9 +100,9 @@ final public class PolyScanner(rank:Int)/*(C:PolyMat)*/ implements Region.Scanne
         minSum = nSum;
         val xSum = Rail.make[VarMat](r);
         maxSum = xSum;
-        val n2 = Rail.make[Rail[PolyRow]!](r);
+        val n2 = Rail.make[Rail[PolyRow]](r);
         min2 = n2;
-        val x2 = Rail.make[Rail[PolyRow]!](r);
+        val x2 = Rail.make[Rail[PolyRow]](r);
         max2 = x2;
         //printInfo(Console.OUT);
 
@@ -226,9 +226,8 @@ final public class PolyScanner(rank:Int)/*(C:PolyMat)*/ implements Region.Scanne
 
 
     final private class RailIt implements Iterator[Rail[int]] {
-        proto def outerThis() = PolyScanner.this as PolyScanner!;
-        private val rank: int = outerThis().rank;
-        private val s = outerThis();
+        private val rank: int = PolyScanner.this.rank;
+        private val s =  PolyScanner.this;
 
         private val x = Rail.make[int](rank);
         private val myMin = Rail.make[int](rank);
@@ -283,7 +282,7 @@ final public class PolyScanner(rank:Int)/*(C:PolyMat)*/ implements Region.Scanne
     final private class PointIt 
         implements Iterator[Point(PolyScanner.this.rank)] {
 
-        val it: RailIt!;
+        val it: RailIt;
 
         def this() {
             it = new RailIt();
@@ -294,7 +293,7 @@ final public class PolyScanner(rank:Int)/*(C:PolyMat)*/ implements Region.Scanne
         public final def remove() = it.remove();
     }
 
-    public def iterator(): Iterator[Point(rank)]! {
+    public def iterator(): Iterator[Point(rank)] {
         val it = new PointIt();
         it.it.init();
         return it;

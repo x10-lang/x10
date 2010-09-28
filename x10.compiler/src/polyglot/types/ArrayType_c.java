@@ -16,6 +16,8 @@ import polyglot.util.*;
  */
 public class ArrayType_c extends ReferenceType_c implements ArrayType
 {
+    private static final long serialVersionUID = 5957743833621743101L;
+
     protected Ref<? extends Type> base;
     protected List<FieldDef> fields;
     protected List<MethodDef> methods;
@@ -39,12 +41,11 @@ public class ArrayType_c extends ReferenceType_c implements ArrayType
 
             // Add method public Object clone()
             MethodDef mi = ts.methodDef(position(),
-                                          Types.<ArrayType_c>ref(this),
-                                          ts.Public(),
-                                          Types.<Type>ref(ts.Object()),
-                                          Name.make("clone"),
-                                          Collections.EMPTY_LIST,
-                                          Collections.EMPTY_LIST);
+                                        Types.<ArrayType_c>ref(this),
+                                        ts.Public(),
+                                        Types.<Type>ref(ts.Object()),
+                                        Name.make("clone"),
+                                        Collections.<Ref<? extends Type>>emptyList());
             methods.add(mi);
         }
 

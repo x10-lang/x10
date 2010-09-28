@@ -12,5 +12,5 @@
 package dims;
 
 public interface Charge extends Measure { 
-    @DerivedUnit(SI.coulomb) const coulomb: double = _, C: double = _;
+    @DerivedUnit(SI.coulomb) static coulomb: double = _, C: double = _;
 }

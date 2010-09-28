@@ -16,6 +16,7 @@
 #include <x10aux/network.h>
 
 #include <x10rt_front.h>
+#include <x10rt_cpp.h>
 
 namespace x10 { namespace lang { class VoidFun_0_0; } }
 namespace x10 { namespace lang { class Reference; } }
@@ -62,7 +63,10 @@ namespace x10aux {
     inline x10_ulong remote_alloc (place p, size_t sz) {
         _X_(ANSI_BOLD<<ANSI_X10RT<<"Remote alloc: "<<ANSI_RESET
             <<"size "<<sz<<" to place: "<<p);
-        x10_ulong r = x10rt_remote_alloc(p, sz);
+        if (sz==0) return 0;
+        x10_ulong r = 0;
+        x10rt_remote_alloc(p, sz, x10rt_remote_ptr_setter, &r);
+        while (r==0) x10rt_probe();
         _X_(ANSI_X10RT<<"got 0x"<<std::hex<<r<<std::dec<<" ("<<r<<")");
         return r;
     }

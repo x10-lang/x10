@@ -45,7 +45,7 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "x10.core.Unsigned.lt(#1, #2)")
     @Native("c++",  "((#1) < (#2))")
-    public static safe operator (x:UInt) < (y:UInt): Boolean {
+    public static operator (x:UInt) < (y:UInt): Boolean {
          return (x.intVal + Int.MIN_VALUE) < (y.intVal + Int.MIN_VALUE);
      }
 
@@ -59,7 +59,7 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "x10.core.Unsigned.gt(#1, #2)")
     @Native("c++",  "((#1) > (#2))")
-    public static safe operator (x:UInt) > (y:UInt): Boolean {
+    public static operator (x:UInt) > (y:UInt): Boolean {
         return (x.intVal + Int.MIN_VALUE) > (y.intVal + Int.MIN_VALUE);
     }
 
@@ -73,7 +73,7 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "x10.core.Unsigned.le(#1, #2)")
     @Native("c++",  "((#1) <= (#2))")
-    public static safe operator (x:UInt) <= (y:UInt): Boolean {
+    public static operator (x:UInt) <= (y:UInt): Boolean {
          return (x.intVal + Int.MIN_VALUE) <= (y.intVal + Int.MIN_VALUE);
      }
 
@@ -87,7 +87,7 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "x10.core.Unsigned.ge(#1, #2)")
     @Native("c++",  "((#1) >= (#2))")
-    public static safe operator (x:UInt) >= (y:UInt): Boolean {
+    public static operator (x:UInt) >= (y:UInt): Boolean {
         return (x.intVal + Int.MIN_VALUE) >= (y.intVal + Int.MIN_VALUE);
     }
 
@@ -102,21 +102,21 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "((#1) + (#2))")
     @Native("c++",  "((x10_uint) ((#1) + (#2)))")
-    public static safe operator (x:UInt) + (y:UInt): UInt = UInt(x.intVal + y.intVal);
+    public static operator (x:UInt) + (y:UInt): UInt = UInt(x.intVal + y.intVal);
     /**
      * A binary plus operator (unsigned disambiguation).
      * @see #operator(UInt)+(UInt)
      */
     // @Native("java", "((#1) + (#2))")
     @Native("c++",  "((x10_uint) ((#1) + (#2)))")
-    public static safe operator (x:Int) + (y:UInt): UInt = UInt(x + y.intVal);
+    public static operator (x:Int) + (y:UInt): UInt = UInt(x + y.intVal);
     /**
      * A binary plus operator (unsigned disambiguation).
      * @see #operator(UInt)+(UInt)
      */
     // @Native("java", "((#1) + (#2))")
     @Native("c++",  "((x10_uint) ((#1) + (#2)))")
-    public static safe operator (x:UInt) + (y:Int): UInt = UInt(x.intVal + y);
+    public static operator (x:UInt) + (y:Int): UInt = UInt(x.intVal + y);
 
     /**
      * A binary minus operator.
@@ -128,21 +128,21 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "((#1) - (#2))")
     @Native("c++",  "((x10_uint) ((#1) - (#2)))")
-    public static safe operator (x:UInt) - (y:UInt): UInt = UInt(x.intVal - y.intVal);
+    public static operator (x:UInt) - (y:UInt): UInt = UInt(x.intVal - y.intVal);
     /**
      * A binary minus operator (unsigned disambiguation).
      * @see #operator(UInt)-(UInt)
      */
     // @Native("java", "((#1) - (#2))")
     @Native("c++",  "((x10_uint) ((#1) - (#2)))")
-    public static safe operator (x:Int) - (y:UInt): UInt = UInt(x - y.intVal);
+    public static operator (x:Int) - (y:UInt): UInt = UInt(x - y.intVal);
     /**
      * A binary minus operator (unsigned disambiguation).
      * @see #operator(UInt)-(UInt)
      */
     // @Native("java", "((#1) - (#2))")
     @Native("c++",  "((x10_uint) ((#1) - (#2)))")
-    public static safe operator (x:UInt) - (y:Int): UInt = UInt(x.intVal - y);
+    public static operator (x:UInt) - (y:Int): UInt = UInt(x.intVal - y);
 
     /**
      * A binary multiply operator.
@@ -154,21 +154,21 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "((#1) * (#2))")
     @Native("c++",  "((x10_uint) ((#1) * (#2)))")
-    public static safe operator (x:UInt) * (y:UInt): UInt = UInt(x.intVal * y.intVal);
+    public static operator (x:UInt) * (y:UInt): UInt = UInt(x.intVal * y.intVal);
     /**
      * A binary multiply operator (unsigned disambiguation).
      * @see #operator(UInt)*(UInt)
      */
     // @Native("java", "((#1) * (#2))")
     @Native("c++",  "((x10_uint) ((#1) * (#2)))")
-    public static safe operator (x:Int) * (y:UInt): UInt = UInt(x * y.intVal);
+    public static operator (x:Int) * (y:UInt): UInt = UInt(x * y.intVal);
     /**
      * A binary multiply operator (unsigned disambiguation).
      * @see #operator(UInt)*(UInt)
      */
     // @Native("java", "((#1) * (#2))")
     @Native("c++",  "((x10_uint) ((#1) * (#2)))")
-    public static safe operator (x:UInt) * (y:Int): UInt = UInt(x.intVal * y);
+    public static operator (x:UInt) * (y:Int): UInt = UInt(x.intVal * y);
 
     /**
      * A binary divide operator.
@@ -179,7 +179,7 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "x10.core.Unsigned.div(#1, #2)")
     @Native("c++",  "((x10_uint) ((#1) / (#2)))")
-    public static safe operator (x:UInt) / (y:UInt): UInt {
+    public static operator (x:UInt) / (y:UInt): UInt {
         return UInt(((x.intVal as Long) / (y.intVal as Long)) as Int);
     }
     /**
@@ -188,7 +188,7 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "x10.core.Unsigned.div(#1, #2)")
     @Native("c++",  "((x10_uint) ((#1) / (#2)))")
-    public static safe operator (x:Int) / (y:UInt): UInt {
+    public static operator (x:Int) / (y:UInt): UInt {
         return UInt(((x as Long) / (y.intVal as Long)) as Int);
     }
     /**
@@ -197,7 +197,7 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "x10.core.Unsigned.div(#1, #2)")
     @Native("c++",  "((x10_uint) ((#1) / (#2)))")
-    public static safe operator (x:UInt) / (y:Int): UInt {
+    public static operator (x:UInt) / (y:Int): UInt {
         return UInt(((x.intVal as Long) / (y as Long)) as Int);
     }
 
@@ -210,7 +210,7 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "x10.core.Unsigned.rem(#1, #2)")
     @Native("c++",  "((x10_uint) ((#1) % (#2)))")
-    public static safe operator (x:UInt) % (y:UInt): UInt {
+    public static operator (x:UInt) % (y:UInt): UInt {
         return UInt(((x.intVal as Long) % (y.intVal as Long)) as Int);
     }
     /**
@@ -219,7 +219,7 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "x10.core.Unsigned.rem(#1, #2)")
     @Native("c++",  "((x10_uint) ((#1) % (#2)))")
-    public static safe operator (x:Int) % (y:UInt): UInt {
+    public static operator (x:Int) % (y:UInt): UInt {
         return UInt(((x as Long) % (y.intVal as Long)) as Int);
     }
     /**
@@ -228,7 +228,7 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "x10.core.Unsigned.rem(#1, #2)")
     @Native("c++",  "((x10_uint) ((#1) % (#2)))")
-    public static safe operator (x:UInt) % (y:Int): UInt {
+    public static operator (x:UInt) % (y:Int): UInt {
         return UInt(((x.intVal as Long) % (y as Long)) as Int);
     }
 
@@ -240,7 +240,7 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "((int) +(#1))")
     @Native("c++",  "((x10_uint) +(#1))")
-    public static safe operator + (x:UInt): UInt = x;
+    public static operator + (x:UInt): UInt = x;
 
     /**
      * A unary minus operator.
@@ -251,7 +251,7 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "((int) -(#1))")
     @Native("c++",  "((x10_int) -(#1))")
-    public static safe operator - (x:UInt): UInt = UInt(-(x.intVal));
+    public static operator - (x:UInt): UInt = UInt(-(x.intVal));
 
 
     /**
@@ -263,21 +263,21 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "((#1) & (#2))")
     @Native("c++",  "((x10_uint) ((#1) & (#2)))")
-    public static safe operator (x:UInt) & (y:UInt): UInt = UInt(x.intVal & y.intVal);
+    public static operator (x:UInt) & (y:UInt): UInt = UInt(x.intVal & y.intVal);
     /**
      * A bitwise and operator (unsigned disambiguation).
      * @see #operator(UInt)&(UInt)
      */
     // @Native("java", "((#1) & (#2))")
     @Native("c++",  "((x10_uint) ((#1) & (#2)))")
-    public static safe operator (x:Int) & (y:UInt): UInt = UInt(x & y.intVal);
+    public static operator (x:Int) & (y:UInt): UInt = UInt(x & y.intVal);
     /**
      * A bitwise and operator (unsigned disambiguation).
      * @see #operator(UInt)&(UInt)
      */
     // @Native("java", "((#1) & (#2))")
     @Native("c++",  "((x10_uint) ((#1) & (#2)))")
-    public static safe operator (x:UInt) & (y:Int): UInt = UInt(x.intVal & y);
+    public static operator (x:UInt) & (y:Int): UInt = UInt(x.intVal & y);
 
     /**
      * A bitwise or operator.
@@ -288,21 +288,21 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "((#1) | (#2))")
     @Native("c++",  "((x10_uint) ((#1) | (#2)))")
-    public static safe operator (x:UInt) | (y:UInt): UInt = UInt(x.intVal | y.intVal);
+    public static operator (x:UInt) | (y:UInt): UInt = UInt(x.intVal | y.intVal);
     /**
      * A bitwise or operator (unsigned disambiguation).
      * @see #operator(UInt)|(UInt)
      */
     // @Native("java", "((#1) | (#2))")
     @Native("c++",  "((x10_uint) ((#1) | (#2)))")
-    public static safe operator (x:Int) | (y:UInt): UInt = UInt(x | y.intVal);
+    public static operator (x:Int) | (y:UInt): UInt = UInt(x | y.intVal);
     /**
      * A bitwise or operator (unsigned disambiguation).
      * @see #operator(UInt)|(UInt)
      */
     // @Native("java", "((#1) | (#2))")
     @Native("c++",  "((x10_uint) ((#1) | (#2)))")
-    public static safe operator (x:UInt) | (y:Int): UInt = UInt(x.intVal | y);
+    public static operator (x:UInt) | (y:Int): UInt = UInt(x.intVal | y);
 
     /**
      * A bitwise xor operator.
@@ -313,21 +313,21 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "((#1) ^ (#2))")
     @Native("c++",  "((x10_uint) ((#1) ^ (#2)))")
-    public static safe operator (x:UInt) ^ (y:UInt): UInt = UInt(x.intVal ^ y.intVal);
+    public static operator (x:UInt) ^ (y:UInt): UInt = UInt(x.intVal ^ y.intVal);
     /**
      * A bitwise xor operator (unsigned disambiguation).
      * @see #operator(UInt)^(UInt)
      */
     // @Native("java", "((#1) ^ (#2))")
     @Native("c++",  "((x10_uint) ((#1) ^ (#2)))")
-    public static safe operator (x:Int) ^ (y:UInt): UInt = UInt(x ^ y.intVal);
+    public static operator (x:Int) ^ (y:UInt): UInt = UInt(x ^ y.intVal);
     /**
      * A bitwise xor operator (unsigned disambiguation).
      * @see #operator(UInt)^(UInt)
      */
     // @Native("java", "((#1) ^ (#2))")
     @Native("c++",  "((x10_uint) ((#1) ^ (#2)))")
-    public static safe operator (x:UInt) ^ (y:Int): UInt = UInt(x.intVal ^ y);
+    public static operator (x:UInt) ^ (y:Int): UInt = UInt(x.intVal ^ y);
 
     /**
      * A bitwise left shift operator.
@@ -339,7 +339,7 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "((#1) << (#2))")
     @Native("c++",  "((x10_uint) ((#1) << (#2)))")
-    public static safe operator (x:UInt) << (count:Int): UInt = UInt(x.intVal << count);
+    public static operator (x:UInt) << (count:Int): UInt = UInt(x.intVal << count);
 
     /**
      * A bitwise right shift operator.
@@ -352,7 +352,7 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "((#1) >>> (#2))")
     @Native("c++",  "((x10_uint) ((#1) >> (#2)))")
-    public static safe operator (x:UInt) >> (count:Int): UInt = UInt(x.intVal >>> count);
+    public static operator (x:UInt) >> (count:Int): UInt = UInt(x.intVal >>> count);
 
     /**
      * A bitwise logical right shift operator (zero-fill).
@@ -366,7 +366,7 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "((#1) >>> (#2))")
     @Native("c++",  "((x10_uint) ((#1) >> (#2)))")
-    public static safe operator (x:UInt) >>> (count:Int): UInt = UInt(x.intVal >>> count);
+    public static operator (x:UInt) >>> (count:Int): UInt = UInt(x.intVal >>> count);
 
     /**
      * A bitwise complement operator.
@@ -376,7 +376,7 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "((int) ~(#1))")
     @Native("c++",  "((x10_uint) ~(#1))")
-    public static safe operator ~ (x:UInt): UInt = UInt(~(x.intVal));
+    public static operator ~ (x:UInt): UInt = UInt(~(x.intVal));
 
 
     /**
@@ -386,7 +386,7 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "((int) (((byte)(#1)) & 0xff))")
     @Native("c++",  "((x10_uint) (#1))")
-    public static safe operator (x:UByte): UInt = UInt(x.byteVal & 0xff);
+    public static operator (x:UByte): UInt = UInt(x.byteVal & 0xff);
 
     /**
      * Coerce a given UShort to a UInt.
@@ -395,7 +395,7 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "((int) (((short)(#1)) & 0xffff))")
     @Native("c++",  "((x10_uint) (#1))")
-    public static safe operator (x:UShort): UInt = UInt(x.shortVal & 0xffff);
+    public static operator (x:UShort): UInt = UInt(x.shortVal & 0xffff);
 
     /**
      * Convert a given ULong to a UInt.
@@ -404,7 +404,7 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "((int)(long)(#1))")
     @Native("c++",  "((x10_uint) (#1))")
-    public static safe operator (x:ULong) as UInt = UInt(x.longVal as Int);
+    public static operator (x:ULong) as UInt = UInt(x.longVal as Int);
 
 
     /**
@@ -414,7 +414,7 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "((int)(byte)(#1))")
     @Native("c++",  "((x10_uint) (#1))")
-    public static safe operator (x:Byte): UInt = UInt(x);
+    public static operator (x:Byte): UInt = UInt(x);
 
     /**
      * Coerce a given Short to a UInt.
@@ -423,7 +423,7 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "((int)(short)(#1))")
     @Native("c++",  "((x10_uint) (#1))")
-    public static safe operator (x:Short): UInt = UInt(x);
+    public static operator (x:Short): UInt = UInt(x);
 
     /**
      * Convert a given Long to a UInt.
@@ -432,7 +432,7 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "((int)(long)(#1))")
     @Native("c++",  "((x10_uint) (#1))")
-    public static safe operator (x:Long) as UInt = UInt(x as Int);
+    public static operator (x:Long) as UInt = UInt(x as Int);
 
     /**
      * Convert a given Float to a UInt.
@@ -441,7 +441,7 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "((int)(float)(#1))")
     @Native("c++",  "((x10_uint) (#1))")
-    public static safe operator (x:Float) as UInt = UInt(x as Int);
+    public static operator (x:Float) as UInt = UInt(x as Int);
 
     /**
      * Convert a given Double to a UInt.
@@ -450,7 +450,7 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "((int)(double)(#1))")
     @Native("c++",  "((x10_uint) (#1))")
-    public static safe operator (x:Double) as UInt {
+    public static operator (x:Double) as UInt {
         val temp : Long = x as Long;
         if (temp > 0xffffffff) return UInt(0xffffffff as Int);
         else if (temp < 0) return UInt(0);
@@ -464,7 +464,7 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "((int)(int)(#1))")
     @Native("c++",  "((x10_uint) (#1))")
-    public static safe operator (x:Int): UInt = UInt(x);
+    public static operator (x:Int): UInt = UInt(x);
 
 
     /**
@@ -472,14 +472,14 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "0")
     @Native("c++", "((x10_uint)0U)")
-    public const MIN_VALUE = 0 as UInt;
+    public static MIN_VALUE = 0 as UInt;
 
     /**
      * A constant holding the maximum value a UInt can have, 2<sup>32</sup>-1.
      */
     // @Native("java", "0xffffffff")
     @Native("c++", "((x10_uint)0xffffffffU)")
-    public const MAX_VALUE = 0xffffffff as UInt;
+    public static MAX_VALUE = 0xffffffff as UInt;
 
 
     /**
@@ -489,7 +489,7 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "java.lang.Long.toString((#0) & 0xffffffffL, #1)")
     @Native("c++", "x10aux::int_utils::toString(#0, #1)")
-    public global safe def toString(radix:Int): String = ((this.intVal & 0xFFFFFFFFL) as Long).toString(radix);
+    public def toString(radix:Int): String = ((this.intVal & 0xFFFFFFFFL) as Long).toString(radix);
 
     /**
      * Returns a String representation of this UInt as a hexadecimal number.
@@ -497,7 +497,7 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "java.lang.Integer.toHexString(#0)")
     @Native("c++", "x10aux::int_utils::toHexString(#0)")
-    public global safe def toHexString(): String = this.intVal.toHexString();
+    public def toHexString(): String = this.intVal.toHexString();
 
     /**
      * Returns a String representation of this UInt as an octal number.
@@ -505,7 +505,7 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "java.lang.Integer.toOctalString(#0)")
     @Native("c++", "x10aux::int_utils::toOctalString(#0)")
-    public global safe def toOctalString(): String = this.intVal.toOctalString();
+    public def toOctalString(): String = this.intVal.toOctalString();
 
     /**
      * Returns a String representation of this UInt as a binary number.
@@ -513,7 +513,7 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "java.lang.Integer.toBinaryString(#0)")
     @Native("c++", "x10aux::int_utils::toBinaryString(#0)")
-    public global safe def toBinaryString(): String = this.intVal.toBinaryString();
+    public def toBinaryString(): String = this.intVal.toBinaryString();
 
     /**
      * Returns a String representation of this UInt as a decimal number.
@@ -521,14 +521,15 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "java.lang.Long.toString((#0) & 0xffffffffL)")
     @Native("c++", "x10aux::to_string(#0)")
-    public global safe def toString(): String = ((this.intVal & 0xFFFFFFFFL) as Long).toString();
+    public def toString(): String = ((this.intVal & 0xFFFFFFFFL) as Long).toString();
 
     /**
      * @deprecated use {@link #parse(String,Int)} instead
      */
     // @Native("java", "java.lang.Integer.parseInt(#1, #2)")
     @Native("c++", "((x10_uint) x10aux::int_utils::parseInt(#1, #2))")
-    public static def parseUInt(s:String, radix:Int): UInt throws NumberFormatException {
+    public static def parseUInt(s:String, radix:Int): UInt //throwsNumberFormatException 
+    {
         return UInt(Int.parse(s, radix));
     }
 
@@ -537,7 +538,8 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "java.lang.Integer.parseInt(#1)")
     @Native("c++", "((x10_uint) x10aux::int_utils::parseInt(#1))")
-    public static def parseUInt(s:String): UInt throws NumberFormatException {
+    public static def parseUInt(s:String): UInt //throwsNumberFormatException 
+    {
         return UInt(Int.parse(s));
     }
 
@@ -550,7 +552,8 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "java.lang.Integer.parseInt(#1, #2)")
     @Native("c++", "((x10_uint) x10aux::int_utils::parseInt(#1, #2))")
-    public static def parse(s:String, radix:Int): UInt throws NumberFormatException {
+    public static def parse(s:String, radix:Int): UInt //throwsNumberFormatException 
+    {
         return UInt(Int.parse(s, radix));
     }
 
@@ -562,7 +565,8 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "java.lang.Integer.parseInt(#1)")
     @Native("c++", "((x10_uint) x10aux::int_utils::parseInt(#1))")
-    public static def parse(s:String): UInt throws NumberFormatException {
+    public static def parse(s:String): UInt //throwsNumberFormatException 
+    {
         return UInt(Int.parse(s));
     }
 
@@ -697,7 +701,7 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public global safe def equals(x:Any):Boolean = this.intVal.equals(x);
+    public def equals(x:Any):Boolean = this.intVal.equals(x);
 
     /**
      * Returns true if this UInt is equal to the given UInt.
@@ -706,5 +710,5 @@ public final struct UInt /*TODO implements Arithmetic[UInt], Bitwise[UInt], Orde
      */
     // @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public global safe def equals(x:UInt):Boolean = this.intVal == x.intVal;
+    public def equals(x:UInt):Boolean = this.intVal == x.intVal;
 }

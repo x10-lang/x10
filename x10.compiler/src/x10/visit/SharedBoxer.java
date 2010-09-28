@@ -134,7 +134,7 @@ public class SharedBoxer extends ContextVisitor {
         X10MethodInstance mi;
         try {
             Type type = xts.typeForName(SHARED);
-            mi = xts.findMethod(type, xts.MethodMatcher(local.type(), Name.make("get"), Collections.EMPTY_LIST, context));
+            mi = xts.findMethod(type, xts.MethodMatcher(local.type(), Name.make("get"), Collections.<Type>emptyList(), context));
         } catch (SemanticException e) {
             throw new InternalCompilerError("Something is terribly wrong", e);
         }

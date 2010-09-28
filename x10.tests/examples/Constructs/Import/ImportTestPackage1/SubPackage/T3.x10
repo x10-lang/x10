@@ -19,13 +19,13 @@ import harness.x10Test;
  */
 public class T3 extends x10Test {
 	public static def m3(val x: int): boolean = {
-		return (future(here) { _T4.m4(x) }).force();
+		return _T4.m4(x);
 	}
 	public def run(): boolean = {
 		return m3(49);
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new T3().execute();
 	}
 }

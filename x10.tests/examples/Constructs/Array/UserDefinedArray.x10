@@ -17,11 +17,11 @@ import harness.x10Test;
  * @author Christian Grothoff
  * @author Kemal Ebcioglu
  */
-
+import x10.util.Future;
 public class UserDefinedArray extends x10Test {
 
-    const R = 0..1;
-    const D = Dist.makeBlock(R, 0);
+    static R = 0..1;
+    static D = Dist.makeBlock(R, 0);
 
     public def run(): boolean = {
 
@@ -29,38 +29,47 @@ public class UserDefinedArray extends x10Test {
         // create an array a such that
         // a[0] is in D[0] but points to an object in D[1]
         // and a[1] is in D[1] but points to an object in D[0]
-        val v1: E = (future(D(1)){new E(1)}).force();
-        val v2: E = (future(D(0)){new E(2)}).force();
-        val a  = DistArray.make[E](D, ((i): Point)=> (i==0) ? v1 : v2);
+        val v1: E = at(D(1)) new E(1);
+        val v2: E = at(D(0)) new E(2);
+        val a:DistArray[E](1)  = DistArray.make[E](D, ([i]: Point(1))=> (i==0) ? v1 : v2);
 
         chk(a.dist(0) == D(0));
-        chk((future(a.dist(0)){a(0)}).force() == v1);
+        chk(at(a.dist(0)) a(0).root == v1.root);
         x10.io.Console.OUT.println("v1.home() " + v1.home() + " D(1) " + D(1));
         chk(v1.home() == D(1));
-        chk((future(v1.home){v1.v}).force() == 1);
+        chk(at(v1.home())v1.v == 1);
 
 
         chk(a.dist(1) == D(1));
-        chk((future(a.dist(1)){a(1)}).force() == v2);
+        chk(at(a.dist(1)) a(1).root == v2.root);
         chk(v2.home() == D(0));
-        chk((future(v2.home){v2.v}).force() == 2);
+        chk(at(v2.home())v2.v == 2);
 
-        //this top level future runs in D[1] since a[0]==v1 && v1.home()==D[1]
+        /*
+         //this top level future runs in D[1] since a[0]==v1 && v1.home()==D[1]
         var i0: int = (future((future(a.dist(0)){a(0)}).force().home())
            { (future(a.dist(0)){a(0)}).force().v }).force(); // DYNAMIC_CHECK
 
         //this top level future runs in D[0] since a[1]==v2 && v2.home()==D[0]
         var i1: int = (future((future(a.dist(1)){a(1)}).force().home())
             { (future(a.dist(1)){a(1)}).force().v }).force(); // DYNAMIC_CHECK
+         */
+        
+        //this top level future runs in D[1] since a[0]==v1 && v1.home()==D[1]
+        var i0: int = at((at(a.dist(0))a(0)).home()) (at (a.dist(0)) a(0)).v;
+        var i1: int = at((at(a.dist(1))a(1)).home()) (at (a.dist(1)) a(1)).v;
+
 
         return i0 + 1 == i1;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new UserDefinedArray().execute();
     }
 
     static class E {
+    	private val root = GlobalRef[E](this);
+    	def home() = root.home;
         var v: int;
         def this(var i: int): E = { v = i; }
     }

@@ -24,12 +24,12 @@ public class RootedCall extends x10Test {
     }
 
     public def run(): boolean = {
-	var a:A! = new A();
+	var a:A = new A();
 	a.m(); // ok
 	return true;
     }
 
-    public static def main(Rail[String])  {
+    public static def main(Array[String](1))  {
 	new RootedCall().execute();
     }
 }

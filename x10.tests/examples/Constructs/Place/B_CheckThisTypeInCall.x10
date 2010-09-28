@@ -25,7 +25,7 @@ public class B_CheckThisTypeInCall extends x10Test {
          def this(r:Int){property(r);}
        }
        def this(r:Int){property(r);}
-       var r:R!{self.rank == this.rank} =null;
+       var r:R{self.rank == this.rank} =null;
        def m(t:Test{self.rank==this.rank}) {
          r.check(t);
        }
@@ -34,7 +34,7 @@ public class B_CheckThisTypeInCall extends x10Test {
     public def run() = true;
     
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
 	  new 
 	  B_CheckThisTypeInCall().execute();
     }

@@ -8,6 +8,8 @@ import polyglot.types.LazyRef_c;
 import polyglot.util.StringUtil;
 
 public abstract class AbstractGoal_c extends LazyRef_c<Goal.Status> implements Goal {
+	private static final long serialVersionUID = 39827248332800427L;
+
 	String name;
 	public List<Goal> prereqs;
 

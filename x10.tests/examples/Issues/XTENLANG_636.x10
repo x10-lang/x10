@@ -44,7 +44,7 @@ public class XTENLANG_636 extends x10Test {
       class Super  {
         public val name: String;
         def this(n:String) { name = n; }
-        def equals(other:Super!) = (this.typeName().equals(other.typeName()) && this.name.equals(other.name));
+        def equals(other:Super) = (this.typeName().equals(other.typeName()) && this.name.equals(other.name));
         }
 
       class Sub extends Super {
@@ -61,7 +61,7 @@ public class XTENLANG_636 extends x10Test {
         return test1 && test2 && (!test3) && (!test4) && (!test5);
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new XTENLANG_636().execute();
     }
 }

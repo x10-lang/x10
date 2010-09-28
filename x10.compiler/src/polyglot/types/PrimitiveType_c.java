@@ -13,6 +13,8 @@ package polyglot.types;
  */
 public class PrimitiveType_c extends Type_c implements PrimitiveType
 {
+    private static final long serialVersionUID = -7376343049945580290L;
+
     protected Name name;
 
     /** Used for deserializing types. */

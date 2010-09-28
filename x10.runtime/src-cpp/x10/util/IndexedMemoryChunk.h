@@ -50,31 +50,19 @@ namespace x10 {
         };
 
         template<class T> x10::lang::Any::itable<IndexedMemoryChunk_ithunk0<T> >
-            IndexedMemoryChunk_ithunk0<T>::itable(&IndexedMemoryChunk<T>::at,
-                                                  &IndexedMemoryChunk<T>::at,
-                                                  &IndexedMemoryChunk<T>::equals,
+            IndexedMemoryChunk_ithunk0<T>::itable(&IndexedMemoryChunk<T>::equals,
                                                   &IndexedMemoryChunk<T>::hashCode,
-                                                  &IndexedMemoryChunk<T>::home,
                                                   &IndexedMemoryChunk<T>::toString,
                                                   &IndexedMemoryChunk_ithunk0<T>::typeName);
 
         template<class T> class IndexedMemoryChunk_iboxithunk0 : public x10::lang::IBox<x10::util::IndexedMemoryChunk<T> > {
         public:
             static x10::lang::Any::itable<IndexedMemoryChunk_iboxithunk0<T> > itable;
-            x10_boolean at(x10aux::ref<x10::lang::Object> arg0) {
-                return this->value->at(arg0);
-            }
-            x10_boolean at(x10::lang::Place arg0) {
-                return this->value->at(arg0);
-            }
             x10_boolean equals(x10aux::ref<x10::lang::Any> arg0) {
                 return this->value->equals(arg0);
             }
             x10_int hashCode() {
                 return this->value->hashCode();
-            }
-            x10::lang::Place home() {
-                return this->value->home();
             }
             x10aux::ref<x10::lang::String> toString() {
                 return this->value->toString();
@@ -85,11 +73,8 @@ namespace x10 {
         };
 
         template<class T> x10::lang::Any::itable<IndexedMemoryChunk_iboxithunk0<T> >
-            IndexedMemoryChunk_iboxithunk0<T>::itable(&IndexedMemoryChunk_iboxithunk0<T>::at,
-                                                      &IndexedMemoryChunk_iboxithunk0<T>::at,
-                                                      &IndexedMemoryChunk_iboxithunk0<T>::equals,
+            IndexedMemoryChunk_iboxithunk0<T>::itable(&IndexedMemoryChunk_iboxithunk0<T>::equals,
                                                       &IndexedMemoryChunk_iboxithunk0<T>::hashCode,
-                                                      &IndexedMemoryChunk_iboxithunk0<T>::home,
                                                       &IndexedMemoryChunk_iboxithunk0<T>::toString,
                                                       &IndexedMemoryChunk_iboxithunk0<T>::typeName);
     }
@@ -101,8 +86,8 @@ template<class T> void x10::util::IndexedMemoryChunk<T>::copyTo(x10_int srcIndex
                                                                 x10::util::IndexedMemoryChunk<T> dst,
                                                                 x10_int dstIndex,
                                                                 x10_int numElems, x10_boolean uncounted) {
-    void* srcAddr = (void*)(&data[srcIndex]);
-    void* dstAddr = (void*)(&dst->data[dstIndex]);
+    void* srcAddr = (void*)(&raw()[srcIndex]);
+    void* dstAddr = (void*)(&dst->raw()[dstIndex]);
     size_t numBytes = numElems * sizeof(T);
     IMC_copyToBody(srcAddr, dstAddr, numBytes, dstPlace, data == dst->data, uncounted);
 }
@@ -111,8 +96,8 @@ template<class T> void x10::util::IndexedMemoryChunk<T>::copyTo(x10_int srcIndex
 template<class T> void x10::util::IndexedMemoryChunk<T>::copyFrom(x10_int dstIndex, x10::lang::Place srcPlace,
                                                                   x10::util::IndexedMemoryChunk<T> src,
                                                                   x10_int srcIndex, x10_int numElems, x10_boolean uncounted) {
-    void* srcAddr = (void*)(&src->data[srcIndex]);
-    void* dstAddr = (void*)(&data[dstIndex]);
+    void* srcAddr = (void*)(&src->raw()[srcIndex]);
+    void* dstAddr = (void*)(&raw()[dstIndex]);
     size_t numBytes = numElems * sizeof(T);
     IMC_copyFromBody(srcAddr, dstAddr, numBytes, srcPlace, data == src->data, uncounted);
 }
@@ -121,11 +106,11 @@ template<class T> void x10::util::IndexedMemoryChunk<T>::copyFrom(x10_int dstInd
 
 template<class T> void x10::util::IndexedMemoryChunk<T>::_serialize(x10::util::IndexedMemoryChunk<T> this_,
                                                                     x10aux::serialization_buffer& buf) {
-    buf.write((x10_long)(size_t)(this_->data));
+    buf.write((this_->data));
 }
 
 template<class T> void x10::util::IndexedMemoryChunk<T>::_deserialize_body(x10aux::deserialization_buffer& buf) {
-    data = (T*)(size_t)buf.read<x10_long>();
+    data = buf.read<x10_ulong>();
 }
 
 
@@ -137,7 +122,7 @@ template<class T> x10_boolean x10::util::IndexedMemoryChunk<T>::_struct_equals(x
 }
 
 template<class T> x10aux::ref<x10::lang::String> x10::util::IndexedMemoryChunk<T>::toString() {
-    char* tmp = x10aux::alloc_printf("x10.util.IndexedMemoryChunk<%s>(%p)", x10aux::getRTT<T>()->name(), data);
+    char* tmp = x10aux::alloc_printf("x10.util.IndexedMemoryChunk<%s>(%llx)", x10aux::getRTT<T>()->name(), data);
     return x10::lang::String::Steal(tmp);
 }
 
@@ -148,10 +133,10 @@ template<class T> x10aux::ref<x10::lang::String> x10::util::IndexedMemoryChunk<T
 
 template<class T> x10aux::RuntimeType x10::util::IndexedMemoryChunk<T>::rtt;
 
-template<class T> x10aux::itable_entry x10::util::IndexedMemoryChunk<T>::_itables[2] = {x10aux::itable_entry(x10aux::getRTT<x10::lang::Any>(), &IndexedMemoryChunk_ithunk0<T>::itable),
+template<class T> x10aux::itable_entry x10::util::IndexedMemoryChunk<T>::_itables[2] = {&x10aux::itable_entry(x10aux::getRTT<x10::lang::Any>, &IndexedMemoryChunk_ithunk0<T>::itable),
                                                                                         x10aux::itable_entry(NULL, (void*)x10aux::getRTT<x10::util::IndexedMemoryChunk<T> >())};
 
-template<class T> x10aux::itable_entry x10::util::IndexedMemoryChunk<T>::_iboxitables[2] = {x10aux::itable_entry(x10aux::getRTT<x10::lang::Any>(), &IndexedMemoryChunk_iboxithunk0<T>::itable),
+template<class T> x10aux::itable_entry x10::util::IndexedMemoryChunk<T>::_iboxitables[2] = {&x10aux::itable_entry(x10aux::getRTT<x10::lang::Any>, &IndexedMemoryChunk_iboxithunk0<T>::itable),
                                                                                             x10aux::itable_entry(NULL, (void*)x10aux::getRTT<x10::util::IndexedMemoryChunk<T> >())};
 
 template<class T> void x10::util::IndexedMemoryChunk<T>::_initRTT() {

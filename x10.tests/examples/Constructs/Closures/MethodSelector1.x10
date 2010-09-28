@@ -53,7 +53,7 @@ public class MethodSelector1 extends ClosureTest {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new MethodSelector1().execute();
     }
 }

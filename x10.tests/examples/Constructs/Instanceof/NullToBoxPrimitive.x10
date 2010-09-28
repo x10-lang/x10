@@ -21,7 +21,7 @@ public class NullToBoxPrimitive extends x10Test {
 	 
 	public def run() = !(null instanceof Box[Int]);
 	
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new NullToBoxPrimitive().execute();
 	}
 }

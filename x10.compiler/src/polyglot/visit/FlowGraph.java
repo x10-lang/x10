@@ -36,7 +36,7 @@ public class FlowGraph {
      * These points may have different data flows.
      * </p>
      */
-    protected Map<IdentityKey,Map> peerMap;
+    protected Map<IdentityKey,Map<PeerKey, Peer>> peerMap;
 
     /**
      * The root of the AST that this is a flow graph for.
@@ -51,7 +51,7 @@ public class FlowGraph {
     public FlowGraph(Term root, boolean forward) {
         this.root = root;
         this.forward = forward;
-        this.peerMap = new HashMap();
+        this.peerMap = new HashMap<IdentityKey, Map<PeerKey, Peer>>();
     }
 
     public Term root() {
@@ -62,38 +62,38 @@ public class FlowGraph {
         return forward;
     }
 
-    public Collection entryPeers() {
+    public Collection<Peer> entryPeers() {
         return peers(root, Term.ENTRY);
     }
     
-    public Collection exitPeers() {
+    public Collection<Peer> exitPeers() {
         return peers(root, Term.EXIT);
     }
     
-    public Collection startPeers() {
+    public Collection<Peer> startPeers() {
         return forward ? entryPeers() : exitPeers();
     }
     
-    public Collection finishPeers() {
+    public Collection<Peer> finishPeers() {
         return forward ? exitPeers() : entryPeers();
     }
 
-    public Collection pathMaps() {
+    public Collection<Map<PeerKey, Peer>> pathMaps() {
         return peerMap.values();
     }
 
-    public Map pathMap(Node n) {
-        return (Map) peerMap.get(new IdentityKey(n));
+    public Map<PeerKey, Peer> pathMap(Node n) {
+        return peerMap.get(new IdentityKey(n));
     }
 
     /**
      * Return a collection of all <code>Peer</code>s in this flow graph.
      */
-    public Collection peers() {
-        Collection c = new ArrayList();
-        for (Map m : peerMap.values()) {
-            for (Iterator j = m.values().iterator(); j.hasNext();) {
-                c.add(j.next());
+    public Collection<Peer> peers() {
+        Collection<Peer> c = new ArrayList<Peer>();
+        for (Map<PeerKey, Peer> m : peerMap.values()) {
+            for (Peer peer : m.values()) {
+                c.add(peer);
             }
         }
         return c;
@@ -107,7 +107,7 @@ public class FlowGraph {
      * <code>entry</code> can be Term.ENTRY or Term.EXIT.
      */
     public Peer peer(Term n, int entry) {
-        return peer(n, Collections.EMPTY_LIST, entry);
+        return peer(n, Collections.<Term>emptyList(), entry);
     }
 
     /**
@@ -116,20 +116,18 @@ public class FlowGraph {
      * 
      * <code>entry</code> can be Term.ENTRY or Term.EXIT.
      */
-    public Collection peers(Term n, int entry) {
+    public Collection<Peer> peers(Term n, int entry) {
         IdentityKey k = new IdentityKey(n);
-        Map pathMap = (Map) peerMap.get(k);
+        Map<PeerKey, Peer> pathMap = peerMap.get(k);
         
         if (pathMap == null) {
-            return Collections.EMPTY_LIST;
+            return Collections.<Peer>emptyList();
         }
         
-        Collection peers = pathMap.values();
-        List l = new ArrayList(peers.size());
+        Collection<Peer> peers = pathMap.values();
+        List<Peer> l = new ArrayList<Peer>(peers.size());
         
-        for (Iterator i = peers.iterator(); i.hasNext();) {
-            Peer p = (Peer) i.next();
-            
+        for (Peer p : peers) {
             if (p.entry == entry) {
                 l.add(p);
             }
@@ -146,12 +144,12 @@ public class FlowGraph {
      * 
      * <code>entry</code> can be Term.ENTRY or Term.EXIT.
      */
-    public Peer peer(Term n, List path_to_finally, int entry) {
+    public Peer peer(Term n, List<Term> path_to_finally, int entry) {
         IdentityKey k = new IdentityKey(n);
-        Map pathMap = (Map) peerMap.get(k);
+        Map<PeerKey, Peer> pathMap = peerMap.get(k);
         
         if (pathMap == null) {
-            pathMap = new HashMap();
+            pathMap = new HashMap<PeerKey, Peer>();
             peerMap.put(k, pathMap);
         }
 
@@ -287,13 +285,14 @@ public class FlowGraph {
    */
   public static class Peer {
     protected DataFlow.Item inItem;  // Input Item for dataflow analysis
-    protected Map outItems; // Output Items for dataflow analysis, a map from EdgeKeys to DataFlowlItems
-    protected Term node; // The AST node that this peer is an occurance of.
-    protected List succs; // List of successor Edges 
-    protected List preds; // List of predecessor Edges 
-    protected List path_to_finally; // the path to the finally block that 
-                                    // uniquely distinguishes this Peer
-                                    // from the other Peers for the AST node.
+    protected Map<EdgeKey, DataFlow.Item> outItems; // Output Items for dataflow analysis,
+                                                    // a map from EdgeKeys to DataFlowlItems
+    protected Term node; // The AST node that this peer is an occurrence of.
+    protected List<Edge> succs; // List of successor Edges 
+    protected List<Edge> preds; // List of predecessor Edges 
+    protected List<Term> path_to_finally; // the path to the finally block that 
+                                          // uniquely distinguishes this Peer
+                                          // from the other Peers for the AST node.
 
     protected int entry; // Term.ENTRY or Term.EXIT
     
@@ -302,24 +301,24 @@ public class FlowGraph {
      * succs. This Set is lazily constructed, as needed, by the 
      * method succEdgeKeys()
      */     
-    private Set succEdgeKeys;
+    private Set<EdgeKey> succEdgeKeys;
 
-    public Peer(Term node, List path_to_finally, int entry) {
+    public Peer(Term node, List<Term> path_to_finally, int entry) {
       this.node = node;
       this.path_to_finally = path_to_finally;
       this.inItem = null;
       this.outItems = null;
-      this.succs = new ArrayList();
-      this.preds = new ArrayList();
+      this.succs = new ArrayList<Edge>();
+      this.preds = new ArrayList<Edge>();
       this.entry = entry;
       this.succEdgeKeys = null;
     }
 
     /** The successor Edges. */
-    public List succs() { return succs; }
+    public List<Edge> succs() { return succs; }
 
     /** The predecessor Edges. */
-    public List preds() { return preds; }
+    public List<Edge> preds() { return preds; }
 
     /** The node for which this is a peer. */
     public Term node()  { return node; }
@@ -335,20 +334,19 @@ public class FlowGraph {
      * after data flow analysis is performed.
      */
     public DataFlow.Item outItem(EdgeKey key) {
-      return (DataFlow.Item) outItems.get(key);
+      return outItems.get(key);
     }
 
     public String toString() {
       return (entry == Term.ENTRY ? "entry: " : "") + node + path_to_finally;
     }
 
-    public Set succEdgeKeys() {
+    public Set<EdgeKey> succEdgeKeys() {
         if (this.succEdgeKeys == null) {
             // the successor edge keys have not yet been calculated. do it
             // now.
-            this.succEdgeKeys = new HashSet();
-            for (Iterator iter = this.succs.iterator(); iter.hasNext(); ) {
-                Edge e = (Edge)iter.next();
+            this.succEdgeKeys = new HashSet<EdgeKey>();
+            for (Edge e : this.succs) {
                 this.succEdgeKeys.add(e.getKey());
             }
             if (this.succEdgeKeys.isEmpty()) {
@@ -369,10 +367,10 @@ public class FlowGraph {
      */
     protected static class PeerKey {
 
-        protected List list;
+        protected List<Term> list;
         protected int entry;
 
-        public PeerKey(List list, int entry) {
+        public PeerKey(List<Term> list, int entry) {
             this.list = list;
             this.entry = entry;
         }
@@ -395,16 +393,15 @@ public class FlowGraph {
   public String toString() {
     
     StringBuffer sb = new StringBuffer();
-    Set todo = new HashSet(this.peers());
-    LinkedList queue = new LinkedList(startPeers());
+    Set<Peer> todo = new HashSet<Peer>(this.peers());
+    LinkedList<Peer> queue = new LinkedList<Peer>(startPeers());
     
     while (!queue.isEmpty()) {
         Peer p = (Peer)queue.removeFirst();
         todo.remove(p);
-//        sb.append(StringUtil.getShortNameComponent(p.node.getClass().getName()) + " ["+p.node+"]" + "\n");
+        //sb.append(StringUtil.getShortNameComponent(p.node.getClass().getName()) + " ["+p.node+"]" + "\n");
         sb.append(p.node+" (" + p.node.position()+ ")\n");
-        for (Iterator i = p.succs.iterator(); i.hasNext(); ) {
-            Edge e = (Edge)i.next();
+        for (Edge e : p.succs) {
             Peer q = e.getTarget();
             sb.append("    -> " + q.node+" (" + q.node.position()+ ")\n");
             //sb.append("  " + StringUtil.getShortNameComponent(q.node.getClass().getName()) + " ["+q.node+"]" + "\n");
@@ -416,7 +413,7 @@ public class FlowGraph {
         if (queue.isEmpty() && !todo.isEmpty()) {
             sb.append("\n\n***UNREACHABLE***\n");
             queue.addAll(todo);
-            todo = Collections.EMPTY_SET;
+            todo = Collections.<Peer>emptySet();
         }
     }
     

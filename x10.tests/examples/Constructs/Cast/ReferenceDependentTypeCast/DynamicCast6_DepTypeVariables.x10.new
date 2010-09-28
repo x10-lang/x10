@@ -48,7 +48,7 @@ public class DynamicCast6_DepTypeVariables extends x10Test {
 		return new X10DepTypeClassTwo(b,b);
 	}
 	
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new DynamicCast6_DepTypeVariables().execute();
 	}
 

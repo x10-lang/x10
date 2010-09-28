@@ -15,14 +15,14 @@ import harness.x10Test;
  * @author hhorii 02/2010
  */
 public class XTENLANG_655 extends x10Test {
-    public def thispop[X](x:X){X <: Vossol} : Int = at(x)(x.x());
+    public def thispop[X](x:X){X <: Vossol} : Int = x.x();
     public def thisint[X](x:X){X <: Int} {x.toOctalString();}
     
     public def run(): boolean {
         return true;
     }
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new XTENLANG_655().execute();
     }
 }

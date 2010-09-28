@@ -87,7 +87,6 @@
     catch
     class
     clocked
-    const
     continue
     def
     default
@@ -101,7 +100,6 @@
     finish
     for
     foreach
-    future
     global
     goto
     here
@@ -109,37 +107,30 @@
     implements
     import
     in
-    incomplete
     instanceof
     interface
-    local
     native
     new
     next
-    nonblocking
     null
     offer
     offers
     operator
-    or
     package
     private
     property
     protected
-    proto
     public
+    resume
     return
-    safe
     self
-    sequential
-    shared
     static
     struct
     super
     switch
     this
     throw
-    throws
+    transient
     true
     try
     type
@@ -216,11 +207,6 @@
                 $setResult($_clocked);
           $EndAction
         ./
-              | c o n s t
-        /.$BeginAction
-                $setResult($_const);
-          $EndAction
-        ./
               | c o n t i n u e
         /.$BeginAction
                 $setResult($_continue);
@@ -286,11 +272,6 @@
                 $setResult($_foreach);
           $EndAction
         ./
-              | f u t u r e
-        /.$BeginAction
-                $setResult($_future);
-          $EndAction
-        ./
               | g l o b a l
         /.$BeginAction
                 $setResult($_global);
@@ -321,14 +302,9 @@
                 $setResult($_import);
           $EndAction
         ./
-                | i n
+              | i n
         /.$BeginAction
                 $setResult($_in);
-          $EndAction
-        ./
-              | i n c o m p l e t e
-        /.$BeginAction
-                $setResult($_incomplete);
           $EndAction
         ./
               | i n s t a n c e o f
@@ -339,11 +315,6 @@
               | i n t e r f a c e
         /.$BeginAction
                 $setResult($_interface);
-          $EndAction
-        ./
-              | l o c a l
-        /.$BeginAction
-                $setResult($_local);
           $EndAction
         ./
               | n a t i v e
@@ -359,11 +330,6 @@
               | n e x t
         /.$BeginAction
                 $setResult($_next);
-          $EndAction
-        ./
-              | n o n b l o c k i n g
-        /.$BeginAction
-                $setResult($_nonblocking);
           $EndAction
         ./
               | n u l l
@@ -386,11 +352,6 @@
                 $setResult($_operator);
           $EndAction
         ./
-              | o r
-        /.$BeginAction
-                $setResult($_or);
-          $EndAction
-        ./
               | p a c k a g e
         /.$BeginAction
                 $setResult($_package);
@@ -411,14 +372,14 @@
                 $setResult($_protected);
           $EndAction
         ./
-              | p r o t o
-        /.$BeginAction
-                $setResult($_proto);
-          $EndAction
-        ./
               | p u b l i c
         /.$BeginAction
                 $setResult($_public);
+          $EndAction
+        ./
+              | r e s u m e
+        /.$BeginAction
+                $setResult($_resume);
           $EndAction
         ./
               | r e t u r n
@@ -426,24 +387,9 @@
                 $setResult($_return);
           $EndAction
         ./
-              | s a f e 
-        /.$BeginAction
-                $setResult($_safe);
-          $EndAction
-        ./
               | s e l f
         /.$BeginAction
                 $setResult($_self);
-          $EndAction
-        ./
-              | s e q u e n t i a l
-        /.$BeginAction
-                $setResult($_sequential);
-          $EndAction
-        ./
-              | s h a r e d
-        /.$BeginAction
-                $setResult($_shared);
           $EndAction
         ./
               | s t a t i c
@@ -476,9 +422,9 @@
                 $setResult($_throw);
           $EndAction
         ./
-              | t h r o w s
+              | t r a n s i e n t
         /.$BeginAction
-                $setResult($_throws);
+                $setResult($_transient);
           $EndAction
         ./
               | t r u e

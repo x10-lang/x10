@@ -13,6 +13,7 @@ package x10.io;
 
 import x10.compiler.NativeRep;
 import x10.compiler.Native;
+import x10.compiler.Incomplete;
 
 /**
  * Represents a file path.
@@ -32,7 +33,7 @@ import x10.compiler.Native;
  * catch (IOException) { }
  */
 public class File {
-    @NativeRep("java", "java.io.File", null, null)
+    @NativeRep("java", "java.io.File", null, "x10.rtt.Types.NATIVE_FILE")
     @NativeRep("c++", "x10aux::ref<x10::io::File__NativeFile>", "x10::io::File__NativeFile", null)
     protected final static class NativeFile {
         native def this(String);
@@ -55,10 +56,10 @@ public class File {
         @Native("c++", "(#0)->getAbsolutePath()")
         native def getAbsolutePath(): String;
         // here's what we must do if we make IOException non-native
-        //@Native("java", "new Object() { String eval(java.io.File f) { try { return f.getCanonicalPath(); } catch (java.io.IOException e) { throw new x10.io.IOException(e.getMessage()); } } }.eval(#0)")
-        @Native("java", "#0.getCanonicalPath()")
+        @Native("java", "new Object() { String eval(java.io.File f) { try { return f.getCanonicalPath(); } catch (java.io.IOException e) { throw new x10.io.IOException(e.getMessage()); } } }.eval(#0)")
+        // @Native("java", "#0.getCanonicalPath()")
         @Native("c++", "(#0)->getCanonicalPath()")
-        native def getCanonicalPath(): String throws IOException;
+        native def getCanonicalPath(): String; //throws IOException;
 
         @Native("java", "#0.canRead()")
         @Native("c++", "(#0)->canRead()")
@@ -110,10 +111,12 @@ FileSystem operations
     public static java.io.File createTempFile(java.lang.String, java.lang.String)       throws java.io.IOException;
 */
 
-    public const SEPARATOR: Char = '/';
-    public const PATH_SEPARATOR: Char = ':';
+    public static SEPARATOR: Char = '/';
+    public static PATH_SEPARATOR: Char = ':';
 
-    val parent: File!;
+    // TODO: This is questionable.
+    //       What does it mean to send a File to another node?
+    val parent: File;
     val name: String;
     val absolute: Boolean;
 
@@ -136,31 +139,38 @@ FileSystem operations
         }
     }
 
-    public def this(p: File!, n: String) {
+    public def this(p: File, n: String) {
         assert p != null;
         parent = p;
         name = n;
         absolute = p != null && p.absolute;
     }
 
-    // incomplete def this(u: URI);
+    // @Incomplete def this(u: URI);
 
-    public def lines(): ReaderIterator[String]! throws IOException = openRead().lines();
-    public def chars(): ReaderIterator[Char]! throws IOException = openRead().chars();
-    public def bytes(): ReaderIterator[Byte]! throws IOException = openRead().bytes();
-    public def openRead() throws IOException = new FileReader(this);
-    public def openWrite() throws IOException = new FileWriter(this);
-    public def printer() throws IOException = new Printer(openWrite());
+    public def lines(): ReaderIterator[String] //throws IOException 
+     = openRead().lines();
+    public def chars(): ReaderIterator[Char] //throws IOException
+     = openRead().chars();
+    public def bytes(): ReaderIterator[Byte] //throws IOException 
+    = openRead().bytes();
+    public def openRead() //throws IOException 
+    = new FileReader(this);
+    public def openWrite() //throws IOException 
+    = new FileWriter(this);
+    public def printer() //throws IOException 
+    = new Printer(openWrite());
 
     public def getName(): String = name;
-    public def getParentFile(): File! = parent;
+    public def getParentFile(): File = parent;
     public def getPath(): String = parent == null ? name : (parent.getPath() + SEPARATOR + name);
     public def isAbsolute(): Boolean = absolute;
 
     protected def nativeFile()  = new NativeFile(getPath());
 
-    public def getAbsoluteFile(): File! = new File(nativeFile().getAbsolutePath());
-    public def getCanonicalFile(): File!  throws IOException = new File(nativeFile().getCanonicalPath());
+    public def getAbsoluteFile(): File = new File(nativeFile().getAbsolutePath());
+    public def getCanonicalFile(): File  // throws IOException 
+    = new File(nativeFile().getCanonicalPath());
 
     // incomplete def toURL(): URL;
     // incomplete def toURI(): URI;
@@ -168,12 +178,13 @@ FileSystem operations
     public def exists(): Boolean = nativeFile().exists();
 
     // OS-specific
-    incomplete def isSymbolicLink(): Boolean;
-    incomplete def isAlias(): Boolean;
-    incomplete def hardLinkCount(): Boolean;
-    incomplete def inodeNumber(): Long;
-    incomplete def permissions(): Int; // FilePermission;
-
+    @Incomplete def isSymbolicLink(): Boolean {         throw new UnsupportedOperationException();}
+    @Incomplete def isAlias(): Boolean  {         throw new UnsupportedOperationException(); }
+    @Incomplete def hardLinkCount(): Boolean {         throw new UnsupportedOperationException(); }
+    @Incomplete def inodeNumber(): Long {         throw new UnsupportedOperationException(); }
+    @Incomplete def permissions(): Int {         throw new UnsupportedOperationException();} 
+    // FilePermission;
+    
     public def isDirectory(): Boolean = nativeFile().isDirectory();
     public def isFile(): Boolean = nativeFile().isFile();
     public def isHidden(): Boolean = nativeFile().isHidden();
@@ -182,7 +193,7 @@ FileSystem operations
     public def setLastModified(t:Long): Boolean = nativeFile().setLastModified(t);
     public def size(): Long = nativeFile().length();
 
-    incomplete public def compareTo(File): Int;
+    @Incomplete public def compareTo(File): Int {         throw new UnsupportedOperationException();}
 
     public def canRead(): Boolean = nativeFile().canRead();
     public def canWrite(): Boolean = nativeFile().canWrite();

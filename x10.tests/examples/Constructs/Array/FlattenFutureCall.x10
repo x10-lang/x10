@@ -26,15 +26,15 @@ public class FlattenFutureCall extends x10Test {
     val a: DistArray[int](2);
 
     public def this(): FlattenFutureCall = {
-        a = DistArray.make[int](([1..10, 1..10] as Region)->here, ((i,j): Point): int => { return i+j;});
+        a = DistArray.make[int](([1..10, 1..10] as Region)->here, ([i,j]: Point): int => i+j);
     }
     
     public def run(): boolean = {
-        var x: boolean = (future(a.dist(1, 1)){ true}).force();
+        var x: boolean = at(a.dist(1, 1)){ true};
         return x;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new FlattenFutureCall().execute();
     }
 }

@@ -90,7 +90,6 @@ namespace x10aux {
     
     
     template<class T, class R> R* alloc_rail_internal(x10_int length,
-                                                      bool remote,
                                                       x10_int alignment) {
         bool containsPtrs = x10aux::getRTT<T>()->containsPtrs;
         // assert power of 2
@@ -108,7 +107,7 @@ namespace x10aux {
         size_t alignDelta = alignPad-1;
         size_t alignMask = ~alignDelta;
         size_t sz = sizeof(R) + alignPad + length*sizeof(T);
-        R* uninitialized_rail = remote ? x10aux::alloc_remote<R>(sz,containsPtrs) : x10aux::alloc<R>(sz, containsPtrs);
+        R* uninitialized_rail = x10aux::alloc<R>(sz, containsPtrs);
         size_t raw_rail = (size_t)uninitialized_rail;
         size_t raw_data = (raw_rail + sizeof(R) + alignDelta) & alignMask;
         R *rail = new (uninitialized_rail) R(length, (T*)raw_data);
@@ -132,7 +131,7 @@ namespace x10aux {
     }
 
     template<class T, class R> R* alloc_aligned_rail(x10_int length, x10_int alignment) {
-        R* rail = alloc_rail_internal<T,R>(length, false, alignment);
+        R* rail = alloc_rail_internal<T,R>(length, alignment);
         rail->x10::lang::Object::_constructor();
         return rail;
     }
@@ -141,10 +140,6 @@ namespace x10aux {
         return alloc_aligned_rail<T,R>(length, 8);
     }
 
-    template<class T, class R> R* alloc_rail_remote(x10_int length) {
-        return alloc_rail_internal<T,R>(length, true, 8);
-    }
-    
     template<class T, class R> R* alloc_rail(x10_int length, T v0) {
         R* rail = alloc_rail<T,R>(length);
         T* data = rail->raw();

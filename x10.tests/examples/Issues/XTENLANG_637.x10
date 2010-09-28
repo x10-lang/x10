@@ -18,24 +18,24 @@ import harness.x10Test;
 class XTENLANG_637 extends x10Test {
 
     public def run(): boolean {
-        val sub = new Sub();
-        val csub = new Get[Sub](sub);
-        val csup1 : Get[Super]! = csub as Get[Super]!;
-        val csup2 : Get[Super]! = csub;
+        val sub = new Sub_637();
+        val csub = new Get_637[Sub_637](sub);
+        val csup1 : Get_637[Super_637] = csub;
+        val csup2 : Get_637[Super_637] = csub;
         return true;
     }
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new XTENLANG_637().execute();
     }
 }
 
-class Get[+X] {
+class Get_637[+X] {
   var x : X;
   def this(x:X) { this.x = x; }
 }        
-class Super  {
+class Super_637  {
 }
 
-class Sub extends Super {
+class Sub_637 extends Super_637 {
 }

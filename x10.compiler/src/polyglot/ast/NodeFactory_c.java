@@ -54,7 +54,7 @@ public class NodeFactory_c extends AbstractNodeFactory_c
     /**
      * Utility method to find an instance of an Extension Factory
      */
-    protected final ExtFactory findExtFactInstance(Class c) {
+    protected final ExtFactory findExtFactInstance(Class<?> c) {
         ExtFactory e = extFactory();
         while (e != null) {
             if (c.isInstance(e)) {
@@ -185,14 +185,14 @@ public class NodeFactory_c extends AbstractNodeFactory_c
         return n;
     }
 
-    public Block Block(Position pos, List statements) {
+    public Block Block(Position pos, List<Stmt> statements) {
         Block n = new Block_c(pos, CollectionUtil.nonNullList(statements));
         n = (Block)n.ext(extFactory.extBlock());
         n = (Block)n.del(delFactory.delBlock());
         return n;
     }
 
-    public SwitchBlock SwitchBlock(Position pos, List statements) {
+    public SwitchBlock SwitchBlock(Position pos, List<Stmt> statements) {
         SwitchBlock n = new SwitchBlock_c(pos, CollectionUtil.nonNullList(statements));
         n = (SwitchBlock)n.ext(extFactory.extSwitchBlock());
         n = (SwitchBlock)n.del(delFactory.delSwitchBlock());
@@ -283,8 +283,8 @@ public class NodeFactory_c extends AbstractNodeFactory_c
         return n;
     }
     
-    public ConstructorDecl ConstructorDecl(Position pos, FlagsNode flags, Id name, List<Formal> formals, List<TypeNode> throwTypes, Block body) {
-        ConstructorDecl n = new ConstructorDecl_c(pos, flags, name, CollectionUtil.nonNullList(formals), CollectionUtil.nonNullList(throwTypes), body);
+    public ConstructorDecl ConstructorDecl(Position pos, FlagsNode flags, Id name, List<Formal> formals,  Block body) {
+        ConstructorDecl n = new ConstructorDecl_c(pos, flags, name, CollectionUtil.nonNullList(formals), body);
         n = (ConstructorDecl)n.ext(extFactory.extConstructorDecl());
         n = (ConstructorDecl)n.del(delFactory.delConstructorDecl());
         return n;
@@ -409,8 +409,8 @@ public class NodeFactory_c extends AbstractNodeFactory_c
         return n;
     }
 
-    public MethodDecl MethodDecl(Position pos, FlagsNode flags, TypeNode returnType, Id name, List<Formal> formals, List<TypeNode> throwTypes, Block body) {
-        MethodDecl n = new MethodDecl_c(pos, flags, returnType, name, CollectionUtil.nonNullList(formals), CollectionUtil.nonNullList(throwTypes), body);
+    public MethodDecl MethodDecl(Position pos, FlagsNode flags, TypeNode returnType, Id name, List<Formal> formals, Block body) {
+        MethodDecl n = new MethodDecl_c(pos, flags, returnType, name, CollectionUtil.nonNullList(formals),  body);
         n = (MethodDecl)n.ext(extFactory.extMethodDecl());
         n = (MethodDecl)n.del(delFactory.delMethodDecl());
         return n;
@@ -423,14 +423,14 @@ public class NodeFactory_c extends AbstractNodeFactory_c
         return n;
     }
 
-    public NewArray NewArray(Position pos, TypeNode base, List dims, int addDims, ArrayInit init) {
+    public NewArray NewArray(Position pos, TypeNode base, List<Expr> dims, int addDims, ArrayInit init) {
         NewArray n = new NewArray_c(pos, base, CollectionUtil.nonNullList(dims), addDims, init);
         n = (NewArray)n.ext(extFactory.extNewArray());
         n = (NewArray)n.del(delFactory.delNewArray());
         return n;
     }
     
-    public NodeList NodeList(Position pos, NodeFactory nf, List nodes) {
+    public NodeList NodeList(Position pos, NodeFactory nf, List<Node> nodes) {
         NodeList n = new NodeList_c(pos, nf, nodes);
         n = (NodeList) n.ext(extFactory.extNodeList());
         n = (NodeList) n.del(delFactory.delNodeList());
@@ -451,7 +451,7 @@ public class NodeFactory_c extends AbstractNodeFactory_c
         return n;
     }
 
-    public SourceCollection SourceCollection(Position pos, List sources) {
+    public SourceCollection SourceCollection(Position pos, List<SourceFile> sources) {
         SourceCollection n = new SourceCollection_c(pos, CollectionUtil.nonNullList(sources));
         n = (SourceCollection)n.ext(extFactory.extSourceCollection());
         n = (SourceCollection)n.del(delFactory.delSourceCollection());
@@ -479,7 +479,7 @@ public class NodeFactory_c extends AbstractNodeFactory_c
         return n;
     }
 
-    public Switch Switch(Position pos, Expr expr, List elements) {
+    public Switch Switch(Position pos, Expr expr, List<SwitchElement> elements) {
         Switch n = new Switch_c(pos, expr, CollectionUtil.nonNullList(elements));
         n = (Switch)n.ext(extFactory.extSwitch());
         n = (Switch)n.del(delFactory.delSwitch());
@@ -500,7 +500,7 @@ public class NodeFactory_c extends AbstractNodeFactory_c
         return n;
     }
 
-    public Try Try(Position pos, Block tryBlock, List catchBlocks, Block finallyBlock) {
+    public Try Try(Position pos, Block tryBlock, List<Catch> catchBlocks, Block finallyBlock) {
         Try n = new Try_c(pos, tryBlock, CollectionUtil.nonNullList(catchBlocks), finallyBlock);
         n = (Try)n.ext(extFactory.extTry());
         n = (Try)n.del(delFactory.delTry());

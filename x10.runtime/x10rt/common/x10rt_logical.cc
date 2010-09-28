@@ -10,6 +10,7 @@
 #include <x10rt_net.h>
 #include <x10rt_cuda.h>
 #include <x10rt_internal.h>
+#include <x10rt_ser.h>
 
 namespace {
 
@@ -28,9 +29,13 @@ namespace {
     };
 
     bool has_remote_op;
+    bool has_collectives;
 
     x10rt_lgl_ctx g;
 }
+
+static void one_setter (void *arg)
+{ *((int*)arg) = 1; }
 
 x10rt_place x10rt_lgl_nplaces (void)
 {
@@ -105,16 +110,16 @@ namespace {
 
     void send_finish(x10rt_place to, x10rt_remote_ptr counter_addr)
     {
-        // TODO: serialization
-        x10rt_msg_params p = { to, send_finish_id, &counter_addr, sizeof(counter_addr) };
-        x10rt_net_send_msg(&p);
+        x10rt_serbuf b; x10rt_serbuf_init(&b, to, send_finish_id);
+        x10rt_serbuf_write(&b, &counter_addr);
+        x10rt_net_send_msg(&b.p);
+        x10rt_serbuf_free(&b);
     }
 
     void recv_finish (const x10rt_msg_params *p)
     {
-        x10rt_remote_ptr counter_addr;
-        char *buf = (char*) p->msg;
-        ::memcpy(&counter_addr, buf, sizeof(counter_addr));
+        x10rt_deserbuf b; x10rt_deserbuf_init(&b, p);
+        x10rt_remote_ptr counter_addr; x10rt_deserbuf_read(&b, &counter_addr);
         (*(x10rt_place*)(size_t)counter_addr)--;
     }
 
@@ -122,34 +127,25 @@ namespace {
 
     void send_naccels (x10rt_place to, x10rt_place num, x10rt_place *counter)
     {
-        x10rt_place from = htonl(x10rt_net_here());
-        num = htonl(num);
+        x10rt_place from = x10rt_net_here();
         x10rt_remote_ptr counter_addr = (x10rt_remote_ptr)(size_t)counter;
-        char *buf = (char*) malloc(sizeof(from)+sizeof(num)+sizeof(counter_addr));
-        size_t so_far = 0;
-        memcpy(buf+so_far, &from, sizeof(from)); so_far+=sizeof(from);
-        memcpy(buf+so_far, &num, sizeof(num)); so_far+=sizeof(num);
-        memcpy(buf+so_far, &counter_addr, sizeof(counter_addr)); so_far+=sizeof(counter_addr);
-        x10rt_msg_params p = { to, send_naccels_id, buf, so_far };
-        x10rt_net_send_msg(&p);
-        free(buf);
+        x10rt_serbuf b; x10rt_serbuf_init(&b, to, send_naccels_id);
+        x10rt_serbuf_write(&b, &from);
+        x10rt_serbuf_write(&b, &num);
+        x10rt_serbuf_write(&b, &counter_addr);
+        x10rt_msg_params *p = &b.p;
+        x10rt_net_send_msg(p);
+        x10rt_serbuf_free(&b);
     }
 
     void recv_naccels (const x10rt_msg_params *p)
     {
-        x10rt_place from;
-        x10rt_place num;
-        x10rt_remote_ptr counter_addr;
-        char *buf = (char*) p->msg;
-        size_t so_far = 0;
-        memcpy(&from, buf+so_far, sizeof(from)); so_far+=sizeof(from);
-        memcpy(&num, buf+so_far, sizeof(num)); so_far+=sizeof(num);
-        memcpy(&counter_addr, buf+so_far, sizeof(counter_addr)); so_far+=sizeof(counter_addr);
-        from = ntohl(from);
-        num = ntohl(num);
+        x10rt_deserbuf b; x10rt_deserbuf_init(&b, p);
+        x10rt_place from; x10rt_deserbuf_read(&b, &from);
+        x10rt_place num; x10rt_deserbuf_read(&b, &num);
+        x10rt_remote_ptr counter_addr; x10rt_deserbuf_read(&b, &counter_addr);
 
         g.naccels[from] = num;
-        
         send_finish(from, counter_addr);
     }
 
@@ -157,46 +153,36 @@ namespace {
 
     void send_cat (x10rt_place to, x10rt_place child, unsigned long cat, x10rt_place *counter)
     {
-        x10rt_place from = htonl(x10rt_net_here());
-        child = htonl(child);
-        cat = htonl(cat);
+        x10rt_place from = x10rt_net_here();
         x10rt_remote_ptr counter_addr = (x10rt_remote_ptr)(size_t)counter;
-        // TODO: serialize
-        char *buf = (char*) malloc(sizeof(from)+sizeof(child)+sizeof(cat)+sizeof(counter_addr));
-        size_t so_far = 0;
-        memcpy(buf+so_far, &from, sizeof(from)); so_far+=sizeof(from);
-        memcpy(buf+so_far, &child, sizeof(child)); so_far+=sizeof(child);
-        memcpy(buf+so_far, &cat, sizeof(cat)); so_far+=sizeof(cat);
-        memcpy(buf+so_far, &counter_addr, sizeof(counter_addr)); so_far+=sizeof(counter_addr);
-        x10rt_msg_params p = { to, send_cat_id, buf, so_far };
-        x10rt_net_send_msg(&p);
+        x10rt_serbuf b; x10rt_serbuf_init(&b, to, send_cat_id);
+        x10rt_serbuf_write(&b, &from);
+        x10rt_serbuf_write(&b, &child);
+        x10rt_serbuf_write(&b, &cat);
+        x10rt_serbuf_write(&b, &counter_addr);
+        x10rt_net_send_msg(&b.p);
+        x10rt_serbuf_free(&b);
     }
 
     void recv_cat (const x10rt_msg_params *p)
     {
-        x10rt_place from;
-        x10rt_place child;
-        unsigned long cat;
-        x10rt_remote_ptr counter_addr;
-        char *buf = (char*) p->msg;
-        size_t so_far = 0;
-        memcpy(&from, buf+so_far, sizeof(from)); so_far+=sizeof(from);
-        memcpy(&child, buf+so_far, sizeof(child)); so_far+=sizeof(child);
-        memcpy(&cat, buf+so_far, sizeof(cat)); so_far+=sizeof(cat);
-        memcpy(&counter_addr, buf+so_far, sizeof(counter_addr)); so_far+=sizeof(counter_addr);
-        from = ntohl(from);
-        child = ntohl(child);
-        cat = ntohl(cat);
+        x10rt_deserbuf b; x10rt_deserbuf_init(&b, p);
+        x10rt_place from; x10rt_deserbuf_read(&b, &from);
+        x10rt_place child; x10rt_deserbuf_read(&b, &child);
+        unsigned long cat; x10rt_deserbuf_read(&b, &cat);
+        x10rt_remote_ptr counter_addr; x10rt_deserbuf_read(&b, &counter_addr);
 
         g.type[g.child[from][child]] = (x10rt_lgl_cat) cat;
-        
         send_finish(from, counter_addr);
     }
 
     void x10rt_lgl_internal_init (x10rt_lgl_cfg_accel *cfgv, x10rt_place cfgc, x10rt_msg_type *counter)
     {
         x10rt_emu_init(counter);
+        x10rt_emu_coll_init(counter);
+        sleep(1);
         has_remote_op = getenv("X10RT_EMULATE_REMOTE_OP")==NULL && 0!=x10rt_net_supports(X10RT_OPT_REMOTE_OP);
+        has_collectives = getenv("X10RT_EMULATE_COLLECTIVES")==NULL && 0!=x10rt_net_supports(X10RT_OPT_COLLECTIVES);
         g.nhosts = x10rt_net_nhosts();
 
         x10rt_place num_local_spes = 0;
@@ -267,7 +253,11 @@ namespace {
         x10rt_net_register_msg_receiver(send_cat_id, recv_cat);
         x10rt_net_register_msg_receiver(send_finish_id, recv_finish);
 
-        x10rt_net_internal_barrier();
+        {
+            int finished = 0;
+            x10rt_lgl_barrier(0, x10rt_lgl_here(), one_setter, &finished);
+            while (!finished) { x10rt_emu_coll_probe(); x10rt_net_probe(); }
+        }
 
         // Spread the knowledge of accelerators around
         
@@ -280,7 +270,11 @@ namespace {
         }
         while (finish_counter!=0) x10rt_net_probe();
 
-        x10rt_net_internal_barrier();
+        {
+            int finished = 0;
+            x10rt_lgl_barrier(0, x10rt_lgl_here(), one_setter, &finished);
+            while (!finished) { x10rt_emu_coll_probe(); x10rt_net_probe(); }
+        }
 
         // Now we can calculate the total number of places
         g.nplaces = x10rt_lgl_nhosts();
@@ -326,7 +320,11 @@ namespace {
             g.type[g.child[x10rt_lgl_here()][j]] = cfgv[j].cat;
         }
 
-        x10rt_net_internal_barrier();
+        {
+            int finished = 0;
+            x10rt_lgl_barrier(0, x10rt_lgl_here(), one_setter, &finished);
+            while (!finished) { x10rt_emu_coll_probe(); x10rt_net_probe(); }
+        }
 
         for (x10rt_place i=0 ; i<x10rt_lgl_nhosts() ; ++i) {
             if (i==x10rt_lgl_here()) continue;
@@ -337,7 +335,11 @@ namespace {
 
         while (finish_counter!=0) x10rt_net_probe();
 
-        x10rt_net_internal_barrier();
+        {
+            int finished = 0;
+            x10rt_lgl_barrier(0, x10rt_lgl_here(), one_setter, &finished);
+            while (!finished) { x10rt_emu_coll_probe(); x10rt_net_probe(); }
+        }
 
     }
 
@@ -356,7 +358,7 @@ void x10rt_lgl_init (int *argc, char ***argv, x10rt_msg_type *counter)
 {
     x10rt_net_init(argc, argv, counter);
     char env[1024] = "";
-    sprintf(env, ENV"%lu",  x10rt_net_here());
+    sprintf(env, ENV"%lu",  (unsigned long)x10rt_net_here());
     const char *str = getenv(env);
     if (str==NULL) {
         sprintf(env, ENV);
@@ -499,9 +501,13 @@ void x10rt_lgl_register_put_receiver_cuda (x10rt_msg_type msg_type,
     }
 }
 
-void x10rt_lgl_internal_barrier (void)
+void x10rt_lgl_registration_complete (void)
 {
-    x10rt_net_internal_barrier();
+    {
+        int finished = 0;
+        x10rt_lgl_barrier(0, x10rt_lgl_here(), one_setter, &finished);
+        while (!finished) x10rt_lgl_probe();
+    }
 
     // accelerators
     for (x10rt_place i=0 ; i<g.naccels[x10rt_lgl_here()] ; ++i) {
@@ -537,7 +543,8 @@ void x10rt_lgl_send_msg (x10rt_msg_params *p)
                 abort();
             } break;
             default: {
-                fprintf(stderr,"Place %lu has invalid type %d in send_msg.\n", d, x10rt_lgl_type(d));
+                fprintf(stderr,"Place %lu has invalid type %d in send_msg.\n",
+                        (unsigned long)d, (int)x10rt_lgl_type(d));
                 abort();
             }
         }
@@ -567,7 +574,8 @@ void x10rt_lgl_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
                 abort();
             } break;
             default: {
-                fprintf(stderr,"Place %lu has invalid type %d in send_get.\n", d, x10rt_lgl_type(d));
+                fprintf(stderr,"Place %lu has invalid type %d in send_get.\n",
+                        (unsigned long)d, (int)x10rt_lgl_type(d));
                 abort();
             }
         }
@@ -597,7 +605,8 @@ void x10rt_lgl_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
                 abort();
             } break;
             default: {
-                fprintf(stderr,"Place %lu has invalid type %d in send_put.\n", d, x10rt_lgl_type(d));
+                fprintf(stderr,"Place %lu has invalid type %d in send_put.\n",
+                        (unsigned long)d, (int)x10rt_lgl_type(d));
                 abort();
             }
         }
@@ -607,7 +616,8 @@ void x10rt_lgl_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
     }
 }
 
-x10rt_remote_ptr x10rt_lgl_remote_alloc (x10rt_place d, x10rt_remote_ptr sz)
+void x10rt_lgl_remote_alloc (x10rt_place d, x10rt_remote_ptr sz,
+                             x10rt_completion_handler3 *ch, void *arg)
 {
     assert(d < x10rt_lgl_nplaces());
 
@@ -619,7 +629,8 @@ x10rt_remote_ptr x10rt_lgl_remote_alloc (x10rt_place d, x10rt_remote_ptr sz)
         switch (x10rt_lgl_type(d)) {
             case X10RT_LGL_CUDA: {
                 x10rt_cuda_ctx *cctx = static_cast<x10rt_cuda_ctx*>(g.accel_ctxs[g.index[d]]);
-                return (x10rt_remote_ptr)(size_t) x10rt_cuda_device_alloc(cctx, sz);
+                ch((x10rt_remote_ptr)(size_t) x10rt_cuda_device_alloc(cctx, sz),arg);
+                break;
             }
             case X10RT_LGL_SPE: {
                 fprintf(stderr,"SPE remote_alloc still unsupported.\n");
@@ -627,7 +638,7 @@ x10rt_remote_ptr x10rt_lgl_remote_alloc (x10rt_place d, x10rt_remote_ptr sz)
             }
             default: {
                 fprintf(stderr,"Place %lu has invalid type %d in remote_alloc.\n",
-                               d, x10rt_lgl_type(d));
+                               (unsigned long)d, (int)x10rt_lgl_type(d));
                 abort();
             }
         }
@@ -635,7 +646,6 @@ x10rt_remote_ptr x10rt_lgl_remote_alloc (x10rt_place d, x10rt_remote_ptr sz)
         fprintf(stderr,"Routing of remote_alloc still unsupported.\n");
         abort();
     }
-    return 0;
 }
 void x10rt_lgl_remote_free (x10rt_place d, x10rt_remote_ptr ptr)
 {
@@ -657,7 +667,7 @@ void x10rt_lgl_remote_free (x10rt_place d, x10rt_remote_ptr ptr)
             } break;
             default: {
                 fprintf(stderr,"Place %lu has invalid type %d in remote_free.\n",
-                               d, x10rt_lgl_type(d));
+                               (unsigned long)d, (int)x10rt_lgl_type(d));
                 abort();
             }
         }
@@ -691,7 +701,7 @@ void x10rt_lgl_remote_op (x10rt_place d, x10rt_remote_ptr remote_addr,
             } break;
             default: {
                 fprintf(stderr,"Place %lu has invalid type %d in remote_op_xor.\n",
-                               d, x10rt_lgl_type(d));
+                               (unsigned long)d, (int)x10rt_lgl_type(d));
                 abort();
             }
         }
@@ -723,7 +733,7 @@ void x10rt_lgl_blocks_threads (x10rt_place d, x10rt_msg_type type, int dyn_shm,
             } break;
             default: {
                 fprintf(stderr,"Place %lu has invalid type %d in remote_op_xor.\n",
-                               d, x10rt_lgl_type(d));
+                               (unsigned long)d, (int)x10rt_lgl_type(d));
                 abort();
             }
         }
@@ -749,10 +759,12 @@ void x10rt_lgl_probe (void)
             abort();
         }
     }
+    x10rt_emu_coll_probe();
 }
 
 void x10rt_lgl_finalize (void)
 {
+    x10rt_emu_coll_finalize();
     for (x10rt_place i=0 ; i<g.naccels[x10rt_lgl_here()] ; ++i) {
         switch (g.type[g.child[x10rt_lgl_here()][i]]) {
             case X10RT_LGL_CUDA:
@@ -771,7 +783,6 @@ void x10rt_lgl_finalize (void)
 
     /* discard global node database */
     for (x10rt_place i=0 ; i<x10rt_lgl_nhosts() ; ++i) {
-        free(g.child[i]);
     }
     free(g.child);
     free(g.type);
@@ -779,3 +790,110 @@ void x10rt_lgl_finalize (void)
     free(g.naccels);
 
 }
+
+void x10rt_lgl_team_new (x10rt_place placec, x10rt_place *placev,
+                         x10rt_completion_handler2 *ch, void *arg)
+{
+    for (x10rt_place i=0 ; i<placec ; ++i) {
+        if (placev[i] >= x10rt_lgl_nhosts()) {
+            fprintf(stderr,"teams can only be across non-accelerator places.\n");
+            abort();
+        }
+    }
+    if (has_collectives) {
+        x10rt_net_team_new(placec, placev, ch, arg);
+    } else {
+        x10rt_emu_team_new(placec, placev, ch, arg);
+    }
+}
+
+void x10rt_lgl_team_del (x10rt_team team, x10rt_place role,
+                         x10rt_completion_handler *ch, void *arg)
+{
+    if (has_collectives) {
+        x10rt_net_team_del(team, role, ch, arg);
+    } else {
+        x10rt_emu_team_del(team, role, ch, arg);
+    }
+}
+
+x10rt_place x10rt_lgl_team_sz (x10rt_team team)
+{
+    if (has_collectives) {
+        return x10rt_net_team_sz(team);
+    } else {
+        return x10rt_emu_team_sz(team);
+    }
+}
+
+void x10rt_lgl_team_split (x10rt_team parent, x10rt_place parent_role,
+                           x10rt_place color, x10rt_place new_role,
+                           x10rt_completion_handler2 *ch, void *arg)
+{
+    if (has_collectives) {
+        x10rt_net_team_split(parent, parent_role, color, new_role, ch, arg);
+    } else {
+        x10rt_emu_team_split(parent, parent_role, color, new_role, ch, arg);
+    }
+}
+
+void x10rt_lgl_barrier (x10rt_team team, x10rt_place role,
+                        x10rt_completion_handler *ch, void *arg)
+{
+    if (has_collectives) {
+        x10rt_net_barrier(team, role, ch, arg);
+    } else {
+        x10rt_emu_barrier(team, role, ch, arg);
+    }
+}
+
+void x10rt_lgl_bcast (x10rt_team team, x10rt_place role,
+                      x10rt_place root, const void *sbuf, void *dbuf,
+                      size_t el, size_t count,
+                      x10rt_completion_handler *ch, void *arg)
+{
+    if (has_collectives) {
+        x10rt_net_bcast(team, role, root, sbuf, dbuf, el, count, ch, arg);
+    } else {
+        x10rt_emu_bcast(team, role, root, sbuf, dbuf, el, count, ch, arg);
+    }
+}
+
+void x10rt_lgl_scatter (x10rt_team team, x10rt_place role,
+                        x10rt_place root, const void *sbuf, void *dbuf,
+                        size_t el, size_t count,
+                        x10rt_completion_handler *ch, void *arg)
+{
+    if (has_collectives) {
+        x10rt_net_scatter(team, role, root, sbuf, dbuf, el, count, ch, arg);
+    } else {
+        x10rt_emu_scatter(team, role, root, sbuf, dbuf, el, count, ch, arg);
+    }
+}
+
+void x10rt_lgl_alltoall (x10rt_team team, x10rt_place role,
+                         const void *sbuf, void *dbuf,
+                         size_t el, size_t count,
+                         x10rt_completion_handler *ch, void *arg)
+{
+    if (has_collectives) {
+        x10rt_net_alltoall(team, role, sbuf, dbuf, el, count, ch, arg);
+    } else {
+        x10rt_emu_alltoall(team, role, sbuf, dbuf, el, count, ch, arg);
+    }
+}
+
+void x10rt_lgl_allreduce (x10rt_team team, x10rt_place role,
+                          const void *sbuf, void *dbuf,
+                          x10rt_red_op_type op, 
+                          x10rt_red_type dtype,
+                          size_t count,
+                          x10rt_completion_handler *ch, void *arg)
+{
+    if (has_collectives) {
+        x10rt_net_allreduce(team, role, sbuf, dbuf, op, dtype, count, ch, arg);
+    } else {
+        x10rt_emu_allreduce(team, role, sbuf, dbuf, op, dtype, count, ch, arg);
+    }
+}
+

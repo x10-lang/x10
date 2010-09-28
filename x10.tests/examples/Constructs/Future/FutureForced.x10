@@ -10,18 +10,19 @@
  */
 
 import harness.x10Test;
+import x10.util.Future;
 
 /** Check that forced works correctly.
  * Future test.
  */
 public class FutureForced extends x10Test {
 	public def run(): boolean = {
-		val x = future  41;
+		val x = Future.make( () => 41 );
 		val v = x();
 		return x.forced();
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new FutureForced().execute();
 	}
 }

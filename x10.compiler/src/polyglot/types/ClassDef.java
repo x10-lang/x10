@@ -31,6 +31,7 @@ public interface ClassDef extends MemberDef
     public boolean inStaticContext();
     
     public static class Kind extends Enum {
+        private static final long serialVersionUID = 2700062381999037549L;
         public Kind(String name) {
             super(name);
         }

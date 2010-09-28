@@ -29,7 +29,7 @@ public class Pair<S,T>
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof Pair) {
+		if (obj instanceof Pair<?, ?>) {
 			Pair<?,?> p = (Pair<?,?>) obj;
 			boolean r1 = fst == null ? p.fst == null : fst.equals(p.fst);
 			boolean r2 = snd == null ? p.snd == null : snd.equals(p.snd);

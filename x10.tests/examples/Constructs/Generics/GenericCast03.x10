@@ -18,13 +18,13 @@ import harness.x10Test;
 public class GenericCast03 extends GenericTest {
 
     interface I[T] {
-        global def m(T):int;
+        def m(T):int;
     }
 
     
     class A implements I[int] {
-        public global def m(int) = 0;
-        public global def m(String) = 1;
+        public def m(int) = 0;
+        public def m(String) = 1;
     }
 
     public def run() = {
@@ -36,7 +36,7 @@ public class GenericCast03 extends GenericTest {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new GenericCast03().execute();
     }
 }

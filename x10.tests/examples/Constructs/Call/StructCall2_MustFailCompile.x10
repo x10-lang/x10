@@ -42,7 +42,7 @@ public class Struct2Call_MustFailCompile extends x10Test  {
 		  val a: S1 = S1(1, 3, "You looked like you were loathing the simple cobweb.");
           return true;
 	}
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new StructCall2_MustFailCompile().execute();
 	}
 }

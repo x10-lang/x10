@@ -26,7 +26,7 @@ public class ArrayCopy2 extends x10Test {
      */
     static def outOfRange(D: Dist, x: Point): boolean {
         try {
-            async(D(x)) {}; // dummy op just to use D(x)
+            async at(D(x)) {}; // dummy op just to use D(x)
         } catch (Throwable) {
             return true;
         }
@@ -105,7 +105,7 @@ public class ArrayCopy2 extends x10Test {
         finish ateach (i:Point(E.rank) in E) chk(accessed_b(i) == 1);
     }
 
-    public const N: int = 3;
+    public static N: int = 3;
 
     /**
      * For all combinations of dists of arrays B and A,
@@ -116,7 +116,7 @@ public class ArrayCopy2 extends x10Test {
         val R:Region(4) = [0..N-1, 0..N-1, 0..N-1, 0..N-1];
         val TestDists = [0..dist2.N_DIST_TYPES-1, 0..dist2.N_DIST_TYPES-1];
 
-        for (distP(dX,dY):Point(2) in TestDists) {
+        for (distP[dX,dY]:Point(2) in TestDists) {
             val D= dist2.getDist(dX, R);
             val E = dist2.getDist(dY, R);
 	    /*
@@ -131,14 +131,14 @@ public class ArrayCopy2 extends x10Test {
 	    */
             chk(D.region.equals(E.region) && D.region.equals(R));
             val A = DistArray.make[int](D);
-            val B = DistArray.make[int](E, (p(i,j,k,l): Point) => { val x = ((i*N+j)*N+k)*N+l; x*x+1 });
+            val B = DistArray.make[int](E, (p[i,j,k,l]: Point) => { val x = ((i*N+j)*N+k)*N+l; x*x+1 });
             arrayCopy(A, B);
             arrayEqual(A, B);
         }
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new ArrayCopy2().execute();
     }
 
@@ -148,10 +148,10 @@ public class ArrayCopy2 extends x10Test {
      */
     static class dist2 {
 
-        const BLOCK: int = 0;
-        const CONSTANT: int = 1;
-        //const BLOCKCYCLIC: int = 1;
-	const N_DIST_TYPES=2;
+        static BLOCK: int = 0;
+        static CONSTANT: int = 1;
+        //static BLOCKCYCLIC: int = 1;
+	static N_DIST_TYPES=2;
         /**
          * Return a dist with region r, of type disttype
          */

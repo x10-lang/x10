@@ -19,17 +19,19 @@ import harness.x10Test;
  */
 
 public class AtCheck3_MustFailCompile extends x10Test {
-	var x:AtCheck3_MustFailCompile =null;
-    def m(b: AtCheck3_MustFailCompile, d:AtCheck3_MustFailCompile) {
-    	val c = b;
-	    at ( b) {
-	     val e = d.x;
-	    }
-    }
+	class T {
+		private val root = GlobalRef[T](this);
+	    var x:AtCheck3_MustFailCompile =null;
+        def m(b: T, d:T) {
+	       // at ( b.root) {
+	           val e = d.root().x;
+	       // }
+        }
+	}
     
     public def run()=true;
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new AtCheck3_MustFailCompile().execute();
     }
 }

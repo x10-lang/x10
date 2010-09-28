@@ -104,7 +104,7 @@ public class NewInstanceSynth extends AbstractStateSynth implements IStmtSynth, 
         if (annotations.size() > 0) {
             aNew = (New) ((X10Del) aNew.del()).annotations(annotations);
         }
-        Expr construct = aNew.constructorInstance(constructorIns).type(PlaceChecker.AddIsHereClause(classType, xct));            
+        Expr construct = aNew.constructorInstance(constructorIns).type(classType); // PlaceChecker.AddIsHereClause(classType, xct));            
         return construct;
     }
     

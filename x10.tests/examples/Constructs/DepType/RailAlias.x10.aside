@@ -25,7 +25,7 @@ public class RailAlias extends x10Test {
           for (val (p) in a.region) a(p) = 1.0; 
           return true;
      }
-     public static def main(var a: Rail[String]): void = {
+     public static def main(var a: Array[String](1)): void = {
     	 new RailAlias().execute();
      }
 }

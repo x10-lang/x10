@@ -18,7 +18,7 @@
  * It also can serve as an example of using a closure.
  */
 public class Integrate { 
-  const epsilon = 1.0e-12;
+  static val epsilon = 1.0e-9;
 
   val fun:(double)=>double;
 
@@ -31,6 +31,7 @@ public class Integrate {
   }
 
   private def recEval(l:double, fl:double, r:double, fr:double, a:double) {
+	  Console.OUT.println("receval:" + l + " " + r);
     val h = (r - l) / 2;
     val hh = h / 2;
     val c = l + h;
@@ -48,9 +49,9 @@ public class Integrate {
     return resHolder.value + expr2;
   }
  
-  public static def main(args:Rail[String]!) {
+  public static def main(args:Array[String](1)) {
     val obj = new Integrate((x:double)=>(x*x + 1.0) * x);
-    val xMax = args.length > 0 ? Int.parse(args(0)) : 10;
+    val xMax = args.size > 0 ? Int.parse(args(0)) : 10;
     val area = obj.computeArea(0, xMax);
     Console.OUT.println("The area of (x*x +1) * x from 0 to "+xMax+" is "+area);
   }

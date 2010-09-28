@@ -25,14 +25,7 @@ class StructSpheres {
     static type Real = Float;
 
 
-    static struct Vector3 {
-
-        public def this (x:Real, y:Real, z:Real) {
-            this.x = x;
-            this.y = y;
-            this.z = z;
-        }
-
+    static struct Vector3(x:Real, y:Real, z:Real) {
         public def getX () = x; 
         public def getY () = y;
         public def getZ () = z;
@@ -47,8 +40,6 @@ class StructSpheres {
         public def length () = Math.sqrt(length2());
 
         public def length2 () = x*x + y*y + z*z;
-
-        protected val x:Real, y:Real, z:Real;
     }
 
 
@@ -67,7 +58,7 @@ class StructSpheres {
     }
 
 
-    public static def main (Rail[String]) {
+    public static def main (Array[String]) {
 
         val reps = 7500;
 
@@ -81,7 +72,7 @@ class StructSpheres {
         // the array can go on the heap
         // but the elements ought to be /*inlined*/ in the array
         val spheres =
-            ValRail.make[WorldObject](num_objects, (i:Int) => {
+            new Array[WorldObject](num_objects, (i:int) => {
                 val x = (ran.nextDouble()*world_size) as Real;
                 val y = (ran.nextDouble()*world_size) as Real;
                 val z = (ran.nextDouble()*world_size) as Real;
@@ -94,7 +85,7 @@ class StructSpheres {
         var counter : Long = 0;
 
         // HOT LOOP BEGINS
-        for ((frame):Point in [1..reps]) {
+        for ([frame]:Point in 1..reps) {
 
             val x = (ran.nextDouble()*world_size) as Real;
             val y = (ran.nextDouble()*world_size) as Real;
@@ -102,7 +93,7 @@ class StructSpheres {
 
             val pos = Vector3(x,y,z);
 
-            for ((i):Point in [0..spheres.length-1]) {
+            for ([i]:Point in [0..spheres.size-1]) {
                 if (spheres(i).intersects(pos)) {
                     counter++;
                 }

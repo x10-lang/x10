@@ -46,13 +46,13 @@ import harness.x10Test;
 public class ClockTest7 extends x10Test {
 
 	var val: int = 0;
-	const N: int = 16;
+	static N: int = 16;
 
 	public def run(): boolean = {
 		try {
 		val c: Clock = Clock.make();
 
-		finish foreach (val (i): Point in 0..(N-1)) {
+		finish foreach ([i] in 0..(N-1)) {
 			atomic val++;
 			x10.io.Console.OUT.println("Activity "+i+" phase 0");
 			next;
@@ -79,7 +79,7 @@ public class ClockTest7 extends x10Test {
 		return false;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(Array[String](1)) {
 		new ClockTest7().executeAsync();
 	}
 }

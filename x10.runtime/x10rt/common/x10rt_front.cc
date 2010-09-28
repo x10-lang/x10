@@ -35,7 +35,7 @@ x10rt_msg_type x10rt_register_put_receiver (x10rt_finder *cb1, x10rt_notifier *c
 }
 
 void x10rt_registration_complete (void)
-{ x10rt_lgl_internal_barrier(); }
+{ x10rt_lgl_registration_complete(); }
 
 x10rt_place x10rt_nplaces (void)
 { return x10rt_lgl_nplaces(); }
@@ -77,10 +77,11 @@ void x10rt_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 void x10rt_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 { return x10rt_lgl_send_put(p, buf, len); }
 
-x10rt_remote_ptr x10rt_remote_alloc (x10rt_place place, x10rt_remote_ptr sz)
-{ return x10rt_lgl_remote_alloc(place, sz); }
+void x10rt_remote_alloc (x10rt_place place, x10rt_remote_ptr sz,
+                         x10rt_completion_handler3 *ch, void *arg)
+{ x10rt_lgl_remote_alloc(place, sz, ch, arg); }
 void x10rt_remote_free (x10rt_place place, x10rt_remote_ptr ptr)
-{ return x10rt_lgl_remote_free(place, ptr); }
+{ x10rt_lgl_remote_free(place, ptr); }
 
 
 void x10rt_remote_op (x10rt_place place, x10rt_remote_ptr remote_addr,
@@ -89,9 +90,6 @@ void x10rt_remote_op (x10rt_place place, x10rt_remote_ptr remote_addr,
 
 x10rt_remote_ptr x10rt_register_mem (void *ptr, size_t len)
 { return x10rt_lgl_register_mem(ptr, len); }
-
-void x10rt_barrier (void)
-{ x10rt_lgl_internal_barrier(); }
 
 void x10rt_blocks_threads (x10rt_place d, x10rt_msg_type type, int dyn_shm,
                            int *blocks, int *threads, const int *cfg)
@@ -103,3 +101,82 @@ void x10rt_probe (void)
 
 void x10rt_finalize (void)
 { x10rt_lgl_finalize(); }
+
+
+
+void x10rt_team_new (x10rt_place placec, x10rt_place *placev,
+                     x10rt_completion_handler2 *ch, void *arg)
+{
+    x10rt_lgl_team_new(placec, placev, ch, arg);
+}
+
+void x10rt_team_del (x10rt_team team, x10rt_place role,
+                     x10rt_completion_handler *ch, void *arg)
+{
+    x10rt_lgl_team_del(team, role, ch, arg);
+}
+
+x10rt_place x10rt_team_sz (x10rt_team team)
+{
+    return x10rt_lgl_team_sz(team);
+}
+
+void x10rt_team_split (x10rt_team parent, x10rt_place parent_role,
+                       x10rt_place color, x10rt_place new_role,
+                       x10rt_completion_handler2 *ch, void *arg)
+{
+    x10rt_lgl_team_split(parent, parent_role, color, new_role, ch, arg);
+}
+
+void x10rt_barrier (x10rt_team team, x10rt_place role,
+                    x10rt_completion_handler *ch, void *arg)
+{
+    x10rt_lgl_barrier(team, role, ch, arg);
+}
+
+void x10rt_bcast (x10rt_team team, x10rt_place role,
+                  x10rt_place root, const void *sbuf, void *dbuf,
+                  size_t el, size_t count,
+                  x10rt_completion_handler *ch, void *arg)
+{
+    x10rt_lgl_bcast(team, role, root, sbuf, dbuf, el, count, ch, arg);
+}
+
+void x10rt_scatter (x10rt_team team, x10rt_place role,
+                    x10rt_place root, const void *sbuf, void *dbuf,
+                    size_t el, size_t count,
+                    x10rt_completion_handler *ch, void *arg)
+{
+    x10rt_lgl_scatter(team, role, root, sbuf, dbuf, el, count, ch, arg);
+}
+
+void x10rt_alltoall (x10rt_team team, x10rt_place role,
+                     const void *sbuf, void *dbuf,
+                     size_t el, size_t count,
+                     x10rt_completion_handler *ch, void *arg)
+{
+    x10rt_lgl_alltoall(team, role, sbuf, dbuf, el, count, ch, arg);
+}
+
+void x10rt_allreduce (x10rt_team team, x10rt_place role,
+                      const void *sbuf, void *dbuf,
+                      x10rt_red_op_type op, 
+                      x10rt_red_type dtype,
+                      size_t count,
+                      x10rt_completion_handler *ch, void *arg)
+{
+    x10rt_lgl_allreduce(team, role, sbuf, dbuf, op, dtype, count, ch, arg);
+}
+
+
+void x10rt_one_setter (void *arg)
+{ *((int*)arg) = 1; }
+
+void x10rt_team_setter (x10rt_team v, void *arg)
+{ *((x10rt_team*)arg) = v; }
+
+
+void x10rt_remote_ptr_setter (x10rt_remote_ptr v, void *arg)
+{ *((x10rt_remote_ptr*)arg) = v; }
+
+

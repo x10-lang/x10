@@ -29,7 +29,7 @@ public class DepTypeInMethodArg_MustFailCompile extends x10Test {
 	val x: Test = new Test(1,1); 
 	return m(x);
     }
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
 	new DepTypeInMethodArg_MustFailCompile().execute();
     }
 }

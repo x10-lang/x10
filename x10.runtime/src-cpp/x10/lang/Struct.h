@@ -18,7 +18,8 @@ namespace x10 {
     namespace lang {
 
         struct Place;
-
+        class Object;
+        
         class Struct_methods {
         public:
             static void _instance_init(x10::lang::Struct& this_) {}
@@ -51,11 +52,11 @@ namespace x10 {
         }
 
         template<class T> inline x10_boolean Struct_methods::at(T v, x10aux::ref<Object> p) {
-            return x10aux::here == p->location;
+            return true;
         }
 
         template<class T> inline x10_boolean Struct_methods::at(T v, Place p) {
-            return x10aux::here == p->FMGL(id);
+            return true;
         }
 
     }

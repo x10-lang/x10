@@ -28,11 +28,6 @@ public interface ProcedureDecl extends CodeDecl
      */
     List<Formal> formals();
 
-    /** The procedure's exception throw types.
-     * @return A list of {@link polyglot.ast.TypeNode TypeNode}.
-     */
-    List<TypeNode> throwTypes();
-
     /**
      * The procedure type object.  This field may not be valid until
      * after signature disambiguation.

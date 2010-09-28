@@ -40,7 +40,7 @@ import polyglot.ast.IntLit.Kind;
 public class X10IntLit_c extends IntLit_c {
 
     public static class KindWithUnsigned extends IntLit.Kind {
-
+        private static final long serialVersionUID = 2717227542043316806L;
         public KindWithUnsigned(String name) {
             super(name);
         }

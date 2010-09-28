@@ -119,7 +119,7 @@ public class Do_c extends Loop_c implements Do
         return body;
     }
 
-    public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
+    public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
         v.push(this).visitCFG(body, cond, ENTRY);
 
         if (condIsConstantTrue()) {

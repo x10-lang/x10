@@ -23,7 +23,7 @@ public class PrimitiveToBoxPrimitiveConstrained4 extends x10Test {
 		return !(a instanceof Box[Int(4)]);
 	}
 	
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new PrimitiveToBoxPrimitiveConstrained4().execute();
 	}
 }

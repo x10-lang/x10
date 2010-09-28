@@ -84,34 +84,36 @@ public class ClosureInstance_c extends FunctionInstance_c<ClosureDef> implements
     }
 
     public String signature() {
-	StringBuilder sb = new StringBuilder();
-	List<String> formals = new ArrayList<String>();
-	if (formalTypes != null) {
-	    for (int i = 0; i < formalTypes.size(); i++) {
-		String s = "";
-		String t = formalTypes.get(i).toString();
-		if (formalNames != null && i < formalNames.size()) {
-		    LocalInstance a = formalNames.get(i);
-		    if (a != null && ! a.name().toString().equals(""))
-			s = a.name() + ": " + t; 
-		    else
-			s = t;
-		}
-		else {
-		    s = t;
-		}
-		formals.add(s);
-	    }
-	}
-	else {
-	    for (int i = 0; i < def().formalTypes().size(); i++) {
-		formals.add(def().formalTypes().get(i).toString());
-	    }
-	}
-	sb.append("(");
-	sb.append(CollectionUtil.listToString(formals));
-	sb.append(")");
-	return sb.toString();
+        StringBuilder sb = new StringBuilder();
+        List<String> formals = new ArrayList<String>();
+        List<Type> formalTypes = formalTypes();
+        if (formalTypes != null) {
+            List<LocalInstance> formalNames = formalNames();
+            for (int i = 0; i < formalTypes.size(); i++) {
+                String s = "";
+                String t = formalTypes.get(i).toString();
+                if (formalNames != null && i < formalNames.size()) {
+                    LocalInstance a = formalNames.get(i);
+                    if (a != null && ! a.name().toString().equals(""))
+                        s = a.name() + ": " + t; 
+                    else
+                        s = t;
+                }
+                else {
+                    s = t;
+                }
+                formals.add(s);
+            }
+        }
+        else {
+            for (int i = 0; i < def().formalTypes().size(); i++) {
+                formals.add(def().formalTypes().get(i).toString());
+            }
+        }
+        sb.append("(");
+        sb.append(CollectionUtil.listToString(formals));
+        sb.append(")");
+        return sb.toString();
     }
 
     public String designator() {
@@ -183,10 +185,11 @@ public class ClosureInstance_c extends FunctionInstance_c<ClosureDef> implements
     
     public List<LocalInstance> formalNames() {
 	if (this.formalNames == null) {
-	    return new TransformingList(x10Def().formalNames(), new Transformation<LocalDef,LocalInstance>() {
-		public LocalInstance transform(LocalDef o) {
-		    return o.asInstance();
-		}
+	    return new TransformingList<LocalDef, LocalInstance>(x10Def().formalNames(),
+	        new Transformation<LocalDef,LocalInstance>() {
+	            public LocalInstance transform(LocalDef o) {
+	                return o.asInstance();
+	            }
 	    });
 	}
 	

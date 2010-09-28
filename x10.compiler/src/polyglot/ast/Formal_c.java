@@ -180,7 +180,7 @@ public class Formal_c extends Term_c implements Formal
         return type;
     }
 
-    public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
+    public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
         v.visitCFG(type, this, EXIT);        
         return succs;
     }

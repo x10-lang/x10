@@ -21,7 +21,7 @@ import harness.x10Test;
 public class DimCheckN3 extends x10Test {
 
     def m(r:Region(2)): void = {
-        val a1 = new Array[int](r, (p(i): Point): int => { return i; });
+        val a1 = new Array[int](r, (p[i]: Point): int => { return i; });
     }
 
     public def run(): boolean = {
@@ -30,7 +30,7 @@ public class DimCheckN3 extends x10Test {
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new DimCheckN3().execute();
     }
 }

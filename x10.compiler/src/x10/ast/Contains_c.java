@@ -177,7 +177,7 @@ public class Contains_c extends Expr_c implements Contains {
 	/* (non-Javadoc)
 	 * @see polyglot.ast.Term#acceptCFG(polyglot.visit.CFGBuilder, java.util.List)
 	 */
-	public List acceptCFG(CFGBuilder v, List succs) {
+	public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
 		v.visitCFG(item, collection, ENTRY);
 		v.visitCFG(collection, this, EXIT);
 		return succs;

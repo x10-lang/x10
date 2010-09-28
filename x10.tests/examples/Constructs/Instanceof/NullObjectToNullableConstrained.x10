@@ -20,9 +20,9 @@ import harness.x10Test;
 public class NullObjectToNullableConstrained extends x10Test {
 	 
 	public def run(): boolean = {
-		var array: Rail[X10DepTypeClassOneB!]! = Rail.make[X10DepTypeClassOneB!](1);
-		var var_: X10DepTypeClassOneB! = array(0);
-		var nullableVarNull: Box[X10DepTypeClassOneB!] = null;
+		var array: Rail[X10DepTypeClassOneB] = Rail.make[X10DepTypeClassOneB](1);
+		var var_: X10DepTypeClassOneB = array(0);
+		var nullableVarNull: Box[X10DepTypeClassOneB] = null;
 		
 		// array[0] is null hence it is not an instance of targeted non nullable type
 		var res1: boolean = !(array(0) instanceof  X10DepTypeClassOneB{p==1});
@@ -42,7 +42,7 @@ public class NullObjectToNullableConstrained extends x10Test {
 	
 	public def getNullNullable(): Box[X10DepTypeClassOneB] = null;
 	
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new NullObjectToNullableConstrained().execute();
 	}
 }

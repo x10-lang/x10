@@ -11,6 +11,7 @@
 
 package x10.ast;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -28,6 +29,7 @@ import polyglot.util.Position;
 import polyglot.util.TypedList;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
+import x10.types.ParameterType;
 import x10.types.X10Context;
 import x10.types.X10MethodDef;
 import x10.types.X10TypeSystem;
@@ -38,7 +40,7 @@ import x10.types.X10TypeSystem;
  */
 public abstract class X10ClockedLoop_c extends X10Loop_c implements Clocked {
 
-	protected List clocks;
+	protected List<Expr> clocks;
 
 	/**
 	 * @param pos
@@ -55,19 +57,26 @@ public abstract class X10ClockedLoop_c extends X10Loop_c implements Clocked {
 	 * @param body
 	 */
 	public X10ClockedLoop_c(Position pos, Formal formal, Expr domain,
-							List clocks, Stmt body)
+							List<Expr> clocks, Stmt body)
 	{
 		super(pos, formal, domain, body);
 		this.clocks = TypedList.copyAndCheck(clocks, Expr.class, true);
 	}
+	public X10ClockedLoop_c(Position pos, Formal formal, Expr domain,
+			Stmt body)
+	{
+		super(pos, formal, domain, body);
+		// TODO: The clock had to be obtained from the environment in the desugarer and added here.
+		this.clocks = new ArrayList<Expr>();
+	}
 
 	/** Clocks */
-	public List clocks() {
+	public List<Expr> clocks() {
 		return Collections.unmodifiableList(this.clocks);
 	}
 
 	/** Set clocks */
-	public Clocked clocks(List clocks) {
+	public Clocked clocks(List<Expr> clocks) {
 		X10ClockedLoop_c n = (X10ClockedLoop_c) copy();
 		n.clocks = TypedList.copyAndCheck(clocks, Expr.class, true);
 		return n;
@@ -76,7 +85,7 @@ public abstract class X10ClockedLoop_c extends X10Loop_c implements Clocked {
 	public Node visitChildren(NodeVisitor v) {
 		Formal formal = (Formal) visitChild(this.formal, v);
 		Expr domain = (Expr) visitChild(this.domain, v);
-		List clocks = visitList(this.clocks, v);
+		List<Expr> clocks = visitList(this.clocks, v);
 		Stmt body = (Stmt) visitChild(this.body, v);
 		return ((Clocked) reconstruct(formal, domain, body)).clocks(clocks);
 	}
@@ -88,7 +97,7 @@ public abstract class X10ClockedLoop_c extends X10Loop_c implements Clocked {
 	        X10MethodDef asyncInstance = (X10MethodDef) ts.asyncCodeInstance(c.inStaticContext());
 	        if (xc.currentCode() instanceof X10MethodDef) {
 	            X10MethodDef outer = (X10MethodDef) c.currentCode();
-	            List<Ref<? extends Type>> capturedTypes = outer.typeParameters();
+	            List<ParameterType> capturedTypes = outer.typeParameters();
 	            if (!capturedTypes.isEmpty()) {
 	                asyncInstance = ((X10MethodDef) asyncInstance.copy());
 	                asyncInstance.setTypeParameters(capturedTypes);
@@ -108,11 +117,6 @@ public abstract class X10ClockedLoop_c extends X10Loop_c implements Clocked {
 	            }
 	        }
 	        
-		X10Context c = (X10Context) tc.context();
-		if (c.inSequentialCode()) {
-			throw new SemanticException("foreach/ateach may not be invoked in sequential code.", position());
-		}
-
 		return super.typeCheck(tc);
 	}
 }

@@ -24,22 +24,24 @@ import java.util.Collection;
  *     Does not support Remove.
  **/
 public final class TransformingIterator<S,T> implements Iterator<T> {
+  @SuppressWarnings("unchecked") // Generics and arrays don't mix well
   public TransformingIterator(Iterator<S> iter, Transformation<S,T> trans) {
     this(new Iterator[]{iter}, trans);
   }
 
+  @SuppressWarnings("unchecked") // Generics and arrays don't mix well
   public TransformingIterator(Collection<S> iters, Transformation<S,T> trans) {
     index = 0;
-    backing_iterators = (Iterator[]) iters.toArray(new Iterator[0]);
+    backing_iterators = (Iterator<S>[]) iters.toArray(new Iterator[0]);
     transformation = trans;
     if (backing_iterators.length > 0)
       current_iter = backing_iterators[0];
     findNextItem();
   }
 
-  public TransformingIterator(Iterator[] iters, Transformation<S,T> trans) {
+  public TransformingIterator(Iterator<S>[] iters, Transformation<S,T> trans) {
     index = 0;
-    backing_iterators = (Iterator[]) iters.clone();
+    backing_iterators = (Iterator<S>[]) iters.clone();
     transformation = trans;
     if (iters.length > 0) 
       current_iter = iters[0];
@@ -92,7 +94,7 @@ public final class TransformingIterator<S,T> implements Iterator<T> {
   protected T next_item;
   protected Iterator<S> current_iter;
   protected int index;
-  protected Iterator[] backing_iterators;
+  protected Iterator<S>[] backing_iterators;
   protected Transformation<S,T> transformation;
 }
 

@@ -42,7 +42,7 @@ public class DepType1(i:int, j:int) extends x10Test {
 	return true;
     }
 	
-    public static def main(a: Rail[String]):void = {
+    public static def main(a: Array[String](1)):void = {
         new DepType1(3,9).execute();
     }
    

@@ -18,21 +18,33 @@ import harness.x10Test;
  * case that e.f's home is statically known to be here.
 
  * @author vj
+ * 
+ * 	class F(home:Place) {
+		val f:F{self.home==this.home};
+	    def m(){}
+	    def this(f:F{self.home==here}):F { 
+	    	property(here); 
+	    	this.f=f;
+	   }
+	}
  */
 public class FieldReceiverIsExpr extends x10Test {
     
-	class F {
-		val f:F!;
-	        def m(){}
-	        def this(f:F!) { this.f=f;}
+	class F(heh:Place)  {
+		val f:F ;
+	    def m(){}
+	    def this(f:F ):F { 
+	    	property(here); 
+	    	this.f=f;
+	   }
 	}
-	    def m() { 
-	        (new F(null) as F!).f.m();
-	    }
+	def m() { 
+	    (new F(null) as F).f.m();
+	}
 
     public def run() = true;
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
 	  new FieldReceiverIsExpr().execute();
     }
 

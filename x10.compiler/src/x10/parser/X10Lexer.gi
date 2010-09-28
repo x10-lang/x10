@@ -74,7 +74,7 @@
 
         public $action_type(java.io.Reader reader, String filename, int tab) throws java.io.IOException
         {
-            ArrayList buffers = new ArrayList();
+            ArrayList<char[]> buffers = new ArrayList<char[]>();
             int size = 0;
             while (true)
             {
@@ -83,13 +83,13 @@
                 if (n < 0)
                     break;
                 size += n;
-                buffers.add((Object) block);
+                buffers.add(block);
             }
 
             char buffer[] = new char[size];
             for (int i = 0; i < buffers.size(); i++)
             {
-                char block[] = (char []) buffers.get(i);
+                char block[] = buffers.get(i);
                 int blocksize = (size / block.length > 0 ? block.length : size);
                 size -= blocksize;
                 System.arraycopy(block, 0, buffer, i * block.length, blocksize);

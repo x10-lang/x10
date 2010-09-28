@@ -29,7 +29,7 @@ public class AssignmentIntLitteralToConstrainedInt_MustFailCompile extends x10Te
 		return true;
 	}
 
-   public static def main( Rail[String]) {
+   public static def main( Array[String](1)) {
 		new AssignmentIntLitteralToConstrainedInt_MustFailCompile().execute();
 	}
 

@@ -19,20 +19,20 @@ import harness.x10Test;
 public class XTENLANG_473 extends x10Test {
 
     public static class G[T] {
-        public def foo(x: Box[T]!): T {
+        public def foo(x: Box[T]): T {
             val y = x();
             return y;
         }
     }
 
     public def run(): boolean {
-        val x: Box[String]! = "aaa";
+        val x: Box[String] = "aaa";
         val y = new G[String]().foo(x);
         val z = x();
         return y == z;
     }
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new XTENLANG_473().execute();
     }
 }

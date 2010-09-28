@@ -76,7 +76,7 @@ public class JacobiExtern extends x10Test {
 		return future(b.dist(i, j)) { b(i, j) }.force();
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new JacobiExtern().execute();
 	}
 }

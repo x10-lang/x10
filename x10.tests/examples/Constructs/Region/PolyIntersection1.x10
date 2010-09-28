@@ -39,7 +39,7 @@ class PolyIntersection1 extends TestRegion {
         "zeroBased false\n"+
         "rail false\n"+
         "isConvex() true\n"+
-        "size() Incomplete method.\n"+
+        "size() 28\n"+
         "region: (x0>=2 && x1<=7 && x0-x1<=1)\n"+
         "  poly\n"+
         "    2  . 2 4 6 8 0 2 4 . . \n"+
@@ -81,7 +81,7 @@ class PolyIntersection1 extends TestRegion {
         "zeroBased false\n"+
         "rail false\n"+
         "isConvex() true\n"+
-        "size() Incomplete method.\n"+
+        "size() 17\n"+
         "region: (x0>=3 && x1>=3 && x1<=7 && x0-x1<=1 && x0<=6)\n"+
         "  poly\n"+
         "    3  . . . 9 2 5 8 1 . . \n"+
@@ -94,7 +94,7 @@ class PolyIntersection1 extends TestRegion {
         "    5  . . . . 0 5 0 5 . . \n"+
         "    6  . . . . . 0 6 2 . . \n";
     
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new PolyIntersection1().execute();
     }
 }

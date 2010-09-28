@@ -58,7 +58,7 @@ public class ClosuresToStaticMethods extends ContextVisitor {
 
     private final X10TypeSystem xts;
     private final X10NodeFactory xnf;
-    private final Map<CodeDef,List<Ref<? extends Type>>> closureDefToTypePrams = new HashMap<CodeDef,List<Ref<? extends Type>>>();
+    private final Map<CodeDef,List<ParameterType>> closureDefToTypePrams = new HashMap<CodeDef,List<ParameterType>>();
     
     public ClosuresToStaticMethods(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
@@ -91,7 +91,7 @@ public class ClosuresToStaticMethods extends ContextVisitor {
             ClosureCapChecker cc = new ClosureCapChecker();
             n.visit(cc);
             
-            List<Ref<? extends Type>> mtps = null;
+            List<ParameterType> mtps = null;
             CodeDef ci = context.pop().currentCode();
             if (ci instanceof X10MethodDef) {
                 mtps = ((X10MethodDef) ci).typeParameters();
@@ -130,7 +130,7 @@ public class ClosuresToStaticMethods extends ContextVisitor {
                                 Flags flags = Flags.STATIC.Final().Private();
                                 
                                 Name name = Name.makeFresh(STATIC_METHOD_BASE_NAME);
-                                X10MethodDecl mdcl = xnf.MethodDecl(cg, xnf.FlagsNode(cg, flags), closure.returnType(), xnf.Id(cg, name), closure.formals(), closure.throwTypes(), body);
+                                X10MethodDecl mdcl = xnf.MethodDecl(cg, xnf.FlagsNode(cg, flags), closure.returnType(), xnf.Id(cg, name), closure.formals(),  body);
                                 
                                 List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>(closure.formals().size());
                                 for (Formal f : closure.formals()) {
@@ -138,7 +138,7 @@ public class ClosuresToStaticMethods extends ContextVisitor {
                                     argTypes.add(f.type().typeRef());
                                 }
                                 
-                                List<Ref<? extends Type>> rts = new ArrayList<Ref<? extends Type>>();
+                                List<ParameterType> rts = new ArrayList<ParameterType>();
                                 List<TypeNode> tns = new ArrayList<TypeNode>();
                                 List<TypeParamNode> tps = new ArrayList<TypeParamNode>();
                                 if (ct instanceof X10ParsedClassType) {
@@ -149,31 +149,24 @@ public class ClosuresToStaticMethods extends ContextVisitor {
                                                 ParameterType pt = (ParameterType) t3;
                                                 tps.add(xnf.TypeParamNode(cg, xnf.Id(cg, pt.name())).type(pt));
                                                 tns.add(xnf.X10CanonicalTypeNode(cg, pt));
-                                                rts.add(Types.ref(pt));
+                                                rts.add(pt);
                                             }
                                         }
                                     }
                                 }
                                 
-                                List<Ref<? extends Type>> mtps = closureDefToTypePrams.get(closure.codeDef());
+                                List<ParameterType> mtps = closureDefToTypePrams.get(closure.codeDef());
                                 if (mtps != null) {
-                                    for (Ref<? extends Type> ts : mtps) {
-                                        Type t = ts.get();
-                                        if (t instanceof ParameterType) {
-                                            ParameterType pt = (ParameterType) t;
-                                            tps.add(xnf.TypeParamNode(cg, xnf.Id(cg, pt.name())).type(pt));
-                                            tns.add(xnf.X10CanonicalTypeNode(cg, pt));
-                                            rts.add(Types.ref(pt));
-                                        }
+                                    for (ParameterType t : mtps) {
+                                        ParameterType pt = (ParameterType) t;
+                                        tps.add(xnf.TypeParamNode(cg, xnf.Id(cg, pt.name())).type(pt));
+                                        tns.add(xnf.X10CanonicalTypeNode(cg, pt));
+                                        rts.add(pt);
                                     }
                                 }
                                 
-                                List<Ref<? extends Type>> excTypes = new ArrayList<Ref<? extends Type>>();
-                                for (TypeNode t :closure.throwTypes()) {
-                                    excTypes.add(t.typeRef());
-                                }
                                 
-                                X10MethodDef md = (X10MethodDef) xts.methodDef(cg, Types.ref(ct), flags, closure.returnType().typeRef(), name, argTypes, excTypes);
+                                X10MethodDef md = (X10MethodDef) xts.methodDef(cg, Types.ref(ct), flags, closure.returnType().typeRef(), name, argTypes);
                                 mdcl = mdcl.typeParameters(tps);
                                 nmembers.add(mdcl.methodDef(md));
                                 md.setTypeParameters(rts);

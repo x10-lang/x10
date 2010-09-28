@@ -30,7 +30,7 @@ public class NonBooleanConstraint_MustFailCompile(i:int, j:int){this.i} extends 
 	}
 	public def run()=true;
 	
-	public static def main(Rail[String])  = {
+	public static def main(Array[String](1))  = {
 		new NonBooleanConstraint_MustFailCompile(2).execute();
 	}
 }

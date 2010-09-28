@@ -26,14 +26,14 @@ import x10.util.ArrayList;
 public class ClosureExample1 extends x10Test {
 
     // def find[T](f:(T)=>Boolean, xs: List[T]):T {
-    def find[T](f:(T)=>Boolean, xs: List[T]): Box[T] {
+    static def find[T](f:(T)=>Boolean, xs: List[T]): Box[T] {
         for (x in xs)
             // if (f(x)) return x;
             if (f(x)) return x as Box[T];
         return null;
     }
 
-    val xs: List[Int]! = new ArrayList[Int]();
+    val xs  = new ArrayList[Int]();
     
     // val x: Int = find((x: Int) => (x>0), xs);
     val x: Box[Int] = find((x: Int) => (x>0), xs);
@@ -46,7 +46,7 @@ public class ClosureExample1 extends x10Test {
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new ClosureExample1().execute();
     }
 }

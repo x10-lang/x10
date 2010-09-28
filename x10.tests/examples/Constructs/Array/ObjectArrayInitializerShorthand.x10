@@ -21,12 +21,12 @@ public class ObjectArrayInitializerShorthand extends x10Test {
 
     public def run(): boolean = {
         val d  = Dist.makeConstant([1..10, 1..10], here);
-        val ia = DistArray.make[Dist](d, ((i,j): Point) => d);
-        for (val (i,j): Point(2) in ia.region) chk(ia(i, j) == d);
+        val ia = DistArray.make[Dist](d, ([i,j]: Point) => d);
+        for (val [i,j]: Point(2) in ia.region) chk(ia(i, j) == d);
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new ObjectArrayInitializerShorthand().execute();
     }
 }

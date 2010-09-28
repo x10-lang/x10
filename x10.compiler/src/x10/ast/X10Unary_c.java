@@ -102,7 +102,7 @@ public class X10Unary_c extends Unary_c {
             try {
                 return Converter.check(lit, tc);
             } catch (SemanticException e) {
-                throw new InternalCompilerError("Unexpected error while typechecking literal: "+lit, e);
+                throw new InternalCompilerError("Unexpected exception when typechecking "+lit, lit.position(), e);
             }
         }
 
@@ -182,7 +182,7 @@ public class X10Unary_c extends Unary_c {
                 try {
                     lit = Converter.check(lit, tc);
                 } catch (SemanticException e) {
-                    throw new InternalCompilerError("Unexpected error while typechecking literal: "+lit, e);
+                    throw new InternalCompilerError("Unexpected exception when typechecking "+lit, lit.position(), e);
                 }
                 Binary.Operator binaryOp = getBinaryOp(op);
                 Call c = X10Binary_c.desugarBinaryOp(nf.Binary(position(), expr, binaryOp, lit), tc);

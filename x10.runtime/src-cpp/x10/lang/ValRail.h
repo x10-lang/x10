@@ -140,7 +140,7 @@ namespace x10 {
         
         template<class T> const x10aux::serialization_id_t ValRail<T>::_serialization_id =
             x10aux::DeserializationDispatcher
-                ::addDeserializer(ValRail<T>::template _deserializer<Object>);
+                ::addDeserializer(ValRail<T>::template _deserializer<Reference>);
 
         template<class T> void ValRail<T>::_initRTT() {
             if (rtt.initStageOne(x10aux::getRTT<ValRail<void> >())) return;
@@ -157,21 +157,15 @@ namespace x10 {
             static const x10aux::RuntimeType* getRTT() { return &rtt; }
         };
 
-        template<class T> typename Iterable<T>::template itable<ValRail<T> > ValRail<T>::_itable_iterable(&ValRail<T>::at,
-                                                                                                          &ValRail<T>::at,
-                                                                                                          &ValRail<T>::equals,
+        template<class T> typename Iterable<T>::template itable<ValRail<T> > ValRail<T>::_itable_iterable(&ValRail<T>::equals,
                                                                                                           &ValRail<T>::hashCode,
-                                                                                                          &ValRail<T>::home,
                                                                                                           &ValRail<T>::iterator,
                                                                                                           &ValRail<T>::toString,
                                                                                                           &ValRail<T>::typeName);
 
         template<class T> typename Fun_0_1<x10_int,T>::template itable<ValRail<T> > ValRail<T>::_itable_fun(&ValRail<T>::apply,
-                                                                                                            &ValRail<T>::at,
-                                                                                                            &ValRail<T>::at,
                                                                                                             &ValRail<T>::equals,
                                                                                                             &ValRail<T>::hashCode,
-                                                                                                            &ValRail<T>::home,
                                                                                                             &ValRail<T>::toString,
                                                                                                             &ValRail<T>::typeName);
 
@@ -261,7 +255,7 @@ namespace x10 {
         template <class T> template<class S> x10aux::ref<S> ValRail<T>::_deserializer(x10aux::deserialization_buffer &buf) {
             x10_int length = buf.read<x10_int>();
             x10aux::ref<ValRail<T> > this_ = x10aux::alloc_rail<T,ValRail<T> >(length);
-            buf.record_reference(this_); // TODO: avoid; no global refs; final class
+            buf.record_reference(this_); 
             this_->_deserialize_body(buf);
             return this_;
         }
@@ -269,19 +263,19 @@ namespace x10 {
         // Specialized deserialization
         template <class T> template<class S> x10aux::ref<S> ValRail<T>::_deserialize(x10aux::deserialization_buffer &buf) {
             Object::_reference_state rr = Object::_deserialize_reference_state(buf);
-            x10aux::ref<ValRail<T> > this_;
-            if (rr.ref != 0) {
-                this_ = ValRail<T>::template _deserializer<ValRail<T> >(buf);
+            if (0 == rr.ref) {
+                return x10aux::null;
+            } else {
+                x10aux::ref<ValRail<T> > res = ValRail<T>::template _deserializer<ValRail<T> >(buf);
+                _S_("Deserialized a "<<ANSI_SER<<ANSI_BOLD<<"class"<<ANSI_RESET<<
+                    " "<<res->_type()->name());
+                return res;
             }
-            return Object::_finalize_reference<S>(this_, rr, buf);
         }
     }
 }
 
 #endif
 #endif
-//#define X10_LANG_VALRAIL__NATIVEREP_H_NODEPS
-#include <x10/lang/ValRail__NativeRep.h>
-//#undef X10_LANG_VALRAIL__NATIVEREP_H_NODEPS
 
 // vim:tabstop=4:shiftwidth=4:expandtab

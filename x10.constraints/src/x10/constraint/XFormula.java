@@ -15,16 +15,31 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * A representation of an atomic formula op(t1,..., tn).
+ * 
+ * @author vijay
+ *
+ */
 public class XFormula extends XTerm {
-	   public XName op;
+	    public final XName op;
+	    public final XName asExprOp;
 	    public List<XTerm> arguments;
 
-	    public XFormula(XName op, List<XTerm> args) {
-	        this.op = op;
+	    /**
+	     * Create a formula with the given op and given list of arguments.
+	     * @param op
+	     * @param args
+	     */
+	    public XFormula(XName op, XName opAsExpr, List<XTerm> args) {
+
+	    	  this.op = op;
+	    	  this.asExprOp = opAsExpr;
 	        this.arguments = args;
 	    }
-	    public XFormula(XName op, XTerm... args) {
+	    public XFormula(XName op, XName opAsExpr, XTerm... args) {
 	        this.op = op;
+	        this.asExprOp = opAsExpr;
 	        this.arguments = new ArrayList<XTerm>(args.length);
 	        for (XTerm arg : args) {
 	            this.arguments.add(arg);
@@ -61,6 +76,10 @@ public class XFormula extends XTerm {
 
 	    public XName operator() {
 	        return op;
+	    }
+	    
+	    public XName asExprOperator() {
+	        return asExprOp;
 	    }
 
 	    public boolean isUnary() {
@@ -153,11 +172,17 @@ public class XFormula extends XTerm {
 	        return false;
 	    }
 
+	    /**
+	     * An XFormula is equal t another object if it is == to it, or the other object
+	     * is an XFormula with equal ops and equal args.
+	     */
 	    public boolean equals(Object o) {
 	        if (this == o)
 	            return true;
 	        if (o instanceof XFormula) {
 	            XFormula c = (XFormula) o;
+	            if (! c.op.equals(op))
+	            	return false;
 	            if (c.arguments().size() == arguments().size()) {
 	                for (int i = 0; i < arguments().size(); i++) {
 	                    XTerm ti = arguments().get(i);

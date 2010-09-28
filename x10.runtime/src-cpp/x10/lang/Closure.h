@@ -46,7 +46,6 @@ namespace x10 {
         class Closure : public Reference {
         public:
             Closure() {
-                location = x10aux::here;
             }
 
             static void _serialize(x10aux::ref<Closure> this_,

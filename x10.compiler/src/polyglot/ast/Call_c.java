@@ -67,13 +67,17 @@ public class Call_c extends Expr_c implements Call
       return n;
   }
 
-  public ProcedureInstance procedureInstance() {
+  public MethodInstance procedureInstance() {
       return methodInstance();
   }
 
   /** Get the method instance of the call. */
   public MethodInstance methodInstance() {
     return this.mi;
+  }
+
+  public Call procedureInstance(ProcedureInstance<? extends ProcedureDef> pi) {
+      return methodInstance((MethodInstance) pi);
   }
 
   /** Set the method instance of the call. */
@@ -104,7 +108,7 @@ public class Call_c extends Expr_c implements Call
   }
 
   /** Set the actual arguments of the call. */
-  public ProcedureCall arguments(List<Expr> arguments) {
+  public Call arguments(List<Expr> arguments) {
     Call_c n = (Call_c) copy();
     n.arguments = TypedList.copyAndCheck(arguments, Expr.class, true);
     return n;
@@ -235,8 +239,7 @@ public class Call_c extends Expr_c implements Call
         if (this.target instanceof Special && 
             ((Special)this.target).kind() == Special.SUPER &&
             mi.flags().isAbstract()) {
-                throw new SemanticException("Cannot call an abstract method " +
-                               "of the super class", this.position());            
+                throw new SemanticException("Cannot call an abstract method of the super class", this.position());            
         }
 
         Call_c call = (Call_c)this.methodInstance(mi).type(mi.returnType());
@@ -254,8 +257,8 @@ public class Call_c extends Expr_c implements Call
           return mi.container();
       }
 
-      Iterator i = this.arguments.iterator();
-      Iterator j = mi.formalTypes().iterator();
+      Iterator<Expr> i = this.arguments.iterator();
+      Iterator<Type> j = mi.formalTypes().iterator();
 
       while (i.hasNext() && j.hasNext()) {
           Expr e = (Expr) i.next();
@@ -277,7 +280,7 @@ public class Call_c extends Expr_c implements Call
 
     int count = 0;
 
-    for (Iterator i = arguments.iterator(); i.hasNext(); ) {
+    for (Iterator<Expr> i = arguments.iterator(); i.hasNext(); ) {
         if (count++ > 2) {
             sb.append("...");
             break;
@@ -364,7 +367,7 @@ public class Call_c extends Expr_c implements Call
       return listChild(arguments, null);
   }
 
-  public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
+  public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
       if (target instanceof Term) {
           Term t = (Term) target;
           
@@ -390,21 +393,6 @@ public class Call_c extends Expr_c implements Call
     return super.exceptionCheck(ec);
   }
 
-
-  public List<Type> throwTypes(TypeSystem ts) {
-    List<Type> l = new ArrayList<Type>();
-
-    assert mi != null : "null mi for " + this;
-    
-    l.addAll(mi.throwTypes());
-    l.addAll(ts.uncheckedExceptions());
-
-    if (target instanceof Expr && ! (target instanceof Special)) {
-      l.add(ts.NullPointerException());
-    }
-
-    return l;
-  }
   
   // check that the implicit target setting is correct.
   protected void checkConsistency(Context c) throws SemanticException {

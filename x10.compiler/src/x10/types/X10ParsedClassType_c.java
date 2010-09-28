@@ -57,6 +57,8 @@ import x10.types.matcher.Subst;
 public class X10ParsedClassType_c extends ParsedClassType_c
 implements X10ParsedClassType
 {
+    private static final long serialVersionUID = -647880315275370901L;
+
     TypeParamSubst cacheSubst; // "subst" is just an auxiliary structure (cached to improve performance). It represents the typeArguments (thus it is nullified when assigning to typeArguments).
 
     public int hashCode() {
@@ -137,7 +139,7 @@ implements X10ParsedClassType
     List<Expr> propertyInitializers;
     public List<Expr> propertyInitializers() {
         if (propertyInitializers == null)
-            return Collections.EMPTY_LIST;
+            return Collections.<Expr>emptyList();
         return Collections.unmodifiableList(propertyInitializers);
     }
     public Expr propertyInitializer(int i) {
@@ -268,13 +270,6 @@ implements X10ParsedClassType
 	    return subst.reinstantiate(super.memberClasses());
 	}
 
-	/**
-	 * A parsed class is safe iff it explicitly has a flag saying so.
-	 */
-	public boolean isSafe() {
-		return X10Flags.toX10Flags(flags()).isSafe();
-	}
-
 	public static class X10FieldAsTypeTransform implements Transformation<X10FieldDef, FieldInstance> {
 	    public FieldInstance transform(X10FieldDef def) {
 		return def.asInstance();
@@ -311,7 +306,7 @@ implements X10ParsedClassType
 	
 	public List<Type> typeArguments() {
 	    if (typeArguments == null) {
-		return TypedList.copyAndCheck((List) x10Def().typeParameters(), Type.class, true);
+		return TypedList.<Type>copyAndCheck(x10Def().typeParameters(), Type.class, true);
 	    }
 	    return typeArguments;
 	}
@@ -367,9 +362,6 @@ implements X10ParsedClassType
 		StringBuffer sb = new StringBuffer();
 		if (flags() != null) {
 			X10Flags f = X10Flags.toX10Flags(flags());
-			if (f.isProto()) {
-				sb.append("proto ");
-			}
 
 		}
 		//	sb.append(flags().toString()).append(" ");
@@ -389,23 +381,8 @@ implements X10ParsedClassType
 		return sb.toString();
 	}
 	    
-	public boolean isProto() { return X10Flags.toX10Flags(flags()).isProto(); }
 	public boolean isX10Struct() { 	return X10Flags.toX10Flags(flags()).isStruct(); }
-    public Proto makeProto() {
-    	if (isProto())
-    		return this;
-    	X10ParsedClassType_c c = (X10ParsedClassType_c) copy();
-    	c.setFlags(X10Flags.toX10Flags(flags()).Proto());
-    	return c;
-    	
-    }
-    public Proto baseOfProto() {
-    	if (! isProto())
-    		return this;
-    	X10ParsedClassType_c c = (X10ParsedClassType_c) copy();
-    	c.setFlags(X10Flags.toX10Flags(flags()).clearProto());
-    	return c;
-    }
+
     public X10Struct makeX10Struct() {
     	if (isX10Struct())
     		return this;

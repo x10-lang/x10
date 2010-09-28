@@ -21,12 +21,12 @@ public class ArrayTypeCheck2 extends x10Test {
 
         val two = 2;
         
-        var a1: Array[int](two) = new Array[int]([0..2, 0..3], ((i): Point)=> i);
+        var a1: Array[int](two) = new Array[int]([0..2, 0..3], ([i]: Point)=> i);
         
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new ArrayTypeCheck2().execute();
     }
 }

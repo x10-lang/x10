@@ -20,6 +20,7 @@ public interface ConstructorCall extends Stmt, ProcedureCall
 {
     /** Constructor call kind: either "super" or "this". */
     public static class Kind extends Enum {
+        private static final long serialVersionUID = -6862343120050782664L;
         public Kind(String name) { super(name); }
     }
 
@@ -48,7 +49,7 @@ public interface ConstructorCall extends Stmt, ProcedureCall
      * Set the actual arguments.
      * @param arguments A list of {@link polyglot.ast.Expr Expr}.
      */
-    ProcedureCall arguments(List<Expr> arguments);
+    ConstructorCall arguments(List<Expr> arguments);
 
     /**
      * The constructor that is called.  This field may not be valid until

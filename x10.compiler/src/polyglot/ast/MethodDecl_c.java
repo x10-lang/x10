@@ -14,6 +14,8 @@ import polyglot.main.Report;
 import polyglot.types.*;
 import polyglot.util.*;
 import polyglot.visit.*;
+import x10.errors.Errors;
+import x10.types.X10Flags;
 
 /**
  * A method declaration.
@@ -24,18 +26,17 @@ public class MethodDecl_c extends Term_c implements MethodDecl
     protected TypeNode returnType;
     protected Id name;
     protected List<Formal> formals;
-    protected List<TypeNode> throwTypes;
+   // protected List<TypeNode> throwTypes;
     protected Block body;
     protected MethodDef mi;
 
-    public MethodDecl_c(Position pos, FlagsNode flags, TypeNode returnType, Id name, List<Formal> formals, List<TypeNode> throwTypes, Block body) {
+    public MethodDecl_c(Position pos, FlagsNode flags, TypeNode returnType, Id name, List<Formal> formals, Block body) {
 	super(pos);
-	assert(flags != null && returnType != null && name != null && formals != null && throwTypes != null); // body may be null
+	assert(flags != null && returnType != null && name != null && formals != null); // body may be null
 	this.flags = flags;
 	this.returnType = returnType;
 	this.name = name;
 	this.formals = TypedList.copyAndCheck(formals, Formal.class, true);
-	this.throwTypes = TypedList.copyAndCheck(throwTypes, TypeNode.class, true);
 	this.body = body;
     }
 
@@ -95,18 +96,6 @@ public class MethodDecl_c extends Term_c implements MethodDecl
 	return n;
     }
 
-    /** Get the exception types of the method. */
-    public List<TypeNode> throwTypes() {
-	return Collections.<TypeNode>unmodifiableList(this.throwTypes);
-    }
-
-    /** Set the exception types of the method. */
-    public MethodDecl throwTypes(List<TypeNode> throwTypes) {
-	MethodDecl_c n = (MethodDecl_c) copy();
-	n.throwTypes = TypedList.copyAndCheck(throwTypes, TypeNode.class, true);
-	return n;
-    }
-
     public Term codeBody() {
         return this.body;
     }
@@ -146,14 +135,13 @@ public class MethodDecl_c extends Term_c implements MethodDecl
     }
 
     /** Reconstruct the method. */
-    protected MethodDecl_c reconstruct(FlagsNode flags, TypeNode returnType, Id name, List<Formal> formals, List<TypeNode> throwTypes, Block body) {
-	if (flags != this.flags || returnType != this.returnType || name != this.name || ! CollectionUtil.<Formal>allEqual(formals, this.formals) || ! CollectionUtil.<TypeNode>allEqual(throwTypes, this.throwTypes) || body != this.body) {
+    protected MethodDecl_c reconstruct(FlagsNode flags, TypeNode returnType, Id name, List<Formal> formals, Block body) {
+	if (flags != this.flags || returnType != this.returnType || name != this.name || ! CollectionUtil.<Formal>allEqual(formals, this.formals)  || body != this.body) {
 	    MethodDecl_c n = (MethodDecl_c) copy();
 	    n.flags = flags;
 	    n.returnType = returnType;
             n.name = name;
 	    n.formals = TypedList.copyAndCheck(formals, Formal.class, true);
-	    n.throwTypes = TypedList.copyAndCheck(throwTypes, TypeNode.class, true);
 	    n.body = body;
 	    return n;
 	}
@@ -179,7 +167,28 @@ public class MethodDecl_c extends Term_c implements MethodDecl
 	if (ct.flags().isInterface()) {
 	    flags = flags.Public().Abstract();
 	}
-	
+
+    // If the class is safe, mark all the methods safe. (what about ctors? this code should also be in ctors) 
+    // The method inherits the flags of the enclosing containers (only for safe. The other modifiers will be removed: pinned, nonblocking, sequential)
+    boolean shouldAddSafe = false;
+    if (!X10Flags.toX10Flags(flags).isSafe()) {
+        ClassDef container = ct;
+        while (container!=null) {
+            if (X10Flags.toX10Flags(container.flags()).isSafe())
+                shouldAddSafe = true;
+            Ref<? extends ClassDef> ref = container.outer();
+            if (ref==null) break;
+            container = ref.get();
+        }
+    }
+    MethodDecl_c n = this;
+    if (shouldAddSafe) {
+        // we need to change both the def and the decl
+        flags = X10Flags.toX10Flags(flags).Safe(); // these flags are for the def
+        n = (MethodDecl_c) n.flags(n.flags().flags(flags)); // changing the decl
+    }
+
+
 	MethodDef mi = createMethodDef(ts, ct, flags);
         ct.addMethod(mi);
 	
@@ -188,7 +197,7 @@ public class MethodDecl_c extends Term_c implements MethodDecl
 	final TypeBuilder tbx = tb;
 	final MethodDef mix = mi;
 	
-	MethodDecl_c n = (MethodDecl_c) this.visitSignature(new NodeVisitor() {
+	n = (MethodDecl_c) n.visitSignature(new NodeVisitor() {
             public Node override(Node n) {
                 return MethodDecl_c.this.visitChild(n, tbx.pushCode(mix));
             }
@@ -199,15 +208,10 @@ public class MethodDecl_c extends Term_c implements MethodDecl
              formalTypes.add(f.type().typeRef());
         }
 
-        List<Ref<? extends Type>> throwTypes = new ArrayList<Ref<? extends Type>>(n.throwTypes().size());
-        for (TypeNode tn : n.throwTypes()) {
-            throwTypes.add(tn.typeRef());
-        }
 
         mi.setReturnType(n.returnType().typeRef());
         mi.setFormalTypes(formalTypes);
-        mi.setThrowTypes(throwTypes);
-
+    
         Block body = (Block) n.visitChild(n.body, tbChk);
         
         n = (MethodDecl_c) n.body(body);
@@ -216,7 +220,7 @@ public class MethodDecl_c extends Term_c implements MethodDecl
 
     protected MethodDef createMethodDef(TypeSystem ts, ClassDef ct, Flags flags) {
 	MethodDef mi = ts.methodDef(position(), Types.ref(ct.asType()), flags, returnType.typeRef(), name.id(),
-	                                 Collections.<Ref<? extends Type>>emptyList(), Collections.<Ref<? extends Type>>emptyList());
+	                                 Collections.<Ref<? extends Type>>emptyList());
 	return mi;
     }
 
@@ -232,8 +236,7 @@ public class MethodDecl_c extends Term_c implements MethodDecl
         FlagsNode flags = (FlagsNode) this.visitChild(this.flags, v);
         Id name = (Id) this.visitChild(this.name, v);
         List<Formal> formals = this.visitList(this.formals, v);
-        List<TypeNode> throwTypes = this.visitList(this.throwTypes, v);
-        return reconstruct(flags, returnType, name, formals, throwTypes, this.body);
+        return reconstruct(flags, returnType, name, formals,  this.body);
     }
     
     /** Type check the declaration. */
@@ -247,7 +250,7 @@ public class MethodDecl_c extends Term_c implements MethodDecl
     /** Type check the method. */
     public Node typeCheck(ContextVisitor tc) throws SemanticException {
         TypeSystem ts = tc.typeSystem();
-
+/*
         for (Iterator<TypeNode> i = throwTypes().iterator(); i.hasNext(); ) {
             TypeNode tn = (TypeNode) i.next();
             Type t = tn.type();
@@ -257,13 +260,13 @@ public class MethodDecl_c extends Term_c implements MethodDecl
                     tn.position());
             }
         }
-
+*/
 
 	return this;
     }
     
     @Override
-    public Node conformanceCheck(ContextVisitor tc) throws SemanticException {
+    public Node conformanceCheck(ContextVisitor tc) {
 	// Get the mi flags, not the node flags since the mi flags
 	// account for being nested within an interface.
 	Flags flags = mi.flags();
@@ -274,16 +277,16 @@ public class MethodDecl_c extends Term_c implements MethodDecl
 	return this;
     }
 
-    protected void checkFlags(ContextVisitor tc, Flags flags) throws SemanticException {
+    protected void checkFlags(ContextVisitor tc, Flags flags) {
 	TypeSystem ts = tc.typeSystem();
 
 	if (tc.context().currentClass().flags().isInterface()) {
             if (flags.isProtected() || flags.isPrivate()) {
-                throw new SemanticException("Interface methods must be public.", position());
+                Errors.issue(tc.job(), new SemanticException("Interface methods must be public.", position()));
             }
             
             if (flags.isStatic()) {
-        	throw new SemanticException("Interface methods cannot be static.", position());
+        	Errors.issue(tc.job(), new SemanticException("Interface methods cannot be static.", position()));
             }
         }
 
@@ -291,40 +294,37 @@ public class MethodDecl_c extends Term_c implements MethodDecl
             ts.checkMethodFlags(flags);
         }
         catch (SemanticException e) {
-            throw new SemanticException(e.getMessage(), position());
+            Errors.issue(tc.job(), e, this);
         }
 
         Type container = Types.get(methodDef().container());
         ClassType ct = container.toClass();
 
 	if (body == null && ! (flags.isAbstract() || flags.isNative())) {
-	    throw new SemanticException("Missing method body.", position());
+	    Errors.issue(tc.job(), new SemanticException("Missing method body.", position()));
 	}
 
         if (body != null && ct.flags().isInterface()) {
-	    throw new SemanticException(
-		"Interface methods cannot have a body.", position());
+	    Errors.issue(tc.job(), new SemanticException("Interface methods cannot have a body.", position()));
         }
 
 	if (body != null && flags.isAbstract()) {
-	    throw new SemanticException(
-		"An abstract method cannot have a body.", position());
+	    Errors.issue(tc.job(), new SemanticException("An abstract method cannot have a body.", position()));
 	}
 
 	if (body != null && flags.isNative()) {
-	    throw new SemanticException(
-		"A native method cannot have a body.", position());
+	    Errors.issue(tc.job(), new SemanticException("A native method cannot have a body.", position()));
 	}
 
         // check that inner classes do not declare static methods
         if (ct != null && flags.isStatic() && ct.isInnerClass()) {
             // it's a static method in an inner class.
-            throw new SemanticException("Inner classes cannot declare " + 
-                    "static methods.", this.position());             
+            Errors.issue(tc.job(),
+                    new SemanticException("Inner classes cannot declare static methods.", position()));             
         }
     }
 
-    protected void overrideMethodCheck(ContextVisitor tc) throws SemanticException {
+    protected void overrideMethodCheck(ContextVisitor tc) {
         TypeSystem ts = tc.typeSystem();
 
         MethodInstance mi = this.mi.asInstance();
@@ -335,14 +335,18 @@ public class MethodDecl_c extends Term_c implements MethodDecl
                 continue;
             }
 
-            ts.checkOverride(mi, mj, tc.context());
+            try {
+                ts.checkOverride(mi, mj, tc.context());
+            } catch (SemanticException e) {
+                Errors.issue(tc.job(), e, this);
+            }
         }
     }
 
-    public NodeVisitor exceptionCheckEnter(ExceptionChecker ec) throws SemanticException {
+  /*  public NodeVisitor exceptionCheckEnter(ExceptionChecker ec) throws SemanticException {
         return ec.push(new ExceptionChecker.CodeTypeReporter("Method " + mi.signature())).push(methodDef().asInstance().throwTypes());
     }
-
+*/
     public String toString() {
 	return flags.flags().translate() + returnType + " " + name + "(...)";
     }
@@ -371,12 +375,12 @@ public class MethodDecl_c extends Term_c implements MethodDecl
 
 	w.end();
 	w.write(")");
-
+/*
 	if (! throwTypes().isEmpty()) {
 	    w.allowBreak(6);
 	    w.write("throws ");
 
-	    for (Iterator i = throwTypes().iterator(); i.hasNext(); ) {
+	    for (Iterator<TypeNode> i = throwTypes().iterator(); i.hasNext(); ) {
 	        TypeNode tn = (TypeNode) i.next();
 		print(tn, w, tr);
 
@@ -386,7 +390,7 @@ public class MethodDecl_c extends Term_c implements MethodDecl
 		}
 	    }
 	}
-
+*/
 	w.end();
     }
 
@@ -421,7 +425,7 @@ public class MethodDecl_c extends Term_c implements MethodDecl
         return listChild(formals(), returnType());
     }
 
-    public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
+    public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
         v.visitCFGList(formals(), returnType(), ENTRY);
         
         if (body() == null) {
@@ -435,6 +439,6 @@ public class MethodDecl_c extends Term_c implements MethodDecl
         return succs;
     }
 
-    private static final Collection TOPICS = 
+    private static final Collection<String> TOPICS = 
             CollectionUtil.list(Report.types, Report.context);
 }

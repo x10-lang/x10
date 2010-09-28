@@ -12,8 +12,8 @@
 package dims;
 
 public interface Matter extends Measure {
-    @DerivedUnit(SI.mole) const mol: double = _, mole: double = _;
+    @DerivedUnit(SI.mole) static mol: double = _, mole: double = _;
 
-    const Avogadro: double = 6.0221415e23;
-    const N_A: double = Avogadro;
+    static Avogadro: double = 6.0221415e23;
+    static N_A: double = Avogadro;
 }

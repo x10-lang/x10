@@ -83,12 +83,16 @@ public class New_c extends Expr_c implements New
 	return n;
     }
 
-    public ProcedureInstance procedureInstance() {
+    public ConstructorInstance procedureInstance() {
 	return constructorInstance();
     }
 
     public ConstructorInstance constructorInstance() {
 	return this.ci;
+    }
+
+    public New procedureInstance(ProcedureInstance<? extends ProcedureDef> pi) {
+        return constructorInstance((ConstructorInstance) pi);
     }
 
     public New constructorInstance(ConstructorInstance ci) {
@@ -160,7 +164,7 @@ public class New_c extends Expr_c implements New
         
         Expr qual = (Expr) n.visitChild(n.qualifier(), tb);
         TypeNode objectType = (TypeNode) n.visitChild(n.objectType(), tb);
-        List<Expr> arguments = (List<Expr>) n.visitList(n.arguments(), tb);
+        List<Expr> arguments = n.visitList(n.arguments(), tb);
         
         ClassBody body = null;
         
@@ -418,6 +422,7 @@ public class New_c extends Expr_c implements New
             // According to JLS2 15.9.1, the class type being
             // instantiated must be inner.
 	    if (! ct.isInnerClass()) {
+            if (!(qualifier instanceof Special)) // Yoav added "this" qualifier for non-static anonymous classes
                 throw new SemanticException(
                     "Cannot provide a containing instance for non-inner class " +
 		    ct.fullName() + ".", qualifier.position());
@@ -495,20 +500,7 @@ public class New_c extends Expr_c implements New
         return child.type();
     }
 
-    public Node exceptionCheck(ExceptionChecker ec) throws SemanticException {
-	// something didn't work in the type check phase, so just ignore it.
-	if (ci == null) {
-	    throw new InternalCompilerError(position(),
-		"Null constructor instance after type check.");
-	}
-
-	for (Iterator i = ci.throwTypes().iterator(); i.hasNext(); ) {
-	    Type t = (Type) i.next();
-	    ec.throwsException(t, position());
-	}
-
-	return super.exceptionCheck(ec);
-    }
+    
 
     /** Get the precedence of the expression. */
     public Precedence precedence() {
@@ -579,7 +571,7 @@ public class New_c extends Expr_c implements New
         return qualifier != null ? (Term) qualifier : tn;
     }
 
-    public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
+    public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
         if (qualifier != null) {
             v.visitCFG(qualifier, tn, ENTRY);
         }
@@ -598,14 +590,6 @@ public class New_c extends Expr_c implements New
         }
 
         return succs;
-    }
-
-    public List<Type> throwTypes(TypeSystem ts) {
-      List<Type> l = new ArrayList<Type>();
-      assert ci != null : "null ci for " + this;
-      l.addAll(ci.throwTypes());
-      l.addAll(ts.uncheckedExceptions());
-      return l;
     }
 
 }

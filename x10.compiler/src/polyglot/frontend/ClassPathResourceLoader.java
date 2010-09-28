@@ -26,7 +26,7 @@ public class ClassPathResourceLoader {
 	}
 
 	public ClassPathResourceLoader(String classpath) {
-		this.classpath = new ArrayList();
+		this.classpath = new ArrayList<File>();
 
 		StringTokenizer st = new StringTokenizer(classpath, File.pathSeparator);
 
@@ -74,10 +74,10 @@ public class ClassPathResourceLoader {
 		return null;
 	}
 
-	protected static Collection verbose;
+	protected static Collection<String> verbose;
 
 	static {
-		verbose = new HashSet();
+		verbose = new HashSet<String>();
 		verbose.add("loader");
 	}
 }

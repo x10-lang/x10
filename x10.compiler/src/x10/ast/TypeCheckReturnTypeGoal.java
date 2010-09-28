@@ -18,6 +18,8 @@ import polyglot.types.UnknownType;
 import polyglot.visit.TypeChecker;
 
 public class TypeCheckReturnTypeGoal extends TypeCheckFragmentGoal<Type> {
+	private static final long serialVersionUID = -7110597916418023302L;
+		
 	public TypeCheckReturnTypeGoal(Node parent, Node n, TypeChecker v, LazyRef<Type> r) {
 		super(parent, n, v, r, true);
 	}

@@ -111,7 +111,7 @@ public class ASTQuery {
             dec.returnType().type().isVoid() &&
             (dec.formals().size() == 1) &&
             ts.isSubtype(((Formal)dec.formals().get(0)).type().type(),
-                         ts.Rail(ts.String()),
+                         ts.Array(ts.String()),
                          context);
         if (result) {
             boolean dash_c = tr.job().extensionInfo().getOptions().post_compiler == null;
@@ -268,7 +268,7 @@ public class ASTQuery {
 //				knownArrayCopyMethods.add(ts.findMethod(x_l_Runtime, "arrayCopy", Arrays.asList(A_R_A_R), context.currentClass()));
 			} catch (SemanticException e) { assert (false); }
 		}
-		List clocks = n.clocks();
+		List<Expr> clocks = n.clocks();
 		if (clocks != null && clocks.size() > 1)
 			return false;
 		Stmt body = n.body();

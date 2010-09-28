@@ -21,11 +21,11 @@ import harness.x10Test;
 public class DimCheckN extends x10Test {
 
     public def run(): boolean = {
-        val a1  = new Array[int]([0..2, 0..3], ((i): Point) => i);
+        val a1  = new Array[int]([0..2, 0..3], ([i]: Point) => i);
         return true;
     }
     
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new DimCheckN().execute();
     }
 }

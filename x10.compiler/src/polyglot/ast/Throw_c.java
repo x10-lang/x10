@@ -95,11 +95,11 @@ public class Throw_c extends Stmt_c implements Throw
         return expr;
     }
 
-    public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
+    public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
         v.visitCFG(expr, this, EXIT);
 
         // Throw edges will be handled by visitor.
-        return Collections.EMPTY_LIST;
+        return Collections.<S>emptyList();
     }
 
     public List<Type> throwTypes(TypeSystem ts) {

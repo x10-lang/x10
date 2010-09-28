@@ -34,6 +34,8 @@ import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 
 public class LoadJobPlugins extends VisitorGoal {
+	private static final long serialVersionUID = 6125852391079139183L;
+	
 	public static class LoadJobPluginsVisitor extends NodeVisitor {
 		Job job;
 		

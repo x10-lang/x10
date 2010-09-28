@@ -35,13 +35,13 @@ public class Array1b extends x10Test {
 
         val ia = DistArray.make[int](d, (Point)=>0);
 
-        for (val p(i): Point in e) for (val q(j): Point in e) {
+        for (val p[i]: Point in e) for (val q[j]: Point in e) {
             chk(ia(i, j) == 0);
             ia(i, j) = i+j;
         }
 
-        for (val p(i,j): Point(2) in ia.region) {
-            val q1(m,n) = [i, j] as Point;
+        for (val p[i,j]: Point(2) in ia.region) {
+            val q1[m,n] = [i, j] as Point;
             chk(i == m);
             chk(j == n);
             chk(ia(i, j) == i+j);
@@ -55,7 +55,7 @@ public class Array1b extends x10Test {
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new Array1b().execute();
     }
 }

@@ -90,7 +90,7 @@ import polyglot.ast.TypeNode;
 import polyglot.ast.Unary_c;
 import polyglot.ast.While_c;
 import polyglot.frontend.Compiler;
-import x10.ast.AssignPropertyBody_c;
+import x10.ast.AssignPropertyCall_c;
 import x10.ast.Await_c;
 import x10.ast.Closure;
 import x10.ast.ClosureCall_c;
@@ -218,33 +218,42 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 
     private String env = "__env";
 
-    private Type railCargo(Type typ) {
-        if (!xts().isRail(typ) && !xts().isValRail(typ)) {
-            //System.out.println("type: "+typ+"  is not a rail");
-            return null;
+    private Type arrayCargo(Type typ) {
+        if (xts().isArray(typ)) {
+            typ = typ.toClass();
+            X10ClassType ctyp = (X10ClassType) typ;
+            assert ctyp.typeArguments().size() == 1;
+            return ctyp.typeArguments().get(0);
         }
-        typ = typ.toClass();
-        X10ClassType ctyp = (X10ClassType) typ;
-        assert ctyp.typeArguments().size() == 1;
-        return ctyp.typeArguments().get(0);
+        if (xts().isRemoteArray(typ)) {
+            typ = typ.toClass();
+            X10ClassType ctyp = (X10ClassType) typ;
+            assert ctyp.typeArguments().size() == 1;
+            Type type2 = ctyp.typeArguments().get(0);
+            X10ClassType ctyp2 = (X10ClassType) typ;
+            assert ctyp2.typeArguments().size() == 1;
+            return ctyp2.typeArguments().get(0);
+        }
+        return null;
+        
     }
 
-    private boolean isFloatRail(Type typ) {
-        Type cargo = railCargo(typ);
+    private boolean isFloatArray(Type typ) {
+        Type cargo = arrayCargo(typ);
         return cargo != null && cargo.isFloat();
     }
 
-    private boolean isIntRail(Type typ) {
-        Type cargo = railCargo(typ);
+    private boolean isIntArray(Type typ) {
+        Type cargo = arrayCargo(typ);
         return cargo != null && cargo.isInt();
     }
     
     String prependCUDAType(Type t, String rest) {
         String type = Emitter.translateType(t, true);
 
-        if (isIntRail(t)) {
+        if (isIntArray(t)) {
             type = "x10_int *";
-        } else if (isFloatRail(t)) {
+        } else if (isFloatArray(t)) {
             type = "x10_float *";
         } else {
             type = type + " ";
@@ -274,7 +283,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
         out.begin(0);
         
         if (ptr) {
-	        for (VarInstance var : context().kernelParams()) {
+	        for (VarInstance<?> var : context().kernelParams()) {
 	            String name = var.name().toString();
 	            if (name.equals(THIS)) {
 	                name = SAVED_THIS;
@@ -284,7 +293,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 	            out.write("__shared__ "+prependCUDAType(var.type(),name) + ";"); out.newline();
 	        }
 	        out.write("if (threadIdx.x==0) {"); out.newline(4); out.begin(0);
-	        for (VarInstance var : context().kernelParams()) {
+	        for (VarInstance<?> var : context().kernelParams()) {
 	            String name = var.name().toString();
 	            if (name.equals(THIS)) {
 	                name = SAVED_THIS;
@@ -317,13 +326,13 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
         out.forceNewline();
     }
 
-    private void generateStruct(String kernel_name, SimpleCodeWriter out, ArrayList<VarInstance> vars) {
+    private void generateStruct(String kernel_name, SimpleCodeWriter out, ArrayList<VarInstance<?>> vars) {
         out.write("struct " + kernel_name + "_env {");
         out.newline(4);
         out.begin(0);
         // emitter.printDeclarationList(out, context(),
         // context().kernelParams());
-        for (VarInstance var : vars) {
+        for (VarInstance<?> var : vars) {
             String name = var.name().toString();
             if (name.equals(THIS)) {
                 name = SAVED_THIS;
@@ -649,24 +658,24 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
     }
 
     
-    protected void generateClosureDeserializationIdDef(StreamWrapper inc, String cnamet, List<Type> freeTypeParams, String hostClassName, Block block) {
-        if (blockIsKernel(block)) {
+    protected void generateClosureDeserializationIdDef(ClassifiedStream defn_s, String cnamet, List<Type> freeTypeParams, String hostClassName, Block block) {
+    	if (blockIsKernel(block)) {
     
             X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
             boolean in_template_closure = freeTypeParams.size()>0;
             if (in_template_closure)
-                emitter.printTemplateSignature(freeTypeParams, inc);
-            inc.write("const x10aux::serialization_id_t "+cnamet+"::"+SharedVarsMethods.SERIALIZATION_ID_FIELD+" = ");
-            inc.newline(4);
+                emitter.printTemplateSignature(freeTypeParams, defn_s);
+            defn_s.write("const x10aux::serialization_id_t "+cnamet+"::"+SharedVarsMethods.SERIALIZATION_ID_FIELD+" = ");
+            defn_s.newline(4);
             String template = in_template_closure ? "template " : "";
-            inc.write("x10aux::DeserializationDispatcher::addDeserializer("+
+            defn_s.write("x10aux::DeserializationDispatcher::addDeserializer("+
                       cnamet+"::"+template+SharedVarsMethods.DESERIALIZE_METHOD+
-                      chevrons(Emitter.translateType(xts.Object()))+", true, "+
+                      chevrons("x10::lang::Reference")+", true, "+
                       cnamet+"::"+template+SharedVarsMethods.DESERIALIZE_CUDA_METHOD+", "+
                       "\""+hostClassName+".cubin\", \""+cnamet+"\");");
-            inc.newline(); inc.forceNewline();
+            defn_s.newline(); defn_s.forceNewline();
         } else {
-            super.generateClosureDeserializationIdDef(inc.currentStream(), cnamet, freeTypeParams, hostClassName, block);
+            super.generateClosureDeserializationIdDef(defn_s, cnamet, freeTypeParams, hostClassName, block);
         }
     }    
     
@@ -681,9 +690,9 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
             inc.write(make_ref(cnamet)+" __this = "+cnamet+"::"+DESERIALIZE_METHOD+"<"+cnamet+">(__buf);");
             inc.newline();
             
-            ArrayList<VarInstance> env = context().kernelParams();
+            ArrayList<VarInstance<?>> env = context().kernelParams();
 
-            for (VarInstance var : env) {
+            for (VarInstance<?> var : env) {
                 Type t = var.type();
                 String name = var.name().toString();
                 inc.write(Emitter.translateType(t, true)+" "+name);
@@ -718,24 +727,31 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
             generateStruct("__", inc, context().kernelParams());
             inc.write("___env __env;"); inc.newline();
                         
-            for (VarInstance var : env) {
+            for (VarInstance<?> var : env) {
                 Type t = var.type();
                 String name = var.name().toString();
                 inc.write("__env."+name+" = ");
                 
-                if (isIntRail(t)) {
-                    if (xts().isRail(t)) {
-                        inc.write("(x10_int*)(size_t)x10aux::get_remote_ref_maybe_null("+name+".operator->())");
+                //String addr = "&(*"+name+")[0]"; // old way for rails
+                String addr = "&"+name+"->FMGL(raw).raw()[0]";
+                //String rr = "x10aux::get_remote_ref_maybe_null("+name+".operator->())"; // old object model
+                String rr = "&"+name+"->FMGL(rawData).raw()[0]";
+                
+                if (isIntArray(t)) {
+                    if (xts().isRemoteArray(t)) {
+                        inc.write("(x10_int*)(size_t)"+rr);
                     } else {
-                        inc.write("(x10_int*)(size_t)x10aux::remote_alloc(__gpu, sizeof(x10_int)*"+name+"->FMGL(length));"); inc.newline();
-                        inc.write("x10aux::cuda_put(__gpu, (x10_ulong) __env."+name+", &(*"+name+")[0], sizeof(x10_int)*"+name+"->FMGL(length))");
+                    	String sz = "sizeof(x10_int)*"+name+"->FMGL(rawLength)";
+                        inc.write("(x10_int*)(size_t)x10aux::remote_alloc(__gpu, "+sz+");"); inc.newline();
+                        inc.write("x10aux::cuda_put(__gpu, (x10_ulong) __env."+name+", "+addr+", "+sz+")");
                     }
-                } else if (isFloatRail(t)) {
-                    if (xts().isRail(t)) {
-                        inc.write("(x10_float*)(size_t)x10aux::get_remote_ref_maybe_null("+name+".operator->())");
+                } else if (isFloatArray(t)) {
+                    if (xts().isRemoteArray(t)) {
+                        inc.write("(x10_float*)(size_t)"+rr);
                     } else {
-                        inc.write("(x10_float*)(size_t)x10aux::remote_alloc(__gpu, sizeof(x10_float)*"+name+"->FMGL(length));"); inc.newline();
-                        inc.write("x10aux::cuda_put(__gpu, (x10_ulong) __env."+name+", &(*"+name+")[0], sizeof(x10_float)*"+name+"->FMGL(length))");
+                    	String sz = "sizeof(x10_float)*"+name+"->FMGL(rawLength)";
+                        inc.write("(x10_float*)(size_t)x10aux::remote_alloc(__gpu, "+sz+");"); inc.newline();
+                        inc.write("x10aux::cuda_put(__gpu, (x10_ulong) __env."+name+", "+addr+", "+sz+")");
                     }
                 } else {
                     inc.write(name);
@@ -779,7 +795,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
     }
 
     @Override
-    public void visit(AssignPropertyBody_c n) {
+    public void visit(AssignPropertyCall_c n) {
         // TODO Auto-generated method stub
         super.visit(n);
     }

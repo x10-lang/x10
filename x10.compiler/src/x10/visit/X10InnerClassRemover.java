@@ -120,7 +120,7 @@ public class X10InnerClassRemover extends InnerClassRemover {
         if (subst != null)
             outerType = subst.reinstantiate(outerType);
         
-        fi = ts.fieldDef(pos, Types.ref(currClass.asType()), X10Flags.GLOBAL.Final().Private(), Types.ref(outerType), OUTER_FIELD_NAME);
+        fi = ts.fieldDef(pos, Types.ref(currClass.asType()), X10Flags.FINAL.Private(), Types.ref(outerType), OUTER_FIELD_NAME);
         fi.setNotConstant();
         
         currClass.addField(fi);

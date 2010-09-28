@@ -366,7 +366,7 @@ public class Emitter {
 				w.write(",");
 				w.allowBreak(2, " ");
 			}
-			VarInstance var = (VarInstance)c.variables.get(i);
+			VarInstance<?> var = c.variables.get(i);
 			if (!omitType) {
 				Type t = var.type();
 				String type = translateType(t, true);
@@ -383,7 +383,7 @@ public class Emitter {
 	}
 
 
-	public void printTemplateSignature(List<Type> list, CodeWriter h) {
+	public void printTemplateSignature(List<? extends Type> list, CodeWriter h) {
 		int size = list.size();
 		if (size != 0) {
 			h.write("template<class ");
@@ -397,13 +397,6 @@ public class Emitter {
 			h.write(">");
 			h.allowBreak(0, " ");
 		}
-	}
-
-	static List<Type> toTypeList(List<Ref<? extends Type>> list) {
-		ArrayList<Type> res = new ArrayList<Type>();
-		for (Ref<? extends Type> r : list)
-			res.add(r.get());
-		return res;
 	}
 
 	void printTemplateInstantiation(X10MethodInstance mi, CodeWriter w) {
@@ -542,7 +535,7 @@ public class Emitter {
 		    h.write("inline ");
 		}
 
-		printTemplateSignature(toTypeList(def.typeParameters()), h);
+		printTemplateSignature(def.typeParameters(), h);
 
 		if (!qualify) {
 			if (flags.isStatic())
@@ -591,8 +584,8 @@ public class Emitter {
 		    h.write(translateType(container) +" this_");
 		    if (!n.formals().isEmpty()) h.write(", ");
 		}
-		for (Iterator i = n.formals().iterator(); i.hasNext(); ) {
-			Formal f = (Formal) i.next();
+		for (Iterator<Formal> i = n.formals().iterator(); i.hasNext(); ) {
+			Formal f = i.next();
 			n.print(f, h, tr);
 			if (i.hasNext()) {
 				h.write(",");
@@ -823,8 +816,9 @@ public class Emitter {
 			printTemplateSignature((container).typeArguments(), h);
 		}
 
-		X10ConstructorDef def = (X10ConstructorDef) n.constructorDef();
-		printTemplateSignature(toTypeList(def.typeParameters()), h);
+		// [IP] Constructors don't have type parameters, they inherit them from the container. 
+		//X10ConstructorDef def = (X10ConstructorDef) n.constructorDef();
+		//printTemplateSignature(toTypeList(def.typeParameters()), h);
 
 		h.begin(0);
 		if (!define && container.isX10Struct()) h.write("static ");
@@ -841,8 +835,8 @@ public class Emitter {
 		    h.write(typeName + "& this_");
 		    if (!n.formals().isEmpty()) h.write(", ");
 		}
-		for (Iterator i = n.formals().iterator(); i.hasNext(); ) {
-			Formal f = (Formal) i.next();
+		for (Iterator<Formal> i = n.formals().iterator(); i.hasNext(); ) {
+			Formal f = i.next();
 			n.print(f, h, tr);
 			if (i.hasNext()) {
 				h.write(",");
@@ -921,11 +915,11 @@ public class Emitter {
 		return;
 	}
 
-	public void printDeclarationList(CodeWriter w, X10CPPContext_c c, ArrayList<VarInstance<?>> vars, List<VarInstance> refs) {
+	public void printDeclarationList(CodeWriter w, X10CPPContext_c c, ArrayList<VarInstance<?>> vars, List<VarInstance<?>> refs) {
 		printDeclarationList(w, c, vars, true, false, refs);
 	}
 
-	void printDeclarationList(CodeWriter w, X10CPPContext_c c, ArrayList<VarInstance<?>> vars, boolean saved_this_mechanism, boolean writable, List<VarInstance> refs) {
+	void printDeclarationList(CodeWriter w, X10CPPContext_c c, ArrayList<VarInstance<?>> vars, boolean saved_this_mechanism, boolean writable, List<VarInstance<?>> refs) {
 		for (int i = 0; i < vars.size(); i++) {
 			VarInstance<?> var = vars.get(i);
 			Type t = var.type();
@@ -966,7 +960,7 @@ public class Emitter {
             w.write("const x10aux::serialization_id_t "+klass+"::"+SERIALIZATION_ID_FIELD+" = ");
             w.newline(4);
             w.write("x10aux::DeserializationDispatcher::addDeserializer(");
-            w.write(klass+"::"+template+DESERIALIZER_METHOD+chevrons(translateType(ts.Object()))+");");
+            w.write(klass+"::"+template+DESERIALIZER_METHOD+chevrons("x10::lang::Reference")+");");
             w.newline(); w.forceNewline();
         }
 
@@ -1022,12 +1016,21 @@ public class Emitter {
             if (i != 0)
                 w.newline();
             FieldInstance f = (FieldInstance) type.fields().get(i);
+            
             if (f.flags().isStatic() || query.isSyntheticField(f.name().toString()))
                 continue;
-            if (!X10Flags.toX10Flags(f.flags()).isGlobal()) // only serialize global fields of classes
+            if (f.flags().isTransient()) // don't serialize transient fields
                 continue;
             String fieldName = mangled_field_name(f.name().toString());
             w.write("buf.write(this->"+fieldName+");"); w.newline();
+        }
+        // Special case x10.lang.Array to serialize the contents of rawChunk too
+        if (ts.isX10Array(type)) {
+            w.write("for (x10_int i = 0; i<this->FMGL(rawLength); i++) {");
+            w.newline(4); w.begin(0);
+            w.write("buf.write(this->FMGL(raw)->apply(i));");
+            w.end(); w.newline();
+            w.write("}");
         }
         w.end(); w.newline();
         w.write("}");
@@ -1044,7 +1047,7 @@ public class Emitter {
             sw.write(make_ref("__T")+" "+klass+"::"+DESERIALIZER_METHOD+"("+DESERIALIZATION_BUFFER+"& buf) {");
             sw.newline(4); sw.begin(0);
             sw.writeln(make_ref(klass)+" this_ = "+
-                       "new (x10aux::alloc_remote"+chevrons(klass)+"()) "+klass+"();");
+                       "new (x10aux::alloc"+chevrons(klass)+"()) "+klass+"();");
             sw.writeln("buf.record_reference(this_);");
             sw.writeln("this_->"+DESERIALIZE_BODY_METHOD+"(buf);");
             sw.write("return this_;");
@@ -1063,15 +1066,19 @@ public class Emitter {
             sw.write("template<class __T> ");
             sw.write(make_ref("__T")+" "+klass+"::"+DESERIALIZE_METHOD+"("+DESERIALIZATION_BUFFER+"& buf) {");
             sw.newline(4); sw.begin(0);
-            sw.writeln("x10::lang::Object::_reference_state rr = " +
-                    "x10::lang::Object::_deserialize_reference_state(buf);");
-            sw.writeln(make_ref(klass)+" this_;");
-            sw.write("if (rr.ref != 0) {");
+            sw.writeln("x10::lang::Object::_reference_state rr = x10::lang::Object::_deserialize_reference_state(buf);");
+            sw.write("if (0 == rr.ref) {");                
             sw.newline(4); sw.begin(0);
-            sw.write("this_ = "+klass+"::"+template+DESERIALIZER_METHOD+chevrons(klass)+"(buf);");
+            sw.write("return x10aux::null;");
+            sw.end(); sw.newline();
+            sw.write("} else {");
+            sw.newline(4); sw.begin(0);
+            sw.writeln(make_ref(klass)+" res;");
+            sw.writeln("res = "+klass+"::"+template+DESERIALIZER_METHOD+chevrons(klass)+"(buf);");
+            sw.writeln("_S_(\"Deserialized a \"<<ANSI_SER<<ANSI_BOLD<<\"class\"<<ANSI_RESET<<\""+klass+"\");");
+            sw.write("return res;");
             sw.end(); sw.newline();
             sw.writeln("}");
-            sw.write("return x10::lang::Object::_finalize_reference"+chevrons("__T")+"(this_, rr, buf);");
             sw.end(); sw.newline();
             sw.writeln("}"); sw.forceNewline();
             sw.popCurrentStream();
@@ -1093,10 +1100,21 @@ public class Emitter {
             FieldInstance f = (FieldInstance) type.fields().get(i);
             if (f.flags().isStatic() || query.isSyntheticField(f.name().toString()))
                 continue;
-            if (!X10Flags.toX10Flags(f.flags()).isGlobal()) // only serialize global fields of classes
+            if (f.flags().isTransient()) // don't serialize transient fields of classes
                 continue;
             String fieldName = mangled_field_name(f.name().toString());
             w.write(fieldName+" = buf.read"+chevrons(translateType(f.type(),true))+"();");
+        }
+        // Special case x10.lang.Array to deserialize the contents of rawChunk too
+        if (ts.isX10Array(type)) {
+            String elemType = translateType(ct.typeArguments().get(0),true);
+            w.newline();
+            w.writeln("FMGL(raw) = x10::util::IndexedMemoryChunk<void>::allocate"+chevrons(elemType)+"(FMGL(rawLength),8,false,false);");
+            w.write("for (x10_int i = 0; i<this->FMGL(rawLength); i++) {");
+            w.newline(4); w.begin(0);
+            w.write("this->FMGL(raw)->set(buf.read"+chevrons(elemType)+"(), i);");
+            w.end(); w.newline();
+            w.write("}");
         }
         w.end(); w.newline();
         w.write("}");
@@ -1132,6 +1150,8 @@ public class Emitter {
             FieldInstance f = (FieldInstance) type.fields().get(i);
             if (f.flags().isStatic() || query.isSyntheticField(f.name().toString()))
                 continue;
+            if (f.flags().isTransient()) // don't serialize transient fields
+                continue;
             String fieldName = mangled_field_name(f.name().toString());
             w.write("buf.write(this_->"+fieldName+");"); w.newline();
         }
@@ -1162,6 +1182,8 @@ public class Emitter {
                 w.newline();
             FieldInstance f = (FieldInstance) type.fields().get(i);
             if (f.flags().isStatic() || query.isSyntheticField(f.name().toString()))
+                continue;
+            if (f.flags().isTransient()) // don't serialize transient fields
                 continue;
             String fieldName = mangled_field_name(f.name().toString());
             w.write(fieldName+" = buf.read"+chevrons(translateType(f.type(),true))+"();");

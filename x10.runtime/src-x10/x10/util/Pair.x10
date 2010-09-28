@@ -23,7 +23,7 @@ public struct Pair[T,U] {
         this.second = second;
     }
 
-    public global safe def toString():String {
+    public def toString():String {
         return "(" + first + ", " + second + ")";
     }
 

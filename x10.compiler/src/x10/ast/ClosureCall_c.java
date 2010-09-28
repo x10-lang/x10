@@ -29,6 +29,7 @@ import polyglot.types.Flags;
 import polyglot.types.Matcher;
 import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
+import polyglot.types.ProcedureDef;
 import polyglot.types.ProcedureInstance;
 import polyglot.types.SemanticException;
 import polyglot.types.Name;
@@ -113,7 +114,7 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 	}
 
 	@Override
-	public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
+	public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
 		List<Term> args = new ArrayList<Term>();
 		//	args.addAll(typeArgs);
 		args.addAll(arguments);
@@ -158,6 +159,10 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 
 	public ProcedureInstance<?> procedureInstance() {
 		return this.ci;
+	}
+
+	public ClosureCall procedureInstance(ProcedureInstance<? extends ProcedureDef> pi) {
+		return closureInstance((X10MethodInstance) pi);
 	}
 
 	/** Get the actual arguments of the call. */
@@ -206,9 +211,9 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 
 	/** Visit the children of the call. */
 	public Node visitChildren(NodeVisitor v) {
-		Expr target= (Expr) visitChild(this.target, v);
-		//	List typeArgs= visitList(this.typeArgs, v);
-		List arguments= visitList(this.arguments, v);
+		Expr target = (Expr) visitChild(this.target, v);
+		//List typeArgs = visitList(this.typeArgs, v);
+		List<Expr> arguments = visitList(this.arguments, v);
 		return reconstruct(target, /*typeArgs,*/ arguments);
 	}
 
@@ -314,7 +319,7 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 			//		throw new SemanticException("Invalid closure call; target does not implement " + ct + ".", position());
 			X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
 			X10Call_c n = (X10Call_c) nf.X10Call(position(), target(), 
-					nf.Id(X10NodeFactory_c.compilerGenerated(position()), mi.name().toString()), Collections.EMPTY_LIST, args);
+					nf.Id(X10NodeFactory_c.compilerGenerated(position()), mi.name().toString()), Collections.<TypeNode>emptyList(), args);
 			n = (X10Call_c) n.methodInstance(mi).type(mi.returnType());
 			return n;
 		}
@@ -326,12 +331,12 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 			return ci.container();
 		}
 
-		Iterator i = this.arguments.iterator();
-		Iterator j = ci.formalTypes().iterator();
+		Iterator<Expr> i = this.arguments.iterator();
+		Iterator<Type> j = ci.formalTypes().iterator();
 
 		while (i.hasNext() && j.hasNext()) {
-			Expr e = (Expr) i.next();
-			Type t = (Type) j.next();
+			Expr e = i.next();
+			Type t = j.next();
 
 			if (e == child) {
 				return t;

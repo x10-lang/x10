@@ -90,7 +90,7 @@ public class Eval_c extends Stmt_c implements Eval
         return expr;
     }
 
-    public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
+    public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
         v.visitCFG(expr, this, EXIT);
         return succs;
     }

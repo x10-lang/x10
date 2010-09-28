@@ -21,13 +21,13 @@ public class UninitializedPointBinding_MustFailCompile extends x10Test {
 
     public def run(): boolean = {
 
-        var p(i,j): Point;
+        var p[i,j]: Point;
         p = [1,2];
 
         return (i == 1 && j == 2);
     }
 
-    public static def main(args: Rail[String]): void = {
+    public static def main(args: Array[String](1)): void = {
         new UninitializedPointBinding_MustFailCompile().execute();
     }
 }

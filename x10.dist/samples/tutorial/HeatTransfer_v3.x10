@@ -9,6 +9,8 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+import x10.util.ArrayList;
+
 
 /**
  * This is one of a series of programs showing how to express
@@ -34,18 +36,17 @@
  * place instead of being redone on every loop iteration.<p>
  */
 public class HeatTransfer_v3 {
-    static type Real=Double;
-    const n = 3; 
-    const epsilon = 1.0e-5;
-    const P = 2;
+    static val n = 3; 
+    static val epsilon = 1.0e-5;
+    static val P = 2;
 
-    const BigD = Dist.makeBlock([0..n+1, 0..n+1], 0);
-    const D = BigD | ([1..n, 1..n] as Region);
-    const LastRow = [0..0, 1..n] as Region;
-    const A = DistArray.make[Real](BigD,(p:Point)=>{ LastRow.contains(p) ? 1.0 : 0.0 });
-    const Temp = DistArray.make[Real](BigD);
+    static val BigD = Dist.makeBlock([0..n+1, 0..n+1], 0);
+    static val D = BigD | ([1..n, 1..n] as Region);
+    static val LastRow = [0..0, 1..n] as Region;
+    static val A = DistArray.make[Double](BigD,(p:Point)=>{ LastRow.contains(p) ? 1.0 : 0.0 });
+    static val Temp = DistArray.make[Double](BigD);
 
-    static def stencil_1((x,y):Point(2)): Real {
+    static def stencil_1([x,y]:Point(2)): Double {
         return ((at(A.dist(x-1,y)) A(x-1,y)) + 
                 (at(A.dist(x+1,y)) A(x+1,y)) + 
                 (at(A.dist(x,y-1)) A(x,y-1)) + 
@@ -55,8 +56,8 @@ public class HeatTransfer_v3 {
     // TODO: This is a really inefficient implementation of this abstraction.
     //       Needs to be done properly and integrated into the Dist/Region/DistArray
     //       class library in x10.array.
-    static def blockIt(d:Dist(2), numProcs:int):ValRail[Iterable[Point(2)]] {
-        val ans = ValRail.make(numProcs, (int) => new x10.util.ArrayList[Point{self.rank==d.rank}]());
+    static def blockIt(d:Dist(2), numProcs:int):Array[ArrayList[Point(2)]](1) {
+        val ans = new Array[ArrayList[Point(2)]](numProcs, (int) => new ArrayList[Point(2)]());
 	var modulo:int = 0;
         for (p in d) {
 	    ans(modulo).add(p);
@@ -67,25 +68,25 @@ public class HeatTransfer_v3 {
 
     def run() {
 	val D_Base = Dist.makeUnique(D.places());
-        var delta:Real = 1.0;
+        var delta:Double = 1.0;
         do {
             finish ateach (z in D_Base) {
-                val blocks:ValRail[Iterable[Point(2)]] = blockIt(D | here, P);
-                foreach ((q) in 0..P-1) {
+                val blocks = blockIt(D | here, P);
+                foreach ([q] in 0..P-1) {
                     for (p in blocks(q)) {
                         Temp(p) = stencil_1(p);
                     }
                 }
             }
 
-            delta = A.map(Temp, D.region, (x:Real,y:Real)=>Math.abs(x-y)).reduce(Math.max.(Double,Double), 0.0);
+            delta = A.map(Temp, D.region, (x:Double,y:Double)=>Math.abs(x-y)).reduce(Math.max.(Double,Double), 0.0);
             finish ateach (p in D) A(p) = Temp(p);
         } while (delta > epsilon);
     }
  
    def prettyPrintResult() {
-       for ((i) in A.region.projection(0)) {
-           for ((j) in A.region.projection(1)) {
+       for ([i] in A.region.projection(0)) {
+           for ([j] in A.region.projection(1)) {
                 val pt = Point.make(i,j);
                 at (BigD(pt)) { 
 		    val tmp = A(pt);
@@ -96,7 +97,7 @@ public class HeatTransfer_v3 {
         }
     }
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String]) {
 	Console.OUT.println("HeatTransfer Tutorial example with n="+n+" and epsilon="+epsilon);
 	Console.OUT.println("Initializing data structures");
         val s = new HeatTransfer_v3();

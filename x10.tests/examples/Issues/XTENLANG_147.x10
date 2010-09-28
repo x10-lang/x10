@@ -17,11 +17,11 @@ import harness.x10Test;
 
 class XTENLANG_147 extends x10Test {
 
-    incomplete def foo1():int;
-    incomplete def bar1(()=>int): void;
+    def foo1():int { throw new RuntimeException(); }
+    def bar1(()=>int): void { throw new RuntimeException(); }
     
-    incomplete def foo2(): void;
-    incomplete def bar2(()=>void): void;
+    def foo2(): void { throw new RuntimeException(); }
+    def bar2(()=>void): void { throw new RuntimeException(); }
     
     public def foo() {
     
@@ -42,7 +42,7 @@ class XTENLANG_147 extends x10Test {
         return true;
     }
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new XTENLANG_147().execute();
     }
 }

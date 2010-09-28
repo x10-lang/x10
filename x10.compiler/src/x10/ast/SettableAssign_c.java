@@ -23,7 +23,6 @@ import polyglot.ast.Assign;
 import polyglot.ast.Assign_c;
 import polyglot.ast.Binary;
 import polyglot.ast.Call;
-import polyglot.ast.CanonicalTypeNode_c;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
 import polyglot.ast.Node;
@@ -178,21 +177,21 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
    		return child.type();
    	}
 	
-	MethodInstance mi;
-	MethodInstance ami;
+	X10MethodInstance mi;
+	X10MethodInstance ami;
 	
-	public MethodInstance methodInstance() {
+	public X10MethodInstance methodInstance() {
 	    return mi;
 	}
-	public SettableAssign methodInstance(MethodInstance mi) {
+	public SettableAssign methodInstance(X10MethodInstance mi) {
 	    SettableAssign_c n = (SettableAssign_c) copy();
 	    n.mi = mi;
 	    return n;
 	}
-	public MethodInstance applyMethodInstance() {
-	    return mi;
+	public X10MethodInstance applyMethodInstance() {
+	    return ami;
 	}
-	public SettableAssign applyMethodInstance(MethodInstance ami) {
+	public SettableAssign applyMethodInstance(X10MethodInstance ami) {
 	    SettableAssign_c n = (SettableAssign_c) copy();
 	    n.ami = ami;
 	    return n;
@@ -202,10 +201,10 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 	public Node buildTypes(TypeBuilder tb) throws SemanticException {
 	    SettableAssign_c n = (SettableAssign_c) super.buildTypes(tb);
 
-	    TypeSystem ts = tb.typeSystem();
+	    X10TypeSystem ts = (X10TypeSystem) tb.typeSystem();
 
-	    MethodInstance mi = ts.createMethodInstance(position(), new ErrorRef_c<MethodDef>(ts, position(), "Cannot get MethodDef before type-checking settable assign."));
-	    MethodInstance ami = ts.createMethodInstance(position(), new ErrorRef_c<MethodDef>(ts, position(), "Cannot get MethodDef before type-checking settable assign."));
+	    X10MethodInstance mi = ts.createMethodInstance(position(), new ErrorRef_c<MethodDef>(ts, position(), "Cannot get MethodDef before type-checking settable assign."));
+	    X10MethodInstance ami = ts.createMethodInstance(position(), new ErrorRef_c<MethodDef>(ts, position(), "Cannot get MethodDef before type-checking settable assign."));
 	    return n.methodInstance(mi).applyMethodInstance(ami);
 	}
 

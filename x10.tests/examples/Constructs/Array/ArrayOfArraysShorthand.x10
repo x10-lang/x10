@@ -24,14 +24,14 @@ public class ArrayOfArraysShorthand extends x10Test {
         val r1 <: Region(1) = 0..7;
         val r2 <: Region(1) = 0..9;
         val r: Region(2) = Region.make([r1, r2]);
-        val ia = new Array[Array[Int](1)!](r1, (Point)=> new Array[Int](r2, ((j):Point)=>j));
+        val ia = new Array[Array[Int](1)](r1, (Point)=> new Array[Int](r2, ([j]:Point)=>j));
 
-        for (val (i,j): Point in r) chk(ia(i)(j) == j);
+        for (val [i,j]: Point in r) chk(ia(i)(j) == j);
 
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new ArrayOfArraysShorthand().execute();
     }
 }

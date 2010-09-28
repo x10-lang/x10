@@ -214,12 +214,15 @@ public class InlineHelper extends ContextVisitor {
                         }
                         argTypes.add(Types.ref(ct));
                         
-                        List<Ref<? extends Type>> excTypes = new ArrayList<Ref<? extends Type>>();
-                        for (TypeNode tn : mdcl.throwTypes()) {
-                            excTypes.add(tn.typeRef());
+                        
+                        Expr call;
+                        if (mdcl.flags().flags().isStatic()) {
+                            call = xnf.Call(pos, xnf.CanonicalTypeNode(pos, cd.asType()), 
+                            		mdcl.name(), args).methodInstance(mdcl.methodDef().asInstance()).type(mdcl.returnType().type());
+                        } else {
+                            call = xnf.Call(pos, xnf.Local(pos, xnf.Id(pos, cd.name())).type(cd.asType()), mdcl.name(), args).methodInstance(mdcl.methodDef().asInstance()).type(mdcl.returnType().type());
                         }
                         
-                        Expr call = xnf.Call(pos, xnf.Local(pos, xnf.Id(pos, cd.name())).type(cd.asType()), mdcl.name(), args).methodInstance(mdcl.methodDef().asInstance()).type(mdcl.returnType().type());
                         Block body;
                         if (mdcl.returnType().type().isVoid()) {
                             body = xnf.Block(pos, xnf.Eval(pos, call));
@@ -227,11 +230,11 @@ public class InlineHelper extends ContextVisitor {
                         else {
                             body = xnf.Block(pos, xnf.Return(pos, call));
                         }
-                        X10MethodDecl nmdcl = xnf.MethodDecl(pos, xnf.FlagsNode(pos, mdcl.flags().flags().clearPrivate().clearProtected().clearNative().Public().Static()), mdcl.returnType(), xnf.Id(pos, Name.make(mdcl.name().toString() + BRIDGE_TO_PRIVATE_SUFFIX )), formals, mdcl.throwTypes(), body);
-                        X10MethodDef nmd = (X10MethodDef) xts.methodDef(pos, Types.ref(cd.asType()), nmdcl.flags().flags(), Types.ref(nmdcl.returnType().type()), nmdcl.name().id(), argTypes, excTypes);
+                        X10MethodDecl nmdcl = xnf.MethodDecl(pos, xnf.FlagsNode(pos, mdcl.flags().flags().clearPrivate().clearProtected().clearNative().Public().Static()), mdcl.returnType(), xnf.Id(pos, Name.make(mdcl.name().toString() + BRIDGE_TO_PRIVATE_SUFFIX )), formals,  body);
+                        X10MethodDef nmd = (X10MethodDef) xts.methodDef(pos, Types.ref(cd.asType()), nmdcl.flags().flags(), Types.ref(nmdcl.returnType().type()), nmdcl.name().id(), argTypes);
 
                         // check
-                        List<Ref<? extends Type>> rts = new ArrayList<Ref<? extends Type>>();
+                        List<ParameterType> rts = new ArrayList<ParameterType>();
                         List<TypeParamNode> ts = new ArrayList<TypeParamNode>(mdcl.typeParameters());
                         if (md instanceof X10MethodDef) {
                             rts.addAll(((X10MethodDef) md).typeParameters());
@@ -244,7 +247,7 @@ public class InlineHelper extends ContextVisitor {
                                         if (t3 instanceof ParameterType) {
                                             ParameterType pt = (ParameterType) t3;
                                             ts.add(xnf.TypeParamNode(pos, xnf.Id(pos, pt.name())).type(pt));
-                                            rts.add(Types.ref(pt));
+                                            rts.add(pt);
                                         }
                                     }
                                 }
@@ -264,11 +267,9 @@ public class InlineHelper extends ContextVisitor {
                 // generate bridge methods for super call
                 for (Call call : supers) {
                     MethodInstance mi = call.methodInstance();
-                    List<TypeNode> throwTypes = new ArrayList<TypeNode>();
+                   
                     List<Formal> formals = new ArrayList<Formal>();
-                    for (Type t : mi.throwTypes()) {
-                        throwTypes.add(xnf.X10CanonicalTypeNode(pos, t));
-                    }
+                  
                     List<Expr> arguments = new ArrayList<Expr>(call.arguments());
                     for (int i = 0; i < mi.formalTypes().size() ; ++i ) {
                         Type t = mi.formalTypes().get(i);
@@ -287,7 +288,10 @@ public class InlineHelper extends ContextVisitor {
                     else {
                         body = xnf.Block(pos, xnf.Return(pos, call));
                     }
-                    MethodDecl mdcl1 = xnf.MethodDecl(pos, xnf.FlagsNode(pos, Flags.FINAL.Public()), xnf.X10CanonicalTypeNode(pos, mi.returnType()), xnf.Id(pos, Name.make(d.classDef().asType().fullName().toString().replace(".", "$") + "$" + call.name().toString() + BRIDGE_TO_SUPER_SUFFIX)), formals, throwTypes, body);
+                    MethodDecl mdcl1 = xnf.MethodDecl(pos, xnf.FlagsNode(pos, Flags.FINAL.Public()), 
+                    		xnf.X10CanonicalTypeNode(pos, mi.returnType()), 
+                    		xnf.Id(pos, Name.make(d.classDef().asType().fullName().toString().replace(".", "$") + "$" + call.name().toString() + BRIDGE_TO_SUPER_SUFFIX)), 
+                    		formals,  body);
                     mdcl1 = mdcl1.methodDef(mi.def());
                     nmembers.add(mdcl1);
                 }
@@ -312,7 +316,7 @@ public class InlineHelper extends ContextVisitor {
                         if (mi instanceof X10MethodInstance) {
                             typeArgs = ((X10MethodInstance) mi).typeParameters();
                         } else {
-                            typeArgs = Collections.EMPTY_LIST;
+                            typeArgs = Collections.<Type>emptyList();
                         }
                         List<Expr> arguments = new ArrayList<Expr>(call.arguments());
                         List<Type> formals = new ArrayList<Type>(mi.formalTypes());
@@ -322,8 +326,9 @@ public class InlineHelper extends ContextVisitor {
                         }
                         
                         StructType container = mi.container();
-                        X10MethodDef md = (X10MethodDef) xts.methodDef(pos, Types.ref(container), mi.flags().clearNative().clearPrivate().Static(), Types.ref(mi.returnType()), id.id(), getRefList(formals), getRefList(mi.throwTypes()));
-                        List<Ref<? extends Type>> rts = new ArrayList<Ref<? extends Type>>();
+                        X10MethodDef md = (X10MethodDef) xts.methodDef(pos, Types.ref(container), mi.flags().clearNative().clearPrivate().Static(), 
+                        		Types.ref(mi.returnType()), id.id(), getRefList(formals));
+                        List<ParameterType> rts = new ArrayList<ParameterType>();
                         if (md instanceof X10MethodDef) {
                             rts.addAll(((X10MethodDef) mi.def()).typeParameters());
                         }
@@ -334,7 +339,7 @@ public class InlineHelper extends ContextVisitor {
                                     for (Type t3 : t2.typeArguments()) {
                                         if (t3 instanceof ParameterType) {
                                             ParameterType pt = (ParameterType) t3;
-                                            rts.add(Types.ref(pt));
+                                            rts.add(pt);
                                         }
                                     }
                                 }

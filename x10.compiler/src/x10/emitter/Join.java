@@ -25,14 +25,14 @@ import polyglot.visit.Translator;
 public class Join extends Expander {
 
 	private final String delimiter;
-	private final List args;
+	private final List<? extends Object> args;
 	public Join(Emitter er, String delimiter, Object a) {
 		this(er, delimiter, Collections.singletonList(a));
 	}
 	public Join(Emitter er, String delimiter, Object... objs) {
 	        this(er, delimiter, Arrays.asList(objs));
 	}
-	public Join(Emitter er, String delimiter, List  args) {
+	public Join(Emitter er, String delimiter, List<? extends Object> args) {
 		super(er);
 		this.delimiter = delimiter;
 		this.args = args;
@@ -40,7 +40,7 @@ public class Join extends Expander {
         public void expand(Translator tr) {
 //		er.w.write("/* Join: { */");
 		int N = args.size();
-		for (Iterator i = args.iterator(); i.hasNext(); ) {
+		for (Iterator<? extends Object> i = args.iterator(); i.hasNext(); ) {
 			er.prettyPrint(i.next(), tr);
 			if (i.hasNext())
 				er.prettyPrint(delimiter, tr);

@@ -12,14 +12,17 @@
 package x10.io;
 
 public class FilterWriter extends Writer {
-    global val w: Writer;
+    val w: Writer;
     
-    protected global def inner(): Writer = w;
+    protected def inner(): Writer = w;
 
     public def this(w: Writer) { this.w = w; }
 
-    public global def close(): Void throws IOException = w.close();
-    public global def flush(): Void throws IOException = w.flush();
+    public def close(): Void //throws IOException 
+    = w.close();
+    public def flush(): Void //throws IOException 
+    = w.flush();
 
-    public global def write(b: Byte): Void throws IOException = w.write(b);
+    public def write(b: Byte): Void //throws IOException 
+    = w.write(b);
 }

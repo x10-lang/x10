@@ -153,7 +153,7 @@ namespace x10 {
                 template<class T> template<class U> x10aux::ref<U>
                 AtomicReference<T>::_deserializer(x10aux::deserialization_buffer &buf) {
                     x10aux::ref<AtomicReference<T> > this_ =
-                        new (x10aux::alloc_remote<AtomicReference<T> >()) AtomicReference<T> ();
+                        new (x10aux::alloc<AtomicReference<T> >()) AtomicReference<T> ();
                     buf.record_reference(this_); // TODO: avoid; no global refs; final class
                     this_->_deserialize_body(buf);
                     return this_;
@@ -161,7 +161,7 @@ namespace x10 {
 
                 template<class T>
                 const x10aux::serialization_id_t AtomicReference<T>::_serialization_id =
-                    x10aux::DeserializationDispatcher::addDeserializer(AtomicReference<T>::template _deserializer<x10::lang::Object>);
+                    x10aux::DeserializationDispatcher::addDeserializer(AtomicReference<T>::template _deserializer<x10::lang::Reference>);
 
                 template<> class AtomicReference<void> {
                 public:

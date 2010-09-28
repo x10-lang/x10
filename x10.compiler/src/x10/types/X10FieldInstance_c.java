@@ -41,6 +41,7 @@ import x10.types.constraints.CConstraint;
  *
  */
 public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInstance {
+    private static final long serialVersionUID = 2257055113898437924L;
 
     public X10FieldInstance_c(TypeSystem ts, Position pos, Ref<? extends X10FieldDef> def) {
         super(ts, pos, def);
@@ -173,6 +174,7 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
     }
 
     public String toString() {
+	Type type = type();
 	String typeString = type != null ? type.toString() : def().type().toString();
 	String s = "field " + X10Flags.toX10Flags(flags()).prettyPrint() + containerString() + "." + name() + ": " + typeString;
 	return s;

@@ -12,16 +12,15 @@
 package x10.util;
 
 public interface ValMap[K,V] {
-	// All methods are global
-	public global safe def containsKey(k: K): boolean;
-	public global safe def get(k: K): Box[V];
-    public global safe def getOrElse(k: K, orelse: V): V;
-    public global safe def getOrThrow(k: K): V throws NoSuchElementException;
-	public global safe def keySet(): Set[K]!;
-	public global safe def entries(): Set[Entry[K,V]]!;
+	public def containsKey(k: K): boolean;
+	public def get(k: K): Box[V];
+    public def getOrElse(k: K, orelse: V): V;
+    public def getOrThrow(k: K): V; //throws NoSuchElementException
+	public def keySet(): Set[K];
+	public def entries(): Set[Entry[K,V]];
 
 	public static interface Entry[Key,Val] {
-	    public global safe def getKey(): Key;
-	    public global safe def getValue(): Val;
+	    public def getKey(): Key;
+	    public def getValue(): Val;
 	}
 }

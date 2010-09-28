@@ -3,6 +3,8 @@ package polyglot.frontend;
 import java.util.*;
 
 public abstract class BarrierGoal extends AbstractGoal_c {
+    private static final long serialVersionUID = -8652728509156749456L;
+
     Collection<Job> jobs;
     
     public BarrierGoal(String name, Collection<Job> jobs) {

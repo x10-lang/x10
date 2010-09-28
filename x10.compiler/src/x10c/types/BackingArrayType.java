@@ -18,6 +18,7 @@ import polyglot.util.Position;
 import x10.types.X10TypeSystem;
 
 public class BackingArrayType extends ArrayType_c {
+    private static final long serialVersionUID = 1504080841867595349L;
     public BackingArrayType(X10TypeSystem xts, Position position, Ref<? extends Type> ref) {
         super(xts, position, ref);
     }

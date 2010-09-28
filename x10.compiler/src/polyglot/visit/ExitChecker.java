@@ -14,6 +14,8 @@ import polyglot.ast.*;
 import polyglot.frontend.Job;
 import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
+import polyglot.visit.DataFlow.Item;
+import polyglot.visit.FlowGraph.EdgeKey;
 
 /**
  * Visitor which checks that all (terminating) paths through a 
@@ -71,7 +73,7 @@ public class ExitChecker extends DataFlow
         
     }
     
-    public Map flow(Item in, FlowGraph graph, Term n, boolean entry, Set succEdgeKeys) {
+    public Map<EdgeKey, Item> flow(Item in, FlowGraph graph, Term n, boolean entry, Set<EdgeKey> succEdgeKeys) {
         // If every path from the exit node to the entry goes through a return,
         // we're okay.  So make the exit bit false at exit and true at every return;
         // the confluence operation is &&. 
@@ -85,7 +87,7 @@ public class ExitChecker extends DataFlow
             // all exception edges to the exit node are regarded as exiting
             // correctly. Make sure non-exception edges have the
             // exit bit false.
-            Map m = itemToMap(DataFlowItem.EXITS, succEdgeKeys);
+            Map<EdgeKey, Item> m = itemToMap(DataFlowItem.EXITS, succEdgeKeys);
             if (succEdgeKeys.contains(FlowGraph.EDGE_KEY_OTHER)) {
                 m.put(FlowGraph.EDGE_KEY_OTHER, DataFlowItem.DOES_NOT_EXIT);
             }
@@ -103,17 +105,17 @@ public class ExitChecker extends DataFlow
     }
 
 
-    public Item confluence(List inItems, Term node, boolean entry, FlowGraph graph) {
+    public Item confluence(List<Item> inItems, Term node, boolean entry, FlowGraph graph) {
         // all paths must have an exit
-        for (Iterator i = inItems.iterator(); i.hasNext(); ) {
-            if (!((DataFlowItem)i.next()).exits) {
+        for (Item item : inItems) {
+            if (!((DataFlowItem)item).exits) {
                 return DataFlowItem.DOES_NOT_EXIT;
             }
         }
         return DataFlowItem.EXITS; 
     }
 
-    public void check(FlowGraph graph, Term n, boolean entry, Item inItem, Map outItems) {
+    public void check(FlowGraph graph, Term n, boolean entry, Item inItem, Map<EdgeKey, Item> outItems) {
         // Check for statements not on the path to exit; compound
         // statements are allowed to be off the path.  (e.g., "{ return; }"
         // or "while (true) S").  If a compound statement is truly

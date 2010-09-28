@@ -316,7 +316,7 @@ public class TypeEnv_c implements TypeEnv {
     /**
      * Checks whether the member mi can be accessed from Context "context".
      */
-    public boolean isAccessible(MemberInstance<? extends MemberDef> mi) {
+    public boolean isAccessible(MemberInstance<?> mi) {
 	ClassDef contextClass = context.currentClassDef();
 	Type target = mi.container();
 	Flags flags = mi.flags();
@@ -591,7 +591,7 @@ public class TypeEnv_c implements TypeEnv {
 
     /** Return true if t overrides mi */
     public boolean hasFormals(ProcedureInstance<? extends ProcedureDef> pi, List<Type> formalTypes) {
-	return ((ProcedureInstance_c) pi).hasFormals(formalTypes, context);
+	return ((ProcedureInstance_c<?>) pi).hasFormals(formalTypes, context);
     }
 
     public List<MethodInstance> overrides(MethodInstance mi) {
@@ -760,14 +760,14 @@ public class TypeEnv_c implements TypeEnv {
 					mi.position());
 	}
 
-	if (!ts.throwsSubset(mi, mj)) {
+/*	if (!ts.throwsSubset(mi, mj)) {
 	    if (Report.should_report(Report.types, 3))
 		Report.report(3, mi.throwTypes() + " not subset of " + mj.throwTypes());
 	    throw new SemanticException(mi.signature() + " in " + mi.container() + " cannot override " + mj.signature() + " in " + mj.container()
 		    + "; the throw set " + mi.throwTypes() + " is not a subset of the " + "overridden method's throw set " + mj.throwTypes() + ".",
 					mi.position());
 	}
-
+*/
 	if (mi.flags().moreRestrictiveThan(mj.flags())) {
 	    if (Report.should_report(Report.types, 3))
 		Report.report(3, mi.flags() + " more restrictive than " + mj.flags());
@@ -832,7 +832,7 @@ public class TypeEnv_c implements TypeEnv {
 	    Report.report(2, "Searching type " + container + " for constructor " + matcher.signature());
 
 	if (!(container instanceof ClassType)) {
-	    return Collections.EMPTY_LIST;
+	    return Collections.<ConstructorInstance>emptyList();
 	}
 
 	for (ConstructorInstance ci : ((ClassType) container).constructors()) {

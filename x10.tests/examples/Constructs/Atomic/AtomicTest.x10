@@ -18,13 +18,13 @@ import harness.x10Test;
 public class AtomicTest extends x10Test {
 
 	var val_: long = 0;
-	const N: long = 1000;
+	static N: long = 1000;
 	var startCount: long = 0;
 	var endCount: long = N;
 
     public def run(): boolean = {
 	var b: boolean; // temp
-	async(this) {
+	async  {
 	    atomic {
 		startCount = val_;
 		for (var i: int = 0; i < N; i++) val_++;
@@ -40,7 +40,7 @@ public class AtomicTest extends x10Test {
 	return b;
     }
 
-	public static def main(Rail[String]) {
+	public static def main(Array[String](1)) {
 	    new AtomicTest().execute();
 	}
 }

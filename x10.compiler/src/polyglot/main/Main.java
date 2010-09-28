@@ -174,7 +174,7 @@ public class Main
 
   static ExtensionInfo loadExtension(String ext) throws TerminationException {
     if (ext != null && ! ext.equals("")) {
-      Class extClass = null;
+      Class<?> extClass = null;
 
       try {
         extClass = Class.forName(ext);
@@ -219,6 +219,7 @@ public class Main
    * Apache ANT framework.
    */
   public static class TerminationException extends RuntimeException {
+      private static final long serialVersionUID = 4797129061362187975L;
       final public int exitCode;
       public TerminationException(String msg) {
           this(msg, 1);

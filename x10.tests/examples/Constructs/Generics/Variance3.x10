@@ -34,16 +34,16 @@ public class Variance3 extends x10Test {
                 sa.set(b);
                 sb.set(b);
 
-                val sx: Set[B]! = sa;
+                val sx: Set[B] = sa;
                 sx.set(b);
 
-                val sy: Set[B]! = sb;
+                val sy: Set[B] = sb;
                 sy.set(b);
 
                 return true;
         }
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new Variance3().execute();
 	}
 }

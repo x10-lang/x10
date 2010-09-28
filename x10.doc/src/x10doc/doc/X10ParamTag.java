@@ -1,9 +1,7 @@
 package x10doc.doc;
 
-import com.sun.javadoc.Doc;
 import com.sun.javadoc.ParamTag;
 import com.sun.javadoc.Tag;
-import com.sun.tools.doclets.formats.html.HtmlDocletWriter;
 
 public class X10ParamTag extends X10Tag implements ParamTag {
 	private boolean isTypeParameter;
@@ -32,9 +30,4 @@ public class X10ParamTag extends X10Tag implements ParamTag {
 	public Tag[] inlineTags(){
 		return inTags;
 	}
-	
-
-	
-	
-
 }

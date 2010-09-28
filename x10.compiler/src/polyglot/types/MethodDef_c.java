@@ -17,9 +17,10 @@ import polyglot.util.Position;
  * A <code>MethodInstance</code> represents the type information for a Java
  * method.
  */
-public class MethodDef_c extends ProcedureDef_c
-                                implements MethodDef
+public class MethodDef_c extends ProcedureDef_c implements MethodDef
 {
+    private static final long serialVersionUID = -4600875186109814395L;
+
     protected Name name;
     protected Ref<? extends Type> returnType;
 
@@ -29,8 +30,8 @@ public class MethodDef_c extends ProcedureDef_c
     public MethodDef_c(TypeSystem ts, Position pos,
 	 		    Ref<? extends StructType> container,
 	                    Flags flags, Ref<? extends Type> returnType, Name name,
-			    List<Ref<? extends Type>> formalTypes, List<Ref<? extends Type>> throwTypes) {
-        super(ts, pos, container, flags, formalTypes, throwTypes);
+			    List<Ref<? extends Type>> formalTypes) {
+        super(ts, pos, container, flags, formalTypes);
 	this.returnType = returnType;
 	this.name = name;
     }
@@ -71,10 +72,6 @@ public class MethodDef_c extends ProcedureDef_c
     public String toString() {
 	String s = designator() + " " + flags.translate() + returnType + " " +
                    container() + "." + signature();
-
-	if (! throwTypes.isEmpty()) {
-	    s += " throws " + CollectionUtil.listToString(throwTypes);
-	}
 
 	return s;
     }

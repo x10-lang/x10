@@ -20,7 +20,7 @@ import polyglot.visit.PrettyPrinter;
  */
 public class Block_c extends AbstractBlock_c implements Block
 {
-    public Block_c(Position pos, List statements) {
+    public Block_c(Position pos, List<Stmt> statements) {
 	super(pos, statements);
     }
 

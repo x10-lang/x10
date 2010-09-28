@@ -26,7 +26,7 @@ public class Unsigned1 extends x10Test {
         return (x as int) == 1 && (y as int) == Int.MIN_VALUE;
     }
 
-    public static def main(Rail[String]) = {
+    public static def main(Array[String](1)) = {
         new Unsigned1().execute();
     }
 }

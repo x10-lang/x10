@@ -22,7 +22,7 @@ public class RefA_MustFailCompile(f0: RefB{self.f2.f1==this.f1}, f1:int) extends
 	public def run(): boolean {
 		return true;
 	}
-	public static def main(var args: Rail[String]): void {
+	public static def main(var args: Array[String](1)): void {
 		new RefA_MustFailCompile(null, 1).execute();
 	}
 }

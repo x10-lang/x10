@@ -9,6 +9,7 @@ package polyglot.ast;
 
 import java.util.List;
 
+import polyglot.types.ProcedureDef;
 import polyglot.types.ProcedureInstance;
 
 /**
@@ -26,6 +27,7 @@ public interface ProcedureCall extends Term
     /**
      * Set the call's actual arguments.
      * @param arguments A list of {@link polyglot.ast.Expr Expr}.
+     * @return a copy of this ProcedureCall with the new arguments.
      */
     ProcedureCall arguments(List<Expr> arguments);
 
@@ -33,5 +35,11 @@ public interface ProcedureCall extends Term
      * The type object of the method we are calling.  This is, generally, only
      * valid after the type-checking pass.
      */
-    ProcedureInstance procedureInstance();
+    ProcedureInstance<? extends ProcedureDef> procedureInstance();
+
+    /**
+     * Set the type object for instance being called.
+     * @return a copy of this ProcedureCall with the new type object.
+     */
+    ProcedureCall procedureInstance(ProcedureInstance<? extends ProcedureDef> pi);
 }

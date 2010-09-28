@@ -15,6 +15,8 @@ import polyglot.util.InternalCompilerError;
  */
 public class UnknownType_c extends Type_c implements UnknownType
 {
+    private static final long serialVersionUID = 2713953048091574093L;
+
     /** Used for deserializing types. */
     protected UnknownType_c() { }
     

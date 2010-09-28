@@ -22,11 +22,11 @@ public class IfElseFinishBug extends x10Test {
 
 	public def run(): boolean = {
 		if (true) x10.io.Console.OUT.println("True branch");
-		else finish foreach (val (i): Point in [0..1]) { throw new Error("Throwing "+i); }
+		else finish foreach (val [i]: Point in [0..1]) { throw new Error("Throwing "+i); }
 		return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new IfElseFinishBug().execute();
 	}
 }

@@ -20,12 +20,12 @@ import harness.x10Test;
 public class ClockTest4 extends x10Test {
 
 	var val: int = 0;
-	public const N: int = 32;
+	public static N: int = 32;
 
 	public def run(): boolean = {
 		val c: Clock = Clock.make();
 
-		foreach (val (i): Point in 1..(N-1)) clocked(c) {
+		foreach ([i] in 1..(N-1)) clocked(c) {
 			foreachBody(i, c);
 		}
 		foreachBody(0, c);
@@ -35,18 +35,18 @@ public class ClockTest4 extends x10Test {
 		return true;
 	}
 
-	def foreachBody(val i: int, val c: Clock): void = {
-		async(here) clocked(c) finish async(here) { async(here) { atomic val += i; } }
+	def foreachBody(i: int, c: Clock): void = {
+		async clocked(c) finish async { async { atomic val += i; } }
 		next;
 		var temp: int;
 		atomic { temp = val; }
 		chk(temp == N*(N-1)/2);
 		next;
-		async(here) clocked(c) finish async(here) { async(here) { atomic val -= i; } }
+		async clocked(c) finish async { async { atomic val -= i; } }
 		next;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(Array[String](1)) {
 		new ClockTest4().executeAsync();
 	}
 }

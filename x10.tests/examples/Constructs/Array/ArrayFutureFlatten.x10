@@ -10,9 +10,10 @@
  */
 
 import harness.x10Test;
+import x10.util.Future;
 
 /**
- * Testing arrays of future<T>.
+ * Testing arrays of Future<T>.
  *
  * @author kemal, 5/2005
  */
@@ -22,12 +23,12 @@ public class ArrayFutureFlatten extends x10Test {
     public def run(): boolean = { 
         val A = new Array[int]([1..10, 1..10], (Point)=>0);
         val B = new Array[int]([1..10, 1..10], (Point)=>0);
-        val b = (future 3) .force();
-        chk(0 == (future B(1,1)).force());
+        val b = (Future.make[int](()=>3))();
+        chk(0 == (Future.make[int](()=>B(1,1))()));
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new ArrayFutureFlatten().execute();
     }
 }

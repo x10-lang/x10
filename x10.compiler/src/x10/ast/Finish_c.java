@@ -12,16 +12,20 @@
 package x10.ast;
 
 import java.util.List;
+import java.util.Set;
 
 import polyglot.ast.Node;
 import polyglot.ast.Stmt;
 import polyglot.ast.Term;
 import polyglot.ast.Stmt_c;
+import polyglot.types.Context;
+import polyglot.types.VarDef;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
+import x10.types.X10Context;
 
 /** An immutable class representing the X10 finish S construct.
  *  No special type-checking rules. 
@@ -29,9 +33,8 @@ import polyglot.visit.PrettyPrinter;
  * 
  */
 public class Finish_c extends Stmt_c implements Finish {
-
     protected Stmt body;
-    
+    protected boolean clocked;
     /**
      * @param pos
      */
@@ -39,12 +42,15 @@ public class Finish_c extends Stmt_c implements Finish {
 	super(pos);
     }
 
-    public Finish_c(Position pos, Stmt body) {
+    public Finish_c(Position pos, Stmt body, boolean clocked) {
 	super(pos);
 	this.body = body;
+	this.clocked = clocked; 
     }
 
-
+    public boolean clocked() {
+    	return clocked;
+    }
     /* (non-Javadoc)
      * @see x10.ast.Finish#body()
      */
@@ -59,13 +65,21 @@ public class Finish_c extends Stmt_c implements Finish {
 	return n;
     }
 
+    @Override
+	public Context enterChildScope(Node child, Context c) {
+    	c = super.enterChildScope(child,c);
+    	if (clocked)
+    		c=((X10Context) c).pushClockedFinishScope();
+    	addDecls(c);
+    	return c;
+	}
     public String toString() {
 	return "finish  { ... }";
     }
 
     /** Write the statement to an output file. */
     public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
-	w.write("finish ");
+	w.write((clocked ? "clocked " : "") + "finish ");
 	printSubStmt(body, w, tr);
     }
 
@@ -80,7 +94,7 @@ public class Finish_c extends Stmt_c implements Finish {
     /**
      * Visit this term in evaluation order.
      */
-    public List acceptCFG(CFGBuilder v, List succs) {
+    public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
 	v.visitCFG(body, this, EXIT);
 	return succs;
     }

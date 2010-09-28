@@ -44,7 +44,7 @@ public class EncapsulatedArray2D extends x10Test {
         
                 
         //for (int i=0;i<numOfPlaces;i++){    
-        finish ateach (val (i,j): Point in D) { 
+        finish ateach (val [i,j]: Point in D) { 
             val temp = A(i, j).m_array; 
             for (val p: Point(2) in temp) 
             	temp(p)=(i+j as Double);
@@ -53,7 +53,7 @@ public class EncapsulatedArray2D extends x10Test {
         return true;
     }
     
-    public static def main(Rail[String])  {
+    public static def main(Array[String](1))  {
         new EncapsulatedArray2D().execute();
     }
 

@@ -27,11 +27,12 @@ import polyglot.util.InternalCompilerError;
  *
  */
 public class X10NullType_c extends NullType_c implements X10NullType {
+    private static final long serialVersionUID = -7507422901791531526L;
+
     public X10NullType_c( TypeSystem ts ) {super(ts);}
     
     public boolean isSafe() { return true;}
     public boolean isRooted() { return false; }
-    public boolean isProto() { return false; }
     public boolean isX10Struct() { return false; }
     public boolean equalsNoFlag(Type t2) { return this == t2; }
     public boolean permitsNull() { return true;}

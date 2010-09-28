@@ -22,5 +22,5 @@ public struct Option {
     public def this(s:String, l:String, d:String) {
         short_ = "-"+s; long_="--"+l; description=d;
     }
-    public global safe def toString() = description;
+    public def toString() = description;
 }

@@ -10,7 +10,9 @@
  */
 
 import harness.x10Test;
+import x10.util.Future;
 
+import x10.util.Future;
 /**
  * Tests exceptions and side effects
  * within activities spawned by a future expression.
@@ -25,14 +27,14 @@ import harness.x10Test;
  */
 public class FutureTest3 extends x10Test {
 
-	public const N: int = 8;
-	public const OUTOFRANGE: int = 99;
+	public static N: int = 8;
+	public static OUTOFRANGE: int = 99;
 
 	/**
 	 * Spawns subactivities that cause delayed side-effects.
 	 */
-	def m1(val A: Array[int](1)!, val K: int): int = {
-		foreach (val (i): Point in A) {
+	def m1(val A: Array[int](1), val K: int): int = {
+		foreach (val [i]: Point in A) {
 			Activity.sleep(3000);
 			atomic A(i) += 1;
 		}
@@ -45,8 +47,8 @@ public class FutureTest3 extends x10Test {
 	 * Spawns subactivities that cause delayed side-effects
 	 * and exceptions.
 	 */
-	def m2(val A: Array[int](1)!, val K: int): int = {
-		foreach (val p(i): Point in A) {
+	def m2(val A: Array[int](1), val K: int): int = {
+		foreach (val p[i]: Point in A) {
 			Activity.sleep(3000);
 			atomic A(i) += 1;
 			atomic A(OUTOFRANGE) = -1;
@@ -68,7 +70,7 @@ public class FutureTest3 extends x10Test {
 		// side effect in expression
 
 		// (need atomic here if there is sharing. x10 should support atomic { expression } )
-		var r1: int = (future (here) {A(K) += 1}).force();
+		var r1: int = Future.make( () => { return A(K) += 1;} ).force();
 		x10.io.Console.OUT.println("1");
 		atomic chk(A(K) == 1);
 		chk(r1 == 1);
@@ -77,7 +79,7 @@ public class FutureTest3 extends x10Test {
 		var r2: int = -1;
 		gotException = false;
 		try {
-			r2 = (future (here){A(OUTOFRANGE) += 1}) .force();
+			r2 = Future.make( () => { return A(OUTOFRANGE) += 1; } ) .force();
 		} catch (var e: ArrayIndexOutOfBoundsException) {
 			gotException = true;
 		}
@@ -89,36 +91,36 @@ public class FutureTest3 extends x10Test {
 		var r3: int = -1;
 		gotException = false;
 		try {
-			r3 = (future(here) m1(A, K)) .force();
+			r3 = Future.make( () =>  m1(A, K)) .force();
 		} catch (var e: Throwable) {
 			gotException = true;
 		}
 		x10.io.Console.OUT.println("3");
 		chk(r3 == 1 && !gotException);
 		// must read new values of A here
-		for (val (i): Point in A) x10.io.Console.OUT.println("A["+i+"] = "+A(i));
+		for (val [i]: Point in A) x10.io.Console.OUT.println("A["+i+"] = "+A(i));
 		chk(A(K) == 2);
-		for (val (i): Point in A) atomic chk(imp(i != K, A(i) == 1));
+		for (val [i]: Point in A) atomic chk(imp(i != K, A(i) == 1));
 
 		//future { e }.force() must throw
 		//exceptions from subactivities of e
 		var r4: int = -1;
 		gotException = false;
 		try {
-			r4 = (future(here) m2(A, K)) .force();
+			r4 = Future.make( () => m2(A, K)) .force();
 		} catch (var e: Throwable) {
 			gotException = true;
 		}
 		x10.io.Console.OUT.println("4" + gotException + " r4 = " + r4);
 		chk(r4 ==-1 && gotException);
 		// must read new values of A here
-		for (val (i): Point in A) x10.io.Console.OUT.println("A["+i+"] = "+A(i));
+		for (val [i]: Point in A) x10.io.Console.OUT.println("A["+i+"] = "+A(i));
 		atomic chk(A(K) == 3);
-		for (val (i): Point in A) atomic chk(imp(i != K, A(i) == 2));
+		for (val [i]: Point in A) atomic chk(imp(i != K, A(i) == 2));
 
 		//Only force() throws the exception,
 		//a plain future call just spawns the expression
-		val fr5  = future(here) { m2(A, K) };
+		val fr5  = Future.make( () => m2(A, K) );
 		x10.io.Console.OUT.println("5");
 		// must read old values of A here
 		//atomic chk(A(K) == 3);
@@ -132,9 +134,9 @@ public class FutureTest3 extends x10Test {
 		}
 		chk(r5 ==-1 && gotException);
 		// must read new values of A here
-		for (val (i): Point in A) x10.io.Console.OUT.println("A["+i+"] = "+A(i));
+		for (val [i]: Point in A) x10.io.Console.OUT.println("A["+i+"] = "+A(i));
 		atomic chk(A(K) == 4);
-		for (val (i): Point in A) atomic chk(imp(i != K, A(i) == 3));
+		for (val [i]: Point in A) atomic chk(imp(i != K, A(i) == 3));
 
 		return true;
 	}
@@ -142,11 +144,11 @@ public class FutureTest3 extends x10Test {
 	/**
 	 * True iff x logically implies y
 	 */
-	static def imp(var x: boolean, var y: boolean): boolean = {
+	static def imp(x: boolean, y: boolean): boolean = {
 		return (!x||y);
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(Array[String](1)) {
 		new FutureTest3().execute();
 	}
 }

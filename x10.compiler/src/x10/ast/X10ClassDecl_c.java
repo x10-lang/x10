@@ -238,29 +238,6 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	super.setInterfaces(ts, thisType);
     }
 
-
-    public Node disambiguate(ContextVisitor ar) throws SemanticException {
-    	ClassDecl n = (ClassDecl) super.disambiguate(ar);
-
-    	// If the class is safe, mark all the methods safe.
-    	X10Flags xf = X10Flags.toX10Flags(n.flags().flags());
-    	if (xf.isSafe()) {
-    	    ClassBody b = n.body();
-    	    List<ClassMember> m = b.members();
-    	    List<ClassMember> newM = new ArrayList<ClassMember>(m.size());
-    	    for (ClassMember mem : m) {
-    	        if (mem instanceof MethodDecl) {
-    	            MethodDecl decl = (MethodDecl) mem;
-    	            X10Flags mxf = X10Flags.toX10Flags(decl.flags().flags()).Safe();
-    	            mem = decl.flags(decl.flags().flags(mxf));
-    	        } 
-    	        newM.add(mem);
-    	    }
-    	    n = n.body(b.members(newM));
-    	}
-
-    	return n;
-    }
     @Override
     public Context enterScope(Context c) {
     	return c.pushBlock();
@@ -352,9 +329,9 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     
     public Node visitSignature(NodeVisitor v) {
         X10ClassDecl_c n = (X10ClassDecl_c) super.visitSignature(v);
-//        List<TypeParamNode> tps = (List<TypeParamNode>) visitList(this.typeParameters, v);
+//        List<TypeParamNode> tps = visitList(this.typeParameters, v);
 //        n = (X10ClassDecl_c) n.typeParameters(tps);
-        List<PropertyDecl> ps = (List<PropertyDecl>) visitList(this.properties, v);
+        List<PropertyDecl> ps = visitList(this.properties, v);
         n = (X10ClassDecl_c) n.properties(ps);
         DepParameterExpr ci = (DepParameterExpr) visitChild(this.classInvariant, v);
         return ci == this.classInvariant ? n : n.classInvariant(ci);
@@ -368,7 +345,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         
         TypeBuilder childTb = tb.pushClass(def);
         
-        List<TypeParamNode> pas = (List<TypeParamNode>) n.visitList(n.typeParameters, childTb);
+        List<TypeParamNode> pas = n.visitList(n.typeParameters, childTb);
         pas = new LinkedList<TypeParamNode>(pas);
         
         if (def.isMember() && ! def.flags().isStatic()) {
@@ -421,7 +398,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
             ((X10ClassDef) n.type).setDefAnnotations(ats);
         }
         
-        List<PropertyDecl> ps = (List<PropertyDecl>) visitList(n.properties, childTb);
+        List<PropertyDecl> ps = visitList(n.properties, childTb);
         n = (X10ClassDecl_c) n.properties(ps);
 
         final DepParameterExpr ci = (DepParameterExpr) n.visitChild(n.classInvariant, childTb);
@@ -565,13 +542,13 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	            mi.name(),
     	            ((X10MethodDef) mi.def()).formalNames(),
     	            mi.returnType(),
-    	            mi.throwTypes(),
+    	        
     	            null);
     	}
     	return n;
     }
  
-    public Node typeCheckClassInvariant(Node parent, ContextVisitor tc, TypeChecker childtc) throws SemanticException {
+    public Node typeCheckClassInvariant(Node parent, ContextVisitor tc, TypeChecker childtc) {
 	X10ClassDecl_c n = this;
 	DepParameterExpr classInvariant = (DepParameterExpr) n.visitChild(n.classInvariant, childtc);
 	n = (X10ClassDecl_c) n.classInvariant(classInvariant);
@@ -586,11 +563,11 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
 	return n;
     }
     
-    public Node typeCheckProperties(Node parent, ContextVisitor tc, TypeChecker childtc) throws SemanticException {
+    public Node typeCheckProperties(Node parent, ContextVisitor tc, TypeChecker childtc) {
         X10ClassDecl_c n = this;
-        List<TypeParamNode> typeParameters = (List<TypeParamNode>) n.visitList(n.typeParameters, childtc);
+        List<TypeParamNode> typeParameters = n.visitList(n.typeParameters, childtc);
         n = (X10ClassDecl_c) n.typeParameters(typeParameters);
-        List<PropertyDecl> properties = (List<PropertyDecl>) n.visitList(n.properties, childtc);
+        List<PropertyDecl> properties = n.visitList(n.properties, childtc);
         n = (X10ClassDecl_c) n.properties(properties);
         return n;
     }
@@ -611,14 +588,10 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	TypeChecker oldchildtc = (TypeChecker) childtc.copy();
     	ContextVisitor oldtc = (ContextVisitor) tc.copy();
     	
-    	try {
-    	    n = (X10ClassDecl_c) n.typeCheckSupers(tc, childtc);
-    	    n = (X10ClassDecl_c) n.typeCheckProperties(parent, tc, childtc);
-    	    n = (X10ClassDecl_c) n.typeCheckClassInvariant(parent, tc, childtc);
-    	    n = (X10ClassDecl_c) n.typeCheckBody(parent, tc, childtc);
-    	} catch (SemanticException e) {
-    	    Errors.issue(tc.job(), e, this);
-        }
+    	n = (X10ClassDecl_c) n.typeCheckSupers(tc, childtc);
+    	n = (X10ClassDecl_c) n.typeCheckProperties(parent, tc, childtc);
+    	n = (X10ClassDecl_c) n.typeCheckClassInvariant(parent, tc, childtc);
+    	n = (X10ClassDecl_c) n.typeCheckBody(parent, tc, childtc);
     	
     	n = (X10ClassDecl_c) X10Del_c.visitAnnotations(n, childtc);
 
@@ -683,19 +656,20 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         }
       
         
-        Map<X10ClassDef,X10ClassType> map = new HashMap<X10ClassDef, X10ClassType>();
-        for (X10ClassType ct : supers) {
-            X10ClassType t = map.get(ct.x10Def());
-            if (t != null) {
-                if (!t.typeEquals(ct, tc.context())) {
-                    String kind = ct.flags().isInterface() ? "interface" : "class";
-                    Errors.issue(tc.job(),
-                                 new Errors.CannotExtendTwoInstancesSameInterfaceLimitation(t, ct,
-                                                                                            position()));
-                }
-            }
-            map.put(ct.x10Def(), ct);
-        }
+        // fix for XTENLANG-978
+//        Map<X10ClassDef,X10ClassType> map = new HashMap<X10ClassDef, X10ClassType>();
+//        for (X10ClassType ct : supers) {
+//            X10ClassType t = map.get(ct.x10Def());
+//            if (t != null) {
+//                if (!t.typeEquals(ct, tc.context())) {
+//                    String kind = ct.flags().isInterface() ? "interface" : "class";
+//                    Errors.issue(tc.job(),
+//                                 new Errors.CannotExtendTwoInstancesSameInterfaceLimitation(t, ct,
+//                                                                                            position()));
+//                }
+//            }
+//            map.put(ct.x10Def(), ct);
+//        }
         
     	n = (X10ClassDecl_c) n.adjustAbstractMethods(oldtc);
     	
@@ -706,8 +680,6 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     		n.checkStructMethods(parent, tc);
     	}
 
-        if (false)
-            new CheckEscapingThis(this,tc.job(),tc.typeSystem()).typeCheck();
     	return n;
     }
     
@@ -725,16 +697,11 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         if (stref != null) {
             Type t = stref.get();
             t = followDefs(t);
-            if (xts.isUnknown(t))
+            if (xts.hasUnknown(t))
                 return;
             if (! t.isClass() || t.toClass().flags().isInterface()) {
-                throw new SemanticException("Cannot extend type " +
-                        t + "; not a class.",
+                throw new SemanticException("Cannot extend type " + t + "; not a class.",
                         superClass != null ? superClass.position() : position());
-            }
-            if (X10TypeMixin.isProto(t)) {
-            	throw new SemanticException("proto supertypes are not permitted.", 
-            			superClass().position());
             }
             ts.checkCycles((ReferenceType) t);
         }
@@ -742,16 +709,13 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         for (Ref<? extends Type> tref : type.interfaces()) {
             Type t = tref.get();
             t = followDefs(t);
-            if (xts.isUnknown(t))
+            if (xts.hasUnknown(t))
                 throw new SemanticException(); // already reported
             if (! t.isClass() || ! t.toClass().flags().isInterface()) {
                 String s = type.flags().isInterface() ? "extend" : "implement";
                 throw new SemanticException("Cannot " + s + " type " + t + "; not an interface.",
                         position());
             }
-            if (X10TypeMixin.isProto(t))
-            	throw new SemanticException("Cannot implement " + t + "; proto interfaces are illegal.",
-            			position());
             
             ts.checkCycles((ReferenceType) t);
         }
@@ -778,7 +742,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
 	Type t2 = followDefs(tn.type());
 	if (t2 != t) {
 	    Ref<? extends Type> r = tn.typeRef();
-	    if (r instanceof LazyRef) {
+	    if (r instanceof LazyRef<?>) {
 		((LazyRef<Type>) r).update(t2);
 		return tn;
 	    }
@@ -787,134 +751,14 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
 	return tn;
     }
 
-    public Node superConformanceCheck(ContextVisitor tc) throws SemanticException {
-        X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-
-        ClassType type = this.type.asType();
-        Name name = this.name.id();
-
-        // The class cannot have the same simple name as any enclosing class.
-        if (type.isNested()) {
-            ClassType container = type.outer();
-
-            while (container != null) {
-                if (!container.isAnonymous()) {
-                    Name cname = container.name();
-
-                    if (cname.equals(name)) {
-                        throw new SemanticException("Cannot declare member " +
-                                "class \"" + type.fullName() +
-                                "\" inside class with the " +
-                                "same name.", position());
-                    }
-                }
-                if (container.isNested()) {
-                    container = container.outer();
-                }
-                else {
-                    break;
-                }
-            }
-        }
-
-        // A local class name cannot be redeclared within the same
-        // method, constructor or initializer, and within its scope                
-        if (type.isLocal()) {
-            Context ctxt = tc.context();
-
-            if (ctxt.isLocal(name)) {
-                // Something with the same name was declared locally.
-                // (but not in an enclosing class)                                    
-                Named nm = ctxt.find(ts.TypeMatcher(name));
-                if (nm instanceof Type) {
-                    Type another = (Type) nm;
-                    if (another.isClass() && another.toClass().isLocal()) {
-                        throw new SemanticException("Cannot declare local " +
-                                "class \"" + this.type + "\" within the same " +
-                                "method, constructor or initializer as another " +
-                                "local class of the same name.", position());
-                    }
-                }
-            }                
-        }
-
-        // check that inner classes do not declare member interfaces
-        if (type.isMember() && type.flags().isInterface() &&
-                type.outer().isInnerClass()) {
-            // it's a member interface in an inner class.
-            throw new SemanticException("Inner classes cannot declare " + 
-                    "member interfaces.", this.position());             
-        }
-
-        // Make sure that static members are not declared inside inner classes
-        if (type.isMember() && type.flags().isStatic() 
-                && type.outer().isInnerClass()) {
-            throw new SemanticException("Inner classes cannot declare static " 
-                    + "member classes.", position());
-        }
-
-        if (type.superClass() != null && !ts.isUnknown(type.superClass())) {
-            if (! type.superClass().isClass() || type.superClass().toClass().flags().isInterface()) {
-                throw new SemanticException("Cannot extend non-class \"" +
-                        type.superClass() + "\".",
-                        position());
-            }
-
-            if (type.superClass().toClass().flags().isFinal()) {
-                throw new SemanticException("Cannot extend final class \"" +
-                        type.superClass() + "\".",
-                        position());
-            }
-
-            if (type.typeEquals(ts.Object(), tc.context())) {
-                throw new SemanticException("Class \"" + this.type + "\" cannot have a superclass.",
-                        superClass.position());
-            }
-        }
-
-        for (Iterator<TypeNode> i = interfaces.iterator(); i.hasNext(); ) {
-            TypeNode tn = (TypeNode) i.next();
-            Type t = tn.type();
-
-            if (! t.isClass() || ! t.toClass().flags().isInterface()) {
-                throw new SemanticException("Superinterface " + t + " of " +
-                        type + " is not an interface.", tn.position());
-            }
-
-           /* if (type.typeEquals(ts.Object(), tc.context())) {
-                throw new SemanticException("Class " + this.type + " cannot have a superinterface.",
-                        tn.position());
-            }*/
-        }
-
-        try {
-            if (type.isTopLevel()) {
-                ts.checkTopLevelClassFlags(type.flags());
-            }
-            if (type.isMember()) {
-                ts.checkMemberClassFlags(type.flags());
-            }
-            if (type.isLocal()) {
-                ts.checkLocalClassFlags(type.flags());
-            }
-        }
-        catch (SemanticException e) {
-            throw new SemanticException(e.getMessage(), position());
-        }
-
-        // Check the class implements all abstract methods that it needs to.
-        ts.checkClassConformance(type, enterChildScope(body, tc.context()));
-
-        return this;
-    }
-    public Node conformanceCheck(ContextVisitor tc) throws SemanticException {
-    	X10ClassDecl_c result = (X10ClassDecl_c) superConformanceCheck(tc);
+    public Node conformanceCheck(ContextVisitor tc) {
+    	X10ClassDecl_c result = (X10ClassDecl_c) super.conformanceCheck(tc);
     	X10Context context = (X10Context) tc.context();
     	
     	X10ClassDef cd = (X10ClassDef) classDef();
         CConstraint c = cd.classInvariant().get();
         if (c != null && ! c.consistent()) {
-            throw new Errors.InconsistentInvariant(cd, this.position());
+            Errors.issue(tc.job(), new Errors.InconsistentInvariant(cd, position()));
         }
     
     	// Check that we're in the right file.
@@ -926,8 +770,9 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	                s.name().endsWith(File.separator + type.name() + ".x10") ||
     	                s.name().endsWith("/" + type.name() + ".x10")))
     	        {
-    	            throw new SemanticException("Public type " + type.fullName() 
-    	            		+ " must be declared in " + type.name() + ".x10.", result.position());
+    	            Errors.issue(tc.job(),
+    	                    new SemanticException("Public type " + type.fullName()
+    	                            + " must be declared in " + type.name() + ".x10.", result.position()));
     	        }
     	    }
     	}
@@ -938,8 +783,9 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
 
 
     	if (flags.flags().isInterface() && superClass != null) {
-    		throw new SemanticException("Interface " + this.type + " cannot have a superclass.",
-    				superClass.position());
+    		Errors.issue(tc.job(),
+    		        new SemanticException("Interface " + this.type + " cannot have a superclass.",
+    		                superClass.position()));
     	}
 
 
@@ -960,15 +806,28 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	            continue;
     	        }
     	        
-    	        throw ex;
+    	        Errors.issue(tc.job(), ex, this);
     	    }
     	}
 
-    	((X10ClassDef) type).checkRealClause();
+    	try {
+    	    ((X10ClassDef) type).checkRealClause();
+    	} catch (SemanticException e) {
+    	    Errors.issue(tc.job(), e, this);
+    	}
 	    
     	return result;
     }
-    
+
+    protected boolean isValidType(Type type) {
+        X10TypeSystem xts = (X10TypeSystem) type.typeSystem();
+        return !xts.hasUnknown(type);
+    }
+
+    protected boolean objectIsRoot() {
+        return false;
+    }
+
     @Override
     public Term firstChild() {
         return listChild(properties, this.body);
@@ -977,7 +836,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     /**
      * Visit this term in evaluation order.
      */
-    public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
+    public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
 	v.visitCFGList(this.properties(), this.body(), ENTRY);
         v.visitCFG(this.body(), this, EXIT);
         return succs;
@@ -994,12 +853,12 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
           Ref<? extends Type> superType = thisType.superType();
           Stmt s1 = null;
           if (superType != null) {
-              s1 = nf.SuperCall(pos, Collections.EMPTY_LIST);
+              s1 = nf.SuperCall(pos, Collections.<Expr>emptyList());
           }
           
-          Stmt s2=null; 
-          List<TypeParamNode> typeFormals = Collections.EMPTY_LIST;
-          List<Formal> formals = Collections.EMPTY_LIST;
+          Stmt s2 = null; 
+          List<TypeParamNode> typeFormals = Collections.<TypeParamNode>emptyList();
+          List<Formal> formals = Collections.<Formal>emptyList();
           DepParameterExpr guard = null;
 
           if (! properties.isEmpty()) {
@@ -1024,7 +883,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         	  }
         	 
         	  guard = classInvariant();
-        	  s2 =  xnf.AssignPropertyCall(pos, Collections.EMPTY_LIST, actuals);
+        	  s2 = xnf.AssignPropertyCall(pos, Collections.<TypeNode>emptyList(), actuals);
         	  // TODO: add constraint on the return type
           }
           block = s2 == null ? (s1 == null ? nf.Block(pos) : nf.Block(pos, s1))
@@ -1043,12 +902,45 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
                   typeFormals,
                   formals,
                   guard, 
-                  Collections.EMPTY_LIST, // throwTypes
                   null, // offerType
                   block);
         return cd;
         
     }
 
-   
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        Flags flags = this.flags.flags();
+        sb.append(flags.clearInterface().translate());
+        sb.append(flags.isInterface() ? "interface " : "class ");
+        sb.append(name);
+        if (!typeParameters.isEmpty()) {
+            sb.append("[");
+            boolean first = true;
+            for (TypeParamNode p : typeParameters) {
+                if (!first) sb.append(",");
+                first = false;
+                sb.append(p);
+            }
+            sb.append("]");
+        }
+        if (!properties.isEmpty()) {
+            sb.append("(");
+            boolean first = true;
+            for (PropertyDecl p : properties) {
+                if (!first) sb.append(",");
+                first = false;
+                sb.append(p);
+            }
+            sb.append(")");
+        }
+        if (classInvariant != null) {
+            sb.append("{");
+            sb.append(classInvariant);
+            sb.append("}");
+        }
+        sb.append(" ");
+        sb.append(body);
+        return sb.toString();
+    }
 } 

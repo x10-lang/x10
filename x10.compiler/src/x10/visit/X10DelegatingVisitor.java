@@ -90,7 +90,6 @@ import polyglot.ast.Unary_c;
 import polyglot.ast.While_c;
 import x10.ast.AmbDepTypeNode_c;
 import x10.ast.AnnotationNode_c;
-import x10.ast.AssignPropertyBody_c;
 import x10.ast.AssignPropertyCall_c;
 import x10.ast.Async_c;
 import x10.ast.AtEach_c;
@@ -109,7 +108,6 @@ import x10.ast.Future_c;
 import x10.ast.Here_c;
 import x10.ast.LocalTypeDef_c;
 import x10.ast.Next_c;
-import x10.ast.Now_c;
 import x10.ast.ParExpr_c;
 import x10.ast.PlaceCast_c;
 import x10.ast.PropertyDecl_c;
@@ -218,7 +216,6 @@ public class X10DelegatingVisitor {
 		if (n instanceof SwitchBlock_c) { visit((SwitchBlock_c)n); return; }
 		if (n instanceof StmtSeq_c) { visit((StmtSeq_c)n); return; }
 		if (n instanceof Block_c) { visit((Block_c)n); return; }
-		if (n instanceof AssignPropertyBody_c) { visit((AssignPropertyBody_c)n); return; }
 		if (n instanceof AbstractBlock_c) { visit((AbstractBlock_c)n); return; }
 		if (n instanceof Stmt_c) { visit((Stmt_c)n); return; }
 		if (n instanceof X10MethodDecl_c) { visit((X10MethodDecl_c)n); return; }
@@ -239,7 +236,6 @@ public class X10DelegatingVisitor {
 		if (n instanceof Range_c) { visit((Range_c)n); return; }
 		if (n instanceof PlaceCast_c) { visit((PlaceCast_c)n); return; }
 		if (n instanceof ParExpr_c) { visit((ParExpr_c)n); return; }
-		if (n instanceof Now_c) { visit((Now_c)n); return; }
 		if (n instanceof NewArray_c) { visit((NewArray_c)n); return; }
 		if (n instanceof X10New_c) { visit((X10New_c)n); return; }
 		if (n instanceof New_c) { visit((New_c)n); return; }
@@ -376,7 +372,6 @@ public class X10DelegatingVisitor {
 				public void visit(New_c n) { visit((Expr_c)n); }
 					public void visit(X10New_c n) { visit((New_c)n); }
 				public void visit(NewArray_c n) { visit((Expr_c)n); }
-				public void visit(Now_c n) { visit((Expr_c)n); }
 				public void visit(ParExpr_c n) { visit((Expr_c)n); }
 				public void visit(PlaceCast_c n) { visit((Expr_c)n); }
 				public void visit(Range_c n) { visit((Expr_c)n); }
@@ -402,7 +397,6 @@ public class X10DelegatingVisitor {
 				public void visit(X10MethodDecl_c n) { visit((MethodDecl_c)n); }
 			public void visit(Stmt_c n) { visit((Term_c)n); }
 				public void visit(AbstractBlock_c n) { visit((Stmt_c)n); }
-					public void visit(AssignPropertyBody_c n) { visit((AbstractBlock_c)n); }
 					public void visit(Block_c n) { visit((AbstractBlock_c)n); }
 					public void visit(StmtSeq_c n) { visit((AbstractBlock_c)n); }
 					public void visit(SwitchBlock_c n) { visit((AbstractBlock_c)n); }

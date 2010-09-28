@@ -113,7 +113,7 @@ public class Catch_c extends Stmt_c implements Catch
         return formal;
     }
 
-    public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
+    public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
         v.visitCFG(formal, body, ENTRY);
         v.visitCFG(body, this, EXIT);
         return succs;

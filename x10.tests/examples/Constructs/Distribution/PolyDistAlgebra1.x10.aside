@@ -399,7 +399,7 @@ class PolyDistAlgebra1 extends TestDist {
         "d6x = d123x0 || d123x1: regions are not disjoint\n";
     
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new PolyDistAlgebra1().execute();
     }
 }

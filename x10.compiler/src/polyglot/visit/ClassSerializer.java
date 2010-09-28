@@ -61,24 +61,23 @@ public class ClassSerializer extends NodeVisitor
         ClassDecl cd = (ClassDecl) n;
         ClassBody body = cd.body();
 
-        List l = createSerializationMembers(cd);
+        List<ClassMember> l = createSerializationMembers(cd);
 
-        for (Iterator i = l.iterator(); i.hasNext(); ) {
-            ClassMember m = (ClassMember) i.next();
-	    body = body.addMember(m);
+        for (ClassMember m : l) {
+            body = body.addMember(m);
         }
 
         return cd.body(body);
     }
 
-    public List createSerializationMembers(ClassDecl cd) {
+    public List<ClassMember> createSerializationMembers(ClassDecl cd) {
         return createSerializationMembers(cd.classDef());
     }
     
-    public List createSerializationMembers(ClassDef cd) {
+    public List<ClassMember> createSerializationMembers(ClassDef cd) {
 	try {
 	    byte[] b;
-            List newMembers = new ArrayList(3);
+            List<ClassMember> newMembers = new ArrayList<ClassMember>(3);
             
             ClassType ct = cd.asType();
 
@@ -92,11 +91,11 @@ public class ClassSerializer extends NodeVisitor
             ct.superClass();
 
             // Only serialize top-level and member classes.
-	    if (! ct.isTopLevel() && ! ct.isMember()) {
-                return Collections.EMPTY_LIST;
-	    }
+            if (! ct.isTopLevel() && ! ct.isMember()) {
+                return Collections.<ClassMember>emptyList();
+            }
 
-	    /* Add the compiler version number. */
+            /* Add the compiler version number. */
             String suffix = ver.name();
 
 	    // Check if we've already serialized.
@@ -108,7 +107,7 @@ public class ClassSerializer extends NodeVisitor
 			   "Cannot serialize class information " +
 			   "more than once.");
 
-		return Collections.EMPTY_LIST;
+		return Collections.<ClassMember>emptyList();
 	    }
 
 	    Flags flags = Flags.PUBLIC.set(Flags.STATIC).set(Flags.FINAL);
@@ -195,7 +194,7 @@ public class ClassSerializer extends NodeVisitor
                 e.printStackTrace();
 	    eq.enqueue(ErrorInfo.IO_ERROR,
 		       "Unable to serialize class information.");
-            return Collections.EMPTY_LIST;
+            return Collections.<ClassMember>emptyList();
 	}
     }
 }
