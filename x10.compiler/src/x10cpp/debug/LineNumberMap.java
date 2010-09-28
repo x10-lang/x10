@@ -314,7 +314,7 @@ public class LineNumberMap extends StringTable {
 	
 	private static ArrayList<LocalVariableMapInfo> localVariables;
 	
-	public void addLocalVariableMapping(String name, String type, int startline, String file)
+	public void addLocalVariableMapping(String name, String type, int startline, int endline, String file)
 	{
 		if (localVariables == null)
 			localVariables = new ArrayList<LineNumberMap.LocalVariableMapInfo>();
@@ -322,11 +322,11 @@ public class LineNumberMap extends StringTable {
 		LocalVariableMapInfo v = new LocalVariableMapInfo();
 		v._x10name = stringId(name);
 		v._x10type = determineTypeId(type);
-		v._x10typeIndex = -1; // TODO
+		v._x10typeIndex = -1; // TODO?
 		v._cppName = stringId(Emitter.mangled_non_method_name(name)); 
 		v._x10index = file;
 		v._x10startLine = startline;
-		v._x10endLine = -1; // TODO
+		v._x10endLine = endline;
 		localVariables.add(v);
 	}
 	
