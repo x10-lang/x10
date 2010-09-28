@@ -220,9 +220,7 @@ public class X10CPPTranslator extends Translator {
 		            }
 		            if (n instanceof FieldDecl)
 		            {
-		                // FIXME: Dave G: I commented this out to get the build to work.
-		                //        Ben.  Please fix 
-		            	// lineNumberMap.addClassMemberVariable(((FieldDecl)n).name().toString(), ((FieldDecl)n).type().toString(), def, context.currentClass().toString());
+		            	lineNumberMap.addClassMemberVariable(((FieldDecl)n).name().toString(), ((FieldDecl)n).type().toString(), context.currentClass().toString());
 		            }
 		            else if (n instanceof LocalDecl)
 		            {
