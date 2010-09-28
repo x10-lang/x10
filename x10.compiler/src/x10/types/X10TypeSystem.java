@@ -281,6 +281,8 @@ public interface X10TypeSystem extends TypeSystem {
 
     Type Iterable();
     Type Iterable(Type index);
+    
+    Type CustomSerialization();
 
     boolean isSettable(Type me);
 

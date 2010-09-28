@@ -1370,7 +1370,15 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
             iterableType_ = load("x10.lang.Iterable"); // java file
         return iterableType_;
     }
-    
+  
+    protected ClassType customSerializationType_;
+
+    public Type CustomSerialization() {
+        if (customSerializationType_ == null)
+            customSerializationType_ = load("x10.io.CustomSerialization"); // java file
+        return customSerializationType_;
+    }
+ 
     protected ClassType reducibleType_;
 
     public Type Reducible() {
