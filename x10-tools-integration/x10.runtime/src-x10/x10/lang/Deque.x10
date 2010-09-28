@@ -3,7 +3,7 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-@NativeRep("java", "x10.runtime.impl.java.Deque", null, null)
+@NativeRep("java", "x10.runtime.impl.java.Deque", null, "x10.runtime.impl.java.Deque._RTT")
 @NativeRep("c++", "x10aux::ref<x10::lang::Deque>", "x10::lang::Deque", null)
 public final class Deque {
     @Native("java", "#0.size()")

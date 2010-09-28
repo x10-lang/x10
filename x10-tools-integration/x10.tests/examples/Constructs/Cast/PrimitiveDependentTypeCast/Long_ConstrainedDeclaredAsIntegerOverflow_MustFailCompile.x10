@@ -30,7 +30,7 @@ public class Long_ConstrainedDeclaredAsIntegerOverflow_MustFailCompile extends x
 		return false;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new  Long_ConstrainedDeclaredAsIntegerOverflow_MustFailCompile().execute();
 	}
 

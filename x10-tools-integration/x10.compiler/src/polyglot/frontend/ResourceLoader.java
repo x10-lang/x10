@@ -27,25 +27,25 @@ public class ResourceLoader
      * Keep a cache of the zips and jars so we don't have to keep
      * opening them from the file system.
      */
-    protected Map zipCache;
+    protected Map<File, Object> zipCache;
 
     /**
      * A cache of directories found in zip files.
      */
-    protected Set dirCache;
+    protected Set<String> dirCache;
 
     /**
      * Directory contents cache. Cache the first level of the directory
      * so that we get less FileNotFoundExceptions
      */
-    protected Map dirContentsCache;
+    protected Map<File, Set<String>> dirContentsCache;
 
     protected final static Object not_found = new Object();
 
     public ResourceLoader() {
-        this.zipCache = new HashMap();
-        this.dirContentsCache = new HashMap();
-	this.dirCache = new HashSet();
+        this.zipCache = new HashMap<File, Object>();
+        this.dirContentsCache = new HashMap<File, Set<String>>();
+        this.dirCache = new HashSet<String>();
     }
 
     /**
@@ -153,8 +153,8 @@ public class ResourceLoader
 		    zipCache.put(dir, zip);
 		    
 		    // Load the package cache.
-		    for (Enumeration i = zip.entries(); i.hasMoreElements(); ) {
-			ZipEntry ei = (ZipEntry) i.nextElement();
+		    for (Enumeration<? extends ZipEntry> i = zip.entries(); i.hasMoreElements(); ) {
+			ZipEntry ei = i.nextElement();
 			String n = ei.getName();
 			
 			int index = n.indexOf('/');
@@ -194,9 +194,9 @@ public class ResourceLoader
 	    String newName = name.substring(sepIndex+1);
 	    return loadFromFile(newName, newDir);
 	}
-        Set dirContents = (Set) dirContentsCache.get(dir);
+        Set<String> dirContents = dirContentsCache.get(dir);
         if (dirContents == null) {
-            dirContents = new HashSet();
+            dirContents = new HashSet<String>();
             dirContentsCache.put(dir, dirContents);
             if (dir.exists() && dir.isDirectory()) {
                 String[] contents = dir.list();
@@ -232,10 +232,10 @@ public class ResourceLoader
         return c;
     }
     
-    protected static Collection verbose;
+    protected static Collection<String> verbose;
 
     static {
-        verbose = new HashSet();
+        verbose = new HashSet<String>();
         verbose.add("loader");
     }
 }

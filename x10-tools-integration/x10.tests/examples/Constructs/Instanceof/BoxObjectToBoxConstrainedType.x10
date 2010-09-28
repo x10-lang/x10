@@ -24,7 +24,7 @@ public class BoxObjectToBoxConstrainedType extends x10Test {
 		return n instanceof ValueClass{p==1};
 	}
 	
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new BoxObjectToBoxConstrainedType().execute();
 	}
 }

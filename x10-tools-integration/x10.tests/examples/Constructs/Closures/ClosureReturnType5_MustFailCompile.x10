@@ -28,7 +28,7 @@ public class ClosureReturnType5_MustFailCompile extends ClosureTest {
         return true;
     }
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new ClosureReturnType5_MustFailCompile().execute();
     }
 }

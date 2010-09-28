@@ -45,7 +45,7 @@ public class XEQV extends XLocal  {
 	public List<XEQV> eqvs() {
 		if (hasEQV())
 			return Collections.<XEQV>singletonList(this);
-		return Collections.EMPTY_LIST;
+		return Collections.<XEQV>emptyList();
 	}
 
 }

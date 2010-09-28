@@ -25,11 +25,11 @@ import polyglot.visit.*;
 public class NewArray_c extends Expr_c implements NewArray
 {
     protected TypeNode baseType;
-    protected List dims;
+    protected List<Expr> dims;
     protected int addDims;
     protected ArrayInit init;
 
-    public NewArray_c(Position pos, TypeNode baseType, List dims, int addDims, ArrayInit init) {
+    public NewArray_c(Position pos, TypeNode baseType, List<Expr> dims, int addDims, ArrayInit init) {
 	super(pos);
 	assert(baseType != null && dims != null); // init may be null
 	assert(addDims >= 0);
@@ -56,12 +56,12 @@ public class NewArray_c extends Expr_c implements NewArray
     }
 
     /** Get the dimension expressions of the expression. */
-    public List dims() {
+    public List<Expr> dims() {
 	return Collections.unmodifiableList(this.dims);
     }
 
     /** Set the dimension expressions of the expression. */
-    public NewArray dims(List dims) {
+    public NewArray dims(List<Expr> dims) {
 	NewArray_c n = (NewArray_c) copy();
 	n.dims = TypedList.copyAndCheck(dims, Expr.class, true);
 	return n;
@@ -97,7 +97,7 @@ public class NewArray_c extends Expr_c implements NewArray
     }
 
     /** Reconstruct the expression. */
-    protected NewArray_c reconstruct(TypeNode baseType, List dims, ArrayInit init) {
+    protected NewArray_c reconstruct(TypeNode baseType, List<Expr> dims, ArrayInit init) {
 	if (baseType != this.baseType || ! CollectionUtil.allEqual(dims, this.dims) || init != this.init) {
 	    NewArray_c n = (NewArray_c) copy();
 	    n.baseType = baseType;
@@ -112,7 +112,7 @@ public class NewArray_c extends Expr_c implements NewArray
     /** Visit the children of the expression. */
     public Node visitChildren(NodeVisitor v) {
 	TypeNode baseType = (TypeNode) visitChild(this.baseType, v);
-	List dims = visitList(this.dims, v);
+	List<Expr> dims = visitList(this.dims, v);
 	ArrayInit init = (ArrayInit) visitChild(this.init, v);
 	return reconstruct(baseType, dims, init);
     }
@@ -121,8 +121,7 @@ public class NewArray_c extends Expr_c implements NewArray
     public Node typeCheck(ContextVisitor tc) throws SemanticException {
         TypeSystem ts = tc.typeSystem();
 
-        for (Iterator<Expr> i = dims.iterator(); i.hasNext(); ) {
-            Expr expr = (Expr) i.next();
+        for (Expr expr : dims) {
             if (! ts.isImplicitCastValid(expr.type(), ts.Int(), tc.context())) {
                 throw new SemanticException("Array dimension must be an integer.",
                         expr.position());
@@ -155,11 +154,10 @@ public class NewArray_c extends Expr_c implements NewArray
 	w.write("new ");
 	print(baseType, w, tr);
 
-	for (Iterator i = dims.iterator(); i.hasNext();) {
-	  Expr e = (Expr) i.next();
-	  w.write("[");
-	  printBlock(e, w, tr);
-	  w.write("]");
+	for (Expr e : dims) {
+	    w.write("[");
+	    printBlock(e, w, tr);
+	    w.write("]");
 	}
 
 	for (int i = 0; i < addDims; i++) {
@@ -176,7 +174,7 @@ public class NewArray_c extends Expr_c implements NewArray
         return baseType;
     }
 
-    public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
+    public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
         if (init != null) {
             v.visitCFG(baseType, listChild(dims, init), ENTRY);
             v.visitCFGList(dims, init, ENTRY);
@@ -200,7 +198,7 @@ public class NewArray_c extends Expr_c implements NewArray
                 throw new InternalCompilerError("Cannot find class java.lang.NegativeArraySizeException", e);
             }
         }
-        return Collections.EMPTY_LIST;
+        return Collections.<Type>emptyList();
     }
     
 

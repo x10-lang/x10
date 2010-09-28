@@ -19,14 +19,15 @@ import polyglot.frontend.SourceGoal;
 import polyglot.types.LazyRef;
 import polyglot.visit.TypeChecker;
 
-public class TypeCheckFragmentGoal<T> extends polyglot.ast.TypeCheckFragmentGoal implements SourceGoal {
+public class TypeCheckFragmentGoal<T> extends polyglot.ast.TypeCheckFragmentGoal<T> implements SourceGoal {
+    private static final long serialVersionUID = -7690455598516526228L;
 
     public TypeCheckFragmentGoal(Node parent, Node n, TypeChecker v, LazyRef<T> r, boolean mightFail) {
         super(parent, n, v, r, mightFail);
     }
 
     protected LazyRef<T> r() {
-        return (LazyRef<T>) r;
+        return r;
     }
 
     public boolean runTask() {

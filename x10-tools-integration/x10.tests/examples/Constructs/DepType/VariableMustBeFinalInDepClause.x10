@@ -31,7 +31,7 @@ public class VariableMustBeFinalInDepClause extends x10Test {
         var t: Test{i==52} = new Test(52);
         return m(t).i==52;
     }
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new VariableMustBeFinalInDepClause().execute();
     }
 

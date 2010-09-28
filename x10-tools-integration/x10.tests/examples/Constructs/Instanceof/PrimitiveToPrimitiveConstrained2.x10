@@ -22,7 +22,7 @@ public class PrimitiveToPrimitiveConstrained2 extends x10Test {
 		return !(a instanceof int{self==3});
 	}
 	
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new PrimitiveToPrimitiveConstrained2().execute();
 	}
 }

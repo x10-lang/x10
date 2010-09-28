@@ -13,11 +13,12 @@ import x10.io.Console;
 
 /**
  * The classic hello world program, with a twist - lists each place
+ * Converted to 2.1 9/1/2010
  */
 class HelloWholeWorld {
-  public static def main(args:Rail[String]):void {
-     ateach (p in Dist.makeUnique()) {
-     	Console.OUT.println("Hello World from place "+here.id);
+  public static def main(Array[String]):void {
+     finish for (p in Place.places) {
+     	async at (p) Console.OUT.println("Hello World from place "+p.id);
      }
   }
 }

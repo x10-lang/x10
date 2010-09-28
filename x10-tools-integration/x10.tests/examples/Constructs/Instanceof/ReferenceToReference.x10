@@ -28,7 +28,7 @@ public class ReferenceToReference extends x10Test {
 		return (res1 && res2 && res3);
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new ReferenceToReference().execute();
 	}
 

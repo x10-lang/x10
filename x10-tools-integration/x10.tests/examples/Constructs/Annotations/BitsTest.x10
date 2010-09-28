@@ -26,7 +26,7 @@ public class BitsTest extends harness.x10Test {
         return a == 1 && b == 0x14567;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new BitsTest().execute();
     }
 }

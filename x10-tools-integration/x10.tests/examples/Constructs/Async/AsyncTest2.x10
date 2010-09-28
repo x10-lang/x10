@@ -22,16 +22,18 @@ public class AsyncTest2 extends x10Test {
 		val NP: int = Place.MAX_PLACES;
 		val A: DistArray[int]{rank==1} = DistArray.make[int](Dist.makeUnique());
 		finish
-			for (val (k): Point in 0..NP-1)
-                                async (A.dist(k))
-					ateach (val (i): Point{rank==A.rank} in A.dist)
-                                                atomic A(i) += i;
-		finish ateach (val (i): Point{rank==A.rank} in A.dist) { chk(A(i) == i*NP); }
+			for ([k] in 0..NP-1)
+               async at(A.dist(k))
+					ateach ([i] in A.dist)
+                         atomic A(i) += i;
+		finish ateach ([i] in A.dist) { 
+			chk(A(i) == i*NP); 
+		}
 
 		return true;
 	}
 
-	public static def main(Rail[String]) {
+	public static def main(Array[String](1)) {
 		new AsyncTest2().execute();
 	}
 }

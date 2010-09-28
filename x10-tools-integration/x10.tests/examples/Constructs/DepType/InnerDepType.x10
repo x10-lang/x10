@@ -25,7 +25,7 @@ public class InnerDepType extends x10Test {
 	    var x: Test{self.i==0} = new Test(0); 
 	    return true;
 	}
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new InnerDepType().execute();
 	}
 }

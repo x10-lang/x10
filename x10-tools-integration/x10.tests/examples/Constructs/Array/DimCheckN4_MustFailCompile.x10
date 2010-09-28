@@ -23,16 +23,16 @@ import harness.x10Test;
 public class DimCheckN4_MustFailCompile extends x10Test {
 
     def m(d: Dist(2)): void = {
-        val a1 = DistArray.make[int](d, (p(i,j,k): Point): int => { return i; });
+        val a1 = DistArray.make[int](d, (p(i,j,k): Point(3)): int => { return i; });
     }
 
     public def run(): boolean = {
-        val d  = Dist.makeConstant([0..2, 0..3] as Region, here);
+        val d  = [0..2, 0..3] -> here;
         m(d);
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new DimCheckN4_MustFailCompile().execute();
     }
 }

@@ -20,7 +20,7 @@ public class CastConstrainedToConstrainedNullable_MustFailCompile extends x10Tes
 		return false;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new CastConstrainedToConstrainedNullable_MustFailCompile().execute();
 	}
 

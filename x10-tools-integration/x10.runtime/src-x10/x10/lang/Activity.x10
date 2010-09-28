@@ -20,6 +20,9 @@ import x10.util.Stack;
  */
 public class Activity {
 
+	// Useful for the Java runtime? 
+	private val root = GlobalRef[Activity](this);
+	def home():Place=root.home();
     /**
      * Sleep for the specified number of milliseconds.
      * [IP] NOTE: Unlike Java, x10 sleep() simply exits when interrupted.
@@ -57,13 +60,15 @@ public class Activity {
      * The mapping from registered clocks to phases for this activity.
      * Lazily created.
      */
-    var clockPhases:Runtime.ClockPhases!;
+    var clockPhases:Runtime.ClockPhases;
 
     /**
      * The finish states for the finish statements currently executed by this activity.
      * Lazily created.
      */
-    var finishStack:Stack[Runtime.FinishState!]!;
+    var finishStack:Stack[Runtime.FinishState];
+     
+    var atomicDepth:int = 0;
 
     /**
      * Create activity.
@@ -83,6 +88,17 @@ public class Activity {
         clockPhases = Runtime.ClockPhases.make(clocks, phases);
     }
 
+    def pushAtomic() {
+    	atomicDepth++;
+    }
+    def popAtomic() {
+    	atomicDepth--;
+    }
+    def inAtomic():boolean=atomicDepth > 0;
+    def ensureNotInAtomic() {
+    	if (atomicDepth > 0)
+    		throw new IllegalOperationException();
+    }
     /**
      * Create uncounted activity.
      */
@@ -114,7 +130,7 @@ public class Activity {
     /**
      * Activity-local storage
      */
-    public var tag:Object!;
+    public var tag:Object;
 
     def dump() {
         /* FIXME: ExpressionFlattener won't work with @NativeString magic

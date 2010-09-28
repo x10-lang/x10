@@ -22,6 +22,8 @@ import polyglot.util.Position;
  * @author nystrom
  */
 public class SourceLoadException extends NoClassException {
+    private static final long serialVersionUID = 1842293210797169449L;
+
     protected Job job;
     
     /**

@@ -85,7 +85,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	{
 		super(pos, flags, type,
 				name == null ? new Id_c(pos, X10PrettyPrinterVisitor.getId()) : name);
-		if (vars == null) vars = Collections.EMPTY_LIST;
+		if (vars == null) vars = Collections.<Formal>emptyList();
 		this.vars = TypedList.copyAndCheck(vars, Formal.class, true);
 		this.unnamed = unnamed;
 		assert vars != null;
@@ -93,8 +93,8 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	
 	public Node visitChildren(NodeVisitor v) {
 		X10Formal_c n = (X10Formal_c) super.visitChildren(v);
-		List l = visitList(vars, v);
-		if (! CollectionUtil.allEqual(l, this.vars)) {
+		List<Formal> l = visitList(vars, v);
+		if (!CollectionUtil.allEqual(l, this.vars)) {
 			if (n == this) n = (X10Formal_c) copy();
 			n.vars = TypedList.copyAndCheck(l, Formal.class, true);
 		}
@@ -123,6 +123,19 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 			lis[i] = vars.get(i).localDef();
 		}
 		return lis;
+	}
+
+	public X10Formal flags(FlagsNode fn) {
+	    return (X10Formal) super.flags(fn);
+	}
+	public X10Formal type(TypeNode type) {
+	    return (X10Formal) super.type(type);
+	}
+	public X10Formal name(Id name) {
+	    return (X10Formal) super.name(name);
+	}
+	public X10Formal localDef(LocalDef li) {
+	    return (X10Formal) super.localDef(li);
 	}
 
 	/* (non-Javadoc)
@@ -299,7 +312,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	 * @throws SemanticException 
 	 */
 	public List<Stmt> explode(ContextVisitor tc) throws SemanticException {
-		return explode(tc,  name(), position(), flags(), vars, localDef());
+		return explode(tc, name(), position(), flags(), vars, localDef());
 	}
 
 	/* (non-Javadoc)
@@ -390,7 +403,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	 * @return
 	 * @throws SemanticException 
 	 */
-	public static List/*<Stmt>*/ explode(ContextVisitor tc,
+	public static List<Stmt> explode(ContextVisitor tc,
 										 Id name, Position pos,
 										 FlagsNode flags, List<Formal> vars) throws SemanticException
 	{

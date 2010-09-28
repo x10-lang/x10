@@ -4,6 +4,8 @@ import polyglot.types.VarDef_c.ConstantValue;
 import polyglot.util.Position;
 
 public class FieldInstance_c extends VarInstance_c<FieldDef> implements FieldInstance {
+    private static final long serialVersionUID = 8067117393549479165L;
+
     public FieldInstance_c(TypeSystem ts, Position pos, Ref<? extends FieldDef> def) {
         super(ts, pos, def);
     }

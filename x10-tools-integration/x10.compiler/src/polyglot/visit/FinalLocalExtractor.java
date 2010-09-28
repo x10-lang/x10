@@ -30,7 +30,7 @@ import polyglot.types.TypeSystem;
 public class FinalLocalExtractor extends NodeVisitor {
 
     /** Set of LocalInstances declared final; these should not be made non-final. */
-    protected Set isFinal;
+    protected Set<LocalDef> isFinal;
     
     /**
      * @param job
@@ -42,7 +42,7 @@ public class FinalLocalExtractor extends NodeVisitor {
     }
 
     public NodeVisitor begin() {
-        isFinal = new HashSet();
+        isFinal = new HashSet<LocalDef>();
         return super.begin();
     }
     

@@ -1,0 +1,12 @@
+Inspect all @NativeRep classes for c++ backend and 
+update serialization routines for 2.1 object model.
+
+x10.io.GlobalStringWriter
+  Do we really want this class?  See todo in the class header.
+  In general, normalize APIs for Global vs.Local operations,
+    Need to think about StringBuilder, Printers, Writers, etc.
+    Need to think about Console, Files, etc.
+
+x10.util.
+  Kill various Val<Foo> classes.  No longer needed in 2.1
+

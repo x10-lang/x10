@@ -109,8 +109,7 @@ public interface TypeSystem {
      * @param excTypes The constructor's exception throw types.
      */
     ConstructorDef constructorDef(Position pos, Ref<? extends ClassType> container,
-                                            Flags flags, List<Ref<? extends Type>> argTypes,
-                                            List<Ref<? extends Type>> excTypes);
+                                            Flags flags, List<Ref<? extends Type>> argTypes);
 
     /** Create a method instance.
      * @param pos Position of the method.
@@ -123,7 +122,7 @@ public interface TypeSystem {
      */
     MethodDef methodDef(Position pos, Ref<? extends StructType> container,
                                   Flags flags, Ref<? extends Type> returnType, Name name,
-                                  List<Ref<? extends Type>> argTypes, List<Ref<? extends Type>> excTypes);
+                                  List<Ref<? extends Type>> argTypes); 
 
     /** Create a field instance.
      * @param pos Position of the field.
@@ -237,7 +236,7 @@ public interface TypeSystem {
     /**
      * Checks whether a class member can be accessed from <code>context</code>.
      */
-    boolean isAccessible(MemberInstance<? extends MemberDef> mi, Context context);
+    boolean isAccessible(MemberInstance<?> mi, Context context);
 
     /**
      * Checks whether a class can be accessed from Context context.
@@ -366,12 +365,7 @@ public interface TypeSystem {
     // Functions for method testing.
     ////
 
-    /**
-     * Returns true iff <code>m1</code> throws fewer exceptions than
-     * <code>m2</code>.
-     */
-    <T extends ProcedureDef> boolean throwsSubset(ProcedureInstance<T> p1, ProcedureInstance<T> p2);
-
+  
     /**
      * Returns true iff <code>t</code> has the method <code>mi</code>.
      */
@@ -615,7 +609,7 @@ public interface TypeSystem {
      * and the usual class resolvers can't otherwise find them) they
      * should be returned in the set in addition to object.
      */
-    Set<Object> getTypeEncoderRootSet(TypeObject o);
+    Set<TypeObject> getTypeEncoderRootSet(TypeObject o);
 
     /**
      * Get the transformed class name of a class.
@@ -632,7 +626,7 @@ public interface TypeSystem {
      * @param roots The root objects for the serialization.  Place holders
      * are not created for these.
      */
-    Object placeHolder(TypeObject o, Set roots);
+    Object placeHolder(TypeObject o, Set<TypeObject> roots);
 
     /** Get a place-holder for serializing a type object.
      * @param o The object to get the place-holder for.

@@ -42,9 +42,5 @@
 
 #include <x10aux/place_local.h>
 
-#include <x10aux/cuda/cuda_utils.h>
-#include <x10aux/cuda/bridge_buffer.h>
-#include <x10aux/cuda/ring_buffer.h>
-
 #endif
 // vim:tabstop=4:shiftwidth=4:expandtab

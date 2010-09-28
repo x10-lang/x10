@@ -17,6 +17,7 @@ public interface Assign extends Expr
 {
     /** Assignment operator. */
     public static class Operator extends Enum {
+        private static final long serialVersionUID = 574369171510341962L;
         private final Binary.Operator binOp;
         public Operator(String name, Binary.Operator binOp) { 
             super(name);

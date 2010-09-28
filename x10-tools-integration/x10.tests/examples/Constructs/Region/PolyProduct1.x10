@@ -32,7 +32,7 @@ class PolyProduct1 extends TestRegion {
         "zeroBased false\n"+
         "rail false\n"+
         "isConvex() true\n"+
-        "size() Incomplete method.\n"+
+        "size() 12\n"+
         "region: (x0>=1 && x1-x2>=0 && x2>=0 && x1<=2 && x0<=2)\n"+
         "  poly\n"+
         "    --- 1\n"+
@@ -53,7 +53,7 @@ class PolyProduct1 extends TestRegion {
         "    1  0 2 . . . . . . . . \n"+
         "    2  0 4 8 . . . . . . . \n";
     
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new PolyProduct1().execute();
     }
 }

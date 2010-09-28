@@ -29,7 +29,6 @@ import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
-import polyglot.ast.Precedence;
 import polyglot.ast.Prefix;
 import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
@@ -51,16 +50,19 @@ import polyglot.util.CollectionUtil;
 import polyglot.util.Pair;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
+import x10.constraint.XFailure;
+import x10.constraint.XTerm;
+import x10.constraint.XTerms;
 import x10.errors.Errors;
 import x10.types.X10Context;
 import x10.types.X10MethodInstance;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
+import x10.types.checker.Checker;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
 import x10.visit.ExprFlattener;
-import x10.visit.X10TypeChecker;
 import x10.visit.ExprFlattener.Flattener;
 
 /**
@@ -95,19 +97,6 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 		X10TypeSystem xts = (X10TypeSystem) lt.typeSystem();
 		if (lt == null || rt == null)
 			return false;
-	/*	In X10 2.0, nothing can be of Value type.
-	 * if (operator() == Binary.EQ || operator() == Binary.NE) {
-		    X10Context context = (X10Context) xts.emptyContext();
-		    if (xts.isValueType(lt, context) && xts.isReferenceOrInterfaceType(rt, context))
-			return true;
-		    if (xts.isReferenceOrInterfaceType(lt, context) && xts.isValueType(rt, context))
-			return true;
-		    if (xts.isValueType(lt, context) && rt.isNull())
-			return true;
-		    if (xts.isValueType(rt, context) && lt.isNull())
-			return true;
-		}
-		*/
 		return false;
 	}
 
@@ -127,9 +116,9 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 		// [IP] An optimization: an value and null can never be equal
 	
 	 if (op == EQ) {
-		    if (xts.isStructType(lt) && xts.isReferenceOrInterfaceType(rt, context))
+		    if (xts.isStructType(lt) && xts.isObjectOrInterfaceType(rt, context))
 			return Boolean.FALSE;
-		    if (xts.isReferenceOrInterfaceType(lt, context) && xts.isStructType(rt))
+		    if (xts.isObjectOrInterfaceType(lt, context) && xts.isStructType(rt))
 			return Boolean.FALSE;
 		    if ( xts.isStructType(lt) && rt.isNull())
 			return Boolean.FALSE;
@@ -137,9 +126,9 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 			return Boolean.FALSE;
 		}
 		if (op == NE) {
-		    if (xts.isStructType(lt) && xts.isReferenceOrInterfaceType(rt, context))
+		    if (xts.isStructType(lt) && xts.isObjectOrInterfaceType(rt, context))
 			return Boolean.TRUE;
-		    if (xts.isReferenceOrInterfaceType(lt, context) && xts.isStructType(rt))
+		    if (xts.isObjectOrInterfaceType(lt, context) && xts.isStructType(rt))
 			return Boolean.TRUE;
 		    if (xts.isStructType(lt) && rt.isNull())
 			return Boolean.TRUE;
@@ -316,22 +305,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 
         Type lbase = X10TypeMixin.baseType(left.type());
         Type rbase = X10TypeMixin.baseType(right.type());
-
-        if (op == EQ || op == NE) {
-            if (xts.isExactlyFunctionType(lbase)) {
-                Errors.issue(tc.job(),
-                        new SemanticException("The " + op +
-                                " operator cannot be applied to the function " + left,
-                                position()));
-            }
-            if (xts.isExactlyFunctionType(rbase)) {
-                Errors.issue(tc.job(),
-                        new SemanticException("The " + op +
-                                " operator cannot be applied to the function " + right,
-                                position()));
-            }
-        }
-
+        
         if (op == EQ || op == NE || op == LT || op == GT || op == LE || op == GE) {
             Object lv = left.isConstant() ? left.constantValue() : null;
             Object rv = right.isConstant() ? right.constantValue() : null;
@@ -424,8 +398,28 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 
         if (!xts.hasUnknown(l) && !xts.hasUnknown(r)) {
             if (op == COND_OR || op == COND_AND) {
+            	Type result = xts.Boolean();
+            	if (op == COND_OR)
+            		return type(result);
+            	// Support conjunction of boolean terms.
+            	// Once we shift to Shostak we will have more comprehensive
+            	// support for all operators.
                 if (l.isBoolean() && r.isBoolean()) {
-                    return type(xts.Boolean());
+                	XTerm xt = X10TypeMixin.selfBinding(l);
+                	if (xt != null) {
+                		XTerm yt = X10TypeMixin.selfBinding(r);
+                		if (yt != null) {
+                			
+                			try {
+                			result = X10TypeMixin.addSelfBinding(result, 
+                					XTerms.makeAnd(xt, yt));
+                			} catch (XFailure z) {
+                				X10TypeMixin.setInconsistent(result);
+                			}
+                		}
+                	}
+                		
+                    return type(result);
                 }
             }
 
@@ -462,7 +456,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
                 args = p.snd();
             } catch (SemanticException e) { }
         }
-        Type rt = X10Field_c.rightType(mi.rightType(), mi.x10Def(), call.target(), tc.context());
+        Type rt = Checker.rightType(mi.rightType(), mi.x10Def(), call.target(), tc.context());
         call = (X10Call_c) call.methodInstance(mi).type(rt);
         call = (X10Call_c) call.arguments(args);
         return call;
@@ -640,10 +634,11 @@ public class X10Binary_c extends Binary_c implements X10Binary {
             }
             if (ct == null) ct = l.toClass();  // arbitrarily pick the left operand
             SemanticException error = new Errors.AmbiguousOperator(op, bestmis, pos);
-            X10MethodInstance mi = xts.createFakeMethod(ct, Flags.PUBLIC.Static(), methodName, Collections.EMPTY_LIST, CollectionUtil.list(l, r), error);
+            X10MethodInstance mi = xts.createFakeMethod(ct, Flags.PUBLIC.Static(), methodName,
+                    Collections.<Type>emptyList(), CollectionUtil.list(l, r), error);
             if (rt != null) mi = mi.returnType(rt);
             result = (X10Call_c) nf.X10Call(pos, nf.CanonicalTypeNode(pos, Types.ref(ct)),
-                    nf.Id(pos, methodName), Collections.EMPTY_LIST,
+                    nf.Id(pos, methodName), Collections.<TypeNode>emptyList(),
                     CollectionUtil.list(left, right)).methodInstance(mi).type(mi.returnType());
         }
         try {
@@ -699,8 +694,8 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         if (!e.type().isSubtype(ts.String(), tc.context())) {
             X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
             e = nf.X10Call(e.position(), nf.CanonicalTypeNode(e.position(), ts.String()),
-                           nf.Id(e.position(), Name.make("valueOf")), Collections.EMPTY_LIST,
-                           Collections.singletonList(e));
+                           nf.Id(e.position(), Name.make("valueOf")),
+                           Collections.<TypeNode>emptyList(), Collections.singletonList(e));
             return (Expr) e.del().disambiguate(tc).typeCheck(tc).checkConstants(tc);
         }
 
@@ -748,7 +743,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         final Local ldRef = (Local) nf.Local(pos,resultVarName).localInstance(li.asInstance()).type(type);
         Flattener newVisitor = (Flattener) new ExprFlattener.Flattener(fc.job(), ts, nf, this).context(xc);
         Expr nRight = (Expr) right.visit(newVisitor);
-        List condBody = newVisitor.stmtList(); 
+        List<Stmt> condBody = newVisitor.stmtList(); 
         Expr assign = nf.Assign(pos, ldRef, Assign.ASSIGN, nRight ).type(type);
         Stmt eval = nf.Eval(pos, assign);
         condBody.add(eval);

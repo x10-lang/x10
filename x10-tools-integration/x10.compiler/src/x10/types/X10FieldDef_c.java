@@ -38,6 +38,8 @@ import x10.types.constraints.TypeConstraint;
  *
  */
 public class X10FieldDef_c extends FieldDef_c implements X10FieldDef {
+    private static final long serialVersionUID = 6359052056959695361L;
+
     boolean isProperty;
     XVar thisVar;
     
@@ -63,7 +65,7 @@ public class X10FieldDef_c extends FieldDef_c implements X10FieldDef {
     List<Ref<? extends Type>> annotations;
 
     public List<Ref<? extends Type>> defAnnotations() {
-	if (annotations == null) return Collections.EMPTY_LIST;
+	if (annotations == null) return Collections.<Ref<? extends Type>>emptyList();
         return Collections.unmodifiableList(annotations);
     }
     

@@ -24,13 +24,13 @@ public class TypedefConstraint1b extends TypedefTest {
     public def run(): boolean = {
         
         type B[T]{T<:Y} = T;
-        b:B[Y]! = new Y();
+        b:B[Y] = new Y();
         check("b.name()", b.name(), "Y");
 
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new TypedefConstraint1b().execute();
     }
 }

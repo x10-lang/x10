@@ -25,6 +25,7 @@ public interface Import extends Node
      * is a class.  This puts the nested classes of p.C in scope.
      */
     public static class Kind extends Enum {
+        private static final long serialVersionUID = 167043594626583539L;
         public Kind(String name) { super(name); }
     }
 

@@ -18,6 +18,8 @@ import polyglot.util.Position;
  */
 public abstract class ReferenceType_c extends Type_c implements ReferenceType
 {
+    private static final long serialVersionUID = 145029430265768256L;
+
     protected ReferenceType_c() {
 	super();
     }

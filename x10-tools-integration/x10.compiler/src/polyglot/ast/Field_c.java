@@ -73,7 +73,7 @@ e = new Exception();
   }
 
   /** Get the field instance of the field. */
-  public VarInstance varInstance() {
+  public FieldInstance varInstance() {
     return fi;
   }
 
@@ -125,8 +125,10 @@ e = new Exception();
 
       TypeSystem ts = tb.typeSystem();
 
-      FieldInstance fi = ts.createFieldInstance(position(), new ErrorRef_c<FieldDef>(ts, position(), "Cannot get FieldDef before type-checking field access.") {
-	  public String toString() { e.printStackTrace(); return super.toString(); } });
+      FieldInstance fi = ts.createFieldInstance(position(),
+              new ErrorRef_c<FieldDef>(ts, position(), "Cannot get FieldDef before type-checking field access.") {
+          private static final long serialVersionUID = 7823901508583320051L;
+          public String toString() { e.printStackTrace(); return super.toString(); } });
       return n.fieldInstance(fi);
   }
   
@@ -207,7 +209,7 @@ e = new Exception();
       return null;
   }
 
-  public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
+  public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
       if (target instanceof Term) {
           v.visitCFG((Term) target, this, EXIT);
       }
@@ -226,7 +228,7 @@ e = new Exception();
           return Collections.<Type>singletonList(ts.NullPointerException());
       }
 
-      return Collections.EMPTY_LIST;
+      return Collections.<Type>emptyList();
   }
 
   public boolean isConstant() {
@@ -254,7 +256,7 @@ e = new Exception();
    */
   protected void checkConsistency(Context c) {
       if (targetImplicit) {
-          VarInstance vi = c.findVariableSilent(name.id());
+          VarInstance<?> vi = c.findVariableSilent(name.id());
           if (vi instanceof FieldInstance) {
               FieldInstance rfi = (FieldInstance) vi;
               // Compare the original (declaration) fis, not the actuals.

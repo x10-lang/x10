@@ -1,3 +1,4 @@
+// Yoav added: IGNORE_FILE
 /*
  *  This file is part of the X10 project (http://x10-lang.org).
  *
@@ -16,7 +17,7 @@
 class PolyFromRail1 extends TestRegion {
 
     public def run() {
-        var foo: Rail[double]! = [5.0,4.0,3.0,2.0,1.0];
+        val foo = Rail.make([5.0,4.0,3.0,2.0,1.0]);
         val a = new Array[double](foo);
         prArray("from native rail", a);
         return status();
@@ -36,7 +37,7 @@ class PolyFromRail1 extends TestRegion {
         "  iterator\n"+
         "5 4 3 2 1 . . . . . \n";
     
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new PolyFromRail1().execute();
     }
 }

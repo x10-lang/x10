@@ -17,22 +17,22 @@ import harness.x10Test;
  */
 class RemoteRefEquality extends x10Test {
 
-    val rr:RemoteRefEquality;
+    val rr:GlobalRef[RemoteRefEquality];
 
-    public def this(v:RemoteRefEquality) { rr = v; }
+    public def this(v:GlobalRef[RemoteRefEquality]) { rr = v; }
 
-    public def this() { this(null); }
+    public def this() { this(GlobalRef[RemoteRefEquality](null)); }
 
     public def run(): boolean {
         chk(Place.places.length > 1, "This test must be run with multiple places");
-        val local_ = new RemoteRefEquality();
-        val remote = at (here.next()) new RemoteRefEquality(local_);
-        Console.OUT.println(local_ == (at (remote) remote.rr)); // workaround XTENLANG-1124
-        Console.OUT.println(at (remote) remote.rr == local_);
-        return at (remote) remote.rr == local_;
+        val local_ = GlobalRef[RemoteRefEquality](new RemoteRefEquality());
+        val remote = at (here.next()) GlobalRef[RemoteRefEquality](new RemoteRefEquality(local_));
+        Console.OUT.println(local_ == (at (remote) remote().rr)); 
+        Console.OUT.println(at (remote) remote().rr == local_);
+        return at (remote) remote().rr == local_;
     }
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new RemoteRefEquality().execute();
     }
 }

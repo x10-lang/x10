@@ -29,11 +29,11 @@ class PolyFull1 extends TestRegion {
         "zeroBased false\n"+
         "rail false\n"+
         "isConvex() true\n"+
-        "size() Incomplete method.\n"+
+        "size() size not supported\n"+
         "region: full(3)\n"+
-        "x10.array.UnboundedRegionException: axis 2 has no minimum\n";
+        "x10.array.UnboundedRegionException: scanners not supported\n";
     
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new PolyFull1().execute();
     }
 }

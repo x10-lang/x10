@@ -12,28 +12,33 @@
 import harness.x10Test;
 
 /**
+ * Changed for 2.1.
  * 
- * Testing that a this field marked at(this) can be sent into a method requiring an at here, provided that
- * there has been no place shift between invocation of the method and the method call.
+ * Test that if you have two fields with GlobalRef's pointing to the same location, you can do an at to
+ * one field and deref the other.
+ * 
+ * Same as AtThisIntohere.x10, but without Static calls.
 
  * @author vj
  */
 public class B_AtThisIntoAtHere extends x10Test {
     class Test {
-      var x: Test! =null;
-    
-     def m(b: Test!) {}
+
      def n() { 
-	 // n() is a method not marked global, hence on method entry one can assume that this.home==here.
-	 // therefore this.x also satisfies at(here) (since its type satisfies at(this)). 
-	 // Hence this is a legal call.
-       m(x);
+    	val x  = GlobalRef[Test](this);
+        val y:GlobalRef[Test]{self.home==x.home} = GlobalRef[Test](this);
+    	 
+    	 at (x) {
+    		 // it is ok to invoke this.y() at the place of this.x.
+    		 y();
+    	 }
+	     
      }
     }
 
     public def run() = true;
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
 	  new B_AtThisIntoAtHere().execute();
     }
 

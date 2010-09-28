@@ -31,15 +31,15 @@ public class Variance2 extends x10Test {
                 val a = ga.get();
                 val b = gb.get();
 
-                val gx : Get[A]! = ga;
+                val gx : Get[A] = ga;
                 val x = gx.get();
-                val gy : Get[A]! = gb; // covariance
+                val gy : Get[A] = gb; // covariance
                 val y = gy.get();
 
                 return gx == ga && gy == gb && x == a && y == b;
         }
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new Variance2().execute();
 	}
 }

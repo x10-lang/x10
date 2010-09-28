@@ -44,6 +44,7 @@ import polyglot.util.TypedList;
 import polyglot.visit.ContextVisitor;
 import polyglot.ast.ClassBody_c;
 import x10.constraint.XVar;
+import x10.errors.Errors;
 import x10.types.ClosureDef;
 import x10.types.MacroType;
 import x10.types.ParameterType;
@@ -67,7 +68,7 @@ public class X10ClassBody_c extends ClassBody_c {
         super(pos, members);
     }
 
-    public Node conformanceCheck(ContextVisitor tc) throws SemanticException {
+    public Node conformanceCheck(ContextVisitor tc) {
         duplicateTypeDefCheck(tc);
         checkMethodCompatibility(tc);
         return super.conformanceCheck(tc);
@@ -89,7 +90,7 @@ public class X10ClassBody_c extends ClassBody_c {
         }
     }
    
-    private void checkMethodCompatibility(ContextVisitor tc) throws SemanticException {
+    private void checkMethodCompatibility(ContextVisitor tc) {
         X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 
         ClassDef cd = tc.context().currentClassDef();
@@ -132,8 +133,10 @@ public class X10ClassBody_c extends ClassBody_c {
                         if (ml.def() == mk.def()) continue;
 
                         if (hasCompatibleArguments(mk.x10Def(), ml.x10Def(), tc.context()) && isParameterized(mk.x10Def()) && isParameterized(ml.x10Def())) {
-                            throw new SemanticException("Method " + mj.signature() + " in " + mj.container() + " and method " + mi.signature() + " in " + mi.container()
-                                                        + " override methods with compatible signatures.", mi.position());
+                            Errors.issue(tc.job(),
+                                    new SemanticException("Method " + mj.signature() + " in " + mj.container() + " and method " + mi.signature() + " in " + mi.container()
+                                                        + " override methods with compatible signatures.", mi.position()),
+                                    this);
                         }
                     }
                 }
@@ -144,7 +147,7 @@ public class X10ClassBody_c extends ClassBody_c {
     }
 
     @Override
-    protected void duplicateConstructorCheck(ContextVisitor tc) throws SemanticException {
+    protected void duplicateConstructorCheck(ContextVisitor tc) {
         ClassDef type = tc.context().currentClassDef();
         TypeSystem ts = tc.typeSystem();
         
@@ -157,14 +160,15 @@ public class X10ClassBody_c extends ClassBody_c {
                 X10ConstructorDef cj = (X10ConstructorDef) l.get(j);
                 
                 if (hasCompatibleArguments(ci, cj, tc.context())) {
-                    throw new SemanticException("Duplicate constructor \"" + cj + "\"; previous declaration at " + ci.position() + ".", cj.position());
+                    Errors.issue(tc.job(),
+                            new SemanticException("Duplicate constructor \"" + cj + "\"; previous declaration at " + ci.position() + ".", cj.position()));
                 }
             }
         }
     }
     
     @Override
-    protected void duplicateMethodCheck(ContextVisitor tc) throws SemanticException {
+    protected void duplicateMethodCheck(ContextVisitor tc) {
         ClassDef type = tc.context().currentClassDef();
         
         TypeSystem ts = tc.typeSystem();
@@ -178,7 +182,8 @@ public class X10ClassBody_c extends ClassBody_c {
                 X10MethodDef mj = (X10MethodDef) l.get(j);
         
                 if (mi.name().equals(mj.name()) && hasCompatibleArguments(mi, mj, tc.context())) {
-                    throw new SemanticException("Duplicate method \"" + mj + "\"; previous declaration at " + mi.position() + ".", mj.position());
+                    Errors.issue(tc.job(),
+                            new SemanticException("Duplicate method \"" + mj + "\"; previous declaration at " + mi.position() + ".", mj.position()));
                 }
             }
         }
@@ -246,7 +251,7 @@ public class X10ClassBody_c extends ClassBody_c {
         return true;
     }
     
-    protected void duplicateTypeDefCheck(ContextVisitor tc) throws SemanticException {
+    protected void duplicateTypeDefCheck(ContextVisitor tc) {
         X10ClassDef type = (X10ClassDef) tc.context().currentClassDef();
 
         TypeSystem ts = tc.typeSystem();
@@ -260,7 +265,9 @@ public class X10ClassBody_c extends ClassBody_c {
                 TypeDef mj = l.get(j);
 
                 if (mi.name().equals(mj.name()) && hasCompatibleArguments(mi, mj, tc.context())) {
-                    throw new SemanticException("Duplicate type definition \"" + mj + "\"; previous declaration at " + mi.position() + ".", mj.position());
+                    Errors.issue(tc.job(),
+                            new SemanticException("Duplicate type definition \"" + mj + "\"; previous declaration at " + mi.position() + ".", mj.position()),
+                            this);
                 }
             }
 
@@ -270,7 +277,9 @@ public class X10ClassBody_c extends ClassBody_c {
                 if (t instanceof ClassType) {
                     ClassType ct = (ClassType) t;
                     if (ct.name().equals(mi.name())) {
-                        throw new SemanticException("Type definition " + mi + " has the same name as member class " + ct + ".", mi.position());
+                        Errors.issue(tc.job(),
+                                new SemanticException("Type definition " + mi + " has the same name as member class " + ct + ".", mi.position()),
+                                this);
                     }
                 }
             }

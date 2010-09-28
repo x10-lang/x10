@@ -46,7 +46,7 @@ otherwise being used. I have commented them out.
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new ClosureTypeParameters1c().execute();
     }
 }

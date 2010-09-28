@@ -12,7 +12,7 @@
 package x10.util;
 
 public class ValRailBuilder[T] implements Builder[T,ValRail[T]] {
-    global val buf: GrowableRail[T]!;
+    val buf: GrowableRail[T];
 
     public def this() {
         buf = new GrowableRail[T]();

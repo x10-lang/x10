@@ -43,7 +43,7 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "x10.core.Unsigned.lt(#1, #2)")
     @Native("c++",  "((#1) < (#2))")
-    public static safe operator (x:UShort) < (y:UShort): Boolean {
+    public static operator (x:UShort) < (y:UShort): Boolean {
          return (x.shortVal + Short.MIN_VALUE) < (y.shortVal + Short.MIN_VALUE);
      }
 
@@ -57,7 +57,7 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "x10.core.Unsigned.gt(#1, #2)")
     @Native("c++",  "((#1) > (#2))")
-    public static safe operator (x:UShort) > (y:UShort): Boolean {
+    public static operator (x:UShort) > (y:UShort): Boolean {
         return (x.shortVal + Short.MIN_VALUE) > (y.shortVal + Short.MIN_VALUE);
     }
 
@@ -71,7 +71,7 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "x10.core.Unsigned.le(#1, #2)")
     @Native("c++",  "((#1) <= (#2))")
-    public static safe operator (x:UShort) <= (y:UShort): Boolean {
+    public static operator (x:UShort) <= (y:UShort): Boolean {
          return (x.shortVal + Short.MIN_VALUE) <= (y.shortVal + Short.MIN_VALUE);
      }
 
@@ -85,7 +85,7 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "x10.core.Unsigned.ge(#1, #2)")
     @Native("c++",  "((#1) >= (#2))")
-    public static safe operator (x:UShort) >= (y:UShort): Boolean {
+    public static operator (x:UShort) >= (y:UShort): Boolean {
         return (x.shortVal + Short.MIN_VALUE) >= (y.shortVal + Short.MIN_VALUE);
     }
 
@@ -100,21 +100,21 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "((short) ((#1) + (#2)))")
     @Native("c++",  "((x10_ushort) ((#1) + (#2)))")
-    public static safe operator (x:UShort) + (y:UShort): UShort = UShort(x.shortVal + y.shortVal);
+    public static operator (x:UShort) + (y:UShort): UShort = UShort(x.shortVal + y.shortVal);
     /**
      * A binary plus operator (unsigned disambiguation).
      * @see #operator(UShort)+(UShort)
      */
     // @Native("java", "((short) ((#1) + (#2)))")
     @Native("c++",  "((x10_ushort) ((#1) + (#2)))")
-    public static safe operator (x:UShort) + (y:Short): UShort = UShort(x.shortVal + y);
+    public static operator (x:UShort) + (y:Short): UShort = UShort(x.shortVal + y);
     /**
      * A binary plus operator (unsigned disambiguation).
      * @see #operator(UShort)+(UShort)
      */
     // @Native("java", "((short) ((#1) + (#2)))")
     @Native("c++",  "((x10_ushort) ((#1) + (#2)))")
-    public static safe operator (x:Short) + (y:UShort): UShort = UShort(x + y.shortVal);
+    public static operator (x:Short) + (y:UShort): UShort = UShort(x + y.shortVal);
 
     /**
      * A binary minus operator.
@@ -126,21 +126,21 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "((short) ((#1) - (#2)))")
     @Native("c++",  "((x10_ushort) ((#1) - (#2)))")
-    public static safe operator (x:UShort) - (y:UShort): UShort = UShort(x.shortVal - y.shortVal);
+    public static operator (x:UShort) - (y:UShort): UShort = UShort(x.shortVal - y.shortVal);
     /**
      * A binary minus operator (unsigned disambiguation).
      * @see #operator(UShort)-(UShort)
      */
     // @Native("java", "((short) ((#1) - (#2)))")
     @Native("c++",  "((x10_ushort) ((#1) - (#2)))")
-    public static safe operator (x:Short) - (y:UShort): UShort = UShort(x - y.shortVal);
+    public static operator (x:Short) - (y:UShort): UShort = UShort(x - y.shortVal);
     /**
      * A binary minus operator (unsigned disambiguation).
      * @see #operator(UShort)-(UShort)
      */
     // @Native("java", "((short) ((#1) - (#2)))")
     @Native("c++",  "((x10_ushort) ((#1) - (#2)))")
-    public static safe operator (x:UShort) - (y:Short): UShort = UShort(x.shortVal - y);
+    public static operator (x:UShort) - (y:Short): UShort = UShort(x.shortVal - y);
 
     /**
      * A binary multiply operator.
@@ -152,21 +152,21 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "((short) ((#1) * (#2)))")
     @Native("c++",  "((x10_ushort) ((#1) * (#2)))")
-    public static safe operator (x:UShort) * (y:UShort): UShort = UShort(x.shortVal * y.shortVal);
+    public static operator (x:UShort) * (y:UShort): UShort = UShort(x.shortVal * y.shortVal);
     /**
      * A binary multiply operator (unsigned disambiguation).
      * @see #operator(UShort)*(UShort)
      */
     // @Native("java", "((short) ((#1) * (#2)))")
     @Native("c++",  "((x10_ushort) ((#1) * (#2)))")
-    public static safe operator (x:Short) * (y:UShort): UShort = UShort(x * y.shortVal);
+    public static operator (x:Short) * (y:UShort): UShort = UShort(x * y.shortVal);
     /**
      * A binary multiply operator (unsigned disambiguation).
      * @see #operator(UShort)*(UShort)
      */
     // @Native("java", "((short) ((#1) * (#2)))")
     @Native("c++",  "((x10_ushort) ((#1) * (#2)))")
-    public static safe operator (x:UShort) * (y:Short): UShort = UShort(x.shortVal * y);
+    public static operator (x:UShort) * (y:Short): UShort = UShort(x.shortVal * y);
 
     /**
      * A binary divide operator.
@@ -177,7 +177,7 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "((short) x10.core.Unsigned.div(#1, #2))")
     @Native("c++",  "((x10_ushort) ((#1) / (#2)))")
-    public static safe operator (x:UShort) / (y:UShort): UShort {
+    public static operator (x:UShort) / (y:UShort): UShort {
         return UShort(((x.shortVal as Long) / (y.shortVal as Long)) as Short);
     }
     /**
@@ -186,7 +186,7 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "((short) x10.core.Unsigned.div(#1, #2))")
     @Native("c++",  "((x10_ushort) ((#1) / (#2)))")
-    public static safe operator (x:Short) / (y:UShort): UShort {
+    public static operator (x:Short) / (y:UShort): UShort {
         return UShort(((x as Long) / (y.shortVal as Long)) as Short);
     }
     /**
@@ -195,7 +195,7 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "((short) x10.core.Unsigned.div(#1, #2))")
     @Native("c++",  "((x10_ushort) ((#1) / (#2)))")
-    public static safe operator (x:UShort) / (y:Short): UShort {
+    public static operator (x:UShort) / (y:Short): UShort {
         return UShort(((x.shortVal as Long) / (y as Long)) as Short);
     }
 
@@ -208,7 +208,7 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "((short) x10.core.Unsigned.rem(#1, #2))")
     @Native("c++",  "((x10_ushort) ((#1) % (#2)))")
-    public static safe operator (x:UShort) % (y:UShort): UShort {
+    public static operator (x:UShort) % (y:UShort): UShort {
         return UShort(((x.shortVal as Long) % (y.shortVal as Long)) as Short);
     }
     /**
@@ -217,7 +217,7 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "((short) x10.core.Unsigned.rem(#1, #2))")
     @Native("c++",  "((x10_ushort) ((#1) % (#2)))")
-    public static safe operator (x:Short) % (y:UShort): UShort {
+    public static operator (x:Short) % (y:UShort): UShort {
         return UShort(((x as Long) % (y.shortVal as Long)) as Short);
     }
     /**
@@ -226,7 +226,7 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "((short) x10.core.Unsigned.rem(#1, #2))")
     @Native("c++",  "((x10_ushort) ((#1) % (#2)))")
-    public static safe operator (x:UShort) % (y:Short): UShort {
+    public static operator (x:UShort) % (y:Short): UShort {
         return UShort(((x.shortVal as Long) % (y as Long)) as Short);
     }
 
@@ -238,7 +238,7 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "((short) +(#1))")
     @Native("c++",  "((x10_ushort) +(#1))")
-    public static safe operator + (x:UShort): UShort = x;
+    public static operator + (x:UShort): UShort = x;
 
     /**
      * A unary minus operator.
@@ -249,7 +249,7 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "((short) -(#1))")
     @Native("c++",  "((x10_ushort) -(#1))")
-    public static safe operator - (x:UShort): UShort = UShort(-(x.shortVal));
+    public static operator - (x:UShort): UShort = UShort(-(x.shortVal));
 
 
     /**
@@ -261,21 +261,21 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "((short) ((#1) & (#2)))")
     @Native("c++",  "((x10_ushort) ((#1) & (#2)))")
-    public static safe operator (x:UShort) & (y:UShort): UShort = UShort(x.shortVal & y.shortVal);
+    public static operator (x:UShort) & (y:UShort): UShort = UShort(x.shortVal & y.shortVal);
     /**
      * A bitwise and operator (unsigned disambiguation).
      * @see #operator(UShort)&(UShort)
      */
     // @Native("java", "((short) ((#1) & (#2)))")
     @Native("c++",  "((x10_ushort) ((#1) & (#2)))")
-    public static safe operator (x:Short) & (y:UShort): UShort = UShort(x & y.shortVal);
+    public static operator (x:Short) & (y:UShort): UShort = UShort(x & y.shortVal);
     /**
      * A bitwise and operator (unsigned disambiguation).
      * @see #operator(UShort)&(UShort)
      */
     // @Native("java", "((short) ((#1) & (#2)))")
     @Native("c++",  "((x10_ushort) ((#1) & (#2)))")
-    public static safe operator (x:UShort) & (y:Short): UShort = UShort(x.shortVal & y);
+    public static operator (x:UShort) & (y:Short): UShort = UShort(x.shortVal & y);
 
     /**
      * A bitwise or operator.
@@ -286,21 +286,21 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "((short) ((#1) | (#2)))")
     @Native("c++",  "((x10_ushort) ((#1) | (#2)))")
-    public static safe operator (x:UShort) | (y:UShort): UShort = UShort(x.shortVal | y.shortVal);
+    public static operator (x:UShort) | (y:UShort): UShort = UShort(x.shortVal | y.shortVal);
     /**
      * A bitwise or operator (unsigned disambiguation).
      * @see #operator(UShort)|(UShort)
      */
     // @Native("java", "((short) ((#1) | (#2)))")
     @Native("c++",  "((x10_ushort) ((#1) | (#2)))")
-    public static safe operator (x:Short) | (y:UShort): UShort = UShort(x | y.shortVal);
+    public static operator (x:Short) | (y:UShort): UShort = UShort(x | y.shortVal);
     /**
      * A bitwise or operator (unsigned disambiguation).
      * @see #operator(UShort)|(UShort)
      */
     // @Native("java", "((short) ((#1) | (#2)))")
     @Native("c++",  "((x10_ushort) ((#1) | (#2)))")
-    public static safe operator (x:UShort) | (y:Short): UShort = UShort(x.shortVal | y);
+    public static operator (x:UShort) | (y:Short): UShort = UShort(x.shortVal | y);
 
     /**
      * A bitwise xor operator.
@@ -311,21 +311,21 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "((short) ((#1) ^ (#2)))")
     @Native("c++",  "((x10_ushort) ((#1) ^ (#2)))")
-    public static safe operator (x:UShort) ^ (y:UShort): UShort = UShort(x.shortVal ^ y.shortVal);
+    public static operator (x:UShort) ^ (y:UShort): UShort = UShort(x.shortVal ^ y.shortVal);
     /**
      * A bitwise xor operator (unsigned disambiguation).
      * @see #operator(UShort)^(UShort)
      */
     // @Native("java", "((short) ((#1) ^ (#2)))")
     @Native("c++",  "((x10_ushort) ((#1) ^ (#2)))")
-    public static safe operator (x:Short) ^ (y:UShort): UShort = UShort(x ^ y.shortVal);
+    public static operator (x:Short) ^ (y:UShort): UShort = UShort(x ^ y.shortVal);
     /**
      * A bitwise xor operator (unsigned disambiguation).
      * @see #operator(UShort)^(UShort)
      */
     // @Native("java", "((short) ((#1) ^ (#2)))")
     @Native("c++",  "((x10_ushort) ((#1) ^ (#2)))")
-    public static safe operator (x:UShort) ^ (y:Short): UShort = UShort(x.shortVal ^ y);
+    public static operator (x:UShort) ^ (y:Short): UShort = UShort(x.shortVal ^ y);
 
     /**
      * A bitwise left shift operator.
@@ -337,7 +337,7 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "((short) ((#1) << (#2)))")
     @Native("c++",  "((x10_ushort) ((#1) << (#2)))")
-    public static safe operator (x:UShort) << (count:Int): UShort = UShort(x.shortVal << count);
+    public static operator (x:UShort) << (count:Int): UShort = UShort(x.shortVal << count);
 
     /**
      * A bitwise right shift operator.
@@ -350,7 +350,7 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "((short) ((#1) >>> (#2)))")
     @Native("c++",  "((x10_ushort) ((#1) >> (#2)))")
-    public static safe operator (x:UShort) >> (count:Int): UShort = UShort(x.shortVal >>> count);
+    public static operator (x:UShort) >> (count:Int): UShort = UShort(x.shortVal >>> count);
 
     /**
      * A bitwise logical right shift operator (zero-fill).
@@ -364,7 +364,7 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "((short) ((#1) >>> (#2)))")
     @Native("c++",  "((x10_ushort) ((#1) >> (#2)))")
-    public static safe operator (x:UShort) >>> (count:Int): UShort = UShort(x.shortVal >>> count);
+    public static operator (x:UShort) >>> (count:Int): UShort = UShort(x.shortVal >>> count);
 
     /**
      * A bitwise complement operator.
@@ -374,7 +374,7 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "((short) ~(#1))")
     @Native("c++",  "((x10_ushort) ~(#1))")
-    public static safe operator ~ (x:UShort): UShort = UShort(~(x.shortVal));
+    public static operator ~ (x:UShort): UShort = UShort(~(x.shortVal));
 
 
     /**
@@ -384,7 +384,7 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "((short) ((#1) & 0xff))")
     @Native("c++",  "((x10_ushort) (#1))")
-    public static safe operator (x:UByte): UShort = UShort(x.byteVal & 0xff as Short);
+    public static operator (x:UByte): UShort = UShort(x.byteVal & 0xff as Short);
 
     /**
      * Convert a given UInt to a UShort.
@@ -393,7 +393,7 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "((short) (#1))")
     @Native("c++",  "((x10_ushort) (#1))")
-    public static safe operator (x:UInt) as UShort = UShort(x.intVal as Short);
+    public static operator (x:UInt) as UShort = UShort(x.intVal as Short);
 
     /**
      * Convert a given ULong to a UShort.
@@ -402,7 +402,7 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "((short)(long)(#1))")
     @Native("c++",  "((x10_ushort) (#1))")
-    public static safe operator (x:ULong) as UShort = UShort(x.longVal as Short);
+    public static operator (x:ULong) as UShort = UShort(x.longVal as Short);
 
 
     /**
@@ -412,7 +412,7 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "((short)(byte)(#1))")
     @Native("c++",  "((x10_ushort) (#1))")
-    public static safe operator (x:Byte): UShort = UShort(x);
+    public static operator (x:Byte): UShort = UShort(x);
 
     /**
      * Convert a given Int to a UShort.
@@ -421,7 +421,7 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "((short)(int)(#1))")
     @Native("c++",  "((x10_ushort) (#1))")
-    public static safe operator (x:Int) as UShort = UShort(x as Short);
+    public static operator (x:Int) as UShort = UShort(x as Short);
 
     /**
      * Convert a given Long to a UShort.
@@ -430,7 +430,7 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "((short)(long)(#1))")
     @Native("c++",  "((x10_ushort) (#1))")
-    public static safe operator (x:Long) as UShort = UShort(x as Short);
+    public static operator (x:Long) as UShort = UShort(x as Short);
 
     /**
      * Convert a given Float to a UShort.
@@ -439,7 +439,7 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "x10.core.Floats.toUShort(#1)")
     @Native("c++",  "((x10_ushort) (#1))")
-    public static safe operator (x:Float) as UShort {
+    public static operator (x:Float) as UShort {
         val temp : Int = x as Int;
         if (temp > 0xffff) return UShort(0xffff as Byte);
         else if (temp < 0) return UShort(0);
@@ -453,7 +453,7 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "x10.core.Floats.toUShort(#1)")
     @Native("c++",  "((x10_ushort) (#1))")
-    public static safe operator (x:Double) as UShort {
+    public static operator (x:Double) as UShort {
         val temp : Int = x as Int;
         if (temp > 0xffff) return UShort(0xffff as Byte);
         else if (temp < 0) return UShort(0);
@@ -467,7 +467,7 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "((short)(short)(#1))")
     @Native("c++",  "((x10_ushort) (#1))")
-    public static safe operator (x:Short): UShort = UShort(x);
+    public static operator (x:Short): UShort = UShort(x);
 
 
     /**
@@ -475,14 +475,14 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "((short)0)")
     @Native("c++", "((x10_ushort)0U)")
-    public const MIN_VALUE = 0 as UShort;
+    public static MIN_VALUE = 0 as UShort;
 
     /**
      * A constant holding the maximum value a UShort can have, 2<sup>16</sup>-1.
      */
     // @Native("java", "((short)0xffff)")
     @Native("c++", "((x10_ushort)0xffffU)")
-    public const MAX_VALUE = 0xffff as UShort;
+    public static MAX_VALUE = 0xffff as UShort;
 
 
     /**
@@ -492,7 +492,7 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "java.lang.Integer.toString((#0) & 0xffff, #1)")
     @Native("c++", "x10aux::int_utils::toString((#0) & 0xffff, #1)")
-    public global safe def toString(radix:Int): String = ((this.shortVal & 0xFFFF) as Int).toString(radix);
+    public def toString(radix:Int): String = ((this.shortVal & 0xFFFF) as Int).toString(radix);
 
     /**
      * Returns a String representation of this UShort as a hexadecimal number.
@@ -500,7 +500,7 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "java.lang.Integer.toHexString((#0) & 0xffff)")
     @Native("c++", "x10aux::int_utils::toHexString((#0) & 0xffff)")
-    public global safe def toHexString(): String = this.shortVal.toHexString();
+    public def toHexString(): String = this.shortVal.toHexString();
 
     /**
      * Returns a String representation of this UShort as an octal number.
@@ -508,7 +508,7 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "java.lang.Integer.toOctalString((#0) & 0xffff)")
     @Native("c++", "x10aux::int_utils::toOctalString((#0) & 0xffff)")
-    public global safe def toOctalString(): String = this.shortVal.toOctalString();
+    public def toOctalString(): String = this.shortVal.toOctalString();
 
     /**
      * Returns a String representation of this UShort as a binary number.
@@ -516,7 +516,7 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "java.lang.Integer.toBinaryString((#0) & 0xffff)")
     @Native("c++", "x10aux::int_utils::toBinaryString((#0) & 0xffff)")
-    public global safe def toBinaryString(): String = this.shortVal.toBinaryString();
+    public def toBinaryString(): String = this.shortVal.toBinaryString();
 
     /**
      * Returns a String representation of this UShort as a decimal number.
@@ -524,14 +524,15 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "java.lang.Integer.toString((#0) & 0xffff)")
     @Native("c++", "x10aux::to_string(#0)")
-    public global safe def toString(): String = ((this.shortVal & 0xFFFF) as Int).toString();
+    public def toString(): String = ((this.shortVal & 0xFFFF) as Int).toString();
 
     /**
      * @deprecated use {@link #parse(String,Int)} instead
      */
     // @Native("java", "((short) (java.lang.Integer.parseInt(#1, #2) & 0xffff))")
     @Native("c++", "((x10_ushort) x10aux::int_utils::parseInt(#1, #2))")
-    public static def parseUShort(s:String, radix:Int): UShort throws NumberFormatException {
+    public static def parseUShort(s:String, radix:Int): UShort //throwsNumberFormatException 
+    {
         return UShort(Short.parse(s, radix));
     }
 
@@ -540,7 +541,8 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "java.lang.Integer.parseInt(#1)")
     @Native("c++", "x10aux::int_utils::parseInt(#1)")
-    public static def parseUShort(s:String): UShort throws NumberFormatException {
+    public static def parseUShort(s:String): UShort //throwsNumberFormatException 
+    {
         return UShort(Short.parse(s));
     }
 
@@ -553,7 +555,8 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "((short) (java.lang.Integer.parseInt(#1, #2) & 0xffff))")
     @Native("c++", "((x10_ushort) x10aux::int_utils::parseInt(#1, #2))")
-    public static def parse(s:String, radix:Int): UShort throws NumberFormatException {
+    public static def parse(s:String, radix:Int): UShort //throwsNumberFormatException 
+    {
          return UShort(Short.parse(s, radix));
      }
 
@@ -565,7 +568,8 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "((short) (java.lang.Integer.parseInt(#1) & 0xffff)")
     @Native("c++", "((x10_ushort) x10aux::int_utils::parseInt(#1))")
-    public static def parse(s:String): UShort throws NumberFormatException {
+    public static def parse(s:String): UShort //throwsNumberFormatException 
+    {
         return UShort(Short.parse(s));
     }
 
@@ -606,7 +610,7 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public global safe def equals(x:Any):Boolean = this.shortVal.equals(x);
+    public def equals(x:Any):Boolean = this.shortVal.equals(x);
 
     /**
      * Returns true if this UShort is equal to the given UShort.
@@ -615,5 +619,5 @@ public final struct UShort /*TODO implements Arithmetic[UShort], Bitwise[UShort]
      */
     // @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public global safe def equals(x:UShort):Boolean = this.shortVal == x.shortVal;
+    public def equals(x:UShort):Boolean = this.shortVal == x.shortVal;
 }

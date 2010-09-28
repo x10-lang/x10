@@ -9,9 +9,9 @@
 #  (C) Copyright IBM Corporation 2006-2010.
 #
 
-#X10_VERSION=svn head
-X10_VERSION=2.0.6
-VERSION=20100709
+X10_VERSION=svn head
+#X10_VERSION=2.0.6
+VERSION=20100916
 SOCKETS_TGZ = pgas-$(VERSION)-$(WPLATFORM)-sockets.tgz
 LAPI_TGZ = pgas-$(VERSION)-$(WPLATFORM)-lapi.tgz
 BGP_TGZ = pgas-$(VERSION)-$(WPLATFORM)-bgp.tgz

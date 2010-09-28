@@ -19,7 +19,7 @@ public class PrimitiveToNullablePrimitive1 extends x10Test {
 		return (3 instanceof nullable<int>);
 	}
 	
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new PrimitiveToNullablePrimitive1().execute();
 	}
 }

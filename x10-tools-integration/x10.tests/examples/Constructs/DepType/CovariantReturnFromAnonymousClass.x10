@@ -38,7 +38,7 @@ public class CovariantReturnFromAnonymousClass extends x10Test {
 	   }).whatever() + " hmm.. this worked");
 	    return true;
 	}
-	public static def main(var args: Rail[String]): void = {
-		new InnerClass().execute();
+	public static def main(var args: Array[String](1)): void = {
+		new CovariantReturnFromAnonymousClass().execute();
 	}
 }

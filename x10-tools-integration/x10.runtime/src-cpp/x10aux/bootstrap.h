@@ -21,7 +21,6 @@
 #include <x10aux/deserialization_dispatcher.h>
 
 #include <x10/lang/VoidFun_0_0.h>
-#include <x10/lang/Rail.h>
 
 #include <x10/lang/Throwable.h>
 
@@ -33,7 +32,7 @@
 #ifdef __CYGWIN__
 extern "C" int setlinebuf(FILE *);
 #endif
-namespace x10 { namespace lang { template<class T> class Rail; } }
+namespace x10 { namespace array { template<class T> class Array; } }
 
 namespace x10aux {
 
@@ -70,14 +69,14 @@ namespace x10aux {
         }
     };
 
-    typedef void (*ApplicationMainFunction)(ref<x10::lang::Rail<ref<x10::lang::String> > >);
+    typedef void (*ApplicationMainFunction)(ref<x10::array::Array<ref<x10::lang::String> > >);
 
     class BootStrapClosure : public x10::lang::Closure
     {
         protected:
 
         ApplicationMainFunction main;
-        ref<x10::lang::Rail<ref<x10::lang::String> > > args;
+        ref<x10::array::Array<ref<x10::lang::String> > > args;
         public:
 
         static x10::lang::VoidFun_0_0::itable<BootStrapClosure> _itable;
@@ -92,7 +91,7 @@ namespace x10aux {
         }
 
         BootStrapClosure(ApplicationMainFunction main_,
-                         ref<x10::lang::Rail<ref<x10::lang::String> > > args_)
+                         ref<x10::array::Array<ref<x10::lang::String> > > args_)
           : main(main_), args(args_)
         { }
 
@@ -123,7 +122,7 @@ namespace x10aux {
 #ifdef X10_USE_BDWGC
         GC_INIT();
 #endif
-        x10aux::ref<x10::lang::Rail<x10aux::ref<x10::lang::String> > > args = x10aux::null;
+        x10aux::ref<x10::array::Array<x10aux::ref<x10::lang::String> > > args = x10aux::null;
 
 #ifndef NO_EXCEPTIONS
         try {
@@ -142,7 +141,7 @@ namespace x10aux {
                 x10aux::ref<StaticInitClosure>(new (x10aux::alloc<x10::lang::VoidFun_0_0>(sizeof(x10aux::StaticInitClosure)))
                                                x10aux::StaticInitClosure());
 
-            // Construct closure to invoke the user's "public static def main(Rail[String]) : Void"
+            // Construct closure to invoke the user's "public static def main(Array[String]) : Void"
             // if at place 0 otherwise wait for asyncs.
             x10aux::ref<x10::lang::VoidFun_0_0> main_closure =
                 x10aux::ref<BootStrapClosure>(new (x10aux::alloc<x10::lang::VoidFun_0_0>(sizeof(x10aux::BootStrapClosure)))
@@ -179,9 +178,6 @@ namespace x10aux {
 
         }
 #endif
-
-        x10aux::free_args(args);
-
         x10aux::shutdown();
 
         if (getenv("X10_RXTX")!=NULL)

@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.util.Future;
 
 /**
  * Checks force for grand-children.
@@ -29,13 +30,13 @@ public class FutureForce extends x10Test {
 	}
 
 	public def foo(): Int = {
-		var r2: Future[Int] = future(here) { bar() };
+		var r2: Future[Int] = Future.make( () => bar() );
 		return 42;
 	}
 
 	public def run(): Boolean = {
 		atomic flag = false;
-		var r1: Future[Int] = future(here) { foo() };
+		var r1: Future[Int] = Future.make( () => foo() );
 		r1();
 		var b: Boolean;
 		atomic b = flag;
@@ -43,7 +44,7 @@ public class FutureForce extends x10Test {
 		return (b == true);
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new FutureForce().execute();
 	}
 }

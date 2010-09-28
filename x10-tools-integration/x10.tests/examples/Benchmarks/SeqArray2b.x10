@@ -32,10 +32,10 @@ public class SeqArray2b extends Benchmark {
     val a = new Array[double]([0..N-1, 0..N-1], (Point)=>0.0);
 
     def once() {
-        for ((i,j):Point(2) in a)
+        for ([i,j]:Point(2) in a)
             a(i,j) = (i+j) as double;
         var sum:double = 0.0;
-        for ((i,j):Point(2) in a)
+        for ([i,j]:Point(2) in a)
             sum += a(i,j);
         return sum;
     }
@@ -44,7 +44,7 @@ public class SeqArray2b extends Benchmark {
     // boilerplate
     //
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new SeqArray2b().execute();
     }
 }

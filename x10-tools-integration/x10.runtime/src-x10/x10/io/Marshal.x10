@@ -28,21 +28,21 @@ import x10.util.StringBuilder;
  * catch (IOException e) { }
  */    
 public interface Marshal[T] {
-    public global def read(r: Reader): T throws IOException;
-    public global def write(w: Writer, T): Void throws IOException;
+    public def read(r: Reader): T; //throws IOException;
+    public def write(w: Writer, T): Void; //throws IOException;
     
-    public const BOOLEAN = new BooleanMarshal();
-    public const BYTE = new ByteMarshal();
-    public const CHAR = new CharMarshal();
-    public const SHORT = new ShortMarshal();
-    public const INT = new IntMarshal();
-    public const LONG = new LongMarshal();
-    public const FLOAT = new FloatMarshal();
-    public const DOUBLE = new DoubleMarshal();
-    public const LINE = new LineMarshal();
+    public static BOOLEAN = new BooleanMarshal();
+    public static BYTE = new ByteMarshal();
+    public static CHAR = new CharMarshal();
+    public static SHORT = new ShortMarshal();
+    public static INT = new IntMarshal();
+    public static LONG = new LongMarshal();
+    public static FLOAT = new FloatMarshal();
+    public static DOUBLE = new DoubleMarshal();
+    public static LINE = new LineMarshal();
     
     public static class LineMarshal implements Marshal[String] {
-        public global def read(r: Reader): String throws IOException {
+        public def read(r: Reader): String { //throws IOException {
             val sb = new StringBuilder();
             var ch: Char;
             do {
@@ -51,7 +51,8 @@ public interface Marshal[T] {
             } while (ch != '\n');
             return sb.result();
         }
-        public global def write(w: Writer, s: String): Void throws IOException {
+        public def write(w: Writer, s: String): Void //throws IOException 
+        {
             for (var i: int = 0; i < s.length(); i++) {
                 val ch = s(i);
                 CHAR.write(w, ch);
@@ -66,17 +67,22 @@ public interface Marshal[T] {
     }
     
     public static class BooleanMarshal implements Marshal[Boolean] {
-        public global def read(r: Reader): Boolean throws IOException = r.read() != 0;
-        public global def write(w: Writer, b: Boolean): Void throws IOException = w.write((b ? 0 : 1) as Byte);
+        public def read(r: Reader): Boolean //throws IOException 
+        = r.read() != 0;
+        public def write(w: Writer, b: Boolean): Void //throws IOException 
+        = w.write((b ? 0 : 1) as Byte);
     }
     
     public static class ByteMarshal implements Marshal[Byte] {
-        public global def read(r: Reader): Byte throws IOException = r.read();
-        public global def write(w: Writer, b: Byte): Void throws IOException = w.write(b);
+        public def read(r: Reader): Byte //throws IOException 
+        = r.read();
+        public def write(w: Writer, b: Byte): Void //throws IOException 
+        = w.write(b);
     }
 
     public static class CharMarshal implements Marshal[Char] {
-        public global def read(r: Reader): Char throws IOException {
+        public def read(r: Reader): Char //throws IOException 
+        {
             val b1 = r.read();
             if (b1 == -1) throw new EOFException();
             if ((b1 & 0xf8) == 0xf0) {
@@ -98,7 +104,8 @@ public interface Marshal[T] {
                 return Char.chr(b1);
         }
 
-        public global def write(w: Writer, c: Char): Void throws IOException {
+        public def write(w: Writer, c: Char): Void //throws IOException 
+        {
             val i = c.ord();
             if ((i & 0xffffff80) == 0) {
                 w.write(i as Byte);
@@ -126,13 +133,15 @@ public interface Marshal[T] {
     }
     
     public static class ShortMarshal implements Marshal[Short] {
-        public global def read(r: Reader): Short throws IOException {
+        public def read(r: Reader): Short //throws IOException 
+        {
             val b1 = r.read();
             val b2 = r.read();
             return (((b1 & 0xff) << 8) | (b2 & 0xff)) as Short;
         }
 
-        public global def write(w: Writer, s: Short): Void throws IOException {
+        public def write(w: Writer, s: Short): Void //throws IOException 
+        {
             val i = s as Int;
             val b1 = (i >> 8) as Byte;
             val b2 = i as Byte;
@@ -142,7 +151,8 @@ public interface Marshal[T] {
     }
     
     public static class IntMarshal implements Marshal[Int] {
-        public global def read(r: Reader): Int throws IOException {
+        public def read(r: Reader): Int //throws IOException 
+        {
             val b1 = r.read();
             val b2 = r.read();
             val b3 = r.read();
@@ -150,7 +160,8 @@ public interface Marshal[T] {
             return (((b1 & 0xff) << 24) | ((b2 & 0xff) << 16) | ((b3 & 0xff) << 8) | (b4 & 0xff)) as Int;
         }
         
-        public global def write(w: Writer, i: Int): Void throws IOException {
+        public def write(w: Writer, i: Int): Void //throws IOException
+        {
             val b1 = (i >> 24) as Byte;
             val b2 = (i >> 16) as Byte;
             val b3 = (i >> 8) as Byte;
@@ -163,7 +174,8 @@ public interface Marshal[T] {
     }
     
     public static class LongMarshal implements Marshal[Long] {
-        public global def read(r: Reader): Long throws IOException {
+        public def read(r: Reader): Long //throws IOException 
+        {
             var l: Long = 0l;
             for (var i: Int = 0; i < 8; i++) {
                 val b = r.read();
@@ -172,7 +184,8 @@ public interface Marshal[T] {
             return l;
         }
         
-        public global def write(w: Writer, l: Long): Void throws IOException {
+        public def write(w: Writer, l: Long): Void //throws IOException 
+        {
             var shift: int = 64;
             while (shift > 0) {
                 shift -= 8;
@@ -183,22 +196,26 @@ public interface Marshal[T] {
     }
 
     public static class FloatMarshal implements Marshal[Float] {
-        public global def read(r: Reader): Float throws IOException {
+        public def read(r: Reader): Float //throws IOException 
+        {
             val i = INT.read(r);
             return Float.fromIntBits(i);
         }
-        public global def write(w: Writer, f: Float): Void throws IOException {
+        public def write(w: Writer, f: Float): Void //throws IOException 
+        {
             val i = f.toIntBits();
             INT.write(w, i);
         }
     }
     
     public static class DoubleMarshal implements Marshal[Double] {
-        public global def read(r: Reader): Double throws IOException {
+        public def read(r: Reader): Double //throws IOException 
+        {
             val l = LONG.read(r);
             return Double.fromLongBits(l);
         }
-        public global def write(w: Writer, d: Double): Void throws IOException {
+        public def write(w: Writer, d: Double): Void //throws IOException 
+        {
             val l = d.toLongBits();
             LONG.write(w, l);
         }

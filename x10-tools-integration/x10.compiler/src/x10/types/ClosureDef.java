@@ -52,8 +52,8 @@ public interface ClosureDef extends FunctionDef, X10Def, X10ProcedureDef {
     Ref<? extends ClassType> typeContainer();
     void setTypeContainer(Ref<? extends ClassType> ct);
     
-  //  List<Ref<? extends Type>> typeParameters();
-    void setTypeParameters(List<Ref<? extends Type>> typeParameters);
+    //List<ParameterType> typeParameters();
+    void setTypeParameters(List<ParameterType> typeParameters);
     
     
     /**

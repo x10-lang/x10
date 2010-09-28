@@ -28,13 +28,13 @@ abstract public class x10Test {
     abstract public def run(): boolean;
 
     public def executeAsync() {
-        val b: Rail[boolean]! = [ false as Boolean ]; // use a rail until we have shared locals working
+        val b = new Cell[Boolean](false);  
         try {
-            finish async b(0) = this.run();
+            finish async b(this.run());
         } catch (e: Throwable) {
             e.printStackTrace();
         }
-        reportResult(b(0));
+        reportResult(b());
     }
 
     public def execute(): void = {
@@ -47,7 +47,7 @@ abstract public class x10Test {
         reportResult(b);
     }
 
-    public const PREFIX: String = "++++++ ";
+    public static PREFIX: String = "++++++ ";
 
     public static def success(): void = {
         println(PREFIX+"Test succeeded.");
@@ -80,7 +80,7 @@ abstract public class x10Test {
         if (!b) throw new Error(s);
     }
 
-    private var myRand:Random! = new Random(1L);
+    private var myRand:Random = new Random(1L);
 
     /**
      * Return a random integer between lb and ub (inclusive)
@@ -91,7 +91,7 @@ abstract public class x10Test {
     }
 
     protected var result: boolean;
-    protected def check[T](test:String, actual:T, expected:T) = {
+    protected final def check[T](test:String, actual:T, expected:T) = {
 	result = actual == expected;
 	println(test + (result ? " succeeds: got "
 			: " fails: exepected " + expected + ", got " )
@@ -121,7 +121,7 @@ abstract public class x10Test {
 
         public abstract def test() : Void;
 
-        public val errors : List[String]! = new ArrayList[String]();
+        public val errors : List[String] = new ArrayList[String]();
 
         public def errorString() : String = {
           var s : String = "";

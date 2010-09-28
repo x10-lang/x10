@@ -17,6 +17,7 @@ public interface FloatLit extends Lit
 {    
     /** Integer literal kinds: float (e.g., 0.0F) or double (e.g., 0.0). */
     public static class Kind extends Enum {
+        private static final long serialVersionUID = -3253935710240131093L;
         public Kind(String name) { super(name); }
     }
 

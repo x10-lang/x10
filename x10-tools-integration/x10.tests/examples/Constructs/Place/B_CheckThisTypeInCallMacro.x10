@@ -21,7 +21,7 @@ import harness.x10Test;
 
 public class B_CheckThisTypeInCallMacro extends x10Test {
     public def run() = true;
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
 	  new 
 	  B_CheckThisTypeInCallMacro().execute();
     }
@@ -36,7 +36,7 @@ static class Test(rank:Int) {
 	static type Test(r:int)=Test{self.rank==r};
 	static type R(r:int)=R{self.rank==r};
     def this(r:Int){property(r);}
-    var r:R(this.rank)! =null;
+    var r:R(this.rank) =null;
     def m(t:Test(this.rank)) {
          r.check(t);
     }

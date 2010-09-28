@@ -23,28 +23,28 @@ public class Array1DCodeGen extends x10Test {
            matrix in column order. --dmd 3/3/97
          */
 
-        for (val (i,j,k): Point(3) in a) {
+        for ([i,j,k]: Point(3) in a) {
             init = 3125*init % 65536;
             var value: double = (init - 32768.0)/16384.0;
             finish write(a, i, j, k, value);
             norma = value > norma ? value : norma;
         }
 
-        finish ateach (val (i,j,k): Point(3) in b.dist) b(i, j, k) = 0.0;
-        finish ateach (val (i,j,k): Point(3) in a.dist | ([0..n-1, 0..n-1, 0..n-1] as Region)) plusWrite(b, 0, j, k, a(i, j, k));
+        finish ateach ([i,j,k]: Point(3) in b.dist) b(i, j, k) = 0.0;
+        finish ateach ([i,j,k]: Point(3) in a.dist | ([0..n-1, 0..n-1, 0..n-1] as Region)) plusWrite(b, 0, j, k, a(i, j, k));
 
         return norma;
     }
 
     final def write(val a: DistArray[double](3), val i: int, val j: int, val k: int, val val_: double): void = {
-        async (a.dist(i, j, k)) atomic a(i, j, k) = val_;
+        async at(a.dist(i, j, k)) atomic a(i, j, k) = val_;
     }
 
     final 
     static // BARD: This failed to compile with a place error.
            // So I made it static.
     def plusWrite(val a: DistArray[double](3), val i: int, val j: int, val k: int, val val_: double): void = {
-        async (a.dist(i, j, k)) atomic a(i, j, k) += val_;
+        async at(a.dist(i, j, k)) atomic a(i, j, k) += val_;
     }
     
     public def run(): boolean = {
@@ -69,7 +69,7 @@ public class Array1DCodeGen extends x10Test {
         return diff < 0 ? diff > -0.001 : diff < 0.001;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(Array[String](1)) {
         new Array1DCodeGen().execute();
     }
 }

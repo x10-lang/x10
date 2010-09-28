@@ -18,6 +18,7 @@ import polyglot.ast.Expr;
 import polyglot.ast.Id;
 import polyglot.ast.Node;
 import polyglot.ast.Receiver;
+import polyglot.ast.TypeNode;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.util.Position;
@@ -42,7 +43,7 @@ public class RegionMaker_c extends X10Call_c implements RegionMaker {
 	 */
 	public RegionMaker_c(Position pos, Receiver target, Id name,
 			List<Expr> arguments) {
-		super(pos, target, name, Collections.EMPTY_LIST, arguments);
+		super(pos, target, name, Collections.<TypeNode>emptyList(), arguments);
 	
 	}
 	public Node typeCheck(ContextVisitor tc) {

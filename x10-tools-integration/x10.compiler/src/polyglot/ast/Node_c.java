@@ -226,24 +226,24 @@ public abstract class Node_c implements Node
      *         <code>l</code>.  If <code>l</code> is <code>null</code>,
      *         <code>null</code> is returned.
      */
-    public List visitList(List l, NodeVisitor v) {
+    public <T extends Node> List<T> visitList(List<T> l, NodeVisitor v) {
 	if (l == null) {
 	    return null;
 	}
 
-	List result = l;
-	List vl = new ArrayList(l.size());
+	List<T> result = l;
+	List<T> vl = new ArrayList<T>(l.size());
 	
-	for (Iterator i = l.iterator(); i.hasNext(); ) {
-	    Node n = (Node) i.next();
+	for (Iterator<T> i = l.iterator(); i.hasNext(); ) {
+	    T n = i.next();
 	    Node m = visitChild(n, v);
 	    if (n != m) {
 	        result = vl;
 	    }
             if (m instanceof NodeList) {
-                vl.addAll(((NodeList) m).nodes());
+                vl.addAll((List<T>)((NodeList) m).nodes());
             } else if (m != null) {
-	        vl.add(m);
+	        vl.add((T)m);
 	    }
 	}
 
@@ -318,7 +318,7 @@ public abstract class Node_c implements Node
         return this;
     }
 
-    public Node conformanceCheck(ContextVisitor tc) throws SemanticException {
+    public Node conformanceCheck(ContextVisitor tc) {
 	return this;
     }
 
@@ -331,15 +331,15 @@ public abstract class Node_c implements Node
     }
 
     public Node exceptionCheck(ExceptionChecker ec) throws SemanticException { 
-        List l = this.del().throwTypes(ec.typeSystem());
-        for (Iterator i = l.iterator(); i.hasNext(); ) {
-            ec.throwsException((Type)i.next(), position());
+        List<Type> l = this.del().throwTypes(ec.typeSystem());
+        for (Type t : l) {
+            ec.throwsException(t, position());
         }
     	return this;
     }
 
     public List<Type> throwTypes(TypeSystem ts) {
-       return Collections.EMPTY_LIST;
+       return Collections.<Type>emptyList();
     }
     
     /** Dump the AST for debugging. */

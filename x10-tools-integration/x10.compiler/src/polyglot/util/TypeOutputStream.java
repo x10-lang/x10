@@ -18,7 +18,7 @@ import polyglot.types.TypeSystem;
 public class TypeOutputStream extends ObjectOutputStream
 {
     protected TypeSystem ts;
-    protected Set<Object> roots;
+    protected Set<TypeObject> roots;
     protected Map<Object,Object> placeHolders;
     
     public TypeOutputStream(OutputStream out, TypeSystem ts, TypeObject root) 
@@ -41,7 +41,7 @@ public class TypeOutputStream extends ObjectOutputStream
         Object k = new IdentityKey(o);
         Object p = placeHolders.get(k);
         if (p == null) {
-            p = ts.placeHolder(o, useRoots ? roots : Collections.EMPTY_SET);
+            p = ts.placeHolder(o, useRoots ? roots : Collections.<TypeObject>emptySet());
             placeHolders.put(k, p);
         }
         return p;

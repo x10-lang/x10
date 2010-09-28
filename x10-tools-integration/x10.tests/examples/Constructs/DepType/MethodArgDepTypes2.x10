@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.util.Future;
 
 /**
  * Check that a method arg can have a deptype and it is propagated into the body.
@@ -22,7 +23,7 @@ public class MethodArgDepTypes2 extends x10Test {
     	  val R: Region{rank==a_dest.rank} = a_src.region&& a_dest.region; 
     	  finish foreach (val p: Point{rank==a_dest.rank} in R) {
     	  //finish for( point p : R){	  
-    	    a_dest(p)= (future(a_src.dist(p)) {a_src(p)}).force();
+    	    a_dest(p)= Future.make(() => at(a_src.dist(p)) { return a_src(p);}).force();
     	  }	  
     	  //for( point p : R) a_dest[p]=a_src[p]; //implicit syntax
 	}
@@ -37,7 +38,7 @@ public class MethodArgDepTypes2 extends x10Test {
 	}
 	public def run()=true;
 	
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new MethodArgDepTypes2().execute();
 	}
 }

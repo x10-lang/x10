@@ -17,15 +17,15 @@ import harness.x10Test;
 
 class XTENLANG_237 extends x10Test {
 
-    const a = long.MAX_VALUE as double;
-    const b = long.MIN_VALUE as double;
-    const c = 123L as double;
+    static a = long.MAX_VALUE as double;
+    static b = long.MIN_VALUE as double;
+    static c = 123L as double;
 
     public def run(): boolean {
         return true;
     }
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new XTENLANG_237().execute();
     }
 }

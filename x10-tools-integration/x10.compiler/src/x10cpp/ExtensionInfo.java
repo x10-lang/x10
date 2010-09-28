@@ -134,45 +134,10 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 		protected X10CPPScheduler(ExtensionInfo extInfo) {
 			super(extInfo);
 		}
-		@Override
-		public Goal CheckNativeAnnotations(Job job) {
-			TypeSystem ts = extInfo.typeSystem();
-			NodeFactory nf = extInfo.nodeFactory();
-			return new VisitorGoal("CheckNativeAnnotations", job, new CheckNativeAnnotationsVisitor(job, ts, nf, "c++")).intern(this);
-		}
-		public Goal NativeClassVisitor(Job job) {
-		    TypeSystem ts = extInfo.typeSystem();
-		    NodeFactory nf = extInfo.nodeFactory();
-		    return new VisitorGoal("NativeClassVisitor", job, new NativeClassVisitor(job, ts, nf, "c++")).intern(this);
-		}
-        @Override
-	       public Goal WSCodeGenerator(Job job) {
-	           TypeSystem ts = extInfo.typeSystem();
-	           NodeFactory nf = extInfo.nodeFactory();
 
-	           Goal result = null;          
-	                      
-	           try{
-	               //Use reflect to load the class from
-	               ClassLoader cl = Thread.currentThread().getContextClassLoader();
-	               Class<?> c = cl
-	               .loadClass("x10.compiler.ws.WSCodeGenerator");
-	               Constructor<?> con = c.getConstructor(Job.class,
-	                                                     TypeSystem.class,
-	                                                     NodeFactory.class,
-	                                                     String.class);
-	               ContextVisitor wsvisitor = (ContextVisitor) con.newInstance(job, ts, nf, "c++");
-	               result = new ValidatingVisitorGoal("WSCodeGenerator", job, wsvisitor).intern(this);
-	           }
-	           catch (ClassNotFoundException e) {
-	               System.err.println("[X10_WS_ERR]Cannot load Work-Stealing code gen class. Ignore Work-Stealing transform.");
-	           } catch (Throwable e) {
-	               System.err.println("[X10_WS_ERR]Error in load Work-Stealing code gen class. Ignore Work-Stealing transform.");
-	               e.printStackTrace();
-	           }
-	           return result;
-	       }
-	       
+		@Override
+		public String nativeAnnotationLanguage() { return "c++"; }
+
 		@Override
 		public Goal CodeGenerated(Job job) {
 			TypeSystem ts = extInfo.typeSystem();
@@ -182,7 +147,9 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 		@Override
 		protected Goal PostCompiled() {
 		    return new PostCompiled(extInfo) {
-		        protected boolean invokePostCompiler(Options options, Compiler compiler, ErrorQueue eq) {
+                private static final long serialVersionUID = 1834245937046911633L;
+
+                protected boolean invokePostCompiler(Options options, Compiler compiler, ErrorQueue eq) {
 		            if (System.getProperty("x10.postcompile", "TRUE").equals("FALSE"))
 		                return true;
 		            return X10CPPTranslator.postCompile((X10CPPCompilerOptions)options, compiler, eq);
@@ -197,7 +164,7 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 		public List<Goal> goals(Job job) {
 		    List<Goal> goals = super.goals(job);
 		    StaticNestedClassRemover(job).addPrereq(InnerClassRemover(job));
-		    for (Goal g: Optimizer.goals(this, job)) {
+		    for (Goal g: Optimizer.goals(this, job, ExpressionFlattener(job))) {
 		        StaticNestedClassRemover(job).addPrereq(g);
 		    }
 		    return goals;

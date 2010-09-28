@@ -42,7 +42,7 @@ class PolyIntersection2 extends TestRegion {
         "    4  . . . 2 6 0 4 8 . . \n"+
         "    5  . . . 5 0 5 0 5 . . \n";
     
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new PolyIntersection2().execute();
     }
 }

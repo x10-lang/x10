@@ -13,17 +13,18 @@ import harness.x10Test;
 
 public class ArrayStaticPlusEqual extends x10Test {
 
-    static val v: Rail[int] = Rail.make[int](2, (x:int)=>0);
+    static val v  = GlobalRef[Rail[int]](Rail.make[int](2, (x:int)=>0));
 
     public def run() {
-	at (v) {
-            for ((i):Point(1) in 0..1) v(i) += 5;
-            for ((i):Point(1) in 0..1) chk(v(i) == 5);
+	    at (v) {
+	    	val myV = (v as GlobalRef[Rail[int]]{self.home==here})();
+            for ([i]:Point(1) in 0..1) myV(i) += 5;
+            for ([i]:Point(1) in 0..1) chk(myV(i) == 5);
         }
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new ArrayStaticPlusEqual().execute();
     }
 }

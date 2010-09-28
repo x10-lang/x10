@@ -42,7 +42,7 @@ public class TypedefNew07_MustFailCompile extends TypedefTest {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new TypedefNew07_MustFailCompile().execute();
     }
 }

@@ -13,10 +13,10 @@ package x10.constraint;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Set;
 
 /**
- * Constraints constrain XTerms. Thus XTerms are the basic building blocks of constraints
+ * Constraints constrain XTerms. Thus XTerms are the basic building blocks of constraints.
+ * This class is the root class of constraint terms.
  * 
  * @author njnystrom
  * @author vj
@@ -32,6 +32,13 @@ public abstract class XTerm implements  Serializable, Cloneable {
 	// The default is OBJECT. May be overridden by subclasses.
 	public XTermKind kind() { return XTermKind.OBJECT;}
 	
+	/**
+	 * Return the result of substituting the term y for x in this.
+	 * Should be overridden in subtypes.
+	 * @param y
+	 * @param x
+	 * @return
+	 */
 	public final XTerm subst(XTerm y, XVar x) {
 	    return subst(y, x, true);
 	}

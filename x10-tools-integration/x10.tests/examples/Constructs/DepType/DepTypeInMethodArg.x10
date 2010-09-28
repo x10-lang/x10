@@ -27,7 +27,7 @@ import harness.x10Test;
 	 val x:Test{i==j} = new Test(1,1); 
 	 return true;
      }
-     public static def main(var args: Rail[String]): void = {
+     public static def main(var args: Array[String](1)): void = {
 	 new DepTypeInMethodArg().execute();
      }
  }

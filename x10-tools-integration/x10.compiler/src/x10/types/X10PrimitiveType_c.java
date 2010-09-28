@@ -31,8 +31,10 @@ import polyglot.util.InternalCompilerError;
  * @author vj
  */
 public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveType {
-	protected X10PrimitiveType_c() { }
+	private static final long serialVersionUID = -7782864684971247516L;
 
+	protected X10PrimitiveType_c() { }
+	    
 	public X10PrimitiveType_c(TypeSystem ts, Name name) {
 		super(ts, name);
 	}

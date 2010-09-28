@@ -10,22 +10,24 @@
  */
 
 import harness.x10Test;
-import x10.util.Box;
+
 /**
- * Checks 3 is an object which can be compared to a nullable
+ * Checks 3 (struct) can be compared to null (object)
+ * by upcasting to equals on Any.
  *
  * @author vcave
  */
 public class NullableObjectEqualsPrimitive extends x10Test {
 
 	public def run(): boolean = {
-		var x: Box[Any] = null;
-		// This use of == must generate a compiler error
-		var res1: boolean = (3).equals(x);
-		return !res1;
+		val x:Any = null;
+	        val y:Any = 3;
+		val res1 = (3).equals(x);
+		val res2 =  y.equals(x);
+		return !(res1 || res2);
 	}
 
-	public static def main(Rail[String]) {
+	public static def main(Array[String](1)) {
 		new NullableObjectEqualsPrimitive().execute();
 	}
 }

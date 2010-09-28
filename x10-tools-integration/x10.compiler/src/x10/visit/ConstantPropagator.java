@@ -32,6 +32,7 @@ import polyglot.types.LocalDef;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
@@ -67,7 +68,7 @@ public class ConstantPropagator extends ContextVisitor {
     }
     
     @Override
-    protected Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
+    protected Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) {
         Position pos = n.position();
 
         if (n instanceof Expr || n instanceof Stmt) {
@@ -139,7 +140,7 @@ public class ConstantPropagator extends ContextVisitor {
                 return b.statements(ss);
         }
 
-        return super.leaveCall(parent, old, n, v);
+        return n;
     }
 
     public static Object constantValue(Expr e) {
@@ -211,33 +212,34 @@ public class ConstantPropagator extends ContextVisitor {
         return false;
     }
 
-    public Expr toExpr(Object o, Position pos) throws SemanticException {
+    public Expr toExpr(Object o, Position pos) {
         X10NodeFactory nf = (X10NodeFactory) this.nf;
-        
+
+        Expr e = null;
         if (o == null) {
-            return Converter.check(nf.NullLit(pos), this);
-        }
+            e = nf.NullLit(pos);
+        } else
         if (o instanceof Integer) {
-            return Converter.check(nf.IntLit(pos, IntLit.INT, (long) (int) (Integer) o), this);
-        }
+            e = nf.IntLit(pos, IntLit.INT, (long) (int) (Integer) o);
+        } else
         if (o instanceof Long) {
-            return Converter.check(nf.IntLit(pos, IntLit.LONG, (long) (Long) o), this);
-        }
+            e = nf.IntLit(pos, IntLit.LONG, (long) (Long) o);
+        } else
         if (o instanceof Float) {
-            return Converter.check(nf.FloatLit(pos, FloatLit.FLOAT, (double) (float) (Float) o), this);
-        }
+            e = nf.FloatLit(pos, FloatLit.FLOAT, (double) (float) (Float) o);
+        } else
         if (o instanceof Double) {
-            return Converter.check(nf.FloatLit(pos, FloatLit.DOUBLE, (double) (Double) o), this);
-        }
+            e = nf.FloatLit(pos, FloatLit.DOUBLE, (double) (Double) o);
+        } else
         if (o instanceof Character) {
-            return Converter.check(nf.CharLit(pos, (char) (Character) o), this);
-        }
+            e = nf.CharLit(pos, (char) (Character) o);
+        } else
         if (o instanceof Boolean) {
-            return Converter.check(nf.BooleanLit(pos, (boolean) (Boolean) o), this);
-        }
+            e = nf.BooleanLit(pos, (boolean) (Boolean) o);
+        } else
         if (o instanceof String) {
-            return Converter.check(nf.StringLit(pos, (String) o), this);
-        }
+            e = nf.StringLit(pos, (String) o);
+        } else
         if (o instanceof Object[]) {
             Object[] a = (Object[]) o;
             List<Expr> args = new ArrayList<Expr>(a.length);
@@ -247,9 +249,14 @@ public class ConstantPropagator extends ContextVisitor {
                     return null;
                 args.add(ei);
             }
-            return Converter.check(nf.Tuple(pos, args), this);
+            e = nf.Tuple(pos, args);
         }
-        return null;
+        try {
+            if (e != null) e = Converter.check(e, this);
+        } catch (SemanticException cause) {
+            throw new InternalCompilerError("Unexpected exception when typechecking "+e, e.position(), cause);
+        }
+        return e;
     }
 
 }

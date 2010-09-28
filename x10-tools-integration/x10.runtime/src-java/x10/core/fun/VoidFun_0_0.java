@@ -18,5 +18,10 @@ public interface VoidFun_0_0 extends VoidFun {
     
     public static final RuntimeType<VoidFun_0_0> _RTT = new RuntimeType<VoidFun_0_0>(
         VoidFun_0_0.class
-    );
+    ) {
+        @Override
+        public String typeName(Object o) {
+            return typeNameForVoidFun(o);
+        }
+    };
 }

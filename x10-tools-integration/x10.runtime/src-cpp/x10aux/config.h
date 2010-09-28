@@ -39,26 +39,7 @@
  *   X10_TRACE_ALL         - all of the above
  */
 
-#ifdef __CUDA_ARCH__
-    #ifndef X10_USE_CUDA_HOST
-        #define X10_USE_CUDA_HOST
-    #endif
-    #ifndef X10_USE_CUDA_DEVICE
-        #define X10_USE_CUDA_DEVICE
-    #endif
-    #ifndef NO_IOSTREAM
-        #define NO_IOSTREAM // this apparently will be fixed in a future release of cuda
-    #endif
-    #define GPUSAFE __host__ __device__
-    #ifndef NO_CHECKS
-        #define NO_CHECKS // can't abort() assert() or throw exception on the gpu
-    #endif
-    #ifndef NDEBUG
-        #define NDEBUG // as above
-    #endif
-#else
-    #define GPUSAFE
-#endif
+#define GPUSAFE
 
 #ifdef NO_CHECKS
 #ifndef NO_BOUNDS_CHECKS

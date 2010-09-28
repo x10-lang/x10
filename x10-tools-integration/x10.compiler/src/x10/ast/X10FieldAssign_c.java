@@ -75,41 +75,21 @@ public class X10FieldAssign_c extends FieldAssign_c {
             SemanticException e = new Errors.CannotAssignToProperty(fd, n.position());
             Errors.issue(tc.job(), e, n);
         }
-        Type targetType =  n.target().type();
 
         if (t == null)
             t =  ts.unknownType(n.position());
 
-        Expr right = n.right();
-        Assign.Operator op = n.operator();
-
-        Type s =  right.type();
-        
-    	// Check the proto condition.
-    	if (X10TypeMixin.isProto(s)) {
-    	    try {
-    		if (! X10TypeMixin.isProto(targetType)) 
-    			throw new Errors.ProtoValuesAssignableOnlyToProtoReceivers(this.right(), this, position());
-    		if (op != ASSIGN) 
-    			throw new Errors.ProtoValuesAssignableOnlyUsingEquals(right(), position());
-    		s = X10TypeMixin.baseOfProto(s);
-    		if (! (ts.isSubtype(s, t, tc.context()))) 
-    			throw new Errors.CannotAssign(n.right(), n.target().type(), n.position);
-    	    } catch (SemanticException e) {
-    	        Errors.issue(tc.job(), e, this);
-    	    }
-    	}
-
     	X10Field_c target = (X10Field_c) n.left();
-    	try {
-    	    target = PlaceChecker.makeFieldAccessLocalIfNecessary(target, tc);
-    	} catch (SemanticException e) {
-    	    Errors.issue(tc.job(), e, this);
-    	}
+    	// Not needed in the orthogonal locality proposal.
+    	//try {
+    	//    target = PlaceChecker.makeFieldAccessLocalIfNecessary(target, tc);
+    	//} catch (SemanticException e) {
+    	//    Errors.issue(tc.job(), e, this);
+    	//}
     	n = (X10FieldAssign_c) n.reconstruct(target.target(), n.name());
     	t = n.leftType();
     	n = (X10FieldAssign_c) n.type(t);
     	return Checker.typeCheckAssign(n, tc);
     }
-    
+
 }

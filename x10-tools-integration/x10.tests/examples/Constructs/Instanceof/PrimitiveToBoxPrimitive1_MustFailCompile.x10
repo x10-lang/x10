@@ -20,7 +20,7 @@ public class PrimitiveToBoxPrimitive1_MustFailCompile extends x10Test {
 	 
 	public def run()=3 instanceof Box[int];
 	
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new PrimitiveToBoxPrimitive1_MustFailCompile().execute();
 	}
 }

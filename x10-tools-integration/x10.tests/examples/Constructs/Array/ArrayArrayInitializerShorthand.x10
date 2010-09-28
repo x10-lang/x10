@@ -22,12 +22,12 @@ public class ArrayArrayInitializerShorthand extends x10Test {
     public def run(): boolean = {
         val r = [1..10, 1..10] as Region(2);
         val a = new Array[int](r, (Point)=>0);
-        val ia = new Array[Array[int]](r, ((i,j): Point) => a);
-        for (val (i,j): Point(2) in ia) chk(ia(i, j) == a);
+        val ia = new Array[Array[int]](r, ([i,j]: Point) => a);
+        for (val [i,j]: Point(2) in ia) chk(ia(i, j) == a);
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new ArrayArrayInitializerShorthand().execute();
     }
 }

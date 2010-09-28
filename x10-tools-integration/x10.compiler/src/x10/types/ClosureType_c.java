@@ -89,9 +89,6 @@ public class ClosureType_c extends X10ParsedClassType_c implements FunctionType 
         return applyMethod().formalTypes();
     }
 
-    public List<Type> throwTypes() {
-        return applyMethod().throwTypes();
-    }
     
     @Override
     public String toString() {

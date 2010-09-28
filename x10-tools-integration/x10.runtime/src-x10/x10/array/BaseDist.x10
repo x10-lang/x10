@@ -14,6 +14,7 @@ package x10.array;
 import x10.util.ArrayList;
 import x10.util.GrowableRail;
 import x10.util.Set;
+import x10.compiler.Incomplete;
 
 /**
  * The BaseDist class is the base of the hierarchy of classes that
@@ -35,12 +36,6 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
     // factories - place is all applicable places
     //
 
-    // There's only one unique distribution
-    private static val UNIQUE = makeUnique1(Place.places) as Dist(1){rect};
-    public static def makeUnique1(): Dist(1){rect} {
-        return UNIQUE;
-    }
-
     public static def makeUnique1(ps: ValRail[Place]): Dist(1) { // XTENLANG-4
 
         // regions
@@ -53,25 +48,6 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
         return new BaseDist(overall, ps, regions);
     }
     
-    public static def makeBlock1(r: Region, axis: int): Dist(r) { // XTENLANG-4
-        val b = r.boundingBox();
-        val min = b.min()(axis);
-        val max = b.max()(axis);
-        val P = Place.MAX_PLACES;
-        val numElems = max - min + 1;
-        val blockSize = numElems/P;
-        val leftOver = numElems - P*blockSize;
-        val regions = Rail.make[Region(r.rank)](P, 
-        		(i:Int) => {
-        			val r1 = Region.makeFull(axis);
-        			val low = min + blockSize*i + (i< leftOver ? i : leftOver);
-        			val hi = low + blockSize + (i < leftOver ? 0 : -1);
-                    val r2 = low..hi;
-                    val r3 = Region.makeFull(r.rank-axis-1);
-                    (r1.product(r2).product(r3) as Region(r.rank)).intersection(r)
-        		});	
-        return new BaseDist(r, Place.places, regions);
-    }
 /*
 
     public static def makeBlockCyclic1(r: Region, axis: int, blockSize: int): Dist(r) { // XTENLANG-4
@@ -109,61 +85,60 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
     // factories - place is a parameter
     //
 
-    incomplete public static def makeUnique1(ps: Set[Place]): Dist(1); // XTENLANG-4
+    @Incomplete public static def makeUnique1(ps: Set[Place]): Dist(1) { // XTENLANG-4
+        throw new UnsupportedOperationException();
+    }
 
     public static def makeConstant1(r: Region, p: Place): Dist(r) { // XTENLANG-4
         return new BaseDist(r, [p], [r]);
     }
 
-    incomplete public static def makeCyclic1(r: Region, axis: int, ps: Set[Place]): Dist(r); // XTENLANG-4
-
-    incomplete public static def makeBlock1(r: Region, axis: int, ps: Set[Place]): Dist(r); // XTENLANG-4
-
-    incomplete public static def makeBlockCyclic1(r: Region, axis: int, blockSize: int, ps: Set[Place]): Dist(r); // XTENLANG-4
-
-
+    @Incomplete public static def makeCyclic1(r: Region, axis: int, ps: Set[Place]): Dist(r) { // XTENLANG-4
+        throw new UnsupportedOperationException();
+    }
+    @Incomplete public static def makeBlock1(r: Region, axis: int, ps: Set[Place]): Dist(r) { // XTENLANG-4
+        throw new UnsupportedOperationException();
+    }
+    @Incomplete public static def makeBlockCyclic1(r: Region, axis: int, blockSize: int, ps: Set[Place]): Dist(r) { // XTENLANG-4
+        throw new UnsupportedOperationException();
+    }
     //
     // mapping places to region
     //
 
-    public global def places(): ValRail[Place] {
+    public def places(): ValRail[Place] {
         return places;
     }
 
-    public global def regions(): ValRail[Region(rank)] {
+    public def regions(): ValRail[Region(rank)] {
         return regions;
     }
 
-    public global def get(p: Place): Region(rank) {
+    public def get(p: Place): Region(rank) {
         return regionMap(p.id) as Region(rank); // XXXX
     }
-
-    public global def apply(p: Place): Region(rank) = get(p);
 
 
     //
     // mapping points to places
     //
 
-    public global def apply(pt: Point/*(rank)*/): Place {
-        for (var i:int=0; i<regionMap.length; i++)
-            if (regionMap(i).contains(pt as Point(rank)))
+    public def apply(pt:Point(rank)):Place {
+        for (var i:int=0; i<regionMap.length; i++) {
+            if (regionMap(i).contains(pt as Point(rank))) {
                 return Place.places(i);
-        throw new ArrayIndexOutOfBoundsException("point " + pt + " not contained in distribution");
+            }
+        }
+	raiseBoundsError(pt);
+	return here; // UNREACHABLE, but front-end doesn't understand @NoReturn
     }
-
-    public global def apply(i0: int) = apply([i0] as Point(rank));
-    public global def apply(i0: int, i1: int) = apply([i0,i1] as Point(rank));
-    public global def apply(i0: int, i1: int, i2: int) = apply([i0,i1,i2] as Point(rank));
-    public global def apply(i0: int, i1: int, i2: int, i3: int) = apply([i0,i1,i2,i3] as Point(rank));
-
 
     //
     // Dist op Region
     // Dist op Place
     //
 
-    public global def restriction(r: Region(rank)): Dist(rank) {
+    public def restriction(r: Region(rank)): Dist(rank) {
 
         // XXX need to throw exception if r is not contained in this.region
         // XXX throw away places that map to empty regions!!!
@@ -178,15 +153,15 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
         return new BaseDist(r, ps, rs);
     }
 
-    public global def restriction(p: Place): Dist(rank) {
+    public def restriction(p: Place):Dist(rank) {
         val ps = [p];
         val rs = ValRail.make[Region(rank)](1, (Int)=>get(p));
         return new BaseDist(region.intersection(rs(0)) as Region(rank), ps, rs);
     }
 
-    //incomplete public global def intersection(r: Region(rank)): Dist(rank);
+    //incomplete public def intersection(r: Region(rank)): Dist(rank);
 
-    //incomplete public global def difference(r: Region(rank)): Dist(rank);
+    //incomplete public def difference(r: Region(rank)): Dist(rank);
 
 
 
@@ -194,7 +169,7 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
     // Dist op Dist
     //
 
-    /*public global def intersection(that: Dist(rank)): Dist(rank) {
+    /*public def intersection(that: Dist(rank)): Dist(rank) {
 
         // places
         val ps = this.places;
@@ -217,7 +192,7 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
     }
 */
     /*
-    public global def difference(that: Dist(rank)): Dist(rank) {
+    public def difference(that: Dist(rank)): Dist(rank) {
 
         // places
         val ps = this.places;
@@ -238,7 +213,7 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
         return new BaseDist(overall, ps, rs);
     }
 
-    public global def overlay(that: Dist(rank)): Dist(rank) {
+    public def overlay(that: Dist(rank)): Dist(rank) {
 
         // places
         val ps = Place.places;
@@ -253,7 +228,7 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
 
         return new BaseDist(this.region.union(that.region), ps, rs) as Dist(rank);
     }
-    public global def union(that: Dist(rank)): Dist(rank) {
+    public def union(that: Dist(rank)): Dist(rank) {
 
         // places
         val ps = Place.places;
@@ -274,20 +249,13 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
         return new BaseDist(overall, ps, rs) as Dist(rank);
     }
 */
-    public global def isSubdistribution(that: Dist(rank)): boolean {
-        for (p:Place in Place.places)
-            if (!that.get(p).contains(this.get(p)))
-                return false;
-        return true;
-    }
-
 
     //
     // basic info
     //
 
     // XXX should allow places to be in any order??
-    protected static def isUnique(places: Rail[Place]!): boolean {
+    protected static def isUnique(places: ValRail[Place]): boolean {
         if (places.length!=Place.MAX_PLACES)
             return false;
         for (var i: int = 0; i<places.length; i++) {
@@ -297,18 +265,18 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
         return true;
     }
 
-    protected static def isConstant(places: Rail[Place]!): boolean {
+    protected static def isConstant(places: ValRail[Place]): boolean {
         for (p:Place in places)
             if (p!=places(0))
                 return false;
         return true;
     }
 
-    protected static def onePlace(places: Rail[Place]!): Place {
+    protected static def onePlace(places: ValRail[Place]): Place {
         return places.length==0? here : places(0);
     }
 
-    public global safe def equals(thatObj:Any): boolean {
+    public def equals(thatObj:Any): boolean {
 	if (!(thatObj instanceof Dist)) return false;
         val that:Dist = thatObj as Dist;
         for (p:Place in Place.places)
@@ -316,9 +284,6 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
                 return false;
         return true;
     }
-
-
-    public global def contains(p:Point) = region.contains(p);
 
 
     //
@@ -330,9 +295,9 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
     // access.
     //
 
-    protected global val places: ValRail[Place];
-    protected global val regions: ValRail[Region(rank)];
-    private global val regionMap: ValRail[Region];
+    protected val places: ValRail[Place];
+    protected val regions: ValRail[Region(rank)];
+    private val regionMap: ValRail[Region];
 
     public def this(r: Region, ps: ValRail[Place], rs: ValRail[Region(r.rank)]): BaseDist{self.region==r} {
 
@@ -359,23 +324,5 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
             regionMap(this.places(i).id) = this.regions(i);
         this.regionMap = ValRail.make[Region](regionMap.length, (i:Int) => regionMap(i));
     }
-
-
-    //
-    //
-    //
-
-    public global safe def toString(): String {
-        var s: String = "Dist(";
-        var first: boolean = true;
-        for (p:Place in places) {
-            if (!first) s += ",";
-            s +=  get(p) + "->" + p.id;
-            first = false;
-        }
-        s += ")";
-        return s;
-    }
-
 }
 

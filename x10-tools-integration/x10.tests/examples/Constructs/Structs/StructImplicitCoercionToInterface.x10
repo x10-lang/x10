@@ -21,7 +21,7 @@ class StructImplicitCoercionToInterface extends x10Test {
     public def i() = i;
     public static operator (x:S):I = new I() {
         public def i() = x.i;
-                public global safe def toString() = "<I i=" + x.i+">";
+                public def toString() = "<I i=" + x.i+">";
         };
     }
     static def q(x:I) {
@@ -33,7 +33,7 @@ class StructImplicitCoercionToInterface extends x10Test {
         q(S(5));
         return true;
     }
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
        new StructImplicitCoercionToInterface().execute();
        
     }

@@ -33,7 +33,7 @@ public class DepTypeVariableVisibility_MustFailCompile extends x10Test {
 	   m(traceOn); 
 	   return true;
 	}
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new DepTypeVariableVisibility_MustFailCompile().execute();
 	}
 }

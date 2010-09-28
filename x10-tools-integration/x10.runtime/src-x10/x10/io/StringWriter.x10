@@ -12,19 +12,37 @@
 package x10.io;
 
 import x10.util.StringBuilder;
+import x10.compiler.Global;
+import x10.compiler.Pinned;
 
 public class StringWriter extends Writer {
-    global val b:StringBuilder;
-    public def this() { this.b = new StringBuilder(); }
-
-    public global def write(x:Byte): Void { 
-        at(b) { b.add((x as Byte) as Char); }
+	private val root = GlobalRef[StringWriter](this);
+    transient val b:StringBuilder;
+    public def this() { 
+    	this.b = new StringBuilder(); 
     }
 
-    public global def size() = at (b) b.length();
-    public global def result() = at (b) b.result(); 
+    @Global public def write(x:Byte): Void { 
+        b.add((x as Byte) as Char);
+    }
+
+    @Global public def size() = {
+    	if (here == root.home) {
+    		return (root as GlobalRef[StringWriter]{self.home==here})().b.length();
+    	}
+    	return at (root) 
+    		(root as GlobalRef[StringWriter]{self.home==here})().b.length();
+    	
+    }
+    @Global public def result() = {
+    	if (here == root.home) {
+    		return (root as GlobalRef[StringWriter]{self.home==here})().b.result();
+    	}
+    	return at (root) 
+    		(root as GlobalRef[StringWriter]{self.home==here})().b.result();
+    }
     
-    public global def flush(): Void { }
-    public global def close(): Void { }
+    @Global public def flush(): Void { }
+    @Global public def close(): Void { }
 }
 

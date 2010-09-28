@@ -22,12 +22,16 @@ import x10.constraint.XConstraint;
 import x10.constraint.XTerm;
 import x10.types.X10TypeSystem_c.Kind;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.TypeConstraint;
 
 public interface X10TypeEnv extends TypeEnv {
     public void checkOverride(ClassType thisType, MethodInstance mi, MethodInstance mj) throws SemanticException;
 
     /** Return true if the constraint is consistent. */
     boolean consistent(CConstraint c);
+
+    /** Return true if the constraint is consistent. */
+    public boolean consistent(TypeConstraint c);
 
     /** Return true if constraints in the type are all consistent. */
     boolean consistent(Type t);

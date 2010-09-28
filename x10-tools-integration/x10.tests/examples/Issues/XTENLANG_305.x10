@@ -22,7 +22,7 @@ class XTENLANG_305 extends x10Test {
         public def apply(i:int, j:int, k:int): T = 0 as T;
     }
 
-    def foo(a:A[double]!) {
+    def foo(a:A[double]) {
         a(0,0,0)++;
     }
 
@@ -31,7 +31,7 @@ class XTENLANG_305 extends x10Test {
         return true;
     }
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new XTENLANG_305().execute();
     }
 }

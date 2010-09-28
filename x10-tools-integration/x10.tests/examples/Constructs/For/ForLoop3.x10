@@ -18,7 +18,7 @@ import harness.x10Test;
  */
 public class ForLoop3 extends x10Test {
 
-	public const N: int = 100;
+	public static N: int = 100;
 
 	public def run(): boolean = {
 		//Ensure iterator works in lexicographic order
@@ -43,7 +43,7 @@ public class ForLoop3 extends x10Test {
 		return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new ForLoop3().execute();
 	}
 }

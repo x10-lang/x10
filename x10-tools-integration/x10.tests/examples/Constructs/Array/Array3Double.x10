@@ -25,7 +25,7 @@ public class Array3Double extends x10Test {
         return 42.0D == ia(1,1);
     }
 
-    public static def main(Rail[String]) = {
+    public static def main(Array[String](1)) = {
         new Array3Double().execute();
     }
 }

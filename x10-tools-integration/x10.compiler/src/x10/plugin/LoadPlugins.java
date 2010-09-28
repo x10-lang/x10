@@ -34,9 +34,10 @@ import x10.Configuration;
 import x10.ExtensionInfo;
 
 public class LoadPlugins extends AbstractGoal_c {
+	private static final long serialVersionUID = -7328993239190636933L;
 
 	private final ExtensionInfo extInfo;
-	
+    
 	public LoadPlugins(ExtensionInfo extInfo) {
 		super("LoadPlugins");
 		this.extInfo = extInfo;

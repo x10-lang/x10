@@ -19,29 +19,29 @@ import harness.x10Test;
 
 public class ArrayToDist extends x10Test {
 
-    const N = 4;
+    static N = 4;
 
     public def run(): boolean = {
 
         val R = [0..N-1, 0..N-1];
         val D  = Dist.makeBlock(R, 0);
-        val A1 = DistArray.make[int](D, ((i,j): Point ) => f(i, j));
-        val A2 = DistArray.make[foo](D, ((i,j): Point) => new foo(f(i, j)));
+        val A1 = DistArray.make[int](D, ([i,j]: Point ) => f(i, j));
+        val A2 = DistArray.make[foo](D, ([i,j]: Point) => new foo(f(i, j)));
 
-        for (val p(i,j): Point(2) in A1.region) 
+        for (val p[i,j]: Point(2) in A1.region) 
             chk(f(i, j) == (at(A1.dist(i, j)) A1(i, j)), "1");
 
-        finish ateach (val p(i,j): Point(2) in A1.dist) 
+        finish ateach (val p[i,j]: Point(2) in A1.dist) 
             chk(f(i, j) == A1(i, j), "3");
 
-        for (val p(i,j): Point(2) in A2.region) 
-            chk(f(i, j) == (at(A2.dist(i, j)) { (A2(i, j) as foo!).val }), "4");
+        for (val p[i,j]: Point(2) in A2.region) 
+            chk(f(i, j) == (at(A2.dist(i, j)) { A2(i, j).val }), "4");
 
-        finish foreach (val p(i,j): Point(2) in A2.region) 
-           chk(f(i, j) == (at(A2.dist(i, j)) { (A2(i, j) as foo!).val }), "5");
+        finish foreach (val p[i,j]: Point(2) in A2.region) 
+           chk(f(i, j) == (at(A2.dist(i, j)) { A2(i, j).val }), "5");
 
-        finish ateach (val p(i,j): Point(2)  in A2.dist) 
-            chk(f(i, j) == (A2(i, j)as foo!).val, "6");
+        finish ateach (val p[i,j]: Point(2)  in A2.dist) 
+            chk(f(i, j) == A2(i, j).val, "6");
 
         return true;
     }
@@ -49,7 +49,7 @@ public class ArrayToDist extends x10Test {
     static def f(i: int, j: int) = N * i + j;
     
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new ArrayToDist().execute();
     }
 

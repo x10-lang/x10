@@ -18,7 +18,7 @@ public class FactTest extends x10Test {
 
     public def run() = fact(5) == 120;
     public def fact(var v: Int):Int = v <=1 ? 1 : v*fact(v-1);
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
 	new FactTest().execute();
     }
 }

@@ -20,7 +20,7 @@ public class GenericMethodEquals extends x10Test {
 
     static class A {
 
-        public global safe def equals(Any) {
+        public def equals(Any) {
             return true;
         }
 
@@ -38,7 +38,7 @@ public class GenericMethodEquals extends x10Test {
         return test[B](new B());
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new GenericMethodEquals().execute();
     }
 }

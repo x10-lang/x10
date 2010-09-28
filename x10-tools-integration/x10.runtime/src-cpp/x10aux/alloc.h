@@ -103,14 +103,6 @@ namespace x10aux {
         return (T*)alloc_internal(size, containsPtrs);
     }
 
-    // Allocate an object with an x10_addr_t prepended to it
-    template<class T> T* alloc_remote(size_t size = sizeof(T), bool containsPtrs = true) {
-        _M_("Allocating a remote object of type " << TYPENAME(T));
-        T* ret = alloc<T>(size+sizeof(x10_addr_t), containsPtrs);
-        return (T*)(((char*)ret)+sizeof(x10_addr_t));
-    }
-
-
     template<class T> T* realloc(T* src, size_t dsz) {
         _M_("Reallocing chunk " << (void*)src << " of type " << TYPENAME(T));
         return (T*)realloc_internal(src, dsz);
@@ -120,13 +112,6 @@ namespace x10aux {
     template<class T> void dealloc(const T* obj_) {
         _M_("Freeing chunk " << (void*)obj_ << " of type " << TYPENAME(T));
         dealloc_internal(obj_);
-    }
-
-    // Deallocate an object with an x10_addr_t prepended to it
-    template<class T> void dealloc_remote(const T* obj_) {
-        _M_("Freeing a remote object "<< (void*)obj_ << " of type " << TYPENAME(T));
-        const T* obj = (const T*)(((const char*)obj_)-sizeof(x10_addr_t));
-        dealloc(obj);
     }
 
     // Return an upper bound on the current size of the heap in bytes.

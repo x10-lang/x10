@@ -6,7 +6,6 @@
 
 package polyglot.ast;
 
-import java.util.Iterator;
 import java.util.List;
 
 import polyglot.types.Context;
@@ -19,12 +18,13 @@ import polyglot.visit.NodeVisitor;
  * a node is visited, it may replace itself with multiple nodes by returning a
  * <code>NodeList</code> to the visitor. The rewritten node's parent would
  * then be responsible for properly splicing those nodes into the AST.
+ * FIXME: make generic
  */
 public class NodeList_c extends Node_c implements NodeList {
   protected NodeFactory nf;
   protected List<Node> nodes;
 
-  public NodeList_c(Position pos, NodeFactory nf, List nodes) {
+  public NodeList_c(Position pos, NodeFactory nf, List<Node> nodes) {
     super(pos);
     assert (nodes != null);
     this.nf = nf;
@@ -36,7 +36,7 @@ public class NodeList_c extends Node_c implements NodeList {
    * 
    * @see polyglot.ast.NodeList#nodes()
    */
-  public List nodes() {
+  public List<Node> nodes() {
     return nodes;
   }
 
@@ -45,7 +45,7 @@ public class NodeList_c extends Node_c implements NodeList {
    * 
    * @see polyglot.ast.NodeList#nodes(java.util.List)
    */
-  public NodeList nodes(List nodes) {
+  public NodeList nodes(List<Node> nodes) {
     NodeList_c result = (NodeList_c) copy();
     result.nodes = TypedList.copyAndCheck(nodes, Node.class, true);
     return result;
@@ -66,7 +66,7 @@ public class NodeList_c extends Node_c implements NodeList {
    * @see polyglot.ast.NodeList#toBlock()
    */
   public Block toBlock() {
-    return nf.Block(position, (List) nodes);
+    return nf.Block(position, (List<Stmt>)(List) nodes);
   }
   
   public String toString() {
@@ -74,13 +74,12 @@ public class NodeList_c extends Node_c implements NodeList {
 
       int count = 0;
 
-      for (Iterator i = nodes.iterator(); i.hasNext(); ) {
+      for (Node n : nodes) {
 	  if (count++ > 2) {
 	      sb.append(" ...");
 	      break;
 	  }
 
-	  Node n = (Node) i.next();
 	  sb.append(" ");
 	  sb.append(n.toString());
       }
@@ -97,7 +96,7 @@ public class NodeList_c extends Node_c implements NodeList {
 
   @Override
   public Node visitChildren(NodeVisitor v) {
-      List l = visitList(nodes, v);
+      List<Node> l = visitList(nodes, v);
       if (CollectionUtil.allEqual(l, nodes))
 	  return this;      
       return nodes(l);

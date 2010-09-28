@@ -7,6 +7,7 @@ public class Types {
         return ref != null ? ref.get() : null;
     }
 
+    @SuppressWarnings("unchecked") // Special-casing TypeObject
     public static <T> Ref<T> ref(T v) {
 	    if (v instanceof TypeObject)
 		    return (Ref<T>) new Ref_c((TypeObject) v);

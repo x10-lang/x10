@@ -17,12 +17,12 @@ import polyglot.util.Position;
 /**
  * SemanticErrors should result in an error message being displayed to the user. Some SemanticExceptions,
  * such as MissingDependencyException are caught internally by various goals. SemanticErrors should not be
- * caughty by the goal execution mechanism and should not be prevented from terminating compilation.
+ * caught by the goal execution mechanism and should not be prevented from terminating compilation.
  * 
  * @author vj
- *
  */
 public class SemanticError extends SemanticException {
+	private static final long serialVersionUID = -8811434942982089457L;
 
 	/**
 	 * 

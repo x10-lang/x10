@@ -99,9 +99,7 @@ public class ArrayInit_c extends Expr_c implements ArrayInit
 
         TypeSystem ts = av.typeSystem();
 
-	for (Iterator i = elements.iterator(); i.hasNext(); ) {
-	    Expr e = (Expr) i.next();
-
+        for (Expr e : elements) {
             if (e == child) {
                 if (ts.numericConversionValid(t, e.constantValue(), av.context())) {
                     return child.type();
@@ -170,7 +168,7 @@ public class ArrayInit_c extends Expr_c implements ArrayInit
         return listChild(elements, null);
     }
 
-    public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
+    public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
         v.visitCFGList(elements, this, EXIT);
         return succs;
     }

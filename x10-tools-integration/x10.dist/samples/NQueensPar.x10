@@ -11,6 +11,11 @@
 
 import x10.io.Console;
 
+/**
+ * Compute the number of solutions to the N queens problem.
+ * 
+ * Converted to 2.1 on 9/1/2010.
+ */
 public class NQueensPar {
 
     var nSolutions:int = 0;
@@ -29,11 +34,11 @@ public class NQueensPar {
     /**
      * Return an array of P regions, which together block divide the 1-D region R.
      */
-    public static def block(R: Region(1), P: Int): ValRail[Region(1)](P) = {
+    public static def block(R: Region(1), P: Int): Array[Region(1)](1) = {
         assert P >= 0;
         val low = R.min()(0), high = R.max()(0), count = high-low+1;
         val baseSize = count/P, extra = count - baseSize*P;
-        ValRail.make[Region(1)](P, (i:int):Region(1) => {
+        new Array[Region(1)](P, (i:int):Region(1) => {
             val start = low+i*baseSize+ (i < extra? i:extra);
             start..start+baseSize+(i < extra?0:-1)
         })
@@ -41,20 +46,20 @@ public class NQueensPar {
 
     class Board {
 
-        val q: Array[Int](1){self.at(this)};
+        val q: Array[Int](1);
 
         def this() {
             q = new Array[Int](0, 0);
         }
 
-        def this(old: Array[Int](1)!, newItem:Int) {
+        def this(old: Array[Int](1), newItem:Int) {
             val n = old.size();
-            q = new Array[Int](n+1, (p:Point(1))=> (p(0) < n? old(p(0)) : newItem));
+            q = new Array[Int](n+1, (i:int)=> (i < n? old(i) : newItem));
         }
 
         def safe(j: int) {
             val n = q.size();
-            for ((k) in 0..n-1) {
+            for ([k] in 0..n-1) {
                 if (j == q(k) || Math.abs(n-k) == Math.abs(j-q(k)))
                     return false;
             }
@@ -65,7 +70,7 @@ public class NQueensPar {
          * a solution update nSolutions.
          */
         def search(R: Region(1)) {
-            for ((k) in R)
+            for ([k] in R)
                 if (safe(k))
                     new Board(q, k).search();
         }
@@ -77,14 +82,14 @@ public class NQueensPar {
             }
             if (q.size() == 0) {
                 val R = block(0..N-1, P);
-                foreach ((q) in 0..P-1)
+                foreach ([q] in 0..P-1)
                   search(R(q));
             } else search(0..N-1);
         }
     }
 
-    public static def main(args: Rail[String]!)  {
-        val n = args.length > 0 ? Int.parse(args(0)) : 8;
+    public static def main(args:Array[String](1))  {
+        val n = args.size > 0 ? Int.parse(args(0)) : 8;
         println("N=" + n);
         //warmup
         //finish new NQueensPar(12, 1).start();

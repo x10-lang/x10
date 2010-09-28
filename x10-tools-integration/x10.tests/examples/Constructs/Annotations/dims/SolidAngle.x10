@@ -12,5 +12,5 @@
 package dims;
 
 public interface SolidAngle extends Measure { 
-    @DerivedUnit(SI.steradian) const steradian: double = _, sr: double = _;
+    @DerivedUnit(SI.steradian) static steradian: double = _, sr: double = _;
 }

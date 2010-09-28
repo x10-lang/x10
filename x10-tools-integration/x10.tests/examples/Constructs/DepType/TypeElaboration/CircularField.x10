@@ -25,7 +25,7 @@ import harness.x10Test;
      val h = new CircularField1(4,4) as CircularField1{i==j} ;
      public  def run():boolean = true;
    
-     public static def main(Rail[String]) = {
+     public static def main(Array[String](1)) = {
 	 new CircularField(4).execute();
      }
  }

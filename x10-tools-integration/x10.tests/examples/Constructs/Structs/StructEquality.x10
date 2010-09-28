@@ -21,7 +21,7 @@ public class StructEquality extends x10Test {
         return v1 == v2;
     }
 
-    public static def main(args: Rail[String]): void = {
+    public static def main(args: Array[String](1)): void = {
         new StructEquality().execute();
     }
 

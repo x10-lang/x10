@@ -93,10 +93,10 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 	protected Formal formal;
 	protected Expr domain;
 	protected Stmt body;
-	protected List locals;
-	
+	protected List<Stmt> locals;
 
 	protected LoopKind loopKind;
+
 	/**
 	 * @param pos
 	 */
@@ -211,18 +211,21 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 	/* (non-Javadoc)
 	 * @see polyglot.ast.Term#acceptCFG(polyglot.visit.CFGBuilder, java.util.List)
 	 */
-	public List acceptCFG(CFGBuilder v, List succs) {
+	@Override
+	public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
 		v.visitCFG(formal, domain, ENTRY);
 		v.visitCFG(domain, body, ENTRY);
 		v.visitCFG(body, this, EXIT);
 		return succs;
 	}
 
+	@Override
 	public Context enterScope(Context c) {
 		return c.pushBlock();
 	}
 
 	/** Visit the children of the expression. */
+	@Override
 	public Node visitChildren(NodeVisitor v) {
 		Formal formal = (Formal) visitChild(this.formal, v);
 		Expr domain = (Expr) visitChild(this.domain, v);
@@ -254,8 +257,8 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 	/* (non-Javadoc)
 	 * @see x10.ast.X10Loop#locals()
 	 */
-	public List/*<Stmt>*/ locals() {
-		return this.locals == null ? Collections.EMPTY_LIST : this.locals;
+	public List<Stmt> locals() {
+		return this.locals == null ? Collections.<Stmt>emptyList() : this.locals;
 	}
 
 	/* (non-Javadoc)
@@ -288,7 +291,7 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 	/* (non-Javadoc)
 	 * @see x10.ast.X10Loop#locals(java.util.List)
 	 */
-	public X10Loop locals(List/*<Stmt>*/ locals) {
+	public X10Loop locals(List<Stmt> locals) {
 		X10Loop_c n = (X10Loop_c) copy();
 		n.locals = locals;
 		return n;

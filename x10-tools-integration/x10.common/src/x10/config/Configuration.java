@@ -197,7 +197,7 @@ public abstract class Configuration {
 				throw new ConfigurationError("Cannot read entire file");
 			String s = new String(data).replace('\\','/');
 			props.load(new ByteArrayInputStream(s.getBytes()));
-			Iterator i = props.keySet().iterator();
+			Iterator<Object> i = props.keySet().iterator();
 			while (i.hasNext()) {
 				String key = (String) i.next();
 				String val = props.getProperty(key);

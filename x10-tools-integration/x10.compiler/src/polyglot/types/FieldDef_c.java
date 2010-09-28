@@ -16,6 +16,8 @@ import polyglot.util.Position;
  */
 public class FieldDef_c extends VarDef_c implements FieldDef
 {
+    private static final long serialVersionUID = -8958462141797079138L;
+
     protected Ref<? extends StructType> container;
     protected InitializerDef initializer;
 

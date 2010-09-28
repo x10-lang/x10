@@ -18,8 +18,8 @@ import harness.x10Test;
 public class CF2 extends x10Test {
 
     static struct Reducer implements Reducible[Int] {
-    	safe public global def zero()=0;
-    	safe public global def apply(a:Int,b:Int)=a+b;
+     	public  def zero()=0;
+     	public  def apply(a:Int,b:Int)=a+b;
     }
     def m() = 6;
 	public def run() {
@@ -30,7 +30,7 @@ public class CF2 extends x10Test {
 		return 6==x;
 	}
 
-	public static def main(Rail[String]) {
+	public static def main(Array[String](1)) {
 		new CF2().execute();
 	}
 }

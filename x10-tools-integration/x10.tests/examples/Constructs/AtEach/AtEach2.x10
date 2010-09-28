@@ -18,22 +18,24 @@ import harness.x10Test;
  * @author vj
  */
 public class AtEach2 extends x10Test {
-    var nplaces: int = 0;
+	private val root = GlobalRef[AtEach2](this);
+    transient var nplaces: int = 0;
 
     public def run(): boolean = {
         val d: Dist = Dist.makeUnique(Place.places);
+        val root = this.root;
         finish ateach (p in d) {
             // remember if here and d[i] disagree
             // at any activity at any place
             chk(here == d(p));
-            async (this) 
-             atomic nplaces++;  
+            async at (root) 
+             atomic root().nplaces++;  
         }
         // ensure that an activity ran in each place
         return nplaces == Place.MAX_PLACES;
     }
 
-    public static def main(Rail[String])  {
+    public static def main(Array[String](1))  {
         new AtEach2().execute();
     }
 }

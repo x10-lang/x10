@@ -178,6 +178,9 @@ namespace x10 {
             // Returns the current location.
             x10_int locInt(void);
 
+            // API matching for Java runtime.  Not actually needed for C++ runtime.
+            x10::lang::Place home(void);
+            
             // Set the current worker.
             void worker(x10aux::ref<x10::lang::Runtime__Worker> worker);
 
@@ -250,7 +253,7 @@ namespace x10 {
         };
 
         template<class T> x10aux::ref<T> Thread::_deserializer(x10aux::deserialization_buffer &buf) {
-            x10aux::ref<Thread> this_ = new (x10aux::alloc_remote<Thread>()) Thread();
+            x10aux::ref<Thread> this_ = new (x10aux::alloc<Thread>()) Thread();
             buf.record_reference(this_); // TODO: avoid; no global refs; final class
             this_->_deserialize_body(buf);
             return this_;

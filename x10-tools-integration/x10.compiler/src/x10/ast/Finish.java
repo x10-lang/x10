@@ -20,5 +20,6 @@ import polyglot.ast.Stmt;
  */
 public interface Finish extends CompoundStmt {
 	Stmt body();
+	boolean clocked();
 
 }

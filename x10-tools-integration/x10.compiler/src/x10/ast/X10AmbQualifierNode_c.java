@@ -100,6 +100,7 @@ public class X10AmbQualifierNode_c extends AmbQualifierNode_c implements X10AmbQ
 		TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
 		tc = (TypeChecker) tc.context(v.context().freeze());
 		r.setResolver(new TypeCheckFragmentGoal<Qualifier>(parent, this, tc, r, false) {
+		    private static final long serialVersionUID = -1753967384169577700L;
 		    @Override
 		    public boolean runTask() {
 		        boolean result = super.runTask();

@@ -121,7 +121,7 @@ public class SubtypeTest_c extends Expr_c implements SubtypeTest {
 	/* (non-Javadoc)
 	 * @see polyglot.ast.Term#acceptCFG(polyglot.visit.CFGBuilder, java.util.List)
 	 */
-	public List acceptCFG(CFGBuilder v, List succs) {
+	public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
 		v.visitCFG(sub, sup, ENTRY);
 		v.visitCFG(sup, this, EXIT);
 		return succs;

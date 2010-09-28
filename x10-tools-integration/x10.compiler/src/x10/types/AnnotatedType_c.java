@@ -20,6 +20,8 @@ import polyglot.util.Position;
 import polyglot.util.TypedList;
 
 public class AnnotatedType_c extends Type_c implements AnnotatedType {
+    private static final long serialVersionUID = 1320158036816185149L;
+
     Type baseType;
     List<Type> annotations;
 

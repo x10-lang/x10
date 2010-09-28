@@ -26,11 +26,15 @@ import java.util.Set;
  * constraint are either Promise_c's or other implementations of Promise, such
  * as C_Lit and C_Here.
  * 
- * Invariant: If fields is not empty, then var is an XVar.
+ * <p>Invariant: If fields is not empty, then var is an XVar.
+ * 
+ * <p>Note: This class is not public. It is internal to the implementation of the constraint system. No 
+ * client of the constraint system should use this class.
+ * 
  * @author vj
  * 
  */
-public class XPromise_c implements XPromise, Serializable {
+class XPromise_c implements XPromise, Serializable {
     /**
      * The externally visible XTerm that this node represents in the constraint
      * graph. May be null, if this promise corresponds to an internal node.

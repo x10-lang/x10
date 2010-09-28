@@ -17,11 +17,16 @@ is interpreted as
   if (A) {if (B) C else D} 
 */
 
-public class DanglingElse extends x10Test.BardTest {
-  public static def main(Rail[String]){
-     val p:x10Test! = new DanglingElse();
-     p.run();
+public class DanglingElse extends x10Test  {
+  public static def main(Array[String](1)){
+		new DanglingElse().execute();
+   
   }
+  public def run():Boolean {
+	  val p:x10Test = new F();
+      return p.run();
+  }
+  class F extends x10Test.BardTest {
   public def test() : Void {
 	  assert (!test2());
   }
@@ -36,6 +41,7 @@ public class DanglingElse extends x10Test.BardTest {
      if (false) if (false) passed = false; else passed = false;
      if (!passed) return false;
      return true;
+  }
   }
 }
 

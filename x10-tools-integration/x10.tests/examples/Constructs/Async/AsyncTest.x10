@@ -20,11 +20,11 @@ import harness.x10Test;
 public class AsyncTest extends x10Test {
 
 	var flag: boolean = false;
-	const N: long = 1000000000;
+	static N: long = 1000000000;
 
 	public def run(): boolean = {
 		var b: boolean = false;
-		async ( here ) { atomic { this.flag = true; } }
+		async  { atomic { this.flag = true; } }
 		for (var i: long = 0; i < N*100; i++) {
 			atomic { b = flag; }
 
@@ -33,7 +33,7 @@ public class AsyncTest extends x10Test {
 		return b;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(Array[String](1))  {
 		new AsyncTest().execute();
 	}
 }

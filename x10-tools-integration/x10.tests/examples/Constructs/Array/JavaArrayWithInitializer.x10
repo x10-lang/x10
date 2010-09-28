@@ -19,25 +19,25 @@ import harness.x10Test;
 
 public class JavaArrayWithInitializer extends x10Test {
 
-    const N: int = 25;
+    static N: int = 25;
 
     public def run(): boolean = {
 
-        val foo1  = new Array[int](0..N-1, ((i): Point)=> i);
+        val foo1  = new Array[int](0..N-1, ([i]: Point)=> i);
 
         x10.io.Console.OUT.println("1");
 
-        for (val (i): Point in 0..N-1) chk(foo1(i) == i);
-        val foo2  = new Array[int](0..N-1, ((i): Point)=>i);
+        for (val [i]: Point in 0..N-1) chk(foo1(i) == i);
+        val foo2  = new Array[int](0..N-1, ([i]: Point)=>i);
 
         x10.io.Console.OUT.println("2");
 
-        for (val (i): Point(1) in 0..N-1) chk(foo2(i) == i);
+        for (val [i]: Point(1) in 0..N-1) chk(foo2(i) == i);
 
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(Array[String](1)) {
         new JavaArrayWithInitializer().execute();
     }
 }

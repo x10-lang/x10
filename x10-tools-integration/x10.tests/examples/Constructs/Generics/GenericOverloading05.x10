@@ -27,8 +27,8 @@ public class GenericOverloading05 extends GenericTest {
 
     def m(String) = 0;
     def m(int) = 1;
-    def m(Rail[String]) = 2;
-    def m(Rail[int]) = 3;
+    def m(ValRail[String]) = 2;
+    def m(ValRail[int]) = 3;
 
     public def run(): boolean = {
 
@@ -40,7 +40,7 @@ public class GenericOverloading05 extends GenericTest {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new GenericOverloading05().execute();
     }
 }

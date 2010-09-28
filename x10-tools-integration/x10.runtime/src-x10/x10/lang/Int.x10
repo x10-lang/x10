@@ -38,7 +38,7 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
      */
     @Native("java", "((#1) < (#2))")
     @Native("c++",  "((#1) < (#2))")
-    public native static safe operator (x:Int) < (y:Int): Boolean;
+    public native static operator (x:Int) < (y:Int): Boolean;
 
     /**
      * A greater-than operator.
@@ -50,7 +50,7 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
      */
     @Native("java", "((#1) > (#2))")
     @Native("c++",  "((#1) > (#2))")
-    public native static safe operator (x:Int) > (y:Int): Boolean;
+    public native static operator (x:Int) > (y:Int): Boolean;
 
     /**
      * A less-than-or-equal-to operator.
@@ -62,7 +62,7 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
      */
     @Native("java", "((#1) <= (#2))")
     @Native("c++",  "((#1) <= (#2))")
-    public native static safe operator (x:Int) <= (y:Int): Boolean;
+    public native static operator (x:Int) <= (y:Int): Boolean;
 
     /**
      * A greater-than-or-equal-to operator.
@@ -74,7 +74,7 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
      */
     @Native("java", "((#1) >= (#2))")
     @Native("c++",  "((#1) >= (#2))")
-    public native static safe operator (x:Int) >= (y:Int): Boolean;
+    public native static operator (x:Int) >= (y:Int): Boolean;
 
 
     /**
@@ -87,7 +87,7 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
      */
     @Native("java", "((#1) + (#2))")
     @Native("c++",  "((x10_int) ((#1) + (#2)))")
-    public native static safe operator (x:Int) + (y:Int): Int;
+    public native static operator (x:Int) + (y:Int): Int;
 
     /**
      * A binary minus operator.
@@ -99,7 +99,7 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
      */
     @Native("java", "((#1) - (#2))")
     @Native("c++",  "((x10_int) ((#1) - (#2)))")
-    public native static safe operator (x:Int) - (y:Int): Int;
+    public native static operator (x:Int) - (y:Int): Int;
 
     /**
      * A binary multiply operator.
@@ -111,7 +111,7 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
      */
     @Native("java", "((#1) * (#2))")
     @Native("c++",  "((x10_int) ((#1) * (#2)))")
-    public native static safe operator (x:Int) * (y:Int): Int;
+    public native static operator (x:Int) * (y:Int): Int;
 
     /**
      * A binary divide operator.
@@ -122,7 +122,7 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
      */
     @Native("java", "((#1) / (#2))")
     @Native("c++",  "((x10_int) ((#1) / (#2)))")
-    public native static safe operator (x:Int) / (y:Int): Int;
+    public native static operator (x:Int) / (y:Int): Int;
 
     /**
      * A binary remainder operator.
@@ -133,7 +133,7 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
      */
     @Native("java", "((#1) % (#2))")
     @Native("c++",  "((x10_int) ((#1) % (#2)))")
-    public native static safe operator (x:Int) % (y:Int): Int;
+    public native static operator (x:Int) % (y:Int): Int;
 
     /**
      * A unary plus operator.
@@ -143,7 +143,7 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
      */
     @Native("java", "(+(#1))")
     @Native("c++",  "((x10_int) +(#1))")
-    public native static safe operator + (x:Int): Int;
+    public native static operator + (x:Int): Int;
 
     /**
      * A unary minus operator.
@@ -154,7 +154,7 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
      */
     @Native("java", "(-(#1))")
     @Native("c++",  "((x10_int) -(#1))")
-    public native static safe operator - (x:Int): Int;
+    public native static operator - (x:Int): Int;
 
 
     /**
@@ -166,7 +166,7 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
      */
     @Native("java", "((#1) & (#2))")
     @Native("c++",  "((x10_int) ((#1) & (#2)))")
-    public native static safe operator (x:Int) & (y:Int): Int;
+    public native static operator (x:Int) & (y:Int): Int;
 
     /**
      * A bitwise or operator.
@@ -177,7 +177,7 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
      */
     @Native("java", "((#1) | (#2))")
     @Native("c++",  "((x10_int) ((#1) | (#2)))")
-    public native static safe operator (x:Int) | (y:Int): Int;
+    public native static operator (x:Int) | (y:Int): Int;
 
     /**
      * A bitwise xor operator.
@@ -188,7 +188,7 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
      */
     @Native("java", "((#1) ^ (#2))")
     @Native("c++",  "((x10_int) ((#1) ^ (#2)))")
-    public native static safe operator (x:Int) ^ (y:Int): Int;
+    public native static operator (x:Int) ^ (y:Int): Int;
 
     /**
      * A bitwise left shift operator.
@@ -200,7 +200,7 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
      */
     @Native("java", "((#1) << (#2))")
     @Native("c++",  "((x10_int) ((#1) << (#2)))")
-    public native static safe operator (x:Int) << (count:Int): Int;
+    public native static operator (x:Int) << (count:Int): Int;
 
     /**
      * A bitwise right shift operator.
@@ -213,7 +213,7 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
      */
     @Native("java", "((#1) >> (#2))")
     @Native("c++",  "((x10_int) ((#1) >> (#2)))")
-    public native static safe operator (x:Int) >> (count:Int): Int;
+    public native static operator (x:Int) >> (count:Int): Int;
 
     /**
      * A bitwise logical right shift operator (zero-fill).
@@ -227,7 +227,7 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
      */
     @Native("java", "((#1) >>> (#2))")
     @Native("c++",  "((x10_int) ((x10_uint) (#1) >> (#2)))")
-    public native static safe operator (x:Int) >>> (count:Int): Int;
+    public native static operator (x:Int) >>> (count:Int): Int;
 
     /**
      * A bitwise complement operator.
@@ -237,7 +237,7 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
      */
     @Native("java", "(~(#1))")
     @Native("c++",  "((x10_int) ~(#1))")
-    public native static safe operator ~ (x:Int): Int;
+    public native static operator ~ (x:Int): Int;
 
 
     /**
@@ -247,7 +247,7 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
      */
     @Native("java", "((int)(byte)(#1))")
     @Native("c++",  "((x10_int) (#1))")
-    public native static safe operator (x:Byte): Int;
+    public native static operator (x:Byte): Int;
 
     /**
      * Coerce a given Short to an Int.
@@ -256,7 +256,7 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
      */
     @Native("java", "((int)(short)(#1))")
     @Native("c++",  "((x10_int) (#1))")
-    public native static safe operator (x:Short): Int;
+    public native static operator (x:Short): Int;
 
     /**
      * Convert a given Long to an Int.
@@ -265,7 +265,7 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
      */
     @Native("java", "((int)(long)(#1))")
     @Native("c++",  "((x10_int) (#1))")
-    public native static safe operator (x:Long) as Int;
+    public native static operator (x:Long) as Int;
 
     /**
      * Convert a given Float to an Int.
@@ -274,7 +274,7 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
      */
     @Native("java", "((int)(float)(#1))")
     @Native("c++",  "((x10_int) (#1))")
-    public native static safe operator (x:Float) as Int;
+    public native static operator (x:Float) as Int;
 
     /**
      * Convert a given Double to an Int.
@@ -283,7 +283,7 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
      */
     @Native("java", "((int)(double)(#1))")
     @Native("c++",  "((x10_int) (#1))")
-    public native static safe operator (x:Double) as Int;
+    public native static operator (x:Double) as Int;
 
     /**
      * Coerce a given UInt to an Int.
@@ -292,7 +292,7 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
      */
     @Native("java", "((int) (#1.intVal))")
     @Native("c++",  "((x10_int) (#1))")
-    public native static safe operator (x:UInt): Int;
+    public native static operator (x:UInt): Int;
 
 
     /**
@@ -300,14 +300,14 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
      */
     @Native("java", "java.lang.Integer.MIN_VALUE")
     @Native("c++", "((x10_int)0x80000000)")
-    public const MIN_VALUE = 0x80000000;
+    public static MIN_VALUE = 0x80000000;
 
     /**
      * A constant holding the maximum value an Int can have, 2<sup>31</sup>-1.
      */
     @Native("java", "java.lang.Integer.MAX_VALUE")
     @Native("c++", "((x10_int)0x7fffffff)")
-    public const MAX_VALUE = 0x7fffffff;
+    public static MAX_VALUE = 0x7fffffff;
 
 
     /**
@@ -317,7 +317,7 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
      */
     @Native("java", "java.lang.Integer.toString(#0, #1)")
     @Native("c++", "x10aux::int_utils::toString(#0, #1)")
-    public global safe native def toString(radix:Int): String;
+    public native def toString(radix:Int): String;
 
     /**
      * Returns a String representation of this Int as a hexadecimal number.
@@ -325,7 +325,7 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
      */
     @Native("java", "java.lang.Integer.toHexString(#0)")
     @Native("c++", "x10aux::int_utils::toHexString(#0)")
-    public global safe native def toHexString(): String;
+    public native def toHexString(): String;
 
     /**
      * Returns a String representation of this Int as an octal number.
@@ -333,7 +333,7 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
      */
     @Native("java", "java.lang.Integer.toOctalString(#0)")
     @Native("c++", "x10aux::int_utils::toOctalString(#0)")
-    public global safe native def toOctalString(): String;
+    public native def toOctalString(): String;
 
     /**
      * Returns a String representation of this Int as a binary number.
@@ -341,7 +341,7 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
      */
     @Native("java", "java.lang.Integer.toBinaryString(#0)")
     @Native("c++", "x10aux::int_utils::toBinaryString(#0)")
-    public global safe native def toBinaryString(): String;
+    public native def toBinaryString(): String;
 
     /**
      * Returns a String representation of this Int as a decimal number.
@@ -349,21 +349,23 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
      */
     @Native("java", "java.lang.Integer.toString(#0)")
     @Native("c++", "x10aux::to_string(#0)")
-    public global safe native def toString(): String;
+    public native def toString(): String;
 
     /**
      * @deprecated use {@link #parse(String,Int)} instead
      */
-    @Native("java", "java.lang.Integer.parseInt(#1, #2)")
+    // @Native("java", "java.lang.Integer.parseInt(#1, #2)")
+    @Native("java", "new Object() { int eval(String s, int radix) { try { return java.lang.Integer.parseInt(s, radix); } catch (java.lang.NumberFormatException e) { throw new x10.lang.NumberFormatException(e.getMessage()); } } }.eval(#1, #2)")
     @Native("c++", "x10aux::int_utils::parseInt(#1, #2)")
-    public native static def parseInt(String, radix:Int): Int throws NumberFormatException;
+    public native static def parseInt(String, radix:Int): Int; //throwsNumberFormatException;
 
     /**
      * @deprecated use {@link #parse(String)} instead
      */
-    @Native("java", "java.lang.Integer.parseInt(#1)")
+    // @Native("java", "java.lang.Integer.parseInt(#1)")
+    @Native("java", "new Object() { int eval(String s) { try { return java.lang.Integer.parseInt(s); } catch (java.lang.NumberFormatException e) { throw new x10.lang.NumberFormatException(e.getMessage()); } } }.eval(#1)")
     @Native("c++", "x10aux::int_utils::parseInt(#1)")
-    public native static def parseInt(String): Int throws NumberFormatException;
+    public native static def parseInt(String): Int; //throwsNumberFormatException;
 
     /**
      * Parses the String argument as an Int in the radix specified by the second argument.
@@ -372,9 +374,10 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
      * @return the Int represented by the String argument in the specified radix.
      * @throws NumberFormatException if the String does not contain a parsable Int.
      */
-    @Native("java", "java.lang.Integer.parseInt(#1, #2)")
+    // @Native("java", "java.lang.Integer.parseInt(#1, #2)")
+    @Native("java", "new Object() { int eval(String s, int radix) { try { return java.lang.Integer.parseInt(s, radix); } catch (java.lang.NumberFormatException e) { throw new x10.lang.NumberFormatException(e.getMessage()); } } }.eval(#1, #2)")
     @Native("c++", "x10aux::int_utils::parseInt(#1, #2)")
-    public native static def parse(s:String, radix:Int): Int throws NumberFormatException;
+    public native static def parse(s:String, radix:Int): Int; //throwsNumberFormatException;
 
     /**
      * Parses the String argument as a decimal Int.
@@ -382,9 +385,10 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
      * @return the Int represented by the String argument.
      * @throws NumberFormatException if the String does not contain a parsable Int.
      */
-    @Native("java", "java.lang.Integer.parseInt(#1)")
+    // @Native("java", "java.lang.Integer.parseInt(#1)")
+    @Native("java", "new Object() { int eval(String s) { try { return java.lang.Integer.parseInt(s); } catch (java.lang.NumberFormatException e) { throw new x10.lang.NumberFormatException(e.getMessage()); } } }.eval(#1)")
     @Native("c++", "x10aux::int_utils::parseInt(#1)")
-    public native static def parse(s:String): Int throws NumberFormatException;
+    public native static def parse(s:String): Int; //throwsNumberFormatException;
 
 
     /**
@@ -518,7 +522,7 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
      */
     @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public global safe native def equals(x:Any):Boolean;
+    public native def equals(x:Any):Boolean;
 
     /**
      * Returns true if this Int is equal to the given Int.
@@ -527,5 +531,5 @@ public struct Int /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*
      */
     @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public global safe native def equals(x:Int):Boolean;
+    public native def equals(x:Int):Boolean;
 }

@@ -18,22 +18,22 @@ import harness.x10Test;
 public class XTENLANG_423 extends x10Test {
 
     public static class X {
-        public const a = foo();
+        public static a = foo();
         public static def foo() = 3;
     }
 
     public static class Y extends X {
-        public const b = bar();
+        public static b = bar();
         public static def bar() = X.a;
     }
 
     public static class Z[T] {
-        public const c = baz();
+        public static c = baz();
         public static def baz() = 5;
     }
 
     public static class W[U] extends Z[W[U]] {
-        public const d = boo();
+        public static d = boo();
         public static def boo() = Z.c;
     }
 
@@ -41,7 +41,7 @@ public class XTENLANG_423 extends x10Test {
         return Y.b == 3 && W.d == 5;
     }
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new XTENLANG_423().execute();
     }
 }

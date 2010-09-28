@@ -69,7 +69,7 @@ public class DepParameterExpr_c extends Node_c implements DepParameterExpr {
     public DepParameterExpr_c(Position pos, List<Formal> formals, List<Expr> e) {
 	    super(pos);
 	    if (formals == null)
-		    this.formals = Collections.EMPTY_LIST;
+		    this.formals = Collections.<Formal>emptyList();
 	    else
 		    this.formals = TypedList.copyAndCheck(formals, Formal.class, true);
 	    assert e != null;
@@ -151,7 +151,7 @@ public class DepParameterExpr_c extends Node_c implements DepParameterExpr {
     @Override
     public Node visitChildren(NodeVisitor v) {
         List<Formal> formals = visitList(this.formals, v);
-        List<Expr> condition = (List<Expr>) visitList(this.condition, v);
+        List<Expr> condition = visitList(this.condition, v);
         return reconstruct(formals, condition);
     }
     
@@ -169,12 +169,12 @@ public class DepParameterExpr_c extends Node_c implements DepParameterExpr {
     	  {
     	      LazyRef<CConstraint> xr = (LazyRef<CConstraint>) valueConstraint;
     	      assert xr != null : "setResolver pass run before buildTypes for " + this;
-    	      xr.setResolver(new TypeCheckFragmentGoal(parent, this, tc, xr, false));
+    	      xr.setResolver(new TypeCheckFragmentGoal<CConstraint>(parent, this, tc, xr, false));
     	  }
     	  {
     	      LazyRef<TypeConstraint> xr = (LazyRef<TypeConstraint>) typeConstraint;
     	      assert xr != null : "setResolver pass run before buildTypes for " + this;
-    	      xr.setResolver(new TypeCheckFragmentGoal(parent, this, tc, xr, false));
+    	      xr.setResolver(new TypeCheckFragmentGoal<TypeConstraint>(parent, this, tc, xr, false));
     	  }
       }
     
@@ -183,7 +183,7 @@ public class DepParameterExpr_c extends Node_c implements DepParameterExpr {
     	DepParameterExpr_c n = (DepParameterExpr_c) super.disambiguate(ar);
     	
     	if (((X10Context) ar.context()).inAnnotation() && condition == null) {
-    		return n.condition(Collections.EMPTY_LIST);
+    		return n.condition(Collections.<Expr>emptyList());
     	}
 
     	return n;

@@ -24,7 +24,7 @@ public class TestSimpleArrayMult extends x10Test {
         val e  = 1..N;
         var regionStop: long = System.currentTimeMillis();
         val ia  = new Array[int](e, (Point)=>0);
-        val ib = new Array[int](e, ((i): Point)=>i);
+        val ib = new Array[int](e, ([i]: Point)=>i);
         val ic  = new Array[int](e, (Point) => 2);
         var initStop: long = System.currentTimeMillis();
 
@@ -51,14 +51,14 @@ public class TestSimpleArrayMult extends x10Test {
         return true;
     }
     
-    public static def sum(ia : Array[Int]!) : Int {
+    public static def sum(ia : Array[Int]) : Int {
         var s : Int = 0;
         for(i in ia) s += ia(i);
         return s;
     }
 
     
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new TestSimpleArrayMult().execute();
        
     }

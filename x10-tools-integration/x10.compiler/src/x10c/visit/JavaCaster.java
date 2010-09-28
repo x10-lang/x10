@@ -25,9 +25,12 @@ import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.NullLit;
+import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
+import polyglot.ast.TypeNode;
 import polyglot.frontend.Job;
 import polyglot.types.QName;
+import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -38,12 +41,14 @@ import x10.ast.ClosureCall;
 import x10.ast.X10Call;
 import x10.ast.X10NodeFactory;
 import x10.ast.X10Return_c;
+import x10.emitter.Emitter;
 import x10.types.ParameterType;
 import x10.types.X10ClassType;
 import x10.types.X10ParsedClassType_c;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.constraints.SubtypeConstraint;
+import x10.visit.X10PrettyPrinterVisitor;
 
 // add cast node for java code generator
 public class JavaCaster extends ContextVisitor {
@@ -73,6 +78,41 @@ public class JavaCaster extends ContextVisitor {
     protected Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
         n = typeConstraintsCast(parent, old, n);
         n = railAccessCast(parent, n);
+        if (X10PrettyPrinterVisitor.isSelfDispatch) {
+            n = typeParamCast(parent, n);
+        }
+        return n;
+    }
+
+    private Node typeParamCast(Node parent, Node n) throws SemanticException {
+        if (n instanceof X10Call && !(parent instanceof Eval)) {
+            X10Call call = (X10Call) n;
+            Receiver target = call.target();
+            if (!(target instanceof TypeNode) && !xts.isRail(call.target().type())) {
+                Type bt = X10TypeMixin.baseType(target.type());
+                if (bt instanceof X10ClassType) {
+                    if (((X10ClassType) bt).typeArguments().size() > 0) {
+                        boolean isDispatch = false;
+                        if (((X10ClassType) bt).flags().isInterface()) {
+                            List<Ref<? extends Type>> formalTypes = call.methodInstance().def().formalTypes();
+                            for (Ref<? extends Type> ref : formalTypes) {
+                                Type type = ref.get();
+                                if (Emitter.containsTypeParam(type)) {
+                                    isDispatch = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (isDispatch) {
+                            return cast(call, call.type());
+                        }
+                        else if (Emitter.containsTypeParam(call.methodInstance().def().returnType().get())) {
+                            return cast(call, call.type());
+                        }
+                    }
+                }
+            }
+        }
         return n;
     }
 

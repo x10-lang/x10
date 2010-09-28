@@ -11,14 +11,16 @@ import polyglot.types.LazyRef;
 import polyglot.util.CollectionUtil;
 import polyglot.visit.TypeChecker;
 
-public class TypeCheckFragmentGoal extends AbstractGoal_c {
+public class TypeCheckFragmentGoal<T> extends AbstractGoal_c {
+    private static final long serialVersionUID = -843644476867221586L;
+
     protected Node parent;
     protected Node n;
     protected TypeChecker v;
-    protected LazyRef r;
+    protected LazyRef<T> r;
     protected boolean mightFail;
 
-    public TypeCheckFragmentGoal(Node parent, Node n, TypeChecker v, LazyRef r, boolean mightFail) {
+    public TypeCheckFragmentGoal(Node parent, Node n, TypeChecker v, LazyRef<T> r, boolean mightFail) {
 	this.parent = parent;
 	this.n = n;
 	this.v = v;

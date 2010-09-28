@@ -46,9 +46,9 @@ public class Region_c extends Expr_c implements Region {
 		// TODO Auto-generated constructor stub
 	}
 
-	public Region_c( Position pos, List exprs) {
+	public Region_c(Position pos, List<Expr> exprs) {
 		super(pos);
-		this.exprs = TypedList.copyAndCheck( exprs, Expr.class, true);
+		this.exprs = TypedList.copyAndCheck(exprs, Expr.class, true);
 	}
 	/* (non-Javadoc)
 	 * @see polyglot.ast.Term#entry()
@@ -61,7 +61,7 @@ public class Region_c extends Expr_c implements Region {
 	/* (non-Javadoc)
 	 * @see polyglot.ast.Term#acceptCFG(polyglot.visit.CFGBuilder, java.util.List)
 	 */
-	public List acceptCFG(CFGBuilder v, List succs) {
+	public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
 		// TODO Auto-generated method stub
 		return succs;
 	}

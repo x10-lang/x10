@@ -32,7 +32,7 @@ public final struct Char /*TODO implements Ordered[Char]*/ {
      */
     @Native("java", "((char) (#1))")
     @Native("c++",  "((x10_char) (char) (#1))")
-    public native static safe operator (x:Byte) as Char;
+    public native static operator (x:Byte) as Char;
 
     /**
      * Convert a given Short to a Char with that ordinal value.
@@ -41,7 +41,7 @@ public final struct Char /*TODO implements Ordered[Char]*/ {
      */
     @Native("java", "((char) (#1))")
     @Native("c++",  "((x10_char) (int) (#1))")
-    public native static safe operator (x:Short) as Char;
+    public native static operator (x:Short) as Char;
 
     /**
      * Convert a given Int to a Char with that ordinal value.
@@ -50,7 +50,7 @@ public final struct Char /*TODO implements Ordered[Char]*/ {
      */
     @Native("java", "((char) (#1))")
     @Native("c++",  "((x10_char) (int) (#1))")
-    public native static safe operator (x:Int) as Char;
+    public native static operator (x:Int) as Char;
 
     /**
      * Convert a given Long to a Char with that ordinal value.
@@ -59,7 +59,7 @@ public final struct Char /*TODO implements Ordered[Char]*/ {
      */
     @Native("java", "((char) (#1))")
     @Native("c++",  "((x10_char) (int) (#1))")
-    public native static safe operator (x:Long) as Char;
+    public native static operator (x:Long) as Char;
 
 
     /**
@@ -70,7 +70,7 @@ public final struct Char /*TODO implements Ordered[Char]*/ {
      */
     @Native("java", "((char) ((#1) + (#2)))")
     @Native("c++",  "((x10_char) (int) ((#1) + (#2)))")
-    public native static safe operator (x:Char) + (y:Int): Char;
+    public native static operator (x:Char) + (y:Int): Char;
 
     /**
      * Translate a given Char's ordinal value forward by the specified distance.
@@ -80,7 +80,7 @@ public final struct Char /*TODO implements Ordered[Char]*/ {
      */
     @Native("java", "((char) ((#1) + (#2)))")
     @Native("c++",  "((x10_char) (int) ((#1) + (#2)))")
-    public native static safe operator (x:Int) + (y:Char): Char;
+    public native static operator (x:Int) + (y:Char): Char;
 
     /**
      * Translate a given Char's ordinal value backward by the specified distance.
@@ -90,7 +90,7 @@ public final struct Char /*TODO implements Ordered[Char]*/ {
      */
     @Native("java", "((char) ((#1) - (#2)))")
     @Native("c++",  "((x10_char) (int) ((#1) - (#2)))")
-    public native static safe operator (x:Char) - (y:Int): Char;
+    public native static operator (x:Char) - (y:Int): Char;
 
     /**
      * Compute the distance between two Chars.
@@ -100,7 +100,7 @@ public final struct Char /*TODO implements Ordered[Char]*/ {
      */
     @Native("java", "((#1) - (#2))")
     @Native("c++",  "((#1) - (#2))")
-    public native static safe operator (x:Char) - (y:Char): Int;
+    public native static operator (x:Char) - (y:Char): Int;
 
 
     // FIXME: Locale sensitivity
@@ -113,7 +113,7 @@ public final struct Char /*TODO implements Ordered[Char]*/ {
      */
     @Native("java", "((#0) < (#1))")
     @Native("c++",  "((#0) < (#1))")
-    public native safe operator this < (x:Char): Boolean;
+    public native operator this < (x:Char): Boolean;
 
     // FIXME: Locale sensitivity
     /**
@@ -125,7 +125,7 @@ public final struct Char /*TODO implements Ordered[Char]*/ {
      */
     @Native("java", "((#0) > (#1))")
     @Native("c++",  "((#0) > (#1))")
-    public native safe operator this > (x:Char): Boolean;
+    public native operator this > (x:Char): Boolean;
 
     // FIXME: Locale sensitivity
     /**
@@ -137,7 +137,7 @@ public final struct Char /*TODO implements Ordered[Char]*/ {
      */
     @Native("java", "((#0) <= (#1))")
     @Native("c++",  "((#0) <= (#1))")
-    public native safe operator this <= (x:Char): Boolean;
+    public native operator this <= (x:Char): Boolean;
 
     // FIXME: Locale sensitivity
     /**
@@ -149,7 +149,7 @@ public final struct Char /*TODO implements Ordered[Char]*/ {
      */
     @Native("java", "((#0) >= (#1))")
     @Native("c++",  "((#0) >= (#1))")
-    public native safe operator this >= (x:Char): Boolean;
+    public native operator this >= (x:Char): Boolean;
 
 
     /**
@@ -158,7 +158,7 @@ public final struct Char /*TODO implements Ordered[Char]*/ {
      */
     @Native("java", "java.lang.Character.toString(#0)")
     @Native("c++", "x10aux::to_string(#0)")
-    public global safe native def toString(): String;
+    public native def toString(): String;
 
 
     // Duplicate the methods from java.lang.Character, changing static methods to non-static.
@@ -307,7 +307,7 @@ public final struct Char /*TODO implements Ordered[Char]*/ {
      */
     @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public global safe native def equals(x:Any):Boolean;
+    public native def equals(x:Any):Boolean;
 
     /**
      * Returns true if this Byte is equal to the given Byte.
@@ -316,5 +316,5 @@ public final struct Char /*TODO implements Ordered[Char]*/ {
      */
     @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public global safe native def equals(x:Char):Boolean;
+    public native def equals(x:Char):Boolean;
 }

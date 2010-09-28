@@ -22,7 +22,7 @@ import x10.array.Array;
  */
 public class Exceptions3_MustFailTimeout extends x10Test {
 
-	public const MAXINT: int = 2147483647;
+	public static MAXINT: int = 2147483647;
 	def memoryHog(): void = { var a: Array[byte] = new Array[byte](MAXINT); X.use(a); }
 	public def run(): boolean = {
 		final val M: int = 4;
@@ -38,7 +38,7 @@ public class Exceptions3_MustFailTimeout extends x10Test {
 		return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new Exceptions3_MustFailTimeout().execute();
 	}
 

@@ -17,7 +17,7 @@ public class TestInterfaceParam_MustFailCompile extends x10Test {
         public def isGood() : boolean = true;
     }
 
-    public def doSomething(i : I!) : boolean {
+    public def doSomething(i : I) : boolean {
         return i.isGood();
     }
 
@@ -26,7 +26,7 @@ public class TestInterfaceParam_MustFailCompile extends x10Test {
         return doSomething(new C());
     }
 
-    public static def main(args : Rail[String]!) {
+    public static def main(args : Array[String](1)) {
         new TestInterfaceParam_MustFailCompile().execute();
     }
 }

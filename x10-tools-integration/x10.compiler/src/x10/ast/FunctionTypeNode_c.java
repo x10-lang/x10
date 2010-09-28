@@ -56,16 +56,16 @@ public class FunctionTypeNode_c extends TypeNode_c implements FunctionTypeNode {
 	List<TypeParamNode> typeParams;
 	List<Formal> formals;
 	DepParameterExpr guard;
-	List<TypeNode> throwTypes;
+	// List<TypeNode> throwTypes;
 	TypeNode returnType;
 	TypeNode offersType;
 
 	public FunctionTypeNode_c(Position pos, List<TypeParamNode> typeParams, List<Formal> formals, TypeNode returnType, DepParameterExpr guard, 
-			List<TypeNode> throwTypes, TypeNode offersType) {
+			 TypeNode offersType) {
 		super(pos);
 		this.typeParams = TypedList.copyAndCheck(typeParams, TypeParamNode.class, true);
 		this.formals = TypedList.copyAndCheck(formals, Formal.class, true);
-		this.throwTypes = TypedList.copyAndCheck(throwTypes, TypeNode.class, true);
+		// this.throwTypes = TypedList.copyAndCheck(throwTypes, TypeNode.class, true);
 		this.returnType = returnType;
 		this.guard = guard;
 		this.offersType = offersType;
@@ -88,13 +88,7 @@ public class FunctionTypeNode_c extends TypeNode_c implements FunctionTypeNode {
 		for (Formal f : n.formals()) {
 			formalNames.add(f.localDef());
 		}
-		List<Ref<? extends Type>> throwTypes = new ArrayList<Ref<? extends Type>>(n.throwTypes().size());
-		for (TypeNode tn : n.throwTypes()) {
-			throwTypes.add(tn.typeRef());
-		}
-
-		if (throwTypes.size() != 0)
-			throw new SemanticException("Function types with throws clauses are currently unsupported.", position());
+	
 		//if (guard != null)
 		//	throw new SemanticException("Function types with guards are currently unsupported.", position());
 		if (typeParams.size() != 0)
@@ -103,9 +97,9 @@ public class FunctionTypeNode_c extends TypeNode_c implements FunctionTypeNode {
 				//   typeParams, 
 				formalTypes, formalNames, 
 				guard != null ? guard.valueConstraint() 
-						: Types.<CConstraint>lazyRef(new CConstraint()),
+						: Types.<CConstraint>lazyRef(new CConstraint())
 						// guard != null ? guard.typeConstraint() : null,
-						throwTypes);
+						);
 
 		//	    Context c = ar.context();
 		//	    ClassType ct = c.currentClass();
@@ -149,7 +143,7 @@ public class FunctionTypeNode_c extends TypeNode_c implements FunctionTypeNode {
 
 	@Override
 	  public void setResolver(Node parent, final TypeCheckPreparer v) {
-	    	if (typeRef() instanceof LazyRef) {
+	    	if (typeRef() instanceof LazyRef<?>) {
 	    		LazyRef<Type> r = (LazyRef<Type>) typeRef();
 	    		TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
 	    		tc = (TypeChecker) tc.context(v.context().freeze());
@@ -197,19 +191,6 @@ public class FunctionTypeNode_c extends TypeNode_c implements FunctionTypeNode {
 		return n;
 	}
 
-	/* (non-Javadoc)
-	 * @see x10.ast.FunctionTypeNode#throwTypes()
-	 */
-	public List<TypeNode> throwTypes() {
-		return Collections.<TypeNode> unmodifiableList(this.throwTypes);
-	}
-
-	/** Set the exception types of the method. */
-	public FunctionTypeNode throwTypes(List<TypeNode> throwTypes) {
-		FunctionTypeNode_c n = (FunctionTypeNode_c) copy();
-		n.throwTypes = TypedList.copyAndCheck(throwTypes, TypeNode.class, true);
-		return n;
-	}
 
 	/** Visit the children of the method. */
 	public Node visitChildren(NodeVisitor v) {
@@ -217,18 +198,16 @@ public class FunctionTypeNode_c extends TypeNode_c implements FunctionTypeNode {
 		List<Formal> formals = this.visitList(this.formals, v);
 		DepParameterExpr guard = (DepParameterExpr) this.visitChild(this.guard, v);
 		TypeNode returnType = (TypeNode) this.visitChild(this.returnType, v);
-		List<TypeNode> throwTypes = this.visitList(this.throwTypes, v);
-		return reconstruct(typeParams, formals, guard, returnType, throwTypes);
+		return reconstruct(typeParams, formals, guard, returnType);
 	}
 
-	protected Node reconstruct(List<TypeParamNode> typeParams, List<Formal> formals, DepParameterExpr guard, TypeNode returnType, List<TypeNode> throwTypes) {
+	protected Node reconstruct(List<TypeParamNode> typeParams, List<Formal> formals, DepParameterExpr guard, TypeNode returnType) {
 
 		FunctionTypeNode_c n = this;
 		n = (FunctionTypeNode_c) n.typeParameters(typeParams);
 		n = (FunctionTypeNode_c) n.formals(formals);
 		n = (FunctionTypeNode_c) n.guard(guard);
 		n = (FunctionTypeNode_c) n.returnType(returnType);
-		n = (FunctionTypeNode_c) n.throwTypes(throwTypes);
 		return n;
 	}
 
@@ -306,13 +285,13 @@ public class FunctionTypeNode_c extends TypeNode_c implements FunctionTypeNode {
 
 		if (guard != null)
 			print(guard, w, tr);
-
+/*
 		if (!throwTypes().isEmpty()) {
 			w.allowBreak(6);
 			w.write("throws ");
 
-			for (Iterator i = throwTypes().iterator(); i.hasNext();) {
-				TypeNode tn = (TypeNode) i.next();
+			for (Iterator<TypeNode> i = throwTypes().iterator(); i.hasNext();) {
+				TypeNode tn = i.next();
 				print(tn, w, tr);
 
 				if (i.hasNext()) {
@@ -321,7 +300,7 @@ public class FunctionTypeNode_c extends TypeNode_c implements FunctionTypeNode {
 				}
 			}
 		}
-
+*/
 		w.write(" => ");
 		print(returnType, w, tr);
 

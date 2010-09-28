@@ -35,7 +35,7 @@ public class DynamicCast4_MethodReturn extends x10Test {
       return new X10DepTypeClassTwo(0,1);
    }
 
-   public static def main(var args: Rail[String]): void = {
+   public static def main(var args: Array[String](1)): void = {
       new DynamicCast4_MethodReturn().execute();
    }
 }

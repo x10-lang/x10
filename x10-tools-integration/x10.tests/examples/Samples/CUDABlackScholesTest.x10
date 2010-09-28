@@ -1,3 +1,4 @@
+// Yoav added: IGNORE_FILE
 /*
  *  This file is part of the X10 project (http://x10-lang.org).
  *
@@ -13,12 +14,12 @@ import harness.x10Test;
 
 public class CUDABlackScholesTest extends x10Test {
     public def run():boolean {
-         val args = Rail.make[String](0);
+         val args = new Array[String](0);
          CUDABlackScholes.main(args);
          return true;
     }
 
-    public static def main(args:Rail[String]) {
+    public static def main(args:Array[String](1)) {
 	new CUDABlackScholesTest().execute();
     }
 }

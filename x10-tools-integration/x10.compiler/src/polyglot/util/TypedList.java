@@ -40,7 +40,7 @@ public class TypedList<T> implements List<T>, java.io.Serializable, Cloneable
    * null, no typing restriction is made.  If <immutable> is true, no
    * modifications are allowed.
    **/
-  public static <T> TypedList<T> copy(List<T> list, Class<? super T> c, boolean immutable) {
+  public static <T> TypedList<T> copy(List<? extends T> list, Class<? super T> c, boolean immutable) {
     if (list == null)
       return null;
     return new TypedList<T>(new ArrayList<T>(list), c, immutable);
@@ -55,7 +55,7 @@ public class TypedList<T> implements List<T>, java.io.Serializable, Cloneable
    * Throws an UnsupportedOperationException if any member of <list>
    * may not be cast to class <c>.
    **/
-  public static <T> TypedList<T> copyAndCheck(List<T> list, Class<? super T> c, boolean immutable) {
+  public static <T> TypedList<T> copyAndCheck(List<? extends T> list, Class<? super T> c, boolean immutable) {
     if (c != null)
       check(list,c);
     return copy(list,c,immutable);
@@ -65,13 +65,12 @@ public class TypedList<T> implements List<T>, java.io.Serializable, Cloneable
    * Throws an UnsupportedOperationException if any member of <list>
    * may not be cast to class <c>. Otherwise does nothing.
    **/
-  public static <T> void check(List<T> list, Class<? super T> c) {
+  public static <T> void check(List<? extends T> list, Class<? super T> c) {
     if (list == null)
       return;
-    for (Iterator<T> i = list.iterator(); i.hasNext(); ) {
-      T o = i.next();
+    for (T o : list) {
       if (o != null && !c.isAssignableFrom(o.getClass())) {
-	throw new UnsupportedOperationException(
+          throw new UnsupportedOperationException(
 		     "Tried to add a " + o.getClass().getName() +
    	             " to a list of type " + c.getName());
       }
@@ -103,10 +102,12 @@ public class TypedList<T> implements List<T>, java.io.Serializable, Cloneable
   /**
    * Copies this list.
    **/
+  @SuppressWarnings("unchecked") // Casting to a generic type
   public TypedList<T> copy() {
       return (TypedList<T>) clone();
   }
 
+  @SuppressWarnings("unchecked") // Casting to a generic type
   public Object clone() {
       try {
           TypedList<T> l = (TypedList<T>) super.clone();
@@ -148,8 +149,8 @@ public class TypedList<T> implements List<T>, java.io.Serializable, Cloneable
     tryIns(o);
     return backing_list.set(idx, o);
   }
-  public List subList(int from, int to) {
-    return new TypedList(backing_list.subList(from, to),
+  public List<T> subList(int from, int to) {
+    return new TypedList<T>(backing_list.subList(from, to),
 			 allowed_type,
 			 immutable);
   }
@@ -159,12 +160,12 @@ public class TypedList<T> implements List<T>, java.io.Serializable, Cloneable
 	    return true;
 	if (backing_list == o)
 	    return true;
-	if (! (o instanceof List))
+	if (! (o instanceof List<?>))
 	    return false;
-	if (((List) o).size() != backing_list.size())
+	if (((List<?>) o).size() != backing_list.size())
 	    return false;
-	if (o instanceof TypedList)
-	    return backing_list.equals(((TypedList) o).backing_list);
+	if (o instanceof TypedList<?>)
+	    return backing_list.equals(((TypedList<?>) o).backing_list);
 	else
 	    return backing_list.equals(o);
     }
@@ -173,7 +174,7 @@ public class TypedList<T> implements List<T>, java.io.Serializable, Cloneable
     { tryMod(); backing_list.clear(); }
   public boolean contains(Object o) 
     { return backing_list.contains(o); }
-  public boolean containsAll(Collection coll) 
+  public boolean containsAll(Collection<?> coll) 
     { return backing_list.containsAll(coll); }
   public T get(int idx)
     { return backing_list.get(idx); }
@@ -191,9 +192,9 @@ public class TypedList<T> implements List<T>, java.io.Serializable, Cloneable
     { tryMod(); return backing_list.remove(idx); }
   public boolean remove(Object o)
     { tryMod(); return backing_list.remove(o); }
-  public boolean removeAll(Collection coll)
+  public boolean removeAll(Collection<?> coll)
     { tryMod(); return backing_list.removeAll(coll); }
-  public boolean retainAll(Collection coll)
+  public boolean retainAll(Collection<?> coll)
     { tryMod(); return backing_list.retainAll(coll); }
   public int size()
     { return backing_list.size(); }

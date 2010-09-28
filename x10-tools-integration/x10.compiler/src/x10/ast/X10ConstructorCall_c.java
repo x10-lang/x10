@@ -91,19 +91,39 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 	public Node visitChildren(NodeVisitor v) {
 		Expr qualifier = (Expr) visitChild(this.qualifier, v);
 		List<TypeNode> typeArguments = visitList(this.typeArguments, v);
-		List arguments = visitList(this.arguments, v);
+		List<Expr> arguments = visitList(this.arguments, v);
 		X10ConstructorCall_c n = (X10ConstructorCall_c) typeArguments(typeArguments);
 		return n.reconstruct(qualifier, arguments);
 	}
 	
-	    List<TypeNode> typeArguments;
-	    public List<TypeNode> typeArguments() { return typeArguments; }
-	    public X10ConstructorCall typeArguments(List<TypeNode> args) {
-		    X10ConstructorCall_c n = (X10ConstructorCall_c) copy();
-		    n.typeArguments = new ArrayList<TypeNode>(args);
-		    return n;
-	    }
-	    
+	List<TypeNode> typeArguments;
+	public List<TypeNode> typeArguments() { return typeArguments; }
+	public X10ConstructorCall typeArguments(List<TypeNode> args) {
+	    X10ConstructorCall_c n = (X10ConstructorCall_c) copy();
+	    n.typeArguments = new ArrayList<TypeNode>(args);
+	    return n;
+	}
+
+	@Override
+	public X10ConstructorCall qualifier(Expr qualifier) {
+	    return (X10ConstructorCall) super.qualifier(qualifier);
+	}
+	@Override
+	public X10ConstructorCall kind(Kind kind) {
+	    return (X10ConstructorCall) super.kind(kind);
+	}
+	@Override
+	public X10ConstructorCall arguments(List<Expr> arguments) {
+	    return (X10ConstructorCall) super.arguments(arguments);
+	}
+	@Override
+	public X10ConstructorInstance constructorInstance() {
+	    return (X10ConstructorInstance) super.constructorInstance();
+	}
+	@Override
+	public X10ConstructorCall constructorInstance(ConstructorInstance ci) {
+	    return (X10ConstructorCall) super.constructorInstance(ci);
+	}
 
 	public Node typeCheck(ContextVisitor tc) throws SemanticException {
 
@@ -159,11 +179,11 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 
 	            Type qt = qualifier.type();
 
-	            if (! qt.isClass() || !qt.isSubtype(superType.toClass().outer(), context)) {
+	            if (! qt.isClass() || !qt.isSubtype(superType.toClass().container(), context)) {
 	                throw new SemanticException("The type of the qualifier " +
 	                                            "\"" + qt + "\" does not match the immediately enclosing " +
 	                                            "class  of the super class \"" +
-	                                            superType.toClass().outer() + "\".", qualifier.position());
+	                                            superType.toClass().container() + "\".", qualifier.position());
 	            }
 	        }
 
@@ -180,7 +200,7 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 	            // must be provided, or ct must have an enclosing instance of the
 	            // super class's container class, or a subclass thereof.
 	            if (q == null && superType.isClass() && superType.toClass().isInnerClass()) {
-	                ClassType superContainer = superType.toClass().outer();
+	                ClassType superContainer = (ClassType) superType.toClass().container();
 	                // ct needs an enclosing instance of superContainer, 
 	                // or a subclass of superContainer.
 	                ClassType e = ct;

@@ -43,7 +43,7 @@ public class StructTest2 extends x10Test {
         if (x == y) return false;
         y = x;
 	val tmp = x.refval;
-        at (tmp) tmp.w++;
+        tmp.w++;
         // ensure foo is treated as a reference object
         // so both x and y see the update
         x10.io.Console.OUT.println("4");
@@ -61,7 +61,7 @@ public class StructTest2 extends x10Test {
         return n != -1;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new StructTest2().execute();
     }
 
@@ -80,8 +80,8 @@ public class StructTest2 extends x10Test {
    static class foo {
      var w: int = 19;
 
-     global def getW() {
-	return at(this) w;
+     def getW() {
+	return w;
      }
 
    }

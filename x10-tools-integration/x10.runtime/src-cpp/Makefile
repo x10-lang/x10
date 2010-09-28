@@ -133,6 +133,7 @@ ALL_XRCPP_OBJECTS = \
 	x10/lang/Any.o \
 	x10/lang/Closure.o \
 	x10/lang/Fun.o \
+	x10/lang/GlobalRef.o \
 	x10/lang/Object.o \
 	x10/lang/Rail.o \
 	x10/lang/Reference.o \
@@ -206,6 +207,7 @@ install: $(XRCPP_ARCHIVE) $(XRX_ARCHIVE)
 	@find x10 -name \*.h | tar cf - $(INC_FLAG) | (cd $(INSTDIR)/include && tar xf -)
 	@find x10 -name \*.struct_h | tar cf - $(INC_FLAG) | (cd $(INSTDIR)/include && tar xf -)
 	@find x10aux -name \*.h | tar cf - $(INC_FLAG) | (cd $(INSTDIR)/include && tar xf -)
+	@find x10aux -name \*.cuh | tar cf - $(INC_FLAG) | (cd $(INSTDIR)/include && tar xf -)
 	@cp -p x10rt.h $(INSTDIR)/include
 	@cp -p $(XRX_ARCHIVE) $(INSTDIR)/lib
 	@cp -p $(XRX_MANIFEST) $(INSTDIR)/lib

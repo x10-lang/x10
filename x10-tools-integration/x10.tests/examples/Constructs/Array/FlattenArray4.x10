@@ -20,10 +20,10 @@ import harness.x10Test;
 
 public class FlattenArray4 extends x10Test {
 
-    var a: Array[int](2)!;
+    var a: Array[int](2);
 
     public def this(): FlattenArray4 = {
-        a = new Array[int]([1..10, 1..10], ((i,j): Point) => { return i+j;});
+        a = new Array[int]([1..10, 1..10], ([i,j]: Point) => { return i+j;});
     }
 
     def m(var x: int): int = {
@@ -36,7 +36,7 @@ public class FlattenArray4 extends x10Test {
         return x+y==1+1+2+2;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new FlattenArray4().execute();
     }
 }

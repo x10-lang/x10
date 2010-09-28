@@ -16,11 +16,11 @@ import harness.x10Test;
  */
 public class Initialization extends x10Test {
 
-	var _tests: Rail[String] = [ "testDouble" ];
-	const kArraySize: int = 500;
+	var _tests: ValRail[String] = [ "testDouble" ];
+	static kArraySize: int = 500;
 	var x_doubleArray1D: DistArray[double];
 	var x_doubleArray2D: DistArray[double];
-	var x_javaArray: Rail[double]!;
+	var x_javaArray: Rail[double];
 	var x_intArray1D: DistArray[int];
 
 	public def run(): boolean = {
@@ -60,7 +60,7 @@ public class Initialization extends x10Test {
 		return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new Initialization().execute();
 	}
 }

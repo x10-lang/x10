@@ -312,11 +312,11 @@ class x10rt_req_queue {
         }
 };
 
-typedef void (*amSendCb)(const x10rt_msg_params *);
-typedef void *(*putCb1)(const x10rt_msg_params *, unsigned long len);
-typedef void (*putCb2)(const x10rt_msg_params *, unsigned long len);
-typedef void *(*getCb1)(const x10rt_msg_params *, unsigned long len);
-typedef void (*getCb2)(const x10rt_msg_params *, unsigned long len);
+typedef x10rt_handler *amSendCb;
+typedef x10rt_finder *putCb1;
+typedef x10rt_notifier *putCb2;
+typedef x10rt_finder *getCb1;
+typedef x10rt_notifier *getCb2;
 
 class x10rt_internal_state {
     public:
@@ -456,7 +456,7 @@ void x10rt_net_init(int *argc, char ** *argv, x10rt_msg_type *counter) {
     }
 }
 
-void x10rt_net_register_msg_receiver(unsigned msg_type, x10rt_handler *cb) {
+void x10rt_net_register_msg_receiver(x10rt_msg_type msg_type, x10rt_handler *cb) {
     assert(global_state.init);
     assert(!global_state.finalized);
     if (msg_type >= global_state.amCbTblSize) {
@@ -469,7 +469,7 @@ void x10rt_net_register_msg_receiver(unsigned msg_type, x10rt_handler *cb) {
     global_state.amCbTbl[msg_type] = cb;
 }
 
-void x10rt_net_register_put_receiver(unsigned msg_type,
+void x10rt_net_register_put_receiver(x10rt_msg_type msg_type,
                                      x10rt_finder *cb1, x10rt_notifier *cb2) {
     assert(global_state.init);
     assert(!global_state.finalized);
@@ -507,28 +507,16 @@ void x10rt_net_register_get_receiver(x10rt_msg_type msg_type,
 
 void x10rt_net_internal_barrier (void)
 {
-    assert(global_state.init);
-    assert(!global_state.finalized);
-
-    while(global_state.pending_send_list.length() > 0) {
-        x10rt_net_probe();
-    }
-
-    LOCK_IF_MPI_IS_NOT_MULTITHREADED;
-    if(MPI_SUCCESS != MPI_Barrier(global_state.mpi_comm)) {
-        fprintf(stderr, "[%s:%d] Error in MPI_Barrier\n", __FILE__, __LINE__);
-        exit(EXIT_FAILURE);
-    }
-    UNLOCK_IF_MPI_IS_NOT_MULTITHREADED;
+    abort(); // FUNCTION IS ON DEATH ROW
 }
 
-unsigned long x10rt_net_nhosts(void) {
+x10rt_place x10rt_net_nhosts(void) {
     assert(global_state.init);
     assert(!global_state.finalized);
     return global_state.nprocs;
 }
 
-unsigned long x10rt_net_here(void) {
+x10rt_place x10rt_net_here(void) {
     assert(global_state.init);
     assert(!global_state.finalized);
     return global_state.rank;
@@ -584,8 +572,7 @@ void x10rt_net_send_msg(x10rt_msg_params * p) {
     }
 }
 
-void x10rt_net_send_get(x10rt_msg_params *p,
-        void *buf, unsigned long len) {
+void x10rt_net_send_get(x10rt_msg_params *p, void *buf, x10rt_copy_sz len) {
     int                 get_msg_len;
     x10rt_req         * req;
     x10rt_nw_req      * get_msg;
@@ -664,8 +651,7 @@ void x10rt_net_send_get(x10rt_msg_params *p,
 }
 
 
-void x10rt_net_send_put(x10rt_msg_params *p,
-        void *buf, unsigned long len) {
+void x10rt_net_send_put(x10rt_msg_params *p, void *buf, x10rt_copy_sz len) {
     int put_msg_len;
     x10rt_put_req * put_msg;
     assert(global_state.init);
@@ -1112,6 +1098,70 @@ int x10rt_net_supports (x10rt_opt o) {
 
 void x10rt_net_remote_op (x10rt_place place, x10rt_remote_ptr victim,
                           x10rt_op_type type, unsigned long long value)
+{
+    abort();
+}
+
+void x10rt_net_team_new (x10rt_place placec, x10rt_place *placev,
+                         x10rt_completion_handler2 *ch, void *arg)
+{
+    abort();
+}
+
+void x10rt_net_team_del (x10rt_team team, x10rt_place role,
+                         x10rt_completion_handler *ch, void *arg)
+{
+    abort();
+}
+
+x10rt_place x10rt_net_team_sz (x10rt_team team)
+{
+    abort();
+}
+
+void x10rt_net_team_split (x10rt_team parent, x10rt_place parent_role,
+                           x10rt_place color, x10rt_place new_role,
+                           x10rt_completion_handler2 *ch, void *arg)
+{
+    abort();
+}
+
+void x10rt_net_barrier (x10rt_team team, x10rt_place role,
+                        x10rt_completion_handler *ch, void *arg)
+{
+    abort();
+}
+
+void x10rt_net_bcast (x10rt_team team, x10rt_place role,
+                      x10rt_place root, const void *sbuf, void *dbuf,
+                      size_t el, size_t count,
+                      x10rt_completion_handler *ch, void *arg)
+{
+    abort();
+}
+
+void x10rt_net_scatter (x10rt_team team, x10rt_place role,
+                        x10rt_place root, const void *sbuf, void *dbuf,
+                        size_t el, size_t count,
+                        x10rt_completion_handler *ch, void *arg)
+{
+    abort();
+}
+
+void x10rt_net_alltoall (x10rt_team team, x10rt_place role,
+                         const void *sbuf, void *dbuf,
+                         size_t el, size_t count,
+                         x10rt_completion_handler *ch, void *arg)
+{
+    abort();
+}
+
+void x10rt_net_allreduce (x10rt_team team, x10rt_place role,
+                          const void *sbuf, void *dbuf,
+                          x10rt_red_op_type op, 
+                          x10rt_red_type dtype,
+                          size_t count,
+                          x10rt_completion_handler *ch, void *arg)
 {
     abort();
 }

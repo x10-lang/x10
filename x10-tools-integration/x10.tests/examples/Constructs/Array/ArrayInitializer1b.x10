@@ -21,14 +21,14 @@ public class ArrayInitializer1b extends x10Test {
 
         val e = 0..9;
         val r = [e, e, e] as Region(3);
-        val ia = new Array[Int](r, ((i,j,k):Point)=> i);
+        val ia = new Array[Int](r, ([i,j,k]:Point)=> i);
 
-        for (val p(i,j,k):Point(3) in ia.region) chk(ia(p) == i); 
+        for (val p[i,j,k]:Point(3) in ia.region) chk(ia(p) == i); 
 
         return true;
     }
 
-    public static def main(Rail[String]): Void = {
+    public static def main(Array[String](1)): Void = {
         new ArrayInitializer1b().execute();
     }
 }

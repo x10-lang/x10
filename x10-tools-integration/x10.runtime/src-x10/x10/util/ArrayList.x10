@@ -13,9 +13,9 @@ package x10.util;
 
 public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
 
-    private val a: GrowableRail[T]!;
+    private val a: GrowableRail[T];
 
-    public static def make[T](c: Container[T]!) {
+    public static def make[T](c: Container[T]) {
 	val a = new ArrayList[T]();
 	a.addAll(c);
 	return a;
@@ -148,13 +148,13 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
     private static class It[S] implements ListIterator[S] {
         
         private var i: int;
-        private val al: ArrayList[S]!;
+        private val al: ArrayList[S];
         
-        def this(al: ArrayList[S]!) {
+        def this(al: ArrayList[S]) {
             this(al, -1);
         }
 
-        def this(al: ArrayList[S]!, i: int) {
+        def this(al: ArrayList[S], i: int) {
             this.al = al;
             this.i = i;
         }
@@ -212,7 +212,7 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
     }
 
     // [NN]: should not need to cast x to Comparable[T]
-    public def sort() {T <: Comparable[T]} = sort((x:T, y:T) => (x as Comparable[T]!).compareTo(y));
+    public def sort() {T <: Comparable[T]} = sort((x:T, y:T) => (x as Comparable[T]).compareTo(y));
     public def sort(cmp: (T,T)=>Int) = qsort(a, 0, 
          a.length()-1, 
          cmp
@@ -224,7 +224,7 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
     // quick&dirty sort
     //
 
-    private def qsort(a: GrowableRail[T]!, lo: int, hi: int, cmp: (T,T)=>Int) {
+    private def qsort(a: GrowableRail[T], lo: int, hi: int, cmp: (T,T)=>Int) {
         if (hi <= lo) return;
         var l: int = lo - 1;
         var h: int = hi;
@@ -239,7 +239,7 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
         qsort(a, l+1, hi, cmp);
     }
 
-    private def exch(a: GrowableRail[T]!, i: int, j: int): void {
+    private def exch(a: GrowableRail[T], i: int, j: int): void {
         val temp = a(i);
         a(i) = a(j);
         a(j) = temp;

@@ -36,7 +36,7 @@ public class X10CBackingArray_c extends Expr_c implements BackingArray {
     }
 
     @Override
-    public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
+    public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
         return null;
     }
     

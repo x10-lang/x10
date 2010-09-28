@@ -17,6 +17,7 @@ public interface IntLit extends NumLit
 {
     /** Integer literal kinds: int (e.g., 0) or long (e.g., 0L). */
     public static class Kind extends Enum {
+        private static final long serialVersionUID = 2490235381600621044L;
         public Kind(String name) { super(name); }
     }
 

@@ -94,7 +94,7 @@
         <condition property="platform" value="macosx"><os name="Mac OS X"/></condition>
         <!-- Work around Mac OS's Java reporting x86 as i386 -->
         <condition property="arch" value="x86" else="${os.arch}"><equals arg1="${os.arch}" arg2="i386"/></condition>
-        <property name="lpg.executable.location" location="${x10.home}/lpg.generator.${platform}_${arch}"/>
+        <property name="lpg.executable.location" location="${lpg.location}.${platform}_${arch}"/>
         <property name="lpg.executable" location="${lpg.executable.location}/lpgexe/lpg-${platform}_${arch}"/>
         <!--
         <echo message="OS: ${os.name} ${os.arch}"/>
@@ -108,6 +108,7 @@
         -->
         <exec dir="${src}/x10/parser" executable="${lpg.executable}" failonerror="true">
             <arg value="-include-directory=${templates.dir};${include.dir};"/>
+            <arg value="-directory-prefix=${src}/"/>
             <arg value="${grammar.file}"/>
         </exec>
     </target>

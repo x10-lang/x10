@@ -19,12 +19,12 @@ class XTENLANG_165 extends x10Test {
 
     public def run():boolean {
         for (p:Place in Place.places)
-            async(p)
+            async at (p)
                 x10.io.Console.OUT.println("hi");
         return true;
     }
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new XTENLANG_165().execute();
     }
 }

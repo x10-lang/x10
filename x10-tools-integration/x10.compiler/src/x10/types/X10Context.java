@@ -127,6 +127,9 @@ public interface X10Context extends Context {
     boolean inAssignment();
     void setInAssignment();
     X10Context pushAssignment();
+    
+    X10Context pushClockedFinishScope();
+    boolean inClockedFinishScope();
     /**
      * Push a new block, and sets its currentConstraint to old currentConstraint + env.
      * 
@@ -153,15 +156,6 @@ public interface X10Context extends Context {
      */
     X10Context pushAtomicBlock(); 
     
-    void setSafeCode();
-    void setNonBlockingCode();
-    void setSequentialCode();
-    void setLocalCode();
-    boolean inSafeCode();
-    boolean inLocalCode();
-    boolean inSequentialCode();
-    boolean inNonBlockingCode();
-    
     Name getNewVarName();
     
     void setVarWhoseTypeIsBeingElaborated(VarDef var);
@@ -186,6 +180,12 @@ public interface X10Context extends Context {
     XVar thisVar();
 
     CConstraint constraintProjection(CConstraint... cs) throws XFailure;
+    
+    /** 
+     * Is the current code context clocked?
+     * @return
+     */
+    boolean isClocked();
     
   
 }

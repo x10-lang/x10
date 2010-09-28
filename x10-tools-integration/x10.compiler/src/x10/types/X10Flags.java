@@ -26,7 +26,9 @@ import polyglot.types.Flags;
  * 
  */
 public class X10Flags extends Flags {
-    public static final Set X10_FLAGS = new TreeSet();
+    private static final long serialVersionUID = 9052097680529482894L;
+
+    public static final Set<String> X10_FLAGS = new TreeSet<String>();
     public static final X10Flags EXTERN = createFlag("extern", null);
     public static final X10Flags VALUE = createFlag("value", null);
     public static final X10Flags REFERENCE = createFlag("reference", null);
@@ -43,9 +45,9 @@ public class X10Flags extends Flags {
     public static final X10Flags GLOBAL = createFlag("global", null);
    // public static final X10Flags ROOTED = createFlag("rooted", null);
     public static final X10Flags STRUCT = createFlag("struct", null);
-    public static final X10Flags PROTO = createFlag("proto", null);
     public static final X10Flags PINNED = createFlag("pinned", null);
     public static final X10Flags HASTYPE = createFlag("hastype", null); // can only be created through a <: Type declaration.
+    public static final X10Flags CLOCKED = createFlag("clocked", null);  
 
     /**
      * Return a new Flags object with a new name. Should be called only once per
@@ -493,7 +495,7 @@ public class X10Flags extends Flags {
      *            TODO
      */
     public X10Flags Property() {
-        return setX(PROPERTY).setX(GLOBAL);
+        return setX(PROPERTY);
     }
 
     /**
@@ -549,40 +551,39 @@ public class X10Flags extends Flags {
     public boolean isSequential() {
         return contains(SEQUENTIAL) || contains(SAFE);
     }
-    
+
     /**
-     * Return a copy of this <code>this</code> with the <code>sequential</code>
+     * Return a copy of this <code>this</code> with the <code>pinned</code>
      * flag set.
      * 
      * @param flags
      *            TODO
      */
-    public X10Flags Proto() {
-        return setX(PROTO);
+    public X10Flags Clocked() {
+        return setX(CLOCKED);
     }
 
     /**
-     * Return a copy of this <code>this</code> with the <code>sequential</code>
+     * Return a copy of this <code>this</code> with the <code>pinned</code>
      * flag clear.
      * 
      * @param flags
      *            TODO
      */
-    public X10Flags clearProto() {
-        return clearX(PROTO);
+    public X10Flags clearClocked() {
+        return clearX(CLOCKED);
     }
 
     /**
-     * Return true if <code>this</code> has the <code>sequential</code> flag
+     * Return true if <code>this</code> has the <code>pinned</code> flag
      * set.
      * 
      * @param flags
      *            TODO
      */
-    public boolean isProto() {
-        return contains(PROTO);
+    public boolean isClocked() {
+        return contains(CLOCKED);
     }
-
     /**
      * Return a copy of this <code>this</code> with the <code>pinned</code>
      * flag set.
@@ -653,8 +654,7 @@ public class X10Flags extends Flags {
     public String translate() {
         StringBuffer sb = new StringBuffer();
 
-        for (Iterator i = this.flags.iterator(); i.hasNext();) {
-            String s = (String) i.next();
+        for (String s : this.flags) {
             if (X10_FLAGS.contains(s))
                 continue;
 
@@ -671,7 +671,6 @@ public class X10Flags extends Flags {
 
     public boolean hasAllAnnotationsOf(X10Flags f) {
         boolean result = ((!f.isSequential()) || isSequential() || isSafe()) 
-        && ((!f.isGlobal()) || isGlobal() )
         && ((!f.isNonBlocking()) || isNonBlocking() || isSafe()) && ((!f.isSafe()) || isSafe());
         // Report.report(1, "X10Flags: " + this + ".hasAllAnnotationsOf(" + f +
         // ")? " + result);
@@ -682,8 +681,8 @@ public class X10Flags extends Flags {
     public String toString() {
         StringBuffer sb = new StringBuffer();
 
-        for (Iterator i = this.flags.iterator(); i.hasNext();) {
-            String s = (String) i.next();
+        for (Iterator<String> i = this.flags.iterator(); i.hasNext();) {
+            String s = i.next();
 
             sb.append(s);
             if (i.hasNext())

@@ -52,8 +52,8 @@ public class Fib {
     r = f1.r + f2.r;
   }
 
-  public static def main(args:Rail[String]!) {
-    val n = (args.length > 0) ? int.parse(args(0)) : 10;
+  public static def main(args:Array[String](1)) {
+    val n = (args.size > 0) ? int.parse(args(0)) : 10;
     Console.OUT.println("Computing Fib("+n+")");
     val f = new Fib(n);
     f.run();

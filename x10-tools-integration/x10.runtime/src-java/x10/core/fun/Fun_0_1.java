@@ -13,13 +13,19 @@ package x10.core.fun;
 
 import x10.rtt.RuntimeType;
 import x10.rtt.RuntimeType.Variance;
+import x10.rtt.Type;
 
 public interface Fun_0_1<T1,U> extends Fun {
-    U apply$G(T1 o);
+    U apply(T1 o, Type t);
     
     public static final RuntimeType<Fun_0_1<?,?>> _RTT = new RuntimeType<Fun_0_1<?,?>>(
         Fun_0_1.class,
         Variance.CONTRAVARIANT,
         Variance.COVARIANT
-    );
+    ) {
+        @Override
+        public String typeName(Object o) {
+            return typeNameForFun(o);
+        }
+    };
 }

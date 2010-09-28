@@ -19,11 +19,33 @@ import java.util.Set;
 /**
  * All nodes that occur in the graph maintained by a constraint
  * must implement Promise. Thus a Promise is a pointer into the state of some specific constraint.
+ * <p>
+ * A promise contains fields: 
+ * <ol>
+ * <li>XPromise value  -- if non-null, points to a promise this one has been equated with.
+ * <li>Collection<XPromise> disequals -- contains set of other nodes this has been disequated with
+ * <li>XTerm var  -- externally visible term labeling this promise
+ * <li>Map<XName, XPromise> fields -- hashmap of fields of this promise (if any). 
+ * </ol>
+ * It maintains the invariant <code>> value != null</code> implies <code>disequals==null && fields == null</code>.
+ * That is, if <code>value !=null</code> (in this case we say the promise ie <em>bound</em>), all further
+ * information about this node in the graph is found by going to to <code>value</code>, except for the <code>XTerm</code>  
+ * labeling this node (<code>var</code>). See <code>term()</code>.
  * 
+ * <p>If <code>a.value==b</code>
+ * we sometimes say that <code>b</code> has an incoming "eq" link, and <code>a</code> has an outgoing "eq" link.
+ * 
+ * <p> Constraint graphs may contain sequences of such bindings. These can be shortened without any
+ * semantic consequence.
+ * 
+ * <p> Constraint graphs are always acyclic. 
+ * 
+ * <p> Note: This interface is not public only so that extensions of this constraint system may use it.
+ * This interface is <em>not</em> intended to be used by customers of the constraint system.
  * @author vj
  *
  */
-public interface XPromise extends Cloneable {
+interface XPromise extends Cloneable {
 
 	/**
 	 * this must be the promise corresponding to the index'th element in the list vars.
@@ -61,6 +83,11 @@ public interface XPromise extends Cloneable {
 	 */
 	XPromise lookup(XVar[] vars, int index);
 
+	/**
+	 * Lookup the field named s on this promise.
+	 * @param s
+	 * @return
+	 */
 	XPromise lookup(XName s)  ;
 
 	XPromise lookup();

@@ -112,7 +112,7 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode, AddF
     }
     
     public void setResolver(Node parent, final TypeCheckPreparer v) {
-    	if (typeRef() instanceof LazyRef) {
+    	if (typeRef() instanceof LazyRef<?>) {
     		LazyRef<Type> r = (LazyRef<Type>) typeRef();
     		TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
     		tc = (TypeChecker) tc.context(v.context().freeze());
@@ -161,43 +161,9 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode, AddF
         result = (CanonicalTypeNode) ((X10Del) result.del()).annotations(((X10Del) n.del()).annotations());
         result = (CanonicalTypeNode) ((X10Del) result.del()).setComment(((X10Del) n.del()).comment());
 
-        // [IP] This is wrong!
-        //LazyRef<Type> sym = (LazyRef<Type>) result.typeRef();
-        //sym.update(fixInnerParams(sym.get()));
-
         return result;
     }
     
-    // [IP] This is wrong!
-    // Fix inner classes by adding type arguments from their enclosing classes.
-    // That is, convert C[T].D into C[T].D[T].
-    static Type fixInnerParams(Type t) {
-        Type b = X10TypeMixin.baseType(t);
-        if (b instanceof X10ClassType) {
-            X10ClassType ct = (X10ClassType) b;
-            List<Type> params = new ArrayList<Type>();
-            
-            if (ct.isMember() && ! ct.flags().isStatic()) {
-                X10ClassType outer = (X10ClassType) ct.outer();
-                while (outer != null) {
-                    params.addAll(outer.typeArguments());
-                    if (outer.isMember())
-                        outer = (X10ClassType) outer.outer();
-                    else
-                        outer = null;
-                }
-            }
-            
-            if (params.size() > 0) {
-                params.addAll(0, ct.typeArguments());
-                ct = ct.typeArguments(params);
-                t = X10TypeMixin.baseType(ct);
-            }
-        }
-        
-        return t;
-    }
-
     public Node exceptionCheck(ExceptionChecker ec) throws SemanticException {
         throw new InternalCompilerError(position(),
             "Cannot exception check ambiguous node " + this + ".");

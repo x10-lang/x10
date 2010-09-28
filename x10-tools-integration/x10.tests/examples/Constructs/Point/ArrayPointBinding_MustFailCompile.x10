@@ -21,13 +21,13 @@ public class ArrayPointBinding_MustFailCompile extends x10Test {
 
     public def run(): boolean = {
 
-        p(i,j): Rail[Point] = new Rail[Point](1);
+        p[i,j]: Rail[Point] = new Rail[Point](1);
         p(0) = [1,2];
 
         return (i == 1 && j == 2);
     }
 
-    public static def main(args: Rail[String]): void = {
+    public static def main(args: Array[String](1)): void = {
         new ArrayPointBinding_MustFailCompile().execute();
     }
 }

@@ -138,7 +138,7 @@ public interface NodeFactory
 	                            Expr outer, List<Expr> args);
 
     ConstructorDecl ConstructorDecl(Position pos, FlagsNode flags, Id name,
-            List<Formal> formals, List<TypeNode> throwTypes,
+            List<Formal> formals, 
             Block body);
 
     FieldDecl FieldDecl(Position pos, FlagsNode flags, TypeNode type, Id name);
@@ -180,7 +180,7 @@ public interface NodeFactory
     LocalDecl LocalDecl(Position pos, FlagsNode flags, TypeNode type, Id name, Expr init);
 
     MethodDecl MethodDecl(Position pos, FlagsNode flags, TypeNode returnType, Id name,
-            List<Formal> formals, List<TypeNode> throwTypes, Block body);
+            List<Formal> formals,  Block body);
 
     New New(Position pos, TypeNode type, List<Expr> args);
     New New(Position pos, TypeNode type, List<Expr> args, ClassBody body);

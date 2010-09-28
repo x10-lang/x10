@@ -21,7 +21,7 @@ public class ArrayTypeCheck extends x10Test {
 
     public def run(): boolean = {
 
-        var a1: DistArray[int] = DistArray.make[int](Dist.makeConstant([0..2, 0..3], here), (var p(i): Point): int => { return i; });
+        var a1: DistArray[int] = DistArray.make[int](Dist.makeConstant([0..2, 0..3], here), (var p[i]: Point): int => { return i; });
 
         x10.io.Console.OUT.println("1");
 
@@ -59,7 +59,7 @@ public class ArrayTypeCheck extends x10Test {
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new ArrayTypeCheck().execute();
     }
 }

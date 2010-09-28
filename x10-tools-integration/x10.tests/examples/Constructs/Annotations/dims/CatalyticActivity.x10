@@ -12,5 +12,5 @@
 package dims;
 
 public interface CatalyticActivity extends Measure { 
-    @DerivedUnit(SI.katal) const katal: double = _, kat: double = _;
+    @DerivedUnit(SI.katal) static katal: double = _, kat: double = _;
 }

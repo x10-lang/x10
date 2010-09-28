@@ -100,10 +100,8 @@ public class Offer_c extends Stmt_c implements Offer {
 	 * @see polyglot.ast.Term_c#acceptCFG(polyglot.visit.CFGBuilder, java.util.List)
 	 */
 	@Override
-	public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
-
+	public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
 		v.visitCFG(expr, this, EXIT);
-
 		return succs;
 	}
 

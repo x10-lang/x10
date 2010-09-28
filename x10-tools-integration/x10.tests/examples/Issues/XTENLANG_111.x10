@@ -18,15 +18,15 @@ import harness.x10Test;
 class XTENLANG_111 extends x10Test {
 
     static class P {
-        incomplete public static operator (r: ValRail[int]): P;
+        public static operator (r: ValRail[int]): P { throw new RuntimeException(); }
     }
     
     static class A {
-        incomplete def apply(p:P): int; // FIXME: XTENLANG-1443
-        incomplete def set(e:int, p:P): void;
+        def apply(p:P): int { throw new RuntimeException(); } // FIXME: XTENLANG-1443
+        def set(e:int, p:P): void { throw new RuntimeException(); }
     }
         
-    def foo(a:A!) {
+    def foo(a:A) {
         a([1,2,3]) = 0;
     }
 
@@ -34,7 +34,7 @@ class XTENLANG_111 extends x10Test {
         return true;
     }
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new XTENLANG_111().execute();
     }
 }

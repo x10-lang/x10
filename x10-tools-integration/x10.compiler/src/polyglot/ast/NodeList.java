@@ -14,6 +14,7 @@ import java.util.List;
  * a node is visited, it may replace itself with multiple nodes by returning a
  * <code>NodeList</code> to the visitor. The rewritten node's parent would
  * then be responsible for properly splicing those nodes into the AST.
+ * FIXME: make generic
  */
 public interface NodeList extends Node {
   /**

@@ -26,9 +26,9 @@ public class Console {
         @Native("c++", "x10::io::InputStreamReader__InputStream::STANDARD_IN()")
         private native static def realIn(): InputStreamReader.InputStream;
     
-        public const OUT: Printer = new Printer(new OutputStreamWriter(realOut()));
-        public const ERR: Printer = new Printer(new OutputStreamWriter(realErr()));
-        public const IN:  Reader  = new InputStreamReader(realIn());
+        public static OUT: Printer = new Printer(new OutputStreamWriter(realOut()));
+        public static ERR: Printer = new Printer(new OutputStreamWriter(realErr()));
+        public static IN:  Reader  = new InputStreamReader(realIn());
         
    /*
         public static def write(b: Byte): Void throws IOException = OUT.write(b);

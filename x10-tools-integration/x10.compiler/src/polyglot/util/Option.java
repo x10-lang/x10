@@ -7,7 +7,8 @@ package polyglot.util;
 public abstract class Option<T> {
     public abstract T get();
 
-    public static final None<?> NONE = new None();
+    public static final None<?> NONE = new None<Object>();
+    @SuppressWarnings("unchecked") // Casting to a generic type
     public static <S> None<S> None() { return (None<S>) NONE; }
     public static <S> Some<S> Some(S s) { return new Some<S>(s); }
     

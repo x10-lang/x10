@@ -11,11 +11,13 @@ import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
 
 /**
- * An unknown type.  This is used as a place-holder until types are
+ * An unknown package.  This is used as a place-holder until types are
  * disambiguated.
  */
 public class UnknownPackage_c extends Package_c implements UnknownPackage
 {
+    private static final long serialVersionUID = 7081521055209225641L;
+
     /** Used for deserializing types. */
     protected UnknownPackage_c() { }
     

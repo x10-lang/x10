@@ -12,6 +12,7 @@
 package x10.types.checker;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -66,13 +67,17 @@ import x10.constraint.XVar;
 import x10.errors.Errors;
 import x10.errors.Warnings;
 import x10.types.ParameterType;
+import x10.types.TypeParamSubst;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
 import x10.types.X10ParsedClassType_c;
+import x10.types.X10ProcedureDef;
+import x10.types.X10ProcedureInstance;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.TypeConstraint;
 import x10.util.Synthesizer;
 
 /**
@@ -187,11 +192,23 @@ public class Converter {
 		}
 
 		METHOD: for (Iterator<PI> i = methods.iterator(); i.hasNext();) {
-			PI smi = (PI) i.next();
+			PI smi = i.next();
+			X10ProcedureInstance<?> xmi = (X10ProcedureInstance<?>) smi;
 
 			if (Report.should_report(Report.types, 3))
 				Report.report(3, "Trying " + smi);
 
+			List<ParameterType> typeParameters = ((X10ProcedureDef) xmi.def()).typeParameters();
+			if (typeParameters.size() != typeArgs.size()) {
+			    if (!typeArgs.isEmpty()) continue METHOD; // Number of arguments doesn't match
+			    Type container = (smi instanceof MemberInstance<?>) ? ((MemberInstance<?>) smi).container() : null;
+			    List<Type> actuals = new ArrayList<Type>();
+			    for (Expr e : n.arguments()) actuals.add(e.type());
+			    List<Type> typeFormals = new ArrayList<Type>(typeParameters);
+			    Type[] ta = TypeConstraint.inferTypeArguments(xmi, container, actuals, smi.formalTypes(), typeFormals, xc);
+			    typeArgs = Arrays.asList(ta);
+			    smi = new TypeParamSubst(ts, typeArgs, typeParameters).reinstantiate(smi);
+			}
 			List<Expr> transformedArgs = new ArrayList<Expr>();
 			List<Type> transformedArgTypes = new ArrayList<Type>();
 
@@ -223,8 +240,8 @@ public class Converter {
 				// Be careful to re-subst in the type arguments of the container type.
 				// This should be cleaner!
 				PI raw = (PI) smi.def().asInstance();
-				if (smi instanceof MemberInstance) {
-					Type container = ((MemberInstance) smi).container();
+				if (smi instanceof MemberInstance<?>) {
+					Type container = ((MemberInstance<?>) smi).container();
 					Type base = X10TypeMixin.baseType(container);
 					if (base instanceof X10ClassType) {
 						X10ParsedClassType_c ct = (X10ParsedClassType_c) base;
@@ -254,8 +271,8 @@ public class Converter {
 			StringBuffer sb = new StringBuffer();
 			for (Iterator<PI> i = maximal.iterator(); i.hasNext();) {
 				PI ma = (PI) i.next();
-				if (ma instanceof MemberInstance) {
-					sb.append(((MemberInstance) ma).container());
+				if (ma instanceof MemberInstance<?>) {
+					sb.append(((MemberInstance<?>) ma).container());
 					sb.append(".");
 				}
 				sb.append(ma.signature());
@@ -285,8 +302,6 @@ public class Converter {
 
 		return new Pair<PI, List<Expr>>(mi, args);
 	}
-
-
 
 	/** Return list of conversion functions needed to convert from fromType to toType */
 	public static Expr converterChain(final X10Cast_c cast, final ContextVisitor tc) throws SemanticException {
@@ -376,14 +391,13 @@ public class Converter {
 				for (int i = 0; i < ct.typeArguments().size(); i++) {
 					ParameterType.Variance v = ct.x10Def().variances().get(i);
 					Type ti = ct.typeArguments().get(i);
+					alternatives[i] = new ArrayList<Type>();
 					switch (v) {
 					case COVARIANT:
-						alternatives[i] = new ArrayList<Type>();
 						new Helper().addSuperTypes(alternatives[i], ti);
 						break;
 					default:
-						alternatives[i] = Collections.EMPTY_LIST;
-					break;                              
+						break;                              
 					}
 				}
 
@@ -466,8 +480,10 @@ public class Converter {
 				try {
 					mi = ts.findMethod(toType, ts.MethodMatcher(toType, Converter.operator_as, 
 							Collections.singletonList(fromType), context));
-					Type baseMiType = X10TypeMixin.baseType(mi.returnType());
-					if (mi.flags().isStatic() && baseMiType.isSubtype(baseTo, context)) {
+					Type miType = mi.returnType();
+					Type baseMiType = X10TypeMixin.baseType(miType);
+					if (mi.flags().isStatic() && baseMiType.isSubtype(baseTo, context)
+							&& X10TypeMixin.areConsistent(miType, toType)) {
 						converter = mi;
 						// Do the conversion.
 						c = nf.Call(p, nf.CanonicalTypeNode(p, toType), nf.Id(p, mi.name()), e);
@@ -484,9 +500,11 @@ public class Converter {
 				try {
 					mi = ts.findMethod(toType, ts.MethodMatcher(toType, Converter.implicit_operator_as, 
 							Collections.singletonList(fromType), context));
-					//Type baseMiType = X10TypeMixin.baseType(mi.returnType());
+					
 					Type miType = mi.returnType();
-					if (mi.flags().isStatic() && miType.isSubtype(baseTo, context)) {
+					Type baseMiType = X10TypeMixin.baseType(miType);
+					if (mi.flags().isStatic() && baseMiType.isSubtype(baseTo, context)
+							&& X10TypeMixin.areConsistent(miType, toType)) {
 						converter = mi;
 						// Do the conversion.
 						c = nf.Call(p, nf.CanonicalTypeNode(p, toType), nf.Id(p, mi.name()), e);
@@ -498,8 +516,10 @@ public class Converter {
 					try {
 						mi = ts.findMethod(fromType, ts.MethodMatcher(fromType, Converter.implicit_operator_as, 
 								Collections.singletonList(fromType), context));
-						Type baseMiType = X10TypeMixin.baseType(mi.returnType());
-						if (mi.flags().isStatic() && baseMiType.isSubtype(baseTo, context)) {
+						Type miType = mi.returnType();
+						Type baseMiType = X10TypeMixin.baseType(miType);
+						if (mi.flags().isStatic() && baseMiType.isSubtype(baseTo, context)
+								&& X10TypeMixin.areConsistent(miType, toType)) {
 							converter = mi;
 							c = nf.Call(p, nf.CanonicalTypeNode(p, fromType), nf.Id(p, mi.name()), e);
 							c = c.methodInstance(mi);

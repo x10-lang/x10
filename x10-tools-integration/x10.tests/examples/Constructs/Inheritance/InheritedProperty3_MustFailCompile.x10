@@ -14,7 +14,7 @@ import harness.x10Test;
 /**
  * Test that if a class implements an interface, and the interface specifies a property, 
  * then the class defines the property, and not just another nullary method with the same name 
- * that is public and safe.
+ * that is public.
  * @author vj
  */
 public class InheritedProperty3_MustFailCompile extends x10Test { 
@@ -26,13 +26,13 @@ public class InheritedProperty3_MustFailCompile extends x10Test {
     // fail here
     class Tester  /*(l:int)*/ implements Test {
       public def this(arg:int):Tester {  }
-      public safe /*property*/ def l():int = 0;
+      public /*property*/ def l():int = 0;
       public def put()=0;
     }
  
     public def run()=false;
     
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
       new InheritedProperty3_MustFailCompile().execute();
     }
 }

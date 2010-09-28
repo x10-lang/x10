@@ -208,7 +208,6 @@ public class NativeClassVisitor extends ContextVisitor {
                     xnf.FlagsNode(p, X10Flags.PRIVATE),
                     cdecl.name(),
                     Collections.<Formal>singletonList(f),
-                    Collections.<TypeNode>emptyList(),
                     xnf.Block(p,ctorBlock));
             xd.typeParameters(cdecl.typeParameters());
             xd.returnType(ftnode);
@@ -216,8 +215,8 @@ public class NativeClassVisitor extends ContextVisitor {
             ConstructorDef xdef = xts.constructorDef(p,
                     Types.ref(cdef.asType()),
                     X10Flags.PRIVATE,
-                    Collections.<Ref<? extends Type>>singletonList(Types.ref(ftype)),
-                    Collections.<Ref<? extends Type>>emptyList());
+                    Collections.<Ref<? extends Type>>singletonList(Types.ref(ftype))
+                  );
 
             cmembers.add(xd.constructorDef(xdef));
 
@@ -251,7 +250,7 @@ public class NativeClassVisitor extends ContextVisitor {
 
                 // reuse x10 method instance for delegate method but make it global to avoid place check
                 MethodInstance minst = mdef.asInstance();
-                minst = (MethodInstance) minst.flags(((X10Flags) minst.flags()).Global());
+                minst = (MethodInstance) minst.flags(((X10Flags) minst.flags()));
                 minst = (MethodInstance) minst.container(ftype);
 
                 // call delegate

@@ -23,12 +23,12 @@ public class Bounds7 extends x10Test {
         }
 
         public class Test[T]{T <: Sum} {
-            def sum(a:T!) = a.sum();
+            def sum(a:T) = a.sum();
 
         }
 
 	public def run() = true;
-	public static def main( Rail[String]) {
+	public static def main( Array[String](1)) {
 		new Bounds7().execute();
 	}
 }

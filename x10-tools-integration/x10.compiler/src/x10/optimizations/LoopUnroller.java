@@ -454,7 +454,7 @@ public class LoopUnroller extends ContextVisitor {
         if (right instanceof XLit) {
             XLit lit= (XLit) right;
             Object litVal= lit.val();
-            return litVal.equals(new Integer(1));
+            return (litVal instanceof Number) && ((Number)litVal).intValue()==1;
         } else if (right instanceof XLocal) {
             // Might we need to know what values flow into this RHS operand?
         } else if (right instanceof XField) {
@@ -473,7 +473,9 @@ public class LoopUnroller extends ContextVisitor {
 
     private String getFQN(XName name) {
         if (name instanceof XNameWrapper<?>) {
-            FieldDef fd = ((XNameWrapper<FieldDef>) name).val();
+            Object val = ((XNameWrapper<?>) name).val();
+            assert (val instanceof FieldDef);
+            FieldDef fd = (FieldDef) val;
             return Types.get(fd.container()) + "#" + fd.name().toString();
         }
         return name.toString();
@@ -708,9 +710,9 @@ public class LoopUnroller extends ContextVisitor {
 
         for(int i= 0; i < fUnrollFactor; i++) {
             if (loopVar.vars().size() > 0) {
-                final Map<VarInstance<VarDef>, Expr> subs= new HashMap<VarInstance<VarDef>, Expr>(1);
+                final Map<VarInstance<? extends VarDef>, Expr> subs= new HashMap<VarInstance<? extends VarDef>, Expr>(1);
                 Expr varValue= intLit(i);
-                subs.put((VarInstance) firstDimVar.localDef().asInstance(), plus(local(newLoopVarInit.localDef()), varValue));
+                subs.put((VarInstance<? extends VarDef>) firstDimVar.localDef().asInstance(), plus(local(newLoopVarInit.localDef()), varValue));
                 final Context outer = context();
                 Desugarer.Substitution<Expr> subPerformer= new Desugarer.Substitution<Expr>(Expr.class, null) {
                     protected Expr subst(Expr n) {
@@ -724,7 +726,7 @@ public class LoopUnroller extends ContextVisitor {
                                     throw new IllegalStateException("Inlining failed: unintended name capture for " + l.name().id());
                                 }
                             }
-                            VarInstance li = l.localInstance();
+                            LocalInstance li = l.localInstance();
                             if (subs.containsKey(li)) {
                                 return subs.get(li);
                             }

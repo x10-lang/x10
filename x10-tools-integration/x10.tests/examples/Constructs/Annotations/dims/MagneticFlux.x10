@@ -12,5 +12,5 @@
 package dims;
 
 public interface MagneticFlux extends Measure { 
-    @DerivedUnit(SI.weber) const weber: double = _, Wb: double = _;
+    @DerivedUnit(SI.weber) static weber: double = _, Wb: double = _;
 }

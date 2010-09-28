@@ -20,17 +20,19 @@ public class AsyncReturn extends x10Test {
 
 	public def run(): boolean = {
 		class T {
-			var t: int;
+			private val root = GlobalRef[T](this);
+			transient var t: int;
 		}
-		val f: T! = new T();
+		val f = new T();
+		val froot = f.root;
 		f.t = 1;
 		val v: int = f.t;
 		val body = ()=> {
 			if (v == 1)
 			return;
-		    async at (f) {
+		    async at (froot) {
 			   atomic {
-				  f.t = 2;
+				  froot().t = 2;
 			   }
 		     }
 		};
@@ -38,7 +40,7 @@ public class AsyncReturn extends x10Test {
 		return (f.t == 1);
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(Array[String](1)) {
 		new AsyncReturn().execute();
 	}
 }

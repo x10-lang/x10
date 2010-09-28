@@ -16,6 +16,8 @@ import polyglot.util.Position;
  */
 public abstract class VarDef_c extends Def_c implements VarDef
 {
+    private static final long serialVersionUID = 340662366820442336L;
+
     protected Flags flags;
     protected Ref<? extends Type> type;
     protected Name name;

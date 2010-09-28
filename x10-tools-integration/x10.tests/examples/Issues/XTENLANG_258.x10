@@ -18,12 +18,12 @@ import harness.x10Test;
 class XTENLANG_258 extends x10Test {
 
     public def run():boolean {
-        val v: Rail[int]! = Rail.make[int](1);
+        val v: Rail[int] = Rail.make[int](1);
         v(0) += 1;
         return true;
     }
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new XTENLANG_258().execute();
     }
 }

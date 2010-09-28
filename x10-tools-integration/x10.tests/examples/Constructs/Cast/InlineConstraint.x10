@@ -41,7 +41,7 @@ public class InlineConstraint extends x10Test {
 	}
 	return result;
     }
-    public static def main(args: Rail[String]) {
+    public static def main(args: Array[String](1)) {
 	new InlineConstraint().execute();
     }
 }

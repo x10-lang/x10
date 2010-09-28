@@ -18,14 +18,14 @@ import harness.x10Test;
 
 class XTENLANG_90 extends x10Test {
 
-    val y:Box[int]! = 3;
+    val y:Box[int] = 3;
     val z = y();
 
     public def run(): boolean {
         return true;
     }
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new XTENLANG_90().execute();
     }
 }

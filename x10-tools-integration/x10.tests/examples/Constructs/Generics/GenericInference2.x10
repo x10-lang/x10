@@ -23,11 +23,11 @@ import harness.x10Test;
 
 public class GenericInference2 extends GenericTest {
 
-    class V           {const name = "V"; global def name(): String = name; };
-    class W extends V {const name = "W"; global def name(): String = name; };
-    class X extends V {const name = "X"; global def name(): String = name; };
-    class Y extends X {const name = "Y"; global def name(): String = name; };
-    class Z extends X {const name = "Z"; global def name(): String = name; };
+    class V           {static name = "V"; def name(): String = name; };
+    class W extends V {static name = "W"; def name(): String = name; };
+    class X extends V {static name = "X"; def name(): String = name; };
+    class Y extends X {static name = "Y"; def name(): String = name; };
+    class Z extends X {static name = "Z"; def name(): String = name; };
 
     def m[T](t:T){T<:X} = t.name();
 
@@ -41,7 +41,7 @@ public class GenericInference2 extends GenericTest {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new GenericInference2().execute();
     }
 }

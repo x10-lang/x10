@@ -14,12 +14,20 @@ package x10.ast;
 import java.util.List;
 
 import polyglot.ast.ConstructorCall;
+import polyglot.ast.Expr;
 import polyglot.ast.TypeNode;
+import polyglot.types.ConstructorInstance;
+import x10.types.X10ConstructorInstance;
+import x10.types.X10MethodInstance;
 
 public interface X10ConstructorCall extends ConstructorCall, X10ProcedureCall {
 	List<TypeNode> typeArguments();
 
 	X10ConstructorCall typeArguments(List<TypeNode> args);
 
-
+	X10ConstructorCall qualifier(Expr qualifier);
+	X10ConstructorCall kind(Kind kind);
+	X10ConstructorCall arguments(List<Expr> arguments);
+	X10ConstructorInstance constructorInstance();
+	X10ConstructorCall constructorInstance(ConstructorInstance ci);
 }

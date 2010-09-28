@@ -90,7 +90,6 @@ public class Errors {
 	}
 
 	public static interface DepTypeException {}
-	public static interface ProtoTypeException {}
 	public static interface ConversionException {}
 
 	public static class CannotAssign extends SemanticException {
@@ -126,8 +125,8 @@ public class Errors {
 		private static final long serialVersionUID = -6220163900080278288L;
 
 		public IncompatibleReturnType(MethodInstance mi, MethodInstance mj) {
-			super("Attempting to use incompatible return type."
-					+ "\n\t Method: " + mi
+			super(mi.signature() + " in " + mi.container() + " cannot override " + mj.signature() + " in " + mj.container()
+			        + "; attempting to use incompatible return type."
 					+ "\n\t Expected Type: " + mj.returnType()
 					+ "\n\t Found Type: " + mi.returnType(), mi.position());
 		}
@@ -283,48 +282,6 @@ public class Errors {
 		}
 	}
 
-	public static class CannotReadFieldOfProtoValue extends SemanticException implements ProtoTypeException {
-		private static final long serialVersionUID = -512760271069318563L;
-		public CannotReadFieldOfProtoValue(Field f,Position pos) {
-			super("Cannot read field of a proto value."
-					+ "\n\t Field: " + f
-					+ "\n\t Proto value:" + f.target(), pos);
-		}
-		public boolean equals(Object o) {
-			if (o==null || ! (o instanceof CannotReadFieldOfProtoValue) )
-				return false;
-			return((CannotReadFieldOfProtoValue)o).position().equals(position());
-		}
-	}
-	public static class ProtoValuesAssignableOnlyToProtoReceivers extends SemanticException implements ProtoTypeException {
-		private static final long serialVersionUID = -6741587508354666830L;
-		public ProtoValuesAssignableOnlyToProtoReceivers(Expr e, FieldAssign f, Position pos) {
-			super("A proto value can be assigned to a field only if receiver type is proto."
-					+ "\n\t Value: " + e
-					+ "\n\t Field: " + f.name()
-					+ "\n\t Target: "  + f.target()
-					+ "\n\t Target type: " + f.target().type(),
-					pos);
-		}
-		public boolean equals(Object o) {
-			if (o==null || ! (o instanceof ProtoValuesAssignableOnlyToProtoReceivers) )
-				return false;
-			return((ProtoValuesAssignableOnlyToProtoReceivers)o).position().equals(position());
-		}
-	}
-	public static class ProtoValuesAssignableOnlyUsingEquals extends SemanticException implements ProtoTypeException {
-		private static final long serialVersionUID = -7997300104807372345L;
-		public ProtoValuesAssignableOnlyUsingEquals(Expr e,  Position pos) {
-			super("A proto value assignment to a field must use \"=\" assignment operator."
-					+ "\n\t Value: " + e,
-					pos);
-		}
-		public boolean equals(Object o) {
-			if (o==null || ! (o instanceof ProtoValuesAssignableOnlyUsingEquals) )
-				return false;
-			return((ProtoValuesAssignableOnlyUsingEquals)o).position().equals(position());
-		}
-	}
 	public static class CannotConvertToType extends SemanticException implements ConversionException {
 		private static final long serialVersionUID = 5580836853775144578L;
 
@@ -621,10 +578,10 @@ public class Errors {
 	}
 	public static class ThisNotPermittedInConstructorFormals extends SemanticException {
 	    private static final long serialVersionUID = -7998660806293584830L;
-	    public ThisNotPermittedInConstructorFormals(List<Formal> formals,  Position pos) {
+	    public ThisNotPermittedInConstructorFormals(List<Formal> formals, Position pos) {
 	        super("This or super cannot be used (implicitly or explicitly) in a constructor formal type."
 	              + "\n\t Formals: "  + formals,
-	                pos);
+	              pos);
 	    }
 	    public boolean equals(Object o) {
 	        if (o==null || ! (o instanceof ThisNotPermittedInConstructorFormals ) )
@@ -633,16 +590,29 @@ public class Errors {
 	    }
 	}
 	public static class ThisNotPermittedInConstructorReturnType extends SemanticException {
-		private static final long serialVersionUID = 751592738631688909L;
-		public ThisNotPermittedInConstructorReturnType(TypeNode type,  Position pos) {
+	    private static final long serialVersionUID = 751592738631688909L;
+	    public ThisNotPermittedInConstructorReturnType(TypeNode type, Position pos) {
 	        super("This or super cannot be used (implicitly or explicitly) in a constructor return type."
 	              + "\n\t Type: "  + type,
-	                pos);
+	              pos);
 	    }
 	    public boolean equals(Object o) {
 	        if (o==null || ! (o instanceof ThisNotPermittedInConstructorReturnType ) )
 	            return false;
 	        return((ThisNotPermittedInConstructorReturnType )o).position().equals(position());
+	    }
+	}
+	public static class ThisNotPermittedInPropertyInitializer extends SemanticException {
+	    private static final long serialVersionUID = -7457369484612652452L;
+	    public ThisNotPermittedInPropertyInitializer(Expr init, Position pos) {
+	        super("This or super cannot be used (implicitly or explicitly) in a property initializer."
+	              + "\n\t Expr: "  + init,
+	              pos);
+	    }
+	    public boolean equals(Object o) {
+	        if (o==null || ! (o instanceof ThisNotPermittedInPropertyInitializer ) )
+	            return false;
+	        return((ThisNotPermittedInPropertyInitializer )o).position().equals(position());
 	    }
 	}
 	public static class MethodOrStaticConstructorNotFound extends SemanticException {
@@ -854,5 +824,41 @@ public class Errors {
 				return false;
 			return((OfferTypeMismatch)o).position().equals(position());
 		}
+	}
+	public static class StructMayNotBeGlobal extends SemanticException {
+		private static final long serialVersionUID = 6179492565190231102L;
+		public StructMayNotBeGlobal(Position position, X10ClassDecl cd) {
+			super("global modifier cannot be used for structs."
+					+ "\n\t Struct declaration: " + cd.name(), 
+					position);
+		}
+		public boolean equals(Object o) {
+			if (o==null || ! (o instanceof OfferTypeMismatch) )
+				return false;
+			return((OfferTypeMismatch)o).position().equals(position());
+		}
+	}
+	public static class GlobalClassMustHaveGlobalClassSupertype extends SemanticException {
+		private static final long serialVersionUID = 2237512073167205925L;
+		public GlobalClassMustHaveGlobalClassSupertype(Ref<? extends Type> superType, ClassDef type, Position pos) {
+	        super(superType + " cannot be the superclass for " + type +
+	              "; a global class must subclass a global class.", pos);
+	    }
+	    public boolean equals(Object o) {
+	        if (o==null || ! (o instanceof GlobalClassMustHaveGlobalClassSupertype) )
+	            return false;
+	        return((GlobalClassMustHaveGlobalClassSupertype)o).position().equals(position());
+	    }
+	}
+	public static class IllegalClockedAccess extends SemanticException {
+		private static final long serialVersionUID = -5824261892277076305L;
+		public IllegalClockedAccess(Field field,  Position pos) {
+	        super(field + " must be accessed in a clocked context.", pos);
+	    }
+	    public boolean equals(Object o) {
+	        if (o==null || ! (o instanceof IllegalClockedAccess) )
+	            return false;
+	        return((IllegalClockedAccess)o).position().equals(position());
+	    }
 	}
 }

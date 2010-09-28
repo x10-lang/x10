@@ -27,7 +27,7 @@ public class ClosureFormalParameters1b extends ClosureTest {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new ClosureFormalParameters1b().execute();
     }
 }

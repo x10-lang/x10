@@ -58,9 +58,6 @@ class Bla[T] extends Throwable
 			Bla // ERR
 		= null;
 	
-	static def m4() throws 
-		Bla // ERR
-		{}
 	def m5[U]() {U<:Bla[T]} {}
 	static def m6[U]() {U<:
 		Bla} // ERR

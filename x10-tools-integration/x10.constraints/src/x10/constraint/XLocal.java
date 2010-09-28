@@ -16,6 +16,7 @@ import java.util.List;
 
 /**
  * The representation of a local variable reference in the constraint system.
+ * The name of the local variable is supplied by an XName.
  * 
  * @author vj
  * 
@@ -32,7 +33,7 @@ public class XLocal extends XVar  {
 	}
 	
 	public List<XEQV> eqvs() {
-	    return Collections.EMPTY_LIST;
+	    return Collections.emptyList();
 	}
 
 	public XVar rootVar() {
@@ -63,6 +64,7 @@ public class XLocal extends XVar  {
 
 	public String toString() {
 		String s = name.toString();
+		// This could should not belong here.
 		if (s.startsWith("self"))
 			return "self";
 		if (s.startsWith("this"))

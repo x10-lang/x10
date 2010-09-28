@@ -17,7 +17,7 @@ import harness.x10Test;
 public class AtFieldAccess extends x10Test {
 
 	var t: T;
-	public def run() {
+	public def run():boolean {
 		var Second:Place = Place.FIRST_PLACE.next();
 		var r: Region = 0..0;
 		val D = r->Second;
@@ -25,15 +25,17 @@ public class AtFieldAccess extends x10Test {
 			t = at (D(p)) new T();
 		}
 		val tt = this.t;
-		at (tt) tt.i = 3;
-		return 3 == (at(tt) tt.i);
+		val ttroot = tt.root;
+		at (ttroot) ttroot().i = 3;
+		return 3 == (at(ttroot) ttroot().i);
 	}
 
-	public static def main(Rail[String]) {
+	public static def main(Array[String](1)) {
 		new AtFieldAccess().execute();
 	}
 
 	static class T {
-		public var i: int;
+		private val root = GlobalRef[T](this);
+		transient public var i: int;
 	}
 }

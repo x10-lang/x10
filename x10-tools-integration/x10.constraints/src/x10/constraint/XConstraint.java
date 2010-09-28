@@ -11,21 +11,19 @@
 
 package x10.constraint;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
 
-
 /**
  * 
- *  A constraint solver for the following constraint system:
+ *  A constraint solver for the following constraint system. Note terms in this constraint system are untyped.
  * <verbatim>
  * t ::= x                  -- variable
  *       | t.f              -- field access
@@ -37,31 +35,23 @@ import java.util.Set;
  *       | p(t1,..., tn)    -- atomic formula
  * </verbatim>  
  * 
- * The constraint system implements the usual congruence rules for equality. 
+ * The constraint system implements the usual congruence rules for equality. That is, if <code>s1,...,sn</code> and 
+ * <code>t1,...,tn</code> are terms, and <code> s1 == t1,..., sn == tn</code>, then 
+ * <code>g(s1,..., sn) == g(s1,...,sn)</code>, and 
+ * <code>p(t1,..., tn) == p(t1,...,tn)</code>. Further, 
+ * <uline>
+ *   <li> <code>s equals t</code> implies <code>t equals s</code>
+ *   <li> <code>s equals t</code> and <code>t equals u</code> implies <code> s equals u</code>
+ *   <li> it is always the case that <code>s equals s</code>
+ * </uline>
+ * <p>Terms are created using the static API in XTerms. The <code>==</code> relation on terms at the level of the 
+ * constraint system is translated into the <code>equals</code> relation on the Java representation of the terms.
  * 
- *  <p> TBD:  Add
- *  <verbatim>
- *  t ::= t == t
- *  </verbatim>
- *  
- *  <p> This is useful in specifying that a Region is zeroBased iff its rank=0.
- 
+ * <p>A constraint is implemented as a graph whose nodes are XPromises. Two different constraints will 
+ * not share @link{XPromise}. See the description of @link{XPromise} for more information about the 
+ * structure of a promise.
  * 
- * 
- * <p>A constraint is implemented as a graph whose nodes are XPromises. Additionally, a constraint
- * keeps track of two variables, self and this. 
- * 
- * <p>
- * A promise contains fields: 
- * <olist>
- * <li>XPromise value  -- points to a node it has been equated to
- * <li>Collection<XPromise> disequals -- contains set of other nodes this has been disequated with
- * <li>XTerm var  -- externally visible term labeling this promise
- * <li>Map<XName, XPromise> fields -- hashmap of fields of this promise. 
- * </olist>
- * It maintsins the invariant <tt> value != null implies (disequals==null,fields == null)</tt>
- * 
- * This representation is a bit different from the Nelson-Oppen and Shostak congruence closure 
+ * <p>This representation is a bit different from the Nelson-Oppen and Shostak congruence closure 
  * algorithms described, e.g. in Cyrluk, Lincoln and Shankar "On Shostak's Decision Procedure
  * for Combination of Theories", CADE 96.
  * 
@@ -70,20 +60,19 @@ import java.util.Set;
  * Use Shostak's congruence procedure. Treat <tt>t.f</tt> as the term <tt>f(t)</tt>, 
  * i.e. each field is regarded as a unary function symbol. This will be helpful in implementing
  * Nelson-Oppen integration of decision procedures.
+ * 
+ * <p> Additional Notes.
+ * This constraint system and its implementation knows nothing about X10 or internal compiler structures. Specifically
+ * it knows nothing about X10 types. The package x10.types.constraints contains an extension of this type system that is aware 
+ * of a this variable, a self variable and other compiler-related data-structures.
+ * 
  * @author vj
  *
  */
-public class XConstraint implements  Cloneable {
-
-    private static final boolean DEBUG = false;
-
-  
-    
-    // Maps XTerms to nodes.
+public class XConstraint implements Cloneable {
     protected HashMap<XTerm, XPromise> roots;
-
     protected boolean consistent = true;
-    boolean valid = true;
+    protected boolean valid = true;
 
     public XConstraint() {}
     
@@ -106,38 +95,34 @@ public class XConstraint implements  Cloneable {
     }
 
     /**
+     * Return the set of terms occuring in this constraint.
+     * @return
+     */
+    public Set<XTerm> terms() {
+    	return roots == null ? Collections.<XTerm> emptySet() : roots.keySet();
+    }
+    /**
      * Copy this constraint logically; that is, create a new constraint
      * that contains the same equalities (if any) as the current one.
-     * Copy also the consistency, and validity status, and thisVar and self.
+     * Copy also the consistency, and validity status. 
      */
     public XConstraint copy() {
         XConstraint c = new XConstraint();
-        try {
-        
-        	c.consistent = consistent;
-        	c.valid = valid;
-            return copyInto(c);
-        }
-        catch (XFailure f) {
-            c.setInconsistent();
-            return c;
-        }
+        c.init(this);
+        return c;
     }
     
     /**
-     * Return the result of copying this into c. Assume that c will be 
-     * the depclause of the same base type as this, hence it is ok to 
-     * copy self-clauses as is. 
+     * Return the result of copying this into c.  
      * @param c
      * @return
      */
     protected XConstraint copyInto(XConstraint c) throws XFailure {
-    	   /** Add in a constraint, substituting this.self for c.self */
         c.addIn(this);
         return c;
     }
 
-    public XConstraint addIn(XConstraint c)  throws XFailure {
+    XConstraint addIn(XConstraint c)  throws XFailure {
     	if (c != null) {
     		List<XTerm> result = c.constraints();
     		if (result == null)
@@ -146,8 +131,6 @@ public class XConstraint implements  Cloneable {
     			addTerm(t);
     		}
     	}
-    	// vj: What about thisVar for c? Should that be added?
-    			// thisVar = getThisVar(this, c);
     	return this;
     }
 
@@ -163,44 +146,17 @@ public class XConstraint implements  Cloneable {
     	}
     	return null;
     }
-
-    // FIXME: Vijay, Igor and I think this method has the semantics intended for bindingForVar, 
-    // which is incorrectly implemented.
-    // The javadoc comment supports this conclusion.  - Bowen
-    /**
-     * Return the term v is bound to in this constraint, and null
-     * if there is no such term. This term will be distinct from v.
-     */
-    public XTerm termBindingForVar(XVar v) {
-        XPromise p = lookup(v);
-        if (p != null && (!(p.term() instanceof XVar) || !p.term().equals(v))) {
-            return p.term();
-        }
-        return null;
-    }
-
- /*   public XConstraint removeVarBindings(XVar v) {
-        try {
-            XConstraint c = new XConstraint_c();
-            for (XTerm t : constraints()) {
-                if (t instanceof XEquals) {
-                    XEquals eq = (XEquals) t;
-                    XTerm left = eq.left();
-                    XTerm right = eq.right();
-                    if (left.equals(v) || right.equals(v)) {
-                        continue;
-                    }
-                }
-                c.addTerm(t.subst(c.self(), self()));
-            }
-            return c;
-        }
-        catch (XFailure e) {
-            return this;
-        }
-    }
-*/
     
+    public XTerm bindingForRootField(XVar root, XName name) {
+    	 if (!consistent || roots == null)
+             return null;
+         XPromise self = (XPromise) roots.get(root);
+         if (self == null)
+             return null;
+         XPromise result = self.lookup(name);
+         return result == null ? null : result.term();
+    }
+
 	/**
 	 * Return the list of atoms (atomic formulas) in this constraint.
 	 * @return
@@ -239,152 +195,6 @@ public class XConstraint implements  Cloneable {
         return valid;
     }
 
-	/**
-	 * Return the promise obtained by interning this term in the constraint.
-	 * This may result in new promises being added to the graph maintained
-	 * by the constraint. 
-	 * <p>term: Literal -- return the literal. 
-	 * <p> term:LocalVariable, Special, Here Check if term is already in the roots
-	 * maintained by the constraint. If so, return the root, if not add a
-	 * promise to the roots and return it. 
-	 * <p> term: XField. Start with the rootVar x and follow the path f1...fk, 
-	 * if term=x.f1...fk. If the graph contains no nodes after fi, 
-	 * for some i < k, add promises into the graph from fi+1...fk. 
-	 * Return the last promise.
-	 * 
-	 * <p> Package protected -- should only be used in the implementation of the constraint
-	 * system.
-	 * @param term
-	 * @return
-	 * @throws XFailure
-	 */
-
-    XPromise intern(XTerm term) throws XFailure {
-        return intern(term, null);
-    }
-    
-    /**
-     * Used to implement substitution:  if last != null, term, is substituted for 
-     * the term that was interned previously to produce the promise last. This is accomplished by
-     * returning last as the promise obtained by interning term, unless term is a literal, in which
-     * case last is forwarded to term, and term is returned. This way incoming and outgoing edges 
-     * (from fields) from last are preserved, but term now "becomes" last.
-     * Required: on entry, last.value == null.
-     * The code will work even if we have literals that are at types where properties are permitted.
-     * @param term
-     * @param last
-     * @return
-     */
-    XPromise intern(XTerm term, XPromise last) throws XFailure {
-    	assert term != null;
-        if (term instanceof XPromise) {
-            XPromise q = (XPromise) term;
-            
-            // this is the case for literals, for here
-            if (last != null) {
-                try {
-                    last.bind(q);
-                }
-                catch (XFailure f) {
-                    throw new XFailure("A term ( " + term + ") cannot be interned to a promise (" + last + ") whose value is not null.");
-                }
-            }
-            return q;
-        }
-
-        // let the term figure out what to do for itself.
-        return term.internIntoConstraint(this, last);
-    }
-
-    XPromise internBaseVar(XVar baseVar, boolean replaceP, XPromise last) throws XFailure {
-        if (roots == null)
-            roots = new LinkedHashMap<XTerm, XPromise>();
-        XPromise p = (XPromise) roots.get(baseVar);
-        if (p == null) {
-            p = (replaceP && last != null) ? last : new XPromise_c(baseVar);
-            roots.put(baseVar, p);
-        }
-        return p;
-    }
-    
-    void addPromise(XTerm p, XPromise node) {
-        if (roots == null)
-            roots = new LinkedHashMap<XTerm, XPromise>();
-        roots.put(p, node);
-    }
-
-     void internRecursively(XVar v) throws XFailure {
-        intern(v);
-    }
-    
-     /**
- 	 * Look this term up in the constraint graph. Return null if the term
- 	 * does not exist. Does not create new nodes in the constraint graph.
- 	 * Does not return a forwarded promise (looks it up recursively, instead).
- 	 * 
- 	 * @param term
- 	 * @return the terminal promise this term is associated with (if any), null otherwise
- 	 */
-    XPromise lookup(XTerm term) {
-        XPromise result = lookupPartialOk(term);
-        if (!(result instanceof XPromise_c))
-            return result;
-        // it must be the case that term is a XVar.
-        if (term instanceof XVar) {
-            XVar var = (XVar) term;
-            XVar[] vars = var.vars();
-            XPromise_c resultC = (XPromise_c) result;
-            int index = resultC.lookupReturnValue();
-            return (index == vars.length) ? result : null;
-        }
-        return null;
-    }
-    
-	/**
-	 * Look this term up in the constraint graph. If the term is of the form
-	 * x.f1...fk and the longest prefix that exists in the graph is
-	 * x.f1..fi, return the promise corresponding to x.f1...fi. If the
-	 * promise is a Promise_c, the caller must invoke lookupReturnValue() to
-	 * determine if the match was partial (value returned is not equal to
-	 * the length of term.vars()). If not even a partial match is found, or
-	 * the partial match terminates in a literal (which, by definition,
-	 * cannot have fields), then return null.
-	 * 
-	 * @seeAlso lookup(C_term term)
-	 * @param term
-	 * @return
-	 * @throws XFailure
-	 */
-    XPromise lookupPartialOk(XTerm term) {
-        if (term == null)
-            return null;
-        
-        if (term instanceof XPromise)
-            // this is the case for literals, for here
-            return (XPromise) term;
-        // otherwise it must be a XVar.
-        if (roots == null)
-            return null;
-        if (term instanceof XVar) {
-            XVar var = (XVar) term;
-            XVar[] vars = var.vars();
-            XVar baseVar = vars[0];
-            XPromise p = (XPromise) roots.get(baseVar);
-            if (p == null)
-                return null;
-            return p.lookup(vars, 1);
-        }
-        
-        {
-        	XPromise p = roots.get(term);
-        	if (p != null)
-        		return p;
-        }
-        
-        return null;
-    }
-
-    
     /**
      * Add t1=t2 to the constraint, unless it is inconsistent. 
      * Note: constraint is modified in place.
@@ -453,30 +263,6 @@ public class XConstraint implements  Cloneable {
         
         p = intern(t);
     }
-
-    public XConstraint addBindingPromise(XTerm t1, XPromise p)  {
-        try {
-            assert t1 != null;
-            if (!consistent)
-                return this;
-            if (roots == null)
-                roots = new LinkedHashMap<XTerm, XPromise>();
-            XPromise p1 = intern(t1);
-            boolean modified = p1.bind(p);
-        }
-        catch (XFailure z) {
-            consistent = false;
-        }
-        return this;
-    }
-
-    public void addTerms(List<XTerm> terms) throws XFailure {
-        for (XTerm t : terms) {
-            addTerm(t);
-        }
-    }
-
-    
     /**
 	 * Does this entail constraint other?
 	 * 
@@ -488,8 +274,6 @@ public class XConstraint implements  Cloneable {
             return true;
         if (other == null || other.valid())
             return true;
-//        if (other.toString().equals(toString()))
-//        	return true;
         List<XTerm> otherConstraints = other.extConstraints();
         for (XTerm t : otherConstraints) {
         	boolean result = entails(t);
@@ -498,6 +282,33 @@ public class XConstraint implements  Cloneable {
         }
         return true;
     }
+    
+    public void setInconsistent() {
+        this.consistent = false;
+    }  
+   
+    /**
+	 * Return the least upper bound of this and other. That is, the resulting constraint has precisely
+	 * the constraints entailed by both this and other.
+	 * @param other
+	 * @return
+	 */
+    public XConstraint leastUpperBound(XConstraint other) {
+     
+       	XConstraint result = new XConstraint();
+       	for (XTerm term : other.constraints()) {
+       		try {
+       			if (entails(term)) {
+       				result.addTerm(term);
+       			}
+       		} catch (XFailure z) {
+
+       		}
+       	}
+       	return result;
+       }
+       
+  
     
     /**
 	 * Return a list of bindings t1-> t2 equivalent to the current
@@ -767,7 +578,7 @@ public class XConstraint implements  Cloneable {
 
     
     /**
-	 * Perform substitute(y, x) for every binding x -> y in bindings.
+	 * Perform substitute y for x for every binding x -> y in bindings.
 	 * 
 	 */
     public XConstraint substitute(HashMap<XVar, XTerm> subs) throws XFailure {
@@ -789,7 +600,7 @@ public class XConstraint implements  Cloneable {
     public XConstraint substitute(XTerm y, XVar x) throws XFailure {
         return substitute(new XTerm[] { y }, new XVar[] { x });
     }
-    public XConstraint substitute(XTerm[] ys, XVar[] xs, boolean propagate) throws XFailure {
+     public XConstraint substitute(XTerm[] ys, XVar[] xs, boolean propagate) throws XFailure {
     	return substitute(ys, xs);
     }
     
@@ -853,6 +664,237 @@ public class XConstraint implements  Cloneable {
     	//		result.applySubstitution(y,x);
     	return result;
     }
+
+    /**
+	 * Does this constraint contain occurrences of the variable v?
+	 * 
+	 * @param v
+	 * @return true iff v is a root variable of this.
+	 */
+    public boolean hasVar(XVar v) {
+        return roots != null && roots.keySet().contains(v);
+    }
+
+  
+	/**
+	 * Add the binding term=true to the constraint.
+	 * 
+	 * @param term -- must be of type Boolean.
+	 * @return new constraint with term=true added.
+	 * @throws SemanticException
+	 */
+    // FIXME: need to convert f(g(x)) into \exists y. f(y) && g(x) = y when f and g both atoms
+    // This is needed for Nelson-Oppen to work correctly.
+    // Each atom should be a root.
+    public void addTerm(XTerm term) throws XFailure {
+        if (term.isAtomicFormula()) {
+            addAtom(term);
+        }
+        else if (term instanceof XVar) {
+            addBinding(term, XTerms.TRUE);
+        }
+        /*else if (term instanceof XNot) {
+            XNot t = (XNot) term;
+            if (t.unaryArg() instanceof XVar)
+                addBinding(t.unaryArg(), XTerms.FALSE);
+            if (t.unaryArg() instanceof XNot)
+                addTerm(((XNot) t.unaryArg()).unaryArg());
+        }*/
+        else if (term instanceof XAnd) {
+            XAnd t = (XAnd) term;
+            addTerm(t.left());
+            addTerm(t.right());
+        }
+        else if (term instanceof XEquals) {
+            XEquals eq = (XEquals) term;
+            XTerm left = eq.left();
+            XTerm right = eq.right();
+            addBinding(left, right);
+        } else if (term instanceof XDisEquals) {
+        	XDisEquals dq = (XDisEquals) term;
+        	   XTerm left = dq.left();
+               XTerm right = dq.right();
+               addDisBinding(left, right);
+        }
+        else {
+            throw new XFailure("Unexpected term |" + term + "|");
+        }
+    }
+    
+    // *****************************************************************INTERNAL ROUTINES
+
+	/**
+	 * Return the promise obtained by interning this term in the constraint.
+	 * This may result in new promises being added to the graph maintained
+	 * by the constraint. 
+	 * <p>term: Literal -- return the literal. 
+	 * <p> term:LocalVariable, Special, Here Check if term is already in the roots
+	 * maintained by the constraint. If so, return the root, if not add a
+	 * promise to the roots and return it. 
+	 * <p> term: XField. Start with the rootVar x and follow the path f1...fk, 
+	 * if term=x.f1...fk. If the graph contains no nodes after fi, 
+	 * for some i < k, add promises into the graph from fi+1...fk. 
+	 * Return the last promise.
+	 * 
+	 * <p> Package protected -- should only be used in the implementation of the constraint
+	 * system.
+	 * @param term
+	 * @return
+	 * @throws XFailure
+	 */
+
+    XPromise intern(XTerm term) throws XFailure {
+        return intern(term, null);
+    }
+    
+    /**
+     * Used to implement substitution:  if last != null, term, is substituted for 
+     * the term that was interned previously to produce the promise last. This is accomplished by
+     * returning last as the promise obtained by interning term, unless term is a literal, in which
+     * case last is forwarded to term, and term is returned. This way incoming and outgoing edges 
+     * (from fields) from last are preserved, but term now "becomes" last.
+     * Required: on entry, last.value == null.
+     * The code will work even if we have literals that are at types where properties are permitted.
+     * @param term
+     * @param last
+     * @return
+     */
+    XPromise intern(XTerm term, XPromise last) throws XFailure {
+    	assert term != null;
+        if (term instanceof XPromise) {
+            XPromise q = (XPromise) term;
+            
+            // this is the case for literals, for here
+            if (last != null) {
+                try {
+                    last.bind(q);
+                }
+                catch (XFailure f) {
+                    throw new XFailure("A term ( " + term + ") cannot be interned to a promise (" + last + ") whose value is not null.");
+                }
+            }
+            return q;
+        }
+
+        // let the term figure out what to do for itself.
+        return term.internIntoConstraint(this, last);
+    }
+
+    XPromise internBaseVar(XVar baseVar, boolean replaceP, XPromise last) throws XFailure {
+        if (roots == null)
+            roots = new LinkedHashMap<XTerm, XPromise>();
+        XPromise p = (XPromise) roots.get(baseVar);
+        if (p == null) {
+            p = (replaceP && last != null) ? last : new XPromise_c(baseVar);
+            roots.put(baseVar, p);
+        }
+        return p;
+    }
+    
+    void addPromise(XTerm p, XPromise node) {
+        if (roots == null)
+            roots = new LinkedHashMap<XTerm, XPromise>();
+        roots.put(p, node);
+    }
+
+     void internRecursively(XVar v) throws XFailure {
+        intern(v);
+    }
+    
+     /**
+ 	 * Look this term up in the constraint graph. Return null if the term
+ 	 * does not exist. Does not create new nodes in the constraint graph.
+ 	 * Does not return a forwarded promise (looks it up recursively, instead).
+ 	 * 
+ 	 * @param term
+ 	 * @return the terminal promise this term is associated with (if any), null otherwise
+ 	 */
+    XPromise lookup(XTerm term) {
+        XPromise result = lookupPartialOk(term);
+        if (!(result instanceof XPromise_c))
+            return result;
+        // it must be the case that term is a XVar.
+        if (term instanceof XVar) {
+            XVar var = (XVar) term;
+            XVar[] vars = var.vars();
+            XPromise_c resultC = (XPromise_c) result;
+            int index = resultC.lookupReturnValue();
+            return (index == vars.length) ? result : null;
+        }
+        if (term instanceof XFormula)
+        	return result;
+        return null;
+    }
+    
+	/**
+	 * Look this term up in the constraint graph. If the term is of the form
+	 * x.f1...fk and the longest prefix that exists in the graph is
+	 * x.f1..fi, return the promise corresponding to x.f1...fi. If the
+	 * promise is a Promise_c, the caller must invoke lookupReturnValue() to
+	 * determine if the match was partial (value returned is not equal to
+	 * the length of term.vars()). If not even a partial match is found, or
+	 * the partial match terminates in a literal (which, by definition,
+	 * cannot have fields), then return null.
+	 * 
+	 * @seeAlso lookup(C_term term)
+	 * @param term
+	 * @return
+	 * @throws XFailure
+	 */
+    XPromise lookupPartialOk(XTerm term) {
+        if (term == null)
+            return null;
+        
+        if (term instanceof XPromise)
+            // this is the case for literals, for here
+            return (XPromise) term;
+        // otherwise it must be a XVar.
+        if (roots == null)
+            return null;
+        if (term instanceof XVar) {
+            XVar var = (XVar) term;
+            XVar[] vars = var.vars();
+            XVar baseVar = vars[0];
+            XPromise p = (XPromise) roots.get(baseVar);
+            if (p == null)
+                return null;
+            return p.lookup(vars, 1);
+        }
+        
+        {
+        	XPromise p = roots.get(term);
+        	if (p != null)
+        		return p;
+        }
+        
+        return null;
+    }
+
+    
+  /*
+    public XConstraint addBindingPromise(XTerm t1, XPromise p)  {
+        try {
+            assert t1 != null;
+            if (!consistent)
+                return this;
+            if (roots == null)
+                roots = new LinkedHashMap<XTerm, XPromise>();
+            XPromise p1 = intern(t1);
+            boolean modified = p1.bind(p);
+        }
+        catch (XFailure z) {
+            consistent = false;
+        }
+        return this;
+    }
+
+    public void addTerms(List<XTerm> terms) throws XFailure {
+        for (XTerm t : terms) {
+            addTerm(t);
+        }
+    }
+*/
+    
     
     /**
 	 * Preconditions: x occurs in this. It must be the case that the real
@@ -877,7 +919,8 @@ public class XConstraint implements  Cloneable {
         }
     }
     
-    protected void applySubstitution(XTerm y, XVar x) throws XFailure {
+    @SuppressWarnings({ "unchecked"})
+	protected void applySubstitution(XTerm y, XVar x) throws XFailure {
         if (roots == null) {
             // nothing to substitute
             return;
@@ -916,8 +959,8 @@ public class XConstraint implements  Cloneable {
 
         // Substitute y for x in the promise terms.
         {
-            Collection<XPromise> rootPs = roots.values();
-            for (Map.Entry<XTerm, XPromise> e : ((Map<XTerm,XPromise>) roots.clone()).entrySet()) {
+            // Collection<XPromise> rootPs = roots.values();
+            for (Map.Entry<XTerm, XPromise> e : cloneRoots().entrySet()) {
                 if (!e.getKey().equals(p.term())) {
                     XPromise px = e.getValue();
                     XTerm t = px.term();
@@ -942,7 +985,7 @@ public class XConstraint implements  Cloneable {
             renaming.put(q, new XPromise_c(v));
 
             for (Map.Entry<XTerm, XPromise> m : roots.entrySet()) {
-                XTerm var = m.getKey();
+               //  XTerm var = m.getKey();
                 XPromise p2 = m.getValue();
                 XPromise q2 = p2.cloneRecursively(renaming);
                 m.setValue(q2);
@@ -1002,6 +1045,11 @@ public class XConstraint implements  Cloneable {
         }
     }
 
+    @SuppressWarnings("unchecked") // Casting to a generic type
+    private Map<XTerm, XPromise> cloneRoots() {
+        return ((Map<XTerm,XPromise>) roots.clone());
+    }
+
     static XTerm makeField(XTerm target, XName field) {
         XTerm t;
         if (target instanceof XVar) {
@@ -1030,7 +1078,7 @@ public class XConstraint implements  Cloneable {
         //			m.setValue(q2);
         //		}
 
-        Collection<XPromise> rootPs = roots.values();
+      //  Collection<XPromise> rootPs = roots.values();
         for (Map.Entry<XTerm, XPromise> e : roots.entrySet()) {
             if (!e.getKey().equals(x.term())) {
                 XPromise p = e.getValue();
@@ -1038,95 +1086,21 @@ public class XConstraint implements  Cloneable {
             }
         }
     }
-
-	/**
-	 * Does this constraint contain occurrences of the variable v?
-	 * 
-	 * @param v
-	 * @return true iff v is a root variable of this.
-	 */
-    public boolean hasVar(XVar v) {
-        if (roots == null)
-            return false;
-        return roots.keySet().contains(v);
-    }
+    /**
+     * Initialize this constraint from the given constraint
+     * @param from -- the constraint whose state is used to initialize this.
+     */
+    protected void init(XConstraint from) {
+   	 try {
+           consistent = from.consistent;
+           valid = from.valid;
+           from.copyInto(this);
+        }
+        catch (XFailure f) {
+            setInconsistent();
+        }
+   }
+	
 
   
-	/**
-	 * Add the binding term=true to the constraint.
-	 * 
-	 * @param term -- must be of type Boolean.
-	 * @return new constraint with term=true added.
-	 * @throws SemanticException
-	 */
-    // FIXME: need to convert f(g(x)) into \exists y. f(y) && g(x) = y when f and g both atoms
-    // This is needed for Nelson-Oppen to work correctly.
-    // Each atom should be a root.
-    public void addTerm(XTerm term) throws XFailure {
-        if (term.isAtomicFormula()) {
-            addAtom(term);
-        }
-        else if (term instanceof XVar) {
-            addBinding(term, XTerms.TRUE);
-        }
-        else if (term instanceof XNot) {
-            XNot t = (XNot) term;
-            if (t.unaryArg() instanceof XVar)
-                addBinding(t.unaryArg(), XTerms.FALSE);
-            if (t.unaryArg() instanceof XNot)
-                addTerm(((XNot) t.unaryArg()).unaryArg());
-        }
-        else if (term instanceof XAnd) {
-            XAnd t = (XAnd) term;
-            addTerm(t.left());
-            addTerm(t.right());
-        }
-        else if (term instanceof XEquals) {
-            XEquals eq = (XEquals) term;
-            XTerm left = eq.left();
-            XTerm right = eq.right();
-            addBinding(left, right);
-        } else if (term instanceof XDisEquals) {
-        	XDisEquals dq = (XDisEquals) term;
-        	   XTerm left = dq.left();
-               XTerm right = dq.right();
-               addDisBinding(left, right);
-        }
-        else {
-            throw new XFailure("Unexpected term |" + term + "|");
-        }
-        /*
-        XConstraint s = term.selfConstraint();
-        if (s != null) {
-            s = s.substitute(term, s.self());
-            addIn(s);
-        }
-*/
-    }
-
-    public void setInconsistent() {
-        this.consistent = false;
-    }  
-   
-    /**
-	 * Return the least upper bound of this and other. That is, the resulting constraint has precisely
-	 * the constraints entailed by both this and other.
-	 * @param other
-	 * @return
-	 */
-    public XConstraint leastUpperBound(XConstraint other) {
-     
-       	XConstraint result = new XConstraint();
-       	for (XTerm term : other.constraints()) {
-       		try {
-       			if (entails(term)) {
-       				result.addTerm(term);
-       			}
-       		} catch (XFailure z) {
-
-       		}
-       	}
-       	return result;
-       }
-       
 }

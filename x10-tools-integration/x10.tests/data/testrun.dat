@@ -1,6 +1,7 @@
 Benchmarks/DistRandomAccess1.x10
 Benchmarks/DistStream1.x10
 Constructs/Array/ArrayLift.x10
+Constructs/Array/ArrayMap.x10
 Constructs/Array/ArrayReduce.x10
 Constructs/Async/AsyncTest3.x10
 Constructs/Async/AsyncTest5.x10

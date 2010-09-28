@@ -24,13 +24,13 @@ public class NoStaticMutable1_MustFailCompile extends x10Test {
 	static var x1: int = 0;
 
 	const x2: int = 0;
-	public const x3: int = 0;
+	public static x3: int = 0;
 
 	//<== compiler error must occur on next line
 	static var f1: foo = new foo(1);
 
 	const f2: foo = new foo(1);
-	public const f3: foo = new foo(1);
+	public static f3: foo = new foo(1);
 
 	public def run(): boolean = {
 		x1++;
@@ -38,7 +38,7 @@ public class NoStaticMutable1_MustFailCompile extends x10Test {
 		return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new NoStaticMutable1_MustFailCompile().execute();
 	}
 

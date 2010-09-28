@@ -120,16 +120,16 @@ public class ClassContextResolver extends AbstractAccessControlResolver {
         	                            " but was found in " + type + ".");
             }
 
-            if (! mt.outer().equals((Object) type)) {
+            if (mt.outer().def() != type.def()) {
         	throw new SemanticException("Class " + mt +
         	                            " is not a member class " +
         	                            " of " + type + ".");
             }
 
-            return mt;
+            return mt.container(type);
         }
 
-        if (m instanceof MemberInstance) {
+        if (m instanceof MemberInstance<?>) {
             MemberInstance<?> mi = (MemberInstance<?>) m;
 
             if (! mi.container().equals((Object) type)) {
@@ -184,7 +184,7 @@ public class ClassContextResolver extends AbstractAccessControlResolver {
         else if (acceptable.size() > 1) {
             Set<Type> containers = new HashSet<Type>(acceptable.size());
             for (Named n : acceptable) {
-                if (n instanceof MemberInstance) {
+                if (n instanceof MemberInstance<?>) {
                     MemberInstance<?> mi = (MemberInstance<?>) n;
                     containers.add(mi.container());
                 }
@@ -220,8 +220,8 @@ public class ClassContextResolver extends AbstractAccessControlResolver {
     }
 
     protected boolean canAccess(Named n, ClassDef accessor, Context context) {
-        if (n instanceof MemberInstance) {
-            return accessor == null || ts.isAccessible((MemberInstance) n, context);
+        if (n instanceof MemberInstance<?>) {
+            return accessor == null || ts.isAccessible((MemberInstance<?>) n, context);
         }
         return true;
     }
@@ -233,7 +233,7 @@ public class ClassContextResolver extends AbstractAccessControlResolver {
 	return type;
     }
 
-    private static final Collection TOPICS = 
+    private static final Collection<String> TOPICS = 
             CollectionUtil.list(Report.types, Report.resolver);
 
 }

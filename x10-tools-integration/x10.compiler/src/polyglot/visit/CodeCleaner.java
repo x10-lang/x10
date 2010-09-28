@@ -66,7 +66,7 @@ public class CodeCleaner extends NodeVisitor {
     // Flatten any blocks that may be contained in this one, and clean up dead
     // code.
     Block b = (Block)n;
-    List stmtList = clean(flattenBlock(b));
+    List<Stmt> stmtList = clean(flattenBlock(b));
 
     if ( b instanceof SwitchBlock ) {
       return nf.SwitchBlock( b.position(), stmtList );
@@ -78,10 +78,9 @@ public class CodeCleaner extends NodeVisitor {
   /**
    * Turns a Block into a list of Stmts.
    **/
-  protected List flattenBlock( Block b ) {
-    List stmtList = new LinkedList();
-    for ( Iterator it = b.statements().iterator(); it.hasNext(); ) {
-      Stmt stmt = (Stmt)it.next();
+  protected List<Stmt> flattenBlock( Block b ) {
+    List<Stmt> stmtList = new LinkedList<Stmt>();
+    for (Stmt stmt : b.statements()) {
       if ( stmt instanceof Block ) {
 	// Alpha-rename local decls in the block that we're flattening.
 	stmt = (Stmt)stmt.visit(alphaRen);
@@ -97,10 +96,9 @@ public class CodeCleaner extends NodeVisitor {
   /**
    * Performs some trivial dead code elimination on a list of statements.
    **/
-  protected List clean( List l ) {
-    List stmtList = new LinkedList();
-    for ( Iterator it = l.iterator(); it.hasNext(); ) {
-      Stmt stmt = (Stmt)it.next();
+  protected List<Stmt> clean( List<Stmt> l ) {
+    List<Stmt> stmtList = new LinkedList<Stmt>();
+    for (Stmt stmt : l) {
       stmtList.add( stmt );
 
       if ( stmt instanceof Branch || stmt instanceof Return
@@ -116,7 +114,7 @@ public class CodeCleaner extends NodeVisitor {
    * Traverses a Block and determines the set of label references.
    **/
   protected Set<Name> labelRefs( Block b ) {
-    final Set<Name> result = new HashSet();
+    final Set<Name> result = new HashSet<Name>();
     b.visit( new NodeVisitor() {
 	public Node leave( Node old, Node n, NodeVisitor v ) {
 	  if ( n instanceof Branch ) {

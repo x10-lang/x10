@@ -29,7 +29,7 @@ public class SeqMatMultAdd1b extends Benchmark {
     val c = new Array[double](r, (p:Point)=>p(0)+p(1) as double);
 
     def once() {
-        for ((i,j,k):Point in r*(0..N-1))
+        for ([i,j,k]:Point in r*(0..N-1))
             a(i,j) += b(i,k)*c(k,j);
         return a(10,10);
     }
@@ -39,7 +39,7 @@ public class SeqMatMultAdd1b extends Benchmark {
     //
     //
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new SeqMatMultAdd1b().execute();
     }
 }

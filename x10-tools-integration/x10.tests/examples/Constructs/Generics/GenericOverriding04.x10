@@ -19,13 +19,13 @@ import harness.x10Test;
 
 public class GenericOverriding04 extends GenericTest {
 
-    class A[T] {
+    static class A[T] {
         def m() = 0;
         def m(T) = 1;
         def m(int,T) = 2;
     }
 
-    class B[T] {
+    static class B[T] {
         def m() = 3;
         def m(T) = 4;
         def m(int,T) = 5;
@@ -46,7 +46,7 @@ public class GenericOverriding04 extends GenericTest {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new GenericOverriding04().execute();
     }
 }

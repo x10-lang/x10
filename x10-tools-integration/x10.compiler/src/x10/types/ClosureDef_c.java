@@ -34,13 +34,13 @@ import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
 
 public class ClosureDef_c extends Def_c implements ClosureDef {
+    private static final long serialVersionUID = -9082180217851254169L;
 
     protected Ref<? extends CodeInstance<?>> methodContainer;
     protected Ref<? extends ClassType> typeContainer;
     protected Ref<? extends Type> returnType;
     protected List<Ref<? extends Type>> formalTypes;
     protected List<LocalDef> formalNames;
-    protected List<Ref<? extends Type>> throwTypes;
     protected Ref<CConstraint> guard;
     //protected Ref<TypeConstraint> typeGuard;
     protected CodeInstance<?> asInstance;
@@ -59,7 +59,7 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
             List<LocalDef> formalNames, 
             Ref<CConstraint> guard,
             //Ref<TypeConstraint> typeGuard,
-            List<Ref<? extends Type>> throwTypes,
+            //List<Ref<? extends Type>> throwTypes,
             Ref<? extends Type> offerType) {
 
         super(ts, pos);
@@ -71,7 +71,6 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
         this.formalNames = TypedList.copyAndCheck(formalNames, LocalDef.class, true);
         this.guard = guard;
         //this.typeGuard = typeGuard;
-        this.throwTypes = TypedList.copyAndCheck(throwTypes, Ref.class, true);
         this.offerType = offerType;
     }
     
@@ -91,7 +90,7 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
 	    X10TypeSystem ts = (X10TypeSystem) this.ts;
 	    asType = ts.closureType(position(), returnType, 
 	    		// Collections.EMPTY_LIST, 
-	    		formalTypes, formalNames, guard, throwTypes);
+	    		formalTypes, formalNames, guard);
 	}
 	return asType;
     }
@@ -137,11 +136,11 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
         return typeContainer;
     }
 
-    public List<Ref<? extends Type>> typeParameters() {
-        return Collections.<Ref<? extends Type>>emptyList();
+    public List<ParameterType> typeParameters() {
+        return Collections.<ParameterType>emptyList();
     }
 
-    public void setTypeParameters(List<Ref<? extends Type>> typeParameters) {
+    public void setTypeParameters(List<ParameterType> typeParameters) {
         throw new InternalCompilerError("Attempt to set type parameters on a closure def: "+this, position());
     }
     
@@ -222,17 +221,7 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
          this.formalTypes = TypedList.copyAndCheck(formalTypes, Ref.class, true);
      }
 
-     public List<Ref<? extends Type>> throwTypes() {
-         return Collections.unmodifiableList(throwTypes);
-     }
-
-     /**
-      * @param throwTypes The throwTypes to set.
-      */
-     public void setThrowTypes(List<Ref<? extends Type>> throwTypes) {
-         this.throwTypes = TypedList.copyAndCheck(throwTypes, Ref.class, true);
-     }
-
+     
      public String signature() {
          return "(" + CollectionUtil.listToString(formalTypes) + ")" + Types.get(guard());
      }

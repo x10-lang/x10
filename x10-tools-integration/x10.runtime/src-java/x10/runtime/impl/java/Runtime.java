@@ -48,8 +48,14 @@ public abstract class Runtime implements Runnable {
 	public void run() {
 		try { Class.forName("x10.lang.Place"); } catch (ClassNotFoundException e) { }
 
+		// build up Array[String] for args
+		x10.array.Array<String> aargs = new x10.array.Array<String>(x10.rtt.Types.STRING, args.length);
+		for (int i=0; i<args.length; i++) {
+		    aargs.set$G(args[i], i);
+		}
+		
 		// execute root x10 activity
-		main(x10.core.RailFactory.<java.lang.String>makeRailFromJavaArray(new x10.rtt.RuntimeType<java.lang.String>(java.lang.String.class),args));
+		main(aargs);
 	}
 
 	/**
@@ -57,7 +63,7 @@ public abstract class Runtime implements Runnable {
 	 * - start xrx runtime
 	 * - run main activity
 	 */
-	public abstract void main(x10.core.Rail<java.lang.String> args);
+	public abstract void main(x10.array.Array<java.lang.String> args);
 
 	/**
 	 * Application exit code
@@ -97,11 +103,11 @@ public abstract class Runtime implements Runnable {
 	public static final boolean STATIC_THREADS = Boolean.getBoolean("x10.STATIC_THREADS");
 
 	/**
-	 * Synchronously executes body at place(id)
+	 * Synchronously executes body at place(id) without copy
 	 */
-	public static void runAt(int id, x10.core.fun.VoidFun_0_0 body) {
+	public static void runAtLocal(int id, x10.core.fun.VoidFun_0_0 body) {
 		final Thread thread = Thread.currentThread();
-		final int ret = thread.home();
+		final int ret = thread.home().id;
 		thread.home(id); // update thread place
 		try {
 			body.apply();
@@ -109,6 +115,25 @@ public abstract class Runtime implements Runnable {
 			thread.home(ret); // restore thread place
 		}
 	}
+
+    /**
+     * Synchronously executes body at place(id)
+     */
+    public static void runAt(int id, x10.core.fun.VoidFun_0_0 body) {
+        try {
+            // copy body
+            java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+            new java.io.ObjectOutputStream(baos).writeObject(body);
+            body = (x10.core.fun.VoidFun_0_0) new java.io.ObjectInputStream(new java.io.ByteArrayInputStream(baos.toByteArray())).readObject();
+        } catch (java.io.IOException e) {
+            e.printStackTrace();
+            throw new WrappedRuntimeException(e);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            throw new WrappedRuntimeException(e);
+        }
+        runAtLocal(id, body);
+    }
 
 	/**
 	 * Return true if place(id) is local to this node

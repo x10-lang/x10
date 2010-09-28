@@ -30,7 +30,7 @@ public class NumericExpressionToPrimitiveDepType_2 extends x10Test {
 		return false;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new NumericExpressionToPrimitiveDepType_2().execute();
 	}
 

@@ -23,7 +23,7 @@ import harness.x10Test;
 
 public class GenericOverloading06 extends GenericTest {
 
-    class A[T] {
+    static class A[T] {
         def m() = 0;
         def m(T) = 1;
         def m(int,T) = 2;
@@ -40,7 +40,7 @@ public class GenericOverloading06 extends GenericTest {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new GenericOverloading06().execute();
     }
 }

@@ -56,7 +56,7 @@ public class Future_c extends PlacedClosure_c
     }
 
     /** Type check the expression. */
-    public Node typeCheck( ContextVisitor tc ) throws SemanticException {
+    public Node typeCheck(ContextVisitor tc) {
     	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
     	Future_c n = (Future_c) super.typeCheck(tc);
     	Type t = n.returnType().type();

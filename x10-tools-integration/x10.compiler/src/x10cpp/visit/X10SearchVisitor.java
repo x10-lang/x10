@@ -135,10 +135,10 @@ public class X10SearchVisitor<T extends Node> extends NodeVisitor {
 		return found;
 	}
 
-	public Node getMatch() {
+	public T getMatch() {
 		assert(oneMatch);
 		assert(found);
-		return (Node) results.get(0);
+		return results.get(0);
 	}
 
 	public ArrayList<T> getMatches() {
@@ -158,7 +158,8 @@ public class X10SearchVisitor<T extends Node> extends NodeVisitor {
 		results.add(n);
 	}
 
-	private void checkNode(Node n) {
+	@SuppressWarnings("unchecked") // Casting to a generic type argument
+    private void checkNode(Node n) {
 		Class<? extends Node> type = n.getClass();
 		if (debug) {
 			System.out.println("String = " + type);

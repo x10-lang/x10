@@ -21,7 +21,6 @@ import polyglot.frontend.Job;
 import polyglot.frontend.Scheduler;
 import polyglot.types.TypeSystem;
 import x10.ExtensionInfo.X10Scheduler.ValidatingVisitorGoal;
-import x10.visit.ExpressionFlattener;
 import x10.visit.Inliner;
 
 public class Optimizer {
@@ -32,11 +31,11 @@ public class Optimizer {
         this.scheduler = scheduler;
     }
 
-    public static List<Goal> goals(Scheduler scheduler, Job job) {
-        return new Optimizer(scheduler).goals(job);
+    public static List<Goal> goals(Scheduler scheduler, Job job, Goal flattener) {
+        return new Optimizer(scheduler).goals(job, flattener);
     }
 
-    public List<Goal> goals(Job job) {
+    public List<Goal> goals(Job job, Goal flattener) {
         List<Goal> goals = new ArrayList<Goal>();
 
         if (x10.Configuration.INLINE_OPTIMIZATIONS) {
@@ -44,6 +43,9 @@ public class Optimizer {
         }
         goals.add(LoopUnrolling(job));
         goals.add(ForLoopOptimizations(job));
+        if (x10.Configuration.INLINE_OPTIMIZATIONS) {
+          goals.add(flattener);
+      }
 
         // TODO: add an empty goal that prereqs the above
         return goals;

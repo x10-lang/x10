@@ -17,17 +17,17 @@ import x10.util.Random;
  * points of dimension o.myDim.
  * <p> 
  * This class implements a sequential program, that is readily parallelizable.
- * 
+ *  Converted to 2.1 on 9/1/2010
  */
 public class KMeans(myDim:Int) {
 
-    const DIM=2,  K=4, POINTS=2000, ITERATIONS=50;
-    const EPS=0.01F;
+    static DIM=2,  K=4, POINTS=2000, ITERATIONS=50;
+    static EPS=0.01F;
     
-    static type ValVector(k:Int) = ValRail[Float](k);
+    static type ValVector(k:Int) = Array[Float]{self.rank==1,self.size==k,self.rect,self.zeroBased};
     static type ValVector = ValVector(DIM);
     
-    static type Vector(k:Int) = Rail[Float](k);
+    static type Vector(k:Int) = Array[Float]{self.rank==1,self.size==k,self.rect,self.zeroBased};
     static type Vector = Vector(DIM);
     
     static type SumVector(d:Int) = V{self.dim==d};
@@ -38,39 +38,39 @@ public class KMeans(myDim:Int) {
      */
 
     static class V(dim:Int) implements (Int)=>Float {
-        var vec: Vector(dim)!;
+        var vec: Vector(dim);
         var count:Int;
-        def this(dim:Int, init:(Int)=>Float): SumVector(dim) {
+        def this(dim:Int, init:(int)=>Float): SumVector(dim) {
            property(dim);
-           vec = Rail.make[Float](this.dim, init);
+           vec = new Array[Float](this.dim, init);
            count = 0;
         }
         public def apply(i:Int) = vec(i);
         def makeZero() {
-            for ((i) in 0..dim-1) 
+            for ([i] in 0..dim-1) 
                 vec(i) =0.0F;
             count=0;
         }
         def addIn(a:ValVector(dim)) {
-            for ((i) in 0..dim-1) 
+            for ([i] in 0..dim-1) 
                 vec(i) += a(i);
             count++;
         }
         def div(f:Int) {
-            for ((i) in 0..dim-1)
+            for ([i] in 0..dim-1)
                 vec(i) /= f;
         }
         def dist(a:ValVector(dim)):Float {
             var dist:Float=0.0F;
-            for ((i) in 0..dim-1) {
+            for ([i] in 0..dim-1) {
                 val tmp = vec(i)-a(i);
                 dist += tmp*tmp;
             }
             return dist;
         }
-        def dist(a:SumVector(dim)!):Float {
+        def dist(a:SumVector(dim)):Float {
             var dist:Float=0.0F;
-            for ((i) in 0..dim-1) {
+            for ([i] in 0..dim-1) {
                 val tmp = vec(i)-a(i);
                 dist += tmp*tmp;
             }
@@ -78,7 +78,7 @@ public class KMeans(myDim:Int) {
         }
         def print() {
             Console.OUT.println();
-            for ((i) in 0..dim-1) {
+            for ([i] in 0..dim-1) {
                 Console.OUT.print((i>0? " " : "") + vec(i));
             }
         }
@@ -90,25 +90,25 @@ public class KMeans(myDim:Int) {
     def this(myDim:Int):KMeans{self.myDim==myDim} {
         property(myDim);
     }
-     static type KMeansData(myK:Int, myDim:Int)= Rail[SumVector(myDim)!](myK);
+     static type KMeansData(myK:Int, myDim:Int)= Array[SumVector(myDim)]{self.rank==1,self.size==myK,self.rect,self.zeroBased};
     /**
      * Compute myK means for the given set of points of dimension myDim.
      */
 
-    def computeMeans(myK:Int, points: ValRail[ValVector(myDim)]): KMeansData(myK, myDim)! {
-        var redCluster : KMeansData(myK, myDim)! =
-            Rail.make[SumVector(myDim)!](myK, (i:Int)=> new V(myDim, (j:Int)=>points(i)(j)));
-        var blackCluster: KMeansData(myK, myDim)! =
-            Rail.make[SumVector(myDim)!](myK, (i:Int)=> new V(myDim, (j:Int)=>0.0F));
-        for ((i) in 1..ITERATIONS) {
+    def computeMeans(myK:Int, points: Array[ValVector(myDim)](1)): KMeansData(myK, myDim) {
+        var redCluster : KMeansData(myK, myDim) =
+            new Array[SumVector(myDim)](myK, (i:int)=> new V(myDim, (j:int)=>points(i)(j)));
+        var blackCluster: KMeansData(myK, myDim) =
+            new Array[SumVector(myDim)](myK, (i:int)=> new V(myDim, (j:int)=>0.0F));
+        for ([i] in 1..ITERATIONS) {
             val tmp = redCluster;
             redCluster = blackCluster;
             blackCluster=tmp;
-            for ((p) in 0..POINTS-1) { 
+            for ([p] in 0..POINTS-1) { 
                 var closest:Int = -1;
                 var closestDist:Float = Float.MAX_VALUE;
                 val point = points(p);
-                for ((k) in 0..myK-1) { // compute closest mean in cluster.
+                for ([k] in 0..myK-1) { // compute closest mean in cluster.
                     val dist = blackCluster(k).dist(point);
                     if (dist < closestDist) {
                         closestDist = dist;
@@ -117,11 +117,11 @@ public class KMeans(myDim:Int) {
                 }
                 redCluster(closest).addIn(point);
             }
-            for ((k) in 0..myK-1) 
+            for ([k] in 0..myK-1) 
                 redCluster(k).normalize(); 
             
             var b:Boolean = true;
-                for ((k) in 0..myK-1) {
+                for ([k] in 0..myK-1) {
                     if (redCluster(k).dist(blackCluster(k)) > EPS) {
                         b=false;
                         break;
@@ -129,18 +129,18 @@ public class KMeans(myDim:Int) {
                 }
             if (b) 
                 break;
-            for ((k) in 0..myK-1) 
+            for ([k] in 0..myK-1) 
                 blackCluster(k).makeZero(); 
         }
         return redCluster;  
     }
   
-    public static def main (args : Rail[String]) {
+    public static def main (Array[String]) {
         val rnd = new Random(0);
-        val points = ValRail.make[ValVector](POINTS, 
-                        (Int)=>ValRail.make[Float](DIM, (Int)=>rnd.nextFloat()));
+        val points = new Array[ValVector](POINTS, 
+                        (int)=>new Array[Float](DIM, (int)=>rnd.nextFloat()) as ValVector);
         val result = new KMeans(DIM).computeMeans(K, points);
-        for ((k) in 0..K-1) result(k).print();
+        for ([k] in 0..K-1) result(k).print();
     }
 }
 

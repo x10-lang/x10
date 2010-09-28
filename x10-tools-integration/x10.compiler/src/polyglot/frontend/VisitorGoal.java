@@ -7,6 +7,8 @@ import polyglot.visit.NodeVisitor;
 
 
 public class VisitorGoal extends SourceGoal_c {
+    private static final long serialVersionUID = -3527290837213063959L;
+
     NodeVisitor v;
 
     public VisitorGoal(Job job, NodeVisitor v) {

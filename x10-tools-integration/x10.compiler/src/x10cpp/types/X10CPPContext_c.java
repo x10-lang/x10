@@ -61,14 +61,15 @@ public class X10CPPContext_c extends x10.types.X10Context_c implements X10Contex
     protected HashMap<String, Object> data = new HashMap<String, Object>(1, 1.0f);
 
     /** @see #data. */
-    public void addData(String key, Object value) { data.put(key, value); }
+    public <T> void addData(String key, T value) { data.put(key, value); }
     /** @see #data. */
-    public Object getData(String key) { return data.get(key); }
+    @SuppressWarnings("unchecked") // Casting to a generic type parameter
+    public <T> T getData(String key) { return (T) data.get(key); }
     /** @see #data. */
-    public Object findData(String key) {
-        Object value = getData(key);
+    public <T> T findData(String key) {
+        T value = this.<T>getData(key);
         if (value == null && outer != null)
-            return ((X10CPPContext_c) outer).findData(key);
+            return ((X10CPPContext_c) outer).<T>findData(key);
         return value;
     }
 
@@ -143,14 +144,14 @@ public class X10CPPContext_c extends x10.types.X10Context_c implements X10Contex
 
 	public ArrayList<VarInstance<?>> variables = new ArrayList<VarInstance<?>>();
 
-    private void putYourVariablesHere(ArrayList<VarInstance> vars) {
+    private void putYourVariablesHere(ArrayList<VarInstance<?>> vars) {
         vars.addAll(variables);
         if (inClosure) return;
         ((X10CPPContext_c) outer).putYourVariablesHere(vars);
     }
 
-    public ArrayList<VarInstance> variables() {
-        ArrayList<VarInstance> r = new ArrayList<VarInstance>();
+    public ArrayList<VarInstance<?>> variables() {
+        ArrayList<VarInstance<?>> r = new ArrayList<VarInstance<?>>();
         putYourVariablesHere(r);
         return r;
     }
@@ -183,7 +184,7 @@ public class X10CPPContext_c extends x10.types.X10Context_c implements X10Contex
 
     
 	public void saveEnvVariableInfo(String name) {
-		VarInstance vi = findVariableInThisScope(Name.make(name));
+		VarInstance<?> vi = findVariableInThisScope(Name.make(name));
 		if (vi != null) {  // found declaration 
 			// local variable (do nothing)
 		} else if (inClosure) {
@@ -194,18 +195,18 @@ public class X10CPPContext_c extends x10.types.X10Context_c implements X10Contex
 	}
 
     
-    private VarInstance lookup(String name) {
-        VarInstance vi = findVariableInThisScope(Name.make(name));
+    private VarInstance<?> lookup(String name) {
+        VarInstance<?> vi = findVariableInThisScope(Name.make(name));
         if (vi != null) return vi;
         else if (outer != null) return ((X10CPPContext_c) outer).lookup(name);
         else return null;
     }
 
     private void addVar(String name) {
-		VarInstance vi = lookup(name);
+		VarInstance<?> vi = lookup(name);
         assert vi != null : name.toString();
 		boolean contains = false;
-        for (VarInstance vi2 : variables) {
+        for (VarInstance<?> vi2 : variables) {
             // [DC]: what is wrong with vi2.equals(vi)?
             if (vi2.name().toString().equals(vi.name().toString())) {
                 contains = true;
@@ -223,8 +224,8 @@ public class X10CPPContext_c extends x10.types.X10Context_c implements X10Contex
 //			((X10Context_c) outer).saveEnvVariableInfo(v.name());
 //		}
 		for (int i = 0; i < variables.size(); i++) {
-			VarInstance v = (VarInstance) variables.get(i);
-			VarInstance cvi = findVariableInThisScope(v.name());
+			VarInstance<?> v = variables.get(i);
+			VarInstance<?> cvi = findVariableInThisScope(v.name());
 			if (cvi == null)   // declaration not found 
 				((X10CPPContext_c) outer).saveEnvVariableInfo(v.name().toString());
 		}

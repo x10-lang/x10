@@ -68,7 +68,7 @@ public class UnknownTypeNode_c extends TypeNode_c implements UnknownTypeNode {
 
 	
 	public void setResolver(Node parent, final TypeCheckPreparer v) {
-	    if (typeRef() instanceof LazyRef) {
+	    if (typeRef() instanceof LazyRef<?>) {
 		final LazyRef<Type> r = (LazyRef<Type>) typeRef();
 		final TypeSystem ts = v.typeSystem();
 		if (r.resolver() == null) {

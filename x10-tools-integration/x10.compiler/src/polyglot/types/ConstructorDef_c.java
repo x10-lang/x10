@@ -17,16 +17,17 @@ import polyglot.util.Position;
  * A <code>ConstructorInstance</code> contains type information for a
  * constructor.
  */
-public class ConstructorDef_c extends ProcedureDef_c
-                                implements ConstructorDef
+public class ConstructorDef_c extends ProcedureDef_c implements ConstructorDef
 {
+    private static final long serialVersionUID = -6672601102313722506L;
+
     /** Used for deserializing types. */
     protected ConstructorDef_c() { }
 
     public ConstructorDef_c(TypeSystem ts, Position pos,
 	                         Ref<? extends ClassType> container,
-				 Flags flags, List<Ref<? extends Type>> formalTypes, List<Ref<? extends Type>> excTypes) {
-        super(ts, pos, container, flags, formalTypes, excTypes);
+				 Flags flags, List<Ref<? extends Type>> formalTypes) {
+        super(ts, pos, container, flags, formalTypes);
     }
     
     protected transient ConstructorInstance asInstance;

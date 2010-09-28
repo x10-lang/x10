@@ -23,10 +23,8 @@ public class WhenReturn extends x10Test {
 		var ret: int = 0;
 		when (X.t()) {
 			return 1;
-		} or (X.t()) {
-			ret = 2;
-		}
-		return ret;
+		} 
+		
 	}
 
 	public def run(): boolean = {
@@ -34,7 +32,7 @@ public class WhenReturn extends x10Test {
 		return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new WhenReturn().execute();
 	}
 

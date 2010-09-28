@@ -17,9 +17,10 @@ public interface Binary extends Expr
 {
     /** Binary expression operator. */
     public static class Operator extends Enum {
+	private static final long serialVersionUID = 4475208101698678242L;
 	protected Precedence prec;
 
-        public Operator(String name, Precedence prec) {
+	public Operator(String name, Precedence prec) {
 	    super(name);
 	    this.prec = prec;
 	}

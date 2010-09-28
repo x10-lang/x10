@@ -29,9 +29,10 @@ public class Context_c implements Context
     protected TypeSystem ts;
 
     public static class Kind extends Enum {
-	public Kind(String name) {
-	    super(name);
-	}
+        private static final long serialVersionUID = 711415714966041239L;
+        public Kind(String name) {
+            super(name);
+        }
     }
     
     public static final Kind BLOCK = new Kind("block");
@@ -67,8 +68,8 @@ public class Context_c implements Context
     
     public Context freeze() {
         Context_c c = (Context_c) this.copy();
-        c.types = types != null ? new HashMap(types) : null;
-        c.vars = vars != null ? new HashMap(vars) : null;
+        c.types = types != null ? new HashMap<Name, Named>(types) : null;
+        c.vars = vars != null ? new HashMap<Name, VarInstance<?>>(vars) : null;
         return c;
     }
 
@@ -165,7 +166,7 @@ public class Context_c implements Context
      * Gets a local of a particular name.
      */
     public LocalInstance findLocal(Name name) throws SemanticException {
-	VarInstance vi = findVariableSilent(name);
+	VarInstance<?> vi = findVariableSilent(name);
 
 	if (vi instanceof LocalInstance) {
 	    return (LocalInstance) vi;
@@ -181,7 +182,7 @@ public class Context_c implements Context
         if (Report.should_report(TOPICS, 3))
           Report.report(3, "find-field-scope " + name + " in " + this);
 
-	VarInstance vi = findVariableInThisScope(name);
+        VarInstance<?> vi = findVariableInThisScope(name);
 
         if (vi instanceof FieldInstance) {
             if (Report.should_report(TOPICS, 3))
@@ -221,7 +222,7 @@ public class Context_c implements Context
      * Gets a field of a particular name.
      */
     public FieldInstance findField(Name name) throws SemanticException {
-	VarInstance vi = findVariableSilent(name);
+	VarInstance<?> vi = findVariableSilent(name);
 
 	if (vi instanceof FieldInstance) {
 	    FieldInstance fi = (FieldInstance) vi;
@@ -383,7 +384,7 @@ public class Context_c implements Context
      */
     public Context pushCode(CodeDef ci) {
         if (Report.should_report(TOPICS, 4))
-          Report.report(4, "push code " + ci + " " + ci.position());
+          Report.report(4, "push code " + ci.position());
         Context_c v = push();
         v.kind = CODE;
         v.code = ci;
@@ -438,9 +439,9 @@ public class Context_c implements Context
     /**
      * Adds a symbol to the current scoping level.
      */
-    public void addVariable(VarInstance vi) {
+    public void addVariable(VarInstance<?> vi) {
         if (Report.should_report(TOPICS, 3))
-          Report.report(3, "Adding " + vi + " to context.");
+          Report.report(3, "Adding " + vi.name() + " to context.");
         addVariableToThisScope(vi);
     }
 
@@ -449,7 +450,7 @@ public class Context_c implements Context
      */
     public void addNamed(Named t) {
         if (Report.should_report(TOPICS, 3))
-          Report.report(3, "Adding type " + t + " to context.");
+          Report.report(3, "Adding type " + t.name() + " to context.");
         addNamedToThisScope(t);
     }
 
@@ -527,7 +528,7 @@ public class Context_c implements Context
         vars.put(var.name(), var);
     }
 
-    private static final Collection TOPICS = 
+    private static final Collection<String> TOPICS = 
                 CollectionUtil.list(Report.types, Report.context);
 
 }

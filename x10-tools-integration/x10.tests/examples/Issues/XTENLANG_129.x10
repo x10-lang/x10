@@ -21,7 +21,7 @@ class XTENLANG_129 extends x10Test {
         def this(rank:int) = property(rank);
     }
     
-    incomplete def z(): R{rank==1};
+    static def z(): R{rank==1} { throw new RuntimeException(); }
     
     val w: (int)=>R{rank==1} = (int)=>z();
 
@@ -29,7 +29,7 @@ class XTENLANG_129 extends x10Test {
         return true;
     }
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new XTENLANG_129().execute();
     }
 }

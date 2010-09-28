@@ -17,6 +17,7 @@ import java.util.List;
 
 import polyglot.ast.Block;
 import polyglot.ast.Formal;
+import polyglot.ast.TypeNode;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.Flags;
@@ -84,13 +85,12 @@ public class ClosureSynthesizer {
 	        ClosureDef cDef = xts.closureDef(pos, Types.ref(context.currentClass()),
 	                Types.ref(context.currentCode().asInstance()),
 	                Types.ref(retType), 
-	            //    Collections.EMPTY_LIST,
+	                //Collections.EMPTY_LIST,
 	                fTypes, 
 	                (XVar) null, 
 	                fNames, 
 	                null, 
-	             //   null, 
-	                Collections.EMPTY_LIST, 
+	               // Collections.<Ref<? extends Type>>emptyList(), 
 	                null);
 	        if (null != annotations && !annotations.isEmpty()) {
 	            List<Ref<? extends Type>> ats = new ArrayList<Ref<? extends Type>>();
@@ -103,7 +103,7 @@ public class ClosureSynthesizer {
 	                parms, 
 	                null, 
 	                xnf.CanonicalTypeNode(pos, retType),
-	                Collections.EMPTY_LIST, body)
+	                 body)
 	                .closureDef(cDef)
 	                .type(closureAnonymousClassDef((X10TypeSystem_c) xts, cDef).asType());
 	        return closure;
@@ -120,10 +120,11 @@ public class ClosureSynthesizer {
         final Position pos = def.position();
 
         X10ClassDef cd = new X10ClassDef_c(xts, null) { 	
-        	@Override
-        	public boolean isFunction() { 
-        		return true;
-        	}
+            private static final long serialVersionUID = 4543620040069882230L;
+            @Override
+            public boolean isFunction() { 
+                return true;
+            }
         };
 
         cd.position(pos);
@@ -239,10 +240,11 @@ public class ClosureSynthesizer {
         }
 
         X10ClassDef cd = (X10ClassDef) new X10ClassDef_c(xts, null) {
-        	@Override
-        	public boolean isFunction() { 
-        		return true;
-        	}
+            private static final long serialVersionUID = -2035251841478824351L;
+            @Override
+            public boolean isFunction() { 
+                return true;
+            }
             @Override
             public ClassType asType() {
                 if (asType == null) {
@@ -268,12 +270,12 @@ public class ClosureSynthesizer {
         cd.setInterfaces(Collections.<Ref<? extends Type>> singletonList(Types.ref(xts.Any())));
         cd.flags(X10Flags.toX10Flags(Flags.PUBLIC.Abstract().Interface()));
 
-        final List<Ref<? extends Type>> typeParams = new ArrayList<Ref<? extends Type>>();
+        final List<ParameterType> typeParams = new ArrayList<ParameterType>();
         final List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
 
         for (int i = 0; i < numTypeParams; i++) {
-            Type t = new ParameterType_c(xts, pos, Name.make("X" + i), Types.ref(cd));
-            typeParams.add(Types.ref(t));
+            ParameterType t = new ParameterType_c(xts, pos, Name.make("X" + i), Types.ref(cd));
+            typeParams.add(t);
         }
 
         for (int i = 0; i < numValueParams; i++) {
@@ -313,7 +315,7 @@ public class ClosureSynthesizer {
         		formalNames, 
         		null,//todo: it was guard1
         		null, 
-        		Collections.EMPTY_LIST, 
+        	
         		null, // offerType
         		null);
         cd.addMethod(mi);

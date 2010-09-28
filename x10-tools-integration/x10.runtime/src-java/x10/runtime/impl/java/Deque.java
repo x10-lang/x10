@@ -10,10 +10,13 @@
  */
 
 package x10.runtime.impl.java;
-import sun.misc.Unsafe;
-import java.lang.reflect.*;
+import java.lang.reflect.Field;
 
-public class Deque {
+import sun.misc.Unsafe;
+import x10.core.Ref;
+import x10.rtt.RuntimeType;
+
+public class Deque extends Ref {
     /**
      * Capacity of work-stealing queue array upon initialization.
      * Must be a power of two. Initial size must be at least 2, but is
@@ -185,6 +188,21 @@ public class Deque {
         int n = sp - base;
         return n < 0? 0 : n; // suppress momentarily negative values
     }
+
+
+    //
+    // Runtime type information
+    //
+    public static final RuntimeType<Deque> _RTT = new RuntimeType<Deque>(
+        Deque.class 
+    ) {
+        @Override
+        public String typeName() {
+            return "x10.lang.Deque";
+        }
+    };
+    public RuntimeType<Deque> getRTT() {return _RTT;}
+
 
     // Temporary Unsafe mechanics for preliminary release
 

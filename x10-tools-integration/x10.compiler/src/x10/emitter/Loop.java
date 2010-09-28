@@ -67,7 +67,7 @@ public class Loop extends Expander {
 	public void expand(Translator tr) {
 		er.w.write("/* Loop: { */");
 		Object[] args = new Object[lists.length];
-		Iterator[] iters = new Iterator[lists.length];
+		Iterator<?>[] iters = new Iterator[lists.length];
 		// Parallel iterators over all argument lists
 		for (int j = 0; j < lists.length; j++)
 			iters[j] = lists[j].iterator();

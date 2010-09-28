@@ -26,7 +26,7 @@ public class For_c extends Loop_c implements For
     protected List<ForUpdate> iters;
     protected Stmt body;
 
-    public For_c(Position pos, List inits, Expr cond, List iters, Stmt body) {
+    public For_c(Position pos, List<ForInit> inits, Expr cond, List<ForUpdate> iters, Stmt body) {
 	super(pos);
 	assert(inits != null && iters != null && body != null); // cond may be null, inits and iters may be empty
 	this.inits = TypedList.copyAndCheck(inits, ForInit.class, true);
@@ -41,7 +41,7 @@ public class For_c extends Loop_c implements For
     }
 
     /** Set the inits of the statement. */
-    public For inits(List inits) {
+    public For inits(List<ForInit> inits) {
 	For_c n = (For_c) copy();
 	n.inits = TypedList.copyAndCheck(inits, ForInit.class, true);
 	return n;
@@ -84,7 +84,7 @@ public class For_c extends Loop_c implements For
     }
 
     /** Reconstruct the statement. */
-    protected For_c reconstruct(List inits, Expr cond, List iters, Stmt body) {
+    protected For_c reconstruct(List<ForInit> inits, Expr cond, List<ForUpdate> iters, Stmt body) {
 	if (! CollectionUtil.allEqual(inits, this.inits) || cond != this.cond || ! CollectionUtil.allEqual(iters, this.iters) || body != this.body) {
 	    For_c n = (For_c) copy();
 	    n.inits = TypedList.copyAndCheck(inits, ForInit.class, true);
@@ -99,9 +99,9 @@ public class For_c extends Loop_c implements For
 
     /** Visit the children of the statement. */
     public Node visitChildren(NodeVisitor v) {
-	List inits = visitList(this.inits, v);
+	List<ForInit> inits = visitList(this.inits, v);
 	Expr cond = (Expr) visitChild(this.cond, v);
-	List iters = visitList(this.iters, v);
+	List<ForUpdate> iters = visitList(this.iters, v);
         Node body = visitChild(this.body, v);
 	if (body instanceof NodeList) body = ((NodeList) body).toBlock();
 	return reconstruct(inits, cond, iters, (Stmt) body);
@@ -120,9 +120,7 @@ public class For_c extends Loop_c implements For
         // just to be sure.
         Type t = null;
 
-        for (Iterator i = inits.iterator(); i.hasNext(); ) {
-            ForInit s = (ForInit) i.next();
-
+        for (ForInit s : inits) {
             if (s instanceof LocalDecl) {
                 LocalDecl d = (LocalDecl) s;
                 Type dt = d.type().type();
@@ -164,16 +162,14 @@ public class For_c extends Loop_c implements For
 	w.begin(0);
 
 	if (inits != null) {
-            boolean first = true;
-	    for (Iterator i = inits.iterator(); i.hasNext(); ) {
-		ForInit s = (ForInit) i.next();
+	    boolean first = true;
+	    for (ForInit s : inits) {
+	        if (!first) {
+	            w.write(",");
+	            w.allowBreak(2, " ");
+	        }
 	        printForInit(s, w, tr, first);
-                first = false;
-
-		if (i.hasNext()) {
-		    w.write(",");
-		    w.allowBreak(2, " ");
-		}
+	        first = false;
 	    }
 	}
 
@@ -188,8 +184,8 @@ public class For_c extends Loop_c implements For
 	w.allowBreak(0);
 	
 	if (iters != null) {
-	    for (Iterator i = iters.iterator(); i.hasNext();) {
-		ForUpdate s = (ForUpdate) i.next();
+	    for (Iterator<ForUpdate> i = iters.iterator(); i.hasNext();) {
+		ForUpdate s = i.next();
 		printForUpdate(s, w, tr);
 		
 		if (i.hasNext()) {
@@ -246,7 +242,7 @@ public class For_c extends Loop_c implements For
         return listChild(inits, cond != null ? (Term) cond : body);
     }
 
-    public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
+    public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
         v.visitCFGList(inits, cond != null ? (Term) cond : body, ENTRY);
 
         if (cond != null) {

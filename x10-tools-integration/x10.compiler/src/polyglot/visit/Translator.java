@@ -164,7 +164,7 @@ public class Translator extends PrettyPrinter implements Copy
     	NodeFactory nf = nodeFactory();
     	TargetFactory tf = this.tf;
     	int outputWidth = job.compiler().outputWidth();
-    	Collection outputFiles = job.compiler().outputFiles();
+    	Collection<String> outputFiles = job.compiler().outputFiles();
     	
     	// Find the public declarations in the file.  We'll use these to
     	// derive the names of the target files.  There will be one

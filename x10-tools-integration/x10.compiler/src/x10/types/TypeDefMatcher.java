@@ -60,15 +60,12 @@ class TypeDefMatcher implements Matcher<Named> {
                 return null;
             if (mi.formalTypes().size() != argTypes.size())
                 return null;
-            if (mi instanceof MacroType) {
-                MacroType xmi = (MacroType) mi;
-                Type c = container != null ? container : xmi.container();
-                if (typeArgs.isEmpty() || typeArgs.size() == xmi.typeParameters().size()) {
-                    // no implicit coercions!
-                    MacroType result = x10.types.matcher.Matcher.inferAndCheckAndInstantiate((X10Context) context, 
-                    		xmi, c, typeArgs, argTypes, n.position());
-                    return result;
-                }
+            Type c = container != null ? container : mi.container();
+            if (typeArgs.isEmpty() || typeArgs.size() == mi.typeParameters().size()) {
+                // no implicit coercions!
+                MacroType result = x10.types.matcher.Matcher.inferAndCheckAndInstantiate((X10Context) context, 
+                        mi, c, typeArgs, argTypes, mi.position());
+                return result;
             }
         }
         return null;

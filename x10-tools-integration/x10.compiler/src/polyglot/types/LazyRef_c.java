@@ -9,6 +9,8 @@ import polyglot.frontend.Goal.Status;
 import polyglot.util.TypeInputStream;
 
 public class LazyRef_c<T> extends AbstractRef_c<T> implements LazyRef<T>, Serializable {
+	private static final long serialVersionUID = -7466682011826272737L;
+
 	Runnable resolver;
 
 	/** Create a lazy ref initialized with error value v. */

@@ -13,28 +13,25 @@ import harness.x10Test;
 
 /**
  * @author bdlucas 12/2008
+ Yoav: not relevant under the new object init semantics.
  */
 
 class XTENLANG_198 extends x10Test {
 
     static class A {
-        proto def foo(): String = "A";
+        final def foo(): String = "A";
         val x:String;
         def this() {
             x = foo();
         }
     }
     
-    static class B extends A {
-        proto def foo(): String = "B";
-    }
-    
     public def run():boolean {
-        x10.io.Console.OUT.println("new B().x: " + (new B().x));
-        return new B().x.equals("B");
+        x10.io.Console.OUT.println("new A().x: " + (new A().x));
+        return new A().x.equals("A");
     }
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new XTENLANG_198().execute();
     }
 }

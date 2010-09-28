@@ -80,10 +80,10 @@ public class ClassFileLoader
         }
     }
 
-    protected static Collection verbose;
+    protected static Collection<String> verbose;
 
     static {
-        verbose = new HashSet();
+        verbose = new HashSet<String>();
         verbose.add("loader");
     }
 }

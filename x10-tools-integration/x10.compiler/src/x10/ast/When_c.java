@@ -39,9 +39,9 @@ import x10.types.X10Context;
  */
 public class When_c extends Stmt_c implements CompoundStmt, When {
 
-	protected List/*<Position>*/ positions;
-	protected List/*<Expr>*/ exprs;
-	protected List/*<Stmt>*/ stmts;
+	protected List<Position> positions;
+	protected List<Expr> exprs;
+	protected List<Stmt> stmts;
 
 	protected Expr expr;
 	protected Stmt stmt;
@@ -53,9 +53,9 @@ public class When_c extends Stmt_c implements CompoundStmt, When {
 		super(p);
 		this.expr = expr;
 		this.stmt = stmt;
-		this.positions = new TypedList(new LinkedList(), Position.class, false);
-		this.exprs = new TypedList(new LinkedList(), Expr.class, false);
-		this.stmts = new TypedList(new LinkedList(), Stmt.class, false);
+		this.positions = new TypedList<Position>(new LinkedList<Position>(), Position.class, false);
+		this.exprs = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
+		this.stmts = new TypedList<Stmt>(new LinkedList<Stmt>(), Stmt.class, false);
 	}
 
 	public void addBranch(Position p, Expr e, Stmt s) {
@@ -64,25 +64,25 @@ public class When_c extends Stmt_c implements CompoundStmt, When {
 		this.stmts.add(s);
 	}
 
-	public List exprs() {
+	public List<Expr> exprs() {
 		return exprs;
 	}
 
-	public List stmts() {
+	public List<Stmt> stmts() {
 		return stmts;
 	}
 
-	private boolean isSame(List a, List b) {
+	private <T> boolean isSame(List<T> a, List<T> b) {
 		if (a.size() != b.size()) return false;
-		Iterator i = a.iterator();
-		Iterator j = b.iterator();
+		Iterator<T> i = a.iterator();
+		Iterator<T> j = b.iterator();
 		while (i.hasNext())
 			if (i.next() != j.next()) return false;
 		return true;
 	}
 
 	/** Reconstruct the statement. */
-	public When reconstruct(Expr expr, Stmt stmt, List exprs, List stmts) {
+	public When reconstruct(Expr expr, Stmt stmt, List<Expr> exprs, List<Stmt> stmts) {
 		if (expr == this.expr && stmt == this.stmt &&
 			isSame(exprs, this.exprs) && isSame(stmts, this.stmts))
 		{
@@ -100,20 +100,9 @@ public class When_c extends Stmt_c implements CompoundStmt, When {
 	public Node visitChildren(NodeVisitor v) {
 		Expr e = (Expr) visitChild(expr, v);
 		Stmt s = (Stmt) visitChild(stmt, v);
-		List es = visitList(exprs, v);
-		List ss = visitList(stmts, v);
+		List<Expr> es = visitList(exprs, v);
+		List<Stmt> ss = visitList(stmts, v);
 		return reconstruct(e, s, es, ss);
-	}
-
-	/** Type check the statement. */
-	// TODO: cvp -> vj implement this
-	public Node typeCheck(ContextVisitor tc) throws SemanticException {
-
-    	X10Context c = (X10Context) tc.context();
-    	if (c.inNonBlockingCode())
-    		throw new SemanticException("The when statement cannot be used in nonblocking code.", position());
-    	return super.typeCheck(tc);
-		
 	}
 
 	public String toString() {
@@ -127,8 +116,8 @@ public class When_c extends Stmt_c implements CompoundStmt, When {
 		w.write(") ");
 		printSubStmt(stmt, w, tr);
 		if (exprs.size() > 0) {
-			Iterator es = exprs.iterator();
-			Iterator ss = stmts.iterator();
+			Iterator<Expr> es = exprs.iterator();
+			Iterator<Stmt> ss = stmts.iterator();
 			while (es.hasNext()) {
 				Expr e = (Expr) es.next();
 				Stmt s = (Stmt) ss.next();
@@ -154,12 +143,12 @@ public class When_c extends Stmt_c implements CompoundStmt, When {
 	 * next expression if false.  The last expression wraps around to the
 	 * first.  Each statement goes to this "when".
 	 */
-	public List acceptCFG(CFGBuilder v, List succs) {
+	public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
 		Expr e = expr;
 		Stmt s = stmt;
 		Expr ne = null;
-		Iterator es = exprs.iterator();
-		Iterator ss = stmts.iterator();
+		Iterator<Expr> es = exprs.iterator();
+		Iterator<Stmt> ss = stmts.iterator();
         while (es.hasNext()) {
 			ne = (Expr) es.next();
 			v.visitCFG(e, FlowGraph.EDGE_KEY_TRUE, s,

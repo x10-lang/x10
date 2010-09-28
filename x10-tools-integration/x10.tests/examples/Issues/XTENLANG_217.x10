@@ -17,7 +17,7 @@ import harness.x10Test;
 
 class XTENLANG_217 extends x10Test {
 
-    class A {
+    static class A {
         def apply(i:int): double {throw new RuntimeException();} // FIXME: XTENLANG-1443
         def set(v:double, i:int) {}
     }
@@ -32,7 +32,7 @@ class XTENLANG_217 extends x10Test {
         return true;
     }
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new XTENLANG_217().execute();
     }
 }

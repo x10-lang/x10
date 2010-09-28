@@ -39,13 +39,13 @@ x10aux::ref<OutputStreamWriter__OutputStream> OutputStreamWriter__OutputStream::
 }
 
 void OutputStreamWriter__OutputStream::write(ref<Rail<x10_byte> > b) {
-    placeCheck(nullCheck(b));
+    nullCheck(b);
     this->write(b, 0, b->x10__length);
 }
 
 void OutputStreamWriter__OutputStream::write(ref<Rail<x10_byte> > b,
                                              x10_int off, x10_int len) {
-    if (len > 0) { placeCheck(nullCheck(b)); }
+    if (len > 0) { nullCheck(b); }
     for (x10_int i = 0; i < len; i++)
         this->write((x10_int) b->operator[](off + i));
 }

@@ -37,7 +37,7 @@ public class InterfaceTypeInvariant_MustFailCompile extends x10Test {
  
     public def run()=true;
    
-    public static def main(Rail[String]): void = {
+    public static def main(Array[String](1)): void = {
         new InterfaceTypeInvariant_MustFailCompile().execute();
     }
    

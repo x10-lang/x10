@@ -17,19 +17,20 @@ import harness.x10Test;
  * @author vj
  */
 public class AtEachLoopOnArray extends x10Test {
+	private val root = GlobalRef[AtEachLoopOnArray](this);
     var success: boolean = true;
 
     public def run(): boolean = {
-	val A: DistArray[double](1) =
-	DistArray.make[double]([0..10]->here, ((i): Point): double => i as double);
+	   val A: DistArray[double](1) =
+	       DistArray.make[double]([0..10]->here, ([i]: Point): double => i as double);
 	
-	finish ateach (val (i): Point(1) in A)
-	if (A(i) != i)
-	    async (this) atomic { success = false; }
-	return success;
+	   finish ateach ([i]: Point(1) in A)
+	       if (A(i) != i)
+	          async at(root) atomic { root().success = false; }
+	   return success;
     }
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(Array[String](1))  {
 	    new AtEachLoopOnArray().execute();
 	}
 }

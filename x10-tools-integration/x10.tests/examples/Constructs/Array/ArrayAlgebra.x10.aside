@@ -21,7 +21,7 @@ import harness.x10Test;
 
 public class ArrayAlgebra extends x10Test {
 
-    public const N: int = 24;
+    public static N: int = 24;
 
     def makeArray(val D: Dist, val k: int): DistArray[int]{dist==D} = {
         return DistArray.make[int](D, (var p: Point) => k);
@@ -72,7 +72,7 @@ public class ArrayAlgebra extends x10Test {
         finish ateach (val p: Point in x) chk(x(p) == y(p));
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new ArrayAlgebra().execute();
     }
 }

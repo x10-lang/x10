@@ -18,7 +18,7 @@ struct S[T] implements (Int,Int)=>T {
     data = array;
   }
 
-  public def apply(i:Int, j:Int) = at (data) data(i, j);
+  public def apply(i:Int, j:Int) = data(i, j);
 }
 
 public class StructGenericInterfaceTest extends x10Test {
@@ -33,7 +33,7 @@ public class StructGenericInterfaceTest extends x10Test {
     return true;
   }
 
-  public static def main(Rail[String]) {
+  public static def main(Array[String](1)) {
     new StructGenericInterfaceTest().execute();
   }
 

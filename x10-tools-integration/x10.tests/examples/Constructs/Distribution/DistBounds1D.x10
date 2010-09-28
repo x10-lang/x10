@@ -54,11 +54,11 @@ public class DistBounds1D extends x10Test {
         try {
             chk(a.dist(i).id< Place.MAX_PLACES &&
                     a.dist(i).id >= 0);
-            finish async(a.dist(i)) {
+            finish async at(a.dist(i)) {
                 a(i) = (0xabcdef07L as Int);
                 chk(a(i) == (0xabcdef07L as Int));
             }
-        } catch (var e: ArrayIndexOutOfBoundsException) {
+        } catch (e: ArrayIndexOutOfBoundsException) {
             withinBounds = false;
         }
 
@@ -83,7 +83,7 @@ public class DistBounds1D extends x10Test {
         return x == y;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(args: Array[String](1)) {
         new DistBounds1D().execute();
     }
 
@@ -94,12 +94,12 @@ public class DistBounds1D extends x10Test {
     static class dist2 {
 
         // Java has poor support for enum
-        const BLOCK: int = 0;
-        //const CYCLIC: int = 1;
-        const CONSTANT: int = 2;
+        static BLOCK: int = 0;
+        static CONSTANT: int = 1;
+        //const CYCLIC: int = 2;
         //const RANDOM: int = 3;
         //const ARBITRARY: int = 4;
-        const N_DIST_TYPES: int = 3; // 5;
+        static N_DIST_TYPES: int = 2; // 5;
 
         /**
          * Return a dist with region r, of type disttype

@@ -25,9 +25,9 @@ const int Na = N;
 const int Nb = N;
 const int Nc = N;
 
-double * const a = new double[Na*Na];
-double * const b = new double[Nb*Nb];
-double * const c = new double[Nc*Nc];
+double * static a = new double[Na*Na];
+double * static b = new double[Nb*Nb];
+double * static c = new double[Nc*Nc];
 
 void init() {
     for (int i=0; i<Na; i++) {

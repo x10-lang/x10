@@ -19,12 +19,12 @@ public class FlattenVisitor extends NodeVisitor
 {
     protected TypeSystem ts;
     protected NodeFactory nf;
-    protected LinkedList stack;
+    protected LinkedList<List<Node>> stack;
 
     public FlattenVisitor(TypeSystem ts, NodeFactory nf) {
 	this.ts = ts;
 	this.nf = nf;
-	stack = new LinkedList();
+	stack = new LinkedList<List<Node>>();
     }
 
     public Node override(Node parent, Node n) {
@@ -39,7 +39,7 @@ public class FlattenVisitor extends NodeVisitor
 
 	if (n instanceof FieldDecl || n instanceof ConstructorCall) {
             if (! stack.isEmpty()) {
-                List l = (List) stack.getFirst();
+                List<Node> l = stack.getFirst();
                 l.add(n);
             }
 	    return n;
@@ -68,8 +68,8 @@ public class FlattenVisitor extends NodeVisitor
 	return Name.makeFresh("tmp");
     }
 
-    protected Set noFlatten = new HashSet();
-    protected Set neverFlatten = new HashSet();
+    protected Set<Node> noFlatten = new HashSet<Node>();
+    protected Set<Node> neverFlatten = new HashSet<Node>();
 
     /** 
      * When entering a BlockStatement, place a new StatementList
@@ -77,7 +77,7 @@ public class FlattenVisitor extends NodeVisitor
      */
     public NodeVisitor enter(Node parent, Node n) {
 	if (n instanceof Block) {
-	    stack.addLast(new LinkedList());
+	    stack.addLast(new LinkedList<Node>());
 	}
 	
 	// Don't flatten the expression contained in the statement, but
@@ -103,16 +103,16 @@ public class FlattenVisitor extends NodeVisitor
 	}
 
 	if (n instanceof Block) {
-	    List l = (List) stack.removeFirst();
-            Block block = ((Block) n).statements(l);
-            if (parent instanceof Block && !stack.isEmpty()) {
-              l = (List) stack.getFirst();
-              l.add(block);
-            }
+	    List<Node> l = stack.removeFirst();
+	    Block block = ((Block) n).statements((List<Stmt>)(List) l);
+	    if (parent instanceof Block && !stack.isEmpty()) {
+	        l = stack.getFirst();
+	        l.add(block);
+	    }
 	    return block;
 	}
 	else if (n instanceof Stmt) {
-	    List l = (List) stack.getFirst();
+	    List<Node> l = stack.getFirst();
 	    l.add(n);
 	    return n;
 	}
@@ -143,7 +143,7 @@ public class FlattenVisitor extends NodeVisitor
         		     Types.<Type>ref(e.type()), name);
 	    def = def.localDef(li);
 
-	    List l = (List) stack.getFirst();
+	    List<Node> l = stack.getFirst();
 	    l.add(def);
 
 	    // return the local temp instead of the complex expression

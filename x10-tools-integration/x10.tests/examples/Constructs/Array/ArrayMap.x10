@@ -9,13 +9,14 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+import x10.util.Future;
+
 /**
  * @author bdlucas
  */
-
 public class ArrayMap extends TestArray {
 
-    public const N: int = 9;
+    public static N: int = 9;
 
     public def run(): boolean {
 	chk(Place.places.length == 4, "This test must be run with 4 places");
@@ -26,7 +27,7 @@ public class ArrayMap extends TestArray {
         pr("--- original");
         val a: DistArray[double](dist) = DistArray.make[double](dist, (p:Point)=>p(0) as double);
         for (pt:Point(1) in a) {
-            val x = (future(a.dist(pt)) a(pt)).force();
+            val x = (at (a.dist(pt)) Future.make[double](()=>a(pt)))();
             out.print(x + " ");
         }
         out.println();
@@ -34,7 +35,7 @@ public class ArrayMap extends TestArray {
         pr("--- mapped");
         val b = a.map((a:double)=>1.5*a) as DistArray[double](dist);
         for (pt:Point(1) in b) {
-            val x = (future(b.dist(pt)) b(pt)).force();
+            val x = (at (b.dist(pt)) Future.make[double](()=>b(pt)))();
             out.print(x + " ");
         }
         out.println();
@@ -42,7 +43,7 @@ public class ArrayMap extends TestArray {
         return status();
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new ArrayMap().execute();
     }
 

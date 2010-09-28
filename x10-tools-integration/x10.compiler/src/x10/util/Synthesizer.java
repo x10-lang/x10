@@ -132,9 +132,9 @@ public class Synthesizer {
 	
 	 public  X10ClassDecl_c addSyntheticMethod(X10ClassDecl_c ct, Flags flags, 
 			 Name name, List<LocalDef> fmls, 
-			 Type returnType, List<Type> trow, Block block) {
+			 Type returnType,  Block block) {
 		 assert ct.classDef() != null;
-	     MethodDecl result = makeSyntheticMethod(ct, flags, name,fmls, returnType, trow, block);
+	     MethodDecl result = makeSyntheticMethod(ct, flags, name,fmls, returnType,  block);
 	     ClassBody b = ct.body();
 	    	b = b.addMember(result);
 	    	ct.classDef().addMethod(result.methodDef());
@@ -158,7 +158,7 @@ public class Synthesizer {
 	   */
 	public  MethodDecl makeSyntheticMethod(X10ClassDecl_c ct, Flags flags, 
 			 Name name, List<LocalDef> fmls, 
-			 Type returnType, List<Type> trow, Block block) {
+			 Type returnType,  Block block) {
 	    	
 	    	
 	    	Position CG = X10NodeFactory_c.compilerGenerated(ct.body());
@@ -183,21 +183,12 @@ public class Synthesizer {
 	    	FlagsNode newFlags = xnf.FlagsNode(CG, flags);
 	    	TypeNode rt = xnf.CanonicalTypeNode(CG, returnType);
 
-
-	    	List<TypeNode> throwTypeNodes = new ArrayList<TypeNode>();
-	    	List<Ref<? extends Type>> throwTypes = new ArrayList<Ref<? extends Type>>();
-	    	for (Type  t: trow) {
-	    		Ref<Type> tref = Types.ref(t);
-	    		throwTypes.add(tref);
-	    		throwTypeNodes.add(xnf.CanonicalTypeNode(CG, t));
-	    	}
-
 	    	// Create the method declaration node and the CI.
 	    	MethodDecl result = 
-	    		xnf.MethodDecl(CG, newFlags, rt, xnf.Id(CG,name), formals, throwTypeNodes, block);
+	    		xnf.MethodDecl(CG, newFlags, rt, xnf.Id(CG,name), formals,  block);
 
 	    	MethodDef rmi = xts.methodDef(CG, Types.ref(ct.classDef().asType()), 
-	    			newFlags.flags(), rt.typeRef(), name, argTypes, throwTypes);
+	    			newFlags.flags(), rt.typeRef(), name, argTypes);
 	    	
 	    	result = result.methodDef(rmi);
 	    return result;
@@ -567,8 +558,8 @@ public class Synthesizer {
 			Name name,
 			Type returnType,
 			X10Context xc) throws SemanticException {
-		return makeStaticCall(pos, receiver, name, Collections.EMPTY_LIST, 
-				Collections.EMPTY_LIST, returnType, xc);
+		return makeStaticCall(pos, receiver, name, Collections.<TypeNode>emptyList(), 
+				Collections.<Expr>emptyList(), returnType, xc);
 	}
 	
 	public Call makeStaticCall(Position pos, 
@@ -577,7 +568,7 @@ public class Synthesizer {
 			List<Expr> args,
 			Type returnType,
 			X10Context xc) throws SemanticException {
-		return makeStaticCall(pos, receiver, name, Collections.EMPTY_LIST, args, returnType, xc);
+		return makeStaticCall(pos, receiver, name, Collections.<TypeNode>emptyList(), args, returnType, xc);
 	}
 
 	public Call makeStaticCall(Position pos, 
@@ -587,7 +578,7 @@ public class Synthesizer {
 			Type returnType,
 			List<Type> argTypes,
 			X10Context xc) throws SemanticException {
-		return makeStaticCall(pos, receiver, name, Collections.EMPTY_LIST, args, 
+		return makeStaticCall(pos, receiver, name, Collections.<TypeNode>emptyList(), args, 
 				returnType, argTypes, xc);
 	}
 	public Call makeStaticCall(Position pos, Type receiver, Name name,
@@ -718,11 +709,11 @@ public class Synthesizer {
 	 */
 	
 	public Closure makeClosure(Position pos, Type retType, Block body, X10Context context, List<X10ClassType> annotations) {
-		return makeClosure(pos, retType, Collections.EMPTY_LIST, body, context, annotations);
+		return makeClosure(pos, retType, Collections.<Formal>emptyList(), body, context, annotations);
 	}
 	 
     public Closure makeClosure(Position pos, Type retType, Block body, X10Context context) {
-        return makeClosure(pos, retType, Collections.EMPTY_LIST, body, context);
+        return makeClosure(pos, retType, Collections.<Formal>emptyList(), body, context);
     }
 	 
 	public Block toBlock(Stmt body) {
@@ -936,13 +927,11 @@ public class Synthesizer {
 
         // constructor
         X10ConstructorDecl xd = (X10ConstructorDecl) xnf.ConstructorDecl(p, xnf.FlagsNode(p, X10Flags.PRIVATE), cDecl
-                .name(), fList, Collections.<TypeNode> emptyList(), block);
+                .name(), fList,  block);
         xd.typeParameters(cDecl.typeParameters());
         xd.returnType(xnf.CanonicalTypeNode(p, cDef.asType()));
 
-        ConstructorDef xDef = xts.constructorDef(p, Types.ref(cDef.asType()), X10Flags.PRIVATE, ftList, Collections
-                .<Ref<? extends Type>> emptyList());
-
+        ConstructorDef xDef = xts.constructorDef(p, Types.ref(cDef.asType()), X10Flags.PRIVATE, ftList);
         return (X10ConstructorDecl) xd.constructorDef(xDef);
     }
 
@@ -996,7 +985,6 @@ public class Synthesizer {
                 xnf.FlagsNode(p, X10Flags.PUBLIC),
                 cDecl.name(),
                 fList,                              // formal types
-                Collections.<TypeNode>emptyList(),  // throw types
                 block);
         xd.typeParameters(cDecl.typeParameters());
         xd.returnType(xnf.CanonicalTypeNode(p, cDef.asType()));
@@ -1004,8 +992,8 @@ public class Synthesizer {
         ConstructorDef xDef = xts.constructorDef(p,
                 Types.ref(cDef.asType()),
                 X10Flags.PUBLIC,
-                frList,                                         // formal types
-                Collections.<Ref<? extends Type>>emptyList());  // throw types
+                frList                                         // formal types
+                );  // throw types
 
         List<ClassMember> cm = new ArrayList<ClassMember>();
         ClassBody cb = cDecl.body();
@@ -1111,7 +1099,7 @@ public class Synthesizer {
 
         // Find the right super constructor: def (args)
         Type sType = cDecl.superClass().type();
-        Type scType = PlaceChecker.AddIsHereClause(sType, context);
+        Type scType = sType; // PlaceChecker.AddIsHereClause(sType, context);
        
         ConstructorDef sDef = xts.findConstructor(sType,    // receiver's type
                 xts.ConstructorMatcher(sType, 
@@ -1201,7 +1189,7 @@ public class Synthesizer {
                 Types.ref(returnType), 
                 name, 
                 formalTypeRefs, 
-                throwTypeRefs,
+             
                 Types.ref(offerType));
         classDef.addMethod(mDef);
         return mDef;
@@ -1225,15 +1213,11 @@ public class Synthesizer {
         X10ClassDef cDef = (X10ClassDef) cDecl.classDef();
         Position p = mDef.position();
         // Method Decl
-        List<TypeNode> throwTypeNodes = new ArrayList<TypeNode>();
-        for (Ref<? extends Type> t : mDef.throwTypes()) {
-            throwTypeNodes.add(xnf.CanonicalTypeNode(p, t.get()));
-        }
         FlagsNode flagNode = xnf.FlagsNode(p, mDef.flags());
         TypeNode returnTypeNode = xnf.CanonicalTypeNode(p, mDef.returnType());
         
         MethodDecl mDecl = xnf.MethodDecl(p, flagNode, returnTypeNode, xnf.Id(p, mDef.name()), 
-                formals, throwTypeNodes, body);
+                formals,  body);
 
         mDecl = mDecl.methodDef(mDef); //Need set the method def to the method instance
 
@@ -1323,7 +1307,6 @@ public class Synthesizer {
                 xnf.FlagsNode(p, X10Flags.PUBLIC),
                 cDecl.name(),
                 Collections.<Formal>emptyList(),
-                Collections.<TypeNode>emptyList(),
                 xnf.Block(p));
         xd.typeParameters(cDecl.typeParameters());
         xd.returnType(xnf.CanonicalTypeNode(p, cDef.asType()));
@@ -1331,7 +1314,6 @@ public class Synthesizer {
         ConstructorDef xDef = xts.constructorDef(p,
                 Types.ref(cDef.asType()),
                 X10Flags.PRIVATE,
-                Collections.<Ref<? extends Type>>emptyList(),
                 Collections.<Ref<? extends Type>>emptyList());
 
         List<ClassMember> cm = new ArrayList<ClassMember>();
@@ -1367,8 +1349,8 @@ public class Synthesizer {
 			return nf.X10CanonicalTypeNode(pos, type);
 		Type base = X10TypeMixin.baseType(type);
 		String typeName = base.toString();
-		List<Type> types = Collections.EMPTY_LIST;
-		List<TypeNode> typeArgs = Collections.EMPTY_LIST;
+		List<Type> types = Collections.<Type>emptyList();
+		List<TypeNode> typeArgs = Collections.<TypeNode>emptyList();
 		if (base instanceof X10ClassType) {
 			X10ClassType xc = (X10ClassType) base;
 			types = xc.typeArguments();
@@ -1388,7 +1370,7 @@ public class Synthesizer {
 		QName qName = QName.make(typeName);
 		QName qual = qName.qualifier();
 		TypeNode tn =  nf.AmbDepTypeNode(pos, qual==null ? null : nf.PrefixFromQualifiedName(pos, qual), 
-				nf.Id(pos, qName.name()), typeArgs, Collections.EMPTY_LIST, dep);
+				nf.Id(pos, qName.name()), typeArgs, Collections.<Expr>emptyList(), dep);
 		TypeBuilder tb = new TypeBuilder(tc.job(),  tc.typeSystem(), nf);
 		tn = (TypeNode) tn.visit(tb);
 		TypeChecker typeChecker = (TypeChecker) new X10TypeChecker(tc.job(), ts, nf,tc.job().nodeMemo()).context(tc.context());
@@ -1525,14 +1507,27 @@ public class Synthesizer {
 		for (XTerm a : t.arguments()) {
 			args.add(makeExpr(a, pos));
 		}
-		Name n = Name.make(t.operator().toString());
-		// FIXME: [IP] Hack to handle the "at" atom added by XTypeTranslator for structs
-		if (n.toString().equals("at")) {
-			Receiver r = args.remove(0);
-			return xnf.Call(pos, r, xnf.Id(pos, n), args);
-		} else {
-			return xnf.Call(pos, xnf.Id(pos, n), args);
+		String op = t.asExprOperator().toString();
+		if (op.equals(XTerms.asExprAndName.toString())) {
+			return xnf.Binary(pos, args.get(0), Binary.COND_AND, args.get(1));
 		}
+		if (op.equals(XTerms.asExprEqualsName.toString())) {
+			return xnf.Binary(pos, args.get(0), Binary.EQ, args.get(1));
+		}
+		if (op.equals(XTerms.asExprDisEqualsName.toString())) {
+			return xnf.Binary(pos, args.get(0), Binary.NE, args.get(1));
+		}
+		if (op.equals(XTerms.asExprNotName.toString())) {
+			return xnf.Unary(pos, Unary.NOT, args.get(0));
+		}
+		
+		// FIXME: [IP] Hack to handle the "at" atom added by XTypeTranslator for structs
+		//if (n.toString().equals("at")) {
+		//	Receiver r = args.remove(0);
+		//	return xnf.Call(pos, r, xnf.Id(pos, n), args);
+		//} else {
+			return xnf.Call(pos, xnf.Id(pos, Name.make(op)), args);
+		//}
 	}	
 	
 	
@@ -1600,10 +1595,10 @@ public class Synthesizer {
      */
     public FunctionType simpleFunctionType(Type type, Position pos){        
         return xts.closureType(pos, Types.ref(type),
-                       Collections.EMPTY_LIST,
-                       Collections.EMPTY_LIST,
-                       null, 
-                       Collections.EMPTY_LIST);
+                       Collections.<Ref<? extends Type>>emptyList(),
+                       Collections.<LocalDef>emptyList(),
+                       null
+                      );
     }
     
 }

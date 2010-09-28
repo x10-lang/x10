@@ -11,13 +11,14 @@
 
 import harness.x10Test;
 
+import x10.util.Future;
 /**
  * Future test.
  */
 public class Future0a extends x10Test {
-	public def run() = (future 47)() == 47;
+	public def run() = Future.make[int](()=> 47)() == 47;
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new Future0a().execute();
 	}
 }

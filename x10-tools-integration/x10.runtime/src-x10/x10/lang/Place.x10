@@ -24,11 +24,11 @@ public final struct Place(id: Int)  {
 
     @Native("java", "x10.runtime.impl.java.Runtime.MAX_PLACES")
     @Native("c++", "x10aux::num_places")
-    public const ALL_PLACES = 4;
+    public static ALL_PLACES = 4;
 
     @Native("java", "x10.runtime.impl.java.Runtime.MAX_PLACES")
     @Native("c++", "x10aux::num_hosts")
-    public const MAX_PLACES = 4;
+    public static MAX_PLACES = 4;
 
     /**
      * Find number of children under a place.
@@ -79,13 +79,13 @@ public final struct Place(id: Int)  {
     @Native("c++", "x10aux::child_index(#1)")
     public static def childIndex(id:Int):Int { throw new BadPlaceException(); }
 
-    public const places = ValRail.make[Place](MAX_PLACES, ((id: Int) => Place(id)));
-    public const children = ValRail.make[ValRail[Place]](
+    public static places = ValRail.make[Place](MAX_PLACES, ((id: Int) => Place(id)));
+    public static children = ValRail.make[ValRail[Place]](
                                 ALL_PLACES,
                                 (p: Int) => ValRail.make[Place](numChildren(p),
                                                                 (i:Int) => Place(child(p,i))));
-    public const NUM_ACCELS = ALL_PLACES - MAX_PLACES;
-    public const FIRST_PLACE: Place(0) = places(0) as Place(0);
+    public static NUM_ACCELS = ALL_PLACES - MAX_PLACES;
+    public static FIRST_PLACE: Place(0) = places(0) as Place(0);
 
     public def this(id: Int):Place(id) { property(id); }
 
@@ -124,8 +124,8 @@ public final struct Place(id: Int)  {
         return childIndex(id);
     }
 
-    public global safe def toString() = "(Place " + this.id + ")";
-    public global safe def equals(p:Place) = p.id==this.id; 
-    public global safe def equals(p:Any) = p instanceof Place && (p as Place).id==this.id;
-    public global safe def hashCode()=id;
+    public def toString() = "(Place " + this.id + ")";
+    public def equals(p:Place) = p.id==this.id;
+    public def equals(p:Any) = p instanceof Place && (p as Place).id==this.id;
+    public def hashCode()=id;
 }

@@ -22,14 +22,14 @@ public class FinishTest1 extends x10Test {
 
 	public def run() {
 		finish {
-			async (here) { atomic { flag = true; } }
+			async { atomic { flag = true; } }
 		}
 		var b: boolean = false;
 		atomic { b = flag; }
 		return b;
 	}
 
-	public static def main(args: Rail[String]) {
+	public static def main(args: Array[String](1)) {
 		new FinishTest1().execute();
 	}
 }

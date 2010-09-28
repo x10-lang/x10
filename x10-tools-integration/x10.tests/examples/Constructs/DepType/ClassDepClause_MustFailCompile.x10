@@ -25,7 +25,7 @@ import harness.x10Test;
       return true;
     }
     
-   public static def main(var args: Rail[String]): void = {
+   public static def main(var args: Array[String](1)): void = {
         new ClassDepClause_MustFailCompile(1,1).execute();
     }
  }

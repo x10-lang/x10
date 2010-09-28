@@ -26,7 +26,7 @@ public class ClosureEnclosingScope6 extends ClosureTest {
     class C {
         def a() = 2;
         class D {
-            def a() = 4;
+            final def a() = 4;
             val sum = (()=>(
 				ClosureEnclosingScope6.this.a // DYNAMIC_CHECK
 				+
@@ -42,7 +42,7 @@ public class ClosureEnclosingScope6 extends ClosureTest {
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new ClosureEnclosingScope6().execute();
     }
 }

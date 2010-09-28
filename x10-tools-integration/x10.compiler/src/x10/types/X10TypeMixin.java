@@ -20,15 +20,14 @@ import polyglot.ast.Binary;
 import polyglot.ast.Cast;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
-import polyglot.ast.Formal;
 import polyglot.ast.Lit;
 import polyglot.ast.Receiver;
 import polyglot.ast.Special;
 import polyglot.ast.Unary;
 import polyglot.ast.Unary_c;
 import polyglot.ast.Variable;
+import polyglot.ast.FloatLit;
 import polyglot.ast.Binary.Operator;
-import polyglot.frontend.Globals;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorInstance;
@@ -43,23 +42,25 @@ import polyglot.types.ProcedureInstance;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
-import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.types.UnknownType;
+import polyglot.types.QName;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import polyglot.visit.ContextVisitor;
 import x10.ast.Here;
 import x10.ast.ParExpr;
 import x10.ast.SemanticError;
 import x10.ast.SubtypeTest;
+import x10.ast.X10NodeFactory;
+import x10.ast.X10IntLit_c;
+import x10.ast.X10StringLit_c;
 import x10.constraint.XFailure;
 import x10.constraint.XNameWrapper;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
-import x10.constraint.XVar;
 import x10.errors.Errors;
-import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
@@ -177,6 +178,11 @@ public class X10TypeMixin {
     		return c1;
     	}
     }
+    /**
+     * Returns a copy of t's constraint, if it has one, null otherwise.
+     * @param t
+     * @return
+     */
 	public static CConstraint xclause(Type t) {
 	        if (t instanceof AnnotatedType) {
 	            AnnotatedType at = (AnnotatedType) t;
@@ -215,8 +221,6 @@ public class X10TypeMixin {
 	    if (f==null || !(f instanceof X10Flags))
 	        return x;
 	    X10Flags xf = (X10Flags) f;
-	    if (xf.isProto()) 
-	        x =  ((Proto) x).makeProto();
 	    if (xf.isStruct()) {
 	        x = ((X10Struct) x).makeX10Struct();
 	    }
@@ -235,6 +239,25 @@ public class X10TypeMixin {
 	    if (t instanceof ConstrainedType) {
 	        ConstrainedType ct = (ConstrainedType) t;
 	        return baseType(Types.get(ct.baseType()));
+	    }
+	    return t;
+	}
+	public static Type erasedType(Type t) {
+	    if (t instanceof AnnotatedType) {
+	        AnnotatedType at = (AnnotatedType) t;
+	        return erasedType(at.baseType());
+	    }
+	    if (t instanceof MacroType) {
+	        MacroType mt = (MacroType) t;
+	        return erasedType(mt.definedType());
+	    }
+	    if (t instanceof ConstrainedType) {
+	        ConstrainedType ct = (ConstrainedType) t;
+	        return erasedType(baseType(Types.get(ct.baseType())));
+	    }
+	    if (t instanceof ConstrainedType) {
+	        ConstrainedType ct = (ConstrainedType) t;
+	        return erasedType(baseType(Types.get(ct.baseType())));
 	    }
 	    return t;
 	}
@@ -340,40 +363,36 @@ public class X10TypeMixin {
 	}
 
     public static boolean isConstrained(Type t) {
-	    return t instanceof ConstrainedType;
+    	
+	        if (t instanceof AnnotatedType) {
+	            AnnotatedType at = (AnnotatedType) t;
+	            return isConstrained(at.baseType());
+	        }
+	        if (t instanceof MacroType) {
+	                MacroType mt = (MacroType) t;
+	                return isConstrained(mt.definedType());
+	        }
+		if (t instanceof ConstrainedType) {
+			return true;
+		}
+		return false;
     }
     public static boolean isX10Struct(Type t) {
     	if (! (t instanceof X10Struct))
     		return false;
     	return ((X10Struct) t).isX10Struct();
     }
+
     public static boolean isClass(Type t) {
 	    return ! isX10Struct(t);
     }
-    
-    public static boolean isProto(Type t) {
-    	return (t instanceof Proto) && ((Proto) t).isProto();
-    }
-    public static Type baseOfProto(Type t) {
-    	if (! (t instanceof Proto))
-    		return t;
-    	Proto type = (Proto) t; 
-    	return type.baseOfProto();
-    	
-    }
+
     public static Type superClass(Type t) {
     	t = baseType(t);
     	assert t instanceof ClassType;
     	return ((ClassType) t).superClass();
     }
 
-    public static Type makeProto(Type t) {
-    	if (! (t instanceof Proto)) 
-    		return t;
-    	Proto type = (Proto) t; 
-    	return type.makeProto();
-    	
-    }
     public static Type addBinding(Type t, XTerm t1, XTerm t2) throws XFailure {
     	//assert (! (t instanceof UnknownType));
        
@@ -427,15 +446,19 @@ public class X10TypeMixin {
             throw new InternalCompilerError("Cannot bind " + t1 + " to " + t2 + ".", f);
         }
     }
+    static CConstraint tryAddingConstraint(Type t, CConstraint xc) throws XFailure {
+    	 CConstraint c = xclause(t);
+         c = c == null ? new CConstraint() :c.copy();
+         c.addIn(xc);
+         return c;
+    }
     public static Type addConstraint(Type t, CConstraint xc) {
         try {
-            CConstraint c = xclause(t);
-            c = c == null ? new CConstraint() :c.copy();
-            c.addIn(xc);
+            CConstraint c = tryAddingConstraint(t, xc);
             return xclause(X10TypeMixin.baseType(t), c);
         }
         catch (XFailure f) {
-            throw new InternalCompilerError("X10TypeMixin_c: Cannot add " + xc + "to " + t + ".", f);
+            throw new InternalCompilerError("X10TypeMixin: Cannot add " + xc + "to " + t + ".", f);
         }
     }
     
@@ -455,6 +478,22 @@ public class X10TypeMixin {
 	    CConstraint c = xclause(t);
         if (c == null) return true;
         return c.consistent();
+    }
+    public static void setInconsistent(Type t) {
+    	if (t instanceof AnnotatedType) {
+    		AnnotatedType at = (AnnotatedType) t;
+    		setInconsistent(at.baseType());
+    	}
+    	if (t instanceof MacroType) {
+    		MacroType mt = (MacroType) t;
+    		setInconsistent(mt.definedType());
+    	}
+    	if (t instanceof ConstrainedType) {
+    		ConstrainedType ct = (ConstrainedType) t;
+    		CConstraint c = Types.get(ct.constraint());
+    		c.setInconsistent();
+    		return;
+    	}
     }
 
     public static XVar selfVar(Type thisType) {
@@ -589,7 +628,7 @@ public class X10TypeMixin {
 	        X10ClassType ct = (X10ClassType) t;
 	        return ct.properties();
 	    }
-	    return Collections.EMPTY_LIST;
+	    return Collections.<FieldInstance>emptyList();
 	}
 	
 	/**
@@ -663,20 +702,6 @@ public class X10TypeMixin {
 	}
 	
 	  
-	  public static void protoTypeCheck(List<Formal> formals, Type retType, Position pos,
-			  boolean isMethod) throws SemanticException {
-	    	for (Formal f : formals) {
-	    		if ( X10TypeMixin.isProto(f.type().type())) {
-	    			if (! retType.isVoid() && ! X10TypeMixin.isProto(retType)) {
-	    				throw new SemanticException("The argument " + f 
-	    						+ " has a proto type; hence the return type must be "
-	    						+ (isMethod ? "void or proto" : "proto")+", not "
-	    						+ retType+".", pos);
-	    						
-	    			}
-	    		}
-	    	}
-	    }
 	  
 	  public static boolean entails(Type t, XTerm t1, XTerm t2) {
 		 CConstraint c = realX(t);
@@ -715,14 +740,11 @@ public class X10TypeMixin {
 		    catch (XFailure f) {
 			    return false;
 		    }
-		    catch (SemanticException f) {
-			    return false;
-		    }
 	    }
 	    else {
 	        // try self.p()
 	            try {
-	                X10MethodInstance mi = xts.findMethod(t, xts.MethodMatcher(t, propName, Collections.EMPTY_LIST, xts.emptyContext()));
+	                X10MethodInstance mi = xts.findMethod(t, xts.MethodMatcher(t, propName, Collections.<Type>emptyList(), xts.emptyContext()));
 	                XTerm body = mi.body();
 	                CConstraint c = new CConstraint();
 	                body = body.subst(c.self(), mi.x10Def().thisVar());
@@ -911,13 +933,14 @@ public class X10TypeMixin {
 	 * Are instances of this type accessible from anywhere?
 	 * @param t
 	 * @return
-	 */
+	 
 	public static boolean isGlobalType(Type t) {
 		if (isX10Struct(t))
 			return true;
 		return false;
 		
 	}
+	*/
 
 	/**
 	 * We need to ensure that there is a symbolic name for this type. i.e. self is bound to some variable.
@@ -970,19 +993,109 @@ public class X10TypeMixin {
         }
         return res;
     }
+    public static boolean isUninitializedField(X10FieldDef def,X10TypeSystem ts) {
+        return isDefAnnotated(def,ts,"x10.compiler.Uninitialized");
+    }
+    public static boolean isSuppressTransientErrorField(X10FieldDef def,X10TypeSystem ts) {
+        return isDefAnnotated(def,ts,"x10.compiler.SuppressTransientError");
+    }
+    public static String getNonEscapingReadsFrom(X10ProcedureDef def,X10TypeSystem ts) {
+        try {
+            Type at = (Type) ts.systemResolver().find(QName.make("x10.compiler.NonEscaping"));
+            final List<Type> annotations = def.annotationsMatching(at);
+            if (annotations.isEmpty()) return null;
+            Type first = annotations.get(0);
+            if (!(first instanceof X10ParsedClassType_c)) return null;
+            X10ParsedClassType_c nonEscaping = (X10ParsedClassType_c) first;
+            final List<Expr> list = nonEscaping.propertyInitializers();
+            if (list.size()!=1) return ""; // @NonEscaping is like @NonEscaping("")
+            Expr arg = list.get(0);
+            if (arg==null || !(arg instanceof X10StringLit_c)) return ""; // @NonEscaping(null) is like @NonEscaping("")
+            return ((X10StringLit_c) arg).stringValue();
+        } catch (SemanticException e) {
+            return null;
+        }
+    }
+    public static boolean isDefAnnotated(X10Def def,X10TypeSystem ts, String name) {
+        try {
+            Type at = (Type) ts.systemResolver().find(QName.make(name));
+            return !def.annotationsMatching(at).isEmpty();
+        } catch (SemanticException e) {
+            return false;
+        }
+    }
+    // this is an under-approximation (it is always safe to return 'null', i.e., the user will just get more errors). In the future we will improve the precision so more types might have zero.
+    public static Expr getZeroVal(Type t, Position p, ContextVisitor tc) { // see X10FieldDecl_c.typeCheck
+        try {
+            X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+            X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
+	    	X10Context context = (X10Context) tc.context();
+            Expr e = null;
+            if (t.isBoolean()) {
+                e = nf.BooleanLit(p, false);
+
+            // todo: add literals for short, byte, and their unsigned versions
+            } else if (ts.isShort(t)) {
+                e = nf.IntLit(p, X10IntLit_c.INT, 0L);
+            } else if (ts.isUShort(t)) {
+                e = nf.IntLit(p, X10IntLit_c.UINT, 0L);
+            } else if (ts.isByte(t)) {
+                e = nf.IntLit(p, X10IntLit_c.INT, 0L);
+            } else if (ts.isUByte(t)) {
+                e = nf.IntLit(p, X10IntLit_c.UINT, 0L);
+                
+            } else if (ts.isChar(t)) {
+                e = nf.CharLit(p, '\0');
+            } else if (ts.isInt(t)) {
+                e = nf.IntLit(p, X10IntLit_c.INT, 0L);
+            } else if (ts.isUInt(t)) {
+                e = nf.IntLit(p, X10IntLit_c.UINT, 0L);
+            } else if (ts.isLong(t)) {
+                e = nf.IntLit(p, X10IntLit_c.LONG, 0L);
+            } else if (ts.isULong(t)) {
+                e = nf.IntLit(p, X10IntLit_c.ULONG, 0L);
+            } else if (ts.isFloat(t)) {
+                e = nf.FloatLit(p, FloatLit.FLOAT, 0.0);
+            } else if (ts.isDouble(t)) {
+                e = nf.FloatLit(p, FloatLit.DOUBLE, 0.0);
+            } else if (ts.isObjectOrInterfaceType(t, context)) {
+                e = nf.NullLit(p);
+            }
+            // todo: we should handle user-defined structs, as well as generic type parameters with hasDefault. see hasZero
+//            if (isX10Struct(t)) {
+            /*
+            My plan for user-defined structs is as follows:
+1) recursively verify that all generic parameters have zero/default (this might be stricter then necessary because a parameter might not be used in any field, but is easier to implement)
+2) We maintain a set of constraints C, and make sure all of them evaluate to true.
+We gather the constraints from:
+* the constraints on all the non-static fields and properties
+* the class invariant
+then we substitute 0/false/null in all the constraints in C and if they all evaluate to true, then we have a default value.
+             */
+
+//            // a parameter type might be instantiated with a type that doesn't have a default/zero. todo: In the future we'll add the "hasDefault" constraint
+//            if (ts.isParameterType(t)) {
+
+            if (e != null) {
+                e = (Expr) e.del().typeCheck(tc).checkConstants(tc);
+                if (ts.isSubtype(e.type(), t, context)) { // suppose the field is "var i:Int{self!=0}", then you cannot create an initializer which is 0!
+                    return e;
+                }
+            }
+            return null;
+        } catch (SemanticException e1) {
+            throw new InternalCompilerError(e1);
+        }
+    }
+    
 	public static boolean permitsNull(Type t) {
 		if (isX10Struct(t))
 			return false;
 		if (X10TypeMixin.disEntailsSelf(t, XTerms.NULL))
 			return false;
 		X10TypeSystem ts = ((X10TypeSystem) t.typeSystem());
-		if (ts.isParameterType(t)) {
-			List<Type> upper =  ts.env(ts.emptyContext()).upperBounds(t);
-			for (Type type : upper) {
-				if (permitsNull(type)) 
-					return true;
-			}
-			return false;
+		if (ts.isParameterType(t)) {			
+			return false; // a parameter type might be instantiated with a struct that doesn't permit null.
 		}
 		return true;
 	}
@@ -996,10 +1109,12 @@ public class X10TypeMixin {
 	    return xthis;
 	}
 
-	public static void expandTypes(List<Type> formals, X10TypeSystem xts) {
-		 for (int i = 0; i < formals.size(); ++i) {
-	         formals.set(i, xts.expandMacros(formals.get(i)));
-		 }
+	public static List<Type> expandTypes(List<Type> formals, X10TypeSystem xts) {
+		List<Type> result = new ArrayList<Type>();
+		for (Type f : formals) {
+		    result.add(xts.expandMacros(f));
+		}
+		return result;
 	}
 
 	public static <PI extends X10ProcedureInstance<?>>  boolean isStatic(PI me) {
@@ -1023,8 +1138,8 @@ public class X10TypeMixin {
 	public static boolean moreSpecificImpl(ProcedureInstance<?> p1, ProcedureInstance<?> p2, Context context) {
 	    X10TypeSystem ts = (X10TypeSystem) p1.typeSystem();
 	
-	    Type t1 = p1 instanceof MemberInstance ? ((MemberInstance) p1).container() : null;
-	    Type t2 = p2 instanceof MemberInstance ? ((MemberInstance) p2).container() : null;
+	    Type t1 = p1 instanceof MemberInstance<?> ? ((MemberInstance<?>) p1).container() : null;
+	    Type t2 = p2 instanceof MemberInstance<?> ? ((MemberInstance<?>) p2).container() : null;
 	
 	    if (t1 != null && t2 != null) {
 	        t1 = baseType(t1);
@@ -1033,8 +1148,8 @@ public class X10TypeMixin {
 	
 	    boolean descends = t1 != null && t2 != null && ts.descendsFrom(ts.classDefOf(t1), ts.classDefOf(t2));
 	
-	    Flags flags1 = p1 instanceof MemberInstance ? ((MemberInstance) p1).flags() : Flags.NONE;
-	    Flags flags2 = p2 instanceof MemberInstance ? ((MemberInstance) p2).flags() : Flags.NONE;
+	    Flags flags1 = p1 instanceof MemberInstance<?> ? ((MemberInstance<?>) p1).flags() : Flags.NONE;
+	    Flags flags2 = p2 instanceof MemberInstance<?> ? ((MemberInstance<?>) p2).flags() : Flags.NONE;
 	
 	    // A static method in a subclass is always more specific.
 	    // Note: this rule differs from Java but avoids an anomaly with conversion methods.
@@ -1166,4 +1281,13 @@ public class X10TypeMixin {
 			}
 			return null;
 		}
+	public static boolean areConsistent(Type t1, Type t2) {
+		try {
+			if ( isConstrained(t1) &&  isConstrained(t2))
+				tryAddingConstraint(t1, xclause(t2));
+			return true;
+		} catch (XFailure z) {
+			return false;
+		}
+	}
 }

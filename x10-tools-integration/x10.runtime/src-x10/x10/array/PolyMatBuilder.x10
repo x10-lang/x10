@@ -56,10 +56,10 @@ public class PolyMatBuilder(rank: int) extends MatBuilder {
      * by increasing # bits per coeff
      */
 
-    private const ZERO: int = 0xAAAAAAA;
+    private static ZERO: int = 0xAAAAAAA;
 
-    public const GE: int = 0;
-    public const LE: int = 1;
+    public static GE: int = 0;
+    public static LE: int = 1;
 
     final public static def X(axis: int): int {
         return 0x1<<2*axis;

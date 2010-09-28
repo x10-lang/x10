@@ -181,7 +181,7 @@ public class Switch_c extends Stmt_c implements Switch
         return expr;
     }
 
-    public List<Term> acceptCFG(CFGBuilder v, List<Term> succs) {
+    public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
         List<Term> cases = new ArrayList<Term>(elements.size()+1);
         List<Integer> entry = new ArrayList<Integer>(elements.size()+1);
         boolean hasDefault = false;

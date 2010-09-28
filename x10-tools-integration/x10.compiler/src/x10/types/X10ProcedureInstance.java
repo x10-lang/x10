@@ -40,7 +40,7 @@ public interface X10ProcedureInstance<T extends ProcedureDef> extends TypeObject
     
     List<LocalInstance> formalNames();
     X10ProcedureInstance<T> formalNames(List<LocalInstance> formalNames);
-    
+
     /**
      * Return the constraint on the formal parameters, if any.
      * @return

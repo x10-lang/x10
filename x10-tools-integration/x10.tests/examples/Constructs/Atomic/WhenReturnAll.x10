@@ -13,17 +13,20 @@ import harness.x10Test;
 
 /**
  * Returns from all branches of a "when" should work.
- *
+ * Converted to single-branched when. vj 9/2010
  * @author igor, 2/2006
  */
 public class WhenReturnAll extends x10Test {
 
+	def a():boolean = false;
 	def test(): int = {
 		var ret: int = 0;
 		when (X.t()) {
-			return 1;
-		} or (X.t()) {
-			return 2;
+			if (a()) {
+			  return 1;
+			} else {
+				return 2;
+			}
 		}
 	}
 
@@ -32,7 +35,7 @@ public class WhenReturnAll extends x10Test {
 		return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new WhenReturnAll().execute();
 	}
 

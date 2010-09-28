@@ -43,7 +43,7 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "x10.core.Unsigned.lt(#1, #2)")
     @Native("c++",  "((#1) < (#2))")
-    public static safe operator (x:UByte) < (y:UByte): Boolean {
+    public static operator (x:UByte) < (y:UByte): Boolean {
         return (x.byteVal + Byte.MIN_VALUE) < (y.byteVal + Byte.MIN_VALUE);
     }
 
@@ -57,7 +57,7 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "x10.core.Unsigned.gt(#1, #2)")
     @Native("c++",  "((#1) > (#2))")
-    public static safe operator (x:UByte) > (y:UByte): Boolean {
+    public static operator (x:UByte) > (y:UByte): Boolean {
         return (x.byteVal + Byte.MIN_VALUE) > (y.byteVal + Byte.MIN_VALUE);
     }
 
@@ -71,7 +71,7 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "x10.core.Unsigned.le(#1, #2)")
     @Native("c++",  "((#1) <= (#2))")
-    public static safe operator (x:UByte) <= (y:UByte): Boolean {
+    public static operator (x:UByte) <= (y:UByte): Boolean {
         return (x.byteVal + Byte.MIN_VALUE) <= (y.byteVal + Byte.MIN_VALUE);
     }
 
@@ -85,7 +85,7 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "x10.core.Unsigned.ge(#1, #2)")
     @Native("c++",  "((#1) >= (#2))")
-    public static safe operator (x:UByte) >= (y:UByte): Boolean {
+    public static operator (x:UByte) >= (y:UByte): Boolean {
         return (x.byteVal + Byte.MIN_VALUE) >= (y.byteVal + Byte.MIN_VALUE);
     }
 
@@ -100,7 +100,7 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "((byte) ((#1) + (#2)))")
     @Native("c++",  "((x10_ubyte) ((#1) + (#2)))")
-    public static safe operator (x:UByte) + (y:UByte): UByte = UByte(x.byteVal + y.byteVal);
+    public static operator (x:UByte) + (y:UByte): UByte = UByte(x.byteVal + y.byteVal);
 
     /**
      * A binary plus operator (unsigned disambiguation).
@@ -108,14 +108,14 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "((byte) ((#1) + (#2)))")
     @Native("c++",  "((x10_ubyte) ((#1) + (#2)))")
-    public static safe operator (x:Byte) + (y:UByte): UByte = UByte(x + y.byteVal);
+    public static operator (x:Byte) + (y:UByte): UByte = UByte(x + y.byteVal);
     /**
      * A binary plus operator (unsigned disambiguation).
      * @see #operator(UByte)+(UByte)
      */
     // @Native("java", "((byte) ((#1) + (#2)))")
     @Native("c++",  "((x10_ubyte) ((#1) + (#2)))")
-    public static safe operator (x:UByte) + (y:Byte): UByte = UByte(x.byteVal + y);
+    public static operator (x:UByte) + (y:Byte): UByte = UByte(x.byteVal + y);
 
     /**
      * A binary minus operator.
@@ -127,7 +127,7 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "((byte) ((#1) - (#2)))")
     @Native("c++",  "((x10_ubyte) ((#1) - (#2)))")
-    public static safe operator (x:UByte) - (y:UByte): UByte = UByte(x.byteVal - y.byteVal);
+    public static operator (x:UByte) - (y:UByte): UByte = UByte(x.byteVal - y.byteVal);
 
     /**
      * A binary minus operator (unsigned disambiguation).
@@ -135,14 +135,14 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "((byte) ((#1) - (#2)))")
     @Native("c++",  "((x10_ubyte) ((#1) - (#2)))")
-    public static safe operator (x:Byte) - (y:UByte): UByte = UByte(x - y.byteVal);
+    public static operator (x:Byte) - (y:UByte): UByte = UByte(x - y.byteVal);
     /**
      * A binary minus operator (unsigned disambiguation).
      * @see #operator(UByte)-(UByte)
      */
     // @Native("java", "((byte) ((#1) - (#2)))")
     @Native("c++",  "((x10_ubyte) ((#1) - (#2)))")
-    public static safe operator (x:UByte) - (y:Byte): UByte = UByte(x.byteVal - y);
+    public static operator (x:UByte) - (y:Byte): UByte = UByte(x.byteVal - y);
 
     /**
      * A binary multiply operator.
@@ -154,7 +154,7 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "((byte) ((#1) * (#2)))")
     @Native("c++",  "((x10_ubyte) ((#1) * (#2)))")
-    public static safe operator (x:UByte) * (y:UByte): UByte = UByte(x.byteVal * y.byteVal);
+    public static operator (x:UByte) * (y:UByte): UByte = UByte(x.byteVal * y.byteVal);
 
     /**
      * A binary multiply operator (unsigned disambiguation).
@@ -162,14 +162,14 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "((byte) ((#1) * (#2)))")
     @Native("c++",  "((x10_ubyte) ((#1) * (#2)))")
-    public static safe operator (x:Byte) * (y:UByte): UByte = UByte(x * y.byteVal);
+    public static operator (x:Byte) * (y:UByte): UByte = UByte(x * y.byteVal);
     /**
      * A binary multiply operator (unsigned disambiguation).
      * @see #operator(UByte)*(UByte)
      */
     // @Native("java", "((byte) ((#1) * (#2)))")
     @Native("c++",  "((x10_ubyte) ((#1) * (#2)))")
-    public static safe operator (x:UByte) * (y:Byte): UByte = UByte(x.byteVal * y);
+    public static operator (x:UByte) * (y:Byte): UByte = UByte(x.byteVal * y);
 
     /**
      * A binary divide operator.
@@ -180,7 +180,7 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "((byte) x10.core.Unsigned.div(#1, #2))")
     @Native("c++",  "((x10_ubyte) ((#1) / (#2)))")
-    public static safe operator (x:UByte) / (y:UByte): UByte {
+    public static operator (x:UByte) / (y:UByte): UByte {
         return UByte(((x.byteVal as Long) / (y.byteVal as Long)) as Byte);
     }
     /**
@@ -189,7 +189,7 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "((byte) x10.core.Unsigned.div(#1, #2))")
     @Native("c++",  "((x10_ubyte) ((#1) / (#2)))")
-    public static safe operator (x:Byte) / (y:UByte): UByte {
+    public static operator (x:Byte) / (y:UByte): UByte {
         return UByte(((x as Long) / (y.byteVal as Long)) as Byte);
     }
     /**
@@ -198,7 +198,7 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "((byte) x10.core.Unsigned.div(#1, #2))")
     @Native("c++",  "((x10_ubyte) ((#1) / (#2)))")
-    public static safe operator (x:UByte) / (y:Byte): UByte {
+    public static operator (x:UByte) / (y:Byte): UByte {
         return UByte(((x.byteVal as Long) / (y as Long)) as Byte);
     }
 
@@ -211,7 +211,7 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "((byte) x10.core.Unsigned.rem(#1, #2))")
     @Native("c++",  "((x10_ubyte) ((#1) % (#2)))")
-    public static safe operator (x:UByte) % (y:UByte): UByte {
+    public static operator (x:UByte) % (y:UByte): UByte {
         return UByte(((x.byteVal as Long) % (y.byteVal as Long)) as Byte);
     }
     /**
@@ -220,7 +220,7 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "((byte) x10.core.Unsigned.rem(#1, #2))")
     @Native("c++",  "((x10_ubyte) ((#1) % (#2)))")
-    public static safe operator (x:Byte) % (y:UByte): UByte {
+    public static operator (x:Byte) % (y:UByte): UByte {
         return UByte(((x as Long) % (y.byteVal as Long)) as Byte);
     }
     /**
@@ -229,7 +229,7 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "((byte) x10.core.Unsigned.rem(#1, #2))")
     @Native("c++",  "((x10_ubyte) ((#1) % (#2)))")
-    public static safe operator (x:UByte) % (y:Byte): UByte {
+    public static operator (x:UByte) % (y:Byte): UByte {
         return UByte(((x.byteVal as Long) % (y as Long)) as Byte);
     }
 
@@ -241,7 +241,7 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "((byte) +(#1))")
     @Native("c++",  "((x10_ubyte) +(#1))")
-    public static safe operator + (x:UByte): UByte = x;
+    public static operator + (x:UByte): UByte = x;
 
     /**
      * A unary minus operator.
@@ -252,7 +252,7 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "((byte) -(#1))")
     @Native("c++",  "((x10_ubyte) -(#1))")
-    public static safe operator - (x:UByte): UByte = UByte(-(x.byteVal));
+    public static operator - (x:UByte): UByte = UByte(-(x.byteVal));
 
 
     /**
@@ -264,21 +264,21 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "((byte) ((#1) & (#2)))")
     @Native("c++",  "((x10_ubyte) ((#1) & (#2)))")
-    public static safe operator (x:UByte) & (y:UByte): UByte = UByte(x.byteVal & y.byteVal);
+    public static operator (x:UByte) & (y:UByte): UByte = UByte(x.byteVal & y.byteVal);
     /**
      * A bitwise and operator (unsigned disambiguation).
      * @see #operator(UByte)&(UByte)
      */
     // @Native("java", "((byte) ((#1) & (#2)))")
     @Native("c++",  "((x10_ubyte) ((#1) & (#2)))")
-    public static safe operator (x:Byte) & (y:UByte): UByte = UByte(x & y.byteVal);
+    public static operator (x:Byte) & (y:UByte): UByte = UByte(x & y.byteVal);
     /**
      * A bitwise and operator (unsigned disambiguation).
      * @see #operator(UByte)&(UByte)
      */
     // @Native("java", "((byte) ((#1) & (#2)))")
     @Native("c++",  "((x10_ubyte) ((#1) & (#2)))")
-    public static safe operator (x:UByte) & (y:Byte): UByte = UByte(x.byteVal & y);
+    public static operator (x:UByte) & (y:Byte): UByte = UByte(x.byteVal & y);
 
     /**
      * A bitwise or operator.
@@ -289,21 +289,21 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "((byte) ((#1) | (#2)))")
     @Native("c++",  "((x10_ubyte) ((#1) | (#2)))")
-    public static safe operator (x:UByte) | (y:UByte): UByte = UByte(x.byteVal | y.byteVal);
+    public static operator (x:UByte) | (y:UByte): UByte = UByte(x.byteVal | y.byteVal);
     /**
      * A bitwise or operator (unsigned disambiguation).
      * @see #operator(UByte)|(UByte)
      */
     // @Native("java", "((byte) ((#1) | (#2)))")
     @Native("c++",  "((x10_ubyte) ((#1) | (#2)))")
-    public static safe operator (x:Byte) | (y:UByte): UByte = UByte(x | y.byteVal);
+    public static operator (x:Byte) | (y:UByte): UByte = UByte(x | y.byteVal);
     /**
      * A bitwise or operator (unsigned disambiguation).
      * @see #operator(UByte)|(UByte)
      */
     // @Native("java", "((byte) ((#1) | (#2)))")
     @Native("c++",  "((x10_ubyte) ((#1) | (#2)))")
-    public static safe operator (x:UByte) | (y:Byte): UByte = UByte(x.byteVal | y);
+    public static operator (x:UByte) | (y:Byte): UByte = UByte(x.byteVal | y);
 
     /**
      * A bitwise xor operator.
@@ -314,21 +314,21 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "((byte) ((#1) ^ (#2)))")
     @Native("c++",  "((x10_ubyte) ((#1) ^ (#2)))")
-    public static safe operator (x:UByte) ^ (y:UByte): UByte = UByte(x.byteVal ^ y.byteVal);
+    public static operator (x:UByte) ^ (y:UByte): UByte = UByte(x.byteVal ^ y.byteVal);
     /**
      * A bitwise xor operator (unsigned disambiguation).
      * @see #operator(UByte)^(UByte)
      */
     // @Native("java", "((byte) ((#1) ^ (#2)))")
     @Native("c++",  "((x10_ubyte) ((#1) ^ (#2)))")
-    public static safe operator (x:Byte) ^ (y:UByte): UByte = UByte(x ^ y.byteVal);
+    public static operator (x:Byte) ^ (y:UByte): UByte = UByte(x ^ y.byteVal);
     /**
      * A bitwise xor operator (unsigned disambiguation).
      * @see #operator(UByte)^(UByte)
      */
     // @Native("java", "((byte) ((#1) ^ (#2)))")
     @Native("c++",  "((x10_ubyte) ((#1) ^ (#2)))")
-    public static safe operator (x:UByte) ^ (y:Byte): UByte = UByte(x.byteVal ^ y);
+    public static operator (x:UByte) ^ (y:Byte): UByte = UByte(x.byteVal ^ y);
 
     /**
      * A bitwise left shift operator.
@@ -340,7 +340,7 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "((byte) ((#1) << (#2)))")
     @Native("c++",  "((x10_ubyte) ((#1) << (#2)))")
-    public static safe operator (x:UByte) << (count:Int): UByte = UByte(x.byteVal << count);
+    public static operator (x:UByte) << (count:Int): UByte = UByte(x.byteVal << count);
 
     /**
      * A bitwise right shift operator.
@@ -353,7 +353,7 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "((byte) ((#1) >>> (#2)))")
     @Native("c++",  "((x10_ubyte) ((#1) >> (#2)))")
-    public static safe operator (x:UByte) >> (count:Int): UByte = UByte(x.byteVal >>> count);
+    public static operator (x:UByte) >> (count:Int): UByte = UByte(x.byteVal >>> count);
 
     /**
      * A bitwise logical right shift operator (zero-fill).
@@ -367,7 +367,7 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "((byte) ((#1) >>> (#2)))")
     @Native("c++",  "((x10_ubyte) ((#1) >> (#2)))")
-    public static safe operator (x:UByte) >>> (count:Int): UByte = UByte(x.byteVal >>> count);
+    public static operator (x:UByte) >>> (count:Int): UByte = UByte(x.byteVal >>> count);
 
     /**
      * A bitwise complement operator.
@@ -377,7 +377,7 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "((byte) ~(#1))")
     @Native("c++",  "((x10_ubyte) ~(#1))")
-    public static safe operator ~ (x:UByte): UByte = UByte(~(x.byteVal));
+    public static operator ~ (x:UByte): UByte = UByte(~(x.byteVal));
 
 
     /**
@@ -387,7 +387,7 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "((byte)(short)(#1))")
     @Native("c++",  "((x10_ubyte) (#1))")
-    public static safe operator (x:UShort) as UByte = UByte(x.shortVal as Byte);
+    public static operator (x:UShort) as UByte = UByte(x.shortVal as Byte);
 
     /**
      * Convert a given UInt to a UByte.
@@ -396,7 +396,7 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "((byte)(int)(#1))")
     @Native("c++",  "((x10_ubyte) (#1))")
-    public static safe operator (x:UInt) as UByte = UByte(x.intVal as Byte);
+    public static operator (x:UInt) as UByte = UByte(x.intVal as Byte);
 
     /**
      * Convert a given ULong to a UByte.
@@ -405,7 +405,7 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "((byte)(long)(#1))")
     @Native("c++",  "((x10_ubyte) (#1))")
-    public static safe operator (x:ULong) as UByte = UByte(x.longVal as Byte);
+    public static operator (x:ULong) as UByte = UByte(x.longVal as Byte);
 
 
     /**
@@ -415,7 +415,7 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "((byte)(short)(#1))")
     @Native("c++",  "((x10_ubyte) (#1))")
-    public static safe operator (x:Short) as UByte = UByte(x as Byte);
+    public static operator (x:Short) as UByte = UByte(x as Byte);
 
     /**
      * Convert a given Int to a UByte.
@@ -424,7 +424,7 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "((byte)(int)(#1))")
     @Native("c++",  "((x10_ubyte) (#1))")
-    public static safe operator (x:Int) as UByte = UByte(x as Byte);
+    public static operator (x:Int) as UByte = UByte(x as Byte);
 
     /**
      * Convert a given Long to a UByte.
@@ -433,7 +433,7 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "((byte)(long)(#1))")
     @Native("c++",  "((x10_ubyte) (#1))")
-    public static safe operator (x:Long) as UByte = UByte(x as Byte);
+    public static operator (x:Long) as UByte = UByte(x as Byte);
 
     /**
      * Convert a given Float to a UByte.
@@ -442,7 +442,7 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "x10.core.Floats.toUByte(#1)")
     @Native("c++",  "((x10_ubyte) (#1))")
-    public static safe operator (x:Float) as UByte {
+    public static operator (x:Float) as UByte {
         val temp : Int = x as Int;
         if (temp > 0xff) return UByte(0xff as Byte);
         else if (temp < 0) return UByte(0);
@@ -456,7 +456,7 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "x10.core.Floats.toUByte(#1)")
     @Native("c++",  "((x10_ubyte) (#1))")
-    public static safe operator (x:Double) as UByte {
+    public static operator (x:Double) as UByte {
         val temp : Int = x as Int;
         if (temp > 0xff) return UByte(0xff as Byte);
         else if (temp < 0) return UByte(0);
@@ -470,7 +470,7 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // // @Native("java", "((byte)(#1))")
     @Native("c++",  "((x10_ubyte) (#1))")
-    public static safe operator (x:Byte): UByte = UByte(x);
+    public static operator (x:Byte): UByte = UByte(x);
 
 
     /**
@@ -478,14 +478,14 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "0")
     @Native("c++", "0U")
-    public const MIN_VALUE = 0 as UByte;
+    public static MIN_VALUE = 0 as UByte;
 
     /**
      * A constant holding the maximum value a UByte can have, 2<sup>8</sup>-1.
      */
     // @Native("java", "((byte)0xff)")
     @Native("c++", "0xffU")
-    public const MAX_VALUE = 0xff as UByte;
+    public static MAX_VALUE = 0xff as UByte;
 
 
     /**
@@ -495,7 +495,7 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "java.lang.Integer.toString((#0) & 0xff, #1)")
     @Native("c++", "x10aux::int_utils::toString((#0) & 0xff, #1)")
-    public global safe def toString(radix:Int): String = ((this.byteVal & 0xFF) as Int).toString(radix);
+    public def toString(radix:Int): String = ((this.byteVal & 0xFF) as Int).toString(radix);
 
     /**
      * Returns a String representation of this UByte as a hexadecimal number.
@@ -503,7 +503,7 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "java.lang.Integer.toHexString((#0) & 0xff)")
     @Native("c++", "x10aux::int_utils::toHexString((#0) & 0xff)")
-    public global safe def toHexString(): String = this.byteVal.toHexString();
+    public def toHexString(): String = this.byteVal.toHexString();
 
     /**
      * Returns a String representation of this UByte as an octal number.
@@ -511,7 +511,7 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "java.lang.Integer.toOctalString((#0) & 0xff)")
     @Native("c++", "x10aux::int_utils::toOctalString((#0) & 0xff)")
-    public global safe def toOctalString(): String = this.byteVal.toOctalString();
+    public def toOctalString(): String = this.byteVal.toOctalString();
 
     /**
      * Returns a String representation of this UByte as a binary number.
@@ -519,7 +519,7 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "java.lang.Integer.toBinaryString((#0) & 0xff)")
     @Native("c++", "x10aux::int_utils::toBinaryString((#0) & 0xff)")
-    public global safe def toBinaryString(): String = this.byteVal.toBinaryString();
+    public def toBinaryString(): String = this.byteVal.toBinaryString();
 
     /**
      * Returns a String representation of this UByte as a decimal number.
@@ -527,14 +527,15 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "java.lang.Integer.toString((#0) & 0xff)")
     @Native("c++", "x10aux::to_string(#0)")
-    public global safe def toString(): String = ((this.byteVal & 0xFF) as Int).toString();
+    public def toString(): String = ((this.byteVal & 0xFF) as Int).toString();
 
     /**
      * @deprecated use {@link #parse(String,Int)} instead
      */
     // @Native("java", "((byte) (java.lang.Integer.parseInt(#1, #2) & 0xff))")
     @Native("c++", "((x10_ubyte) x10aux::int_utils::parseInt(#1, #2))")
-    public static def parseUByte(s:String, radix:Int): UByte throws NumberFormatException {
+    public static def parseUByte(s:String, radix:Int): UByte //throws NumberFormatException 
+    {
         return UByte(Byte.parse(s, radix));
     }
 
@@ -543,7 +544,8 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "java.lang.Integer.parseInt(#1)")
     @Native("c++", "x10aux::int_utils::parseInt(#1)")
-    public static def parseUByte(s:String): UByte throws NumberFormatException {
+    public static def parseUByte(s:String): UByte //throws NumberFormatException 
+    {
         return UByte(Byte.parse(s));
     }
 
@@ -556,7 +558,8 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "((byte) (java.lang.Integer.parseInt(#1, #2) & 0xff))")
     @Native("c++", "((x10_ubyte) x10aux::int_utils::parseInt(#1, #2))")
-    public static def parse(s:String, radix:Int): UByte throws NumberFormatException {
+    public static def parse(s:String, radix:Int): UByte //throws NumberFormatException 
+    {
         return UByte(Byte.parse(s, radix));
     }
 
@@ -568,7 +571,8 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "java.lang.Integer.parseInt(#1)")
     @Native("c++", "x10aux::int_utils::parseInt(#1)")
-    public static def parse(s:String): UByte throws NumberFormatException {
+    public static def parse(s:String): UByte //throws NumberFormatException 
+    {
         return UByte(Byte.parse(s));
     }
 
@@ -600,7 +604,7 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public global safe def equals(x:Any):Boolean = this.byteVal.equals(x);
+    public def equals(x:Any):Boolean = this.byteVal.equals(x);
 
     /**
      * Returns true if this UByte is equal to the given UByte.
@@ -609,5 +613,5 @@ public final struct UByte /*TODO implements Arithmetic[UByte], Bitwise[UByte], O
      */
     // @Native("java", "x10.rtt.Equality.equalsequals(#0, #1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public global safe def equals(x:UByte):Boolean = this.byteVal == x.byteVal;
+    public def equals(x:UByte):Boolean = this.byteVal == x.byteVal;
 }

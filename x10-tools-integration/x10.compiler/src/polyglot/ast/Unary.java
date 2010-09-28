@@ -17,18 +17,19 @@ public interface Unary extends Expr
 {
     /** Unary expression operator. */
     public static class Operator extends Enum {
-	protected boolean prefix;
+        private static final long serialVersionUID = -2921303341693246520L;
+        protected boolean prefix;
         protected String name;
 
         public Operator(String name, boolean prefix) {
-	    super(name + (prefix ? "" : "post"));
+            super(name + (prefix ? "" : "post"));
             this.name = name;
-	    this.prefix = prefix;
-	}
+            this.prefix = prefix;
+        }
 
         /** Returns true of the operator is a prefix operator, false if
          * postfix. */
-	public boolean isPrefix() { return prefix; }
+        public boolean isPrefix() { return prefix; }
 
         public String toString() { return name; }
     }

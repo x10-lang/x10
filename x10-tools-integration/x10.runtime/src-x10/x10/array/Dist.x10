@@ -12,6 +12,8 @@
 package x10.array;
 
 import x10.util.Set;
+import x10.compiler.NoInline;
+import x10.compiler.NoReturn;
 
 /**
  * A distributution supports distributed arrays by providing a mapping
@@ -25,21 +27,24 @@ public abstract class Dist(
     /**
      * The region this distribution is defined over.
      */
-    region: Region,
+    region:Region,
+
     /**
      * Is this distribution "unique" (at most one point per place)?
      */
-    unique: boolean,
+    unique:Boolean,
+
     /**
      * Is this distribution "constant" (all points map to the same place)?
      */
-    constant: boolean,
+    constant:boolean,
+
     /**
      * If this distribution is "constant", the place all points map to (or null).
      */
-    onePlace: Place
+    onePlace:Place
 ) implements
-    (Point/*(region.rank)*/)=>Place
+    (Point(region.rank))=>Place
     // (Place)=>Region XTENLANG-60
     , Iterable[Point(region.rank)]
 {
@@ -47,19 +52,23 @@ public abstract class Dist(
     /**
      * The rank of this distribution.
      */
-    property rank: Int = region.rank;
+    property rank:Int = region.rank;
+
     /**
      * Is this distribution defined over a rectangular region?
      */
-    property rect: boolean = region.rect;
+    property rect:boolean = region.rect;
+
     /**
      * Is this distribution's region zero-based?
      */
-    property zeroBased: boolean = region.zeroBased;
+
+    property zeroBased:boolean = region.zeroBased;
+
     /**
      * Is this distribution's region a "rail" (one-dimensional contiguous zero-based)?
      */
-    property rail: boolean = region.rail;
+    property rail:boolean = region.rail;
 
     // XTENLANG-50: workaround requires explicit return type decls here
     // XTENLANG-4: workaround requires BaseDist methods to be named differently from these methods
@@ -75,8 +84,11 @@ public abstract class Dist(
      *
      * @return a "unique" distribution over all places.
      */
-    // TODO: [IP] return Dist(1){rect&&unique}
-    public static def makeUnique(): Dist(1){rect} = BaseDist.makeUnique1();
+    public static def makeUnique():Dist(1){rect,unique} {
+        return UNIQUE;        
+    }
+    // Cache pre-allocated UniqueDist to optimize makeUnique calls.
+    private static val UNIQUE = new UniqueDist();
 
     /**
      * Create a distribution over the specified region that maps
@@ -86,7 +98,7 @@ public abstract class Dist(
      * @return a "constant" distribution over r.
      */
     // TODO: [IP] return Dist(r){constant&&onePlace==here}
-    public static def makeConstant(r: Region): Dist(r) = BaseDist.makeConstant1(r);
+    public static def makeConstant(r:Region):Dist(r) = BaseDist.makeConstant1(r);
 
     /**
      * Create a distribution over the specified region that maps
@@ -96,7 +108,7 @@ public abstract class Dist(
      * @return a "constant" distribution over r.
      * @see #makeConstant(Region)
      */
-    public static def make(r: Region): Dist(r) = makeConstant(r);
+    public static def make(r:Region):Dist(r) = makeConstant(r);
 
     /**
      * Create a distribution over the specified region that varies in
@@ -107,7 +119,7 @@ public abstract class Dist(
      * @param axis the dimension to cycle over
      * @return a "cyclic" distribution over r.
      
-    public static def makeCyclic(r: Region, axis: int): Dist(r)
+    public static def makeCyclic(r:Region, axis:int):Dist(r)
         = BaseDist.makeBlockCyclic1(r, axis, 1);
 */
     
@@ -119,7 +131,7 @@ public abstract class Dist(
      * @param r the given region
      * @return a "cyclic" distribution over r, cycling over the zeroth axis.
      
-    public static def makeCyclic(r: Region): Dist(r)
+    public static def makeCyclic(r:Region):Dist(r)
         = BaseDist.makeBlockCyclic1(r, 0, 1);
 */
     
@@ -133,8 +145,8 @@ public abstract class Dist(
      * @param axis the dimension to block over
      * @return a "block" distribution over r.
      */
-    public static def makeBlock(r: Region, axis: int): Dist(r) {
-        return BaseDist.makeBlock1(r, axis);
+    public static def makeBlock(r:Region, axis:int):Dist(r) {
+        return new BlockWorldDist(r, axis) as Dist(r); // TODO Should not need cast here!
     }
 
     /**
@@ -159,7 +171,7 @@ public abstract class Dist(
      * @param blockSize the size of the block
      * @return a "block-cyclic" distribution over r.
      
-    public static def makeBlockCyclic(r: Region, axis: int, blockSize: int): Dist(r)
+    public static def makeBlockCyclic(r:Region, axis:int, blockSize:int):Dist(r)
         = BaseDist.makeBlockCyclic1(r, axis, blockSize);
 */
     //
@@ -174,7 +186,7 @@ public abstract class Dist(
      * @param ps the rail of places
      * @return a "unique" distribution over the places in ps
      */
-    public static def makeUnique(ps:Rail[Place]): Dist(1)
+    public static def makeUnique(ps:ValRail[Place]):Dist(1)
         = BaseDist.makeUnique1(ps);
 
     /**
@@ -185,7 +197,7 @@ public abstract class Dist(
      * @param ps the set of places
      * @return a "unique" distribution over the places in ps
      */
-    public static def makeUnique(ps: Set[Place]): Dist(1)
+    public static def makeUnique(ps:Set[Place]):Dist(1)
         = BaseDist.makeUnique1(ps);
 
     /**
@@ -196,7 +208,7 @@ public abstract class Dist(
      * @param p the given place
      * @return a "constant" distribution over r that maps to p.
      */
-    public static def makeConstant(r: Region, p: Place): Dist(r)
+    public static def makeConstant(r:Region, p:Place):Dist(r)
         = BaseDist.makeConstant1(r, p);
 
     /**
@@ -209,7 +221,7 @@ public abstract class Dist(
      * @param ps the set of places
      * @return a "cyclic" distribution over r, cycling over the places in ps.
     
-    public static def makeCyclic(r: Region, axis: int, ps: Set[Place]): Dist(r)
+    public static def makeCyclic(r:Region, axis:int, ps:Set[Place]):Dist(r)
         = BaseDist.makeCyclic1(r, axis, ps);
  */
     /**
@@ -223,7 +235,7 @@ public abstract class Dist(
      * @param ps the set of places
      * @return a "block" distribution over r, blocking over the places in ps.
      */
-    public static def makeBlock(r: Region, axis: int, ps: Set[Place]): Dist(r)
+    public static def makeBlock(r:Region, axis:int, ps:Set[Place]):Dist(r)
         = BaseDist.makeBlock1(r, axis, ps);
 
     /**
@@ -238,7 +250,7 @@ public abstract class Dist(
      * @param ps the set of places
      * @return a "block-cyclic" distribution over r, cycling over the places in ps.
    
-    public static def makeBlockCyclic(r: Region, axis: int, blockSize: int, ps: Set[Place])
+    public static def makeBlockCyclic(r:Region, axis:int, blockSize:int, ps:Set[Place])
         = BaseDist.makeBlockCyclic1(r, axis, blockSize, ps);
   */
 
@@ -248,22 +260,33 @@ public abstract class Dist(
 
     /**
      * Return the set of places that this distribution maps some point to.
+     * TODO:Change to Iterable[Place]?
      */
-    abstract public global def places(): ValRail[Place];
+    abstract public def places():ValRail[Place];
 
     /**
      * Return the set of regions that this distribution maps some place to.
+     * TODO:Change to (Place)=>Region;
      */
-    abstract public global def regions(): ValRail[Region(rank)]; // essentially regionMap().values()
+    abstract public def regions():ValRail[Region(rank)]; // essentially regionMap().values()
 
     /**
      * Return the region consisting of points which this distribution
      * maps to the specified place.
      *
      * @param p the given place
-     * @return the points that this distribution maps to p.
+     * @return the region that this distribution maps to p.
      */
-    abstract public global def get(p: Place): Region(rank);
+    abstract public def get(p:Place):Region(rank);
+
+    /**
+     * Return the region consisting of points which this distribution
+     * maps to the specified place.  This is a shorthave for get(p).
+     *
+     * @param p the given place
+     * @return the region that this distribution maps to p.
+     */
+   public def apply(p:Place):Region(rank) = get(p);
 
 
 
@@ -277,7 +300,7 @@ public abstract class Dist(
      * @param pt the given point
      * @return the place that this distribution maps pt to.
      */
-    abstract public global def apply(pt: Point/*(rank)*/): Place;
+    abstract public def apply(pt:Point(rank)):Place;
 
     /**
      * Return the place which this distribution maps the specified index to.
@@ -288,7 +311,7 @@ public abstract class Dist(
      * @return the place that this distribution maps the given index to.
      * @see #apply(Point)
      */
-    abstract public global def apply(i0: int): Place;
+    public def apply(i0:int){rank==1}:Place = apply(Point.make(i0));
 
     /**
      * Return the place which this distribution maps the specified pair of indices to.
@@ -300,7 +323,7 @@ public abstract class Dist(
      * @return the place that this distribution maps the given pair of indices to.
      * @see #apply(Point)
      */
-    abstract public global def apply(i0: int, i1: int): Place;
+    public def apply(i0:int, i1:int){rank==2}:Place = apply(Point.make(i0, i1));
 
     /**
      * Return the place which this distribution maps the specified triple of indices to.
@@ -313,7 +336,7 @@ public abstract class Dist(
      * @return the place that this distribution maps the given triple of indices to.
      * @see #apply(Point)
      */
-    abstract public global def apply(i0: int, i1: int, i2: int): Place;
+    public def apply(i0:int, i1:int, i2:int){rank==3}:Place = apply(Point.make(i0, i1, i2));
 
     /**
      * Return the place which this distribution maps the specified quartet of indices to.
@@ -327,7 +350,7 @@ public abstract class Dist(
      * @return the place that this distribution maps the given quartet of indices to.
      * @see #apply(Point)
      */
-    abstract public global def apply(i0: int, i1: int, i2: int, i3: int): Place;
+    public def apply(i0:int, i1:int, i2:int, i3:int){rank==4}:Place = apply(Point.make(i0,i1,i2,i3));
 
 
     //
@@ -344,7 +367,7 @@ public abstract class Dist(
      * @return an iterator over the points in the region of this distribution.
      * @see x10.lang.Iterable[T]#iterator()
      */
-    public global def iterator(): Iterator[Point{self.rank==region.rank}] = region.iterator() as Iterator[Point{self.rank==region.rank}];
+    public def iterator():Iterator[Point{self.rank==region.rank}] = region.iterator() as Iterator[Point{self.rank==region.rank}];
 
 
     //
@@ -359,7 +382,7 @@ public abstract class Dist(
      * @param r the given region
      * @return the intersection of this distribution with r.
     
-     abstract public global def intersection(r: Region(rank)): Dist(rank);
+     abstract public def intersection(r:Region(rank)):Dist(rank);
  */
     /**
      * Return the distribution defined over this.region-that.region,
@@ -369,7 +392,7 @@ public abstract class Dist(
      * @param r the given region
      * @return the difference of this distribution and r.
     
-    abstract public global def difference(r: Region(rank)): Dist(rank);
+    abstract public def difference(r:Region(rank)):Dist(rank);
  */
     
     /**
@@ -381,7 +404,7 @@ public abstract class Dist(
      * @param r the given region
      * @return the restriction of this distribution to r.
      */
-    abstract public global def restriction(r: Region(rank)): Dist(rank);
+    abstract public def restriction(r:Region(rank)):Dist(rank);
 
 
     //
@@ -396,7 +419,13 @@ public abstract class Dist(
      * @param that the given distribution
      * @return true if that is a sub-distribution of this distribution.
      */
-    abstract public global def isSubdistribution(that: Dist(rank)): boolean;
+    public def isSubdistribution(that:Dist(rank)): boolean {
+        for (p:Place in Place.places)
+            if (!that.get(p).contains(this.get(p)))
+                return false;
+        return true;
+    }
+
 
     /**
      * Return a distribution containing only points that are
@@ -406,7 +435,7 @@ public abstract class Dist(
      * @param that the given distribution
      * @return the intersection of this distribution with that.
    
-    abstract public global def intersection(that: Dist(rank)): Dist(rank);
+    abstract public def intersection(that:Dist(rank)):Dist(rank);
   */
     /**
      * Return the distribution that contains every point in this
@@ -417,7 +446,7 @@ public abstract class Dist(
      * @param that the given distribution
      * @return the difference of this distribution and that.
     
-    abstract public global def difference(that: Dist(rank)): Dist(rank);
+    abstract public def difference(that:Dist(rank)):Dist(rank);
  */
     /**
      * If this distribution and that distribution are disjoint,
@@ -428,7 +457,7 @@ public abstract class Dist(
      * @param that the given distribution
      * @return the disjoint union of this distribution and that.
      
-    abstract public global def union(that: Dist(rank)): Dist(rank);
+    abstract public def union(that:Dist(rank)):Dist(rank);
 */
     
     /**
@@ -439,7 +468,7 @@ public abstract class Dist(
      * @param that the given distribution
      * @return the union of this distribution and that.
      */
-   // abstract public global def overlay(that: Dist(rank)): Dist(rank);
+   // abstract public def overlay(that:Dist(rank)):Dist(rank);
 
     /**
      * Return true iff that is a distribution and both distributions are defined
@@ -448,7 +477,7 @@ public abstract class Dist(
      * @param that the given distribution
      * @return true if that is equal to this distribution.
      */
-    abstract public global safe def equals(that:Any):boolean;
+    abstract public def equals(that:Any):boolean;
 
     //
     // other geometric ops
@@ -461,7 +490,7 @@ public abstract class Dist(
      * @param p the given place
      * @return the portion of this distribution that maps to p.
      */
-    abstract public global def restriction(p: Place): Dist(rank);
+    abstract public def restriction(p:Place):Dist(rank);
 
     /**
      * Return true iff this.region contains p.
@@ -469,7 +498,7 @@ public abstract class Dist(
      * @param p the given point
      * @return true if this distribution contains p.
      */
-    abstract public global def contains(p: Point): boolean;
+    public def contains(p:Point):boolean = region.contains(p);
 
 
     //
@@ -482,16 +511,16 @@ public abstract class Dist(
      * @param r the given region
      * @return the restriction of this distribution to r.
      */
-    public global operator this | (r: Region(this.rank)): Dist(this.rank)
+    public operator this | (r:Region(this.rank)):Dist(this.rank)
 	= restriction(r);
 
     /**
      * Restrict this distribution to the specified place.
      *
      * @param p the given place
-     * @return the restriction of this distribution to p.
+     * @return the region that this distribution maps to p.
      */
-    public global operator this | (p: Place): Dist(rank) = restriction(p);
+    public operator this | (p:Place):Dist(rank) = restriction(p);
 
     /**
      * Intersect this distribution with the specified distribution.
@@ -499,7 +528,7 @@ public abstract class Dist(
      * @param d the given distribution
      * @return the intersection of this distribution and d.
      */
-   //  public global operator this && (d: Dist(rank)): Dist(rank) = intersection(d);
+   //  public operator this && (d:Dist(rank)):Dist(rank) = intersection(d);
 
     /**
      * Union this distribution with the specified distribution.
@@ -507,7 +536,7 @@ public abstract class Dist(
      * @param d the given distribution
      * @return the disjoint union of this distribution and d.
     
-    public global operator this || (d: Dist(rank)): Dist(rank) = union(d);
+    public operator this || (d:Dist(rank)):Dist(rank) = union(d);
  */
     
     /**
@@ -516,7 +545,7 @@ public abstract class Dist(
      * @param d the given distribution
      * @return the difference of this distribution and d.
     
-    public global operator this - (d: Dist(rank)): Dist(rank) = difference(d);
+    public operator this - (d:Dist(rank)):Dist(rank) = difference(d);
  */
     
     /**
@@ -525,8 +554,21 @@ public abstract class Dist(
      * @param r the given region
      * @return the difference of this distribution and r.
      
-    public global operator this - (r: Region(rank)): Dist(rank) = difference(r);
+    public operator this - (r:Region(rank)):Dist(rank) = difference(r);
 */
+
+
+    public def toString():String {
+        var s:String = "Dist(";
+        var first:boolean = true;
+        for (p:Place in places()) {
+            if (!first) s += ",";
+            s +=  get(p) + "->" + p.id;
+            first = false;
+        }
+        s += ")";
+        return s;
+    }
 
     //
     //
@@ -540,9 +582,27 @@ public abstract class Dist(
      * @param constant whether to construct a "constant" distribution
      * @param onePlace the place all points map to (if "constant") or null
      */
-    protected def this(region: Region, unique: boolean, constant: boolean, onePlace: Place) = {
+    protected def this(region:Region, unique:boolean, constant:boolean, onePlace:Place) {
         property(region, unique, constant, onePlace);
     }
+
+    protected static @NoInline @NoReturn def raiseBoundsError(i0:int) {
+        throw new ArrayIndexOutOfBoundsException("point (" + i0 + ") not contained in distribution");
+    }    
+    protected static @NoInline @NoReturn def raiseBoundsError(i0:int, i1:int) {
+        throw new ArrayIndexOutOfBoundsException("point (" + i0 + ", "+i1+") not contained in distribution");
+    }    
+    protected static @NoInline @NoReturn def raiseBoundsError(i0:int, i1:int, i2:int) {
+        throw new ArrayIndexOutOfBoundsException("point (" + i0 + ", "+i1+", "+i2+") not contained in distribution");
+    }    
+    protected static @NoInline @NoReturn def raiseBoundsError(i0:int, i1:int, i2:int, i3:int) {
+        throw new ArrayIndexOutOfBoundsException("point (" + i0 + ", "+i1+", "+i2+", "+i3+") not contained in distribution");
+    }    
+    protected static @NoInline @NoReturn def raiseBoundsError(pt:Point) {
+        throw new ArrayIndexOutOfBoundsException("point " + pt + " not contained in distribution");
+    }    
+
+
 }
 
 // vim:shiftwidth=4:tabstop=4:expandtab

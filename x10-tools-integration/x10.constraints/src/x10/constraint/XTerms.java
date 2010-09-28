@@ -11,9 +11,7 @@
 
 package x10.constraint;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 
@@ -35,74 +33,145 @@ public class XTerms {
 		public String toString() { return "o"; } 
 	};
 
-	static final XName equalsName = new XNameWrapper<String>("===");
-	static final XName disEqualsName = new XNameWrapper<String>("!==");
-	static final XName andName = new XNameWrapper<String>("&&&");
-	static final XName notName = new XNameWrapper<String>("!!!");
-	static final XName arrayAccessName = new XNameWrapper<String>("(.)");
-	static final XName plusName = new XNameWrapper<String>("+");
-	static final XName minusName = new XNameWrapper<String>("-");
-	static final XName modName = new XNameWrapper<String>("%");
+	public static final XName equalsName = new XNameWrapper<String>("===");
+	public static final XName disEqualsName = new XNameWrapper<String>("!==");
+	public static final XName andName = new XNameWrapper<String>("&&&");
+	public static final XName notName = new XNameWrapper<String>("!!!");
+
+	public static final XName asExprEqualsName = new XNameWrapper<String>("==");
+	public static final XName asExprDisEqualsName = new XNameWrapper<String>("!=");
+	public static final XName asExprAndName = new XNameWrapper<String>("&&");
+	public static final XName asExprNotName = new XNameWrapper<String>("!");
 
     // used in generating a new name.
 	static int nextId = 0;
 	
+	/**
+	 * Make a fresh name, guaranteed to be not equal to any
+	 * other name.
+	 * @return
+	 */
 	public static final XName makeFreshName() {
 	    return makeFreshName("_");
 	}
-	
+	/**
+	 * Make a fresh EQV with a system chosen name. 
+	 * @return
+	 */
 	public static XEQV makeEQV() {
 		return makeEQV(makeFreshName());
 	}
-	public static XEQV makeUQV() {
-		return makeUQV(makeFreshName());
-	}
-	public static XEQV makeEQV(XName name) {
-		return new XEQV(name, true);
-	}
-	public static XEQV makeUQV(XName name) {
-		return new XEQV(name, false);
-	}
+	/**
+	 * Make a fresh EQV whose name starts with prefix.
+	 * @param prefix -- a prefix of the name for the returned EQV
+	 * @return
+	 */
 	public static final XEQV makeEQV(String prefix) {
 		return new XEQV(makeFreshName(prefix), true);
 	}
-	public static final XEQV makeUQV(String prefix) {
+	/**
+	 * Make a fresh UQV with a system chosen name. 
+	 * @return
+	 */
+	public static XEQV makeUQV() {
+		return makeUQV(makeFreshName());
+	}
+
+	/**
+	 * Make a fresh UQV whose name starts with prefix.
+	 * @param prefix -- a prefix of the name for the returned UQV
+	 * @return
+	 */
+	public static XEQV makeUQV(String prefix) {
 		return new XEQV(makeFreshName(prefix), false);
 	}
-	public static XEQV makeEQV(XName name, boolean hidden) {
-		return new XEQV(name, hidden);
-	}
-	    
-	public static final XLocal makeFreshLocal() {
+
+	/**
+	 * Make a fresh local variable with a system chosen name. 
+	 * @return
+	 */
+	public static XLocal makeFreshLocal() {
 		return makeLocal(XTerms.makeFreshName());
 	}
-	public static final XLocal makeFreshLocal(String prefix) {
+	/**
+	 * Make a fresh local variable whose name starts with prefix.
+	 * @param prefix -- a prefix of the name for the returned XLocal
+	 */
+	public static XLocal makeFreshLocal(String prefix) {
 		return makeLocal(XTerms.makeFreshName(prefix));
 	}
+	/**
+	 * Make an EQV with the given name
+	 * @return
+	 */
+	public static XEQV makeEQV(XName name) {
+		return new XEQV(name, true);
+	}
+	/**
+	 * Make a UQV with the given name
+	 * @return
+	 */
+	public static XEQV makeUQV(XName name) {
+		return new XEQV(name, false);
+	}
+	
+
+	/**
+	 * Make a fresh name -- guaranteed to be not equal to 
+	 * any other name created before.
+	 * @param prefix
+	 * @return
+	 */
 	public static final XName makeFreshName(String prefix) {
 	    return new XNameWrapper<Object>(new Object(), prefix + (nextId++));
 	}
 	
+	/**
+	 * Make an XName with the given object. The string for
+	 * the XName will be taken to be name.toString().
+	 * @param <T>
+	 * @param name -- must be non-null
+	 * @return
+	 */
 	public static final <T> XName makeName(T name) {
 		return new XNameWrapper<T>(name);
 	}
 	
+	/**
+	 * Make an XName with the given object and the given
+	 * string. 
+	 * @param <T>
+	 * @param name -- must be non-null
+	 * @param s  -- the string to be used to print this name
+	 * @return
+	 */
 	public static final <T> XName makeName(T name, String s) {
 		return new XNameWrapper<T>(name, s);
 	}
 	
+	/**
+	 * Make a local variable with the given name. Note this
+	 * will be <code>equal</code> to another local variable
+	 * if both have <code>equal</code> name's.
+	 * @param name
+	 * @return
+	 */
 	public static final XLocal makeLocal(XName name) {
 		return new XLocal(name);
 	}
 	
-
+	/**
+	 * Make and return <code>receiver.field</code>.
+	 * @param receiver
+	 * @param field
+	 * @return
+	 */
 	public static final XField makeField(XVar receiver, XName field) {
 		return new XField(receiver, field);
 	}
 	
-	
 
-    /** Make and return a literal containing o. true and false are
+    /** Make and return a literal containing o. null, true and false are
      * interned.
      */
 	public static final XLit makeLit(Object o) {
@@ -127,23 +196,6 @@ public class XTerms {
 	public static XTerm makeAtom(XName op, List<XTerm> terms) {
 		return makeAtom(op, true, terms);
 	}
-	/**
-       Make and return op(terms1,..., termsn) -- an expression 
-       with operator op and arguments terms. If atomicFormula is true
-       then this is marked as an atomicFormula, else it is considered a term 
-       (a function application term).
-	 */
-
-	public static XTerm makeAtom(XName op, boolean atomicFormula, List<XTerm> terms) {
-		assert op != null;
-		assert terms != null;
-		XFormula f = new XFormula(op, terms);
-		if (atomicFormula) {
-			f.markAsAtomicFormula();
-		}
-		return f;
-	}
-
 
 
 	/**
@@ -151,12 +203,12 @@ public class XTerms {
     with function name op and arguments terms. Uses varargs.
 	 */
 	public static XTerm makeTerm(XName op, XTerm... terms) {
-		if (op.equals(plusName)) {
+		/*if (op.equals(plusName)) {
 			return new XPlus(terms);
 		}
 		if (op.equals(minusName)) {
 			return new XMinus(terms);
-		}
+		}*/
 		
 		return makeAtom(op, false, Arrays.asList(terms));
 	}
@@ -176,6 +228,12 @@ public class XTerms {
 		return new XEquals(left, right);
 	}
 	
+	/**
+	 * Make and return left != right.
+	 * @param left
+	 * @param right
+	 * @return
+	 */
 	public static XTerm makeDisEquals(XTerm left, XTerm right) {
 		assert left != null;
 		assert right != null;
@@ -199,13 +257,6 @@ public class XTerms {
 		return new XAnd(left, right);
 	}
 
-    /** Make and return not (arg). arg should be a boolean term. (not
-     * checked.)
-     */
-	public static XTerm makeNot(XTerm arg) {
-		assert arg != null;
-		return new XNot(arg);
-	}
 	/**
 	 * Return the constraint true.
 	 * @return
@@ -213,5 +264,28 @@ public class XTerms {
 	public static XConstraint makeTrueConstraint() {
 		return new XConstraint();
 	}
+	
+	//*************************************** Implementation
+	/**
+    Make and return op(terms1,..., termsn) -- an expression 
+    with operator op and arguments terms. If atomicFormula is true
+    then this is marked as an atomicFormula, else it is considered a term 
+    (a function application term).
+	 */
+
+	static XTerm makeAtom(XName op, boolean atomicFormula, List<XTerm> terms) {
+		assert op != null;
+		assert terms != null;
+		XFormula f = new XFormula(op, op, terms);
+		if (atomicFormula) {
+			f.markAsAtomicFormula();
+		}
+		return f;
+	}
+	 static XEQV makeEQV(XName name, boolean hidden) {
+			return new XEQV(name, hidden);
+		}
+		    
+
 	
 }

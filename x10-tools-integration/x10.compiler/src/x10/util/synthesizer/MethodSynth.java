@@ -79,8 +79,8 @@ public class MethodSynth extends AbstractStateSynth implements IClassMemberSynth
                 flags, 
                 Types.ref(returnType), 
                 methodName, 
-                formalTypeRefs, 
-                throwTypeRefs);//this constructor will not set formal names
+                formalTypeRefs 
+                );//this constructor will not set formal names
         methodDef.setThisVar(((X10ClassDef) classDef).thisVar());
         placeTerm = PlaceChecker.methodPT(flags, classDef);
         methodDef.setFormalNames(formalNames);
@@ -220,16 +220,13 @@ public class MethodSynth extends AbstractStateSynth implements IClassMemberSynth
         closed = true;
         
         // Method Decl
-        List<TypeNode> throwTypeNodes = new ArrayList<TypeNode>();
-        for (Ref<? extends Type> t : methodDef.throwTypes()) {
-            throwTypeNodes.add(xnf.CanonicalTypeNode(pos, t.get()));
-        }
+     
         FlagsNode flagNode = xnf.FlagsNode(pos, methodDef.flags());
         TypeNode returnTypeNode = xnf.CanonicalTypeNode(pos, methodDef.returnType());
         
         Block block = codeBlockSynth.close();
         methodDecl = (X10MethodDecl) xnf.MethodDecl(pos, flagNode, returnTypeNode, xnf.Id(pos, methodDef.name()), 
-                formals, throwTypeNodes, block);
+                formals, block);
 
         if(annotations.size() > 0){
             methodDecl = (X10MethodDecl) ((X10Del)methodDecl.del()).annotations(annotations);           

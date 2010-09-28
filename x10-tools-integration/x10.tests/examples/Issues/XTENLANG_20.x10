@@ -20,14 +20,14 @@ class XTENLANG_20 extends x10Test {
     class X {}
     
     class I implements (X)=>int {
-        incomplete public def apply(X): int;
+        public def apply(X): int { throw new RuntimeException(); }
     }
 
     public def run(): boolean {
         return true;
     }
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new XTENLANG_20().execute();
     }
 }

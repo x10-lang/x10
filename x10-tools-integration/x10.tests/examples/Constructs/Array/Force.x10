@@ -15,19 +15,18 @@ import harness.x10Test;
 /**
  * Test for array reference flattening. 
  */
+import x10.util.Future;
 
 public class Force extends x10Test {
    
     static def rd(val e: Future[Int], val i: int, val j: int): int = {
         val x: int = e();
-        return (future { x }).force();
+        return Future.make[int](()=> x)();
     }
    
-    public def run(): boolean = {
-        return true;
-    }
+    public def run(): boolean = true;
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(Array[String](1))  {
         new Force().execute();
     }
 }

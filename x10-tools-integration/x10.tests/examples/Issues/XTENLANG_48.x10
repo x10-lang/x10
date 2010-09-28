@@ -22,7 +22,7 @@ class XTENLANG_48 extends x10Test {
     }
     
     static class C[T] {
-        incomplete static def make[T](): C[T];
+        static def make[T](): C[T] { throw new RuntimeException(); }
     }
     
     class Bug(foo:int) {
@@ -36,7 +36,7 @@ class XTENLANG_48 extends x10Test {
         return true;
     }
 
-    public static def main(Rail[String]) {
+    public static def main(Array[String](1)) {
         new XTENLANG_48().execute();
     }
 }

@@ -12,18 +12,48 @@
 package x10.io;
 
 import x10.util.Builder;
+import x10.compiler.Pinned;
+import x10.compiler.Global;
+import x10.compiler.Incomplete;
 
 public class ByteWriter[T] /*extends Writer*/ {
-    global val b: Builder[Byte,T];
+	private val root = GlobalRef[ByteWriter[T]](this);
+    transient val b:Builder[Byte,T];
 
     public def this(b: Builder[Byte,T]) { this.b = b; }
 
-    public global def write(x: Byte): Void { at (b) b.add(x); }
-    public global incomplete def size() : Long;
-    public global safe def toString() = b.toString();
-    public global def result() = at (b) b.result(); 
-    
-    public global def flush(): Void { }
-    public global def close(): Void { }
+    @Global public def write(x: Byte): Void { 
+    	if (here == root.home) {
+   	   val me = (root as GlobalRef[ByteWriter[T]]{self.home==here})();
+     	   me.b.add(x); 
+     	   return;
+    	}
+    	at (root) {
+    	   val me = (root as GlobalRef[ByteWriter[T]]{self.home==here})();
+    	   me.b.add(x); 
+    	}
+    }
+    @Global @Incomplete public  def size() : Long {
+        throw new UnsupportedOperationException();
+    }
+    @Global public def toString():String {
+      if (here == root.home) { 
+          val me = (root as GlobalRef[ByteWriter[T]]{self.home==here})();
+          return me.toString();
+      }
+      return root.toString();
+    }
+    @Global public def result() {
+    	if (here == root.home) {
+    	   val me = (root as GlobalRef[ByteWriter[T]]{self.home==here})();
+     	   return me.b.result();
+    	}
+    	return at (root) {
+    	   val me = (root as GlobalRef[ByteWriter[T]]{self.home==here})();
+    	   me.b.result()
+    	};
+    }
+    @Global public def flush(): Void { }
+    @Global public def close(): Void { }
 }
 

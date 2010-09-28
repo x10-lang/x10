@@ -67,7 +67,7 @@ public class ForLoop_c extends X10Loop_c implements ForLoop {
 	/* (non-Javadoc)
 	 * @see polyglot.ast.Term#acceptCFG(polyglot.visit.CFGBuilder, java.util.List)
 	 */
-	public List acceptCFG(CFGBuilder v, List succs) {
+	public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
 		v.visitCFG(formal, domain, ENTRY);
 		v.visitCFG(domain, FlowGraph.EDGE_KEY_TRUE, body,
 						   ENTRY, FlowGraph.EDGE_KEY_FALSE, this, EXIT);

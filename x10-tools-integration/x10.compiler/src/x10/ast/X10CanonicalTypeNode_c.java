@@ -44,7 +44,9 @@ import polyglot.visit.TypeChecker;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.constraint.XConstraint;
+import x10.errors.Errors;
 import x10.extension.X10Del;
+import x10.types.ClosureDef;
 import x10.types.ClosureType_c;
 import x10.types.ConstrainedType;
 import x10.types.ConstrainedType_c;
@@ -104,8 +106,12 @@ AddFlags {
 	    ParameterType pt = (ParameterType) t;
 	    Def def = Types.get(pt.def());
 	    boolean inConstructor = false;
-	    if (c.currentCode() instanceof ConstructorDef) {
-	        ConstructorDef td = (ConstructorDef) c.currentCode();
+	    Context p = c;
+	    // Pop back to the right context before proceeding
+	    while (p.pop() != null && (p.currentClassDef() != def || p.currentCode() instanceof ClosureDef))
+	        p = p.pop();
+	    if (p.currentCode() instanceof ConstructorDef) {
+	        ConstructorDef td = (ConstructorDef) p.currentCode();
 	        Type container = Types.get(td.container());
 	        if (container instanceof X10ClassType) {
 	            X10ClassType ct = (X10ClassType) container;
@@ -114,7 +120,7 @@ AddFlags {
 	            }
 	        }
 	    }
-	    if (c.inStaticContext() && def instanceof ClassDef && ! inConstructor) {
+	    if (p.inStaticContext() && def instanceof ClassDef && ! inConstructor) {
 	        throw new SemanticException("Cannot refer to type parameter " 
 	        		+ pt.fullName() + " of " + def + " from a static context.", position());
 	    }
@@ -152,7 +158,7 @@ AddFlags {
     
     @Override
     public void setResolver(Node parent, final TypeCheckPreparer v) {
-    	if (typeRef() instanceof LazyRef) {
+    	if (typeRef() instanceof LazyRef<?>) {
     		LazyRef<Type> r = (LazyRef<Type>) typeRef();
     		TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
     		tc = (TypeChecker) tc.context(v.context().freeze());
@@ -160,19 +166,20 @@ AddFlags {
     	}
     }
     @Override
-    public Node conformanceCheck(ContextVisitor tc) throws SemanticException {
+    public Node conformanceCheck(ContextVisitor tc) {
         Type t = type();
         
         XConstraint c = X10TypeMixin.realX(t);
         
         if (! c.consistent()) {
-            throw new SemanticException("Invalid type; the real clause of " + t + " is inconsistent.", position());
+            Errors.issue(tc.job(),
+                    new SemanticException("Invalid type; the real clause of " + t + " is inconsistent.", position()));
         }
         
         X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
         
         if (! ts.consistent(t, (X10Context) tc.context())) {
-            throw new SemanticException("Type " + t + " is inconsistent.", position());
+            Errors.issue(tc.job(), new SemanticException("Type " + t + " is inconsistent.", position()));
         }
         
         return this;

@@ -45,6 +45,8 @@ import x10.constraint.XTerms;
 import x10.constraint.XVar;
 
 public abstract class ParametrizedType_c extends ReferenceType_c implements ParametrizedType {
+	private static final long serialVersionUID = 7637749680707950061L;
+
 	StructType container;
 	Flags flags;
 	Name name;

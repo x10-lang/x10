@@ -17,7 +17,7 @@ import polyglot.util.Position;
  */
 public class SwitchBlock_c extends AbstractBlock_c implements SwitchBlock
 {
-    public SwitchBlock_c(Position pos, List statements) {
+    public SwitchBlock_c(Position pos, List<Stmt> statements) {
 	super(pos, statements);
     }
     

@@ -170,7 +170,7 @@ public class SharedVarsMethods {
 				Type x_l_place = ts.Place();
 				knownSafeFields.add(ts.findField(x_l_place, ts.FieldMatcher(x_l_place, Name.make("MAX_PLACES"), context)));
 				Type x_l_region = ts.Region();
-				knownSafeMethods.add(ts.findMethod(x_l_region, ts.MethodMatcher(x_l_region, Name.make("toDistribution"), Collections.EMPTY_LIST, context)));
+				knownSafeMethods.add(ts.findMethod(x_l_region, ts.MethodMatcher(x_l_region, Name.make("toDistribution"), Collections.<Type>emptyList(), context)));
 				knownSafeFields.add(ts.findField(x_l_region, ts.FieldMatcher(x_l_region, Name.make("factory"), context)));
 				Type x_l_dist = ts.Dist();
 				Type[] X_L_P = { x_l_place };

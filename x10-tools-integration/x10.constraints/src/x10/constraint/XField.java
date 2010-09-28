@@ -12,7 +12,7 @@
 package x10.constraint;
 
 import java.util.List;
-import java.util.Set;
+
 /**
  * A representation of a Field.
  * @author vj
@@ -33,24 +33,15 @@ public class XField extends XVar {
 		@Override
 		public XTerm subst(XTerm y, XVar x, boolean propagate) {
 			XTerm r = super.subst(y, x, propagate);
-			if (! equals(r)) 
+			if (! equals(r))
 				return r;
 			XVar newReceiver = (XVar) receiver.subst(y, x);
-			XField result= clone();
-			if (newReceiver != receiver) {
-				result.receiver = newReceiver;
+			if (newReceiver == receiver) {
+			    return this;
 			}
+			XField result = clone();
+			result.receiver = newReceiver;
 			return result;
-			
-			/*
-			XVar newReceiver = (XVar) receiver.subst(y, x);
-			XField_c n = (XField_c) super.subst(y, x, propagate);
-			if (newReceiver == receiver)
-			    return n;
-			if (n == this) n = clone();
-			n.receiver = newReceiver;
-			return n;
-			*/
 		}
 		
 		public List<XEQV> eqvs() {

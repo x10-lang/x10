@@ -3,6 +3,8 @@ package polyglot.types;
 import polyglot.util.Position;
 
 public class VarInstance_c<T extends VarDef> extends Use_c<T> implements VarInstance<T> {
+    private static final long serialVersionUID = 1662108421276493195L;
+
     public VarInstance_c(TypeSystem ts, Position pos, Ref<? extends T> def) {
         super(ts, pos, def);
     }
@@ -30,7 +32,7 @@ public class VarInstance_c<T extends VarDef> extends Use_c<T> implements VarInst
     }
 
     public VarInstance<T> constantValue(Object o) {
-        VarInstance_c<T> v = (VarInstance_c<T>) copy();
+        VarInstance_c<T> v = this.<VarInstance_c<T>>copyGeneric();
         v.constantValueSet = true;
         v.isConstant = true;
         v.constantValue = o;
@@ -38,7 +40,7 @@ public class VarInstance_c<T extends VarDef> extends Use_c<T> implements VarInst
     }
 
     public VarInstance<T> notConstant() {
-        VarInstance_c<T> v = (VarInstance_c<T>) copy();
+        VarInstance_c<T> v = this.<VarInstance_c<T>>copyGeneric();
         v.constantValueSet = true;
         v.isConstant = false;
         v.constantValue = null;
@@ -55,7 +57,7 @@ public class VarInstance_c<T extends VarDef> extends Use_c<T> implements VarInst
     }
 
     public VarInstance<T> flags(Flags flags) {
-        VarInstance_c<T> v = (VarInstance_c<T>) copy();
+        VarInstance_c<T> v = this.<VarInstance_c<T>>copyGeneric();
         v.flags = flags;
         return v;
     }
@@ -70,7 +72,7 @@ public class VarInstance_c<T extends VarDef> extends Use_c<T> implements VarInst
     }
 
     public VarInstance<T> name(Name name) {
-        VarInstance_c<T> v = (VarInstance_c<T>) copy();
+        VarInstance_c<T> v = this.<VarInstance_c<T>>copyGeneric();
         v.name = name;
         return v;
     }
@@ -85,7 +87,7 @@ public class VarInstance_c<T extends VarDef> extends Use_c<T> implements VarInst
     }
 
     public VarInstance<T> type(Type type) {
-        VarInstance_c<T> v = (VarInstance_c<T>) copy();
+        VarInstance_c<T> v = this.<VarInstance_c<T>>copyGeneric();
         v.type = type;
         return v;
     }

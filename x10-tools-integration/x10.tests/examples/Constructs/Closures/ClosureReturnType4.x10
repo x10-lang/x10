@@ -46,7 +46,7 @@ public class ClosureReturnType4 extends ClosureTest {
     }
 
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new ClosureReturnType4().execute();
     }
 }

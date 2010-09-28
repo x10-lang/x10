@@ -16,6 +16,8 @@ import polyglot.util.CodeWriter;
  */
 public class Package_c extends TypeObject_c implements Package
 {
+    private static final long serialVersionUID = -4825470324133363428L;
+
     protected Ref<? extends Package> prefix;
     protected Name name;
 

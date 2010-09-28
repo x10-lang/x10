@@ -14,6 +14,8 @@ package x10.ast;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Set;
 
 import polyglot.ast.Expr;
 import polyglot.ast.Formal;
@@ -26,8 +28,11 @@ import polyglot.types.Context;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.VarDef_c;
+import polyglot.types.VarDef;
 import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.AscriptionVisitor;
 import polyglot.visit.CFGBuilder;
@@ -40,10 +45,13 @@ import x10.constraint.XConstraint;
 import x10.constraint.XFailure;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
+import x10.errors.Errors;
+import x10.types.ParameterType;
 import x10.types.X10Context;
 import x10.types.X10MethodDef;
 import x10.types.X10TypeSystem;
 import x10.types.checker.PlaceChecker;
+import x10.types.constraints.CConstraint;
 import x10.types.constraints.XConstrainedTerm;
 
 /**
@@ -55,18 +63,24 @@ import x10.types.constraints.XConstrainedTerm;
  */
 
 public class Async_c extends Stmt_c implements Async {
-
-	public Expr place;
 	public Stmt body;
 	protected List<Expr> clocks;
+	protected boolean clocked; // should be equal to (clocks != null && clocks.size() > 0)
 
-	public Async_c(Position pos, Expr place, List<Expr> clocks, Stmt body) {
+	public Async_c(Position pos, List<Expr> clocks, Stmt body) {
 		super(pos);
-		this.place = place;
 		this.clocks = clocks;
 		this.body = body;
 	}
+	public Async_c(Position pos, Stmt body, boolean clocked) {
+		super(pos);
+		this.clocked = true;
+		this.body = body;
+		// temporary. Needs to be initialized with clock from environment.
+		this.clocks = new ArrayList<Expr>();
+	}
 
+	public boolean clocked() { return clocked;}
 	public Async_c(Position p) {
 		super(p);
 	}
@@ -98,28 +112,13 @@ public class Async_c extends Stmt_c implements Async {
 		n.body = body;
 		return n;
 	}
+	
 
-	/** Get the RemoteActivity's place. */
-	public Expr place() {
-		return place;
-	}
-
-	/** Set the RemoteActivity's place. */
-	public RemoteActivityInvocation place(Expr place) {
-        if (place != this.place) {
-            Async_c n = (Async_c) copy();
-            n.place = place;
-           return n;
-        }
-		
-		return this;
-	}
 
 	/** Reconstruct the statement. */
-	protected Async reconstruct(Expr place, List clocks, Stmt body) {
-		if (place != this.place || body != this.body || clocks != this.clocks) {
+	protected Async reconstruct(List<Expr> clocks, Stmt body) {
+		if ( body != this.body || clocks != this.clocks) {
 			Async_c n = (Async_c) copy();
-			n.place = place;
 			n.clocks = clocks;
 			n.body = body;
 			return n;
@@ -130,33 +129,29 @@ public class Async_c extends Stmt_c implements Async {
 
 	/** Visit the children of the statement. */
 	public Node visitChildren(NodeVisitor v) {
-		Expr place = (Expr) visitChild(this.place, v);
-		List clocks = (List) visitList(this.clocks, v);
+		List<Expr> clocks = visitList(this.clocks, v);
 		Stmt body = (Stmt) visitChild(this.body, v);
-		return reconstruct(place, clocks, body);
+		return reconstruct(clocks, body);
 	}
 
-	XConstrainedTerm placeTerm;
 	
-	 @Override
-	    public Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException {
-	    	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-	    	NodeVisitor v = tc.enter(parent, this);
-	    	
-	    	if (v instanceof PruningVisitor) {
-	    		return this;
-	    	}
+	
+	@Override
+	public Node typeCheckOverride(Node parent, ContextVisitor tc) {
+	    X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+	    NodeVisitor v = tc.enter(parent, this);
 
-	    	if (placeTerm == null) {
-	    		placeTerm = PlaceChecker.computePlaceTerm((Expr) visitChild(this.place, v),
-	    				 (X10Context) tc.context(),ts);
-	    	}
-	    	
-	    	// now that placeTerm is set in this node, continue visiting children
-	    	// enterScope will ensure that placeTerm is installed in the context.
-	    	
-	    	return null;
+	    if (v instanceof PruningVisitor) {
+	        return this;
 	    }
+
+
+	    // now that placeTerm is set in this node, continue visiting children
+	    // enterScope will ensure that placeTerm is installed in the context.
+
+	    return null;
+	}
+
 	/**
 	 * The evaluation of place and list of clocks is not in the scope of the async.
 	 */
@@ -169,80 +164,57 @@ public class Async_c extends Stmt_c implements Async {
 	        X10MethodDef asyncInstance = (X10MethodDef) ts.asyncCodeInstance(c.inStaticContext());
 	        if (xc.currentCode() instanceof X10MethodDef) {
 	            X10MethodDef outer = (X10MethodDef) c.currentCode();
-	            List<Ref<? extends Type>> capturedTypes = outer.typeParameters();
+	            List<ParameterType> capturedTypes = outer.typeParameters();
 	            if (!capturedTypes.isEmpty()) {
 	                asyncInstance = ((X10MethodDef) asyncInstance.copy());
 	                asyncInstance.setTypeParameters(capturedTypes);
 	            }
 	        }
 	        xc = (X10Context) xc.pushCode(asyncInstance);
-
-
-	        if (placeTerm != null)
-	        	xc = (X10Context) xc.pushPlace(placeTerm);
 	    }
 	    return xc;
 	}
 
-	public Node typeCheck(ContextVisitor tc) throws SemanticException {
+	public Node typeCheck(ContextVisitor tc) {
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 		X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
 
-		Expr newPlace = place;
-		// vj: No need to check this. This will be checked when computing
-		// the placeTerm, as part of place type checking.
-		/* 
-		Type placeType = place.type();
-	
-		boolean placeIsPlace = ts.isImplicitCastValid(placeType, ts.Place(), tc.context());
-		if (! placeIsPlace) {
-                        throw new SemanticException(
-                            "Place expression of async must be of type \"" +
-                            ts.Place() + "\", not \"" + place.type() + "\".",
-                            place.position());
-		}
-		*/
 		X10Context c = (X10Context) tc.context();
-		if (c.inSequentialCode())
-			throw new SemanticException("async may not be invoked in sequential code.", position());
+		if (clocked() && ! c.inClockedFinishScope())
+			Errors.issue(tc.job(),
+			        new SemanticException("clocked async must be invoked inside a statically enclosing clocked finish.", position()));
 			
-        for (Iterator i = clocks().iterator(); i.hasNext(); ) {
-            Expr tn = (Expr) i.next();
-            Type t = tn.type();
-            if (! t.isSubtype(ts.Clock(), tc.context())) {
-                throw new SemanticException("Type \"" + t + "\" must be x10.lang.clock.",
-                    tn.position());
+        for (Expr e : clocks()) {
+            Type t = e.type();
+            if (!t.isSubtype(ts.Clock(), tc.context())) {
+                Errors.issue(tc.job(),
+                        new SemanticException("Type \"" + t + "\" must be x10.lang.clock.", e.position()));
             }
         }
 
-		return (Node) place(newPlace);
+		return this;
 	}
 
 	
 	public Type childExpectedType(Expr child, AscriptionVisitor av) {
 		X10TypeSystem ts = (X10TypeSystem) av.typeSystem();
-		if (child == place) {
-			return ts.Place();
-		}
 		return child.type();
 	}
 
 	public String toString() {
-		return "async (" + place + ") { ... }";
+		return "async  { ... }";
 	}
 
 	/** Write the statement to an output file. */
 	public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
-		w.write("async (");
-		printBlock(place, w, tr);
-		w.write(") ");
+		w.write("async ");
 		if (clocks != null && ! clocks.isEmpty()) {
 			w.write("clocked (");
 			w.begin(0);
 
-			for (Iterator i = clocks.iterator(); i.hasNext(); ) {
-			    Formal f = (Formal) i.next();
-			    print(f, w, tr);
+			for (Iterator<Expr> i = clocks.iterator(); i.hasNext(); ) {
+			    Expr e = i.next();
+			    print(e, w, tr);
 
 			    if (i.hasNext()) {
 				w.write(",");
@@ -262,9 +234,6 @@ public class Async_c extends Stmt_c implements Async {
 	 * term.
 	 */
 	public Term firstChild() {
-                if (place != null) {
-                        return place;
-                }
 		
 		if (clocks() == null || clocks().isEmpty()) {
                         return body;
@@ -282,19 +251,14 @@ public class Async_c extends Stmt_c implements Async {
 	 * FIXME: We should really build our own CFG, push a new context,
 	 * and disallow uses of "continue", "break", etc. in asyncs.
 	 */
-	public List acceptCFG(CFGBuilder v, List succs) {
-		
-                if (place != null) {
-                    v.visitCFG(place, FlowGraph.EDGE_KEY_TRUE, body,
-                                      ENTRY, FlowGraph.EDGE_KEY_FALSE, this, EXIT);
-                }
-		
+	public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
 		if (clocks() == null || clocks().isEmpty()) {
 			v.visitCFG(body, this, EXIT);
 		} else {
 			v.visitCFGList(clocks, body, ENTRY);
 			v.visitCFG(body, this, EXIT);
 		}
+        v.edge(v,this,ENTRY,this,EXIT,FlowGraph.EDGE_KEY_FALSE); // a trick to make sure we treat Async like a conditional for the purpose of initialization. see InitChecker.
 		
 		return succs;
 	}

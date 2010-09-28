@@ -17,7 +17,7 @@ import harness.x10Test;
 
 public class ArrayScan extends TestArray {
 
-    public const N: int = 9;
+    public static N: int = 9;
 
     public def run(): boolean {
 
@@ -36,12 +36,12 @@ public class ArrayScan extends TestArray {
         return status();
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Array[String](1)): void = {
         new ArrayScan().execute();
     }
 
-    def pr(msg:String, a:Array[double]!) {
-        val aa = a as Array[double](1)!;
+    def pr(msg:String, a:Array[double]) {
+        val aa = a as Array[double](1);
         out.println("--- " + msg);
         for (pt:Point(1) in aa)
             out.print(aa(pt) + " ");

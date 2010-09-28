@@ -24,7 +24,7 @@ public class Generics3 extends x10Test {
 		return a == 0;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Array[String](1)): void = {
 		new Generics3().execute();
 	}
 }
