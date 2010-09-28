@@ -152,7 +152,7 @@ public class Errors {
 	public static class NoAssignmentInDepType extends SemanticException implements DepTypeException {
 		private static final long serialVersionUID = 8343234065357158485L;
 		public NoAssignmentInDepType(FieldAssign f, Position pos) {
-			super("Assignment may not appear in a dependent type: \n\t Error: " + f, pos);
+			super("Assignment may not appear in a constrained type: \n\t Error: " + f, pos);
 		}
 		public boolean equals(Object o) {
 			if (o==null || ! (o instanceof NoAssignmentInDepType) )
@@ -232,7 +232,7 @@ public class Errors {
 	public static class DependentClauseErrorFieldMustBeFinal extends SemanticException implements DepTypeException {
 		private static final long serialVersionUID = 8737323529719693415L;
 		public DependentClauseErrorFieldMustBeFinal(Field f,Position pos) {
-			super("Only final fields are permitted in dependent clauses."
+			super("Only val fields are permitted in constraints."
 					+ "\n\t Field: " + f, pos);
 		}
 		public boolean equals(Object o) {
@@ -245,7 +245,7 @@ public class Errors {
 	public static class DependentClauseErrorSelfMayAccessOnlyProperties extends SemanticException implements DepTypeException {
 		private static final long serialVersionUID = 8019315512496243771L;
 		public DependentClauseErrorSelfMayAccessOnlyProperties(FieldInstance fi,Position pos) {
-			super("Only properties may be prefixed with self in a dependent clause."
+			super("Only properties may be prefixed with self in a constraint."
 					+ "\n\t Field: " + fi.name()
 					+ "\n\t Container: " + fi.container(), pos);
 		}
@@ -259,7 +259,7 @@ public class Errors {
 	public static class DependentClauseIsInconsistent extends SemanticException {
 	    private static final long serialVersionUID = -737687218058693221L;
 	    public DependentClauseIsInconsistent(String entity, DepParameterExpr e) {
-	        super("The "+entity+"'s dependent clause is inconsistent.",
+	        super("The "+entity+"'s constraint is inconsistent.",
 	              e == null ? null : e.position());
 	    }
 	    public boolean equals(Object o) {

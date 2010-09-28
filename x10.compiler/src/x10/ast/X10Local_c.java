@@ -85,8 +85,8 @@ public class X10Local_c extends Local_c {
 			if (context.inDepType()) {
 				li = result.localInstance();
 				if (! (li.def().equals(dli)) && ! li.flags().isFinal()) {
-					throw new SemanticError("Local variable " + li.name() 
-							+ " must be final in a dependent clause.", 
+					throw new SemanticError("A var local variable " + li.name() 
+							+ " is not allowed in a constraint.", 
 							position());
 				}
 			}
