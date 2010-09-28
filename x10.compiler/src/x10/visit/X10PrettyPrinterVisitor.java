@@ -69,7 +69,6 @@ import polyglot.ast.Special_c;
 import polyglot.ast.Stmt;
 import polyglot.ast.SwitchBlock_c;
 import polyglot.ast.Switch_c;
-import polyglot.ast.Throw;
 import polyglot.ast.Throw_c;
 import polyglot.ast.TopLevelDecl;
 import polyglot.ast.Try;
@@ -166,7 +165,6 @@ import x10.emitter.RuntimeTypeExpander;
 import x10.emitter.Template;
 import x10.emitter.TryCatchExpander;
 import x10.emitter.TypeExpander;
-import x10.types.ClosureType_c;
 import x10.types.FunctionType;
 import x10.types.ParameterType;
 import x10.types.ParameterType.Variance;
@@ -732,19 +730,19 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	}
 
 	public void visit(X10ClassDecl_c n) {
-	        String className = n.classDef().name().toString();
-	        X10CContext_c context = (X10CContext_c) tr.context();
-	        if (n.classDef().isTopLevel() && !n.classDef().sourceFile().name().equals(className + ".x10") && !context.isContainsGeneratedClasses(n.classDef())) {
-	            context.addGeneratedClasses(n.classDef());
-	            // not include import
-	            SourceFile sf = tr.nodeFactory().SourceFile(n.position(), Collections.<TopLevelDecl>singletonList(n));
-	            if (n.classDef().package_() != null) {
-	                sf = sf.package_(tr.nodeFactory().PackageNode(n.position(), n.classDef().package_()));
-	            }
-	            sf = sf.source(new Source(n.classDef().name().toString() + ".x10", n.position().path(), null));
-	            tr.translate(sf);
-	            return;
+	    String className = n.classDef().name().toString();
+	    X10CContext_c context = (X10CContext_c) tr.context();
+	    if (n.classDef().isTopLevel() && !n.classDef().sourceFile().name().equals(className + ".x10") && !context.isContainsGeneratedClasses(n.classDef())) {
+	        context.addGeneratedClasses(n.classDef());
+	        // not include import
+	        SourceFile sf = tr.nodeFactory().SourceFile(n.position(), Collections.<TopLevelDecl>singletonList(n));
+	        if (n.classDef().package_() != null) {
+	            sf = sf.package_(tr.nodeFactory().PackageNode(n.position(), n.classDef().package_()));
 	        }
+	        sf = sf.source(new Source(n.classDef().name().toString() + ".x10", n.position().path(), null));
+	        tr.translate(sf);
+	        return;
+	    }
 		X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
 
 		X10ClassDef def = (X10ClassDef) n.classDef();
@@ -2005,17 +2003,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		        Type tt = X10TypeMixin.baseType(target.type());
 		        
 		        if (tt instanceof X10ClassType && ((X10ClassType) tt).flags().isInterface()) {
-		            boolean isDispatch = false;
-		            List<Ref<? extends Type>> formalTypes = mi.def().formalTypes();
-		            for (Ref<? extends Type> ref : formalTypes) {
-		                Type ft = ref.get();
-		                if (Emitter.containsTypeParam(ft)) {
-		                    isDispatch = true;
-		                    break;
-		                }
-		            }
-		            // FIXME
-		            if (!isDispatch) {
+		            if (!containsTypeParam(mi.def().formalTypes())) {
 		                w.write(X10PrettyPrinterVisitor.RETURN_PARAMETER_TYPE_SUFFIX);
 		            }
 		        }
@@ -2128,7 +2116,16 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		w.end();
 		w.write(")");
 	}
-
+	
+    public static boolean containsTypeParam(List<Ref<? extends Type>> list) {
+        for (Ref<? extends Type> ref : list) {
+            if (Emitter.containsTypeParam(ref.get())) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
 	private boolean isIMC(Type type) {
 	    X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
 	    Type tbase = X10TypeMixin.baseType(type);
@@ -2176,7 +2173,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		boolean bridge = containsPrimitive(n) || !n.returnType().type().isVoid() && !(X10TypeMixin.baseType(n.returnType().type()) instanceof ParameterType);
         if (bridge) {
 		    w.write("public final ");
-		    ret.expand(tr2);
+		    if (isSelfDispatch && n.returnType().type().isVoid() && n.formals().size() != 0) {
+		        w.write(JAVA_LANG_OBJECT);
+		    }
+		    else {
+		        ret.expand(tr2);
+		    }
 		    w.write(" apply");
 		    if (!n.returnType().type().isVoid() && (!isSelfDispatch || (isSelfDispatch && n.formals().size() == 0))) {
 		        w.write(RETURN_PARAMETER_TYPE_SUFFIX);
@@ -2214,12 +2216,20 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		        w.write(f.name().toString());
 		    }
 		    w.write(");");
+		    if (isSelfDispatch && n.returnType().type().isVoid() && n.formals().size() != 0) {
+                w.write("return null;");
+            }
 		    w.write("}");
 		    w.newline();
 		}
 		
 		w.write("public final ");
-		new TypeExpander(er, n.returnType().type(), true, false, false).expand(tr2);
+		if (isSelfDispatch && !bridge && n.returnType().type().isVoid() && n.formals().size() != 0) {
+		    w.write(JAVA_LANG_OBJECT);
+		}
+		else {
+		    new TypeExpander(er, n.returnType().type(), true, false, false).expand(tr2);
+		}
 		w.write(" apply");
 		if (X10TypeMixin.baseType(n.returnType().type()) instanceof ParameterType && (!isSelfDispatch || (isSelfDispatch && n.formals().size() == 0))) {
 		    w.write(RETURN_PARAMETER_TYPE_SUFFIX);
@@ -2316,6 +2326,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     tryCatchExpander.expand(tr2);
                 } else {
                     er.prettyPrint(n.body(), tr2);
+                }
+                
+                if (isSelfDispatch && !bridge && n.returnType().type().isVoid() && n.formals().size() != 0) {
+                    w.write("return null;");
                 }
                 
                 w.write("}");
