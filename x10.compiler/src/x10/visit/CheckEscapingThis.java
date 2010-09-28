@@ -289,7 +289,8 @@ public class CheckEscapingThis extends NodeVisitor
                     wasError = true;
                     // report the field that wasn't written to
                     for (FieldDef f : fields)
-                        if (!newInfo.seqWrite.contains(f)) {
+                        // a VAR marked with @Uninitialized is not tracked
+                        if (!newInfo.seqWrite.contains(f) && !X10TypeMixin.isUninitializedField((X10FieldDef)f,(X10TypeSystem)ts)) {
                             final Position pos = currDecl.position();
                             if (pos.isCompilerGenerated()) // auto-generated ctor
                                 reportError("Field '"+f.name()+"' was not definitely assigned.", f.position());
@@ -438,11 +439,9 @@ public class CheckEscapingThis extends NodeVisitor
         ClassDef currClass = myClassDef;
         while (currClass!=null) {
             List<FieldDef> list = currClass.fields();
-            // a VAR marked with @Uninitialized is not tracked
             List<FieldDef> init = new ArrayList<FieldDef>(list.size());
             for (FieldDef f : list) {
-                if (!X10TypeMixin.isUninitializedField((X10FieldDef)f,ts) &&
-                    !isProperty(f) && // not tracking property fields (checking property() call was done elsewhere)
+                if (!isProperty(f) && // not tracking property fields (checking property() call was done elsewhere)
                     !f.flags().isStatic()) { // static fields are checked in FwdReferenceChecker
                     init.add(f);
                 }
