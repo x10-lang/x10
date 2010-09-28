@@ -272,31 +272,37 @@ public class LineNumberMap extends StringTable {
 	
 	static int determineTypeId(String type)
 	{
-		if (type.equals("x10.lang.Int"))
+		if (type.equals("x10.lang.Int") || type.startsWith("x10.lang.Int{"))
 			return 5;
-		if (type.equals("x10.lang.Byte"))
-			return 1;
-		if (type.equals("x10.lang.UByte"))
-			return 2;
-		if (type.equals("x10.lang.Short"))
-			return 3;
-		if (type.equals("x10.lang.UShort"))
-			return 4;
-		if (type.equals("x10.lang.UInt"))
-			return 6;
-		if (type.equals("x10.lang.Long"))
-			return 7;
-		if (type.equals("x10.lang.ULong"))
-			return 8;
-		if (type.equals("x10.lang.Float"))
-			return 9;
-		if (type.equals("x10.lang.Double"))
-			return 10;
-		if (type.equals("x10.lang.Char"))
-			return 11;
-		if (type.equals("x10.array.Array"))
+		if (type.startsWith("x10.array.Array") || type.startsWith("x10.array.DistArray"))
 			return 17;
-		// TODO 12-16
+		if (type.startsWith("x10.lang.PlaceLocalHandle"))
+			return 15;
+		if (type.equals("x10.lang.Boolean") || type.startsWith("x10.lang.Boolean{"))
+			return 0;
+		if (type.equals("x10.lang.Byte") || type.startsWith("x10.lang.Byte{"))
+			return 1;
+		if (type.equals("x10.lang.UByte") || type.startsWith("x10.lang.UByte{"))
+			return 2;
+		if (type.equals("x10.lang.Short") || type.startsWith("x10.lang.Short{"))
+			return 3;
+		if (type.equals("x10.lang.UShort") || type.startsWith("x10.lang.UShort{"))
+			return 4;
+		if (type.equals("x10.lang.UInt") || type.startsWith("x10.lang.UInt{"))
+			return 6;
+		if (type.equals("x10.lang.Long") || type.startsWith("x10.lang.Long{"))
+			return 7;
+		if (type.equals("x10.lang.ULong") || type.startsWith("x10.lang.ULong{"))
+			return 8;
+		if (type.equals("x10.lang.Float") || type.startsWith("x10.lang.Float{"))
+			return 9;
+		if (type.equals("x10.lang.Double") || type.startsWith("x10.lang.Double{"))
+			return 10;
+		if (type.equals("x10.lang.Char") || type.startsWith("x10.lang.Char{"))
+			return 11;		
+		
+		//System.out.println("Can't find a match for \""+type+"\" defaulting to Class");
+
 		return 12;
 	}
 	
