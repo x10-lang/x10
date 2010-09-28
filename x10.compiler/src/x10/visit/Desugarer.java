@@ -334,9 +334,9 @@ public class Desugarer extends ContextVisitor {
         
         boolean p1 = false,p2 = false;
         Type annotation = (Type) xts.systemResolver().find(QName.make("x10.compiler.TailAsync"));
-        if (!((X10Ext) a.ext()).annotationMatching(annotation).isEmpty()) {
-        	
-        	List<AnnotationNode> allannots = ((X10Ext)(a.ext())).annotations();
+        //System.out.println(a+":"+a.hashCode()+":"+ext.annotations());
+        if (!ext.annotationMatching(annotation).isEmpty()) {
+        	List<AnnotationNode> allannots = ext.annotations();
         	AnnotationNode an = null;
         	if(allannots.size()>0){
         		if (allannots.size() > 1) {
@@ -364,7 +364,6 @@ public class Desugarer extends ContextVisitor {
             }
             return tailAsync(pos,a.body(),a.place(),p1);
         }
-        
         if (old instanceof Async && ((Async) old).place() instanceof Here)
             return async(pos, a.body(), a.clocks(), refs);
         Stmt specializedAsync = specializeAsync(old, a);
@@ -691,6 +690,7 @@ public class Desugarer extends ContextVisitor {
         Position pos = f.position();
     	int p=0;
         Type annotation = (Type) xts.systemResolver().find(QName.make("x10.compiler.FinishAsync"));
+        //System.out.println(f+":"+f.hashCode()+":"+((X10Ext) f.ext()).annotations());
         if (!((X10Ext) f.ext()).annotationMatching(annotation).isEmpty()) {
         	List<AnnotationNode> allannots = ((X10Ext)(f.ext())).annotations();
         	AnnotationNode a = null;
