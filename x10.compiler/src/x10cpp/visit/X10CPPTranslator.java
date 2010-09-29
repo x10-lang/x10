@@ -41,11 +41,13 @@ import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Eval;
 import polyglot.ast.FieldDecl;
 import polyglot.ast.For;
+import polyglot.ast.Formal;
 import polyglot.ast.If;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.ProcedureDecl;
 import polyglot.ast.Return;
 import polyglot.ast.SourceCollection;
 import polyglot.ast.SourceFile;
@@ -222,6 +224,12 @@ public class X10CPPTranslator extends Translator {
 		            	lineNumberMap.addClassMemberVariable(((FieldDecl)n).name().toString(), ((FieldDecl)n).type().toString(), Emitter.mangled_non_method_name(context.currentClass().toString()));
 		            else if (n instanceof LocalDecl && !((LocalDecl)n).position().isCompilerGenerated())
 		            	lineNumberMap.addLocalVariableMapping(((LocalDecl)n).name().toString(), ((LocalDecl)n).type().toString(), line, parent.position().endLine(), file);
+		            else if (def != null)
+		            {
+		            	List<Formal> args = ((ProcedureDecl)parent).formals();
+		            	for (int i=0; i<args.size(); i++)
+		            		lineNumberMap.addLocalVariableMapping(args.get(i).name().toString(), args.get(i).type().toString(), line, parent.position().endLine(), file);
+		            }
 		        }
 		    }
 		}
