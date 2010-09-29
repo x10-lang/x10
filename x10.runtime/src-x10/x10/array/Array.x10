@@ -11,6 +11,7 @@
 
 package x10.array;
 
+import x10.compiler.CompilerFlags;
 import x10.compiler.SuppressTransientError;
 import x10.compiler.Header;
 import x10.compiler.Inline;
@@ -110,10 +111,6 @@ public final class Array[T](
     private val raw:IndexedMemoryChunk[T];
     /* package */ val rawLength:int; // Made accessible to RemoteArray
     private val layout:RectLayout;
-
-    @Native("java", "(!`NO_CHECKS`)")
-    @Native("c++", "BOUNDS_CHECK_BOOL")
-    private native def checkBounds():boolean;
 
     /**
      * Return the IndexedMemoryChunk[T] that is providing the backing storage for the array.
@@ -341,12 +338,12 @@ public final class Array[T](
     @Native("cuda", "(#0)[#1]")
     public @Header @Inline def apply(i0:int){rank==1}:T {
 	if (cachedRail) {
-            if (checkBounds() && !((i0 as UInt) < (size as UInt))) {
+            if (CompilerFlags.checkBounds() && !((i0 as UInt) < (size as UInt))) {
                 raiseBoundsError(i0);
             }
             return raw(i0);
         } else {
-            if (checkBounds() && !region.contains(i0)) {
+            if (CompilerFlags.checkBounds() && !region.contains(i0)) {
                 raiseBoundsError(i0);
             }
             return raw(layout.offset(i0));
@@ -365,7 +362,7 @@ public final class Array[T](
      * @see #set(T, Int, Int)
      */
     public @Header @Inline def apply(i0:int, i1:int){rank==2}:T {
-        if (checkBounds() && !region.contains(i0, i1)) {
+        if (CompilerFlags.checkBounds() && !region.contains(i0, i1)) {
             raiseBoundsError(i0, i1);
         }
         return raw(layout.offset(i0,i1));
@@ -384,7 +381,7 @@ public final class Array[T](
      * @see #set(T, Int, Int, Int)
      */
     public @Header @Inline def apply(i0:int, i1:int, i2:int){rank==3}:T {
-        if (checkBounds() && !region.contains(i0, i1, i2)) {
+        if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2)) {
             raiseBoundsError(i0, i1, i2);
         }
         return raw(layout.offset(i0, i1, i2));
@@ -404,7 +401,7 @@ public final class Array[T](
      * @see #set(T, Int, Int, Int, Int)
      */
     public @Header @Inline def apply(i0:int, i1:int, i2:int, i3:int){rank==4}:T {
-        if (checkBounds() && !region.contains(i0, i1, i2, i3)) {
+        if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2, i3)) {
             raiseBoundsError(i0, i1, i2, i3);
         }
         return raw(layout.offset(i0, i1, i2, i3));
@@ -420,7 +417,7 @@ public final class Array[T](
      * @see #set(T, Point)
      */
     public @Header @Inline def apply(pt:Point{self.rank==this.rank}):T {
-        if (checkBounds() && !region.contains(pt)) {
+        if (CompilerFlags.checkBounds() && !region.contains(pt)) {
             raiseBoundsError(pt);
         }
         return raw(layout.offset(pt));
@@ -442,12 +439,12 @@ public final class Array[T](
     @Native("cuda", "(#0)[#2] = #1")
     public @Header @Inline def set(v:T, i0:int){rank==1}:T {
 	if (cachedRail) {
-            if (checkBounds() && !((i0 as UInt) < (size as UInt))) {
+            if (CompilerFlags.checkBounds() && !((i0 as UInt) < (size as UInt))) {
                 raiseBoundsError(i0);
             }
             raw(i0) = v;
         } else {
-            if (checkBounds() && !region.contains(i0)) {
+            if (CompilerFlags.checkBounds() && !region.contains(i0)) {
                 raiseBoundsError(i0);
             }
             raw(layout.offset(i0)) = v;
@@ -469,7 +466,7 @@ public final class Array[T](
      * @see #set(T, Point)
      */
     public @Header @Inline def set(v:T, i0:int, i1:int){rank==2}:T {
-        if (checkBounds() && !region.contains(i0, i1)) {
+        if (CompilerFlags.checkBounds() && !region.contains(i0, i1)) {
             raiseBoundsError(i0, i1);
         }
         raw(layout.offset(i0,i1)) = v;
@@ -491,7 +488,7 @@ public final class Array[T](
      * @see #set(T, Point)
      */
     public @Header @Inline def set(v:T, i0:int, i1:int, i2:int){rank==3}:T {
-        if (checkBounds() && !region.contains(i0, i1, i2)) {
+        if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2)) {
             raiseBoundsError(i0, i1, i2);
         }
         raw(layout.offset(i0, i1, i2)) = v;
@@ -514,7 +511,7 @@ public final class Array[T](
      * @see #set(T, Point)
      */
     public @Header @Inline def set(v:T, i0:int, i1:int, i2:int, i3:int){rank==4}:T {
-        if (checkBounds() && !region.contains(i0, i1, i2, i3)) {
+        if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2, i3)) {
             raiseBoundsError(i0, i1, i2, i3);
         }
         raw(layout.offset(i0, i1, i2, i3)) = v;
@@ -533,7 +530,7 @@ public final class Array[T](
      * @see #set(T, Int)
      */
     public @Header @Inline def set(v:T, p:Point{self.rank==this.rank}):T {
-        if (checkBounds() && !region.contains(p)) {
+        if (CompilerFlags.checkBounds() && !region.contains(p)) {
             raiseBoundsError(p);
         }
         raw(layout.offset(p)) = v;

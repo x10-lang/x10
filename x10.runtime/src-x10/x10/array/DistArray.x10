@@ -11,6 +11,7 @@
 
 package x10.array;
 
+import x10.compiler.CompilerFlags;
 import x10.compiler.Header;
 import x10.compiler.Inline;
 import x10.compiler.Native;
@@ -129,20 +130,11 @@ public class DistArray[T] (
     final protected def layout() = localHandle().layout;
 
 
-    @Native("java", "(!`NO_CHECKS`)")
-    @Native("c++", "BOUNDS_CHECK_BOOL")
-    private native def checkBounds():boolean;
-
-    @Native("java", "(!`NO_CHECKS`)")
-    @Native("c++", "PLACE_CHECK_BOOL")
-    private native def checkPlace():boolean;
-
-
     public final def apply(pt: Point(rank)): T {
-        if (checkBounds() && !region.contains(pt)) {
+        if (CompilerFlags.checkBounds() && !region.contains(pt)) {
             raiseBoundsError(pt);
         }
-        if (checkPlace() && dist(pt) != here) {
+        if (CompilerFlags.checkPlace() && dist(pt) != here) {
             raisePlaceError(pt);
         }
         return raw()(layout().offset(pt));
@@ -154,40 +146,40 @@ public class DistArray[T] (
     public final def get(pt: Point(rank)): T = apply(pt);
 
     final public def apply(i0: int){rank==1}: T {
-        if (checkBounds() && !region.contains(i0)) {
+        if (CompilerFlags.checkBounds() && !region.contains(i0)) {
             raiseBoundsError(i0);
         }
-        if (checkPlace() && dist(i0) != here) {
+        if (CompilerFlags.checkPlace() && dist(i0) != here) {
             raisePlaceError(i0);
         }
         return raw()(layout().offset(i0));
     }
 
     final public def apply(i0: int, i1: int){rank==2}: T {
-        if (checkBounds() && !region.contains(i0, i1)) {
+        if (CompilerFlags.checkBounds() && !region.contains(i0, i1)) {
             raiseBoundsError(i0, i1);
         }
-        if (checkPlace() && dist(i0, i1) != here) {
+        if (CompilerFlags.checkPlace() && dist(i0, i1) != here) {
             raisePlaceError(i0,i1);
         }
         return raw()(layout().offset(i0,i1));
     }
 
     final public def apply(i0: int, i1: int, i2: int){rank==3}: T {
-        if (checkBounds() && !region.contains(i0, i1, i2)) {
+        if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2)) {
             raiseBoundsError(i0, i1, i2);
         }
-        if (checkPlace() && dist(i0,i1,i2) != here) {
+        if (CompilerFlags.checkPlace() && dist(i0,i1,i2) != here) {
             raisePlaceError(i0,i1,i2);
         }
         return raw()(layout().offset(i0,i1,i2));
     }
 
     final public def apply(i0: int, i1: int, i2: int, i3: int){rank==4}: T {
-        if (checkBounds() && !region.contains(i0, i1, i2, i3)) {
+        if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2, i3)) {
             raiseBoundsError(i0, i1, i2, i3);
         }
-        if (checkPlace() && dist(i0,i1,i2,i3) != here) {
+        if (CompilerFlags.checkPlace() && dist(i0,i1,i2,i3) != here) {
             raisePlaceError(i0,i1,i2,i3);
         }
         return raw()(layout().offset(i0,i1,i2,i3));
@@ -196,10 +188,10 @@ public class DistArray[T] (
 
     // XXXX settable order
     public final def set(v: T, pt: Point(rank)): T {
-        if (checkBounds() && !region.contains(pt)) {
+        if (CompilerFlags.checkBounds() && !region.contains(pt)) {
             raiseBoundsError(pt);
         }
-        if (checkPlace() && dist(pt) != here) {
+        if (CompilerFlags.checkPlace() && dist(pt) != here) {
             raisePlaceError(pt);
         }
         val r = raw();
@@ -208,10 +200,10 @@ public class DistArray[T] (
     }
 
     final public def set(v: T, i0: int){rank==1}: T {
-        if (checkBounds() && !region.contains(i0)) {
+        if (CompilerFlags.checkBounds() && !region.contains(i0)) {
             raiseBoundsError(i0);
         }
-        if (checkPlace() && dist(i0) != here) {
+        if (CompilerFlags.checkPlace() && dist(i0) != here) {
             raisePlaceError(i0);
         }
         raw()(layout().offset(i0)) = v;
@@ -219,10 +211,10 @@ public class DistArray[T] (
     }
 
     final public def set(v: T, i0: int, i1: int){rank==2}: T {
-        if (checkBounds() && !region.contains(i0, i1)) {
+        if (CompilerFlags.checkBounds() && !region.contains(i0, i1)) {
             raiseBoundsError(i0, i1);
         }
-        if (checkPlace() && dist(i0,i1) != here) {
+        if (CompilerFlags.checkPlace() && dist(i0,i1) != here) {
             raisePlaceError(i0,i1);
         }
         raw()(layout().offset(i0,i1)) = v;
@@ -230,10 +222,10 @@ public class DistArray[T] (
     }
 
     final public def set(v: T, i0: int, i1: int, i2: int){rank==3}: T {
-        if (checkBounds() && !region.contains(i0, i1, i2)) {
+        if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2)) {
             raiseBoundsError(i0, i1, i2);
         }
-        if (checkPlace() && dist(i0,i1,i2) != here) {
+        if (CompilerFlags.checkPlace() && dist(i0,i1,i2) != here) {
             raisePlaceError(i0,i1,i2);
         }
         raw()(layout().offset(i0,i1,i2)) = v;
@@ -241,10 +233,10 @@ public class DistArray[T] (
     }
 
     final public def set(v: T, i0: int, i1: int, i2: int, i3: int){rank==4}: T {
-        if (checkBounds() && !region.contains(i0, i1, i2, i3)) {
+        if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2, i3)) {
             raiseBoundsError(i0, i1, i2, i3);
         }
-        if (checkPlace() && dist(i0,i1,i2,i3) != here) {
+        if (CompilerFlags.checkPlace() && dist(i0,i1,i2,i3) != here) {
             raisePlaceError(i0,i1,i2,i3);
         }
         raw()(layout().offset(i0,i1,i2,i3)) = v;
