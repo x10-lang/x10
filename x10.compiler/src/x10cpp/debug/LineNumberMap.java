@@ -866,7 +866,7 @@ public class LineNumberMap extends StringTable {
 	        	}
 	        	w.writeln("static const struct _X10ClassMap _X10ClassMapList[] __attribute__((used)) "+debugDataSectionAttr+" = {");
 	        	for (String classname : memberVariables.keySet())
-		        	w.writeln("    { 12, "+offsets[memberVariables.get(classname).get(0)._cppClass]+", sizeof("+classname+"), "+memberVariables.get(classname).size()+", _X10"+classname+"Members },");	        
+		        	w.writeln("    { 101, "+offsets[memberVariables.get(classname).get(0)._cppClass]+", sizeof("+classname+"), "+memberVariables.get(classname).size()+", _X10"+classname+"Members },");	        
 	        	w.writeln("};");
 	        	w.forceNewline();
 	        }
