@@ -30,7 +30,8 @@ public class TrivialTest{
   	//t20();
   	//t21();
   	//t22();
-        t23();
+    //t23();
+    t24();
   }
   
   public static def t1(){
@@ -333,6 +334,14 @@ public class TrivialTest{
   }
   public static def t23(){
   	f12();
+  }
+  public static def t24(){
+	  finish{
+		  val p = here;
+		  async(p.next()){
+			  async(p){}
+		  }
+	  }
   }
   /* non-static method */
   public def foo(){
