@@ -217,7 +217,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	public final Type imcType;
     public static final String JAVA_LANG_OBJECT = "java.lang.Object";
     public static final boolean isSelfDispatch = true;
-    public static final boolean isGenericOverloading = true;
+    public static final boolean isGenericOverloading = false;
 	
     private static final String X10_RTT_TYPES = "x10.rtt.Types";
 
