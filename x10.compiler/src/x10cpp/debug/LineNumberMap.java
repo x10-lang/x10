@@ -296,39 +296,53 @@ public class LineNumberMap extends StringTable {
 	private static ArrayList<LocalVariableMapInfo> localVariables;
 	private static Hashtable<String, ArrayList<MemberVariableMapInfo>> memberVariables;
 	
+	// the type numbers were provided by Steve Cooper in "x10dbg_types.h"
 	static int determineTypeId(String type)
 	{
 		//System.out.println("looking up type \""+type+"\"");
 		if (type.equals("x10.lang.Int") || type.startsWith("x10.lang.Int{"))
-			return 5;
-		if (type.startsWith("x10.array.Array") || type.startsWith("x10.array.DistArray") || type.startsWith("x10.lang.ValRail"))
-			return 17;
-		if (type.startsWith("x10.lang.PlaceLocalHandle"))
-			return 15;
-		if (type.equals("x10.lang.Boolean") || type.startsWith("x10.lang.Boolean{"))
-			return 0;
-		if (type.equals("x10.lang.Byte") || type.startsWith("x10.lang.Byte{"))
-			return 1;
-		if (type.equals("x10.lang.UByte") || type.startsWith("x10.lang.UByte{"))
-			return 2;
-		if (type.equals("x10.lang.Short") || type.startsWith("x10.lang.Short{"))
-			return 3;
-		if (type.equals("x10.lang.UShort") || type.startsWith("x10.lang.UShort{"))
-			return 4;
-		if (type.equals("x10.lang.UInt") || type.startsWith("x10.lang.UInt{"))
 			return 6;
+		if (type.startsWith("x10.array.Array"))
+			return 200;
+		if (type.startsWith("x10.lang.PlaceLocalHandle"))
+			return 203;
+		if (type.equals("x10.lang.Boolean") || type.startsWith("x10.lang.Boolean{"))
+			return 1;
+		if (type.equals("x10.lang.Byte") || type.startsWith("x10.lang.Byte{"))
+			return 2;
+		if (type.equals("x10.lang.Char") || type.startsWith("x10.lang.Char{"))
+			return 3;
+		if (type.equals("x10.lang.Double") || type.startsWith("x10.lang.Double{"))
+			return 4;
+		if (type.equals("x10.lang.Float") || type.startsWith("x10.lang.Float{"))
+			return 5;
 		if (type.equals("x10.lang.Long") || type.startsWith("x10.lang.Long{"))
 			return 7;
-		if (type.equals("x10.lang.ULong") || type.startsWith("x10.lang.ULong{"))
-			return 8;
-		if (type.equals("x10.lang.Float") || type.startsWith("x10.lang.Float{"))
+		if (type.equals("x10.lang.Short") || type.startsWith("x10.lang.Short{"))
+			return 8;		
+		if (type.equals("x10.lang.UByte") || type.startsWith("x10.lang.UByte{"))
 			return 9;
-		if (type.equals("x10.lang.Double") || type.startsWith("x10.lang.Double{"))
+		if (type.equals("x10.lang.UInt") || type.startsWith("x10.lang.UInt{"))
 			return 10;
-		if (type.equals("x10.lang.Char") || type.startsWith("x10.lang.Char{"))
-			return 11;		
-
-		return 12;
+		if (type.equals("x10.lang.ULong") || type.startsWith("x10.lang.ULong{"))
+			return 11;
+		if (type.equals("x10.lang.UShort") || type.startsWith("x10.lang.UShort{"))
+			return 12;
+		if (type.startsWith("x10.array.DistArray"))
+			return 202;
+		if (type.startsWith("x10.array.Dist"))
+			return 201;
+		if (type.startsWith("x10.lang.Rail"))
+			return 204;
+		if (type.startsWith("x10.util.Random"))
+			return 205;
+		if (type.startsWith("x10.lang.String"))
+			return 206;		
+		if (type.startsWith("x10.lang.ValRail"))
+			return 207;
+		if (type.startsWith("x10.array.Region"))
+			return 300;
+		return 101; // generic class
 	}
 	
 	static int determineSubtypeId(String type, ArrayList<Integer> list)
@@ -356,9 +370,9 @@ public class LineNumberMap extends StringTable {
 		LocalVariableMapInfo v = new LocalVariableMapInfo();
 		v._x10name = stringId(name);
 		v._x10type = determineTypeId(type);
-		if (v._x10type == 15)
+		if (v._x10type == 203)
 			v._x10typeIndex = determineSubtypeId(type, refMap);
-		else if (v._x10type == 17)
+		else if (v._x10type == 200 || v._x10type == 202 || v._x10type == 204 || v._x10type == 207)
 			v._x10typeIndex = determineSubtypeId(type, arrayMap);
 		else 
 			v._x10typeIndex = -1;		
@@ -382,9 +396,9 @@ public class LineNumberMap extends StringTable {
 		
 		MemberVariableMapInfo v = new MemberVariableMapInfo();
 		v._x10type = determineTypeId(type);
-		if (v._x10type == 15)
+		if (v._x10type == 203)
 			v._x10typeIndex = determineSubtypeId(type, refMap);
-		else if (v._x10type == 17)
+		else if (v._x10type == 200 || v._x10type == 202 || v._x10type == 204 || v._x10type == 207)
 			v._x10typeIndex = determineSubtypeId(type, arrayMap);
 		else 
 			v._x10typeIndex = -1;
