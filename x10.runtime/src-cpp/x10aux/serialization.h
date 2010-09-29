@@ -278,7 +278,18 @@ namespace x10aux {
     PRIMITIVE_WRITE(x10_double)
     //PRIMITIVE_WRITE(x10_addr_t) // already defined above
     //PRIMITIVE_WRITE(remote_ref)
-    
+
+    template<> inline void serialization_buffer::Write<volatile x10_int>::_(serialization_buffer &buf, \
+                                                                            const volatile x10_int &val) {\
+        _S_("Serializing "<<star_rating<x10_int>()<<" a "<<ANSI_SER<<TYPENAME(x10_int)<<ANSI_RESET<<": " \
+                          <<val<<" into buf: "<<&buf); \
+        /* *(TYPE*) buf.cursor = val; // Cannot do this because of alignment */ \
+        if (buf.cursor + sizeof(x10_int) >= buf.limit) buf.grow(); \
+        memcpy(buf.cursor, const_cast<x10_int*>(&val), sizeof(x10_int));   \
+        code_bytes((x10_int*)buf.cursor); \
+        buf.cursor += sizeof(x10_int); \
+    }
+
     // Case for references e.g. ref<Reference>, 
     template<class T> struct serialization_buffer::Write<ref<T> > {
         static void _(serialization_buffer &buf, ref<T> val);

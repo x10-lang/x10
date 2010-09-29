@@ -858,7 +858,7 @@ public class Emitter {
 				h.write(flags.retain(Flags.STATIC).translate());
 		}
 
-		if (query.hasAnnotation(n, "x10.lang.shared")) {
+		if (query.hasAnnotation(n, "x10.lang.shared") || query.hasAnnotation(n, "x10.compiler.Volatile")) {
 			h.write("volatile ");
 		}
 

@@ -26,6 +26,17 @@ public class AtomicBooleanTest extends x10Test {
         success = ab.compareAndSet(true, false);
 	chk(success && ab.get() == false); // compareAndSet should have succeeded; value is now false.
 
+	// Now check that serialization works
+	val ab2 = new AtomicBoolean();
+	ab2.set(true);	
+        chk(ab2.get());
+	at (here.next()) {
+	    chk(ab2.get());
+	    ab2.set(false);
+	    chk(!ab2.get());
+        }
+        chk(ab2.get()); // original should not have been changed by update of copy inside of at
+
         return true;		
     }
 
