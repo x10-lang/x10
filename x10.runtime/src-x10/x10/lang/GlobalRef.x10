@@ -29,7 +29,7 @@ import x10.compiler.Native;
 public struct GlobalRef[T](
     @Native("java", "((#0).home)")
     @Native("c++", "x10::lang::Place_methods::place((#0)->location)")
-    home:Place) { 
+    home:Place) {T <: Object} { 
 
    /** 
     * Create a value encapsulating the given object of type T.
