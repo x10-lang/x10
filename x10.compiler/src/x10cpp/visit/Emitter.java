@@ -1052,7 +1052,7 @@ public class Emitter {
             sw.write(make_ref("__T")+" "+klass+"::"+DESERIALIZER_METHOD+"("+DESERIALIZATION_BUFFER+"& buf) {");
             sw.newline(4); sw.begin(0);
             sw.writeln(make_ref(klass)+" this_ = "+
-                       "new (x10aux::alloc"+chevrons(klass)+"()) "+klass+"();");
+                       "new (memset(x10aux::alloc"+chevrons(klass)+"(), 0, sizeof("+klass+"))) "+klass+"();");
             sw.writeln("buf.record_reference(this_);");
             sw.writeln("this_->"+DESERIALIZE_BODY_METHOD+"(buf);");
             sw.write("return this_;");
