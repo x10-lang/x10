@@ -145,6 +145,7 @@ public class X102IRGoal extends SourceGoal_c {
 		if(Report.should_report("verbose", 1))
 			Report.report(5,"call graph built!\nanalyzing programs ...");
 		calltable = x10fa.build(cg,calltable);
+		//TODO: change to graph based reachability analysis
 		calltable = CallTableUtil.findPatterns(calltable);
 		if (ifDump) {
 			CallTableUtil.dumpCallTable(calltable);

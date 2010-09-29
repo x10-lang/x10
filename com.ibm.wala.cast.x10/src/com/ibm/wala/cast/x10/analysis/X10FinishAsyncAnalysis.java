@@ -427,6 +427,7 @@ public class X10FinishAsyncAnalysis {
 			if (inst != null) {
 				if(DEBUG_INSTRUCTION){
 					System.out.println(inst);
+					System.err.println("\t"+inst.getClass());
 				}
 				if (inst instanceof SSAFinishInstruction) {
 					SSAFinishInstruction finst = (SSAFinishInstruction) inst;
@@ -435,11 +436,14 @@ public class X10FinishAsyncAnalysis {
 					SSAAtStmtInstruction atinst = (SSAAtStmtInstruction) inst;
 					visitAtInstruction(epcfg, env, atinst);
 				} else if (inst instanceof AsyncInvokeInstruction) {
+					System.out.println(((AsyncInvokeInstruction)inst).getPlaceExpr());
 					visitAsyncInstruction(epcfg, env,
 							(AsyncInvokeInstruction) inst);
 				} else if (inst instanceof AstJavaInvokeInstruction) {
 					visitMethodInvocation(epcfg, env,
 							(AstJavaInvokeInstruction) inst);
+				} else if(inst instanceof SSAHereInstruction){
+					System.out.println(inst);
 				}
 				// TODO: when instruction
 				else {
