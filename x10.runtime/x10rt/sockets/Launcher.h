@@ -31,7 +31,7 @@ extern "C" int fileno (FILE *__stream);
 #define X10LAUNCHER_RUNTIME "X10LAUNCHER_RUNTIME" // this is a flag to run as a runtime or a launcher.  Set by the launcher.
 
 // Enable/disable debug information
-#define DEBUG 1
+//#define DEBUG 1
 
 enum CTRL_MSG_TYPE {HELLO, GOODBYE, PORT_REQUEST, PORT_RESPONSE};
 struct ctrl_msg
