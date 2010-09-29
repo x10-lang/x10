@@ -459,7 +459,7 @@ void probe (bool onlyProcessAccept)
 
 	    		// link is broken.  Close it down.
 	    		close(state.socketLinks[i].fd);
-	    		state.socketLinks[i].fd = 0;
+	    		state.socketLinks[i].fd = -1;
 
 	    		// TODO - notify the runtime of this?
 	    	}
@@ -477,12 +477,21 @@ void probe (bool onlyProcessAccept)
 	    		if (pthread_mutex_trylock(&state.readLocks[i]) != 0)
 	    			continue; // this socket is already getting handled by another worker.  Skip.
 
+	    		enum MSGTYPE t;
+				int r = TCP::read(state.socketLinks[i].fd, &t, sizeof(enum MSGTYPE));
+	    		if (r < sizeof(enum MSGTYPE))// closed connection
+	    		{
+					#ifdef DEBUG_MESSAGING
+						printf("X10rt.Sockets: Place %u detected a bad message from place %u!\n", state.myPlaceId, i);
+					#endif
+					close(state.socketLinks[i].fd);
+					state.socketLinks[i].fd = -1;
+	    			pthread_mutex_unlock(&state.readLocks[i]);
+	    			continue;
+	    		}
 				#ifdef DEBUG_MESSAGING
 					printf("X10rt.Sockets: place %u picked up a message from place %u\n", state.myPlaceId, i);
 				#endif
-
-	    		enum MSGTYPE t;
-	    		TCP::read(state.socketLinks[i].fd, &t, sizeof(enum MSGTYPE));
 
 	    		// Format: type, p.type, p.len, p.msg
 	    		x10rt_msg_params mp;
