@@ -16,8 +16,15 @@ import x10.io.Console;
  */
 class HelloWholeWorld {
   public static def main(args:Rail[String]):void {
-     ateach (p in Dist.makeUnique()) {
+     /*ateach (p in Dist.makeUnique()) {
      	Console.OUT.println("Hello World from place "+here.id);
+     }*/
+     async(here.next()){
+        Console.OUT.println(here);
+        async(here.next()){
+                Console.OUT.println(here);
+                Console.OUT.println(here.parent());
+        }
      }
   }
 }

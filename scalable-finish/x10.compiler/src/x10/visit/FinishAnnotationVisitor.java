@@ -89,10 +89,7 @@ public class FinishAnnotationVisitor extends ContextVisitor {
             Type annotation = (Type) xts.systemResolver().find(QName.make("x10.compiler.TailAsync"));
             if (!((X10Ext) n.ext()).annotationMatching(annotation).isEmpty()) {
             	List<AnnotationNode> allannots = ((X10Ext)(n.ext())).annotations();
-    	        for(int i=0;i<allannots.size();i++){
-    	        	AnnotationNode a = allannots.get(i);
-    	        	System.out.println("annot:"+a);
-    	        }
+    	        System.out.println("1.annot:"+allannots);
             }
         } catch (SemanticException e) { 
             /* Ignore exception when looking for annotation */  
