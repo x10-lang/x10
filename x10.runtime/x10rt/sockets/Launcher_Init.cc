@@ -137,7 +137,7 @@ void Launcher::initialize(int argc, char ** argv)
 	{
 		if (strlen(hostfname) > sizeof(_hostfname) - 10)
 			DIE("Launcher %u: host file name is too long", _myproc);
-		strncpy(_hostfname, hostfname, sizeof(_hostfname) - 1);
+		realpath(hostfname, _hostfname);
 		readHostFile();
 	}
 	else if (_myproc == 0xFFFFFFFF)
