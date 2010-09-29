@@ -88,7 +88,7 @@ public class FinishAsyncVisitor extends ContextVisitor {
 			return visitExitFinish((Finish) n);
 		}
 		if (n instanceof Async) {
-			visitExitAsync((Async) n);
+			return visitExitAsync((Async) n);
 		}
 		if (n instanceof AtStmt) {
 			// return visitExitAt((AtStmt) n);
@@ -214,7 +214,7 @@ public class FinishAsyncVisitor extends ContextVisitor {
 		boolean f = callTable.keySet().contains(m);
 		if (f) {
 			Async a= (Async) addAsyncAnnotation(n,m);
-			System.out.println(a+":"+a.hashCode()+":"+((X10Ext)a.ext()).annotations());
+			//System.out.println(a+":"+a.hashCode()+":"+((X10Ext)a.ext()).annotations());
 			return a;
 		} 
 		System.out.println("async "+m+" not found!");

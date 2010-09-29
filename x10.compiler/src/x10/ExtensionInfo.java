@@ -433,16 +433,8 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                    Goal barrier = IRBarrier(ir, buildCallTableMethod,x10.Configuration.FINISH_ASYNCS);
                    goals.add(barrier);
                    if(x10.Configuration.FINISH_ASYNCS){
-                	   Goal g = FinishAsyncBarrier(barrier,job,this);
-                	   goals.add(g);
-                	   FinishAnnotationVisitor favisitor = new FinishAnnotationVisitor(job,
-                			   extInfo.typeSystem(), extInfo.nodeFactory(), "java");
-                       Goal asyncannot = new VisitorGoal("FinishAsyncs",job,favisitor).intern(this);
-                       asyncannot.addPrereq(g);
-                       goals.add(asyncannot);
-                	   Desugarer(job).addPrereq(g);
+                	   goals.add(FinishAsyncBarrier(barrier,job,this));
                    }
-                   
                } catch (Throwable e) {
                    System.err.println("WALA not found.");
                    e.printStackTrace();
