@@ -311,11 +311,8 @@ void Launcher::handleRequestsLoop()
 		#ifdef DEBUG
 			fprintf(stderr, "Launcher %u: killing pid=%d\n", _myproc, _pidlst[i]);
 		#endif
-		int status1;
 		kill(_pidlst[i], SIGTERM);
-		waitpid(_pidlst[i], &status1, WNOHANG);
-		if (status1 != 0)
-			status = status1;
+		waitpid(_pidlst[i], &status, WNOHANG); // status is the status of the last child (the local runtime)
 	}
 	// shut down any connections if they still exist
 	handleDeadParent();
