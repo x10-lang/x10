@@ -374,8 +374,10 @@ public class LineNumberMap extends StringTable {
 			v._x10typeIndex = determineSubtypeId(type, refMap);
 		else if (v._x10type == 200 || v._x10type == 202 || v._x10type == 204 || v._x10type == 207)
 			v._x10typeIndex = determineSubtypeId(type, arrayMap);
+		else if (v._x10type == 101)
+			v._x10typeIndex = stringId(type);
 		else 
-			v._x10typeIndex = -1;		
+			v._x10typeIndex = -1;
 		v._cppName = stringId("x10__"+Emitter.mangled_non_method_name(name)); 
 		v._x10index = file;
 		v._x10startLine = startline;
@@ -849,7 +851,7 @@ public class LineNumberMap extends StringTable {
 	        {
 		        w.writeln("static const struct _X10LocalVarMap _X10variableNameList[] __attribute__((used)) "+debugDataSectionAttr+" = {");
 		        for (LocalVariableMapInfo v : localVariables)
-		        	w.writeln("    { "+offsets[v._x10name]+", "+v._x10type+", "+v._x10typeIndex+", "+offsets[v._cppName]+", "+findFile(v._x10index, files)+", "+v._x10startLine+", "+v._x10endLine+" }, // "+m.lookupString(v._x10name));
+		        	w.writeln("    { "+offsets[v._x10name]+", "+v._x10type+", "+(v._x10type==101?offsets[v._x10typeIndex]:v._x10typeIndex)+", "+offsets[v._cppName]+", "+findFile(v._x10index, files)+", "+v._x10startLine+", "+v._x10endLine+" }, // "+m.lookupString(v._x10name));
 		        w.writeln("};");
 		        w.forceNewline();
 	        }
