@@ -86,7 +86,7 @@ class Launcher
 		int _argc; /* argc copied from init */
 		char _realpath[512]; /* real path of executable */
 		char _ssh_command[64]; /* the SSH command. */
-		char _hostfname[256]; /* host file name */
+		char _hostfname[512]; /* host file name */
 		uint32_t _nplaces; /* number of processors in job */
 		uint32_t _myproc; /* my processor ID */
 
