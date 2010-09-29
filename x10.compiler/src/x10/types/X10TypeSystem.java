@@ -218,13 +218,28 @@ public interface X10TypeSystem extends TypeSystem {
     				Ref<? extends Type> offerType);
 
   
+    X10ConstructorDef constructorDef(Position pos, Ref<? extends ClassType> container,
+            Flags flags, List<Ref<? extends Type>> argTypes,
+            Ref<? extends Type> offerType);
+    
+    X10ConstructorDef constructorDef(Position pos, Ref<? extends ClassType> container, Flags flags, Ref<? extends ClassType> returnType,
+            List<Ref<? extends Type>> argTypes, XVar thisVar, List<LocalDef> formalNames, Ref<CConstraint> guard,
+            Ref<TypeConstraint> typeGuard, Ref<? extends Type> offerType);
+
     X10MethodDef methodDef(Position pos, Ref<? extends StructType> container,
             Flags flags, Ref<? extends Type> returnType, Name name,
             List<Ref<? extends Type>> argTypes,  Ref<? extends Type> offerType);
     
     X10MethodDef methodDef(Position pos, Ref<? extends StructType> container, Flags flags, Ref<? extends Type> returnType, Name name,
-	    List<ParameterType> typeParams, List<Ref<? extends Type>> argTypes, XVar thisVar, List<LocalDef> formalNames,
-	    Ref<CConstraint> guard, Ref<TypeConstraint> typeGuard, Ref<? extends Type> offerType, Ref<XTerm> body);
+            List<ParameterType> typeParams, List<Ref<? extends Type>> argTypes, XVar thisVar, List<LocalDef> formalNames,
+            Ref<CConstraint> guard, Ref<TypeConstraint> typeGuard, Ref<? extends Type> offerType, Ref<XTerm> body);
+
+    X10FieldDef fieldDef(Position pos, Ref<? extends StructType> container, Flags flags, Ref<? extends Type> type, Name name);
+
+    X10FieldDef fieldDef(Position pos, Ref<? extends StructType> container, Flags flags, Ref<? extends Type> type, Name name,
+            XVar thisVar);
+
+    X10LocalDef localDef(Position pos, Flags flags, Ref<? extends Type> type, Name name);
 
     /**
      * Return the ClassType object for the x10.array.Array class.
@@ -345,14 +360,6 @@ public interface X10TypeSystem extends TypeSystem {
 
     boolean equalTypeParameters(List<Type> a, List<Type> b, Context context);
 
-    X10ConstructorDef constructorDef(Position pos, Ref<? extends ClassType> container,
-            Flags flags, List<Ref<? extends Type>> argTypes,
-            Ref<? extends Type> offerType);
-    
-    X10ConstructorDef constructorDef(Position pos, Ref<? extends ClassType> container, Flags flags, Ref<? extends ClassType> returnType,
-	    List<Ref<? extends Type>> argTypes, XVar thisVar, List<LocalDef> formalNames, Ref<CConstraint> guard,
-	    Ref<TypeConstraint> typeGuard, Ref<? extends Type> offerType);
-
     Type performBinaryOperation(Type t, Type l, Type r, Binary.Operator op);
 
     Type performUnaryOperation(Type t, Type l, Unary.Operator op);
@@ -416,10 +423,6 @@ public interface X10TypeSystem extends TypeSystem {
     Type Region();
 
     Type Iterator(Type formalType);
-
-    X10FieldDef fieldDef(Position pos,
-            Ref<? extends StructType> container, Flags flags,
-            Ref<? extends Type> type, Name name, XVar thisVar);
 
     boolean isUnsigned(Type r);
 

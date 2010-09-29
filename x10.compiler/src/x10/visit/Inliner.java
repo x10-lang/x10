@@ -84,7 +84,9 @@ import x10.ast.X10MethodDecl;
 import x10.ast.X10NodeFactory;
 import x10.ast.X10Special;
 import x10.constraint.XFailure;
+import x10.constraint.XTerm;
 import x10.constraint.XTerms;
+import x10.constraint.XVar;
 import x10.errors.Errors;
 import x10.errors.Warnings;
 import x10.extension.X10Ext;
@@ -93,11 +95,15 @@ import x10.types.ParameterType;
 import x10.types.TypeParamSubst;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
+import x10.types.X10ConstructorInstance;
+import x10.types.X10FieldInstance;
+import x10.types.X10LocalInstance;
 import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.checker.Converter;
+import x10.types.matcher.Subst;
 
 /**
  * This visitor inlines calls to methods and closures under the following
@@ -338,7 +344,7 @@ public class Inliner extends ContextVisitor {
             LocalDecl thisForm = createThisFormal((X10MethodInstance) call.methodInstance(), thisArg);
             decl = normalizeMethod(decl, thisForm); // Ensure that the last statement of the body is the only return in the method
             result = rewriteInlinedBody(call.position(), decl.returnType().type(), decl.formals(), decl.body(), thisArg, thisForm, call.arguments());
-            result = (Expr) result.visit(new AlphaRenamer());
+            result = (Expr) result.visit(new X10AlphaRenamer());
             if (-1 == inlineInstances.search(methodId)) {     // non recursive inlining of the inlined body
                 inlineInstances.push(methodId);
                 result = (Expr) result.visit(this);
@@ -431,10 +437,98 @@ public class Inliner extends ContextVisitor {
         }
         lit = normalizeClosure(lit); // Ensure that the last statement of the body is the only return in the closure
         Expr result = rewriteInlinedBody(c.position(), lit.returnType().type(), lit.formals(), lit.body(), null, null, args);
-        result = (Expr) result.visit(new AlphaRenamer());
+        result = (Expr) result.visit(new X10AlphaRenamer());
         result = (Expr) result.visit(this);
         result = (Expr) propagateConstants(result);
         return result;
+    }
+
+    private class X10AlphaRenamer extends AlphaRenamer {
+        public class TypeRewriter extends TypeTransformer {
+
+            @Override
+            protected Type transformType(Type type) {
+                try {
+                    Set<Name> vars = renamingMap.keySet();
+                    XVar[] x = new XVar[vars.size()+1];
+                    XTerm[] y = new XTerm[x.length];
+                    int i = 0;
+                    for (Name n : vars) {
+                        Name m = renamingMap.get(n);
+                        LocalDef ld = localDefMap.get(n);
+                        x[i] = XTerms.makeLocal(XTerms.makeName(ld, n.toString()));
+                        y[i] = XTerms.makeLocal(XTerms.makeName(ld, m.toString()));
+                        ++i;
+                    }
+                    x[i] = XTerms.makeFreshLocal(); // to force substitution
+                    y[i] = XTerms.makeFreshLocal();
+                    type = Subst.subst(type, y, x);
+                } catch (SemanticException e) {
+                    throw new InternalCompilerError("Cannot alpha-rename locals in type "+type, e);
+                }
+                return super.transformType(type);
+            }
+
+            @Override
+            protected ParameterType transformParameterType(ParameterType pt) {
+                // TODO: [IP] Do we need to do anything with parameter types?
+                return super.transformParameterType(pt);
+            }
+
+            @Override
+            protected X10LocalInstance transformLocalInstance(X10LocalInstance li) {
+                Name name = renamingMap.get(li.name());
+                if (name != null) {
+                    //List<Type> annotations = transformTypeList(li.annotations()); // TODO
+                    Type type = transformType(li.type());
+                    if (/*li.annotations() != annotations || */li.name() != name || li.type() != type) {
+                        li = li/*.annotations(annotations)*/.name(name).type(type);
+                    }
+                }
+                return super.transformLocalInstance(li);
+            }
+
+            @Override
+            protected X10FieldInstance transformFieldInstance(X10FieldInstance fi) {
+                // TODO: [IP] We don't change field instances yet, but would have to for local classes
+                return super.transformFieldInstance(fi);
+            }
+
+            @Override
+            protected X10MethodInstance transformMethodInstance(X10MethodInstance mi) {
+                // TODO: [IP] We don't change method instances yet, but would have to for local classes
+                return super.transformMethodInstance(mi);
+            }
+
+            @Override
+            protected X10ConstructorInstance transformConstructorInstance(X10ConstructorInstance ci) {
+                // TODO: [IP] We don't change constructor instances yet, but would have to for local classes
+                return super.transformConstructorInstance(ci);
+            }
+        }
+
+        protected TypeRewriter rewriter = new TypeRewriter();
+        protected Map<Name, LocalDef> localDefMap = new HashMap<Name, LocalDef>();
+
+        @Override
+        public NodeVisitor enter(Node n) {
+            if (n instanceof LocalDecl) {
+                LocalDecl l = (LocalDecl) n;
+                localDefMap.put(l.name().id(), l.localDef());
+            }
+            return super.enter(n);
+        }
+
+        @Override
+        public Node leave(Node old, Node n, NodeVisitor v) {
+            if (n instanceof Block) {
+                Set<Name> s = setStack.peek();
+                localDefMap.keySet().removeAll(s);
+            }
+            Node res = super.leave(old, n, v);
+            res = rewriter.transform(n, old, Inliner.this);
+            return res;
+        }
     }
 
     /**
@@ -852,12 +946,12 @@ private int getCost(X10MethodDecl decl, Job job) {
         debug("Instantiate " +decl, c);
         final X10MethodInstance mi = (X10MethodInstance) c.methodInstance();
         TypeParamSubst typeMap = makeTypeMap(mi);
-        return (X10MethodDecl) decl.visit(new TypeTransformingVisitor(job, ts, nf, typeMap).context(context()));
+        return (X10MethodDecl) decl.visit(new NodeTransformingVisitor(job, ts, nf, new InliningTypeTransformer(typeMap)).context(context()));
     }
 
-    public static class TypeTransformingVisitor extends X10LocalClassRemover.TypeTransformingVisitor {
-        protected TypeTransformingVisitor(Job job, TypeSystem ts, NodeFactory nf, TypeParamSubst subst) {
-            super(job, ts, nf, subst);
+    public static class InliningTypeTransformer extends TypeParamSubstTransformer {
+        protected InliningTypeTransformer(TypeParamSubst subst) {
+            super(subst);
         }
 
         @Override
@@ -926,7 +1020,7 @@ private int getCost(X10MethodDecl decl, Job job) {
             }
             sigChanged |= d.guard() != old.guard();
             List<Ref <? extends Type>> excTypes = new ArrayList<Ref<? extends Type>>();
-            SubtypeSet excs = d.exceptions() == null ? new SubtypeSet(typeSystem()) : d.exceptions();
+            SubtypeSet excs = d.exceptions() == null ? new SubtypeSet(visitor().typeSystem()) : d.exceptions();
             SubtypeSet oldExcs = old.exceptions();
             if (null != excs) {
                 for (Type et : excs) {
@@ -939,7 +1033,7 @@ private int getCost(X10MethodDecl decl, Job job) {
                 X10MethodDef md = (X10MethodDef) d.methodDef();
                 DepParameterExpr g = d.guard();
                 TypeNode ot = d.offerType();
-                X10TypeSystem xts = (X10TypeSystem) ts;
+                X10TypeSystem xts = (X10TypeSystem) visitor().typeSystem();
                 X10MethodDef imd = xts.methodDef(md.position(), md.container(), md.flags(), d.returnType().typeRef(),
                                                  md.name(), md.typeParameters(), argTypes, md.thisVar(), formalNames,
                                                  g == null ? null : g.valueConstraint(),
