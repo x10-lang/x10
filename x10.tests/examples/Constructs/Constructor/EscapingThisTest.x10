@@ -2,6 +2,177 @@
 
 import x10.compiler.*;
 
+
+
+
+class SomeSuper87 {
+	def this(i:Int) {}
+}   
+class TestSuperThisAndPropertyCalls(p:Int) extends SomeSuper87 {
+	var i:Int;
+	def this() {
+		super(i); // ERR: Can use 'this' only after 'property(...)'
+		property(i); // ERR: Can use 'this' only after 'property(...)'
+	}
+	def this(i:Int) {
+		super(i);
+		property(i);
+	}
+	def this(b:Boolean) { // ERR: Final field "p" might have already been initialized
+		this(i); // ERR: Can use 'this' only after 'property(...)'
+		property(1); // ERR: You cannot call 'property(...)' after 'this(...)'
+	}
+	def this(x:Double) { super(1); } // ERR: You must call 'property(...)' at least once	ERR: Final field "p" might not have been initialized
+	def this(x:Float) { property(1); } 
+	def this(x:Char) { 
+		// val x = 3; // I can't check this error, because it is a parsing error: the call to "super(...)" must be the first statement.
+		super(1); 
+		property(1); 
+	}
+	def this(x:String) { 
+		super(1); 
+		val y = 3; 
+		property(1);
+	}
+}
+
+
+interface BarI34 {
+	static x = 3;
+	val y = Math.sqrt(2.0);
+}
+class TestPropAndConstants(p:Int) implements BarI34 {
+	val q:Int = 3 as Int; // this will be moved (it might access properties)
+	val q3:Int = p+4;
+	val q2:Int = 42; // this is constant, so it won't be moved to the __fieldInitializers()
+	var x:Int;
+	def this() {
+		val w=4;
+		property(45);
+		x=2;
+	}
+	def this(i:Int) {
+		this();
+		x=4;
+	}
+	def this(i:Boolean) {
+		super();
+		val w=4;
+		{
+		property(42);
+		}
+		x=2;
+	}
+
+}
+
+
+class PropertySuperTests {
+static class WithouProperties {}
+static class WithProperties(x:Int) {
+	def this() {
+		property(1);
+	}
+	def this(i:Int) {
+		property(i);
+	}
+}
+static class SubWithProperties(y:Int) extends WithProperties {
+	static S=1;
+	val k=3;
+	var z:Int = 4;
+	def this() {
+		super(1);
+		property(2);
+	}
+	def this(i:Boolean) {
+		this();
+	}
+	def this(i:Int) { // ERR: Final field "y" might have already been initialized
+		this();
+		property(1); // ERR: You cannot call 'property(...)' after 'this(...)'
+	}
+	def this(i:Double) {
+		super(
+			super.x // ERR: You can use 'super' only after 'super(...)'
+		);
+		val w = z; // ERR: Can use 'this' only after 'property(...)'
+		val w2 = this.S; // ERR: Can use 'this' only after 'property(...)'
+		val w3 = S;
+		val w4 = super.x;
+		val w5 = this.x; // ERR: Can use 'this' only after 'property(...)'
+		val w6 = this.y; // ERR: Can use 'this' only after 'property(...)'
+		property(
+			this.y // ERR: Can use 'this' only after 'property(...)'
+		);
+	}
+	def this(i:Float) {
+		property(1);
+	}
+	def this(i:String) { // ERR: You must call 'property(...)' at least once	 ERR: Final field "y" might not have been initialized
+	}
+	def this(i:Any) { // ERR: Final field "y" might not have been initialized
+		property(1);
+		property(1); // ERR: You can call 'property(...)' at most once		ERR: Property "y" might already have been initialized
+	}
+}
+static class SubWithoutProperties extends WithProperties {
+	def this() {
+		super(1);
+	}
+	def this(i:Float) {
+		property(1); // ERR: The property initializer must have the same number of arguments as properties for the class.
+	}
+	def this(i:Double) {
+		super(1);
+		property(1); // ERR: The property initializer must have the same number of arguments as properties for the class.
+	}
+}
+}
+
+
+
+class TestPropertyCalls(p:Int) {
+	def this() {} // ERR: Final field "p" might not have been initialized	ERR: You must call 'property(...)' at least once
+	def this(i:Int) {
+		property(1);
+	}
+	def this(b:Boolean) { // ERR: Final field "p" might not have been initialized
+		property(1);
+		property(1); // ERR: Property "p" might already have been initialized	ERR: You can call 'property(...)' at most once
+	}
+	def this(b:Double) { // ERR: Final field "p" might not have been initialized
+		if (p==1) // ERR: must call 'property(...)' immediately after the 'super(...)' call.
+			property(1);
+	}
+	def m() {
+		property(1); // ERR: A property statement may only occur in the body of a constructor.
+	}
+	static def q() {
+		property(1); // ERR: A property statement may only occur in the body of a constructor.
+	}
+}
+
+
+
+class TestPropertiesAndFields(i:Int, j:Int) {
+	def this() {
+		val x = 3;
+		property(x,x);
+		val closure = () => i+4;
+		j2 = j;
+	}		
+	
+	val i2 :Int{self==i} = i;
+	val j2 :Int{self==j};
+}
+class CheckCtorContextIsNotStatic[T](p:T) {
+    public def this(o:Any) {
+        property(o as T);
+    }
+} 
+
+
 //public class EscapingThisTest {
 
 class TransientTest { // The transient field '...' must have a type with a default value.

@@ -26,6 +26,7 @@ import x10.ast.X10ClassDecl;
 import x10.ast.Async_c;
 import x10.ast.Finish_c;
 import x10.extension.X10Ext_c;
+import x10.types.X10LocalDef;
 
 /**
  * Visitor which checks that all local variables must be defined before use,
@@ -749,6 +750,9 @@ public class InitChecker extends DataFlow
                 if (!before.equals(after) && after.equals(MinMaxInitCount.ONE) && flags !=null && flags.isFinal()) {
                     if (ext.asyncInitVal ==null) ext.asyncInitVal = new HashSet<VarDef>();
                     ext.asyncInitVal.add(v);
+                    if (v instanceof X10LocalDef) {
+                        ((X10LocalDef)v).setAsyncInit();
+                    }
                     break; // optimization, cause we already added "v"
                 }
             }

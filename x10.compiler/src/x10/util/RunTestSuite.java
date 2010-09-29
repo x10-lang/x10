@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.HashSet;
+import java.util.Iterator;
 
 public class RunTestSuite {
 
@@ -102,6 +103,11 @@ public class RunTestSuite {
             compileFiles(files,remainingArgs);
         }
     }
+    private static int count(String s, String sub) {
+        int index=-1, res=0;
+        while ((index=s.indexOf(sub,index+sub.length()))>=0) res++;
+        return res;
+    }
     private static void compileFiles(List<File> files, List<String> args) throws IOException {
         // replace \ with /
         ArrayList<String> fileNames = new ArrayList<String>(files.size());
@@ -159,20 +165,23 @@ public class RunTestSuite {
                     !file.getName().contains("Console.x10")) { // Console defines "static ERR:Printer"
                     foundErr = true;
                     // try to find the matching error
-                    boolean foundMatch = false;
-                    for (ErrorInfo err : errors) {
+                    int expectedMatchCount = count(line,"ERR");
+                    int foundMatchCount = 0;
+                    ArrayList<ErrorInfo> errorsFound = new ArrayList<ErrorInfo>(expectedMatchCount);
+                    for (Iterator<ErrorInfo> it=errors.iterator(); it.hasNext(); ) {
+                        ErrorInfo err = it.next();
                         final Position position = err.getPosition();
                         if (new File(position.file()).equals(file) && position.line()==lineNum) {
                             // found it!
+                            errorsFound.add(err);
                             if (Report.should_report("TestSuite", 2))
                                 Report.report(2, "Found error: "+ err);
-                            errors.remove(err);
-                            foundMatch = true;
-                            break;
+                            it.remove();
+                            foundMatchCount++;
                         }
                     }
-                    if (!foundMatch)
-                        System.err.println("File "+file+" has an ERR marker on line "+lineNum+", but the compiler didn't report an error on that line!");
+                    if (expectedMatchCount!=foundMatchCount)
+                        System.err.println("File "+file+" has "+expectedMatchCount+" ERR markers on line "+lineNum+", but the compiler reported "+foundMatchCount+" errors on that line! errorsFound=\n"+errorsFound);
                 }
             }
             in.close();
