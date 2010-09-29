@@ -376,7 +376,7 @@ public class LineNumberMap extends StringTable {
 			v._x10typeIndex = determineSubtypeId(type, arrayMap);
 		else 
 			v._x10typeIndex = -1;		
-		v._cppName = stringId(Emitter.mangled_non_method_name(name)); 
+		v._cppName = stringId("x10__"+Emitter.mangled_non_method_name(name)); 
 		v._x10index = file;
 		v._x10startLine = startline;
 		v._x10endLine = endline;
@@ -403,7 +403,7 @@ public class LineNumberMap extends StringTable {
 		else 
 			v._x10typeIndex = -1;
 		v._x10memberName = stringId(name);
-		v._cppMemberName = stringId(Emitter.mangled_non_method_name(name));
+		v._cppMemberName = stringId("x10__"+Emitter.mangled_non_method_name(name));
 		v._cppClass = stringId(containingClass);
 		members.add(v);
 	}
