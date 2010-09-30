@@ -149,7 +149,6 @@ import x10.ast.X10Formal;
 import x10.ast.X10Instanceof_c;
 import x10.ast.X10IntLit_c;
 import x10.ast.X10LocalDecl_c;
-import x10.ast.X10MethodDecl;
 import x10.ast.X10MethodDecl_c;
 import x10.ast.X10New_c;
 import x10.ast.X10NodeFactory;
@@ -802,50 +801,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 		tr.print(n, n.name(), w);
 
-		if (n.typeParameters().size() > 0) {
-			w.write("<");
-			w.begin(0);
-			String sep = "";
-			for (TypeParamNode tp : n.typeParameters()) {
-				w.write(sep);
-				n.print(tp, w, tr);
-				List<Type> sups = new LinkedList<Type>(tp.upperBounds());
-								
-				Type supClassType = null;
-				for (Iterator<Type> it = sups.iterator(); it.hasNext();) {
-				    Type type = X10TypeMixin.baseType(it.next());
-				    if (type instanceof ParameterType) {
-				        it.remove();
-				    }
-				    if (type instanceof X10ClassType) {
-				        if (!((X10ClassType) type).flags().isInterface()) {
-				            if (supClassType != null ) {
-				                if (type.isSubtype(supClassType, context)) {
-				                    supClassType = type;
-				                }
-				            } else {
-				                supClassType = type;
-				            }
-				            it.remove();
-				        }
-				    }
-				}
-				if (supClassType != null) {
-				    sups.add(0, supClassType);
-				}
-				
-				// FIXME
-				if (sups.size() > 0) {
-				    w.write(" extends ");
-				    for (int i = 0; i < sups.size(); ++i) {
-				        if (i != 0) w.write(" & ");
-				        er.printType(sups.get(i), PRINT_TYPE_PARAMS | NO_VARIANCE);
-				    }
-				}
-				sep = ", ";
-			}
-			w.end();
-			w.write(">");
+		List<TypeParamNode> typeParameters = n.typeParameters();
+        if (typeParameters.size() > 0) {
+			er.printTypeParams(n, context, typeParameters);
 		}
 
         final TypeNode superClassNode = n.superClass();
@@ -935,11 +893,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		}
 		er.generateBridgeMethods(def);
 
-		if (n.typeParameters().size() > 0) {
+		if (typeParameters.size() > 0) {
 			w.newline(4);
 			w.begin(0);
 			if (! flags.isInterface()) {
-				for (TypeParamNode tp : n.typeParameters()) {
+				for (TypeParamNode tp : typeParameters) {
 					w.write("private final ");
 					w.write(X10_RUNTIME_TYPE_CLASS);
 //					w.write("<"); n.print(tp, w, tr); w.write(">");  // TODO

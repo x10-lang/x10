@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
@@ -36,6 +37,7 @@ import polyglot.ast.Lit;
 import polyglot.ast.Local;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.Node_c;
 import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
@@ -1030,16 +1032,9 @@ public class Emitter {
 		w.begin(0);
 		w.write(flags.translate());
 
-		String sep = "<";
-		for (int i = 0; i < n.typeParameters().size(); i++) {
-			w.write(sep);
-			sep = ", ";
-			printType(n.typeParameters().get(i).type(),
-					X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS
-							| X10PrettyPrinterVisitor.BOX_PRIMITIVES);
-		}
-		if (n.typeParameters().size() > 0)
-			w.write("> ");
+		List<TypeParamNode> typeParameters = n.typeParameters();
+        if (typeParameters.size() > 0)
+			printTypeParams(n, c, typeParameters);
 		
 		boolean isDispatch = false;
 		if (X10PrettyPrinterVisitor.isSelfDispatch && c.currentClass().flags().isInterface()) {
@@ -1178,6 +1173,52 @@ public class Emitter {
 			w.write(";");
 		}
 	}
+
+    public void printTypeParams(Node_c n, Context context, List<TypeParamNode> typeParameters) {
+        w.write("<");
+        w.begin(0);
+        String sep = "";
+        for (TypeParamNode tp : typeParameters) {
+            w.write(sep);
+            n.print(tp, w, tr);
+            List<Type> sups = new LinkedList<Type>(tp.upperBounds());
+                            
+            Type supClassType = null;
+            for (Iterator<Type> it = sups.iterator(); it.hasNext();) {
+                Type type = X10TypeMixin.baseType(it.next());
+                if (type instanceof ParameterType) {
+                    it.remove();
+                }
+                if (type instanceof X10ClassType) {
+                    if (!((X10ClassType) type).flags().isInterface()) {
+                        if (supClassType != null ) {
+                            if (type.isSubtype(supClassType, context)) {
+                                supClassType = type;
+                            }
+                        } else {
+                            supClassType = type;
+                        }
+                        it.remove();
+                    }
+                }
+            }
+            if (supClassType != null) {
+                sups.add(0, supClassType);
+            }
+            
+            // FIXME
+            if (sups.size() > 0) {
+                w.write(" extends ");
+                for (int i = 0; i < sups.size(); ++i) {
+                    if (i != 0) w.write(" & ");
+                    printType(sups.get(i), X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.NO_VARIANCE);
+                }
+            }
+            sep = ", ";
+        }
+        w.end();
+        w.write(">");
+    }
 
     public static String mangleMethodName(MethodDef md) {
         StringBuilder sb = new StringBuilder(mangleToJava(md.name()));
