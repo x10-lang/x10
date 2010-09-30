@@ -1,8 +1,3 @@
-Need to look at serialization/deserialzation for all @NativeClass
-classes and decide what to do.  Most likely outcome is to have
-@NativeClass classes throw an exception if someone attempts to 
-serialize them.
-
 x10.io.GlobalStringWriter
   Do we really want this class?  See todo in the class header.
   In general, normalize APIs for Global vs.Local operations,

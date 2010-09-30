@@ -15,23 +15,30 @@ import x10.compiler.Pinned;
 import x10.compiler.Global;
 
 @Pinned public class Latch extends Monitor implements ()=>Boolean {
-        private var state:boolean = false;
 
-        public def release():void {
+    public def this() { super(); }
+
+    private def this(Any) {
+        throw new UnsupportedOperationException("Cannot deserialize "+typeName());
+    }
+
+    private var state:boolean = false;
+
+    public def release():void {
+        lock();
+        state = true;
+        super.release();
+    }
+
+    public def await():void {
+        // avoid locking if state == true
+        Runtime.ensureNotInAtomic();
+        if (!state) {
             lock();
-            state = true;
-            super.release();
-        }
-
-        public def await():void {
-            // avoid locking if state == true
-           	Runtime.ensureNotInAtomic();
-            if (!state) {
-                lock();
-                while (!state) super.await();
+            while (!state) super.await();
                 unlock();
             }
         }
 
-        public def apply():boolean = state; // memory model?
-    }
+    public def apply():boolean = state; // memory model?
+}

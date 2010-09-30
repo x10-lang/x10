@@ -17,15 +17,23 @@ import x10.compiler.Pinned;
 import x10.compiler.Global;
 
 @NativeClass("java", "java.util.concurrent.locks", "ReentrantLock")
-    @NativeClass("c++", "x10.lang", "Lock__ReentrantLock")
-    @Pinned public class Lock {
-        public native def this();
+@NativeClass("c++", "x10.lang", "Lock__ReentrantLock")
+@Pinned public class Lock implements x10.io.CustomSerialization {
+    public native def this();
 
-        public native def lock():void;
+    public native def lock():void;
 
-        public native def tryLock():Boolean;
+    public native def tryLock():Boolean;
 
-        public native def unlock():void;
+    public native def unlock():void;
 
-        native def getHoldCount():Int;
+    native def getHoldCount():Int;
+
+    public def serialize():Any {
+        throw new UnsupportedOperationException("Cannot serialize "+typeName());
     }
+    private def this(Any) {
+        throw new UnsupportedOperationException("Cannot deserialize "+typeName());
+    }
+
+}

@@ -13,11 +13,12 @@ package x10.lang;
 
 import x10.compiler.Native;
 import x10.compiler.NativeClass;
-import x10.compiler.NativeDef;
 import x10.compiler.NativeString;
 import x10.compiler.Pinned;
 import x10.compiler.Global;
 import x10.compiler.SuppressTransientError;
+
+import x10.io.CustomSerialization;
 
 import x10.util.HashMap;
 import x10.util.GrowableRail;
@@ -138,7 +139,7 @@ import x10.util.Box;
 
     @NativeClass("java", "x10.runtime.impl.java", "Deque")
     @NativeClass("c++", "x10.lang", "Deque")
-    @Pinned static final class Deque {
+    @Pinned static final class Deque implements CustomSerialization {
         public native def this();
 
         public native def size():Int;
@@ -148,6 +149,13 @@ import x10.util.Box;
         public native def push(t:Object):void;
 
         public native def steal():Object;
+
+        public def serialize():Any {
+            throw new UnsupportedOperationException("Cannot serialize "+typeName());
+        }
+	private def this(Any) {
+            throw new UnsupportedOperationException("Cannot deserialize "+typeName());
+        }
     }
 
 
@@ -867,8 +875,7 @@ import x10.util.Box;
      * needed nor does the FinishState need a rail of counters: one is 
      * enough!
      */
-
-    @Pinned static class LocalRootFinish extends Latch implements FinishState, Mortal {
+    @Pinned static class LocalRootFinish extends Latch implements FinishState, Mortal, CustomSerialization {
     	private var counts:int;
         private var exceptions:Stack[Throwable];
         public def this() {
@@ -932,7 +939,15 @@ import x10.util.Box;
         	this.pushExceptionLocal(t);
         }
         public def makeRemote():RemoteFinishState = null;
+
+        public def serialize():Any {
+            throw new UnsupportedOperationException("Cannot serialize "+typeName());
+        }
+	private def this(Any) {
+            throw new UnsupportedOperationException("Cannot deserialize "+typeName());
+        }
     }
+
     /**
      * SimpleRootFinish and SimpleRemoteFinish are desgined for the "finish"
      * which has asyncs that do not spawn asyncs in other places: in other words,
@@ -940,7 +955,7 @@ import x10.util.Box;
      * SimpleRootFinish still requires a rail of counters, but SimpleRemoteFinish
      * only needs a counter
      */
-    @Pinned static class SimpleRemoteFinish implements RemoteFinishState{
+    @Pinned static class SimpleRemoteFinish implements RemoteFinishState {
         /**
          * The Exception Stack is used to collect exceptions
          * issued when activities associated with this finish state terminate abruptly.
@@ -1029,6 +1044,10 @@ import x10.util.Box;
          public def this() {
              counts = 1;
          }
+	 private def this(Any) {
+             throw new UnsupportedOperationException("Cannot deserialize "+typeName());
+         }
+
          @Global public def equals(a:Any) =
         	 (a instanceof SimpleRootFinish) && this.root.equals((a as SimpleRootFinish).root);
         @Global public def hashCode() = root.hashCode();
@@ -1131,7 +1150,7 @@ import x10.util.Box;
 
     @NativeClass("java", "x10.runtime.impl.java", "Thread")
     @NativeClass("c++", "x10.lang", "Thread")
-    @Pinned final static class Thread {
+    @Pinned final static class Thread implements CustomSerialization {
 
         /**
          * Allocates new thread in current place
@@ -1150,8 +1169,7 @@ import x10.util.Box;
 
         public native static def parkNanos(nanos:Long):void;
 
-        // Why is this global?
-        public native /*global*/ def unpark():void;
+        public native def unpark():void;
 
         public native def worker():Object;
 
@@ -1165,6 +1183,13 @@ import x10.util.Box;
 
         public static native def getTid():Long;
         public native def home():Place;
+
+        public def serialize():Any {
+            throw new UnsupportedOperationException("Cannot serialize "+typeName());
+        }
+	private def this(Any) {
+            throw new UnsupportedOperationException("Cannot deserialize "+typeName());
+        }
     }
 
 
