@@ -454,11 +454,8 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(Serialized(job));
            if (x10.Configuration.WORK_STEALING) {
                Goal wsCodeGenGoal = WSCodeGenerator(job);
-               if(wsCodeGenGoal != null) {
-                   goals.add(wsCodeGenGoal);                   
-                   wsCodeGenGoal.addPrereq(TypeCheckBarrier());
-                   //wsCodeGenGoal.addPrereq(WSExpressionFlattener(job));
-               }
+               goals.add(wsCodeGenGoal);                   
+               wsCodeGenGoal.addPrereq(TypeCheckBarrier());
            }
            
            // try retypechecking before inlining
@@ -888,28 +885,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        public Goal WSCodeGenerator(Job job) {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
-
-           Goal result = null;          
-                      
-           try {
-               //Use reflect to load the class from
-               ClassLoader cl = Thread.currentThread().getContextClassLoader();
-               Class<?> c = cl
-               .loadClass("x10.compiler.ws.WSCodeGenerator");
-               Constructor<?> con = c.getConstructor(Job.class,
-                                                     TypeSystem.class,
-                                                     NodeFactory.class,
-                                                     String.class);
-               ContextVisitor wsvisitor = (ContextVisitor) con.newInstance(job, ts, nf, nativeAnnotationLanguage());
-               result = new ValidatingVisitorGoal("WSCodeGenerator", job, wsvisitor).intern(this);
-           }
-           catch (ClassNotFoundException e) {
-               System.err.println("[X10_WS_ERR]Cannot load Work-Stealing code gen class. Ignore Work-Stealing transform.");
-           } catch (Throwable e) {
-               System.err.println("[X10_WS_ERR]Error in load Work-Stealing code gen class. Ignore Work-Stealing transform.");
-               e.printStackTrace();
-           }
-           return result;
+           return new ValidatingVisitorGoal("WSCodeGenerator", job, new x10.compiler.ws.WSCodeGenerator(job, ts, nf, nativeAnnotationLanguage())).intern(this);
        }
        
        public Goal Desugarer(Job job) {
