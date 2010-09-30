@@ -71,140 +71,149 @@ public class KMeansCUDA {
             val num_file_points = (file.size() / 4 / 4) as Int;
             val file_points = new Array[Float](num_file_points*4, init_points);
 
-            //val team = Team.WORLD;
-            val team = Team(new Array[Place](
-                Place.NUM_ACCELS, (i:Int) => {
-                    Console.OUT.println(Place.MAX_PLACES+i);
-                    return Place(Place.MAX_PLACES+i).parent();
-                } ));
+            if (!quiet) {
+                if (Place.NUM_ACCELS==0) {
+                    Console.OUT.println("Running without using GPUs.  Running the kernel on the CPU.");
+                    Console.OUT.println("If that's not what you want, set X10RT_ACCELS=ALL to use all gpus at each place.");
+                    Console.OUT.println("For more information, see the X10/CUDA docuemntation.");
+                } else {
+                    Console.OUT.println("Running without using GPUs.");
+                    Console.OUT.println("If that's not what you want, set X10RT_ACCELS=ALL to use all gpus at each place.");
+                    Console.OUT.println("For more information, see the X10/CUDA docuemntation.");
+                }
+            }
+
+            val team = Place.NUM_ACCELS==0 ? Team.WORLD : Team(new Array[Place](Place.NUM_ACCELS, (i:Int) => Place(Place.MAX_PLACES+i).parent()));
 
             finish {
 
-                for (h in Place.places) for (gpu in h.children()) async at (h) {
+                for (h in Place.places) {
 
-                    val role = (gpu.id - Place.MAX_PLACES);
+                    val workers = Place.NUM_ACCELS==0 ? [h] : h.children();
 
-                    if (!quiet)
-                        Console.OUT.println(gpu+" gets role "+role);
+                    for (gpu in workers) async at (h) {
 
-                    // carve out local portion of points (point-major)
-                    val num_local_points = num_global_points / Place.NUM_ACCELS;
-                    val offset = (gpu.id - Place.MAX_PLACES) * num_local_points;
-                    if (!quiet)
-                        Console.OUT.println(gpu+" gets "+offset+" len "+num_local_points);
-                    val num_local_points_stride = round_up(num_local_points,MEM_ALIGN);
-                    val init = (i:Int) => {
-                        val d=i/num_local_points_stride, p=i%num_local_points_stride;
-                        return p<num_local_points ? file_points(((p+offset)%num_file_points)*4 + d) : 0;
-                    };
+                        val role = gpu==h ? h.id : gpu.id - Place.MAX_PLACES;
 
-                    // these are pretty big so allocate up front
-                    val host_points = new Array[Float]((num_local_points_stride*4), init);
+                        if (!quiet)
+                            Console.OUT.println(gpu+" gets role "+role);
 
-                    val gpu_points = CUDAUtilities.makeRemoteArray(gpu, num_local_points_stride*4, host_points);
-                    for (var p:Int=0 ; p<num_local_points ; p+=1) {
-                        for ([d] in 0..3) { 
-                        }
-                    }
-                    val host_nearest = new Array[Int](num_local_points, 0);
-                    val gpu_nearest = CUDAUtilities.makeRemoteArray[Int](gpu, num_local_points, 0);
+                        // carve out local portion of points (point-major)
+                        val num_local_points = num_global_points / team.size();
+                        val offset = role * num_local_points;
+                        if (!quiet)
+                            Console.OUT.println(gpu+" gets "+offset+" len "+num_local_points);
+                        val num_local_points_stride = round_up(num_local_points,MEM_ALIGN);
+                        val init = (i:Int) => {
+                            val d=i/num_local_points_stride, p=i%num_local_points_stride;
+                            return p<num_local_points ? file_points(((p+offset)%num_file_points)*4 + d) : 0;
+                        };
 
-                    val host_clusters  = new Array[Float](num_clusters*4, (i:Int)=>file_points(i));
-                    val host_cluster_counts = new Array[Int](num_clusters, 0);
+                        // these are pretty big so allocate up front
+                        val host_points = new Array[Float]((num_local_points_stride*4), init);
 
-                    val start_time = System.currentTimeMillis();
+                        val gpu_points = CUDAUtilities.makeRemoteArray(gpu, num_local_points_stride*4, host_points);
+                        val host_nearest = new Array[Int](num_local_points, 0);
+                        val gpu_nearest = CUDAUtilities.makeRemoteArray[Int](gpu, num_local_points, 0);
 
-                    val clusters_copy = new Array[Float](num_clusters*4);
+                        val host_clusters  = new Array[Float](num_clusters*4, (i:Int)=>file_points(i));
+                        val host_cluster_counts = new Array[Int](num_clusters, 0);
 
-                    main_loop: for (var iter:Int=0 ; iter<iterations ; iter++) {
+                        val start_time = System.currentTimeMillis();
 
-                        Array.copy(host_clusters, 0, clusters_copy, 0, num_clusters*4);
+                        val clusters_copy = new Array[Float](num_clusters*4);
 
-                        var k_start_time : Long = System.currentTimeMillis();
-                        // classify kernel
-                        finish async at (gpu) @CUDA @CUDADirectParams {
-                            val blocks = CUDAUtilities.autoBlocks(),
-                                threads = CUDAUtilities.autoThreads();
-                            for ([block] in 0..blocks-1) {
-                                val clustercache = new Array[Float](clusters_copy);
-                                for ([thread] in 0..threads-1) async {
-                                    val tid = block * threads + thread;
-                                    val tids = blocks * threads;
-                                    for (var p:Int=tid ; p<num_local_points ; p+=tids) {
-                                        var closest:Int = -1;
-                                        var closest_dist:Float = Float.MAX_VALUE;
-                                        /*@Unroll(20)*/ for ([k] in 0..num_clusters-1) { 
-                                            // Pythagoras (in 4 dimensions)
-                                            var dist : Float = 0;
-                                            for ([d] in 0..3) { 
-                                                val tmp = gpu_points(p+d*num_local_points_stride)
-                                                          - clustercache(k*4+d);
-                                                dist += tmp * tmp;
+                        main_loop: for (var iter:Int=0 ; iter<iterations ; iter++) {
+
+                            Array.copy(host_clusters, 0, clusters_copy, 0, num_clusters*4);
+
+                            var k_start_time : Long = System.currentTimeMillis();
+                            // classify kernel
+                            finish async at (gpu) @CUDA @CUDADirectParams {
+                                val blocks = CUDAUtilities.autoBlocks(),
+                                    threads = CUDAUtilities.autoThreads();
+                                for ([block] in 0..blocks-1) {
+                                    val clustercache = new Array[Float](clusters_copy);
+                                    for ([thread] in 0..threads-1) async {
+                                        val tid = block * threads + thread;
+                                        val tids = blocks * threads;
+                                        for (var p:Int=tid ; p<num_local_points ; p+=tids) {
+                                            var closest:Int = -1;
+                                            var closest_dist:Float = Float.MAX_VALUE;
+                                            /*@Unroll(20)*/ for ([k] in 0..num_clusters-1) { 
+                                                // Pythagoras (in 4 dimensions)
+                                                var dist : Float = 0;
+                                                for ([d] in 0..3) { 
+                                                    val tmp = gpu_points(p+d*num_local_points_stride)
+                                                              - clustercache(k*4+d);
+                                                    dist += tmp * tmp;
+                                                }
+                                                // record closest cluster seen so far
+                                                if (dist < closest_dist) {
+                                                    closest_dist = dist;
+                                                    closest = k;
+                                                }
                                             }
-                                            // record closest cluster seen so far
-                                            if (dist < closest_dist) {
-                                                closest_dist = dist;
-                                                closest = k;
-                                            }
+                                            gpu_nearest(p) = closest;
                                         }
-                                        gpu_nearest(p) = closest;
                                     }
                                 }
                             }
+                            if (verbose) Console.OUT.println("kernel: "+(System.currentTimeMillis() - k_start_time));
+
+                            // bring gpu results onto host
+                            k_start_time = System.currentTimeMillis();
+                            finish Array.asyncCopy(gpu_nearest, 0, host_nearest, 0, num_local_points);
+                            if (verbose) Console.OUT.println("dma: "+(System.currentTimeMillis() - k_start_time));
+                            
+                            // compute new clusters
+                            host_clusters.fill(0);
+                            host_cluster_counts.fill(0);
+
+                            k_start_time = System.currentTimeMillis();
+                            for (var p:Int=0 ; p<num_local_points ; p++) {
+                                val closest = host_nearest(p);
+                                if (closest < 0 || closest >= num_clusters) Console.ERR.println("host_nearest("+p+") = "+closest);
+                                for (var d:Int=0 ; d<4 ; ++d)
+                                    host_clusters(closest*4+d) += host_points(p+d*num_local_points_stride);
+                                host_cluster_counts(closest)++;
+                            }
+                            if (verbose) Console.OUT.println("reaverage: "+(System.currentTimeMillis() - k_start_time));
+
+                            team.allreduce(role, host_clusters, 0, host_clusters, 0, host_clusters.size, Team.ADD);
+                            team.allreduce(role, host_cluster_counts, 0, host_cluster_counts, 0, host_cluster_counts.size, Team.ADD);
+
+                            for (var k:Int=0 ; k<num_clusters ; ++k) { 
+                                if (host_cluster_counts(k) <= 0) Console.ERR.println("host_cluster_counts("+k+") = "+host_cluster_counts(k));
+                                for (var d:Int=0 ; d<4 ; ++d) host_clusters(k*4+d) /= host_cluster_counts(k);
+                            }
+
+                            if (offset==0 && verbose) {
+                                Console.OUT.println("Iteration: "+iter);
+                                printClusters(host_clusters,4);
+                            }
+
+
+                            /*
+                            // TEST FOR CONVERGENCE
+                            for (var j:Int=0 ; j<num_clusters*4 ; ++j) {
+                                if (true||Math.abs(clusters_copy(j)-host_clusters(j))>0.0001) continue main_loop;
+                            }
+
+                            break;
+                            */
+
+                        } // main_loop
+
+                        if (offset==0) {
+                            val stop_time = System.currentTimeMillis();
+                            if (!quiet) Console.OUT.print(num_global_points+" "+num_clusters+" 4 ");
+                            Console.OUT.println((stop_time-start_time)/1E3);
                         }
-                        Console.OUT.println("kernel: "+(System.currentTimeMillis() - k_start_time));
 
-                        // bring gpu results onto host
-                        k_start_time = System.currentTimeMillis();
-                        finish Array.asyncCopy(gpu_nearest, 0, host_nearest, 0, num_local_points);
-                        Console.OUT.println("dma: "+(System.currentTimeMillis() - k_start_time));
-                        
-                        // compute new clusters
-                        host_clusters.fill(0);
-                        host_cluster_counts.fill(0);
+                    } // gpus
 
-                        k_start_time = System.currentTimeMillis();
-                        for (var p:Int=0 ; p<num_local_points ; p++) {
-                            val closest = host_nearest(p);
-                            if (closest < 0 || closest >= num_clusters) Console.ERR.println("host_nearest("+p+") = "+closest);
-                            for (var d:Int=0 ; d<4 ; ++d)
-                                host_clusters(closest*4+d) += host_points(p+d*num_local_points_stride);
-                            host_cluster_counts(closest)++;
-                        }
-                        Console.OUT.println("reaverage: "+(System.currentTimeMillis() - k_start_time));
-
-                        team.allreduce(role, host_clusters, 0, host_clusters, 0, host_clusters.size, Team.ADD);
-                        team.allreduce(role, host_cluster_counts, 0, host_cluster_counts, 0, host_cluster_counts.size, Team.ADD);
-
-                        for (var k:Int=0 ; k<num_clusters ; ++k) { 
-                            if (host_cluster_counts(k) <= 0) Console.ERR.println("host_cluster_counts("+k+") = "+host_cluster_counts(k));
-                            for (var d:Int=0 ; d<4 ; ++d) host_clusters(k*4+d) /= host_cluster_counts(k);
-                        }
-
-                        if (offset==0 && verbose) {
-                            Console.OUT.println("Iteration: "+iter);
-                            printClusters(host_clusters,4);
-                        }
-
-
-                        /*
-                        // TEST FOR CONVERGENCE
-                        for (var j:Int=0 ; j<num_clusters*4 ; ++j) {
-                            if (true||Math.abs(clusters_copy(j)-host_clusters(j))>0.0001) continue main_loop;
-                        }
-
-                        break;
-                        */
-
-                    } // main_loop
-
-                    if (offset==0) {
-                        val stop_time = System.currentTimeMillis();
-                        if (!quiet) Console.OUT.print(num_global_points+" "+num_clusters+" 4 ");
-                        Console.OUT.println((stop_time-start_time)/1E3);
-                    }
-
-                } // gpus
+                } // hosts
 
             } // finish
 
