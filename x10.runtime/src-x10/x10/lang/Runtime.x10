@@ -74,6 +74,15 @@ import x10.util.Box;
     public static def runAtNative(id:Int, body:()=>void):void { body(); }
 
     /**
+     * Run body at place(id).
+     * May be implemented synchronously or asynchronously.
+     * Body cannot spawn activities, use clocks, or raise exceptions.
+     */
+    @Native("java", "x10.runtime.impl.java.Runtime.deepCopy(#4)")
+    @Native("c++", "x10aux::deep_copy<#1 >(#4)")
+    public static native def deepCopy[T](o:T):T;
+
+    /**
      * Java: run body synchronously at place(id) in the same node as the current place.
      * C++: run body. (no need for a native implementation)
      */
@@ -845,7 +854,7 @@ import x10.util.Box;
                     dealloc(closure);
                 } else {
                     val closure = () => { 
-                        val rrf = (r as RootFinish).root as GlobalRef[RootFinish]{self.home==here};
+                    val rrf = (r as RootFinish).root as GlobalRef[RootFinish]{self.home==here};
                         rrf().notify2(m); 
                         deallocObject(m); 
                     };
@@ -1549,7 +1558,7 @@ import x10.util.Box;
         val phases = clockPhases().register(clocks);
         state.notifySubActivitySpawn(place);
         if (place.id == hereInt()) {
-            execute(new Activity(body, state, clocks, phases));
+            execute(new Activity(deepCopy(body), state, clocks, phases));
         } else {
             val c = ()=>execute(new Activity(body, state, clocks, phases));
             runAtNative(place.id, c);
@@ -1564,7 +1573,7 @@ import x10.util.Box;
         state.notifySubActivitySpawn(place);
         val ok = safe();
         if (place.id == hereInt()) {
-            execute(new Activity(body, state, ok));
+            execute(new Activity(deepCopy(body), state, ok));
         } else {
             var closure:()=>void;
             // Workaround for XTENLANG_614
@@ -1603,7 +1612,7 @@ import x10.util.Box;
         
         val ok = safe();
         if (place.id == hereInt()) {
-            execute(new Activity(body, ok));
+            execute(new Activity(deepCopy(body), ok));
         } else {
             var closure:()=>void;
             // Workaround for XTENLANG_614

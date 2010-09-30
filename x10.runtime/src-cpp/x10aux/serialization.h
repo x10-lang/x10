@@ -445,8 +445,15 @@ namespace x10aux {
     template<typename T> GPUSAFE T deserialization_buffer::read() {
         return Read<T>::_(*this);
     }
+
+    template <class T> T deep_copy(T o) {
+        serialization_buffer buf;
+        buf.write(o);
+        deserialization_buffer buf2(buf.borrow());
+        T res = buf2.read<T>();
+        return res;
+    }
 }
 
 #endif
 // vim:tabstop=4:shiftwidth=4:expandtab:textwidth=100
-
