@@ -378,7 +378,7 @@ public class LineNumberMap extends StringTable {
 			v._x10typeIndex = stringId(type);
 		else 
 			v._x10typeIndex = -1;
-		v._cppName = stringId("x10__"+Emitter.mangled_non_method_name(name)); 
+		v._cppName = stringId(Emitter.mangled_non_method_name(name)); 
 		v._x10index = file;
 		v._x10startLine = startline;
 		v._x10endLine = endline;
@@ -871,6 +871,8 @@ public class LineNumberMap extends StringTable {
 		        	w.writeln("    { 101, "+offsets[memberVariables.get(classname).get(0)._cppClass]+", sizeof("+classname+"), "+memberVariables.get(classname).size()+", _X10"+classname+"Members },");	        
 	        	w.writeln("};");
 	        	w.forceNewline();
+	        	memberVariables.clear();
+	        	memberVariables = null;
 	        }
 	        	    
 		    if (!closureMap.isEmpty())
