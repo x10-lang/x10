@@ -31,7 +31,7 @@ public class WSWhenFrameClassGen extends WSRegularFrameClassGen {
     
     public WSWhenFrameClassGen(AbstractWSClassGen parent, When whenStmt) {
         super(parent, whenStmt.stmt(), 
-              WSCodeGenUtility.getWhenClassName(parent.getClassName()));
+              WSCodeGenUtility.getWhenClassName(parent.getClassName()), parent.wcg);
         
         this.whenStmt = whenStmt;
         

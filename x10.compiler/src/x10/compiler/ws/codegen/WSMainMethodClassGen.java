@@ -27,6 +27,7 @@ import polyglot.types.Types;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import x10.ast.X10NodeFactory;
+import x10.compiler.ws.WSCodeGenerator;
 import x10.compiler.ws.WSTransformState;
 import x10.compiler.ws.util.WSCodeGenUtility;
 import x10.constraint.XEquals;
@@ -68,8 +69,8 @@ import x10.visit.ConstantPropagator;
 public class WSMainMethodClassGen extends WSMethodFrameClassGen {
     
     public WSMainMethodClassGen(Job job, X10NodeFactory xnf, X10Context context,
-            MethodDef mainMethodDef, WSTransformState wsTransformState) {
-        super(job, xnf, context, mainMethodDef, wsTransformState);
+            MethodDef mainMethodDef, WSTransformState wsTransformState, WSCodeGenerator wcg) {
+        super(job, xnf, context, mainMethodDef, wsTransformState, wcg);
 
 //        this.className = WSCodeGenUtility.getMainMethodClassName();
         classSynth.setSuperType(wsTransformState.mainFrameType);        

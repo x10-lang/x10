@@ -95,7 +95,7 @@ public class WSCodeGenerator extends ContextVisitor {
     public NodeVisitor begin() {
         NodeVisitor nv = super.begin();
         //now initialize wstc
-        wts.updateContextAndVisitor(this, getX10Context(), theLanguage);
+        wts.updateContextAndVisitor(getX10Context(), theLanguage);
         return nv;
     }
 
@@ -109,7 +109,7 @@ public class WSCodeGenerator extends ContextVisitor {
             if(debugLevel > 5){
                 System.out.println("[WS_INFO](running) Class:" + className);
             }
-            wts.buildCallGraph(job, xnf, xts);
+            wts.buildCallGraph(job, xnf, xts, this);
         }
         return super.superEnter(parent, n);
     }

@@ -36,7 +36,7 @@ public class WSForLoopClassGen extends WSRegularFrameClassGen {
     
     public WSForLoopClassGen(AbstractWSClassGen parent, For forS) {
         super(parent, forS.body(), 
-              WSCodeGenUtility.getLoopClassName(parent.getClassName()));
+              WSCodeGenUtility.getLoopClassName(parent.getClassName()), parent.wcg);
     
         this.forStmt = forS;
     }

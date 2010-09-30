@@ -70,7 +70,6 @@ import x10.util.synthesizer.MethodSynth;
 public class WSTransformState {
     
     //------------Context sensitive
-    WSCodeGenerator codeVisitor;
     //basic types
     //Base types are context irrelevant
     public Type intType;    
@@ -124,8 +123,7 @@ public class WSTransformState {
     }
 
     
-    public void updateContextAndVisitor(WSCodeGenerator codeVisitor, X10Context xct, String theLanguage){
-        this.codeVisitor = codeVisitor;
+    public void updateContextAndVisitor(X10Context xct, String theLanguage){
         X10TypeSystem xts = (X10TypeSystem) xct.typeSystem();
         
         //initial static type
@@ -183,7 +181,7 @@ public class WSTransformState {
         return isCallGraphBuild;
     }
     
-    public void buildCallGraph(Job job2, X10NodeFactory xnf, X10TypeSystem xts){
+    public void buildCallGraph(Job job2, X10NodeFactory xnf, X10TypeSystem xts, WSCodeGenerator wcg){
         if(isCallGraphBuild){
             //System.err.println("[WS_ERR]CallGraph has been build. Will not build again!");
             return;
@@ -241,16 +239,12 @@ public class WSTransformState {
                         cmd.toString());     
             }
             
-            this.addMethodAsTargetMethod(job2, xnf, (X10Context)xts.emptyContext(), md);                
+            this.addMethodAsTargetMethod(job2, xnf, (X10Context)xts.emptyContext(), md, wcg);                
 
         }
         isCallGraphBuild = true;
     }
 
-
-    public WSCodeGenerator getCodeVisitor() {
-        return codeVisitor;
-    }
 
     /** 
      * Query one method is a target method or not
@@ -274,7 +268,7 @@ public class WSTransformState {
      * Add one method as a target method
      * @param methodDef
      */
-    public void addMethodAsTargetMethod(Job job, X10NodeFactory xnf, X10Context xct, ProcedureDef procedureDef){
+    public void addMethodAsTargetMethod(Job job, X10NodeFactory xnf, X10Context xct, ProcedureDef procedureDef, WSCodeGenerator wcg){
         
         if(procedureDef instanceof MethodDef){
             MethodDef methodDef = (MethodDef)procedureDef;
@@ -283,11 +277,11 @@ public class WSTransformState {
             
             if(mainMethodDef == null && methodDef.name().toString().equals("main")){
                 mainMethodDef = methodDef;
-                methodGen = new WSMainMethodClassGen(job, xnf, xct, methodDef, this);
+                methodGen = new WSMainMethodClassGen(job, xnf, xct, methodDef, this, wcg);
             }
 
             //create class gen
-            else methodGen = new WSMethodFrameClassGen(job, xnf, xct, methodDef, this);
+            else methodGen = new WSMethodFrameClassGen(job, xnf, xct, methodDef, this, wcg);
             MethodSynth wrapperPair= methodGen.getWraperMethodSynths();
             methodToInnerClassTreeMap.put(methodDef, methodGen); 
             methodToWSMethodMap.put(methodDef, wrapperPair);

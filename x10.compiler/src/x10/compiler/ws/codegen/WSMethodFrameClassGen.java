@@ -21,6 +21,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.util.Pair;
 import x10.ast.X10NodeFactory;
+import x10.compiler.ws.WSCodeGenerator;
 import x10.compiler.ws.WSTransformState;
 import x10.compiler.ws.util.TransCodes;
 import x10.compiler.ws.util.WSCodeGenUtility;
@@ -53,10 +54,10 @@ public class WSMethodFrameClassGen extends WSRegularFrameClassGen {
     
 
     public WSMethodFrameClassGen(Job job, X10NodeFactory xnf, X10Context xct,
-                                  MethodDef methodDef, WSTransformState wsTransformState) {
+                                  MethodDef methodDef, WSTransformState wsTransformState, WSCodeGenerator wcg) {
     
         super(job, xnf, xct, wsTransformState, null/*A method has no parent*/,
-             WSCodeGenUtility.getMethodBodyClassName(methodDef));
+             WSCodeGenUtility.getMethodBodyClassName(methodDef), wcg);
         
         frameDepth = 0;
         //now consider the flags/kind and outer class

@@ -33,6 +33,7 @@ import x10.ast.When;
 import x10.ast.X10Formal;
 import x10.ast.X10Loop;
 import x10.ast.X10NodeFactory;
+import x10.compiler.ws.WSCodeGenerator;
 import x10.compiler.ws.WSTransformState;
 import x10.compiler.ws.util.AddIndirectLocalDeclareVisitor;
 import x10.compiler.ws.util.ClosureDefReinstantiator;
@@ -77,8 +78,8 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
     // constructor for called from all other places, normal regular frame/main
     // frame/continuation frame
     protected WSRegularFrameClassGen(Job job, X10NodeFactory xnf, X10Context xct, WSTransformState wsTransformState,
-            AbstractWSClassGen parent, String classNamePrefix) {
-        super(job, xnf, xct, wsTransformState, parent);
+            AbstractWSClassGen parent, String classNamePrefix, WSCodeGenerator wcg) {
+        super(job, xnf, xct, wsTransformState, parent, wcg);
         
         int classSequenceId = (parent == null) ? -1 : parent.assignChildId();
         className = (classSequenceId == -1) ? classNamePrefix : (classNamePrefix + classSequenceId);
@@ -105,8 +106,8 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
      * @param codeBlock
      * @param classNamePrefix
      */
-    protected WSRegularFrameClassGen(AbstractWSClassGen parent, Stmt codeBody, String classNamePrefix) {
-        this(parent.job, parent.getX10NodeFactory(), parent.getX10Context(), parent.getWSTransformState(), parent, classNamePrefix);
+    protected WSRegularFrameClassGen(AbstractWSClassGen parent, Stmt codeBody, String classNamePrefix, WSCodeGenerator wcg) {
+        this(parent.job, parent.getX10NodeFactory(), parent.getX10Context(), parent.getWSTransformState(), parent, classNamePrefix, wcg);
         this.codeBlock = codeBody == null ? null : synth.toBlock(codeBody); //switch frame will have null codeBody
         
     }
@@ -326,7 +327,7 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
      */
     protected For processForLoop(X10Loop floop) {
         // the next step, translate the forloop by forloopoptimizer
-        ForLoopOptimizer flo = new ForLoopOptimizer(wts.getCodeVisitor().job(), xts, xnf);
+        ForLoopOptimizer flo = new ForLoopOptimizer(job, xts, xnf);
         flo.begin();
         Node floOut = floop.visit(flo); //floOut could be a block or a for statement
         // there are two cases from ForLoopOptimizer
@@ -426,7 +427,7 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
         Stmt body = xnf.Async(fe.body().position(), fe.clocks(), fe.body());
         X10Formal formal = (X10Formal) fe.formal();
         X10Loop floop = xnf.ForLoop(fe.position(), formal, fe.domain(), body);
-        floop = floop.locals(formal.explode(wts.getCodeVisitor()));
+        floop = floop.locals(formal.explode(wcg));
 
         For f = processForLoop(floop); //transform (i : domain)
 

@@ -50,6 +50,7 @@ import x10.ast.X10Call;
 import x10.ast.X10ClassDecl;
 import x10.ast.X10NodeFactory;
 import x10.extension.X10Ext_c;
+import x10.compiler.ws.WSCodeGenerator;
 import x10.compiler.ws.WSTransformState;
 import x10.compiler.ws.util.AdvLocalAccessToFieldAccessReplacer;
 import x10.compiler.ws.util.CodePatternDetector;
@@ -115,6 +116,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
     
     //Fields for class code gen
     protected WSTransformState wts;
+    protected WSCodeGenerator wcg;
     protected X10TypeSystem xts;
     protected X10NodeFactory xnf;
     protected X10Context xct;
@@ -241,12 +243,13 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
 
     
     public AbstractWSClassGen(Job job, X10NodeFactory xnf, X10Context xct,
-            WSTransformState wsTransformState, AbstractWSClassGen parent) {
+            WSTransformState wsTransformState, AbstractWSClassGen parent, WSCodeGenerator wcg) {
         super();
         this.job = job;
         this.xnf = xnf;
         this.parent = parent;
         this.wts = wsTransformState;
+        this.wcg = wcg;
         if(parent != null){
             parent.addChild(this); //add it to parent
         }
@@ -402,7 +405,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
                 //TODO: optimization point: if from finish frame, the stmt is a loop
                 //could unloop it and call for frame directly
                 //assert(stmt instanceof Block); //definetly need to be block
-                childClassGen = new WSRegularFrameClassGen(this, stmt, namePrefix);
+                childClassGen = new WSRegularFrameClassGen(this, stmt, namePrefix, wcg);
             }
         }
         childClassGen.genClass(); //
@@ -415,7 +418,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
         AbstractWSClassGen childClassGen = null;
         
             //stmt is async's body
-            childClassGen = new WSAsyncClassGen(this, stmt);
+            childClassGen = new WSAsyncClassGen(this, stmt, wcg);
         childClassGen.genClass(); //
         return childClassGen;
     }
@@ -836,7 +839,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
             System.out.println("[WS_INFO] Start Flatten Statements" + s);
         }
  
-        ExpressionFlattener ef = new ExpressionFlattener(wts.getCodeVisitor().job(), xts, xnf);
+        ExpressionFlattener ef = new ExpressionFlattener(job, xts, xnf);
         ef.begin();
         Stmt sFOut = (Stmt) s.visit(ef); // the floOut could be a block or a for
         if(debugLevel > 4){
