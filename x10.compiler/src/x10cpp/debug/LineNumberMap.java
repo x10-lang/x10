@@ -375,7 +375,13 @@ public class LineNumberMap extends StringTable {
 		else if (v._x10type == 200 || v._x10type == 202 || v._x10type == 204 || v._x10type == 207)
 			v._x10typeIndex = determineSubtypeId(type, arrayMap);
 		else if (v._x10type == 101)
-			v._x10typeIndex = stringId(type);
+		{
+			int b = type.indexOf('{');
+			if (b == -1)				
+				v._x10typeIndex = stringId(type);
+			else
+				v._x10typeIndex = stringId(type.substring(0, b));
+		}
 		else 
 			v._x10typeIndex = -1;
 		v._cppName = stringId(Emitter.mangled_non_method_name(name)); 
