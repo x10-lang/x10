@@ -57,6 +57,10 @@ public class TypeTransformer extends NodeTransformer {
         return type;
     }
 
+    protected <T> Ref<T> transformRef(Ref<T> ref) {
+        return ref;
+    }
+    
     protected ParameterType transformParameterType(ParameterType pt) {
         return pt;
     }
@@ -102,9 +106,15 @@ public class TypeTransformer extends NodeTransformer {
 
     @Override
     protected TypeNode transform(TypeNode tn, TypeNode old) {
-        Type rt = transformType(tn.type());
-        if (tn.type() != rt) {
-            tn = tn.typeRef(Types.ref(rt));
+        Ref<Type> tr = (Ref<Type>) transformRef(tn.typeRef());
+        Type t = Types.get(tr);
+        Type rt = transformType(t);
+        if (t != rt) {
+            tr = remapRef(tr);
+            tr.update(rt);
+        }
+        if (tn.typeRef() != tr) {
+            tn = tn.typeRef(tr);
         }
         return tn;
     }
@@ -189,21 +199,22 @@ public class TypeTransformer extends NodeTransformer {
     @Override
     protected Closure transform(Closure d, Closure old) {
         boolean sigChanged = d.returnType() != old.returnType();
-        List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
-        List<LocalDef> formalNames = new ArrayList<LocalDef>();
         List<Formal> params = d.formals();
         List<Formal> oldParams = old.formals();
         for (int i = 0; i < params.size(); i++) {
-            Formal p = params.get(i);
-            sigChanged |= p != oldParams.get(i);
-            argTypes.add(p.type().typeRef());
-            formalNames.add(p.localDef());
+            sigChanged |= params.get(i) != oldParams.get(i);
         }
         sigChanged |= d.guard() != old.guard();
-        List<Ref <? extends Type>> excTypes = new ArrayList<Ref<? extends Type>>();
         if (sigChanged) {
-            ClosureDef cd = (ClosureDef) d.closureDef();
+            ClosureDef cd = d.closureDef();
             DepParameterExpr g = d.guard();
+            List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
+            List<LocalDef> formalNames = new ArrayList<LocalDef>();
+            for (int i = 0; i < params.size(); i++) {
+                Formal p = params.get(i);
+                argTypes.add(p.type().typeRef());
+                formalNames.add(p.localDef());
+            }
             X10TypeSystem xts = (X10TypeSystem) visitor().typeSystem();
             ClosureDef icd = xts.closureDef(cd.position(), cd.typeContainer(), cd.methodContainer(),
                                             d.returnType().typeRef(),
@@ -270,6 +281,27 @@ public class TypeTransformer extends NodeTransformer {
             return f.localDef(ild);
         }
         return f;
+    }
+
+    private static final class IdentityRefKey {
+        private Ref<?> v;
+        public IdentityRefKey(Ref<?> v) { this.v = v; }
+        public int hashCode() { return System.identityHashCode(v); }
+        public boolean equals(Object o) {
+            return o instanceof IdentityRefKey && ((IdentityRefKey)o).v == this.v;
+        }
+    }
+    private final HashMap<IdentityRefKey, Ref<?>> refs = new HashMap<IdentityRefKey, Ref<?>>();
+
+    @SuppressWarnings("unchecked")
+    protected <T> Ref<T> remapRef(Ref<T> ref) {
+        if (ref == null) return null;
+        IdentityRefKey key = new IdentityRefKey(ref);
+        Ref<T> remappedRef = (Ref<T>) refs.get(key);
+        if (remappedRef == null) {
+            refs.put(key, remappedRef = Types.ref(ref.get()));
+        }
+        return remappedRef;
     }
 
     private final HashMap<X10LocalDef, X10LocalDef> vars = new HashMap<X10LocalDef, X10LocalDef>();
