@@ -353,10 +353,10 @@ public class LineNumberMap extends StringTable {
 		{
 			String subtype = type.substring(bracketStart+1, bracketEnd);
 			int subtypeId = determineTypeId(subtype);
-			list.add(subtypeId);
 			int position = list.size();
+			list.add(subtypeId);
 			list.add(determineSubtypeId(subtype, list));			
-			return position;
+			return position/2;
 		}
 		else 
 			return -1;
