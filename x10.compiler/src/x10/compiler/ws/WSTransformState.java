@@ -106,9 +106,6 @@ public class WSTransformState {
     //The procedure def that has no transformation support, just as book keeping
     //And will be fixed soon;
     HashSet<ProcedureDef> concurrentProcedureSet;
-    
-    //And the main method's class tree
-    MethodDef mainMethodDef; //if it is not null, main method is parallel method
 
     //A pool to record all as-is job for WS code gen
     //used to build call graph
@@ -252,8 +249,7 @@ public class WSTransformState {
      * @return
      */
     public boolean isTargetProcedure(ProcedureDef procedureDef) {
-        if(methodToInnerClassTreeMap.containsKey(procedureDef)
-                || mainMethodDef == procedureDef){
+        if(methodToInnerClassTreeMap.containsKey(procedureDef)){
             return true;
         }
         else if(concurrentProcedureSet.contains(procedureDef)){
@@ -275,8 +271,7 @@ public class WSTransformState {
             
             WSMethodFrameClassGen methodGen;
             
-            if(mainMethodDef == null && methodDef.name().toString().equals("main")){
-                mainMethodDef = methodDef;
+            if(methodDef.name().toString().equals("main")){
                 methodGen = new WSMainMethodClassGen(job, xnf, xct, methodDef, this, wcg);
             }
 
