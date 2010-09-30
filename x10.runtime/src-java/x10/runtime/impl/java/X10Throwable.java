@@ -33,6 +33,23 @@ public class X10Throwable extends java.lang.RuntimeException implements Any {
         super(message, cause);
     }
 
+    // XTENLANG-1858: every Java class that could be an (non-static) inner class must have constructors with the outer instance parameter
+    public X10Throwable(Object out$) {
+        super();
+    }
+
+    public X10Throwable(Object out$, String message) {
+        super(message);
+    }
+
+    public X10Throwable(Object out$, java.lang.Throwable cause) {
+        super(cause);
+    }
+
+    public X10Throwable(Object out$, String message, java.lang.Throwable cause) {
+        super(message, cause);
+    }
+
     static public X10Throwable getCorrespondingX10Exception(java.lang.RuntimeException e) {
         String newExcName = "x10.lang.RuntimeException";
         if (e instanceof java.lang.ArithmeticException) {
