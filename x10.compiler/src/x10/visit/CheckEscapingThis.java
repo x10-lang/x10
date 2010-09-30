@@ -55,7 +55,7 @@ public class CheckEscapingThis extends NodeVisitor
     private static int afterAssign(int i) { return build(isRead(i),true,true); }
     private static int afterRead(int i) { return build(isRead(i) || !isSeqWrite(i),isWrite(i),isSeqWrite(i)); }
     private static int afterSeqBlock(int bBefore, int bAfter) { return build(isRead(bBefore) || (!isSeqWrite(bBefore) && isRead(bAfter)), isWrite(bBefore) || isWrite(bAfter),isSeqWrite(bBefore) || isSeqWrite(bAfter)); }
-    private static int afterAsync(int i1, int i2) { return build(isRead(i1)||isRead(i2),isWrite(i1)||isWrite(i2),isSeqWrite(i1)&&isSeqWrite(i2)); }
+    private static int afterAsync(int i1, int i2, boolean isUncounted) { return build(isRead(i1)||isRead(i2),!isUncounted ? isWrite(i1)||isWrite(i2) : isWrite(i1)&&isWrite(i2),isSeqWrite(i1)&&isSeqWrite(i2)); }
     private static int afterIf(int i1, int i2) { return build(isRead(i1)||isRead(i2),isWrite(i1)&&isWrite(i2),isSeqWrite(i1)&&isSeqWrite(i2)); }
     private static String flagsToString(int i) { return i==0? "none," : (isRead(i)?"read," : "")+(isWrite(i)?"write," : "")+(isSeqWrite(i)?"seqWrite," : ""); }
 
@@ -117,6 +117,7 @@ public class CheckEscapingThis extends NodeVisitor
             assert items.size()>=2;
 
             boolean isAsync = !entry && node instanceof Async;
+            boolean isUncounted = isAsync ? Desugarer.isUncountedAsync((X10TypeSystem)ts,(Async) node) : false;
             DataFlowItem res = new DataFlowItem();
             res.initStatus.putAll(((DataFlowItem) items.get(0)).initStatus);
 
@@ -130,7 +131,7 @@ public class CheckEscapingThis extends NodeVisitor
                     //p.inItem = this.safeConfluence(...
                     //p.outItems = this.flow(...
 
-                    int i_res = isAsync ? afterAsync(i1,i2) : afterIf(i1,i2);
+                    int i_res = isAsync ? afterAsync(i1,i2,isUncounted) : afterIf(i1,i2);
                     res.initStatus.put(key,i_res);
                 }
             }

@@ -55,6 +55,8 @@ import x10.ast.SubtypeTest;
 import x10.ast.X10NodeFactory;
 import x10.ast.X10IntLit_c;
 import x10.ast.X10StringLit_c;
+import x10.ast.Async;
+import x10.ast.AnnotationNode;
 import x10.constraint.XFailure;
 import x10.constraint.XNameWrapper;
 import x10.constraint.XVar;
@@ -64,6 +66,7 @@ import x10.errors.Errors;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
+import x10.extension.X10Del;
 
 /** 
  * Utilities for dealing with X10 dependent types.
@@ -999,7 +1002,7 @@ public class X10TypeMixin {
     public static boolean isSuppressTransientErrorField(X10FieldDef def,X10TypeSystem ts) {
         return isDefAnnotated(def,ts,"x10.compiler.SuppressTransientError");
     }
-    public static String getNonEscapingReadsFrom(X10ProcedureDef def,X10TypeSystem ts) {
+    public static String getNonEscapingReadsFrom(X10Def def,X10TypeSystem ts) {
         try {
             Type at = (Type) ts.systemResolver().find(QName.make("x10.compiler.NonEscaping"));
             final List<Type> annotations = def.annotationsMatching(at);

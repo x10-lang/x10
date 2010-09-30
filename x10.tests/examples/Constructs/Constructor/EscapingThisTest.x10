@@ -1,8 +1,101 @@
 // test object initialization
 
-import x10.compiler.*;
+import x10.compiler.*; // @Uncounted @NonEscaping
 
 
+class TestUncountedAsync1 {
+	//@Uncounted async S
+	//is treated like this:
+	//async if (flag) S
+	//so the statement in S might or might not get executed.
+	//Therefore even after a "finish" we still can't use anything assigned in S.                
+	def test1() {
+		val q:Int,q2:Int;
+		finish {
+			q2=2;
+			use(q2);
+			use(q); // ERR
+			@Uncounted async {
+				use(q2);
+				q=1;
+				use(q);
+			}
+			use(q2);
+			use(q); // ERR
+		}
+		use(q2);
+		use(q); // ERR
+	}	
+	def test2() {
+		var q:Int;
+		finish {
+			@Uncounted async {
+				q=1;
+				use(q);
+			}
+			use(q); // ERR
+		}
+		use(q); // ERR
+	}
+	def test3() {
+		var q:Int;
+		finish {
+			@Uncounted async {
+				async { // it is implicitly @Uncounted
+					q=1;
+					use(q);
+				}
+			}
+			use(q); // ERR
+		}
+		use(q); // ERR
+	}
+	def use(a:Int) {}
+
+	var x:Int{self!=0};
+	var x2:Int{self!=0};
+	def this() { // ERR: Field 'x' was not definitely assigned in this constructor.
+		finish {
+			async x2=1;
+			@Uncounted async {
+				x=1;
+			}
+		}
+	}
+
+	static class Box[T] {
+		var t:T;
+		def this(t:T) { this.t = t; }
+	}
+	def mainExample() {
+		val box = new Box[Boolean](false);
+		@Uncounted async {
+			Console.OUT.println("HELLO");
+			@Uncounted async {
+				atomic box.t = true;
+			}
+		}
+		when (!box.t) {}
+	}
+}
+
+
+class SquareMatrixTest123(rows:Int, cols:Int, matDist:Dist, mat:DistArray[Int]){
+	var z:Int = 2;
+	val q:Int;
+	def this(r:Int, c:Int{self == r}) 	{
+		val mShape = [1..r, 1..c] as Region;
+		val mDist = Dist.makeBlock(mShape);
+		z++; // ERR: Can use 'this' only after 'property(...)'
+		val closure = () => z++; // ERR: Can use 'this' only after 'property(...)'
+		val closure2 = () => q; // ERR: Can use 'this' only after 'property(...)'	 ERR: Cannot read from field 'q' before it is definitely assigned.
+		property(r, c, mDist, DistArray.make[Int](mDist, 
+			initMat // ERR: Can use 'this' only after 'property(...)'
+		));
+		q=3;
+	}
+	val initMat : (Point) => int = ([x,y]:Point) => x+y;
+} 
 
 
 class SomeSuper87 {

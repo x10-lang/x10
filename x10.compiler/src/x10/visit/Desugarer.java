@@ -449,7 +449,7 @@ public class Desugarer extends ContextVisitor {
         Position pos = a.position();
         X10Ext ext = (X10Ext) a.ext();
         List<X10ClassType> refs = Emitter.annotationsNamed(xts, a, REF);
-        if (Emitter.hasAnnotation(xts, a, UNCOUNTED)) {
+        if (isUncountedAsync(xts,a)) {
         	if (old instanceof Async)
             	 return uncountedAsync(pos, a.body());
         }
@@ -466,7 +466,7 @@ public class Desugarer extends ContextVisitor {
     	List<Expr> clocks = clocks(a.clocked(), a.clocks());
         Position pos = a.position();
         List<X10ClassType> refs = Emitter.annotationsNamed(xts, a, REF);
-        if (Emitter.hasAnnotation(xts, a, UNCOUNTED)) {
+        if (isUncountedAsync(xts,a)) {
             return uncountedAsync(pos, body, place);
         }
         Stmt specializedAsync = specializeAsync(a, place, body);
@@ -489,6 +489,10 @@ public class Desugarer extends ContextVisitor {
     private static final QName REF = QName.make("x10.compiler.Ref");
     private static final QName UNCOUNTED = QName.make("x10.compiler.Uncounted");
     private static final QName REMOTE_OPERATION = QName.make("x10.compiler.RemoteOperation");
+
+    public static boolean isUncountedAsync(X10TypeSystem xts, Async a) {
+        return Emitter.hasAnnotation(xts, a, UNCOUNTED);
+    }
 
     /**
      * Recognize the following pattern:
