@@ -4341,7 +4341,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	            return n;
 	        X10NodeFactory xnf = (X10NodeFactory) nf;
 	        X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
-	        Position pos = n.position();
+	        Position pos = n.position().markCompilerGenerated();
 	        List<Stmt> newBody = new ArrayList<Stmt>();
 	        if (ret != null) {
 	            newBody.add(xnf.LocalDecl(pos, xnf.FlagsNode(pos, xts.NoFlags()),
@@ -4366,7 +4366,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	            return n;
 	        assert ((ret == null) == (n.expr() == null));
 	        X10NodeFactory xnf = (X10NodeFactory) nf;
-	        Position pos = n.position();
+	        Position pos = n.position().markCompilerGenerated();
 	        List<Stmt> retSeq = new ArrayList<Stmt>();
 	        if (ret != null) {
 	            Type rt = ret.type().get();
