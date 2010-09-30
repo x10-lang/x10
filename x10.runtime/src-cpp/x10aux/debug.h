@@ -96,7 +96,7 @@ struct _X10LocalVarMap
 {
 	uint32_t _x10name;			// Index of the X10 variable name in _X10strings
 	uint32_t _x10type;          // Classification of this type
-	uint32_t _x10typeIndex; 	// Index of the X10 type into appropriate _X10ClassMap, _X10ClosureMap  (if applicable)
+	int32_t _x10typeIndex; 	// Index of the X10 type into appropriate _X10ClassMap, _X10ClosureMap  (if applicable)
 	uint32_t _cppName;			// Index of the C++ variable name in _X10strings
     uint32_t _x10index;         // Index of X10 file name in _X10sourceList
 	uint32_t _x10startLine;     // First line number of X10 line range
@@ -106,7 +106,7 @@ struct _X10LocalVarMap
 struct _X10TypeMember
 {
 	uint32_t _x10type;       // Classification of this type
-	uint32_t _x10typeIndex;  // Index of the X10 type into appropriate _X10typeMap
+	int32_t _x10typeIndex;  // Index of the X10 type into appropriate _X10typeMap
 	uint32_t _x10memberName; // Index of the X10 member name in _X10strings
 	uint32_t _cppMemberName; // Index of the C++ member name in _X10strings
 	uint32_t _cppClass; // Index of the C++ containing struct/class name in _X10strings
