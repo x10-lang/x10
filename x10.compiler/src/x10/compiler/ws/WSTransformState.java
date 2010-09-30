@@ -109,7 +109,6 @@ public class WSTransformState {
     HashSet<ProcedureDef> concurrentProcedureSet;
     
     //And the main method's class tree
-    WSMainMethodClassGen mainMethodClass;
     MethodDef mainMethodDef; //if it is not null, main method is parallel method
 
     //A pool to record all as-is job for WS code gen
@@ -334,10 +333,6 @@ public class WSTransformState {
             }
         }
         return mDecls;
-    }
-
-    public void setMainMethodClass(WSMainMethodClassGen mainMethodClass) {
-        this.mainMethodClass = mainMethodClass;
     }
 
     public WSMethodFrameClassGen getInnerClass(MethodDef methodDef) {

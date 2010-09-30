@@ -45,7 +45,7 @@ import x10.util.Synthesizer;
 
 
 /**
- * Visitor that generates code for work stealing.
+ * ContextVisitor that generates code for work stealing.
  * @author Haibo
  * @author Haichuan
  * 
@@ -59,35 +59,30 @@ import x10.util.Synthesizer;
  * In the first step, we only mark all methods that contain finish-async as the target.
  */
 public class WSCodeGenerator extends ContextVisitor {
-    
     private static final int debugLevel = 4;
     
-    /** 
-     * @param job
-     * @param ts
-     * @param nf
-     */
     final X10TypeSystem xts;
     final X10NodeFactory xnf;
     final Synthesizer synth;
     final String theLanguage;
     
-    
-    //And some frequent used type
-    
-    
-    
-    //Trick here
-    //Although there are different WSVisitor, each one has the same methodRecorder;
-    // FIXME: get rid of the static field
+    //Although there are different WSVisitor, each one has the same WSTransformState
+    //FIXME: get rid of the static field
     static protected WSTransformState wts; 
         
+    /** 
+     * @param job
+     * @param ts
+     * @param nf
+     * @param theLanguage
+     */
     public WSCodeGenerator(Job job, TypeSystem ts, NodeFactory nf, String theLanguage) {
         super(job, ts, nf);
 
         if(wts == null){
             wts = new WSTransformState();
         }
+        
         wts.addWSJob(job);
         
         xts = (X10TypeSystem) ts;
@@ -95,10 +90,7 @@ public class WSCodeGenerator extends ContextVisitor {
         synth = new Synthesizer(xnf, xts);
         this.theLanguage = theLanguage;
     }
-    
-    
-    
-    
+
     @Override
     public NodeVisitor begin() {
         NodeVisitor nv = super.begin();
@@ -107,14 +99,11 @@ public class WSCodeGenerator extends ContextVisitor {
         return nv;
     }
 
-
-    
     WSCallGraph graph;
-    
+
     @Override
     public NodeVisitor superEnter(Node parent, Node n) {
-        if (n instanceof X10ClassDecl
-                && ((X10ClassDecl)n).classDef().isTopLevel()) {
+        if (n instanceof X10ClassDecl && ((X10ClassDecl)n).classDef().isTopLevel()) {
             X10ClassDecl classDecl = (X10ClassDecl)n;
             String className = classDecl.name().toString();
             if(debugLevel > 5){
@@ -194,7 +183,6 @@ public class WSCodeGenerator extends ContextVisitor {
                 if(mDef.name().toString().equals("main")){
                     WSMainMethodClassGen mainClassGen = (WSMainMethodClassGen) wts.getInnerClass(mDef);
                     mainClassGen.setMethodDecl(mDecl);
-                    wts.setMainMethodClass(mainClassGen);
                     mainClassGen.genClass(getX10Context());
 
                     n = mainClassGen.getNewMainMethod();
@@ -248,43 +236,8 @@ public class WSCodeGenerator extends ContextVisitor {
                                         ((Node)rActivity).position());
         }
     }
-    
-    
-    
-//    
-//    protected void rewriteParalleMethodToInnerClasses(MethodDecl mDecl) throws SemanticException{
-//                       
-//        //Now start to transform the parallel method to inner classes.
-//        //One parallel method will be transformed into several inner classes
-//        //1. method body: <methodName>
-//        //2. finish statement: <methodName>_finish
-//        //3. finish body: <methodName>_finish_body
-//        //4. async:  <methodName>_async
-//        // For main method, it should be more complex. TODO: Main method's classes
-//        //
-//        //The process is
-//        //genMethodBodyClass()
-//        //     |-> generate the fast/slow path methods simultaneously
-//        //     |       +-> genFinishStmtClass
-//        //     |                 |-> generate the fast/slow path methods simultaneously
-//        //     |                          +-> genFinishBodyClass
-//        //     |           ...
-//        //     |-> generate the back path
-//        //             +-> ...
-//        //
-//        // during the call chain, different inner classes will be added into innerClasses
-//        
-//        WSMethodFrameClassGen methodClassGen = new WSMethodFrameClassGen(xnf, getX10Context(),
-//                                                                           mDecl, wts);
-//        
-//        wts.putInnerClass(mDecl.methodDef(), methodClassGen);
-//        methodClassGen.genClass();
-//    }
-//    
+
     X10Context getX10Context(){
         return (X10Context)context;
     }
-    
 }
-
-

@@ -97,10 +97,6 @@ public class WSCodeGenUtility {
         return getMethodName(methodDef) + "_S";
     }
 
-    public static String getMainMethodClassName(){
-        return "_$main";
-    }
-
     public static String getFAsyncStmtClassName(String parentName){
         return parentName + "A";
     }

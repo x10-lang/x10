@@ -45,13 +45,9 @@ import x10.util.synthesizer.NewLocalVarSynth;
  *
  */
 public class WSMethodFrameClassGen extends WSRegularFrameClassGen {
-    
-    
-    //For a normal method, it will has fast/slow path, so two methodsynth
     protected MethodDecl methodDecl;
     protected List<Formal> formals; //original methods's all formals
     protected MethodSynth fastWrapperMethodSynth;
-    protected MethodSynth slowWrapperMethodSynth;
     protected Name returnFieldName;
     protected Name returnFlagName; //=> boolean returnFlagName;
     
@@ -102,12 +98,7 @@ public class WSMethodFrameClassGen extends WSRegularFrameClassGen {
         fastWrapperMethodSynth = new MethodSynth(xnf, xct, containerClassDef, fastPathName);
         fastWrapperMethodSynth.setFlag(methodDef.flags());
         fastWrapperMethodSynth.setReturnType(returnType);
-        
-        String slowPathName = WSCodeGenUtility.getMethodSlowPathName(methodDef);
-        slowWrapperMethodSynth = new MethodSynth(xnf, xct, containerClassDef, slowPathName);
-        slowWrapperMethodSynth.setFlag(methodDef.flags());
-        slowWrapperMethodSynth.setReturnType(returnType);
-    }
+       }
 
     /**
      * MethodFrameClassGen will be created very early, during call graph building
@@ -169,8 +160,7 @@ public class WSMethodFrameClassGen extends WSRegularFrameClassGen {
         }
         
         super.genClass(); //transform: method skeleton/methods body/constructors/remap
-        genWSMethod(fastWrapperMethodSynth, false); //now generate fast/slow path, register them and put them in container class
-        genWSMethod(slowWrapperMethodSynth, true); //now generate fast/slow path, register them and put them in container class
+        genWSMethod(fastWrapperMethodSynth); //now generate fast/slow path, register them and put them in container class
     }
 
     
@@ -205,7 +195,7 @@ public class WSMethodFrameClassGen extends WSRegularFrameClassGen {
      * @return the method synthesizer
      * @throws SemanticException 
      */
-    private MethodSynth genWSMethod(MethodSynth methodSynth, boolean isSlowPath) throws SemanticException{
+    private MethodSynth genWSMethod(MethodSynth methodSynth) throws SemanticException{
         
         String targetMethodName = FAST.toString();
         
