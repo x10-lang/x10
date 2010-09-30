@@ -919,7 +919,6 @@ public class XConstraint implements Cloneable {
         }
     }
     
-    @SuppressWarnings({ "unchecked"})
 	protected void applySubstitution(XTerm y, XVar x) throws XFailure {
         if (roots == null) {
             // nothing to substitute
