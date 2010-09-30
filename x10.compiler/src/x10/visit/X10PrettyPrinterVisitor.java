@@ -898,7 +898,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			w.begin(0);
 			if (! flags.isInterface()) {
 				for (TypeParamNode tp : typeParameters) {
-					w.write("private final ");
+					w.write("private ");
 					w.write(X10_RUNTIME_TYPE_CLASS);
 //					w.write("<"); n.print(tp, w, tr); w.write(">");  // TODO
 					w.write(" ");

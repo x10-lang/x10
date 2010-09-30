@@ -2316,11 +2316,27 @@ public class Emitter {
         w.newline();
 	    w.write("private Object readResolve() { return new ");
         printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
-        w.write("(" + fieldName + "); }");
+        w.write("(");
+        for (ParameterType type : def.typeParameters()) {
+            w.write(type.name().toString() + ", ");
+        }
+        w.write(fieldName + "); }");
         w.newline();
-        w.write("private void writeObject(java.io.ObjectOutputStream oos) throws java.io.IOException { oos.writeObject(" + fieldName + "); }");
+        w.write("private void writeObject(java.io.ObjectOutputStream oos) throws java.io.IOException {");
         w.newline();
-        w.write("private void readObject(java.io.ObjectInputStream ois) throws java.io.IOException, java.lang.ClassNotFoundException { " + fieldName + " = ois.readObject(); }");
+        for (ParameterType type : def.typeParameters()) {
+            w.write("oos.writeObject(" + type.name().toString() + ");");
+            w.newline();
+        }
+        w.write("oos.writeObject(" + fieldName + "); }");
+        w.newline();
+        w.write("private void readObject(java.io.ObjectInputStream ois) throws java.io.IOException, java.lang.ClassNotFoundException {");
+        w.newline();
+        for (ParameterType type : def.typeParameters()) {
+            w.write(type.name().toString() + " = (" + X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS + ") ois.readObject();");
+            w.newline();
+        }
+        w.write(fieldName + " = ois.readObject(); }");
         w.newline();
 	}
 
