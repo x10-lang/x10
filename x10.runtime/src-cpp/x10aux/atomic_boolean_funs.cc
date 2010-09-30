@@ -20,7 +20,7 @@ x10_boolean atomic_boolean_funs::compareAndSet(ref<AtomicBoolean> obj,
                                                x10_boolean expect, x10_boolean update) {
     x10_int expectI = expect ? 1 : 0;
     x10_int updateI = update ? 1 : 0;
-    x10_int oldVal = x10aux::atomic_ops::compareAndSet_32(&(obj->FMGL(value)), expectI, updateI) == expectI;
+    x10_int oldVal = atomic_ops::compareAndSet_32(&(obj->FMGL(value)), expectI, updateI) == expectI;
     return oldVal == 1;
 }
                     
@@ -29,7 +29,7 @@ x10_boolean atomic_boolean_funs::weakCompareAndSet(ref<AtomicBoolean> obj,
     // TODO: for minor optimization on ppc we could add a weakCompareAndSet in atomic_ops and use that here
     x10_int expectI = expect ? 1 : 0;
     x10_int updateI = update ? 1 : 0;
-    x10_int oldVal = x10aux::atomic_ops::compareAndSet_32(&(obj->FMGL(value)), expectI, updateI) == expectI;
+    x10_int oldVal = atomic_ops::compareAndSet_32(&(obj->FMGL(value)), expectI, updateI) == expectI;
     return oldVal == 1;
 }
 

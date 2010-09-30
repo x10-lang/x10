@@ -96,6 +96,8 @@ ALL_XRCPP_OBJECTS = \
 	x10aux/assert.o \
 	x10aux/atomic_ops.o \
 	x10aux/atomic_boolean_funs.o \
+	x10aux/atomic_int_funs.o \
+	x10aux/atomic_long_funs.o \
 	x10aux/basic_functions.o \
 	x10aux/boolean_utils.o \
 	x10aux/bootstrap.o \
@@ -148,8 +150,6 @@ ALL_XRCPP_OBJECTS = \
 	x10/lang/Thread.o \
 	x10/util/GrowableRail.o \
 	x10/util/IndexedMemoryChunk.o \
-	x10/util/concurrent/atomic/AtomicInteger.o \
-	x10/util/concurrent/atomic/AtomicLong.o \
 	x10/util/concurrent/atomic/AtomicReference.o 
 
 ALL_MANUAL_OBJECTS=$(ALL_XRCPP_OBJECTS)
