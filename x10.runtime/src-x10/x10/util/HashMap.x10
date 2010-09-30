@@ -11,11 +11,10 @@
 
 package x10.util;
 
-import x10.compiler.Pinned;
 import x10.compiler.TempNoInline_1;
+import x10.io.CustomSerialization;
 
-@Pinned 
-  public class HashMap[K,V] implements Map[K,V] {
+  public class HashMap[K,V] implements Map[K,V], CustomSerialization {
     static class HashEntry[Key,Value] implements Map.Entry[Key,Value] {
         public def getKey() = key;
         public def getValue() = value;
@@ -75,13 +74,14 @@ import x10.compiler.TempNoInline_1;
         occupation = 0;
         shouldRehash = false;
     }
-    
+
     public def clear(): void {
         modCount++;
         init(MIN_SIZE);
     }
     
-    protected def hash(k: K): Int {
+    protected def hash(k: K): Int = hashInternal(k);
+    protected final def hashInternal(k: K): Int {
         return k.hashCode() * 17;
     }
     
@@ -143,11 +143,12 @@ import x10.compiler.TempNoInline_1;
         }
     }
     
-    public def put(k: K, v: V): Box[V] {
+    public def put(k: K, v: V): Box[V] = putInternal(k,v);
+    protected final def putInternal(k: K, v: V): Box[V] {
         if (occupation == table.length || (shouldRehash && occupation >= table.length / 2))
-            rehash();
+            rehashInternal();
 
-        val h = hash(k);
+        val h = hashInternal(k);
         var i: int = h;
 
         while (true) {
@@ -178,7 +179,8 @@ import x10.compiler.TempNoInline_1;
         }
     }
     
-    public def rehash(): void {
+    public def rehash():void  = rehashInternal();
+    protected final def rehashInternal(): void {
         modCount++;
         val t = table;
         val oldSize = size;
@@ -190,7 +192,7 @@ import x10.compiler.TempNoInline_1;
 
         for (var i: int = 0; i < t.length; i++) {
             if (t(i) != null && ! t(i).removed) {
-                put(t(i).key, t(i).value);
+                putInternal(t(i).key, t(i).value);
                 shouldRehash = false;
             }
         }
@@ -295,4 +297,41 @@ import x10.compiler.TempNoInline_1;
         public def clone(): EntrySet[Key,Value] { throw new UnsupportedOperationException(); }
         public def size(): Int = map.size();
     }
+
+
+    protected static class State[Key,Value] {
+        val size:int;
+        val keys:Array[Key](1);
+        val vals:Array[Value](1);
+
+        def this(map:HashMap[Key,Value]) {
+            size = map.size();
+            keys = new Array[Key](size);
+            vals = new Array[Value](size);
+	    var cur:int = 0;
+            val it = map.entriesIterator();
+            while (it.hasNext()) {
+               val entry = it.next();
+               keys(cur) = entry.getKey();
+               vals(cur) = entry.getValue();
+               cur++;
+            }
+        }
+    }
+
+    /*
+     * Custom deserialization
+     */
+    public def this(x:Any) {
+        this();
+        val state = x as State[K,V];
+	for ([i] in 0..state.size-1) {
+            putInternal(state.keys(i), state.vals(i));
+        }
+    }
+
+    /*
+     * Custom serialization
+     */
+    public def serialize():Any = new State(this);
 }

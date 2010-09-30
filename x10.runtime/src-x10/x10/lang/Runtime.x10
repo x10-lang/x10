@@ -179,6 +179,14 @@ import x10.util.Box;
             for(clock:Clock in keySet()) clock.dropInternal();
             clear();
         }
+
+	// HashMap implments CustomSerialization, so we must as well
+	// Only constructor is actually required, but stub out serialize as well
+	// as a reminder that if instance fields are added to ClockPhases then
+	// work will have to be done here to serialize them.
+	public def serialize() = super.serialize(); 
+	def this() { super(); }
+	def this(a:Any) { super(a); }
     }
 
 
