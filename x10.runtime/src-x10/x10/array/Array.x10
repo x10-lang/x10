@@ -291,6 +291,15 @@ public final class Array[T](
         cachedRail = rail;
     }
 
+    /**
+     * Construct a copy of the given RemoteArray.
+     *
+     * @param init The remote array to copy.
+     */    
+    public def this(init:RemoteArray[T]{init.home==here}):Array[T]{self.region==init.region, self.size==init.size} {
+        this(init.array());
+    }
+
 
 
     /**
@@ -335,7 +344,7 @@ public final class Array[T](
      * @see #apply(Point)
      * @see #set(T, Int)
      */
-    @Native("cuda", "(#0)[#1]")
+    @Native("cuda", "(#0).apply(#1)")
     public @Header @Inline def apply(i0:int){rank==1}:T {
 	if (cachedRail) {
             if (CompilerFlags.checkBounds() && !((i0 as UInt) < (size as UInt))) {
@@ -436,7 +445,7 @@ public final class Array[T](
      * @see #apply(Int)
      * @see #set(T, Point)
      */
-    @Native("cuda", "(#0)[#2] = #1")
+    @Native("cuda", "(#0).apply(#1,#2)")
     public @Header @Inline def set(v:T, i0:int){rank==1}:T {
 	if (cachedRail) {
             if (CompilerFlags.checkBounds() && !((i0 as UInt) < (size as UInt))) {

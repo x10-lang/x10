@@ -33,21 +33,29 @@ public class CUDAUtilities {
      * </code>
      * @see autoThreads
      */
-    public static def autoBlocks() : UInt = 8;
+    public static def autoBlocks() : Int = 8;
 
     /** Automatically choose enough threads to saturate the GPU.  
       * @see autoBlocks
       */
-    public static def autoThreads() : UInt = 1;
+    public static def autoThreads() : Int = 1;
+
+    private static def initCUDAArray[T] (gpu:Place,
+                                         local:IndexedMemoryChunk[T],
+                                         remote:IndexedMemoryChunk[T],
+                                         numElements:Int) : Void {
+        finish local.asyncCopyTo(0,gpu,remote,0,numElements,false);
+    }
 
     private static def makeCUDAArray[T] (gpu:Place, numElements:Int, init:IndexedMemoryChunk[T])
-       : RemoteArray[T]{self.home==gpu, self.rank()==1} {
+      : RemoteArray[T]{self.home==gpu, self.rank()==1} {
         val reg = 0 .. numElements-1;
         @Native("c++",
-            "x10_ulong addr = x10aux::remote_alloc(gpu.FMGL(id), ((size_t)numElements)*sizeof(FMGL(T)));"+
-            "IndexedMemoryChunk<FMGL(T)> imc(addr);"+
+            "x10_ulong addr = x10aux::remote_alloc(gpu.FMGL(id), ((size_t)numElements)*sizeof(FMGL(T)));\n"+
+            "IndexedMemoryChunk<FMGL(T)> imc(addr);\n"+
             // TODO: initialise
-            "return x10::array::RemoteArray<FMGL(T)>::_make(gpu, reg, imc, numElements) ;"
+            "initCUDAArray<FMGL(T)>(gpu,init,imc,numElements);\n"+
+            "return x10::array::RemoteArray<FMGL(T)>::_make(gpu, reg, imc, numElements);\n"
         ) { }
         throw new UnsupportedOperationException();
     }

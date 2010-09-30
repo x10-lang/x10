@@ -116,6 +116,7 @@ import x10.ast.X10Formal;
 import x10.ast.X10Instanceof_c;
 import x10.ast.X10Loop;
 import x10.ast.X10Loop_c;
+import x10.ast.X10New_c;
 import x10.ast.X10Special_c;
 import x10.ast.X10Unary_c;
 import x10.extension.X10Ext;
@@ -155,370 +156,360 @@ import x10.util.StreamWrapper;
 
 public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 
-    private static final String ANN_KERNEL = "x10.compiler.CUDA";
-    private static final String ANN_DIRECT_PARAMS = "x10.compiler.CUDADirectParams";
+	private static final String ANN_KERNEL = "x10.compiler.CUDA";
+	private static final String ANN_DIRECT_PARAMS = "x10.compiler.CUDADirectParams";
 
-    public CUDACodeGenerator(StreamWrapper sw, Translator tr) {
-        super(sw, tr);
-    }
+	public CUDACodeGenerator(StreamWrapper sw, Translator tr) {
+		super(sw, tr);
+	}
 
-    protected String[] getCurrentNativeStrings() {
-        if (!generatingKernel())
-            return new String[] { CPP_NATIVE_STRING };
-        return new String[] { CUDA_NATIVE_STRING, CPP_NATIVE_STRING };
-    }
+	protected String[] getCurrentNativeStrings() {
+		if (!generatingKernel())
+			return new String[] { CPP_NATIVE_STRING };
+		return new String[] { CUDA_NATIVE_STRING, CPP_NATIVE_STRING };
+	}
 
-    private X10CUDAContext_c context() {
-        return (X10CUDAContext_c) tr.context();
-    }
+	private X10CUDAContext_c context() {
+		return (X10CUDAContext_c) tr.context();
+	}
 
-    private X10TypeSystem_c xts() {
-        return (X10TypeSystem_c) tr.typeSystem();
-    }
+	private X10TypeSystem_c xts() {
+		return (X10TypeSystem_c) tr.typeSystem();
+	}
 
-    // defer to CUDAContext.cudaStream()
-    private ClassifiedStream cudaStream() {
-        return context().cudaStream(sw, tr.job());
-    }
+	// defer to CUDAContext.cudaStream()
+	private ClassifiedStream cudaStream() {
+		return context().cudaStream(sw, tr.job());
+	}
 
-    private boolean generatingKernel() {
-        return context().generatingKernel();
-    }
+	private boolean generatingKernel() {
+		return context().generatingKernel();
+	}
 
-    private void generatingKernel(boolean v) {
-        context().generatingKernel(v);
-    }
+	private void generatingKernel(boolean v) {
+		context().generatingKernel(v);
+	}
 
-    private Type getType(String name) throws SemanticException {
-        return (Type) xts().systemResolver().find(QName.make(name));
-    }
+	private Type getType(String name) throws SemanticException {
+		return (Type) xts().systemResolver().find(QName.make(name));
+	}
 
-    // does the block have the annotation that denotes that it should be
-    // split-compiled to cuda?
-    private boolean blockIsKernel(Node n) {
-    	return nodeHasAnnotation(n, ANN_KERNEL);
-    }
+	// does the block have the annotation that denotes that it should be
+	// split-compiled to cuda?
+	private boolean blockIsKernel(Node n) {
+		return nodeHasAnnotation(n, ANN_KERNEL);
+	}
 
-    // does the block have the annotation that denotes that it should be
-    // compiled to use conventional cuda kernel params
-    private boolean kernelWantsDirectParams(Node n) {
-    	return nodeHasAnnotation(n, ANN_DIRECT_PARAMS);
-    }
+	// does the block have the annotation that denotes that it should be
+	// compiled to use conventional cuda kernel params
+	private boolean kernelWantsDirectParams(Node n) {
+		return nodeHasAnnotation(n, ANN_DIRECT_PARAMS);
+	}
 
-    // does the block have the given annotation
-    private boolean nodeHasAnnotation(Node n, String ann) {
-        X10Ext ext = (X10Ext) n.ext();
-        try {
-            return !ext.annotationMatching(getType(ann)).isEmpty();
-        } catch (SemanticException e) {
-            assert false : e;
-            return false; // in case asserts are off
-        }
-    }
+	// does the block have the given annotation
+	private boolean nodeHasAnnotation(Node n, String ann) {
+		X10Ext ext = (X10Ext) n.ext();
+		try {
+			return !ext.annotationMatching(getType(ann)).isEmpty();
+		} catch (SemanticException e) {
+			assert false : e;
+			return false; // in case asserts are off
+		}
+	}
 
-    private String env = "__env";
+	private String env = "__env";
 
-    private Type arrayCargo(Type typ) {
-        if (xts().isArray(typ)) {
-            typ = typ.toClass();
-            X10ClassType ctyp = (X10ClassType) typ;
-            assert ctyp.typeArguments().size() == 1;
-            return ctyp.typeArguments().get(0);
-        }
-        if (xts().isRemoteArray(typ)) {
-            typ = typ.toClass();
-            X10ClassType ctyp = (X10ClassType) typ;
-            assert ctyp.typeArguments().size() == 1;
-            Type type2 = ctyp.typeArguments().get(0);
-            X10ClassType ctyp2 = (X10ClassType) typ;
-            assert ctyp2.typeArguments().size() == 1;
-            return ctyp2.typeArguments().get(0);
-        }
-        return null;
-        
-    }
+	private Type arrayCargo(Type typ) {
+		if (xts().isArray(typ)) {
+			typ = typ.toClass();
+			X10ClassType ctyp = (X10ClassType) typ;
+			assert ctyp.typeArguments().size() == 1;
+			return ctyp.typeArguments().get(0);
+		}
+		if (xts().isRemoteArray(typ)) {
+			typ = typ.toClass();
+			X10ClassType ctyp = (X10ClassType) typ;
+			assert ctyp.typeArguments().size() == 1;
+			Type type2 = ctyp.typeArguments().get(0);
+			X10ClassType ctyp2 = (X10ClassType) typ;
+			assert ctyp2.typeArguments().size() == 1;
+			return ctyp2.typeArguments().get(0);
+		}
+		return null;
 
-    private boolean isFloatArray(Type typ) {
-        Type cargo = arrayCargo(typ);
-        return cargo != null && cargo.isFloat();
-    }
+	}
 
-    private boolean isIntArray(Type typ) {
-        Type cargo = arrayCargo(typ);
-        return cargo != null && cargo.isInt();
-    }
-    
-    String prependCUDAType(Type t, String rest) {
-        String type = Emitter.translateType(t, true);
+	private boolean isFloatArray(Type typ) {
+		Type cargo = arrayCargo(typ);
+		return cargo != null && cargo.isFloat();
+	}
 
-        if (isIntArray(t)) {
-            type = "x10_int *";
-        } else if (isFloatArray(t)) {
-            type = "x10_float *";
-        } else {
-            type = type + " ";
-        }
-        
-        return type + rest;
-    }
-    
-    void handleKernel(Block_c b) {
-        String kernel_name = context().wrappingClosure();
-        sw.write("/* block split-compiled to cuda as " + kernel_name + " */ ");
-        System.out.println("Kernel: "+kernel_name);
+	private boolean isIntArray(Type typ) {
+		Type cargo = arrayCargo(typ);
+		return cargo != null && cargo.isInt();
+	}
 
-        ClassifiedStream out = cudaStream();
+	String prependCUDAType(Type t, String rest) {
+		String type = Emitter.translateType(t, true);
 
-        // environment (passed into kernel via pointer)
-        generateStruct(kernel_name, out, context().kernelParams());
+		if (isIntArray(t)) {
+			type = "x10aux::cuda_array<x10_int> ";
+		} else if (isFloatArray(t)) {
+			type = "x10aux::cuda_array<x10_float> ";
+		} else {
+			type = type + " ";
+		}
 
-        out.forceNewline();
+		return type + rest;
+	}
 
-        boolean ptr = !context().directParams();
-        // kernel (extern "C" to disable name-mangling which seems to be
-        // inconsistent across cuda versions)
-        out.write("extern \"C\" __global__ void " + kernel_name + "("
-                + kernel_name + "_env "+(ptr?"*":"") + env + ") {");
-        out.newline(4);
-        out.begin(0);
-        
-        if (ptr) {
-	        for (VarInstance<?> var : context().kernelParams()) {
-	            String name = var.name().toString();
-	            if (name.equals(THIS)) {
-	                name = SAVED_THIS;
-	            } else {
-	                name = Emitter.mangled_non_method_name(name);
-	            }
-	            out.write("__shared__ "+prependCUDAType(var.type(),name) + ";"); out.newline();
-	        }
-	        out.write("if (threadIdx.x==0) {"); out.newline(4); out.begin(0);
-	        for (VarInstance<?> var : context().kernelParams()) {
-	            String name = var.name().toString();
-	            if (name.equals(THIS)) {
-	                name = SAVED_THIS;
-	            } else {
-	                name = Emitter.mangled_non_method_name(name);
-	            }
-	            out.write(name+" = "+env+"->"+name+";"); out.newline();
-	        }
-	        out.end(); out.newline();
-	        out.write("}"); out.newline();
-	        out.write("__syncthreads();"); out.newline();
-	        out.forceNewline();
-        }
-        
+	void handleKernel(Block_c b) {
+		String kernel_name = context().wrappingClosure();
+		sw.write("/* block split-compiled to cuda as " + kernel_name + " */ ");
+		System.out.println("Kernel: " + kernel_name);
 
-        sw.pushCurrentStream(out);
-        context().shm().generateCode(sw, tr);
-        sw.popCurrentStream();
-        
-        // body
-        sw.pushCurrentStream(out);
-        super.visit(b);
-        sw.popCurrentStream();
+		ClassifiedStream out = cudaStream();
 
-        // end
-        out.end();
-        out.newline();
-        out.write("} // " + kernel_name); out.newline();
-        
-        out.forceNewline();
-    }
+		// environment (passed into kernel via pointer)
+		generateStruct(kernel_name, out, context().kernelParams());
 
-    private void generateStruct(String kernel_name, SimpleCodeWriter out, ArrayList<VarInstance<?>> vars) {
-        out.write("struct " + kernel_name + "_env {");
-        out.newline(4);
-        out.begin(0);
-        // emitter.printDeclarationList(out, context(),
-        // context().kernelParams());
-        for (VarInstance<?> var : vars) {
-            String name = var.name().toString();
-            if (name.equals(THIS)) {
-                name = SAVED_THIS;
-            } else {
-                name = Emitter.mangled_non_method_name(name);
-            }
-            out.write(prependCUDAType(var.type(),name) + ";");
-            out.newline();
-        }
-        out.end();
-        out.newline();
-        out.write("};");
-        out.newline();
-    }
+		out.forceNewline();
 
-    // Java cannot return multiple values from a function
-    class MultipleValues {
-        public Expr max;
+		boolean ptr = !context().directParams();
+		// kernel (extern "C" to disable name-mangling which seems to be
+		// inconsistent across cuda versions)
+		out.write("extern \"C\" __global__ void " + kernel_name + "("
+				+ kernel_name + "_env " + (ptr ? "*" : "") + env + ") {");
+		out.newline(4);
+		out.begin(0);
 
-        public Name var;
+		if (ptr) {
+			for (VarInstance<?> var : context().kernelParams()) {
+				String name = var.name().toString();
+				if (name.equals(THIS)) {
+					name = SAVED_THIS;
+				} else {
+					name = Emitter.mangled_non_method_name(name);
+				}
+				out.write("__shared__ " + prependCUDAType(var.type(), name)
+						+ ";");
+				out.newline();
+			}
+			out.write("if (threadIdx.x==0) {");
+			out.newline(4);
+			out.begin(0);
+			for (VarInstance<?> var : context().kernelParams()) {
+				String name = var.name().toString();
+				if (name.equals(THIS)) {
+					name = SAVED_THIS;
+				} else {
+					name = Emitter.mangled_non_method_name(name);
+				}
+				out.write(name + " = " + env + "->" + name + ";");
+				out.newline();
+			}
+			out.end();
+			out.newline();
+			out.write("}");
+			out.newline();
+			out.write("__syncthreads();");
+			out.newline();
+			out.forceNewline();
+		}
 
-        public Block body;
-    }
+		sw.pushCurrentStream(out);
+		context().shm().generateCode(sw, tr);
+		sw.popCurrentStream();
 
-    protected MultipleValues processLoop(X10Loop loop) {
-        MultipleValues r = new MultipleValues();
-        Formal loop_formal = loop.formal();
-        assert loop_formal instanceof X10Formal; // FIXME: proper error
-        X10Formal loop_x10_formal = (X10Formal) loop_formal;
-        assert loop_x10_formal.hasExplodedVars(); // FIXME: proper error
-        assert loop_x10_formal.vars().size() == 1; // FIXME: proper error
-        r.var = loop_x10_formal.vars().get(0).name().id();
-        Expr domain = loop.domain();
-        assert domain instanceof RegionMaker; // FIXME: proper error
-        RegionMaker region = (RegionMaker) domain;
-        assert region.name().toString().equals("makeRectangular") : region
-                .name(); // FIXME: proper error
-        Receiver target = region.target();
-        assert target instanceof CanonicalTypeNode; // FIXME: proper error
-        CanonicalTypeNode target_type_node = (CanonicalTypeNode) target;
-        assert target_type_node.nameString().equals("Region") : target_type_node
-                .nameString(); // FIXME: proper error
-        assert region.arguments().size() == 2; // FIXME: proper error
-        Expr from_ = region.arguments().get(0);
-        Expr to_ = region.arguments().get(1);
-        assert from_ instanceof IntLit; // FIXME: proper error
-        //assert to_ instanceof IntLit; // FIXME: proper error
-        IntLit from = (IntLit) from_;
-        //IntLit to = (IntLit) to_;
-        assert from.value() == 0; // FIXME: proper error
-        //r.iterations = to.value() + 1;
-        r.max = to_;
-        r.body = (Block) loop.body();
-        return r;
-    }
+		// body
+		sw.pushCurrentStream(out);
+		super.visit(b);
+		sw.popCurrentStream();
 
-    protected MultipleValues processLoop(Block for_block) {
-		/* example of the loop we're trying to absorb
-		    {
-		        final x10.lang.Int{self==0} block321min322 = 0;
-		        final x10.lang.Int block321max323 = x10.lang.Int{self==8, blocks==8}.operator-(blocks, 1);
-		        for (x10.lang.Int{self==0} block321 = block321min322;; x10.lang.Int{self==0}.operator<=(block321, block321max323)eval(block321 += 1);) {
-		            final x10.lang.Int block = block321;
-		            {
-		                ...
-		            }
-		        }
-		    }
-	 	*/
-    	
-    	assert for_block.statements().size() == 3 : for_block.statements().size();
-        // test that it is of the form for (blah in region)
-        Stmt i_ = for_block.statements().get(0);
-        Stmt j_ = for_block.statements().get(1);
-        Stmt for_block2 = for_block.statements().get(2);
-        assert for_block2 instanceof For : for_block2.getClass(); // FIXME: proper
-                                                        // error
-        For loop = (For) for_block2;
-        MultipleValues r = new MultipleValues();
-        assert loop.inits().size() == 1 : loop.inits();
-        // loop inits are not actually used
-        //ForInit i_ = loop.inits().get(0);
-        assert i_ instanceof LocalDecl : i_.getClass();
-        LocalDecl i = (LocalDecl) i_;
-        //ForInit j_ = loop.inits().get(1);
-        assert j_ instanceof LocalDecl : j_.getClass();
-        LocalDecl j = (LocalDecl) j_;
-        assert loop.cond() instanceof X10Call : loop.cond().getClass();
-        X10Call cond = (X10Call) loop.cond();
-        assert cond.name().id() == X10Binary_c.binaryMethodName(Binary.LE) : cond.name();
-        List<Expr> args = cond.arguments();
-        assert args.size() == 2 : args.size();
-        assert args.get(0) instanceof Local : args.get(0).getClass();
-        Local cond_left = (Local) args.get(0);
-        assert args.get(1) instanceof Local : args.get(1).getClass();
-        Local cond_right = (Local) args.get(1);
-        /*
-        assert loop.cond() instanceof Binary : loop.cond().getClass();
-        Binary cond = (Binary) loop.cond();
-        assert cond.operator() == Binary.LE : cond.operator();
-        assert cond.left() instanceof Local : cond.left().getClass();
-        Local cond_left = (Local) cond.left();
-        assert cond_left.name().id() == i.name().id() : cond_left;
-        assert cond.right() instanceof Local : cond.right().getClass();
-        Local cond_right = (Local) cond.right();
-        */
-        assert cond_right.name().id() == j.name().id() : cond_right;
-        Expr from_ = i.init();
-        Expr to_ = j.init();
-        assert from_ instanceof IntLit : from_.getClass(); // FIXME: proper error
-        //assert to_ instanceof IntLit : to_.getClass(); // FIXME: proper error
-        IntLit from = (IntLit) from_;
-        //IntLit to = (IntLit) to_;
-        assert from.value() == 0 : from.value(); // FIXME: proper error
-        //r.iterations = to.value() + 1;
-        r.max = to_;
-        assert loop.body() instanceof Block : loop.body().getClass();
-        Block block = (Block) loop.body();
-        assert block.statements().size() == 2 : block.statements();
-        Stmt first = block.statements().get(0);
-        assert first instanceof LocalDecl : first.getClass();
-        LocalDecl real_var = (LocalDecl) first;
-        Stmt second = block.statements().get(1);
-        assert second instanceof Block : second.getClass();
-        r.body = (Block) second;
-        r.var = real_var.name().id();
-        return r;
-    }
-    
-    public void checkAutoVar(Stmt s) {
-        assert s instanceof LocalDecl : s.getClass(); // FIXME: proper error
-        LocalDecl s_ = (LocalDecl)s;
-        Expr init_expr = s_.init();
-        assert init_expr instanceof X10Call_c : init_expr.getClass(); // FIXME: proper error
-        X10Call_c init_call = (X10Call_c) init_expr;
-        Receiver init_call_target = init_call.target();
-        assert init_call_target instanceof CanonicalTypeNode : init_call_target.getClass(); // FIXME: proper error
-        CanonicalTypeNode init_call_target_node = (CanonicalTypeNode) init_call_target;
-        assert init_call_target_node.nameString().equals("CUDAUtilities") : init_call_target_node.nameString();
-        assert init_call.typeArguments().size() == 0 : init_call.typeArguments();
-        if (init_call.name().toString().equals("autoBlocks")) {
-            assert context().autoBlocks()==null : "Already have autoBlocks: "+context().autoBlocks();
-            context().autoBlocks(s_);
-            context().established().autoBlocks(s_);
-        } else if (init_call.name().toString().equals("autoThreads")) {
-            assert context().autoThreads()==null : "Already have autoThreads: "+context().autoThreads();
-            context().autoThreads(s_);
-            context().established().autoThreads(s_);
-        } else {    
-            assert false : init_call.name();
-        }
-    }
+		// end
+		out.end();
+		out.newline();
+		out.write("} // " + kernel_name);
+		out.newline();
 
-    public void visit(Block_c b) {
+		out.forceNewline();
+	}
+
+	private void generateStruct(String kernel_name, SimpleCodeWriter out,
+			ArrayList<VarInstance<?>> vars) {
+		out.write("struct " + kernel_name + "_env {");
+		out.newline(4);
+		out.begin(0);
+		// emitter.printDeclarationList(out, context(),
+		// context().kernelParams());
+		for (VarInstance<?> var : vars) {
+			String name = var.name().toString();
+			if (name.equals(THIS)) {
+				name = SAVED_THIS;
+			} else {
+				name = Emitter.mangled_non_method_name(name);
+			}
+			out.write(prependCUDAType(var.type(), name) + ";");
+			out.newline();
+		}
+		out.end();
+		out.newline();
+		out.write("};");
+		out.newline();
+	}
+
+	// Java cannot return multiple values from a function
+	class MultipleValues {
+		public Expr max;
+
+		public Name var;
+
+		public Block body;
+	}
+
+	protected MultipleValues processLoop(X10Loop loop) {
+		MultipleValues r = new MultipleValues();
+		Formal loop_formal = loop.formal();
+		assert loop_formal instanceof X10Formal; // FIXME: proper error
+		X10Formal loop_x10_formal = (X10Formal) loop_formal;
+		assert loop_x10_formal.hasExplodedVars(); // FIXME: proper error
+		assert loop_x10_formal.vars().size() == 1; // FIXME: proper error
+		r.var = loop_x10_formal.vars().get(0).name().id();
+		Expr domain = loop.domain();
+		assert domain instanceof RegionMaker; // FIXME: proper error
+		RegionMaker region = (RegionMaker) domain;
+		assert region.name().toString().equals("makeRectangular") : region
+				.name(); // FIXME: proper error
+		Receiver target = region.target();
+		assert target instanceof CanonicalTypeNode; // FIXME: proper error
+		CanonicalTypeNode target_type_node = (CanonicalTypeNode) target;
+		assert target_type_node.nameString().equals("Region") : target_type_node
+				.nameString(); // FIXME: proper error
+		assert region.arguments().size() == 2; // FIXME: proper error
+		Expr from_ = region.arguments().get(0);
+		Expr to_ = region.arguments().get(1);
+		assert from_ instanceof IntLit; // FIXME: proper error
+		// assert to_ instanceof IntLit; // FIXME: proper error
+		IntLit from = (IntLit) from_;
+		// IntLit to = (IntLit) to_;
+		assert from.value() == 0; // FIXME: proper error
+		// r.iterations = to.value() + 1;
+		r.max = to_;
+		r.body = (Block) loop.body();
+		return r;
+	}
+
+	protected MultipleValues processLoop(Block for_block) {
+		/*
+		 * example of the loop we're trying to absorb { final
+		 * x10.lang.Int{self==0} block321min322 = 0; final x10.lang.Int
+		 * block321max323 = x10.lang.Int{self==8, blocks==8}.operator-(blocks,
+		 * 1); for (x10.lang.Int{self==0} block321 = block321min322;;
+		 * x10.lang.Int{self==0}.operator<=(block321,
+		 * block321max323)eval(block321 += 1);) { final x10.lang.Int block =
+		 * block321; { ... } } }
+		 */
+
+		assert for_block.statements().size() == 3 : for_block.statements()
+				.size();
+		// test that it is of the form for (blah in region)
+		Stmt i_ = for_block.statements().get(0);
+		Stmt j_ = for_block.statements().get(1);
+		Stmt for_block2 = for_block.statements().get(2);
+		assert for_block2 instanceof For : for_block2.getClass(); // FIXME:
+																	// proper
+		// error
+		For loop = (For) for_block2;
+		MultipleValues r = new MultipleValues();
+		assert loop.inits().size() == 1 : loop.inits();
+		// loop inits are not actually used
+		// ForInit i_ = loop.inits().get(0);
+		assert i_ instanceof LocalDecl : i_.getClass();
+		LocalDecl i = (LocalDecl) i_;
+		// ForInit j_ = loop.inits().get(1);
+		assert j_ instanceof LocalDecl : j_.getClass();
+		LocalDecl j = (LocalDecl) j_;
+		assert loop.cond() instanceof X10Call : loop.cond().getClass();
+		X10Call cond = (X10Call) loop.cond();
+		assert cond.name().id() == X10Binary_c.binaryMethodName(Binary.LE) : cond
+				.name();
+		List<Expr> args = cond.arguments();
+		assert args.size() == 2 : args.size();
+		assert args.get(0) instanceof Local : args.get(0).getClass();
+		Local cond_left = (Local) args.get(0);
+		assert args.get(1) instanceof Local : args.get(1).getClass();
+		Local cond_right = (Local) args.get(1);
+		/*
+		 * assert loop.cond() instanceof Binary : loop.cond().getClass(); Binary
+		 * cond = (Binary) loop.cond(); assert cond.operator() == Binary.LE :
+		 * cond.operator(); assert cond.left() instanceof Local :
+		 * cond.left().getClass(); Local cond_left = (Local) cond.left(); assert
+		 * cond_left.name().id() == i.name().id() : cond_left; assert
+		 * cond.right() instanceof Local : cond.right().getClass(); Local
+		 * cond_right = (Local) cond.right();
+		 */
+		assert cond_right.name().id() == j.name().id() : cond_right;
+		Expr from_ = i.init();
+		Expr to_ = j.init();
+		assert from_ instanceof IntLit : from_.getClass(); // FIXME: proper
+															// error
+		// assert to_ instanceof IntLit : to_.getClass(); // FIXME: proper error
+		IntLit from = (IntLit) from_;
+		// IntLit to = (IntLit) to_;
+		assert from.value() == 0 : from.value(); // FIXME: proper error
+		// r.iterations = to.value() + 1;
+		r.max = to_;
+		assert loop.body() instanceof Block : loop.body().getClass();
+		Block block = (Block) loop.body();
+		assert block.statements().size() == 2 : block.statements();
+		Stmt first = block.statements().get(0);
+		assert first instanceof LocalDecl : first.getClass();
+		LocalDecl real_var = (LocalDecl) first;
+		Stmt second = block.statements().get(1);
+		assert second instanceof Block : second.getClass();
+		r.body = (Block) second;
+		r.var = real_var.name().id();
+		return r;
+	}
+
+	public void checkAutoVar(Stmt s) {
+		assert s instanceof LocalDecl : s.getClass(); // FIXME: proper error
+		LocalDecl s_ = (LocalDecl) s;
+		Expr init_expr = s_.init();
+		assert init_expr instanceof X10Call_c : init_expr.getClass(); // FIXME:
+																		// proper
+																		// error
+		X10Call_c init_call = (X10Call_c) init_expr;
+		Receiver init_call_target = init_call.target();
+		assert init_call_target instanceof CanonicalTypeNode : init_call_target
+				.getClass(); // FIXME: proper error
+		CanonicalTypeNode init_call_target_node = (CanonicalTypeNode) init_call_target;
+		assert init_call_target_node.nameString().equals("CUDAUtilities") : init_call_target_node
+				.nameString();
+		assert init_call.typeArguments().size() == 0 : init_call
+				.typeArguments();
+		if (init_call.name().toString().equals("autoBlocks")) {
+			assert context().autoBlocks() == null : "Already have autoBlocks: "
+					+ context().autoBlocks();
+			context().autoBlocks(s_);
+			context().established().autoBlocks(s_);
+		} else if (init_call.name().toString().equals("autoThreads")) {
+			assert context().autoThreads() == null : "Already have autoThreads: "
+					+ context().autoThreads();
+			context().autoThreads(s_);
+			context().established().autoThreads(s_);
+		} else {
+			assert false : init_call.name();
+		}
+	}
+
+	public void visit(Block_c b) {
         super.visit(b);
         if (blockIsKernel(b)) {
         	Block_c closure_body = b;
-        	//System.out.println(b);
-        	/* example of KMeansCUDA kernel
-				{
-				    [OPTIONAL] final x10.lang.Int blocks = x10.compiler.CUDAUtilities.autoBlocks();
-				    [OPTIONAL] final x10.lang.Int threads = x10.compiler.CUDAUtilities.autoThreads();
-	                [OPTIONAL]* final x10.lang.Rail[x10.lang.Float] cmem = x10.lang.Rail.make[x10.lang.Float](x10.lang.Int.operator*(num_clusters, 4), clusters_copy);
-				    {
-				        final x10.lang.Int block321min322 = 0;
-				        final x10.lang.Int block321max323 = x10.lang.Int.operator-(blocks, 1);
-				        for (x10.lang.Int block321 = block321min322;; x10.lang.Int{self==0}.operator<=(block321, block321max323)eval(block321 += 1);) {
-				            final x10.lang.Int block = block321;
-				            {
-				                [OPTIONAL]* final x10.lang.Rail[x10.lang.Float] clustercache = x10.lang.Rail.make[x10.lang.Float](x10.lang.Int.operator*(num_clusters, 4), clusters_copy);
-				                {
-				                    final x10.lang.Int{self==0} thread318min319 = 0;
-				                    final x10.lang.Int thread318max320 = x10.lang.Int.operator-(threads, 1);
-				                    for (x10.lang.Int{self==0} thread318 = thread318min319;; x10.lang.Int.operator<=(thread318, thread318max320)eval(thread318 += 1);) {
-				                        final x10.lang.Int thread = thread318;
-				                        {
-				                            eval(x10.lang.Runtime.runAsync( (){}: x10.lang.Void => { ... }));
-				                        }
-				                    }   
-				                }   
-				            }   
-				        }   
-				    }
-				}   
-        	*/
-            assert !generatingKernel() : "Nesting of cuda annotation makes no sense.";
+        	//System.out.println(b); // useful for finding out what the frontend is actually giving us
+
+        	assert !generatingKernel() : "Nesting of cuda annotation makes no sense.";
             // TODO: assert the block is the body of an async
 
             assert b.statements().size()>=1 : b.statements();
@@ -581,23 +572,35 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
                 LocalDecl ld = (LocalDecl) st;
                 Expr init_expr = ld.init();
                 // TODO: primitive vals and shared vars
-                assert init_expr instanceof X10Call_c; // FIXME: proper error
-                X10Call_c init_call = (X10Call_c) init_expr;
+                assert init_expr instanceof X10New_c;
+                X10New_c init_new = (X10New_c) init_expr;
+                Type instantiatedType = init_new.objectType().type();
+                assert xts().isArray(instantiatedType) : instantiatedType;
+                TypeNode rail_type_arg_node = init_new.typeArguments().get(0);
+                
+                //assert init_expr instanceof X10Call_c : init_expr.getClass(); // FIXME: proper error
+                //X10Call_c init_call = (X10Call_c) init_expr;
                 // TODO: makeVal too
-                Receiver init_call_target = init_call.target();
-                assert init_call_target instanceof CanonicalTypeNode; // FIXME: proper error
-                CanonicalTypeNode init_call_target_node = (CanonicalTypeNode) init_call_target;
-                assert init_call_target_node.nameString().equals("Rail");
-                assert init_call.name().toString().equals("make") : init_call.name(); // FIXME: proper error
-                assert init_call.typeArguments().size() == 1;
-                TypeNode rail_type_arg_node = init_call.typeArguments().get(0);
+                //Receiver init_call_target = init_call.target();
+                //assert init_call_target instanceof CanonicalTypeNode; // FIXME: proper error
+                //CanonicalTypeNode init_call_target_node = (CanonicalTypeNode) init_call_target;
+                //assert init_call_target_node.nameString().equals("Rail");
+                //assert init_call.name().toString().equals("make") : init_call.name(); // FIXME: proper error
+                //assert init_call.typeArguments().size() == 1;
+                //TypeNode rail_type_arg_node = init_call.typeArguments().get(0);
                 Type rail_type_arg = rail_type_arg_node.type();
                 // TODO: support other types
-                assert rail_type_arg.isFloat();
-                assert init_call.arguments().size() == 2;
-                Expr num_elements = init_call.arguments().get(0);
-                Expr rail_init_closure = init_call.arguments().get(1);
-                shm.addRail(ld, num_elements, rail_init_closure);
+                assert rail_type_arg.isFloat() : rail_type_arg;
+                if (init_new.arguments().size()==2) {
+	                Expr num_elements = init_new.arguments().get(0);
+	                Expr rail_init_closure = init_new.arguments().get(1);
+	                shm.addArrayInitClosure(ld, num_elements, rail_init_closure);
+                } else {
+	                assert init_new.arguments().size() == 1 : init_new.arguments().size();
+	                Expr src_array = init_new.arguments().get(0);
+	                assert xts().isArray(src_array.type()) || xts().isRemoteArray(src_array.type()) : src_array;
+	                shm.addArrayInitArray(ld, src_array);
+                }
             }
 
             MultipleValues inner = processLoop(for_block2);
@@ -641,468 +644,573 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
         }
     }
 
-    public void visit(Closure_c n) {
-        context().establishClosure();
-        String last = context().wrappingClosure();
-        String lastHostClassName = context().wrappingClass();
-        X10ClassType hostClassType = (X10ClassType) n.closureDef().typeContainer().get();
-        String nextHostClassName = Emitter.translate_mangled_FQN(hostClassType.fullName().toString(), "_");
-        String next = getClosureName(nextHostClassName, context().closureId()+1);
-        //System.out.println(last+" goes to "+next);
-        context().wrappingClosure(next);
-        context().wrappingClass(nextHostClassName);
-        super.visit(n);
-        context().wrappingClosure(last);
-        context().wrappingClass(lastHostClassName);
-        //System.out.println("back to "+last);
-    }
+	public void visit(Closure_c n) {
+		context().establishClosure();
+		String last = context().wrappingClosure();
+		String lastHostClassName = context().wrappingClass();
+		X10ClassType hostClassType = (X10ClassType) n.closureDef()
+				.typeContainer().get();
+		String nextHostClassName = Emitter.translate_mangled_FQN(hostClassType
+				.fullName().toString(), "_");
+		String next = getClosureName(nextHostClassName,
+				context().closureId() + 1);
+		// System.out.println(last+" goes to "+next);
+		context().wrappingClosure(next);
+		context().wrappingClass(nextHostClassName);
+		super.visit(n);
+		context().wrappingClosure(last);
+		context().wrappingClass(lastHostClassName);
+		// System.out.println("back to "+last);
+	}
 
-    
-    protected void generateClosureDeserializationIdDef(ClassifiedStream defn_s, String cnamet, List<Type> freeTypeParams, String hostClassName, Block block) {
-    	if (blockIsKernel(block)) {
-    
-            X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
-            boolean in_template_closure = freeTypeParams.size()>0;
-            if (in_template_closure)
-                emitter.printTemplateSignature(freeTypeParams, defn_s);
-            defn_s.write("const x10aux::serialization_id_t "+cnamet+"::"+SharedVarsMethods.SERIALIZATION_ID_FIELD+" = ");
-            defn_s.newline(4);
-            String template = in_template_closure ? "template " : "";
-            defn_s.write("x10aux::DeserializationDispatcher::addDeserializer("+
-                      cnamet+"::"+template+SharedVarsMethods.DESERIALIZE_METHOD+
-                      chevrons("x10::lang::Reference")+", true, "+
-                      cnamet+"::"+template+SharedVarsMethods.DESERIALIZE_CUDA_METHOD+", "+
-                      "\""+hostClassName+".cubin\", \""+cnamet+"\");");
-            defn_s.newline(); defn_s.forceNewline();
-        } else {
-            super.generateClosureDeserializationIdDef(defn_s, cnamet, freeTypeParams, hostClassName, block);
-        }
-    }    
-    
-    protected void generateClosureSerializationFunctions(X10CPPContext_c c, String cnamet, StreamWrapper inc, Block block) {
-        super.generateClosureSerializationFunctions(c, cnamet, inc, block);
+	protected void generateClosureDeserializationIdDef(ClassifiedStream defn_s,
+			String cnamet, List<Type> freeTypeParams, String hostClassName,
+			Block block) {
+		if (blockIsKernel(block)) {
 
-        if (blockIsKernel(block)) {
-        
-            inc.write("static void "+SharedVarsMethods.DESERIALIZE_CUDA_METHOD+"("+DESERIALIZATION_BUFFER+" &__buf, x10aux::place __gpu, size_t &__blocks, size_t &__threads, size_t &__shm, size_t &argc, char *&argv, size_t &cmemc, char *&cmemv) {");
-            inc.newline(4); inc.begin(0);
-    
-            inc.write(make_ref(cnamet)+" __this = "+cnamet+"::"+DESERIALIZE_METHOD+"<"+cnamet+">(__buf);");
-            inc.newline();
-            
-            ArrayList<VarInstance<?>> env = context().kernelParams();
+			X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
+			boolean in_template_closure = freeTypeParams.size() > 0;
+			if (in_template_closure)
+				emitter.printTemplateSignature(freeTypeParams, defn_s);
+			defn_s.write("const x10aux::serialization_id_t " + cnamet + "::"
+					+ SharedVarsMethods.SERIALIZATION_ID_FIELD + " = ");
+			defn_s.newline(4);
+			String template = in_template_closure ? "template " : "";
+			defn_s.write("x10aux::DeserializationDispatcher::addDeserializer("
+					+ cnamet + "::" + template
+					+ SharedVarsMethods.DESERIALIZE_METHOD
+					+ chevrons("x10::lang::Reference") + ", true, "
+					+ cnamet + "::" + template + SharedVarsMethods.DESERIALIZE_CUDA_METHOD + ", "
+					+ cnamet + "::" + template + SharedVarsMethods.POST_CUDA_METHOD + ", "
+					+ "\"" + hostClassName + ".cubin\", \"" + cnamet + "\");");
+			defn_s.newline();
+			defn_s.forceNewline();
+		} else {
+			super.generateClosureDeserializationIdDef(defn_s, cnamet,
+					freeTypeParams, hostClassName, block);
+		}
+	}
 
-            for (VarInstance<?> var : env) {
-                Type t = var.type();
-                String name = var.name().toString();
-                inc.write(Emitter.translateType(t, true)+" "+name);
-                if (context().autoBlocks()!=null && var == context().autoBlocks().localDef().asInstance()) {
-                    inc.write(";");
-                } else if (context().autoThreads()!=null && var == context().autoThreads().localDef().asInstance()) {
-                    inc.write(";");
-                } else {
-                    inc.write(" = __this->"+name+";");
-                }
-                inc.newline();
-            }
-            
-            inc.write("__shm = "); inc.begin(0);
-            context().shm().generateSize(inc, tr);
-            inc.write(";"); inc.end(); inc.newline();
-            
-            if (context().autoBlocks()!=null && context().autoThreads()!=null) {
-                String bname = context().autoBlocks().name().id().toString();
-                String tname = context().autoThreads().name().id().toString();;
-                inc.write("x10aux::blocks_threads(__gpu, x10aux::DeserializationDispatcher::getMsgType(_serialization_id), __shm, "+bname+", "+tname+");"); inc.newline();
-            }// else {
-                inc.write("__blocks = ("); inc.begin(0);
-                tr.print(null, context().blocks(), inc);
-                inc.write(")+1;"); inc.end(); inc.newline();
+	protected void generateClosureSerializationFunctions(X10CPPContext_c c,
+			String cnamet, StreamWrapper inc, Block block) {
+		super.generateClosureSerializationFunctions(c, cnamet, inc, block);
 
-                inc.write("__threads = ("); inc.begin(0);
-                tr.print(null, context().threads(), inc);
-                inc.write(")+1;"); inc.end(); inc.newline();
-            //}
-            
-            generateStruct("__", inc, context().kernelParams());
-            inc.write("___env __env;"); inc.newline();
-                        
-            for (VarInstance<?> var : env) {
-                Type t = var.type();
-                String name = var.name().toString();
-                inc.write("__env."+name+" = ");
-                
-                //String addr = "&(*"+name+")[0]"; // old way for rails
-                String addr = "&"+name+"->FMGL(raw).raw()[0]";
-                //String rr = "x10aux::get_remote_ref_maybe_null("+name+".operator->())"; // old object model
-                String rr = "&"+name+"->FMGL(rawData).raw()[0]";
-                
-                if (isIntArray(t)) {
-                    if (xts().isRemoteArray(t)) {
-                        inc.write("(x10_int*)(size_t)"+rr);
-                    } else {
-                    	String sz = "sizeof(x10_int)*"+name+"->FMGL(rawLength)";
-                        inc.write("(x10_int*)(size_t)x10aux::remote_alloc(__gpu, "+sz+");"); inc.newline();
-                        inc.write("x10aux::cuda_put(__gpu, (x10_ulong) __env."+name+", "+addr+", "+sz+")");
-                    }
-                } else if (isFloatArray(t)) {
-                    if (xts().isRemoteArray(t)) {
-                        inc.write("(x10_float*)(size_t)"+rr);
-                    } else {
-                    	String sz = "sizeof(x10_float)*"+name+"->FMGL(rawLength)";
-                        inc.write("(x10_float*)(size_t)x10aux::remote_alloc(__gpu, "+sz+");"); inc.newline();
-                        inc.write("x10aux::cuda_put(__gpu, (x10_ulong) __env."+name+", "+addr+", "+sz+")");
-                    }
-                } else {
-                    inc.write(name);
-                }
-                inc.write(";");
-                inc.newline();
-            }
-            
-            if (env.isEmpty()) {
-	            inc.write("argc = 0;"); inc.end(); inc.newline();
-            } else {
-            	if (kernelWantsDirectParams(block)) {
-    	            inc.write("memcpy(argv, &__env, sizeof(__env));"); inc.newline();
-    	            inc.write("argc = sizeof(__env);"); inc.end(); inc.newline();
-            	} else {
-    	            inc.write("x10_ulong __remote_env = x10aux::remote_alloc(__gpu, sizeof(__env));"); inc.newline();
-    	            inc.write("x10aux::cuda_put(__gpu, __remote_env, &__env, sizeof(__env));"); inc.newline();
-    	            inc.write("::memcpy(argv, &__remote_env, sizeof (void*));"); inc.newline();
-    	            inc.write("argc = sizeof(void*);"); inc.end(); inc.newline();
-            	}
-            }
-	        inc.write("}"); inc.newline(); inc.forceNewline();
-        }
-    }    
-    
-    public void visit(New_c n) {
-        assert !generatingKernel() : "New not allowed in @CUDA code.";
-        super.visit(n);
-    }
+		if (blockIsKernel(block)) {
 
-    @Override
-    public void visit(Assert_c n) {
-        assert !generatingKernel() : "Throwing exceptions not allowed in @CUDA code.";
-        super.visit(n);
-    }
+			ArrayList<VarInstance<?>> env = context().kernelParams();
 
-    @Override
-    public void visit(Assign_c asgn) {
-        // TODO Auto-generated method stub
-        super.visit(asgn);
-    }
+			generateStruct("__cuda", inc, env);
 
-    @Override
-    public void visit(AssignPropertyCall_c n) {
-        // TODO Auto-generated method stub
-        super.visit(n);
-    }
+			inc.write("static void "
+					  + SharedVarsMethods.POST_CUDA_METHOD
+					  + "("
+					  + DESERIALIZATION_BUFFER
+					  + " &__buf, x10aux::place __gpu, size_t __blocks, size_t __threads, size_t __shm, size_t argc, char *argv, size_t cmemc, char *cmemv) {");
+			inc.newline(4);
+			inc.begin(0);
 
-    @Override
-    public void visit(Await_c n) {
-        assert !generatingKernel() : "Await not allowed in @CUDA code.";
-        super.visit(n);
-    }
+			inc.write("__cuda_env __env;");
+			inc.newline();
 
-    @Override
-    public void visit(Binary_c n) {
-        // TODO Auto-generated method stub
-        super.visit(n);
-    }
+			if (!kernelWantsDirectParams(block)) {
+				inc.write("x10_ulong __remote_env;");
+				inc.newline();
+				inc.write("::memcpy(&__remote_env, argv, sizeof (void*));");
+				inc.newline();
+				inc.write("x10aux::remote_free(__gpu, __remote_env);");
+				inc.newline();
+				//FIXME: any arrays referenced from the env are being leaked here.
+				// we need some way to record a copy of the contents of the __env on the host
+				// so that we do not have to fetch __remote_env back onto the host
+				// then we can free those arrays like in the else branch below
+			} else {
+				inc.write("::memcpy(&__env, argv, argc);");
+				inc.newline();
+				for (VarInstance<?> var : env) {
+					Type t = var.type();
+					String name = var.name().toString();
+					if (isIntArray(t) || isFloatArray(t)) {
+						if (!xts().isRemoteArray(t)) {
+							inc.write("x10aux::remote_free(__gpu, (x10_ulong)(size_t)__env."+name+".raw);");
+						}
+					}
+					inc.newline();
+				}
+				
+			}
+			
+			inc.end(); inc.newline();
+			inc.write("}"); inc.newline();
+			
+			inc.forceNewline();
+			
+			inc.write("static void "
+					  + SharedVarsMethods.DESERIALIZE_CUDA_METHOD
+					  + "("
+					  + DESERIALIZATION_BUFFER
+					  + " &__buf, x10aux::place __gpu, size_t &__blocks, size_t &__threads, size_t &__shm, size_t &argc, char *&argv, size_t &cmemc, char *&cmemv) {");
+			inc.newline(4);
+			inc.begin(0);
 
-    @Override
-    public void visit(BooleanLit_c lit) {
-        // TODO Auto-generated method stub
-        super.visit(lit);
-    }
+			inc.write(make_ref(cnamet) + " __this = " + cnamet + "::"
+					+ DESERIALIZE_METHOD + "<" + cnamet + ">(__buf);");
+			inc.newline();
 
-    @Override
-    public void visit(Branch_c br) {
-        // TODO Auto-generated method stub
-        super.visit(br);
-    }
+			for (VarInstance<?> var : env) {
+				Type t = var.type();
+				String name = var.name().toString();
+				inc.write(Emitter.translateType(t, true) + " " + name);
+				if (context().autoBlocks() != null
+						&& var == context().autoBlocks().localDef()
+								.asInstance()) {
+					inc.write(";");
+				} else if (context().autoThreads() != null
+						&& var == context().autoThreads().localDef()
+								.asInstance()) {
+					inc.write(";");
+				} else {
+					inc.write(" = __this->" + name + ";");
+				}
+				inc.newline();
+			}
 
-    @Override
-    public void visit(Case_c n) {
-        // TODO Auto-generated method stub
-        super.visit(n);
-    }
+			inc.write("__shm = ");
+			inc.begin(0);
+			context().shm().generateSize(inc, tr);
+			inc.write(";");
+			inc.end();
+			inc.newline();
 
-    @Override
-    public void visit(Catch_c n) {
-        assert !generatingKernel() : "Catching exceptions not allowed in @CUDA code.";
-        super.visit(n);
-    }
+			if (context().autoBlocks() != null
+					&& context().autoThreads() != null) {
+				String bname = context().autoBlocks().name().id().toString();
+				String tname = context().autoThreads().name().id().toString();
+				inc.write("x10aux::blocks_threads(__gpu, x10aux::DeserializationDispatcher::getMsgType(_serialization_id), __shm, "
+                          + bname + ", " + tname + ");");
+				inc.newline();
+			}// else {
+			inc.write("__blocks = (");
+			inc.begin(0);
+			tr.print(null, context().blocks(), inc);
+			inc.write(")+1;");
+			inc.end();
+			inc.newline();
 
-    @Override
-    public void visit(CharLit_c lit) {
-        // TODO Auto-generated method stub
-        super.visit(lit);
-    }
+			inc.write("__threads = (");
+			inc.begin(0);
+			tr.print(null, context().threads(), inc);
+			inc.write(")+1;");
+			inc.end();
+			inc.newline();
+			// }
 
-    @Override
-    public void visit(ClosureCall_c c) {
-        assert !generatingKernel() : "Closure calls not allowed in @CUDA code.";
-        super.visit(c);
-    }
+			inc.write("__cuda_env __env;");
+			inc.newline();
 
-    @Override
-    public void visit(Conditional_c n) {
-        // TODO Auto-generated method stub
-        super.visit(n);
-    }
+			for (VarInstance<?> var : env) {
+				Type t = var.type();
+				String name = var.name().toString();
 
-    @Override
-    public void visit(Do_c n) {
-        // TODO Auto-generated method stub
-        super.visit(n);
-    }
+				// String addr = "&(*"+name+")[0]"; // old way for rails
+				String addr = "&" + name + "->FMGL(raw).raw()[0]";
+				// String rr =
+				// "x10aux::get_remote_ref_maybe_null("+name+".operator->())";
+				// // old object model
+				String rr = "&" + name + "->FMGL(rawData).raw()[0]";
 
-    @Override
-    public void visit(Empty_c n) {
-        // TODO Auto-generated method stub
-        super.visit(n);
-    }
+				String ts = null;
+				if (isIntArray(t)) {
+					ts = "x10_int";
+				} else if (isFloatArray(t)) {
+					ts = "x10_float";
+				}
+				
+				if (isIntArray(t) || isFloatArray(t)) {
+					if (xts().isRemoteArray(t)) {
+						inc.write("__env." + name + ".raw = ("+ts+"*)(size_t)"+rr+";");
+						inc.newline();
+						inc.write("__env." + name + ".size = "+name + "->FMGL(size);");
+						inc.newline();
+					} else {
+						String len = name + "->FMGL(rawLength)";
+						String sz = "sizeof("+ts+")*" + len;
+						inc.write("__env." + name + ".raw = ("+ts+"*)(size_t)x10aux::remote_alloc(__gpu, "+sz+");");
+						inc.newline();
+						inc.write("__env." + name + ".size = "+len+";");
+						inc.newline();
+						inc.write("x10aux::cuda_put(__gpu, (x10_ulong) __env." + name + ".raw, " + addr + ", " + sz + ");");
+					}
+				} else {
+					inc.write("__env." + name + " = " + name + ";");
+				}
+				inc.newline();
+			}
 
-    @Override
-    public void visit(Eval_c n) {
-        // TODO Auto-generated method stub
-        super.visit(n);
-    }
+			if (env.isEmpty()) {
+				inc.write("argc = 0;");
+				inc.end();
+				inc.newline();
+			} else {
+				if (kernelWantsDirectParams(block)) {
+					inc.write("memcpy(argv, &__env, sizeof(__env));");
+					inc.newline();
+					inc.write("argc = sizeof(__env);");
+					inc.end();
+					inc.newline();
+				} else {
+					inc.write("x10_ulong __remote_env = x10aux::remote_alloc(__gpu, sizeof(__env));");
+					inc.newline();
+					inc.write("x10aux::cuda_put(__gpu, __remote_env, &__env, sizeof(__env));");
+					inc.newline();
+					inc.write("::memcpy(argv, &__remote_env, sizeof (void*));");
+					inc.newline();
+					inc.write("argc = sizeof(void*);");
+					inc.end();
+					inc.newline();
+				}
+			}
+			inc.write("}");
+			inc.newline();
+			inc.forceNewline();
+		}
+	}
 
-    @Override
-    public void visit(Field_c n) {
-        // TODO Auto-generated method stub
-        super.visit(n);
-    }
+	public void visit(New_c n) {
+		assert !generatingKernel() : "New not allowed in @CUDA code.";
+		super.visit(n);
+	}
 
-    @Override
-    public void visit(FloatLit_c n) {
-        // TODO Auto-generated method stub
-        super.visit(n);
-    }
+	@Override
+	public void visit(Assert_c n) {
+		assert !generatingKernel() : "Throwing exceptions not allowed in @CUDA code.";
+		super.visit(n);
+	}
 
-    @Override
-    public void visit(For_c n) {
-        // TODO Auto-generated method stub
-        super.visit(n);
-    }
+	@Override
+	public void visit(Assign_c asgn) {
+		// TODO Auto-generated method stub
+		super.visit(asgn);
+	}
 
-    @Override
-    public void visit(ForLoop_c n) {
-        // TODO Auto-generated method stub
-        super.visit(n);
-    }
+	@Override
+	public void visit(AssignPropertyCall_c n) {
+		// TODO Auto-generated method stub
+		super.visit(n);
+	}
 
-    @Override
-    public void visit(Formal_c n) {
-        // TODO Auto-generated method stub
-        super.visit(n);
-    }
+	@Override
+	public void visit(Await_c n) {
+		assert !generatingKernel() : "Await not allowed in @CUDA code.";
+		super.visit(n);
+	}
 
-    @Override
-    public void visit(Id_c n) {
-        // TODO Auto-generated method stub
-        super.visit(n);
-    }
+	@Override
+	public void visit(Binary_c n) {
+		// TODO Auto-generated method stub
+		super.visit(n);
+	}
 
-    @Override
-    public void visit(If_c n) {
-        // TODO Auto-generated method stub
-        super.visit(n);
-    }
+	@Override
+	public void visit(BooleanLit_c lit) {
+		// TODO Auto-generated method stub
+		super.visit(lit);
+	}
 
-    @Override
-    public void visit(Initializer_c n) {
-        // TODO Auto-generated method stub
-        super.visit(n);
-    }
+	@Override
+	public void visit(Branch_c br) {
+		// TODO Auto-generated method stub
+		super.visit(br);
+	}
 
-    @Override
-    public void visit(IntLit_c n) {
-        // TODO Auto-generated method stub
-        super.visit(n);
-    }
+	@Override
+	public void visit(Case_c n) {
+		// TODO Auto-generated method stub
+		super.visit(n);
+	}
 
-    @Override
-    public void visit(Labeled_c label) {
-        // TODO Auto-generated method stub
-        super.visit(label);
-    }
+	@Override
+	public void visit(Catch_c n) {
+		assert !generatingKernel() : "Catching exceptions not allowed in @CUDA code.";
+		super.visit(n);
+	}
 
-    @Override
-    public void visit(Local_c n) {
-        if (generatingKernel()) {
-            ClassifiedStream out = cudaStream();
-            Name ln = n.name().id();
-            if (ln == context().blocksVar()) {
-                out.write("blockIdx.x");
-            } else if (ln == context().threadsVar()) {
-                out.write("threadIdx.x");
-            } else if (context().shm().has(ln)) {
-                out.write(ln.toString());
-            } else if (context().isKernelParam(ln)) {
-                //it seems the post-compiler is not good at hoisting these accesses so we do it ourselves
-            	if (context().directParams()) {
-                    out.write(env + "." + ln);
-            	} else {
-                    out.write(ln.toString());
-            	}
-            } else {
-                super.visit(n);
-            }
-        } else {
-            // we end up here in the _deserialize_cuda function because generatingKernel() is false
-            Name ln = n.name().id();
-            if (context().autoBlocks()!=null && ln == context().autoBlocks().name().id()) {
-                sw.write(context().autoBlocks().name().id().toString());
-            } else if (context().autoThreads()!=null && ln == context().autoThreads().name().id()) {
-                    sw.write(context().autoThreads().name().id().toString());
-            } else {
-                super.visit(n);
-            }
-        }
-    }
+	@Override
+	public void visit(CharLit_c lit) {
+		// TODO Auto-generated method stub
+		super.visit(lit);
+	}
 
-    @Override
-    public void visit(NullLit_c n) {
-        // TODO Auto-generated method stub
-        super.visit(n);
-    }
+	@Override
+	public void visit(ClosureCall_c c) {
+		assert !generatingKernel() : "Closure calls not allowed in @CUDA code.";
+		super.visit(c);
+	}
 
-    @Override
-    public void visit(Return_c ret) {
-        // TODO Auto-generated method stub
-        super.visit(ret);
-    }
+	@Override
+	public void visit(Conditional_c n) {
+		// TODO Auto-generated method stub
+		super.visit(n);
+	}
 
-    @Override
-    public void visit(StringLit_c n) {
-        // TODO Auto-generated method stub
-        super.visit(n);
-    }
+	@Override
+	public void visit(Do_c n) {
+		// TODO Auto-generated method stub
+		super.visit(n);
+	}
 
-    @Override
-    public void visit(SubtypeTest_c n) {
-        // TODO Auto-generated method stub
-        super.visit(n);
-    }
+	@Override
+	public void visit(Empty_c n) {
+		// TODO Auto-generated method stub
+		super.visit(n);
+	}
 
-    @Override
-    public void visit(Switch_c n) {
-        // TODO Auto-generated method stub
-        super.visit(n);
-    }
+	@Override
+	public void visit(Eval_c n) {
+		// TODO Auto-generated method stub
+		super.visit(n);
+	}
 
-    @Override
-    public void visit(SwitchBlock_c n) {
-        // TODO Auto-generated method stub
-        super.visit(n);
-    }
+	@Override
+	public void visit(Field_c n) {
+		// TODO Auto-generated method stub
+		super.visit(n);
+	}
 
-    @Override
-    public void visit(Throw_c n) {
-        assert !generatingKernel() : "Throwing exceptions not allowed in @CUDA code.";
-        super.visit(n);
-    }
+	@Override
+	public void visit(FloatLit_c n) {
+		// TODO Auto-generated method stub
+		super.visit(n);
+	}
 
-    @Override
-    public void visit(Try_c n) {
-        assert !generatingKernel() : "Catching exceptions not allowed in @CUDA code.";
-        super.visit(n);
-    }
+	@Override
+	public void visit(For_c n) {
+		// TODO Auto-generated method stub
+		super.visit(n);
+	}
 
-    @Override
-    public void visit(Tuple_c c) {
-        // TODO Auto-generated method stub
-        super.visit(c);
-    }
+	@Override
+	public void visit(ForLoop_c n) {
+		// TODO Auto-generated method stub
+		super.visit(n);
+	}
 
-    @Override
-    public void visit(TypeDecl_c n) {
-        // TODO Auto-generated method stub
-        super.visit(n);
-    }
+	@Override
+	public void visit(Formal_c n) {
+		// TODO Auto-generated method stub
+		super.visit(n);
+	}
 
-    @Override
-    public void visit(Unary_c n) {
-        // TODO Auto-generated method stub
-        super.visit(n);
-    }
+	@Override
+	public void visit(Id_c n) {
+		// TODO Auto-generated method stub
+		super.visit(n);
+	}
 
-    @Override
-    public void visit(While_c n) {
-        // TODO Auto-generated method stub
-        super.visit(n);
-    }
+	@Override
+	public void visit(If_c n) {
+		// TODO Auto-generated method stub
+		super.visit(n);
+	}
 
-    @Override
-    public void visit(X10Binary_c n) {
-        // TODO Auto-generated method stub
-        super.visit(n);
-    }
+	@Override
+	public void visit(Initializer_c n) {
+		// TODO Auto-generated method stub
+		super.visit(n);
+	}
 
-    @Override
-    public void visit(X10Call_c n) {
-    	// In fact they are allowed, as long as they are implemented with @Native 
-        //assert !generatingKernel() : "Calling functions not allowed in @CUDA code.";
-        super.visit(n);
-    }
+	@Override
+	public void visit(IntLit_c n) {
+		// TODO Auto-generated method stub
+		super.visit(n);
+	}
 
-    @Override
-    public void visit(X10CanonicalTypeNode_c n) {
-        // TODO Auto-generated method stub
-        super.visit(n);
-    }
+	@Override
+	public void visit(Labeled_c label) {
+		// TODO Auto-generated method stub
+		super.visit(label);
+	}
 
-    @Override
-    public void visit(X10Cast_c c) {
-        // TODO Auto-generated method stub
-        super.visit(c);
-    }
+	@Override
+	public void visit(Local_c n) {
+		if (generatingKernel()) {
+			ClassifiedStream out = cudaStream();
+			Name ln = n.name().id();
+			if (ln == context().blocksVar()) {
+				out.write("blockIdx.x");
+			} else if (ln == context().threadsVar()) {
+				out.write("threadIdx.x");
+			} else if (context().shm().has(ln)) {
+				out.write(ln.toString());
+			} else if (context().isKernelParam(ln)) {
+				// it seems the post-compiler is not good at hoisting these
+				// accesses so we do it ourselves
+				if (context().directParams()) {
+					out.write(env + "." + ln);
+				} else {
+					out.write(ln.toString());
+				}
+			} else {
+				super.visit(n);
+			}
+		} else {
+			// we end up here in the _deserialize_cuda function because
+			// generatingKernel() is false
+			Name ln = n.name().id();
+			if (context().autoBlocks() != null
+					&& ln == context().autoBlocks().name().id()) {
+				sw.write(context().autoBlocks().name().id().toString());
+			} else if (context().autoThreads() != null
+					&& ln == context().autoThreads().name().id()) {
+				sw.write(context().autoThreads().name().id().toString());
+			} else {
+				super.visit(n);
+			}
+		}
+	}
 
-    @Override
-    public void visit(X10ClassDecl_c n) {
-        // TODO Auto-generated method stub
-        super.visit(n);
-    }
+	@Override
+	public void visit(NullLit_c n) {
+		// TODO Auto-generated method stub
+		super.visit(n);
+	}
 
-    @Override
-    public void visit(X10Instanceof_c n) {
-        assert !generatingKernel() : "Runtime types not available in @CUDA code.";
-        super.visit(n);
-    }
+	@Override
+	public void visit(Return_c ret) {
+		// TODO Auto-generated method stub
+		super.visit(ret);
+	}
 
-    @Override
-    public void visit(X10Special_c n) {
-        // TODO Auto-generated method stub
-        super.visit(n);
-    }
+	@Override
+	public void visit(StringLit_c n) {
+		// TODO Auto-generated method stub
+		super.visit(n);
+	}
 
-    @Override
-    public void visit(X10Unary_c n) {
-        // TODO Auto-generated method stub
-        super.visit(n);
-    }
+	@Override
+	public void visit(SubtypeTest_c n) {
+		// TODO Auto-generated method stub
+		super.visit(n);
+	}
 
-    public static boolean postCompile(X10CPPCompilerOptions options, Compiler compiler, ErrorQueue eq) {
-        // TODO Auto-generated method stub
-        if (options.post_compiler != null && !options.output_stdout) {
-            Collection<String> compilationUnits = options.compilationUnits();
-            String[] nvccCmd = { "nvcc", "--cubin", "-I"+CXXCommandBuilder.X10_DIST+"/include", null };
-            for (String f : compilationUnits) {
-                if (f.endsWith(".cu")) {
-                    nvccCmd[3] = f;
-                    if (!X10CPPTranslator.doPostCompile(options, eq, compilationUnits, nvccCmd)) return false;
-                }
-            }
+	@Override
+	public void visit(Switch_c n) {
+		// TODO Auto-generated method stub
+		super.visit(n);
+	}
 
-        }
-            
-        return true;
-    }
+	@Override
+	public void visit(SwitchBlock_c n) {
+		// TODO Auto-generated method stub
+		super.visit(n);
+	}
+
+	@Override
+	public void visit(Throw_c n) {
+		assert !generatingKernel() : "Throwing exceptions not allowed in @CUDA code.";
+		super.visit(n);
+	}
+
+	@Override
+	public void visit(Try_c n) {
+		assert !generatingKernel() : "Catching exceptions not allowed in @CUDA code.";
+		super.visit(n);
+	}
+
+	@Override
+	public void visit(Tuple_c c) {
+		// TODO Auto-generated method stub
+		super.visit(c);
+	}
+
+	@Override
+	public void visit(TypeDecl_c n) {
+		// TODO Auto-generated method stub
+		super.visit(n);
+	}
+
+	@Override
+	public void visit(Unary_c n) {
+		// TODO Auto-generated method stub
+		super.visit(n);
+	}
+
+	@Override
+	public void visit(While_c n) {
+		// TODO Auto-generated method stub
+		super.visit(n);
+	}
+
+	@Override
+	public void visit(X10Binary_c n) {
+		// TODO Auto-generated method stub
+		super.visit(n);
+	}
+
+	@Override
+	public void visit(X10Call_c n) {
+		// In fact they are allowed, as long as they are implemented with
+		// @Native
+		// assert !generatingKernel() :
+		// "Calling functions not allowed in @CUDA code.";
+		super.visit(n);
+	}
+
+	@Override
+	public void visit(X10CanonicalTypeNode_c n) {
+		// TODO Auto-generated method stub
+		super.visit(n);
+	}
+
+	@Override
+	public void visit(X10Cast_c c) {
+		// TODO Auto-generated method stub
+		super.visit(c);
+	}
+
+	@Override
+	public void visit(X10ClassDecl_c n) {
+		// TODO Auto-generated method stub
+		super.visit(n);
+	}
+
+	@Override
+	public void visit(X10Instanceof_c n) {
+		assert !generatingKernel() : "Runtime types not available in @CUDA code.";
+		super.visit(n);
+	}
+
+	@Override
+	public void visit(X10Special_c n) {
+		// TODO Auto-generated method stub
+		super.visit(n);
+	}
+
+	@Override
+	public void visit(X10Unary_c n) {
+		// TODO Auto-generated method stub
+		super.visit(n);
+	}
+
+	public static boolean postCompile(X10CPPCompilerOptions options,
+			Compiler compiler, ErrorQueue eq) {
+		// TODO Auto-generated method stub
+		if (options.post_compiler != null && !options.output_stdout) {
+			Collection<String> compilationUnits = options.compilationUnits();
+			String[] nvccCmd = { "nvcc", "--cubin",
+					"-I" + CXXCommandBuilder.X10_DIST + "/include", null };
+			for (String f : compilationUnits) {
+				if (f.endsWith(".cu")) {
+					nvccCmd[3] = f;
+					if (!X10CPPTranslator.doPostCompile(options, eq,
+							compilationUnits, nvccCmd))
+						return false;
+				}
+			}
+
+		}
+
+		return true;
+	}
 
 } // end of CUDACodeGenerator
 

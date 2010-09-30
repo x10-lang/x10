@@ -25,6 +25,7 @@ import x10.util.Option;
 import x10.util.CUDAUtilities;
 
 import x10.compiler.Unroll;
+import x10.compiler.CUDADirectParams;
 import x10.compiler.CUDA;
 import x10.compiler.Native;
 
@@ -56,7 +57,7 @@ public class KMeansCUDA {
                 Option("n","num","quantity of points")]);
             // The casts can go on resolution of XTENLANG-1413
             val fname = opts("-p", "points.dat"), num_clusters=opts("-c",8),
-                num_slices=opts("-s",4), num_global_points=opts("-n", 100000),
+                num_slices=opts("-s",1), num_global_points=opts("-n", 100000),
                 iterations=opts("-i",500);
             val verbose = opts("-v"), quiet = opts("-q");
 
@@ -97,7 +98,12 @@ public class KMeansCUDA {
 
                         // these are pretty big so allocate up front
                         val host_points = new Array[Float]((num_local_points_stride*4), init);
+
                         val gpu_points = CUDAUtilities.makeRemoteArray(gpu, num_local_points_stride*4, host_points);
+                        for (var p:Int=0 ; p<num_local_points ; p+=1) {
+                            for ([d] in 0..3) { 
+                            }
+                        }
                         val host_nearest = new Array[Int](num_local_points, 0);
                         val gpu_nearest = CUDAUtilities.makeRemoteArray[Int](gpu, num_local_points, 0);
 
@@ -114,7 +120,7 @@ public class KMeansCUDA {
 
                             var k_start_time : Long = System.currentTimeMillis();
                             // classify kernel
-                            finish async at (gpu) @CUDA {
+                            finish async at (gpu) @CUDA @CUDADirectParams {
                                 val blocks = CUDAUtilities.autoBlocks(),
                                     threads = CUDAUtilities.autoThreads();
                                 for ([block] in 0..blocks-1) {
@@ -125,7 +131,7 @@ public class KMeansCUDA {
                                         for (var p:Int=tid ; p<num_local_points ; p+=tids) {
                                             var closest:Int = -1;
                                             var closest_dist:Float = Float.MAX_VALUE;
-                                            @Unroll(20) for ([k] in 0..num_clusters-1) { 
+                                            /*@Unroll(20)*/ for ([k] in 0..num_clusters-1) { 
                                                 // Pythagoras (in 4 dimensions)
                                                 var dist : Float = 0;
                                                 for ([d] in 0..3) { 
@@ -158,6 +164,7 @@ public class KMeansCUDA {
                             k_start_time = System.currentTimeMillis();
                             for (var p:Int=0 ; p<num_local_points ; p++) {
                                 val closest = host_nearest(p);
+                                if (closest < 0 || closest >= num_clusters) Console.ERR.println("host_nearest("+p+") = "+closest);
                                 for (var d:Int=0 ; d<4 ; ++d)
                                     host_clusters(closest*4+d) += host_points(p+d*num_local_points_stride);
                                 host_cluster_counts(closest)++;
@@ -168,6 +175,7 @@ public class KMeansCUDA {
                             team.allreduce(role, host_cluster_counts, 0, host_cluster_counts, 0, host_cluster_counts.size, Team.ADD);
 
                             for (var k:Int=0 ; k<num_clusters ; ++k) { 
+                                if (host_cluster_counts(k) <= 0) Console.ERR.println("host_cluster_counts("+k+") = "+host_cluster_counts(k));
                                 for (var d:Int=0 ; d<4 ; ++d) host_clusters(k*4+d) /= host_cluster_counts(k);
                             }
 

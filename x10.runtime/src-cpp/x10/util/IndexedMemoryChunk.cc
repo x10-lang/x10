@@ -13,26 +13,26 @@ namespace x10 {
         const serialization_id_t IMC_copy_to_serialization_id =
             DeserializationDispatcher::addPutFunctions(IMC_buffer_finder,
                                                        IMC_notifier,
-                                                       NULL,
-                                                       NULL);
+                                                       IMC_buffer_finder,
+                                                       IMC_notifier);
 
         const serialization_id_t IMC_uncounted_copy_to_serialization_id =
             DeserializationDispatcher::addPutFunctions(IMC_buffer_finder,
                                                        IMC_uncounted_notifier,
-                                                       NULL,
-                                                       NULL);
+                                                       IMC_buffer_finder,
+                                                       IMC_uncounted_notifier);
 
         const serialization_id_t IMC_copy_from_serialization_id =
             DeserializationDispatcher::addGetFunctions(IMC_buffer_finder,
                                                        IMC_notifier,
-                                                       NULL,
-                                                       NULL);
+                                                       IMC_buffer_finder,
+                                                       IMC_notifier);
 
         const serialization_id_t IMC_uncounted_copy_from_serialization_id =
             DeserializationDispatcher::addGetFunctions(IMC_buffer_finder,
                                                        IMC_uncounted_notifier,
-                                                       NULL,
-                                                       NULL);
+                                                       IMC_buffer_finder,
+                                                       IMC_uncounted_notifier);
 
         
         void IMC_notifyEnclosingFinish(deserialization_buffer& buf) {
@@ -107,6 +107,12 @@ namespace x10 {
         void IMC_uncounted_notifier(deserialization_buffer &buf, x10_int) {
             // do nothing.
             // TODO: would maybe be nice if we could just register a NULL notifier callback.  Does X10RT support this?
+
+            // [DC] No, I presumed you always want one because you want to know
+            // when the copy is complete.  It would be possible to implement
+            // this if every x10rt_net backend would check the callback is
+            // non-null before calling it, and I think some of them do, just not all.
+
         }
     }
 }
