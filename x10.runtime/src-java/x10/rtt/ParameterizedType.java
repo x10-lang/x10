@@ -199,7 +199,7 @@ public final class ParameterizedType<T> implements Type<T>{
     }
     
     public final String typeName() {
-        String str = rtt.base.toString().substring(6);
+        String str = rtt.typeName();
         str += "[";
         for (int i = 0; i < params.length; i ++) {
             if (i != 0) str += ",";
