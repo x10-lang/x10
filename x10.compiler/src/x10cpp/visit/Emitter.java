@@ -27,6 +27,7 @@ import static x10cpp.visit.SharedVarsMethods.SERIALIZE_METHOD;
 import static x10cpp.visit.SharedVarsMethods.THIS;
 import static x10cpp.visit.SharedVarsMethods.chevrons;
 import static x10cpp.visit.SharedVarsMethods.make_ref;
+import static x10cpp.visit.SharedVarsMethods.make_boxed_ref;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -57,6 +58,7 @@ import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
+import polyglot.types.VarDef;
 import polyglot.types.VarInstance;
 import polyglot.util.CodeWriter;
 import polyglot.util.ErrorInfo;
@@ -73,6 +75,7 @@ import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorDef;
 import x10.types.X10Flags;
+import x10.types.X10LocalDef;
 import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
 import x10.types.X10TypeMixin;
@@ -923,10 +926,12 @@ public class Emitter {
 	void printDeclarationList(CodeWriter w, X10CPPContext_c c, ArrayList<VarInstance<?>> vars, boolean saved_this_mechanism, boolean writable, List<VarInstance<?>> refs) {
 		for (int i = 0; i < vars.size(); i++) {
 			VarInstance<?> var = vars.get(i);
+			VarDef def = var.def();
 			Type t = var.type();
 			String type = translateType(t, true);
-			if ((writable && !var.name().toString().equals(THIS)) || refs.contains(var)) // this is a temporary ref
-			    type = type + "&"; // FIXME: Hack to get writable args in finally closures
+			if ((writable && !var.name().toString().equals(THIS)) || refs.contains(var)) {
+			    type = make_boxed_ref(type);
+			}
 			String name = var.name().toString();
 			if (saved_this_mechanism && name.equals(THIS)) {
 				assert (c.isInsideClosure()); // FIXME: Krishna, why did you add this test?

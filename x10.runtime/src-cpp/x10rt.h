@@ -10,6 +10,7 @@
 
 #include <x10aux/class_cast.h>
 #include <x10aux/ref.h>
+#include <x10aux/boxed_ref.h>
 #include <x10aux/reference_logger.h>
 #include <x10aux/alloc.h>
 #include <x10aux/serialization.h>

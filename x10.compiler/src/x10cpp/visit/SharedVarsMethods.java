@@ -111,6 +111,11 @@ public class SharedVarsMethods {
 			return type+"*";
 		return "x10aux::ref"+chevrons(type);
 	}
+	
+	public static String make_boxed_ref(String type) {
+	    return "x10aux::boxed_ref"+chevrons(type);
+	}
+
 	static String closure_name(String prefix, int id) {
 		return prefix + id;
 	}
