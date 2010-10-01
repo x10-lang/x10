@@ -22,11 +22,11 @@ import polyglot.ast.TypeNode;
 import polyglot.types.MethodDef;
 import x10.types.X10MethodDef;
 
-public interface X10MethodDecl extends MethodDecl {
+public interface X10MethodDecl extends MethodDecl, Guarded {
 	// The method's guard.
 	DepParameterExpr guard();
 	X10MethodDecl guard(DepParameterExpr e);
-	
+
 	List<TypeParamNode> typeParameters();
 	X10MethodDecl typeParameters(List<TypeParamNode> typeParams);
 

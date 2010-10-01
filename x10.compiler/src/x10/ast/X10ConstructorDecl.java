@@ -21,7 +21,7 @@ import polyglot.ast.Id;
 import polyglot.ast.TypeNode;
 import polyglot.types.ConstructorDef;
 
-public interface X10ConstructorDecl extends ConstructorDecl {
+public interface X10ConstructorDecl extends ConstructorDecl, Guarded {
 	/**
 	 * Return the returnType associated with this constructor declaration.
 	 * @return

@@ -102,24 +102,24 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
     }
 
     @Override
-    public X10FieldDecl flags(FlagsNode flags) {
-        return (X10FieldDecl) super.flags(flags);
+    public X10FieldDecl_c flags(FlagsNode flags) {
+        return (X10FieldDecl_c) super.flags(flags);
     }
     @Override
-    public X10FieldDecl type(TypeNode type) {
-        return (X10FieldDecl) super.type(type);
+    public X10FieldDecl_c type(TypeNode type) {
+        return (X10FieldDecl_c) super.type(type);
     }
     @Override
-    public X10FieldDecl name(Id name) {
-        return (X10FieldDecl) super.name(name);
+    public X10FieldDecl_c name(Id name) {
+        return (X10FieldDecl_c) super.name(name);
     }
     @Override
-    public X10FieldDecl init(Expr init) {
-        return (X10FieldDecl) super.init(init);
+    public X10FieldDecl_c init(Expr init) {
+        return (X10FieldDecl_c) super.init(init);
     }
     @Override
-    public X10FieldDecl fieldDef(FieldDef mi) {
-        return (X10FieldDecl) super.fieldDef(mi);
+    public X10FieldDecl_c fieldDef(FieldDef mi) {
+        return (X10FieldDecl_c) super.fieldDef(mi);
     }
     @Override
     public X10FieldDef fieldDef() {

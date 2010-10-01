@@ -16,29 +16,26 @@ import java.util.List;
 import polyglot.ast.Formal;
 import polyglot.ast.TypeNode;
 
-public interface FunctionTypeNode extends TypeNode {
+public interface FunctionTypeNode extends TypeNode, Guarded {
 
-	/** Get the return type of the method. */
-	public abstract TypeNode returnType();
+	/** Get the return type of the function type. */
+	TypeNode returnType();
 
-	/** Set the return type of the method. */
-	public abstract FunctionTypeNode returnType(TypeNode returnType);
+	/** Set the return type of the function type. */
+	FunctionTypeNode returnType(TypeNode returnType);
 
-	/** Get the formals of the method. */
-	public abstract List<TypeParamNode> typeParameters();
+	/** Get the type parameters of the function type. */
+	List<TypeParamNode> typeParameters();
 
-	/** Set the formals of the method. */
-	public abstract FunctionTypeNode typeParameters(List<TypeParamNode> typeParams);
+	/** Set the type parameters of the function type. */
+	FunctionTypeNode typeParameters(List<TypeParamNode> typeParams);
 
-	/** Get the formals of the method. */
-	public abstract List<Formal> formals();
+	/** Get the formals of the function type. */
+	List<Formal> formals();
 
-	/** Set the formals of the method. */
-	public abstract FunctionTypeNode formals(List<Formal> formals);
+	/** Set the formals of the function type. */
+	FunctionTypeNode formals(List<Formal> formals);
 
-	public abstract DepParameterExpr guard();
-
-	public abstract FunctionTypeNode guard(DepParameterExpr guard);
-
-
+	DepParameterExpr guard();
+	FunctionTypeNode guard(DepParameterExpr guard);
 }

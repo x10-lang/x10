@@ -26,7 +26,7 @@ import x10.types.ClosureDef;
  * @author vj
  *
  */
-public interface Closure extends Expr, CodeBlock {
+public interface Closure extends Expr, CodeBlock, Guarded {
 	    
    // List<TypeParamNode> typeParameters();
    // Closure typeParameters(List<TypeParamNode> typeParams);
@@ -41,8 +41,8 @@ public interface Closure extends Expr, CodeBlock {
      */
     TypeNode returnType();
     
-    public DepParameterExpr guard();
-    public Closure guard(DepParameterExpr guard);
+    DepParameterExpr guard();
+    Closure guard(DepParameterExpr guard);
 
     ClosureDef closureDef();
     Closure closureDef(ClosureDef ci);

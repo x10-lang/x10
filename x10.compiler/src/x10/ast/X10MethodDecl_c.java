@@ -272,60 +272,69 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 
 	/** Visit the children of the method. */
 	public Node visitSignature(NodeVisitor v) {
-		X10MethodDecl_c result = (X10MethodDecl_c) super.visitSignature(v);
-		List<TypeParamNode> typeParams = visitList(result.typeParameters, v);
-		if (! CollectionUtil.allEqual(typeParams, result.typeParameters))
-			result = (X10MethodDecl_c) result.typeParameters(typeParams);
-		DepParameterExpr guard = (DepParameterExpr) visitChild(result.guard, v);
-		if (guard != result.guard)
-			result = (X10MethodDecl_c) result.guard(guard);
-		TypeNode ht = (TypeNode) visitChild(result.hasType, v);
-		result = result.hasType(ht);
-		if (offerType != null) {
-			TypeNode ot = (TypeNode) visitChild(result.offerType, v);
-			result = result.offerType(ot);
-		}
-
-		return result;
+		FlagsNode flags = (FlagsNode) this.visitChild(this.flags, v);
+		Id name = (Id) this.visitChild(this.name, v);
+		List<Formal> formals = this.visitList(this.formals, v);
+		List<TypeParamNode> typeParams = visitList(this.typeParameters, v);
+		DepParameterExpr guard = (DepParameterExpr) visitChild(this.guard, v);
+		TypeNode ht = (TypeNode) visitChild(this.hasType, v);
+		TypeNode ot = (TypeNode) visitChild(this.offerType, v);
+		TypeNode returnType = (TypeNode) visitChild(this.returnType, v);
+		return reconstruct(flags, name, typeParams, formals, guard, ht, returnType, ot, this.body);
 	}
 
+	/** Reconstruct the method. */
+	protected X10MethodDecl_c reconstruct(FlagsNode flags, Id name, List<TypeParamNode> typeParameters, List<Formal> formals, DepParameterExpr guard, TypeNode hasType, TypeNode returnType, TypeNode offerType, Block body) {
+		X10MethodDecl_c n = (X10MethodDecl_c) super.reconstruct(flags, returnType, name, formals, body);
+		if (! CollectionUtil.allEqual(typeParameters, n.typeParameters) || guard != n.guard || hasType != n.hasType || offerType != n.offerType) {
+			if (n == this) {
+				n = (X10MethodDecl_c) n.copy();
+			}
+			n.typeParameters = TypedList.copyAndCheck(typeParameters, TypeParamNode.class, true);
+			n.guard = guard;
+			n.hasType = hasType;
+			n.offerType = offerType;
+			return n;
+		}
+		return n;
+	}
 
 	public List<TypeParamNode> typeParameters() {
 		return typeParameters;
 	}
 
-	public X10MethodDecl typeParameters(List<TypeParamNode> typeParams) {
+	public X10MethodDecl_c typeParameters(List<TypeParamNode> typeParams) {
 		X10MethodDecl_c n = (X10MethodDecl_c) copy();
 		n.typeParameters=TypedList.copyAndCheck(typeParams, TypeParamNode.class, true);
 		return n;
 	}
 
 	public DepParameterExpr guard() { return guard; }
-	public X10MethodDecl guard(DepParameterExpr e) {
+	public X10MethodDecl_c guard(DepParameterExpr e) {
 		X10MethodDecl_c n = (X10MethodDecl_c) copy();
 		n.guard = e;
 		return n;
 	}
 
 	@Override
-	public X10MethodDecl flags(FlagsNode flags) {
-	    return (X10MethodDecl) super.flags(flags);
+	public X10MethodDecl_c flags(FlagsNode flags) {
+	    return (X10MethodDecl_c) super.flags(flags);
 	}
 	@Override
-	public X10MethodDecl returnType(TypeNode returnType) {
-	    return (X10MethodDecl) super.returnType(returnType);
+	public X10MethodDecl_c returnType(TypeNode returnType) {
+	    return (X10MethodDecl_c) super.returnType(returnType);
 	}
 	@Override
-	public X10MethodDecl name(Id name) {
-	    return (X10MethodDecl) super.name(name);
+	public X10MethodDecl_c name(Id name) {
+	    return (X10MethodDecl_c) super.name(name);
 	}
 	@Override
-	public X10MethodDecl formals(List<Formal> formals) {
-	    return (X10MethodDecl) super.formals(formals);
+	public X10MethodDecl_c formals(List<Formal> formals) {
+	    return (X10MethodDecl_c) super.formals(formals);
 	}
 	@Override
-	public X10MethodDecl methodDef(MethodDef mi) {
-	    return (X10MethodDecl) super.methodDef(mi);
+	public X10MethodDecl_c methodDef(MethodDef mi) {
+	    return (X10MethodDecl_c) super.methodDef(mi);
 	}
 	@Override
 	public X10MethodDef methodDef() {
@@ -356,7 +365,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 				|| (formals != null && formals.contains(child))) {
 			if (placeTerm != null)
 				c = ((X10Context) c).pushPlace( XConstrainedTerm.make(placeTerm));
-			PlaceChecker.pushHereTerm(methodDef(), (X10Context) c);
+			c = PlaceChecker.pushHereTerm(methodDef(), (X10Context) c);
 		}
 
 		// Add the method guard into the environment.
@@ -368,12 +377,11 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 				c = c.pushBlock();
 				try {
 					if (vc.known())
-						c= ((X10Context) c).pushAdditionalConstraint(vc.get());
+						c = ((X10Context) c).pushAdditionalConstraint(vc.get());
 					// TODO: Add type constraint.
 
 				} catch (SemanticException z) {
-					throw 
-					new InternalCompilerError("Unexpected inconsistent guard" + z);
+					throw new InternalCompilerError("Unexpected inconsistent guard" + z);
 				}
 				//        ((X10Context) c).setCurrentConstraint(vc.get());
 				//        ((X10Context) c).setCurrentTypeConstraint(tc.get());
@@ -407,7 +415,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 
 	@Override
 	public Node setResolverOverride(Node parent, TypeCheckPreparer v) {
-		if (returnType() instanceof UnknownTypeNode && body != null) {
+		if (returnType() instanceof UnknownTypeNode && body() != null) {
 			UnknownTypeNode tn = (UnknownTypeNode) returnType();
 
 			NodeVisitor childv = v.enter(parent, this);
@@ -418,7 +426,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 				final LazyRef<Type> r = (LazyRef<Type>) tn.typeRef();
 				TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo(), true);
 				tc = (TypeChecker) tc.context(tcp.context().freeze());
-				r.setResolver(new TypeCheckReturnTypeGoal(this, body, tc, r));
+				r.setResolver(new TypeCheckReturnTypeGoal(this, body(), tc, r));
 			}
 		}
 		return super.setResolverOverride(parent, v);
@@ -1010,15 +1018,6 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 
 	private static final Collection<String> TOPICS = 
 		CollectionUtil.list(Report.types, Report.context);
-
-	public Node visitChildren(NodeVisitor v) {
-		X10MethodDecl_c n = (X10MethodDecl_c) super.visitChildren(v);
-		TypeNode ht  = (TypeNode) n.visitChild(this.hasType, v);
-		n = n.hasType(ht);
-		TypeNode ot  = (TypeNode) n.visitChild(this.offerType, v);
-		n = n.offerType(ot);
-		return n;
-	}
 
     /** Write the method to an output file. */
     public void prettyPrintHeader(CodeWriter w, PrettyPrinter tr) {

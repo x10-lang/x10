@@ -33,7 +33,8 @@ public class TypeCheckExprGoal extends TypeCheckFragmentGoal<Type> {
 	}
 
 	@Override
-	protected void postprocess(Node m) {
+	protected Node process(Node parent, Node n, TypeChecker v) {
+		Node m = super.process(parent, n, v);
 		if (m instanceof Expr) {
 			Type t = ((Expr) m).type();
 			if (t instanceof X10ClassType) {
@@ -47,6 +48,7 @@ public class TypeCheckExprGoal extends TypeCheckFragmentGoal<Type> {
 			}
 			r().update(t);
 		}
+		return m;
 	}
 
 	@Override

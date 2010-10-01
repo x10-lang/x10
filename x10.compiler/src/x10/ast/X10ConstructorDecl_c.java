@@ -114,7 +114,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         return guard;
     }
 
-    public X10ConstructorDecl guard(DepParameterExpr e) {
+    public X10ConstructorDecl_c guard(DepParameterExpr e) {
         X10ConstructorDecl_c n = (X10ConstructorDecl_c) copy();
         n.guard = e;
         return n;
@@ -132,30 +132,30 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
 	    return typeParameters;
     }
     
-    public X10ConstructorDecl typeParameters(List<TypeParamNode> typeParams) {
+    public X10ConstructorDecl_c typeParameters(List<TypeParamNode> typeParams) {
 	    X10ConstructorDecl_c n = (X10ConstructorDecl_c) copy();
 	    n.typeParameters=TypedList.copyAndCheck(typeParams, TypeParamNode.class, true);
 	    return n;
     }
 
     @Override
-    public X10ConstructorDecl flags(FlagsNode flags) {
-        return (X10ConstructorDecl) super.flags(flags);
+    public X10ConstructorDecl_c flags(FlagsNode flags) {
+        return (X10ConstructorDecl_c) super.flags(flags);
     }
     @Override
-    public X10ConstructorDecl name(Id name) {
-        return (X10ConstructorDecl) super.name(name);
+    public X10ConstructorDecl_c name(Id name) {
+        return (X10ConstructorDecl_c) super.name(name);
     }
     @Override
-    public X10ConstructorDecl formals(List<Formal> formals) {
-        return (X10ConstructorDecl) super.formals(formals);
+    public X10ConstructorDecl_c formals(List<Formal> formals) {
+        return (X10ConstructorDecl_c) super.formals(formals);
     }
     @Override
-    public X10ConstructorDecl constructorDef(ConstructorDef ci) {
-        return (X10ConstructorDecl) super.constructorDef(ci);
+    public X10ConstructorDecl_c constructorDef(ConstructorDef ci) {
+        return (X10ConstructorDecl_c) super.constructorDef(ci);
     }
 
-    public X10ConstructorDecl returnType(TypeNode returnType) {
+    public X10ConstructorDecl_c returnType(TypeNode returnType) {
         if (returnType != this.returnType) {
             X10ConstructorDecl_c n = (X10ConstructorDecl_c) copy();
             n.returnType = returnType;
