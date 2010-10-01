@@ -229,11 +229,11 @@ void Launcher::DIE(const char * msg, ...)
 	char buffer[1200];
 	va_list ap;
 	va_start(ap, msg);
-	vsnprintf(buffer, 119, msg, ap);
+	vsnprintf(buffer, sizeof(buffer), msg, ap);
 	va_end(ap);
 	fprintf(stderr, "%s\n", buffer);
 	if (errno != 0)
-		fprintf(stderr, strerror(errno));
+		fprintf(stderr, "%s\n", strerror(errno));
 	exit(1);
 }
 
