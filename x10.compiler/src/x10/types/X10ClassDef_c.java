@@ -262,8 +262,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 					    if (! result.entails(c, ((X10Context) ts.emptyContext()).constraintProjection(result, c))) {
 						    this.rootClause = Types.ref(result);
 						    this.rootClauseInvalid = 
-							    new SemanticException("The real clause, " + result 
-							                          + ", does not satisfy constraints from " + fi + ".", position());
+							    new SemanticException("The real clause, " + result + ", does not satisfy constraints from " + fi + ".", position());
 					    }
 				    }
 			    }

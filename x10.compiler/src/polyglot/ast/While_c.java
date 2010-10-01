@@ -81,9 +81,7 @@ public class While_c extends Loop_c implements While
 	TypeSystem ts = tc.typeSystem();
 	
 	if (! ts.typeEquals(cond.type(), ts.Boolean(), tc.context())) {
-	    throw new SemanticException(
-		"Condition of while statement must have boolean type.",
-		cond.position());
+	    throw new SemanticException("Condition of while statement must have boolean type.",cond.position());
 	}
 	
 	return this;

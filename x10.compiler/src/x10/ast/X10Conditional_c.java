@@ -69,9 +69,7 @@ public class X10Conditional_c extends Conditional_c implements X10Conditional {
                 Context context = tc.context();
                 
                 if (! cond.type().isBoolean()) {
-                    throw new SemanticException(
-                                                "Condition of ternary expression must be of type boolean.",
-                                                cond.position());
+                    throw new SemanticException("Condition of ternary expression must be of type boolean.",cond.position());
                 }
                 
                 Expr e1 = consequent;

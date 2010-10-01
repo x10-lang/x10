@@ -729,8 +729,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
             if (xts.hasUnknown(t))
                 return;
             if (! t.isClass() || t.toClass().flags().isInterface()) {
-                throw new SemanticException("Cannot extend type " + t + "; not a class.",
-                        superClass != null ? superClass.position() : position());
+                throw new SemanticException("Cannot extend type " + t + "; not a class.", superClass != null ? superClass.position() : position());
             }
             ts.checkCycles((ReferenceType) t);
         }
@@ -742,8 +741,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
                 throw new SemanticException(); // already reported
             if (! t.isClass() || ! t.toClass().flags().isInterface()) {
                 String s = type.flags().isInterface() ? "extend" : "implement";
-                throw new SemanticException("Cannot " + s + " type " + t + "; not an interface.",
-                        position());
+                throw new SemanticException("Cannot " + s + " type " + t + "; not an interface.", position());
             }
             
             ts.checkCycles((ReferenceType) t);
@@ -800,8 +798,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	                s.name().endsWith("/" + type.name() + ".x10")))
     	        {
     	            Errors.issue(tc.job(),
-    	                    new SemanticException("Public type " + type.fullName()
-    	                            + " must be declared in " + type.name() + ".x10.", result.position()));
+    	                    new SemanticException("Public type " + type.fullName() + " must be declared in " + type.name() + ".x10.", result.position()));
     	        }
     	    }
     	}
@@ -813,8 +810,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
 
     	if (flags.flags().isInterface() && superClass != null) {
     		Errors.issue(tc.job(),
-    		        new SemanticException("Interface " + this.type + " cannot have a superclass.",
-    		                superClass.position()));
+    		        new SemanticException("Interface " + this.type + " cannot have a superclass.", superClass.position()));
     	}
 
 

@@ -241,8 +241,7 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
                 System.err.println("[WS_ERR]Found un-support code patterns");
                 s.prettyPrint(System.err);
                 System.err.println();
-                throw new SemanticException("Work-Stealing Compiling doesn't support : " + s,
-                                                              s.position());
+                throw new SemanticException("Work-Stealing Compiling doesn't support : " + s, s.position());
             }
             pcValue = codes.getPcValue();
             fastBodySynth.addStmts(codes.first());

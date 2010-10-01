@@ -98,8 +98,7 @@ public abstract class Assign_c extends Expr_c implements Assign, Ambiguous
           ! ts.typeEquals(s, t, context) &&
           ! ts.numericConversionValid(t, right.constantValue(), context)) {
 
-        throw new SemanticException("Cannot assign " + s + " to " + t + ".",
-                                    position());
+        throw new SemanticException("Cannot assign " + s + " to " + t + ".", position());
       }
 
       return n.type(t);
@@ -115,9 +114,7 @@ public abstract class Assign_c extends Expr_c implements Assign, Ambiguous
         return n.type(ts.promote(t, s));
       }
 
-      throw new SemanticException("The " + op + " operator must have "
-                                  + "numeric or String operands.",
-                                  position());
+      throw new SemanticException("Operator must have numeric or String operands.", position());
     }
 
     if (op == SUB_ASSIGN || op == MUL_ASSIGN ||
@@ -126,9 +123,7 @@ public abstract class Assign_c extends Expr_c implements Assign, Ambiguous
         return n.type(ts.promote(t, s));
       }
 
-      throw new SemanticException("The " + op + " operator must have "
-                                  + "numeric operands.",
-                                  position());
+      throw new SemanticException("Operator must have numeric operands.", position());
     }
 
     if (op == BIT_AND_ASSIGN || op == BIT_OR_ASSIGN || op == BIT_XOR_ASSIGN) {
@@ -141,9 +136,7 @@ public abstract class Assign_c extends Expr_c implements Assign, Ambiguous
         return n.type(ts.promote(t, s));
       }
 
-      throw new SemanticException("The " + op + " operator must have "
-                                  + "integral or boolean operands.",
-                                  position());
+      throw new SemanticException("Operator must have integral or boolean operands.", position());
     }
 
     if (op == SHL_ASSIGN || op == SHR_ASSIGN || op == USHR_ASSIGN) {
@@ -153,9 +146,7 @@ public abstract class Assign_c extends Expr_c implements Assign, Ambiguous
         return n.type(ts.promote(t));
       }
 
-      throw new SemanticException("The " + op + " operator must have "
-                                  + "integral operands.",
-                                  position());
+      throw new SemanticException("Operator must have integral operands.", position());
     }
 
     throw new InternalCompilerError("Unrecognized assignment operator " +

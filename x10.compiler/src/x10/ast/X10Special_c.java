@@ -104,9 +104,7 @@ public class X10Special_c extends Special_c implements X10Special {
                 CodeDef cd = c.currentCode();
            
                 if (!c.currentClass().hasEnclosingInstance(ct)) {
-                    throw new SemanticException("The nested class \"" + 
-                                                c.currentClass() + "\" does not have an enclosing instance of type \"" +
-                                                ct + "\".", qualifier.position());
+                    throw new SemanticException("The nested class \"" +c.currentClass() + "\" does not have an enclosing instance of type \"" +ct + "\".", qualifier.position());
                 }
                 
             }

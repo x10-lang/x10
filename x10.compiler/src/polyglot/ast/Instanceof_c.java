@@ -84,15 +84,11 @@ public class Instanceof_c extends Expr_c implements Instanceof
         TypeSystem ts = tc.typeSystem();
 
         if (! compareType.type().isReference()) {
-	    throw new SemanticException(
-		"Type operand " + compareType.type() + " must be a reference type.",
-		compareType.position());
+	    throw new SemanticException("Type operand " + compareType.type() + " must be a reference type.",compareType.position());
 	}
 
 	if (! ts.isCastValid(expr.type(), compareType.type(), tc.context())) {
-	    throw new SemanticException(
-		"Expression operand type " + expr.type() + " incompatible with type operand " + compareType.type() + ".",
-		expr.position());
+	    throw new SemanticException("Expression operand type " + expr.type() + " incompatible with type operand " + compareType.type() + ".",expr.position());
 	}
 
 	return type(ts.Boolean());

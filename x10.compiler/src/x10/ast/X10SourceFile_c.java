@@ -39,9 +39,7 @@ public class X10SourceFile_c extends SourceFile_c {
 		for (TopLevelDecl d : decls) {
 			if (d.flags().flags().isPublic()) {
 				if (hasPublic) {
-					throw new SemanticException(
-							"The source contains more than one public declaration.",
-							d.position());
+					throw new SemanticException("The source contains more than one public declaration.",d.position());
 				}
 
 				hasPublic = true;

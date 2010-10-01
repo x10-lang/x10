@@ -109,9 +109,7 @@ public class AmbQualifierNode_c extends Node_c implements AmbQualifierNode
 				return n;
 			}
 
-			ex = new SemanticException("Could not find type or package \"" +
-					(qual == null ? name.toString() : qual.toString() + "." + name.toString()) +
-					"\".", position());
+			ex = new SemanticException("Could not find type or package \"" + (qual == null ? name.toString() : qual.toString() + "." + name.toString()) + "\".", position());
 		}
 		catch (SemanticException e) {
 			ex = e;

@@ -686,8 +686,7 @@ public class TypeEnv_c implements TypeEnv {
 		    MethodInstance mj = ts.findImplementingMethod(ct, mi, context);
 		    if (mj == null) {
 			if (!ct.flags().isAbstract()) {
-			    throw new SemanticException(ct.fullName() + " should be declared abstract; it does not define " + mi.signature()
-				    + ", which is declared in " + rt.toClass().fullName(), ct.position());
+			    throw new SemanticException(ct.fullName() + " should be declared abstract; it does not define " + mi.signature()+ ", which is declared in " + rt.toClass().fullName(), ct.position());
 			}
 			else {
 			    // no implementation, but that's ok, the class is
@@ -748,16 +747,13 @@ public class TypeEnv_c implements TypeEnv {
 	    return;
 
 	if (!(mi.name().equals(mj.name()) && mi.hasFormals(mj.formalTypes(), context))) {
-	    throw new SemanticException(mi.signature() + " in " + mi.container() + " cannot override " + mj.signature() + " in " + mj.container()
-		    + "; incompatible " + "parameter types", mi.position());
+	    throw new SemanticException(mi.signature() + " in " + mi.container() + " cannot override " + mj.signature() + " in " + mj.container()+ "; incompatible " + "parameter types", mi.position());
 	}
 
 	if (allowCovariantReturn ? !isSubtype(mi.returnType(), mj.returnType()) : !typeEquals(mi.returnType(), mj.returnType())) {
 	    if (Report.should_report(Report.types, 3))
 		Report.report(3, "return type " + mi.returnType() + " != " + mj.returnType());
-	    throw new SemanticException(mi.signature() + " in " + mi.container() + " cannot override " + mj.signature() + " in " + mj.container()
-		    + "; attempting to use incompatible " + "return type\n" + "found: " + mi.returnType() + "\n" + "required: " + mj.returnType(),
-					mi.position());
+	    throw new SemanticException(mi.signature() + " in " + mi.container() + " cannot override " + mj.signature() + " in " + mj.container()+ "; attempting to use incompatible " + "return type\n" + "found: " + mi.returnType() + "\n" + "required: " + mj.returnType(),mi.position());
 	}
 
 /*	if (!ts.throwsSubset(mi, mj)) {
@@ -771,16 +767,14 @@ public class TypeEnv_c implements TypeEnv {
 	if (mi.flags().moreRestrictiveThan(mj.flags())) {
 	    if (Report.should_report(Report.types, 3))
 		Report.report(3, mi.flags() + " more restrictive than " + mj.flags());
-	    throw new SemanticException(mi.signature() + " in " + mi.container() + " cannot override " + mj.signature() + " in " + mj.container()
-		    + "; attempting to assign weaker " + "access privileges", mi.position());
+	    throw new SemanticException(mi.signature() + " in " + mi.container() + " cannot override " + mj.signature() + " in " + mj.container()+ "; attempting to assign weaker " + "access privileges", mi.position());
 	}
 
 	if (mi.flags().isStatic() != mj.flags().isStatic()) {
 	    if (Report.should_report(Report.types, 3))
 		Report.report(3, mi.signature() + " is " + (mi.flags().isStatic() ? "" : "not") + " static but " + mj.signature() + " is "
 			+ (mj.flags().isStatic() ? "" : "not") + " static");
-	    throw new SemanticException(mi.signature() + " in " + mi.container() + " cannot override " + mj.signature() + " in " + mj.container()
-		    + "; overridden method is " + (mj.flags().isStatic() ? "" : "not") + "static", mi.position());
+	    throw new SemanticException(mi.signature() + " in " + mi.container() + " cannot override " + mj.signature() + " in " + mj.container()+ "; overridden method is " + (mj.flags().isStatic() ? "" : "not") + "static", mi.position());
 	}
 
 	if (!mi.def().equals(mj.def()) && mj.flags().isFinal()) {
@@ -788,8 +782,7 @@ public class TypeEnv_c implements TypeEnv {
 	    // method instance.
 	    if (Report.should_report(Report.types, 3))
 		Report.report(3, mj.flags() + " final");
-	    throw new SemanticException(mi.signature() + " in " + mi.container() + " cannot override " + mj.signature() + " in " + mj.container()
-		    + "; overridden method is final", mi.position());
+	    throw new SemanticException(mi.signature() + " in " + mi.container() + " cannot override " + mj.signature() + " in " + mj.container()+ "; overridden method is final", mi.position());
 	}
     }
 

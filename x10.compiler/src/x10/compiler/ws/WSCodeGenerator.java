@@ -136,8 +136,7 @@ public class WSCodeGenerator extends ContextVisitor {
             ConstructorDecl cDecl = (ConstructorDecl)n;
             ConstructorDef cDef = cDecl.constructorDef();
             if(wts.isTargetProcedure(cDef)){
-                throw new SemanticException("Work-Stealing Compiling doesn't support concurrent constructor: " + cDef,
-                                            cDecl.position());
+                throw new SemanticException("Work-Stealing Compiling doesn't support concurrent constructor: " + cDef,cDecl.position());
             }
         }
         
@@ -150,8 +149,7 @@ public class WSCodeGenerator extends ContextVisitor {
                 Closure closure = (Closure)n;           
                 ClosureDef cDef = closure.closureDef();
                 if(wts.isTargetProcedure(cDef)){
-                    throw new SemanticException("Work-Stealing Compiling doesn't support concurrent closure: " + cDef,
-                                                closure.position());
+                    throw new SemanticException("Work-Stealing Compiling doesn't support concurrent closure: " + cDef,closure.position());
                 }
             }
         }
@@ -162,13 +160,11 @@ public class WSCodeGenerator extends ContextVisitor {
         }
         
         if(n instanceof AtEach){
-            throw new SemanticException("Work-Stealing Compiling only supports single place applications: " + n,
-                                        n.position());
+            throw new SemanticException("Work-Stealing Compiling only supports single place applications: " + n,n.position());
         }
         
         if(n instanceof Offer){
-            throw new SemanticException("Work-Stealing Compiling doesn't support collecting finish: " + n,
-                                        n.position());
+            throw new SemanticException("Work-Stealing Compiling doesn't support collecting finish: " + n,n.position());
         }
         
         if (n instanceof MethodDecl) {
@@ -232,8 +228,7 @@ public class WSCodeGenerator extends ContextVisitor {
      */
     protected void checkRemoteActivityPlace(RemoteActivityInvocation rActivity) throws SemanticException{
         if(!(rActivity.place() instanceof Here)){
-            throw new SemanticException("Work-Stealing Compiling only supports single place applications: " + rActivity,
-                                        ((Node)rActivity).position());
+            throw new SemanticException("Work-Stealing Compiling only supports single place applications: " + rActivity, ((Node)rActivity).position());
         }
     }
 

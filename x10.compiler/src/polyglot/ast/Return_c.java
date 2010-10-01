@@ -67,15 +67,12 @@ public class Return_c extends Stmt_c implements Return
 	CodeDef ci = c.currentCode();
 
 	if (ci instanceof InitializerDef) {
-	    throw new SemanticException(
-		"Cannot return from an initializer block.", position());
+	    throw new SemanticException("Cannot return from an initializer block.", position());
 	}
 
 	if (ci instanceof ConstructorDef) {
 	    if (expr != null) {
-		throw new SemanticException(
-		    "Cannot return a value from " + ci + ".",
-		    position());
+		throw new SemanticException("Cannot return a value from " + ci + ".",position());
 	    }
 
 	    return this;
@@ -95,16 +92,14 @@ public class Return_c extends Stmt_c implements Return
 
 	    if (returnType.isVoid()) {
                 if (expr != null) {
-                    throw new SemanticException("Cannot return a value from " +
-                        fi + ".", position());
+                    throw new SemanticException("Cannot return a value from " + fi + ".", position());
                 }
                 else {
                     return this;
                 }
 	    }
             else if (expr == null) {
-                throw new SemanticException("Must return a value from " +
-                    fi + ".", position());
+                throw new SemanticException("Must return a value from " + fi + ".", position());
             }
 
 	    if (ts.isImplicitCastValid(expr.type(), returnType, c)) {
@@ -115,8 +110,7 @@ public class Return_c extends Stmt_c implements Return
                 return this;
             }
 
-	    throw new SemanticException("Cannot return expression of type " +
-		expr.type() + " from " + fi + ".", expr.position());
+	    throw new SemanticException("Cannot return expression of type " +expr.type() + " from " + fi + ".", expr.position());
 	}
 
 	throw new SemanticException("Cannot return from this context.", position());

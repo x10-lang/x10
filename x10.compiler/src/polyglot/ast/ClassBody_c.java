@@ -85,8 +85,7 @@ public class ClassBody_c extends Term_c implements ClassBody
                 FieldDef fj = (FieldDef) l.get(j);
 
                 if (fi.name().equals(fj.name())) {
-                    Errors.issue(tc.job(),
-                            new SemanticException("Duplicate field \"" + fj + "\".", fj.position()));
+                    reportDuplicate(fj,tc);
                 }
             }
         }
@@ -107,7 +106,7 @@ public class ClassBody_c extends Term_c implements ClassBody
                 ConstructorInstance tj = cj.asInstance();
 
                 if (ti.hasFormals(tj.formalTypes(), tc.context())) {
-                    Errors.issue(tc.job(), new SemanticException("Duplicate constructor \"" + cj + "\".", cj.position()));
+                    reportDuplicate(cj,tc);
                 }
             }
         }
@@ -129,7 +128,7 @@ public class ClassBody_c extends Term_c implements ClassBody
                 MethodInstance tj = mj.asInstance();
 
                 if (ti.isSameMethod(tj, tc.context())) {
-                    Errors.issue(tc.job(), new SemanticException("Duplicate method \"" + mj + "\".", mj.position()));
+                    reportDuplicate(mj,tc);
                 }
             }
         }
@@ -148,11 +147,15 @@ public class ClassBody_c extends Term_c implements ClassBody
 
                 if (mi instanceof Named && mj instanceof Named) {
                     if (((Named) mi).name().equals(((Named) mj).name())) {
-                        Errors.issue(tc.job(), new SemanticException("Duplicate member type \"" + mj + "\".", mj.position()));
+                        reportDuplicate(mj,tc);
                     }
                 }
             }
         }
+    }
+    private void reportDuplicate(TypeObject def, ContextVisitor tc) {
+        new Errors.DuplicateMember(def).issue(tc.job());
+
     }
 
     protected boolean isSameMethod(TypeSystem ts,

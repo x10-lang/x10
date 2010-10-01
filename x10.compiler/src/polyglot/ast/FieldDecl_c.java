@@ -305,12 +305,7 @@ public class FieldDecl_c extends Term_c implements FieldDecl {
 			! ts.typeEquals(init.type(), type.type(), tc.context()) &&
 			! ts.numericConversionValid(type.type(), init.constantValue(), tc.context())) {
 		    
-		    throw new SemanticException("The type of the variable " +
-		                                "initializer \"" + init.type() +
-		                                "\" does not match that of " +
-		                                "the declaration \"" +
-		                                type.type() + "\".",
-		                                init.position());
+		    throw new SemanticException("The type of the variable initializer \"" + init.type() +"\" does not match that of the declaration \"" +type.type() + "\".",init.position());
 		}
 	    }
 	}
@@ -350,9 +345,7 @@ public class FieldDecl_c extends Term_c implements FieldDecl {
         	    container.isInnerClass()) {
         	// it's a static field in an inner class.
         	if (!flags.isFinal() || init == null || !init.isConstant()) {
-        	    Errors.issue(tc.job(), new SemanticException("Inner classes cannot declare " +
-        	                                "static fields, unless they are compile-time " +
-        	                                "constant fields.", position()));
+        	    Errors.issue(tc.job(), new SemanticException("Inner classes cannot declare static fields, unless they are compile-time constant fields.", position()));
         	}
             }
         }

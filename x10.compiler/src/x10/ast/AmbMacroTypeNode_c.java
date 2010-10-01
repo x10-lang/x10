@@ -200,9 +200,7 @@ public class AmbMacroTypeNode_c extends AmbTypeNode_c implements AmbMacroTypeNod
         	throw new SemanticException("Annotation type must be an interface.", position());
             }
 
-            ex = new SemanticException("Could not find type \"" +
-                                       (prefix == null ? name.toString() : prefix.toString() + "." + name.toString()) +
-                                       "\".", pos);
+            ex = new SemanticException("Could not find type \"" +(prefix == null ? name.toString() : prefix.toString() + "." + name.toString()) + "\".", pos);
         }
         catch (SemanticException e) {
             ex = e;
@@ -276,9 +274,7 @@ public class AmbMacroTypeNode_c extends AmbTypeNode_c implements AmbMacroTypeNod
         	return tn;
             }
 
-            ex = new SemanticException("Could not find type \"" +
-                                       (prefix == null ? name.toString() : prefix.toString() + "." + name.toString()) +
-                                       "\".", pos);
+            ex = new SemanticException("Could not find type \"" + (prefix == null ? name.toString() : prefix.toString() + "." + name.toString()) + "\".", pos);
         }
         catch (SemanticException e) {
             ex = e;

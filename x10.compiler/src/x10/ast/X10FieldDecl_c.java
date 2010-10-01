@@ -193,8 +193,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
         // should be reported as an error.
         if (flags().flags().isStatic() && (!flags().flags().isFinal())) {
             Errors.issue(tc.job(),
-                    new SemanticException("Cannot declare static non-final field.",
-                                        position()));
+                    new SemanticException("Cannot declare static non-final field.",position()));
         }
         
         FieldDef fi = fieldDef();
@@ -206,8 +205,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
             X10Flags x10flags = X10Flags.toX10Flags(fi.flags());
             if (! x10flags.isFinal()) 
                 Errors.issue(tc.job(),
-                        new SemanticException("Illegal " + fi +  "; structs cannot have var fields.",
-                                position()));
+                        new SemanticException("Illegal " + fi +  "; structs cannot have var fields.",position()));
         }
         
         checkVariance(tc);

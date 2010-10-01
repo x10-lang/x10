@@ -682,9 +682,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		    boolean staticContext = (target instanceof TypeNode);
 
 		    if (staticContext && !mi.flags().isStatic()) {
-		        throw new SemanticException("Cannot call non-static method " + name
-		                + " of " + target.type() + " in static "
-		                + "context.", this.position());
+		        throw new SemanticException("Cannot call non-static method " + name+ " of " + target.type() + " in static context.", this.position());
 		    }
 
 		    // If the target is super, but the method is abstract, then complain.

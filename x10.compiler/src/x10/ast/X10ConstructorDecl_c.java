@@ -518,10 +518,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         Type clazz = nnci.asInstance().container();
         if (! ts.typeEquals(retTypeBase, clazz, tc.context())) {
             Errors.issue(tc.job(),
-                    new SemanticException("The return type of the constructor (" + retTypeBase 
-                                        + ") must be derived from"
-                                        + " the type of the class (" + clazz + ") on which the constructor is defined.",
-                                        n.position()));
+                    new SemanticException("The return type of the constructor (" + retTypeBase + ") must be derived from the type of the class (" + clazz + ") on which the constructor is defined.",    n.position()));
         }
         
         X10MethodDecl_c.checkVisibility(tc, this);

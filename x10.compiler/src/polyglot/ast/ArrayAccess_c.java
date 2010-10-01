@@ -88,13 +88,11 @@ public class ArrayAccess_c extends Expr_c implements ArrayAccess
         TypeSystem ts = tc.typeSystem();
 
 	if (! array.type().isArray()) {
-	    throw new SemanticException(
-		"Subscript can only follow an array type.", position());
+	    throw new SemanticException("Subscript can only follow an array type.", position());
 	}
 
 	if (! ts.isImplicitCastValid(index.type(), ts.Int(), tc.context())) {
-	    throw new SemanticException(
-		"Array subscript must be an integer.", position());
+	    throw new SemanticException("Array subscript must be an integer.", position());
 	}
 
 	return type(array.type().toArray().base());

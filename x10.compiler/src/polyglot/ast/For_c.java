@@ -138,9 +138,7 @@ public class For_c extends Loop_c implements For
 
 	if (cond != null &&
 	    ! ts.isImplicitCastValid(cond.type(), ts.Boolean(), tc.context())) {
-	    throw new SemanticException(
-		"The condition of a for statement must have boolean type.",
-		cond.position());
+	    throw new SemanticException("The condition of a for statement must have boolean type.",cond.position());
 	}
 
 	return this;

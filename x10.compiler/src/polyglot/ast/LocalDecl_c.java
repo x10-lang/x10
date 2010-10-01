@@ -185,10 +185,7 @@ public class LocalDecl_c extends Stmt_c implements LocalDecl {
         }
 
         if (outerLocal != null && c.isLocal(li.name())) {
-            throw new SemanticException(
-                "Local variable \"" + name + "\" multiply defined.  "
-                    + "Previous definition at " + outerLocal.position() + ".",
-                position());
+            throw new SemanticException("Local variable \"" + name + "\" multiply defined. Previous definition at " + outerLocal.position() + ".", position());
         }
         
         return super.typeCheckEnter(tc);
@@ -213,12 +210,7 @@ public class LocalDecl_c extends Stmt_c implements LocalDecl {
                 if (! ts.isImplicitCastValid(init.type(), type.type(), tc.context()) &&
                     ! ts.typeEquals(init.type(), type.type(), tc.context()) &&
                     ! ts.numericConversionValid(type.type(), init.constantValue(), tc.context())) {
-                    throw new SemanticException("The type of the variable " +
-                                                "initializer \"" + init.type() +
-                                                "\" does not match that of " +
-                                                "the declaration \"" +
-                                                type.type() + "\".",
-                                                init.position());
+                    throw new SemanticException("The type of the variable initializer \"" + init.type() + "\" does not match that of the declaration \"" + type.type() + "\".", init.position());
                 }
             }
         }

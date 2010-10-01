@@ -625,7 +625,18 @@ class C57 {
 }
 
 
-
+class TestGlobalRefInheritance {
+    private var k:GlobalRef[TestGlobalRefInheritance] = GlobalRef[TestGlobalRefInheritance](this);
+	final def getK() = k;
+	@NonEscaping("k") def getK2() = 
+		k; // ERR: Cannot use 'k' because a GlobalRef[...](this) cannot be used in a field initializer, constructor, or methods called from a constructor.
+}
+class TestGlobalRefInheritanceSub extends TestGlobalRefInheritance {
+	def this() {
+		val escaped1 = getK(); // ERR: The call TestGlobalRefInheritanceSub.this.getK() is illegal because you can only call @NonEscaping methods of a superclass from a constructor or from methods called from a constructor
+		val escaped2 = getK2();
+	}
+}
 
 class TestGlobalRefRestriction {
     private var k:GlobalRef[TestGlobalRefRestriction] = GlobalRef[TestGlobalRefRestriction](this);

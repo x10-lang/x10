@@ -368,9 +368,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 //            }
 
             Errors.issue(tc.job(),
-                    new SemanticException("The " + op +
-                            " operator must have operands of comparable type; the types " + lbase + " and " + rbase + " do not share any values.",
-                            position()));
+                    new SemanticException("Operator must have operands of comparable type; the types " + lbase + " and " + rbase + " do not share any values.",position()));
             return type(xts.Boolean());
         }
 

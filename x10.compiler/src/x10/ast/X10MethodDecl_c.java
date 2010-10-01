@@ -225,8 +225,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 
 		if (n.returnType() instanceof UnknownTypeNode && n.body() == null) {
 			Errors.issue(tb.job(),
-			             new SemanticException("Cannot infer method return type; method has no body.",
-			                                   position()));
+			             new SemanticException("Cannot infer method return type; method has no body.", position()));
 			NodeFactory nf = tb.nodeFactory();
 			TypeSystem ts = tb.typeSystem();
 			Position rtpos = n.returnType().position();

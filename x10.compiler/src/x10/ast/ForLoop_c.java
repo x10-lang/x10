@@ -89,8 +89,7 @@ public class ForLoop_c extends X10Loop_c implements ForLoop {
 	        if (domain != result.domain()) result = result.domain(domain);
 	    } else if (!xts.isUnknown(result.domain().type())) {
 	        Errors.issue(tc.job(),
-	                new SemanticException("The domain of this iterated for loop must be local",
-	                        result.domain().position()));
+	                new SemanticException("The domain of this iterated for loop must be local",result.domain().position()));
 	    }
 	    return result;
 	}

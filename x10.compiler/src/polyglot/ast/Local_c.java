@@ -104,10 +104,7 @@ public class Local_c extends Expr_c implements Local
     if (!c.isLocal(li.name())) {
         // this local is defined in an outer class
         if (!li.flags().isFinal()) {
-            throw new SemanticException("Local variable \"" + li.name() + 
-                    "\" is accessed from an inner class, and must be declared " +
-                    "final.",
-                    this.position());                     
+            throw new SemanticException("Local variable \"" + li.name() +  "\" is accessed from an inner class, and must be declared final.",this.position());
         }
     }
     

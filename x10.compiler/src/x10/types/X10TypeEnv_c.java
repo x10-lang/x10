@@ -1731,25 +1731,13 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             return;
 
         if (!mi.name().equals(mj.name())) {
-            throw new SemanticException(mi.signature() + " in " + mi.container() +
-                                        " cannot override " + 
-                                        mj.signature() + " in " + mj.container() + 
-                                        "; method names are not equal",
-                                        mi.position());
+            throw new SemanticException(mi.signature() + " in " + mi.container() +" cannot override " +mj.signature() + " in " + mj.container() + "; method names are not equal",mi.position());
         }
         if (mi.formalNames().size() != mj.formalNames().size()) {
-            throw new SemanticException(mi.signature() + " in " + mi.container() +
-                                        " cannot override " + 
-                                        mj.signature() + " in " + mj.container() + 
-                                        "; different number of arguments",
-                                        mi.position());
+            throw new SemanticException(mi.signature() + " in " + mi.container() + " cannot override " +  mj.signature() + " in " + mj.container() +"; different number of arguments",mi.position());
         }
         if (mi.typeParameters().size() != mj.typeParameters().size()) {
-            throw new SemanticException(mi.signature() + " in " + mi.container() +
-                                        " cannot override " + 
-                                        mj.signature() + " in " + mj.container() + 
-                                        "; different number of type parameters",
-                                        mi.position());
+            throw new SemanticException(mi.signature() + " in " + mi.container() +" cannot override " +mj.signature() + " in " + mj.container() + "; different number of type parameters",mi.position());
         }
 
         List<LocalInstance> miFormals = mi.formalNames();
@@ -1777,11 +1765,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         }
 
         if (!allEqual) {
-            throw new SemanticException(mi.signature() + " in " + mi.container() +
-                                        " cannot override " +
-                                        mj.signature() + " in " + mj.container() +
-                                        "; incompatible parameter types",
-                                        mi.position());
+            throw new SemanticException(mi.signature() + " in " + mi.container() + " cannot override " +mj.signature() + " in " + mj.container() +"; incompatible parameter types",mi.position());
         }
 
         Type miRet = Subst.subst(mi.returnType(), newSymbols, miSymbols);
@@ -1798,12 +1782,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             if (Report.should_report(Report.types, 3))
                 Report.report(3, mi.flags() + " more restrictive than " +
                               mj.flags());
-            throw new SemanticException(mi.signature() + " in " + mi.container() +
-                                        " cannot override " + 
-                                        mj.signature() + " in " + mj.container() + 
-                                        "; attempting to assign weaker " + 
-                                        "access privileges", 
-                                        mi.position());
+            throw new SemanticException(mi.signature() + " in " + mi.container() +" cannot override " +mj.signature() + " in " + mj.container() +"; attempting to assign weaker " +"access privileges",mi.position());
         }
 
         if (mi.flags().isStatic() != mj.flags().isStatic()) {
@@ -1812,24 +1791,14 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                               (mi.flags().isStatic() ? "" : "not") + 
                               " static but " + mj.signature() + " is " +
                               (mj.flags().isStatic() ? "" : "not") + " static");
-            throw new SemanticException(mi.signature() + " in " + mi.container() +
-                                        " cannot override " + 
-                                        mj.signature() + " in " + mj.container() + 
-                                        "; overridden method is " + 
-                                        (mj.flags().isStatic() ? "" : "not") +
-                                        "static", 
-                                        mi.position());
+            throw new SemanticException(mi.signature() + " in " + mi.container() +" cannot override " +mj.signature() + " in " + mj.container() +"; overridden method is " +(mj.flags().isStatic() ? "" : "not") +"static",mi.position());
         }
 
         if (! mi.def().equals(mj.def()) && mj.flags().isFinal()) {
             // mi can "override" a final method mj if mi and mj are the same method instance.
             if (Report.should_report(Report.types, 3))
                 Report.report(3, mj.flags() + " final");
-            throw new SemanticException(mi.signature() + " in " + mi.container() +
-                                        " cannot override " + 
-                                        mj.signature() + " in " + mj.container() + 
-                                        "; overridden method is final", 
-                                        mi.position());
+            throw new SemanticException(mi.signature() + " in " + mi.container() +" cannot override " +mj.signature() + " in " + mj.container() +"; overridden method is final",mi.position());
         }
     }
 
@@ -1879,11 +1848,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         }
 
         if (! entails) {
-            throw new SemanticException(mi.signature() + " in " + mi.container() +
-                    " cannot override " + 
-                    mj.signature() + " in " + mj.container() + 
-                    "; method guard is not entailed.",
-                    mi.position());
+            throw new SemanticException(mi.signature() + " in " + mi.container() +" cannot override " +mj.signature() + " in " + mj.container() +"; method guard is not entailed.",mi.position());
         }
 
         X10Flags miF = X10Flags.toX10Flags(mi.flags());
@@ -1893,11 +1858,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         if (! miF.hasAllAnnotationsOf(mjF)) {
             if (Report.should_report(Report.types, 3))
                 Report.report(3, mi.flags() + " is more liberal than " + mj.flags());
-            throw new SemanticException(mi.flags() + " " + mi.signature() + " in " + mi.container() +
-                                        " cannot override " + 
-                                        mj.flags() + " " + mj.signature() + " in " + mj.container() + 
-                                        "; attempting to assign weaker behavioral annotations", 
-                                        mi.position());
+            throw new SemanticException(mi.flags() + " " + mi.signature() + " in " + mi.container() +" cannot override " +mj.flags() + " " + mj.signature() + " in " + mj.container() +"; attempting to assign weaker behavioral annotations",mi.position());
         }
     }
 

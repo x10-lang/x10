@@ -636,10 +636,7 @@ public class PlaceChecker {
 	    					 place + " and constraint " + d + ".");
 	    			}
 	    		} else 
-	    			throw new SemanticException(
-	    					"Place expression |" + place + "| must be of type \"" +
-	    					ts.Place() + "\", or " + ts.GlobalRef() + ", not \"" + place.type() + "\".",
-	    					place.position());
+	    			throw new SemanticException("Place expression |" + place + "| must be of type \"" +ts.Place() + "\", or " + ts.GlobalRef() + ", not \"" + place.type() + "\".",place.position());
 	    	}
 	    
 	    	return pt;

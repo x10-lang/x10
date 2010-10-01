@@ -216,8 +216,7 @@ public class ExceptionChecker extends ErrorHandlingVisitor
          * @throws SemanticException 
          */
         void uncaughtType(Type t, Position pos) throws SemanticException {
-            throw new SemanticException("The exception \"" + t + 
-              "\" must either be caught or declared to be thrown.", pos);
+            throw new SemanticException("The exception \"" + t +"\" must either be caught or declared to be thrown.", pos);
         }
     }
     public static class CodeTypeReporter extends UncaughtReporter {

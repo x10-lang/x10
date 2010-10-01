@@ -2255,8 +2255,7 @@ public class Emitter {
 					name);
 			List<X10ClassType> ats = ext.annotationMatching(baseType);
 			if (ats.size() > 1) {
-				throw new SemanticException("Expression has more than one "
-						+ name + " annotation.", o.position());
+				throw new SemanticException("Expression has more than one "+ name + " annotation.", o.position());
 			}
 			if (!ats.isEmpty()) {
 				X10ClassType at = ats.get(0);

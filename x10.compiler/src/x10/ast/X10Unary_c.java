@@ -197,9 +197,7 @@ public class X10Unary_c extends Unary_c {
                     Type resultType = mi.returnType();
                     if (!ts.isSubtype(resultType, et, tc.context())) {
                         Errors.issue(tc.job(),
-                                new SemanticException("Incompatible return type of binary operator "+binaryOp+" found:" +
-                                                      "\n\t operator return type: " + resultType +
-                                                      "\n\t expression type: "+et, expr.position()));
+                                new SemanticException("Incompatible return type of binary operator "+binaryOp+" found:\n\t operator return type: " + resultType + "\n\t expression type: "+et, expr.position()));
                     }
                 }
             }
