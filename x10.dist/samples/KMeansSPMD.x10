@@ -169,11 +169,17 @@ public class KMeansSPMD {
                                 Console.OUT.println(role+": Communication time: "+comm_time/1E9);
                             }
                             team.barrier(role);
+                            if (role==0) {
+                                Console.OUT.println("\nFinal results:");
+                                printClusters(host_clusters,dim);
+                            }
+
                         }
 
                         team.del(role);    
 
                     } // async
+
 
                 } // slice
 
