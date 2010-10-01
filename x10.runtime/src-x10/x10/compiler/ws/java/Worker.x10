@@ -2,16 +2,22 @@ package x10.compiler.ws.java;
 
 import x10.util.Random;
 import x10.lang.Lock;
+import x10.compiler.SuppressTransientError;
 
 public final class Worker {
+    // FIXME: This doesn't work at all with multi-place programs in X10 2.1!
+    //        You can't serialize a Worker across places and expect anything sensible to happen!
     private static workers = Rail.make[Worker](Runtime.INIT_THREADS, (i:Int)=>new Worker(i));
 
     public static finished:BoxedBoolean = new BoxedBoolean();
 
     private val random:Random;
-    public val deque = new Deque();
-    public val fifo = new Deque();
-    public val lock = new Lock();
+    @SuppressTransientError
+    public transient val deque = new Deque(); // FIXME: Shouldn't be transient, because this class should never be serialized
+    @SuppressTransientError
+    public transient val fifo = new Deque();  // FIXME: Shouldn't be transient, because this class should never be serialized
+    @SuppressTransientError
+    public transient val lock = new Lock();   // FIXME: Shouldn't be transient, because this class should never be serialized
 
     public def this(i:Int) {
         random = new Random(i + (i << 8) + (i << 16) + (i << 24));
