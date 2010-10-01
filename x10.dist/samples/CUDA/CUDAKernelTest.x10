@@ -57,11 +57,14 @@ public class CUDAKernelTest {
             var done_work:Boolean = false;
 
             for (gpu in here.children()) if (gpu.isCUDA()) {
+                Console.OUT.println("Running test on GPU called "+gpu);
                 doWork(init, recv, gpu, len);
                 done_work = true;
             }
 
             if (!done_work) {
+                Console.OUT.println("Running test on CPU called "+here);
+                Console.OUT.println("Set X10RT_ACCELS=ALL to use GPUs if you have them.");
                 doWork(init, recv, here, len);
             }
         }
