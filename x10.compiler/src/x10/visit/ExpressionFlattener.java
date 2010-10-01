@@ -984,6 +984,7 @@ public final class ExpressionFlattener extends ContextVisitor {
      * Flatten the evaluation of an expression.
      * <pre>
      * ({s1; null});  ->  s1;
+     * ({s1; v1});    ->  s1;
      * ({s1; e1});    ->  s1; Eval(e1);
      * </pre>
      * 
@@ -994,7 +995,8 @@ public final class ExpressionFlattener extends ContextVisitor {
         List<Stmt> stmts = new ArrayList<Stmt>();
         stmts.addAll(getStatements(stmt.expr()));
         Expr result = getResult(stmt.expr());
-        if (null != result) 
+        if (null != result &&
+                !(result instanceof Local)) 
             stmts.add(syn.createEval(result));
         return syn.toStmtSeq(syn.toStmtSeq(stmt.position(), stmts));
     }
