@@ -877,8 +877,6 @@ public class LineNumberMap extends StringTable {
 		        	w.writeln("    { 101, "+offsets[memberVariables.get(classname).get(0)._cppClass]+", sizeof("+classname+"), "+memberVariables.get(classname).size()+", _X10"+classname+"Members },");	        
 	        	w.writeln("};");
 	        	w.forceNewline();
-	        	memberVariables.clear();
-	        	memberVariables = null;
 	        }
 	        	    
 		    if (!closureMap.isEmpty())
@@ -969,7 +967,11 @@ public class LineNumberMap extends StringTable {
         else
         	w.writeln("NULL,");
         if (memberVariables != null)
+        {
         	w.writeln("_X10ClassMapList,");
+        	memberVariables.clear();
+        	memberVariables = null;
+        }
         else
         	w.writeln("NULL,");
         if (!closureMap.isEmpty())
