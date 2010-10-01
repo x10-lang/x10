@@ -91,6 +91,7 @@ import polyglot.types.Name;
 import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
+import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
@@ -216,7 +217,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	public final Type imcType;
     public static final String JAVA_LANG_OBJECT = "java.lang.Object";
     public static final boolean isSelfDispatch = true;
-    public static final boolean isGenericOverloading = false;
+    public static final boolean isGenericOverloading = true;
 	
     private static final String X10_RTT_TYPES = "x10.rtt.Types";
 
@@ -1928,10 +1929,23 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			}
 			w.write(">");
 		}
+		
+		boolean fromInterface = false;
+		StructType st = mi.def().container().get();
+		Type bst = X10TypeMixin.baseType(st);
+		if (bst instanceof X10ClassType) {
+		    if (xts.isInterfaceType(bst) || (xts.isFunctionType(bst) && ((X10ClassType) bst).isAnonymous())) {
+		        fromInterface = true;
+		    }
+		}
 
-		if (isGenericOverloading) {
-            w.write(Emitter.mangleMethodName(mi.def()));
-		} else {
+		if (isGenericOverloading && !fromInterface) {
+            w.write(Emitter.mangleMethodName(mi.def(), true));
+		}
+		else if (isGenericOverloading) {
+            w.write(Emitter.mangleMethodName(mi.def(), false));
+		}
+		else {
 		    w.write(Emitter.mangleToJava(c.name().id()));
 		}
 

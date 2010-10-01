@@ -51,7 +51,7 @@ public abstract class Runtime implements Runnable {
 		// build up Array[String] for args
 		x10.array.Array<String> aargs = new x10.array.Array<String>(x10.rtt.Types.STRING, args.length);
 		for (int i=0; i<args.length; i++) {
-		    aargs.set$G(args[i], i);
+		    aargs.set_0_$$x10$array$Array_T$G(args[i], i);
 		}
 		
 		// execute root x10 activity

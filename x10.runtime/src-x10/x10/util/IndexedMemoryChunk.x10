@@ -129,7 +129,7 @@ public struct IndexedMemoryChunk[T] {
      * @param numElems the number of elements to copy.
      * @param uncounted Should the spawned activity be treated as if it were annotated @Uncounted
      */
-    @Native("java", "x10.util.IndexedMemoryChunk__NativeRep.copyTo(#9, #0,#1,#2,#3,#4,#5,#6)")
+    @Native("java", "x10.util.IndexedMemoryChunk__NativeRep.copyTo_0_$_x10$util$IndexedMemoryChunk__NativeRep_T_$_3_$_x10$util$IndexedMemoryChunk__NativeRep_T_$(#9, #0,#1,#2,#3,#4,#5,#6)")
     @Native("c++", "(#0)->copyTo(#1,#2,#3,#4,#5,#6)")
     public native def asyncCopyTo (srcIndex:int, 
                                    dstPlace:Place, dst:IndexedMemoryChunk[T], dstIndex:int, 
@@ -157,7 +157,7 @@ public struct IndexedMemoryChunk[T] {
      * @param numElems the number of elements to copy.
      * @param uncounted Should the spawned activity be treated as if it were annotated @Uncounted
      */
-    @Native("java", "x10.util.IndexedMemoryChunk__NativeRep.copyFrom(#9, #0,#1,#2,#3,#4,#5,#6)")
+    @Native("java", "x10.util.IndexedMemoryChunk__NativeRep.copyFrom_0_$_x10$util$IndexedMemoryChunk__NativeRep_T_$_3_$_x10$util$IndexedMemoryChunk__NativeRep_T_$(#9, #0,#1,#2,#3,#4,#5,#6)")
     @Native("c++", "(#0)->copyFrom(#1,#2,#3,#4,#5,#6)")
     public native def asyncCopyFrom(dstIndex:int,
                                     srcPlace:Place, src:IndexedMemoryChunk[T], srcIndex:int,
