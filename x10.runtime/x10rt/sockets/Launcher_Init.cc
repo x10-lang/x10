@@ -135,13 +135,16 @@ void Launcher::initialize(int argc, char ** argv)
 	const char * hostfname = (const char *) getenv(X10LAUNCHER_HOSTFILE);
 	if (hostfname && strlen(hostfname) > 0)
 	{
-		if (strlen(hostfname) > sizeof(_hostfname) - 10)
-			DIE("Launcher %u: host file name is too long", _myproc);
-		realpath(hostfname, _hostfname);
-		readHostFile();
+		if (strcmp("NONE", hostfname) != 0)
+		{
+			if (strlen(hostfname) > sizeof(_hostfname) - 10)
+				DIE("Launcher %u: host file name is too long", _myproc);
+			realpath(hostfname, _hostfname);
+			readHostFile();
+		}
 	}
 	else if (_myproc == 0xFFFFFFFF)
-		fprintf(stderr, "Warning: %s not defined.  Running %d places on localhost\n", X10LAUNCHER_HOSTFILE, _nplaces);
+		fprintf(stderr, "Warning: %s not defined.  Running %d places on localhost.  Setting %s=NONE will suppress this warning.\n", X10LAUNCHER_HOSTFILE, _nplaces, X10LAUNCHER_HOSTFILE);
 
 	connectToParentLauncher();
 
