@@ -35,14 +35,12 @@ public final class GlobalRef<T> extends x10.core.Struct {
 
     final public x10.lang.Place home;
 
-//    final private T value;
     private static final java.util.ArrayList<Object> objects = new java.util.ArrayList<Object>(); // all referenced objects in this place
     final private int id; // place local id of referenced object
 
     public GlobalRef(final x10.rtt.Type<?> T, final T t) {
         this.T = T;
         this.home = x10.lang.Runtime.here();
-//        this.value = (T) t;
         int size;
         synchronized (objects) {
             size = objects.size();
@@ -58,7 +56,6 @@ public final class GlobalRef<T> extends x10.core.Struct {
     }
 
     final public T apply$G() {
-//        return value;
         synchronized (objects) {
             return (T) objects.get(this.id);
         }
@@ -69,12 +66,10 @@ public final class GlobalRef<T> extends x10.core.Struct {
     }
 
     final public java.lang.String toString() {
-//        return "struct x10.core.GlobalRef:" + " home=" + this.home + " it=" + this.value;
         return "struct x10.core.GlobalRef:" + " home=" + this.home + " id=" + this.id;
     }
 
     final public int hashCode() {
-//        return 31 * this.home.hashCode() + System.identityHashCode(this.value); // this.value.hashCode();
         return (this.home.hashCode() << 18) + this.id;
     }
 
@@ -95,7 +90,6 @@ public final class GlobalRef<T> extends x10.core.Struct {
 
     final public boolean _struct_equals(x10.core.GlobalRef<T> other) {
         return x10.rtt.Equality.equalsequals(this.home, other.home)
-//                && x10.rtt.Equality.equalsequals(this.value, other.value);
                 && x10.rtt.Equality.equalsequals(this.id, other.id);
     }
 
