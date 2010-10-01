@@ -402,10 +402,9 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(ConstructorCallsChecked(job));
            goals.add(ForwardReferencesChecked(job));
 //           goals.add(CheckNativeAnnotations(job));
+           goals.add(CheckEscapingThis(job));
            goals.add(CheckASTForErrors(job));
 //           goals.add(TypeCheckBarrier());
-
-           goals.add(CheckEscapingThis(job));
 
            goals.add(End(job));
        }
@@ -584,7 +583,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                    private static final long serialVersionUID = -1495893515710977644L;
                    @Override
                    public Goal prereqForJob(Job job) {
-                       return CheckEscapingThis(job);
+                       return CheckASTForErrors(job);
                    }
                }.intern(this);
     	   }
@@ -598,7 +597,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                        {
                            return null;
                        }
-                       return CheckEscapingThis(job);
+                       return CheckASTForErrors(job);
                    }
                }.intern(this);
     	    }
