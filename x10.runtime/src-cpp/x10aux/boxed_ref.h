@@ -20,28 +20,29 @@
 namespace x10aux {
 
     /**
-     * This class lets us wrap a pointer (eg an address on the stack)
-     * in a way that lets uses of the boxed_ref be unchanged
-     * (they can still pretend it is a stack variable), but
-     * allows us to keep the pointer as a x10_long to enable
-     * 32/64 bit platform interoperability for captured stack vars.
-     * We need to be able to support a stack address being captured on
-     * a 64 bit machine, transfered to a 32 bit machine via an at, then
-     * coming back to the original 64 bit machine and being dereferenced.
-     * 
-     * TODO: actually hid the void* as an x10_long like we do in GlobalRef.
+     * This class lets us wrap the address of a captured stack
+     * location from a lexically enclosing scope in a way that lets
+     * uses of the boxed_ref from the body of the closure apply
+     * still refer to it as if it was a simple stack variable.
+     * The main reason this requires some machination is that we have
+     * to be able to support captuing an address on a 64-bit machine,
+     * transfering it to a 32 bit machine, and then transfering it
+     * back to the 64 bit machine and accessing it.  Therefore we
+     * can't store it is a simple reference value, but have to wrap
+     * it up in an x10_long (64 bits on all platforms).
      */
     template<class T> class boxed_ref {
     protected:
-        void *_val;
+        // Actually contains a T*, but always stored as 64 bits even on 32 bit machines
+        x10_long _val;
     public:
         GPUSAFE boxed_ref() { } // ok to not initialize; compiler will ensure we never read unitialized boxed_ref
 
         GPUSAFE boxed_ref(const boxed_ref<T>& _ref) : _val(_ref._val) { }
 
-        GPUSAFE boxed_ref(T const &val) : _val((void*)&val) { }
+        GPUSAFE boxed_ref(T const &val) : _val((x10_long)(size_t)(void*)&val) { }
 
-        GPUSAFE boxed_ref(T const *val) : _val((void*)val) { }
+        GPUSAFE boxed_ref(T const *val) : _val((x10_long)(size_t)(void*)val) { }
 
         GPUSAFE const boxed_ref<T>& operator=(const boxed_ref<T>& _ref) {
             _val = _ref._val;
@@ -49,20 +50,20 @@ namespace x10aux {
         }
         
         T operator=(const T &val) {
-            *(T*)_val  = val;
+            *((T*)(size_t)_val)  = val;
             return val;
         }
 
         operator T() {
-            return *((T*)_val);
+            return *((T*)(size_t)_val);
         }
 
         x10_long capturedAddress() {
-            return (x10_long)(size_t)(_val);
+            return _val;
         }
 
         void setCapturedAddress(x10_long addr) {
-            _val = (void*)(size_t)addr;
+            _val = addr;
         }
     };
 }
