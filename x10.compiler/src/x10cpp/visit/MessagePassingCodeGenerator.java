@@ -4088,21 +4088,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         inc.newline(); inc.forceNewline();
 
         inc.write("// captured environment"); inc.newline();
-        List<Type> ats = closureDef.annotationsNamed(QName.make("x10.compiler.Ref"));
-        List<VarInstance<?>> refs = new ArrayList<VarInstance<?>>();
-        for (Type at : ats) {
-            Expr exp = ((X10ParsedClassType_c) at).propertyInitializer(0);
-            if (exp instanceof X10Local_c) {
-                refs.add(((X10Local_c) exp).varInstance());
-            }
-        }
-        
-        for (VarInstance<?> var : c.variables) {
-            VarDef def = var.def();
-            if ((def instanceof X10LocalDef) && ((X10LocalDef)def).isAsyncInit()) {
-                refs.add(var);
-            }
-        }
+        List<VarInstance<?>> refs = computeBoxedRefs(c, closureDef);
 
         emitter.printDeclarationList(inc, c, c.variables, refs);
         inc.forceNewline();
@@ -4242,6 +4228,25 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         c.finalizeClosureInstance();
         emitter.exitClosure(c);
+    }
+
+    protected List<VarInstance<?>> computeBoxedRefs(X10CPPContext_c c, ClosureDef closureDef) {
+        List<Type> ats = closureDef.annotationsNamed(QName.make("x10.compiler.Ref"));
+        List<VarInstance<?>> refs = new ArrayList<VarInstance<?>>();
+        for (Type at : ats) {
+            Expr exp = ((X10ParsedClassType_c) at).propertyInitializer(0);
+            if (exp instanceof X10Local_c) {
+                refs.add(((X10Local_c) exp).varInstance());
+            }
+        }
+        
+        for (VarInstance<?> var : c.variables) {
+            VarDef def = var.def();
+            if ((def instanceof X10LocalDef) && ((X10LocalDef)def).isAsyncInit()) {
+                refs.add(var);
+            }
+        }
+        return refs;
     }
 
     protected void generateClosureSerializationFunctions(X10CPPContext_c c, String cnamet, StreamWrapper inc, 
