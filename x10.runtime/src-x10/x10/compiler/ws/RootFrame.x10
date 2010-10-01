@@ -10,6 +10,6 @@ public final class RootFrame extends Frame {
     public def remap():Frame = upcast[RootFrame,Frame](this);
 
     public def resume(worker:Worker) {
-        atomic Worker.finished.value = true;
+        atomic worker.finished.value = true;
     }
 }

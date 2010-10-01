@@ -6,6 +6,6 @@ public final class RootFrame extends Frame {
     }
 
     public def resume(worker:Worker) {
-        atomic Worker.finished.value = true;
+        atomic worker.finished.value = true;
     }
 }

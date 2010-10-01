@@ -5,22 +5,18 @@ import x10.lang.Lock;
 import x10.compiler.SuppressTransientError;
 
 public final class Worker {
-    // FIXME: This doesn't work at all with multi-place programs in X10 2.1!
-    //        You can't serialize a Worker across places and expect anything sensible to happen!
-    private static workers = Rail.make[Worker](Runtime.INIT_THREADS, (i:Int)=>new Worker(i));
-
-    public static finished:BoxedBoolean = new BoxedBoolean();
-
+    private val workers:Rail[Worker];
     private val random:Random;
-    @SuppressTransientError
-    public transient val deque = new Deque(); // FIXME: Shouldn't be transient, because this class should never be serialized
-    @SuppressTransientError
-    public transient val fifo = new Deque();  // FIXME: Shouldn't be transient, because this class should never be serialized
-    @SuppressTransientError
-    public transient val lock = new Lock();   // FIXME: Shouldn't be transient, because this class should never be serialized
 
-    public def this(i:Int) {
+    public val finished:BoxedBoolean;
+    public val deque = new Deque();
+    public val fifo = new Deque();
+    public val lock = new Lock();
+
+    public def this(i:Int, workers:Rail[Worker], finished:BoxedBoolean) {
         random = new Random(i + (i << 8) + (i << 16) + (i << 24));
+        this.workers = workers;
+        this.finished = finished;
     }
 
     public def migrate() {
@@ -126,13 +122,18 @@ public final class Worker {
     }
 
     public static def main(frame:MainFrame) {
+        val workers = Rail.make[Worker](Runtime.INIT_THREADS);
+        val finished = new BoxedBoolean();
+        for (var i:Int = 0; i<Runtime.INIT_THREADS; i++) {
+            workers(i) = new Worker(i, workers, finished);
+        }
         for (var i:Int = 1; i<Runtime.INIT_THREADS; i++) {
             val ii = i;
             async workers(ii).run();
         }
         try {
             frame.fast(workers(0));
-            Worker.finished.value = true;
+            workers(0).finished.value = true;
         } catch (Stolen) {
             workers(0).run();
         } catch (t:Throwable) {
