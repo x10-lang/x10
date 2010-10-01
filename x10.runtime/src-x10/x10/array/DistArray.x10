@@ -323,15 +323,13 @@ public class DistArray[T] (
         = make[T]((dist | r) as Dist(rank), ((p:Point)=>op(this(p as Point(rank)), src(p as Point(rank)))));
 
     public def reduce(op:(T,T)=>T, unit:T):T {
+        // scatter
         // TODO: recode using Team collective APIs to improve scalability
         // TODO: optimize scatter inner loop for locally rect regions
-        // scatter
-        val placeIter = dist.places().iterator();
         val results = Rail.make[T](dist.numPlaces(), (p:Int) => unit);
-	for ([i] in 0..dist.numPlaces()-1) {
-            val where = placeIter.next();
-            async { 
-                results(i) = at(where) {
+	finish for (where in dist.places()) {
+	    async {
+                results(where.id) = at (where) {
                     var localRes:T = unit;
                     for (pt in dist(where)) {
                         localRes = op(localRes, this(pt));
