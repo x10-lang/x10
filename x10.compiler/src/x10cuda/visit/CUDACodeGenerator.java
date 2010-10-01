@@ -1202,8 +1202,11 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 				if (f.endsWith(".cu")) {
 					nvccCmd[3] = f;
 					if (!X10CPPTranslator.doPostCompile(options, eq,
-							compilationUnits, nvccCmd))
-						return false;
+							compilationUnits, nvccCmd, true)) {
+						eq.enqueue(ErrorInfo.WARNING,
+		        				   "Found @CUDA annotation, but not compiling for GPU because nvcc could not be run (check your $PATH).");
+						return true;
+					}
 				}
 			}
 
