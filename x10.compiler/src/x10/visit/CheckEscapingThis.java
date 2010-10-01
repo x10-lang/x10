@@ -403,8 +403,26 @@ public class CheckEscapingThis extends NodeVisitor
             }
         }
 
-        @Override public Node leave(Node old, Node n, NodeVisitor v) {
+        @Override public Node visitEdgeNoOverride(Node parent, Node n) {
             Position pos = n.position();
+            if (!canUseThis() && n instanceof X10Call) {
+                final X10Call call = (X10Call) n;
+                MethodInfo info = getInfo(call);
+                if (info!=null) {
+                    if (info.read.size()==0 && info.write.size()==0) {
+                        // even though we use "this.call(...)", this is legal
+                        // because the call doesn't read nor write to "this"
+                    } else {
+                        reportError("You can use 'this' before 'property(...)' to call only methods that do not read nor write any fields.",pos);
+                    }
+                    for (Expr e : call.arguments())
+                        e.visit(this);
+                    return n;
+                }
+            }
+
+            n.del().visitChildren(this);
+
             if (n instanceof ConstructorCall) {
                 ConstructorCall constructorCall = (ConstructorCall) n;
                 switch (state) {
@@ -421,7 +439,7 @@ public class CheckEscapingThis extends NodeVisitor
                 }
             } else if (n instanceof AssignPropertyCall) {
                 switch (state) {
-                case Start:                    
+                case Start:
                     assert false : "implicit super() call is handled at the beginning, see getConstructorCall";
                 case SawCtor:
                     if (!wasSuperCall)
@@ -444,7 +462,7 @@ public class CheckEscapingThis extends NodeVisitor
                     if (state==CtorState.Start)
                         reportError("You can use 'super' only after 'super(...)'",pos);
                 } else if (!canUseThis())
-                    reportError(hasProperties ? "Can use 'this' only after 'property(...)'" : "Can use 'this' only after 'this(...)' or 'super(...)'", pos);
+                    reportError(hasProperties ? "Can use 'this' only after 'property(...)'" : "Can use 'this' only after 'this(...)' or 'super(...)'.", pos);
             }
             return n;
         }
@@ -595,7 +613,7 @@ public class CheckEscapingThis extends NodeVisitor
 
 
         // visit every ctor, every @NonEscaping method, and every method recursively called from them, and check that this and super do not escape
-        ArrayList<X10ConstructorDecl_c> ctorsForDataFlow = new ArrayList<X10ConstructorDecl_c>();
+        ArrayList<X10ConstructorDecl_c> allCtors = new ArrayList<X10ConstructorDecl_c>();
         for (ClassMember classMember : body.members()) {
             if (classMember instanceof ProcedureDecl) {
                 final ProcedureDecl proc = (ProcedureDecl) classMember;
@@ -645,23 +663,14 @@ public class CheckEscapingThis extends NodeVisitor
                     if (procBody==null) continue;
                     assert proc instanceof X10ConstructorDecl_c : proc;
                     final X10ConstructorDecl_c ctor = (X10ConstructorDecl_c) proc;
-                    final CheckCtor checkCtor = new CheckCtor(ctor);
-                    ctor.visit(checkCtor);
-                    checkCtor.postCheck();
-                    // ctors are implicitly NonEscaping
-                    final ConstructorCall cc = getConstructorCall(ctor);
-                    if (cc!=null && cc.kind() == ConstructorCall.THIS) {
-                        // ignore in dataflow ctors that call other ctors (using "this(...)").
-                    } else {
-                        // add field initializers to all ctors
-                        ctorsForDataFlow.add(ctor);
-                    }
+                    allCtors.add(ctor);
                 }
                 procBody.visit(this);
 
             }
         }
-        if (fields.size()==0) return; // done! all fields have an init, thus all reads are legal (and no writes must be done).
+        // we still need to CheckCtor (make sure super, this and property is correct)
+        //if (fields.size()==0) return; // done! all fields have an init, thus all reads are legal (and no writes must be done).
 
         // do init for the fixed point alg
         for (Map.Entry<ProcedureDef, MethodInfo> entry : allMethods.entrySet()) {
@@ -683,12 +692,23 @@ public class CheckEscapingThis extends NodeVisitor
         }
         // handle ctors and field initializers        
         // make a new special ctor for field-init, and the ctors will use its data-flow for their INIT
-        if (ctorsForDataFlow.size()>0) {
+        if (allCtors.size()>0) { // there should be at least one auto-generated ctor
             fieldChecker.init = CTOR_INIT;
-            X10ConstructorDecl_c fieldInitCtor = (X10ConstructorDecl_c) ctorsForDataFlow.get(0).body(newInit);
+            X10ConstructorDecl_c fieldInitCtor = (X10ConstructorDecl_c) allCtors.get(0).body(newInit);
             fieldChecker.dataflow(fieldInitCtor);
             fieldChecker.init = fieldChecker.finalResult;
-            for (X10ConstructorDecl_c ctor : ctorsForDataFlow) {
+            for (X10ConstructorDecl_c ctor : allCtors) {
+                // check super, this, and property calls
+                final CheckCtor checkCtor = new CheckCtor(ctor);
+                ctor.visit(checkCtor);
+                checkCtor.postCheck();
+
+                // ctors are implicitly NonEscaping
+                final ConstructorCall cc = getConstructorCall(ctor);
+                if (cc!=null && cc.kind() == ConstructorCall.THIS) {
+                    // ignore in dataflow ctors that call other ctors (using "this(...)").
+                    continue;
+                }
                 // X10ConstructorDecl_c newCtor = (X10ConstructorDecl_c) ctor.body( nf.Block(pos,newInit,ctor.body()) ); //reports errors in the field-inits multiple times (if we have multiple ctors)
                 fieldChecker.dataflow(ctor);
                 fieldChecker.checkResult();

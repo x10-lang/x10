@@ -46,7 +46,7 @@ public final class Worker {
 
     public def find():RegularFrame {
         var k:Object = null;
-//        if (deque.poll() != null) Runtime.println("ERROR");
+//        if (deque.poll() != null) Runtime.println("deque.poll() != null");
         k = fifo.steal();
         while (null == k) {
             if (finished.value) return null; // TODO: termination condition

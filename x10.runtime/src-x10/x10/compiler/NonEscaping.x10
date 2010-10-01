@@ -26,7 +26,7 @@ import x10.lang.annotations.MethodAnnotation;
  *
  * <p>@NonEscaping marks the fact that "this" does not escape (also called leak) from the method.
  * A method is NonEscaping if:
- * 1) the method is either final, private or annotated with @NonEscaping.
+ * 1) the method is either final, private, annotated with @NonEscaping, or the entire class is final.
  * 2) in the method body, "this" is only used in field access, field assignment,
  *    and as the reciever of NonEscaping methods.
  * 2) in the method body, "super" is only used in field access, field assignment,
@@ -35,8 +35,7 @@ import x10.lang.annotations.MethodAnnotation;
  * The compiler checks @NonEscaping as follows:
  * 1) @NonEscaping must be preserved by overriding, i.e., when overriding a method annotated with
  *  @NonEscaping(readFromFields) then the overriding method must be annotated with exactly the same annotation.
- * 2) The fields in readFromFields must be declared in the class (and cannot include fields of the superclass).
- * 3) The method can read only from fields in readFromFields.
+ * 2) The method can read only from fields in readFromFields.
  *  NonEscaping is of course not checked on native methods because they do not have a body.
  *
  * All constructors and field initializers in X10 must be NonEscaping.

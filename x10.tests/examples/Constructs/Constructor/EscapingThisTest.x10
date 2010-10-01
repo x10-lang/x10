@@ -2,6 +2,55 @@
 
 import x10.compiler.*; // @Uncounted @NonEscaping
 
+class InfiniteInit234 {
+	var i:Int{self!=0};
+	def this() {
+		foo();
+	}
+	private def foo() = foo();
+}
+
+class AllowCallsIfNoReadNorWrite {
+	class Inner(i:Int) {
+		def this() {
+			val w = this.foo1();
+			property(4);
+		}
+		private def foo1() = 3 + foo2();
+		private def foo2() = 3;
+	}
+}
+
+class DisallowCallsIfReadOrWrite {
+	class Inner(i:Int) {
+		static y=5;
+		var x:Int=2;
+		val z:Int=3;
+		def this() {
+			val w = this.foo1(); // ERR: You can use 'this' before 'property(...)' to call only methods that do not read nor write any fields.
+			property(4);
+		}
+		def this(i:Int) {
+			val w = this.bar1(); // ERR: You can use 'this' before 'property(...)' to call only methods that do not read nor write any fields.
+			property(4);
+		}
+		private def foo1() = foo2()+2;
+		private def foo2() = foo3()+3;
+		private def foo3() {
+			x=2; // There is a write to a field in this method!
+			return y;
+		}
+		private def bar1() = bar2()+2;
+		final def bar2() {
+			return z; // There is a read from a field in this method!
+		}
+	}
+}
+
+class IllegalForwardRef234 {
+	var i1:Int{self!=0} = i2; // ERR: Cannot read from field 'i2' before it is definitely assigned.
+	var i2:Int{self!=0} = i1;
+}
 
 class TestUncountedAsync1 {
 	//@Uncounted async S
