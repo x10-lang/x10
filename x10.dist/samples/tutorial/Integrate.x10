@@ -22,8 +22,6 @@ public class Integrate {
 
   val fun:(double)=>double;
 
-  static final class resHolder { var value:double; }
-
   public def this(f:(double)=>double) { fun = f; }
 
   public def computeArea(left:double, right:double) {
@@ -31,7 +29,6 @@ public class Integrate {
   }
 
   private def recEval(l:double, fl:double, r:double, fr:double, a:double) {
-	  Console.OUT.println("receval:" + l + " " + r);
     val h = (r - l) / 2;
     val hh = h / 2;
     val c = l + h;
@@ -40,13 +37,13 @@ public class Integrate {
     val ar = (fr + fc) * hh;
     val alr = al + ar;
     if (Math.abs(alr - a) < epsilon) return alr;
-    val resHolder = new resHolder();
-    var expr2:double = 0;
+    val expr1:double;
+    val expr2:double;
     finish {
-      async { resHolder.value = recEval(c, fc, r, fr, ar); };
+      async { expr1 = recEval(c, fc, r, fr, ar); };
       expr2 = recEval(l, fl, c, fc, al);
     }
-    return resHolder.value + expr2;
+    return expr1 + expr2;
   }
  
   public static def main(args:Array[String](1)) {
