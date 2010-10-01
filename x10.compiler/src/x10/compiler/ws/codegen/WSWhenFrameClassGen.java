@@ -111,7 +111,7 @@ public class WSWhenFrameClassGen extends WSRegularFrameClassGen {
         Expr thisRef = genUpcastCall(getClassType(), wts.regularFrameType, getThisRef());
         InstanceCallSynth redoCallSynth = new InstanceCallSynth(xnf, xct, whenStmt.position(), thisRef, REDO.toString());
         Expr workerRef = bodySynth.getLocal("worker");
-        redoCallSynth.addArgument(wts.workerHereType, workerRef);
+        redoCallSynth.addArgument(wts.workerType, workerRef);
         Stmt ifRedoStmt = xnf.If(whenStmt.position(), redoCheck, redoCallSynth.genStmt());
         bodySynth.addStmt(ifRedoStmt);
         return bodySynth;

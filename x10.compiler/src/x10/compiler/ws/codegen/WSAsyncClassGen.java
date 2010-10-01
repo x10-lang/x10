@@ -126,7 +126,7 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
         //Move method
         MethodSynth moveMSynth = classSynth.createMethod(compilerPos, MOVE.toString());
         moveMSynth.setFlag(Flags.PUBLIC);
-        Expr moveFfRef = moveMSynth.addFormal(compilerPos, Flags.FINAL, wts.finishFrameHereType, "ff");
+        Expr moveFfRef = moveMSynth.addFormal(compilerPos, Flags.FINAL, wts.finishFrameType, "ff");
         CodeBlockSynth moveBodySynth = moveMSynth.getMethodBodySynth(compilerPos);
 
         HashSet<Name> localDeclaredVar = new HashSet<Name>(); //all locals with these names will not be replaced
@@ -248,7 +248,7 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
         
         InstanceCallSynth icSynth = new InstanceCallSynth(xnf, xct, compilerPos, upThisExpr, POLL.toString());
         Expr fastWorkerRef = fastMSynth.getMethodBodySynth(compilerPos).getLocal(WORKER.toString());
-        icSynth.addArgument(wts.workerHereType, fastWorkerRef);        
+        icSynth.addArgument(wts.workerType, fastWorkerRef);        
         return icSynth.genStmt();
     }
 
@@ -261,11 +261,11 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
         */
         ConstructorSynth conSynth = classSynth.createConstructor(compilerPos);
         conSynth.addAnnotation(genHeaderAnnotation());
-        Expr upRef = conSynth.addFormal(compilerPos, Flags.FINAL, wts.frameHereType, "up"); //up:Frame!
+        Expr upRef = conSynth.addFormal(compilerPos, Flags.FINAL, wts.frameType, "up"); //up:Frame!
         
         CodeBlockSynth codeBlockSynth = conSynth.createConstructorBody(compilerPos);
         SuperCallSynth superCallSynth = codeBlockSynth.createSuperCall(compilerPos, classSynth.getClassDef());
-        superCallSynth.addArgument(wts.frameHereType, upRef);
+        superCallSynth.addArgument(wts.frameType, upRef);
         
         //process all the formals. Assign fields with formals
         Expr thisRef = getThisRef();

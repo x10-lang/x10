@@ -678,11 +678,11 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
         conSynth.addAnnotation(genHeaderAnnotation());
         CodeBlockSynth conCodeSynth = conSynth.createConstructorBody(compilerPos);
 
-        Expr upRef = conSynth.addFormal(compilerPos, Flags.FINAL, wts.frameHereType, "up");
-        Expr ffRef = conSynth.addFormal(compilerPos, Flags.FINAL, wts.finishFrameHereType, "ff");
+        Expr upRef = conSynth.addFormal(compilerPos, Flags.FINAL, wts.frameType, "up");
+        Expr ffRef = conSynth.addFormal(compilerPos, Flags.FINAL, wts.finishFrameType, "ff");
         SuperCallSynth superCallSynth = conCodeSynth.createSuperCall(compilerPos, classSynth.getDef());
-        superCallSynth.addArgument(wts.frameHereType, upRef);
-        superCallSynth.addArgument(wts.finishFrameHereType, ffRef);
+        superCallSynth.addArgument(wts.frameType, upRef);
+        superCallSynth.addArgument(wts.finishFrameType, ffRef);
 
         return conSynth;
     }

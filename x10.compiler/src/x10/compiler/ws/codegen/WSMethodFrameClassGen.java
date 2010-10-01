@@ -201,9 +201,9 @@ public class WSMethodFrameClassGen extends WSRegularFrameClassGen {
         String targetMethodName = FAST.toString();
         
         //now process the formals
-        Expr workerRef = methodSynth.addFormal(compilerPos, Flags.FINAL, wts.workerHereType, WORKER.toString());
-        Expr upRef = methodSynth.addFormal(compilerPos, Flags.FINAL, wts.frameHereType, UP.toString());
-        Expr ffRef = methodSynth.addFormal(compilerPos, Flags.FINAL, wts.finishFrameHereType, FF.toString());
+        Expr workerRef = methodSynth.addFormal(compilerPos, Flags.FINAL, wts.workerType, WORKER.toString());
+        Expr upRef = methodSynth.addFormal(compilerPos, Flags.FINAL, wts.frameType, UP.toString());
+        Expr ffRef = methodSynth.addFormal(compilerPos, Flags.FINAL, wts.finishFrameType, FF.toString());
         
         //all other formals
         List<Expr> orgFormalRefs = new ArrayList<Expr>();
@@ -215,8 +215,8 @@ public class WSMethodFrameClassGen extends WSRegularFrameClassGen {
         //now create the body
         CodeBlockSynth mBodySynth = methodSynth.getMethodBodySynth(compilerPos);        
         NewInstanceSynth niSynth = new NewInstanceSynth(xnf, xct, compilerPos, classSynth.getClassDef().asType());
-        niSynth.addArgument(wts.frameHereType, upRef);
-        niSynth.addArgument(wts.finishFrameHereType, ffRef);
+        niSynth.addArgument(wts.frameType, upRef);
+        niSynth.addArgument(wts.finishFrameType, ffRef);
         niSynth.addArguments(orgFormalTypes, orgFormalRefs);
         niSynth.addAnnotation(genStackAllocateAnnotation());
         //special process for the new statement
@@ -235,7 +235,7 @@ public class WSMethodFrameClassGen extends WSRegularFrameClassGen {
 
         //_tmp.fast(worker) or _temp.slow(worker)
         InstanceCallSynth callSynth = new InstanceCallSynth(xnf, xct, localRef, targetMethodName);
-        callSynth.addArgument(wts.workerHereType, workerRef);
+        callSynth.addArgument(wts.workerType, workerRef);
         Expr callExpr = callSynth.genExpr();
         //if the method has return type, insert return, others, just call them
         if(callExpr.type() != null && callExpr.type() != xts.Void()){

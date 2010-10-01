@@ -88,13 +88,6 @@ public class WSTransformState {
     public Type uninitializedType; //annotation type
     public Type futureType;
     //!Type is context relevant
-    public Type frameHereType;
-    public Type finishFrameHereType;
-    public Type mainFrameHereType;
-    public Type regularFrameHereType;
-    public Type asyncFrameHereType;
-    public Type boxedBooleanHereType;
-    public Type workerHereType;
     public Boolean realloc;
     
     
@@ -156,13 +149,6 @@ public class WSTransformState {
         
         
         //initial context sensitive type
-        frameHereType = PlaceChecker.AddIsHereClause(frameType, xct);
-        finishFrameHereType = PlaceChecker.AddIsHereClause(finishFrameType, xct);
-        mainFrameHereType = PlaceChecker.AddIsHereClause(mainFrameType, xct);
-        regularFrameHereType = PlaceChecker.AddIsHereClause(regularFrameType, xct); 
-        asyncFrameHereType = PlaceChecker.AddIsHereClause(asyncFrameType, xct); 
-        boxedBooleanHereType = PlaceChecker.AddIsHereClause(boxedBooleanType, xct); 
-        workerHereType = PlaceChecker.AddIsHereClause(workerType, xct);
     }
     
     

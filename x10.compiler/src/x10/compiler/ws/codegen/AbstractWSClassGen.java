@@ -334,16 +334,16 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
         fastMSynth.setFlag(Flags.PUBLIC);
         if (!xts.isSubtype(getClassType(), wts.mainFrameType))
                 fastMSynth.addAnnotation(genInlineAnnotation());
-        fastMSynth.addFormal(compilerPos, Flags.FINAL, wts.workerHereType, WORKER.toString());
+        fastMSynth.addFormal(compilerPos, Flags.FINAL, wts.workerType, WORKER.toString());
         
         resumeMSynth = classSynth.createMethod(compilerPos, RESUME.toString());
         resumeMSynth.setFlag(Flags.PUBLIC);
-        resumeMSynth.addFormal(compilerPos, Flags.FINAL, wts.workerHereType, WORKER.toString());
+        resumeMSynth.addFormal(compilerPos, Flags.FINAL, wts.workerType, WORKER.toString());
 
         backMSynth = classSynth.createMethod(compilerPos, BACK.toString());
         backMSynth.setFlag(Flags.PUBLIC);
-        backMSynth.addFormal(compilerPos, Flags.FINAL, wts.workerHereType, WORKER.toString());
-        backMSynth.addFormal(compilerPos, Flags.FINAL, wts.frameHereType, FRAME.toString());
+        backMSynth.addFormal(compilerPos, Flags.FINAL, wts.workerType, WORKER.toString());
+        backMSynth.addFormal(compilerPos, Flags.FINAL, wts.frameType, FRAME.toString());
     }
     
     
@@ -458,11 +458,11 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
         if(xts.isSubtype(newClassType, wts.asyncFrameType)){
             Expr ffRef = synth.makeFieldAccess(compilerPos, getThisRef(), FF, xct);
             Expr parentRef = genUpcastCall(getClassType(), wts.frameType, ffRef);
-            niSynth.addArgument(wts.frameHereType, parentRef);
+            niSynth.addArgument(wts.frameType, parentRef);
         }
         else{ //upcast[_selfType,Frame](this);
             Expr parentRef = genUpcastCall(getClassType(), wts.frameType, getThisRef());
-            niSynth.addArgument(wts.frameHereType, parentRef);
+            niSynth.addArgument(wts.frameType, parentRef);
         }
         
         //process the 2nd parameter, ff.
@@ -481,7 +481,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
                 //non finish frame will have ff field as ff 
                 ffRef = synth.makeFieldAccess(compilerPos, getThisRef(), FF, xct);
             }
-            niSynth.addArgument(wts.finishFrameHereType, ffRef);
+            niSynth.addArgument(wts.finishFrameType, ffRef);
         }
         
         //Finally, if the newClassType is an async frame, may consider the adding formal
@@ -508,13 +508,13 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
         { //fast
             Expr fastWorkerRef = fastMSynth.getMethodBodySynth(compilerPos).getLocal(WORKER.toString());
             InstanceCallSynth callSynth = new InstanceCallSynth(xnf, xct, compilerPos, localRef, FAST.toString());
-            callSynth.addArgument(wts.workerHereType, fastWorkerRef);
+            callSynth.addArgument(wts.workerType, fastWorkerRef);
             transCodes.addFirst(callSynth.genStmt());
         }
         { //resume
             Expr resumeWorkerRef = resumeMSynth.getMethodBodySynth(compilerPos).getLocal(WORKER.toString());
             InstanceCallSynth callSynth = new InstanceCallSynth(xnf, xct, compilerPos, localRef, FAST.toString());
-            callSynth.addArgument(wts.workerHereType, resumeWorkerRef);
+            callSynth.addArgument(wts.workerType, resumeWorkerRef);
             transCodes.addSecond(callSynth.genStmt());
         }
         return transCodes;
@@ -534,7 +534,7 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
         
         InstanceCallSynth icSynth = new InstanceCallSynth(xnf, xct, compilerPos, castThisRef, PUSH.toString());
         // continuationFrame
-        icSynth.addArgument(wts.workerHereType, workerRef);
+        icSynth.addArgument(wts.workerType, workerRef);
         return icSynth.genStmt();
     }
     
@@ -921,13 +921,13 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
         //upcast new instance
         Type upCastTargetType;
         if(xts.isSubtype(cType, wts.finishFrameType)){
-            upCastTargetType = wts.finishFrameHereType;
+            upCastTargetType = wts.finishFrameType;
         }
         else if(xts.isSubtype(cType, wts.regularFrameType)){
-            upCastTargetType = wts.regularFrameHereType;
+            upCastTargetType = wts.regularFrameType;
         }
         else{
-            upCastTargetType = wts.frameHereType;
+            upCastTargetType = wts.frameType;
         }
         methodSynth.setReturnType(upCastTargetType);
         Expr castReturn = genUpcastCall(cType, upCastTargetType, niSynth.genExpr());

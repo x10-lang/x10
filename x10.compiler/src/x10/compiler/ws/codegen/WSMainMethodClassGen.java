@@ -89,12 +89,12 @@ public class WSMainMethodClassGen extends WSMethodFrameClassGen {
         
         NewInstanceSynth rSynth = new NewInstanceSynth(xnf, xct, compilerPos, wts.rootFinishType);
         InstanceCallSynth riSynth = new InstanceCallSynth(xnf, xct, rSynth.genExpr(), "init");
-        NewLocalVarSynth nvSynth = new NewLocalVarSynth(xnf, xct, compilerPos, Name.make("rootFinish"), X10Flags.FINAL, riSynth.genExpr(), wts.finishFrameHereType, Collections.EMPTY_LIST);
+        NewLocalVarSynth nvSynth = new NewLocalVarSynth(xnf, xct, compilerPos, Name.make("rootFinish"), X10Flags.FINAL, riSynth.genExpr(), wts.finishFrameType, Collections.EMPTY_LIST);
         
         //new _main(args)
         NewInstanceSynth niSynth = new NewInstanceSynth(xnf, xct, compilerPos, this.getClassType());
-        niSynth.addArgument(wts.frameHereType, nvSynth.getLocal());
-        niSynth.addArgument(wts.finishFrameHereType, nvSynth.getLocal());
+        niSynth.addArgument(wts.frameType, nvSynth.getLocal());
+        niSynth.addArgument(wts.finishFrameType, nvSynth.getLocal());
         for(Formal f : formals){
             //now add the type
             Type fType = f.localDef().type().get(); 

@@ -69,11 +69,11 @@ public class WSFinishStmtClassGen extends AbstractWSClassGen {
         //now generate another con
         ConstructorSynth conSynth = classSynth.createConstructor(compilerPos);
         conSynth.addAnnotation(genHeaderAnnotation());
-        Expr upRef = conSynth.addFormal(compilerPos, Flags.FINAL, wts.frameHereType, "up"); //up:Frame!
+        Expr upRef = conSynth.addFormal(compilerPos, Flags.FINAL, wts.frameType, "up"); //up:Frame!
         
         CodeBlockSynth codeBlockSynth = conSynth.createConstructorBody(compilerPos);
         SuperCallSynth superCallSynth = codeBlockSynth.createSuperCall(compilerPos, classSynth.getClassDef());
-        superCallSynth.addArgument(wts.frameHereType, upRef);
+        superCallSynth.addArgument(wts.frameType, upRef);
     }
 
     protected void genThreeMethods() throws SemanticException {
