@@ -563,9 +563,10 @@ import x10.util.Box;
                 } else {
                     t = new MultipleExceptions(e);
                 }
+	        val rrcf = (r as RootCollectingFinish[T]).root;
                 val closure = () => { 
-                    val rrcf = (r as RootCollectingFinish[T]).root as GlobalRef[RootCollectingFinish[T]]{self.home==here};
-                    rrcf().notify(m, t); 
+                    val rrcfHere = rrcf as GlobalRef[RootCollectingFinish[T]]{self.home==here};
+                    rrcfHere().notify(m, t); 
                     deallocObject(m); 
                 };
                 runAtNative(r.home().id, closure);
@@ -593,10 +594,11 @@ import x10.util.Box;
                     dealloc(closure);
                     }
                 else {
+                     val rrcf = (r as RootCollectingFinish[T]).root;
                      val closure = () => {
-                     val rrcf = (r as RootCollectingFinish[T]).root as GlobalRef[RootCollectingFinish[T]]{self.home==here};
-                     rrcf().notify(m, x);
-                     deallocObject(m);
+                         val rrcfHere = rrcf as GlobalRef[RootCollectingFinish[T]]{self.home==here};
+                         rrcfHere().notify(m, x);
+                         deallocObject(m);
                      };
                      runAtNative( path.second, closure);
                      dealloc(closure);
@@ -619,9 +621,10 @@ import x10.util.Box;
                 } else {
                     t = new MultipleExceptions(e);
                 }
+                val rrcf = (r as RootCollectingFinish[T]).root;
                 val closure = () => { 
-                     val rrcf = (r as RootCollectingFinish[T]).root as GlobalRef[RootCollectingFinish[T]]{self.home==here};
-                     rrcf().notify2(m, t); 
+                     val rrcfHere = rrcf  as GlobalRef[RootCollectingFinish[T]]{self.home==here};
+                     rrcfHere().notify2(m, t); 
                      deallocObject(m); 
                 };
                 runAtNative(r.home().id, closure);
@@ -649,10 +652,11 @@ import x10.util.Box;
                     dealloc(closure);
                     }
                 else {
+                     val rrcf = (r as RootCollectingFinish[T]).root;
                      val closure = () => {
-                     val rrcf = (r as RootCollectingFinish[T]).root as GlobalRef[RootCollectingFinish[T]]{self.home==here};
-                     rrcf().notify2(m, x);
-                     deallocObject(m);
+                         val rrcfHere = rrcf  as GlobalRef[RootCollectingFinish[T]]{self.home==here};
+                         rrcfHere().notify2(m, x);
+                         deallocObject(m);
                      };
                      runAtNative( path.second, closure);
                      dealloc(closure);
@@ -754,6 +758,14 @@ import x10.util.Box;
     
     }
 
+    // FIXME.  This class is not being used consistiently
+    //         It claims it is a Pinned class, however when an activity
+    //         terminates, instances of this class are then serialized
+    //         back to the place of the root finish to transfer exceptions, etc.
+    //         So, it really isn't a Pinned class after all...
+    //         Probably need to pull out the set of fields that need to be 
+    //         sent back to the root place and not send back the whole object
+    //         or otherwise refactor.
     @Pinned static class RemoteFinish implements RemoteFinishState {
         /**
          * The Exception Stack is used to collect exceptions
@@ -764,7 +776,7 @@ import x10.util.Box;
         /**
          * The monitor is used to serialize updates to the finish state.
          */
-        protected val lock = new Lock();
+        @SuppressTransientError protected transient val lock = new Lock(); // FIXME: Marked transient, but this class needs to be refactored.
 
         /**
          * Keep track of the number of activities associated with this finish state.
@@ -816,17 +828,19 @@ import x10.util.Box;
                     } else {
                         t = new MultipleExceptions(e);
                     }
+                    val rrf = (r as RootFinish).root;
                     val closure = () => { 
-                        val rrf = (r as RootFinish).root as GlobalRef[RootFinish]{self.home==here};
-                        rrf().notify(m, t); 
+                        val rrfHere = rrf as GlobalRef[RootFinish]{self.home==here};
+                        rrfHere().notify(m, t); 
                         deallocObject(m); 
                     };
                     runAtNative(r.home().id, closure);
                     dealloc(closure);
                 } else {
+                    val rrf = (r as RootFinish).root;
                     val closure = () => {
-                        val rrf = (r as RootFinish).root as GlobalRef[RootFinish]{self.home==here};
-                        rrf().notify(m); 
+                        val rrfHere = rrf as GlobalRef[RootFinish]{self.home==here};
+                        rrfHere().notify(m);
                         deallocObject(m); 
                     };
                     runAtNative(r.home().id, closure);
@@ -845,17 +859,19 @@ import x10.util.Box;
                     } else {
                         t = new MultipleExceptions(e);
                     }
+                    val rrf = (r as RootFinish).root;
                     val closure = () => { 
-                        val rrf = (r as RootFinish).root as GlobalRef[RootFinish]{self.home==here};
-                        rrf().notify2(m, t); 
+                        val rrfHere = rrf as GlobalRef[RootFinish]{self.home==here};
+                        rrfHere().notify2(m, t); 
                         deallocObject(m); 
                     };
                     runAtNative(r.home().id, closure);
                     dealloc(closure);
                 } else {
+                    val rrf = (r as RootFinish).root;
                     val closure = () => { 
-                    val rrf = (r as RootFinish).root as GlobalRef[RootFinish]{self.home==here};
-                        rrf().notify2(m); 
+                        val rrfHere = rrf as GlobalRef[RootFinish]{self.home==here};
+                        rrfHere().notify2(m); 
                         deallocObject(m); 
                     };
                     runAtNative(r.home().id, closure);
