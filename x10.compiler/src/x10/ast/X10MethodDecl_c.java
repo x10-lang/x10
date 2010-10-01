@@ -327,6 +327,10 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 	public X10MethodDecl methodDef(MethodDef mi) {
 	    return (X10MethodDecl) super.methodDef(mi);
 	}
+	@Override
+	public X10MethodDef methodDef() {
+	    return (X10MethodDef) super.methodDef();
+	}
 
 	@Override
 	public Context enterChildScope(Node child, Context c) {

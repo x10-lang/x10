@@ -59,7 +59,6 @@ import x10.errors.Errors;
 import x10.extension.X10Del;
 import x10.extension.X10Del_c;
 import x10.extension.X10Ext;
-import x10.types.ConstrainedType_c;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
@@ -68,7 +67,6 @@ import x10.types.X10Def;
 import x10.types.X10FieldDef;
 import x10.types.X10Flags;
 import x10.types.X10InitializerDef;
-import x10.types.X10ParsedClassType_c;
 
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
@@ -102,7 +100,32 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
         }
         return c;
     }
-    
+
+    @Override
+    public X10FieldDecl flags(FlagsNode flags) {
+        return (X10FieldDecl) super.flags(flags);
+    }
+    @Override
+    public X10FieldDecl type(TypeNode type) {
+        return (X10FieldDecl) super.type(type);
+    }
+    @Override
+    public X10FieldDecl name(Id name) {
+        return (X10FieldDecl) super.name(name);
+    }
+    @Override
+    public X10FieldDecl init(Expr init) {
+        return (X10FieldDecl) super.init(init);
+    }
+    @Override
+    public X10FieldDecl fieldDef(FieldDef mi) {
+        return (X10FieldDecl) super.fieldDef(mi);
+    }
+    @Override
+    public X10FieldDef fieldDef() {
+        return (X10FieldDef) super.fieldDef();
+    }
+
     protected X10FieldDecl_c reconstruct(TypeNode hasType) {
     	if (this.hasType != hasType)  {
     		X10FieldDecl_c n = (X10FieldDecl_c) copy();

@@ -239,6 +239,35 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     }
 
     @Override
+    public X10ClassDecl flags(FlagsNode flags) {
+        return (X10ClassDecl) super.flags(flags);
+    }
+    @Override
+    public X10ClassDecl name(Id name) {
+        return (X10ClassDecl) super.name(name);
+    }
+    @Override
+    public X10ClassDecl superClass(TypeNode superClass) {
+        return (X10ClassDecl) super.superClass(superClass);
+    }
+    @Override
+    public X10ClassDecl body(ClassBody body) {
+        return (X10ClassDecl) super.body(body);
+    }
+    @Override
+    public X10ClassDecl interfaces(List<TypeNode> interfaces) {
+        return (X10ClassDecl) super.interfaces(interfaces);
+    }
+    @Override
+    public X10ClassDecl classDef(ClassDef cd) {
+        return (X10ClassDecl) super.classDef(cd);
+    }
+    @Override
+    public X10ClassDef classDef() {
+        return (X10ClassDef) super.classDef();
+    }
+
+    @Override
     public Context enterScope(Context c) {
     	return c.pushBlock();
     }
