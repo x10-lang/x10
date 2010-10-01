@@ -150,7 +150,7 @@ namespace {
         virtual bool is_copy() { return false; }
     };
 
-    #define CUDA_PARAM_SZ 80
+    #define CUDA_PARAM_SZ 240
     struct BaseOpKernel : BaseOp<BaseOpKernel> {
         size_t blocks;
         size_t threads;
