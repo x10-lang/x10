@@ -12,9 +12,8 @@
 import harness.x10Test;
 
 /**
- * It is possible to assign to a variable by 
- * doing an at to another place and then returning
- * to the original place.
+ * References to a var from within an at 
+ * access the location, not a copied value.
  */
 public class AtAndBack2 extends x10Test {
 
@@ -27,7 +26,7 @@ public class AtAndBack2 extends x10Test {
                 x = x + 1;
             }
         }
-	return x == 22; // ??? Is this the right answer? or 20? or 21?
+	return x == 22; 
     }
 
     public static def main(Array[String](1)) {
