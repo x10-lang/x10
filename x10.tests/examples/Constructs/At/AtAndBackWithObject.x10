@@ -49,6 +49,7 @@ public class AtAndBackWithObject extends x10Test {
 	        chk (b.x == 10);  
 	        // Changes b.x to 11
 	        b.x++;
+	        chk (b.x == 11);  
 	    }
 	    chk (a.x == 100);  // The assignment to 200 happened in a different copy, not the local copy at this place
         }
