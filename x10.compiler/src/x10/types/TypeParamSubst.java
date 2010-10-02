@@ -352,7 +352,7 @@ public class TypeParamSubst {
 		    //ci = (X10ConstructorInstance) ci.throwTypes(reinstantiate(ci.throwTypes()));
 		    ci = (X10ConstructorInstance) ci.container(reinstantiate(ci.container()));
 		    ci = (X10ConstructorInstance) ci.guard(reinstantiate(ci.guard()));
-            ci = (X10ConstructorInstance) ci.typeGuard(reinstantiate(ci.typeGuard()));
+		    ci = (X10ConstructorInstance) ci.typeGuard(reinstantiate(ci.typeGuard()));
 		    return ci;
 		}
 		return new ReinstantiatedConstructorInstance(this, t.typeSystem(), t.position(), Types.ref(t.x10Def()), t);
