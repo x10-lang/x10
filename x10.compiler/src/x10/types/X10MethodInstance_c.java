@@ -26,6 +26,7 @@ import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
 import polyglot.types.MemberDef;
 import polyglot.types.MethodDef;
+import polyglot.types.MethodInstance;
 import polyglot.types.MethodInstance_c;
 import polyglot.types.Name;
 import polyglot.types.Named;
@@ -94,7 +95,9 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
     public X10MethodInstance returnType(Type returnType) {
         return (X10MethodInstance) super.returnType(returnType);
     }
+    @Override
     public X10MethodInstance returnTypeRef(Ref<? extends Type> returnType) {
+        if (returnType == this.returnType) return this;
         return (X10MethodInstance) super.returnTypeRef(returnType);
     }
 
@@ -114,6 +117,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
     }
 
     public X10MethodInstance body(XTerm body) {
+        if (body == this.body) return this;
         X10MethodInstance_c n = (X10MethodInstance_c) copy();
         n.body = body;
         return n;
@@ -123,6 +127,12 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
     	return x10Def().offerType();
     }
   
+    @Override
+    public X10MethodInstance container(StructType container) {
+        if (container == this.container) return this;
+        return (X10MethodInstance) super.container(container);
+    }
+
     /** Constraint on formal parameters. */
     protected CConstraint guard;
     public CConstraint guard() {
@@ -130,7 +140,8 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
             return Types.get(x10Def().guard());
         return guard;
     }
-    public X10MethodInstance guard(CConstraint s) { 
+    public X10MethodInstance guard(CConstraint s) {
+        if (s == this.guard) return this;
         X10MethodInstance_c n = (X10MethodInstance_c) copy();
         n.guard = s; 
         return n;
@@ -143,7 +154,8 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
             return Types.get(x10Def().typeGuard());
         return typeGuard;
     }
-    public X10MethodInstance typeGuard(TypeConstraint s) { 
+    public X10MethodInstance typeGuard(TypeConstraint s) {
+        if (s == this.typeGuard) return this;
         X10MethodInstance_c n = (X10MethodInstance_c) copy();
         n.typeGuard = s; 
         return n;
@@ -160,6 +172,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
     }
 
     public X10MethodInstance typeParameters(List<Type> typeParameters) {
+        if (typeParameters == this.typeParameters) return this;
         X10MethodInstance_c n = (X10MethodInstance_c) copy();
         n.typeParameters = typeParameters;
         return n;
@@ -181,12 +194,14 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
     }
 
     public X10MethodInstance formalNames(List<LocalInstance> formalNames) {
+        if (formalNames == this.formalNames) return this;
         X10MethodInstance_c n = (X10MethodInstance_c) copy();
         n.formalNames = formalNames;
         return n;
     }
 
     public X10MethodInstance formalTypes(List<Type> formalTypes) {
+        if (formalTypes == this.formalTypes) return this;
         return (X10MethodInstance) super.formalTypes(formalTypes);
     }
 
@@ -197,6 +212,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
     }
 
     public X10MethodInstance error(SemanticException e) {
+        if (e == this.error) return this;
         X10MethodInstance_c n = (X10MethodInstance_c) copy();
         n.error = e;
         return n;

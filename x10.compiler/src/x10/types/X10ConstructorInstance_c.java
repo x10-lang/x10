@@ -106,6 +106,7 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
         return returnTypeRef(Types.ref(retType));
     }
     public X10ConstructorInstance returnTypeRef(Ref<? extends Type> retType) {
+        if (retType == this.returnType) return this;
         X10ConstructorInstance_c n = (X10ConstructorInstance_c) copy();
         n.returnType = retType;
         return n;
@@ -114,7 +115,13 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
     /** Constraint on superclass constructor call return type. */
     public CConstraint supClause() { 
         return Types.get(x10Def().supClause());
-        }
+    }
+
+    @Override
+    public X10ConstructorInstance container(StructType container) {
+        if (container == this.container) return this;
+        return (X10ConstructorInstance) super.container(container);
+    }
 
     CConstraint guard;
     
@@ -126,6 +133,7 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
     }
 
     public X10ConstructorInstance guard(CConstraint c) {
+        if (c == this.guard) return this;
         X10ConstructorInstance_c n = (X10ConstructorInstance_c) copy();
         n.guard = c;
         return n;
@@ -134,7 +142,8 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
     /** Constraint on type parameters. */
     protected TypeConstraint typeGuard;
     public TypeConstraint typeGuard() { return typeGuard; }
-    public X10ConstructorInstance typeGuard(TypeConstraint s) { 
+    public X10ConstructorInstance typeGuard(TypeConstraint s) {
+        if (s == this.typeGuard) return this;
         X10ConstructorInstance_c n = (X10ConstructorInstance_c) copy();
         n.typeGuard = s; 
         return n;
@@ -180,12 +189,15 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
     }
     
     public X10ConstructorInstance formalNames(List<LocalInstance> formalNames) {
+        if (formalNames == this.formalNames) return this;
         X10ConstructorInstance_c n = (X10ConstructorInstance_c) copy();
         n.formalNames = formalNames;
         return n;
     }
 
+    @Override
     public X10ConstructorInstance formalTypes(List<Type> formalTypes) {
+        if (formalTypes == this.formalTypes) return this;
         return (X10ConstructorInstance) super.formalTypes(formalTypes);
     }
 
@@ -196,6 +208,7 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
     }
 
     public X10ConstructorInstance error(SemanticException e) {
+        if (e == this.error) return this;
         X10ConstructorInstance_c n = (X10ConstructorInstance_c) copy();
         n.error = e;
         return n;

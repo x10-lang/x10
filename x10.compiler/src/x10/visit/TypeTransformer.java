@@ -106,12 +106,12 @@ public class TypeTransformer extends NodeTransformer {
 
     @Override
     protected TypeNode transform(TypeNode tn, TypeNode old) {
-        Ref<Type> tr = (Ref<Type>) transformRef(tn.typeRef());
+        Ref<? extends Type> tr = transformRef(tn.typeRef());
         Type t = Types.get(tr);
         Type rt = transformType(t);
         if (t != rt) {
             tr = remapRef(tr);
-            tr.update(rt);
+            ((Ref<Type>)tr).update(rt);
         }
         if (tn.typeRef() != tr) {
             tn = tn.typeRef(tr);

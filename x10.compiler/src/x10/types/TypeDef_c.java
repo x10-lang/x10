@@ -167,9 +167,12 @@ public class TypeDef_c extends Def_c implements TypeDef {
 	public Ref<? extends Type> returnType() {
 	    return definedType();
 	}
+	public void setReturnType(Ref<? extends Type> type) {
+	    setType(type);
+	}
 
 	/* (non-Javadoc)
-	 * @see x10.types.TypeDef#setReturnType(polyglot.types.Ref)
+	 * @see x10.types.TypeDef#setType(polyglot.types.Ref)
 	 */
 	public void setType(Ref<? extends Type> type) {
 		assert type != null;

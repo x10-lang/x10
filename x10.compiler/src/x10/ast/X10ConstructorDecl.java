@@ -20,6 +20,7 @@ import polyglot.ast.Formal;
 import polyglot.ast.Id;
 import polyglot.ast.TypeNode;
 import polyglot.types.ConstructorDef;
+import x10.types.X10ConstructorDef;
 
 public interface X10ConstructorDecl extends ConstructorDecl, Guarded {
 	/**
@@ -32,6 +33,9 @@ public interface X10ConstructorDecl extends ConstructorDecl, Guarded {
 	DepParameterExpr guard();
 	X10ConstructorDecl guard(DepParameterExpr e);
 	
+	TypeNode offerType();
+	X10ConstructorDecl offerType(TypeNode offerType);
+	
 	List<TypeParamNode> typeParameters();
 	X10ConstructorDecl typeParameters(List<TypeParamNode> typeParams);
 
@@ -39,4 +43,5 @@ public interface X10ConstructorDecl extends ConstructorDecl, Guarded {
 	X10ConstructorDecl name(Id name);
 	X10ConstructorDecl formals(List<Formal> formals);
 	X10ConstructorDecl constructorDef(ConstructorDef ci);
+	X10ConstructorDef constructorDef();
 }

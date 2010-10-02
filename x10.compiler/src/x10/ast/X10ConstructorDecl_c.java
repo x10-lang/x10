@@ -119,6 +119,17 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         n.guard = e;
         return n;
     }
+    public TypeNode offerType() {
+        return offerType;
+    }
+    public X10ConstructorDecl_c offerType(TypeNode offerType) {
+        if (this.offerType != offerType)  {
+            X10ConstructorDecl_c n = (X10ConstructorDecl_c) copy();
+            n.offerType = offerType;
+            return n;
+        }
+        return this;
+    }
     protected X10ConstructorDecl_c hasType(TypeNode hasType) {
     	if (this.hasType != hasType)  {
     		X10ConstructorDecl_c n = (X10ConstructorDecl_c) copy();
@@ -153,6 +164,10 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
     @Override
     public X10ConstructorDecl_c constructorDef(ConstructorDef ci) {
         return (X10ConstructorDecl_c) super.constructorDef(ci);
+    }
+    @Override
+    public X10ConstructorDef constructorDef() {
+        return (X10ConstructorDef) super.constructorDef();
     }
 
     public X10ConstructorDecl_c returnType(TypeNode returnType) {

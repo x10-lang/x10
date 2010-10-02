@@ -82,23 +82,32 @@ public abstract class NodeTransformer {
 
     protected Expr transformExpr(Expr e, Expr old) {
         if (e instanceof Local) {
-            return transform((Local) e, (Local) old);
+            Local o = old instanceof Local ? (Local) old : null;
+            return transform((Local) e, o);
         } else if (e instanceof Field) {
-            return transform((Field) e, (Field) old);
+            Field o = old instanceof Field ? (Field) old : null;
+            return transform((Field) e, o);
         } else if (e instanceof Call) {
-            return transform((Call) e, (Call) old);
+            Call o = old instanceof Call ? (Call) old : null;
+            return transform((Call) e, o);
         } else if (e instanceof New) {
-            return transform((New) e, (New) old);
+            New o = old instanceof New ? (New) old : null;
+            return transform((New) e, o);
         } else if (e instanceof ClosureCall) {
-            return transform((ClosureCall) e, (ClosureCall) old);
+            ClosureCall o = old instanceof ClosureCall ? (ClosureCall) old : null;
+            return transform((ClosureCall) e, o);
         } else if (e instanceof SettableAssign) {
-            return transform((SettableAssign) e, (SettableAssign) old);
+            SettableAssign o = old instanceof SettableAssign ? (SettableAssign) old : null;
+            return transform((SettableAssign) e, o);
         } else if (e instanceof FieldAssign) {
-            return transform((FieldAssign) e, (FieldAssign) old);
+            FieldAssign o = old instanceof FieldAssign ? (FieldAssign) old : null;
+            return transform((FieldAssign) e, o);
         } else if (e instanceof Closure) {
-            return transform((Closure) e, (Closure) old);
+            Closure o = old instanceof Closure ? (Closure) old : null;
+            return transform((Closure) e, o);
         } else if (e instanceof Special) {
-            return transform((Special) e, (Special) old);
+            Special o = old instanceof Special ? (Special) old : null;
+            return transform((Special) e, o);
         }
         return transform(e, old);
     }

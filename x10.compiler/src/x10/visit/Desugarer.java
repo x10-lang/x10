@@ -702,6 +702,18 @@ public class Desugarer extends ContextVisitor {
         return s.reachable() ? xnf.Block(pos, s, xnf.Break(pos)) : s;
     }
 
+    private Expr getLiteral(Position pos, Type type, boolean val) {
+        type = X10TypeMixin.baseType(type);
+        if (xts.isBoolean(type)) {
+            Type t = xts.Boolean();
+            try {
+                t = X10TypeMixin.addSelfBinding(t, val ? xts.TRUE() : xts.FALSE());
+            } catch (XFailure e) { }
+            return xnf.BooleanLit(pos, val).type(t);
+        } else
+            throw new InternalCompilerError(pos, "Unknown literal type: "+type);
+    }
+
     // when(E1) S1 or(E2) S2...; ->
     //    Runtime.ensureNotInAtomic();
     //    try { Runtime.enterAtomic();
@@ -716,9 +728,7 @@ public class Desugarer extends ContextVisitor {
         body = body.append(xnf.Eval(pos, call(pos, AWAIT, xts.Void())));
         Block tryBlock = xnf.Block(pos, 
         		xnf.Eval(pos, call(pos, ENTER_ATOMIC, xts.Void())),
-        		xnf.While(pos, 
-        				xnf.BooleanLit(pos, true), 
-        				   body));
+        		xnf.While(pos, getLiteral(pos, xts.Boolean(), true), body));
         Block finallyBlock = xnf.Block(pos, xnf.Eval(pos, call(pos, EXIT_ATOMIC, xts.Void())));
         return xnf.Block(pos, 
         		xnf.Eval(pos, call(pos, ENSURE_NOT_IN_ATOMIC, xts.Void())),

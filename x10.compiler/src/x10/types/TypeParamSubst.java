@@ -59,7 +59,9 @@ public class TypeParamSubst {
 		this.identityInstantiation = isIdentityInstantiation(tas, tps);
 		this.eager = eager;
 		tas = tas == null ? tps : tas;
-		assert (tps == null ? tas == null : tas.size() == tps.size());
+		if (!(tps == null ? tas == null : tas.size() == tps.size())) {
+		    assert (tps == null ? tas == null : tas.size() == tps.size());
+		}
 		this.ts = ts;
 		this.typeArguments = tas == null ? Collections.<Type>emptyList() : tas;
 		this.typeParameters = tps == null ? Collections.<ParameterType>emptyList() : tps;
@@ -350,6 +352,7 @@ public class TypeParamSubst {
 		    //ci = (X10ConstructorInstance) ci.throwTypes(reinstantiate(ci.throwTypes()));
 		    ci = (X10ConstructorInstance) ci.container(reinstantiate(ci.container()));
 		    ci = (X10ConstructorInstance) ci.guard(reinstantiate(ci.guard()));
+            ci = (X10ConstructorInstance) ci.typeGuard(reinstantiate(ci.typeGuard()));
 		    return ci;
 		}
 		return new ReinstantiatedConstructorInstance(this, t.typeSystem(), t.position(), Types.ref(t.x10Def()), t);
@@ -363,6 +366,7 @@ public class TypeParamSubst {
 		    //mi = (X10MethodInstance) mi.throwTypes(reinstantiate(mi.throwTypes()));
 		    mi = (X10MethodInstance) mi.container(reinstantiate(mi.container()));
 		    mi = (X10MethodInstance) mi.guard(reinstantiate(mi.guard()));
+		    mi = (X10MethodInstance) mi.typeGuard(reinstantiate(mi.typeGuard()));
 		    return mi;
 		}
 		return new ReinstantiatedMethodInstance(this, t.typeSystem(), t.position(), Types.ref(t.x10Def()), t);
@@ -373,7 +377,6 @@ public class TypeParamSubst {
 		    X10FieldInstance fi = t;
 		    fi = (X10FieldInstance) fi.type(reinstantiate(fi.type()));
 		    fi = (X10FieldInstance) fi.container(reinstantiate(fi.container()));
-		    //fi = (X10FieldInstance) fi.guard(reinstantiate(fi.guard()));
 		    return fi;
 		}
 		return new ReinstantiatedFieldInstance(this, t.typeSystem(), t.position(), Types.ref(t.x10Def()), t);
