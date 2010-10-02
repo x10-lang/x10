@@ -928,9 +928,11 @@ public class Emitter {
 			VarInstance<?> var = vars.get(i);
 			VarDef def = var.def();
 			Type t = var.type();
-			String type = translateType(t, true);
+			String type;
 			if ((writable && !var.name().toString().equals(THIS)) || refs.contains(var)) {
-			    type = make_boxed_ref(type);
+			    type = make_boxed_ref(translateType(t, false));
+			} else {
+			    type = translateType(t, true);
 			}
 			String name = var.name().toString();
 			if (saved_this_mechanism && name.equals(THIS)) {

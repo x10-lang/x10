@@ -4112,7 +4112,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 name = SAVED_THIS;
             else name = mangled_non_method_name(name);
             if (refs.contains(var)) {
-                inc.write(make_boxed_ref(Emitter.translateType(var.type(), true)) + " " + name);
+                inc.write(make_boxed_ref(Emitter.translateType(var.type(), false)) + " " + name);
             } else {
                 inc.write(Emitter.translateType(var.type(), true) + " " + name);
             }
@@ -4242,8 +4242,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         
         for (VarInstance<?> var : c.variables) {
             VarDef def = var.def();
-            if ((def instanceof X10LocalDef) && ((X10LocalDef)def).isAsyncInit()) {
-                refs.add(var);
+            if ((def instanceof X10LocalDef)) {
+                X10LocalDef ld = ((X10LocalDef)def);
+                if (ld.isAsyncInit() || !ld.flags().isFinal()) {
+                    refs.add(var);
+                }
             }
         }
         return refs;
@@ -4277,9 +4280,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         for (int i = 0; i < c.variables.size(); i++) {
             VarInstance<?> var = (VarInstance<?>) c.variables.get(i);
             Type t = var.type();
-            String type = Emitter.translateType(t, true);
+            String type;
             if (refs.contains(var)) {
-                type = make_boxed_ref(type);
+                type = make_boxed_ref(Emitter.translateType(t, false));
+            } else {
+                type = Emitter.translateType(t, true);
             }
             String name = var.name().toString();
             if (name.equals(THIS)) {

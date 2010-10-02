@@ -30,9 +30,17 @@ namespace x10aux {
      * back to the 64 bit machine and accessing it.  Therefore we
      * can't store it is a simple reference value, but have to wrap
      * it up in an x10_long (64 bits on all platforms).
+     *
+     * The interplay of boxed_ref and ref is somewhat odd.
+     * We don't want boxed_ref<ref<T>> or ref<boxed_ref<T>>
+     * to ever exist, so we end up doing some off looking operations
+     * in the constructors and operator= of boxed_ref to prevent
+     * that from happening.
+     *
      */
     template<class T> class boxed_ref {
-    protected:
+//    protected:
+    public:
         // Actually contains a T*, but always stored as 64 bits even on 32 bit machines
         x10_long _val;
     public:
@@ -44,6 +52,8 @@ namespace x10aux {
 
         GPUSAFE boxed_ref(T const *val) : _val((x10_long)(size_t)(void*)val) { }
 
+        GPUSAFE boxed_ref(ref<T> const *val) : _val((x10_long)(size_t)(void*)val) { }
+            
         GPUSAFE const boxed_ref<T>& operator=(const boxed_ref<T>& _ref) {
             _val = _ref._val;
             return *this;
@@ -54,10 +64,38 @@ namespace x10aux {
             return val;
         }
 
-        operator T() {
+        T* operator=(const ref<T> &ref) {
+            T* value = ref.operator->();
+            *((T**)(size_t)_val) = value;
+            return value;
+        }
+        
+        // &<boxed_ref<T> can simply be the thing itself.
+        // Of dubious taste, but lets us avoid trying to
+        // special case codegen of closures to detect when
+        // the closure is the "first" to capture a variable
+        // vs. when it is re-capturing something that has already
+        // been captured.
+        boxed_ref<T> operator&() {
+            return *this;
+        }
+        
+        GPUSAFE operator T() {
             return *((T*)(size_t)_val);
         }
 
+        GPUSAFE operator ref<T>() {
+            return ref<T>(*(T**)(size_t)_val);
+        }
+        
+        T& GPUSAFE operator*() const {
+            return *(T*)_val;
+        }
+
+        T* GPUSAFE operator->() const { 
+            return *((T**)(size_t)_val);
+        }
+        
         x10_long capturedAddress() {
             return _val;
         }
