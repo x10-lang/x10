@@ -100,8 +100,20 @@ implements X10ParsedClassType
     
     public
     TypeParamSubst subst() {
-        if (cacheSubst == null)
-            cacheSubst = new TypeParamSubst((X10TypeSystem) ts, typeArguments, x10Def().typeParameters());
+        if (cacheSubst == null) {
+            List<Type> typeArguments = new ArrayList<Type>();
+            List<ParameterType> typeParameters = new ArrayList<ParameterType>();
+            for (X10ParsedClassType_c c = this; c != null; c = (X10ParsedClassType_c) c.container()) {
+                List<ParameterType> tp = c.x10Def().typeParameters();
+                if (!tp.isEmpty() && c.typeArguments != null) {
+                    typeArguments.addAll(c.typeArguments);
+                    typeParameters.addAll(tp);
+                }
+                if (!c.isMember())
+                    break;
+            }
+            cacheSubst = new TypeParamSubst((X10TypeSystem) ts, typeArguments, typeParameters);
+        }
         return cacheSubst;
     }
     
@@ -432,6 +444,21 @@ implements X10ParsedClassType
 
 	public boolean isValid() {
 		return !(def instanceof ErrorRef_c<?>);
+	}
+
+	public X10ParsedClassType instantiateTypeParametersExplicitly() {
+	    X10ParsedClassType pct = this;
+	    List<ParameterType> typeParameters = pct.x10Def().typeParameters();
+	    if (pct.isMember()) {
+	        X10ClassType container = ((X10ParsedClassType) pct.container()).instantiateTypeParametersExplicitly();
+	        if (container != pct.container()) {
+	            pct = pct.container(container);
+	        }
+	    }
+	    if (!typeParameters.isEmpty() && pct.typeArguments().equals(typeParameters)) {
+	        pct = pct.typeArguments(new ArrayList<Type>(typeParameters));
+	    }
+	    return pct;
 	}
 }
 

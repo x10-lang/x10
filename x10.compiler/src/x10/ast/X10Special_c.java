@@ -25,10 +25,12 @@ import polyglot.visit.ContextVisitor;
 import x10.constraint.XFailure;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
+import x10.types.ConstrainedType;
 import x10.types.X10ConstructorDef;
 import x10.types.X10Context;
 import x10.types.X10Flags;
 import x10.types.X10MethodDef;
+import x10.types.X10ParsedClassType;
 import x10.types.X10ProcedureDef;
 
 import x10.types.X10TypeMixin;
@@ -120,6 +122,13 @@ public class X10Special_c extends Special_c implements X10Special {
 
         X10Special result = this;
         X10TypeSystem xts = (X10TypeSystem) ts;
+        assert (t.isClass());
+        // Instantiate with the class's type arguments
+        CConstraint constraint = t instanceof ConstrainedType ? ((ConstrainedType) t).getRealXClause() : null;
+        t = ((X10ParsedClassType) t.toClass()).instantiateTypeParametersExplicitly();
+        if (constraint != null) {
+            t = X10TypeMixin.xclause(t, constraint);
+        }
 
         if (kind == THIS) {
             Type tt = X10TypeMixin.baseType(t);
@@ -135,7 +144,7 @@ public class X10Special_c extends Special_c implements X10Special {
                 throw new SemanticException("Constraint on this is inconsistent; " + e.getMessage(), position());
             }
             tt = X10TypeMixin.xclause(X10TypeMixin.baseType(tt), cc);
-           
+            
             result = (X10Special) type(tt);
         }
         else if (kind == SUPER) {
@@ -178,7 +187,7 @@ public class X10Special_c extends Special_c implements X10Special {
 
         return result;
     }
-    
+
     public String toString() {
     	String typeString = null;
     	if (qualifier != null)

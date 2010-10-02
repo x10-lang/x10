@@ -375,26 +375,27 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         TypeBuilder childTb = tb.pushClass(def);
         
         List<TypeParamNode> pas = n.visitList(n.typeParameters, childTb);
-        pas = new LinkedList<TypeParamNode>(pas);
-        
-        if (def.isMember() && ! def.flags().isStatic()) {
-            X10ClassDef outer = (X10ClassDef) Types.get(def.outer());
-            while (outer != null) {
-                X10NodeFactory nf = (X10NodeFactory) tb.nodeFactory();
-                for (int i = 0; i < outer.typeParameters().size(); i++) {
-                    ParameterType pt = outer.typeParameters().get(i);
-                    TypeParamNode tpn = nf.TypeParamNode(pt.position(), nf.Id(pt.position(), pt.name()));
-                    tpn = tpn.variance(outer.variances().get(i));
-                    tpn = (TypeParamNode) n.visitChild(tpn, childTb);
-                    pas.add(tpn);
-                }
-                
-                if (outer.isMember())
-                    outer = (X10ClassDef) Types.get(outer.outer());
-                else
-                    outer = null;
-            }
-        }
+        // [IP] Don't do this here.  It's the job of X10InnerClassRemover
+//        pas = new LinkedList<TypeParamNode>(pas);
+//        
+//        if (def.isMember() && ! def.flags().isStatic()) {
+//            X10ClassDef outer = (X10ClassDef) Types.get(def.outer());
+//            while (outer != null) {
+//                X10NodeFactory nf = (X10NodeFactory) tb.nodeFactory();
+//                for (int i = 0; i < outer.typeParameters().size(); i++) {
+//                    ParameterType pt = outer.typeParameters().get(i);
+//                    TypeParamNode tpn = nf.TypeParamNode(pt.position(), nf.Id(pt.position(), pt.name()));
+//                    tpn = tpn.variance(outer.variances().get(i));
+//                    tpn = (TypeParamNode) n.visitChild(tpn, childTb);
+//                    pas.add(tpn);
+//                }
+//                
+//                if (outer.isMember())
+//                    outer = (X10ClassDef) Types.get(outer.outer());
+//                else
+//                    outer = null;
+//            }
+//        }
         
         n = (X10ClassDecl_c) n.typeParameters(pas);
         

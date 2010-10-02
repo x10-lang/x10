@@ -31,6 +31,8 @@ public interface X10ParsedClassType extends ParsedClassType, X10ClassType, X10Na
     CConstraint getXClause();
     TypeParamSubst subst();
 
+    X10ParsedClassType instantiateTypeParametersExplicitly();
+
     X10ParsedClassType error(SemanticException e);
     X10ParsedClassType typeArguments(List<Type> typeArgs);
     X10ParsedClassType container(StructType container);
