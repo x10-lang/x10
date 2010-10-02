@@ -1938,8 +1938,17 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		        fromInterface = true;
 		    }
 		}
-
-		if (isGenericOverloading && !fromInterface) {
+		
+		if (isGenericOverloading && c.name().id().toString().equals("main") &&
+	                mi.flags().isPublic() &&
+	                mi.flags().isStatic() &&
+	                mi.returnType().isVoid() &&
+	                mi.formalTypes().size() == 1 &&
+	                mi.formalTypes().get(0).isSubtype(xts.Array(xts.String()), tr.context()))
+		{
+		    w.write(Emitter.mangleToJava(c.name().id()));
+		}
+		else if (isGenericOverloading && !fromInterface) {
             w.write(Emitter.mangleMethodName(mi.def(), true));
 		}
 		else if (isGenericOverloading) {
