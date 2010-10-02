@@ -23,10 +23,13 @@ public class AtAndBack2 extends x10Test {
 	at (here.next()) {
 	    at (h) {
                 x = x + 1;
-                x = x + 1;
+                x += 1;
+		val a = ++x;
+	        val b = x++;
+                chk(a==b);
             }
         }
-	return x == 22; 
+	return x == 24; 
     }
 
     public static def main(Array[String](1)) {
