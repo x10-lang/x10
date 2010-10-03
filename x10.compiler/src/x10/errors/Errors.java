@@ -530,7 +530,7 @@ public class Errors {
 	              pos);
 	        
 	        Map<String, Object> map = new HashMap<String, Object>();
-		    map.put("ERROR_CODE", 1002);
+		    map.put(CodedErrorInfo.ERROR_CODE_KEY, 1002);
 		    map.put("METHOD", mm.name().toString());
 		    map.put("ARGUMENTS", mm.argumentString());
 		    setAttributes(map);

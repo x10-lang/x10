@@ -47,6 +47,7 @@ import polyglot.types.TypeSystem_c;
 import polyglot.types.Types;
 import polyglot.types.TypeSystem_c.ConstructorMatcher;
 import polyglot.types.TypeSystem_c.TypeEquals;
+import polyglot.util.CodedErrorInfo;
 import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.TransformingList;
@@ -55,8 +56,8 @@ import x10.constraint.XFailure;
 import x10.constraint.XLit;
 import x10.constraint.XName;
 import x10.constraint.XNameWrapper;
-import x10.constraint.XVar;
 import x10.constraint.XTerms;
+import x10.constraint.XVar;
 import x10.errors.Errors;
 import x10.types.ParameterType.Variance;
 import x10.types.X10TypeSystem_c.Bound;
@@ -143,7 +144,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                                     + ", which is declared in "
                                     + rt.toClass().fullName(), ct.position());
                             Map<String, Object> map = new HashMap<String, Object>();
-                            map.put("ERROR_CODE", 1004);
+                            map.put(CodedErrorInfo.ERROR_CODE_KEY, 1004);
                             map.put("CLASS", ct.name().toString());
                             map.put("METHOD", mi.name().toString());
                             map.put("SUPER_CLASS", rt.toClass().name().toString());
@@ -1959,7 +1960,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 	    if (error == null) {
 	    	error = new NoMemberException(NoMemberException.CONSTRUCTOR, "No valid constructor found for " + matcher.signature() + ".");
 	    	Map<String, Object> map = new HashMap<String, Object>();
-            map.put("ERROR_CODE", 1003);
+            map.put(CodedErrorInfo.ERROR_CODE_KEY, 1003);
             map.put("CONSTRUCTOR", matcher.name().toString());
             map.put("ARGUMENTS", matcher.argumentString());
             error.setAttributes(map);
