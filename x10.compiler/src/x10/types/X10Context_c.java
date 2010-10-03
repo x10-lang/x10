@@ -159,11 +159,10 @@ public class X10Context_c extends Context_c implements X10Context {
 
 		 // add in the real clause of the type of any var mentioned in the constraint list cs
 		 CConstraint r = null;
-		 Set<XTerm> old = new HashSet<XTerm>();
 		 for (CConstraint ci : cs) {
 			 if (ci == null)
 				 continue;
-			 CConstraint ri = ci.constraintProjection(m, old);
+			 CConstraint ri = ci.constraintProjection(m);
 			 if (r == null)
 				 r = ri;
 			 else

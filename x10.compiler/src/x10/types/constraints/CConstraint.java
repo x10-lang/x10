@@ -414,7 +414,7 @@ public class CConstraint extends XConstraint  implements ThisVar {
 	public void addSigma(CConstraint c, HashMap<XTerm, CConstraint> m) throws XFailure {
 		if (c != null && ! c.valid()) {
 			addIn(c);
-			addIn(c.constraintProjection(m, new HashSet<XTerm>()));
+			addIn(c.constraintProjection(m));
 		}
 	}
 	public void addSigma(XConstrainedTerm ct, HashMap<XTerm, CConstraint> m) throws XFailure {
@@ -433,11 +433,14 @@ public class CConstraint extends XConstraint  implements ThisVar {
 	 * @return
 	 * @throws XFailure -- if r becomes inconsistent.
 	 */
-	public CConstraint constraintProjection(Map<XTerm,CConstraint> m, Set<XTerm> old) throws XFailure {
+	public CConstraint constraintProjection(Map<XTerm,CConstraint> m) throws XFailure {
+		return constraintProjection(m, 0); // new HashSet<XTerm>());
+	}
+	public CConstraint constraintProjection(Map<XTerm,CConstraint> m, int depth /*Set<XTerm> ancestors*/) throws XFailure {
 		CConstraint r = new CConstraint();
 
 		for (XTerm t : constraints()) {
-			CConstraint tc = constraintProjection(t, m, old);
+			CConstraint tc = constraintProjection(t, m, depth /*ancestors*/);
 			if (tc != null)
 				r.addIn(tc);
 		}
@@ -506,16 +509,19 @@ public class CConstraint extends XConstraint  implements ThisVar {
 		}
 		return false;
 	}
-	private static CConstraint constraintProjection(XTerm t, Map<XTerm,CConstraint> m, 
-			Set<XTerm> ancestors) throws XFailure {
-
+	private static int MAX_DEPTH=15;
+	private static CConstraint constraintProjection(XTerm t, Map<XTerm,CConstraint> m, int depth /*Set<XTerm> ancestors*/) throws XFailure {
+		if (t == null)
+			return null;
+		if (depth > MAX_DEPTH) {
+			System.err.println("Warning: Reached max depth when projecting " + t);
+			return new CConstraint();
+		}
 		CConstraint r = m.get(t);
 		if (r != null)
 			return r;
-
 		// pre-fill the cache to avoid infinite recursion
 		m.put(t, new CConstraint());
-
 		if (t instanceof XLocal) {
 			XLocal v = (XLocal) t;
 			X10LocalDef ld = getLocal(v);
@@ -528,18 +534,16 @@ public class CConstraint extends XConstraint  implements ThisVar {
 				r.addIn(ci);
 				// Recursively perform a constraintProjection on the new constraint ci
 				// only if one of the ancestor terms does not occur in it.
-				if (! contains(ancestors, ci.terms()))
-					r.addIn(ci.constraintProjection(m, ancestors));
+			// if (! contains(ancestors, ci.terms()))
+					r.addIn(ci.constraintProjection(m, depth+1));
 			}
-		}
-		else if (t instanceof XLit) {
-		}
-		else if (t instanceof XField) {
+		} else if (t instanceof XLit) {
+		} else if (t instanceof XField) {
 			XField f = (XField) t;
 			XTerm target = f.receiver();
-			ancestors.add(target);
-			ancestors.add(t);
-			CConstraint rt = constraintProjection(target, m, ancestors);
+			//ancestors.add(target);
+			//ancestors.add(t);
+			CConstraint rt = constraintProjection(target, m, depth+1); //  ancestors);
 
 			X10FieldDef fi = getField(f);
 			CConstraint ci = null;
@@ -552,25 +556,26 @@ public class CConstraint extends XConstraint  implements ThisVar {
 				ci = ci.substitute(target, v); // xts.xtypeTranslator().transThisWithoutTypeConstraint());
 				r = new CConstraint();
 				r.addIn(ci);
+				
 				// Recursively perform a constraintProjection on the new constraint ci
 				// only if one of the ancestor terms does not occur in it.
-				if ( ! contains(ancestors, ci.terms()))
-					r.addIn(ci.constraintProjection(m, ancestors));
+			//	if ( ! contains(ancestors, ci.terms())) {
+				  CConstraint ciInferred = ci.constraintProjection(m, depth+1); // ancestors);
+				  r.addIn(ciInferred);
+			//	}
 				if (rt != null) {
 					r.addIn(rt);
 				}
-			}
-			else {
+			} else {
 				r = rt;
 			}
-		}
-		else if (t instanceof XFormula) {
+		} else if (t instanceof XFormula) {
 			XFormula f = (XFormula) t;
 			for (XTerm a : f.arguments()) {
-				CConstraint ca = constraintProjection(a, m, ancestors);
-				if (m.get(a) != null)
-					m.put(a, new CConstraint());
-				ancestors.add(a);
+				CConstraint ca = constraintProjection(a, m, depth+1); //ancestors);
+			//	if (m.get(a) == null)
+			//		m.put(a, new CConstraint());
+			//	ancestors.add(a);
 				if (ca != null) {
 					if (r == null) {
 						r = new CConstraint();
@@ -578,15 +583,11 @@ public class CConstraint extends XConstraint  implements ThisVar {
 					r.addIn(ca);
 				}
 			}
-		}
-		else {
+		} else {
 			assert false : "unexpected " + t;
 		}
-
-		if (r != null)
+		if (r != null) // update the entry
 			m.put(t, r);
-		else
-			m.put(t, new CConstraint());
 		return r;
 	}
 	private CConstraint leastUpperBound1(CConstraint c2) {
