@@ -45,7 +45,7 @@ import static x10cpp.visit.SharedVarsMethods.chevrons;
 import static x10cpp.visit.SharedVarsMethods.getId;
 import static x10cpp.visit.SharedVarsMethods.getUniqueId_;
 import static x10cpp.visit.SharedVarsMethods.make_ref;
-import static x10cpp.visit.SharedVarsMethods.make_boxed_ref;
+import static x10cpp.visit.SharedVarsMethods.make_captured_lval;
 import static x10cpp.visit.SharedVarsMethods.refsAsPointers;
 
 import java.util.ArrayList;
@@ -4112,7 +4112,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 name = SAVED_THIS;
             else name = mangled_non_method_name(name);
             if (refs.contains(var)) {
-                inc.write(make_boxed_ref(Emitter.translateType(var.type(), false)) + " " + name);
+                inc.write(make_captured_lval(var.type()) + " " + name);
             } else {
                 inc.write(Emitter.translateType(var.type(), true) + " " + name);
             }
@@ -4282,7 +4282,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             Type t = var.type();
             String type;
             if (refs.contains(var)) {
-                type = make_boxed_ref(Emitter.translateType(t, false));
+                type = make_captured_lval(t);
             } else {
                 type = Emitter.translateType(t, true);
             }

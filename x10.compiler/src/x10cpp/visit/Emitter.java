@@ -27,7 +27,7 @@ import static x10cpp.visit.SharedVarsMethods.SERIALIZE_METHOD;
 import static x10cpp.visit.SharedVarsMethods.THIS;
 import static x10cpp.visit.SharedVarsMethods.chevrons;
 import static x10cpp.visit.SharedVarsMethods.make_ref;
-import static x10cpp.visit.SharedVarsMethods.make_boxed_ref;
+import static x10cpp.visit.SharedVarsMethods.make_captured_lval;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -930,7 +930,7 @@ public class Emitter {
 			Type t = var.type();
 			String type;
 			if ((writable && !var.name().toString().equals(THIS)) || refs.contains(var)) {
-			    type = make_boxed_ref(translateType(t, false));
+			    type = make_captured_lval(t);
 			} else {
 			    type = translateType(t, true);
 			}

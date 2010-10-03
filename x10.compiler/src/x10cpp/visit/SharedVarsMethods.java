@@ -29,6 +29,7 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.VarInstance;
 import x10.ast.ConstantDistMaker_c;
+import x10.types.X10ClassType;
 import x10.types.X10MethodInstance;
 import x10.types.X10ParsedClassType;
 import x10.types.X10TypeSystem;
@@ -112,8 +113,12 @@ public class SharedVarsMethods {
 		return "x10aux::ref"+chevrons(type);
 	}
 	
-	public static String make_boxed_ref(String type) {
-	    return "x10aux::boxed_ref"+chevrons(type);
+	public static String make_captured_lval(Type type) {
+	    if (type.isClass() && !((X10ClassType)type.toClass()).isX10Struct()) {
+	        return "x10aux::captured_ref_lval"+chevrons(Emitter.translateType(type, false));
+	    } else {
+            return "x10aux::captured_struct_lval"+chevrons(Emitter.translateType(type, false));
+	    }
 	}
 
 	static String closure_name(String prefix, int id) {
