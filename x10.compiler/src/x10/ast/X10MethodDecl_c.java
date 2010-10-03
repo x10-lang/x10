@@ -364,7 +364,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 				|| (formals != null && formals.contains(child))) {
 			if (placeTerm != null)
 				c = ((X10Context) c).pushPlace( XConstrainedTerm.make(placeTerm));
-			c = PlaceChecker.pushHereTerm(methodDef(), (X10Context) c);
+			else c = PlaceChecker.pushHereTerm(methodDef(), (X10Context) c);
 		}
 
 		// Add the method guard into the environment.
@@ -963,7 +963,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 			final TypeNode r = (TypeNode) nn.visitChild(nn.returnType(), childtc1);
 			nn = (X10MethodDecl) nn.returnType(r);
 			Type type = PlaceChecker.ReplaceHereByPlaceTerm(r.type(), ( X10Context ) childtc1.context());
-			((Ref<Type>) nn.methodDef().returnType()).update(r.type());
+			((Ref<Type>) nn.methodDef().returnType()).update(r.type()); 
 
 			if (hasType != null) {
 				final TypeNode h = (TypeNode) nn.visitChild(((X10MethodDecl_c) nn).hasType, childtc1);
