@@ -308,6 +308,9 @@ public class X10InnerClassRemover extends InnerClassRemover {
         List<Formal> formals = cd.formals();
         List<Ref<? extends Type>> formalTypes = def.formalTypes();
         List<LocalDef> formalNames = def.formalNames();
+        if (formalNames.size() != formals.size())
+        assert formalNames.size() == formals.size();
+        assert formalNames.size() == formalTypes.size();
         for (int i = 0; i < formalTypes.size(); i++) {
             Ref<? extends Type> dftr = formalTypes.get(i);
             LocalDef fn = formalNames.get(i);
@@ -431,6 +434,8 @@ public class X10InnerClassRemover extends InnerClassRemover {
     }
 
     protected Type fixType(Type t) {
+    	if (t == null)
+    		return null;
         if (!t.isClass())
             return t;
         CConstraint constraint = t instanceof ConstrainedType ? ((ConstrainedType) t).getRealXClause() : null;
