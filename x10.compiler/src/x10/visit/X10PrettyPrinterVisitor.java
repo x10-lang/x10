@@ -529,7 +529,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 		Flags flags = n.flags().flags();
 
-		if (isMainMethod(ts, flags, n.name(), n.returnType().type(), n.formals().size(), n.formals().get(0).declType())){
+		if (n.formals().size() == 1 && isMainMethod(ts, flags, n.name(), n.returnType().type(), n.formals().get(0).declType())){
 			/*Expander throwsClause = new Inline(er, "");
 			if (n.throwTypes().size() > 0) {
 				List<Expander> l = new ArrayList<Expander>();
@@ -606,12 +606,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		er.generateMethodDecl(n, false);
 	}
 
-    private boolean isMainMethod(X10TypeSystem ts, Flags flags, Id name, Type returnType, int argSize, Type argType) {
+    private boolean isMainMethod(X10TypeSystem ts, Flags flags, Id name, Type returnType, Type argType) {
         return name.id().toString().equals("main") &&
 				flags.isPublic() &&
 				flags.isStatic() &&
 				returnType.isVoid() &&
-				argSize == 1 &&
 				argType.isSubtype(ts.Array(ts.String()), tr.context());
     }
 
@@ -1942,7 +1941,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		    }
 		}
 		
-		if (isGenericOverloading && isMainMethod(xts, mi.flags(), c.name(), mi.returnType(), mi.formalTypes().size(), mi.formalTypes().get(0)))
+		if (isGenericOverloading && mi.formalTypes().size() == 1 && isMainMethod(xts, mi.flags(), c.name(), mi.returnType(), mi.formalTypes().get(0)))
 		{
 		    w.write(Emitter.mangleToJava(c.name().id()));
 		}
