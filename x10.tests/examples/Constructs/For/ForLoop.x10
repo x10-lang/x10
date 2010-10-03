@@ -22,9 +22,9 @@ public class ForLoop extends x10Test {
 	var nActivities: int = 0;
 
 	public def run(): boolean = {
-		var r: Region = [0..N-1];
-		var P0: Place = here;
-		var d: Dist = r->P0;
+		val r = 0..N-1;
+		val P0 = here;
+		val d = r->P0;
 
 		if (!d.region.equals(r)) return false;
 		//if (d.region.low() != 0) return false;
@@ -33,7 +33,7 @@ public class ForLoop extends x10Test {
 		//Ensure iterator works in lexicographic order
 		var n: int = 0;
 		var prev: int = /*d.region.low()*/0-1;
-		for (val p: Point in d) {
+		for (p in d) {
 			n += p(0);
 			if (prev+1 != p(0)) return false;
 			prev = p(0);
