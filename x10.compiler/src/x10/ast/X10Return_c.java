@@ -286,8 +286,7 @@ public class X10Return_c extends Return_c {
             if (ts.isImplicitCastValid(expr.type(), returnType, c)) {
                 return this;
             }
-        
-            throw new SemanticException("Cannot return expression of type " +expr.type() + " from " + fi + ".", expr.position());
+            throw new Errors.CannotReturnExpr(expr.type(), returnType, expr.position());
         }
         
         throw new SemanticException("Cannot return from this context.", position());

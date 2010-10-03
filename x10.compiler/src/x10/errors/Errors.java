@@ -29,6 +29,7 @@ import polyglot.frontend.Job;
 import polyglot.types.ClassDef;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.FieldInstance;
+import polyglot.types.FunctionDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.ProcedureDef;
 import polyglot.types.ProcedureInstance;
@@ -680,6 +681,14 @@ public class Errors {
 		private static final long serialVersionUID = -5824261892277076305L;
 		public IllegalClockedAccess(Field field,  Position pos) {
 	        super(field + " must be accessed in a clocked context.", pos);
+	    }
+	}
+	public static class CannotReturnExpr extends EqualByTypeAndPosException {
+		private static final long serialVersionUID = 211999857915638603L;
+		public CannotReturnExpr(Type type,  Type returnType, Position pos) {
+	        super("Cannot return expression of given type."
+	        		+ "\n\t type: " + type
+	        		+ "\n\t desired Type:" + returnType, pos);
 	    }
 	}
 }
