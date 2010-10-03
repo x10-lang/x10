@@ -84,9 +84,9 @@ public class PlaceChecker {
 	 * @param context
 	 * @return
 	 */
-	static XTerm homeVar(XTerm target) {
+	/*static XTerm homeVar(XTerm target) {
 		return homeVar(target, null);
-	}
+	}*/
 	
 	static XTerm thisHomeVar(Context xc) {
 		return homeVar(((X10Context) xc).thisVar(), (X10TypeSystem) xc.typeSystem());
@@ -134,7 +134,7 @@ public class PlaceChecker {
 	/**
 	 * Return {thisVar.home==here}
 	 */
-	public static CConstraint ThisHomeEqualsPlaceTerm(XTerm thisVar, X10Context cxt) {
+	/*public static CConstraint ThisHomeEqualsPlaceTerm(XTerm thisVar, X10Context cxt) {
 		XTerm h =  PlaceChecker.homeVar(thisVar);
 		CConstraint c = new CConstraint();
 		if (h != null) {
@@ -144,7 +144,7 @@ public class PlaceChecker {
 			}
 		}
 		return c;
-	}
+	}*/
 	
 	public static CConstraint ThisHomeEqualsHere(XTerm thisVar, X10TypeSystem ts) {
 		
@@ -179,14 +179,22 @@ public class PlaceChecker {
 		}
 		XTerm locVar = homeVar(selfVar, (X10TypeSystem) cxt.typeSystem());
 		try {
-			if (locVar != null)
-			    type = X10TypeMixin.addBinding(type, locVar, here());// here, not pt); // pt, not PlaceChecker.here()
+			
+			XConstrainedTerm pt = (((X10Context) cxt).currentPlaceTerm());
+			if (locVar != null && pt != null)
+			    type = X10TypeMixin.addBinding(type, locVar, pt.term()); // here());// here, not pt); // pt, not PlaceChecker.here()
 		} catch (XFailure z) {
 			// caller responsibility to ensure that this could be consistently added.
 		}
 		return type;
 	}
 	
+	/**
+	 * Replace occurrences of here in type by the context's place term.
+	 * @param type
+	 * @param xct
+	 * @return
+	 */
 	public static Type ReplaceHereByPlaceTerm(Type type, X10Context xct) {
 		if (xct.currentPlaceTerm() == null)
 			assert true;
@@ -213,6 +221,12 @@ public class PlaceChecker {
 		type = X10TypeMixin.constrainedType(X10TypeMixin.baseType(type), xclause);
 		return type;*/
 	}
+	/**
+	 * Replace occurrences of here in type with term.
+	 * @param type
+	 * @param term
+	 * @return
+	 */
 	public static Type ReplaceHereByPlaceTerm(Type type, XTerm term) {
 		// Do not replace for closure types. The ! in such types is 
 		// evaluated dynamically, i.e. at the point of evaluation of the closure.
@@ -242,7 +256,7 @@ public class PlaceChecker {
 		return type;
 	}
 	
-	public static void AddThisHomeEqualsPlaceTerm(CConstraint c, XTerm thisVar, X10Context xc) throws XFailure {
+/*	public static void AddThisHomeEqualsPlaceTerm(CConstraint c, XTerm thisVar, X10Context xc) throws XFailure {
 		 XTerm locVar = homeVar(thisVar, (X10TypeSystem) xc.typeSystem());
          XConstrainedTerm thisPlace = xc.currentThisPlace();
          if (locVar != null && thisPlace != null) {
@@ -250,6 +264,7 @@ public class PlaceChecker {
         	 c.addBinding(locVar, thisPlace);
          }
 	}
+	*/
 	public static void AddHereEqualsPlaceTerm(CConstraint c, X10Context xc) throws XFailure{
 		XConstrainedTerm placeTerm = xc.currentPlaceTerm();
 		if (placeTerm != null) 
@@ -381,11 +396,11 @@ public class PlaceChecker {
 	 * @param context
 	 * @return
 	 */
-	private static boolean isHere(Receiver r, X10Context xc) {
+	/*private static boolean isHere(Receiver r, X10Context xc) {
 		XConstrainedTerm h = xc.currentPlaceTerm();
 		//assert h != null;
 		return isAtPlace(r, h==null ? null : h.term(), xc);
-	}
+	}*/
 
 	/**
 	 * Returns true if the receiver r is known statically to be at place.
@@ -395,7 +410,7 @@ public class PlaceChecker {
 	 * @param context
 	 * @return
 	 */
-	public static boolean isAtPlace(Receiver r, Expr place, X10Context xc) {
+/*public static boolean isAtPlace(Receiver r, Expr place, X10Context xc) {
 		assert place != null;
 		CConstraint c = new CConstraint();
 		XTerm placeTerm = ((X10TypeSystem) xc.typeSystem()).xtypeTranslator().trans(c, place, xc);
@@ -405,6 +420,7 @@ public class PlaceChecker {
 		}
 		return isAtPlace(r, placeTerm, xc);
 	}
+	*/
 
 	/**
 	 * Returns true if the receiver r is known statically to be at placeTerm.
@@ -416,7 +432,7 @@ public class PlaceChecker {
 	 */
 	// placeTerm may be null. Nothing is known about the current place.
 	// In such a case check if r.home == here, otherwise check r.home==placeTerm
-	static boolean isAtPlace(Receiver r, XTerm placeTerm, X10Context xc) {
+	/*static boolean isAtPlace(Receiver r, XTerm placeTerm, X10Context xc) {
 		X10TypeSystem xts = (X10TypeSystem) xc.typeSystem();
 		// If the code is executing in a global context then
 		// no receiver can be local.
@@ -479,7 +495,7 @@ public class PlaceChecker {
 		}
  	   
 		return false;
-	}
+	}*/
 
     public static Receiver makeReceiverLocalIfNecessary(ContextVisitor tc, Receiver target, X10Flags flags) throws SemanticException {
         /*if (isTargetPlaceSafe(tc, target, flags)) return target;  // nothing to do
