@@ -104,6 +104,8 @@ public final struct Place(id: Int)  {
         return this;
     }
 
+    public static def numPlaces():int = ALL_PLACES;
+
     public def isFirst(): Boolean = id == 0;
     public def isLast(): Boolean = id == MAX_PLACES - 1;
 
