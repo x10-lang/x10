@@ -94,7 +94,7 @@ public class NQueensPar {
         //warmup
         //finish new NQueensPar(12, 1).start();
         val ps = [1,2,4];
-        for (var i:Int = 0; i < ps.length; i++) {
+        for (var i:Int = 0; i < ps.size; i++) {
             println("starting " + ps(i) + " threads");
             val nq = new NQueensPar(n,ps(i));
             var start:Long = -System.nanoTime();

@@ -52,7 +52,7 @@ public class ArraySum {
         val P = [1,2,4];
 
         //warmup loop
-        val R = 0..P.length-1;
+        val R = 0..P.size-1;
         Console.OUT.println("Warming up.");
         for ([i] in R)
             a.sum(P(i));
