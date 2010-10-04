@@ -28,9 +28,9 @@ public class HeatTransfer_v5 {
     static val epsilon = 1.0e-5;
     static val P = 1;
 
-    static val BigD = Dist.makeBlock([0..n+1, 0..n+1], 0);
-    static val D = BigD | ([1..n, 1..n] as Region);
-    static val LastRow = [0..0, 1..n] as Region;
+    static val BigD = Dist.makeBlock(new Array[Region(1){rect}][0..n+1, 0..n+1], 0);
+    static val D = BigD | new Array[Region(1){rect}][1..n, 1..n];
+    static val LastRow : Region= new Array[Region(1){rect}][0..0, 1..n];
     static val A = DistArray.make[Double](BigD,(p:Point)=>{ LastRow.contains(p) ? 1.0 : 0.0 });
     static val Temp = DistArray.make[Double](BigD);
 
@@ -44,7 +44,7 @@ public class HeatTransfer_v5 {
     // TODO: The array library really should provide an efficient 
     //       all-to-all collective reduction.
     //       This is a quick and sloppy implementation, which does way too much work.
-    static def reduceMax(z:Point{self.rank==diff.rank}, diff:DistArray[Double], scratch:DistArray[Double]) {
+    static def reduceMax(diff:DistArray[Double],z:Point{self.rank==diff.rank},  scratch:DistArray[Double]) {
         val max = diff.reduce(Math.max.(Double,Double), 0.0);
         diff(z) = max;
         next;
@@ -84,7 +84,7 @@ public class HeatTransfer_v5 {
                         for (p:Point(2) in blocks(q)) {
                             A(p) = Temp(p);
                         }
-                        if (q == 0) reduceMax(z, diff, scratch);
+                        if (q == 0) reduceMax(diff,z,  scratch);
                         myDiff = diff(z);
                         next;
                     } while (myDiff > epsilon);
