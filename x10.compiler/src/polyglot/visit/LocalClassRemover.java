@@ -289,6 +289,7 @@ public class LocalClassRemover extends ContextVisitor {
 	    if (o == null)
 		return cd;
 	    ClassBody b = cd.body();
+	    o = b.visitList(o, this);
 	    List<ClassMember> members = new ArrayList<ClassMember>();
 	    members.addAll(b.members());
 	    members.addAll(o);
