@@ -16,7 +16,7 @@ public class KMeansDist {
 
     static val DIM=2, CLUSTERS=4, POINTS=2000, ITERATIONS=50;
 
-    static val points_region = [0,0]..[POINTS-1,DIM-1];
+    static val points_region = (0..POINTS-1)*(0..DIM-1);
 
     public static def main (Array[String]) {
         val rnd = PlaceLocalHandle.make[Random](Dist.makeUnique(), () => new Random(0));
@@ -49,7 +49,7 @@ public class KMeansDist {
 
             finish {
                 // reset state
-                for (d in points_dist.places()) async at(d) {
+                for (d in points_dist.places().items()) async at(d) {
                     for (var j:Int=0 ; j<DIM*CLUSTERS ; ++j) {
                         local_curr_clusters()(j) = central_clusters(j);
                         local_new_clusters()(j) = 0;
