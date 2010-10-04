@@ -2481,7 +2481,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             Type annotation = (Type) xts.systemResolver().find(QName.make("x10.compiler.StackAllocate"));
             if (!((X10Ext) dec.ext()).annotationMatching(annotation).isEmpty()) {
                 stackAllocate = true;
-                System.err.println("@StackAllocate " + dec);
+//                System.err.println("@StackAllocate " + dec);
             }
         } catch (SemanticException e) { 
             /* Ignore exception when looking for annotation */  
@@ -3288,7 +3288,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    Type annotation = (Type) xts.systemResolver().find(QName.make("x10.compiler.StackAllocate"));
 		    if (!((X10Ext) n.ext()).annotationMatching(annotation).isEmpty()) {
 		        stackAllocate = true;
-		        System.err.println("@StackAllocate " + n);
+//		        System.err.println("@StackAllocate " + n);
 		    }
 		} catch (SemanticException e) {}
 		
