@@ -3,8 +3,6 @@ package x10.rtt;
 import java.util.Arrays;
 import java.util.List;
 
-import x10.core.fun.Fun_0_1;
-import x10.core.fun.Fun_0_2;
 
 public final class ParameterizedType<T> implements Type<T>{
 
@@ -82,24 +80,8 @@ public final class ParameterizedType<T> implements Type<T>{
         return false;
     }
 
-    public final Fun_0_1<T, T> absOperator() {
-        return rtt.absOperator();
-    }
-
-    public final Fun_0_2<T, T, T> addOperator() {
-        return rtt.addOperator();
-    }
-
-    public final Fun_0_2<T, T, T> andOperator() {
-        return rtt.andOperator();
-    }
-
     public final int arrayLength(Object array) {
         return rtt.arrayLength(array);
-    }
-
-    public final Fun_0_2<T, T, T> divOperator() {
-        return rtt.divOperator();
     }
 
     public final T getArray(Object array, int i) {
@@ -114,10 +96,6 @@ public final class ParameterizedType<T> implements Type<T>{
         return rtt.hashCode();
     }
 
-    public final Fun_0_1<T, T> invOperator() {
-        return rtt.invOperator();
-    }
-
     public final Object makeArray(int length) {
         return rtt.makeArray(length);
     }
@@ -126,78 +104,18 @@ public final class ParameterizedType<T> implements Type<T>{
         return rtt.makeArray(elems);
     }
 
-    public final Fun_0_2<T, T, T> maxOperator() {
-        return rtt.maxOperator();
-    }
-
-    public final T maxValue() {
-        return rtt.maxValue();
-    }
-
-    public final Fun_0_2<T, T, T> minOperator() {
-        return rtt.minOperator();
-    }
-
-    public final T minValue() {
-        return rtt.minValue();
-    }
-
-    public final Fun_0_2<T, T, T> modOperator() {
-        return rtt.modOperator();
-    }
-
-    public final Fun_0_2<T, T, T> mulOperator() {
-        return rtt.mulOperator();
-    }
-
-    public final Fun_0_1<T, T> negOperator() {
-        return rtt.negOperator();
-    }
-
-    public final Fun_0_1<T, T> notOperator() {
-        return rtt.notOperator();
-    }
-
-    public final Fun_0_2<T, T, T> orOperator() {
-        return rtt.orOperator();
-    }
-
-    public final Fun_0_1<T, T> posOperator() {
-        return rtt.posOperator();
-    }
-
     public final Type<T> reinstantiate(List<Type<?>> parms) {
         return rtt.reinstantiate(parms);
-    }
-
-    public final Fun_0_1<T, T> scaleOperator(int k) {
-        return rtt.scaleOperator(k);
     }
 
     public final T setArray(Object array, int i, T v) {
         return rtt.setArray(array, i, v);
     }
 
-    public final Fun_0_2<T, T, T> subOperator() {
-        return rtt.subOperator();
-    }
-
     public final String toString() {
         return rtt.toString();
     }
 
-    public final T unitValue() {
-        return rtt.unitValue();
-    }
-
-    public final Fun_0_2<T, T, T> xorOperator() {
-        return rtt.xorOperator();
-    }
-
-    public final T zeroValue() {
-        return rtt.zeroValue();
-    }
-    
     public final String typeName() {
         String str = rtt.typeName();
         str += "[";
@@ -208,4 +126,5 @@ public final class ParameterizedType<T> implements Type<T>{
         str += "]";
         return str;
     }
+    
 }

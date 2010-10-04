@@ -11,9 +11,6 @@
 
 package x10.rtt;
 
-import x10.core.fun.Fun_0_1;
-import x10.core.fun.Fun_0_2;
-
 
 public class BooleanType extends RuntimeType<Boolean> {
     public BooleanType() {
@@ -59,46 +56,4 @@ public class BooleanType extends RuntimeType<Boolean> {
     	return ((boolean[]) array).length;
     }
     
-    @Override
-    public Boolean zeroValue() {
-    	return Boolean.FALSE;
-    }
-    
-    @Override
-    public Boolean unitValue() {
-    	return Boolean.TRUE;
-    }
-    
-    @Override
-    public Fun_0_2<Boolean, Boolean, Boolean> andOperator() {
-        return new Fun_0_2<Boolean, Boolean, Boolean>() {
-            public Boolean apply(Boolean x, Type t1, Boolean y, Type t2) {
-                return x & y;
-            }
-            public RuntimeType<?> getRTT() { return _RTT; }
-            public Type<?> getParam(int i) {if (i == 0 || i == 1 || i == 2) return Types.BOOLEAN; return null;}
-        };
-    }
-
-    @Override
-    public Fun_0_2<Boolean, Boolean, Boolean> orOperator() {
-        return new Fun_0_2<Boolean, Boolean, Boolean>() {
-            public Boolean apply(Boolean x, Type t1, Boolean y, Type t2) {
-                return x | y;
-            }
-            public RuntimeType<?> getRTT() { return _RTT; }
-            public Type<?> getParam(int i) {if (i == 0 || i == 1 || i == 2) return Types.BOOLEAN; return null;}
-        };
-    }
-
-    @Override
-    public Fun_0_1<Boolean, Boolean> notOperator() {
-        return new Fun_0_1<Boolean, Boolean>() {
-            public Boolean apply(Boolean x, Type t) {
-                return !x;
-            }
-            public RuntimeType<?> getRTT() { return _RTT; }
-            public Type<?> getParam(int i) {if (i == 0 || i == 1) return Types.BOOLEAN; return null;}
-        };
-    }
 }
