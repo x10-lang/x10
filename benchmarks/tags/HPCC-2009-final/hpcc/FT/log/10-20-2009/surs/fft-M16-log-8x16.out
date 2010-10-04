@@ -1,0 +1,12 @@
+   0:M=16 SQRTN=65536 N=4294967296 nRows=512 localSize=67108864 MAX_PLACES=128 Mem=131072.0 mem/MAX_PLACES=1024.0
+   0:Start FFT
+   0:FFT complete
+   0:execution time=18.590911999999999 secs Gigaflops=36.96401593208553
+   0:Step transpose1 took 4.123128 s
+   0:Step row_ffts1 took 2.124233 s
+   0:Step transpose2 took 3.643447 s
+   0:Step twiddle took 2.84993 s
+   0:Step row_ffts2 took 2.12428 s
+   0:Step transpose3 took 3.725894 s
+   0:Start verification
+   0:Verification complete

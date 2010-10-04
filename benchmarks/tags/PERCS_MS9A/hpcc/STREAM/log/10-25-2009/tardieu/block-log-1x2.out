@@ -1,0 +1,18 @@
+   1:Binding ID=1 to local CPU=2 on node=1
+   0:Binding ID=0 to local CPU=0 on node=0
+   0:Binding ID=0 to local CPU=0 on node=0
+   1:Binding ID=1 to local CPU=2 on node=1
+   0:localSize=402653184
+   0:Number of places=2
+   0:Size of arrays: 18432 MB (total)9216 MB (per place)
+   0:Min time: 1.694742073968012 rate=11.404303421079046 GB/s
+   0:Result is verified.
+   0:Binding ID=0 to local CPU=0 on node=0
+   1:Binding ID=1 to local CPU=2 on node=1
+   0:Binding ID=0 to local CPU=0 on node=0
+   1:Binding ID=1 to local CPU=2 on node=1
+   0:localSize=402653184
+   0:Number of places=2
+   0:Size of arrays: 18432 MB (total)9216 MB (per place)
+   0:Min time: 1.738181866652908 rate=11.119292637206769 GB/s
+   0:Result is verified.
