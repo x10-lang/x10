@@ -51,22 +51,23 @@ public class Printer extends FilterWriter {
         }
     }
 
-    public def printf(fmt: String): Void { printf(fmt, []); }
-    public def printf(fmt: String, o1: Any): Void { printf(fmt, [o1]); }
-    public def printf(fmt: String, o1: Any, o2: Any): Void { printf(fmt, [o1,o2]); }
-    public def printf(fmt: String, o1: Any, o2: Any, o3: Any): Void { printf(fmt, [o1,o2,o3]); }
+    public def printf(fmt: String): Void { printfArray(fmt, new Array[Any][]); }
+    public def printf(fmt: String, o1: Any): Void { printfArray(fmt, new Array[Any][o1]); }
+    public def printf(fmt: String, o1: Any, o2: Any): Void { printfArray(fmt, new Array[Any][o1,o2]); }
+    public def printf(fmt: String, o1: Any, o2: Any, o3: Any): Void { printfArray(fmt, new Array[Any][o1,o2,o3]); }
     public def printf(fmt: String, o1: Any, o2: Any, o3: Any, o4: Any): Void { 
-        printf(fmt, [o1,o2,o3,o4]); 
+        printfArray(fmt, [o1,o2,o3,o4]); 
     }
     public def printf(fmt: String, o1: Any, o2: Any, o3: Any, o4: Any, o5: Any): Void { 
-       printf(fmt, [o1,o2,o3,o4,o5]); 
+       printfArray(fmt, [o1,o2,o3,o4,o5]); 
     }
     public def printf(fmt: String, o1: Any, o2: Any, o3: Any, o4: Any, o5: Any, o6: Any): Void { 
-       printf(fmt, [o1,o2,o3,o4,o5,o6]); 
+       printfArray(fmt, [o1,o2,o3,o4,o5,o6]); 
     }
     public def printf(fmt: String, args: Rail[Any]): Void { print(String.format(fmt, 
     		ValRail.make(args))); }
     public def printf(fmt: String, args: ValRail[Any]): Void { print(String.format(fmt, args)); }
+    public def printfArray(fmt: String, args: Array[Any](1)): Void { print(String.format(fmt, ValRail.make(args.size, (i:Int)=>args(i)))); }
         
     public def flush(): Void {
         try {
