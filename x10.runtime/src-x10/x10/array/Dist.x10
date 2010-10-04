@@ -425,7 +425,7 @@ public abstract class Dist(
      * @return true if that is a sub-distribution of this distribution.
      */
     public def isSubdistribution(that:Dist(rank)): boolean {
-        for (p:Place in Place.places.items())
+        for (p:Place in Place.places)
             if (!that.get(p).contains(this.get(p)))
                 return false;
         return true;

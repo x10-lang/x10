@@ -45,7 +45,7 @@ final class BlockWorldDist extends Dist {
 
 
     def this(r:Region, axis:int):BlockWorldDist{this.region==r} {
-        super(r, false /* TODO: don't just assume this, check */, Place.MAX_PLACES==1, Place.places(0));
+        super(r, false /* TODO: don't just assume this, check */, Place.MAX_PLACES==1, Place.place(0));
 	this.axis = axis;
     }
 
@@ -101,13 +101,13 @@ final class BlockWorldDist extends Dist {
 
 
     public def places():Iterable[Place] {
-        return Place.places.items();
+        return Place.places;
     }
 
     public def numPlaces():int = Place.MAX_PLACES;
 
     public def regions():Iterable[Region(rank)] {
-	return new Array[Region(rank)](Place.MAX_PLACES, (i:int)=>blockRegionForPlace(Place.places(i))).items();
+	return new Array[Region(rank)](Place.MAX_PLACES, (i:int)=>blockRegionForPlace(Place.place(i))).items();
     }
 
     public def get(p:Place):Region(rank) {

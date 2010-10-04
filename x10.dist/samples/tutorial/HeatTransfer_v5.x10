@@ -53,8 +53,8 @@ public class HeatTransfer_v5 {
     // TODO: This is a really inefficient implementation of this abstraction.
     //       Needs to be done properly and integrated into the Dist/Region/DistArray
     //       class library in x10.array.
-    static def blockIt(d:Dist(2), numProcs:int):ValRail[Iterable[Point(2)]] {
-        val ans = ValRail.make(numProcs, (int) => new x10.util.ArrayList[Point{self.rank==d.rank}]());
+    static def blockIt(d:Dist(2), numProcs:int):Rail[Iterable[Point(2)]] {
+        val ans = Rail.make(numProcs, (int) => new x10.util.ArrayList[Point{self.rank==d.rank}]());
 	var modulo:int = 0;
         for (p in d) {
 	    ans(modulo).add(p);
@@ -69,7 +69,7 @@ public class HeatTransfer_v5 {
             val diff = DistArray.make[Double](D_Base);
             val scratch = DistArray.make[Double](D_Base);
             clocked ateach (z in D_Base)  {
-                val blocks:ValRail[Iterable[Point(2)]] = blockIt(D | here, P);
+                val blocks:Rail[Iterable[Point(2)]] = blockIt(D | here, P);
                 for ([q] in 0..P-1) clocked async {
                     var myDiff:Double;
                     do {

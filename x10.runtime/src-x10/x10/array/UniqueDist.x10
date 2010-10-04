@@ -30,7 +30,7 @@ class UniqueDist extends Dist(1){rect} {
 
 
     public def places():Iterable[Place] {
-        return Place.places.items();
+        return Place.places;
     }
 
     public def numPlaces():int = Place.MAX_PLACES;
@@ -53,11 +53,11 @@ class UniqueDist extends Dist(1){rect} {
     public def apply(p:Place):Region(rank) = get(p);
 
     public def apply(pt:Point(rank)):Place {
-	return Place.places(pt(0));
+	return Place.place(pt(0));
     }
 
     public def apply(i0:int){rank==1} {
-	return Place.places(i0);
+	return Place.place(i0);
     }
 
     public def restriction(r:Region(rank)):Dist(rank) {

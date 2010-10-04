@@ -115,7 +115,7 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
     public def apply(pt:Point(rank)):Place {
         for (var i:int=0; i<regionMap.size; i++) {
             if (regionMap(i).contains(pt)) {
-                return Place.places(i);
+                return Place.place(i);
             }
         }
 	raiseBoundsError(pt);
@@ -268,7 +268,7 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
     public def equals(thatObj:Any): boolean {
 	if (!(thatObj instanceof Dist)) return false;
         val that:Dist = thatObj as Dist;
-        for (p in Place.places.items())
+        for (p in Place.places)
             if (!this.get(p).equals(that.get(p)))
                 return false;
         return true;

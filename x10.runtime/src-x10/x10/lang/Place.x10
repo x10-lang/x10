@@ -79,13 +79,14 @@ public final struct Place(id: Int)  {
     @Native("c++", "x10aux::child_index(#1)")
     public static def childIndex(id:Int):Int { throw new BadPlaceException(); }
 
-    public static places = new Array[Place](MAX_PLACES, ((id: Int) => Place(id)));
-    public static children = new Array[Array[Place](1)](
-                                ALL_PLACES,
-                                (p: Int) => new Array[Place](numChildren(p),
-                                                                (i:Int) => Place(child(p,i))));
+    private static childrenArray = 
+        new Array[Array[Place](1)](ALL_PLACES,
+                                   (p: Int) => new Array[Place](numChildren(p), (i:Int) => Place(child(p,i))));
+
+    public static places = new Array[Place](MAX_PLACES, ((id:Int) => Place(id))).items();
+    public static children = childrenArray.items();
     public static NUM_ACCELS = ALL_PLACES - MAX_PLACES;
-    public static FIRST_PLACE: Place(0) = places(0) as Place(0);
+    public static FIRST_PLACE:Place(0) = Place(0);
 
     public def this(id: Int):Place(id) { property(id); }
 
@@ -113,9 +114,9 @@ public final struct Place(id: Int)  {
     public def numChildren() = numChildren(id);
     public def child(i:Int) = Place(child(id,i));
 
-    public def children() = children(id);
+    public def children() = childrenArray(id);
 
-    public def parent() = places(parent(id));
+    public def parent() = Place(parent(id));
 
     public def childIndex() {
         if (isHost()) {

@@ -65,7 +65,7 @@ public class KMeansSPMD {
             val file_points = new Array[Float](num_file_points*dim, init_points);
 
             //val team = Team.WORLD;
-            val team = Team(new Array[Place](num_slices * Place.MAX_PLACES, (i:int) => Place.places(i/num_slices)));
+            val team = Team(new Array[Place](num_slices * Place.MAX_PLACES, (i:int) => Place.place(i/num_slices)));
 
             val num_slice_points = num_global_points / num_slices / Place.MAX_PLACES;
 
