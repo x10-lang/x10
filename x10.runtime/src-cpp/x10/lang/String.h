@@ -141,10 +141,7 @@ namespace x10 {
             virtual void _destructor();
 
             static x10aux::ref<String> format(x10aux::ref<String> format,
-                                              x10aux::ref<ValRail<x10aux::ref<Any> > > parms);
-
-            static x10aux::ref<String> format(x10aux::ref<String> format,
-                                              x10aux::ref<Rail<x10aux::ref<Any> > > parms);
+                                              x10aux::ref<x10::array::Array<x10aux::ref<Any> > > parms);
 
             virtual x10_boolean equals(x10aux::ref<x10::lang::Any> p0);
 

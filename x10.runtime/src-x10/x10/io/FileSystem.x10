@@ -46,8 +46,8 @@ public abstract class FileSystem {
             {         throw new UnsupportedOperationException(); }
     @Incomplete def size(File) : Long //throws IOException
     {         throw new UnsupportedOperationException(); }
-    @Incomplete def listFiles(File): ValRail[File] //throws IOException
+    @Incomplete def listFiles(File): Rail[File] //throws IOException
     {         throw new UnsupportedOperationException(); }
-    @Incomplete def listFiles(File, (File) => Boolean): ValRail[File] //throws IOException
+    @Incomplete def listFiles(File, (File) => Boolean): Rail[File] //throws IOException
     {         throw new UnsupportedOperationException(); }
 }

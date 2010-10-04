@@ -22,6 +22,8 @@
 #include <x10/lang/String.h>
 #include <x10/lang/Rail.h>
 
+#include <x10/array/Array.h>
+
 #include <cstdarg>
 #include <sstream>
 
@@ -298,34 +300,8 @@ void String::_formatHelper(std::ostringstream &ss, char* fmt, ref<Any> p) {
         dealloc(buf);
 }
 
-// TODO: merge with format(String, Rail[Any])
-ref<String> String::format(ref<String> format, ref<ValRail<ref<Any> > > parms) {
-    std::ostringstream ss;
-    nullCheck(format);
-    nullCheck(parms);
-    //size_t len = format->FMGL(content_length);
-    char* orig = const_cast<char*>(format->c_str());
-    char* fmt = orig;
-    char* next = NULL;
-    for (x10_int i = 0; fmt != NULL; ++i, fmt = next) {
-        next = strchr(fmt+1, '%'); // FIXME: this is only ok if we always null-terminate content
-        if (next != NULL)
-            *next = '\0';
-        if (*fmt != '%') {
-            ss << fmt;
-            --i;
-        } else {
-            const ref<Reference> p = parms->operator[](i);
-            _formatHelper(ss, fmt, p);
-        }
-        if (next != NULL)
-            *next = '%';
-    }
-    return String::Lit(ss.str().c_str());
-}
-
 // TODO: merge with format(String, ValRail[Any])
-ref<String> String::format(ref<String> format, ref<Rail<ref<Any> > > parms) {
+ref<String> String::format(ref<String> format, ref<x10::array::Array<ref<Any> > > parms) {
     std::ostringstream ss;
     nullCheck(format);
     nullCheck(parms);
@@ -341,7 +317,7 @@ ref<String> String::format(ref<String> format, ref<Rail<ref<Any> > > parms) {
             ss << fmt;
             --i;
         } else {
-            const ref<Reference> p = parms->operator[](i);
+            const ref<Reference> p = parms->apply(i);
             _formatHelper(ss, fmt, p);
         }
         if (next != NULL)

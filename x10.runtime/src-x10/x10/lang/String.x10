@@ -376,9 +376,9 @@ public final class String implements (Int) => Char/*TODO, (Range) => String*//*T
      * @param args the arguments referenced by the format specifiers in the format string.
      * @return a formatted string.
      */
-    @Native("java", "java.lang.String.format(#1,(#2).getBoxedArray())")
+    @Native("java", "java.lang.String.format(#1,(#2).raw().value)")
     @Native("c++", "x10::lang::String::format(#1,#2)")
-    public native static def format(fmt: String, args: ValRail[Any]): String;
+    public native static def format(fmt: String, args:Array[Any]): String;
 
 
     // FIXME: Locale sensitivity
