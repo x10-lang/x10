@@ -114,8 +114,8 @@ public class X10LocalClassRemover extends LocalClassRemover {
         }
     }
 
-    public X10LocalClassRemover(Job job, TypeSystem ts, NodeFactory nf) {
-        super(job, ts, nf);
+    public X10LocalClassRemover(X10InnerClassRemover icrv) {
+        super(icrv);
     }
 
     @Override
@@ -205,7 +205,7 @@ public class X10LocalClassRemover extends LocalClassRemover {
 
         n = cd.body((ClassBody) rewriteConstructorCalls(cd.body(), def, newFields, def.typeParameters()));
 
-        return InnerClassRemover.addFieldsToClass(n, newFields, ts, nf, false);
+        return icrv.addFieldsToClass(n, newFields, ts, nf, false);
     }
 
     private X10ClassDecl rewriteTypeParams(final TypeParamSubst subst, X10ClassDecl cd) {

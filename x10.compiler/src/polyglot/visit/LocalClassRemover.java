@@ -81,8 +81,11 @@ public class LocalClassRemover extends ContextVisitor {
 	}
     }
 
-    public LocalClassRemover(Job job, TypeSystem ts, NodeFactory nf) {
-	super(job, ts, nf);
+    protected final InnerClassRemover icrv;
+
+    public LocalClassRemover(InnerClassRemover icrv) {
+	super(icrv.job(), icrv.typeSystem(), icrv.nodeFactory());
+	this.icrv = icrv;
     }
 
     Map<Pair<LocalDef, ClassDef>, FieldDef> fieldForLocal = new HashMap<Pair<LocalDef, ClassDef>, FieldDef>();
@@ -314,7 +317,7 @@ public class LocalClassRemover extends ContextVisitor {
 
     protected ClassDecl rewriteLocalClass(ClassDecl cd, List<FieldDef> newFields) {
 	cd = cd.body((ClassBody) rewriteConstructorCalls(cd.body(), cd.classDef(), newFields));
-	return InnerClassRemover.addFieldsToClass(cd, newFields, ts, nf, false);
+	return icrv.addFieldsToClass(cd, newFields, ts, nf, false);
     }
 
     protected

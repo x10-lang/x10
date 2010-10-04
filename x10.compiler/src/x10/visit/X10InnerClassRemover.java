@@ -31,6 +31,7 @@ import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.frontend.Job;
 import polyglot.types.ClassType;
+import polyglot.types.ConstructorDef;
 import polyglot.types.FieldDef;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
@@ -64,6 +65,7 @@ import x10.types.X10Flags;
 import x10.types.X10MethodDef;
 import x10.types.X10MethodInstance;
 import x10.types.X10ParsedClassType;
+import x10.types.X10ProcedureDef;
 import x10.types.X10TypeMixin;
 import x10.types.ParameterType.Variance;
 import x10.types.constraints.CConstraint;
@@ -118,7 +120,7 @@ public class X10InnerClassRemover extends InnerClassRemover {
 
     @Override
     protected ContextVisitor localClassRemover() {
-        return new X10LocalClassRemover(job, ts, nf);
+        return new X10LocalClassRemover(this);
     }
 
     @Override
@@ -308,7 +310,6 @@ public class X10InnerClassRemover extends InnerClassRemover {
         List<Formal> formals = cd.formals();
         List<Ref<? extends Type>> formalTypes = def.formalTypes();
         List<LocalDef> formalNames = def.formalNames();
-        if (formalNames.size() != formals.size())
         assert formalNames.size() == formals.size();
         assert formalNames.size() == formalTypes.size();
         for (int i = 0; i < formalTypes.size(); i++) {
@@ -429,13 +430,23 @@ public class X10InnerClassRemover extends InnerClassRemover {
         return cd;
     }
 
+    protected void adjustConstrutorFormals(ConstructorDef ci, List<Formal> newFormals) {
+        super.adjustConstrutorFormals(ci, newFormals);
+        assert (ci instanceof X10ConstructorDef);
+        List<LocalDef> newFormalNames = new ArrayList<LocalDef>();
+        for (Formal f : newFormals) {
+            newFormalNames.add(f.localDef());
+        }
+        ((X10ConstructorDef) ci).setFormalNames(newFormalNames);
+    }
+
     protected CConstraint fixConstraint(CConstraint constraint) {
         return constraint; // TODO
     }
 
     protected Type fixType(Type t) {
-    	if (t == null)
-    		return null;
+        if (t == null)
+            return null;
         if (!t.isClass())
             return t;
         CConstraint constraint = t instanceof ConstrainedType ? ((ConstrainedType) t).getRealXClause() : null;

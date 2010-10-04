@@ -48,7 +48,7 @@ public class InnerClassRemover extends ContextVisitor {
     }
     
     protected ContextVisitor localClassRemover() {
-    	LocalClassRemover lcv = new LocalClassRemover(job, ts, nf);
+    	LocalClassRemover lcv = new LocalClassRemover(this);
     	return lcv;
     }
 
@@ -328,7 +328,7 @@ public class InnerClassRemover extends ContextVisitor {
         });
     }
     
-    public static ClassDecl addFieldsToClass(ClassDecl cd, List<FieldDef> newFields, TypeSystem ts, NodeFactory nf, boolean rewriteMembers) {
+    public ClassDecl addFieldsToClass(ClassDecl cd, List<FieldDef> newFields, TypeSystem ts, NodeFactory nf, boolean rewriteMembers) {
         if (newFields.isEmpty()) {
             return cd;
         }
@@ -444,14 +444,7 @@ public class InnerClassRemover extends ContextVisitor {
 
                 newMembers.add(td);
 
-                List<Ref<? extends Type>> newFormalTypes = new ArrayList<Ref<? extends Type>>();
-                for (Iterator<Formal> j = newFormals.iterator(); j.hasNext(); ) {
-                    Formal f = j.next();
-                    newFormalTypes.add(f.type().typeRef());
-                }
-                
-                ConstructorDef ci = td.constructorDef();
-                ci.setFormalTypes(newFormalTypes);
+                adjustConstrutorFormals(td.constructorDef(), newFormals);
             }
             else {
                 newMembers.add(m);
@@ -460,6 +453,14 @@ public class InnerClassRemover extends ContextVisitor {
 
         b = b.members(newMembers);
         return cd.body(b);
+    }
+
+    protected void adjustConstrutorFormals(ConstructorDef ci, List<Formal> newFormals) {
+        List<Ref<? extends Type>> newFormalTypes = new ArrayList<Ref<? extends Type>>();
+        for (Formal f : newFormals) {
+            newFormalTypes.add(f.type().typeRef());
+        }
+        ci.setFormalTypes(newFormalTypes);
     }
 
     // Add local variables to the argument list until it matches the declaration.
