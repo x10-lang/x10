@@ -102,14 +102,14 @@ public final struct Place(id: Int)  {
         }
         // FIXME: iterate through peers
         return this;
-	}
+    }
 
-	public def isFirst(): Boolean = id == 0;
-	public def isLast(): Boolean = id == MAX_PLACES - 1;
+    public def isFirst(): Boolean = id == 0;
+    public def isLast(): Boolean = id == MAX_PLACES - 1;
 
-	public def isHost(): Boolean = isHost(id);
-	public def isSPE(): Boolean = isSPE(id);
-	public def isCUDA(): Boolean = isCUDA(id);
+    public def isHost(): Boolean = isHost(id);
+    public def isSPE(): Boolean = isSPE(id);
+    public def isCUDA(): Boolean = isCUDA(id);
 
     public def numChildren() = numChildren(id);
     public def child(i:Int) = Place(child(id,i));
