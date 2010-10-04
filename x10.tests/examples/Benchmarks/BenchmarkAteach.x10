@@ -21,7 +21,7 @@ public class BenchmarkAteach extends x10Test {
 
         val start = System.nanoTime();
         finish {
-            ateach (p in a) {
+            ateach (p in a.dist) {
                 a(p) = here.id;
             }
         }
