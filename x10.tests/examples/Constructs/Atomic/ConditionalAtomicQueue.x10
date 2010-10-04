@@ -160,7 +160,7 @@ public class ConditionalAtomicQueue extends x10Test {
 		 * create a unique dist (mapping each i to place i)
 		 */
 		static def unique() =  {
-			return Dist.makeUnique(Place.places);
+			return Dist.makeUnique();
 		}
 
 		/**

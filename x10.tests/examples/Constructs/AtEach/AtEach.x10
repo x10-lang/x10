@@ -21,7 +21,7 @@ public class AtEach extends x10Test {
     transient var nplaces: int = 0;
 
     public def run(): boolean = {
-        val d: Dist = Dist.makeUnique(Place.places);
+        val d: Dist = Dist.makeUnique();
         val disagree: DistArray[int]{dist==d} = DistArray.make[int](d);
         val root = this.root;
         finish ateach (p in d) {

@@ -30,7 +30,7 @@ public class PlaceCheckInRail_MustFailCompile extends x10Test {
         val r = Rail.make[C](3, (int)=>new C());
         val gr = GlobalRef[Rail[C]](r);
         // Should gave a place check error ... r is remote.
-       (future (Place.places(1)) gr()(0).x).force();
+       (future (Place.place(1)) gr()(0).x).force();
         x10.io.Console.OUT.println("01 fails");
         return false;
     }

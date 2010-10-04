@@ -24,7 +24,7 @@ class RemoteRefEquality extends x10Test {
     public def this() { this(GlobalRef[RemoteRefEquality](null)); }
 
     public def run(): boolean {
-        chk(Place.places.length > 1, "This test must be run with multiple places");
+        chk(Place.numPlaces > 1, "This test must be run with multiple places");
         val local_ = GlobalRef[RemoteRefEquality](new RemoteRefEquality());
         val remote = at (here.next()) GlobalRef[RemoteRefEquality](new RemoteRefEquality(local_));
         Console.OUT.println(local_ == (at (remote) remote().rr)); 

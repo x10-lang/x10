@@ -16,39 +16,39 @@ import harness.x10Test;
 // a distribution and p a place.
 
 public class PlaceCast2 extends x10Test {
-	var nplaces: int = 0;
+    var nplaces: int = 0;
     private val root = GlobalRef[PlaceCast2](this);
-	public def run(): boolean = {
-			val d = Dist.makeUnique();
-		    x10.io.Console.OUT.println("num places = " + Place.MAX_PLACES);
-		    val root = this.root;
-		    val disagree = DistArray.make[BoxedBoolean](d, ([p]: Point): BoxedBoolean => {
-				x10.io.Console.OUT.println("The currentplace is:" + here);
-				return new BoxedBoolean();
-			});
-		    finish ateach (p  in d) {
-			   // remember if here and d[p] disagree
-			   // at any activity at any place
-			   try {
-				val dp = d(p);
-				val x  = disagree(p).home==here; 
-				at (root) atomic  root().nplaces++;  
-			   } catch (x: BadPlaceException)  {
-				  x10.io.Console.OUT.println("Caught bad place exception for " + p);
-			   } catch (x: ClassCastException) {
-		    	  Console.OUT.println("Caught class cast exception for " + p);
-		      }
-		}
-		x10.io.Console.OUT.println("nplaces == " + nplaces);
-		return nplaces == Place.places.length();
-	}
+    public def run(): boolean = {
+            val d = Dist.makeUnique();
+            x10.io.Console.OUT.println("num places = " + Place.MAX_PLACES);
+            val root = this.root;
+            val disagree = DistArray.make[BoxedBoolean](d, ([p]: Point): BoxedBoolean => {
+                x10.io.Console.OUT.println("The currentplace is:" + here);
+                return new BoxedBoolean();
+            });
+            finish ateach (p  in d) {
+               // remember if here and d[p] disagree
+               // at any activity at any place
+               try {
+                val dp = d(p);
+                val x  = disagree(p).home==here; 
+                at (root) atomic  root().nplaces++;  
+               } catch (x: BadPlaceException)  {
+                  x10.io.Console.OUT.println("Caught bad place exception for " + p);
+               } catch (x: ClassCastException) {
+                  Console.OUT.println("Caught class cast exception for " + p);
+              }
+        }
+        x10.io.Console.OUT.println("nplaces == " + nplaces);
+        return nplaces == Place.numPlaces();
+    }
 
-	public static def main(Array[String](1)) {
-		new PlaceCast2().execute();
-	}
+    public static def main(Array[String](1)) {
+        new PlaceCast2().execute();
+    }
 
-	static class BoxedBoolean {
-		var v: boolean = false;
-	    val home = here;
-	}
+    static class BoxedBoolean {
+        var v: boolean = false;
+        val home = here;
+    }
 }

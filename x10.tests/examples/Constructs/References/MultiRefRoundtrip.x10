@@ -18,7 +18,7 @@ import harness.x10Test;
 class MultiRefRoundtrip extends x10Test {
 
     public def run(): boolean {
-        chk(Place.places.length > 1, "This test must be run with multiple places");
+        chk(Place.numPlaces() > 1, "This test must be run with multiple places");
 	val obj = new Object();
         val local_ = GlobalRef[Object](obj);
         val second = GlobalRef[Object](obj);
