@@ -94,8 +94,8 @@ public abstract class RailFactory {
 
     public static <T> x10.array.Array<T> makeArrayFromJavaArray(Type type, Object array) {
         int len = type.arrayLength(array);
-        x10.array.Array<T> arr = new x10.array.Array(type, len);
-        System.arraycopy(array, 0, arr.raw, 0, len);
+        x10.array.Array<T> arr = new x10.array.Array<T>(type, len);
+        System.arraycopy(array, 0, arr.raw.value, 0, len);
         return arr;
     }
 
