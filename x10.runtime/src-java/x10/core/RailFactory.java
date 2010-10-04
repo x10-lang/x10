@@ -92,10 +92,17 @@ public abstract class RailFactory {
 //        return new ValRail<T>(r.type, r.length, r.value);
 //    }
 
+    public static <T> x10.array.Array<T> makeArrayFromJavaArray(Type type, Object array) {
+        int len = type.arrayLength(array);
+        x10.array.Array<T> arr = new x10.array.Array(type, len);
+        System.arraycopy(array, 0, arr.raw, 0, len);
+        return arr;
+    }
+
     public static <T> Rail<T> makeRailFromJavaArray(Type type, Object array) {
         return new Rail<T>(type, type.arrayLength(array) , array);
     }
-
+    
     public static <T> ValRail<T> makeValRailFromJavaArray(Type type, Object array) {
         return new ValRail<T>(type, type.arrayLength(array), array);
     }

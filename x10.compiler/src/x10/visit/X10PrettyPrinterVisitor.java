@@ -1659,16 +1659,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	
 	public void visit(Tuple_c c) {
 	    Type t = X10TypeMixin.getParameterType(c.type(), 0);
-	    w.write("x10.array.Array.<");
-	    new TypeExpander(er, t, true, true, false).expand();
-	    w.write(">");
-	    w.write("make_0_$_x10$array$Array_T_$(");
-	    new RuntimeTypeExpander(er, t).expand();
-        w.write(", ");
+
 	    w.write("x10.core.RailFactory.<");
             new TypeExpander(er, t, true, true, false).expand();
             w.write(">");
-            w.write("makeValRailFromJavaArray(");
+            w.write("makeArrayFromJavaArray(");
             new RuntimeTypeExpander(er, t).expand();
             w.write(", ");
             if (X10TypeMixin.baseType(t) instanceof ParameterType) {
@@ -1684,7 +1679,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 w.write("}");
             }
             w.write(")");
-       w.write(")");
             
 	}
 

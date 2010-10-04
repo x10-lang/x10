@@ -1020,7 +1020,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		// (h,cc) pairing for non-generic classes.
 
 		// TODO: sort by namespace and combine things in the same namespace
-		X10SearchVisitor<Node> xTypes = new X10SearchVisitor<Node>(X10CanonicalTypeNode_c.class, Closure_c.class);
+		X10SearchVisitor<Node> xTypes = new X10SearchVisitor<Node>(X10CanonicalTypeNode_c.class, Closure_c.class, Tuple_c.class);
 		n.visit(xTypes);
 		ArrayList<ClassType> types = new ArrayList<ClassType>();
 		Set<ClassType> dupes = new HashSet<ClassType>();
@@ -1036,6 +1036,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		            ClassType c = t.type().toClass();
 		            assert (c.interfaces().size() == 1);
                     extractAllClassTypes(c.interfaces().get(0), types, dupes);
+		        } else if (tn instanceof Tuple_c) {
+		            extractAllClassTypes(((Tuple_c) tn).type(), types, dupes);
 		        }
 		    }
         }
@@ -4825,36 +4827,28 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    return (t.isBoolean() || t.isByte() || t.isShort() || t.isInt() || t.isLong() ||
 	            t.isFloat() || t.isDouble());
 	}
-	private static final int NON_POD_LIMIT = 6;
 
 	public void visit(Tuple_c c) {
 	    X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
 	    Context context = tr.context();
 
-		// Handles Rails initializer.
+		// Handles Array initializer.
 		Type T = X10TypeMixin.getParameterType(c.type(), 0);		
 		String type = Emitter.translateType(c.type());
-		boolean needsInitLoop = !isPODType(T) && c.arguments().size() > NON_POD_LIMIT;
 		String tmp = getId();
 		// [DC] this cast is needed to ensure everything has a ref type
 		// otherwise overloads don't seem to work properly
 		sw.write("("+make_ref(type)+")");
-		if (needsInitLoop) {
-		    sw.write("(__extension__ ({");
-		    sw.newline(4); sw.begin(0);
-		    sw.write(type+"* "+tmp+" = ");
-		}
-		sw.write("x10aux::alloc_rail<");
-		sw.write(Emitter.translateType(T, true));
-		sw.write(",");
-		sw.allowBreak(0, " ");
-		sw.write(type);
-		sw.write(" >("+c.arguments().size());
+
+		sw.write("(__extension__ ({");
+		sw.newline(4); sw.begin(0);
+		sw.write(make_ref(type)+" "+tmp+"(");
+
+		sw.write("x10::array::Array"+chevrons(Emitter.translateType(T, true)));
+		sw.writeln("::_make("+c.arguments().size()+"));");
 		int count = 0;
 		for (Expr e : c.arguments()) {
-		    if (needsInitLoop && ++count > NON_POD_LIMIT)
-		        break;
-		    sw.write(",");
+		    sw.write(tmp+"->set(");
 		    boolean rhsNeedsCast = !xts.typeDeepBaseEquals(T, e.type(), context);
 		    if (rhsNeedsCast) {
 		        // Cast is needed to ensure conversion/autoboxing.
@@ -4864,35 +4858,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    c.printSubExpr(e, false, sw, tr);
 		    if (rhsNeedsCast)
 		        sw.write(")");
+		    sw.writeln(", "+(count++)+");");
 		}
-		sw.write(")");
-		if (needsInitLoop) {
-		    sw.write(";");
-		    sw.newline();
-		    String raw = getId();
-		    sw.write(Emitter.translateType(T, true)+"* "+raw+" = "+tmp+"->raw();");
-		    sw.newline();
-		    count = 0;
-		    for (Expr e : c.arguments()) {
-		        if (++count <= NON_POD_LIMIT)
-		            continue;
-		        sw.write(raw+"["+(count-1)+"] = ");
-		        boolean rhsNeedsCast = !xts.typeDeepBaseEquals(T, e.type(), context);
-		        if (rhsNeedsCast) {
-		            // Cast is needed to ensure conversion/autoboxing.
-		            // However, it is statically correct to do the assignment, therefore it can be unchecked.
-		            sw.write("x10aux::class_cast_unchecked" + chevrons(Emitter.translateType(T, true)) + "(");
-		        }
-		        c.printSubExpr(e, false, sw, tr);
-		        if (rhsNeedsCast)
-		            sw.write(")");
-		        sw.write(";");
-		        sw.newline();
-		    }
-		    sw.write(tmp+";");
-		    sw.end(); sw.newline();
-		    sw.write("}))");
-		}
+		sw.write(tmp+";");
+		sw.end(); sw.newline();
+		sw.write("}))");
 	}
 
 	public void visit(When_c n) {
