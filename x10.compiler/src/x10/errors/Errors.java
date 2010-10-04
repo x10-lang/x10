@@ -213,7 +213,7 @@ public class Errors {
 	public static class InvalidParameter extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = -1351185257724314440L;
 		public InvalidParameter(Type from, Type to, Position pos) {
-			super("Invalid Parameter.\n\t expected type: " + to + "\n\t found: " + from, pos);
+			super("   Invalid Parameter.\n\t expected type: " + to + "\n\t ***found: " + from, pos);
 		}
 	}
 
@@ -704,6 +704,15 @@ public class Errors {
 	        		+ "\n\t expr:" + e
 	        		+ "\n\t type: " + e.type()
 	        		+ "\n\t desired type: " + itype, e.position());
+	    }
+	}
+	public static class AtArgMustBePlace extends EqualByTypeAndPosException {
+		private static final long serialVersionUID = -2736877234203434252L;
+		public AtArgMustBePlace(Expr e, Type placeType, Position pos) {
+	        super("The place argument to the at statement cannot be converted to type Place."
+	        		+ "\n\t expr:" + e
+	        		+ "\n\t type: " + e.type()
+	        		+ "\n\t desired type: " + placeType, pos);
 	    }
 	}
 }
