@@ -147,8 +147,8 @@ abstract public class TestArray extends x10Test {
     }
 
     @Global def prDistributed(test:String, a: DistArray[double]): void = {
-        var ps: ValRail[Place] = a.dist.places();
-        for (var i: int = 0; i<ps.length; i++) {
+        val ps = a.dist.places();
+        for ([i] in 0..ps.size-1) {
             val p: Place = ps(i);
             val root = this.root;
             finish {
@@ -294,8 +294,8 @@ abstract public class TestArray extends x10Test {
         val init = (Point) => -1.0D;
         val a = DistArray.make[double](d.region->here, init);
 
-        var ps: ValRail[Place] = d.places();
-        for (var i: int = 0; i<ps.length; i++) {
+        val ps = d.places();
+        for ([i] in 0..ps.size-1) {
             val r: Region = d.get(ps(i));
             for (p:Point(r.rank) in r) {
                 val q = p as Point(a.dist.region.rank);

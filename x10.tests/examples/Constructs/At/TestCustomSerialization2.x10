@@ -27,7 +27,7 @@ public class TestCustomSerialization2 extends x10Test {
          public def serialize():Any = [x,y];
   
          def this(a:Any) {
-             val t = a as ValRail[int];
+             val t = a as Array[int](1);
              x = t(0);
              y = t(1);
              sum = x + y;
