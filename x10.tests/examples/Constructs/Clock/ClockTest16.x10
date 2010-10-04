@@ -118,7 +118,7 @@ public class ClockTest16 extends x10Test {
 			return false;
 		} catch (e: ClockUseException) {
 		} catch ( e: MultipleExceptions) {
-		    for (ex:Throwable in e.exceptions())
+		    for (ex:Throwable in e.exceptions().items())
 		       if (! (ex instanceof ClockUseException))
 		          return false;
 		}
