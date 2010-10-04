@@ -1,0 +1,61 @@
+#### Combined logs from Sreedhar and Dave C. Corresponds to what we submit to HPCC 09
+
+## Tasks: 8
+
+/usr/bin/time -p poe ./ra-opt -m 29 -u 1 -procs 8
+
+   0:Main table size:   2^29*8 == 4294967296 words
+   0:Number of places:  8
+   0:Number of updates: 4294967296
+   0:CPU time used: 1727.005938140252738 seconds
+   0:0.002486944139072 Billion(10^9) Updates per second (GUP/s)
+
+## Tasks: 16
+
+/usr/bin/time -p poe ./ra-opt -m 29 -u 1 -procs 16
+
+   0:Main table size:   2^29*16 == 8589934592 words
+   0:Number of places:  16
+   0:Number of updates: 8589934592
+   0:CPU time used: 2557.087088904645498 seconds
+   0:0.003359265560126 Billion(10^9) Updates per second (GUP/s)
+
+## Tasks: 32
+
+/usr/bin/time -p poe ./ra-opt -m 29 -u 1 -procs 32
+
+   0:Main table size:   2^29*32 == 17179869184 words
+   0:Number of places:  32
+   0:Number of updates: 17179869184
+   0:CPU time used: 2709.476675064176561 seconds
+   0:0.006340659560612 Billion(10^9) Updates per second (GUP/s)
+
+## Tasks: 64
+
+/usr/bin/time -p poe ./ra-opt -m 29 -u 1 -procs 64
+
+   0:Main table size:   2^29*64 == 34359738368 words
+   0:Number of places:  64
+   0:Number of updates: 34359738368
+   0:CPU time used: 2790.033835980953427 seconds
+   0:0.012315169058127 Billion(10^9) Updates per second (GUP/s)
+
+## Tasks: 128
+
+/usr/bin/time -p poe ./ra-opt -m 29 -u 1 -procs 128
+
+   0:Main table size:   2^29*128 == 68719476736 words
+   0:Number of places:  128
+   0:Number of updates: 68719476736
+   0:CPU time used: 2984.936652013943331 seconds
+   0:0.023022088823773 Billion(10^9) Updates per second (GUP/s)
+
+## Tasks: 256
+
+/usr/bin/time -p poe ./ra-opt -m 29 -u 1 -procs $((32*8)) -hostfile hostfile_all -msg_api lapi
+
+  0:Main table size:   2^29*256 == 137438953472 words
+  0:Number of places:  256
+  0:Number of updates: 137438953472
+  0:CPU time used: 3190.015061976543166 seconds
+  0:0.043084108006325 Billion(10^9) Updates per second (GUP/s)

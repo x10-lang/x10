@@ -1,0 +1,81 @@
+   0:M=17 SQRTN=131072 N=17179869184 nRows=8192 localSize=-2147483648 MAX_PLACES=16 Mem=524288.0 mem/MAX_PLACES=32768.0
+   0:Uncaught exception at place 0: x10.lang.MultipleExceptions: 
+   0:x10.lang.OutOfMemoryError: 
+   0:	at x10::lang::Throwable::fillInStackTrace() (x10/lang/Throwable.cc:168)
+   0:	at x10aux::throwOOME() (./x10aux/throw.h:1)
+   0:	at x10::lang::Rail<double>* x10aux::alloc_rail<double,x10::lang::Rail<double> >(int) (offset 0x00000058)
+   0:	at FT::fft__Block::_constructor(int,int,int,long,int,bool) (/vol/x10/x10-20091019r11532_aix_ppc_xlc-O3_NO_CHECKS/include/x10aux/ref.h:1)
+   0:	at FT::fft__Block::make(int,int,int,long,int,bool) (FT/fft__Block.cc:71)
+   0:	at FT_fft__closure__5::apply() (offset 0x00000044)
+   0:	at x10_runtime_PlaceLocalStorage__closure__1<x10aux::ref<FT::fft__Block> >::apply() (offset 0x000000d8)
+   0:	at x10::runtime::Activity::run() (gen/x10/runtime/Activity.cc:180)
+   0:	at x10_runtime_Runtime__closure__20::apply() (offset 0x00000038)
+   0:	at x10::runtime::NativeRuntime::runAtLocal(int,x10aux::ref<x10::lang::VoidFun_0_0>) (gen/x10/runtime/NativeRuntime.cc:120)
+   0:	at x10::runtime::Runtime::run(x10aux::ref<x10::runtime::Activity>) (gen/x10/runtime/Runtime.cc:872)
+   0:	at x10::runtime::Worker::loop(x10aux::ref<x10::runtime::Latch>,bool) (gen/x10/runtime/Worker.cc:304)
+   0:	at x10::runtime::Worker::join(x10aux::ref<x10::runtime::Latch>) (./x10aux/ref.h:71)
+   0:	at x10_runtime_Runtime__closure__19::apply() (offset 0x0000004c)
+   0:	at x10::runtime::NativeRuntime::runAtLocal(int,x10aux::ref<x10::lang::VoidFun_0_0>) (gen/x10/runtime/NativeRuntime.cc:120)
+   0:	at x10::runtime::Runtime::join(x10aux::ref<x10::runtime::Latch>) (gen/x10/runtime/Runtime.cc:1029)
+   0:	at x10::runtime::RootFinish::waitForFinish(bool) (gen/x10/runtime/RootFinish.cc:69)
+   0:	at x10::runtime::Runtime::stopFinish() (gen/x10/runtime/Runtime.cc:741)
+   0:	at x10::runtime::PlaceLocalHandle<x10aux::ref<FT::fft__Block> > x10::runtime::PlaceLocalStorage::createDistributedObject<x10aux::ref<FT::fft__Block> >(x10aux::ref<x10::lang::Dist>,x10aux::ref<x10::lang::Fun_0_0<x10aux::ref<FT::fft__Block> > >) (offset 0x000001fc)
+   0:	at FT::fft::main(x10aux::ref<x10::lang::Rail<x10aux::ref<x10::lang::String> > >) (FT/fft.cc:623)
+   0:	at x10aux::BootStrapClosure::apply() (offset 0x00000030)
+   0:	at x10_runtime_Runtime__closure__1::apply() (offset 0x00000178)
+   0:	at x10::runtime::Activity::run() (gen/x10/runtime/Activity.cc:180)
+   0:	at x10_runtime_Runtime__closure__20::apply() (offset 0x00000038)
+   0:	at x10::runtime::NativeRuntime::runAtLocal(int,x10aux::ref<x10::lang::VoidFun_0_0>) (gen/x10/runtime/NativeRuntime.cc:120)
+   0:	at x10::runtime::Runtime::run(x10aux::ref<x10::runtime::Activity>) (gen/x10/runtime/Runtime.cc:872)
+   0:	at x10::runtime::Worker::loop(x10aux::ref<x10::runtime::Latch>,bool) (gen/x10/runtime/Worker.cc:304)
+   0:	at x10::runtime::Worker::apply() (./x10aux/ref.h:71)
+   0:	at x10::runtime::Pool::apply() (gen/x10/runtime/Pool.cc:153)
+   0:	at x10::runtime::Runtime::start(x10aux::ref<x10::lang::VoidFun_0_0>,x10aux::ref<x10::lang::VoidFun_0_0>) (gen/x10/runtime/Runtime.cc:189)
+   0:	at int x10aux::template_main<x10::runtime::Runtime,FT::fft>(int,char**) (offset 0x00000170)
+   0:	at main (FT/fft.cc:479)
+   0:x10.lang.OutOfMemoryError: 
+   0:	at No stacktrace recorded.
+   0:x10.lang.OutOfMemoryError: 
+   0:	at No stacktrace recorded.
+   0:x10.lang.OutOfMemoryError: 
+   0:	at No stacktrace recorded.
+   0:x10.lang.OutOfMemoryError: 
+   0:	at No stacktrace recorded.
+   0:x10.lang.OutOfMemoryError: 
+   0:	at No stacktrace recorded.
+   0:x10.lang.OutOfMemoryError: 
+   0:	at No stacktrace recorded.
+   0:x10.lang.OutOfMemoryError: 
+   0:	at No stacktrace recorded.
+   0:x10.lang.OutOfMemoryError: 
+   0:	at No stacktrace recorded.
+   0:x10.lang.OutOfMemoryError: 
+   0:	at No stacktrace recorded.
+   0:x10.lang.OutOfMemoryError: 
+   0:	at No stacktrace recorded.
+   0:x10.lang.OutOfMemoryError: 
+   0:	at No stacktrace recorded.
+   0:x10.lang.OutOfMemoryError: 
+   0:	at No stacktrace recorded.
+   0:x10.lang.OutOfMemoryError: 
+   0:	at No stacktrace recorded.
+   0:x10.lang.OutOfMemoryError: 
+   0:	at No stacktrace recorded.
+   0:x10.lang.OutOfMemoryError: 
+   0:	at No stacktrace recorded.
+ERROR: 0031-300  Forcing all remote tasks to exit due to exit code 1 in task 0
+ERROR: 0031-250  task 15: Terminated
+ERROR: 0031-250  task 11: Terminated
+ERROR: 0031-250  task 8: Terminated
+ERROR: 0031-250  task 4: Terminated
+ERROR: 0031-250  task 1: Terminated
+ERROR: 0031-250  task 7: Terminated
+ERROR: 0031-250  task 2: Terminated
+ERROR: 0031-250  task 12: Terminated
+ERROR: 0031-250  task 9: Terminated
+ERROR: 0031-250  task 10: Terminated
+ERROR: 0031-250  task 14: Terminated
+ERROR: 0031-250  task 3: Terminated
+ERROR: 0031-250  task 5: Terminated
+ERROR: 0031-250  task 6: Terminated
+ERROR: 0031-250  task 13: Terminated

@@ -1,0 +1,193 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import java.util.Random;
+import harness.x10Test;;/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import java.util.Random;
+import harness.x10Test;
+
+/**
+ * N-queens problem.
+ *
+ * This version chooses a random place to run each new activity.
+ *
+ * @author kemal 4/2005
+ */
+public value class QueensList3 extends x10Test*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import java.util.Random;
+import harness.x10Test;
+
+/**
+ * N-queens problem.
+ *
+ * This version chooses a random place to run each new activity.
+ *
+ * @author kemal 4/2005
+ */
+public value class QueensList3 extends x10Test {
+	// Operations and data structures for a list of queen coordinates
+
+	// Since QueensList3 is an immutable value class,
+	// its instances do not have a fixed place.
+	// The instances are passed from place to place
+	// freely, allowing activities operating on the instances
+	// to be load-balanced dynamically.
+
+	/**
+	 * nullary constructor: create an empty value array
+	 */
+	public def this(): QueensList3 = {
+		q = new Array[int](Dist.makeConstant([0..-1], here));
+	}
+
+	/**
+	 * Constructor creates oldList with newItem added at end
+	 */
+	public def this(val oldList: Array[int], val newItem: int): QueensList3 = {
+		final val n: int = length(oldList);
+		q = new Array[int](Dist.makeConstant([0..n], here), (var point [j]: point): int => { return j < n ? oldList(j) : newItem; });
+	}
+
+	// Number of solutions
+	public const nSolutions: BoxedInt = new BoxedInt(0);
+
+	// Length of one side of chess board
+	public const N: int = 5;
+
+	// Expected number of solutions for each N
+	public const expectedSolutions: Array[int] = { 0, 1, 0, 0, 2, 10, 4, 40, 92, 352, 724, 2680, 14200,
+		73712, 365596, 2279184, 14772512 };
+
+	// Let n = q.length, then
+	// q[0],q[1],...,q[n-1] are the columns in which queens were placed
+	// for rows 0,1,...,n-1, respectively.
+	// I.e., (0,q[0]) (1.q[1]) ... (n-1,q[n-1]) are the coordinates
+	// of the queens that were already placed.
+	private var q: Array[int];
+
+	/**
+	 * Return true iff one of the already placed queens in coordinates
+	 * (0,q[0]) .... (n-1,q[n-1]) "attacks" a new queen at (n,j)
+	 */
+	public def attacks(var j: int): boolean = {
+
+		//Exists(row k:0..n-1)(sameColumn(j,q[k])||sameDiagonal(<n,j>,<k,q[k]>))
+
+		var n: int = length(q); // the next row to place a queen
+		for (val (k): point in [0..(n-1)]) {
+			if (j == q(k) ||                       // same column
+					Math.abs(n-k) == Math.abs(j-q(k))) // same diagonal
+				return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Method Q solves the N-queens problem with
+	 * a brute-force tree search.
+	 *
+	 * If all N queens were already placed, atomically increment the
+	 * number of solutions, and return.
+	 *
+	 * Otherwise: given a list of queen positions placed in rows
+	 * 0,...,n-1,
+	 * for each column in row n (in parallel)
+	 * if a new queen can be placed in this column,
+	 * place the queen there, and spawn a new activity (in an
+	 * appropriately chosen place) to recursively continue from
+	 * this chess board configuration, with the next row n+1.
+	 * After spawning all such activities, return.
+	 */
+	public def Q(): void = {
+		if (length(q) == N) { async(nSolutions) atomic nSolutions.val++; return; }
+
+		foreach (val p: point[k] in [0..(N-1)]) { //try all columns of next row
+			if (!attacks(k)) {
+				async(loadBalancer.choosePlace())
+				{ (new QueensList3(q, k)).Q(); };
+			}
+		}
+	}
+
+	/**
+	 * utility function length() for
+	 * one dimensional value arrays.
+	 */
+	public static def length(var q: Array[int]): int = {
+		if (q.region.size() == 0) return 0;
+		else return q.region.high()-q.region.low()+1;
+	}
+
+	/**
+	 * run the n-queens problem
+	 */
+	public def run(): boolean = {
+		finish { this.Q(); }
+		System.out.println("Number of solutions for "+N+" queens: "+nSolutions.val);
+		return nSolutions.val == expectedSolutions(N);
+	}
+
+	public static def main(var args: Rail[String]): void = {
+		new QueensList3().execute();
+	}
+
+	/**
+	 * Need this class since we cannot store java objects in x10 arrays
+	 */
+	static class BoxedRandom {
+		var val: nullable<Random>;
+		public def this(var x: long): BoxedRandom = {
+			val = new Random(x);
+		}
+		def nextInt(var n: int): int = {
+			return ((Random)val).nextInt(n);
+		}
+	}
+
+	/**
+	 * Load balancer class.
+	 */
+	static class loadBalancer {
+		public const UniqueD: dist = distmakeUnique();
+		public const NP: int = place.MAX_PLACES;
+		// random number generators with different seeds
+		// in each place
+		public const Ran: Array[BoxedRandom] = new Array[BoxedRandom](UniqueD, (var p: point[i]): BoxedRandom => { return new BoxedRandom((long)i*17L); });
+
+		/**
+		 * find an appropriate place to ship a task
+		 */
+		public static def choosePlace(): place = {
+			// choose a random place (includes here)
+			var nextPlace: place = UniqueD(Ran((here).id).nextInt(NP));
+			System.out.println("Sending work from "+(here).id+" to "+nextPlace.id);
+			return nextPlace;
+		}
+	}
+
+	/**
+	 * Helper class.
+	 */
+	static class BoxedInt {
+		public var val: int;
+		def this(var x: int): BoxedInt = {
+			val = x;
+		}
+	}
+}

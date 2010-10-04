@@ -1,0 +1,150 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;;
+
+/**
+LU Factorization with partial pivoting. 
+A literal translation of the following Matlab code:
+		function [L,U,p] = lutx(A)
+		%LUTX  Triangular factorization, textbook version
+		%   [L,U,p] = lutx(A) produces a unit lower triangular matrix L,
+		%   an upper triangular matrix U, and a permutation vector p,
+		%   so that L*U = A(p,:)
+
+		[n,n] = size(A);
+		p = (1:n)';
+
+		for k = 1:n-1
+
+		   % Find index of largest element below diagonal in k-th column
+		   [r,m] = max(abs(A(k:n,k)));
+		   m = m+k-1;
+
+		   % Skip elimination if column is zero
+		   if (A(m,k) ~= 0)
+		   
+		      % Swap pivot row
+		      if (m ~= k)
+		         A([k m],:) = A([m k],:);
+		         p([k m]) = p([m k]);
+		      end
+
+		      % Compute multipliers
+		      i = k+1:n;
+		      A(i,k) = A(i,k)/A(k,k);
+
+		      % Update the remainder of the matrix
+		      j = k+1:n;
+		      A(i,j) = A(i,j) - A(i,k)*A(k,j); 
+		   end
+		end
+
+		% Separate result
+		L = tril(A,-1) + eye(n,n);
+		U = triu(A);
+ *
+ *
+ * @author Tong
+ */
+public class LU_Dep extends x10Test {
+	 public const eps: double = 0.000000000001;
+	 public static def lu(val a_A: Array[double]{rank==2}, val a_L: Array[double]{rank==2}, val a_U: Array[double]{rank==2}, val a_p: Array[int]{rank==1}): void = {
+			final val R: region{rank==2} = a_A.region;
+			final val D: dist{rank==2} = a_A.dist;
+			final val n: int = R.rank(0).size();
+			assert n==R.rank(1).size();
+			//precompute the index sets
+			final val N: region{rank==1} = [0..n-1];
+			final val NLess1: region{rank==1} = [0..n-2];
+			final val NCurrent: Array[region{rank==1}]{rank==1} = (Array[region{rank==1}]{rank==1})new Array[region](NLess1, (var point [k]: point): region => { return [k+1..n-1];});
+			    
+			final val A: Array[double]{rank==2} = new Array[double](D, (var point [i,j]: point): double => {return a_A(i, j);}); //In Matlab, A is passed by value.
+			finish foreach (val (i): point in a_p) a_p(i)=i;
+			
+			var r: double; var maxIdx: int;
+			for (val (k): point in NLess1) {	
+				// Find index of largest element below diagonal in the k-th column
+				r=A(k, k); maxIdx=k;
+				for (val (i): point in NCurrent(k)) {
+					if (Math.abs(A(i, k))>Math.abs(r)){
+						r=A(i, k); maxIdx=i;
+					}
+				}
+				final val m: int = maxIdx;
+				// Skip elimination if column is zero
+				if (r!=0)
+				{
+					// Swap pivot row
+					if (m!=k){
+						finish foreach (val (j): point in N) {
+							var temp: double = A(k, j);
+							A(k, j)=A(m, j); 
+							A(m, j)=temp;
+						}
+						a_p(m)=a_p(k);a_p(k)=m;
+					}
+					
+					// Compute multipliers
+					finish foreach (val (i): point in NCurrent(k)) A(i, k)/=A(k, k);
+					
+					// Update the remainder of the matrix
+					finish foreach (val (i,j): point in [(region{rank==1}))NCurrent(k), (region{rank==1}))NCurrent(k)]) A(i, j)-=A(i, k)*A(k, j);
+				}
+			}
+			
+			//Separate result
+			finish foreach (val (i,j): point in R) if (i>j) 
+				a_L(i, j)=A(i, j); 
+			else{ 
+				if (i==j) a_L(i, j)=1; 
+				a_U(i, j)=A(i, j);
+			}
+		}
+
+	public def run(): boolean = {
+		//set up a test problem
+		final val size: int = 10;
+		final val R: region{rank==2} = [0..size-1, 0..size-1];
+		final val D: dist{rank==2} = Dist.makeConstant(R, here);
+		final val A: Array[double]{rank==2} = new Array[double](D, (var point [i,j]: point): double => {
+			var res: int = i%2;
+			if (i-1==j) res=i*(res==0?-1:1);
+			return res;});
+			
+		final val L: Array[double]{rank==2} = new Array[double](D);
+		final val U: Array[double]{rank==2} = new Array[double](D);
+		final val p: Array[int]{rank==1} = (Array[int]{rank==1})new Array[int]([0..size-1]);
+		
+		//compute LU factorization of A
+		lu(A, L, U, p);
+		
+		
+		/* verify results
+		** The first column of L should be equal to array l.
+		** The diagonals of U should be equal to array u and its first row are all ones.
+		** The content of p should be equal to array permulation
+		*/
+		var err1: double = 0; var err2: int = 0;
+		final val l: Array[double] = {1, 0, 1, 0, 1, 0, 1, 0, 1, 0};
+		final val u: Array[double] = {1, -2, 2, -4, 4, -6, 6, -8, 8, 0};
+		final val permulation: Array[int] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 0};
+		
+		for (var i: int = 0;i<size;i++){
+			err1+=L(i, 0)-l(i);
+			err1+=U(i, i)-u(i);
+			err1+=U(0, i)-1;
+			err2+=p(i)-permulation(i);
+		}
+		return (Math.abs(err1)<eps && err2==0);
+	}
+
+	
+	public static def main(var args: Rail[String]): void = {
+		new LU_Dep().execute();
+	}
+}
