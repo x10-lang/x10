@@ -291,8 +291,7 @@ public class X10New_c extends New_c implements X10New {
 
             X10ClassType ct = (X10ClassType) t;
 
-            if ((ct.isMember()&& !ct.flags().isStatic())
-                   || (anonType!=null && !childtc.context().inStaticContext())) { // the receiver/target of X10New_c for anonymous classes should be "this" (for CheckEscapingThis)
+            if ((ct.isMember()&& !ct.flags().isStatic())) {
                 final X10New_c newC = (X10New_c) n.objectType(tn);
                 New k = newC.findQualifier(childtc, ct);
                 tn = k.objectType();
@@ -466,7 +465,18 @@ public class X10New_c extends New_c implements X10New {
         result = (X10New_c) result.arguments(args);
 
         result.checkWhereClause();
-        result = (X10New_c) result.type(ci.returnType());
+
+        Type type = ci.returnType();
+        if (result.body() != null) {
+            // If creating an anonymous class, we need to adjust the type
+            // to be based on anonType rather than on the supertype.
+            ClassDef anonTypeDef = result.anonType();
+            Type anonType = anonTypeDef.asType();
+            type = X10TypeMixin.xclause(X10TypeMixin.baseType(anonType), X10TypeMixin.xclause(type));
+          
+        }
+
+        result = (X10New_c) result.type(type);
         return result;
     }
 
@@ -607,14 +617,6 @@ public class X10New_c extends New_c implements X10New {
         	type = X10TypeMixin.addDisBinding(type, X10TypeMixin.selfVar(type), XTerms.NULL);
         }
         
-        if (body != null) {
-            // If creating an anonymous class, we need to adjust the return type
-            // to be based on anonType rather than on the supertype.
-            ClassDef anonTypeDef = anonType();
-            Type anonType = anonTypeDef.asType();
-            type = X10TypeMixin.xclause(X10TypeMixin.baseType(anonType), X10TypeMixin.xclause(type));
-          
-        }
         xci = (X10ConstructorInstance) xci.returnType(type);
         return xci;
        // return (X10New_c) this.constructorInstance(xci).type(type);
