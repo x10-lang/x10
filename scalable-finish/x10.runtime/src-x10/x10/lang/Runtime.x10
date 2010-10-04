@@ -1454,7 +1454,9 @@ public final class Runtime {
     static def report():Void {
         runtime().pool.release();
     }
-
+    public static def placeofFinish():Place {
+        return currentState().home;
+    }
     // async -> at statement -> at expression -> future
     // do not introduce cycles!!!
 
