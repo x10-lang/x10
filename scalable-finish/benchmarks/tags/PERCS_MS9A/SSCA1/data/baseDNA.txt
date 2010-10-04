@@ -1,0 +1,12 @@
+openGap=2
+extendGap = 1
+
+alphabet = 'ABCD' # four entries, as in DNA: ABCD seemed as good 
+                  # a four letter sequence as any for this purpose!
+scores = [
+#      A  B  C  D
+       4 -3 -3 -3  # A
+      -3  4 -3 -3  # B
+      -3 -3  4 -3  # C
+      -3 -3 -3  4  # D
+]
