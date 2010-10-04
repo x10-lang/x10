@@ -877,6 +877,7 @@ public class X10TypeMixin {
 	    return val;
 	}
 
+	
 	public static boolean isRankOne(Type t, X10Context context) {
 	    X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
 	    return xts.ONE().equals(X10TypeMixin.rank(t, context));
@@ -913,6 +914,47 @@ public class X10TypeMixin {
 	    X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
 	    return findOrSynthesize(t, Name.make("rank"));
 	}
+	/**
+	 * Add the constraint self.rank==x to t unless
+	 * that causes an inconsistency.
+	 * @param t
+	 * @param x
+	 * @return
+	 */
+	public static Type addRank(Type t, int x) {
+	    X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
+	    XTerm xt = findOrSynthesize(t, Name.make("rank"));
+	    try {
+	    t = addBinding(t, xt, XTerms.makeLit(new Integer(x)));
+	    return t;
+	    } catch (XFailure f) {
+	    	return t; // without the binding added.
+	    }
+	 
+	}
+	public static Type addRect(Type t) {
+	    X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
+	    XTerm xt = findOrSynthesize(t, Name.make("rect"));
+	    try {
+	    t = addBinding(t, xt, XTerms.TRUE);
+	    return t;
+	    } catch (XFailure f) {
+	    	return t; // without the binding added.
+	    }
+	 
+	}
+	public static Type addZeroBased(Type t) {
+	    X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
+	    XTerm xt = findOrSynthesize(t, Name.make("zeroBased"));
+	    try {
+	    t = addBinding(t, xt, XTerms.TRUE);
+	    return t;
+	    } catch (XFailure f) {
+	    	return t; // without the binding added.
+	    }
+	 
+	}
+	
 
 	public static Type railBaseType(Type t) {
 	    t = baseType(t);
