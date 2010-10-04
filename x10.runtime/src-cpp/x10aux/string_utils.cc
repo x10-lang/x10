@@ -34,7 +34,7 @@ ref<Array<ref<String> > >x10aux::convert_args(int ac, char **av) {
     return arr;
 }
 
-ref<String> x10aux::vrc_to_string(ref<ValRail<x10_char> > v) {
+ref<String> x10aux::vrc_to_string(ref<Rail<x10_char> > v) {
     nullCheck(v);
     char *str = alloc<char>(v->FMGL(length)+1);
     for (int i = 0; i < v->FMGL(length); ++i)

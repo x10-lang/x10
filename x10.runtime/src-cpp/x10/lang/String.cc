@@ -244,17 +244,17 @@ x10_char String::charAt(x10_int i) {
 }
 
 
-ref<ValRail<x10_char> > String::chars() {
+ref<Rail<x10_char> > String::chars() {
     x10_int sz = length();
-    ValRail<x10_char> *rail = alloc_rail<x10_char,ValRail<x10_char> > (sz);
+    Rail<x10_char> *rail = alloc_rail<x10_char,Rail<x10_char> > (sz);
     for (int i = 0; i < sz; ++i)
         rail->raw()[i] = (x10_char) FMGL(content)[i]; // avoid bounds check
     return rail;
 }
 
-ref<ValRail<x10_byte> > String::bytes() {
+ref<Rail<x10_byte> > String::bytes() {
     x10_int sz = length();
-    ValRail<x10_byte> *rail = alloc_rail<x10_byte,ValRail<x10_byte> > (sz);
+    Rail<x10_byte> *rail = alloc_rail<x10_byte,Rail<x10_byte> > (sz);
     for (int i = 0; i < sz; ++i)
         rail->raw()[i] = FMGL(content)[i]; // avoid bounds check
     return rail;

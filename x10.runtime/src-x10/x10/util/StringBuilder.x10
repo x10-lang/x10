@@ -16,10 +16,10 @@ import x10.compiler.Pinned;
 
 @Pinned 
 public class StringBuilder implements Builder[Object,String] {
-     val buf: ValRailBuilder[Char];
+     val buf: RailBuilder[Char];
 
     public def this() {
-        buf = new ValRailBuilder[Char]();
+        buf = new RailBuilder[Char]();
     }
 
     /**
@@ -105,7 +105,7 @@ public class StringBuilder implements Builder[Object,String] {
 
     @Native("java", "new String(#1.getCharArray())")
     @Native("c++", "x10aux::vrc_to_string(#1)")
-    private static native def makeString(ValRail[Char]): String;
+    private static native def makeString(Rail[Char]): String;
 
     public def result() = makeString(buf.result());
 }

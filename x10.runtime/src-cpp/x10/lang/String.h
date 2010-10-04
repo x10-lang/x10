@@ -119,9 +119,9 @@ namespace x10 {
             
             x10_char charAt(x10_int i);
 
-            x10aux::ref<ValRail<x10_char> > chars();
+            x10aux::ref<Rail<x10_char> > chars();
 
-            x10aux::ref<ValRail<x10_byte> > bytes();
+            x10aux::ref<Rail<x10_byte> > bytes();
 
             static void _serialize(x10aux::ref<String> this_,
                                    x10aux::serialization_buffer &buf);

@@ -29,10 +29,10 @@ public final class GrowableRail[T] implements Indexable[Int,T], Settable[Int,T] 
     @Native("c++", "(#0)->add(#1)")
     public native def add(T): Void;
 
-    /** Insert an existing valrail to the rail at specified location, incrementing length. */
+    /** Insert an rail to the rail at specified location, incrementing length. */
     @Native("java", "(#0).insert(#1, #2)")
     @Native("c++", "(#0)->insert(#1, #2)")
-    public native def insert(p:Int, items:ValRail[T]): Void;
+    public native def insert(p:Int, items:Rail[T]): Void;
 
     /** Get the Int element of the rail, failing unless 0 &lt;= Int &lt; length. */
     @Native("java", "(#0).apply$G(#1)")
@@ -75,9 +75,9 @@ public final class GrowableRail[T] implements Indexable[Int,T], Settable[Int,T] 
     @Native("c++", "(#0)->toRail()")
     public native def toRail(): Rail[T];
 
-    /** Convert to an immutable rail.  This copies the content of the rail. */
-    @Native("java", "(#0).toValRail()")
-    @Native("c++", "(#0)->toValRail()")
-    public native def toValRail(): ValRail[T];
+    /** Convert to a mutable array.  This copies the content of the rail. */
+    @Native("java", "(#0).toArray()")
+    @Native("c++", "(#0)->toArray()")
+    public native def toArray():Array[T](1){self.rail};
 }
 

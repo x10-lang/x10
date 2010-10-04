@@ -18,6 +18,7 @@ import x10.rtt.RuntimeType.Variance;
 import x10.rtt.Type;
 import x10.rtt.Types;
 import x10.rtt.UnresolvedType;
+import x10.array.Array;
 
 public final class GrowableRail<T> extends Ref implements x10.lang.Indexable<Integer,T>, x10.lang.Iterable<T>, x10.lang.Settable<Integer, T> {
     private Type<T> elementType;
@@ -66,7 +67,7 @@ public final class GrowableRail<T> extends Ref implements x10.lang.Indexable<Int
         length++;
     }
 
-    public void insert(int loc, ValRail<T> items) {
+    public void insert(int loc, Rail<T> items) {
         int addLen = items.length;
         int movLen = length - loc;
         int newLen = length + addLen;
@@ -167,10 +168,10 @@ public final class GrowableRail<T> extends Ref implements x10.lang.Indexable<Int
         return RailFactory.makeRailFromJavaArray(elementType, tmp);
     }
 
-    public ValRail<T> toValRail() {
+    public Array<T> toArray() {
         Object tmp = elementType.makeArray(length);
         System.arraycopy(array, 0, tmp, 0, length);
-        return RailFactory.makeValRailFromJavaArray(elementType, tmp);
+        return RailFactory.makeArrayFromJavaArray(elementType, tmp);
     }
 
     //
