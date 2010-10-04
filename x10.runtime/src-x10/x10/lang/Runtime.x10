@@ -173,15 +173,15 @@ import x10.util.Box;
 
   
     static class ClockPhases extends HashMap[Clock,Int] {
-        static def make(clocks:ValRail[Clock], phases:ValRail[Int]):ClockPhases {
+        static def make(clocks:Array[Clock]{rail}, phases:Array[Int]{rail}):ClockPhases {
             val clockPhases = new ClockPhases();
-            for(var i:Int = 0; i < clocks.length; i++) 
+            for(var i:Int = 0; i < clocks.size; i++) 
             	clockPhases.put(clocks(i), phases(i));
             return clockPhases;
         }
 
-        def register(clocks:ValRail[Clock]) {
-            return ValRail.make[Int](clocks.length, (i:Int)=>clocks(i).register());
+        def register(clocks:Array[Clock]{rail}) {
+            return new Array[Int](clocks.size, (i:Int)=>clocks(i).register());
         }
 
         def next() {
@@ -1566,7 +1566,7 @@ import x10.util.Box;
     /**
      * Run async
      */
-    public static def runAsync(place:Place, clocks:ValRail[Clock], body:()=>void):void {
+    public static def runAsync(place:Place, clocks:Array[Clock]{rail}, body:()=>void):void {
     	// Do this before anything else
         activity().ensureNotInAtomic();
         
@@ -1603,7 +1603,7 @@ import x10.util.Box;
         }
     }
 
-    public static def runAsync(clocks:ValRail[Clock], body:()=>void):void {
+    public static def runAsync(clocks:Array[Clock]{rail}, body:()=>void):void {
     	// Do this before anything else
         activity().ensureNotInAtomic();
         

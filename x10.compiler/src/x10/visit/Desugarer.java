@@ -220,7 +220,7 @@ public class Desugarer extends ContextVisitor {
 			final Name outerVarName = xc.getNewVarName();
 			final LocalDef outerLi = xts.localDef(pos, flags, Types.ref(type), outerVarName);
 			final Id outerVarId = xnf.Id(pos, outerVarName);
-			final Local outerLdRef = (Local) xnf.Local(pos, outerVarId).localInstance(li.asInstance()).type(type);
+			final Local outerLdRef = (Local) xnf.Local(pos, outerVarId).localInstance(outerLi.asInstance()).type(type);
 
 			try {
 				Expr clock = synth.makeStaticCall(pos, type, Name.make("make"), type, xc);
@@ -594,7 +594,7 @@ public class Desugarer extends ContextVisitor {
            }
         if (clocks.size() == 0)
         	return async(pos, body, place, annotations);
-        Type clockRailType = xts.ValRail(xts.Clock());
+        Type clockRailType = X10TypeMixin.makeArrayRailOf(xts.Clock(), pos);
         Tuple clockRail = (Tuple) xnf.Tuple(pos, clocks).type(clockRailType);
 
         return makeAsyncBody(pos, new ArrayList<Expr>(Arrays.asList(new Expr[] { place, clockRail })),
@@ -613,7 +613,7 @@ public class Desugarer extends ContextVisitor {
     private Stmt async(Position pos, Stmt body, List<Expr> clocks, List<X10ClassType> annotations) throws SemanticException {
         if (clocks.size() == 0)
         	return async(pos, body, annotations);
-        Type clockRailType = xts.ValRail(xts.Clock());
+        Type clockRailType = X10TypeMixin.makeArrayRailOf(xts.Clock(), pos);
         Tuple clockRail = (Tuple) xnf.Tuple(pos, clocks).type(clockRailType);
         return makeAsyncBody(pos, new ArrayList<Expr>(Arrays.asList(new Expr[] { clockRail })),
                              new ArrayList<Type>(Arrays.asList(new Type[] { clockRailType})), body, annotations);

@@ -130,6 +130,48 @@ public class X10TypeMixin {
 		}
 		return t;
 	}
+    /**
+     * Return the type Array[type]{self.region.rank==1,self.region.rect==true,self.region.zeroBased==true}.
+     * @param type
+     * @param pos
+     * @return
+     */
+    public static Type makeArrayRailOf(Type type, Position pos) {
+        X10TypeSystem ts = (X10TypeSystem) type.typeSystem();
+        Type r = ts.Array();
+        Type t = (X10ClassType) X10TypeMixin.instantiate(r, type);
+        CConstraint c = new CConstraint();
+        FieldInstance regionField = ((X10ClassType) t).fieldNamed(Name.make("region"));
+        if (regionField == null)
+            throw new InternalCompilerError("Could not find region field of " + t, pos);
+        FieldInstance rankField = ((X10ClassType) ts.Region()).fieldNamed(Name.make("rank"));
+        if (rankField == null)
+            throw new InternalCompilerError("Could not find rank field of " + ts.Region(), pos);
+        FieldInstance rectField = ((X10ClassType) ts.Region()).fieldNamed(Name.make("rect"));
+        if (rectField == null)
+            throw new InternalCompilerError("Could not find rectField field of " + ts.Region(), pos);
+        FieldInstance zeroBasedField = ((X10ClassType) ts.Region()).fieldNamed(Name.make("zeroBased"));
+        if (zeroBasedField == null)
+            throw new InternalCompilerError("Could not find zeroBased field of " + ts.Region(), pos);
+        try {
+
+            XVar selfRegion = ts.xtypeTranslator().trans(c, c.self(), regionField);
+            XVar selfRegionRank = ts.xtypeTranslator().trans(c, selfRegion, rankField);
+            XVar selfRegionRect = ts.xtypeTranslator().trans(c, selfRegion, rectField);
+            XVar selfRegionZeroBased = ts.xtypeTranslator().trans(c, selfRegion, zeroBasedField);
+
+            XLit rankLiteral = XTerms.makeLit(1);
+            c.addBinding(selfRegionRank, rankLiteral);
+            c.addBinding(selfRegionRect, XTerms.TRUE);
+            c.addBinding(selfRegionZeroBased, XTerms.TRUE);
+            c.toString();
+            t = X10TypeMixin.xclause(t, c);
+
+        } catch (XFailure z) {
+            throw new InternalCompilerError("Could not create Array[T]{self.region.rank==1,self.region.rect==true,self.region.zeroBased==true}");
+        }
+        return t;
+    }
     public static Type typeArg(Type t, int i) {
     	if (t instanceof X10ParsedClassType) {
     		 X10ParsedClassType ct = (X10ParsedClassType) t;
