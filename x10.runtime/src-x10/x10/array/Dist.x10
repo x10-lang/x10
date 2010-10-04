@@ -259,9 +259,10 @@ public abstract class Dist(
     //
 
     /**
-     * An iterator over the set of Places that this distribution maps some point to.
+     * @return an object that implements Iterable[Place] that can be used to
+     *         iterate over the set of Places that this distribution maps some point to.
      */
-    abstract public def places():Array[Place](1);
+    abstract public def places():Iterable[Place];
 
     /**
      * How many places are included in the distribution?
@@ -269,9 +270,10 @@ public abstract class Dist(
     abstract public def numPlaces():int;
 
     /**
-     * Return the set of regions that this distribution maps some place to.
+     * @return an object that implements Iterable[Region] that can be used to
+     *         iterate over the set of Regions that this distribution maps some point to.
      */
-    abstract public def regions():Array[Region(rank)](1);
+    abstract public def regions():Iterable[Region(rank)];
 
     /**
      * Return the region consisting of points which this distribution
@@ -564,7 +566,7 @@ public abstract class Dist(
     public def toString():String {
         var s:String = "Dist(";
         var first:boolean = true;
-        for (p:Place in places().items()) {
+        for (p:Place in places()) {
             if (!first) s += ",";
             s +=  get(p) + "->" + p.id;
             first = false;

@@ -25,15 +25,15 @@ final class WrappedDistRegionRestricted extends Dist {
         filter = r as Region(rank); // cast should not be needed
     }
 
-    public def places():Array[Place](1) {
+    public def places():Iterable[Place] {
         return base.places();
     }
 
     public def numPlaces() = base.numPlaces();
 
-    public def regions():Array[Region(rank)](1) {
+    public def regions():Iterable[Region(rank)] {
         return new Array[Region(rank)](Place.MAX_PLACES, 
-                                          (i:int)=>base.get(Place(i)).intersection(filter));
+                                          (i:int)=>base.get(Place(i)).intersection(filter)).items();
     }
 
     public def get(p:Place):Region(rank) {
