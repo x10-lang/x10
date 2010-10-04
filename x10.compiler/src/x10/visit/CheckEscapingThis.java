@@ -462,7 +462,7 @@ public class CheckEscapingThis extends NodeVisitor
                     if (state==CtorState.Start)
                         reportError("You can use 'super' only after 'super(...)'",pos);
                 } else if (!canUseThis())
-                    reportError(hasProperties ? "Can use 'this' only after 'property(...)'" : "Can use 'this' only after 'this(...)' or 'super(...)'.", pos);
+                    reportError((hasProperties ? "Can use 'this' only after 'property(...)'" : "Can use 'this' only after 'this(...)' or 'super(...)'")+" in "+parent, pos);
             }
             return n;
         }
