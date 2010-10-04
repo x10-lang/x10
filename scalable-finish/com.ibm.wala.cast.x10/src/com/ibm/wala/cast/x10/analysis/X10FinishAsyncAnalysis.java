@@ -38,6 +38,10 @@ import com.ibm.wala.ipa.callgraph.CallGraph;
 import com.ibm.wala.ipa.callgraph.Entrypoint;
 import com.ibm.wala.ipa.callgraph.impl.DefaultEntrypoint;
 import com.ibm.wala.ipa.callgraph.impl.ExplicitCallGraph.ExplicitNode;
+import com.ibm.wala.ipa.callgraph.propagation.InstanceKey;
+import com.ibm.wala.ipa.callgraph.propagation.LocalPointerKey;
+import com.ibm.wala.ipa.callgraph.propagation.PointerAnalysis;
+import com.ibm.wala.ipa.callgraph.propagation.PointerKey;
 import com.ibm.wala.ipa.cfg.BasicBlockInContext;
 import com.ibm.wala.ipa.cfg.ExceptionPrunedCFG;
 import com.ibm.wala.ipa.cfg.ExplodedInterproceduralCFG;
@@ -81,9 +85,10 @@ public class X10FinishAsyncAnalysis {
 	private static final boolean DEBUG_IR = DEBUG|false;
 	private static final boolean DEBUG_CFG = DEBUG|false;
 	private static final boolean DEBUG_CG = DEBUG|false;
+	private static final boolean TIMING = DEBUG|true;
 	private HashMap<CallTableKey, LinkedList<CallTableVal>> calltable;
 	private CallGraph cg;
-	
+    
 	// to store an instruction's index in a cfg and used later to get source
 	// information
 	HashMap<SSAInstruction, Integer> instmap;
@@ -110,6 +115,7 @@ public class X10FinishAsyncAnalysis {
 	 * (loop with single-entry point) before hand.
 	 */
 	HashSet<NatLoop> loops;
+
 	
 	private void init(){
 		instmap = null;
@@ -436,15 +442,12 @@ public class X10FinishAsyncAnalysis {
 					SSAAtStmtInstruction atinst = (SSAAtStmtInstruction) inst;
 					visitAtInstruction(epcfg, env, atinst);
 				} else if (inst instanceof AsyncInvokeInstruction) {
-					System.out.println(((AsyncInvokeInstruction)inst).getPlaceExpr());
 					visitAsyncInstruction(epcfg, env,
 							(AsyncInvokeInstruction) inst);
 				} else if (inst instanceof AstJavaInvokeInstruction) {
 					visitMethodInvocation(epcfg, env,
 							(AstJavaInvokeInstruction) inst);
-				} else if(inst instanceof SSAHereInstruction){
-					System.out.println(inst);
-				}
+				} 
 				// TODO: when instruction
 				else {
 					updateLastInst(null, null);
@@ -615,6 +618,8 @@ public class X10FinishAsyncAnalysis {
 	public HashMap<CallTableKey, LinkedList<CallTableVal>> build(CallGraph cg,HashMap<CallTableKey, LinkedList<CallTableVal>> calltable){
 		this.calltable = calltable;
 		this.cg = cg;
+		
+		//FIXME: pass extra arg ! this.pa = pa;
 		// to make sure different invocations only have side-effects on calltable
 		init();
 		buildCallTable();
@@ -627,7 +632,10 @@ public class X10FinishAsyncAnalysis {
 		final String methodtype = defaultEntryPoint[2];
 		final String mainClass = testedFile.getName().substring(0,
 				testedFile.getName().lastIndexOf('.'));
-
+		
+		long start1 = System.currentTimeMillis();
+		
+		
 		final X10SourceAnalysisEngine engine = new X10SourceAnalysisEngine() {
 
 			protected Iterable<Entrypoint> makeDefaultEntrypoints(
@@ -655,6 +663,11 @@ public class X10FinishAsyncAnalysis {
 		engine.addX10SourceModule(new SourceFileModule(testedFile, testedFile
 				.getName()));
 		cg = engine.buildDefaultCallGraph();
+		long end1 = System.currentTimeMillis();
+		
+		if(TIMING){
+			System.out.println("call graph constructiona and pointer analysis:"+(end1-start1));
+		}
 		if(DEBUG_CG){
 			GraphUtil.printNumberedGraph(cg, "cg");
 		}
