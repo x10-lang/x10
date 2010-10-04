@@ -44,7 +44,7 @@ public class ClockTest16 extends x10Test {
 			finish async {
 				val c0 = Clock.make();
 				val c1 = Clock.make();
-				val ca: Rail[Clock] = Rail.make([c0,c1]);
+				val ca  = [c0,c1];
 
 				// Question:
 				// Can an activity ever pass a clock it is not
@@ -96,7 +96,7 @@ public class ClockTest16 extends x10Test {
 					}
 				};
 
-				val fooArray = Rail.make([f0,f1]);
+				val fooArray = [f0,f1];
 
 				// Compiler: MAYBE, Actual: NO
 				Y.test(fooArray(x.one()) as foo, c1);
@@ -163,7 +163,7 @@ public class ClockTest16 extends x10Test {
 	 * for a typical compiler
 	 */
 	static class X {
-		public val z: Rail[int] = Rail.make([1,0]);
+		public val z = [1,0];
 		def zero() = z(z(1)); 
 		def one() = z(z(z(0)));
 		def modify(): void = { z(0) += 1; }
