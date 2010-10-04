@@ -71,6 +71,8 @@ import polyglot.visit.TypeBuilder;
 import x10.Configuration;
 import x10.ExtensionInfo;
 import x10.ast.AnnotationNode;
+import x10.ast.ArrayLiteral;
+import x10.ast.ArrayLiteral_c;
 import x10.ast.Async;
 import x10.ast.AtEach;
 import x10.ast.AtExpr;
@@ -359,6 +361,8 @@ public class Desugarer extends ContextVisitor {
             return visitLocalDecl((LocalDecl) n);
         if (n instanceof Resume)
             return visitResume((Resume) n);
+        if (n instanceof ArrayLiteral)
+        	return visitArrayLiteral((ArrayLiteral) n);
         return n;
     }
 
@@ -1481,6 +1485,11 @@ public class Desugarer extends ContextVisitor {
         Closure c = synth.makeClosure(pos, xts.Boolean(), Collections.singletonList(x), body, (X10Context) context);
         X10MethodInstance ci = c.closureDef().asType().applyMethod();
         return xnf.ClosureCall(pos, c, Collections.singletonList(e)).closureInstance(ci).type(xts.Boolean());
+    }
+    
+    private Expr visitArrayLiteral(ArrayLiteral n) throws SemanticException {
+        Position pos = n.position();
+        return n.tuple().type(n.type());
     }
 
     public static class Substitution<T extends Node> extends ErrorHandlingVisitor {

@@ -1683,7 +1683,13 @@
         /.$BeginJava
                     if (ClassBodyopt == null)
                          setResult(nf.X10New(pos(), TypeName.toType(), TypeArgumentsopt, ArgumentListopt));
-                    else setResult(nf.X10New(pos(), TypeName.toType(), TypeArgumentsopt, ArgumentListopt, ClassBodyopt));
+                    else setResult(nf.X10New(pos(), TypeName.toType(), TypeArgumentsopt, ArgumentListopt, ClassBodyopt)) ;
+          $EndJava
+        ./
+                 | new TypeName '[' Type ']' '[' ArgumentListopt ']'
+        /.$BeginJava
+               TypeNode array = TypeName.toType();
+               setResult(nf.ArrayLiteral(pos(), TypeName.toType(), Type, nf.Tuple(pos(), ArgumentListopt)));
           $EndJava
         ./
                                       | Primary . new Identifier TypeArgumentsopt ( ArgumentListopt ) ClassBodyopt
@@ -4203,7 +4209,6 @@
                     setResult(((X10NodeFactory) nf).Here(pos()));
           $EndJava
         ./
-
               | '[' ArgumentListopt ']'
         /.$BeginJava
                     Tuple tuple = nf.Tuple(pos(), ArgumentListopt);

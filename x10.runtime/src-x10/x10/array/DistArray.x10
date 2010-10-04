@@ -327,7 +327,7 @@ public class DistArray[T] (
         // TODO: recode using Team collective APIs to improve scalability
         // TODO: optimize scatter inner loop for locally rect regions
         val results = Rail.make[T](dist.numPlaces(), (p:Int) => unit);
-	finish for (where in dist.places()) {
+	finish for (where in dist.places().items()) {
 	    async {
                 results(where.id) = at (where) {
                     var localRes:T = unit;

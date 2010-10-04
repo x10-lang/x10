@@ -186,7 +186,7 @@ public abstract class Dist(
      * @param ps the rail of places
      * @return a "unique" distribution over the places in ps
      */
-    public static def makeUnique(ps:ValRail[Place]):Dist(1)
+    public static def makeUnique(ps:Array[Place](1)):Dist(1)
         = BaseDist.makeUnique1(ps);
 
     /**
@@ -261,7 +261,7 @@ public abstract class Dist(
     /**
      * An iterator over the set of Places that this distribution maps some point to.
      */
-    abstract public def places():ValRail[Place];
+    abstract public def places():Array[Place](1);
 
     /**
      * How many places are included in the distribution?
@@ -271,7 +271,7 @@ public abstract class Dist(
     /**
      * Return the set of regions that this distribution maps some place to.
      */
-    abstract public def regions():ValRail[Region(rank)];
+    abstract public def regions():Array[Region(rank)](1);
 
     /**
      * Return the region consisting of points which this distribution
@@ -423,7 +423,7 @@ public abstract class Dist(
      * @return true if that is a sub-distribution of this distribution.
      */
     public def isSubdistribution(that:Dist(rank)): boolean {
-        for (p:Place in Place.places)
+        for (p:Place in Place.places.items())
             if (!that.get(p).contains(this.get(p)))
                 return false;
         return true;
@@ -564,7 +564,7 @@ public abstract class Dist(
     public def toString():String {
         var s:String = "Dist(";
         var first:boolean = true;
-        for (p:Place in places()) {
+        for (p:Place in places().items()) {
             if (!first) s += ",";
             s +=  get(p) + "->" + p.id;
             first = false;

@@ -64,6 +64,7 @@ public interface X10NodeFactory extends NodeFactory {
     AtStmt AtStmt(Position pos, Expr place, Stmt body);
 	AtExpr AtExpr(Position pos, Expr place, TypeNode returnType, Block body);
 
+	ArrayLiteral ArrayLiteral(Position pos, TypeNode array, TypeNode indexType, Tuple values);
 
     ConstructorCall X10ConstructorCall(Position pos, ConstructorCall.Kind kind, Expr outer, List<TypeNode> typeArgs, List<Expr> args);
     ConstructorCall X10ThisCall(Position pos, Expr outer, List<TypeNode> typeArgs, List<Expr> args);

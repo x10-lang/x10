@@ -25,14 +25,14 @@ final class WrappedDistPlaceRestricted extends Dist {
         filter = p;
     }
 
-    public def places():ValRail[Place] {
-        return ValRail.make[Place](1, (int)=>filter);
+    public def places():Array[Place](1) {
+        return new Array[Place](1, (int)=>filter);
     }
 
     public def numPlaces() = 1;
 
-    public def regions():ValRail[Region(rank)] {
-        return ValRail.make[Region(rank)](1, (int)=>region);
+    public def regions():Array[Region(rank)](1) {
+        return new Array[Region(rank)](1, (int)=>region);
     }
 
     public def get(p:Place):Region(rank) {

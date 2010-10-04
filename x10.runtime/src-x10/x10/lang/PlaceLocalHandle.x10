@@ -62,7 +62,7 @@ public final struct PlaceLocalHandle[T]{T <: Object} {
      */
     public static def make[T](dist:Dist, init:()=>T){T <: Object}:PlaceLocalHandle[T] {
         val handle = at(Place.FIRST_PLACE) PlaceLocalHandle[T]();
-        finish for (p in dist.places()) {
+        finish for (p in dist.places().items()) {
             at (p) async handle.set(init());
         }
         return handle;

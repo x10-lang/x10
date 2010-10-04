@@ -317,6 +317,7 @@ public final class Array[T](
     public def values():Iterator[T] {
         return new ValueIterator[T](this);
     }
+    
 
     // TODO: Should be annonymous nested class in values, 
     //       but that's too fragile with the 2.1 implementation of generics.
@@ -332,8 +333,18 @@ public final class Array[T](
         public def hasNext() = regIt.hasNext();
         public def next() = array(regIt.next());
     }
-
-
+    /**
+     * Permits the syntax for (i:T in array.items())  { ...}
+    */
+    public def items():Iterable[T] = new ItemsIterable();
+    
+    // TODO: Should be annonymous nested class in values, 
+    //       but that's too fragile with the 2.1 implementation of generics.
+    private  class ItemsIterable implements Iterable[T] {
+    	public def iterator()=Array.this.values();
+    }
+    	
+ 
     /**
      * Return the element of this array corresponding to the given index.
      * Only applies to one-dimensional arrays.
@@ -1265,6 +1276,10 @@ public final class Array[T](
     private static @NoInline @NoReturn def raiseBoundsError(pt:Point) {
         throw new ArrayIndexOutOfBoundsException("point " + pt + " not contained in array");
     }    
+    
+    public static def make[T](v:ValRail[T]):Array[T](1) {
+    	return new Array[T](v.length, (i:int) => v(i));
+    }
 
 }
 

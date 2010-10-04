@@ -691,4 +691,18 @@ public class Errors {
 	        		+ "\n\t desired Type:" + returnType, pos);
 	    }
 	}
+	public static class ArrayLiteralMustBeOfArrayType extends EqualByTypeAndPosException {
+		private static final long serialVersionUID = 3059270665285777371L;
+		public ArrayLiteralMustBeOfArrayType(String typeName,   Position pos) {
+	        super("An array literal must start with 'new Array...'.", pos);
+	    }
+	}
+	public static class ArrayLiteralTypeMismatch extends EqualByTypeAndPosException {
+		private static final long serialVersionUID = -8344153029213631407L;
+		public ArrayLiteralTypeMismatch(Type atype, Type itype,   Position pos) {
+	        super("The computed type of element literals is not a subtype of the given type"
+	        		+ "\n\t: computed type: " + atype
+	        		+ "\n\t: given type: " + itype, pos);
+	    }
+	}
 }

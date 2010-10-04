@@ -58,6 +58,7 @@ import x10.ast.X10StringLit_c;
 import x10.ast.Async;
 import x10.ast.AnnotationNode;
 import x10.constraint.XFailure;
+import x10.constraint.XLit;
 import x10.constraint.XNameWrapper;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
@@ -89,7 +90,53 @@ public class X10TypeMixin {
 		    }
         return null;
     }
-    
+	/**
+	 * Return the type Array[type]{self.region.rank==1, self.size==size}.
+	 * @param type
+	 * @param pos
+	 * @return
+	 */
+	public static Type makeArrayRailOf(Type type, int size, Position pos) {
+		X10TypeSystem ts = (X10TypeSystem) type.typeSystem();
+		Type r = ts.Array();
+		Type t = (X10ClassType) X10TypeMixin.instantiate(r, type);
+		CConstraint c = new CConstraint();
+		FieldInstance sizeField = ((X10ClassType) t).fieldNamed(Name.make("size"));
+		if (sizeField == null)
+			throw new InternalCompilerError("Could not find size field of " + t, pos);
+
+		FieldInstance regionField = ((X10ClassType) t).fieldNamed(Name.make("region"));
+		if (regionField == null)
+			throw new InternalCompilerError("Could not find region field of " + t, pos);
+
+		FieldInstance rankField = ((X10ClassType) ts.Region()).fieldNamed(Name.make("rank"));
+		if (rankField == null)
+			throw new InternalCompilerError("Could not find rank field of " + ts.Region(), pos);
+		try {
+
+			XVar selfSize = ts.xtypeTranslator().trans(c, c.self(), sizeField);
+			XLit sizeLiteral = ts.xtypeTranslator().trans(size);
+			c.addBinding(selfSize, sizeLiteral);
+
+			XVar selfRegion = ts.xtypeTranslator().trans(c, c.self(), regionField);
+			XVar selfRegionRank = ts.xtypeTranslator().trans(c, selfRegion, rankField);
+			XLit rankLiteral = XTerms.makeLit(1);
+			c.addBinding(selfRegionRank, rankLiteral);
+			c.toString();
+			t = X10TypeMixin.xclause(t, c);
+
+		} catch (XFailure z) {
+			throw new InternalCompilerError("Could not create Array[T]{self.region.rank==1,self.size==size}");
+		}
+		return t;
+	}
+    public static Type typeArg(Type t, int i) {
+    	if (t instanceof X10ParsedClassType) {
+    		 X10ParsedClassType ct = (X10ParsedClassType) t;
+    		return ct.typeArguments().get(i);
+    	} 
+    	return typeArg(X10TypeMixin.baseType(t), i);
+    }
     public static Type instantiate(Type t, Type... typeArg) {
 	if (t instanceof X10ParsedClassType) {
 	    X10ParsedClassType ct = (X10ParsedClassType) t;

@@ -29,14 +29,14 @@ class UniqueDist extends Dist(1){rect} {
     }
 
 
-    public def places():ValRail[Place] {
+    public def places():Array[Place](1) {
         return Place.places;
     }
 
     public def numPlaces():int = Place.MAX_PLACES;
 
-    public def regions():ValRail[Region(rank)] {
-	return	ValRail.make[Region(rank)](Place.MAX_PLACES, (i:int)=>[i..i] as Region(rank));
+    public def regions():Array[Region(rank)](1) {
+	return	new Array[Region(rank)](Place.MAX_PLACES, (i:int)=>((i..i) as Region(rank)));
     }
 
     public def get(p:Place):Region(rank) {

@@ -79,10 +79,10 @@ public final struct Place(id: Int)  {
     @Native("c++", "x10aux::child_index(#1)")
     public static def childIndex(id:Int):Int { throw new BadPlaceException(); }
 
-    public static places = ValRail.make[Place](MAX_PLACES, ((id: Int) => Place(id)));
-    public static children = ValRail.make[ValRail[Place]](
+    public static places = new Array[Place](MAX_PLACES, ((id: Int) => Place(id)));
+    public static children = new Array[Array[Place](1)](
                                 ALL_PLACES,
-                                (p: Int) => ValRail.make[Place](numChildren(p),
+                                (p: Int) => new Array[Place](numChildren(p),
                                                                 (i:Int) => Place(child(p,i))));
     public static NUM_ACCELS = ALL_PLACES - MAX_PLACES;
     public static FIRST_PLACE: Place(0) = places(0) as Place(0);
