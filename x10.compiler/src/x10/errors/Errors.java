@@ -699,10 +699,11 @@ public class Errors {
 	}
 	public static class ArrayLiteralTypeMismatch extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = -8344153029213631407L;
-		public ArrayLiteralTypeMismatch(Type atype, Type itype,   Position pos) {
-	        super("The computed type of element literals is not a subtype of the given type"
-	        		+ "\n\t: computed type: " + atype
-	        		+ "\n\t: given type: " + itype, pos);
+		public ArrayLiteralTypeMismatch(Expr e, Type itype) {
+	        super("The literal is not of the given type"
+	        		+ "\n\t expr:" + e
+	        		+ "\n\t type: " + e.type()
+	        		+ "\n\t desired type: " + itype, e.position());
 	    }
 	}
 }

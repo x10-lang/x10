@@ -102,9 +102,13 @@ public class ArrayLiteral_c extends Expr_c implements ArrayLiteral {
 			        new Errors.ArrayLiteralMustBeOfArrayType(array.type().toString(), n.position()));
 	     
 	      Type aType =  X10TypeMixin.typeArg(type,0);
-		  if (! ts.isSubtype(aType, iType, tc.context()))
-			  Errors.issue(tc.job(), 
-			      new Errors.ArrayLiteralTypeMismatch(type, iType, n.position()));
+	      List<Expr> vals = tuple.arguments();
+	      for (Expr e : vals) {
+	    	  Type t = e.type();
+	    	  if (! ts.isSubtype(t, iType, tc.context()))
+	    		  Errors.issue(tc.job(), 
+	    			      new Errors.ArrayLiteralTypeMismatch(e, iType));
+	      }
 		  Type resultType = X10TypeMixin.makeArrayRailOf(iType, n.tuple().arguments().size(), n.position());
 		  
 	      return n.type(resultType);
