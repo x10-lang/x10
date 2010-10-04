@@ -20,7 +20,7 @@ import polyglot.types.Type;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 
-public interface X10ProcedureDef extends X10Def, ProcedureDef, X10MemberDef {
+public interface X10ProcedureDef extends X10CodeDef, ProcedureDef, X10MemberDef {
     Ref<? extends Type> returnType();
     void setReturnType(Ref<? extends Type> rt);
 
@@ -29,9 +29,6 @@ public interface X10ProcedureDef extends X10Def, ProcedureDef, X10MemberDef {
     
     Ref<TypeConstraint> typeGuard();
     void setTypeGuard(Ref<TypeConstraint> s);
-
-    List<ParameterType> typeParameters();
-    void setTypeParameters(List<ParameterType> typeParameters);
 
     List<LocalDef> formalNames();
     void setFormalNames(List<LocalDef> formalNames);

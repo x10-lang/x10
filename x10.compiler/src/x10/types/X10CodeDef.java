@@ -11,8 +11,11 @@
 
 package x10.types;
 
-import polyglot.types.InitializerDef;
+import java.util.List;
 
-public interface X10InitializerDef extends X10CodeDef, InitializerDef, X10MemberDef {
+import polyglot.types.CodeDef;
 
+public interface X10CodeDef extends CodeDef, X10Def {
+    List<ParameterType> typeParameters();
+    void setTypeParameters(List<ParameterType> typeParameters);
 }
