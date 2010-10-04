@@ -351,9 +351,13 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 			for (TypeParamNode f : typeParameters) {
 				f.addDecls(c);
 			}
-			for (Formal f : formals) {
+			for (int i=0; i < formals.size(); i++) {
+				Formal f = formals.get(i);
 				f.addDecls(c);
+				if (f == child)
+					break; // do not add downstream formals
 			}
+			
 		}
 
 		// Ensure that the place constraint is set appropriately when
