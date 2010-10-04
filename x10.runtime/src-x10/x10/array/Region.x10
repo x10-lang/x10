@@ -110,12 +110,6 @@ public abstract class Region(
         return new RectRegion(minArray, maxArray) as Region(minArg.length){rect};
     }
 
-    public static @TempNoInline_3 def makeRectangular(minArg:ValRail[int], maxArg: ValRail[int](minArg.length)):Region(minArg.length){self.rect} {
-        val minArray = new Array[int](minArg.length, (i:int)=>minArg(i));
-        val maxArray = new Array[int](maxArg.length, (i:int)=>maxArg(i));
-        return new RectRegion(minArray, maxArray) as Region(minArg.length){rect};
-    }
-
     public static def makeRectangular(minArg:Array[int](1), maxArg:Array[int](1)):Region(minArg.size){self.rect} {
         return new RectRegion(minArg, maxArg);
     }
@@ -133,16 +127,6 @@ public abstract class Region(
      */
     public static def make(min: int, max: int): Region(1){self.rect} = new RectRegion(min, max);
 
-    /**
-     * Construct a rank-n rectangular region that is the Cartesian
-     * product of the specified rank-1 rectangular regions.
-     */
-    public static @TempNoInline_3 def make(regions:ValRail[Region(1){self.rect}]):Region(regions.length){self.rect} {
-        var r:Region = regions(0);
-        for (var i: int = 1; i<regions.length; i++)
-            r = r.product(regions(i));
-	return r as Region(regions.length){self.rect};
-    }
     /**
      * Construct a rank-n rectangular region that is the Cartesian
      * product of the specified rank-1 rectangular regions.
@@ -405,8 +389,6 @@ public abstract class Region(
     //
     // conversion
     //
-
-    public static operator (rs:ValRail[Region(1){self.rect}]):Region(rs.length){self.rect} = make(rs);
     public static operator (a:Array[Region(1){self.rect}](1)):Region(a.size){self.rect} = make(a);
 
 

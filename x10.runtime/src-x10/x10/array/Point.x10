@@ -94,19 +94,6 @@ public final class Point(rank:Int) implements (Int) => Int, Ordered[Point(rank)]
     public def coords():(int)=>int = (i:int)=> this.apply(i);
 
     /**
-     * Constructs a Point from a ValRail[int].
-     */
-    public static def make(r:ValRail[int]):Point(r.length) {
-        switch(r.length) {
-            case 1: return new Point(r(0)) as Point(r.length);
-	    case 2: return new Point(r(0), r(1)) as Point(r.length);
-            case 3: return new Point(r(0), r(1), r(2)) as Point(r.length);
-            case 4: return new Point(r(0), r(1), r(2), r(3)) as Point(r.length);
-            default: return new Point(new Array[int](r.length, (i:int)=>r(i))) as Point(r.length); // TODO: cast should not be needed on this branch!
-        }
-    }
-
-    /**
      * Constructs a Point from a Rail[int]
      */
     public static def make(r:Rail[int]):Point(r.length) {
@@ -156,11 +143,6 @@ public final class Point(rank:Int) implements (Int) => Int, Ordered[Point(rank)]
 	of the same rank with <code>p(i)=r(i)</code>.
      */
     public static operator (r:Rail[int]): Point(r.length) = make(r);
-
-    /** A <code>ValRail</code> <code>r</code> of size <code>k</code> can be converted to a point <code>p</code>
-	of the same rank with <code>p(i)=r(i)</code>.
-     */
-    public static operator (r:ValRail[int]): Point(r.length) = make(r);
 
     /** A <code>Array</code> <code>r</code> of length <code>k</code> can be converted to a point <code>p</code>
 	of the same rank with <code>p(i)=r(i)</code>.

@@ -170,7 +170,7 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
             return r1.intersection(r2);
         };
 
-        val rs: ValRail[Region(rank)] = ValRail.make[Region(rank)](regions.length, init);
+        val rs: Rail[Region(rank)] = Rail.make[Region(rank)](regions.length, init);
 
         // overall region
         var overall: Region(rank) = Region.makeEmpty(rank);
@@ -192,7 +192,7 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
             val r2 = that.get(this.places(i)) as Region(rank);
             return r1.difference(r2);
         };
-        val rs = ValRail.make[Region(rank)](this.regions.length, init);
+        val rs = Rail.make[Region(rank)](this.regions.length, init);
 
         // overall region
         var overall: Region(rank) = Region.makeEmpty(rank);
@@ -213,7 +213,7 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
             val r = this.get(p) as Region(rank); // XXXX
             return r.difference(that.region).union(that.get(p));
         };
-        val rs = ValRail.make[Region(rank)](ps.length, init);
+        val rs = Rail.make[Region(rank)](ps.length, init);
 
         return new BaseDist(this.region.union(that.region), ps, rs) as Dist(rank);
     }
@@ -228,7 +228,7 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
             val r2 = this.get(ps(i)) as Region(rank); // XXXX
             return r2.union(r1);
         };
-        val rs = ValRail.make[Region(rank)](ps.length, init);
+        val rs = Rail.make[Region(rank)](ps.length, init);
 
         // overall region
         var overall: Region(rank) = Region.makeEmpty(rank);

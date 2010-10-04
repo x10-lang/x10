@@ -197,9 +197,9 @@ public class PolyMat(rank: int) extends Mat[PolyRow] {
         throw new UnboundedRegionException(msg);
     }
 
-    def rectMin() = ValRail.make[int](rank, (i:Int)=>rectMin(i));
+    def rectMin() = Rail.make[int](rank, (i:Int)=>rectMin(i));
 
-    def rectMax() = ValRail.make[int](rank, (i:Int)=>rectMax(i));
+    def rectMax() = Rail.make[int](rank, (i:Int)=>rectMax(i));
 
     def isZeroBased(): boolean {
         if (!isRect())

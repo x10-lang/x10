@@ -1276,11 +1276,6 @@ public final class Array[T](
     private static @NoInline @NoReturn def raiseBoundsError(pt:Point) {
         throw new ArrayIndexOutOfBoundsException("point " + pt + " not contained in array");
     }    
-    
-    public static def make[T](v:ValRail[T]):Array[T](1) {
-    	return new Array[T](v.length, (i:int) => v(i));
-    }
-
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab
