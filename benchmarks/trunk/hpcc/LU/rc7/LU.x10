@@ -98,7 +98,7 @@ class LU {
         	val finder = ()=>Pair[Rail[Double],Int](remote_handle(), 0);
         	val remote_place = Place.places(dest);
         	val to_serialize = ValRail.make(remote_handle());
-        	//@TailAsync(true)
+        	@TailAsync(true)
         	async(remote_place){
         		val pair = finder();
         		val dst_data = pair.first;
@@ -110,7 +110,7 @@ class LU {
             	val local_handle = _buffers as Any as PlaceLocalHandle[Rail[Double]];
             	val local_finder = ()=>Pair[Rail[Double],Int](local_handle(), 0);
                 val local_serialize = ValRail.make(local_handle());
-                //@TailAsync(false)
+                @TailAsync(false)
             	async(source){
                 	val local_pair = local_finder();
                 	val local_data = local_pair.first;
@@ -298,11 +298,9 @@ class LU {
                 @TailAsync(true)
                 async(p){
                         val tmp1 =  _A().block(I, J).raw;
-                        val there = _rowBuffer.home;
                         val tmp2 = ValRail.make(tmp1);
                         @TailAsync(false)
-                        async(there){
-                                //_rowBuffer.copyFrom(0,tmp2,0,_B * _B);
+                        async(Runtime.placeofFinish()){
                                 for(var k:int = 0; k < _B * _B; k++){
                                         _rowBuffer.set(tmp2(k),k);
                                 }
