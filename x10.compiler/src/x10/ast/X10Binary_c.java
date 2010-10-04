@@ -377,35 +377,18 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         // Add support for patching up the return type of Region's operator*. 
         // The rank of the result is a+b, if the rank of the left arg is a and of the right arg is b, 
         // and a and b are literals. Further the result is rect if both args are rect.
-        if (c != null) {
-        	
-        }
+       
         if (c != null) {
             X10MethodInstance mi = (X10MethodInstance) c.methodInstance();
             if (mi.error() != null) {
                 Errors.issue(tc.job(), mi.error(), this);
             }
-            if (mi.name().toString().equals("operator*") && xts.typeEquals(xts.Region(), lbase, context)
+            /*if (mi.name().toString().equals("operator*") && xts.typeEquals(xts.Region(), lbase, context)
             		&& xts.typeEquals(xts.Region(), rbase, context)) {
-            	Type ltype = left.type();
-            	Type rtype = right.type();
-            	XTerm lrank = X10TypeMixin.rank(ltype, context);
-            	XTerm rrank = X10TypeMixin.rank(rtype, context);
-            	Type type = c.type();
-            	if (lrank instanceof XLit && rrank instanceof XLit) {
-            		int xr = (Integer) ((XLit) lrank).val();
-            		int yr = (Integer) ((XLit) rrank).val();
-            		type = X10TypeMixin.addRank(type, xr+yr);
-            	}
-            	if (X10TypeMixin.isRect(ltype, context) && X10TypeMixin.isRect(rtype, context)) {
-            		type = X10TypeMixin.addRect(type);
-            	}
-            	if (X10TypeMixin.isZeroBased(ltype, context) && X10TypeMixin.isZeroBased(rtype, context)) {
-            		type = X10TypeMixin.addZeroBased(type);
-            	}
-            		
+            	Type type = computeReturnTypeForRegionMult(left, right, context);
             	return this.left((Expr) c.target()).right(c.arguments().get(0)).type(type);
-            }
+            }*/
+            
             // rebuild the binary using the call's arguments.  We'll actually use the call node after desugaring.
             if (mi.flags().isStatic()) {
                 return this.left(c.arguments().get(0)).right(c.arguments().get(1)).type(c.type());
@@ -456,6 +439,26 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         return this.type(xts.unknownType(position()));
     }
 
+    public static Type computeReturnTypeForRegionMult(Expr left, Expr right, X10Context context) {
+    	X10TypeSystem ts = (X10TypeSystem) context.typeSystem();
+    	Type ltype = left.type();
+    	Type rtype = right.type();
+    	XTerm lrank = X10TypeMixin.rank(ltype, context);
+    	XTerm rrank = X10TypeMixin.rank(rtype, context);
+    	Type type = ts.Region();
+    	if (lrank instanceof XLit && rrank instanceof XLit) {
+    		int xr = (Integer) ((XLit) lrank).val();
+    		int yr = (Integer) ((XLit) rrank).val();
+    		type = X10TypeMixin.addRank(type, xr+yr);
+    	}
+    	if (X10TypeMixin.isRect(ltype, context) && X10TypeMixin.isRect(rtype, context)) {
+    		type = X10TypeMixin.addRect(type);
+    	}
+    	if (X10TypeMixin.isZeroBased(ltype, context) && X10TypeMixin.isZeroBased(rtype, context)) {
+    		type = X10TypeMixin.addZeroBased(type);
+    	}
+    	return type;
+    }
     public static X10Call_c typeCheckCall(ContextVisitor tc, X10Call_c call) {
         List<Type> typeArgs = new ArrayList<Type>(call.typeArguments().size());
         for (TypeNode tn : call.typeArguments()) {
@@ -666,6 +669,18 @@ public class X10Binary_c extends Binary_c implements X10Binary {
             result = (X10Call_c) nf.X10Call(pos, nf.CanonicalTypeNode(pos, Types.ref(ct)),
                     nf.Id(pos, methodName), Collections.<TypeNode>emptyList(),
                     CollectionUtil.list(left, right)).methodInstance(mi).type(mi.returnType());
+        } 
+        {
+        X10MethodInstance mi = result.methodInstance();
+        Type lbase = X10TypeMixin.baseType(n.left().type());
+        Type rbase = X10TypeMixin.baseType(n.right().type());
+        X10Context context = (X10Context) tc.context();
+        if (mi.name().toString().equals("operator*") && xts.typeEquals(xts.Region(), lbase, context)
+        		&& xts.typeEquals(xts.Region(), rbase, context)) {
+        	Type type = computeReturnTypeForRegionMult(left, right, context);
+        	mi = mi.returnType(type);
+        	result = (X10Call_c) result.methodInstance(mi).type(type);
+        }
         }
         try {
             result = (X10Call_c) PlaceChecker.makeReceiverLocalIfNecessary(result, tc);
