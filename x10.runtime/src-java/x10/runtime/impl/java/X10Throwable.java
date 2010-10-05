@@ -71,12 +71,14 @@ public class X10Throwable extends java.lang.RuntimeException implements Any {
         }
 
         try {
-            X10Throwable t = (X10Throwable)(Class.forName(newExcName).newInstance());
+            X10Throwable t = (X10Throwable) Class.forName(newExcName).getConstructor(new Class[] { String.class }).newInstance(new Object[] { e.getMessage() });
             t.setStackTrace(e.getStackTrace());
             return t;
         } catch (java.lang.ClassNotFoundException e1) {
         } catch (java.lang.InstantiationException e2) {
         } catch (java.lang.IllegalAccessException e3) {
+        } catch (java.lang.NoSuchMethodException e4) {
+        } catch (java.lang.reflect.InvocationTargetException e5) {
         }
         throw new java.lang.Error();
     }
@@ -90,12 +92,14 @@ public class X10Throwable extends java.lang.RuntimeException implements Any {
         }
 
         try {
-            X10Throwable t = (X10Throwable)(Class.forName(newExcName).newInstance());
+            X10Throwable t = (X10Throwable) Class.forName(newExcName).getConstructor(new Class[] { String.class }).newInstance(new Object[] { e.getMessage() });
             t.setStackTrace(e.getStackTrace());
             return t;
         } catch (java.lang.ClassNotFoundException e1) {
         } catch (java.lang.InstantiationException e2) {
         } catch (java.lang.IllegalAccessException e3) {
+        } catch (java.lang.NoSuchMethodException e4) {
+        } catch (java.lang.reflect.InvocationTargetException e5) {
         }
         throw new java.lang.Error();
     }
