@@ -149,7 +149,7 @@ public class WSTransformState {
         wsJobSet.add(new WeakReference<Job>(job));
     }
     
-    public void buildCallGraph(Job job2, X10TypeSystem xts, X10NodeFactory xnf){
+    public void buildCallGraph(X10TypeSystem xts, X10NodeFactory xnf){
         if(isCallGraphBuild){
             //System.err.println("[WS_ERR]CallGraph has been build. Will not build again!");
             return;
@@ -210,7 +210,7 @@ public class WSTransformState {
                         cmd.toString());     
             }
             
-            this.addMethodAsTargetMethod(job2, xnf, (X10Context)xts.emptyContext(), md);                
+            this.addMethodAsTargetMethod(xnf, (X10Context)xts.emptyContext(), md);                
 
         }
     }
@@ -237,12 +237,13 @@ public class WSTransformState {
      * Add one method as a target method
      * @param methodDef
      */
-    public void addMethodAsTargetMethod(Job job, X10NodeFactory xnf, X10Context xct, ProcedureDef procedureDef){
+    public void addMethodAsTargetMethod(X10NodeFactory xnf, X10Context xct, ProcedureDef procedureDef){
         
         if(procedureDef instanceof MethodDef){
             MethodDef methodDef = (MethodDef)procedureDef;
             
             WSMethodFrameClassGen methodGen;
+            Job job = (((ClassType) methodDef.container().get()).def()).job();
             
             if(methodDef.name().toString().equals("main")){
                 methodGen = new WSMainMethodClassGen(job, xnf, xct, methodDef, this);

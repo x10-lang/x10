@@ -92,7 +92,7 @@ public class WSCodeGenerator extends ContextVisitor {
     @Override
     public NodeVisitor begin() {
         NodeVisitor nv = super.begin();
-        wts.buildCallGraph(job, xts, xnf);
+        wts.buildCallGraph(xts, xnf);
         return nv;
     }
 
