@@ -88,7 +88,12 @@ public class FieldInitializerMover extends ContextVisitor {
     }
     
     protected ConstructorCall superCall(Type superType) throws SemanticException {
-        ConstructorCall cc = nf.ConstructorCall(Position.compilerGenerated(), ConstructorCall.SUPER, Collections.<Expr>emptyList());
+        Position CG = Position.compilerGenerated();
+        assert (superType.isClass());
+        Expr qualifier = null;
+        if (superType.toClass().def().isMember() && !superType.toClass().flags().isStatic())
+            qualifier = nf.This(CG, nf.CanonicalTypeNode(CG, superType.toClass().outer()));
+        ConstructorCall cc = nf.SuperCall(CG, qualifier, Collections.<Expr>emptyList());
         ConstructorInstance ci = ts.findConstructor(superType, ts.ConstructorMatcher(superType, Collections.<Type>emptyList(), context));
         return cc.constructorInstance(ci);
     }
