@@ -2275,6 +2275,19 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     }
 
     @Override
+    public boolean descendsFrom(ClassDef child, ClassDef ancestor) {
+        ClassDef a = classDefOf(Any());
+
+        if (ancestor == a)
+            return true;
+
+        if (child == a)
+            return false;
+
+        return super.descendsFrom(child, ancestor);
+    }
+
+    @Override
     public X10TypeEnv env(Context context) {
         return new X10TypeEnv_c(context == null ? emptyContext() : context);
     }
