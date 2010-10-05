@@ -168,17 +168,6 @@ abstract public class x10Test {
           yes(equals[T](a,b), loc + " for (" + a + ").equals((" + b + "))");
         }
 
-
-        public final def eqValRails[T](a:ValRail[T], b:ValRail[T], loc: String) {
-          for (var i : Int = 0; i < a.length; i++) {
-            val ai:T = a(i);
-            val bi:T = b(i);  
-            yes(equals[T](ai,bi), loc + "(" + i + ")"+ " for (" + ai + ").equals((" + bi + "))");
-          }
-        }
-
-
-
         public final def neqeq[T](a:T, b:T, loc: String) {
           no(a==b, loc + " for !((" + a + ").equals((" + b + ")))");
         }
@@ -190,15 +179,6 @@ abstract public class x10Test {
           Console.OUT.println("(" + this.typeName() + ") " + msg);
         }
 
-        public static def str[T](r : ValRail[T], sep: String) : String {
-           var s : String = "";
-           for(var i : Int = 0; i < r.length; i++) {
-              if (i > 0) s += sep;
-              s += r(i);
-           }
-           return s;
-        }
-
         public static def never():Boolean = false;
         public static def always():Boolean = true;
 
@@ -208,8 +188,5 @@ abstract public class x10Test {
              if (a(i) != b(i)) return false;
           return true;
         }  
-
     }
-    
-
 }
