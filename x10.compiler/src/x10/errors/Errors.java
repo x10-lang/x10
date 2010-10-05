@@ -185,8 +185,9 @@ public class Errors {
 		public CannotAssign(Expr expr, Type targetType, Position pos) {
 			super("Cannot assign expression to target."
 					+ "\n\t Expression: " + expr
-					+ "\n\t Type: " + expr.type()
-					+ "\n\t Expected type: " + targetType, pos);
+					+ "\n\t Expected type: " + targetType
+					+ "\n\t Found type: " + expr.type()
+					, pos);
 		}
 	}
 	public static class FieldInitTypeWrong extends EqualByTypeAndPosException {
@@ -195,8 +196,9 @@ public class Errors {
 		public FieldInitTypeWrong(Expr expr, Type targetType, Position pos) {
 			super("The type of the field initializer is not a subtype of the field type."
 					+ "\n\t Expression: " + expr
-					+ "\n\t Type: " + expr.type()
-					+ "\n\t Expected type: " + targetType, pos);
+					+ "\n\t Expected type: " + targetType
+					+ "\n\t Found type: " + expr.type()
+					, pos);
 		}
 	}
 	public static class IncompatibleReturnType extends EqualByTypeAndPosException {
@@ -213,7 +215,7 @@ public class Errors {
 	public static class InvalidParameter extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = -1351185257724314440L;
 		public InvalidParameter(Type from, Type to, Position pos) {
-			super("   Invalid Parameter.\n\t expected type: " + to + "\n\t ***found: " + from, pos);
+			super("   Invalid Parameter.\n\t Expected type: " + to + "\n\t Found type: " + from, pos);
 		}
 	}
 
@@ -657,8 +659,9 @@ public class Errors {
 		private static final long serialVersionUID = 6476600577193965991L;
 		public OfferTypeMismatch(Type actualType, Type expectedType,   Position position) {
 			super("Offer type mismatch."
+					+ "\n\t Expected offer type: " + expectedType
 					+ "\n\t Found offer type: " + actualType
-					+ "\n\t Expected offer type: " + expectedType,
+					,
 					position);
 		}
 	}
