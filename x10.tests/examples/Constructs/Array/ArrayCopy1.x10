@@ -36,14 +36,14 @@ public class ArrayCopy1 extends x10Test {
         // fetch the B[i] value
         // Then compare it to the A[i] value
         finish
-            ateach (p:Point in D) {
+            ateach (p in D) {
                 val pa = p as Point(A.dist.region.rank);
                 val pb = p as Point(B.dist.region.rank);
-                val fp:Int = at (E(p)) B(pb);
-                if (A(pa) != fp)
-                    throw new Error("****Error: A(" + p + ")= " + A(pa) + ", B(" + p + ")=" + B(pb) + " fp= " + fp);
-                chk(A(pa)==fp); 
-                chk(A(pa)==(at (E(p)) B(pb)));
+                val fp:Int = at (E(pb)) B(pb);
+                if (A(p) != fp)
+                    throw new Error("****Error: A(" + p + ")= " + A(p) + ", B(" + p + ")=" + B(pb) + " fp= " + fp);
+                chk(A(p)==fp); 
+                chk(A(p)==(at (E(pb)) B(pb)));
             }
     }
 
@@ -61,12 +61,12 @@ public class ArrayCopy1 extends x10Test {
         // Spawn an activity for each index to
         // fetch and copy the value
         finish
-            ateach (p:Point in D) {
+            ateach (p in D) {
                 val pa = p as Point(A.dist.region.rank);
                 val pb = p as Point(B.dist.region.rank);
                 chk(D(p) == here);
-                async at(E(p)) chk(E(p) == here);
-                A(pa) = at(E(p)) B(pb);
+                async at(E(pb)) chk(E(pb) == here);
+                A(p) = at(E(pb)) B(pb);
             }
     }
 
@@ -80,8 +80,8 @@ public class ArrayCopy1 extends x10Test {
 
         try {
 
-            val R: Region = [0..N-1, 0..N-1, 0..N-1, 0..N-1];
-            val TestDists: Region = [0..dist2.N_DIST_TYPES-1, 0..dist2.N_DIST_TYPES-1];
+            val R  = (0..N-1)*(0..N-1)*(0..N-1)*(0..N-1);
+            val TestDists = (0..dist2.N_DIST_TYPES-1)*(0..dist2.N_DIST_TYPES-1);
 
             for (distP[dX,dY]: Point in TestDists) {
                 val D = dist2.getDist(dX, R);
