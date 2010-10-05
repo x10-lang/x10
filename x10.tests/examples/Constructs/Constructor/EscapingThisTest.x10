@@ -619,16 +619,16 @@ interface BlaInterface {
 }
 class TestAnonymousClass {
 	static val anonymous1 = new Object() {};
-	val anonymous2 = new Object() {}; // ERR: 'this' and 'super' cannot escape from a constructor or from methods called from a constructor
-	val anonymous3 = new TestAnonymousClass() {}; // ERR: 'this' and 'super' cannot escape from a constructor or from methods called from a constructor
+	val anonymous2 = new Object() {}; // ERR: 'this' cannot escape via an anonymous class during construction
+	val anonymous3 = new TestAnonymousClass() {}; // ERR: 'this' cannot escape via an anonymous class during construction
 	def foo() {
 		val x = new Object() {};
 	}
 	@NonEscaping final def foo2() {
-		val x = new Object() {}; // ERR: 'this' and 'super' cannot escape from a constructor or from methods called from a constructor
+		val x = new Object() {}; // ERR: 'this' cannot escape via an anonymous class during construction
 	}
 
-	val anonymous = new BlaInterface() { // ERR: 'this' and 'super' cannot escape from a constructor or from methods called from a constructor
+	val anonymous = new BlaInterface() { // ERR: 'this' cannot escape via an anonymous class during construction
 		public def bla():Int{self!=0} {
 			return k;
 		}

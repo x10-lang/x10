@@ -727,6 +727,12 @@ public class CheckEscapingThis extends NodeVisitor
     @Override public Node visitEdgeNoOverride(Node parent, Node n) {
         checkGlobalRef(n); // check globalRef usage in ctors and methods called from ctors
 
+        if (n instanceof New) {
+            New aNew = (New) n;
+            if (aNew.qualifier()==null && aNew.body()!=null) {
+                reportError("'this' cannot escape via an anonymous class during construction", n.position());
+            }
+        }
         // You can access "this" for field access and field assignment.
         // field assignment:
         if (n instanceof FieldAssign) {
