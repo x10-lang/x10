@@ -41,6 +41,7 @@ public final class Worker {
             }
         } catch (t:Throwable) {
             Runtime.println("Uncaught exception in worker: " + t);
+            t.printStackTrace();
         }
     }
 
@@ -98,6 +99,7 @@ public final class Worker {
             workers(0).run();
         } catch (t:Throwable) {
             Runtime.println("Uncaught exception in main: " + t);
+            t.printStackTrace();
         }
     }
 }
