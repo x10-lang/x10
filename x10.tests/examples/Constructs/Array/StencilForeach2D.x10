@@ -19,8 +19,8 @@ import harness.x10Test;
 public class StencilForeach2D extends x10Test {
     
     public def run(): boolean = {
-        val R = [-1..256, -1..256] as Region;
-        val r = [0..255, 0..255] as Region;
+        val R = (-1..256)*(-1..256);
+        val r = (0..255)*(0..255);
         val north = [0, 1] as Point;
         val south = [0, -1] as Point;
         val west = [-1, 0] as Point;
