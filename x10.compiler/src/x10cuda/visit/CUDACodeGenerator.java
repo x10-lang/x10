@@ -218,21 +218,30 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 	}
 
 	private String env = "__env";
+	
+	private void complainIfNot (boolean cond, String exp, Node n) {
+		complainIfNot2(cond, "Expected: "+exp, n);
+	}
+	private void complainIfNot2 (boolean cond, String exp, Node n) {
+		if (!cond) {
+				tr.job().compiler().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR, exp, n.position());
+		}
+	}
 
 	private Type arrayCargo(Type typ) {
 		if (xts().isArray(typ)) {
 			typ = typ.toClass();
 			X10ClassType ctyp = (X10ClassType) typ;
-			assert ctyp.typeArguments().size() == 1;
+			assert ctyp.typeArguments().size() == 1; // Array[T]
 			return ctyp.typeArguments().get(0);
 		}
 		if (xts().isRemoteArray(typ)) {
 			typ = typ.toClass();
 			X10ClassType ctyp = (X10ClassType) typ;
-			assert ctyp.typeArguments().size() == 1;
+			assert ctyp.typeArguments().size() == 1; // RemoteRef[Array[T]]
 			Type type2 = ctyp.typeArguments().get(0);
 			X10ClassType ctyp2 = (X10ClassType) typ;
-			assert ctyp2.typeArguments().size() == 1;
+			assert ctyp2.typeArguments().size() == 1;  // Array[T]
 			return ctyp2.typeArguments().get(0);
 		}
 		return null;
@@ -370,137 +379,91 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 	protected MultipleValues processLoop(X10Loop loop) {
 		MultipleValues r = new MultipleValues();
 		Formal loop_formal = loop.formal();
-		assert loop_formal instanceof X10Formal; // FIXME: proper error
+		complainIfNot(loop_formal instanceof X10Formal, "Exploded point syntax", loop);
 		X10Formal loop_x10_formal = (X10Formal) loop_formal;
-		assert loop_x10_formal.hasExplodedVars(); // FIXME: proper error
-		assert loop_x10_formal.vars().size() == 1; // FIXME: proper error
+		complainIfNot(loop_x10_formal.hasExplodedVars(), "Exploded point syntax", loop_formal);
+		complainIfNot(loop_x10_formal.vars().size() == 1, "A 1 dimensional iteration", loop_formal);
 		r.var = loop_x10_formal.vars().get(0).name().id();
 		Expr domain = loop.domain();
-		assert domain instanceof RegionMaker; // FIXME: proper error
+		complainIfNot(domain instanceof RegionMaker, "An iteration over a region literal of the form 0..", domain);
 		RegionMaker region = (RegionMaker) domain;
-		assert region.name().toString().equals("makeRectangular") : region
-				.name(); // FIXME: proper error
+		complainIfNot(region.name().toString().equals("makeRectangular"), "An iteration over a region literal of the form 0..", domain);
 		Receiver target = region.target();
-		assert target instanceof CanonicalTypeNode; // FIXME: proper error
+		complainIfNot(target instanceof CanonicalTypeNode, "An iteration over a region literal of the form 0..", target);
 		CanonicalTypeNode target_type_node = (CanonicalTypeNode) target;
-		assert target_type_node.nameString().equals("Region") : target_type_node
-				.nameString(); // FIXME: proper error
-		assert region.arguments().size() == 2; // FIXME: proper error
+		complainIfNot(target_type_node.nameString().equals("Region"), "An iteration over a region literal of the form 0..", target);
+		complainIfNot(region.arguments().size() == 2, "An iteration over a region literal of the form 0..", region);
 		Expr from_ = region.arguments().get(0);
 		Expr to_ = region.arguments().get(1);
-		assert from_ instanceof IntLit; // FIXME: proper error
-		// assert to_ instanceof IntLit; // FIXME: proper error
+		complainIfNot(from_ instanceof IntLit, "An iteration over a region literal of the form 0..", from_);
 		IntLit from = (IntLit) from_;
-		// IntLit to = (IntLit) to_;
-		assert from.value() == 0; // FIXME: proper error
-		// r.iterations = to.value() + 1;
+		complainIfNot(from.value() == 0, "An iteration over a region literal of the form 0..", from_);
 		r.max = to_;
 		r.body = (Block) loop.body();
 		return r;
 	}
 
 	protected MultipleValues processLoop(Block for_block) {
-		/*
-		 * example of the loop we're trying to absorb { final
-		 * x10.lang.Int{self==0} block321min322 = 0; final x10.lang.Int
-		 * block321max323 = x10.lang.Int{self==8, blocks==8}.operator-(blocks,
-		 * 1); for (x10.lang.Int{self==0} block321 = block321min322;;
-		 * x10.lang.Int{self==0}.operator<=(block321,
-		 * block321max323)eval(block321 += 1);) { final x10.lang.Int block =
-		 * block321; { ... } } }
-		 */
 
-		assert for_block.statements().size() == 3 : for_block.statements()
-				.size();
+		complainIfNot(for_block.statements().size() == 3, "A 1-dimensional iteration of the form 0..", for_block);
+
 		// test that it is of the form for (blah in region)
 		Stmt i_ = for_block.statements().get(0);
 		Stmt j_ = for_block.statements().get(1);
 		Stmt for_block2 = for_block.statements().get(2);
-		assert for_block2 instanceof For : for_block2.getClass(); // FIXME:
-																	// proper
+		complainIfNot(for_block2 instanceof For, "A 1-dimensional iteration of the form 0..", for_block2);
+
 		// error
 		For loop = (For) for_block2;
 		MultipleValues r = new MultipleValues();
-		assert loop.inits().size() == 1 : loop.inits();
+		complainIfNot(loop.inits().size() == 1, "A 1-dimensional iteration of the form 0..", loop);
 		// loop inits are not actually used
-		// ForInit i_ = loop.inits().get(0);
-		assert i_ instanceof LocalDecl : i_.getClass();
+		complainIfNot(i_ instanceof LocalDecl, "A 1-dimensional iteration of the form 0..", i_);
 		LocalDecl i = (LocalDecl) i_;
-		// ForInit j_ = loop.inits().get(1);
-		assert j_ instanceof LocalDecl : j_.getClass();
+		complainIfNot(j_ instanceof LocalDecl, "A 1-dimensional iteration of the form 0..", j_);
 		LocalDecl j = (LocalDecl) j_;
-		assert loop.cond() instanceof X10Call : loop.cond().getClass();
+		complainIfNot(loop.cond() instanceof X10Call, "A 1-dimensional iteration of the form 0..", loop.cond());
 		X10Call cond = (X10Call) loop.cond();
-		assert cond.name().id() == X10Binary_c.binaryMethodName(Binary.LE) : cond
-				.name();
+		complainIfNot(cond.name().id() == X10Binary_c.binaryMethodName(Binary.LE), "The <= operator", cond);
 		List<Expr> args = cond.arguments();
-		assert args.size() == 2 : args.size();
-		assert args.get(0) instanceof Local : args.get(0).getClass();
+		complainIfNot(args.size() == 2, "The <= operator", cond);
+		complainIfNot(args.get(0) instanceof Local, "The LHS of <= to be the loop variable", args.get(0));
 		Local cond_left = (Local) args.get(0);
-		assert args.get(1) instanceof Local : args.get(1).getClass();
+		complainIfNot(args.get(1) instanceof Local, "The RHS of <= to be the max variable", args.get(1));
 		Local cond_right = (Local) args.get(1);
-		/*
-		 * assert loop.cond() instanceof Binary : loop.cond().getClass(); Binary
-		 * cond = (Binary) loop.cond(); assert cond.operator() == Binary.LE :
-		 * cond.operator(); assert cond.left() instanceof Local :
-		 * cond.left().getClass(); Local cond_left = (Local) cond.left(); assert
-		 * cond_left.name().id() == i.name().id() : cond_left; assert
-		 * cond.right() instanceof Local : cond.right().getClass(); Local
-		 * cond_right = (Local) cond.right();
-		 */
-		assert cond_right.name().id() == j.name().id() : cond_right;
+		complainIfNot(cond_right.name().id() == j.name().id(), "The RHS of <= to be the max variable", cond_right);
 		Expr from_ = i.init();
 		Expr to_ = j.init();
-		assert from_ instanceof IntLit : from_.getClass(); // FIXME: proper
+		complainIfNot(from_ instanceof IntLit, "An iteration that begins from zero", from_);
 															// error
-		// assert to_ instanceof IntLit : to_.getClass(); // FIXME: proper error
 		IntLit from = (IntLit) from_;
-		// IntLit to = (IntLit) to_;
-		assert from.value() == 0 : from.value(); // FIXME: proper error
-		// r.iterations = to.value() + 1;
+		complainIfNot(from.value() == 0, "An iteration that begins from zero", from_);
 		r.max = to_;
-		assert loop.body() instanceof Block : loop.body().getClass();
+		complainIfNot(loop.body() instanceof Block, "Body of the loop to be a block",  loop.body());
 		Block block = (Block) loop.body();
-		assert block.statements().size() == 2 : block.statements();
+		complainIfNot(block.statements().size() == 2, "Body of the loop to be a block containing 2 statements",  block);
 		Stmt first = block.statements().get(0);
-		assert first instanceof LocalDecl : first.getClass();
+		complainIfNot(first instanceof LocalDecl, "First statement to be a local variable declaration",  first);
 		LocalDecl real_var = (LocalDecl) first;
 		Stmt second = block.statements().get(1);
-		assert second instanceof Block : second.getClass();
+		complainIfNot(second instanceof Block, "Second statement to be a block",  second);
 		r.body = (Block) second;
 		r.var = real_var.name().id();
 		return r;
 	}
-
-	public void checkAutoVar(Stmt s) {
-		assert s instanceof LocalDecl : s.getClass(); // FIXME: proper error
-		LocalDecl s_ = (LocalDecl) s;
-		Expr init_expr = s_.init();
-		assert init_expr instanceof X10Call_c : init_expr.getClass(); // FIXME:
-																		// proper
-																		// error
-		X10Call_c init_call = (X10Call_c) init_expr;
-		Receiver init_call_target = init_call.target();
-		assert init_call_target instanceof CanonicalTypeNode : init_call_target
-				.getClass(); // FIXME: proper error
-		CanonicalTypeNode init_call_target_node = (CanonicalTypeNode) init_call_target;
-		assert init_call_target_node.nameString().equals("CUDAUtilities") : init_call_target_node
-				.nameString();
-		assert init_call.typeArguments().size() == 0 : init_call
-				.typeArguments();
-		if (init_call.name().toString().equals("autoBlocks")) {
-			assert context().autoBlocks() == null : "Already have autoBlocks: "
-					+ context().autoBlocks();
-			context().autoBlocks(s_);
-			context().established().autoBlocks(s_);
-		} else if (init_call.name().toString().equals("autoThreads")) {
-			assert context().autoThreads() == null : "Already have autoThreads: "
-					+ context().autoThreads();
-			context().autoThreads(s_);
-			context().established().autoThreads(s_);
-		} else {
-			assert false : init_call.name();
+	
+	public static boolean checkStaticCall(Stmt s, String class_name, String method_name, int args)
+	{
+		try {
+	        Call async_call = (Call) ((Eval) s).expr();
+			if (!async_call.name().toString().equals(method_name)) return false;
+	        CanonicalTypeNode async_target_type_node = (CanonicalTypeNode) (async_call.target());
+			if (!async_target_type_node.nameString().equals(class_name)) return false;
+			if (async_call.arguments().size() != args) return false;
+		} catch (ClassCastException e) {
+			return false;
 		}
+		return true;
 	}
 
 	public void visit(Block_c b) {
@@ -509,23 +472,23 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
         	Block_c closure_body = b;
         	//System.out.println(b); // useful for finding out what the frontend is actually giving us
 
-        	assert !generatingKernel() : "Nesting of cuda annotation makes no sense.";
+			complainIfNot2(!generatingKernel(), "CUDA kernels may not be nested.",  b);
             // TODO: assert the block is the body of an async
 
-            assert b.statements().size()>=1 : b.statements();
+			complainIfNot(b.statements().size()>=1, "A block containing at least one statement.",  b);
             
             // handle autoblocks/autothreads and constant memory declarations
             for (int i=0 ; i<b.statements().size()-1 ; ++i) {
             	Stmt ld_ = b.statements().get(i);
-                assert ld_ instanceof LocalDecl : ld_.getClass(); // FIXME: proper error
+        		complainIfNot(ld_ instanceof LocalDecl, "val <something> = CUDAUtilities.autoBlocks/autoThreads()",  ld_);
                 LocalDecl s_ = (LocalDecl)ld_;
                 
                 Expr init_expr = s_.init();
-                assert init_expr instanceof X10Call_c : init_expr.getClass(); // FIXME: proper error
+        		complainIfNot(init_expr instanceof X10Call, "val <something> = CUDAUtilities.autoBlocks/autoThreads",  init_expr);
                 X10Call_c init_call = (X10Call_c) init_expr;
                 
                 Receiver init_call_target = init_call.target();
-                assert init_call_target instanceof CanonicalTypeNode : init_call_target.getClass(); // FIXME: proper error
+        		complainIfNot(init_call_target instanceof CanonicalTypeNode, "val <something> = CUDAUtilities.autoBlocks/Vars()",  init_call_target);
                 CanonicalTypeNode init_call_target_node = (CanonicalTypeNode) init_call_target;
                 
                 String classname = init_call_target_node.nameString();
@@ -534,22 +497,22 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
                 String methodname = init_call.name().toString();
                 
                 if (classname.equals("CUDAUtilities") && targs==0 && args==0 && methodname.equals("autoBlocks")) {
-                    assert context().autoBlocks()==null : "Already have autoBlocks: "+context().autoBlocks();
+        			complainIfNot2(context().autoBlocks() == null, "Already have autoBlocks",  init_call);
                     context().autoBlocks(s_);
                     context().established().autoBlocks(s_);
                 } else if (classname.equals("CUDAUtilities") && targs==0 && args==0 && methodname.equals("autoThreads")) {
-                    assert context().autoThreads()==null : "Already have autoThreads: "+context().autoThreads();
+        			complainIfNot2(context().autoThreads() == null, "Already have autoThreads",  init_call);
                     context().autoThreads(s_);
                     context().established().autoThreads(s_);
                 } else if (classname.equals("Rail") && targs==2 && args==2 && methodname.equals("make")) {
-                	//
+        			complainIfNot(false, "A call to CUDAUtilities.autoBlocks/autoThreads",  init_call);
                 } else {
-                    assert false : init_call;
+        			complainIfNot(false, "A call to CUDAUtilities.autoBlocks/autoThreads",  init_call);
                 }
             }
 
-            Stmt for_block_ = b.statements().get(b.statements().size()-1);
-            assert for_block_ instanceof Block : for_block_.getClass(); // FIXME: proper
+			Stmt for_block_ = b.statements().get(b.statements().size()-1);
+			complainIfNot(for_block_ instanceof Block, "A loop over CUDA blocks",  for_block_);
             // error
             Block for_block = (Block) for_block_;
 
@@ -560,7 +523,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 
             Stmt last = b.statements().get(b.statements().size() - 1);
             //System.out.println(last);
-            assert last instanceof Block; // FIXME: proper error
+			complainIfNot(last instanceof Block, "A loop over CUDA blocks",  last);
             Block for_block2 = (Block) last;
 
             SharedMem shm = new SharedMem();
@@ -568,37 +531,27 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
             for (Stmt st : b.statements()) {
                 if (st == last)
                     continue;
-                assert st instanceof LocalDecl; // FIXME: proper error
+        		complainIfNot(st instanceof LocalDecl, "Shared memory definition",  st);
                 LocalDecl ld = (LocalDecl) st;
                 Expr init_expr = ld.init();
                 // TODO: primitive vals and shared vars
-                assert init_expr instanceof X10New_c;
+        		complainIfNot(init_expr instanceof X10New_c, "val <var> = new Array[T](...)",  init_expr);
                 X10New_c init_new = (X10New_c) init_expr;
                 Type instantiatedType = init_new.objectType().type();
-                assert xts().isArray(instantiatedType) : instantiatedType;
+        		complainIfNot(xts().isArray(instantiatedType), "Initialisation expression to have Array[T] type.",  init_new);
                 TypeNode rail_type_arg_node = init_new.typeArguments().get(0);
                 
-                //assert init_expr instanceof X10Call_c : init_expr.getClass(); // FIXME: proper error
-                //X10Call_c init_call = (X10Call_c) init_expr;
-                // TODO: makeVal too
-                //Receiver init_call_target = init_call.target();
-                //assert init_call_target instanceof CanonicalTypeNode; // FIXME: proper error
-                //CanonicalTypeNode init_call_target_node = (CanonicalTypeNode) init_call_target;
-                //assert init_call_target_node.nameString().equals("Rail");
-                //assert init_call.name().toString().equals("make") : init_call.name(); // FIXME: proper error
-                //assert init_call.typeArguments().size() == 1;
-                //TypeNode rail_type_arg_node = init_call.typeArguments().get(0);
                 Type rail_type_arg = rail_type_arg_node.type();
                 // TODO: support other types
-                assert rail_type_arg.isFloat() : rail_type_arg;
+        		complainIfNot(rail_type_arg.isFloat(), "An array of type float",  rail_type_arg_node);
                 if (init_new.arguments().size()==2) {
 	                Expr num_elements = init_new.arguments().get(0);
 	                Expr rail_init_closure = init_new.arguments().get(1);
 	                shm.addArrayInitClosure(ld, num_elements, rail_init_closure);
                 } else {
-	                assert init_new.arguments().size() == 1 : init_new.arguments().size();
+            		complainIfNot(init_new.arguments().size() == 1, "val <var> = new Array[T](other_array)",  init_new);
 	                Expr src_array = init_new.arguments().get(0);
-	                assert xts().isArray(src_array.type()) || xts().isRemoteArray(src_array.type()) : src_array;
+            		complainIfNot(xts().isArray(src_array.type()) || xts().isRemoteArray(src_array.type()), "SHM to be initialised from array or remote array type",  src_array);
 	                shm.addArrayInitArray(ld, src_array);
                 }
             }
@@ -608,36 +561,19 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
             // "+outer.iterations);
             b = (Block_c) inner.body;
 
-            assert b.statements().size() == 1; // FIXME: proper error
-            Stmt async = b.statements().get(0);
-            assert async instanceof Eval; // FIXME: proper error
-            Eval async_eval = (Eval) async;
-            Expr async_expr = async_eval.expr();
-            assert async_expr instanceof Call; // FIXME: proper error
-            Call async_call = (Call) async_expr;
-            assert async_call.name().toString().equals("runAsync") : async_call
-                    .name(); // FIXME: proper error
-            Receiver async_target = async_call.target();
-            assert async_target instanceof CanonicalTypeNode; // FIXME: proper
-                                                                // error
-            CanonicalTypeNode async_target_type_node = (CanonicalTypeNode) async_target;
-            assert async_target_type_node.nameString().equals("Runtime"); // FIXME:
-                                                                            // proper
-                                                                            // error
-            assert async_call.arguments().size() == 1 : async_call.arguments(); // FIXME:
-                                                                                // proper
-                                                                                // error
+    		complainIfNot(b.statements().size() == 1, "A block with a single statement",  b);
+    		Stmt async = b.statements().get(0);
+            complainIfNot(checkStaticCall(async,"Runtime","runAsync",1), "An async block",  async);
+            Call async_call = (Call) (((Eval) async).expr());
             Expr async_arg = async_call.arguments().get(0);
-            assert async_arg instanceof Closure; // FIXME: proper error
+    		complainIfNot(async_arg instanceof Closure, "An async block",  async_arg);
             Closure async_closure = (Closure) async_arg;
-            assert async_closure.formals().size() == 0;
+    		complainIfNot(async_closure.formals().size() == 0, "An async block",  async_closure);
             Block async_body = async_closure.body();
 
             //b = (Block_c) async_body;
-            context().setCUDAKernelCFG(outer.max, outer.var,
-                    inner.max, inner.var, shm, kernelWantsDirectParams(closure_body));
-            context().established().setCUDAKernelCFG(outer.max, outer.var,
-                    inner.max, inner.var, shm, kernelWantsDirectParams(closure_body));
+            context().setCUDAKernelCFG(outer.max, outer.var,inner.max, inner.var, shm, kernelWantsDirectParams(closure_body));
+            context().established().setCUDAKernelCFG(outer.max, outer.var,inner.max, inner.var, shm, kernelWantsDirectParams(closure_body));
             generatingKernel(true);
             handleKernel((Block_c)async_body);
             generatingKernel(false);
@@ -876,13 +812,13 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 	}
 
 	public void visit(New_c n) {
-		assert !generatingKernel() : "New not allowed in @CUDA code.";
+		complainIfNot2(!generatingKernel(),"New not allowed in @CUDA code.", n);
 		super.visit(n);
 	}
 
 	@Override
 	public void visit(Assert_c n) {
-		assert !generatingKernel() : "Throwing exceptions not allowed in @CUDA code.";
+		complainIfNot2(!generatingKernel(),"Throwing exceptions not allowed in @CUDA code.", n);
 		super.visit(n);
 	}
 
@@ -900,7 +836,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 
 	@Override
 	public void visit(Await_c n) {
-		assert !generatingKernel() : "Await not allowed in @CUDA code.";
+		complainIfNot2(!generatingKernel(),"Await not allowed in @CUDA code.", n);
 		super.visit(n);
 	}
 
@@ -930,7 +866,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 
 	@Override
 	public void visit(Catch_c n) {
-		assert !generatingKernel() : "Catching exceptions not allowed in @CUDA code.";
+		complainIfNot2(!generatingKernel(),"Catching exceptions not allowed in @CUDA code.", n);
 		super.visit(n);
 	}
 
@@ -941,9 +877,9 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 	}
 
 	@Override
-	public void visit(ClosureCall_c c) {
-		assert !generatingKernel() : "Closure calls not allowed in @CUDA code.";
-		super.visit(c);
+	public void visit(ClosureCall_c n) {
+		complainIfNot2(!generatingKernel(),"Closure calls not allowed in @CUDA code.", n);
+		super.visit(n);
 	}
 
 	@Override
@@ -1106,13 +1042,13 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 
 	@Override
 	public void visit(Throw_c n) {
-		assert !generatingKernel() : "Throwing exceptions not allowed in @CUDA code.";
+		complainIfNot2(!generatingKernel(),"Throwing exceptions not allowed in @CUDA code.", n);
 		super.visit(n);
 	}
 
 	@Override
 	public void visit(Try_c n) {
-		assert !generatingKernel() : "Catching exceptions not allowed in @CUDA code.";
+		complainIfNot2(!generatingKernel(),"Catching exceptions not allowed in @CUDA code.", n);
 		super.visit(n);
 	}
 
@@ -1150,8 +1086,6 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 	public void visit(X10Call_c n) {
 		// In fact they are allowed, as long as they are implemented with
 		// @Native
-		// assert !generatingKernel() :
-		// "Calling functions not allowed in @CUDA code.";
 		super.visit(n);
 	}
 
@@ -1175,7 +1109,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 
 	@Override
 	public void visit(X10Instanceof_c n) {
-		assert !generatingKernel() : "Runtime types not available in @CUDA code.";
+		complainIfNot2(!generatingKernel(),"Runtime types not available in @CUDA code.", n);
 		super.visit(n);
 	}
 

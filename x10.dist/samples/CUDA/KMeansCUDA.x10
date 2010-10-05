@@ -77,9 +77,7 @@ public class KMeansCUDA {
                     Console.OUT.println("If that's not what you want, set X10RT_ACCELS=ALL to use all gpus at each place.");
                     Console.OUT.println("For more information, see the X10/CUDA docuemntation.");
                 } else {
-                    Console.OUT.println("Running without using GPUs.");
-                    Console.OUT.println("If that's not what you want, set X10RT_ACCELS=ALL to use all gpus at each place.");
-                    Console.OUT.println("For more information, see the X10/CUDA docuemntation.");
+                    Console.OUT.println("Running using "+Place.NUM_ACCELS+" GPUs.");
                 }
             }
 
@@ -89,9 +87,9 @@ public class KMeansCUDA {
 
                 for (h in Place.places) {
 
-                    val workers = Place.NUM_ACCELS==0 ? [h] : h.children();
+                    val workers = Place.NUM_ACCELS==0 ? new Array[Place][h] : h.children();
 
-                    for (gpu in workers) async at (h) {
+                    for (gpu in workers.items()) async at (h) {
 
                         val role = gpu==h ? h.id : gpu.id - Place.MAX_PLACES;
 

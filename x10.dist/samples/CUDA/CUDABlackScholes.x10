@@ -88,7 +88,7 @@ public class CUDABlackScholes {
         val RISKFREE = 0.02f;
         val VOLATILITY = 0.30f;
 
-        if (here.children().length==0) {
+        if (here.children().size==0) {
             Console.OUT.println("Set X10RT_ACCELS=ALL to enable your GPUs if you have them.");
             Console.OUT.println("Will run the test on the CPU.");
         } else {
@@ -96,7 +96,7 @@ public class CUDABlackScholes {
             Console.OUT.println("This program only supports a single GPU.");
         }
 
-        val gpu = here.children().length==0 ? here : here.child(0);
+        val gpu = here.children().size==0 ? here : here.child(0);
         val cpu = here;
         val rand = new Random();
 
