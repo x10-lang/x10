@@ -2914,11 +2914,11 @@ public class Emitter {
                         w.write("(");
                         printType(f, 0);
                         w.write(")");
+                    } else if (!(X10TypeMixin.baseType(f) instanceof ParameterType)) {
+                        w.write("(");
+                        printType(f, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+                        w.write(")");
                     }
-                    
-                    w.write("(");
-                    printType(f, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
-                    w.write(")");
                 }
                 
                 Name name = Name.make("a" + (i + 1));
