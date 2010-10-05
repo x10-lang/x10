@@ -72,7 +72,7 @@ namespace x10 {
 
             void removeLast();
 
-            x10aux::ref<x10::lang::ValRail<T> > moveSectionToValRail(x10_int i, x10_int j);
+            x10aux::ref<x10::lang::Rail<T> > moveSectionToRail(x10_int i, x10_int j);
 
             x10_int length();
 
@@ -153,10 +153,10 @@ namespace x10 {
             shrink(_len+1);
         }
 
-        template<class T> x10aux::ref<x10::lang::ValRail<T> > GrowableRail<T>::moveSectionToValRail(int i, int j) {
-            int l = j - i + 1;
+        template<class T> x10aux::ref<x10::lang::Rail<T> > GrowableRail<T>::moveSectionToRail(x10_int i, x10_int j) {
+            x10_int l = j - i + 1;
             if (l < 0) l = 0;
-            x10aux::ref<x10::lang::ValRail<T> > ans = x10::lang::ValRail<T>::make(l);
+            x10aux::ref<x10::lang::Rail<T> > ans = x10::lang::Rail<void>::make<T>(l);
             if (l < 1) return ans;
             for (int k=0; k<l; k++) {
                 (*ans)[k] = (*_array)[i+k];

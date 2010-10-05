@@ -208,9 +208,9 @@ ref<String> String::substring(x10_int start, x10_int end) {
     return String::Steal(str);
 }
 
-static ref<ValRail<ref<String> > > split_all_chars(String* str) {
+static ref<Rail<ref<String> > > split_all_chars(String* str) {
     size_t sz = (size_t)str->length();
-    ValRail<ref<String> > *rail = alloc_rail<ref<String>,ValRail<ref<String> > > (sz);
+    Rail<ref<String> > *rail = alloc_rail<ref<String>,Rail<ref<String> > > (sz);
     for (size_t i = 0; i < sz; ++i) {
         rail->raw()[i] = str->substring(i, i+1);
     }
@@ -218,7 +218,7 @@ static ref<ValRail<ref<String> > > split_all_chars(String* str) {
 }
 
 // FIXME: this does not treat pat as a regex
-ref<ValRail<ref<String> > > String::split(ref<String> pat) {
+ref<Rail<ref<String> > > String::split(ref<String> pat) {
     nullCheck(pat);
     int l = pat->length();
     if (l == 0) // if splitting on an empty string, just return the chars
@@ -228,7 +228,7 @@ ref<ValRail<ref<String> > > String::split(ref<String> pat) {
     while ((i = indexOf(pat, i+l)) != -1) {
         sz++;
     }
-    ValRail<ref<String> > *rail = alloc_rail<ref<String>,ValRail<ref<String> > > (sz);
+    Rail<ref<String> > *rail = alloc_rail<ref<String>,Rail<ref<String> > > (sz);
     int c = 0;
     int o = 0; // now build the rail
     while ((i = indexOf(pat, o)) != -1) {
@@ -300,7 +300,6 @@ void String::_formatHelper(std::ostringstream &ss, char* fmt, ref<Any> p) {
         dealloc(buf);
 }
 
-// TODO: merge with format(String, ValRail[Any])
 ref<String> String::format(ref<String> format, ref<x10::array::Array<ref<Any> > > parms) {
     std::ostringstream ss;
     nullCheck(format);

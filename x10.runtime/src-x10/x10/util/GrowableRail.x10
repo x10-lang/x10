@@ -60,15 +60,15 @@ public final class GrowableRail[T] implements Indexable[Int,T], Settable[Int,T] 
     public native def removeLast(): Void;
 
     /**
-     * Transfer elements between i and j (inclusive) into a new ValRail,
+     * Transfer elements between i and j (inclusive) into a new Rail,
      * in the order in which they appear in this rail.  The elements
      * following element j are shifted over to position i.
      * (j-i+1) must be no greater than s, the size of the rail.
      * On return the rail has s-(j-i+1) elements.
      */
-    @Native("java", "(#0).moveSectionToValRail(#1, #2)")
-    @Native("c++", "(#0)->moveSectionToValRail(#1, #2)")
-    public native def moveSectionToValRail(i:Int, j:Int): ValRail[T];
+    @Native("java", "(#0).moveSectionToRail(#1, #2)")
+    @Native("c++", "(#0)->moveSectionToRail(#1, #2)")
+    public native def moveSectionToRail(i:Int, j:Int): Rail[T];
 
     /** Convert to a mutable rail.  This copies the content of the rail. */
     @Native("java", "(#0).toRail()")

@@ -91,9 +91,9 @@ public final class GrowableRail<T> extends Ref implements x10.lang.Indexable<Int
         shrink(length+1);
     }
 
-    public ValRail<T> moveSectionToValRail(int i, int j) {
+    public Rail<T> moveSectionToRail(int i, int j) {
         int len = j - i + 1;
-        if (len < 1) return RailFactory.makeValRail(elementType, 0);
+        if (len < 1) return RailFactory.makeVarRail(elementType, 0);
         Object tmp = elementType.makeArray(len);
         System.arraycopy(array, i, tmp, 0, len);
         System.arraycopy(array, j+1, array, i, length-j-1);
@@ -102,7 +102,7 @@ public final class GrowableRail<T> extends Ref implements x10.lang.Indexable<Int
         }
         length-=len;
         shrink(length+1);
-        return RailFactory.makeValRailFromJavaArray(elementType, tmp);
+        return RailFactory.makeRailFromJavaArray(elementType, tmp);
     }
 
     public x10.lang.Iterator<T> iterator() {

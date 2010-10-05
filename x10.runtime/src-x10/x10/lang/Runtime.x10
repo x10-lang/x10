@@ -332,7 +332,7 @@ import x10.util.Box;
         @Pinned def accept(t:T, id:Int) {
            sr.accept(t,id);
          }
-        @Pinned def notify(rail:ValRail[Int], v:T):void {
+        @Pinned def notify(rail:Rail[Int], v:T):void {
             var b:Boolean = true;
             lock();
             for(var i:Int=0; i<Place.MAX_PLACES; i++) {
@@ -344,7 +344,7 @@ import x10.util.Box;
             if (b) release();
             unlock();
          }
-         @Pinned def notify2(rail:ValRail[Pair[Int,Int]], v:T):void {
+         @Pinned def notify2(rail:Rail[Pair[Int,Int]], v:T):void {
             lock();
             for(var i:Int=0; i<rail.length; i++) {
                 counts(rail(i).first) += rail(i).second;
@@ -455,7 +455,7 @@ import x10.util.Box;
             }
         }
 
-       @Pinned def notify(rail:ValRail[Int]):void {
+       @Pinned def notify(rail:Rail[Int]):void {
             var b:Boolean = true;
             lock();
             for(var i:Int=0; i<Place.MAX_PLACES; i++) {
@@ -467,7 +467,7 @@ import x10.util.Box;
             unlock();
         }
 
-        @Pinned def notify2(rail:ValRail[Pair[Int,Int]]):void {
+        @Pinned def notify2(rail:Rail[Pair[Int,Int]]):void {
             lock();
             for(var i:Int=0; i<rail.length; i++) {
                 counts(rail(i).first) += rail(i).second;
@@ -483,12 +483,12 @@ import x10.util.Box;
             unlock();
         }
 
-        @Pinned def notify(rail:ValRail[Int], t:Throwable):void {
+        @Pinned def notify(rail:Rail[Int], t:Throwable):void {
             pushExceptionLocal(t);
             notify(rail);
         }
 
-        @Pinned def notify2(rail:ValRail[Pair[Int,Int]], t:Throwable):void {
+        @Pinned def notify2(rail:Rail[Pair[Int,Int]], t:Throwable):void {
             pushExceptionLocal(t);
             notify2(rail);
         }
@@ -553,7 +553,7 @@ import x10.util.Box;
         if (2*length > Place.MAX_PLACES) {
             if (null != e) {
                 lock.lock();
-                val m = ValRail.make(counts);
+                val m = Rail.make[Int](counts.length, 0, counts);
                 for (var i:Int=0; i<Place.MAX_PLACES; i++) counts(i) = 0;
                 length = 1;
                 lock.unlock();
@@ -577,7 +577,7 @@ import x10.util.Box;
                 //Fixme : Here should use await().
                 while (stepAtomic.get() <path.first) {};
                 lock.lock();
-                val m = ValRail.make(counts);
+                val m = Rail.make[Int](counts.length, 0, counts);
                 for (var i:Int=0; i<Place.MAX_PLACES; i++) counts(i) = 0;
                 length = 1;
                 lock.unlock();
@@ -610,7 +610,7 @@ import x10.util.Box;
         } else {
             if (null != e) {
                 lock.lock();
-                val m = ValRail.make[Pair[Int,Int]](length, (i:Int)=>Pair[Int,Int](message(i), counts(message(i))));
+                val m = Rail.make[Pair[Int,Int]](length, (i:Int)=>Pair[Int,Int](message(i), counts(message(i))));
                 for (var i:Int=0; i<Place.MAX_PLACES; i++) counts(i) = 0;
                 length = 1;
                 lock.unlock();
@@ -635,7 +635,7 @@ import x10.util.Box;
                 //FIXME here should use await(). 
                 while(stepAtomic.get() < path.first){};
                 lock.lock();
-                val m = ValRail.make[Pair[Int,Int]](length, (i:Int)=>Pair[Int,Int](message(i), counts(message(i))));
+                val m = Rail.make[Pair[Int,Int]](length, (i:Int)=>Pair[Int,Int](message(i), counts(message(i))));
                 for (var i:Int=0; i<Place.MAX_PLACES; i++) counts(i) = 0;
                 length = 1;
                 lock.unlock();
@@ -675,7 +675,7 @@ import x10.util.Box;
         def accept(t:T, id:Int) {
             sr.accept(t,id);
         }
-        def notify(rail:ValRail[Int], v:T):Void {
+        def notify(rail:Rail[Int], v:T):Void {
             var b:Boolean = true;
             lock.lock();
             for(var i:Int=0; i<Place.MAX_PLACES; i++) {
@@ -688,7 +688,7 @@ import x10.util.Box;
             lock.unlock();
         }
 
-        def notify2(rail:ValRail[Pair[Int,Int]], v:T):Void {
+        def notify2(rail:Rail[Pair[Int,Int]], v:T):Void {
             lock.lock();
             
             for(var i:Int=0; i<rail.length; i++) {
@@ -817,7 +817,7 @@ import x10.util.Box;
             val e = exceptions;
             exceptions = null;
             if (2*length > Place.MAX_PLACES) {
-                val m = ValRail.make(counts);
+                val m = Rail.make[Int](counts.length, 0, counts);
                 for (var i:Int=0; i<Place.MAX_PLACES; i++) counts(i) = 0;
                 length = 1;
                 lock.unlock();
@@ -848,7 +848,7 @@ import x10.util.Box;
                 }
                 deallocObject(m);
             } else {
-                val m = ValRail.make[Pair[Int,Int]](length, (i:Int)=>Pair[Int,Int](message(i), counts(message(i))));
+                val m = Rail.make[Pair[Int,Int]](length, (i:Int)=>Pair[Int,Int](message(i), counts(message(i))));
                 for (var i:Int=0; i<Place.MAX_PLACES; i++) counts(i) = 0;
                 length = 1;
                 lock.unlock();

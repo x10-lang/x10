@@ -29,7 +29,6 @@ namespace x10 {
     namespace lang {
 
         template<class T> class Rail;
-        template<class T> class ValRail;
 
         class String : public Object {
             const char *FMGL(content);
@@ -112,7 +111,7 @@ namespace x10 {
                 return substring(start, this->length());
             }
 
-            x10aux::ref<ValRail<x10aux::ref<String> > > split(x10aux::ref<String> pat);
+            x10aux::ref<Rail<x10aux::ref<String> > > split(x10aux::ref<String> pat);
 
             // Forwarding method needed so that String can be used in Generic contexts (T <: (nat)=>char)
             x10_char apply(x10_int i) { return charAt(i); }

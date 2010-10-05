@@ -299,15 +299,15 @@ static char* demangle_symbol(char* name) {
 }
 #endif
 
-ref<ValRail<ref<String> > > Throwable::getStackTrace() {
+ref<Rail<ref<String> > > Throwable::getStackTrace() {
     if (FMGL(cachedStackTrace).isNull()) {
         #if defined(__GLIBC__) || defined(__APPLE__)
         if (FMGL(trace_size) <= 0) {
             const char *msg = "No stacktrace recorded.";
-            FMGL(cachedStackTrace) = alloc_rail<ref<String>,ValRail<ref<String> > >(1, String::Lit(msg));
+            FMGL(cachedStackTrace) = alloc_rail<ref<String>,Rail<ref<String> > >(1, String::Lit(msg));
         }
-        ref<ValRail<ref<String> > > rail =
-            alloc_rail<ref<String>,ValRail<ref<String> > >(FMGL(trace_size));
+        ref<Rail<ref<String> > > rail =
+            alloc_rail<ref<String>,Rail<ref<String> > >(FMGL(trace_size));
         char **messages = ::backtrace_symbols(FMGL(trace), FMGL(trace_size));
         for (int i=0 ; i<FMGL(trace_size) ; ++i) {
             char *filename; char *symbol; size_t addr;
@@ -322,7 +322,7 @@ ref<ValRail<ref<String> > > Throwable::getStackTrace() {
         #elif defined(_AIX)
         if (FMGL(trace_size) <= 0) {
             const char *msg = "No stacktrace recorded.";
-            FMGL(cachedStackTrace) = alloc_rail<ref<String>,ValRail<ref<String> > >(1, String::Lit(msg));
+            FMGL(cachedStackTrace) = alloc_rail<ref<String>,Rail<ref<String> > >(1, String::Lit(msg));
         }
 
     	// build up a fake stack from our saved addresses
@@ -359,8 +359,8 @@ ref<ValRail<ref<String> > > Throwable::getStackTrace() {
     	free(fakeStack);
 
     	// from here on down, proceed as before
-        ref<ValRail<ref<String> > > rail =
-            alloc_rail<ref<String>,ValRail<ref<String> > >(FMGL(trace_size));
+        ref<Rail<ref<String> > > rail =
+            alloc_rail<ref<String>,Rail<ref<String> > >(FMGL(trace_size));
         char *msg;
         for (int i=0 ; i<FMGL(trace_size) ; ++i) {
             char* s = (char*)FMGL(trace)[i];
@@ -398,7 +398,7 @@ ref<ValRail<ref<String> > > Throwable::getStackTrace() {
         FMGL(cachedStackTrace) = rail;
     #else
         const char *msg = "Detailed stacktraces not supported on this platform.";
-        FMGL(cachedStackTrace) = alloc_rail<ref<String>,ValRail<ref<String> > >(1, String::Lit(msg));
+        FMGL(cachedStackTrace) = alloc_rail<ref<String>,Rail<ref<String> > >(1, String::Lit(msg));
     #endif
     }
 

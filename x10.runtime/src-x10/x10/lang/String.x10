@@ -336,14 +336,14 @@ public final class String implements (Int) => Char/*TODO, (Range) => String*//*T
 
     /**
      * Splits this String around matches of the given regular expression.
-     * Trailing empty strings are not included in the resulting ValRail.
+     * Trailing empty strings are not included in the resulting Rail.
      * @param regex the delimiting regular expression.
-     * @return the ValRail of Strings computed by splitting this String around matches of the given regular expression.
+     * @return the Rail of Strings computed by splitting this String around matches of the given regular expression.
      */
-    @Native("java", "x10.core.RailFactory.<java.lang.String>makeValRailFromJavaArray(x10.rtt.Types.STRING, (#0).split(#1))")
+    @Native("java", "x10.core.RailFactory.<java.lang.String>makeRailFromJavaArray(x10.rtt.Types.STRING, (#0).split(#1))")
 //    @Native("java", "x10.core.StringAux.split((#0), (#1))")
     @Native("c++", "(#0)->split(#1)")
-    public native def split(regex: String): ValRail[String];
+    public native def split(regex: String): Rail[String];
 
 
     /**
