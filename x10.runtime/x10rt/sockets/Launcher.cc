@@ -150,6 +150,13 @@ void Launcher::startChildren()
 	_childCerrorLinks = (int *) malloc(sizeof(int) * (_numchildren+1));
 	_childControlLinks = (int *) malloc(sizeof(int) * (_numchildren+1));
 
+	if (!getenv(X10LAUNCHER_CWD))
+	{
+		char dir[1024];
+		getcwd(dir, sizeof(dir));
+		setenv(X10LAUNCHER_CWD, dir, 1);
+	}
+
 	if (!_pidlst || !_childControlLinks || !_childCoutLinks || !_childCerrorLinks)
 		DIE("%u: failed in alloca()", _myproc);
 
@@ -197,7 +204,7 @@ void Launcher::startChildren()
 				// TODO this sleep lets the launchers get linked up before the runtime links in.
 				// a better solution would be to start the runtime after the launchers attach
 				sleep(1);
-
+				chdir(getenv(X10LAUNCHER_CWD));
 				if (execvp(_argv[0], _argv))
 					// can't get here, if the exec succeeded
 					DIE("Launcher %u: runtime exec failed", _myproc);
@@ -763,7 +770,7 @@ void Launcher::cb_sighandler_cld(int signo)
 void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
 {
 	char * cmd = (char *) _realpath;
-	char ** argv = (char **) alloca (sizeof(char *) * (_argc+8));
+	char ** argv = (char **) alloca (sizeof(char *) * (_argc+9));
 	int z = 0;
 	argv[z] = _ssh_command;
 	argv[++z] = remotehost;
@@ -778,6 +785,8 @@ void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
 	sprintf(argv[z], X10LAUNCHER_MYID"=%d", id);
 	argv[++z] = (char*) alloca(100);
 	sprintf(argv[z], X10LAUNCHER_NPROCS"=%d", _nplaces);
+	argv[++z] = (char*) alloca(1024);
+	sprintf(argv[z], X10LAUNCHER_CWD"=%s", getenv(X10LAUNCHER_CWD));
 	argv[++z] = cmd;
 	for (int i = 1; i < _argc; i++)
 		argv[z + i] = _argv[i];
