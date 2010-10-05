@@ -98,6 +98,7 @@ import x10.ast.X10Call_c;
 import x10.ast.X10CanonicalTypeNode;
 import x10.ast.X10Cast;
 import x10.ast.X10Cast_c;
+import x10.ast.X10Field_c;
 import x10.ast.X10Formal;
 import x10.ast.X10Instanceof_c;
 import x10.ast.X10IntLit_c;
@@ -157,6 +158,7 @@ public class Desugarer extends ContextVisitor {
     private static final Name RUN_ASYNC = Name.make("runAsync");
     private static final Name RUN_UNCOUNTED_ASYNC = Name.make("runUncountedAsync");
     private static final Name RUN_TAIL_ASYNC = Name.make("runTailAsync");
+    private static final Name RUN_UNIQUE_ASYNC = Name.make("runUniqueAsync");
     private static final Name HERE = Name.make("here");
     private static final Name HERE_INT = Name.make("hereInt");
     private static final Name NEXT = Name.make("next");
@@ -174,6 +176,7 @@ public class Desugarer extends ContextVisitor {
     //added for scalable finish
     private static final Name START_LOCAL_FINISH = Name.make("startLocalFinish");
     private static final Name START_SIMPLE_FINISH = Name.make("startSimpleFinish");
+    private static final Name START_UNIQUE_FINISH = Name.make("startUniqueFinish");
     public Node override(Node parent, Node n) {    
         if (n instanceof Eval) {
             try {
@@ -362,7 +365,7 @@ public class Desugarer extends ContextVisitor {
      		}else{
              	Report.report(0,"annotation is not correct "+ allannots.size());
             }
-            return tailAsync(pos,a.body(),a.place(),p1);
+            return asyncTail(pos,a.body(),a.place(),p1);
         }
         if (old instanceof Async && ((Async) old).place() instanceof Here)
             return async(pos, a.body(), a.clocks(), refs);
@@ -507,12 +510,27 @@ public class Desugarer extends ContextVisitor {
                              body, annotations);
     }
     
-    private Stmt tailAsync(Position pos, Stmt body,Expr place, boolean isParent) throws SemanticException {
+    private Stmt asyncTail(Position pos, Stmt body,Expr place, boolean isParent) throws SemanticException {
     	List<Expr> l = new ArrayList<Expr>(1);
     	l.add(place);
     	List<Type> t = new ArrayList<Type>(1);
     	t.add(xts.Place());
     	return makeTailAsyncBody(pos, l, t, body,isParent);
+    }
+    private Stmt asyncUnique(Position pos, Stmt body, Expr place) throws SemanticException {
+    	List<Expr> exprs = new ArrayList<Expr>(1);
+    	exprs.add(place);
+    	List<Type> types = new ArrayList<Type>(1);
+    	types.add(xts.Place());
+    	
+    	Closure closure = synth.makeClosure(body.position(), xts.Void(),
+                synth.toBlock(body), xContext());
+        exprs.add(closure);
+        types.add(closure.closureDef().asType());
+        Stmt result = xnf.Eval(pos,
+                synth.makeStaticCall(pos, xts.Runtime(), RUN_UNIQUE_ASYNC, exprs,
+                        xts.Void(), types, xContext()));
+        return result;
     }
     private Stmt async(Position pos, Stmt body, Expr place, List<X10ClassType> annotations) throws SemanticException {
     	List<Expr> l = new ArrayList<Expr>(1);
@@ -669,7 +687,7 @@ public class Desugarer extends ContextVisitor {
         return xnf.Block(pos, f.body(), xnf.Eval(pos, synth.makeStaticCall(pos, target, FENCE, args, xts.Void(), xContext())));
     }
     
-    private int getPatternFromAnnotation(AnnotationNode a){
+    private int getIntFromAnnotation(AnnotationNode a){
     	Ref r = a.annotationType().typeRef();
 		X10ParsedClassType_c xpct = (X10ParsedClassType_c) r.getCached();
 		List<Expr> allProperties = xpct.propertyInitializers();
@@ -677,8 +695,10 @@ public class Desugarer extends ContextVisitor {
 		if (pattern instanceof IntLit_c) {
 			return (int) ((IntLit_c) pattern).value();
 		}
+		System.out.println(pattern.getClass()+":"+pattern.toString());
 		return 0;
     }
+    
     /**
      * Recognize the following pattern:
      * @FinishAsync(,,,"local") which means all asyncs in this finish are in the same place as finish
@@ -689,6 +709,7 @@ public class Desugarer extends ContextVisitor {
     private Expr specializedFinish2(Finish f) throws SemanticException {
         Position pos = f.position();
     	int p=0;
+    	int cntPlace = 0;
         Type annotation = (Type) xts.systemResolver().find(QName.make("x10.compiler.FinishAsync"));
         //System.out.println(f+":"+f.hashCode()+":"+((X10Ext) f.ext()).annotations());
         if (!((X10Ext) f.ext()).annotationMatching(annotation).isEmpty()) {
@@ -700,8 +721,8 @@ public class Desugarer extends ContextVisitor {
 				if (allannots.size() > 1) {
 					boolean isConsistent = true;
 					for(int i=0;i<allannots.size()-1;i++){
-						p1 = getPatternFromAnnotation(allannots.get(i));
-						p2 = getPatternFromAnnotation(allannots.get(i+1));
+						p1 = getIntFromAnnotation(allannots.get(i));
+						p2 = getIntFromAnnotation(allannots.get(i+1));
 						if(p1 != p2){
 							isConsistent = false;
 							break;
@@ -718,7 +739,7 @@ public class Desugarer extends ContextVisitor {
 				a = allannots.get(allannots.size()-1);
 				if(Report.should_report("", 1)) 
 					Report.report(1,a.toString());
-				p = getPatternFromAnnotation(a);
+				p = getIntFromAnnotation(a);
 				
         	}else{
         		Report.report(0,"annotation is not correct "+ allannots.size());
@@ -727,6 +748,7 @@ public class Desugarer extends ContextVisitor {
         switch(p){
         case 1:return call(pos, START_LOCAL_FINISH, xts.Void());
         case 2:return call(pos, START_SIMPLE_FINISH, xts.Void());
+        case 3:return call(pos, START_UNIQUE_FINISH, xts.Void());
         //TODO:more patterns can be filled here
         default:return call(pos, START_FINISH, xts.Void());
         }
@@ -945,7 +967,13 @@ public class Desugarer extends ContextVisitor {
         Position pos = a.position();
         Position bpos = a.body().position();
         Name tmp = getTmp();
-
+        boolean unique = false;
+        //check whether this ateach is annotated
+        Type annotation = (Type) xts.systemResolver().find(QName.make("x10.compiler.AteachUniDist"));
+        if (!((X10Ext) a.ext()).annotationMatching(annotation).isEmpty()) {
+        	//System.out.println(((X10Ext) a.ext()).annotations());
+        	unique = true;
+        }
         Expr domain = a.domain();
         Type dType = domain.type();
         if (((X10TypeSystem_c) xts).isX10DistArray(dType)) {
@@ -971,7 +999,14 @@ public class Desugarer extends ContextVisitor {
                 here).methodInstance(rmi).type(rmi.returnType());
         Expr here1 = visitHere(xnf.Here(bpos));
         Stmt body = async(a.body().position(), a.body(), a.clocks(), here1, null);
-        Stmt inner = xnf.ForLoop(pos, formal, dAtPlace, body).locals(formal.explode(this));
+        Stmt inner;
+        // when we know every place has only has one point, we can remove 
+        // the "async" around the statement "s"
+        if(unique){
+        	inner = a.body();
+        }else{
+        	inner = xnf.ForLoop(pos, formal, dAtPlace, body).locals(formal.explode(this));
+        }
         MethodInstance pmi = xts.findMethod(dType,
                 xts.MethodMatcher(dType, PLACES, Collections.EMPTY_LIST, context));
         Expr places = xnf.Call(bpos,
@@ -981,8 +1016,16 @@ public class Desugarer extends ContextVisitor {
         LocalDef pDef = xts.localDef(pos, xts.Final(), Types.ref(pType), pTmp);
         Formal pFormal = xnf.Formal(pos, xnf.FlagsNode(pos, xts.Final()),
                 xnf.CanonicalTypeNode(pos, pType), xnf.Id(pos, pTmp)).localDef(pDef);
-        Stmt body1 = async(bpos, inner, a.clocks(),
-                xnf.Local(bpos, xnf.Id(bpos, pTmp)).localInstance(pDef.asInstance()).type(pType), null);
+        Stmt body1;
+        
+        // 
+        if(unique){
+        	body1 = asyncUnique(bpos, inner, 
+        			xnf.Local(bpos, xnf.Id(bpos, pTmp)).localInstance(pDef.asInstance()).type(pType));
+        }else{
+        	body1 = async(bpos, inner, a.clocks(),
+        			xnf.Local(bpos, xnf.Id(bpos, pTmp)).localInstance(pDef.asInstance()).type(pType), null);
+        }
         return xnf.Block(pos, local, xnf.ForLoop(pos, pFormal, places, body1));
     }
 
