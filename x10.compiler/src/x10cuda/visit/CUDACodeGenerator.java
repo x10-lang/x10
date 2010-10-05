@@ -219,14 +219,19 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 
 	private String env = "__env";
 	
-	private void complainIfNot (boolean cond, String exp, Node n) {
-		complainIfNot2(cond, "Expected: "+exp, n);
+	private static class Complaint extends RuntimeException { }
+	
+	private void complainIfNot (boolean cond, String exp, Node n, boolean except) {
+		complainIfNot2(cond, "Expected: "+exp, n, except);
 	}
-	private void complainIfNot2 (boolean cond, String exp, Node n) {
+	private void complainIfNot2 (boolean cond, String exp, Node n, boolean except) {
 		if (!cond) {
-				tr.job().compiler().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR, exp, n.position());
+			tr.job().compiler().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR, exp, n.position());
+			if (except) throw new Complaint();
 		}
 	}
+	private void complainIfNot (boolean cond, String exp, Node n) { complainIfNot(cond,exp, n, true); }
+	private void complainIfNot2 (boolean cond, String exp, Node n) { complainIfNot2(cond,exp, n, true); }
 
 	private Type arrayCargo(Type typ) {
 		if (xts().isArray(typ)) {
@@ -468,115 +473,124 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 
 	public void visit(Block_c b) {
         super.visit(b);
-        if (blockIsKernel(b)) {
-        	Block_c closure_body = b;
-        	//System.out.println(b); // useful for finding out what the frontend is actually giving us
-
-			complainIfNot2(!generatingKernel(), "CUDA kernels may not be nested.",  b);
-            // TODO: assert the block is the body of an async
-
-			complainIfNot(b.statements().size()>=1, "A block containing at least one statement.",  b);
-            
-            // handle autoblocks/autothreads and constant memory declarations
-            for (int i=0 ; i<b.statements().size()-1 ; ++i) {
-            	Stmt ld_ = b.statements().get(i);
-        		complainIfNot(ld_ instanceof LocalDecl, "val <something> = CUDAUtilities.autoBlocks/autoThreads()",  ld_);
-                LocalDecl s_ = (LocalDecl)ld_;
-                
-                Expr init_expr = s_.init();
-        		complainIfNot(init_expr instanceof X10Call, "val <something> = CUDAUtilities.autoBlocks/autoThreads",  init_expr);
-                X10Call_c init_call = (X10Call_c) init_expr;
-                
-                Receiver init_call_target = init_call.target();
-        		complainIfNot(init_call_target instanceof CanonicalTypeNode, "val <something> = CUDAUtilities.autoBlocks/Vars()",  init_call_target);
-                CanonicalTypeNode init_call_target_node = (CanonicalTypeNode) init_call_target;
-                
-                String classname = init_call_target_node.nameString();
-                int targs = init_call.typeArguments().size();
-                int args = init_call.arguments().size();
-                String methodname = init_call.name().toString();
-                
-                if (classname.equals("CUDAUtilities") && targs==0 && args==0 && methodname.equals("autoBlocks")) {
-        			complainIfNot2(context().autoBlocks() == null, "Already have autoBlocks",  init_call);
-                    context().autoBlocks(s_);
-                    context().established().autoBlocks(s_);
-                } else if (classname.equals("CUDAUtilities") && targs==0 && args==0 && methodname.equals("autoThreads")) {
-        			complainIfNot2(context().autoThreads() == null, "Already have autoThreads",  init_call);
-                    context().autoThreads(s_);
-                    context().established().autoThreads(s_);
-                } else if (classname.equals("Rail") && targs==2 && args==2 && methodname.equals("make")) {
-        			complainIfNot(false, "A call to CUDAUtilities.autoBlocks/autoThreads",  init_call);
-                } else {
-        			complainIfNot(false, "A call to CUDAUtilities.autoBlocks/autoThreads",  init_call);
-                }
-            }
-
-			Stmt for_block_ = b.statements().get(b.statements().size()-1);
-			complainIfNot(for_block_ instanceof Block, "A loop over CUDA blocks",  for_block_);
-            // error
-            Block for_block = (Block) for_block_;
-
-            MultipleValues outer = processLoop(for_block);
-            // System.out.println("outer loop: "+outer.var+"
-            // "+outer.iterations);
-            b = (Block_c) outer.body;
-
-            Stmt last = b.statements().get(b.statements().size() - 1);
-            //System.out.println(last);
-			complainIfNot(last instanceof Block, "A loop over CUDA blocks",  last);
-            Block for_block2 = (Block) last;
-
-            SharedMem shm = new SharedMem();
-            // look at all but the last statement to find shm decls
-            for (Stmt st : b.statements()) {
-                if (st == last)
-                    continue;
-        		complainIfNot(st instanceof LocalDecl, "Shared memory definition",  st);
-                LocalDecl ld = (LocalDecl) st;
-                Expr init_expr = ld.init();
-                // TODO: primitive vals and shared vars
-        		complainIfNot(init_expr instanceof X10New_c, "val <var> = new Array[T](...)",  init_expr);
-                X10New_c init_new = (X10New_c) init_expr;
-                Type instantiatedType = init_new.objectType().type();
-        		complainIfNot(xts().isArray(instantiatedType), "Initialisation expression to have Array[T] type.",  init_new);
-                TypeNode rail_type_arg_node = init_new.typeArguments().get(0);
-                
-                Type rail_type_arg = rail_type_arg_node.type();
-                // TODO: support other types
-        		complainIfNot(rail_type_arg.isFloat(), "An array of type float",  rail_type_arg_node);
-                if (init_new.arguments().size()==2) {
-	                Expr num_elements = init_new.arguments().get(0);
-	                Expr rail_init_closure = init_new.arguments().get(1);
-	                shm.addArrayInitClosure(ld, num_elements, rail_init_closure);
-                } else {
-            		complainIfNot(init_new.arguments().size() == 1, "val <var> = new Array[T](other_array)",  init_new);
-	                Expr src_array = init_new.arguments().get(0);
-            		complainIfNot(xts().isArray(src_array.type()) || xts().isRemoteArray(src_array.type()), "SHM to be initialised from array or remote array type",  src_array);
-	                shm.addArrayInitArray(ld, src_array);
-                }
-            }
-
-            MultipleValues inner = processLoop(for_block2);
-            // System.out.println("outer loop: "+outer.var+"
-            // "+outer.iterations);
-            b = (Block_c) inner.body;
-
-    		complainIfNot(b.statements().size() == 1, "A block with a single statement",  b);
-    		Stmt async = b.statements().get(0);
-            complainIfNot(checkStaticCall(async,"Runtime","runAsync",1), "An async block",  async);
-            Call async_call = (Call) (((Eval) async).expr());
-            Expr async_arg = async_call.arguments().get(0);
-    		complainIfNot(async_arg instanceof Closure, "An async block",  async_arg);
-            Closure async_closure = (Closure) async_arg;
-    		complainIfNot(async_closure.formals().size() == 0, "An async block",  async_closure);
-            Block async_body = async_closure.body();
-
-            //b = (Block_c) async_body;
-            context().setCUDAKernelCFG(outer.max, outer.var,inner.max, inner.var, shm, kernelWantsDirectParams(closure_body));
-            context().established().setCUDAKernelCFG(outer.max, outer.var,inner.max, inner.var, shm, kernelWantsDirectParams(closure_body));
-            generatingKernel(true);
-            handleKernel((Block_c)async_body);
-            generatingKernel(false);
+        try {
+	        if (blockIsKernel(b)) {
+	        	Block_c closure_body = b;
+	        	//System.out.println(b); // useful for finding out what the frontend is actually giving us
+	
+				complainIfNot2(!generatingKernel(), "CUDA kernels may not be nested.",  b);
+	            // TODO: assert the block is the body of an async
+	
+				complainIfNot(b.statements().size()>=1, "A block containing at least one statement.",  b);
+	            
+	            // handle autoblocks/autothreads and constant memory declarations
+	            for (int i=0 ; i<b.statements().size()-1 ; ++i) {
+	            	Stmt ld_ = b.statements().get(i);
+	        		complainIfNot(ld_ instanceof LocalDecl, "val <something> = CUDAUtilities.autoBlocks/autoThreads()",  ld_);
+	                LocalDecl s_ = (LocalDecl)ld_;
+	                
+	                Expr init_expr = s_.init();
+	        		complainIfNot(init_expr instanceof X10Call, "val <something> = CUDAUtilities.autoBlocks/autoThreads",  init_expr);
+	                X10Call_c init_call = (X10Call_c) init_expr;
+	                
+	                Receiver init_call_target = init_call.target();
+	        		complainIfNot(init_call_target instanceof CanonicalTypeNode, "val <something> = CUDAUtilities.autoBlocks/Vars()",  init_call_target);
+	                CanonicalTypeNode init_call_target_node = (CanonicalTypeNode) init_call_target;
+	                
+	                String classname = init_call_target_node.nameString();
+	                int targs = init_call.typeArguments().size();
+	                int args = init_call.arguments().size();
+	                String methodname = init_call.name().toString();
+	                
+	                if (classname.equals("CUDAUtilities") && targs==0 && args==0 && methodname.equals("autoBlocks")) {
+	        			complainIfNot2(context().autoBlocks() == null, "Already have autoBlocks",  init_call);
+	                    context().autoBlocks(s_);
+	                    context().established().autoBlocks(s_);
+	                } else if (classname.equals("CUDAUtilities") && targs==0 && args==0 && methodname.equals("autoThreads")) {
+	        			complainIfNot2(context().autoThreads() == null, "Already have autoThreads",  init_call);
+	                    context().autoThreads(s_);
+	                    context().established().autoThreads(s_);
+	                } else if (classname.equals("Rail") && targs==2 && args==2 && methodname.equals("make")) {
+	        			complainIfNot(false, "A call to CUDAUtilities.autoBlocks/autoThreads",  init_call);
+	                } else {
+	        			complainIfNot(false, "A call to CUDAUtilities.autoBlocks/autoThreads",  init_call);
+	                }
+	            }
+	
+				Stmt for_block_ = b.statements().get(b.statements().size()-1);
+				complainIfNot(for_block_ instanceof Block, "A loop over CUDA blocks",  for_block_);
+	            // error
+	            Block for_block = (Block) for_block_;
+	
+	            MultipleValues outer = processLoop(for_block);
+	            // System.out.println("outer loop: "+outer.var+"
+	            // "+outer.iterations);
+	            b = (Block_c) outer.body;
+	
+	            Stmt last = b.statements().get(b.statements().size() - 1);
+	            //System.out.println(last);
+				complainIfNot(last instanceof Block, "A loop over CUDA blocks",  last);
+	            Block for_block2 = (Block) last;
+	
+	            SharedMem shm = new SharedMem();
+	            // look at all but the last statement to find shm decls
+	            for (Stmt st : b.statements()) {
+	                if (st == last)
+	                    continue;
+	        		complainIfNot(st instanceof LocalDecl, "Shared memory definition",  st);
+	                LocalDecl ld = (LocalDecl) st;
+	                Expr init_expr = ld.init();
+	                // TODO: primitive vals and shared vars
+	        		complainIfNot(init_expr instanceof X10New_c, "val <var> = new Array[T](...)",  init_expr);
+	                X10New_c init_new = (X10New_c) init_expr;
+	                Type instantiatedType = init_new.objectType().type();
+	        		complainIfNot(xts().isArray(instantiatedType), "Initialisation expression to have Array[T] type.",  init_new);
+	                TypeNode rail_type_arg_node = init_new.typeArguments().get(0);
+	                
+	                Type rail_type_arg = rail_type_arg_node.type();
+	                // TODO: support other types
+	        		complainIfNot(rail_type_arg.isFloat(), "An array of type float",  rail_type_arg_node);
+	                if (init_new.arguments().size()==2) {
+		                Expr num_elements = init_new.arguments().get(0);
+		                Expr rail_init_closure = init_new.arguments().get(1);
+		                shm.addArrayInitClosure(ld, num_elements, rail_init_closure);
+	                } else {
+	            		complainIfNot(init_new.arguments().size() == 1, "val <var> = new Array[T](other_array)",  init_new);
+		                Expr src_array = init_new.arguments().get(0);
+	            		complainIfNot(xts().isArray(src_array.type()) || xts().isRemoteArray(src_array.type()), "SHM to be initialised from array or remote array type",  src_array);
+		                shm.addArrayInitArray(ld, src_array);
+	                }
+	            }
+	
+	            MultipleValues inner = processLoop(for_block2);
+	            // System.out.println("outer loop: "+outer.var+"
+	            // "+outer.iterations);
+	            b = (Block_c) inner.body;
+	
+	    		complainIfNot(b.statements().size() == 1, "A block with a single statement",  b);
+	    		Stmt async = b.statements().get(0);
+	            complainIfNot(checkStaticCall(async,"Runtime","runAsync",1), "An async block",  async);
+	            Call async_call = (Call) (((Eval) async).expr());
+	            Expr async_arg = async_call.arguments().get(0);
+	    		complainIfNot(async_arg instanceof Closure, "An async block",  async_arg);
+	            Closure async_closure = (Closure) async_arg;
+	    		complainIfNot(async_closure.formals().size() == 0, "An async block",  async_closure);
+	            Block async_body = async_closure.body();
+	
+	            //b = (Block_c) async_body;
+	            context().setCUDAKernelCFG(outer.max, outer.var,inner.max, inner.var, shm, kernelWantsDirectParams(closure_body));
+	            context().established().setCUDAKernelCFG(outer.max, outer.var,inner.max, inner.var, shm, kernelWantsDirectParams(closure_body));
+	            generatingKernel(true);
+	            try {
+	            	handleKernel((Block_c)async_body);
+	            } finally {
+	            	generatingKernel(false);
+	            }
+	        }
+        } catch (Complaint e) {
+        	// don't bother doing anything more with this kernel,
+        	// just try and continue with the code after
+        	// (note that we've already done the regular CPU code) 
         }
     }
 
@@ -584,12 +598,9 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 		context().establishClosure();
 		String last = context().wrappingClosure();
 		String lastHostClassName = context().wrappingClass();
-		X10ClassType hostClassType = (X10ClassType) n.closureDef()
-				.typeContainer().get();
-		String nextHostClassName = Emitter.translate_mangled_FQN(hostClassType
-				.fullName().toString(), "_");
-		String next = getClosureName(nextHostClassName,
-				context().closureId() + 1);
+		X10ClassType hostClassType = (X10ClassType) n.closureDef().typeContainer().get();
+		String nextHostClassName = Emitter.translate_mangled_FQN(hostClassType.fullName().toString(), "_");
+		String next = getClosureName(nextHostClassName, context().closureId() + 1);
 		// System.out.println(last+" goes to "+next);
 		context().wrappingClosure(next);
 		context().wrappingClass(nextHostClassName);
@@ -696,13 +707,9 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 				Type t = var.type();
 				String name = var.name().toString();
 				inc.write(Emitter.translateType(t, true) + " " + name);
-				if (context().autoBlocks() != null
-						&& var == context().autoBlocks().localDef()
-								.asInstance()) {
+				if (context().autoBlocks() != null && var == context().autoBlocks().localDef().asInstance()) {
 					inc.write(";");
-				} else if (context().autoThreads() != null
-						&& var == context().autoThreads().localDef()
-								.asInstance()) {
+				} else if (context().autoThreads() != null && var == context().autoThreads().localDef().asInstance()) {
 					inc.write(";");
 				} else {
 					inc.write(" = __this->" + name + ";");
@@ -717,14 +724,14 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 			inc.end();
 			inc.newline();
 
-			if (context().autoBlocks() != null
-					&& context().autoThreads() != null) {
+			// this is probably broken when only one is given. 
+			if (context().autoBlocks()!=null && context().autoThreads()!=null) {
 				String bname = context().autoBlocks().name().id().toString();
 				String tname = context().autoThreads().name().id().toString();
 				inc.write("x10aux::blocks_threads(__gpu, x10aux::DeserializationDispatcher::getMsgType(_serialization_id), __shm, "
                           + bname + ", " + tname + ");");
 				inc.newline();
-			}// else {
+			}
 			inc.write("__blocks = (");
 			inc.begin(0);
 			tr.print(null, context().blocks(), inc);
@@ -738,7 +745,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 			inc.write(")+1;");
 			inc.end();
 			inc.newline();
-			// }
+			
 
 			inc.write("__cuda_env __env;");
 			inc.newline();
@@ -812,13 +819,13 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 	}
 
 	public void visit(New_c n) {
-		complainIfNot2(!generatingKernel(),"New not allowed in @CUDA code.", n);
+		complainIfNot2(!generatingKernel(),"New not allowed in @CUDA code.", n, false);
 		super.visit(n);
 	}
 
 	@Override
 	public void visit(Assert_c n) {
-		complainIfNot2(!generatingKernel(),"Throwing exceptions not allowed in @CUDA code.", n);
+		complainIfNot2(!generatingKernel(),"Throwing exceptions not allowed in @CUDA code.", n, false);
 		super.visit(n);
 	}
 
@@ -836,7 +843,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 
 	@Override
 	public void visit(Await_c n) {
-		complainIfNot2(!generatingKernel(),"Await not allowed in @CUDA code.", n);
+		complainIfNot2(!generatingKernel(),"Await not allowed in @CUDA code.", n, false);
 		super.visit(n);
 	}
 
@@ -866,7 +873,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 
 	@Override
 	public void visit(Catch_c n) {
-		complainIfNot2(!generatingKernel(),"Catching exceptions not allowed in @CUDA code.", n);
+		complainIfNot2(!generatingKernel(),"Catching exceptions not allowed in @CUDA code.", n, false);
 		super.visit(n);
 	}
 
@@ -878,7 +885,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 
 	@Override
 	public void visit(ClosureCall_c n) {
-		complainIfNot2(!generatingKernel(),"Closure calls not allowed in @CUDA code.", n);
+		complainIfNot2(!generatingKernel(),"Closure calls not allowed in @CUDA code.", n, false);
 		super.visit(n);
 	}
 
@@ -1042,13 +1049,13 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 
 	@Override
 	public void visit(Throw_c n) {
-		complainIfNot2(!generatingKernel(),"Throwing exceptions not allowed in @CUDA code.", n);
+		complainIfNot2(!generatingKernel(),"Throwing exceptions not allowed in @CUDA code.", n, false);
 		super.visit(n);
 	}
 
 	@Override
 	public void visit(Try_c n) {
-		complainIfNot2(!generatingKernel(),"Catching exceptions not allowed in @CUDA code.", n);
+		complainIfNot2(!generatingKernel(),"Catching exceptions not allowed in @CUDA code.", n, false);
 		super.visit(n);
 	}
 
@@ -1109,7 +1116,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 
 	@Override
 	public void visit(X10Instanceof_c n) {
-		complainIfNot2(!generatingKernel(),"Runtime types not available in @CUDA code.", n);
+		complainIfNot2(!generatingKernel(),"Runtime types not available in @CUDA code.", n, false);
 		super.visit(n);
 	}
 
