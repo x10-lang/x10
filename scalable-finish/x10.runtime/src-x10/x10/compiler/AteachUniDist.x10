@@ -12,8 +12,5 @@
 package x10.compiler;
 
 import x10.lang.annotations.StatementAnnotation;
-// pattern 0 is the default implementation
-// pattern 1 : all async are in the same place as finish
-// pattern 2: remote activities don't spawn other remote oens
-// pattern 3: ateach with unique distribution, place= the number of places
-public interface FinishAsync(arity:int,place:int,isLast:boolean,pattern:Int) extends StatementAnnotation { }
+/* to annotate ateach statement with a unique distribution */
+public interface AteachUniDist extends StatementAnnotation { }
