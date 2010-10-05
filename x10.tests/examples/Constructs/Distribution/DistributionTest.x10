@@ -19,7 +19,7 @@ public class DistributionTest extends x10Test {
 
     public def run(): boolean = {
         val r = 0..100; //(low, high)
-        val R = [r,r] as Region;
+        val R = r*r;
         val d  = R->here;
         return ((d.rank == 2) &&
                 (R.rank == 2) &&
