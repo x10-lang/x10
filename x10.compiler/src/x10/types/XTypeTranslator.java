@@ -143,7 +143,7 @@ public class XTypeTranslator {
 	public XTerm transFakeField(CConstraint c, XTerm target, String name)  {
 		//XName field = XTerms.makeName(fi.def(), Types.get(fi.def().container()) + "#" + fi.name().toString());
 		XName field = XTerms.makeName(fakeKey,  name);
-		return XTerms.makeField((XVar) target, field);
+		return XTerms.makeFakeField((XVar) target, field);
 	}
 	public XTerm trans(CConstraint c, XTerm target, FieldInstance fi, Type t) throws SemanticException {
 		XTerm v;

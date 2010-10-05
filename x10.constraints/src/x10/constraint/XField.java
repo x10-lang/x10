@@ -22,11 +22,21 @@ public class XField extends XVar {
 
 		public XVar receiver;
 		public XName field;
+		// used by XPromise_c to determine if this field should occur in the output
+		// representation of a constraint or not. 
+		boolean hidden;
 
 		public XField(XVar receiver, XName field) {
 			super();
 			this.receiver = receiver;
 			this.field = field;
+			this.hidden=false;
+		}
+		public XField(XVar receiver, XName field, boolean hidden) {
+			super();
+			this.receiver = receiver;
+			this.field = field;
+			this.hidden=hidden;
 		}
 
 		public XTermKind kind() { return XTermKind.FIELD_ACCESS;}

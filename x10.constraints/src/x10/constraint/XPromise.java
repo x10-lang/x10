@@ -158,7 +158,8 @@ interface XPromise extends Cloneable {
 	/**
 	 * Let t1 be path (if path is not null), else the term labeling this promise.
 	 * If this promise has an outgoing edge to t2, and either dumpEQV is true or 
-	 * ! t1.hasEQV(), then output t1==t2 to result.
+	 * ! t1.hasEQV(), then output t1==t2 to result, unless hideFake is true and one of t1 or t2 is 
+	 * a fake field.
 	 * If this promise has fields, then recursively continue dumping with 
 	 * the children, passing them a path t1.f (for field f) if  
 	 * t1 is an instance of XVar, otherwise passing a path null (in this case t1 is an
@@ -167,7 +168,7 @@ interface XPromise extends Cloneable {
 	 * @param result
 	 * @param oldSelf 
 	 */
-	void dump(XVar path, List<XTerm> result,  boolean dumpEQV);
+	void dump(XVar path, List<XTerm> result,  boolean dumpEQV, boolean hideFake);
 
 	/**
 	 * Return the term that labels this promise. This term is intended to be the canonical XTerm
