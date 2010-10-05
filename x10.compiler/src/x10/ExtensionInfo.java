@@ -454,11 +454,9 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
            goals.add(Serialized(job));
            if (x10.Configuration.WORK_STEALING) {
-               Goal wsCallGraphGoal = WSCallGraphBuilder();
                Goal wsCodeGenGoal = WSCodeGenerator(job);
                goals.add(wsCodeGenGoal);                   
-               wsCodeGenGoal.addPrereq(TypeCheckBarrier());
-               wsCodeGenGoal.addPrereq(wsCallGraphGoal);
+               wsCodeGenGoal.addPrereq(WSCallGraphBarrier());
            }
            
            // try retypechecking before inlining
@@ -885,10 +883,10 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            return new ValidatingVisitorGoal("MainMethodFinder", job, new MainMethodFinder(job, ts, nf, hasMain)).intern(this);
        }
        
-       public Goal WSCallGraphBuilder() {
+       public Goal WSCallGraphBarrier() {
            final X10TypeSystem ts = (X10TypeSystem) extInfo.typeSystem();
            final X10NodeFactory nf = (X10NodeFactory) extInfo.nodeFactory();
-           return new AllBarrierGoal("WSCallGraphBuilder", this) {
+           return new AllBarrierGoal("WSCallGraphBarrier", this) {
                @Override
                public Goal prereqForJob(Job job) {
                    return TypeChecked(job);
