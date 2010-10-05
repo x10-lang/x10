@@ -124,10 +124,10 @@ public class LocalClassRemover extends ContextVisitor {
 		    // Rewrite the constructor calls in the class declaration
 		    cd = (ClassDecl) rewriteConstructorCalls(cd, cd.classDef(), (List<FieldDef>)hashGet(newFields, cd.classDef(), Collections.<FieldDef>emptyList()));
 
-		    // Process nested local classes recursively
-		    cd = (ClassDecl) n.visitChild(cd, this);
-
+		    // Nested local classes will be visited later
+		    //cd = (ClassDecl) n.visitChild(cd, this);
 		    ss.remove(i); // Remove the local class declaration
+		    hashAdd(orphans, context.currentClassDef(), cd);
 
 		    if (cd != lcd.decl()) {
 			// Rewrite the constructor calls in the remaining statements
@@ -137,8 +137,6 @@ public class LocalClassRemover extends ContextVisitor {
 			    ss.set(j, sj);
 			}
 		    }
-
-		    hashAdd(orphans, context.currentClassDef(), cd);
 
 		    i--;
 		}
