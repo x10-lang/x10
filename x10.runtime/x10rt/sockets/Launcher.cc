@@ -194,6 +194,10 @@ void Launcher::startChildren()
 				#ifdef DEBUG
 					fprintf(stderr, "Runtime %u forked.  Running exec.\n", _myproc);
 				#endif
+				// TODO this sleep lets the launchers get linked up before the runtime links in.
+				// a better solution would be to start the runtime after the launchers attach
+				sleep(1);
+
 				if (execvp(_argv[0], _argv))
 					// can't get here, if the exec succeeded
 					DIE("Launcher %u: runtime exec failed", _myproc);
@@ -712,7 +716,9 @@ int Launcher::forwardMessage(struct ctrl_msg* message, char* data)
 
 	int ret = TCP::write(destFD, message, sizeof(struct ctrl_msg));
 	if (ret < (int)sizeof(struct ctrl_msg))
-		DIE("Failed to forward message");
+		DIE("Launcher %u: Failed to forward message to %s", _myproc,
+			destFD==_parentLauncherControlLink?"parent launcher":
+			(destFD==_childControlLinks[0]?"child launcher 0":"child launcher 1"));
 	if (message->datalen > 0)
 		ret = TCP::write(destFD, data, message->datalen);
 
