@@ -770,11 +770,33 @@ void Launcher::cb_sighandler_cld(int signo)
 void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
 {
 	char * cmd = (char *) _realpath;
-	char ** argv = (char **) alloca (sizeof(char *) * (_argc+9));
+	char ** argv = (char **) alloca (sizeof(char *) * (_argc+32));
 	int z = 0;
 	argv[z] = _ssh_command;
 	argv[++z] = remotehost;
 //	argv[++z] = (char *) "/usr/bin/env";
+
+	// deal with known runtime environment variables
+	const char* envVariables[] = {
+	"X10_ENABLE_ASSERTIONS", "X10_RXTX", "GC_PRINT_ADDRESS_MAP","X10_NO_ANSI_COLORS",
+	"X10RT_MPI_THREAD_MULTIPLE", "X10_DISABLE_DEALLOC", "X10_TRACE_ALLOC", "X10_TRACE_ALL",
+	"X10_TRACE_INIT", "X10_TRACE_X10RT", "X10_TRACE_NET", "X10_TRACE_SER", "X10_NTHREADS",
+	"X10RT_CUDA_DMA_SLICE", "X10RT_EMULATE_REMOTE_OP", "X10RT_EMULATE_COLLECTIVES",
+	"X10RT_MPI_THREAD_MULTIPLE", "X10_STATIC_THREADS", "X10_NO_STEALS", "X10RT_ACCELS"};
+	for (unsigned i=0; i<(sizeof envVariables)/sizeof(char*); i++)
+	{
+		char* ev = getenv(envVariables[i]);
+		if (ev != NULL)
+		{
+			#ifdef DEBUG
+				fprintf(stderr, "Launcher %u: copying environment variable %s=%s for child %u.\n", _myproc, envVariables[i], ev, id);
+			#endif
+			argv[++z] = (char*) alloca(32+sizeof(ev));
+			sprintf(argv[z], "%s=%s", envVariables[i], ev);
+		}
+	}
+
+	// add on our own environment variables
 	argv[++z] = (char*) alloca(256);
 	sprintf(argv[z], X10LAUNCHER_HOSTFILE"=%s", _hostfname);
 	argv[++z] = (char*) alloca(256);
