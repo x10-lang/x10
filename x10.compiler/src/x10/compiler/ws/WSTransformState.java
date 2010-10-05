@@ -68,40 +68,36 @@ import x10.util.synthesizer.MethodSynth;
  *
  */
 public class WSTransformState {
-    // the following types must be loaded lazily
-    public ClassType frameType;
-    public ClassType finishFrameType;
-    public ClassType rootFinishType;
-    public ClassType mainFrameType;
-    public ClassType regularFrameType;
-    public ClassType asyncFrameType;
-    public ClassType boxedBooleanType;
-    public ClassType workerType;
-    public ClassType stackAllocateType; //annotation type
-    public ClassType inlineType; //annotation type
-    public ClassType transientType; //annotation type
-    public ClassType headerType; //annotation type
-    public ClassType uninitializedType; //annotation type
-    public ClassType futureType;
+    public final ClassType frameType;
+    public final ClassType finishFrameType;
+    public final ClassType rootFinishType;
+    public final ClassType mainFrameType;
+    public final ClassType regularFrameType;
+    public final ClassType asyncFrameType;
+    public final ClassType boxedBooleanType;
+    public final ClassType workerType;
+    public final ClassType stackAllocateType; //annotation type
+    public final ClassType inlineType; //annotation type
+    public final ClassType transientType; //annotation type
+    public final ClassType headerType; //annotation type
+    public final ClassType uninitializedType; //annotation type
+    public final ClassType futureType;
 
-    public Boolean realloc; // whether or not to generate code for frame migration
+    public final Boolean realloc; // whether or not to generate code for frame migration
 
     //map from target method to synthesized inner class
-    HashMap<MethodDef, WSMethodFrameClassGen> methodToInnerClassTreeMap;
+    final HashMap<MethodDef, WSMethodFrameClassGen> methodToInnerClassTreeMap;
 
     //map from target method to synthesized method
-    HashMap<MethodDef, MethodSynth> methodToWSMethodMap;
+    final HashMap<MethodDef, MethodSynth> methodToWSMethodMap;
 
     //unsupported concurrent procedure (for book keeping)
-    HashSet<ProcedureDef> concurrentProcedureSet;
+    final HashSet<ProcedureDef> concurrentProcedureSet;
     
-    public WSTransformState(){
+    public WSTransformState(X10TypeSystem xts, String theLanguage){
         methodToInnerClassTreeMap = new HashMap<MethodDef, WSMethodFrameClassGen>();
         methodToWSMethodMap = new HashMap<MethodDef, MethodSynth>();
         concurrentProcedureSet = new HashSet<ProcedureDef>();
-    }
-
-    public void load(X10TypeSystem xts, String theLanguage){
         if (theLanguage.equals("c++")) {
             frameType = xts.load("x10.compiler.ws.Frame");
             finishFrameType = xts.load("x10.compiler.ws.FinishFrame");
@@ -130,10 +126,8 @@ public class WSTransformState {
         uninitializedType = xts.load("x10.compiler.Uninitialized");
         futureType = xts.load("x10.util.Future");
     }
-        
-    public void buildCallGraph(X10TypeSystem xts, X10NodeFactory xnf, String theLanguage){
-        load(xts, theLanguage);
-
+    
+    public void buildCallGraph(X10TypeSystem xts, X10NodeFactory xnf){
         WSCallGraph callGraph = new WSCallGraph();
         
         //start to iterate the ast in jobs and build all;
