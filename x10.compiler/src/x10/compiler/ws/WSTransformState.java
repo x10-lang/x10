@@ -94,7 +94,7 @@ public class WSTransformState {
     //unsupported concurrent procedure (for book keeping)
     final HashSet<ProcedureDef> concurrentProcedureSet;
     
-    public WSTransformState(X10TypeSystem xts, String theLanguage){
+    public WSTransformState(X10TypeSystem xts, X10NodeFactory xnf, String theLanguage){
         methodToInnerClassTreeMap = new HashMap<MethodDef, WSMethodFrameClassGen>();
         methodToWSMethodMap = new HashMap<MethodDef, MethodSynth>();
         concurrentProcedureSet = new HashSet<ProcedureDef>();
@@ -125,9 +125,7 @@ public class WSTransformState {
         headerType = xts.load("x10.compiler.Header");
         uninitializedType = xts.load("x10.compiler.Uninitialized");
         futureType = xts.load("x10.util.Future");
-    }
-    
-    public void buildCallGraph(X10TypeSystem xts, X10NodeFactory xnf){
+
         WSCallGraph callGraph = new WSCallGraph();
         
         //start to iterate the ast in jobs and build all;

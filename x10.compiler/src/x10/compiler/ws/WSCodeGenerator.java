@@ -75,8 +75,7 @@ public class WSCodeGenerator extends ContextVisitor {
     }
     
     public static void buildCallGraph(X10TypeSystem xts, X10NodeFactory xnf, String theLanguage) {
-        wts = new WSTransformState(xts, theLanguage);
-        wts.buildCallGraph(xts, xnf);
+        wts = new WSTransformState(xts, xnf, theLanguage);
     }
     
     /* 
