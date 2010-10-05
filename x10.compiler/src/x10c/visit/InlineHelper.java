@@ -212,8 +212,9 @@ public class InlineHelper extends ContextVisitor {
                             Type t = f.type().type();
                             argTypes.add(f.type().typeRef());
                         }
-                        argTypes.add(Types.ref(ct));
-                        
+                        if (!mdcl.flags().flags().isStatic()) {
+                            argTypes.add(Types.ref(ct));
+                        }
                         
                         Expr call;
                         if (mdcl.flags().flags().isStatic()) {
