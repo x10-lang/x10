@@ -86,6 +86,7 @@ import polyglot.visit.ReachChecker;
 import polyglot.visit.Translator;
 import x10.ast.X10NodeFactory;
 import x10.ast.X10NodeFactory_c;
+import x10.compiler.ws.WSCodeGenerator;
 import x10.errors.Warnings;
 import x10.extension.X10Ext;
 import x10.finish.table.CallTableKey;
@@ -894,7 +895,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                }
                @Override
                public boolean runTask() {
-                   x10.compiler.ws.WSCodeGenerator.wts.buildCallGraph(ts, nf);
+                   WSCodeGenerator.buildCallGraph(ts, nf, nativeAnnotationLanguage());
                    return true;
                }
            }.intern(this);
@@ -903,7 +904,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        public Goal WSCodeGenerator(Job job) {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
-           return new ValidatingVisitorGoal("WSCodeGenerator", job, new x10.compiler.ws.WSCodeGenerator(job, ts, nf, nativeAnnotationLanguage())).intern(this);
+           return new ValidatingVisitorGoal("WSCodeGenerator", job, new WSCodeGenerator(job, ts, nf)).intern(this);
        }
        
        public Goal Desugarer(Job job) {

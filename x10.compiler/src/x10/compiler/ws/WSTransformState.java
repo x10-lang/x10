@@ -68,8 +68,6 @@ import x10.util.synthesizer.MethodSynth;
  *
  */
 public class WSTransformState {
-    final String theLanguage;
-
     // the following types must be loaded lazily
     public ClassType frameType;
     public ClassType finishFrameType;
@@ -97,14 +95,13 @@ public class WSTransformState {
     //unsupported concurrent procedure (for book keeping)
     HashSet<ProcedureDef> concurrentProcedureSet;
     
-    public WSTransformState(String theLanguage){
+    public WSTransformState(){
         methodToInnerClassTreeMap = new HashMap<MethodDef, WSMethodFrameClassGen>();
         methodToWSMethodMap = new HashMap<MethodDef, MethodSynth>();
         concurrentProcedureSet = new HashSet<ProcedureDef>();
-        this.theLanguage = theLanguage;
     }
 
-    public void load(X10TypeSystem xts){
+    public void load(X10TypeSystem xts, String theLanguage){
         if (theLanguage.equals("c++")) {
             frameType = xts.load("x10.compiler.ws.Frame");
             finishFrameType = xts.load("x10.compiler.ws.FinishFrame");
@@ -134,8 +131,8 @@ public class WSTransformState {
         futureType = xts.load("x10.util.Future");
     }
         
-    public void buildCallGraph(X10TypeSystem xts, X10NodeFactory xnf){
-        load(xts);
+    public void buildCallGraph(X10TypeSystem xts, X10NodeFactory xnf, String theLanguage){
+        load(xts, theLanguage);
 
         WSCallGraph callGraph = new WSCallGraph();
         

@@ -69,14 +69,14 @@ public class WSCodeGenerator extends ContextVisitor {
      * @param job
      * @param ts
      * @param nf
-     * @param theLanguage
      */
-    public WSCodeGenerator(Job job, TypeSystem ts, NodeFactory nf, String theLanguage) {
+    public WSCodeGenerator(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
-
-        if(wts == null){
-            wts = new WSTransformState(theLanguage);
-        }
+    }
+    
+    public static void buildCallGraph(X10TypeSystem xts, X10NodeFactory xnf, String theLanguage) {
+        wts = new WSTransformState();
+        wts.buildCallGraph(xts, xnf, theLanguage);
     }
     
     /* 
