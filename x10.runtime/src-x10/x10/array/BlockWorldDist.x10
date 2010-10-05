@@ -100,9 +100,7 @@ final class BlockWorldDist extends Dist {
     }
 
 
-    public def places():Iterable[Place] {
-        return Place.places;
-    }
+    public def places():Iterable[Place]=Place.places();
 
     public def numPlaces():int = Place.MAX_PLACES;
 

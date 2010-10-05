@@ -326,7 +326,7 @@ public final class Array[T](
         private val array:Array[U](rank);
 
         def this(a:Array[U]):ValueIterator[U]{self.rank==a.rank} {
-	    property(a.rank);
+	        property(a.rank);
             regIt = a.iterator() as Iterator[Point(rank)]; // TODO: cast should not be needed!
             array = a as Array[U](rank);                   // TODO: cast should not be needed!
         }
@@ -336,14 +336,25 @@ public final class Array[T](
     /**
      * Permits the syntax for (i:T in array.items())  { ...}
     */
-    public def items():Iterable[T] = new ItemsIterable();
-    
+    public def items():Iterable[T] = new ItemIterable();
     // TODO: Should be annonymous nested class in values, 
     //       but that's too fragile with the 2.1 implementation of generics.
-    private  class ItemsIterable implements Iterable[T] {
+    private  class ItemIterable implements Iterable[T] {
     	public def iterator()=Array.this.values();
     }
     	
+    
+    public def sequence(){rank==1}:Sequence[T] = new ItemSequence();
+    // TODO: Should be annonymous nested class in values, 
+    //       but that's too fragile with the 2.1 implementation of generics.
+    private class ItemSequence(size:int) implements Sequence[T] {
+    	val array = Array.this as Array[T](1);
+    	public def iterator() = Array.this.values();
+    	def this() {
+    		property(Array.this.size);
+    	}
+    	public def apply(i:Int)=array(i);
+    }
  
     /**
      * Return the element of this array corresponding to the given index.

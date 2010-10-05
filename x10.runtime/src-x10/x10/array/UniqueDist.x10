@@ -29,9 +29,7 @@ class UniqueDist extends Dist(1){rect} {
     }
 
 
-    public def places():Iterable[Place] {
-        return Place.places;
-    }
+    public def places():Iterable[Place]=Place.places();
 
     public def numPlaces():int = Place.MAX_PLACES;
 

@@ -29,14 +29,14 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
     //
     // factories - place is all applicable places
     //
-    public static def makeUnique1(ps:Array[Place](1)):Dist(1) { // XTENLANG-4
-
+    public static def makeUnique1(ps:Sequence[Place]):Dist(1) { // XTENLANG-4
+        val size = ps.size();
         // regions
         val init = (i:Int) => Region.makeRectangular(i, i);
-        val regions = new Array[Region(1)](ps.size, init);
+        val regions = new Array[Region(1)](size, init).sequence();
 
         // overall region
-        val overall = Region.makeRectangular(0, ps.size-1);
+        val overall = Region.makeRectangular(0, size-1);
 
         return new BaseDist(overall, ps, regions);
     }
@@ -244,31 +244,32 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
     //
 
     // XXX should allow places to be in any order??
-    protected static def isUnique(places: Array[Place](1)): boolean {
-        if (places.size!=Place.MAX_PLACES)
+    protected static def isUnique(places: Sequence[Place]): boolean {
+    	val size = places.size();
+        if (size!=Place.MAX_PLACES)
             return false;
-        for (var i: int = 0; i<places.size; i++) {
+        for (var i: int = 0; i<size; i++) {
             if (places(i).id!=i)
                 return false;
         }
         return true;
     }
 
-    protected static def isConstant(places: Array[Place](1)): boolean {
-        for (p in places.items())
+    protected static def isConstant(places: Sequence[Place]): boolean {
+        for (p in places)
             if (p!=places(0))
                 return false;
         return true;
     }
 
-    protected static def onePlace(places: Array[Place](1)): Place {
+    protected static def onePlace(places: Sequence[Place]): Place {
         return places.size==0? here : places(0);
     }
 
     public def equals(thatObj:Any): boolean {
 	if (!(thatObj instanceof Dist)) return false;
         val that:Dist = thatObj as Dist;
-        for (p in Place.places)
+        for (p in Place.places())
             if (!this.get(p).equals(that.get(p)))
                 return false;
         return true;
@@ -284,11 +285,14 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
     // access.
     //
 
-    protected val places:Array[Place](1);
-    protected val regions:Array[Region(rank)](1);
-    private val regionMap:Array[Region(rank)](1);
+    protected val places:Array[Place]{rail};
+    protected val regions:Array[Region(rank)]{rail};
+    private val regionMap:Array[Region(rank)]{rail};
 
-    public def this(r: Region, ps: Array[Place](1), rs: Array[Region(r.rank)](1)): BaseDist{self.region==r} {
+    public def this(r: Region, ps:Array[Place](1), rs:Array[Region(r.rank)](1)): BaseDist{self.region==r}{
+    	this(r,ps.sequence(), rs.sequence());
+    }
+    public def this(r: Region, ps: Sequence[Place], rs: Sequence[Region(r.rank)]): BaseDist{self.region==r} {
 
         super(r, isUnique(ps), isConstant(ps), onePlace(ps));
 
@@ -297,7 +301,7 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
         // FIXME: IP: work around the fact that we cannot create collections of structs
         //val pl = new ArrayList[Place]();
         val pr = new GrowableRail[Place]();
-        for (var i:int=0; i<rs.size; i++) {
+        for (var i:int=0; i<rs.size(); i++) {
             if (!rs(i).isEmpty()) {
                 rr.add(rs(i));
                 pr.add(ps(i));

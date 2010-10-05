@@ -186,7 +186,7 @@ public abstract class Dist(
      * @param ps the rail of places
      * @return a "unique" distribution over the places in ps
      */
-    public static def makeUnique(ps:Array[Place](1)):Dist(1)
+    public static def makeUnique(ps:Sequence[Place]):Dist(1)
         = BaseDist.makeUnique1(ps);
 
     /**
@@ -372,7 +372,7 @@ public abstract class Dist(
      * @return an iterator over the points in the region of this distribution.
      * @see x10.lang.Iterable[T]#iterator()
      */
-    public def iterator():Iterator[Point{self.rank==region.rank}] = region.iterator() as Iterator[Point{self.rank==region.rank}];
+    public def iterator():Iterator[Point(region.rank)] = region.iterator();
 
 
     //
@@ -425,7 +425,7 @@ public abstract class Dist(
      * @return true if that is a sub-distribution of this distribution.
      */
     public def isSubdistribution(that:Dist(rank)): boolean {
-        for (p:Place in Place.places)
+        for (p:Place in Place.places())
             if (!that.get(p).contains(this.get(p)))
                 return false;
         return true;
