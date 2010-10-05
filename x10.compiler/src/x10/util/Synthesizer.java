@@ -826,7 +826,7 @@ public class Synthesizer {
      *            the inner classes to be inserted into the class
      * @return A newly created class with inner classes as members
      */
-    public X10ClassDecl addInnerClasses(X10ClassDecl cDecl, List<X10ClassDecl> innerClasses) {
+    public static X10ClassDecl addInnerClasses(X10ClassDecl cDecl, List<X10ClassDecl> innerClasses) {
 
         List<ClassMember> cMembers = new ArrayList<ClassMember>();
         ClassBody body = cDecl.body();
@@ -854,7 +854,7 @@ public class Synthesizer {
      * @param methods The methods to be inserted in
      * @return A newly created class with methods as members
      */
-    public X10ClassDecl addMethods(X10ClassDecl cDecl, List<X10MethodDecl> methods){
+    public static X10ClassDecl addMethods(X10ClassDecl cDecl, List<X10MethodDecl> methods){
         List<ClassMember> cm = new ArrayList<ClassMember>();
         cm.addAll(cDecl.body().members());
         cm.addAll(methods);

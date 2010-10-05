@@ -61,10 +61,6 @@ import x10.util.Synthesizer;
 public class WSCodeGenerator extends ContextVisitor {
     private static final int debugLevel = 4;
     
-    final X10TypeSystem xts;
-    final X10NodeFactory xnf;
-    final Synthesizer synth;
-    
     //Although there are different WSVisitor, each one has the same WSTransformState
     //FIXME: get rid of the static field
     static protected WSTransformState wts; 
@@ -78,21 +74,15 @@ public class WSCodeGenerator extends ContextVisitor {
     public WSCodeGenerator(Job job, TypeSystem ts, NodeFactory nf, String theLanguage) {
         super(job, ts, nf);
 
-        xts = (X10TypeSystem) ts;
-        xnf = (X10NodeFactory) nf;
-        synth = new Synthesizer(xnf, xts);
-
         if(wts == null){
             wts = new WSTransformState(theLanguage);
         }
-
-        wts.addWSJob(job);
     }
 
     @Override
     public NodeVisitor begin() {
         NodeVisitor nv = super.begin();
-        wts.buildCallGraph(xts, xnf);
+        wts.buildCallGraph((X10TypeSystem) ts, (X10NodeFactory) nf);
         return nv;
     }
 
@@ -192,8 +182,8 @@ public class WSCodeGenerator extends ContextVisitor {
                     System.out.println();
                     System.out.println("[WS_INFO] Add new methods/inner-classes to class:" + n);
                 }
-                cDecl = synth.addInnerClasses(cDecl, innerClasses);
-                cDecl = synth.addMethods(cDecl, wts.getGeneratedMethods(cDecl.classDef()));
+                cDecl = Synthesizer.addInnerClasses(cDecl, innerClasses);
+                cDecl = Synthesizer.addMethods(cDecl, wts.getGeneratedMethods(cDecl.classDef()));
                 return cDecl;
             }
         }

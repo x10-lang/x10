@@ -99,11 +99,9 @@ public class WSTransformState {
 
     //A pool to record all as-is job for WS code gen
     //used to build call graph
-    protected HashSet<WeakReference<Job>> wsJobSet;
     protected boolean isCallGraphBuild;
     
     public WSTransformState(String theLanguage){
-        wsJobSet = new HashSet<WeakReference<Job>>();
         methodToInnerClassTreeMap = new HashMap<MethodDef, WSMethodFrameClassGen>();
         methodToWSMethodMap = new HashMap<MethodDef, MethodSynth>();
         concurrentProcedureSet = new HashSet<ProcedureDef>();
@@ -139,16 +137,7 @@ public class WSTransformState {
         uninitializedType = xts.load("x10.compiler.Uninitialized");
         futureType = xts.load("x10.util.Future");
     }
-    
-    
-    /**
-     * Add all ws job for build a CallGraph together
-     * @param job
-     */
-    public void addWSJob(Job job){
-        wsJobSet.add(new WeakReference<Job>(job));
-    }
-    
+        
     public void buildCallGraph(X10TypeSystem xts, X10NodeFactory xnf){
         if(isCallGraphBuild){
             //System.err.println("[WS_ERR]CallGraph has been build. Will not build again!");
@@ -161,8 +150,7 @@ public class WSTransformState {
         WSCallGraph callGraph = new WSCallGraph();
         
         //start to iterate the ast in jobs and build all;
-        for(WeakReference<Job> jobRef : wsJobSet){
-            Job job = jobRef.get();
+        for(Job job : xts.extensionInfo().scheduler().jobs()){
             if(job == null){
                 System.err.println("[WS_ERR] CallGraphBuilding: Find one job is empty!");
                 continue;
