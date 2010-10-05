@@ -262,7 +262,7 @@ public abstract class Dist(
      * @return an object that implements Iterable[Place] that can be used to
      *         iterate over the set of Places that this distribution maps some point to.
      */
-    abstract public def places():Iterable[Place];
+    abstract public def places():Sequence[Place];
 
     /**
      * How many places are included in the distribution?

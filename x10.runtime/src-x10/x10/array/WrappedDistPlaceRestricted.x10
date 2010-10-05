@@ -25,8 +25,8 @@ final class WrappedDistPlaceRestricted extends Dist {
         filter = p;
     }
 
-    public def places():Iterable[Place] {
-        return new Array[Place](1, (int)=>filter).items();
+    public def places():Sequence[Place] {
+        return new Array[Place](1, (int)=>filter).sequence();
     }
 
     public def numPlaces() = 1;
