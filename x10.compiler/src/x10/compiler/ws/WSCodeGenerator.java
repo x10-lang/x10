@@ -63,7 +63,7 @@ public class WSCodeGenerator extends ContextVisitor {
     
     //Although there are different WSVisitor, each one has the same WSTransformState
     //FIXME: get rid of the static field
-    static protected WSTransformState wts; 
+    static public WSTransformState wts; 
         
     /** 
      * @param job
@@ -78,14 +78,7 @@ public class WSCodeGenerator extends ContextVisitor {
             wts = new WSTransformState(theLanguage);
         }
     }
-
-    @Override
-    public NodeVisitor begin() {
-        NodeVisitor nv = super.begin();
-        wts.buildCallGraph((X10TypeSystem) ts, (X10NodeFactory) nf);
-        return nv;
-    }
-
+    
     /* 
      * This method will check an AST node, and decide whether transform or not.
      * MethodDecl --> if it is a target method, transform it into an inner class

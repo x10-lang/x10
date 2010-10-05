@@ -96,10 +96,6 @@ public class WSTransformState {
 
     //unsupported concurrent procedure (for book keeping)
     HashSet<ProcedureDef> concurrentProcedureSet;
-
-    //A pool to record all as-is job for WS code gen
-    //used to build call graph
-    protected boolean isCallGraphBuild;
     
     public WSTransformState(String theLanguage){
         methodToInnerClassTreeMap = new HashMap<MethodDef, WSMethodFrameClassGen>();
@@ -139,12 +135,6 @@ public class WSTransformState {
     }
         
     public void buildCallGraph(X10TypeSystem xts, X10NodeFactory xnf){
-        if(isCallGraphBuild){
-            //System.err.println("[WS_ERR]CallGraph has been build. Will not build again!");
-            return;
-        }
-        isCallGraphBuild = true;
-
         load(xts);
 
         WSCallGraph callGraph = new WSCallGraph();

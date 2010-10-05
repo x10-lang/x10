@@ -84,6 +84,7 @@ import polyglot.visit.NodeVisitor;
 import polyglot.visit.PruningVisitor;
 import polyglot.visit.ReachChecker;
 import polyglot.visit.Translator;
+import x10.ast.X10NodeFactory;
 import x10.ast.X10NodeFactory_c;
 import x10.errors.Warnings;
 import x10.extension.X10Ext;
@@ -452,9 +453,11 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
            goals.add(Serialized(job));
            if (x10.Configuration.WORK_STEALING) {
+               Goal wsCallGraphGoal = WSCallGraphBuilder();
                Goal wsCodeGenGoal = WSCodeGenerator(job);
                goals.add(wsCodeGenGoal);                   
                wsCodeGenGoal.addPrereq(TypeCheckBarrier());
+               wsCodeGenGoal.addPrereq(wsCallGraphGoal);
            }
            
            // try retypechecking before inlining
@@ -879,6 +882,22 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
            return new ValidatingVisitorGoal("MainMethodFinder", job, new MainMethodFinder(job, ts, nf, hasMain)).intern(this);
+       }
+       
+       public Goal WSCallGraphBuilder() {
+           final X10TypeSystem ts = (X10TypeSystem) extInfo.typeSystem();
+           final X10NodeFactory nf = (X10NodeFactory) extInfo.nodeFactory();
+           return new AllBarrierGoal("WSCallGraphBuilder", this) {
+               @Override
+               public Goal prereqForJob(Job job) {
+                   return TypeChecked(job);
+               }
+               @Override
+               public boolean runTask() {
+                   x10.compiler.ws.WSCodeGenerator.wts.buildCallGraph(ts, nf);
+                   return true;
+               }
+           }.intern(this);
        }
 
        public Goal WSCodeGenerator(Job job) {
