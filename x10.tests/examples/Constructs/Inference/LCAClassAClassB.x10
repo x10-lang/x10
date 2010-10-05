@@ -24,7 +24,7 @@ public class LCAClassAClassB extends x10Test {
 	  val x = new A();
       val y = new B();
 	// should succeed. LCA of A and B is Object.
-      val z:ValRail[Object] = [x,y];
+      val z:Array[Object] = [x,y];
 	  return true;
 	}
 

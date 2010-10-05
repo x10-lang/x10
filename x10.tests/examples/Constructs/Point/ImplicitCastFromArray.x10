@@ -12,22 +12,22 @@
 import harness.x10Test;
 
 /**
- * Test that there is an implicit conversion from ValRail[Int] to Point.
+ * Test that there is an implicit conversion from Array[Int] to Point.
  *
  * @author vj
  */
 
-public class ImplicitCastFromValRail extends x10Test {
+public class ImplicitCastFromArray extends x10Test {
 
-	def m(p:Point(2))=p;
+    def m(p:Point(2))=p;
     public def run(): boolean = {
 
-        val p =[1,2];
+        val p = [1,2];
        
         return m(p).equals(Point.make(p));
     }
 
     public static def main(Array[String](1)) {
-        new  ImplicitCastFromValRail().execute();
+        new  ImplicitCastFromArray().execute();
     }
 }
