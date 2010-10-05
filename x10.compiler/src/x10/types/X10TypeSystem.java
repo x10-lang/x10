@@ -79,6 +79,8 @@ public interface X10TypeSystem extends TypeSystem {
 
     AnnotatedType AnnotatedType(Position pos, Type baseType, List<Type> annotations);
 
+    X10MethodInstance findImplementingMethod(ClassType ct, MethodInstance jmi, boolean includeAbstract, Context context);
+
     Type boxOf(Position p, Ref<? extends Type> t);
 
     Type futureOf(Position p, Ref<? extends Type> t);

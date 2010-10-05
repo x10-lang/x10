@@ -133,7 +133,7 @@ public class Synthesizer {
 	        Name name, List<LocalDef> fmls, Type returnType, Block block)
 	{
 	    assert ct.classDef() != null;
-	    MethodDecl result = makeSyntheticMethod(ct, flags, typeParameters,name, fmls,  returnType, block);
+	    MethodDecl result = makeSyntheticMethod(ct, flags, typeParameters,name, fmls, returnType, block);
 	    ClassBody b = ct.body();
 	    b = b.addMember(result);
 	    ct.classDef().addMethod(result.methodDef());

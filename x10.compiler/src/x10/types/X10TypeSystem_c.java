@@ -226,7 +226,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         env(context).checkOverride(ct, mi0, mj0);
     }
 
-    public MethodInstance findImplementingMethod(ClassType ct, MethodInstance jmi, boolean includeAbstract, Context context) {
+    public X10MethodInstance findImplementingMethod(ClassType ct, MethodInstance jmi, boolean includeAbstract, Context context) {
         X10MethodInstance mi = (X10MethodInstance) jmi;
 
         XVar thisVar = ((X10ClassDef) ct.def()).thisVar(); // XTerms.makeLocal(XTerms.makeFreshName("this"));
@@ -252,7 +252,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
                     // mi and mj are both accessible from ct (e.g.,
                     // mi is declared in an interface that ct implements,
                     // and mj is defined in a superclass of ct).
-                    return mj;
+                    return (X10MethodInstance) mj;
                 }
             }
             if (curr.typeEquals(mi.container(), context)) {
