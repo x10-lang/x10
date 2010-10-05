@@ -68,36 +68,33 @@ import x10.util.synthesizer.MethodSynth;
  *
  */
 public class WSTransformState {
-    
-    //------------Context sensitive
-    //basic types
-    //Base types are context irrelevant
-    public Type intType;    
-    public Type frameType;
-    public Type finishFrameType;
+    final String theLanguage;
+
+    // the following types must be loaded lazily
+    public ClassType frameType;
+    public ClassType finishFrameType;
     public ClassType rootFinishType;
-    public Type mainFrameType;
-    public Type regularFrameType;
-    public Type asyncFrameType;
-    public Type boxedBooleanType;
-    public Type workerType;
-    public Type stackAllocateType; //annotation type
-    public Type inlineType; //annotation type
-    public Type transientType; //annotation type
-    public Type headerType; //annotation type
-    public Type uninitializedType; //annotation type
-    public Type futureType;
-    //!Type is context relevant
-    public Boolean realloc;
-    
-    
-    //-----------Global exist:
-    //map from a target method to the inner class
+    public ClassType mainFrameType;
+    public ClassType regularFrameType;
+    public ClassType asyncFrameType;
+    public ClassType boxedBooleanType;
+    public ClassType workerType;
+    public ClassType stackAllocateType; //annotation type
+    public ClassType inlineType; //annotation type
+    public ClassType transientType; //annotation type
+    public ClassType headerType; //annotation type
+    public ClassType uninitializedType; //annotation type
+    public ClassType futureType;
+
+    public Boolean realloc; // whether or not to generate code for frame migration
+
+    //map from target method to synthesized inner class
     HashMap<MethodDef, WSMethodFrameClassGen> methodToInnerClassTreeMap;
-    //Map from a target method to the fast and slow path wrapper method
+
+    //map from target method to synthesized method
     HashMap<MethodDef, MethodSynth> methodToWSMethodMap;
-    //The procedure def that has no transformation support, just as book keeping
-    //And will be fixed soon;
+
+    //unsupported concurrent procedure (for book keeping)
     HashSet<ProcedureDef> concurrentProcedureSet;
 
     //A pool to record all as-is job for WS code gen
@@ -105,20 +102,15 @@ public class WSTransformState {
     protected HashSet<WeakReference<Job>> wsJobSet;
     protected boolean isCallGraphBuild;
     
-    public WSTransformState(){
+    public WSTransformState(String theLanguage){
         wsJobSet = new HashSet<WeakReference<Job>>();
         methodToInnerClassTreeMap = new HashMap<MethodDef, WSMethodFrameClassGen>();
         methodToWSMethodMap = new HashMap<MethodDef, MethodSynth>();
         concurrentProcedureSet = new HashSet<ProcedureDef>();
+        this.theLanguage = theLanguage;
     }
 
-    
-    public void updateContextAndVisitor(X10Context xct, String theLanguage){
-        X10TypeSystem xts = (X10TypeSystem) xct.typeSystem();
-        
-        //initial static type
-        //initial all types
-        intType = xts.Int();
+    public void load(X10TypeSystem xts){
         if (theLanguage.equals("c++")) {
             frameType = xts.load("x10.compiler.ws.Frame");
             finishFrameType = xts.load("x10.compiler.ws.FinishFrame");
@@ -146,9 +138,6 @@ public class WSTransformState {
         headerType = xts.load("x10.compiler.Header");
         uninitializedType = xts.load("x10.compiler.Uninitialized");
         futureType = xts.load("x10.util.Future");
-        
-        
-        //initial context sensitive type
     }
     
     
@@ -160,16 +149,15 @@ public class WSTransformState {
         wsJobSet.add(new WeakReference<Job>(job));
     }
     
-    protected boolean isCallGraphBuild() {
-        return isCallGraphBuild;
-    }
-    
-    public void buildCallGraph(Job job2, X10NodeFactory xnf, X10TypeSystem xts){
+    public void buildCallGraph(Job job2, X10TypeSystem xts, X10NodeFactory xnf){
         if(isCallGraphBuild){
             //System.err.println("[WS_ERR]CallGraph has been build. Will not build again!");
             return;
         }
-        
+        isCallGraphBuild = true;
+
+        load(xts);
+
         WSCallGraph callGraph = new WSCallGraph();
         
         //start to iterate the ast in jobs and build all;
@@ -225,7 +213,6 @@ public class WSTransformState {
             this.addMethodAsTargetMethod(job2, xnf, (X10Context)xts.emptyContext(), md);                
 
         }
-        isCallGraphBuild = true;
     }
 
 

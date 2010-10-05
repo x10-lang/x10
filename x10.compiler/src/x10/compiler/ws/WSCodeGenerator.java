@@ -64,7 +64,6 @@ public class WSCodeGenerator extends ContextVisitor {
     final X10TypeSystem xts;
     final X10NodeFactory xnf;
     final Synthesizer synth;
-    final String theLanguage;
     
     //Although there are different WSVisitor, each one has the same WSTransformState
     //FIXME: get rid of the static field
@@ -79,43 +78,23 @@ public class WSCodeGenerator extends ContextVisitor {
     public WSCodeGenerator(Job job, TypeSystem ts, NodeFactory nf, String theLanguage) {
         super(job, ts, nf);
 
-        if(wts == null){
-            wts = new WSTransformState();
-        }
-        
-        wts.addWSJob(job);
-        
         xts = (X10TypeSystem) ts;
         xnf = (X10NodeFactory) nf;
         synth = new Synthesizer(xnf, xts);
-        this.theLanguage = theLanguage;
+
+        if(wts == null){
+            wts = new WSTransformState(theLanguage);
+        }
+
+        wts.addWSJob(job);
     }
 
     @Override
     public NodeVisitor begin() {
         NodeVisitor nv = super.begin();
-        //now initialize wstc
-        wts.updateContextAndVisitor(getX10Context(), theLanguage);
+        wts.buildCallGraph(job, xts, xnf);
         return nv;
     }
-
-    WSCallGraph graph;
-
-    @Override
-    public NodeVisitor superEnter(Node parent, Node n) {
-        if (n instanceof X10ClassDecl && ((X10ClassDecl)n).classDef().isTopLevel()) {
-            X10ClassDecl classDecl = (X10ClassDecl)n;
-            String className = classDecl.name().toString();
-            if(debugLevel > 5){
-                System.out.println("[WS_INFO](running) Class:" + className);
-            }
-            wts.buildCallGraph(job, xnf, xts);
-        }
-        return super.superEnter(parent, n);
-    }
-
-
-
 
     /* 
      * This method will check an AST node, and decide whether transform or not.
@@ -179,7 +158,7 @@ public class WSCodeGenerator extends ContextVisitor {
                 if(mDef.name().toString().equals("main")){
                     WSMainMethodClassGen mainClassGen = (WSMainMethodClassGen) wts.getInnerClass(mDef);
                     mainClassGen.setMethodDecl(mDecl);
-                    mainClassGen.genClass(getX10Context());
+                    mainClassGen.genClass((X10Context) context);
 
                     n = mainClassGen.getNewMainMethod();
                     if(debugLevel > 3){
@@ -189,7 +168,7 @@ public class WSCodeGenerator extends ContextVisitor {
                 else{
                     WSMethodFrameClassGen methodGen = wts.getInnerClass(mDef);
                     methodGen.setMethodDecl(mDecl);
-                    methodGen.genClass(getX10Context());
+                    methodGen.genClass((X10Context) context);
                     n = null;
                     if(debugLevel > 3){
                         System.out.println(methodGen.getFrameStructureDesc(4));
@@ -230,9 +209,5 @@ public class WSCodeGenerator extends ContextVisitor {
         if(!(rActivity.place() instanceof Here)){
             throw new SemanticException("Work-Stealing Compiling only supports single place applications: " + rActivity, ((Node)rActivity).position());
         }
-    }
-
-    X10Context getX10Context(){
-        return (X10Context)context;
     }
 }
