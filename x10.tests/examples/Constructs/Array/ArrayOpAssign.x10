@@ -19,7 +19,7 @@ public class ArrayOpAssign extends x10Test {
 
     public def run(): boolean = {
         var result: boolean = true;
-        val R:Region(2) = [1..10, 1..10];
+        val R = (1..10)*(1..10);
         var ia: Array[int](2) = new Array[int](R, (Point)=>0);
         ia(1, 1) = 1;
         ia(1, 1) += ia(1, 1);
