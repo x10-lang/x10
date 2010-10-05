@@ -56,6 +56,7 @@ import x10.extension.X10Del;
 import x10.extension.X10Del_c;
 import x10.extension.X10Ext;
 import x10.types.TypeParamSubst;
+import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10Context;
@@ -67,6 +68,7 @@ import x10.types.X10TypeSystem_c;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.TypeConstraint;
 import x10.types.matcher.DumbConstructorMatcher;
 import x10.visit.X10TypeChecker;
 
@@ -108,6 +110,10 @@ public class X10New_c extends New_c implements X10New {
     @Override
     public Node buildTypesOverride(TypeBuilder tb) throws SemanticException {
         X10New_c n = (X10New_c) super.buildTypesOverride(tb);
+        if (n.body() != null) {
+            // FIXME: should instead override TypeBuilder.pushAnonClass()
+            ((X10ClassDef)n.anonType()).setTypeBounds(Types.ref(new TypeConstraint()));
+        }
         List<TypeNode> typeArgs = n.visitList(n.typeArguments(), tb);
         n = (X10New_c) n.typeArguments(typeArgs);
         n = (X10New_c) X10Del_c.visitAnnotations(n, tb);
