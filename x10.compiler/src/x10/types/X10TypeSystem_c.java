@@ -111,6 +111,7 @@ import x10.util.ClosureSynthesizer;
  */
 public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	public static final String DUMMY_ASYNC = "$dummyAsync";
+	public static final int EXPAND_MACROS_DEPTH=25;
 
     public X10TypeSystem_c() {
         super();
@@ -1587,14 +1588,21 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
     }
 
     public Type expandMacros(Type t) {
+    	return expandMacros(t, 0);
+    }
+    private Type expandMacros(Type t, int depth) {
+    	if (depth > EXPAND_MACROS_DEPTH) {
+    		System.err.println("Reached max macro expansion depth with " + t + " (at " + t.position());
+    		return unknownType(Position.COMPILER_GENERATED); // bottom
+    	}
         if (t instanceof AnnotatedType)
-            return expandMacros(((AnnotatedType) t).baseType());
+            return expandMacros(((AnnotatedType) t).baseType(), depth+1);
         if (t instanceof MacroType)
-            return expandMacros(((MacroType) t).definedType());
+            return expandMacros(((MacroType) t).definedType(), depth+1);
         if (t instanceof ConstrainedType) {
             ConstrainedType ct = (ConstrainedType) t;
             Type base = ct.baseType().get();
-            Type ebase = expandMacros(base);
+            Type ebase = expandMacros(base, depth+1);
             if (base == ebase)
                 return t;
             CConstraint c = ct.constraint().get();
