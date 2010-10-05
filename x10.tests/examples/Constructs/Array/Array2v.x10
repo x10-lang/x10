@@ -20,9 +20,9 @@ public class Array2v extends x10Test {
     public def run(): boolean = {
 
         val e = 0..9;
-        val r = [e, e, e] as Region;
+        val r = e*e*e;
 
-        chk(r.equals([0..9, 0..9, 0..9] as Region));
+        chk(r.equals((0..9)*(0..9)*(0..9)));
 
         val ia = new Array[int](r, (Point)=>0);
 

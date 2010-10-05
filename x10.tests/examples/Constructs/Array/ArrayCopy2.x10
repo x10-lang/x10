@@ -24,7 +24,7 @@ public class ArrayCopy2 extends x10Test {
      * Returns true iff point x is not in the domain of
      * dist D
      */
-    static def outOfRange(D: Dist, x: Point): boolean {
+    static def outOfRange(D: Dist, x: Point(D.rank)): boolean {
         try {
             async at(D(x)) {}; // dummy op just to use D(x)
         } catch (Throwable) {
