@@ -102,6 +102,7 @@ namespace {
             case CUDA_ERROR_UNKNOWN:
                 errstr = "CUDA_ERROR_UNKNOWN"; break;
 
+            #if CUDA_VERSION >= 3000
             case CUDA_ERROR_NOT_MAPPED_AS_ARRAY:
                 errstr = "CUDA_ERROR_NOT_MAPPED_AS_ARRAY"; break;
             case CUDA_ERROR_NOT_MAPPED_AS_POINTER:
@@ -112,6 +113,7 @@ namespace {
                 errstr = "CUDA_ERROR_POINTER_IS_64BIT"; break;
             case CUDA_ERROR_SIZE_IS_64BIT:
                 errstr = "CUDA_ERROR_SIZE_IS_64BIT"; break;
+            #endif
         
         }
         fprintf(stderr,"%s (At %s:%d)\n",errstr,file,line);
