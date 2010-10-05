@@ -164,7 +164,7 @@ public class WSTransformState {
         return isCallGraphBuild;
     }
     
-    public void buildCallGraph(Job job2, X10NodeFactory xnf, X10TypeSystem xts, WSCodeGenerator wcg){
+    public void buildCallGraph(Job job2, X10NodeFactory xnf, X10TypeSystem xts){
         if(isCallGraphBuild){
             //System.err.println("[WS_ERR]CallGraph has been build. Will not build again!");
             return;
@@ -222,7 +222,7 @@ public class WSTransformState {
                         cmd.toString());     
             }
             
-            this.addMethodAsTargetMethod(job2, xnf, (X10Context)xts.emptyContext(), md, wcg);                
+            this.addMethodAsTargetMethod(job2, xnf, (X10Context)xts.emptyContext(), md);                
 
         }
         isCallGraphBuild = true;
@@ -250,7 +250,7 @@ public class WSTransformState {
      * Add one method as a target method
      * @param methodDef
      */
-    public void addMethodAsTargetMethod(Job job, X10NodeFactory xnf, X10Context xct, ProcedureDef procedureDef, WSCodeGenerator wcg){
+    public void addMethodAsTargetMethod(Job job, X10NodeFactory xnf, X10Context xct, ProcedureDef procedureDef){
         
         if(procedureDef instanceof MethodDef){
             MethodDef methodDef = (MethodDef)procedureDef;
@@ -258,11 +258,11 @@ public class WSTransformState {
             WSMethodFrameClassGen methodGen;
             
             if(methodDef.name().toString().equals("main")){
-                methodGen = new WSMainMethodClassGen(job, xnf, xct, methodDef, this, wcg);
+                methodGen = new WSMainMethodClassGen(job, xnf, xct, methodDef, this);
             }
 
             //create class gen
-            else methodGen = new WSMethodFrameClassGen(job, xnf, xct, methodDef, this, wcg);
+            else methodGen = new WSMethodFrameClassGen(job, xnf, xct, methodDef, this);
             MethodSynth wrapperPair= methodGen.getWraperMethodSynths();
             methodToInnerClassTreeMap.put(methodDef, methodGen); 
             methodToWSMethodMap.put(methodDef, wrapperPair);

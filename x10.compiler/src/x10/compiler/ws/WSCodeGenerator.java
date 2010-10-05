@@ -109,7 +109,7 @@ public class WSCodeGenerator extends ContextVisitor {
             if(debugLevel > 5){
                 System.out.println("[WS_INFO](running) Class:" + className);
             }
-            wts.buildCallGraph(job, xnf, xts, this);
+            wts.buildCallGraph(job, xnf, xts);
         }
         return super.superEnter(parent, n);
     }

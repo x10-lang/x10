@@ -27,7 +27,6 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.util.Pair;
 import x10.ast.Finish;
-import x10.ast.ForEach;
 import x10.ast.ForLoop;
 import x10.ast.When;
 import x10.ast.X10Formal;
@@ -78,8 +77,8 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
     // constructor for called from all other places, normal regular frame/main
     // frame/continuation frame
     protected WSRegularFrameClassGen(Job job, X10NodeFactory xnf, X10Context xct, WSTransformState wsTransformState,
-            AbstractWSClassGen parent, String classNamePrefix, WSCodeGenerator wcg) {
-        super(job, xnf, xct, wsTransformState, parent, wcg);
+            AbstractWSClassGen parent, String classNamePrefix) {
+        super(job, xnf, xct, wsTransformState, parent);
         
         int classSequenceId = (parent == null) ? -1 : parent.assignChildId();
         className = (classSequenceId == -1) ? classNamePrefix : (classNamePrefix + classSequenceId);
@@ -106,8 +105,8 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
      * @param codeBlock
      * @param classNamePrefix
      */
-    protected WSRegularFrameClassGen(AbstractWSClassGen parent, Stmt codeBody, String classNamePrefix, WSCodeGenerator wcg) {
-        this(parent.job, parent.getX10NodeFactory(), parent.getX10Context(), parent.getWSTransformState(), parent, classNamePrefix, wcg);
+    protected WSRegularFrameClassGen(AbstractWSClassGen parent, Stmt codeBody, String classNamePrefix) {
+        this(parent.job, parent.getX10NodeFactory(), parent.getX10Context(), parent.getWSTransformState(), parent, classNamePrefix);
         this.codeBlock = codeBody == null ? null : synth.toBlock(codeBody); //switch frame will have null codeBody
         
     }
@@ -217,9 +216,6 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
                 break;
             case ForLoop:
                 codes = transForLoop((ForLoop) s, prePcValue);
-                break;
-            case ForEach:
-                codes = transForEach((ForEach) s, prePcValue);
                 break;
             case While:
             case DoWhile:
@@ -411,32 +407,6 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
         { //back, nothing
         }
         return transCodes;
-    }
-
-    protected TransCodes transForEach(ForEach fe, int prePcValue) throws SemanticException {
-        // the current way: foreach(s) - > foreach(asycn(s))
-        //  -> and use  forloopoptimizer to unroll it.
-        // then ask a for to transform it
-
-        // based on desugarer's code to foreach(s) - > foreach(asycn(s))
-        // Have to desugar some newly-created nodes
-        Expr here = xnf.Here(fe.body().position());
-        here = synth.makeStaticCall(here.position(), xts.Runtime(), Name.make("here"), xts.Place(), xct);
-
-        Stmt body = xnf.Async(fe.body().position(), fe.clocks(), fe.body());
-        X10Formal formal = (X10Formal) fe.formal();
-        X10Loop floop = xnf.ForLoop(fe.position(), formal, fe.domain(), body);
-        floop = floop.locals(formal.explode(wcg));
-
-        For f = processForLoop(floop); //transform (i : domain)
-
-        if (debugLevel > 4) {
-            System.err.println("[WS_DEBUG]ForEach -> For LOOP transformation");
-            fe.prettyPrint(System.err);
-            System.err.println("          --------- To -------->>");
-            f.prettyPrint(System.err);
-        }
-        return transFor(f, prePcValue);
     }
 
     protected TransCodes transFor(For f, int prePcValue) throws SemanticException {

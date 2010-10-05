@@ -58,9 +58,9 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
     protected List<LocalAssign> outFinishScopeLocalAssign;//all the locals in this scope need be processed in move
     
     
-    public WSAsyncClassGen(AbstractWSClassGen parent, Stmt asyncStmt, WSCodeGenerator wcg) {
+    public WSAsyncClassGen(AbstractWSClassGen parent, Stmt asyncStmt) {
         //Note in building the tree, we use parentFinish as async frame's up frame
-        super(parent.job, parent.getX10NodeFactory(), parent.getX10Context(), parent.getWSTransformState(), getFinishFrameOfAsyncFrame(parent), wcg);
+        super(parent.job, parent.getX10NodeFactory(), parent.getX10Context(), parent.getWSTransformState(), getFinishFrameOfAsyncFrame(parent));
         //and record it's parent continuation to looking for accessible local variables
         this.parentK = parent;
         frameDepth = parent.frameDepth + 1;

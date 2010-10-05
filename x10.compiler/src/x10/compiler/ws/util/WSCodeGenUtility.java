@@ -37,7 +37,6 @@ import x10.ast.Async;
 import x10.ast.Closure;
 import x10.ast.ClosureCall;
 import x10.ast.Finish;
-import x10.ast.ForEach;
 import x10.ast.Future;
 import x10.ast.PlacedClosure;
 import x10.ast.StmtSeq;
@@ -143,7 +142,7 @@ public class WSCodeGenUtility {
     /**
      * Check whether the code node contains concurrent construct or not
      * Concurrent construct includes:
-     *     async/finish/foreach/etc.
+     *     async/finish/etc.
      * NOTE: if it contains a closure/inner class /etc, and the closure has some concurrent, 
      * the current node will not be visited as a concurrent node
      * @param node
@@ -489,7 +488,6 @@ public class WSCodeGenUtility {
                     //|| n instanceof Future //Future is translated from Async
                     || n instanceof PlacedClosure // is An abstraction for future(p) Expr and at(p) Expr
                     || n instanceof Async  //direct async
-                    || n instanceof ForEach
                     || n instanceof When) {
                 isConcurrent = true;
             }

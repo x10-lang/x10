@@ -29,7 +29,6 @@ import polyglot.util.Pair;
 import x10.ast.Async;
 import x10.ast.Finish;
 import x10.ast.FinishExpr;
-import x10.ast.ForEach;
 import x10.ast.ForLoop;
 import x10.ast.Future;
 import x10.ast.When;
@@ -56,13 +55,13 @@ import x10.types.X10TypeSystem;
  * Besides the previous directly translation, other statements if they contain one of above 
  * code pattern need to be translated.
  * 
- * Category I: control flows, such as return, if, for forloop, foreach, while, do while, switch
+ * Category I: control flows, such as return, if, for forloop, while, do while, switch
  *    These statements will be processed by specific frame generation code
  *    
  * Category II: compound statements, 
  *     e.g. Eval: a = foo(abc()); a = foo() + abc();
  *     e.g. If: if's condition
- *     e.g. for forloop, foreach, while, swtich's condition, updates, and initial codes contains target code
+ *     e.g. for forloop, while, swtich's condition, updates, and initial codes contains target code
  *     e.g. return's result contains target content
  * 
  */
@@ -77,7 +76,6 @@ public class CodePatternDetector {
                   If,
                   For,
                   ForLoop,
-                  ForEach,
                   While,
                   DoWhile,
                   Switch,
@@ -193,17 +191,6 @@ public class CodePatternDetector {
             }
             else{
                 return new Pair<Pattern, Stmt>(Pattern.ForLoop, stmt);
-            }
-        }
-        
-        if(stmt instanceof ForEach){
-            ForEach foreachStmt = (ForEach)stmt;
-            
-            if(WSCodeGenUtility.isComplexCodeNode(foreachStmt.domain(), wts)){
-                return new Pair<Pattern, Stmt>(Pattern.Compound, stmt);
-            }
-            else{
-                return new Pair<Pattern, Stmt>(Pattern.ForEach, stmt);
             }
         }
         

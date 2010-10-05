@@ -30,7 +30,7 @@ public class WSWhileDoLoopClassGen extends WSRegularFrameClassGen {
     
     public WSWhileDoLoopClassGen(AbstractWSClassGen parent, Loop loopS) {
         super(parent, loopS.body(), 
-              WSCodeGenUtility.getLoopClassName(parent.getClassName()), parent.wcg);
+              WSCodeGenUtility.getLoopClassName(parent.getClassName()));
     
         this.loopStmt = loopS;
     }

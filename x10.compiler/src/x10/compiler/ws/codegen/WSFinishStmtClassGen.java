@@ -28,7 +28,7 @@ public class WSFinishStmtClassGen extends AbstractWSClassGen {
 
     public WSFinishStmtClassGen(AbstractWSClassGen parent, Finish finish) {
         super(parent.job, parent.getX10NodeFactory(), parent.getX10Context(), parent.getWSTransformState(),
-              parent, parent.wcg);
+              parent);
 
         this.finish = finish;
 

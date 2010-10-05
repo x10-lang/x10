@@ -35,7 +35,7 @@ public class WSSwitchClassGen extends WSRegularFrameClassGen {
     
     public WSSwitchClassGen(AbstractWSClassGen parent, Switch switchStmt) {
         super(parent, null, 
-              WSCodeGenUtility.getSwitchClassName(parent.getClassName()), parent.wcg);
+              WSCodeGenUtility.getSwitchClassName(parent.getClassName()));
     
         this.switchStmt = switchStmt;
     }

@@ -54,10 +54,10 @@ public class WSMethodFrameClassGen extends WSRegularFrameClassGen {
     
 
     public WSMethodFrameClassGen(Job job, X10NodeFactory xnf, X10Context xct,
-                                  MethodDef methodDef, WSTransformState wsTransformState, WSCodeGenerator wcg) {
+                                  MethodDef methodDef, WSTransformState wsTransformState) {
     
         super(job, xnf, xct, wsTransformState, null/*A method has no parent*/,
-             WSCodeGenUtility.getMethodBodyClassName(methodDef), wcg);
+             WSCodeGenUtility.getMethodBodyClassName(methodDef));
         
         frameDepth = 0;
         //now consider the flags/kind and outer class
