@@ -2776,20 +2776,17 @@ public class Emitter {
         w.write("(");
         
         boolean first = true;
-        if (def instanceof X10MethodDef) {
-            X10MethodDef x10def = (X10MethodDef) def;
-            for (ParameterType p : x10def.typeParameters()) {
-                if (!first) {
-                    w.write(",");
-                    w.allowBreak(0, " ");
-                }
-                first = false;
-                
-                w.write("final ");
-                w.write(X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS);
-                w.write(" ");
-                w.write(Emitter.mangleToJava(p.name()));
+        X10MethodDef x10def = (X10MethodDef) def;
+        for (ParameterType p : x10def.typeParameters()) {
+            if (!first) {
+                w.write(",");
+                w.allowBreak(0, " ");
             }
+            first = false;
+            w.write("final ");
+            w.write(X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS);
+            w.write(" ");
+            w.write(Emitter.mangleToJava(p.name()));
         }
         
         Name[] names = new Name[def.formalTypes().size()];
@@ -2890,16 +2887,15 @@ public class Emitter {
             w.write("(");
 
             boolean first2 = true;
-            if (mi instanceof X10MethodInstance) {
-                X10MethodInstance x10mi = (X10MethodInstance) mi;
-                for (Type t : x10mi.typeParameters()) {
-                    if (!first2) {
-                        w.write(",");
-                        w.allowBreak(0, " ");
-                    }
-                    first2 = false;
-                    new RuntimeTypeExpander(this, t).expand(tr);
+            X10MethodInstance x10mi = (X10MethodInstance) mi;
+            assert (x10mi.typeParameters().size() == x10def.typeParameters().size());
+            for (Type t : x10def.typeParameters()) {
+                if (!first2) {
+                    w.write(",");
+                    w.allowBreak(0, " ");
                 }
+                first2 = false;
+                new RuntimeTypeExpander(this, t).expand(tr);
             }
 
             for (int i = 0; i < mi.formalTypes().size(); i++) {
