@@ -44,7 +44,7 @@ public class CUDAUtilities {
                                          local:IndexedMemoryChunk[T],
                                          remote:IndexedMemoryChunk[T],
                                          numElements:Int) : Void {
-        finish local.asyncCopyTo(0,gpu,remote,0,numElements,false);
+        finish local.asyncCopyTo(0,gpu,remote,0,numElements);
     }
 
     private static def makeCUDAArray[T] (gpu:Place, numElements:Int, init:IndexedMemoryChunk[T])

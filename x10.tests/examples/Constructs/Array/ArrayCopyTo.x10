@@ -16,7 +16,7 @@ import harness.x10Test;
  */
 public class ArrayCopyTo extends x10Test {
     static R1 = 20..100;
-    static R2:Region(2) = [0..9,0..9];
+    static R2:Region(2) = (0..9)*(0..9);
 
     public def run() {
        val localA = new Array[int](R1,(p:Point)=>p(0));

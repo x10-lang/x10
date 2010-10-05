@@ -45,11 +45,11 @@ namespace x10 {
 
     	    void copyTo(x10_int srcIndex, x10::lang::Place dstPlace,
                         x10::util::IndexedMemoryChunk<T> dst,
-                        x10_int dstIndex, x10_int numElems, x10_boolean uncounted);
+                        x10_int dstIndex, x10_int numElems);
 
     	    void copyFrom(x10_int dstIndex, x10::lang::Place srcPlace,
                           x10::util::IndexedMemoryChunk<T> src,
-                          x10_int srcIndex, x10_int numElems, x10_boolean uncounted);
+                          x10_int srcIndex, x10_int numElems);
 
             x10::util::IndexedMemoryChunk<T>* operator->() { return this; }
         
