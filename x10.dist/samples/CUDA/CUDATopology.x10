@@ -14,10 +14,10 @@ import x10.io.Console;
 
 public class CUDATopology {
     public static def main (Array[String]) {
-        for (p in Place.places) {
+        for (p in Place.places()) {
             at (p) {
                 Console.OUT.println("Dumping places at place: "+p);
-                for (p2 in Place.places) {
+                for (p2 in Place.places()) {
                     Console.OUT.println("Place: "+p2);
                     Console.OUT.println("  Parent: "+p2.parent());
                     Console.OUT.println("  NumChildren: "+p2.numChildren());

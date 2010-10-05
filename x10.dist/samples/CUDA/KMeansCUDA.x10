@@ -85,7 +85,7 @@ public class KMeansCUDA {
 
             finish {
 
-                for (h in Place.places) {
+                for (h in Place.places()) {
 
                     val workers = Place.NUM_ACCELS==0 ? new Array[Place][h] : h.children();
 
