@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.compiler.NonEscaping;
 
 /**
  * @author bdlucas 10/2008
@@ -25,7 +26,7 @@ class XTENLANG_52 extends x10Test {
     
         static type R(rank:int) = R{self.rank==rank};
     
-        public final def get(): R(rank) { throw new RuntimeException(); }
+        @NonEscaping public final def get(): R(rank) { throw new RuntimeException(); }
     
         val rs = [get()];
     

@@ -13,6 +13,7 @@ package x10.util;
 
 import x10.compiler.TempNoInline_1;
 import x10.io.CustomSerialization;
+import x10.compiler.NonEscaping;
 
   public class HashMap[K,V] implements Map[K,V], CustomSerialization {
     static class HashEntry[Key,Value] implements Map.Entry[Key,Value] {
@@ -63,7 +64,7 @@ import x10.io.CustomSerialization;
         init(pow2);
     }
     
-    final @TempNoInline_1 def init(sz: int): void {
+    @NonEscaping final @TempNoInline_1 def init(sz: int): void {
         // check that sz is a power of 2
         assert (sz & -sz) == sz;
         assert sz >= MIN_SIZE;
@@ -81,7 +82,7 @@ import x10.io.CustomSerialization;
     }
     
     protected def hash(k: K): Int = hashInternal(k);
-    protected final def hashInternal(k: K): Int {
+    @NonEscaping protected final def hashInternal(k: K): Int {
         return k.hashCode() * 17;
     }
     
@@ -144,7 +145,7 @@ import x10.io.CustomSerialization;
     }
     
     public def put(k: K, v: V): Box[V] = putInternal(k,v);
-    protected final def putInternal(k: K, v: V): Box[V] {
+    @NonEscaping protected final def putInternal(k: K, v: V): Box[V] {
         if (occupation == table.length || (shouldRehash && occupation >= table.length / 2))
             rehashInternal();
 
@@ -180,7 +181,7 @@ import x10.io.CustomSerialization;
     }
     
     public def rehash():void  = rehashInternal();
-    protected final def rehashInternal(): void {
+    @NonEscaping protected final def rehashInternal(): void {
         modCount++;
         val t = table;
         val oldSize = size;

@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.compiler.NonEscaping;
 
 
 
@@ -19,7 +20,7 @@ import harness.x10Test;
 
 public class InitFieldWithCall  extends x10Test {
 
-    final def m()=1;
+    @NonEscaping final def m()=1;
     val a = m();
   
     public def run() =true;

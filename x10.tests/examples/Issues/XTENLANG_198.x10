@@ -10,6 +10,7 @@
  */
 
 import harness.x10Test;
+import x10.compiler.NonEscaping;
 
 /**
  * @author bdlucas 12/2008
@@ -19,7 +20,7 @@ import harness.x10Test;
 class XTENLANG_198 extends x10Test {
 
     static class A {
-        final def foo(): String = "A";
+        @NonEscaping final def foo(): String = "A";
         val x:String;
         def this() {
             x = foo();

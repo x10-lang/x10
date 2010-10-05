@@ -498,7 +498,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
     public Node typeCheck(ContextVisitor tc) throws SemanticException {
         X10ConstructorDecl_c n = this;
         
-        ThisChecker thisC = (ThisChecker) new ThisChecker(tc.job()).context(tc.context());
+        ThisChecker thisC = new ThisChecker(tc.job());
         if (formals != null) {
             visitList(formals, thisC);
             if (thisC.error()) {

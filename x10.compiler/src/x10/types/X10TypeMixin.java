@@ -1133,22 +1133,11 @@ public class X10TypeMixin {
     public static boolean isSuppressTransientErrorField(X10FieldDef def,X10TypeSystem ts) {
         return isDefAnnotated(def,ts,"x10.compiler.SuppressTransientError");
     }
-    public static String getNonEscapingReadsFrom(X10Def def,X10TypeSystem ts) {
-        try {
-            Type at = (Type) ts.systemResolver().find(QName.make("x10.compiler.NonEscaping"));
-            final List<Type> annotations = def.annotationsMatching(at);
-            if (annotations.isEmpty()) return null;
-            Type first = annotations.get(0);
-            if (!(first instanceof X10ParsedClassType_c)) return null;
-            X10ParsedClassType_c nonEscaping = (X10ParsedClassType_c) first;
-            final List<Expr> list = nonEscaping.propertyInitializers();
-            if (list.size()!=1) return ""; // @NonEscaping is like @NonEscaping("")
-            Expr arg = list.get(0);
-            if (arg==null || !(arg instanceof X10StringLit_c)) return ""; // @NonEscaping(null) is like @NonEscaping("")
-            return ((X10StringLit_c) arg).stringValue();
-        } catch (SemanticException e) {
-            return null;
-        }
+    public static boolean isNoThisAccess(X10ProcedureDef def,X10TypeSystem ts) {
+        return isDefAnnotated(def,ts,"x10.compiler.NoThisAccess");
+    }
+    public static boolean isNonEscaping(X10ProcedureDef def,X10TypeSystem ts) {
+        return isDefAnnotated(def,ts,"x10.compiler.NonEscaping");
     }
     public static boolean isDefAnnotated(X10Def def,X10TypeSystem ts, String name) {
         try {

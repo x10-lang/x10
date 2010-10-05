@@ -30,6 +30,7 @@ import x10.types.X10FieldDef;
 import x10.types.X10ParsedClassType_c;
 import x10.types.X10ProcedureDef;
 import x10.types.X10MethodDef;
+import x10.types.checker.ThisChecker;
 
 import java.util.HashMap;
 import java.util.Set;
@@ -235,21 +236,18 @@ public class CheckEscapingThis extends NodeVisitor
                 MethodInfo info = allMethods.get(currDecl.procedureInstance());                  
                 final boolean ctor = isCtor();
                 if (!ctor) assert info!=null : currDecl;
-                final Set<FieldDef> canReadFrom = ctor ? Collections.<FieldDef>emptySet() : info.canReadFrom;
                 // can't read from an un-init var in the ctors (I want to catch it here, so I can give the exact position info)
-                // can't read from any var not in @NonEscaping(...)
-                if (canReadFrom!=null) {
+                // can't read from any var if @NoThisAccess
+                if (ctor) {
                     for (FieldDef f : fields) {
                         boolean readBefore = isRead(inItem.initStatus.get(f));
                         final int fRes = res.initStatus.get(f);
                         if (!readBefore && isRead(fRes)) {
-                            if (!canReadFrom.contains(f)) {
-                                // wasn't read before, and we read it now (either because of Field access, or X10Call)
-                                reportError("Cannot read from field '"+f.name()+"' before it is definitely assigned.",n.position());
-                                // I want to report more errors with this field, so I remove the read status
-                                res.initStatus.put(f,build(false, isWrite(fRes),isSeqWrite(fRes)));
-                                wasError = true;
-                            }
+                            // wasn't read before, and we read it now (either because of Field access, or X10Call)
+                            reportError("Cannot read from field '"+f.name()+"' before it is definitely assigned.",n.position());
+                            // I want to report more errors with this field, so I remove the read status
+                            res.initStatus.put(f,build(false, isWrite(fRes),isSeqWrite(fRes)));
+                            wasError = true;
                         }
                     }
                 }
@@ -302,15 +300,8 @@ public class CheckEscapingThis extends NodeVisitor
             } else {
                 MethodInfo oldInfo = allMethods.get(procDef);
                 assert oldInfo!=null : currDecl;
-                if (hasNonEscapingAnnot(procDef)) {
-                    // the read-set should not change (we already reported an error if it did change)
-                    newInfo.read.clear();
-                    newInfo.read.addAll(oldInfo.read);
-                }
-                if (noWrites(procDef)) {
-                    newInfo.write.clear();
-                    newInfo.seqWrite.clear();
-                }
+                assert !X10TypeMixin.isNoThisAccess((X10ProcedureDef)procDef,(X10TypeSystem)ts);
+
                 // proof that the fix-point terminates: write set decreases while the read set increases
                 assert oldInfo.write.containsAll(newInfo.write);
                 assert oldInfo.seqWrite.containsAll(newInfo.seqWrite);
@@ -324,28 +315,19 @@ public class CheckEscapingThis extends NodeVisitor
                     // no change!
                 } else {
                     wasChange = true;
-                    newInfo.canReadFrom = oldInfo.canReadFrom;
                     allMethods.put(procDef,newInfo);
                 }
             }
         }
     }
     private MethodInfo getInfo(X10Call call) {
-        if (isTargetThis(call) && findMethod(call)!=null) {
-            final MethodInfo info = allMethods.get(call.methodInstance().def());
+        final X10MethodDef def = (X10MethodDef) call.methodInstance().def();
+        if (isTargetThis(call) && findMethod(call)!=null && !X10TypeMixin.isNoThisAccess(def,ts)) {
+            final MethodInfo info = allMethods.get(def);
             assert info!=null;
             return info;
         }
         return null;
-    }
-    private boolean hasNonEscapingAnnot(ProcedureDef def) {
-        return X10TypeMixin.getNonEscapingReadsFrom((X10ProcedureDef) def, ts) != null;
-    }
-    private boolean noWrites(ProcedureDef def) {
-        // if it is not a final/private method (which can be the case for @NonEscaping),
-        // then the write-set must be empty (because it might be overriden and then the write doesn't happen)
-        final boolean hasNonEscapingAnnot = hasNonEscapingAnnot(def);
-        return hasNonEscapingAnnot && !isPrivateOrFinal(def);
     }
     private boolean isProperty(FieldDef def) {
         final X10Flags flags = X10Flags.toX10Flags(def.flags());
@@ -407,13 +389,18 @@ public class CheckEscapingThis extends NodeVisitor
             Position pos = n.position();
             if (!canUseThis() && n instanceof X10Call) {
                 final X10Call call = (X10Call) n;
-                MethodInfo info = getInfo(call);
-                if (info!=null) {
-                    if (info.read.size()==0 && info.write.size()==0) {
+                if (isTargetThis(call)) {
+                    if (X10TypeMixin.isNoThisAccess((X10MethodDef)call.methodInstance().def(),ts)) {
+                        // && X10TypeMixin.getNonEscapingReadsFrom((X10MethodDef)call.methodInstance().def(),ts)==null) { // @NonEscaping methods cannot write to any fields
                         // even though we use "this.call(...)", this is legal
                         // because the call doesn't read nor write to "this"
                     } else {
-                        reportError("You can use 'this' before 'property(...)' to call only methods that do not read nor write any fields.",pos);
+                        MethodInfo info = getInfo(call);
+                        if (info!=null && info.read.size()==0 && info.write.size()==0) {
+                            // ok
+                        } else {
+                            reportError("You can use 'this' before 'property(...)' to call only @NoThisAccess methods or NonEscaping methods that do not read nor write any fields.",pos);
+                        }
                     }
                     for (Expr e : call.arguments())
                         e.visit(this);
@@ -475,9 +462,8 @@ public class CheckEscapingThis extends NodeVisitor
     }
 
 
-    // we gather info on every private/final/@NonEscaping method
+    // we gather info on every private/final/@NonEscaping method called during construction (@NoThisAccess do not access "this", so no need to analyze them)
     private static class MethodInfo {
-        private Set<FieldDef> canReadFrom = null;
         private final Set<FieldDef> read = new HashSet<FieldDef>();
         private final Set<FieldDef> write = new HashSet<FieldDef>();
         private final Set<FieldDef> seqWrite = new HashSet<FieldDef>();
@@ -492,7 +478,7 @@ public class CheckEscapingThis extends NodeVisitor
     // the keys are either X10ConstructorDecl_c or X10MethodDecl_c
     private final HashMap<ProcedureDef,MethodInfo> allMethods = new LinkedHashMap<ProcedureDef, MethodInfo>(); // all ctors and methods recursively called from allMethods on receiver "this"
     private final ArrayList<ProcedureDecl> dfsMethods = new ArrayList<ProcedureDecl>(); // to accelerate the fix-point alg
-    // the set of all VAR and VAL fields, including those in the superclass due to @NonEscaping (we need to check that VAL are read properly, and that VAR are written and read properly.)
+    // the set of all VAR and VAL fields (without properties), including those in the superclass because of super() call (we need to check that VAL are read properly, and that VAR are written and read properly.)
     // InitChecker already checks that VAL are assigned in every ctor exactly once (and never assigned in other methods)
     // Therefore we can now treat both VAL and VAR identically.
     private final HashSet<FieldDef> fields = new HashSet<FieldDef>();
@@ -593,8 +579,6 @@ public class CheckEscapingThis extends NodeVisitor
         // Find globalRefs
         calcGlobalRefs(nonStaticFields);
 
-
-
         // inline the field-initializers in every ctor
         ArrayList<Stmt> fieldInits = new ArrayList<Stmt>();
         final Position pos = Position.COMPILER_GENERATED;
@@ -607,12 +591,12 @@ public class CheckEscapingThis extends NodeVisitor
                     fieldInstance(def.asInstance()).
                     type(init.type());
             fieldInits.add(nf.Eval(pos, fieldAssign));
-            if (!globalRef.contains(def)) init.visit(this); // field init are implicitly NonEscaping
+            if (!globalRef.contains(def)) init.visit(this); // field init are like a ctor
         }
         Block newInit = nf.Block(pos,fieldInits);
 
 
-        // visit every ctor, every @NonEscaping method, and every method recursively called from them, and check that this and super do not escape
+        // visit every ctor, every @NoThisAccess/@NonEscaping method, and every method recursively called from them, and check that this and super do not escape
         ArrayList<X10ConstructorDecl_c> allCtors = new ArrayList<X10ConstructorDecl_c>();
         for (ClassMember classMember : body.members()) {
             if (classMember instanceof ProcedureDecl) {
@@ -621,52 +605,54 @@ public class CheckEscapingThis extends NodeVisitor
                 final Block procBody = proc.body();
 
                 if (def instanceof X10MethodDef) {
-                    String readsFrom = X10TypeMixin.getNonEscapingReadsFrom(def,ts);
-
-                    // check that overriding perserves the exact @NonEscaping annotation
                     X10MethodDef x10def = (X10MethodDef) def;
-                    final MethodInstance instance = x10def.asInstance();
-                    final Context emptyContext = ts.emptyContext();
-                    final List<MethodInstance> overriddenMethods = ts.overrides(instance, emptyContext);
-                    for (MethodInstance overriddenMI : overriddenMethods) {
-                        MethodDef overriddenDef = overriddenMI.def();
-                        if (overriddenDef==def) continue; // me
-                        String overriddenReadsFrom = X10TypeMixin.getNonEscapingReadsFrom((X10MethodDef)overriddenDef,ts);
-                        if (overriddenReadsFrom!=null) {
-                            if (readsFrom==null || !overriddenReadsFrom.equals(readsFrom)) {
-                                reportError("You must annotate "+proc+" with @NonEscaping(\""+overriddenReadsFrom+"\") because it overrides a method annotated with that.", proc.position());
+                    boolean isNoThisAccess = X10TypeMixin.isNoThisAccess(x10def,ts);
+                    boolean isNonEscaping = X10TypeMixin.isNonEscaping(x10def,ts);
+
+                    // if we overrode a method with @NoThisAccess, then we must be annotated with @NoThisAccess
+                    // (NonEscaping is private/final, so cannot be overriden)
+                    if (!isNoThisAccess) {
+                        final MethodInstance instance = x10def.asInstance();
+                        final Context emptyContext = ts.emptyContext();
+                        final List<MethodInstance> overriddenMethods = ts.overrides(instance, emptyContext);
+                        for (MethodInstance overriddenMI : overriddenMethods) {
+                            MethodDef overriddenDef = overriddenMI.def();
+                            if (overriddenDef==def) continue; // me
+                            boolean overriddenIsNoThisAccess = X10TypeMixin.isNoThisAccess((X10MethodDef)overriddenDef,ts);
+                            if (overriddenIsNoThisAccess) {
+                                reportError("You must annotate "+proc+" with @NoThisAccess because it overrides a method annotated with that.", proc.position());
                                 break; // one such error msg is enough
                             }
                         }
                     }
-                    
-                    if (readsFrom==null) continue;
 
-                    // check all the fields in the annotation are found
-                    final MethodInfo info = new MethodInfo();
-                    info.canReadFrom = new HashSet<FieldDef>();
-                    String[] fieldNames = readsFrom.split(",");
-                    for (String fieldName : fieldNames) {
-                        String trimmed = fieldName.trim();
-                        if (trimmed.equals("")) continue;
-                        FieldDef field = findField(trimmed);
-                        if (field==null) reportError("Could not find field '"+trimmed+"' used in the annotation @NonEscaping.", proc.position());
-                        info.canReadFrom.add(field);
-                        info.read.add(field);
+
+                    if (isNoThisAccess) { // NoThisAccess is stronger than NonEscaping so we check it first (in case someone wrote both annotations)
+                        // check "this" is not accessed at all
+                        if (procBody!=null) { // native/abstract methods
+                            ThisChecker thisChecker = new ThisChecker(job);
+                            procBody.visit(thisChecker);
+                            if (thisChecker.error())
+                                reportError("You cannot use 'this' or 'super' in a method annotated with @NoThisAccess",procBody.position());
+                        }
+                        // No need to do procBody.visit(this)  because "this"/"super" are not used in a NoThisAccess method.
+                    } else if (isNonEscaping) {
+                        if (!isPrivateOrFinal(x10def))
+                            reportError("A @NonEscaping method must be private or final.", proc.position());
+                        if (procBody!=null && !allMethods.containsKey(def)) { // for native methods/ctors, we don't have a body
+                            final MethodInfo info = new MethodInfo();
+                            allMethods.put(def, info);
+                            procBody.visit(this);
+                            dfsMethods.add(proc);
+                        }
                     }
-                    if (procBody==null) continue; // for native methods/ctors, we don't have a body
-
-                    allMethods.put(proc.procedureInstance(), info);
-                    dfsMethods.add(proc);
-
                 } else {
-                    if (procBody==null) continue;
+                    if (procBody==null) continue; // native ctors
                     assert proc instanceof X10ConstructorDecl_c : proc;
                     final X10ConstructorDecl_c ctor = (X10ConstructorDecl_c) proc;
                     allCtors.add(ctor);
+                    procBody.visit(this);
                 }
-                procBody.visit(this);
-
             }
         }
         // we still need to CheckCtor (make sure super, this and property is correct)
@@ -675,10 +661,8 @@ public class CheckEscapingThis extends NodeVisitor
         // do init for the fixed point alg
         for (Map.Entry<ProcedureDef, MethodInfo> entry : allMethods.entrySet()) {
             MethodInfo info = entry.getValue();
-            if (!noWrites(entry.getKey())) {
-                info.write.addAll(fields);
-                info.seqWrite.addAll(fields);
-            }
+            info.write.addAll(fields);
+            info.seqWrite.addAll(fields);
         }
         // run fix point alg: ctors do not need to be in the fixed point alg because nobody can call them directly
         final FieldChecker fieldChecker = new FieldChecker(INIT);
@@ -703,7 +687,6 @@ public class CheckEscapingThis extends NodeVisitor
                 ctor.visit(checkCtor);
                 checkCtor.postCheck();
 
-                // ctors are implicitly NonEscaping
                 final ConstructorCall cc = getConstructorCall(ctor);
                 if (cc!=null && cc.kind() == ConstructorCall.THIS) {
                     // ignore in dataflow ctors that call other ctors (using "this(...)").
@@ -714,13 +697,6 @@ public class CheckEscapingThis extends NodeVisitor
                 fieldChecker.checkResult();
             }
         }
-    }
-    private FieldDef findField(String name) {
-        for (FieldDef fieldDef : fields)
-            if (fieldDef.name().toString().equals(name)) {
-                return fieldDef;
-            }
-        return null;
     }
     private static ConstructorCall getConstructorCall(X10ConstructorDecl_c ctor) {
         // We can reuse ConstructorCallChecker, but for better efficiency, we just check it directly
@@ -772,22 +748,29 @@ public class CheckEscapingThis extends NodeVisitor
             final MethodInstance methodInstance = call.methodInstance();
             final X10ProcedureDef procDef = (X10ProcedureDef) methodInstance.def();
             if (isThis(call.target())) {
-                if (isProperty(procDef)) {
-                    // property-method calls are ok
+                boolean hasNoThisAccess = X10TypeMixin.isNoThisAccess(procDef,ts);
+                if (isProperty(procDef) || hasNoThisAccess) {
+                    // property-method calls and calls to @NoThisAccess are ok
                 } else {
-                    // the method must be final or private or NonEscaping
-                    String readsFrom = X10TypeMixin.getNonEscapingReadsFrom(procDef,ts);
-                    if (readsFrom==null && !isPrivateOrFinal(procDef))
-                        reportError("The call "+call+" is illegal because you can only call private/final/@NonEscaping methods from a NonEscaping method (such as a constructor, a field initializer, or a @NonEscaping method)", call.position());
+                    // the method must be final or private (or @NoThisAccess)
+                    final Position callPos = call.position();
+                    boolean isNonEscaping = X10TypeMixin.isNonEscaping(procDef,ts);
                     X10MethodDecl_c method = findMethod(call);
                     if (method==null) {
-                        if (readsFrom==null)
-                            reportError("The call "+call+" is illegal because you can only call @NonEscaping methods of a superclass from a constructor or from methods called from a constructor",call.position());
+                        // in the future: we could infer nonescaping from the superclass. The problem is that it is hard to understand the error messages that result from such inference
+                        // Igor: I think we should disallow the call to foo() when we infer that foo() escapes this.  The error message may mention @NonEscaping -- once the user annotates foo() with @NonEscaping, the compiler will tell him/her where the potential points of escape are. 
+                        if (!isNonEscaping)
+                            reportError("The call "+call+" is illegal because you can only call a superclass method during construction only if it is annotated with @NonEscaping.", callPos);
                     } else {
+                        if (!isPrivateOrFinal(procDef) && !isNonEscaping) // if it is NonEscaping, we will already report the error: "A @NonEscaping method must be private or final."
+                            reportError("The call "+call+" is illegal because you can only call private/final @NonEscaping methods or @NoThisAccess methods during construction.", callPos);
+
                         ProcedureDef pd = method.procedureInstance();
                         if (allMethods.containsKey(pd)) {
                             // we already analyzed this method (or it is an error method)
                         } else {
+                            if (!isNonEscaping)
+                                job.compiler().errorQueue().enqueue(ErrorInfo.WARNING,"Method '"+procDef.signature()+"' is called during construction and therefore should be marked as @NonEscaping.", method.position());                            
                             final Block body = method.body();
                             if (body!=null) {
                                 allMethods.put(pd,new MethodInfo()); // prevent infinite recursion
