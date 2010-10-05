@@ -89,7 +89,7 @@ public class KMeansCUDA {
 
                     val workers = Place.NUM_ACCELS==0 ? new Array[Place][h] : h.children();
 
-                    for (gpu in workers.items()) async at (h) {
+                    for (gpu in workers.values()) async at (h) {
 
                         val role = gpu==h ? h.id : gpu.id - Place.MAX_PLACES;
 

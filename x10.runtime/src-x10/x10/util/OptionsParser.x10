@@ -43,7 +43,7 @@ public final class OptionsParser {
                 continue;
             }
             if (!ended) {
-                if (flags!=null) for (flag in flags.items()) {
+                if (flags!=null) for (flag in flags.values()) {
                     if (recognised) break;
                     if (s.equals(flag.short_) || s.equals(flag.long_)) {
                         if (flag.short_!=null) set.put(flag.short_, true);
@@ -51,7 +51,7 @@ public final class OptionsParser {
                         recognised = true;
                     }
                 }
-                if (specs!=null) for (spec in specs.items()) {
+                if (specs!=null) for (spec in specs.values()) {
                     if (recognised) break;
                     if (s.equals(spec.short_) || s.equals(spec.long_)) {
                         recognised = true;

@@ -85,7 +85,7 @@ public final struct Place(id: Int)  {
 
     private static places = new Array[Place](MAX_PLACES, ((id:Int) => Place(id)));
     public static def places():Sequence[Place]=places.sequence();
-    public static children = childrenArray.items();
+    public static children = childrenArray.values();
     public static NUM_ACCELS = ALL_PLACES - MAX_PLACES;
     public static FIRST_PLACE:Place(0) = Place(0);
 

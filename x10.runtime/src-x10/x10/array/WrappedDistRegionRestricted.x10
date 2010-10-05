@@ -31,9 +31,9 @@ final class WrappedDistRegionRestricted extends Dist {
 
     public def numPlaces() = base.numPlaces();
 
-    public def regions():Iterable[Region(rank)] {
+    public def regions():Sequence[Region(rank)] {
         return new Array[Region(rank)](Place.MAX_PLACES, 
-                                          (i:int)=>base.get(Place(i)).intersection(filter)).items();
+                                          (i:int)=>base.get(Place(i)).intersection(filter)).sequence();
     }
 
     public def get(p:Place):Region(rank) {

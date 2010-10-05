@@ -31,8 +31,8 @@ final class WrappedDistPlaceRestricted extends Dist {
 
     public def numPlaces() = 1;
 
-    public def regions():Iterable[Region(rank)] {
-        return new Array[Region(rank)](1, (int)=>region).items();
+    public def regions():Sequence[Region(rank)] {
+        return new Array[Region(rank)](1, (int)=>region).sequence();
     }
 
     public def get(p:Place):Region(rank) {

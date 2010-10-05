@@ -33,8 +33,8 @@ class UniqueDist extends Dist(1){rect} {
 
     public def numPlaces():int = Place.MAX_PLACES;
 
-    public def regions():Iterable[Region(rank)] {
-	return	new Array[Region(rank)](Place.MAX_PLACES, (i:int)=>((i..i) as Region(rank))).items();
+    public def regions():Sequence[Region(rank)] {
+	return	new Array[Region(rank)](Place.MAX_PLACES, (i:int)=>((i..i) as Region(rank))).sequence();
     }
 
     public def get(p:Place):Region(rank) {

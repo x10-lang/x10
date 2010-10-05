@@ -26,7 +26,7 @@ public class MultipleExceptions(exceptions:Array[Throwable]{rail}) extends Runti
         // flatten MultipleExceptions in the stack
         for (t in stack) {
             if (t instanceof MultipleExceptions) {
-                for (u: Throwable in (t as MultipleExceptions).exceptions.items()) 
+                for (u: Throwable in (t as MultipleExceptions).exceptions.values()) 
 		    s.push(u); 
             } else {
                 s.push(t);
@@ -38,7 +38,7 @@ public class MultipleExceptions(exceptions:Array[Throwable]{rail}) extends Runti
     public def this(t: Throwable) {
         val s = new Stack[Throwable]();
         if (t instanceof MultipleExceptions) {
-            for (u: Throwable in (t as MultipleExceptions).exceptions.items()) 
+            for (u: Throwable in (t as MultipleExceptions).exceptions.values()) 
 		s.push(u); 
         } else {
             s.push(t);
@@ -50,14 +50,14 @@ public class MultipleExceptions(exceptions:Array[Throwable]{rail}) extends Runti
 
     public def printStackTrace(): void {
         //super.printStackTrace();
-        for (t: Throwable in exceptions.items()) {
+        for (t: Throwable in exceptions.values()) {
 	        t.printStackTrace();
         }
     }
 
     public def printStackTrace(p:Printer): void {
         //super.printStackTrace(p);
-        for (t: Throwable in exceptions.items()) {
+        for (t: Throwable in exceptions.values()) {
             t.printStackTrace(p);
         }
     }

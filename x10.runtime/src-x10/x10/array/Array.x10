@@ -310,14 +310,17 @@ public final class Array[T](
      */
     public def iterator():Iterator[Point(rank)] = region.iterator() as Iterator[Point(rank)];
 
+
     /**
-     * Return an iterator over the data values of this array
-     * @return an iterator over the data values of this array.
+     * Return an Iterable[T] that can construct iterators 
+     * over this array.<p>
+     * @return an Iterable[T] over this array.
      */
-    public def values():Iterator[T] {
-        return new ValueIterator[T](this);
+    public def values():Iterable[T] {
+	// NOTE: If we could actually implement two instances of the
+	//       Iterable interface, then we woudn't need this code.
+        return new ValueIterable[T]();
     }
-    
 
     // TODO: Should be annonymous nested class in values, 
     //       but that's too fragile with the 2.1 implementation of generics.
@@ -333,23 +336,17 @@ public final class Array[T](
         public def hasNext() = regIt.hasNext();
         public def next() = array(regIt.next());
     }
-    /**
-     * Permits the syntax for (i:T in array.items())  { ...}
-    */
-    public def items():Iterable[T] = new ItemIterable();
-    // TODO: Should be annonymous nested class in values, 
-    //       but that's too fragile with the 2.1 implementation of generics.
-    private  class ItemIterable implements Iterable[T] {
-    	public def iterator()=Array.this.values();
+    private  class ValueIterable implements Iterable[T] {
+    	public def iterator()= new ValueIterator[T](Array.this);
     }
-    	
+
     
-    public def sequence(){rank==1}:Sequence[T] = new ItemSequence();
+    public def sequence(){rank==1}:Sequence[T] = new ValueSequence();
     // TODO: Should be annonymous nested class in values, 
     //       but that's too fragile with the 2.1 implementation of generics.
-    private class ItemSequence(size:int) implements Sequence[T] {
+    private class ValueSequence(size:int) implements Sequence[T] {
     	val array = Array.this as Array[T](1);
-    	public def iterator() = Array.this.values();
+    	public def iterator() = new ValueIterator(Array.this);
     	def this() {
     		property(Array.this.size);
     	}

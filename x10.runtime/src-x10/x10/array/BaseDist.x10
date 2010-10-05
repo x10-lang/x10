@@ -102,7 +102,7 @@ public class BaseDist extends Dist /*implements Map[Place,Region]*/ {
 
     public def places():Sequence[Place] = places.sequence();
     public def numPlaces():int = places.size;
-    public def regions():Iterable[Region(rank)] = regions.items();
+    public def regions():Sequence[Region(rank)] = regions.sequence();
     public def get(p: Place): Region(rank) {
         return regionMap(p.id) as Region(rank); // XXXX
     }

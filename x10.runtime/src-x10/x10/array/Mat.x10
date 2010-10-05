@@ -25,7 +25,7 @@ public abstract class Mat[+T](rows:Int, cols:Int){T <: Row}
 
     public def apply(i:Int) = mat(i);
 
-    public def iterator() = mat.values();
+    public def iterator() = mat.values().iterator();
 
     public def printInfo(ps:Printer, label:String): void {
         ps.printf("%s\n", label);

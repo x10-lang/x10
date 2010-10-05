@@ -104,8 +104,8 @@ final class BlockWorldDist extends Dist {
 
     public def numPlaces():int = Place.MAX_PLACES;
 
-    public def regions():Iterable[Region(rank)] {
-	return new Array[Region(rank)](Place.MAX_PLACES, (i:int)=>blockRegionForPlace(Place.place(i))).items();
+    public def regions():Sequence[Region(rank)] {
+	return new Array[Region(rank)](Place.MAX_PLACES, (i:int)=>blockRegionForPlace(Place.place(i))).sequence();
     }
 
     public def get(p:Place):Region(rank) {
