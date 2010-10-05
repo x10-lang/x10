@@ -1054,4 +1054,16 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
     
         w.end();
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(flags.flags().translate());
+        sb.append(returnType).append(" ");
+        sb.append(name);
+        if (typeParameters != null && !typeParameters.isEmpty())
+            sb.append(typeParameters);
+        sb.append("(...)");
+        return sb.toString();
+    }
 }

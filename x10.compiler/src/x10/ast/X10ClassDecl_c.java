@@ -88,7 +88,6 @@ import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.util.Synthesizer;
 import x10.visit.ChangePositionVisitor;
-import x10.visit.CheckEscapingThis;
 
 /**
  * The same as a Java class, except that it needs to handle properties.
@@ -569,11 +568,10 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	    Id name = xnf.Id(CG, mi.name());
     	    n = synth.addSyntheticMethod(n,
     	            mi.flags().Public().Abstract(),
+    	            ((X10MethodDef) mi.def()).typeParameters(),
     	            mi.name(),
     	            ((X10MethodDef) mi.def()).formalNames(),
-    	            mi.returnType(),
-    	        
-    	            null);
+    	            mi.returnType(), null);
     	}
     	return n;
     }
