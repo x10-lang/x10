@@ -162,11 +162,12 @@ public class Tuple_c extends Expr_c implements Tuple {
 	    Type type = null;
 
 	    for (Expr e : elements) {
+	    	Type eType = X10TypeMixin.baseType(e.type());
 		if (type == null) {
-		    type = e.type();
+		    type = eType;
 		}
 		else {
-		    type = ts.leastCommonAncestor(type, e.type(), tc.context());
+		    type = ts.leastCommonAncestor(type, eType, tc.context());
 		}
 	    }
 

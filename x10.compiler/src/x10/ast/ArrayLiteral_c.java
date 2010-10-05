@@ -77,6 +77,8 @@ public class ArrayLiteral_c extends Expr_c implements ArrayLiteral {
     	v.visitCFG(tuple, this, EXIT);
         return succs;
     }
+	// TODO: Igor suggests hiding the fact that a Tuple is referenced
+	// and dealing with the tuple elements explicitly in the typechecker code.
 	  public Node visitChildren( NodeVisitor v ) {
 		  TypeNode atn = (TypeNode) visitChild(this.array, v);
 		  TypeNode tn = (TypeNode) visitChild( this.indexType, v );
@@ -115,7 +117,7 @@ public class ArrayLiteral_c extends Expr_c implements ArrayLiteral {
 	    }
 	    
 	    public String toString() {
-	    	return  "new Array[" + indexType + "]{ " + tuple.stringValue() + "}";
+	    	return  "new Array[" + indexType + "]{ " + tuple + "}";
 	    }
 	   
 	    /** Write the expression to an output file. */
