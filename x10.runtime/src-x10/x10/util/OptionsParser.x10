@@ -29,7 +29,7 @@ public final class OptionsParser {
     private val set : HashMap[String,Boolean];
     private val filteredArgs : GrowableRail[String];
 
-    public def this (args:Array[String](1), flags:ValRail[Option], specs:ValRail[Option]) { //throws Err {
+    public def this (args:Array[String](1), flags:Array[Option](1), specs:Array[Option](1)) { //throws Err {
         val map = new HashMap[String,String]();
         val set = new HashMap[String,Boolean]();
         val filteredArgs = new GrowableRail[String]();
@@ -43,7 +43,7 @@ public final class OptionsParser {
                 continue;
             }
             if (!ended) {
-                if (flags!=null) for (flag in flags) {
+                if (flags!=null) for (flag in flags.items()) {
                     if (recognised) break;
                     if (s.equals(flag.short_) || s.equals(flag.long_)) {
                         if (flag.short_!=null) set.put(flag.short_, true);
@@ -51,7 +51,7 @@ public final class OptionsParser {
                         recognised = true;
                     }
                 }
-                if (specs!=null) for (spec in specs) {
+                if (specs!=null) for (spec in specs.items()) {
                     if (recognised) break;
                     if (s.equals(spec.short_) || s.equals(spec.long_)) {
                         recognised = true;
