@@ -2909,12 +2909,15 @@ public class Emitter {
                     w.allowBreak(0, " ");
                 }
                 if (def.formalTypes().get(i).get() instanceof ParameterType) {
-                    // FIXME check
+                    Type bf = X10TypeMixin.baseType(f);
                     if (f.isBoolean() || f.isNumeric()) {
                         w.write("(");
                         printType(f, 0);
                         w.write(")");
-                    } else if (!(X10TypeMixin.baseType(f) instanceof ParameterType)) {
+                        w.write("(");
+                        printType(f, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+                        w.write(")");
+                    } else if (!(bf instanceof ParameterType && ((ParameterType) bf).def().get() instanceof MethodDef)) {
                         w.write("(");
                         printType(f, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
                         w.write(")");
