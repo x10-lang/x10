@@ -129,7 +129,7 @@ public class X10Ext_c extends Ext_c implements X10Ext {
 
     public Node asyncInitVal(Set<VarDef> initVars) {
         X10Ext_c c = (X10Ext_c) copy();
-        c.asyncInitVal = new HashSet<VarDef>(initVars);
+        c.asyncInitVal = (initVars == null) ? null : new HashSet<VarDef>(initVars);
         return this.node().ext(c);
     }
 }
