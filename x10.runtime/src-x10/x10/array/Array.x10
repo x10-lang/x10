@@ -1055,19 +1055,19 @@ public final class Array[T](
     }
 
 
-    public static @NoInline @NoReturn def raiseBoundsError(i0:int) {
+    private static @NoInline @NoReturn def raiseBoundsError(i0:int) {
         throw new ArrayIndexOutOfBoundsException("point (" + i0 + ") not contained in array");
     }    
-    public static @NoInline @NoReturn def raiseBoundsError(i0:int, i1:int) {
+    private static @NoInline @NoReturn def raiseBoundsError(i0:int, i1:int) {
         throw new ArrayIndexOutOfBoundsException("point (" + i0 + ", "+i1+") not contained in array");
     }    
-    public static @NoInline @NoReturn def raiseBoundsError(i0:int, i1:int, i2:int) {
+    private static @NoInline @NoReturn def raiseBoundsError(i0:int, i1:int, i2:int) {
         throw new ArrayIndexOutOfBoundsException("point (" + i0 + ", "+i1+", "+i2+") not contained in array");
     }    
-    public static @NoInline @NoReturn def raiseBoundsError(i0:int, i1:int, i2:int, i3:int) {
+    private static @NoInline @NoReturn def raiseBoundsError(i0:int, i1:int, i2:int, i3:int) {
         throw new ArrayIndexOutOfBoundsException("point (" + i0 + ", "+i1+", "+i2+", "+i3+") not contained in array");
     }    
-    public static @NoInline @NoReturn def raiseBoundsError(pt:Point) {
+    private static @NoInline @NoReturn def raiseBoundsError(pt:Point) {
         throw new ArrayIndexOutOfBoundsException("point " + pt + " not contained in array");
     }    
 }
