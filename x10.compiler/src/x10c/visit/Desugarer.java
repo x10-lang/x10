@@ -27,6 +27,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.Position;
+import x10.ast.SettableAssign;
 import x10.ast.SettableAssign_c;
 import x10.ast.X10Call;
 import x10.ast.X10NodeFactory;
@@ -48,9 +49,9 @@ public class Desugarer extends x10.visit.Desugarer {
     }
 
     @Override
-    protected Expr visitSettableAssign(SettableAssign_c n) throws SemanticException {
+    protected Expr visitSettableAssign(SettableAssign n) throws SemanticException {
         if (n.operator() != Assign.ASSIGN) {
-            X10Call left = (X10Call) n.left(xnf, this);
+            X10Call left = (X10Call) ((SettableAssign_c) n).left(xnf, this);
             if ((n.type().isBoolean() || n.type().isNumeric()) && (xts.isRail(left.target().type()) || xts.isValRail(left.target().type()))) {
                 return n;
             }
