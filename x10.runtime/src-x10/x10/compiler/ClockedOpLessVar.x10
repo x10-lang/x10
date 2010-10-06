@@ -47,6 +47,11 @@ public class ClockedOpLessVar[T] extends ClockedVar[T]  implements ClockableVar{
     public def this () {
 				 			  
    }
+    public def this (c: Clock!) {
+    
+    	  c.addClockedVar(this); 
+     }
+     
 
     public def this (c: Clock!, oper: (T,T)=>T!, opInitial:T) {
     
@@ -69,7 +74,8 @@ public class ClockedOpLessVar[T] extends ClockedVar[T]  implements ClockableVar{
 
     public @Inline @Header def setClocked(x:T) {
 	    changed.incrementAndGet();
-        xWrite = x;
+        	xWrite = x;
+//	Console.OUT.println("Changing");
     } 
     
     public @Inline @Header def setR(x:T) {
@@ -82,6 +88,8 @@ public class ClockedOpLessVar[T] extends ClockedVar[T]  implements ClockableVar{
 		            xRead = xWrite;
          	   
         } 
+	//Console.OUT.println("Get" + changed.get());
+
         changed.set(0);
     	
     }	

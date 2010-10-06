@@ -24,8 +24,9 @@ import clocked.*;
 	var highsum: Rail[int]!;
 
     val c = Clock.make();
-    val op = Double.+;
-	var y: Rail[double @ Clocked[int] (c, op, 0.0D)]!;
+        val op = Double.+;
+	//val op = Math.noOp.(Double, Double);
+	var y: Rail[double @ Clocked[double] (c, op, 0.0D)]!;
 
 	public def this() = {
 		this.nthreads = 8;
@@ -147,12 +148,12 @@ import clocked.*;
 
 		//JGFInstrumentor.startTimer("Section2:SparseMatmult:Kernel");
 
-		finish for (val (id): Point in [0..nthreads-1]) async clocked(c)
+		finish for (val (id): Point in [0..nthreads-1]) async clocked(c) 
 			for (val (reps): Point in [0..SPARSE_NUM_ITER-1])
 				 for ((i): Point in lowsum(id)..highsum(id)-1) {
 				     val r = row(i);
 				     val c = col(i);
-				 	 y(r) += x(c)*val(i);
+				 	  y(r) = x(c)*val(i);
 				 	}
 				 	
 		next;

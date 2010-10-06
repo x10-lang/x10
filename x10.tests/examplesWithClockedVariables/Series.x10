@@ -6,8 +6,10 @@ class SeriesTest {
 
 	var array_rows: int;
 	global val c = Clock.make();
-	val op = Double.+;
+	//val op = Double.+;
+	val op = Math.noOp.(Double, Double);
 	var testArray: Array[Double @ Clocked[Double](c, op, 0.0)](2);  // Array of arrays.
+
 
 	/**
 	 * buildTestData.
@@ -28,7 +30,7 @@ class SeriesTest {
 	 */
 	def Do(): void = @ClockedM(c) {
 		// Start the stopwatch.
-
+		finish {
 		//JGFInstrumentor.startTimer("Section2:Series:Kernel");
 
 		// Calculate the fourier series. Begin by calculating A[0].
@@ -46,7 +48,7 @@ class SeriesTest {
 		next;
 		val omega: double = 3.1415926535897932;
 
-		finish for((i) in 1..array_rows-1) async clocked(c) {
+		for((i) in 1..array_rows-1) async clocked(c) {
 		
 			// Calculate A[i] terms. Note, once again, that we
 			// can ignore the 2/period term outside the integral
@@ -69,7 +71,7 @@ class SeriesTest {
 		}
 		next;
 		// Stop the stopwatch.
-
+		}
 		//JGFInstrumentor.stopTimer("Section2:Series:Kernel");
 	}
 

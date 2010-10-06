@@ -371,4 +371,5 @@ public final class Math {
     }
     
     public static safe def noOp(a:Int, b:Int)= 0;
+    public static safe def noOp(a:Double, b:Double)= 0.0D;
 }

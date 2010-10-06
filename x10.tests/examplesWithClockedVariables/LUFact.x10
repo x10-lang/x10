@@ -60,7 +60,8 @@
 class Linpack {
 
 	global val c = Clock.make();
-	val op = Double.+;
+	val op = Math.noOp.(Double, Double);
+	// val op = Double.+;
 	var a: Array[double @ Clocked[double] (c, op, 0.0)](2);
 	var b: Array[double @ Clocked[double] (c, op, 0.0)](2);
 	var x: Array[double @ Clocked[double] (c, op, 0.0)](2);

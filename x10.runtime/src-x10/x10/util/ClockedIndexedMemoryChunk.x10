@@ -16,6 +16,7 @@ import x10.compiler.Inline;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 import x10.compiler.ClockedVar;
+import x10.compiler.ClockedOpLessVar;
 
 
 /*
@@ -53,6 +54,9 @@ public struct ClockedIndexedMemoryChunk[T] {
     	chunk = Rail.make[ClockedVar[T]](numElements, (int) => new ClockedVar[T](c as Clock!, oper as (T,T) => T!, opInitial));
     }
 
+    public def this(numElements:int, c: Clock) {
+    	chunk = Rail.make[ClockedVar[T]](numElements, (int) => new ClockedOpLessVar[T](c as Clock!));
+    }
 
 
     /**
