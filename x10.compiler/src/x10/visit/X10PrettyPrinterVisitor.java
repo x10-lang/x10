@@ -1912,7 +1912,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 				if (xts.isParameterType(t)) {
 					miContainer = new CastExpander(w, er, new TypeExpander(er,  mi.container(), false, false, false), miContainer);
-				} else if (isSelfDispatch && mi.typeParameters().size() > 0) {
+				} else if (isSelfDispatch && (mi.typeParameters().size() > 0 || (mi.container() instanceof X10ClassType && ((X10ClassType) mi.container()).typeArguments().size() > 0))) {
                     miContainer = new CastExpander(w, er, new TypeExpander(er,  mi.container(), true, false, false), miContainer);
 				}
 				miContainer = new CastExpander(w, er, miContainer);
