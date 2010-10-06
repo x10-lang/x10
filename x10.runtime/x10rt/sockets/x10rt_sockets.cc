@@ -14,7 +14,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <unistd.h> // for close()
+#include <unistd.h> // for close() and sleep()
 #include <errno.h> // for the strerror function
 #include <sys/socket.h> // for sockets
 #include <pthread.h> // for locks on the sockets
@@ -48,6 +48,7 @@ struct x10SocketState
 	x10rt_msg_type callBackTableSize; // length of the above array
 	char* myhost; // my own hostname, so I can detect places that are on the same machine and use localhost instead.
 	bool everythingOnLocalhost; // a little flag that adds sched_yield() to empty probes, for better performance when there are several places on one host.
+	bool initialLookup; // a flag to enable a small delay before the first place lookup.
 	struct pollfd* socketLinks; // the file descriptors for each socket to other places
 	pthread_mutex_t* writeLocks; // a lock to prevent overlapping writes on each socket
 	pthread_mutex_t* readLocks; // a lock to prevent overlapping reads on each socket
@@ -133,6 +134,11 @@ int initLink(uint32_t remotePlace)
 		#endif
 		char link[1024];
 		pthread_mutex_lock(&state.writeLocks[state.myPlaceId]); // because the lookup isn't currently thread-safe
+		if (state.initialLookup)
+		{
+			sleep(1); // to allow the launchers to get settled before asking for information.  TODO make the lookup block better instead of sleeping
+			state.initialLookup = false;
+		}
 		int r = Launcher::lookupPlace(state.myPlaceId, remotePlace, link, sizeof(link));
 		pthread_mutex_unlock(&state.writeLocks[state.myPlaceId]);
 		if (r <= 0)
@@ -268,6 +274,7 @@ void x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 	pthread_mutex_init(&state.readLocks[state.myPlaceId], NULL);
 	pthread_mutex_init(&state.writeLocks[state.myPlaceId], NULL);
 	state.socketLinks[state.myPlaceId].events = POLLHUP | POLLERR | POLLIN | POLLPRI;
+	state.initialLookup = true;
 
 	// Tell our launcher our communication port number
 	char portname[1024];
@@ -463,7 +470,7 @@ void probe (bool onlyProcessAccept)
 
 	    		// TODO - notify the runtime of this?
 	    	}
-	    	if ((state.socketLinks[i].revents & POLLIN) || (state.socketLinks[i].revents & POLLPRI))
+	    	else if ((state.socketLinks[i].revents & POLLIN) || (state.socketLinks[i].revents & POLLPRI))
 	    	{
 	    		if (i == state.myPlaceId)
 	    		{   // special case.  This is an incoming connection request.
@@ -477,6 +484,16 @@ void probe (bool onlyProcessAccept)
 	    		if (pthread_mutex_trylock(&state.readLocks[i]) != 0)
 	    			continue; // this socket is already getting handled by another worker.  Skip.
 
+	    		// we got the lock, but another worker may have already handled this one.  Check revents again.
+	    		if ((state.socketLinks[i].revents & POLLIN) || (state.socketLinks[i].revents & POLLPRI))
+	    			state.socketLinks[i].revents = 0;
+	    		else
+	    		{
+	    			pthread_mutex_unlock(&state.readLocks[i]);
+	    			continue;
+	    		}
+
+	    		// ok, good to go.
 	    		enum MSGTYPE t;
 				int r = TCP::read(state.socketLinks[i].fd, &t, sizeof(enum MSGTYPE));
 	    		if (r < sizeof(enum MSGTYPE))// closed connection

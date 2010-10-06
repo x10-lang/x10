@@ -201,9 +201,6 @@ void Launcher::startChildren()
 				#ifdef DEBUG
 					fprintf(stderr, "Runtime %u forked.  Running exec.\n", _myproc);
 				#endif
-				// TODO this sleep lets the launchers get linked up before the runtime links in.
-				// a better solution would be to start the runtime after the launchers attach
-				sleep(1);
 				chdir(getenv(X10LAUNCHER_CWD));
 				if (execvp(_argv[0], _argv))
 					// can't get here, if the exec succeeded
