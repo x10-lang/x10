@@ -529,7 +529,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         
         if (kind == Bound.UPPER && result.isEmpty())
             if (includeObject)
-                return Collections.<Type>singletonList(ts.Object());
+                return Collections.<Type>singletonList(ts.Any());
             else
                 return Collections.<Type>emptyList();
         
