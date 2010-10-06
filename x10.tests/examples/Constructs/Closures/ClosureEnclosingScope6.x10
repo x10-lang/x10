@@ -10,7 +10,7 @@
  */
 
 import harness.x10Test;
-
+import x10.compiler.NonEscaping;
 
 /**
  * The closure body may refer to instances of enclosing classes using the

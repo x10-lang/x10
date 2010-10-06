@@ -128,7 +128,9 @@ public class CFGBuilder implements Copy
       for (CFGBuilder v = this; v != null; v = v.outer) {
         Term c = v.innermostTarget;
 
-        if (c instanceof Async) break; // cannot break/continue in an Async
+        if (c instanceof Async) {
+            throw new CFGBuildError("Cannot "+b.kind()+" in an async", b.position());
+        }
           
         if (c instanceof Try) {
           Try tr = (Try) c;

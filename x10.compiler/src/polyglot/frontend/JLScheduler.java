@@ -50,7 +50,9 @@ public class JLScheduler extends Scheduler {
         goals.add(ReassembleAST(job));
         
         goals.add(ConformanceChecked(job));
-        goals.add(ReachabilityChecked(job));
+
+       // Data-flow analyses
+        goals.add(ReachabilityChecked(job)); // This must be the first dataflow analysis (see DataFlow.reportCFG_Errors)
        // goals.add(ExceptionsChecked(job));
         goals.add(ExitPathsChecked(job));
         goals.add(InitializationsChecked(job));

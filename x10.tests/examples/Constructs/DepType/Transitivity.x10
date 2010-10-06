@@ -30,8 +30,8 @@ public class Transitivity extends x10Test {
 
 	
 	public def run(): boolean = {
-		val buffDest: Array[double]{rank==2} = new Array[double]([1..10, 1..10]);
-		var buffSrc: Array[double]{rank==buffDest.rank} = new Array[double]([1..10, 1..10]);
+		val buffDest: Array[double]{rank==2} = new Array[double]((1..10)*(1..10));
+		var buffSrc: Array[double]{rank==buffDest.rank} = new Array[double]((1..10)*(1..10));
 		
 		return true;
 	}

@@ -1143,3 +1143,77 @@ class TestSwitchOnFinalVal {
     }   
 }
 
+
+
+
+
+
+
+class TestBreaksInAsyncAt {
+	class Shyk_Flup  { // XTENLANG-823
+	  public def test() {
+		 
+		 lesp_frobi: for (var i : Int = 0; i < 10; i++) {
+			 if (i<3) break lesp_frobi;
+		   finish async{
+			 break lesp_frobi; // ERR: Cannot break in an async
+		   }
+		   x10.io.Console.OUT.println("This must not happen!");
+		 }
+	  }
+	}
+
+	var flag:Boolean;
+	
+	def test1() {
+		while (flag) {
+			if (flag) continue;
+			if (flag) break;
+		}
+	}
+	def test2() {
+		while (flag) {
+			at (here) {
+				if (flag) continue;
+				if (flag) break;
+			}
+		}
+	}
+	
+	def test3() {
+		while (flag) {
+			async {
+				while (flag) {
+					if (flag) break;
+				}
+			}
+		}
+	}
+
+	def failTestLabel() {
+		while (flag) {
+			if (flag) continue non_existing_label; // ERR: Target of branch statement not found.
+		}
+	}
+	def failTest1() {
+		while (flag) {
+			async {
+				if (flag) continue; // ERR: Cannot continue in an async
+			}
+		}
+	}
+	def failTest2() {
+		while (flag) {
+			async {
+				if (flag) break; // ERR: Cannot break in an async
+			}
+		}
+	}
+	def failTest3() {
+		while (flag) {
+			async {
+				if (flag) return; // ERR: Cannot return from an async.
+			}
+		}
+	}
+}
