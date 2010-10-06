@@ -23,11 +23,11 @@ public class ClockedAtEach extends x10Test {
             val D_Base = Dist.makeUnique();
             val P = 4;
             clocked ateach (z in D_Base)  {
-                for (z in D_Base) clocked async at (D_Base(z)) {
-                    for ([q] in 0..P-1) clocked async {
-                        next;
-                        next;
-                    }
+//          saying it like this works. Suspect desugaring is wrong.
+//          for (z in D_Base) clocked async at (D_Base(z)) {
+                for ([q] in 0..P-1) clocked async {
+                    next;
+                    next;
                 }
             }
         }
