@@ -88,6 +88,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
     X10TypeSystem_c ts;
 
+    public static final Name ANONYMOUS = Name.make("<anonymous>");
+
     /**
      * Assert that <code>ct</code> implements all abstract methods required;
      * that is, if it is a concrete class, then it must implement all
@@ -138,14 +140,17 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                     	}
                         if (!ct.flags().isAbstract()) {
                             SemanticException e = new SemanticException(ct.fullName()
-                                    + " should be "
-                                    + "declared abstract; it does not define "
+                                    + " should be declared abstract; it does not define "
                                     + mi.signature()
                                     + ", which is declared in "
                                     + rt.toClass().fullName(), ct.position());
                             Map<String, Object> map = new HashMap<String, Object>();
                             map.put(CodedErrorInfo.ERROR_CODE_KEY, 1004);
-                            map.put("CLASS", ct.name().toString());
+                            Name name = ct.name();
+                            if (name == null) {
+                                name = ANONYMOUS;
+                            }
+                            map.put("CLASS", name.toString());
                             map.put("METHOD", mi.name().toString());
                             map.put("SUPER_CLASS", rt.toClass().name().toString());
                             e.setAttributes(map);

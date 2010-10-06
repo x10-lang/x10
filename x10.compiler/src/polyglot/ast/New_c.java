@@ -15,6 +15,7 @@ import polyglot.frontend.Goal;
 import polyglot.types.*;
 import polyglot.util.*;
 import polyglot.visit.*;
+import x10.errors.Errors;
 
 /**
  * A <code>New</code> is an immutable representation of the use of the
@@ -457,6 +458,21 @@ public class New_c extends Expr_c implements New
 	        throw new SemanticException("Cannot pass arguments to an anonymous class that implements an interface.",arguments.get(0).position());
 	    }
 	}
+    }
+
+    @Override
+    public Node conformanceCheck(ContextVisitor tc) {
+        if (body == null) {
+            return this;
+        }
+        // Check that the anonymous class implements all abstract methods that it needs to.
+        try {
+            TypeSystem ts = tc.typeSystem();
+            ts.checkClassConformance(anonType.asType(), enterChildScope(body, tc.context()));
+        } catch (SemanticException e) {
+            Errors.issue(tc.job(), e, this);
+        }
+        return this;
     }
 
     public Type childExpectedType(Expr child, AscriptionVisitor av) {

@@ -534,7 +534,7 @@ public class ClassDecl_c extends Term_c implements ClassDecl
             Errors.issue(tc.job(), e, this);
         }
 
-        // Check the class implements all abstract methods that it needs to.
+        // Check that the class implements all abstract methods that it needs to.
         try {
             ts.checkClassConformance(type, enterChildScope(body, tc.context()));
         } catch (SemanticException e) {
