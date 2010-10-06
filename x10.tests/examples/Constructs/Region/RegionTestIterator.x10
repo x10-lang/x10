@@ -19,15 +19,17 @@ public class RegionTestIterator extends x10Test {
 
     public def run(): boolean = {
 
-        val r = Region.makeRectangular(0, 100); // (low, high)
-        val r2 = [r, r];
-        val reg = Region.make(r2);
+        val r = 0..100;
+        val reg = r*r;
 
         var sum:int = 0;
-        for ([i,j]:Point in reg)
+        var numPts:int = 0;
+        for ([i,j]:Point in reg) {
             sum += i - j;
+            numPts++;
+        }
 
-        return sum == 0;
+        return sum == 0 && numPts == (101*101);
     }
 
     public static def main(var args: Array[String](1)): void = {
