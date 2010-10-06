@@ -38,7 +38,7 @@ class PolyHalfspace3 extends TestRegion {
         "zeroBased false\n"+
         "rail false\n"+
         "isConvex() true\n"+
-        "size() unsupported operation exception\n"+
+        "size() axis 1 has no minimum\n"+
         "region: (x0>=0 && x1<=1 && x0<=3)\n"+
         "x10.array.UnboundedRegionException: axis 1 has no minimum\n";
     
