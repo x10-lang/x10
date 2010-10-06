@@ -83,7 +83,7 @@ public class MainMethodFinder extends ContextVisitor {
         X10MethodDecl_c m = (X10MethodDecl_c) n;
 
         if (m.formals().size() == 1 &&
-                X10PrettyPrinterVisitor.isMainMethod(ts, m.flags().flags(), m.name(), m.returnType().type(), m.formals().get(0).declType(), context)) {
+                X10PrettyPrinterVisitor.isMainMethod(ts, m.flags().flags(), m.name().id(), m.returnType().type(), m.formals().get(0).declType(), context)) {
             try {
                 hasMain.invoke(null, context.currentClass().name().toString());
             } catch (Throwable t) { t.printStackTrace(); }

@@ -607,18 +607,20 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	}
 
     private boolean isMainMethod(X10TypeSystem ts, Flags flags, Id name, Type returnType, Type argType) {
-        return isMainMethod(ts, flags, name, returnType, argType, tr.context());
+        return isMainMethod(ts, flags, name.id(), returnType, argType, tr.context());
     }
 
-    public static boolean isMainMethod(X10TypeSystem ts, Flags flags, Id name, Type returnType, Type argType, Context context) {
-        return name.id().toString().equals("main") &&
+    public static boolean isMainMethod(X10TypeSystem ts, Flags flags, Name name, Type returnType, Type argType, Context context) {
+        return name.toString().equals("main") &&
                 flags.isPublic() &&
                 flags.isStatic() &&
                 returnType.isVoid() &&
                 argType.isSubtype(ts.Array(ts.String()), context);
     }
 
-
+    public static boolean isMainMethodInstance(MethodInstance mi, Context context) {
+        return mi.formalTypes().size() == 1 && isMainMethod((X10TypeSystem) mi.typeSystem(), mi.flags(), mi.name(), mi.returnType(), mi.formalTypes().get(0), context);
+    }
 
 	public void visit(Id_c n) {
                 w.write(Emitter.mangleToJava(n.id()));

@@ -12,7 +12,6 @@
 
 package x10.compiler.ws;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -26,6 +25,7 @@ import polyglot.frontend.Job;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.MethodDef;
+import polyglot.types.MethodInstance;
 import polyglot.types.ProcedureDef;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -42,6 +42,7 @@ import x10.types.X10Context;
 import x10.types.X10TypeSystem;
 import x10.types.checker.PlaceChecker;
 import x10.util.synthesizer.MethodSynth;
+import x10.visit.X10PrettyPrinterVisitor;
 
 /**
  * Record the WS transformation intermediate results and context.
@@ -177,7 +178,7 @@ public class WSTransformState {
                         cmd.toString());     
             }
             
-            this.addMethodAsTargetMethod(xnf, (X10Context)xts.emptyContext(), md);                
+            this.addMethodAsTargetMethod(xts, xnf, (X10Context)xts.emptyContext(), md);                
 
         }
     }
@@ -204,7 +205,7 @@ public class WSTransformState {
      * Add one method as a target method
      * @param methodDef
      */
-    public void addMethodAsTargetMethod(X10NodeFactory xnf, X10Context xct, ProcedureDef procedureDef){
+    public void addMethodAsTargetMethod(X10TypeSystem xts, X10NodeFactory xnf, X10Context xct, ProcedureDef procedureDef){
         
         if(procedureDef instanceof MethodDef){
             MethodDef methodDef = (MethodDef)procedureDef;
@@ -212,7 +213,7 @@ public class WSTransformState {
             WSMethodFrameClassGen methodGen;
             Job job = (((ClassType) methodDef.container().get()).def()).job();
             
-            if(methodDef.name().toString().equals("main")){
+            if (X10PrettyPrinterVisitor.isMainMethodInstance(methodDef.asInstance(), xct)) {
                 methodGen = new WSMainMethodClassGen(job, xnf, xct, methodDef, this);
             }
 

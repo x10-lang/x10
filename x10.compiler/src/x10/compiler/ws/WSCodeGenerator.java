@@ -132,8 +132,7 @@ public class WSCodeGenerator extends ContextVisitor {
                     System.out.println("[WS_INFO] Start transforming target method: " + mDef.name());
                 }
                 
-                if (mDecl.formals().size() == 1 &&
-                        X10PrettyPrinterVisitor.isMainMethod((X10TypeSystem) ts, mDecl.flags().flags(), mDecl.name(), mDecl.returnType().type(), mDecl.formals().get(0).declType(), context)) {
+                if (X10PrettyPrinterVisitor.isMainMethodInstance(mDef.asInstance(), context)) {
                     WSMainMethodClassGen mainClassGen = (WSMainMethodClassGen) wts.getInnerClass(mDef);
                     mainClassGen.setMethodDecl(mDecl);
                     mainClassGen.genClass((X10Context) context);
