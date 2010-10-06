@@ -49,7 +49,15 @@ public class UniqueActivity extends Activity{
    		}
    		if (null != clockPhases) clockPhases.drop();
    		if (null != finishState) {
-            //TODO:notify
+   			if (here.equals(finishState.home)) {
+   				(finishState as Runtime.UniqueRootFinish!).notify2();
+			} else {
+				val closure = () => { 
+					(finishState as Runtime.UniqueRootFinish!).notify2();
+				};
+				Runtime.runAtNative(finishState.home.id, closure);
+				Runtime.dealloc(closure);
+			}
    		} 
    		Runtime.dealloc(body);
 	}
