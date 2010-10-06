@@ -457,17 +457,7 @@ public final class Runtime {
     }
 
     }
-    	
-    static class UniqueRemoteFinish implements RemoteFinishState {
-    
-    	public def notifyActivityCreation():Void {}
-    	public def notifySubActivitySpawn(place:Place):Void {}
-    	public def notifyActivityTermination(r:FinishState):Void {}
-    	public def pushException(t:Throwable):Void {
-        //TODO：
-    	}
-	}	
-    
+        
     static class UniqueRootFinish extends Latch implements FinishState, Mortal{
     	protected var count:Int = Place.MAX_PLACES;
     	protected var exceptions:Stack[Throwable]!;
@@ -486,9 +476,9 @@ public final class Runtime {
         		}
         		throw new MultipleExceptions(exceptions);
     		}
-		}
+	}
 
-		def notify2():Void {
+	def notify2():Void {
     		lock();
     		count--;
     		if (count != 0) {
@@ -497,35 +487,41 @@ public final class Runtime {
 			}
 			release();
 			unlock();
-		}
+	}
 
-    	def this() {}
-        // no remote finish is needed except for exceptions
-    	public global def makeRemote()= new UniqueRemoteFinish();
-    	private def notifySubActivitySpawnLocal(place:Place):Void {}
-    	private def notifyActivityTerminationLocal():Void {}
     	private def pushExceptionLocal(t:Throwable):Void {
         	lock();
         	if (null == exceptions) exceptions = new Stack[Throwable]();
         	exceptions.push(t);
         	unlock();
     	}
-   		def notify(t:Throwable):Void {
+   	def notify(t:Throwable):Void {
         	pushExceptionLocal(t);
         	notify2();
     	}
-
+   	public global def pushException(t:Throwable):Void {
+   		if (here.equals(home)) {
+   			(this as UniqueRootFinish!).pushExceptionLocal(t);
+		}
+   	}
+   
+   	def this() {}
+   	// never called 
+	public global def makeRemote() = new UniqueRemoteFinish();
+	private def notifySubActivitySpawnLocal(place:Place):Void {}
+	private def notifyActivityTerminationLocal():Void {}
     	public global def notifySubActivitySpawn(place:Place):Void {}
     	public global def notifyActivityCreation():Void {}
     	public global def notifyActivityTermination():Void {}
-    	public global def pushException(t:Throwable):Void {
-    		if (here.equals(home)) {
-    			(this as UniqueRootFinish!).pushExceptionLocal(t);
-			} else {
-    			(Runtime.proxy(this) as RemoteFinish!).pushException(t);
-			}
-    	}
     }
+    //only used as a "dummy counterpart" for UniqueRootFinish to work
+    static class UniqueRemoteFinish implements RemoteFinishState {
+    	public def notifyActivityCreation():Void {}
+    	public def notifySubActivitySpawn(place:Place):Void {}
+    	public def notifyActivityTermination(r:FinishState):Void {}
+    	public def pushException(t:Throwable):Void {}
+    }	
+    
     static class RootFinish extends Latch implements FinishState, Mortal {
         protected val counts:Rail[Int]!;
         protected val seen:Rail[Boolean]!;
@@ -1572,19 +1568,7 @@ public final class Runtime {
         state.notifySubActivitySpawn(here);
         execute(new Activity(body, state, safe()));
     }
-    public static def runUniqueAsync(place:Place, body:()=>Void):Void {
-    	val state = currentState();
-    	val ok = safe();
-        var closure:()=>Void;
-        // Workaround for XTENLANG_614
-        if (ok) {
-            closure = ()=>execute(new UniqueActivity(body, state, true));
-        } else {
-            closure = ()=>execute(new UniqueActivity(body, state, false));
-        }
-        runAtNative(place.id, closure);
-        dealloc(closure);
-    }
+
     public static def runUncountedAsync(place:Place, body:()=>Void):Void {
         val ok = safe();
         if (place.id == hereInt()) {
@@ -1606,6 +1590,18 @@ public final class Runtime {
         execute(new Activity(body, safe()));
     }
     
+    public static def runUniqueAsync(place:Place, body:()=>Void):Void {
+    	val state = currentState();
+    	val ok = safe();
+        var closure:()=>Void;
+        if (ok) {
+            closure = ()=>execute(new UniqueActivity(body, state, true));
+        } else {
+            closure = ()=>execute(new UniqueActivity(body, state, false));
+        }
+        runAtNative(place.id, closure);
+        dealloc(closure);
+    }
     public static def runTailAsync(place:Place, body:()=>Void, isParent:Boolean):Void {
     	val state = currentState() as RootFinish;
         state.notifyTailActivitySpawn(place);
@@ -1621,7 +1617,6 @@ public final class Runtime {
         	execute(new TailActivity(body, state, ok, parentPlace));
     	} else {
     		var closure:()=>Void;
-        	// Workaround for XTENLANG_614
         	if (ok) {
             		closure = ()=>execute(new TailActivity(body, state, true, parentPlace));
         	} else {
@@ -1803,7 +1798,7 @@ public final class Runtime {
         	a.finishStack = new Stack[FinishState!]();
     	val r = new UniqueRootFinish();
     	a.finishStack.push(r);
-	}
+    }
 
     /**
      * Suspend until all activities spawned during this finish

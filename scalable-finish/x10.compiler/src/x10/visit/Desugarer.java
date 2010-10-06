@@ -709,9 +709,7 @@ public class Desugarer extends ContextVisitor {
     private Expr specializedFinish2(Finish f) throws SemanticException {
         Position pos = f.position();
     	int p=0;
-    	int cntPlace = 0;
         Type annotation = (Type) xts.systemResolver().find(QName.make("x10.compiler.FinishAsync"));
-        //System.out.println(f+":"+f.hashCode()+":"+((X10Ext) f.ext()).annotations());
         if (!((X10Ext) f.ext()).annotationMatching(annotation).isEmpty()) {
         	List<AnnotationNode> allannots = ((X10Ext)(f.ext())).annotations();
         	AnnotationNode a = null;
@@ -737,8 +735,6 @@ public class Desugarer extends ContextVisitor {
 					}
 				}
 				a = allannots.get(allannots.size()-1);
-				if(Report.should_report("", 1)) 
-					Report.report(1,a.toString());
 				p = getIntFromAnnotation(a);
 				
         	}else{
@@ -967,6 +963,7 @@ public class Desugarer extends ContextVisitor {
         Position pos = a.position();
         Position bpos = a.body().position();
         Name tmp = getTmp();
+        
         boolean unique = false;
         //check whether this ateach is annotated
         Type annotation = (Type) xts.systemResolver().find(QName.make("x10.compiler.AteachUniDist"));
@@ -974,6 +971,7 @@ public class Desugarer extends ContextVisitor {
         	//System.out.println(((X10Ext) a.ext()).annotations());
         	unique = true;
         }
+        
         Expr domain = a.domain();
         Type dType = domain.type();
         if (((X10TypeSystem_c) xts).isX10DistArray(dType)) {
@@ -999,6 +997,7 @@ public class Desugarer extends ContextVisitor {
                 here).methodInstance(rmi).type(rmi.returnType());
         Expr here1 = visitHere(xnf.Here(bpos));
         Stmt body; 
+        
         // when we know every place has only has one point, we can remove 
         // the "async" around the statement "s"
         if(unique){
@@ -1007,6 +1006,7 @@ public class Desugarer extends ContextVisitor {
         	body = async(a.body().position(), a.body(), a.clocks(), here1, null);
         	
         }
+        
         Stmt inner = xnf.ForLoop(pos, formal, dAtPlace, body).locals(formal.explode(this));
         MethodInstance pmi = xts.findMethod(dType,
                 xts.MethodMatcher(dType, PLACES, Collections.EMPTY_LIST, context));
