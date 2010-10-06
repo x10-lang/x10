@@ -21,11 +21,11 @@ import harness.x10Test;
 public class StructTest2 extends x10Test {
 
     public def run(): boolean = {
-        var r: Region = [0..9];
-        var d: Dist = r->here;
-        val f: foo = new foo();
-        var x: myval = myval(1, Complex(2,3), f);
-        var y: myval = myval(1, Complex(2,3), f);
+        val r = 0..9;
+        val d = r->here;
+        val f = new foo();
+        var x:myval = myval(1, Complex(2,3), f);
+        var y:myval = myval(1, Complex(2,3), f);
         // even if x and y are different objects
         // their fields are equal, and thus they are ==
         x10.io.Console.OUT.println("1");
