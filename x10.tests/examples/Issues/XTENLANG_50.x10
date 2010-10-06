@@ -19,11 +19,11 @@ class XTENLANG_50 extends x10Test {
 
     static class R(rank:int) {
     
-        public static def make(val rs: Array[R]{rect}): R{self.rank==rs.length} {
-            return new R(rs.length) as R{self.rank==rs.length};
+        public static def make(val rs: Array[R]{rect}): R{self.rank==rs.size} {
+            return new R(rs.size) as R{self.rank==rs.size};
         }
     
-        public static operator (rs: Array[R]{rect}) = make(rs);
+        public static operator (rs:Array[R]{rect}) = make(rs);
     
         def this(rank:int) = property(rank);
     }
