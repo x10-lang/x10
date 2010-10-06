@@ -96,9 +96,6 @@ import x10.visit.ExpressionFlattener;
 public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
     final Job job;
     
-    //debug flag
-    static final public int debugLevel = 4;
-    
     //Common static variable
     static protected Position compilerPos = Position.COMPILER_GENERATED;    
     static protected Name FAST = Name.make("fast");
@@ -181,13 +178,13 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
     
     
     /**
-     * Return all the inner classes rooted by the current class as one array
+     * Close and return all the inner classes rooted by the current class as one list
      * @return
      */
-    public AbstractWSClassGen[] genAllOffString(){
-        ArrayList<AbstractWSClassGen> classes = new ArrayList<AbstractWSClassGen>();
+    public List<X10ClassDecl> close() throws SemanticException {
+        ArrayList<X10ClassDecl> classes = new ArrayList<X10ClassDecl>();
         recursiveAddClasses(classes, this);
-        return classes.toArray(new AbstractWSClassGen[classes.size()]);
+        return classes;
     }
     
 
@@ -195,9 +192,9 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
         return frameDepth;
     }
 
-    private void recursiveAddClasses(ArrayList<AbstractWSClassGen> classes, AbstractWSClassGen parent){
+    private void recursiveAddClasses(ArrayList<X10ClassDecl> classes, AbstractWSClassGen parent) throws SemanticException {
         // This method is only used by public AbstractWSClassGen[] genAllOffString()
-        classes.add(parent);
+        classes.add(parent.classSynth.close());
         AbstractWSClassGen[] children = parent.getChildren();
         for(AbstractWSClassGen child : children){
             recursiveAddClasses(classes, child);
@@ -300,14 +297,6 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
      * @return the generated class decl
      * @throws SemanticException 
      */
-    public X10ClassDecl getGenClassDecl() throws SemanticException{
-        
-        return classSynth.close();
-    }
-
-    public X10ClassDef getGenClassDef(){
-        return classSynth.getClassDef();
-    }
     
     public X10ClassType getClassType(){
         return (X10ClassType) classSynth.getClassDef().asType();
@@ -851,18 +840,9 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
      */
     protected TransCodes transCompoundStmt(Stmt s){
         TransCodes transCodes = new TransCodes();
-        
-        if(debugLevel > 2){
-            System.out.println("[WS_INFO] Start Flatten Statements" + s);
-        }
- 
         ExpressionFlattener ef = new ExpressionFlattener(job, xts, xnf);
         ef.begin();
         Stmt sFOut = (Stmt) s.visit(ef); // the floOut could be a block or a for
-        if(debugLevel > 4){
-            sFOut.dump(System.out);
-            System.out.println();
-        }
         transCodes.addFlattened(sFOut);
         return transCodes;
     }

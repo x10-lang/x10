@@ -83,13 +83,10 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
                     + parent.assignChildId();
         classSynth = new ClassSynth(job, xnf, xct, wts.asyncFrameType, className);
 
-        //note the flag should according to the method's type
-        if(parent != null){
-            ClassDef classDef = parent.classSynth.getClassDef();
-            classSynth.setFlags(classDef.flags());    
-            classSynth.setKind(classDef.kind());
-            classSynth.setOuter(parent.classSynth.getOuter());
-        }
+        ClassDef classDef = parent.classSynth.getClassDef();
+        classSynth.setFlags(classDef.flags());    
+        classSynth.setKind(classDef.kind());
+        classSynth.setOuter(parent.classSynth.getOuter());
         
         formals = new ArrayList<Pair<Name, Type>>();
         
@@ -297,10 +294,6 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
         //now create a field 
         classSynth.createField(compilerPos, name.toString(), type);;
         fieldNames.add(name);
-        
-        if(debugLevel > 4){
-            System.out.printf("[WS_INFO] Asyncframe[%s] added a formal: %s\n", this.getClassName(), name.toString());
-        }
         
     }
     

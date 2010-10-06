@@ -60,9 +60,6 @@ import x10.util.synthesizer.SwitchSynth;
  * 
  */
 public class WSRegularFrameClassGen extends AbstractWSClassGen {
-
-    static final int debugLevel = 3; //0: no; 3: little; 5: median; 7: heave; 9: verbose
-
     // general regular frame attributes
     //List<LocalDecl> locals; // original method's all locals
     Block codeBlock; // store all code block
@@ -374,12 +371,6 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
      */
     protected TransCodes transForLoop(ForLoop floop, int prePcValue) throws SemanticException {
         For f = processForLoop(floop);
-        if (debugLevel > 4) {
-            System.err.println("[WS_DEBUG]ForLoop -> For loop transformation");
-            floop.prettyPrint(System.err);
-            System.err.println("          --------- To -------->>");
-            f.prettyPrint(System.err);
-        }
         return transFor(f, prePcValue);
     }
 

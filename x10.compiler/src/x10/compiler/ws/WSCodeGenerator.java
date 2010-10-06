@@ -12,7 +12,7 @@
 package x10.compiler.ws;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 import polyglot.ast.ConstructorDecl;
@@ -58,6 +58,7 @@ import x10.visit.X10PrettyPrinterVisitor;
  * ContextVisitor that generates code for work stealing.
  * @author Haibo
  * @author Haichuan
+ * @author tardieu
  * 
  * In work-stealing code transformation, all methods with finish-async statements,
  * and all methods that invoke directly or indirectly the above methods,
@@ -69,15 +70,13 @@ import x10.visit.X10PrettyPrinterVisitor;
  * In the first step, we only mark all methods that contain finish-async as the target.
  */
 public class WSCodeGenerator extends ContextVisitor {
-    private static final int debugLevel = 4;
+    public static final int debugLevel = 5; //0: no; 3: little; 5: median; 7: heave; 9: verbose
     
-    //Although there are different WSVisitor, each one has the same WSTransformState
-    //FIXME: get rid of the static field
-    static public WSTransformState wts; 
+    // Single static WSTransformState shared by all visitors (FIXME)
+    public static WSTransformState wts; 
 
-
-    //map from target method to synthesized method
-    final HashMap<MethodDef, MethodSynth> methodToWSMethodMap;
+    private final HashSet<MethodSynth> generatedMethods;
+    private final HashSet<WSMethodFrameClassGen> generatedMethodFrames;
 
     /** 
      * @param job
@@ -86,32 +85,21 @@ public class WSCodeGenerator extends ContextVisitor {
      */
     public WSCodeGenerator(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
-        methodToWSMethodMap = new HashMap<MethodDef, MethodSynth>();
-        methodToInnerClassTreeMap = new HashMap<MethodDef, WSMethodFrameClassGen>();
+        generatedMethods = new HashSet<MethodSynth>();
+        generatedMethodFrames = new HashSet<WSMethodFrameClassGen>();
     }
-    
 
-    //map from target method to synthesized inner class
-    public final HashMap<MethodDef, WSMethodFrameClassGen> methodToInnerClassTreeMap;
-
-    
     public static void buildCallGraph(X10TypeSystem xts, X10NodeFactory xnf, String theLanguage) {
         wts = new WSTransformState(xts, xnf, theLanguage);
     }
-    
-    /* 
-     * This method will check an AST node, and decide whether transform or not.
+
+    /** 
+     * WS codegen
      * MethodDecl --> if it is a target method, transform it into an inner class
-     * X10ClassDecl --> if it contains some newly added inner classes, add these classes to the container class
-     * 
-     * ConstructorDecl --> if it contains concurrent, throw error
-     * Closure (not place procedure) --> if it contains concurrent, throw error
-     * 
-     * 
-     * @see polyglot.visit.ErrorHandlingVisitor#leaveCall(polyglot.ast.Node, polyglot.ast.Node, polyglot.ast.Node, polyglot.visit.NodeVisitor)
+     * X10ClassDecl --> add generated inner classes and methods if any
      */
     protected Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
-        //Need check whether some constructs are concurrent
+        // reject unsupported patterns
         if(n instanceof ConstructorDecl){
             ConstructorDecl cDecl = (ConstructorDecl)n;
             ConstructorDef cDef = cDecl.constructorDef();
@@ -119,14 +107,12 @@ public class WSCodeGenerator extends ContextVisitor {
                 throw new SemanticException("Work Stealing doesn't support concurrent constructor: " + cDef,n.position());
             }
         }
-        
         if(n instanceof RemoteActivityInvocation){
             RemoteActivityInvocation r = (RemoteActivityInvocation)n;
             if(!(r.place() instanceof Here)){
                 throw new SemanticException("Work-Stealing doesn't support at: " + r, n.position());
             }
         }
-
         if(n instanceof Closure){
             Closure closure = (Closure)n;           
             ClosureDef cDef = closure.closureDef();
@@ -134,99 +120,87 @@ public class WSCodeGenerator extends ContextVisitor {
                 throw new SemanticException("Work Stealing doesn't support concurrent closure: " + cDef,n.position());
             }
         }
-        
         if(n instanceof AtEach){
             throw new SemanticException("Work Stealing doesn't support ateach: " + n,n.position());
         }
-        
         if(n instanceof Offer){
             throw new SemanticException("Work Stealing doesn't support collecting finish: " + n,n.position());
         }
-        
+
+        // transform methods
         if(n instanceof MethodDecl) {
             MethodDecl mDecl = (MethodDecl)n;
             MethodDef mDef = mDecl.methodDef();
-
             if(wts.isTargetProcedure(mDef)){
                 if(debugLevel > 3){
                     System.out.println("[WS_INFO] Start transforming target method: " + mDef.name());
                 }
                 
-                WSMethodFrameClassGen methodGen;
-                Job job = (((ClassType) mDef.container().get()).def()).job();
-                
+                WSMethodFrameClassGen mFrame;
+                Job job = ((ClassType) mDef.container().get()).def().job();
                 if (X10PrettyPrinterVisitor.isMainMethodInstance(mDef.asInstance(), context)) {
-                    WSMainMethodClassGen mainClassGen = new WSMainMethodClassGen(job, (X10NodeFactory) nf, (X10Context) context, mDef, wts);
-                    mainClassGen.setMethodDecl(mDecl);
-                    mainClassGen.genClass((X10Context) context);
-                    n = mainClassGen.getNewMainMethod();
-                    methodGen = mainClassGen;
+                    WSMainMethodClassGen mainFrame = new WSMainMethodClassGen(job, (X10NodeFactory) nf, (X10Context) context, mDef, wts);
+                    mainFrame.setMethodDecl(mDecl);
+                    mainFrame.genClass((X10Context) context);
+                    n = mainFrame.getNewMainMethod();
+                    mFrame = mainFrame;
                 }
                 else {
-                    methodGen = new WSMethodFrameClassGen(job, (X10NodeFactory) nf, (X10Context) context, mDef, wts);
-                    methodGen.setMethodDecl(mDecl);
-                    methodGen.genClass((X10Context) context);
+                    mFrame = new WSMethodFrameClassGen(job, (X10NodeFactory) nf, (X10Context) context, mDef, wts);
+                    mFrame.setMethodDecl(mDecl);
+                    mFrame.genClass((X10Context) context);
                     n = null;
                 }
-                methodToInnerClassTreeMap.put(mDef, methodGen); 
-                methodToWSMethodMap.put(mDef, methodGen.getWraperMethodSynths());
+                generatedMethodFrames.add(mFrame); 
+                generatedMethods.add(mFrame.getWraperMethodSynths());
                 if(debugLevel > 3){
-                    System.out.println(methodGen.getFrameStructureDesc(4));
+                    System.out.println(mFrame.getFrameStructureDesc(4));
                 }
             }
-
             return n;
         }
 
+        // transform classes
         if (n instanceof X10ClassDecl) {
             X10ClassDecl cDecl = (X10ClassDecl)n;
+            ClassDef cDef = cDecl.classDef();
             
-            List<X10ClassDecl> innerClasses = getInnerClasses(cDecl.classDef());
-            if (innerClasses.isEmpty()) {
-                return n; //No WS transformation
+            List<X10ClassDecl> classes = getGeneratedFrames(cDef);
+            if (classes.isEmpty()) {
+                return n; //no change
             }
             else{
                 if(debugLevel > 3){
                     System.out.println();
-                    System.out.println("[WS_INFO] Add new methods/inner-classes to class:" + n);
+                    System.out.println("[WS_INFO] Add new methods and nested classes to class:" + n);
                 }
-                cDecl = Synthesizer.addInnerClasses(cDecl, innerClasses);
-                cDecl = Synthesizer.addMethods(cDecl, getGeneratedMethods(cDecl.classDef()));
+                cDecl = Synthesizer.addInnerClasses(cDecl, classes);
+                cDecl = Synthesizer.addMethods(cDecl, getGeneratedMethods(cDef));
                 return cDecl;
             }
         }
         return n;
     }
     
-    /**
-     * @return newly generated methods from the WS code transformation
-     * @throws SemanticException 
-     */
-    public List<X10MethodDecl> getGeneratedMethods(ClassDef cDef) throws SemanticException {
+    protected List<X10MethodDecl> getGeneratedMethods(ClassDef cDef) throws SemanticException {
         List<X10MethodDecl> mDecls = new ArrayList<X10MethodDecl>();
         
-        for(MethodDef mDef : methodToWSMethodMap.keySet()){
-            ClassDef containerDef = ((ClassType) mDef.container().get()).def();  
+        for(MethodSynth method : generatedMethods){
+            ClassDef containerDef = ((ClassType) method.getDef().container().get()).def();
             if(containerDef == cDef){
-                MethodSynth pair = methodToWSMethodMap.get(mDef);
-                mDecls.add(pair.close());
+                mDecls.add(method.close());
             }
         }
         return mDecls;
     }
     
-    public List<X10ClassDecl> getInnerClasses(ClassDef cDef) throws SemanticException {
+    protected List<X10ClassDecl> getGeneratedFrames(ClassDef cDef) throws SemanticException {
         ArrayList<X10ClassDecl> cDecls = new ArrayList<X10ClassDecl>();
         
-        for(MethodDef mDef : methodToInnerClassTreeMap.keySet()){
-            
-            ClassDef containerDef = ((ClassType) mDef.container().get()).def();   
-            if(containerDef == cDef){ //only add those methods here
-                AbstractWSClassGen innerClass = methodToInnerClassTreeMap.get(mDef);
-                AbstractWSClassGen[]  innerClasses = innerClass.genAllOffString();
-                for(int i = 0; i <innerClasses.length; i++){
-                    cDecls.add(innerClasses[i].getGenClassDecl());
-                }
+        for(WSMethodFrameClassGen mFrame : generatedMethodFrames){
+            ClassDef containerDef = mFrame.getClassDef().outer().get();
+            if(containerDef == cDef){
+                cDecls.addAll(mFrame.close());
             }
         }
         return cDecls;
