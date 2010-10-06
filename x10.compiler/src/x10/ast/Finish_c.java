@@ -74,7 +74,7 @@ public class Finish_c extends Stmt_c implements Finish {
     	return c;
 	}
     public String toString() {
-	return "finish  { ... }";
+	return (clocked ? "clocked " : "") + "finish  { ... }";
     }
 
     /** Write the statement to an output file. */
