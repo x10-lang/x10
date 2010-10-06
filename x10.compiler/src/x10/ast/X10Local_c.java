@@ -69,14 +69,14 @@ public class X10Local_c extends Local_c {
 
 	    // if the local is defined in an outer class, then it must be final
         // shared was removed from the language: you cannot access var in a closure 
-	    if (!context.isLocal(li.name())) {
-	        // this local is defined in an outer class
-	        if (!li.flags().isFinal() && !X10Flags.toX10Flags(li.flags()).isShared()) {
-	            Errors.issue(tc.job(), new SemanticException("Local variable \"" + li.name() +
-	                    "\" is accessed from an inner class or a closure, and must be declared final.",
-	                    this.position()));
-	        }
-	    }
+//	    if (!context.isLocal(li.name())) {
+//	        // this local is defined in an outer class
+//	        if (!li.flags().isFinal() && !X10Flags.toX10Flags(li.flags()).isShared()) {
+//	            Errors.issue(tc.job(), new SemanticException("Local variable \"" + li.name() +
+//	                    "\" is accessed from an inner class or a closure, and must be declared final.",
+//	                    this.position()));
+//	        }
+//	    }
 
 	    X10Local_c result = (X10Local_c) localInstance(li).type(li.type());
 

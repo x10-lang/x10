@@ -626,6 +626,24 @@ class PropertyTest(p:Int) {
 	}
 }
 
+class TestNonEscapingWarning {
+	final class FinalBar {
+		def this() {
+			f1();
+			f2();
+		}
+		private def f1() {}
+		final def f2() {}
+	}
+	class NonFinalBar {
+		def this() {
+			f1();
+			f2();
+		}
+		private def f1() {}
+		final def f2() {} // ERR: (warning)
+	}
+}
 abstract class SuperClassTest {
 	val a=1;
 	val b=2;

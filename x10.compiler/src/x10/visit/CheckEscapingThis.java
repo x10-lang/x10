@@ -337,6 +337,10 @@ public class CheckEscapingThis extends NodeVisitor
         final X10Flags flags = X10Flags.toX10Flags(((ProcedureDef_c)def).flags());
         return flags.isProperty();
     }
+    private boolean isPrivate(ProcedureDef def) {
+        final X10Flags flags = X10Flags.toX10Flags(((ProcedureDef_c)def).flags());
+        return flags.isPrivate();
+    }
     private boolean isPrivateOrFinal(ProcedureDef def) {
         if (isXlassFinal) return true;
         final X10Flags flags = X10Flags.toX10Flags(((ProcedureDef_c)def).flags());
@@ -775,7 +779,7 @@ public class CheckEscapingThis extends NodeVisitor
                         if (allMethods.containsKey(pd)) {
                             // we already analyzed this method (or it is an error method)
                         } else {
-                            if (!isNonEscaping)
+                            if (!isNonEscaping && !isXlassFinal && !isPrivate(procDef))
                                 job.compiler().errorQueue().enqueue(ErrorInfo.WARNING,"Method '"+procDef.signature()+"' is called during construction and therefore should be marked as @NonEscaping.", method.position());                            
                             final Block body = method.body();
                             if (body!=null) {
