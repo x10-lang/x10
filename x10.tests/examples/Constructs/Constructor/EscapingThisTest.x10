@@ -1334,3 +1334,21 @@ class Possel811 { //XTENLANG-811
     new I(){}; 
   }
 }
+
+class AccessOfVarIllegalFromClosure { // XTENLANG-1888
+	val x:Int = 1;
+	var y:Int = 1;
+
+    public def run() = {
+        
+        val a:Int = 1;
+        var b:Int = 1;
+
+        val closure = 
+			() => 
+				x+
+				y+
+				a+
+				b; // ERR: Local variable "b" is accessed from an inner class or a closure, and must be declared final.
+    }
+}
