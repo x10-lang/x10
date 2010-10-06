@@ -22,25 +22,25 @@ import harness.x10Test;
  */
 public class BreakInForTest extends x10Test {
 
-	public static N: int = 100;
-	var R: Region = [0..N];
-	var D: Dist = Dist.make(R);
-	var n1: int = 91;
-	var n2: int = 27;
+    public static N: int = 100;
+    val R = 0..N;
+    val D = Dist.make(R);
+    var n1: int = 91;
+    var n2: int = 27;
 
-	public def run(): boolean = {
-		for (var i: int = 0; i < N; i++) {
-			if ((i+1) % n1 == 0) continue;
-			if ((i+1) % n2 == 0) break;
-		}
-		for (val [i]: Point in D) {
-			if ((i+1) % n1 == 0) continue;
-			if ((i+1) % n2 == 0) break;
-		}
-		return true;
-	}
+    public def run(): boolean = {
+        for (var i: int = 0; i < N; i++) {
+            if ((i+1) % n1 == 0) continue;
+            if ((i+1) % n2 == 0) break;
+        }
+        for (val [i]: Point in D) {
+            if ((i+1) % n1 == 0) continue;
+            if ((i+1) % n2 == 0) break;
+        }
+        return true;
+    }
 
-	public static def main(var args: Array[String](1)): void = {
-		new BreakInForTest().execute();
-	}
+    public static def main(var args: Array[String](1)): void = {
+        new BreakInForTest().execute();
+    }
 }
