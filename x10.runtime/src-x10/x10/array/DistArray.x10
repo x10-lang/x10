@@ -266,7 +266,7 @@ public class DistArray[T] (
         val plsInit:()=>LocalState[T] = () => {
             val region = dist.get(here);
             val localLayout = RectLayout(region);
-            val localRaw = IndexedMemoryChunk.allocate[T](localLayout.size());
+            val localRaw = IndexedMemoryChunk.allocate[T](localLayout.size(), true);
 
 	    return new LocalState[T](localLayout, localRaw);
         };
