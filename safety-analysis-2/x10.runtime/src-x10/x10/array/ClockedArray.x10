@@ -92,6 +92,12 @@ public class ClockedArray[T]
         cRaw = ClockedIndexedMemoryChunk[T](n, c, oper, opInitial);
     }
 
+    /* Opless */
+    public def this(reg:Region, c: Clock):ClockedArray[T]{self.region==reg} {
+	super(reg, true);
+        val n = layout.size();
+        cRaw = ClockedIndexedMemoryChunk[T](n, c);
+    }
 
     /**
      * Construct an Array over the region reg whose
@@ -104,6 +110,16 @@ public class ClockedArray[T]
 	super(reg, true);
         val n = layout.size();
         val r = ClockedIndexedMemoryChunk[T](n, c, oper, opInitial);
+	for (p:Point(reg.rank) in reg) {
+            r.setRead(init(p), layout.offset(p));
+        }
+        cRaw = r;
+    }
+
+public def this(reg:Region, init:(Point(reg.rank))=>T, c: Clock):ClockedArray[T]{self.region==reg} {
+	super(reg, true);
+        val n = layout.size();
+        val r = ClockedIndexedMemoryChunk[T](n, c);
 	for (p:Point(reg.rank) in reg) {
             r.setRead(init(p), layout.offset(p));
         }

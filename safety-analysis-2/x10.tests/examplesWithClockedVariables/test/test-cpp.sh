@@ -17,13 +17,13 @@ do
 	echo ""
 	echo "----${example[$i]}Orig: Original Code -----"
 	echo ""
-	../../../x10.dist/bin/x10c++  -x10rt standalone ../${example[$i]}Orig.x10 > out.txt 
+	../../../x10.dist/bin/x10c++  -x10rt standalone ../${example[$i]}Orig.x10 >> out.txt 
 	time  ./a.out
 
 	echo ""
 	echo "----${example[$i]}Orig: Original Code with safe parallelization check -----"
 	echo ""
-	../../../x10.dist/bin/x10c++ -x10rt standalone -SAFE_PARALLELIZATION_CHECK=true ../${example[$i]}Orig.x10 > out.txt 
+	../../../x10.dist/bin/x10c++ -x10rt standalone -SAFE_PARALLELIZATION_CHECK=true ../${example[$i]}Orig.x10 >> out.txt 
 done
 
 %rm *.h *.inc *.class

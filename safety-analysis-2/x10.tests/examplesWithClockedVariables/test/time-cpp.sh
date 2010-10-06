@@ -1,6 +1,11 @@
 export X10RT_STANDALONE_NUMPLACES=1
-example=( AllReduceParallel Pipeline Convolve NQueensPar MontyPiParallel KMeansScalar Histogram MergeSort Stream Prefix UTS IDEA SOR Stencil Series RayTrace LUFact SparseMatMul)
 
+if [ $# == 1 ]
+then
+ example=($1)
+else
+example=( AllReduceParallel Pipeline Convolve NQueensPar MontyPiParallel KMeansScalar Histogram MergeSort Stream Prefix UTS IDEA SOR Stencil Series RayTrace LUFact SparseMatMul)
+fi
 rm out.txt
 COUNT=10
 for ((i = 0; i < ${#example[@]}; i++))
@@ -22,7 +27,7 @@ int(1000*gettimeofday()).qq(\n);'`
 int(1000*gettimeofday()).qq(\n);'` 
 	for ((j = 0; j < $COUNT; j++))
 	do
-		./a.out  ${example[$i]}Orig.x10 >> out.txt 
+		./a.out  >> out.txt 
 	done
 	END=`perl -MTime::HiRes=gettimeofday -e 'print
 int(1000*gettimeofday()).qq(\n);'` 

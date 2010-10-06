@@ -149,7 +149,7 @@ import x10.util.Random;
 				 for ((i): Point in lowsum(id)..highsum(id)-1) {
 				     val r = row(i);
 				     val c = col(i);
-				 	 y(r) += x(c)*val(i);
+				 	 atomic y(r) += x(c)*val(i);
 				 	}
 
 		//JGFInstrumentor.stopTimer("Section2:SparseMatMulOrigt:Kernel");

@@ -186,8 +186,7 @@ public class ClockedVariableRefactor extends ContextVisitor {
 		 if (init !=  null) {
 			 isNoOp = init.toString().contains("noOp");
 		 }
-		
-		 return isNoOp;
+		return isNoOp;
 	 }
 	 
 	 
@@ -303,7 +302,6 @@ public class ClockedVariableRefactor extends ContextVisitor {
 	                	type2 = xts.typeForName(CLOCKEDOPLESSVAR);
 	                else
 	                	type2 = ((X10ClassType) type).typeArguments(typeArgs);
-	                
 	                Expr construct = xnf.New(position,xnf.CanonicalTypeNode(position, type2), args)
 	               
 	                .constructorInstance(xts.findConstructor(type2, xts.ConstructorMatcher(type2, argsType, context)))
@@ -449,17 +447,20 @@ public class ClockedVariableRefactor extends ContextVisitor {
 					argTypes.add(arg.type());
 				}
 				argTypes.add(c.type());
-				argTypes.add(op.type());
-				argTypes.add(opInit.type());
-							
+				if (!this.isNoOp(op)) {
+					argTypes.add(op.type());
+					argTypes.add(opInit.type());
+				}
 							
 				args = new ArrayList<Expr>();
 				for (Expr arg: neew.arguments()) {
 					args.add(arg);
 				}
 				args.add(c);
-				args.add(op);
-				args.add(opInit);
+				if (!this.isNoOp(op)) {
+					args.add(op);
+					args.add(opInit);
+				}
 				X10ClassType finalType = newType.typeArguments(typeArgs);				
 				Expr construct = xnf.New(neew.position(), xnf.CanonicalTypeNode(neew.position(), finalType), args)
 	                	.constructorInstance(xts.findConstructor(finalType, xts.ConstructorMatcher(newType, argTypes, context)))
@@ -528,13 +529,13 @@ public class ClockedVariableRefactor extends ContextVisitor {
 							args.add(op);
 							args.add(opInit);
 							String mName;
+							System.out.println("here" + isNoOp(op));
 							 if (this.isOpIntPlus(op))
-				                	mName = "makeIntClocked";
+				                			mName = "makeIntClocked";
 							 else if (this.isNoOp(op))
 								 	mName = "makeOpLessClocked";
 							 else
 								 	mName = "makeClocked";
-				                
 							
 							mi = (X10MethodInstance) xts.findMethod(type, xts.MethodMatcher(call.type(), Name.make(mName), typeArgs, argTypes, context));
 							
