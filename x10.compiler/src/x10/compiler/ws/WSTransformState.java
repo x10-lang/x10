@@ -83,22 +83,11 @@ public class WSTransformState {
     public final ClassType headerType; //annotation type
     public final ClassType uninitializedType; //annotation type
     public final ClassType futureType;
-
     public final Boolean realloc; // whether or not to generate code for frame migration
 
-    //map from target method to synthesized inner class
-    final HashMap<MethodDef, WSMethodFrameClassGen> methodToInnerClassTreeMap;
+    private final WSCallGraph callGraph;
 
-    //map from target method to synthesized method
-    final HashMap<MethodDef, MethodSynth> methodToWSMethodMap;
-
-    //unsupported concurrent procedure (for book keeping)
-    final HashSet<ProcedureDef> concurrentProcedureSet;
-    
     public WSTransformState(X10TypeSystem xts, X10NodeFactory xnf, String theLanguage){
-        methodToInnerClassTreeMap = new HashMap<MethodDef, WSMethodFrameClassGen>();
-        methodToWSMethodMap = new HashMap<MethodDef, MethodSynth>();
-        concurrentProcedureSet = new HashSet<ProcedureDef>();
         if (theLanguage.equals("c++")) {
             frameType = xts.load("x10.compiler.ws.Frame");
             finishFrameType = xts.load("x10.compiler.ws.FinishFrame");
@@ -127,7 +116,7 @@ public class WSTransformState {
         uninitializedType = xts.load("x10.compiler.Uninitialized");
         futureType = xts.load("x10.util.Future");
 
-        WSCallGraph callGraph = new WSCallGraph();
+        callGraph = new WSCallGraph();
         
         //start to iterate the ast in jobs and build all;
         for(Job job : xts.extensionInfo().scheduler().jobs()){
@@ -162,10 +151,11 @@ public class WSTransformState {
         //now do search
         
         callGraph.doDFSMark();
+        
+        //debug print
         List<WSCallGraphNode> methods = callGraph.getAllParallelMethods();
-
+        
         System.out.println("[WS_INFO] Found Parallel Methods:");
-       
         
         for(WSCallGraphNode node : methods){
             ProcedureDef md = node.getMethodDef();
@@ -177,100 +167,10 @@ public class WSTransformState {
                 System.out.printf("      <-[%s] %s\n",  callerNode.isContainsConcurrent() ? "C" : "D",
                         cmd.toString());     
             }
-            
-            this.addMethodAsTargetMethod(xts, xnf, (X10Context)xts.emptyContext(), md);                
-
         }
     }
 
-
-    /** 
-     * Query one method is a target method or not
-     * @param procedureDef the candidate method
-     * @return
-     */
     public boolean isTargetProcedure(ProcedureDef procedureDef) {
-        if(methodToInnerClassTreeMap.containsKey(procedureDef)){
-            return true;
-        }
-        else if(concurrentProcedureSet.contains(procedureDef)){
-            return true;
-        }
-        else{
-            return false;
-        }
-    }
-    
-    /**
-     * Add one method as a target method
-     * @param methodDef
-     */
-    public void addMethodAsTargetMethod(X10TypeSystem xts, X10NodeFactory xnf, X10Context xct, ProcedureDef procedureDef){
-        
-        if(procedureDef instanceof MethodDef){
-            MethodDef methodDef = (MethodDef)procedureDef;
-            
-            WSMethodFrameClassGen methodGen;
-            Job job = (((ClassType) methodDef.container().get()).def()).job();
-            
-            if (X10PrettyPrinterVisitor.isMainMethodInstance(methodDef.asInstance(), xct)) {
-                methodGen = new WSMainMethodClassGen(job, xnf, xct, methodDef, this);
-            }
-
-            //create class gen
-            else methodGen = new WSMethodFrameClassGen(job, xnf, xct, methodDef, this);
-            MethodSynth wrapperPair= methodGen.getWraperMethodSynths();
-            methodToInnerClassTreeMap.put(methodDef, methodGen); 
-            methodToWSMethodMap.put(methodDef, wrapperPair);
-        }
-        else{
-            //concurrent but no transformation support part
-            concurrentProcedureSet.add(procedureDef);
-        }
-        
-
-    }
-    
-    public List<X10ClassDecl> getInnerClasses(ClassDef cDef) throws SemanticException {
-        ArrayList<X10ClassDecl> cDecls = new ArrayList<X10ClassDecl>();
-        
-        for(MethodDef mDef : methodToInnerClassTreeMap.keySet()){
-            
-            ClassDef containerDef = ((ClassType) mDef.container().get()).def();   
-            if(containerDef == cDef){ //only add those methods here
-                AbstractWSClassGen innerClass = methodToInnerClassTreeMap.get(mDef);
-                AbstractWSClassGen[]  innerClasses = innerClass.genAllOffString();
-                for(int i = 0; i <innerClasses.length; i++){
-                    cDecls.add(innerClasses[i].getGenClassDecl());
-                }
-            }            
-        }
-        
-        return cDecls;
-    }
-    
-    /**
-     * @return newly generated methods from the WS code transformation
-     * @throws SemanticException 
-     */
-    public List<X10MethodDecl> getGeneratedMethods(ClassDef cDef) throws SemanticException {
-        List<X10MethodDecl> mDecls = new ArrayList<X10MethodDecl>();
-        
-        for(MethodDef mDef : methodToWSMethodMap.keySet()){
-            ClassDef containerDef = ((ClassType) mDef.container().get()).def();  
-            if(containerDef == cDef){
-                MethodSynth pair = methodToWSMethodMap.get(mDef);
-                mDecls.add(pair.close());
-            }
-        }
-        return mDecls;
-    }
-
-    public WSMethodFrameClassGen getInnerClass(MethodDef methodDef) {
-        return methodToInnerClassTreeMap.get(methodDef);
-    }
-    
-    public MethodSynth getFastAndSlowMethod(MethodDef methodDef) {
-        return methodToWSMethodMap.get(methodDef);
+       return callGraph.isParallel(procedureDef);
     }
 }

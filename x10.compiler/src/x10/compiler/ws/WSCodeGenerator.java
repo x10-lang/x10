@@ -11,6 +11,8 @@
 
 package x10.compiler.ws;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import polyglot.ast.ConstructorDecl;
@@ -19,8 +21,11 @@ import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.frontend.Job;
+import polyglot.types.ClassDef;
+import polyglot.types.ClassType;
 import polyglot.types.ConstructorDef;
 import polyglot.types.MethodDef;
+import polyglot.types.ProcedureDef;
 import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
 import polyglot.visit.ContextVisitor;
@@ -33,15 +38,19 @@ import x10.ast.Offer;
 import x10.ast.PlacedClosure;
 import x10.ast.RemoteActivityInvocation;
 import x10.ast.X10ClassDecl;
+import x10.ast.X10MethodDecl;
 import x10.ast.X10NodeFactory;
+import x10.compiler.ws.codegen.AbstractWSClassGen;
 import x10.compiler.ws.codegen.WSMainMethodClassGen;
 import x10.compiler.ws.codegen.WSMethodFrameClassGen;
 import x10.compiler.ws.util.WSCallGraph;
+import x10.compiler.ws.util.WSCallGraphNode;
 import x10.types.ClosureDef;
 import x10.types.X10Context;
 import x10.types.X10TypeSystem;
 import x10.types.checker.PlaceChecker;
 import x10.util.Synthesizer;
+import x10.util.synthesizer.MethodSynth;
 import x10.visit.X10PrettyPrinterVisitor;
 
 
@@ -65,7 +74,11 @@ public class WSCodeGenerator extends ContextVisitor {
     //Although there are different WSVisitor, each one has the same WSTransformState
     //FIXME: get rid of the static field
     static public WSTransformState wts; 
-        
+
+
+    //map from target method to synthesized method
+    final HashMap<MethodDef, MethodSynth> methodToWSMethodMap;
+
     /** 
      * @param job
      * @param ts
@@ -73,7 +86,14 @@ public class WSCodeGenerator extends ContextVisitor {
      */
     public WSCodeGenerator(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
+        methodToWSMethodMap = new HashMap<MethodDef, MethodSynth>();
+        methodToInnerClassTreeMap = new HashMap<MethodDef, WSMethodFrameClassGen>();
     }
+    
+
+    //map from target method to synthesized inner class
+    public final HashMap<MethodDef, WSMethodFrameClassGen> methodToInnerClassTreeMap;
+
     
     public static void buildCallGraph(X10TypeSystem xts, X10NodeFactory xnf, String theLanguage) {
         wts = new WSTransformState(xts, xnf, theLanguage);
@@ -125,40 +145,43 @@ public class WSCodeGenerator extends ContextVisitor {
         
         if(n instanceof MethodDecl) {
             MethodDecl mDecl = (MethodDecl)n;
-            MethodDef mDef = mDecl.methodDef();       
+            MethodDef mDef = mDecl.methodDef();
 
             if(wts.isTargetProcedure(mDef)){
                 if(debugLevel > 3){
                     System.out.println("[WS_INFO] Start transforming target method: " + mDef.name());
                 }
                 
+                WSMethodFrameClassGen methodGen;
+                Job job = (((ClassType) mDef.container().get()).def()).job();
+                
                 if (X10PrettyPrinterVisitor.isMainMethodInstance(mDef.asInstance(), context)) {
-                    WSMainMethodClassGen mainClassGen = (WSMainMethodClassGen) wts.getInnerClass(mDef);
+                    WSMainMethodClassGen mainClassGen = new WSMainMethodClassGen(job, (X10NodeFactory) nf, (X10Context) context, mDef, wts);
                     mainClassGen.setMethodDecl(mDecl);
                     mainClassGen.genClass((X10Context) context);
                     n = mainClassGen.getNewMainMethod();
-                    if(debugLevel > 3){
-                        System.out.println(mainClassGen.getFrameStructureDesc(4));
-                    }
+                    methodGen = mainClassGen;
                 }
-                else{
-                    WSMethodFrameClassGen methodGen = wts.getInnerClass(mDef);
+                else {
+                    methodGen = new WSMethodFrameClassGen(job, (X10NodeFactory) nf, (X10Context) context, mDef, wts);
                     methodGen.setMethodDecl(mDecl);
                     methodGen.genClass((X10Context) context);
                     n = null;
-                    if(debugLevel > 3){
-                        System.out.println(methodGen.getFrameStructureDesc(4));
-                    }
+                }
+                methodToInnerClassTreeMap.put(mDef, methodGen); 
+                methodToWSMethodMap.put(mDef, methodGen.getWraperMethodSynths());
+                if(debugLevel > 3){
+                    System.out.println(methodGen.getFrameStructureDesc(4));
                 }
             }
 
             return n;
         }
 
-        if (n instanceof X10ClassDecl) {           
+        if (n instanceof X10ClassDecl) {
             X10ClassDecl cDecl = (X10ClassDecl)n;
             
-            List<X10ClassDecl> innerClasses = wts.getInnerClasses(cDecl.classDef());
+            List<X10ClassDecl> innerClasses = getInnerClasses(cDecl.classDef());
             if (innerClasses.isEmpty()) {
                 return n; //No WS transformation
             }
@@ -168,10 +191,44 @@ public class WSCodeGenerator extends ContextVisitor {
                     System.out.println("[WS_INFO] Add new methods/inner-classes to class:" + n);
                 }
                 cDecl = Synthesizer.addInnerClasses(cDecl, innerClasses);
-                cDecl = Synthesizer.addMethods(cDecl, wts.getGeneratedMethods(cDecl.classDef()));
+                cDecl = Synthesizer.addMethods(cDecl, getGeneratedMethods(cDecl.classDef()));
                 return cDecl;
             }
         }
         return n;
+    }
+    
+    /**
+     * @return newly generated methods from the WS code transformation
+     * @throws SemanticException 
+     */
+    public List<X10MethodDecl> getGeneratedMethods(ClassDef cDef) throws SemanticException {
+        List<X10MethodDecl> mDecls = new ArrayList<X10MethodDecl>();
+        
+        for(MethodDef mDef : methodToWSMethodMap.keySet()){
+            ClassDef containerDef = ((ClassType) mDef.container().get()).def();  
+            if(containerDef == cDef){
+                MethodSynth pair = methodToWSMethodMap.get(mDef);
+                mDecls.add(pair.close());
+            }
+        }
+        return mDecls;
+    }
+    
+    public List<X10ClassDecl> getInnerClasses(ClassDef cDef) throws SemanticException {
+        ArrayList<X10ClassDecl> cDecls = new ArrayList<X10ClassDecl>();
+        
+        for(MethodDef mDef : methodToInnerClassTreeMap.keySet()){
+            
+            ClassDef containerDef = ((ClassType) mDef.container().get()).def();   
+            if(containerDef == cDef){ //only add those methods here
+                AbstractWSClassGen innerClass = methodToInnerClassTreeMap.get(mDef);
+                AbstractWSClassGen[]  innerClasses = innerClass.genAllOffString();
+                for(int i = 0; i <innerClasses.length; i++){
+                    cDecls.add(innerClasses[i].getGenClassDecl());
+                }
+            }
+        }
+        return cDecls;
     }
 }

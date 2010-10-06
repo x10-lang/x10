@@ -200,4 +200,8 @@ public class WSCallGraph {
         }
         return methods;
     }
+    
+    public boolean isParallel(ProcedureDef m) {
+        return def2NodeMap.get(m).parallel;
+    }
 }
