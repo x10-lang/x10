@@ -106,30 +106,30 @@ public class CodePatternDetector {
      * @param stmt
      * @return
      */
-    public Pair<Pattern, Stmt> detectAndTransform(Stmt stmt){
+    public Pattern detectAndTransform(final Stmt stmt){
         
         if(!WSCodeGenUtility.isComplexCodeNode(stmt, wts)){
-            return new Pair<Pattern, Stmt>(Pattern.Simple, stmt);
+            return Pattern.Simple;
         }
         
         //TODO: Check home == here;
         if(stmt instanceof Async){
-            return new Pair<Pattern, Stmt>(Pattern.Async, stmt);
+            return Pattern.Async;
         }
         
         if(stmt instanceof Finish){
-            return new Pair<Pattern, Stmt>(Pattern.Finish, stmt);
+            return Pattern.Finish;
         }
         
         if(stmt instanceof When){
             When w = (When)stmt;
             if(WSCodeGenUtility.isComplexCodeNode(w.expr(), wts)){
                 //need flatten
-                return new Pair<Pattern, Stmt>(Pattern.Compound, stmt);
+                return Pattern.Compound;
             }
             else{
                 //just normal when
-                return new Pair<Pattern, Stmt>(Pattern.When, stmt);
+                return Pattern.When;
             }
         }
         
@@ -142,11 +142,11 @@ public class CodePatternDetector {
             If ifStmt = (If)stmt;
             if(WSCodeGenUtility.isComplexCodeNode(ifStmt.cond(), wts)){
                 //need flatten
-                return new Pair<Pattern, Stmt>(Pattern.Compound, stmt);
+                return Pattern.Compound;
             }
             else{
                 //just normal if
-                return new Pair<Pattern, Stmt>(Pattern.If, stmt);
+                return Pattern.If;
             }
         }
         
@@ -167,10 +167,10 @@ public class CodePatternDetector {
             }
             
             if(compoundS){
-                return new Pair<Pattern, Stmt>(Pattern.Compound, stmt);
+                return Pattern.Compound;
             }
             else{
-                return new Pair<Pattern, Stmt>(Pattern.For, stmt);
+                return Pattern.For;
             }
         }
         
@@ -178,47 +178,47 @@ public class CodePatternDetector {
             ForLoop forloopStmt = (ForLoop)stmt;
             
             if(WSCodeGenUtility.isComplexCodeNode(forloopStmt.domain(), wts)){
-                return new Pair<Pattern, Stmt>(Pattern.Compound, stmt);
+                return Pattern.Compound;
             }
             else{
-                return new Pair<Pattern, Stmt>(Pattern.ForLoop, stmt);
+                return Pattern.ForLoop;
             }
         }
         
         if(stmt instanceof While){
             While whileStmt = (While)stmt;
             if(WSCodeGenUtility.isComplexCodeNode(whileStmt.cond(), wts)){
-                return new Pair<Pattern, Stmt>(Pattern.Compound, stmt);
+                return Pattern.Compound;
             }
             else{
-                return new Pair<Pattern, Stmt>(Pattern.While, stmt);
+                return Pattern.While;
             }
         }
         
         if(stmt instanceof Do){
             Do doStmt = (Do)stmt;
             if(WSCodeGenUtility.isComplexCodeNode(doStmt.cond(), wts)){
-                return new Pair<Pattern, Stmt>(Pattern.Compound, stmt);
+                return Pattern.Compound;
             }
             else{
-                return new Pair<Pattern, Stmt>(Pattern.DoWhile, stmt);
+                return Pattern.DoWhile;
             }
         }
         
         if(stmt instanceof Switch){
             Switch ss = (Switch)stmt;
             if(WSCodeGenUtility.isComplexCodeNode(ss.expr(), wts)){
-                return new Pair<Pattern, Stmt>(Pattern.Compound, stmt);
+                return Pattern.Compound;
             }
             else{
-                return new Pair<Pattern, Stmt>(Pattern.Switch, stmt);
+                return Pattern.Switch;
             }
         }
 
         if(stmt instanceof Return){ //the return's expr must be complex
             Return rStmt = (Return)stmt;
             if(WSCodeGenUtility.isComplexCodeNode(rStmt.expr(), wts)){
-                return new Pair<Pattern, Stmt>(Pattern.Compound, stmt);
+                return Pattern.Compound;
             }
             else{
                 //not possible. otherwise should return simple;
@@ -227,7 +227,7 @@ public class CodePatternDetector {
         }
         
         if(stmt instanceof Block){
-            return new Pair<Pattern, Stmt>(Pattern.Block, stmt);
+            return Pattern.Block;
         }
         
         if(stmt instanceof Try){
@@ -237,22 +237,22 @@ public class CodePatternDetector {
             for(Catch c : tryStmt.catchBlocks()){
                 if(WSCodeGenUtility.isComplexCodeNode(c.body(), wts)){
                     System.out.println("----------> catch error");
-                    return new Pair<Pattern, Stmt>(Pattern.Unsupport, stmt);
+                    return Pattern.Unsupport;
                 }
             }
             if(WSCodeGenUtility.isComplexCodeNode(tryStmt.finallyBlock(), wts)){
                 System.out.println("----------> final error");
-                return new Pair<Pattern, Stmt>(Pattern.Unsupport, stmt);
+                return Pattern.Unsupport;
             }
             
-            return new Pair<Pattern, Stmt>(Pattern.Try, stmt);
+            return Pattern.Try;
         }
         
         //other statements no support right now
-        return new Pair<Pattern, Stmt>(Pattern.Unsupport, stmt);
+        return Pattern.Unsupport;
     }
 
-    private Pair<Pattern, Stmt> detectEval(Stmt stmt) {
+    private Pattern detectEval(final Stmt stmt) {
         //should > 0. Other wise will not be sent to here for pattern detection
         int concurrentCallNum = WSCodeGenUtility.calcConcurrentCallNums(stmt, wts);
         assert(concurrentCallNum > 0);
@@ -262,10 +262,10 @@ public class CodePatternDetector {
             Call aCall = (Call)expr;
             if(wts.isTargetProcedure(aCall.methodInstance().def())
                     && concurrentCallNum == 1){ //only this call is concurrent call
-                return new Pair<Pattern, Stmt>(Pattern.Call, stmt);
+                return Pattern.Call;
             }
             else{ //call==1, not in first level; or call > 1
-                return new Pair<Pattern, Stmt>(Pattern.Compound, stmt);
+                return Pattern.Compound;
             }
         }
         else if(expr instanceof Assign){
@@ -275,23 +275,23 @@ public class CodePatternDetector {
                 Call aCall = (Call)rightExpr;
                 if(wts.isTargetProcedure(aCall.methodInstance().def())
                         && concurrentCallNum == 1){ //only this call is concurrent call
-                    return new Pair<Pattern, Stmt>(Pattern.AssignCall, stmt);
+                    return Pattern.AssignCall;
                 }
                 else{ //call==1, not in first level; or call > 1
-                    return new Pair<Pattern, Stmt>(Pattern.Compound, stmt);
+                    return Pattern.Compound;
                 }
             }
             else if( rightExpr instanceof FinishExpr){
-                return new Pair<Pattern, Stmt>(Pattern.FinishAssign, stmt);
+                return Pattern.FinishAssign;
             }
             else{
                 //if right is not a call, must be a compound one
-                return new Pair<Pattern, Stmt>(Pattern.Compound, stmt);
+                return Pattern.Compound;
             }
         }
         else {
             //other eval with concurrent call, must be compound
-            return new Pair<Pattern, Stmt>(Pattern.Compound, stmt);
+            return Pattern.Compound;
         }
     }
 }

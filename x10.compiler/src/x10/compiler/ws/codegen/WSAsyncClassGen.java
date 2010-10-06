@@ -176,9 +176,8 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
                 }
 
                 //use code pattern detector to detect
-                Pair<CodePatternDetector.Pattern, Stmt> patternPair = patternDetctor.detectAndTransform(s);
-                s = patternPair.snd(); //the s has been processed. Be careful
-                switch(patternPair.fst()){
+                CodePatternDetector.Pattern pattern = patternDetctor.detectAndTransform(s);
+                switch(pattern){
                 case Simple:
                     codes = transNormalStmt(s, prePcValue, localDeclaredVar);
                     break;
