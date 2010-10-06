@@ -24,7 +24,6 @@ import x10.ast.X10NodeFactory;
 import x10.types.X10TypeSystem;
 import x10.visit.ExpressionFlattener;
 
-// add cast node for java code generator
 public class ExpressionFlattenerForAtExpr extends ContextVisitor {
     
     private final X10TypeSystem xts;
