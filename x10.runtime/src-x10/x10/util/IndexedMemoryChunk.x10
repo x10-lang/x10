@@ -166,15 +166,15 @@ public struct IndexedMemoryChunk[T] {
     * what the compiler would have generated.
     */
 
-    @Native("java", "((Object)#0).toString()")
+    @Native("java", "(#0).toString()")
     @Native("c++", "(#0)->toString()")
     public native def  toString():String;
 
-    @Native("java", "((Object)#0).equals(#1)")
+    @Native("java", "(#0).equals(#1)")
     @Native("c++", "(#0)->equals(#1)")
     public native def equals(that:Any):Boolean;
 
-    @Native("java", "((Object)#0).hashCode()")
+    @Native("java", "(#0).hashCode()")
     @Native("c++", "(#0)->hash_code()")
     public native def  hashCode():Int;
 }

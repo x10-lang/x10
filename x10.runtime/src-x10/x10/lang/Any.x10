@@ -90,7 +90,7 @@ public interface Any {
      *
      * @return the hash code of this entity.
      */
-    @Native("java", "((Object)(#0)).hashCode()")
+    @Native("java", "((java.lang.Object)(#0)).hashCode()")
     @Native("c++", "x10aux::hash_code(#0)")
     def hashCode():Int;
 }
