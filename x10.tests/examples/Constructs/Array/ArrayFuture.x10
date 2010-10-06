@@ -21,7 +21,7 @@ import x10.util.Future;
 public class ArrayFuture extends x10Test {
 
     public def run(): boolean = {
-        val d = Dist.makeConstant([1..10, 1..10], here);
+        val d = Dist.makeConstant((1..10)*(1..10), here);
         val ia  = DistArray.make[Future[Int]](d, ([i,j]: Point) => Future.make[Int](()=>{i+j}));
         for ([i,j]: Point in ia.region) chk(ia(i, j)() == i+j);
         return true;
