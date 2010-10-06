@@ -32,7 +32,7 @@ public class ClosureEnclosingScope1s extends ClosureTest {
             val c = 1;
             def foo() = {
                 val fun = () => {
-                    var d:int = 1;
+                    val d:int = 1;
                     (() => a+b+c+d)()
                 };
                 fun()
