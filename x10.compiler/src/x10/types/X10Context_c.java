@@ -96,6 +96,7 @@ import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
+import x10.ast.X10Return_c;
 
 public class X10Context_c extends Context_c implements X10Context {
 
@@ -389,6 +390,11 @@ public class X10Context_c extends Context_c implements X10Context {
 	public boolean isLocal(Name name) {
 		return depType == null ? super.isLocal(name) : pop().isLocal(name);
 	}
+	public boolean isLocalIncludingAsync(Name name) {
+        if (isLocal(name)) return true;
+        if (outer!=null && X10Return_c.isAsyncCode(currentCode())) return ((X10Context_c)outer).isLocalIncludingAsync(name);
+        return false;
+    }
 
 
 	public boolean isValInScopeInClass(Name name) {

@@ -14,8 +14,8 @@ import harness.x10Test;
 
 /**
  * The body s in a function (x1: T1, . . ., xn: Tn) => { s } may access
- * fields of enclosing classes and local variable declared in an outer
- * scope.
+ * fields of enclosing classes and FINAL local variable declared in an outer
+ * scope (and of course var/val fields of the outer instances).
  *
  * @author bdlucas 8/2008
  */
@@ -26,7 +26,7 @@ public class ClosureEnclosingScope1s extends ClosureTest {
 
     public def run(): boolean = {
         
-        var b:int = 1;
+        val b:int = 1;
 
         class C {
             val c = 1;

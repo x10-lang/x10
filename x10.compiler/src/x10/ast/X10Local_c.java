@@ -50,6 +50,7 @@ import x10.types.X10ProcedureDef;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
+import x10.types.X10Context_c;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
@@ -61,7 +62,7 @@ public class X10Local_c extends Local_c {
 		
 	}
 	public Node typeCheck(ContextVisitor tc) {
-	    X10Context context = (X10Context) tc.context();
+	    X10Context_c context = (X10Context_c) tc.context();
 	    LocalInstance li = localInstance();
 	    if (!((X10LocalInstance) li).isValid()) {
 	        li = findAppropriateLocal(tc, name.id());
@@ -69,14 +70,14 @@ public class X10Local_c extends Local_c {
 
 	    // if the local is defined in an outer class, then it must be final
         // shared was removed from the language: you cannot access var in a closure 
-//	    if (!context.isLocal(li.name())) {
-//	        // this local is defined in an outer class
-//	        if (!li.flags().isFinal() && !X10Flags.toX10Flags(li.flags()).isShared()) {
-//	            Errors.issue(tc.job(), new SemanticException("Local variable \"" + li.name() +
-//	                    "\" is accessed from an inner class or a closure, and must be declared final.",
-//	                    this.position()));
-//	        }
-//	    }
+	    if (!context.isLocalIncludingAsync(li.name())) {
+	        // this local is defined in an outer class
+	        if (!li.flags().isFinal() && !X10Flags.toX10Flags(li.flags()).isShared()) {
+	            Errors.issue(tc.job(), new SemanticException("Local variable \"" + li.name() +
+	                    "\" is accessed from an inner class or a closure, and must be declared final.",
+	                    this.position()));
+	        }
+	    }
 
 	    X10Local_c result = (X10Local_c) localInstance(li).type(li.type());
 

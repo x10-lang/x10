@@ -95,6 +95,12 @@ public class X10Return_c extends Return_c {
 	    return removeLocals((X10Context) ctx.pop(), c, thisCode);
 	}
 
+    public static boolean isAsyncCode(CodeDef ci) {
+        return (ci != null)
+				&& (ci instanceof MethodDef)
+				&& ((MethodDef) ci).name().toString().equals(X10TypeSystem_c.DUMMY_ASYNC);
+    }
+
 	@Override
 	public Node typeCheck(ContextVisitor tc) {
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
@@ -102,9 +108,7 @@ public class X10Return_c extends Return_c {
 	
 		CodeDef ci = c.currentCode();
 		
-		if ((ci != null) 
-				&& (ci instanceof MethodDef)
-				&& ((MethodDef) ci).name().toString().equals(X10TypeSystem_c.DUMMY_ASYNC)) {
+		if (isAsyncCode(ci)) {
 		    Errors.issue(tc.job(), new SemanticException("Cannot return from an async."), this);
 		    return this;
 		}

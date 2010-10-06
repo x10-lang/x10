@@ -1044,6 +1044,8 @@ class TestFieldsWithoutDefaults[T] {
 	// generic parameter test
 	var f2:T; // ERR
 
+	// includes: Int, Long, ULong, UInt, Float, Double, Boolean, Char
+	// excludes: Short,UShort,Byte,UByte
 	// primitive private struct tests (when we'll add literals for Short,UShort,Byte,UByte, I should add more tests)
 	var i1:Int;
 	var i2:Int{self==0};
@@ -1074,7 +1076,7 @@ class TestFieldsWithoutDefaults[T] {
 	var ch1:Char;
 	var ch2:Char{self=='\0'};
 	var ch3:Char{self!='\0'}; // ERR
-	// todo: do tests for Char, Byte, UByte, Short, UShort
+	// todo: do tests for Byte, UByte, Short, UShort
 
 	// references (with or without null)
 	var r0:Array[Int{self!=0}];
@@ -1346,10 +1348,10 @@ class TestBreaksInAsyncAt {
 
 class Possel811 { //XTENLANG-811
   interface I {
-	def i():void; // ERR: <anonymous class> should be declared abstract; it does not define i(): x10.lang.Void, which is declared in Possel811.I
+	def i():void; 
   }
   def test() {
-    new I(){}; 
+    new I(){}; // ERR: <anonymous class> should be declared abstract; it does not define i(): x10.lang.Void, which is declared in Possel811.I
   }
 }
 
@@ -1357,7 +1359,7 @@ class AccessOfVarIllegalFromClosure { // XTENLANG-1888
 	val x:Int = 1;
 	var y:Int = 1;
 
-    public def run() = {
+    public def run() {
         
         val a:Int = 1;
         var b:Int = 1;
@@ -1369,4 +1371,67 @@ class AccessOfVarIllegalFromClosure { // XTENLANG-1888
 				a+
 				b; // ERR: Local variable "b" is accessed from an inner class or a closure, and must be declared final.
     }
+
+	static def use(i:Any) {}
+	def test2() {
+		var q:Int = 1;
+		finish async q=2;
+		use(() => {
+			use(q); // ERR: Local variable "q" is accessed from an inner class or a closure, and must be declared final.
+		});
+		use(() => { async
+			use(q); // ERR: Local variable "q" is accessed from an inner class or a closure, and must be declared final.
+		});
+		use(() => { finish async async
+			use(q); // ERR: Local variable "q" is accessed from an inner class or a closure, and must be declared final.
+		});
+		
+		use(() => { var q:Int = 1;
+			use(q);
+		});
+		use(() => { var q:Int = 1; async
+			use(q);
+		});
+		use(() => { finish async { var q:Int = 1; async
+			use(q);
+		}});
+		use(() => { finish { var q:Int = 1; async { async
+			use(q);
+		}}});
+		use(() => { finish { async { async {var q:Int = 1; 
+			use(q);
+		}}}});
+		use(() => { finish { async { async {
+			use(q); // ERR: Local variable "q" is accessed from an inner class or a closure, and must be declared final.
+			var q:Int = 1; 
+		}}}});
+		val w = q;
+	}
+}
+class TestVarAccessInClosures {
+   val a1:int = 1;
+   var a2:int = 1;
+    public def run() {
+        
+        val b1:int = 1;
+        var b2:int = 1;
+
+        class C {
+            val c1:int = 1;
+            var c2:int = 1;
+            def foo() = {
+                val fun = () => {
+                    val d1:int = 1;
+                    var d2:int = 1;
+                    (() => a1+b1+c1+d1+
+						a2+
+						b2+ // ERR: Local variable "b2" is accessed from an inner class or a closure, and must be declared final.
+						c2+
+						d2  // ERR: Local variable "d2" is accessed from an inner class or a closure, and must be declared final.
+						)()
+                };
+                fun()
+            }
+        }
+	}
 }
