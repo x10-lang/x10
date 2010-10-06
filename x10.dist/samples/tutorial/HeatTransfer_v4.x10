@@ -28,8 +28,8 @@ public class HeatTransfer_v4 {
      static  val epsilon = 1.0e-5;
 
      val BigD:Dist(2) = Dist.makeBlock(new Array[Region(1){self.rect}][0..n+1, 0..n+1], 0);
-     val D = BigD | (new Array[Region(1){self.rect}][1..n, 1..n] as Region);
-     val LastRow = new Array[Region(1){self.rect}][0..0, 1..n] as Region;
+     val D = BigD | (1..n)*(1..n);
+     val LastRow = (0..0)*(1..n);
      val A:DistArray[double](BigD){self.rank==2} 
       = DistArray.make[double](BigD,(p:Point)=>{ LastRow.contains(p) ? 1.0 : 0.0 });
      val Temp = DistArray.make[Double](BigD);
