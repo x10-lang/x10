@@ -63,16 +63,16 @@ public class WSMethodFrameClassGen extends WSRegularFrameClassGen {
         //now consider the flags/kind and outer class
         if(methodDef.flags().isStatic()){
             classSynth.setFlags(Flags.STATIC.Final());//class is static
-            classSynth.setKind(ClassDef.TOP_LEVEL);
+            classSynth.setKind(null);//override top-level default
         }
         else{
             classSynth.setFlags(Flags.FINAL);//class is not static
-            classSynth.setKind(ClassDef.MEMBER); //class is member and need set outer
-            //set the outer, the outter is the method's container
-            ClassType outerClassType = (ClassType) methodDef.container().get();
-            ClassDef outerClassDef = outerClassType.def();
-            classSynth.setOuter(outerClassDef);
+            classSynth.setKind(ClassDef.MEMBER);
         }
+        //class is nested
+        ClassType outerClassType = (ClassType) methodDef.container().get();
+        ClassDef outerClassDef = outerClassType.def();
+        classSynth.setOuter(outerClassDef);
         
         //processing the return
         returnFlagName = ((X10Context)xct).makeFreshName("returnFlag");
