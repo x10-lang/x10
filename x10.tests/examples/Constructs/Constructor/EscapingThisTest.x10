@@ -1435,3 +1435,81 @@ class TestVarAccessInClosures {
         }
 	}
 }
+
+
+class TestOnlyLocalVarAccess {
+	// for some reason, the origin of "frame" is null. I couldn't reproduce it...
+	//C:\cygwin\home\Yoav\intellij\sourceforge\x10.runtime\src-x10\x10\compiler\ws\Worker.x10:86,18-22
+	//Message: Semantic Error: Local variable "frame" is accessed at a different place, and must be declared final.
+	var i:Int;
+	static def test0(var b:TestOnlyLocalVarAccess) {
+		b.i++;
+	}
+
+	static def test0() {
+		var x:Int = 0;
+		at (here) x=20;
+		x=10;
+		at (here.next()) 
+			x=1; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
+		val place1 = here;
+		val place2 = place1;
+		at (here.next()) {
+			x=2; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
+			at (place1) 
+				x=3;
+			at (place2) 
+				x=4;
+			at (place1) at (place2) 
+				x=5;
+		}
+		Console.OUT.println(x);
+	}
+	def test1() {
+		var x:Int = 0;
+		at (here) x=20;
+		x=10;
+		at (here.next()) 
+			x=1; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
+		val place1 = here;
+		val place2 = place1;
+		at (here.next()) {
+			x=2; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
+			at (place1) 
+				x=3;
+			at (place2) 
+				x=4;
+			at (place1) at (place2) 
+				x=5;
+		}
+		Console.OUT.println(x);
+	}
+	def test2(var x:Int) {
+		at (here) x=20;
+		x=10;
+		at (here.next()) 
+			x=1; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
+		val place1 = here;
+		val place2 = place1;
+		at (here.next()) {
+			x=2; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
+			at (place1) 
+				x=3;
+			at (place2) 
+				x=4;
+			at (place1) at (place2) 
+				x=5;
+		}
+		Console.OUT.println(x);
+	}
+
+	def test3(a: DistArray[double](1)) {		
+        var n: int = 1;
+		at (here) n=2;
+		finish ateach ([i] in a.dist | 
+			(0..n)) { // todo ERR: it shouldn't give an error!
+			n++; // ERR: Local variable "n" is accessed at a different place, and must be declared final.
+		}
+	}
+
+}
