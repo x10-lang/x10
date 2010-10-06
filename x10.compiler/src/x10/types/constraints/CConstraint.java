@@ -434,8 +434,7 @@ public class CConstraint extends XConstraint  implements ThisVar {
 	 * @throws XFailure -- if r becomes inconsistent.
 	 */
 	public CConstraint constraintProjection(Map<XTerm,CConstraint> m) throws XFailure {
-		return this;
-		//return constraintProjection(m, 0); // new HashSet<XTerm>());
+		return constraintProjection(m, 0); // new HashSet<XTerm>());
 	}
 	public CConstraint constraintProjection(Map<XTerm,CConstraint> m, int depth /*Set<XTerm> ancestors*/) throws XFailure {
 		CConstraint r = new CConstraint();
