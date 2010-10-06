@@ -48,7 +48,7 @@ import x10.visit.Desugarer;
  *
  Yoav Zibin added:
 
-  Adding finish-async initialization of val (and shared vars):
+  Adding finish-async initialization of var/val:
   See XTENLANG-1565.
   I kept the CFG without changes.
   So, an Async_c exit has two incoming edges: from the exit of the body and
@@ -91,7 +91,7 @@ import x10.visit.Desugarer;
   // i=[1,1,1,1]
 
   Here is a more complicated example:
-         shared var i:Int, j:Int, k:Int;
+         var i:Int, j:Int, k:Int;
          val m:Int, n:Int, q:Int;
 
          i=1;

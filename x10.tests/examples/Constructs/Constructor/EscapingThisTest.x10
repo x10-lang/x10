@@ -508,6 +508,112 @@ class TestAsync {
 		}
 		val r3 = i;
 	}
+	
+	static def use(a:Int) {}
+	
+	public static def main(Array[String]) {
+	     var i:Int, j:Int, k:Int, x:Int, y:Int;
+         val m:Int, n:Int, q:Int;
+
+         x=1;
+		 async { use(x); x=4; use(x); }
+		 use(x);
+         async { y=4; use(x); use(y); }
+		 use(y); // ERR: "y" may not have been initialized
+
+		 i=1;
+		 use(i);
+         // i:[1,1,1,1]
+         finish {
+             m=2;
+			 use(m);
+             // m:[1,1,1,1]
+             if (true) {
+                 async {
+                     n=3; i=4; j=5; k=6; q=7;
+					 use(n); use(i); use(j); use(k); use(q); use(m);
+                     // n:[1,1,1,1] i:[2,2,2,2] j:[1,1,1,1] k:[1,1,1,1] q:[1,1,1,1]
+                 }
+				 use(n); // ERR: "n" may not have been initialized 
+				 use(i); 
+				 use(j); // ERR: "j" may not have been initialized
+				 use(k); // ERR: "k" may not have been initialized
+				 use(q); // ERR: "q" may not have been initialized
+				 use(m);
+                 // n:[0,0,1,1] i:[1,1,2,2] j:[0,0,1,1] k:[0,0,1,1] q:[0,0,1,1]
+                 k=8;
+				 use(k); 
+                 // k:[1,1,2,2]
+             } else {
+                 // n:[0,0,0,0] m:[1,1,1,1] i:[1,1,1,1] j:[0,0,0,0] k:[0,0,0,0] q:[0,0,0,0]
+                 n=9; 
+				 use(n); 
+				 m=10; // ERR: Final variable "m" might already have been initialized				 
+				 use(m); 
+                 // n:[1,1,1,1] m:[2,2,2,2]
+             }
+             // k:[0,1,0,2] n:[0,1,1,1] m:[1,2,1,2] i:[1,1,1,2] j:[0,0,0,1] q:[0,0,0,1]
+             k=11;
+			 use(k); 
+             // k:[1,2,1,3]
+         }
+         // k:[1,3,1,3] n:[1,1,1,1] m:[1,2,1,2] i:[1,2,1,2] j:[0,1,0,1] q:[0,1,0,1]
+         j=12;
+		 use(q); // ERR: "q" may not have been initialized
+		 use(n); use(i); use(j); use(k); use(m);
+         // j:[1,2,1,2]
+         // all (except q) are definitely-assigned now. 
+
+	}
+	static def use2(loc:Int,expected:Int,a:Int) { if (expected!=a) throw new RuntimeException("ERROR! loc="+loc+" expected="+expected+" a="+a); }
+	
+	public static def main2(Array[String]) {
+	     var i:Int, j:Int, k:Int, x:Int, y:Int;
+         val m:Int, n:Int, q:Int;
+
+         x=1;
+		 finish async { use2(101,1,x); x=4; use2(102,4,x); }
+		 use2(103,4,x);
+         async { y=5; use2(104,4,x); use2(105,5,y); }
+
+		 i=1;
+		 use2(106,1,i);
+         // i:[1,1,1,1]
+         finish {
+             m=2;
+			 use2(107,2,m);
+             // m:[1,1,1,1]
+             if (true) {
+                 async {
+                     n=3; i=4; j=5; k=6; q=7;
+					 use2(108,3,n); use2(109,4,i); use2(110,5,j); use2(111,6,k); use2(112,7,q); use2(113,2,m);
+                     // n:[1,1,1,1] i:[2,2,2,2] j:[1,1,1,1] k:[1,1,1,1] q:[1,1,1,1]
+                 }
+				 use2(115,2,m);
+                 // n:[0,0,1,1] i:[1,1,2,2] j:[0,0,1,1] k:[0,0,1,1] q:[0,0,1,1]
+                 k=8;
+				 use2(116,8,k); 
+                 // k:[1,1,2,2]
+             } else {
+                 // n:[0,0,0,0] m:[1,1,1,1] i:[1,1,1,1] j:[0,0,0,0] k:[0,0,0,0] q:[0,0,0,0]
+                 n=9; 
+				 use2(117,9,n); 	 
+				 use2(118,2,m); 
+                 // n:[1,1,1,1] m:[2,2,2,2]
+             }
+             // k:[0,1,0,2] n:[0,1,1,1] m:[1,2,1,2] i:[1,1,1,2] j:[0,0,0,1] q:[0,0,0,1]
+             k=11;
+			 use2(119,11,k); 
+             // k:[1,2,1,3]
+         }
+         // k:[1,3,1,3] n:[1,1,1,1] m:[1,2,1,2] i:[1,2,1,2] j:[0,1,0,1] q:[0,1,0,1]
+         j=12;
+		 k=99;
+		 use2(120,3,n); use2(121,4,i); use2(122,12,j); use2(123,99,k); use2(124,2,m);
+         // j:[1,2,1,2]
+         // all (except q) are definitely-assigned now. 
+
+  }
 }
 
 
@@ -1216,4 +1322,15 @@ class TestBreaksInAsyncAt {
 			}
 		}
 	}
+}
+
+
+
+class Possel811 { //XTENLANG-811
+  interface I {
+	def i():void; // ERR: <anonymous class> should be declared abstract; it does not define i(): x10.lang.Void, which is declared in Possel811.I
+  }
+  def test() {
+    new I(){}; 
+  }
 }
