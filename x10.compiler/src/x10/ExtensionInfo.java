@@ -103,7 +103,6 @@ import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
 import x10.visit.CheckNativeAnnotationsVisitor;
 import x10.visit.Desugarer;
-import x10.visit.ExprFlattener;
 import x10.visit.ExpressionFlattener;
 import x10.visit.FieldInitializerMover;
 import x10.visit.FinishAsyncVisitor;
@@ -857,12 +856,6 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
            return new ValidatingVisitorGoal("X10RewriteAtomicMethods", job, new RewriteAtomicMethodVisitor(job, ts, nf)).intern(this);
-       }
-       
-       public Goal X10ExprFlattened(Job job) {
-           TypeSystem ts = extInfo.typeSystem();
-           NodeFactory nf = extInfo.nodeFactory();
-           return new ValidatingVisitorGoal("X10ExprFlattened", job, new ExprFlattener(job, ts, nf)).intern(this);
        }
        
        public Goal X10Expanded(Job job) {

@@ -63,8 +63,6 @@ import x10.types.X10TypeSystem_c;
 import x10.types.checker.Checker;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
-import x10.visit.ExprFlattener;
-import x10.visit.ExprFlattener.Flattener;
 
 /**
  * An immutable representation of a binary operation Expr op Expr.
@@ -753,58 +751,6 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         X10Binary_c n = (X10Binary_c) copy();
         n.invert = invert;
         return n;
-    }
-
-    /** Flatten the expressions in place and body, creating stmt if necessary.
-     * The place field must be visited by the given flattener since those statements must be executed outside
-     * the future. Howeever, the body must be visited in a new flattener and the statements produced
-     * captured and stored in stmt. 
-     * Note that this works by side-effecting the current node. This is necessary
-     * because the method is called from within an enter call for a Visitor. I dont know
-     * of any way of making the enter call return a copy of the node. 
-     * @param fc
-     * @return
-     */
-    public Expr flatten(ExprFlattener.Flattener fc) {
-        //Report.report(1, "X10Binary_c: entering X10Binary " + this);
-        assert (op== Binary.COND_AND || op==Binary.COND_OR);
-        X10Context xc = (X10Context) fc.context();
-
-        final NodeFactory nf = fc.nodeFactory();
-        final TypeSystem ts = fc.typeSystem();
-        final Position pos = position();
-        final Id resultVarName = nf.Id(pos, xc.getNewVarName());
-        final TypeNode tn = nf.CanonicalTypeNode(pos,type);
-        Flags flags = Flags.NONE;
-
-        final LocalDef li = ts.localDef(pos, flags, Types.ref(type), resultVarName.id());
-        // Evaluate the left.
-        Expr nLeft = (Expr) left.visit(fc);
-        final LocalDecl ld = nf.LocalDecl(pos, nf.FlagsNode(pos, flags), tn, resultVarName, nLeft).localDef(li);
-        fc.add(ld);
-
-        final Local ldRef = (Local) nf.Local(pos,resultVarName).localInstance(li.asInstance()).type(type);
-        Flattener newVisitor = (Flattener) new ExprFlattener.Flattener(fc.job(), ts, nf, this).context(xc);
-        Expr nRight = (Expr) right.visit(newVisitor);
-        List<Stmt> condBody = newVisitor.stmtList(); 
-        Expr assign = nf.Assign(pos, ldRef, Assign.ASSIGN, nRight ).type(type);
-        Stmt eval = nf.Eval(pos, assign);
-        condBody.add(eval);
-        final Local ldRef2 = (Local) nf.Local(pos,resultVarName).localInstance(li.asInstance()).type(type);
-
-        if (op == Binary.COND_AND) {
-            final Stmt ifStm = nf.If(pos, ldRef2, nf.Block(pos, condBody));
-            fc.add(ifStm);
-        } else {
-            Expr cond = nf.Unary(pos, ldRef2, Unary.NOT).type(type);
-            final Stmt ifStm = nf.If(pos, cond, nf.Block(pos, condBody));
-            fc.add(ifStm);
-        }
-
-        final Local ldRef3 = (Local) nf.Local(pos,resultVarName).localInstance(li.asInstance()).type(type);
-        //Report.report(1, "X10Binary_c: returning " + ldRef3);
-        return ldRef3;
-
     }
 }
 

@@ -19,7 +19,6 @@ import polyglot.ast.Formal;
 import polyglot.ast.TypeNode;
 import polyglot.types.Type;
 import x10.types.ClosureDef;
-import x10.visit.ExprFlattener;
 
 /** The AST node for the X10 construct at (P) {e}
  *
