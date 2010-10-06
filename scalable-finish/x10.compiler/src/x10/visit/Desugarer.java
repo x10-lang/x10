@@ -998,15 +998,16 @@ public class Desugarer extends ContextVisitor {
                 xnf.Id(bpos, RESTRICTION),
                 here).methodInstance(rmi).type(rmi.returnType());
         Expr here1 = visitHere(xnf.Here(bpos));
-        Stmt body = async(a.body().position(), a.body(), a.clocks(), here1, null);
-        Stmt inner;
+        Stmt body; 
         // when we know every place has only has one point, we can remove 
         // the "async" around the statement "s"
         if(unique){
-        	inner = a.body();
+        	body = a.body();
         }else{
-        	inner = xnf.ForLoop(pos, formal, dAtPlace, body).locals(formal.explode(this));
+        	body = async(a.body().position(), a.body(), a.clocks(), here1, null);
+        	
         }
+        Stmt inner = xnf.ForLoop(pos, formal, dAtPlace, body).locals(formal.explode(this));
         MethodInstance pmi = xts.findMethod(dType,
                 xts.MethodMatcher(dType, PLACES, Collections.EMPTY_LIST, context));
         Expr places = xnf.Call(bpos,

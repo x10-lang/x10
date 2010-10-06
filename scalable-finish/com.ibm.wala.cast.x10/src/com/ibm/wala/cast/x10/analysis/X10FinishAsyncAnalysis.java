@@ -608,6 +608,7 @@ public class X10FinishAsyncAnalysis {
 	public HashMap<CallTableKey, LinkedList<CallTableVal>> build(final File testedFile, String[] defaultEntryPoint) throws Exception {
 		this.calltable = new HashMap<CallTableKey, LinkedList<CallTableVal>>();
 		cg = this.buildCallGraph(testedFile, defaultEntryPoint);
+		//GraphUtil.printNumberedGraph(cg, "cg");
 		// to make sure different invocations for building call table don't have side-effect on this call
 		init();
 		buildCallTable();

@@ -469,12 +469,11 @@ public final class Runtime {
 	}	
     
     static class UniqueRootFinish extends Latch implements FinishState, Mortal{
-    	protected var count:AtomicInteger! = new AtomicInteger(Place.MAX_PLACES);
+    	protected var count:Int = Place.MAX_PLACES;
     	protected var exceptions:Stack[Throwable]!;
     	public def waitForFinish(safe:Boolean):Void {
     		if (!NO_STEALS && safe) worker().join(this);
     		await();
-        	//TODO?
     		if (null != exceptions) {
         		if (exceptions.size() == 1) {
             		val t = exceptions.peek();
@@ -490,10 +489,14 @@ public final class Runtime {
 		}
 
 		def notify2():Void {
-    		var b:Boolean = true;
     		lock();
-    		//TODO:
-    		unlock();
+    		count--;
+    		if (count != 0) {
+    			unlock();
+    			return;
+			}
+			release();
+			unlock();
 		}
 
     	def this() {}
