@@ -607,11 +607,15 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	}
 
     private boolean isMainMethod(X10TypeSystem ts, Flags flags, Id name, Type returnType, Type argType) {
+        return isMainMethod(ts, flags, name, returnType, argType, tr.context());
+    }
+
+    public static boolean isMainMethod(X10TypeSystem ts, Flags flags, Id name, Type returnType, Type argType, Context context) {
         return name.id().toString().equals("main") &&
-				flags.isPublic() &&
-				flags.isStatic() &&
-				returnType.isVoid() &&
-				argType.isSubtype(ts.Array(ts.String()), tr.context());
+                flags.isPublic() &&
+                flags.isStatic() &&
+                returnType.isVoid() &&
+                argType.isSubtype(ts.Array(ts.String()), context);
     }
 
 

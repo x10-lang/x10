@@ -42,6 +42,7 @@ import x10.types.X10Context;
 import x10.types.X10TypeSystem;
 import x10.types.checker.PlaceChecker;
 import x10.util.Synthesizer;
+import x10.visit.X10PrettyPrinterVisitor;
 
 
 /**
@@ -90,45 +91,39 @@ public class WSCodeGenerator extends ContextVisitor {
      * @see polyglot.visit.ErrorHandlingVisitor#leaveCall(polyglot.ast.Node, polyglot.ast.Node, polyglot.ast.Node, polyglot.visit.NodeVisitor)
      */
     protected Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
-        Node result = n;
-        
         //Need check whether some constructs are concurrent
         if(n instanceof ConstructorDecl){
             ConstructorDecl cDecl = (ConstructorDecl)n;
             ConstructorDef cDef = cDecl.constructorDef();
             if(wts.isTargetProcedure(cDef)){
-                throw new SemanticException("Work-Stealing Compiling doesn't support concurrent constructor: " + cDef,cDecl.position());
-            }
-        }
-        
-        if(n instanceof Closure){
-            if(n instanceof PlacedClosure){
-                //Future & AtExpr
-                checkRemoteActivityPlace((PlacedClosure)n);
-            }
-            else{
-                Closure closure = (Closure)n;           
-                ClosureDef cDef = closure.closureDef();
-                if(wts.isTargetProcedure(cDef)){
-                    throw new SemanticException("Work-Stealing Compiling doesn't support concurrent closure: " + cDef,closure.position());
-                }
+                throw new SemanticException("Work Stealing doesn't support concurrent constructor: " + cDef,n.position());
             }
         }
         
         if(n instanceof RemoteActivityInvocation){
-            //Other RemoteActivityInvocation, such as async, AtStmt
-            checkRemoteActivityPlace((RemoteActivityInvocation)n);
+            RemoteActivityInvocation r = (RemoteActivityInvocation)n;
+            if(!(r.place() instanceof Here)){
+                throw new SemanticException("Work-Stealing doesn't support at: " + r, n.position());
+            }
+        }
+
+        if(n instanceof Closure){
+            Closure closure = (Closure)n;           
+            ClosureDef cDef = closure.closureDef();
+            if(wts.isTargetProcedure(cDef)){
+                throw new SemanticException("Work Stealing doesn't support concurrent closure: " + cDef,n.position());
+            }
         }
         
         if(n instanceof AtEach){
-            throw new SemanticException("Work-Stealing Compiling only supports single place applications: " + n,n.position());
+            throw new SemanticException("Work Stealing doesn't support ateach: " + n,n.position());
         }
         
         if(n instanceof Offer){
-            throw new SemanticException("Work-Stealing Compiling doesn't support collecting finish: " + n,n.position());
+            throw new SemanticException("Work Stealing doesn't support collecting finish: " + n,n.position());
         }
         
-        if (n instanceof MethodDecl) {
+        if(n instanceof MethodDecl) {
             MethodDecl mDecl = (MethodDecl)n;
             MethodDef mDef = mDecl.methodDef();       
 
@@ -137,11 +132,11 @@ public class WSCodeGenerator extends ContextVisitor {
                     System.out.println("[WS_INFO] Start transforming target method: " + mDef.name());
                 }
                 
-                if(mDef.name().toString().equals("main")){
+                if (mDecl.formals().size() == 1 &&
+                        X10PrettyPrinterVisitor.isMainMethod((X10TypeSystem) ts, mDecl.flags().flags(), mDecl.name(), mDecl.returnType().type(), mDecl.formals().get(0).declType(), context)) {
                     WSMainMethodClassGen mainClassGen = (WSMainMethodClassGen) wts.getInnerClass(mDef);
                     mainClassGen.setMethodDecl(mDecl);
                     mainClassGen.genClass((X10Context) context);
-
                     n = mainClassGen.getNewMainMethod();
                     if(debugLevel > 3){
                         System.out.println(mainClassGen.getFrameStructureDesc(4));
@@ -157,9 +152,8 @@ public class WSCodeGenerator extends ContextVisitor {
                     }
                 }
             }
-            
-            return n;
 
+            return n;
         }
 
         if (n instanceof X10ClassDecl) {           
@@ -167,7 +161,7 @@ public class WSCodeGenerator extends ContextVisitor {
             
             List<X10ClassDecl> innerClasses = wts.getInnerClasses(cDecl.classDef());
             if (innerClasses.isEmpty()) {
-                return result; //No WS transformation
+                return n; //No WS transformation
             }
             else{
                 if(debugLevel > 3){
@@ -179,17 +173,6 @@ public class WSCodeGenerator extends ContextVisitor {
                 return cDecl;
             }
         }
-        return result;
-    }
-    
-    /**
-     * If the rActivity's place is not here, just throw error.
-     * @param rActivity
-     * @throws SemanticException
-     */
-    protected void checkRemoteActivityPlace(RemoteActivityInvocation rActivity) throws SemanticException{
-        if(!(rActivity.place() instanceof Here)){
-            throw new SemanticException("Work-Stealing Compiling only supports single place applications: " + rActivity, ((Node)rActivity).position());
-        }
+        return n;
     }
 }
