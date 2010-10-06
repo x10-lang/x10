@@ -350,7 +350,11 @@ public class VarsBoxer extends ContextVisitor {
     private Call createGetCall(final Position pos, LocalInstance lilocal, LocalInstance libox) {
         Name mname = Name.make("apply");
         
-        MethodDef md = xts.methodDef(pos, Types.ref(globalRefType), Flags.FINAL, Types.ref(globalRefType.typeArguments().get(0)), mname, Collections.<Ref<? extends Type>>emptyList());
+        List<Type> typeArgs = new ArrayList<Type>();
+        typeArgs.add(lilocal.type());
+        X10ParsedClassType grt = globalRefType.typeArguments(typeArgs);
+        
+        MethodDef md = xts.methodDef(pos, Types.ref(grt), Flags.FINAL, Types.ref(globalRefType.typeArguments().get(0)), mname, Collections.<Ref<? extends Type>>emptyList());
         MethodInstance mi = md.asInstance();
         
         Local local = xnf.Local(pos, xnf.Id(pos, lilocal.name().toString() + POSTFIX_BOXED_VAR));
@@ -362,8 +366,12 @@ public class VarsBoxer extends ContextVisitor {
         
         List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
         argTypes.add(Types.ref(arg.type()));
+
+        List<Type> typeArgs = new ArrayList<Type>();
+        typeArgs.add(lilocal.type());
+        X10ParsedClassType grt = globalRefType.typeArguments(typeArgs);
         
-        MethodDef md = xts.methodDef(pos, Types.ref(globalRefType), Flags.FINAL, Types.ref(globalRefType.typeArguments().get(0)), mname, argTypes);
+        MethodDef md = xts.methodDef(pos, Types.ref(grt), Flags.FINAL, Types.ref(globalRefType.typeArguments().get(0)), mname, argTypes);
         MethodInstance mi = md.asInstance();
         
         Local local = xnf.Local(pos, xnf.Id(pos, lilocal.name().toString() + POSTFIX_BOXED_VAR)).localInstance(libox);
