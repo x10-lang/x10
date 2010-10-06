@@ -204,7 +204,7 @@ public class InlineHelper extends ContextVisitor {
                         
                         List<Expr> args = new ArrayList<Expr>();
                         for (Formal f : mdcl.formals()) {
-                            args.add(xnf.Local(pos, f.name()).type(f.type().type()));
+                            args.add(xnf.Local(pos, f.name()).localInstance(f.localDef().asInstance()).type(f.type().type()));
                         }
                         
                         List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>(mdcl.formals().size() + 1);
@@ -221,7 +221,7 @@ public class InlineHelper extends ContextVisitor {
                             call = xnf.Call(pos, xnf.CanonicalTypeNode(pos, cd.asType()), 
                             		mdcl.name(), args).methodInstance(mdcl.methodDef().asInstance()).type(mdcl.returnType().type());
                         } else {
-                            call = xnf.Call(pos, xnf.Local(pos, xnf.Id(pos, cd.name())).type(cd.asType()), mdcl.name(), args).methodInstance(mdcl.methodDef().asInstance()).type(mdcl.returnType().type());
+                            call = xnf.Call(pos, xnf.Local(pos, xnf.Id(pos, cd.name())).localInstance(ldef.asInstance()).type(cd.asType()), mdcl.name(), args).methodInstance(mdcl.methodDef().asInstance()).type(mdcl.returnType().type());
                         }
                         
                         Block body;
@@ -279,7 +279,7 @@ public class InlineHelper extends ContextVisitor {
                         Id id = xnf.Id(pos, name);
                         Formal formal = xnf.Formal(pos, xnf.FlagsNode(pos, Flags.FINAL), xnf.X10CanonicalTypeNode(pos, t), id);
                         formals.add(formal.localDef(ldef));
-                        arguments.set(i, xnf.Local(pos, id).type(t));
+                        arguments.set(i, xnf.Local(pos, id).localInstance(ldef.asInstance()).type(t));
                     }
                     call = (Call) call.arguments(arguments);
                     Block body;
