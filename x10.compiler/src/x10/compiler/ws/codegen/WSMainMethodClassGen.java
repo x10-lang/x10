@@ -69,8 +69,8 @@ import x10.visit.ConstantPropagator;
 public class WSMainMethodClassGen extends WSMethodFrameClassGen {
     
     public WSMainMethodClassGen(Job job, X10NodeFactory xnf, X10Context context,
-            MethodDef mainMethodDef, WSTransformState wsTransformState) {
-        super(job, xnf, context, mainMethodDef, wsTransformState);
+            MethodDef mainMethodDef, MethodDecl mainMethodDecl, WSTransformState wsTransformState) {
+        super(job, xnf, context, mainMethodDef, mainMethodDecl, wsTransformState);
 
 //        this.className = WSCodeGenUtility.getMainMethodClassName();
         classSynth.setSuperType(wsTransformState.mainFrameType);        
@@ -111,10 +111,4 @@ public class WSMainMethodClassGen extends WSMethodFrameClassGen {
 
         return (MethodDecl) methodDecl.body(cbSynth.close());
     }
-    
-    public MethodDef getMainMethodDef(){
-        return methodDecl.methodDef();
-    }
-    
-
 }

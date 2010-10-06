@@ -46,6 +46,7 @@ import polyglot.util.Pair;
 import polyglot.util.Position;
 import polyglot.visit.NodeVisitor;
 import x10.ast.AnnotationNode;
+import x10.ast.Async;
 import x10.ast.Closure;
 import x10.ast.Finish;
 import x10.ast.When;
@@ -251,23 +252,14 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
         if(parent != null){
             parent.addChild(this); //add it to parent
         }
-        setContext(xct);
-        
-        //initial other fields
-        fieldNames = new HashSet<Name>(); //used to store all other fields' names
-    } 
-    
-    /**
-     * Extract it as a saperate method because WSMethodFrameClassGen was created before context is available
-     * @param xct
-     */
-    public void setContext(X10Context xct){
         this.xct = xct;
         this.xts = (X10TypeSystem) xct.typeSystem(); //type system from from context
         synth = new Synthesizer(xnf, xts);
         patternDetctor = new CodePatternDetector(xnf, xct, wts);
-    }
-    
+        
+        //initial other fields
+        fieldNames = new HashSet<Name>(); //used to store all other fields' names
+    } 
     
     public String getClassName() {
         return className;
@@ -390,6 +382,9 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
             else if(stmt instanceof When){
                 childClassGen = new WSWhenFrameClassGen(this, (When)stmt);
             }
+            else if(stmt instanceof Async){
+                childClassGen = new WSAsyncClassGen(this, (Async)stmt);
+            }
             else{
                 //stmt.prettyPrint(System.out);               
                 //TODO: optimization point: if from finish frame, the stmt is a loop
@@ -402,16 +397,6 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
         return childClassGen;
     }
     
-
-    protected AbstractWSClassGen genAsyncFrame(Type childSuperType, Stmt stmt, String namePrefix) throws SemanticException{
-        
-        AbstractWSClassGen childClassGen = null;
-        
-            //stmt is async's body
-            childClassGen = new WSAsyncClassGen(this, stmt);
-        childClassGen.genClass(); //
-        return childClassGen;
-    }
     
     /**
      * Generate this type of codes

@@ -69,7 +69,6 @@ public class CodePatternDetector {
     public static enum Pattern{ Finish,
                   FinishAssign, //used in collecting finish
                   Async,  
-                  AsyncAssign,
                   When,
                   Call, //only the first level call is target call;
                   AssignCall, //only the first level call is target call;
@@ -113,17 +112,9 @@ public class CodePatternDetector {
             return new Pair<Pattern, Stmt>(Pattern.Simple, stmt);
         }
         
-        
-        //detect them one by one
-        Assign ayncAssign = detectAsyncAssign(stmt);
-        //TODO: Check home == here;
-        if(ayncAssign != null){
-            return new Pair<Pattern, Stmt>(Pattern.AsyncAssign, xnf.Eval(stmt.position(), ayncAssign));
-        }
-        
         //TODO: Check home == here;
         if(stmt instanceof Async){
-            return new Pair<Pattern, Stmt>(Pattern.Async, ((Async)stmt).body());
+            return new Pair<Pattern, Stmt>(Pattern.Async, stmt);
         }
         
         if(stmt instanceof Finish){
@@ -303,45 +294,4 @@ public class CodePatternDetector {
             return new Pair<Pattern, Stmt>(Pattern.Compound, stmt);
         }
     }
-    
-    
-    /**
-     * Detect aVar = async foo(); pattern
-     * Return aVar = foo();
-     * @param stmt
-     * @param xct
-     * @return
-     */
-    protected Assign detectAsyncAssign(Stmt stmt){
-        Assign result = null;
-        X10TypeSystem xts = (X10TypeSystem) xct.typeSystem();
-        
-        if(stmt instanceof Eval){
-            Expr expr = ((Eval)stmt).expr();
-            if(expr instanceof Assign){
-                Assign assign = (Assign)expr;
-                Expr rightExpr = assign.right();
-                if(rightExpr instanceof Call){
-                    Call aCall = (Call)rightExpr;
-                    MethodInstance futureMI = null;
-                    try {
-                        futureMI = xts.findMethod(wts.futureType, xts.MethodMatcher(wts.futureType, FORCE, Collections
-                                .<Type> emptyList(), Collections.<Type> emptyList(), xct));
-                        MethodDef futureMD = futureMI.def();
-                        if(futureMD.equals(aCall.methodInstance().def())){
-                            //this call is a async, now we need find the return call
-                           Receiver r = aCall.target();
-                           Stmt s1 = ((Future)r).body().statements().get(0);
-                           //s1 should be return, the assign's right is just the content
-                           result = assign.right(((Return)s1).expr());
-                        }
-                    } catch (SemanticException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
-        return result;
-    }
- 
 }

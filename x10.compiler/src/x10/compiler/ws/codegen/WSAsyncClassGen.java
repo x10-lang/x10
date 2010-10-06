@@ -19,6 +19,7 @@ import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.util.Pair;
+import x10.ast.Async;
 import x10.compiler.ws.WSCodeGenerator;
 import x10.compiler.ws.util.AddIndirectLocalDeclareVisitor;
 import x10.compiler.ws.util.CodePatternDetector;
@@ -58,10 +59,11 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
     protected List<LocalAssign> outFinishScopeLocalAssign;//all the locals in this scope need be processed in move
     
     
-    public WSAsyncClassGen(AbstractWSClassGen parent, Stmt asyncStmt) {
+    public WSAsyncClassGen(AbstractWSClassGen parent, Async a) {
         //Note in building the tree, we use parentFinish as async frame's up frame
         super(parent.job, parent.getX10NodeFactory(), parent.getX10Context(), parent.getWSTransformState(), getFinishFrameOfAsyncFrame(parent));
         //and record it's parent continuation to looking for accessible local variables
+        Stmt asyncStmt = a.body();
         this.parentK = parent;
         frameDepth = parent.frameDepth + 1;
         //special case, the async frame has no direct parent finish frame

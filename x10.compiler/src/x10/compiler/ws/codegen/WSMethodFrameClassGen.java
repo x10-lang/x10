@@ -20,6 +20,7 @@ import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.util.Pair;
+import x10.ast.X10MethodDecl;
 import x10.ast.X10NodeFactory;
 import x10.compiler.ws.WSCodeGenerator;
 import x10.compiler.ws.WSTransformState;
@@ -46,7 +47,7 @@ import x10.util.synthesizer.NewLocalVarSynth;
  *
  */
 public class WSMethodFrameClassGen extends WSRegularFrameClassGen {
-    protected MethodDecl methodDecl;
+    protected final MethodDecl methodDecl;
     protected List<Formal> formals; //original methods's all formals
     protected MethodSynth fastWrapperMethodSynth;
     protected Name returnFieldName;
@@ -54,11 +55,11 @@ public class WSMethodFrameClassGen extends WSRegularFrameClassGen {
     
 
     public WSMethodFrameClassGen(Job job, X10NodeFactory xnf, X10Context xct,
-                                  MethodDef methodDef, WSTransformState wsTransformState) {
+                                  MethodDef methodDef, MethodDecl methodDecl, WSTransformState wsTransformState) {
     
         super(job, xnf, xct, wsTransformState, null/*A method has no parent*/,
              WSCodeGenUtility.getMethodBodyClassName(methodDef));
-        
+        this.methodDecl = methodDecl;
         frameDepth = 0;
         //now consider the flags/kind and outer class
         if(methodDef.flags().isStatic()){
@@ -99,15 +100,7 @@ public class WSMethodFrameClassGen extends WSRegularFrameClassGen {
         fastWrapperMethodSynth = new MethodSynth(xnf, xct, containerClassDef, fastPathName);
         fastWrapperMethodSynth.setFlag(methodDef.flags());
         fastWrapperMethodSynth.setReturnType(returnType);
-       }
-
-    /**
-     * MethodFrameClassGen will be created very early, during call graph building
-     * Later, the method decl will be set here
-     * @param methodDecl
-     */
-    public void setMethodDecl(MethodDecl methodDecl){
-        this.methodDecl = methodDecl;
+       
         formals = methodDecl.formals(); //record all formals
         Block block = methodDecl.body();
         //And if the method is instance method, need process the method body's all special
@@ -119,8 +112,9 @@ public class WSMethodFrameClassGen extends WSRegularFrameClassGen {
         this.codeBlock = block;
         
         //finally changes fast/slow method's return type
-        Type returnType = methodDecl.returnType().type();
         fastMSynth.setReturnType(returnType);
+
+        genMethodFormalAsFields();
     }
     
     /**
@@ -148,12 +142,8 @@ public class WSMethodFrameClassGen extends WSRegularFrameClassGen {
         }
     }
     
-    public void genClass(X10Context xct) throws SemanticException {
-        this.setContext(xct);
-        classSynth.setContext(xct);
-        
+    public void genClass() throws SemanticException {
         //do the formals translation
-        genMethodFormalAsFields();
         
         Type returnType = methodDecl.methodDef().returnType().get();
         if (returnType != xts.Void()){
@@ -258,7 +248,7 @@ public class WSMethodFrameClassGen extends WSRegularFrameClassGen {
     }
 
 
-    public MethodSynth getWraperMethodSynths() {
-        return fastWrapperMethodSynth;
+    public X10MethodDecl getWraperMethod() throws SemanticException{
+        return fastWrapperMethodSynth.close();
     }
 }

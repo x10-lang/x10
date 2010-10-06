@@ -26,6 +26,7 @@ import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.util.Pair;
+import x10.ast.Async;
 import x10.ast.Finish;
 import x10.ast.ForLoop;
 import x10.ast.When;
@@ -193,8 +194,7 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
                 codes = transFinish((Finish)s, prePcValue);
                 break;
             case Async:
-            case AsyncAssign:
-                codes = transAsync(s, prePcValue);
+                codes = transAsync((Async)s, prePcValue);
                 break;
             case When:
                 codes = transWhen((When)s, prePcValue);
@@ -448,12 +448,12 @@ public class WSRegularFrameClassGen extends AbstractWSClassGen {
 
 
 
-    protected TransCodes transAsync(Stmt asyncBody, int prePcValue) throws SemanticException {
+    protected TransCodes transAsync(Stmt a, int prePcValue) throws SemanticException {
 
         TransCodes transCodes = new TransCodes(prePcValue + 1);
 //        classSynth.setSuperType(wts.continuationType); //make sure it is a continuation
 
-        AbstractWSClassGen asyncClassGen = genAsyncFrame(wts.asyncFrameType, asyncBody, null);
+        AbstractWSClassGen asyncClassGen = genChildFrame(wts.asyncFrameType, a, null);
         
         //prepare child frame call;
         TransCodes childCallCodes = genInvocateFrameStmts(transCodes.getPcValue(), asyncClassGen);

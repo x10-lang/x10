@@ -75,8 +75,8 @@ public class WSCodeGenerator extends ContextVisitor {
     // Single static WSTransformState shared by all visitors (FIXME)
     public static WSTransformState wts; 
 
-    private final HashSet<MethodSynth> generatedMethods;
-    private final HashSet<WSMethodFrameClassGen> generatedMethodFrames;
+    private final HashSet<X10MethodDecl> genMethodDecls;
+    private final HashSet<X10ClassDecl> genClassDecls;
 
     /** 
      * @param job
@@ -85,8 +85,8 @@ public class WSCodeGenerator extends ContextVisitor {
      */
     public WSCodeGenerator(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
-        generatedMethods = new HashSet<MethodSynth>();
-        generatedMethodFrames = new HashSet<WSMethodFrameClassGen>();
+        genMethodDecls = new HashSet<X10MethodDecl>();
+        genClassDecls = new HashSet<X10ClassDecl>();
     }
 
     public static void buildCallGraph(X10TypeSystem xts, X10NodeFactory xnf, String theLanguage) {
@@ -139,20 +139,18 @@ public class WSCodeGenerator extends ContextVisitor {
                 WSMethodFrameClassGen mFrame;
                 Job job = ((ClassType) mDef.container().get()).def().job();
                 if (X10PrettyPrinterVisitor.isMainMethodInstance(mDef.asInstance(), context)) {
-                    WSMainMethodClassGen mainFrame = new WSMainMethodClassGen(job, (X10NodeFactory) nf, (X10Context) context, mDef, wts);
-                    mainFrame.setMethodDecl(mDecl);
-                    mainFrame.genClass((X10Context) context);
+                    WSMainMethodClassGen mainFrame = new WSMainMethodClassGen(job, (X10NodeFactory) nf, (X10Context) context, mDef, mDecl, wts);
+                    mainFrame.genClass();
                     n = mainFrame.getNewMainMethod();
                     mFrame = mainFrame;
                 }
                 else {
-                    mFrame = new WSMethodFrameClassGen(job, (X10NodeFactory) nf, (X10Context) context, mDef, wts);
-                    mFrame.setMethodDecl(mDecl);
-                    mFrame.genClass((X10Context) context);
+                    mFrame = new WSMethodFrameClassGen(job, (X10NodeFactory) nf, (X10Context) context, mDef, mDecl, wts);
+                    mFrame.genClass();
                     n = null;
                 }
-                generatedMethodFrames.add(mFrame); 
-                generatedMethods.add(mFrame.getWraperMethodSynths());
+                genClassDecls.addAll(mFrame.close()); 
+                genMethodDecls.add(mFrame.getWraperMethod());
                 if(debugLevel > 3){
                     System.out.println(mFrame.getFrameStructureDesc(4));
                 }
@@ -165,42 +163,42 @@ public class WSCodeGenerator extends ContextVisitor {
             X10ClassDecl cDecl = (X10ClassDecl)n;
             ClassDef cDef = cDecl.classDef();
             
-            List<X10ClassDecl> classes = getGeneratedFrames(cDef);
+            List<X10ClassDecl> classes = getClassDecls(cDef);
             if (classes.isEmpty()) {
                 return n; //no change
             }
             else{
                 if(debugLevel > 3){
                     System.out.println();
-                    System.out.println("[WS_INFO] Add new methods and nested classes to class:" + n);
+                    System.out.println("[WS_INFO] Add new methods and nested classes to class: " + n);
                 }
-                cDecl = Synthesizer.addInnerClasses(cDecl, classes);
-                cDecl = Synthesizer.addMethods(cDecl, getGeneratedMethods(cDef));
+                cDecl = Synthesizer.addNestedClasses(cDecl, classes);
+                cDecl = Synthesizer.addMethods(cDecl, getMethodDecls(cDef));
                 return cDecl;
             }
         }
         return n;
     }
     
-    protected List<X10MethodDecl> getGeneratedMethods(ClassDef cDef) throws SemanticException {
+    protected List<X10MethodDecl> getMethodDecls(ClassDef cDef) throws SemanticException {
         List<X10MethodDecl> mDecls = new ArrayList<X10MethodDecl>();
         
-        for(MethodSynth method : generatedMethods){
-            ClassDef containerDef = ((ClassType) method.getDef().container().get()).def();
+        for(X10MethodDecl mDecl : genMethodDecls){
+            ClassDef containerDef = ((ClassType) mDecl.methodDef().container().get()).def();
             if(containerDef == cDef){
-                mDecls.add(method.close());
+                mDecls.add(mDecl);
             }
         }
         return mDecls;
     }
     
-    protected List<X10ClassDecl> getGeneratedFrames(ClassDef cDef) throws SemanticException {
+    protected List<X10ClassDecl> getClassDecls(ClassDef cDef) throws SemanticException {
         ArrayList<X10ClassDecl> cDecls = new ArrayList<X10ClassDecl>();
         
-        for(WSMethodFrameClassGen mFrame : generatedMethodFrames){
-            ClassDef containerDef = mFrame.getClassDef().outer().get();
+        for(X10ClassDecl cDecl : genClassDecls){
+            ClassDef containerDef = cDecl.classDef().outer().get();
             if(containerDef == cDef){
-                cDecls.addAll(mFrame.close());
+                cDecls.add(cDecl);
             }
         }
         return cDecls;
