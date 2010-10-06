@@ -41,7 +41,11 @@ public class UniqueActivity extends Activity{
        			body();
    		} catch (t:Throwable) {
        			if (null != finishState) {
-           			finishState.pushException(t);
+       				if (here.equals(finishState.home)) {
+       					(finishState as Runtime.UniqueRootFinish!).pushException(t);
+    				}else {
+       					//TODO: should notify root the exception?
+    				}
        			} else {
            			Runtime.println("Uncaught exception in uncounted activity");
            			t.printStackTrace();
