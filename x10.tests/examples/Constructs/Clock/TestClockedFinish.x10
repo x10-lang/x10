@@ -18,7 +18,7 @@ import harness.x10Test;
 public class TestClockedFinish extends x10Test {
     public def run():Boolean {
         clocked finish {
-            for (p1 in Place.places) clocked async at(p1) {
+            for (p1 in Place.places()) clocked async at(p1) {
                 Console.OUT.println("starting at " + here.id);
                 next;
                 Console.OUT.println("finished at " + here.id);
