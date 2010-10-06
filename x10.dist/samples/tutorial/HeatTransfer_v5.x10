@@ -54,13 +54,15 @@ public class HeatTransfer_v5 {
     //       Needs to be done properly and integrated into the Dist/Region/DistArray
     //       class library in x10.array.
     static def blockIt(d:Dist(2), numProcs:int):Rail[Iterable[Point(2)]] {
-        val ans = Rail.make(numProcs, (int) => new x10.util.ArrayList[Point{self.rank==d.rank}]());
-	var modulo:int = 0;
+        val blocks = Rail.make[x10.util.ArrayList[Point{self.rank==d.rank}]](numProcs,
+                         (int) => new x10.util.ArrayList[Point{self.rank==d.rank}]());
+        var modulo:int = 0;
         for (p in d) {
-	    ans(modulo).add(p);
+            blocks(modulo).add(p);
             modulo = (modulo + 1) % numProcs;
         }
-	return ans;
+        val ans = Rail.make[Iterable[Point(2)]](numProcs, (i:Int) => blocks(i));
+        return ans;
     }
 
     def run() {
@@ -74,7 +76,7 @@ public class HeatTransfer_v5 {
                     var myDiff:Double;
                     do {
                         if (q == 0) diff(z) = 0;
-	                    myDiff = 0;
+                            myDiff = 0;
                         for (p:Point(2) in blocks(q)) {
                             Temp(p) = stencil_1(p);
                             myDiff = Math.max(myDiff, Math.abs(A(p) - Temp(p)));
@@ -114,7 +116,7 @@ public class HeatTransfer_v5 {
         val start = System.nanoTime();
         s.run();
         val stop = System.nanoTime();
-	Console.OUT.printf("...completed in %1.3f seconds.\n", ((stop-start) as double)/1e9);
+        Console.OUT.printf("...completed in %1.3f seconds.\n", ((stop-start) as double)/1e9);
         s.prettyPrintResult();
     }
 }
