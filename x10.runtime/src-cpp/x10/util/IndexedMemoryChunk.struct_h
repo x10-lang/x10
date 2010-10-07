@@ -31,6 +31,8 @@ namespace x10 {
     
             x10_ulong data; /* TODO: We would like this to be const */
             T *raw (void) const { return (T*)(size_t)data; }
+            T &operator[] (int index) { return raw()[index]; }
+            const T &operator[] (int index) const { return raw()[index]; }
 
             IndexedMemoryChunk(): data(0) {}
             IndexedMemoryChunk(T* _data): data((size_t)_data) {}
