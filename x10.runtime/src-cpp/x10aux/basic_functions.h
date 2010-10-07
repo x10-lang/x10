@@ -34,6 +34,14 @@ namespace x10aux {
         return string_utils::lit((ref<x10::lang::Reference>(nullCheck(x)))->_type()->name());
     }
 
+    template<class T> inline ref<x10::lang::String> type_name(captured_ref_lval<T> x) {
+        return type_name(*x);
+    }
+
+    template<class T> inline ref<x10::lang::String> type_name(captured_struct_lval<T> x) {
+        return type_name(*x);
+    }
+
     template<typename T> inline ref<x10::lang::String> type_name(T x) {
         return string_utils::lit(getRTT<T>()->name());
     }
@@ -46,6 +54,14 @@ namespace x10aux {
         return nullCheck(xAsRef)->equals(y);
     }
 
+    template<class T> inline x10_boolean equals(captured_ref_lval<T> x, ref<x10::lang::Any> y) {
+        return equals(*x, y);
+    }
+
+    template<class T> inline x10_boolean equals(captured_struct_lval<T> x, ref<x10::lang::Any> y) {
+        return equals(*x, y);
+    }
+    
     // covers all X10 Structs that are not built-in C++ types and NativeRep'ed
     template<class T> inline x10_boolean equals(T x, ref<x10::lang::Any>  y) { return x->equals(y); }
 
@@ -189,6 +205,14 @@ namespace x10aux {
         return (ref<x10::lang::Reference>(nullCheck(x)))->hashCode();
     }
 
+    template<class T> inline x10_int hash_code(captured_ref_lval<T> x) {
+        return hash_code(*x);
+    }
+
+    template<class T> inline x10_int hash_code(captured_struct_lval<T> x) {
+        return hash_code(*x);
+    }
+    
     template<class T> inline x10_int hash_code(T x) {
         return x->hashCode();
     }
@@ -218,6 +242,12 @@ namespace x10aux {
 
     template<class T> ref<x10::lang::String> to_string(ref<T> x) {
         return (ref<x10::lang::Reference>(nullCheck(x)))->toString();
+    }
+    template<class T> ref<x10::lang::String> to_string(captured_ref_lval<T> x) {
+        return to_string(*x);
+    }
+    template<class T> ref<x10::lang::String> to_string(captured_struct_lval<T> x) {
+        return to_string(*x);
     }
 
     template<class T> ref<x10::lang::String> to_string(T x) {

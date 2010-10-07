@@ -14,6 +14,7 @@
 
 #include <x10aux/config.h>
 #include <x10aux/ref.h>
+#include <x10aux/captured_lval.h>
 
 namespace x10aux {
 
@@ -23,6 +24,13 @@ namespace x10aux {
         if (x.isNull()) return y.isNull();
         return compare_references_slow(x, y);
     }        
+
+    /*
+     * Inner level of dispatching to cover combinations of:
+     *   ref
+     *   user-defined structs
+     *   built-in C types
+     */
 
     template<class T, class U> struct StructEquals { static inline GPUSAFE x10_boolean _(T x, U y) {
         return x._struct_equals(y); // two structs
@@ -40,6 +48,12 @@ namespace x10aux {
         return compare_references(x, y); // two refs
     } };
 
+
+    /*
+     * Outer level of dispatching to cannonicalize to only rval types
+     * and bound the explosion of possible combinations
+     */
+
     inline x10_boolean struct_equals(const x10_double x,  const x10_double y)  { return x==y; }
     inline x10_boolean struct_equals(const x10_float x,   const x10_float y)   { return x==y; }
     inline x10_boolean struct_equals(const x10_long x,    const x10_long y)    { return x==y; }
@@ -53,11 +67,27 @@ namespace x10aux {
     inline x10_boolean struct_equals(const x10_char x,    const x10_char y)    { return x.v==y.v; }
     inline x10_boolean struct_equals(const x10_boolean x, const x10_boolean y) { return x==y; }
 
-    template<class T, class U>
-    inline x10_boolean struct_equals(T x, U y) {
+    template<class T, class U> inline x10_boolean struct_equals(T x, U y) {
         return StructEquals<T,U>::_(x, y);
     }
-
+    template<class T, class U> inline x10_boolean struct_equals(captured_ref_lval<T> x, U y) {
+        return StructEquals<ref<T>,U>::_(ref<T>(*x), y);
+    }
+    template<class T, class U> inline x10_boolean struct_equals(T x, captured_ref_lval<U> y) {
+        return StructEquals<T,ref<U> >::_(x, ref<U>(*y));
+    }
+    template<class T, class U> inline x10_boolean struct_equals(captured_ref_lval<T> x, captured_ref_lval<U> y) {
+        return StructEquals<ref<T>,ref<U> >::_(ref<T>(*x), ref<U>(*y));
+    }
+    template<class T, class U> inline x10_boolean struct_equals(captured_struct_lval<T> x, U y) {
+        return struct_equals(*x, y);
+    }
+    template<class T, class U> inline x10_boolean struct_equals(T x, captured_struct_lval<U> y) {
+        return struct_equals(x, *y);
+    }
+    template<class T, class U> inline x10_boolean struct_equals(captured_struct_lval<T> x, captured_struct_lval<U> y) {
+        return struct_equals(*x, *y);
+    }
 }
 
 #endif /* X10AUX_STRUCT_EQUALS_H */
