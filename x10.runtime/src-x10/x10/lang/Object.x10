@@ -64,7 +64,7 @@ public class Object
      * @return the hash code of this object.
      */
     @Native("java", "#0.hashCode()")
-	    @Native("c++", "(#0)->hashCode()")
+    @Native("c++", "(#0)->hashCode()")
     public native def hashCode() : Int;
 
     /**
@@ -87,7 +87,7 @@ public class Object
      *
      * @return a string representation of the run-time type of this object.
      */
-		    @Native("java", "x10.rtt.Types.typeName(#0)")
+    @Native("java", "x10.rtt.Types.typeName(#0)")
     @Native("c++", "x10aux::type_name(#0)")
     @NonEscaping("")
     public native final def typeName():String;
