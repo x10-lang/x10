@@ -95,10 +95,7 @@ public class Special_c extends Expr_c implements Special
                 t = qualifier.type().toClass();
                 
                 if (!c.currentClass().hasEnclosingInstance(t)) {
-                    throw new SemanticException("The nested class \"" + 
-                                                c.currentClass() + "\" does not have " +
-                                                "an enclosing instance of type \"" +
-                                                t + "\".", qualifier.position());
+                    throw new SemanticException("The nested class \"" + c.currentClass() + "\" does not have an enclosing instance of type \"" +t + "\".", qualifier.position());
                 }
             }
             else {
@@ -108,9 +105,7 @@ public class Special_c extends Expr_c implements Special
         
         if (t == null || (c.inStaticContext() && ts.typeEquals(t, c.currentClass(), c))) {
             // trying to access "this" or "super" from a static context.
-            throw new SemanticException("Cannot access a non-static " +
-                "member or refer to \"this\" or \"super\" " + 
-                "from a static context.", this.position());
+            throw new SemanticException("Cannot access a non-static member or refer to \"this\" or \"super\" from a static context.", this.position());
         }
         
         if (kind == THIS) {

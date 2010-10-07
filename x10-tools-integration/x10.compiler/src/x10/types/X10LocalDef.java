@@ -15,7 +15,9 @@ import polyglot.types.LocalDef;
 import x10.constraint.XTerm;
 
 public interface X10LocalDef extends LocalDef, X10Def {
-	
+
+    void setAsyncInit();
+    boolean isAsyncInit();
 	XTerm placeTerm();
 	void setPlaceTerm(XTerm xt);
 }

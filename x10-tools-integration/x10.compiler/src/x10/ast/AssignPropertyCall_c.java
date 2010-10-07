@@ -126,12 +126,6 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 		return sb.toString();
 	}
 
-    /**
-     * ConstructorCall and AssignPropertyCall are a static context.
-     */
-    public Context enterScope(Context c) {
-        return c.pushStatic();
-    }
 
 	public Node typeCheck(ContextVisitor tc) {
 		TypeSystem ts = tc.typeSystem();
@@ -143,8 +137,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 		X10ParsedClassType container = (X10ParsedClassType) ctx.currentClass();
 		if (!(ctx.inCode()) || !(ctx.currentCode() instanceof X10ConstructorDef)) {
 			Errors.issue(job,
-			        new SemanticException("A property statement may only occur in the body of a constructor.",
-			                position()));
+			        new SemanticException("A property statement may only occur in the body of a constructor.", position()));
 		} else {
 		    thisConstructor = (X10ConstructorDef) ctx.currentCode();
 		    container = (X10ParsedClassType) thisConstructor.asInstance().container();
@@ -156,8 +149,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 		int aSize = arguments.size();
 		if (aSize != pSize) {
 		    Errors.issue(job,
-		            new SemanticException("The property initializer must have the same number of arguments as properties for the class.",
-		                    position()));
+		            new SemanticException("The property initializer must have the same number of arguments as properties for the class.", position()));
 		}
 
 		checkAssignments(tc, pos, definedProperties, arguments);
@@ -165,6 +157,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 		    checkReturnType(tc, pos, thisConstructor, definedProperties, arguments);
 		}
 
+		/* We check that "this" is not allowed in CheckEscapingThis.CheckCtor
 		ThisChecker thisC = (ThisChecker) new ThisChecker(tc.job()).context(tc.context());
 		for (int i=0; i < aSize; i++) {
 		    Expr arg = arguments.get(i);
@@ -173,7 +166,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 		    if (thisC.error()) {
 		        Errors.issue(job, new Errors.ThisNotPermittedInPropertyInitializer(arg, position()));
 		    }
-		}
+		} */
 
 		List<X10FieldInstance> properties = new ArrayList<X10FieldInstance>();
 		for (FieldInstance fi : definedProperties) {
@@ -190,8 +183,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 		for (int i=0; i < args.size() && i < props.size(); ++i) {
 			if (!xts.isSubtype(X10TypeMixin.baseType(args.get(i).type()), X10TypeMixin.baseType(props.get(i).type()))) {
 				Errors.issue(tc.job(),
-				        new SemanticException("The type " + args.get(i).type() + " of the initializer for property " + props.get(i) 
-				                + " is not a subtype of the property type " + props.get(i).type(), pos));
+				        new SemanticException("The type " + args.get(i).type() + " of the initializer for property " + props.get(i) + " is not a subtype of the property type " + props.get(i).type(), pos));
 			}
 		}
 		// Now we check that the constraints are correct.

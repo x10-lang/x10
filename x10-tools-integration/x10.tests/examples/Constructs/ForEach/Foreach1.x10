@@ -12,31 +12,31 @@
 import harness.x10Test;
 
 /**
- * Test for foreach.
+ * Test for for ... async.
  * @author kemal, 12/2004
  */
 public class Foreach1 extends x10Test {
 
-	public static N: int = 100;
-	var nActivities: int = 0;
+    public static N: int = 100;
+    var nActivities: int = 0;
 
-	public def run(): boolean = {
-		val P0  = here; // save current place
-		val d = [0..N-1]->here;
-		val hasbug  = DistArray.make[boolean](d);
+    public def run(): boolean = {
+        val P0  = here; // save current place
+        val d = 0..N-1->here;
+        val hasbug  = DistArray.make[boolean](d);
 
-		finish foreach (p[i]: Point(1) in d.region) {
-			// Ensure each activity spawned by foreach
-			// runs at P0
-			// and that the hasbug array was
-			// all false initially
-			hasbug(i) |= !(P0 == d(p) && here == P0);
-			atomic this.nActivities++;
-		}
-		return !hasbug.reduce(boolean.|, false) &&
-			nActivities == N;
-	}
-	public static def main(var args: Array[String](1)): void = {
-		new Foreach1().execute();
-	}
+        finish for (p[i]: Point(1) in d.region) async {
+            // Ensure each activity spawned by for... async
+            // runs at P0
+            // and that the hasbug array was
+            // all false initially
+            hasbug(i) |= !(P0 == d(p) && here == P0);
+            atomic this.nActivities++;
+        }
+        return !hasbug.reduce(boolean.|, false) &&
+            nActivities == N;
+    }
+    public static def main(var args: Array[String](1)): void = {
+        new Foreach1().execute();
+    }
 }

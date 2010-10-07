@@ -12,6 +12,8 @@
 package x10.types.checker;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -24,20 +26,30 @@ import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Assign.Operator;
 import polyglot.ast.Receiver;
+import polyglot.types.ClassType;
+import polyglot.types.CodeDef;
 import polyglot.types.Context;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
+import polyglot.types.Matcher;
+import polyglot.types.MethodDef;
+import polyglot.types.MethodInstance;
 import polyglot.types.Name;
 import polyglot.types.ProcedureDef;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.TypeSystem_c;
+import polyglot.types.TypeSystem_c.MethodMatcher;
 import polyglot.types.Types;
 import polyglot.util.InternalCompilerError;
+import polyglot.util.Pair;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import x10.ast.X10Binary_c;
 import x10.ast.X10New_c;
+import x10.ast.X10New_c.MatcherMaker;
+import x10.ast.X10ProcedureCall;
 import x10.constraint.XFailure;
 import x10.constraint.XName;
 import x10.constraint.XNameWrapper;
@@ -46,6 +58,7 @@ import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.errors.Errors;
 import x10.errors.Errors.CannotAssign;
+import x10.errors.Errors.MethodOrStaticConstructorNotFound;
 import x10.types.ConstrainedType;
 import x10.types.MacroType;
 import x10.types.ParameterType;
@@ -58,8 +71,10 @@ import x10.types.X10MethodInstance;
 import x10.types.X10ProcedureInstance;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
+import x10.types.X10TypeSystem_c;
 import x10.types.XTypeTranslator;
 import x10.types.constraints.CConstraint;
+import x10.types.matcher.DumbMethodMatcher;
 import x10.types.matcher.Subst;
 import x10.visit.X10TypeChecker;
 import static polyglot.ast.Assign.*;
@@ -348,5 +363,220 @@ public class Checker {
 			X10TypeMixin.setInconsistent(type);
 		}
 		return type;
+	}
+
+	/**
+	 * Find a method on the given targetType with the given name and list of args. If you cannot find
+	 * one, create and return a fake method instance, recording the reason you could not find one.
+	 * To facilitate further processing, if all the methods that you found have the same return type,
+	 * record that return type for the fake method instance you are creating.
+	 * @param tc
+	 * @param targetType
+	 * @param name
+	 * @param typeArgs
+	 * @param actualTypes
+	 * @return
+	 */
+	public static X10MethodInstance findAppropriateMethod(ContextVisitor tc, Type targetType,
+	        Name name, List<Type> typeArgs, List<Type> actualTypes)
+	{
+	    X10MethodInstance mi;
+	    X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
+	    Context context = tc.context();
+	    boolean haveUnknown = xts.hasUnknown(targetType);
+	    for (Type t : actualTypes) {
+	        if (xts.hasUnknown(t)) haveUnknown = true;
+	    }
+	    SemanticException error = null;
+	    if (!haveUnknown) {
+	        try {
+	            return xts.findMethod(targetType, xts.MethodMatcher(targetType, name, typeArgs, actualTypes, context));
+	        } catch (SemanticException e) {
+	            error = e;
+	        }
+	    }
+	    // If not returned yet, fake the method instance.
+	    Collection<X10MethodInstance> mis = null;
+	    try {
+	        mis = xts.findMethods(targetType, xts.MethodMatcher(targetType, name, typeArgs, actualTypes, context));
+	    } catch (SemanticException e) {
+	        if (error == null) error = e;
+	    }
+	    // See if all matches have the same return type, and save that to avoid losing information.
+	    Type rt = null;
+	    if (mis != null) {
+	        for (X10MethodInstance xmi : mis) {
+	            if (rt == null) {
+	                rt = xmi.returnType();
+	            } else if (!xts.typeEquals(rt, xmi.returnType(), context)) {
+	                if (xts.typeBaseEquals(rt, xmi.returnType(), context)) {
+	                    rt = X10TypeMixin.baseType(rt);
+	                } else {
+	                    rt = null;
+	                    break;
+	                }
+	            }
+	        }
+	    }
+	    if (haveUnknown)
+	        error = new SemanticException(); // null message
+	    mi = xts.createFakeMethod(targetType.toClass(), Flags.PUBLIC, name, typeArgs, actualTypes, error);
+	    if (rt == null) rt = mi.returnType();
+	    rt = PlaceChecker.AddIsHereClause(rt, context);
+	    mi = mi.returnType(rt);
+	    return mi;
+	}
+
+	/**
+	 * Find a match while trying implicit conversions.
+	 * @param n
+	 * @param tc
+	 * @param targetType
+	 * @param name
+	 * @param typeArgs
+	 * @param argTypes
+	 * @return
+	 * @throws SemanticException
+	 */
+	public static Pair<MethodInstance,List<Expr>> tryImplicitConversions(X10ProcedureCall n, ContextVisitor tc,
+	        Type targetType, final Name name, List<Type> typeArgs, List<Type> argTypes) throws SemanticException {
+	    final X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+	    final Context context = tc.context();
+	
+	    List<MethodInstance> methods = ts.findAcceptableMethods(targetType,
+	            new DumbMethodMatcher(targetType, name, typeArgs, argTypes, context));
+	
+	    Pair<MethodInstance,List<Expr>> p = Converter.<MethodDef,MethodInstance>tryImplicitConversions(n, tc,
+	            targetType, methods, new X10New_c.MatcherMaker<MethodInstance>() {
+	        public Matcher<MethodInstance> matcher(Type ct, List<Type> typeArgs, List<Type> argTypes) {
+	            return ts.MethodMatcher(ct, name, typeArgs, argTypes, context);
+	        }
+	    });
+	
+	    return p;
+	}
+
+	/**
+	 * Looks up a method with given name and argument types.
+	 */
+	public static Pair<MethodInstance,List<Expr>> findMethod(ContextVisitor tc, X10ProcedureCall n,
+	        Type targetType, Name name, List<Type> typeArgs, List<Type> actualTypes) {
+	    X10MethodInstance mi;
+	    X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
+	    X10Context context = (X10Context) tc.context();
+	    boolean haveUnknown = xts.hasUnknown(targetType);
+	    for (Type t : actualTypes) {
+	        if (xts.hasUnknown(t)) haveUnknown = true;
+	    }
+	    SemanticException error = null;
+	    try {
+	        return findMethod(tc, context, n, targetType, name, typeArgs, actualTypes, context.inStaticContext());
+	    } catch (SemanticException e) {
+	        error = e;
+	    }
+	    // If not returned yet, fake the method instance.
+	    Collection<X10MethodInstance> mis = null;
+	    try {
+	        mis = Checker.findMethods(tc, targetType, name, typeArgs, actualTypes);
+	    } catch (SemanticException e) {
+	        if (error == null) error = e;
+	    }
+	    // See if all matches have the same return type, and save that to avoid losing information.
+	    Type rt = null;
+	    if (mis != null) {
+	        for (X10MethodInstance xmi : mis) {
+	            if (rt == null) {
+	                rt = xmi.returnType();
+	            } else if (!xts.typeEquals(rt, xmi.returnType(), context)) {
+	                if (xts.typeBaseEquals(rt, xmi.returnType(), context)) {
+	                    rt = X10TypeMixin.baseType(rt);
+	                } else {
+	                    rt = null;
+	                    break;
+	                }
+	            }
+	        }
+	    }
+	    if (targetType == null)
+	        targetType = context.currentClass();
+	    if (haveUnknown)
+	        error = new SemanticException(); // null message
+	    mi = xts.createFakeMethod(targetType.toClass(), Flags.PUBLIC, name, typeArgs, actualTypes, error);
+	    if (rt != null) mi = mi.returnType(rt);
+	    return new Pair<MethodInstance, List<Expr>>(mi, n.arguments());
+	}
+
+	private static Pair<MethodInstance,List<Expr>> findMethod(ContextVisitor tc, X10Context xc,
+	        X10ProcedureCall n, Type targetType, Name name, List<Type> typeArgs,
+			List<Type> argTypes, boolean requireStatic) throws SemanticException {
+	
+	    X10MethodInstance mi = null;
+	    X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
+	    if (targetType != null) {
+	        mi = xts.findMethod(targetType, xts.MethodMatcher(targetType, name, typeArgs, argTypes, xc));
+	        return new Pair<MethodInstance, List<Expr>>(mi, n.arguments());
+	    }
+	    if (xc.currentDepType() != null)
+	        xc = (X10Context) xc.pop();
+	    ClassType currentClass = xc.currentClass();
+	    if (currentClass != null && xts.hasMethodNamed(currentClass, name)) {
+	        // Override to change the type from C to C{self==this}.
+	        Type t = currentClass;
+	        XVar thisVar = null;
+	        if (XTypeTranslator.THIS_VAR) {
+	            CodeDef cd = xc.currentCode();
+	            if (cd instanceof X10MemberDef) {
+	                thisVar = ((X10MemberDef) cd).thisVar();
+	            }
+	        }
+	        else {
+	            //thisVar = xts.xtypeTranslator().transThis(currentClass);
+	            thisVar = xts.xtypeTranslator().transThisWithoutTypeConstraint();
+	        }
+	
+	        if (thisVar != null)
+	            t = X10TypeMixin.setSelfVar(t, thisVar);
+	
+	        // Found a class that has a method of the right name.
+	        // Now need to check if the method is of the correct type.
+	
+	        // First try to find the method without implicit conversions.
+	        try {
+	            mi = xts.findMethod(t, xts.MethodMatcher(t, name, typeArgs, argTypes, xc));
+	            if (!requireStatic || mi.flags().isStatic())
+	                return new Pair<MethodInstance, List<Expr>>(mi, n.arguments());
+	        }
+	        catch (SemanticException e) {
+	            // Now, try to find the method with implicit conversions, making them explicit.
+	            try {
+	                Pair<MethodInstance,List<Expr>> p = tryImplicitConversions(n, tc, t, name, typeArgs, argTypes);
+	                if (!requireStatic || p.fst().flags().isStatic())
+	                    return p;
+	            }
+	            catch (SemanticException e2) {
+	                throw e;
+	            }
+	        }
+	    }
+	
+	    while (xc.pop() != null && xc.pop().currentClass() == currentClass)
+	        xc = (X10Context) xc.pop();
+	    if (xc.pop() != null) {
+	        return findMethod(tc, (X10Context) xc.pop(), n, targetType, name, typeArgs, argTypes, currentClass.flags().isStatic());
+	    }
+	
+	    TypeSystem_c.MethodMatcher matcher = xts.MethodMatcher(targetType, name, typeArgs, argTypes, xc);
+	    throw new Errors.MethodOrStaticConstructorNotFound(matcher, n.position());
+	}
+
+	public static Collection<X10MethodInstance> findMethods(ContextVisitor tc, Type targetType, Name name, List<Type> typeArgs,
+	        List<Type> actualTypes) throws SemanticException {
+	    X10TypeSystem_c xts = (X10TypeSystem_c) tc.typeSystem();
+	    X10Context context = (X10Context) tc.context();
+	    if (targetType == null) {
+	        // TODO
+	        return Collections.emptyList();
+	    }
+	    return xts.findMethods(targetType, xts.MethodMatcher(targetType, name, typeArgs, actualTypes, context));
 	}
 }

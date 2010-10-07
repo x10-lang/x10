@@ -10,7 +10,6 @@ package polyglot.ast;
 
 import java.util.*;
 
-import polyglot.frontend.Goal;
 import polyglot.main.Report;
 import polyglot.types.*;
 import polyglot.util.*;
@@ -263,9 +262,7 @@ public class ClassDecl_c extends Term_c implements ClassDecl
             if (t instanceof UnknownType)
                 throw new SemanticException(); // already reported
             if (! t.isClass() || t.toClass().flags().isInterface()) {
-                throw new SemanticException("Cannot extend type " +
-                        t + "; not a class.",
-                        superClass != null ? superClass.position() : position());
+                throw new SemanticException("Cannot extend type " +t + "; not a class.",superClass != null ? superClass.position() : position());
             }
             ts.checkCycles((ReferenceType) t);
         }
@@ -275,8 +272,7 @@ public class ClassDecl_c extends Term_c implements ClassDecl
             assert ! (t instanceof UnknownType);
             if (! t.isClass() || ! t.toClass().flags().isInterface()) {
                 String s = type.flags().isInterface() ? "extend" : "implement";
-                throw new SemanticException("Cannot " + s + " type " + t + "; not an interface.",
-                        position());
+                throw new SemanticException("Cannot " + s + " type " + t + "; not an interface.",position());
             }
             ts.checkCycles((ReferenceType) t);
         }
@@ -439,10 +435,7 @@ public class ClassDecl_c extends Term_c implements ClassDecl
                     Name cname = container.name();
 
                     if (cname.equals(name)) {
-                        Errors.issue(tc.job(), new SemanticException("Cannot declare member " +
-                                "class \"" + type.fullName() +
-                                "\" inside class with the " +
-                                "same name.", position()));
+                        new Errors.SameNameClass(type,position()).issue(tc.job());
                     }
                 }
                 if (container.isNested()) {
@@ -467,10 +460,7 @@ public class ClassDecl_c extends Term_c implements ClassDecl
                     if (nm instanceof Type) {
                         Type another = (Type) nm;
                         if (another.isClass() && another.toClass().isLocal()) {
-                            Errors.issue(tc.job(), new SemanticException("Cannot declare local " +
-                                    "class \"" + this.type + "\" within the same " +
-                                    "method, constructor or initializer as another " +
-                                    "local class of the same name.", position()));
+                            Errors.issue(tc.job(), new Errors.SameNameLocal(type, position()));
                         }
                     }
                 } catch (SemanticException e) {
@@ -483,31 +473,31 @@ public class ClassDecl_c extends Term_c implements ClassDecl
         if (type.isMember() && type.flags().isInterface() && type.outer().isInnerClass()) {
             // it's a member interface in an inner class.
             Errors.issue(tc.job(),
-                    new SemanticException("Inner classes cannot declare member interfaces.", position()));             
+                    new Errors.InnerDeclaredInterface(type, position()));
         }
 
         // Make sure that static members are not declared inside inner classes
         if (type.isMember() && type.flags().isStatic() && type.outer().isInnerClass()) {
             Errors.issue(tc.job(),
-                    new SemanticException("Inner classes cannot declare static member classes.", position()));
+                    new Errors.InnerDeclaredStatic(type, position()));
         }
 
         if (type.superClass() != null && isValidType(type.superClass())) {
             if (! type.superClass().isClass() || type.superClass().toClass().flags().isInterface()) {
                 Errors.issue(tc.job(),
-                        new SemanticException("Cannot extend non-class \"" + type.superClass() + "\".",
+                        new Errors.ExtendedNonClass(type,
                                 position()));
             }
 
             if (type.superClass().toClass().flags().isFinal()) {
                 Errors.issue(tc.job(),
-                        new SemanticException("Cannot extend final class \"" + type.superClass() + "\".",
+                        new Errors.ExtendedFinalClass(type,
                                 position()));
             }
 
             if (objectIsRoot() && type.typeEquals(ts.Object(), tc.context())) {
                 Errors.issue(tc.job(),
-                        new SemanticException("Class \"" + this.type + "\" cannot have a superclass.",
+                        new Errors.CannotHaveSuperclass(type,
                                 superClass.position()));
             }
         }
@@ -518,13 +508,13 @@ public class ClassDecl_c extends Term_c implements ClassDecl
 
             if (isValidType(t) && ! (t.isClass() && t.toClass().flags().isInterface())) {
                 Errors.issue(tc.job(),
-                        new SemanticException("Superinterface " + t + " of " + type + " is not an interface.",
+                        new Errors.SuperInterfaceNotInterface(t,type,
                                 tn.position()));
             }
 
             if (objectIsRoot() && type.typeEquals(ts.Object(), tc.context())) {
                 Errors.issue(tc.job(),
-                        new SemanticException("Class " + this.type + " cannot have a superinterface.",
+                        new Errors.ClassCannotHaveSuperInterface(type,
                                 tn.position()));
             }
         }
@@ -544,7 +534,7 @@ public class ClassDecl_c extends Term_c implements ClassDecl
             Errors.issue(tc.job(), e, this);
         }
 
-        // Check the class implements all abstract methods that it needs to.
+        // Check that the class implements all abstract methods that it needs to.
         try {
             ts.checkClassConformance(type, enterChildScope(body, tc.context()));
         } catch (SemanticException e) {

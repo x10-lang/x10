@@ -27,6 +27,7 @@ public class ReachChecker extends DataFlow
 	super(job, ts, nf, 
               true /* forward analysis */, 
               true /* perform dataflow on entry to CodeDecls */);
+        reportCFG_Errors = true; // this is always the first dataflow analysis
     }
 
     protected static class DataFlowItem extends Item {
@@ -136,7 +137,7 @@ public class ReachChecker extends DataFlow
         // check for reachability.
         if (n instanceof Term) {
            n = checkReachability((Term)n);
-           if (!((Term)n).reachable()) {
+           if (!hadCFG_Error && !((Term)n).reachable()) {
                // Do we throw an exception or not?
                
                // Compound statements are allowed to be unreachable

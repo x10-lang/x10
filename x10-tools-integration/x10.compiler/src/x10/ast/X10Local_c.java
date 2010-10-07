@@ -41,6 +41,7 @@ import x10.constraint.XFailure;
 import x10.constraint.XLocal;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
+import x10.constraint.XConstraint;
 import x10.errors.Errors;
 import x10.types.X10Context;
 import x10.types.X10FieldInstance;
@@ -50,9 +51,12 @@ import x10.types.X10ProcedureDef;
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
 import x10.types.X10TypeSystem_c;
+import x10.types.X10Context_c;
+import x10.types.X10LocalDef_c;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.XConstrainedTerm;
 
 public class X10Local_c extends Local_c {
 
@@ -61,32 +65,57 @@ public class X10Local_c extends Local_c {
 		
 	}
 	public Node typeCheck(ContextVisitor tc) {
-	    X10Context context = (X10Context) tc.context();
+	    X10Context_c context = (X10Context_c) tc.context();
 	    LocalInstance li = localInstance();
 	    if (!((X10LocalInstance) li).isValid()) {
 	        li = findAppropriateLocal(tc, name.id());
 	    }
 
-	    // if the local is defined in an outer class, then it must be final
-        // shared was removed from the language: you can access var in a closure (backends need to be fixed)
-//	    if (!context.isLocal(li.name())) {
-//	        // this local is defined in an outer class
-//	        if (!li.flags().isFinal() && !X10Flags.toX10Flags(li.flags()).isShared()) {
-//	            Errors.issue(tc.job(), new SemanticException("Local variable \"" + li.name() + 
-//	                    "\" is accessed from an inner class or a closure, and must be declared final or shared.",
-//	                    this.position()));
-//	        }
-//	    }
+        if (!li.flags().isFinal() && !X10Flags.toX10Flags(li.flags()).isShared()) {
+            // if the local is defined in an outer class, then it must be final
+            // shared was removed from the language: you cannot access var in a closure
+            // Note that an async is similar to a closure (we create a dummy closure)
+	        if (!context.isLocalIncludingAsync(li.name())) {
+	            // this local is defined in an outer class
+	            Errors.issue(tc.job(), new SemanticException("Local variable \"" + li.name() +"\" is accessed from an inner class or a closure, and must be declared final.",this.position()));
+	        }
 
-	    X10Local_c result = (X10Local_c) localInstance(li).type(li.type());
+            // we check that usages inside an "at" are at the origin place if it is a "var" (for "val" we're fine)
+            final X10LocalDef_c localDef_c = (X10LocalDef_c) li.def();
+            XTerm origin = localDef_c.placeTerm();
+            // todo: weird bug where origin was null for:
+            //C:\cygwin\home\Yoav\intellij\sourceforge\x10.runtime\src-x10\x10\compiler\ws\Worker.x10:86,18-22
+            //Message: Semantic Error: Local variable "frame" is accessed at a different place, and must be declared final.
+
+            if (origin!=null) { // origin = PlaceChecker.here();
+                final XConstrainedTerm placeTerm = context.currentPlaceTerm();
+                final XTerm currentPlace = placeTerm.term();
+                XConstraint constraint = new XConstraint();
+                boolean isOk = false;
+                try {
+                    constraint.addBinding(origin,currentPlace);
+                    if (placeTerm.constraint().entails(constraint)) {
+                        //ok  origin == currentPlace
+                        isOk = true;
+                    }
+                } catch (XFailure xFailure) {
+                    // how can it happen? in any case, we should report an error so isOk=false
+                }
+                if (!isOk)
+                    Errors.issue(tc.job(), new SemanticException("Local variable \"" + li.name() +"\" is accessed at a different place, and must be declared final.",this.position()));
+            }
+        }
+
+
+        X10Local_c result = (X10Local_c) localInstance(li).type(li.type());
 
 		try {
 			VarDef dli = context.varWhoseTypeIsBeingElaborated();
 			if (context.inDepType()) {
 				li = result.localInstance();
 				if (! (li.def().equals(dli)) && ! li.flags().isFinal()) {
-					throw new SemanticError("Local variable " + li.name() 
-							+ " must be final in a dependent clause.", 
+					throw new SemanticError("A var local variable " + li.name() 
+							+ " is not allowed in a constraint.", 
 							position());
 				}
 			}

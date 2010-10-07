@@ -14,10 +14,6 @@ package x10cpp;
 /**
  * Version information for x10 extension
  */
-public class Version extends polyglot.main.Version {
+public class Version extends x10.Version {
 	public String name() { return "x10c++"; }
-
-	public int major() { return 2; }
-	public int minor() { return 0; }
-	public int patch_level() { return 6; }
 }

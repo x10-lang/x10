@@ -206,8 +206,7 @@ public class CheckNativeAnnotationsVisitor extends ContextVisitor {
                 else if (md.name().toString().equals("typeName"))  // special case this synthetic method
                 	;
                 else
-                    throw new SemanticException("Method  " + md + "\n of class " + def.container()
-                    		+ " with NativeRep annotation must be annotated Native.", n.position());
+                    throw new SemanticException("Method  " + md + "\n of class " + def.container()+ " with NativeRep annotation must be annotated Native.", n.position());
             }
             if (! nativeImps.containsKey(theLanguage) && n instanceof X10FieldDecl) {
                 throw new SemanticException("Fields of a class with NativeRep annotation must be annotated Native.", n.position());

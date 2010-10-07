@@ -410,6 +410,12 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	public New New(Position pos, Expr qualifier, TypeNode objectType, List<Expr> arguments, ClassBody body) {
 		return X10New(pos, qualifier, objectType, Collections.<TypeNode>emptyList(), arguments, body);
 	}
+	
+	public ArrayLiteral ArrayLiteral(Position pos, TypeNode arrayType, TypeNode argType, Tuple values) {
+		ArrayLiteral n = new ArrayLiteral_c(pos, arrayType, argType, (Tuple_c) values);
+		n = (ArrayLiteral) n.ext(extFactory().extExpr());
+		return (ArrayLiteral) n.del(delFactory().delExpr());
+	}
 
 //	 Wrap the body in a block to facilitate code transformations
 	public AtEach AtEach(Position pos, Formal formal, Expr domain,

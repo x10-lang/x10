@@ -29,8 +29,7 @@ public abstract class IndexedMemoryChunk__NativeRep {
 
     public static def copyTo[T](src:IndexedMemoryChunk[T], srcIndex:int,
                                 dstPlace:Place, dst:IndexedMemoryChunk[T], dstIndex:int,
-                                numElems:int,
-                                uncounted:boolean):void {
+                                numElems:int):void {
         if (dstPlace == here) {
             copyToLocal(src, srcIndex, dst, dstIndex, numElems);
         } else {
@@ -45,8 +44,7 @@ public abstract class IndexedMemoryChunk__NativeRep {
 
     public static def copyFrom[T](dst:IndexedMemoryChunk[T], dstIndex:int, 
                                   srcPlace:Place, src:IndexedMemoryChunk[T], srcIndex:int, 
-                                  numElems:int, 
-                                  uncounted:boolean):void {
+                                  numElems:int):void {
         if (srcPlace == here) {
             copyFromLocal(dst, dstIndex, src, srcIndex, numElems);
         } else {

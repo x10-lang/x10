@@ -253,10 +253,10 @@ public class Async_c extends Stmt_c implements Async {
 	 */
 	public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
 		if (clocks() == null || clocks().isEmpty()) {
-			v.visitCFG(body, this, EXIT);
+			v.push(this).visitCFG(body, this, EXIT);
 		} else {
 			v.visitCFGList(clocks, body, ENTRY);
-			v.visitCFG(body, this, EXIT);
+			v.push(this).visitCFG(body, this, EXIT);
 		}
         v.edge(v,this,ENTRY,this,EXIT,FlowGraph.EDGE_KEY_FALSE); // a trick to make sure we treat Async like a conditional for the purpose of initialization. see InitChecker.
 		

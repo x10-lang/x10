@@ -11,6 +11,7 @@
 
 package x10.array;
 
+import x10.compiler.CompilerFlags;
 import x10.compiler.SuppressTransientError;
 import x10.compiler.Header;
 import x10.compiler.Inline;
@@ -111,10 +112,6 @@ public final class Array[T](
     /* package */ val rawLength:int; // Made accessible to RemoteArray
     private val layout:RectLayout;
 
-    @Native("java", "(!`NO_CHECKS`)")
-    @Native("c++", "BOUNDS_CHECK_BOOL")
-    private native def checkBounds():boolean;
-
     /**
      * Return the IndexedMemoryChunk[T] that is providing the backing storage for the array.
      * This method is primarily intended to be used to interface with native libraries 
@@ -210,21 +207,10 @@ public final class Array[T](
      * argument Rail.
      *
      */    
+
 // HACKING around typechecking bug:
 // Error message is: Cannot refer to type parameter T of x10.array.Array from a static context
 //    public def this(aRail:Rail[T]):Array[T]{self.rank==1,self.rect,self.zeroBased,self.rail} {
-//	this(Region.makeRectangular(0, aRail.length-1), ((i):Point(1)) => aRail(i));
-//    }
-
-
-    /**
-     * Construct Array over the region 0..rail.length-1 whose
-     * values are initialized to the corresponding values in the 
-     * argument ValRail.
-     */    
-// HACKING around typechecking bug:
-// Error message is: Cannot refer to type parameter T of x10.array.Array from a static context
-//    public def this(aRail:ValRail[T]):Array[T]{self.rank==1,self.rect,self.zeroBased,self.rail} {
 //	this(Region.makeRectangular(0, aRail.length-1), ((i):Point(1)) => aRail(i));
 //    }
 
@@ -299,10 +285,19 @@ public final class Array[T](
         layout = RectLayout(region);
         val n = layout.size();
         val r  = IndexedMemoryChunk.allocate[T](n);
-        init.raw.asyncCopyTo(0, here, r, 0, n, false);
+        init.raw.asyncCopyTo(0, here, r, 0, n);
         raw = r;
         rawLength = n;
         cachedRail = rail;
+    }
+
+    /**
+     * Construct a copy of the given RemoteArray.
+     *
+     * @param init The remote array to copy.
+     */    
+    public def this(init:RemoteArray[T]{init.home==here}):Array[T]{self.region==init.region, self.size==init.size} {
+        this(init.array());
     }
 
 
@@ -315,6 +310,49 @@ public final class Array[T](
      */
     public def iterator():Iterator[Point(rank)] = region.iterator() as Iterator[Point(rank)];
 
+
+    /**
+     * Return an Iterable[T] that can construct iterators 
+     * over this array.<p>
+     * @return an Iterable[T] over this array.
+     */
+    public def values():Iterable[T] {
+	// NOTE: If we could actually implement two instances of the
+	//       Iterable interface, then we woudn't need this code.
+        return new ValueIterable[T]();
+    }
+
+    // TODO: Should be annonymous nested class in values, 
+    //       but that's too fragile with the 2.1 implementation of generics.
+    private static class ValueIterator[U](rank:int) implements Iterator[U] {
+        private val regIt:Iterator[Point(rank)];
+        private val array:Array[U](rank);
+
+        def this(a:Array[U]):ValueIterator[U]{self.rank==a.rank} {
+	        property(a.rank);
+            regIt = a.iterator() as Iterator[Point(rank)]; // TODO: cast should not be needed!
+            array = a as Array[U](rank);                   // TODO: cast should not be needed!
+        }
+        public def hasNext() = regIt.hasNext();
+        public def next() = array(regIt.next());
+    }
+    private  class ValueIterable implements Iterable[T] {
+    	public def iterator()= new ValueIterator[T](Array.this);
+    }
+
+    
+    public def sequence(){rank==1}:Sequence[T] = new ValueSequence();
+    // TODO: Should be annonymous nested class in values, 
+    //       but that's too fragile with the 2.1 implementation of generics.
+    private class ValueSequence(size:int) implements Sequence[T] {
+    	val array = Array.this as Array[T](1);
+    	public def iterator() = new ValueIterator(Array.this);
+    	def this() {
+    		property(Array.this.size);
+    	}
+    	public def apply(i:Int)=array(i);
+    }
+ 
     /**
      * Return the element of this array corresponding to the given index.
      * Only applies to one-dimensional arrays.
@@ -325,15 +363,15 @@ public final class Array[T](
      * @see #apply(Point)
      * @see #set(T, Int)
      */
-    @Native("cuda", "(#0)[#1]")
+    @Native("cuda", "(#0).apply(#1)")
     public @Header @Inline def apply(i0:int){rank==1}:T {
 	if (cachedRail) {
-            if (checkBounds() && !((i0 as UInt) < (size as UInt))) {
+            if (CompilerFlags.checkBounds() && !((i0 as UInt) < (size as UInt))) {
                 raiseBoundsError(i0);
             }
             return raw(i0);
         } else {
-            if (checkBounds() && !region.contains(i0)) {
+            if (CompilerFlags.checkBounds() && !region.contains(i0)) {
                 raiseBoundsError(i0);
             }
             return raw(layout.offset(i0));
@@ -352,7 +390,7 @@ public final class Array[T](
      * @see #set(T, Int, Int)
      */
     public @Header @Inline def apply(i0:int, i1:int){rank==2}:T {
-        if (checkBounds() && !region.contains(i0, i1)) {
+        if (CompilerFlags.checkBounds() && !region.contains(i0, i1)) {
             raiseBoundsError(i0, i1);
         }
         return raw(layout.offset(i0,i1));
@@ -371,7 +409,7 @@ public final class Array[T](
      * @see #set(T, Int, Int, Int)
      */
     public @Header @Inline def apply(i0:int, i1:int, i2:int){rank==3}:T {
-        if (checkBounds() && !region.contains(i0, i1, i2)) {
+        if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2)) {
             raiseBoundsError(i0, i1, i2);
         }
         return raw(layout.offset(i0, i1, i2));
@@ -391,7 +429,7 @@ public final class Array[T](
      * @see #set(T, Int, Int, Int, Int)
      */
     public @Header @Inline def apply(i0:int, i1:int, i2:int, i3:int){rank==4}:T {
-        if (checkBounds() && !region.contains(i0, i1, i2, i3)) {
+        if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2, i3)) {
             raiseBoundsError(i0, i1, i2, i3);
         }
         return raw(layout.offset(i0, i1, i2, i3));
@@ -407,7 +445,7 @@ public final class Array[T](
      * @see #set(T, Point)
      */
     public @Header @Inline def apply(pt:Point{self.rank==this.rank}):T {
-        if (checkBounds() && !region.contains(pt)) {
+        if (CompilerFlags.checkBounds() && !region.contains(pt)) {
             raiseBoundsError(pt);
         }
         return raw(layout.offset(pt));
@@ -426,15 +464,15 @@ public final class Array[T](
      * @see #apply(Int)
      * @see #set(T, Point)
      */
-    @Native("cuda", "(#0)[#2] = #1")
+    @Native("cuda", "(#0).apply(#1,#2)")
     public @Header @Inline def set(v:T, i0:int){rank==1}:T {
 	if (cachedRail) {
-            if (checkBounds() && !((i0 as UInt) < (size as UInt))) {
+            if (CompilerFlags.checkBounds() && !((i0 as UInt) < (size as UInt))) {
                 raiseBoundsError(i0);
             }
             raw(i0) = v;
         } else {
-            if (checkBounds() && !region.contains(i0)) {
+            if (CompilerFlags.checkBounds() && !region.contains(i0)) {
                 raiseBoundsError(i0);
             }
             raw(layout.offset(i0)) = v;
@@ -456,7 +494,7 @@ public final class Array[T](
      * @see #set(T, Point)
      */
     public @Header @Inline def set(v:T, i0:int, i1:int){rank==2}:T {
-        if (checkBounds() && !region.contains(i0, i1)) {
+        if (CompilerFlags.checkBounds() && !region.contains(i0, i1)) {
             raiseBoundsError(i0, i1);
         }
         raw(layout.offset(i0,i1)) = v;
@@ -478,7 +516,7 @@ public final class Array[T](
      * @see #set(T, Point)
      */
     public @Header @Inline def set(v:T, i0:int, i1:int, i2:int){rank==3}:T {
-        if (checkBounds() && !region.contains(i0, i1, i2)) {
+        if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2)) {
             raiseBoundsError(i0, i1, i2);
         }
         raw(layout.offset(i0, i1, i2)) = v;
@@ -501,7 +539,7 @@ public final class Array[T](
      * @see #set(T, Point)
      */
     public @Header @Inline def set(v:T, i0:int, i1:int, i2:int, i3:int){rank==4}:T {
-        if (checkBounds() && !region.contains(i0, i1, i2, i3)) {
+        if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2, i3)) {
             raiseBoundsError(i0, i1, i2, i3);
         }
         raw(layout.offset(i0, i1, i2, i3)) = v;
@@ -520,7 +558,7 @@ public final class Array[T](
      * @see #set(T, Int)
      */
     public @Header @Inline def set(v:T, p:Point{self.rank==this.rank}):T {
-        if (checkBounds() && !region.contains(p)) {
+        if (CompilerFlags.checkBounds() && !region.contains(p)) {
             raiseBoundsError(p);
         }
         raw(layout.offset(p)) = v;
@@ -739,36 +777,8 @@ public final class Array[T](
      *         of the two arrays.
      */
     public static def asyncCopy[T](src:Array[T], dst:RemoteArray[T]) {
-	asyncCopy(src, dst, false);
-    }
-
-
-    /**
-     * Asynchronously copy all of the values from the source Array to the 
-     * Array referenced by the destination RemoteArray.
-     * The two arrays must be defined over Regions with equal size 
-     * bounding boxes; if the backing storage for the two arrays is 
-     * not of equal size, then an IllegalArgumentExeption will be raised.<p>
-     *
-     * Depending on the value of the uncounted parameter, the activity performing
-     * the copy will either be registered with the dynamically enclosing finish or
-     * treated as if it was annotated with @Uncounted (not registered with any finish).</p>
-     *
-     * Warning: This method is only intended to be used on Arrays containing
-     *   non-Object data elements.  The elements are actually copied via an
-     *   optimized DMA operation if available.  Therefore object-references will
-     *   not be properly transferred. Ideally, future versions of the X10 type
-     *   system would enable this restriction to be checked statically.</p>
-     *
-     * @param src the source array.
-     * @param dst the destination array.  May actually be local or remote
-     * @param uncounted Should the spawned activity be treated as if it were annotated @Uncounted
-     * @throws IllegalArgumentException if mismatch in size of backing storage
-     *   of the two arrays.
-     */
-    public static def asyncCopy[T](src:Array[T], dst:RemoteArray[T], uncounted:boolean) {
 	if (src.rawLength != dst.rawLength) throw new IllegalArgumentException("source and destination do not have equal size");
-        src.raw.asyncCopyTo(0, dst.home, dst.rawData, 0, src.rawLength, uncounted);
+        src.raw.asyncCopyTo(0, dst.home, dst.rawData, 0, src.rawLength);
     }
 
 
@@ -801,44 +811,9 @@ public final class Array[T](
     public static def asyncCopy[T](src:Array[T], srcPoint:Point, 
                                    dst:RemoteArray[T], dstPoint:Point, 
 	                           numElems:int) {
-	asyncCopy(src, srcPoint, dst, dstPoint, numElems, false);
-    }
-	
-
-    /**
-     * Asynchronously copy the specified values from the source Array to the 
-     * specified portion of the Array referenced by the destination RemoteArray.
-     * If accessing any point in either the specified source or the 
-     * specified destination range would in an ArrayIndexOutOfBoundsError
-     * being raised, then this method will throw an IllegalArgumentException.<p>
-     *
-     * Depending on the value of the uncounted parameter, the activity performing
-     * the copy will either be registered with the dynamically enclosing finish or
-     * treated as if it was annotated with @Uncounted (not registered with any finish).</p>
-     *
-     * Warning: This method is only intended to be used on Arrays containing
-     *   non-Object data elements.  The elements are actually copied via an
-     *   optimized DMA operation if available.  Therefore object-references will
-     *   not be properly transferred. Ideally, future versions of the X10 type
-     *   system would enable this restriction to be checked statically.</p>
-     *
-     * @param src the source array.
-     * @param srcPoint the first element in this array to be copied.  
-     * @param dst the destination array.  May actually be local or remote
-     * @param dstPoint the first element in the destination
-     *                 array where copied data elements will be stored.
-     * @param numElems the number of elements to be copied.
-     * @param uncounted Should the spawned activity be treated as if it were annotated @Uncounted
-     *
-     * @throws IllegalArgumentException if the specified copy regions would 
-     *         result in an ArrayIndexOutOfBoundsException.
-     */
-    public static def asyncCopy[T](src:Array[T], srcPoint:Point, 
-                                   dst:RemoteArray[T], dstPoint:Point, 
-	                           numElems:int, uncounted:boolean) {
         val gra = dst.array;
 	val dstIndex = at (gra) gra().region.indexOf(dstPoint);
-	asyncCopy(src, src.region.indexOf(srcPoint), dst, dstIndex, numElems, uncounted);
+	asyncCopy(src, src.region.indexOf(srcPoint), dst, dstIndex, numElems);
     }
 	
 
@@ -880,57 +855,13 @@ public final class Array[T](
     public static def asyncCopy[T](src:Array[T], srcIndex:int, 
                                    dst:RemoteArray[T], dstIndex:int, 
                                    numElems:int) {
-	asyncCopy(src, srcIndex, dst, dstIndex, numElems, false);
-    }
-
-
-    /**
-     * Asynchronously copy the specified values from the source Array to the 
-     * specified portion of the Array referenced by the destination RemoteArray.
-     * The index arguments that are used to specify the start of the source
-     * and destination regions are interpreted as of they were the result
-     * of calling @link{Region@indexOf} on the Point that specifies the
-     * start of the copy region.  Note that for Arrays that have the 
-     * <code>rail</code> property, this exactly corresponds to the index
-     * that would be used to access the element via apply or set.
-     * If accessing any point in either the specified source or the 
-     * specified destination range would in an ArrayIndexOutOfBoundsError
-     * being raised, then this method will throw an IllegalArgumentException.<p>
-     *
-     * Depending on the value of the uncounted parameter, the activity performing
-     * the copy will either be registered with the dynamically enclosing finish or
-     * treated as if it was annotated with @Uncounted (not registered with any finish).</p>
-     *
-     * Warning: This method is only intended to be used on Arrays containing
-     *   non-Object data elements.  The elements are actually copied via an
-     *   optimized DMA operation if available.  Therefore object-references will
-     *   not be properly transferred. Ideally, future versions of the X10 type
-     *   system would enable this restriction to be checked statically.</p>
-     *
-     * @param src the source array.
-     * @param srcIndex the index of the first element in this array
-     *        to be copied.  
-     * @param dst the destination array.  May actually be local or remote
-     * @param dstIndex the index of the first element in the destination
-     *        array where copied data elements will be stored.
-     * @param numElems the number of elements to be copied.
-     * @param uncounted Should the spawned activity be treated as if it were annotated @Uncounted
-     *
-     * @see Region#indexOf
-     *
-     * @throws IllegalArgumentException if the specified copy regions would 
-     *         result in an ArrayIndexOutOfBoundsException.
-     */
-    public static def asyncCopy[T](src:Array[T], srcIndex:int, 
-                                   dst:RemoteArray[T], dstIndex:int, 
-                                   numElems:int, uncounted:boolean) {
 	if (srcIndex < 0 || ((srcIndex+numElems) > src.rawLength)) {
 	    throw new IllegalArgumentException("Specified range is beyond bounds of source array");
         }
 	if (dstIndex < 0 || ((dstIndex+numElems) > dst.rawLength)) {
 	    throw new IllegalArgumentException("Specified range is beyond bounds of destination array");
         }
-        src.raw.asyncCopyTo(srcIndex, dst.home, dst.rawData, dstIndex, numElems, uncounted);
+        src.raw.asyncCopyTo(srcIndex, dst.home, dst.rawData, dstIndex, numElems);
     }
 
 
@@ -956,36 +887,8 @@ public final class Array[T](
      *         of the two arrays.
      */
     public static def asyncCopy[T](src:RemoteArray[T], dst:Array[T]) {
-	asyncCopy(src, dst, false);
-    }
-
-
-    /**
-     * Asynchronously copy all of the values from the source Array 
-     * referenced by the RemoteArray to the destination Array.
-     * The two arrays must be defined over Regions with equal size 
-     * bounding boxes; if the backing storage for the two arrays is 
-     * not of equal size, then an IllegalArgumentExeption will be raised.<p>
-     *
-     * Depending on the value of the uncounted parameter, the activity performing
-     * the copy will either be registered with the dynamically enclosing finish or
-     * treated as if it was annotated with @Uncounted (not registered with any finish).</p>
-     *
-     * Warning: This method is only intended to be used on Arrays containing
-     *   non-Object data elements.  The elements are actually copied via an
-     *   optimized DMA operation if available.  Therefore object-references will
-     *   not be properly transferred. Ideally, future versions of the X10 type
-     *   system would enable this restriction to be checked statically.</p>
-     *
-     * @param src the source array.
-     * @param dst the destination array.  May actually be local or remote
-     * @param uncounted Should the spawned activity be treated as if it were annotated @Uncounted
-     * @throws IllegalArgumentException if mismatch in size of backing storage
-     *   of the two arrays.
-     */
-    public static def asyncCopy[T](src:RemoteArray[T], dst:Array[T], uncounted:boolean) {
 	if (src.rawLength != dst.rawLength) throw new IllegalArgumentException("source and destination do not have equal size");
-        dst.raw.asyncCopyFrom(0, src.home, src.rawData, 0, dst.rawLength, uncounted);
+        dst.raw.asyncCopyFrom(0, src.home, src.rawData, 0, dst.rawLength);
     }
 
 
@@ -1018,44 +921,9 @@ public final class Array[T](
     public static def asyncCopy[T](src:RemoteArray[T], srcPoint:Point, 
                                    dst:Array[T], dstPoint:Point, 
 	                           numElems:int) {
-	asyncCopy(src, srcPoint, dst, dstPoint, numElems, false);
-    }
-	
-
-    /**
-     * Asynchronously copy the specified values from the Array referenced by
-     * the source RemoteArray to the specified portion of the destination Array.
-     * If accessing any point in either the specified source or the 
-     * specified destination range would in an ArrayIndexOutOfBoundsError
-     * being raised, then this method will throw an IllegalArgumentException.<p>
-     *
-     * Depending on the value of the uncounted parameter, the activity performing
-     * the copy will either be registered with the dynamically enclosing finish or
-     * treated as if it was annotated with @Uncounted (not registered with any finish).</p>
-     *
-     * Warning: This method is only intended to be used on Arrays containing
-     *   non-Object data elements.  The elements are actually copied via an
-     *   optimized DMA operation if available.  Therefore object-references will
-     *   not be properly transferred. Ideally, future versions of the X10 type
-     *   system would enable this restriction to be checked statically.</p>
-     *
-     * @param src the source array.
-     * @param srcPoint the first element in this array to be copied.  
-     * @param dst the destination array.  May actually be local or remote
-     * @param dstPoint the first element in the destination
-     *                 array where copied data elements will be stored.
-     * @param numElems the number of elements to be copied.
-     * @param uncounted Should the spawned activity be treated as if it were annotated @Uncounted
-     *
-     * @throws IllegalArgumentException if the specified copy regions would 
-     *         result in an ArrayIndexOutOfBoundsException.
-     */
-    public static def asyncCopy[T](src:RemoteArray[T], srcPoint:Point, 
-                                   dst:Array[T], dstPoint:Point, 
-	                           numElems:int, uncounted:boolean) {
         val gra = src.array;
 	val srcIndex = at (gra) gra().region.indexOf(srcPoint);
-	asyncCopy(src, srcIndex, dst, dst.region.indexOf(dstPoint), numElems, uncounted);
+	asyncCopy(src, srcIndex, dst, dst.region.indexOf(dstPoint), numElems);
     }
 	
 
@@ -1097,57 +965,13 @@ public final class Array[T](
     public static def asyncCopy[T](src:RemoteArray[T], srcIndex:int, 
                                    dst:Array[T], dstIndex:int, 
                                    numElems:int) {
-	asyncCopy(src, srcIndex, dst, dstIndex, numElems, false);
-    }
-
-
-    /**
-     * Asynchronously copy the specified values from the Array referenced by
-     * the source RemoteArray to the specified portion of the destination Array.
-     * The index arguments that are used to specify the start of the source
-     * and destination regions are interpreted as of they were the result
-     * of calling @link{Region@indexOf} on the Point that specifies the
-     * start of the copy region.  Note that for Arrays that have the 
-     * <code>rail</code> property, this exactly corresponds to the index
-     * that would be used to access the element via apply or set.
-     * If accessing any point in either the specified source or the 
-     * specified destination range would in an ArrayIndexOutOfBoundsError
-     * being raised, then this method will throw an IllegalArgumentException.<p>
-     *
-     * Depending on the value of the uncounted parameter, the activity performing
-     * the copy will either be registered with the dynamically enclosing finish or
-     * treated as if it was annotated with @Uncounted (not registered with any finish).</p>
-     *
-     * Warning: This method is only intended to be used on Arrays containing
-     *   non-Object data elements.  The elements are actually copied via an
-     *   optimized DMA operation if available.  Therefore object-references will
-     *   not be properly transferred. Ideally, future versions of the X10 type
-     *   system would enable this restriction to be checked statically.</p>
-     *
-     * @param src the source array.
-     * @param srcIndex the index of the first element in this array
-     *        to be copied.  
-     * @param dst the destination array.  May actually be local or remote
-     * @param dstIndex the index of the first element in the destination
-     *        array where copied data elements will be stored.
-     * @param numElems the number of elements to be copied.
-     * @param uncounted Should the spawned activity be treated as if it were annotated @Uncounted
-     *
-     * @see Region#indexOf
-     *
-     * @throws IllegalArgumentException if the specified copy regions would 
-     *         result in an ArrayIndexOutOfBoundsException.
-     */
-    public static def asyncCopy[T](src:RemoteArray[T], srcIndex:int, 
-                                   dst:Array[T], dstIndex:int, 
-                                   numElems:int, uncounted:boolean) {
 	if (srcIndex < 0 || ((srcIndex+numElems) > src.rawLength)) {
 	    throw new IllegalArgumentException("Specified range is beyond bounds of source array");
         }
 	if (dstIndex < 0 || ((dstIndex+numElems) > dst.rawLength)) {
 	    throw new IllegalArgumentException("Specified range is beyond bounds of destination array");
         }
-        dst.raw.asyncCopyFrom(dstIndex, src.home, src.rawData, srcIndex, numElems, uncounted);
+        dst.raw.asyncCopyFrom(dstIndex, src.home, src.rawData, srcIndex, numElems);
     }
 
 
@@ -1164,7 +988,7 @@ public final class Array[T](
      */
     public static def copy[T](src:Array[T], dst:Array[T]) {
 	if (src.rawLength != dst.rawLength) throw new IllegalArgumentException("source and destination do not have equal size");
-        src.raw.asyncCopyTo(0, here, dst.raw, 0, src.rawLength, false);
+        src.raw.asyncCopyTo(0, here, dst.raw, 0, src.rawLength);
     }
 
 
@@ -1227,7 +1051,7 @@ public final class Array[T](
 	if (dstIndex < 0 || ((dstIndex+numElems) > dst.rawLength)) {
 	    throw new IllegalArgumentException("Specified range is beyond bounds of destination array");
         }
-        src.raw.asyncCopyTo(srcIndex, here, dst.raw, dstIndex, numElems, false);
+        src.raw.asyncCopyTo(srcIndex, here, dst.raw, dstIndex, numElems);
     }
 
 
@@ -1246,7 +1070,6 @@ public final class Array[T](
     private static @NoInline @NoReturn def raiseBoundsError(pt:Point) {
         throw new ArrayIndexOutOfBoundsException("point " + pt + " not contained in array");
     }    
-
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab

@@ -35,10 +35,10 @@ public class SharedMem {
         abstract public void generateSize(StreamWrapper inc, Translator tr);
     }
     
-    private static class Rail extends Decl {
+    private static class Array extends Decl {
         public final Expr numElements;
         public final Expr init;
-        public Rail (LocalDecl ast, Expr numElements, Expr init) {
+        public Array (LocalDecl ast, Expr numElements, Expr init) {
             super(ast);
             this.numElements = numElements;
             this.init = init;
@@ -46,25 +46,43 @@ public class SharedMem {
         public void generateDef(StreamWrapper out, String offset, Translator tr) {
             String name = ast.name().id().toString();
             // FIXME: x10_float is baked in here
-            out.write("x10_float *"+name+" = (x10_float*) &__shm["+offset+"];"); out.newline();
+            out.write("x10aux::cuda_array<x10_float> "+name+" = { ");
+            if (numElements!=null) {
+	            tr.print(null, numElements, out);
+            } else {
+            	tr.print(null, init, out);
+            	out.write(".size");
+            }
+            out.write(", (x10_float*) &__shm["+offset+"] };"); out.newline();
         }
         public void generateInit(StreamWrapper out, String offset, Translator tr) {
             out.write("{"); out.newline(4); out.begin(0);
             out.write("x10_int __len = ");
-            tr.print(null, numElements, out);
+            if (numElements!=null) {
+	            tr.print(null, numElements, out);
+            } else {
+            	tr.print(null, init, out);
+            	out.write(".size");
+            }
             out.write(";"); out.newline();
-            out.write("for (int i=0 ; i<__len ; ++i) {"); out.newline(4); out.begin(0);
-            // TODO: assumes rail initialised with another rail -- closure version also possible
-            out.write(ast.name().id()+"[i] = ");
+            
+            out.write("for (int __i=0 ; __i<__len ; ++__i) {"); out.newline(4); out.begin(0);
+            // TODO: assumes Array initialised with another Array -- closure version also possible
+            out.write(ast.name().id()+".apply(");
             tr.print(null, init, out);
-            out.write("[i];"); out.newline();
+            out.write(".raw[__i], __i);"); out.newline();
             out.end(); out.newline();
             out.write("}");
             out.end(); out.newline();
             out.write("}");
         }
         public void generateSize(StreamWrapper inc, Translator tr) {
-            tr.print(null, numElements, inc);
+            if (numElements!=null) {
+	            tr.print(null, numElements, inc);
+            } else {
+            	tr.print(null, init, inc);
+            	inc.write("->FMGL(rawLength)");
+            }
             // FIXME: x10_float is baked in here
             inc.write("*sizeof(x10_float)");
 
@@ -86,8 +104,13 @@ public class SharedMem {
         }
     }
     
-    public void addRail(LocalDecl ast, Expr numElements, Expr init) {
-        decls.add(new Rail(ast,numElements,init));
+    public void addArrayInitClosure(LocalDecl ast, Expr numElements, Expr init) {
+    	assert false : "This does not actually work, I think";
+        decls.add(new Array(ast, numElements, init));
+    }
+
+    public void addArrayInitArray(LocalDecl ast, Expr init) {
+        decls.add(new Array(ast, null, init));
     }
 
     public void addVar(LocalDecl ast) {

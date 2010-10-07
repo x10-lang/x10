@@ -17,6 +17,7 @@ import polyglot.types.ClassType;
 import polyglot.types.ErrorRef_c;
 import polyglot.types.Flags;
 import polyglot.types.LocalInstance_c;
+import polyglot.types.Name;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -51,6 +52,11 @@ public class X10LocalInstance_c extends LocalInstance_c implements X10LocalInsta
     }
     public List<Type> annotationsMatching(Type t) {
         return X10TypeObjectMixin.annotationsMatching(this, t);
+    }
+    
+    public X10LocalInstance name(Name name) {
+        if (name == this.name()) return this;
+        return (X10LocalInstance) super.name(name);
     }
     
     public X10LocalInstance type(Type t) {

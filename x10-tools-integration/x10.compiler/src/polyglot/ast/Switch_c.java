@@ -87,8 +87,7 @@ public class Switch_c extends Stmt_c implements Switch
 	Context context = tc.context();
 
 	if (! ts.isImplicitCastValid(expr.type(), ts.Int(), context) && ! ts.isImplicitCastValid(expr.type(), ts.Char(), context)) {
-            throw new SemanticException("Switch index must be an integer.",
-                                        position());
+            throw new SemanticException("Switch index must be an integer.", position());
         }
         
         return this;
@@ -119,8 +118,7 @@ public class Switch_c extends Stmt_c implements Switch
                 }
                 
                 if (labels.contains(key)) {
-                    throw new SemanticException("Duplicate case label: " +
-                                                str + ".", c.position());
+                    throw new SemanticException("Duplicate case label: " +str + ".", c.position());
                 }
                 
                 labels.add(key);

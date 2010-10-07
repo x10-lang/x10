@@ -1,6 +1,355 @@
+import x10.compiler.*; // @Uncounted @NonEscaping @NoThisAccess
 // test object initialization
 
-import x10.compiler.*;
+
+class InfiniteInit234 {
+	var i:Int{self!=0};
+	def this() {
+		foo();
+	}
+	@NonEscaping private def foo() = foo();
+}
+
+class AllowCallsIfNoReadNorWrite {
+	class Inner(i:Int) {
+		def this() {
+			val w = this.foo1();
+			property(4);
+		}
+		@NonEscaping private def foo1() = 3 + foo2();
+		@NonEscaping private def foo2() = 3;
+	}
+}
+
+
+class DisallowCallsUnlessNoThisAccess {
+	class Inner(i:Int) {
+		static y=5;
+		var x:Int=2;
+		val z:Int=3;
+		def this() {
+			val w = this.foo1(); // ERR: You can use 'this' before 'property(...)' to call only @NoThisAccess methods or NonEscaping methods that do not read nor write any fields.
+			property(4);
+		}
+		def this(i:Int) {
+			val w = this.bar1(); // ERR: You can use 'this' before 'property(...)' to call only @NoThisAccess methods or NonEscaping methods that do not read nor write any fields.
+			property(4);
+		}
+		def this(i:Boolean) {
+			val w = this.ok1(); // ok 
+			property(4);
+		}
+		@NoThisAccess def noThisAccess() { // subclasses cannot read nor write as well
+			return y;
+		}
+		def this(i:String) {
+			val w = this.noThisAccess(); // ok 
+			property(4);
+		}
+		@NonEscaping private def ok1() = ok2()+2;
+		@NonEscaping private def ok2() = ok3()+3;
+		@NonEscaping private def ok3() {
+			return y;
+		}
+		@NonEscaping private def foo1() = foo2()+2;
+		@NonEscaping private def foo2() = foo3()+3;
+		@NonEscaping private def foo3() {
+			x=2; // There is a write to a field in this method!
+			return y;
+		}
+		@NonEscaping private def bar1() = bar2()+2;
+		@NonEscaping final def bar2() {
+			return z; // There is a read from a field in this method!
+		}
+	}
+}
+
+class IllegalForwardRef234 {
+	var i1:Int{self!=0} = i2; // ERR: Cannot read from field 'i2' before it is definitely assigned.
+	var i2:Int{self!=0} = i1;
+}
+
+class TestUncountedAsync1 {
+	//@Uncounted async S
+	//is treated like this:
+	//async if (flag) S
+	//so the statement in S might or might not get executed.
+	//Therefore even after a "finish" we still can't use anything assigned in S.                
+	def test1() {
+		val q:Int,q2:Int;
+		finish {
+			q2=2;
+			use(q2);
+			use(q); // ERR
+			@Uncounted async {
+				use(q2);
+				q=1;
+				use(q);
+			}
+			use(q2);
+			use(q); // ERR
+		}
+		use(q2);
+		use(q); // ERR
+	}	
+	def test2() {
+		var q:Int;
+		finish {
+			@Uncounted async {
+				q=1;
+				use(q);
+			}
+			use(q); // ERR
+		}
+		use(q); // ERR
+	}
+	def test3() {
+		var q:Int;
+		finish {
+			@Uncounted async {
+				async { // it is implicitly @Uncounted
+					q=1;
+					use(q);
+				}
+			}
+			use(q); // ERR
+		}
+		use(q); // ERR
+	}
+	def use(a:Int) {}
+
+	var x:Int{self!=0};
+	var x2:Int{self!=0};
+	def this() { // ERR: Field 'x' was not definitely assigned in this constructor.
+		finish {
+			async x2=1;
+			@Uncounted async {
+				x=1;
+			}
+		}
+	}
+
+	static class Box[T] {
+		var t:T;
+		def this(t:T) { this.t = t; }
+	}
+	def mainExample() {
+		val box = new Box[Boolean](false);
+		@Uncounted async {
+			Console.OUT.println("HELLO");
+			@Uncounted async {
+				atomic box.t = true;
+			}
+		}
+		when (!box.t) {}
+	}
+}
+
+
+class SquareMatrixTest123(rows:Int, cols:Int, matDist:Dist, mat:DistArray[Int]){
+	var z:Int = 2;
+	val q:Int;
+	def this(r:Int, c:Int{self == r}) 	{
+		val mShape:Region = null;
+		val mDist = Dist.makeBlock(mShape);
+		z++; // ERR: Can use 'this' only after 'property(...)'
+		val closure = () => z++; // ERR: Can use 'this' only after 'property(...)'
+		val closure2 = () => q; // ERR: Can use 'this' only after 'property(...)'	 ERR: Cannot read from field 'q' before it is definitely assigned.
+		property(r, c, mDist, DistArray.make[Int](mDist, 
+			initMat // ERR: Can use 'this' only after 'property(...)'
+		));
+		q=3;
+	}
+	val initMat : (Point) => int = ([x,y]:Point) => x+y;
+} 
+
+class TwoErrorsInOneLineTest(o:Int) {
+	var k:Int;
+	def this() {
+		k=o; // ERR ERR
+		property(2);
+	}
+}
+
+class SomeSuper87 {
+	def this(i:Int) {}
+}   
+class TestSuperThisAndPropertyCalls(p:Int) extends SomeSuper87 {
+	var i:Int;
+	def this() {
+		super(i); // ERR: Can use 'this' only after 'property(...)'
+		property(i); // ERR: Can use 'this' only after 'property(...)'
+	}
+	def this(i:Int) {
+		super(i);
+		property(i);
+	}
+	def this(b:Boolean) { // ERR: Final field "p" might have already been initialized
+		this(i); // ERR: Can use 'this' only after 'property(...)'
+		property(1); // ERR: You cannot call 'property(...)' after 'this(...)'
+	}
+	def this(x:Double) { super(1); } // ERR: You must call 'property(...)' at least once	ERR: Final field "p" might not have been initialized
+	def this(x:Float) { property(1); } 
+	def this(x:Char) { 
+		// val x = 3; // I can't check this error, because it is a parsing error: the call to "super(...)" must be the first statement.
+		super(1); 
+		property(1); 
+	}
+	def this(x:String) { 
+		super(1); 
+		val y = 3; 
+		property(1);
+	}
+}
+
+
+interface BarI34 {
+	static x = 3;
+	val y = Math.sqrt(2.0);
+}
+class TestPropAndConstants(p:Int) implements BarI34 {
+	val q:Int = 3 as Int; // this will be moved (it might access properties)
+	val q3:Int = p+4;
+	val q2:Int = 42; // this is constant, so it won't be moved to the __fieldInitializers()
+	var x:Int;
+	def this() {
+		val w=4;
+		property(45);
+		x=2;
+	}
+	def this(i:Int) {
+		this();
+		x=4;
+	}
+	def this(i:Boolean) {
+		super();
+		val w=4;
+		{
+		property(42);
+		}
+		x=2;
+	}
+
+}
+
+
+class PropertySuperTests {
+static class WithouProperties {}
+static class WithProperties(x:Int) {
+	def this() {
+		property(1);
+	}
+	def this(i:Int) {
+		property(i);
+	}
+}
+static class SubWithProperties(y:Int) extends WithProperties {
+	static S=1;
+	val k=3;
+	var z:Int = 4;
+	def this() {
+		super(1);
+		property(2);
+	}
+	def this(i:Boolean) {
+		this();
+	}
+	def this(i:Int) { // ERR: Final field "y" might have already been initialized
+		this();
+		property(1); // ERR: You cannot call 'property(...)' after 'this(...)'
+	}
+	def this(i:Double) {
+		super(
+			super.x // ERR: You can use 'super' only after 'super(...)'
+		);
+		val w = z; // ERR: Can use 'this' only after 'property(...)'
+		val w2 = this.S; // ERR: Can use 'this' only after 'property(...)'
+		val w3 = S;
+		val w4 = super.x;
+		val w5 = this.x; // ERR: Can use 'this' only after 'property(...)'
+		val w6 = this.y; // ERR: Can use 'this' only after 'property(...)'
+		property(
+			this.y // ERR: Can use 'this' only after 'property(...)'
+		);
+	}
+	def this(i:Float) {
+		property(1);
+	}
+	def this(i:String) { // ERR: You must call 'property(...)' at least once	 ERR: Final field "y" might not have been initialized
+	}
+	def this(i:Any) { // ERR: Final field "y" might not have been initialized
+		property(1);
+		property(1); // ERR: You can call 'property(...)' at most once		ERR: Property "y" might already have been initialized
+	}
+}
+static class SubWithoutProperties extends WithProperties {
+	def this() {
+		super(1);
+	}
+	def this(i:Float) {
+		property(1); // ERR: The property initializer must have the same number of arguments as properties for the class.
+	}
+	def this(i:Double) {
+		super(1);
+		property(1); // ERR: The property initializer must have the same number of arguments as properties for the class.
+	}
+}
+}
+
+
+
+class TestPropertyCalls(p:Int) {
+	def this() {} // ERR: Final field "p" might not have been initialized	ERR: You must call 'property(...)' at least once
+	def this(i:Int) {
+		property(1);
+	}
+	def this(b:Boolean) { // ERR: Final field "p" might not have been initialized
+		property(1);
+		property(1); // ERR: Property "p" might already have been initialized	ERR: You can call 'property(...)' at most once
+	}
+	def this(b:Double) { // ERR: Final field "p" might not have been initialized
+		if (p==1) // ERR: must call 'property(...)' immediately after the 'super(...)' call.
+			property(1);
+	}
+	def m() {
+		property(1); // ERR: A property statement may only occur in the body of a constructor.
+	}
+	static def q() {
+		property(1); // ERR: A property statement may only occur in the body of a constructor.
+	}
+}
+
+
+
+class ClosureExample {
+  def this() {
+    val closure1 = () =>i; // OK, "i" is initialized here
+  }
+  val closure2 = () =>i; // ERR: Cannot read from field 'i' before it is definitely assigned.
+  val i = 3;
+}
+class ClosureIsNotAWrite {
+	var i:Int{self != 0}; // ERR: Semantic Error: Field 'i' was not definitely assigned.
+	val closure = () =>  { i=2; } ;
+}
+
+class TestPropertiesAndFields(i:Int, j:Int) {
+	def this() {
+		val x = 3;
+		property(x,x);
+		val closure = () => i+4;
+		j2 = j;
+	}		
+	
+	val i2 :Int{self==i} = i;
+	val j2 :Int{self==j};
+}
+class CheckCtorContextIsNotStatic[T](p:T) {
+    public def this(o:Any) {
+        property(o as T);
+    }
+} 
+
 
 //public class EscapingThisTest {
 
@@ -46,7 +395,7 @@ final class ClosureTest57 {
         def a() = q*3;
 		val q = 4;
         final class D {
-            def a() = q+4;
+            @NonEscaping def a() = q+4;
             val sum = (()=>(ClosureTest57.this.a()
             		+C.this.a()
             		+D.this.a() // ERR: The method call reads from field 'q' before it is definitely assigned.
@@ -112,22 +461,38 @@ class UsingSuperFields {
 
 
 
-
 class DynamicDispatchingInCtorTest {
 	abstract class Super {
 		val x:Int;
-		var size:Int;
+		val size:Int;
 		def this() {
-			this.x = 3*4;
-			size = calcSize();
+			this.x = 42;
+			size = calcSize(x);
 		}
-		@NonEscaping("x") abstract def calcSize():Int;
+		@NoThisAccess abstract def calcSize(x:Int):Int;
+		@NonEscaping def useError(i:Int):Void {} // ERR: A @NonEscaping method must be private or final.	
+		@NonEscaping final def use(i:Int):Void {} 
+		@NonEscaping private def useOk2(i:Int):Void {} 
 	}
 	class Sub1 extends Super {
-		@NonEscaping("x") def calcSize():Int = x*2;
+		@NoThisAccess def calcSize(x:Int):Int { return x*2; }
 	}
 	class Sub2 extends Super {
-		@NonEscaping("x") def calcSize():Int = x+2;
+		def calcSize(x:Int):Int { // ERR: You must annotate x10.lang.Int calcSize(...) with @NoThisAccess because it overrides a method annotated with that. 
+			return x*4; 
+		}
+	}
+	class Sub3(p:Int) extends Super {
+		val w = 3;
+		var k:Int{self==p};
+		def this() {
+			property(4);
+			k = p;
+		}
+		@NoThisAccess def calcSize(x:Int):Int { // ERR: You cannot use 'this' or 'super' in a method annotated with @NoThisAccess
+			use(w); 
+			return x+2; 
+		}
 	}
 }
 
@@ -143,6 +508,112 @@ class TestAsync {
 		}
 		val r3 = i;
 	}
+	
+	static def use(a:Int) {}
+	
+	public static def main(Array[String]) {
+	     var i:Int, j:Int, k:Int, x:Int, y:Int;
+         val m:Int, n:Int, q:Int;
+
+         x=1;
+		 async { use(x); x=4; use(x); }
+		 use(x);
+         async { y=4; use(x); use(y); }
+		 use(y); // ERR: "y" may not have been initialized
+
+		 i=1;
+		 use(i);
+         // i:[1,1,1,1]
+         finish {
+             m=2;
+			 use(m);
+             // m:[1,1,1,1]
+             if (true) {
+                 async {
+                     n=3; i=4; j=5; k=6; q=7;
+					 use(n); use(i); use(j); use(k); use(q); use(m);
+                     // n:[1,1,1,1] i:[2,2,2,2] j:[1,1,1,1] k:[1,1,1,1] q:[1,1,1,1]
+                 }
+				 use(n); // ERR: "n" may not have been initialized 
+				 use(i); 
+				 use(j); // ERR: "j" may not have been initialized
+				 use(k); // ERR: "k" may not have been initialized
+				 use(q); // ERR: "q" may not have been initialized
+				 use(m);
+                 // n:[0,0,1,1] i:[1,1,2,2] j:[0,0,1,1] k:[0,0,1,1] q:[0,0,1,1]
+                 k=8;
+				 use(k); 
+                 // k:[1,1,2,2]
+             } else {
+                 // n:[0,0,0,0] m:[1,1,1,1] i:[1,1,1,1] j:[0,0,0,0] k:[0,0,0,0] q:[0,0,0,0]
+                 n=9; 
+				 use(n); 
+				 m=10; // ERR: Final variable "m" might already have been initialized				 
+				 use(m); 
+                 // n:[1,1,1,1] m:[2,2,2,2]
+             }
+             // k:[0,1,0,2] n:[0,1,1,1] m:[1,2,1,2] i:[1,1,1,2] j:[0,0,0,1] q:[0,0,0,1]
+             k=11;
+			 use(k); 
+             // k:[1,2,1,3]
+         }
+         // k:[1,3,1,3] n:[1,1,1,1] m:[1,2,1,2] i:[1,2,1,2] j:[0,1,0,1] q:[0,1,0,1]
+         j=12;
+		 use(q); // ERR: "q" may not have been initialized
+		 use(n); use(i); use(j); use(k); use(m);
+         // j:[1,2,1,2]
+         // all (except q) are definitely-assigned now. 
+
+	}
+	static def use2(loc:Int,expected:Int,a:Int) { if (expected!=a) throw new RuntimeException("ERROR! loc="+loc+" expected="+expected+" a="+a); }
+	
+	public static def main2(Array[String]) {
+	     var i:Int, j:Int, k:Int, x:Int, y:Int;
+         val m:Int, n:Int, q:Int;
+
+         x=1;
+		 finish async { use2(101,1,x); x=4; use2(102,4,x); }
+		 use2(103,4,x);
+         async { y=5; use2(104,4,x); use2(105,5,y); }
+
+		 i=1;
+		 use2(106,1,i);
+         // i:[1,1,1,1]
+         finish {
+             m=2;
+			 use2(107,2,m);
+             // m:[1,1,1,1]
+             if (true) {
+                 async {
+                     n=3; i=4; j=5; k=6; q=7;
+					 use2(108,3,n); use2(109,4,i); use2(110,5,j); use2(111,6,k); use2(112,7,q); use2(113,2,m);
+                     // n:[1,1,1,1] i:[2,2,2,2] j:[1,1,1,1] k:[1,1,1,1] q:[1,1,1,1]
+                 }
+				 use2(115,2,m);
+                 // n:[0,0,1,1] i:[1,1,2,2] j:[0,0,1,1] k:[0,0,1,1] q:[0,0,1,1]
+                 k=8;
+				 use2(116,8,k); 
+                 // k:[1,1,2,2]
+             } else {
+                 // n:[0,0,0,0] m:[1,1,1,1] i:[1,1,1,1] j:[0,0,0,0] k:[0,0,0,0] q:[0,0,0,0]
+                 n=9; 
+				 use2(117,9,n); 	 
+				 use2(118,2,m); 
+                 // n:[1,1,1,1] m:[2,2,2,2]
+             }
+             // k:[0,1,0,2] n:[0,1,1,1] m:[1,2,1,2] i:[1,1,1,2] j:[0,0,0,1] q:[0,0,0,1]
+             k=11;
+			 use2(119,11,k); 
+             // k:[1,2,1,3]
+         }
+         // k:[1,3,1,3] n:[1,1,1,1] m:[1,2,1,2] i:[1,2,1,2] j:[0,1,0,1] q:[0,1,0,1]
+         j=12;
+		 k=99;
+		 use2(120,3,n); use2(121,4,i); use2(122,12,j); use2(123,99,k); use2(124,2,m);
+         // j:[1,2,1,2]
+         // all (except q) are definitely-assigned now. 
+
+  }
 }
 
 
@@ -155,6 +626,24 @@ class PropertyTest(p:Int) {
 	}
 }
 
+class TestNonEscapingWarning {
+	final class FinalBar {
+		def this() {
+			f1();
+			f2();
+		}
+		private def f1() {}
+		final def f2() {}
+	}
+	class NonFinalBar {
+		def this() {
+			f1();
+			f2();
+		}
+		private def f1() {}
+		final def f2() {} // ERR: (warning)
+	}
+}
 abstract class SuperClassTest {
 	val a=1;
 	val b=2;
@@ -165,73 +654,56 @@ abstract class SuperClassTest {
 	var z:Int{self!=0};
 
 	def this(i:Int) { this(); x = y; }
-	def this() { // ERR: Field 'x' was not definitely assigned in this conprivate structor. (because assignments in non final/private @NonEscaping methods do not count, cause they might be overriden)
+	def this() { 
 		super();
 		q();
 		f0(); // ERR: Cannot read from field 'c' before it is definitely assigned.
 		c = 2;
 		f0();
 		setX();
-		setY();
+		setY(); 
+		setY(); 
 		setZ();
-		f1();
+		f1(); 
 		d=4;
 	}
 
-	@NonEscaping("") def setX() {
+	@NonEscaping def setX() { // ERR: A @NonEscaping method must be private or final.
 		x = 42;
 	}
-	@NonEscaping("") final def setZ() {
+	@NonEscaping final def setZ() {
 		z = 42;
 	}
-	final def setY() {
+	final def setY() { // ERR: (warning) Methods 'setY()' is called during construction and therefore should be marked as @NonEscaping.
 		y = 42;
 	}
 
 	def g():Int = 1;
-	abstract @NonEscaping("a,b") def q():Int;
-	@NonEscaping("b,a") def ba():Int = a+b;
-	@NonEscaping("a,b,c") def f0():Int = a+b+c;
-	@NonEscaping("a,c") def f1():Int = a+c;
-	@NonEscaping("a,e") def e1():Int = 1; // ERR: Could not find field 'e' used in the annotation @NonEscaping.
-	@NonEscaping("a,c") def e2():Int = a+b+c; // ERR: reading from "b"
+	abstract @NonEscaping def q():Int; // ERR: A @NonEscaping method must be private or final.
+	@NonEscaping final def ba():Int = a+b;
+	@NonEscaping private def f0():Int = a+b+c;
+	@NonEscaping protected def f1():Int = a+c; // ERR: A @NonEscaping method must be private or final.
+	@NonEscaping final native def e1():Int; 
+	@NonEscaping native def e2():Int; // ERR: A @NonEscaping method must be private or final.
 }
+
 class Sub1Test extends SuperClassTest {
 	val w = 1;
 	var q:Int{self!=0} = 1;
 	def this(i:Int) { this(); x = y; }
 	def this() {
 		super();
-		readD();
-		g();
-		f2(); // ERR: The call Sub1.this.f2() is illegal because you can only call private/final/@NonEscaping methods from a NonEscaping method (such as a conprivate structor, a field initializer, or a @NonEscaping method)
+		readD(); 
+		g(); // ERR: The call Sub1Test.this.g() is illegal because you can only call a superclass method during construction only if it is annotated with @NonEscaping.
+		setX();
+		setZ();
+		f2(); 
 	}
-	final def readD() {
+	final def readD() { // ERR: (warning) 
 		val q = d;
 	}
-	@NonEscaping("a,b,c") def f0():Int = a+b+c+d; // ERR: Cannot read from field 'd' before it is definitely assigned.
-	@NonEscaping("a,b") def q():Int {
-		f0(); // ERR: Cannot read from field 'c' before it is definitely assigned.
-		readD(); // ERR: Cannot read from field 'd' before it is definitely assigned.
-		super.ba();
-		val t = w; // ERR: Cannot read from field 'w' before it is definitely assigned.
-		return a+b;
-	}
-	@NonEscaping("g") def e3():Int = 1; // ERR: Could not find field 'g' used in the annotation @NonEscaping.
-	@NonEscaping("w") def g():Int = 1;
-	@NonEscaping("c,a") def f1():Int = 1; // ERR: You must annotate x10.lang.Int f1(...) with @NonEscaping("a,c") because it overrides a method annotated with that.
-	def f2():Int = 1;
-}
-class Sub2Test extends Sub1Test {
-	@NonEscaping("a,b") def q():Int {
-		val t = w; // ERR: Cannot read from field 'w' before it is definitely assigned.
-		return a+b;
-	}
-
-	def g():Int = 1; // ERR (annotation @NonEscaping must be preserved)
-	@NonEscaping("a,c") def f0():Int = 1;  // ERR: You must annotate x10.lang.Int f0(...) with @NonEscaping("a,b,c") because it overrides a method annotated with that.
-	def f2():Int = 1;
-	def f3():Int = 1;
+	@NonEscaping private def f2():Int = 1;
+	def q():Int = 2;
 }
 
 
@@ -247,20 +719,20 @@ struct TypeNameTest2 {
 class TestNonEscaping {
 	val x = foo();
 
-	@NonEscaping("") def f1() {} 
+	@NonEscaping private def f1() {} 
 
-	@NonEscaping("") final def f5() {
-		bar(); // ERR: The call TestNonEscaping.this.bar() is illegal because you can only call private/final/@NonEscaping methods from a NonEscaping method (such as a conprivate structor, a field initializer, or a @NonEscaping method)
+	@NonEscaping final def f5() {
+		bar(); // ERR: The call TestNonEscaping.this.bar() is illegal because you can only call private/final @NonEscaping methods or @NoThisAccess methods during construction.
 	}
-	def bar() {} 
+	def bar() {} // ERR: (warning)
 
 
 
-	@NonEscaping("") final def foo() {
-		this.foo2();
+	@NonEscaping final def foo() {
+		this.foo2(); 
 		return 3;
 	}
-	final def foo2() {
+	final def foo2() { // ERR: (warning)
 	}
 }
 
@@ -271,20 +743,21 @@ interface BlaInterface {
 }
 class TestAnonymousClass {
 	static val anonymous1 = new Object() {};
-	val anonymous2 = new TestAnonymousClass() {}; // ERR
+	val anonymous2 = new Object() {}; // ERR: 'this' cannot escape via an anonymous class during construction
+	val anonymous3 = new TestAnonymousClass() {}; // ERR: 'this' cannot escape via an anonymous class during construction
 	def foo() {
 		val x = new Object() {};
 	}
-	@NonEscaping("") final def foo2() {
-		val x = new Object() {}; // ERR
+	@NonEscaping final def foo2() {
+		val x = new Object() {}; // ERR: 'this' cannot escape via an anonymous class during construction
 	}
 
-	val anonymous = new BlaInterface() { // ERR
+	val anonymous = new BlaInterface() { // ERR: 'this' cannot escape via an anonymous class during construction
 		public def bla():Int{self!=0} {
 			return k;
 		}
 	};
-	val inner = new Inner(); // ERR
+	val inner = new Inner(); // ERR: 'this' and 'super' cannot escape from a constructor or from methods called from a constructor
 	val w:Int{self!=0} = anonymous.bla();
 	val k:Int{self!=0};
 	def this() {
@@ -302,7 +775,7 @@ class TestAnonymousClass {
 
 class C57 {
  var m: Int{self!=0}, n:Int{self!=0};
- private final def ctorLike() {
+ @NonEscaping private final def ctorLike() {
   n = m; 
  }
  def this() {
@@ -312,7 +785,18 @@ class C57 {
 }
 
 
-
+class TestGlobalRefInheritance {
+    private var k:GlobalRef[TestGlobalRefInheritance] = GlobalRef[TestGlobalRefInheritance](this);
+	final def getK() = k;
+	@NonEscaping def getK2() = // ERR: A @NonEscaping method must be private or final.
+		k; // ERR: Cannot use 'k' because a GlobalRef[...](this) cannot be used in a field initializer, constructor, or methods called from a constructor.
+}
+class TestGlobalRefInheritanceSub extends TestGlobalRefInheritance {
+	def this() {
+		val escaped1 = getK(); // ERR: The call TestGlobalRefInheritanceSub.this.getK() is illegal because you can only call @NonEscaping methods of a superclass from a constructor or from methods called from a constructor
+		val escaped2 = getK2();
+	}
+}
 
 class TestGlobalRefRestriction {
     private var k:GlobalRef[TestGlobalRefRestriction] = GlobalRef[TestGlobalRefRestriction](this);
@@ -336,7 +820,7 @@ class TestGlobalRefRestriction {
 		k = other.k;
 		f = GlobalRef[TestGlobalRefRestriction](this); // ERR (this escaped)
 	}
-	private def foo1() {
+	@NonEscaping private def foo1() {
 		val z = (k as GlobalRef[TestGlobalRefRestriction]{home==here}); // ERR (because it is called from a ctor)
 		z();
 	}
@@ -366,7 +850,7 @@ class TestFieldInitializer {
 	val j = flag ? 3 : foo(); // ERR: reads from j before it is assigned.
 	val k = foo();	
 	var i:Int{self!=0};
-	final def foo() {
+	@NonEscaping final def foo() {
 		val z = j;
 		i = 1;
 		return 2;
@@ -379,7 +863,7 @@ class Test2 {
 		bla(); // ERR: bla() reads from layout before it is written to!
 		layout = 1;
 	}
-	private def bla() {
+	@NonEscaping private def bla() {
 		Console.OUT.println(layout); // previously printed 0
 	}
 }
@@ -389,7 +873,7 @@ class Person {
   def this(name:String{name != null}) {
     setName(name);
   }
-  public final def setName(name:String{name != null}) {
+  @NonEscaping public final def setName(name:String{name != null}) {
     this.name = name;
   }
 }
@@ -400,7 +884,7 @@ class Example1 {
     setI(); 
     // i1 is definitely-assigned now
   }
-  final def setI() {
+  @NonEscaping final def setI() {
     if (flag) {
       i1 = 2;
     } else {
@@ -416,7 +900,7 @@ class Example2 {
     finish m2();
   }
   //Read=[i1] SeqWrite=[i2] Write=[i1,i2] 
-  final def m1() {
+  @NonEscaping final def m1() {
     val z1 = i1;
     if (flag) {
       async { i1 = 1; }
@@ -428,7 +912,7 @@ class Example2 {
     }
   }
   //Read=[] SeqWrite=[i1] Write=[i1,i2]
-  private def m2() {
+  @NonEscaping private def m2() {
     if (flag) {
       finish async { i1 = 1; val z = i1; }
       async { i2 = 2; }
@@ -451,17 +935,17 @@ class Example3 {
     m2();
   }
   //Read=[] SeqWrite=[i1,i2,i3] Write=[i1,i2,i3]
-  final def m1() { 
+  @NonEscaping final def m1() { 
     i1 = 1;
     m2();
   }
   //Read=[] SeqWrite=[i1,i2,i3] Write=[i1,i2,i3]
-  private def m2() {
+  @NonEscaping private def m2() {
     i2 = 2;
     m3();
   }
   //Read=[] SeqWrite=[i1,i2,i3] Write=[i1,i2,i3]
-  private def m3() {
+  @NonEscaping private def m3() {
     i3 = 3;
     if (flag) {
         i1=1; i2=2; // stop the recursion.
@@ -485,8 +969,8 @@ class LegalExample {
     f2 = m1();
     setV2(i);
   }
-  private def m1():Int = v1++;
-  public final def setV2(i:Int{self!=0}) { v2 = i; }
+  @NonEscaping private def m1():Int = v1++;
+  @NonEscaping public final def setV2(i:Int{self!=0}) { v2 = i; }
 }
 class IllegalExample {
   var f2:Int{self!=0}; 
@@ -498,7 +982,7 @@ class IllegalExample {
   def this(i:Int) { // ERR field is not initialized in this(Int)
     setV2();
   }
-  final def setV2() { v2 = 3; }
+  @NonEscaping final def setV2() { v2 = 3; }
 }
 class IllegalExample2[T] {
   var t:T; // ERR (not initialized)
@@ -508,13 +992,13 @@ class SuperTest22 {
 	def this() {
 		foo();
 	}
-	final def foo() {
+	final def foo() { // ERR (warning)
 	}
 }
 class SuperCallTest extends SuperTest22 {
 	def this() {
 		super();
-		foo(); // ERR (cannot call super methods in a conprivate structor unless annotated with @NonEscaping)
+		foo(); // ERR (cannot call super methods in a private constructor unless annotated with @NonEscaping)
 	}
 }
 
@@ -551,7 +1035,7 @@ class TestFieldInitForwardRef {
 	var e:Inner = new Inner(); // ERR
 	var e2:StaticInner = new StaticInner();
 
-	private def foo(arg:TestFieldInitForwardRef):Int = 3;
+	@NonEscaping private def foo(arg:TestFieldInitForwardRef):Int = 3;
 }
 
 
@@ -560,6 +1044,8 @@ class TestFieldsWithoutDefaults[T] {
 	// generic parameter test
 	var f2:T; // ERR
 
+	// includes: Int, Long, ULong, UInt, Float, Double, Boolean, Char
+	// excludes: Short,UShort,Byte,UByte
 	// primitive private struct tests (when we'll add literals for Short,UShort,Byte,UByte, I should add more tests)
 	var i1:Int;
 	var i2:Int{self==0};
@@ -590,7 +1076,7 @@ class TestFieldsWithoutDefaults[T] {
 	var ch1:Char;
 	var ch2:Char{self=='\0'};
 	var ch3:Char{self!='\0'}; // ERR
-	// todo: do tests for Char, Byte, UByte, Short, UShort
+	// todo: do tests for Byte, UByte, Short, UShort
 
 	// references (with or without null)
 	var r0:Array[Int{self!=0}];
@@ -669,15 +1155,15 @@ class EscapingCtorTest(p:EscapingCtorTest) {
 	}
 	final operator this+(that:EscapingCtorTest):EscapingCtorTest = null;
 	final operator (that:EscapingCtorTest)*this:EscapingCtorTest = null;
-	final def apply(that:EscapingCtorTest):EscapingCtorTest = null;
+	@NonEscaping final def apply(that:EscapingCtorTest):EscapingCtorTest = null;
 
-	final def m() {
+	@NonEscaping final def m() {
 		g();
 	}
-	private def g() {
+	@NonEscaping private def g() {
 		z(null);
 	}
-	final def z(q:EscapingCtorTest) {
+	@NonEscaping final def z(q:EscapingCtorTest) {
 		q.g();
 		g();
 		val inner1 = new Inner(); // ERR
@@ -698,15 +1184,15 @@ class EscapingCtorTest(p:EscapingCtorTest) {
 			EscapingCtorTest.this.g();
 			z(EscapingCtorTest.this);
 			// Inner "this" can NOT escape
-			f(null); // ERR
-			this.f(null); // ERR
+			f(null); 
+			this.f(null); 
 			val z:Inner = null;
 			z.f(z);
 			z.f(this); // ERR
 			bar(this); // ERR
 			bar(z);
 		}
-		def f(inner:Inner) {}
+		@NonEscaping private def f(inner:Inner) {}
 	}
 }
 
@@ -722,15 +1208,15 @@ class Example4 {
   def this(i:Int) {
     m2(); 
   }
-  final def m1() {
+  @NonEscaping final def m1() {
     i1 = 1;
     m2();
   }
-  private def m2() {
+  @NonEscaping private def m2() {
     i2 = 2;
     m3();
   }
-  private def m3() {
+  @NonEscaping private def m3() {
     i3 = 3;
 	if (i3==4) {
 		i1=1; i2=2; // stop the recursion.
@@ -771,4 +1257,259 @@ struct Test3[U,B] {
 		this.u = u;
 		this.b = b;
 	}
+}
+
+class TestSwitchOnFinalVal {
+    val i=2+1;
+	def this() {
+		switch(3+0) {
+            case i:
+            case 4:
+        }
+    }   
+}
+
+
+
+
+
+
+
+class TestBreaksInAsyncAt {
+	class Shyk_Flup  { // XTENLANG-823
+	  public def test() {
+		 
+		 lesp_frobi: for (var i : Int = 0; i < 10; i++) {
+			 if (i<3) break lesp_frobi;
+		   finish async{
+			 break lesp_frobi; // ERR: Cannot break in an async
+		   }
+		   x10.io.Console.OUT.println("This must not happen!");
+		 }
+	  }
+	}
+
+	var flag:Boolean;
+	
+	def test1() {
+		while (flag) {
+			if (flag) continue;
+			if (flag) break;
+		}
+	}
+	def test2() {
+		while (flag) {
+			at (here) {
+				if (flag) continue;
+				if (flag) break;
+			}
+		}
+	}
+	
+	def test3() {
+		while (flag) {
+			async {
+				while (flag) {
+					if (flag) break;
+				}
+			}
+		}
+	}
+
+	def failTestLabel() {
+		while (flag) {
+			if (flag) continue non_existing_label; // ERR: Target of branch statement not found.
+		}
+	}
+	def failTest1() {
+		while (flag) {
+			async {
+				if (flag) continue; // ERR: Cannot continue in an async
+			}
+		}
+	}
+	def failTest2() {
+		while (flag) {
+			async {
+				if (flag) break; // ERR: Cannot break in an async
+			}
+		}
+	}
+	def failTest3() {
+		while (flag) {
+			async {
+				if (flag) return; // ERR: Cannot return from an async.
+			}
+		}
+	}
+}
+
+
+
+class Possel811 { //XTENLANG-811
+  interface I {
+	def i():void; 
+  }
+  def test() {
+    new I(){}; // ERR: <anonymous class> should be declared abstract; it does not define i(): x10.lang.Void, which is declared in Possel811.I
+  }
+}
+
+class AccessOfVarIllegalFromClosure { // XTENLANG-1888
+	val x:Int = 1;
+	var y:Int = 1;
+
+    public def run() {
+        
+        val a:Int = 1;
+        var b:Int = 1;
+
+        val closure = 
+			() => 
+				x+
+				y+
+				a+
+				b; // ERR: Local variable "b" is accessed from an inner class or a closure, and must be declared final.
+    }
+
+	static def use(i:Any) {}
+	def test2() {
+		var q:Int = 1;
+		finish async q=2;
+		use(() => {
+			use(q); // ERR: Local variable "q" is accessed from an inner class or a closure, and must be declared final.
+		});
+		use(() => { async
+			use(q); // ERR: Local variable "q" is accessed from an inner class or a closure, and must be declared final.
+		});
+		use(() => { finish async async
+			use(q); // ERR: Local variable "q" is accessed from an inner class or a closure, and must be declared final.
+		});
+		
+		use(() => { var q:Int = 1;
+			use(q);
+		});
+		use(() => { var q:Int = 1; async
+			use(q);
+		});
+		use(() => { finish async { var q:Int = 1; async
+			use(q);
+		}});
+		use(() => { finish { var q:Int = 1; async { async
+			use(q);
+		}}});
+		use(() => { finish { async { async {var q:Int = 1; 
+			use(q);
+		}}}});
+		use(() => { finish { async { async {
+			use(q); // ERR: Local variable "q" is accessed from an inner class or a closure, and must be declared final.
+			var q:Int = 1; 
+		}}}});
+		val w = q;
+	}
+}
+class TestVarAccessInClosures {
+   val a1:int = 1;
+   var a2:int = 1;
+    public def run() {
+        
+        val b1:int = 1;
+        var b2:int = 1;
+
+        class C {
+            val c1:int = 1;
+            var c2:int = 1;
+            def foo() = {
+                val fun = () => {
+                    val d1:int = 1;
+                    var d2:int = 1;
+                    (() => a1+b1+c1+d1+
+						a2+
+						b2+ // ERR: Local variable "b2" is accessed from an inner class or a closure, and must be declared final.
+						c2+
+						d2  // ERR: Local variable "d2" is accessed from an inner class or a closure, and must be declared final.
+						)()
+                };
+                fun()
+            }
+        }
+	}
+}
+
+
+class TestOnlyLocalVarAccess {
+	// for some reason, the origin of "frame" is null. I couldn't reproduce it...
+	//C:\cygwin\home\Yoav\intellij\sourceforge\x10.runtime\src-x10\x10\compiler\ws\Worker.x10:86,18-22
+	//Message: Semantic Error: Local variable "frame" is accessed at a different place, and must be declared final.
+	var i:Int;
+	static def test0(var b:TestOnlyLocalVarAccess) {
+		b.i++;
+	}
+
+	static def test0() {
+		var x:Int = 0;
+		at (here) x=20;
+		x=10;
+		at (here.next()) 
+			x=1; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
+		val place1 = here;
+		val place2 = place1;
+		at (here.next()) {
+			x=2; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
+			at (place1) 
+				x=3;
+			at (place2) 
+				x=4;
+			at (place1) at (place2) 
+				x=5;
+		}
+		Console.OUT.println(x);
+	}
+	def test1() {
+		var x:Int = 0;
+		at (here) x=20;
+		x=10;
+		at (here.next()) 
+			x=1; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
+		val place1 = here;
+		val place2 = place1;
+		at (here.next()) {
+			x=2; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
+			at (place1) 
+				x=3;
+			at (place2) 
+				x=4;
+			at (place1) at (place2) 
+				x=5;
+		}
+		Console.OUT.println(x);
+	}
+	def test2(var x:Int) {
+		at (here) x=20;
+		x=10;
+		at (here.next()) 
+			x=1; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
+		val place1 = here;
+		val place2 = place1;
+		at (here.next()) {
+			x=2; // ERR: Local variable "x" is accessed at a different place, and must be declared final.
+			at (place1) 
+				x=3;
+			at (place2) 
+				x=4;
+			at (place1) at (place2) 
+				x=5;
+		}
+		Console.OUT.println(x);
+	}
+
+	def test3(a: DistArray[double](1)) {		
+        var n: int = 1;
+		at (here) n=2;
+		finish ateach ([i] in a.dist | 
+			(0..n)) { // todo ERR: it shouldn't give an error!
+			n++; // ERR: Local variable "n" is accessed at a different place, and must be declared final.
+		}
+	}
+
 }

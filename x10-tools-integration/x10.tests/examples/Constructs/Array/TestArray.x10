@@ -147,9 +147,7 @@ abstract public class TestArray extends x10Test {
     }
 
     @Global def prDistributed(test:String, a: DistArray[double]): void = {
-        var ps: ValRail[Place] = a.dist.places();
-        for (var i: int = 0; i<ps.length; i++) {
-            val p: Place = ps(i);
+        for (p in a.dist.places()) {
             val root = this.root;
             finish {
                 async at(p) {
@@ -294,12 +292,12 @@ abstract public class TestArray extends x10Test {
         val init = (Point) => -1.0D;
         val a = DistArray.make[double](d.region->here, init);
 
-        var ps: ValRail[Place] = d.places();
-        for (var i: int = 0; i<ps.length; i++) {
-            val r: Region = d.get(ps(i));
+        val ps = d.places();
+        for (pl in d.places()) {
+            val r: Region = d.get(pl);
             for (p:Point(r.rank) in r) {
                 val q = p as Point(a.dist.region.rank);
-                a(q) = a(q) + ps(i).id + 1;
+                a(q) = a(q) + pl.id + 1;
             }
         }
         prArray1(a, false);

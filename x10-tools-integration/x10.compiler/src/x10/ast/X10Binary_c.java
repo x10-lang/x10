@@ -51,6 +51,7 @@ import polyglot.util.Pair;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import x10.constraint.XFailure;
+import x10.constraint.XLit;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.errors.Errors;
@@ -62,8 +63,6 @@ import x10.types.X10TypeSystem_c;
 import x10.types.checker.Checker;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
-import x10.visit.ExprFlattener;
-import x10.visit.ExprFlattener.Flattener;
 
 /**
  * An immutable representation of a binary operation Expr op Expr.
@@ -301,10 +300,12 @@ public class X10Binary_c extends Binary_c implements X10Binary {
      */
     public Node typeCheck(ContextVisitor tc) {
         X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
-        Context context = tc.context();
+        X10Context context = (X10Context) tc.context();
 
         Type lbase = X10TypeMixin.baseType(left.type());
         Type rbase = X10TypeMixin.baseType(right.type());
+        if (xts.hasUnknown(lbase) || xts.hasUnknown(rbase))
+        	return  this.type(xts.unknownType(position()));
         
         if (op == EQ || op == NE || op == LT || op == GT || op == LE || op == GE) {
             Object lv = left.isConstant() ? left.constantValue() : null;
@@ -368,18 +369,26 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 //            }
 
             Errors.issue(tc.job(),
-                    new SemanticException("The " + op +
-                            " operator must have operands of comparable type; the types " + lbase + " and " + rbase + " do not share any values.",
-                            position()));
+                    new SemanticException("Operator must have operands of comparable type; the types " + lbase + " and " + rbase + " do not share any values.",position()));
             return type(xts.Boolean());
         }
 
         Call c = desugarBinaryOp(this, tc);
+        // Add support for patching up the return type of Region's operator*. 
+        // The rank of the result is a+b, if the rank of the left arg is a and of the right arg is b, 
+        // and a and b are literals. Further the result is rect if both args are rect.
+       
         if (c != null) {
             X10MethodInstance mi = (X10MethodInstance) c.methodInstance();
             if (mi.error() != null) {
                 Errors.issue(tc.job(), mi.error(), this);
             }
+            /*if (mi.name().toString().equals("operator*") && xts.typeEquals(xts.Region(), lbase, context)
+            		&& xts.typeEquals(xts.Region(), rbase, context)) {
+            	Type type = computeReturnTypeForRegionMult(left, right, context);
+            	return this.left((Expr) c.target()).right(c.arguments().get(0)).type(type);
+            }*/
+            
             // rebuild the binary using the call's arguments.  We'll actually use the call node after desugaring.
             if (mi.flags().isStatic()) {
                 return this.left(c.arguments().get(0)).right(c.arguments().get(1)).type(c.type());
@@ -430,6 +439,26 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         return this.type(xts.unknownType(position()));
     }
 
+    public static Type computeReturnTypeForRegionMult(Expr left, Expr right, X10Context context) {
+    	X10TypeSystem ts = (X10TypeSystem) context.typeSystem();
+    	Type ltype = left.type();
+    	Type rtype = right.type();
+    	XTerm lrank = X10TypeMixin.rank(ltype, context);
+    	XTerm rrank = X10TypeMixin.rank(rtype, context);
+    	Type type = ts.Region();
+    	if (lrank instanceof XLit && rrank instanceof XLit) {
+    		int xr = (Integer) ((XLit) lrank).val();
+    		int yr = (Integer) ((XLit) rrank).val();
+    		type = X10TypeMixin.addRank(type, xr+yr);
+    	}
+    	if (X10TypeMixin.isRect(ltype, context) && X10TypeMixin.isRect(rtype, context)) {
+    		type = X10TypeMixin.addRect(type);
+    	}
+    	if (X10TypeMixin.isZeroBased(ltype, context) && X10TypeMixin.isZeroBased(rtype, context)) {
+    		type = X10TypeMixin.addZeroBased(type);
+    	}
+    	return type;
+    }
     public static X10Call_c typeCheckCall(ContextVisitor tc, X10Call_c call) {
         List<Type> typeArgs = new ArrayList<Type>(call.typeArguments().size());
         for (TypeNode tn : call.typeArguments()) {
@@ -445,13 +474,13 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         X10MethodInstance mi = null;
         List<Expr> args = null;
         // First try to find the method without implicit conversions.
-        Pair<MethodInstance, List<Expr>> p = X10Call_c.findMethod(tc, call, targetType, call.name().id(), typeArgs, argTypes);
+        Pair<MethodInstance, List<Expr>> p = Checker.findMethod(tc, call, targetType, call.name().id(), typeArgs, argTypes);
         mi = (X10MethodInstance) p.fst();
         args = p.snd();
         if (mi.error() != null) {
             try {
                 // Now, try to find the method with implicit conversions, making them explicit.
-                p = X10Call_c.tryImplicitConversions(call, tc, targetType, call.name().id(), typeArgs, argTypes);
+                p = Checker.tryImplicitConversions(call, tc, targetType, call.name().id(), typeArgs, argTypes);
                 mi = (X10MethodInstance) p.fst();
                 args = p.snd();
             } catch (SemanticException e) { }
@@ -640,6 +669,18 @@ public class X10Binary_c extends Binary_c implements X10Binary {
             result = (X10Call_c) nf.X10Call(pos, nf.CanonicalTypeNode(pos, Types.ref(ct)),
                     nf.Id(pos, methodName), Collections.<TypeNode>emptyList(),
                     CollectionUtil.list(left, right)).methodInstance(mi).type(mi.returnType());
+        } 
+        {
+        X10MethodInstance mi = result.methodInstance();
+        Type lbase = X10TypeMixin.baseType(n.left().type());
+        Type rbase = X10TypeMixin.baseType(n.right().type());
+        X10Context context = (X10Context) tc.context();
+        if (mi.name().toString().equals("operator*") && xts.typeEquals(xts.Region(), lbase, context)
+        		&& xts.typeEquals(xts.Region(), rbase, context)) {
+        	Type type = computeReturnTypeForRegionMult(left, right, context);
+        	mi = mi.returnType(type);
+        	result = (X10Call_c) result.methodInstance(mi).type(type);
+        }
         }
         try {
             result = (X10Call_c) PlaceChecker.makeReceiverLocalIfNecessary(result, tc);
@@ -710,58 +751,6 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         X10Binary_c n = (X10Binary_c) copy();
         n.invert = invert;
         return n;
-    }
-
-    /** Flatten the expressions in place and body, creating stmt if necessary.
-     * The place field must be visited by the given flattener since those statements must be executed outside
-     * the future. Howeever, the body must be visited in a new flattener and the statements produced
-     * captured and stored in stmt. 
-     * Note that this works by side-effecting the current node. This is necessary
-     * because the method is called from within an enter call for a Visitor. I dont know
-     * of any way of making the enter call return a copy of the node. 
-     * @param fc
-     * @return
-     */
-    public Expr flatten(ExprFlattener.Flattener fc) {
-        //Report.report(1, "X10Binary_c: entering X10Binary " + this);
-        assert (op== Binary.COND_AND || op==Binary.COND_OR);
-        X10Context xc = (X10Context) fc.context();
-
-        final NodeFactory nf = fc.nodeFactory();
-        final TypeSystem ts = fc.typeSystem();
-        final Position pos = position();
-        final Id resultVarName = nf.Id(pos, xc.getNewVarName());
-        final TypeNode tn = nf.CanonicalTypeNode(pos,type);
-        Flags flags = Flags.NONE;
-
-        final LocalDef li = ts.localDef(pos, flags, Types.ref(type), resultVarName.id());
-        // Evaluate the left.
-        Expr nLeft = (Expr) left.visit(fc);
-        final LocalDecl ld = nf.LocalDecl(pos, nf.FlagsNode(pos, flags), tn, resultVarName, nLeft).localDef(li);
-        fc.add(ld);
-
-        final Local ldRef = (Local) nf.Local(pos,resultVarName).localInstance(li.asInstance()).type(type);
-        Flattener newVisitor = (Flattener) new ExprFlattener.Flattener(fc.job(), ts, nf, this).context(xc);
-        Expr nRight = (Expr) right.visit(newVisitor);
-        List<Stmt> condBody = newVisitor.stmtList(); 
-        Expr assign = nf.Assign(pos, ldRef, Assign.ASSIGN, nRight ).type(type);
-        Stmt eval = nf.Eval(pos, assign);
-        condBody.add(eval);
-        final Local ldRef2 = (Local) nf.Local(pos,resultVarName).localInstance(li.asInstance()).type(type);
-
-        if (op == Binary.COND_AND) {
-            final Stmt ifStm = nf.If(pos, ldRef2, nf.Block(pos, condBody));
-            fc.add(ifStm);
-        } else {
-            Expr cond = nf.Unary(pos, ldRef2, Unary.NOT).type(type);
-            final Stmt ifStm = nf.If(pos, cond, nf.Block(pos, condBody));
-            fc.add(ifStm);
-        }
-
-        final Local ldRef3 = (Local) nf.Local(pos,resultVarName).localInstance(li.asInstance()).type(type);
-        //Report.report(1, "X10Binary_c: returning " + ldRef3);
-        return ldRef3;
-
     }
 }
 

@@ -20,22 +20,22 @@ public class StencilFor2D extends x10Test {
     
     public def run(): boolean = {
 
-        val R = [-1..256, -1..256] as Region;
-        val r = [0..255, 0..255] as Region;
-        val north = [0, 1] as Point;
-        val south = [0, -1] as Point;
-        val west = [-1, 0] as Point;
-        val east  = [1, 0] as Point;
+        val R = (-1..256)*(-1..256);
+        val r = (0..255)*(0..255);
+        val north : Point(2) = [0, 1];
+        val south : Point(2) = [0, -1];
+        val west : Point(2) = [-1, 0];
+        val east : Point (2) = [1, 0];
         val A = new Array[double](R, (Point)=>0.0D);
         val h  = 0.1;
             
-        for (val p: Point(2) in r) 
+        for (p  in r) 
             A(p)=(A(p+north)+A(p+south)+A(p+west)+A(p+east)-4*A(p))*h;
             
         return true;
     }
     
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(Array[String](1))  {
         new StencilFor2D().execute();
     }
 

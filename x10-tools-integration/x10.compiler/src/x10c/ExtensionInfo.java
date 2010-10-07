@@ -11,23 +11,26 @@
 
 package x10c;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import polyglot.ast.NodeFactory;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
 import polyglot.frontend.Scheduler;
-import polyglot.frontend.VisitorGoal;
 import polyglot.types.TypeSystem;
 import x10.visit.SharedBoxer;
 import x10c.ast.X10CNodeFactory_c;
 import x10c.types.X10CTypeSystem_c;
+import x10c.visit.AsyncInitializer;
 import x10c.visit.CastRemover;
 import x10c.visit.ClosuresToStaticMethods;
 import x10c.visit.Desugarer;
+import x10c.visit.ExpressionFlattenerForAtExpr;
 import x10c.visit.InlineHelper;
 import x10c.visit.JavaCaster;
 import x10c.visit.RailInLoopOptimizer;
+import x10c.visit.VarsBoxer;
 
 public class ExtensionInfo extends x10.ExtensionInfo {
     @Override
@@ -55,25 +58,34 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 
         @Override
         public List<Goal> goals(Job job) {
-            List<Goal> goals = super.goals(job);
-            ClosuresToStaticMethods(job).addPrereq(Desugarer(job));
-            JavaCaster(job).addPrereq(ClosuresToStaticMethods(job));
-            CastsRemoved(job).addPrereq(JavaCaster(job));
-            RailInLoopOptimizer(job).addPrereq(CastsRemoved(job));
-            SharedBoxed(job).addPrereq(RailInLoopOptimizer(job));
-            if (PREPARE_FOR_INLINING) {
-                InlineHelped(job).addPrereq(SharedBoxed(job));
-            }
-            CodeGenerated(job).addPrereq(Desugarer(job));
-            CodeGenerated(job).addPrereq(ClosuresToStaticMethods(job));
-            CodeGenerated(job).addPrereq(JavaCaster(job));
-            CodeGenerated(job).addPrereq(CastsRemoved(job));
-            CodeGenerated(job).addPrereq(RailInLoopOptimizer(job));
-            CodeGenerated(job).addPrereq(SharedBoxed(job));
-            if (PREPARE_FOR_INLINING) {
-                CodeGenerated(job).addPrereq(InlineHelped(job));
+            List<Goal> superGoals = super.goals(job);
+            ArrayList<Goal> goals = new ArrayList<Goal>(superGoals.size()+10);
+            for (Goal g : superGoals) {
+                if (g == Desugarer(job)) {
+                    goals.add(ExpressionFlattenerForAtExpr(job));
+                    goals.add(VarsBoxer(job));
+                }
+                if (g == CodeGenerated(job)) {
+                    goals.add(ClosuresToStaticMethods(job));
+                    goals.add(JavaCaster(job));
+                    goals.add(CastsRemoved(job));
+                    goals.add(RailInLoopOptimizer(job));
+//                    newGoals.add(SharedBoxed(job));
+                    goals.add(AsyncInitializer(job));
+                    if (PREPARE_FOR_INLINING) {
+                        goals.add(InlineHelped(job));
+                    }
+                }
+                goals.add(g);
             }
             return goals;
+        }
+        
+        protected Goal codegenPrereq(Job job) {
+            if (PREPARE_FOR_INLINING) {
+                return InlineHelped(job);
+            }
+            return AsyncInitializer(job);
         }
         
         @Override
@@ -117,6 +129,24 @@ public class ExtensionInfo extends x10.ExtensionInfo {
             TypeSystem ts = extInfo.typeSystem();
             NodeFactory nf = extInfo.nodeFactory();
             return new ValidatingVisitorGoal("InlineHelped", job, new InlineHelper(job, ts, nf)).intern(this);
+        }
+
+        private Goal AsyncInitializer(Job job) {
+            TypeSystem ts = extInfo.typeSystem();
+            NodeFactory nf = extInfo.nodeFactory();
+            return new ValidatingVisitorGoal("AsyncInitialized", job, new AsyncInitializer(job, ts, nf)).intern(this);
+        }
+        
+        private Goal VarsBoxer(Job job) {
+            TypeSystem ts = extInfo.typeSystem();
+            NodeFactory nf = extInfo.nodeFactory();
+            return new ValidatingVisitorGoal("VarsBoxed", job, new VarsBoxer(job, ts, nf)).intern(this);
+        }
+        
+        private Goal ExpressionFlattenerForAtExpr(Job job) {
+            TypeSystem ts = extInfo.typeSystem();
+            NodeFactory nf = extInfo.nodeFactory();
+            return new ValidatingVisitorGoal("ExpressionFlattenerForAtExpr", job, new ExpressionFlattenerForAtExpr(job, ts, nf)).intern(this);
         }
     }
 }

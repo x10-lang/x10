@@ -91,7 +91,7 @@ public class ConditionalAtomicQueue extends x10Test {
 			// spawn producer activities on each place
 			async 
 				ateach (val [i]: Point in MyDist.unique()) {
-					for (val [j]: Point in [0..N-1]) {
+					for (val [j] in 0..N-1) {
 						val t = new T(i, j); // produce a T
 						async at(root) {
 							val me = root();
@@ -160,14 +160,14 @@ public class ConditionalAtomicQueue extends x10Test {
 		 * create a unique dist (mapping each i to place i)
 		 */
 		static def unique() =  {
-			return Dist.makeUnique(Place.places);
+			return Dist.makeUnique();
 		}
 
 		/**
 		 * create a constant-Here dist
 		 */
 		static def val_(var arraySize: int) = {
-			return [0..(arraySize-1)]->here;
+			return 0..(arraySize-1)->here;
 		}
 	}
 }

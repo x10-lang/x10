@@ -36,7 +36,6 @@
 namespace x10 { namespace lang { class VoidFun_0_0; } }
 namespace x10 { namespace lang { template<class R> class Fun_0_0; } }
 namespace x10 { namespace lang { template<class P1, class R> class Fun_0_1; } }
-namespace x10 { namespace lang { template<class T> class ValRail; } }
 
 namespace x10 {
 
@@ -51,7 +50,6 @@ namespace x10 {
             RTT_H_DECLS_CLASS;
 
             typedef x10aux::ref<Rail<T> > R;
-            typedef x10aux::ref<ValRail<T> > V;
 
             static typename Iterable<T>::template itable<Rail<T> > _itable_iterable;
             static typename Settable<x10_int, T>::template itable<Rail<T> > _itable_settable;
@@ -140,16 +138,6 @@ namespace x10 {
             }
             template <class T> static x10aux::ref<Rail<T> > makeAligned(x10_int length, x10aux::ref<Fun_0_1<x10_int,T> > init, x10_int alignment);
 
-            template <class T> static x10aux::ref<Rail<T> > make(x10aux::ref<ValRail<T> > other) {
-                return makeAligned<T>(other, 8);
-            }
-            template <class T> static x10aux::ref<Rail<T> > makeAligned(x10aux::ref<ValRail<T> > other, x10_int alignment);
-
-            template <class T> static x10aux::ref<Rail<T> > make(x10_int length, x10_int offset, x10aux::ref<ValRail<T> > other) {
-                return makeAligned<T>(length, offset, other, 8);
-            }
-            template <class T> static x10aux::ref<Rail<T> > makeAligned(x10_int length, x10_int offset, x10aux::ref<ValRail<T> > other, x10_int alignment);
-
             template <class T> static x10aux::ref<Rail<T> > make(x10_int length, x10_int offset, x10aux::ref<Rail<T> > other) {
                 return makeAligned<T>(length, offset, other, 8);
             }
@@ -171,7 +159,6 @@ namespace x10 {
 #include <x10/lang/VoidFun_0_0.h>
 #include <x10/lang/Fun_0_0.h>
 #include <x10/lang/Rail__RailIterator.h>
-#include <x10/lang/ValRail.h>
 #include <x10aux/itables.h>
 #ifndef X10_LANG_RAIL_H_IMPLEMENTATION
 #define X10_LANG_RAIL_H_IMPLEMENTATION
@@ -233,17 +220,6 @@ namespace x10 {
         }
 
         template <class T> x10aux::ref<Rail<T> > Rail<void>::makeAligned(x10_int length, x10_int offset,
-                                                                         x10aux::ref<ValRail<T> > other,
-                                                                         x10_int alignment) {
-            x10aux::nullCheck(other);
-            x10aux::ref<Rail<T> > rail = x10aux::alloc_aligned_rail<T,Rail<T> >(length, alignment);
-            for (x10_int i=0 ; i<length ; ++i) {
-                (*rail)[i] = (*other)[i+offset];
-            }
-            return rail;
-        }
-
-        template <class T> x10aux::ref<Rail<T> > Rail<void>::makeAligned(x10_int length, x10_int offset,
                                                                          x10aux::ref<Rail<T> > other,
                                                                          x10_int alignment) {
             x10aux::nullCheck(other);
@@ -253,18 +229,6 @@ namespace x10 {
             }
             return rail;
         }
-
-        template <class T> x10aux::ref<Rail<T> > Rail<void>::makeAligned(x10aux::ref<ValRail<T> > other,
-                                                                         x10_int alignment) {
-            x10aux::nullCheck(other);
-            x10_int length = other->FMGL(length);
-            x10aux::ref<Rail<T> > rail = x10aux::alloc_aligned_rail<T,Rail<T> >(length, alignment);
-            for (x10_int i=0 ; i<length ; ++i) {
-                (*rail)[i] = (*other)[i];
-            }
-            return rail;
-        }
-
 
         template <class T> x10aux::ref<Rail<T> > Rail<void>::makePinned(x10_int length,
                                                                         x10aux::ref<Fun_0_1<x10_int,T> > init) {

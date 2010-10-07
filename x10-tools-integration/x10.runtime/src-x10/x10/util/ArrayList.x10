@@ -73,7 +73,7 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
         return v;
     }
             
-    public def apply(i: Int) = a(i);
+    public def apply(i: int) = a(i);
 
     public def get(i: int): T = a(i);
 
@@ -82,9 +82,8 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
     public def isEmpty(): Boolean = size() == 0;
 
     // DEPRECATED
-    public def toArray() = a.toRail();
+    public def toArray() = a.toArray();
     public def toRail() = a.toRail();
-    public def toValRail() = a.toValRail();
 
     public def this() {
         a = new GrowableRail[T]();
@@ -138,8 +137,9 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
         }
         return -1;
     }
-    public  def moveSectionToValRail(i:Int, j:Int): ValRail[T] 
-            = a.moveSectionToValRail(i,j);
+
+    public def moveSectionToRail(i:Int, j:Int): Rail[T] = a.moveSectionToRail(i,j);
+
     //
     // iterator
     //

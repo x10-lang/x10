@@ -6,7 +6,7 @@
 # $Id$
 # Script that sources and builds all components required for regression.
 
-svnUpdate() {
+svnUpdate2() {
 	if [[ ! -d $1 ]]; then
 		( \
 			cd $(dirname $1); \
@@ -38,45 +38,27 @@ svnUpdate() {
 	fi
 }
 
-cvsUpdate() {
-	if [[ ! -d $1 ]]; then
-		( \
-			cd $(dirname $1); \
-			printf "\n## [$prog]: checking out module $(basename $1)...\n"; \
-			cvs -d "$2" co $(basename $1); \
-			exit $?; \
-		)
-		if (( $? != 0 )); then
-			printf "\n[$prog: err]: checkout failed for module $(basename $1)\n"
-			return 1
-		else
-			printf "\n## done.\n"
-			return 0
-		fi
-	else
-		( \
-			cd $1; \
-			printf "\n## [$prog]: updating module $(basename $1)...\n"; \
-			cvs -d "$2" update -d; \
-			exit $?; \
-		)
-		if (( $? != 0 )); then
-			printf "\n[$prog: err]: update failed for module $(basename $1)\n"
-			return 1
-		else
-			printf "\n## done.\n"
-			return 0
-		fi
-	fi
+X10_MAX_RETRIES=5
+svnUpdate() {
+    num_retries=1
+    if [[ -d $1 ]]; then
+        rm -rf $1
+    fi
+    while (( $num_retries <= $X10_MAX_RETRIES )); do
+        printf "\n## svn checkout of $1 -- attempt $num_retries .....\n"
+        svnUpdate2 $1 $2
+        if (( $? == 0 )); then
+            return 0
+        fi
+        let 'num_retries = num_retries + 1'
+    done
+    return 1
 }
-
+            
 main() {
     # source all the relevant modules -- do fresh checkout each time
 	declare -i status;
 	X10_COMMON=$X10_HOME/x10.common
-	if [[ -d $X10_COMMON ]]; then
-		rm -rf $X10_COMMON
-	fi
 	svnUpdate $X10_COMMON $X10_SVNROOT
 	status=$?
 	if (( $status != 0 )); then
@@ -84,9 +66,6 @@ main() {
 	fi
 
 	X10_COMPILER=$X10_HOME/x10.compiler
-	if [[ -d $X10_COMPILER ]]; then
-		rm -rf $X10_COMPILER
-	fi
 	svnUpdate $X10_COMPILER $X10_SVNROOT
 	status=$?
 	if (( $status != 0 )); then
@@ -94,9 +73,6 @@ main() {
 	fi
 
 	X10_RUNTIME=$X10_HOME/x10.runtime
-	if [[ -d $X10_RUNTIME ]]; then
-		rm -rf $X10_RUNTIME
-	fi
 	svnUpdate $X10_RUNTIME $X10_SVNROOT
 	status=$?
 	if (( $status != 0 )); then
@@ -104,9 +80,6 @@ main() {
 	fi
 
 	X10_CONSTRAINTS=$X10_HOME/x10.constraints
-	if [[ -d $X10_CONSTRAINTS ]]; then
-		rm -rf $X10_CONSTRAINTS
-	fi
 	svnUpdate $X10_CONSTRAINTS $X10_SVNROOT
 	status=$?
 	if (( $status != 0 )); then
@@ -114,9 +87,6 @@ main() {
 	fi
 
 	X10_DIST=$X10_HOME/x10.dist
-	if [[ -d $X10_DIST ]]; then
-		rm -rf $X10_DIST
-	fi
 	svnUpdate $X10_DIST $X10_SVNROOT
 	status=$?
 	if (( $status != 0 )); then
@@ -131,9 +101,6 @@ main() {
 	)
 
 	X10_TESTS=$X10_HOME/x10.tests
-	if [[ -d $X10_TESTS ]]; then
-		rm -rf $X10_TESTS
-	fi
 	svnUpdate $X10_TESTS $X10_SVNROOT
 	status=$?
 	if (( $status != 0 )); then
@@ -151,7 +118,7 @@ main() {
 	else
 	    (cd $X10_DIST; ant dist);
 	fi
-
+	
 	return $?
 }
 

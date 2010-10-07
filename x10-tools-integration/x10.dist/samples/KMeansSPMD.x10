@@ -65,7 +65,7 @@ public class KMeansSPMD {
             val file_points = new Array[Float](num_file_points*dim, init_points);
 
             //val team = Team.WORLD;
-            val team = Team(new Array[Place](num_slices * Place.MAX_PLACES, (i:int) => Place.places(i/num_slices)));
+            val team = Team(new Array[Place](num_slices * Place.MAX_PLACES, (i:int) => Place.place(i/num_slices)));
 
             val num_slice_points = num_global_points / num_slices / Place.MAX_PLACES;
 
@@ -73,7 +73,7 @@ public class KMeansSPMD {
 
                 for ([slice] in 0..num_slices-1) {
 
-                    for (h in Place.places) async at(h) {
+                    for (h in Place.places()) async at(h) {
 
                         val role = here.id * num_slices + slice;
 
@@ -169,11 +169,17 @@ public class KMeansSPMD {
                                 Console.OUT.println(role+": Communication time: "+comm_time/1E9);
                             }
                             team.barrier(role);
+                            if (role==0) {
+                                Console.OUT.println("\nFinal results:");
+                                printClusters(host_clusters,dim);
+                            }
+
                         }
 
                         team.del(role);    
 
                     } // async
+
 
                 } // slice
 

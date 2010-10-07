@@ -31,8 +31,18 @@ final class FullRegion extends Region{rect} {
     public def indexOf(Point):int {
         throw new UnboundedRegionException("indexOf not supported");
     }
-    public def min() = ValRail.make(rank, (Int)=>Int.MIN_VALUE);
-    public def max() = ValRail.make(rank, (Int)=>Int.MAX_VALUE);
+    public def min():(int)=>int {
+        return (i:int) => {
+            if (i<0 || i>=rank) throw new ArrayIndexOutOfBoundsException("min: "+i+" is not a valid rank for "+this);
+            Int.MIN_VALUE
+        };
+    }
+    public def max():(int)=>int {
+        return (i:int) => {
+            if (i<0 || i>=rank) throw new ArrayIndexOutOfBoundsException("max: "+i+" is not a valid rank for "+this);
+            Int.MAX_VALUE
+        };
+    }
     public def intersection(that: Region(rank)): Region(rank) = that;
     public def product(that: Region): Region/*(this.rank+that.rank)*/{
         @TempNoInline_0
@@ -44,9 +54,9 @@ final class FullRegion extends Region{rect} {
             val thatMin = (that as RectRegion).min();
             val thatMax = (that as RectRegion).max();
             val newRank = rank+that.rank;
-            val newMin = ValRail.make[int](newRank, (i:int)=>i<rank?Int.MIN_VALUE:thatMin(i-rank));
-            val newMax = ValRail.make[int](newRank, (i:int)=>i<rank?Int.MAX_VALUE:thatMax(i-rank));
-	    return Region.makeRectangular(newMin,newMax);
+            val newMin = new Array[int](newRank, (i:int)=>i<rank?Int.MIN_VALUE:thatMin(i-rank));
+            val newMax = new Array[int](newRank, (i:int)=>i<rank?Int.MAX_VALUE:thatMax(i-rank));
+            return new RectRegion(newMin,newMax);
         } else {
 	    throw new UnsupportedOperationException("haven't implemented FullRegion product with "+that.typeName());
         }

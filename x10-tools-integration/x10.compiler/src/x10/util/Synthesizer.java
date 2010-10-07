@@ -80,6 +80,7 @@ import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.extension.X10Del;
 import x10.types.FunctionType;
+import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
@@ -102,157 +103,151 @@ import x10.visit.X10TypeChecker;
  *
  */
 public class Synthesizer {
-	
+
 	X10TypeSystem xts;
 	X10NodeFactory xnf;
 	public Synthesizer(X10NodeFactory nf, X10TypeSystem ts) {
-		xts=ts;
-		xnf=nf;
+		xts = ts;
+		xnf = nf;
 	}
-	
 
-	  /**
-   * Create a synthetic MethodDecl from the given data and return
-   * a new Class with this MethodDecl added in. No duplicate method
-   * checks will be performed. It is up to the user to make sure
-   * the constructed method will not duplicate an existing method.
-   * 
-   * Should be called after the class has been typechecked.
-   * @param ct  -- The class to which this code has to be added
-   * @param flags -- The flags for the method
-   * @param name -- The name of the method
-   * @param fmls -- A list of LocalDefs specifying the parameters to the method.
-   * @param returnType -- The return type of this method.
-   * @param trow  -- The types of throwables from the method.
-   * @param block -- The body of the method
-   * @return  this, with the method added.
-   * 
-   * TODO: Ensure that type parameters and a guard can be supplied as well.
-   */
-	
-	 public  X10ClassDecl_c addSyntheticMethod(X10ClassDecl_c ct, Flags flags, 
-			 Name name, List<LocalDef> fmls, 
-			 Type returnType,  Block block) {
-		 assert ct.classDef() != null;
-	     MethodDecl result = makeSyntheticMethod(ct, flags, name,fmls, returnType,  block);
-	     ClassBody b = ct.body();
-	    	b = b.addMember(result);
-	    	ct.classDef().addMethod(result.methodDef());
-	    	return (X10ClassDecl_c) ct.body(b);
-	 }
-	 
-	  /**
-	   * Create a synthetic MethodDecl from the given data and return
-	   * the MethodDecl 
-	   * Should be called after the class has been type-checked.
-	   * 
-	   * @param ct  -- The class to which this code has to be added
-	   * @param flags -- The flags for the method
-	   * @param name -- The name of the method
-	   * @param fmls -- A list of LocalDefs specifying the parameters to the method.
-	   * @param returnType -- The return type of this method.
-	   * @param trow  -- The types of throwables from the method.
-	   * @param block -- The body of the method
-	   * @return  this, with the method added.
-	   * 
-	   */
-	public  MethodDecl makeSyntheticMethod(X10ClassDecl_c ct, Flags flags, 
-			 Name name, List<LocalDef> fmls, 
-			 Type returnType,  Block block) {
-	    	
-	    	
-	    	Position CG = X10NodeFactory_c.compilerGenerated(ct.body());
-	    	List<Expr> args = new ArrayList<Expr>(); //FIXME: what's the usage of the args?
-	    	List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
-	    	List<Formal> formals = new ArrayList<Formal>(fmls.size());
-	    	for (LocalDef f : fmls) {
-	    		Id id = xnf.Id(CG, f.name()); 
+	/**
+	 * Create a synthetic MethodDecl from the given data and return
+	 * a new Class with this MethodDecl added in. No duplicate method
+	 * checks will be performed. It is up to the user to make sure
+	 * the constructed method will not duplicate an existing method.
+	 * 
+	 * Should be called after the class has been typechecked.
+	 * @param ct  -- The class to which this code has to be added
+	 * @param flags -- The flags for the method
+	 * @param typeParameters -- The type parameters of the method.
+	 * @param name -- The name of the method
+	 * @param fmls -- A list of LocalDefs specifying the parameters to the method.
+	 * @param returnType -- The return type of this method.
+	 * @param block -- The body of the method
+	 * @return this, with the method added.
+	 * 
+	 * TODO: Ensure that a guard can be supplied as well.
+	 */
+	public X10ClassDecl_c addSyntheticMethod(X10ClassDecl_c ct, Flags flags, List<ParameterType> typeParameters,
+	        Name name, List<LocalDef> fmls, Type returnType, Block block)
+	{
+	    assert ct.classDef() != null;
+	    MethodDecl result = makeSyntheticMethod(ct, flags, typeParameters,name, fmls, returnType, block);
+	    ClassBody b = ct.body();
+	    b = b.addMember(result);
+	    ct.classDef().addMethod(result.methodDef());
+	    return (X10ClassDecl_c) ct.body(b);
+	}
 
-	    		Formal ff = xnf.Formal(CG,xnf.FlagsNode(CG, Flags.NONE), 
-	    				xnf.CanonicalTypeNode(CG, f.type()),
-	    				id);
-	    		Local loc = xnf.Local(CG, id);
-	    		LocalDef li = xts.localDef(CG, ff.flags().flags(), ff.type().typeRef(), id.id());
-	    		ff = ff.localDef(li);
-	    		loc = loc.localInstance(li.asInstance());
-	    		loc = (Local) loc.type(li.asInstance().type());
-	    		formals.add(ff);
-	    		args.add(loc);
-	    		argTypes.add(li.type());
-	    	}
-	    	FlagsNode newFlags = xnf.FlagsNode(CG, flags);
-	    	TypeNode rt = xnf.CanonicalTypeNode(CG, returnType);
+	/**
+	 * Create a synthetic MethodDecl from the given data and return
+	 * the MethodDecl 
+	 * Should be called after the class has been type-checked.
+	 * 
+	 * @param ct  -- The class to which this code has to be added
+	 * @param flags -- The flags for the method
+	 * @param typeParameters -- The type parameters of the method.
+	 * @param name -- The name of the method
+	 * @param fmls -- A list of LocalDefs specifying the parameters to the method.
+	 * @param returnType -- The return type of this method.
+	 * @param block -- The body of the method
+	 * @return the newly constructed method.
+	 * 
+	 * TODO: Ensure that a guard can be supplied as well.
+	 */
+	public MethodDecl makeSyntheticMethod(X10ClassDecl_c ct, Flags flags, List<ParameterType> typeParameters,
+	        Name name, List<LocalDef> fmls, Type returnType, Block block)
+	{
+	    Position CG = X10NodeFactory_c.compilerGenerated(ct.body());
 
-	    	// Create the method declaration node and the CI.
-	    	MethodDecl result = 
-	    		xnf.MethodDecl(CG, newFlags, rt, xnf.Id(CG,name), formals,  block);
-
-	    	MethodDef rmi = xts.methodDef(CG, Types.ref(ct.classDef().asType()), 
-	    			newFlags.flags(), rt.typeRef(), name, argTypes);
-	    	
-	    	result = result.methodDef(rmi);
-	    return result;
+	    List<TypeParamNode> typeParamNodes = new ArrayList<TypeParamNode>();
+	    for (ParameterType pt : typeParameters) {
+	        typeParamNodes.add(xnf.TypeParamNode(CG, xnf.Id(CG, pt.name())).type(pt));
 	    }
-	 
-	 public static XTerm makeProperty(Type type, XVar receiver, String name) {
-		 X10FieldInstance fi = 
-				X10TypeMixin.getProperty(type, Name.make(name));
-		 if (fi == null)
-			 return null;
-			XName field = XTerms.makeName(fi.def(), 
-					Types.get(fi.def().container()) 
-					+ "#" + fi.name().toString());
-			return XTerms.makeField(receiver, field);
-			
-	 }
-	 
-	 public XTerm makePointRankTerm(XVar receiver) {
-		 return makeProperty(xts.Point(), receiver, "rank");
-	 }
+	    List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
+	    List<Formal> formals = new ArrayList<Formal>(fmls.size());
+	    List<LocalDef> formalNames = new ArrayList<LocalDef>(fmls.size());
+	    for (LocalDef f : fmls) {
+	        Id id = xnf.Id(CG, f.name());
+	        Formal ff = xnf.Formal(CG,xnf.FlagsNode(CG, Flags.NONE),
+	                xnf.CanonicalTypeNode(CG, f.type()), id);
+	        LocalDef li = xts.localDef(CG, ff.flags().flags(), ff.type().typeRef(), id.id());
+	        ff = ff.localDef(li);
+	        formals.add(ff);
+	        formalNames.add(li);
+	        argTypes.add(li.type());
+	    }
+	    FlagsNode newFlags = xnf.FlagsNode(CG, flags);
+	    TypeNode rt = xnf.CanonicalTypeNode(CG, returnType);
 
-	   public XTerm makeRegionRankTerm(XVar receiver) {
-	         return makeProperty(xts.Region(), receiver, "rank");
-	     }
+	    // Create the method declaration node and the CI.
+	    MethodDecl result = 
+	        xnf.X10MethodDecl(CG, newFlags, rt, xnf.Id(CG,name), typeParamNodes, formals, null, null, block);
 
-	 public XTerm makeRectTerm(XVar receiver) {
-		 return makeProperty(xts.Region(), receiver, "rect");
-	 }
-	
-	 public Type addRectConstraint(Type type, XVar receiver) {
-			XTerm v = makeRectTerm(receiver);
-			return X10TypeMixin.addTerm(type, v);
-		 
-	 }
-	 public Type addRectConstraintToSelf(Type type) {
-	     XVar receiver = X10TypeMixin.self(type);
-	     if (receiver == null) {
-	         CConstraint c = new CConstraint();
-	         type = X10TypeMixin.xclause(type, c);
-	         receiver = c.self();
-	     }
-         XTerm v = makeRectTerm(receiver);
-         return X10TypeMixin.addTerm(type, v);
-	 }
+	    MethodDef rmi = xts.methodDef(CG, Types.ref(ct.classDef().asType()), 
+	            newFlags.flags(), rt.typeRef(), name, typeParameters, argTypes, ct.classDef().thisVar(), formalNames, null, null, null, null);
 
-	 /*public Type addRankConstraint(Type type, XVar receiver, int n, X10TypeSystem ts) {
-			XTerm v = makeRegionRankTerm(receiver);
-			XTerm rank = XTerms.makeLit(new Integer(n));
-			return X10TypeMixin.addBinding(type, v, rank);
-		 
-	 }
-	 public Type addRankConstraintToSelf(Type type,  int n, X10TypeSystem ts) {
-		 XVar receiver = X10TypeMixin.self(type);
-		 if (receiver == null) {
-			 CConstraint c = new CConstraint();
-			 type = X10TypeMixin.xclause(type, c);
-			 receiver = c.self();
-		 }
-		 XTerm v = makeRegionRankTerm(receiver);
-		 XTerm rank = XTerms.makeLit(new Integer(n));
-		 return X10TypeMixin.addBinding(type, v, rank);
+	    result = result.methodDef(rmi);
+	    return result;
+	}
 
-	 }*/
-	 
+	public static XTerm makeProperty(Type type, XVar receiver, String name) {
+	    X10FieldInstance fi = X10TypeMixin.getProperty(type, Name.make(name));
+	    if (fi == null)
+	        return null;
+	    XName field = XTerms.makeName(fi.def(), Types.get(fi.def().container()) + "#" + fi.name().toString());
+	    return XTerms.makeField(receiver, field);
+	}
+
+	public XTerm makePointRankTerm(XVar receiver) {
+	    return makeProperty(xts.Point(), receiver, "rank");
+	}
+
+	public XTerm makeRegionRankTerm(XVar receiver) {
+	    return makeProperty(xts.Region(), receiver, "rank");
+	}
+
+	public XTerm makeRectTerm(XVar receiver) {
+	    return makeProperty(xts.Region(), receiver, "rect");
+	}
+
+	public Type addRectConstraint(Type type, XVar receiver) {
+	    XTerm v = makeRectTerm(receiver);
+	    return X10TypeMixin.addTerm(type, v);
+	}
+
+	public Type addRectConstraintToSelf(Type type) {
+	    XVar receiver = X10TypeMixin.self(type);
+	    if (receiver == null) {
+	        CConstraint c = new CConstraint();
+	        type = X10TypeMixin.xclause(type, c);
+	        receiver = c.self();
+	    }
+	    XTerm v = makeRectTerm(receiver);
+	    return X10TypeMixin.addTerm(type, v);
+	}
+
+	/*
+	public Type addRankConstraint(Type type, XVar receiver, int n, X10TypeSystem ts) {
+	    XTerm v = makeRegionRankTerm(receiver);
+	    XTerm rank = XTerms.makeLit(new Integer(n));
+	    return X10TypeMixin.addBinding(type, v, rank);
+	}
+
+	public Type addRankConstraintToSelf(Type type,  int n, X10TypeSystem ts) {
+	    XVar receiver = X10TypeMixin.self(type);
+	    if (receiver == null) {
+	        CConstraint c = new CConstraint();
+	        type = X10TypeMixin.xclause(type, c);
+	        receiver = c.self();
+	    }
+	    XTerm v = makeRegionRankTerm(receiver);
+	    XTerm rank = XTerms.makeLit(new Integer(n));
+	    return X10TypeMixin.addBinding(type, v, rank);
+	}
+	*/
+
 	 /**
 	  * If formal = p(x) construct
 	  *  for|foreach|ateach ( var _gen = low; _gen <= high; _gen++) {
@@ -831,7 +826,7 @@ public class Synthesizer {
      *            the inner classes to be inserted into the class
      * @return A newly created class with inner classes as members
      */
-    public X10ClassDecl addInnerClasses(X10ClassDecl cDecl, List<X10ClassDecl> innerClasses) {
+    public static X10ClassDecl addInnerClasses(X10ClassDecl cDecl, List<X10ClassDecl> innerClasses) {
 
         List<ClassMember> cMembers = new ArrayList<ClassMember>();
         ClassBody body = cDecl.body();
@@ -859,7 +854,7 @@ public class Synthesizer {
      * @param methods The methods to be inserted in
      * @return A newly created class with methods as members
      */
-    public X10ClassDecl addMethods(X10ClassDecl cDecl, List<X10MethodDecl> methods){
+    public static X10ClassDecl addMethods(X10ClassDecl cDecl, List<X10MethodDecl> methods){
         List<ClassMember> cm = new ArrayList<ClassMember>();
         cm.addAll(cDecl.body().members());
         cm.addAll(methods);

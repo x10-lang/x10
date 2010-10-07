@@ -46,6 +46,7 @@ import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.LazyRef;
 import polyglot.types.LazyRef_c;
+import polyglot.types.LocalDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
 import polyglot.types.Named;
@@ -73,13 +74,17 @@ import x10.extension.X10Del_c;
 import x10.types.MacroType;
 import x10.types.ParameterType;
 import x10.types.TypeDef;
+import x10.types.TypeParamSubst;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassDef_c;
 import x10.types.X10ClassType;
 import x10.types.X10Context;
 import x10.types.X10FieldInstance;
 import x10.types.X10Flags;
+import x10.types.X10LocalDef;
 import x10.types.X10MethodDef;
+import x10.types.X10MethodInstance;
+import x10.types.X10ParsedClassType;
 
 import x10.types.X10TypeMixin;
 import x10.types.X10TypeSystem;
@@ -88,7 +93,6 @@ import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.util.Synthesizer;
 import x10.visit.ChangePositionVisitor;
-import x10.visit.CheckEscapingThis;
 
 /**
  * The same as a Java class, except that it needs to handle properties.
@@ -239,6 +243,35 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     }
 
     @Override
+    public X10ClassDecl flags(FlagsNode flags) {
+        return (X10ClassDecl) super.flags(flags);
+    }
+    @Override
+    public X10ClassDecl name(Id name) {
+        return (X10ClassDecl) super.name(name);
+    }
+    @Override
+    public X10ClassDecl superClass(TypeNode superClass) {
+        return (X10ClassDecl) super.superClass(superClass);
+    }
+    @Override
+    public X10ClassDecl body(ClassBody body) {
+        return (X10ClassDecl) super.body(body);
+    }
+    @Override
+    public X10ClassDecl interfaces(List<TypeNode> interfaces) {
+        return (X10ClassDecl) super.interfaces(interfaces);
+    }
+    @Override
+    public X10ClassDecl classDef(ClassDef cd) {
+        return (X10ClassDecl) super.classDef(cd);
+    }
+    @Override
+    public X10ClassDef classDef() {
+        return (X10ClassDef) super.classDef();
+    }
+
+    @Override
     public Context enterScope(Context c) {
     	return c.pushBlock();
     }
@@ -346,26 +379,27 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         TypeBuilder childTb = tb.pushClass(def);
         
         List<TypeParamNode> pas = n.visitList(n.typeParameters, childTb);
-        pas = new LinkedList<TypeParamNode>(pas);
-        
-        if (def.isMember() && ! def.flags().isStatic()) {
-            X10ClassDef outer = (X10ClassDef) Types.get(def.outer());
-            while (outer != null) {
-                X10NodeFactory nf = (X10NodeFactory) tb.nodeFactory();
-                for (int i = 0; i < outer.typeParameters().size(); i++) {
-                    ParameterType pt = outer.typeParameters().get(i);
-                    TypeParamNode tpn = nf.TypeParamNode(pt.position(), nf.Id(pt.position(), pt.name()));
-                    tpn = tpn.variance(outer.variances().get(i));
-                    tpn = (TypeParamNode) n.visitChild(tpn, childTb);
-                    pas.add(tpn);
-                }
-                
-                if (outer.isMember())
-                    outer = (X10ClassDef) Types.get(outer.outer());
-                else
-                    outer = null;
-            }
-        }
+        // [IP] Don't do this here.  It's the job of X10InnerClassRemover
+//        pas = new LinkedList<TypeParamNode>(pas);
+//        
+//        if (def.isMember() && ! def.flags().isStatic()) {
+//            X10ClassDef outer = (X10ClassDef) Types.get(def.outer());
+//            while (outer != null) {
+//                X10NodeFactory nf = (X10NodeFactory) tb.nodeFactory();
+//                for (int i = 0; i < outer.typeParameters().size(); i++) {
+//                    ParameterType pt = outer.typeParameters().get(i);
+//                    TypeParamNode tpn = nf.TypeParamNode(pt.position(), nf.Id(pt.position(), pt.name()));
+//                    tpn = tpn.variance(outer.variances().get(i));
+//                    tpn = (TypeParamNode) n.visitChild(tpn, childTb);
+//                    pas.add(tpn);
+//                }
+//                
+//                if (outer.isMember())
+//                    outer = (X10ClassDef) Types.get(outer.outer());
+//                else
+//                    outer = null;
+//            }
+//        }
         
         n = (X10ClassDecl_c) n.typeParameters(pas);
         
@@ -510,24 +544,24 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	X10NodeFactory xnf = (X10NodeFactory) tc.nodeFactory();
     	X10ClassType targetType = (X10ClassType) n.classDef().asType();
     	List<X10ClassType> interfaces = xts.allImplementedInterfaces(targetType, false);
-    	LinkedList<MethodInstance> candidates = new LinkedList<MethodInstance>();
+    	LinkedList<X10MethodInstance> candidates = new LinkedList<X10MethodInstance>();
 
     	for (X10ClassType intface : interfaces) {
     	    List<MethodInstance> oldMethods = intface.methods();
     	    for (MethodInstance mi : oldMethods) {
-    	        MethodInstance mj = xts.findImplementingMethod(targetType, mi, true, tc.context());
+    	        X10MethodInstance mj = xts.findImplementingMethod(targetType, mi, true, tc.context());
 
     	        if (mj == null) { // This method is not already defined for this class
-    	            candidates.add(mi);
+    	            candidates.add((X10MethodInstance) mi);
     	        }
     	    }
     	} // interfaces
     	// Remove overridden methods -- happens with covariant return types.
-    	List<MethodInstance> results = new LinkedList<MethodInstance>(); 
+    	List<X10MethodInstance> results = new LinkedList<X10MethodInstance>(); 
     	Context context = xts.createContext();
     	OUTER: while (! candidates.isEmpty()) {
-    	    MethodInstance mi = candidates.removeFirst();
-    	    for (MethodInstance other : candidates) {
+    	    X10MethodInstance mi = candidates.removeFirst();
+    	    for (X10MethodInstance other : candidates) {
     	        if (other.canOverride(mi, context))
     	            continue OUTER;
     	    }
@@ -535,15 +569,21 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
 
     	}
     	Synthesizer synth = new Synthesizer(xnf, xts);
-    	for (MethodInstance mi : results) {
+    	for (X10MethodInstance mi : results) {
     	    Id name = xnf.Id(CG, mi.name());
-    	    n = synth.addSyntheticMethod(n,
+    	    TypeParamSubst subst = ((X10ParsedClassType) mi.container()).subst();
+    	    List<LocalDef> formalNames = new ArrayList<LocalDef>();
+    	    for (LocalDef f : ((X10MethodDef) mi.def()).formalNames()) {
+    	        X10LocalDef tf = (X10LocalDef) f.copy();
+    	        tf.setType(subst.reinstantiate(f.type()));
+                formalNames.add(tf);
+            }
+            n = synth.addSyntheticMethod(n,
     	            mi.flags().Public().Abstract(),
+    	            ((X10MethodDef) mi.def()).typeParameters(),
     	            mi.name(),
-    	            ((X10MethodDef) mi.def()).formalNames(),
-    	            mi.returnType(),
-    	        
-    	            null);
+    	            formalNames,
+    	            mi.returnType(), null);
     	}
     	return n;
     }
@@ -700,8 +740,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
             if (xts.hasUnknown(t))
                 return;
             if (! t.isClass() || t.toClass().flags().isInterface()) {
-                throw new SemanticException("Cannot extend type " + t + "; not a class.",
-                        superClass != null ? superClass.position() : position());
+                throw new SemanticException("Cannot extend type " + t + "; not a class.", superClass != null ? superClass.position() : position());
             }
             ts.checkCycles((ReferenceType) t);
         }
@@ -713,8 +752,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
                 throw new SemanticException(); // already reported
             if (! t.isClass() || ! t.toClass().flags().isInterface()) {
                 String s = type.flags().isInterface() ? "extend" : "implement";
-                throw new SemanticException("Cannot " + s + " type " + t + "; not an interface.",
-                        position());
+                throw new SemanticException("Cannot " + s + " type " + t + "; not an interface.", position());
             }
             
             ts.checkCycles((ReferenceType) t);
@@ -771,8 +809,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	                s.name().endsWith("/" + type.name() + ".x10")))
     	        {
     	            Errors.issue(tc.job(),
-    	                    new SemanticException("Public type " + type.fullName()
-    	                            + " must be declared in " + type.name() + ".x10.", result.position()));
+    	                    new SemanticException("Public type " + type.fullName() + " must be declared in " + type.name() + ".x10.", result.position()));
     	        }
     	    }
     	}
@@ -784,8 +821,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
 
     	if (flags.flags().isInterface() && superClass != null) {
     		Errors.issue(tc.job(),
-    		        new SemanticException("Interface " + this.type + " cannot have a superclass.",
-    		                superClass.position()));
+    		        new SemanticException("Interface " + this.type + " cannot have a superclass.", superClass.position()));
     	}
 
 

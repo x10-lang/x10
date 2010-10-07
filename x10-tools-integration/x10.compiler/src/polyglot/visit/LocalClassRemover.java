@@ -81,8 +81,11 @@ public class LocalClassRemover extends ContextVisitor {
 	}
     }
 
-    public LocalClassRemover(Job job, TypeSystem ts, NodeFactory nf) {
-	super(job, ts, nf);
+    protected final InnerClassRemover icrv;
+
+    public LocalClassRemover(InnerClassRemover icrv) {
+	super(icrv.job(), icrv.typeSystem(), icrv.nodeFactory());
+	this.icrv = icrv;
     }
 
     Map<Pair<LocalDef, ClassDef>, FieldDef> fieldForLocal = new HashMap<Pair<LocalDef, ClassDef>, FieldDef>();
@@ -121,10 +124,10 @@ public class LocalClassRemover extends ContextVisitor {
 		    // Rewrite the constructor calls in the class declaration
 		    cd = (ClassDecl) rewriteConstructorCalls(cd, cd.classDef(), (List<FieldDef>)hashGet(newFields, cd.classDef(), Collections.<FieldDef>emptyList()));
 
-		    // Process nested local classes recursively
-		    cd = (ClassDecl) n.visitChild(cd, this);
-
+		    // Nested local classes will be visited later
+		    //cd = (ClassDecl) n.visitChild(cd, this);
 		    ss.remove(i); // Remove the local class declaration
+		    hashAdd(orphans, context.currentClassDef(), cd);
 
 		    if (cd != lcd.decl()) {
 			// Rewrite the constructor calls in the remaining statements
@@ -134,8 +137,6 @@ public class LocalClassRemover extends ContextVisitor {
 			    ss.set(j, sj);
 			}
 		    }
-
-		    hashAdd(orphans, context.currentClassDef(), cd);
 
 		    i--;
 		}
@@ -286,6 +287,7 @@ public class LocalClassRemover extends ContextVisitor {
 	    if (o == null)
 		return cd;
 	    ClassBody b = cd.body();
+	    o = b.visitList(o, this);
 	    List<ClassMember> members = new ArrayList<ClassMember>();
 	    members.addAll(b.members());
 	    members.addAll(o);
@@ -314,7 +316,7 @@ public class LocalClassRemover extends ContextVisitor {
 
     protected ClassDecl rewriteLocalClass(ClassDecl cd, List<FieldDef> newFields) {
 	cd = cd.body((ClassBody) rewriteConstructorCalls(cd.body(), cd.classDef(), newFields));
-	return InnerClassRemover.addFieldsToClass(cd, newFields, ts, nf, false);
+	return icrv.addFieldsToClass(cd, newFields, ts, nf, false);
     }
 
     protected

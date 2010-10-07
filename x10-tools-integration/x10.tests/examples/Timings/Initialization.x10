@@ -16,11 +16,10 @@ import harness.x10Test;
  */
 public class Initialization extends x10Test {
 
-	var _tests: ValRail[String] = [ "testDouble" ];
 	static kArraySize: int = 500;
 	var x_doubleArray1D: DistArray[double];
 	var x_doubleArray2D: DistArray[double];
-	var x_javaArray: Rail[double];
+	var x_javaArray: Array[double];
 	var x_intArray1D: DistArray[int];
 
 	public def run(): boolean = {
@@ -29,22 +28,22 @@ public class Initialization extends x10Test {
 		val OneDSize: int = kArraySize * kArraySize;
 
 		start = System.currentTimeMillis();
-		x10.io.Console.OUT.println("creating java array size "+OneDSize);
-		x_javaArray = Rail.make[double](OneDSize);
+		x10.io.Console.OUT.println("creating array size "+OneDSize);
+		x_javaArray = new Array[double](OneDSize);
 		stop = System.currentTimeMillis();
 		x10.io.Console.OUT.println("Created array in "+(((stop-start) as double)/1000)+" seconds");
 
 		start = System.currentTimeMillis();
-		x10.io.Console.OUT.println("creating array size "+OneDSize);
-		var r: Region = [0..OneDSize];
-		val D: Dist = Dist.makeBlock(r);
+		x10.io.Console.OUT.println("creating dist array size "+OneDSize);
+		val r = 0..OneDSize;
+		val D = Dist.makeBlock(r);
 		x_doubleArray1D = DistArray.make[double](D);
 		stop = System.currentTimeMillis();
 		x10.io.Console.OUT.println("Created array in "+(((stop-start) as double)/1000)+" seconds");
 
 		x10.io.Console.OUT.println("creating array ["+kArraySize+","+kArraySize+"] ("+(kArraySize*kArraySize)+")");
-		var r2: Region = [0..kArraySize, 0..kArraySize];
-		val D2: Dist = Dist.makeBlock(r2);
+		val r2 = (0..kArraySize)*(0..kArraySize);
+		val D2 = Dist.makeBlock(r2);
 		x10.io.Console.OUT.println("Start allocation...");
 		start = System.currentTimeMillis();
 		x_doubleArray2D = DistArray.make[double](D2);
@@ -60,7 +59,7 @@ public class Initialization extends x10Test {
 		return true;
 	}
 
-	public static def main(var args: Array[String](1)): void = {
+	public static def main(Array[String](1)):void {
 		new Initialization().execute();
 	}
 }

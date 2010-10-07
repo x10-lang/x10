@@ -22,16 +22,18 @@ import harness.x10Test;
 public class ClockAsyncTest2 extends x10Test {
 
 	public def run(): boolean = {
-	   finish async {
-	      val clocks  = Rail.make[Clock]([ Clock.make() ]);
-	      async clocked (clocks(0)){
-		    next;
-	      }
-	    }
+           val clocks = [Clock.make()];
+	   finish {
+              async clocked (clocks(0)) {
+	          async clocked (clocks(0)){
+		      next;
+	          }
+	        }
+	    	clocks(0).drop();
+            }
 	    return true;
         }
 
-	
 
 	public static def main(Array[String](1)){
 		new ClockAsyncTest2().execute();

@@ -45,6 +45,10 @@ public class X10LocalDef_c extends LocalDef_c implements X10LocalDef {
         super(ts, pos, flags, type, name);
         // TODO: Add the {self==name} constraint to the type
     }
+
+    private boolean isAsyncInit = false;
+    public void setAsyncInit() { isAsyncInit = true; }
+    public boolean isAsyncInit() { return isAsyncInit; }
     
     public String toString() {
 	ConstantValue cv = constantRef.getCached();

@@ -36,9 +36,7 @@ public class CanonicalTypeNode_c extends TypeNode_c implements CanonicalTypeNode
           ClassType ct = type.get().toClass();
           if (ct.isTopLevel() || ct.isMember()) {
               if (! ts.classAccessible(ct.def(), tc.context())) {
-                  throw new SemanticException("Cannot access class \"" +
-                      ct + "\" from the body of \"" +
-                      tc.context().currentClass() + "\".", position());
+                  throw new SemanticException("Cannot access class \"" + ct + "\" from the body of \"" + tc.context().currentClass() + "\".", position());
               }
           }
       }

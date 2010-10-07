@@ -117,8 +117,7 @@ public class ArrayInit_c extends Expr_c implements ArrayInit
     	TypeSystem ts = tc.typeSystem();
 
         if (! lhsType.isArray()) {
-          throw new SemanticException("Cannot initialize " + lhsType +
-                                      " with " + type + ".", position());
+          throw new SemanticException("Cannot initialize " + lhsType + " with " + type + ".", position());
         }
 
         // Check if we can assign each individual element.
@@ -136,8 +135,7 @@ public class ArrayInit_c extends Expr_c implements ArrayInit
             if (! ts.isImplicitCastValid(s, t, tc.context()) &&
                 ! ts.typeEquals(s, t, tc.context()) &&
                 ! ts.numericConversionValid(t, e.constantValue(), tc.context())) {
-                throw new SemanticException("Cannot assign " + s +
-                                            " to " + t + ".", e.position());
+                throw new SemanticException("Cannot assign " + s + " to " + t + ".", e.position());
             }
         }
     }

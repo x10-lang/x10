@@ -18,7 +18,7 @@ import harness.x10Test;
 public class Array3DoubleSwapped extends x10Test {
 
     public def run(): boolean = {
-        val r  = [1..10, 1..10] as Region;
+        val r  = (1..10)*(1..10);
         val ia = new Array[Double](r, (x:Point)=>0.0D);
         ia(1, 1) = 42.0D;
         x10.io.Console.OUT.println("ia(1,1)=" + ia(1,1));

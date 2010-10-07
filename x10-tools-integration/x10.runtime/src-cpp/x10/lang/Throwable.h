@@ -27,7 +27,7 @@ namespace x10 {
     namespace lang {
 
         class String;
-        template<class T> class ValRail;
+        template<class T> class Rail;
 
         class Throwable : public Object {
         public:
@@ -47,7 +47,7 @@ namespace x10 {
 
             // Computing the human-readable form of the backtrace is expensive.
             // Once we do it, keep it around for future use.
-            typedef x10aux::ref<x10::lang::ValRail<x10aux::ref<x10::lang::String> > > StringRail;
+            typedef x10aux::ref<x10::lang::Rail<x10aux::ref<x10::lang::String> > > StringRail;
             StringRail FMGL(cachedStackTrace);
             
             static x10aux::ref<Throwable> _make();

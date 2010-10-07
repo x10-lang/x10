@@ -18,16 +18,8 @@ public class ULongType<T> extends RuntimeType<T> {
         super(c);
     }
 
-    public ULongType(Class<?> c, Variance... variances) {
-        super(c, variances);
-    }
-
     public ULongType(Class<?>c, Type<?>[] parents) {
         super(c, parents);
-    }
-
-    public ULongType(Class<?> c, Variance[] variances, Type<?>[] parents) {
-        super(c, variances, parents);
     }
 
     @Override

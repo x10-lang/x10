@@ -150,9 +150,7 @@ public class Try_c extends Stmt_c implements Try
             
             // Check if the exception has already been caught.
             if (caught.contains(catchType)) {
-                throw new SemanticException("The exception \"" +
-                                            catchType + "\" has been caught by an earlier catch block.",
-                                            cb.position()); 
+                throw new SemanticException("The exception \"" +catchType + "\" has been caught by an earlier catch block.",cb.position());
             }
             
             caught.add(catchType);

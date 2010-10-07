@@ -21,8 +21,8 @@ import x10.util.Future;
 public class ArrayFutureFlatten extends x10Test {
 
     public def run(): boolean = { 
-        val A = new Array[int]([1..10, 1..10], (Point)=>0);
-        val B = new Array[int]([1..10, 1..10], (Point)=>0);
+        val A = new Array[int]((1..10)*(1..10), (Point)=>0);
+        val B = new Array[int]((1..10)*(1..10), (Point)=>0);
         val b = (Future.make[int](()=>3))();
         chk(0 == (Future.make[int](()=>B(1,1))()));
         return true;

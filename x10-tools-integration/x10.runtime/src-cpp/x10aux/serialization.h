@@ -16,6 +16,7 @@
 #include <x10aux/config.h>
 
 #include <x10aux/ref.h>
+#include <x10aux/captured_lval.h>
 #include <x10aux/alloc.h>
 #include <x10aux/deserialization_dispatcher.h>
 
@@ -225,6 +226,8 @@ namespace x10aux {
         // Default case for primitives and other things that never contain pointers
         template<class T> struct Write;
         template<class T> struct Write<ref<T> >;
+        template<class T> struct Write<captured_ref_lval<T> >;
+        template<class T> struct Write<captured_struct_lval<T> >;
         template<typename T> void write(const T &val);
 
         // So it can access the addr_map
@@ -264,6 +267,17 @@ namespace x10aux {
         code_bytes((TYPE*)buf.cursor); \
         buf.cursor += sizeof(TYPE); \
     }
+    #define PRIMITIVE_VOLATILE_WRITE(TYPE) \
+    template<> inline void serialization_buffer::Write<volatile TYPE>::_(serialization_buffer &buf, \
+                                                                         const volatile TYPE &val) {\
+        _S_("Serializing "<<star_rating<TYPE>()<<" a volatile "<<ANSI_SER<<TYPENAME(TYPE)<<ANSI_RESET<<": " \
+                          <<val<<" into buf: "<<&buf); \
+        /* *(TYPE*) buf.cursor = val; // Cannot do this because of alignment */ \
+        if (buf.cursor + sizeof(TYPE) >= buf.limit) buf.grow(); \
+        memcpy(buf.cursor, const_cast<TYPE*>(&val), sizeof(TYPE));  \
+        code_bytes((TYPE*)buf.cursor); \
+        buf.cursor += sizeof(TYPE); \
+    }
     PRIMITIVE_WRITE(x10_boolean)
     PRIMITIVE_WRITE_AS_INT(x10_byte)
     PRIMITIVE_WRITE_AS_INT(x10_ubyte)
@@ -278,7 +292,10 @@ namespace x10aux {
     PRIMITIVE_WRITE(x10_double)
     //PRIMITIVE_WRITE(x10_addr_t) // already defined above
     //PRIMITIVE_WRITE(remote_ref)
-    
+        
+    PRIMITIVE_VOLATILE_WRITE(x10_int)
+    PRIMITIVE_VOLATILE_WRITE(x10_long)
+        
     // Case for references e.g. ref<Reference>, 
     template<class T> struct serialization_buffer::Write<ref<T> > {
         static void _(serialization_buffer &buf, ref<T> val);
@@ -302,6 +319,29 @@ namespace x10aux {
         // Depends what T is (interface/Object/Closure)
         T::_serialize(val,buf);
     }
+    
+    // Case for captured stack variables e.g. captured_ref_lval<T> and captured_struct_lval<T>.
+    template<class T> struct serialization_buffer::Write<captured_ref_lval<T> > {
+        static void _(serialization_buffer &buf, captured_ref_lval<T> val);
+    };
+    template<class T> void serialization_buffer::Write<captured_ref_lval<T> >::_(serialization_buffer &buf,
+                                                                                 captured_ref_lval<T> val) {
+        _S_("Serializing a stack variable of type ref<"<<ANSI_SER<<ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET<<"> into buf: "<<&buf);
+        x10_long capturedAddress = val.capturedAddress();
+        _S_("\tCaptured address is "<<((void*)capturedAddress));
+        buf.write(capturedAddress);
+    }
+    template<class T> struct serialization_buffer::Write<captured_struct_lval<T> > {
+        static void _(serialization_buffer &buf, captured_struct_lval<T> val);
+    };
+    template<class T> void serialization_buffer::Write<captured_struct_lval<T> >::_(serialization_buffer &buf,
+                                                                                    captured_struct_lval<T> val) {
+        _S_("Serializing a stack variable of type "<<ANSI_SER<<ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET<<" into buf: "<<&buf);
+        x10_long capturedAddress = val.capturedAddress();
+        _S_("\tCaptured address is "<<((void*)capturedAddress));
+        buf.write(capturedAddress);
+    }
+
     
     template<typename T> void serialization_buffer::write(const T &val) {
         Write<T>::_(*this,val);
@@ -428,11 +468,43 @@ namespace x10aux {
         return T::template _deserialize<T>(buf);
     }
 
+    // Case for captured stack addresses, captured_ref_lval<T> and captured_struct_lval<T>
+    template<class T> struct deserialization_buffer::Read<captured_ref_lval<T> > {
+        GPUSAFE static captured_ref_lval<T> _(deserialization_buffer &buf);
+    };
+    template<class T> captured_ref_lval<T> deserialization_buffer::Read<captured_ref_lval<T> >::_(deserialization_buffer &buf) {
+        _S_("Deserializing a stack variable of type ref<"<<ANSI_SER<<ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET<<"> from buf: "<<&buf);
+        x10_long addr = buf.read<x10_long>();
+        _S_("\tCaptured address is "<<((void*)addr));
+        x10aux::captured_ref_lval<T> result;
+        result.setCapturedAddress(addr);
+        return result;
+    }
+    template<class T> struct deserialization_buffer::Read<captured_struct_lval<T> > {
+        GPUSAFE static captured_struct_lval<T> _(deserialization_buffer &buf);
+    };
+    template<class T> captured_struct_lval<T> deserialization_buffer::Read<captured_struct_lval<T> >::_(deserialization_buffer &buf) {
+        _S_("Deserializing a stack variable of type "<<ANSI_SER<<ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET<<" from buf: "<<&buf);
+        x10_long addr = buf.read<x10_long>();
+        _S_("\tCaptured address is "<<((void*)addr));
+        x10aux::captured_struct_lval<T> result;
+        result.setCapturedAddress(addr);
+        return result;
+    }
+
+    
     template<typename T> GPUSAFE T deserialization_buffer::read() {
         return Read<T>::_(*this);
+    }
+
+    template <class T> T deep_copy(T o) {
+        serialization_buffer buf;
+        buf.write(o);
+        deserialization_buffer buf2(buf.borrow());
+        T res = buf2.read<T>();
+        return res;
     }
 }
 
 #endif
 // vim:tabstop=4:shiftwidth=4:expandtab:textwidth=100
-

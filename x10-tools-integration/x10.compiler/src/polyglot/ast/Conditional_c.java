@@ -105,9 +105,7 @@ public class Conditional_c extends Expr_c implements Conditional
         Type t2 = e2.type();
       
         if (! cond.type().isBoolean()) {
-            throw new SemanticException(
-                                        "Condition of ternary expression must be of type boolean.",
-                                        cond.position());
+            throw new SemanticException("Condition of ternary expression must be of type boolean.",cond.position());
         }
 
         // From the JLS, section:
@@ -172,8 +170,7 @@ public class Conditional_c extends Expr_c implements Conditional
             }
         }
 
-        throw new SemanticException("Could not determine type of ternary conditional expression; cannot assign " + t1 + " to " + t2 + " or vice versa.",
-                                    position());
+        throw new SemanticException("Could not determine type of ternary conditional expression; cannot assign " + t1 + " to " + t2 + " or vice versa.",position());
    }
 
     public Type childExpectedType(Expr child, AscriptionVisitor av) {

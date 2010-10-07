@@ -16,6 +16,7 @@ import polyglot.ast.ForInit;
 import polyglot.ast.ForUpdate;
 import polyglot.ast.NodeList;
 import polyglot.visit.NodeVisitor;
+import x10.visit.ExpressionFlattener;
 
 /** A StmtSeq is an immutable representation of a sequence of statements. Usually 
  * sequences of statements are represented in a block. However a block 
@@ -31,7 +32,7 @@ import polyglot.visit.NodeVisitor;
  * that infrastructure unchanged while enabling us to rewrite a statement into
  * a sequence of statements.
  * @see NodeVisitor
- * @see x10.visit.ExprFlattener
+ * @see ExpressionFlattener
  * @author vj
  *
  */

@@ -186,7 +186,7 @@ public abstract class Dist(
      * @param ps the rail of places
      * @return a "unique" distribution over the places in ps
      */
-    public static def makeUnique(ps:ValRail[Place]):Dist(1)
+    public static def makeUnique(ps:Sequence[Place]):Dist(1)
         = BaseDist.makeUnique1(ps);
 
     /**
@@ -259,16 +259,21 @@ public abstract class Dist(
     //
 
     /**
-     * Return the set of places that this distribution maps some point to.
-     * TODO:Change to Iterable[Place]?
+     * @return an object that implements Iterable[Place] that can be used to
+     *         iterate over the set of Places that this distribution maps some point to.
      */
-    abstract public def places():ValRail[Place];
+    abstract public def places():Sequence[Place];
 
     /**
-     * Return the set of regions that this distribution maps some place to.
-     * TODO:Change to (Place)=>Region;
+     * How many places are included in the distribution?
      */
-    abstract public def regions():ValRail[Region(rank)]; // essentially regionMap().values()
+    abstract public def numPlaces():int;
+
+    /**
+     * @return an object that implements Iterable[Region] that can be used to
+     *         iterate over the set of Regions that this distribution maps some point to.
+     */
+    abstract public def regions():Iterable[Region(rank)];
 
     /**
      * Return the region consisting of points which this distribution
@@ -367,7 +372,7 @@ public abstract class Dist(
      * @return an iterator over the points in the region of this distribution.
      * @see x10.lang.Iterable[T]#iterator()
      */
-    public def iterator():Iterator[Point{self.rank==region.rank}] = region.iterator() as Iterator[Point{self.rank==region.rank}];
+    public def iterator():Iterator[Point(region.rank)] = region.iterator();
 
 
     //
@@ -420,7 +425,7 @@ public abstract class Dist(
      * @return true if that is a sub-distribution of this distribution.
      */
     public def isSubdistribution(that:Dist(rank)): boolean {
-        for (p:Place in Place.places)
+        for (p:Place in Place.places())
             if (!that.get(p).contains(this.get(p)))
                 return false;
         return true;

@@ -20,12 +20,13 @@ import polyglot.ast.Id;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.TypeNode;
 import polyglot.types.MethodDef;
+import x10.types.X10MethodDef;
 
-public interface X10MethodDecl extends MethodDecl {
+public interface X10MethodDecl extends MethodDecl, Guarded {
 	// The method's guard.
 	DepParameterExpr guard();
 	X10MethodDecl guard(DepParameterExpr e);
-	
+
 	List<TypeParamNode> typeParameters();
 	X10MethodDecl typeParameters(List<TypeParamNode> typeParams);
 
@@ -37,4 +38,5 @@ public interface X10MethodDecl extends MethodDecl {
 	X10MethodDecl name(Id name);
 	X10MethodDecl formals(List<Formal> formals);
 	X10MethodDecl methodDef(MethodDef mi);
+	X10MethodDef methodDef();
 }

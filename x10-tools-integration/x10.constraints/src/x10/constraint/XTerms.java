@@ -169,6 +169,9 @@ public class XTerms {
 	public static final XField makeField(XVar receiver, XName field) {
 		return new XField(receiver, field);
 	}
+	public static final XField makeFakeField(XVar receiver, XName field) {
+		return new XField(receiver, field, true);
+	}
 	
 
     /** Make and return a literal containing o. null, true and false are

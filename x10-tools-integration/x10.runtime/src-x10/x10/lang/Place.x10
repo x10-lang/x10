@@ -79,13 +79,15 @@ public final struct Place(id: Int)  {
     @Native("c++", "x10aux::child_index(#1)")
     public static def childIndex(id:Int):Int { throw new BadPlaceException(); }
 
-    public static places = ValRail.make[Place](MAX_PLACES, ((id: Int) => Place(id)));
-    public static children = ValRail.make[ValRail[Place]](
-                                ALL_PLACES,
-                                (p: Int) => ValRail.make[Place](numChildren(p),
-                                                                (i:Int) => Place(child(p,i))));
+    private static childrenArray = 
+        new Array[Array[Place](1)](ALL_PLACES,
+                                   (p: Int) => new Array[Place](numChildren(p), (i:Int) => Place(child(p,i))));
+
+    private static places = new Array[Place](MAX_PLACES, ((id:Int) => Place(id)));
+    public static def places():Sequence[Place]=places.sequence();
+    public static children = childrenArray.values();
     public static NUM_ACCELS = ALL_PLACES - MAX_PLACES;
-    public static FIRST_PLACE: Place(0) = places(0) as Place(0);
+    public static FIRST_PLACE:Place(0) = Place(0);
 
     public def this(id: Int):Place(id) { property(id); }
 
@@ -101,21 +103,23 @@ public final struct Place(id: Int)  {
         }
         // FIXME: iterate through peers
         return this;
-	}
+    }
 
-	public def isFirst(): Boolean = id == 0;
-	public def isLast(): Boolean = id == MAX_PLACES - 1;
+    public static def numPlaces():int = ALL_PLACES;
 
-	public def isHost(): Boolean = isHost(id);
-	public def isSPE(): Boolean = isSPE(id);
-	public def isCUDA(): Boolean = isCUDA(id);
+    public def isFirst(): Boolean = id == 0;
+    public def isLast(): Boolean = id == MAX_PLACES - 1;
+
+    public def isHost(): Boolean = isHost(id);
+    public def isSPE(): Boolean = isSPE(id);
+    public def isCUDA(): Boolean = isCUDA(id);
 
     public def numChildren() = numChildren(id);
     public def child(i:Int) = Place(child(id,i));
 
-    public def children() = children(id);
+    public def children() = childrenArray(id);
 
-    public def parent() = places(parent(id));
+    public def parent() = Place(parent(id));
 
     public def childIndex() {
         if (isHost()) {

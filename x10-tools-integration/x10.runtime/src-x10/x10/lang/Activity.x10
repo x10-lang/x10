@@ -83,7 +83,7 @@ public class Activity {
     /**
      * Create clocked activity.
      */
-    def this(body:()=>Void, finishState:Runtime.FinishState, clocks:ValRail[Clock], phases:ValRail[Int]) {
+    def this(body:()=>Void, finishState:Runtime.FinishState, clocks:Array[Clock]{rail}, phases:Array[Int]{rail}) {
         this(body, finishState, false);
         clockPhases = Runtime.ClockPhases.make(clocks, phases);
     }

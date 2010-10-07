@@ -114,10 +114,21 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         return guard;
     }
 
-    public X10ConstructorDecl guard(DepParameterExpr e) {
+    public X10ConstructorDecl_c guard(DepParameterExpr e) {
         X10ConstructorDecl_c n = (X10ConstructorDecl_c) copy();
         n.guard = e;
         return n;
+    }
+    public TypeNode offerType() {
+        return offerType;
+    }
+    public X10ConstructorDecl_c offerType(TypeNode offerType) {
+        if (this.offerType != offerType)  {
+            X10ConstructorDecl_c n = (X10ConstructorDecl_c) copy();
+            n.offerType = offerType;
+            return n;
+        }
+        return this;
     }
     protected X10ConstructorDecl_c hasType(TypeNode hasType) {
     	if (this.hasType != hasType)  {
@@ -132,30 +143,34 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
 	    return typeParameters;
     }
     
-    public X10ConstructorDecl typeParameters(List<TypeParamNode> typeParams) {
+    public X10ConstructorDecl_c typeParameters(List<TypeParamNode> typeParams) {
 	    X10ConstructorDecl_c n = (X10ConstructorDecl_c) copy();
 	    n.typeParameters=TypedList.copyAndCheck(typeParams, TypeParamNode.class, true);
 	    return n;
     }
 
     @Override
-    public X10ConstructorDecl flags(FlagsNode flags) {
-        return (X10ConstructorDecl) super.flags(flags);
+    public X10ConstructorDecl_c flags(FlagsNode flags) {
+        return (X10ConstructorDecl_c) super.flags(flags);
     }
     @Override
-    public X10ConstructorDecl name(Id name) {
-        return (X10ConstructorDecl) super.name(name);
+    public X10ConstructorDecl_c name(Id name) {
+        return (X10ConstructorDecl_c) super.name(name);
     }
     @Override
-    public X10ConstructorDecl formals(List<Formal> formals) {
-        return (X10ConstructorDecl) super.formals(formals);
+    public X10ConstructorDecl_c formals(List<Formal> formals) {
+        return (X10ConstructorDecl_c) super.formals(formals);
     }
     @Override
-    public X10ConstructorDecl constructorDef(ConstructorDef ci) {
-        return (X10ConstructorDecl) super.constructorDef(ci);
+    public X10ConstructorDecl_c constructorDef(ConstructorDef ci) {
+        return (X10ConstructorDecl_c) super.constructorDef(ci);
+    }
+    @Override
+    public X10ConstructorDef constructorDef() {
+        return (X10ConstructorDef) super.constructorDef();
     }
 
-    public X10ConstructorDecl returnType(TypeNode returnType) {
+    public X10ConstructorDecl_c returnType(TypeNode returnType) {
         if (returnType != this.returnType) {
             X10ConstructorDecl_c n = (X10ConstructorDecl_c) copy();
             n.returnType = returnType;
@@ -483,7 +498,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
     public Node typeCheck(ContextVisitor tc) throws SemanticException {
         X10ConstructorDecl_c n = this;
         
-        ThisChecker thisC = (ThisChecker) new ThisChecker(tc.job()).context(tc.context());
+        ThisChecker thisC = new ThisChecker(tc.job());
         if (formals != null) {
             visitList(formals, thisC);
             if (thisC.error()) {
@@ -518,10 +533,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         Type clazz = nnci.asInstance().container();
         if (! ts.typeEquals(retTypeBase, clazz, tc.context())) {
             Errors.issue(tc.job(),
-                    new SemanticException("The return type of the constructor (" + retTypeBase 
-                                        + ") must be derived from"
-                                        + " the type of the class (" + clazz + ") on which the constructor is defined.",
-                                        n.position()));
+                    new SemanticException("The return type of the constructor (" + retTypeBase + ") must be derived from the type of the class (" + clazz + ") on which the constructor is defined.",    n.position()));
         }
         
         X10MethodDecl_c.checkVisibility(tc, this);

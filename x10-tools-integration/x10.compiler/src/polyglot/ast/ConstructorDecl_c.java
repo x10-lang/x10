@@ -224,22 +224,18 @@ public class ConstructorDecl_c extends Term_c implements ConstructorDecl
 	
 	if (ct.flags().isInterface()) {
 	    Errors.issue(tc.job(),
-	            new SemanticException("Cannot declare a constructor inside an interface.",
-	                                position()));
+	            new SemanticException("Cannot declare a constructor inside an interface.",position()));
 	}
 	
 	if (ct.isAnonymous()) {
 	    Errors.issue(tc.job(),
-	            new SemanticException("Cannot declare a constructor inside an anonymous class.",
-	                                position()));
+	            new SemanticException("Cannot declare a constructor inside an anonymous class.",position()));
 	}
 	
 	Name ctName = ct.name();
 	
 	if (! ctName.equals(name.id())) {
-	    Errors.issue(tc.job(),new SemanticException("Constructor name \"" + name +
-	                                "\" does not match name of containing class \"" +
-	                                ctName + "\".", position()));
+	    Errors.issue(tc.job(),new SemanticException("Constructor name \"" + name +"\" does not match name of containing class \"" + ctName + "\".", position()));
 	}
 	
 	Flags flags = flags().flags();

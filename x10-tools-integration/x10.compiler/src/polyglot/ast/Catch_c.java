@@ -88,9 +88,7 @@ public class Catch_c extends Stmt_c implements Catch
         TypeSystem ts = tc.typeSystem();
 
 	if (! catchType().isThrowable()) {
-	    throw new SemanticException(
-		"Can only throw subclasses of \"" +
-		ts.Throwable() + "\".", formal.position());
+	    throw new SemanticException("Can only throw subclasses of \"" +ts.Throwable() + "\".", formal.position());
 
 	}
 

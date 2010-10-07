@@ -19,7 +19,7 @@ public class Restrict extends x10Test {
 
     public def run(): boolean = {
         val r = 0..100;
-        val R = [r,r] as Region;
+        val R = r*r;
         val d = R->here;
         val R2  = (d | here).region;
         x10.io.Console.OUT.println("R " + R);

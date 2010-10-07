@@ -26,7 +26,7 @@ public class LCAClassAStructB extends x10Test {
 	  val x = new A();
       val y = B();
 	// should succeed. LCA of A and B is Any
-      val z:ValRail[Any] = [x,y];
+      val z:Array[Any] = [x,y];
 	  return true;
 	}
 

@@ -102,6 +102,7 @@ namespace {
             case CUDA_ERROR_UNKNOWN:
                 errstr = "CUDA_ERROR_UNKNOWN"; break;
 
+            #if CUDA_VERSION >= 3000
             case CUDA_ERROR_NOT_MAPPED_AS_ARRAY:
                 errstr = "CUDA_ERROR_NOT_MAPPED_AS_ARRAY"; break;
             case CUDA_ERROR_NOT_MAPPED_AS_POINTER:
@@ -112,6 +113,7 @@ namespace {
                 errstr = "CUDA_ERROR_POINTER_IS_64BIT"; break;
             case CUDA_ERROR_SIZE_IS_64BIT:
                 errstr = "CUDA_ERROR_SIZE_IS_64BIT"; break;
+            #endif
         
         }
         fprintf(stderr,"%s (At %s:%d)\n",errstr,file,line);
@@ -150,7 +152,7 @@ namespace {
         virtual bool is_copy() { return false; }
     };
 
-    #define CUDA_PARAM_SZ 80
+    #define CUDA_PARAM_SZ 240
     struct BaseOpKernel : BaseOp<BaseOpKernel> {
         size_t blocks;
         size_t threads;
@@ -491,10 +493,14 @@ void x10rt_cuda_send_get (x10rt_cuda_ctx *ctx, x10rt_msg_params *p, void *buf, x
         abort();
     }
 
+    x10rt_msg_params p_ = *p;
+    p_.msg = safe_malloc<unsigned char>(p->len);
+    memcpy(p_.msg, p->msg, p->len);
+
     void *remote = do_buffer_finder(ctx, p, buf, len);
 
     if (remote) {
-        BaseOpGet *op = new (safe_malloc<BaseOpGet>()) BaseOpGet(*p,buf,len);
+        BaseOpGet *op = new (safe_malloc<BaseOpGet>()) BaseOpGet(p_,buf,len);
         op->src = remote;
         ctx->dma_q.push_back(op);
         pthread_mutex_unlock(&big_lock_of_doom);
@@ -526,10 +532,14 @@ void x10rt_cuda_send_put (x10rt_cuda_ctx *ctx, x10rt_msg_params *p, void *buf, x
         abort();
     }
 
+    x10rt_msg_params p_ = *p;
+    p_.msg = safe_malloc<unsigned char>(p->len);
+    memcpy(p_.msg, p->msg, p->len);
+
     void *remote = do_buffer_finder(ctx, p, buf, len);
 
     if (remote) {
-        BaseOpPut *op = new (safe_malloc<BaseOpPut>()) BaseOpPut(*p,buf,len);
+        BaseOpPut *op = new (safe_malloc<BaseOpPut>()) BaseOpPut(p_,buf,len);
         op->dst = remote;
         ctx->dma_q.push_back(op);
         pthread_mutex_unlock(&big_lock_of_doom);
@@ -693,7 +703,7 @@ void x10rt_cuda_probe (x10rt_cuda_ctx *ctx)
             DEBUG(2,"probe: post callback begins\n");
             CU_SAFE(cuCtxPopCurrent(NULL));
             pthread_mutex_unlock(&big_lock_of_doom);
-            fptr(&kop->p, &kop->argv); /****CALLBACK****/
+            fptr(&kop->p, kop->blocks, kop->threads, kop->shm, kop->argc, kop->argv, kop->cmemc, kop->cmemv); /****CALLBACK****/
             pthread_mutex_lock(&big_lock_of_doom);
             CU_SAFE(cuCtxPushCurrent(ctx->ctx));
             DEBUG(2,"probe: post callback ends\n");
@@ -775,6 +785,7 @@ void x10rt_cuda_probe (x10rt_cuda_ctx *ctx)
             CU_SAFE(cuCtxPopCurrent(NULL));
             pthread_mutex_unlock(&big_lock_of_doom);
             ch(&cop->p, len); /****CALLBACK****/
+            safe_free(cop->p.msg);
             cop->~BaseOpCopy();
             free(cop);
             return;

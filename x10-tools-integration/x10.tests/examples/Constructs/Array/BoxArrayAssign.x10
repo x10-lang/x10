@@ -24,7 +24,7 @@ public class BoxArrayAssign extends x10Test {
 
     public def run(): boolean = {
         val table = new Array[Box[Complex]](1..5, (Point)=>(null as Box[Complex]));
-        foreach (val p: Point(1) in table) table(p) = null;
+        for (val p: Point(1) in table) async table(p) = null;
         return true;
     }
     

@@ -23,13 +23,13 @@ struct RectLayout(rank:int) {
 
     val size: int;
 
-    val min:ValRail[int]; /* will be null if rank<5 */
+    val min:Array[int](1); /* will be null if rank<5 */
     val min0:int;
     val min1:int;
     val min2:int;
     val min3:int;
 
-    val delta:ValRail[int]; /* will be null if rank<5 */
+    val delta:Array[int](1); /* will be null if rank<5 */
     val delta0:int;
     val delta1:int;
     val delta2:int;
@@ -43,16 +43,16 @@ struct RectLayout(rank:int) {
             delta0 = delta1 = delta2 = delta3 = 0;
             size = 0;
             if (rank>4) {
-                min = ValRail.make[int](rank, (int)=>0);
-                delta = ValRail.make[int](rank, (int)=>0);
+                min = new Array[int](rank, (int)=>0);
+                delta = new Array[int](rank, (int)=>0);
             } else {
                 min = delta = null;
             }
         } else {
             var sz:int = 1;
             if (rank>4) {
-                min = ValRail.make[int](rank, (i:int) => reg.min(i));
-                delta = ValRail.make[int](rank, (i:int) => reg.max(i) - min(i) +1);
+                min = new Array[int](rank, (i:int) => reg.min(i));
+                delta = new Array[int](rank, (i:int) => reg.max(i) - min(i) +1);
                 for ([r] in 4..rank-1) {
                     sz *= delta(r);
                 }
@@ -154,7 +154,7 @@ struct RectLayout(rank:int) {
     public def toString() {
         var s:String = "RectLayout[";
         s += "size=" + size;
-        for (var i:int=0; i<min.length; i++) {
+        for (var i:int=0; i<min.size; i++) {
             val m:int;
             val d:int;
             switch (i) {

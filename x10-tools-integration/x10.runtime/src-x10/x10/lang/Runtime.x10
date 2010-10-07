@@ -13,11 +13,12 @@ package x10.lang;
 
 import x10.compiler.Native;
 import x10.compiler.NativeClass;
-import x10.compiler.NativeDef;
 import x10.compiler.NativeString;
 import x10.compiler.Pinned;
 import x10.compiler.Global;
 import x10.compiler.SuppressTransientError;
+
+import x10.io.CustomSerialization;
 
 import x10.util.HashMap;
 import x10.util.GrowableRail;
@@ -71,6 +72,15 @@ import x10.util.Box;
     @Native("java", "x10.runtime.impl.java.Runtime.runAt(#1, #2)")
     @Native("c++", "x10aux::run_at(#1, #2)")
     public static def runAtNative(id:Int, body:()=>void):void { body(); }
+
+    /**
+     * Run body at place(id).
+     * May be implemented synchronously or asynchronously.
+     * Body cannot spawn activities, use clocks, or raise exceptions.
+     */
+    @Native("java", "x10.runtime.impl.java.Runtime.deepCopy(#4)")
+    @Native("c++", "x10aux::deep_copy<#1 >(#4)")
+    public static native def deepCopy[T](o:T):T;
 
     /**
      * Java: run body synchronously at place(id) in the same node as the current place.
@@ -138,7 +148,7 @@ import x10.util.Box;
 
     @NativeClass("java", "x10.runtime.impl.java", "Deque")
     @NativeClass("c++", "x10.lang", "Deque")
-    @Pinned static final class Deque {
+    @Pinned static final class Deque implements CustomSerialization {
         public native def this();
 
         public native def size():Int;
@@ -148,6 +158,13 @@ import x10.util.Box;
         public native def push(t:Object):void;
 
         public native def steal():Object;
+
+        public def serialize():Any {
+            throw new UnsupportedOperationException("Cannot serialize "+typeName());
+        }
+	private def this(Any) {
+            throw new UnsupportedOperationException("Cannot deserialize "+typeName());
+        }
     }
 
 
@@ -156,15 +173,15 @@ import x10.util.Box;
 
   
     static class ClockPhases extends HashMap[Clock,Int] {
-        static def make(clocks:ValRail[Clock], phases:ValRail[Int]):ClockPhases {
+        static def make(clocks:Array[Clock]{rail}, phases:Array[Int]{rail}):ClockPhases {
             val clockPhases = new ClockPhases();
-            for(var i:Int = 0; i < clocks.length; i++) 
+            for(var i:Int = 0; i < clocks.size; i++) 
             	clockPhases.put(clocks(i), phases(i));
             return clockPhases;
         }
 
-        def register(clocks:ValRail[Clock]) {
-            return ValRail.make[Int](clocks.length, (i:Int)=>clocks(i).register());
+        def register(clocks:Array[Clock]{rail}) {
+            return new Array[Int](clocks.size, (i:Int)=>clocks(i).register());
         }
 
         def next() {
@@ -179,6 +196,14 @@ import x10.util.Box;
             for(clock:Clock in keySet()) clock.dropInternal();
             clear();
         }
+
+	// HashMap implments CustomSerialization, so we must as well
+	// Only constructor is actually required, but stub out serialize as well
+	// as a reminder that if instance fields are added to ClockPhases then
+	// work will have to be done here to serialize them.
+	public def serialize() = super.serialize(); 
+	def this() { super(); }
+	def this(a:Any) { super(a); }
     }
 
 
@@ -307,7 +332,7 @@ import x10.util.Box;
         @Pinned def accept(t:T, id:Int) {
            sr.accept(t,id);
          }
-        @Pinned def notify(rail:ValRail[Int], v:T):void {
+        @Pinned def notify(rail:Rail[Int], v:T):void {
             var b:Boolean = true;
             lock();
             for(var i:Int=0; i<Place.MAX_PLACES; i++) {
@@ -319,7 +344,7 @@ import x10.util.Box;
             if (b) release();
             unlock();
          }
-         @Pinned def notify2(rail:ValRail[Pair[Int,Int]], v:T):void {
+         @Pinned def notify2(rail:Rail[Pair[Int,Int]], v:T):void {
             lock();
             for(var i:Int=0; i<rail.length; i++) {
                 counts(rail(i).first) += rail(i).second;
@@ -430,7 +455,7 @@ import x10.util.Box;
             }
         }
 
-       @Pinned def notify(rail:ValRail[Int]):void {
+       @Pinned def notify(rail:Rail[Int]):void {
             var b:Boolean = true;
             lock();
             for(var i:Int=0; i<Place.MAX_PLACES; i++) {
@@ -442,7 +467,7 @@ import x10.util.Box;
             unlock();
         }
 
-        @Pinned def notify2(rail:ValRail[Pair[Int,Int]]):void {
+        @Pinned def notify2(rail:Rail[Pair[Int,Int]]):void {
             lock();
             for(var i:Int=0; i<rail.length; i++) {
                 counts(rail(i).first) += rail(i).second;
@@ -458,12 +483,12 @@ import x10.util.Box;
             unlock();
         }
 
-        @Pinned def notify(rail:ValRail[Int], t:Throwable):void {
+        @Pinned def notify(rail:Rail[Int], t:Throwable):void {
             pushExceptionLocal(t);
             notify(rail);
         }
 
-        @Pinned def notify2(rail:ValRail[Pair[Int,Int]], t:Throwable):void {
+        @Pinned def notify2(rail:Rail[Pair[Int,Int]], t:Throwable):void {
             pushExceptionLocal(t);
             notify2(rail);
         }
@@ -528,7 +553,7 @@ import x10.util.Box;
         if (2*length > Place.MAX_PLACES) {
             if (null != e) {
                 lock.lock();
-                val m = ValRail.make(counts);
+                val m = Rail.make[Int](counts.length, 0, counts);
                 for (var i:Int=0; i<Place.MAX_PLACES; i++) counts(i) = 0;
                 length = 1;
                 lock.unlock();
@@ -538,9 +563,10 @@ import x10.util.Box;
                 } else {
                     t = new MultipleExceptions(e);
                 }
+	        val rrcf = (r as RootCollectingFinish[T]).root;
                 val closure = () => { 
-                    val rrcf = (r as RootCollectingFinish[T]).root as GlobalRef[RootCollectingFinish[T]]{self.home==here};
-                    rrcf().notify(m, t); 
+                    val rrcfHere = rrcf as GlobalRef[RootCollectingFinish[T]]{self.home==here};
+                    rrcfHere().notify(m, t); 
                     deallocObject(m); 
                 };
                 runAtNative(r.home().id, closure);
@@ -551,7 +577,7 @@ import x10.util.Box;
                 //Fixme : Here should use await().
                 while (stepAtomic.get() <path.first) {};
                 lock.lock();
-                val m = ValRail.make(counts);
+                val m = Rail.make[Int](counts.length, 0, counts);
                 for (var i:Int=0; i<Place.MAX_PLACES; i++) counts(i) = 0;
                 length = 1;
                 lock.unlock();
@@ -568,10 +594,11 @@ import x10.util.Box;
                     dealloc(closure);
                     }
                 else {
+                     val rrcf = (r as RootCollectingFinish[T]).root;
                      val closure = () => {
-                     val rrcf = (r as RootCollectingFinish[T]).root as GlobalRef[RootCollectingFinish[T]]{self.home==here};
-                     rrcf().notify(m, x);
-                     deallocObject(m);
+                         val rrcfHere = rrcf as GlobalRef[RootCollectingFinish[T]]{self.home==here};
+                         rrcfHere().notify(m, x);
+                         deallocObject(m);
                      };
                      runAtNative( path.second, closure);
                      dealloc(closure);
@@ -583,7 +610,7 @@ import x10.util.Box;
         } else {
             if (null != e) {
                 lock.lock();
-                val m = ValRail.make[Pair[Int,Int]](length, (i:Int)=>Pair[Int,Int](message(i), counts(message(i))));
+                val m = Rail.make[Pair[Int,Int]](length, (i:Int)=>Pair[Int,Int](message(i), counts(message(i))));
                 for (var i:Int=0; i<Place.MAX_PLACES; i++) counts(i) = 0;
                 length = 1;
                 lock.unlock();
@@ -594,9 +621,10 @@ import x10.util.Box;
                 } else {
                     t = new MultipleExceptions(e);
                 }
+                val rrcf = (r as RootCollectingFinish[T]).root;
                 val closure = () => { 
-                     val rrcf = (r as RootCollectingFinish[T]).root as GlobalRef[RootCollectingFinish[T]]{self.home==here};
-                     rrcf().notify2(m, t); 
+                     val rrcfHere = rrcf  as GlobalRef[RootCollectingFinish[T]]{self.home==here};
+                     rrcfHere().notify2(m, t); 
                      deallocObject(m); 
                 };
                 runAtNative(r.home().id, closure);
@@ -607,7 +635,7 @@ import x10.util.Box;
                 //FIXME here should use await(). 
                 while(stepAtomic.get() < path.first){};
                 lock.lock();
-                val m = ValRail.make[Pair[Int,Int]](length, (i:Int)=>Pair[Int,Int](message(i), counts(message(i))));
+                val m = Rail.make[Pair[Int,Int]](length, (i:Int)=>Pair[Int,Int](message(i), counts(message(i))));
                 for (var i:Int=0; i<Place.MAX_PLACES; i++) counts(i) = 0;
                 length = 1;
                 lock.unlock();
@@ -624,10 +652,11 @@ import x10.util.Box;
                     dealloc(closure);
                     }
                 else {
+                     val rrcf = (r as RootCollectingFinish[T]).root;
                      val closure = () => {
-                     val rrcf = (r as RootCollectingFinish[T]).root as GlobalRef[RootCollectingFinish[T]]{self.home==here};
-                     rrcf().notify2(m, x);
-                     deallocObject(m);
+                         val rrcfHere = rrcf  as GlobalRef[RootCollectingFinish[T]]{self.home==here};
+                         rrcfHere().notify2(m, x);
+                         deallocObject(m);
                      };
                      runAtNative( path.second, closure);
                      dealloc(closure);
@@ -646,7 +675,7 @@ import x10.util.Box;
         def accept(t:T, id:Int) {
             sr.accept(t,id);
         }
-        def notify(rail:ValRail[Int], v:T):Void {
+        def notify(rail:Rail[Int], v:T):Void {
             var b:Boolean = true;
             lock.lock();
             for(var i:Int=0; i<Place.MAX_PLACES; i++) {
@@ -659,7 +688,7 @@ import x10.util.Box;
             lock.unlock();
         }
 
-        def notify2(rail:ValRail[Pair[Int,Int]], v:T):Void {
+        def notify2(rail:Rail[Pair[Int,Int]], v:T):Void {
             lock.lock();
             
             for(var i:Int=0; i<rail.length; i++) {
@@ -689,6 +718,7 @@ import x10.util.Box;
             var stage : Int = 0;
             var target : Int = 0;
             var interval : Int = 2;
+            if(INIT_THREADS==1) return Pair[Int,Int](0,r.home().id);
             if(id!=r.home().id){
                 for (var i:Int =0; i < step; i++) {
                     if(id%interval != 0) {
@@ -728,6 +758,14 @@ import x10.util.Box;
     
     }
 
+    // FIXME.  This class is not being used consistiently
+    //         It claims it is a Pinned class, however when an activity
+    //         terminates, instances of this class are then serialized
+    //         back to the place of the root finish to transfer exceptions, etc.
+    //         So, it really isn't a Pinned class after all...
+    //         Probably need to pull out the set of fields that need to be 
+    //         sent back to the root place and not send back the whole object
+    //         or otherwise refactor.
     @Pinned static class RemoteFinish implements RemoteFinishState {
         /**
          * The Exception Stack is used to collect exceptions
@@ -738,7 +776,7 @@ import x10.util.Box;
         /**
          * The monitor is used to serialize updates to the finish state.
          */
-        protected val lock = new Lock();
+        @SuppressTransientError protected transient val lock = new Lock(); // FIXME: Marked transient, but this class needs to be refactored.
 
         /**
          * Keep track of the number of activities associated with this finish state.
@@ -779,7 +817,7 @@ import x10.util.Box;
             val e = exceptions;
             exceptions = null;
             if (2*length > Place.MAX_PLACES) {
-                val m = ValRail.make(counts);
+                val m = Rail.make[Int](counts.length, 0, counts);
                 for (var i:Int=0; i<Place.MAX_PLACES; i++) counts(i) = 0;
                 length = 1;
                 lock.unlock();
@@ -790,17 +828,19 @@ import x10.util.Box;
                     } else {
                         t = new MultipleExceptions(e);
                     }
+                    val rrf = (r as RootFinish).root;
                     val closure = () => { 
-                        val rrf = (r as RootFinish).root as GlobalRef[RootFinish]{self.home==here};
-                        rrf().notify(m, t); 
+                        val rrfHere = rrf as GlobalRef[RootFinish]{self.home==here};
+                        rrfHere().notify(m, t); 
                         deallocObject(m); 
                     };
                     runAtNative(r.home().id, closure);
                     dealloc(closure);
                 } else {
+                    val rrf = (r as RootFinish).root;
                     val closure = () => {
-                        val rrf = (r as RootFinish).root as GlobalRef[RootFinish]{self.home==here};
-                        rrf().notify(m); 
+                        val rrfHere = rrf as GlobalRef[RootFinish]{self.home==here};
+                        rrfHere().notify(m);
                         deallocObject(m); 
                     };
                     runAtNative(r.home().id, closure);
@@ -808,7 +848,7 @@ import x10.util.Box;
                 }
                 deallocObject(m);
             } else {
-                val m = ValRail.make[Pair[Int,Int]](length, (i:Int)=>Pair[Int,Int](message(i), counts(message(i))));
+                val m = Rail.make[Pair[Int,Int]](length, (i:Int)=>Pair[Int,Int](message(i), counts(message(i))));
                 for (var i:Int=0; i<Place.MAX_PLACES; i++) counts(i) = 0;
                 length = 1;
                 lock.unlock();
@@ -819,17 +859,19 @@ import x10.util.Box;
                     } else {
                         t = new MultipleExceptions(e);
                     }
+                    val rrf = (r as RootFinish).root;
                     val closure = () => { 
-                        val rrf = (r as RootFinish).root as GlobalRef[RootFinish]{self.home==here};
-                        rrf().notify2(m, t); 
+                        val rrfHere = rrf as GlobalRef[RootFinish]{self.home==here};
+                        rrfHere().notify2(m, t); 
                         deallocObject(m); 
                     };
                     runAtNative(r.home().id, closure);
                     dealloc(closure);
                 } else {
+                    val rrf = (r as RootFinish).root;
                     val closure = () => { 
-                        val rrf = (r as RootFinish).root as GlobalRef[RootFinish]{self.home==here};
-                        rrf().notify2(m); 
+                        val rrfHere = rrf as GlobalRef[RootFinish]{self.home==here};
+                        rrfHere().notify2(m); 
                         deallocObject(m); 
                     };
                     runAtNative(r.home().id, closure);
@@ -858,8 +900,7 @@ import x10.util.Box;
      * needed nor does the FinishState need a rail of counters: one is 
      * enough!
      */
-
-    @Pinned static class LocalRootFinish extends Latch implements FinishState, Mortal {
+    @Pinned static class LocalRootFinish extends Latch implements FinishState, Mortal, CustomSerialization {
     	private var counts:int;
         private var exceptions:Stack[Throwable];
         public def this() {
@@ -923,7 +964,15 @@ import x10.util.Box;
         	this.pushExceptionLocal(t);
         }
         public def makeRemote():RemoteFinishState = null;
+
+        public def serialize():Any {
+            throw new UnsupportedOperationException("Cannot serialize "+typeName());
+        }
+	private def this(Any) {
+            throw new UnsupportedOperationException("Cannot deserialize "+typeName());
+        }
     }
+
     /**
      * SimpleRootFinish and SimpleRemoteFinish are desgined for the "finish"
      * which has asyncs that do not spawn asyncs in other places: in other words,
@@ -931,7 +980,7 @@ import x10.util.Box;
      * SimpleRootFinish still requires a rail of counters, but SimpleRemoteFinish
      * only needs a counter
      */
-    @Pinned static class SimpleRemoteFinish implements RemoteFinishState{
+    @Pinned static class SimpleRemoteFinish implements RemoteFinishState {
         /**
          * The Exception Stack is used to collect exceptions
          * issued when activities associated with this finish state terminate abruptly.
@@ -1020,6 +1069,10 @@ import x10.util.Box;
          public def this() {
              counts = 1;
          }
+	 private def this(Any) {
+             throw new UnsupportedOperationException("Cannot deserialize "+typeName());
+         }
+
          @Global public def equals(a:Any) =
         	 (a instanceof SimpleRootFinish) && this.root.equals((a as SimpleRootFinish).root);
         @Global public def hashCode() = root.hashCode();
@@ -1122,7 +1175,7 @@ import x10.util.Box;
 
     @NativeClass("java", "x10.runtime.impl.java", "Thread")
     @NativeClass("c++", "x10.lang", "Thread")
-    @Pinned final static class Thread {
+    @Pinned final static class Thread implements CustomSerialization {
 
         /**
          * Allocates new thread in current place
@@ -1141,8 +1194,7 @@ import x10.util.Box;
 
         public native static def parkNanos(nanos:Long):void;
 
-        // Why is this global?
-        public native /*global*/ def unpark():void;
+        public native def unpark():void;
 
         public native def worker():Object;
 
@@ -1156,6 +1208,13 @@ import x10.util.Box;
 
         public static native def getTid():Long;
         public native def home():Place;
+
+        public def serialize():Any {
+            throw new UnsupportedOperationException("Cannot serialize "+typeName());
+        }
+	private def this(Any) {
+            throw new UnsupportedOperationException("Cannot deserialize "+typeName());
+        }
     }
 
 
@@ -1507,7 +1566,7 @@ import x10.util.Box;
     /**
      * Run async
      */
-    public static def runAsync(place:Place, clocks:ValRail[Clock], body:()=>void):void {
+    public static def runAsync(place:Place, clocks:Array[Clock]{rail}, body:()=>void):void {
     	// Do this before anything else
         activity().ensureNotInAtomic();
         
@@ -1515,7 +1574,7 @@ import x10.util.Box;
         val phases = clockPhases().register(clocks);
         state.notifySubActivitySpawn(place);
         if (place.id == hereInt()) {
-            execute(new Activity(body, state, clocks, phases));
+            execute(new Activity(deepCopy(body), state, clocks, phases));
         } else {
             val c = ()=>execute(new Activity(body, state, clocks, phases));
             runAtNative(place.id, c);
@@ -1530,7 +1589,7 @@ import x10.util.Box;
         state.notifySubActivitySpawn(place);
         val ok = safe();
         if (place.id == hereInt()) {
-            execute(new Activity(body, state, ok));
+            execute(new Activity(deepCopy(body), state, ok));
         } else {
             var closure:()=>void;
             // Workaround for XTENLANG_614
@@ -1544,7 +1603,7 @@ import x10.util.Box;
         }
     }
 
-    public static def runAsync(clocks:ValRail[Clock], body:()=>void):void {
+    public static def runAsync(clocks:Array[Clock]{rail}, body:()=>void):void {
     	// Do this before anything else
         activity().ensureNotInAtomic();
         
@@ -1569,7 +1628,7 @@ import x10.util.Box;
         
         val ok = safe();
         if (place.id == hereInt()) {
-            execute(new Activity(body, ok));
+            execute(new Activity(deepCopy(body), ok));
         } else {
             var closure:()=>void;
             // Workaround for XTENLANG_614

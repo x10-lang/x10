@@ -90,13 +90,6 @@ public class ConstructorCall_c extends Stmt_c implements ConstructorCall
 	return n;
     }
 
-    /**
-     * ConstructorCall and AssignPropertyCall are a static context.
-     */
-    public Context enterScope(Context c) {
-        return c.pushStatic();
-    }
-
     /** Reconstruct the constructor call. */
     protected ConstructorCall_c reconstruct(Expr qualifier, List<Expr> arguments) {
 	if (qualifier != this.qualifier || ! CollectionUtil.allEqual(arguments, this.arguments)) {
@@ -155,33 +148,24 @@ public class ConstructorCall_c extends Stmt_c implements ConstructorCall
         // }
         if (qualifier != null) {
             if (kind != SUPER) {
-                throw new SemanticException("Can only qualify a \"super\"" +
-                                            "constructor invocation.",
-                                            position());
+                throw new SemanticException("Can only qualify a \"super\" constructor invocation.", position());
             }
             
             if (!superType.isClass() || !superType.toClass().isInnerClass() ||
                 superType.toClass().inStaticContext()) {
-                throw new SemanticException("The class \"" + superType + "\"" +
-                    " is not an inner class, or was declared in a static " +
-                    "context; a qualified constructor invocation cannot " +
-                    "be used.", position());
+                throw new SemanticException("A qualified constructor invocation can be used only for non-static inner classes.", position());
             }
 
             Type qt = qualifier.type();
 
             if (! qt.isClass() || !qt.isSubtype(superType.toClass().outer(), c)) {
-                throw new SemanticException("The type of the qualifier " +
-                    "\"" + qt + "\" does not match the immediately enclosing " +
-                    "class  of the super class \"" +
-                    superType.toClass().outer() + "\".", qualifier.position());
+                throw new SemanticException("The type of the qualifier \"" + qt + "\" does not match the immediately enclosing class of the super class \"" +superType.toClass().outer() + "\".", qualifier.position());
             }
         }
 
 	if (kind == SUPER) {
 	    if (! superType.isClass()) {
-	        throw new SemanticException("Super type of " + ct +
-		    " is not a class.", position());
+	        throw new SemanticException("Super type of " + ct +" is not a class.", position());
 	    }
 	    
 	    Expr q = qualifier;
@@ -207,13 +191,10 @@ public class ConstructorCall_c extends Stmt_c implements ConstructorCall
                 }
                 
                 if (e == null) {
-                    throw new SemanticException(ct + " must have an enclosing instance" +
-                        " that is a subtype of " + superContainer, position());
+                    throw new SemanticException(ct + " must have an enclosing instance that is a subtype of " + superContainer, position());
                 }               
                 if (e == ct) {
-                    throw new SemanticException(ct + " is a subtype of " + superContainer + 
-                        "; an enclosing instance that is a subtype of " + superContainer +
-                        " must be specified in the super constructor call.", position());
+                    throw new SemanticException(ct + " is a subtype of " + superContainer + "; an enclosing instance that is a subtype of " + superContainer +" must be specified in the super constructor call.", position());
                 }
             }
 

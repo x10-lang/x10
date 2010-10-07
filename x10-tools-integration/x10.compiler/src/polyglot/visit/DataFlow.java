@@ -50,6 +50,9 @@ public abstract class DataFlow extends ErrorHandlingVisitor
      * <code>dataflowOnEntry</code> is true.
      */
     protected LinkedList<FlowGraphSource> flowgraphStack;
+
+    protected boolean reportCFG_Errors = false; // only the first data-flow analysis should report CFG problems (like illegal break/continue)
+    protected boolean hadCFG_Error = false;
     
     protected static class FlowGraphSource {
         FlowGraphSource(FlowGraph g, CodeDecl s) {
@@ -431,10 +434,12 @@ public abstract class DataFlow extends ErrorHandlingVisitor
                 long t1 = System.currentTimeMillis();
                 
                 try {
+                    hadCFG_Error = false;
                     v.visitGraph();
                 }
                 catch (CFGBuildError e) {
-                    reportError(e.message(), e.position());
+                    hadCFG_Error = true;
+                    if (reportCFG_Errors) reportError(e.message(), e.position());
                     return;
                 }
 

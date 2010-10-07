@@ -22,6 +22,8 @@
 #include <x10/lang/String.h>
 #include <x10/lang/Rail.h>
 
+#include <x10/array/Array.h>
+
 #include <cstdarg>
 #include <sstream>
 
@@ -206,9 +208,9 @@ ref<String> String::substring(x10_int start, x10_int end) {
     return String::Steal(str);
 }
 
-static ref<ValRail<ref<String> > > split_all_chars(String* str) {
+static ref<Rail<ref<String> > > split_all_chars(String* str) {
     size_t sz = (size_t)str->length();
-    ValRail<ref<String> > *rail = alloc_rail<ref<String>,ValRail<ref<String> > > (sz);
+    Rail<ref<String> > *rail = alloc_rail<ref<String>,Rail<ref<String> > > (sz);
     for (size_t i = 0; i < sz; ++i) {
         rail->raw()[i] = str->substring(i, i+1);
     }
@@ -216,7 +218,7 @@ static ref<ValRail<ref<String> > > split_all_chars(String* str) {
 }
 
 // FIXME: this does not treat pat as a regex
-ref<ValRail<ref<String> > > String::split(ref<String> pat) {
+ref<Rail<ref<String> > > String::split(ref<String> pat) {
     nullCheck(pat);
     int l = pat->length();
     if (l == 0) // if splitting on an empty string, just return the chars
@@ -226,7 +228,7 @@ ref<ValRail<ref<String> > > String::split(ref<String> pat) {
     while ((i = indexOf(pat, i+l)) != -1) {
         sz++;
     }
-    ValRail<ref<String> > *rail = alloc_rail<ref<String>,ValRail<ref<String> > > (sz);
+    Rail<ref<String> > *rail = alloc_rail<ref<String>,Rail<ref<String> > > (sz);
     int c = 0;
     int o = 0; // now build the rail
     while ((i = indexOf(pat, o)) != -1) {
@@ -244,17 +246,17 @@ x10_char String::charAt(x10_int i) {
 }
 
 
-ref<ValRail<x10_char> > String::chars() {
+ref<Rail<x10_char> > String::chars() {
     x10_int sz = length();
-    ValRail<x10_char> *rail = alloc_rail<x10_char,ValRail<x10_char> > (sz);
+    Rail<x10_char> *rail = alloc_rail<x10_char,Rail<x10_char> > (sz);
     for (int i = 0; i < sz; ++i)
         rail->raw()[i] = (x10_char) FMGL(content)[i]; // avoid bounds check
     return rail;
 }
 
-ref<ValRail<x10_byte> > String::bytes() {
+ref<Rail<x10_byte> > String::bytes() {
     x10_int sz = length();
-    ValRail<x10_byte> *rail = alloc_rail<x10_byte,ValRail<x10_byte> > (sz);
+    Rail<x10_byte> *rail = alloc_rail<x10_byte,Rail<x10_byte> > (sz);
     for (int i = 0; i < sz; ++i)
         rail->raw()[i] = FMGL(content)[i]; // avoid bounds check
     return rail;
@@ -298,8 +300,7 @@ void String::_formatHelper(std::ostringstream &ss, char* fmt, ref<Any> p) {
         dealloc(buf);
 }
 
-// TODO: merge with format(String, Rail[Any])
-ref<String> String::format(ref<String> format, ref<ValRail<ref<Any> > > parms) {
+ref<String> String::format(ref<String> format, ref<x10::array::Array<ref<Any> > > parms) {
     std::ostringstream ss;
     nullCheck(format);
     nullCheck(parms);
@@ -315,33 +316,7 @@ ref<String> String::format(ref<String> format, ref<ValRail<ref<Any> > > parms) {
             ss << fmt;
             --i;
         } else {
-            const ref<Reference> p = parms->operator[](i);
-            _formatHelper(ss, fmt, p);
-        }
-        if (next != NULL)
-            *next = '%';
-    }
-    return String::Lit(ss.str().c_str());
-}
-
-// TODO: merge with format(String, ValRail[Any])
-ref<String> String::format(ref<String> format, ref<Rail<ref<Any> > > parms) {
-    std::ostringstream ss;
-    nullCheck(format);
-    nullCheck(parms);
-    //size_t len = format->FMGL(content_length);
-    char* orig = const_cast<char*>(format->c_str());
-    char* fmt = orig;
-    char* next = NULL;
-    for (x10_int i = 0; fmt != NULL; ++i, fmt = next) {
-        next = strchr(fmt+1, '%'); // FIXME: this is only ok if we always null-terminate content
-        if (next != NULL)
-            *next = '\0';
-        if (*fmt != '%') {
-            ss << fmt;
-            --i;
-        } else {
-            const ref<Reference> p = parms->operator[](i);
+            const ref<Reference> p = parms->apply(i);
             _formatHelper(ss, fmt, p);
         }
         if (next != NULL)

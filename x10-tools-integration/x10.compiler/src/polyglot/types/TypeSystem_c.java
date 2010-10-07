@@ -518,16 +518,14 @@ public abstract class TypeSystem_c implements TypeSystem
 	    }
 
 	    if (goal == superType) {
-		throw new SemanticException("Circular inheritance involving " + goal, 
-		                            curr.position());
+		throw new SemanticException("Circular inheritance involving " + goal,curr.position());
 	    }
 
 	    checkCycles(superType, goal);
 
 	    for (Type si : ot.interfaces()) {
 		if (si == goal) {
-		    throw new SemanticException("Circular inheritance involving " + goal, 
-		                                curr.position());
+		    throw new SemanticException("Circular inheritance involving " + goal,curr.position());
 		}
 
 		checkCycles(si, goal);

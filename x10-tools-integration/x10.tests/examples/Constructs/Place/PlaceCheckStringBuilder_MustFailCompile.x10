@@ -24,7 +24,7 @@ public class PlaceCheckStringBuilder_MustFailCompile extends x10Test {
     public def run(): boolean {
         val sb = new StringBuilder();
         val gsb = GlobalRef[StringBuilder](sb);
-            (future (Place.places(1)) {
+            (future (Place.place(1)) {
                 gsb().add("foo");
                 return gsb().toString();
             }).force();

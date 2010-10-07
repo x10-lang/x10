@@ -13,6 +13,7 @@ package x10.extension;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -124,5 +125,11 @@ public class X10Ext_c extends Ext_c implements X10Ext {
     public Node setSubtreeValid(boolean val) {
         Node n = this.node();
         return n.ext(this.subtreeValid(val));
+    }
+
+    public Node asyncInitVal(Set<VarDef> initVars) {
+        X10Ext_c c = (X10Ext_c) copy();
+        c.asyncInitVal = (initVars == null) ? null : new HashSet<VarDef>(initVars);
+        return this.node().ext(c);
     }
 }

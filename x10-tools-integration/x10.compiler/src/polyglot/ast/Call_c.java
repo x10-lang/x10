@@ -230,9 +230,7 @@ public class Call_c extends Expr_c implements Call
         boolean staticContext = (this.target instanceof TypeNode);
 
         if (staticContext && !mi.flags().isStatic()) {
-            throw new SemanticException("Cannot call non-static method " + this.name.id()
-                                  + " of " + target.type() + " in static "
-                                  + "context.", this.position());
+            throw new SemanticException("Cannot call non-static method " + name.id() + " of " + target.type() + " in static context.", position());
         }
 
         // If the target is super, but the method is abstract, then complain.

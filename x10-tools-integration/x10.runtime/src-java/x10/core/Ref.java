@@ -20,6 +20,9 @@ public class Ref implements Any {
     
     public Ref() {}
      
+    // XTENLANG-1858: every Java class that could be an (non-static) inner class must have constructors with the outer instance parameter
+    public Ref(Object out$) {}
+
     public static RuntimeType<Ref> _RTT = new RuntimeType<Ref>(Ref.class) {
         @Override
         public String typeName() {

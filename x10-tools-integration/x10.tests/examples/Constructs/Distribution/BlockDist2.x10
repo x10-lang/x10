@@ -28,7 +28,7 @@ public class BlockDist2 extends x10Test.BardTest {
         val M = Place.MAX_PLACES;
         val l : Int = n / M; // Minimum number in a place.
         var prev : Int = -1; 
-        for (p in Place.places) {
+        for (p in Place.places()) {
           val atP =  D.get(p);
           val np = actualSize(atP);
           eq(np, atP.size(), "Size of " + atP + " really: " + np + " but .size()=" + atP.size());

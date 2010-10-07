@@ -92,7 +92,8 @@ typedef void x10rt_cuda_pre(const x10rt_msg_params *, size_t *blocks, size_t *th
  * that must be done after a kernel but cannot be done on the GPU.  \todo work
  * in progress
  */
-typedef void x10rt_cuda_post(const x10rt_msg_params *, void *);
+typedef void x10rt_cuda_post(const x10rt_msg_params *, size_t blocks, size_t threads, size_t shm,
+                             size_t argc, char *argv, size_t cmemc, char *cmemv);
 
 /** A callback for finding a buffer at a remote place, that will be the subject of a copy operation.
  */

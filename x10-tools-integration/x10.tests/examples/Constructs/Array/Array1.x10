@@ -23,7 +23,7 @@ public class Array1 extends x10Test {
     public def run(): boolean = {
 
         val e = 1..10;
-        val r = [e,e] as Region;
+        val r= e*e;
         val ia = new Array[int](r, (Point)=>0);
 
         for (p[i] in e) {

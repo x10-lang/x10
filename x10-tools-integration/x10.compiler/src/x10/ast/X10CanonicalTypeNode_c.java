@@ -121,12 +121,10 @@ AddFlags {
 	        }
 	    }
 	    if (p.inStaticContext() && def instanceof ClassDef && ! inConstructor) {
-	        throw new SemanticException("Cannot refer to type parameter " 
-	        		+ pt.fullName() + " of " + def + " from a static context.", position());
+	        throw new SemanticException("Cannot refer to type parameter "+ pt.fullName() + " of " + def + " from a static context.", position());
 	    }
 	    if (flags != null && ! flags.equals(Flags.NONE)) {
-	    	throw new SemanticException("Cannot qualify type parameter "
-	    			+ pt.fullName() + " of " + def + " with flags " + flags + ".", position());
+	    	throw new SemanticException("Cannot qualify type parameter "+ pt.fullName() + " of " + def + " with flags " + flags + ".", position());
 	    }
 	}
 	
@@ -223,8 +221,7 @@ AddFlags {
             
 	        ParameterType correspondingParam = typeParam.get(j);
 	        if (actualType.isVoid()) {
-                    throw new SemanticException("Cannot instantiate invariant parameter " 
-                                                + correspondingParam + " of " + def + " with type " + actualType + ".", pos);
+                    throw new SemanticException("Cannot instantiate invariant parameter " + correspondingParam + " of " + def + " with type " + actualType + ".", pos);
 	        }
 	    }
 	    

@@ -62,6 +62,7 @@ import polyglot.types.TypeSystem;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
+import x10.ast.ArrayLiteral;
 import x10.ast.AssignPropertyCall;
 import x10.ast.Async;
 import x10.ast.AtEach;
@@ -151,6 +152,9 @@ public final class ExpressionFlattener extends ContextVisitor {
      * @return true if the node cannot be flattened, false otherwise
      */
     public static boolean cannotFlatten(Node n) {
+        if (n instanceof ArrayLiteral) { // FIXME: when ArrayLiterals become tuples with explicit types, delete this clause and flattenArrayLiteral
+            return true;
+        }
         if (n instanceof ConstructorDecl) { // can't flatten constructors until local assignments can precede super() and this()
             return true;
         }
@@ -244,6 +248,7 @@ public final class ExpressionFlattener extends ContextVisitor {
         else if (expr instanceof LocalAssign)    return flattenLocalAssign((LocalAssign) expr);
         else if (expr instanceof Call)           return flattenMethodCall((Call) expr);
         else if (expr instanceof New)            return flattenNew((New) expr);
+        else if (expr instanceof ArrayLiteral)   return flattenArrayLiteral((ArrayLiteral) expr); // FIXME: remove this case when array literals become Tuples with explicit types
         else if (expr instanceof Tuple)          return flattenTuple((Tuple) expr);
         else if (expr instanceof Binary)         return flattenBinary((Binary) expr);
         else if (expr instanceof Unary)          return flattenUnary((Unary) expr);
@@ -260,6 +265,25 @@ public final class ExpressionFlattener extends ContextVisitor {
             if (DEBUG) System.err.println("INFO: ExpressionFlattener.flattenExpr: default class: " +expr.getClass()+ " (" +expr+ ") at" +expr.position());
             return expr;
         }
+    }
+
+    /**
+     * Flatten an Array literal.
+     * <pre>
+     *            new Array[X](({s1; e1}), ..., ({sk; ek}))  ->  new Array[X]({s1; val t1 = e1; ... sk; val tk = ek; new Array[x](t1, ..., tk)})
+     * </pre>
+     * 
+     * @param expr the New expression to be flattened
+     * @return a flat expression equivalent to expr
+     */
+    private Expr flattenArrayLiteral(ArrayLiteral expr) {
+        assert false;
+        return null;
+        /* FIXME: delete this method when array literals become tuples with explicit types
+        List<Stmt> stmts = new ArrayList<Stmt>();
+        Expr primary = getPrimaryAndStatements(expr.tuple(), stmts);
+        return toFlatExpr(expr.position(), stmts, expr.tuple(primary));
+        */
     }
 
     /**
@@ -983,8 +1007,8 @@ public final class ExpressionFlattener extends ContextVisitor {
     /**
      * Flatten the evaluation of an expression.
      * <pre>
-     * ({s1; null});  ->  s1;
-     * ({s1; e1});    ->  s1; Eval(e1);
+     * ({s1; e1});    ->  s1;               if "e1" is "null" or cannot have side-effects
+     * ({s1; e1});    ->  s1; Eval(e1);     otherwise
      * </pre>
      * 
      * @param stmt the evaluation to be flattened.
@@ -994,8 +1018,18 @@ public final class ExpressionFlattener extends ContextVisitor {
         List<Stmt> stmts = new ArrayList<Stmt>();
         stmts.addAll(getStatements(stmt.expr()));
         Expr result = getResult(stmt.expr());
-        if (null != result) 
+        while (result instanceof ParExpr) result = ((ParExpr) result).expr();
+        if (null != result && (
+                result instanceof Call || 
+                result instanceof Assign || 
+              ( result instanceof Unary && (
+                    ((Unary) result).operator().equals(Unary.POST_DEC) ||
+                    ((Unary) result).operator().equals(Unary.POST_INC) ||
+                    ((Unary) result).operator().equals(Unary.PRE_DEC) ||
+                    ((Unary) result).operator().equals(Unary.PRE_INC) )) )
+            ) {
             stmts.add(syn.createEval(result));
+        }
         return syn.toStmtSeq(syn.toStmtSeq(stmt.position(), stmts));
     }
 

@@ -91,16 +91,14 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 		if (type instanceof UnknownTypeNode) {
 			if (init == null)
 			    Errors.issue(tb.job(),
-			            new SemanticException("Cannot infer variable type; variable has no initializer.",
-			                    position()));
+			            new SemanticException("Cannot infer variable type; variable has no initializer.", position()));
 			// TODO: For now, since there can be more than once assignment to a mutable variable, 
 			// do not allow mutable variable types to be inferred.
 			// This can be fixed later for local variables by doing better 
 			// type inference.  This should never be done for fields.
 			if (! flags.flags().isFinal())
 			    Errors.issue(tb.job(),
-			            new SemanticException("Cannot infer type of a mutable (non-val) variable.",
-			                    position()));
+			            new SemanticException("Cannot infer type of a mutable (non-val) variable.", position()));
 		}
 
 		// This installs a LocalDef 

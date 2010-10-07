@@ -95,9 +95,7 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode, A
 	      throw new SemanticException("Annotation type must be an interface.", position());
 	  }
 
-	  ex = new SemanticException("Could not find type \"" +
-	                             (prefix == null ? name.toString() : prefix.toString() + "." + name.toString()) +
-	                             "\".", pos);
+	  ex = new SemanticException("Could not find type \"" +(prefix == null ? name.toString() : prefix.toString() + "." + name.toString()) +"\".", pos);
       }
       catch (SemanticException e) {
 	  ex = e;
@@ -195,9 +193,7 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode, A
               return postprocess((CanonicalTypeNode) tn, this, ar);   
           }
     
-          ex = new SemanticException("Could not find type \"" +
-                                     (prefix == null ? name.toString() : prefix.toString() + "." + name.toString()) +
-                                     "\".", pos);
+          ex = new SemanticException("Could not find type \"" +(prefix == null ? name.toString() : prefix.toString() + "." + name.toString()) +"\".", pos);
       }
       catch (SemanticException e) {
           ex = e;

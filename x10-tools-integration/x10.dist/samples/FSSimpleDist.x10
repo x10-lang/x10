@@ -43,7 +43,7 @@ public class FSSimpleDist {
 
                 val p = pp;
                 
-                async at(Place.places(p)) {
+                async at(Place.place(p)) {
                     
                     val a = new Array[double](localSize);
                     val b = new Array[double](localSize);

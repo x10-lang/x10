@@ -93,7 +93,6 @@ public class _ {
     public static type DistArray[T](d:Dist) = DistArray[T]{self.dist==d};
     public static type DistArray[T](a:DistArray[T]) = DistArray[T]{self==a};
 
-    public static type ValRail[T](n:Int) = ValRail[T]{self.length==n};
     public static type Rail[T](n:Int) = Rail[T]{self.length==n};
 
     public static type Console = x10.io.Console;

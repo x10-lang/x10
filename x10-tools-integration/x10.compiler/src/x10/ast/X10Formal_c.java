@@ -137,6 +137,9 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	public X10Formal localDef(LocalDef li) {
 	    return (X10Formal) super.localDef(li);
 	}
+	public X10LocalDef localDef() {
+	    return (X10LocalDef) super.localDef();
+	}
 
 	/* (non-Javadoc)
 	 * @see polyglot.ext.jl.ast.Formal#addDecls()

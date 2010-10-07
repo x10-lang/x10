@@ -151,7 +151,7 @@ public class XLit extends XVar implements XPromise {
 	}
 
 
-	public void dump(XVar path, List<XTerm> result,  boolean dumpEQV) {
+	public void dump(XVar path, List<XTerm> result,  boolean dumpEQV, boolean hideFake) {
 		// nothing to dump.
 	}
 

@@ -26,6 +26,9 @@ import x10.ast.X10ClassDecl;
 import x10.ast.Async_c;
 import x10.ast.Finish_c;
 import x10.extension.X10Ext_c;
+import x10.types.X10LocalDef;
+import x10.types.X10TypeSystem;
+import x10.visit.Desugarer;
 
 /**
  * Visitor which checks that all local variables must be defined before use,
@@ -45,7 +48,7 @@ import x10.extension.X10Ext_c;
  *
  Yoav Zibin added:
 
-  Adding finish-async initialization of val (and shared vars):
+  Adding finish-async initialization of var/val:
   See XTENLANG-1565.
   I kept the CFG without changes.
   So, an Async_c exit has two incoming edges: from the exit of the body and
@@ -88,7 +91,7 @@ import x10.extension.X10Ext_c;
   // i=[1,1,1,1]
 
   Here is a more complicated example:
-         shared var i:Int, j:Int, k:Int;
+         var i:Int, j:Int, k:Int;
          val m:Int, n:Int, q:Int;
 
          i=1;
@@ -282,7 +285,7 @@ public class InitChecker extends DataFlow
         final static MinMaxInitCount ONE =
             new MinMaxInitCount(InitCount.ONE,InitCount.ONE,InitCount.ONE,InitCount.ONE);
 
-        protected final InitCount minSeq, maxSeq, minAsync, maxAsync;
+        private final InitCount minSeq, maxSeq, minAsync, maxAsync;
 
         private MinMaxInitCount(InitCount minSeq, InitCount maxSeq,InitCount minAsync, InitCount maxAsync) {
             this.minSeq = minSeq;
@@ -317,7 +320,7 @@ public class InitChecker extends DataFlow
         MinMaxInitCount finish() {
             return new MinMaxInitCount(minAsync,maxAsync,minAsync,maxAsync);//[c,d,c,d]
         }
-        static MinMaxInitCount join(Term node, VarDef v, boolean entry, MinMaxInitCount initCount1, MinMaxInitCount initCount2) {
+        static MinMaxInitCount join(X10TypeSystem xts, Term node, boolean entry, MinMaxInitCount initCount1, MinMaxInitCount initCount2) {
             assert !(node instanceof Finish);
             if (initCount1 == null) return initCount2;
             if (initCount2 == null) return initCount1;
@@ -344,7 +347,15 @@ public class InitChecker extends DataFlow
                         small.minAsync.count<=big.minAsync.count &&
                         small.maxAsync.count<=big.maxAsync.count;
 
-                return new MinMaxInitCount(small.minSeq, small.maxSeq, big.minAsync, big.maxAsync); // [a',b', c, d]
+
+                boolean isUncounted = Desugarer.isUncountedAsync(xts,async);
+                //@Uncounted async S
+                //is treated like this:
+                //async if (flag) S
+                //so the statement in S might or might not get executed.
+                //Therefore even after a "finish" we still can't use anything assigned in S.
+                
+                return new MinMaxInitCount(small.minSeq, small.maxSeq, isUncounted ? small.minAsync : big.minAsync, big.maxAsync); // [a',b', c, d]
             }
             // normal join: [min(a,a'), max(b,b'), min(c,c'), max(d,d')]
             return new MinMaxInitCount(
@@ -695,7 +706,7 @@ public class InitChecker extends DataFlow
                     VarDef v = (VarDef)e.getKey();
                     MinMaxInitCount initCount1 = m.get(v);
                     MinMaxInitCount initCount2 = (MinMaxInitCount)e.getValue();
-                    m.put(v, MinMaxInitCount.join(node,v,entry,initCount1, initCount2));
+                    m.put(v, MinMaxInitCount.join((X10TypeSystem)ts,node,entry,initCount1, initCount2));
                 }
             }
         }
@@ -749,6 +760,9 @@ public class InitChecker extends DataFlow
                 if (!before.equals(after) && after.equals(MinMaxInitCount.ONE) && flags !=null && flags.isFinal()) {
                     if (ext.asyncInitVal ==null) ext.asyncInitVal = new HashSet<VarDef>();
                     ext.asyncInitVal.add(v);
+                    if (v instanceof X10LocalDef) {
+                        ((X10LocalDef)v).setAsyncInit();
+                    }
                     break; // optimization, cause we already added "v"
                 }
             }

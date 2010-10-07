@@ -20,13 +20,16 @@ import harness.x10Test;
 public class ObjectArrayInitializerShorthand extends x10Test {
 
     public def run(): boolean = {
-        val d  = Dist.makeConstant([1..10, 1..10], here);
-        val ia = DistArray.make[Dist](d, ([i,j]: Point) => d);
-        for (val [i,j]: Point(2) in ia.region) chk(ia(i, j) == d);
+        val d  = Dist.makeConstant((1..10)*(1..10), here);
+        val dr = GlobalRef[Dist](d);
+        // DistArray could be copying when it initializes. So never use == unless
+        // the object is global.
+        val ia = DistArray.make[GlobalRef[Dist]](d, (Point) => dr);
+        for ([i,j] in ia.region) chk(ia(i, j)==dr);
         return true;
     }
 
-    public static def main(var args: Array[String](1)): void = {
+    public static def main(Array[String](1)){
         new ObjectArrayInitializerShorthand().execute();
     }
 }

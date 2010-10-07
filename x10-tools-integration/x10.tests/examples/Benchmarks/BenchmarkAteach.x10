@@ -17,11 +17,11 @@ import harness.x10Test;
 public class BenchmarkAteach extends x10Test {
 
 	public def run(): Boolean = {
-        val a = DistArray.make[Int](Dist.makeUnique(Place.places));
+        val a = DistArray.make[Int](Dist.makeUnique());
 
         val start = System.nanoTime();
         finish {
-            ateach (p in a) {
+            ateach (p in a.dist) {
                 a(p) = here.id;
             }
         }

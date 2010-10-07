@@ -33,6 +33,23 @@ public class X10Throwable extends java.lang.RuntimeException implements Any {
         super(message, cause);
     }
 
+    // XTENLANG-1858: every Java class that could be an (non-static) inner class must have constructors with the outer instance parameter
+    public X10Throwable(Object out$) {
+        super();
+    }
+
+    public X10Throwable(Object out$, String message) {
+        super(message);
+    }
+
+    public X10Throwable(Object out$, java.lang.Throwable cause) {
+        super(cause);
+    }
+
+    public X10Throwable(Object out$, String message, java.lang.Throwable cause) {
+        super(message, cause);
+    }
+
     static public X10Throwable getCorrespondingX10Exception(java.lang.RuntimeException e) {
         String newExcName = "x10.lang.RuntimeException";
         if (e instanceof java.lang.ArithmeticException) {
@@ -54,10 +71,14 @@ public class X10Throwable extends java.lang.RuntimeException implements Any {
         }
 
         try {
-            return (X10Throwable)(Class.forName(newExcName).newInstance());
+            X10Throwable t = (X10Throwable) Class.forName(newExcName).getConstructor(new Class[] { String.class }).newInstance(new Object[] { e.getMessage() });
+            t.setStackTrace(e.getStackTrace());
+            return t;
         } catch (java.lang.ClassNotFoundException e1) {
         } catch (java.lang.InstantiationException e2) {
         } catch (java.lang.IllegalAccessException e3) {
+        } catch (java.lang.NoSuchMethodException e4) {
+        } catch (java.lang.reflect.InvocationTargetException e5) {
         }
         throw new java.lang.Error();
     }
@@ -71,12 +92,14 @@ public class X10Throwable extends java.lang.RuntimeException implements Any {
         }
 
         try {
-            X10Throwable t = (X10Throwable)(Class.forName(newExcName).newInstance());
+            X10Throwable t = (X10Throwable) Class.forName(newExcName).getConstructor(new Class[] { String.class }).newInstance(new Object[] { e.getMessage() });
             t.setStackTrace(e.getStackTrace());
             return t;
         } catch (java.lang.ClassNotFoundException e1) {
         } catch (java.lang.InstantiationException e2) {
         } catch (java.lang.IllegalAccessException e3) {
+        } catch (java.lang.NoSuchMethodException e4) {
+        } catch (java.lang.reflect.InvocationTargetException e5) {
         }
         throw new java.lang.Error();
     }

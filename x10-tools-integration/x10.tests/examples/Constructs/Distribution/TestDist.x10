@@ -263,11 +263,11 @@ abstract public class TestDist extends x10Test {
         val a = new Array[double](d.region, init);
 
         val ps = d.places();
-        for (var i: int = 0; i<ps.length; i++) {
-            val r: Region = d.get(ps(i));
+        for (z in ps) {
+            val r: Region = d.get(z);
             for (p:Point(r.rank) in r) {
                 val q = p as Point(a.region.rank);
-                a(q) = a(q) + ps(i).id + 1;
+                a(q) = a(q) + z.id + 1;
             }
         }
         prArray1(a, false);

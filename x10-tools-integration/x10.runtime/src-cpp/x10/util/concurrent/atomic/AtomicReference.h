@@ -72,9 +72,9 @@ namespace x10 {
 
                     void set(T val);
 
-                    T compareAndSet(T oldVal, T newVal);
+                    x10_boolean compareAndSet(T oldVal, T newVal);
                     
-                    T weakCompareAndSet(T oldVal, T newVal);
+                    x10_boolean weakCompareAndSet(T oldVal, T newVal);
 
                     T getAndSet(T val);
 
@@ -106,16 +106,14 @@ namespace x10 {
                     _data = tmp;
                 }
 
-                template<class T> T AtomicReference<T>::compareAndSet(T oldVal, T newVal) {
+                template<class T> x10_boolean AtomicReference<T>::compareAndSet(T oldVal, T newVal) {
                     x10::lang::Object *oldValPtr = oldVal.operator->(); /* Does two things: gets backing S* ptr from ref<S> and upcasts S* to Object* */
                     x10::lang::Object *newValPtr = newVal.operator->(); /* Does two things: gets backing S* ptr from ref<S> and upcasts S* to Object* */
                     x10::lang::Object *res = (x10::lang::Object *)x10aux::atomic_ops::compareAndSet_ptr((volatile void**)&_data, (void*)oldValPtr, (void*)newValPtr);
-                    x10aux::ref<x10::lang::Object> res2 = res; /* boxes to ref */
-                    T res3 = res2; /* downcast from ref<Object> to T (ref<S>) */
-                    return res3;
+                    return res == oldValPtr;
                 }
 
-                template<class T> T AtomicReference<T>::weakCompareAndSet(T oldVal, T newVal) {
+                template<class T> x10_boolean AtomicReference<T>::weakCompareAndSet(T oldVal, T newVal) {
                     // TODO: for minor optimization on ppc we could add a weakCompareAndSet_ptr in atomic_ops and use that here
                     return compareAndSet(oldVal, newVal);
                 }
@@ -143,18 +141,25 @@ namespace x10 {
                 template<class T> void
                 AtomicReference<T>::_serialize_body(x10aux::serialization_buffer &buf) {
                     this->Object::_serialize_body(buf);
+                    x10::lang::Object* tmp = (x10::lang::Object*)_data; /* drops volatile */
+                    x10aux::ref<x10::lang::Object> tmp2 = tmp; /* boxes to ref */
+                    T tmp3 = tmp2; /* downcast from ref<Object> to T (ref<S) */
+                    buf.write(tmp3);
                 }
 
                 template<class T> void
                 AtomicReference<T>::_deserialize_body(x10aux::deserialization_buffer& buf) {
                     this->Object::_deserialize_body(buf);
+                    T tmp = buf.read<T>();
+                    x10::lang::Object *tmp2 = tmp.operator->(); /* Does two things: gets backing S* ptr from ref<S> and upcasts S* to Object* */
+                    _data = tmp2;
                 }
 
                 template<class T> template<class U> x10aux::ref<U>
                 AtomicReference<T>::_deserializer(x10aux::deserialization_buffer &buf) {
                     x10aux::ref<AtomicReference<T> > this_ =
                         new (x10aux::alloc<AtomicReference<T> >()) AtomicReference<T> ();
-                    buf.record_reference(this_); // TODO: avoid; no global refs; final class
+                    buf.record_reference(this_);
                     this_->_deserialize_body(buf);
                     return this_;
                 }
