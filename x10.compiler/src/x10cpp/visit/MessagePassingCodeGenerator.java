@@ -1030,7 +1030,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    for (Node tn : typeNodesAndClosures) {
 		        if (tn instanceof X10CanonicalTypeNode_c) {
 		            X10CanonicalTypeNode_c t = (X10CanonicalTypeNode_c) tn;
-		            extractAllClassTypes(t.type(), types, dupes);
+		            Type tt = t.type();
+                    if (tt.isClass() && tt.toClass().isAnonymous()) {
+                        ClassType c = tt.toClass();
+                        assert (c.interfaces().size() == 1);
+                        tt = c.interfaces().get(0);
+                    }
+		            extractAllClassTypes(tt, types, dupes);
 		        } else if (tn instanceof Closure_c) {
                     Closure_c t = (Closure_c) tn;
 		            ClassType c = t.type().toClass();
