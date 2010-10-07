@@ -1438,10 +1438,11 @@ class TestVarAccessInClosures {
 
 
 class TestOnlyLocalVarAccess {
-	// for some reason, the origin of "frame" is null. I couldn't reproduce it...
+	// for some reason, the origin of "frame" is null. I couldn't reproduce it... see XTENLANG-1902
 	//C:\cygwin\home\Yoav\intellij\sourceforge\x10.runtime\src-x10\x10\compiler\ws\Worker.x10:86,18-22
 	//Message: Semantic Error: Local variable "frame" is accessed at a different place, and must be declared final.
 	var i:Int;
+	static def testInferReturnType()=test0(null);
 	static def test0(var b:TestOnlyLocalVarAccess) {
 		b.i++;
 	}
@@ -1563,3 +1564,12 @@ class TestGlobalRefHomeAt { // see http://jira.codehaus.org/browse/XTENLANG-1905
 	}
 	def use(x:Any) {}
 }
+
+class A[T,U] {
+    def foo(x:T,y:U, z:String):void {}
+}
+class B extends A[String,String] {
+    def foo(x:String,y:String, z:String):Int { return 1; } // ERR: foo(x: x10.lang.String, y: x10.lang.String, z: x10.lang.String): x10.lang.Int in B cannot override foo(x: x10.lang.String, y: x10.lang.String, z: x10.lang.String): x10.lang.Void in A[x10.lang.String, x10.lang.String]; attempting to use incompatible return type.
+	// B.foo(String,String,String) cannot override A.foo(T,U,String); attempting to use incompatible return type.  found: int required: void
+}
+

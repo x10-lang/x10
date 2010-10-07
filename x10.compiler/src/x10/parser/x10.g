@@ -1688,8 +1688,10 @@
         ./
                  | new TypeName '[' Type ']' '[' ArgumentListopt ']'
         /.$BeginJava
-               TypeNode array = TypeName.toType();
-               setResult(nf.ArrayLiteral(pos(), TypeName.toType(), Type, nf.Tuple(pos(), ArgumentListopt)));
+                    String arrayTypeName = TypeName.name.id().toString();
+                    if (! (arrayTypeName.equals("x10.array.Array") || arrayTypeName.equals("Array")))
+                        syntaxError(new Errors.ArrayLiteralMustBeOfArrayType(arrayTypeName, TypeName.pos).getMessage(),TypeName.pos);
+                    setResult(nf.Tuple(pos(), Type, ArgumentListopt));
           $EndJava
         ./
                                       | Primary . new Identifier TypeArgumentsopt ( ArgumentListopt ) ClassBodyopt

@@ -102,6 +102,7 @@ import polyglot.parse.VarDeclarator;
 import polyglot.types.Flags;
 import x10.types.X10Flags;
 import x10.types.checker.Converter;
+import x10.errors.Errors;
 import polyglot.types.TypeSystem;
 import polyglot.util.CollectionUtil;
 import polyglot.util.ErrorInfo;
@@ -2361,8 +2362,10 @@ public class X10Parser implements RuleAction, Parser, ParseErrorCodes
                 //#line 1689 "x10/parser/x10.g"
                 List<Expr> ArgumentListopt = (List<Expr>) getRhsSym(7);
                 //#line 1691 "lpg.generator/templates/java/btParserTemplateF.gi"
-           TypeNode array = TypeName.toType();
-           setResult(nf.ArrayLiteral(pos(), TypeName.toType(), Type, nf.Tuple(pos(), ArgumentListopt)));
+                String arrayTypeName = TypeName.name.id().toString();
+                if (! (arrayTypeName.equals("x10.array.Array") || arrayTypeName.equals("Array")))
+                    syntaxError(new Errors.ArrayLiteralMustBeOfArrayType(arrayTypeName, TypeName.pos).getMessage(),TypeName.pos);
+                setResult(nf.Tuple(pos(), Type, ArgumentListopt));
                       break;
             }
     
