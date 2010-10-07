@@ -17,14 +17,14 @@ import x10.lang.annotations.ClassAnnotation;
  * Annotation to mark classes as having a particular native representation.
  * lang is the name of the language, typically "java" or "c++".
  * <dl><lh>For Java:</lh>
- *     <dt>type</dt><dd>the type of the native representation of T.</dd>
+ *     <dt>referencedType</dt><dd>the type of the native representation of T.</dd>
  *     <dt>constructedType</dt><dd><b>unused</b>.</dd>
  *     <dt>rtt</dt><dd>an expression that returns the runtime type for T.</dd>
  * </dl>
  * <dl><lh>For C++:</lh>
- *     <dt>type</dt><dd>the type of the native representation of T when referenced.</dd>
+ *     <dt>referencedType</dt><dd>the type of the native representation of T when referenced.</dd>
  *     <dt>constructedType</dt><dd>the type of the native representation of T when constructed.</dd>
  *     <dt>rtt</dt><dd><b>unused</b>.</dd>
  * </dl>
  */ 
-public interface NativeRep(lang: String, type: String, constructedType: String, rtt: String) extends ClassAnnotation { }
+public interface NativeRep(lang: String, referencedType: String, constructedType: String, rtt: String) extends ClassAnnotation { }
