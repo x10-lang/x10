@@ -134,12 +134,13 @@ else
       override CXXFLAGS += -maix64
       override CXXFLAGS_SHARED += -shared -fPIC -Wl,-bbigtoc -Wl,-G
       override LDFLAGS += -Wl,-brtl
+      export X10RT_TEST_LDFLAGS = -Wl,-L$(X10_HOME)/x10.runtime/x10rt/lib
     endif
     ifdef USE_XLC
       export X10RT_PLATFORM=aix_xlc
       override CXXFLAGS += -qrtti=all
       override CXXFLAGS_SHARED += -qpic=large
-      override LDFLAGS_SHARED += -bnoentry -G -bbigtoc -llapi_r -lpthreads -lm -lptools_ptr
+      override LDFLAGS_SHARED += -bnoentry -G -bbigtoc -lpthreads -lm -lptools_ptr
       override LDFLAGS += -brtl
       ifeq ($(AR),ar) # use AIX default ar
         AR = /usr/bin/ar
