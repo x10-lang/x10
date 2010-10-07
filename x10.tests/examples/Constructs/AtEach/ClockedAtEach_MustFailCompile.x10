@@ -16,25 +16,20 @@ import harness.x10Test;
  * Simplified kernel of the HeatTransfer_v5 program.
  * 
  */
-public class ClockedAtEach extends x10Test {
+public class ClockedAtEach_MustFailCompile extends x10Test {
 
     public def run():boolean {
         clocked finish {
             val D_Base = Dist.makeUnique();
             val P = 4;
             clocked ateach (z in D_Base)  {
-//          saying it like this works. Suspect desugaring is wrong.
-//          for (z in D_Base) clocked async at (D_Base(z)) {
-                for ([q] in 0..P-1) clocked async {
-                    next;
-                    next;
-                }
+                next;
             }
         }
-       return true;
+        return true;
     }
 
     public static def main(Array[String](1))  {
-        new ClockedAtEach().execute();
+        new ClockedAtEach_MustFailCompile().execute();
     }
 }
