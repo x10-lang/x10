@@ -83,10 +83,8 @@ public class X10Local_c extends Local_c {
             // we check that usages inside an "at" are at the origin place if it is a "var" (for "val" we're fine)
             final X10LocalDef_c localDef_c = (X10LocalDef_c) li.def();
             XTerm origin = localDef_c.placeTerm();
-            // todo: weird bug where origin was null for:
-            //C:\cygwin\home\Yoav\intellij\sourceforge\x10.runtime\src-x10\x10\compiler\ws\Worker.x10:86,18-22
-            //Message: Semantic Error: Local variable "frame" is accessed at a different place, and must be declared final.
-
+            // origin maybe null when typechecking a method to get the return type (see XTENLANG-1902)
+            // but we will type check that method again later (with correct placeTerm)
             if (origin!=null) { // origin = PlaceChecker.here();
                 final XConstrainedTerm placeTerm = context.currentPlaceTerm();
                 final XTerm currentPlace = placeTerm.term();

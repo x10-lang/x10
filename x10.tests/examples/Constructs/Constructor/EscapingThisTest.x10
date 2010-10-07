@@ -1515,11 +1515,13 @@ class TestOnlyLocalVarAccess {
 
 }
 
+
 class TestGlobalRefHomeAt { // see http://jira.codehaus.org/browse/XTENLANG-1905
-	def test() {	
-		val r = GlobalRef(this);
-		val r2 = r;
-		val r3 = GlobalRef(this);
+	def test() {
+		val p = here;
+		val r:GlobalRef[TestGlobalRefHomeAt]{home==p} = GlobalRef[TestGlobalRefHomeAt](this);
+		val r2:GlobalRef[TestGlobalRefHomeAt]{home==p} = r;
+		val r3:GlobalRef[TestGlobalRefHomeAt]{home==p} = GlobalRef[TestGlobalRefHomeAt](this);
 
 		use(r());
 		use(r2());
@@ -1527,7 +1529,7 @@ class TestGlobalRefHomeAt { // see http://jira.codehaus.org/browse/XTENLANG-1905
 
 		at (r.home()) {
 			use(r()); 
-			use(r2()); 
+			use(r2()); // todo ERR
 			use(r3()); // todo ERR
 		}
 		at (r2.home()) {
@@ -1547,7 +1549,7 @@ class TestGlobalRefHomeAt { // see http://jira.codehaus.org/browse/XTENLANG-1905
 			
 			at (r.home()) {
 				use(r()); 
-				use(r2()); 
+				use(r2()); // todo ERR
 				use(r3()); // todo ERR
 			}
 			at (r2.home()) {
@@ -1565,10 +1567,10 @@ class TestGlobalRefHomeAt { // see http://jira.codehaus.org/browse/XTENLANG-1905
 	def use(x:Any) {}
 }
 
-class A[T,U] {
+class A564[T,U] {
     def foo(x:T,y:U, z:String):void {}
 }
-class B extends A[String,String] {
+class B564 extends A564[String,String] {
     def foo(x:String,y:String, z:String):Int { return 1; } // ERR: foo(x: x10.lang.String, y: x10.lang.String, z: x10.lang.String): x10.lang.Int in B cannot override foo(x: x10.lang.String, y: x10.lang.String, z: x10.lang.String): x10.lang.Void in A[x10.lang.String, x10.lang.String]; attempting to use incompatible return type.
 	// B.foo(String,String,String) cannot override A.foo(T,U,String); attempting to use incompatible return type.  found: int required: void
 }

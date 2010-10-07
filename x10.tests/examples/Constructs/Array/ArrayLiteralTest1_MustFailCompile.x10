@@ -22,13 +22,44 @@ public class ArrayLiteralTest1_MustFailCompile extends x10Test {
         val e = 0..9;
         val r = [1, 2, 3];
         val a = new Array[Int{self!=0}][
-                                        0, // this should give a compilation error.
+                                        0, // ERR: The literal is not of the given type
                                         1,2,3];
         var sumr:int=0, suma:int=0;
         for (i in a.values()) suma += i;
         for (i in r.values()) sumr +=i;
         return suma==6 && sumr==6;
     }
+
+
+	def test() {
+		// size&dimension is inferred correctly for: new Array[XX][YYY]
+		val a10 = new Array[Int][1,2,3];
+		val a11:Array[Int] = new Array[Int][1,2,3];
+		val a12:Array[Int](1) = new Array[Int][1,2,3];
+		val a13:Array[Int](1){size==3} = new Array[Int][1,2,3];
+		val a2:Array[A](1){size==3} = new Array[Int][1,2,3]; // ERR: Cannot assign expression to target.
+		val a3:Array[Int](2){size==3} = new Array[Int][1,2,3]; // ERR: Cannot assign expression to target.
+		val a4:Array[Int](1){size==4} = new Array[Int][1,2,3]; // ERR: Cannot assign expression to target.
+
+		val b:Array[A] = new Array[A][new A()];
+		val b1:Array[A](1){size==1} = new Array[A][new A()];
+	}	
+	def test2() {
+		// size&dimension is inferred correctly for: [YYY]
+		val a10 = [1,2,3];
+		val a11:Array[Int] = [1,2,3];
+		val a12:Array[Int](1) = [1,2,3];
+		val a13:Array[Int](1){size==3} = [1,2,3];
+		val a2:Array[A](1){size==3} = [1,2,3]; // ERR: Cannot assign expression to target.
+		val a3:Array[Int](2){size==3} = [1,2,3]; // ERR: Cannot assign expression to target.
+		val a4:Array[Int](1){size==4} = [1,2,3]; // ERR: Cannot assign expression to target.
+
+		val b:Array[A] = [new A()];
+		val b1:Array[A](1){size==1} = [new A()];		
+	}
+
+	static class A {}
+
 
     public static def main(Array[String](1)): Void = {
         new ArrayLiteralTest1_MustFailCompile().execute();

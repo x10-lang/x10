@@ -1846,30 +1846,6 @@
                     setResult(nf.DepParameterExpr(pos(), ExistentialListopt, Conjunctionopt));
           $EndJava
         ./
-                    | ! PlaceType
-         /.$BeginJava
-                    Expr placeClause = nf.Call(pos(), nf.Self(pos()), nf.Id(pos(), "at"), PlaceType);
-                    setResult(nf.DepParameterExpr(pos(), null, Collections.singletonList(placeClause)));
-          $EndJava
-        ./
-                    | ! 
-         /.$BeginJava
-                    Expr placeClause = nf.Call(pos(), nf.Self(pos()), nf.Id(pos(), "at"), nf.AmbHereThis(pos()));
-                    setResult(nf.DepParameterExpr(pos(), null, Collections.singletonList(placeClause)));
-          $EndJava
-        ./
-                    | ! PlaceType { ExistentialListopt Conjunction } 
-         /.$BeginJava
-                    Expr placeClause = nf.Call(pos(), nf.Self(pos()), nf.Id(pos(), "at"), PlaceType);
-                    setResult(nf.DepParameterExpr(pos(), ExistentialListopt, CollectionUtil.append(Conjunction, Collections.singletonList(placeClause))));
-          $EndJava
-        ./
-                    | ! { ExistentialListopt Conjunction } 
-         /.$BeginJava
-                    Expr placeClause = nf.Call(pos(), nf.Self(pos()), nf.Id(pos(), "at"), nf.AmbHereThis(pos()));
-                    setResult(nf.DepParameterExpr(pos(), ExistentialListopt, CollectionUtil.append(Conjunction, Collections.singletonList(placeClause))));
-          $EndJava
-        ./
 
 
     TypeParamsWithVariance ::= '[' TypeParamWithVarianceList ']'
