@@ -70,7 +70,7 @@ public class HeatTransfer_v5 {
             val D_Base = Dist.makeUnique(D.places());
             val diff = DistArray.make[Double](D_Base);
             val scratch = DistArray.make[Double](D_Base);
-            clocked ateach (z in D_Base)  {
+            for (z in D_Base) clocked async at (D_Base(z)) {
                 val blocks:Rail[Iterable[Point(2)]] = blockIt(D | here, P);
                 for ([q] in 0..P-1) clocked async {
                     var myDiff:Double;
