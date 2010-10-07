@@ -963,7 +963,11 @@ public class LineNumberMap extends StringTable {
         }
         
         if (localVariables != null)
+        {
         	w.writeln("_X10variableNameList,");
+        	localVariables.clear();
+        	localVariables = null;
+        }
         else
         	w.writeln("NULL,");
         if (memberVariables != null)
