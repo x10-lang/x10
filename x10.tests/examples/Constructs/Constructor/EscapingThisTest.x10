@@ -1507,9 +1507,59 @@ class TestOnlyLocalVarAccess {
         var n: int = 1;
 		at (here) n=2;
 		finish ateach ([i] in a.dist | 
-			(0..n)) { // todo ERR: it shouldn't give an error!
+			(0..n)) { // checks XTENLANG-1902
 			n++; // ERR: Local variable "n" is accessed at a different place, and must be declared final.
 		}
 	}
 
+}
+
+class TestGlobalRefHomeAt { // see http://jira.codehaus.org/browse/XTENLANG-1905
+	def test() {	
+		val r = GlobalRef(this);
+		val r2 = r;
+		val r3 = GlobalRef(this);
+
+		use(r());
+		use(r2());
+		use(r3());
+
+		at (r.home()) {
+			use(r()); 
+			use(r2()); 
+			use(r3()); // todo ERR
+		}
+		at (r2.home()) {
+			use(r()); // todo ERR
+			use(r2()); 
+			use(r3());// todo ERR
+		}
+		at (r3.home()) {
+			use(r()); // todo ERR
+			use(r2()); // todo ERR
+			use(r3());
+		}
+		at (here.next()) {
+			use(r()); // ERR
+			use(r2()); // ERR
+			use(r3()); // ERR			
+			
+			at (r.home()) {
+				use(r()); 
+				use(r2()); 
+				use(r3()); // todo ERR
+			}
+			at (r2.home()) {
+				use(r()); // todo ERR
+				use(r2()); 
+				use(r3());// todo ERR
+			}
+			at (r3.home()) {
+				use(r()); // todo ERR
+				use(r2()); // todo ERR
+				use(r3());
+			}
+		}
+	}
+	def use(x:Any) {}
 }

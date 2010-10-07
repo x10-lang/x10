@@ -86,8 +86,9 @@ public class AtEach_c extends X10ClockedLoop_c implements AtEach, Clocked {
 				XTerm term = PlaceChecker.makePlace();
 				placeTerm = XConstrainedTerm.instantiate(d, term);
 			}
-				
-			xc = (X10Context) xc.pushPlace(placeTerm);
+
+            if (child == body)
+                xc = (X10Context) xc.pushPlace(placeTerm);
 		} 
 		catch (XFailure z) {
 			throw new InternalCompilerError("Cannot construct placeTerm from  term  and constraint.");

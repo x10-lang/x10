@@ -202,7 +202,7 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
 			X10Context xc = (X10Context) c;
 			if (child == body) {
 				if (placeTerm != null)
-					c = ((X10Context) c).pushPlace(placeTerm);
+					c = xc.pushPlace(placeTerm);
 			}
 			addDecls(c);
 		}
