@@ -117,6 +117,7 @@
     import polyglot.types.Flags;
     import x10.types.X10Flags;
     import x10.types.checker.Converter;
+    import x10.errors.Errors;
     import polyglot.types.TypeSystem;
     import polyglot.util.CollectionUtil;
     import polyglot.util.ErrorInfo;
@@ -1846,30 +1847,6 @@
                     setResult(nf.DepParameterExpr(pos(), ExistentialListopt, Conjunctionopt));
           $EndJava
         ./
-                    | ! PlaceType
-         /.$BeginJava
-                    Expr placeClause = nf.Call(pos(), nf.Self(pos()), nf.Id(pos(), "at"), PlaceType);
-                    setResult(nf.DepParameterExpr(pos(), null, Collections.singletonList(placeClause)));
-          $EndJava
-        ./
-                    | ! 
-         /.$BeginJava
-                    Expr placeClause = nf.Call(pos(), nf.Self(pos()), nf.Id(pos(), "at"), nf.AmbHereThis(pos()));
-                    setResult(nf.DepParameterExpr(pos(), null, Collections.singletonList(placeClause)));
-          $EndJava
-        ./
-                    | ! PlaceType { ExistentialListopt Conjunction } 
-         /.$BeginJava
-                    Expr placeClause = nf.Call(pos(), nf.Self(pos()), nf.Id(pos(), "at"), PlaceType);
-                    setResult(nf.DepParameterExpr(pos(), ExistentialListopt, CollectionUtil.append(Conjunction, Collections.singletonList(placeClause))));
-          $EndJava
-        ./
-                    | ! { ExistentialListopt Conjunction } 
-         /.$BeginJava
-                    Expr placeClause = nf.Call(pos(), nf.Self(pos()), nf.Id(pos(), "at"), nf.AmbHereThis(pos()));
-                    setResult(nf.DepParameterExpr(pos(), ExistentialListopt, CollectionUtil.append(Conjunction, Collections.singletonList(placeClause))));
-          $EndJava
-        ./
 
 
     TypeParamsWithVariance ::= '[' TypeParamWithVarianceList ']'
@@ -2469,20 +2446,6 @@
                                  Statement));
           $EndJava
         ./   
-         | clocked ateach ( LoopIndex in Expression ) Statement
-        /.$BeginJava
-                    FlagsNode fn = LoopIndex.flags();
-                    if (! fn.flags().isFinal()) {
-                        syntaxError("Enhanced ateach loop may not have var loop index" + LoopIndex, LoopIndex.position());
-                        fn = fn.flags(fn.flags().Final());
-                        LoopIndex = LoopIndex.flags(fn);
-                    }
-                    setResult(nf.AtEach(pos(),
-                                 LoopIndex,
-                                 Expression,
-                                 Statement));
-          $EndJava
-        ./
      | ateach ( Expression ) Statement
         /.$BeginJava
                     Id name = nf.Id(pos(), Name.makeFresh());
@@ -2491,16 +2454,6 @@
                             nf.X10Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), type, name, null, true),
                             Expression,
                             new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false),
-                            Statement));
-          $EndJava
-        ./ 
-         | clocked ateach ( Expression ) Statement
-        /.$BeginJava
-                    Id name = nf.Id(pos(), Name.makeFresh());
-                    TypeNode type = nf.UnknownTypeNode(pos());
-                    setResult(nf.AtEach(pos(),
-                            nf.X10Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), type, name, null, true),
-                            Expression,
                             Statement));
           $EndJava
         ./ 
