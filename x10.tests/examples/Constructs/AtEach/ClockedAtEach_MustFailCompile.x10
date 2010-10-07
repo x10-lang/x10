@@ -12,9 +12,7 @@
 import harness.x10Test;
 
 /**
- * Testing for clocked asyncs inside of a clocked ateach.
- * Simplified kernel of the HeatTransfer_v5 program.
- * 
+ * clocked ateach is not a valid construct
  */
 public class ClockedAtEach_MustFailCompile extends x10Test {
 
